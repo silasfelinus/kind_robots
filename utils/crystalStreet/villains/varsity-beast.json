@@ -384,6 +384,270 @@
         ]
       },
       {
+        "id": "varsity-beast-pizza-surfing",
+        "title": "Surfin' Route 49",
+        "place": "Route 49 in Lyle's Pizza delivery van, after midnight",
+        "text": "You catch a ride home from the late session at Pump Iron in Lyle's Pizza delivery van, sitting on a stack of flat boxes, when something lands on the roof hard enough to dent it. In the side mirror a huge furry shape is crouched on top of the giant fiberglass pizza, letterman jacket flapping, arms out like a surfer, howling at the moon. Behind you a Camaro full of linebackers is honking and chanting, \"WOLF! WOLF! WOLF!\" Lyle grips the wheel. \"Kid,\" he says carefully, \"there's a werewolf on my pizza.\"",
+        "art": "A pizza delivery van speeding down a moonlit country highway with a giant fiberglass pizza on its roof, a huge wolf in a torn letterman jacket surfing on top with arms spread, a muscle car full of cheering football players chasing behind",
+        "choices": [
+          {
+            "id": "surf-with-him",
+            "label": "Climb out the window and surf the pizza with him",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You haul yourself up and get your feet under you on the fiberglass pepperoni. The Beast looks at you, startled, then grins with way too many teeth. You surf Route 49 side by side, arms out, wind roaring, and for one stupid, glorious mile he is laughing, a real teenage laugh, with nobody keeping score. At the Glimmer Falls exit he leaps off into the orchards, still laughing.",
+              "art": "A teenager and a huge laughing wolf in a letterman jacket surfing side by side on a giant fiberglass pizza atop a speeding van, arms out, a full moon and orchards rushing past",
+              "effects": {
+                "nerve": 2,
+                "flags": ["varsity-surfed"]
+              }
+            },
+            "failure": {
+              "text": "You get one knee on the roof and the van hits a pothole. You spend the next mile hugging the giant fiberglass pizza like a koala while the Beast howls in your ear and the linebackers behind you take bets. Lyle drops you at home windblown and green, with pizza sauce somehow in your hair.",
+              "art": "A windblown teenager clinging to a giant fiberglass pizza on a speeding van roof like a koala, a howling wolf in a letterman jacket crouched beside them, football players cheering from a muscle car behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "ease-onto-the-shoulder",
+            "label": "Talk Lyle into easing onto the shoulder, slow and steady",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "\"Signal, brake gently, easy does it,\" you coach, and Lyle rolls onto the gravel shoulder like he's delivering a wedding cake. The Camaro roars past, booing. With the chanting gone, the shape on the roof goes quiet. You hear a soft thump, claws on gravel, and then a voice that is almost Brick's says, \"Thanks for the ride,\" from the dark of the orchard.",
+              "art": "A pizza delivery van parked on a gravel road shoulder at night, a muscle car's taillights disappearing ahead, a large wolf shape loping quietly into a moonlit orchard, a teenager leaning out the passenger window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Lyle panics and stomps the brakes. The Beast sails off the roof, lands on all fours in the headlights and turns, eyes stadium white. The linebackers pile out of the Camaro cheering, the Beast charges the noise, and everyone scatters into a pumpkin patch, you included.",
+              "art": "A huge wolf in a torn letterman jacket landing on all fours in the glare of van headlights, glowing white eyes, teenagers and football players scattering into a moonlit pumpkin patch",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "shout-to-the-roof",
+            "label": "Lean out the window and yell that he doesn't have to win this one",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "varsity-timeout",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Hey! You don't have to show them anything!\" you yell over the wind. \"It's just a ride!\" The howling stops. The Beast hunkers down on the pizza, and you swear its ears go soft. When the Camaro swerves past chanting, it doesn't even turn its head. At a red light it slides down the windshield, gives Lyle a sheepish little wave and lopes off.",
+              "art": "A wolf in a letterman jacket sliding sheepishly down the windshield of a pizza van at a red light, waving one huge paw at a startled driver, a teenager grinning from the passenger window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-just-a-ride"]
+              }
+            },
+            "failure": {
+              "text": "The wind steals every word. All the Beast hears is the Camaro chanting, so it gives them a show: it rips the fiberglass pizza clean off the roof and hurls it like a discus into a cow pasture. The linebackers go wild. Lyle weeps a little.",
+              "art": "A huge wolf in a letterman jacket hurling a giant fiberglass pizza like a discus off a speeding van into a moonlit cow pasture, football players whooping from a muscle car, startled cows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "varsity-beast-howling-deal",
+        "title": "The Howling Deal of the Year",
+        "place": "Delaney Motors on Route 49, a midnight commercial shoot",
+        "text": "Duke Delaney is filming a TV spot at midnight on his car lot, under strings of pennant flags, beside a waving inflatable tube man and a giant cardboard cutout of himself giving a thumbs-up. \"Delaney men never back down!\" he bellows at the camera, take after take. His son is supposed to be in the next shot. Instead you find Brick locked in the showroom restroom, shaving his forearms with his father's electric razor while the fur grows back faster than he can cut it. \"I can't go out there,\" he whispers through the door. \"Not like this.\"",
+        "art": "A used car lot at midnight under floodlights and strings of pennant flags, a waving inflatable tube man, a giant cardboard cutout of a grinning salesman, a broad man shouting at a film camera, a showroom restroom door glowing at the back",
+        "choices": [
+          {
+            "id": "talk-through-the-door",
+            "label": "Sit down outside the door and tell him he's allowed to skip it",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "varsity-sat-with-brick",
+              "amount": 1
+            },
+            "success": {
+              "text": "You sit on the cold showroom tile with your back against the door and tell him the truth: the commercial doesn't need him, and a guy can say no to his dad. The razor stops buzzing. After a long while, Brick laughs, wet and shaky. \"He's gonna be so mad.\" \"Probably,\" you say. Through the crack under the door, you watch the fur on his knuckles settle back into skin.",
+              "art": "A teenager sitting on showroom floor tiles with their back against a restroom door, a sliver of light under the door showing a big hand with fur fading back to skin, shiny new cars gleaming in the dark showroom",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-said-no"]
+              }
+            },
+            "failure": {
+              "text": "\"You don't get it,\" Brick growls, and the growl isn't his. The razor clatters into the sink. The restroom door bulges on its hinges, and out on the lot Duke yells, \"Brick! You're up, son!\" The howl that answers him shakes every pennant flag on Route 49.",
+              "art": "A restroom door bulging on its hinges in a dark car showroom, claw tips curling around its edge, a dropped electric razor on the tiles, pennant flags whipping on the floodlit lot outside",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wolf-suit",
+            "label": "Put on the lot's old wolf-mascot suit and do the commercial yourself",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "Delaney Motors happens to own a moth-eaten wolf suit from a 1979 promotion, and you happen to have zero shame. You burst onto the lot howling, slide across the hood of a station wagon and bellow, \"Deals so good they're HOWLING!\" The camera crew loses it. Duke, baffled, keeps the take. In the restroom, Brick laughs so hard he forgets to turn into anything.",
+              "art": "A teenager in a moth-eaten wolf mascot costume sliding across the hood of a station wagon on a floodlit car lot, a camera crew doubled over laughing, a baffled broad salesman in a blazer",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Halfway through your hood slide, the wolf head pops off and rolls across the lot, and Duke stops the shoot to scream at everyone about professionalism. The louder he gets, the louder the restroom door rattles, until it gives and something huge crashes out through the showroom's back door.",
+              "art": "A mascot wolf head rolling across a floodlit car lot, a red-faced salesman yelling at a film crew, a huge shadowy wolf crashing out the back door of a car showroom",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "kill-the-generator",
+            "label": "Sneak behind the camera van and kill the floodlights",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You find the generator behind the camera van and flip it off. The lot drops into darkness, the tube man sags over like it fainted, and Duke spends twenty minutes yelling at a generator. That's all Brick needs. He slips out the restroom window and away down the drainage ditch, and he looks back at you once, in the dark, still mostly a boy.",
+              "art": "A dark car lot with a sagging inflatable tube man slumped over, a salesman yelling at a silent generator, a tall teenage boy with furry forearms slipping out a small restroom window into a ditch",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You trip over the cables and yank the cardboard Duke face down onto the camera. The real Duke turns, sees you sprawled on the asphalt, and the floodlights swing your way. The whole crew chases you off the lot, and behind you something in the showroom starts howling along with the car alarms.",
+              "art": "A teenager sprawled on asphalt tangled in camera cables beside a toppled cardboard salesman cutout, floodlights swinging toward them, a film crew charging, car alarms flashing across the lot",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "varsity-beast-torches-and-pitchforks",
+        "title": "Torches and Pitchforks",
+        "place": "The edge of Crystal Woods, behind the quarry, after dark",
+        "text": "The Glimmer Falls Booster Club has decided to handle the wolf problem themselves before it ruins the Monster Bowl. Forty grown men in maroon windbreakers are marching into Crystal Woods with flashlights, rakes, a borrowed hunting dog and, for some reason, the silver-plated trophy bat from the 1966 state title. Booster president Ron Stavros is out front, shouting about real men protecting their town. You know who they are hunting. So does the shaking, furry shape curled up in the drainage culvert at your feet.",
+        "art": "A line of men in maroon windbreakers marching into dark woods with flashlights, rakes and a silver trophy bat, a hound straining on a leash, in the foreground a teenager crouched beside a drainage culvert where a huge furry shape trembles",
+        "choices": [
+          {
+            "id": "decoy-howl",
+            "label": "Record a howl and lead the mob the wrong way",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "cassette-recorder",
+              "amount": 2
+            },
+            "success": {
+              "text": "You record your best howl, crank the volume all the way and leave the recorder playing in a hollow log a quarter mile north. The Booster Club charges after it in a stampede of windbreakers, shouting directions at each other. In the culvert, the Beast lets out a long breath that sounds exactly like a kid exhaling after a test.",
+              "art": "A tape recorder glowing inside a hollow log in dark woods, a stampede of men in maroon windbreakers with flashlights charging toward it, a teenager and a huge wolf peeking out of a culvert far behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your howl comes out like a sick goose. The hunting dog knows the difference instantly and drags Ron Stavros straight toward the culvert, so you grab the Beast's huge paw and run, crashing through the brush with forty flashlights bobbing behind you.",
+              "art": "A teenager holding a huge wolf's paw sprinting through dark brush, forty flashlight beams bobbing behind them, a hound dragging a red-faced man in a maroon windbreaker",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "hold-the-line",
+            "label": "Stand in front of the culvert and tell the Booster Club to go home",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You step into the flashlight beams. Then Moose steps up beside you, all six foot four of him, knitting bag on one shoulder, and says, \"That's my quarterback. You want him, you go through the line.\" The Booster Club shuffles. Ron Stavros sputters. One by one, forty grown men remember they have work in the morning. Behind you, a soft, gruff voice says, \"Nobody ever blocked for me before.\"",
+              "art": "A teenager and a towering gentle lineman with a knitting bag standing shoulder to shoulder in flashlight beams before a drainage culvert, a crowd of men in maroon windbreakers lowering their rakes",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["varsity-blocked-for"]
+              }
+            },
+            "failure": {
+              "text": "The Booster Club laughs at you, which is worse than yelling. Ron Stavros pats you on the head and tells you to run along home. Behind you the culvert erupts, and the Beast tears off into the woods with forty flashlights and a trophy bat crashing after it.",
+              "art": "A smirking man in a maroon windbreaker patting a teenager on the head in flashlight glare, a huge wolf bursting out of a culvert behind them and bounding into the dark woods",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "crawl-in-beside-him",
+            "label": "Crawl into the culvert beside him and keep him calm until they pass",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You crawl into the cold pipe beside a seven-foot wolf and put your hand on its shaking shoulder. You breathe slowly and loudly, and after a while it breathes with you. Flashlight beams sweep across the culvert mouth and move on. By the time the woods are quiet, the shoulder under your hand is wearing a letterman jacket and belongs to a very tired seventeen-year-old.",
+              "art": "Inside a cold concrete drainage pipe, a teenager resting a hand on the shoulder of a tired quarterback in a letterman jacket, faint flashlight beams sweeping past the round opening",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The Beast panics at the first flashlight and bolts out the far end of the culvert, and you get wedged in the pipe at the shoulders. The Booster Club finds you instead, and you spend the rest of the night explaining to forty disappointed men why you were in a drainpipe.",
+              "art": "A teenager wedged at the shoulders in a concrete drainage pipe, a ring of men in maroon windbreakers shining flashlights at them with disappointed faces, a hound sniffing their sneakers",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "varsity-beast-lock-the-door",
         "title": "Lock the Door",
         "place": "The varsity locker room, the night before the Monster Bowl",

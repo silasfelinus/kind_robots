@@ -435,6 +435,271 @@
         ]
       },
       {
+        "id": "sugarlings-midnight-sing-along",
+        "title": "Sing-Along at Midnight",
+        "place": "The Glitter Box Playhouse, the midnight movie",
+        "text": "Frankie Fontaine's midnight movie tonight is a sing-along print of an old cartoon musical about a princess and seven miners, and every seat in the Glitter Box is full. Not with people. Hundreds of Sugarlings sit in the velvet rows in perfect stillness, moon eyes shining with the light of the screen, singing along in squeaky harmony. The concession stand behind you holds forty pounds of candy. One of them turns around in its seat, sees the licorice rope in your hand, and stops singing.",
+        "art": "A plush velvet theatre at midnight lit by a glowing movie screen, hundreds of round fuzzy pastel critters with huge glossy eyes filling every seat and singing, one critter turning around to stare at a teenager holding a licorice rope by the concession stand",
+        "choices": [
+          {
+            "id": "keep-the-reel-running",
+            "label": "Help Frankie keep the movie running while the crew sneaks the candy out",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "Frankie splices a snapped reel by flashlight with tape and her teeth, and the singing never misses a beat. You and the crew carry the concession candy out the stage door in armfuls, past a theatre full of rapt little faces. When the credits roll, the Sugarlings yawn, find the snack bar bare, and fall asleep in their seats like a sold-out audience of plush.",
+              "art": "A stage manager with a headset splicing film in a cramped projection booth by flashlight, through the booth window a theatre full of fuzzy critters asleep in velvet seats, teens carrying armfuls of candy out a stage door",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The reel snaps. The screen goes white. Three hundred Sugarlings turn around in their seats at once, and you are the one holding the licorice. They chase you up the aisle and out through the lobby in a pastel stampede, singing the miners' work song very, very fast.",
+              "art": "A teenager clutching licorice sprinting up a theatre aisle toward the lobby doors, a stampede of singing fuzzy pastel critters pouring over the velvet seats behind them, a blank white movie screen glowing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "lead-the-chorus",
+            "label": "Climb on stage and conduct the sing-along like it's opening night",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Glory sweeps on beside you in a sequined robe, and the two of you conduct the room like a gospel choir. The Sugarlings sing better than most people. When the song ends they applaud with tiny paws, and something strange happens: a theatre full of creatures made of wanting sits perfectly content, because they already got the thing they came for.",
+              "art": "A teenager and a drag queen in a sequined robe conducting from a theatre stage with sweeping arms, an audience of fuzzy pastel critters singing joyfully and clapping tiny paws in the velvet seats",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-sang-along"]
+              }
+            },
+            "failure": {
+              "text": "You wave your arms and the whole audience follows you, straight into the jingle. Collect them all, collect them all. By the third chorus the Sugarlings are splitting in their seats from sheer excitement, and the front row is two deep and singing to you personally.",
+              "art": "A flustered teenager on a theatre stage facing a front row of fuzzy critters stacked two deep and singing up at them, more critters splitting in two across the velvet seats behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "house-lights",
+            "label": "Throw every house light on at once",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "The lights hit like a slap of daylight. The whole audience squeals, covers its moon eyes and pours out the fire exits in a fuzzy flood, blinking and sneezing, straight into the alley dumpster, where they curl up in the dark and pout. Frankie gives you a slow, impressed whistle from the booth.",
+              "art": "Blazing theatre house lights flooding a velvet auditorium, fuzzy pastel critters squinting and covering their eyes as they pour out a fire exit into a dark alley dumpster, a teenager with a hand on a big lever",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "You throw the wrong switch. Out front, the marquee blazes on in a thousand bulbs, and every Sugarling within a mile of Crystal Street sees it. They come in off the street to catch the show. By the second feature there are more of them in the balcony than there are seats.",
+              "art": "A glowing theatre marquee blazing with bulbs over a night street, a pastel river of fuzzy critters streaming in through the lobby doors, a theatre balcony overflowing with them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "sugarlings-trick-or-treat",
+        "title": "Trick or Treat? More!",
+        "place": "Mr. Fennimore's front porch, number 3 Crystal Street, after dark",
+        "text": "You are house-sitting for Mr. Fennimore at number 3, and the doorbell keeps ringing, even though Halloween is still days away. On the porch stands a crowd of tiny trick-or-treaters in perfect little costumes, a ghost, a pirate, a pumpkin, a miniature astronaut, all knee high, pillowcases held out. \"Trick or treat!\" they squeak, and then, all together and much softer, \"More?\" You drop one candy bar into the pirate's bag. The doorbell rings again. Now there are twice as many.",
+        "art": "A glowing suburban front porch at night with a jack-o'-lantern, a crowd of knee-high fuzzy critters in tiny Halloween costumes holding out pillowcases, a ghost, a pirate, a pumpkin and an astronaut, a teenager in the doorway holding a candy bowl",
+        "choices": [
+          {
+            "id": "hand-out-raisins",
+            "label": "Raid Mr. Fennimore's pantry and hand out raisins and dental floss",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Mr. Fennimore is that neighbor, so his pantry is all little boxes of raisins and spools of dental floss. You drop one in every bag. The tiny ghost peers inside, looks up at you with betrayed moon eyes, and the whole crowd turns and toddles off the porch in disgust, muttering. You have never been prouder to be the worst house on the street.",
+              "art": "A smug teenager on a porch dropping tiny raisin boxes into pillowcases, a crowd of costumed fuzzy critters peering inside with betrayed faces and toddling away down the steps in disgust",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "One Sugarling eats the raisins anyway, box and all, purrs, and splits. Then it eats the dental floss. By midnight Mr. Fennimore's porch is a heap of fuzz in costumes, and his prize chrysanthemums are a memory.",
+              "art": "A suburban porch buried in a heap of fuzzy critters in tiny costumes munching flower pots and raisin boxes, a dismayed teenager peeking out the front door at the chewed chrysanthemums",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "porch-light-off",
+            "label": "Turn off the porch light, the one rule every trick-or-treater respects",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "Click. Kev, who knows the etiquette of every door on his paper route, nods gravely. On the dark porch, the tiny costumes stand very still, then turn as one and march down the steps toward the next lit house three blocks down, where a very surprised orthodontist has been handing out toothbrushes all night.",
+              "art": "A darkened suburban porch with a teenager and a young paperboy peeking through the curtains, a procession of tiny costumed fuzzy critters marching away down the sidewalk toward a distant glowing porch",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The porch light goes out, and every Sugarling's eyes light up instead: dozens of pairs of glowing moons in the dark. They press their faces to the front windows and stay there until dawn, tapping softly on the glass. Trick or treat. Trick or treat.",
+              "art": "Dozens of glowing round eyes pressed against a dark living room window at night, tiny costumed fuzzy critters tapping on the glass, a teenager hiding behind the couch clutching a candy bowl",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "share-one-bar",
+            "label": "Invite the littlest one inside and split one candy bar, half each",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "sugarlings-enough",
+              "amount": 1
+            },
+            "success": {
+              "text": "You break a candy bar in half on Mr. Fennimore's kitchen table and give the tiny astronaut its share. It eats slowly. It does not split. It pats its round belly and says a new word in a small, rusty voice: \"Enough.\" Out on the porch the others go quiet, listening, and one by one they sit down on the steps to think about it.",
+              "art": "A cozy kitchen table where a teenager and a tiny fuzzy critter in an astronaut costume share halves of a candy bar, the critter patting its round belly contentedly, costumed critters seated thoughtfully on the porch steps outside",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "charm": 1
+                },
+                "flags": ["sugarlings-taught-enough"]
+              }
+            },
+            "failure": {
+              "text": "The second the door opens, the littlest one is joined by a conga line of costumes that floods the kitchen and empties every cabinet. The tiny astronaut sits on top of the refrigerator gnawing your half of the candy bar while it splits, and splits, and splits.",
+              "art": "A kitchen overrun by a conga line of tiny costumed fuzzy critters raiding open cabinets, a little astronaut critter perched on top of the refrigerator gnawing a candy bar, a teenager ducking cereal boxes",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "sugarlings-cocoon-season",
+        "title": "Cocoon Season",
+        "place": "The Glimmer Falls Grange Hall, five a.m., before the PTA bake sale",
+        "text": "You and the crew volunteered for bake sale setup at the Grange Hall, which seemed like a nice idea until you flip on the lights at five in the morning. A dozen folding tables of brownies and caramel apples stand ready, and the ceiling above them is covered in cocoons, hundreds of them, glittering, spun from candy wrappers and rustling like a bag of chips. One splits along its seam. Something drops onto the brownie table: still fuzzy, bigger than before, wearing a crinkly wrapper like a suit of armor. It looks at the caramel apples. Sunrise is forty minutes away.",
+        "art": "A wood-beamed grange hall at dawn with folding tables of brownies and caramel apples, the ceiling covered in hundreds of glittering cocoons spun from candy wrappers, one bigger fuzzy critter in crinkly wrapper armor landing on a brownie table",
+        "choices": [
+          {
+            "id": "let-the-sun-in",
+            "label": "Prop open every window and let the sunrise in",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dr. Haddad, who has treated stranger animals than these, props the windows open with folding chairs and starts counting down. The first gold light slides across the ceiling and the cocoons stop rustling. The hatchling shields its eyes, yawns enormously and shrinks back into an ordinary drowsy plush, asleep on a brownie. \"Sunlight makes them sleepy,\" Haddad notes, writing it on a napkin.",
+              "art": "Golden sunrise light pouring through tall grange hall windows across a ceiling of candy-wrapper cocoons, a fuzzy critter yawning asleep on a brownie, a veterinarian in a cardigan and a teenager propping the windows open",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-sunrise"]
+              }
+            },
+            "failure": {
+              "text": "The windows are painted shut. While you pry at them with a butter knife, three more cocoons hatch, and the armored critters take the caramel apple table in a single crunchy swarm. By sunrise the Grange Hall looks like a birthday party for a hurricane.",
+              "art": "A teenager prying at a painted-over window with a butter knife while armored fuzzy critters in crinkly wrappers swarm a table of caramel apples, sticky wrappers and crumbs scattered across a grange hall floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "bag-the-cocoons",
+            "label": "Climb the tables and pull the cocoons down into trash bags",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You stack two folding chairs on a table, which is against every rule of the Grange, and pluck cocoons off the ceiling like crinkly fruit. Forty trash bags later the ceiling is bare. The bags wriggle and purr in the parking lot all day, and the bake sale opens right on time.",
+              "art": "A teenager balanced on stacked folding chairs atop a table plucking glittering candy-wrapper cocoons off a wooden ceiling into a trash bag, a row of wriggling bags lined up by the grange hall door",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The chairs wobble. You grab the nearest cocoon to steady yourself and the whole ceiling comes down with it in a rustling avalanche of candy wrappers. They hatch on impact, all at once, and you are buried in purring, crinkling, very sticky armor.",
+              "art": "A rustling avalanche of glittering candy-wrapper cocoons tumbling from a grange hall ceiling onto a teenager and toppled folding chairs, fuzzy critters bursting out of them in crinkly armor",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "give-it-away",
+            "label": "Wake the early birds and give the whole bake sale away before the hatchlings smell it",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "The six a.m. crowd of farmers, joggers and early-shift nurses arrives to find you at the door with paper plates. \"Free brownie, free apple, take two, take them home.\" In twenty minutes the tables are bare. Overhead the cocoons crack open one by one, and the hatchlings drop down, sniff the crumbs, and curl up in the empty brownie pans to go back to sleep.",
+              "art": "A teenager at a grange hall door handing paper plates of brownies to a cheerful crowd of farmers, joggers and nurses at dawn, sleepy fuzzy critters curled up in bare brownie pans on the tables behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-gave-away"]
+              }
+            },
+            "failure": {
+              "text": "Mrs. Albescu, chair of the PTA bake sale, refuses a free brownie on principle and insists on paying a quarter. While you argue about it, the hatchlings drop onto the tables behind you, and the first customers scream the house down at what is crawling out of the caramel apples.",
+              "art": "A stern woman in a PTA apron holding out a quarter to a pleading teenager at a bake sale table, behind them fuzzy critters in wrapper armor crawling out of caramel apples while customers shriek",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "sugarlings-mischief-night",
         "title": "Mischief Night",
         "place": "Crystal Street, October 30",

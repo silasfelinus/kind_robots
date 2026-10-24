@@ -310,6 +310,267 @@
         ]
       },
       {
+        "id": "screwhead-some-assembly",
+        "title": "Some Assembly Required",
+        "place": "Your bedroom, 2 a.m.",
+        "text": "The flat-pack wardrobe your mom bought at HomeMax has been leaning in its box against your wall for a week. At 2 a.m. the box splits open by itself. Panels slide out, cam locks spin, dowels pop into holes, and an Allen key turns in midair with a patient click, click, click. The instruction booklet flutters open on your carpet to the last page. Step 47 is a neat little drawing of you, folded up and tucked into the bottom drawer, with a smiley face.",
+        "art": "A dark teenage bedroom where a flat-pack wardrobe assembles itself in midair, panels sliding into place, dowels and brass screws floating, a hex key spinning on its own, a wide-eyed teenager sitting up in bed clutching a blanket",
+        "choices": [
+          {
+            "id": "read-it-backward",
+            "label": "Follow the instructions backward, step 47 to step 1",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You grab the booklet and start at the end. Step 46: remove the drawer. Step 45: unscrew the hinges. Every step you undo, the wardrobe undoes too, until it lies in a flat, harmless stack on your carpet with a little bag of leftover screws on top. Somewhere very far away, a woman sighs like a store intercom: \"Lefty loosey.\"",
+              "art": "A teenager kneeling on a bedroom carpet holding an open instruction booklet, a wardrobe collapsing back into a neat stack of flat panels, a small plastic bag of brass screws resting on top",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You lose your place around step 30. The wardrobe doesn't. It finishes itself, opens its doors and gently scoops up your posters, your cassettes and your laundry and puts them all away, folded and sorted. You can't find anything for a week, and you're pretty sure that was the point.",
+              "art": "A perfectly assembled wardrobe with its doors open in a bedroom that has been stripped neat and bare, every cassette and sweater folded and sorted inside, a bewildered teenager holding a crumpled instruction booklet",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "hide-the-screw",
+            "label": "Steal one screw and hide it where it can never be found",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Every flat-pack comes with one screw too few. You make sure of it. You snatch a brass screw out of the air and drop it down the heating vent. The wardrobe gets to the last step, wobbles, tries again, wobbles, and finally just leans against the wall, almost done and very confused, which is how every wardrobe in history has ended up.",
+              "art": "A lopsided half-built wardrobe leaning against a bedroom wall, one door hanging crooked, a grinning teenager crouched by a floor vent dropping in a single brass screw",
+              "effects": {
+                "nerve": 1,
+                "flags": ["screwhead-missing-screw"]
+              }
+            },
+            "failure": {
+              "text": "The screw wriggles out of your fist like a minnow and darts back into its hole. A drawer slides open behind you, very politely, and waits. You spend the rest of the night sleeping in the bathtub with the door locked and a toilet plunger for company.",
+              "art": "A teenager curled up asleep in a bathtub clutching a toilet plunger, a bathroom door locked tight, a wardrobe drawer peeking open in the dark bedroom beyond",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "say-stop",
+            "label": "Stand in front of it and tell it, clearly, that you did not agree to this",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "flag": "screwhead-hesitated",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Stop,\" you say. \"I didn't ask for this. I don't want to be in a drawer.\" The Allen key freezes mid-turn. For a second nothing in the room moves at all, and then, very slowly, the key turns the other way. The panels sag. It's almost as if no one had ever said that to it before.",
+              "art": "A teenager in pajamas standing firm with one hand raised before a half-assembled wardrobe, a hex key frozen in midair and beginning to turn backward, panels sagging apart",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-boundary"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks halfway through, and it comes out as a question. The wardrobe takes a question as a yes. You wake up in the morning in the bottom drawer, folded up comfortably, with a smiley-face sticky note on your knee that reads PERFECT.",
+              "art": "A teenager waking up folded snugly inside the bottom drawer of a wardrobe, knees tucked to chin, a yellow sticky note on one knee, morning light through the blinds",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "screwhead-screwed-shut",
+        "title": "Screwed Shut",
+        "place": "Your house, 3 a.m.",
+        "text": "You wake to the whine of a power drill. Then another, and another, all around the house. Through the gap in your curtains you see neighbors in pajamas screwing plywood over your windows, a brass screw every four inches, perfectly spaced, and the same thing is happening to every house on Crystal Street. The front door is already sealed. Through the mail slot comes a calm voice like a store intercom: \"Stay in. It's safer. Nothing that's fastened can ever be lost.\"",
+        "art": "A dark suburban bedroom with plywood screwed over the window from outside, rows of evenly spaced brass screws glinting, drill bits poking through the wood, a teenager in pajamas sitting up in bed in alarm",
+        "choices": [
+          {
+            "id": "ask-through-the-slot",
+            "label": "Talk through the mail slot and ask if they want to be doing this",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You kneel by the mail slot. \"Hey. Did anyone ask you if you wanted to do this?\" The drilling stops. A long pause, and then a voice you know, Mr. Brubaker the mailman, quiet and confused: \"No. She didn't ask. I was going to go fishing this weekend.\" You hear him set the drill down, and then, slowly, start backing the screws out.",
+              "art": "A teenager kneeling and speaking through a brass mail slot in a front door at night, on the porch outside a confused mailman lowering a power drill, a silver chain slipping loose from his wrist",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-asked"]
+              }
+            },
+            "failure": {
+              "text": "The mail slot snaps shut on your fingers, not hard, just firmly, like a hand patting yours. \"Don't fuss,\" says the voice. \"You'll thank me.\" Then a single brass screw twists through the flap itself, sealing it, perfectly centered.",
+              "art": "A teenager shaking their stung fingers beside a front door as a single brass screw twists through the center of a brass mail slot, warm hallway light",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "butter-knife",
+            "label": "Unscrew the boards from the inside with a butter knife",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wedge a butter knife into the first screw head and turn. Lefty loosey. It fights you, then gives. Screw after screw drops into your palm, warm as pennies, until the board swings loose and cold night air pours in. Up and down the street, kids at their windows watch you, then reach for their own butter knives.",
+              "art": "A teenager twisting a butter knife against brass screws on plywood over a bedroom window, loose screws piling in their palm, cold moonlight spilling through a widening gap",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Every screw you loosen tightens itself again with a sound like a ratchet, and the knife bends into a perfect right angle. By dawn your hands ache, the board is tighter than ever, and the butter knife has been put back in the silverware drawer, sorted by size.",
+              "art": "A tired teenager slumped against a plywood-covered window at dawn holding a butter knife bent into a perfect right angle, brass screws gleaming in tight rows",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "roof",
+            "label": "Kick out the attic vent and climb onto the roof",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You shove past boxes of Christmas lights, kick out the attic vent and crawl onto the shingles. From up here you can see the whole street: neighbors with drills, plywood going up, and on the roundabout a tall woman crowned with brass screws, conducting it all like an orchestra. You wave your arms and yell. Below, a few of the drillers stop and look up, uncertain.",
+              "art": "A teenager standing on a moonlit suburban roof waving their arms, neighbors below holding power drills pausing to look up, a tall woman crowned with brass screws raising her hands on a distant roundabout",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The attic vent is screwed shut from outside too, and when you push on it, the whole attic tidies itself around you: boxes stacked, cords coiled, holiday decorations sorted by season. You spend the rest of the night wedged between Easter and the Fourth of July.",
+              "art": "A teenager wedged between neatly stacked storage boxes in a cramped attic, coiled extension cords and sorted holiday decorations all around, a sealed vent glinting with brass screws",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "screwhead-clockwise-forever",
+        "title": "Clockwise Forever",
+        "place": "The roller-rink annex at Pump Iron, 11 p.m.",
+        "text": "The rink should be closed, but the mirror ball is turning and the organ is playing the same eight bars over and over. Out on the floor, fifty skaters glide in a perfect circle, clockwise, single file, each exactly one arm's length from the next, linked wrist to wrist by thin silver chains. Their faces are calm. Their ankles are wobbling. A freshly painted banner over the DJ booth, in neat capitals, reads: ALL SKATE. CLOCKWISE. FOREVER.",
+        "art": "A 1980s roller rink at night under a spinning mirror ball, dozens of skaters gliding in a perfect clockwise circle linked wrist to wrist by thin silver chains, calm faces and wobbling ankles, a teenager at the rail in rental skates",
+        "choices": [
+          {
+            "id": "wrong-way",
+            "label": "Lace up and skate the wrong way, as fast as you can",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "Sunny whoops and takes the lead, and you skate counterclockwise straight into the current, weaving between the chained skaters like salmon. Every time you pass someone, they wobble, glance back and grin. By your fifth lap half the rink has broken formation, and the organ hits a wrong note and keeps it.",
+              "art": "A grinning wheelchair racer and a teenager on roller skates speeding counterclockwise through a ring of chained skaters under a mirror ball, skaters breaking formation and laughing",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The circle pulls at you like a whirlpool. Your skates turn by themselves, and before you know it you're in the line, a chain looped kindly around your wrist, gliding clockwise to the same eight bars until your legs give out at dawn.",
+              "art": "An exhausted teenager on roller skates gliding in a perfect circle of skaters at dawn, a thin silver chain around their wrist, a mirror ball turning slowly overhead",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "hokey-pokey",
+            "label": "Take over the DJ booth and call a Hokey Pokey",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix grabs the mic like he was born there. \"Alright, Glimmer Falls, everybody stop where you are. You put your left foot in!\" Fifty skaters, unable to resist a direct instruction, stop dead. Then they have to choose which way to turn themselves around, and every single one chooses differently. The chains tangle, snap and fall to the floor like tinsel.",
+              "art": "A teen DJ in a booth speaking into a microphone with a grin, skaters on the rink floor doing a silly dance in every different direction, silver chains snapping and falling like tinsel",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"You put your left foot in,\" you announce, and the skaters do it, perfectly, in unison, and then keep doing it, exactly as instructed, because you never told them how the song ends. You stay up all night calling verses.",
+              "art": "A tired teenager slumped over a DJ booth microphone while dozens of skaters on the rink below perform the same dance step in eerie perfect unison under a mirror ball",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-each-skater",
+            "label": "Skate alongside each one and ask if they want to stop",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You fall into step beside a girl from your algebra class and ask, \"Do you want to keep going?\" She blinks. \"My feet hurt so bad,\" she whispers. \"Nobody asked.\" You unhook her chain, and she sits down on the bench and laughs. You go down the line one skater at a time, and everyone who says stop gets to stop.",
+              "art": "A teenager skating beside a tired girl in a ring of chained skaters, gently unhooking a silver chain from her wrist, others on a bench at the edge pulling off their skates and laughing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-asked"]
+              }
+            },
+            "failure": {
+              "text": "You ask the first skater. She smiles and says, \"I'm fine,\" in a voice like an intercom, and before you can ask the next one, the line has looped around you twice. Now you're skating clockwise too, asking \"Do you want to stop?\" to the back of somebody's head, lap after lap, all night.",
+              "art": "A teenager caught in a circle of skaters linked by silver chains, gliding clockwise under a mirror ball, calling out to the skater ahead with a worried face",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "screwhead-the-box",
         "title": "The Box Solves Itself",
         "place": "Your bedroom, 3:33 a.m.",

@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
+import { ART_STYLE } from '../crystalStreet/rules'
 import {
   duplicateIds,
   validateCompanion,
+  validateEncounter,
   validateDeck,
   validateItem,
   validateLocation,
@@ -12,7 +15,7 @@ import type { Encounter } from '../crystalStreet/types'
 const [kind, path] = process.argv.slice(2)
 if (!kind || !path) {
   console.error(
-    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|locations|decks|items> <file.json>',
+    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|locations|decks|items|encounters> <file.json>',
   )
   process.exit(2)
 }
@@ -42,6 +45,23 @@ for (const entry of data) {
   } else if (kind === 'decks') {
     validateDeck(problems, entry)
     encounters.push(...entry.encounters)
+  } else if (kind === 'encounters') {
+    // A bare array of encounters (new signature scenes drafted for a nightmare).
+    validateEncounter(problems, `encounter ${entry?.id}`, entry)
+    encounters.push(entry)
+    const prompts = [
+      entry.art,
+      ...(entry.choices ?? []).flatMap((c: Encounter['choices'][number]) => [
+        c.success?.art,
+        c.failure?.art,
+      ]),
+    ]
+    for (const prompt of prompts.filter(Boolean))
+      for (const v of checkArtPromptContract({
+        prompt: `${prompt}, ${ART_STYLE}`,
+        engine: 'krea2',
+      }))
+        problems.push(`encounter ${entry.id} art: ${v.rule}: ${v.detail}`)
   } else if (kind === 'items') validateItem(problems, entry)
   else {
     console.error(`unknown kind ${kind}`)

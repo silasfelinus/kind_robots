@@ -393,6 +393,277 @@
         ]
       },
       {
+        "id": "heartstone-who-goes-there",
+        "title": "Who Goes There?",
+        "place": "Joey's garage at Rusty's Junkyard, 2 a.m.",
+        "text": "The power dies at Joey's garage, and your crew huddles around a camp lantern between stripped-down cars. Then someone knocks: Gus Petrakis from number 8 Crystal Street, in his bathrobe and slippers, smiling, saying he is \"fine, just fine\" in a voice as flat as a dial tone. His eyes have a violet sheen. Crystal glitters across his knuckles like frost. And out in the dark, polite knocks begin on every wall of the garage at once.",
+        "art": "A junkyard garage at night lit by one camp lantern between stripped-down cars, teens huddled together, a smiling middle-aged man in a bathrobe and slippers in the doorway with violet-sheened eyes and glittering crystal frost on his knuckles",
+        "choices": [
+          {
+            "id": "sad-song-test",
+            "label": "Give him the test: play the saddest song on the radio and watch his face",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 1
+            },
+            "success": {
+              "text": "You crank a slow dance on the car radio, the kind they play at the end of every wedding. Gus listens with that empty smile, and then his chin wobbles, and one tear runs down his cheek. Where it lands, the crystal on his knuckles melts like frost on a windshield. \"That was our song,\" he says in his own voice, and sits down hard on a tire.",
+              "art": "A middle-aged man in a bathrobe sitting on a tire in a lantern-lit junkyard garage with one tear on his cheek, violet crystal melting off his knuckles, teens gathered by a glowing car radio",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-gus-cried"]
+              }
+            },
+            "failure": {
+              "text": "Gus does not react at all. The radio does. The song slides out of tune into a low violet hum, and the knocking on the walls stops at once, which is so much worse. When you look back, Gus is gone, his slippers are on the floor, and the door stands open on the dark.",
+              "art": "A dark junkyard garage lit by a single camp lantern, a car radio glowing violet, an open doorway onto blackness, frightened teens staring at a pair of slippers on the concrete floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "bar-the-door",
+            "label": "Bar the door and hold the garage until sunrise",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wedge a car hood across the door, and the crew takes shifts with flashlights. The knocking goes on for hours, patient as rain, then fades at first light. On the threshold you find a ring of violet frost, already melting, and Gus asleep on the hood of a pickup outside, snoring and perfectly normal.",
+              "art": "Teens keeping watch with flashlights behind a car hood wedged against a garage door at dawn, a ring of violet frost melting on the threshold, a man in a bathrobe asleep on a pickup truck outside",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The door holds. The knocking simply moves inside: into the radiators, the engine blocks, the oil drums, your own ribs. Nobody sleeps. At dawn a fine violet dust glitters on everyone's eyelashes.",
+              "art": "Exhausted teens huddled around a camp lantern in a junkyard garage at dawn, fine violet dust glittering on their eyelashes, oil drums and engine blocks humming with faint purple light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-how-he-is",
+            "label": "Let him in, sit him down, and ask how he really is",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You pour him coffee from the thermos and ask. He says fine. You ask again. Then it comes out: his father went down to the lower gallery on March 3, 1952, and never came up, and nobody in this town was ever allowed to say so. As he talks, the crystal flakes off his hands like old paint, and the knocking outside goes quiet to listen.",
+              "art": "A teenager pouring coffee from a thermos for a tearful man in a bathrobe in a lantern-lit junkyard garage, violet crystal flaking off his hands like old paint, shadows at the windows leaning in to listen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-gus-spoke"]
+              }
+            },
+            "failure": {
+              "text": "\"Fine,\" he says. \"Fine, fine, fine.\" He keeps smiling while violet frost creeps off his slippers, across the concrete and up the legs of your stool. You back out the side door and run, and the knocking follows you halfway home.",
+              "art": "A smiling man in a bathrobe on a garage stool as violet frost spreads from his slippers across a concrete floor toward a teenager backing toward a side door, junkyard cars in lantern light",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-nobody-believes",
+        "title": "Nobody Believes Teenagers",
+        "place": "The front desk of the Glimmer Falls police station, 12:30 a.m.",
+        "text": "You burst into the police station to report that the rock on the Crystal Street roundabout is humming, cracking the asphalt and making people cry. Sergeant Lyle Haas does not look up from his crossword. \"Kid, that rock's been sitting there since 1958.\" Behind him the water cooler glugs one slow violet bubble, and the fluorescent lights hum the same low note you heard on the roundabout. Every drive-in monster movie you have ever seen says nobody is going to listen to the next line, and the next line is yours.",
+        "art": "A small-town police station front desk at night, a frantic teenager leaning over the counter, a bored mustached sergeant doing a crossword, a water cooler behind him glowing with a violet bubble, fluorescent lights humming overhead",
+        "choices": [
+          {
+            "id": "show-proof",
+            "label": "Slap down your proof and make him look",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "You fan your instant photos across the desk: the geode glowing, the cracked asphalt, the frost on a mailbox in October. Haas squints, sighs, and finally looks, and the cooler behind him glugs violet loud enough for him to hear. He goes pale and reaches for his hat. \"Show me,\" he says. For the first time this week, a grown-up is coming.",
+              "art": "A teenager fanning instant photos across a police front desk at night, a pale mustached sergeant reaching for his hat, a water cooler behind him glowing with a violet bubble",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-cop-believes"]
+              }
+            },
+            "failure": {
+              "text": "Every photo has developed into the same thing: a perfectly ordinary rock with a brass plaque on a sunny afternoon. Haas chuckles and calls your house, and you get a very long ride home in the back of a cruiser and a very long talk at the kitchen table.",
+              "art": "A slumped teenager in the back seat of a police cruiser at night holding an instant photo of an ordinary sunlit rock, a chuckling sergeant at the wheel, a cul-de-sac glowing ahead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "b-movie-speech",
+            "label": "Deliver the full B-movie speech: \"You'll all be sorry!\"",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "You climb on the bench and give it everything, finger pointed, voice trembling, pure 1958 drive-in. Haas rolls his eyes, but the night dispatcher, Ruby Okafor, slowly takes off her headset. \"My mother sang hymns at the quarry rim for three nights in '52,\" she says quietly. \"I believe you, honey.\" She starts making calls.",
+              "art": "A teenager standing on a police station bench delivering a dramatic speech with one finger pointed skyward, a bored sergeant rolling his eyes, a gray-haired dispatcher removing her headset with a serious look",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Halfway through your speech you trip over the word \"geode\" and say it three different ways. Haas laughs so hard he spills his coffee, and you are steered out the front door into the hum, which is waiting for you on the steps like a stray dog.",
+              "art": "A red-faced teenager being steered out the front doors of a small-town police station at night by a laughing sergeant, a faint violet glow pulsing from the dark street beyond",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "grab-the-mic",
+            "label": "Grab the dispatch mic and warn the whole town yourself",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You vault the counter, key the dispatch mic, and every police scanner in Glimmer Falls hears you: \"Stay off the roundabout. Wake up your neighbors. Do not let anyone sleep alone tonight.\" By the time Haas wrestles the mic away, porch lights are snapping on all over town like a string of Christmas bulbs.",
+              "art": "A teenager leaning over a police dispatch console speaking urgently into a microphone, a sergeant lunging across the counter, a window behind showing porch lights flicking on across a hillside town",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You key the mic, and what comes out of every scanner in town is not your voice. It is a low violet hum, and under it fourteen men singing a hymn very far away. Haas drags you to the bench, and for once he looks scared too.",
+              "art": "A teenager frozen at a police dispatch microphone as violet light pours from the speaker grille, a startled sergeant gripping their shoulder, radio scanners on the shelves pulsing purple",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-dont-look-back",
+        "title": "Don't Look Back",
+        "place": "The old quarry fence at the end of Quarry Road, 1 a.m., in fog",
+        "text": "You are walking home along the chain-link fence of the old quarry when fog rises off the pit, cold and smelling of wet stone. Behind you, footsteps fall into step with yours: heavy work boots, a lot of them, and a lamp swinging with a creak. Someone back there is humming a hymn. In 1952 the quarry owner told the whole town over the radio that Glimmer Falls does not look back. Every story you know says you shouldn't either.",
+        "art": "A lone teenager walking along a chain-link quarry fence on a gravel road at night as thick fog rises from a dark pit, faint swinging lamp glows in the mist behind them",
+        "choices": [
+          {
+            "id": "turn-around",
+            "label": "Stop, turn around, and look",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You turn. In the fog stand fourteen men in hard hats and dusty overalls, carbide lamps glowing, faces tired and kind. They are only walking home from a shift that never ended. The one in front tips his helmet to you, and one by one they fade like breath on a window, the hymn ending on a held, peaceful note.",
+              "art": "Fourteen ghostly quarrymen in hard hats and dusty overalls with glowing carbide lamps standing in fog by a chain-link quarry fence at night, the man in front tipping his helmet to a teenager",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-looked-back"]
+              }
+            },
+            "failure": {
+              "text": "You turn, and the fog flash-freezes into violet crystal around you, a cold glittering shell that holds you exactly where you stand. The footsteps walk on past without you. At dawn it shatters like sugar glass, and you stagger home with frost in your hair.",
+              "art": "A teenager encased in a shell of frozen violet crystal fog beside a chain-link quarry fence at night, faint lamplit figures walking past into the mist",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "count-them",
+            "label": "Keep walking, and count the footsteps out loud",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 1
+            },
+            "success": {
+              "text": "You count each set of boots aloud, slow and steady, like a roll call. Nobody ever counted them. At fourteen the footsteps stop all at once. When you look down, there is a small brass disk on the gravel, stamped with the number 14, warm as a hand.",
+              "art": "A small warm brass disk lying on a foggy gravel road beside a chain-link quarry fence at night, a teenager crouching to pick it up, faint lamp glows fading in the mist",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-counted"]
+              }
+            },
+            "failure": {
+              "text": "You lose count at nine. You start over. The footsteps multiply, dozens, hundreds, an army of boots on the gravel, and the hymn turns into the groan of grinding rock. You make it home, but you hear walking in the walls until morning.",
+              "art": "A frightened teenager hurrying along a foggy gravel road beside a quarry fence at night, countless ghostly lamp glows swarming in the mist behind them, violet light rising from the pit",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "run-for-the-light",
+            "label": "Run for the streetlight at the corner",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 1
+            },
+            "success": {
+              "text": "You sprint, sneakers slapping, and hit the circle of the corner streetlight like home base. The fog stops at the edge of the light, piled up like a wall of wet wool, and the footsteps stop with it. After a while you hear them turn and walk slowly back toward the quarry, and you are almost sorry to hear them go.",
+              "art": "A panting teenager standing in the circle of a lone corner streetlight at night, a wall of thick fog piled up at the edge of the light, faint lamp glows retreating toward a quarry fence",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You run, and the road bends, and bends, and every bend brings you back to the same gap in the quarry fence. On your fourth lap you notice the footsteps behind you are running too. Something huge stirs in the water at the bottom of the pit.",
+              "art": "A teenager running along a looping foggy road past a gap in a chain-link quarry fence, a dark flooded pit below rippling around something huge, ghostly lamps bobbing behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "heartstone-crystal-garden",
         "title": "The Crystal Garden",
         "place": "Crystal Street, before dawn",

@@ -380,6 +380,272 @@
         ]
       },
       {
+        "id": "bobo-storm-drain",
+        "title": "Down in the Drain",
+        "place": "The storm drain at the corner of Crystal Street, in the rain, 11 p.m.",
+        "text": "It is pouring, and Kev's whole bundle of Sunday papers has blown out of his bike basket and gone sailing down the gutter like a fleet of soggy boats. The last one swirls into the storm drain on the corner. You crouch to look. Two yellow eyes blink up at you from the dark, and a white glove holds out the newspaper, dry as toast. \"Hiya, kiddo! Lose something? Come and get it! Everything down here bounces!\"",
+        "art": "A rain-soaked suburban street corner at night, newspapers floating down a flooded gutter, a teenager crouching at a storm drain where two glowing yellow eyes and a white-gloved hand hold up a dry newspaper",
+        "choices": [
+          {
+            "id": "tell-a-joke",
+            "label": "Tell a joke down the drain before he can",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Why did the clown go to the doctor? He was feeling a little funny.\" A long silence from the drain. Then a wheeze. Then a big, helpless, honking laugh that echoes up every gutter on the block. The glove sets the paper on the curb, adds a rubber chicken on top, and withdraws.",
+              "art": "A rubber chicken resting on a dry newspaper on a wet curb beside a storm drain, a grinning teenager crouched in the rain, warm laughter glowing up from the drain",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-shared-joke"]
+              }
+            },
+            "failure": {
+              "text": "You fumble the punchline. \"Oh, kiddo,\" says the drain, delighted. \"Oh, that was terrible.\" A recorded laugh track roars up out of every grate on Crystal Street at once, and Kev's newspapers come floating back, every headline now reading the same thing: FALL DOWN.",
+              "art": "Storm drains along a rainy suburban street glowing with eerie yellow light, a dismayed teenager standing ankle-deep in a flooded gutter surrounded by soggy floating newspapers, porch lights blurred by the rain",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "grab-the-paper",
+            "label": "Reach in fast and snatch the paper back",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You lunge and snatch it. The glove grabs back, there is a ridiculous tug-of-war over the Sunday comics, and you win with a rip, flying backward onto the lawn holding the funny pages. From the drain comes an outraged honk, and then, grudgingly, applause.",
+              "art": "A teenager tumbling backward onto a wet lawn clutching the torn Sunday comics, a white-gloved hand clapping from a storm drain at the curb, heavy rain glittering under a streetlight",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The glove catches your wrist, gently, and tugs. You slide halfway into the drain on your belly in the rushing gutter water, staring into a dark tunnel lined with floating balloons. Kev hauls you out by the ankles. Your sleeve smells like greasepaint for a week.",
+              "art": "A teenager lying on their belly in a rushing gutter with one arm inside a storm drain, a paperboy pulling at their ankles, colorful balloons floating in the dark tunnel below",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "peek-with-a-light",
+            "label": "Shine a light down the drain to see who's really talking",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your beam slides past the glove and the yellow eyes, and for a second it shows the truth: an old man in a damp cardigan sitting on a crate in the culvert, a red foam nose in his hand, rehearsing his lines in a whisper. He looks up into the light, ashamed. Then the eyes are back, and the drain is only a drain.",
+              "art": "A flashlight beam shining down a storm drain onto an old man in a damp cardigan sitting on a crate in a culvert, holding a red foam clown nose, looking up in surprise",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                },
+                "flags": ["bobo-saw-lenny"]
+              }
+            },
+            "failure": {
+              "text": "The light shows you a face, an enormous painted grin filling the whole drain from edge to edge, much too close. It honks. You drop the flashlight, and it floats away down the culvert, still on, getting smaller and smaller.",
+              "art": "An enormous painted clown grin with red lips filling the dark opening of a storm drain, a dropped flashlight still glowing as it floats away down rushing gutter water in the rain",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "loseItems": ["flashlight"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-hall-of-mirrors",
+        "title": "Hall of Mirrors",
+        "place": "The Harvest Carnival funhouse, Glimmer Falls High football field, midnight",
+        "text": "The Harvest Carnival closed hours ago, but the funhouse lights are still blinking. Inside the hall of mirrors, a hundred of you walk beside you, stretched and squashed and wobbling. Then you notice that every reflection is wearing white greasepaint and a red nose. You stop. They stop. All except one, three mirrors down, which keeps walking, waves, and takes a slow, deliberate pratfall.",
+        "art": "A neon-lit carnival hall of mirrors at midnight, a teenager surrounded by warped reflections all wearing white clown greasepaint and red noses, one reflection mid-pratfall",
+        "choices": [
+          {
+            "id": "funny-face",
+            "label": "Make the silliest face you can at the one that moved",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "bobo-laughed-with",
+              "amount": 1
+            },
+            "success": {
+              "text": "You cross your eyes, puff your cheeks and waggle your ears with your thumbs. The rogue reflection freezes. Then it laughs, a real laugh, surprised out of it, and does the face right back. One by one the greasepaint fades off every mirror, and the exit door swings open on the empty fairground.",
+              "art": "A teenager pulling a goofy face with crossed eyes at a funhouse mirror, a clown reflection laughing and copying the face, warped mirrors around them clearing to normal reflections",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The reflection makes your face better than you do, and all the other reflections turn to watch it. They laugh at you, a hundred of you laughing at one of you, until you find the exit by walking face-first into four mirrors in a row.",
+              "art": "A hundred warped clown-faced reflections laughing in a neon-lit carnival hall of mirrors, a teenager rubbing their sore nose after walking straight into the glass, colored bulbs blinking overhead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "smash-out",
+            "label": "Smash your way out of the maze",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 2
+            },
+            "success": {
+              "text": "Crash, crash, CRASH. You bat your way through six mirrors in a straight line and burst out onto the midway in a shower of silver. Every shard on the grass honks once and goes quiet. Seven years of bad luck, maybe, but tonight you are free.",
+              "art": "A teenager bursting out of a carnival funhouse wall in a shower of silver mirror shards, swinging a baseball bat, a moonlit midway and Ferris wheel behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The first mirror bounces the bat back at you like rubber. So does the second. The whole hall wobbles with laughter and starts to spin, and you stumble out at dawn so dizzy you walk home in a zigzag.",
+              "art": "A teenager reeling dizzily as a rubbery funhouse mirror bounces their baseball bat back at them, the whole mirrored hallway spinning around them in swirls of pink and teal neon light",
+              "effects": {
+                "nerve": -2,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "follow-the-shoes",
+            "label": "Follow the size-twenty scuff marks on the floor",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Big floppy prints in the dust, always turning left. You follow them past the mirrors to a little door marked PERFORMERS and a tiny dressing room. On the vanity sits a jar of greasepaint, a wig on a foam head, and a snapshot of Bobo crouched beside a sobbing little boy at a party, holding out a blue balloon.",
+              "art": "A cramped backstage dressing room behind a funhouse, a vanity with a jar of white greasepaint, a red wig on a foam head, and an old snapshot of a clown kneeling beside a crying little boy",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-dressing-room"]
+              }
+            },
+            "failure": {
+              "text": "The prints lead you in a perfect circle back to where you started. Then a second set appears beside your own feet, matching you step for step, and stays with you all the way home.",
+              "art": "Giant clown shoe prints in dust circling a dim funhouse floor, a second set of enormous floppy prints appearing step by step beside a nervous teenager's sneakers, warped mirrors glinting on every side",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-calls-from-inside",
+        "title": "Have You Checked the Birthday Kid?",
+        "place": "The Okafor house on Crystal Street, babysitting, 11 p.m.",
+        "text": "Little Ada Okafor is finally asleep and you are halfway through a bag of cheese puffs when the kitchen phone rings. A squeaky honk, then a cheerful voice: \"Is the birthday kid asleep yet? I have a delivery!\" You hang up. It rings again. \"Have you checked the birthday kid?\" Upstairs, very faintly, a bike horn goes honk honk. The phone cord, you notice, is stretched taut across the kitchen and up the stairs.",
+        "art": "A cozy 1980s suburban kitchen at night, a teenager holding a yellow wall phone with its coiled cord stretched tight across the room and up a dark staircase, a bag of cheese puffs on the counter",
+        "choices": [
+          {
+            "id": "bedtime-story",
+            "label": "Go up and tell Ada a bedtime story about a kind clown",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "bobo-blue-dog",
+              "amount": 1
+            },
+            "success": {
+              "text": "You sit on Ada's bed and tell her about a clown who fell down on purpose to make a sad kid laugh. Halfway through, the closet door creaks open an inch and stays there, listening. By the end Ada is asleep, and on her nightstand sits a balloon flower that was not there before, with a tag: FOR THE STORYTELLER.",
+              "art": "A teenager sitting on a child's bed telling a story by lamplight, a sleeping little girl, a closet door open a crack with a glimpse of a gloved hand, a balloon flower on the nightstand",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-good-story"]
+              }
+            },
+            "failure": {
+              "text": "You start the story, and the closet starts doing the voices. All of them. Badly. Ada laughs herself awake and demands an encore, and you spend until midnight trading lines with a closet while a horn honks on every joke you get wrong.",
+              "art": "A giggling little girl bouncing on her bed as a closet door glows with a painted clown grin inside, a frazzled teenager babysitter holding a storybook",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "prank-him-back",
+            "label": "Pick up and ask him if his refrigerator is running",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Is your refrigerator running?\" A pause on the line. \"Uh... yes?\" \"Then you'd better go catch it!\" Silence. Then, from the line and from upstairs at once, the wheezy, honking laugh of a man who has not been pranked in seven years. \"Good one, kiddo,\" he says, and hangs up for the night.",
+              "art": "A teenager grinning into a yellow wall phone in a dim 1980s kitchen at night, the coiled cord stretched up the stairs, a giant clown shadow doubled over laughing on the staircase wall",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-laughed-with"]
+              }
+            },
+            "failure": {
+              "text": "\"Oh, I know that one,\" says the voice. \"Mine's better.\" The refrigerator door bangs open and a jack-in-the-box springs out of the vegetable drawer right at your face. You scream so loud Ada wakes up and has to calm you down.",
+              "art": "A jack-in-the-box clown springing out of the vegetable drawer of an open refrigerator at a screaming teenager, a calm little girl in pajamas standing in the kitchen doorway holding a teddy bear",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "grab-ada-and-run",
+            "label": "Scoop up Ada and run for the neighbors' porch",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You take the stairs three at a time, wrap Ada in her blanket and bolt out the back door to the Delgados' porch light. Mrs. Delgado lets you in without a question. When you check through the window, every light in the Okafor house is on, and a single balloon is bobbing at the front door, waiting politely.",
+              "art": "A teenager carrying a blanket-wrapped little girl across a moonlit backyard toward a neighbor's glowing porch light, a lone balloon bobbing at the door of the house behind",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You fling open the front door and run straight into a birthday party: streamers, a cake, a dozen neighbors in paper hats singing to Ada in her pajamas. Ada loves it. You stand there frozen as a huge gloved hand puts a party hat on your head, and keeps it there.",
+              "art": "A teenager frozen in a doorway holding a little girl as a surprise birthday party fills a suburban living room, neighbors in paper hats, a huge gloved hand placing a party hat on the teenager's head",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "bobo-party-for-you",
         "title": "A Party in Your Honor",
         "place": "Captain Cheddar's Pizza Cavern, three a.m.",

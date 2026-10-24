@@ -431,6 +431,265 @@
         ]
       },
       {
+        "id": "hungry-house-chair-stack",
+        "title": "Turn Your Back",
+        "place": "Mrs. Varga's kitchen, 10 Crystal Street, house-sitting at midnight",
+        "text": "You are house-sitting for Mrs. Varga at 10 Crystal Street while she visits her sister, and her kitchen is a glorious disaster: dishes in the sink, a cereal box on the stove, the cat's bowl upside down. You turn your back for one second to fill the cat's water. When you turn around, every kitchen chair is stacked on the table in a perfect, impossible tower, the dishes are gone, and the counter shines. Out the window, the porch light at 13 is blinking on and off, like it is winking at you.",
+        "art": "A gleaming 1980s kitchen at midnight with every kitchen chair balanced in an impossible tower on the table, a startled teenager holding a cat's water bowl, a porch light glowing in a house across the street through the window",
+        "choices": [
+          {
+            "id": "mess-it-back",
+            "label": "Pull the chairs down and make a glorious mess on purpose",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You unstack the chairs, dump the silverware drawer, spread the Sunday funnies across the floor and build a peanut-butter-and-pickle sandwich with maximum crumbs. Across the street, the porch light at 13 stops winking and goes dark in a sulk. The kitchen stays messy, which is to say it stays Mrs. Varga's.",
+              "art": "A grinning teenager in a gloriously messy 1980s kitchen at midnight, chairs back on the floor, silverware and newspaper comics scattered everywhere, a crumb-covered sandwich in hand, a dark house visible through the window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-mess"]
+              }
+            },
+            "failure": {
+              "text": "Every time you pull a chair down, you blink and it is back on top of the tower. By three a.m. the dishes are washed, dried and put away in alphabetical order. Mrs. Varga comes home to the cleanest kitchen she has ever owned and looks, for some reason, terrified.",
+              "art": "A spotless gleaming 1980s kitchen with chairs balanced in an impossible tower on the table, an exhausted teenager slumped against the counter, a cat staring up at the tower",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "catch-it-cleaning",
+            "label": "Turn your back again, and watch in the toaster's chrome",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 1
+            },
+            "success": {
+              "text": "You face the sink and watch the shiny side of the toaster. In its curved reflection, a woman in an apron glides around the kitchen behind you, wiping, stacking, straightening, her smile fixed and her eyes wet. You whirl around and she is gone, but now you know: whatever cleans this street is not happy doing it.",
+              "art": "A teenager staring into the curved chrome side of a toaster on a kitchen counter, the reflection showing a woman in a 1959 apron gliding behind them with a dishrag, her smile fixed and her eyes wet",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "In the toaster's reflection, the woman in the apron is right behind you, very close, looking at your messy hair. A cold hand smooths it down, once. You drop the water bowl and do not stop running until you are on your own porch.",
+              "art": "A curved chrome toaster reflecting a smiling woman in a 1959 apron standing right behind a startled teenager, a dropped water bowl splashing across the kitchen floor, a cat bolting away",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-mrs-varga",
+            "label": "Call Mrs. Varga and tell her the kitchen misses her",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You call her sister's number in Sacramento. Mrs. Varga answers, sleepy, and you tell her the house is lonely and the dishes miss her. She laughs, cries a little, and admits nobody has seen her kitchen since the divorce. \"Leave the dishes. I'll be home Sunday.\" Behind you, very softly, the chair tower topples over.",
+              "art": "A teenager on a kitchen wall phone with a long curly cord at midnight, smiling gently, a tower of chairs toppling over behind them, a cat curled on the windowsill",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The line clicks, and a voice that is definitely not Mrs. Varga's says, \"This is Larkspur Homes. The owner is unavailable. Would you like to schedule a showing?\" Every cabinet door in the kitchen swings open at once, perfectly stocked.",
+              "art": "A pale teenager holding a kitchen wall phone receiver at arm's length at midnight, every cabinet door in the kitchen swung wide open on rows of perfectly arranged identical cans and boxes",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-one-minute",
+        "title": "One Minute on the Lawn",
+        "place": "The front lawn of 13 Crystal Street, 2 a.m.",
+        "text": "The dare is simple: stand on the lawn of 13 Crystal Street for one full minute. Your crew watches from behind the Dombrowskis' station wagon. The grass under your sneakers is greener than any grass has a right to be, mowed into perfect diagonal stripes, and as you stand there the stripes slowly turn to point at the front door. The pink plastic flamingos swivel their heads. Upstairs, two windows light up at once, like eyes opening, and the porch steps settle into a smile.",
+        "art": "A teenager standing alone on a perfectly striped emerald lawn at night before a pristine split-level model home, pink plastic flamingos turning their heads, two upstairs windows glowing like eyes, friends peeking from behind a station wagon",
+        "choices": [
+          {
+            "id": "stare-it-down",
+            "label": "Stand your ground and finish the full minute",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You count out loud, one Mississippi at a time, while the house stares and the flamingos edge closer. At sixty you stare right back into those upstairs windows, and the house blinks first: the lights flicker off, the lawn stripes go crooked, and a flamingo falls over. Your crew loses their minds cheering.",
+              "art": "A teenager standing defiantly on a striped green lawn at night, two upstairs windows of a pristine split-level house flickering dark, a pink plastic flamingo tipping over, friends cheering behind a station wagon",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "At forty-two the sprinklers snap on and swivel to face you, spraying water that smells like lemon floor polish. The flamingos herd you toward the porch, and you only escape by diving over the hedge, dripping and fragrant. You smell like a clean kitchen for two days.",
+              "art": "A soaked teenager diving over a trimmed hedge at night as lawn sprinklers spray them, pink plastic flamingos clustered on a perfect lawn, a pristine house glowing behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tacky-it-up",
+            "label": "Rearrange the lawn ornaments into the tackiest display in California",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You line the flamingos up in a conga line, give a garden gnome your sunglasses, and drape your flannel over the mailbox like a cape. The house makes a sound like a vacuum cleaner choking on a sock. Every blind upstairs snaps shut in disgust, and the lawn stripes go wobbly. You win the dare and, honestly, the night.",
+              "art": "Pink plastic flamingos arranged in a conga line on a perfect suburban lawn at night, a garden gnome wearing sunglasses, a flannel shirt draped over a mailbox, upstairs window blinds snapped shut on a pristine house",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-tacky"]
+              }
+            },
+            "failure": {
+              "text": "Every ornament you move slides back into place the second you let go. Then the gnome in your hand smiles, a little too wide, and you drop it and run. The next morning there is a gnome on your own front step, facing your door.",
+              "art": "A smiling ceramic garden gnome sitting on a suburban front step at dawn facing a closed front door, dew on the welcome mat, a perfect lawn across the street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "save-the-dandelion",
+            "label": "Kneel and protect the one dandelion growing through a crack in the walk",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "There is exactly one flaw: a dandelion pushing up through a crack in the front walk. You cup your hands around it and pour your water bottle over its roots. Upstairs, the eye-windows soften. For a moment a woman in an apron stands in one of them, palm flat against the glass, looking at the weed like it is the most beautiful thing she has ever seen.",
+              "art": "A teenager kneeling on a pristine front walk at night cupping a single yellow dandelion growing from a crack, an upstairs window glowing with a woman in a 1959 apron pressing her palm to the glass",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-dandelion"]
+              }
+            },
+            "failure": {
+              "text": "The house notices what you are looking at. With a sound like a zipper, the crack in the walk seals itself, and the dandelion is simply gone. Upstairs the windows blaze brighter, and the porch steps curve into a wider smile.",
+              "art": "A teenager kneeling on a flawless sealed concrete walk at night, a pristine split-level house above with two blazing upstairs windows and porch steps curved like a wide smile",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-get-out",
+        "title": "Get Out",
+        "place": "Your bedroom, 3 a.m.",
+        "text": "You wake up because your room is clean. Not tidied: clean. Everything on your walls hangs perfectly level, your clothes are folded into squares, your comics are boxed and labeled, and you are tucked into a bed you did not make, with hospital corners so tight you can barely breathe. The room smells like lemon polish and warm cookies. From the heating vent, a woman's voice whispers, urgent: \"Get out. Get out while it still thinks you're tidy.\"",
+        "art": "A teenager tucked rigidly into a perfectly made bed in an eerily spotless 1980s bedroom at night, clothes folded into neat squares, labeled boxes stacked in rows, a faint glow seeping from a heating vent in the wall",
+        "choices": [
+          {
+            "id": "wreck-the-room",
+            "label": "Kick off the covers and wreck the room",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You thrash until the hospital corners pop like buttons, then fling your folded laundry in every direction, knock everything on the walls crooked and dump the comics in a glorious heap. The lemon smell fades. The room becomes yours again: loud, cluttered and perfect in the only way that counts.",
+              "art": "A triumphant teenager standing on a rumpled bed amid flying laundry and a heap of comic books in a 1980s bedroom at night, crooked rock-band pinups on the walls, sheets tangled everywhere",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The corners tighten like a sealed envelope. You lie there, pinned and wide awake, while out in the hall a vacuum cleaner goes back and forth, back and forth, until sunrise. At breakfast your family compliments your room, and you want to scream.",
+              "art": "A wide-eyed teenager pinned flat under impossibly tight bedsheets in a spotless 1980s bedroom at dawn, clothes folded in neat squares, the shadow of a vacuum cleaner under the door",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "answer-the-vent",
+            "label": "Whisper back into the vent: \"Who are you?\"",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "hungry-house-crack",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Somebody who used to fold things,\" the voice says, \"and hated every minute.\" She tells you a secret: the house cannot stand a door left open. You creep through your house propping every door wide, and the sheets loosen with a sigh. \"Thank you,\" says the vent, and something in her voice almost laughs.",
+              "art": "A teenager crouched by a bedroom heating vent at night whispering into the grille, warm light spilling through a row of wide-open doors down the hall behind them, loosened bedsheets trailing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-vent-voice"]
+              }
+            },
+            "failure": {
+              "text": "The vent breathes out warm air that smells exactly like fresh cookies, and your eyelids get heavy, so heavy. You wake at dawn in a pastel cardigan you have never owned, buttoned all the way to your chin.",
+              "art": "A drowsy teenager waking at dawn in a buttoned-up pastel cardigan, curled on the carpet beside a heating vent, a tray of perfect cookies on the dresser, pale light through the blinds",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "label-it-mine",
+            "label": "Grab a marker and relabel every box MINE",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The house labeled everything, so you relabel it. MINE on the comics, the sock drawer and, for good measure, your own forehead. The room goes very still and confused, like a dog that has been told no. A model home only works while nobody owns it, and slowly the corners of the bedsheet let go.",
+              "art": "A teenager in a 1980s bedroom at night scrawling on cardboard boxes with a fat black marker, a smudge of marker on their forehead, bedsheets slipping loose behind them, a lamp glowing",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The marker writes on its own, in neat cursive: DISPLAY ONLY. Every box, every drawer, your arm. You scrub until your skin is pink, and it does not come off until noon.",
+              "art": "A teenager scrubbing at neat cursive ink on their forearm at a bathroom sink in morning light, a fat marker on the counter, tidy stacked boxes visible in the bedroom behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "hungry-house-rooms-that-werent",
         "title": "The Rooms That Weren't There",
         "place": "Inside 13 Crystal Street",

@@ -386,6 +386,257 @@
         ]
       },
       {
+        "id": "spring-queen-look-up",
+        "title": "Look Up",
+        "place": "Glimmer Falls High gym, Halloween Hop rehearsal, after dark",
+        "text": "The student council is rehearsing the Halloween Hop crowning, and Chip Merriweather is standing on the stage in a cardboard crown beside Tasha Greene, who is practicing her surprised face. You glance up. In the rafters above the stage hangs a galvanized bucket on a fraying rope, dripping, and next to it, sitting on the catwalk with her mint gown hanging down like a curtain, is Roz. \"Every year somebody thinks it's funny,\" she says. \"And every year nobody looks up.\"",
+        "art": "A high school gym stage with two teenagers in cardboard crowns rehearsing a coronation, high above them in the rafters a dripping galvanized bucket on a fraying rope, a ghostly prom queen in a mint gown seated on the catwalk beside it",
+        "choices": [
+          {
+            "id": "climb-the-catwalk",
+            "label": "Climb the catwalk ladder and grab the bucket before it drops",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You shinny up the ladder and get both hands on the rope just as the last strand gives. The bucket is heavier than it looks. Inside is a quart of lime gelatin and a card in a jock's blocky print: For Our Queen. Roz looks at it for a long time. \"Lime,\" she says. \"Mine was rain.\"",
+              "art": "A teenager on a high gym catwalk gripping a fraying rope and a heavy galvanized bucket of green gelatin, a ghostly prom queen in a mint gown seated beside them, a student rehearsal on the stage far below",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-caught-the-bucket"]
+              }
+            },
+            "failure": {
+              "text": "You are halfway up when the rope lets go. The bucket swings down in a perfect arc and empties over you instead of the stage: ice-cold rainwater full of brown gardenia petals. The whole gym laughs, and for one horrible second the laughter has an echo to it, like a gym full of people from 1966.",
+              "art": "A teenager clinging to a gym ladder drenched by a swinging bucket of rainwater and brown flower petals, students on the stage below laughing, faint ghostly 1966 dancers echoing among them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "clear-the-stage",
+            "label": "Shout for everyone to get off the stage, right now",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Everybody off! Fire drill! Free pizza!\" Chip backs you up in his best class-president voice, and the stage empties in ten seconds flat. The bucket drops onto the crowning spot with a crash and a green splash. Up in the rafters, Roz claps slowly, and then, surprising everyone including herself, she laughs.",
+              "art": "Students scrambling off a high school stage as a galvanized bucket crashes down and splashes green gelatin across the boards, a preppy teen in a cardboard crown waving everyone clear, a ghostly prom queen laughing in the rafters",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Everybody thinks you're doing a bit. Tasha even curtsies. You end up sprinting onstage to shove her clear yourself, and the bucket clangs down over your head like a cartoon bell. You stand there dripping and wearing it while the Hop committee gives you a standing ovation.",
+              "art": "A dripping teenager standing on a high school stage with a galvanized bucket upside down over their head, green gelatin oozing down their shoulders, a student committee applauding from folding chairs",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-who-hung-it",
+            "label": "Call up to Roz and ask who hung the bucket",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"Look at the knot,\" Roz says. It's a lineman's hitch, the same knot three boys used on a ladder in 1966. You follow her finger down to the bleachers, where two junior varsity guys are trying very hard to look innocent. One word from you and the whole student council turns to stare at them. For once, the people who rigged the joke are the ones everybody is looking at.",
+              "art": "A ghostly prom queen on a gym catwalk pointing down at two guilty-looking teenage boys in varsity jackets on the bleachers, a student council turning to stare at them, a teenager at the foot of the ladder",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                },
+                "flags": ["spring-named-the-pranksters"]
+              }
+            },
+            "failure": {
+              "text": "Roz leans over the catwalk until her crown nearly falls. \"You want to know who?\" The gym lights stutter, and every bleacher seat in the building slams up and down like thunderous applause. When it stops, the rehearsal has fled, the bucket is gone, and you are alone with a puddle shaped like a crown.",
+              "art": "A dim high school gym with bleacher seats flapping wildly in the flickering lights, a furious ghostly prom queen leaning from the catwalk, a lone teenager beside a puddle shaped like a crown",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "spring-queen-say-her-name",
+        "title": "Say Her Name Three Times",
+        "place": "A slumber party at the Okafor house, midnight",
+        "text": "Nkechi Okafor's slumber party has reached the part of the night where somebody lights a candle and lines everyone up in front of the bathroom mirror. \"Say Spring Queen three times,\" Nkechi whispers, \"and she crowns you.\" Five sleepy kids and you giggle through it. On the third time the giggling stops, because in the mirror everyone is wearing a 1966 gown or a white dinner jacket, and standing behind them, dripping, is Roz. She does not look flattered. \"A game,\" she says. \"I'm a game now.\"",
+        "art": "A candlelit pink-tiled bathroom at a slumber party, kids in pajamas and sleeping bags crowded before a mirror, their reflections dressed in 1966 prom gowns and white dinner jackets, a dripping ghostly prom queen in a gardenia crown standing behind them in the glass",
+        "choices": [
+          {
+            "id": "tell-the-true-story",
+            "label": "Say her real name and tell everyone what actually happened",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "spring-forged-note",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Her name is Rosalind Vance,\" you say, \"and she wasn't a ghost story. She was a track star who was going to ask a girl to dance.\" The candle steadies. In the mirror the gowns fade back to pajamas, and Roz's reflection looks at each kid in turn, like she is memorizing who listened. \"That's so much sadder,\" Nkechi whispers, and nobody ever plays the game again.",
+              "art": "Kids in pajamas sitting quietly on a bathroom floor around a steady candle, listening to a teenager speak, in the mirror a ghostly prom queen gazing gently at each of them, her gardenia crown glowing softly",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-said-her-name"]
+              }
+            },
+            "failure": {
+              "text": "You start to explain, but it comes out the way the town always told it: a silly girl, a roof, a storm. Roz's reflection goes rigid. The mirror fogs, and a fingertip traces the word ACCIDENT in the steam and underlines it twice. The candle blows out, and six kids scream in perfect harmony.",
+              "art": "A fogged bathroom mirror with a ghostly fingertip tracing streaks through the steam, a candle smoking as it gutters out, kids in pajamas screaming and clutching each other in the dark",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "cover-the-mirror",
+            "label": "Throw a bath towel over the mirror and get everyone out",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Towel over the glass, candle in the sink, kids out the door in a stampede of sleeping bags. You hold the door shut while the faucet runs by itself for a full minute. Then it stops, and from under the door creeps one small, polite puddle and a single gardenia petal.",
+              "art": "A teenager holding a bathroom door shut in a dark hallway while kids in pajamas flee dragging sleeping bags, a small puddle and a single white gardenia petal creeping out from under the door",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The towel slides off as if someone tugged it. Every reflection turns to look at you, and then the hall mirror, the compact in Nkechi's purse and the back of a spoon in the kitchen all show the same wet girl, all night, wherever you look.",
+              "art": "A frightened teenager in a dark kitchen staring at the back of a shiny spoon, the reflection showing a dripping ghostly prom queen in a gardenia crown, a towel slipping off a hallway mirror behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "crown-her",
+            "label": "Grab the dress-up tiara and crown Roz instead",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hold a dime-store tiara up to the mirror over Roz's reflection and announce her in your best pageant voice: \"Your Spring Queen, Rosalind Vance!\" The slumber party catches on and hums a wobbly processional. Roz's reflection puts a hand over her mouth. \"Nobody announced me,\" she says. \"They just read my name and played the song.\"",
+              "art": "A teenager holding a sparkly dime-store tiara up to a bathroom mirror where it rests on a ghostly prom queen's head, kids in pajamas humming a procession behind them, the ghost covering her mouth with delight",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tiara touches the glass and the mirror crowns you back. You spend the rest of the night unable to take off a crown of wet, wilted gardenias that only you can feel, and every time you laugh, you taste rain.",
+              "art": "A teenager in pajamas lying awake in a sleeping bag wearing a crown of wet wilted gardenias, raindrops trickling down their forehead, sleeping kids around them in a dark living room",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "spring-queen-need-a-lift",
+        "title": "Need a Lift?",
+        "place": "Quarry Road in the rain, 11 p.m.",
+        "text": "The late activity bus home from the Pine Ridge away game is crawling down Quarry Road through a storm that came out of a clear sky. In the headlights a girl in a mint gown stands on the shoulder with her shoes in her hand and her crown streaming, and Mrs. Dombrowski stops, because Mrs. Dombrowski always stops. The girl climbs on, drips down the aisle and sits beside you. \"Is this the bus to the gym?\" Roz asks. \"I'm so late. She's waiting.\" You know this story from every sleepover of your life, and it never ends with the girl getting where she's going.",
+        "art": "A yellow school bus at night on a rainy country road, headlights cutting through the downpour, inside a teenager on a vinyl seat beside a soaked ghostly prom queen holding her shoes in her lap, rain streaming down the windows",
+        "choices": [
+          {
+            "id": "lend-your-jacket",
+            "label": "Give her your jacket and keep her talking all the way to the gym",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "She pulls your jacket on over her gown and talks the whole way: relay splits, a girl who fixes her own motorcycle, a song she has been saving. At the school gates the seat beside you is suddenly vacant and warm. Your jacket is folded on it, bone dry and smelling of gardenias, and in the pocket is a ticket stub from the 1966 Spring Fling.",
+              "art": "A teenager on a school bus seat holding up an old ticket stub, a neatly folded jacket on the warm vinyl seat beside them, a single gardenia petal resting on it, rain-streaked windows glowing with school gate lights",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-gave-a-lift"]
+              }
+            },
+            "failure": {
+              "text": "She takes the jacket and goes quiet, staring out at the rain. At the school gates she is gone, and so is your jacket. In the morning you find it hanging off the gym's drainpipe two stories up, soaked through, flapping in the wind like a flag.",
+              "art": "A soaked teenage jacket snagged on a drainpipe high on a brick high school gym wall at dawn, flapping in the wind, a tired teenager staring up at it from the wet parking lot",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "watch-the-mirror",
+            "label": "Watch her in the bus driver's big mirror instead of looking right at her",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "In the mirror, the seat beside you holds a seventeen-year-old in a wet gown, shivering, chewing her thumbnail, more nervous than scary. She is rehearsing under her breath: Del, will you dance with me. Del, will you. When you look back at the seat itself, there is only a puddle, and you understand you just heard a girl practice asking.",
+              "art": "The wide rearview mirror of a school bus reflecting a nervous teenage girl in a wet mint gown biting her lip, the actual bus seat beside a teenager holding a small puddle of rainwater",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "In the mirror the whole bus is full of her, a girl in a mint gown in every seat, every one of them turning slowly to look at you. Mrs. Dombrowski slams the brakes, and the bus slides gently into a ditch full of rainwater, where it sits until the tow truck comes at dawn.",
+              "art": "A bus driver's rearview mirror showing ghostly prom queens in mint gowns filling every seat and turning to stare, a yellow school bus tilted in a flooded roadside ditch in the rain",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "get-her-there",
+            "label": "Tell Mrs. Dombrowski to floor it and beat the storm to the gym",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "You call the curves from the front step like a rally navigator, and Mrs. Dombrowski takes Quarry Road like a getaway driver. The bus skids into the school lot at 11:59 with every passenger whooping. Roz is on her feet before the doors fold open. \"On time,\" she breathes. \"I was never on time for anything.\" She runs into the rain toward the gym, laughing.",
+              "art": "A yellow school bus skidding into a rainy high school parking lot in a spray of water, whooping teenagers at the windows, a ghostly prom queen in a mint gown running laughing toward glowing gym doors",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The bus fishtails on the wet curve and every window fogs at once with the same small handprint. When the glass clears, you are parked at the gym in total silence, the seat beside you wet, the dashboard clock stopped at 11:59, and nobody on the bus can remember the last ten minutes.",
+              "art": "The fogged windows of a school bus at night each marked with the same small handprint, a dashboard clock stopped at 11:59, dazed teenagers sitting silent in their seats outside a dark high school gym",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "spring-queen-couples-skate",
         "title": "Couples Only",
         "place": "Crystal Street, two a.m.",

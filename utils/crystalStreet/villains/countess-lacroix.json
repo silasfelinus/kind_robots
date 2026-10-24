@@ -363,6 +363,281 @@
         ]
       },
       {
+        "id": "countess-lacroix-invite-me-in",
+        "title": "You Have to Invite Me In",
+        "place": "Your front door, Crystal Street, 11 p.m.",
+        "text": "The doorbell plays the first four notes of a disco song it does not know. On the porch stands a tall woman in a white fur stole, gold platform boots and sunglasses at night, twirling a long-stemmed black rose. \"Darling, my Cadavrillac has died on your charming little street. May I use your telephone?\" She smiles with a few too many teeth and does not step over the threshold. \"Of course,\" she adds lightly, \"you'll have to say the words. House rules. Old-fashioned of me.\"",
+        "art": "A suburban front door at night opened onto a tall glamorous woman in a white fur stole, gold platform boots and sunglasses standing on the porch under a yellow light, a teenager holding the screen door, a gleaming vintage white convertible at the curb",
+        "choices": [
+          {
+            "id": "porch-chat",
+            "label": "Keep the screen door latched and chat with her through it",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You do not say the words. You say, \"Tell me about your club.\" She leans on the porch rail and talks for an hour: the farm kids, the shy boys in borrowed platforms, the drag queens, EVERYBODY IS SOMEBODY UNDER THE BALL. She never notices the time. At the first gray light she gasps, says \"Rude!\" and is gone in a swirl of fur, and she sounds almost grateful.",
+              "art": "A glamorous woman in a white fur stole leaning on a porch rail talking animatedly to a teenager behind a latched screen door, the sky turning pale gray at the horizon",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-porch-chat"]
+              }
+            },
+            "failure": {
+              "text": "\"Darling, you're being tiresome.\" She hums one bar of a disco song through the screen, and your feet start to tap on their own. You shimmy in the hallway until dawn while she watches from the porch, sipping something red from a thermos, and you wake up with the stiff knees of a forty-year-old.",
+              "art": "A teenager dancing helplessly in a dim hallway behind a screen door, a glamorous woman in fur watching from the porch with a thermos, gold boots tapping",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "flags": ["countess-aged"]
+              }
+            }
+          },
+          {
+            "id": "slam-and-bless",
+            "label": "Slam the door and bless the threshold",
+            "intent": "brave",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "holy-water",
+              "amount": 2
+            },
+            "success": {
+              "text": "Slam. You splash blessed water along the doorsill and on every windowsill in the house. She knocks, then taps at the windows, then sighs dramatically down the chimney. \"Fine. FINE. I've been thrown out of better houses than this one.\" At three in the morning you hear her Cadavrillac finally start, and the horn plays a sulky little tune.",
+              "art": "A teenager splashing holy water along a doorsill inside a dark front hall, a glamorous silhouette in fur pressing her palms against the frosted door glass",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bottle slips and shatters on the tile. Through the mail slot comes a long, gloved finger, which beckons. You do not open the door, but you spend the whole night sitting against it while she sings you every number one hit from 1977, in order, with commentary.",
+              "art": "A long gloved finger with sharp painted nails beckoning through a brass mail slot, a teenager slumped against the inside of the door with shards of a broken bottle on the floor",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "invite-her-for-cocoa",
+            "label": "Invite her in for cocoa, on your house rules",
+            "intent": "reckless",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "countess-new-moves",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"You can come in. Cape on the hook, boots on the mat, and you have cocoa.\" To your shock, she obeys. She sits at your kitchen table, cocoa untouched, studying the family photos on the fridge. She lingers on one of your grandmother laughing at her seventieth birthday. \"She looks wonderful,\" the Countess says quietly. \"How does she do it?\" She leaves before you can answer.",
+              "art": "A glamorous vampire woman sitting at a cozy 1980s kitchen table with an untouched mug of cocoa, gazing at family snapshots on a refrigerator, her fur cape hanging on a hook by the door",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["countess-saw-grandma"]
+              }
+            },
+            "failure": {
+              "text": "The second you say \"come in,\" she is already in. The TV switches itself to a disco channel, your mother comes downstairs doing the Hustle in her bathrobe, and the Countess dances your whole family around the living room until sunrise. Everybody wakes up with a backache and a mysterious taste for easy listening.",
+              "art": "A glamorous vampire woman leading a family in bathrobes in a disco dance around a suburban living room at night, a mirror ball spinning from the ceiling fan",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-glamour-snaps",
+        "title": "Mirror, Mirror at Glamour Snaps",
+        "place": "Glamour Snaps portrait studio, Starlight Mall, 10 p.m.",
+        "text": "Glamour Snaps is running a midnight special: LOOK LIKE 1977 AGAIN! A line of kids from school sits in the makeover chairs while pale assistants in gold hot pants feather their hair and dab glitter on their cheeks. Each time the big flash pops, the kid in the chair sags a little, and gets up with crow's feet. You are next in line. In the huge lit makeup mirror you can see yourself, the chairs, the hairdryers and the assistants. You cannot see the woman in the gold jumpsuit standing right behind you, her hand resting on your shoulder.",
+        "art": "A glitzy mall portrait studio at night with makeover chairs and a huge bulb-lit makeup mirror, teenagers getting feathered hair from pale assistants in gold hot pants, a camera flash popping, a cold hand resting on one teenager's shoulder",
+        "choices": [
+          {
+            "id": "snap-her-picture",
+            "label": "Spin around and snap her with your own camera",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "Flash. The Countess shrieks and covers her face, but the photo is already sliding out. It develops into a woman you do not recognize: silver hair, laugh lines, maybe sixty, gorgeous and laughing at something off camera. The woman she would be now. She snatches it from your hand and stares at it, and forgets to stop the kids from leaving.",
+              "art": "An instant photo developing in a teenager's hand showing a laughing silver-haired woman around sixty, a glamorous vampire in a gold jumpsuit reaching for it with a stunned expression in a portrait studio",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-photo"]
+              }
+            },
+            "failure": {
+              "text": "Flash. The photo comes out showing only you, alone, in front of an empty chair, and two cold hands settle on your shoulders. \"Darling, never take a lady's picture without asking.\" You get the full makeover. Your hair stays feathered for a week and your back is stiff for two days.",
+              "art": "A teenager in a makeover chair with enormous feathered hair and glitter cheeks, two cold gloved hands on their shoulders, an instant photo on the floor showing the teenager alone in the chair",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "flags": ["countess-aged"]
+              }
+            }
+          },
+          {
+            "id": "clear-the-chairs",
+            "label": "Pull the kids out of the makeover chairs before the next flash",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
+            "success": {
+              "text": "You grab wrists and haul, chair by chair, glitter flying. The assistants hiss and grab back, but the kids come stumbling out the studio door into the dark mall concourse, young, confused, and furious about their hair. Behind you, the big camera flash pops at an empty chair and shatters.",
+              "art": "A teenager dragging glitter-dusted classmates out of makeover chairs through a portrait studio door into a dark mall concourse, pale assistants in gold hot pants hissing behind them, a camera flash bursting",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "An assistant spins your chair around before you can get up. Pop goes the flash. You stagger out with your friends, all of you rubbing your lower backs, arguing about whether music was better in your day, which for some reason now feels like 1977.",
+              "art": "A group of teenagers shuffling out of a glitzy portrait studio into a dark mall concourse rubbing their lower backs, glitter on their cheeks, a big camera flash glowing behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "most-1986-look",
+            "label": "Climb in the chair and demand the most 1986 look possible",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "aqua-net",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"Teased,\" you tell the assistant. \"Huge. Asymmetrical. Neon. Shoulder pads.\" Half a can of Aqua-Glow later you look like the cover of a synth-pop single. The Countess steps out from behind the mirror, horrified and fascinated. \"What IS this?\" she whispers, touching the hair. \"Is it allowed?\" She spends the rest of the night asking for a side ponytail, and nobody else gets the flash.",
+              "art": "A teenager in a makeover chair with enormous teased asymmetrical neon hair and shoulder pads, a glamorous vampire in a gold jumpsuit staring in fascinated horror and touching the hair",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-new-moves"]
+              }
+            },
+            "failure": {
+              "text": "The assistant ignores you and gives you the full 1977: center part, feathered wings, gold lamé. The flash pops. Your mother screams when you walk in the door, then asks if you want to borrow her old platforms.",
+              "art": "A teenager with perfectly feathered 1977 hair and a gold lame shirt standing in a suburban doorway at night, a parent holding up a pair of platform shoes",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-at-the-window",
+        "title": "Tapping at the Window",
+        "place": "Your bedroom window, second floor, 2 a.m.",
+        "text": "Tap. Tap. Tap. You open your eyes. Outside your second-floor window, floating in the air with her roller skates dangling, is one of the Lacroix Lovelies: pale as milk, gold hot pants, bat-wing cape fluttering, a feathered hairdo that has not moved since 1979. She drags one long nail down the glass with a squeal. \"Let me in, honey,\" she sings. \"The party's just getting started. It's always just getting started.\" Her eyes look very, very tired.",
+        "art": "A pale young woman in gold hot pants and a bat-wing cape floating outside a second-floor bedroom window at night with roller skates dangling, one long nail on the glass, a teenager sitting up in bed in moonlight",
+        "choices": [
+          {
+            "id": "ask-what-year",
+            "label": "Open the window a crack and ask her what year she thinks it is",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "countess-porch-chat",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"It's 1979, silly.\" You tell her it's 1986. You tell her about Walkmans and music videos on cable and the space shuttle and the price of gas. She drifts closer, listening, her face crumpling. \"My mom,\" she says. \"I told her I'd be home by one.\" Her name is Linda, she says. She floats away toward Main Street, slowly, looking at the houses like she is seeing them for the first time.",
+              "art": "A pale young woman in a bat-wing cape floating outside a bedroom window, her face crumpling with emotion as a teenager talks to her through a cracked-open window, moonlit rooftops behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-lovely-linda"]
+              }
+            },
+            "failure": {
+              "text": "The second the window cracks, she slips in like smoke and skates figure eights around your bedroom ceiling, upside down, singing. She will not leave. You spend the rest of the night on the couch downstairs while disco thumps through the floor above.",
+              "art": "A pale young woman in gold hot pants roller skating upside down across a teenager's bedroom ceiling, cape flapping, a teenager fleeing out the bedroom door with a pillow",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "flashlight-sunrise",
+            "label": "Blast her with your flashlight like a sunrise",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "You click the flashlight full in her face. She shrieks and tumbles backward through the air like a kite in a gust, cape flapping, and lands in the Delgados' hedge with a crunch of branches. From the hedge comes a muffled voice: \"Not cool.\" She skates off down the sidewalk, and for once her hair is a mess.",
+              "art": "A flashlight beam blasting out of a bedroom window at night, a caped figure in gold hot pants tumbling backward through the air toward a hedge, roller skates flailing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The flashlight flickers and dies. In the dark, the Lovely presses her face to the glass and smiles, and then there are two of them, then four, all along the window ledge, tapping in perfect disco rhythm until the sky goes gray.",
+              "art": "Four pale young women in bat-wing capes crowded on a second-floor window ledge at night tapping on the glass in unison, a teenager clutching a dead flashlight in bed",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "close-the-curtains",
+            "label": "Draw the curtains, turn up the radio and refuse to answer",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Curtains shut, radio on: KGLM's overnight show, and the DJ is playing the loudest, most aggressively 1986 song in the station's library. The tapping falters. It tries to match the beat and cannot. When you peek at dawn, there is only a single gold sequin stuck to the glass, and the faint smell of hairspray.",
+              "art": "A teenager hunkered in bed with the curtains drawn and a glowing clock radio turned up, a single gold sequin stuck to the outside of the window glass in early dawn light",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The radio picks up nothing but disco. Every station. The curtains blow open on their own, the window unlatches with a click, and you spend the rest of the night holding it shut with both hands while she skates in slow circles outside, humming.",
+              "art": "A teenager straining to hold a bedroom window shut with both hands as curtains billow inward, a caped figure in roller skates circling in the moonlight outside",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "countess-lacroix-mirror-ball-moon",
         "title": "Mirror Ball Moon",
         "place": "Crystal Street, one a.m.",

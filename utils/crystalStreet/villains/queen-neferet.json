@@ -351,6 +351,272 @@
         ]
       },
       {
+        "id": "queen-neferet-machine-parts",
+        "title": "Machine Parts",
+        "place": "The library loading dock, 11 p.m.",
+        "text": "The Halvorsen Foundation's truck is backed up to the library loading dock, and in the back, under a moving blanket, sits the original 1911 shipping crate, stenciled MACHINE PARTS. Mr. Ferreira, the night custodian, won't go near it. \"It knocks,\" he tells you, and crosses himself. As if on cue, from inside the crate come three slow, polite knocks, the way a guest knocks when she has been kept waiting at the door for a very long time.",
+        "art": "A library loading dock at night under a buzzing caged bulb, a battered old wooden shipping crate with faded stenciled paint in the back of a box truck, an uneasy custodian clutching a mop, a teenager stepping closer, golden sand trickling from a seam",
+        "choices": [
+          {
+            "id": "knock-back",
+            "label": "Knock back three times and ask who is there",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "neferet-trusted",
+              "amount": 1
+            },
+            "success": {
+              "text": "You knock three times. A pause, then a voice through the slats, dry as papyrus and perfectly gracious: \"Someone with manners. At last.\" She asks you to read her the stencil on the crate, and you do. \"Machine parts,\" she repeats, and the silence that follows is worse than any scream. \"That is what they called me. Remember it.\"",
+              "art": "A teenager kneeling with one ear against a weathered wooden crate in the back of a truck, knuckles raised to knock, a thin stream of golden sand glittering out between the slats",
+              "effects": {
+                "nerve": 1,
+                "flags": ["neferet-crate"]
+              }
+            },
+            "failure": {
+              "text": "You knock. The crate knocks back, faster. Then every crate, box and filing cabinet on the loading dock starts knocking, hundreds of knocks at once, until Mr. Ferreira drops his mop and runs, and you run right behind him.",
+              "art": "A custodian and a teenager fleeing a library loading dock at night while stacked crates and filing cabinets rattle and shake, dust and golden sand puffing from every seam",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "pry-it-open",
+            "label": "Find a crowbar and pry the lid off",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "The nails shriek out one by one. Inside there is no monster, only old straw and the small things that were packed around her and then forgotten: a pair of reed sandals, a wooden boat the size of your hand, a jar sealed with wax. Little things for a long journey. You suddenly feel like a burglar, and you set the lid back very gently.",
+              "art": "An opened wooden crate full of old straw holding small ancient objects, reed sandals, a tiny carved wooden boat and a wax-sealed jar, a teenager holding a crowbar and looking ashamed under a caged bulb",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The lid springs up on its own and a blast of hot desert wind knocks you flat. Sand pours out, ankle-deep, then knee-deep, and by the time you dig yourself free, the loading dock is a dune and Mr. Ferreira is on the pay phone, calling his priest.",
+              "art": "A teenager half buried in a drift of golden sand on a library loading dock at night, a wooden crate lid hanging open in the truck above, a custodian at a pay phone in the background",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-the-manifest",
+            "label": "Ask Delphine to dig out the exhibit's shipping papers",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 2
+            },
+            "success": {
+              "text": "Delphine finds the folder in about four minutes, because she is Delphine. The 1911 bill of lading lists one crate, Alexandria to Minneapolis, MACHINE PARTS, customs inspection waived, signed with a flourish by C. Halvorsen. Delphine's mouth goes thin. \"That,\" she says, \"is a confession on letterhead.\"",
+              "art": "A librarian in a cardigan and a teenager bent over a yellowed shipping document under a green desk lamp in a cluttered library office, an old red wax customs seal on the page",
+              "effects": {
+                "nerve": 1,
+                "flags": ["neferet-bill-of-lading"]
+              }
+            },
+            "failure": {
+              "text": "The exhibit's paperwork is a single page: PROPERTY OF THE HALVORSEN FOUNDATION, PROVENANCE PRIVATE. While you're reading it, the lights dim, the office fills with the smell of cedar and river mud, and the filing cabinet drawers slide open one by one, all on their own.",
+              "art": "A dim library office with filing cabinet drawers sliding open one by one, a librarian and a teenager staring in alarm, faint golden dust drifting through the lamplight",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "queen-neferet-not-how-it-happened",
+        "title": "That Is Not How It Happened",
+        "place": "The Glitter Box Playhouse, midnight double feature",
+        "text": "Frankie Fontaine has booked the 1932 mummy picture for the Glitter Box midnight show, and the crowd is having a ball, booing the villain and tossing popcorn. Then the movie stops. On the screen, the bandaged figure turns, looks straight out at the audience and unwinds its wrappings, and underneath is a woman in white linen and gold. She steps out of the light onto the stage, and the theater goes silent. \"That,\" says Queen Neferet, \"is not how it happened.\"",
+        "art": "A plush old community theater at midnight, a projector beam cutting through haze, a regal woman in white linen and a gold crown stepping off a glowing movie screen onto the stage, an audience frozen mid popcorn toss",
+        "choices": [
+          {
+            "id": "let-her-tell-it",
+            "label": "Ask her to tell it the way it really happened",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "Frankie kills the reel and brings the house lights up halfway. Neferet stands in the projector beam and tells it: the famine year, the granaries she opened, the house of healing at Thebes, the night men came with shovels. Nobody throws popcorn. When she finishes, someone in the balcony starts to clap, then the whole room does, and the queen inclines her head.",
+              "art": "A queen in white linen and gold standing in a projector beam on a theater stage speaking with dignity, an audience in red velvet seats rising to applaud, a stage manager in a headset at the side of the stage",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-told"]
+              }
+            },
+            "failure": {
+              "text": "You ask, but the crowd won't hush. Somebody yells \"Boo!\" out of pure habit. The queen's eyes go dark as a tomb, and sand begins to rise over the seats while the projector shows the same scene of a crate being nailed shut, over and over.",
+              "art": "Golden sand rising over red velvet theater seats while patrons scramble, a movie screen showing a wooden crate being nailed shut, a stern queen in white and gold on the stage",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "heckle-the-movie",
+            "label": "Turn on the movie with Glory and roast its curse nonsense",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Glory turn on the film instead. \"A curse? Honey, she was ROBBED!\" Glory booms as the reel starts again. You narrate every scene the way it actually went, and the audience joins in. Up on stage, Neferet laughs for the first time in four thousand years, a sound like wind chimes in a dry wind.",
+              "art": "A drag queen in sequins and a teenager standing on their seats shouting at a movie screen in a crowded theater, the audience laughing along, a queen in white linen and gold laughing on the stage",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The crowd thinks you're heckling her. The queen turns, slowly, and looks at you, and you learn what four thousand years of disappointment feels like aimed at one person. You sit down. You stay down until the house lights come up at three.",
+              "art": "A teenager sinking low into a red velvet theater seat under the cold gaze of a regal queen in white and gold on the stage, a drag queen beside them wincing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "splice-the-reel",
+            "label": "Climb to the booth and splice in a different ending",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "Toby holds the flashlight while you razor out the scene where the heroes burn her scroll and tape in the travelogue short from the other can: the Nile at sunset, boats on the water, the west bank. Home. When the projector rolls again, the queen on stage watches it with her hand over her heart.",
+              "art": "A teenager and a boy with a flashlight splicing a strip of film in a cramped projection booth, through the booth window a screen glows with the Nile at sunset, a queen on stage with a hand over her heart",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The film snaps, whips off the reel and wraps you up from ankles to chin like, well, a mummy. You hop out of the booth to cheers from an audience who thinks it's part of the show, and a queen who very clearly does not find it funny.",
+              "art": "A teenager wrapped head to toe in shiny loops of movie film hopping out of a projection booth doorway, a cheering theater crowd below, a queen on stage with arms folded",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "queen-neferet-walks-home",
+        "title": "Everything Walks Home",
+        "place": "Crystal Street, 2 a.m.",
+        "text": "A soft scraping sound wakes you. Out on Crystal Street, things are walking home. A stolen stop sign is hopping back to the corner of Vista Way. The Lindgrens' garden gnome, swiped in 1979, is trudging up their driveway trailing golden sand. A library book eleven years overdue flaps past like a tired bird. A cool, patient voice says, \"Everything taken wants to go home.\" And in your own dresser drawer, something is knocking to be let out.",
+        "art": "A moonlit suburban street at 2 a.m., a pink plastic lawn flamingo hopping back across a front lawn, a garden gnome trudging up a driveway trailing golden sand, a library book flapping through the air like a bird, a teenager watching wide-eyed from a bedroom window",
+        "choices": [
+          {
+            "id": "return-it",
+            "label": "Open the drawer and walk your own borrowed thing home",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "It's your cousin Marisol's Walkman, borrowed in June and never returned. You pull on a jacket and walk it three blocks to her porch, where it settles on the mat with a contented click. When you turn around, the stars overhead have shifted, just slightly, and a voice that sounds almost pleased says, \"So you do understand.\"",
+              "art": "A teenager in a jacket setting a portable cassette player gently on a front porch mat at night, golden sand glittering in a trail behind them, a strange sky of unfamiliar stars overhead",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-returned"]
+              }
+            },
+            "failure": {
+              "text": "You open the drawer and the Walkman bolts. You chase it six blocks in your pajamas, past porch after porch of neighbors watching their own lost things leave, and you finally corner it at the Heartstone roundabout, where it nips your finger and escapes into the dark.",
+              "art": "A teenager in pajamas sprinting down a moonlit street after a small portable cassette player scuttling away on a trail of golden sand, neighbors in doorways watching, a giant purple geode ahead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "follow-the-sand",
+            "label": "Follow the trails of sand to see where they all lead",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "Kev knows every house on his route, so he knows which trails don't belong to it. Every stolen thing on Crystal Street finds its own way home, but the sand they shed all drifts, sooner or later, the same direction: toward the library, where one window in the exhibit room glows gold. She's showing you what going home looks like.",
+              "art": "A teenager and a young paperboy with a canvas bag following glittering trails of golden sand down a dark street toward a distant library with one window glowing gold, little lost objects marching ahead",
+              "effects": {
+                "nerve": 1,
+                "flags": ["neferet-followed"]
+              }
+            },
+            "failure": {
+              "text": "The trails cross and recross until you're walking in circles on a sidewalk you've walked a thousand times, and the house numbers have all changed. You wake at dawn curled on a stranger's porch swing with sand in your sneakers and no idea how you got there.",
+              "art": "A teenager asleep curled on a porch swing at dawn with sand spilling from their sneakers, looping glittering trails of sand crisscrossing the sidewalk below in tangled spirals",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "bag-them",
+            "label": "Grab a pillowcase and stuff the escaping things inside",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You bag a gnome, two plastic flamingos and a runaway bowling trophy and tie the pillowcase shut. It thrashes, then goes still, then very politely knocks. You sit with it on the curb until you feel bad enough to let them out, and they hurry off without a backward glance. You did learn something, mostly about yourself.",
+              "art": "A teenager sitting on a curb at night beside a lumpy pillowcase, a garden gnome and two plastic lawn flamingos hurrying away down the moonlit street, golden sand glittering in their wake",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The pillowcase gets heavier with every stolen thing you stuff in, then heavier on its own, until you can't lift it, and then it starts dragging you down the street toward the library, very patiently, the way a river drags a stick.",
+              "art": "A teenager clinging to a bulging pillowcase that drags them along a moonlit suburban street toward a distant library glowing gold, golden sand streaming behind",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "queen-neferet-hall-of-cases",
         "title": "The Hall of Glass Cases",
         "place": "The exhibit room, endlessly, in a dream",

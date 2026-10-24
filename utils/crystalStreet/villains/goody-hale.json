@@ -467,6 +467,278 @@
         ]
       },
       {
+        "id": "goody-hale-three-times",
+        "title": "Say It Three Times",
+        "place": "The upstairs bathroom at Becky Pell's sleepover, 12 Crystal Street, midnight",
+        "text": "Becky Pell's sleepover has reached the dare portion of the night. The whole party, in sleeping bags and face masks, has shoved you into the upstairs bathroom with a lit candle, the light off, and one rule: look in the mirror and say \"Goody Hale\" three times. Becky's great-great-great-grandfather was a town founder, and she thinks this is hilarious. You have said it twice. The mirror has fogged over on its own, and behind your reflection, where the shower curtain should be, there is a garden at night.",
+        "art": "A teenager holding a lit candle before a fogged bathroom mirror at midnight, the reflection showing a moonlit herb garden where a shower curtain should be, giggling teens in sleeping bags crowding the doorway behind",
+        "choices": [
+          {
+            "id": "say-it",
+            "label": "Say it the third time, and mean it",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "\"Goody Hale.\" The fog clears onto a summer garden, rows of herbs drying on strings, and a tall woman in gray looks up from her work, startled, as if nobody has called her anything in a very long time. She tilts her head at you. When the candle gutters, there is a sprig of lavender lying on the sink.",
+              "art": "A teenager with a candle before a bathroom mirror showing a sunlit herb garden with bundles drying on strings, a tall woman in gray homespun looking up startled, a sprig of lavender lying on the sink",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-mirror"]
+              }
+            },
+            "failure": {
+              "text": "On the third name the candle goes out and the mirror cracks into a web of thorny lines, like briars. Everyone outside the door screams, Mrs. Pell storms upstairs in her bathrobe, and somehow you are the one who has to explain the mirror.",
+              "art": "A bathroom mirror cracked into a web of briar-shaped lines around a teenager's startled reflection, a smoking snuffed candle, a furious mother in a bathrobe filling the doorway behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-if-shes-okay",
+            "label": "Talk to her like a neighbor: \"Mrs. Hale, are you all right?\"",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "goody-hale-names",
+              "amount": 1
+            },
+            "success": {
+              "text": "The fog in the mirror goes warm, like breath. A tired voice answers from somewhere past the glass: \"Nobody's asked me that in a hundred years.\" When the light comes back on, a small cloth packet tied with string sits on the sink, smelling of mint and chamomile. It works on headaches better than anything in the medicine cabinet.",
+              "art": "A teenager speaking gently to a softly glowing fogged bathroom mirror, the faint outline of a tired woman in gray beyond the glass, a small string-tied cloth herb packet resting on the sink",
+              "effects": {
+                "nerve": 1,
+                "items": ["first-aid"]
+              }
+            },
+            "failure": {
+              "text": "The voice past the glass laughs, short and bitter. \"Manners. The men who burned my garden had lovely manners.\" The fog freezes into frost ferns across the mirror, and downstairs Becky's whole sleepover screams at once.",
+              "art": "A bathroom mirror frosted over with icy fern patterns around a teenager's shocked reflection, a candle flame bent sideways by a cold draft, sleeping bags visible through the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "lights-on",
+            "label": "Blow out the candle and flip on the light before anything happens",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You hit the switch, the hamper beside the tub explodes, and a black cat rockets out of it and through everyone's legs. The whole sleepover screams, then laughs until they cry. The cat belongs to Becky's little brother. The mirror is just a mirror. Probably.",
+              "art": "A black cat launching out of a wicker laundry hamper in a brightly lit bathroom, a teenager by the light switch, pajama-clad teens in the doorway shrieking and laughing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The switch clicks and the room stays dark. The candle is still burning, though you blew it out. In the mirror, a black cat sits on the sink, watching you. In the room, the sink is empty.",
+              "art": "A teenager frozen beside a bathroom light switch in candlelight, a mirror reflecting a black cat sitting calmly on the sink, the real sink in the room bare and gleaming",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-dunk-tank",
+        "title": "Dunk the Witch",
+        "place": "The Founders' Day carnival lot behind St. Jude's, eleven p.m.",
+        "text": "The Founders' Day committee set up its carnival a day early, and the star attraction is a dunk tank painted with a cackling green witch: DUNK THE WITCH, THREE BALLS FOR A QUARTER. Nobody is running it tonight, but it is running anyway. Hannah Averill from your homeroom sits on the plank in a pointed hat, sleepwalking, eyes closed, while softballs rise one by one out of a bucket and hang in the air, aiming at the target.",
+        "art": "A carnival dunk tank painted with a cackling green witch on a dark church lot at night, a sleepwalking teenage girl in a pointed hat on the plank with eyes closed, softballs floating in midair aimed at the target",
+        "choices": [
+          {
+            "id": "pull-her-off",
+            "label": "Vault the cage and pull Hannah off the plank",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You go over the chicken wire and haul Hannah off the plank just as a softball smacks the target. The seat drops into the tank with a splash like a gasp. Hannah wakes up in your arms, shivering. \"I dreamed the whole town was watching,\" she whispers, \"and laughing, and none of them would help.\"",
+              "art": "A teenager hauling a sleepwalking girl in a pointed hat off the plank of a carnival dunk tank at night, the seat dropping into a splash, softballs hanging in the air",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You are one second late. The ball hits and you both go in. The water is black and ice-cold and tastes of woodsmoke, and for one long moment it holds you under. You surface gasping, Hannah coughing beside you, awake and furious and scared.",
+              "art": "Two soaked teens bursting up out of the dark water of a carnival dunk tank at night, gasping, a pointed witch hat floating beside them, softballs bobbing on the surface",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "jam-the-target",
+            "label": "Jam the target arm with a bat before the next throw",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 2
+            },
+            "success": {
+              "text": "You ram the bat through the target bracket and wedge it tight. The next ball clanks, and clanks again, and the seat stays put. One by one the softballs drop to the grass like windfall apples, and Hannah sleepwalks off the plank and home to bed without ever knowing. You keep the quarters from the cash box for your trouble.",
+              "art": "A baseball bat jammed through the target arm of a carnival dunk tank at night, softballs dropping into the grass like apples, a sleepwalking girl in a pointed hat wandering away toward the street",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The bat snaps clean in half. The next ball hits, the seat drops, and while you are fishing Hannah out of the tank, every softball left in the bucket rises and turns toward you.",
+              "art": "A teenager fishing a sleepwalking girl out of a dunk tank at night, a snapped baseball bat on the grass, a dozen softballs rising from a bucket and turning toward them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "name-the-rigged-test",
+            "label": "Tell the tank the truth: the old witch test was always rigged",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Float and you're a witch. Sink and you're innocent,\" you say out loud. \"Nobody could ever win.\" The floating softballs drop all at once into the grass. On the surface of the tank, for a moment, a tall woman in gray nods at you, and the green witch painted on the side fades to a pale smudge.",
+              "art": "A teenager speaking to the dark still water of a carnival dunk tank at night, softballs dropping into the grass, the faint reflection of a tall woman in gray nodding on the surface",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-rigged"]
+              }
+            },
+            "failure": {
+              "text": "The water hears a lecture, not an apology. It heaves over the glass in one cold wave and soaks you to the skin, and when you wipe your eyes, someone has jammed the pointed hat on your head. The softballs go right on floating.",
+              "art": "A drenched teenager wearing a soggy pointed witch hat beside a carnival dunk tank sloshing over at night, softballs still floating in midair around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-poppets",
+        "title": "The Poppets",
+        "place": "The porches of Crystal Street, one a.m.",
+        "text": "Overnight, little muslin dolls have appeared on Crystal Street, each one stuffed with herbs and tied by a red ribbon to a porch light: on the Crane house, the Pell house, the Averill house, and, for some reason, yours. Now a flashlight patrol of Founders' Day committee members in bathrobes is going door to door, led by Mrs. Dolores Pell, stuffing the dolls into a trash bag. \"Devil work,\" she announces. In the roundabout, a garbage can is already burning.",
+        "art": "Small muslin dolls tied with red ribbons to suburban porch lights at night, a patrol of neighbors in bathrobes with flashlights stuffing them into a trash bag, a garbage can fire glowing in a roundabout",
+        "choices": [
+          {
+            "id": "open-one",
+            "label": "Open your poppet and see what is really inside",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 1
+            },
+            "success": {
+              "text": "You slit the seam and find feverfew, chamomile, peppermint and willow bark. \"That's a fever remedy,\" you tell the patrol. \"Whoever made these is trying to keep you well.\" Mrs. Pell sniffs one, and her face crumples like a girl's: her own grandmother used to tuck these under pillows.",
+              "art": "A teenager on a suburban porch at night opening a small muslin doll to reveal dried flowers and herbs, a woman in a bathrobe with a flashlight leaning in to sniff, a red ribbon dangling from a porch light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-poppet"]
+              }
+            },
+            "failure": {
+              "text": "The herbs puff into your face and you sneeze five times in a row, enormous honking sneezes. The patrol decides you are in on it and chases you off the porch with flashlights, and someone drops your poppet into the bag.",
+              "art": "A sneezing teenager fleeing a porch at night pursued by neighbors in bathrobes waving flashlights, a cloud of dried herbs in the air, a muslin doll dropping into a trash bag",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stand-at-the-fire",
+            "label": "Stand between the patrol and the burning can",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "You plant yourself in front of the burning can with your arms out. Father Iggy, bass case still on his back from band practice, walks up beside you, takes a poppet from the bag, blesses it and hangs it back on the nearest porch. \"Nobody burns anybody's medicine tonight,\" he says mildly. The patrol drifts home, grumbling, and the fire burns itself out.",
+              "art": "A teenager standing with arms spread before a burning garbage can on a suburban roundabout at night, a young priest with a bass guitar case on his back hanging a muslin doll on a porch light, neighbors in bathrobes retreating",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Someone shoulders past you and dumps the bag into the can. The fire flares up green, the whole street fills with the smell of burning lavender, and far off in the oak woods behind the back fences, a woman begins to cry.",
+              "art": "A garbage can fire flaring bright green on a suburban roundabout at night, a trash bag of muslin dolls tumbling into the flames, smoke curling toward dark oak woods behind backyard fences",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rehang-them",
+            "label": "Steal the bag back and rehang every poppet before dawn",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "While the patrol argues over the fire, you slip the bag off Mrs. Pell's porch rail and spend until dawn creeping house to house, tying red ribbons back onto porch lights. In the morning, the briars pushing up through the founders' lawns stop at the bottom step of every house with a poppet, as if someone asked them nicely to wait.",
+              "art": "A teenager on tiptoe tying a red-ribboned muslin doll back onto a porch light at dawn, a trash bag over one shoulder, thorny briars curling up through the lawn and stopping at the bottom step",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Mrs. Pell catches you by the hood halfway down her steps and marches you home in front of the whole street, announcing to every porch that she has caught the culprit. The poppets go in the fire anyway.",
+              "art": "A stern woman in a bathrobe and curlers marching a teenager by the hood down a suburban sidewalk at night, neighbors watching from lit porches, a garbage can fire glowing in the roundabout",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "goody-hale-effigy",
         "title": "The Effigy",
         "place": "The Heartstone roundabout, October 30",

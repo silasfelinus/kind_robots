@@ -353,6 +353,262 @@
         ]
       },
       {
+        "id": "frieda-krueger-jump-rope",
+        "title": "One, Two, Frieda's Coming",
+        "place": "The Crystal Street sidewalk, in a dream, at a dusk that never ends",
+        "text": "It is dusk on Crystal Street, and it has been dusk for hours. Under the streetlight, three little girls in matching gray pinafores and matching gray bobs are jumping rope, and the rope makes a sound like scissors closing. \"One, two, Frieda's coming for you,\" they chant. \"Three, four, sweep the salon floor. Five, six, bobby pins and picks.\" On seven, all three of them turn and say your name.",
+        "art": "Three little girls in matching gray pinafores and gray bob haircuts jumping rope under a streetlight on a dreamlike suburban street at an endless violet dusk, a teenager watching from the sidewalk, bobby pins glinting on the pavement",
+        "choices": [
+          {
+            "id": "new-verse",
+            "label": "Jump in and change the rhyme",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "You jump into the middle and chant right over them: \"Seven, eight, Frieda's cuts were great! Nine, ten, do my hair again!\" The rope stumbles. The girls giggle, real giggles, and their pinafores bloom pink and yellow and blue. You wake up still chanting, feet tangled in the sheets, with a grin you cannot explain at breakfast.",
+              "art": "A teenager jumping rope between three giggling little girls under a streetlight on a dreamlike suburban street at dusk, the girls' gray pinafores blooming into pink, yellow and blue, the rope swinging in a bright arc",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-krueger-new-rhyme"]
+              }
+            },
+            "failure": {
+              "text": "The rope catches your ankle like a telephone cord and wraps, and wraps. The chant gets faster. You wake on your bedroom floor rolled up in your own bedsheet, and the whole room smells like perm solution.",
+              "art": "A teenager waking on a bedroom carpet tightly rolled in a twisted bedsheet, a gray jump rope looped around one ankle, faint ghostly bobby pins scattered across the floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "catch-the-rope",
+            "label": "Step in and catch the rope mid-swing",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You plant your feet and catch the rope in both fists. It bucks like a garden hose, then goes slack. The girls scatter like pigeons, leaving bobby pins rolling in the gutter, and the streetlight finally clicks over from dusk to night. Night means you can wake up, so you do.",
+              "art": "A teenager gripping a slack jump rope in both fists under a streetlight on a dusky suburban street, three gray-clad little girls scattering away, bobby pins rolling along the gutter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The rope keeps turning and lifts you right off your feet. You skip, and skip, and skip, chanting along against your will, until your calves burn and dawn finally drags you out of the dream. Your legs ache all through first period.",
+              "art": "A teenager lifted off the ground mid-skip inside a whirling gray jump rope under a streetlight, three gray-bobbed little girls turning it with eerie smiles, a dreamy violet sky overhead",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "count-to-ten",
+            "label": "Count ahead in the rhyme and wake yourself on ten",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "jolt-cola",
+              "amount": 1
+            },
+            "success": {
+              "text": "Every jump-rope rhyme ends on ten, and you can hear where this one lands: never sleep again. On nine you bite your tongue, hard. On ten you are sitting up in bed, wide awake, while the last word dies in your ears. You write the whole rhyme down before you can forget it.",
+              "art": "A teenager sitting bolt upright in a 1980s bedroom at night scribbling in a spiral notebook by flashlight, faint ghostly jump-rope girls fading into the flowered wallpaper behind them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The rhyme does not end at ten. \"Eleven, twelve,\" the girls chant, and then your name, and then your street address. You wake at exactly three a.m., certain that Frieda has just written you into her appointment book.",
+              "art": "A teenager waking in a dark bedroom staring at a glowing red alarm clock, the shadow of a swinging jump rope sweeping across the wall, three small silhouettes standing outside the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-shampoo-bowl",
+        "title": "The Rinse",
+        "place": "Your bathroom sink, one a.m.",
+        "text": "You are rinsing shampoo out of your hair at the bathroom sink, eyes squeezed shut, so tired you are swaying. The water gets warmer. The sink gets deeper. When you crack one eye, the basin has become a black porcelain salon shampoo bowl, the faucet a chrome sprayer, and someone behind you is humming the old Shear Delight radio jingle. Up out of the suds beside your ear rise five polished shears, like the fin of a shark.",
+        "art": "A sleepy teenager bent over a bathroom sink at night with shampoo in their hair, the basin transformed into a deep black porcelain salon shampoo bowl, five polished shear blades rising out of the suds like a shark fin",
+        "choices": [
+          {
+            "id": "slam-the-cabinet",
+            "label": "Jerk upright and slam the medicine cabinet in her face",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You whip your head up, dripping, and see her in the medicine-cabinet mirror: silver beehive, shear glove raised. You slam the cabinet so hard the toothbrush cup jumps. When you open it again there is only your own wet, furious face, and from the drain comes a small, offended voice: \"Well!\"",
+              "art": "A dripping teenager slamming a medicine cabinet shut in a 1980s bathroom, a ghostly silver beehive and a five-shear glove vanishing in the mirror, a toothbrush cup leaping off the sink",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The suds pull, warm and heavy, and you slide down into a dream salon. You wake on the bath mat with your hair set in a stiff 1961 bouffant that will not come down for anything: water, a comb, a whole can of Aqua-Glow. You wear it to school. People stare.",
+              "art": "A mortified teenager in a school hallway with a towering stiff 1961 bouffant hairdo, classmates staring from open lockers, a can of hairspray clutched in one hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-for-the-works",
+            "label": "Ask for the full treatment: deep condition, hot towel, the works",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "The humming stops. \"Finally,\" Frieda sighs, \"someone with standards.\" She works conditioner into your scalp with surprising tenderness, talking the whole time about a skinny kid from the Glitter Box who sat in her chair every Saturday, and the girls nobody else would touch. You wake with the softest hair of your life and the feeling you were told something important.",
+              "art": "A relaxed teenager tipped back at a dreamy 1961 salon shampoo bowl, a ghostly beautician with a silver beehive gently massaging conditioner into their hair, soft pink light, steam curling from a hot towel",
+              "effects": {
+                "nerve": 2,
+                "flags": ["frieda-krueger-spa-day"]
+              }
+            },
+            "failure": {
+              "text": "\"Hold still, you squirmy thing.\" She scrubs too hard, and the shears click closer with every pass. You jolt awake with soap in your eyes and five perfectly straight parts combed into your hair, neat as notebook paper.",
+              "art": "A teenager blinking soap from their eyes at a bathroom sink at night, five perfectly straight parts combed into their wet hair, a faint ghostly shear glove reflected in the steamy mirror",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pull-the-plug",
+            "label": "Feel under the suds for the drain and pull the plug",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Your fingers find the chain and yank. With an enormous glug the whole dream salon swirls down the drain, chairs, dryers, a shriek of outrage and all. On the porcelain afterward, glinting in a ring of suds, is a silver scrunchie that was definitely not there before.",
+              "art": "A bathroom sink at night with a whirlpool of suds draining away, tiny ghostly salon chairs and hair dryers swirling down the drain, a silver scrunchie glinting on the wet porcelain rim",
+              "effects": {
+                "nerve": 1,
+                "items": ["silver-scrunchie"]
+              }
+            },
+            "failure": {
+              "text": "The plug is a pink foam curler, and pulling it only makes the water rise. It fills the bowl, the bathroom, the dream, warm as a bath, while the shears circle you like a lazy fish. You wake on the tile at dawn, damp to the elbows, with the faucet still running.",
+              "art": "A teenager curled on bathroom tile at dawn, damp to the elbows, a faucet still running into an overflowing sink, a pink foam curler floating in the water",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-bring-something-back",
+        "title": "Bring Something Back",
+        "place": "Frieda's basement, in a dream, one minute before your alarm",
+        "text": "You fall asleep on purpose, alarm set for three, clutching the old horror-movie rule: grab something in a dream and hold on, and you can bring it back. You land in a cold basement lit by one bare bulb, a salon chair bolted to the concrete beside a dead boiler, and shelves of foam wig heads with faces painted gray. Frieda sits at a card table with her back to you, writing in a pink appointment book. Your alarm will ring in one minute.",
+        "art": "A cold 1961 basement lit by a single bare bulb, a pink salon chair bolted to concrete beside an old boiler, shelves of foam wig heads painted gray, a beehived beautician at a card table writing in a pink appointment book",
+        "choices": [
+          {
+            "id": "grab-the-book",
+            "label": "Snatch the pink appointment book off the table",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You snatch it and clutch it to your chest as Frieda spins around. The alarm shrieks, and you wake with your arms locked around a pink appointment book that smells of hairspray and boiler smoke. The last page is dated December 1961, and every booking after the eviction is a girl's name with the same note beside it: no charge.",
+              "art": "A teenager waking in bed at night hugging a worn pink appointment book to their chest, an alarm clock jangling on the nightstand, a faint wisp of boiler smoke curling over the blankets",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-krueger-appointment-book"]
+              }
+            },
+            "failure": {
+              "text": "Your fingers close on it and it turns to hair, a fistful of gray clippings that slither out of your grip. Frieda turns and smiles. \"Don't touch the books, dear.\" The alarm rings, and you wake clutching a handful of gray lint.",
+              "art": "A teenager waking in bed clutching a fistful of gray hair clippings slipping through their fingers, an alarm clock ringing, the shadow of a beehive hairdo looming on the wall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "grab-the-glove",
+            "label": "Lunge for the shear glove itself",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You lunge and hook two fingers through the glove's knuckle loop just as the alarm goes off. You wake with a single polished shear clattering onto your pillow, cold and real. Frieda will be one blade short tonight, and you have proof that nobody on this street will believe.",
+              "art": "A single polished silver shear blade lying on a pillow in a dark 1980s bedroom, a startled teenager sitting up beside it, an alarm clock mid-ring on the nightstand",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                },
+                "flags": ["frieda-krueger-one-blade"]
+              }
+            },
+            "failure": {
+              "text": "She is faster than you. The shears close on your sleeve and pin it to the card table while the alarm rings and rings in another world. When you finally wake, your pajama sleeve has been neatly scalloped like a doily, all the way to the elbow.",
+              "art": "A teenager in bed at dawn holding up a pajama sleeve cut into neat lacy scallops to the elbow, a ringing alarm clock, pale morning light through the blinds",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "ask-for-a-card",
+            "label": "Ask her, politely, for one of her business cards",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Frieda stares at you for a long moment. Then she opens a drawer and hands you a small pink card: SHEAR DELIGHT, PLAZA SUITE 4, WALK-INS WELCOME. \"Nobody has asked for one since the plaza,\" she says quietly. You wake holding it, and it still smells faintly of roses.",
+              "art": "A teenager waking in bed holding a small pink business card up to the moonlight, rose petals scattered on the blanket, a ghostly beehived silhouette fading into the wallpaper",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-krueger-business-card"]
+              }
+            },
+            "failure": {
+              "text": "\"A card?\" She laughs. \"Where would you even take it? They threw all mine in the dumpster with the dye.\" The bulb flares white, and you wake at three on the dot with a paper cut on your thumb and an empty hand.",
+              "art": "A teenager in a dark bedroom staring at a tiny paper cut on their thumb, an alarm clock glowing at the bedside, a bare basement bulb flaring in a dreamy haze above the bed",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "frieda-krueger-slumber-party",
         "title": "Slumber Party Rules",
         "place": "Your living room, three a.m.",

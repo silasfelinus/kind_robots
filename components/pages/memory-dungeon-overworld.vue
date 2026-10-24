@@ -336,6 +336,13 @@
                 alt="Enlarged picture from the selected memory card"
                 draggable="false"
               />
+              <img
+                v-else-if="world.inspectedSigil"
+                class="h-full w-full bg-[#162733] object-contain"
+                :src="crossMapImage(world.inspectedSigil)"
+                alt="Enlarged illustration of the inspected regional seal"
+                draggable="false"
+              />
               <div
                 v-else-if="!world.mapMatching"
                 class="h-full w-full bg-cover"
@@ -345,7 +352,13 @@
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
-                {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
+                {{
+                  world.mapMatching
+                    ? 'Memory image'
+                    : world.inspectedSigil
+                      ? 'Paired regional sigil'
+                      : 'Map detail'
+                }}
               </span>
             </div>
             <div
@@ -409,7 +422,7 @@
                 <template
                   v-if="
                     world.activeScene &&
-                    !world.state.sceneChoices[world.state.player]
+                    !world.state.sceneChoices[world.activeSiteKey]
                   "
                 >
                   <button
@@ -538,6 +551,22 @@
                   >✓ Stones solved</span
                 >
               </div>
+              <details
+                v-if="recoveredPhotos.length"
+                class="mt-2 rounded-lg border border-[#a68958]/80 bg-[#f8e8cb] px-2 py-1 text-xs"
+              >
+                <summary class="cursor-pointer font-bold">
+                  Earth Chronicle · {{ recoveredPhotos.length }}/2 photographs
+                </summary>
+                <div
+                  v-for="photo in recoveredPhotos"
+                  :key="photo.key"
+                  class="mt-2 border-t border-[#bda47b] pt-2"
+                >
+                  <strong>{{ photo.order }}. {{ photo.title }}</strong>
+                  <p class="mt-1">{{ photo.caption }}</p>
+                </div>
+              </details>
             </div>
           </div>
           <p
@@ -709,6 +738,7 @@ import {
   BRIAR_WAVE_SIZES,
 } from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
+import { firstWorldPhotoChronicle } from '~/utils/memoryDungeon/chronicle'
 import {
   DEFAULT_BRIAR_CARD_BACK,
   ARCANE_BRIAR_CARD_BACK,
@@ -719,6 +749,9 @@ import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.v
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
+const recoveredPhotos = computed(() =>
+  firstWorldPhotoChronicle(world.state.sceneChoices),
+)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =

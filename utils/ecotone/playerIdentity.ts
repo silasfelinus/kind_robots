@@ -74,6 +74,16 @@ export const PLAYER_AVATARS = [
   },
 ] as const
 
+/**
+ * Rendered project portraits are delivered to the public self-hosted media
+ * origin, not the app's /images route on every deployment. Keep the canonical
+ * relative asset path in the manifest and resolve it for display.
+ * Private player uploads use the authenticated ArtImage endpoint instead.
+ */
+export function playerAvatarSrc(path: string): string {
+  return `https://media.acrocatranch.com${path}`
+}
+
 export const PLAYER_PERSONALITIES = [
   {
     id: 'curious',
@@ -111,6 +121,8 @@ export type PlayerIdentity = {
   playerName?: string
   avatarId?: string
   personalityId?: string
+  /** Private ArtImage uploaded by this player, separate from shared generated looks. */
+  portraitArtId?: number | null
 }
 
 export function normalizePlayerIdentity(
@@ -122,13 +134,22 @@ export function normalizePlayerIdentity(
       : ''
   return {
     playerName: name || 'Wanderer',
-    avatarId: PLAYER_AVATARS.some((avatar) => avatar.id === input.avatarId)
-      ? input.avatarId!
-      : 'glitter',
+    avatarId:
+      input.avatarId === 'custom' &&
+      Number.isInteger(input.portraitArtId) &&
+      Number(input.portraitArtId) > 0
+        ? 'custom'
+        : PLAYER_AVATARS.some((avatar) => avatar.id === input.avatarId)
+          ? input.avatarId!
+          : 'glitter',
     personalityId: PLAYER_PERSONALITIES.some(
       (personality) => personality.id === input.personalityId,
     )
       ? input.personalityId!
       : 'curious',
+    portraitArtId:
+      Number.isInteger(input.portraitArtId) && Number(input.portraitArtId) > 0
+        ? Number(input.portraitArtId)
+        : null,
   }
 }

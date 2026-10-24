@@ -27,9 +27,9 @@ Each active overworld is an 8×8 **persistent geographical map**. The Briar Camp
 
 ## Canonical content coverage
 
-`utils/memoryDungeonStoryAtlas.ts` exposes exactly 64 stable positions derived from the current `BRIAR_SCENES` and a 17-position _planned_ registry, never a second 64-scene event executor. A location's planned presence is **not** a playable state. The map graph is already connected at all 64 coordinates; 47 scene records were merged prior to this PR. Runtime special interactions (sealed cross-world icons, chests, dungeon entrance, gates, puzzles) remain authoritative and must not be overwritten by an atlas.
+`utils/memoryDungeonStoryAtlas.ts` exposes exactly 64 stable positions derived from the current `BRIAR_SCENES` and a 17-position _planned_ registry, never a second 64-scene event executor. A location's planned presence is **not** a playable state. The map graph is already connected at all 64 coordinates; 64 scene records are authored in the current Briar registry; four special seals remain gated for cross-world completion. Runtime special interactions (sealed cross-world icons, chests, dungeon entrance, gates, puzzles) remain authoritative and must not be overwritten by an atlas.
 
-For the remaining 17 positions, implement and test the specific interaction, distinguish story-choice and underlying puzzle completion, record changes in the Chronicle, and verify safe replay/resume. The House That Remembers is the upgraded narrative name for the current Rootbound Vault entrance, preserving existing `vault-1` / `vault-2` save identifiers during the expansion to 36 rooms.
+For each location, test the specific interaction, distinguish story-choice and underlying puzzle completion, record changes in the Chronicle, and verify safe replay/resume. The House That Remembers is the upgraded narrative name for the current Rootbound Vault entrance, preserving existing `vault-1` / `vault-2` save identifiers during the expansion to 36 rooms.
 
 ## QA and delivery gates
 

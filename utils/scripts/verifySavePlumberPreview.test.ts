@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { parse } from 'yaml'
 import { resolveChannels } from '../../stores/helpers/channelContent'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
@@ -28,7 +28,28 @@ for (const section of ['Movement lab', 'Tools and enemies', 'Eight worlds'])
   )
 assert.doesNotMatch(page, /!user\.isAdmin/)
 assert.match(tab, /Work in progress/)
-assert.match(page, /ArcadeCabinet\s+slug="save-the-plumber"/)
+assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
+assert.match(page, /ArcadeCabinet slug="save-the-plumber" contained/)
+assert.match(page, /plumber-viewport/)
+assert.match(page, /plumber-motion-video/)
+assert.match(
+  page,
+  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'play'/,
+)
+assert.match(page, /prefers-reduced-motion: reduce/)
+assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-/)
+for (let world = 1; world <= 8; world++) {
+  for (const extension of ['webp', 'webm', 'mp4'])
+    assert.ok(
+      existsSync(
+        new URL(
+          '../../public/save-the-plumber/maps/world-' + world + '.' + extension,
+          import.meta.url,
+        ),
+      ),
+      'shipped painted world ' + world + ' ' + extension + ' exists',
+    )
+}
 assert.match(placement, /'save-the-plumber':\s*\{[\s\S]*?channelKey: 'arcade'/)
 assert.equal(findArcadeGame('save-the-plumber')?.maxPlausibleScore, 0)
 assert.ok(!HALL_GAMES.some((game) => game.slug === 'save-the-plumber'))

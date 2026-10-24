@@ -276,7 +276,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
   },
   {
     id: 'q-d02-mole-audit',
-    title: 'The Mole Ledger',
+    title: 'The Burrow Ledger',
     summary:
       'Send quiet auditors into the tunnels to count the tithe the Moles claim they paid.',
     region: 'mole-tunnels',
@@ -303,7 +303,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       success:
         'An elderly burrow witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not hers. She asks for the clerk’s name, and waits while the court decides whether to give it.',
       partial:
-        'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
+        'The auditors return with a clean burrow ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
       failure:
         'Burrow wardens walk your auditors back to daylight with cloth over their eyes. A burrow clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
       expired:
@@ -605,7 +605,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     id: 'q-d04-crow-roost',
     title: 'Climb to the High Roost',
     summary:
-      'Climb to the high roost and see what the silent crows are watching.',
+      'Climb to the high roost and see what the silent Conclave watchkeepers are watching.',
     region: 'storm-crow-heights',
     faction: 'storm-crows',
     durationDays: 1,
@@ -2112,7 +2112,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
       },
       {
         id: 'crow-sky-silent',
-        source: 'A Storm Crow fledgling',
+        source: 'A young Conclave messenger',
         text: 'Every voice on the Heights has gone quiet at once, and the elders will not say why.',
         truth: true,
       },
@@ -2320,10 +2320,10 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
       {
         id: 'd04-silent-crows',
         title: 'The Silent Heights',
-        speaker: 'A Storm Crow fledgling',
+        speaker: 'A young Conclave messenger',
         faction: 'storm-crows',
         lines: [
-          'The fledgling wears a runner’s mantle cut for someone twice her size. The hem drags. Its copper chimes are stuffed with wool so they won’t ring. She keeps glancing at the high windows.',
+          'The young messenger wears a runner’s mantle cut for someone twice her size. The hem drags. Its copper chimes are stuffed with wool so they won’t ring. She keeps glancing at the high windows.',
           '“Every voice on the Heights stopped talking at once, Your Majesty. Yesterday at noon. Mid-word. Even the youngest.”',
           '“The elders won’t say why. They sit on the ledges and face east.” She swallows. “I’m not supposed to be here.”',
           'Halfway through, the court sees what she has not: an elderly watcher in a faded blue mantle on the far gallery rail. Clouded eyes half closed. His chimes perfectly still.',

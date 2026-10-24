@@ -13,6 +13,10 @@
  * Wave ids start at 6000.
  */
 import {
+  RAINBOW_ALLEGIANCE_OPENINGS,
+  type RainbowAllegiance,
+} from './rainbowAllegiance'
+import {
   buildFormationSchedule,
   wave,
   type RainbowSpawn,
@@ -309,6 +313,7 @@ export function glassDialogue(
   elapsed: number,
   players: number,
   rescuedNavigator = false,
+  allegiance: RainbowAllegiance | null = null,
 ): GlassDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -322,7 +327,9 @@ export function glassDialogue(
       },
       {
         speaker: lead,
-        text: 'Then we trust what hits us, not what shines at us.',
+        text: allegiance
+          ? RAINBOW_ALLEGIANCE_OPENINGS[7][allegiance]
+          : 'Then we trust what hits us, not what shines at us.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,

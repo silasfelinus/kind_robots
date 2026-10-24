@@ -191,6 +191,7 @@ export function readRainbowSave(
   if (!oneOf(c.trenchRoute, ['vault', 'safe', null])) return null
   if (!oneOf(c.wreckRoute, ['depot', 'armory', null])) return null
   if (!oneOf(c.reefRoute, ['relay', 'cache', null])) return null
+  if (!oneOf(c.allegiance, ['rebel', 'loyal', null, undefined])) return null
   for (const key of [
     'podsSaved',
     'pylonsDown',
@@ -234,6 +235,7 @@ export function readRainbowSave(
       pylonsDown: saved.pylonsDown,
       rescuedNavigator: saved.rescuedNavigator,
       captivesFreed: saved.captivesFreed,
+      allegiance: saved.allegiance ?? null,
       schoolBonuses: saved.schoolBonuses,
     },
     guardians,

@@ -11,6 +11,11 @@
  * the nursery before B06 Lantern Ray. A clean run takes about ten minutes. Wave ids start at 5000.
  */
 import {
+  RAINBOW_ALLEGIANCE_OPENINGS,
+  RAINBOW_TURN_REVEAL_FRAMES,
+  type RainbowAllegiance,
+} from './rainbowAllegiance'
+import {
   buildFormationSchedule,
   wave,
   type RainbowSpawn,
@@ -41,9 +46,12 @@ const AUTHORED_CROWN_REEF = {
   aftermathFrames: 390,
   lineFrames: 96,
   waveBase: 5000,
-  /** Act V's memorial between Acts V and VI: A launches after restMinFrames, or it launches itself. */
-  restMinFrames: 120,
-  restMaxFrames: 600,
+  /**
+   * Act V's memorial between Acts V and VI: A launches after restMinFrames, or it launches itself. Since t-040 it
+   * holds the Motherland reveal (three lines) and the flown allegiance choice, so it waits for the reveal first.
+   */
+  restMinFrames: RAINBOW_TURN_REVEAL_FRAMES + 60,
+  restMaxFrames: RAINBOW_TURN_REVEAL_FRAMES + 600,
   /** Lilt's revelation opens the section after the guardian. */
   revealAt: 9900,
 } as const
@@ -367,6 +375,7 @@ export function reefDialogue(
   players: number,
   route: ReefRoute | null = null,
   stoppedRelay = false,
+  allegiance: RainbowAllegiance | null = null,
 ): ReefDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -379,7 +388,9 @@ export function reefDialogue(
       },
       {
         speaker: lead,
-        text: 'Then we find out what it thinks it is protecting.',
+        text: allegiance
+          ? RAINBOW_ALLEGIANCE_OPENINGS[6][allegiance]
+          : 'Then we find out what it thinks it is protecting.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,

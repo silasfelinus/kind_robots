@@ -1,6 +1,16 @@
 export const RAINBOW_PORTRAIT_ROOT = '/rainbow-princess-portraits'
 export const RAINBOW_HERO_ART = '/rainbow-princess-art/hero-pearl-palace.webp'
 
+/**
+ * The princesses fly for the Motherland as C.A.T.S. (Cute And Tough Starfighters), each with a cat co-pilot, and
+ * every super is a Princess Kitty Power (Silas, 2026-10-23 PT; conductor rainbow PLOT-MOTHERLAND.md).
+ */
+export const RAINBOW_SQUADRON = {
+  name: 'C.A.T.S.',
+  stands: 'Cute And Tough Starfighters',
+} as const
+export const RAINBOW_KITTY_POWER = 'PRINCESS KITTY POWER'
+
 export type RainbowPilotGlyph = {
   shape: 'path' | 'rings'
   d?: string
@@ -21,7 +31,7 @@ export type RainbowPilot = {
   superName: string
   superDetail: string
   hook: string
-  /** Her C.A.T.S. cat co-pilot (DOODLE-DIRECTION.md). */
+  /** Her C.A.T.S. cat co-pilot, who leaps in for her Princess Kitty Power. */
   copilot: { name: string; cat: string }
   portrait: string
   portraitAlt: string

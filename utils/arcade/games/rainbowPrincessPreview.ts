@@ -48,7 +48,7 @@ import {
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
 } from './rainbowGameArt'
-import { RAINBOW_PILOTS } from './rainbowPilots'
+import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -283,11 +283,6 @@ import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import {
-  RAINBOW_BAD_DOG,
-  RAINBOW_BARK_FRAMES,
-  RAINBOW_DOG_COMMANDERS,
-} from './rainbowDogs'
-import {
   RAINBOW_BOSS_LOOKS,
   RAINBOW_CRAFT_LOOKS,
   RAINBOW_GUARDIAN_LOOK,
@@ -386,82 +381,52 @@ const ACT_NUMERALS = [
 const ACT_SEVEN_CHECKPOINTS = actCheckpoints(GLASS_SECTIONS, GLASS.bossStarts)
 const ACT_EIGHT_CHECKPOINTS = actCheckpoints(PALACE_SECTIONS, PALACE.bossStarts)
 const FINALE_CHECKPOINTS = actCheckpoints(FINALE_SECTIONS, FINALE.bossStarts)
-/**
- * A DOG commander's bark (t-037): a speech bubble under the boss bar with its name, or, once its machine falls, the
- * crew's BAD DOG! as the commander rockets home in a tiny dog-head capsule. Drawn only, never part of the fight.
- */
-function drawBark(
+/** The co-pilot's face on a Princess Kitty Power banner (t-039): ears, glossy eyes, a pink nose and whiskers. */
+function drawKittyFace(
   g: CanvasRenderingContext2D,
-  bark: {
-    act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-    text: string
-    frame: number
-    home: boolean
-  },
+  x: number,
+  y: number,
+  color: string,
 ) {
-  const fade = Math.min(
-    1,
-    bark.frame / 8,
-    (RAINBOW_BARK_FRAMES - bark.frame) / 20,
-  )
   g.save()
-  g.globalAlpha = Math.max(0, fade)
-  g.textAlign = 'center'
-  if (bark.home) {
-    const t = bark.frame / RAINBOW_BARK_FRAMES
-    const bounce = 1 + Math.max(0, 0.4 - bark.frame / 20)
-    g.font = `bold ${Math.round(22 * bounce)}px monospace`
-    g.lineWidth = 5
-    g.strokeStyle = '#2a1450'
-    g.fillStyle = '#ff9fd8'
-    g.strokeText(bark.text, W / 2, 104)
-    g.fillText(bark.text, W / 2, 104)
-    // The commander's capsule: a little dog head with floppy ears on a rocket flame, off to the upper right.
-    const x = W * 0.62 + t * 240
-    const y = 120 - t * 110
-    g.fillStyle = '#ffd38a'
+  g.translate(x, y)
+  g.fillStyle = color
+  g.strokeStyle = '#2a1450'
+  g.lineWidth = 1.5
+  g.beginPath()
+  g.moveTo(-13, -4)
+  g.lineTo(-10, -18)
+  g.lineTo(-3, -11)
+  g.lineTo(3, -11)
+  g.lineTo(10, -18)
+  g.lineTo(13, -4)
+  g.quadraticCurveTo(14, 12, 0, 13)
+  g.quadraticCurveTo(-14, 12, -13, -4)
+  g.fill()
+  g.stroke()
+  g.fillStyle = '#2a1450'
+  for (const side of [-1, 1]) {
     g.beginPath()
-    g.moveTo(x - 9, y + 4)
-    g.lineTo(x - 22 - (bark.frame % 6), y + 9)
-    g.lineTo(x - 9, y + 10)
+    g.ellipse(side * 5, -1, 2.6, 3.4, 0, 0, Math.PI * 2)
     g.fill()
-    g.fillStyle = '#c98a5a'
-    g.strokeStyle = '#2a1450'
-    g.lineWidth = 1.5
-    g.beginPath()
-    g.arc(x, y + 6, 8, 0, Math.PI * 2)
-    g.fill()
-    g.stroke()
-    g.fillStyle = '#7a4a2a'
-    for (const side of [-1, 1]) {
-      g.beginPath()
-      g.ellipse(x + side * 7, y + 4, 2.5, 5, side * 0.4, 0, Math.PI * 2)
-      g.fill()
-    }
-    g.fillStyle = '#2a1450'
-    g.fillRect(x - 3, y + 4, 1.5, 1.5)
-    g.fillRect(x + 2, y + 4, 1.5, 1.5)
-  } else {
-    const name = RAINBOW_DOG_COMMANDERS[bark.act].name
-    g.font = 'bold 8px monospace'
-    const width =
-      Math.max(g.measureText(bark.text).width, g.measureText(name).width) + 16
-    const x = W / 2 - width / 2
-    g.fillStyle = '#fff5fb'
-    g.strokeStyle = '#2a1450'
-    g.lineWidth = 2
-    g.beginPath()
-    g.roundRect(x, 70, width, 28, 8)
-    g.moveTo(W / 2 - 6, 70)
-    g.lineTo(W / 2, 64)
-    g.lineTo(W / 2 + 6, 70)
-    g.fill()
-    g.stroke()
-    g.fillStyle = '#b0306a'
-    g.fillText(name, W / 2, 81)
-    g.fillStyle = '#2a1450'
-    g.fillText(bark.text, W / 2, 93)
   }
+  g.fillStyle = '#ffffff'
+  for (const side of [-1, 1]) g.fillRect(side * 5 - 1.5, -3.5, 1.5, 1.5)
+  g.fillStyle = '#ff9fd8'
+  g.beginPath()
+  g.moveTo(-2, 4)
+  g.lineTo(2, 4)
+  g.lineTo(0, 6.5)
+  g.fill()
+  g.strokeStyle = '#2a1450'
+  g.lineWidth = 0.8
+  g.beginPath()
+  for (const side of [-1, 1])
+    for (const dy of [-1.5, 1.5]) {
+      g.moveTo(side * 4, 6 + dy / 2)
+      g.lineTo(side * 15, 5 + dy)
+    }
+  g.stroke()
   g.restore()
 }
 
@@ -912,8 +877,6 @@ export type RainbowCombatSnapshot = {
   caches: ReadonlyArray<Readonly<RecoveryCache>>
   /** Calm motion is on (t-011). */
   calm: boolean
-  /** The DOG commander's bark on screen (t-037): its Act, its line, and whether it is the BAD DOG! send-off. */
-  bark: Readonly<{ act: number; text: string; home: boolean }> | null
   /** Medals won so far, by Act (t-010). */
   medals: Readonly<
     Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>>
@@ -1185,14 +1148,6 @@ export function createRainbowPrincessPreview(
   let savedAct: number | null = null
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
-  /** The DOG commander's bark on screen (t-037), and the Act whose boss was on screen last frame. */
-  let bark: {
-    act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-    text: string
-    frame: number
-    home: boolean
-  } | null = null
-  let barkingAct: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | null = null
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
   const medals: Partial<
     Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
@@ -1245,66 +1200,6 @@ export function createRainbowPrincessPreview(
   function finaleFrame() {
     return finaleStart === null ? 0 : tick - finaleStart
   }
-  /** The Act whose boss machine is on screen, or null (t-037: its DOG commander rides it). */
-  function bossAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | null {
-    return boss
-      ? 1
-      : moonBoss
-        ? 2
-        : clawBoss
-          ? 3
-          : delphion
-            ? 4
-            : sawtooth
-              ? 5
-              : lanternRay
-                ? 6
-                : glassEel
-                  ? 7
-                  : leviathan
-                    ? 8
-                    : crown
-                      ? 9
-                      : null
-  }
-
-  /** Whether an Act's boss has been beaten (a continue's rewind clears a boss without beating it). */
-  function bossBeaten(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
-    return act === 1
-      ? defeatedAt !== null
-      : act === 2
-        ? moonDefeatedFrame !== null
-        : act === 3
-          ? trenchDefeatedFrame !== null
-          : act === 4
-            ? rosefinDefeatedFrame !== null
-            : act === 5
-              ? wreckDefeatedFrame !== null
-              : act === 6
-                ? reefDefeatedFrame !== null
-                : act === 7
-                  ? glassDefeatedFrame !== null
-                  : act === 8
-                    ? palaceDefeatedFrame !== null
-                    : choiceFrame !== null || finalChoice !== null
-  }
-
-  /** A DOG commander's bark as its machine arrives, or the crew's BAD DOG! as it falls. */
-  function stepBark() {
-    const act = bossAct()
-    if (act !== null && barkingAct !== act)
-      bark = {
-        act,
-        text: RAINBOW_DOG_COMMANDERS[act].taunt,
-        frame: 0,
-        home: false,
-      }
-    else if (act === null && barkingAct !== null && bossBeaten(barkingAct))
-      bark = { act: barkingAct, text: RAINBOW_BAD_DOG, frame: 0, home: true }
-    barkingAct = act
-    if (bark && ++bark.frame > RAINBOW_BARK_FRAMES) bark = null
-  }
-
   function currentAct(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 {
     return finaleStart !== null
       ? 9
@@ -4206,7 +4101,6 @@ export function createRainbowPrincessPreview(
         if (reef.x > 70) fireEnemy(reef)
       }
     }
-    stepBark()
     if (boss) {
       shootAs(
         RAINBOW_BOSS_LOOKS[1],
@@ -4998,7 +4892,6 @@ export function createRainbowPrincessPreview(
         failFrame,
         caches: caches.map((cache) => ({ ...cache })),
         calm,
-        bark: bark ? { act: bark.act, text: bark.text, home: bark.home } : null,
         earned: [...earned],
         difficulty,
         resumeMenu: resumeMenu ? resumeMenu.pick : null,
@@ -6951,16 +6844,6 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
-      const riding = bossAct()
-      if (riding !== null) {
-        // The boss bar names the DOG commander riding the machine (t-037).
-        g.save()
-        g.textAlign = 'center'
-        g.font = 'bold 7px monospace'
-        g.fillStyle = '#ffb8f0'
-        g.fillText(`PILOTED BY ${RAINBOW_DOG_COMMANDERS[riding].name}`, 240, 62)
-        g.restore()
-      }
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.
@@ -7881,7 +7764,6 @@ export function createRainbowPrincessPreview(
           g.restore()
         }
       }
-      if (bark) drawBark(g, bark)
       for (const popup of popups) {
         g.save()
         g.globalAlpha = Math.max(0, 1 - popup.age / POPUP_FRAMES)
@@ -7932,16 +7814,26 @@ export function createRainbowPrincessPreview(
         g.lineWidth = 2
         g.strokeRect(x, commsTop, 270, 52)
         const textX = x + artWidth + 10
+        // A Princess Kitty Power (t-039): the pilot and her cat co-pilot, the cry, and the super's own name.
         g.fillStyle = '#fff4fa'
         g.font = 'bold 8px monospace'
         g.fillText(
-          `P${cut.seat + 1} ${pilot.name.split(' ')[0]!.toUpperCase()}`,
+          `P${cut.seat + 1} ${pilot.name.split(' ')[0]!.toUpperCase()} + ${pilot.copilot.name.toUpperCase()}`,
           textX,
-          commsTop + 17,
+          commsTop + 14,
         )
         g.fillStyle = PILOT_COLORS[cut.pilot]!
-        g.font = 'bold 13px monospace'
-        g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
+        g.font = 'bold 12px monospace'
+        g.fillText(`${RAINBOW_KITTY_POWER}!`, textX, commsTop + 30)
+        g.fillStyle = '#e8ddff'
+        g.font = 'bold 8px monospace'
+        g.fillText(pilot.superName.toUpperCase(), textX, commsTop + 44)
+        drawKittyFace(
+          g,
+          x + 246,
+          commsTop + 26 + Math.sin(cut.age / 3) * 2,
+          PILOT_COLORS[cut.pilot]!,
+        )
         g.restore()
       }
       if (continueLeft > 0) {

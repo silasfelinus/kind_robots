@@ -74,7 +74,7 @@ const items = computed(() =>
   }),
 )
 
-function open(item: { id: number }) {
+function open(item: { id: string | number }) {
   const project = store.publicProjects.find((entry) => entry.id === item.id)
   if (!project) return
   const slug = project.conductorSlug || project.slug || String(project.id)

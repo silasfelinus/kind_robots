@@ -4278,7 +4278,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'The Watch took a Conclave runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
-      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold Crow children.',
+      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold the Conclave’s children.',
       'Send her back and she carries till she dies. Keep her and the Conclave says the crown steals runners. Which is what they do. Pick one.',
     ],
     options: [
@@ -5408,7 +5408,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'Isolde comes back from the Yard with her lantern dark and her jaw set.',
-      'Mole family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
+      'A family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
       'They won’t let me through the door. A Mother’s hand on their child. They’d rather it died clean. The Watch would carry me in if you said so. I’m asking whether you say so.',
     ],
     options: [

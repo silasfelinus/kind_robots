@@ -13,13 +13,14 @@ import {
   RAINBOW_DIFFICULTY,
   RECOVERY_CACHE,
   createRainbowPrincessPreview,
+  isRainbowCheckpoint,
 } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import type { ArcadeDifficulty, InputFrame } from '../arcade/types'
 
 // Conductor rainbow t-010: the four ships' focused weapon families (Rose Needle, Prism Thread, Halo Link and
-// Comet Arc), per-Act medals, the cabinet's mastery ladder, and the save kept at every Act start, offered back
-// as a continue/new menu that resumes the campaign at that Act with its score, rescues and difficulty.
+// Comet Arc), per-Act medals, the cabinet's mastery ladder, and the save kept at every checkpoint (t-031),
+// offered back as a continue/new menu that resumes the campaign there with its score, rescues and difficulty.
 
 function seeded(seed = 1234) {
   let state = seed
@@ -156,7 +157,8 @@ assert.equal(rainbowMedal(2, 1), 'bronze')
   assert.ok(pierced, 'a thread passed through a craft')
 }
 
-// The whole campaign in the demo: a medal for every Act, a save at every Act start, none after THE END.
+// The whole campaign in the demo: a medal for every Act, a save at every checkpoint, none after THE END.
+const allSaves: unknown[] = []
 const saves: unknown[] = []
 {
   const game = create({ demo: true })
@@ -166,7 +168,12 @@ const saves: unknown[] = []
     const save = game.save
     if (save !== undefined && save !== last) {
       last = save
-      saves.push(save)
+      allSaves.push(save)
+      if (
+        save === null ||
+        (save as { checkpoint: { frame: number } }).checkpoint.frame === 0
+      )
+        saves.push(save)
     }
   }
   assert.ok(game.over, 'the demo reaches THE END')
@@ -178,6 +185,27 @@ const saves: unknown[] = []
       `the demo (never hit) wins gold in act ${act}`,
     )
   assert.equal(saves.length, 9, 'eight Act starts, then cleared')
+  assert.ok(
+    allSaves.length > 40,
+    `every section and boss checkpoint is kept too (${allSaves.length})`,
+  )
+  // Every mid-Act save reads back as the checkpoint it was, Act I's sections included.
+  for (const save of allSaves.slice(0, -1)) {
+    const raw = JSON.parse(JSON.stringify(save))
+    const read = readRainbowSave(raw, isRainbowCheckpoint)
+    assert.ok(read, JSON.stringify(raw.checkpoint))
+    assert.equal(read.checkpoint.act, raw.checkpoint.act)
+    assert.equal(read.checkpoint.frame, raw.checkpoint.frame)
+    assert.ok(isRainbowCheckpoint(read.checkpoint.act, read.checkpoint.frame))
+  }
+  assert.ok(
+    allSaves.some(
+      (save) =>
+        (save as { checkpoint: { act: number; frame: number } }).checkpoint
+          ?.act === 1,
+    ),
+    'Act I keeps its section checkpoints',
+  )
   assert.equal(saves.at(-1), null, 'THE END clears the save')
   saves.slice(0, 8).forEach((save, i) => {
     const read = readRainbowSave(JSON.parse(JSON.stringify(save)))
@@ -209,6 +237,14 @@ for (const bad of [
     checkpoint: {
       ...(saves[1] as { checkpoint: object }).checkpoint,
       frame: 40,
+    },
+  },
+  {
+    ...(saves[1] as object),
+    checkpoint: {
+      ...(saves[1] as { checkpoint: object }).checkpoint,
+      act: 1,
+      frame: 1501,
     },
   },
   {
@@ -265,9 +301,75 @@ for (const [index, act] of [
     'the save keeps its difficulty',
   )
   assert.equal(game.snapshot.ships[0]!.lives, RAINBOW_DIFFICULTY.easy.lives)
-  for (let i = 0; i < 600; i++) game.update(emptyInput())
+  for (let i = 0; i < 250; i++) game.update(emptyInput())
   assert.equal(game.snapshot.act, act, 'the resumed Act runs')
   assert.equal(game.save, undefined, 'a continued Act start is not saved again')
+  for (let i = 0; i < 600 && game.save === undefined; i++)
+    game.update(emptyInput())
+  const next = readRainbowSave(game.save, isRainbowCheckpoint)
+  assert.ok(next, 'the next checkpoint of the resumed Act is kept')
+  assert.equal(`S0${next.checkpoint.act}`, act)
+  assert.ok(next.checkpoint.frame > 0)
+}
+
+// t-031: returning mid-Act puts the crew back at the last checkpoint passed, not at the Act's start.
+{
+  const actFrame = (game: ReturnType<typeof create>) => {
+    const snap = game.snapshot
+    const frames = [
+      snap.tick,
+      snap.actTwoFrame,
+      snap.actThreeFrame,
+      snap.actFourFrame,
+      snap.actFiveFrame,
+      snap.actSixFrame,
+      snap.actSevenFrame,
+      snap.actEightFrame,
+      snap.finaleFrame,
+    ]
+    return frames[snap.checkpoint.act - 1]!
+  }
+  const mid = allSaves.filter(
+    (save) =>
+      save !== null &&
+      (save as { checkpoint: { frame: number } }).checkpoint.frame > 0,
+  ) as Array<{ checkpoint: { act: number; frame: number; score: number } }>
+  const picks = [
+    mid.find((save) => save.checkpoint.act === 1)!,
+    mid.find((save) => save.checkpoint.act === 3)!,
+    mid.filter((save) => save.checkpoint.act === 6).at(-1)!,
+    mid.filter((save) => save.checkpoint.act === 9).at(-1)!,
+  ]
+  for (const save of picks) {
+    const { act, frame, score } = save.checkpoint
+    const game = create({ resume: JSON.parse(JSON.stringify(save)) })
+    assert.equal(game.snapshot.resumeMenu, 0)
+    for (let i = 0; i < 25; i++) game.update(emptyInput())
+    game.update(keys({}, { a: true }))
+    assert.equal(game.snapshot.resumeMenu, null)
+    assert.equal(game.snapshot.checkpoint.act, act)
+    assert.equal(game.snapshot.checkpoint.frame, frame)
+    assert.equal(game.snapshot.score, score)
+    game.update(emptyInput())
+    assert.equal(
+      actFrame(game),
+      frame,
+      `act ${act} resumes on its checkpoint frame ${frame}`,
+    )
+    assert.equal(
+      game.save,
+      undefined,
+      'the resumed checkpoint is not saved again',
+    )
+    for (let i = 0; i < 600; i++) game.update(emptyInput())
+    assert.equal(game.snapshot.act, `S0${act}`, 'the resumed Act keeps flying')
+    assert.ok(actFrame(game) > frame, 'its clock runs on from the checkpoint')
+  }
+  // The flight log names where the save will fly from.
+  assert.ok(isRainbowCheckpoint(1, 1500))
+  assert.ok(!isRainbowCheckpoint(1, 0), 'Act I from the top is a new flight')
+  assert.ok(!isRainbowCheckpoint(1, 1501))
+  assert.ok(!isRainbowCheckpoint(10, 0))
 }
 
 // New flight: down, then A, starts over at Act I and keeps the cabinet's difficulty.
@@ -355,5 +457,5 @@ for (const [index, act] of [
 }
 
 console.log(
-  `rainbow loadouts: ok (needle/thread/link/arc, pierce and glance, ${RAINBOW_MASTERY.length}-rung ladder, gold medals and saves at 8 Act starts, continue/new menu, recovery cache)`,
+  `rainbow loadouts: ok (needle/thread/link/arc, pierce and glance, ${RAINBOW_MASTERY.length}-rung ladder, gold medals and saves at every checkpoint, mid-Act continue/new menu, recovery cache)`,
 )

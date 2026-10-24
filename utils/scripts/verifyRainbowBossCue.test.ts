@@ -52,7 +52,7 @@ type Game = ReturnType<typeof createRainbowPrincessPreview>
 
 /**
  * Fly the lanes through the waves; at the boss, hold its line and slip aside when a volley is due. A
- * `timed` pilot also holds fire within 24 HP of a phase boundary until the boss starts charging, so the
+ * `timed` pilot also holds fire within 24 HP of a phase boundary (counting its shots in flight) until the boss starts charging, so the
  * crossing lands mid-warning by choice rather than by luck.
  */
 function pilot(
@@ -72,8 +72,13 @@ function pilot(
     const next = boss.hp > upper ? upper : boss.maxHp / 3
     const due = boss.nextVolleyAt - boss.frame
     const charging = due > 0 && due <= WARNING_FRAMES
-    if (boss.hp > next && boss.hp - next <= 24 && !charging)
-      input.held.a = false
+    // Count the shots already flying too, so none of them carries the hull across outside a warning; near the
+    // boundary fire only as the warning opens, while still on the boss's line, so the shots land inside it.
+    const flying = snapshot.shots
+      .filter((shot) => shot.seat === seat)
+      .reduce((sum, shot) => sum + shot.damage, 0)
+    if (boss.hp > next && boss.hp - flying - next <= 24)
+      input.held.a = charging && due >= 30
   }
   let target: number
   if (snapshot.boss) {

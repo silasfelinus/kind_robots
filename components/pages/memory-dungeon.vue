@@ -252,6 +252,13 @@
                 class="card-back flex h-full w-full items-center justify-center rounded-xl border border-yellow-500/30 bg-linear-to-br from-base-300 via-base-100 to-base-300 text-3xl shadow-inner"
               >
                 🏰
+                <img
+                  :src="DEFAULT_BRIAR_CARD_BACK"
+                  class="absolute inset-0 h-full w-full object-cover"
+                  alt=""
+                  draggable="false"
+                  @error="hideMissingMemoryCardBack"
+                />
               </div>
 
               <img
@@ -422,6 +429,7 @@ import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { resolveMemoryDungeonDeck } from '~/stores/helpers/memoryDungeonDeckSource'
 import { normalizeDungeonDeck } from '~/utils/memoryDungeonDeck'
+import { DEFAULT_BRIAR_CARD_BACK, hideMissingMemoryCardBack } from '~/utils/memoryDungeonCardArt'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,
@@ -1463,9 +1471,9 @@ onMounted(async () => {
   }
 
   await artStore.initialize({
-    fetchRemote: !artStore.hasCachedImages,
+    fetchRemote: false,
     hydrateImages: true,
-    initializeCollections: true,
+    initializeCollections: false,
   })
 
   window.addEventListener('resize', updateBoardBounds)

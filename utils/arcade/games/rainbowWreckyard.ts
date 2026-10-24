@@ -452,17 +452,17 @@ export function wreckDialogue(
     'A05.AFTER': [
       {
         speaker: 'Lilt-7',
-        text: 'The Regent is disabled. Its broken teeth are falling like coral rain.',
+        text: 'The Regent is disabled. The depot crew were not its prisoners. They were its caretakers.',
       },
       {
         speaker: lead,
         text: freedDepot
-          ? 'The rescued crew is safe. Now we face what this battle cost.'
-          : 'We chose the guns over the depot. Now we face what that cost.',
+          ? 'The depot crew is safe, and they are terrified of us. Now we face what this cost.'
+          : 'We chose the guns over the depot. Now we face what that cost, and for whom.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'A moment for the ships we could not bring home. Then we fly on.',
+        text: 'A moment for the ships we could not bring home. Then we ask whose ships they were.',
       },
     ],
   }

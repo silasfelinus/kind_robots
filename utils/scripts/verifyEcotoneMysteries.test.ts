@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { ALL_CARDS } from '../ecotone/engine'
 import {
   advance,
+  cardBody,
   chooseBeat,
   chooseCrossroads,
   chooseEvent,
@@ -11,8 +12,11 @@ import {
   createRun,
   findCard,
   restoreRun,
+  setLiveEdits,
   type RunState,
 } from '../ecotone/engine'
+import { buildEcotonePlaybook } from '../playbook/ecotone'
+import { mysteryEndingKey } from '../playbook/ecotoneMysteries'
 import type { EventId } from '../ecotone/content'
 import { ROUTES } from '../ecotone/story'
 import { openingLensChoices } from '../ecotone/openingLensChoices'
@@ -21,6 +25,7 @@ import {
   MYSTERY_CARDS,
   PASSES_FOR_TRUE_PATH,
   caseRecord,
+  compileMystery,
   gateTriggers,
   mergeCaseRecord,
   mysteryCardId,
@@ -28,6 +33,7 @@ import {
   mysteryEnding,
   mysteryPasses,
   pickMystery,
+  recallFlag,
   runMystery,
   sanitizeCaseFiles,
   validateMystery,
@@ -201,6 +207,41 @@ for (const mystery of MYSTERIES) {
   )
 }
 
+// A missed trap still reaches the truth: after a failed Gate III the reveal reads
+// its afterMiss body, and every gate remembers which approach was played.
+let missedTraps = 0
+for (const mystery of MYSTERIES) {
+  for (let seed = 1; seed < 600; seed += 1) {
+    const { state, seen } = play(seed, 'quiet', mystery.id, investigate)
+    for (const n of [1, 2, 3])
+      if (seen.some((s) => s.card === mysteryCardId(mystery, `G${n}` as 'G1')))
+        assert.ok(
+          state.flags.some((f) => f.startsWith(`mystery_g${n}_via_`)),
+          `${mystery.id} gate ${n} records its approach`,
+        )
+    if (
+      !state.flags.includes('mystery_g3_fail') ||
+      mysteryPasses(state.flags) < PASSES_FOR_TRUE_PATH
+    )
+      continue
+    const reveal = findCard(mysteryCardId(mystery, 'REVEAL'))!
+    assert.deepEqual(
+      cardBody(reveal, state),
+      mystery.reveal.afterMiss,
+      `${mystery.id} reveal after a missed trap`,
+    )
+    missedTraps += 1
+    break
+  }
+  for (const card of compileMystery(mystery))
+    for (const flag of Object.keys(card.flagLines ?? {}))
+      assert.match(flag, /^mystery_g[123]_(pass|fail|via_[a-z0-9-]+)$/)
+}
+assert.ok(missedTraps >= 10, `missed-trap reveals exercised (${missedTraps})`)
+assert.equal(recallFlag('g2:pass'), 'mystery_g2_pass')
+assert.equal(recallFlag('g1:sequins'), 'mystery_g1_via_sequins')
+assert.equal(recallFlag('g4:pass'), null)
+
 // Case Files keep the best result per gate and never trust raw storage.
 const a = {
   id: MYSTERIES[0]!.id,
@@ -262,6 +303,41 @@ assert.equal(
   null,
   'an unknown mystery is rejected',
 )
+
+// The Playbook Manager lists every scene and Real Ending, chained as play reaches them,
+// and its live edits reach mystery cards in play.
+const playbook = buildEcotonePlaybook()
+const mysterySections = playbook.sections.filter((s) =>
+  s.title.startsWith('Case '),
+)
+assert.equal(mysterySections.length, 12, 'one Collection per case')
+for (const card of MYSTERY_CARDS) {
+  const node = playbook.nodes[card.id]
+  assert.ok(node, `${card.id} is in the Playbook`)
+  assert.equal(node.kind, 'quest')
+  assert.ok(node.editable && node.needsArt !== undefined)
+}
+for (const mystery of MYSTERIES)
+  for (const ending of mystery.endings)
+    assert.ok(
+      playbook.nodes[mysteryEndingKey(mystery, ending.id)],
+      `${mystery.id}/${ending.id} Real Ending node`,
+    )
+for (const node of Object.values(playbook.nodes))
+  for (const choice of node.choices)
+    if (choice.leadsTo)
+      assert.ok(
+        playbook.nodes[choice.leadsTo],
+        `${node.key}/${choice.id} leads somewhere`,
+      )
+assert.equal(
+  playbook.nodes['MY-05-G1']?.choices.find((c) => c.id === 'gossip')?.leadsTo,
+  'MY-05-G2',
+)
+setLiveEdits({ 'MY-05-G1': { title: 'Edited in the Playbook' } })
+assert.equal(findCard('MY-05-G1')?.title, 'Edited in the Playbook')
+setLiveEdits({})
+assert.equal(findCard('MY-05-G1')?.title, 'The Lion Who Knew the Old Callbacks')
 
 console.log(
   `Ecotone mysteries: 12 cases, ${MYSTERY_CARDS.length} scenes, ${MYSTERIES.reduce((n, m) => n + m.endings.length, 0)} Real Endings, gates on ${Object.keys(ROUTES).length} routes; true path found within ${truePathSeeds} seeds in total`,

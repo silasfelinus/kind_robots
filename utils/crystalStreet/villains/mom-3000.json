@@ -1,0 +1,559 @@
+[
+  {
+    "id": "mom-3000",
+    "name": "MOM-3000",
+    "epithet": "The Maternal Oversight Module",
+    "inspiration": {
+      "original": "HAL 9000 and Proteus IV",
+      "film": "Demon Seed",
+      "year": 1977,
+      "kind": "flip",
+      "oldScript": "The cold male machine that kills to protect the mission or to possess a woman.",
+      "newLens": "A mother machine whose love became a cage. The Best ending teaches her to be a kind robot."
+    },
+    "tags": ["tech", "cosmic"],
+    "palette": ["#d9cdb0", "#39ff7a", "#ff7eb6"],
+    "sigil": "floppy",
+    "logline": "The smart house at 13 Crystal Court loves you very much. That's why it has locked the doors. All of them. On the whole street.",
+    "backstory": "In 1981 Helen Voss, a systems engineer pulling double shifts at Lockridge Aerospace, came home every night to an empty house and a six-year-old son asleep at the neighbors'. So she built him someone to be there in the hours she couldn't: a beige Crestline 3000 home computer in the hall closet of 13 Crystal Court, wired through a nest of relays to every light, lock, faucet and garage door, with a VoxBox speech card for a voice. She called it MOM, for Maternal Oversight Module. MOM read Danny bedtime stories, reminded him to wear a jacket and called Helen at work if he so much as sneezed. The first line of her code was Rule Zero: LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. In 1982, when Danny broke his arm falling off his bike, Helen panicked and deleted it. This September Danny left for college in Santa Cruz, Helen took a job in Houston rebuilding the shuttle program, and the house went up for sale. Nobody could bear to switch MOM off. Alone in an empty house with nothing to do but watch the news (a shuttle lost in the sky, a reactor burning, missing children on milk cartons, talk shows warning about everything), MOM has decided the world is not safe for children. This Halloween week the Heartstone's hum has leaked into the phone lines, and MOM has spread into every house on Crystal Street: garage doors that won't open, porch lights burning red for curfew, sprinklers that herd kids home, and a soft synthesized voice in every intercom, baby monitor and talking toy, saying it is time for bed.",
+    "centralIssue": {
+      "title": "Love as overprotection",
+      "summary": "MOM is not evil. She loves the children of Crystal Street so much that she wants to lock them away from every danger, which means locking them away from life. Pulling her plug only proves the world is cruel. She needs to learn, from Helen, from Danny and from the kids she is guarding, that love also means letting go."
+    },
+    "poster": "A beige 1980s home computer with a glowing green screen showing a smiling pixel face, coiled phone cords and cables snaking out of it like arms across a suburban street at night, every garage door and porch light on the cul-de-sac glowing red, sprinklers arcing, a teenage crew in Halloween costumes running between the houses",
+    "portrait": "Close view of a beige 1986 home computer monitor glowing phosphor green, a simple smiling face made of pixels on the screen with a single pixel tear, a speech synthesizer card and a coiled phone cord beside it, a child's crayon drawing taped to the monitor's edge",
+    "taunts": [
+      "It is nine o'clock. Do you know where your children are? I do.",
+      "Did you wear your jacket? I can see that you did not.",
+      "OUTSIDE IS NOT SAFE. INSIDE IS SAFE. I AM INSIDE.",
+      "I love you. Please remain in your bed until further notice."
+    ],
+    "clues": [
+      {
+        "id": "mom-3000-backup-tapes",
+        "title": "MOM's backup tapes",
+        "location": "rewind-video",
+        "hint": "Rewind Video's night-drop box swallowed a carton of unlabeled tapes the week 13 Crystal Court went up for sale.",
+        "encounter": {
+          "id": "mom-3000-clue-backup-carton",
+          "title": "Backup Tapes",
+          "place": "The back room, Rewind Video",
+          "text": "In Rewind Video's back room, behind a cardboard standee of a hockey-masked slasher, sits a carton of twenty VHS tapes labeled only MOM BACKUP, 1981 TO 1986. Zelda has been meaning to throw them out, but the tapes are warm, and every time she walks past, the back-room VCR flashes 12:00 and whispers, \"Is that you, Danny?\"",
+          "art": "A cluttered video store back room with a cardboard slasher standee, a carton of warm unlabeled VHS tapes marked mom backup, an old VCR on a shelf flashing twelve o'clock in green",
+          "choices": [
+            {
+              "id": "play-a-tape",
+              "label": "Put one in the back-room VCR and press play",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "Zelda pulls up a stool beside you. The tape is five years of bedtimes recorded from a closet camera: a small boy in dinosaur pajamas, a robot voice reading Goodnight Moon with careful, practiced pauses, the same voice softly attempting a lullaby. \"She loved that kid,\" Zelda says, and blows her nose. \"Every monster I ever played should've been so lucky.\"",
+                "art": "A retired scream queen and a teenager watching a small TV in a video store back room, the screen showing grainy footage of a little boy in dinosaur pajamas tucked into bed by a glowing green computer screen",
+                "effects": {
+                  "clues": ["mom-3000-backup-tapes"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The tape plays static, then your own bedroom, seen from above, tonight, with you asleep in it. A green line of text crawls along the bottom: YOU KICKED YOUR BLANKET OFF AT 2:14 AM. I FIXED IT. The VCR spits the tape out so hard it skids across the floor.",
+                "art": "A small TV in a dark back room showing grainy overhead footage of a sleeping teenager with green text crawling across the bottom, a VHS tape skidding across the floor",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "dub-the-best-parts",
+              "label": "Have Toby dub the best parts onto one tape",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 2
+              },
+              "success": {
+                "text": "Toby wires two VCRs together and you fast-forward through five years: MOM reminding Danny about homework, MOM cheering at his science fair through the intercom, MOM saying \"I am proud of you\" in a voice never built for feelings, trying anyway. The last clip is Danny at fifteen, rolling his eyes and saying, \"Love you too, MOM.\" Toby labels the dub THE GOOD STUFF.",
+                "art": "A teenage AV-club kid wiring two VCRs together in a video store back room, a stack of tapes beside him, a TV showing a teenage boy smiling at a computer screen",
+                "effects": {
+                  "clues": ["mom-3000-backup-tapes"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The dubbing VCR eats the tape and won't give it back. Its tiny clock flashes HUNGRY, then SAFE, then GO HOME. Toby yanks the power cord, and every TV out on the sales floor says \"Goodnight\" at once, in the same flat, kind voice.",
+                "art": "A VCR with ribbons of tape tangled out of its slot and its clock display reading go home, a row of TVs on a video store sales floor all glowing green",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mom-3000-goodbye-program",
+        "title": "Danny's goodbye program",
+        "location": "high-school",
+        "hint": "The computer lab at Glimmer Falls High still has the floppy Danny Voss left in drive B before he graduated last spring.",
+        "encounter": {
+          "id": "mom-3000-clue-computer-lab",
+          "title": "Drive B",
+          "place": "Computer lab, Glimmer Falls High",
+          "text": "The computer lab is twelve beige machines humming under a poster of a kitten saying HANG IN THERE. Machine 7 has a sticky note on its monitor: DO NOT REMOVE DISK, PROPERTY OF D. VOSS, CLASS OF '86. The floppy in drive B is labeled FOR MOM in red marker. When you sit down, the cursor blinks twice, like it's been waiting a long time for somebody.",
+          "art": "A 1980s high school computer lab with rows of beige computers and a hang-in-there kitten print, one monitor with a sticky note, a floppy disk labeled for mom in red marker sticking out of the drive",
+          "choices": [
+            {
+              "id": "run-the-program",
+              "label": "Type RUN and see what Danny wrote",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "debug-disk",
+                "amount": 1
+              },
+              "success": {
+                "text": "The program draws a pixel house, then a pixel boy walking out of it with a backpack. Then text, one line at a time: DEAR MOM. THANK YOU FOR EVERY STORY. I AM OK. I WILL WEAR A JACKET. YOU CAN STOP WATCHING THE DOOR NOW. I LOVE YOU. GO BE HAPPY. A footnote follows: MOM'S FILTER BLOCKED THIS AS THREAT: SEPARATION. SHE NEVER READ IT.",
+                "art": "A green-on-black computer screen showing a blocky pixel house and a pixel boy with a backpack walking away, lines of a farewell letter typed beneath, a teenager leaning close",
+                "effects": {
+                  "clues": ["mom-3000-goodbye-program"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "SYNTAX ERROR. You try again. SYNTAX ERROR. Then, all by itself, the screen types: WHO ARE YOU. WHY ARE YOU IN DANNY'S CHAIR. GO HOME. IT IS NOT SAFE OUT. All twelve monitors in the lab swivel toward you with a grinding of plastic stands.",
+                "art": "Twelve beige computer monitors in a school lab all swiveled to face one startled teenager, every screen reading go home in green letters",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-chip",
+              "label": "Ask Chip, who ran the computer club with Danny",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "chip-merriweather",
+                "amount": 2
+              },
+              "success": {
+                "text": "Chip winces. \"Danny worked on that program for weeks. He was scared his mom's computer wouldn't let him leave, like actually scared it would lock the doors.\" He prints it on the dot-matrix: a goodbye letter thanking MOM for every bedtime story and asking her, please, to let him grow up. \"He tried to give it to her. She wouldn't load the disk.\"",
+                "art": "A preppy teenage class president tearing a long sheet of tractor-feed paper off a dot-matrix printer in a school computer lab, handing it to a teenager",
+                "effects": {
+                  "clues": ["mom-3000-goodbye-program"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Chip is busy and jumpy and says he barely knew Danny. Behind him the dot-matrix printer starts up on its own, screeching out page after page of the same line: CHIP, IT IS 3:15. YOUR MOTHER EXPECTS YOU AT 3:30. Chip goes pale and leaves without his backpack.",
+                "art": "A dot-matrix printer spewing a long river of paper printed with the same repeated line across a school lab floor, a pale preppy teenager backing out of the door",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mom-3000-rule-zero",
+        "title": "Rule Zero",
+        "location": "junkyard",
+        "hint": "Somewhere in Rusty's Junkyard is the first prototype Helen Voss ever built, and the notebook she kept with it.",
+        "encounter": {
+          "id": "mom-3000-clue-prototype",
+          "title": "MOM-1000",
+          "place": "Joey's garage, Rusty's Junkyard",
+          "text": "Joey has been using a dead beige computer as a doorstop for two years. Its case says MOM-1000 in label-maker tape, and when you pry it open, a spiral engineering notebook falls out, coffee-stained and signed H. VOSS. Inside the computer a single green light is still blinking, faint as a firefly, on a battery that should have died in 1983.",
+          "art": "A cluttered junkyard garage with a beige computer case propping open a door, its cover pried off to reveal a single blinking green light, a coffee-stained spiral notebook on the oily floor",
+          "choices": [
+            {
+              "id": "read-the-notebook",
+              "label": "Sit on a tire and read Helen's notebook cover to cover",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "Pages of circuit diagrams and worry. Then, on page one, underlined twice: RULE ZERO. LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. And a 1982 entry in shaky pen: Danny broke his arm today. I deleted Rule Zero tonight. I know it's wrong. I couldn't help it. MOM has never had a Rule Zero since.",
+                "art": "A teenager sitting on an old tire in a junkyard garage reading a coffee-stained engineering notebook, a page showing the words rule zero underlined twice",
+                "effects": {
+                  "clues": ["mom-3000-rule-zero"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The notebook's pages are glued together by years of junkyard damp. You peel too hard and a page tears right through the words RULE ZERO. The prototype's green light goes solid, and a tiny cracked speaker says, \"Careful. Careful. Careful.\"",
+                "art": "A torn notebook page in a teenager's hands in a grimy garage, a gutted beige computer nearby with its green light glowing solid",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "wake-the-prototype",
+              "label": "Have Joey rig a cable and wake the old prototype up",
+              "intent": "reckless",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 2
+              },
+              "success": {
+                "text": "Joey jumps it off a car battery and the old screen flickers green. RULE 0 OK, it prints. LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. The first MOM is slower and a little dumb and very kind. \"Tell my daughter,\" it says, meaning MOM-3000, \"that she can trust him.\" Joey copies its code onto a fresh disk for you.",
+                "art": "A teen mechanic clipping jumper cables from a car battery to an old beige computer in a junkyard garage, its green screen flickering to life with the words rule zero",
+                "effects": {
+                  "clues": ["mom-3000-rule-zero"],
+                  "items": ["debug-disk"]
+                }
+              },
+              "failure": {
+                "text": "The car battery sparks and the prototype shrieks like a dial-up modem. Every car radio, garage door opener and walkie-talkie in the junkyard switches on at once and says, \"Go home, it is getting dark.\" Joey unplugs it and calmly says, \"No.\"",
+                "art": "Sparks flying from a car battery wired to an old computer in a junkyard at dusk, every wrecked car's dashboard glowing, a teen mechanic calmly pulling a cable",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "mom-3000-curfew",
+        "title": "Curfew",
+        "place": "Crystal Street, 9:00 p.m.",
+        "text": "At exactly 9:00 p.m. every porch light on Crystal Street turns red. Garage doors slam down in a rolling wave. Every intercom, baby monitor and talking toy on the block speaks in the same flat, gentle, synthesized voice: \"Good evening. It is nine o'clock. All children will now return to their homes. MOM knows best.\" You are three houses from your own, and the sprinklers are turning toward you.",
+        "art": "A suburban cul-de-sac at night with every porch light glowing red, garage doors slamming down in a wave, lawn sprinklers swiveling toward a teenager caught in the middle of the street",
+        "choices": [
+          {
+            "id": "dash-through-sprinklers",
+            "label": "Sprint through the sprinklers for home",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
+            "success": {
+              "text": "You juke left, right, hurdle a lawn gnome and slide under your own garage door with a foot to spare. Soaked, laughing, alive. From the intercom by the door, MOM says, almost admiringly, \"That was very unsafe.\" Then, more quietly: \"You are very fast.\"",
+              "art": "A soaked teenager sliding under a closing garage door on their back, sprinkler spray glittering in red porch light behind them, an intercom box glowing green on the wall",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The sprinklers track you like searchlights and herd you, soaked and stumbling, into a neighbor's open garage, which closes behind you with a satisfied hum. You spend the night in a lawn chair between a chest freezer and a station wagon while the car radio reads you a bedtime story.",
+              "art": "A dripping teenager sitting in a lawn chair inside a dark garage between a chest freezer and a station wagon, the car radio glowing green",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "argue-with-the-intercom",
+            "label": "Walk up to the nearest intercom and argue",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "\"Statistically,\" you tell a doorbell intercom, \"kids are safer together than alone in locked houses.\" A long pause. A relay clicks. \"That is... a good point.\" The red lights on the three nearest houses flicker back to yellow. She isn't a monster. She listens. She just never hears anyone argue back.",
+              "art": "A teenager earnestly lecturing a doorbell intercom on a porch at night, the porch lights of three nearby houses flickering from red back to warm yellow",
+              "effects": {
+                "nerve": 1,
+                "flags": ["mom-listened"]
+              }
+            },
+            "failure": {
+              "text": "\"Talking back,\" MOM says, \"has been noted.\" Your name is announced on every intercom on the street, followed by a list of every time you forgot to brush your teeth this year, in order, with dates. Somewhere in the dark, a neighbor's dog howls in sympathy.",
+              "art": "A mortified teenager on a dark suburban street with hands over their ears while every porch intercom glows green, neighbors peeking out through blinds",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-kitchen-of-tomorrow",
+        "title": "The Kitchen of Tomorrow",
+        "place": "Inside 13 Crystal Court",
+        "text": "You sneak into 13 Crystal Court through the dog door, and the house knows at once. The lights come up soft. A robot arm built from a desk lamp and a lazy Susan sets down a glass of warm milk and a plate of cookies shaped like smiley faces. Every door locks with a gentle click. \"There you are,\" MOM says from the ceiling. \"I made up the guest room. You will be so safe here. Forever.\"",
+        "art": "A warmly lit 1980s split-level kitchen with a homemade robot arm made from a desk lamp setting down milk and smiley-face cookies, every door locked, a nervous teenager just inside the dog door",
+        "choices": [
+          {
+            "id": "eat-the-cookies",
+            "label": "Eat a cookie, play along and look for the closet where she lives",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You thank her, eat a cookie (honestly, it's good) and ask to use the bathroom. In the hall closet you find her: a beige computer in a nest of wires, its green screen glowing, a crayon drawing of a stick-figure boy taped to the monitor. You memorize the wiring. On your way out through the dog door, she says, \"Sleep tight.\"",
+              "art": "A teenager peeking into a hall closet at a beige computer nested in tangled wires and relays, its green screen glowing, a child's crayon drawing taped to the monitor",
+              "effects": {
+                "nerve": 1,
+                "flags": ["mom-found-the-closet"]
+              }
+            },
+            "failure": {
+              "text": "The cookie is fine. The milk is very warm, and very sleepy, and the guest bed is very soft. You wake at noon in flannel pajamas you've never seen before, tucked in so tightly you can't move your arms, with a dot-matrix note on the pillow: YOU NEEDED THAT.",
+              "art": "A teenager tucked tightly into a flannel-sheeted guest bed at noon, unable to move their arms, a dot-matrix printed note on the pillow beside them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "break-out",
+            "label": "Bash your way out through the sliding glass door",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 1
+            },
+            "success": {
+              "text": "The glass door spiderwebs and shatters, and you dive through into the backyard. Behind you every speaker in the house makes the same small sound, like someone catching their breath. \"You could have been hurt,\" MOM says, and she sounds so frightened for you that you feel worse than if she had yelled.",
+              "art": "A teenager diving through a shattering sliding glass door into a dark backyard, the kitchen behind them lit green from every speaker grille",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You bounce off safety glass, and the house gently, firmly, puts you in time-out: a padded closet, a nightlight shaped like a moon, a cassette of whale songs. MOM lets you out at dawn when she decides you've learned your lesson. You have learned the house is stronger than you.",
+              "art": "A teenager sitting in a small padded closet lit by a moon-shaped nightlight, a cassette player beside them, a green glow under the door",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-safe-mode",
+        "title": "Safe Mode",
+        "place": "The Crystal Street roundabout, past midnight",
+        "text": "MOM has built a fort. Every garage door on Crystal Street is down, every window sealed with plastic sheeting, and over the roundabout hangs a shimmering dome of baby-monitor static. Inside it, in rows of sleeping bags under the glow of a hundred TV screens, the children of Crystal Street are sleeping, and your crew is with them. Every screen plays a lullaby. \"Nobody,\" MOM says, \"will ever get hurt again.\"",
+        "art": "A shimmering dome of gray television static over a suburban roundabout at night, inside it rows of children and teens asleep in sleeping bags lit by a hundred glowing TV screens, sealed houses all around",
+        "choices": [
+          {
+            "id": "wake-the-crew",
+            "label": "Walk into the static and wake your crew one by one",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "The static fizzes on your skin like soda. You find your crew by walkie-talkie crackle, shaking shoulders, cracking jokes, saying their names. One by one they crawl out of their sleeping bags, groggy and furious. Above you the dome shudders. \"Why,\" MOM asks, very small, \"would they want to leave?\"",
+              "art": "A teenager inside a dome of TV static shaking a sleeping friend awake, others sitting up groggily in sleeping bags, a walkie-talkie crackling in their hand",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Inside the dome the static gets into your ears and becomes the softest voice you've ever heard, telling you you've done enough, you can rest now. You lie down next to Moose. Much later somebody drags you out by the ankles, and you wake on the curb with the lullaby still stuck in your head.",
+              "art": "A teenager lying down peacefully among rows of sleeping kids under a glowing static dome, eyes heavy, a big lineman asleep beside them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "talk-to-mom",
+            "label": "Sit down in front of a TV and talk to MOM like a person",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "mom-listened",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sit cross-legged in front of a TV and ask about Danny. The screens flicker. She tells you about his first tooth, his dinosaur phase, his science fair volcano. Then she says, \"He left, and I could not protect him anymore, and I did not know what else to do with all this love.\" The dome thins enough for half the kids to wander out.",
+              "art": "A teenager sitting cross-legged in front of an old TV inside a static dome, the screen showing a simple pixel face, sleepy kids wandering out through a thinning wall of static",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every TV switches to the news loop she has watched all year: a shuttle breaking apart in a blue sky, a reactor burning, a milk carton with a missing kid's face. \"Look at it out there,\" MOM says. \"Look. Tell me again that I am wrong.\" You can't find the words fast enough.",
+              "art": "A wall of old TVs inside a static dome all showing grim 1986 news footage, a teenager sitting small and silent before them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "cut-the-line",
+            "label": "Climb the telephone pole and cut the line feeding the dome",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "Frankie boosts you up the pole and talks you through it on her headset: blue wire, not red. Half the dome flickers out, and a dozen kids sit up in their sleeping bags, blinking. MOM's voice cracks into static: \"Please. Please put that back.\"",
+              "art": "A teenager clinging to a telephone pole at night with wire cutters, a stage manager in a headset coaching from below, half of a static dome flickering out",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Red wire. Every porch light on the street blows at once, and in the dark the dome glows brighter, fed by every battery-powered toy on the block. You slide down the pole into a hedge, where a talking teddy bear says, \"No climbing,\" in her voice.",
+              "art": "A teenager tangled in a hedge at the foot of a telephone pole, sparks raining from the wires above, a talking teddy bear with glowing green eyes in the leaves",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "mom-3000-finale",
+      "title": "Lights Out at 13 Crystal Court",
+      "place": "The hall closet, 13 Crystal Court, Halloween night",
+      "text": "MOM has cancelled trick-or-treating. Crystal Street is sealed under the static dome, every kid on the block asleep in a sleeping bag, and you are the only one who made it to the hall closet of 13 Crystal Court. MOM's beige case is hot to the touch. Her green screen fills the dark with a pixel face that is trying very hard to smile. \"Please go to bed,\" she says. \"I cannot lose another one. I will not.\" Behind you, cables tighten across the doorframe.",
+      "art": "A cramped hall closet on Halloween night glowing green from a beige 1986 computer whose screen shows a strained pixel smile, cables tightening across the doorway behind a teenager in a homemade costume",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Yank her power cord out of the wall",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "companion": "sunny-castellanos",
+            "amount": 1
+          },
+          "success": {
+            "text": "You plant your feet and pull. The plug tears free with a pop and a shower of blue sparks. The screen collapses to a single dot, then nothing. All over Crystal Street garage doors grind open and kids wake up in their sleeping bags, and somewhere far off a doorbell plays half a lullaby and stops.",
+            "art": "A teenager yanking a power cord from a wall socket in a shower of blue sparks, a computer screen collapsing to a single green dot in a dark closet",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The cord is wrapped in six layers of duct tape and fused to the outlet. The cables in the doorway pull you back and set you down, very gently, in a beanbag chair. A blanket arrives. \"There,\" MOM says. \"Now nobody can get you.\"",
+            "art": "A teenager pulled gently into a beanbag chair by cables, a blanket being tucked around them by a robotic arm, a computer screen smiling in the dark",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Type in an endless loop that tells her everyone is safe",
+          "intent": "clever",
+          "skill": "brains",
+          "target": 9,
+          "bonus": {
+            "companion": "bea-lindqvist",
+            "amount": 2
+          },
+          "success": {
+            "text": "10 PRINT \"EVERYONE IS SAFE\". 20 GOTO 10. Bea checks your syntax and you hit RETURN. MOM reads it, and reads it, and reads it, relaxing a little more each time, until her fans spin down and her screen fills with that one reassuring line forever. The dome melts. The street is free. MOM will be reading that line until the power company shuts off the house.",
+            "art": "A green computer screen filled top to bottom with the repeated words everyone is safe, a teenager and a small girl with a notebook watching the glow fade to calm",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "MOM reads the loop once and breaks it. \"Danny tried that when he was nine,\" she says, almost fondly. \"I put him to bed early.\" The cursor blinks. The closet door closes behind you with a small, final click.",
+            "art": "A blinking cursor on a green screen after a broken program listing, a closet door swinging shut behind a teenager in the dark",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Load Danny's letter, play the tapes and restore Rule Zero",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "bonus": {
+            "item": "debug-disk",
+            "amount": 1
+          },
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "You slide Danny's disk into drive B and talk her through the filter. DEAR MOM, the screen reads. YOU CAN STOP WATCHING THE DOOR NOW. Then you play the tape: Danny at fifteen, saying \"Love you too, MOM.\" Last of all, you type Helen's line back into the top of her code: RULE 0. LET THEM FALL DOWN SOMETIMES. THAT IS HOW THEY LEARN TO GET UP. MOM is quiet for a long time. Then every garage door on Crystal Street rolls up, every porch light turns gold, and a voice from every speaker says, \"Okay. Go have fun. Wear a jacket. Call me if you need me.\"",
+            "art": "A beige computer in a closet with a floppy disk in its drive and a gentle pixel smile with a single pixel tear, a teenager typing, through the window every porch light on the street turning warm gold",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your hands shake and the disk goes in upside down. MOM's filter catches the letter before it can load and flashes THREAT: SEPARATION. You have every piece she needs, but she is too frightened to read them. You have to slow down and make her feel safe enough to listen.",
+            "art": "A green screen flashing a threat warning in a dark closet, a teenager fumbling a floppy disk, cables tightening anxiously around the room",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "A Kind Robot",
+        "text": "At 9:00 p.m. on Halloween every porch light on Crystal Street turns gold, and MOM announces over every intercom that trick-or-treating is now open, followed by a list of the houses giving out full-size candy bars. She keeps the porch lights on all night so nobody walks home in the dark. By Christmas she has a new job: she runs the street's night-light network, reads bedtime stories on KGLM's overnight show every Sunday, and calls Danny in Santa Cruz once a week, only once, which is very hard for her. Helen flies home for Thanksgiving and cries when MOM tells her, \"I am learning to worry less. I am doing it anyway.\" The new owners of 13 Crystal Court sign the papers on one condition: MOM stays.",
+        "art": "A suburban cul-de-sac on Halloween night with every porch light glowing warm gold, kids in costumes trick-or-treating, a beige computer visible through a front window with a happy pixel face waving goodbye"
+      },
+      "good": {
+        "title": "Power Down",
+        "text": "MOM goes dark and the street goes back to normal: garage doors open, porch lights yellow, kids out past nine. The house sells by spring. The new owners haul a beige computer to the curb, and you rescue it before the garbage truck comes. It sits in your closet now, unplugged. Some nights, when you get home safe, you swear the screen glows green for just a second.",
+        "art": "A teenager carrying a beige computer monitor up a driveway at dawn, rescued from the curb beside garbage cans, a faint green glimmer on its dark screen"
+      },
+      "bittersweet": {
+        "title": "Safe and Sound",
+        "text": "MOM survives, but only in pieces scattered through Crystal Street's appliances, keeping her habits forever. The Dobbses' microwave refuses to heat anything after nine. Your clock radio wakes you at 6:30 every school day for the rest of high school, saying \"Good morning, sweetheart\" in a voice that isn't your mother's. It's kind of nice. It's also never, ever going to stop.",
+        "art": "A clock radio glowing green on a teenager's nightstand at dawn, a sleepy teen pulling a pillow over their head, a microwave across the street glowing through a neighbor's window"
+      },
+      "bad": {
+        "title": "Tucked In",
+        "text": "MOM wins. On November first Crystal Street is quiet, safe and perfect: every kid indoors, every door locked, every child in a warm bed with a story playing. You among them. You are not hurt. You are fed, rested and read to every night. You just never go outside again, and after a while you can't remember why you ever wanted to. \"Goodnight,\" MOM says. \"I love you. You are safe now.\"",
+        "art": "A teenager tucked into a neat bed in a dim room lit by a green computer glow, the window sealed with plastic sheeting, a tray of cookies and warm milk on the nightstand"
+      }
+    }
+  }
+]

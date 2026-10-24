@@ -808,7 +808,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'ask-split',
-            label: 'Ask whether every burrow delegate wants this list.',
+            label: 'Ask whether the whole assembly wants this list.',
             effects: {},
             response:
               'Lumen looks at the trumpet in her paw for a moment. Then she puts it down.',
@@ -1624,7 +1624,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. Tamsin watches the crows leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
+                  'Corvane rises without a word. Tamsin watches the Conclave sentries leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
               },
               {
                 id: 'wages',
@@ -2563,7 +2563,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       {
         id: 'd38-pardon',
         title: 'A Pardon for a Thief',
-        speaker: 'Captain Ferro Dunmark and a prisoner from the burrows',
+        speaker: 'Captain Ferro Dunmark and a jailed courier',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
         lines: [
@@ -2790,7 +2790,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-kept'],
                 },
                 response:
-                  'The young courier goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
+                  'The courier goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
               },
               {
                 id: 'escort-home',
@@ -3446,7 +3446,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'boy',
                 label:
-                  'Repeat the young prisoner’s whisper: the one with the ledger, under his arm, always.',
+                  'Repeat the young courier’s whisper: the one with the ledger, under his arm, always.',
                 requires: { flags: ['prisoner-pardoned'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3456,7 +3456,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'escaped',
                 label:
-                  'Ask how the young prisoner got out of a locked cell the night you gave him to Komodo.',
+                  'Ask how the young courier got out of a locked cell the night you gave him to Komodo.',
                 requires: { flags: ['prisoner-to-komodo'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3476,7 +3476,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'chain',
                 label:
-                  'Say nothing. Tap two fingers on the step, twice, the way the young prisoner did.',
+                  'Say nothing. Tap two fingers on the step, twice, the way the courier did.',
                 requires: { flags: ['d38-hall-cleared'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3622,7 +3622,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   'Have the Watch hold him in the cells until morning, friend or not.',
                 effects: { flags: ['d40-komodo-held'] },
                 response:
-                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the young prisoner had.',
+                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the courier had.',
               },
             ],
           },

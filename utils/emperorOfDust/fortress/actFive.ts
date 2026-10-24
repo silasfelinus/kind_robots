@@ -2762,7 +2762,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
       },
       {
-        // Callback: the crown pardoned the Mole courier (Day 38).
+        // Callback: the crown pardoned the burrow courier (Day 38).
         id: 'd42-the-courier',
         title: 'The Boy Who Carried Letters',
         speaker: 'The young burrow courier',
@@ -3140,7 +3140,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
   },
   {
     day: 44,
-    title: 'The Walker’s Real Name',
+    title: 'The Elder’s True Name',
     advisor: VELLUM,
     briefings: [
       {
@@ -3168,7 +3168,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd44-crow-name',
-        title: 'The Walker’s Real Name',
+        title: 'The Elder’s True Name',
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',
@@ -3830,7 +3830,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 npc: 'sister-reedlight',
                 text: '“And the Moles dug under our fen two hundred years and called it politics, Granny. We could argue until the Abbess wakes. She’d enjoy that.”',
               },
-              '“She would,” says Granny Umber, at last. “That’s the only reason I haven’t hit you with this cane.” To you: “Your court, Majesty. Your call. Do we carry a witch’s light down a Mole’s road?”',
+              '“She would,” says Granny Umber, at last. “That’s the only reason I haven’t hit you with this cane.” To you: “Your court, Majesty. Your call. Do we carry a witch’s light down the tunnels that kept us alive?”',
             ],
             options: [
               {

@@ -1,0 +1,145 @@
+[
+  {
+    "id": "flashlight",
+    "name": "Six-Cell Flashlight",
+    "text": "Heavy as a club, bright as a lighthouse. +1 nerve on every roll.",
+    "price": 3,
+    "skill": "nerve",
+    "bonus": 1,
+    "art": "A heavy black six-cell flashlight throwing a hard white beam across a dark suburban lawn"
+  },
+  {
+    "id": "mixtape",
+    "name": "Insomnia Mix '86",
+    "text": "Ninety minutes of synth-pop guaranteed to keep you awake. Wards against dream encounters.",
+    "price": 3,
+    "ward": "dream",
+    "art": "A hand-labeled cassette mixtape reading Insomnia Mix 86 in glitter pen, glowing faintly in a Walkman"
+  },
+  {
+    "id": "holy-water",
+    "name": "Blessed Super Soaker",
+    "text": "A neon squirt gun filled at St. Jude's, no questions asked. Wards against paranormal encounters.",
+    "price": 4,
+    "ward": "paranormal",
+    "art": "A neon orange squirt gun filled with faintly glowing holy water, a tiny cross sticker on the tank"
+  },
+  {
+    "id": "silver-scrunchie",
+    "name": "Silver Lamé Scrunchie",
+    "text": "Real silver thread, from the Glitter Box costume shop. Wards against creature encounters.",
+    "price": 4,
+    "ward": "creature",
+    "art": "A shimmering silver lamé scrunchie on a teenager's wrist, catching moonlight"
+  },
+  {
+    "id": "cassette-recorder",
+    "name": "Pocket Cassette Recorder",
+    "text": "Catches voices you cannot hear. +1 lore on every roll.",
+    "price": 3,
+    "skill": "lore",
+    "bonus": 1,
+    "art": "A pocket cassette recorder with its red record light on, its tape reels turning by themselves"
+  },
+  {
+    "id": "polaroid",
+    "name": "Instant Camera",
+    "text": "Shows what was really there. +1 brains on every roll.",
+    "price": 3,
+    "skill": "brains",
+    "bonus": 1,
+    "art": "A white instant camera spitting out a photo that shows a ghostly shape hidden to the naked eye"
+  },
+  {
+    "id": "baseball-bat",
+    "name": "Little League Bat",
+    "text": "Signed by the 1979 Glimmer Falls Gophers. +1 brawn on every roll.",
+    "price": 3,
+    "skill": "brawn",
+    "bonus": 1,
+    "art": "A dented aluminum little league baseball bat covered in team signatures leaning on a garage door"
+  },
+  {
+    "id": "aqua-net",
+    "name": "Aqua-Glow Max Hold",
+    "text": "Hairspray strong enough to stop a slasher in their tracks. Wards against slasher encounters.",
+    "price": 2,
+    "ward": "slasher",
+    "art": "A tall can of glittering hairspray with a lightning-bolt label, a cloud of shimmering mist"
+  },
+  {
+    "id": "walkie-talkies",
+    "name": "Walkie-Talkies",
+    "text": "Channel 9, over. +1 hustle on every roll.",
+    "price": 3,
+    "skill": "hustle",
+    "bonus": 1,
+    "art": "A pair of chunky yellow walkie-talkies with long antennas crackling with static"
+  },
+  {
+    "id": "tarot-deck",
+    "name": "Raven's Spare Tarot",
+    "text": "The Tower keeps coming up. +1 lore on every roll.",
+    "price": 3,
+    "skill": "lore",
+    "bonus": 1,
+    "art": "A worn tarot deck fanned on black velvet, the Tower card glowing on top"
+  },
+  {
+    "id": "leg-warmers",
+    "name": "Lucky Leg Warmers",
+    "text": "Rainbow-striped confidence. +1 charm on every roll.",
+    "price": 2,
+    "skill": "charm",
+    "bonus": 1,
+    "art": "A pair of rainbow-striped leg warmers over high-top sneakers mid-dance step"
+  },
+  {
+    "id": "rock-salt",
+    "name": "Rock Salt",
+    "text": "A coffee can of it, for circles on the floor. Wards against cult encounters.",
+    "price": 2,
+    "ward": "cult",
+    "art": "A coffee can of rock salt and a white salt circle poured on a basement floor"
+  },
+  {
+    "id": "tinfoil-hat",
+    "name": "Tinfoil Hat",
+    "text": "Laugh all you want. Wards against cosmic encounters.",
+    "price": 2,
+    "ward": "cosmic",
+    "art": "A lovingly crafted tinfoil hat with antenna coils, shining under a starry sky"
+  },
+  {
+    "id": "debug-disk",
+    "name": "Debug Disk",
+    "text": "A 5.25-inch floppy labeled DO NOT RUN. Wards against tech encounters.",
+    "price": 3,
+    "ward": "tech",
+    "art": "A black 5.25 inch floppy disk with a handwritten red warning label, glowing green code reflected on it"
+  },
+  {
+    "id": "glow-bracelet",
+    "name": "Glow-Stick Bracelets",
+    "text": "Neon courage from the Glitter Box gift shop. Wards against camp encounters.",
+    "price": 2,
+    "ward": "camp",
+    "art": "A stack of neon pink, green and blue glow-stick bracelets on a raised fist in the dark"
+  },
+  {
+    "id": "first-aid",
+    "name": "Bandages and Bactine",
+    "text": "Use from your pack for +2 nerve.",
+    "price": 2,
+    "consumable": true,
+    "art": "A cartoon-patterned bandage tin and a spray bottle of antiseptic on a bathroom counter"
+  },
+  {
+    "id": "jolt-cola",
+    "name": "Bolt Cola",
+    "text": "All the sugar and twice the caffeine. Use from your pack for +1 nerve and -1 dread.",
+    "price": 1,
+    "consumable": true,
+    "art": "A sweating red can of Bolt Cola with a lightning bolt logo fizzing over"
+  }
+]

@@ -74,7 +74,7 @@ export const FALL_OPENING =
 export const FALL_OPENINGS: TextVariant[] = [
   {
     flags: ['d40-komodo-held'],
-    text: 'Young Komodo spent midnight in your cells. He left by the drain in the Mole boy’s old cell, and the postern was already open.',
+    text: 'Young Komodo spent midnight in your cells. He left by the drain in the young courier’s old cell, and the postern was already open.',
   },
   {
     flags: ['d40-seals-checked'],

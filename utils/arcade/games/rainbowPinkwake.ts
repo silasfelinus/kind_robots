@@ -274,34 +274,34 @@ export function pinkwakeDialogue(
     'A01.OPEN': [
       {
         speaker: 'Lilt-7',
-        text: 'Pinkwake Estuary ahead. Rescue beacons are answering with weapons fire.',
+        text: 'Pinkwake Estuary. The Motherland calls it feral water. The fleet here fires on our survey beacons.',
       },
       {
         speaker: lead,
-        text: 'Then we fly close enough to learn why. Keep the civilians behind us.',
+        text: 'Then C.A.T.S. pacifies it. Keep the Motherland survey station behind us.',
       },
       {
         speaker: partner === lead ? 'Lilt-7' : partner,
         text:
           partner === lead
             ? 'I will count safe passages. You provide the improbable part.'
-            : 'I vote we ask politely, with our engines running.',
+            : 'Pacify. Such a soft word for this much firepower.',
       },
     ],
     'A01.TURN': [
       {
         speaker: 'Lilt-7',
-        text: 'Hold fire a moment. The Pearl Seahorse carries a living escape pod.',
+        text: 'Hold fire a moment. The Pearl Seahorse is shielding a pod, and something inside it is alive.',
       },
       {
         speaker: partner,
-        text: 'That changes everything. Target its weapons, not the passenger.',
+        text: 'Command never mentioned passengers. Target its weapons, not the pod.',
       },
       {
         speaker: lead,
         text: rescuedStation
-          ? 'Our station survivors can guide that pod out. We bring it home.'
-          : 'We missed the station beacon. We can still bring this pod home.',
+          ? 'Our station crew can tow that pod clear. We bring it in.'
+          : 'We missed the station beacon. We can still bring this pod in.',
       },
     ],
     'A01.EDDIES': [
@@ -367,14 +367,14 @@ export function pinkwakeDialogue(
     'A01.STORM': [
       {
         speaker: 'Lilt-7',
-        text: 'Everything in the estuary is coming at once. The Seahorse is close behind it.',
+        text: 'Everything in the estuary is coming at once. They really do not want us here.',
       },
       { speaker: lead, text: 'Then we answer with everything we have.' },
     ],
     'A01.WAKE': [
       {
         speaker: 'Lilt-7',
-        text: 'The Pearl Seahorse is calling its escort home. Last school before the fight.',
+        text: 'The Pearl Seahorse is calling its school home. Last wave before the fight.',
       },
       {
         speaker: partner,
@@ -387,18 +387,18 @@ export function pinkwakeDialogue(
     'A01.AFTER': [
       {
         speaker: 'Lilt-7',
-        text: 'The pod is free. Its distress signal was hidden beneath a command pulse.',
+        text: 'The pod is clear. Command has already logged it: feral spawn, recovered.',
       },
       {
         speaker: lead,
-        text: 'So the fleet is trapped, not invading. We rescue them one ship at a time.',
+        text: 'Recovered is good. We pacify this fleet one ship at a time, gently.',
       },
       {
         speaker: partner === lead ? 'Lilt-7' : partner,
         text:
           partner === lead
-            ? 'Plotting the Moonjelly Fields. I believe our mission just changed.'
-            : 'Then onward. And nobody gets left in the wake.',
+            ? 'Plotting the Moonjelly Fields. Command wants them quiet by nightfall.'
+            : 'Gently, then. And nobody gets left in the wake.',
       },
     ],
   }

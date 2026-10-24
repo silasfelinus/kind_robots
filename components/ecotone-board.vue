@@ -208,7 +208,7 @@
                     >
                       <img
                         v-if="!failedAvatarPortraits.includes(avatar.id)"
-                        :src="`${avatar.portrait}?retry=${portraitRetry}`"
+                        :src="`${playerAvatarSrc(avatar.portrait)}?retry=${portraitRetry}`"
                         :alt="avatar.label"
                         loading="lazy"
                         class="h-full w-full object-cover object-top"
@@ -959,7 +959,7 @@
               >
                 <img
                   v-if="!failedAvatarPortraits.includes(avatar.id)"
-                  :src="`${avatar.portrait}?retry=${portraitRetry}`"
+                  :src="`${playerAvatarSrc(avatar.portrait)}?retry=${portraitRetry}`"
                   :alt="avatar.label"
                   class="aspect-[2/3] w-full rounded object-cover"
                   @error="failedAvatarPortraits.push(avatar.id)"
@@ -1909,6 +1909,7 @@ import {
 import {
   PLAYER_AVATARS,
   PLAYER_PERSONALITIES,
+  playerAvatarSrc,
 } from '~/utils/ecotone/playerIdentity'
 import {
   loadEcotoneDisplay,
@@ -1950,7 +1951,7 @@ const activePlayerPortrait = computed(() =>
   game.run?.avatarId === 'custom'
     ? customPortraitUrl.value
     : PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)?.portrait
-        ? `${PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait}?retry=${portraitRetry.value}`
+        ? `${playerAvatarSrc(PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait)}?retry=${portraitRetry.value}`
         : '',
 )
 watch(activePlayerPortrait, () => { headerPortraitFailed.value = false })

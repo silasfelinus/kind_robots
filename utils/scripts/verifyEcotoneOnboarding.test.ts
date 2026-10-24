@@ -44,10 +44,11 @@ assert.equal(EVENT_CHOICE.body.length, 3)
 assert.ok(EVENT_CHOICE.body.every((paragraph) => paragraph.length < 160))
 assert.ok(EVENTS.every((event) => event.arrival && event.possibilities))
 assert.ok(
-  EVENTS.every((event) =>
-    !/\\b(kit|juniper|cedar|mara|drugs?|meth|cocaine|mdma|stoned|psychedelic|drink|sobriety)\\b/i.test(
-      `${event.blurb} ${event.kind} ${event.arrival} ${event.possibilities}`,
-    ),
+  EVENTS.every(
+    (event) =>
+      !/\\b(kit|juniper|cedar|mara|drugs?|meth|cocaine|mdma|stoned|psychedelic|drink|sobriety)\\b/i.test(
+        `${event.blurb} ${event.kind} ${event.arrival} ${event.possibilities}`,
+      ),
   ),
   'opening routes must describe possibilities, not reveal companions or chemical paths',
 )
@@ -55,7 +56,10 @@ const custom = createRun(3030, 'mechanic', undefined, {
   avatarId: 'custom',
   portraitArtId: 45678,
 })
-assert.equal(restoreRun(JSON.parse(JSON.stringify(custom)))?.portraitArtId, 45678)
+assert.equal(
+  restoreRun(JSON.parse(JSON.stringify(custom)))?.portraitArtId,
+  45678,
+)
 assert.equal(restoreRun(JSON.parse(JSON.stringify(custom)))?.avatarId, 'custom')
 assert.equal(
   normalizePlayerIdentity({ avatarId: 'custom', portraitArtId: 0 }).avatarId,

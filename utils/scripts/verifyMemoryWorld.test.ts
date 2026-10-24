@@ -284,8 +284,8 @@ for (const key of secondBriarExpansion) {
 }
 assert.equal(
   Object.keys(BRIAR_SCENES).length,
-  47,
-  'Original 15 encounters plus two sixteen-scene batches are authored',
+  64,
+  'All 64 Briar Marches authored scene records exist',
 )
 assert.match(
   briarSceneOpening(BRIAR_SCENES['1,4']!, { '2,2': 'observe' }),
@@ -371,7 +371,14 @@ assert.equal(briarTileProgress(visitSave, '8,4'), 'unfinished')
 assert.equal(briarTileProgress(visitSave, '2,7'), 'unfinished')
 const settledSave = {
   ...visitSave,
-  sceneChoices: { '2,4': 'copy', '5,5': 'gift', '2,7': 'rehearse' },
+  sceneChoices: {
+    '2,4': 'copy',
+    '3,6': 'read',
+    '5,5': 'gift',
+    '6,2': 'witness',
+    '8,4': 'law',
+    '2,7': 'rehearse',
+  },
   chestClaims: ['3,6'],
   completedEncounters: ['5,5'],
   relics: ['bramble-chime'],
@@ -714,6 +721,21 @@ const launcherScreen = readFileSync(
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(
+  worldStoreSource,
+  /inspectedSigil\\.value = key/,
+  'Inspecting a reserved sigil activates its individually authored response',
+)
+assert.match(
+  worldStoreSource,
+  /isInspectedSeal/,
+  'Regional seal choices are saved without falsely completing the paired puzzle',
+)
+assert.match(
+  mapScreen,
+  /world\\.activeSiteKey/,
+  'Decision buttons use the inspected seal instead of the previous map square',
+)
 const deckLoaderSource = readFileSync(
   'stores/helpers/memoryDungeonDeckSource.ts',
   'utf8',

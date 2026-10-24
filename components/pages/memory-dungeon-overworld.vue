@@ -336,6 +336,13 @@
                 alt="Enlarged picture from the selected memory card"
                 draggable="false"
               />
+              <img
+                v-else-if="world.inspectedSigil"
+                class="h-full w-full bg-[#162733] object-contain"
+                :src="crossMapImage(world.inspectedSigil)"
+                alt="Enlarged illustration of the inspected regional seal"
+                draggable="false"
+              />
               <div
                 v-else-if="!world.mapMatching"
                 class="h-full w-full bg-cover"
@@ -345,7 +352,7 @@
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
-                {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
+                {{ world.mapMatching ? 'Memory image' : world.inspectedSigil ? 'Paired regional sigil' : 'Map detail' }}
               </span>
             </div>
             <div
@@ -409,7 +416,7 @@
                 <template
                   v-if="
                     world.activeScene &&
-                    !world.state.sceneChoices[world.state.player]
+                    !world.state.sceneChoices[world.activeSiteKey]
                   "
                 >
                   <button

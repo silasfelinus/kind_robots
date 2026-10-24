@@ -2,7 +2,7 @@ import type { DayDef, DueDef, QuestDef, SceneLine, SceneVariant } from './types'
 import type { EpilogueSubject } from './epilogue'
 
 // Act III, Days 21-30, "Kind Roads" (conductor DAY-PLAN.md): the Black
-// Verge at the border, the mission road, the Abbess at court, Flint's trial,
+// Verge at the border, the mission road, the Abbess at court, Flint’s trial,
 // Mara's secret page and the terms of shelter before the faction wars
 // resolve on the map. Harm to children stays off-screen: neat empty cots,
 // tracks that only lead in, a door kept locked (WORLD-GUIDE.md).
@@ -165,10 +165,11 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
       success:
         'Not Moles. Not knives. River water in the lungs. Each wore a mission-road token, the kind the Abbey gives parents who visit. Their boots were worn through at the toe. They walked a long way after the Abbey sent them home. Where, the court does not know.',
       partial:
-        'The travellers wore mission-road tokens. Nobody learned more before the river took them back.',
+        'The searchers recover two mission-road tokens lodged in the reeds. They bear different dates but the same punched hole. Before anyone can inspect the far bank, the current rises and takes the last tracks.',
       failure:
         'The party came back with nothing. The Old Houses filled the silence: the Moles did it. The burrows will remember.',
-      expired: 'Nobody looked close. The Moles were blamed by suppertime.',
+      expired:
+        'No one comes to the ford. By supper an Old House clerk has blamed the Mole Revolutionaries. A burrow warden brings the accusation back to court with river silt on the paper.',
     },
   },
   {
@@ -206,9 +207,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         'The blue lantern led to a Rustline cache: tincture, lamp glass, a crate of clean needles. The smuggler was a girl of fifteen with a burned hand. She offered the crown a fifth before anyone drew.',
       success:
         'The lantern carries medicine past the Ledger’s tolls to the Freehold farms. Now the court knows the route. So does its purse.',
-      partial: 'The lantern went underground. The party did not follow.',
-      failure: 'The lantern went out. The party walked home in the dark.',
-      expired: 'The lantern moved to another line.',
+      partial:
+        'The blue lantern vanishes through a hatch beneath a boarded tollhouse. A farmer insists the cellar belongs to nobody. At dawn fresh bootprints cross the frost between the door and the road.',
+      failure:
+        'The lantern goes out under the rail bridge. The party returns with soot on their gloves and boiled herbs in their coats. The Freehold clinic still has no medicine.',
+      expired:
+        'The unguarded route changes overnight. At the tollhouse a used bandage lies beside an empty medicine bottle. Whoever carried the blue lantern now trusts another road.',
     },
   },
   {
@@ -239,11 +243,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The road was swept. Not well enough. Small bare footprints, many, going up to the Abbey gate. Coming down, fewer, in new boots, in step with a grown pair.',
-      partial: 'The road had been swept that morning. Carefully.',
+      partial:
+        'The mission road has been freshly swept, even between the stones. A wheel rut leads to the Abbey gate and ends at its threshold. Sister Marrow says the courtyard was cleaned for guests.',
       failure:
-        'Two sisters in grey met the party on the road and walked them home. Kindly. All the way.',
+        'Two sisters meet the investigators halfway up the mission road and escort them home through the rain. They offer tea and a dry place to sleep. The party returns unsure whether they were protected or turned away.',
       expired:
-        'Nobody walked the road. Bett Ormond went home to wait for the next letter.',
+        'Bett Ormond stands by the empty escort bench until dusk, then folds the Abbey directions into her coat. The next morning she asks whether a letter has arrived. The courier has nothing for her.',
     },
   },
   {
@@ -273,9 +278,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Sister Marrow showed them the dormitory, three cots made tight, then the schoolroom. The two older Coldbrooks were there, scrubbed, reading aloud. They ran to their mother. The youngest was in the fever ward, below. The party was not let down the stair.',
-      partial: 'The gate stayed shut. A sister promised a visit next week.',
-      failure: 'The sisters were so sorry. The children were sleeping.',
-      expired: 'Nobody went. Wenna was relieved. She said so twice.',
+      partial:
+        'Sister Marrow speaks through the half-open gate and promises a supervised visit next week. She sends the family a clean blanket and a school exercise. The child who wrote it did not sign a name.',
+      failure:
+        'The sisters say the children have gone to bed early after a fever round. They show three folded coats in the schoolroom but decline the stairs to the infirmary. There is no proof of harm and no proof all is well.',
+      expired:
+        'No one takes the road. Wenna keeps the visit papers on her kitchen shelf and says the youngest needs rest. She says it again when the next Abbey letter arrives, before she opens it.',
     },
   },
   {
@@ -309,9 +317,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The dry-well jackals are scattered. Vane threw a feast in their own camp and sat the freed Freehold farmers at the head of the table. He served them himself. Badly.',
-      partial: 'The jackals pulled back into the dry well. They will be back.',
-      failure: 'The dry well held. Two Freehold farms were emptied that night.',
-      expired: 'Vane fought alone and lost wagons.',
+      partial:
+        'The raiders retreat into the dry well and drag a painted wagon across its mouth. Farmers bring the crown a map of the escape route. Vane offers to settle the account before the raiders find another gate.',
+      failure:
+        'The raiders keep the dry well. Two Freehold families reach the ford before dawn with their doors strapped to a cart. Vane leaves his feast untouched and asks for another chance.',
+      expired:
+        'The crown sends no escort. Vane attacks with his own riders and returns with one painted wagon less. The freed farmers know whose banner they did not see.',
     },
   },
   {
@@ -337,9 +348,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The grain went to the Moles, yes. From the Old Houses’ own granary, at three times market price. Flint was trying to stop it.',
-      partial: 'The ledgers are muddled. Nobody cleared, nobody condemned.',
-      failure: 'The ledgers say what the Old Houses wanted.',
-      expired: 'The court never read the ledgers.',
+      partial:
+        'The grain accounts disagree. One bears Flint’s signature; another names a broker dead three years. The Old Houses demand a verdict before either book can be traced.',
+      failure:
+        'The auditors return clean accounts bearing the Old House seal. Flint’s witnesses were not asked to sign. By evening the tower steps are crowded with people holding missing receipts.',
+      expired:
+        'The ledger packet sits unopened through the hearing. Flint is judged by rumor instead. A junior clerk keeps the sealed packet beneath her desk in case someone still wants the facts.',
     },
   },
   {
@@ -373,10 +387,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The charm kills the rot. The grain stays cold to the touch. Always. The Yard eats it anyway.',
-      partial: 'The charm slowed the rot. Nobody likes the taste.',
+      partial:
+        'The charm arrests mold along the outer sacks, but the grain tastes of iron. Dunmore keeps one loaf beneath a glass bell. He wants the court to decide whether to serve the rest.',
       failure:
         'Two of the testers walked to the north gate in their sleep and stood facing the Verge until dawn. Neither remembers it. Both are cold to the touch.',
-      expired: 'The rot took another storeroom.',
+      expired:
+        'No one tests the charm. By the third morning the rot climbs the next storeroom wall, leaving a tide mark on the sacks. The Yard asks which families will lose their rations first.',
     },
   },
   {

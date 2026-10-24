@@ -1,4 +1,5 @@
 import { performFetch } from '@/stores/utils'
+import { WORLD_ONE_GALLERY } from '~/utils/memoryDungeon/realmGallery'
 import { useArtStore } from '../artStore'
 import { useUserStore } from '../userStore'
 import { useDreamStore } from '../dreamStore'
@@ -40,6 +41,19 @@ export async function resolveMemoryDungeonDeck(
   designedOffset = 0,
   previouslyUsed: readonly string[] = [],
 ): Promise<string[]> {
+  if (choice.family === 'realm') {
+    if (choice.realmId !== 1)
+      throw new Error('This realm gallery has not been authored yet.')
+    const realmArt = WORLD_ONE_GALLERY.filter((card) => card.role !== 'collaboration')
+    const candidates = unseenDeckPaths(
+      realmArt.map((card) => card.artPath),
+      previouslyUsed,
+    )
+    if (candidates.length < needed)
+      throw new Error('This realm has no unseen painted cards for the next wave.')
+    return loadDungeonImagePaths(candidates, needed)
+  }
+
   if (choice.family === 'designed') {
     const paths = DESIGNED_DUNGEON_ART.map((item) => item.imagePath)
     const available = unseenDeckPaths(

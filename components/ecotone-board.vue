@@ -547,9 +547,7 @@
                           : 'ecotone-fate-dark'
                       "
                     />
-                    {{
-                      game.ending.fate === 'hope' ? 'Hopeful' : 'Dark'
-                    }}
+                    {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }}
                     future · {{ leadName(game.ending.lead) }} ·
                     {{ lensLabel(game.ending.lens) }}
                   </p>

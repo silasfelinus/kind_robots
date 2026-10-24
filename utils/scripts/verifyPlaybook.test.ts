@@ -305,7 +305,11 @@ const newBeatRow: CardEdit = {
       success: { text: 'You swap.', effects: { goodwill: 1, flag: 'swapped' } },
       failure: { text: 'They walk off.', effects: { nerve: -1 } },
     },
-    { id: 'ignored', label: 'Decline', success: { text: 'You keep yours.', effects: {} } },
+    {
+      id: 'ignored',
+      label: 'Decline',
+      success: { text: 'You keep yours.', effects: {} },
+    },
   ],
 }
 assert.equal(

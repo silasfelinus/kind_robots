@@ -24,6 +24,8 @@ import {
   validateBriarStoryAtlas,
 } from '../memoryDungeonStoryAtlas'
 
+import { firstWorldPhotoChronicle } from '../memoryDungeon/chronicle'
+
 import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
@@ -50,6 +52,25 @@ assert.deepEqual(
 )
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
+
+assert.deepEqual(firstWorldPhotoChronicle({}), [])
+assert.deepEqual(
+  firstWorldPhotoChronicle({ '8,6': 'promise', '2,5': 'grieve' }).map(
+    (photo) => photo.key,
+  ),
+  ['2,5', '8,6'],
+  'Photographs are stored in Earth chronology even when collected in reverse map order',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle(
+    restoreBriarSave({
+      ...newBriarSave(),
+      sceneChoices: { '8,6': 'record', '2,5': 'archive' },
+    }).sceneChoices,
+  ).map((photo) => photo.key),
+  ['2,5', '8,6'],
+  'Photograph records survive saving and reloading',
+)
 
 assert.equal(
   Object.keys(BRIAR_SCENES).length,

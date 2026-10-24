@@ -173,25 +173,56 @@
               </label>
               <div>
                 <p class="eco-label mb-2">Choose your look</p>
-                <div class="grid grid-cols-6 gap-1.5">
+                <p class="mb-2 text-xs text-[#f3e6c8]/70">
+                  Twelve faces, one weekend. Swipe sideways to explore the whole cast.
+                </p>
+                <div
+                  class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-3"
+                  aria-label="Choose a character portrait"
+                >
                   <button
                     v-for="avatar in PLAYER_AVATARS"
                     :key="avatar.id"
                     type="button"
-                    class="flex items-center justify-center rounded-xl border p-1.5"
+                    class="group w-28 shrink-0 snap-start rounded-xl border p-1.5 text-left transition-colors @2xl:w-32"
                     :class="
                       pickedAvatar === avatar.id
-                        ? 'border-[#d9b877] bg-[#d9b877]/20'
-                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'
+                        ? 'border-[#d9b877] bg-[#d9b877]/20 ring-2 ring-[#d9b877]/35'
+                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80 hover:border-[#d9b877]/70'
                     "
                     :aria-label="avatar.label"
                     :title="avatar.label"
                     :aria-pressed="pickedAvatar === avatar.id"
                     @click="pickedAvatar = avatar.id"
                   >
-                    <span class="text-3xl" aria-hidden="true">{{
-                      avatar.emoji
-                    }}</span>
+                    <span
+                      class="relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-gradient-to-b from-[#315d63] to-[#10212e]"
+                    >
+                      <img
+                        v-if="!failedAvatarPortraits.includes(avatar.id)"
+                        :src="avatar.portrait"
+                        :alt="avatar.label"
+                        loading="lazy"
+                        class="h-full w-full object-cover object-top"
+                        @error="failedAvatarPortraits.push(avatar.id)"
+                      />
+                      <span
+                        v-else
+                        class="flex h-full w-full items-center justify-center bg-[#152c36] text-3xl"
+                        aria-hidden="true"
+                      >
+                        {{ avatar.emoji }}
+                      </span>
+                      <span
+                        v-if="pickedAvatar === avatar.id"
+                        class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#06121b]/95 to-transparent px-1 pb-1 pt-5 text-center text-xs font-bold text-[#f9e3a5]"
+                      >
+                        Selected
+                      </span>
+                    </span>
+                    <span class="mt-1.5 block truncate text-center text-[11px] font-semibold text-[#f3e6c8]">
+                      {{ avatar.label }}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1785,6 +1816,7 @@ const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
 const characterName = ref('')
 const pickedAvatar = ref<string>('glitter')
+const failedAvatarPortraits = ref<string[]>([])
 const pickedPersonality = ref<string>('curious')
 const displayScale = ref(1.2)
 const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')

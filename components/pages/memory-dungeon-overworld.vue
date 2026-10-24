@@ -163,17 +163,16 @@
                     <span
                       class="md-card-back flex items-center justify-center bg-[#263951] text-[clamp(14px,2vw,28px)] text-[#e4cf9c]"
                       aria-hidden="true"
-                      >
-                        ✥
-                        <img
-                          :src="DEFAULT_BRIAR_CARD_BACK"
-                          class="absolute inset-0 h-full w-full object-cover"
-                          alt=""
-                          draggable="false"
-                          @error="hideMissingMemoryCardBack"
-                        />
-                      </span
                     >
+                      ✥
+                      <img
+                        :src="DEFAULT_BRIAR_CARD_BACK"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        alt=""
+                        draggable="false"
+                        @error="hideMissingMemoryCardBack"
+                      />
+                    </span>
                     <img
                       class="md-card-front h-full w-full bg-[#162733]"
                       :src="world.mapCardAt(tile.key)?.image"
@@ -349,7 +348,10 @@
                 {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
               </span>
             </div>
-            <div class="md-scene-copy kr-scroll" data-testid="memory-world-choice-column">
+            <div
+              class="md-scene-copy kr-scroll"
+              data-testid="memory-world-choice-column"
+            >
               <p
                 class="text-xs font-black uppercase tracking-widest text-[#795a32]"
               >
@@ -399,7 +401,8 @@
               </p>
               <div
                 v-if="
-                  !world.mapMatching && (world.selectedSite || world.activeScene)
+                  !world.mapMatching &&
+                  (world.selectedSite || world.activeScene)
                 "
                 class="md-encounter-actions mt-2 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
               >
@@ -460,12 +463,16 @@
                   :disabled="world.loading"
                   @click="world.startEncounter('dungeon')"
                 >
-                  {{ world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault' }}
+                  {{
+                    world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault'
+                  }}
                 </button>
                 <button
                   v-if="
                     world.selectedSite?.kind === 'enemy' &&
-                    !world.state.completedEncounters.includes(world.state.player)
+                    !world.state.completedEncounters.includes(
+                      world.state.player,
+                    )
                   "
                   type="button"
                   class="md-btn"
@@ -492,7 +499,8 @@
                 </button>
                 <span
                   v-if="
-                    world.selectedSite?.kind === 'gate' && world.state.gateOpened
+                    world.selectedSite?.kind === 'gate' &&
+                    world.state.gateOpened
                   "
                   class="text-xs font-bold"
                   >✓ Briar Camp cleared</span
@@ -530,7 +538,6 @@
                   >✓ Stones solved</span
                 >
               </div>
-
             </div>
           </div>
           <p
@@ -635,17 +642,20 @@
               <span
                 class="md-card-back bg-[#29384b] text-3xl text-[#dec28a]"
                 aria-hidden="true"
-                >
-                  ✦
-                  <img
-                    :src="world.state.roomId === 'vault-2' ? ARCANE_BRIAR_CARD_BACK : DEFAULT_BRIAR_CARD_BACK"
-                    class="absolute inset-0 h-full w-full object-cover"
-                    alt=""
-                    draggable="false"
-                    @error="hideMissingMemoryCardBack"
-                  />
-                </span
               >
+                ✦
+                <img
+                  :src="
+                    world.state.roomId === 'vault-2'
+                      ? ARCANE_BRIAR_CARD_BACK
+                      : DEFAULT_BRIAR_CARD_BACK
+                  "
+                  class="absolute inset-0 h-full w-full object-cover"
+                  alt=""
+                  draggable="false"
+                  @error="hideMissingMemoryCardBack"
+                />
+              </span>
               <img
                 class="md-card-front"
                 :src="card.image"
@@ -699,7 +709,11 @@ import {
   BRIAR_WAVE_SIZES,
 } from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
-import { DEFAULT_BRIAR_CARD_BACK, ARCANE_BRIAR_CARD_BACK, hideMissingMemoryCardBack } from '~/utils/memoryDungeonCardArt'
+import {
+  DEFAULT_BRIAR_CARD_BACK,
+  ARCANE_BRIAR_CARD_BACK,
+  hideMissingMemoryCardBack,
+} from '~/utils/memoryDungeonCardArt'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 

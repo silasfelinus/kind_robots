@@ -862,19 +862,35 @@ const consoleStage = readFileSync(
   'utf8',
 )
 const generatedBacks = readFileSync('utils/memoryDungeonCardArt.ts', 'utf8')
-assert.ok(generatedBacks.includes('/images/memory-dungeon/card-backs/briar-default.webp'))
-assert.ok(generatedBacks.includes('/images/memory-dungeon/card-backs/briar-arcane.webp'))
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-default.webp',
+  ),
+)
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-arcane.webp',
+  ),
+)
 assert.match(consoleStage, /DEFAULT_BRIAR_CARD_BACK/)
 assert.match(consoleStage, /ARCANE_BRIAR_CARD_BACK/)
 assert.match(classicScreen, /DEFAULT_BRIAR_CARD_BACK/)
 assert.match(consoleStage, /@error="hideMissingMemoryCardBack"/)
-const choiceColumnStart = consoleStage.indexOf('data-testid="memory-world-choice-column"')
-const choiceActionsStart = consoleStage.indexOf('class="md-encounter-actions', choiceColumnStart)
-const mapErrorStart = consoleStage.indexOf('v-if="world.mapDeckError"', choiceColumnStart)
+const choiceColumnStart = consoleStage.indexOf(
+  'data-testid="memory-world-choice-column"',
+)
+const choiceActionsStart = consoleStage.indexOf(
+  'class="md-encounter-actions',
+  choiceColumnStart,
+)
+const mapErrorStart = consoleStage.indexOf(
+  'v-if="world.mapDeckError"',
+  choiceColumnStart,
+)
 assert.ok(
   choiceColumnStart >= 0 &&
-  choiceActionsStart > choiceColumnStart &&
-  choiceActionsStart < mapErrorStart,
+    choiceActionsStart > choiceColumnStart &&
+    choiceActionsStart < mapErrorStart,
   'Location decisions belong in the same narrative column as their description',
 )
 assert.ok(consoleStage.includes('overflow-y: auto;'))

@@ -24,7 +24,7 @@ import { parseWall } from '../arcade/brickBloom/walls'
 
 assert.equal(ringedCrate(0, 'vine-3b'), null, 'no rings outside Vine Hall')
 assert.equal(ringedCrate(1, 'vine-1'), null, 'not every Vine Hall wall')
-for (const id of ['vine-3b', 'vine-4b']) {
+for (const id of ['vine-2b', 'vine-3b', 'vine-4b']) {
   const at = ringedCrate(1, id)
   assert.ok(at, `${id} has a ringed crate`)
   const wall = houseWall(HOUSES[1]!, id)!
@@ -98,6 +98,15 @@ assert.equal(guarded.hp, hp, 'the ring shields its crate')
 ringOf().dots.length = 0
 cab.crack(guarded)
 assert.equal(guarded.hp, hp - 1, 'a cleared ring leaves the crate open')
+cab.tour = { house: 1, wall: 'vine-2b' }
+cab.startStage(3)
+assert.equal(ringOf().dots.length, RING_DOTS, 'Tangle Column rings a crate')
+assert.equal(
+  cab.ringBrick!.col,
+  5,
+  'the Tangle Column ring guards the centre crate',
+)
+assert.equal(cab.ringBrick!.row, 2)
 cab.tour = { house: 0, wall: 'seed-2a' }
 cab.startStage(2)
 assert.equal(cab.ring, null, 'the Seedling House has no ring')

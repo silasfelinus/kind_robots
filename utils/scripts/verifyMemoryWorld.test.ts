@@ -224,7 +224,7 @@ assert.equal(briarTileProgress(visitSave, '8,4'), 'unfinished')
 assert.equal(briarTileProgress(visitSave, '2,7'), 'unfinished')
 const settledSave = {
   ...visitSave,
-  sceneChoices: { '2,4': 'copy', '5,5': 'gift' },
+  sceneChoices: { '2,4': 'copy', '5,5': 'gift', '2,7': 'rehearse' },
   chestClaims: ['3,6'],
   completedEncounters: ['5,5'],
   relics: ['bramble-chime'],
@@ -242,6 +242,14 @@ assert.equal(
   briarTileProgress({ ...settledSave, completedEncounters: [] }, '5,5'),
   'unfinished',
   'Hearing the Sprite without completing its duel does not clear the square',
+)
+assert.equal(
+  briarTileProgress(
+    { ...settledSave, sceneChoices: { ...settledSave.sceneChoices, '2,7': '' } },
+    '2,7',
+  ),
+  'unfinished',
+  'The stone puzzle requires both solving the glyphs and settling the encounter',
 )
 assert.equal(
   briarTileProgress(settledSave, '5,2'),

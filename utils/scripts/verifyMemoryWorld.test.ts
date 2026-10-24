@@ -53,8 +53,11 @@ assert.equal(first.wavePhase, 'matching')
 assert.equal(first.attempts, 0)
 assert.equal(first.player, BRIAR_START)
 
-
-assert.equal(first.prologueChoice, null, 'New games have not yet chosen a prologue path')
+assert.equal(
+  first.prologueChoice,
+  null,
+  'New games have not yet chosen a prologue path',
+)
 assert.equal(
   restoreBriarSave({ ...newBriarSave(), prologueChoice: 'terms' })
     .prologueChoice,

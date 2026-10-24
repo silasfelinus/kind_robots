@@ -961,6 +961,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'kite-festival-sky',
+    label: 'Kite Festival Sky',
+    reveal: 'Six kites ride slow thermals on bowed strings above a green hill',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Six kites drift on their own thermals, strings bowing and ribbon tails trailing 🪁 hover to brighten nearby kites, click to send a lift through the sky',
+    color: '#f3c98b',
+    releasedAt: '2026-10-24T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

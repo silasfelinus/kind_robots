@@ -44,6 +44,8 @@ export const SKILL_CAP = 5
 export const TRAIN_CAP = 4
 export const BEST_WINS = 10
 export const NIGHT_DRAWS = 2
+export const HEAL_NERVE = 3
+export const GROCERY_COST = 2
 export const ACTS = 3
 /** Finale rolls gain +1 for each act whose villain card you beat. */
 export const EDGE_BONUS = 1
@@ -729,6 +731,8 @@ export type DayActivity =
   | { kind: 'train'; skill: Skill }
   | { kind: 'shop' }
   | { kind: 'rest' }
+  | { kind: 'heal' }
+  | { kind: 'groceries' }
 
 export function nextBeat(run: RunState, location: Location): string | null {
   const unseen = location.beats.filter((b) => !run.seenBeats.includes(b.id))
@@ -771,6 +775,16 @@ export function activitiesAt(
     list.push({ kind: 'train', skill: location.train })
   if (location.id === 'crystal-street' && run.nerve < MAX_NERVE)
     list.push({ kind: 'rest' })
+  // Day stops Silas listed (2026-10-24 PT): the nurse patches you up and
+  // steadies a shaken friend; the market sells the comfort food that makes a
+  // night less frightening.
+  if (
+    location.id === 'mercy-clinic' &&
+    (run.nerve < MAX_NERVE || run.shaken.length)
+  )
+    list.push({ kind: 'heal' })
+  if (location.id === 'thriftee-mart' && run.quarters >= GROCERY_COST)
+    list.push({ kind: 'groceries' })
   return list
 }
 
@@ -826,6 +840,13 @@ export function doActivity(
     next.shopOpen = true
   } else if (activity.kind === 'rest') {
     next.nerve = Math.min(MAX_NERVE, next.nerve + 2)
+  } else if (activity.kind === 'heal') {
+    next.nerve = Math.min(MAX_NERVE, next.nerve + HEAL_NERVE)
+    next.shaken = []
+  } else if (activity.kind === 'groceries') {
+    next.quarters -= GROCERY_COST
+    next.nerve = Math.min(MAX_NERVE, next.nerve + 1)
+    next.dread = Math.max(0, next.dread - 1)
   }
   return next
 }

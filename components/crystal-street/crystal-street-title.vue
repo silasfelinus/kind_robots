@@ -33,10 +33,7 @@
             class="cs-display cs-terrors block text-6xl @lg:text-7xl @3xl:text-8xl"
             >Terrors</span
           >
-          <span
-            class="cs-kicker block text-base tracking-[0.35em] text-white @3xl:text-xl"
-            >on Crystal Street</span
-          >
+          <span class="cs-on-street block">on Crystal Street</span>
         </h2>
         <p class="mt-2 text-[10px] uppercase tracking-[0.3em] text-white/80">
           One week · seven nights · {{ VILLAINS.length }} nightmares
@@ -369,6 +366,8 @@ const MENU: {
 // After the street, a slideshow of every nightmare you have survived, posed
 // in its ending photo (Silas, 2026-10-24 PT).
 const SLIDE_MS = 6000
+// The street holds longer: the game opens on Crystal Street itself.
+const STREET_MS = 10000
 const candidates = computed(() =>
   VILLAINS.filter((v) => store.metVillains.has(v.id)),
 )
@@ -376,19 +375,20 @@ const candidates = computed(() =>
 const ready = reactive(new Set<string>())
 const slides = computed(() => candidates.value.filter((v) => ready.has(v.id)))
 const slide = ref(0)
-let timer: ReturnType<typeof setInterval> | undefined
+let timer: ReturnType<typeof setTimeout> | undefined
+function advance(): void {
+  slide.value = slides.value.length
+    ? (slide.value + 1) % (slides.value.length + 1)
+    : 0
+  timer = setTimeout(advance, slide.value === 0 ? STREET_MS : SLIDE_MS)
+}
 onMounted(() => {
   const reduced =
     store.settings.motion === 'reduced' ||
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (reduced) return
-  timer = setInterval(() => {
-    slide.value = slides.value.length
-      ? (slide.value + 1) % (slides.value.length + 1)
-      : 0
-  }, SLIDE_MS)
+  if (!reduced) timer = setTimeout(advance, STREET_MS)
 })
-onBeforeUnmount(() => clearInterval(timer))
+onBeforeUnmount(() => clearTimeout(timer))
 
 const inProgress = computed(() => !!store.run && !store.run.ending)
 const metList = computed(() =>

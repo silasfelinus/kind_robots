@@ -224,10 +224,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {
     if (
       selection.family === 'realm' &&
-      (!unlockedRealms.value.includes(selection.realmId ?? deck.value.realmId) ||
+      (!unlockedRealms.value.includes(
+        selection.realmId ?? deck.value.realmId,
+      ) ||
         !realmArtReady.value)
     ) {
-      state.value.status = 'Finish a realm and collect its painted gallery before reusing that deck.'
+      state.value.status =
+        'Finish a realm and collect its painted gallery before reusing that deck.'
       return
     }
     const previous = JSON.stringify(deck.value)
@@ -290,7 +293,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           : []
         if (state.value.gateOpened && !unlockedRealms.value.includes(1)) {
           unlockedRealms.value.push(1)
-          window.localStorage.setItem(REALM_UNLOCKS_KEY, JSON.stringify(unlockedRealms.value))
+          window.localStorage.setItem(
+            REALM_UNLOCKS_KEY,
+            JSON.stringify(unlockedRealms.value),
+          )
         }
         cardBack.value = normalizeMemoryCardBack(
           window.localStorage.getItem(CARD_BACK_KEY),
@@ -1170,7 +1176,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           JSON.stringify(unlockedRealms.value),
         )
       } catch {
-        state.value.status = 'Realm gallery unlock is active but could not be saved.'
+        state.value.status =
+          'Realm gallery unlock is active but could not be saved.'
       }
     }
     void checkRealmGalleryReady()

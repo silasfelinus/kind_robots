@@ -7,3 +7,4 @@ export type MenuView =
   | 'guide'
   | 'settings'
   | 'credits'
+  | 'theme'

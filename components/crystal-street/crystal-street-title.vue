@@ -317,6 +317,12 @@ const MENU: {
   detail: () => string
 }[] = [
   {
+    view: 'theme',
+    label: 'Watch the theme',
+    icon: 'kind-icon:movie',
+    detail: () => 'One minute of Halloween punk, lyrics beside it',
+  },
+  {
     view: 'gallery',
     label: 'Monster gallery',
     icon: 'kind-icon:mask',

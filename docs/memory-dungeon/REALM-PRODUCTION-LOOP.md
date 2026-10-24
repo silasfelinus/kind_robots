@@ -11,7 +11,7 @@
 
 ## Thirty-plus-two card-deck gate
 
-Every realm must *earn* its deck through authored story. Exactly 30 unique images represent local characters, locations, events, creatures and artifacts. Exactly two additional collectible images are specific collaborations or mystery links between realms. Thirty faces provide the 6 + 7 + 8 + 9 map-reveal pairs, and two collaborations exist outside those normal reveal waves. They do not overwrite any of the four separately reserved cross-map seal coordinates.
+Every realm must _earn_ its deck through authored story. Exactly 30 unique images represent local characters, locations, events, creatures and artifacts. Exactly two additional collectible images are specific collaborations or mystery links between realms. Thirty faces provide the 6 + 7 + 8 + 9 map-reveal pairs, and two collaborations exist outside those normal reveal waves. They do not overwrite any of the four separately reserved cross-map seal coordinates.
 
 The initial 32 subjects live in `utils/memoryDungeon/realmGallery.ts`. The manifest points to one traceable Comfy delivery destination per card. Completing a realm records an enduring unlock separately from the current expedition. The deck becomes selectable for later runs **only after image delivery passes**, otherwise the Enchanted Deck remains safe to play. Maintain one `RealmGalleryCard` registry per additional realm and run the same 30/2, uniqueness, authored-scene and deliverability checks on it.
 
@@ -22,7 +22,7 @@ Avoid 30 generic icons that could belong in any world: at least four recognizabl
 For each realm, establish a **mechanical verb**, a **moral tension**, a **visual grammar**, and a **return consequence**. Those must change what the player does or believes, not just rename the tiles. Shared mechanics supply navigation, memory combat, card collecting, inventory, dialogue, save, Chronicle and accessibility.
 
 1. Author the one-sentence dramatic question and three characters with incompatible but defensible needs.
-2. Choose 30 collectible illustrations *first*, each attached to a scene or event. If the deck cannot justify 30, the world is narratively underdeveloped.
+2. Choose 30 collectible illustrations _first_, each attached to a scene or event. If the deck cannot justify 30, the world is narratively underdeveloped.
 3. Write 64 nonduplicate map coordinates: recognizable landmarks stay fixed; interactions produce a discovery, trade, risk, altered relationship or consequential choice; no empty clicks.
 4. Build a reachable 36-room dungeon with shortcuts, noncombat choices and at least three materially distinct guardian resolutions.
 5. Add the two collaborative cards and two chronological Morrow photographs; preserve cross-realm promise without prematurely revealing later revelations.
@@ -53,18 +53,18 @@ A good animation handoff preserves the storyboard shot and identity: still estab
 
 Run deterministic seed portfolios and manually played journeys as these personas:
 
-| Player | Failure to hunt |
-| --- | --- |
-| First-time phone player | Confusing map-vs-match transitions or unreachable tap targets |
-| Quick story reader | Too much matching before first important choice |
-| Completionist | Unreachable tile, duplicate reward, missing last location |
-| Contrarian | Refusing fights or assistance creates a softlock |
-| Strategic matcher | Combat patterns/telegraphs provide no useful tactical difference |
-| Repeated-run player | Restarts erase card unlocks or make decisions uninteresting |
-| Save interrupter | Refresh mid-card, mid-conversation or mid-boss corrupts state |
-| Accessibility player | Color-only clues, hidden focus, inaccessible final choice |
-| Morally inconsistent player | All branches produce identical dialogue and rewards |
-| Skeptical critic | A world seems to be 64 filler cards and a plot-shaped checklist |
+| Player                      | Failure to hunt                                                  |
+| --------------------------- | ---------------------------------------------------------------- |
+| First-time phone player     | Confusing map-vs-match transitions or unreachable tap targets    |
+| Quick story reader          | Too much matching before first important choice                  |
+| Completionist               | Unreachable tile, duplicate reward, missing last location        |
+| Contrarian                  | Refusing fights or assistance creates a softlock                 |
+| Strategic matcher           | Combat patterns/telegraphs provide no useful tactical difference |
+| Repeated-run player         | Restarts erase card unlocks or make decisions uninteresting      |
+| Save interrupter            | Refresh mid-card, mid-conversation or mid-boss corrupts state    |
+| Accessibility player        | Color-only clues, hidden focus, inaccessible final choice        |
+| Morally inconsistent player | All branches produce identical dialogue and rewards              |
+| Skeptical critic            | A world seems to be 64 filler cards and a plot-shaped checklist  |
 
 For every build, record steps, exact state/seed, visible consequence, reproduction and severity. Validate graph reachability, once-only rewards, save round-trips, no missing cards, no duplicate/gallery asset identities, optional encounters, no involuntary resets, and preservation of Classic mode. Rate **narrative agency, visual hierarchy, readability, pacing, surprise, reward satisfaction and replay distinction** from 1–5 against cited scene examples. A mock review is exploratory feedback, not evidence of a real player playtest.
 

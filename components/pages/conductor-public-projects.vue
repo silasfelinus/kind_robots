@@ -5,7 +5,7 @@
         <Icon name="kind-icon:gallery" class="kr-icon-6" />
       </div>
       <div class="min-w-0 flex-1">
-        <h1 class="kr-text-black-xl">Explore our projects</h1>
+        <h2 class="kr-text-black-xl">Explore our projects</h2>
         <p class="kr-text-dim-sm">Worlds, tools and experiments. Open an experience or browse its illustrated project sheet.</p>
       </div>
       <span class="badge badge-primary">{{ store.publicProjects.length }}</span>

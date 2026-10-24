@@ -116,11 +116,8 @@
       </template>
 
       <label
-        v-if="
-          selected.family !== 'designed' &&
-          selected.family !== 'realm' &&
-          matureAvailable
-        "
+        v-if="selected.family !== 'designed' && matureAvailable"
+        v-show="selected.family !== 'realm'"
         class="ml-auto flex items-center gap-2 rounded-lg bg-[#29352d] px-2 py-1.5"
       >
         <span class="font-semibold">Artwork rating:</span>

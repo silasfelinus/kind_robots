@@ -6,7 +6,7 @@ description: A drawing-habit studio with daily assignments, a timer, and gentle 
 image: nav/heroes/character.webp
 icon: kind-icon:pencil
 tooltip: A drawing assignment a day keeps the blank page away.
-channelKey: admin
+channelKey: projects
 tabKey: projects
 dashboardKey: academy
 dashboardTab: sketchy

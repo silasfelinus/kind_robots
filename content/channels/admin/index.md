@@ -5,7 +5,7 @@ label: Admin
 title: Admin
 room: Control Room
 subtitle: Run the site and build what is not public yet
-description: The art queue and models, agent projects, unreleased studios, user accounts, and forum moderation.
+description: The art queue and models, unreleased studios, user accounts, and forum moderation.
 icon: kind-icon:server
 route: /artjob
 defaultTab: artjob

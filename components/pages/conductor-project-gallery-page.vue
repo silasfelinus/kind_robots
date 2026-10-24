@@ -11,7 +11,7 @@
       <div class="min-w-0 flex-1">
         <h2 class="kr-text-black-2xl tracking-tight">Projects</h2>
         <p class="kr-text-dim-sm">
-          Browse every Conductor project, filter by status, or start a new one.
+          Browse projects, flag missing launch destinations, or start a new one.
         </p>
       </div>
     </header>
@@ -373,12 +373,13 @@ import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 import { slugify } from '@/utils/slugify'
+import { projectDestination } from '@/utils/projectDestination'
 
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status =
   'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
-type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL'
+type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL' | 'NEEDS_ENDPOINT'
 type Item = {
   id: number
   slug: string
@@ -402,6 +403,7 @@ type Item = {
   updated: number
   drift: boolean
   hasConductor: boolean
+  missingEndpoint: boolean
 }
 type BlockedTask = ConductorTask & {
   projectSlug: string
@@ -424,6 +426,11 @@ const filters = [
   },
   { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' },
   { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' },
+  {
+    value: 'NEEDS_ENDPOINT' as const,
+    label: 'No endpoint',
+    icon: 'kind-icon:warning',
+  },
 ]
 const IS_FILTER = (value: string): value is Filter =>
   filters.some((entry) => entry.value === value)
@@ -593,6 +600,9 @@ function toItem(record: ProjectWithRelations): Item {
     { label: priority, class: priorityClass(priority) },
   ]
   if (drift) badges.push({ label: 'drift', class: 'badge-warning' })
+  const missingEndpoint = !projectDestination(record.liveUrl)
+  if (missingEndpoint)
+    badges.push({ label: 'No endpoint', class: 'badge-warning' })
   return {
     id: record.id,
     slug,
@@ -621,6 +631,7 @@ function toItem(record: ProjectWithRelations): Item {
     updated: record.updatedAt ? new Date(record.updatedAt).getTime() : 0,
     drift,
     hasConductor: Boolean(source),
+    missingEndpoint,
   }
 }
 
@@ -673,7 +684,9 @@ const galleryItems = computed(() => {
   const list =
     filter.value === 'ALL'
       ? allItems.value
-      : allItems.value.filter((item) => item.status === filter.value)
+      : filter.value === 'NEEDS_ENDPOINT'
+        ? allItems.value.filter((item) => item.missingEndpoint)
+        : allItems.value.filter((item) => item.status === filter.value)
   const order: Record<ProjectPriorityLevel, number> = {
     HIGH: 0,
     NORMAL: 1,
@@ -689,7 +702,9 @@ const galleryItems = computed(() => {
 const filterCount = (value: Filter) =>
   value === 'ALL'
     ? allItems.value.length
-    : allItems.value.filter((item) => item.status === value).length
+    : value === 'NEEDS_ENDPOINT'
+      ? allItems.value.filter((item) => item.missingEndpoint).length
+      : allItems.value.filter((item) => item.status === value).length
 
 const workspaceCards = computed<BuilderCard[]>(() => [
   {

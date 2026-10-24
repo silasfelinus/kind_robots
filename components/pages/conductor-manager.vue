@@ -1,6 +1,7 @@
 <template>
   <div class="kr-surface">
-    <TabScrollRegion v-if="pageStore.workspaceCardKey === 'appmaker'">
+    <ConductorPublicProjects v-if="!userStore.isAdmin" />
+    <TabScrollRegion v-else-if="pageStore.workspaceCardKey === 'appmaker'">
       <AppmakerPage />
     </TabScrollRegion>
     <PortosPage v-else-if="pageStore.workspaceCardKey === 'portos'" />
@@ -25,8 +26,11 @@ import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vu
 import PortosPage from '@/components/pages/portos-page.vue'
 import TabScrollRegion from '@/components/conductor/tab-scroll-region.vue'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
+import ConductorPublicProjects from '@/components/pages/conductor-public-projects.vue'
 
 const pageStore = usePageStore()
+const userStore = useUserStore()
 const utilityKeys = new Set(['overview', 'tasks', 'proposed', 'appmaker', 'portos'])
 
 const showConductorGallery = computed(() => {

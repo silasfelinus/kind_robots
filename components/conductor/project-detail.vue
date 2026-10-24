@@ -17,6 +17,22 @@
       </span>
 
       <template v-if="userStore.isAdmin && linkedProject">
+        <NuxtLink
+          :to="projectSheetPath(props.slug)"
+          class="btn btn-ghost btn-xs"
+          aria-label="View read-only project sheet"
+        >
+          <Icon name="kind-icon:document" class="kr-icon-3" /> Sheet
+        </NuxtLink>
+        <a
+          v-if="liveEndpoint"
+          :href="liveEndpoint"
+          class="btn btn-ghost btn-xs"
+          aria-label="Open project endpoint"
+        >
+          <Icon name="kind-icon:arrow-right" class="kr-icon-3" /> Open
+        </a>
+        <span v-else class="badge badge-warning badge-sm" role="status">No project endpoint</span>
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <button
           type="button"
@@ -553,6 +569,7 @@ import { useTodoStore } from '@/stores/todoStore'
 import type { TodoCategory } from '@/stores/todoStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { projectDestination, projectSheetPath } from '@/utils/projectDestination'
 import type { ConductorProjectPriority } from '@/server/utils/conductorProjectRegistry'
 
 const props = defineProps<{ slug: string }>()
@@ -598,6 +615,7 @@ const CONDUCTOR_PRIORITIES: ConductorProjectPriority[] = ['urgent', 'high', 'nor
 const projectPriorityOverride = ref<ConductorProjectPriority | null>(null)
 
 const linkedProject = computed(() => projectStore.projectForSlug(props.slug))
+const liveEndpoint = computed(() => projectDestination(linkedProject.value?.liveUrl))
 
 function projectRecordToConductor(
   project: ProjectWithRelations,

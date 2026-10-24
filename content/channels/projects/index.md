@@ -22,7 +22,8 @@ tutorial:
   title: Projects
   tagline: Make art, build stories, explore projects.
   overview: >-
-    Projects gathers Storybook and its ingredient galleries, Art Studio, Video
+    Projects gathers a public project showcase and administrator-only planning controls,
+    Storybook and its ingredient galleries, Art Studio, Video
     Studio (with Music Videos), Mandarin and Rebel Button. Games
     share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects

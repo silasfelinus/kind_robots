@@ -133,13 +133,13 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       triumph:
         'The plum riders broke on the far bank and did not come back. The Freeholds call it the Iron Rain, for the arrows.',
       success:
-        'The Ford held. Nobody who fought there calls it a victory. The farms behind it still stand.',
+        'The Ford holds until the final rider withdraws. Dunmark brings back every torn banner but will not count them as trophies. Behind the earthworks, farmers open their doors to fields that still belong to them.',
       partial:
-        'The riders pulled back at dusk with two fields. They will be back for more.',
+        'The riders fall back at dusk, carrying the deed markers from two stolen fields. The Freehold reeve asks whether the court will call those fields lost or merely borrowed.',
       failure:
-        'The Ford fell. The Freehold militia camps in the tower’s outer court, counting the missing.',
+        'The Ford falls before the second watch. Hester pitches her militia tents inside the tower wall and hangs a list of the missing beside the throne petitions. She waits there to hear what the crown will do next.',
       expired:
-        'Nobody rode to the Ford. The Freeholds held it alone for one night. Then they did not.',
+        'No tower banners reach the Ford. Freehold volunteers hold the near bank through one night and retreat at sunrise with the last grain cart. The route to the farm country is open to the raiders.',
     },
   },
   {
@@ -178,8 +178,9 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       success:
         'The riders came over the ridge at noon and found the fields full of pitchforks and the crown’s colours. They did not stay.',
       partial:
-        'Thistledown lost a barn and kept its people. Hester Plowright counted heads twice.',
-      failure: 'The party was late. Thistledown paid in barns and seed grain.',
+        'Thistledown loses its west barn but gets the households out. Hester Plowright counts every family in the field behind the mill, then asks whose grain will feed them until planting.',
+      failure:
+        'The rescue party arrives after the village has loaded its seed grain onto wagons. Raiders take two of those wagons in sight of the road. Hester keeps the wheel ruts as evidence of how late the crown came.',
       expired:
         'The crown chose the other road. Thistledown will remember which one.',
     },
@@ -243,11 +244,11 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       success:
         'The caravan rolled out at dusk with every crate. Oriel Saltmarsh’s factor paid in brass and salt.',
       partial:
-        'The caravan escaped with half its stock. The waystation did not escape at all.',
+        'The caravan escapes with half its salt and none of its spare axles. At dusk Oriel Saltmarsh sends a factor to collect the names of the stranded waystation workers. The crown receives the bill.',
       failure:
-        'The party arrived to smoke. The caravan had scattered into the salt flats.',
+        'The party finds the waystation roof collapsed and its toll ledger blown into the road. The caravan has scattered into the salt flats. Oriel offers half the reward to whoever brings back a driver.',
       expired:
-        'The crown chose the other road. The Saltroad will remember which one.',
+        'The escort board stays blank. Oriel sends her wagons out under private guard and closes her salt account to the throne. The Ledger asks where the missing duties will come from.',
     },
   },
   {
@@ -289,10 +290,11 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       success:
         'The trestle stands. The Pack’s wagons crossed all night. Somebody painted the crown’s colours on the first span.',
       partial:
-        'The trestle held, but it groans now. Nobody heavy should cross it twice.',
+        'The rail trestle holds under the final wagon and bends a handspan toward the canyon. Jinx wedges a scrap of iron beneath a broken brace and forbids the Pack to cross again until someone pays for repairs.',
       failure:
-        'The trestle burned. From the canyon rim it looked like a long orange comb. Then like nothing.',
-      expired: 'Nobody came. The trestle burned at midnight.',
+        'The trestle burns before the convoy can cross. On the far rim Jinx can see a line of Pack wagons turning back toward the toll road. She sends the crown a charred bolt, still warm.',
+      expired:
+        'No repair crew reaches the trestle. At midnight the first supports catch fire. By morning the Jackalwire can reach the canyon only by the road it once charged twice to use.',
     },
   },
   {
@@ -333,10 +335,12 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The tunnel mouth held. Granny Umber sent a jar of honey and a note: “Good. Again tomorrow.”',
-      partial: 'The tunnel held, but the riders know where it is now.',
+      partial:
+        'The burrow entrance survives, but a raider has nailed a painted marker above it. Granny Umber orders the families moved two galleries deeper. The passage remains open at the price of being known.',
       failure:
-        'The Moles brought the tunnel down rather than lose it. A whole road, gone under the badlands.',
-      expired: 'Nobody came. The Moles brought their own roof down.',
+        'The defenders bring the tunnel roof down before the riders can take it. The road above sinks into the badlands. Granny Umber writes down the names of every family that must now find another home.',
+      expired:
+        'No tower party comes. The tunnel wardens seal their own entrance before the raiders arrive. Granny Umber returns the crown its map of the road, torn across the line that used to lead home.',
     },
   },
   {
@@ -385,7 +389,7 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       failure:
         'Sister Marrow found them on the cellar stair and walked them out by lamplight, kind as you please. She asked after the emperor’s health three times.',
       expired:
-        'Nobody went. The tower heard the rehearsal anyway, faint, all night.',
+        'No investigators take the chapel road. The music reaches the tower after dark through a row of empty windows. Dunmark posts a second watch without waiting for an order.',
     },
   },
 ]

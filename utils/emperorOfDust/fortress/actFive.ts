@@ -429,8 +429,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'It is all in his neat hand. The Abbess promised that what sleeps under the Abbey would sleep through every life now living, if her order got the throne and the payments kept coming. In the margin Komodo underlined the price twice: “Cheaper than war.”',
       partial:
         'One page survived: the Abbess’s promise, and Komodo’s note beside it. “Cheaper than war.” The rest was ash.',
-      failure: 'The ledgers were gone. So was everyone who held them.',
-      expired: 'Nobody asked. Komodo’s reasons stayed unread.',
+      failure:
+        'The ledger cart is found burned beside a dry wash. Three empty satchels lie in the ash, their buckles still locked. The court has lost both the evidence and the people sent to bring it home.',
+      expired:
+        'No one follows the ledger trail. A clerk closes the file with the last order Komodo signed still folded inside. By the final council, no one can say what he thought the throne was buying.',
     },
   },
   {
@@ -460,10 +462,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'The well does speak. It repeats you a heartbeat late, in a voice almost yours. Forty steps down is a door with no lock on this side. The party marked the way.',
       partial:
-        'The party marked the way to the door and came up fast. Nobody says what the well said back.',
-      failure: 'The rope came back up. No bucket. No knot.',
+        'The investigators scratch forty notches into the well wall and climb out before reaching the lockless door. Their notes agree on the depth but not on the words they heard below.',
+      failure:
+        'The rope returns from the well frayed and cleanly severed, the bucket missing. A mason who tied the knot insists it was sound. The watch sets a lantern by the rim and does not lower it.',
       expired:
-        'Nobody went down. At night you can hear the well from the road.',
+        'No one descends the speaking well. Each night a voice reaches the road a heartbeat after the watch calls its hour. The sentries begin changing their calls so nobody below can learn them.',
     },
   },
   {
@@ -506,8 +509,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. The Mire Mothers kept it there on purpose. They gave it up on purpose. Older treasures lay beside it. Those came home too.',
       success:
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. It is heavy. It hums when nobody touches it.',
-      failure: 'The fen kept it. The fen keeps most things.',
-      expired: 'Nobody went. The clapper stayed in the fen.',
+      failure:
+        'The recovery party returns with empty cloth and river mud in its boots. Sister Reedlight says the old pool has changed its banks. The throne must decide whether the bell can ring without its heart.',
+      expired:
+        'No one searches the Mirefen pool. The bell tower waits with its ropes tested and the striker missing. On the last night, the bell keeper sets an empty brass cradle beneath the frame.',
     },
   },
   {
@@ -542,10 +547,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'The crypt door is shut. Whatever kept time beneath the floor has stopped. The Abbess is gone. The sisters will not say where.',
       partial:
-        'The door is shut. Barely. The party came home fewer, and older.',
+        'The crypt door holds behind a row of broken braces. The survivors climb the stairs in silence and place the absent companions’ badges on the court table. Below them, the last note fades slowly.',
       failure:
-        'The party came back up the stair. The door is still open. The singing has not stopped.',
-      expired: 'Nobody went to the Abbey. Nobody had to. It came to everyone.',
+        'The party retreats up the crypt stair, leaving a trail of extinguished lanterns. The door remains open at the bottom. The sisters stop singing in the chapel, but the rhythm beneath the floor continues.',
+      expired:
+        'No expedition takes the Abbey road. At dawn the same low note sounds from the town wells, then the fortress drain. The gate watch closes every door it can reach, with no one left to guard the locks.',
     },
   },
   {
@@ -577,12 +583,14 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'They came up through the floor behind the Abbess mid-song. The crypt is shut. The sisters scattered at dawn.',
-      success: 'The back door led to the right room. The crypt is shut.',
+      success:
+        'The hidden passage opens behind the crypt and the party bars the inner door before the last bell note. They return by the well with wet boots and a map that will never again be sold.',
       partial:
         'They reached the room late and shut the door on the singing from the wrong side. They came back up the well one at a time, counting each other in the dark.',
       failure:
-        'The well led somewhere. Not the crypt. The party came back silent.',
-      expired: 'Nobody took the well road.',
+        'The passage from the well opens into a room of old stone seats, untouched and empty. The scouts return without finding the crypt. They leave a trail of chalk marks for whoever must try again.',
+      expired:
+        'No one attempts the hidden path. The well mouth is sealed with a board and the map folded into the emperor’s coat. The party must face the chapel doors in full view.',
     },
   },
   {
@@ -621,8 +629,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       partial:
         'The Silent Bell rang once and split down its whole length on the note. Under the Abbey, something went quiet. Hollow Bell will never hear it again.',
       failure:
-        'The clapper struck. The bell cracked down its whole length without a sound.',
-      expired: 'The clapper stayed in its cloth. Nobody climbed.',
+        'The clapper hits once. The Silent Bell splits from crown to lip without making a note. At the Abbey, the sisters halt their song and look toward the valley. They are listening for an answer.',
+      expired:
+        'The bell keeper folds the clapper back into its prayer cloth. Nobody climbs the tower. As the last daylight drains from Hollow Bell, its ropes hang motionless above the empty street.',
     },
   },
 ]

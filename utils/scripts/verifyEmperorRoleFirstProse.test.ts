@@ -2,6 +2,20 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 const STORY_FILES = [
+  'followers.ts',
+  'followersLate.ts',
+  'followersSecret.ts',
+  'dailyEventsActOne.ts',
+  'endings.ts',
+  'factions.ts',
+  'items.ts',
+  'laws.ts',
+  'moles.ts',
+  'rooms.ts',
+  'relics.ts',
+  'board.ts',
+  'engine.ts',
+  'codex.ts',
   'onboarding.ts',
   'actOne.ts',
   'actOneLate.ts',
@@ -29,6 +43,11 @@ const STORY_FILES = [
 const SPECIES_AS_IDENTITY =
   /\b(?:a|an|the|another|two|three|every|each)\s+(?:(?:young|old|elderly|ancient|small|big|lean|thin|heavy|steady|nameless|free|grey-blue|little|taller|dead|snared|black|white|speckled|red)\s+){0,2}(?:koala|fennec(?: fox)?|tortoise|hare|jackal|buffalo|armadillo|raccoon|boar|weasel|otter|rabbit|wolf|owl|magpie|rat|fox|prairie dog|gecko|capybara|rhino|newt(?:-witch)?|leopard|badger|ferret|opossum|porcupine|ibis|antelope|civet|heron|hyena|pelican|hen|sloth|gorilla|moth)(?![-’'])\b/gi
 
+// A faction's proper title is allowed, but a child, courier or prisoner
+// must be identified by their role rather than a bare species/faction shorthand.
+// The Storm Crow proper faction name is intentionally excluded.
+const SPECIES_ROLE = /(?<!Storm\\s)\\b(?:Mole|Crow)\\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\\b|\\b(?:a|an|the)\\s+(?:Mole|Crow)\\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\\b/gi
+
 let inspected = 0
 for (const file of STORY_FILES) {
   const text = readFileSync(
@@ -40,7 +59,11 @@ for (const file of STORY_FILES) {
     .replaceAll('a snared hare', 'snared game')
     .replaceAll('A jackal’s jaw', 'A metal crest')
     .replaceAll('A small armadillo is scratched', 'A small figure is scratched')
-  const matches = [...namesOnly.matchAll(SPECIES_AS_IDENTITY)]
+    .replaceAll('the pig turns out to be a boar', 'the pig turns out to be a wild pig')
+  const matches = [
+    ...namesOnly.matchAll(SPECIES_AS_IDENTITY),
+    ...namesOnly.matchAll(SPECIES_ROLE),
+  ]
   assert.equal(
     matches.length,
     0,
@@ -67,6 +90,17 @@ assert.match('An elderly wolf brought the petition.', singleMatch)
 assert.match('A hyena captain brought the petition.', singleMatch)
 assert.match('A young capybara in a novice robe arrived.', singleMatch)
 assert.match('The gecko courier stayed behind.', singleMatch)
+
+const roleMatch = new RegExp(SPECIES_ROLE.source, 'i')
+assert.match('The Mole boy whispers at the gate.', roleMatch)
+assert.match('Mole family by the east wall.', roleMatch)
+assert.match('Two Mole diggers are trapped.', roleMatch)
+assert.match('A Crow messenger demands brass.', roleMatch)
+assert.match('The Mole goes downstairs.', roleMatch)
+assert.doesNotMatch('A Storm Crow messenger requests an audience.', roleMatch)
+assert.doesNotMatch('The Mole Revolutionaries hold the galleries.', roleMatch)
+assert.doesNotMatch('A goat climbs the stairs; a wild boar crosses the road.', roleMatch)
+assert.doesNotMatch('Young Komodo studies a root-knife from the burrows.', roleMatch)
 
 console.log(
   `Role-first Emperor prose contract: ${inspected} source files checked`,

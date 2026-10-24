@@ -27,9 +27,6 @@ export type RainbowShotLook =
   | 'bolt'
   | 'star'
   | 'eclipse'
-  | 'bone'
-  | 'ball'
-  | 'cloud'
 
 /** The look each craft's fire takes (WORLD-BIBLE enemy fleet). Craft not listed fire pearls. */
 export const RAINBOW_CRAFT_LOOKS: Readonly<Record<string, RainbowShotLook>> = {
@@ -60,20 +57,17 @@ export const RAINBOW_CRAFT_LOOKS: Readonly<Record<string, RainbowShotLook>> = {
   prism: 'shard',
 }
 
-/**
- * The look each boss's fire takes, by the Act it guards (9 is the Eclipse Crown). A DOG commander rides every boss
- * machine (t-037, DOODLE-DIRECTION.md), so boss fire is bones, tennis balls and grumpy little storm clouds.
- */
+/** The look each boss's fire takes, by the Act it guards (9 is the Eclipse Crown): each creature's own. */
 export const RAINBOW_BOSS_LOOKS = {
-  1: 'bone',
-  2: 'ball',
-  3: 'bone',
-  4: 'ball',
-  5: 'bone',
-  6: 'cloud',
-  7: 'ball',
-  8: 'cloud',
-  9: 'bone',
+  1: 'pearl',
+  2: 'bell',
+  3: 'bolt',
+  4: 'sonar',
+  5: 'fin',
+  6: 'ember',
+  7: 'shard',
+  8: 'bubble',
+  9: 'eclipse',
 } as const satisfies Record<number, RainbowShotLook>
 
 /** Every Act guardian fires rainbow stars. */
@@ -510,78 +504,6 @@ export function drawRainbowShot(
       g.beginPath()
       g.arc(0, 0, 4, 0, Math.PI * 2)
       g.fill()
-      g.stroke()
-      break
-    }
-    case 'bone': {
-      // A cartoon dog bone, end over end.
-      g.rotate(phase / 5)
-      g.fillStyle = '#fff5e6'
-      g.strokeStyle = OUTLINE
-      g.lineWidth = 1.3
-      g.beginPath()
-      g.rect(-3.6, -1.4, 7.2, 2.8)
-      for (const end of [-1, 1])
-        for (const side of [-1, 1]) {
-          g.moveTo(end * 4 + 1.8, side * 1.7)
-          g.arc(end * 4, side * 1.7, 1.8, 0, Math.PI * 2)
-        }
-      g.fill()
-      g.stroke()
-      break
-    }
-    case 'ball': {
-      // A fuzzy tennis ball, squashing a little as it spins, its seam turning.
-      const squash = 1 + Math.sin(phase / 3) * 0.08
-      g.fillStyle = '#d8f55a'
-      g.strokeStyle = OUTLINE
-      g.lineWidth = 1.4
-      g.beginPath()
-      g.ellipse(0, 0, 4.6 * squash, 4.6 / squash, 0, 0, Math.PI * 2)
-      g.fill()
-      g.stroke()
-      g.rotate(phase / 6)
-      g.strokeStyle = '#ffffff'
-      g.lineWidth = 1
-      g.beginPath()
-      g.arc(-4.2, 0, 3.2, -1, 1)
-      g.moveTo(4.2 - 3.2 * Math.cos(1), 3.2 * Math.sin(1))
-      g.arc(4.2, 0, 3.2, Math.PI - 1, Math.PI + 1)
-      g.stroke()
-      break
-    }
-    case 'cloud': {
-      // A grumpy little storm cloud with a scowl and a flicker of lightning under it.
-      const bob = Math.sin(phase / 6) * 0.8
-      g.translate(0, bob)
-      if (Math.floor(phase / 5) % 3 === 0) {
-        g.strokeStyle = '#fff2a8'
-        g.lineWidth = 1.2
-        g.beginPath()
-        g.moveTo(0, 2)
-        g.lineTo(-1.5, 5)
-        g.lineTo(1, 5)
-        g.lineTo(-0.5, 8)
-        g.stroke()
-      }
-      g.fillStyle = '#8a7fb0'
-      g.strokeStyle = OUTLINE
-      g.lineWidth = 1.3
-      g.beginPath()
-      g.arc(-2.6, 0.6, 2.6, 0, Math.PI * 2)
-      g.arc(0.4, -1.4, 3.2, 0, Math.PI * 2)
-      g.arc(3, 0.8, 2.4, 0, Math.PI * 2)
-      g.fill()
-      g.stroke()
-      g.strokeStyle = OUTLINE
-      g.lineWidth = 0.9
-      g.beginPath()
-      g.moveTo(-2, -1.2)
-      g.lineTo(-0.6, -0.6)
-      g.moveTo(2.2, -1.2)
-      g.lineTo(0.8, -0.6)
-      g.moveTo(-0.9, 1.4)
-      g.quadraticCurveTo(0.1, 0.6, 1.1, 1.4)
       g.stroke()
       break
     }

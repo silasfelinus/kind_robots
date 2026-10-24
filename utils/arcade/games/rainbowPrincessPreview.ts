@@ -371,6 +371,64 @@ const ACT_NUMERALS = [
 const ACT_SEVEN_CHECKPOINTS = actCheckpoints(GLASS_SECTIONS, GLASS.bossStarts)
 const ACT_EIGHT_CHECKPOINTS = actCheckpoints(PALACE_SECTIONS, PALACE.bossStarts)
 const FINALE_CHECKPOINTS = actCheckpoints(FINALE_SECTIONS, FINALE.bossStarts)
+/** An Act's checkpoint frames: its start, each authored section and the boss. */
+function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
+  return act === 1
+    ? ACT_ONE_CHECKPOINTS
+    : act === 2
+      ? ACT_TWO_CHECKPOINTS
+      : act === 3
+        ? ACT_THREE_CHECKPOINTS
+        : act === 4
+          ? ACT_FOUR_CHECKPOINTS
+          : act === 5
+            ? ACT_FIVE_CHECKPOINTS
+            : act === 6
+              ? ACT_SIX_CHECKPOINTS
+              : act === 7
+                ? ACT_SEVEN_CHECKPOINTS
+                : act === 8
+                  ? ACT_EIGHT_CHECKPOINTS
+                  : FINALE_CHECKPOINTS
+}
+/** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
+function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  return c.act === 1
+    ? checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, c.frame)
+    : c.act === 2
+      ? checkpointLabel(MOONJELLY_SECTIONS, MOONJELLY.bossStarts, c.frame)
+      : c.act === 3
+        ? checkpointLabel(
+            trenchSections(c.trenchRoute),
+            TRENCH.bossStarts,
+            c.frame,
+          )
+        : c.act === 4
+          ? checkpointLabel(ROSEFIN_SECTIONS, ROSEFIN.bossStarts, c.frame)
+          : c.act === 5
+            ? checkpointLabel(WRECK_SECTIONS, WRECK.bossStarts, c.frame)
+            : c.act === 6
+              ? checkpointLabel(
+                  CROWN_REEF_SECTIONS,
+                  CROWN_REEF.bossStarts,
+                  c.frame,
+                )
+              : c.act === 7
+                ? checkpointLabel(GLASS_SECTIONS, GLASS.bossStarts, c.frame)
+                : c.act === 8
+                  ? checkpointLabel(PALACE_SECTIONS, PALACE.bossStarts, c.frame)
+                  : checkpointLabel(FINALE_SECTIONS, FINALE.bossStarts, c.frame)
+}
+/** A checkpoint a saved flight may continue from: any of an Act's checkpoints but the very start of Act I. */
+export function isRainbowCheckpoint(act: number, frame: number): boolean {
+  return (
+    Number.isInteger(act) &&
+    act >= 1 &&
+    act <= 9 &&
+    (act > 1 || frame > 0) &&
+    actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame)
+  )
+}
 /** E23 crystal squids glint for this long, then fire a pellet that splits in three after its fuse. */
 const SQUID = { glintFrames: 36, splitFuse: 60 } as const
 /** E24 harbingers warm their prism, then alternate a lane bolt and a ring bubble. */
@@ -1005,7 +1063,9 @@ export function createRainbowPrincessPreview(
   /** The progress the cabinet keeps: written at each Act start, cleared at THE END. */
   let saveRecord: RainbowSave | null | undefined = undefined
   /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
-  const offered = options.demo ? null : readRainbowSave(options.resume)
+  const offered = options.demo
+    ? null
+    : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
   /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
@@ -1936,28 +1996,7 @@ export function createRainbowPrincessPreview(
     act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     frame: number,
   ) {
-    if (
-      !(
-        act === 1
-          ? ACT_ONE_CHECKPOINTS
-          : act === 2
-            ? ACT_TWO_CHECKPOINTS
-            : act === 3
-              ? ACT_THREE_CHECKPOINTS
-              : act === 4
-                ? ACT_FOUR_CHECKPOINTS
-                : act === 5
-                  ? ACT_FIVE_CHECKPOINTS
-                  : act === 6
-                    ? ACT_SIX_CHECKPOINTS
-                    : act === 7
-                      ? ACT_SEVEN_CHECKPOINTS
-                      : act === 8
-                        ? ACT_EIGHT_CHECKPOINTS
-                        : FINALE_CHECKPOINTS
-      ).includes(frame)
-    )
-      return
+    if (!actCheckpointFrames(act).includes(frame)) return
     if (checkpoint.act === act && frame <= checkpoint.frame) return
     checkpoint = {
       act,
@@ -1978,7 +2017,11 @@ export function createRainbowPrincessPreview(
       captivesFreed,
       schoolBonuses,
     }
-    if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+    if (frame > 0) {
+      popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+      // Every checkpoint is kept, so a flight left mid-Act comes back where it was.
+      writeSave()
+    }
     if (frame === 0 && act >= 2) {
       awardMedal((act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
       if (act === 9) {
@@ -2055,10 +2098,6 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  /**
-   * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
-   * before it flown and its own Act about to begin (its first update is its frame 0).
-   */
   /** Fly at `chosen` from the start: its lives, pellets, hulls and score. */
   function setDifficulty(chosen: ArcadeDifficulty) {
     difficulty = chosen
@@ -2078,6 +2117,10 @@ export function createRainbowPrincessPreview(
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
   }
 
+  /**
+   * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
+   * before it flown and its own Act resuming at the saved checkpoint (its first update is that frame).
+   */
   function continueFrom(save: RainbowSave) {
     setDifficulty(save.difficulty)
     pick = save.pilot ?? 0
@@ -2124,6 +2167,29 @@ export function createRainbowPrincessPreview(
     finaleStart = start(9)
     checkpoint = { ...c }
     savedAct = n
+    if (c.frame > 0) {
+      // A save from mid-Act: its Act clock picks up at the checkpoint itself, past the escort or the
+      // navigator if their pods had already set off, and past a guardian whose section had begun.
+      tick = resumeTick(
+        c,
+        moonStart,
+        trenchStart,
+        rosefinStart,
+        wreckStart,
+        reefStart,
+        glassStart,
+        palaceStart,
+        finaleStart,
+      )
+      if (n === 4 && c.frame > ROSEFIN_ESCORT.podAppears) escortDone = true
+      if (n === 7 && c.frame > GLASS_NAVIGATOR.podAppears) navigatorDone = true
+      if (
+        n !== 9 &&
+        guardians[n] === 'waiting' &&
+        c.frame > guardianSections[n].from
+      )
+        guardians[n] = 'escaped'
+    }
   }
 
   /**
@@ -7542,61 +7608,9 @@ export function createRainbowPrincessPreview(
       }
       if (continueLeft > 0) {
         const where =
-          checkpoint.act === 1
-            ? checkpointLabel(
-                PINKWAKE_SECTIONS,
-                PINKWAKE.bossStarts,
-                checkpoint.frame,
-              )
-            : checkpoint.act === 2
-              ? checkpointLabel(
-                  MOONJELLY_SECTIONS,
-                  MOONJELLY.bossStarts,
-                  checkpoint.frame,
-                )
-              : checkpoint.act === 3
-                ? checkpointLabel(
-                    trenchSections(checkpoint.trenchRoute),
-                    TRENCH.bossStarts,
-                    checkpoint.frame,
-                  )
-                : checkpoint.act === 4
-                  ? checkpointLabel(
-                      ROSEFIN_SECTIONS,
-                      ROSEFIN.bossStarts,
-                      checkpoint.frame,
-                    )
-                  : checkpoint.act === 5
-                    ? checkpointLabel(
-                        WRECK_SECTIONS,
-                        WRECK.bossStarts,
-                        checkpoint.frame,
-                      )
-                    : checkpoint.act === 6
-                      ? checkpointLabel(
-                          CROWN_REEF_SECTIONS,
-                          CROWN_REEF.bossStarts,
-                          checkpoint.frame,
-                        )
-                      : checkpoint.act === 7
-                        ? checkpointLabel(
-                            GLASS_SECTIONS,
-                            GLASS.bossStarts,
-                            checkpoint.frame,
-                          )
-                        : checkpoint.act === 8
-                          ? checkpointLabel(
-                              PALACE_SECTIONS,
-                              PALACE.bossStarts,
-                              checkpoint.frame,
-                            )
-                          : escapeFrame !== null
-                            ? 'Escape'
-                            : checkpointLabel(
-                                FINALE_SECTIONS,
-                                FINALE.bossStarts,
-                                checkpoint.frame,
-                              )
+          checkpoint.act === 9 && escapeFrame !== null
+            ? 'Escape'
+            : checkpointName(checkpoint)
         g.save()
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
@@ -7783,7 +7797,9 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 18px monospace'
         g.fillText('FLIGHT LOG', W / 2, 88)
         const lines = [
-          `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]}`,
+          saved.checkpoint.frame > 0
+            ? `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]} · ${checkpointName(saved.checkpoint).toUpperCase()}`
+            : `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]}`,
           'NEW FLIGHT · ACT I',
         ]
         lines.forEach((line, i) => {

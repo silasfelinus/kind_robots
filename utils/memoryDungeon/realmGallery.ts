@@ -1,12 +1,7 @@
 import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
 
 export type RealmCardRole =
-  | 'character'
-  | 'place'
-  | 'event'
-  | 'creature'
-  | 'relic'
-  | 'collaboration'
+  'character' | 'place' | 'event' | 'creature' | 'relic' | 'collaboration'
 
 export interface RealmGalleryCard {
   id: string
@@ -56,7 +51,11 @@ const LOCAL_CARD_ROSTER = [
   ['7,5', 'The Hidden Approach', 'place'],
   ['3,2', 'The Unquiet Trail', 'event'],
   ['8,5', 'Beyond the Briars', 'place'],
-] as const satisfies readonly (readonly [string, string, Exclude<RealmCardRole, 'collaboration'>])[]
+] as const satisfies readonly (readonly [
+  string,
+  string,
+  Exclude<RealmCardRole, 'collaboration'>,
+])[]
 
 export const WORLD_ONE_GALLERY: readonly RealmGalleryCard[] = [
   ...LOCAL_CARD_ROSTER.map(([key, title, role], index) => {
@@ -103,7 +102,8 @@ export function validateRealmGallery(
   world: number,
 ): string[] {
   const errors: string[] = []
-  if (cards.length !== 32) errors.push('Each realm must contain 32 unique illustrated faces')
+  if (cards.length !== 32)
+    errors.push('Each realm must contain 32 unique illustrated faces')
   if (cards.filter((card) => card.role !== 'collaboration').length !== 30)
     errors.push('Exactly 30 cards must belong to the realm storyline')
   if (cards.filter((card) => card.role === 'collaboration').length !== 2)
@@ -112,14 +112,25 @@ export function validateRealmGallery(
     if (new Set(cards.map((card) => card[field])).size !== cards.length)
       errors.push(`Duplicate gallery ${field}`)
   }
-  if (new Set(cards.filter((card) => card.sceneKey).map((card) => card.sceneKey)).size !== 30)
-    errors.push('Realm-local cards must represent 30 distinct authored encounters')
+  if (
+    new Set(cards.filter((card) => card.sceneKey).map((card) => card.sceneKey))
+      .size !== 30
+  )
+    errors.push(
+      'Realm-local cards must represent 30 distinct authored encounters',
+    )
   for (const card of cards) {
     if (card.world !== world || !card.prompt.trim())
       errors.push(`Invalid realm or missing brief: ${card.id}`)
-    if (card.role === 'collaboration' && (!card.partnerWorld || card.partnerWorld === world))
+    if (
+      card.role === 'collaboration' &&
+      (!card.partnerWorld || card.partnerWorld === world)
+    )
       errors.push(`Collaboration requires another realm: ${card.id}`)
-    if (card.role !== 'collaboration' && (!card.sceneKey || card.partnerWorld !== null))
+    if (
+      card.role !== 'collaboration' &&
+      (!card.sceneKey || card.partnerWorld !== null)
+    )
       errors.push(`Local card must reference its authored scene: ${card.id}`)
   }
   return errors

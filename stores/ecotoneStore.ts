@@ -27,7 +27,10 @@ import {
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
 import type { SubstanceId } from '~/utils/ecotone/substanceArc'
-import { normalizePlayerIdentity, type PlayerIdentity } from '~/utils/ecotone/playerIdentity'
+import {
+  normalizePlayerIdentity,
+  type PlayerIdentity,
+} from '~/utils/ecotone/playerIdentity'
 import {
   MYSTERIES,
   caseRecord,
@@ -245,7 +248,11 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       avatarId,
       portraitArtId: portraitArtId ?? run.value.portraitArtId,
     })
-    run.value = { ...run.value, avatarId: identity.avatarId, portraitArtId: identity.portraitArtId }
+    run.value = {
+      ...run.value,
+      avatarId: identity.avatarId,
+      portraitArtId: identity.portraitArtId,
+    }
     persist()
   }
 

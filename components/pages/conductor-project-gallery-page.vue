@@ -426,7 +426,11 @@ const filters = [
   },
   { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' },
   { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' },
-  { value: 'NEEDS_ENDPOINT' as const, label: 'No endpoint', icon: 'kind-icon:warning' },
+  {
+    value: 'NEEDS_ENDPOINT' as const,
+    label: 'No endpoint',
+    icon: 'kind-icon:warning',
+  },
 ]
 const IS_FILTER = (value: string): value is Filter =>
   filters.some((entry) => entry.value === value)
@@ -597,7 +601,8 @@ function toItem(record: ProjectWithRelations): Item {
   ]
   if (drift) badges.push({ label: 'drift', class: 'badge-warning' })
   const missingEndpoint = !projectDestination(record.liveUrl)
-  if (missingEndpoint) badges.push({ label: 'No endpoint', class: 'badge-warning' })
+  if (missingEndpoint)
+    badges.push({ label: 'No endpoint', class: 'badge-warning' })
   return {
     id: record.id,
     slug,

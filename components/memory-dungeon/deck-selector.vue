@@ -1,6 +1,6 @@
 <template>
   <div class="w-full text-[#f7e6c7]">
-    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+    <div class="grid grid-cols-2 gap-2">
       <button
         v-for="choice in families"
         :key="choice.key"

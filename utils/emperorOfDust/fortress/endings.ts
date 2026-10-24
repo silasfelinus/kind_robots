@@ -35,7 +35,7 @@ export const ENDINGS: Record<EndingId, EndingDef> = {
   },
   'crows-bargain': {
     id: 'crows-bargain',
-    title: 'The Crow’s Bargain',
+    title: 'The Conclave’s Bargain',
     text: 'The rain comes when it is supposed to, every season, exactly. The Storm Crows name the price each spring, and the kingdom pays it without asking what happens to what it pays.',
   },
   'witchwater-throne': {

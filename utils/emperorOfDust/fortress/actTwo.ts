@@ -698,7 +698,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'You read *counted* twice. Corvane waits. He has waited for that word before.',
               {
                 who: 'A Freehold reeve at the back of the hall',
-                text: 'How long’s a season, to a crow?',
+                text: 'How long’s a season, to the Conclave?',
               },
               'Corvane looks at the reeve until the reeve looks at the floor.',
             ],
@@ -3587,7 +3587,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
         flags: ['d34-runner-home', 'd34-runner-bought'],
       },
       response:
-        'A crow takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every crow on the sills sits with its back to the throne.',
+        'A Conclave courier takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week the Conclave watchers on the sills sit with their backs to the throne.',
     },
     {
       id: 'leave',

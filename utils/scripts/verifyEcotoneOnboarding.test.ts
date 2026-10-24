@@ -15,9 +15,7 @@ import {
 assert.equal(PLAYER_AVATARS.length, 12)
 assert.deepEqual(
   PLAYER_AVATARS.map((avatar) => avatar.portrait),
-  PLAYER_AVATARS.map(
-    (avatar) => `/images/ecotone/avatars/${avatar.id}.webp`,
-  ),
+  PLAYER_AVATARS.map((avatar) => `/images/ecotone/avatars/${avatar.id}.webp`),
   'each stable saved-avatar ID needs its own canonical portrait path',
 )
 assert.equal(
@@ -128,7 +126,10 @@ assert.match(store, /restoreRun\(payload\.run\)/)
 assert.match(board, /:src="avatar.portrait"/)
 assert.match(board, /:aria-pressed="pickedAvatar === avatar.id"/)
 assert.ok(board.includes('failedAvatarPortraits.push(avatar.id)'))
-assert.ok(!board.includes('grid grid-cols-6 gap-1.5'), 'emoji-only selection grid was retired')
+assert.ok(
+  !board.includes('grid grid-cols-6 gap-1.5'),
+  'emoji-only selection grid was retired',
+)
 assert.match(board, /Confirm your decision/)
 assert.match(board, /Change my mind/)
 assert.match(board, /Undo last decision/)

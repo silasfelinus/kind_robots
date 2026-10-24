@@ -1917,7 +1917,10 @@ import {
   watch,
 } from 'vue'
 import { useEcotoneStore } from '~/stores/ecotoneStore'
-import { readPrivateEcotonePortrait, uploadPrivateEcotonePortrait } from '~/utils/ecotone/privatePortrait'
+import {
+  readPrivateEcotonePortrait,
+  uploadPrivateEcotonePortrait,
+} from '~/utils/ecotone/privatePortrait'
 import {
   ARCHETYPES,
   CHAPTERS,

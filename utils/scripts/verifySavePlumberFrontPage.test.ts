@@ -155,7 +155,8 @@ for (const part of [
   'plumber-guide-grid',
   'plumber-footer-back',
   'ArcadeCabinet slug="save-the-plumber" contained',
-]) assert.ok(page.includes(part), `console experience includes ${part}`)
+])
+  assert.ok(page.includes(part), `console experience includes ${part}`)
 assert.match(
   page,
   /type Screen = 'title' \\| 'story' \\| 'worlds' \\| 'crew' \\| 'guide' \\| 'play'/,
@@ -172,7 +173,10 @@ for (let world = 1; world <= 8; world++) {
   for (const extension of ['webp', 'webm', 'mp4']) {
     assert.ok(
       existsSync(
-        new URL(`../../public/save-the-plumber/maps/world-${world}.${extension}`, import.meta.url),
+        new URL(
+          `../../public/save-the-plumber/maps/world-${world}.${extension}`,
+          import.meta.url,
+        ),
       ),
       `painted world ${world} ${extension} is committed`,
     )

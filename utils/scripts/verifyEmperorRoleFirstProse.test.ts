@@ -37,6 +37,35 @@ const STORY_FILES = [
   'questBriefsChores.ts',
 ] as const
 
+// Every fortress screen can also contain hardcoded player-visible copy.
+const PLAYER_UI_FILES = [
+  'EmperorFortressThrone.vue',
+  'EmperorFortressBarracks.vue',
+  'EmperorFortressDawn.vue',
+  'EmperorFortressChronicle.vue',
+  'EmperorFortressIntro.vue',
+  'EmperorFortressQuests.vue',
+  'EmperorFortressMapRoom.vue',
+  'EmperorFortressCodex.vue',
+  'EmperorFortressFinish.vue',
+  'EmperorFortressLedger.vue',
+  'EmperorFortressPortrait.vue',
+  'EmperorFortressDialogue.vue',
+  'EmperorFortressBriefing.vue',
+  'EmperorFortressEpilogue.vue',
+  'EmperorFortressMarket.vue',
+  'EmperorFortressMarketRow.vue',
+  'EmperorFortressCodexNote.vue',
+  'EmperorFortressQuestImage.vue',
+] as const
+
+const PLAYER_FILES = [
+  ...STORY_FILES.map((file) => `../emperorOfDust/fortress/${file}`),
+  ...PLAYER_UI_FILES.map((file) => `../../components/${file}`),
+  '../../stores/emperorFortressStore.ts',
+  '../../pages/play/emperor-of-dust.vue',
+] as const
+
 // Guard prose, not species-locked cast records or positive art prompts.
 // Proper faction names such as Storm Crows and Mole Revolutionaries are
 // political affiliations, not a license to call an individual "a fox".
@@ -49,11 +78,8 @@ const SPECIES_AS_IDENTITY =
 const SPECIES_ROLE = /(?<!Storm\s)\b(?:Mole|Crow)\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\b|\b(?:a|an|the)\s+(?:Mole|Crow)\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\b/gi
 
 let inspected = 0
-for (const file of STORY_FILES) {
-  const text = readFileSync(
-    new URL(`../emperorOfDust/fortress/${file}`, import.meta.url),
-    'utf8',
-  )
+for (const file of PLAYER_FILES) {
+  const text = readFileSync(new URL(file, import.meta.url), 'utf8')
   // These are explicit food or artwork, not labels applied to people.
   const namesOnly = text
     .replaceAll('a snared hare', 'snared game')
@@ -103,5 +129,5 @@ assert.doesNotMatch('A goat climbs the stairs; a wild boar crosses the road.', r
 assert.doesNotMatch('Young Komodo studies a root-knife from the burrows.', roleMatch)
 
 console.log(
-  `Role-first Emperor prose contract: ${inspected} source files checked`,
+  `Role-first Emperor prose contract: ${inspected} source and UI files checked`,
 )

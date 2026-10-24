@@ -1,5 +1,6 @@
 import { BRIAR_MARCHES_FIRST_BATCH } from './scenesBriarMarches'
 import { BRIAR_MARCHES_SECOND_BATCH } from './scenesBriarMarchesSecond'
+import { BRIAR_MARCHES_FINAL_BATCH } from './scenesBriarMarchesFinal'
 
 export interface BriarSceneChoice {
   id: string
@@ -21,6 +22,7 @@ export interface BriarScene {
 export const BRIAR_SCENES: Record<string, BriarScene> = {
   ...BRIAR_MARCHES_FIRST_BATCH,
   ...BRIAR_MARCHES_SECOND_BATCH,
+  ...BRIAR_MARCHES_FINAL_BATCH,
   '4,4': {
     title: 'Their Identical Royal Highnesses',
     opening:

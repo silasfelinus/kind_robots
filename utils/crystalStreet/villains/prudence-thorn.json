@@ -1,0 +1,555 @@
+[
+  {
+    "id": "prudence-thorn",
+    "name": "Pastor Prudence Thorn",
+    "epithet": "Chair of the Concerned Parents",
+    "tags": ["cult", "camp"],
+    "palette": ["#ff6a13", "#b9a3d6", "#1c1a1f"],
+    "sigil": "matchbook",
+    "logline": "The Concerned Parents of Glimmer Falls lit a bonfire to burn the devil out of rock records and roleplaying games. It worked backward: now there is a demon, and every scared grown-up on Crystal Street is feeding it.",
+    "backstory": "Pastor Prudence Thorn runs the Lamplight Fellowship out of a former carpet store on Route 9 and hosts a public-access show called Prudence Says, where she plays heavy metal records backward on a turntable and gasps at what she hears. In 1984 she founded the Concerned Parents of Glimmer Falls, who have since challenged 212 library books, pulled every horror tape from the drugstore and scared the PTA into banning Caverns and Chimeras from the school. This Halloween week they are holding a series of bonfires on the Crystal Street roundabout, right beside the Heartstone, to burn records, comics and rulebooks and replace Halloween with a wholesome Hallelujah Night. But the Heartstone amplifies whatever a crowd feels, and what that crowd felt was fear. The first fire gave it a body: Backmask, a demon of smoke, melted vinyl and torn rulebook pages that speaks only in reverse and grows every time a grown-up panics. Prudence is certain the answer is a bigger fire. Nobody in town knows that the first thing she ever burned, in 1972, was a record her own son made, the week before he left home for good.",
+    "centralIssue": {
+      "title": "Moral panic and censorship",
+      "summary": "The demon is real, but it was never hiding in the records. It is made of fear, and every book banned and record burned has only fed it. Prudence is not wicked; she is a frightened mother who decided her son was taken by music so she would never have to ask why he really left. Find what she lost, learn what the demon eats, and help her hear the one hidden message that was actually meant for her."
+    },
+    "poster": "A towering demon of smoke and melted vinyl records rising from a roaring bonfire on a suburban roundabout, ribbons of videotape for hair and torn game rulebook pages for wings, a small woman in a lavender pantsuit with a bullhorn below it, parents in windbreakers throwing records into the flames, teens running with armfuls of rescued comics",
+    "portrait": "Close portrait of a tightly permed middle-aged woman pastor in a lavender pantsuit and a gold cross pin, clutching a bullhorn, eyes wide with sincere fear, her face lit orange by firelight, a shadow with horns stretching on the wall behind her",
+    "taunts": [
+      "Do you know what your children are listening to? I do. I listen to it backward.",
+      "Rules are love, sweetie. Rules are love.",
+      ".nraw ot gniyrt saw ehS .ruoy ot gninetsil m'I",
+      "It isn't the fire that's hungry, dear. It's you. Keep being afraid for me."
+    ],
+    "clues": [
+      {
+        "id": "prudence-thorn-first-challenge",
+        "title": "Challenge Number One",
+        "location": "library",
+        "hint": "Every book Prudence Thorn has ever tried to ban is on file at the library. Ask to see the very first form.",
+        "encounter": {
+          "id": "prudence-thorn-clue-challenge-files",
+          "title": "Materials Challenged",
+          "place": "Reference desk, Glimmer Falls Public Library",
+          "text": "Behind the reference desk sit two filing cabinets labeled CHALLENGED MATERIALS, stuffed so full the drawers bulge. Every form is in the same tidy handwriting: Prudence Thorn, Prudence Thorn, Prudence Thorn. Ms. Hart watches you look at them and taps one drawer at the very bottom, the one with rust on the handle. \"Everyone always starts at the top,\" she says.",
+          "art": "Two overstuffed library filing cabinets labeled challenged materials behind a reference desk, a librarian in a cardigan tapping the rusty bottom drawer, a teenager kneeling beside it",
+          "choices": [
+            {
+              "id": "read-the-first-form",
+              "label": "Dig to the very bottom of the bottom drawer",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "delphine-hart",
+                "amount": 1
+              },
+              "success": {
+                "text": "Form number one, dated June 9, 1972. Item: Songs of the Open Road, a poetry anthology, last checked out on the card of Gideon Thorn, age 17. Reason for objection, written so hard the pen tore the paper: My son read this and then he left. Every one of the 211 challenges after it says something different and means the same thing.",
+                "art": "A yellowed 1972 library challenge form in a teenager's hands, the pen strokes torn through the paper, a worn poetry anthology lying beside it with a library card pocket",
+                "effects": {
+                  "clues": ["prudence-thorn-first-challenge"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The bottom drawer will not budge, and when it finally does, it is full of ash. Warm ash. A line of it drifts out across the carpet toward the door, spelling something backward you do not want to read. A library volunteer screams and hits the fire alarm.",
+                "art": "A library filing drawer pulled open to reveal glowing warm ash, a trail of ash curling across carpet into backward letters, a volunteer pulling a red fire alarm",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "cult"
+                }
+              }
+            },
+            {
+              "id": "check-the-card-catalog",
+              "label": "Look up which books the Concerned Parents have never once challenged",
+              "intent": "sneaky",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "priya-raman",
+                "amount": 1
+              },
+              "success": {
+                "text": "It takes an hour with the card catalog, but the pattern is there. Prudence challenges music books, poetry, runaway stories, anything about a kid leaving home. Not one challenge about anything actually dangerous. Tucked in the catalog drawer under T is an index card in her handwriting: Gideon, please call. Never filed. Never sent.",
+                "art": "A teenager at an old wooden card catalog with drawers pulled out, holding up an index card with a handwritten personal note, sunlight through tall library windows",
+                "effects": {
+                  "clues": ["prudence-thorn-first-challenge"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "You lose an hour and find nothing but a Concerned Parents pamphlet titled Is Your Child's Library Card a Ticket to Perdition? that someone has stuffed into every single drawer. Reading it makes your stomach hurt, which, you suspect, is the point.",
+                "art": "A lurid 1980s pamphlet with a flaming library card on the cover stuffed into every drawer of a wooden card catalog, a queasy teenager surrounded by them",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "prudence-thorn-phobophage",
+        "title": "What the demon eats",
+        "location": "pinecrest",
+        "hint": "The punk priest at St. Jude's keeps a library of very old books in the church basement, between the band gear and the bingo tables.",
+        "encounter": {
+          "id": "prudence-thorn-clue-basement",
+          "title": "Band Practice at St. Jude's",
+          "place": "The basement of St. Jude's Church",
+          "text": "Father Iggy's band is mid-song when you come down the basement stairs, three chords and a lot of feelings, bingo tables pushed against the wall to make room. Behind the drum kit is a bookcase of crumbling leather volumes the diocese forgot it owned. One of them is lying open on an amp, and its woodcut shows a horned shape crouched in a bonfire, fattening as a crowd screams.",
+          "art": "A church basement with a punk band rehearsing between stacked bingo tables, a priest in a clerical collar playing bass, an ancient leather book open on an amplifier showing a woodcut of a demon in a bonfire",
+          "choices": [
+            {
+              "id": "ask-father-iggy",
+              "label": "Wait for the song to end and ask Father Iggy what the woodcut is",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "iggy-reyes",
+                "amount": 2
+              },
+              "success": {
+                "text": "Iggy wipes his forehead with a bandana. \"Phobophage. Old Latin, fancy word for fear-eater. It shows up wherever folks start burning things to feel safe.\" He taps a line of the text. \"It can't abide laughter, or a song played for love. Perfect love casts out fear. First John, chapter four.\" He grins. \"Prudence got the verse right. She just read it backward.\"",
+                "art": "A young priest in a clerical collar and a band t-shirt pointing to a line in an ancient book on an amplifier, a teenager reading over his shoulder, guitars leaning on bingo tables",
+                "effects": {
+                  "clues": ["prudence-thorn-phobophage"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The amp feedback squeals, the book slams shut on its own, and the basement lights go out. In the dark, a voice from the woodcut repeats every scared thought you have ever had, backward and slow. Iggy turns the lights on and finds you under the bingo table.",
+                "art": "A dark church basement lit only by an amplifier's red standby light, a teenager hiding under a folding bingo table, an old book shut on its own with smoke curling from its pages",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "read-it-yourself",
+              "label": "Borrow the book and translate the Latin with a dictionary",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 11,
+              "success": {
+                "text": "Three hours, one Latin dictionary and a Bolt Cola later, you have it. The demon grows on fear and every fire lit in fear. It cannot be burned, because it is the burning. It starves only when the frightened one hears what they were afraid to hear. You have never felt smarter or more tired.",
+                "art": "A teenager at a church basement table surrounded by an open ancient book, a Latin dictionary, scribbled notes and an empty soda can, a desk lamp glowing at midnight",
+                "effects": {
+                  "clues": ["prudence-thorn-phobophage"],
+                  "skills": {
+                    "brains": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "Your translation says the demon is defeated by a \"vigorous goat of the household,\" which cannot be right. Iggy laughs so hard he has to sit down on his amp, then gently closes the book. \"Come back when we're not rehearsing. Bring snacks.\"",
+                "art": "A priest in a band t-shirt laughing on top of an amplifier, a frustrated teenager holding up messy translation notes with a goat doodle on them",
+                "effects": {
+                  "nerve": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "prudence-thorn-come-find-me",
+        "title": "The last copy of Come Find Me",
+        "location": "starlight-mall",
+        "hint": "The woman who runs the record store at Starlight Mall played drums in a 1971 garage band. Ask her who sang.",
+        "encounter": {
+          "id": "prudence-thorn-clue-spin-city",
+          "title": "Spin City Records",
+          "place": "Spin City Records, Starlight Mall",
+          "text": "Spin City Records smells like incense and cardboard sleeves. Rhonda Pike, gray braid, tie-dyed concert shirt, drummer's forearms, is pricing used albums behind the counter. Taped to the register is a faded 1971 flyer: GIDEON AND THE LOST SHEEP, LIVE AT THE GRANGE HALL. Under the glass, on a velvet cloth like a holy relic, is a single forty-five with a hand-drawn sleeve.",
+          "art": "A cluttered 1980s mall record store with neon signs and racks of vinyl, a gray-braided woman behind the counter, a faded 1971 band flyer taped to the register, a single record displayed under glass on velvet",
+          "choices": [
+            {
+              "id": "ask-rhonda",
+              "label": "Ask Rhonda about the band on the flyer",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "\"Gideon Thorn. Best voice in the county, sixteen years old.\" Rhonda lifts the glass. \"We pressed a hundred copies of Come Find Me. His mother bought ninety-nine at the drugstore and burned them on her patio. He left a week later.\" She hands you the last one. \"He runs a guitar shop up in Eureka now. Sends her a postcard every Christmas. They come back unopened.\"",
+                "art": "A gray-braided record store owner lifting a glass case to hand a teenager a single with a hand-drawn sleeve, a faded band photo of a teenage singer pinned on the wall behind her",
+                "effects": {
+                  "clues": ["prudence-thorn-come-find-me"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Rhonda squints at you. \"You're not with those Concerned Parents, are you?\" Before you can answer, every record in the store begins spinning backward on its own, a hundred whispering voices at once, and she shoves you out the door and pulls the gate down.",
+                "art": "A record store gate slamming down in a neon-lit mall corridor, inside every turntable spinning backward with sinister smoke rising, a teenager stumbling backward",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "play-it-backward",
+              "label": "Put the forty-five on the store turntable and spin it backward by hand",
+              "intent": "reckless",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
+              "success": {
+                "text": "Rhonda raises an eyebrow but lets you. The song ends, a long fade, and you drag the record back under the needle with one finger. Out of the warble comes a seventeen-year-old's voice, clear as a bell: Mom. I'm okay. Come find me. Rhonda's hand goes over her mouth. \"He hid it there because he knew she'd look. She never did.\"",
+                "art": "A teenager dragging a spinning vinyl single backward by hand on a turntable, a record store owner with her hand over her mouth, sound waves glowing softly from the speakers",
+                "effects": {
+                  "clues": ["prudence-thorn-come-find-me"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The needle skates across the vinyl with a shriek. What comes out of the speakers is not a boy's voice but a deep, smoky laugh, playing in reverse. Every neon sign in Spin City pops. You owe Rhonda for a needle and a very large apology.",
+                "art": "A turntable needle skating sparks across a record, neon signs in a record store bursting, smoke curling from the speakers in the shape of a grin",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -2
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "prudence-thorn-warm-up-burning",
+        "title": "The Warm-Up Burning",
+        "place": "The Heartstone roundabout, Crystal Street",
+        "text": "The Concerned Parents are holding a weeknight warm-up burning on the roundabout. A pickup truck is backed up to the Heartstone, full of records, comic books and a stack of Caverns and Chimeras binders with Priya's name on the cover. Pastor Prudence stands on a lawn chair with a bullhorn. When the first album hits the flames, the smoke curls into two horns and a grin, and the parents gasp and throw in more.",
+        "art": "Parents in windbreakers throwing records and comic books into a bonfire on a suburban roundabout beside a giant purple geode, a woman in a lavender pantsuit on a lawn chair with a bullhorn, smoke forming a horned grin above the flames",
+        "choices": [
+          {
+            "id": "rescue-the-binders",
+            "label": "Dash in and rescue Priya's campaign binders before they burn",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 1
+            },
+            "success": {
+              "text": "You snatch three binders off the tailgate as a dad reaches for them, and sprint. Behind you the smoke-face snaps at the empty air where they were and shrinks, just a little. Later, Priya flips one open and finds a page she does not remember writing: The fear-eater cannot abide a laugh.",
+              "art": "A teenager sprinting away from a bonfire hugging three game binders, a smoke demon face snapping at empty air behind them, a startled dad in a windbreaker",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "A Concerned Parent in a shiny zip-up jacket grabs you by the collar and lectures you about your eternal soul while the binders curl into ash. The smoke-face grows by a full foot, licking its lips, and the crowd applauds without knowing what for.",
+              "art": "A man in a zip-up jacket holding a teen by the collar while game binders curl in a bonfire, a smoke demon face growing larger and licking its lips",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "seize-the-bullhorn",
+            "label": "Steal the bullhorn and read the bonfire safety warning in a dramatic voice",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Attention, Concerned Parents. Polyvinyl chloride, when burned, releases fumes that cause the following,\" you announce, and then improvise a list so ridiculous that a mom snorts. Then another. Laughter spreads through the crowd like a cold breeze, and the smoke-horns sag like a soufflé.",
+              "art": "A teen on a lawn chair shouting into a bullhorn with a theatrical pose, parents in windbreakers stifling laughter, a smoke demon above the bonfire sagging like a collapsed cake",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-laughter"]
+              }
+            },
+            "failure": {
+              "text": "Prudence takes the bullhorn back with the calm of a woman who has done this many times. \"You see?\" she tells the crowd. \"This is what the music does to them.\" Everyone looks at you with fear, and the fire roars twice as high.",
+              "art": "A woman pastor in a lavender pantsuit taking back a bullhorn and pointing at a teen, a crowd of parents staring with fear, a bonfire roaring higher behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "salt-the-circle",
+            "label": "Pour a circle around the fire to keep the smoke-thing in",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "rock-salt",
+              "amount": 2
+            },
+            "success": {
+              "text": "You walk the circle while everyone watches the flames. When the smoke-horns lunge for the crowd, they hit the line and recoil, hissing backward words. The fire gutters and dies early. The parents decide it was the wind, and pack up grumbling.",
+              "art": "A teenager pouring a white circle around a bonfire from a coffee can, smoke horns recoiling from the line, parents packing up records in the background",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "A gust scatters your circle across the lawn before you close it. The smoke slides out through the gap like a cat through a fence, and every porch light on Crystal Street flickers as it passes. You have the distinct feeling it now knows your address.",
+              "art": "A broken white circle scattered by wind across a lawn, a ribbon of smoke slipping through the gap toward suburban houses with flickering porch lights",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-play-it-backward",
+        "title": "Play It Backward",
+        "place": "Every house on Crystal Street, midnight",
+        "text": "At midnight every turntable, tape deck and Walkman on Crystal Street starts playing backward at once. Under the warble, a smoky voice is saying something to each listener alone. In house after house, lights snap on and parents start locking their kids in their rooms \"for their own protection.\" Your own door clicks shut. Through the wall you hear your boombox whisper your name in reverse.",
+        "art": "A cutaway view of suburban houses at midnight with turntables and cassette decks glowing red and playing backward in every room, parents locking bedroom doors, smoky backward letters curling out of speakers",
+        "choices": [
+          {
+            "id": "record-and-reverse",
+            "label": "Record the whisper and play it forward to hear what it really says",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "cassette-recorder",
+              "amount": 2
+            },
+            "success": {
+              "text": "You flip the tape and hit play. Forward, the demon's whisper is just your own voice, listing your own fears: failing math, being forgotten, being too much. It has nothing of its own to say. It only repeats you. Knowing that, you laugh out loud, and the boombox goes very, very quiet.",
+              "art": "A teenager in a locked bedroom holding a cassette recorder to their ear and laughing, a boombox on the dresser falling silent, smoke retreating back into its speaker",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-echo"]
+              }
+            },
+            "failure": {
+              "text": "You flip the tape and the whisper is still backward. You flip it again. Still backward, and now louder, and now it is in your own head without any tape at all. You spend the rest of the night with your pillow over your ears, humming the alphabet.",
+              "art": "A teen in bed with a pillow clamped over their ears at night, a cassette recorder spinning on the nightstand with smoke pouring from it",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "drown-it-out",
+            "label": "Radio KGLM and get every station on the street playing forward",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "KGLM picks up on the second ring. \"Say no more,\" says the overnight DJ, and drops the loudest, most joyful dance record in the building. Every radio on Crystal Street snaps forward, one after another, and across the cul-de-sac you see kids dancing in their locked bedrooms. The backward voice cannot get a word in.",
+              "art": "A suburban street at midnight with every window lit and kids dancing alone in their bedrooms to radios, a radio tower blinking on the hill, smoke fleeing the houses",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The phone line crackles and the DJ's voice comes through backward, too. Then your phone starts playing it. You yank the cord out of the wall, and in the silence that follows, every lock on Crystal Street clicks tighter.",
+              "art": "A teenager yanking a coiled phone cord from a wall in a dark bedroom, the handset glowing red and leaking smoke",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-emergency-meeting",
+        "title": "Emergency Meeting of the Concerned Parents",
+        "place": "The Grange Hall on Route 9",
+        "text": "The Concerned Parents have called an emergency meeting to cancel Halloween. Folding chairs fill the Grange Hall, and Prudence is clicking through a slideshow titled Satan in the Sandbox. Every parent's shadow on the wood-paneled wall has horns. In the very back row, too big for its chair, sits Backmask itself, made of smoke and melted records, eating a bag of fear like popcorn and nodding along.",
+        "art": "A wood-paneled grange hall full of parents in folding chairs watching a lurid slideshow, every shadow on the wall wearing horns, a huge smoke and vinyl demon squeezed into a back-row chair eating from a popcorn bag",
+        "choices": [
+          {
+            "id": "hijack-the-projector",
+            "label": "Sneak to the projector and swap in your own slides",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "Click. Satan in the Sandbox becomes your crew at a Caverns and Chimeras game, eating pizza and arguing about dice. Click. Kids at a punk show handing out canned food. Click. A dog in a wizard hat. The parents murmur. The horns on their shadows shrink, one by one, and Backmask drops its popcorn.",
+              "art": "A slide projector showing a photo of teens happily playing a tabletop game with pizza, parents in folding chairs softening, a demon in the back row dropping its popcorn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The carousel jams and spits slides across the floor. A Concerned Parent catches you red-handed, and Prudence uses you as her next example. \"Notice the defiance,\" she says, pointing with her clicker. In the back row, Backmask grows another foot and has to duck under a ceiling beam.",
+              "art": "A slide carousel spilling slides across a grange hall floor, a teen caught by the projector, a woman pastor pointing a clicker at them, a demon ducking under a ceiling beam",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "testify",
+            "label": "Walk to the microphone and tell them what you actually do on Friday nights",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your voice shakes, but you tell them. The game nights. The mixtapes your friends make you when you're sad. The horror movies you watch so you can practice being brave. A dad in the third row says, \"My boy just stays in his room.\" Then, quietly, \"Maybe I should knock.\" Half the shadows on the wall lose their horns.",
+              "art": "A teenager at a grange hall microphone speaking to a room of parents, a father in the third row with tears in his eyes, horned shadows on the wall shrinking back to normal",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your mouth goes dry. The microphone squeals. Every face in the room turns toward you, afraid of you, and you can feel their fear rolling off them and over you like heat from an oven. Backmask stands up, and up, and up.",
+              "art": "A frozen teen at a squealing microphone, a room of parents staring with frightened faces, a giant demon unfolding to its full height in the back of the hall",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "prudence-thorn-finale",
+      "title": "Hallelujah Night",
+      "place": "The Heartstone roundabout, Halloween night",
+      "text": "The great Hallelujah Night bonfire is two stories tall: every record, comic, rulebook and horror tape the Concerned Parents could seize, heaped against the Heartstone. When Prudence lights it, Backmask rises out of the flames thirty feet high, ribbons of videotape for hair, a chest of melted records, a voice like a sermon played in reverse. The parents scream and throw in more. Prudence drops to her knees in the grass, clutching her Bible. \"I warned them,\" she whispers. \"I did everything right. Why is it still here?\"",
+      "art": "A two-story bonfire against a giant purple geode on a suburban roundabout, a thirty-foot demon of smoke and melted vinyl rising from it with videotape hair, panicking parents throwing in records, a woman pastor kneeling in the grass clutching a Bible, teens in Halloween costumes facing the demon",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Crack open the fire hydrant and hose the bonfire down",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 1
+          },
+          "success": {
+            "text": "The hydrant cap fights you, then gives with a bang. A white roaring column of water hits the fire, and Backmask shrieks in reverse as it collapses into hissing steam and a lake of soggy album covers. The parents are soaked, furious and safe. Prudence stares at the steam as if it has betrayed her.",
+            "art": "A teen wrenching open a fire hydrant, a column of water blasting into a bonfire, a smoke demon collapsing into steam over soggy album covers, drenched parents gasping",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The water hits the flames and turns to steam, and the steam has a face. Backmask breathes it all in and grows. The parents scream. You have fed it the best scare of the night.",
+            "art": "A jet of water turning to steam that forms a giant grinning face above a bonfire, a teen holding a hose as the demon grows larger",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Play its own voice back to it, forward, at full volume",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "flag": "prudence-echo",
+            "amount": 2
+          },
+          "success": {
+            "text": "You run a speaker off Joey's van battery and play the demon's whisper forward. It is just the crowd's own fears, mumbled back: my kids are growing up, I don't understand them, what if they leave. Backmask hears itself with nothing behind it and, like any echo, gets fainter and fainter until it is only smoke.",
+            "art": "A speaker wired to a van battery blasting sound at a towering smoke demon that is fading into wisps, parents listening to their own fears and looking at their kids",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The speaker crackles and plays your own fears instead, loud enough for the whole street. Backmask laughs backward and leans down until its smoking face fills your whole sky.",
+            "art": "A crackling speaker in front of a bonfire, a teen frozen in embarrassment, a giant smoke demon leaning down with its face filling the sky",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Kneel beside Prudence and play her son's record, forward and then backward",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "companion": "iggy-reyes",
+            "amount": 1
+          },
+          "success": {
+            "text": "You set a battery record player in the grass in front of her and show her the form she signed in 1972 and the page about the fear-eater. Then you play Come Find Me. She knows his voice from the first note. When the song ends you spin it backward, and a boy says, Mom. I'm okay. Come find me. Prudence makes a sound like something breaking open. She is not afraid now. She is only sad, and missing him, and Backmask has nothing left to eat.",
+            "art": "A woman pastor kneeling in the grass beside a small record player, tears running down her face, a teen kneeling with her holding an old challenge form, a giant smoke demon above them thinning away into the night air",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She hears the first note and covers her ears. \"That's the music that took him!\" The fire leaps, Backmask roars, and you understand that she still is not ready to hear what the record actually says.",
+            "art": "A woman pastor covering her ears in front of a small record player, a bonfire leaping higher, a smoke demon roaring above a teen",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Come Find Me",
+        "text": "Backmask burns down to a single scorched record sleeve that drifts away on the wind. Prudence sits in the grass with the record in her lap until dawn. The following Saturday she drives to Eureka with a box of Christmas postcards she finally opened, and comes home with a hoarse voice and a new guitar pick on her keychain. The Concerned Parents of Glimmer Falls quietly rename themselves Parents Who Ask. Hallelujah Night becomes the Crystal Street Block Party: Father Iggy's band plays the roundabout, Priya runs a Caverns and Chimeras table at the library with a sign-up sheet out the door, and Prudence still does not like heavy metal, but now she asks what the songs are about.",
+        "art": "A joyful Halloween block party on a suburban roundabout with a punk band playing beside a glowing purple geode, teens playing a tabletop game, a woman pastor in a lavender pantsuit listening with real interest to a teen explaining the artwork on a record sleeve"
+      },
+      "good": {
+        "title": "Smoke on the Water",
+        "text": "The bonfire is out and the demon is gone, scattered into smoke over the foothills. The Concerned Parents call it a victory over Satan and Halloween is canceled anyway. You get most of Priya's binders back, smelling like a campfire. Prudence goes back to her show and her turntable. Somewhere in the stack under her desk is a record she has never played backward.",
+        "art": "A burnt-out bonfire on a misty morning roundabout with scattered half-melted records, teens salvaging smoky game binders, a public-access TV studio light glowing in a distant window"
+      },
+      "bittersweet": {
+        "title": "Banned in Glimmer Falls",
+        "text": "Backmask shrinks and slinks off into the storm drains, but the fear it fed on does not leave so easily. The library loses forty books to the challenge pile that winter. Rewind Video moves its horror tapes behind the counter. You and your crew start a secret lending library in the back of Wade's van, and every time a grown-up panics, you swear you can smell smoke.",
+        "art": "Teens running a secret lending library out of the back of a van full of books and tapes at night, a faint wisp of smoke curling from a nearby storm drain"
+      },
+      "bad": {
+        "title": "Approved Listening",
+        "text": "On November first you come home a model teenager. You listen only to music the Concerned Parents approve. You smile at the right moments. You do not argue, or laugh too loud, or draw in the margins anymore. Your crew notices one thing first: when you talk, if they record it and play it backward, they can hear you screaming for help.",
+        "art": "A stiffly smiling teenager in a pressed sweater sitting perfectly straight in a living room, worried friends in the doorway holding up a cassette recorder with a red recording light"
+      }
+    }
+  }
+]

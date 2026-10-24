@@ -1,0 +1,421 @@
+[
+  {
+    "id": "vonda-velour",
+    "name": "Vonda Velour",
+    "epithet": "Queen of Jazzercide",
+    "tags": ["tech", "cult", "camp"],
+    "palette": ["#ff2fa8", "#2de2e6", "#f9f871"],
+    "sigil": "sweatband",
+    "logline": "Pop in the tape and your feet start moving. They don't stop. Vonda Velour wants you to burn it off, all of it, until there's nothing left of you to burn.",
+    "backstory": "Wanda Fenn was the best dancer the Glitter Box ever had: big laugh, big hips, a split on any beat, and a Thursday class she called Dance for Every Body. In 1983 a video producer named Rex Brannigan saw her teach and offered her a starring role. Then he renamed her Vonda Velour, ordered her to lose thirty pounds before the shoot, and weighed her every morning at Pump Iron Gym in front of the crew. When she refused to say the lines he wrote, he hired another woman to dub them in. The tape, BURN IT OFF! with Vonda Velour, sold a million copies, and every one of them said things Wanda never said: every bite is a betrayal, nobody loves a before picture, no pain, no gain. Wanda quit, moved to Sacramento and never danced on camera again. Brannigan went bankrupt in 1985. But the tape kept playing in living rooms and gym classes, and this October the Heartstone woke it up. Now the Vonda on the screen steps out of it, a glossy, glittering, smiling thing in a magenta leotard made of Brannigan's script and every cruel thing anyone ever said about a body. Anyone who watches works out until they drop, and her followers, the Burners, jog the streets before dawn in magenta sweatbands, chanting.",
+    "centralIssue": {
+      "title": "The voice that says your body is a problem",
+      "summary": "Vonda Velour never said most of what's on that tape. A producer starved a joyful dancer, dubbed his own cruelty into her mouth and sold it to a million living rooms. The voice the Burners obey is diet culture in leg warmers. Find Wanda's real words and let the town move for joy instead of punishment."
+    },
+    "poster": "A glittering aerobics queen in a magenta leotard, teal leg warmers and a headset microphone bursting out of a giant television screen, her smile impossibly wide, an army of exhausted joggers in matching sweatbands running in rings around a glowing purple geode on a suburban street below",
+    "portrait": "Close portrait of a glossy 1980s aerobics star with enormous teased blond hair, a magenta sweatband, frosted pink lipstick and a headset microphone, her smile frozen and too bright, faint VHS tracking lines rippling across her face",
+    "taunts": [
+      "And burn, two, three, four! Burn that lunch right off!",
+      "Feel that? That's weakness leaving your body, sweetie!",
+      "Nobody loves a before picture.",
+      "Again! Again! No pain, no gain!",
+      "Rewind and repeat, Burners. Forever."
+    ],
+    "clues": [
+      {
+        "id": "vonda-velour-weigh-in",
+        "title": "The shooting schedule",
+        "location": "gym",
+        "hint": "BURN IT OFF! was filmed in Studio A at Pump Iron Gym in 1983. Sunny Castellanos teaches in the same room now.",
+        "encounter": {
+          "id": "vonda-velour-clue-studio-a",
+          "title": "Studio A, Mirror Wall",
+          "place": "Studio A, Pump Iron Gym and Aerobics",
+          "text": "Studio A still has the gold-flecked mirror wall from the video. Sunny is setting up for her Wheels and Heels class, rolling between stacks of step boxes. Taped to the mirror, curled and yellow, is a 1983 call sheet: BRANNIGAN HOME VIDEO. BURN IT OFF! DAY 3. TALENT TO WEIGH IN AT 6 A.M. When you glance at your reflection, it's doing jumping jacks. You aren't.",
+          "art": "A sunny aerobics studio with a gold-flecked mirror wall, a woman in a racing wheelchair arranging step boxes, a yellowed call sheet taped to the glass, a teenager's reflection doing jumping jacks while the real teenager stands still",
+          "choices": [
+            {
+              "id": "ask-sunny",
+              "label": "Ask Sunny what she remembers about the shoot",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": { "companion": "sunny-castellanos", "amount": 2 },
+              "success": {
+                "text": "Sunny was nineteen and an extra in the back row. \"Wanda. That was her real name. Best dancer I ever saw. Brannigan put a scale in the middle of this floor and weighed her every morning in front of everybody. By day five she couldn't climb the stairs.\" Sunny's jaw sets. \"That tape is his. It was never hers.\"",
+                "art": "A young woman in a wheelchair speaking with fierce emotion in an aerobics studio, pointing at a spot on the floor where a scale once stood, a teenager listening",
+                "effects": { "clues": ["vonda-velour-weigh-in"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Sunny's class starts and the music is too loud to talk over. Your reflection keeps going, faster and faster, and you realize your own knees have started bouncing in time. It takes two full minutes to make them stop.",
+                "art": "A teenager struggling to hold still in a packed aerobics class while their reflection in the mirror wall bounces frantically, knees already starting to bob",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "read-the-back",
+              "label": "Peel the call sheet off the mirror and read the back",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "On the back, in looping purple ink, someone wrote notes to herself: Day 5. He changed my lines again. I said, dance because it feels good. He wants, every bite is a betrayal. I won't say it. He says fine, he'll dub it. Signed with a little heart: W.F.",
+                "art": "The back of a yellowed call sheet covered in looping purple handwriting, a small drawn heart beside the initials, a teenager holding it up to the studio light",
+                "effects": { "clues": ["vonda-velour-weigh-in"], "dread": -1 }
+              },
+              "failure": {
+                "text": "The paper tears in half. The mirror wall ripples like water, and a hundred reflections of a woman in a magenta leotard lean forward through the glass and chant, \"Weigh in. Weigh in. Weigh in.\"",
+                "art": "A rippling mirror wall with dozens of reflections of a glossy aerobics star leaning out and chanting, a teenager clutching a torn paper and backing away",
+                "effects": { "nerve": -1, "dread": 1, "teleport": "tech" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "vonda-velour-raw-tape",
+        "title": "The raw footage",
+        "location": "rewind-video",
+        "hint": "Zelda at Rewind Video says every movie has a version the studio didn't want anyone to see.",
+        "encounter": {
+          "id": "vonda-velour-clue-back-room",
+          "title": "Bankruptcy Auction, Box 14",
+          "place": "The back room, Rewind Video",
+          "text": "The back room of Rewind Video is a canyon of returns, bootlegs and dead VCRs. Zelda leans on a box stenciled BRANNIGAN HOME VIDEO, BANKRUPTCY AUCTION 1985. Inside: forty shrink-wrapped copies of BURN IT OFF! and one unlabeled tape in a padded case. On the shelf above, every copy of BURN IT OFF! in the store is humming a count of eight under its breath.",
+          "art": "A cramped video store back room piled with tapes and broken VCRs, an older glamorous woman leaning on a stenciled cardboard box, a row of aerobics videotapes on a shelf faintly glowing pink",
+          "choices": [
+            {
+              "id": "ask-zelda",
+              "label": "Ask Zelda what she knows about Rex Brannigan",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": { "companion": "zelda-fishbein", "amount": 2 },
+              "success": {
+                "text": "Zelda snorts. \"Rex Brannigan. Produced two of my pictures in '57 and docked my pay for every pound I gained.\" She hands you the unlabeled tape. \"The raw footage. Before he got his scissors on it.\" On the store monitor, a radiant, round, sweaty woman grins straight into the lens: \"Your body isn't a before picture, baby. It's the whole movie.\"",
+                "art": "A small video store monitor showing a joyful, sweaty, curvy dancer in a leotard laughing into the camera, a teenager and an older woman watching side by side in the dim back room",
+                "effects": { "clues": ["vonda-velour-raw-tape"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Zelda gets pulled away by a man arguing about late fees. When you reach for the box, every monitor in the store clicks on at once, and Vonda points straight out of the screen at you: \"You! In the back! Burn it!\"",
+                "art": "A wall of video store monitors all showing the same glossy aerobics star pointing directly out of the screen, a teenager frozen beside a cardboard box",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "dub-a-copy",
+              "label": "Rig two VCRs and dub the raw tape before anyone notices",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": { "companion": "toby-nakamura", "amount": 2 },
+              "success": {
+                "text": "Two VCRs, one patch cable, a lot of jiggling. The raw footage plays as it copies: take after take of Wanda laughing, flubbing, dancing off the count for the pure fun of it. Once she looks straight down the lens and says, \"If anybody ever tells you to burn yourself up, you tell them Wanda said no.\"",
+                "art": "Two stacked VCRs connected by a patch cable in a messy back room, a monitor showing a laughing dancer, a teenager's hands pressing record",
+                "effects": {
+                  "clues": ["vonda-velour-raw-tape"],
+                  "skills": { "hustle": 1 }
+                }
+              },
+              "failure": {
+                "text": "The tape heads chew the raw reel and spit it out crinkled. The copy you made is only the dubbed version, and it keeps playing on the monitor even after you yank the plug.",
+                "art": "A crinkled ribbon of videotape spilling out of a VCR, an unplugged monitor still glowing with an aerobics star mid-kick",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "vonda-velour-index-cards",
+        "title": "The index cards",
+        "location": "high-school",
+        "hint": "Coach Pruitt refuses to play BURN IT OFF! in gym class, and the school district has noticed.",
+        "encounter": {
+          "id": "vonda-velour-clue-pe-office",
+          "title": "Coach Pruitt's Office",
+          "place": "The PE office, Glimmer Falls High",
+          "text": "Coach Tammy Jo Pruitt's office is softballs, dented trophies and a framed photo of her 1958 state-champion team. On her desk lies a district memo stamped MANDATORY: all PE classes will perform BURN IT OFF! daily and record student weights weekly. Under it is a stack of index cards, each in a different kid's handwriting. Coach is on the phone with the superintendent and losing her patience at a volume you can hear from the parking lot.",
+          "art": "A cluttered high school coach's office with softball trophies and a framed vintage team photo, a big fierce woman shouting into a desk phone, a stamped memo and a stack of handwritten index cards on the desk",
+          "choices": [
+            {
+              "id": "ask-coach",
+              "label": "Wait out the phone call and ask her straight",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": { "companion": "tammy-jo-pruitt", "amount": 2 },
+              "success": {
+                "text": "Coach slams down the phone. \"I will not weigh children. Not in my gym.\" She slides you the cards: anonymous notes kids left in the counselor's box after doing the tape at home. Skipping lunch. Dizzy in class. Hearing Vonda's voice every time they eat. \"Same voice, every kid,\" she says. \"That's not some lady on a tape. That's every grown-up who ever told a kid her body was wrong.\"",
+                "art": "A fierce gray-haired coach leaning across her desk to hand a stack of index cards to a teenager, a crumpled district memo in the trash can beside her",
+                "effects": { "clues": ["vonda-velour-index-cards"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Coach is too deep in the fight to talk and points you at the door. In the hallway the PA crackles, a perky voice counts to eight, and the whole lunch line starts doing silent step-touches.",
+                "art": "A school hallway where a line of students with lunch trays all step-touch in eerie unison beneath a crackling PA speaker, a teenager staring",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "read-the-cards",
+              "label": "Read the index cards while she's yelling",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "success": {
+                "text": "I did the tape three times today. Vonda says I'm a before picture. I don't eat lunch anymore because she's watching. At the bottom of the stack is one older card in purple ink, postmarked Sacramento, 1984: To any kid using my tape, I'm so sorry. Those weren't my words. Love your body. Dance because it feels good. Wanda.",
+                "art": "A spread of handwritten index cards on a desk, one older card in purple ink with a Sacramento postmark standing out among them",
+                "effects": {
+                  "clues": ["vonda-velour-index-cards"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Coach catches you mid-card. \"Those are private.\" She's right, and the look she gives you is worse than detention. The cards go into a locked drawer, and the guilt goes home with you.",
+                "art": "A coach with a phone still to her ear placing a firm hand over a stack of index cards, a guilty teenager looking at the floor",
+                "effects": { "nerve": -1 }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "vonda-velour-rewind-repeat",
+        "title": "Rewind and Repeat",
+        "place": "Your living room, 1 a.m.",
+        "text": "The TV turns itself on. The VCR swallows a tape you didn't put in. Synth drums, a gold-flecked studio, and Vonda Velour in a magenta leotard and teal leg warmers with a smile as wide as the screen: \"Good morning, Burners! Let's burn off everything you ate today!\" Your feet start moving. You can't make them stop.",
+        "art": "A dark suburban living room lit by a glowing television showing a glossy aerobics star mid-kick, a teenager in pajamas helplessly doing jumping jacks on the shag carpet",
+        "choices": [
+          {
+            "id": "pull-the-plug",
+            "label": "Drag yourself to the wall and yank the plug",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Your legs keep grapevining toward the TV, so you drop and crawl on your elbows. The plug comes out with a pop and a fat blue spark. Static. You lie on the carpet laughing and panting and refusing to move a single muscle for an hour.",
+              "art": "A teenager sprawled on shag carpet triumphantly holding a yanked power plug, the television screen collapsing to a dot of static",
+              "effects": { "nerve": 1 }
+            },
+            "failure": {
+              "text": "The TV keeps playing without the plug. Vonda leans halfway out of the screen. \"Quitters don't get results!\" You dance until four in the morning and wake up with legs like wet noodles.",
+              "art": "An aerobics star leaning out of an unplugged television toward an exhausted teenager still dancing, the cord dangling uselessly",
+              "effects": { "nerve": -2, "dread": 1 }
+            }
+          },
+          {
+            "id": "dance-it-wrong",
+            "label": "Dance it wrong on purpose: off-beat, silly, joyful",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": { "item": "leg-warmers", "amount": 2 },
+            "success": {
+              "text": "You do the Sprinkler. The Robot. A disco point so bad it's art. Vonda's count stumbles. \"And burn, and, and...\" She can't sync to someone having fun. The tape stretches like taffy, and the VCR spits it out onto the carpet.",
+              "art": "A teenager doing a goofy disco pose in lucky leg warmers in front of a television showing a glitching, confused aerobics star, a videotape ejecting from the VCR",
+              "effects": { "nerve": 1, "dread": -1, "flags": ["vonda-joy"] }
+            },
+            "failure": {
+              "text": "You try, but your body snaps back into her count like a rubber band. \"Cute,\" says Vonda. \"Now do it right.\" You do a hundred jumping jacks. Somewhere upstairs, so do your parents.",
+              "art": "A teenager doing rigid jumping jacks in front of a smirking aerobics star on TV, shadows of parents doing the same on the upstairs landing",
+              "effects": { "nerve": -1, "dread": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "id": "vonda-velour-burners",
+        "title": "The Burners",
+        "place": "Crystal Street, 4 a.m.",
+        "text": "Before dawn a column of joggers comes up Crystal Street in matching magenta sweatbands: your neighbors, your science teacher, the mailman, all in perfect step with glassy eyes, chanting, \"No pain, no gain, no pain, no gain.\" At the front, Mrs. Haskins from number 8 carries a boombox like a holy relic. Some of them are limping. None of them stop. One of them is a kid from your homeroom.",
+        "art": "A predawn suburban street with a column of glassy-eyed joggers in matching magenta sweatbands running in perfect step, a woman at the front holding a boombox aloft, a young teen among them limping",
+        "choices": [
+          {
+            "id": "salt-line",
+            "label": "Pour a line of rock salt across the street",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": { "item": "rock-salt", "amount": 2 },
+            "success": {
+              "text": "The column hits the line and stumbles. Sweatbands slip. A dozen people blink like they've just woken up in the street in their running shorts. The kid from your homeroom sits down hard on the curb and asks for a glass of water.",
+              "art": "Joggers stumbling over a glittering white line of rock salt across asphalt, sweatbands slipping off, a young teen sitting dazed on the curb",
+              "effects": { "nerve": 1, "dread": -1 }
+            },
+            "failure": {
+              "text": "They jog right over it, crunching, chanting louder, and somehow you are in the column too, running and chanting, until the sun comes up and you fold onto somebody's lawn like a lawn chair.",
+              "art": "A teenager jogging glassy-eyed inside a column of sweatbanded runners at sunrise, a scattered line of rock salt crushed underfoot behind them",
+              "effects": { "nerve": -2, "dread": 1, "teleport": "cult" }
+            }
+          },
+          {
+            "id": "pull-the-kid-out",
+            "label": "Grab the kid from homeroom out of the column",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": { "companion": "dani-ortega", "amount": 1 },
+            "success": {
+              "text": "You hook their arm and haul them onto a lawn. They fight you, then sag, crying. \"She said if I stopped, I'd get fat,\" they whisper. You sit on the curb with them until their breathing slows, and you tell them there is nothing wrong with their body. You mean it. They believe you a little.",
+              "art": "A teenager sitting on a curb at dawn with an arm around a crying younger teen in a magenta sweatband, joggers streaming past in the background",
+              "effects": { "nerve": 1, "flags": ["vonda-rescued"] }
+            },
+            "failure": {
+              "text": "The column closes around them like a school of fish. Mrs. Haskins turns the boombox up. By the time you get your breath back, they're three blocks gone.",
+              "art": "A column of joggers swallowing a young teen like a school of fish, a woman cranking a boombox, a teenager left bent over and panting",
+              "effects": { "nerve": -1, "dread": 1 }
+            }
+          },
+          {
+            "id": "water-table",
+            "label": "Set up a table of water cups and orange slices",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Runners pound past. Then one stops, for an orange slice. Then another. A body that's being cared for is hard to command. Mrs. Haskins herself slows down, takes a paper cup, and starts to cry, and you hand her another slice and don't say anything at all.",
+              "art": "A folding card table with paper cups and orange slices on a dawn sidewalk, joggers pausing to drink, a woman with a boombox at her feet crying gratefully",
+              "effects": { "nerve": 1, "dread": -1 }
+            },
+            "failure": {
+              "text": "Nobody stops. Cups go flying. Mrs. Haskins jogs past without breaking stride and calls out, \"Water weight, sweetie!\" The table folds up on your foot.",
+              "art": "Paper cups flying off a toppled card table as joggers stampede past, orange slices scattered across a lawn, a teenager hopping on one foot",
+              "effects": { "nerve": -1 }
+            }
+          }
+        ]
+      },
+      {
+        "id": "vonda-velour-no-cool-down",
+        "title": "No Cool-Down",
+        "place": "Pump Iron Gym, midnight",
+        "text": "Studio A is packed wall to wall with Burners. The mirror wall has become one giant screen, and Vonda, ten feet tall, leads them through the final tape, BURN IT ALL OFF!, every rep faster than the last. People drop to the floor and get back up. A digital scale in the corner flashes numbers that never stop changing. The room is so hot the mirrors are fogging. \"Nobody leaves,\" Vonda sings, \"until there's nothing left of you.\"",
+        "art": "A sweltering packed aerobics studio at midnight, a ten-foot aerobics star glowing on a mirror wall screen, exhausted people collapsing and rising, a digital scale flashing in the corner, fogged glass everywhere",
+        "choices": [
+          {
+            "id": "smash-the-scale",
+            "label": "Smash the scale in the corner",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": { "item": "baseball-bat", "amount": 2 },
+            "success": {
+              "text": "CRACK. The numbers die mid-flash. The beat stutters. Half the room stops and looks down at themselves like they've just remembered they have bodies, and that those bodies are tired, and that's allowed.",
+              "art": "A teenager swinging a bat into a sparking digital scale in an aerobics studio, the numbers shattering, people stopping mid-exercise and looking at themselves",
+              "effects": { "nerve": 1, "dread": -1 }
+            },
+            "failure": {
+              "text": "The scale flashes one word across every mirror in the room: BEFORE. Every Burner turns to look at you. \"Oh, honey,\" says Vonda, so sweetly that it stings for a week.",
+              "art": "A mirror wall flashing a single cruel word in neon pink, a room full of sweatbanded people turning to stare at a frozen teenager holding a bat",
+              "effects": { "nerve": -2, "dread": 1 }
+            }
+          },
+          {
+            "id": "swap-the-tape",
+            "label": "Sneak into the sound booth and swap in a cool-down tape",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": { "companion": "frankie-fontaine", "amount": 2 },
+            "success": {
+              "text": "In the booth you swap cassettes: slow jams, Sade, Cyndi singing \"Time After Time.\" Bodies slow. People stretch. People breathe. People sit down on the floor and hold hands with strangers. On the mirror, Vonda glitches into slow motion, confused, her smile sagging at the corners.",
+              "art": "An aerobics studio softening into a gentle cool-down, people stretching and sitting together on the floor, a glitching aerobics star moving in slow motion on the mirror screen, a teen in the sound booth window",
+              "effects": { "nerve": 1, "skills": { "hustle": 1 } }
+            },
+            "failure": {
+              "text": "The tape won't eject. The booth door locks behind you. You watch through the glass, pounding, as the class goes faster, and faster, and faster.",
+              "art": "A teenager pounding on the glass of a locked sound booth while a frenzied aerobics class speeds up into a blur beyond it",
+              "effects": { "nerve": -1, "dread": 1 }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "vonda-velour-finale",
+      "title": "The Final Burn",
+      "place": "The Heartstone roundabout, Halloween night",
+      "text": "On Halloween every TV on Crystal Street turns to face out its window, and every one plays Vonda. The whole town is in the street in sweatbands, working out around the Heartstone in rings, and the geode pulses magenta with every rep. Vonda steps out of the biggest screen in a shower of glitter sweat, headset mic on, smile locked. \"Last set, Burners! Burn it all off! Burn until there's nothing wrong with you, because there's nothing left!\"",
+      "art": "A suburban roundabout on Halloween night ringed by townspeople in costumes and sweatbands doing frantic aerobics around a pulsing magenta geode, televisions glowing in every window, a giant glittering aerobics star stepping out of a screen, a teen crew facing her",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Tackle the master VCR and rip out the tape",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "success": {
+            "text": "You plow through three rings of Burners, hit the master deck shoulder-first and tear the tape out in a shining ribbon. Every TV on the street snaps to snow. Vonda freezes mid-kick and dissolves into tracking lines. The town collapses onto the lawns, aching and confused and free.",
+            "art": "A teenager ripping a ribbon of videotape from a VCR as every television on a suburban street fills with static, a glittering aerobics star breaking into tracking lines, exhausted townspeople collapsing on lawns",
+            "effects": { "nerve": 1 }
+          },
+          "failure": {
+            "text": "Vonda catches you by the collar with one glittering hand. \"Look at all that energy! Let's put it to work!\" You're in the front row now, doing burpees, and you can't stop.",
+            "art": "An aerobics star holding a teenager by the collar and setting them in the front row of a frantic outdoor workout",
+            "effects": { "nerve": -3 }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Get the whole street doing the Chicken Dance instead",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 9,
+          "bonus": { "item": "glow-bracelet", "amount": 1 },
+          "success": {
+            "text": "You flap your elbows. The crew flaps theirs. Then the Haskinses, the mailman and your science teacher. Nobody can hate their body while doing the Chicken Dance; it's scientifically impossible. The rhythm breaks, Vonda's count dissolves into clucking, and she flickers out like a TV at sign-off.",
+            "art": "An entire suburban street in Halloween costumes doing the Chicken Dance and laughing around a glowing geode, an aerobics star flickering out like a television signing off",
+            "effects": { "nerve": 1 }
+          },
+          "failure": {
+            "text": "They chicken dance, all right: in perfect unison, at triple speed, to her count. \"Ooh, a new routine,\" Vonda purrs. \"Again!\"",
+            "art": "A crowd doing a frantic synchronized chicken dance at impossible speed around a glowing geode, a delighted aerobics star clapping the beat",
+            "effects": { "nerve": -3 }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Play the raw tape and let Wanda speak for herself",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": { "clues": 3 },
+          "success": {
+            "text": "You slam the raw tape into the master deck. Every screen on Crystal Street flickers, and there she is, the real Wanda, round and radiant and laughing: \"Your body isn't a before picture, baby. It's the whole movie. Dance because it feels good.\" The Burners stop. Vonda stops. She looks down at her own glittering hands like she's hearing her own voice for the first time in three years. \"That's me,\" she whispers. \"That was always me.\" She peels off her sweatband and dances, off the count, for joy, and the whole street dances with her, slow and silly and sitting down when they want to.",
+            "art": "Every television on a Halloween street showing a joyful, curvy dancer laughing, a glittering aerobics star pulling off her sweatband with wonder, townspeople of every shape dancing freely and sitting together on lawns around a softly glowing geode",
+            "effects": { "nerve": 2 }
+          },
+          "failure": {
+            "text": "The deck jams and the raw tape won't seat. You have Wanda's real voice right there in your hands, but the town can't hear it over the count, not yet.",
+            "art": "A teenager struggling to jam a videotape into a stubborn VCR while the workout around them roars on, an aerobics star laughing overhead",
+            "effects": { "nerve": -2 }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "The Whole Movie",
+        "text": "On November first the Burners hang their sweatbands on the Heartstone like retired jerseys. Coach Pruitt gets the district memo torn up at a school board meeting she will describe for years. Toby cuts the raw footage into DANCE FOR EVERY BODY WITH WANDA, and Rewind Video replaces every copy of the old tape for free. In December, Wanda Fenn drives down from Sacramento to teach a free Saturday class at the Glitter Box, with Sunny co-leading from her chair. Mrs. Haskins comes and dances in the back row. Nobody counts anything except, badly, to eight.",
+        "art": "A joyful dance class on the Glitter Box stage, a curvy woman in her forties leading with arms flung wide, a woman in a wheelchair co-leading beside her, people of every age, size and body dancing and laughing, sweatbands hanging on a purple geode outside the window"
+      },
+      "good": {
+        "title": "Tracking Error",
+        "text": "The tapes demagnetize all over town and the joggers stop running. Nobody ever really says why. Life goes back to normal, mostly. But you still hear that perky count in the back of your head sometimes, when you reach for dessert, and every time, you tell it to shut up, and you take the bigger piece.",
+        "art": "A teenager at a kitchen table cheerfully taking a big slice of cake, a faint ghostly aerobics star scowling from a dark TV screen in the background"
+      },
+      "bittersweet": {
+        "title": "Rewind",
+        "text": "You survive the week. Mrs. Haskins spends three days in the hospital with exhaustion and recovers. The kid from your homeroom transfers schools at Christmas. And in the spring a brand-new workout tape hits the shelves at Rewind Video, with a new name and a new smiling face on the box, and the very same voice.",
+        "art": "A video store new-release shelf with a fresh aerobics tape featuring a new smiling star, a teenager staring at it uneasily, faint pink glow along the box edges"
+      },
+      "bad": {
+        "title": "Feel the Burn",
+        "text": "You're in the tape now. Back row, gold-flecked studio, magenta sweatband, doing jumping jacks forever. When your crew rents BURN IT OFF! from Rewind Video to look for clues, they see you behind Vonda's shoulder, smiling, waving, counting, and you cannot hear them screaming your name.",
+        "art": "A television screen showing an aerobics video with a teenager in the back row in a magenta sweatband, smiling blankly, while friends on a couch in front of the screen reach toward it in horror"
+      }
+    }
+  }
+]

@@ -1,0 +1,581 @@
+[
+  {
+    "id": "heartstone",
+    "name": "The Heartstone Hunger",
+    "epithet": "The Grief Beneath Crystal Street",
+    "tags": ["cosmic", "dream", "creature"],
+    "palette": ["#8a2be2", "#1b1630", "#e8a33d"],
+    "sigil": "lamp",
+    "logline": "The purple rock on the Crystal Street roundabout has been drinking the town's tears for thirty-four years. This Halloween week, it wants the rest.",
+    "backstory": "On the night of March 3, 1952, the east wall of the Crystal Springs quarry gave way and buried fourteen quarrymen in the lower gallery. Their families kept vigil at the rim for three nights, singing hymns so the men below would know someone was waiting. On the fourth morning, quarry owner Harlan Gage declared the gallery unreachable, let the pit flood, and told the town over KGLM that Glimmer Falls \"does not look back.\" The council cancelled the funeral at St. Jude's. The memorial stone the widows paid for was never carved. The brass tally tags the men left on the lamp-house board were hauled off with the scrap. In 1958 Gage drained the lake to build Crystal Street, and his bulldozers turned up a car-sized geode at the exact spot where the men had been working. He set it on the roundabout lawn and put a plaque on it: NATURE'S JEWEL. For thirty-four years every feeling the town swallowed has gone into that stone, and it has grown violet and heavy and full. This Halloween week it is finally hungry enough to wake. It hums, it cracks the asphalt, and it has started drinking feelings straight out of sleeping people, leaving them glassy, quiet, and slowly turning to crystal.",
+    "centralIssue": {
+      "title": "A town that never mourned",
+      "summary": "Fourteen quarrymen died in 1952 and Glimmer Falls was told to look forward: no funeral, no names, no place to grieve. The Heartstone is that swallowed sorrow, grown hungry. It cannot be smashed away. The town has to finally say the names out loud and mourn together."
+    },
+    "poster": "A colossal purple geode split open on a suburban roundabout at night, violet crystal veins cracking the asphalt of a cul-de-sac, fourteen amber miner's lamps floating in a line above it, neighbors in pajamas frozen in crystal on their lawns, a teenage crew with flashlights at the curb",
+    "portrait": "Close view into the heart of an enormous amethyst geode, its facets forming the suggestion of a vast sorrowful face, faint shapes of fourteen hard-hatted figures caught inside the crystal, amber lamplight glowing from deep within",
+    "taunts": [
+      "Don't cry. Nobody here cries. Give it to me instead.",
+      "I am everything your town swallowed. I am still hungry.",
+      "Fourteen lamps. Can you count them in the dark?",
+      "We look forward. We look forward. We look forward."
+    ],
+    "clues": [
+      {
+        "id": "heartstone-blank-slab",
+        "title": "The blank stone",
+        "location": "pinecrest",
+        "hint": "Pinecrest Cemetery has a granite slab in the far corner that nobody ever carved.",
+        "encounter": {
+          "id": "heartstone-clue-blank-slab",
+          "title": "Plot Reserved",
+          "place": "The far corner, Pinecrest Cemetery",
+          "text": "Past the founders' obelisks, where the mowers stop, fourteen rosebushes have grown wild around a granite slab as tall as a door. It is perfectly blank. Fresh carnations lie at its foot, held down with a pale quarry stone, and the register post lists this plot under one word: RESERVED. The roses are blooming purple in late October.",
+          "art": "A blank granite slab the size of a door in an overgrown cemetery corner, fourteen wild rosebushes blooming purple around it, fresh carnations held down by a pale stone, a teenager reading a weathered register post",
+          "choices": [
+            {
+              "id": "parish-ledger",
+              "label": "Ask Father Iggy for the parish burial ledger from 1952",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "iggy-reyes",
+                "amount": 2
+              },
+              "success": {
+                "text": "Father Iggy hauls a water-stained ledger out of the sacristy safe. March 1952: fourteen names, one requiem Mass, and across the whole page in red ink, CANCELLED BY ORDER OF THE TOWN COUNCIL. \"They never even let the priest say the words,\" he murmurs, and photocopies the page for you.",
+                "art": "A punk-rock priest in a clerical collar and band shirt opening a water-stained ledger in a candlelit sacristy, a page of fourteen names crossed out in red ink",
+                "effects": {
+                  "clues": ["heartstone-blank-slab"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The sacristy is locked and Father Iggy is at band practice. While you wait on the church steps, the purple roses lean toward you all at once, and you suddenly remember every funeral you have ever been to, every single one, all at the same time.",
+                "art": "Purple roses in a twilight cemetery all bending toward a teenager sitting alone on stone church steps, hands pressed to their temples",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "who-leaves-flowers",
+              "label": "Hide behind the hedge and see who leaves the carnations",
+              "intent": "sneaky",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "At dusk an old man in a faded quarry company jacket shuffles up with three carnations. Gus Ferraro, eighty-one. \"My brother Sal is under Crystal Street,\" he says, not even surprised to see you. \"The widows bought this stone with egg money. The council wouldn't let us carve one name. Said it would scare off the new families.\"",
+                "art": "An elderly man in a faded work jacket kneeling to lay carnations at a blank granite slab at dusk, a teenager stepping out from behind a hedge",
+                "effects": {
+                  "clues": ["heartstone-blank-slab"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "You wait so long you fall asleep against a headstone. You dream of a long tunnel and fourteen lamps going out one by one, and you wake at midnight with frost on your jacket and a purple rose petal stuck to your cheek.",
+                "art": "A teenager asleep against a mossy headstone at midnight, frost on their jacket, a dream of a dark tunnel with lamps going out drifting above them",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "rub-the-stone",
+              "label": "Make a pencil rubbing of the blank stone anyway",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 11,
+              "success": {
+                "text": "The paper comes up plain gray, and then the pencil finds grooves the eye cannot see. Fourteen names surface in the rubbing, as if the stone has been carving them in secret for thirty-four years: BRANDT, IBARRA, HAYNES, FERRARO, CHU. The last letter is still warm.",
+                "art": "A sheet of paper pressed to a blank granite slab, ghostly names surfacing in pencil rubbing, a teenager's hand holding a pencil stub, faint violet glow",
+                "effects": {
+                  "clues": ["heartstone-blank-slab"],
+                  "skills": {
+                    "lore": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "The pencil snaps. The stone is as cold as a freezer door, and when you pull your hand back, your palm print stays on the granite, glowing violet, fading slowly like breath on a window.",
+                "art": "A glowing violet handprint fading on a cold granite slab, a snapped pencil on the grass below, a startled teenager backing away",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "heartstone-tally-board",
+        "title": "The tally board",
+        "location": "junkyard",
+        "hint": "Rusty's Junkyard hauled away the old Crystal Springs quarry lamp house in 1958, and nobody ever emptied it.",
+        "encounter": {
+          "id": "heartstone-clue-lamp-house",
+          "title": "The Lamp House",
+          "place": "The back lot, Rusty's Junkyard",
+          "text": "Behind the crusher, half swallowed by blackberry vines, sits a corrugated shed stenciled CRYSTAL SPRINGS QUARRY, LAMP HOUSE. Through the cracked window you can see a pegboard of brass tags. Most hooks are empty. Fourteen are not. Every quarryman took his tag when he went down and hung it back when he came up. The door is chained shut, and something inside is humming the same low note as the Heartstone.",
+          "art": "A rusted corrugated shed stenciled lamp house half buried in blackberry vines behind a junkyard crusher, a cracked window showing a pegboard with fourteen brass tags",
+          "choices": [
+            {
+              "id": "cut-the-chain",
+              "label": "Have Joey cut the chain so you can go in properly",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 2
+              },
+              "success": {
+                "text": "Joey snaps the chain with bolt cutters and doesn't say a word when he sees the board. Fourteen brass tags, each stamped with a number and a name: BRANDT, IBARRA, HAYNES, FERRARO, CHU, SILVA, and eight more. A dented lunch pail sits beneath them, still latched. You copy every name, slowly, out loud.",
+                "art": "Two teenagers in a dusty lamp house, one holding bolt cutters, both looking at a pegboard of fourteen brass name tags, a dented lunch pail on the floor below",
+                "effects": {
+                  "clues": ["heartstone-tally-board"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The chain holds and the shed door bows outward, once, like something breathing. Every junked car radio in the lot clicks on to the same hum. You back away with your fillings aching and the names still unread.",
+                "art": "A chained shed door bulging outward in a junkyard, rows of wrecked cars with their dashboard radios all glowing at once",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "through-the-window",
+              "label": "Squeeze through the broken window with a flashlight",
+              "intent": "reckless",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 1
+              },
+              "success": {
+                "text": "You wriggle through, snag your jacket and land among old carbide lamps. Your flashlight finds the tags: fourteen men who went down on March 3, 1952 and never hung them back up. You make a crayon rubbing of each one, and the hum softens, as if somebody is finally paying attention.",
+                "art": "A teenager inside a dusty shed shining a flashlight on brass tags, making crayon rubbings on notebook paper, old carbide lamps lining the shelves",
+                "effects": {
+                  "clues": ["heartstone-tally-board"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Halfway in, you stick. The lamps on the shelf flare amber one by one, fourteen of them, and in their light the shed is full of dusty men in hard hats standing very politely in line. Rusty himself has to yank you out by the sneakers.",
+                "art": "A teenager stuck in a shed window, inside the amber glow of fourteen lamps revealing faint dusty figures in hard hats standing in a patient line",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "flags": ["heartstone-saw-the-line"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "heartstone-vigil-acetate",
+        "title": "The vigil broadcast",
+        "location": "kglm-radio",
+        "hint": "KGLM's record vault has an acetate disc from March 1952 that the station was told never to play again.",
+        "encounter": {
+          "id": "heartstone-clue-acetate",
+          "title": "Do Not Air",
+          "place": "The record vault, KGLM 103.3",
+          "text": "The KGLM vault smells like dust and warm vinyl. On the bottom shelf, in a sleeve signed by the 1952 station manager, is a heavy acetate disc marked QUARRY VIGIL, NIGHTS 1 TO 3, and beneath that in blunt pencil: DO NOT AIR AGAIN, BY REQUEST OF MR. GAGE. Mix's overnight shift starts in an hour, and the studio turntable is empty.",
+          "art": "A dusty radio station record vault, a teenager pulling a heavy acetate disc from a paper sleeve with a red restricted stamp, an empty studio turntable glowing through a doorway",
+          "choices": [
+            {
+              "id": "play-it-on-air",
+              "label": "Talk Mix into playing it live on the overnight show",
+              "intent": "camp",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "Mix cues it up at 2 a.m. Hiss, then hundreds of voices at the quarry rim singing \"Shall We Gather at the River\" in English and Spanish and Portuguese, and then a hard, cheerful man: \"Glimmer Falls does not look back. We look forward.\" The call-in board lights up with crying grandparents until dawn.",
+                "art": "A young DJ in a velvet jacket in a dim radio booth with an acetate spinning, every light on the call-in phone board blinking, an on-air sign glowing",
+                "effects": {
+                  "clues": ["heartstone-vigil-acetate"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Mix gets it on the turntable, but the needle skips into a groove that should not exist. Every speaker in the booth hums the Heartstone's note, the ON AIR light turns violet, and Mix pulls the plug with shaking hands. \"Not tonight,\" he says. \"Not like that.\"",
+                "art": "A radio booth bathed in violet light, the on-air sign glowing purple, a DJ yanking a power cord as a needle skids across a spinning acetate",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "listen-alone",
+              "label": "Sneak it into the production booth and listen on headphones",
+              "intent": "sneaky",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
+              "success": {
+                "text": "Alone in the booth, headphones on, you hear three nights of families singing to keep the lamps lit underground, and you hear their voices get hoarse. Then Harlan Gage tells them to stop. You dub every second onto a cassette before the old acetate cracks right down the middle.",
+                "art": "A teenager in oversized headphones in a cramped production booth, a cassette recorder running beside a turntable, an old acetate disc splitting in two",
+                "effects": {
+                  "clues": ["heartstone-vigil-acetate"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The headphones are too loud, then too quiet, then full of a single man's voice, very close and very tired: \"Is anybody up there? We can hear you singing.\" You rip them off. The tape counter keeps running on its own.",
+                "art": "Headphones flung onto a mixing desk in a dark booth, a tape counter spinning by itself, a frightened teenager pressed against the wall",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "heartstone-the-hum",
+        "title": "The Hum",
+        "place": "The roundabout, Crystal Street, midnight",
+        "text": "At midnight the Heartstone starts to hum, low enough to feel in your teeth. Porch lights blink on up and down the cul-de-sac, and in every lit window a neighbor is crying for no reason they can name: Mr. Dobbs at his kitchen sink, the twins at number 6, your own reflection in a station wagon window. The geode pulses violet, drinking it all in, and grows by the width of a fingernail.",
+        "art": "A huge purple geode glowing on a suburban roundabout at midnight, every lit window on the cul-de-sac framing a crying neighbor, a teenager in the street with a hand on their own wet cheek",
+        "choices": [
+          {
+            "id": "hum-back",
+            "label": "Hum back at it, loud, the first song that comes to mind",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "You belt the theme song from a Saturday-morning cartoon at a purple rock. It falters. The hum tangles, slides into your key, and for one strange second the Heartstone hums along with you. In the windows, the crying turns into baffled laughter. The geode is not just hungry. It is lonely.",
+              "art": "A teenager singing at the top of their lungs at a glowing purple geode on a dark roundabout, neighbors in windows laughing through tears",
+              "effects": {
+                "nerve": 1,
+                "flags": ["heartstone-hummed-along"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks and the stone takes the crack. You feel it pull, like a tide, and a whole afternoon from when you were nine slides out of you into the violet: the weather, the smell, who was there. When you reach for the memory, there is only crystal.",
+              "art": "A thin ribbon of glowing memory images being drawn out of a teenager's chest into a pulsing purple geode, the teen reaching after it",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pull-neighbors",
+            "label": "Knock on doors and get the criers away from the windows",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "You go house to house with a thermos of cocoa and a flashlight. Mr. Dobbs blows his nose and says he's been thinking about his brother all night, \"and I don't even have a brother.\" Away from the windows, the crying stops. Behind you, the geode's hum drops half a note, sulking.",
+              "art": "A teenager on a suburban porch at night pouring cocoa for a tearful middle-aged man in a bathrobe, a purple glow from the roundabout behind them",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Nobody answers. Through the curtains you see neighbors standing perfectly still with wet faces and glassy eyes, and on one windowsill a tiny violet crystal is growing out of a coffee mug, ticking softly as it spreads.",
+              "art": "A suburban window at night showing a neighbor standing frozen with glassy eyes, a small violet crystal growing out of a coffee mug on the sill",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-under-the-lawn",
+        "title": "Under the Lawn",
+        "place": "Front yard of 4 Crystal Street, after midnight",
+        "text": "With a sound like a dropped tray of dishes, the Dobbses' front lawn caves in. The hole goes down and down into black water, and far below, fourteen small amber lights are moving in a slow line, the way men walk at the end of a long shift. Something down there is calling your name in a voice like rock grinding on rock.",
+        "art": "A sinkhole torn open in a suburban front lawn at night, black water far below with fourteen small amber lamps moving in a line, a teenager on hands and knees at the edge peering down",
+        "choices": [
+          {
+            "id": "lower-a-light",
+            "label": "Lower a light on a clothesline to show them the way up",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 2
+            },
+            "success": {
+              "text": "You tie glow bracelets to a clothesline and pay it down into the dark. The amber lamps stop. Then, one by one, they rise along your line, flicker at the surface like fireflies and go out gently, and the hole fills itself in with soft, warm earth that smells like spring.",
+              "art": "A clothesline strung with neon glow bracelets lowered into a dark sinkhole, amber lights rising along it like fireflies, a teenager holding the line with both hands",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The line goes taut and pulls. You brace your sneakers on the curb as the clothesline burns through your palms, and you let go just before the edge. The glow bracelets sink, still shining, and the voice below says, very sadly, \"You let go too.\"",
+              "art": "Glow bracelets sinking into black water at the bottom of a sinkhole, a teenager on the curb clutching rope-burned hands",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "loseItems": ["glow-bracelet"]
+              }
+            }
+          },
+          {
+            "id": "rope-it-off",
+            "label": "Rope off the hole and wake the whole street before anyone falls in",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 1
+            },
+            "success": {
+              "text": "You drag sawhorses out of three garages and bang on doors until the whole street is outside in bathrobes. Coach Pruitt stands at the edge with a softball bat and dares the hole to try something. Under that many flashlights, the ground grumbles and closes like a mouth deciding not to.",
+              "art": "Neighbors in bathrobes with flashlights around a roped-off sinkhole on a suburban lawn, a burly softball coach with a bat standing at the edge",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The edge crumbles under you and you drop to your waist into icy black water that tastes like old pennies. Hands that are not quite hands brush your ankles, gentle and curious. The neighbors haul you out, but your sneakers stay down there.",
+              "art": "A teenager waist-deep in black water at the edge of a sinkhole, neighbors grabbing their arms, faint pale hands glimmering beneath the surface",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-crystal-garden",
+        "title": "The Crystal Garden",
+        "place": "Crystal Street, before dawn",
+        "text": "Crystal Street has become a sculpture garden. Neighbors stand on their lawns cased in violet crystal, each frozen in one feeling: Mrs. Dobbs mid-sob, the mailman mid-laugh, the twins from number 6 holding hands and terrified. The crystal is creeping down the sidewalks toward your crew, and from the roundabout the Heartstone speaks at last, in fourteen voices at once: \"Feel it for us. Somebody has to.\"",
+        "art": "A suburban cul-de-sac before dawn with neighbors encased in glowing violet crystal on their lawns, each frozen mid-emotion, crystal spreading across the sidewalks toward a small group of teens",
+        "choices": [
+          {
+            "id": "feel-it",
+            "label": "Stop running and actually feel it: let yourself cry",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "flag": "heartstone-saw-the-line",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sit down in the street and cry, big ugly sobs about everything you've lost and some things you haven't lost yet. Your crew sits down with you. Where the tears land, the crystal goes soft as sugar. Up and down the street, neighbors crack free, blinking, wet-faced and alive.",
+              "art": "A group of teens sitting together in a suburban street crying openly, violet crystal melting like sugar around them, neighbors breaking free of crystal shells on their lawns",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["heartstone-wept"]
+              }
+            },
+            "failure": {
+              "text": "You try, but all your life someone has told you to toughen up, and the tears will not come. The crystal reaches your sneakers and climbs, cold and heavy and almost comforting. Your crew chips you loose with a garden trowel at sunrise, and your left hand stays numb all day.",
+              "art": "Violet crystal climbing a teenager's legs in a suburban street at sunrise, friends kneeling to chip it away with garden trowels",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "chip-them-free",
+            "label": "Grab a hammer and chip the neighbors out one by one",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 1
+            },
+            "success": {
+              "text": "Tap, tap, crack. You break the crystal off Mrs. Dobbs like an eggshell and she gasps awake, still crying, but crying like a person. You free six neighbors before dawn. The Heartstone grinds its facets and swallows the shards back into the soil.",
+              "art": "A teenager tapping a hammer against a violet crystal shell around a woman in a bathrobe, the shell cracking open like an eggshell, other crystal figures waiting on lawns",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The crystal rings like a church bell under the hammer, and every frozen neighbor turns their eyes toward you. The ringing spreads to the windows, the streetlights, your fillings. You wake face-down on a lawn at dawn with a headache shaped exactly like a geode.",
+              "art": "Shockwaves of violet light rippling out from a struck crystal figure on a suburban lawn, frozen neighbors' eyes turning toward a teenager holding a hammer",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "bottle-it-up",
+            "label": "Tell your crew to bottle it up, go blank and run for it",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Everyone goes blank-faced and silent, thinking very hard about math homework, and the crystal loses your scent. You make it to Pearl's porch. It works, which is the scary part. You realize this is exactly what the whole town did in 1952.",
+              "art": "A group of teens with deliberately blank faces tiptoeing past crystal-encased neighbors toward a porch with a warm yellow light",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Somebody laughs nervously, one bright, honest sound, and the crystal swerves straight for it. You drag your crew over a fence, but your walkie-talkies stay behind on the sidewalk, encased in violet and still crackling with a voice you do not recognize.",
+              "art": "A pair of walkie-talkies encased in violet crystal on a sidewalk, glowing static lines coming from them, teens scrambling over a backyard fence",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "loseItems": ["walkie-talkies"]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "heartstone-finale",
+      "title": "The Hollow Heart",
+      "place": "Inside the Heartstone, Halloween night",
+      "text": "On Halloween night the Heartstone splits open like a seed, and you walk inside. It is the quarry: violet walls rising to a starless sky, the drowned lower gallery, fourteen lamps hanging in a line in the dark. At the center beats the Hunger itself, a heart of amethyst as big as a house, swollen with thirty-four years of swallowed feelings. Your neighbors' sobs echo off its facets. It does not roar. It aches, and the ache pulls at your chest like gravity.",
+      "art": "A vast cavern of violet crystal inside a split geode, fourteen amber lamps hanging in a line, an enormous pulsing amethyst heart at the center, a teen crew in Halloween costumes standing small before it",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Drive an old quarry pick into the crystal heart",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "companion": "wade-whitfield",
+            "amount": 1
+          },
+          "success": {
+            "text": "You bring the old quarry pick down with everything you have. The heart cracks, then shatters into a billion glittering pieces that rain upward into the sky like reverse snow. The street wakes up dry-eyed and fine. It is quiet in Glimmer Falls, very quiet, the kind of quiet that waits.",
+            "art": "A teenager swinging a rusted quarry pick into a giant amethyst heart that bursts into glittering shards rising upward like snow falling in reverse",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The pick bounces off and rings through your bones. The heart pulses, and every bad feeling you have ever swallowed comes back up at once, far too many to carry. You fall to your knees on violet stone, and it begins, gently, to grow over your hands.",
+            "art": "A teenager on their knees on violet crystal ground, a quarry pick fallen beside them, crystal slowly growing over their hands beneath a pulsing amethyst heart",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Feed it a fake feeling: a big, hammy, soap-opera breakdown",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 9,
+          "bonus": {
+            "companion": "zelda-fishbein",
+            "amount": 2
+          },
+          "success": {
+            "text": "You give it the performance of your life: the clutched pearls, the trembling lip, the scream Zelda taught you. The Hunger gulps it down, and it is all air. It swells, gorges on fake sorrow and falls asleep like a python after a meal, dimming to a dull lilac. It will wake again, someday.",
+            "art": "A teenager in a Halloween costume performing a melodramatic swoon with a hand to their forehead before a giant amethyst heart that is dimming sleepily to pale lilac",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The heart knows a fake when it tastes one. It turns its facets toward you, and every facet shows a true thing you've never said out loud. \"Not that,\" says the Hunger, in fourteen voices. \"The true one.\" And it starts pulling the true one out.",
+            "art": "Hundreds of crystal facets each reflecting a different private memory of a frightened teenager, the giant amethyst heart leaning closer",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Read the fourteen names, play the vigil song and grieve together",
+          "intent": "kind",
+          "skill": "nerve",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "You read the names off the tally tags, one by one, out loud: Elias Brandt. Tomás Ibarra. Wendell Haynes. Sal Ferraro. Henry Chu. Your crew presses play, and three hundred voices from 1952 sing \"Shall We Gather at the River.\" Then your neighbors begin to sing too, and to cry, together, on purpose. The amethyst heart softens to the color of dawn and lets out a breath it has been holding for thirty-four years.",
+            "art": "A teen crew and neighbors in pajamas holding hands and singing inside a violet cavern, one teen reading from a list of names, a giant crystal heart softening to warm dawn pink, fourteen lamps glowing gold",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your voice breaks on the fourth name, and the heart surges, desperate, pulling at everyone's grief at once. The names are right. The song is right. But one voice is not enough. A whole town has to do this, and the town has not caught up with you yet.",
+            "art": "A teenager with a cracking voice holding a paper of names inside a violet cavern, a desperate amethyst heart flaring as neighbors stand frozen behind",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Shall We Gather",
+        "text": "On November 2, 1986, Glimmer Falls holds the funeral it skipped in 1952. Father Iggy says the requiem at St. Jude's, thirty-four years late. Gus Ferraro carves the first name into the blank slab at Pinecrest himself, and a stonemason finishes the other thirteen. The Ibarra family builds an ofrenda on the roundabout with marigolds and a quarryman's lamp, and the whole street brings photographs, pan dulce, casseroles and stories. Pearl leads the hymn. The Heartstone is just a pretty purple rock now, warm to the touch. People sit beside it when they need to cry, and nobody tells them to stop.",
+        "art": "A candlelit memorial on a suburban roundabout at dusk, a marigold ofrenda with old photographs and a quarryman's lamp beside a softly glowing purple geode, neighbors of all ages holding candles and each other, a newly carved granite slab with fourteen names"
+      },
+      "good": {
+        "title": "Quiet on Crystal Street",
+        "text": "The Heartstone goes dark and stays that way. The sinkholes close, the crystal melts into morning dew, and by Thanksgiving the neighbors have forgotten that they cried every night of Halloween week. You haven't. On your desk you keep a brass tally tag with a stranger's name stamped on it, and sometimes you say the name out loud, just so somebody does.",
+        "art": "A teenager at a bedroom desk at night holding a small brass tally tag stamped with a name, an ordinary dark purple rock visible through the window on a quiet roundabout"
+      },
+      "bittersweet": {
+        "title": "Hairline Cracks",
+        "text": "The Hunger sleeps, but not before it takes its share. Three neighbors never quite thaw: they smile and wave and cannot remember how to cry, or how to laugh very hard either. The geode has a new vein of violet you swear wasn't there before. Every March 3rd, at midnight, the street hums, and you go sit on the curb so it won't hum alone.",
+        "art": "A teenager sitting alone on a curb at midnight beside a faintly humming purple geode, a neighbor in a lit window waving with an empty, pleasant smile"
+      },
+      "bad": {
+        "title": "Nature's Jewel",
+        "text": "You wake on November first and cannot get up, because you are not lying down. You are standing on the roundabout lawn, cased in clear violet crystal, frozen mid-feeling with your mouth half open, as if you were about to say something that mattered. The developer's plaque has a new line on it now. Your crew visits every day and talks to you. You can hear every word, and you cannot cry.",
+        "art": "A teenager encased in clear violet crystal standing beside a giant geode on a suburban roundabout, mouth half open, friends in jackets sitting on the grass talking to the crystal figure"
+      }
+    }
+  }
+]

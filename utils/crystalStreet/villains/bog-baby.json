@@ -1,0 +1,525 @@
+[
+  {
+    "id": "bog-baby",
+    "name": "The Bog Baby",
+    "epithet": "The Thing Under Lot C",
+    "tags": ["creature", "cosmic"],
+    "palette": ["#3b5323", "#c9a227", "#7b4fa0"],
+    "sigil": "egg",
+    "logline": "They drained the marsh and paved it for parking, but something down there was about to be born. It has been drinking food-court grease for five years. This week it hatches.",
+    "backstory": "Before Starlight Mall there was Tule Marsh: two hundred acres of cattails, herons and chorus frogs around a deep pool that steamed in winter like something breathing. It was fed by the same cold spring as the old quarry lake, and on sunny days you could see violet crystals glittering on the bottom, little cousins of the Heartstone. Kids caught tadpoles there for a hundred years. The founders called it a swamp. In 1981 the county approved the mall, and in one summer the bulldozers drained the marsh, sealed the spring into culverts and poured asphalt over the deepest pool, which became Lot C. A biology teacher chained herself to a bulldozer and was fired for it. But the marsh had been getting ready for something. Two hundred acres of life had been folding itself into the deep pool like an egg, waiting to hatch, and the asphalt sealed it in. For five years the only thing that has reached it is what runs down the food court drains: fryer grease from Corn Dog Castle and Wok This Way, fifty gallons a night. It has been drinking. It has been growing. This Halloween week the soft spot in Lot C is warm to the touch, shopping carts are sinking into the asphalt, herons circle the parking lot at dusk, and from somewhere underground comes the sound of a thousand frogs crying like a baby that wants its mother.",
+    "centralIssue": {
+      "title": "Paved over for convenience",
+      "summary": "The Bog Baby is a wetland that was never allowed to be born: two hundred acres of life buried under a parking lot so nobody would have to walk far to the Orange Jubilee. It eats grease because grease is all that reaches it. It doesn't need killing. It needs its water back."
+    },
+    "poster": "A colossal toddler-shaped creature of black mud and glistening golden grease rising out of a cracked mall parking lot at night, cattails crowning its head, a violet crystal heart glowing in its chest, a neon mall sign tilting behind it, tiny teens with flashlights at its feet",
+    "portrait": "Close portrait of a giant baby-like face made of dripping marsh mud and shining fry oil, dozens of small frog eyes blinking across its cheeks, reeds and lily pads tangled in its hair, a violet glow from deep inside its open, wailing mouth",
+    "taunts": [
+      "Hungry. Hungry. Hungry.",
+      "Where is the water? Where did the water go?",
+      "You parked on me.",
+      "Mmmmama?",
+      "Ribbit."
+    ],
+    "clues": [
+      {
+        "id": "bog-baby-movie",
+        "title": "The Thing from Tule Marsh",
+        "location": "rewind-video",
+        "hint": "Zelda Fishbein's first movie was shot on location at a marsh that isn't on any map anymore. Rewind Video has a copy in the horror aisle.",
+        "encounter": {
+          "id": "bog-baby-clue-creature-feature",
+          "title": "The Thing from Tule Marsh (1958)",
+          "place": "The horror aisle, Rewind Video",
+          "text": "Third shelf down, between The Blob and Them!, a battered clamshell case: THE THING FROM TULE MARSH, starring a very young Zelda Fishbein screaming at something with too many reeds. The box is damp. The tape smells like pond water. When you pick it up, frogs start singing somewhere in the store, and the floor drain at the end of the aisle burps.",
+          "art": "A video store horror aisle with a battered clamshell tape case of a 1950s creature feature, a damp ring of water beneath it, a floor drain bubbling at the end of the aisle under neon light",
+          "choices": [
+            {
+              "id": "ask-zelda",
+              "label": "Ask Zelda what it was like shooting on location",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "Zelda lights up. \"Tule Marsh! Two weeks of night shoots. Herons, frogs so loud we had to redo every line, a pond that steamed like a teakettle in the cold. The monster was a stuntman in a rubber suit. The marsh was the real star.\" Her face falls. \"They paved it for the mall. I sat in my car and cried.\" She gives you a lobby card: the marsh in full color, alive.",
+                "art": "An older glamorous woman behind a video store counter handing over a vintage lobby card showing a lush 1950s marsh with herons and a steaming pond",
+                "effects": {
+                  "clues": ["bog-baby-movie"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Zelda's on the phone with a distributor. You play the tape on the store monitor. The rubber monster on screen turns its head and looks right at you, and the picture fills with brown water that drips out of the bottom of the TV onto your sneakers.",
+                "art": "A store monitor showing a 1950s rubber swamp monster staring out of the screen, muddy water trickling from the bottom of the television onto a teenager's sneakers",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "watch-the-film",
+              "label": "Watch the whole movie frame by frame for clues",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 1
+              },
+              "success": {
+                "text": "The monster is fake but the location is real. In the opening shot there's a sign: TULE MARSH WILDLIFE REFUGE, EST. 1902. In the night scenes, at the bottom of the deep pool, something glitters violet, a cluster of crystal the size of a bathtub. The same stone as the Heartstone, alive under the water. Whatever is under Lot C was born from the same spring.",
+                "art": "A paused television image of a 1950s marsh at night with a violet crystal cluster glowing at the bottom of a pond, a wildlife refuge sign visible in the reeds",
+                "effects": {
+                  "clues": ["bog-baby-movie"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "You fall asleep during the second reel and dream you're underground, under something hot and black and heavy, while overhead, all day long, car doors slam and slam and slam.",
+                "art": "A dreamlike view from deep underground looking up through layers of mud at the undersides of parked cars, faint golden light seeping through cracks",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "bog-baby-sit-in",
+        "title": "The 1981 sit-in",
+        "location": "kglm-radio",
+        "hint": "KGLM broadcast live from a protest at the marsh in 1981. The tape is in the station archive, and the water tower has a view of Lot C.",
+        "encounter": {
+          "id": "bog-baby-clue-water-tower",
+          "title": "View from the Tower",
+          "place": "KGLM 103.3 and the water tower",
+          "text": "From the catwalk of the KGLM water tower you can see all of Glimmer Falls: the Crystal Street cul-de-sac, the high school, and Starlight Mall, a pink neon island in a sea of asphalt. From up here, Lot C isn't flat. The faded parking lines bulge in a shape like a pond, and in the middle, under the sodium lights, the asphalt is slowly rising and falling. Down in the booth, Mix has pulled an old reel labeled MARSH SIT-IN, 6/14/81.",
+          "art": "A view from a water tower catwalk at dusk over a small town, a neon-lit mall surrounded by parking lots, one lot bulging gently in the shape of a pond, a radio station shack at the base of the tower",
+          "choices": [
+            {
+              "id": "play-the-reel",
+              "label": "Listen to the sit-in reel with Mix",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "Over chanting and a diesel engine, a woman shouts: Opal Fairweather, Glimmer Falls High biology, chained to a bulldozer. \"This marsh filters your drinking water! There are species here nobody's even named! Something is nesting in the deep pool!\" Then a deputy, the clank of bolt cutters, and the DJ: \"Well, folks, progress is progress.\" Mix stops the tape. \"They fired her for that,\" he says quietly.",
+                "art": "A teen DJ and a teenager listening to an old reel-to-reel tape in a dim radio booth, a faded 1981 photo of a woman chained to a bulldozer pinned above the console",
+                "effects": {
+                  "clues": ["bog-baby-sit-in"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The reel plays nothing but frogs, louder and louder, until the board feeds back in a shriek and the whole water tower hums like a struck bell. Every dog in Glimmer Falls starts howling at once.",
+                "art": "A radio booth with a console shrieking feedback and a reel-to-reel spinning wildly, the water tower outside vibrating, dogs howling in yards below",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "climb-to-the-top",
+              "label": "Climb to the top of the tank and photograph the lot",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "item": "polaroid",
+                "amount": 2
+              },
+              "success": {
+                "text": "From the very top you snap a Polaroid of Lot C. As it develops, it shows what your eyes can't: the cracks in the asphalt trace the exact outline of the old pond, and curled in the middle, glowing faintly gold through the blacktop, is something enormous shaped like a tadpole, with a violet heart.",
+                "art": "A developing instant photo held up against the night sky, showing a parking lot with a giant glowing tadpole shape curled beneath the asphalt, a violet light at its center",
+                "effects": {
+                  "clues": ["bog-baby-sit-in"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The ladder rungs are slick with something greasy. Your foot slips and you hang by your hands for one long, long minute while every frog in the county sings below you. You make it down. Your hands smell like corn dogs for two days.",
+                "art": "A teenager dangling by both hands from a slick water tower ladder high above the town at night, one sneaker kicking at empty air",
+                "effects": {
+                  "nerve": -2
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "bog-baby-grease-trap",
+        "title": "The grease trap",
+        "location": "starlight-mall",
+        "hint": "The night janitor at Starlight Mall says the food court drains have started flowing the wrong way.",
+        "encounter": {
+          "id": "bog-baby-clue-under-the-food-court",
+          "title": "Below the Food Court",
+          "place": "The service corridor under the Starlight Mall food court",
+          "text": "Behind Corn Dog Castle a service door leads down to a corridor that smells like a deep fryer's nightmare. Hector Villalobos, the night janitor, stands over a grease trap the size of a hot tub with a plunger in one hand and a rosary in the other. \"Every night it drinks fifty gallons of fry oil,\" he says. \"And every night, something down there says thank you.\"",
+          "art": "A grimy concrete service corridor under a mall, a janitor in coveralls holding a plunger and a rosary beside a huge steel grease trap lid, golden light glowing from the seams",
+          "choices": [
+            {
+              "id": "help-hector",
+              "label": "Help Hector heave the lid open and look",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 2
+              },
+              "success": {
+                "text": "The lid comes up with a slurp. Grease spirals down a drain that goes far deeper than plumbing should, and from below comes a chorus of frogs and a slow, huge heartbeat. Hector unrolls the 1981 blueprints: the mall's storm drains run straight into the old marsh's deepest pool. \"Whatever was in that pond,\" he says, \"we've been feeding it french fries for five years.\"",
+                "art": "A janitor and a teenager peering into an open grease trap that spirals down into glowing golden depths, old blueprints unrolled on the concrete floor beside them",
+                "effects": {
+                  "clues": ["bog-baby-grease-trap"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The lid slips. A geyser of warm golden grease erupts and coats you from head to sneakers. From somewhere far below, something giggles like a delighted baby.",
+                "art": "A teenager drenched head to toe in a geyser of golden grease erupting from a grease trap, a janitor shielding his face, the corridor lights flickering",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "creature"
+                }
+              }
+            },
+            {
+              "id": "ask-lou",
+              "label": "Ask Lou what the arcade kids have seen in Lot C",
+              "intent": "clever",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "lou-tran",
+                "amount": 2
+              },
+              "success": {
+                "text": "Lou doesn't look up from Galaga. \"Dead-wing kids dare each other to stand on the soft spot in Lot C. It's warm, man. Like a waterbed. Last week it swallowed a shopping cart, and in the morning there were cattails growing out of the hole.\" He fishes one out of his backpack. Its fluff glows faintly gold in the dark of the arcade.",
+                "art": "An arcade champion at a glowing cabinet holding out a single cattail whose fluff glows gold, other kids crowded around the machines in neon light",
+                "effects": {
+                  "clues": ["bog-baby-grease-trap"],
+                  "quarters": 1
+                }
+              },
+              "failure": {
+                "text": "Lou is one wave from a high score and can't talk. You go look for yourself. The soft spot gives under your sneaker like a warm mouth, and you yank your foot free minus one shoe.",
+                "art": "A teenager pulling their foot out of soft bulging asphalt in an empty parking lot at night, a sneaker sinking into the blacktop, steam rising",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "bog-baby-soft-spot",
+        "title": "The Soft Spot",
+        "place": "Lot C, Starlight Mall, 11 p.m.",
+        "text": "Lot C is empty except for one sputtering sodium light and a lone shopping cart in a parking space. The asphalt under the cart is bulging up like bread dough. Bubbles of golden grease ooze from the cracks. The cart sinks to its handle with a satisfied gloop, and then the sound rises out of the ground: a thousand frogs crying at once, like a baby who wants its mother.",
+        "art": "An empty mall parking lot under one orange sodium light, a shopping cart sinking into bulging asphalt that oozes golden grease through its cracks, a teenager watching from the edge of the light",
+        "choices": [
+          {
+            "id": "save-the-cart",
+            "label": "Grab the cart before it goes under",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You plant your feet and heave. The cart comes free with a sucking pop, draped in duckweed, and sitting in the child seat is a small, very offended green frog. The ground stops crying. For tonight, it's been given something back.",
+              "art": "A teenager hauling a shopping cart out of soft asphalt, the cart draped in duckweed with a small green frog sitting in the child seat",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The cart goes under and takes your sleeve with it. Warm mud closes around your arm to the elbow, and something down there holds on, curious, before letting you go. You stagger off coated in grease and cattail fluff.",
+              "art": "A teenager pulled down to the elbow into bubbling asphalt beside a vanishing shopping cart handle, golden light glowing beneath the surface",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "sing-a-lullaby",
+            "label": "Sing back to it, low and soft, like a lullaby",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 1
+            },
+            "success": {
+              "text": "You kneel on the warm asphalt and hum the only lullaby you know. The bulge settles. The frog-crying softens into a sleepy croak. Right beside your knee, one single green cattail pushes up through the blacktop and opens.",
+              "art": "A teenager kneeling and singing softly on a cracked parking lot under a sodium light, a single cattail sprouting through the asphalt beside them",
+              "effects": {
+                "nerve": 1,
+                "flags": ["bog-baby-soothed"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks on the high note. The crying turns angry, and every car alarm in Starlight Mall's parking lots goes off at once, a wall of honking and whooping that follows you all the way home.",
+              "art": "A teenager running across a parking lot as every car alarm blares and headlights flash, the asphalt behind them heaving",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-feeding-time",
+        "title": "Feeding Time",
+        "place": "Starlight Mall food court, after closing",
+        "text": "After closing, the food court is dark except for the neon of Corn Dog Castle. Every fryer has turned itself on. Grease bubbles over the counters in slow golden waterfalls, slides across the tile and pours into a crack that is splitting the fountain in two. Something under the mall is gulping and growing. The floor heaves. A pretzel kiosk tilts and begins to slide toward the crack.",
+        "art": "A dark mall food court lit by neon signs, golden grease cascading from fryers across the tiles into a widening crack splitting a fountain in half, a pretzel kiosk sliding toward it",
+        "choices": [
+          {
+            "id": "kill-the-fryers",
+            "label": "Vault the counters and kill every fryer",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "Wok This Way, click. Corn Dog Castle, click. Taco Tuesday's, Spud Palace, Orange Jubilee, click, click, click. The golden waterfalls slow to drips. The crack in the floor grumbles, hungry and sulky, and shrinks to a hairline.",
+              "art": "A teenager vaulting over a food court counter and slapping off a fryer switch, the river of grease slowing behind them, neon signs glowing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You hit a slick of grease and skate across the tile on your back like a hockey puck, straight into the fountain. The crack opens under you and you hang onto the fountain's rim while pennies rain down past your face into the dark.",
+              "art": "A teenager clinging to the rim of a split mall fountain over a dark glowing crack, coins tumbling past them into the depths",
+              "effects": {
+                "nerve": -2,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "give-it-clean-water",
+            "label": "Crank the fountain valve and give it clean water instead",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 1
+            },
+            "success": {
+              "text": "You find the fountain valve behind a fake plant and crank it wide open. Clean water floods into the crack. The gulping turns into a long, contented sigh, and up through the floor comes the sound of frogs singing like the first warm night of spring.",
+              "art": "Clean water gushing from a mall fountain into a glowing crack in the floor, a teenager turning a valve behind a potted plant, faint green light rising from below",
+              "effects": {
+                "nerve": 1,
+                "flags": ["bog-baby-water"]
+              }
+            },
+            "failure": {
+              "text": "The valve snaps off in your hand. Water and grease mix into a brown flood, the pretzel kiosk slides into the crack, and a moment later the crack burps a single soggy pretzel back at you.",
+              "art": "A pretzel kiosk tipping into a flooded crack in a mall floor, a teenager holding a broken valve handle, a soggy pretzel flying through the air toward them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-hatching",
+        "title": "It's Hatching",
+        "place": "Lot C, Starlight Mall, 3 a.m.",
+        "text": "Lot C has split open like an eggshell. In the crater, wreathed in steam and cattails, something the size of a city bus is uncurling: a giant baby made of black mud and golden grease, its skin dotted with blinking frog eyes, a crown of reeds on its head and a violet light pulsing in its chest like a geode. It opens its mouth, and the wail rattles every window in Glimmer Falls. Parked cars are sliding into the crater. So is the edge of the mall's dead wing.",
+        "art": "A cracked-open parking lot at night with a bus-sized baby creature of black mud and golden grease uncurling in a steaming crater, frog eyes across its skin, a violet glow in its chest, cars tipping into the pit",
+        "choices": [
+          {
+            "id": "clear-the-edge",
+            "label": "Get the onlookers and their cars back from the edge",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wave flashlights, yell until your voice gives out, and bang on windshields. A line of cars reverses up the lot in a long string of headlights and nobody goes in. The baby wails, but it doesn't reach for anyone. It's scared too.",
+              "art": "Teenagers waving flashlights and directing a line of reversing cars away from a steaming crater, a giant mud baby wailing but holding still in the pit",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "A station wagon slides in and the baby pulls it under like a bath toy. The owner, safe at the edge in a bathrobe, screams about his warranty. You end up in mud to the waist and it takes three people to pull you out.",
+              "art": "A station wagon sinking into a muddy crater clutched by a giant baby's hand, a man in a bathrobe shouting at the edge, a teenager stuck to the waist in mud",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "touch-its-heart",
+            "label": "Climb down into the crater and touch its glowing chest",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 11,
+            "bonus": {
+              "item": "silver-scrunchie",
+              "amount": 2
+            },
+            "success": {
+              "text": "You slide down the mud and press your palm to the violet light. Suddenly you feel the marsh: herons lifting off at dawn, a summer pond full of tadpoles, the first frog of spring, and then the roar of the bulldozers and the heavy, hot dark. It stops wailing. A thousand frog eyes turn to look at you. \"Mmmmama?\" it croaks.",
+              "art": "A small teenager in a muddy crater pressing a hand to the glowing violet heart of a giant mud baby, the creature gazing down at them with a thousand frog eyes, sudden calm",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                },
+                "flags": ["bog-baby-touched"]
+              }
+            },
+            "failure": {
+              "text": "The mud takes you to the knees, warm and pulling. It doesn't mean to hurt you. It's hugging. Your crew hauls you out by the armpits and you leave both your shoes behind as an offering.",
+              "art": "Friends hauling a mud-caked teenager out of a crater by the armpits, a giant mud baby's hand reaching after them gently, two sneakers sinking",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "bog-baby-finale",
+      "title": "Born on Halloween",
+      "place": "Starlight Mall, Lot C, Halloween night",
+      "text": "On Halloween night the Bog Baby rises. It towers over Starlight Mall, a toddler of mud and grease taller than the neon sign, cattails crowning its head, its violet heart blazing. It's crying for something it can't name, and every cry floods another row of cars with black water. The mall lights flicker. Kids in costumes stream out of the Halloween sale screaming. And under the asphalt you can hear the old spring, trapped in its culverts, pounding to get out.",
+      "art": "A colossal mud-and-grease baby creature towering over a neon mall on Halloween night, cattails crowning its head, a violet heart blazing in its chest, black water flooding the parking lot, costumed kids fleeing, a teen crew standing their ground with flashlights",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Hit it with every fire extinguisher in the mall",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "companion": "tammy-jo-pruitt",
+            "amount": 1
+          },
+          "success": {
+            "text": "White foam, a blizzard of it. The Bog Baby chokes, shrinks, whimpers and folds back into its crater, and the mud crusts over like a scab. The county repaves Lot C by Thanksgiving. On warm nights you can still feel a heartbeat through the soles of your shoes, slower every year.",
+            "art": "Teens blasting fire extinguishers in a white storm at a shrinking mud creature sinking back into a crater, a parking lot crusting over behind it",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The foam slides right off its greasy skin. A giant hand scoops you up and cuddles you close to its chest, cooing, and starts to sink back into the warm dark with its new toy.",
+            "art": "A giant mud baby cradling a struggling teenager to its glowing chest like a doll, sinking into a flooded crater",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Lure it back underground with a trail of food-court fries",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "success": {
+            "text": "You raid every fryer in the food court and lay a golden trail of fries back to the crater. It follows, slurping, settles into the pit with an enormous contented belch, and falls asleep. The lot gets roped off with orange cones. It'll wake up again next year, bigger.",
+            "art": "A trail of french fries leading across a parking lot into a crater where a giant mud baby is curling up to sleep, orange traffic cones around the edge",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "It eats the fries. All of them. Then it wants more, and it reaches for the source: the Corn Dog Castle sign comes off the mall wall with a shriek of metal and a shower of sparks.",
+            "art": "A giant mud baby ripping a neon corn dog sign off a mall wall in a shower of sparks, teens scattering below",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Break open the culvert and give it back its water",
+          "intent": "kind",
+          "skill": "lore",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "You know where the spring runs now: Zelda's film, Opal's broadcast, Hector's blueprints. You pry up the storm grate he marked and wrench open the culvert valve the county welded shut in 1981. Cold spring water roars up through Lot C, filling the crater and washing the grease away. The Bog Baby sits down in its water and stops crying. It sighs, enormous, and melts into the pool, and the pool becomes reeds and lilies and frogs singing so loud they drown out the mall music. In the middle, a small violet stone glows under the water like a nightlight.",
+            "art": "Spring water gushing up through a broken parking lot and flooding a crater, a giant mud baby sighing and melting into a new pond of reeds and lilies, frogs everywhere, a violet stone glowing beneath the water, teens cheering by an open culvert valve",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The valve is rusted solid. You know exactly where the water is, you can hear it pounding under your feet, but tonight it stays trapped, and the Bog Baby wails as the crater widens.",
+            "art": "Teens straining together against a rusted culvert valve in a flooded storm drain, a giant mud baby wailing above them",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Tule Marsh, Est. 1902 (Again)",
+        "text": "By Thanksgiving there are herons in Lot C. The town council, packed to the doors by kids holding tadpole jars, votes never to repave it, and the school board hires Opal Fairweather back to run field trips along a boardwalk built from the dead wing's lumber. Zelda screens The Thing from Tule Marsh at the Glitter Box as a benefit, and cries again, happier this time. The mall complains about parking. Nobody listens. On cold mornings the new pond steams like something breathing, and a violet light glows at the bottom, sound asleep.",
+        "art": "A restored marsh where a parking lot used to be, a wooden boardwalk crowded with kids holding tadpole jars, a gray-haired teacher pointing at herons, the neon mall sign reflected in a steaming pond with a faint violet glow at the bottom"
+      },
+      "good": {
+        "title": "Repaved",
+        "text": "The creature sinks back, the cracks crust over and the county repaves Lot C the week after Halloween. The mall reopens for the holiday rush and everybody forgets. But on warm nights the asphalt in the middle of the lot is soft and warm under your sneakers, and you always park somewhere else.",
+        "art": "A freshly repaved mall parking lot with crisp new lines under sodium lights, a single crack in the center with one cattail poking through, a teenager walking the long way around it"
+      },
+      "bittersweet": {
+        "title": "Dry Season",
+        "text": "The Bog Baby is gone. What's left of it dries out in the crater over November into a field of cracked gray mud, and the county fills it with gravel. The frogs never come back to Glimmer Falls. You keep the one glowing cattail Lou gave you in a jar on your windowsill, and you watch it fade a little every night until spring.",
+        "art": "A cattail in a glass jar on a bedroom windowsill, its fluff glowing faintly, a gravel-filled crater and a neon mall visible through the window beyond"
+      },
+      "bad": {
+        "title": "Paved",
+        "text": "You're under the asphalt with it now, curled in the warm dark at the bottom of the old pool, listening to car doors slam all day long. Your crew comes to stand on the soft spot in Lot C every night. It's warm. Sometimes it whispers their names, in your voice, and asks them where the water went.",
+        "art": "Teens standing in a circle on a soft, glowing patch of asphalt in an empty parking lot at night, a faint outline of a curled figure visible deep beneath their feet"
+      }
+    }
+  }
+]

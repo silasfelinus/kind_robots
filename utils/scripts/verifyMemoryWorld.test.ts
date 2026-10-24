@@ -80,9 +80,14 @@ assert.equal(
 for (const tile of BRIAR_TILES) {
   const scene = BRIAR_SCENES[tile.key]
   assert.ok(scene, `Missing authored experience at ${tile.key}`)
-  assert.ok(scene.title.trim() && scene.opening.trim() && scene.artPrompt.trim())
+  assert.ok(
+    scene.title.trim() && scene.opening.trim() && scene.artPrompt.trim(),
+  )
   assert.ok(scene.choices.length >= 2)
-  assert.ok(new Set(scene.choices.map((choice) => choice.id)).size === scene.choices.length)
+  assert.ok(
+    new Set(scene.choices.map((choice) => choice.id)).size ===
+      scene.choices.length,
+  )
   for (const choice of scene.choices) {
     assert.ok(choice.label.trim() && choice.outcome.trim())
     const save = restoreBriarSave({
@@ -91,7 +96,11 @@ for (const tile of BRIAR_TILES) {
       visited: [tile.key],
       sceneChoices: { [tile.key]: choice.id },
     })
-    assert.equal(save.sceneChoices[tile.key], choice.id, `Choice at ${tile.key} restores`)
+    assert.equal(
+      save.sceneChoices[tile.key],
+      choice.id,
+      `Choice at ${tile.key} restores`,
+    )
   }
 }
 

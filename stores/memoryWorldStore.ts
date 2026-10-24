@@ -78,7 +78,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const combatNote = ref('')
   let roomEpoch = 0
 
-  const activeSiteKey = computed(() => inspectedSigil.value ?? state.value.player)
+  const activeSiteKey = computed(
+    () => inspectedSigil.value ?? state.value.player,
+  )
   const selectedSite = computed(() => BRIAR_SITES[activeSiteKey.value] ?? null)
   const activeScene = computed(() =>
     state.value.room === 'map' &&

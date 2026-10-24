@@ -352,7 +352,13 @@
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
-                {{ world.mapMatching ? 'Memory image' : world.inspectedSigil ? 'Paired regional sigil' : 'Map detail' }}
+                {{
+                  world.mapMatching
+                    ? 'Memory image'
+                    : world.inspectedSigil
+                      ? 'Paired regional sigil'
+                      : 'Map detail'
+                }}
               </span>
             </div>
             <div
@@ -743,7 +749,9 @@ import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.v
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
-const recoveredPhotos = computed(() => firstWorldPhotoChronicle(world.state.sceneChoices))
+const recoveredPhotos = computed(() =>
+  firstWorldPhotoChronicle(world.state.sceneChoices),
+)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =

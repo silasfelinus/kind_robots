@@ -114,8 +114,14 @@ export function validateEncounter(
   text(p, `${where}.place`, e.place, 3)
   text(p, `${where}.text`, e.text, 80)
   art(p, `${where}.art`, e.art, 40)
-  if (!Array.isArray(e.choices) || e.choices.length < 2 || e.choices.length > 3)
-    p.push(`${where}: needs 2 or 3 choices`)
+  // A finale holds fight, trick and heart plus up to three edge choices.
+  const most = where.endsWith('.finale') ? 6 : 3
+  if (
+    !Array.isArray(e.choices) ||
+    e.choices.length < 2 ||
+    e.choices.length > most
+  )
+    p.push(`${where}: needs 2 to ${most} choices`)
   const ids = new Set<string>()
   for (const [i, c] of (e.choices ?? []).entries()) {
     if (ids.has(c.id)) p.push(`${where}: duplicate choice id ${c.id}`)

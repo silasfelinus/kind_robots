@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
-import { ART_STYLE } from '../crystalStreet/rules'
+import { ART_STYLE, villainById } from '../crystalStreet/rules'
 import {
   duplicateIds,
   validateCompanion,
@@ -10,12 +10,12 @@ import {
   validateLocation,
   validateVillain,
 } from '../crystalStreet/validate'
-import type { Encounter } from '../crystalStreet/types'
+import type { Choice, Encounter } from '../crystalStreet/types'
 
-const [kind, path] = process.argv.slice(2)
+const [kind, path, villainId] = process.argv.slice(2)
 if (!kind || !path) {
   console.error(
-    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|locations|decks|items|encounters> <file.json>',
+    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|locations|decks|items|encounters> <file.json> | edges <file.json> <villain-id>',
   )
   process.exit(2)
 }
@@ -28,6 +28,44 @@ if (!Array.isArray(data)) {
 
 const problems: string[] = []
 const encounters: Encounter[] = []
+const contract = (where: string, prompt: string | undefined) => {
+  if (!prompt) return
+  for (const v of checkArtPromptContract({
+    prompt: `${prompt}, ${ART_STYLE}`,
+    engine: 'krea2',
+  }))
+    problems.push(`${where} art: ${v.rule}: ${v.detail}`)
+}
+if (kind === 'edges') {
+  // Drafted finale edge choices for one nightmare: validated as part of its
+  // finale, with the art contract on every outcome.
+  const villain = villainById(villainId ?? '')
+  if (!villain) {
+    console.error(`unknown villain ${villainId}`)
+    process.exit(2)
+  }
+  const draft = {
+    ...villain,
+    finale: {
+      ...villain.finale,
+      choices: [...villain.finale.choices, ...(data as Choice[])],
+    },
+  }
+  validateVillain(problems, draft)
+  const ids = draft.finale.choices.map((c) => c.id)
+  if (new Set(ids).size !== ids.length)
+    problems.push('duplicate finale choice id')
+  for (const c of data as Choice[]) {
+    contract(`edge ${c.id} success`, c.success?.art)
+    contract(`edge ${c.id} failure`, c.failure?.art)
+  }
+  if (problems.length) {
+    console.error(problems.join('\n'))
+    process.exit(1)
+  }
+  console.log(`${path}: ${data.length} edges OK for ${villainId}`)
+  process.exit(0)
+}
 for (const entry of data) {
   if (kind === 'villains') {
     validateVillain(problems, entry)

@@ -3,6 +3,14 @@
     "id": "mallrat-mothman",
     "name": "The Mallrat Mothman",
     "epithet": "The Thing in the Dead Wing",
+    "inspiration": {
+      "original": "The Mothman and Brundlefly",
+      "film": "The Fly",
+      "year": 1986,
+      "kind": "remix",
+      "oldScript": "The creature in the dark that snatches children.",
+      "newLens": "The kids nobody was watching. The Mothman takes the ones the mall swallowed, and the Best ending is a town that notices."
+    },
     "tags": ["creature", "paranormal"],
     "palette": ["#c6e3a3", "#ff4fa3", "#6e6a62"],
     "sigil": "quarter",

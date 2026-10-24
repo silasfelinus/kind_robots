@@ -3,6 +3,14 @@
     "id": "countess-lacroix",
     "name": "Countess Lacroix",
     "epithet": "Queen of the Night Shift",
+    "inspiration": {
+      "original": "Jerry Dandridge",
+      "film": "Fright Night",
+      "year": 1985,
+      "kind": "flip",
+      "oldScript": "The queer-coded seducer vampire who preys on boys next door, from Dracula to Fright Night.",
+      "newLens": "A disco diva clinging to her golden age. The bite is nostalgia, and the Best ending lets her finally, gorgeously age."
+    },
     "tags": ["paranormal", "camp", "creature"],
     "palette": ["#ffd23f", "#8b0a3a", "#d9d9e3"],
     "sigil": "mirrorball",

@@ -118,6 +118,12 @@ export function buildCrystalStreetPlaybook(): Playbook {
         label: villain.centralIssue.title,
         text: villain.centralIssue.summary,
       },
+      {
+        axis: 'remix',
+        key: villain.inspiration.kind,
+        label: `${villain.inspiration.original}, ${villain.inspiration.film} (${villain.inspiration.year})`,
+        text: `Old script: ${villain.inspiration.oldScript} New lens: ${villain.inspiration.newLens}`,
+      },
     ]
     finale.placements.push(placement(7, 'Night 7'))
     steps.push(finale.key)
@@ -225,7 +231,7 @@ export function buildCrystalStreetPlaybook(): Playbook {
     game: 'crystal-street',
     title: 'Nightmare on Crystal Street',
     blurb:
-      'Twenty nightmares, each with three leads, three signature nights and a Halloween finale.',
+      'Twenty-two nightmares, many of them gender-flipped classic villains, each with three leads, three signature nights and a Halloween finale.',
     routes,
     nodes,
     order: storyOrder(routes, [...companionKeys, ...endingKeys]),

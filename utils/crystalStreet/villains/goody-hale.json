@@ -3,6 +3,14 @@
     "id": "goody-hale",
     "name": "Goody Hale",
     "epithet": "The Witch of Crystal Woods",
+    "inspiration": {
+      "original": "The witch of the witch-hunt films",
+      "film": "Witchfinder General",
+      "year": 1968,
+      "kind": "bend",
+      "oldScript": "The witch as an evil woman whose power must be burned out.",
+      "newLens": "A healer the town founders erased. Her magic only ever healed; the Best ending marks her grave and tells her real name."
+    },
     "tags": ["paranormal", "cult"],
     "palette": ["#6b8f4e", "#e0a526", "#2e1f3a"],
     "sigil": "mortar",

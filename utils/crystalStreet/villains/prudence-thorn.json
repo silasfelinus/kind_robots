@@ -3,6 +3,14 @@
     "id": "prudence-thorn",
     "name": "Pastor Prudence Thorn",
     "epithet": "Chair of the Concerned Parents",
+    "inspiration": {
+      "original": "Margaret White",
+      "film": "Carrie",
+      "year": 1976,
+      "kind": "bend",
+      "oldScript": "The religious fanatic mother as monster, and faith played as the horror.",
+      "newLens": "The grief behind a moral panic. Prudence's fear summons the real demon; Father Iggy shows that faith itself was never the villain."
+    },
     "tags": ["cult", "camp"],
     "palette": ["#ff6a13", "#b9a3d6", "#1c1a1f"],
     "sigil": "matchbook",

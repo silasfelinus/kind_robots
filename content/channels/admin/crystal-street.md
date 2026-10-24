@@ -4,7 +4,7 @@ channelKey: admin
 tabKey: crystal-street
 label: Crystal Street
 title: Nightmare on Crystal Street
-subtitle: One week, seven nights, twenty nightmares
+subtitle: One week, seven nights, twenty-two nightmares
 summary: Survive Halloween week, 1986.
 description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. Admin-only development preview.'
 icon: kind-icon:ghost
@@ -32,7 +32,7 @@ tutorial:
     On Halloween you face it. Fight it, trick it, or, if you found all three
     leads, reach its heart. The Best ending needs the heart and at least
     ten night wins that week. Every week is pasted into your
-    scrapbook; collect a Best ending for all twenty nightmares.
+    scrapbook; collect a Best ending for every nightmare.
   image: /crystal-street/cover.webp
 ---
 

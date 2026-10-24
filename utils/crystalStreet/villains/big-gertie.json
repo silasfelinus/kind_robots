@@ -3,6 +3,14 @@
     "id": "big-gertie",
     "name": "Big Gertie",
     "epithet": "The Lunch Lady",
+    "inspiration": {
+      "original": "Leatherface",
+      "film": "The Texas Chain Saw Massacre",
+      "year": 1974,
+      "kind": "bend",
+      "oldScript": "Leatherface's apron, wigs and makeup were played as grotesque gender nonconformity: a big body in the wrong costume as the horror.",
+      "newLens": "A big working woman nobody looks at. Her mask is the hairnet, her horror is thirty years of invisible labor, and her Best ending is being seen, thanked and paid."
+    },
     "tags": ["slasher", "camp"],
     "palette": ["#a4b83a", "#f2e6c9", "#7a1f1f"],
     "sigil": "ladle",

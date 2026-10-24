@@ -3,6 +3,14 @@
     "id": "brightwaters",
     "name": "The Brightwaters",
     "epithet": "The Perfect Family at 7 Crystal Street",
+    "inspiration": {
+      "original": "The Stepford husbands",
+      "film": "The Stepford Wives",
+      "year": 1975,
+      "kind": "bend",
+      "oldScript": "Replacing wives with obedient, smiling copies, and the pod people who erase difference.",
+      "newLens": "A hive that replaces everyone with the norm. The town's weirdos, drag queens, goths and nerds are what saves it."
+    },
     "tags": ["cosmic", "cult", "creature"],
     "palette": ["#f5e6a8", "#7ec8a9", "#1d3b4f"],
     "sigil": "casserole",

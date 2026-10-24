@@ -73,7 +73,7 @@ export const VILLAIN_IDS = [
   'prudence-thorn',
   'mallrat-mothman',
   'countess-lacroix',
-  'counselor-chad',
+  'counselor-jess',
   'hungry-house',
   'brightwaters',
   'bobo',
@@ -83,5 +83,7 @@ export const VILLAIN_IDS = [
   'varsity-beast',
   'queen-neferet',
   'mom-3000',
+  'the-shape',
+  'final-cut',
 ] as const
 export type VillainId = (typeof VILLAIN_IDS)[number]

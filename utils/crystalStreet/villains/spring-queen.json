@@ -3,6 +3,14 @@
     "id": "spring-queen",
     "name": "Rosalind \"Roz\" Vance",
     "epithet": "The Spring Queen",
+    "inspiration": {
+      "original": "Carrie White",
+      "film": "Carrie",
+      "year": 1976,
+      "kind": "bend",
+      "oldScript": "Carrie and Prom Night made the outcast girl's body and sexuality monstrous, and in the genre the queer girl dies.",
+      "newLens": "Two girls whose love was erased by a cruel prank. Roz's menace is grief at the town that wrote her out, and her Best ending is a last dance: release, not revenge."
+    },
     "tags": ["paranormal", "dream"],
     "palette": ["#9fe2bf", "#3b2a5c", "#f4efe1"],
     "sigil": "corsage",

@@ -1,38 +1,47 @@
 [
   {
     "id": "screwhead",
-    "name": "Screwhead",
+    "name": "Magda \"Screwhead\" Szabo",
     "epithet": "The Tightener",
+    "inspiration": {
+      "original": "Pinhead",
+      "film": "Hellraiser",
+      "year": 1987,
+      "kind": "flip",
+      "oldScript": "Hellraiser dressed its demons in leather, chains and piercings, painting kink and leather subculture as literal hell and desire itself as damnation.",
+      "newLens": "Screwhead's horror is control imposed without asking, born of a daughter's grief for her father's store and a lifetime of having to be perfect to be allowed behind the counter. A chain someone chooses is never the villain here, and the Best ending turns on consent, boundaries and a little chaos she finally chooses for herself."
+    },
     "tags": ["cult", "cosmic", "paranormal"],
     "palette": ["#4a6274", "#b5651d", "#d4af37"],
     "sigil": "screw",
-    "logline": "He found the perfect fix for a world that keeps changing: tighten everything until nothing can move. One quarter-turn at a time, Crystal Street is falling into perfect order.",
-    "backstory": "Laszlo Szabo fled Budapest in 1956 with a toolbox and eleven words of English, and by 1960 he had opened Szabo & Son Hardware on Main Street. He sold nails one at a time, cut keys while you waited, fixed anybody's toaster for a quarter and kept a green credit ledger for every family the bank turned away. His son Walt grew up behind that counter. In 1984 Starlight Mall opened with a HomeMax the size of an airplane hangar, and by spring Main Street was boarded up. Laszlo died that summer in the dark, empty store, sorting screws into baby-food jars. Walt took a job at the HomeMax in an orange apron, where management rearranged the aisles every month. In October 1985 he bought a brass puzzle box from Oddment and Daughters because the shopkeeper said it \"puts things right.\" He solved it in one night. Now he is Screwhead: a crown of brass screws set in his bald scalp like a pincushion, a tool belt hung with silver chains, and a growing Order of neighbors who smile, stand straight and never change their minds again. He is offering the whole street perfect order. Nothing will ever be lost, because nothing will ever move.",
+    "logline": "She found the perfect fix for a world that keeps changing: tighten everything until nothing can move, and never ask anyone first. One quarter-turn at a time, Crystal Street is falling into perfect order.",
+    "backstory": "Laszlo Szabo fled Budapest in 1956 with a toolbox, eleven words of English and a six-year-old daughter named Magda, and by 1960 he had opened a hardware store on Main Street. He painted the sign SZABO & SON because that was what a hardware store was supposed to be called, even though his only child had already sorted every screw in the place. In 1964, the day Magda cut her first perfect key, he climbed a ladder and painted DAUGHTER over SON, and left a little of the old word showing because he liked it when people asked. He sold nails one at a time, fixed anybody's toaster for a quarter and kept a green credit ledger for every family the bank turned away. Magda kept the books from age twelve. She also learned that a woman behind a hardware counter gets asked \"Is your father here?\" twenty times a day, and that the only answer is to be exactly right, every time, forever. In 1984 Starlight Mall opened with a HomeMax the size of an airplane hangar, and by spring Main Street was boarded up. Laszlo died that summer in the dark, empty store, sorting screws into baby-food jars. Magda took a job at the HomeMax, where a manager half her age put her in Housewares \"with the other gals\" and rearranged the aisles every month. In October 1985 she bought a brass puzzle box from Oddment and Daughters because the shopkeeper said it \"puts things right.\" She solved it in one night. Now she is Screwhead: gray-streaked hair scraped into a bun pinned with brass screws, a crown of screw heads glinting along her hairline, a tool belt hung with silver chains, and a growing Order of neighbors who smile, stand straight and never change their minds again. She never asks them. She is offering the whole street perfect order. Nothing will ever be lost, because nothing will ever move.",
     "centralIssue": {
       "title": "Control as grief",
-      "summary": "Walt is not a monster. He is a son who watched his father's whole world get bulldozed and decided nothing would ever change again. Tightening the street is how he holds on. Help him grieve Laszlo, and remind him that a good fixer knows when to loosen a bolt."
+      "summary": "Magda is not a monster. She is a daughter who spent her life proving she belonged behind her father's counter, then watched that whole world get bulldozed and decided nothing would ever change again. Tightening the street is how she holds on, and she has stopped asking anyone whether they want to be held. Help her grieve Laszlo, ask before you loosen anything, and remind her that a good fixer knows the difference between a bolt that needs tightening and a person who gets to say stop."
     },
-    "poster": "A tall, gaunt man in a brown shop coat with an orange hardware-store apron over it, a crown of gleaming brass screws set in his bald head, silver chains spilling from his tool belt across a suburban street whose houses are snapping into a rigid grid, a glowing brass puzzle box floating in his palm",
-    "portrait": "Close portrait of a sad-eyed man in his forties, bald head studded with rows of polished brass screws, wire-rimmed glasses, a name tag reading Walt, his face lit gold from below by an open puzzle box, chains glinting in the dark behind him",
+    "poster": "A tall, gaunt woman in her late thirties in a brown shop coat with an orange hardware-store apron over it, gray-streaked dark hair scraped into a tight bun pinned with gleaming brass screws, a crown of brass screw heads along her hairline, silver chains spilling from her tool belt across a suburban street whose houses are snapping into a rigid grid, a glowing brass puzzle box floating in her palm",
+    "portrait": "Close portrait of a sharp-eyed, grieving woman in her late thirties, gray-streaked dark hair in a severe bun studded with polished brass screws, a neat row of screw heads along her hairline, wire-rimmed reading glasses on a beaded chain, a name tag reading Magda, her face lit gold from below by an open puzzle box, chains glinting in the dark behind her",
     "taunts": [
       "Lefty loosey, righty tighty. I only go one way now.",
       "Hold still. You're rattling.",
+      "Is my father here? No. You'll have to deal with me.",
       "Everything in its place. Everyone in their place. Forever.",
       "My father sold this town one nail at a time. I'll fix it one screw at a time.",
-      "Nothing closes if nothing ever opens."
+      "I don't ask. Asking is how things come loose."
     ],
     "clues": [
       {
         "id": "screwhead-sign",
-        "title": "The Szabo & Son sign",
+        "title": "The Szabo & Daughter sign",
         "location": "junkyard",
         "hint": "Joey Benally says somebody comes to Rusty's every night to sort the scrap from a dead hardware store.",
         "encounter": {
           "id": "screwhead-clue-sorted-pile",
           "title": "The Sorted Pile",
           "place": "The back lot, Rusty's Junkyard",
-          "text": "Between a crushed Pinto and a tower of bald tires, someone has built something impossible. Every bolt, hinge, drawer pull and doorknob from a gutted store has been sorted by size into a hundred baby-food jars, lined up in rows so straight they hum. Propped against a dead refrigerator above them is a hand-painted sign: SZABO & SON HARDWARE. KEYS CUT WHILE YOU WAIT.",
-          "art": "A junkyard corner at dusk where hundreds of glass jars of sorted screws and hinges stand in perfectly straight rows, a faded hand-painted hardware store sign propped above them, crushed cars looming on either side",
+          "text": "Between a crushed Pinto and a tower of bald tires, someone has built something impossible. Every bolt, hinge, drawer pull and doorknob from a gutted store has been sorted by size into a hundred baby-food jars, lined up in rows so straight they hum. Propped against a dead refrigerator above them is a hand-painted sign: SZABO & DAUGHTER HARDWARE. KEYS CUT WHILE YOU WAIT. Under DAUGHTER, if you squint, an older word still shows through: SON.",
+          "art": "A junkyard corner at dusk where hundreds of glass jars of sorted screws and hinges stand in perfectly straight rows, a faded hand-painted hardware store sign propped above them with one word painted over an older word, crushed cars looming on either side",
           "choices": [
             {
               "id": "ask-joey",
@@ -42,7 +51,7 @@
               "target": 9,
               "bonus": { "companion": "joey-benally", "amount": 2 },
               "success": {
-                "text": "Joey rolls out from under a truck and wipes his hands. \"Guy named Walt. Shows up at two in the morning, sorts till dawn, never says a word. Rusty bought the whole store's fixtures for scrap last year. Last week I caught Walt crying at the crusher, begging Rusty not to flatten the cash register.\" He shows you where it's hidden, under a tarp: brass, dented, still ringing.",
+                "text": "Joey rolls out from under a truck and wipes his hands. \"Lady named Magda. Shows up at two in the morning, sorts till dawn, barely says a word. First night she told me my wrench grip was wrong. It was.\" Rusty bought the whole store's fixtures for scrap last year, and last week Joey caught her crying at the crusher, begging Rusty not to flatten the cash register. He shows you where it's hidden, under a tarp: brass, dented, still ringing.",
                 "art": "A teen mechanic lifting a tarp off an old brass cash register hidden in a junkyard, a hardware store sign behind him, a flashlight beam cutting through dusk",
                 "effects": { "clues": ["screwhead-sign"], "nerve": 1 }
               },
@@ -60,7 +69,7 @@
               "target": 9,
               "bonus": { "item": "flashlight", "amount": 1 },
               "success": {
-                "text": "Each jar is labeled twice: once in an old man's spidery Hungarian, and once below it in newer block capitals that copy the first exactly. The last jar is labeled only in the old hand: APA'S LAST SORT, JUNE 1985. It is half full. Someone has never been able to bring himself to finish it.",
+                "text": "Each jar is labeled twice: once in an old man's spidery Hungarian, and once below it in a woman's precise block capitals that copy the first exactly, down to his spelling mistakes. The last jar is labeled only in the old hand: APA'S LAST SORT, JUNE 1985. It is half full. Someone has never been able to bring herself to finish it.",
                 "art": "A flashlight beam on a single half-full baby-food jar of screws, its label written in shaky old-fashioned handwriting, a row of identical jars stretching into the dark",
                 "effects": { "clues": ["screwhead-sign"], "dread": -1 }
               },
@@ -77,7 +86,7 @@
               "skill": "nerve",
               "target": 11,
               "success": {
-                "text": "You pocket a single wood screw. The whole shrine shudders, and for one second the junkyard fills with an old man's laugh and a voice with a thick accent: \"Lefty loosey, Walti! Not everything has to be tight!\" The sign is warm when you touch it, like it remembers a hand.",
+                "text": "You pocket a single wood screw. The whole shrine shudders, and for one second the junkyard fills with an old man's laugh and a voice with a thick accent: \"Lefty loosey, Magdi! Not everything has to be tight! Not even you!\" The sign is warm when you touch it, like it remembers a hand on a ladder, a brush, a fresh coat of paint.",
                 "art": "A teenager holding up a single screw in a junkyard while a ghostly old shopkeeper in a brown coat laughs behind the rows of jars, faint and golden",
                 "effects": { "clues": ["screwhead-sign"], "nerve": 1 }
               },
@@ -92,14 +101,14 @@
       },
       {
         "id": "screwhead-ledger",
-        "title": "Mr. Szabo's credit book",
+        "title": "The Szabos' credit book",
         "location": "crystal-street",
         "hint": "Pearl Washington has lived on Crystal Street since 1959 and remembers every shopkeeper who treated her fairly.",
         "encounter": {
           "id": "screwhead-clue-credit-book",
           "title": "The Credit Book",
           "place": "Pearl Washington's porch, Crystal Street",
-          "text": "Pearl's rocking chair creaks while she cleans a rock-salt shotgun across her knees. When you say the name Szabo, she stops rocking. \"Laszlo,\" she says. \"Now there was a man who never once made me wait while he served somebody whiter first.\" She has a cigar box inside she has never shown anyone.",
+          "text": "Pearl's rocking chair creaks while she cleans a rock-salt shotgun across her knees. When you say the name Szabo, she stops rocking. \"Laszlo,\" she says. \"Now there was a man who never once made me wait while he served somebody whiter first. And his girl Magda was the same, only faster.\" She has a cigar box inside she has never shown anyone.",
           "art": "An elderly Black woman in a cardigan on a porch rocker with a shotgun across her knees, an old cigar box on the side table, autumn leaves on the lawn of a split-level house",
           "choices": [
             {
@@ -110,8 +119,8 @@
               "target": 9,
               "bonus": { "companion": "pearl-washington", "amount": 2 },
               "success": {
-                "text": "1962: new widow, two kids, a bank manager who laughed at her. Laszlo opened a green ledger and wrote her name. \"Pay when you can.\" The book has four hundred names in it, and on the night the store closed he crossed out every single debt in his own hand: FORGIVEN. \"Walt was there,\" Pearl says. \"Watched his daddy forgive the whole town. Then the boy went and sat in the dark.\"",
-                "art": "An open green credit ledger on a porch table, every line crossed out with the word forgiven in old ink, an elderly woman's finger resting on one name",
+                "text": "1962: new widow, two kids, a bank manager who laughed at her. Laszlo opened a green ledger and wrote her name. \"Pay when you can.\" The book has four hundred names in it, and from 1962 on, every entry is in Magda's tidy hand. On the night the store closed Laszlo crossed out every single debt in his own: FORGIVEN. \"She kept that book better than any bank for twenty years,\" Pearl says. \"Then she stood there and watched her daddy forgive the whole town in one night. And then the girl went and sat in the dark.\"",
+                "art": "An open green credit ledger on a porch table, neat rows of names crossed out with the word forgiven in old ink, an elderly woman's finger resting on one name",
                 "effects": { "clues": ["screwhead-ledger"], "dread": -1 }
               },
               "failure": {
@@ -127,12 +136,12 @@
               "skill": "hustle",
               "target": 9,
               "success": {
-                "text": "Pearl hands you a screwdriver from her kitchen drawer, its wooden handle worn smooth and stamped SZABO & SON. While you work she brings out the cigar box: the green ledger, and a snapshot of Laszlo and a teenage Walt behind the counter, both laughing, the boy holding up the first key he ever cut.",
-                "art": "A faded snapshot of a laughing old shopkeeper and a grinning teenage boy behind a hardware counter, the boy holding up a freshly cut key, a worn screwdriver beside the photo",
+                "text": "Pearl hands you a screwdriver from her kitchen drawer, its wooden handle worn smooth and stamped SZABO & DAUGHTER. While you work she brings out the cigar box: the green ledger, and a snapshot of Laszlo and a teenage Magda behind the counter, both laughing, the girl holding up the first key she ever cut, the new sign above them with the paint still wet.",
+                "art": "A faded snapshot of a laughing old shopkeeper and a grinning teenage girl in braids behind a hardware counter, the girl holding up a freshly cut key, a freshly painted shop sign above them, a worn screwdriver beside the photo",
                 "effects": { "clues": ["screwhead-ledger"], "quarters": 1 }
               },
               "failure": {
-                "text": "The screw strips and the whole door sags off its hinge. Pearl laughs until she wheezes. \"Laszlo would've had that done in thirty seconds.\" Overnight, every screw in her door tightens itself so hard that by morning it won't open at all.",
+                "text": "The screw strips and the whole door sags off its hinge. Pearl laughs until she wheezes. \"Laszlo would've had that done in thirty seconds. Magda in twenty.\" Overnight, every screw in her door tightens itself so hard that by morning it won't open at all.",
                 "art": "A screen door hanging crooked from one hinge on a porch, an old woman laughing in her rocker, a teenager holding a stripped screw in dismay",
                 "effects": { "nerve": -1, "quarters": -1 }
               }
@@ -154,13 +163,13 @@
           "choices": [
             {
               "id": "ask-iggy",
-              "label": "Ask Father Iggy about the man who visits",
+              "label": "Ask Father Iggy about the woman who visits",
               "intent": "kind",
               "skill": "charm",
               "target": 9,
               "bonus": { "companion": "iggy-reyes", "amount": 2 },
               "success": {
-                "text": "\"Walt,\" Iggy says. \"Every dawn. Never prays. Just measures. At the funeral he wouldn't let us lower the casket until the straps were even. Took forty minutes.\" He digs out the program. Laszlo asked for his own words to be printed on the back: Things break. We fix what we can. The rest, we let go, and then we eat dinner.",
+                "text": "\"Magda,\" Iggy says. \"Every dawn. Never prays. Just measures. At the funeral the undertaker asked if there was a son to help with the casket, and she lowered it herself, and wouldn't let it go until the straps were even. Took forty minutes.\" He digs out the program. Laszlo asked for his own words to be printed on the back: Things break. We fix what we can. The rest, we let go, and then we eat dinner.",
                 "art": "A young priest in a clerical collar and a punk band T-shirt handing a folded funeral program to a teenager beside a perfectly level headstone",
                 "effects": { "clues": ["screwhead-letter"], "nerve": 1 }
               },
@@ -178,7 +187,7 @@
               "target": 9,
               "bonus": { "item": "holy-water", "amount": 1 },
               "success": {
-                "text": "Under the level is an envelope addressed WALTI in an old man's hand, rain-stained, never opened. You read it, and you're sorry, Walt. \"I am not sad, fiam. A store is only a box. The town was the thing, and the town is still here. Don't you dare spend your life keeping my shelves.\"",
+                "text": "Under the level is an envelope addressed MAGDI in an old man's hand, rain-stained, never opened. You read it, and you're sorry, Magda. \"I am not sad, kislányom. A store is only a box. The town was the thing, and the town is still here. You never had to be perfect for me. You only had to be there, and you always were. Don't you dare spend your life keeping my shelves.\"",
                 "art": "A weathered envelope addressed in shaky handwriting lying open on a headstone, a brass level set aside, a teenager reading a letter in morning mist",
                 "effects": { "clues": ["screwhead-letter"], "dread": -1 }
               },
@@ -197,8 +206,8 @@
         "id": "screwhead-aisle-nine",
         "title": "Aisle Nine Goes On Forever",
         "place": "A HomeMax that isn't there, 2 a.m.",
-        "text": "You walked out for a Bolt Cola and walked into a hardware store that should be the 7-Eleven. Orange aisles stretch to a vanishing point under humming fluorescent light. Every item is faced, priced and identical. A calm voice like a dentist's comes over the PA: \"Attention shoppers. Please remain in your aisle. Order is being restored.\" Far down Aisle Nine, something with a crown of brass screws is restocking.",
-        "art": "An endless big-box hardware store aisle under harsh fluorescent light, identical products faced in perfect rows, a lone teenager in pajamas and sneakers, a distant figure with a head full of brass screws stocking shelves",
+        "text": "You walked out for a Bolt Cola and walked into a hardware store that should be the 7-Eleven. Orange aisles stretch to a vanishing point under humming fluorescent light. Every item is faced, priced and identical. A calm voice like a dentist's comes over the PA: \"Attention shoppers. Please remain in your aisle. Order is being restored.\" Far down Aisle Nine, a tall woman with a crown of brass screws is restocking, and she does not look up.",
+        "art": "An endless big-box hardware store aisle under harsh fluorescent light, identical products faced in perfect rows, a lone teenager in pajamas and sneakers, a distant tall woman with brass screws pinned through her hair stocking shelves",
         "choices": [
           {
             "id": "sprint-for-exit",
@@ -237,18 +246,18 @@
           },
           {
             "id": "ask-the-clerk",
-            "label": "Ask the clerk where they keep the tools for loosening",
+            "label": "Ask the clerk, politely, where they keep the tools for loosening",
             "intent": "kind",
             "skill": "charm",
             "target": 11,
             "success": {
-              "text": "The figure stops. The screws in his crown catch the light. \"We don't... stock those anymore,\" he says, and for one second he looks like a tired man in an orange apron who hasn't slept in a year. He points you to the exit without a word.",
-              "art": "A gaunt hardware clerk in an orange apron with brass screws in his scalp pausing mid-restock, his face suddenly sad and human, pointing a teenager toward a glowing exit",
+              "text": "She stops. The screws in her crown catch the light. Nobody in this store has asked her a real question in a year. \"We don't... stock those anymore,\" she says, and for one second she looks like a tired woman in an orange apron who hasn't slept since summer. She points you to the exit without a word.",
+              "art": "A gaunt woman clerk in an orange apron with brass screws pinned through her bun pausing mid-restock, her face suddenly sad and human, pointing a teenager toward a glowing exit",
               "effects": { "nerve": 1, "flags": ["screwhead-hesitated"] }
             },
             "failure": {
-              "text": "\"Everything you need is in your aisle,\" he says, without turning around. Your jacket zipper zips itself to your chin, and your shoelaces knot themselves into perfect, impossible double bows.",
-              "art": "A teenager's jacket zipper sliding up by itself under fluorescent light, shoelaces tying themselves into bows, a clerk's back turned in the distance",
+              "text": "\"Everything you need is in your aisle,\" she says, without turning around. Your jacket zipper zips itself to your chin, and your shoelaces knot themselves into perfect, impossible double bows.",
+              "art": "A teenager's jacket zipper sliding up by itself under fluorescent light, shoelaces tying themselves into bows, a woman clerk's back turned in the distance",
               "effects": { "nerve": -1, "dread": 1 }
             }
           }
@@ -258,18 +267,18 @@
         "id": "screwhead-the-leveling",
         "title": "The Leveling",
         "place": "Crystal Street, midnight",
-        "text": "You wake to a sound like a thousand ratchets. Out your window, Crystal Street is rearranging itself: the houses grinding on their foundations into a perfect grid, crooked mailboxes snapping plumb, the round Heartstone garden squaring off into a box. Neighbors stand at their mailboxes in pajamas with silver chains looped kindly around their wrists. Even Mr. and Mr. Abernathy-Cole, who mow in zigzags on principle, are standing at attention. \"It doesn't hurt,\" calls Mrs. Delgado. \"Nothing moves. Isn't it wonderful?\"",
+        "text": "You wake to a sound like a thousand ratchets. Out your window, Crystal Street is rearranging itself: the houses grinding on their foundations into a perfect grid, crooked mailboxes snapping plumb, the round Heartstone garden squaring off into a box. Neighbors stand at their mailboxes in pajamas with silver chains looped kindly around their wrists. Even Mr. and Mr. Abernathy-Cole, who mow in zigzags on principle, are standing at attention. \"Nobody asked us,\" one of them says through a fixed smile, \"but it's fine.\" \"It doesn't hurt,\" calls Mrs. Delgado. \"Nothing moves. Isn't it wonderful?\"",
         "art": "A suburban cul-de-sac at midnight with houses grinding into a rigid grid, mailboxes snapping straight, neighbors in pajamas standing chained at their mailboxes with peaceful smiles, a purple geode in a garden that is turning square",
         "choices": [
           {
             "id": "loosen-the-chains",
-            "label": "Run house to house working the chains loose",
+            "label": "Go house to house and ask each neighbor if they want out",
             "intent": "brave",
             "skill": "hustle",
             "target": 9,
             "bonus": { "companion": "frankie-fontaine", "amount": 1 },
             "success": {
-              "text": "Lefty loosey. Every chain you turn the wrong way goes slack with a little sigh. Mrs. Delgado blinks and asks why she's on the lawn in her curlers. The Abernathy-Coles immediately go back to bickering about the hedges, and three houses grind back to their crooked, perfect places.",
+              "text": "You ask each of them out loud: \"Do you want this off?\" It takes a while for anyone to find the word, but every neighbor who manages a yes, their chain goes slack with a little sigh. Mrs. Delgado blinks and asks why she's on the lawn in her curlers. The Abernathy-Coles immediately go back to bickering about the hedges, and three houses grind back to their crooked, perfect places.",
               "art": "A teenager twisting a silver chain loose from a woman's wrist at a mailbox, the chain falling slack, two men in bathrobes arguing happily behind them as houses settle back askew",
               "effects": { "nerve": 1, "dread": -1 }
             },
@@ -303,8 +312,8 @@
         "id": "screwhead-the-box",
         "title": "The Box Solves Itself",
         "place": "Your bedroom, 3:33 a.m.",
-        "text": "The brass puzzle box is on your nightstand. You never brought it home. It's turning by itself, panels clicking and sliding, each click a little louder, and with every click your room gets neater: posters squared, sheets tucked hospital-tight, cassettes alphabetized. From a seam of gold light, chains begin to unspool across the walls, and a voice like a store intercom says, \"One more turn and you'll never lose anything again.\"",
-        "art": "A cluttered 1980s teenage bedroom snapping into eerie neatness, a brass puzzle box glowing gold on the nightstand, silver chains unspooling from a seam of light across posters and shelves",
+        "text": "The brass puzzle box is on your nightstand. You never brought it home. It's turning by itself, panels clicking and sliding, each click a little louder, and with every click your room gets neater: posters squared, sheets tucked hospital-tight, cassettes alphabetized. From a seam of gold light, chains begin to unspool across the walls, and a woman's voice like a store intercom says, \"One more turn and you'll never lose anything again. You don't have to say yes. I've already decided.\"",
+        "art": "A cluttered 1980s teenage bedroom snapping into eerie neatness, a brass puzzle box glowing gold on the nightstand, silver chains unspooling from a seam of light across shelves and walls",
         "choices": [
           {
             "id": "hold-it-shut",
@@ -336,7 +345,7 @@
             "target": 9,
             "bonus": { "companion": "bea-lindqvist", "amount": 1 },
             "success": {
-              "text": "You turn every panel the wrong way. The box unravels with a sound like a long-held breath let out. Inside there are no chains, only a small brass key tag stamped SZABO & SON. KEYS CUT WHILE YOU WAIT. It feels like something somebody was meant to find.",
+              "text": "You turn every panel the wrong way. The box unravels with a sound like a long-held breath let out. Inside there are no chains, only a small brass key tag stamped SZABO & DAUGHTER. KEYS CUT WHILE YOU WAIT. It feels like something somebody was meant to find.",
               "art": "An unfolded brass puzzle box lying open and harmless on a bedspread, a small brass key tag inside catching the lamplight, a teenager leaning over it in wonder",
               "effects": { "nerve": 1, "dread": -1, "flags": ["screwhead-key"] }
             },
@@ -368,10 +377,10 @@
     ],
     "finale": {
       "id": "screwhead-finale",
-      "title": "Closing Time at Szabo & Son",
+      "title": "Closing Time at Szabo & Daughter",
       "place": "Inside the Heartstone, Halloween night",
-      "text": "On Halloween the Heartstone opens like a puzzle box and Crystal Street folds inside it. You stand in a perfect copy of Szabo & Son Hardware, every drawer labeled, every neighbor standing in an aisle with a silver chain around their wrist, smiling. Behind the counter Screwhead works a key-cutting wheel that throws sparks like fireworks. He wears his HomeMax apron over his father's brown shop coat. \"Nothing will ever close again,\" he says. \"Not on my watch. Not ever.\"",
-      "art": "A vast impossible hardware store inside a glowing purple geode, endless labeled drawers, chained smiling neighbors in every aisle, a screw-crowned man behind a counter cutting keys in a shower of sparks, a teen crew in Halloween costumes facing him",
+      "text": "On Halloween the Heartstone opens like a puzzle box and Crystal Street folds inside it. You stand in a perfect copy of Szabo & Daughter Hardware, every drawer labeled in her precise capitals, every neighbor standing in an aisle with a silver chain around their wrist, smiling. Behind the counter Magda works a key-cutting wheel that throws sparks like fireworks. She wears her HomeMax apron over her father's brown shop coat, the sleeves rolled twice. \"Nothing will ever close again,\" she says. \"Not on my watch. And nobody will ever walk in here again and ask me if my father is around.\"",
+      "art": "A vast impossible hardware store inside a glowing purple geode, endless labeled drawers, chained smiling neighbors in every aisle, a tall woman with brass screws pinned through her bun behind a counter cutting keys in a shower of sparks, a teen crew in Halloween costumes facing her",
       "choices": [
         {
           "id": "fight",
@@ -381,48 +390,48 @@
           "target": 11,
           "bonus": { "item": "baseball-bat", "amount": 2 },
           "success": {
-            "text": "Sparks, a bang, darkness. The perfect store rattles apart into ten thousand loose screws that rain down onto the roundabout grass. Screwhead falls with them, and lands as just a man in an orange apron, asleep on the lawn, remembering nothing at all.",
-            "art": "A key-cutting machine exploding in sparks as a hardware store bursts apart into a rain of screws over a suburban roundabout, a man in an apron collapsing asleep on the grass",
+            "text": "Sparks, a bang, darkness. The perfect store rattles apart into ten thousand loose screws that rain down onto the roundabout grass. Screwhead falls with them, and lands as just a woman in an orange apron, asleep on the lawn, remembering nothing at all.",
+            "art": "A key-cutting machine exploding in sparks as a hardware store bursts apart into a rain of screws over a suburban roundabout, a woman in an apron collapsing asleep on the grass",
             "effects": { "nerve": 1 }
           },
           "failure": {
-            "text": "The machine won't stop. Chains loop around your wrists, soft and certain as a seatbelt. \"There,\" he says gently, almost kindly. \"Now you're safe.\"",
-            "art": "Silver chains wrapping a struggling teenager's wrists in front of a sparking key machine, a screw-crowned man looking down at them with pity",
+            "text": "The machine won't stop. Chains loop around your wrists, soft and certain as a seatbelt. \"There,\" she says gently, almost kindly, and she does not ask. \"Now you're safe.\"",
+            "art": "Silver chains wrapping a struggling teenager's wrists in front of a sparking key machine, a tall woman with a crown of brass screws looking down at them with pity",
             "effects": { "nerve": -3 }
           }
         },
         {
           "id": "trick",
-          "label": "Swap the labels on one drawer and let him try to fix it",
+          "label": "Swap the labels on one drawer and let her try to fix it",
           "intent": "clever",
           "skill": "hustle",
           "target": 9,
           "success": {
-            "text": "You swap the quarter-inch and the three-eighths. He can't stand it. He fixes it. You swap two more. The crew starts swapping every label in the store, and he spins in place trying to correct everything at once until the box can't hold its own disorder and pops open, spilling the whole street out onto the lawn.",
-            "art": "A teen crew frantically swapping labels on hundreds of hardware drawers while a screw-crowned man spins in panic trying to fix them, the walls of the store cracking open to the night sky",
+            "text": "You swap the quarter-inch and the three-eighths. She can't stand it. She fixes it. You swap two more. The crew starts swapping every label in the store, and she spins in place trying to correct everything at once until the box can't hold its own disorder and pops open, spilling the whole street out onto the lawn.",
+            "art": "A teen crew frantically swapping labels on hundreds of hardware drawers while a woman with brass screws in her hair spins in panic trying to fix them, the walls of the store cracking open to the night sky",
             "effects": { "nerve": 1 }
           },
           "failure": {
-            "text": "He sees you do it. \"My father taught me inventory, kid.\" Every drawer in the store slams shut at once like a giant clapping its hands, and your fingers are caught in one of them.",
-            "art": "Hundreds of drawers slamming shut at once along an endless wall, a teenager's hand caught in one, a man behind the counter shaking his head",
+            "text": "She sees you do it. \"I was doing my father's inventory at twelve, kid.\" Every drawer in the store slams shut at once like a giant clapping its hands, and your fingers are caught in one of them.",
+            "art": "Hundreds of drawers slamming shut at once along an endless wall, a teenager's hand caught in one, a woman behind the counter shaking her head",
             "effects": { "nerve": -3 }
           }
         },
         {
           "id": "heart",
-          "label": "Show him the sign, the ledger and his father's letter",
+          "label": "Show her the sign, the ledger and her father's letter, then ask before you loosen anything",
           "intent": "kind",
           "skill": "charm",
           "target": 9,
           "requires": { "clues": 3 },
           "success": {
-            "text": "You set the old sign on the counter, open the green ledger to FORGIVEN, and read Laszlo's letter out loud. Walt's hands stop on the wheel. \"He forgave all of them,\" he says. \"Even the ones who went to the mall.\" The screws in his crown loosen one by one and fall ringing to the floor. He takes off the orange apron. Then, with great care, he unchains the neighbors one by one, a quarter-turn the other way.",
-            "art": "A tearful man reading an old letter at a hardware counter as brass screws fall from his head like rain, an open green ledger and a hand-painted sign before him, freed neighbors rubbing their wrists",
+            "text": "You set the old sign on the counter, open the green ledger to FORGIVEN, and read Laszlo's letter out loud. Magda's hands stop on the wheel. \"He forgave all of them,\" she says. \"Even the ones who went to the mall.\" You hold out your hand, palm up, and ask: \"Can I loosen one?\" Nobody has asked her anything in a year. She stares at you, then nods. One screw comes out of her crown, then another, falling ringing to the floor. \"A chain somebody chooses is a promise,\" she says slowly. \"One you put on them is a cage.\" She takes off the orange apron and goes aisle to aisle, asking each neighbor, \"Do you want this off?\", and turning each chain a quarter-turn the other way when they say yes.",
+            "art": "A tearful woman reading an old letter at a hardware counter as brass screws fall from her loosened hair like rain, an open green ledger and a hand-painted sign before her, a teenager holding out an open palm, freed neighbors rubbing their wrists",
             "effects": { "nerve": 2 }
           },
           "failure": {
-            "text": "He grips the counter until it creaks. \"Words don't hold anything together.\" You have everything he needs to hear, but he's wound too tight to hear it yet, and the whole store groans like a ship.",
-            "art": "A screw-crowned man gripping a hardware counter with white knuckles, a teenager holding out a letter, the store walls straining and bending",
+            "text": "She grips the counter until it creaks. \"Words don't hold anything together.\" You have everything she needs to hear, but she's wound too tight to hear it yet, and the whole store groans like a ship.",
+            "art": "A woman with a crown of brass screws gripping a hardware counter with white knuckles, a teenager holding out a letter, the store walls straining and bending",
             "effects": { "nerve": -2 }
           }
         }
@@ -431,22 +440,22 @@
     "endings": {
       "best": {
         "title": "Keys Cut While You Wait",
-        "text": "On November first Walt goes to Pinecrest and loosens his father's headstone a single quarter-turn so it can lean like everybody else's. Then he goes home and eats dinner. By December there's a card table at the Heartstone roundabout every Saturday: SZABO & SON FIX-IT. Toasters, Walkmans, bike chains, a quarter each, pay when you can. He keeps a green ledger. He teaches you to cut a key, and the first one you make opens nothing at all, and he says that's fine, he'll keep it anyway.",
-        "art": "A smiling man in a brown shop coat at a card table repair stand by a purple geode on a suburban roundabout, teens and neighbors lined up with broken toasters and boomboxes, a green ledger open beside him"
+        "text": "On November first Magda goes to Pinecrest and loosens her father's headstone a single quarter-turn so it can lean like everybody else's. Then she goes home and eats dinner. By December there's a card table at the Heartstone roundabout every Saturday: SZABO & DAUGHTER FIX-IT, painted crooked on purpose. Toasters, Walkmans, bike chains, a quarter each, pay when you can, and she asks before she fixes anything, because some people like their things a little broken. She keeps a green ledger. She lets the crew rearrange her toolbox however they want and only twitches a little. On Friday nights she leaves the table to Frankie, borrows Wade's leather jacket and goes dancing at the Glitter Box with her hair down and every screw out. She teaches you to cut a key, and the first one you make opens nothing at all, and she says that's fine, she'll keep it anyway.",
+        "art": "A smiling woman in a brown shop coat with loose gray-streaked hair at a card table repair stand by a purple geode on a suburban roundabout, a crookedly painted sign above her, teens and neighbors lined up with broken toasters and boomboxes, a green ledger open beside her"
       },
       "good": {
         "title": "Everything in Its Place",
-        "text": "The store dissolves, the chains fall away, and Crystal Street wakes up with its houses back where they belong, slightly crooked. Walt goes back to the HomeMax and his orange apron. Sometimes, driving past at three a.m., you see him alone in a lit aisle straightening a display that was already straight, and you wonder what it was he lost.",
-        "art": "A lone man in an orange apron straightening a perfect display in a brightly lit, empty big-box store at night, seen through the glass doors from a dark parking lot"
+        "text": "The store dissolves, the chains fall away, and Crystal Street wakes up with its houses back where they belong, slightly crooked. Magda goes back to the HomeMax and her orange apron. Sometimes, driving past at three a.m., you see her alone in a lit aisle straightening a display that was already straight, and you wonder what it was she lost, and who she had to be to keep it.",
+        "art": "A lone woman in an orange apron straightening a perfect display in a brightly lit, empty big-box store at night, seen through the glass doors from a dark parking lot"
       },
       "bittersweet": {
         "title": "A Quarter-Turn Too Tight",
-        "text": "You survive the week and so does most of the street, but a few neighbors never quite loosen up. The Delgados mow their lawn in perfect stripes at six a.m. every day now and never laugh at the same jokes twice. On your wrist there's a faint white line where a chain once was, and on bad days it itches like a screw being turned.",
+        "text": "You survive the week and so does most of the street, but a few neighbors never quite loosen up. The Delgados mow their lawn in perfect stripes at six a.m. every day now and never laugh at the same jokes twice. Magda moves away in the spring without saying goodbye. On your wrist there's a faint white line where a chain once was, and on bad days it itches like a screw being turned.",
         "art": "A suburban lawn mowed in eerily perfect stripes at dawn, a stiff couple standing on the porch, a teenager on the sidewalk rubbing a faint pale line on their wrist"
       },
       "bad": {
         "title": "Perfect Order",
-        "text": "You wake on November first and your life is perfectly organized. Your tapes are alphabetized. Your hair is combed. Every evening at six you stand at your mailbox with your hands folded and wait for nothing in particular. Your crew tries to make you laugh. You check your watch, and you smile, and you don't move at all.",
+        "text": "You wake on November first and your life is perfectly organized. Your tapes are alphabetized. Your hair is combed. Every evening at six you stand at your mailbox with your hands folded and wait for nothing in particular. Nobody asked you, and you can't remember how to say stop. Your crew tries to make you laugh. You check your watch, and you smile, and you don't move at all.",
         "art": "A teenager with neatly combed hair standing perfectly still at a mailbox at dusk with folded hands and a calm smile, friends in colorful costumes trying desperately to get their attention"
       }
     }

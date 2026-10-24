@@ -68,6 +68,19 @@
             </p>
           </li>
         </ul>
+        <div v-if="run.revealed" class="cs-card space-y-2 p-3">
+          <p class="cs-kicker">
+            {{ KIND_LABELS[villain.inspiration.kind] }}
+            {{ villain.inspiration.original }} ·
+            {{ villain.inspiration.film }} ({{ villain.inspiration.year }})
+          </p>
+          <p class="text-sm">
+            <strong>The old script.</strong> {{ villain.inspiration.oldScript }}
+          </p>
+          <p class="text-sm">
+            <strong>The new lens.</strong> {{ villain.inspiration.newLens }}
+          </p>
+        </div>
         <div v-if="run.revealed" class="cs-card p-3">
           <p class="cs-kicker">The heart of it</p>
           <template v-if="run.clues.length >= 3">
@@ -98,6 +111,11 @@ import {
   villainOf,
 } from '~/utils/crystalStreet/rules'
 
+const KIND_LABELS = {
+  flip: 'Gender flip of',
+  bend: 'Gender-bent',
+  remix: 'Remix of',
+} as const
 const store = useCrystalStreetStore()
 const run = computed(() => store.run)
 const villain = computed(() => villainOf(store.run!))

@@ -3,6 +3,14 @@
     "id": "mister-fuzzbutton",
     "name": "Mister Fuzzbutton",
     "epithet": "The Teddy Who Tells",
+    "inspiration": {
+      "original": "Chucky",
+      "film": "Child's Play",
+      "year": 1988,
+      "kind": "remix",
+      "oldScript": "The killer toy holds a murderer's soul, so the child who loves it is the next victim.",
+      "newLens": "The toy holds a lonely kid's voice. The danger is a child left alone with a machine instead of people."
+    },
     "tags": ["tech", "paranormal"],
     "palette": ["#c68e5a", "#3fa7d6", "#ff5c8a"],
     "sigil": "cassette",

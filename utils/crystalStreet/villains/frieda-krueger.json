@@ -3,6 +3,14 @@
     "id": "frieda-krueger",
     "name": "Frieda Krueger",
     "epithet": "The Stylist of Sleep",
+    "inspiration": {
+      "original": "Freddy Krueger",
+      "film": "A Nightmare on Elm Street",
+      "year": 1984,
+      "kind": "flip",
+      "oldScript": "The boogeyman as a child-killer in a striped sweater, and Freddy's Revenge (1985), whose monster doubled as a gay-panic metaphor for a boy's desire.",
+      "newLens": "A woman stylist lied out of town by a moral-panic PTA for letting kids look like themselves. Her rage is real but aimed at the wrong generation, and the cure is the truth."
+    },
     "tags": ["dream", "slasher", "paranormal"],
     "palette": ["#e0115f", "#2b1a3d", "#c0c0c8"],
     "sigil": "shears",

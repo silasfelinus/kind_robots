@@ -97,8 +97,8 @@
               <p
                 class="text-xs font-bold uppercase tracking-widest text-white/60"
               >
-                P{{ pilot.seat + 1 }} · {{ pilot.pronouns }} ·
-                {{ pilot.colorName }}
+                {{ RAINBOW_SQUADRON.name }} · P{{ pilot.seat + 1 }} ·
+                {{ pilot.pronouns }} · {{ pilot.colorName }}
               </p>
               <h3
                 class="text-3xl font-black leading-tight @2xl:text-4xl"
@@ -125,6 +125,17 @@
                   Fire
                 </dt>
                 <dd>{{ pilot.primary }}</dd>
+              </div>
+              <div class="rounded-xl bg-white/5 p-3 @lg:col-span-2">
+                <dt class="text-xs uppercase tracking-widest text-white/60">
+                  Cat co-pilot
+                </dt>
+                <dd>
+                  <span class="font-bold">{{ pilot.copilot.name }}</span
+                  >, {{ pilot.copilot.cat }}. Flying for
+                  {{ RAINBOW_SQUADRON.name }} ({{ RAINBOW_SQUADRON.stands }})
+                  against the {{ RAINBOW_VILLAINS }}.
+                </dd>
               </div>
               <div class="rounded-xl bg-white/5 p-3 @lg:col-span-2">
                 <dt class="text-xs uppercase tracking-widest text-white/60">
@@ -257,6 +268,10 @@ import {
 } from '~/utils/arcade/games/rainbowPilots'
 import { rainbowSuperCutin } from '~/utils/arcade/games/rainbowGameArt'
 import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
+import {
+  RAINBOW_SQUADRON,
+  RAINBOW_VILLAINS,
+} from '~/utils/arcade/games/rainbowDogs'
 
 const navStore = useNavStore()
 

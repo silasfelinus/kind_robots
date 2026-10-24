@@ -76,7 +76,7 @@ export const CROW_COURT: Mystery = {
           label: 'Buy Dot a coffee and ask whose crows they are',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You buy the coffee and drink it slowly, which up here counts as a reference. “Gus Pell’s crows,” Dot says at last. “Fed them every morning for twenty years off his porch, two scoops from a blue bin. Then Gus stopped coming down the hill. Six winters ago.” She shrugs at the window. “Folks decided he died. Up here, when you stop showing up, folks decide things.” She taps the ring. “That’s not his, though. Gus’s ring was plain.”',
+            text: 'You buy the coffee and drink it slowly, which up here counts as a reference. “Gus Pell’s crows,” Dot says at last. “Fed them off his porch every morning, twenty years running, two scoops from a blue bin. Then Gus stopped coming down the hill. Six winters ago.” She shrugs at the window. “Folks decided he died. Up here, when you stop showing up, folks decide things.” She taps the ring. “That’s not his, though. Gus’s ring was plain.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -146,7 +146,7 @@ export const CROW_COURT: Mystery = {
           label: 'Work out which side of the stump is “the wrong side”',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'To a man who fed crows at dawn for twenty years, the wrong side of anything is the side where the day ends: west. Every fresh hole in the clearing is on the east side. Whoever has been digging has been reading the postcards too, and reading them exactly backwards. You plant a stick on the west side, and the crows on the oak go quiet in a way that feels like approval.',
+            text: 'To a man who fed his crows at first light, the wrong side of anything is the side where the day ends: west. Every fresh hole in the clearing is on the east side. Whoever has been digging has been reading the postcards too, and reading them exactly backwards. You plant a stick on the west side, and the crows on the oak go quiet in a way that feels like approval.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -160,7 +160,7 @@ export const CROW_COURT: Mystery = {
             'Feed the crows the way the postcard says: two scoops, not three',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'Crows remember faces. Researchers in Seattle once trapped a few birds while wearing a rubber caveman mask, and years later crows that had never been caught still scolded anyone who wore it. So you give them a face worth keeping: up the slumped porch, two scoops from the blue bin, not three, scattered the way a man would who had done it every morning for twenty years. One crow drops from the oak and lays a gold bottle cap at your feet, salmon side up. You are, apparently, on the list.',
+            text: 'Crows remember faces. Researchers in Seattle once trapped a few birds while wearing a rubber caveman mask, and years later crows that had never been caught still scolded anyone who wore it. So you give them a face worth keeping: up the slumped porch, two scoops from the blue bin, not three, scattered the way Gus must have, every dawn. One crow drops from the oak and lays a gold bottle cap at your feet, salmon side up. You are, apparently, on the list.',
             effects: { weird: 1 },
           },
           failure: {
@@ -255,11 +255,11 @@ export const CROW_COURT: Mystery = {
       ],
       leadLines: {
         mara: 'Mara is pacing the clearing heel to toe. “Thirty-one steps from the stump to the trees. If it charges, you have thirty-one. Use them.”',
-        kit: 'Kit is hanging flashlights that treasure hunters dropped here on other nights from the oak on fishing line, all switched on and pointed down. “If they come back, the tree is going to look at them.”',
+        kit: 'Kit has rebuilt the Crow Man’s rattle, by ear, out of a paint can, a shovel handle and a fistful of bottle caps, and gives it one experimental shake. Fifty crows turn to look. “Okay,” she whispers. “So it’s a word.”',
         juniper:
           'Juniper hums something low, and the crows on the fence stop rustling to listen. “They like me better,” she tells you. “Don’t take it personally. Take it a little personally.”',
         cedar:
-          'Cedar leaves his truck lights off and his keys in. “Nobody’s getting chased down this road tonight. Not even the bad guys.”',
+          '“Dead man’s mail and a bird funeral,” Cedar says, leaving his truck lights off and his keys in. “If the universe is sending somebody a message, it picked the slowest carrier there is. Nobody’s getting chased down this road tonight.”',
       },
       aloneLine:
         'With nobody to catch you if you run, you decide, for once, not to run.',
@@ -278,6 +278,10 @@ export const CROW_COURT: Mystery = {
       'The postcards stop coming. The Crow Man is seen once more, at the bottom of the dirt road, and then not at all. The holes around the stump fill with rain. Up on the ridge, the crows still gather at dusk around nothing, which nobody up here considers strange anymore.',
       'Dot sets your coffee down in front of the row of crow gifts, still on its bar towel. “Some things up here don’t want to be found,” she says. “And some things just haven’t been asked right.”',
     ],
+    recall: {
+      'g3:pass':
+        'You had the Crow Man, for a minute, in the last of the light. Then the headlights came back, and when you looked again there was only a heap of black plastic feathers on the stump and the crows standing around it, saying nothing.',
+    },
     choices: [
       {
         id: 'peanuts',
@@ -304,7 +308,7 @@ export const CROW_COURT: Mystery = {
       'She looks down at the dark folds of the Eel. “You know why I never corrected anybody? Because up here, when a man stops coming to town, folks down the hill think the other thing. Sometimes they’re right. There are families who still drive these roads every year with a photo on the dashboard, asking at every tavern, and their people didn’t go to a care home in Fortuna.” She wipes her eyes with a plastic-feathered sleeve. “I’m the lucky one. I know that. It doesn’t help as much as you’d think.”',
     ],
     afterMiss: [
-      'An hour later the clearing is quiet. The treasure hunters have gone back down the switchbacks with everyone and everything they brought, complaining the whole way, and you end up at the stump, because that is the kind of mistake you make. The Crow Man is sitting on it with the mask in its lap and the crows settling around its boots: fifty silent mourners and one costume of black contractor bags cut into feathers by somebody patient, propped on a pair of drywall stilts. Beside it is a paint can of bottle caps on a broom handle: the rattle. “You’re still here,” says a tired woman’s voice. “The crows are going to have opinions about that.”',
+      'An hour later the clearing is quiet. The treasure hunters have gone back down the switchbacks with everyone they brought and most of what they brought, complaining the whole way, and you end up at the stump, because that is the kind of mistake you make. The Crow Man is sitting on it with the mask in its lap and the crows settling around its boots: fifty silent mourners and one costume of black contractor bags cut into feathers by somebody patient, propped on a pair of drywall stilts. Beside it is a paint can of bottle caps on a broom handle: the rattle. “You’re still here,” says a tired woman’s voice. “The crows are going to have opinions about that.”',
       'Reyna Pell is forty-four, sunburned, with her father’s jaw and a ring of school-bus keys on a district lanyard. “Dad’s not dead. He’s in Fortuna. He has dementia. Most days he doesn’t know my name, but every morning he asks Sione, his aide, if somebody fed the crows. He buried something up here for me and he can’t tell me where anymore. So I dig, the treasure hunters dig, I scare them off, and nobody finds it.”',
       'She looks down at the dark folds of the Eel. “You know why I never corrected anybody? Because up here, when a man stops coming to town, folks down the hill think the other thing. Sometimes they’re right. There are families who still drive these roads every year with a photo on the dashboard, asking at every tavern, and their people didn’t go to a care home in Fortuna.” She wipes her eyes with a plastic-feathered sleeve. “I’m the lucky one. I know that. It doesn’t help as much as you’d think.”',
     ],
@@ -316,7 +320,7 @@ export const CROW_COURT: Mystery = {
       'g3:trap':
         'Behind you the tarp still turns slowly on its rope from the oak, empty now, like a flag nobody salutes.',
       'g3:scare':
-        'Somewhere down the road a metal detector lies in the ditch where somebody dropped it running, still beeping at nothing.',
+        'Somewhere in the dark, something the treasure hunters dropped on their way out is still beeping at nothing.',
     },
     choices: [
       {
@@ -333,8 +337,8 @@ export const CROW_COURT: Mystery = {
       },
       {
         id: 'leave',
-        label: 'Hand her back the mask and walk down the hill',
-        text: 'You hand her the mask. Some things belong to the people who have to carry them. You walk down in the dark with fifty crows watching you go.',
+        label: 'Leave her the mask and walk down the hill',
+        text: 'You leave the mask where it is. Some things belong to the people who have to carry them. You walk down in the dark with fifty crows watching you go.',
         ending: 'let-it-stay-buried',
       },
     ],
@@ -393,7 +397,7 @@ export const CROW_COURT: Mystery = {
         {
           id: 'open-hand',
           label: 'Kneel by the hole and hold out an open hand to the crows',
-          text: 'You kneel and hold out your hand, palm up, the way Gus must have every morning for twenty years. The nearest crow studies your face for a long time. Then it steps onto your wrist.',
+          text: 'You kneel and hold out your hand, palm up, the way Gus did. The nearest crow studies your face for a long time. Then it steps onto your wrist.',
           ending: 'blue-bin',
         },
         {

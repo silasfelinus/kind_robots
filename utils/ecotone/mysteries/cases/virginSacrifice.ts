@@ -137,7 +137,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       },
       body: [
         'Gleaner Ridge is a private inholding up the canyon, steep and quiet, mostly young redwood that grew back after the last century’s cuts. Past a locked gate and a long switchback the trees change. They get wider, older, absurd: trunks like the sides of barns, bark furrowed deep enough to lose a hand in. Every one has a red ribbon around it at exactly the same height.',
-        'Mixed among them are trees tied with blue ribbon instead, spray-painted with numbers. Above you, lanterns move from trunk to trunk, and a woman’s voice says, very clearly, “Two hundred sixty-eight point four. Write it down, Winnie.”',
+        'Some of them carry a blue ribbon as well, tied lower down, beside a spray-painted number. Above you, lanterns move from trunk to trunk, and a woman’s voice says, very clearly, “Two hundred sixty-eight point four. Write it down, Winnie.”',
       ],
       approaches: [
         {
@@ -212,7 +212,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       },
       body: [
         'The harvest moon comes up orange over the Eel and turns the whole ridge the color of old brass. Brynn has rallied the entire paranormal club, four people and a ring light, and they have a plan, the classic one: catch the cult in the act, unmask the leader, post it before breakfast.',
-        'In the eldest grove the lanterns gather around one tree, the widest you have ever seen, older than every building in the county put together. Robed figures circle it holding a long red ribbon between them. Down the slope, headlights grind up the logging road: a pickup with a magnetic sign on the door, QUILLMARK LAND & TIMBER.',
+        'In the eldest grove the lanterns gather around one tree, the widest you have ever seen, older than every building in the county put together. Robed figures circle it holding a long red ribbon between them. One small figure stands apart from the circle, clutching a padded case to her chest like a newborn, and every few minutes the others check that she still has it. Down the slope, headlights grind up the logging road: a pickup with a magnetic sign on the door, QUILLMARK LAND & TIMBER.',
       ],
       approaches: [
         {
@@ -258,7 +258,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       ],
       leadLines: {
         mara: 'Mara watches the circle with professional respect. “A procession that tidy took rehearsals. Whoever runs this would make a terrifying studio manager.”',
-        kit: 'Kit is stringing headlamps between two saplings on fishing line, every beam aimed at the eldest tree. “If somebody’s getting sacrificed tonight,” she says, “they’re getting proper lighting.”',
+        kit: 'Kit has married a bicycle wheel to a fishing reel and made a girth tape that pays itself out. “You walk, it measures,” she says. “I’m not saying the Sisters need me. I’m saying they’ll want one.”',
         juniper:
           'Juniper has a red ribbon in her hair, and you did not see anyone give it to her. “I asked nicely,” she says. “You should try it sometime.”',
         cedar:
@@ -308,12 +308,12 @@ export const VIRGIN_SACRIFICE: Mystery = {
     body: [
       'The circle stops. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us.”',
       '“The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Agnes turns to Brynn. “And the ribbon on your mirror, dear: you were parked on R-114’s roots, down at the pullout. She was owed an apology, and your car was the nearest thing to write it on.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
-      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “Most of us were cataloguers, forty years each, give or take. This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
     ],
     afterMiss: [
       'Your plan for the night has failed in every particular, and the Sisters, who between them have watched plans fail for three hundred years, do not hold it against you. The circle stops anyway. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us.”',
       '“The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Agnes turns to Brynn. “And the ribbon on your mirror, dear: you were parked on R-114’s roots, down at the pullout. She was owed an apology, and your car was the nearest thing to write it on.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
-      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “Most of us were cataloguers, forty years each, give or take. This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
     ],
     recall: {
       'g1:fail':
@@ -360,7 +360,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       scene: 'grove',
       body: [
         'You measure until your fingers go numb. Breast height, one meter thirty-seven off the uphill side, tape level, read it twice, call it out. Winnie writes it down. Dr. Raman checks every tenth tree behind you and corrects you twice, gently, and then not at all. The Sisters work like a choir: no wasted motion, no raised voices, a thermos of tea passed down the line every hour on the hour.',
-        'By the gray before dawn two trees remain: one across a ravine, and the eldest herself. The circle took her girth at midnight, but only once, and the Sisters do not record a number they have read only once. The trust’s rule is simple: a census with a hole in it is a guess. Winnie’s phone buzzes. It is Spencer, asking for the numbers “before anyone else sees them, so I can tidy them up.” Agnes frowns for the first time all night. Down the slope, a truck door slams.',
+        'By the gray before dawn two trees remain: one across a ravine, and the eldest herself. The circle took her girth at midnight, but only once, and the Sisters do not record a number they have read only once. The trust’s rule is simple: a census with a hole in it is a guess. Winnie’s phone buzzes. It is Spencer, asking for the numbers “before anyone else sees them, so I can tidy them up.” Agnes frowns for the first time all night.',
       ],
       choices: [
         {
@@ -384,7 +384,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       scene: 'highway',
       body: [
         'The timber cruiser is a Rio Dell guy named Dusty Oyelaran, thirty-four, two kids, a high-vis vest and the exhausted face of someone who has been counting the same trees as eight retired women for a month. By now he has been offered tea by six of them. “I grew up down there,” he says, nodding at the lights of Rio Dell. “This job’s the job there is. I flag what they tell me.”',
-        'He lowers his voice. “You know your Sisters’ numbers come to our office every week? Their trust guy, Spencer, sends them over before his own board sees them, and our office sends him a check. Finder’s fee. That’s how we knew which trees to flag first.” He holds out a tablet with a cracked screen: his own honest cruise, and beside it the summary Spencer gave the trust’s board, every big tree rounded down to second growth. “They’ve been measuring for the wrong side,” he says. “Somebody ought to tell them.”',
+        'He lowers his voice. “You know what your Sisters’ trust guy, Spencer, does with their numbers? Rounds them. Down. Anything over two meters goes to his board as ‘second growth, approx.’ Our office sends him a very nice fruit basket every Christmas.” He holds out a tablet with a cracked screen: his own honest cruise, and beside it the summary Spencer gave the trust’s board, a whole old-growth stand written up as regrowth. “They’ve been measuring perfectly for a man who can’t count,” he says. “Or won’t. Somebody ought to tell them.”',
       ],
       choices: [
         {
@@ -429,11 +429,11 @@ export const VIRGIN_SACRIFICE: Mystery = {
     },
     {
       id: 'ring-for-next-year',
-      title: 'The Ring for Next Year',
+      title: 'The Uncounted Ring',
       tone: 'strange',
       text: [
-        'Dr. Raman’s core, a pencil of wood drawn from the eldest tree last spring, should end at the bark. It doesn’t. Past the bark line there is one more ring, a fat pale one that looks like a good year for everybody, and inside it the faint dark line of a fire that hasn’t happened yet. She has counted it nine times. The newest ring is for next year.',
-        'The Sisters, being who they are, catalog it. It sits in a labeled tube in the back room of a small-town library, filed under next year’s date. Whatever happens to Gleaner Ridge, the eldest tree seems sure she will be standing to grow that ring. Every few months you go and count again. There is always one more.',
+        'Dr. Raman’s core, a pencil of wood drawn from the eldest tree last spring, should end at the pith, the tree’s first year, the one ring with nothing inside it. It doesn’t. Past the center the rings keep going, smaller and smaller and every one perfectly distinct, each a year from before the tree began. Under the loupe she stopped counting at four thousand, because the next ring was the width of a hair and there were more inside it.',
+        'The Sisters, being who they are, catalog it anyway. It sits in a labeled tube in the back room of a small-town library, filed under DATE OF ORIGIN: NOT YET DETERMINED, the closest Winnie has ever come to leaving a field blank. Whatever happens to Gleaner Ridge, nobody can ever again say she was not counted. Every few months you go and count again. There is always one more.',
       ],
     },
   ],

@@ -62,7 +62,7 @@ export const MIDNIGHT_MANE: Mystery = {
       },
       body: [
         'The Bellwether was a vaudeville house for longshoremen and mill hands a century before it showed movies, and on wet nights it still smells of rope and sawdust. Its stage door is propped open with a fishnet-wrapped brick. Inside, twelve people in corsets and lab coats argue at once: two crab-boat deckhands, a night-shift nurse, half a Cal Poly Humboldt dorm. Brody, the cast’s current lead, is still in heels and full grievance. “It hit my mark,” he says. “It did my turn. The crowd yelled lines at it I’ve never even heard.”',
-        'A gold sequin glints on the floorboards, then another. They lead somewhere. The owner, Marguerite Tsai, a sharp woman with a long black braid pinned up, paces the lobby on the phone with someone she keeps calling “the buyer.” “Ten Saturdays of box office, that was the deal,” she is saying, very crisply. “Count the house yourself.” There is a gold sequin on her cuff, and she doesn’t notice.',
+        'A gold sequin glints on the floorboards, then another. They lead somewhere. The owner, Marguerite Tsai, a sharp woman with her hair under a silk scarf, paces the lobby on the phone with someone she keeps calling “the buyer.” “Ten Saturdays of box office, that was the deal,” she is saying, very crisply. “Count the house yourself.” Then she hangs up and goes to see about the ice machine.',
       ],
       approaches: [
         {
@@ -83,7 +83,7 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Follow the trail of gold sequins',
           check: { skill: 'wits', target: 7 },
           success: {
-            text: 'The sequins are metal, not plastic: heavy vintage lamé nobody has manufactured in decades. They lead through a crawlspace behind the screen and up a ladder to the locked projection booth. The dust on the ladder rungs has been wiped clean by someone careful and in heels, and on the top rung, snagged on a splinter, is a single long black hair. Brody is blond. Every old-timer swears Lady Mane went silver years ago.',
+            text: 'The sequins are metal, not plastic: heavy vintage lamé nobody has manufactured in decades. They lead through a crawlspace behind the screen and up a ladder to the locked projection booth. The dust on the ladder rungs has been wiped clean by someone careful and in heels, and on the top rung, snagged on a splinter, is a single black hair, long enough to braid. Brody is blond. Every old-timer swears Lady Mane went silver years ago. Whoever climbs this ladder in heels has hair to her waist and somewhere to hide it.',
             effects: { weird: 1 },
           },
           failure: {
@@ -96,7 +96,7 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Read Brody’s grievance for the lie in it',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'Brody’s outrage is very good, very rehearsed, and keeps pausing for him to check his phone. You follow him out to an old Buick in the alley, where a silver-haired woman in perfect eyeliner hands him a pair of heels: Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for twenty-eight years, secretly teaching him her turn. “Don’t tell the cast,” Brody begs. “And I wasn’t the lion. Probably.”',
+            text: 'Brody’s outrage is very good, very rehearsed, and keeps pausing for him to check his phone. You follow him out to an old Buick in the alley, where a silver-haired woman in perfect eyeliner hands him a pair of heels: Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for thirty-odd years, secretly teaching him her turn. “Don’t tell the cast,” Brody begs. “And I wasn’t the lion. Probably.”',
             effects: { nerve: 1 },
           },
           failure: {
@@ -153,7 +153,7 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Match the reel’s cast to the old lobby photos',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'You run downstairs and back with three framed photos under your arm. The lion’s posture matches a 1984 photo of Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for twenty-eight years. But in a 1996 photo, a young understudy stands in the wings in the same mask, face turned from the camera, and her name has been scratched off the caption with something sharp. “Ronnie never missed a show,” Gil says. “So the understudy never went on. Not once.”',
+            text: 'You run downstairs and back with three framed photos under your arm. The lion’s posture matches a 1984 photo of Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for thirty-odd years. But in a 1996 photo, a young understudy stands in the wings in the same mask, face turned from the camera, and her name has been scratched off the caption with something sharp. “Ronnie never missed a show,” Gil says. “So the understudy never went on. Not once.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -183,7 +183,7 @@ export const MIDNIGHT_MANE: Mystery = {
         juniper:
           'Juniper points at the girl in the gold cape. “I’m making one of those,” she says. “Mine will be better. Don’t tell her.”',
         cedar:
-          'Cedar listens to the projector like it is an engine. “That machine’s running on something other than electricity,” he says. “Old film, full moon. Something up there loves a rerun.”',
+          'Cedar listens to the projector like it is an engine. “Old film, old house,” he says. “Time’s supposed to run one direction. Somebody up there loves a rerun.”',
       },
       aloneLine:
         'With no one beside you, the reel feels like it is playing for you alone. Maybe it is.',
@@ -219,7 +219,7 @@ export const MIDNIGHT_MANE: Mystery = {
           check: { skill: 'rizz', target: 9 },
           cost: 'You will be in heels, in front of four hundred people.',
           success: {
-            text: 'You strut. You are terrible, gloriously. The crowd loves you for it. At the top of the number, a gold shape drops from the fly loft and lands in a perfect split beside you, and four hundred people scream at once. The lion takes your hand. You are no longer the bait. You are the partner.',
+            text: 'You strut. You are terrible, gloriously. The crowd loves you for it. At the top of the number, a gold shape drops from the fly loft and lands in a perfect split beside you, and the whole house screams at once. The lion takes your hand. You are no longer the bait. You are the partner.',
             effects: { nerve: 1 },
             leadLines: {
               kit: 'It dropped straight through Kit’s wind machine. Later she will insist that was the plan.',
@@ -252,7 +252,7 @@ export const MIDNIGHT_MANE: Mystery = {
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You yell the callback a beat early and one word wrong, which in 1981 meant something else entirely. Four hundred people yell the filthy answer back at you with total joy, and the number falls apart laughing. When Gil’s follow spot finds the stage, it is empty. The lion is sitting in the third row, on the aisle, in your seat, eating your popcorn.',
+            text: 'You stand up to yell the callback, and the house beats you to it: a whole room of people, most of whom were not alive in 1981, yell a filthier answer they learned off the internet, with total joy, and the number falls apart laughing. When Gil’s follow spot finds the stage, it is empty. The lion is sitting in the third row, on the aisle, in your seat, eating your popcorn.',
             effects: { nerve: -1 },
           },
         },
@@ -281,9 +281,13 @@ export const MIDNIGHT_MANE: Mystery = {
     chapter: 3,
     scene: 'theater',
     body: [
-      'The next morning, the marquee reads CLOSED. The lion never came back after the last show, or if it did, nobody was ready. A crew is already pulling the velvet seats.',
+      'The next morning, the marquee reads CLOSED. Whoever was under the mane got away clean. A crew is already pulling the velvet seats.',
       'Dani texts a photo of a single gold sequin taped inside a program. “We never found out who it was,” she writes. “Marguerite signed the last papers this morning and didn’t say a word to anybody. Weird day.”',
     ],
+    recall: {
+      'g3:pass':
+        'You had it, for one beat, in front of everybody: by the hand, or in the trap, or in Gil’s follow spot. Then the house went black for the curtain call, and when the lights came back the lion had bowed once to the empty stage and gone out the fire door into the fog, and nobody thought to follow a lion.',
+    },
     choices: [
       {
         id: 'third-row',
@@ -305,16 +309,16 @@ export const MIDNIGHT_MANE: Mystery = {
     chapter: 3,
     scene: 'theater',
     body: [
-      'The music crashes to its last chord, and the lion takes the bow. Nobody who has ever worn that mask has skipped a curtain call, and this one isn’t starting tonight. The cast freezes. Four hundred people hold their breath. The golden lion stands at center stage, chest heaving, mask glittering, and looks straight at you.',
+      'The music crashes to its last chord, and the lion takes the bow. Nobody who has ever worn that mask has skipped a curtain call, and this one isn’t starting tonight. The cast freezes. Every seat in the house holds its breath. The golden lion stands at center stage, chest heaving, mask glittering, and looks straight at you.',
       'Brody is in the wings, in full costume, mouth open. Up in the balcony, the silver-haired woman has put down her lemon drops. At the back wall the man from Gull & Gable has stopped clicking his tally counter and started looking around for Marguerite, whose place beside him has been empty since the lights went down. The house lights come up amber, the old way, the way they were in 1981. Now you decide what kind of story this is.',
     ],
     afterMiss: [
-      'The number ends without its lion, and for one terrible moment the cast bows to a house that is still looking over its shoulder. Then the music comes back for the curtain call, and so does the lion. Nobody who has ever worn that mask has skipped a curtain call. It walks out into the only light left on, center stage, chest heaving, mask glittering, and looks straight at you, as if you were the one who missed a cue.',
+      'The number ends without its lion, and for one terrible moment the cast bows to a house that is still looking over its shoulder. Then the music comes back for the curtain call, and so does the lion, from wherever it slipped off to, because nobody who has ever worn that mask has skipped a curtain call. It walks out into the only light left on, center stage, chest heaving, mask glittering, and looks straight at you, as if you were the one who missed a cue.',
       'Brody is in the wings, in full costume, mouth open. Up in the balcony, the silver-haired woman has put down her lemon drops. At the back wall the man from Gull & Gable has stopped clicking his tally counter and started looking around for Marguerite, whose place beside him has been empty since the lights went down. The house lights come up amber, the old way, the way they were in 1981. Now you decide what kind of story this is.',
     ],
     recall: {
       'g1:fail':
-        'You still couldn’t swear to who is in there: the old legend, the furious new lead, or somebody else entirely. Four hundred people are about to find out with you.',
+        'You still couldn’t swear to who is in there: the old legend, the furious new lead, or somebody else entirely. The whole room is about to find out with you.',
     },
     choices: [
       {
@@ -340,7 +344,7 @@ export const MIDNIGHT_MANE: Mystery = {
       mara: 'Mara is looking at the mane, not the face. “Somebody mended that last week with the same thread as the sequins,” she whispers. “Whoever’s in there sews like they’re apologizing.”',
       kit: 'Kit kills her wind machine and comes out of the wings at a jog. “Whoever it is never once looked at the floor,” she says. “I want lessons.”',
       juniper:
-        'Juniper squeezes your hand. “Unmask a lion in front of four hundred people and they’ll make you do the next show,” she says. “I would pay to see that.”',
+        'Juniper squeezes your hand. “Unmask a lion in front of a full house and they’ll make you do the next show,” she says. “I would pay to see that.”',
       cedar: 'Cedar takes off his ballcap like he is in church.',
     },
     aloneLine:
@@ -360,7 +364,7 @@ export const MIDNIGHT_MANE: Mystery = {
         {
           id: 'not-alone',
           label: 'Tell her she was never running it alone',
-          text: 'You point at the balcony, where Ronnie is already on the stairs, and at the four hundred people behind her. “You just never asked,” you say. Marguerite reaches into her corset.',
+          text: 'You point at the balcony, where Ronnie is already on the stairs, and at the full house behind her. “You just never asked,” you say. Marguerite reaches into her corset.',
           ending: 'long-live',
         },
         {
@@ -381,8 +385,8 @@ export const MIDNIGHT_MANE: Mystery = {
       chapter: 3,
       scene: 'theater',
       body: [
-        'The lion does the number again, alone, a cappella, with four hundred people providing the backup and every old callback from 1981 coming out of the audience like it has been stored in the walls. When a foghorn sounds on the bay, the old-timers answer it with a callback nobody has yelled since the eighties. Brody stands in the wings mouthing the words and taking notes.',
-        'At the end the lion walks to the wings, kneels in front of Brody and bows its head. Brody lifts the mask off with both hands, and his face tells the house before his mouth does: “Marguerite?” Long black hair pinned flat under the mane, eyeliner perfect, chin up, the sale agreement folded into her corset. At the back wall the man from Gull & Gable stops clicking. “Ten Saturdays,” Marguerite tells him, across four hundred people. “You were paying for the lion. I was the lion. I wanted your price and I wanted one Saturday, and I’m only sorry about the first one.” In the balcony the silver-haired woman is on her feet: Ronnie Delacroix, Lady Mane, who taught her the turn thirty years ago and never once let her use it. Up in the booth, Gil is threading the impossible reel again. The camera light on the old projector is blinking red.',
+        'The lion does the number again, alone, a cappella, with the whole house providing the backup and every old callback from 1981 coming out of the audience like it has been stored in the walls. When a foghorn sounds on the bay, the old-timers answer it with a callback nobody has yelled since the eighties. Brody stands in the wings mouthing the words and taking notes.',
+        'At the end the lion walks to the wings, kneels in front of Brody and bows its head. Brody lifts the mask off with both hands, and his face tells the house before his mouth does: “Marguerite?” Long black hair pinned flat under the mane, eyeliner perfect, chin up, the sale agreement folded into her corset. At the back wall the man from Gull & Gable stops clicking. “Ten Saturdays,” Marguerite tells him, across the whole room. “You were paying for the lion. I was the lion. I wanted your price and I wanted one Saturday, and I’m only sorry about the first one.” In the balcony the silver-haired woman is on her feet: Ronnie Delacroix, Lady Mane, who taught her the turn thirty years ago and never once let her use it. Up in the booth, Gil is threading the impossible reel again. The camera light on the old projector is blinking red.',
       ],
       choices: [
         {
@@ -410,7 +414,7 @@ export const MIDNIGHT_MANE: Mystery = {
       title: 'Long Live the Queen',
       tone: 'true',
       text: [
-        'Marguerite tears the sale agreement in half onstage, and four hundred people throw rice at her. The man from Gull & Gable walks up the aisle explaining, calmly, what breaking a signed contract costs, and the number is more than the Bellwether has cleared in a decade. Pops writes it on the back of the old 1981 volunteer sign-up sheet, and four hundred people start dividing it into Saturdays. Ronnie does the turn with Marguerite, then with Brody, then with anybody who asks, until the whole house is doing it badly together.',
+        'Marguerite tears the sale agreement in half onstage, and four hundred people throw rice at her. The man from Gull & Gable walks up the aisle explaining, calmly, what breaking a signed contract costs, and the number is more than the Bellwether has cleared in a decade. Marguerite says she will put up her own house for it, and Ronnie, halfway down the balcony stairs, says she will co-sign. Pops turns over the old 1981 volunteer sign-up sheet and starts a new one, for ushers, the booth and the bar, so that nobody runs this place alone again. Ronnie does the turn with Marguerite, then with Brody, then with anybody who asks, until the whole house is doing it badly together.',
         'At two in the morning the house lights are still up, and the sign-up sheet has run onto a second page and a pizza box. When you finally sit down, your seat in the third row on the aisle has a gold sequin glued to it and a card in eyeliner capitals: RESERVED: UNDERSTUDY.',
       ],
     },
@@ -419,7 +423,7 @@ export const MIDNIGHT_MANE: Mystery = {
       title: 'One More Saturday',
       tone: 'bittersweet',
       text: [
-        'Marguerite puts the mask back on and takes the bow she waited thirty years for. Then she tells the man from Gull & Gable, in front of everyone, exactly how ten Saturdays sold out. He takes a third off the price on the spot. She signs anyway, because she gave her word, and that is the kind of proud she is. The Bellwether closes, as planned. The velvet seats are sold in pairs on the internet.',
+        'Marguerite puts the mask back on and takes the bow she waited thirty years for. Then she tells the man from Gull & Gable, in front of everyone, exactly how ten Saturdays sold out. He takes a third off the price on the spot. She closes the sale anyway, because she gave her word, and that is the kind of proud she is. The Bellwether closes, as planned. The velvet seats are sold in pairs on the internet.',
         'But on the last night the understudy finally went on, and the woman who taught her watched from the balcony and didn’t once look away. You buy two of the velvet seats. They don’t fit in your apartment. You keep them anyway.',
       ],
     },

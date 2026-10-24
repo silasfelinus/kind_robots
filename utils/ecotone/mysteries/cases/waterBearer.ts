@@ -59,10 +59,10 @@ export const WATER_BEARER: Mystery = {
       scene: 'plaza',
       message: {
         medium: 'note',
-        from: 'Masking tape on a jug on your doormat, then a text from Nell Okafor',
+        from: 'Whoever left a jug on your doormat, then a text from Nell Okafor',
         lines: [
           'OCT 3 2049',
-          '“this is nell okafor, out past blue lake. u got one too?? six on my road. come before the neighbors drink the evidence”',
+          '“this is nell okafor, out past blue lake, saw ur post on the town board. six on my road. come before the neighbors drink the evidence”',
         ],
       },
       body: [
@@ -89,7 +89,7 @@ export const WATER_BEARER: Mystery = {
           check: { skill: 'psyche', target: 9 },
           cost: 'You are drinking from a stranger’s jug, and the whole road is watching.',
           success: {
-            text: 'The water is cold in a way the morning isn’t, and it tastes of stone and iron and, faintly, smoke. For one swallow you see the road the way the label means it: brown lawns, cracked yards, a line of people with containers outside the fire hall in heat that bends the air. Then it’s a cool morning again, and Nell is asking if you’re all right.',
+            text: 'The water is cold in a way the morning isn’t, and it tastes of stone and iron and, faintly, smoke. For one swallow you are standing at Nell’s wellhead on the date on the label: the pump coughing air, and a rope you have never seen paying down into the dark, and down, getting longer, with nothing on the end of it. Then it’s a cool morning again, and Nell is asking if you’re all right.',
             effects: { weird: 1 },
           },
           failure: {
@@ -137,7 +137,7 @@ export const WATER_BEARER: Mystery = {
         ],
       },
       body: [
-        'The Mad River at midnight is louder than you expect and colder than it looks. Under the cottonwoods you find Earl, who has upgraded to boots, and a dozen people from both towns sitting on coolers with binoculars and a thermos of cocoa going hand to hand. A woman beside you whispers that her neighbor sold last week, cash, the morning after the light sat over his roof.',
+        'The Mad River at midnight is louder than you expect and colder than it looks. Under the cottonwoods you find Earl, who has upgraded to boots, and a dozen people from both towns sitting on coolers with binoculars and a thermos of cocoa going hand to hand. A woman beside you whispers that her neighbor sold last week, cash, the morning after the light sat over his roof. “And a pickup with dealer plates sat at the bridge turnout all that night,” she adds. “Nobody in it I knew.”',
         'Then the light comes: a ring of cold white glow drifting in from upriver, humming a chord. It stops above a deep pool. A thin line drops from it into the water, hangs, and reels back up. An old man in a camp chair says, “Same as ’74,” and won’t elaborate. Somebody else says “the Long Bucket Ranch,” and the whole gravel bar goes quiet. Higher up, almost lost in the stars, something smaller hangs perfectly still, and nobody points at it.',
       ],
       approaches: [
@@ -157,15 +157,15 @@ export const WATER_BEARER: Mystery = {
         {
           id: 'bridge',
           label:
-            'Stand on the old bridge in its path and look straight into it',
+            'Lie under the old bridge and watch it only in the river’s reflection',
           check: { skill: 'psyche', target: 9 },
-          cost: 'Every flashlight on the gravel bar is about to swing your way.',
+          cost: 'You will be flat on wet gravel under a bridge while the whole bar wonders why.',
           success: {
-            text: 'You stand at the rail and do not flinch when the light comes down the river at eye level. In its glow the water below shows you its own date: a gravel bed with a trickle down the middle, and people on this same bridge holding jugs. Then the light startles at your face and lifts away, and for one second you see a rental-company barcode stuck to its belly.',
+            text: 'You lie on the cold gravel under the bridge with your face over the pool and watch the light only in the water, the way you would watch an eclipse. In the reflection it is no light at all: four rotors, a speaker, and a rental-company barcode on its belly that the glow hides from anyone looking up. Then the pool shows you its own date, the river shrunk to a trickle over dry stones and people on the bridge above you holding jugs. You sit up, and the river is loud again.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You hold your ground right up until it hums a chord directly into your face, and then you duck so hard you sit down on the bridge deck. The light considers you and moves politely to a different pool, the way a person changes seats on a bus. Down on the gravel bar, Earl gives you a thumbs-up for trying, which is worse.',
+            text: 'You lie down to watch the reflection just as the light hums directly over the pool, and the reflection hums back, and for one dizzy second you cannot tell which way is up. You sit up too fast into a bridge beam. The light considers you and moves politely to a different pool, the way a person changes seats on a bus. Down on the gravel bar, Earl gives you a thumbs-up for trying, which is worse.',
             effects: { nerve: -1 },
           },
         },
@@ -185,7 +185,7 @@ export const WATER_BEARER: Mystery = {
       ],
       leadLines: {
         mara: 'Mara sketches the light on the back of a receipt. “Too symmetrical for a ghost. Ghosts don’t have a design budget.”',
-        kit: 'Kit is taping three phone flashlights to a driftwood stick so they pan together. “If that thing has a seam, this finds it. Somebody bought that light. I built this one in a minute.”',
+        kit: 'Kit is taping a phone into a cut-open coffee can on a driftwood stick and aiming it at the hum. “Poor man’s directional mic. If that chord comes out of a speaker, this hears the speaker. Somebody bought that light. I built this ear in a minute.”',
         juniper:
           'Juniper lies flat on the gravel looking straight up. “I came for the little one,” she says, pointing at the faint, still light nobody else is watching. “The loud one’s for tourists.”',
         cedar:
@@ -197,7 +197,7 @@ export const WATER_BEARER: Mystery = {
         'g1:pass':
           'Whatever the jugs are, you know now they are no prank. Somebody takes those dates very seriously.',
         'g1:porches':
-          'You keep thinking about the man in the rented pickup who wrote the dates down. Somebody besides the neighbors is listening.',
+          'You asked around on Nell’s road all morning. Out here nobody needs asking; the whole gravel bar is whispering at once.',
       },
     },
     {
@@ -207,7 +207,7 @@ export const WATER_BEARER: Mystery = {
       scene: 'meadow',
       message: {
         medium: 'note',
-        from: 'Rubber-banded to a jug on your windshield',
+        from: 'S., rubber-banded to a jug on your windshield',
         lines: [
           'You’re asking good questions. That’s rarer than water.',
           'Road above Korbel. Left at the bathtub. You’ll know it.',
@@ -301,7 +301,7 @@ export const WATER_BEARER: Mystery = {
     ],
     recall: {
       'g3:pass':
-        'You got closer to the light than anybody on the gravel bar ever has, close enough to see a rental sticker and a man who did not want to be seen. By the time you came back with Nell, the turnout held nothing but fresh tire marks.',
+        'You got closer to the light than anybody on the gravel bar ever has, close enough to know it had a pilot. By the time you got down the hill, the turnout held nothing but fresh tire marks.',
       'g3:fail':
         'The light got away from you in that meadow, humming off-key on its way down the hill. Whoever was flying it already has what he came for.',
     },
@@ -312,7 +312,7 @@ export const WATER_BEARER: Mystery = {
     chapter: 4,
     scene: 'meadow',
     body: [
-      'In the blackberries, in the bathtub or on its last bar of battery over the turnout, the UFO comes down, and first light finds it grounded in the wet grass: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot, caught one way or another, sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS.',
+      'First light finds the UFO grounded in the wet grass: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot did not get far. He sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS.',
       'Up the road comes a hand-truck stacked with empty jugs, pushed by a woman in a waxed canvas hat and muddy boots. She sets it down and looks at you, at the drone, at the man on the cattle guard. “You got my note. Good,” she says. “Saffron Gutierrez. Saff. I leave the jugs. I am not the light.” She reads the card, and her face goes very still. “Oh,” she says. “Oh, no. He’s been reading them.”',
     ],
     afterMiss: [
@@ -351,7 +351,11 @@ export const WATER_BEARER: Mystery = {
       'Alone with the two of them in the meadow, you realize the woman with the jugs has been doing this alone so long she has stopped noticing.',
     recall: {
       'g1:fail':
-        'Nell’s road gave you a dozen theories and no answers. Not one of the theories was a man with a rental truck and a business card.',
+        'Nell’s road gave you nothing you could use, and nobody on it had pictured a man with a rental truck and a business card.',
+      'g3:line':
+        'Your palms are still striped red from the sounding cord, and he keeps glancing at them as if they might file a complaint.',
+      'g3:ring':
+        'Earl’s people have followed you down the hill, and every flashlight they brought is pointed at the man in the poncho.',
       'g3:library':
         'Saff glances up the hill toward the dome. “You’ve been in my library,” she says. “Somebody always moves September.”',
     },

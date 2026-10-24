@@ -35,7 +35,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. A Victorian hillside cemetery above a small dairy-country town at midnight, white marble headstones and windswept cypress in drifting fog, a lantern-lit table set on a flat granite marker holding an open ledger, a gavel and a polished pair of brass balance scales, an old curled judge’s wig resting beside them. Below, gingerbread Victorian rooftops with two porch lights glowing side by side. Faint silver stars above the fog form an unlabeled small balance-shaped constellation. Fog lavender, silver-blue and brass. No text, no letters, no logos.',
   provenance:
-    'Ferndale, its Victorian Main Street and its hillside cemetery are real, and Ferndale is the long-time home of the Humboldt County Fair. Wendell Ames, Rafael, Lupe Miranda, Soren Halvorsen, the Miranda and Halvorsen families, the Grange-hall odds, the Midnight Court, the court of the dead and everything else are invented, and the pie contests are invented. No real business or resident is depicted.',
+    'Ferndale, its Victorian Main Street and its hillside cemetery are real, and Ferndale is the long-time home of the Humboldt County Fair. Wendell Ames, Rafael, Lupe Miranda, Soren Halvorsen, the Miranda and Halvorsen families, the feed-and-tack odds, the Midnight Court, the court of the dead and everything else are invented, and the pie contests are invented. No real business or resident is depicted.',
   decline: {
     label: 'Drop the summons in the recycling',
     text: 'You recycle the card. The next morning a second one is in your mailbox, in the same copperplate: The court notes your absence and does not hold it against you. Somehow that is worse than if it had.',
@@ -57,7 +57,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       },
       body: [
         'Ferndale looks like a town somebody built for a cake: Victorians in butterscotch and teal, gingerbread trim, a Main Street holding its breath to be photographed. Lupe Miranda, from your stats study group, meets you at the corner holding a card exactly like yours. “My family is haunted now,” she says, a beat too fast. “Grandpa’s gnome is gone, and on our porch is a board from our own fence.” Between her grandfather’s house and the Halvorsens’ runs a fence so old and so argued-over it leans in both directions at once.',
-        'On one porch Tony Miranda, eighty-six, holds the fence board like a rifle. On the other, Signe Halvorsen, eighty-four, holds the ceramic gnome like a hostage. Neither looks at the other. Both talk to you. Pinned to each door is the same cream card in the same copperplate hand: The Midnight Court has weighed this exchange and found it fair.',
+        'On one porch Tony Miranda, eighty-six, a widower who still sets out his late wife Pilar’s good cups for company, holds the fence board like a rifle. On the other, Signe Halvorsen, eighty-four, holds the ceramic gnome like a hostage. Neither looks at the other. Both talk to you. Pinned to each door is the same cream card in the same copperplate hand: The Midnight Court has weighed this exchange and found it fair.',
       ],
       approaches: [
         {
@@ -65,7 +65,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
           label: 'Take coffee on both porches, one cup each, in turns',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You split the morning exactly in half: Tony’s coffee black, Signe’s with cardamom, back and forth over the fence like a tennis match. By the fourth cup the story is out. The fence went up in 1966. The water line was shared since the creamery days. And that August, at the county fair, Signe’s olallieberry pie beat the pie of Tony’s wife, Carmen, by a single point. Carmen is gone now. Neither of them has said her name to the other in sixty years.',
+            text: 'You split the morning exactly in half: Tony’s coffee black, Signe’s with cardamom, back and forth over the fence like a tennis match. By the fourth cup the story is out. The fence went up in 1966. The water line was shared since the creamery days. And that August, at the county fair, Signe’s olallieberry pie beat the pie of Tony’s wife, Pilar, by a single point. Pilar is gone now. Neither of them has said her name to the other in sixty years.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -196,7 +196,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
         ],
       },
       body: [
-        'By afternoon the whole town has seen the flyer and the whole town has an opinion. In the back room of the Grange hall somebody is running real odds, and the Halvorsens are three to one. The Mirandas say they will not climb that hill for a Halvorsen. The Halvorsens say they will not climb it for anyone, but Signe has been seen buying a new hat.',
+        'By afternoon the whole town has seen the flyer and the whole town has an opinion. In the back of the feed-and-tack somebody is running real odds, and the Halvorsens are three to one. The Mirandas say they will not climb that hill for a Halvorsen. The Halvorsens say they will not climb it for anyone, but Signe has been seen buying a new hat.',
         'This is the trap: everybody in one place at one time, in front of the court, and see who flinches. It only springs if both families come. You have one afternoon to get two stubborn people up one steep hill.',
       ],
       approaches: [
@@ -205,7 +205,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
           label: 'Persuade Signe the pie is worth defending',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You tell Signe the truth: if she stays home, people will say she was afraid of a rematch. Her saucer rings. Then she goes to the kitchen and returns with a recipe card in Carmen Miranda’s handwriting, sixty years old, kept in her own box. She won’t say why. “I’ll say it to Tony,” she says, “or not at all.” She puts on the new hat.',
+            text: 'You tell Signe the truth: if she stays home, people will say she was afraid of a rematch. Her saucer rings. Then she goes to the kitchen and returns with a recipe card in the handwriting of Tony’s late wife, Pilar, sixty years old, kept in her own box. She won’t say why. “I’ll say it to Tony,” she says, “or not at all.” She puts on the new hat.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -218,7 +218,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
           label: 'Oil Tony’s porch hinges with him until he decides on his own',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You don’t argue. You sit on Tony’s porch and help him oil a hinge that does not need oiling. After an hour he says, “Carmen would’ve gone up that hill in her slippers just to see the wig.” After another, he goes inside and comes back in his good jacket, the one from the wedding photo on the mantel. “If I’m going to be judged,” he says, “I want to look like the man she married.”',
+            text: 'You don’t argue. You sit on Tony’s porch and help him oil a hinge that does not need oiling. After an hour he says, “My Pilar would’ve gone up that hill in her slippers just to see the wig.” After another, he goes inside and comes back in his good jacket, the one from the wedding photo on the mantel. “If I’m going to be judged,” he says, “I want to look like the man she married.”',
             effects: { nerve: 1 },
           },
           failure: {
@@ -243,7 +243,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       ],
       leadLines: {
         mara: 'Mara is making two identical corsages. “Same flowers, same ribbon, same pin,” she says. “Nobody gets to say the other one’s is nicer.”',
-        kit: 'Kit is rigging her own lantern line in the cypress. “If the judge wants a show,” she says, “he can have a better one.”',
+        kit: 'Kit has bolted two skateboards under a pair of lawn chairs. “If either of them says they can’t manage the hill,” she says, “the hill just lost its excuse.”',
         juniper:
           'Juniper has invited the gnome. “It was a witness,” she says, and nobody can argue with that.',
         cedar:
@@ -268,6 +268,12 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       'The trades stop. The summonses stop. On the hill someone has cleared away the table and the lanterns, and only a pale square on the granite shows where the scales stood. The fence between the Mirandas and the Halvorsens leans the way it always has, in both directions at once.',
       'Lupe texts you a photo: on her grandfather’s porch, overnight, someone has left an olallieberry pie with no card, cut into two perfect halves. Nobody knows which family it was meant for.',
     ],
+    recall: {
+      'g3:pass':
+        'They did climb the hill, both of them, in their good clothes. The chairs were there and the lanterns were lit, but the bench was empty, and after ten silent minutes Tony and Signe went home down two different paths.',
+      'g3:exhibit':
+        'It took both families a whole Saturday, not speaking, to put the fence back together after what you did to it, every board back where it was, lean and all.',
+    },
     choices: [
       {
         id: 'half',
@@ -294,13 +300,13 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       'Soren finds his voice. “We’ve had back-to-back piano lessons every Thursday since we were seven. Four o’clock and four-thirty. It was the only room in Ferndale where we were allowed to be in the same place.” Lupe takes his hand where both porches can see. “We’re getting married in June,” she says, “and we were not going to do it across a fence.” Wendell closes the ledger gently. “Fifteen years I taught the only duet in this town nobody was allowed to hear,” he says. “The court finds that long enough.”',
     ],
     afterMiss: [
-      'At the stroke, the two chairs marked MIRANDA and HALVORSEN are still empty. The judge says it before you can: “Nobody came.” Not angry. Tired. Then the cemetery gate squeals, and up the path, ten yards apart and refusing to close the gap, come Tony Miranda in his good jacket and Signe Halvorsen in a brand-new hat, each of them there, they will both insist for the rest of their lives, only so the other one couldn’t win by default. Half the town follows, hiding badly among the headstones. The judge raises the gavel, and the wig, which has been slipping all week, catches on it. You reach over, as friend of the court, and lift it the rest of the way off. Under it is a bald, kind, seventy-four-year-old head that half of Ferndale learned scales from. “Wendell Ames?” says Signe. “From the Thursday lessons?” In the dark past the lanterns, his husband, Rafael, sheepishly lowers the lighting remote. “Retired couples mediator, retired piano teacher, your court,” Wendell says. “But a court only hears cases. It doesn’t bring them.” He looks, pointedly, at the two veiled ushers.',
-      'You lift the first veil and find Soren Halvorsen, very red, holding a digital scale that works to the gram. You lift the second and find Lupe Miranda, your stats study partner, who handed you this case. “I did the Miranda side,” she says. “Soren did the Halvorsen side. Mr. Ames lent us the court and Rafael did the lights. We needed a friend of the court nobody could call ours, so I picked someone from stats.”',
+      'At the stroke, the two chairs marked MIRANDA and HALVORSEN are still empty. The judge says it before you can: “Nobody came.” Not angry. Tired. Then the cemetery gate squeals, and up the path, ten yards apart and refusing to close the gap, come Tony Miranda in his good jacket and Signe Halvorsen in a brand-new hat, each of them there, they will both insist for the rest of their lives, only so the other one couldn’t win by default. Half the town follows, hiding badly among the headstones.',
+      'The judge raises the gavel, and the wig, which has been slipping all week, catches on it. You reach over, as friend of the court, and lift it the rest of the way off. Under it is a bald, kind, seventy-four-year-old head that half of Ferndale learned scales from. “Wendell Ames?” says Signe. “From the Thursday lessons?” In the dark past the lanterns, his husband, Rafael, sheepishly lowers the lighting remote. “Retired couples mediator, retired piano teacher, your court,” Wendell says. “But a court only hears cases. It doesn’t bring them.” He looks, pointedly, at the two veiled ushers. You lift the first veil and find Soren Halvorsen, very red, holding a digital scale that works to the gram. You lift the second and find Lupe Miranda, your stats study partner, who handed you this case. “I did the Miranda side,” she says. “Soren did the Halvorsen side. Mr. Ames lent us the court and Rafael did the lights. We needed a friend of the court nobody could call ours, so I picked someone from stats.”',
       'Soren finds his voice. “We’ve had back-to-back piano lessons every Thursday since we were seven. Four o’clock and four-thirty. It was the only room in Ferndale where we were allowed to be in the same place.” Lupe takes his hand where both porches can see. “We’re getting married in June,” she says, “and we were not going to do it across a fence.” Wendell closes the ledger gently. “Fifteen years I taught the only duet in this town nobody was allowed to hear,” he says. “The court finds that long enough.”',
     ],
     recall: {
       'g1:fail':
-        'Signe spots you among the headstones and gives you the exact nod she gives the mail carrier, which, from her, is a pardon.',
+        'Signe catches your eye across the bench and gives you the exact nod she gives the mail carrier, which, from her, is a pardon.',
       'g2:lanterns':
         'Rafael gives you a small wave with the remote, the wave of a man who has been watching you on his hill all week and quietly rooting for you.',
     },
@@ -342,7 +348,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       chapter: 5,
       scene: 'meadow',
       body: [
-        'Wendell runs the hearing like a recital: one side at a time, no interruptions, everyone gets a turn at the keys. Tony speaks about the fence. Signe speaks about the water line. Then, because Wendell asks the right question in the right voice, Signe takes out a recipe card in the handwriting of Tony’s late wife, Carmen, sixty years old. “She gave me this the spring before the fair. I added nutmeg. That was the whole difference. One point.” She reads it aloud, nutmeg and all.',
+        'Wendell runs the hearing like a recital: one side at a time, no interruptions, everyone gets a turn at the keys. Tony speaks about the fence. Signe speaks about the water line. Then, because Wendell asks the right question in the right voice, Signe takes out a recipe card in the handwriting of Tony’s late wife, Pilar, sixty years old. “She gave me this the spring before the fair. I added nutmeg. That was the whole difference. One point.” She reads it aloud, nutmeg and all.',
         'Tony is quiet a long time. “She always said yours was better,” he says at last. “I never told you. I was too busy being angry for her.” Below the hill, Ferndale is dark except for two porch lights, side by side, that somebody left on.',
       ],
       choices: [
@@ -379,7 +385,7 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
         {
           id: 'look-further',
           label: 'Keep looking into the brass',
-          text: 'You lean closer and look past their sixty years, into older ones underneath. The scales let you.',
+          text: 'You lean closer and look past their sixty years, into older ones underneath. The scales let you. When you finally look up, the hearing has gone on without you.',
           ending: 'older-docket',
         },
         {
@@ -397,8 +403,8 @@ export const MIDNIGHT_MAGISTRATE: Mystery = {
       title: 'Court Adjourned',
       tone: 'true',
       text: [
-        'The verdict is one word, and Wendell lets Tony and Signe say it together. At two in the morning, by Rafael’s lanterns, both families come down the hill and take the fence apart with crowbars, in their good clothes, the grandchildren holding flashlights and the whole side street awake on its porches. Tony pulls the first board. Signe pulls the second. Nobody says who pulled the last. The traded board, the one with a knothole worn smooth at a small child’s eye level, goes to Lupe and Soren, on purpose. In June they are married in the gap where the fence stood, and Wendell plays them out on an upright piano Rafael wheels down the side street on a dolly.',
-        'At three, Signe brings out a pie from a recipe card in the handwriting of Tony’s late wife, Carmen, who gave it to her the spring before the 1966 fair. It is baked exactly as written. They eat it standing in the gap where the fence was, off paper plates, and it is very good, and it is not quite as good as Signe’s, and Tony says so, and everybody laughs. Wendell knocks the gavel once on the last fence post, says “Adjourned,” and leaves it hanging there for anyone who needs it.',
+        'The verdict is one word, and Wendell lets Tony and Signe say it together. At two in the morning, by Rafael’s lanterns, both families come down the hill and take apart what is left of the fence with crowbars, in their good clothes, the grandchildren holding flashlights and the whole side street awake on its porches. Tony pulls the first board. Signe pulls the second. Nobody says who pulled the last. The traded board, the one with a knothole worn smooth at a small child’s eye level, goes to Lupe and Soren, on purpose. In June they are married in the gap where the fence stood, and Wendell plays them out on an upright piano Rafael wheels down the side street on a dolly.',
+        'At three, Signe brings out a pie from Pilar’s old recipe card, baked exactly as written, no nutmeg. They eat it standing in the gap where the fence was, off paper plates, and it is very good, and it is not quite as good as Signe’s, and Tony says so, and everybody laughs. Wendell knocks the gavel once on the last fence post, says “Adjourned,” and leaves it hanging there for anyone who needs it.',
       ],
     },
     {

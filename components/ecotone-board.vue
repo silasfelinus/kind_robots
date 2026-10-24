@@ -242,7 +242,11 @@
                     :disabled="uploadingPortrait"
                     @click="openPortraitUpload"
                   >
-                    {{ uploadingPortrait ? 'Uploading portrait…' : 'Upload your own portrait' }}
+                    {{
+                      uploadingPortrait
+                        ? 'Uploading portrait…'
+                        : 'Upload your own portrait'
+                    }}
                   </button>
                   <button
                     type="button"
@@ -256,14 +260,28 @@
                   v-if="customPortraitId && customPortraitUrl"
                   type="button"
                   class="mt-2 flex items-center gap-2 rounded-lg border p-2 text-left text-sm"
-                  :class="pickedAvatar === 'custom' ? 'border-[#d9b877]' : 'border-[#8fb8b0]/40'"
+                  :class="
+                    pickedAvatar === 'custom'
+                      ? 'border-[#d9b877]'
+                      : 'border-[#8fb8b0]/40'
+                  "
                   :aria-pressed="pickedAvatar === 'custom'"
                   @click="pickedAvatar = 'custom'"
                 >
-                  <img :src="customPortraitUrl" alt="" class="h-16 w-12 rounded object-cover" />
+                  <img
+                    :src="customPortraitUrl"
+                    alt=""
+                    class="h-16 w-12 rounded object-cover"
+                  />
                   My uploaded portrait
                 </button>
-                <p v-if="portraitNotice" role="status" class="mt-2 text-xs text-[#f3e6c8]/85">{{ portraitNotice }}</p>
+                <p
+                  v-if="portraitNotice"
+                  role="status"
+                  class="mt-2 text-xs text-[#f3e6c8]/85"
+                >
+                  {{ portraitNotice }}
+                </p>
               </div>
               <div>
                 <p class="eco-label mb-2">Your disposition</p>
@@ -391,354 +409,361 @@
               <div
                 class="flex min-h-[12rem] flex-col justify-end gap-2 @4xl:min-h-0 @4xl:shrink-0 @4xl:justify-start"
               >
-              <span class="eco-kicker self-start">{{ stage.kicker }}</span>
-              <h2
-                class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
-              >
-                {{ stage.title }}
-              </h2>
-              <p
-                v-if="stage.subtitle"
-                class="font-serif text-lg text-[#f3e6c8]/85 @4xl:text-xl"
-                :class="stage.meet ? '@4xl:hidden' : ''"
-              >
-                {{ stage.subtitle }}
-              </p>
-              <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
-                <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
-                <p
-                  class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
+                <span class="eco-kicker self-start">{{ stage.kicker }}</span>
+                <h2
+                  class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
                 >
-                  {{ stage.meet.name }}
-                </p>
+                  {{ stage.title }}
+                </h2>
                 <p
-                  class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
+                  v-if="stage.subtitle"
+                  class="font-serif text-lg text-[#f3e6c8]/85 @4xl:text-xl"
+                  :class="stage.meet ? '@4xl:hidden' : ''"
                 >
-                  {{ stage.meet.role }}
+                  {{ stage.subtitle }}
                 </p>
-                <p
-                  class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
-                >
-                  {{ stage.meet.line }}
-                </p>
+                <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
+                  <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
+                  <p
+                    class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
+                  >
+                    {{ stage.meet.name }}
+                  </p>
+                  <p
+                    class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
+                  >
+                    {{ stage.meet.role }}
+                  </p>
+                  <p
+                    class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
+                  >
+                    {{ stage.meet.line }}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div
-              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:shrink-0 @4xl:max-h-none"
-              aria-live="polite"
-            >
-              <template v-if="pending">
-                <p
-                  v-if="stage.realEnding"
-                  class="eco-label flex items-center gap-2 text-[#f6c55a]"
-                >
-                  <Icon name="kind-icon:star" class="size-3.5" />
-                  Real Ending · {{ stage.realEnding }}
-                </p>
-                <p class="eco-label">{{ pending.choice }}</p>
-                <div
-                  v-if="pending.roll"
-                  class="flex flex-wrap items-center gap-3 rounded-xl border p-3"
-                  :class="
-                    pending.roll.success
-                      ? 'border-[#8fb8b0]/60 bg-[#8fb8b0]/10'
-                      : 'border-[#e08a5a]/60 bg-[#e08a5a]/10'
-                  "
-                >
-                  <div class="flex gap-2" aria-hidden="true">
-                    <span
-                      v-for="(die, index) in pending.roll.dice"
-                      :key="index"
-                      class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
-                    >
-                      <span
-                        v-for="cell in 9"
-                        :key="cell"
-                        class="rounded-full"
-                        :class="PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''"
-                      />
-                    </span>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-lg font-black">
-                      {{ pending.roll.dice[0] + pending.roll.dice[1] }}
-                      <span v-if="pending.roll.bonus" class="text-[#f3e6c8]/70"
-                        >{{ pending.roll.bonus > 0 ? '+' : '−'
-                        }}{{ Math.abs(pending.roll.bonus) }}</span
-                      >
-                      = {{ pending.roll.total }}
-                      <span class="text-[#f3e6c8]/70"
-                        >vs {{ pending.roll.target }}</span
-                      >
-                    </p>
-                    <p class="text-xs text-[#f3e6c8]/70">
-                      {{ rollParts(pending.roll) }}
-                    </p>
-                  </div>
-                  <span
-                    class="rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider"
+              <div
+                class="eco-panel flex min-h-0 flex-col gap-3 @4xl:shrink-0 @4xl:max-h-none"
+                aria-live="polite"
+              >
+                <template v-if="pending">
+                  <p
+                    v-if="stage.realEnding"
+                    class="eco-label flex items-center gap-2 text-[#f6c55a]"
+                  >
+                    <Icon name="kind-icon:star" class="size-3.5" />
+                    Real Ending · {{ stage.realEnding }}
+                  </p>
+                  <p class="eco-label">{{ pending.choice }}</p>
+                  <div
+                    v-if="pending.roll"
+                    class="flex flex-wrap items-center gap-3 rounded-xl border p-3"
                     :class="
                       pending.roll.success
-                        ? 'bg-[#8fb8b0] text-[#09141c]'
-                        : 'bg-[#e08a5a] text-[#09141c]'
+                        ? 'border-[#8fb8b0]/60 bg-[#8fb8b0]/10'
+                        : 'border-[#e08a5a]/60 bg-[#e08a5a]/10'
                     "
                   >
-                    {{
-                      pending.roll.natural === 'boxcars'
-                        ? 'Boxcars!'
-                        : pending.roll.natural === 'snake-eyes'
-                          ? 'Snake eyes'
-                          : pending.roll.success
-                            ? 'Success'
-                            : 'Complication'
-                    }}
-                  </span>
-                </div>
-                <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p
-                    class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
-                  >
-                    {{ revealedResult }}
-                  </p>
-                </div>
-                <div
-                  v-if="effectChips(pending.effects).length"
-                  class="flex flex-wrap gap-1.5"
-                >
-                  <span
-                    v-for="chip in effectChips(pending.effects)"
-                    :key="chip"
-                    class="rounded-full border border-[#c9a96e]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
-                    >{{ chip }}</span
-                  >
-                </div>
-              </template>
-
-              <template v-else-if="game.run.phase === 'end' && game.ending">
-                <p class="eco-label flex items-center gap-2">
-                  <span
-                    class="size-3 shrink-0 rounded-full"
-                    :class="
-                      game.ending.fate === 'hope'
-                        ? 'ecotone-fate-hope'
-                        : 'ecotone-fate-dark'
-                    "
-                  />
-                  {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }} future
-                  · {{ leadName(game.ending.lead) }} ·
-                  {{ lensLabel(game.ending.lens) }}
-                </p>
-                <div
-                  class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
-                >
-                  <p
-                    v-if="signature"
-                    class="font-serif text-base italic text-[#f3e6c8]/80"
-                  >
-                    {{ signature.line }}
-                  </p>
-                  <p
-                    v-for="(paragraph, index) in FUTURES[game.ending.lead][
-                      game.ending.fate
-                    ]"
-                    :key="index"
-                    class="eco-story-copy font-serif leading-relaxed"
-                  >
-                    {{ paragraph }}
-                  </p>
-                  <p
-                    v-if="sharedFuture"
-                    class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm leading-relaxed"
-                  >
-                    {{ sharedFuture }}
-                  </p>
-                  <p
-                    v-for="(callback, index) in hangoutCallbacks"
-                    :key="`companion-callback-${index}`"
-                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ callback }}
-                  </p>
-                  <p
-                    v-for="(callback, index) in questCallbacks"
-                    :key="`quest-callback-${index}`"
-                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ callback }}
-                  </p>
-                  <p
-                    v-if="substanceCoda"
-                    class="border-l-2 border-[#d9b877] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ substanceCoda }}
-                  </p>
-                  <p
-                    v-if="LENS_CODAS[game.ending.lens]"
-                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
-                  >
-                    {{ LENS_CODAS[game.ending.lens] }}
-                  </p>
-                  <button
-                    v-if="runCase && game.mystery"
-                    type="button"
-                    class="flex items-center gap-3 rounded-xl border border-[#d9b877]/40 bg-black/35 p-2.5 text-left hover:border-[#d9b877]"
-                    @click="openCase(game.mystery.id)"
-                  >
-                    <EcotoneMysteryCard
-                      :mystery="game.mystery"
-                      compact
-                      class="w-12 shrink-0"
-                    />
-                    <span class="min-w-0">
-                      <span class="eco-label block">
-                        Case {{ caseNumeral(game.mystery.number) }} ·
-                        {{ caseVerdict(runCase) }}
-                      </span>
-                      <span class="block font-serif text-sm font-bold">{{
-                        game.mystery.title
-                      }}</span>
-                      <span class="block text-xs text-[#f3e6c8]/65">
-                        Gates {{ gateSummary(runCase) }} · open the Case Files
-                      </span>
-                    </span>
-                  </button>
-                  <section
-                    class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
-                  >
-                    <h3 class="eco-label">Four philosophical rolls</h3>
-                    <p class="mt-1 text-xs text-[#f3e6c8]/65">
-                      Repeated perspectives tilt the odds. Decisions can agree
-                      or push back. The 2d6 rolls settle a point of view, not
-                      whether your future deserves hope.
-                    </p>
-                    <div class="mt-3 grid gap-3">
-                      <div
-                        v-for="value in philosophy"
-                        :key="value.id"
-                        class="rounded-lg border border-white/10 p-2"
+                    <div class="flex gap-2" aria-hidden="true">
+                      <span
+                        v-for="(die, index) in pending.roll.dice"
+                        :key="index"
+                        class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
                       >
-                        <div
-                          class="flex items-center justify-between gap-2 text-xs font-bold"
-                        >
-                          <span>{{ value.left }} ↔ {{ value.right }}</span>
-                          <span class="text-[#d9b877]">{{
-                            value.outcome
-                          }}</span>
-                        </div>
-                        <div
-                          class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35"
-                        >
-                          <span
-                            class="absolute inset-y-0 left-1/2 w-px bg-white/40"
-                          />
-                          <span
-                            class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
-                            :style="{ left: value.position + '%' }"
-                          />
-                        </div>
-                        <p
-                          class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85"
-                        >
-                          {{ value.reflection }}
-                        </p>
-                        <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
-                          Chemistry {{ value.chemistry >= 0 ? '+' : ''
-                          }}{{ value.chemistry }} · decisions
-                          {{ value.decisions >= 0 ? '+' : ''
-                          }}{{ value.decisions }} · 2d6 ({{ value.dice[0] }} +
-                          {{ value.dice[1] }}) + pull {{ value.pull }} =
-                          {{ value.total }}
-                        </p>
-                      </div>
+                        <span
+                          v-for="cell in 9"
+                          :key="cell"
+                          class="rounded-full"
+                          :class="
+                            PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''
+                          "
+                        />
+                      </span>
                     </div>
-                  </section>
-                  <div class="rounded-xl bg-black/30 p-3">
-                    <p class="eco-label">
-                      What decided it: {{ game.ending.score }} of
-                      {{ game.ending.target }} needed
-                    </p>
-                    <p class="mt-1 text-sm text-[#f3e6c8]/85">
+                    <div class="min-w-0 flex-1">
+                      <p class="text-lg font-black">
+                        {{ pending.roll.dice[0] + pending.roll.dice[1] }}
+                        <span
+                          v-if="pending.roll.bonus"
+                          class="text-[#f3e6c8]/70"
+                          >{{ pending.roll.bonus > 0 ? '+' : '−'
+                          }}{{ Math.abs(pending.roll.bonus) }}</span
+                        >
+                        = {{ pending.roll.total }}
+                        <span class="text-[#f3e6c8]/70"
+                          >vs {{ pending.roll.target }}</span
+                        >
+                      </p>
+                      <p class="text-xs text-[#f3e6c8]/70">
+                        {{ rollParts(pending.roll) }}
+                      </p>
+                    </div>
+                    <span
+                      class="rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider"
+                      :class="
+                        pending.roll.success
+                          ? 'bg-[#8fb8b0] text-[#09141c]'
+                          : 'bg-[#e08a5a] text-[#09141c]'
+                      "
+                    >
                       {{
-                        game.ending.parts
-                          .map(
-                            (part) =>
-                              `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
-                          )
-                          .join(' · ')
+                        pending.roll.natural === 'boxcars'
+                          ? 'Boxcars!'
+                          : pending.roll.natural === 'snake-eyes'
+                            ? 'Snake eyes'
+                            : pending.roll.success
+                              ? 'Success'
+                              : 'Complication'
                       }}
+                    </span>
+                  </div>
+                  <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
+                    <p
+                      class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
+                    >
+                      {{ revealedResult }}
                     </p>
                   </div>
-                  <p class="text-xs text-[#f3e6c8]/60">
-                    Ending earned and added to your gallery. These finales are
-                    authored drafts. Only choices made in this run appear as
-                    callbacks; images and final editorial approval remain open.
-                  </p>
-                </div>
-              </template>
+                  <div
+                    v-if="effectChips(pending.effects).length"
+                    class="flex flex-wrap gap-1.5"
+                  >
+                    <span
+                      v-for="chip in effectChips(pending.effects)"
+                      :key="chip"
+                      class="rounded-full border border-[#c9a96e]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+                      >{{ chip }}</span
+                    >
+                  </div>
+                </template>
 
-              <template v-else>
-                <p class="eco-label">{{ stage.panelKicker }}</p>
-                <div
-                  class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
-                >
-                  <figure
-                    v-if="stage.message"
-                    class="ecotone-message self-start rounded-2xl border p-3 text-sm"
-                    :class="
-                      stage.message.medium === 'text'
-                        ? 'rounded-bl-sm border-[#8fb8b0]/50 bg-[#8fb8b0]/15'
-                        : 'border-[#d9b877]/45 bg-black/40'
-                    "
+                <template v-else-if="game.run.phase === 'end' && game.ending">
+                  <p class="eco-label flex items-center gap-2">
+                    <span
+                      class="size-3 shrink-0 rounded-full"
+                      :class="
+                        game.ending.fate === 'hope'
+                          ? 'ecotone-fate-hope'
+                          : 'ecotone-fate-dark'
+                      "
+                    />
+                    {{
+                      game.ending.fate === 'hope' ? 'Hopeful' : 'Dark'
+                    }}
+                    future · {{ leadName(game.ending.lead) }} ·
+                    {{ lensLabel(game.ending.lens) }}
+                  </p>
+                  <div
+                    class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
                   >
-                    <figcaption
-                      class="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
-                    >
-                      <Icon
-                        :name="messageIcon(stage.message)"
-                        class="size-3.5"
-                      />
-                      {{ messageLabel(stage.message) }} ·
-                      {{ stage.message.from }}
-                    </figcaption>
                     <p
-                      v-for="(line, index) in stage.message.lines"
-                      :key="`msg-${index}`"
-                      class="leading-snug"
-                      :class="stage.message.medium === 'text' ? '' : 'italic'"
+                      v-if="signature"
+                      class="font-serif text-base italic text-[#f3e6c8]/80"
                     >
-                      {{ line }}
+                      {{ signature.line }}
                     </p>
-                  </figure>
-                  <p
-                    v-for="(paragraph, index) in revealedBody"
-                    :key="index"
-                    class="eco-story-copy font-serif leading-relaxed"
+                    <p
+                      v-for="(paragraph, index) in FUTURES[game.ending.lead][
+                        game.ending.fate
+                      ]"
+                      :key="index"
+                      class="eco-story-copy font-serif leading-relaxed"
+                    >
+                      {{ paragraph }}
+                    </p>
+                    <p
+                      v-if="sharedFuture"
+                      class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm leading-relaxed"
+                    >
+                      {{ sharedFuture }}
+                    </p>
+                    <p
+                      v-for="(callback, index) in hangoutCallbacks"
+                      :key="`companion-callback-${index}`"
+                      class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ callback }}
+                    </p>
+                    <p
+                      v-for="(callback, index) in questCallbacks"
+                      :key="`quest-callback-${index}`"
+                      class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ callback }}
+                    </p>
+                    <p
+                      v-if="substanceCoda"
+                      class="border-l-2 border-[#d9b877] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ substanceCoda }}
+                    </p>
+                    <p
+                      v-if="LENS_CODAS[game.ending.lens]"
+                      class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                    >
+                      {{ LENS_CODAS[game.ending.lens] }}
+                    </p>
+                    <button
+                      v-if="runCase && game.mystery"
+                      type="button"
+                      class="flex items-center gap-3 rounded-xl border border-[#d9b877]/40 bg-black/35 p-2.5 text-left hover:border-[#d9b877]"
+                      @click="openCase(game.mystery.id)"
+                    >
+                      <EcotoneMysteryCard
+                        :mystery="game.mystery"
+                        compact
+                        class="w-12 shrink-0"
+                      />
+                      <span class="min-w-0">
+                        <span class="eco-label block">
+                          Case {{ caseNumeral(game.mystery.number) }} ·
+                          {{ caseVerdict(runCase) }}
+                        </span>
+                        <span class="block font-serif text-sm font-bold">{{
+                          game.mystery.title
+                        }}</span>
+                        <span class="block text-xs text-[#f3e6c8]/65">
+                          Gates {{ gateSummary(runCase) }} · open the Case Files
+                        </span>
+                      </span>
+                    </button>
+                    <section
+                      class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
+                    >
+                      <h3 class="eco-label">Four philosophical rolls</h3>
+                      <p class="mt-1 text-xs text-[#f3e6c8]/65">
+                        Repeated perspectives tilt the odds. Decisions can agree
+                        or push back. The 2d6 rolls settle a point of view, not
+                        whether your future deserves hope.
+                      </p>
+                      <div class="mt-3 grid gap-3">
+                        <div
+                          v-for="value in philosophy"
+                          :key="value.id"
+                          class="rounded-lg border border-white/10 p-2"
+                        >
+                          <div
+                            class="flex items-center justify-between gap-2 text-xs font-bold"
+                          >
+                            <span>{{ value.left }} ↔ {{ value.right }}</span>
+                            <span class="text-[#d9b877]">{{
+                              value.outcome
+                            }}</span>
+                          </div>
+                          <div
+                            class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35"
+                          >
+                            <span
+                              class="absolute inset-y-0 left-1/2 w-px bg-white/40"
+                            />
+                            <span
+                              class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
+                              :style="{ left: value.position + '%' }"
+                            />
+                          </div>
+                          <p
+                            class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85"
+                          >
+                            {{ value.reflection }}
+                          </p>
+                          <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
+                            Chemistry {{ value.chemistry >= 0 ? '+' : ''
+                            }}{{ value.chemistry }} · decisions
+                            {{ value.decisions >= 0 ? '+' : ''
+                            }}{{ value.decisions }} · 2d6 ({{ value.dice[0] }} +
+                            {{ value.dice[1] }}) + pull {{ value.pull }} =
+                            {{ value.total }}
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+                    <div class="rounded-xl bg-black/30 p-3">
+                      <p class="eco-label">
+                        What decided it: {{ game.ending.score }} of
+                        {{ game.ending.target }} needed
+                      </p>
+                      <p class="mt-1 text-sm text-[#f3e6c8]/85">
+                        {{
+                          game.ending.parts
+                            .map(
+                              (part) =>
+                                `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
+                            )
+                            .join(' · ')
+                        }}
+                      </p>
+                    </div>
+                    <p class="text-xs text-[#f3e6c8]/60">
+                      Ending earned and added to your gallery. These finales are
+                      authored drafts. Only choices made in this run appear as
+                      callbacks; images and final editorial approval remain
+                      open.
+                    </p>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <p class="eco-label">{{ stage.panelKicker }}</p>
+                  <div
+                    class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
                   >
-                    {{ paragraph }}
-                  </p>
+                    <figure
+                      v-if="stage.message"
+                      class="ecotone-message self-start rounded-2xl border p-3 text-sm"
+                      :class="
+                        stage.message.medium === 'text'
+                          ? 'rounded-bl-sm border-[#8fb8b0]/50 bg-[#8fb8b0]/15'
+                          : 'border-[#d9b877]/45 bg-black/40'
+                      "
+                    >
+                      <figcaption
+                        class="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                      >
+                        <Icon
+                          :name="messageIcon(stage.message)"
+                          class="size-3.5"
+                        />
+                        {{ messageLabel(stage.message) }} ·
+                        {{ stage.message.from }}
+                      </figcaption>
+                      <p
+                        v-for="(line, index) in stage.message.lines"
+                        :key="`msg-${index}`"
+                        class="leading-snug"
+                        :class="stage.message.medium === 'text' ? '' : 'italic'"
+                      >
+                        {{ line }}
+                      </p>
+                    </figure>
+                    <p
+                      v-for="(paragraph, index) in revealedBody"
+                      :key="index"
+                      class="eco-story-copy font-serif leading-relaxed"
+                    >
+                      {{ paragraph }}
+                    </p>
+                    <p
+                      v-if="stage.lensLine"
+                      class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                    >
+                      {{ stage.lensLine }}
+                    </p>
+                    <p
+                      v-for="(aside, index) in stage.asides"
+                      :key="`aside-${index}`"
+                      class="border-l-2 border-[#e08a5a] pl-3 text-sm"
+                    >
+                      {{ aside }}
+                    </p>
+                  </div>
                   <p
-                    v-if="stage.lensLine"
-                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                    v-if="stage.panelFooter"
+                    class="text-[11px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
                   >
-                    {{ stage.lensLine }}
+                    {{ stage.panelFooter }}
                   </p>
-                  <p
-                    v-for="(aside, index) in stage.asides"
-                    :key="`aside-${index}`"
-                    class="border-l-2 border-[#e08a5a] pl-3 text-sm"
-                  >
-                    {{ aside }}
-                  </p>
-                </div>
-                <p
-                  v-if="stage.panelFooter"
-                  class="text-[11px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
-                >
-                  {{ stage.panelFooter }}
-                </p>
-              </template>
-            </div>
+                </template>
+              </div>
             </div>
 
             <div
@@ -753,7 +778,13 @@
                 ↶ Undo last decision
               </button>
               <template v-if="stagedChoice">
-                <p class="eco-label">{{ stagedChoice.preview ? 'A look down the road' : 'Confirm your decision' }}</p>
+                <p class="eco-label">
+                  {{
+                    stagedChoice.preview
+                      ? 'A look down the road'
+                      : 'Confirm your decision'
+                  }}
+                </p>
                 <div
                   v-if="stagedChoice.preview && stagedChoice.thumb"
                   class="relative aspect-[16/8] shrink-0 overflow-hidden rounded-xl border border-[#d9b877]/40"
@@ -769,12 +800,15 @@
                   {{ stagedChoice.label }}
                 </p>
                 <template v-if="stagedChoice.preview">
-                  <p class="font-serif text-base leading-relaxed">{{ stagedChoice.preview }}</p>
+                  <p class="font-serif text-base leading-relaxed">
+                    {{ stagedChoice.preview }}
+                  </p>
                   <p class="text-sm leading-relaxed text-[#f3e6c8]/80">
                     {{ stagedChoice.possibilities }}
                   </p>
                   <p class="text-xs text-[#8fb8b0]">
-                    These are possibilities, not promises. The story responds to your decisions.
+                    These are possibilities, not promises. The story responds to
+                    your decisions.
                   </p>
                 </template>
                 <p v-else class="text-sm text-[#f3e6c8]/80">
@@ -792,7 +826,11 @@
                   class="eco-choice justify-center text-base"
                   @click="stagedChoice = null"
                 >
-                  {{ stagedChoice.preview ? 'Explore other places' : 'Change my mind' }}
+                  {{
+                    stagedChoice.preview
+                      ? 'Explore other places'
+                      : 'Change my mind'
+                  }}
                 </button>
               </template>
               <template v-else-if="pending">
@@ -942,17 +980,27 @@
             v-if="game.run"
             class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
           >
-            <h3 class="font-serif text-2xl font-bold">Your character portrait</h3>
+            <h3 class="font-serif text-2xl font-bold">
+              Your character portrait
+            </h3>
             <p class="mt-1 text-sm text-[#f3e6c8]/75">
-              Change your look without restarting the story. Your uploaded image remains private.
+              Change your look without restarting the story. Your uploaded image
+              remains private.
             </p>
-            <div class="mt-3 flex gap-2 overflow-x-auto pb-3" aria-label="Change player portrait">
+            <div
+              class="mt-3 flex gap-2 overflow-x-auto pb-3"
+              aria-label="Change player portrait"
+            >
               <button
                 v-for="avatar in PLAYER_AVATARS"
                 :key="avatar.id"
                 type="button"
                 class="w-20 shrink-0 rounded-lg border p-1"
-                :class="game.run.avatarId === avatar.id ? 'border-[#d9b877]' : 'border-[#c9a96e]/25'"
+                :class="
+                  game.run.avatarId === avatar.id
+                    ? 'border-[#d9b877]'
+                    : 'border-[#c9a96e]/25'
+                "
                 :aria-pressed="game.run.avatarId === avatar.id"
                 :aria-label="avatar.label"
                 @click="changePlayerLook(avatar.id)"
@@ -964,29 +1012,52 @@
                   class="aspect-[2/3] w-full rounded object-cover"
                   @error="failedAvatarPortraits.push(avatar.id)"
                 />
-                <span v-else class="flex aspect-[2/3] items-center justify-center text-2xl">{{ avatar.emoji }}</span>
+                <span
+                  v-else
+                  class="flex aspect-[2/3] items-center justify-center text-2xl"
+                  >{{ avatar.emoji }}</span
+                >
               </button>
               <button
                 v-if="customPortraitId && customPortraitUrl"
                 type="button"
                 class="w-20 shrink-0 rounded-lg border p-1"
-                :class="game.run.avatarId === 'custom' ? 'border-[#d9b877]' : 'border-[#c9a96e]/25'"
+                :class="
+                  game.run.avatarId === 'custom'
+                    ? 'border-[#d9b877]'
+                    : 'border-[#c9a96e]/25'
+                "
                 aria-label="My uploaded portrait"
                 :aria-pressed="game.run.avatarId === 'custom'"
                 @click="changePlayerLook('custom')"
               >
-                <img :src="customPortraitUrl" alt="" class="aspect-[2/3] w-full rounded object-cover" />
+                <img
+                  :src="customPortraitUrl"
+                  alt=""
+                  class="aspect-[2/3] w-full rounded object-cover"
+                />
               </button>
             </div>
             <div class="flex flex-wrap gap-2">
-              <button type="button" class="rounded-lg border border-[#d9b877]/70 px-3 py-2 text-sm font-bold" :disabled="uploadingPortrait" @click="openPortraitUpload">
+              <button
+                type="button"
+                class="rounded-lg border border-[#d9b877]/70 px-3 py-2 text-sm font-bold"
+                :disabled="uploadingPortrait"
+                @click="openPortraitUpload"
+              >
                 {{ uploadingPortrait ? 'Uploading…' : 'Upload a new portrait' }}
               </button>
-              <button type="button" class="rounded-lg border border-[#8fb8b0]/60 px-3 py-2 text-sm font-bold" @click="retryPortraits">
+              <button
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/60 px-3 py-2 text-sm font-bold"
+                @click="retryPortraits"
+              >
                 Retry missing portraits
               </button>
             </div>
-            <p v-if="portraitNotice" role="status" class="mt-2 text-sm">{{ portraitNotice }}</p>
+            <p v-if="portraitNotice" role="status" class="mt-2 text-sm">
+              {{ portraitNotice }}
+            </p>
           </section>
           <div class="grid gap-4 @3xl:grid-cols-2">
             <section
@@ -1950,11 +2021,14 @@ const uploadedPreviewUrl = ref('')
 const activePlayerPortrait = computed(() =>
   game.run?.avatarId === 'custom'
     ? customPortraitUrl.value
-    : PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)?.portrait
-        ? `${playerAvatarSrc(PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait)}?retry=${portraitRetry.value}`
-        : '',
+    : PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
+          ?.portrait
+      ? `${playerAvatarSrc(PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait)}?retry=${portraitRetry.value}`
+      : '',
 )
-watch(activePlayerPortrait, () => { headerPortraitFailed.value = false })
+watch(activePlayerPortrait, () => {
+  headerPortraitFailed.value = false
+})
 const pickedPersonality = ref<string>('curious')
 const displayScale = ref(1.2)
 const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')
@@ -2263,12 +2337,22 @@ async function loadPrivatePortrait(id: number) {
       success: boolean
       data?: { imageData?: string | null; fileType?: string | null }
     }>(`/api/art/image/${id}?includeImageData=true`)
-    if (result.success && result.data?.imageData && customPortraitId.value === id) {
-      const mime = result.data.fileType === 'png' ? 'image/png' : result.data.fileType === 'jpeg' || result.data.fileType === 'jpg' ? 'image/jpeg' : 'image/webp'
+    if (
+      result.success &&
+      result.data?.imageData &&
+      customPortraitId.value === id
+    ) {
+      const mime =
+        result.data.fileType === 'png'
+          ? 'image/png'
+          : result.data.fileType === 'jpeg' || result.data.fileType === 'jpg'
+            ? 'image/jpeg'
+            : 'image/webp'
       customPortraitUrl.value = `data:${mime};base64,${result.data.imageData}`
     }
   } catch {
-    portraitNotice.value = 'This private portrait could not be loaded. Select another look or upload it again.'
+    portraitNotice.value =
+      'This private portrait could not be loaded. Select another look or upload it again.'
   }
 }
 watch(
@@ -2285,7 +2369,10 @@ async function uploadPortrait(event: Event) {
   const file = input.files?.[0]
   input.value = ''
   if (!file) return
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 8 * 1024 * 1024) {
+  if (
+    !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+    file.size > 8 * 1024 * 1024
+  ) {
     portraitNotice.value = 'Choose a JPEG, PNG or WebP image under 8 MB.'
     return
   }
@@ -2311,10 +2398,12 @@ async function uploadPortrait(event: Event) {
     customPortraitId.value = id
     if (game.run) game.setPlayerLook('custom', id)
     else pickedAvatar.value = 'custom'
-    portraitNotice.value = 'Private portrait saved. You can switch looks at any time.'
+    portraitNotice.value =
+      'Private portrait saved. You can switch looks at any time.'
     retryPortraits()
   } catch {
-    portraitNotice.value = 'Unable to upload. Sign in and try again; your current look is unchanged.'
+    portraitNotice.value =
+      'Unable to upload. Sign in and try again; your current look is unchanged.'
   } finally {
     uploadingPortrait.value = false
   }

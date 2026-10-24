@@ -163,7 +163,16 @@
                     <span
                       class="md-card-back flex items-center justify-center bg-[#263951] text-[clamp(14px,2vw,28px)] text-[#e4cf9c]"
                       aria-hidden="true"
-                      >✥</span
+                      >
+                        ✥
+                        <img
+                          :src="DEFAULT_BRIAR_CARD_BACK"
+                          class="absolute inset-0 h-full w-full object-cover"
+                          alt=""
+                          draggable="false"
+                          @error="hideMissingMemoryCardBack"
+                        />
+                      </span
                     >
                     <img
                       class="md-card-front h-full w-full bg-[#162733]"
@@ -178,11 +187,11 @@
                   type="button"
                   class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
                   :class="{
-                    'bg-sky-300/25 ring-2 ring-inset ring-sky-200/80':
+                    'bg-cyan-200/45 ring-[3px] ring-inset ring-cyan-50/95 shadow-[inset_0_0_16px_#e0fbff]':
                       progressFor(tile.key) === 'unvisited',
-                    'bg-amber-400/20 ring-2 ring-inset ring-amber-300/90':
+                    'bg-amber-300/50 ring-[3px] ring-inset ring-amber-100/95 shadow-[inset_0_0_18px_#fef08a]':
                       progressFor(tile.key) === 'unfinished',
-                    'bg-emerald-950/35 ring-1 ring-inset ring-emerald-300/70':
+                    'bg-emerald-950/15 ring-2 ring-inset ring-emerald-100/85':
                       progressFor(tile.key) === 'complete',
                     'outline outline-2 outline-[#fff0a9]':
                       world.state.player === tile.key,
@@ -254,7 +263,7 @@
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border border-[#a99877]/20 bg-[#202935]/[0.98]"
+                  class="h-full w-full border border-[#55677b]/60 bg-[#0b1521]/[0.99] shadow-[inset_0_0_16px_#071017]"
                   aria-hidden="true"
                 >
                   <span
@@ -340,7 +349,7 @@
                 {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
               </span>
             </div>
-            <div class="md-scene-copy">
+            <div class="md-scene-copy kr-scroll" data-testid="memory-world-choice-column">
               <p
                 class="text-xs font-black uppercase tracking-widest text-[#795a32]"
               >
@@ -388,6 +397,140 @@
               >
                 Find the matching picture to reveal two squares.
               </p>
+              <div
+                v-if="
+                  !world.mapMatching && (world.selectedSite || world.activeScene)
+                "
+                class="md-encounter-actions mt-2 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
+              >
+                <template
+                  v-if="
+                    world.activeScene &&
+                    !world.state.sceneChoices[world.state.player]
+                  "
+                >
+                  <button
+                    v-for="choice in world.activeScene.choices"
+                    :key="choice.id"
+                    type="button"
+                    class="md-btn"
+                    :disabled="!canChooseBriarScene(choice, world.state)"
+                    @click="world.chooseScene(choice.id)"
+                  >
+                    {{ choice.label }}
+                  </button>
+                </template>
+                <span
+                  v-else-if="world.activeScene"
+                  class="text-xs font-bold text-emerald-900"
+                  >✓ Story decision remembered</span
+                >
+                <button
+                  v-if="world.selectedSite?.kind === 'merchant'"
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.state.wildflowers < 1"
+                  @click="world.buyLantern()"
+                >
+                  Buy Lantern (1 🌼)
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'chest' &&
+                    !world.state.chestClaims.includes(world.state.player)
+                  "
+                  type="button"
+                  class="md-btn"
+                  @click="world.claimChest()"
+                >
+                  Open chest
+                </button>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'chest' &&
+                    world.state.chestClaims.includes(world.state.player)
+                  "
+                  class="text-xs font-bold"
+                  >✓ Chest claimed</span
+                >
+                <button
+                  v-if="world.selectedSite?.kind === 'dungeon'"
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.loading"
+                  @click="world.startEncounter('dungeon')"
+                >
+                  {{ world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault' }}
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'enemy' &&
+                    !world.state.completedEncounters.includes(world.state.player)
+                  "
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.loading"
+                  @click="
+                    world.startEncounter(
+                      world.state.player === '5,5' ? 'sprite' : 'patrol',
+                    )
+                  "
+                >
+                  {{ world.loading ? 'Loading…' : 'Accept memory duel' }}
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'gate' &&
+                    world.hasChime &&
+                    !world.state.gateOpened
+                  "
+                  type="button"
+                  class="md-btn"
+                  @click="world.openGate()"
+                >
+                  Ring Bramble Chime
+                </button>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'gate' && world.state.gateOpened
+                  "
+                  class="text-xs font-bold"
+                  >✓ Briar Camp cleared</span
+                >
+                <template
+                  v-if="
+                    world.selectedSite?.kind === 'puzzle' &&
+                    !world.state.puzzleSolved
+                  "
+                >
+                  <button
+                    type="button"
+                    class="md-btn"
+                    @click="world.enterRune('leaf')"
+                  >
+                    🍃 Leaf
+                  </button>
+                  <button
+                    type="button"
+                    class="md-btn"
+                    @click="world.enterRune('sun')"
+                  >
+                    ☀️ Sun
+                  </button>
+                  <span class="w-full text-xs"
+                    >{{ world.runeInput.length }}/3 runes</span
+                  >
+                </template>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'puzzle' &&
+                    world.state.puzzleSolved
+                  "
+                  class="text-xs font-bold"
+                  >✓ Stones solved</span
+                >
+              </div>
+
             </div>
           </div>
           <p
@@ -405,140 +548,6 @@
           >
             Retry loading selected gallery
           </button>
-
-          <div
-            v-if="
-              !world.mapMatching && (world.selectedSite || world.activeScene)
-            "
-            class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
-          >
-            <template
-              v-if="
-                world.activeScene &&
-                !world.state.sceneChoices[world.state.player]
-              "
-            >
-              <button
-                v-for="choice in world.activeScene.choices"
-                :key="choice.id"
-                type="button"
-                class="md-btn"
-                :disabled="!canChooseBriarScene(choice, world.state)"
-                @click="world.chooseScene(choice.id)"
-              >
-                {{ choice.label }}
-              </button>
-            </template>
-            <span
-              v-else-if="world.activeScene"
-              class="text-xs font-bold text-emerald-900"
-              >✓ Story decision remembered</span
-            >
-            <button
-              v-if="world.selectedSite?.kind === 'merchant'"
-              type="button"
-              class="md-btn"
-              :disabled="world.state.wildflowers < 1"
-              @click="world.buyLantern()"
-            >
-              Buy Lantern (1 🌼)
-            </button>
-            <button
-              v-if="
-                world.selectedSite?.kind === 'chest' &&
-                !world.state.chestClaims.includes(world.state.player)
-              "
-              type="button"
-              class="md-btn"
-              @click="world.claimChest()"
-            >
-              Open chest
-            </button>
-            <span
-              v-if="
-                world.selectedSite?.kind === 'chest' &&
-                world.state.chestClaims.includes(world.state.player)
-              "
-              class="text-xs font-bold"
-              >✓ Chest claimed</span
-            >
-            <button
-              v-if="world.selectedSite?.kind === 'dungeon'"
-              type="button"
-              class="md-btn"
-              :disabled="world.loading"
-              @click="world.startEncounter('dungeon')"
-            >
-              {{ world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault' }}
-            </button>
-            <button
-              v-if="
-                world.selectedSite?.kind === 'enemy' &&
-                !world.state.completedEncounters.includes(world.state.player)
-              "
-              type="button"
-              class="md-btn"
-              :disabled="world.loading"
-              @click="
-                world.startEncounter(
-                  world.state.player === '5,5' ? 'sprite' : 'patrol',
-                )
-              "
-            >
-              {{ world.loading ? 'Loading…' : 'Accept memory duel' }}
-            </button>
-            <button
-              v-if="
-                world.selectedSite?.kind === 'gate' &&
-                world.hasChime &&
-                !world.state.gateOpened
-              "
-              type="button"
-              class="md-btn"
-              @click="world.openGate()"
-            >
-              Ring Bramble Chime
-            </button>
-            <span
-              v-if="
-                world.selectedSite?.kind === 'gate' && world.state.gateOpened
-              "
-              class="text-xs font-bold"
-              >✓ Briar Camp cleared</span
-            >
-            <template
-              v-if="
-                world.selectedSite?.kind === 'puzzle' &&
-                !world.state.puzzleSolved
-              "
-            >
-              <button
-                type="button"
-                class="md-btn"
-                @click="world.enterRune('leaf')"
-              >
-                🍃 Leaf
-              </button>
-              <button
-                type="button"
-                class="md-btn"
-                @click="world.enterRune('sun')"
-              >
-                ☀️ Sun
-              </button>
-              <span class="w-full text-xs"
-                >{{ world.runeInput.length }}/3 runes</span
-              >
-            </template>
-            <span
-              v-if="
-                world.selectedSite?.kind === 'puzzle' &&
-                world.state.puzzleSolved
-              "
-              class="text-xs font-bold"
-              >✓ Stones solved</span
-            >
-          </div>
 
           <div
             class="md-encounter-inventory mt-auto flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#bda47b] pt-2 text-sm font-semibold"
@@ -626,7 +635,16 @@
               <span
                 class="md-card-back bg-[#29384b] text-3xl text-[#dec28a]"
                 aria-hidden="true"
-                >✦</span
+                >
+                  ✦
+                  <img
+                    :src="world.state.roomId === 'vault-2' ? ARCANE_BRIAR_CARD_BACK : DEFAULT_BRIAR_CARD_BACK"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    alt=""
+                    draggable="false"
+                    @error="hideMissingMemoryCardBack"
+                  />
+                </span
               >
               <img
                 class="md-card-front"
@@ -681,6 +699,7 @@ import {
   BRIAR_WAVE_SIZES,
 } from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
+import { DEFAULT_BRIAR_CARD_BACK, ARCANE_BRIAR_CARD_BACK, hideMissingMemoryCardBack } from '~/utils/memoryDungeonCardArt'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 
@@ -841,16 +860,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
 }
 .md-scene-status {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 .md-scene-alert {
   flex: 0 0 auto;
@@ -865,9 +886,6 @@ onMounted(() => {
   }
 }
 @container md-world (max-height: 500px) {
-  .md-scene-status {
-    -webkit-line-clamp: 3;
-  }
   .md-encounter-actions {
     margin-top: 0.35rem;
   }

@@ -335,9 +335,9 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'Three runners and a Crow dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead elder crow. It shows a lie for what it is. The court has it now.',
+        'Three runners and a Conclave dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead Conclave elder. It shows a lie for what it is. The court has it now.',
       success:
-        'The false reports ran through a Crow dead-drop to somewhere inside the fortress. In the dead-drop: a dead elder crow’s glass eye. It shows a lie for what it is.',
+        'The false reports ran through a Conclave dead-drop to somewhere inside the fortress. In the dead-drop: a deceased Conclave elder’s glass eye. It shows a lie for what it is.',
       partial:
         'The dead-drop is empty except for a black thread caught in its hinge. It smells of lamp oil from inside the fortress. The runner asks whether the court wants the thread or the name.',
       failure:
@@ -2135,7 +2135,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'honest-count',
             label:
-              'Remind her the crown once counted the Mole ledger honestly. Offer a survey of the flooded burrows.',
+              'Remind her the crown once counted the burrow ledger honestly. Offer a survey of the flooded burrows.',
             requires: { flags: ['mole-ledger-counted'] },
             effects: {
               affinity: { moles: 5 },

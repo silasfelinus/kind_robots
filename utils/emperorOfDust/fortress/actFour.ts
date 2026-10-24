@@ -1585,7 +1585,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d34-ford-water-signed'],
                 },
                 response:
-                  'Corvane signs with an inked claw. By evening a crow sits on every sluice gate along the Ford. Freehold farmers learn to ask politely for their own water.',
+                  'Corvane signs with an inked claw. By evening a Conclave watchkeeper sits on every sluice gate along the Ford. Freehold farmers learn to ask politely for their own water.',
               },
             ],
           },
@@ -1718,7 +1718,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d34-militia-told-water'],
             },
             response:
-              'The sergeant looks at the windows. A crow sits on every sill. “Then what are we taking back,” he says. It is not a question. They go home by the long road, so they will not pass a sluice.',
+              'The sergeant looks at the windows. A Conclave sentry sits on every sill. “Then what are we taking back,” he says. It is not a question. They go home by the long road, so they will not pass a sluice.',
           },
         ],
       },

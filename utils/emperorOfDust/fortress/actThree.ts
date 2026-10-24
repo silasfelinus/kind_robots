@@ -603,7 +603,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-pups-guests', 'pack-alliance'],
                 },
                 response:
-                  'That evening six hyena pups walk into the Yard in a line, each holding the tail in front. The cooks feed them. Vane does not watch them go in.',
+                  'That evening six young Jackalwire recruits walk into the Yard in a line, each holding the coat hem of the one ahead. The cooks feed them. Vane does not watch them go in.',
               },
               {
                 id: 'tincture-debt',
@@ -917,7 +917,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         faction: 'old-houses',
         lines: [
           'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a root-knife from the burrows.',
-          'Three dead at the Ford, Majesty, and the Mole tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
+          'Three dead at the Ford, Majesty, and the burrow tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
           'Justice delayed is only a longer funeral. The Moles were told the Ford would be argued in council. They argued in the river instead.',
           {
             who: 'Young Komodo',
@@ -928,7 +928,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'blame',
-            label: 'Arrest the Mole cell nearest the Ford.',
+            label: 'Arrest the revolutionary cell nearest the Ford.',
             effects: {
               affinity: { moles: -15 },
               local: { 'old-houses': 3 },
@@ -1001,7 +1001,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 id: 'blame',
                 label:
-                  'Arrest the Mole cell anyway. A clean knife proves nothing.',
+                  'Arrest the revolutionary cell anyway. A clean knife proves nothing.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
@@ -1090,7 +1090,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 id: 'blame',
                 label:
-                  'Trinkets are trinkets. Arrest the Mole cell nearest the Ford.',
+                  'Trinkets are trinkets. Arrest the revolutionary cell nearest the Ford.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
@@ -2402,7 +2402,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'mole-truce',
         source: 'Granny Umber’s cell',
-        text: 'The Mole cells will talk truce, if the crown meant its talks.',
+        text: 'The revolutionary cells will talk truce, if the crown meant its talks.',
         truth: true,
         variants: [
           {
@@ -2413,7 +2413,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             flags: ['moles-blamed'],
-            text: 'The Mole cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
+            text: 'The revolutionary cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
           },
         ],
       },
@@ -2543,7 +2543,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'd26-mole-truce',
         title: 'A Genuine Truce',
-        speaker: 'Keel Understone, surveyor of the Mole cells',
+        speaker: 'Keel Understone, surveyor of the revolutionary cells',
         faction: 'moles',
         requires: {
           flags: ['mole-talks-opened'],
@@ -2594,7 +2594,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'apology',
             label:
-              'Apologise for the Mole cell the crown arrested at the Ford.',
+              'Apologise for the revolutionary cell the crown arrested at the Ford.',
             requires: { flags: ['moles-blamed'] },
             effects: {},
             response:
@@ -3391,7 +3391,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'mole-forgery',
         source: 'Young Komodo’s own runner',
-        text: 'The cut page is a Mole forgery meant to ruin Mayor Reedbell.',
+        text: 'The cut page is a forgery from the burrows meant to ruin Mayor Reedbell.',
         truth: false,
         komodoLie: true,
         hindsight:
@@ -3399,7 +3399,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         variants: [
           {
             flags: ['mole-truce'],
-            text: 'The cut page is a Mole forgery. The burrows have their water now. They want Hollow Bell’s too.',
+            text: 'The cut page is a forgery from the burrows. The burrows have their water now. They want Hollow Bell’s too.',
           },
         ],
       },
@@ -3667,7 +3667,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             npc: 'abelard-vellum',
             lines: [
               '“No one, Majesty. The Archive reported a page missing three days ago. The page came this morning. I told only the throne.”',
-              '“Yet your advisor’s runner had decided before dawn it was a Mole forgery.” He blinks, slowly. “I only remark on it. Remarking is most of what keepers do.”',
+              '“Yet your advisor’s runner had decided before dawn it was a forgery from the burrows.” He blinks, slowly. “I only remark on it. Remarking is most of what keepers do.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',

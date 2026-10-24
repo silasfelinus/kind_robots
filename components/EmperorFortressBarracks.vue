@@ -171,7 +171,7 @@
             {{ def.name }}
           </h2>
           <p class="text-xs opacity-70">
-            {{ def.species }} · {{ def.pronouns }} · from
+            {{ def.pronouns }} · from
             {{ originName(def.origin) }}
             <span v-if="def.romanceable"> · open to romance</span>
           </p>
@@ -185,7 +185,7 @@
         :key="talk.id + ':' + (scene.beatId ?? '')"
         :title="talk.title"
         :speaker="scene.speaker"
-        :subtitle="def.species"
+        :subtitle="originName(def.origin)"
         :art="art"
         :lines="sceneLines"
         :choices="talkChoices"
@@ -515,7 +515,7 @@ const shortStatus = (id: string) => {
   const status = followerStatus(props.run, id)
   if (status === 'injured') return `Injured · ${injuryDaysLeft(props.run, id)}d`
   if (status === 'on-quest') return 'Away'
-  return followerDef(id)?.species ?? 'Ready'
+  return 'Ready'
 }
 const originName = (id: string) =>
   KINGDOM_FACTION_DEFS.find((faction) => faction.id === id)?.name ??

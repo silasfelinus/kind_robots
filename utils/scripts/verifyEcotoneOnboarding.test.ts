@@ -6,6 +6,7 @@ import {
   PLAYER_AVATARS,
   PLAYER_PERSONALITIES,
   normalizePlayerIdentity,
+  playerAvatarSrc,
 } from '../ecotone/playerIdentity'
 import {
   contextualOpeningChoices,
@@ -13,6 +14,10 @@ import {
   sceneMomentOffer,
 } from '../ecotone/sceneOffers'
 
+assert.equal(
+  playerAvatarSrc('/images/ecotone/avatars/glitter.webp'),
+  'https://media.acrocatranch.com/images/ecotone/avatars/glitter.webp',
+)
 assert.equal(PLAYER_AVATARS.length, 12)
 assert.deepEqual(
   PLAYER_AVATARS.map((avatar) => avatar.portrait),

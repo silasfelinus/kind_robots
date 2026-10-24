@@ -156,6 +156,88 @@ assert.equal(
   'a choice cannot masquerade as one from an earlier land',
 )
 
+const wellOutcome = {
+  ...outcome,
+  locationId: 'old-well',
+  encounterId: 'the-noon-water-line',
+  choiceId: 'give-the-mother-your-place',
+}
+const yielded = worldEchoesV7({ ...atDustwater, outcomes: [wellOutcome] }, [])
+assert.equal(yielded.length, 1)
+assert.equal(yielded[0]!.id, 'yielded-place')
+assert.equal(yielded[0]!.sourceLocationId, 'old-well')
+assert.equal(
+  worldEchoesV7(
+    { ...atDustwater, outcomes: [{ ...wellOutcome, success: false }] },
+    [],
+  ).length,
+  0,
+  'a failed yielding never fabricates a grateful mother',
+)
+assert.equal(
+  worldEchoesV7(
+    {
+      ...atDustwater,
+      outcomes: [{ ...wellOutcome, choiceId: 'look-at-the-ox' }],
+    },
+    [],
+  ).length,
+  0,
+  'only the recorded choice is remembered',
+)
+
+const atTablelands: JourneyStateV6 = {
+  ...atDustwater,
+  journey: {
+    ...atDustwater.journey,
+    landIndex: 2,
+    bosses: [
+      ...atDustwater.journey.bosses,
+      {
+        ...boss,
+        landId: JOURNEY_WORLD.lands[1]!.id,
+        id: JOURNEY_WORLD.lands[1]!.boss.id,
+        turn: 21,
+      },
+    ],
+  },
+}
+const tablelandOutcome = (
+  locationId: string,
+  encounterId: string,
+  choiceId: string,
+) => ({ ...outcome, locationId, encounterId, choiceId })
+const burned = tablelandOutcome(
+  'trading-post',
+  'the-widows-debt-for-sale',
+  'buy-the-debt-and-burn-it',
+)
+const fed = tablelandOutcome(
+  'trading-post',
+  'the-deserter-behind-the-bins',
+  'give-him-food-and-leave',
+)
+const kindness = worldEchoesV7({ ...atTablelands, outcomes: [burned, fed] }, [])
+assert.deepEqual(
+  kindness.filter((echo) => echo.source === 'encounter').map((e) => e.id),
+  ['burned-debt', 'fed-deserter'],
+  'two Dustwater kindnesses are remembered at the canyon',
+)
+assert.ok(kindness.every((echo) => echo.text.length > 100))
+assert.equal(
+  worldEchoesV7(
+    { ...atTablelands, outcomes: [{ ...burned, success: false }] },
+    [],
+  ).length,
+  0,
+  'a failed purchase never burns a debt',
+)
+assert.equal(
+  worldEchoesV7({ ...atDustwater, outcomes: [burned] }, []).length,
+  0,
+  'a deed cannot echo in the land it was done in',
+)
+
 const deep: JourneyStateV6 = {
   ...atDustwater,
   journey: { ...atDustwater.journey, landIndex: 4 },
@@ -181,5 +263,5 @@ assert.deepEqual(
 )
 
 console.log(
-  'Shifting Lands V7 world echoes passed: 32 approach replies, distinct deed callbacks, cause-accurate first lands, no spoilers and deterministic replay-safe projection',
+  'Shifting Lands V7 world echoes passed: 32 approach replies, five distinct deed callbacks, cause-accurate first lands, no spoilers and deterministic replay-safe projection',
 )

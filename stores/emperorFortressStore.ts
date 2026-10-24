@@ -4,6 +4,7 @@ import {
   assignQuest,
   chooseAudienceOption,
   chooseTalkOption,
+  challengeRumour,
   chooseChanceEvent,
   createRun,
   earnFlag,
@@ -415,6 +416,12 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     return outcome.response
   }
 
+  function challengeReport(briefingId: string): string {
+    const outcome = challengeRumour(current(), briefingId)
+    commit(outcome.run)
+    return outcome.response
+  }
+
   function preview(questId: string, party: string[], hourglass = false) {
     return previewQuest(
       current(),
@@ -561,6 +568,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     answer,
     talk,
     answerChanceEvent,
+    challengeReport,
     preview,
     assign,
     withdraw,

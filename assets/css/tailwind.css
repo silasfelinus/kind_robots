@@ -178,6 +178,52 @@
 }
 
 /*
+ * ── CRYSTAL STREET — Nightmare on Crystal Street ──────────────────────
+ *
+ * Scoped by `data-theme="crystal-street"` on /admin/crystal-street only. A 1986
+ * Halloween-week palette: midnight purple panels, hot magenta, cyan neon and a
+ * porch-light yellow.
+ */
+@plugin "daisyui/theme" {
+  name: 'crystal-street';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(22% 0.07 300);
+  --color-base-200: oklch(15% 0.06 300);
+  --color-base-300: oklch(30% 0.09 305);
+  --color-base-content: oklch(94% 0.03 330);
+
+  --color-primary: oklch(65% 0.25 0);
+  --color-primary-content: oklch(98% 0.01 330);
+  --color-secondary: oklch(85% 0.14 200);
+  --color-secondary-content: oklch(18% 0.06 300);
+  --color-accent: oklch(88% 0.17 95);
+  --color-accent-content: oklch(18% 0.06 300);
+  --color-neutral: oklch(26% 0.07 300);
+  --color-neutral-content: oklch(94% 0.03 330);
+
+  --color-info: oklch(80% 0.12 220);
+  --color-info-content: oklch(18% 0.06 300);
+  --color-success: oklch(80% 0.18 150);
+  --color-success-content: oklch(18% 0.06 300);
+  --color-warning: oklch(85% 0.16 85);
+  --color-warning-content: oklch(18% 0.06 300);
+  --color-error: oklch(65% 0.22 20);
+  --color-error-content: oklch(98% 0.01 330);
+
+  --radius-selector: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── SURFACE TOKENS ────────────────────────────────────────────────────
  *
  * One indirection between the shared kit and the theme's base colours, so a

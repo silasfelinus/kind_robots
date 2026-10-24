@@ -28,12 +28,13 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -2 } },
     outcomes: {
       success:
-        'The barrels came in at dusk, cheaper than the foreman feared. The ovens were lit before the carts were unloaded.',
-      partial: 'Half the barrels arrive. The Yard cuts bread by the slice.',
+        'Dunmore Ash cuts the first sack open with a kitchen knife. Flour coats his sleeves and the floor. The ovens burn through the night, but the Ledger leaves its bill on his desk.',
+      partial:
+        'Half the barrels arrive. Dunmore draws lines on the loaves before they cool. The cooks cut on those lines and nobody asks for seconds.',
       failure:
-        'The carts wanted more than the tower had. The Yard eats half loaves and says out loud whose fault it is.',
+        'The Saltroad factor counts the tower’s brass twice. Then she shuts the flour wagons. Dunmore hangs his apron on the locked pantry door and lets the kitchens hear who refused them.',
       expired:
-        'No one went. The foreman served porridge for supper and told everyone whose fault it was.',
+        'Nobody comes to the Saltroad stalls. Dunmore serves thin porridge beneath the empty flour hooks. The ladle scrapes the pot like a file.',
     },
   },
   {
@@ -73,12 +74,15 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -5 } },
     outcomes: {
       triumph:
-        'The bridge stayed open two days. The Pack went home with nothing but a sore opinion of the tower.',
-      success: 'The carts crossed. Gristle Vane counted every one.',
-      partial: 'Half the carts crossed. Then the wagons closed ranks.',
+        'For two days the painted wagons sit in the ditch while the Saltroad crosses. Gristle Vane returns the watch captain’s salute with two fingers and a smile. He keeps every name.',
+      success:
+        'The last cart crosses as dusk takes the ford. Gristle Vane stands on the parapet and counts the wheels aloud. He says the number will matter later.',
+      partial:
+        'Half the carts clear the bridge. The Pack closes its painted wagons behind them. A baker on the wrong bank holds up three fingers: the price of flour has tripled.',
       failure:
-        'The Pack held the bridge. You could hear them from the wall all night.',
-      expired: 'Nobody went. The Saltroad carts took the long road again.',
+        'The Watch returns without its bridge keys. By midnight Gristle Vane has hung them from a painted pole above the crossing. The guards on the wall hear the keys ring in the wind.',
+      expired:
+        'At dusk the Saltroad takes the northern detour. One driver leaves a broken wheel at the tower gate and asks the Watch to put it where the throne can see.',
     },
   },
   {
@@ -107,10 +111,13 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -5 } },
     outcomes: {
       success:
-        'The Pack guarded the carts the whole road. One goat went missing. The Saltroad calls that a pact.',
-      partial: 'The carts arrived. Some of the cargo did not.',
-      failure: 'The escort vanished the second night. So did three crates.',
-      expired: 'The offer went stale. The Pack took it as an insult.',
+        'The Pack brings every wagon home. A Saltroad merchant checks the seals, then finds one caravan goat missing. Gristle Vane hands over a receipt for it, signed with the crown’s name.',
+      partial:
+        'The wagons arrive under a borrowed Pack banner. Three crates have been pried open and nailed shut again. Their drivers insist the guards were polite.',
+      failure:
+        'The guards disappear at the second mile-marker. Three sealed crates disappear with them. A merchant lays the empty escort contract on the throne floor, beside the fee the crown already paid.',
+      expired:
+        'Nobody answers the Pack’s offer. Gristle Vane sends back the unsigned contract, folded into the shape of a knife. His riders have already taken the bridge road.',
     },
   },
   {
@@ -141,10 +148,13 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -3, 'gate-watch': -1 } },
     outcomes: {
       success:
-        'The mounts were grazing two valleys over. The stable latch had been filed through, carefully, by someone who knew the fortress.',
-      partial: 'Most of the mounts came home. Nobody can explain the latch.',
-      failure: 'The trail went cold at the ford.',
-      expired: 'The court rode nowhere for a week. The Yard noticed.',
+        'The horses are found grazing below an abandoned mill. The stable latch has been filed through from the inside, every cut in the same place. The stablemaster will not look at the postern gate.',
+      partial:
+        'Most mounts come back sweating and without tack. A stablehand has replaced the filed latch before the Watch can inspect it. The old one is missing.',
+      failure:
+        'The tracker finds a saddle strap beneath a ford stone. No tracks survive the water. At home the stable doors stand open, and nobody volunteers to shut them.',
+      expired:
+        'The empty stable begins charging for feed nobody needs. Dunmore sends the bill to the throne. Every petition needing a messenger stays on the board.',
     },
   },
   {
@@ -176,10 +186,11 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       success:
         'The witch who took the parcel was not surprised. It ticked the whole way. A Conclave scout who followed the courier now asks to see the emperor about what was inside.',
       partial:
-        'The parcel arrived damp. The Crows are not pleased, or not saying.',
+        'The Mirefen accepts the parcel but refuses to sign the receipt. The envoy stares at the water stains on its wrapping. She folds the receipt into her sleeve without a word.',
       failure:
-        'The parcel was lost in the reeds. Something in the reeds kept it.',
-      expired: 'The Crows took back their warning, word by word.',
+        'The courier returns without the parcel. Reed stems have grown through the strap of their satchel. At the gate they ask for water to wash their hands and will not say why.',
+      expired:
+        'No courier takes the road. At sunset the Conclave’s warning slate is scraped clean in the court foyer. The sky above the ford darkens anyway.',
     },
   },
   {
@@ -250,10 +261,12 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The family sleeps above the Hollow Bell bakery. The youngest gave the escort a drawing of a horse that is mostly legs.',
-      partial: 'The family arrived tired and frightened. The cart did not.',
+      partial:
+        'The family reaches Hollow Bell on foot, carrying the smallest child’s blanket between them. Mara Reedbell offers beds above the bakery. They ask where the cart went, and nobody answers.',
       failure:
-        'Raider scouts scattered the family on the road. Four were found by nightfall. They are still looking for the fifth.',
-      expired: 'Nobody came for them. The family went to the Abbey after all.',
+        'The escort finds four of the five hiding beneath a culvert. They leave a lamp at the roadside for the missing one. The lamp burns through the night.',
+      expired:
+        'The escort order stays pinned to the board. By morning the family’s cart is gone. An Abbey sister leaves a receipt for five beds, with all five names recorded.',
     },
   },
   {
@@ -296,10 +309,14 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'Every wagon crossed by dawn. The caravan master pressed a salvaged crowbar on the escort to keep.',
-      success: 'The iron reached the far side. The escort did not sleep.',
-      partial: 'Two wagons in five made it across.',
-      failure: 'The canyon took the convoy, and not only the iron.',
-      expired: 'The convoy went without an escort. It did not arrive.',
+      success:
+        'All five iron wagons reach the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
+      partial:
+        'Two wagons make the far bank. A third burns in the canyon mouth. The caravan master asks whether the pay is counted by wagons saved or friends buried.',
+      failure:
+        'At dawn a single broken axle washes out of the rail canyon. The Saltroad factor recognizes a ribbon tied to it. The expedition list stays on the wall because nobody can yet say who came home.',
+      expired:
+        'The convoy leaves without the crown’s seal. Two days later its bells turn up for sale at the canyon market. No one has seen the drivers.',
     },
   },
   {
@@ -352,13 +369,14 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     },
     outcomes: {
       triumph:
-        'Thistledown held. The raiders were run past the canyon mouth. The Freeholds will remember who came.',
+        'The defenders hold the gate until the grain carts are safe. At dawn a farmer sets a splintered crossbow on the tower steps, returned for repair. They have begun calling it the crown’s road.',
       success: 'Thistledown held. Its granary did not.',
-      partial: 'The raiders left with half the village’s stores.',
+      partial:
+        'The raiders leave with half the winter stores and none of the village banners. Thistledown’s reeve sends the crown a list of what was taken, written on the back of a funeral notice.',
       failure:
-        'Thistledown burned. Its people walked to the Eastern Ford with what they could carry.',
+        'Thistledown burns. The survivors walk toward the Eastern Ford carrying doors as stretchers and cooking pots still warm from supper. The reeve keeps the village key on a string.',
       expired:
-        'No one went. Thistledown burned. The Freeholds will remember that too.',
+        'The watch fires on Thistledown’s ridge burn until dawn and then go out. A refugee arrives at the fortress with the village bell rope. He asks where the crown’s promised soldiers went.',
     },
     // t-035: the hill farmers the crown fed on Day 9 came down to the granary.
     outcomeVariants: {
@@ -1229,7 +1247,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
   },
   {
     day: 7,
-    title: 'A Crow’s Warning',
+    title: 'The Conclave’s Warning',
     whisper: {
       source: 'A Freehold reeve, waiting in the gatehouse',
       text: 'My gran sat out every dust storm in the old Mole galleries under the Ford. Nobody’s been down there in years, they tell me. Funny. The path to the old door is still worn smooth.',
@@ -1263,7 +1281,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd07-crow-warning',
-        title: 'A Crow’s Warning',
+        title: 'The Conclave’s Warning',
         speaker: 'A Storm Crow envoy',
         faction: 'storm-crows',
         // t-035: the rain the crown bought, or the rain it fenced.
@@ -1309,7 +1327,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'ask-hands',
             label:
-              'Ask why the parcel must go in the crown’s hands, not a crow’s.',
+              'Ask why the parcel must go in the crown’s hands, not the envoy’s.',
             effects: {},
             response:
               'One eye blinks, then the other. “Good question. The answer is also a parcel.”',
@@ -1364,7 +1382,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'hands',
             lines: [
-              '“The Mire Mothers take nothing from a crow’s claw. An old quarrel, older than your tower. They will take it from yours. Your tower has not yet given them a reason to refuse.”',
+              '“The Mire Mothers take nothing from a Conclave envoy’s hand. An old quarrel, older than your tower. They will take it from yours. Your tower has not yet given them a reason to refuse.”',
               '“What is inside is between the Conclave and the coven. Not a weapon. Not a gift. A sentence that has waited a long time for its full stop.”',
               '“Both of us will remember who carried it. That is the real price. The brass is for those who prefer to be forgotten.”',
               {

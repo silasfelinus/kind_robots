@@ -956,15 +956,15 @@ export const BEATS: EncounterCard[] = [
     scene: 'theater',
     variantBy: 'prospect',
     body: [
-      'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+      'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
     ],
     variants: {
       cedar: [
-        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
-        'The mechanic from pit row is out in the lot with his tailgate down, a cooler of beer and the CB on low. “Help yourself,” he says. “Or don’t. I’m on the clock with this radio.”',
+        'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
+        'The mechanic from pit row is outside with a tailgate full of tools, a cooler and the CB on low. “I’m listening for the marshals,” he says. “If you’re not racing tomorrow, I could use someone to check the batteries.”',
       ],
       mara: [
-        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+        'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
         'The tattoo artist has set up her flash by the door and is drinking sparkling water. She looks at the bird on your arm, then at you. “It’s got more wings than I painted,” she says.',
       ],
     },

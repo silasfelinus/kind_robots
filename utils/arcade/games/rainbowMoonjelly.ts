@@ -339,11 +339,11 @@ export function moonjellyDialogue(
     'A02.OPEN': [
       {
         speaker: 'Lilt-7',
-        text: 'Moonjelly Fields. This whole reef is transmitting one broken distress call.',
+        text: 'Moonjelly Fields. This whole reef is broadcasting one call, over and over.',
       },
       {
         speaker: lead,
-        text: 'Then we follow the current. No shooting what we can safely rescue.',
+        text: 'Command calls it a war signal. Follow the current, and only shoot what shoots first.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
@@ -354,30 +354,30 @@ export function moonjellyDialogue(
       {
         speaker: 'Lilt-7',
         text: rescuedNemi
-          ? 'Nemi is aboard. She says the lights are pleading for help.'
-          : 'We lost the Nemi beacon. The current still carries her warning.',
+          ? 'Nemi is aboard. She says the lights are asking us to leave.'
+          : 'We lost the Nemi beacon. The current still carries her warning: go home.',
       },
       {
         speaker: wing,
-        text: 'The transmission changes pitch every time a ship loses control.',
+        text: 'The call changes pitch every time one of their ships goes down.',
       },
       {
         speaker: lead,
-        text: 'The Aurelia Array is a prison, not a weapon. We break its lock.',
+        text: 'The Aurelia Array holds the colony together. We break its lock, they scatter.',
       },
     ],
     'A02.AFTER': [
       {
         speaker: 'Lilt-7',
-        text: 'The colony is free. I remember that control signature. I wish I did not.',
+        text: 'The colony is scattering. I know that call. It is not a war signal. It is a lullaby.',
       },
       {
         speaker: lead,
-        text: 'You can tell us when you are ready. For now, we protect the survivors.',
+        text: 'Command translated it for us, Lilt. Why would they get it wrong?',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'The trench ahead holds the old relay network. We have more questions than answers.',
+        text: 'The trench ahead holds the Motherland’s old relay network. Maybe it remembers.',
       },
     ],
   }

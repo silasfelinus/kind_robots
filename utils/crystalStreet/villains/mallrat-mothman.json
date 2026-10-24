@@ -1,0 +1,558 @@
+[
+  {
+    "id": "mallrat-mothman",
+    "name": "The Mallrat Mothman",
+    "epithet": "The Thing in the Dead Wing",
+    "inspiration": {
+      "original": "The Mothman and Brundlefly",
+      "film": "The Fly",
+      "year": 1986,
+      "kind": "remix",
+      "oldScript": "The creature in the dark that snatches children.",
+      "newLens": "The kids nobody was watching. The Mothman takes the ones the mall swallowed, and the Best ending is a town that notices."
+    },
+    "tags": ["creature", "paranormal"],
+    "palette": ["#c6e3a3", "#ff4fa3", "#6e6a62"],
+    "sigil": "quarter",
+    "logline": "Something seven feet tall lives in the dead neon of Starlight Mall. It only takes the kids nobody is watching, and the worst part is how long it takes anyone to notice they are gone.",
+    "backstory": "When Starlight Mall opened in 1974, its pride was Moonbeam Court: a skylit wing with a wishing fountain under a giant fiberglass luna moth named Mona, the mall mascot. For nine years the court was where Glimmer Falls parked its kids. Parents working double shifts, parents at the bar, parents who just forgot dropped them off at ten and came back at closing, or later, or not at all. Kids threw their last quarters in Mona's fountain and wished, over and over, for somebody to come. A gentle security guard named Earl Lusk ran the Lost Kids desk and wrote every one of them down. In 1983 the anchor store went bankrupt, the wing was boarded up with plywood, the fountain was drained and Mona was hauled to the junkyard. The wishes stayed. This Halloween week the Heartstone has woken them into a body: a moth as tall as a door, wings of dust and dead neon, eyespots like clocks stuck at closing time. It drifts through the mall and the cul-de-sacs after dark, drawn to porch lights and arcade screens, and it carries the unwatched kids back to the dead wing and wraps them in soft gray cocoons, where they sleep peacefully and wait for a grown-up who never comes.",
+    "centralIssue": {
+      "title": "Kids neglected and parked at the mall",
+      "summary": "The Mothman is not a predator. It is every lonely hour Glimmer Falls kids spent waiting under the neon, given wings, and it keeps the children nobody else is keeping. Defeating it will not fix the reason those kids were alone. Find Earl's logbook, read the wishes in Mona's belly and learn which kids vanished without anyone reporting it, then make the whole town finally show up."
+    },
+    "poster": "A seven-foot moth creature with dusty pale-green wings and glowing red eyes perched on a dead neon sign in a boarded-up 1970s shopping mall wing, gray silk cocoons hanging from the skylights like lanterns, a drained wishing fountain full of quarters below, teens with flashlights creeping in through a gap in the plywood",
+    "portrait": "Close portrait of a giant moth creature's face, furry gray-green mane, two huge glowing red eyes like exit signs, feathery antennae, dust drifting off its wings in a beam of neon pink light, strangely gentle and very sad",
+    "taunts": [
+      "Attention shoppers. Will anyone please come for this child?",
+      "Nobody's coming. They never come. Stay with me.",
+      "Closing time. Lights out. Sleep, little one. Sleep.",
+      "I'll watch you. Somebody should."
+    ],
+    "clues": [
+      {
+        "id": "mallrat-mothman-logbook",
+        "title": "Earl's logbook",
+        "location": "starlight-mall",
+        "hint": "An old security guard drinks coffee in the Starlight Mall food court every single day. He used to run the Lost Kids desk in the dead wing.",
+        "encounter": {
+          "id": "mallrat-mothman-clue-food-court",
+          "title": "The Lost Kids Desk",
+          "place": "Food court, Starlight Mall",
+          "text": "Earl Lusk is seventy, wears his old security blazer with the patch picked off, and sits at the same food court table every day with a coffee and a view of the plywood wall that seals off Moonbeam Court. When a kid wanders past alone, his eyes follow them all the way to the exit. A brass key hangs on a shoelace around his neck. On the plywood behind him, someone has spray-painted a moth, and its wings are dusty, and real.",
+          "art": "An elderly Black security guard in a faded blazer at a mall food court table with coffee, a brass key on a shoelace around his neck, a plywood wall behind him with a painted moth whose wings shed real dust, neon signs glowing",
+          "choices": [
+            {
+              "id": "sit-with-earl",
+              "label": "Buy him a fresh coffee and ask about the Lost Kids desk",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "Earl talks for an hour. Nine years, eleven hundred kids found alone at closing, and the same names, week after week. \"Paged their folks three times. No answer. Walked them home myself.\" He slides the key off his neck. \"Logbook's still in the desk. When they boarded it up, nobody asked me for it.\" The last page, you find later, is in his handwriting. The new pages after it are written in dust.",
+                "art": "An elderly security guard handing a brass key across a food court table to a teenager, two coffees between them, a thick old logbook visible in a flashback-style glow above",
+                "effects": {
+                  "clues": ["mallrat-mothman-logbook"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Earl just shakes his head. \"Kids don't listen. Folks don't listen. Nobody listens to Earl.\" He goes back to watching the exit. When you turn around, the painted moth on the plywood has moved its wings a quarter inch. You are almost sure.",
+                "art": "An elderly guard turning away at a food court table, a painted moth on a plywood wall with its wings shifted slightly, dust floating in the neon light",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "slip-behind-the-plywood",
+              "label": "Squeeze through the gap in the plywood and find the desk yourself",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 2
+              },
+              "success": {
+                "text": "The dead wing smells like chlorine and old pretzels. The Lost Kids desk is still there, a sign above it reading WAIT HERE, SOMEONE IS COMING. In the drawer is the logbook: Tyler, age 7, parents paged 3x, walked home. Tyler, age 7, again. Tyler, age 8. And this week's pages, in gray powder that smears when you touch it: Marcy H. Benji F. Tyler G. No one paged.",
+                "art": "A teenager with a flashlight reading a thick logbook at a dusty security desk in a dark abandoned mall wing, a sign above reading wait here someone is coming, gray powdery handwriting on the newest page",
+                "effects": {
+                  "clues": ["mallrat-mothman-logbook"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Your jacket snags on the plywood and you hang there, half in, half out, while a mall cop writes you a ticket for trespassing. From the dark side of the wall, something enormous and soft brushes past your dangling sneakers. It hums like a fluorescent light.",
+                "art": "A teenager stuck halfway through a gap in a plywood wall, a mall cop writing a ticket on the bright side, on the dark side a huge soft wing brushing past their sneakers",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1,
+                  "teleport": "creature"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mallrat-mothman-wishes",
+        "title": "Mona's wishes",
+        "location": "junkyard",
+        "hint": "When Moonbeam Court closed, the giant fiberglass moth from the fountain was hauled to Rusty's Junkyard. Kids used to post wishes in a slot in her base.",
+        "encounter": {
+          "id": "mallrat-mothman-clue-mona",
+          "title": "Mona in the Weeds",
+          "place": "The back acre, Rusty's Junkyard",
+          "text": "Mona the Moonbeam Moth lies on her side in the weeds behind the car crusher, twenty feet of cracked fiberglass with pale green wings and a smile painted for a 1974 mall opening. Under her belly is a brass slot with a sign: MAKE A MOONBEAM WISH! Somebody forgot to ever empty it. Her painted eyes are dull. Then, as a cloud crosses the sun, they very faintly glow.",
+          "art": "A giant cracked fiberglass luna moth mascot lying on its side in junkyard weeds behind a car crusher, a brass wish slot in its belly with a faded sign, its painted eyes faintly glowing red as a cloud crosses the sun",
+          "choices": [
+            {
+              "id": "pry-open-the-belly",
+              "label": "Pry open the wish box with a tire iron",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 2
+              },
+              "success": {
+                "text": "The panel pops and an avalanche of folded paper pours out, thousands of wishes in crayon and pencil. I wish my mom would come on time. I wish someone would notice I'm here. I wish I could stay at the fountain forever because at least Mona sees me. You read until the sun goes down, and you understand exactly what has been granting them.",
+                "art": "An avalanche of folded paper wishes and quarters pouring from a cracked fiberglass moth's belly in a junkyard, a teenager kneeling to read crayon handwriting at sunset",
+                "effects": {
+                  "clues": ["mallrat-mothman-wishes"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The tire iron slips and gashes Mona's painted wing. A sound comes out of her, low and hurt, like a mall PA system in pain. Every junked car in the maze honks at once, and you spend the next ten minutes lost in the rows.",
+                "art": "A tire iron sticking out of a fiberglass moth's wing, a teenager covering their ears as headlights blink on across a maze of junked cars",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "creature"
+                }
+              }
+            },
+            {
+              "id": "fish-out-the-wishes",
+              "label": "Fish wishes out of the slot one at a time with a coat hanger",
+              "intent": "clever",
+              "skill": "hustle",
+              "target": 7,
+              "success": {
+                "text": "It takes all afternoon, but the coat hanger hooks out a fistful of notes and a few quarters. The first one says: I'm at Moonbeam Court again. It's 9:15. The gate is down. Please, somebody. It is signed by a kid you know, who is sixteen now and laughs a little too loud at the arcade. You keep that one in your pocket.",
+                "art": "A teenager hooking folded paper notes out of a brass slot with a bent coat hanger, a small pile of wishes and quarters on the dirt, a giant moth sculpture looming over them",
+                "effects": {
+                  "clues": ["mallrat-mothman-wishes"],
+                  "quarters": 2
+                }
+              },
+              "failure": {
+                "text": "Every note you fish out is blank, except the last one, which is wet and new. It reads: you're not watching either. When you look up, Rusty's guard dog is staring at the moth's head, whimpering, backing away on its belly.",
+                "art": "A teenager holding a fresh damp note in a junkyard, a guard dog whimpering and backing away from a giant moth sculpture's head",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mallrat-mothman-unreported",
+        "title": "The kids nobody reported",
+        "location": "crystal-street",
+        "hint": "The paperboy on Crystal Street knows every house on his route, and which ones nobody has been home to all week.",
+        "encounter": {
+          "id": "mallrat-mothman-clue-paper-route",
+          "title": "Collection Day",
+          "place": "Kev Park's paper route, Crystal Street",
+          "text": "It is collection day on the paper route, and Kev Park is doing math on his fingers on his bike. \"Number 11 hasn't picked up a paper since Saturday. The Holcombs' porch has six. And there's a kid's bike in the Gaskins yard that hasn't moved in four days.\" He frowns at his notebook. \"Nobody called the cops. Nobody even called me to stop delivery.\"",
+          "art": "A twelve-year-old Korean American paperboy straddling a bike with a canvas bag full of newspapers on a cul-de-sac, pointing at a porch piled with unread papers, a child's bike abandoned on a lawn",
+          "choices": [
+            {
+              "id": "ride-the-route",
+              "label": "Ride the route with Kev and check every house",
+              "intent": "brave",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "kev-park",
+                "amount": 2
+              },
+              "success": {
+                "text": "Three houses. Three kids missing since the weekend. At the Holcombs', Marcy's mother opens the door in her waitress uniform, exhausted. \"She's at the mall. She's always at the mall.\" Then she counts the days on her fingers and her face slowly falls apart. Kev writes all three names on the back of a collection envelope and hands it to you.",
+                "art": "A tired mother in a waitress uniform at a front door counting on her fingers with dawning horror, a teenager and a paperboy on the step holding a collection envelope with names written on it",
+                "effects": {
+                  "clues": ["mallrat-mothman-unreported"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "You pedal hard and still miss the end of the route by dark. The porch lights come on one by one, and above the Gaskins house, something huge blocks out the stars for a moment and is gone. Kev pedals home so fast he leaves his bag behind.",
+                "art": "Two kids on bikes on a dusky suburban street, porch lights blinking on, a vast winged shape crossing in front of the stars above a rooftop, a dropped newspaper bag on the curb",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "check-the-porch",
+              "label": "Read what's piled up on the Gaskins porch",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "polaroid",
+                "amount": 1
+              },
+              "success": {
+                "text": "Newspapers. A note taped to the door: TYLER, MOM ON DOUBLES TILL SUNDAY, MONEY FOR MALL IN JAR. A jar with three dollars in it. And on the welcome mat, a trail of gray-green dust leading from the door to the street, as if someone very large and very soft walked a small child away by the hand.",
+                "art": "A suburban porch with a stack of unread newspapers, a taped note on the door, a jar with a few dollar bills, and a trail of glittering gray-green dust leading from the welcome mat to the street",
+                "effects": {
+                  "clues": ["mallrat-mothman-unreported"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "A neighbor sees you on the porch and assumes the worst, of you. By the time you have explained yourself, it is getting dark, and the porch light above you clicks on by itself. Something big taps against it, once, softly, like a moth.",
+                "art": "A suspicious neighbor in curlers pointing at a teenager on a stranger's porch at dusk, the porch light above them clicking on with a huge soft shadow bumping against it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "mallrat-mothman-closing-time",
+        "title": "Closing Time",
+        "place": "Starlight Mall, 9 p.m.",
+        "text": "The security gates rattle down storefront by storefront. The PA chimes: \"Will the parent of Tyler, age eight, please come to the arcade.\" Nobody comes. In the arcade a small boy is playing the attract screen of a machine with no quarters, pretending. The lights go out one wing at a time. Above the skylight, something as big as a car settles onto the glass, and dust drifts down through the cracks like snow.",
+        "art": "A shopping mall at closing time with security gates half lowered and wings going dark, a small boy alone at an arcade cabinet pretending to play, a huge moth silhouette settling on the skylight above with dust falling like snow",
+        "choices": [
+          {
+            "id": "walk-him-out",
+            "label": "Take Tyler's hand and get him out before the lights go",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You give Tyler a quarter for later and walk him out the employee exit, talking the whole time about anything: monster trucks, cereal, whether moths can see colors. In the parking lot he squeezes your hand. \"Nobody walks with me usually.\" Behind you, the shape on the skylight shifts and does not follow.",
+              "art": "A teenager walking a small boy across a mall parking lot at night holding his hand, the boy clutching a quarter, a giant moth on the skylight behind them watching and keeping their distance",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mothman-walked-tyler"]
+              }
+            },
+            "failure": {
+              "text": "The lights cut out and Tyler's hand slips out of yours. For three terrible minutes you shout his name in the dark. You find him asleep on a bench by the drained fountain, tucked under a blanket of soft gray dust, unharmed. He opens one eye. \"The big moth said you'd forget me too.\"",
+              "art": "A small boy asleep on a mall bench beside a drained fountain under a blanket of soft gray dust, a frantic teen with a dying flashlight finding him in the dark",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "photo-booth",
+            "label": "Hide in the photo booth and get a picture of the thing",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 1
+            },
+            "success": {
+              "text": "You yank the curtain shut and feed in your last quarter. Flash, flash, flash, flash. The strip that drops out shows four frames of the mall behind you, and in the last one, a furry gray face with two red exit-sign eyes, looking right into the lens, curious. You have proof. You also have chills that will not stop.",
+              "art": "A strip of four photo booth pictures, the last frame showing a furry moth creature with glowing red eyes peering curiously into the camera behind a startled teen",
+              "effects": {
+                "nerve": 1,
+                "quarters": -1,
+                "flags": ["mothman-photo"]
+              }
+            },
+            "failure": {
+              "text": "The flash goes off, and a moth cannot resist a light. The whole booth rocks as something lands on its roof. A long feathery antenna slides in under the curtain and touches your cheek, gently, the way you would check if a sleeping kid is breathing. Then it is gone.",
+              "art": "A photo booth rocking in a dark mall corridor with a giant moth perched on its roof, a feathery antenna slipping under the curtain toward a frozen teen",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-porch-lights",
+        "title": "Porch Lights",
+        "place": "11 Crystal Street, eleven p.m.",
+        "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the roof of number 11. On the front steps below sits ten-year-old Benji Ferreira in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
+        "art": "A huge moth creature perched on a split-level roof at night, wings spread over a suburban street of flickering porch lights, a small boy in pajamas sitting alone on the front steps gazing up at it calmly",
+        "choices": [
+          {
+            "id": "sit-with-benji",
+            "label": "Sit down on the steps next to Benji and wait with him",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You sit. You trade a stick of gum for the story of every car that is not his parents'. Up on the roof the Mothman watches the two of you for a long time, then lifts off and drifts away. It only takes the kids who are alone. Benji's mom pulls in at 1 a.m. and hugs him so hard his feet leave the ground.",
+              "art": "A teenager and a small boy sitting together on front steps at night sharing gum, a giant moth lifting off a roof and drifting away, headlights pulling into the driveway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Benji does not want company. \"Mom says don't talk to strangers.\" He goes inside and locks the door, and you stand on the lawn while the Mothman crawls down the side of the house to his bedroom window and taps on the glass, softly, again and again.",
+              "art": "A giant moth creature clinging to the side of a house tapping on a lit bedroom window, a teen helpless on the lawn below",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "kill-the-lights",
+            "label": "Run the cul-de-sac turning off every porch light",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Your crew splits up and unscrews bulbs house by house. Crystal Street goes dark, porch by porch, until only the Heartstone glows purple in the roundabout. The Mothman lifts off, confused, and drifts toward it, circling the geode like a lamp until dawn, harmless and mesmerized.",
+              "art": "Teens unscrewing porch light bulbs on a darkening cul-de-sac, a giant moth circling a glowing purple geode in the roundabout like a lamp",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Mr. Dombrowski catches you unscrewing his porch bulb and turns on every light in his house in protest. The Mothman pivots toward the blaze, and its wing brushes you as it passes. For an hour afterward, you feel completely, perfectly invisible.",
+              "art": "An angry neighbor in a bathrobe in a fully lit doorway, a giant moth swooping toward the light, its dusty wing brushing a teenager on the lawn",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "lure-it-away",
+            "label": "Flash a light and run, so it follows you instead",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "You click the beam on and off and sprint down the street. The Mothman follows, enchanted, gliding over your head, past the last house, out over the dark foothills. When you finally switch off your light at the edge of town, it circles once, gently, and flies away toward the mall.",
+              "art": "A teenager sprinting down a dark suburban road waving a flashlight beam, a giant moth gliding overhead following the light out toward the dark foothills",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "It follows you, all right. It follows you all the way home and settles on your roof. You lie awake until dawn listening to its wings breathe against the shingles, and in the morning there is a perfect dusty outline of a moth on your bedroom window.",
+              "art": "A dusty outline of a giant moth on the outside of a bedroom window at sunrise, a sleepless teen staring at it from bed",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-dead-wing",
+        "title": "The Dead Wing",
+        "place": "Moonbeam Court, Starlight Mall, after midnight",
+        "text": "You slip behind the plywood into Moonbeam Court. The neon signs are dead, but they hum. From every one of them hang soft gray cocoons, dozens, swaying like paper lanterns, and through the silk you can see sleeping faces: Marcy Holcomb, Tyler Gaskins, kids you have seen at the arcade a hundred times and never once learned the names of. On the dead sign of Bergdahl's Department Store, the Mothman watches you with its clock-face eyespots, wings slowly opening.",
+        "art": "A boarded-up mall wing at midnight with dead neon signs from which dozens of gray silk cocoons hang like lanterns, sleeping children's faces faintly visible inside, a giant moth perched on a dead department store sign with eyespots like clocks",
+        "choices": [
+          {
+            "id": "cut-a-cocoon",
+            "label": "Climb the dead neon and cut Marcy's cocoon down",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "silver-scrunchie",
+              "amount": 1
+            },
+            "success": {
+              "text": "The silk is soft as lint and tougher than rope. You saw through it with a car key and catch Marcy as she slides out. She blinks up at you. \"Is it closing time?\" Above you the Mothman does not attack. It just watches you hold her, and its wings fold, slowly, like a parent who has been relieved of a shift.",
+              "art": "A teenager on a dead neon sign catching a sleepy little girl sliding out of a gray silk cocoon, a giant moth watching from a nearby sign with its wings folding",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mothman-freed-marcy"]
+              }
+            },
+            "failure": {
+              "text": "The sign groans and drops a foot, and you cling to dead neon tubes while the Mothman unfolds above you, all wings and red light. It does not strike. It simply begins, very gently, to spin silk around your ankles. You kick free and run, and you do not stop until the parking lot.",
+              "art": "A teen dangling from a sagging neon sign with gray silk wrapping around their ankles, a huge moth spreading its wings above in red light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-the-names",
+            "label": "Stand at the drained fountain and read the kids' names out loud",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "mothman-walked-tyler",
+              "amount": 1
+            },
+            "success": {
+              "text": "You call every name you know. Marcy. Tyler. Benji. Then every name from Earl's logbook you can remember. With each one, a cocoon stirs, and a sleepy voice says \"Here\" like attendance. The Mothman tilts its huge head, listening, as if it has been waiting years for someone to say them.",
+              "art": "A teenager standing in a drained wishing fountain full of quarters calling out names, gray cocoons stirring overhead, a giant moth tilting its head to listen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You open your mouth and realize you do not know their names. Not one of them. You have seen these kids every Saturday of your life. The Mothman's eyespots glow brighter, and the cocoons sway a little higher, out of reach.",
+              "art": "A stricken teen standing silent in a drained fountain, cocoons rising higher toward the skylight, a giant moth's eyespots glowing brighter",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "mallrat-mothman-finale",
+      "title": "Last Call at Moonbeam Court",
+      "place": "Moonbeam Court, Starlight Mall, Halloween night",
+      "text": "On Halloween night every dead sign in Moonbeam Court blazes back to life, pink and green and gold, and the drained fountain fills with dust instead of water. The Mothman spreads its wings across the whole court, eyespots ticking like clocks that never reach morning. Dozens of cocoons sway beneath it. \"They wait,\" it hums through the old PA speakers, \"and nobody comes. So I come. Who is coming for you?\"",
+      "art": "A boarded-up 1970s mall wing blazing with revived pink and green neon on Halloween night, a giant moth with wings spread across the entire court, dozens of gray cocoons hanging below, a wishing fountain filled with glittering dust, teens in Halloween costumes facing it with flashlights",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Bring down the Bergdahl's sign with the creature on it",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 1
+          },
+          "success": {
+            "text": "You climb the scaffolding and smash the bolts until the giant sign groans, tilts and falls in a shower of sparks. The Mothman bursts into a cloud of dust and moth wings, and the cocoons tear open one by one, spilling sleepy kids onto the tiles. Nobody is hurt. Nobody is quite sure what happened, either.",
+            "art": "A giant neon department store sign crashing down in sparks, a moth creature exploding into a cloud of dust and wings, cocoons tearing open and dropping sleepy kids onto mall tiles",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The sign holds. The Mothman's wings fold around you like a blanket, soft and warm and smelling of popcorn and chlorine, and a voice inside your head says it's all right, it's all right, nobody will notice you're gone.",
+            "art": "A teen being enfolded in giant dusty moth wings like a blanket under glowing neon, silk beginning to wrap around them",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Rewire the mall's rooftop sign into the brightest light in Glimmer Falls",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "joey-benally",
+            "amount": 1
+          },
+          "success": {
+            "text": "You splice every circuit in the dead wing into the giant STARLIGHT sign on the roof and throw the switch. The night goes white. The Mothman cannot help it: it rises through the skylight toward the blaze and circles it, dazzled, while your crew cuts down every cocoon below. By dawn it is a speck spiraling toward the moon.",
+            "art": "A giant rooftop mall sign blazing white against the night sky, a huge moth circling it in a dazzled spiral, teens below cutting down cocoons inside through the skylight",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The circuit blows. Every light in Starlight Mall goes out, and in the perfect dark, the only lights left are two red eyes, coming closer, and the soft sound of silk being spun.",
+            "art": "A pitch-dark mall with only two glowing red eyes visible approaching a teen holding a smoking fuse box, faint silk strands catching starlight",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Get on the old PA and page every parent in Glimmer Falls by name",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "companion": "mix-bell",
+            "amount": 1
+          },
+          "success": {
+            "text": "KGLM patches into the mall PA, and you read from Earl's logbook, Kev's envelope and Mona's wishes. \"Will the parents of Marcy Holcomb please come to the Moonbeam Fountain. Will the parents of Tyler Gaskins. Will the parents of Benji Ferreira.\" One by one, in pajamas, in uniforms, in curlers, they come running through the plywood. Every time a grown-up says \"I'm here,\" a cocoon opens. The Mothman folds its wings and watches them hold on.",
+            "art": "Parents in pajamas and work uniforms running into a neon-lit abandoned mall wing, cocoons opening to release sleepy children into their arms, a teen at an old PA microphone reading from a logbook, a giant moth folding its wings above",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The PA crackles and squeals. Your words come out as static, and the old speakers only play the chime, over and over, the closing-time chime. Nobody comes. The Mothman hums sadly. It knew they would not.",
+            "art": "A teen gripping a crackling PA microphone, old ceiling speakers spitting static, an empty plywood gap, a doorway left vacant, a giant moth bowing its head",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Someone Is Coming",
+        "text": "The last cocoon opens when Earl Lusk walks in, blazer on, and lifts a kid nobody else came for onto his shoulders. With no child left unwatched in Moonbeam Court, the Mothman settles onto the empty fountain, folds its wings around the dust, and is just Mona again: twenty feet of fiberglass, smiling. By spring the town has hauled her back and set her over a refilled fountain in a reopened Moonbeam Court, where the old Lost Kids desk now has a new sign, MOONBEAM CLUB, FREE TILL CLOSING, and Earl behind it with a sign-in sheet and a coffee. Parents on Crystal Street start a babysitting swap. Kev starts knocking on doors when the papers pile up. And kids still throw quarters in Mona's fountain, but now they mostly wish for pizza.",
+        "art": "A reopened 1970s mall court in daylight with a restored fiberglass luna moth over a sparkling fountain, an elderly guard at a desk labeled Moonbeam Club signing in laughing kids, parents and children everywhere"
+      },
+      "good": {
+        "title": "Pest Control",
+        "text": "The cocoons are cut down and the kids go home, groggy and fine. The Mothman is gone, or at least nobody sees it again. The mall puts up a new plywood wall and calls it a gas leak. The next Saturday, the arcade is full of the same kids, parked there at ten, waiting for closing, and you notice them now. You are not sure anyone else does.",
+        "art": "A crowded mall arcade on a Saturday with kids alone at the machines, a new plywood wall in the background with a faint dusty moth outline, a teen watching thoughtfully"
+      },
+      "bittersweet": {
+        "title": "One Cocoon Left",
+        "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Bergdahl's sign, too high to reach, and the Mothman is curled around it. The mall seals the wing with concrete that winter. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
+        "art": "A single gray cocoon hanging from a dead neon sign in a dark mall wing with a giant moth curled protectively around it, workers pouring concrete over the entrance"
+      },
+      "bad": {
+        "title": "Nobody Noticed",
+        "text": "You wake in the dark, wrapped in soft gray silk, warm and drowsy, hanging from a dead neon sign. It is not bad in here. It is quiet. The Mothman watches over you. It takes your family three days to notice you are gone, and that, more than the cocoon, is the part your crew never forgives this town for. They are still trying to cut you down.",
+        "art": "A teen asleep inside a translucent gray cocoon hanging from a dead neon sign in an abandoned mall, a giant moth keeping watch, friends with flashlights and box cutters climbing scaffolding toward them"
+      }
+    }
+  }
+]

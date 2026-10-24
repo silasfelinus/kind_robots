@@ -30,6 +30,8 @@ export type Effects = {
   weird?: number
   evidence?: string
   flag?: string
+  /** More flags to remember, e.g. which approach a mystery gate was played with. */
+  flags?: string[]
 }
 
 export type Check = { skill: SkillId; target: number }
@@ -63,7 +65,7 @@ export type Choice = {
 export type EncounterCard = {
   id: string
   /** 'spine' beats are fixed route story; 'encounter' cards are dealt into the daily white-rabbit forks. */
-  kind?: 'spine' | 'encounter'
+  kind?: 'spine' | 'encounter' | 'mystery'
   event?: EventId
   day?: number
   chapter: number
@@ -83,6 +85,8 @@ export type EncounterCard = {
   /** Replaces body for the companion this beat is keyed on: the prospect (opening beats) or the lead. */
   variantBy?: 'prospect' | 'lead'
   variants?: Partial<Record<LeadId, string[]>>
+  /** Replaces body when the run carries the flag (first match wins), e.g. a mystery reveal after a failed trap. */
+  flagBody?: Record<string, string[]>
   presence?: {
     companion: CompanionId
     lead: string

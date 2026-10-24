@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Terrors on Crystal Street: a glowing purple geode in a suburban cul-de-sac under a magenta moon">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d0221"/>
+      <stop offset="0.45" stop-color="#2a0a4a"/>
+      <stop offset="0.75" stop-color="#7a1268"/>
+      <stop offset="1" stop-color="#ff3d8b"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff2fb"/>
+      <stop offset="0.6" stop-color="#ff9ad5"/>
+      <stop offset="1" stop-color="#ff3d8b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="geo" cx="0.5" cy="0.6" r="0.6">
+      <stop offset="0" stop-color="#e7b6ff"/>
+      <stop offset="0.5" stop-color="#9b3dff"/>
+      <stop offset="1" stop-color="#3a0f73"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#b44dff" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#b44dff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b0b33"/>
+      <stop offset="1" stop-color="#070112"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6c2"/>
+      <stop offset="0.5" stop-color="#ffd23d"/>
+      <stop offset="1" stop-color="#ff5ca8"/>
+    </linearGradient>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect width="4" height="2" fill="#000" opacity="0.18"/>
+    </pattern>
+    <filter id="neon" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="url(#sky)"/>
+  <g fill="#fff" opacity="0.8">
+    <circle cx="90" cy="60" r="1.6"/><circle cx="240" cy="120" r="1.2"/><circle cx="410" cy="40" r="1.8"/>
+    <circle cx="560" cy="150" r="1.1"/><circle cx="700" cy="70" r="1.5"/><circle cx="1180" cy="90" r="1.7"/>
+    <circle cx="1050" cy="30" r="1.2"/><circle cx="880" cy="160" r="1.3"/><circle cx="330" cy="200" r="1"/>
+    <circle cx="140" cy="230" r="1.2"/><circle cx="1220" cy="210" r="1"/><circle cx="640" cy="20" r="1.4"/>
+  </g>
+  <circle cx="980" cy="170" r="150" fill="url(#moon)"/>
+  <circle cx="980" cy="170" r="78" fill="#ffe3f4"/>
+  <path d="M0 430 Q160 380 320 410 T640 395 T960 405 T1280 380 V720 H0 Z" fill="#1a0634"/>
+  <g fill="#12052a">
+    <path d="M40 470 h150 v-60 l-75 -50 l-75 50 Z"/>
+    <path d="M190 470 h90 v-40 l-45 -30 l-45 30 Z"/>
+    <path d="M300 470 h170 v-70 l-85 -55 l-85 55 Z"/>
+    <path d="M820 470 h170 v-70 l-85 -55 l-85 55 Z"/>
+    <path d="M990 470 h90 v-40 l-45 -30 l-45 30 Z"/>
+    <path d="M1090 470 h160 v-60 l-80 -50 l-80 50 Z"/>
+  </g>
+  <g fill="#ffd23d">
+    <rect x="70" y="425" width="22" height="18"/><rect x="140" y="425" width="22" height="18" fill="#ff5ca8"/>
+    <rect x="330" y="420" width="24" height="20"/><rect x="420" y="420" width="24" height="20" fill="#4df2ff"/>
+    <rect x="850" y="420" width="24" height="20" fill="#ff5ca8"/><rect x="940" y="420" width="24" height="20"/>
+    <rect x="1120" y="425" width="22" height="18" fill="#4df2ff"/><rect x="1200" y="425" width="22" height="18"/>
+  </g>
+  <path d="M0 720 Q640 470 1280 720 Z" fill="url(#road)"/>
+  <ellipse cx="640" cy="560" rx="240" ry="70" fill="#14062b"/>
+  <circle cx="640" cy="500" r="190" fill="url(#glow)"/>
+  <g filter="url(#neon)">
+    <path d="M560 560 L590 450 L640 400 L700 440 L730 560 Z" fill="url(#geo)"/>
+    <path d="M590 450 L640 520 L640 400 Z" fill="#f4d4ff" opacity="0.55"/>
+    <path d="M700 440 L640 520 L730 560 Z" fill="#5a1aa8" opacity="0.6"/>
+    <path d="M560 560 L640 520 L590 450 Z" fill="#c779ff" opacity="0.5"/>
+  </g>
+  <g fill="#070112">
+    <path d="M520 600 q8 -46 22 -60 q14 14 18 60 Z"/>
+    <path d="M740 600 q6 -52 22 -66 q16 14 20 66 Z"/>
+    <circle cx="541" cy="532" r="11"/><circle cx="762" cy="526" r="12"/>
+  </g>
+  <g filter="url(#neon)" font-family="Impact, 'Arial Black', sans-serif" text-anchor="middle">
+    <text x="640" y="120" font-size="54" fill="#4df2ff" letter-spacing="10">TERRORS ON</text>
+    <text x="640" y="230" font-size="128" fill="url(#title)" stroke="#2a0a4a" stroke-width="4" letter-spacing="4">CRYSTAL STREET</text>
+    <text x="640" y="285" font-size="26" fill="#ffe3f4" letter-spacing="8">ONE WEEK · SEVEN NIGHTS · TWENTY-TWO NIGHTMARES</text>
+  </g>
+  <rect width="1280" height="720" fill="url(#scan)"/>
+</svg>

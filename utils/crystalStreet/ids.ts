@@ -1,0 +1,89 @@
+export const LOCATION_IDS = [
+  'crystal-street',
+  'library',
+  'gym',
+  'high-school',
+  'rewind-video',
+  'starlight-mall',
+  'glitter-box',
+  'pinecrest',
+  'kglm-radio',
+  'junkyard',
+  'pawnshop',
+] as const
+export type LocationId = (typeof LOCATION_IDS)[number]
+
+export const CLUE_LOCATION_IDS = LOCATION_IDS.filter((id) => id !== 'pawnshop')
+
+export const COMPANION_IDS = [
+  'dani-ortega',
+  'mix-bell',
+  'delphine-hart',
+  'toby-nakamura',
+  'glory-hallelujah',
+  'frankie-fontaine',
+  'pearl-washington',
+  'bea-lindqvist',
+  'moose-kowalski',
+  'priya-raman',
+  'lou-tran',
+  'iggy-reyes',
+  'sunny-castellanos',
+  'wade-whitfield',
+  'zelda-fishbein',
+  'kev-park',
+  'raven',
+  'tammy-jo-pruitt',
+  'amir-haddad',
+  'chip-merriweather',
+  'joey-benally',
+  'barnaby',
+] as const
+export type CompanionId = (typeof COMPANION_IDS)[number]
+
+export const ITEM_IDS = [
+  'flashlight',
+  'mixtape',
+  'holy-water',
+  'silver-scrunchie',
+  'cassette-recorder',
+  'polaroid',
+  'baseball-bat',
+  'aqua-net',
+  'walkie-talkies',
+  'tarot-deck',
+  'leg-warmers',
+  'rock-salt',
+  'tinfoil-hat',
+  'debug-disk',
+  'glow-bracelet',
+  'first-aid',
+  'jolt-cola',
+] as const
+export type ItemId = (typeof ITEM_IDS)[number]
+
+export const VILLAIN_IDS = [
+  'frieda-krueger',
+  'screwhead',
+  'big-gertie',
+  'mister-fuzzbutton',
+  'vonda-velour',
+  'bog-baby',
+  'spring-queen',
+  'prudence-thorn',
+  'mallrat-mothman',
+  'countess-lacroix',
+  'counselor-jess',
+  'hungry-house',
+  'brightwaters',
+  'bobo',
+  'sugarlings',
+  'goody-hale',
+  'heartstone',
+  'varsity-beast',
+  'queen-neferet',
+  'mom-3000',
+  'the-shape',
+  'final-cut',
+] as const
+export type VillainId = (typeof VILLAIN_IDS)[number]

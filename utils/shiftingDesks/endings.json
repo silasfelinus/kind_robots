@@ -141,6 +141,10 @@
         {
           "when_flag": "wrote-to-the-surface",
           "text": "A parking stub waits on the far side of the final grille, held by the same stranger who wrote WE READ. They are not rescuers, exactly. They are witnesses. Tonight that is enough."
+        },
+        {
+          "when_flag": "hid-pip-in-the-coats",
+          "text": "Somewhere behind you, a coat rack in Sub-Level Zero holds one very quiet robot. It will keep its promise not to move until you are three floors up."
         }
       ]
     },
@@ -200,6 +204,10 @@
         {
           "when_flag": "warning-reached-parents",
           "text": "The parents keep copies of the corrected launch label dated before the accident. Beverly makes the warning part of the union's safety demands, and nobody may erase the signatures."
+        },
+        {
+          "when_flag": "restored-the-union-roster",
+          "text": "The strike committee reads the restored union roster aloud, name by name, and at each name a small percussion of legs answers from the walls. It takes forty minutes. Nobody leaves."
         }
       ]
     },
@@ -306,6 +314,10 @@
         {
           "when_flag": "wrote-to-the-surface",
           "text": "Records kept a parking stub bearing the words WE READ. The Company calls the message a forgery, until an outside guard appears with the matching half of the ticket and asks why your mail was classified as an escape attempt."
+        },
+        {
+          "when_flag": "freed-kevin",
+          "text": "Kevin, still blinking from daylight, is the first witness to testify and the only one who does not read from a script. The hearing room learns what a freed man sounds like when he is not being managed."
         }
       ]
     },
@@ -357,6 +369,10 @@
         {
           "when_flag": "signed-kevins-card",
           "text": "Your first letter from outside is Kevin's get-well card returned to sender. Seven coworkers signed beneath you, and someone added an address for a real garden on the last blank line."
+        },
+        {
+          "when_flag": "shared-lunch-with-pip",
+          "text": "Pip mails you a sandwich on your last Friday, correctly labeled and cut on the diagonal. The note says only, 'Window 9 misses you.'"
         }
       ]
     },
@@ -432,6 +448,10 @@
         {
           "when_flag": "signed-kevins-card",
           "text": "PAL locates Kevin's get-well card, still circling the mail tubes, and sends it to the employee rather than his position. Kevin replies with a photograph of a small, unruly garden."
+        },
+        {
+          "when_flag": "kept-kevin-company",
+          "text": "Kevin comes to the signing in the cardigan he wore in Tank Nine, and sits beside you. Nobody has ever remembered who kept him company, and the new charter has a line for that now."
         }
       ]
     },

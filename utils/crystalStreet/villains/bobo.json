@@ -1,0 +1,575 @@
+[
+  {
+    "id": "bobo",
+    "name": "Bobo",
+    "epithet": "The Birthday Clown",
+    "inspiration": {
+      "original": "Pennywise",
+      "film": "IT (1986 novel)",
+      "year": 1986,
+      "kind": "bend",
+      "oldScript": "The man in makeup as predator: clown panic that bled into drag panic, a painted face as proof of menace.",
+      "newLens": "A performer who fell on purpose to make a crying kid laugh, and a town that laughed at him instead. The Best ending is laughing with him."
+    },
+    "tags": ["slasher", "camp"],
+    "palette": ["#ff3b3b", "#ffd23f", "#2b2d42"],
+    "sigil": "balloon",
+    "logline": "Somebody in Glimmer Falls is having a birthday every night this week, and Bobo is coming to the party. His balloon animals bite, his seltzer bottle stings, and he will not leave until everybody laughs.",
+    "backstory": "For twenty years Leonard \"Lenny\" Moffat was Bobo the Birthday Clown, the only clown in Glimmer Falls: size-twenty shoes, a squeaky nose, a bike horn named Honkers and balloon animals in under ten seconds. On July 14, 1979, at Trevor Ashby's seventh birthday at Captain Cheddar's Pizza Cavern in Starlight Mall, the robot mouse band shorted out, the candles caught Bobo's wig, and he fell backward into the ball pit. A Channel 6 crew filming the restaurant's grand opening caught every second. The clip ran on Bay Area Bloopers for three years. Grown-ups chanted \"Fall down, Bobo!\" at him in the supermarket. The bookings stopped. Lenny closed his little magic shop on Main Street, moved into the apartment above it and never put the nose on again. He is seventy-one now, and every night for seven years he has dreamed of that party. This Halloween the Heartstone has let the dream out. While Lenny sleeps, Bobo walks: eight feet tall, greasepaint grin, balloons with thumbtack teeth, and a terrible need to make the whole town fall down the way he did.",
+    "centralIssue": {
+      "title": "Laughed at, never laughed with",
+      "summary": "Bobo fell down on purpose that day to cheer up a crying kid, and a town turned his kindness into a punchline it never stopped repeating. The nightmare is seven years of humiliation wearing his face. Find out what really happened at the party and give Lenny back the kind of laughter that is shared, not aimed."
+    },
+    "poster": "A towering clown with a cracked greasepaint grin and a single spinning bow tie looming over a 1980s shopping mall at night, a bouquet of balloon animals with thumbtack teeth in one gloved fist, a party horn in the other, tiny teens fleeing past a pizza restaurant's broken animatronic band",
+    "portrait": "Close portrait of a sad-eyed old clown in smeared white greasepaint and a scorched rainbow wig, red nose half-cracked, painted smile far wider than his real mouth, a balloon dog with sharp teeth tucked under his chin, lit from below by birthday candles",
+    "taunts": [
+      "Honk honk! Who's the birthday kid tonight?",
+      "Go on, laugh. Everybody else did.",
+      "Pie or seltzer? Wrong answer, it's both!",
+      "Fall down, kiddo. Fall down. FALL DOWN."
+    ],
+    "clues": [
+      {
+        "id": "bobo-party-room",
+        "title": "Party Room Three",
+        "location": "starlight-mall",
+        "hint": "Captain Cheddar's Pizza Cavern has been gated off in the dead wing of Starlight Mall since 1980. Nobody ever cleared the party rooms.",
+        "encounter": {
+          "id": "bobo-clue-pizza-cavern",
+          "title": "Happy Seventh, Trevor",
+          "place": "Captain Cheddar's Pizza Cavern, Starlight Mall dead wing",
+          "text": "Behind the rolling gate, Captain Cheddar's is a cave of dusty skee-ball lanes and tipped-over high chairs. Party Room Three still has a banner: HAPPY 7TH TREVOR. On the stage, the animatronic Cheddar Mouse Band slumps over their instruments, and on the floor of the ball pit lies a scorched rainbow wig. Pinned to the corkboard by the door is a stack of yellowed booking cards, every one stamped CANCELLED.",
+          "art": "An abandoned 1970s pizza restaurant party room behind a mall gate, a faded happy 7th Trevor banner, a slumped animatronic mouse band on stage, a scorched rainbow wig in a dusty ball pit",
+          "choices": [
+            {
+              "id": "read-the-cards",
+              "label": "Squeeze under the gate and read the booking cards",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "lou-tran",
+                "amount": 1
+              },
+              "success": {
+                "text": "Forty-one cancellations in August 1979 alone. Notes in the margins: \"kids won't stop laughing at the clown,\" \"husband says it'd be embarrassing.\" Behind them, a letter in shaky pencil to the mall manager: I know I fell. I'll fall again if it makes one sad kid laugh. Please let me keep working. L. Moffat.",
+                "art": "A teenager reading a stack of yellowed cancelled party booking cards by flashlight, a handwritten pencil letter clutched in their other hand",
+                "effects": {
+                  "clues": ["bobo-party-room"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The gate rattles down an inch onto your back. Inside, every skee-ball lane lights up at once and the prize counter's plastic spider rings begin to clatter. Something big steps off the stage behind the curtain, and you scramble out on your elbows.",
+                "art": "A teenager wriggling out from under a rolling mall gate while skee-ball lanes blaze to life behind them and a huge shadow moves behind a stage curtain",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "reboot-the-band",
+              "label": "Reboot the Cheddar Mouse Band and play its memory tape",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "debug-disk",
+                "amount": 2
+              },
+              "success": {
+                "text": "The mouse drummer twitches awake and its chest speaker plays the last thing it recorded. Kids laughing. A crash. Grown-ups laughing, a meaner kind. And then, under all of it, a small voice: \"Bobo? Are you okay?\" And an old man's voice, gentle: \"I'm great, Trev. Did I make you smile?\"",
+                "art": "A dusty animatronic mouse drummer twitching awake on a pizza restaurant stage, a glowing speaker in its chest, a teenager kneeling with a floppy disk and a tangle of wires",
+                "effects": {
+                  "clues": ["bobo-party-room"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The band boots up wrong. The Cheddar Mouse's head turns all the way around and it sings Happy Birthday in a voice made of squeaking balloons. Every candle on every table lights itself. You run.",
+                "art": "An animatronic mouse singer with its head twisted backward on a dark stage, candles lighting themselves on dusty party tables, a teen fleeing",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "camp"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "bobo-blooper-tape",
+        "title": "Bay Area Bloopers, Volume 3",
+        "location": "rewind-video",
+        "hint": "Rewind Video still rents the blooper tape that ended Bobo's career. Somebody there knew him.",
+        "encounter": {
+          "id": "bobo-clue-blooper-tape",
+          "title": "Clown Catches Fire",
+          "place": "Comedy aisle, Rewind Video",
+          "text": "Bay Area Bloopers, Volume 3 is the most-rented tape in the store, its box soft from handling. The cover shows a clown mid-tumble with his wig in flames, and the sticker says AS SEEN ON CHANNEL 6! Zelda Fishbein watches you pick it up from behind the counter and does not smile. \"That one,\" she says, \"I keep meaning to lose.\"",
+          "art": "A battered VHS box in a video store comedy aisle showing a cartoon of a tumbling clown with a flaming wig, a sharp-eyed older woman watching from behind the rental counter",
+          "choices": [
+            {
+              "id": "slow-it-down",
+              "label": "Run the clip frame by frame on the back-room deck",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 2
+              },
+              "success": {
+                "text": "Frame by frame, it is a different story. The candles catch his wig, sure. But before the fall, Bobo looks at the birthday boy, who is crying while his parents argue behind him. Bobo pats out his wig, winks at the kid, and falls backward into the ball pit on purpose. The laugh track was added later.",
+                "art": "A frozen video still on a monitor of a clown winking at a crying little boy while two adults argue behind them, a teenager leaning close to the screen",
+                "effects": {
+                  "clues": ["bobo-blooper-tape"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The tape loops. Fall, laugh, fall, laugh, faster each time, until the laugh track is coming from the speakers in the walls, the ceiling, your own mouth. You eject it and your hands are covered in white greasepaint.",
+                "art": "A teenager staring at their hands smeared with white clown greasepaint in a dark video store back room, a VHS tape ejecting from a deck",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-zelda",
+              "label": "Ask Zelda what she knows about the clown",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "\"Lenny Moffat. He did the kids' matinees when I was still screaming in pictures.\" Zelda taps the box. \"A pratfall is a gift you give somebody who's sad. That tape turned his gift into a punchline and the whole town told it for years. He still lives over his old magic shop on Main. Never comes out.\"",
+                "art": "A retired scream queen leaning on a video store counter holding an old signed clown headshot, a teenager listening intently, neon open sign glowing behind them",
+                "effects": {
+                  "clues": ["bobo-blooper-tape"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Zelda tells you that some things are not her story to tell and rings up a customer. On the TV over the counter, the store's demo tape skips to a clown waving slowly at you through the screen, and nobody else seems to notice.",
+                "art": "A video store TV mounted above a counter showing a clown waving slowly through the static, customers in line oblivious, a teen frozen in place",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "bobo-birthday-boy",
+        "title": "Trevor's shoebox",
+        "location": "crystal-street",
+        "hint": "The birthday boy from the blooper tape is fourteen now and lives on Crystal Street. He never has parties.",
+        "encounter": {
+          "id": "bobo-clue-trevors-garage",
+          "title": "The Kid Who Never Has Parties",
+          "place": "5 Crystal Street",
+          "text": "Trevor Ashby is fourteen, skinny, and taking apart a lawnmower engine in his garage with total concentration. Everybody on the street knows he is the kid from the clown tape. Everybody on the street has at some point said \"Fall down, Bobo\" in front of him like it was funny. On the workbench, half hidden under a rag, is a shoebox with a crayon drawing of a balloon dog on the lid.",
+          "art": "A skinny teenage boy taking apart a lawnmower engine in a cluttered suburban garage, a shoebox with a crayon drawing of a balloon dog half hidden under a rag on the workbench",
+          "choices": [
+            {
+              "id": "just-hang-out",
+              "label": "Hand him a wrench and help, no questions yet",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "After an hour of grease and silence, Trevor opens the shoebox. Inside is a deflated blue balloon dog, a birthday card signed with a honking-horn doodle, and a Channel 6 envelope. \"My dad sent them the tape. Mom and Dad were screaming at each other and Bobo kept falling so I'd stop crying. I laughed. Then everybody laughed at him.\" He wants to say sorry. He never knew how.",
+                "art": "Two teenagers in a garage sitting on overturned buckets, an open shoebox between them holding a deflated blue balloon dog and an old birthday card, late afternoon light",
+                "effects": {
+                  "clues": ["bobo-birthday-boy"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Trevor sees you looking at the shoebox and shoves it under the bench. \"I know what you want. You want to hear about the clown. Everyone does.\" He pulls the garage door down between you, and you hear a bike horn honk once, softly, from inside.",
+                "art": "A garage door rolling shut on a teenager's angry face, a single squeaky bike horn visible on the workbench behind him",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "trade-for-the-box",
+              "label": "Offer him a trade for a look inside the shoebox",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "kev-park",
+                "amount": 2
+              },
+              "success": {
+                "text": "Kev knows Trevor has been hunting a rare carburetor gasket for a month. One gasket later, the shoebox is open: the balloon dog, the honking card, and Trevor's seven-year-old handwriting on a note he never mailed. Dear Bobo, I'm sorry they laughed at you. I laughed WITH you. Love, Trevor.",
+                "art": "A paperboy handing over a small engine part in a garage while a teenage boy opens a shoebox to reveal a child's handwritten apology note and a deflated balloon dog",
+                "effects": {
+                  "clues": ["bobo-birthday-boy"],
+                  "quarters": -1,
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Trevor laughs, not nicely. \"You think I'd sell it?\" He tucks the box under his arm and leaves on his bike. Halfway down the street, a red balloon drifts down out of a clear sky and follows him, bobbing, all the way to the corner.",
+                "art": "A boy biking down a suburban street with a shoebox under his arm, a single red balloon drifting after him through a cloudless sky",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "bobo-balloon-zoo",
+        "title": "The Balloon Zoo",
+        "place": "Your front steps, midnight",
+        "text": "There is a balloon dog on your doormat. Then a balloon giraffe on the mailbox, a balloon poodle on the porch rail, and a whole squeaking zoo going up your stairs to your bedroom door. They turn to look at you when you come home, rubber necks creaking, and you see that every one of them has a mouthful of thumbtacks.",
+        "art": "A suburban porch and staircase at midnight crowded with brightly colored balloon animals turning their heads toward a teenager, rows of thumbtack teeth glinting",
+        "choices": [
+          {
+            "id": "pop-them-all",
+            "label": "Grab a safety pin and pop your way upstairs",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Pop, pop, POP. Giraffes, poodles, a very offended swan. You fight your way to your door in a blizzard of rubber scraps and slam it behind you. On the other side, a horn honks twice, almost impressed.",
+              "art": "A teenager charging up a staircase through bursting balloon animals with a safety pin, colorful rubber scraps flying like confetti",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Every balloon you pop lets out a laugh, a recorded grown-up laugh, the kind from the tape. By the top of the stairs the whole house is laughing at you. You lie awake with your pillow over your ears.",
+              "art": "A teenager in bed with a pillow pressed over their ears, popped balloon scraps on the floor, ghostly laughing mouths floating in the dark room",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pet-the-dog",
+            "label": "Crouch down and pet the balloon dog on the doormat",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 1
+            },
+            "success": {
+              "text": "It flinches, then leans into your hand with a squeak. Its thumbtack teeth fold away. It is blue, like the one in Trevor's shoebox, and it trots off down the street, looking back to see if you will follow. The rest of the zoo deflates with a sad, long sigh.",
+              "art": "A teenager gently petting a blue balloon dog on a doormat, its sharp teeth folding away, a basset hound sniffing it curiously, the other balloon animals sagging",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-blue-dog"]
+              }
+            },
+            "failure": {
+              "text": "It bites. Not hard, but enough. When you look at your hand, there is no wound, only a smear of white greasepaint and a perfect red circle like a clown nose on your knuckle. It does not wash off until Tuesday.",
+              "art": "A teenager staring at a red clown-nose circle and white greasepaint smear on their knuckle, a balloon dog with tack teeth squeaking on the doormat",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "climb-the-trellis",
+            "label": "Skip the stairs and climb the trellis to your window",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 7,
+            "success": {
+              "text": "You shimmy up the rose trellis, roll through your window, and lock it. Downstairs, the zoo waits all night for you to come up the stairs like a sucker. In the morning they have blown away down the street like leaves.",
+              "art": "A teenager climbing a rose trellis to a second-floor window at night while balloon animals wait in a line on the staircase inside",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The trellis is made of balloons tonight. It squeaks, stretches, and lowers you very gently back down onto the lawn, right into the middle of the zoo. They form a ring around you and wait for you to do a trick.",
+              "art": "A teenager being lowered onto a lawn by a stretching trellis made of twisted balloons, a ring of balloon animals with sharp teeth gathering around",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-laugh-track",
+        "title": "The Laugh Track",
+        "place": "Your living room, one a.m.",
+        "text": "The TV turns itself on to a test pattern. Then the laugh track starts. You drop a cup and the room roars with recorded laughter. You say \"what the heck\" and the audience howls. Down the block, every TV on Crystal Street is laughing too, and in the dark hallway of your house, something in size-twenty shoes takes one squeaky step closer.",
+        "art": "A dark 1980s living room lit only by a TV test pattern, ghostly laughing studio audience faces flickering on the screen, giant clown shoes visible in the hallway doorway",
+        "choices": [
+          {
+            "id": "laugh-along",
+            "label": "Take a bow and laugh along louder than the track",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You bow. You do a pratfall onto the couch. You laugh so loud and real that the canned track stumbles. Laughing at yourself, with yourself, is a sound it does not know how to copy. The TV flickers off, and in the hallway the shoes shuffle back, uncertain.",
+              "art": "A teenager doing a theatrical pratfall onto a couch, laughing wildly, a TV screen flickering out, giant clown shoes shuffling backward in a dark hallway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-laughed-with"]
+              }
+            },
+            "failure": {
+              "text": "Your laugh comes out wrong, a nervous squeak, and the track loves it. It replays your squeak a hundred times, faster and higher, until a gloved hand reaches around the doorframe and squeezes a bike horn right next to your ear.",
+              "art": "A white-gloved hand reaching around a doorframe to squeeze a bike horn beside a startled teenager's ear, a TV blaring in the dark",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "unplug-the-block",
+            "label": "Radio your crew to kill every TV on the street",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "Bea hits the Lindqvists' breaker, Kev cuts the cable box on the corner, and you yank your own plug. Street by street the laughter dies. In the silence, from the alley, you hear something you did not expect: a big man sniffling, very quietly, like he is trying not to be heard.",
+              "art": "Teens on walkie-talkies throwing breakers and unplugging TVs across a dark cul-de-sac, house windows going dark one by one, a tall clown silhouette slumped in an alley",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You kill every TV on the street, but the laughter keeps going. It is coming from the neighbors now, standing at their dark windows in pajamas, laughing at you with their eyes closed.",
+              "art": "Neighbors in pajamas standing at dark windows up and down a suburban street laughing with their eyes closed at a teenager in the road",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-party-for-you",
+        "title": "A Party in Your Honor",
+        "place": "Captain Cheddar's Pizza Cavern, three a.m.",
+        "text": "You wake up at a birthday party. It is yours. Captain Cheddar's is lit up like 1979, and everyone you know is wearing a paper hat and smiling stiffly at a cake with seven blue candles. The robot band plays Happy Birthday in the wrong key. Then the kitchen doors bang open and Bobo ducks through them, eight feet tall, holding a cream pie in one hand and a seltzer bottle in the other. \"Everybody laugh!\" he roars.",
+        "art": "A garish 1979 pizza restaurant birthday party at night, friends in paper hats smiling stiffly around a cake with blue candles, an eight-foot clown bursting through kitchen doors with a pie and a seltzer bottle",
+        "choices": [
+          {
+            "id": "take-the-pie",
+            "label": "Step in front of your friends and take the pie yourself",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "Splat. Cream in your hair, your eyes, your ears. You lick your lips and give a thumbs-up. Your friends stare, then start to laugh, and it is a warm, real, are-you-okay laugh. Bobo lowers the seltzer. Under the greasepaint, for one second, an old man looks like he might cry.",
+              "art": "A teenager with a face full of cream pie giving a thumbs-up, friends in party hats bursting into warm laughter, a towering clown lowering a seltzer bottle in surprise",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You step up, but your friends get it anyway, all of them, pie after pie after pie, until the whole party is dripping and nobody is laughing. You wake with the taste of cream and a headache that lasts all day.",
+              "art": "A whole birthday party of teens dripping with cream pie, every face stony, a clown juggling more pies behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "make-a-wish",
+            "label": "Blow out the candles and wish for him, not you",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "bobo-blue-dog",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wish that Bobo could have one good birthday party again. The blue flames go out. The robot band switches to a sweet, slow song. Bobo stands very still in the middle of the room, then pulls a single blue balloon from his pocket, twists a dog, and leaves it at your plate.",
+              "art": "A teenager blowing out seven blue candles on a cake, a towering clown standing still in a quiet pizza restaurant, twisting a single blue balloon dog",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The candles relight themselves. And again. And again. \"Trick candles!\" Bobo hoots, and the room laughs at you blowing and blowing until you are dizzy and gasping on the sticky floor.",
+              "art": "A dizzy teenager slumped beside a birthday cake whose blue trick candles keep relighting, a clown pointing and laughing, paper hats everywhere",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "dive-the-ball-pit",
+            "label": "Dive into the ball pit and tunnel for the exit",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You dive under the plastic balls and crawl. The pit is deeper than it should be, and down near the bottom you find a scorched old wig and a pair of glasses. You come up behind the prize counter, by the exit, holding Lenny Moffat's spectacles.",
+              "art": "A teenager surfacing from a deep ball pit beside a prize counter, holding a pair of old wire glasses and a scorched rainbow wig, a party raging in the background",
+              "effects": {
+                "nerve": 1,
+                "items": ["first-aid"]
+              }
+            },
+            "failure": {
+              "text": "The ball pit has no bottom. You sink and sink through red, yellow and blue, and somewhere far above you hear a whole birthday party shouting \"Fall down! Fall down!\" in perfect time.",
+              "art": "A teenager sinking through an endless ball pit of red, yellow and blue plastic balls, a distant ring of party-hat faces looking down from above",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "bobo-finale",
+      "title": "The Last Laugh",
+      "place": "Starlight Mall food court, Halloween night",
+      "text": "On Halloween night the Starlight Mall food court has become a three-ring circus. Everyone who ever chanted at him is frozen mid-laugh in a spotlight, mouths wide, unable to stop: grown-ups from the supermarket, the Channel 6 anchorman, Trevor's dad. Balloon animals the size of station wagons prowl between the tables. And in the center ring, on stilts, Bobo swings a giant mallet. \"Go on,\" he says, and his voice cracks. \"Laugh. Everybody else did.\"",
+      "art": "A neon mall food court turned into a nightmare three-ring circus, grown-ups frozen laughing in spotlights, car-sized balloon animals prowling, a towering clown on stilts in the center ring swinging a giant mallet, the teen crew in Halloween costumes below",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Knock his stilts out from under him",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "You swing low and the stilts crack. Bobo topples like a circus tent and bursts into a cloud of confetti and rubber scraps. The spotlights go out. The frozen grown-ups slump over their trays, blinking, with no idea why their faces hurt.",
+            "art": "A teen swinging a bat at a giant clown's stilts, the clown toppling and bursting into confetti and balloon scraps over a mall food court",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "He steps over your swing like a man stepping over a puddle. The mallet comes down beside you with a cartoon BONK, and the whole circus laughs. You hear yourself laughing too.",
+            "art": "A giant mallet slamming the floor beside a dazed teen, a stilted clown towering overhead, frozen grown-ups laughing in the spotlights",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Out-clown the clown with a banana peel and a seltzer ambush",
+          "intent": "camp",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "glory-hallelujah",
+            "amount": 1
+          },
+          "success": {
+            "text": "You lay the peel. Glory distracts him with a high kick. Bobo steps, slips, and goes down in the greatest pratfall the food court has ever seen, and the giant balloons pop in sympathy. The circus folds up like a cheap pop-up tent and is gone.",
+            "art": "A giant clown slipping on a banana peel in a mall food court while a drag queen high-kicks beside him, car-sized balloon animals popping in the background",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "He sees the peel, picks it up, and eats it in one bite. \"I invented that one, kiddo.\" The seltzer bottle turns toward you.",
+            "art": "A towering clown eating a banana peel with a wink, a seltzer bottle swinging toward a teen in a Halloween costume",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Bring Trevor forward with the balloon dog and laugh with Bobo, not at him",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "bobo-laughed-with",
+            "amount": 1
+          },
+          "success": {
+            "text": "Trevor walks into the center ring holding the deflated blue dog. \"You fell down so I'd stop crying. It worked. I'm sorry they laughed at you.\" You play the slowed-down tape on the mall TVs, the wink and all. Then your whole crew does the worst pratfall in history, on purpose, all at once, and laughs, together. Bobo laughs too, a real laugh, and the stilts sink, the greasepaint melts, and the eight-foot nightmare shrinks into an old man in striped pajamas, sleepwalking, waking up in the food court with tears on his face.",
+            "art": "A teenage boy offering a deflated blue balloon dog to a shrinking clown in a mall food court, teens in costumes sprawled in a deliberate pile laughing, an old man in pajamas waking up as the greasepaint melts away",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Bobo cannot hear Trevor over seven years of laughter. The balloon dog slips from the boy's hand and floats up into the dark. You have the truth, but he needs to see it, not just hear it.",
+            "art": "A deflated blue balloon dog floating up out of a boy's hand into the dark rafters of a mall, a towering clown turning away",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Laughing With You",
+        "text": "The Glitter Box throws Trevor Ashby the seven-years-late seventh birthday party he never got, and Lenny Moffat comes in a fresh red nose. He makes a balloon dog for every kid in Glimmer Falls, falls down exactly once, and the room laughs the right way, warm and together, with him. Channel 6 runs a correction. By Christmas Bobo is doing Saturday shows at the children's ward in Sacramento, and Trevor helps him carry Honkers.",
+        "art": "A crowded theater birthday party with an old clown in a fresh red nose handing a balloon dog to a grinning teenage boy, kids and drag performers laughing together under streamers"
+      },
+      "good": {
+        "title": "Party's Over",
+        "text": "Bobo is gone, and the balloons stop showing up on porches. The town forgets the whole week by Thanksgiving. Above the shuttered magic shop on Main, the lights stay off, and Bay Area Bloopers, Volume 3 is still the most-rented tape at Rewind Video. You quietly rent it every week so nobody else can.",
+        "art": "A shuttered small-town magic shop with dark windows above it, a teenager walking past holding a rented VHS tape behind their back"
+      },
+      "bittersweet": {
+        "title": "Honk Once for Help",
+        "text": "You survive the circus, and so does everyone in the food court. But for months your crew cannot hear a bike horn without flinching, and somebody at school starts chanting \"Fall down, Bobo\" at Trevor again. Nobody laughs this time, at least. Nobody stops it, either.",
+        "art": "A school hallway where a boy stands with his head down while another kid jeers, teenagers watching uncomfortably, a single deflated balloon on the floor"
+      },
+      "bad": {
+        "title": "Everybody Laugh",
+        "text": "On November first you wake up in white greasepaint, with a red nose that will not come off and shoes four sizes too big. Every time you speak, the whole town laughs. Your crew is the only one that does not, and they keep trying to wipe your face clean while you smile, and smile, and fall down.",
+        "art": "A teenager in smeared white greasepaint and a stuck red nose sitting on a curb in oversized clown shoes, friends kneeling beside them with washcloths, laughing neighbors watching from porches"
+      }
+    }
+  }
+]

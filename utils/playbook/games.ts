@@ -1,3 +1,4 @@
+import { buildCrystalStreetPlaybook } from './crystalStreet'
 import { buildEcotonePlaybook } from './ecotone'
 import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
@@ -43,6 +44,12 @@ export const PLAYBOOK_GAMES = [
     title: 'Zuzu Gamebook',
     cover: '/zuzu-gamebook/scenes/bell-tower.webp',
     build: buildGamebookPlaybook,
+  },
+  {
+    id: 'crystal-street',
+    title: 'Terrors on Crystal Street',
+    cover: '/crystal-street/cover.webp',
+    build: buildCrystalStreetPlaybook,
   },
 ] as const
 

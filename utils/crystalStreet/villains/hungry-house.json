@@ -1,0 +1,629 @@
+[
+  {
+    "id": "hungry-house",
+    "name": "The Hungry House",
+    "epithet": "The Model Home at 13 Crystal Street",
+    "inspiration": {
+      "original": "The house on Ocean Avenue",
+      "film": "The Amityville Horror",
+      "year": 1979,
+      "kind": "remix",
+      "oldScript": "The haunted house that drives the father mad and destroys the family.",
+      "newLens": "The suburban facade itself: a model home that eats anyone who won't keep up appearances, learned from the woman paid to perform a perfect life inside it."
+    },
+    "tags": ["paranormal", "dream"],
+    "palette": ["#8fd3c1", "#f4a6a0", "#3b2a2f"],
+    "sigil": "doorknob",
+    "logline": "13 Crystal Street has been for sale since 1959 and has never looked better. Let your lawn go brown or your voices get loud, and you will get an invitation to its open house. Nobody who RSVPs comes home.",
+    "backstory": "In 1959 Larkspur Homes finished Crystal Street and staged number 13, the Starlight Deluxe, as its model home, right down to the plastic fruit. To sell the dream, developer Dale Prescott hired Marjorie Vail to live in it as the hostess: from nine to six she baked cookies, vacuumed already-clean carpet and smiled at touring couples while two child actors played her kids on weekends. Her contract said she could not cry, receive visitors or keep her own things in sight. Her paintings went in a hall closet. Prescott refused to ever sell the model, because \"people buy the dream, not the house.\" In the spring of 1963 Marjorie stopped coming out, and the doors were locked from inside. When Prescott's men broke in, the cookies were warm, the carpet had fresh vacuum lines, and Marjorie was gone except for the smiling portrait over the mantel. The house had learned her rules too well. Every Halloween week since, some family on Crystal Street that lets the facade slip receives an engraved invitation, and the hallway at 13 gains one more perfect photograph.",
+    "centralIssue": {
+      "title": "The perfect house that hides a person",
+      "summary": "The house learned hunger from Marjorie Vail, who was paid to perform a flawless life until the performance swallowed her. It punishes mess because nobody ever let her have any. Find out who Marjorie really was and show the house that a home is a place where people are allowed to fall apart."
+    },
+    "poster": "A spotless pastel split-level model home glowing at the end of a dark cul-de-sac, its front door a smiling mouth, framed family photographs floating out of its windows like moths, a woman in a 1959 apron silhouetted in the bay window, a teenager on the sidewalk holding a crumpled engraved invitation",
+    "portrait": "Close portrait of a 1959 housewife with a lacquered blonde flip and a fixed, too-wide lipstick smile, pearls, an apron, plastic fruit in her hands, her eyes wet and pleading while her mouth keeps smiling, a perfect living room fading into wallpaper behind her",
+    "taunts": [
+      "Wipe your feet, dear. We don't track the world in here.",
+      "Your family looks so tired. Wouldn't you rather look happy?",
+      "Every room is ready. We only need you to stop making a mess.",
+      "Smile. Smile wider. There. Now hold it forever."
+    ],
+    "clues": [
+      {
+        "id": "hungry-house-hostess-film",
+        "title": "The hostess film",
+        "location": "library",
+        "hint": "The library's local history room keeps the old Larkspur Homes papers, film reels and all.",
+        "encounter": {
+          "id": "hungry-house-clue-crestline-box",
+          "title": "Box 13 of the Larkspur Papers",
+          "place": "Local history room, Glimmer Falls Public Library",
+          "text": "The Larkspur Homes donation fills a wall of gray archive boxes. Box 13 is heavier than the rest. Inside: a 16mm reel labeled THE STARLIGHT DELUXE: A HOME FOR HAPPINESS, 1959, a typed hostess contract with coffee rings, and a little brass doorknob wrapped in a napkin like a sandwich. The old film projector in the corner is already plugged in.",
+          "art": "A teenager in a library archive room opening a gray box that holds a 16mm film reel, a typed contract and a brass doorknob, an old film projector waiting under a dusty lamp",
+          "choices": [
+            {
+              "id": "run-the-film",
+              "label": "Thread the projector and watch the promo film",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "The film flickers onto the wall: a smiling woman pulling cookies from an oven while a narrator says \"Mrs. Vail loves every minute.\" You step through it frame by frame. Between two smiles, for exactly one frame, Marjorie looks straight into the lens and mouths: Let me out.",
+                "art": "A flickering 16mm film projected on a library wall showing a 1959 housewife in a model kitchen, the film frozen where she stares into the camera mouthing a silent plea",
+                "effects": {
+                  "clues": ["hungry-house-hostess-film"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The film jams and the frame starts to bubble and burn. In the melting picture, the model kitchen is not empty anymore: you are standing in it, in an apron, smiling. The projector clicks off on its own and the reel is rewound when you check.",
+                "art": "A melting film image on a library wall showing a teenager in an apron smiling in a pastel 1959 kitchen, the projector bulb fading out",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "read-the-contract",
+              "label": "Read the hostess contract line by line",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "HOSTESS WILL SMILE AT ALL TIMES WHILE THE HOME IS OPEN. HOSTESS WILL NOT RECEIVE PERSONAL VISITORS. HOSTESS'S PERSONAL EFFECTS, INCLUDING HOBBY MATERIALS, WILL BE STORED OUT OF SIGHT. In the margin, in pencil, a small neat hand has written: What if I am not happy, Mr. Prescott?",
+                "art": "A typed 1959 employment contract under a library lamp, rules about smiling at all times, a tiny penciled question in the margin, a teenager's finger tracing it",
+                "effects": {
+                  "clues": ["hungry-house-hostess-film"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The contract is forty pages of real-estate legalese and you get lost around clause nine, \"Carpet Maintenance.\" When you look up, the brass doorknob has rolled across the table and is resting against your hand, warm, as if someone was holding it a second ago.",
+                "art": "A brass doorknob resting against a teenager's hand on a library table covered in contract pages, a long shadow of a doorway falling across them",
+                "effects": {
+                  "dread": 1,
+                  "flags": ["hungry-house-doorknob"]
+                }
+              }
+            },
+            {
+              "id": "pocket-the-reel",
+              "label": "Slip the reel into your backpack and watch it at home",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "success": {
+                "text": "You smuggle the reel past the desk and watch it on Toby's projector in a garage full of bikes. In the last scene, Marjorie opens a hall closet to hang a coat. The camera cuts away fast, but not fast enough: the closet is full of wild, bright paintings.",
+                "art": "A teen crew in a cluttered garage watching an old film projected on a bedsheet, the frame showing a closet bursting with colorful paintings",
+                "effects": {
+                  "clues": ["hungry-house-hostess-film"],
+                  "quarters": 1
+                }
+              },
+              "failure": {
+                "text": "The security tag shrieks at the door. The reel is confiscated and you are banned from the local history room until Monday. As you leave, the library's front doormat reads WELCOME HOME in a script you have never seen before.",
+                "art": "A library security gate flashing red as a teenager is caught with a film reel, a doormat at the entrance reading welcome home in old-fashioned script",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "hungry-house-night-owl-call",
+        "title": "The Night Owl Line tape",
+        "location": "kglm-radio",
+        "hint": "KGLM has archived every call to its overnight request line since 1961. Somebody called from 13 Crystal Street.",
+        "encounter": {
+          "id": "hungry-house-clue-request-line",
+          "title": "Caller from Thirteen",
+          "place": "Tape archive, KGLM 103.3",
+          "text": "The KGLM tape archive is a closet of reel-to-reel boxes stacked to the ceiling, each one labeled in grease pencil. THE NIGHT OWL LINE, APRIL 1963 has a sticky note on it: CALLER FROM 13 CRYSTAL. DO NOT AIR. Somewhere above you the on-air light buzzes red, and the request line begins to blink, though nobody is on shift.",
+          "art": "A cramped radio station tape closet stacked with labeled reel-to-reel boxes, one box with a red warning sticky note, a red on-air light glowing in the hallway",
+          "choices": [
+            {
+              "id": "play-the-reel",
+              "label": "Thread the reel on the booth deck and listen",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "A tired woman's voice whispers at 2:14 a.m.: \"My face won't stop smiling. I try to stop and it won't. The house wants the kitchen clean when I'm crying in it.\" The 1963 DJ asks her name. \"Marjorie. I used to paint. Is that silly?\" Then a sound like a door closing very gently.",
+                "art": "A reel-to-reel deck spinning in a dark radio booth, a teenager in big headphones listening with wide eyes, the needle of a VU meter twitching",
+                "effects": {
+                  "clues": ["hungry-house-night-owl-call"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The tape stretches and warps. Marjorie's voice slides down into something slow and syrupy and not quite human: \"Please wipe your feet.\" Every reel in the closet starts spinning at once, and you leave the station with the hallway feeling longer than it was.",
+                "art": "A wall of reel-to-reel tapes spinning by themselves in a dark station hallway, a frightened teenager backing away, magnetic tape curling through the air",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "answer-the-line",
+              "label": "Pick up the blinking request line",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
+              "success": {
+                "text": "Static, then an old woman in Oakland who says she listens every night. \"My sister Marjorie called this show once, before she vanished. She painted the sky green and the dog purple. The man who owned the house said it upset buyers.\" She is crying, and so are you.",
+                "art": "A teenager holding a radio station telephone receiver in a red-lit booth, a cassette recorder taped to the handset, tears in their eyes",
+                "effects": {
+                  "clues": ["hungry-house-night-owl-call"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "A pleasant woman's voice says, \"Thank you for calling. Your family has been selected for a private showing.\" When you hang up, there is a cream-colored envelope on the console with your address in perfect script. It is not sealed yet.",
+                "art": "A cream envelope with an address in perfect script resting on a radio console beside a telephone, red on-air light reflecting off its gold edge",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "flags": ["hungry-house-invited"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "hungry-house-hidden-trunk",
+        "title": "Marjorie's trunk",
+        "location": "junkyard",
+        "hint": "A moving truck nobody hired dumps a load at Rusty's Junkyard every November. The oldest pile is in the back.",
+        "encounter": {
+          "id": "hungry-house-clue-imperfect-pile",
+          "title": "The Imperfect Pile",
+          "place": "The back lot, Rusty's Junkyard",
+          "text": "Behind the crusher is a mound of things somebody did not want seen: a lamp with a cracked shade, report cards with C-minuses, a ratty recliner, a box of sympathy cards, a Mohawk wig dyed green. Joey says a white moving truck with no driver drops a load every year and the plates are from 1959. At the very bottom sits a steamer trunk stenciled M. VAIL.",
+          "art": "A junkyard mound of ordinary family clutter, cracked lamps, report cards and a green wig, an old steamer trunk stenciled with a name at the bottom, a driverless 1950s moving truck parked in the fog",
+          "choices": [
+            {
+              "id": "dig-out-the-trunk",
+              "label": "Dig the trunk out before the pile shifts",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 1
+              },
+              "success": {
+                "text": "You haul the trunk free and pop the latches. Inside are rolled canvases: a purple dog, a green sky, a self-portrait of a woman laughing so hard her lipstick is smeared. Under them, a stack of letters to her sister, all stamped, none of them ever mailed. The last one says: I'm going to stop smiling now.",
+                "art": "An open steamer trunk in a junkyard spilling bright unrolled paintings of a purple dog and a laughing woman, a bundle of unmailed letters tied with ribbon",
+                "effects": {
+                  "clues": ["hungry-house-hidden-trunk"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The pile slides. You end up under a recliner and a lifetime of other people's embarrassments, and when Wade digs you out, the trunk is gone. A fresh tire track leads to the gate, and you smell cookies baking in the middle of a junkyard.",
+                "art": "A teenager pinned under a slumped recliner in a junk pile, a metalhead friend pulling them out, fresh truck tracks leading toward a foggy gate",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "paranormal"
+                }
+              }
+            },
+            {
+              "id": "read-the-newest-pile",
+              "label": "Start with the newest pile and see who it took",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "wade-whitfield",
+                "amount": 1
+              },
+              "success": {
+                "text": "The newest things belong to the Okonjo family from 1979: a divorce paper, a kid's broken trophy, a frying pan with a burned bottom. Every pile is somebody's normal bad day. At the bottom of all of them, under everything, Marjorie's trunk is full of the one thing she was never allowed to show: her own art.",
+                "art": "A teenager kneeling in junkyard clutter holding a child's broken trophy and an old frying pan, a trunk of paintings visible underneath, sunset light through crushed cars",
+                "effects": {
+                  "clues": ["hungry-house-hidden-trunk"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The newest pile has your family's stuff on top: the mug with the chipped handle, the drawer of dead batteries, the photo where everyone's eyes are closed. None of it was thrown out. Not yet. You stand there a long time feeling sick.",
+                "art": "A teenager staring at their own family's chipped mug and blurry snapshot sitting on top of a junkyard pile, cold dusk light",
+                "effects": {
+                  "nerve": -2
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "hungry-house-open-house",
+        "title": "Open House, Tonight Only",
+        "place": "The sidewalk outside 13 Crystal Street",
+        "text": "At eleven p.m. a sign appears on the lawn at 13: OPEN HOUSE, TONIGHT ONLY. The porch light is on, the door is ajar, and the whole street smells of chocolate-chip cookies. A woman in an apron waves from the bay window with a smile that does not move at all. Your feet are already on the welcome mat.",
+        "art": "A pastel model home at night with an open house sign on the lawn, warm light spilling from an open door, a smiling woman in an apron waving from the bay window, a teenager hesitating on the welcome mat",
+        "choices": [
+          {
+            "id": "play-perfect-guest",
+            "label": "Go in and be the most polite guest it has ever had",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You compliment the drapes, the shag, the plastic grapes. The house purrs. While it preens, you notice a hairline crack in the plaster by the coat closet, and someone has written in it, tiny, with a fingernail: I painted here once. You slip out before the cookies finish.",
+              "art": "A teenager politely admiring a spotless 1959 living room, a tiny handwritten message visible in a hairline crack beside a coat closet",
+              "effects": {
+                "nerve": 1,
+                "flags": ["hungry-house-crack"]
+              }
+            },
+            "failure": {
+              "text": "You say something about the lamp being \"kind of dated.\" The front door shuts with a soft, final click, and the hallway is suddenly much, much longer. It takes you until three a.m. to find a window.",
+              "art": "A teenager in an impossibly long pastel hallway lined with identical framed family photos, the front door tiny and far away behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "track-mud",
+            "label": "Stomp through the foyer in your muddiest sneakers",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You moonwalk mud across the white carpet and leave a grape-soda can on the coffee table. The walls shudder like a disgusted aunt. The house spits you out onto the lawn and slams the door so hard the open house sign falls flat.",
+              "art": "A teenager moonwalking muddy footprints across a pristine white carpet while the walls of a 1959 living room recoil in disgust",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The carpet drinks your footprints before you lift your feet. Then it drinks your shoelaces. You hop home barefoot, and in the morning your sneakers are on your porch, spotless, laced, with a note: We cleaned these for you.",
+              "art": "A pair of eerily spotless sneakers on a doorstep at dawn with a folded note tucked into one, a teenager staring at them barefoot",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rip-up-the-sign",
+            "label": "Pull up the sign and tell the house you are not buying",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "rock-salt",
+              "amount": 1
+            },
+            "success": {
+              "text": "You yank the sign out of the lawn and throw it in the street. \"Not interested!\" The porch light flickers off, offended. Down the block, three neighbors who were sleepwalking toward 13 in their bathrobes stop, blink and wander home.",
+              "art": "A teenager hurling an open house sign into a dark street while sleepwalking neighbors in bathrobes stop on the sidewalk and blink awake",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The sign will not come out. It is rooted, warm, faintly pulsing. As you tug, the welcome mat under your feet slides an inch toward the door, then another, like a tongue.",
+              "art": "A welcome mat sliding like a tongue toward an open doorway, a teenager clinging to a rooted open house sign on a lawn at night",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-family-portrait",
+        "title": "The Family Portrait",
+        "place": "Your own house, after midnight",
+        "text": "You come downstairs for water and the photos on your own walls have changed. Your family is in every frame, smiling with perfect teeth, wearing sweaters nobody owns. You are not in any of them. The hall carpet has turned pale mint, and from the kitchen comes the sound of someone humming while she wipes a counter that is already clean.",
+        "art": "A 1980s family hallway at night where every framed photo shows the family in matching sweaters with identical smiles and one empty space, mint carpet creeping across the floor, a humming silhouette in the kitchen",
+        "choices": [
+          {
+            "id": "make-a-real-mess",
+            "label": "Wake everyone up and make your family be themselves, loudly",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "You bang on doors. Someone burns toast at one a.m., someone argues about the thermostat, someone laughs so hard they snort. In every frame, the perfect smiles crack into real faces, and one by one, you appear in the pictures, mid-blink and gloriously unflattering.",
+              "art": "A messy family kitchen at one in the morning, burnt toast smoking, people in mismatched pajamas laughing and arguing, framed photos on the wall changing to candid, blurry, joyful snapshots",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-real-family"]
+              }
+            },
+            "failure": {
+              "text": "They will not wake. They lie in bed smiling with their eyes closed and their hands folded. The humming in the kitchen gets closer. By dawn the spell lifts, but for the rest of the day your family keeps saying \"isn't this nice\" in voices that do not sound like theirs.",
+              "art": "A family asleep in a dim bedroom with folded hands and identical serene smiles, a teenager shaking a shoulder in vain, a humming apron silhouette in the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stage-perfect-dinner",
+            "label": "Fake the perfect family dinner to fool it",
+            "intent": "sneaky",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "You set the table with the good plates, put on a cardigan and say \"Pass the peas, Father\" to an empty chair. The humming stops, satisfied. The mint carpet rolls back like a tide. You have bought yourself one night and learned that the house can be flattered.",
+              "art": "A teenager in a cardigan sitting at a formal dinner table set for a family of empty chairs, a mint carpet retreating out the door like a tide",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your smile slips for one second. The plates rearrange themselves. The chairs fill with your family, and every one of them is smiling at you, waiting for you to smile back the right way. You do not sleep at all.",
+              "art": "A family seated rigidly at a formal dinner table, every face fixed in the same wide smile, all turned toward a frightened teenager at the head",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pull-down-the-photos",
+            "label": "Pull every frame off the wall and turn it face down",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "Frame after frame goes face down on the carpet. With nothing left to look at, the hallway sighs and turns back into your hallway: scuffed baseboards, a lopsided school photo, a crayon mark from when you were five. You have never loved it more.",
+              "art": "A teenager stacking face-down picture frames on a scuffed hallway carpet, a lopsided school photo and an old crayon mark visible on the restored wall",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Under each frame you pull down is another frame, and another, a wall of perfect photos all the way down. Glass slices your thumb on the last one. In that picture, finally, you are there: smiling in a sweater, standing in a hallway that is not yours.",
+              "art": "Layers of framed family photographs stacked endlessly on a wall, a teenager with a cut thumb staring at one photo showing themselves in a stranger's sweater",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-rooms-that-werent",
+        "title": "The Rooms That Weren't There",
+        "place": "Inside 13 Crystal Street",
+        "text": "You fall asleep on your bed and wake on a sofa wrapped in plastic. You are inside 13, and it has grown: a nursery for a baby who was never born, a den where a TV plays the 1959 promo film on an endless loop, a staircase that goes up into more staircase. At the end of the hall, from inside a coat closet, someone is knocking. Three soft knocks. Then three more.",
+        "art": "A sprawling dreamlike 1959 model home interior with plastic-covered furniture, an empty nursery, a glowing television, staircases that loop into themselves, and a coat closet door at the end of a long hall",
+        "choices": [
+          {
+            "id": "open-the-closet",
+            "label": "Walk down the hall and open the closet",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "flag": "hungry-house-crack",
+              "amount": 1
+            },
+            "success": {
+              "text": "The closet is not a closet. It is a tiny studio with a window, paint on the floor, canvases everywhere, and a woman in an apron sitting very still on a stool with a brush in her lap. \"I'm not allowed in here during showings,\" Marjorie whispers. \"But it's the only room that's mine.\"",
+              "art": "A tiny secret art studio hidden inside a coat closet, paint-spattered floor and bright canvases, a 1959 housewife on a stool clutching a paintbrush, looking up in surprise",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["hungry-house-studio"]
+              }
+            },
+            "failure": {
+              "text": "Inside is only coats, rows and rows of them, and they are all your size. One of them has your name sewn into the collar. The door closes behind you and you spend the rest of the night in the dark, listening to the house hum.",
+              "art": "A teenager trapped in a dark closet full of identical coats in their size, a name label on one collar, a thin line of warm light under the door",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-the-wallpaper",
+            "label": "Follow the wallpaper pattern back to the front door",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "The daisies on the wallpaper repeat every eighteen inches, except in one place where the pattern is upside down, like it was hung by someone in a hurry. You follow the wrong-way daisies down three halls and out the front door into cold, wonderful night air.",
+              "art": "A teenager shining a flashlight along daisy wallpaper, one strip hung upside down, leading through a maze of pastel hallways to an open front door",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You follow the daisies until they follow you back. The pattern crawls across the ceiling and closes over the doorway like ivy. You wake in your own bed with the smell of wallpaper paste in your hair.",
+              "art": "Daisy-patterned wallpaper peeling off the walls and crawling over a doorway like ivy, a teenager backing away in a dim pastel hall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "unplug-the-tv",
+            "label": "Unplug the den TV and stop the promo film",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You yank the cord. The film dies mid-smile, and for a second the whole house goes quiet, like an actor who forgot their line. In the silence, very far away, you hear a woman laugh, a real laugh, and the staircase sets itself back down to one floor.",
+              "art": "A teenager yanking a television plug from the wall, the screen collapsing to a white dot, a looping staircase settling back into an ordinary single flight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The TV keeps playing unplugged. The narrator's voice changes: \"And here is our newest family member.\" On screen you are pulling cookies out of an oven, beaming. You pull the cord again and again until the dream lets you go.",
+              "art": "An unplugged television still glowing in a dark den, showing a teenager in an apron smiling in a 1959 kitchen, the real teenager holding the dangling cord",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "hungry-house-finale",
+      "title": "The Last Open House",
+      "place": "13 Crystal Street, Halloween night",
+      "text": "On Halloween night the house swallows the cul-de-sac. Every family on Crystal Street sits at one endless dining table in sweaters they do not own, smiling smiles they cannot drop. At the head of the table, in a 1959 apron, Marjorie Vail carves a roast that is made of wax, and the house speaks through her lipstick: \"Everyone is so happy here. Nobody ever has to be seen crying again.\" The walls breathe in. The front door is gone.",
+      "art": "An endless 1959 dining room holding every family on a suburban street, all wearing matching sweaters and frozen smiles, a housewife in an apron at the head of the table carving a wax roast, the teen crew in Halloween costumes standing in the doorway",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Tear the walls down from the inside",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "Plaster gives, then lath, then the whole dream. The walls fall outward like a stage set, and the families tumble onto the cold lawn in their own clothes, blinking. Behind you, 13 Crystal Street is a dark, hollow shell, and nobody can say where Marjorie went.",
+            "art": "The walls of a model home falling outward like a collapsing stage set, families tumbling onto a cold lawn under the moon, a teen with a baseball bat in the rubble",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Every hole you punch in the wall is patched before your fist comes back, smooth and freshly painted. The house sighs, patient as a mother. A sweater settles over your shoulders.",
+            "art": "A teen punching a hole in a pastel wall that instantly patches itself smooth, a soft sweater floating down onto their shoulders",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Hand the house a signed contract and tell it it has finally been sold",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "frankie-fontaine",
+            "amount": 1
+          },
+          "success": {
+            "text": "You slap a forged deed on the table and hammer a SOLD sticker onto the sign through the window. The house freezes. It was built to wait for a buyer, and now it has nothing left to wait for. Its doors swing open, and the families walk out past it one by one.",
+            "art": "A teenager slapping a forged deed on a dining table while a sold sticker glows on a lawn sign through the window, the house's doors swinging open",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The house reads the deed and checks your references. \"This signature is smudged, dear.\" The paper turns into a perfectly folded napkin in your hands, and the table makes room for one more chair.",
+            "art": "A forged deed folding itself into a perfect dinner napkin in a teenager's hands, an empty chair sliding up to the table beside them",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Hang Marjorie's paintings over the perfect portraits and say her name",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "hungry-house-studio",
+            "amount": 1
+          },
+          "success": {
+            "text": "You hang the purple dog over the family portrait and the laughing self-portrait over the mantel. You play her voice from the tape. \"Marjorie, you don't have to smile.\" Her mouth trembles, and for the first time in twenty-three years it falls. She cries, a real, ugly, wonderful cry, and every family at the table cries with her, and the house, finally allowed to be a mess, lets them all go.",
+            "art": "A weeping 1959 housewife in front of a wall of wild, colorful paintings hung over formal portraits, families at a long table crying and hugging, teens in costumes holding up a laughing self-portrait",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The paintings slide off the walls as fast as you hang them. Marjorie's smile is held up by twenty-three years of rules, and one night's truth is not enough to lift them yet. Push harder.",
+            "art": "Colorful paintings sliding down a pastel wall as a smiling housewife watches helplessly, a teen reaching to catch a falling canvas",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Excuse the Mess",
+        "text": "At dawn Marjorie Vail unties her apron, drops it on the clean carpet, and walks out the front door with a canvas under each arm. The library hangs her paintings that winter, and her sister drives up from Oakland for the opening. The Larkspur sign finally comes down. In the spring, 13 Crystal Street is sold to a loud family with three dogs, a drum kit and a lawn they never mow on time, and the house has never sounded happier.",
+        "art": "A woman in a 1959 dress walking out of a pastel house at dawn with paintings under her arms, an apron dropped on the carpet behind her, teens and neighbors in rumpled costumes cheering on the lawn"
+      },
+      "good": {
+        "title": "Not on the Market",
+        "text": "The house goes dark and stays dark. The open house sign never comes back, and the families who vanished in the hallway photos come home with no memory of where they were. But 13 Crystal Street is still perfect, still for sale, still waiting. You never walk past it without wiping your feet.",
+        "art": "A spotless dark model home behind a for sale sign on a gray November morning, a teenager walking past it on the far side of the street"
+      },
+      "bittersweet": {
+        "title": "One Frame Left",
+        "text": "You get out, and so does almost everyone. But when the police finally walk through 13, there is one photograph still hanging in the hallway: the family from number 9, smiling in matching sweaters. Their house goes up for sale in December. Sometimes, late at night, you are sure you hear them laughing politely from the end of the street.",
+        "art": "A single framed photograph of a smiling family in matching sweaters hanging in an empty pastel hallway, a police flashlight beam falling across it"
+      },
+      "bad": {
+        "title": "A Home for Happiness",
+        "text": "On November first there is a new photograph in the hallway at 13: you, in a sweater you never owned, smiling perfectly beside a tray of cookies. The open house runs every Sunday now. Your crew takes the tour again and again, standing in front of your picture, trying to make you blink.",
+        "art": "A framed portrait of a teenager in a stranger's sweater with a frozen perfect smile in a pastel hallway, friends in jackets standing before it on a house tour"
+      }
+    }
+  }
+]

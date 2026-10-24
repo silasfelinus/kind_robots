@@ -3,7 +3,8 @@
 //
 // Every brief in utils/arcade/games/rainbowRecordedScore.ts becomes one private, instrumental job keyed by
 // `designer`, so a cue that already has a PENDING, RUNNING or DONE job is skipped. Default is a dry run;
-// --apply sends the jobs, --only <cue id> limits it to one cue.
+// --apply sends the jobs, --only <cue id> limits it to one cue. The opening music video's thrash track
+// (rainbowOpening.ts, t-034) queues the same way: --only opening.
 //
 //   npx tsx utils/scripts/enqueueRainbowScore.ts
 //   npx tsx utils/scripts/enqueueRainbowScore.ts --apply
@@ -14,6 +15,7 @@ import {
   RAINBOW_SCORE_BRIEFS,
   rainbowScoreJobKey,
 } from '../arcade/games/rainbowRecordedScore'
+import { RAINBOW_OPENING_TRACK } from '../arcade/games/rainbowOpening'
 import {
   ARCADE_AUDIO_LIVE_STATUSES,
   ARCADE_AUDIO_PROJECT_SLUG,
@@ -74,9 +76,19 @@ async function main() {
   let queued = 0
   let skipped = 0
   let failed = 0
-  for (const brief of RAINBOW_SCORE_BRIEFS) {
+  const briefs = [
+    ...RAINBOW_SCORE_BRIEFS.map((brief) => ({
+      ...brief,
+      jobKey: rainbowScoreJobKey(brief.id),
+    })),
+    {
+      ...RAINBOW_OPENING_TRACK,
+      jobKey: `rainbow-score:v1:${RAINBOW_OPENING_TRACK.id}`,
+    },
+  ]
+  for (const brief of briefs) {
     if (ONLY && brief.id !== ONLY) continue
-    const jobKey = rainbowScoreJobKey(brief.id)
+    const jobKey = brief.jobKey
     const prior = priorJob(jobs, jobKey)
     if (prior) {
       skipped++

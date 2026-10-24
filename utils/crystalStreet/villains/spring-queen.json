@@ -1,0 +1,583 @@
+[
+  {
+    "id": "spring-queen",
+    "name": "Rosalind \"Roz\" Vance",
+    "epithet": "The Spring Queen",
+    "inspiration": {
+      "original": "Carrie White",
+      "film": "Carrie",
+      "year": 1976,
+      "kind": "bend",
+      "oldScript": "Carrie and Prom Night made the outcast girl's body and sexuality monstrous, and in the genre the queer girl dies.",
+      "newLens": "Two girls whose love was erased by a cruel prank. Roz's menace is grief at the town that wrote her out, and her Best ending is a last dance: release, not revenge."
+    },
+    "tags": ["paranormal", "dream"],
+    "palette": ["#9fe2bf", "#3b2a5c", "#f4efe1"],
+    "sigil": "corsage",
+    "logline": "Every couple in Glimmer Falls is dreaming of the same 1966 prom, and the girl in the rain-soaked crown will not let anyone leave the floor until she gets her dance.",
+    "backstory": "In May 1966 Rosalind \"Roz\" Vance was voted Spring Queen of Glimmer Falls High: track star, terrible singer, the kind of girl who laughed with her whole face. She was also secretly in love with Delphine Hart, the quiet senior who rode a secondhand Triumph and read poetry in the bleachers. They had a plan. When the band struck up the queen's dance, Roz would walk past the Spring King and ask Delphine instead, in front of everyone. Three boys found the letter Roz wrote about it. They forged a note in Delphine's handwriting, Meet me on the gym roof before the crowning, look at the stars, and when Roz climbed up they took the ladder away so she would miss her big moment. Then the spring storm came. Roz tried to climb down the drainpipe in her gown. The school called it a terrible accident involving a silly girl who went where she should not. The boys were never named. The yearbook printed her photo beside the Spring King, and Delphine was not allowed at the funeral. Twenty years later the Heartstone has woken Roz in her crown of wilted gardenias, still waiting for the dance the whole town pretended was never going to happen.",
+    "centralIssue": {
+      "title": "Love that was erased",
+      "summary": "Roz did not die because she loved a girl. She died because three boys thought that love was a joke, and then the whole town buried the truth with her. Her rage is real, but it is grief with nowhere to go. Uncover what the yearbook hid, who took the ladder and what song she meant to dance to, and give Roz and Delphine the last dance they were promised."
+    },
+    "poster": "A teenage girl ghost in a rain-soaked mint 1966 prom gown and a crown of wilted gardenias standing on the roof of a high school gym in a lightning storm, below her a suburban street of couples slow-dancing in their pajamas, paper moons drifting up into the clouds",
+    "portrait": "Close portrait of a 1960s prom queen ghost, dark curls plastered by rain, freckles, a crooked tiara woven with brown-edged gardenias, mascara streaked, a fierce and heartbroken smile, lit pale green by a gym exit sign",
+    "taunts": [
+      "Everyone's dancing. Why aren't you?",
+      "Hold on tight. They'll tell you it never happened.",
+      "Twenty years I've been waiting by the punch bowl. You can wait one song.",
+      "They called it an accident. Do I look like an accident?"
+    ],
+    "clues": [
+      {
+        "id": "spring-queen-yearbook",
+        "title": "The photo they never printed",
+        "location": "high-school",
+        "hint": "The yearbook office at Glimmer Falls High keeps every negative since the school opened, even the ones somebody said not to print.",
+        "encounter": {
+          "id": "spring-queen-clue-dead-files",
+          "title": "Do Not Print",
+          "place": "Yearbook office, Glimmer Falls High",
+          "text": "The yearbook office smells like fixer and old pizza. The 1966 Glimmer is open on the light table to a memorial page: Roz Vance in her crown, smiling beside a square-jawed boy, captioned Our Queen and Her King, Forever. Behind you, a gray filing drawer labeled DEAD FILES 1966 slides open by itself, just an inch, the way a door opens when someone wants you to follow.",
+          "art": "A cluttered high school yearbook office with a glowing light table showing a 1966 yearbook memorial page of a prom queen, a gray filing drawer labeled dead files sliding open by itself, a faint wet footprint on the linoleum",
+          "choices": [
+            {
+              "id": "search-the-negatives",
+              "label": "Hold every 1966 negative up to the light table",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "polaroid",
+                "amount": 1
+              },
+              "success": {
+                "text": "Strip forty-one, frame six: two girls in the bleachers sharing one milkshake with two straws, laughing so hard they are blurry. The sleeve is stamped DO NOT PRINT, PER PRINCIPAL. On the back, in looping pen: R + D, Spring '66. The girl with the straw is Roz. The other one, you realize slowly, is Ms. Hart from the library.",
+                "art": "A film negative held up to a glowing light table showing two 1960s teenage girls laughing in gym bleachers sharing a milkshake, a sleeve with a red restricted stamp beside it",
+                "effects": {
+                  "clues": ["spring-queen-yearbook"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The negatives slide out of your hands like wet leaves. Every frame you pick up shows the same thing: an empty gym roof in the rain. When you look at the memorial page again, the Spring King's face has been scratched out, and the caption now reads, in dripping ink, NOT HIM.",
+                "art": "Scattered film negatives on a yearbook office floor all showing an empty gym roof in rain, a yearbook page with a boy's face scratched out and a fresh angry ink scrawl",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "flags": ["spring-not-him"]
+                }
+              }
+            },
+            {
+              "id": "ask-the-editor",
+              "label": "Ask the yearbook editor what the dead files are for",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 7,
+              "success": {
+                "text": "Wendy Ostrowski, senior editor and permanent resident of this room, pushes up her glasses. \"Stuff the principal killed. Smoking, protest signs, two boys holding hands at the '71 picnic.\" She digs out a 1966 sleeve without looking. \"This one gets me. They printed her with the king. Look who she actually wanted to be photographed with.\"",
+                "art": "A bespectacled teen yearbook editor in a cardigan covered in buttons handing a negative sleeve to another teenager across a cluttered desk, an X-Acto knife and rubber cement nearby",
+                "effects": {
+                  "clues": ["spring-queen-yearbook"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Wendy is on deadline and throws you out with the words \"I have forty senior quotes to censor.\" On the way out the trophy case fogs over from inside, and a finger writes on the glass in neat cursive: ask about the roof.",
+                "art": "A high school trophy case fogging over from the inside, a ghostly finger writing in cursive on the glass, a dusty 1966 spring queen tiara on the top shelf",
+                "effects": {
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "spring-queen-ladder",
+        "title": "The man who took the ladder",
+        "location": "gym",
+        "hint": "The owner of Pump Iron Gym went to Glimmer Falls High in 1966. He lifts every morning like he is trying to put something down.",
+        "encounter": {
+          "id": "spring-queen-clue-bench-press",
+          "title": "Spot Me",
+          "place": "Weight room, Pump Iron Gym and Aerobics",
+          "text": "Rick Saunders owns Pump Iron, and at six a.m. he is always on the same bench, pushing more weight than a man of thirty-eight should. A dried gardenia hangs from the mirror in his office, brown as a paper bag. When the high school gym next door rattles in the wind, he flinches, every time, like someone dropped a barbell on his heart.",
+          "art": "A broad, graying man in a 1980s tank top bench-pressing in an empty gym at dawn, mirrors on every wall, a dried brown gardenia hanging from an office mirror in the background",
+          "choices": [
+            {
+              "id": "spot-him",
+              "label": "Spot his set and talk while he lifts",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "companion": "moose-kowalski",
+                "amount": 1
+              },
+              "success": {
+                "text": "On rep eight, with the bar shaking over his chest, he says it to the ceiling. \"There were three of us. Me, Dale, Kenny. We took the ladder. We thought she'd miss the crowning and cry and that would be the funniest thing in the world.\" He racks the bar and does not get up for a long time. \"It rained. Nobody ever asked me what happened. I'd have told them.\"",
+                "art": "A teenager spotting a barbell over a weeping middle-aged man on a weight bench, morning light through gym windows, chalk dust in the air",
+                "effects": {
+                  "clues": ["spring-queen-ladder"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The bar is heavier than it looks. It sags, he grunts, you both haul it up together, and the moment is gone. \"Get out of my gym, kid.\" As you leave, every mirror in the room steams over and shows a girl in a mint gown standing behind him, hand on his shoulder, very still.",
+                "art": "Steamed gym mirrors each showing a ghostly prom queen standing behind a man on a weight bench, a teenager backing out of the room",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "show-him-the-flower",
+              "label": "Take the dried gardenia off his mirror and ask whose it was",
+              "intent": "reckless",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "flag": "spring-not-him",
+                "amount": 1
+              },
+              "success": {
+                "text": "He snatches for it and stops halfway. \"Kenny dared me to take it off her wrist when they carried her inside. I've kept it twenty years so I'd never get to forget.\" He writes three names on a gym towel with a marker: Dale Hollister, Kenny Albright, Rick Saunders. \"Tell her I'm sorry. Tell Delphine first.\"",
+                "art": "A middle-aged man in a gym office writing three names on a white towel with a marker, a teenager holding a dried brown gardenia corsage, harsh fluorescent light",
+                "effects": {
+                  "clues": ["spring-queen-ladder"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The flower crumbles to brown dust in your fingers. Rick goes white, then red, and bellows you out the door. Behind you, every treadmill in the gym starts up at once, running at full speed with nobody on them, a sound like rain on a roof.",
+                "art": "A row of empty treadmills running at full speed in a dim gym, brown flower petals scattered on the floor, a teenager fleeing through a glass door",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "spring-queen-dedication",
+        "title": "The song she never got",
+        "location": "kglm-radio",
+        "hint": "KGLM broadcast the 1966 Spring Fling live from the gym. Radio stations never throw out their request cards.",
+        "encounter": {
+          "id": "spring-queen-clue-request-card",
+          "title": "Requests and Dedications",
+          "place": "The record library, KGLM 103.3",
+          "text": "The KGLM record library is a basement of shelves sagging with forty-fives, and a filing cabinet of request cards going back to 1958. Upstairs the overnight show is live. The ON AIR light flickers, and for one second every speaker in the building plays a girl's voice, laughing, saying \"Okay, Del, here goes,\" and then nothing but static.",
+          "art": "A radio station basement packed with shelves of vinyl singles and a wooden card catalog of handwritten request cards, a red on air light flickering, faint static shimmering in the air",
+          "choices": [
+            {
+              "id": "dig-the-cards",
+              "label": "Go through every request card from May 1966",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
+              "success": {
+                "text": "The card is pink, the pen pressed hard. PLEASE PLAY: Hold Me Till the Morning, The Starlettes. FOR THE QUEEN'S DANCE. Dedicated to D.H. from R.V. Tonight I'm asking her. Paper-clipped to the back, a note from the 1966 DJ: Not played, per the principal. The forty-five is still on the shelf beside it, never opened.",
+                "art": "A pink 1966 radio request card in a teenager's hand with a sealed vinyl single in a paper sleeve, a basement record library around them",
+                "effects": {
+                  "clues": ["spring-queen-dedication"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The drawer jams, then flies open and throws cards into the air like a ticker-tape parade. They fall slowly, too slowly, and every one you catch says the same thing: NOT PLAYED. Somewhere upstairs a record starts, skips and starts again.",
+                "art": "Hundreds of handwritten request cards floating slowly through a radio station basement, a teenager catching them, each card stamped in red",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "paranormal"
+                }
+              }
+            },
+            {
+              "id": "put-it-on-the-air",
+              "label": "Ask the overnight DJ to put out a call to anyone at the 1966 Spring Fling",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "Mix leans into the mic. \"If you were at the Spring Fling in '66, the line is open.\" At 2:14 a.m. an old man calls in: Smokey Lamarr, who spun records that night. \"She came to the booth with a card. Wanted one song for the queen's dance. They wouldn't let me play it.\" His voice cracks. \"Card's still in the cabinet, second drawer. I put it back myself.\"",
+                "art": "A young DJ in headphones at a glowing 1980s radio console taking a call at 2 a.m., a teenager beside him reading a pink request card, the phone line light blinking",
+                "effects": {
+                  "clues": ["spring-queen-dedication"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The phone lines light up, all six at once, and every caller is just rain. Rain and a slow song from very far away. The DJ yanks his headphones off. \"Nope. We're playing hair metal until sunrise, and you're going home.\"",
+                "art": "A radio console with all six phone line lights blinking at once, a startled DJ pulling off headphones, rain streaking the booth window",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "spring-queen-may-i-have-this-dance",
+        "title": "May I Have This Dance?",
+        "place": "Glimmer Falls High gym, Spring Fling 1966, in a dream",
+        "text": "You fall asleep and walk straight into 1966. Paper moons hang from the basketball hoops, a band in white jackets plays the same eight bars over and over, and every couple on the floor is dancing without faces. A girl in a mint gown and a gardenia crown cuts through them toward you, dripping wet. \"Have you seen her?\" Roz asks. \"She said she'd be here.\"",
+        "art": "A dreamlike 1966 high school gym prom with paper moons hung from basketball hoops, faceless couples slow-dancing, a rain-soaked prom queen in a mint gown and gardenia crown reaching toward a teenager in pajamas",
+        "choices": [
+          {
+            "id": "dance-with-roz",
+            "label": "Take her hand and dance while you ask who she means",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Roz dances like a track star, all elbows and enthusiasm, and steps on your feet twice. \"Del rides a motorcycle,\" she tells you, glowing. \"She reads Emily Dickinson in the bleachers like it's a dare.\" The band finally changes songs, and you wake with the smell of gardenias on your hands and the feeling you made a friend.",
+              "art": "A teenager in pajamas slow-dancing with a laughing ghostly prom queen in a mint gown under paper moons, her crown slipping sideways, faceless couples blurring around them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-danced"]
+              }
+            },
+            "failure": {
+              "text": "The moment you take her hand, she grips hard and does not let go. Around and around, eight bars, eight bars, eight bars. You wake at dawn with your feet aching like you danced all night, your socks wet, and a brown gardenia petal stuck to your cheek.",
+              "art": "A teenager waking in bed at dawn with wet socks and a brown flower petal on their cheek, faint footprints in water leading across the bedroom carpet",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "find-the-fire-door",
+            "label": "Slip between the faceless couples to the fire exit",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "You duck under linked arms and past a punch bowl full of rainwater. The fire door bar is ice-cold, and it opens onto your own bedroom ceiling. You jolt awake. On your nightstand someone has left a paper moon, folded small, with one word on it: Del.",
+              "art": "A teenager pushing through a glowing red fire exit door in a dream gym that opens onto their own bedroom, a folded paper moon on a nightstand",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The exit sign reads 1966. So does the next one, and the next. Every door opens back onto the dance floor, and every time, the faceless couples are closer. When you finally wake, you are standing in your front yard in the rain.",
+              "art": "A teenager in pajamas standing barefoot in a suburban front yard in the rain at night, a faint glowing exit sign reading 1966 hovering in the dark",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "spring-queen-rain-on-the-roof",
+        "title": "Rain on the Roof",
+        "place": "The roof of the Glimmer Falls High gym",
+        "text": "You wake up soaked, on the flat tar roof of the high school gym, in a storm that did not exist when you went to bed. Your crew is up here too, blinking in their pajamas. The ladder is gone. At the edge of the roof stands Roz, crown streaming, staring down at the parking lot. \"This is where they left me,\" she says. \"Let's see who comes for you.\"",
+        "art": "Teenagers in soaked pajamas stranded on a flat high school gym roof in a lightning storm, stranded high above the ground, a ghostly prom queen standing at the edge in a streaming gown, a drainpipe leading down into darkness",
+        "choices": [
+          {
+            "id": "climb-the-drainpipe",
+            "label": "Climb down the drainpipe and bring back the ladder",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "The pipe is slick and groaning, but you go hand over hand to the bottom, find the ladder rusting behind the dumpster where three boys threw it twenty years ago, and set it against the wall. Your crew climbs down one by one. Roz watches from the edge. \"That's how it should have gone,\" she says, and fades into the rain.",
+              "art": "A drenched teenager bracing an old rusted ladder against a high school gym wall in a storm while friends climb down, a ghostly prom queen watching from the roof edge",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Halfway down the bracket snaps. You do not fall so much as wake, gasping, on your own lawn, soaked to the bone, with rust on your palms. Your crew wakes on theirs. Nobody wants to talk about the sound the pipe made.",
+              "art": "A gasping teenager waking on a wet suburban lawn at night with rust stains on their palms, a broken drainpipe bracket clutched in one hand",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "signal-for-help",
+            "label": "Signal the street below until somebody comes",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "Three short, three long, three short. A porch light flicks on across the street, then another. Grandma Pearl's station wagon pulls into the lot with Coach Pruitt in the passenger seat and a ladder strapped to the roof. Roz stares at the headlights like she has never seen anything so beautiful. \"Somebody came,\" she whispers.",
+              "art": "A teenager on a stormy gym roof flashing a beam of light toward a suburban street, a station wagon with a ladder on top pulling into the parking lot, porch lights blinking on",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You flash and flash. The houses stay dark. The rain gets heavier, and Roz turns to you with an awful, gentle pity. \"Nobody came for me either.\" You wake at sunrise, hoarse from shouting, your flashlight dead in your hand.",
+              "art": "A teenager on a dark gym roof in pouring rain holding up a dying flashlight toward a street of dark houses, a ghostly prom queen beside them with her head bowed",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "ask-about-the-note",
+            "label": "Sit beside her at the edge and ask about the note",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 2
+            },
+            "success": {
+              "text": "Roz pulls a soggy note from her glove. Meet me on the gym roof, look at the stars. \"It was her handwriting. Almost. Del dots her i's with circles because I told her it was cute.\" She laughs and it turns into a sob. \"I knew on the third rung. I came up anyway, just in case.\" The rain softens to a drizzle around you both.",
+              "art": "A teenager and a ghostly prom queen sitting side by side on a rainy gym roof edge, the ghost holding up a soggy forged note, the storm softening around them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-forged-note"]
+              }
+            },
+            "failure": {
+              "text": "\"You want to know about the note?\" Roz turns, and lightning shows you the whole night at once: the laughing boys, the missing ladder, the pipe. You wake with your hands clenched so hard your nails have left little moons in your palms.",
+              "art": "A lightning flash revealing ghostly images of three laughing teenage boys carrying a ladder away from a gym wall, a terrified teen in the foreground",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "spring-queen-couples-skate",
+        "title": "Couples Only",
+        "place": "Crystal Street, two a.m.",
+        "text": "Every radio on Crystal Street switches on at once and plays the same slow song, skipping on the same scratch. Out of every front door come couples in their pajamas and curlers, sound asleep, waltzing down the driveways toward the high school. The Szymanskis. The newlyweds at number 9. Your own parents, eyes closed, dancing better than you have ever seen them dance. Roz sits on the Heartstone like a throne, conducting.",
+        "art": "A suburban cul-de-sac at 2 a.m. with sleepwalking couples in pajamas and curlers slow-dancing down their driveways, radios glowing in every window, a ghostly prom queen seated on a giant purple geode conducting like a bandleader",
+        "choices": [
+          {
+            "id": "cut-in",
+            "label": "Cut in on Roz herself and lead her off the Heartstone",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "spring-danced",
+              "amount": 2
+            },
+            "success": {
+              "text": "You bow, you offer your hand, you dip her so dramatically that Mrs. Szymanski's curlers fall out. Roz shrieks with laughter despite herself. The song skips past its scratch for the first time, the couples stumble awake in the street, and Roz says, \"Not bad. Not her, but not bad.\"",
+              "art": "A teenager dramatically dipping a laughing ghostly prom queen in front of a glowing purple geode, waking couples in pajamas blinking around them in the street",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Roz takes your hand and you are a couple now, too. You waltz down Crystal Street with your eyes closed, unable to stop, all the way to the gym doors. You wake there at dawn, slumped against them, a gardenia pinned to your pajama shirt.",
+              "art": "A teenager asleep slumped against high school gym doors at dawn, a wilted gardenia corsage pinned to their pajama shirt, dew on the steps",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "kill-the-radios",
+            "label": "Run house to house yanking radio plugs",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Kitchen radio, clock radio, a boombox in a bathroom. Your crew splits up and calls each house over channel nine. When the last plug comes out, the street goes silent, and forty couples wake up in the road at once, holding hands, deeply confused, some of them a little bit charmed.",
+              "art": "Teenagers sprinting between suburban houses yanking radio plugs from walls, confused couples in bathrobes waking up holding hands in the middle of the street",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You unplug a radio and it keeps playing. You pull out its batteries and it keeps playing. Behind you, the couples pick up the pace, and a sleepwalking Mr. Szymanski tangoes you into a hedge.",
+              "art": "An unplugged clock radio still glowing and playing on a kitchen counter, a teenager tangled in a hedge while a sleepwalking man in a robe dances away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wake-your-parents",
+            "label": "Stand in front of your parents and wake them by name",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You say their names, then the embarrassing nicknames they use when they think you cannot hear. Your mom opens her eyes mid-twirl and laughs. \"We used to dance like this before you were born.\" Roz goes very quiet on the Heartstone, watching them hold on to each other on purpose.",
+              "art": "A teenager in pajamas facing their sleepwalking parents in the street, the parents opening their eyes mid-dance and laughing, a ghostly prom queen watching wistfully from a glowing geode",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They dance around you like you are a lamppost. Your dad hums the scratched song in your mother's ear, and neither of them hears you at all. You stand alone in the middle of Crystal Street until the radios click off at dawn.",
+              "art": "A lonely teenager standing in the middle of a dim suburban street while sleepwalking couples dance around them as if they were invisible, radios glowing in windows",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "spring-queen-finale",
+      "title": "The Queen's Dance",
+      "place": "Glimmer Falls High gym, Halloween night, and also May 1966",
+      "text": "On Halloween night the gym doors open onto 1966. The storm is inside now, rain falling from the rafters onto paper moons, and every couple in Glimmer Falls is frozen mid-sway on the floor. Roz stands on the stage in her gardenia crown, lightning in her hair, the band behind her playing the same eight bars forever. \"They took my dance,\" she says. \"So nobody leaves the floor. Not tonight. Not ever.\"",
+      "art": "A haunted high school gym transformed into a 1966 prom with rain falling from the rafters, paper moons, hundreds of frozen slow-dancing couples, a furious prom queen ghost on stage with lightning in her hair, a crew of teens in Halloween costumes at the doors",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Force open every door and drag the couples out into the night",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 1
+          },
+          "success": {
+            "text": "You jam the doors with folding chairs and haul frozen couples out two at a time into the cold October air, where they wake gasping. When the last pair is out, the gym storm collapses into a puddle on the floorboards, and Roz is just gone, like a song cut off before the end.",
+            "art": "Teens hauling frozen couples out of a stormy gym into cold October night air, folding chairs jammed in the doors, a ghostly prom queen fading in the rain behind them",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The doors slam back on you, and the couple you were pulling drifts out of your hands into the dance. Your feet start to move on their own. One, two, three. One, two, three. The band plays the eight bars again.",
+            "art": "A teen's feet sliding into a waltz step against their will on a rain-slick gym floor, frozen couples closing in, gym doors slamming shut",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Crown a new Spring Queen and start the coronation without her",
+          "intent": "camp",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "item": "glow-bracelet",
+            "amount": 1
+          },
+          "success": {
+            "text": "You grab the mic, announce a write-in winner and crown the biggest, gruffest dad in the room with a paper moon. The frozen couples cheer on reflex. Roz stares, outraged that anyone would steal her moment, and the spell that holds the floor snaps like a rubber band. She vanishes in a crack of thunder, still yelling.",
+            "art": "A teen at a microphone crowning a startled burly dad in pajamas with a paper moon tiara, couples cheering, a furious prom queen ghost cracking into thunder",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "\"Oh, you want a coronation?\" Roz lifts the crown off her own head and sets it on yours. It is soaking wet and heavy as a stone, and you understand you will be standing in this gym for a very long time.",
+            "art": "A ghostly prom queen placing a dripping gardenia crown on a horrified teenager's head on a rainy gym stage",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Play the song she requested in 1966 and open the doors for Delphine",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "companion": "delphine-hart",
+            "amount": 2
+          },
+          "success": {
+            "text": "You hold up the photo they never printed and Rick's towel of names, and then you drop the needle on the forty-five nobody ever opened. Hold Me Till the Morning, by the Starlettes. The rain stops in midair. The gym doors swing open and Delphine Hart walks in, leather jacket, cardigan, Roz's ring on her finger, crying already. \"I came,\" she says. \"I'm late. I'm so sorry I'm late.\" Roz drops the lightning.",
+            "art": "A middle-aged woman in a leather jacket over a cardigan walking into a rain-frozen 1966 prom gym, raindrops hanging in midair, a prom queen ghost on stage dropping her lightning, a teen lowering a record needle onto a turntable",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The needle skips. The song warps into a moan, and the storm swallows the doorway. You have the truth in your hands, the photo, the names and the song, but the gym is too loud with twenty years of thunder for Roz to hear it.",
+            "art": "A record needle skipping on a warped spinning single, a storm swallowing the gym doorway, a teen holding up a photograph that a raging prom queen ghost cannot see",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Hold Me Till the Morning",
+        "text": "Roz steps down off the stage and crosses the whole floor in front of everyone, exactly the way she planned it in 1966, and asks Delphine Hart to dance. The frozen couples wake up and make room. For three minutes and ten seconds two girls who were never allowed to are the only thing anyone in Glimmer Falls is looking at, and Roz steps on Delphine's feet twice, and they laugh so hard they have to stop. When the song ends, Roz kisses the ring on Delphine's hand, puts her gardenia crown on Delphine's head and goes up through the rafters like a firework, laughing. The rain is gone. The stars are out. That spring the yearbook prints the milkshake photo on its first page, and Ms. Hart chaperones a prom where anyone can ask anyone, and she dances every single song.",
+        "art": "A joyful ghostly prom queen and a middle-aged librarian in a leather jacket slow-dancing alone in the middle of a gym under paper moons, couples in pajamas and Halloween costumes making a circle around them, starlight pouring through the open roof, gardenia petals drifting like confetti"
+      },
+      "good": {
+        "title": "The Floor Is Closed",
+        "text": "The couples of Glimmer Falls wake up in the gym parking lot at dawn holding hands, with no idea why their feet hurt. The storm is over. Roz is gone, or at least quiet. You never find out what song she was waiting for. Some nights, driving past the high school, you could swear there is someone on the roof, looking at the stars, still waiting for a ladder.",
+        "art": "Confused couples in pajamas waking up in a high school parking lot at dawn holding hands, a faint silhouette of a girl in a gown on the gym roof against the sunrise"
+      },
+      "bittersweet": {
+        "title": "A Gardenia in the Rain",
+        "text": "You get the town off the dance floor, but not everyone at once. For weeks a few couples on Crystal Street keep sleepwalking into the road at two a.m., swaying to music only they can hear. Ms. Hart quietly stops wearing the ring and starts wearing it again. Every May, a gardenia appears on the gym roof, and nobody ever admits to putting it there.",
+        "art": "A single gardenia lying on a wet high school gym roof at dawn, a sleepwalking couple swaying in a suburban street in the distance"
+      },
+      "bad": {
+        "title": "Forever 1966",
+        "text": "On November first your friends find you asleep on the gym floor, and you do not wake up for them. Behind your eyelids it is always May 1966, the band always playing the same eight bars, and you are dancing with a girl in a dripping crown who never stops looking at the door. Your crew plays every slow song ever recorded at your bedside, trying to find the one that ends it.",
+        "art": "A teenager asleep on a hospital-style cot surrounded by worried friends with a record player and stacks of singles, a faint dream image above them of a teen slow-dancing with a ghostly prom queen in an empty gym"
+      }
+    }
+  }
+]

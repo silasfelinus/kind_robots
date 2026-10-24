@@ -1,10 +1,11 @@
 // /server/utils/patronBilling.ts
 //
-// Pure Stripe invoice eligibility checks for the $5/month Patron plan.
+// Pure Stripe invoice eligibility checks for the $9/month Patron plan.
 // Do not grant tokens from checkout redirects, subscription status events,
 // zero-dollar invoices or non-recurring invoices: only a paid initial or
 // monthly renewal invoice can earn the 1,000-token entitlement.
 export const PATRON_MONTHLY_TOKENS = 1000
+export const PATRON_MONTHLY_PRICE_CENTS = 900
 
 type StripeSubscriptionReference = string | { id?: string } | null
 
@@ -63,7 +64,7 @@ export function checkoutHasPaidSubscription(session: {
   return session.mode === 'subscription' && session.payment_status === 'paid'
 }
 
-export function isFiveDollarMonthlyPatronPrice(price: {
+export function isNineDollarMonthlyPatronPrice(price: {
   active?: boolean
   currency?: string
   unit_amount?: number | null
@@ -72,7 +73,7 @@ export function isFiveDollarMonthlyPatronPrice(price: {
   return (
     price.active === true &&
     price.currency === 'usd' &&
-    price.unit_amount === 500 &&
+    price.unit_amount === PATRON_MONTHLY_PRICE_CENTS &&
     price.recurring?.interval === 'month' &&
     price.recurring?.interval_count === 1
   )

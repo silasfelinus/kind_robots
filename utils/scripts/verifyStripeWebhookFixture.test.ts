@@ -47,6 +47,7 @@
 // carries the identical constraint (it imports server/utils/mana.ts, which
 // also imports prisma.ts) for the same reason.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import Stripe from 'stripe'
 
 import {
@@ -55,8 +56,9 @@ import {
 } from '../../server/api/stripe/webhook.post.js'
 import {
   PATRON_MONTHLY_TOKENS,
+  PATRON_MONTHLY_PRICE_CENTS,
   checkoutHasPaidSubscription,
-  isFiveDollarMonthlyPatronPrice,
+  isNineDollarMonthlyPatronPrice,
   paidPatronInvoiceSubscriptionId,
   patronPeriodEnd,
   stripeInvoiceSubscriptionId,
@@ -278,6 +280,7 @@ console.log(
 // TOKENS. Modern Stripe invoices nest subscription under parent; old snapshots
 // still carry it at the top level.
 assert.equal(PATRON_MONTHLY_TOKENS, 1000)
+assert.equal(PATRON_MONTHLY_PRICE_CENTS, 900)
 assert.equal(
   stripeInvoiceSubscriptionId({
     status: 'open',
@@ -356,10 +359,10 @@ assert.equal(
   false,
 )
 assert.equal(
-  isFiveDollarMonthlyPatronPrice({
+  isNineDollarMonthlyPatronPrice({
     active: true,
     currency: 'usd',
-    unit_amount: 500,
+    unit_amount: 900,
     recurring: { interval: 'month', interval_count: 1 },
   }),
   true,
@@ -368,7 +371,7 @@ for (const wrong of [
   {
     active: true,
     currency: 'usd',
-    unit_amount: 999,
+    unit_amount: 500,
     recurring: { interval: 'month', interval_count: 1 },
   },
   {
@@ -391,10 +394,10 @@ for (const wrong of [
   },
   { active: true, currency: 'usd', unit_amount: 500, recurring: null },
 ]) {
-  assert.equal(isFiveDollarMonthlyPatronPrice(wrong), false)
+  assert.equal(isNineDollarMonthlyPatronPrice(wrong), false)
 }
 console.log(
-  '✅ Paid Patron invoice, checkout and $5 monthly price guards passed',
+  '✅ Paid Patron invoice, checkout and $9 monthly price guards passed',
 )
 
 // --- Cancellation at the paid-through date -------------------------------
@@ -428,6 +431,26 @@ assert.equal(
 assert.equal(patronPeriodEnd({ current_period_end: -1 }, 'price_patron'), null)
 console.log(
   '✅ Cancellation preserves paid-through dates across Stripe API versions',
+)
+
+// The token notice is sent only after the one-time invoice ledger grant
+// commits. The official receipt remains in Stripe; duplicate event delivery
+// must not generate another token confirmation email.
+const webhookSource = readFileSync(
+  new URL('../../server/api/stripe/webhook.post.ts', import.meta.url),
+  'utf8',
+)
+const receiptSource = readFileSync(
+  new URL('../../server/utils/email.ts', import.meta.url),
+  'utf8',
+)
+assert.match(webhookSource, /const newGrant = await prisma\.\$transaction/)
+assert.match(webhookSource, /if \(newGrant && user\.email\)/)
+assert.match(webhookSource, /if \(existing\) return false/)
+assert.match(receiptSource, /Your 1,000 Patron tokens are ready/)
+assert.match(receiptSource, /return sendTransactionalEmail\(/)
+console.log(
+  '✅ Patron token confirmation triggers only on new committed grants',
 )
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

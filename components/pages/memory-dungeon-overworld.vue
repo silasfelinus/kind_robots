@@ -163,8 +163,16 @@
                     <span
                       class="md-card-back flex items-center justify-center bg-[#263951] text-[clamp(14px,2vw,28px)] text-[#e4cf9c]"
                       aria-hidden="true"
-                      >✥</span
                     >
+                      ✥
+                      <img
+                        :src="DEFAULT_BRIAR_CARD_BACK"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        alt=""
+                        draggable="false"
+                        @error="hideMissingMemoryCardBack"
+                      />
+                    </span>
                     <img
                       class="md-card-front h-full w-full bg-[#162733]"
                       :src="world.mapCardAt(tile.key)?.image"
@@ -177,10 +185,18 @@
                   v-else-if="world.state.revealed.includes(tile.key)"
                   type="button"
                   class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
-                  :class="
-                    world.state.player === tile.key ? 'bg-yellow-200/10' : ''
-                  "
-                  :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}`"
+                  :class="{
+                    'bg-cyan-200/45 ring-[3px] ring-inset ring-cyan-50/95 shadow-[inset_0_0_16px_#e0fbff]':
+                      progressFor(tile.key) === 'unvisited',
+                    'bg-amber-300/50 ring-[3px] ring-inset ring-amber-100/95 shadow-[inset_0_0_18px_#fef08a]':
+                      progressFor(tile.key) === 'unfinished',
+                    'bg-emerald-950/15 ring-2 ring-inset ring-emerald-100/85':
+                      progressFor(tile.key) === 'complete',
+                    'outline outline-2 outline-[#fff0a9]':
+                      world.state.player === tile.key,
+                  }"
+                  :data-progress="progressFor(tile.key)"
+                  :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}; ${progressLabel(tile.key)}`"
                   @click="world.walk(tile.key)"
                 >
                   <span
@@ -190,6 +206,24 @@
                   >
                     {{ siteSymbol(sites[tile.key]?.kind) }}
                   </span>
+                  <span
+                    class="absolute right-0 top-0 z-20 rounded-bl bg-[#142521]/85 px-0.5 text-[clamp(10px,1.3vw,14px)] font-black leading-tight shadow"
+                    :class="
+                      progressFor(tile.key) === 'complete'
+                        ? 'text-emerald-200'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? 'text-amber-200'
+                          : 'text-sky-200'
+                    "
+                    aria-hidden="true"
+                    >{{
+                      progressFor(tile.key) === 'complete'
+                        ? '✓'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? '!'
+                          : '○'
+                    }}</span
+                  >
                   <span
                     v-if="world.state.player === tile.key"
                     class="absolute bottom-0.5 left-1/2 z-20 -translate-x-1/2 rounded-full bg-[#f3d177] px-1 text-[clamp(10px,1.5vw,18px)] leading-tight text-[#1b2c22] shadow"
@@ -228,7 +262,7 @@
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border border-[#a99877]/20 bg-[#202935]/[0.98]"
+                  class="h-full w-full border border-[#55677b]/60 bg-[#0b1521]/[0.99] shadow-[inset_0_0_16px_#071017]"
                   aria-hidden="true"
                 >
                   <span
@@ -241,8 +275,8 @@
             <div
               class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
             >
-              {{ world.state.revealed.length }}/60 paired squares · 4
-              cross-region seals
+              {{ completedCount }} cleared ·
+              {{ world.state.revealed.length }}/60 revealed
             </div>
           </div>
         </div>
@@ -259,6 +293,11 @@
               >Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span
             >
             <span v-else>Explore the map</span>
+            <span v-if="!world.mapMatching" class="ml-auto whitespace-nowrap">
+              <span class="text-sky-800">○ Unvisited</span>
+              <span class="text-amber-800">! Unfinished</span>
+              <span class="text-emerald-800">✓ Clear</span>
+            </span>
           </div>
           <button
             v-if="world.mapMatching && !world.state.mapCards.length"
@@ -297,6 +336,13 @@
                 alt="Enlarged picture from the selected memory card"
                 draggable="false"
               />
+              <img
+                v-else-if="world.inspectedSigil"
+                class="h-full w-full bg-[#162733] object-contain"
+                :src="crossMapImage(world.inspectedSigil)"
+                alt="Enlarged illustration of the inspected regional seal"
+                draggable="false"
+              />
               <div
                 v-else-if="!world.mapMatching"
                 class="h-full w-full bg-cover"
@@ -306,10 +352,19 @@
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
-                {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
+                {{
+                  world.mapMatching
+                    ? 'Memory image'
+                    : world.inspectedSigil
+                      ? 'Paired regional sigil'
+                      : 'Map detail'
+                }}
               </span>
             </div>
-            <div class="md-scene-copy">
+            <div
+              class="md-scene-copy kr-scroll"
+              data-testid="memory-world-choice-column"
+            >
               <p
                 class="text-xs font-black uppercase tracking-widest text-[#795a32]"
               >
@@ -325,11 +380,28 @@
                 {{
                   world.mapMatching
                     ? 'The Whispering Fog'
-                    : (world.selectedSite?.name ?? 'The Crooked Trail')
+                    : (world.activeScene?.title ??
+                      world.selectedSite?.name ??
+                      'The Crooked Trail')
                 }}
               </h3>
               <p
                 class="md-scene-status text-sm leading-snug sm:text-base"
+                role="status"
+              >
+                {{
+                  world.mapMatching
+                    ? world.state.status
+                    : world.currentSceneText || world.state.status
+                }}
+              </p>
+              <p
+                v-if="
+                  !world.mapMatching &&
+                  world.currentSceneText &&
+                  world.currentSceneText !== world.state.status
+                "
+                class="text-xs font-semibold text-[#805023]"
                 role="status"
               >
                 {{ world.state.status }}
@@ -340,6 +412,161 @@
               >
                 Find the matching picture to reveal two squares.
               </p>
+              <div
+                v-if="
+                  !world.mapMatching &&
+                  (world.selectedSite || world.activeScene)
+                "
+                class="md-encounter-actions mt-2 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
+              >
+                <template
+                  v-if="
+                    world.activeScene &&
+                    !world.state.sceneChoices[world.activeSiteKey]
+                  "
+                >
+                  <button
+                    v-for="choice in world.activeScene.choices"
+                    :key="choice.id"
+                    type="button"
+                    class="md-btn"
+                    :disabled="!canChooseBriarScene(choice, world.state)"
+                    @click="world.chooseScene(choice.id)"
+                  >
+                    {{ choice.label }}
+                  </button>
+                </template>
+                <span
+                  v-else-if="world.activeScene"
+                  class="text-xs font-bold text-emerald-900"
+                  >✓ Story decision remembered</span
+                >
+                <button
+                  v-if="world.selectedSite?.kind === 'merchant'"
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.state.wildflowers < 1"
+                  @click="world.buyLantern()"
+                >
+                  Buy Lantern (1 🌼)
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'chest' &&
+                    !world.state.chestClaims.includes(world.state.player)
+                  "
+                  type="button"
+                  class="md-btn"
+                  @click="world.claimChest()"
+                >
+                  Open chest
+                </button>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'chest' &&
+                    world.state.chestClaims.includes(world.state.player)
+                  "
+                  class="text-xs font-bold"
+                  >✓ Chest claimed</span
+                >
+                <button
+                  v-if="world.selectedSite?.kind === 'dungeon'"
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.loading"
+                  @click="world.startEncounter('dungeon')"
+                >
+                  {{
+                    world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault'
+                  }}
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'enemy' &&
+                    !world.state.completedEncounters.includes(
+                      world.state.player,
+                    )
+                  "
+                  type="button"
+                  class="md-btn"
+                  :disabled="world.loading"
+                  @click="
+                    world.startEncounter(
+                      world.state.player === '5,5' ? 'sprite' : 'patrol',
+                    )
+                  "
+                >
+                  {{ world.loading ? 'Loading…' : 'Accept memory duel' }}
+                </button>
+                <button
+                  v-if="
+                    world.selectedSite?.kind === 'gate' &&
+                    world.hasChime &&
+                    !world.state.gateOpened
+                  "
+                  type="button"
+                  class="md-btn"
+                  @click="world.openGate()"
+                >
+                  Ring Bramble Chime
+                </button>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'gate' &&
+                    world.state.gateOpened
+                  "
+                  class="text-xs font-bold"
+                  >✓ Briar Camp cleared</span
+                >
+                <template
+                  v-if="
+                    world.selectedSite?.kind === 'puzzle' &&
+                    !world.state.puzzleSolved
+                  "
+                >
+                  <button
+                    type="button"
+                    class="md-btn"
+                    @click="world.enterRune('leaf')"
+                  >
+                    🍃 Leaf
+                  </button>
+                  <button
+                    type="button"
+                    class="md-btn"
+                    @click="world.enterRune('sun')"
+                  >
+                    ☀️ Sun
+                  </button>
+                  <span class="w-full text-xs"
+                    >{{ world.runeInput.length }}/3 runes</span
+                  >
+                </template>
+                <span
+                  v-if="
+                    world.selectedSite?.kind === 'puzzle' &&
+                    world.state.puzzleSolved
+                  "
+                  class="text-xs font-bold"
+                  >✓ Stones solved</span
+                >
+              </div>
+              <details
+                v-if="recoveredPhotos.length"
+                class="mt-2 rounded-lg border border-[#a68958]/80 bg-[#f8e8cb] px-2 py-1 text-xs"
+              >
+                <summary class="cursor-pointer font-bold">
+                  Earth Chronicle · {{ recoveredPhotos.length }}/2 photographs
+                </summary>
+                <div
+                  v-for="photo in recoveredPhotos"
+                  :key="photo.key"
+                  class="mt-2 border-t border-[#bda47b] pt-2"
+                >
+                  <strong>{{ photo.order }}. {{ photo.title }}</strong>
+                  <p class="mt-1">{{ photo.caption }}</p>
+                </div>
+              </details>
             </div>
           </div>
           <p
@@ -357,115 +584,6 @@
           >
             Retry loading selected gallery
           </button>
-
-          <div
-            v-if="world.selectedSite && !world.mapMatching"
-            class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
-          >
-            <button
-              v-if="world.selectedSite.kind === 'merchant'"
-              type="button"
-              class="md-btn"
-              :disabled="world.state.wildflowers < 1"
-              @click="world.buyLantern()"
-            >
-              Buy Lantern (1 🌼)
-            </button>
-            <button
-              v-if="
-                world.selectedSite.kind === 'chest' &&
-                !world.state.chestClaims.includes(world.state.player)
-              "
-              type="button"
-              class="md-btn"
-              @click="world.claimChest()"
-            >
-              Open chest
-            </button>
-            <span
-              v-if="
-                world.selectedSite.kind === 'chest' &&
-                world.state.chestClaims.includes(world.state.player)
-              "
-              class="text-xs font-bold"
-              >✓ Chest claimed</span
-            >
-            <button
-              v-if="world.selectedSite.kind === 'dungeon'"
-              type="button"
-              class="md-btn"
-              :disabled="world.loading"
-              @click="world.startEncounter('dungeon')"
-            >
-              {{ world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault' }}
-            </button>
-            <button
-              v-if="
-                world.selectedSite.kind === 'enemy' &&
-                !world.state.completedEncounters.includes(world.state.player)
-              "
-              type="button"
-              class="md-btn"
-              :disabled="world.loading"
-              @click="
-                world.startEncounter(
-                  world.state.player === '5,5' ? 'sprite' : 'patrol',
-                )
-              "
-            >
-              {{ world.loading ? 'Loading…' : 'Accept memory duel' }}
-            </button>
-            <button
-              v-if="
-                world.selectedSite.kind === 'gate' &&
-                world.hasChime &&
-                !world.state.gateOpened
-              "
-              type="button"
-              class="md-btn"
-              @click="world.openGate()"
-            >
-              Ring Bramble Chime
-            </button>
-            <span
-              v-if="
-                world.selectedSite.kind === 'gate' && world.state.gateOpened
-              "
-              class="text-xs font-bold"
-              >✓ Briar Camp cleared</span
-            >
-            <template
-              v-if="
-                world.selectedSite.kind === 'puzzle' &&
-                !world.state.puzzleSolved
-              "
-            >
-              <button
-                type="button"
-                class="md-btn"
-                @click="world.enterRune('leaf')"
-              >
-                🍃 Leaf
-              </button>
-              <button
-                type="button"
-                class="md-btn"
-                @click="world.enterRune('sun')"
-              >
-                ☀️ Sun
-              </button>
-              <span class="w-full text-xs"
-                >{{ world.runeInput.length }}/3 runes</span
-              >
-            </template>
-            <span
-              v-if="
-                world.selectedSite.kind === 'puzzle' && world.state.puzzleSolved
-              "
-              class="text-xs font-bold"
-              >✓ Stones solved</span
-            >
-          </div>
 
           <div
             class="md-encounter-inventory mt-auto flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#bda47b] pt-2 text-sm font-semibold"
@@ -553,8 +671,20 @@
               <span
                 class="md-card-back bg-[#29384b] text-3xl text-[#dec28a]"
                 aria-hidden="true"
-                >✦</span
               >
+                ✦
+                <img
+                  :src="
+                    world.state.roomId === 'vault-2'
+                      ? ARCANE_BRIAR_CARD_BACK
+                      : DEFAULT_BRIAR_CARD_BACK
+                  "
+                  class="absolute inset-0 h-full w-full object-cover"
+                  alt=""
+                  draggable="false"
+                  @error="hideMissingMemoryCardBack"
+                />
+              </span>
               <img
                 class="md-card-front"
                 :src="card.image"
@@ -599,18 +729,29 @@ import {
   BRIAR_SITES,
   BRIAR_TILES,
   type BriarSiteKind,
+  briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
+import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
 import {
   BRIAR_CROSS_MAP_KEYS,
   BRIAR_CROSS_MAP_PUZZLES,
   BRIAR_WAVE_SIZES,
 } from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
+import { firstWorldPhotoChronicle } from '~/utils/memoryDungeon/chronicle'
+import {
+  DEFAULT_BRIAR_CARD_BACK,
+  ARCANE_BRIAR_CARD_BACK,
+  hideMissingMemoryCardBack,
+} from '~/utils/memoryDungeonCardArt'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
+const recoveredPhotos = computed(() =>
+  firstWorldPhotoChronicle(world.state.sceneChoices),
+)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =
@@ -633,6 +774,22 @@ const currentSceneStyle = computed(() => {
   }
 })
 const sites = BRIAR_SITES
+const completedCount = computed(
+  () => tiles.filter((tile) => progressFor(tile.key) === 'complete').length,
+)
+function progressFor(key: string) {
+  return briarTileProgress(world.state, key)
+}
+function progressLabel(key: string): string {
+  const progress = progressFor(key)
+  return progress === 'unvisited'
+    ? 'revealed but not visited'
+    : progress === 'unfinished'
+      ? 'visited, unresolved interaction'
+      : progress === 'complete'
+        ? 'fully explored'
+        : 'hidden'
+}
 const settingsOpen = ref(false)
 const roomTitle = computed(() =>
   world.state.roomId === 'vault-1'
@@ -664,6 +821,7 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
     enemy: '⚔️',
     gate: '🌿',
     rune: '🪨',
+    story: '◇',
   }
   return kind ? icons[kind] : ''
 }
@@ -749,16 +907,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
 }
 .md-scene-status {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 .md-scene-alert {
   flex: 0 0 auto;
@@ -773,9 +933,6 @@ onMounted(() => {
   }
 }
 @container md-world (max-height: 500px) {
-  .md-scene-status {
-    -webkit-line-clamp: 3;
-  }
   .md-encounter-actions {
     margin-top: 0.35rem;
   }

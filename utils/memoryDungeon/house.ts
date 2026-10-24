@@ -7,6 +7,7 @@ export type HouseRoomId = `HD-${string}`
 export type HouseKind = 'entry' | 'lore' | 'puzzle' | 'treasure' | 'choice' | 'combat' |
   'companion' | 'shortcut' | 'rest' | 'secret' | 'hazard' | 'guardian' | 'climax' | 'exit'
 export type HouseEnding = 'release' | 'renew' | 'break'
+export type HouseCombatOrigin = 'HD-09' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
 export interface HouseChoice {
   id: string
   label: string
@@ -29,7 +30,7 @@ export interface HouseProgress {
   decisions: Record<string, string>
   ending: HouseEnding | null
   wardenPassed: boolean
-  combatOrigin: 'HD-19' | 'HD-32' | null
+  combatOrigin: HouseCombatOrigin | null
   chimeClaimed: boolean
 }
 
@@ -122,7 +123,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     artPrompt: "Western animated mature Grimm fantasy, a single story scene: Animated fiery hearth guardian with glowing protective sigils telegraphing a fair duel. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-09.webp',
     exits: ["HD-10"],
-    choices: [{"id":"parley","label":"Offer to put the fire out safely","outcome":"The guard lowers its sparks when you demonstrate where the children are sleeping."},{"id":"study","label":"Learn the three-beat warning before moving on","outcome":"You memorize the coal's cooling pattern; a later Warden telegraph becomes less mysterious."}],
+    choices: [{"id":"parley","label":"Offer to put the fire out safely","outcome":"The guard lowers its sparks when you demonstrate where the children are sleeping."},{"id":"study","label":"Learn the three-beat warning before moving on","outcome":"You memorize the coal's cooling pattern; a later Warden telegraph becomes less mysterious."},{"id":"duel","label":"Challenge the Hearth-Guard to a telegraphed matching duel","outcome":"The hearth admits a defender can change their mind after fair combat."}],
   },
   'HD-10': {
     id: 'HD-10',
@@ -252,7 +253,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     artPrompt: "Western animated mature Grimm fantasy, a single story scene: Tall paper-armored bureaucratic collector with glowing marked card-column pattern over its gauntlet. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-22.webp',
     exits: ["HD-23"],
-    choices: [{"id":"challenge","label":"Demand the Collector justify its seizure","outcome":"The Collector produces a rulebook missing the page authorizing possession of a person."},{"id":"feint","label":"Study the visible two-turn attack pattern","outcome":"You identify the safe column. Remembering the tell is better than being lucky."}],
+    choices: [{"id":"challenge","label":"Demand the Collector justify its seizure","outcome":"The Collector produces a rulebook missing the page authorizing possession of a person."},{"id":"feint","label":"Study the visible two-turn attack pattern","outcome":"You identify the safe column. Remembering the tell is better than being lucky."},{"id":"duel","label":"Fight the Collector using the remembered safe columns","outcome":"The Collector yields its stamp rather than claiming the lives it was sent to count."}],
   },
   'HD-23': {
     id: 'HD-23',
@@ -312,7 +313,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     artPrompt: "Western animated mature Grimm fantasy, a single story scene: Two identical armored root guardians guarding mirrored glowing matching cards and each other's shields. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-28.webp',
     exits: ["HD-29"],
-    choices: [{"id":"separate","label":"Ask the guards to move apart before combat","outcome":"Without the false assumption of a single enemy, you spot the symmetry of their defense."},{"id":"cooperate","label":"Suggest they protect the same door together","outcome":"They hesitate, then allow you a route while they revise their shared oath."}],
+    choices: [{"id":"separate","label":"Ask the guards to move apart before combat","outcome":"Without the false assumption of a single enemy, you spot the symmetry of their defense."},{"id":"cooperate","label":"Suggest they protect the same door together","outcome":"They hesitate, then allow you a route while they revise their shared oath."},{"id":"duel","label":"Challenge both guards in a paired-memory contest","outcome":"The guards drop their mirrored defense only after seeing the pairs you actually remembered."}],
   },
   'HD-29': {
     id: 'HD-29',
@@ -476,7 +477,8 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     ending: v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
       ? v.ending : null,
     wardenPassed: v.wardenPassed === true,
-    combatOrigin: v.combatOrigin === 'HD-19' || v.combatOrigin === 'HD-32'
+    combatOrigin: v.combatOrigin === 'HD-09' || v.combatOrigin === 'HD-19' ||
+      v.combatOrigin === 'HD-22' || v.combatOrigin === 'HD-28' || v.combatOrigin === 'HD-32'
       ? v.combatOrigin : null,
     chimeClaimed: v.chimeClaimed === true,
   }

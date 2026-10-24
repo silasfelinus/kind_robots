@@ -25,6 +25,15 @@ import {
 } from '../memoryDungeonStoryAtlas'
 
 import { firstWorldPhotoChronicle } from '../memoryDungeon/chronicle'
+import {
+  HOUSE_ROOMS,
+  HOUSE_ENTRY,
+  HOUSE_EXIT_POINTS,
+  houseExits,
+  houseWitnessEvidence,
+  newHouseProgress,
+  validateHouseRooms,
+} from '../memoryDungeon/house'
 
 import {
   BRIAR_DUNGEON,
@@ -52,6 +61,58 @@ assert.deepEqual(
 )
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
+
+assert.deepEqual(validateHouseRooms(), [], 'All 36 House locations are authored and reachable')
+assert.equal(Object.keys(HOUSE_ROOMS).length, 36)
+assert.deepEqual(HOUSE_ROOMS['HD-35']!.choices.map((choice) => choice.id), [
+  'release', 'renew', 'break',
+])
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-06'))
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-12'))
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-24'))
+const fullHouse = { ...newHouseProgress(), wardenPassed: true, ending: 'release' as const }
+const reachedHouse = new Set([HOUSE_ENTRY])
+const houseQueue: string[] = [HOUSE_ENTRY]
+while (houseQueue.length) {
+  const current = houseQueue.shift()!
+  const progress = { ...fullHouse, current: current as typeof HOUSE_ENTRY }
+  for (const next of houseExits(current as typeof HOUSE_ENTRY, progress)) {
+    if (!reachedHouse.has(next)) { reachedHouse.add(next); houseQueue.push(next) }
+  }
+}
+assert.equal(reachedHouse.size, 36, 'All rooms are reachable from the porch')
+assert.deepEqual(
+  houseExits('HD-01', newHouseProgress()).sort(),
+  ['HD-02', 'HD-07'],
+  'Opening exploration genuinely forks rather than following a linear room list',
+)
+assert.ok(!houseExits('HD-32', { ...newHouseProgress(), current: 'HD-32' }).includes('HD-33'))
+assert.ok(houseExits('HD-32', { ...newHouseProgress(), current: 'HD-32', wardenPassed: true }).includes('HD-33'))
+assert.ok(!houseExits('HD-35', { ...newHouseProgress(), current: 'HD-35' }).includes('HD-36'))
+assert.ok(houseExits('HD-35', { ...newHouseProgress(), current: 'HD-35', ending: 'renew' }).includes('HD-36'))
+assert.equal(houseWitnessEvidence(newHouseProgress(), {}), false)
+assert.equal(houseWitnessEvidence(newHouseProgress(), { '4,6': 'testify' }), true)
+assert.equal(houseWitnessEvidence({ ...newHouseProgress(), decisions: { 'HD-17': 'read' } }, {}), true)
+const houseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-18',
+    visited: ['HD-01', 'HD-18'],
+    decisions: { 'HD-03': 'route', 'HD-04': 'share' },
+    ending: 'release',
+  },
+})
+assert.equal(houseSave.room, 'house')
+assert.equal(houseSave.house?.current, 'HD-18')
+assert.equal(houseSave.house?.decisions['HD-03'], 'route')
+assert.equal(houseSave.house?.ending, 'release')
+assert.equal(houseSave.house?.chimeClaimed, false, 'Ending choice does not grant unlimited rewards')
+for (const id of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32']) {
+  const source = HOUSE_ROOMS[id]!
+  assert.ok(source.choices.some((choice) => ['duel', 'match', 'fight'].includes(choice.id)))
+}
 
 assert.deepEqual(firstWorldPhotoChronicle({}), [])
 assert.deepEqual(
@@ -977,6 +1038,18 @@ const consoleStage = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
+
+const houseScreen = readFileSync('components/memory-dungeon/house-stage.vue', 'utf8')
+assert.match(consoleStage, /world\\.state\\.room === 'house'/)
+assert.match(houseScreen, /data-testid="memory-house-console"/)
+assert.match(houseScreen, /grid-cols-6 grid-rows-6/)
+assert.match(houseScreen, /world\\.houseMove\\(item\\.id\\)/)
+assert.match(houseScreen, /world\\.chooseHouse\\(choice\\.id\\)/)
+assert.match(houseScreen, /memory-house-choice-column/)
+assert.match(houseScreen, /artPath/, 'Delivered ArtJob images are wired into the room stage')
+assert.match(worldStoreSource, /house\\.decisions\\[house\\.current\\] = id/)
+assert.match(worldStoreSource, /house\\.chimeClaimed = true/)
+assert.match(worldStoreSource, /finishHouseCombat\\(houseOrigin\\)/)
 const generatedBacks = readFileSync('utils/memoryDungeonCardArt.ts', 'utf8')
 assert.ok(
   generatedBacks.includes(

@@ -46,6 +46,7 @@ import {
   houseRoom,
   houseWitnessEvidence,
   newHouseProgress,
+  type HouseCombatOrigin,
 } from '~/utils/memoryDungeon/house'
 import {
   BRIAR_REVEAL_WAVES,
@@ -654,11 +655,18 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (!house || !canChooseHouse(id)) return
     const choice = HOUSE_ROOMS[house.current]?.choices.find((item) => item.id === id)
     if (!choice) return
-    if ((house.current === 'HD-32' && id === 'fight') ||
-        (house.current === 'HD-19' && id === 'match')) {
-      house.combatOrigin = house.current as 'HD-19' | 'HD-32'
+    if (
+      (house.current === 'HD-32' && id === 'fight') ||
+      (house.current === 'HD-19' && id === 'match') ||
+      (['HD-09', 'HD-22', 'HD-28'].includes(house.current) && id === 'duel')
+    ) {
+      house.combatOrigin = house.current as HouseCombatOrigin
       persist()
-      await beginRoom(id === 'fight' ? 'vault-2' : 'vault-1')
+      const combatRoom =
+        house.current === 'HD-32' ? 'vault-2' :
+        house.current === 'HD-19' ? 'vault-1' :
+        house.current === 'HD-09' ? 'sprite' : 'patrol'
+      await beginRoom(combatRoom)
       if (state.value.room !== 'memory') {
         house.combatOrigin = null
         persist()
@@ -694,10 +702,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persist()
   }
 
-  function finishHouseCombat(origin: 'HD-19' | 'HD-32'): void {
+  function finishHouseCombat(origin: HouseCombatOrigin): void {
     const house = state.value.house
     if (!house) return
-    house.decisions[origin] = origin === 'HD-32' ? 'fight' : 'match'
+    house.decisions[origin] = origin === 'HD-32' ? 'fight' : origin === 'HD-19' ? 'match' : 'duel'
     if (origin === 'HD-32') house.wardenPassed = true
     house.combatOrigin = null
     state.value.room = 'house'
@@ -710,9 +718,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     combatShown.value = []
     combatPick.value = null
     combatNote.value = ''
-    state.value.status = origin === 'HD-32'
-      ? 'The Warden yields to remembered pairs, not to ownership of anyone else's past.'
-      : 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
+    state.value.status =
+      origin === 'HD-32'
+        ? 'The Warden yields to remembered pairs, not to ownership of anyone else\'s past.'
+        : origin === 'HD-19'
+          ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
+          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
     persist()
   }
 
@@ -960,6 +971,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
+    const houseOrigin = state.value.house?.combatOrigin
+    if (
+      houseOrigin &&
+      ((houseOrigin === 'HD-19' && room === 'vault-1') ||
+        (houseOrigin === 'HD-32' && room === 'vault-2') ||
+        (['HD-09', 'HD-22', 'HD-28'].includes(houseOrigin) &&
+          (room === 'sprite' || room === 'patrol')))
+    ) {
+      finishHouseCombat(houseOrigin)
+      return
+    }
     if (room === 'vault-1') {
       if (state.value.house?.combatOrigin === 'HD-19') {
         finishHouseCombat('HD-19')

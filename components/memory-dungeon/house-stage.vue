@@ -49,7 +49,7 @@
           <img
             v-if="room && !artFailed"
             :key="room.id"
-            :src="room.imagePath"
+            :src="artPath"
             :alt="`Illustration of ${room.title}`"
             class="h-full w-full object-cover"
             draggable="false"
@@ -117,7 +117,14 @@ const progress = computed(() => world.state.house)
 const room = computed(() => world.activeHouseRoom)
 const available = computed(() => world.houseAvailableDoors)
 const artFailed = ref(false)
-watch(() => room.value?.id, () => { artFailed.value = false })
+const artPath = computed(() => {
+  if (room.value?.id === 'HD-01') return '/images/memory-dungeon/house/foyer.webp'
+  if (room.value?.id === 'HD-32') return '/images/memory-dungeon/house/rootbound-warden.webp'
+  if (room.value?.id === 'HD-35' && progress.value?.ending)
+    return `/images/memory-dungeon/house/ending-${progress.value.ending}.webp`
+  return room.value?.imagePath ?? ''
+})
+watch(artPath, () => { artFailed.value = false })
 const selectedChoice = computed(() => room.value?.choices.find(
   (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
 ) ?? null)

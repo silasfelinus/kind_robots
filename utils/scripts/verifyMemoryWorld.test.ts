@@ -166,6 +166,69 @@ assert.match(
   "Forest court reflects the player's earlier investigation",
 )
 
+const secondBriarExpansion = [
+  '1,4',
+  '1,3',
+  '1,2',
+  '2,3',
+  '3,3',
+  '5,1',
+  '8,2',
+  '6,5',
+  '6,6',
+  '7,7',
+  '7,8',
+  '1,8',
+  '2,8',
+  '4,8',
+  '5,8',
+  '8,3',
+]
+assert.equal(new Set(secondBriarExpansion).size, 16)
+for (const key of secondBriarExpansion) {
+  assert.ok(BRIAR_SCENES[key], `A second-batch scene exists at ${key}`)
+  assert.ok(visited.has(key), `Scene ${key} is reachable from camp`)
+  const scene = BRIAR_SCENES[key]!
+  assert.equal(scene.choices.length, 2, `${key} offers a meaningful fork`)
+  const savedState = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: ['2,4', key],
+    visited: ['2,4', key],
+    player: key,
+    sceneChoices: { [key]: scene.choices[1]!.id },
+  })
+  assert.equal(
+    savedState.sceneChoices[key],
+    scene.choices[1]!.id,
+    `Decision at ${key} survives reload`,
+  )
+  assert.equal(
+    briarTileProgress(savedState, key),
+    'complete',
+    `Resolved story square ${key} receives a completion marker`,
+  )
+}
+assert.equal(
+  Object.keys(BRIAR_SCENES).length,
+  47,
+  'Original 15 encounters plus two sixteen-scene batches are authored',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['1,4']!, { '2,2': 'observe' }),
+  /wolf a raider/,
+  'The red-hooded courier remembers the wolf evidence',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['5,8']!, { '3,3': 'halt' }),
+  /stopped gears/,
+  'The attorney's contract economy responds to the player's earlier mill choice',
+)
+assert.equal(
+  briarSceneOpening(BRIAR_SCENES['5,8']!, {}),
+  BRIAR_SCENES['5,8']!.opening,
+  'Undiscovered earlier choices cannot trigger hidden callbacks',
+)
+
 const sceneCoordinates = Object.keys(BRIAR_SCENES)
 assert.ok(
   sceneCoordinates.length >= 12,

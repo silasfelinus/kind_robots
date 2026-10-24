@@ -355,10 +355,28 @@ watch(
   { deep: true, immediate: true },
 )
 
+async function loadAllArtPreview() {
+  try {
+    const query = new URLSearchParams({
+      range: 'all',
+      limit: '3',
+      maturity: artStore.showMature ? 'all' : 'safe',
+    })
+    const response = await performFetch<{ items: ArtImage[] }>(
+      `/api/art/image/feed?${query.toString()}`,
+    )
+    if (response.success && response.data?.items?.length) {
+      artStore.addOrUpdateArtImages(response.data.items)
+    }
+  } catch {
+    return
+  }
+}
+
 onMounted(async () => {
   isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
   if (props.memoryDeckMode) {
-    await refreshCollectionIndex()
+    await Promise.all([refreshCollectionIndex(), loadAllArtPreview()])
   } else {
     await artStore.initialize({
       fetchRemote: false,

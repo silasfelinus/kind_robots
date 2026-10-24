@@ -1463,9 +1463,9 @@ onMounted(async () => {
   }
 
   await artStore.initialize({
-    fetchRemote: !artStore.hasCachedImages,
+    fetchRemote: false,
     hydrateImages: true,
-    initializeCollections: true,
+    initializeCollections: false,
   })
 
   window.addEventListener('resize', updateBoardBounds)

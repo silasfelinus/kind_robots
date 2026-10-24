@@ -753,7 +753,7 @@ const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(
   worldStoreSource,
-  /inspectedSigil\\.value = key/,
+  /inspectedSigil\.value = key/,
   'Inspecting a reserved sigil activates its individually authored response',
 )
 assert.match(
@@ -763,7 +763,7 @@ assert.match(
 )
 assert.match(
   mapScreen,
-  /world\\.activeSiteKey/,
+  /world\.activeSiteKey/,
   'Decision buttons use the inspected seal instead of the previous map square',
 )
 const deckLoaderSource = readFileSync(

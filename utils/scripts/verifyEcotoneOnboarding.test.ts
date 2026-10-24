@@ -46,7 +46,7 @@ assert.ok(EVENTS.every((event) => event.arrival && event.possibilities))
 assert.ok(
   EVENTS.every(
     (event) =>
-      !/\\b(kit|juniper|cedar|mara|drugs?|meth|cocaine|mdma|stoned|psychedelic|drink|sobriety)\\b/i.test(
+      !/\b(kit|juniper|cedar|mara|drugs?|meth|cocaine|mdma|stoned|psychedelic|drink|sobriety)\b/i.test(
         `${event.blurb} ${event.kind} ${event.arrival} ${event.possibilities}`,
       ),
   ),
@@ -162,7 +162,7 @@ assert.match(board, /stagedChoice.possibilities/)
 assert.match(board, /uploadPortrait/)
 assert.match(board, /game.setPlayerLook/)
 assert.match(board, /max-h-none/)
-assert.match(store, /function setPlayerLook\\(/)
+assert.ok(store.includes('function setPlayerLook('))
 assert.match(board, /:aria-pressed="pickedAvatar === avatar.id"/)
 assert.ok(board.includes('failedAvatarPortraits.push(avatar.id)'))
 assert.ok(

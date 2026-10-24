@@ -902,6 +902,42 @@ const consoleStage = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
+const generatedBacks = readFileSync('utils/memoryDungeonCardArt.ts', 'utf8')
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-default.webp',
+  ),
+)
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-arcane.webp',
+  ),
+)
+assert.match(consoleStage, /DEFAULT_BRIAR_CARD_BACK/)
+assert.match(consoleStage, /ARCANE_BRIAR_CARD_BACK/)
+assert.match(classicScreen, /DEFAULT_BRIAR_CARD_BACK/)
+assert.match(consoleStage, /@error="hideMissingMemoryCardBack"/)
+const choiceColumnStart = consoleStage.indexOf(
+  'data-testid="memory-world-choice-column"',
+)
+const choiceActionsStart = consoleStage.indexOf(
+  'class="md-encounter-actions',
+  choiceColumnStart,
+)
+const mapErrorStart = consoleStage.indexOf(
+  'v-if="world.mapDeckError"',
+  choiceColumnStart,
+)
+assert.ok(
+  choiceColumnStart >= 0 &&
+    choiceActionsStart > choiceColumnStart &&
+    choiceActionsStart < mapErrorStart,
+  'Location decisions belong in the same narrative column as their description',
+)
+assert.ok(consoleStage.includes('overflow-y: auto;'))
+assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-cyan-50'))
+assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-amber-100'))
+
 assert.match(
   consoleStage,
   /data-testid="memory-world-console-stage"/,

@@ -712,6 +712,266 @@
             }
           }
         ]
+      },
+      {
+        "id": "varsity-beast-playing-hurt",
+        "title": "Playing Hurt",
+        "place": "The trainer's room in the Glimmer Falls High field house, 1 a.m.",
+        "text": "A light is on in the field house trainer's room at one in the morning, and through the wired glass you can see something huge sitting on the taping table. It is the Beast, letterman jacket in ribbons, trying to tape its own swollen paw with a roll of athletic tape and its teeth. It keeps missing. A cassette recorder on the counter plays a man's voice on a loop: \"Delaneys play hurt. Delaneys play hurt.\" The ice bath in the corner has frozen solid. The Beast hears you at the door, and its ears go flat.",
+        "art": "A high school athletic trainer's room at night under a single hanging lamp, a hulking wolf in a shredded letterman jacket on a taping table fumbling athletic tape around a swollen paw, a cassette recorder on the counter, an ice bath frosted solid, a teenager peeking in",
+        "choices": [
+          {
+            "id": "tape-the-paw",
+            "label": "Hold out your hand for the tape and wrap the paw properly",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "first-aid",
+              "amount": 2
+            },
+            "success": {
+              "text": "After a long, rumbling minute, the Beast hands you the tape. You wrap the swollen paw the way the school nurse wraps a sprained wrist, snug and careful, and tell it, \"You should sit out a game. That's allowed.\" The Beast looks down at the neat white wrap. Then, very softly, it whines, the sound a kid makes when a grown-up finally says the thing they needed to hear.",
+              "art": "A teenager carefully wrapping white athletic tape around a huge furry wolf paw on a taping table at night, the wolf in a torn letterman jacket watching with soft drooping ears",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-bandaged-paw"]
+              }
+            },
+            "failure": {
+              "text": "You reach for the tape and the Beast snatches its paw back with a snarl. \"WALK IT OFF,\" roars the recorder, or the Beast, or both. It shoulders past you and limps off across the dark practice field, favoring the paw, and you are left holding a roll of tape and shaking.",
+              "art": "A huge limping wolf in a shredded letterman jacket crossing a dark practice field at night, a shaken teenager in a lit field house entrance holding a roll of athletic tape",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "swap-the-tape",
+            "label": "Hit STOP on the recorder and put on something else",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You hit STOP. The voice cuts off mid-word. In the drawer under the counter you find the trainer's relaxation cassette, Sounds of the Pacific Shore, and pop it in. Waves wash through the room. The Beast's shoulders drop an inch, then two. By the time the tide comes in on side A, it has curled up on the taping table with its sore paw on an ice pack, snoring like a sleepy linebacker.",
+              "art": "A huge wolf in a torn letterman jacket curled up asleep on a taping table, its paw resting on an ice pack, a cassette recorder playing on the counter, a teenager tiptoeing away",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You hit STOP and the recorder keeps playing anyway, louder: \"Delaneys play hurt! Delaneys play hurt!\" The Beast surges up off the table, the frozen ice bath cracks like a dropped tray, and you dive behind a stack of tackling dummies while it tears out the back door into the night.",
+              "art": "A teenager diving behind tackling dummies as a huge wolf in a letterman jacket bursts out the back of a trainer's room at night, shards of a cracked ice bath scattering across the tile",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "back-out-slow",
+            "label": "Back out slowly and wedge the door shut with a bench",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You back out one step at a time, without blinking, ease the door shut and wedge a bench under the handle. Inside, the snarling stops, and the Beast goes back to fumbling with the tape. When the janitor unlocks the room at dawn, he finds only a seventeen-year-old asleep on the taping table, his hand wrapped in a huge lopsided ball of tape.",
+              "art": "A janitor at dawn finding a sleeping teenage quarterback on a taping table in a trainer's room, his hand wrapped in a huge lopsided ball of athletic tape, a wooden bench wedged against the entrance",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The bench screeches on the tile. The door bursts open, the Beast barrels past, and you go spinning into a laundry cart full of sweaty towels. You ride the cart across the field house floor straight into the trophy case, which chimes like a xylophone as every trophy wobbles.",
+              "art": "A teenager careening in a laundry cart full of towels across a field house floor toward a glass trophy case at night, a huge wolf in a letterman jacket bounding past",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 1
+      },
+      {
+        "id": "varsity-beast-wolfmania",
+        "title": "Wolfmania",
+        "place": "Sports Hut at Starlight Mall, the Friday-night autograph table",
+        "text": "Word about the wolf has gotten around, and the town loves it. Sports Hut at Starlight Mall is selling WOLF PACK T-shirts as fast as it can print them, the line for Brick Delaney's autograph table snakes past the fountain, and Duke Delaney is out front shaking hands like he's running for mayor. Brick sits behind a stack of glossy photos, sweating through his letterman jacket, signing the same name over and over while the line chants, \"Do the howl! Do the howl!\" Every time they chant, the hand holding his pen sprouts a little more fur. He finds your face in the line, and his eyes say help.",
+        "art": "A crowded 1980s mall sporting goods store, a long line of fans in wolf T-shirts snaking past a fountain, a sweating teenage quarterback in a letterman jacket at an autograph table with fur sprouting on his hand, his beaming father shaking hands nearby",
+        "choices": [
+          {
+            "id": "ask-what-he-likes",
+            "label": "Get to the front of the line and ask him something nobody else is asking",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "When it's your turn you slide your T-shirt across the table and ask, \"What do you actually like? Not football. Anything.\" Brick stares at you. The chant fades in his ears. \"Old movies,\" he says finally, very quietly. \"The ones where people just dance down the street for no reason.\" The fur on his hand settles back into skin. On your shirt he signs, small and careful: Brick. Just Brick.",
+              "art": "A teenage quarterback at a mall autograph table talking quietly with a teenager across the table, his hand ordinary again, a long line of fans blurring behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-asked-brick"]
+              }
+            },
+            "failure": {
+              "text": "You ask what he likes, but Duke leans in over his shoulder before Brick can answer. \"Winning!\" Duke booms. \"Right, son?\" Brick's pen snaps in his fist. He signs your shirt in four claw marks that go clean through the fabric, and the line cheers like it's the best thing they've ever seen.",
+              "art": "A teenage quarterback at a mall autograph table gripping a snapped pen with clawed fingers, his booming father leaning over his shoulder, a crowd of fans cheering",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "start-a-rumor",
+            "label": "Work the line from the back with a rumor that he's moved to the food court",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Lou work the line from the back: \"He moved! Food court! Free photos!\" The rumor runs up the line like a lit fuse, and in a minute the whole crowd stampedes toward the pretzel stand. Brick blinks at the sudden open space in front of his table, grabs his jacket and slips out the service hallway. On his way past, he squeezes your shoulder with a hand that is completely human.",
+              "art": "A crowd stampeding toward a mall food court pretzel stand, a teenage quarterback in a letterman jacket slipping into a service hallway behind an abandoned autograph table, two teenagers grinning",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The rumor gets twisted on its way up the line, and by the time it reaches the front, everyone thinks the wolf is about to appear. The crowd surges forward chanting, the table tips, and Brick bolts into the stockroom. From behind the curtain comes a howl that rattles every rack of WOLF PACK T-shirts in the store.",
+              "art": "A toppled autograph table in a crowded mall sporting goods store, glossy photos scattered, racks of wolf T-shirts rattling as a huge furry shadow looms behind a stockroom curtain",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "conga-line",
+            "label": "Jump up on the table and turn the chant into a conga line",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "You hop up on the autograph table and start a conga. \"One, two, three, KICK!\" The line, which will chant anything, happily follows you in a loop around the fountain, kicking. Brick watches from behind his stack of photos and laughs so hard his eyes water, and when the conga comes back around he gets up and joins the end of it, kicking higher than anybody.",
+              "art": "A teenager leading a kicking conga line of fans in wolf T-shirts around a mall fountain, a laughing teenage quarterback in a letterman jacket joining the end of the line",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You climb onto the table and slip on a stack of glossy photos. You go down in a shower of Brick's smiling face, the line howls with laughter, and the laughter turns back into the chant, louder. Mall security walks you out past Duke, who gives you the look he saves for a fumble.",
+              "art": "A teenager slipping off an autograph table in a shower of glossy photos in a crowded mall store, mall security guards approaching, a big man in a sport coat glaring",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 2
+      },
+      {
+        "id": "varsity-beast-tower-climb",
+        "title": "The Tower Climb",
+        "place": "The Glimmer Falls water tower beside the KGLM booth, the night before the Monster Bowl",
+        "text": "Every year on the night before the big game, the varsity seniors make the freshmen climb the water tower beside the KGLM booth and paint their jersey numbers on the tank to prove they're men. Tonight a dozen freshmen are strung along the ladder in the wind, frozen, while the seniors at the bottom chant \"CLIMB! CLIMB! CLIMB!\" Brick Delaney, team captain, is supposed to be waiting on the catwalk with the paint. Instead a seven-foot wolf in a cracked helmet crouches against the full moon, howling, and the freshman on the top rung can't go up or down.",
+        "art": "A tall water tower beside a small radio station at night under a huge full moon, terrified teenage boys clinging along the ladder, varsity seniors in letterman jackets chanting at the base, a seven-foot wolf in a cracked football helmet crouched on the catwalk howling",
+        "choices": [
+          {
+            "id": "climb-to-him",
+            "label": "Climb past the freshmen to the catwalk and talk to the Beast face to face",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You climb past twelve shaking freshmen, telling each one, \"You're fine, hold on,\" and pull yourself onto the catwalk beside a seven-foot wolf. It turns its huge head toward you. \"You don't have to be up here either,\" you say. The Beast sits down heavily, legs dangling over the town, and lets the kid on the top rung climb down past it. By the time the last freshman reaches the ground, its paws are hands again, holding a paint can he never opened.",
+              "art": "A teenager sitting beside a seven-foot wolf in a cracked football helmet on a water tower catwalk under a full moon, freshmen climbing safely down the ladder below, town lights spread out beneath",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Halfway up, the wind gusts and the whole ladder hums. You freeze between two freshmen, all three of you hugging the same rung while the Beast howls overhead and the seniors chant louder. The fire department gets everyone down at two a.m., and the Gazette runs a photo of you being carried down a ladder.",
+              "art": "A fire truck ladder reaching up a water tower at night, firefighters helping a teenager and two clinging freshmen down, a wolf howling at the full moon from the catwalk above",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "new-tradition",
+            "label": "Call off the climb and tell the seniors there's a new tradition",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You step into the middle of the chanting seniors and yell up the ladder, \"Everybody come down! New tradition: you don't have to prove anything to play!\" Moose plants himself beside you, arms folded, and says, \"Seconded.\" The chant falters. One senior, then three, go to the ladder and start helping freshmen down rung by rung. Up on the catwalk the howling stops, and the wolf watches, ears forward, as the team carries its youngest players down instead of daring them up.",
+              "art": "Varsity seniors in letterman jackets helping freshmen down a water tower ladder at night, a teenager and a big gentle lineman with folded arms at the base, a wolf on the catwalk listening with ears forward",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-new-tradition"]
+              }
+            },
+            "failure": {
+              "text": "The seniors laugh you off. \"Says who?\" The chant starts again, louder, and on the catwalk the Beast throws back its head and howls along until the tank rings like a bell. A freshman starts crying on the ladder, and you have to climb up after him yourself, slow and shaking.",
+              "art": "A teenager climbing a water tower ladder after a crying freshman at night, laughing seniors at the base, a wolf in a cracked helmet howling at the full moon from the catwalk",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-mix",
+            "label": "Pound on the KGLM booth and get Mix to put it on the air",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix takes one look and keys the microphone. \"Attention, parents of the Glimmer Falls Prospectors varsity squad: your sons are currently on the water tower. Repeat, the water tower.\" Within ten minutes a parade of station wagons roars up the access road, headlights blazing, moms in curlers leaning out the windows. The seniors scatter like pigeons. In the confusion the Beast slides down the far side of the tank and away into the dark, still mostly a boy.",
+              "art": "A line of station wagons with blazing headlights roaring up an access road to a water tower at night, mothers in curlers leaning out, seniors scattering, a grinning radio host in a lit booth",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Mix puts it on the air, but the first truck up the access road is Duke Delaney's. He gets out, looks up, sees what is crouched on the catwalk and shouts, \"Son, get down here and act like a man!\" The howl that answers him rattles the whole tower and every station wagon behind him.",
+              "art": "A big man in a sport coat shouting up at a water tower from beside his pickup truck at night, a wolf on the catwalk howling back at the moon, a teenager by the radio booth wincing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ],
+        "act": 3
       }
     ],
     "finale": {
@@ -790,6 +1050,94 @@
           "failure": {
             "text": "The Beast swats the notebook out of your hands, and its pages scatter across the field like confetti. Everything you brought is true, but Brick can't hear it over three thousand people chanting for him to be something else. You need the crowd to go quiet first.",
             "art": "Notebook pages of dance diagrams scattering across a floodlit football field, a teenager reaching after them while a towering wolf roars at a chanting crowd",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Call a time-out, like the first nights, and tell the Beast it can sit this one out",
+          "intent": "clever",
+          "skill": "brains",
+          "target": 7,
+          "bonus": {
+            "flag": "varsity-timeout",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "The first nights of the week taught you that under all that fur the Beast is still a kid who has never once been allowed a break. So you give it one. You grab the referee's whistle, blow it as hard as you can and make a T with your hands at midfield. \"TIME-OUT! Water break!\" Three thousand people go quiet in confusion. The Beast skids to a stop on the twenty, chest heaving, trained to the bone. Then it sits down on the Prospectors' bench and stays there, shrinking, while the officials argue and the clock stops for good.",
+            "art": "A teenager at midfield of a night football stadium making a time-out T with their hands, a whistle in their mouth, a huge wolf in torn shoulder pads sitting on the team bench, a hushed crowd under a full moon",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The whistle shrieks, but the chant is louder, and the Beast barrels past the bench without a glance. You get a yellow flag thrown at your feet and a long, scolding look from the head referee, but the game is not over, and neither are you.",
+            "art": "A huge wolf in a cracked maroon helmet charging past a team bench toward packed stadium bleachers at night, a teenager with a whistle beside a yellow penalty flag on the turf",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Stand up to the chant the way you did all week, and turn the stands around",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "varsity-new-chant",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "All week the town chanted at Brick, and all week you answered back. You climb onto the rail in front of the stands, right in the Beast's path, and shout it the way you have before: \"BE YOURSELF!\" The Beast pulls up short three feet away. Behind you your crew takes it up, then the cheer squad, then whole sections of the bleachers, until three thousand people are shouting the new words instead of the old ones. The Beast drops to all fours, then to its knees, and the fur pours off it like rain until Brick is kneeling on the track, breathing.",
+            "art": "A teenager standing on a stadium railing shouting with raised fists, a huge wolf in torn shoulder pads stopped short on the track, rows of fans in the bleachers on their feet shouting along under floodlights",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You climb onto the rail and shout, but the chant swallows you whole, and the Beast vaults the rail beside you without slowing. You topple backward into the front row's popcorn. Not your finest play, but you are on your feet in a heartbeat, and the game is still on.",
+            "art": "A teenager toppling backward off a stadium railing into a shower of popcorn in the front row, a huge wolf in a cracked helmet vaulting the rail beside them, floodlights blazing",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Block for him like the night before the game, and give his father room to walk out",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "varsity-blocked-for",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before the Monster Bowl, somebody finally stood between Brick and everyone who wanted the wolf. You do it again. You walk out to the fifty with Featherfoot's tap shoes, the notebook and Duke's yearbook and stand between the Beast and three thousand people. \"He's done for tonight,\" you say. The Beast stops. Up in the stands, Duke Delaney sees someone else's kid protecting his son, and it breaks something open. He climbs over the railing, walks onto the field and tears his own page out of the yearbook. \"I was wrong. You're my kid. That's all you ever had to be.\" The Beast sits down on the turf and cries, and with every sob it gets smaller, until a boy in torn pads is crying into his father's jacket.",
+            "art": "A big middle-aged man in a sport coat hugging a crying teenage quarterback in torn shoulder pads at the fifty-yard line under a full moon, a teenager holding old tap shoes beside them, a hushed stadium crowd",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You walk out to midfield with everything you found, but the stands are roaring, Duke is frozen in his seat, and the Beast cannot see past the floodlights to the boy you are trying to reach. It circles you, ears back, waiting for someone else to step out too.",
+            "art": "A teenager standing at midfield holding tap shoes and an old yearbook under blazing floodlights, a huge wolf in a cracked helmet circling them, a big man frozen in the bleachers",
             "effects": {
               "nerve": -2
             }

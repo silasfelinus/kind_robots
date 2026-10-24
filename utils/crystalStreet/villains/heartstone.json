@@ -756,6 +756,279 @@
             }
           }
         ]
+      },
+      {
+        "id": "heartstone-the-dog-knows",
+        "act": 1,
+        "title": "The Dog Knows",
+        "place": "The roundabout, Crystal Street, one a.m.",
+        "text": "Every dog on Crystal Street is howling, and one of them will not come home. Duchess, the Brandts' old golden retriever, sits on the roundabout lawn with her nose pressed to the Heartstone, whining at it the way she whines at the front door at five o'clock, waiting for a car. Violet frost has crept up her paws and is spreading through her fur, and the geode pulses with every whimper. Mr. Brandt stands on his porch in his robe, calling her name, and his voice cracks on it.",
+        "art": "An old golden retriever sitting on a frosty roundabout lawn at night with her nose pressed to a huge glowing purple geode, violet frost creeping through her fur, a man in a robe calling from a lit porch behind her",
+        "choices": [
+          {
+            "id": "sit-with-her",
+            "label": "Sit down on the frosty grass and let her grieve against you",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sit and put your arm around her, and Barnaby, if he is with you, flops down on her other side with a sympathetic groan. Duchess leans in and howls, long and broken, right at the moon, and you let her, because dogs do not swallow anything. The frost slides off her fur like melting sleet, and the Heartstone dims half a shade, as if it has been answered.",
+              "art": "A teenager sitting on frosty grass with an arm around an old golden retriever howling at the full moon, a basset hound leaning on her other side, violet frost melting from her fur, a dimming purple geode behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-let-her-howl"]
+              }
+            },
+            "failure": {
+              "text": "She will not lean on you. She presses harder against the stone, and the frost races over her ears and onto your fingers, cold enough to ache. Mr. Brandt carries her home at dawn, stiff and shivering, and will not meet your eyes.",
+              "art": "An old golden retriever pressed against a blazing purple geode at night, violet frost racing over her ears and up a teenager's outstretched fingers, a man in a robe hurrying across the lawn",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "carry-her-home",
+            "label": "Scoop all seventy pounds of her up and carry her home",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "She is heavy and stubborn, and the frost bites through your sleeves, but you lift her and carry her step by step to the Brandts' porch. Mr. Brandt wraps her in a blanket and wraps you in one too, and over cocoa he tells you his father worked at the quarry. He does not say anything else, but he admits he has never said even that much aloud.",
+              "art": "A teenager carrying a large frosty golden retriever up porch steps at night, a man in a robe holding out a blanket, a warm kitchen glow through the door, a purple geode glimmering on the roundabout behind",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The frost glues her paws to the lawn, and when you pull, she yelps, and the Heartstone flares bright enough to light every window on the street. You stumble back into the hedge with frost up to your elbows, and the geode hums smugly all night.",
+              "art": "A huge purple geode flaring blinding violet on a suburban roundabout at night, a golden retriever frozen to the lawn, a teenager tumbling backward into a hedge with frosted arms, every window lit up",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "follow-her-nose",
+            "label": "Ask what she is waiting for, and look where her nose is pointing",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "She is not sniffing the stone itself. She is sniffing one spot at its base where the facets are oddly smooth, worn the way a doorstep wears, and when you kneel you find fourteen faint scratches in a row, like a tally. Duchess sighs, licks your hand and lets you lead her home.",
+              "art": "A teenager kneeling at the base of a glowing purple geode at night beside a golden retriever, a flashlight revealing a row of faint scratches worn into smooth crystal facets, frost glittering on the grass",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You kneel to look where her nose is pointing, and the hum fills your skull like a dial tone. You come to on the curb at three a.m. with no idea how long you were gone, and Duchess is still there, frostier than before.",
+              "art": "A dazed teenager sitting on a curb at night clutching their head, a frost-covered golden retriever beside a humming purple geode on the roundabout, violet ripples in the air",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-the-sad-part",
+        "act": 2,
+        "title": "The Sad Part",
+        "place": "The Starlight Twin Cinema, the 9:40 show",
+        "text": "Half of Glimmer Falls is at the Starlight Twin for the weepy new drama everybody's mother has seen twice. Right when the music swells and the grandmother on screen says goodbye, a wet sigh comes out of the air vents, and violet goo begins pouring down the walls in slow, glittering sheets. It crawls along the carpet toward every person in the theater who is swallowing a sob. The usher screams first, then everyone, and two hundred people stampede for the doors exactly like the crowd in the old drive-in movie about the blob.",
+        "art": "A crowded 1980s movie theater at night, glittering violet goo pouring from the air vents and sliding down the walls in sheets, a tearful audience scrambling from their seats toward the exits, a sentimental film glowing on the screen",
+        "choices": [
+          {
+            "id": "let-it-out",
+            "label": "Climb on a seat and tell the whole theater it is okay to cry",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Stop running!\" you yell from the seat back. \"It only wants what you won't let out, so let it out!\" After a terrible pause, a big man in a bowling jacket bursts into tears, then the woman beside him, and soon the whole theater is sobbing at a movie about a grandmother. Wherever a tear lands, the goo shrinks back toward the vents like a scolded cat.",
+              "art": "A teenager standing on a theater seat with arms raised, a big man in a bowling jacket weeping openly, a whole audience crying together, violet goo shrinking back up the walls toward the vents",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["heartstone-cried-at-the-movies"]
+              }
+            },
+            "failure": {
+              "text": "Nobody hears you over the stampede, and the goo reaches your seat and coats your sneakers, cold and heavy and soothing. For one moment you feel nothing at all, and it is horrible how nice that is, so you kick free at the exit and run.",
+              "art": "A teenager's sneakers coated in glittering violet goo between empty theater seats, a stampeding crowd at the exits, the teen's face blank and calm in the flicker of the movie screen",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "house-lights",
+            "label": "Get to the projection booth, kill the movie and bring up the house lights",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "You race up to the booth, hit the house lights and kill the feature mid-sob. Without the music squeezing feelings out of everybody, the goo slows, then stalls, glittering under the lights like a spilled milkshake, and the crowd files out into the lobby in an orderly line. Toby films every second of it.",
+              "art": "A brightly lit movie theater with glittering violet goo stalled across the carpet like a spilled milkshake, an audience filing calmly out, a teenager in the projection booth window, a kid with a camcorder filming",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The booth door is sealed with goo, and the movie keeps rolling, louder and sadder. Through the porthole you watch violet sheets cover row after row of seats, and you only escape through the fire exit by crawling through a dumpster of stale popcorn.",
+              "art": "A teenager crawling out of an alley dumpster full of stale popcorn at night, a theater fire exit propped open behind them leaking violet light and glittering goo",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "hold-the-doors",
+            "label": "Hold the lobby doors open and get the little kids out first",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You brace the doors with your back and wave kids through one after another while a toddler who lost a shoe gets scooped up and carried out. The goo reaches the threshold and stops at your sneakers, trembling, as if it is not sure what to make of someone who stayed. The next morning the Glimmer Falls Gazette runs the story on the front page, and the whole town is talking.",
+              "art": "A teenager bracing glass theater doors open with their back as children rush past into the night, violet goo trembling at the threshold by their sneakers, a crowd gathering in the parking lot",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The crowd sweeps you off your feet and out the doors, and you land in the parking lot under a pile of jackets. When you sit up, the goo is pressed against the glass doors, glittering, and every face in the lot is staring at it in silence.",
+              "art": "A crowd of moviegoers standing silent in a theater parking lot at night staring at glittering violet goo pressed against the glass lobby doors, a teenager sitting up under a pile of jackets",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "heartstone-shift-whistle",
+        "act": 3,
+        "title": "The Shift Whistle",
+        "place": "Crystal Street, October 30, midnight",
+        "text": "At midnight on the night before Halloween, a quarry shift whistle that was sold for scrap in 1958 shrieks from the roundabout, and every sleeper in Glimmer Falls sits up in bed. They come out in pajamas and robes, eyes glassy, carrying lunch pails and thermoses they do not own, and walk in a long silent line toward the Heartstone. The geode has split down the middle like a mine entrance, violet light pouring out, and the front of the line is already stepping inside. Somewhere in that line is your own family, and the whistle blows again, calling the shift down.",
+        "art": "A long line of sleepwalking townspeople in pajamas and robes carrying old lunch pails down a suburban street at midnight, filing into a giant purple geode split open like a glowing mine entrance, a steam whistle shrieking above",
+        "choices": [
+          {
+            "id": "ask-who",
+            "label": "Walk beside the line and ask each sleeper who they are missing",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "You fall into step beside Mrs. Dobbs and ask, gently, who she is thinking of. \"My uncle Sal,\" she murmurs in her sleep. \"He taught me to whistle.\" Her eyes clear and her lunch pail drops, and you work your way down the line asking, until people are waking up all along it saying names out loud and the mouth of the stone narrows to a crack.",
+              "art": "A teenager walking beside a line of sleepwalkers at night gently talking to a woman in curlers, sleepers waking and dropping their lunch pails, a giant purple geode closing its glowing seam",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["heartstone-end-of-shift"]
+              }
+            },
+            "failure": {
+              "text": "The sleepers walk past without turning their heads, and the line carries you along, step by step, toward the violet glow. Your crew drags you out at the very mouth of the stone, and you spend the rest of the night with frost on your eyelashes.",
+              "art": "A teenager swept along in a line of glassy-eyed sleepwalkers toward a glowing split geode at night, friends grabbing their arms from the side, frost forming on their eyelashes",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "end-the-shift",
+            "label": "Plant yourself in the mouth of the stone and call the shift over",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You stand in the violet light with your arms out and shout, \"Shift's over! Everybody home!\" The line stops, and for one long moment fourteen lamps glow in the dark behind you. Then the whistle gives one last, tired toot, the sleepers turn and shuffle back to bed, and the stone grinds itself shut at your back.",
+              "art": "A teenager with arms spread wide in the glowing mouth of a split purple geode at night, fourteen old miner's lamps glowing in the darkness behind them, a line of sleepwalkers turning back toward their houses",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The cold from the opening pours over you like river water, and your feet start walking, inward. You catch the edge of the crystal and hold on while the line streams past you into the dark, and by the time the whistle stops, your fingertips are frozen to the facets.",
+              "art": "A teenager clinging to the edge of a glowing split geode at night, frost spreading up their fingers, a line of sleepwalkers streaming past them into violet darkness",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "choke-the-whistle",
+            "label": "Climb the roundabout lamppost and choke the whistle",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "The whistle is a long violet crystal pipe growing out of the top of the roundabout lamppost. You shimmy up while Joey braces the ladder, stuff your flannel into its mouth and twist. The shriek chokes down to a wheeze, then silence, and the sleepers stop mid-step, blinking at lunch pails they cannot explain.",
+              "art": "A teenager atop a lamppost stuffing a flannel shirt into a glowing violet crystal steam whistle at night, a friend bracing a ladder below, a line of sleepwalkers stopping and blinking in the street",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You get one hand over the pipe, and the whistle blows straight through your palm in a shriek you feel in your back teeth. You slide down the post with your ears ringing, and you hear nothing but that whistle until dawn.",
+              "art": "A teenager sliding down a lamppost clutching their ringing ears at night, a violet crystal whistle blasting shimmering sound waves overhead, sleepwalkers marching on below",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -834,6 +1107,94 @@
           "failure": {
             "text": "Your voice breaks on the fourth name, and the heart surges, desperate, pulling at everyone's grief at once. The names are right. The song is right. But one voice is not enough. A whole town has to do this, and the town has not caught up with you yet.",
             "art": "A teenager with a cracking voice holding a paper of names inside a violet cavern, a desperate amethyst heart flaring as neighbors stand frozen behind",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Hum to it like the lonely thing it is, as you learned on the first nights",
+          "intent": "camp",
+          "skill": "nerve",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "heartstone-hummed-along",
+            "amount": 1
+          },
+          "success": {
+            "text": "On the first nights you learned the Hunger is lonely more than cruel. So you hum, low and steady, a Saturday-morning cartoon song, your crew hums along, and the heart's ache falls into rhythm with your tune. Lulled, it dims to a dull lilac and settles like a python after a big meal, asleep, and it will not wake again for a long, long time.",
+            "art": "A teen crew humming together inside a vast violet crystal cavern, an enormous amethyst heart dimming to soft lilac and settling like a sleeping python, fourteen lamps glowing faintly in the dark",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You hum, but your voice shakes, and the heart tastes the fear underneath and pulls at that instead. It nearly hummed with you. Steady your breath and try again.",
+            "art": "A trembling teenager humming inside a violet crystal cavern, a giant amethyst heart pulsing brighter and leaning toward them, ghostly threads of light pulling from their chest",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Bring the town in behind you, the way you made it notice when the stone came for the street",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "heartstone-cop-believes",
+            "amount": 1
+          },
+          "success": {
+            "text": "You made this town notice when nobody wanted to believe a bunch of teenagers, and now the town comes for you: Sergeant Haas with the department floodlights, Coach Pruitt with a sledge, neighbors with garden picks. Together you swing at the heart until it cracks and shatters into glitter that rains upward into the sky. The street wakes up dry-eyed and fine.",
+            "art": "A crowd of townspeople with floodlights, sledgehammers and garden picks swinging at an enormous amethyst heart inside a violet cavern, the crystal shattering into glitter that rains upward toward the sky",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You swing, and the town swings with you, but the heart pulses and every one of them flinches at the same buried feeling. The picks bounce off violet stone. Hold the line; the town is still behind you.",
+            "art": "Townspeople with picks and sledgehammers recoiling from a pulsing amethyst heart inside a violet cavern, tools bouncing off glowing crystal, a teenager steadying the crowd",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Look back at the fourteen lamps, the way you finally did the night before Halloween, and grieve with the town",
+          "intent": "kind",
+          "skill": "nerve",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "heartstone-counted",
+            "amount": 1
+          },
+          "success": {
+            "text": "The night before Halloween you stopped running from what was behind you, and you do not run now. You turn to the line of fourteen lamps and count them aloud, the neighbors count with you, and then you all say the names from the tally tags and begin to sing and cry together, on purpose. The amethyst heart softens to the color of dawn and lets out a breath it has held for thirty-four years.",
+            "art": "A teenager and a crowd of neighbors facing a row of fourteen glowing miner's lamps inside a violet cavern, singing and crying together, an enormous amethyst heart softening to warm dawn pink",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You count the lamps, but your voice breaks at nine, and the heart surges, pulling at everyone's grief at once. You were right to look back. Give the town a moment to look with you.",
+            "art": "A teenager with a breaking voice before a row of fourteen miner's lamps in a violet cavern, an amethyst heart surging bright, neighbors hesitating behind them",
             "effects": {
               "nerve": -2
             }

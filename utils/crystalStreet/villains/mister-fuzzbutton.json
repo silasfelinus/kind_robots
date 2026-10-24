@@ -735,6 +735,284 @@
             }
           }
         ]
+      },
+      {
+        "id": "mister-fuzzbutton-checked-the-children",
+        "act": 1,
+        "title": "Have You Checked the Children?",
+        "place": "Babysitting at the Delgado house, 11:40 p.m.",
+        "text": "You're babysitting the Delgado twins two doors down, and they've been asleep since nine. The kitchen phone rings. A small, polite voice asks, \"Have you checked the children?\" and hangs up. It rings again every ten minutes, and on the third call you hear the voice twice: once in the receiver, and once, half a second later, through the baby monitor on the counter. The call is coming from inside the house.",
+        "art": "A dim 1980s suburban kitchen at night, a teenage babysitter holding a curly-corded wall phone receiver, a baby monitor glowing on the counter, a dark hallway leading to a nursery door ajar, faint blue light spilling out",
+        "choices": [
+          {
+            "id": "check-the-children",
+            "label": "Walk down the dark hall and check on the twins",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You ease the nursery door open. The twins are fast asleep, and between their beds sits a Mister Fuzzbutton holding the upstairs extension in its paws. It lowers the receiver and looks at you. \"You checked,\" it says in a small boy's voice, amazed. \"Nobody ever checks.\" Then it tips over, just a bear.",
+              "art": "A teenager peeking through a nursery doorway by flashlight, two small children asleep in twin beds, a teddy bear with a glowing cassette window sitting between them holding a phone receiver in its paws, soft nightlight glow",
+              "effects": {
+                "nerve": 1,
+                "flags": ["fuzzbutton-checked-in"]
+              }
+            },
+            "failure": {
+              "text": "The hallway is longer than it was when you walked in. Every time you reach the nursery door, the phone rings behind you in the kitchen and you turn around. At dawn you finally get there, and the twins are fine. You are shaking.",
+              "art": "A teenage babysitter stuck in a stretched-out dark hallway, a nursery door far away at the end, a ringing wall phone glowing behind them, teddy bear shadows creeping along flowered wallpaper",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "trace-the-call",
+            "label": "Get Bea on the walkie-talkies and trace the call",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 2
+            },
+            "success": {
+              "text": "Bea arrives in a raincoat over her pajamas with a notebook and two walkie-talkies, and in fifteen minutes she has it mapped: the same call is ringing in every house on Crystal Street where a kid is home with a sitter, or with nobody at all. \"It's not trying to scare the babysitters,\" she says, tapping her map. \"It's checking up on the kids. Like a hall monitor.\"",
+              "art": "An eleven-year-old girl in a raincoat over pajamas holding a walkie-talkie and a notebook with a hand-drawn street map, a teenager beside her at a kitchen table with a phone, porch lights glowing through the window",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Bea traces the call to the Delgados' own nursery, and then the walkie-talkie in her hand starts talking in a little boy's voice: \"Have you checked the children? Have you checked YOU?\" She drops it in the sink. Neither of you sleeps.",
+              "art": "A walkie-talkie lying in a kitchen sink glowing faint blue, a startled kid genius and a teenage babysitter backing away from the counter, a wall phone receiver dangling on its curly cord",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "answer-in-character",
+            "label": "Pick up and answer like a fearless movie scream queen",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "Next ring, you grab the phone and purr, \"Darling, I've checked the children, I've checked the locks, and I've checked my lipstick. Who's asking?\" There's a pause, then a giggle, a real one. \"You sound like the lady in the movie,\" says the small voice. \"Will you check again at midnight?\" You promise, and you keep it, and the phone stays quiet till dawn.",
+              "art": "A teenage babysitter leaning dramatically against a kitchen counter with a phone receiver and one hand on a hip like a 1950s film star, a baby monitor on the counter glowing soft warm gold",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"Darling,\" you begin, and the voice says, \"That's not how she talks,\" and plays you a tape of yourself doing the same impression at a sixth-grade sleepover, badly. The twins wake up and find you hiding in the pantry.",
+              "art": "A mortified teenager hiding in a cluttered pantry with a phone cord stretched through the doorway, two small kids in pajamas peering in curiously, a baby monitor glowing blue on a shelf",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-request-line",
+        "act": 2,
+        "title": "Secrets on the Request Line",
+        "place": "KGLM 103.3, the overnight booth, 1 a.m.",
+        "text": "Mix Bell's overnight Dedications hour has a problem: every light on the request line is blinking, and every caller is a Mister Fuzzbutton. \"This one goes out to Mrs. Okafor,\" chirps a small voice, \"from her husband, who bet the car payment on a bowling tournament.\" Mix slams the dump button again and again, sweating, while half of Glimmer Falls listens in its kitchens. The next bear in line says it has a secret about Chip Merriweather, who falls asleep to KGLM every night, and it's going to play it in his own voice.",
+        "art": "A cramped 1980s radio booth at night lit by red on-air lights, a young Black DJ in headphones slamming a console button, a wall of blinking phone lines, a teddy bear with a glowing cassette window perched on the phone bank",
+        "choices": [
+          {
+            "id": "not-yours-to-tell",
+            "label": "Grab the mic and tell the whole town that secret isn't the bear's to tell",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "chip-merriweather",
+              "amount": 1
+            },
+            "success": {
+              "text": "You lean into the mic. \"Hey, Glimmer Falls. Whatever that bear thinks it knows about anybody, it isn't the bear's to tell. It belongs to them. Hang up on it.\" Across town phones click down, and the request line goes dark one light at a time. The last bear says, puzzled, in a little boy's voice, \"Belongs to them?\" Then it hangs up too.",
+              "art": "A teenager leaning into a radio microphone with a determined expression, a wall of phone line buttons going dark one by one, a DJ in headphones grinning with a thumbs up, red on-air light glowing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["fuzzbutton-not-yours"]
+              }
+            },
+            "failure": {
+              "text": "You get as far as \"Hey, Glimmer Falls\" before the bear starts talking over you in Chip's voice. Mix kills the transmitter just in time, and only dead air goes out. But Chip was listening, and when you call his house, it rings and rings.",
+              "art": "A darkened radio booth with the on-air light switched off, a DJ slumped over a transmitter panel, a teenager holding a silent telephone receiver, a teddy bear glowing on the phone bank",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "seven-second-delay",
+            "label": "Ride the seven-second delay and dump every secret before it airs",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix shows you the trick: the station airs seven seconds behind the booth. You catch each bear's secret in the gap and slam the button, and out goes a hiss of static, then Mix's velvet voice: \"Technical difficulties, Glimmer Falls. Here's Cyndi.\" By two the bears give up, and your reflexes could beat Lou Tran's high score.",
+              "art": "A teenager hunched over a radio console slamming a big red delay button with lightning reflexes, a smooth young DJ cueing a record beside them, reel-to-reel decks spinning, phone lines blinking",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Seven seconds is longer than it sounds. You catch nine secrets and miss one, about the mayor's toupee, and by breakfast the whole town is laughing. KGLM gets forty angry calls and one from the FCC.",
+              "art": "A frazzled teenager and a DJ staring at a radio console in dismay, every phone line blinking at once, a small teddy bear sitting on top of the transmitter with its cassette window glowing blue",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "flood-the-line",
+            "label": "Get the crew to flood the line with outrageous fake secrets",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "You radio the crew and they call in from every pay phone in town. \"I'm secretly three raccoons in a trench coat.\" \"My dog is the real mayor.\" \"I invented the moonwalk.\" Within twenty minutes nobody in Glimmer Falls believes a word on the request line, and the bears, outclassed, go quiet.",
+              "art": "Teens in pajamas giggling into pay phones and kitchen phones all over a nighttime town, a radio DJ doubled over laughing in his booth, a confused teddy bear holding a phone receiver",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The crew calls in fake secrets, and the bears answer each one with a real secret about the caller: Wade's poetry, Dani's terror of geese. By the time Mix pulls the plug, your crew is barely speaking to each other.",
+              "art": "Teens at pay phones on a dark street wincing and covering their faces, a bank of glowing teddy bears on a radio station phone console, a DJ yanking a cord from the wall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-midnight-madness",
+        "act": 3,
+        "title": "Midnight Madness at Toy Galaxy",
+        "place": "Toy Galaxy, Starlight Mall, the night before Halloween",
+        "text": "Toy Galaxy is holding a Midnight Madness sale for the new Mister Fuzzbutton Deluxe, now with a PHONE HOME button, and the line of parents stretches past the food court. At 12:01 the gate rolls up and the whole wall of bears comes alive at once. Boxes tear open from inside, a thousand bears pour off the shelves, and they herd the shoppers into the aisles, chanting, \"Go home. Stay home.\" Behind the register, buried to the shoulders in a landslide of plush, Gary Tolliver is still trying to ring up a sale.",
+        "art": "A neon-lit 1980s toy store at midnight with an avalanche of teddy bears pouring off towering shelves, cassette windows glowing blue, frightened parents herded into aisles, a tired store manager buried to the shoulders in plush behind the register",
+        "choices": [
+          {
+            "id": "dig-out-gary",
+            "label": "Dive into the bear pile and dig Gary out",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You burrow in up to your armpits and haul Gary out by his clip-on tie. He sits on the counter, gasping, staring at the box in his hand that says PHONE HOME. \"I've been here since six this morning,\" he says. \"What time is it? Is Ollie...\" He grabs his keys. \"Tomorrow I leave at six. I swear.\"",
+              "art": "A teenager hauling a rumpled store manager out of a mountain of teddy bears by his necktie, the man sitting dazed on a toy store counter clutching his car keys, neon lights flickering overhead",
+              "effects": {
+                "nerve": 1,
+                "flags": ["fuzzbutton-gary-out"]
+              }
+            },
+            "failure": {
+              "text": "The pile shifts like a soft sand dune and swallows you both to the chin. You spend an hour shoulder to shoulder with Gary, listening to a thousand bears hum a lullaby, until mall security digs you out with a snow shovel.",
+              "art": "Two heads poking out of a towering mound of teddy bears in a toy store aisle, a teenager and a tired manager wedged together, a mall security guard approaching with a snow shovel",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rewind-the-demo",
+            "label": "Rewind the giant display bear's demo tape to the factory message",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "cassette-recorder",
+              "amount": 1
+            },
+            "success": {
+              "text": "The giant display bear by the door is running the show, its demo tape looping Ollie's voice. You pop its panel, rewind past Ollie all the way to the factory greeting, and press PLAY. \"Hi! I'm Mister Fuzzbutton! Let's be best friends!\" booms a cheerful grown-up actor, and a thousand bears stop, confused, and sit down like a kindergarten at story time.",
+              "art": "A teenager crouched at a giant display teddy bear by a toy store entrance, its tummy panel open, rewinding a cassette with a pencil, a thousand small bears sitting down obediently across the aisles",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You rewind too far. The tape plays Ollie's ninth birthday: the party room, the disco ball, a boy humming to himself for three hours. Every bear in the store hums along, and every parent in line starts to cry without knowing why.",
+              "art": "Shoppers in a neon toy store aisle wiping their eyes, a sea of teddy bears swaying and humming, a teenager holding a tangle of cassette tape beside a giant display bear",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "record-for-ollie",
+            "label": "Kneel by Gary, hand him a bear and ask him to record something for his son",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You kneel in the plush beside Gary, hold a Fuzzbutton up to him and press RECORD. For a long moment he has nothing. Then he does. \"Hey, buddy. It's Dad. I'm sorry I'm always at the store. I'm coming home.\" Every bear in Toy Galaxy goes quiet at once, listening to a voice that isn't Ollie's, and the landslide gently lets him go.",
+              "art": "A teenager kneeling in a pile of teddy bears holding one up to a tired store manager as he speaks into it, a tiny red record light glowing, every bear in the toy store turning to listen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["fuzzbutton-dads-voice"]
+              }
+            },
+            "failure": {
+              "text": "Gary takes the bear, opens his mouth and says, out of pure habit, \"Thank you for shopping Toy Galaxy.\" The red light blinks off. A thousand bears groan in a little boy's voice, and the landslide rolls on out into the mall.",
+              "art": "A store manager staring at a teddy bear in his hands with a stricken face, a wave of glowing bears rolling out of a toy store into a neon mall corridor, a teenager reaching after them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -813,6 +1091,94 @@
           "failure": {
             "text": "Ollie looks at you, then at the bear, and takes a step back toward it. You have the truth in your hands, but he needs to believe you'll stay before he can hear it.",
             "art": "A small astronaut stepping back toward a towering glowing bear, a teenager reaching out with a handful of envelopes, the room darkening",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "approach": "trick",
+          "label": "Get every eye on the giant, like those first nights, and open its tummy while it's frozen",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 7,
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "fuzzbutton-watched",
+            "amount": 1
+          },
+          "success": {
+            "text": "\"Everybody look at it,\" you say. \"Don't blink.\" You learned it the first nights of the week, from the bear on your pillow, the bear in the hallway, the bear in the nursery: they only move when nobody is watching, and they only want somebody to watch. The whole crew stares, and the giant freezes mid-reach. You walk right up, open its tummy door and lift out the very first tape, the one marked OLLIE in green crayon. A thousand bears sit down at once. Ollie looks from the crew to the bear. \"You were all looking at him,\" he says. \"Nobody ever looks that long.\"",
+            "art": "A teen crew in Halloween costumes staring hard at a frozen towering patchwork bear, one teenager lifting a crayon-marked cassette from its glowing tummy window, a small boy in a tinfoil astronaut costume watching amazed",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Somebody blinks. Then everybody does. When you open your eyes the giant bear is a step closer and has Ollie by the hand. \"You looked away,\" it says. \"Everybody always looks away.\"",
+            "art": "A towering patchwork teddy bear holding the hand of a small boy in a tinfoil astronaut costume, a teen crew in costumes rubbing their eyes, tape reels spinning in its giant glowing tummy window",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "approach": "fight",
+          "label": "Lock arms with the crew, the way you held together when the bears went public, and push the giant back",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "fuzzbutton-not-yours",
+            "amount": 1
+          },
+          "success": {
+            "text": "The giant tries what the bears tried on you all week, at the slumber party, on your porch, on the radio: it spills a secret about every one of you, out loud, in Ollie's voice. It doesn't work anymore. Your crew already held together the night the bears went public, and it holds now. You link arms, plant your feet and push, all together, and the giant totters, pops its stitches and spills into a thousand ordinary bears at Ollie's feet. He picks one up, and he looks at you, not at it.",
+            "art": "A teen crew in Halloween costumes with arms locked shoulder to shoulder shoving a towering patchwork bear, the bear bursting apart into a cascade of small teddy bears, a boy in a tinfoil astronaut costume watching in awe",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The giant finds the one secret you never told anybody and plays it, and your arm slips out of the chain. Bears pour through the gap. You're back at the doorway, breathing hard, still in this.",
+            "art": "A line of costumed teens broken apart in a bedroom doorway, a flood of glowing teddy bears pouring through the gap, a towering patchwork bear looming with its cassette window blazing",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "approach": "heart",
+          "label": "Bring in everyone you brought home the night before, and let Ollie see who showed up",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "fuzzbutton-dads-voice",
+            "amount": 1
+          },
+          "success": {
+            "text": "\"Hang on,\" you tell Ollie. \"Somebody's here.\" Up the stairs, wading through the bears, come the people you brought home the night before Halloween: Kev and his little brother in their pajamas, kids from the commercial and the bus stop, and Gary, out of breath in his Toy Galaxy tie, home before dinner for the first time in a year. You put the twenty-two invitations in Ollie's hands. \"They didn't skip your party. Nobody knew about it. This time, everybody came.\" Ollie turns to the giant bear. \"You can come trick-or-treating,\" he says. \"But you have to stop telling.\" The reels slow, and stop, and the last sound on the tape is a boy laughing.",
+            "art": "A small boy in a tinfoil astronaut costume holding a bundle of invitations, his tired father in a necktie kneeling beside him, kids in pajamas crowding the stairway, a towering patchwork bear going still and gentle",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The stairs are too packed with bears for anyone to get through, and Ollie can only hear the giant's voice. He looks at the invitations in your hand as if they might be one more trick. He needs to see somebody actually come for him.",
+            "art": "A crowded stairway packed with glowing teddy bears blocking a group of kids and a tired father, a teenager holding out a bundle of envelopes to a hesitant boy in a tinfoil astronaut costume",
             "effects": {
               "nerve": -2
             }

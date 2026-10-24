@@ -675,6 +675,274 @@
             }
           }
         ]
+      },
+      {
+        "id": "frieda-krueger-sticky-stairs",
+        "act": 1,
+        "title": "The Stairs Won't Hold",
+        "place": "Your own staircase, in a dream, 2 a.m.",
+        "text": "You dream you are home, and something is coming up from the basement: an old bonnet hair dryer on squeaky casters, rolling by itself, its hood glowing pink. You run for the stairs, and on the third step your sneakers sink to the ankles in warm pink setting gel that smells like 1961. Every step is softer than the last. At the top, your bedroom door stands wide open, and from inside a cheerful voice calls, \"No running in the salon, sugar.\"",
+        "art": "A teenager in pajamas sinking ankle-deep into glossy pink gel on a suburban staircase at night, a vintage bonnet hair dryer on casters rolling up from a glowing basement, an open bedroom door at the top spilling pink light",
+        "choices": [
+          {
+            "id": "haul-the-banister",
+            "label": "Grab the banister and haul yourself up hand over hand",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You grip the banister and pull, one fist over the other, sneakers squelching free like a plunger. You throw yourself through your bedroom door and wake mid-leap, landing on your own carpet. Your socks are stiff with setting gel, but your hair is entirely your own.",
+              "art": "A determined teenager hauling themselves up a gooey pink staircase by the banister, sneakers pulling free with strings of gel, a bonnet hair dryer sputtering at the bottom of the stairs, a bedroom doorway glowing above",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The banister goes soft too, gooey as taffy, and you sink to your knees while the dryer hums up behind you. The hood settles over your head, warm and drowsy, and you wake at dawn with your hair rolled into twenty-two perfect pin curls.",
+              "art": "A drowsy teenager stuck knee-deep in pink gel on a staircase, a glowing vintage bonnet hair dryer lowering its hood over their head, a banister drooping like taffy, soft dawn light at the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "walk-down",
+            "label": "It's a dream: turn around and walk down instead",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "jolt-cola",
+              "amount": 1
+            },
+            "success": {
+              "text": "Nightmares want you to run up, so you turn and walk down, calmly, toward the humming dryer, and the gel firms up under your feet like a sidewalk. You sit right down under its hood and wake yourself by saying, \"Actually, I'll come back Tuesday.\" Under your pillow in the morning is a pink rattail comb.",
+              "art": "A calm teenager in pajamas walking down a firm staircase toward a sputtering pink bonnet hair dryer in a dim basement, gel hardening into steps, a pink rattail comb glinting on a pillow nearby",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-krueger-rattail-comb"]
+              }
+            },
+            "failure": {
+              "text": "You turn around, and the staircase turns with you, so down is up and the glowing basement hangs above your head with the dryer waiting at the top. You wake on your bedroom floor tangled in the bedsheet, scalp tingling like it has just been permed.",
+              "art": "An upside-down suburban staircase twisting in a dream, a glowing pink basement overhead, a bonnet hair dryer waiting at the top, a dizzy teenager in pajamas clinging to the inverted banister",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "skate-it",
+            "label": "Pull on your leg warmers and skate the gel like a roller rink",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 1
+            },
+            "success": {
+              "text": "If the stairs are slick, you might as well roll. You slide, spin and moonwalk up the gel like it is couples skate at the rink, humming the hit of the summer, and the dryer cannot keep up with anyone that smooth. You wake up laughing, with the song still stuck in your head.",
+              "art": "A grinning teenager in neon leg warmers gliding and spinning up a glossy pink staircase like a roller rink, a disco glitter of light, a bonnet hair dryer spinning in confusion at the bottom",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You wipe out on the first spin and slide all the way down to the basement on your back, straight under the humming hood. You wake with your bangs teased so high they brush the lampshade, and no amount of water will flatten them.",
+              "art": "A teenager in leg warmers sliding on their back down a pink gooey staircase into a glowing basement, a vintage bonnet hair dryer waiting with its hood open, a tumble of curlers in the air",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-two-oclock",
+        "act": 2,
+        "title": "Your Two O'Clock",
+        "place": "Your kitchen telephone, 2 a.m.",
+        "text": "The kitchen phone rings at two in the morning, and you grab it before it wakes the house. \"Shear Delight, confirming your appointment,\" purrs a voice with a silver beehive in it, \"Halloween night, wash, cut and gray.\" The curly phone cord is winding tighter around your wrist like a hot roller. Then you hear a click: someone else in your house has picked up the extension, and a grown-up voice, small and shaky, whispers, \"Frieda? Is that you?\"",
+        "art": "A teenager in a dark suburban kitchen at night clutching a wall telephone, the curly cord coiling around their wrist like a hot roller, a faint silver beehive silhouette glowing in the reflection of the oven door",
+        "choices": [
+          {
+            "id": "let-them-talk",
+            "label": "Stay on the line and let the grown-up on the extension talk to her",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You stay quiet, and the voice on the extension tells her about the first real haircut she ever gave them, at eleven, and how furious their mother was, and how much they loved it. The line hisses a long time before Frieda answers, \"Short on the sides, a little cowlick in front, I remember,\" and the cord falls loose from your wrist. At breakfast, your grown-up asks whether you have ever heard of a salon called Shear Delight.",
+              "art": "A teenager holding a kitchen phone quietly in the dark, the curly cord falling loose from their wrist, a warm glow through the doorway where an adult in a bathrobe listens on a hallway extension",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-krueger-remembered"]
+              }
+            },
+            "failure": {
+              "text": "\"See, sugar, they always hang up on me,\" Frieda says sweetly as the extension clatters down. The cord cinches tight, and you wake at dawn slumped against the refrigerator, the receiver humming the old salon jingle in your hand.",
+              "art": "A teenager slumped asleep against a refrigerator at dawn, a humming telephone receiver in their hand, the curly cord wrapped snugly around their arm, pink light leaking from the earpiece",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "put-her-on-hold",
+            "label": "Be the receptionist: \"Shear Delight, can you hold?\"",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Shear Delight, can you hold, please?\" You set the receiver against the kitchen radio and crank the easy-listening station. Somewhere in a dream, Frieda Krueger is stuck on hold with an orchestral version of a pop song, and the cord slackens in pure disgust. It does not ring again.",
+              "art": "A smug teenager pressing a telephone receiver against a kitchen radio at night, musical notes swirling, the curly cord going slack, a tiny furious beehive silhouette fuming inside the earpiece",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"Hold?\" she snaps. \"I have been on hold since 1961.\" The receiver goes hot as a curling iron, the cord yanks your arm toward the wall jack, and you wake on the linoleum with a perfect spiral curl pressed into your wrist.",
+              "art": "A teenager yanked toward a kitchen wall by a coiling telephone cord at night, the receiver glowing hot pink like a curling iron, a spiral pressed into their wrist, linoleum floor gleaming",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "trace-it",
+            "label": "Keep her talking and listen for where the call is really coming from",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You keep her chatting about bouffants while you listen past her voice. Behind it you hear 1961: shopping carts, a bus brake, a radio jingle, and a woman crying in a phone booth. The call is coming from the old plaza pay phone on the night they evicted her, and you write it all down before the line clicks dead.",
+              "art": "A focused teenager scribbling notes at a kitchen table at night with a phone pressed to one ear, a ghostly snowy 1961 shopping plaza and a lit phone booth shimmering in the window glass behind them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Every sound behind her voice turns into a pair of shears, closer and closer, until the snipping is right in your ear. You drop the receiver, and it dangles from its cord, still talking, all night long.",
+              "art": "A dropped telephone receiver dangling and swinging from its curly cord in a dark kitchen, ghostly silver shears snipping in the air around it, a frightened teenager backing toward the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-picket-line",
+        "act": 3,
+        "title": "Picket Line, 1961",
+        "place": "The Glimmer Falls shopping plaza, in a dream, December 1961",
+        "text": "On the night before Halloween, the whole street dreams the same dream, and you walk into it wide awake. It is December 1961, snow on the plaza, and a crowd of PTA mothers in car coats circles the door of the Shear Delight with handmade placards, chanting about poison dye. Every time they pass a window, the gray creeps a little further into the salon. Inside, a young Frieda with a fresh silver beehive is finishing one last pixie cut for a scared girl, and she will not look up at the glass.",
+        "art": "A snowy 1961 shopping plaza at night, a crowd of women in car coats marching in a circle with handmade placards outside a pink salon, gray frost creeping across its windows, a young stylist with a silver beehive cutting a girl's hair inside",
+        "choices": [
+          {
+            "id": "walk-in",
+            "label": "Walk straight through the picket line and ask for a cut",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You push through the car coats, open the door to a jingle of bells and ask, \"Do you take walk-ins?\" Young Frieda looks up, startled, then smiles a smile you have never seen on her and pats the pink chair. The gray retreats from the windows like frost from a windshield, and on Halloween morning your hair is the best it has ever been.",
+              "art": "A teenager stepping through a salon door into warm pink light, a young stylist with a silver beehive smiling and patting a pink vinyl chair, frost melting from the windows, a snowy picket line faltering outside",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["frieda-krueger-walk-in"]
+              }
+            },
+            "failure": {
+              "text": "The crowd closes ranks, and a car-coat shoulder bumps you back into the snow. Through the window you watch young Frieda flinch at every chant, and you wake with snowflakes melting in your hair and a cold weight in your chest that lasts until noon.",
+              "art": "A teenager knocked back into the snow outside a 1961 salon, a wall of women in car coats with placards blocking the door, a young stylist flinching inside behind a gray frosted window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stand-in-the-doorway",
+            "label": "Stand in the salon doorway and face the crowd with her",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You plant yourself on the salon step, arms folded, and look every chanting mother in the eye. Behind you, the girl walks out with her new pixie cut, head high, and at the back of the crowd one mother quietly lowers her placard and goes home. Young Frieda lets out a breath she has been holding for twenty-five years.",
+              "art": "A teenager standing firm on a snowy salon step with arms folded, a girl with a fresh pixie cut walking proudly past a picket line, one woman at the back lowering her placard, warm pink light behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The chant gets inside your head, and by the third lap you catch yourself mouthing along about poison dye. Young Frieda turns from the mirror and sees you doing it, and the whole dream goes gray at once.",
+              "art": "A dazed teenager in the middle of a marching picket line in falling snow, mouth moving with the crowd, a young stylist turning from a salon mirror in dismay, everything fading to gray",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "out-chant",
+            "label": "Start a counter-chant the whole plaza can sing",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Two, four, six, eight, Frieda's haircuts are first-rate!\" It is terrible and it is perfect. Kids in snow boots spill out of the five-and-dime waving combs to chant with you, the PTA's chant gets lost under theirs, and even the scared girl in the chair giggles.",
+              "art": "A cheering teenager leading a crowd of kids in snow boots waving combs on a snowy 1961 plaza, the picket line drowned out and confused, a girl in a salon chair giggling behind the window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your chant comes out in the PTA's rhythm, and the mothers smile and fall into step behind you as if you are leading their parade. You wake in a cold sweat, humming a protest song you would never sing.",
+              "art": "A teenager unwittingly leading a parade of women in car coats with placards around a snowy plaza, their smiles stiff and pleased, a salon window graying behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -749,6 +1017,94 @@
           "failure": {
             "text": "She cannot hear you over twenty-five years of anger. The salon tilts. You have the truth in your hands, but she needs to see it more clearly than this.",
             "art": "A tilting dream salon, a teen holding up an apology note that a raging beautician ghost cannot see through a storm of hair clippings",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Change the rules of her dream, the way you learned to on the first nights",
+          "intent": "clever",
+          "skill": "lore",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "frieda-krueger-new-rhyme",
+            "amount": 1
+          },
+          "success": {
+            "text": "On the first nights you learned that her dreams bend for anyone bold enough to rewrite them. You start a jump-rope rhyme with your own ending, \"Nine, ten, wake up again,\" and every gray neighbor in every pink chair chants it with you. The mirrors ripple, the capes unsnap, and the whole street wakes in its own beds while the Shear Delight folds up around her like a closing compact.",
+            "art": "A teenager chanting in a dreamlike pink salon as gray neighbors in salon chairs join in, capes unsnapping, mirrors rippling like water, a stylist with a silver beehive and shear glove frozen mid-gesture as the room folds shut",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You change a rule, but she has been making the rules of this salon for twenty-five years. \"Cute,\" Frieda says, and spins every chair so fast you lose your place. You know this dream bends; bend it harder.",
+            "art": "A dizzy teenager in a whirling pink salon, every chair spinning, a stylist with a silver beehive and a glove of polished shears smiling knowingly at the center",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Catch the shear glove and hold on, the way you shoved her back when she came into your home",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "frieda-color-spell",
+            "amount": 1
+          },
+          "success": {
+            "text": "She came into your home and your street, and you shoved her back out. You catch her wrist mid-snip and hold on while your crew peels the glove off one blade at a time and flings it into the shampoo bowl. Without her shears, the gray drains out of the mirrors, and the neighbors wake in their own beds, shaken but entirely in color.",
+            "art": "A teenager gripping a stylist's wrist as a glove of polished shears is pried away by friends, the glove splashing into a black shampoo bowl, color flooding back into rows of salon mirrors",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The glove twists out of your grip like a wet comb. \"Not in my salon,\" Frieda says, and the chairs wheel in around you. You know you can make her flinch; get a better grip.",
+            "art": "A stylist with a silver beehive twisting free of a teenager's grip, a glove of shears flashing, pink salon chairs rolling in to surround the teen",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Stop hiding from her, like the night before Halloween: sit in her chair and ask for a real cut",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "frieda-krueger-walk-in",
+            "amount": 1
+          },
+          "success": {
+            "text": "The night before Halloween you stopped hiding from her, so you climb into the pink chair, ask for something nobody else would dare, and hold up the article, the album and the apology so she can read them in the mirror. Frieda reads the note three times, then sets the glove down finger by finger and picks up a plain pair of scissors. \"Hold still, sugar,\" she says, crying and laughing at once. \"This is going to be fabulous.\"",
+            "art": "A teenager sitting happily in a pink vinyl salon chair holding up an old newspaper and a photo album to the mirror, a tearful stylist with a silver beehive setting down a glove of shears and lifting plain scissors",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You sit in her chair and hold up the truth, but her eyes stay on the neighbors' gray reflections, and her hands will not stop shaking. She remembers you. Give her a moment longer to believe the rest.",
+            "art": "A teenager in a pink salon chair holding up an old newspaper, a trembling stylist with a silver beehive staring past them at rows of gray reflections in the mirrors",
             "effects": {
               "nerve": -2
             }

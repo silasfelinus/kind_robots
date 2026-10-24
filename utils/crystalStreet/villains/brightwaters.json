@@ -768,6 +768,270 @@
             }
           }
         ]
+      },
+      {
+        "id": "brightwaters-survey",
+        "act": 1,
+        "title": "The Neighborhood Survey",
+        "place": "Your front door, 11 p.m.",
+        "text": "The doorbell rings at eleven at night, which is strange, and it is the Brightwater twins, which is stranger. Kip and Kimmy stand on your welcome mat in matching cardigans, holding matching clipboards and matching pencils. \"We're doing a neighborhood survey,\" Kimmy says, smiling, and Kip reads the first question in a voice like a filmstrip narrator: \"What would you change about your neighbors?\" Behind them, every porch light on Crystal Street has been swapped for the same soft green bulb.",
+        "art": "Blond suburban twins in matching cardigans holding clipboards on a front porch at night, smiling identical smiles, a teenager peering out a half-open door, every porch light down the cul-de-sac glowing the same soft green",
+        "choices": [
+          {
+            "id": "weird-answers",
+            "label": "Answer every question with the weirdest true thing you know",
+            "intent": "camp",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"What would I change? I'd give Mr. Okafor a pet goat. I'd make capes mandatory on Tuesdays. I'd paint every house a different flavor.\" Kimmy writes it all down, and her pencil starts to smoke. Kip's smile glitches sideways and snaps back. \"That's not a normal answer,\" he says, and the green porch lights flicker all the way down the street.",
+              "art": "Blond twins on a porch at night staring at a smoking pencil on a clipboard, one twin's smile glitching sideways, a grinning teenager gesturing wildly in the doorway, green porch lights flickering down the street",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-weird-survey"]
+              }
+            },
+            "failure": {
+              "text": "You try to be weird and go completely blank. \"I'd change... I don't know. Nothing?\" Kimmy beams and checks a box. \"Wonderful. Everyone says that.\" You feel a little quieter all night, and you cannot shake it.",
+              "art": "A blond girl in a cardigan cheerfully checking a box on a clipboard on a moonlit porch, a teenager in the doorway looking dazed and gray, soft green porch lights glowing behind her",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-kip",
+            "label": "Ask the twins what they like to do for fun",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "The question stops them both. \"We like what everyone likes,\" Kimmy says. But Kip hesitates, and then, so quietly she cannot hear, he whispers, \"I like taking photos where everything comes out blurry. Is that allowed?\" You tell him it absolutely is. Kimmy pulls him down the steps, but Kip looks back at you twice.",
+              "art": "A blond boy in a cardigan glancing back over his shoulder with a shy hopeful look as his twin sister tugs him down porch steps at night, a teenager smiling warmly from the doorway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-kip-blurry"]
+              }
+            },
+            "failure": {
+              "text": "\"Fun,\" Kimmy repeats, as if it is a word in another language. Both twins lean in, studying your face, memorizing it. \"What do YOU like?\" they ask together. \"So we can like it too.\" You shut the door, and they stand there smiling at it until dawn.",
+              "art": "Blond twins in matching cardigans standing perfectly still on a porch at dawn, smiling at a closed front door, clipboards held at the same angle, green porch lights fading in the morning light",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "mail-slot",
+            "label": "Shut the door and watch them go through the mail slot",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Through the brass slot you watch them go house to house, in step, ringing every doorbell at exactly the same moment. At the Dombrowskis' house, the one with the rainbow wind chimes and the homemade concrete gargoyles, they skip the bell entirely. Kimmy just draws a neat green X on her clipboard. You make a note to warn the Dombrowskis first thing.",
+              "art": "A view through a brass mail slot of blond twins walking in perfect step past a quirky suburban house with rainbow wind chimes and homemade gargoyles, one twin marking a green X on a clipboard",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The mail slot flaps open from the outside. Two blue eyes look in at you, level with yours. \"You didn't finish the survey,\" Kip says gently, and the slot snaps shut on your nose.",
+              "art": "Two calm blue eyes peering in through a brass mail slot in a front door at night, a startled teenager crouched on the other side holding their nose, green light spilling through the slot",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-pta-meeting",
+        "act": 2,
+        "title": "The Emergency PTA Meeting",
+        "place": "The Glimmer Falls High auditorium, 9 p.m.",
+        "text": "The PTA has called an emergency meeting about the petition to close the Glitter Box, and the auditorium is packed. Half the seats are filled with neighbors in pastel polo shirts who sit perfectly still, nod at the same moments and murmur \"isn't it a beautiful day\" between agenda items. The other half are real parents, fidgeting, glancing sideways at people they have lived next door to for years. Donna Brightwater stands at the podium with a casserole beside her gavel. \"All in favor of a more normal Glimmer Falls?\"",
+        "art": "A packed high school auditorium at night, half the audience in matching pastel polo shirts sitting perfectly still with identical smiles, uneasy parents glancing sideways, a blond woman at a podium beside a casserole dish and a gavel",
+        "choices": [
+          {
+            "id": "speak-up",
+            "label": "Take the open mic and stand up for the Glitter Box",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your knees shake all the way to the microphone. \"The Glitter Box is where the weird kids go to feel safe,\" you say. \"It's where I learned normal isn't the point.\" A real mom in the third row starts clapping, then a dad, then half the room. When Donna calls the vote, the polo shirts raise their hands alone, and the real parents look at them, really look, for the first time.",
+              "art": "A nervous teenager speaking at a microphone in the aisle of a packed auditorium, real parents rising to applaud, a row of pastel polo shirts raising identical hands, a blond woman frozen at the podium",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["brightwaters-spoke-up"]
+              }
+            },
+            "failure": {
+              "text": "You reach the mic and the hum fills your ears, and what comes out of your mouth is \"Isn't it a beautiful day.\" The polo shirts applaud warmly. You sit back down feeling like someone else's hand moved your jaw.",
+              "art": "A dazed teenager at an auditorium microphone with a glassy smile, rows of pastel polo shirts applauding in perfect unison, a blond woman at the podium nodding approvingly",
+              "effects": {
+                "nerve": -2,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "secret-ballot",
+            "label": "Count the hands, then demand a secret ballot",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 1
+            },
+            "success": {
+              "text": "Every polo-shirt hand goes up at the exact same instant, to the exact same height. You point it out, then invoke the PTA bylaws: on any petition, a member can demand a secret ballot. Slips and pencils go around. The polo shirts stare at their blank paper, unable to decide anything alone, and the measure fails by forty votes.",
+              "art": "Rows of people in pastel polo shirts staring blankly at paper ballots and pencils in an auditorium, real parents scribbling votes, a teenager holding up a thick bylaws booklet in triumph",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                },
+                "flags": ["brightwaters-secret-ballot"]
+              }
+            },
+            "failure": {
+              "text": "You flip open the bylaws, and every page repeats the same sentence: IT IS A BEAUTIFUL DAY. When you look up, Donna is smiling at you from the podium, and the whole room is smiling with her.",
+              "art": "A teenager staring in dread at an open bylaws booklet in an auditorium, a blond woman at the podium smiling straight at them, every face in the crowd turned toward them with the same smile",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "spill-the-coffee",
+            "label": "Bump Donna's arm and spill her coffee down her sleeve",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Oops: hot coffee down a mint-green sleeve. Donna freezes. \"I thought we were friends,\" she says, smiling, and then again, \"I thought we were friends, I thought we were friends,\" stuck like a skipping record while the coffee drips onto her shoes. Two hundred real parents watch her loop, and none of them will ever unsee it.",
+              "art": "A blond woman in a mint-green cardigan frozen mid-smile at a podium as coffee drips down her sleeve, her eyes glitching, an auditorium of parents staring in shock, a teenager backing away",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-glitch"]
+              }
+            },
+            "failure": {
+              "text": "You bump, and she catches the cup without looking and without spilling a drop. She hands it to you. \"You look like you need this, dear.\" It smells like cut grass and mayonnaise.",
+              "art": "A smiling blond woman calmly handing a coffee cup to a startled teenager beside a podium, steam curling up in a faint green glow, an auditorium of polo shirts watching",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-mask-factory",
+        "act": 3,
+        "title": "The Mask Factory",
+        "place": "The Brightwaters' garage, 7 Crystal Street, 1 a.m. the night before Halloween",
+        "text": "The garage door of 7 Crystal Street is open six inches, glowing green, and from inside comes the thump and hiss of a machine. You slide under. A pod-shaped press the size of a car is stamping out smiling paper Brightwater masks, one per second, onto a conveyor that feeds them into a box for every house on the street, ready for tomorrow's parade. Kimmy Brightwater is working the press alone, feeding paper in time to the thump. She looks very tired, and she has drawn a tiny pair of fangs on the back of her own hand in ballpoint pen.",
+        "art": "A green-lit suburban garage at night, a huge pod-shaped press stamping out smiling paper face masks onto a conveyor into stacked cardboard boxes, a tired blond girl feeding paper into the machine, a teenager peeking under the garage door",
+        "choices": [
+          {
+            "id": "jam-the-press",
+            "label": "Feed your loudest costume pieces into the press and jam it",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "In go a feather boa, a fistful of glitter, a rubber bat and your neon leg warmers. The press chokes, sparks and starts spitting out masks covered in sequins and fangs and polka dots, every one of them different. Kimmy picks one up and stares at it, and she does not shut the machine off.",
+              "art": "A sparking pod-shaped press in a green-lit garage spitting out paper masks covered in sequins, fangs and polka dots, a feather boa tangled in the gears, a tired blond girl holding up one wild mask in wonder",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-jammed-press"]
+              }
+            },
+            "failure": {
+              "text": "The press eats your costume pieces and stamps them flat and beige. A bell dings. Kimmy turns, sees you and calmly presses a red button, and every green bulb on Crystal Street switches on at once.",
+              "art": "A blond girl calmly pressing a red button on a humming pod-shaped press in a garage, a startled teenager holding a crushed beige mask, green light flooding through the windows from every house outside",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "ask-kimmy",
+            "label": "Ask Kimmy what she'd be for Halloween if she could be anything",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "brightwaters-kip-blurry",
+              "amount": 1
+            },
+            "success": {
+              "text": "Kimmy's hands stop. \"We are going as Brightwaters,\" she says. Then she looks at the fangs on her hand, and her voice goes small and real. \"A bat. A vampire bat. They sleep upside down and nobody makes them match.\" You take a marker and draw fangs on the next mask off the press, and she laughs, startled, and draws fangs on the one after that herself.",
+              "art": "A blond girl and a teenager laughing together beside a mask press in a green-lit garage, both drawing little vampire fangs on smiling paper masks with markers, a tiny pair of fangs inked on the girl's hand",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["brightwaters-kimmy-bat"]
+              }
+            },
+            "failure": {
+              "text": "\"Anything?\" Kimmy repeats, and the hum rises around her. \"We would be what everyone is.\" She rubs the fangs off her hand with her thumb until the skin is pink, and goes back to feeding the press.",
+              "art": "A tired blond girl rubbing ink off the back of her hand beside a thumping mask press, green light humming around her, a teenager watching sadly from beneath the half-open garage door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "let-the-air-out",
+            "label": "Sneak around back and let the air out of the delivery van's tires",
+            "intent": "sneaky",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Behind the garage a beige delivery van sits loaded with mask boxes for the morning. Hiss, hiss, hiss, hiss. By the time Rex Brightwater comes out jingling the keys, the van is sitting on its rims. He stares at the flat tires for a long time, unable to decide what a normal person does next.",
+              "art": "A blond man in khakis staring blankly at a beige delivery van sitting on four flat tires behind a suburban garage at night, cardboard boxes stacked inside, a teenager hiding behind a trash can",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The valve cap sticks, and while you wrestle with it, a car door opens. Rex Brightwater is sitting in the driver's seat, smiling, as if he has been sitting there all night. \"Need a ride somewhere, champ?\"",
+              "art": "A smiling blond man in khakis leaning out of the driver's door of a beige delivery van at night, a startled teenager crouched by the rear tire, green light glowing from the garage",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -852,6 +1116,94 @@
             "art": "A teen shouting into a microphone while a few paper-masked neighbors half-lift their masks and hesitate, green light rising around them",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Hit the hum with the weirdest truths you know, the kind that glitched it that first week",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "brightwaters-too-weird",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "That first week taught you the hive's blind spot: it can copy anything but weird. So you climb the roundabout and shout the strangest true things you know. \"I eat cereal with orange juice! Mr. Okafor talks to his tomatoes! Raven held a funeral for a mushroom!\" Behind the paper masks the neighbors start shouting their own, far too strange to copy, and the hum skips like a scratched record; the masks crumple, the copies freeze mid-step, and the hive, unable to make the town match, pulls its green light back into the sky like a tide going out.",
+            "art": "A costumed teenager shouting joyfully from atop a glowing purple geode on a suburban roundabout, neighbors tearing off crumpled paper masks and laughing, green light streaming back up into the night sky",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Your weirdest truth comes out sounding perfectly normal, and the hum swallows it. A hundred paper masks tilt toward you, interested. \"We like that too,\" they say together, and your skin crawls.",
+            "art": "A crowd of neighbors in identical smiling paper masks tilting their heads toward a costumed teenager on a roundabout at night, green light pouring up from the roundabout behind them",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Climb the roundabout and refuse out loud, the way you stood up in public midweek",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "brightwaters-spoke-up",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "Midweek you learned that the hive hates one thing even more than a mess: somebody refusing in public, where real people can see. So you climb the roundabout and shout it over the hum. \"NO! We didn't wish for this! We take it back!\" The neighbors who saw you dance, sing and speak up this week tear off their paper masks and shout it with you, and your crew storms the basement of number 7, ripping pods open while the copies wilt like cut flowers. By midnight the Brightwaters have folded into their lawn, and Crystal Street is loud again.",
+            "art": "A costumed teenager standing defiantly on a glowing geode shouting, neighbors ripping off paper masks and raising fists, teenagers hauling neighbors out of green pods through a basement window, a parade scattered across the street",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You shout, and the hum answers in a hundred voices, sweet and patient. A few neighbors lift their masks, then lower them again. They heard you, though, and some of them keep their hands close to their faces.",
+            "art": "A costumed teenager shouting from a roundabout at a crowd in smiling paper masks, a few neighbors lifting their masks halfway with uncertain eyes, green light humming over the street",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Name what makes each neighbor strange and wonderful, like the night before Halloween taught you",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "brightwaters-pickles",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween proved it: under every copy is somebody specific, a scruffy mutt named Pickles, a girl who wants to be a vampire bat, a you that no pod could hold. So you walk the parade and say it to each mask. \"Vernon, who taught half of us Dungeons and Dragons. Shelby, who does the best Halloween makeup in town. Kimmy, who wants to be a bat.\" Kimmy pulls off a paper mask with fangs drawn on it, the neighbors start shouting the weird, wonderful things they love about each other, and with every name a pod in the basement opens, until the hive goes quiet and finally understands what the town really wanted: not everyone the same, only nobody alone.",
+            "art": "A joyful Halloween parade on a suburban street, neighbors pulling off paper masks and hugging, a blond girl holding a mask with drawn-on fangs, a scruffy brown mutt bounding through the crowd, green light softening into dawn",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You call out the first name, and the hum drowns the rest. The masks turn toward you, curious and patient. You know exactly what to say, but the street is not brave enough yet to say it with you.",
+            "art": "A costumed teenager calling out into a parade of neighbors in identical smiling paper masks, the masked faces turning slowly toward them, green light pulsing from a basement window",
+            "effects": {
+              "nerve": -1
             }
           }
         }

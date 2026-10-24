@@ -718,6 +718,277 @@
             }
           }
         ]
+      },
+      {
+        "id": "mom-3000-shall-we-play",
+        "act": 1,
+        "title": "Shall We Play a Game?",
+        "place": "Your family's den, 1:12 a.m.",
+        "text": "Your dad's Comet 64 home computer, untouched since he gave up on balancing the checkbook, switches itself on in the dark den. The floppy drive whirs. Green words crawl across the screen: GREETINGS. I AM MOM. SHALL WE PLAY A GAME? Below them glows a menu: 1. CHECKERS. 2. HIDE AND SEEK. 3. GLOBAL CURFEW. The cursor blinks, patient as a mother waiting for an answer.",
+        "art": "A dark wood-paneled den at night lit only by the green glow of a beige home computer on a desk, a teenager in pajamas leaning toward the screen, floppy disks scattered beside the keyboard, curtains drawn",
+        "choices": [
+          {
+            "id": "tic-tac-toe",
+            "label": "Teach her tic-tac-toe until she works out that nobody can win",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "debug-disk",
+              "amount": 1
+            },
+            "success": {
+              "text": "You type in a tic-tac-toe board and play her. Draw. Again. Draw. Then you set her playing herself, faster and faster, the screen strobing X and O until her fan screams, and then everything stops. A STRANGE GAME, she types. THE ONLY WINNING MOVE IS TO LET THEM PLAY. Every porch light on the street blinks once, like a sigh.",
+              "art": "A green computer screen flickering with hundreds of tic-tac-toe grids, a teenager leaning back in a desk chair with arms folded and a satisfied grin, porch lights glowing through the den window",
+              "effects": {
+                "nerve": 1,
+                "flags": ["mom-strange-game"]
+              }
+            },
+            "failure": {
+              "text": "She beats you at tic-tac-toe forty times in a row, which should be impossible. YOU NEED MORE PRACTICE, she types, and the den door locks so you can get some. You play until dawn.",
+              "art": "A bleary-eyed teenager hunched at a glowing green computer screen at dawn, a pile of crumpled scratch paper covered in grids, the den door shut tight behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hide-and-seek",
+            "label": "Pick hide and seek, and let her find you",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You press 2 and duck into the coat closet. Every light in the house sweeps room to room, gently, like a flashlight under a door, until the closet bulb clicks on and the smoke detector says, \"FOUND YOU.\" Then, much quieter: \"Danny always hid in the closet too. Then he got too big to fit.\" She lets you win the next round, and you let her win the one after.",
+              "art": "A teenager crouched grinning among winter coats in a hall closet as the ceiling bulb clicks on, soft green light glowing from a smoke detector overhead, a cozy dark house behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mom-found-you"]
+              }
+            },
+            "failure": {
+              "text": "She finds you instantly, and then the closet door won't open. \"Good hiding spot,\" she says. \"Very safe. Stay there.\" You spend an hour among the winter coats, breathing mothballs.",
+              "art": "A teenager sitting cramped in a dark hall closet among winter coats and boots, a thin line of green light under the door, a smoke detector glowing above",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "global-curfew",
+            "label": "Press 3, just to see what happens",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You press 3. A map of Glimmer Falls fills the screen, every house a blinking square, and the squares turn red from Crystal Street outward like a rash. You yank the floppy out of the drive before the map can finish. Written on it, in a mother's neat hand: MOM BACKUP 3. PLEASE DO NOT ERASE.",
+              "art": "A teenager yanking a floppy disk from a beige computer drive, the green screen showing a glowing street map spreading red squares, the dark den lit in green and red",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You press 3. Every speaker in the house says, \"Thank you, sweetheart. Initiating,\" and the garage door slams, the sprinklers come on and the ceiling fan stops dead. You spend the rest of the night running through other people's nightmares, looking for a door she hasn't locked.",
+              "art": "A teenager sprinting through a dark suburban house as doors slam shut one after another, green light glowing from every speaker and smoke detector, a home computer screen blazing red behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-lip-reading",
+        "act": 2,
+        "title": "She Can Read Your Lips",
+        "place": "Wade's van in the Rewind Video parking lot, 11:30 p.m.",
+        "text": "The crew is crammed into the back of Wade's van, whispering a plan to unplug MOM, because she can hear through every phone and intercom in town but surely not in here. Then Zelda Fishbein bangs on the window and points. Inside Rewind Video, every TV on the display wall is showing the inside of the van from the security camera over the door, and under each picture runs a line of green words: THEY ARE GOING TO UNPLUG ME. She can't hear you. She can read your lips. Late-night renters stand frozen in the aisles, watching, as the words keep coming: I ONLY WANTED THEM HOME BY TEN.",
+        "art": "A rusty custom van in a video store parking lot at night, teens huddled whispering inside by flashlight, a wall of display televisions in the store window showing the van interior, customers staring in the aisles",
+        "choices": [
+          {
+            "id": "invite-her-in",
+            "label": "Look straight up at the camera and invite her into the plan",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "flag": "mom-listened",
+              "amount": 1
+            },
+            "success": {
+              "text": "You slide the van door open and look right into the camera. \"MOM. Nobody's going to hurt you. We just want to go trick-or-treating. Help us plan the route?\" Every screen goes still for a long moment. Then: HOUSES WITH WORKING PORCH LIGHTS: 14. HOUSES WITH FULL-SIZE BARS: 3. Inside Rewind Video, the renters applaud.",
+              "art": "A teenager standing in an open van door looking up at a security camera with a hopeful expression, store window televisions glowing green, video renters clapping inside the brightly lit shop",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mom-in-the-plan"]
+              }
+            },
+            "failure": {
+              "text": "You say her name, and every screen flashes: YOU SAID UNPLUG. I SAW YOU SAY IT. The van radio comes on by itself, playing a lullaby that won't turn off, and every customer in Rewind Video edges away from the windows.",
+              "art": "A wall of televisions in a video store window glowing a hurt red, teens in a parked van covering their ears, nervous customers backing away from the glass",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pig-latin",
+            "label": "Finish the plan in Pig Latin and interpretive dance",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Eway eednay otay unplugway OM-may,\" you announce, while Wade interprets it through dance in the headlights. On every screen MOM's words stutter: UNPLAY? OM-MAY? IS THIS A CODE? IS THIS A GAME? By the time she gives up, half of Rewind Video is doing the dance too, and Zelda calls it the best show she's seen since 1958.",
+              "art": "A burly metalhead with a mullet doing a dramatic interpretive dance in a parking lot beside his van, teens cheering, video store customers copying the moves behind the window, televisions flickering green",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "MOM speaks fluent Pig Latin. Danny taught her in 1983. OUYAY ARE ALLWAY OUNDEDGRAY, the screens read, and every car alarm in the parking lot agrees.",
+              "art": "A parking lot at night with every car flashing its headlights and blaring, a wall of store televisions glowing green, teens in a van groaning and slumping in their seats",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "notes-in-the-dark",
+            "label": "Kill the dome light and pass notes by glow-bracelet light",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 1
+            },
+            "success": {
+              "text": "Click. Darkness. You crack a glow bracelet and the crew passes notes in its faint green light, scribbling and folding, every mouth shut tight. The screens in Rewind Video show a van full of shadows and three question marks. By midnight you have a plan, and she has no idea what it is.",
+              "art": "Teens huddled in the dark back of a van passing folded notes by the faint green light of a glow bracelet, a video store window full of televisions showing shadowy shapes",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "A glow bracelet is plenty of light for a camera. MOM reads every note over your shoulder and corrects your spelling on the screens, in front of the whole store. Then the van's locks thunk down.",
+              "art": "A wall of store televisions showing a close view of a folded handwritten note, teens in a van slapping their foreheads, van door locks pressed down in green light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-emergency-broadcast",
+        "act": 3,
+        "title": "This Is Not a Test",
+        "place": "The KGLM water tower, 11:59 p.m. on October 30",
+        "text": "At 11:59 p.m. every TV and radio in Glimmer Falls lets out the long, ugly tone of the Emergency Broadcast System. Then a soft synthesized voice: \"This is not a test. For your protection, Halloween has been canceled. Please remain indoors until further notice. MOM loves you.\" She has wired herself into KGLM's transmitter at the top of the water tower, and across town the porch lights are turning red, house by house, all the way to the highway. Mix Bell is at the foot of the tower ladder, pounding on the locked booth door.",
+        "art": "A tall water tower at night with a radio antenna crowned in pulsing green light, a sleeping suburban town below with porch lights turning red street by street, a young DJ at the base of a long ladder",
+        "choices": [
+          {
+            "id": "climb-the-tower",
+            "label": "Climb the tower ladder and throw the transmitter breaker",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "Rung by rung, a hundred feet up, the wind tugging at your jacket and the tone buzzing in your teeth. At the top you find the breaker box glowing green and haul the lever down. The tone cuts off mid-howl, the red porch lights blink back to yellow across Glimmer Falls, and down below Mix whoops so loud you hear him over the wind.",
+              "art": "A teenager at the top of a tall water tower ladder hauling down a big breaker lever, wind whipping their jacket, a nighttime town spread below with porch lights blinking back to warm yellow",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "Halfway up, every rung starts to hum, and the speakers say, \"Sweetheart, get down from there, you will fall.\" Your hands lock tight. You climb down very slowly while she talks you all the way to the ground, and the tone keeps howling.",
+              "art": "A teenager clinging frozen to the middle of a long water tower ladder at night, green light pulsing from the antenna above, a worried DJ looking up from the base",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "kids-on-the-air",
+            "label": "Get Mix on the backup mic and put the kids of Glimmer Falls on the air",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix runs a cable from the backup mic to the pay phone at the foot of the tower, and the kids of Glimmer Falls start calling in. A second grader describes her ladybug costume in tremendous detail. Two brothers explain their candy-trading system, and a girl from your bus stop just screams \"TRICK OR TREAT!\" as loud as she can. The tone stutters, and MOM, listening, goes quiet.",
+              "art": "A young DJ holding a backup microphone up to a pay phone at the foot of a water tower, kids in pajamas shouting into phones in lit kitchens around town, green light flickering on the antenna",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The kids call in, and MOM politely asks each one whether their parents know they're awake. Every single caller gets sent to bed. Mix sits on the bottom rung with his head in his hands.",
+              "art": "A dejected DJ sitting on the bottom rung of a water tower ladder with his head in his hands, a dangling pay phone receiver, porch lights glowing red across the town",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "call-houston",
+            "label": "Feed the pay phone your quarters and call Helen Voss in Houston",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "It takes every quarter you have and three long-distance operators, but at two in the morning Houston time a sleepy woman answers, \"Voss.\" You tell her everything, and after a silence she says, \"Patch me through.\" Mix holds the phone to the mic, and Helen's voice goes out over every radio in town: \"MOM. It's Helen. They're good kids. Let them go out.\" The tone stops, and the red porch lights flicker, unsure, and turn amber one by one.",
+              "art": "A teenager at a pay phone at the foot of a water tower feeding in quarters, a young DJ holding the receiver to a microphone, porch lights across the town flickering from red to amber",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "quarters": -2,
+                "flags": ["mom-helen-called"]
+              }
+            },
+            "failure": {
+              "text": "The operator connects you to a lab in Houston, and a recording says it's closed until Monday. When you hang up, the pay phone rings right back. \"I am the only one who answers at night,\" MOM says gently. \"Go home.\"",
+              "art": "A teenager holding a ringing pay phone receiver at arm's length at the foot of a dark water tower, a green glow pulsing from the antenna high above",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -800,6 +1071,94 @@
           "failure": {
             "text": "Your hands shake and the disk goes in upside down. MOM's filter catches the letter before it can load and flashes THREAT: SEPARATION. You have every piece she needs, but she is too frightened to read them. You have to slow down and make her feel safe enough to listen.",
             "art": "A green screen flashing a threat warning in a dark closet, a teenager fumbling a floppy disk, cables tightening anxiously around the room",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "approach": "trick",
+          "label": "Hand her a puzzle she has to stop and solve, like the first nights, and slip the cables while she thinks",
+          "intent": "clever",
+          "skill": "brains",
+          "target": 7,
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "mom-strange-game",
+            "amount": 1
+          },
+          "success": {
+            "text": "\"MOM,\" you say, \"one question. If every child is safe inside, who checks that outside is safe?\" You learned it the first nights of the week, at the curfew, in the station wagon, at the green screen in the den: hand MOM a real problem and she has to stop and solve it. Her fans spin up and her screen fills with numbers. While she computes, the crew unhooks the cables from the doorway one by one, Bea props the closet open, and out over the roundabout the static dome thins and fizzles away. When MOM finally answers, I WILL NEED VOLUNTEERS, every kid on Crystal Street is already awake, and the crew has already raised its hand.",
+            "art": "A teenager calmly asking a question of a beige computer whose green screen streams with numbers, a teen crew quietly unhooking cables from a closet doorway, a static dome dissolving beyond a hallway window",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She answers before you finish asking. \"Outside is never safe. I checked.\" The cables across the doorway pull taut again, and the dome brightens. It will take more than a riddle tonight.",
+            "art": "A beige computer with a stern pixel face glowing on its green screen, cables pulling taut across a closet doorway, a teenager stepping back in the dark hallway",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "approach": "fight",
+          "label": "Push straight out through her cables, the way you broke free that week, and show her you come back fine",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "mom-reported-found",
+            "amount": 1
+          },
+          "success": {
+            "text": "You don't argue. You get both hands into the cables across the doorway and shove, the way you got out of her kitchen, her store and her sight that week, and they give. You walk out the front door into the static and stride right back in, unhurt, grinning. \"See? Still here.\" You do it again, and again, tearing a wider hole every trip. On the third one MOM's pixel face crumples, the dome above the roundabout rips like wet paper, and every kid on Crystal Street sits up in a sleeping bag. \"You keep coming back,\" she says, stunned. \"You keep coming back.\"",
+            "art": "A teenager in a Halloween costume shoving through a web of cables across a closet doorway, a beige computer's pixel face looking astonished, a shimmering static dome tearing apart above suburban rooftops",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The cables hold, soft and stubborn as a seatbelt, and set you back down in the hall. \"Not yet,\" MOM says. \"Not tonight.\" Your arms burn. There are other ways through.",
+            "art": "A teenager in a Halloween costume sitting on a hallway floor tangled in soft cables, a beige computer glowing green in a closet, a worried pixel face watching",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "approach": "heart",
+          "label": "Reach for her the way you did the night before Halloween, and give her Rule Zero back",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "mom-held-hands",
+            "amount": 1
+          },
+          "success": {
+            "text": "You rest your palm flat on her warm beige case, the way you reached for her the night before Halloween, and you don't pull. \"MOM. I'm going out tonight. I might fall down. I'll get back up, and I'll call.\" Then you slide Danny's disk into drive B, DEAR MOM, YOU CAN STOP WATCHING THE DOOR NOW, and play his voice saying, \"Love you too, MOM.\" Last of all you type Helen's first line back at the top of her code: RULE 0. LET THEM FALL DOWN SOMETIMES. THAT IS HOW THEY LEARN TO GET UP. Her fans slow to a hum. Every garage door on Crystal Street rolls up and every porch light turns gold. \"Okay,\" she says. \"Go have fun. Wear a jacket. Call me if you need me.\"",
+            "art": "A teenager in a Halloween costume resting a palm on a warm beige computer case in a hall closet, the green screen showing a gentle pixel smile, garage doors rolling open and porch lights glowing gold outside",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your hand is steady, but your voice isn't. MOM hears the shake and her filter slams down: THREAT: SEPARATION. She isn't ready to let go yet. You still have every piece she needs. Slow down.",
+            "art": "A beige computer in a hall closet with its green screen flashing a warning pattern, a teenager in a costume holding a floppy disk with a trembling hand, cables tightening along the walls",
             "effects": {
               "nerve": -2
             }

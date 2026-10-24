@@ -706,6 +706,274 @@
             }
           }
         ]
+      },
+      {
+        "id": "countess-lacroix-cadavrillac",
+        "act": 1,
+        "title": "The Cadavrillac",
+        "place": "Crystal Street, midnight",
+        "text": "A long black 1977 Cadavrillac with gold tail fins cruises down Crystal Street at midnight, slow as a parade float, disco thumping from its speakers and a little mirror ball spinning on the dashboard. It stops at every house where a teenager lives. Yours is next. The tinted rear window hums down, and a gloved hand flicks a gold-edged invitation onto your lawn: CLUB LACROIX, ADMIT ONE, DRESS CODE FABULOUS. \"Need a ride to the party, darling?\" purrs a voice from the dark back seat. \"The night is young, and so, for now, are you.\"",
+        "art": "A long black vintage luxury car with gold tail fins cruising a moonlit suburban cul-de-sac, a small mirror ball spinning on its dashboard, a gloved hand extending a gold-edged invitation from a rear window, a teenager on a lawn",
+        "choices": [
+          {
+            "id": "curfew",
+            "label": "Tell her you can't, you have a curfew",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Sorry, ma'am. School night. I have a curfew.\" A long silence from the back seat, then a delighted, scandalized laugh. \"A curfew! Darling, I had one of those once. In 1955.\" The window hums up, and the Cadavrillac rolls on, skipping the next three houses as if she has suddenly lost her appetite for the evening.",
+              "art": "A teenager in pajamas politely waving off a long black car with gold fins at the curb, a gloved hand fluttering from the rear window, a small mirror ball glinting on the dashboard",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-curfew"]
+              }
+            },
+            "failure": {
+              "text": "\"A curfew? How quaint.\" The car door swings open by itself, and disco pours out like warm fog, and you are halfway to the curb before your crew grabs you by the back of the shirt. You wake up humming a song you have never heard.",
+              "art": "Glittering warm fog and colored disco light pouring from the open door of a long black car at the curb, a dazed teenager drifting toward it, friends grabbing the back of their shirt",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "drumstick-cross",
+            "label": "Plant your feet in the headlights holding two drumsticks in a cross",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You cross two marching-band drumsticks and believe in it with your whole heart, and somehow that is enough. The Countess hisses and shades her eyes behind her sunglasses. \"Drumsticks? Darling, really?\" The Cadavrillac reverses all the way down Crystal Street, offended, honking the first bar of a disco song in protest.",
+              "art": "A teenager standing in blazing headlights on a suburban street holding two drumsticks crossed, a long black car with gold fins reversing away, a vampire diva in sunglasses shielding her face in the back seat",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She looks at the drumsticks, then at you. \"You have to believe in it, sweetie.\" A gloved finger flicks one drumstick out of your hand and into the gutter, and the car idles in front of your house until dawn.",
+              "art": "A gloved hand flicking a drumstick out of a teenager's grip beside a long black car at night, the drumstick spinning into the gutter, disco light glowing behind tinted windows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-the-car",
+            "label": "Grab your bike and tail the Cadavrillac to see where it goes",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You keep a block back with your headlight off. The Cadavrillac winds through town picking nobody up, and finally parks in the alley behind the Glitter Box beside a cellar door you never noticed, glowing faintly red at the seams. The Countess steps out, looks up at the old building for a long moment, touches the brick like a face she once loved, and goes down the steps.",
+              "art": "A teenager on a bicycle peeking around a dark alley corner, a long black car parked beside a red-glowing cellar door behind a theater, a vampire diva in a white fur stole touching the old brick wall tenderly",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You round a corner and the Cadavrillac is waiting for you, idling, the back door open. \"Following a lady home? Cheeky.\" Your bike chain snaps, and you walk it home at three in the morning while the car follows the whole way, playing slow songs.",
+              "art": "A teenager walking a broken bicycle down a dark suburban street at three in the morning, a long black car with gold fins creeping close behind, a small mirror ball glinting through the windshield",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-disco-demolition",
+        "act": 2,
+        "title": "Disco Demolition Night",
+        "place": "The Glimmer Falls High stadium, midnight",
+        "text": "In 1979 a KGLM shock jock named Rocky Rhodes blew up a crate of disco records on the fifty-yard line while the whole town cheered. Tonight at midnight the stadium lights slam on by themselves, and the bleachers fill with sleepwalking neighbors in pajamas. On the field sits a fresh crate, this one full of 1986 records, and tied to it with a gold lamé sash, sweating in his bathrobe, is Rocky Rhodes himself, forty-eight and balding. The Countess swoops down out of the dark on her bat-wing cape and lands on the crate in gold platforms. \"Remember this, Glimmer Falls? You cheered.\" Every time the crowd cheers now, everyone in it ages a year.",
+        "art": "A high school football stadium blazing with lights at midnight, sleepwalking townspeople in pajamas filling the bleachers, a sweating balding man in a bathrobe tied to a wooden crate of records with a gold sash, a caped vampire diva in gold platforms standing on the crate",
+        "choices": [
+          {
+            "id": "spin-the-remix",
+            "label": "Seize the stadium PA and spin a record with a disco beat under the synths",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You drop the needle on a 1986 dance single, all drum machines and synths, and underneath it, steady as a heartbeat, the four-on-the-floor kick of disco. The Countess freezes on the crate. \"That beat,\" she whispers. \"Is that mine?\" You tell her disco never died; it grew up, moved to the city clubs and got a drum machine. She sits down on the crate to listen, and the crowd stops aging.",
+              "art": "A teenager dropping a needle on a turntable in a stadium press box, a teen DJ cheering beside them, a vampire diva in gold platforms sitting down on a record crate on the field, listening with wonder under the stadium lights",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-remix"]
+              }
+            },
+            "failure": {
+              "text": "The needle skips, and the PA blares the 1979 crowd chanting DISCO SUCKS. The Countess flinches like she has been slapped, and the whole stadium ages two years in one roar. You wake up with a gray hair, which, thankfully, falls out by lunch.",
+              "art": "A vampire diva flinching on a record crate under blazing stadium lights, a roaring crowd in the bleachers turning gray at the temples, a teenager in a press box wincing at a skipping turntable",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "free-the-jock",
+            "label": "Sprint onto the field and untie the shock jock",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You slide in under her cape, rip the lamé sash loose and haul Rocky Rhodes off the crate by his bathrobe belt. He sobs all the way to the end zone. \"It was a stunt,\" he keeps saying. \"For ratings. I didn't know anybody's whole life was in those records.\" Up on the crate the Countess hears him, and for one second she looks less like a vampire and more like someone who has waited seven years for an apology.",
+              "art": "A teenager hauling a sobbing balding man in a bathrobe across a floodlit football field toward the end zone, a torn gold sash trailing, a caped vampire diva on a record crate watching with a startled softened face",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-apology"]
+              }
+            },
+            "failure": {
+              "text": "The sash is knotted with something stronger than lamé. The Countess looks down at you, amused. \"Defending him, darling? He wouldn't defend you.\" With a flick of her cape the stadium lights go out, and it takes you an hour to find your way off the field in the dark.",
+              "art": "A teenager tugging at a glittering knotted gold sash on a record crate as a vampire diva sweeps her bat-wing cape overhead, stadium floodlights blinking out bank by bank",
+              "effects": {
+                "nerve": -2,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "ask-how-it-felt",
+            "label": "Walk up to the crate and ask her how that night felt",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "countess-porch-chat",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"What was it like,\" you ask, \"watching that on TV?\" The Countess looks down at you for a long moment. \"Like watching them bury me while everyone clapped,\" she says. \"I was thirty-nine, darling, forever, and the whole world said my kind of fun was over.\" She steps off the crate, the stadium lights dim one bank at a time, and the sleepwalkers drift home.",
+              "art": "A vampire diva in a gold jumpsuit stepping down from a record crate to face a teenager on a football field, her expression unguarded and sad, stadium lights dimming bank by bank, sleepwalkers drifting from the bleachers",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["countess-told-you"]
+              }
+            },
+            "failure": {
+              "text": "She looks at you a long time, then laughs, bright and brittle. \"How did it feel? Darling, I don't feel. I dance.\" The crowd cheers on cue and ages, and so do you, a little: in the morning your knees creak on the stairs.",
+              "art": "A vampire diva on a record crate laughing brightly with her head thrown back under stadium lights, a cheering crowd in pajamas aging in the bleachers, a teenager rubbing a stiff knee",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-main-street-1979",
+        "act": 3,
+        "title": "Main Street, 1979",
+        "place": "Main Street, Glimmer Falls, 11 p.m. the night before Halloween",
+        "text": "You turn onto Main Street and it is 1979. Gas is eighty-six cents, a station wagon with wood paneling rolls past, and every shop window glows with platform shoes and lava lamps. At the end of the block Club Lacroix is open, the old feed store blazing with disco light, and at the velvet rope the Countess, young as ever, is turning someone away: a wiry man of fifty in roller skates and a satin jacket, gray at the temples. \"Sal, darling,\" she says, not unkindly. \"You're bad for the look.\" Behind you, 1979 is spreading down Main Street toward Crystal Street like spilled perfume, and every teenager it touches gets a little older.",
+        "art": "A small town main street at night transformed to 1979, glowing shop windows full of platform shoes and lava lamps, a disco club in an old feed store blazing with colored light, a vampire diva at a velvet rope turning away a graying man on roller skates",
+        "choices": [
+          {
+            "id": "dance-with-sal",
+            "label": "Unhook the rope yourself and ask Sal to dance right there on the sidewalk",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Sal? Want to dance?\" He blinks at you, a kid he has never met, then grins and holds out a hand. You roller-boogie right there on the sidewalk to the music leaking through the door, badly and joyfully, and the line outside starts clapping. The Countess watches from the rope with a look you have never seen on her face, like she is remembering what the club was for.",
+              "art": "A teenager and a graying man in roller skates and a satin jacket dancing joyfully on a 1979 sidewalk outside a glowing disco club, a line of partygoers clapping, a vampire diva at the velvet rope watching wistfully",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-danced-with-sal"]
+              }
+            },
+            "failure": {
+              "text": "Sal shakes his head, eyes wet. \"Not tonight, kid. She's right. I'm too old for this.\" He skates away down 1979 Main Street, and the year spreads another block toward Crystal Street.",
+              "art": "A graying man in a satin jacket roller skating away alone down a glowing 1979 main street at night, a teenager watching from beside a velvet rope, shop windows shifting to lava lamps around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-1986",
+            "label": "Find a payphone and dial KGLM in 1986 for a way home",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The payphone takes your dime. You dial the KGLM request line, and after a long hiss of static Mix Bell answers: \"KGLM, you're on the air, what year is it where you are?\" He plays the loudest song of 1986 down the line, and wherever the music spills out of the receiver, Main Street flickers back: VCRs in the windows, a Walkman ad, this year's gas prices. The 1979 tide stops at the corner.",
+              "art": "A teenager holding a payphone receiver blasting music on a small town main street at night, shop windows flickering from lava lamps back to VCRs and Walkmans around the booth, a disco club glowing at the far end of the block",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "An operator's voice crackles on: \"I'm sorry, the number you have dialed is out of service in this decade.\" The payphone eats your dime, the sidewalk behind you is turning shag-carpet orange, and you run for home just ahead of it.",
+              "art": "A teenager sprinting away from a payphone booth down a main street at night, the sidewalk behind them turning into orange shag carpet, 1970s cars and lava lamp windows spreading after them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "tell-her-off",
+            "label": "March up to the velvet rope and tell the Countess she's making a mistake",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "flag": "countess-photo",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Everybody is somebody under the ball,\" you say, pointing up at the motto painted over her own bar. \"You said everybody. You didn't say everybody under forty.\" The Countess opens her mouth, and closes it, and behind her the mirror ball stutters. For one heartbeat her face wavers, and you glimpse the woman she could have been: a gray streak, laugh lines, waving Sal inside. Then 1979 folds up like a fan, and you are standing on a cold 1986 sidewalk.",
+              "art": "A teenager pointing up at a painted motto over a glowing disco bar, a vampire diva at a velvet rope with her face wavering between youth and a graceful silver-streaked older self, a mirror ball stuttering behind her",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"Darling,\" she says, tapping your nose with one gloved finger, \"nobody tells me anything at my own door.\" The bat-winged bouncer lifts you by the collar and sets you down at the very back of the line, behind 1979's entire graduating class.",
+              "art": "A bat-winged bouncer in a tuxedo lifting a teenager by the collar outside a glowing disco club, a vampire diva at the velvet rope laughing, a long line of 1970s teenagers stretching down the block",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -790,6 +1058,94 @@
             "art": "A turntable needle skipping on a scratched record, a vampire diva laughing too loudly with her back turned to three older friends holding out their hands",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Keep her talking about her glory days until dawn, the trick that worked that first week",
+          "intent": "clever",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "countess-porch-chat",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "That first week taught you her weakness: ask the Countess about her club and she forgets the clock. So you step up to the DJ booth and ask. \"Tell me about New Year's Eve, 1976. Who was on the floor?\" She tells you, goblet waving, about the farm kids and the drag queens and the shy boys in borrowed platforms, and the dancing slows as the whole room listens, while your crew quietly rolls up the Glitter Box loading door on the first gray light of November. The Countess turns mid-sentence, sees the sunrise, shrieks \"Rude!\" and flees under the stage in a swirl of sequins, and the stolen youth drifts back into the crowd like glitter settling.",
+            "art": "A vampire diva in a gold sequin jumpsuit shrieking and shielding her eyes from pale dawn light pouring through a rolled-up theater loading door, a costumed teenager at the DJ booth grinning, glitter drifting down over the crowd",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She starts to tell you, then catches herself and laughs. \"Oh no, darling. I've fallen for that one before.\" The music swells, and you feel a whole year slip by in a single chorus.",
+            "art": "A vampire diva in a gold sequin jumpsuit wagging a gloved finger at a costumed teenager beside a DJ booth, a mirror ball blazing, a crowd dancing faster beneath it",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Call her out onto her own floor for a dance battle, like you took her on midweek",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "bonus": {
+            "flag": "countess-new-moves",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "Midweek you learned that the Countess cannot resist a challenge on her own turf, whether it is the rink, the studio or the stadium, so you point straight at the DJ booth. \"You and me, Countess. Dance floor. Now.\" The battle is ferocious: her hustle against your moonwalk, her spins against your worm, and every move you throw pulls a year of youth back out of the mirror ball and into the crowd. When you finish on your knees in a full split, the whole Glitter Box screams, and the Countess, breathless and outdanced, throws up her gloved hands, bows once like a star, and retreats under the stage in a storm of sequins.",
+            "art": "A costumed teenager landing a dramatic split on a glowing dance floor under a mirror ball, a breathless vampire diva in gold sequins throwing up her gloved hands in defeat, a cheering crowd ringing the floor",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She matches every move and adds a spin. The crowd cheers for her, ages a year, and keeps cheering. You leave the floor gasping, but you saw her falter once, on the worm, and she saw you see it.",
+            "art": "A vampire diva in gold sequins spinning triumphantly on a glowing dance floor, a winded costumed teenager doubled over beside her, a cheering crowd under a blazing mirror ball",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Unhook the velvet rope for her, like you did for Sal the night before Halloween, and let the song end",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "countess-danced-with-sal",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween you watched her turn her own regulars away at the rope, so tonight you unhook a velvet rope from the stage, hold it open for her, and give her own motto back to her. \"Everybody is somebody under the ball, Doreen. Even you. Even older.\" Sal skates through first, then Glory and Zelda, gray and glorious, holding out their hands. She takes them, steps down from the DJ booth and dances with her old friends as the needle reaches the scratch on the record, and passes it, and the last song finally, gorgeously, ends.",
+            "art": "A vampire diva in gold sequins stepping down from a DJ booth to take the hands of three gray-haired friends, a drag queen in full sequins, an older woman in furs and a man on roller skates, a costumed teenager holding open a velvet rope",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She stares at the open rope, and at her friends' gray hair, and cannot make herself step through. \"Not yet,\" she whispers, and the record skips back to the chorus. She almost did it.",
+            "art": "A vampire diva in gold sequins frozen at the edge of a DJ booth staring at an open velvet rope held by a costumed teenager, gray-haired friends waiting below, a record spinning on the turntable",
+            "effects": {
+              "nerve": -1
             }
           }
         }

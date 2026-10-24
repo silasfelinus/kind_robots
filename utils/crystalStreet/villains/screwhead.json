@@ -204,6 +204,279 @@
     ],
     "signature": [
       {
+        "id": "screwhead-tidy-drawers",
+        "act": 1,
+        "title": "We Have Such Tidy Drawers to Show You",
+        "place": "Your front door, 1:30 a.m.",
+        "text": "The doorbell rings at 1:30 in the morning. On your porch stand Mr. and Mrs. Fenwick from number 9 in matching pressed orange HomeMax aprons, smiling with every tooth, a thin silver chain looped politely around each of their wrists. Mrs. Fenwick holds a clipboard and Mr. Fenwick holds a label maker. \"Good evening,\" they say together. \"We're with the Order. We have such tidy drawers to show you.\" Behind them every mailbox on Crystal Street has been straightened, and the Lindgrens' garden gnomes stand in a perfect row, sorted by height.",
+        "art": "A smiling middle-aged couple in matching pressed orange hardware-store aprons on a suburban porch at night, thin silver chains looped around their wrists, holding a clipboard and a handheld gadget, a teenager peering through a screen door",
+        "choices": [
+          {
+            "id": "no-thank-you",
+            "label": "Say \"No, thank you\" and mean it",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "\"No, thank you,\" you say, and you don't add a reason, because you don't need one. The Fenwicks' smiles flicker like a bad fluorescent tube; nobody in the Order has heard that sentence in a while. Mrs. Fenwick's pen hovers, then writes, slowly, DECLINED. They back off the porch, and for the first time tonight their chains hang a little loose.",
+              "art": "A teenager standing firm in a doorway with one hand raised, a smiling couple in orange aprons stepping back off the porch with flickering expressions, their silver chains hanging loose, a porch light glowing",
+              "effects": {
+                "nerve": 1,
+                "flags": ["screwhead-no-thanks"]
+              }
+            },
+            "failure": {
+              "text": "\"We heard you,\" says Mr. Fenwick, and he label-makes your front door anyway. It says OCCUPANT. In the morning there's another one stuck to your pillow.",
+              "art": "A neatly printed white strip stuck to a front door at night, a smiling man in an orange apron walking away down a perfectly straight garden path, a teenager staring through the screen door in dismay",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "messy-room-tour",
+            "label": "Invite them up for a tour of your gloriously messy room",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You give them the full tour like a museum docent: the laundry mountain, the cassette avalanche, the band photos taped up at nine different angles. \"And this sock,\" you announce grandly, \"lost its partner in 1984 and has made peace with it.\" Mrs. Fenwick lets out a small, shocked laugh, then a bigger one, and her chain slips off her wrist onto the carpet. She sits on your bed and says she had a room exactly like this in 1962.",
+              "art": "A teenager in pajamas giving a grand tour of a wildly cluttered bedroom with laundry piles and crooked band photos on the walls, a woman in an orange apron laughing on the bed, a silver chain lying on the carpet",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They follow you upstairs, and before you can stop them your room is perfect: hospital corners, cassettes alphabetized, every sock paired. You can't find anything for a week.",
+              "art": "A spotless bedroom with a tightly made bed and perfectly stacked cassettes, a couple in orange aprons nodding with satisfaction, a horrified teenager standing in the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "what-did-you-love",
+            "label": "Ask Mr. Fenwick what he loved before he joined",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Mr. Fenwick, didn't you used to fly kites in the cul-de-sac?\" He blinks. \"Kites,\" he says, as if the word is in another language. \"Box kites. A dragon one. They go wherever the wind wants.\" One link of the silver chain at his wrist opens with a tiny click, and though Mrs. Fenwick hurries him away, he looks back at the sky twice.",
+              "art": "A middle-aged man in an orange apron gazing up at the night sky with a faraway look on a suburban porch, one link of the silver chain at his wrist open, a teenager watching kindly",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "He thinks for a long time. \"Order,\" he says at last. \"I have always loved order.\" He sounds like he's reading it off a cue card. The chain on his wrist cinches one link tighter, and somehow so does your collar.",
+              "art": "A smiling man in an orange apron with a blank expression on a dark porch, a silver chain tightening on his wrist, a teenager tugging nervously at a buttoned shirt collar",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "screwhead-places-forever",
+        "act": 2,
+        "title": "Places, Please. Forever.",
+        "place": "The Glitter Box Playhouse, midnight rehearsal",
+        "text": "You stop by the Glitter Box to help with the Halloween revue and walk into a nightmare of neatness. The Order got here first: every sequin is screwed down, every wig is pinned to a stand in alphabetical order, the spotlight is bolted to one spot, and Glory is frozen center stage mid-kick while Frankie's headset whispers, \"Places. Places forever.\" At the bar, the Velvet Hammers, the leather-jacketed motorcycle club that always takes the back booth, are glaring at the brass chains someone has locked on over their own wallet chains. \"Ours we picked,\" their president growls. \"These, nobody asked.\" Out front, a line of regulars is gathering at the door, asking why the lights won't change.",
+        "art": "A glittering small-town drag theater at midnight, a drag queen in sequins frozen mid-kick center stage under a bolted spotlight, wigs pinned in neat rows, leather-jacketed bikers glaring at brass chains at the bar",
+        "choices": [
+          {
+            "id": "wild-number",
+            "label": "Jump on stage and improvise a number so wild nothing can stay in place",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You grab a feather boa and launch into the most chaotic number the Glitter Box has ever seen: half disco, half Hokey Pokey, and a split you absolutely cannot do. Glory unfreezes at your first wrong step, shrieks with joy and joins in. Sequins pop loose like confetti and the spotlight wrenches free of its bolts to follow you. \"THAT,\" Glory roars, \"is a show!\"",
+              "art": "A teenager in a feather boa doing a wild chaotic dance on a drag theater stage, a drag queen in sequins breaking free mid-kick to join in, loose sequins flying like confetti, a spotlight swinging free",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-encore"]
+              }
+            },
+            "failure": {
+              "text": "You leap onstage and land exactly on your mark, perfectly, and then you can't move. You stand beside Glory, frozen mid-jazz-hands, until Frankie gets the work lights on at dawn.",
+              "art": "A teenager frozen with jazz hands beside a drag queen frozen mid-kick on a theater stage, harsh work lights at dawn, a stage manager in a headset rushing in",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "your-show-your-call",
+            "label": "Go performer to performer and ask what they want their act to be",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "You crouch beside each frozen performer and ask, \"What do you want your number to be tonight? You can change your mind.\" A drag king wants to do Elvis instead of Sinatra; a queen in a ball gown wants sneakers. Every answer spins a screw loose. When you reach the Velvet Hammers, they ask you to take off the brass chains and leave their own, and you do exactly that. Their president nods. \"You get it.\"",
+              "art": "A teenager kneeling to talk with a drag performer at a theater dressing mirror, brass screws spinning loose from sequined costumes, a leather-jacketed biker at the bar nodding with her own wallet chain",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-their-call"]
+              }
+            },
+            "failure": {
+              "text": "You ask, but the screws answer first: \"Places.\" Every performer turns on their mark like clockwork, and the spotlight swings over and pins you to the stage. You stand under it, blinking, for a very long hour.",
+              "art": "A teenager pinned in a hard white spotlight on a drag theater stage, sequined performers standing stiffly on their marks around them, wigs in neat rows backstage",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "unbolt-the-light",
+            "label": "Climb the fly rail and unbolt the spotlight",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You climb to the fly rail with a flashlight in your teeth and find the spotlight bolted down with forty brass screws. Lefty loosey, forty times. When the last one drops, the light swings free across the stage like it's stretching, and wherever its beam lands, performers shake out their arms, gasp and start laughing.",
+              "art": "A teenager perched high on a theater fly rail with a flashlight in their teeth unscrewing a spotlight, brass screws falling through the air, performers on stage below shaking loose in the swinging beam",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Screw thirty-nine strips. The spotlight swings up to the rail and holds you in its glare, and an intercom voice says, \"Hold still. You're rattling.\" You climb down very, very carefully.",
+              "art": "A teenager clinging to a high theater catwalk in the glare of a bolted spotlight, a stripped brass screw in one hand, a dark auditorium below",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "screwhead-main-street",
+        "act": 3,
+        "title": "Main Street, 1960, Forever",
+        "place": "Main Street, Glimmer Falls, the night before Halloween",
+        "text": "Boarded-up Main Street isn't boarded up tonight. Overnight the Order has rebuilt it exactly as it was in 1960: the soda fountain, the barber pole, the five-and-dime, and in the middle of the block SZABO & DAUGHTER HARDWARE, its window glowing gold. Every shopkeeper is back behind every counter, smiling, chained to the register with a thin silver chain. Every clock on the street reads 5:59, one minute to closing, and the minute hands never move. From the hardware store comes the patient whine of a key-cutting wheel, and a calm voice says, \"Nothing on this street will ever close again.\"",
+        "art": "A small-town main street at night rebuilt into a gleaming 1960 storefront row, a soda fountain, a barber pole, a hardware store window glowing gold, smiling shopkeepers behind counters with thin silver chains, every clock showing one minute to six",
+        "choices": [
+          {
+            "id": "wind-the-clocks",
+            "label": "Wind every clock on Main Street forward to tomorrow",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 1
+            },
+            "success": {
+              "text": "The bank clock, the barbershop clock, the big one over the five-and-dime: you climb, pry open each face and push the minute hand forward. 5:59 becomes 6:00. Closing time. All down Main Street, shopkeepers blink, untie their aprons and flip their shop doors to CLOSED, yawning like people at the end of a very long shift, and a few of them say goodnight to each other.",
+              "art": "A teenager on a ladder pushing the minute hand of a big street clock forward to six, shopkeepers below untying aprons and yawning, storefront lights dimming one by one along a 1960 main street",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                },
+                "flags": ["screwhead-closing-time"]
+              }
+            },
+            "failure": {
+              "text": "You push the minute hand forward and it snaps back to 5:59 with a click like a ratchet. Then every clock on Main Street turns its face toward you, very politely, and the shopkeepers ask if they can help you find anything.",
+              "art": "A teenager on a ladder at a big street clock frozen at one minute to six, smiling shopkeepers stepping out of glowing 1960 storefronts to stare up, thin silver chains glinting at their wrists",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "the-old-word",
+            "label": "Walk into Szabo & Daughter and look for the one thing she left crooked",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Every drawer is marked, every screw sorted, every shelf dusted. Then you look up at the painted name over the counter: SZABO & DAUGHTER, and under DAUGHTER, faint, the ghost of the old word SON, left showing on purpose. From the back room comes Magda's voice. \"He liked it when people asked. I tried to paint it over. It's the only thing in here I can't fix.\"",
+              "art": "A teenager inside a spotless 1960 hardware store reaching up toward faded paint above the counter, rows of neatly sorted drawers, a key-cutting wheel throwing sparks in a back doorway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["screwhead-old-word"]
+              }
+            },
+            "failure": {
+              "text": "Every drawer slides open at once, and every one is perfect, and you can't find the crooked thing anywhere. The shop bell rings. \"We're closing,\" says Magda's voice. \"We're always closing.\" Then you're out on the sidewalk with no memory of walking there.",
+              "art": "Hundreds of perfectly sorted hardware drawers sliding open at once in a gleaming 1960 shop, a teenager spinning in confusion, a brass shop bell swinging on the door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "shopping-cart-run",
+            "label": "Ride a shopping cart down Main Street and knock every display crooked",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dani pushes, you ride, and the cart screams down the sidewalk clipping every perfect display: a pyramid of soup cans, a tower of paint, a rack of postcards. Crooked, crooked, crooked. Behind you shopkeepers flinch, then giggle, and one starts restacking the soup cans into a smiley face as silver chains rattle loose all down the block.",
+              "art": "A teenager riding a speeding shopping cart down a 1960 main street sidewalk pushed by a laughing skate punk girl, soup can pyramids and paint towers toppling, shopkeepers giggling in doorways",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The cart hits a perfectly level curb and stops dead. You don't. You land in a pyramid of paint cans, and by the time you dig out, every can has been restacked around you, sorted by color.",
+              "art": "A teenager sprawled among tumbling paint cans outside a gleaming 1960 storefront, an overturned shopping cart at the curb, cans being restacked neatly around them in warm storefront glow",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "screwhead-aisle-nine",
         "act": 1,
         "title": "Aisle Nine Goes On Forever",
@@ -650,6 +923,94 @@
       "text": "On Halloween the Heartstone opens like a puzzle box and Crystal Street folds inside it. You stand in a perfect copy of Szabo & Daughter Hardware, every drawer labeled in her precise capitals, every neighbor standing in an aisle with a silver chain around their wrist, smiling. Behind the counter Magda works a key-cutting wheel that throws sparks like fireworks. She wears her HomeMax apron over her father's brown shop coat, the sleeves rolled twice. \"Nothing will ever close again,\" she says. \"Not on my watch. And nobody will ever walk in here again and ask me if my father is around.\"",
       "art": "A vast impossible hardware store inside a glowing purple geode, endless labeled drawers, chained smiling neighbors in every aisle, a tall woman with brass screws pinned through her bun behind a counter cutting keys in a shower of sparks, a teen crew in Halloween costumes facing her",
       "choices": [
+        {
+          "id": "edge-1",
+          "approach": "trick",
+          "label": "Find the gap you found the first nights: the one screw her perfect store can't spare, and pull it",
+          "intent": "clever",
+          "skill": "brains",
+          "target": 7,
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "screwhead-missing-screw",
+            "amount": 1
+          },
+          "success": {
+            "text": "You learned it the first nights of the week, in Aisle Nine, at the foot of a flat-pack wardrobe, on your own front porch: every perfect order has a gap, one missing screw, one question it can't answer, one plain no. So while Magda watches the crew, you walk the aisles looking for hers, and there it is: a single brass screw holding the key machine to the counter, the one every other screw in the store is counting on. Lefty loosey. The wheel wobbles. The drawers shiver. The whole perfect store, built as one machine, can't decide what to hold, and it gently unfolds, spilling Crystal Street out onto the roundabout grass. You put the screw in Magda's open hand. She stares at it as if it's the first loose thing she's held in a year.",
+            "art": "A teenager in a Halloween costume unscrewing a single brass screw at the base of a sparking key-cutting machine, a perfect hardware store unfolding like a puzzle box around them, neighbors spilling onto moonlit grass",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You find a screw that looks loose and pull it, and it's a decoy. \"I put that one there for you,\" Magda says. \"I learn.\" Every drawer in the store locks at once.",
+            "art": "A woman with a crown of brass screws behind a hardware counter holding up a single screw with a knowing look, rows of drawers slamming shut, a teenager in costume stepping back",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "approach": "fight",
+          "label": "Throw your weight on the key machine's crank and run it backward, like the night you pried everything loose",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "screwhead-encore",
+            "amount": 1
+          },
+          "success": {
+            "text": "That week she bolted everything down: the windows, the street, the Glitter Box's spotlight. Every time, you pried it loose with your own two hands. So you grab the key machine's big iron crank and throw your whole weight against it, the wrong way. Lefty loosey. The wheel screams and spins backward, and every screw in the store backs out a quarter-turn at once, then another, raining onto the floor. Chains slide off wrists. The aisles sag. Magda grabs the crank, and for one long second you are both straining against it. Then she lets go and steps back, staring at her hands, while the perfect store rattles apart around her into ten thousand loose screws on the roundabout grass.",
+            "art": "A teenager in a Halloween costume heaving a big iron crank backward on a sparking key-cutting machine, screws raining from the walls, silver chains slipping off neighbors' wrists, a woman in an orange apron stepping back in shock",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The crank won't budge. She rests one hand on it, calmly, and turns it the right way. Righty tighty. A silver chain loops your wrist, soft as a watchband. You can still fight, just not like this.",
+            "art": "A woman with a crown of brass screws calmly turning a key-machine crank with one hand, a thin silver chain looping around a costumed teenager's wrist, sparks drifting across a perfect hardware store",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "approach": "heart",
+          "label": "Tell her what you saw her holding on to the night before, then hold out your hand and ask to loosen one",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "screwhead-key",
+            "amount": 1
+          },
+          "success": {
+            "text": "\"Last night I saw what you're holding on to,\" you tell her. \"You kept every piece of him. You just never asked anyone to help you hold it.\" You set the old sign on the counter, open the green ledger to FORGIVEN, and read Laszlo's letter out loud. Her hands stop on the wheel. \"He forgave all of them,\" she says. \"Even the ones who went to the mall.\" You hold out your hand, palm up. \"Can I loosen one?\" Nobody has asked her anything in a year. She nods. One screw comes out of her crown, then another, ringing on the floor. \"A chain somebody chooses is a promise,\" she says slowly. \"One you put on them is a cage.\" She takes off the orange apron and goes aisle to aisle, asking each neighbor, \"Do you want this off?\", and turning each chain a quarter-turn the other way when they say yes.",
+            "art": "A woman behind a hardware counter letting brass screws fall from her gray-streaked hair, a teenager in costume holding out an open palm, an old green ledger and a weathered shop board on the counter, neighbors' chains loosening",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She looks at your open hand as if it's a trick. \"Everyone who ever asked me anything wanted something,\" she says, and the chains in the aisles cinch tight. She still needs to hear it. Slow down.",
+            "art": "A woman with a crown of brass screws gripping a hardware counter, a teenager in costume holding out an open palm, silver chains tightening around neighbors' wrists in the aisles",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
         {
           "id": "fight",
           "label": "Throw the breaker and wreck the key machine",

@@ -780,6 +780,267 @@
             }
           }
         ]
+      },
+      {
+        "id": "hungry-house-welcome-wagon",
+        "act": 1,
+        "title": "Welcome Wagon",
+        "place": "Your front porch, midnight",
+        "text": "At midnight your doorbell plays a chime it does not know. On the welcome mat sits a perfect lime gelatin mold on a paper doily, wrapped in plastic, with a card in flawless cursive: Welcome to the neighborhood! Do come to our open house. Fondly, 13. You have lived on Crystal Street your whole life. Suspended inside the gelatin, wobbling gently, are things from your own house: the spare key, your library card, the friendship bracelet you lost in fourth grade.",
+        "art": "A shimmering lime gelatin mold on a lace doily sitting on a suburban welcome mat at midnight, a house key and a friendship bracelet suspended inside it, warm porch light, a perfect model home glowing across the street",
+        "choices": [
+          {
+            "id": "return-the-dish",
+            "label": "Walk the dish back to 13 with a polite thank-you note",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You carry it across the cul-de-sac and set it on the porch of 13 with a note in your messiest handwriting: Thanks, but we like our house the way it is. As you turn to go, the door opens two inches, and a hand in a yellow rubber glove takes your note instead of the dish and holds it close, like something precious. You walk home with the gelatin, and the spare key slides right out.",
+              "art": "A teenager setting a lime gelatin mold on the porch of an immaculate model home at night, the front door open a crack, a hand in a yellow rubber glove reaching out to take a folded note",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-thank-you-note"]
+              }
+            },
+            "failure": {
+              "text": "The porch of 13 is warm under your feet, like a tongue. The door swings open, and the smell of fresh cookies pulls at you so hard that you set down the dish and take two steps inside before you grab the doorjamb and wrench yourself back.",
+              "art": "A teenager gripping a doorjamb and leaning back from the glowing open doorway of a perfect model home at night, wisps of warm cookie-scented air curling out, a gelatin mold abandoned on the porch",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "dig-in",
+            "label": "Eat it on the lawn with your bare hands, as loudly as possible",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You plop down on the lawn and eat lime gelatin by the fistful, slurping, getting it in your hair, digging out your spare key with a triumphant squelch. Across the street, every curtain at 13 snaps shut in horror. A neighbor comes out to see what the noise is and laughs so hard she has to sit down on her steps.",
+              "art": "A grinning teenager sitting on a front lawn at night scooping lime gelatin with bare hands, green goo in their hair, a neighbor laughing on her steps, every curtain on a perfect house across the street snapping shut",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The gelatin tastes like lemon floor polish. You gag, and when you look down, your hands and sleeves are spotless, as if someone very thorough has wiped them clean, and a second card waits on your step: Manners, dear.",
+              "art": "A grimacing teenager on a front lawn at night staring at spotless hands, a neatly folded doily and a cursive card waiting on the porch step, a perfect model home watching from across the street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-the-recipe",
+            "label": "Flip the card over and read the recipe on the back",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The back of the card is a recipe, and it is not for gelatin: rise at six, smile at the door, no crying, no visitors, personal effects out of sight. Under it, in a shakier hand, someone has written, \"Is anyone reading this?\" You take the card inside and pin it to your corkboard where you will see it every day.",
+              "art": "A teenager at a kitchen table at night studying a cursive recipe card under a lamp, a wobbling lime gelatin mold beside them, the card pinned next to concert stubs on a cluttered corkboard",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You flip the card, and the cursive keeps writing itself across both sides and then onto your hands: wipe your feet, sit up straight, smile. You scrub at the sink until three a.m., and your hands smell like furniture polish for days.",
+              "art": "A teenager scrubbing their hands at a kitchen sink at night, elegant cursive handwriting crawling up their wrists, a lime gelatin mold glistening on the counter, suds everywhere",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-hoa-meeting",
+        "act": 2,
+        "title": "Emergency HOA Meeting",
+        "place": "The Crystal Street clubhouse, one a.m.",
+        "text": "A pastel flyer under every door calls an emergency meeting of the Crystal Street Homeowners Association at one in the morning, and somehow every grown-up on the street goes. You slip in the back. The neighbors sit in perfect rows of folding chairs, nodding in unison, while a voice from the clubhouse PA, warm as a home economics teacher, reads the complaints: the Ferreiras' brown lawn, Mrs. Varga's dishes, your family's loud Sunday arguments. \"All in favor of sending them an invitation?\" Every hand in the room rises at once, slowly, like puppets.",
+        "art": "A pastel suburban clubhouse at one in the morning, rows of neighbors in bathrobes on folding chairs raising their hands in perfect unison like puppets, a speaker on the wall glowing, a teenager peeking in from the back",
+        "choices": [
+          {
+            "id": "confess",
+            "label": "Stand up and confess that your house is a mess, and ask whose else is",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "You climb on a folding chair and say it: \"Our house is loud and messy, we fight about the thermostat, and I love it. Whose house is a mess?\" There is a long, awful silence. Then Mr. Ferreira raises his hand, then Mrs. Varga, then nearly everyone, laughing in surprise, and the PA crackles into embarrassed static.",
+              "art": "A teenager standing on a folding chair in a pastel clubhouse at night, neighbors in bathrobes laughing and raising their hands, a wall speaker crackling, a punch bowl and cookies on a side table",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["hungry-house-hoa-confession"]
+              }
+            },
+            "failure": {
+              "text": "You stand up, and every head in the room turns toward you at exactly the same speed. The PA thanks you for volunteering. You spend the rest of the night trying to leave a meeting whose doors keep opening onto more rows of folding chairs.",
+              "art": "Rows of neighbors in bathrobes turning their heads in perfect unison toward a startled teenager in a pastel clubhouse at night, an open doorway revealing endless rows of folding chairs",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "point-of-order",
+            "label": "Find the bylaws and call a point of order",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You grab the HOA binder off the refreshments table and flip to the back. \"Point of order: only homeowners can vote, and 13 Crystal Street has never been sold.\" The PA sputters, because a model home cannot vote and cannot chair a meeting either. The neighbors blink, stand and shuffle home in their slippers, wondering why they came.",
+              "art": "A teenager holding up an open binder and pointing at a wall speaker in a pastel clubhouse at night, neighbors in slippers blinking and standing up from folding chairs, the speaker sputtering",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The bylaws are one rule repeated for two hundred pages in perfect typewriter print: Keep up appearances. The PA thanks you for reading so carefully, and your family's name moves to the top of the agenda.",
+              "art": "A dismayed teenager flipping through a thick binder of identical typewritten pages in a pastel clubhouse at night, neighbors in rows smiling politely, a wall speaker glowing warmly",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "food-fight",
+            "label": "Raid the refreshment table and make the messiest scene possible",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You knock over the punch bowl, juggle three deviled eggs, drop one, and grind the cookie crumbs into the carpet. The neighbors gasp, then giggle, and then Mrs. Varga throws a deviled egg back. The PA tries to restore order and is drowned out by the first food fight in Crystal Street history.",
+              "art": "A chaotic food fight in a pastel clubhouse at night, neighbors in bathrobes flinging deviled eggs and cookies, red punch splashed across the carpet, a teenager juggling eggs on a folding chair",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every crumb you drop vanishes before it lands, and the carpet drinks the punch right out of your sneakers. The neighbors applaud politely, as if you are the entertainment, and the meeting moves on to new business: you.",
+              "art": "A teenager holding a tipped punch bowl over a spotless carpet in a pastel clubhouse at night, neighbors on folding chairs applauding politely, crumbs disappearing in midair",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "hungry-house-moving-van",
+        "act": 3,
+        "title": "The Moving Van",
+        "place": "Crystal Street, October 30, after midnight",
+        "text": "The night before Halloween, a moving van from Larkspur Homes backs down Crystal Street with its hazard lights blinking, and movers in gray coveralls, with faces as smooth as eggs, start carrying out everything that makes the houses look lived in. Drum kits, lava lamps, crayon drawings, an ugly plaid recliner, somebody's entire record collection. Behind them, the houses are being staged: plastic on the sofas, wax fruit in the bowls, smiling family portraits on the walls. The van is already half full, and its back doors are breathing.",
+        "art": "A boxy moving van with blinking hazard lights on a suburban street at night, faceless movers in gray coveralls carrying a drum kit, a lava lamp and a plaid recliner out of houses, the van's back doors gaping and glowing",
+        "choices": [
+          {
+            "id": "thats-mine",
+            "label": "Get every neighbor out to point at their things and say \"That's mine\"",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You and Kev bang on doors until the street fills with people in bathrobes. \"That's mine,\" says Mrs. Varga, pointing at the recliner, and it slides right off a mover's back; \"That's mine,\" says Mr. Ferreira, about a truly terrible velvet painting. Every claimed thing comes home, and the van's doors shut on an empty space with a hungry sigh.",
+              "art": "Neighbors in bathrobes on a suburban street at night pointing proudly at their belongings, a plaid recliner sliding off a faceless mover's back, a velvet painting floating home, a moving van sagging empty",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["hungry-house-thats-mine"]
+              }
+            },
+            "failure": {
+              "text": "People come out, but they stand on their perfect lawns smiling politely, unable to say the words. The movers load the recliner, the drum kit and the records, and the van rolls off into the dark toward the junkyard road.",
+              "art": "Neighbors standing frozen with polite smiles on immaculate lawns at night, faceless movers loading a drum kit into a moving van, red taillights fading down a dark road",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "climb-in",
+            "label": "Climb into the back of the van and throw everything out",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You vault onto the bumper and start hurling things into the street: records, lamps, a ceramic poodle, a crate of comics. The movers cannot catch everything at once, the neighbors scramble to gather their stuff off the asphalt, and the van jerks, gags and coughs you out onto a pile of beanbag chairs.",
+              "art": "A teenager in the back of a moving van at night flinging records, lamps and a ceramic poodle into the street, neighbors scrambling to catch them, faceless movers reaching too late",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The doors swing shut behind you, and the inside of the van is a showroom: a perfect living room, a plastic-covered sofa, a smiling portrait of you over the fireplace. You pound on the walls until dawn, when the doors finally open on your own driveway.",
+              "art": "A teenager pounding on the walls of a perfect 1959 showroom living room inside a moving van, a plastic-covered sofa, a smiling portrait of the teen over a fireplace, warm lamplight",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "flatten-the-tires",
+            "label": "Let the air out of the van's tires before it can leave",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "You crawl under the bumper with Joey and unscrew every valve cap on the van. It sinks with a sad, wheezing sigh, too flat to go anywhere, and by sunrise the movers have faded like a bad dream, leaving the whole street's belongings stacked on the curb for their owners.",
+              "art": "Two teens crouching by the flat tires of a sagging moving van at dawn, faceless movers fading into mist, drum kits, lamps and recliners stacked along the curb of a suburban street",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tires refill with a cheerful hiss as fast as you let them out. One of the movers crouches and peers under the bumper at you with its smooth blank face, and you scramble backward into the street and keep going.",
+              "art": "A faceless mover in gray coveralls crouching to peer under a moving van at night, a frightened teenager scrambling backward across the asphalt, hazard lights blinking",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -862,6 +1123,94 @@
           "failure": {
             "text": "The paintings slide off the walls as fast as you hang them. Marjorie's smile is held up by twenty-three years of rules, and one night's truth is not enough to lift them yet. Push harder.",
             "art": "Colorful paintings sliding down a pastel wall as a smiling housewife watches helplessly, a teen reaching to catch a falling canvas",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Make a mess at its perfect table, the way you learned to on the first nights",
+          "intent": "camp",
+          "skill": "hustle",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "hungry-house-mess",
+            "amount": 1
+          },
+          "success": {
+            "text": "The house tested you early, and you learned it cannot stand a single spill. So you knock the gravy boat over on purpose, put your elbows on the table and pass the wax roast the wrong way. A house built to host the perfect dinner stalls mid-breath, and every door springs open while it tries to remember the rules.",
+            "art": "A teenager grinning with elbows on an endless dining table as gravy spills across the white tablecloth, families in matching sweaters gasping, a woman in a 1959 apron frozen mid-carve, every door flung open",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You spill the gravy, and a napkin wipes it up before it can spread. The house smiles through Marjorie's lipstick. It flinched, though, and you saw it; make a bigger mess.",
+            "art": "A spotless white tablecloth on an endless dining table, a napkin gliding by itself to wipe up a spill, a woman in a 1959 apron smiling fixedly at a teenager",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Make your family loud, the way you fought back when the house came into your own home",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "hungry-house-real-family",
+            "amount": 1
+          },
+          "success": {
+            "text": "When the house came for your home and your street, you fought it with noise. You shove back your chair and start the loudest argument at the table, about the thermostat, and your family joins in, then every family, until the perfect walls crack under the racket and fall outward like a stage set. Everyone tumbles onto the cold lawn in their own clothes.",
+            "art": "Families in matching sweaters shouting and laughing at a long dining table as the walls of a perfect house crack and fall outward like a stage set, a teenager standing on a chair leading the uproar",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You shout, but the room swallows your voice like thick carpet. Your family looks over, smiles politely and folds their hands. Shout again; they nearly heard you.",
+            "art": "A teenager shouting at a long dining table while families in matching sweaters smile politely with folded hands, plush carpet and pastel walls closing in",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Claim her paintings for her, the way the street took back what was theirs the night before",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "hungry-house-thats-mine",
+            "amount": 1
+          },
+          "success": {
+            "text": "The night before Halloween you learned the house only lets go of what somebody claims. So you open the closet studio and say it for her, about every canvas, the purple dog and the laughing self-portrait and the paint on the floor: \"That's hers.\" Marjorie's smile trembles and falls, and she cries, a real, ugly, wonderful cry, and the house, finally allowed to be a mess, lets every family go.",
+            "art": "A teenager holding up a painting of a purple dog in a cramped closet studio full of canvases, a woman in a 1959 apron weeping with relief, families rising from a long dining table, walls softening",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You open the closet and say it, but the paintings slide off the walls faster than you can claim them. Marjorie's smile is held up by twenty-three years of rules. Keep saying it; she is listening.",
+            "art": "Canvases sliding off the walls of a cramped closet studio, a teenager trying to catch them, a woman in a 1959 apron with a trembling fixed smile watching from the doorway",
             "effects": {
               "nerve": -2
             }

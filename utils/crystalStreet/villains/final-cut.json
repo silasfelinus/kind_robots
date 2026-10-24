@@ -801,6 +801,270 @@
             }
           }
         ]
+      },
+      {
+        "id": "final-cut-youre-all-doomed",
+        "act": 1,
+        "title": "You're All Doomed",
+        "place": "The Gas-N-Go on Quarry Road, 11 p.m.",
+        "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Abernathy from the hardware store lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
+        "art": "A wild-eyed old man in a trucker cap gripping a teenager's sleeve beside glowing gas pumps at night, a chalk slate hovering under the fluorescent canopy, moths circling the lights, an ice machine humming, a station wagon parked at the pump",
+        "choices": [
+          {
+            "id": "ask-his-line",
+            "label": "Ask Mr. Abernathy what he would actually say to you",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "\"Forget the script,\" you say gently, \"what do you really want to tell me?\" His mouth works around the doomed line and swallows it. \"Drive safe,\" he grumbles in his own voice, \"and your back tire's low, I've been meaning to say.\" The slate over the pumps smears into a chalky thumbprint and drops to the asphalt.",
+              "art": "An old man in a trucker cap and a teenager talking warmly beside gas pumps at night, a chalk slate crumbling into dust above them, warm fluorescent canopy light, a station wagon with a low back tire",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["final-cut-own-words"]
+              }
+            },
+            "failure": {
+              "text": "He grips harder. \"Doomed,\" he insists, \"doomed, doomed,\" and the slate clacks TAKE 10. Every time you open your mouth to answer, you hear yourself say \"Whatever, old man\" in a bored voice that is not yours, and you drive off with the line stuck in your teeth.",
+              "art": "A wild-eyed old man in a trucker cap clutching a teenager's sleeve under harsh gas station lights at night, a chalk slate clacking overhead, moths swirling around the canopy, rows of glowing pumps",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "skip-the-scene",
+            "label": "Read the script page in his pocket and refuse to play the end of the scene",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You tug the page from his pocket. The scene ends with the teens laughing at him and driving off toward the camp, so you do the opposite: you buy him a coffee, sit on the curb beside him and stay put. A scene cannot end the way it is written if nobody leaves, and the slate gives up with a sulky clack.",
+              "art": "A teenager and an old man in a trucker cap sitting on a gas station curb at night sharing paper cups of coffee, a crumpled script page on the asphalt, a drooping chalk slate overhead, glowing pumps",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The page holds one stage direction, in red: THEY IGNORE HIM AND DRIVE TO THEIR DOOM. Your hands steer the wagon onto the old camp road before you can stop them, and you end up somewhere dark and piney and much worse.",
+              "art": "A station wagon turning onto a dark pine-lined dirt road at night, headlights catching a rotting wooden camp archway, a frightened teenager gripping the wheel, a chalk slate floating in the back seat",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "yes-and",
+            "label": "Yes-and him: get even more doomed than he is",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "\"DOOMED?\" you wail, dropping to your knees by the pumps. \"Doomed by the curse of the Gas-N-Go hot dogs?\" The night clerk laughs so hard he snorts, Mr. Abernathy cackles, a real laugh, and the chalk slate cracks like a dropped plate. He presses two quarters into your hand for the air pump.",
+              "art": "A teenager dramatically kneeling by a gas pump with arms flung wide at night, an old man in a trucker cap cackling, a clerk laughing in the shop doorway, a chalk slate cracking apart in midair",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You overdo it, and the slate loves it. A boom mic drops into view over the ice machine, a spotlight snaps on, and you and Mr. Abernathy play the scene again and again, each take hammier, until sunrise finally sets you both free.",
+              "art": "A teenager and an old man in a trucker cap overacting under a hard white spotlight at a gas station at night, a boom microphone dangling above an ice machine, a glowing chalk slate",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-lovers-lane",
+        "act": 2,
+        "title": "Lovers' Lane",
+        "place": "Glimmer Point overlook, midnight",
+        "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Camaro and watching the town lights, the way they do every Friday when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Camaro. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
+        "art": "A cherry-red Camaro parked at a hilltop overlook at midnight with two teenage girls sharing a milkshake inside, a glittering valley of town lights below, a hard white spotlight beam stabbing down onto the car from the sky",
+        "choices": [
+          {
+            "id": "dedicate-a-song",
+            "label": "Call KGLM from the pay phone and dedicate a love song to the Camaro",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 1
+            },
+            "success": {
+              "text": "You sprint to the pay phone, and Mix puts you straight on the air: \"This one goes out to the best couple on Glimmer Point, from all of us.\" The bulletin chokes off mid-word, the slow song swells back, and half the town hears the dedication. Denise and Lorna laugh so hard they spill the milkshake, and the spotlight slinks away like it got caught.",
+              "art": "A teenager shouting happily into a roadside pay phone at night, a red Camaro nearby with two girls laughing inside and a spilled milkshake, a spotlight beam retreating into the sky, town lights twinkling below",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["final-cut-dedication"]
+              }
+            },
+            "failure": {
+              "text": "The pay phone plays you the hook bulletin too, in the same flat voice, and then the line goes dead. By the time you run back, the Camaro's windows are fogged with chalk dust and both girls sit frozen, staring straight ahead, waiting for a scratch on the roof. It takes the rest of the night to snap them out of it.",
+              "art": "A red Camaro with chalk-fogged windows at a midnight overlook, two frozen teenage girls staring ahead inside, a teenager running back from a pay phone, a hard spotlight pinning the car",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "knock-first",
+            "label": "Walk right up and knock, so nobody screams at the wrong thing",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You knock, wave and say, \"It's just me. The radio is lying.\" Denise rolls down the window, Lorna shines a flashlight past you into the trees, and the three of you stand guard at the guardrail until the bulletin gives up. On the bumper you find a rubber hook from a costume shop, which is somehow the funniest thing all week.",
+              "art": "Three teenagers standing guard at a hilltop guardrail at night beside a red Camaro, one sweeping a flashlight into dark pine trees, a rubber costume hook dangling from the bumper, town lights glowing below",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your knuckles hit the glass at the exact moment the radio says \"hook.\" Both girls scream, you scream, and so does something in the trees that is definitely not you. The Camaro peels out with you on the hood for twenty terrifying feet before you roll off into the gravel.",
+              "art": "A teenager clinging to the hood of a speeding red Camaro on a gravel overlook at night, two screaming girls behind the windshield, a spotlight swinging through dark pines, dust spraying from the tires",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "end-the-legend",
+            "label": "Remind them how the hook story really ends: the couple drives away",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"In every version, the couple drives away and lives,\" you shout. \"Start the car!\" Lorna turns the key, Denise floors it, and the Camaro roars down the mountain with you in the back seat, honking all the way. Behind you, the spotlight sweeps an empty overlook, hunting for an ending it is not going to get.",
+              "art": "A red Camaro roaring down a winding mountain road at night with three laughing teens inside, headlights blazing, a lonely spotlight sweeping across a deserted hilltop overlook behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You start the legend, and the reel finishes it in your mouth: \"...and when they got home, there was a hook hanging from the door handle.\" Everybody screams, nobody drives, and the spotlight holds on the Camaro until dawn while the three of you huddle inside with the doors locked.",
+              "art": "Three frightened teenagers huddled inside a locked red Camaro at a hilltop overlook, a hard spotlight glaring through the windshield, pine trees swaying in the dark, the first gray of dawn on the horizon",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-final-girl",
+        "act": 3,
+        "title": "Final Girl",
+        "place": "Crystal Street, October 30, lit for the climax",
+        "text": "The night before Halloween, the reel shoots its climax on Crystal Street. Rain towers hiss over the lawns, a wind machine roars from the roundabout, and thunder sheets boom from the rooftops while your neighbors run in slow motion from a shadow that is never quite there. Then every light on the set swings onto you. The chalk slate writes FINAL GIRL: SURVIVES. ALONE, and you understand the deal: you get to live, as long as everyone else plays dead. Behind you, a camera crane rises over the street to catch your scream.",
+        "art": "A suburban cul-de-sac at night turned into a storm set, rain towers spraying over lawns, a giant wind machine at a glowing purple geode, neighbors running in slow motion, a towering camera crane, every spotlight converging on one drenched teenager",
+        "choices": [
+          {
+            "id": "turn-back",
+            "label": "Do what a final girl never does: turn back for everyone else",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You turn around and run back into the rain, grabbing hands, hauling neighbors up off the wet grass, shouting names until your voice cracks. A final girl only works alone, and you refuse to be alone. The slate's chalk runs in the rain until it reads FINAL GIRLS, then simply EVERYBODY, and the rain towers sputter dry.",
+              "art": "A drenched teenager pulling neighbors of every age up from wet lawns in the rain, hands linked in a long chain down a suburban street, spotlights spreading wide, a chalk slate dripping in the downpour",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["final-cut-everybody-lives"]
+              }
+            },
+            "failure": {
+              "text": "The slow motion catches you too. You run toward your neighbors for what feels like an hour, rain hanging in the air like glass beads, and never get closer. When the lights die, you are standing alone in the middle of the street, soaked, exactly where the script wanted you.",
+              "art": "A lone soaked teenager frozen mid-run in the middle of a suburban street at night, raindrops hanging in the air like glass beads, distant neighbors out of reach, a single spotlight overhead",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "scream-queen",
+            "label": "Give it a scream, all right: a scream queen's scream, on your own cue",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "Zelda taught you the trick: a real scream queen screams from the gut, on her own cue, never for the camera. You plant your feet and let loose a scream so huge and joyful it turns into a laugh halfway through. The crane shudders, its lens cracks, and the whole street stops running to applaud.",
+              "art": "A teenager planted in the rain on a suburban street letting out a huge joyful scream that bursts into laughter, a camera crane shuddering above with a cracked lens, soaked neighbors applauding under spotlights",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your scream comes out right on cue, thin and terrified, exactly the take the reel wanted. The crane swoops in for the close-up, the slate clacks PRINT IT, and you lose the rest of the night to that one scream looping in your ears.",
+              "art": "A camera crane swooping down for a close-up of a terrified screaming teenager in the rain at night, a chalk slate clacking beside the lens, harsh spotlights, a dark suburban street",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "kill-the-rain",
+            "label": "Find the junction box and shut down the weather",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "Every movie storm runs on one cable. You follow it across three lawns to a junction box behind the roundabout hedge and throw the big lever. The rain stops mid-drop, the wind machine whines down, and your neighbors stand blinking in an ordinary October night, dripping, confused and alive.",
+              "art": "A teenager throwing a big lever on a junction box behind a hedge at night, rain freezing mid-fall over a suburban street, a wind machine spinning down, neighbors blinking in the sudden calm",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You throw the lever and get the effects crew's worst nightmare. The rain towers swivel and hose you from every direction at once, the wind machine blows you flat on a lawn, and up on the crane, the slate laughs in chalk.",
+              "art": "A teenager blasted flat on a soggy lawn by a roaring wind machine at night, rain towers spraying from every side, a camera crane looming above with a chalk slate perched on top",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -879,6 +1143,94 @@
           "failure": {
             "text": "The trims jam in the gate and the Slate's megaphone drowns Celeste out. You have every piece of the truth in your hands, but the reel needs threading more carefully than this.",
             "art": "A theater projector with a strip of film jammed and buckling in its gate, a stage manager in a headset wrestling with it, a ghostly megaphone booming from the beam",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Go off-script, the way you did the first nights it handed you a part",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "final-cut-heckled",
+            "amount": 1
+          },
+          "success": {
+            "text": "\"Hold it,\" you call from row F. \"EXTRA #4 has notes.\" You ad-lib, and two hundred neighbors who remember being handed sides that first week start ad-libbing with you, heckling and yes-anding and talking back to the screen. The Slate cannot roll a single take with a whole house off-script, so its chalk squeals, the reel spins out of the gate, and the cursed print unspools across the booth floor like a party streamer.",
+            "art": "A packed movie palace on Halloween night with costumed neighbors on their feet heckling a giant screen, a teenager standing on a seat in row F, a ghostly clapperboard-faced figure in the projector beam clutching its head, film unspooling like streamers",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You go off-script, but you go alone. The Slate swings its beam onto you, and the audience laughs on cue, a canned laugh that is not their own. You have the right idea; the house needs more than one heckler to drown out that megaphone.",
+            "art": "A lone teenager standing on a theater seat caught in a harsh projector beam, rows of costumed neighbors laughing with blank faces, a ghostly clapperboard-faced figure raising a megaphone overhead",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Storm the stage with the town behind you, the way you stood together when it came to your street",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "final-cut-ensemble",
+            "amount": 1
+          },
+          "success": {
+            "text": "You march down the center aisle, and the neighbors who watched you stand up to it that week get up and march too, a whole street in one shot. You climb onto the stage, rip the megaphone out of the beam and hurl it into the orchestra pit. The Slate has nobody left to split up, and it crumbles into a drift of chalk over the footlights as the house lights come up warm.",
+            "art": "A crowd of costumed neighbors marching arm in arm down a theater aisle behind a teenager who hurls a megaphone into the orchestra pit, a clapperboard-faced figure of light crumbling into chalk dust, warm house lights rising",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You start down the aisle, but the spotlights find the gaps between you and pick your neighbors off one by one, back into their seats with their sides clutched to their chests. You reach the stage steps alone and get shoved back by a blast of megaphone feedback.",
+            "art": "A teenager stumbling backward on theater stage steps from a blast of megaphone feedback, spotlights pinning costumed neighbors into their seats, a looming clapperboard-faced figure in a projector beam",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Refuse the last role it offers, like every role the night before, and give Celeste the spotlight",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "final-cut-everybody-lives",
+            "amount": 1
+          },
+          "success": {
+            "text": "The beam swings onto you for the final twist, and you step out of it, the way you stepped out of every role it tried to staple on you the night before. \"Not mine,\" you say, and you hold the call sheet up so the whole house can read the name: Celeste Navarro, Nurse Robin. Frankie threads the trims, Len hands Celeste his draft, and Celeste lifts the megaphone to call Scene 88, take one. Dawn breaks over Crystal Pines on the big screen, and everybody, on the screen and in the seats, walks out alive.",
+            "art": "A poised woman in cat-eye glasses holding a megaphone in a theater aisle, a teenager stepping out of a spotlight beside her, a giant screen glowing with sunrise over a pine forest, costumed neighbors smiling in their seats",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You step out of the beam and hold up the call sheet, but the Slate's megaphone howls over Celeste's name before the house can hear it. The truth is in your hands. Hold it higher, and give her the room to say it herself.",
+            "art": "A teenager holding up a yellowed call sheet in a dark theater aisle, a ghostly megaphone blasting from a projector beam, a woman in cat-eye glasses beside them, costumed neighbors covering their ears",
             "effects": {
               "nerve": -2
             }

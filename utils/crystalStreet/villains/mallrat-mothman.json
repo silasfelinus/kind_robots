@@ -721,6 +721,279 @@
             }
           }
         ]
+      },
+      {
+        "id": "mallrat-mothman-help-me",
+        "act": 1,
+        "title": "Help Me",
+        "place": "Your porch light, eleven p.m.",
+        "text": "Your porch light is swarming with little gray moths, more than you have ever seen, and when you step out to shoo them, you hear it: a tiny, thin voice, like a kid talking through a paper-towel tube. \"Help me. Help me.\" It is coming from one moth, bigger than the rest, clinging to the screen door on pale green wings. Up and down Crystal Street, every porch light has the same swarm, and far off over the rooftops something much bigger is circling the town, slowly, as if it is counting.",
+        "art": "A suburban porch light swarming with small gray moths at night, one pale green luna moth clinging to a screen door, a curious teenager leaning close, a huge winged shadow circling far above the rooftops against the moon",
+        "choices": [
+          {
+            "id": "cup-and-listen",
+            "label": "Cup the moth in your hands and listen closely",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "It sits still in your cupped palms, light as a dry leaf, and up close the little voice is clearer: \"I wish somebody would come get me. I wish somebody would come.\" It is a kid's wish, the kind tossed into a fountain with a last quarter. You open your hands, it flutters off toward the dark mall on the hill, and now you know where to look.",
+              "art": "A teenager on a porch at night gently cupping a glowing pale green moth in their palms and listening close, a swarm of gray moths around the porch light, a dark shopping mall on a distant hill",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mallrat-mothman-heard-a-wish"]
+              }
+            },
+            "failure": {
+              "text": "The moth bursts into a puff of gray dust in your hands, and the whole swarm lifts off the light and whirls around your head, a hundred tiny voices whispering help me, help me. You slam the door and sit against it until they go quiet.",
+              "art": "A teenager engulfed in a whirling cloud of gray moths on a porch at night, a puff of dust bursting from their open hands, the screen door swinging, the porch light flickering",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "jar-it",
+            "label": "Catch it in a jar for Bea's monster notebook",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 2
+            },
+            "success": {
+              "text": "You trap it under a pickle jar, and Bea arrives in her pajamas with a notebook and a magnifying glass. \"Wings made of lint,\" she reports. \"Body made of pennies, all from 1974 to 1983, the years Moonbeam Court was open.\" You let it go, and Bea underlines her notes three times.",
+              "art": "A young girl in pajamas peering through a magnifying glass at a pale green moth inside a pickle jar on a porch at night, a teenager holding a flashlight, an open notebook full of sketches",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The jar fogs over from the inside, and when it clears, the moth is gone and the jar is full of fine gray dust and one old quarter. Out on the street, every porch light flickers at once.",
+              "art": "A pickle jar full of swirling gray dust and a single old quarter on a porch railing at night, a startled teenager, every porch light down the suburban street flickering together",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "kill-the-porch-light",
+            "label": "Switch off the porch light and see where the swarm goes",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You flip the switch, and the swarm lifts off your porch in a gray ribbon and streams down the street from light to light, all flowing one way: toward the dark bulk of Starlight Mall on the hill. From the corner, you watch a shape the size of a car settle onto the mall roof.",
+              "art": "A long ribbon of gray moths streaming down a suburban street at night from porch light to porch light toward a dark shopping mall on a hill, a huge winged shape landing on its roof",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The swarm does not leave. It pours through the gap under the door and fills your front hall, softly batting at the lamps, until you turn on every light in the house to coax it back outside. Your family comes home to a house lit up like a stadium.",
+              "art": "A suburban front hall filled with fluttering gray moths batting at lamps, a teenager switching on every light, a house blazing like a stadium on a dark street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-paging-you",
+        "act": 2,
+        "title": "Paging You",
+        "place": "Starlight Mall food court, 8:55 p.m.",
+        "text": "The food court is closing, chairs going up on tables, when the PA chimes and says your name. Your full name. \"Will someone here for this child please come to the Moonbeam Fountain.\" The last few shoppers turn to look at you, then look away, and the chime plays again. Gray dust begins to sift down from the skylight onto your tray, and behind the plywood wall of the dead wing, something large shifts its wings, waiting to see who comes.",
+        "art": "A nearly empty mall food court at closing time, chairs stacked on tables, a lone teenager at a table as gray dust drifts down from a skylight, a plywood wall at the end of the court with huge wings shifting behind it",
+        "choices": [
+          {
+            "id": "page-the-crew",
+            "label": "Grab the information desk mic and page every one of your friends",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "You vault the information counter and key the mic: \"Will every single one of my friends please report to the food court immediately. This is an emergency of the heart.\" Within four minutes your crew comes skidding in from the arcade and the parking lot, and the shoppers who watched you get paged start laughing and clapping. Behind the plywood, the shape folds its wings and settles, disappointed.",
+              "art": "A teenager grinning into a microphone at a mall information desk, a crew of friends skidding into the food court from every direction, shoppers clapping, huge wings folding behind a plywood wall",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["mallrat-mothman-paged-the-crew"]
+              }
+            },
+            "failure": {
+              "text": "The mic squeals with feedback, and the PA swallows your voice and plays the chime instead, over and over, while nobody comes. The dust on your tray thickens into a soft gray blanket, and you have to shake yourself awake on a bench by the drained fountain at midnight.",
+              "art": "A teenager waking on a bench beside a drained mall fountain at midnight under a soft blanket of gray dust, dead neon tubes overhead, a microphone cord dangling from a dark information desk",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "answer-it",
+            "label": "Walk to the fountain yourself and answer: \"I'm here\"",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "If somebody has to show up for you, it can be you. You walk past the plywood into the dark of Moonbeam Court, stand at the dusty fountain and say, loud and clear, \"I'm here.\" Far above, two red eyes blink in surprise, the PA goes silent, and you walk back to the food court taller than you walked in.",
+              "art": "A teenager standing tall beside a dry dusty fountain in a dark abandoned mall wing, dead neon tubes overhead, two huge red eyes blinking in surprise high in the shadows",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You stand at the fountain and say it, and your voice sounds very small in the empty court. The PA answers in a buzzing whisper: \"Nobody comes. Stay.\" Gray silk drifts down around your shoulders, and you have to tear free and run.",
+              "art": "A small teenager beside a dry fountain in a vast dark mall wing, soft gray silk drifting down around their shoulders, red eyes glowing in the rafters, dust in the air",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-the-wire",
+            "label": "Follow the PA wires back to where the page is coming from",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You trace the speaker wire through a ceiling panel and down a service hall to the old Lost Kids desk behind the plywood, where a dusty microphone sits beside a coffee cup still ringed from 1983. On the sign-in sheet, the newest line is written in fresh gray dust, and it is your name. You wipe it away with your sleeve and write underneath: PICKED UP.",
+              "art": "A teenager with a flashlight writing on a dusty clipboard at an abandoned lost children desk in a dark mall wing, an old microphone and a stained coffee cup beside it, dust swirling in the beam",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The wire leads deep into the service halls and simply ends, cut clean, in a room full of lost-and-found jackets in kid sizes. The page goes on and on over your head, and you find your way out through the loading dock very late and very shaken.",
+              "art": "A teenager with a flashlight in a dim storage room crowded with racks of small children's jackets, a cut speaker wire dangling from the ceiling, dust drifting in the beam",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-parents-night-out",
+        "act": 3,
+        "title": "Parents' Night Out",
+        "place": "Crystal Street, October 30, eleven p.m.",
+        "text": "Every grown-up on Crystal Street is across town at the Elks Lodge Halloween Ball, and every kid on Crystal Street is home alone with a TV dinner. At eleven the moon goes out. It is not clouds: it is moths, millions of them, a gray storm pouring down out of the sky, and gliding at its center on wings as wide as a garage is the Mothman, eyespots glowing like clocks stuck at closing time. One by one, porch lights flick on as little kids open their front doors to see what is out there.",
+        "art": "A colossal storm of gray moths blotting out the moon over a suburban cul-de-sac at night, a giant moth creature with clock-like eyespots gliding at its center, small children in pajamas opening front doors under porch lights",
+        "choices": [
+          {
+            "id": "sleepover",
+            "label": "Round up every kid on the street for one giant sleepover",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 1
+            },
+            "success": {
+              "text": "You run door to door with a bag of glow bracelets, and soon every kid on Crystal Street is in your living room in pajamas, wearing a bracelet, eating popcorn in a blanket fort. Nobody is alone, so nobody is the Mothman's. It lands on your roof, peers in the window at the whole glowing pile of you, and after a long while lifts off and takes the storm with it.",
+              "art": "A living room blanket fort packed with children in pajamas wearing glow bracelets and eating popcorn, a teenager in the middle, a giant moth with glowing eyespots peering curiously through the window",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["mallrat-mothman-sleepover"]
+              }
+            },
+            "failure": {
+              "text": "You get most of them, but when you count heads in your living room you come up one short. Through the window you see a small figure in footie pajamas crossing the roundabout, looking up, and you catch them just as the storm of wings brushes past you both.",
+              "art": "A teenager sprinting across a suburban roundabout at night to scoop up a small child in footie pajamas, a storm of gray moth wings brushing past them, a glowing purple geode nearby",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "fetch-the-parents",
+            "label": "Borrow Wade's van and drag every parent home from the Elks Lodge",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 2
+            },
+            "success": {
+              "text": "Wade floors it across town, and you burst into the Halloween Ball in the middle of the costume conga, shouting that the kids are alone and the sky is full of moths. Parents in vampire capes and witch hats look at each other, then pile into the van, their station wagons and anything with wheels. The convoy roars down Crystal Street with every headlight blazing, and the swarm scatters like gray mist.",
+              "art": "A convoy of station wagons and a battered van roaring down a suburban street at night with headlights blazing, parents in vampire capes and witch hats leaning out the windows, a swarm of moths scattering",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The DJ is too loud, the parents are too busy dancing, and nobody hears a word you shout. You drive back alone to find the street smothered in drifting gray dust and every porch light blinking.",
+              "art": "A teenager shouting unheard in a crowded lodge hall full of dancing adults in Halloween costumes, a mirror ball spinning, a disco DJ booth, gray dust drifting past the windows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "decoy-light",
+            "label": "Build a decoy light on the roundabout to pull the swarm away from the houses",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "You drag every lamp and flashlight you can find onto the roundabout, wire them to a car battery and throw the switch. The Heartstone blazes like a lighthouse in a ring of bulbs, and the swarm swings away from the porches and spirals around it, while the Mothman circles above them all until dawn, dazzled and harmless.",
+              "art": "A ring of mismatched lamps and flashlights wired to a car battery blazing around a purple geode on a roundabout at night, a spiral of gray moths and a giant moth creature circling above, dazzled",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The car battery sparks, every bulb pops at once, and the street goes dark except for the porches where little kids still stand in their doorways, lit up. You spend the night running from house to house, shooing children back inside.",
+              "art": "Popped light bulbs smoking around a dark roundabout at night, a sparking car battery, little children silhouetted in lit doorways down the street, a teenager running between houses",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -803,6 +1076,94 @@
           "failure": {
             "text": "The PA crackles and squeals. Your words come out as static, and the old speakers only play the chime, over and over, the closing-time chime. Nobody comes. The Mothman hums sadly. It knew they would not.",
             "art": "A teen gripping a crackling PA microphone, old ceiling speakers spitting static, an empty plywood gap, a doorway left vacant, a giant moth bowing its head",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Make it see that somebody is watching now, the way you learned on the first nights",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "mallrat-mothman-someone-noticed",
+            "amount": 1
+          },
+          "success": {
+            "text": "On the first nights you learned what it wants: a kid nobody is watching. So you hand every friend a flashlight, post one under each cocoon with the beam pointed up, and call out the kids' names over a walkie. With every cocoon watched and nothing left to keep, the Mothman lets the silk go one cocoon at a time and drifts up through the skylight toward the moon.",
+            "art": "Teens standing under swaying gray cocoons in a neon-lit mall court shining flashlight beams upward, cocoons opening to release sleepy kids, a giant moth creature drifting up through a skylight toward the moon",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "There are more cocoons than flashlights, and the Mothman's eyespots follow the ones left in the dark. Some of the silk loosens, but not enough. You know how this works; find more people to watch.",
+            "art": "A few flashlight beams pointing at a forest of swaying gray cocoons in a dim mall court, many cocoons left in shadow, a giant moth creature's glowing eyespots watching the dark ones",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Stand under its wings and refuse it, the way you stood your ground when it came for your street",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "mallrat-mothman-paged-the-crew",
+            "amount": 1
+          },
+          "success": {
+            "text": "It came for your street and your town, and you stood your ground every time. You climb onto the fountain rim, plant your feet under its enormous wings and shout, \"Not one more kid. I'm here, and they're with me,\" as your crew climbs up beside you. The Mothman rears, then folds, pushed back by a wall of people who showed up, and the cocoons split, spilling sleepy kids onto the tiles.",
+            "art": "A teenager and their crew standing defiantly on the rim of a dusty mall fountain beneath the vast spread wings of a giant moth creature, the creature rearing back, gray cocoons splitting open behind it",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You climb onto the rim, but a downdraft of dusty wings knocks you flat into the drained fountain. You were right to stand there. Get back up; your crew is coming.",
+            "art": "A teenager knocked flat into a drained dusty fountain by a gust from enormous moth wings, neon glowing pink and green overhead, friends running toward the fountain",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Page every parent by name, the way you refused to let anyone be alone the night before",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "mallrat-mothman-sleepover",
+            "amount": 1
+          },
+          "success": {
+            "text": "The night before Halloween you proved that nobody on this street had to be alone, and now you prove it to the whole town. You read the names from Earl's logbook, Kev's envelope and Mona's wishes over the old PA, and parents come running through the plywood in pajamas, uniforms and curlers. Every time a grown-up says \"I'm here,\" a cocoon opens, and the Mothman folds its wings and watches them hold on.",
+            "art": "Parents in pajamas, work uniforms and curlers running into a neon-lit mall court to hug sleepy children spilling from opened gray cocoons, a teenager at an old microphone, a giant moth folding its wings above",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You read the names, but the old PA crackles and drops half of them into static, and only a few grown-ups make it through the plywood. Keep reading. The rest are on their way.",
+            "art": "A teenager reading names into a crackling old microphone in a dim mall court, a handful of parents squeezing through a gap in a plywood wall, many gray cocoons still hanging overhead",
             "effects": {
               "nerve": -2
             }

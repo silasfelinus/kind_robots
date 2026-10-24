@@ -741,6 +741,262 @@
             }
           }
         ]
+      },
+      {
+        "id": "big-gertie-part-of-the-furniture",
+        "act": 1,
+        "title": "Part of the Furniture",
+        "place": "Glimmer Falls High cafeteria, 1 a.m.",
+        "text": "You wake up and you cannot move, because you are a chair: molded orange plastic, chrome legs, bolted into a row at table nine. The cafeteria is full of dream students clattering trays, and every one of them drops onto you without a glance, eats, scrapes back and leaves. Nobody says excuse me. Nobody even looks down. After the last bell, a huge shadow in a hairnet lowers herself onto you with a groan, the first time she has sat down all day, and the plastic creaks under thirty years of tired.",
+        "art": "A dim school cafeteria after hours, rows of molded orange plastic chairs on chrome legs, one chair glowing faintly with a startled teenager's face in its seat back, a towering lunch lady in a hairnet slumping wearily onto it, trays stacked on the steam table",
+        "choices": [
+          {
+            "id": "hold-her-up",
+            "label": "Hold perfectly steady and let her rest",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You lock every chrome leg and hold. She sighs, long and deep, and her chin sinks to her apron. For ten whole minutes Big Gertie sleeps, the first break she has taken since 1956, and when she wakes she pats your seat back like a good horse. You wake in bed with sore shoulders and the strange feeling that you did someone a kindness.",
+              "art": "A towering lunch lady dozing peacefully in an orange plastic cafeteria chair, chin resting on her stained apron, the chair glowing softly, dim fluorescent light humming over a row of stacked beige trays",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["big-gertie-let-her-rest"]
+              }
+            },
+            "failure": {
+              "text": "Your leg buckles with a plastic crack and she lands on the linoleum with a thump that rattles every tray in the room. She looks at the broken chair for a long time. \"Even the furniture,\" she mutters, and drags you off toward the dumpster by one leg.",
+              "art": "A towering lunch lady sitting stunned on a cafeteria floor beside a broken orange plastic chair, trays rattling on the long tables, her hairnet askew, one chrome chair leg snapped in her big hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "creak-excuse-me",
+            "label": "Creak out \"Excuse me!\" in your loudest chair voice",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"EXCUSE ME,\" squeaks the chair. Every dream student freezes mid-bite and stares down at their seat in horror. Then, one by one, they stand up, push their chairs in and mumble sorry. Behind the steam table, Big Gertie lets out one short bark of a laugh, the first anyone has heard from her in years.",
+              "art": "A dream cafeteria full of startled teenagers in clothes from three decades standing up and pushing in their orange plastic chairs, a tall lunch lady behind the steam table laughing in surprise, ladle in hand",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice comes out as one long, rude squeak, and the whole cafeteria laughs at the chair. Then they sit down harder. You spend the rest of the dream being tipped back on two legs by a 1974 sophomore who will not stop.",
+              "art": "A shaggy-haired teenager in a 1970s jacket rocking back on two legs of an orange plastic chair, a crowded dream cafeteria laughing around him, trays and milk cartons on every table",
+              "effects": {
+                "nerve": -1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "tip-yourself-over",
+            "label": "Rock on your chrome legs until you tip over and wake up",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You rock, and rock, and topple with a crash that echoes like a dropped tray. You wake up on your bedroom floor, tangled in your blanket. On your desk sits a single chrome chair leg, still faintly warm.",
+              "art": "A teenager waking on a bedroom floor tangled in a patchwork blanket at night, a single chrome chair leg lying on the desk beside a glowing lamp, moonlight slanting through the window",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You topple into the stack of chairs by the stage and get stacked yourself, ten chairs high, at the very bottom. It takes until dawn to wriggle free. You wake up with the print of a plastic seat pressed into your cheek.",
+              "art": "A teetering stack of orange plastic cafeteria chairs ten high beside a school stage, a teenager's face peeking out from the bottom chair, pale dawn light at the tall windows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-night-shift",
+        "act": 2,
+        "title": "The Night Shift",
+        "place": "Donut Dynasty on Route 9, 3 a.m.",
+        "text": "The only place open in Glimmer Falls at three in the morning is Donut Dynasty, and tonight something is wrong with the waitress. Marisol has poured coffee here for nineteen years, and right now she is going gray and see-through, like a snapshot left too long in a sunny window. The customers keep ordering from her without looking up, and every order fades her a little more, while a fresh hairnet waits on a hook by the kitchen door. It is happening all over town this week: the crossing guard, the night janitor at the bank, the bag boy at Thriftee-Mart. In the back booth, folded into a seat too small for her, Big Gertie sips black coffee and watches with tired, knowing eyes.",
+        "art": "A neon-lit all-night donut shop on a highway at three in the morning, a waitress in a pink uniform fading gray and translucent as she pours coffee, customers hunched over plates, a towering lunch lady in a hairnet watching from a small back booth",
+        "choices": [
+          {
+            "id": "ask-her-name",
+            "label": "Ask the waitress her name, and actually listen to the answer",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "big-gertie-thanked",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Marisol,\" she says, surprised, and color floods back into her cheeks like someone turned up a dial. She tells you about her kids, her bad knee, the regular who tips in pennies. From the back booth comes the creak of vinyl: Big Gertie is leaning out to listen too. When you leave, there is a quarter under your saucer and a napkin printed in neat block capitals: SHE ALWAYS REMEMBERS HOW I TAKE IT.",
+              "art": "A waitress in a pink uniform glowing back to full color behind a donut shop counter, smiling at a teenager on a stool, a tall lunch lady leaning out of a back booth to listen, neon light on the coffee pots",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["big-gertie-night-shift"]
+              }
+            },
+            "failure": {
+              "text": "She opens her mouth, and a trucker shouts \"Refill!\" right over her. She turns to pour, and turns grayer, and when she turns back she does not remember you asked. The hairnet on the hook sways, though there is no draft.",
+              "art": "A gray translucent waitress pouring coffee for a burly trucker at a neon donut counter, a teenager reaching out toward her, a hairnet swaying on a hook beside the kitchen door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "bus-the-tables",
+            "label": "Grab a bus tub and clear every table so her shift can end",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Mugs, plates, crumbs, ashtrays, sugar caddies: you move faster than you have ever moved in your life. When the last table gleams, the clock over the register jumps to six and the shift is over. Marisol unties her apron, solid and pink-cheeked and blinking, and the hairnet slides off its hook and dissolves into steam.",
+              "art": "A teenager racing between booths in a neon donut shop carrying a gray bus tub piled with mugs, a wall clock over the register jumping to six, a smiling waitress untying her apron in relief",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "For every mug you clear, two more appear, ringed with coffee. The bell over the door keeps jingling and the orders keep coming, and by dawn you are wearing a paper hat and refilling a deputy's cup while he looks right through you.",
+              "art": "A teenager in a paper hat pouring coffee for a deputy at a donut counter at dawn, the deputy gazing straight through them, stacks of dirty coffee mugs multiplying on every table",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "drop-the-tray",
+            "label": "Drop a full tray of mugs so the whole room has to look up",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "CRASH. Every head in Donut Dynasty snaps up, and for the first time all night they see her: Marisol, standing in the middle of the floor with a coffee pot, solid and furious. \"Who's going to sweep that up?\" she demands, and three customers jump to help. In the back booth, Big Gertie raises her cup to you, very slightly.",
+              "art": "Shattered coffee mugs on a checkered donut shop floor, every customer turning to stare at a waitress standing tall with a coffee pot, a tall lunch lady in a back booth raising her cup",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Crash, and every head snaps up and stares straight at you. Not one of them looks at Marisol. The manager hands you a broom, and you spend the rest of the night sweeping up mugs that keep breaking themselves all over again.",
+              "art": "A teenager sweeping shattered coffee mugs across a checkered donut shop floor under buzzing neon, customers staring at them, broken mugs magically reassembling and toppling on the counter",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-dish-machine",
+        "act": 3,
+        "title": "The Dish Machine",
+        "place": "The cafeteria dish room, Glimmer Falls High, 2 a.m. the night before Halloween",
+        "text": "At two in the morning the dish-return belt starts up by itself, and it is carrying people. Your crew rides it in a slow line, sitting on trays, toward the dish machine: a steel tunnel the size of a boxcar, roaring with scalding spray and whirling brushes that rev like chainsaws. On the far side, in the steam, Big Gertie stacks clean trays in towers to the ceiling, every one of the two million she has handed out. \"Everything comes back to the kitchen,\" she says, without looking up. \"Everything. Nobody ever asks who washes it.\" Tomorrow is Halloween, and the belt is speeding up.",
+        "art": "A steaming school dish room at night, teenagers riding beige trays along a conveyor belt toward a roaring steel dish machine tunnel with whirling brushes and spray, a towering lunch lady stacking tray towers to the ceiling in the steam",
+        "choices": [
+          {
+            "id": "hit-the-stop",
+            "label": "Leap off the belt and slam the big red emergency stop",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You jump, skid across wet tile and slap the red button with your whole hand. The belt shudders and stops an inch from the brushes. In the sudden quiet Big Gertie looks up through the steam, straight at you, a kid standing in her kitchen at two in the morning. \"Huh,\" she says. \"Nobody's ever stopped the line before.\"",
+              "art": "A teenager slapping a big red emergency button on a steel wall of a steamy dish room, a conveyor of riders halted inches from whirling brushes, a towering lunch lady looking up through the steam",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You jump short, and the belt carries you into the tunnel with everyone else: hot spray, whirling brushes, the smell of thirty years of gravy. You come out the far end squeaky clean and stacked neatly in a tray rack. You wake up with pruned fingers and your hair parted straight down the middle.",
+              "art": "A dripping squeaky-clean teenager wedged sideways in a steel tray rack at the end of a dish machine tunnel, steam billowing, scrub brushes spinning behind them, hair neatly parted down the middle",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "keep-pace",
+            "label": "Grab a towel and race her stacking trays, cafeteria song and all",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "You snatch trays off the belt and wipe, stack, wipe, stack, while your crew belts out the jingle from the 1958 nutrition filmstrip. You keep up for nearly a minute, which is fifty seconds longer than you expected. Big Gertie watches you sweat, and something like a grin cracks her face. \"Thirty years of this,\" she says. \"Now you know.\"",
+              "art": "A sweating teenager with a dish towel racing to stack beige trays beside a towering lunch lady in a steamy dish room, friends singing on the conveyor belt, tray towers rising to the ceiling",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "A tower of trays wobbles, leans and comes down on you like an avalanche of beige plastic. Big Gertie restacks it in four seconds flat while you are still on the floor. \"Amateurs,\" she says, almost fondly.",
+              "art": "An avalanche of beige plastic lunch trays tumbling onto a teenager on a wet dish room floor, a towering lunch lady calmly restacking them at blurring speed in the steam",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-the-trays",
+            "label": "Flip the trays over and read what's scratched underneath",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Thirty years of kids have scratched the undersides: hearts, band names, ADAM WAS HERE 1969. At the very bottom of the oldest stack, one tray is scratched in careful block print: R.B., SEPT 1956, FIRST DAY. You hold it up. Big Gertie goes very still, and the belt grinds to a stop by itself.",
+              "art": "A teenager holding up an old scratched lunch tray in a steamy dish room, decades of carved initials and hearts on its underside, a towering lunch lady frozen mid-stack, the conveyor belt halted",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["big-gertie-first-tray"]
+              }
+            },
+            "failure": {
+              "text": "You flip one tray, and the whole stack flips back. Every tray in the room turns over at once with a deafening clatter, and the oldest one is lost in the avalanche. Somewhere under that pile, something scratched with a name is waiting, but not tonight.",
+              "art": "Hundreds of beige lunch trays flipping through the air at once in a steamy dish room, a teenager ducking under the clattering cascade, a towering lunch lady standing calmly in the steam",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -821,6 +1077,94 @@
             "art": "A teenager shouting into a sea of bowed heads in an endless cafeteria, trays clattering, a giant lunch lady looming, oblivious",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Pull out a chair and serve her a tray, like the first nights she finally sat down",
+          "intent": "clever",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "big-gertie-dinner-guest",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "You drag a plastic chair into the aisle, pull it out for her, and hand her a tray: \"Tray. Fork. Napkin. Sit.\" It is the trick those first nights taught you, at the dinner table and on the lunch line: in thirty years, nobody ever served the server. Big Gertie stares at the chair, then sits, and a lunch line cannot run with its cook sitting down. The endless cafeteria folds up around her like a card table, and the town blinks awake in costume while she dozes off with a tray on her knees.",
+            "art": "A giant lunch lady sitting down in an orange plastic chair in a cafeteria aisle with a lunch tray on her knees, a costumed teenager handing her a fork, the endless cafeteria walls folding away into the night",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She looks at the chair like it is a trap. \"Sitting's for people with somewhere to be,\" she says, and kicks it into the dish pit. The line lurches forward again, but she glances back at the chair once, and that look is something you can work with.",
+            "art": "A towering lunch lady kicking an orange plastic chair across a cafeteria toward a steaming dish pit, a costumed teenager holding an untouched tray, the endless lunch line shuffling forward",
+            "effects": {
+              "nerve": -1
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Bang a ladle on the steam table and call a walkout, for the night shift you stood up for midweek",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "big-gertie-night-shift",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "You climb onto the steam table and bang a ladle like a gavel. \"Kitchen's on strike! Nobody eats until somebody says thank you!\" Out of the steam step the people her nightmare grayed out midweek, the ones the town looks right through: the donut-shop waitress, the night janitor, the crossing guard, setting down their mops and coffee pots beside you. Big Gertie looks at the picket line forming in her own cafeteria; nobody has ever stood next to her before. Her ladle comes down slowly, and the endless room shrinks back to an ordinary cafeteria full of confused neighbors in costume.",
+            "art": "A costumed teenager standing on a long steel steam table banging a ladle, a row of tired workers in uniforms setting down mops and coffee pots beside them, a giant lunch lady lowering her ladle in astonishment",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The ladle clangs, and the clatter of two million trays swallows it whole. The gray shapes in the steam hang back, not sure yet that anyone will stand with them. Big Gertie plucks the ladle out of your hand and sets you gently back in line, but she keeps glancing toward the steam.",
+            "art": "A giant lunch lady plucking a ladle from a costumed teenager's hand, gray shadowy workers hovering hesitantly in clouds of cafeteria steam, rows of townspeople bent over trays",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Write her real name on a thank-you napkin, like the night before Halloween, and pass it down every table",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "big-gertie-named",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "You write THANK YOU, RUTHANNE on a paper napkin, the way the night before Halloween taught you, and pass it down the nearest table. Your neighbors look up to read it, then sign it and pass it on: the PTA president, the Channel 6 weatherman, three decades of her old students, until it comes back to you covered in names and you set it on her tray. Big Gertie reads every single one. The cleaver slides out of her hairnet and clatters onto the steam table, and she is a tall woman in an apron, laughing and crying, who looks down at you and finally asks your name.",
+            "art": "A tall lunch lady shrinking to human size behind a steam table, tears and laughter on her face, reading a paper napkin covered in handwriting, costumed townspeople looking up from their trays and smiling",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The napkin gets halfway down the first table before someone uses it to wipe up spilled gravy. Big Gertie watches it happen. You know exactly what she needs to hear, but the room is not looking up yet.",
+            "art": "A crumpled paper napkin soaking in spilled gravy on a crowded cafeteria table, bowed heads over trays, a giant lunch lady watching from behind the steam table with a heavy sigh",
+            "effects": {
+              "nerve": -1
             }
           }
         }

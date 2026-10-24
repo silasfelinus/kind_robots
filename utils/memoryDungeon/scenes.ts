@@ -1,3 +1,5 @@
+import { BRIAR_MARCHES_FIRST_BATCH } from './scenesBriarMarches'
+
 export interface BriarSceneChoice {
   id: string
   label: string
@@ -16,6 +18,7 @@ export interface BriarScene {
 }
 
 export const BRIAR_SCENES: Record<string, BriarScene> = {
+  ...BRIAR_MARCHES_FIRST_BATCH,
   '4,4': {
     title: 'Their Identical Royal Highnesses',
     opening:

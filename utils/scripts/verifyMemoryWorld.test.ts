@@ -80,10 +80,11 @@ for (const tile of BRIAR_TILES) {
   }
 }
 assert.ok(
-  !JSON.stringify(BRIAR_STORY_ATLAS).match(/\\b(?:Prince Halden|Prince Vesper)\\b/i),
+  !JSON.stringify(BRIAR_STORY_ATLAS).match(
+    /\\b(?:Prince Halden|Prince Vesper)\\b/i,
+  ),
   'Abandoned prince canon cannot reappear in the new atlas',
 )
-
 
 const first = newBriarSave()
 assert.deepEqual(first.frontier, [])

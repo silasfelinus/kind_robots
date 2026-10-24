@@ -114,6 +114,7 @@ export type RunState = {
   playerName?: string
   avatarId?: string
   personalityId?: string
+  portraitArtId?: number | null
   skills: Skills
   /** Chapters where the origin-specific once-per-chapter action was spent. */
   perkUsedChapters: number[]
@@ -1171,7 +1172,10 @@ export function restoreRun(raw: unknown): RunState | null {
     (s.playerName !== undefined &&
       (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
     (s.avatarId !== undefined && typeof s.avatarId !== 'string') ||
-    (s.personalityId !== undefined && typeof s.personalityId !== 'string')
+    (s.personalityId !== undefined && typeof s.personalityId !== 'string') ||
+    (s.portraitArtId !== undefined &&
+      s.portraitArtId !== null &&
+      (!Number.isInteger(s.portraitArtId) || Number(s.portraitArtId) <= 0))
   )
     return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))

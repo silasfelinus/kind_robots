@@ -324,27 +324,94 @@ check(
 )
 
 console.log('Projects public navigation')
-const publicTab = readFileSync(resolve('content/channels/projects/projects.md'), 'utf8')
-const manager = readFileSync(resolve('components/pages/conductor-manager.vue'), 'utf8')
-const gallery = readFileSync(resolve('components/pages/conductor-public-projects.vue'), 'utf8')
+const publicTab = readFileSync(
+  resolve('content/channels/projects/projects.md'),
+  'utf8',
+)
+const manager = readFileSync(
+  resolve('components/pages/conductor-manager.vue'),
+  'utf8',
+)
+const gallery = readFileSync(
+  resolve('components/pages/conductor-public-projects.vue'),
+  'utf8',
+)
 const sheet = readFileSync(resolve('pages/projects/sheet/[slug].vue'), 'utf8')
-const adminGallery = readFileSync(resolve('components/pages/conductor-project-gallery-page.vue'), 'utf8')
-const detail = readFileSync(resolve('components/conductor/project-detail.vue'), 'utf8')
-check('Projects tab is public and in Projects', publicTab.includes('channelKey: projects') && !publicTab.includes('requiredRole: ADMIN'))
-check('retired admin tab is absent', !existsSync(resolve('content/channels/admin/projects.md')))
-check('nonadmins have a different manager surface', manager.includes('v-if="!userStore.isAdmin"') && manager.includes('ConductorPublicProjects'))
-check('public list uses published, safe projects', gallery.includes('store.publicProjects') && !gallery.includes('includeInactive: true'))
-check('data sheet is read-only and private projects are hidden', !sheet.includes('<textarea') && !sheet.includes('patchProject') && sheet.includes('store.publicProjects.some'))
-check('admin gets sheet and endpoint controls', detail.includes('projectSheetPath(props.slug)') && detail.includes('No project endpoint'))
-check('admin can filter projects with no endpoint', adminGallery.includes('NEEDS_ENDPOINT') && adminGallery.includes('missingEndpoint'))
-check('internal valid destination', projectDestination('/play/ecotone') === '/play/ecotone')
-check('valid external HTTPS destination', projectDestination('https://example.com/path') === 'https://example.com/path')
-check('unassigned project has no destination', projectDestination(null) === null)
-check('generic Conductor page is not an endpoint', projectDestination('/conductor') === null)
-check('legacy project wrapper is not an endpoint', projectDestination('/plan/projects/foo') === null)
-check('unsafe scheme is rejected', projectDestination('javascript:alert(1)') === null)
-check('protocol-relative URL is rejected', projectDestination('//evil.example') === null)
-check('encoded project sheet route is stable', projectSheetPath('a b') === '/projects/sheet/a%20b')
+const adminGallery = readFileSync(
+  resolve('components/pages/conductor-project-gallery-page.vue'),
+  'utf8',
+)
+const detail = readFileSync(
+  resolve('components/conductor/project-detail.vue'),
+  'utf8',
+)
+check(
+  'Projects tab is public and in Projects',
+  publicTab.includes('channelKey: projects') &&
+    !publicTab.includes('requiredRole: ADMIN'),
+)
+check(
+  'retired admin tab is absent',
+  !existsSync(resolve('content/channels/admin/projects.md')),
+)
+check(
+  'nonadmins have a different manager surface',
+  manager.includes('v-if="!userStore.isAdmin"') &&
+    manager.includes('ConductorPublicProjects'),
+)
+check(
+  'public list uses published, safe projects',
+  gallery.includes('store.publicProjects') &&
+    !gallery.includes('includeInactive: true'),
+)
+check(
+  'data sheet is read-only and private projects are hidden',
+  !sheet.includes('<textarea') &&
+    !sheet.includes('patchProject') &&
+    sheet.includes('store.publicProjects.some'),
+)
+check(
+  'admin gets sheet and endpoint controls',
+  detail.includes('projectSheetPath(props.slug)') &&
+    detail.includes('No project endpoint'),
+)
+check(
+  'admin can filter projects with no endpoint',
+  adminGallery.includes('NEEDS_ENDPOINT') &&
+    adminGallery.includes('missingEndpoint'),
+)
+check(
+  'internal valid destination',
+  projectDestination('/play/ecotone') === '/play/ecotone',
+)
+check(
+  'valid external HTTPS destination',
+  projectDestination('https://example.com/path') === 'https://example.com/path',
+)
+check(
+  'unassigned project has no destination',
+  projectDestination(null) === null,
+)
+check(
+  'generic Conductor page is not an endpoint',
+  projectDestination('/conductor') === null,
+)
+check(
+  'legacy project wrapper is not an endpoint',
+  projectDestination('/plan/projects/foo') === null,
+)
+check(
+  'unsafe scheme is rejected',
+  projectDestination('javascript:alert(1)') === null,
+)
+check(
+  'protocol-relative URL is rejected',
+  projectDestination('//evil.example') === null,
+)
+check(
+  'encoded project sheet route is stable',
+  projectSheetPath('a b') === '/projects/sheet/a%20b',
+)
 
 console.log('')
 if (failures) {

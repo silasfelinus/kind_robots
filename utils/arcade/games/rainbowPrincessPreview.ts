@@ -567,12 +567,44 @@ const DARTING = new Set([
   'spiral',
   'lantern',
   'relay',
-  'skimmer',
   'pistol',
   'angler',
-  'skate',
   'squid',
 ])
+/**
+ * Silas, 2026-10-23 PT: "enemies should move and attack in different ways." Each plain craft swims its own way
+ * (WORLD-BIBLE fleet): pickets weave a wide lane, spiral scouts loop the loop, anchors wallow, urchins roll from
+ * wall to wall, lanterns pulse-swim, relays hold their lane, skimmers ride the ceiling or the floor, coral
+ * drifters settle to the floor, and skates swoop like mantas.
+ */
+const SWIM = {
+  weave: { period: 24, amp: 0.95 },
+  loop: { period: 14, amp: 1.5, reach: 1.6 },
+  wallow: { period: 40, amp: 0.4 },
+  roll: { speed: 0.75, top: 52, bottom: 218 },
+  pulse: { period: 18, surge: 1.7, lift: 0.5, sink: 0.15 },
+  skim: { top: 58, bottom: 214, ease: 0.03 },
+  settle: { floor: 222, ease: 0.025 },
+  swoop: { period: 30, amp: 1.5 },
+  /** Every plain craft stays inside these lanes. */
+  top: 44,
+  bottom: 226,
+} as const
+/**
+ * And each attacks its own way: a picket leads where a sidestep would go, a spiral scout turns three spokes,
+ * an anchor lays slow mines, an urchin fans eight spines with two gaps, a lantern rings out a pulse with one
+ * wide gap, a relay throws a stretching link, a skimmer drops a column of beads and a coral drifter lobs shells.
+ */
+const VOLLEY = {
+  picketLead: 22,
+  spokes: { count: 3, turn: 0.5, speed: 1.7 },
+  mine: -0.45,
+  urchin: { slots: 10, speed: 1.5 },
+  lantern: { slots: 10, gap: 3, speed: 1.2, swing: 0.63 },
+  link: [2.5, 2.05, 1.6],
+  beads: { vx: -0.6, vy: [1.0, 1.35, 1.7] },
+  lob: { vx: [-1.0, -1.5], vy: -2.1, gravity: 0.03 },
+} as const
 
 /**
  * A pistol bubble bursts into an eight-pellet ring; an angler lure into a four-way cross; a split pellet
@@ -750,6 +782,8 @@ type Reef = {
   terrain?: ActBeatAct
   /** The lane a darting craft is sliding to. */
   dartY?: number
+  /** An urchin's roll between the walls (t-033). */
+  vy?: number
   wave: number | null
 }
 type EnemyShot = {
@@ -1939,6 +1973,42 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  /** A plain craft's own way of swimming (t-033); a clawstrike holds its lane so its mark is its bolt's lane. */
+  function swim(reef: Reef) {
+    const k = reef.kind
+    if (k === 'clawstrike' || k === 'relay') return
+    if (k === 'spiral') {
+      const a = tick / SWIM.loop.period + reef.phase
+      reef.y += Math.sin(a) * SWIM.loop.amp
+      reef.x += Math.cos(a) * SWIM.loop.reach
+    } else if (k === 'picket')
+      reef.y += Math.sin(tick / SWIM.weave.period + reef.phase) * SWIM.weave.amp
+    else if (k === 'anchor')
+      reef.y +=
+        Math.sin(tick / SWIM.wallow.period + reef.phase) * SWIM.wallow.amp
+    else if (k === 'urchin') {
+      reef.vy ??= Math.sin(reef.phase) >= 0 ? SWIM.roll.speed : -SWIM.roll.speed
+      reef.y += reef.vy
+      if (reef.y < SWIM.roll.top || reef.y > SWIM.roll.bottom) {
+        reef.vy = -reef.vy
+        reef.y = Math.max(SWIM.roll.top, Math.min(SWIM.roll.bottom, reef.y))
+      }
+    } else if (k === 'lantern') {
+      const surge =
+        Math.max(0, Math.sin(tick / SWIM.pulse.period + reef.phase)) ** 3
+      reef.x -= surge * SWIM.pulse.surge
+      reef.y += SWIM.pulse.sink - surge * SWIM.pulse.lift
+    } else if (k === 'skimmer') {
+      const rail = Math.sin(reef.phase) >= 0 ? SWIM.skim.top : SWIM.skim.bottom
+      reef.y += (rail - reef.y) * SWIM.skim.ease
+    } else if (k === 'coral')
+      reef.y += (SWIM.settle.floor - reef.y) * SWIM.settle.ease
+    else if (k === 'skate')
+      reef.y += Math.sin(tick / SWIM.swoop.period + reef.phase) * SWIM.swoop.amp
+    else reef.y += Math.sin(tick / 24 + reef.phase) * 0.55
+    reef.y = Math.max(SWIM.top, Math.min(SWIM.bottom, reef.y))
+  }
+
   /** A diver cruises in, locks the nearest pilot's lane with an aimed pellet, then swoops along it. */
   function stepDiver(reef: Reef) {
     if (reef.dive === undefined) {
@@ -3079,76 +3149,104 @@ export function createRainbowPrincessPreview(
       })
       return
     }
-    const vx = (dx / length) * 2.15
-    const vy = (dy / length) * 2.15
-    enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
-    if (reef.kind === 'lantern') {
-      const theta = Math.atan2(vy, vx)
-      for (const spread of [-0.6, -0.3, 0.3, 0.6]) {
-        enemyShots.push({
-          x: reef.x - 8,
-          y: reef.y,
-          vx: Math.cos(theta + spread) * 1.65,
-          vy: Math.sin(theta + spread) * 1.65,
-          grazed: 0,
-        })
-      }
-    } else if (reef.kind === 'relay') {
+    const aim = Math.atan2(dy, dx)
+    const volley = (reef.volleys = (reef.volleys ?? 0) + 1)
+    const shoot = (
+      angle: number,
+      speed: number,
+      extra: Partial<EnemyShot> = {},
+    ) =>
       enemyShots.push({
         x: reef.x - 8,
         y: reef.y,
-        vx: vx * 0.7,
-        vy: vy * 0.7 + 0.85,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
         grazed: 0,
+        ...extra,
       })
-    } else if (reef.kind === 'skimmer') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y - 11,
-        vx: -1.25,
-        vy: 1.1,
-        grazed: 0,
-      })
-    } else if (reef.kind === 'coral') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y + 13,
-        vx: -1.35,
-        vy: -0.8,
-        grazed: 0,
-      })
+    if (reef.kind === 'picket') {
+      // Pre-aim and sidestep: one pellet at the pilot, one where a sidestep (alternating sides) would take her.
+      const side = volley % 2 ? 1 : -1
+      for (const lead of [0, side * VOLLEY.picketLead])
+        shoot(Math.atan2(target.y + lead - reef.y, dx), 2.15)
+      return
     }
     if (reef.kind === 'spiral') {
-      for (const offset of [-0.45, 0.45]) {
-        const angle = Math.atan2(vy, vx) + offset
-        enemyShots.push({
-          x: reef.x - 8,
-          y: reef.y,
-          vx: Math.cos(angle) * 1.7,
-          vy: Math.sin(angle) * 1.7,
-          grazed: 0,
-        })
-      }
+      // Three spokes that turn a little further each volley, so its fire winds into a spiral.
+      const { count, turn, speed } = VOLLEY.spokes
+      for (let k = 0; k < count; k++)
+        shoot(aim + volley * turn + (k / count) * Math.PI * 2, speed)
+      return
     }
     if (reef.kind === 'anchor') {
-      enemyShots.push({ x: reef.x - 8, y: reef.y, vx: -0.75, vy: 0, grazed: 0 })
+      // An aimed pellet, and a mine bead laid almost still in its lane.
+      shoot(aim, 2.15)
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: VOLLEY.mine,
+        vy: 0,
+        grazed: 0,
+      })
+      return
     }
     if (reef.kind === 'urchin') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y,
-        vx: vx * 0.9 - vy * 0.4,
-        vy: vy * 0.9 + vx * 0.4,
-        grazed: 0,
-      })
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y,
-        vx: vx * 0.9 + vy * 0.4,
-        vy: vy * 0.9 - vx * 0.4,
-        grazed: 0,
-      })
+      // Eight spines from ten slots: the two gaps sit one slot off the pilot's line and opposite it, alternating
+      // sides, so slow focus finds the opening.
+      const { slots, speed } = VOLLEY.urchin
+      const step = (Math.PI * 2) / slots
+      const near = Math.round(aim / step) + (volley % 2 ? 1 : -1)
+      for (let k = 0; k < slots; k++) {
+        const slot = (((k - near) % slots) + slots) % slots
+        if (slot === 0 || slot === slots / 2) continue
+        shoot(k * step, speed)
+      }
+      return
     }
+    if (reef.kind === 'lantern') {
+      // An expanding pulsed ring with one wide gap, swung across the pilot's line volley by volley.
+      const { slots, gap, speed, swing } = VOLLEY.lantern
+      const step = (Math.PI * 2) / slots
+      const centre = aim + ((volley % 3) - 1) * swing
+      for (let k = 0; k < slots; k++) {
+        const angle = centre + Math.PI + (k - (slots - gap - 1) / 2) * step
+        if (k >= slots - gap) continue
+        shoot(angle, speed)
+      }
+      return
+    }
+    if (reef.kind === 'relay') {
+      // A link that stretches as it flies: three pellets down one line at falling speeds.
+      for (const speed of VOLLEY.link) shoot(aim, speed)
+      return
+    }
+    if (reef.kind === 'skimmer') {
+      // A column of electric beads falling away from its rail.
+      const fall = reef.y < H / 2 ? 1 : -1
+      for (const vy of VOLLEY.beads.vy)
+        enemyShots.push({
+          x: reef.x - 4,
+          y: reef.y + fall * 8,
+          vx: VOLLEY.beads.vx,
+          vy: fall * vy,
+          grazed: 0,
+        })
+      return
+    }
+    if (reef.kind === 'coral') {
+      // Two shells lobbed up off the floor that arc back down.
+      for (const vx of VOLLEY.lob.vx)
+        enemyShots.push({
+          x: reef.x - 8,
+          y: reef.y - 8,
+          vx,
+          vy: VOLLEY.lob.vy,
+          ay: VOLLEY.lob.gravity,
+          grazed: 0,
+        })
+      return
+    }
+    shoot(aim, 2.15)
   }
 
   /** Bring on the Act's guardian once its section opens, unless it was already destroyed or escaped. */
@@ -3923,12 +4021,10 @@ export function createRainbowPrincessPreview(
                     ? 0.8
                     : reef.kind === 'urchin'
                       ? 0.9
-                      : 1.25
-      // A clawstrike holds its lane steady so the mark it shows is the lane its bolt flies.
-      if (reef.kind !== 'clawstrike')
-        reef.y +=
-          Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
-          (reef.kind === 'spiral' ? 1.3 : 0.55)
+                      : reef.kind === 'lantern'
+                        ? 0.75
+                        : 1.25
+      swim(reef)
       if (!reef.fired && reef.x < W - 50) {
         reef.fired = true
         if (reef.kind === 'clawstrike') reef.charge = CLAWSTRIKE_CHARGE_FRAMES
@@ -4091,10 +4187,11 @@ export function createRainbowPrincessPreview(
       }
     }
     if (escort) {
-      // The courier pod rides the rails; shots that reach it wear its hull down.
+      // The courier pod rides the rails; shots that reach it wear its hull down until it crosses the left
+      // edge, where it is through and out of the fight.
       escort.x -= ROSEFIN_ESCORT.podSpeed
       escort.y = ROSEFIN_ESCORT.podY + Math.sin(rosefinFrame() / 40) * 14
-      for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
+      for (let bi = enemyShots.length - 1; escort.x >= 0 && bi >= 0; bi--) {
         const bullet = enemyShots[bi]!
         if (
           Math.hypot(bullet.x - escort.x, bullet.y - escort.y) <

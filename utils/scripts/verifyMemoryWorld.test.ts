@@ -567,7 +567,7 @@ assert.match(
 
 assert.match(
   launcherScreen,
-  /<memory-dungeon-deck-selector/
+  /<memory-dungeon-deck-selector/,
   'Launcher mounts shared art selector',
 )
 assert.doesNotMatch(

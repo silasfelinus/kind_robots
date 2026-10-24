@@ -99,6 +99,16 @@ for (const site of Object.keys(BRIAR_SITES).filter(
     `Player can eventually reveal site ${site}`,
   )
 }
+assert.equal(
+  visited.size,
+  BRIAR_TILES.length,
+  'All 64 fixed Briar squares have a legal route from camp',
+)
+assert.equal(
+  BRIAR_CROSS_MAP_KEYS.filter((key) => visited.has(key)).length,
+  4,
+  'All cross-map seals have a future legal path without inventing a new coordinate',
+)
 assert.equal(visited.has(BRIAR_DUNGEON), true)
 assert.equal(visited.has(BRIAR_GATE), true)
 assert.equal(BRIAR_SITES['4,2']?.kind, 'merchant')

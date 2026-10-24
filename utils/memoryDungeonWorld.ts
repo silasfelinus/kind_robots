@@ -4,6 +4,11 @@ import {
   type BriarCombat,
 } from './memoryDungeon/rooms'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
+import {
+  newHouseProgress,
+  restoreHouseProgress,
+  type HouseProgress,
+} from './memoryDungeon/house'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -72,8 +77,9 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   },
   '6,2': {
     kind: 'dungeon',
-    name: 'Rootbound Vault',
-    description: 'Two memory chambers stand between you and the Bramble Chime.',
+    name: 'The House That Remembers · Rootbound Vault',
+    description:
+      'Thirty-six rooms of remembered bargains, with fair choices and a guarded Bramble Chime.',
   },
   '8,4': {
     kind: 'gate',
@@ -290,7 +296,8 @@ export interface BriarSave {
   gateOpened: boolean
   completedEncounters: string[]
   sealedPartnerFound: boolean
-  room: 'map' | 'memory'
+  room: 'map' | 'memory' | 'house'
+  house: HouseProgress | null
   roomId: 'vault-1' | 'vault-2' | 'sprite' | 'patrol' | null
   cards: BriarMemoryCard[]
   /** A combat room in progress (t-007); null in Classic rooms and on the map. */
@@ -324,6 +331,7 @@ export function newBriarSave(): BriarSave {
     completedEncounters: [],
     sealedPartnerFound: false,
     room: 'map',
+    house: null,
     roomId: null,
     cards: [],
     combat: null,
@@ -394,6 +402,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const combat = restoreBriarCombat(saved.combat)
+  const house = restoreHouseProgress(saved.house)
   const waveIndex =
     Number.isInteger(saved.waveIndex) &&
     saved.waveIndex! >= 0 &&
@@ -476,7 +485,13 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
       : [],
     sealedPartnerFound: saved.sealedPartnerFound === true,
-    room: saved.room === 'memory' && roomId && inRoom ? 'memory' : 'map',
+    room:
+      saved.room === 'house' && house
+        ? 'house'
+        : saved.room === 'memory' && roomId && inRoom
+          ? 'memory'
+          : 'map',
+    house,
     roomId: saved.room === 'memory' && inRoom ? roomId : null,
     cards: combatRoom ? [] : cards,
     combat: saved.room === 'memory' && combatRoom ? combat : null,

@@ -40,6 +40,15 @@ import {
   startCombatRoom,
 } from '~/utils/memoryDungeon/rooms'
 import {
+  HOUSE_EXIT_POINTS,
+  HOUSE_ROOMS,
+  houseExits,
+  houseRoom,
+  houseWitnessEvidence,
+  newHouseProgress,
+  type HouseCombatOrigin,
+} from '~/utils/memoryDungeon/house'
+import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
   createBriarWaveCards,
@@ -82,6 +91,35 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     () => inspectedSigil.value ?? state.value.player,
   )
   const selectedSite = computed(() => BRIAR_SITES[activeSiteKey.value] ?? null)
+  const activeHouseRoom = computed(() =>
+    houseRoom(state.value.house?.current ?? 'HD-01'),
+  )
+  const houseAvailableDoors = computed(() =>
+    state.value.house
+      ? houseExits(state.value.house.current, state.value.house)
+      : [],
+  )
+  const houseMayExit = computed(() =>
+    Boolean(
+      state.value.house &&
+      HOUSE_EXIT_POINTS.includes(state.value.house.current),
+    ),
+  )
+  function canChooseHouse(id: string): boolean {
+    const house = state.value.house
+    if (
+      !house ||
+      state.value.room !== 'house' ||
+      house.decisions[house.current]
+    )
+      return false
+    const room = HOUSE_ROOMS[house.current]
+    if (!room?.choices.some((choice) => choice.id === id)) return false
+    if (house.current === 'HD-32' && id === 'petition')
+      return houseWitnessEvidence(house, state.value.sceneChoices)
+    if (house.current === 'HD-36' && !house.ending) return false
+    return true
+  }
   const activeScene = computed(() =>
     state.value.room === 'map' &&
     state.value.wavePhase === 'exploring' &&
@@ -601,7 +639,123 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.completedEncounters.includes(position)
     )
       return
-    await beginRoom(kind === 'dungeon' ? 'vault-1' : kind)
+    if (kind === 'dungeon') {
+      state.value.house ??= newHouseProgress()
+      state.value.room = 'house'
+      state.value.roomId = null
+      state.value.combat = null
+      state.value.cards = []
+      state.value.status =
+        HOUSE_ROOMS[state.value.house.current]?.opening ?? 'The House opens.'
+      persist()
+      return
+    }
+    await beginRoom(kind)
+  }
+
+  function houseMove(next: string): void {
+    const house = state.value.house
+    if (!house || state.value.room !== 'house' || loading.value) return
+    if (!houseAvailableDoors.value.includes(next as typeof house.current))
+      return
+    house.current = next as typeof house.current
+    if (!house.visited.includes(house.current))
+      house.visited.push(house.current)
+    state.value.status =
+      HOUSE_ROOMS[house.current]?.opening ?? 'The house shifts.'
+    persist()
+  }
+
+  async function chooseHouse(id: string): Promise<void> {
+    const house = state.value.house
+    if (!house || !canChooseHouse(id)) return
+    const choice = HOUSE_ROOMS[house.current]?.choices.find(
+      (item) => item.id === id,
+    )
+    if (!choice) return
+    if (
+      (house.current === 'HD-32' && id === 'fight') ||
+      (house.current === 'HD-19' && id === 'match') ||
+      (['HD-09', 'HD-22', 'HD-28'].includes(house.current) && id === 'duel')
+    ) {
+      house.combatOrigin = house.current as HouseCombatOrigin
+      persist()
+      const combatRoom =
+        house.current === 'HD-32'
+          ? 'vault-2'
+          : house.current === 'HD-19'
+            ? 'vault-1'
+            : house.current === 'HD-09'
+              ? 'sprite'
+              : 'patrol'
+      await beginRoom(combatRoom)
+      if (state.value.room !== 'memory') {
+        house.combatOrigin = null
+        persist()
+      }
+      return
+    }
+
+    house.decisions[house.current] = id
+    if (choice.gain?.lanterns) state.value.lanterns += choice.gain.lanterns
+    if (choice.gain?.wildflowers)
+      state.value.wildflowers += choice.gain.wildflowers
+    if (choice.gain?.hearts)
+      state.value.hearts = Math.min(3, state.value.hearts + choice.gain.hearts)
+    if (house.current === 'HD-32' && id === 'petition')
+      house.wardenPassed = true
+    if (
+      house.current === 'HD-35' &&
+      (id === 'release' || id === 'renew' || id === 'break')
+    )
+      house.ending = id
+    if (house.current === 'HD-36') {
+      house.chimeClaimed = true
+      if (!state.value.relics.includes('bramble-chime'))
+        state.value.relics.push('bramble-chime')
+      state.value.room = 'map'
+      state.value.status = `${choice.outcome} The Bramble Chime now opens the next realm's gate.`
+      persist()
+      return
+    }
+    state.value.status = choice.outcome
+    persist()
+  }
+
+  function exitHouse(): void {
+    const house = state.value.house
+    if (!house || state.value.room !== 'house' || !houseMayExit.value) return
+    state.value.room = 'map'
+    state.value.roomId = null
+    state.value.status =
+      'You take a safe return route to Briar Marches. The House remembers every room and decision.'
+    persist()
+  }
+
+  function finishHouseCombat(origin: HouseCombatOrigin): void {
+    const house = state.value.house
+    if (!house) return
+    house.decisions[origin] =
+      origin === 'HD-32' ? 'fight' : origin === 'HD-19' ? 'match' : 'duel'
+    if (origin === 'HD-32') house.wardenPassed = true
+    house.combatOrigin = null
+    state.value.room = 'house'
+    state.value.roomId = null
+    state.value.combat = null
+    state.value.cards = []
+    state.value.roomMisses = 0
+    firstCard.value = null
+    turnLocked.value = false
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    state.value.status =
+      origin === 'HD-32'
+        ? "The Warden yields to remembered pairs, not to ownership of anyone else's past."
+        : origin === 'HD-19'
+          ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
+          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
+    persist()
   }
 
   async function beginRoom(
@@ -848,11 +1002,30 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
+    const houseOrigin = state.value.house?.combatOrigin
+    if (
+      houseOrigin &&
+      ((houseOrigin === 'HD-19' && room === 'vault-1') ||
+        (houseOrigin === 'HD-32' && room === 'vault-2') ||
+        (['HD-09', 'HD-22', 'HD-28'].includes(houseOrigin) &&
+          (room === 'sprite' || room === 'patrol')))
+    ) {
+      finishHouseCombat(houseOrigin)
+      return
+    }
     if (room === 'vault-1') {
+      if (state.value.house?.combatOrigin === 'HD-19') {
+        finishHouseCombat('HD-19')
+        return
+      }
       await beginRoom('vault-2')
       return
     }
     if (room === 'vault-2') {
+      if (state.value.house?.combatOrigin === 'HD-32') {
+        finishHouseCombat('HD-32')
+        return
+      }
       if (!state.value.relics.includes('bramble-chime'))
         state.value.relics.push('bramble-chime')
       leaveRoom(
@@ -873,7 +1046,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     message = 'You step out of the challenge and return to the same place on the map.',
   ): void {
     roomEpoch++
-    state.value.room = 'map'
+    const houseOrigin = state.value.house?.combatOrigin
+    if (houseOrigin && state.value.house) {
+      state.value.house.combatOrigin = null
+      state.value.house.current = 'HD-18'
+      if (!state.value.house.visited.includes('HD-18'))
+        state.value.house.visited.push('HD-18')
+      state.value.room = 'house'
+      message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
+    } else {
+      state.value.room = 'map'
+    }
     state.value.roomId = null
     state.value.cards = []
     state.value.combat = null
@@ -924,6 +1107,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     combatPick,
     combatNote,
     selectedSite,
+    activeHouseRoom,
+    houseAvailableDoors,
+    houseMayExit,
+    canChooseHouse,
+    houseMove,
+    chooseHouse,
+    exitHouse,
     activeSiteKey,
     inspectedSigil,
     activeScene,

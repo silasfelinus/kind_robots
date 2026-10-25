@@ -1,41 +1,79 @@
 <template>
-  <main class="kr-surface cca-shell h-full min-h-0 overflow-hidden" data-layout="console-fixed" aria-label="Comet City Academy game">
+  <main
+    class="kr-surface cca-shell h-full min-h-0 overflow-hidden"
+    data-layout="console-fixed"
+    aria-label="Comet City Academy game"
+  >
     <header class="cca-topbar">
-      <NuxtLink to="/" class="cca-home" aria-label="Return to Kind Robots home">‹ <span class="hidden sm:inline">HOME</span></NuxtLink>
+      <NuxtLink to="/" class="cca-home" aria-label="Return to Kind Robots home"
+        >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
+      >
       <span class="cca-insignia">✦</span>
       <span class="cca-top-title">COMET CITY <b>ACADEMY</b></span>
-      <span class="cca-top-detail">{{ run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN' }}</span>
-      <span v-if="run" class="cca-score">INFLUENCE {{ run.influence >= 0 ? '+' : '' }}{{ run.influence }} <span class="cca-separator">/</span> THREAT {{ run.danger }}</span>
-      <button v-if="run" type="button" class="cca-small" @click="store.restart()">NEW TERM</button>
+      <span class="cca-top-detail">{{
+        run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN'
+      }}</span>
+      <span v-if="run" class="cca-score"
+        >INFLUENCE {{ run.influence >= 0 ? '+' : '' }}{{ run.influence }}
+        <span class="cca-separator">/</span> THREAT {{ run.danger }}</span
+      >
+      <button
+        v-if="run"
+        type="button"
+        class="cca-small"
+        @click="store.restart()"
+      >
+        NEW TERM
+      </button>
     </header>
 
-    <div v-if="store.storageWarning" class="cca-warning" role="alert">{{ store.storageWarning }}</div>
+    <div v-if="store.storageWarning" class="cca-warning" role="alert">
+      {{ store.storageWarning }}
+    </div>
     <div class="cca-layout min-h-0 flex-1">
       <section class="cca-stage" aria-label="Illustrated academy scene">
-        <img src="/comet-city-academy/academy-stage.svg" alt="The towers of Comet City Academy beneath a glowing comet and a purple sunset" class="cca-scenery" />
+        <img
+          src="/comet-city-academy/academy-stage.svg"
+          alt="The towers of Comet City Academy beneath a glowing comet and a purple sunset"
+          class="cca-scenery"
+        />
         <div class="cca-stage-grain" aria-hidden="true" />
         <div class="cca-stage-content">
-          <div class="cca-eyebrow">THE CITY IS WATCHING <span>✦</span> YOUR STORY BEGINS</div>
+          <div class="cca-eyebrow">
+            THE CITY IS WATCHING <span>✦</span> YOUR STORY BEGINS
+          </div>
           <template v-if="!run">
             <h1 class="cca-big-title">COMET CITY <span>ACADEMY</span></h1>
-            <p class="cca-intro">Heroes are made. Villains graduate. Prom is Saturday.</p>
+            <p class="cca-intro">
+              Heroes are made. Villains graduate. Prom is Saturday.
+            </p>
           </template>
           <template v-else>
-            <p class="cca-chapter">CHAPTER {{ run.day.toString().padStart(2, '0') }} / THE FIRST WEEK</p>
+            <p class="cca-chapter">
+              CHAPTER {{ run.day.toString().padStart(2, '0') }} / THE FIRST WEEK
+            </p>
             <h1 class="cca-scene-title">{{ sceneTitle }}</h1>
             <p class="cca-scene-copy">{{ stageCopy }}</p>
           </template>
         </div>
         <div class="cca-stage-foot">
           <span>✧ COMET CITY — CAMPUS DISTRICT</span>
-          <span>{{ run ? run.phase.toUpperCase() : 'EST. BEFORE YOUR PARENTS WERE BORN' }}</span>
+          <span>{{
+            run ? run.phase.toUpperCase() : 'EST. BEFORE YOUR PARENTS WERE BORN'
+          }}</span>
         </div>
       </section>
 
       <section class="cca-console" aria-live="polite">
         <div class="cca-console-top">
           <span class="cca-caption">{{ panelLabel }}</span>
-          <div v-if="run" class="cca-day-lights" aria-label="Seven day countdown"><span v-for="n in 7" :key="n" :class="{ filled: n <= run.day }" /></div>
+          <div
+            v-if="run"
+            class="cca-day-lights"
+            aria-label="Seven day countdown"
+          >
+            <span v-for="n in 7" :key="n" :class="{ filled: n <= run.day }" />
+          </div>
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
         <div class="cca-pane kr-scroll">
@@ -43,76 +81,239 @@
             <p class="cca-muted">Loading your academy record…</p>
           </template>
           <template v-else-if="!run">
-            <div class="cca-heading"><span>01</span><div><h2>Choose your power</h2><p>Six talents. Six completely different ways to leave a mark.</p></div></div>
+            <div class="cca-heading">
+              <span>01</span>
+              <div>
+                <h2>Choose your power</h2>
+                <p>
+                  Six talents. Six completely different ways to leave a mark.
+                </p>
+              </div>
+            </div>
             <div class="cca-power-grid">
-              <button v-for="power in POWERS" :key="power.id" type="button" class="cca-power"
-                :class="{ chosen: selectedPower === power.id }" :aria-pressed="selectedPower === power.id"
-                @click="selectedPower = power.id">
-                <span class="cca-power-glyph" aria-hidden="true">{{ power.crest }}</span>
+              <button
+                v-for="power in POWERS"
+                :key="power.id"
+                type="button"
+                class="cca-power"
+                :class="{ chosen: selectedPower === power.id }"
+                :aria-pressed="selectedPower === power.id"
+                @click="selectedPower = power.id"
+              >
+                <span class="cca-power-glyph" aria-hidden="true">{{
+                  power.crest
+                }}</span>
                 <strong>{{ power.name }}</strong>
               </button>
             </div>
-            <div class="cca-power-detail"><strong>{{ currentPower.name }}</strong><p>{{ currentPower.ability }}</p><small>Trade-off: {{ currentPower.drawback }}</small></div>
-            <button class="cca-primary" type="button" data-testid="academy-begin" @click="store.begin(selectedPower)">ENROLL AT THE ACADEMY <span>➜</span></button>
-            <p class="cca-under">Playable first-week chapter · Choice-driven training, social encounters and graduation preview</p>
+            <div class="cca-power-detail">
+              <strong>{{ currentPower.name }}</strong>
+              <p>{{ currentPower.ability }}</p>
+              <small>Trade-off: {{ currentPower.drawback }}</small>
+            </div>
+            <button
+              class="cca-primary"
+              type="button"
+              data-testid="academy-begin"
+              @click="store.begin(selectedPower)"
+            >
+              ENROLL AT THE ACADEMY <span>➜</span>
+            </button>
+            <p class="cca-under">
+              Playable first-week chapter · Choice-driven training, social
+              encounters and graduation preview
+            </p>
           </template>
 
           <template v-else-if="run.phase === 'dispatch'">
-            <div class="cca-heading"><span>02</span><div><h2>Simulation desk</h2><p>Choose up to three volunteers for each call. A student cannot be in two places at once.</p></div></div>
-            <article v-for="incident in store.incidents" :key="incident.id" class="cca-incident">
-              <div class="cca-incident-name"><strong>{{ incident.title }}</strong><span>RISK {{ incident.risk }} / 06</span></div>
-              <div class="cca-incident-location">{{ incident.site }} · TRAINING SIMULATION</div>
+            <div class="cca-heading">
+              <span>02</span>
+              <div>
+                <h2>Simulation desk</h2>
+                <p>
+                  Choose up to three volunteers for each call. A student cannot
+                  be in two places at once.
+                </p>
+              </div>
+            </div>
+            <article
+              v-for="incident in store.incidents"
+              :key="incident.id"
+              class="cca-incident"
+            >
+              <div class="cca-incident-name">
+                <strong>{{ incident.title }}</strong
+                ><span>RISK {{ incident.risk }} / 06</span>
+              </div>
+              <div class="cca-incident-location">
+                {{ incident.site }} · TRAINING SIMULATION
+              </div>
               <p>{{ incident.briefing }}</p>
               <div class="cca-roster">
-                <button v-for="student in STUDENTS" :key="student.id" type="button"
-                  class="cca-roster-button" :class="{ active: isSelected(incident.id, student.id), unavailable: isAssignedElsewhere(incident.id, student.id) }"
-                  :disabled="isAssignedElsewhere(incident.id, student.id) || (!isSelected(incident.id, student.id) && teamFor(incident.id).length >= 3)"
+                <button
+                  v-for="student in STUDENTS"
+                  :key="student.id"
+                  type="button"
+                  class="cca-roster-button"
+                  :class="{
+                    active: isSelected(incident.id, student.id),
+                    unavailable: isAssignedElsewhere(incident.id, student.id),
+                  }"
+                  :disabled="
+                    isAssignedElsewhere(incident.id, student.id) ||
+                    (!isSelected(incident.id, student.id) &&
+                      teamFor(incident.id).length >= 3)
+                  "
                   :aria-pressed="isSelected(incident.id, student.id)"
-                  :title="student.note" @click="toggleStudent(incident.id, student.id)">
+                  :title="student.note"
+                  @click="toggleStudent(incident.id, student.id)"
+                >
                   <span class="cca-avatar">{{ student.portrait }}</span>
-                  <span class="cca-roster-name">{{ student.name.split(' ')[0] }}</span>
+                  <span class="cca-roster-name">{{
+                    student.name.split(' ')[0]
+                  }}</span>
                 </button>
               </div>
-              <div class="cca-crew-count">TEAM ASSIGNED {{ teamFor(incident.id).length }} / 3 <span>✦ Skill match changes outcomes</span></div>
+              <div class="cca-crew-count">
+                TEAM ASSIGNED {{ teamFor(incident.id).length }} / 3
+                <span>✦ Skill match changes outcomes</span>
+              </div>
             </article>
-            <button class="cca-primary" type="button" data-testid="academy-dispatch" :disabled="!run.assignments.length" @click="store.dispatch()">RUN TRAINING SIMULATIONS <span>➜</span></button>
+            <button
+              class="cca-primary"
+              type="button"
+              data-testid="academy-dispatch"
+              :disabled="!run.assignments.length"
+              @click="store.dispatch()"
+            >
+              RUN TRAINING SIMULATIONS <span>➜</span>
+            </button>
           </template>
 
           <template v-else-if="run.phase === 'campus'">
-            <div class="cca-heading"><span>03</span><div><h2>{{ campusEncounter.title }}</h2><p>{{ campusEncounter.location }} · AFTER CLASS</p></div></div>
+            <div class="cca-heading">
+              <span>03</span>
+              <div>
+                <h2>{{ campusEncounter.title }}</h2>
+                <p>{{ campusEncounter.location }} · AFTER CLASS</p>
+              </div>
+            </div>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
-            <div class="cca-report-mini"><strong>AFTER-ACTION REPORT</strong><span v-for="report in run.reports" :key="report.caseId">{{ report.title }} · {{ report.grade.toUpperCase() }}</span></div>
-            <button v-for="option in campusEncounter.options" :key="option.id" class="cca-choice" type="button" @click="store.choose(option.id)">
-              <span>{{ option.label }}</span><span>↗</span>
+            <div class="cca-report-mini">
+              <strong>AFTER-ACTION REPORT</strong
+              ><span v-for="report in run.reports" :key="report.caseId"
+                >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
+              >
+            </div>
+            <button
+              v-for="option in campusEncounter.options"
+              :key="option.id"
+              class="cca-choice"
+              type="button"
+              @click="store.choose(option.id)"
+            >
+              <span>{{ option.label }}</span
+              ><span>↗</span>
             </button>
           </template>
 
           <template v-else-if="run.phase === 'debrief'">
-            <div class="cca-heading"><span>04</span><div><h2>After the bell</h2><p>The simulation has ended. The consequences haven't.</p></div></div>
+            <div class="cca-heading">
+              <span>04</span>
+              <div>
+                <h2>After the bell</h2>
+                <p>The simulation has ended. The consequences haven't.</p>
+              </div>
+            </div>
             <p class="cca-story">{{ run.scene }}</p>
-            <article v-for="report in run.reports" :key="report.caseId" class="cca-report">
-              <div><strong>{{ report.title }}</strong><span :class="'cca-grade-' + report.grade">{{ report.grade }}</span></div>
-              <small>{{ report.names }}</small><p>{{ report.text }}</p>
+            <article
+              v-for="report in run.reports"
+              :key="report.caseId"
+              class="cca-report"
+            >
+              <div>
+                <strong>{{ report.title }}</strong
+                ><span :class="'cca-grade-' + report.grade">{{
+                  report.grade
+                }}</span>
+              </div>
+              <small>{{ report.names }}</small>
+              <p>{{ report.text }}</p>
             </article>
-            <button class="cca-primary" type="button" data-testid="academy-next" @click="store.next()">{{ run.day === 7 ? 'GO TO THE COMET BALL' : 'ADVANCE TO NEXT DAY' }} <span>➜</span></button>
+            <button
+              class="cca-primary"
+              type="button"
+              data-testid="academy-next"
+              @click="store.next()"
+            >
+              {{
+                run.day === 7 ? 'GO TO THE COMET BALL' : 'ADVANCE TO NEXT DAY'
+              }}
+              <span>➜</span>
+            </button>
           </template>
 
           <template v-else-if="run.phase === 'finale'">
-            <div class="cca-heading"><span>05</span><div><h2>The Comet Ball</h2><p>The academy's shining night has a very dark underside.</p></div></div>
-            <p class="cca-story">The emergency simulations were rehearsals for something real. The ballroom lights are changing color. Your classmates are waiting for orders. You can protect them, or seize the machine behind the whole spectacle.</p>
-            <div class="cca-final-stats"><span>INFLUENCE <b>{{ run.influence }}</b></span><span>THREAT <b>{{ run.danger }}</b></span></div>
-            <button type="button" class="cca-choice" @click="store.end('protect')"><span>Save the classmates, even if the school expels you</span> ↗</button>
-            <button type="button" class="cca-choice" @click="store.end('command')"><span>Take the catastrophe engine for yourself</span> ↗</button>
+            <div class="cca-heading">
+              <span>05</span>
+              <div>
+                <h2>The Comet Ball</h2>
+                <p>The academy's shining night has a very dark underside.</p>
+              </div>
+            </div>
+            <p class="cca-story">
+              The emergency simulations were rehearsals for something real. The
+              ballroom lights are changing color. Your classmates are waiting
+              for orders. You can protect them, or seize the machine behind the
+              whole spectacle.
+            </p>
+            <div class="cca-final-stats">
+              <span
+                >INFLUENCE <b>{{ run.influence }}</b></span
+              ><span
+                >THREAT <b>{{ run.danger }}</b></span
+              >
+            </div>
+            <button
+              type="button"
+              class="cca-choice"
+              @click="store.end('protect')"
+            >
+              <span>Save the classmates, even if the school expels you</span> ↗
+            </button>
+            <button
+              type="button"
+              class="cca-choice"
+              @click="store.end('command')"
+            >
+              <span>Take the catastrophe engine for yourself</span> ↗
+            </button>
           </template>
 
           <template v-else>
-            <div class="cca-heading"><span>✦</span><div><h2>{{ run.ending }}</h2><p>YOUR FIRST-WEEK YEARBOOK</p></div></div>
+            <div class="cca-heading">
+              <span>✦</span>
+              <div>
+                <h2>{{ run.ending }}</h2>
+                <p>YOUR FIRST-WEEK YEARBOOK</p>
+              </div>
+            </div>
             <p class="cca-story">{{ run.scene }}</p>
-            <div class="cca-report-mini"><strong>CHRONICLE</strong><span v-for="(line, i) in run.log.slice(-10)" :key="i">{{ line }}</span></div>
-            <button class="cca-primary" type="button" @click="store.restart()">BEGIN ANOTHER TERM <span>↻</span></button>
+            <div class="cca-report-mini">
+              <strong>CHRONICLE</strong
+              ><span v-for="(line, i) in run.log.slice(-10)" :key="i">{{
+                line
+              }}</span>
+            </div>
+            <button class="cca-primary" type="button" @click="store.restart()">
+              BEGIN ANOTHER TERM <span>↻</span>
+            </button>
           </template>
         </div>
-        <footer class="cca-footer"><span>✧ DECISIONS ARE REMEMBERED</span><span>{{ run ? 'AUTO-SAVED' : 'NEW GAME' }}</span></footer>
+        <footer class="cca-footer">
+          <span>✧ DECISIONS ARE REMEMBERED</span
+          ><span>{{ run ? 'AUTO-SAVED' : 'NEW GAME' }}</span>
+        </footer>
       </section>
     </div>
   </main>
@@ -121,21 +322,58 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
-import { POWERS, STUDENTS, encounterFor, type PowerId, type StudentId } from '~/utils/cometAcademy/rules'
+import {
+  POWERS,
+  STUDENTS,
+  encounterFor,
+  type PowerId,
+  type StudentId,
+} from '~/utils/cometAcademy/rules'
 
 const store = useCometAcademyStore()
 const selectedPower = ref<PowerId>('spatial')
 const run = computed(() => store.run)
-const currentPower = computed(() => POWERS.find((power) => power.id === selectedPower.value)!)
-const campusEncounter = computed(() => (run.value ? encounterFor(run.value) : encounterFor({ day: 1 } as never)))
-const panelLabel = computed(() => run.value ? ({ dispatch: 'TRAINING // ASSIGNMENT BOARD', campus: 'CAMPUS // ENCOUNTER DRAW', debrief: 'RESULTS // DAY REPORT', finale: 'PROM // FINAL EXAM', ending: 'YEARBOOK // COMPLETED RUN' }[run.value.phase]) : 'NEW STUDENT // POWER SELECTION')
-const sceneTitle = computed(() => run.value ? ({ dispatch: 'The Call To Action', campus: campusEncounter.value.title, debrief: 'What Comes After', finale: 'The Night of the Comet', ending: run.value.ending ?? 'Yearbook' }[run.value.phase]) : '')
-const stageCopy = computed(() => run.value?.phase === 'campus' ? campusEncounter.value.scene : run.value?.scene ?? '')
+const currentPower = computed(() =>
+  POWERS.find((power) => power.id === selectedPower.value)!,
+)
+const campusEncounter = computed(() =>
+  run.value ? encounterFor(run.value) : encounterFor({ day: 1 } as never),
+)
+const panelLabel = computed(() =>
+  run.value
+    ? {
+        dispatch: 'TRAINING // ASSIGNMENT BOARD',
+        campus: 'CAMPUS // ENCOUNTER DRAW',
+        debrief: 'RESULTS // DAY REPORT',
+        finale: 'PROM // FINAL EXAM',
+        ending: 'YEARBOOK // COMPLETED RUN',
+      }[run.value.phase]
+    : 'NEW STUDENT // POWER SELECTION',
+)
+const sceneTitle = computed(() =>
+  run.value
+    ? {
+        dispatch: 'The Call To Action',
+        campus: campusEncounter.value.title,
+        debrief: 'What Comes After',
+        finale: 'The Night of the Comet',
+        ending: run.value.ending ?? 'Yearbook',
+      }[run.value.phase]
+    : '',
+)
+const stageCopy = computed(() =>
+  run.value?.phase === 'campus'
+    ? campusEncounter.value.scene
+    : (run.value?.scene ?? ''),
+)
 onMounted(() => store.load())
 useHead({ title: 'Comet City Academy | Kind Robots' })
 
 function teamFor(caseId: string): StudentId[] {
-  return run.value?.assignments.find((entry) => entry.caseId === caseId)?.students ?? []
+  return (
+    run.value?.assignments.find((entry) => entry.caseId === caseId)?.students ??
+    []
+  )
 }
 
 function isSelected(caseId: string, id: StudentId): boolean {
@@ -143,64 +381,594 @@ function isSelected(caseId: string, id: StudentId): boolean {
 }
 
 function isAssignedElsewhere(caseId: string, id: StudentId): boolean {
-  return run.value?.assignments.some((entry) => entry.caseId !== caseId && entry.students.includes(id)) ?? false
+  return (
+    run.value?.assignments.some(
+      (entry) => entry.caseId !== caseId && entry.students.includes(id),
+    ) ?? false
+  )
 }
 
 function toggleStudent(caseId: string, id: StudentId): void {
   if (!run.value) return
   const current = teamFor(caseId)
-  store.assign(caseId, current.includes(id) ? current.filter((student) => student !== id) : [...current, id])
+  store.assign(
+    caseId,
+    current.includes(id)
+      ? current.filter((student) => student !== id)
+      : [...current, id],
+  )
 }
 </script>
 
 <style scoped>
-.cca-shell{color:#fff6eb;background:#0d1024;font-family:system-ui,sans-serif;gap:0}
-.cca-topbar{display:flex;align-items:center;gap:.75rem;min-height:2.65rem;padding:.3rem .75rem;border-bottom:1px solid #7d8da53f;background:#111629;flex-shrink:0;font-size:.68rem;letter-spacing:.14em;font-weight:800}
-.cca-top-title{white-space:nowrap}.cca-top-title b{color:#ffc18a}.cca-home,.cca-small{border:1px solid #ffffff36;border-radius:6px;padding:.3rem .5rem;color:#fce6cf;background:#ffffff0b}
-.cca-insignia{color:#f6b779;font-size:1.4rem}.cca-top-detail{margin-left:auto;color:#aeafc6}.cca-score{color:#c1e3e9;white-space:nowrap}.cca-separator{color:#f4b28f;margin:0 .3rem}.cca-small:hover,.cca-home:hover{background:#ffffff28}
-.cca-warning{padding:.3rem 1rem;background:#7c312e;color:#fff;font-size:.75rem}
-.cca-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);overflow:hidden}
-.cca-stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:#2e3056}
-.cca-scenery{width:100%;height:100%;object-fit:cover;object-position:center center;filter:saturate(1.04) contrast(1.04)}
-.cca-stage:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0e1229f7 0%,#11132785 21%,transparent 70%),linear-gradient(90deg,#13162750,transparent 70%);pointer-events:none}
-.cca-stage-grain{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 23%,#100f347a 95%);pointer-events:none;z-index:1}
-.cca-stage-content{position:absolute;z-index:2;bottom:8%;left:5%;right:5%;text-shadow:0 3px 15px #0e122a}
-.cca-eyebrow,.cca-chapter{font-size:clamp(.55rem,.85vw,.77rem);font-weight:800;letter-spacing:.24em;color:#f9cc9b}
-.cca-eyebrow span{margin:0 .5rem;color:#9ae0e4}
-.cca-big-title,.cca-scene-title{font-family:Georgia,serif;font-weight:900;text-wrap:balance;line-height:.92;letter-spacing:-.065em;max-width:700px}
-.cca-big-title{font-size:clamp(2.6rem,6.3vw,7.1rem);margin:.7rem 0}
-.cca-big-title span{display:block;color:#ffd4a8;font-size:.85em}
-.cca-scene-title{font-size:clamp(2rem,4vw,4.7rem);margin:.65rem 0}
-.cca-intro,.cca-scene-copy{font-size:clamp(.9rem,1.3vw,1.2rem);line-height:1.5;max-width:46ch;color:#f4eef4}
-.cca-stage-foot{position:absolute;z-index:2;bottom:.8rem;left:5%;right:5%;display:flex;justify-content:space-between;gap:1rem;font-size:.62rem;letter-spacing:.13em;font-weight:800;color:#ffe0bf99}
-.cca-console{display:flex;flex-direction:column;min-width:0;min-height:0;background:linear-gradient(165deg,#242f45,#11182c 60%,#12182a);border-left:1px solid #c8d8e34a}
-.cca-console-top,.cca-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:2.35rem;padding:.5rem 1rem;border-bottom:1px solid #ffffff24;font-size:.6rem;letter-spacing:.15em;font-weight:800;color:#cbd8e4;flex-shrink:0}
-.cca-serial{color:#f3b881}.cca-day-lights{display:flex;gap:.25rem}.cca-day-lights span{width:.4rem;height:.4rem;border:1px solid #aab8c580;border-radius:100%}.cca-day-lights .filled{background:#f6bf87;box-shadow:0 0 7px #f6bf877d}
-.cca-pane{flex:1;min-height:0;overflow-y:auto;padding:clamp(.75rem,1.2vw,1.35rem);scrollbar-width:thin;scrollbar-color:#e4af8370 transparent}
-.cca-heading{display:flex;gap:.85rem;align-items:flex-start;margin-bottom:.85rem}.cca-heading>span{font-size:1.8rem;font-weight:800;font-family:Georgia,serif;color:#edb987;line-height:1}
-.cca-heading h2{font-size:clamp(1.15rem,1.7vw,1.6rem);font-family:Georgia,serif;font-weight:bold;line-height:1.1}.cca-heading p{color:#b8cad8;font-size:.76rem;line-height:1.45;margin-top:.25rem}
-.cca-power-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
-.cca-power{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;background:#37425d70;border:1px solid #99adba55;border-radius:.7rem;min-height:5.4rem;padding:.4rem;color:#eaf2f4;transition:.18s}
-.cca-power:hover,.cca-power:focus-visible{border-color:#ffe5b9}.cca-power.chosen{background:linear-gradient(140deg,#84635199,#244f6f99);border:2px solid #ffcc95;box-shadow:inset 0 0 20px #f6c89528}
-.cca-power-glyph{font-size:1.7rem;color:#fbdab2}.cca-power strong{font-size:.73rem;text-align:center}
-.cca-power-detail{padding:.8rem .25rem;min-height:5.5rem}.cca-power-detail strong{color:#ffd1a0}.cca-power-detail p{font-size:.83rem;color:#e1e7f1;line-height:1.5;margin:.3rem 0}.cca-power-detail small{color:#a8b9c6}
-.cca-primary{width:100%;min-height:2.9rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;background:linear-gradient(95deg,#f7c28d,#df8d81);border:1px solid #ffdfb3;color:#1d2338;border-radius:.55rem;padding:.75rem 1rem;font-weight:900;letter-spacing:.08em;font-size:.73rem;box-shadow:0 10px 25px #0006}.cca-primary:hover:not(:disabled){filter:brightness(1.1)}.cca-primary:disabled{opacity:.45;cursor:not-allowed}
-.cca-under,.cca-muted{margin-top:.8rem;font-size:.67rem;color:#a4b6c9;line-height:1.5}
-.cca-incident{padding:.75rem;margin-bottom:.7rem;background:#ffffff0a;border:1px solid #b4b9ca46;border-radius:.8rem}
-.cca-incident-name{display:flex;align-items:center;justify-content:space-between;gap:.3rem}.cca-incident-name strong{font-family:Georgia,serif;font-size:1.05rem}.cca-incident-name span{font-size:.62rem;font-weight:800;color:#ffc291}
-.cca-incident-location{margin:.2rem 0 .45rem;color:#93c9d0;font-weight:800;font-size:.58rem;letter-spacing:.1em}
-.cca-incident p,.cca-report p{font-size:.75rem;line-height:1.5;color:#d6dce7}.cca-roster{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.3rem;margin:.65rem 0}
-.cca-roster-button{min-width:0;border:1px solid #9caec364;background:#34445e9c;color:#fff0e1;padding:.3rem .1rem;border-radius:.5rem;display:flex;align-items:center;flex-direction:column;gap:.15rem}
-.cca-roster-button.active{border-color:#ffc897;background:#a66d6799}.cca-roster-button.unavailable{opacity:.28}.cca-roster-button:disabled{cursor:not-allowed}
-.cca-avatar{font-family:Georgia,serif;display:grid;place-items:center;border-radius:50%;width:1.85rem;height:1.85rem;background:linear-gradient(145deg,#a4bdc5,#555979);font-weight:900;font-size:.6rem}
-.cca-roster-name{font-size:.58rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
-.cca-crew-count{display:flex;justify-content:space-between;font-size:.57rem;color:#b7c3d5;letter-spacing:.06em}.cca-crew-count span{color:#efba95}
-.cca-story{font-size:clamp(.92rem,1.13vw,1.03rem);line-height:1.8;color:#f2e6dd;font-family:Georgia,serif;margin:1.2rem 0}
-.cca-report-mini{display:flex;flex-direction:column;gap:.5rem;border-left:2px solid #ba95aa;padding:.7rem;margin-bottom:1rem;font-size:.72rem;color:#b5cddc}.cca-report-mini strong{color:#f6c89e;font-size:.65rem;letter-spacing:.1em}
-.cca-choice{width:100%;display:flex;justify-content:space-between;text-align:left;gap:.7rem;padding:.8rem;margin:.5rem 0;border:1px solid #94bac488;border-radius:.65rem;background:linear-gradient(95deg,#274c6075,#243250);font-size:.83rem;line-height:1.5;color:#ecf7fa}.cca-choice:hover,.cca-choice:focus-visible{border-color:#f9cc9b;background:#405d74}
-.cca-report{background:#ffffff0c;padding:.7rem;border-radius:.6rem;margin:.5rem 0}.cca-report>div{display:flex;justify-content:space-between;gap:.5rem}.cca-report strong{font-size:.85rem}.cca-report small{display:block;margin:.15rem 0;color:#a9cad5}.cca-report [class^=cca-grade]{text-transform:uppercase;font-size:.6rem;font-weight:800;color:#ffc392}.cca-final-stats{display:flex;justify-content:space-around;padding:1rem;margin:1rem 0;border:1px solid #ffffff38;font-size:.74rem}.cca-final-stats b{color:#ffcb93;font-size:1.3rem;margin-left:.4rem}
-.cca-footer{min-height:2rem;border-top:1px solid #ffffff24;border-bottom:0;color:#a7b6c8}
-@media(max-width:850px){.cca-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,42%) minmax(0,58%)}.cca-console{border-left:0;border-top:1px solid #b6a1ad65}.cca-stage-content{bottom:12%}.cca-big-title{font-size:clamp(2.3rem,8vw,4.5rem)}.cca-scene-title{font-size:clamp(1.8rem,6.5vw,3rem)}.cca-top-detail{display:none}.cca-score{margin-left:auto}.cca-top-title{font-size:.62rem}}
-@media(max-width:440px){.cca-topbar{gap:.4rem;padding:.3rem .35rem}.cca-top-title{font-size:.55rem}.cca-score{font-size:.5rem}.cca-stage-content{bottom:17%}.cca-stage-foot{font-size:.44rem}.cca-eyebrow{font-size:.5rem}.cca-intro,.cca-scene-copy{font-size:.74rem;line-height:1.35}.cca-roster{grid-template-columns:repeat(3,minmax(0,1fr))}.cca-roster-button{flex-direction:row;justify-content:center}.cca-power{min-height:3.3rem}.cca-power-glyph{font-size:1.2rem}.cca-power strong{font-size:.64rem}}
-@media(prefers-reduced-motion:reduce){.cca-power,.cca-scenery{transition:none}}
+.cca-shell {
+  color: #fff6eb;
+  background: #0d1024;
+  font-family: system-ui, sans-serif;
+  gap: 0;
+}
+.cca-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.65rem;
+  padding: 0.3rem 0.75rem;
+  border-bottom: 1px solid #7d8da53f;
+  background: #111629;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+}
+.cca-top-title {
+  white-space: nowrap;
+}
+.cca-top-title b {
+  color: #ffc18a;
+}
+.cca-home,
+.cca-small {
+  border: 1px solid #ffffff36;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  color: #fce6cf;
+  background: #ffffff0b;
+}
+.cca-insignia {
+  color: #f6b779;
+  font-size: 1.4rem;
+}
+.cca-top-detail {
+  margin-left: auto;
+  color: #aeafc6;
+}
+.cca-score {
+  color: #c1e3e9;
+  white-space: nowrap;
+}
+.cca-separator {
+  color: #f4b28f;
+  margin: 0 0.3rem;
+}
+.cca-small:hover,
+.cca-home:hover {
+  background: #ffffff28;
+}
+.cca-warning {
+  padding: 0.3rem 1rem;
+  background: #7c312e;
+  color: #fff;
+  font-size: 0.75rem;
+}
+.cca-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  overflow: hidden;
+}
+.cca-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #2e3056;
+}
+.cca-scenery {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  filter: saturate(1.04) contrast(1.04);
+}
+.cca-stage:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, #0e1229f7 0%, #11132785 21%, transparent 70%),
+    linear-gradient(90deg, #13162750, transparent 70%);
+  pointer-events: none;
+}
+.cca-stage-grain {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    transparent 23%,
+    #100f347a 95%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.cca-stage-content {
+  position: absolute;
+  z-index: 2;
+  bottom: 8%;
+  left: 5%;
+  right: 5%;
+  text-shadow: 0 3px 15px #0e122a;
+}
+.cca-eyebrow,
+.cca-chapter {
+  font-size: clamp(0.55rem, 0.85vw, 0.77rem);
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: #f9cc9b;
+}
+.cca-eyebrow span {
+  margin: 0 0.5rem;
+  color: #9ae0e4;
+}
+.cca-big-title,
+.cca-scene-title {
+  font-family: Georgia, serif;
+  font-weight: 900;
+  text-wrap: balance;
+  line-height: 0.92;
+  letter-spacing: -0.065em;
+  max-width: 700px;
+}
+.cca-big-title {
+  font-size: clamp(2.6rem, 6.3vw, 7.1rem);
+  margin: 0.7rem 0;
+}
+.cca-big-title span {
+  display: block;
+  color: #ffd4a8;
+  font-size: 0.85em;
+}
+.cca-scene-title {
+  font-size: clamp(2rem, 4vw, 4.7rem);
+  margin: 0.65rem 0;
+}
+.cca-intro,
+.cca-scene-copy {
+  font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+  line-height: 1.5;
+  max-width: 46ch;
+  color: #f4eef4;
+}
+.cca-stage-foot {
+  position: absolute;
+  z-index: 2;
+  bottom: 0.8rem;
+  left: 5%;
+  right: 5%;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  font-weight: 800;
+  color: #ffe0bf99;
+}
+.cca-console {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: linear-gradient(165deg, #242f45, #11182c 60%, #12182a);
+  border-left: 1px solid #c8d8e34a;
+}
+.cca-console-top,
+.cca-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.35rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ffffff24;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  font-weight: 800;
+  color: #cbd8e4;
+  flex-shrink: 0;
+}
+.cca-serial {
+  color: #f3b881;
+}
+.cca-day-lights {
+  display: flex;
+  gap: 0.25rem;
+}
+.cca-day-lights span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border: 1px solid #aab8c580;
+  border-radius: 100%;
+}
+.cca-day-lights .filled {
+  background: #f6bf87;
+  box-shadow: 0 0 7px #f6bf877d;
+}
+.cca-pane {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(0.75rem, 1.2vw, 1.35rem);
+  scrollbar-width: thin;
+  scrollbar-color: #e4af8370 transparent;
+}
+.cca-heading {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+.cca-heading > span {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: Georgia, serif;
+  color: #edb987;
+  line-height: 1;
+}
+.cca-heading h2 {
+  font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+  font-family: Georgia, serif;
+  font-weight: bold;
+  line-height: 1.1;
+}
+.cca-heading p {
+  color: #b8cad8;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin-top: 0.25rem;
+}
+.cca-power-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.cca-power {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: #37425d70;
+  border: 1px solid #99adba55;
+  border-radius: 0.7rem;
+  min-height: 5.4rem;
+  padding: 0.4rem;
+  color: #eaf2f4;
+  transition: 0.18s;
+}
+.cca-power:hover,
+.cca-power:focus-visible {
+  border-color: #ffe5b9;
+}
+.cca-power.chosen {
+  background: linear-gradient(140deg, #84635199, #244f6f99);
+  border: 2px solid #ffcc95;
+  box-shadow: inset 0 0 20px #f6c89528;
+}
+.cca-power-glyph {
+  font-size: 1.7rem;
+  color: #fbdab2;
+}
+.cca-power strong {
+  font-size: 0.73rem;
+  text-align: center;
+}
+.cca-power-detail {
+  padding: 0.8rem 0.25rem;
+  min-height: 5.5rem;
+}
+.cca-power-detail strong {
+  color: #ffd1a0;
+}
+.cca-power-detail p {
+  font-size: 0.83rem;
+  color: #e1e7f1;
+  line-height: 1.5;
+  margin: 0.3rem 0;
+}
+.cca-power-detail small {
+  color: #a8b9c6;
+}
+.cca-primary {
+  width: 100%;
+  min-height: 2.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: linear-gradient(95deg, #f7c28d, #df8d81);
+  border: 1px solid #ffdfb3;
+  color: #1d2338;
+  border-radius: 0.55rem;
+  padding: 0.75rem 1rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  font-size: 0.73rem;
+  box-shadow: 0 10px 25px #0006;
+}
+.cca-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.cca-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.cca-under,
+.cca-muted {
+  margin-top: 0.8rem;
+  font-size: 0.67rem;
+  color: #a4b6c9;
+  line-height: 1.5;
+}
+.cca-incident {
+  padding: 0.75rem;
+  margin-bottom: 0.7rem;
+  background: #ffffff0a;
+  border: 1px solid #b4b9ca46;
+  border-radius: 0.8rem;
+}
+.cca-incident-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+.cca-incident-name strong {
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+}
+.cca-incident-name span {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #ffc291;
+}
+.cca-incident-location {
+  margin: 0.2rem 0 0.45rem;
+  color: #93c9d0;
+  font-weight: 800;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+.cca-incident p,
+.cca-report p {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #d6dce7;
+}
+.cca-roster {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3rem;
+  margin: 0.65rem 0;
+}
+.cca-roster-button {
+  min-width: 0;
+  border: 1px solid #9caec364;
+  background: #34445e9c;
+  color: #fff0e1;
+  padding: 0.3rem 0.1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.cca-roster-button.active {
+  border-color: #ffc897;
+  background: #a66d6799;
+}
+.cca-roster-button.unavailable {
+  opacity: 0.28;
+}
+.cca-roster-button:disabled {
+  cursor: not-allowed;
+}
+.cca-avatar {
+  font-family: Georgia, serif;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  width: 1.85rem;
+  height: 1.85rem;
+  background: linear-gradient(145deg, #a4bdc5, #555979);
+  font-weight: 900;
+  font-size: 0.6rem;
+}
+.cca-roster-name {
+  font-size: 0.58rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.cca-crew-count {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.57rem;
+  color: #b7c3d5;
+  letter-spacing: 0.06em;
+}
+.cca-crew-count span {
+  color: #efba95;
+}
+.cca-story {
+  font-size: clamp(0.92rem, 1.13vw, 1.03rem);
+  line-height: 1.8;
+  color: #f2e6dd;
+  font-family: Georgia, serif;
+  margin: 1.2rem 0;
+}
+.cca-report-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 2px solid #ba95aa;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  font-size: 0.72rem;
+  color: #b5cddc;
+}
+.cca-report-mini strong {
+  color: #f6c89e;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+}
+.cca-choice {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  border: 1px solid #94bac488;
+  border-radius: 0.65rem;
+  background: linear-gradient(95deg, #274c6075, #243250);
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: #ecf7fa;
+}
+.cca-choice:hover,
+.cca-choice:focus-visible {
+  border-color: #f9cc9b;
+  background: #405d74;
+}
+.cca-report {
+  background: #ffffff0c;
+  padding: 0.7rem;
+  border-radius: 0.6rem;
+  margin: 0.5rem 0;
+}
+.cca-report > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.cca-report strong {
+  font-size: 0.85rem;
+}
+.cca-report small {
+  display: block;
+  margin: 0.15rem 0;
+  color: #a9cad5;
+}
+.cca-report [class^='cca-grade'] {
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #ffc392;
+}
+.cca-final-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid #ffffff38;
+  font-size: 0.74rem;
+}
+.cca-final-stats b {
+  color: #ffcb93;
+  font-size: 1.3rem;
+  margin-left: 0.4rem;
+}
+.cca-footer {
+  min-height: 2rem;
+  border-top: 1px solid #ffffff24;
+  border-bottom: 0;
+  color: #a7b6c8;
+}
+@media (max-width: 850px) {
+  .cca-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 42%) minmax(0, 58%);
+  }
+  .cca-console {
+    border-left: 0;
+    border-top: 1px solid #b6a1ad65;
+  }
+  .cca-stage-content {
+    bottom: 12%;
+  }
+  .cca-big-title {
+    font-size: clamp(2.3rem, 8vw, 4.5rem);
+  }
+  .cca-scene-title {
+    font-size: clamp(1.8rem, 6.5vw, 3rem);
+  }
+  .cca-top-detail {
+    display: none;
+  }
+  .cca-score {
+    margin-left: auto;
+  }
+  .cca-top-title {
+    font-size: 0.62rem;
+  }
+}
+@media (max-width: 440px) {
+  .cca-topbar {
+    gap: 0.4rem;
+    padding: 0.3rem 0.35rem;
+  }
+  .cca-top-title {
+    font-size: 0.55rem;
+  }
+  .cca-score {
+    font-size: 0.5rem;
+  }
+  .cca-stage-content {
+    bottom: 17%;
+  }
+  .cca-stage-foot {
+    font-size: 0.44rem;
+  }
+  .cca-eyebrow {
+    font-size: 0.5rem;
+  }
+  .cca-intro,
+  .cca-scene-copy {
+    font-size: 0.74rem;
+    line-height: 1.35;
+  }
+  .cca-roster {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cca-roster-button {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .cca-power {
+    min-height: 3.3rem;
+  }
+  .cca-power-glyph {
+    font-size: 1.2rem;
+  }
+  .cca-power strong {
+    font-size: 0.64rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cca-power,
+  .cca-scenery {
+    transition: none;
+  }
+}
 </style>

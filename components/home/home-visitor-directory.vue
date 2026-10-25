@@ -328,7 +328,8 @@ const features = [
     category: 'play',
     route: '/play/game-of-captains',
     image: '/game-of-captains/bridge-stage.svg',
-    description: 'Command a crew, explore strange worlds, and decide when to intervene.',
+    description:
+      'Command a crew, explore strange worlds, and decide when to intervene.',
   },
   {
     title: 'Terrors on Crystal Street',

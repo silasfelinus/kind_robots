@@ -16,7 +16,12 @@ import {
   DARK_BRIAR_KEYS,
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
+  DARK_BRIAR_SEALS,
+  DARK_BRIAR_ENCOUNTER_KEYS,
   DARK_BRIAR_WITNESSES,
+  darkBriarInspectSeal,
+  darkBriarHasWitness,
+  darkBriarWitnessCount,
   DARK_BRIAR_CLIMAX,
   advanceDarkBriarWave,
   newDarkBriarProgress,
@@ -39,7 +44,7 @@ import {
 
 assert.deepEqual(validateDarkBriarSlice(), [])
 assert.deepEqual(validateDarkBriarArtRequests(), [])
-assert.equal(DARK_BRIAR_ART_REQUESTS.length, 195)
+assert.equal(DARK_BRIAR_ART_REQUESTS.length, 187)
 assert.equal(DARK_BRIAR_COLLECTIBLE_ART.length, 32)
 assert.ok(
   DARK_BRIAR_ART_REQUESTS.every(
@@ -47,6 +52,9 @@ assert.ok(
   ),
 )
 assert.equal(DARK_BRIAR_KEYS.length, 64)
+assert.equal(DARK_BRIAR_ENCOUNTER_KEYS.length, 60)
+assert.equal(Object.keys(DARK_BRIAR_SEALS).length, 4)
+for (const key of Object.keys(DARK_BRIAR_SEALS)) assert.equal(DARK_BRIAR_SCENES[key], undefined)
 assert.equal(new Set(DARK_BRIAR_KEYS).size, 64)
 assert.ok(DARK_BRIAR_KEYS.includes(BRIAR_START))
 assert.ok(DARK_BRIAR_KEYS.includes(DARK_BRIAR_CLIMAX))
@@ -83,10 +91,11 @@ for (let wave = 0; wave < 4; wave++) {
 
 const first = newDarkBriarProgress()
 assert.equal(first.phase, 'matching')
-assert.equal(first.version, 2)
+assert.equal(first.version, 3)
 assert.equal(first.waveIndex, 0)
 assert.equal(first.player, BRIAR_START)
 assert.deepEqual(first.sceneChoices, {})
+assert.deepEqual(first.sealInspections, [])
 assert.deepEqual(restoreDarkBriarProgress(null), first)
 const untrusted = restoreDarkBriarProgress({
   sceneChoices: { '6,2': 'fake' },
@@ -140,6 +149,16 @@ function completeRound(state: DarkBriarProgress): DarkBriarProgress {
 let dark = completeRound(first)
 assert.equal(dark.phase, 'exploring')
 assert.equal(dark.revealed.length, 16)
+const unexamined = { ...dark, player: '5,2' }
+const inspected = darkBriarInspectSeal(unexamined, '5,2')
+assert.deepEqual(inspected.sealInspections, ['5,2'])
+assert.equal(darkBriarInspectSeal(inspected, '5,2'), inspected)
+assert.equal(darkBriarCanChoose(inspected, '5,2'), false)
+assert.equal(darkBriarInspectSeal({ ...unexamined, visited: [] }, '5,2'), unexamined)
+assert.deepEqual(
+  restoreDarkBriarProgress(JSON.parse(JSON.stringify(inspected))).sealInspections,
+  ['5,2'],
+)
 assert.equal(
   darkBriarCanTravel(BRIAR_START, DARK_BRIAR_CLIMAX, dark.revealed),
   true,
@@ -233,6 +252,16 @@ assert.equal(
   'Dark world cannot rewrite the original save',
 )
 assert.equal(original.sceneChoices['4,4'], 'escort')
+const sigilWitness = restoreDarkBriarProgress({
+  ...completeRound(first),
+  version: 2,
+  sceneChoices: { '5,2': 'testify' },
+})
+assert.equal(sigilWitness.sceneChoices['5,2'], 'testify')
+assert.equal(darkBriarHasWitness(sigilWitness, '5,3'), true)
+assert.equal(darkBriarWitnessCount(sigilWitness), 1)
+assert.equal(darkBriarHasWitness(newDarkBriarProgress(), '5,3'), false)
+assert.equal(DARK_BRIAR_SCENES['5,3']?.choices[0].id, 'publish')
 
 // A player who finished the earlier 16-scene pilot must not lose the ending.
 const legacyV1 = restoreDarkBriarProgress({
@@ -241,7 +270,7 @@ const legacyV1 = restoreDarkBriarProgress({
   sceneChoices: { '6,2': 'witness', '2,5': 'question' },
   completed: true,
 })
-assert.equal(legacyV1.version, 2)
+assert.equal(legacyV1.version, 3)
 assert.equal(legacyV1.legacyCompleted, true)
 assert.equal(legacyV1.completed, true)
 const legacyReload = restoreDarkBriarProgress(
@@ -317,5 +346,5 @@ assert.ok(store.includes('grantBriarCompletion()'))
 assert.ok(store.includes('persistReality()'))
 assert.ok(store.includes('advanceDarkBriarWave(dark.value)'))
 console.log(
-  'All 64 Dark Briar encounters, four 8-pair reveal waves, eight-witness House, migration and art briefs pass',
+  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and art briefs pass',
 )

@@ -45,7 +45,8 @@
           <template v-if="!run">
             <h2 class="cca-big-title">CAPES <span>&amp; TASSELS</span></h2>
             <p class="cca-intro">
-              Prom of Doom · Your final month begins with a very strange first week.
+              Prom of Doom · Your final month begins with a very strange first
+              week.
             </p>
           </template>
           <template v-else>
@@ -247,7 +248,9 @@
               @click="store.next()"
             >
               {{
-                run.day === 7 ? 'FACE THE PROM-NIGHT SIMULATION' : 'ADVANCE TO NEXT DAY'
+                run.day === 7
+                  ? 'FACE THE PROM-NIGHT SIMULATION'
+                  : 'ADVANCE TO NEXT DAY'
               }}
               <span>➜</span>
             </button>
@@ -262,10 +265,10 @@
               </div>
             </div>
             <p class="cca-story">
-              Your first-week final is a simulated prom-night catastrophe.
-              The real graduation is still weeks away. Your classmates are
-              waiting for orders. You can protect them, or seize the machine
-              behind the whole spectacle.
+              Your first-week final is a simulated prom-night catastrophe. The
+              real graduation is still weeks away. Your classmates are waiting
+              for orders. You can protect them, or seize the machine behind the
+              whole spectacle.
             </p>
             <div class="cca-final-stats">
               <span

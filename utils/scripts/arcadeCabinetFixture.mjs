@@ -188,10 +188,11 @@ export async function bundleCabinetFixture() {
 export async function openCabinet(
   browser,
   fixture,
-  { slug, width, height, seats = 1, touch = false, help = null },
+  { slug, width, height, seats = 1, touch = false, help = null, dpr = 1 },
 ) {
   const context = await browser.newContext({
     viewport: { width, height },
+    deviceScaleFactor: dpr,
     hasTouch: touch,
     isMobile: touch,
   })

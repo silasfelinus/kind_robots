@@ -87,7 +87,7 @@
               },
               "failure": {
                 "text": "The files have turned to soggy pulp. Every page you peel apart is the same printed swim-safety poster, rotted and simpering: a cartoon teen girl on a dock with hearts for eyes, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. The drowned girl is on none of them. On the last one, someone has scratched JESS into the cartoon water in careful block letters.",
-                "art": "Soggy old file folders in a junkyard trailer revealing rotted swim-safety placards of a cartoon teen girl with heart eyes on a dock, a name scratched into the cartoon water",
+                "art": "Soggy old file folders in a junkyard trailer revealing rotted swim-safety placards of a cartoon girl in a one-piece swimsuit and an orange life jacket waving from a dock, a name scratched into the cartoon water",
                 "effects": {
                   "nerve": -1,
                   "dread": 1
@@ -107,7 +107,7 @@
           "title": "The Nurse's Office",
           "place": "Nurse's office, Glimmer Falls High",
           "text": "Nurse Judy Kessler keeps a bowl of butterscotch candies, a cot with a scratchy blanket and, on the wall where she can see it from her desk, the old county swim-safety poster: a cartoon teen girl on a dock with hearts for eyes while a small shape sinks behind her, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. Every September the school still hands out a pamphlet built on it. She keeps the original up. Her hands, you notice, shake whenever the water fountain in the hall runs.",
-          "art": "A small school nurse's office with a cot and a bowl of butterscotch candies, a middle-aged nurse at her desk staring at a faded swim-safety placard of a cartoon teen girl with heart eyes on a dock",
+          "art": "A small school nurse's office with a cot and a bowl of butterscotch candies, a middle-aged nurse at her desk staring at a faded swim-safety placard of a cartoon girl in a one-piece swimsuit and a bright orange life jacket waving from a dock",
           "choices": [
             {
               "id": "ask-about-the-poster",
@@ -280,7 +280,7 @@
             },
             "success": {
               "text": "\"NO RUNNING!\" she roars, but you are already up your front steps, through the door and slamming it. The machete bites into the porch post once, hard enough to rattle the family photos. Then quiet. In the morning there is a deep notch in the post, a wet handprint on the door, and a single damp, folded camp rule sheet on the welcome mat.",
-              "art": "A front porch in the morning with a deep notch cut in the wooden post, a wet handprint on the door, a damp folded camp rule sheet on the welcome mat, puddles drying on the steps",
+              "art": "A front porch in the morning with a deep notch cut in the wooden post, a damp folded camp rule sheet on the welcome mat, a trail of green lake weed across the steps",
               "effects": {
                 "nerve": 1
               }
@@ -303,7 +303,7 @@
         "title": "The Night Swim",
         "place": "Crystal Street, now a lake, two a.m.",
         "text": "The water is waist-deep now and the moon is enormous. Old dock posts stick up out of the roundabout, and in the middle of the lake floats a wooden swimming raft, the Heartstone glowing purple beneath it like a sunken moon. At the end of the nearest dock sit a heap of clothes, two pairs of sneakers, a cooler and a radio playing Bananarama: two teens from down the street are skinny-dipping off the end, shoulders above the water, laughing, completely oblivious. Out past them, little Petey Marchetti, nine years old, is paddling for the raft on a leaky inner tube on a dare. On the far shore, by the lit cabin, a tall masked shape lifts a machete and wades in.",
-        "art": "A moonlit lake over a drowned suburban cul-de-sac, a wooden swim raft above a glowing purple geode under the surface, two teens swimming shoulder-deep off the end of a dock beside a heap of clothes, sneakers, a cooler and a radio, a small boy on a sagging inner tube paddling toward the raft, a towering masked woman with a machete wading in from a lit cabin on the far shore",
+        "art": "A moonlit lake over a drowned suburban cul-de-sac, a wooden swim raft above a glowing purple geode under the surface, two teens in T-shirts swimming shoulder-deep off the end of a dock beside a heap of jeans and sweatshirts, sneakers, a cooler and a radio, a small boy in a striped T-shirt on a sagging inner tube paddling toward the raft, a towering masked woman with a machete wading in from a lit cabin on the far shore",
         "choices": [
           {
             "id": "swim-for-petey",
@@ -342,7 +342,7 @@
             "target": 9,
             "success": {
               "text": "\"HEY! KID IN THE WATER!\" They do not hesitate. The girl kicks out for Petey, bare-shouldered and fast as a seal, and the boy shoves the cooler lid across the water like a kickboard. Together they get him up onto the dock and wrap him in somebody's beach towel. Jess, shin-deep in the shallows with the machete raised, stops. She watches the girl rub Petey's arms warm, and slowly lowers the blade, like she is seeing the end of a movie she never got to see.",
-              "art": "Two teens shoulder-deep in moonlit water at the end of a dock pushing a small boy wrapped in a beach towel up onto the planks, a heap of clothes and a cooler beside them, a towering masked woman shin-deep in the shallows slowly lowering a gleaming machete",
+              "art": "Two teens in T-shirts shoulder-deep in moonlit water at the end of a dock pushing a small boy wrapped in a beach towel up onto the planks, a heap of clothes and a cooler beside them, a towering masked woman in a soaked navy dress shin-deep in the shallows, her dull grey steel machete held low and pointed at the water",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -351,7 +351,7 @@
             },
             "failure": {
               "text": "They do not hear you over the radio. They are sixteen and the moon is out. By the time you reach Petey he is sitting on the raft beside Jess, who has her mask pushed up and is showing him how to blow a tin whistle properly. They both turn and look at the skinny-dippers. Jess writes one name on her soggy clipboard: the girl's. Then she writes yours.",
-              "art": "A small boy sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens swimming off a dock, the woman writing on a soggy clipboard",
+              "art": "A small boy in a striped T-shirt sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens in plain white T-shirts swimming off a dock, the woman in a soaked high-necked navy dress writing on a soggy clipboard",
               "effects": {
                 "nerve": -1,
                 "dread": 2
@@ -659,7 +659,7 @@
         "title": "Inspection",
         "place": "The shore of Crystal Street lake, four a.m.",
         "text": "Jess has made camp. Folding chairs stand in a perfect row along the moonlit waterline, a cooler serves as her podium, and every teenager on Crystal Street has been marched out of bed and lined up on the wet grass in pajamas. She paces in front of you with her mask pushed up on her head and the machete resting on her shoulder, like a drill sergeant at a summer camp in a nightmare. \"Camp rules,\" she reads from a dripping clipboard. \"Rule one: it's the girls' fault. Rule two: nobody's coming. Rule three: everyone takes the swim test.\" She points the machete at the raft, very far away. \"Starting with you.\"",
-        "art": "Teens in pajamas lined up on wet grass along a moonlit lakeshore beside a row of folding chairs and a cooler, a towering muscular woman in a torn navy dress pacing in front of them with a machete on her shoulder and a cracked hockey mask pushed up on her head, reading from a clipboard, a distant swim raft glowing over a purple geode",
+        "art": "Teens in pajamas lined up on wet grass along a moonlit lakeshore beside a row of folding chairs and a cooler, a towering muscular woman in a torn navy dress pacing in front of them with a dull grey steel machete held low and pointed at the grass and a cracked hockey mask pushed up on her head, reading from a clipboard, a distant swim raft glowing over a purple geode",
         "choices": [
           {
             "id": "find-the-missing-rule",
@@ -700,7 +700,7 @@
             },
             "success": {
               "text": "\"No,\" you say. \"Nobody swims tonight. Nobody gets left in the water.\" The line goes silent. Then, one by one, every teen on Crystal Street steps out beside you. Jess looks at all of you standing together and the machete sinks slowly to her side. \"That's,\" she says. \"That's what counselors are supposed to say.\"",
-              "art": "A line of teens in pajamas stepping forward together in defiance on a moonlit lakeshore, a towering woman in a torn navy dress lowering her machete in astonishment",
+              "art": "A line of teens in pajamas stepping forward together in defiance on a moonlit lakeshore, a towering woman in a torn navy dress staring in astonishment, her dull grey steel machete hanging low and pointed at the ground",
               "effects": {
                 "nerve": 2,
                 "dread": -1
@@ -786,7 +786,7 @@
             "target": 9,
             "success": {
               "text": "\"Danny. The bet's off. Kev will pay you the dollar anyway, just come down.\" He hesitates at the top, then sees your face and climbs down rung by rung. The moment his sneakers touch concrete, the dark water goes still as glass, and a cracked voice from under the surface says, \"Good. Good job.\"",
-              "art": "A boy climbing carefully down a high dive ladder toward a teenager holding out a hand, the black pool below going still as glass, a faint pale shape resting under the moonlit surface",
+              "art": "A boy climbing carefully down a high dive ladder toward a teenager holding out a hand, the black pool below going still as glass, a faint glint of a sunken tin whistle under the moonlit surface",
               "effects": {
                 "nerve": 1,
                 "dread": -1
@@ -868,7 +868,7 @@
             "target": 9,
             "success": {
               "text": "That warning has hung by the gym doors since 1958. You climb the end of the bleachers, grab a corner and rip it down the middle with a sound like a slap. The filmstrip sputters, and the water stops at your ankles. Up under the scoreboard, Jess stands up very slowly, and through the cracked mask you think you see the corner of a smile.",
-              "art": "A teenager at the end of the bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering masked figure rising slowly under the scoreboard",
+              "art": "A teenager at the end of the bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering woman in a soaked navy dress and a cracked hockey mask rising slowly under the scoreboard",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -877,7 +877,7 @@
             },
             "failure": {
               "text": "It will not tear. The paper stretches like wet taffy and snaps back flat, and the lake water surges up two rows at once. A whistle blows from the top of the bleachers, one long blast, and every kid in the gym lifts their feet.",
-              "art": "A teenager straining to tear a stubborn faded notice off a gym wall, black water surging up the bleachers, students in pajamas lifting their feet, a masked figure blowing a whistle at the top",
+              "art": "A teenager straining to tear a stubborn faded notice off a gym wall, black water surging up the bleachers, students in pajamas lifting their feet, a towering woman in a soaked navy dress and a cracked hockey mask blowing a tin whistle at the top",
               "effects": {
                 "nerve": -2,
                 "teleport": "paranormal"
@@ -953,7 +953,7 @@
             "target": 9,
             "success": {
               "text": "There is a brass bell by the door with a frayed rope beneath it. You haul on it, and the bell nobody rang in 1957 clangs out across the lake, again and again. The poker players look up, startled, for the first time in twenty-nine years. Outside, the pounding stops, and the clock ticks past ten with the whole lodge listening.",
-              "art": "A teenager hauling on the rope of a big brass bell beside a lodge door in a thunderstorm, ghostly poker players looking up startled from their cards, an old wall clock ticking past ten",
+              "art": "Inside a log lodge during a thunderstorm, a teenager hauling on the rope of a big brass bell by the open door, ghostly poker players at a green card table looking up startled, an old wall clock past ten",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -1007,7 +1007,7 @@
       "title": "The Last Night Swim",
       "place": "Crystal Springs lake, which is Crystal Street, Halloween night",
       "text": "On Halloween night the lake comes all the way back. Moonlight pours over black water lapping at the porch roofs of Crystal Street, jack-o'-lanterns bob past a drifting cooler and a tangle of folding chairs, and the old raft rides over the drowned Heartstone, glowing purple from below. Every teen in Glimmer Falls is treading water around it in their Halloween costumes, too cold to scream. Jess stands on the raft, mask down, machete raised to the moon. \"Nobody watched me,\" she says, and her voice is twelve years old. \"Nobody even says my name. They just tell girls to keep their eyes off the boys. So nobody gets out of the water. Not until somebody watches.\"",
-      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn high-necked navy dress and cracked hockey mask standing on it with a machete raised, teens in Halloween costumes treading water around her",
+      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn high-necked navy dress and cracked hockey mask standing on it with a dull grey steel machete held low and pointed at the water, teens in Halloween costumes treading water around her",
       "choices": [
         {
           "id": "fight",
@@ -1021,7 +1021,7 @@
           },
           "success": {
             "text": "You haul yourself onto the raft, grab her wrist with both hands and twist until the machete spins away into the lake. Without it, Jess staggers, slips and falls back with an enormous splash. The water goes with her, pouring down every storm drain on Crystal Street at once like a bathtub draining, and you are left standing on a wooden raft in the middle of a dry roundabout.",
-            "art": "A teen twisting a machete from a towering masked woman's grip on a moonlit raft as she topples backward into the water, black floodwater swirling down storm drains, the street draining dry",
+            "art": "A teen gripping both hands around the wrist of a towering woman in a soaked high-necked navy dress and a cracked hockey mask on a moonlit raft as her machete spins away into the lake and she topples backward into the water, black floodwater swirling down storm drains, the street draining dry",
             "effects": {
               "nerve": 1
             }
@@ -1132,7 +1132,7 @@
           },
           "success": {
             "text": "Midweek you watched teenagers prove the town wrong: skinny-dippers who swam for a little kid, friends who went into a dark garage in pairs, a gym full of kids who finally heard who really left the lake unwatched. So you shout it across the black water, and every teen treading water shouts it back: \"WE WATCH EACH OTHER NOW!\" They link arms and kick together, a raft of costumes pushing back against her raft, until Jess staggers with the machete drooping and her rule broken in front of her. With a long, cracked wail she sinks off the raft, and the lake pours down every storm drain on Crystal Street after her.",
-            "art": "A huge ring of costumed teenagers linking arms in moonlit water and shouting together, pushing toward a wooden raft, a towering masked woman staggering backward with her machete drooping, water swirling down toward storm drains",
+            "art": "A huge ring of costumed teenagers linking arms in moonlit water and shouting together, pushing toward a wooden raft, a towering masked woman in a soaked navy dress staggering backward, her dull grey steel machete hanging low and pointed at the water, water swirling down toward storm drains",
             "effects": {
               "nerve": 1
             }

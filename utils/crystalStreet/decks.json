@@ -983,7 +983,7 @@
         "title": "Last Pick of the Patch",
         "place": "Halvorsen's Pumpkin Patch, off Quarry Road, after closing",
         "text": "Every jack-o-lantern in the patch has lit itself. The scarecrow is missing from its post. From the corn maze comes the wet, patient scrape of someone carving, and then a figure steps out with a sack-cloth face, a pumpkin for a head, and a carving knife the size of a canoe paddle.",
-        "art": "A moonlit pumpkin patch full of glowing jack-o-lanterns, an empty scarecrow post, a lanky figure with a carved pumpkin head and a comically huge carving knife stepping out of a corn maze",
+        "art": "A moonlit pumpkin patch full of glowing jack-o-lanterns, an empty scarecrow post, a lanky figure with a carved pumpkin head and a comically huge pumpkin-carving scoop the size of a shovel stepping out of a corn maze",
         "choices": [
           {
             "id": "lose-it-in-the-maze",
@@ -1277,7 +1277,7 @@
         "title": "Which One Moved?",
         "place": "The dead wing of the Starlight Mall, after closing",
         "text": "The dead wing of Starlight Mall is a row of stores that closed years ago, and every display window is still crowded with mannequins in dusty 1970s fashions. You pass the old Glamarama Boutique. There were six mannequins in that window. Now there are seven, and the seventh has a blank white face, a security guard's cap and a pricing gun that goes click, click, click.",
-        "art": "A dim abandoned mall corridor at night, a dusty boutique display window crowded with mannequins in 1970s fashions, one blank-faced figure in a security guard cap holding an oversized pricing gun, a teenager reflected in the glass",
+        "art": "A dim abandoned mall corridor at night, a dusty boutique display window crowded with mannequins in 1970s fashions, one blank-faced figure in a security guard cap holding an oversized clipboard and a dangling price tag, a teenager reflected in the glass",
         "choices": [
           {
             "id": "freeze-like-them",

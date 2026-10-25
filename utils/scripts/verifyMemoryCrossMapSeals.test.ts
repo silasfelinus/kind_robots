@@ -58,7 +58,7 @@ assert.ok(
   ),
 )
 assert.ok(DARK_BRIAR_WITNESSES.includes('5,3'))
-assert.ok(!DARK_BRIAR_WITNESSES.includes('5,2'))
+assert.ok(!(DARK_BRIAR_WITNESSES as readonly string[]).includes('5,2'))
 
 const initial = newCrossMapSealChronicle()
 assert.deepEqual(crossMapSealProgress(initial), {

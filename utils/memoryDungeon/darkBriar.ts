@@ -751,10 +751,8 @@ export function darkBriarCanTravel(
     DARK_BRIAR_KEYS.includes(to) &&
     revealed.includes(to) &&
     revealed.includes(from) &&
-    (
-      briarConnected(from, to, revealed) ||
-      darkBriarExtraBridge(from, to, progress)
-    )
+    (briarConnected(from, to, revealed) ||
+      darkBriarExtraBridge(from, to, progress))
   )
 }
 

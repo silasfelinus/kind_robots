@@ -3,7 +3,10 @@ import { readFileSync } from 'node:fs'
 import { newBriarSave } from '../memoryDungeonWorld'
 import { newHouseProgress } from '../memoryDungeon/house'
 import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
-import { newDarkBriarProgress, darkBriarCanTravel } from '../memoryDungeon/darkBriar'
+import {
+  newDarkBriarProgress,
+  darkBriarCanTravel,
+} from '../memoryDungeon/darkBriar'
 import {
   firstTwoWorldFrames,
   firstTwoSceneCallbacks,
@@ -34,7 +37,11 @@ for (const custody of ['release', 'renew', 'break'] as const) {
     assert.equal(firstTwoPhysicalConsequence('8,8', frame), null)
   }
 }
-assert.equal(combinations.size, 6, 'Only two global switches yield six worldframes')
+assert.equal(
+  combinations.size,
+  6,
+  'Only two global switches yield six worldframes',
+)
 
 const choiceChannels = [
   ['2,4', 'lend', 'copy'],
@@ -48,21 +55,42 @@ const choiceChannels = [
   ['2,5', 'archive', 'grieve'],
 ] as const
 for (const [site, left, right] of choiceChannels) {
-  const a = firstTwoSceneCallbacks(site, { [site]: left }, newDarkBriarProgress())
-  const b = firstTwoSceneCallbacks(site, { [site]: right }, newDarkBriarProgress())
+  const a = firstTwoSceneCallbacks(
+    site,
+    { [site]: left },
+    newDarkBriarProgress(),
+  )
+  const b = firstTwoSceneCallbacks(
+    site,
+    { [site]: right },
+    newDarkBriarProgress(),
+  )
   assert.equal(a.length, 1)
   assert.equal(b.length, 1)
-  assert.notEqual(a[0], b[0], site + ' should remember the actual earlier approach')
+  assert.notEqual(
+    a[0],
+    b[0],
+    site + ' should remember the actual earlier approach',
+  )
   assert.deepEqual(firstTwoSceneCallbacks(site, {}, newDarkBriarProgress()), [])
 }
-assert.deepEqual(firstTwoSceneCallbacks('1,1', { '3,2': 'ask' }, newDarkBriarProgress()), [])
-assert.deepEqual(firstTwoSceneCallbacks('3,2', { '3,2': 'ask' }, newDarkBriarProgress(), 0), [])
+assert.deepEqual(
+  firstTwoSceneCallbacks('1,1', { '3,2': 'ask' }, newDarkBriarProgress()),
+  [],
+)
+assert.deepEqual(
+  firstTwoSceneCallbacks('3,2', { '3,2': 'ask' }, newDarkBriarProgress(), 0),
+  [],
+)
 assert.equal(
-  firstTwoSceneCallbacks('3,2', { '3,2': 'ask' }, newDarkBriarProgress(), 50).length,
+  firstTwoSceneCallbacks('3,2', { '3,2': 'ask' }, newDarkBriarProgress(), 50)
+    .length,
   1,
   'High requested callback budget cannot multiply the script',
 )
-const allUnrelated = Object.fromEntries(choiceChannels.map(([key, left]) => [key, left]))
+const allUnrelated = Object.fromEntries(
+  choiceChannels.map(([key, left]) => [key, left]),
+)
 assert.equal(
   firstTwoSceneCallbacks('4,3', allUnrelated, newDarkBriarProgress()).length,
   1,
@@ -95,10 +123,19 @@ assert.ok(
   ),
 )
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
-const stage = readFileSync('components/memory-dungeon/dark-briar-stage.vue', 'utf8')
+const stage = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
 assert.ok(store.includes('firstTwoWorldFrames(state.value, darkHouse.value)'))
 assert.ok(store.includes('firstTwoSceneCallbacks(dark.value.player'))
-assert.ok(store.includes('darkBriarCanTravel(dark.value.player, key, dark.value.revealed, dark.value)'))
+assert.ok(
+  store.includes(
+    'darkBriarCanTravel(dark.value.player, key, dark.value.revealed, dark.value)',
+  ),
+)
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
-console.log('Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass')
+console.log(
+  'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',
+)

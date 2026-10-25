@@ -89,6 +89,8 @@ try {
             controls,
             documentWidth: document.documentElement.scrollWidth,
             viewportWidth: innerWidth,
+            htmlOverflow: document.documentElement.style.overflow,
+            bodyOverflow: document.body.style.overflow,
             dpr: devicePixelRatio,
           }
         })
@@ -113,6 +115,8 @@ try {
           `${label}: backing pixels stay within shared 3.24MP ceiling`,
         )
         if (testCase.touch && testCase.slug === RAINBOW) {
+          assert.equal(metrics.htmlOverflow, 'hidden', `${label}: page scroll locked`)
+          assert.equal(metrics.bodyOverflow, 'hidden', `${label}: body scroll locked`)
           assert.ok(metrics.controls.length > 0, `${label}: touch controls exist`)
           for (const [index, rect] of metrics.controls.entries()) {
             assert.ok(

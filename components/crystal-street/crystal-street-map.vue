@@ -235,6 +235,8 @@ import {
   CREW_LIMIT,
   DAY_NAMES,
   LOCATIONS,
+  GROCERY_COST,
+  HEAL_NERVE,
   SKILL_LABELS,
   activitiesAt,
   companionById,
@@ -308,6 +310,8 @@ function iconFor(kind: DayActivity['kind']): string {
       train: 'kind-icon:lightning',
       shop: 'kind-icon:cart',
       rest: 'kind-icon:heart',
+      heal: 'kind-icon:plus',
+      groceries: 'kind-icon:bag',
     } as const
   )[kind]
 }
@@ -322,6 +326,8 @@ function titleFor(activity: DayActivity): string {
     return `Ask ${companionById(activity.companionId)?.name} back`
   if (activity.kind === 'train') return `Train ${SKILL_LABELS[activity.skill]}`
   if (activity.kind === 'shop') return 'Browse the pawnshop'
+  if (activity.kind === 'heal') return 'See the nurse'
+  if (activity.kind === 'groceries') return 'Stock up on comfort food'
   return 'Rest at home'
 }
 
@@ -336,6 +342,10 @@ function subFor(activity: DayActivity): string {
   if (activity.kind === 'train') return '+1 skill, once a day, up to 4'
   if (activity.kind === 'shop') return 'Spend quarters on gear'
   if (activity.kind === 'rest') return '+2 nerve'
+  if (activity.kind === 'heal')
+    return `+${HEAL_NERVE} nerve, shaken friends steady again`
+  if (activity.kind === 'groceries')
+    return `${GROCERY_COST} quarters: +1 nerve, −1 dread`
   return 'A daylight adventure'
 }
 </script>

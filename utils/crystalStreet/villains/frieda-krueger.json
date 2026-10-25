@@ -118,8 +118,8 @@
                 "amount": 2
               },
               "success": {
-                "text": "Glory sits down hard. \"She cut my hair when I was seventeen, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
-                "alone": "The dressing room is empty, but the album opens on a beaming seventeen-year-old in a brand-new haircut, captioned in purple ink: The first time anyone let me look how I felt inside. She lost her shop over a lie. Every page is signed: You're perfect already. Love, F.",
+                "text": "Glory sits down hard. \"She cut my hair when I was nineteen, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
+                "alone": "The dressing room is empty, but the album opens on a beaming nineteen-year-old in a brand-new haircut, captioned in purple ink: The first time anyone let me look how I felt inside. She lost her shop over a lie. Every page is signed: You're perfect already. Love, F.",
                 "art": "A drag queen in a feathered robe sitting at a vanity mirror, holding an old photo album to her chest, tearful and smiling, bulb lights glowing",
                 "effects": {
                   "clues": ["frieda-krueger-portfolio"],
@@ -170,7 +170,7 @@
         "id": "frieda-krueger-confession",
         "title": "Mrs. Whitlock's confession",
         "location": "crystal-street",
-        "hint": "The oldest house on Crystal Street belongs to a founding PTA mother who never sleeps anymore.",
+        "hint": "The first house sold on Crystal Street belongs to a founding PTA mother who never sleeps anymore.",
         "encounter": {
           "id": "frieda-krueger-clue-porch",
           "title": "The woman who never sleeps",
@@ -489,7 +489,7 @@
               "amount": 2
             },
             "success": {
-              "text": "The humming stops. \"Finally,\" Frieda sighs, \"someone with standards.\" She works conditioner into your scalp with surprising tenderness, talking the whole time about a skinny kid from the Glitter Box who sat in her chair every Saturday, and the girls nobody else would touch. You wake with the softest hair of your life and the feeling you were told something important.",
+              "text": "The humming stops. \"Finally,\" Frieda sighs, \"someone with standards.\" She works conditioner into your scalp with surprising tenderness, talking the whole time about a skinny kid named Gordon who sat in her chair every Saturday, and the girls nobody else would touch. You wake with the softest hair of your life and the feeling you were told something important.",
               "art": "A relaxed teenager tipped back at a dreamy 1961 salon shampoo bowl, a ghostly beautician with a silver beehive gently massaging conditioner into their hair, soft pink light, steam curling from a hot towel",
               "effects": {
                 "nerve": 2,

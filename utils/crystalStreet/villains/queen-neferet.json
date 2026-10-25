@@ -109,7 +109,7 @@
           "id": "queen-neferet-clue-kiosk",
           "title": "Pharaoh Phun",
           "place": "Food court, Starlight Mall",
-          "text": "Between the pretzel stand and Orange Juliana, a kiosk called PHARAOH PHUN sells plaster scarabs, glow-in-the-dark mummy keychains and T-shirts that say I SURVIVED THE CURSE. Behind the register slumps Gil Halvorsen, thirty-something, great-grandson of the collector, in a pith helmet he clearly hates. Under the counter, propping up the cash drawer, is a cracked leather journal stamped C.H. 1911.",
+          "text": "Between the pretzel stand and Orange Jubilee, a kiosk called PHARAOH PHUN sells plaster scarabs, glow-in-the-dark mummy keychains and T-shirts that say I SURVIVED THE CURSE. Behind the register slumps Gil Halvorsen, thirty-something, great-grandson of the collector, in a pith helmet he clearly hates. Under the counter, propping up the cash drawer, is a cracked leather journal stamped C.H. 1911.",
           "art": "A tacky mall food court kiosk selling plaster scarabs and cartoon mummy keychains under neon, a tired man in a pith helmet slumped at the register, an old leather journal wedged under a cash drawer",
           "choices": [
             {
@@ -170,11 +170,11 @@
         "id": "queen-neferet-request",
         "title": "The 1972 request",
         "location": "crystal-street",
-        "hint": "Mrs. Mansour at 11 Crystal Street taught history in Luxor for thirty years before she moved here to be near her grandchildren.",
+        "hint": "Mrs. Mansour on Crystal Street taught history in Luxor for thirty years before she moved here to be near her grandchildren.",
         "encounter": {
           "id": "queen-neferet-clue-mansour-porch",
-          "title": "Tea at Number 11",
-          "place": "The porch of 11 Crystal Street",
+          "title": "Tea on the Porch",
+          "place": "Mrs. Mansour's porch, Crystal Street",
           "text": "Mrs. Hoda Mansour's porch is the only one on Crystal Street with a lemon tree in a pot and a glass of mint tea waiting for whoever comes by. She saw the exhibit poster at the grocery store and has not stopped frowning since. \"The mummy's curse,\" she says, setting down her crossword. \"Seventy-five years, and still they have not learned her name. Sit. Have you eaten?\"",
           "art": "A sunny suburban porch with a potted lemon tree, an older woman in reading glasses and a cardigan setting down a crossword beside glasses of mint tea and a plate of date cookies, a teenager on the steps",
           "choices": [
@@ -558,7 +558,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "It's your neighbor Marisol's tape player, borrowed in June and never returned. You pull on a jacket and walk it three blocks to her porch, where it settles on the mat with a contented click. When you turn around, the stars overhead have shifted, just slightly, and a voice that sounds almost pleased says, \"So you do understand.\"",
+              "text": "It's your neighbor Leticia's tape player, borrowed in June and never returned. You pull on a jacket and walk it three blocks to her porch, where it settles on the mat with a contented click. When you turn around, the stars overhead have shifted, just slightly, and a voice that sounds almost pleased says, \"So you do understand.\"",
               "art": "A teenager in a jacket setting a portable cassette player gently on a front porch mat at night, golden sand glittering in a trail behind them, a strange sky of unfamiliar stars overhead",
               "effects": {
                 "nerve": 1,
@@ -648,7 +648,7 @@
               "amount": 1
             },
             "success": {
-              "text": "You uncap a marker and go case to case: Pearl Washington. Bea Lindqvist. Mr. Dobbs from number 4, Harold, it turns out. Each time you write a name, the person inside opens their eyes and sits up. When you turn around, the queen is watching you, and her face is no longer carved stone. \"Yes,\" she says. \"Like that. Do it for me.\"",
+              "text": "You uncap a marker and go case to case: Pearl Washington. Bea Lindqvist. Mr. Dobbs from down the street, Howard, it turns out. Each time you write a name, the person inside opens their eyes and sits up. When you turn around, the queen is watching you, and her face is no longer carved stone. \"Yes,\" she says. \"Like that. Do it for me.\"",
               "art": "A teenager writing names on museum placards with a marker as sleeping neighbors sit up inside their glass cases, a queen in white linen and gold watching with softened eyes",
               "effects": {
                 "nerve": 1,

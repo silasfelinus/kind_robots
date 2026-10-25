@@ -647,7 +647,7 @@
         "act": 3,
         "title": "Couples Only",
         "place": "Crystal Street, two a.m.",
-        "text": "Every radio on Crystal Street switches on at once and plays the same slow song, skipping on the same scratch. Out of every front door come couples in their pajamas and curlers, sound asleep, waltzing down the driveways toward the high school. The Szymanskis. The newlyweds at number 9. Your own parents, eyes closed, dancing better than you have ever seen them dance. Roz sits on the Heartstone like a throne, conducting.",
+        "text": "Every radio on Crystal Street switches on at once and plays the same slow song, skipping on the same scratch. Out of every front door come couples in their pajamas and curlers, sound asleep, waltzing down the driveways toward the high school. The Szymanskis. The newlyweds on the corner. Your own parents, eyes closed, dancing better than you have ever seen them dance. Roz sits on the Heartstone like a throne, conducting.",
         "art": "A suburban cul-de-sac at 2 a.m. with sleepwalking couples in pajamas and curlers slow-dancing down their driveways, radios glowing in every window, a ghostly prom queen seated on a giant purple geode conducting like a bandleader",
         "choices": [
           {
@@ -815,7 +815,7 @@
         "id": "spring-queen-rain-check",
         "title": "Rain Check",
         "place": "Main Street at dusk, walking home past the library",
-        "text": "It is a clear, warm evening on Main Street, and it is raining on you. Only you. A stubborn little storm cloud the size of a beach umbrella followed you out of the pharmacy, and it drizzles on your head while people stop to stare: Mr. Pak sweeping outside his dry cleaners, two kids on BMX bikes, a Gazette reporter raising a camera. Inside the cloud, something hums a slow song. Whoever Roz is waiting for, she has decided you are going to help her find them.",
+        "text": "It is a clear, warm evening on Main Street, and it is raining on you. Only you. A stubborn little storm cloud the size of a beach umbrella followed you out of the pharmacy, and it drizzles on your head while people stop to stare: Mr. Park sweeping outside his dry cleaners, two kids on BMX bikes, a Gazette reporter raising a camera. Inside the cloud, something hums a slow song. Whoever Roz is waiting for, she has decided you are going to help her find them.",
         "art": "A sunny dusk on a small-town main street, a teenager walking under a tiny private storm cloud raining only on them, a shopkeeper with a broom staring, two kids on BMX bikes pointing, a reporter lifting a camera",
         "choices": [
           {
@@ -853,7 +853,7 @@
             "skill": "charm",
             "target": 11,
             "success": {
-              "text": "You hook one arm around a lamppost and belt the only rain song you know, splashing in the gutter, and the BMX kids join in. Mr. Pak taps his broom in time. The little cloud swirls like a dancing skirt, the drizzle turns to glitter in the streetlight, and somewhere inside it a girl laughs, delighted, like she has never been the audience before.",
+              "text": "You hook one arm around a lamppost and belt the only rain song you know, splashing in the gutter, and the BMX kids join in. Mr. Park taps his broom in time. The little cloud swirls like a dancing skirt, the drizzle turns to glitter in the streetlight, and somewhere inside it a girl laughs, delighted, like she has never been the audience before.",
               "art": "A teenager swinging around a lamppost on a twilight main street, splashing in the gutter, two BMX kids singing along, a small storm cloud overhead swirling like a skirt and sparkling with glitter",
               "effects": {
                 "nerve": 2,

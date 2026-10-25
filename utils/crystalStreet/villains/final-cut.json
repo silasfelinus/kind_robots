@@ -15,7 +15,7 @@
     "palette": ["#f2e2a0", "#171214", "#d6246e"],
     "sigil": "clapperboard",
     "logline": "At the Glitter Box midnight show, a cursed 1980 slasher reel threads itself, dims the lights and recasts Crystal Street into its ugliest roles. Hit your mark, die on cue, or rewrite the third act.",
-    "backstory": "In the summer of 1980, schlock producer Barry Kotch shot Lights Out at Crystal Pines at the old summer camp above Glimmer Falls in twenty-six days. Screenwriter Len Carraway, a closeted local English teacher, wrote a story where Nurse Robin leads her campers out of the woods at dawn, and Barry cast Celeste Navarro, a young trans actress from the Glitter Box revue, as Robin with a handshake and a promise that this was her big break. Then Barry decided audiences wanted a twist. He cut the dawn ending, shot one close-up of Celeste in a cheap wig and housedress under false pretenses, and spliced it into the last reel as the killer's 'reveal,' with a stranger's voice dubbed over her mouth. He ran the kill order every slasher ran: the gay friend first, then the Black friend, then the girl who went to the boathouse with her boyfriend. Len, terrified of being found out, wrote the monster's monologue in the voice his own shame used on him every night. The film premiered at the Starlight Drive-In that October, and a carload of boys honked at the reveal while Celeste sat three cars away. Barry skipped town owing everyone money, and the answer print ended up in a box of unpaid reels in the Glitter Box projection booth. Six years later the Heartstone has woken it. Now it plays itself at midnight: a projector-beam director with a slate for a face and a megaphone for a voice, recasting the whole street into the script's lies.",
+    "backstory": "In the summer of 1980, schlock producer Barry Kotch shot Lights Out at Crystal Pines at an old scout camp above Glimmer Falls, dressed up as the drowned Camp Crystal Pines, in twenty-six days. Screenwriter Len Carraway, a closeted local English teacher, wrote a story where Nurse Robin leads her campers out of the woods at dawn, and Barry cast Celeste Navarro, a young trans actress from Glory's drag revue, as Robin with a handshake and a promise that this was her big break. Then Barry decided audiences wanted a twist. He cut the dawn ending, shot one close-up of Celeste in a cheap wig and housedress under false pretenses, and spliced it into the last reel as the killer's 'reveal,' with a stranger's voice dubbed over her mouth. He ran the kill order every slasher ran: the gay friend first, then the Black friend, then the girl who went to the boathouse with her boyfriend. Len, terrified of being found out, wrote the monster's monologue in the voice his own shame used on him every night. The film premiered at the Starlight Drive-In that October, and a carload of boys honked at the reveal while Celeste sat three cars away. Barry skipped town owing everyone money, and the answer print ended up in a box of unpaid reels in the Glitter Box projection booth. Six years later the Heartstone has woken it. Now it plays itself at midnight: a projector-beam director with a slate for a face and a megaphone for a voice, recasting the whole street into the script's lies.",
     "centralIssue": {
       "title": "The twist that was a lie",
       "summary": "The Final Cut is the ghost of a story, not a person: a script that slandered real people and taught a town to laugh at them. Celeste was never a twist, Len's shame was never a monster, and the kill order was never a law. Find the call sheet, the original draft and the cut ending, and give the people the script erased the third act they actually wrote."
@@ -220,7 +220,7 @@
           "id": "final-cut-clue-box-office",
           "title": "Row F",
           "place": "The box office, The Glitter Box Playhouse",
-          "text": "Celeste Navarro has worked the Glitter Box box office for six years. She does the crossword in pen, wears cat-eye glasses on a beaded chain, and knows every regular's candy order by heart. This week she leaves before the midnight show and will not say why. When you say the words Crystal Pines, she sets down her pen.",
+          "text": "Celeste Navarro has worked the Glitter Box box office for five years. She does the crossword in pen, wears cat-eye glasses on a beaded chain, and knows every regular's candy order by heart. This week she leaves before the midnight show and will not say why. When you say the words Crystal Pines, she sets down her pen.",
           "art": "A poised woman in her thirties with dark curls, cat-eye glasses on a beaded chain and a crossword in hand, seated inside a glowing glass theater box office booth at dusk, a marquee blazing above her",
           "choices": [
             {
@@ -257,7 +257,7 @@
               "skill": "nerve",
               "target": 9,
               "success": {
-                "text": "She looks at you for a long time. \"Six years I've waited for one person to say that before I did.\" She closes the booth, takes you up to the projection booth, and shows you the film can she has hidden behind the rewind bench since 1980: the dawn ending, every frame of it.",
+                "text": "She looks at you for a long time. \"Six years I've waited for one person to say that before I did.\" She closes the booth, takes you up to the projection booth, and shows you the film can she has hidden behind the rewind bench since 1981: the dawn ending, every frame of it.",
                 "art": "A woman and a teenager in a cramped theater projection booth, the woman pulling a dented film can from behind a rewind bench, a hulking projector glowing beside them",
                 "effects": {
                   "clues": ["final-cut-trims"],
@@ -633,7 +633,7 @@
         "act": 3,
         "title": "Point of View",
         "place": "Crystal Street sidewalks, 2 a.m., through a viewfinder",
-        "text": "You blink and you are looking through a camera viewfinder, gliding low along the sidewalk at walking speed, while somebody breathes heavily in your ears. The breathing is on the soundtrack. You are the killer's point-of-view shot. The dolly is carrying you toward a lit garage where Ricky Alvarado, who runs the follow spot at the Glitter Box, is rehearsing a lip-sync alone in a feather boa. A chalk slate floats at the edge of your vision: FRIEND #1. FIRST.",
+        "text": "You blink and you are looking through a camera viewfinder, gliding low along the sidewalk at walking speed, while somebody breathes heavily in your ears. The breathing is on the soundtrack. You are the killer's point-of-view shot. The dolly is carrying you toward a lit garage where Manny Alvarado, ten-year-old Ricky's big brother, who runs the follow spot at the Glitter Box, is rehearsing a lip-sync alone in a feather boa. A chalk slate floats at the edge of your vision: FRIEND #1. FIRST.",
         "art": "A low gliding view along a dark suburban sidewalk at night from atop a film dolly on metal track rails, a lit garage ahead where a young man in a feather boa lip-syncs into a hairbrush, a floating chalk slate glowing nearby",
         "choices": [
           {
@@ -653,7 +653,7 @@
               }
             },
             "failure": {
-              "text": "The camera will not turn. It glides you right up to the garage window, and Ricky looks up and screams, because from his side of the glass all he can see is you, pressed to the window, breathing hard. You spend the rest of the night apologizing through his mail slot.",
+              "text": "The camera will not turn. It glides you right up to the garage window, and Manny looks up and screams, because from his side of the glass all he can see is you, pressed to the window, breathing hard. You spend the rest of the night apologizing through his mail slot.",
               "art": "A teenager pressed against a garage window at night, breath fogging the glass, while inside a startled young man in a feather boa shrieks and drops a hairbrush microphone",
               "effects": {
                 "nerve": -1,
@@ -672,7 +672,7 @@
               "amount": 1
             },
             "success": {
-              "text": "You stumble off the dolly, knock, and grab the second hairbrush. Ricky cues up the tape and the two of you lip-sync the duet of your lives in his parents' garage. Two people in one spotlight make a scene, not a victim, and the floating slate's chalk smears into a heart. Ricky makes you promise to come to Saturday's revue.",
+              "text": "You stumble off the dolly, knock, and grab the second hairbrush. Manny cues up the tape and the two of you lip-sync the duet of your lives in his parents' garage. Two people in one spotlight make a scene, not a victim, and the floating slate's chalk smears into a heart. Manny makes you promise to come to Saturday's revue.",
               "art": "Two teens lip-syncing a joyful duet into hairbrush microphones in a cluttered suburban garage at night, one in a feather boa, a boombox blaring, a string of holiday lights glowing, a chalk heart drifting in the air",
               "effects": {
                 "nerve": 2,
@@ -681,7 +681,7 @@
               }
             },
             "failure": {
-              "text": "Ricky cannot hear you knock over the music. You keep knocking, and the breathing on the soundtrack keeps getting louder until it is your own breathing, and the dolly reverses you all the way to the end of the street. The last thing you see is the slate: TAKE TWO.",
+              "text": "Manny cannot hear you knock over the music. You keep knocking, and the breathing on the soundtrack keeps getting louder until it is your own breathing, and the dolly reverses you all the way to the end of the street. The last thing you see is the slate: TAKE TWO.",
               "art": "A teenager knocking on a closed garage door glowing with music and colored light, a dolly track stretching behind them down a dark suburban street, a floating chalk slate hovering at their shoulder",
               "effects": {
                 "nerve": -2,
@@ -891,7 +891,7 @@
         "act": 2,
         "title": "Lovers' Lane",
         "place": "Glimmer Point overlook, midnight",
-        "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Thunderjet and watching the town lights, the way they do every Friday when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Thunderjet. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
+        "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Thunderjet and watching the town lights, the way they do every week when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Thunderjet. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
         "art": "A cherry-red 1970s muscle car parked at a hilltop overlook at midnight with two teenage girls sharing a milkshake inside, a glittering valley of town lights below, a hard white spotlight beam stabbing down onto the car from the sky",
         "choices": [
           {
@@ -1253,7 +1253,7 @@
       },
       "bittersweet": {
         "title": "Rental Return",
-        "text": "You survive the week, but the curse slips out on tape. Copies of the theatrical cut keep turning up in the Rewind Video night drop, and once in a while a neighbor hums the kill-order music without knowing why. Frankie cancels the midnight show for the season, and for the first time since 1948 the Glitter Box is dark on Saturdays. Celeste still sells tickets to the matinees. She still leaves before midnight.",
+        "text": "You survive the week, but the curse slips out on tape. Copies of the theatrical cut keep turning up in the Rewind Video night drop, and once in a while a neighbor hums the kill-order music without knowing why. Frankie cancels the midnight show for the season, and for the first time since 1981 the Glitter Box is dark on Saturdays. Celeste still sells tickets to the matinees. She still leaves before midnight.",
         "art": "A darkened theater marquee on a Saturday night, a stack of identical horror VHS tapes in a video store night-drop bin, a lone woman in cat-eye glasses walking away down a rainy sidewalk"
       },
       "bad": {

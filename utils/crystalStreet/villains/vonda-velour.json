@@ -177,7 +177,7 @@
           "id": "vonda-velour-clue-pe-office",
           "title": "Coach Pruitt's Office",
           "place": "The PE office, Glimmer Falls High",
-          "text": "Coach Tammy Jo Pruitt's office is softballs, dented trophies and a framed photo of her 1958 state-champion team. On her desk lies a district memo stamped MANDATORY: all PE classes will perform BURN IT OFF! daily and record student weights weekly. Under it is a stack of index cards, each in a different kid's handwriting. Coach is on the phone with the superintendent and losing her patience at a volume you can hear from the parking lot.",
+          "text": "Coach Tammy Jo Pruitt's office is softballs, dented trophies and a framed photo of her own 1958 high-school state-champion team. On her desk lies a district memo stamped MANDATORY: all PE classes will perform BURN IT OFF! daily and record student weights weekly. Under it is a stack of index cards, each in a different kid's handwriting. Coach is on the phone with the superintendent and losing her patience at a volume you can hear from the parking lot.",
           "art": "A cluttered high school coach's office with softball trophies and a framed vintage team photo, a big fierce woman shouting into a desk phone, a stamped memo and a stack of handwritten index cards on the desk",
           "choices": [
             {
@@ -299,7 +299,7 @@
         "act": 2,
         "title": "The Burners",
         "place": "Crystal Street, 4 a.m.",
-        "text": "Before dawn a column of joggers comes up Crystal Street in matching magenta sweatbands: your neighbors, your science teacher, the mailman, all in perfect step with glassy eyes, chanting, \"No pain, no gain, no pain, no gain.\" At the front, Mrs. Haskins from number 8 carries a boombox like a holy relic. Some of them are limping. None of them stop. One of them is a kid from your homeroom.",
+        "text": "Before dawn a column of joggers comes up Crystal Street in matching magenta sweatbands: your neighbors, your science teacher, the mailman, all in perfect step with glassy eyes, chanting, \"No pain, no gain, no pain, no gain.\" At the front, Mrs. Haskins from down the street carries a boombox like a holy relic. Some of them are limping. None of them stop. One of them is a kid from your homeroom.",
         "art": "A predawn suburban street with a column of glassy-eyed joggers in matching magenta sweatbands running in perfect step, a woman at the front holding a boombox aloft, a young teen among them limping",
         "choices": [
           {
@@ -474,17 +474,17 @@
         "act": 2,
         "title": "Fitness Test Day",
         "place": "Glimmer Falls High gym, midnight",
-        "text": "The gym doors bang open as you pass the high school, and inside, under the caged lights, is the worst day of everyone's life: fitness test day. Kids in gym uniforms from every decade since 1959 are climbing ropes, straining at the pull-up bar and reaching for the sit-and-reach box, sweating and terrified. Vonda Velour paces among them with a clipboard and a whistle. \"Fail and you're a before, forever!\" she sings. Marisol Ochoa, a freshman from your bus stop, is dangling halfway up the rope, crying, and she can't let go.",
+        "text": "The gym doors bang open as you pass the high school, and inside, under the caged lights, is the worst day of everyone's life: fitness test day. Kids in gym uniforms from every decade since 1959 are climbing ropes, straining at the pull-up bar and reaching for the sit-and-reach box, sweating and terrified. Vonda Velour paces among them with a clipboard and a whistle. \"Fail and you're a before, forever!\" she sings. Gracie Ochoa, a freshman from your bus stop, is dangling halfway up the rope, crying, and she can't let go.",
         "art": "A high school gym at midnight under caged lights, ghostly students in gym uniforms from many decades climbing ropes and straining on pull-up bars, an aerobics star in a magenta leotard pacing with a clipboard and whistle, a crying girl clinging halfway up a rope",
         "choices": [
           {
             "id": "climb-the-rope",
-            "label": "Climb the rope and talk Marisol down",
+            "label": "Climb the rope and talk Gracie down",
             "intent": "brave",
             "skill": "brawn",
             "target": 11,
             "success": {
-              "text": "You go up hand over hand until your arms scream, hook Marisol's belt and talk her down one inch at a time. Your feet hit the mat together. The whole gym stops. Vonda raises her clipboard to write down your time, and you snatch it out of her hands and fling it into the bleachers. \"She came down safe,\" you say. \"That's the score.\"",
+              "text": "You go up hand over hand until your arms scream, hook Gracie's belt and talk her down one inch at a time. Your feet hit the mat together. The whole gym stops. Vonda raises her clipboard to write down your time, and you snatch it out of her hands and fling it into the bleachers. \"She came down safe,\" you say. \"That's the score.\"",
               "art": "A teenager and a freshman girl landing together on a blue gym mat at the foot of a climbing rope, a clipboard spinning through the air toward the bleachers, a stunned aerobics star with an open mouth",
               "effects": {
                 "nerve": 2,
@@ -494,7 +494,7 @@
               }
             },
             "failure": {
-              "text": "You make it four feet up and freeze, rope burning your palms, while the whistle shrieks in time with your heartbeat. \"Oh, honey,\" Vonda says. \"We'll mark you incomplete.\" You hang there beside Marisol until the caged lights flicker out at dawn and you both drop onto the mat, sore and giggling with relief.",
+              "text": "You make it four feet up and freeze, rope burning your palms, while the whistle shrieks in time with your heartbeat. \"Oh, honey,\" Vonda says. \"We'll mark you incomplete.\" You hang there beside Gracie until the caged lights flicker out at dawn and you both drop onto the mat, sore and giggling with relief.",
               "art": "Two teenagers dangling from climbing ropes in a dim high school gym, an aerobics star blowing a whistle below with a clipboard, caged lights flickering",
               "effects": {
                 "nerve": -2,

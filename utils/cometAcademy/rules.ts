@@ -375,6 +375,6 @@ export function finishAcademy(run: AcademyRun, choice: 'protect' | 'command'): A
 export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (!raw || typeof raw !== 'object') return null
   const data = raw as Partial<AcademyRun>
-  if (data.version !== 1 || !POWERS.some((p) => p.id === data.power) || typeof data.seed !== 'number' || !Number.isInteger(data.day) || data.day < 1 || data.day > 7 || !['dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(data.phase ?? '') || !Array.isArray(data.log) || !Array.isArray(data.assignments) || !Array.isArray(data.reports) || typeof data.influence !== 'number' || typeof data.danger !== 'number') return null
+  if (data.version !== 1 || !POWERS.some((p) => p.id === data.power) || typeof data.seed !== 'number' || typeof data.day !== 'number' || !Number.isInteger(data.day) || data.day < 1 || data.day > 7 || !['dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(data.phase ?? '') || !Array.isArray(data.log) || !Array.isArray(data.assignments) || !Array.isArray(data.reports) || typeof data.influence !== 'number' || typeof data.danger !== 'number') return null
   return data as AcademyRun
 }

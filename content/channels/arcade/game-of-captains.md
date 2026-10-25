@@ -2,8 +2,8 @@
 contentType: tab
 channelKey: arcade
 tabKey: game-of-captains
-label: Game of Captains
-title: Game of Captains
+label: This Means Warp
+title: This Means Warp
 subtitle: A comic voyage among civilizations, treaties and impossible odds
 summary: Command a ship. Make costly choices.
 description: 'A comedic science-fiction command adventure. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'

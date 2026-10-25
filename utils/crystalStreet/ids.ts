@@ -87,5 +87,6 @@ export const VILLAIN_IDS = [
   'mom-3000',
   'the-shape',
   'final-cut',
+  'dot-ruskin',
 ] as const
 export type VillainId = (typeof VILLAIN_IDS)[number]

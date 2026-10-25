@@ -1,6 +1,7 @@
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { allArtPrompts } from '../crystalStreet/artPrompts'
 import {
+  ARCHETYPES,
   ART_STYLE,
   AVATARS,
   CHARACTERS,
@@ -20,6 +21,7 @@ const prompts = allArtPrompts({
   decks: DECKS,
   items: ITEMS,
   avatars: AVATARS,
+  cliques: ARCHETYPES,
   characters: CHARACTERS,
   specialEndings: SPECIAL_ENDINGS,
   title: TITLE_ART,

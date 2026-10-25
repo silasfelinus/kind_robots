@@ -79,6 +79,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Jock',
     text: 'Varsity jacket, mouthguard, unexpectedly great at hugs.',
     skills: { brawn: 3, brains: 1, charm: 2, nerve: 2, lore: 0, hustle: 1 },
+    art: 'A locker-room doorway at a 1986 high school at dusk, three teens in mismatched varsity jackets piling into a big group hug: a broad-shouldered girl with a mouthguard on a string, a lanky boy hugging a football, a grinning nonbinary teen with taped wrists, gym bags at their feet, a trophy case glowing behind them, everyone clearly delighted',
   },
   {
     id: 'brain',
@@ -86,6 +87,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Brain',
     text: 'Calculator watch, library card, a theory about everything.',
     skills: { brawn: 0, brains: 3, charm: 1, nerve: 1, lore: 2, hustle: 2 },
+    art: 'A cluttered 1986 school library table at night, three teens with calculator watches and library cards: one in thick glasses pointing at a hand-drawn map of a cul-de-sac pinned with red string, one scribbling equations on graph paper, one holding up a magnifying glass, stacks of encyclopedias and a green desk lamp',
   },
   {
     id: 'theatre-kid',
@@ -93,6 +95,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Theatre Kid',
     text: 'Knows every word of every midnight movie. Projects to the back row.',
     skills: { brawn: 1, brains: 1, charm: 3, nerve: 2, lore: 1, hustle: 1 },
+    art: 'A 1986 high school auditorium stage under one hot spotlight, three theatrical teens in thrift-store capes and a feather boa striking a huge dramatic pose, one clutching a dog-eared script, one belting into a hairbrush microphone, painted cardboard scenery of a haunted house behind them',
   },
   {
     id: 'burnout',
@@ -100,6 +103,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Burnout',
     text: 'Leather jacket, cassette deck, knows every shortcut in town.',
     skills: { brawn: 2, brains: 0, charm: 1, nerve: 2, lore: 1, hustle: 3 },
+    art: "The back lot of a 1986 high school at dusk, three teens in leather and denim jackets leaning on a beat-up van, one with a cassette boombox on her shoulder, one sketching a shortcut map on a napkin, one tossing a ring of keys, a chain-link fence with jack-o'-lanterns on the posts",
   },
   {
     id: 'prep',
@@ -107,6 +111,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Prep',
     text: 'Popped collar, perfect grades, secretly tired of both.',
     skills: { brawn: 1, brains: 2, charm: 3, nerve: 1, lore: 0, hustle: 2 },
+    art: 'The front steps of a 1986 high school in golden afternoon light, three teens in popped pastel polo collars with sweaters tied over their shoulders, one holding up a report card with a big A, one sighing over a crammed day planner, one quietly sharing half a sandwich with a younger kid',
   },
   {
     id: 'weirdo',
@@ -114,6 +119,7 @@ export const ARCHETYPES: Archetype[] = [
     name: 'The Weirdo',
     text: 'Ouija board in the backpack. Has been waiting for this week all year.',
     skills: { brawn: 0, brains: 2, charm: 0, nerve: 2, lore: 3, hustle: 2 },
+    art: 'A basement den in 1986 lit by candles and a lava lamp, three oddball teens around a card table: one in a thrifted black cape, one waving a homemade ghost detector made from a flashlight and antennas, one cross-legged over a hand-painted spirit board, tarot cards, monster magazines and cassette tapes everywhere',
   },
 ]
 

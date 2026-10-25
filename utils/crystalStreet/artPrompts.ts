@@ -1,4 +1,5 @@
 import type {
+  Archetype,
   Avatar,
   Character,
   Companion,
@@ -29,6 +30,7 @@ export function allArtPrompts(content: {
   decks: TagDeck[]
   items: Item[]
   avatars: Avatar[]
+  cliques: Archetype[]
   characters: Character[]
   specialEndings: Record<string, { art: string }>
   title: string
@@ -36,6 +38,7 @@ export function allArtPrompts(content: {
   return [
     { key: 'title/crystal-street', prompt: content.title },
     ...content.avatars.map((a) => ({ key: `avatars/${a.id}`, prompt: a.art })),
+    ...content.cliques.map((c) => ({ key: `cliques/${c.id}`, prompt: c.art })),
     ...Object.entries(content.specialEndings).map(([id, e]) => ({
       key: `endings/special-${id}`,
       prompt: e.art,

@@ -314,7 +314,24 @@ export function assignTeam(
 ): AcademyRun {
   if (run.phase !== 'dispatch') return run
   if (!incidentsFor(run).some((incident) => incident.id === caseId)) return run
-  if (selected.length > 3 || new Set(selected).size !== selected
+  if (selected.length > 3 || new Set(selected).size !== selected.length) return run
+  if (selected.some((id) => !STUDENTS.some((student) => student.id === id)))
+    return run
+  const remaining = run.assignments.filter(
+    (assignment) => assignment.caseId !== caseId,
+  )
+  if (
+    selected.some((id) =>
+      remaining.some((assignment) => assignment.students.includes(id)),
+    )
+  )
+    return run
+  return {
+    ...run,
+    assignments: selected.length
+      ? [...remaining, { caseId, students: [...selected] }]
+      : remaining,
+  }
 }
 
 export function resolveDispatch(run: AcademyRun): AcademyRun {

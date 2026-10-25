@@ -398,33 +398,88 @@ export const DARK_BRIAR_KEYS = Object.keys(DARK_BRIAR_SCENES)
  */
 export const DARK_BRIAR_WAVES: readonly (readonly string[])[] = [
   [
-    '2,4', '3,4', '4,4', '4,3',
-    '5,3', '5,2', '5,4', '6,4',
-    '6,3', '6,2', '2,5', '2,6',
-    '3,6', '4,6', '4,5', '3,5',
+    '2,4',
+    '3,4',
+    '4,4',
+    '4,3',
+    '5,3',
+    '5,2',
+    '5,4',
+    '6,4',
+    '6,3',
+    '6,2',
+    '2,5',
+    '2,6',
+    '3,6',
+    '4,6',
+    '4,5',
+    '3,5',
   ],
   [
-    '6,1', '4,2', '3,2', '3,1',
-    '4,1', '5,1', '2,2', '2,1',
-    '2,3', '3,3', '7,3', '7,2',
-    '7,1', '8,2', '8,1', '7,4',
+    '6,1',
+    '4,2',
+    '3,2',
+    '3,1',
+    '4,1',
+    '5,1',
+    '2,2',
+    '2,1',
+    '2,3',
+    '3,3',
+    '7,3',
+    '7,2',
+    '7,1',
+    '8,2',
+    '8,1',
+    '7,4',
   ],
   [
-    '8,4', '8,3', '7,5', '8,5',
-    '8,6', '8,7', '7,6', '7,7',
-    '7,8', '8,8', '5,5', '6,5',
-    '6,6', '5,6', '5,7', '6,7',
+    '8,4',
+    '8,3',
+    '7,5',
+    '8,5',
+    '8,6',
+    '8,7',
+    '7,6',
+    '7,7',
+    '7,8',
+    '8,8',
+    '5,5',
+    '6,5',
+    '6,6',
+    '5,6',
+    '5,7',
+    '6,7',
   ],
   [
-    '6,8', '2,7', '1,7', '1,8',
-    '2,8', '4,7', '3,7', '3,8',
-    '4,8', '5,8', '1,6', '1,5',
-    '1,4', '1,3', '1,2', '1,1',
+    '6,8',
+    '2,7',
+    '1,7',
+    '1,8',
+    '2,8',
+    '4,7',
+    '3,7',
+    '3,8',
+    '4,8',
+    '5,8',
+    '1,6',
+    '1,5',
+    '1,4',
+    '1,3',
+    '1,2',
+    '1,1',
   ],
 ]
 
 export const DARK_BRIAR_WITNESSES = [
-  '2,5', '4,4', '4,6', '5,2', '3,1', '7,6', '3,8', '7,8',
+  '2,5',
+  '4,4',
+  '4,6',
+  '5,2',
+  '3,1',
+  '7,6',
+  '3,8',
+  '7,8',
 ] as const
 export const DARK_BRIAR_CLIMAX = '6,2'
 
@@ -459,7 +514,8 @@ export function newDarkBriarProgress(): DarkBriarProgress {
     attempts: 0,
     completed: false,
     legacyCompleted: false,
-    status: 'A familiar road holds a different story. Match the paired pictures to find its altered places.',
+    status:
+      'A familiar road holds a different story. Match the paired pictures to find its altered places.',
   }
 }
 
@@ -467,119 +523,213 @@ export function newDarkBriarProgress(): DarkBriarProgress {
 export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
   const initial = newDarkBriarProgress()
   if (!input || typeof input !== 'object') return initial
-  const saved = input as Partial<Omit<DarkBriarProgress, 'version'>> & { version?: number }
+  const saved = input as Partial<Omit<DarkBriarProgress, 'version'>> & {
+    version?: number
+  }
   const keyset = new Set(DARK_BRIAR_KEYS)
   const validKeys = (value: unknown): string[] =>
     Array.isArray(value)
-      ? [...new Set(value.filter((key): key is string => typeof key === 'string' && keyset.has(key)))]
+      ? [
+          ...new Set(
+            value.filter(
+              (key): key is string =>
+                typeof key === 'string' && keyset.has(key),
+            ),
+          ),
+        ]
       : []
   const savedRevealed = validKeys(saved.revealed)
-  const proposedIndex = saved.version === 2 && Number.isSafeInteger(saved.waveIndex)
-    && (saved.waveIndex ?? -1) >= 0 && (saved.waveIndex ?? 99) < DARK_BRIAR_WAVES.length
-    ? saved.waveIndex!
-    : 0
+  const proposedIndex =
+    saved.version === 2 &&
+    Number.isSafeInteger(saved.waveIndex) &&
+    (saved.waveIndex ?? -1) >= 0 &&
+    (saved.waveIndex ?? 99) < DARK_BRIAR_WAVES.length
+      ? saved.waveIndex!
+      : 0
   const previousWaves = DARK_BRIAR_WAVES.slice(0, proposedIndex).flat()
   const waveIndex = previousWaves.every((key) => savedRevealed.includes(key))
     ? proposedIndex
     : 0
   const currentWave = DARK_BRIAR_WAVES[waveIndex]!
   const allowed = new Set(currentWave)
-  const cards = Array.isArray(saved.mapCards) && saved.mapCards.length === currentWave.length
-    ? saved.mapCards : []
-  const validCards = cards.length === currentWave.length
-    && new Set(cards.map((card) => card.tile)).size === currentWave.length
-    && cards.every((card) => allowed.has(card.tile)
-      && typeof card.image === 'string' && card.image.length > 0
-      && Number.isSafeInteger(card.pairId)
-      && typeof card.matched === 'boolean')
-    && [...new Set(cards.map((card) => card.pairId))].length === currentWave.length / 2
-    && [...new Set(cards.map((card) => card.pairId))].every(
+  const cards =
+    Array.isArray(saved.mapCards) &&
+    saved.mapCards.length === currentWave.length
+      ? saved.mapCards
+      : []
+  const validCards =
+    cards.length === currentWave.length &&
+    new Set(cards.map((card) => card.tile)).size === currentWave.length &&
+    cards.every(
+      (card) =>
+        allowed.has(card.tile) &&
+        typeof card.image === 'string' &&
+        card.image.length > 0 &&
+        Number.isSafeInteger(card.pairId) &&
+        typeof card.matched === 'boolean',
+    ) &&
+    [...new Set(cards.map((card) => card.pairId))].length ===
+      currentWave.length / 2 &&
+    [...new Set(cards.map((card) => card.pairId))].every(
       (pairId) => cards.filter((card) => card.pairId === pairId).length === 2,
     )
   const mapCards = validCards
-    ? cards.map((card) => ({ ...card, flipped: Boolean(card.matched), matched: Boolean(card.matched) }))
+    ? cards.map((card) => ({
+        ...card,
+        flipped: Boolean(card.matched),
+        matched: Boolean(card.matched),
+      }))
     : []
-  const matched = mapCards.filter((card) => card.matched).map((card) => card.tile)
-  const revealed = [...new Set([...DARK_BRIAR_WAVES.slice(0, waveIndex).flat(), ...matched])]
-  const allMatched = mapCards.length > 0 && mapCards.every((card) => card.matched)
+  const matched = mapCards
+    .filter((card) => card.matched)
+    .map((card) => card.tile)
+  const revealed = [
+    ...new Set([...DARK_BRIAR_WAVES.slice(0, waveIndex).flat(), ...matched]),
+  ]
+  const allMatched =
+    mapCards.length > 0 && mapCards.every((card) => card.matched)
   const sceneChoices: Record<string, string> = {}
   if (saved.sceneChoices && typeof saved.sceneChoices === 'object') {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
-      if (revealed.includes(key)
-        && DARK_BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)) {
+      if (
+        revealed.includes(key) &&
+        DARK_BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
+      ) {
         sceneChoices[key] = choice
       }
     }
   }
-  const visited = validKeys(saved.visited).filter((key) => revealed.includes(key))
+  const visited = validKeys(saved.visited).filter((key) =>
+    revealed.includes(key),
+  )
   if (revealed.includes(BRIAR_START) && !visited.includes(BRIAR_START))
     visited.unshift(BRIAR_START)
-  const player = typeof saved.player === 'string' && visited.includes(saved.player)
-    ? saved.player : BRIAR_START
+  const player =
+    typeof saved.player === 'string' && visited.includes(saved.player)
+      ? saved.player
+      : BRIAR_START
   const seenImages = Array.isArray(saved.seenImages)
-    ? [...new Set(saved.seenImages.filter((src): src is string =>
-        typeof src === 'string' && src.length > 0))]
+    ? [
+        ...new Set(
+          saved.seenImages.filter(
+            (src): src is string => typeof src === 'string' && src.length > 0,
+          ),
+        ),
+      ]
     : []
   for (const src of mapCards.map((card) => card.image))
     if (!seenImages.includes(src)) seenImages.push(src)
-  const legacyCompleted = Boolean(sceneChoices[DARK_BRIAR_CLIMAX])
-    && (saved.version === 1 || saved.legacyCompleted === true)
-  const completed = Boolean(sceneChoices[DARK_BRIAR_CLIMAX])
-    && (legacyCompleted || (waveIndex === 3 && allMatched
-      && DARK_BRIAR_WITNESSES.every((key) => Boolean(sceneChoices[key]))))
+  const legacyCompleted =
+    Boolean(sceneChoices[DARK_BRIAR_CLIMAX]) &&
+    (saved.version === 1 || saved.legacyCompleted === true)
+  const completed =
+    Boolean(sceneChoices[DARK_BRIAR_CLIMAX]) &&
+    (legacyCompleted ||
+      (waveIndex === 3 &&
+        allMatched &&
+        DARK_BRIAR_WITNESSES.every((key) => Boolean(sceneChoices[key]))))
   return {
-    ...initial, mapCards, waveIndex,
+    ...initial,
+    mapCards,
+    waveIndex,
     phase: allMatched ? 'exploring' : 'matching',
-    revealed, visited, player, sceneChoices, seenImages,
-    attempts: Number.isSafeInteger(saved.attempts) && (saved.attempts ?? 0) >= 0
-      ? saved.attempts! : 0,
-    completed, legacyCompleted,
-    status: typeof saved.status === 'string' ? saved.status.slice(0, 450) : initial.status,
+    revealed,
+    visited,
+    player,
+    sceneChoices,
+    seenImages,
+    attempts:
+      Number.isSafeInteger(saved.attempts) && (saved.attempts ?? 0) >= 0
+        ? saved.attempts!
+        : 0,
+    completed,
+    legacyCompleted,
+    status:
+      typeof saved.status === 'string'
+        ? saved.status.slice(0, 450)
+        : initial.status,
   }
 }
 
-export function advanceDarkBriarWave(progress: DarkBriarProgress): DarkBriarProgress {
-  if (progress.phase !== 'exploring' || progress.waveIndex >= DARK_BRIAR_WAVES.length - 1
-    || progress.mapCards.length !== DARK_BRIAR_WAVES[progress.waveIndex]!.length
-    || !progress.mapCards.every((card) => card.matched)) return progress
+export function advanceDarkBriarWave(
+  progress: DarkBriarProgress,
+): DarkBriarProgress {
+  if (
+    progress.phase !== 'exploring' ||
+    progress.waveIndex >= DARK_BRIAR_WAVES.length - 1 ||
+    progress.mapCards.length !== DARK_BRIAR_WAVES[progress.waveIndex]!.length ||
+    !progress.mapCards.every((card) => card.matched)
+  )
+    return progress
   return {
     ...progress,
     waveIndex: progress.waveIndex + 1,
     phase: 'matching',
     mapCards: [],
-    status: 'Another ring of the familiar forest changes shape. Match eight fresh picture pairs to reveal its paths.',
+    status:
+      'Another ring of the familiar forest changes shape. Match eight fresh picture pairs to reveal its paths.',
   }
 }
 
 export function darkBriarCanTravel(
-  from: string, to: string, revealed: readonly string[],
+  from: string,
+  to: string,
+  revealed: readonly string[],
 ): boolean {
-  return DARK_BRIAR_SCENES[to] !== undefined && briarConnected(from, to, revealed)
+  return (
+    DARK_BRIAR_SCENES[to] !== undefined && briarConnected(from, to, revealed)
+  )
 }
 
-export function darkBriarOpening(scene: DarkBriarScene, original: BriarSave): string {
+export function darkBriarOpening(
+  scene: DarkBriarScene,
+  original: BriarSave,
+): string {
   const echo = scene.originalCallback
   if (!echo) return scene.opening
-  return scene.opening + ' ' + (original.sceneChoices[echo.key] === echo.choice
-    ? echo.line : echo.alternate)
+  return (
+    scene.opening +
+    ' ' +
+    (original.sceneChoices[echo.key] === echo.choice
+      ? echo.line
+      : echo.alternate)
+  )
 }
 
-export function darkBriarCanChoose(progress: DarkBriarProgress, key: string): boolean {
-  if (progress.phase !== 'exploring' || progress.player !== key
-    || !progress.visited.includes(key) || Boolean(progress.sceneChoices[key])) return false
+export function darkBriarCanChoose(
+  progress: DarkBriarProgress,
+  key: string,
+): boolean {
+  if (
+    progress.phase !== 'exploring' ||
+    progress.player !== key ||
+    !progress.visited.includes(key) ||
+    Boolean(progress.sceneChoices[key])
+  )
+    return false
   if (key === DARK_BRIAR_CLIMAX) {
-    return progress.waveIndex === DARK_BRIAR_WAVES.length - 1
-      && DARK_BRIAR_WITNESSES.every((witness) => Boolean(progress.sceneChoices[witness]))
+    return (
+      progress.waveIndex === DARK_BRIAR_WAVES.length - 1 &&
+      DARK_BRIAR_WITNESSES.every((witness) =>
+        Boolean(progress.sceneChoices[witness]),
+      )
+    )
   }
   return Boolean(DARK_BRIAR_SCENES[key])
 }
 
 export function darkBriarChoose(
-  progress: DarkBriarProgress, key: string, choiceId: string,
+  progress: DarkBriarProgress,
+  key: string,
+  choiceId: string,
 ): DarkBriarProgress {
   const location = DARK_BRIAR_SCENES[key]
-  if (!location || !darkBriarCanChoose(progress, key)
-    || !location.choices.some((choice) => choice.id === choiceId)) return progress
+  if (
+    !location ||
+    !darkBriarCanChoose(progress, key) ||
+    !location.choices.some((choice) => choice.id === choiceId)
+  )
+    return progress
   return {
     ...progress,
     sceneChoices: { ...progress.sceneChoices, [key]: choiceId },
@@ -590,22 +740,34 @@ export function darkBriarChoose(
 
 export function validateDarkBriarSlice(): string[] {
   const errors: string[] = []
-  if (DARK_BRIAR_KEYS.length !== 64) errors.push('Every 8x8 Dark Briar position needs an authored encounter')
-  if (new Set(DARK_BRIAR_KEYS).size !== 64) errors.push('Duplicate Dark Briar positions')
-  if (DARK_BRIAR_WAVES.length !== 4 || DARK_BRIAR_WAVES.some((wave) => wave.length !== 16))
+  if (DARK_BRIAR_KEYS.length !== 64)
+    errors.push('Every 8x8 Dark Briar position needs an authored encounter')
+  if (new Set(DARK_BRIAR_KEYS).size !== 64)
+    errors.push('Duplicate Dark Briar positions')
+  if (
+    DARK_BRIAR_WAVES.length !== 4 ||
+    DARK_BRIAR_WAVES.some((wave) => wave.length !== 16)
+  )
     errors.push('Four eight-pair reveal rounds are required')
   const waveKeys = DARK_BRIAR_WAVES.flat()
-  if (waveKeys.length !== 64 || new Set(waveKeys).size !== 64
-    || waveKeys.some((key) => !DARK_BRIAR_SCENES[key]))
+  if (
+    waveKeys.length !== 64 ||
+    new Set(waveKeys).size !== 64 ||
+    waveKeys.some((key) => !DARK_BRIAR_SCENES[key])
+  )
     errors.push('Four reveal rounds must cover each scene exactly once')
-  if (!DARK_BRIAR_WAVES[0]?.includes(BRIAR_START)) errors.push('Canonical starting position lost')
-  if (!DARK_BRIAR_WAVES[0]?.includes(DARK_BRIAR_CLIMAX)) errors.push('Original sixteen pilot keys changed')
+  if (!DARK_BRIAR_WAVES[0]?.includes(BRIAR_START))
+    errors.push('Canonical starting position lost')
+  if (!DARK_BRIAR_WAVES[0]?.includes(DARK_BRIAR_CLIMAX))
+    errors.push('Original sixteen pilot keys changed')
   for (const location of Object.values(DARK_BRIAR_SCENES)) {
     if (!BRIAR_TILES.some((tile) => tile.key === location.key))
       errors.push('Out-of-bounds scene ' + location.key)
-    if (location.choices.length !== 2
-      || location.choices[0].id === location.choices[1].id
-      || !location.choices.every((choice) => choice.label && choice.outcome))
+    if (
+      location.choices.length !== 2 ||
+      location.choices[0].id === location.choices[1].id ||
+      !location.choices.every((choice) => choice.label && choice.outcome)
+    )
       errors.push('Incomplete choice in ' + location.key)
     if (!location.opening || !location.artPrompt || !location.title)
       errors.push('Missing authored story or art in ' + location.key)
@@ -614,10 +776,13 @@ export function validateDarkBriarSlice(): string[] {
     const revealed = DARK_BRIAR_WAVES.slice(0, index + 1).flat()
     for (const key of revealed) {
       if (!briarConnected(BRIAR_START, key, revealed))
-        errors.push('Unreachable location after reveal ' + (index + 1) + ': ' + key)
+        errors.push(
+          'Unreachable location after reveal ' + (index + 1) + ': ' + key,
+        )
     }
   }
   for (const key of DARK_BRIAR_WITNESSES)
-    if (!DARK_BRIAR_SCENES[key]) errors.push('Missing House testimony at ' + key)
+    if (!DARK_BRIAR_SCENES[key])
+      errors.push('Missing House testimony at ' + key)
   return errors
 }

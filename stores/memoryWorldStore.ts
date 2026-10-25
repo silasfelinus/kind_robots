@@ -490,10 +490,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         dark.value.seenImages,
       )
       if (ticket !== darkEpoch) return
-      if (
-        paths.length !== expected ||
-        new Set(paths).size !== paths.length
-      ) {
+      if (paths.length !== expected || new Set(paths).size !== paths.length) {
         throw new Error(
           'The selected gallery does not have eight distinct matching pictures.',
         )
@@ -525,7 +522,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   async function nextDarkWave(): Promise<void> {
-    if (activeReality.value !== 'e02' || darkLoading.value || darkTurnLocked.value)
+    if (
+      activeReality.value !== 'e02' ||
+      darkLoading.value ||
+      darkTurnLocked.value
+    )
       return
     const next = advanceDarkBriarWave(dark.value)
     if (next === dark.value) return
@@ -587,9 +588,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           dark.value.phase = 'exploring'
           if (!dark.value.visited.includes(BRIAR_START))
             dark.value.visited.push(BRIAR_START)
-          dark.value.status = dark.value.waveIndex === DARK_BRIAR_WAVES.length - 1
-            ? 'Every reflected road has emerged. The House will hear all eight witnesses.'
-            : 'Another ring of Briar is revealed. The forest keeps its earlier decisions.'
+          dark.value.status =
+            dark.value.waveIndex === DARK_BRIAR_WAVES.length - 1
+              ? 'Every reflected road has emerged. The House will hear all eight witnesses.'
+              : 'Another ring of Briar is revealed. The forest keeps its earlier decisions.'
         }
         darkTurnLocked.value = false
         persistReality()

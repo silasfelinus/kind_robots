@@ -175,9 +175,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkPairsMatched = computed(
     () => dark.value.mapCards.filter((card) => card.matched).length / 2,
   )
-  const crossMapDiscovery = computed(() => crossMapSealProgress(crossMapSeals.value))
-  const missingOriginalSeals = computed(() => missingFirstMapSeals(crossMapSeals.value))
-  const darkSelectedSeal = computed(() => DARK_BRIAR_SEALS[dark.value.player] ?? null)
+  const crossMapDiscovery = computed(() =>
+    crossMapSealProgress(crossMapSeals.value),
+  )
+  const missingOriginalSeals = computed(() =>
+    missingFirstMapSeals(crossMapSeals.value),
+  )
+  const darkSelectedSeal = computed(
+    () => DARK_BRIAR_SEALS[dark.value.player] ?? null,
+  )
   const darkSelectedScene = computed(
     () => DARK_BRIAR_SCENES[dark.value.player] ?? null,
   )
@@ -383,7 +389,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         }),
       )
       window.localStorage.setItem(DARK_BRIAR_KEY, JSON.stringify(dark.value))
-      window.localStorage.setItem(CROSS_MAP_SEALS_KEY, JSON.stringify(crossMapSeals.value))
+      window.localStorage.setItem(
+        CROSS_MAP_SEALS_KEY,
+        JSON.stringify(crossMapSeals.value),
+      )
       window.localStorage.setItem(
         DARK_HOUSE_KEY,
         JSON.stringify(darkHouse.value),
@@ -485,7 +494,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         // former ordinary scenes. Preserve discoveries while never minting a
         // future counterpart match.
         for (const key of dark.value.sealInspections) {
-          crossMapSeals.value = inspectCrossMapSeal(crossMapSeals.value, key, 'e02')
+          crossMapSeals.value = inspectCrossMapSeal(
+            crossMapSeals.value,
+            key,
+            'e02',
+          )
         }
       } catch {
         crossMapSeals.value = newCrossMapSealChronicle()

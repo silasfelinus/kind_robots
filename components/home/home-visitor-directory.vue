@@ -315,6 +315,22 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
+    title: 'Comet City Academy',
+    tag: 'Playable superhero school',
+    category: 'play',
+    route: '/play/comet-city-academy',
+    image: '/comet-city-academy/academy-stage.svg',
+    description: 'Pick a superpower, dispatch classmates, and survive prom.',
+  },
+  {
+    title: 'Game of Captains',
+    tag: 'Playable space adventure',
+    category: 'play',
+    route: '/play/game-of-captains',
+    image: '/game-of-captains/bridge-stage.svg',
+    description: 'Command a crew, explore strange worlds, and decide when to intervene.',
+  },
+  {
     title: 'Terrors on Crystal Street',
     tag: 'New · 80s horror comedy',
     category: 'play',

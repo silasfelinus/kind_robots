@@ -246,7 +246,11 @@
             class="flex flex-col gap-1.5 border-l-2 border-[#926ca0] pl-2"
             data-testid="dark-briar-earned-callbacks"
           >
-            <p v-for="callback in world.darkCallbacks" :key="callback" class="text-xs italic leading-relaxed">
+            <p
+              v-for="callback in world.darkCallbacks"
+              :key="callback"
+              class="text-xs italic leading-relaxed"
+            >
               {{ callback }}
             </p>
           </div>

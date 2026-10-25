@@ -73,6 +73,13 @@ export type ChannelContentItem = {
   id?: string
 }
 
+export type ResolvedTutorialStep = {
+  key: string
+  title: string
+  body: string
+  image: string
+}
+
 export type ResolvedTutorialSection = {
   key: string
   title: string
@@ -80,6 +87,8 @@ export type ResolvedTutorialSection = {
   image: string
   explicit: boolean
   underConstruction?: boolean
+  /** A page tutorial's own illustrated steps (its `tutorial.sections`). */
+  steps?: ResolvedTutorialStep[]
 }
 
 export type ResolvedTutorialChannel = {
@@ -314,6 +323,16 @@ function resolveTabItem(
             title,
           image: tutorialImage(item.tutorial?.image, image),
           explicit: explicitTutorial,
+          ...(item.tutorial?.sections?.length
+            ? {
+                steps: item.tutorial.sections.map((step) => ({
+                  key: text(step.key),
+                  title: text(step.title),
+                  body: text(step.body),
+                  image: tutorialImage(step.image, ''),
+                })),
+              }
+            : {}),
           underConstruction:
             item.tutorial?.underConstruction === true ||
             text(item.status) === 'under-construction' ||

@@ -121,10 +121,9 @@
         class="kr-pane-scroll grid place-items-center p-6 text-center"
       >
         <div class="max-w-xs space-y-2">
-          <p class="cs-display text-4xl">???</p>
+          <p class="cs-display text-3xl">No nightmares yet</p>
           <p class="text-sm opacity-80">
-            You have not faced this nightmare yet. Spend a week on Crystal
-            Street and whatever comes for you will open its file here: its
+            Whatever comes for you on Crystal Street opens its file here: its
             portrait, poster, backstory and the classic it remixes.
           </p>
         </div>

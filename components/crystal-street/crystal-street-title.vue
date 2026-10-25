@@ -1,8 +1,5 @@
 <template>
-  <section
-    class="kr-panes grid-cols-1 grid-rows-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-3 @3xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] @3xl:grid-rows-1"
-    aria-label="Start a week on Crystal Street"
-  >
+  <section class="kr-panes grid-cols-1" aria-label="Terrors on Crystal Street">
     <div
       class="cs-frame relative min-h-0 overflow-hidden bg-black"
       data-testid="cs-title-hero"
@@ -25,12 +22,14 @@
         :class="slides[slide - 1]?.id === v.id ? 'opacity-100' : 'opacity-0'"
         @load="ready.add(v.id)"
       />
+
       <div
-        class="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/35 to-transparent px-4 pb-12 pt-3 text-center"
+        class="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/35 to-transparent px-14 pb-12 pt-3 text-center"
+        :class="mode === 'menu' ? '' : '@3xl:right-[32rem]'"
       >
         <h2 class="leading-none">
           <span
-            class="cs-display cs-terrors block text-6xl @lg:text-7xl @3xl:text-8xl"
+            class="cs-display cs-terrors block text-5xl @md:text-6xl @lg:text-7xl @6xl:text-8xl"
             >Terrors</span
           >
           <span class="cs-on-street block">on Crystal Street</span>
@@ -39,47 +38,28 @@
           One week · seven nights · {{ VILLAINS.length }} nightmares
         </p>
       </div>
-      <div
-        class="absolute inset-x-0 bottom-0 flex flex-wrap items-end gap-2 bg-gradient-to-t from-black/85 to-transparent p-3 text-white"
-      >
-        <p class="mr-auto max-w-md text-sm">
-          <template v-if="slide === 0">
-            Glimmer Falls, California. Halloween week, 1986. Something under
-            Crystal Street is waking up, and it has a different face every year.
-          </template>
-          <template v-else>
-            <span class="cs-kicker block">You survived</span>
-            {{ slides[slide - 1]?.name }} ·
-            {{ slides[slide - 1]?.epithet }}
-          </template>
-        </p>
-        <span
-          v-if="slides.length"
-          class="flex gap-1"
-          aria-hidden="true"
-          data-testid="cs-title-slides"
-        >
-          <span
-            v-for="i in slides.length + 1"
-            :key="i"
-            class="h-1.5 w-3 rounded-full"
-            :class="slide === i - 1 ? 'bg-accent' : 'bg-white/30'"
-          />
-        </span>
-      </div>
-    </div>
 
-    <nav
-      v-if="mode === 'menu'"
-      class="kr-pane cs-frame"
-      aria-label="Main menu"
-      data-testid="cs-menu"
-    >
-      <div class="kr-pane-scroll space-y-2 p-3">
+      <button
+        type="button"
+        class="cs-help absolute right-3 top-3"
+        aria-label="How to play"
+        title="How to play"
+        data-testid="cs-help"
+        @click="openTutorial"
+      >
+        ?
+      </button>
+
+      <nav
+        v-if="mode === 'menu'"
+        class="absolute bottom-3 left-3 right-3 flex flex-col gap-2 @3xl:right-auto @3xl:w-80"
+        aria-label="Main menu"
+        data-testid="cs-menu"
+      >
         <button
           v-if="inProgress"
           type="button"
-          class="cs-menu-item cs-menu-primary"
+          class="cs-menu-item cs-menu-glass cs-menu-primary"
           data-testid="cs-continue-week"
           @click="$emit('resume')"
         >
@@ -94,10 +74,10 @@
         </button>
         <button
           type="button"
-          class="cs-menu-item"
+          class="cs-menu-item cs-menu-glass"
           :class="inProgress ? '' : 'cs-menu-primary'"
           data-testid="cs-new-week"
-          @click="mode = 'new'"
+          @click="openWizard"
         >
           <icon name="kind-icon:ghost" class="h-5 w-5 shrink-0" />
           <span>
@@ -110,10 +90,10 @@
           </span>
         </button>
         <button
-          v-for="item in MENU"
+          v-for="item in menu"
           :key="item.view"
           type="button"
-          class="cs-menu-item"
+          class="cs-menu-item cs-menu-glass"
           :data-testid="`cs-menu-${item.view}`"
           @click="$emit('open', item.view)"
         >
@@ -123,169 +103,235 @@
             <span class="block text-xs opacity-80">{{ item.detail() }}</span>
           </span>
         </button>
-      </div>
-    </nav>
+      </nav>
 
-    <form v-else class="kr-pane cs-frame" @submit.prevent="begin">
-      <div class="kr-toolbar px-3 pt-3">
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs rounded-2xl"
-          @click="mode = 'menu'"
-        >
-          <icon name="kind-icon:arrow-left" class="h-4 w-4" /> Menu
-        </button>
-      </div>
-      <div class="kr-pane-scroll space-y-4 p-3">
-        <h2 class="cs-display text-2xl">New week</h2>
-        <div class="grid grid-cols-1 gap-3 @lg:grid-cols-2">
-          <label class="form-control">
-            <span class="cs-kicker mb-1">Your name</span>
-            <input
-              v-model="name"
-              class="input input-bordered input-sm rounded-2xl"
-              maxlength="24"
-              autocomplete="off"
-              placeholder="Alex"
+      <p
+        v-if="mode === 'menu'"
+        class="pointer-events-none absolute bottom-3 right-3 hidden max-w-xs rounded-xl bg-black/55 px-3 py-2 text-right text-sm text-white @3xl:block"
+      >
+        <template v-if="slide === 0">
+          Glimmer Falls, California. Halloween week, 1986. Something under
+          Crystal Street is waking up, and it has a different face every year.
+        </template>
+        <template v-else>
+          <span class="cs-kicker block">You survived</span>
+          {{ slides[slide - 1]?.name }} ·
+          {{ slides[slide - 1]?.epithet }}
+        </template>
+      </p>
+
+      <form
+        v-else
+        class="kr-pane cs-wizard absolute inset-x-3 bottom-3 top-28 @3xl:bottom-3 @3xl:left-auto @3xl:right-3 @3xl:top-16 @3xl:w-[30rem]"
+        data-testid="cs-wizard"
+        @submit.prevent="next"
+      >
+        <div class="kr-toolbar px-3 pt-3">
+          <p class="cs-kicker">
+            New week · {{ stepIndex + 1 }} of {{ STEPS.length }}
+          </p>
+          <span class="ml-auto flex gap-1" aria-hidden="true">
+            <span
+              v-for="(s, i) in STEPS"
+              :key="s.id"
+              class="h-1.5 w-5 rounded-full"
+              :class="i <= stepIndex ? 'bg-primary' : 'bg-base-content/20'"
             />
-          </label>
-          <div>
-            <span class="cs-kicker mb-1 block">Pronouns</span>
-            <div class="flex flex-wrap gap-1">
-              <button
-                v-for="p in PRONOUNS"
-                :key="p"
-                type="button"
-                class="btn btn-xs rounded-2xl"
-                :class="
-                  !customPronouns && pronouns === p
-                    ? 'btn-primary'
-                    : 'btn-ghost border-base-content/20'
-                "
-                @click="pickPronouns(p)"
-              >
-                {{ p }}
-              </button>
-              <input
-                v-model="customPronouns"
-                class="input input-bordered input-xs w-24 rounded-2xl"
-                maxlength="16"
-                placeholder="other"
-                aria-label="Other pronouns"
-              />
-            </div>
-          </div>
+          </span>
         </div>
+        <div class="kr-pane-scroll space-y-3 p-3">
+          <h3 class="cs-display text-2xl leading-tight">
+            {{ STEPS[stepIndex]!.title }}
+          </h3>
 
-        <fieldset>
-          <legend class="cs-kicker mb-1">Pick your look</legend>
-          <div class="flex gap-2 overflow-x-auto pb-1" data-testid="cs-avatars">
-            <button
-              v-for="a in AVATARS"
-              :key="a.id"
-              type="button"
-              class="cs-card w-20 shrink-0 overflow-hidden text-left @3xl:w-24"
-              :class="avatar === a.id ? 'ring-2 ring-primary' : ''"
-              :aria-pressed="avatar === a.id"
-              :aria-label="a.name"
-              @click="avatar = a.id"
-            >
-              <crystal-street-art
-                frame="aspect-[2/3]"
-                kind="day"
-                :seed="`avatar:${a.id}`"
-                :src="`/crystal-street/avatars/${a.id}.webp`"
-                :alt="a.art"
+          <template v-if="step === 'you'">
+            <label class="form-control">
+              <span class="cs-kicker mb-1">Your name</span>
+              <input
+                v-model="name"
+                class="input input-bordered rounded-2xl"
+                maxlength="24"
+                autocomplete="off"
+                placeholder="Alex"
+                data-testid="cs-name"
               />
-              <span
-                class="block truncate px-1 py-0.5 text-[10px] font-semibold"
-                >{{ a.name }}</span
-              >
-            </button>
-          </div>
-          <p class="mt-1 text-xs opacity-75">
-            <strong>{{ chosenAvatar.name }}.</strong> {{ chosenAvatar.blurb }}
-          </p>
-        </fieldset>
+            </label>
+            <div>
+              <span class="cs-kicker mb-1 block">Pronouns</span>
+              <div class="flex flex-wrap gap-1">
+                <button
+                  v-for="p in PRONOUNS"
+                  :key="p"
+                  type="button"
+                  class="btn btn-sm rounded-2xl"
+                  :class="
+                    !customPronouns && pronouns === p
+                      ? 'btn-primary'
+                      : 'btn-ghost border-base-content/20'
+                  "
+                  @click="pickPronouns(p)"
+                >
+                  {{ p }}
+                </button>
+                <input
+                  v-model="customPronouns"
+                  class="input input-bordered input-sm w-28 rounded-2xl"
+                  maxlength="16"
+                  placeholder="other"
+                  aria-label="Other pronouns"
+                />
+              </div>
+            </div>
+          </template>
 
-        <fieldset>
-          <legend class="cs-kicker mb-1">Who are you this week?</legend>
-          <div class="grid grid-cols-2 gap-2 @xl:grid-cols-3">
-            <button
-              v-for="a in ARCHETYPES"
-              :key="a.id"
-              type="button"
-              class="cs-choice text-left"
-              :class="archetype === a.id ? 'ring-2 ring-primary' : ''"
-              :aria-pressed="archetype === a.id"
-              @click="archetype = a.id"
+          <template v-else-if="step === 'look'">
+            <p class="text-sm opacity-80">
+              How you look in the scrapbook photos. It changes nothing about how
+              you play.
+            </p>
+            <div
+              class="grid grid-cols-3 gap-2 @lg:grid-cols-4"
+              data-testid="cs-avatars"
             >
-              <span class="block font-semibold">{{ a.name }}</span>
-              <span class="block text-[11px] leading-snug opacity-75">{{
-                a.text
-              }}</span>
-              <span
-                class="mt-1 block text-[10px] uppercase tracking-wider opacity-70"
-                >{{ topSkills(a.skills) }}</span
+              <button
+                v-for="a in AVATARS"
+                :key="a.id"
+                type="button"
+                class="cs-card overflow-hidden text-left"
+                :class="avatar === a.id ? 'ring-2 ring-primary' : ''"
+                :aria-pressed="avatar === a.id"
+                :aria-label="a.name"
+                @click="avatar = a.id"
               >
-            </button>
-          </div>
-        </fieldset>
+                <crystal-street-art
+                  frame="aspect-[2/3]"
+                  kind="day"
+                  :seed="`avatar:${a.id}`"
+                  :src="`/crystal-street/avatars/${a.id}.webp`"
+                  :alt="a.art"
+                />
+                <span
+                  class="block truncate px-1 py-0.5 text-[10px] font-semibold"
+                  >{{ a.name }}</span
+                >
+              </button>
+            </div>
+            <p class="text-xs opacity-75">
+              <strong>{{ chosenAvatar.name }}.</strong> {{ chosenAvatar.blurb }}
+            </p>
+          </template>
 
-        <fieldset>
-          <legend class="cs-kicker mb-1">The nightmare</legend>
-          <div class="flex flex-wrap gap-1">
-            <button
-              type="button"
-              class="btn btn-xs rounded-2xl"
-              :class="
-                !villain ? 'btn-primary' : 'btn-ghost border-base-content/20'
-              "
-              @click="villain = null"
-            >
-              Surprise me
-            </button>
-            <button
-              v-for="v in metList"
-              :key="v.id"
-              type="button"
-              class="btn btn-xs rounded-2xl"
-              :class="
-                villain === v.id
-                  ? 'btn-primary'
-                  : 'btn-ghost border-base-content/20'
-              "
-              @click="villain = v.id as VillainId"
-            >
-              {{ v.name }}
-            </button>
-          </div>
-          <p class="mt-1 text-xs opacity-70">
-            Nightmares you have faced can be summoned again to chase their Best
-            ending.
-          </p>
-        </fieldset>
-      </div>
-      <div class="shrink-0 p-3 pt-0">
-        <button
-          type="submit"
-          class="btn btn-primary w-full rounded-2xl"
-          data-testid="cs-start"
-        >
-          Move into Crystal Street
-        </button>
-      </div>
-    </form>
+          <template v-else-if="step === 'who'">
+            <p class="text-sm opacity-80">
+              Your role this week sets your starting skills.
+            </p>
+            <div class="grid grid-cols-1 gap-2 @md:grid-cols-2">
+              <button
+                v-for="a in ARCHETYPES"
+                :key="a.id"
+                type="button"
+                class="cs-choice text-left"
+                :class="archetype === a.id ? 'ring-2 ring-primary' : ''"
+                :aria-pressed="archetype === a.id"
+                @click="archetype = a.id"
+              >
+                <span class="block font-semibold">{{ a.name }}</span>
+                <span class="block text-xs leading-snug opacity-75">{{
+                  a.text
+                }}</span>
+                <span
+                  class="mt-1 block text-[10px] uppercase tracking-wider opacity-70"
+                  >{{ topSkills(a.skills) }}</span
+                >
+              </button>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="cs-card flex items-center gap-3 p-2">
+              <img
+                :src="`/crystal-street/avatars/${avatar}.webp`"
+                :alt="chosenAvatar.name"
+                class="h-20 w-14 shrink-0 rounded-lg bg-black object-cover object-top"
+              />
+              <div class="text-sm">
+                <p class="font-bold">{{ name || 'Alex' }}</p>
+                <p class="opacity-75">
+                  {{ customPronouns.trim() || pronouns }} ·
+                  {{ chosenArchetype.name }}
+                </p>
+              </div>
+            </div>
+            <fieldset>
+              <legend class="cs-kicker mb-1">Who comes for you?</legend>
+              <div class="flex flex-wrap gap-1">
+                <button
+                  type="button"
+                  class="btn btn-sm rounded-2xl"
+                  :class="
+                    !villain
+                      ? 'btn-primary'
+                      : 'btn-ghost border-base-content/20'
+                  "
+                  @click="villain = null"
+                >
+                  Surprise me
+                </button>
+                <button
+                  v-for="v in metList"
+                  :key="v.id"
+                  type="button"
+                  class="btn btn-sm rounded-2xl"
+                  :class="
+                    villain === v.id
+                      ? 'btn-primary'
+                      : 'btn-ghost border-base-content/20'
+                  "
+                  @click="villain = v.id as VillainId"
+                >
+                  {{ v.name }}
+                </button>
+              </div>
+              <p class="mt-1 text-xs opacity-70">
+                {{
+                  metList.length
+                    ? 'Nightmares you have faced can be summoned again to chase their Best ending.'
+                    : 'Crystal Street decides who comes this year.'
+                }}
+              </p>
+            </fieldset>
+          </template>
+        </div>
+        <div class="flex shrink-0 gap-2 p-3 pt-0">
+          <button
+            type="button"
+            class="btn btn-ghost rounded-2xl"
+            data-testid="cs-wizard-back"
+            @click="back"
+          >
+            <icon name="kind-icon:arrow-left" class="h-4 w-4" />
+            {{ stepIndex ? 'Back' : 'Menu' }}
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary flex-1 rounded-2xl"
+            :data-testid="isLast ? 'cs-start' : 'cs-wizard-next'"
+          >
+            {{ isLast ? 'Move into Crystal Street' : 'Next' }}
+          </button>
+        </div>
+      </form>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { useNavStore } from '~/stores/navStore'
 import {
   ARCHETYPES,
   AVATARS,
-  COMPANIONS,
   SKILL_LABELS,
   TITLE_ART,
   VILLAINS,
@@ -297,7 +343,19 @@ import type { MenuView } from '~/utils/crystalStreet/menu'
 const emit = defineEmits<{ resume: []; open: [MenuView]; started: [] }>()
 
 const PRONOUNS = ['she/her', 'he/him', 'they/them']
+const STEPS = [
+  { id: 'you', title: 'Who is moving in?' },
+  { id: 'look', title: 'Pick your look' },
+  { id: 'who', title: 'Who are you this week?' },
+  { id: 'nightmare', title: 'The nightmare' },
+] as const
+
 const store = useCrystalStreetStore()
+const navStore = useNavStore()
+const mode = ref<'menu' | 'new'>('menu')
+const stepIndex = ref(0)
+const step = computed(() => STEPS[stepIndex.value]!.id)
+const isLast = computed(() => stepIndex.value === STEPS.length - 1)
 const name = ref('')
 const pronouns = ref('they/them')
 const customPronouns = ref('')
@@ -307,67 +365,64 @@ const avatar = ref(AVATARS[0]!.id)
 const chosenAvatar = computed(
   () => AVATARS.find((a) => a.id === avatar.value) ?? AVATARS[0]!,
 )
+const chosenArchetype = computed(
+  () => ARCHETYPES.find((a) => a.id === archetype.value) ?? ARCHETYPES[0]!,
+)
 
-const mode = ref<'menu' | 'new'>('menu')
-
-const MENU: {
+type MenuItem = {
   view: MenuView
   label: string
   icon: string
   detail: () => string
-}[] = [
-  {
-    view: 'theme',
-    label: 'Watch the theme',
-    icon: 'kind-icon:movie',
-    detail: () => 'One minute of Halloween punk, lyrics beside it',
-  },
-  {
-    view: 'gallery',
-    label: 'Monster gallery',
-    icon: 'kind-icon:mask',
-    detail: () =>
-      `${store.metVillains.size}/${VILLAINS.length} nightmares faced · backstories`,
-  },
-  {
-    view: 'endings',
-    label: 'Endings',
-    icon: 'kind-icon:trophy',
-    detail: () =>
-      `${store.scrapbook.endings.length}/${VILLAINS.length * 4} found · ${store.bestFound} Best`,
-  },
-  {
-    view: 'crew',
-    label: 'Friends of Crystal Street',
-    icon: 'kind-icon:users',
-    detail: () => `${COMPANIONS.length} friends, every mood and poster`,
-  },
-  {
-    view: 'scrapbook',
-    label: 'Scrapbook',
-    icon: 'kind-icon:book',
-    detail: () =>
-      `${store.scrapbook.runs.length} ${store.scrapbook.runs.length === 1 ? 'week' : 'weeks'} remembered`,
-  },
-  {
-    view: 'guide',
-    label: 'How to play',
-    icon: 'kind-icon:question',
-    detail: () => 'Days, nights, dice and the Best ending',
-  },
-  {
+}
+
+// The scrapbook appears once a week has been finished (Silas, 2026-10-24 PT);
+// how to play lives in the tutorial sidebar behind "?", credits in settings.
+const menu = computed<MenuItem[]>(() => {
+  const runs = store.scrapbook.runs.length
+  const items: MenuItem[] = [
+    {
+      view: 'theme',
+      label: 'Watch the theme',
+      icon: 'kind-icon:movie',
+      detail: () => 'One minute of Halloween punk',
+    },
+  ]
+  if (runs)
+    items.push({
+      view: 'scrapbook',
+      label: 'Scrapbook',
+      icon: 'kind-icon:book',
+      detail: () =>
+        `${runs} ${runs === 1 ? 'week' : 'weeks'} · ${store.metVillains.size} nightmares · ${store.scrapbook.friends.length} friends`,
+    })
+  items.push({
     view: 'settings',
     label: 'Settings',
     icon: 'kind-icon:settings',
-    detail: () => 'Text size, contrast, motion, saved data',
-  },
-  {
-    view: 'credits',
-    label: 'Credits',
-    icon: 'kind-icon:star',
-    detail: () => 'Who made this and what it remixes',
-  },
-]
+    detail: () => 'Text size, contrast, motion, credits',
+  })
+  return items
+})
+
+function openTutorial(): void {
+  navStore.openWorkspaceSheet()
+}
+
+function openWizard(): void {
+  stepIndex.value = 0
+  mode.value = 'new'
+}
+
+function back(): void {
+  if (stepIndex.value) stepIndex.value -= 1
+  else mode.value = 'menu'
+}
+
+function next(): void {
+  if (isLast.value) begin()
+  else stepIndex.value += 1
+}
 
 // After the street, a slideshow of every nightmare you have survived, posed
 // in its ending photo (Silas, 2026-10-24 PT).

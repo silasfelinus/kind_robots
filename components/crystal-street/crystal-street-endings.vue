@@ -44,14 +44,16 @@
             {{ villain.name }}, the last photo
           </figcaption>
         </figure>
-        <ul class="grid grid-cols-1 gap-3 @xl:grid-cols-2">
+        <ul
+          v-if="villain && met"
+          class="grid grid-cols-1 gap-3 @xl:grid-cols-2"
+        >
           <li
-            v-for="tier in ENDING_TIERS"
+            v-for="tier in foundTiers"
             :key="tier"
             class="cs-card overflow-hidden"
           >
             <crystal-street-art
-              v-if="villain && found(tier)"
               frame="aspect-[16/9]"
               kind="ending"
               :seed="`${villain.id}:${tier}`"
@@ -66,34 +68,30 @@
                 >{{ TIER_LABELS[tier] }}</span
               >
             </crystal-street-art>
-            <div
-              v-else
-              class="grid aspect-[16/9] place-items-center bg-black/60 p-3 text-center text-white"
-            >
-              <span>
-                <span
-                  class="cs-stamp inline-block"
-                  :class="`cs-stamp-${tier}`"
-                  >{{ TIER_LABELS[tier] }}</span
-                >
-                <span class="mt-2 block text-xs opacity-80">Not found yet</span>
-              </span>
-            </div>
             <div class="space-y-1 p-3">
-              <template v-if="villain && found(tier)">
-                <p class="font-semibold leading-tight">
-                  {{ villain.endings[tier].title }}
-                </p>
-                <p class="text-sm leading-relaxed">
-                  {{ villain.endings[tier].text }}
-                </p>
-              </template>
-              <p v-else class="text-sm opacity-80">
-                {{ TIER_HOW[tier] }}
+              <p class="font-semibold leading-tight">
+                {{ villain.endings[tier].title }}
+              </p>
+              <p class="text-sm leading-relaxed">
+                {{ villain.endings[tier].text }}
               </p>
             </div>
           </li>
         </ul>
+        <p
+          v-if="villain && met && foundTiers.length < ENDING_TIERS.length"
+          class="text-xs opacity-75"
+        >
+          Still to find:
+          {{
+            ENDING_TIERS.filter((t) => !found(t))
+              .map((t) => TIER_LABELS[t])
+              .join(', ')
+          }}.
+        </p>
+        <p v-if="!met" class="text-sm opacity-80">
+          Finish a week and its ending is pasted in here.
+        </p>
       </div>
     </div>
   </section>
@@ -104,7 +102,6 @@ import { computed, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   ENDING_TIERS,
-  TIER_HOW,
   TIER_LABELS,
   VILLAINS,
   endingKey,
@@ -124,5 +121,6 @@ const villain = computed(() => villainById(selected.value))
 const met = computed(() => store.metVillains.has(selected.value))
 const found = (tier: EndingTier) =>
   store.scrapbook.endings.includes(endingKey(selected.value, tier))
-const foundCount = computed(() => ENDING_TIERS.filter(found).length)
+const foundTiers = computed(() => ENDING_TIERS.filter(found))
+const foundCount = computed(() => foundTiers.value.length)
 </script>

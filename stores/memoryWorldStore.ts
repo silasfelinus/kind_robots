@@ -140,11 +140,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     () => DARK_HOUSE_ROOMS[darkHouse.value.current] ?? null,
   )
   const darkHouseDoors = computed(() => darkHouseExits(darkHouse.value))
-  const darkHouseTrial = computed(() => DARK_HOUSE_TRIALS[darkHouse.value.current] ?? null)
-  const darkHouseCards = computed(() => darkHouseTrialFaces(darkHouse.value.current))
-  const darkHousePuzzle = computed(() => DARK_HOUSE_PUZZLES[darkHouse.value.current] ?? null)
+  const darkHouseTrial = computed(
+    () => DARK_HOUSE_TRIALS[darkHouse.value.current] ?? null,
+  )
+  const darkHouseCards = computed(() =>
+    darkHouseTrialFaces(darkHouse.value.current),
+  )
+  const darkHousePuzzle = computed(
+    () => DARK_HOUSE_PUZZLES[darkHouse.value.current] ?? null,
+  )
   const darkHouseReady = computed(() => darkHouseRoomResolved(darkHouse.value))
-  const darkHouseTrialComplete = computed(() => darkHouseTrialSolved(darkHouse.value, darkHouse.value.current))
+  const darkHouseTrialComplete = computed(() =>
+    darkHouseTrialSolved(darkHouse.value, darkHouse.value.current),
+  )
   const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
   const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
   const darkHouseEndingCopy = computed(() => darkHouseVerdict(darkHouse.value))

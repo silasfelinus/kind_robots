@@ -250,7 +250,7 @@
             "label": "Grab a safety pin and pop your way upstairs",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "Pop, pop, POP. Giraffes, poodles, a very offended swan. You fight your way to your door in a blizzard of rubber scraps and slam it behind you. On the other side, a horn honks twice, almost impressed.",
               "art": "A teenager charging up a staircase through bursting balloon animals with a safety pin, colorful rubber scraps flying like confetti",
@@ -333,7 +333,7 @@
             "label": "Take a bow and laugh along louder than the track",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You bow. You do a pratfall onto the couch. You laugh so loud and real that the canned track stumbles. Laughing at yourself, with yourself, is a sound it does not know how to copy. The TV flickers off, and in the hallway the shoes shuffle back, uncertain.",
               "art": "A teenager doing a theatrical pratfall onto a couch, laughing wildly, a TV screen flickering out, giant clown shoes shuffling backward in a dark hallway",
@@ -394,7 +394,7 @@
             "label": "Tell a joke down the drain before he can",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "kev-park",
               "amount": 1
@@ -422,7 +422,7 @@
             "label": "Reach in fast and snatch the paper back",
             "intent": "reckless",
             "skill": "brawn",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You lunge and snatch it. The glove grabs back, there is a ridiculous tug-of-war over the Sunday comics, and you win with a rip, flying backward onto the lawn holding the funny pages. From the drain comes an outraged honk, and then, grudgingly, applause.",
               "art": "A teenager tumbling backward onto a wet lawn clutching the torn Sunday comics, a white-gloved hand clapping from a storm drain at the curb, heavy rain glittering under a streetlight",
@@ -487,7 +487,7 @@
             "label": "Make the silliest face you can at the one that moved",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "bobo-laughed-with",
               "amount": 1
@@ -514,7 +514,7 @@
             "label": "Smash your way out of the maze",
             "intent": "reckless",
             "skill": "brawn",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "baseball-bat",
               "amount": 2
@@ -575,7 +575,7 @@
             "label": "Go up and tell Ada a bedtime story about a kind clown",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "bobo-blue-dog",
               "amount": 1
@@ -603,7 +603,7 @@
             "label": "Pick up and ask him if his refrigerator is running",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "\"Is your refrigerator running?\" A pause on the line. \"Uh... yes?\" \"Then you'd better go catch it!\" Silence. Then, from the line and from upstairs at once, the wheezy, honking laugh of a man who has not been pranked in seven years. \"Good one, kiddo,\" he says, and hangs up for the night.",
               "art": "A teenager grinning into a yellow wall phone in a dim 1980s kitchen at night, the coiled cord stretched up the stairs, a giant clown shadow doubled over laughing on the staircase wall",
@@ -663,7 +663,7 @@
             "label": "Step in front of your friends and take the pie yourself",
             "intent": "brave",
             "skill": "nerve",
-            "target": 11,
+            "target": 7,
             "success": {
               "text": "Splat. Cream in your hair, your eyes, your ears. You lick your lips and give a thumbs-up. Your friends stare, then start to laugh, and it is a warm, real, are-you-okay laugh. Bobo lowers the seltzer. Under the greasepaint, for one second, an old man looks like he might cry.",
               "art": "A teenager with a face full of cream pie giving a thumbs-up, friends in party hats bursting into warm laughter, a towering clown lowering a seltzer bottle in surprise",
@@ -747,7 +747,7 @@
             "label": "Lean over the drain and ask if he's okay down there",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "\"Hey,\" you say into the drain. \"Are you okay down there?\" The confetti stops in midair and drifts down like snow. A long silence, then a small, tired voice: \"Nobody asks the clown that, kiddo.\" By morning the bathroom is spotless, except for one blue paper party hat sitting on your pillow.",
               "art": "Rainbow confetti hanging still in midair and drifting down like snow in a quiet bathroom, a teenager leaning gently over the sink drain, a single blue paper party hat resting on the counter",
@@ -826,7 +826,7 @@
             "label": "Flop down beside the kid and turn the fall into an act",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "glory-hallelujah",
               "amount": 1
@@ -855,7 +855,7 @@
             "label": "Climb the bleachers and tell the whole crowd to knock it off",
             "intent": "brave",
             "skill": "nerve",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "companion": "tammy-jo-pruitt",
               "amount": 2
@@ -915,7 +915,7 @@
             "label": "Get Mix to open the phone lines for the town's good Bobo memories",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "mix-bell",
               "amount": 2

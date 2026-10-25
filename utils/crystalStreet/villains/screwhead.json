@@ -216,7 +216,7 @@
             "label": "Say \"No, thank you\" and mean it",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"No, thank you,\" you say, and you don't add a reason, because you don't need one. The Fenwicks' smiles flicker like a bad fluorescent tube; nobody in the Order has heard that sentence in a while. Mrs. Fenwick's pen hovers, then writes, slowly, DECLINED. They back off the porch, and for the first time tonight their chains hang a little loose.",
               "art": "A teenager standing firm in a doorway with one hand raised, a smiling couple in orange aprons stepping back off the porch with flickering expressions, their silver chains hanging loose, a porch light glowing",
@@ -300,7 +300,7 @@
             "label": "Jump on stage and improvise a number so wild nothing can stay in place",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "glory-hallelujah",
               "amount": 2
@@ -396,7 +396,7 @@
             "label": "Wind every clock on Main Street forward to tomorrow",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "joey-benally",
               "amount": 1
@@ -551,7 +551,7 @@
             "label": "Go house to house and ask each neighbor if they want out",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": { "companion": "frankie-fontaine", "amount": 1 },
             "success": {
               "text": "You ask each of them out loud: \"Do you want this off?\" It takes a while for anyone to find the word, but every neighbor who manages a yes, their chain goes slack with a little sigh. Mrs. Delgado blinks and asks why she's on the lawn in her curlers. The Abernathy-Coles immediately go back to bickering about the hedges, and three houses grind back to their crooked, perfect places.",

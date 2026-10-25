@@ -246,7 +246,7 @@
             "label": "Take Tyler's hand and get him out before the lights go",
             "intent": "kind",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You give Tyler a quarter for later and walk him out the employee exit, talking the whole time about anything: monster trucks, cereal, whether moths can see colors. In the parking lot he squeezes your hand. \"Nobody walks with me usually.\" Behind you, the shape on the skylight shifts and does not follow.",
               "art": "A teenager walking a small boy across a mall parking lot at night holding his hand, the boy clutching a quarter, a giant moth on the skylight behind them watching and keeping their distance",
@@ -396,7 +396,7 @@
             "label": "Slide off the clerk's headphones and make him look",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You set a carton on the counter and ease his headphones off. \"Look. Do you know her?\" The clerk, Gary, squints, and then his face falls. \"That's Marcy. She bought gum here every Saturday, until she didn't.\" He picks up the phone to call it in. On the roof, the heavy thing shifts once more and goes still, as if it is listening.",
               "art": "A teenager holding up a milk carton to a startled convenience-store clerk with headphones around his neck at 1 a.m., fluorescent lights, a glowing dairy case behind, gray dust drifting past the front window",
@@ -489,7 +489,7 @@
             "label": "Play to win: find every kid before it opens its eyes",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "kev-park",
               "amount": 1
@@ -576,7 +576,7 @@
             "label": "Pick up the phone and call anyone, just to talk",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "mix-bell",
               "amount": 2

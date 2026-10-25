@@ -6,9 +6,11 @@ import {
   currentEncounter,
   doActivity,
   drawFrom,
+  hashSeed,
   lockReason,
   modifierFor,
   newRun,
+  nextRandom,
   nightfall,
   reroll,
   rerollHelper,
@@ -119,6 +121,59 @@ export function autoplay(
     if (run.phase === 'day') {
       const next = run.actions > 0 ? bestActivity(run) : null
       run = next ? doActivity(run, next[0], next[1]) : nightfall(run)
+    }
+  }
+  return run
+}
+
+/**
+ * A careless week: random legal choices, wandering days, either deck. The
+ * balance report's floor (a bad ending should be earned, not routine).
+ */
+export function carelessAutoplay(
+  seed: string,
+  villain?: VillainId,
+  archetype = 'theatre-kid',
+  avatar?: string,
+): RunState {
+  let rng = hashSeed(`careless:${seed}`)
+  const roll = (): number => {
+    const [value, next] = nextRandom(rng)
+    rng = next
+    return value
+  }
+  const any = <T>(list: readonly T[]): T =>
+    list[Math.floor(roll() * list.length)]!
+  let run = newRun({
+    seed,
+    name: 'Sim',
+    pronouns: 'they/them',
+    archetype,
+    avatar,
+    villain,
+  })
+  for (let guard = 0; guard < 800 && run.phase !== 'ended'; guard++) {
+    if (run.current) {
+      const encounter = currentEncounter(run)
+      const open = encounter?.choices.filter((c) => !lockReason(run, c)) ?? []
+      if (!open.length) break
+      run = resolve(choose(run, any(open).id))
+      continue
+    }
+    if (awaitingDraw(run)) {
+      run = drawFrom(run, roll() < 0.5 ? 'villain' : 'street')
+      continue
+    }
+    if (run.phase === 'day') {
+      if (run.actions <= 0 || roll() < 0.1) {
+        run = nightfall(run)
+        continue
+      }
+      const location = any(LOCATIONS).id as LocationId
+      const options = activitiesAt(run, location).filter(
+        (a) => a.kind !== 'shop',
+      )
+      if (options.length) run = doActivity(run, location, any(options))
     }
   }
   return run

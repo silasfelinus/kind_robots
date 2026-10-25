@@ -300,7 +300,7 @@
             "label": "Hack a path through the briars to the front door",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "tammy-jo-pruitt",
               "amount": 2
@@ -329,7 +329,7 @@
             "label": "Put your hand on the briars and say you know whose garden they came from",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"You were a garden,\" you tell them. \"Somebody burned you.\" The canes shiver. A path opens, thorns folding back like cats' claws, all the way to the door. As Abigail runs out, a single white rose drops into your hand, thornless.",
               "art": "A teenager with a hand pressed gently to a wall of briars as the thorny canes fold back to open a path to a front door, a single thornless white rose falling into their palm",
@@ -391,7 +391,7 @@
             "label": "Kneel in the circle and listen to the chant",
             "intent": "brave",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "raven",
               "amount": 2
@@ -481,7 +481,7 @@
             "label": "Say it the third time, and mean it",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"Goody Hale.\" The fog clears onto a summer garden, rows of herbs drying on strings, and a tall woman in gray looks up from her work, startled, as if nobody has called her anything in a very long time. She tilts her head at you. When the candle gutters, there is a sprig of lavender lying on the sink.",
               "art": "A teenager with a candle before a bathroom mirror showing a sunlit herb garden with bundles drying on strings, a tall woman in gray homespun looking up startled, a sprig of lavender lying on the sink",
@@ -505,7 +505,7 @@
             "label": "Talk to her like a neighbor: \"Mrs. Hale, are you all right?\"",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "flag": "goody-hale-names",
               "amount": 1
@@ -566,7 +566,7 @@
             "label": "Vault the cage and pull Hannah off the plank",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "moose-kowalski",
               "amount": 1
@@ -595,7 +595,7 @@
             "label": "Jam the target arm with a bat before the next throw",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "baseball-bat",
               "amount": 2
@@ -661,7 +661,7 @@
             "label": "Open your poppet and see what is really inside",
             "intent": "clever",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "amir-haddad",
               "amount": 1
@@ -847,7 +847,7 @@
             "label": "Take a bite, right there on the porch",
             "intent": "reckless",
             "skill": "nerve",
-            "target": 7,
+            "target": 11,
             "success": {
               "text": "It is crisp and tart and tastes like a summer afternoon a long time ago. For one second you see an orchard where the roundabout stands, and a tall woman in gray on a ladder, tossing apples down to children. The ache of the whole week drains out of your shoulders, and you sleep like a stone.",
               "art": "A teenager biting a striped red apple on a porch at night, a dreamy vision of a sunlit orchard shimmering around them, a tall woman in a gray homespun dress on a wooden ladder tossing apples to laughing children",
@@ -934,7 +934,7 @@
             "label": "Answer for her: say what she actually did that summer",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"I sat up with Eliza for three nights,\" you hear yourself say, and you mean every word. \"Willow bark, cool cloths, broth by the spoonful, and the fever was turning when they sent me away.\" The beards fall off the actors like dead leaves, and a mother in the third row stands up and says, \"Let the kid talk.\" Nobody in that auditorium forgets it.",
               "art": "A teenager in a witch costume speaking out boldly center stage, fake gray beards drifting off three startled teen actors like leaves, a mother rising from her seat in the dark auditorium",
@@ -1025,7 +1025,7 @@
             "label": "Climb onto the trailhead bench and tell the walkers who really lived at the spring",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "pearl-washington",
               "amount": 2

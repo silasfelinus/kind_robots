@@ -314,7 +314,7 @@
             "label": "Crumple the sides and improvise",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "\"Actually,\" you announce, \"EXTRA #4 has a car, and is leaving.\" The audience howls, laughing at the movie instead of with it. The beam stutters like a scratched record, the house lights pop back on, and Frankie calls intermission over the PA.",
               "art": "A teenager standing on a theater seat grinning and tossing a crumpled script page, the audience laughing, the house lights blazing back on, a flickering projector beam overhead",
@@ -374,7 +374,7 @@
             "label": "Pull everyone into one spotlight together",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You grab hands and drag neighbors off their porches until you are all crammed into one circle of light, arms linked, too many to cast. The Slate's chalk squeaks and stalls. A slasher only works on people who split up, and this crowd is not splitting up for anybody.",
               "art": "A crowd of teens and neighbors of every age crammed together arm in arm inside one bright spotlight on a suburban street, a ghostly clapperboard-faced figure above them hesitating, chalk dust drifting",
@@ -460,7 +460,7 @@
             "label": "Heckle the screen like it's opening night",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "\"Nobody says that line and lives!\" you yell, and the whole wagon joins in, honking the horn and pelting the windshield with popcorn. On screen, the actor freezes mid-step and glares out at the lot, offended. Your friend lets go of the door handle, laughing too hard to go anywhere.",
               "art": "Teens in a station wagon at a deserted drive-in at midnight honking and hurling popcorn at a giant flickering screen, an actor on the screen frozen and scowling out at the lot, laughter fogging the windshield",
@@ -551,7 +551,7 @@
             "label": "Hit your mark and yank the door open on the big note",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "flashlight",
               "amount": 1

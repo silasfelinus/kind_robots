@@ -274,7 +274,7 @@
             "label": "Hum back at it, loud, the first song that comes to mind",
             "intent": "camp",
             "skill": "nerve",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "mixtape",
               "amount": 2
@@ -339,7 +339,7 @@
             "label": "Lower a light on a clothesline to show them the way up",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "glow-bracelet",
               "amount": 2
@@ -407,7 +407,7 @@
             "label": "Give him the test: play the saddest song on the radio and watch his face",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "mixtape",
               "amount": 1
@@ -499,7 +499,7 @@
             "label": "Slap down your proof and make him look",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "polaroid",
               "amount": 2

@@ -2,6 +2,7 @@ import {
   LOCATIONS,
   activitiesAt,
   awaitingDraw,
+  buy,
   choose,
   currentEncounter,
   doActivity,
@@ -86,12 +87,48 @@ function bestChoice(run: RunState): string | null {
   return pick?.id ?? null
 }
 
+/**
+ * Single-minded tactics for the exploit hunt (roadmap #4143): each one
+ * replaces part of the careful player with a tactic that should never beat
+ * playing the whole game well.
+ */
+export type Strategy = {
+  /** Which deck to draw every night. */
+  deck?: 'auto' | 'villain' | 'street'
+  /** How to spend every daytime action. */
+  day?: 'careful' | 'rest' | 'train' | 'shop'
+  /** Use a friend's reroll whenever offered. */
+  reroll?: boolean
+}
+
+function tacticalActivity(
+  run: RunState,
+  day: NonNullable<Strategy['day']>,
+): [LocationId, DayActivity] | null {
+  if (day === 'careful') return bestActivity(run)
+  const want: DayActivity['kind'] =
+    day === 'rest' ? 'rest' : day === 'train' ? 'train' : 'shop'
+  for (const location of LOCATIONS)
+    for (const activity of activitiesAt(run, location.id as LocationId))
+      if (activity.kind === want) return [location.id as LocationId, activity]
+  return bestActivity(run)
+}
+
+function shopEverything(run: RunState): RunState {
+  let next = run
+  for (const id of run.stock) next = buy(next, id)
+  return next
+}
+
 export function autoplay(
   seed: string,
   villain?: VillainId,
   archetype = 'theatre-kid',
   avatar?: string,
+  strategy: Strategy = {},
 ): RunState {
+  const deck = strategy.deck ?? 'auto'
+  const day = strategy.day ?? 'careful'
   let run = newRun({
     seed,
     name: 'Sim',
@@ -105,8 +142,12 @@ export function autoplay(
       const choiceId = bestChoice(run)
       if (!choiceId) break
       run = choose(run, choiceId)
-      if (rerollHelper(run)) run = reroll(run)
+      if (strategy.reroll !== false && rerollHelper(run)) run = reroll(run)
       run = resolve(run)
+      continue
+    }
+    if (awaitingDraw(run) && deck !== 'auto') {
+      run = drawFrom(run, deck)
       continue
     }
     if (awaitingDraw(run)) {
@@ -119,7 +160,8 @@ export function autoplay(
       continue
     }
     if (run.phase === 'day') {
-      const next = run.actions > 0 ? bestActivity(run) : null
+      if (run.shopOpen && day === 'shop') run = shopEverything(run)
+      const next = run.actions > 0 ? tacticalActivity(run, day) : null
       run = next ? doActivity(run, next[0], next[1]) : nightfall(run)
     }
   }

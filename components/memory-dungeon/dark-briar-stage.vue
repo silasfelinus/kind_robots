@@ -21,8 +21,8 @@
         <span class="rounded-md bg-black/40 px-2 py-1 text-xs font-semibold">
           {{
             world.darkMatching
-              ? `Pairs ${world.darkPairsMatched}/8`
-              : `${decisions}/16 stories`
+              ? `Round ${world.dark.waveIndex + 1}/4 · Pairs ${world.darkPairsMatched}/8`
+              : `${decisions}/64 stories`
           }}
         </span>
         <button
@@ -54,7 +54,7 @@
         <div
           v-if="world.darkMatching"
           class="relative grid aspect-square max-h-full w-full max-w-[min(100%,70vh)] grid-cols-4 grid-rows-4 gap-1.5 sm:gap-2"
-          aria-label="Sixteen picture cards to match before entering the changed forest"
+          aria-label="Sixteen memory pictures in the current Dark Briar reveal round"
         >
           <button
             v-for="card in world.dark.mapCards"
@@ -126,7 +126,7 @@
         >
           <div v-for="tile in tiles" :key="tile.key" class="min-h-0 min-w-0">
             <button
-              v-if="darkScenes[tile.key]"
+              v-if="darkScenes[tile.key] && world.dark.revealed.includes(tile.key)"
               type="button"
               class="relative grid h-full w-full place-items-center border border-[#b3a1c0]/30 text-[clamp(10px,1.7vw,22px)] transition hover:bg-purple-200/25 focus-visible:outline-2 focus-visible:outline-white"
               :class="{
@@ -214,6 +214,23 @@
           >
             {{ world.darkMatching ? world.dark.status : world.darkCurrentText }}
           </p>
+          <button
+            v-if="!world.darkMatching && world.dark.waveIndex < 3"
+            type="button"
+            class="shrink-0 rounded-lg border border-[#694779] bg-[#514062] px-3 py-2 text-sm font-bold text-white hover:bg-[#6b5084] focus-visible:outline-2 focus-visible:outline-[#271a38]"
+            :disabled="world.darkLoading"
+            data-testid="dark-briar-next-wave"
+            @click="world.nextDarkWave()"
+          >
+            Reveal another ring of the forest · 16 cards
+          </button>
+          <p
+            v-if="!world.darkMatching"
+            class="text-xs font-semibold text-[#5e4a68]"
+          >
+            {{ world.dark.revealed.length }}/64 landmarks revealed ·
+            {{ witnessCount }}/8 House witnesses
+          </p>
           <p
             v-if="world.darkDeckError"
             role="alert"
@@ -230,9 +247,9 @@
             "
             class="rounded-lg border border-[#805c8d] bg-[#f7edff] p-2 text-sm"
           >
-            The Warden will not hear a verdict yet. Gather the testimony from
-            the photograph, the princesses, the village witnesses, and the
-            waking sigil.
+            The Warden will not hear a verdict yet. The whole forest must
+            emerge, and all eight witness accounts must be collected.
+            {{ witnessCount }}/8 accounts remembered.
           </p>
           <div
             v-if="
@@ -298,6 +315,7 @@ import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { BRIAR_TILES } from '~/utils/memoryDungeonWorld'
 import {
   DARK_BRIAR_SCENES,
+  DARK_BRIAR_WITNESSES,
   darkBriarCanTravel,
   darkBriarCanChoose,
 } from '~/utils/memoryDungeon/darkBriar'
@@ -307,6 +325,9 @@ const tiles = BRIAR_TILES
 const darkScenes = DARK_BRIAR_SCENES
 const scene = computed(() => darkScenes[world.dark.player])
 const decisions = computed(() => Object.keys(world.dark.sceneChoices).length)
+const witnessCount = computed(() =>
+  DARK_BRIAR_WITNESSES.filter((key) => world.dark.sceneChoices[key]).length,
+)
 const sceneStyle = computed(() => {
   const [x = 1, y = 1] = world.dark.player.split(',').map(Number)
   return {

@@ -155,10 +155,8 @@ const inspected = darkBriarInspectSeal(unexamined, '5,2')
 assert.deepEqual(inspected.sealInspections, ['5,2'])
 assert.equal(darkBriarInspectSeal(inspected, '5,2'), inspected)
 assert.equal(darkBriarCanChoose(inspected, '5,2'), false)
-assert.equal(
-  darkBriarInspectSeal({ ...unexamined, visited: [] }, '5,2'),
-  unexamined,
-)
+const unseenAtSigil = { ...unexamined, visited: [] }
+assert.equal(darkBriarInspectSeal(unseenAtSigil, '5,2'), unseenAtSigil)
 assert.deepEqual(
   restoreDarkBriarProgress(JSON.parse(JSON.stringify(inspected)))
     .sealInspections,

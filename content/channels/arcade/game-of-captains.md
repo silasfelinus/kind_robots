@@ -7,7 +7,7 @@ title: Game of Captains
 subtitle: A comic voyage among civilizations, treaties and impossible odds
 summary: Command a ship. Make costly choices.
 description: 'A comedic science-fiction command adventure. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
-icon: kind-icon:rocket
+icon: kind-icon:compass
 image: /game-of-captains/bridge-stage.svg
 route: /play/game-of-captains
 sort: 144

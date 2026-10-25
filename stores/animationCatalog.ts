@@ -973,6 +973,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'newton-cradle-chain',
+    label: 'Newton Cradle Chain',
+    reveal:
+      'Two steel cradles pass momentum end to end, one, two, then three balls at a time',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Two cradles click back and forth, stepping through one, two and three swinging balls 🔮 hover to brighten nearby balls, click to add an extra swinger for a moment',
+    color: '#9fb4d8',
+    releasedAt: '2026-10-25T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

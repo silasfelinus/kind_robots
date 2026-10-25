@@ -51,6 +51,15 @@
           <span class="hidden @2xl:inline">{{ tab.label }}</span>
         </button>
       </nav>
+      <button
+        type="button"
+        class="cs-help cs-help-sm shrink-0"
+        aria-label="How to play"
+        title="How to play"
+        @click="openTutorial"
+      >
+        ?
+      </button>
     </header>
 
     <header
@@ -123,23 +132,27 @@
           >
         </button>
       </nav>
+      <button
+        type="button"
+        class="cs-help cs-help-sm shrink-0"
+        aria-label="How to play"
+        title="How to play"
+        @click="openTutorial"
+      >
+        ?
+      </button>
     </header>
 
     <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
     <div v-else class="kr-stage">
-      <crystal-street-gallery
-        v-if="view === 'gallery'"
-        :initial="focusVillain"
-        @endings="openEndings"
+      <crystal-street-credits
+        v-if="view === 'credits'"
+        @back="view = 'settings'"
       />
-      <crystal-street-endings
-        v-else-if="view === 'endings'"
-        :initial="focusVillain"
+      <crystal-street-settings
+        v-else-if="view === 'settings'"
+        @credits="view = 'credits'"
       />
-      <crystal-street-crew v-else-if="view === 'roster'" roster />
-      <crystal-street-guide v-else-if="view === 'guide'" section="guide" />
-      <crystal-street-guide v-else-if="view === 'credits'" section="credits" />
-      <crystal-street-settings v-else-if="view === 'settings'" />
       <crystal-street-theme v-else-if="view === 'theme'" />
       <crystal-street-scrapbook v-else-if="view === 'scrapbook'" />
       <crystal-street-title
@@ -207,26 +220,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { useNavStore } from '~/stores/navStore'
 import { MAX_DREAD, MAX_NERVE, remixLine } from '~/utils/crystalStreet/rules'
 import type { MenuView } from '~/utils/crystalStreet/menu'
 
-type MenuScreen =
-  'gallery' | 'endings' | 'roster' | 'guide' | 'settings' | 'credits' | 'theme'
+type MenuScreen = 'settings' | 'credits' | 'theme'
 type View =
   'title' | 'stage' | 'crew' | 'case' | 'pack' | 'scrapbook' | MenuScreen
 
-const MENU_TABS: { id: MenuScreen; label: string; icon: string }[] = [
-  { id: 'gallery', label: 'Monsters', icon: 'kind-icon:mask' },
-  { id: 'endings', label: 'Endings', icon: 'kind-icon:trophy' },
-  { id: 'roster', label: 'Friends', icon: 'kind-icon:users' },
-  { id: 'guide', label: 'How to play', icon: 'kind-icon:question' },
-  { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
-]
-const MENU_SCREENS = new Set<View>([
-  ...MENU_TABS.map((t) => t.id),
-  'credits',
-  'theme',
-])
+const MENU_SCREENS = new Set<View>(['settings', 'credits', 'theme'])
 
 const TABS: { id: View; label: string; icon: string }[] = [
   { id: 'stage', label: 'Play', icon: 'kind-icon:map' },
@@ -237,6 +239,21 @@ const TABS: { id: View; label: string; icon: string }[] = [
 ]
 
 const store = useCrystalStreetStore()
+const navStore = useNavStore()
+// The scrapbook tab appears once a week has been finished.
+const MENU_TABS = computed(() =>
+  [
+    store.scrapbook.runs.length
+      ? { id: 'scrapbook' as View, label: 'Scrapbook', icon: 'kind-icon:book' }
+      : null,
+    { id: 'theme' as View, label: 'Theme', icon: 'kind-icon:movie' },
+    { id: 'settings' as View, label: 'Settings', icon: 'kind-icon:settings' },
+  ].filter((t) => t !== null),
+)
+
+function openTutorial(): void {
+  navStore.openWorkspaceSheet()
+}
 const TEXT_SCALE = { small: '93.75%', medium: '', large: '112.5%' } as const
 
 useHead({
@@ -252,20 +269,13 @@ useHead({
 const run = computed(() => store.run)
 const villain = computed(() => store.villain)
 const view = ref<View>('title')
-const focusVillain = ref<string | undefined>()
 const menuScreen = computed(
   () =>
     MENU_SCREENS.has(view.value) || (view.value === 'scrapbook' && !run.value),
 )
 
 function openMenu(target: MenuView): void {
-  focusVillain.value = undefined
-  view.value = target === 'crew' ? 'roster' : target
-}
-
-function openEndings(villainId: string): void {
-  focusVillain.value = villainId
-  view.value = 'endings'
+  view.value = target
 }
 const arrivalSeen = ref('')
 const arrival = computed(
@@ -401,6 +411,35 @@ onMounted(() => {
 .cs .cs-menu-item:focus-visible {
   border-color: var(--color-primary);
   transform: translateX(2px);
+}
+.cs .cs-menu-glass {
+  background: rgb(10 2 24 / 0.62);
+  backdrop-filter: blur(6px);
+  color: #fff;
+}
+.cs .cs-wizard {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 45%, transparent);
+  background: color-mix(in oklch, var(--color-base-100) 94%, transparent);
+  backdrop-filter: blur(8px);
+}
+.cs .cs-help {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #fff;
+  background: rgb(10 2 24 / 0.65);
+  border: 2px solid var(--color-primary);
+  backdrop-filter: blur(6px);
+}
+.cs .cs-help-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.1rem;
 }
 .cs .cs-menu-primary {
   background: color-mix(in oklch, var(--color-primary) 30%, transparent);

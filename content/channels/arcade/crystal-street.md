@@ -13,28 +13,66 @@ route: /play/crystal-street
 sort: 141
 tutorial:
   title: Survive the week
+  image: /crystal-street/title/crystal-street.webp
   body: >-
-    Each week runs Saturday to Halloween. By day you have three actions: pick
-    a place on the map to explore a daylight adventure, follow a lead, meet a
-    new friend, train a skill, rest, or shop at the traveling pawnshop. Up to
-    ten friends can join your crew; each one helps with their skills and has a
-    perk.
-
-
-    At nightfall the nightmare comes. The week runs in three acts of two
-    nights, and each night deals two cards: for each one, choose the
-    nightmare's own deck for the current act (harder, and a win earns that
-    act's edge for Halloween) or the street deck its kind shares. Every
-    choice rolls two dice plus your skill, crew and gear against 7, 9 or 11.
-    Nerve is your health; Dread makes nights harder.
-
-
-    On Halloween you face it. Fight it, trick it, or, if you found all three
-    leads, reach its heart. Each edge you carry adds +1 to every Halloween
-    roll and can open a straighter way through. The Best ending needs the
-    heart and at least ten night wins that week. Every week is pasted into
-    your scrapbook; collect a Best ending for every nightmare.
-  image: /crystal-street/cover.webp
+    One week on Crystal Street, Saturday to Halloween, against whichever
+    nightmare has come this year. Spend your days around Glimmer Falls, survive
+    your nights, and face it on Halloween.
+  sections:
+    - key: days
+      title: 'Days: spend three actions'
+      image: /crystal-street/locations/library.webp
+      body: >-
+        Pick a place on the map. Each one offers a daylight adventure, a skill
+        to train once a day, and sometimes a friend to meet or a lead to follow.
+        Rest at home for nerve, see the nurse at Mercy Valley Clinic, stock up on
+        comfort food at the Thriftee-Mart, or shop the traveling pawnshop.
+    - key: nights
+      title: 'Nights: choose your deck'
+      image: /crystal-street/villains/counselor-jess-poster.webp
+      body: >-
+        Each night deals two cards and you choose the deck for each. The
+        nightmare's own deck holds its cards for this act: harder, and every
+        win earns an edge for Halloween. The street deck holds the ordinary
+        terrors its kind shares: steadier, and every win still counts.
+    - key: dice
+      title: Rolling the dice
+      image: /crystal-street/companions/lou-tran-poster.webp
+      body: >-
+        Every choice rolls two dice plus your skill, +1 if a friend shares it,
+        your best gear, and any bonus the choice names. Nights subtract one, and
+        more as dread climbs. You need 7, 9 or 11, and the odds show on every
+        choice. Double six always works; snake eyes never does.
+    - key: friends
+      title: Friends and perks
+      image: /crystal-street/companions/glory-hallelujah-poster.webp
+      body: >-
+        Up to ten friends can join your crew. Each helps with their skills and
+        brings a perk, though perks do not stack. A friend shaken by a bad
+        night gives no help until dawn, or until the nurse steadies them.
+    - key: acts
+      title: Three acts and your edges
+      image: /crystal-street/villains/frieda-krueger-poster.webp
+      body: >-
+        The week runs in three acts: nights one and two, three and four, five
+        and six. Beat one of the nightmare's own cards in an act and you carry
+        that act's edge into Halloween. A rough first act never locks you out;
+        it only means one edge fewer.
+    - key: halloween
+      title: Halloween
+      image: /crystal-street/villains/counselor-jess-ending.webp
+      body: >-
+        Fight it, trick it, or, with all three leads, reach its heart. The base
+        checks are hard, but every edge adds +1 to each roll and opens a
+        straighter way through built from what you did that act. The Best
+        ending needs the heart and ten night wins, the finale included.
+    - key: scrapbook
+      title: The scrapbook
+      image: /crystal-street/villains/mister-fuzzbutton-ending.webp
+      body: >-
+        Every finished week is pasted into your scrapbook, along with each
+        nightmare you have faced, every ending you have found and every friend
+        you have met. Collect a Best ending for every nightmare.
 ---
 
 Glimmer Falls, California. Halloween week, 1986. Something under Crystal Street is

@@ -26,6 +26,9 @@
         </div>
       </div>
       <div class="kr-pane-scroll p-3">
+        <p v-if="!friends.length" class="text-sm opacity-80">
+          Friends you meet around Glimmer Falls join this page.
+        </p>
         <ul class="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-3">
           <li v-for="c in friends" :key="c.id">
             <button
@@ -67,7 +70,7 @@
       </div>
     </div>
 
-    <aside v-if="focus" class="kr-pane cs-frame">
+    <aside v-if="focus && friends.length" class="kr-pane cs-frame">
       <div class="kr-pane-scroll space-y-3 p-3">
         <crystal-street-portrait
           class="mx-auto w-full max-w-60"
@@ -136,18 +139,25 @@ const props = defineProps<{ roster?: boolean }>()
 const store = useCrystalStreetStore()
 const run = computed(() => (props.roster ? null : store.run))
 const format = ref<'portrait' | 'poster'>('portrait')
-const selected = ref<string>(run.value?.crew[0] ?? COMPANIONS[0]!.id)
+const selected = ref<string>(
+  run.value?.crew[0] ??
+    (props.roster ? store.scrapbook.friends[0] : undefined) ??
+    COMPANIONS[0]!.id,
+)
 const previewEmotion = ref<Emotion | null>(null)
 watch(selected, () => (previewEmotion.value = null))
 
 const inCrew = (id: string) => !!run.value?.crew.includes(id as CompanionId)
 const met = (id: string) => !!run.value?.flags.includes(`recruit:${id}`)
+// The scrapbook roster shows only friends you have met (Silas, 2026-10-24 PT).
 const friends = computed(() =>
-  [...COMPANIONS].sort(
-    (a, b) =>
-      Number(inCrew(b.id)) - Number(inCrew(a.id)) ||
-      Number(met(b.id)) - Number(met(a.id)),
-  ),
+  props.roster
+    ? COMPANIONS.filter((c) => store.scrapbook.friends.includes(c.id))
+    : [...COMPANIONS].sort(
+        (a, b) =>
+          Number(inCrew(b.id)) - Number(inCrew(a.id)) ||
+          Number(met(b.id)) - Number(met(a.id)),
+      ),
 )
 const focus = computed(() => companionById(selected.value))
 const focusEmotion = computed<Emotion>(

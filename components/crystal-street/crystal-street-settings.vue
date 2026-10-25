@@ -34,6 +34,21 @@
           </div>
         </fieldset>
 
+        <fieldset class="cs-card space-y-2 p-3">
+          <legend class="cs-kicker px-1">About</legend>
+          <p class="text-xs opacity-80">
+            Who made the game, its art and its theme, and the films it remixes.
+          </p>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline rounded-2xl"
+            data-testid="cs-settings-credits"
+            @click="$emit('credits')"
+          >
+            <icon name="kind-icon:star" class="h-4 w-4" /> Credits
+          </button>
+        </fieldset>
+
         <fieldset class="cs-card space-y-2 p-3 @3xl:col-span-2">
           <legend class="cs-kicker px-1">Saved on this device</legend>
           <p class="text-xs opacity-80">
@@ -121,6 +136,8 @@ const GROUPS: Group[] = [
     ],
   },
 ]
+
+defineEmits<{ credits: [] }>()
 
 const store = useCrystalStreetStore()
 const abandonArmed = ref(false)

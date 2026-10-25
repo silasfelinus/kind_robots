@@ -40,6 +40,34 @@
           {{ pageTutorial.body }}
         </p>
       </div>
+
+      <!-- A page tutorial's own illustrated steps (its tutorial.sections) -->
+      <ol
+        v-if="pageTutorial.steps?.length"
+        class="flex flex-col gap-3 border-t border-primary/15 p-4 sm:p-5"
+      >
+        <li
+          v-for="step in pageTutorial.steps"
+          :key="step.key"
+          class="flex flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
+        >
+          <img
+            v-if="step.image"
+            :src="step.image"
+            :alt="`${step.title} illustration`"
+            loading="lazy"
+            class="aspect-video w-full object-cover"
+          />
+          <div class="flex min-w-0 flex-col gap-1 p-3">
+            <h3 class="text-lg font-black leading-tight text-base-content">
+              {{ step.title }}
+            </h3>
+            <p class="font-semibold leading-relaxed text-base-content/70">
+              {{ step.body }}
+            </p>
+          </div>
+        </li>
+      </ol>
     </section>
 
     <div v-else class="overflow-hidden kr-panel p-0">

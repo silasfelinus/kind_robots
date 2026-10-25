@@ -62,18 +62,45 @@
           @keydown.enter.prevent="selected = loc.id as LocationId"
           @keydown.space.prevent="selected = loc.id as LocationId"
         >
+          <clipPath :id="`cs-pin-${loc.id}`">
+            <circle :cx="loc.x" :cy="loc.y" :r="pinRadius(loc.id)" />
+          </clipPath>
           <circle
             :cx="loc.x"
             :cy="loc.y"
-            :r="selected === loc.id ? 4.6 : 3.4"
+            :r="pinRadius(loc.id)"
             :fill="loc.id === 'pawnshop' ? '#ffd23d' : '#ff3d8b'"
+          />
+          <!-- Each pin shows its place's painting (Silas, 2026-10-24 PT). -->
+          <image
+            :href="`/crystal-street/locations/${loc.id}.webp`"
+            :x="loc.x - pinRadius(loc.id)"
+            :y="loc.y - pinRadius(loc.id)"
+            :width="pinRadius(loc.id) * 2"
+            :height="pinRadius(loc.id) * 2"
+            preserveAspectRatio="xMidYMid slice"
+            :clip-path="`url(#cs-pin-${loc.id})`"
+          />
+          <circle
+            :cx="loc.x"
+            :cy="loc.y"
+            :r="pinRadius(loc.id)"
+            fill="none"
+            :stroke="loc.id === 'pawnshop' ? '#ffd23d' : '#ff3d8b'"
+            :stroke-width="selected === loc.id ? 1.1 : 0.8"
+          />
+          <circle
+            :cx="loc.x"
+            :cy="loc.y"
+            :r="pinRadius(loc.id) + 0.6"
+            fill="none"
             stroke="#1b0b33"
-            stroke-width="1"
+            stroke-width="0.5"
           />
           <circle
             v-if="hasClue(loc.id)"
-            :cx="loc.x + 3"
-            :cy="loc.y - 3"
+            :cx="loc.x + pinRadius(loc.id) - 0.4"
+            :cy="loc.y - pinRadius(loc.id) + 0.4"
             r="1.6"
             fill="#4df2ff"
             stroke="#1b0b33"
@@ -81,7 +108,7 @@
           />
           <text
             :x="loc.x"
-            :y="loc.y + (loc.y > 80 ? -5.5 : 7)"
+            :y="loc.y + (loc.y > 80 ? -6.5 : 8.2)"
             text-anchor="middle"
             font-size="3"
             font-weight="700"
@@ -265,6 +292,10 @@ function canBuy(id: ItemId): boolean {
   const r = run.value
   const item = itemById(id)
   return !!r && !!item && r.quarters >= item.price && !r.items.includes(id)
+}
+
+function pinRadius(id: string): number {
+  return selected.value === id ? 5.4 : 4.2
 }
 
 function iconFor(kind: DayActivity['kind']): string {

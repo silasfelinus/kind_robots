@@ -79,26 +79,46 @@ export type ScrapbookRun = {
   highlights: LogEntry[]
 }
 
-export type Scrapbook = { runs: ScrapbookRun[]; endings: string[] }
+// friends: every companion ever recruited, so the scrapbook shows only the
+// people you have actually met (Silas, 2026-10-24 PT).
+export type Scrapbook = {
+  runs: ScrapbookRun[]
+  endings: string[]
+  friends: string[]
+}
 
 function emptyScrapbook(): Scrapbook {
-  return { runs: [], endings: [] }
+  return { runs: [], endings: [], friends: [] }
 }
 
 function restoreScrapbook(raw: unknown): Scrapbook {
   if (!raw || typeof raw !== 'object') return emptyScrapbook()
   const value = raw as Partial<Scrapbook>
+  const runs = Array.isArray(value.runs)
+    ? value.runs.filter(
+        (r): r is ScrapbookRun =>
+          !!r && typeof r.seed === 'string' && typeof r.villain === 'string',
+      )
+    : []
+  const friends = Array.isArray(value.friends)
+    ? value.friends.filter((f): f is string => typeof f === 'string')
+    : []
   return {
-    runs: Array.isArray(value.runs)
-      ? value.runs.filter(
-          (r): r is ScrapbookRun =>
-            !!r && typeof r.seed === 'string' && typeof r.villain === 'string',
-        )
-      : [],
+    runs,
     endings: Array.isArray(value.endings)
       ? value.endings.filter((e): e is string => typeof e === 'string')
       : [],
+    // Older scrapbooks predate the friends list: everyone in a pasted week's
+    // crew was met.
+    friends: [...new Set([...friends, ...runs.flatMap((r) => r.crew ?? [])])],
   }
+}
+
+/** Companions this week has recruited, from its recruit flags. */
+export function recruitedIn(run: RunState): string[] {
+  return run.flags
+    .filter((f) => f.startsWith('recruit:'))
+    .map((f) => f.slice('recruit:'.length))
 }
 
 export function highlightsOf(run: RunState): LogEntry[] {
@@ -172,6 +192,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     if (scrapbook.value.runs.some((r) => r.seed === next.seed)) return
     const key = endingKey(next.villain, next.ending.tier)
     scrapbook.value = {
+      ...scrapbook.value,
       runs: [
         {
           seed: next.seed,
@@ -198,6 +219,14 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   function commit(next: RunState): void {
     if (next === run.value) return
     run.value = next
+    const met = recruitedIn(next).filter(
+      (id) => !scrapbook.value.friends.includes(id),
+    )
+    if (met.length)
+      scrapbook.value = {
+        ...scrapbook.value,
+        friends: [...scrapbook.value.friends, ...met],
+      }
     record(next)
     persist()
   }

@@ -263,7 +263,7 @@ export default defineNuxtConfig({
       // full reload/open of a URL that has been fully loaded before.
       runtimeCaching: [
         {
-          urlPattern: /^https?:\/\/[^/]+\/admin\/ruler-hooked\/?$/,
+          urlPattern: /^https?:\/\/[^/]+\/play\/ruler-hooked\/?$/,
           handler: 'NetworkFirst',
           options: {
             cacheName: 'ruler-hooked-document',
@@ -380,10 +380,13 @@ export default defineNuxtConfig({
     '/admin/music-video': {
       redirect: { to: '/play/video-generator?studio=music', statusCode: 301 },
     },
-    // The Ruler Is Hooked went to Admin until it launches (2026-10-11); 302,
-    // since it will move again to /play when it is ready.
+    // Silas, 2026-10-24: The Ruler Is Hooked is now a Play game.
+    // Retain old deep links without maintaining an Admin-only duplicate.
+    '/admin/ruler-hooked': {
+      redirect: { to: '/play/ruler-hooked', statusCode: 301 },
+    },
     '/plan/projects/ruler-hooked': {
-      redirect: { to: '/admin/ruler-hooked', statusCode: 302 },
+      redirect: { to: '/play/ruler-hooked', statusCode: 301 },
     },
   },
 

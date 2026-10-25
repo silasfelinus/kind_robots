@@ -2229,6 +2229,7 @@
             },
             "success": {
               "text": "A hop to the left, a shimmy to the right, and three hundred people hit every step in perfect sync. The screen burps the front row back into their seats, covered in glitter and grinning. On screen, Dr. Glamour blows the audience a kiss. Frankie tosses you a glow bracelet from the booth.",
+              "alone": "A hop to the left, a shimmy to the right, and three hundred people hit every step in perfect sync. The screen burps the front row back into their seats, covered in glitter and grinning. On screen, Dr. Glamour blows the audience a kiss. Someone up in the booth tosses you a glow bracelet.",
               "art": "A whole theater audience in lab coats and fishnets doing a synchronized dance in the aisles, the front row tumbling back out of a movie screen in a burst of glitter",
               "effects": {
                 "nerve": 1,

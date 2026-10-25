@@ -54,6 +54,7 @@
               },
               "success": {
                 "text": "It takes an hour, three reference books and a lot of Priya muttering. The oval is a cartouche, the frame around a royal name. The heart-and-windpipe sign for nefer, beautiful. A bread loaf for the t. A seated woman. \"Neferet,\" Priya breathes. \"And that title before it means Great Royal Wife. She isn't unknown. She's a queen.\" The thunder tape clicks off by itself.",
+                "alone": "It takes an hour, three reference books and a lot of muttering under your breath. The oval is a cartouche, the frame around a royal name. The heart-and-windpipe sign for nefer, beautiful. A bread loaf for the t. A seated woman. \"Neferet,\" you breathe. And that title before it means Great Royal Wife. She isn't unknown. She's a queen. The thunder tape clicks off by itself.",
                 "art": "Two teenagers hunched over reference books and notebooks beside a glass exhibit case, one pointing at a carved cartouche on a painted coffin lid, sketches of hieroglyphs spread across the floor",
                 "effects": {
                   "clues": ["queen-neferet-cartouche"],
@@ -307,6 +308,7 @@
             },
             "success": {
               "text": "You and Kev sprint down the street plucking glowing letters out of the air. Kev knows every mailbox by heart: that D belongs to the Dobbses, that loose O is the Oyelaran twins. By four a.m. every name is back, slightly crooked, and the starry woman overhead seems to nod.",
+              "alone": "You sprint down the street plucking glowing letters out of the air, checking every mailbox by flashlight: that D belongs to the Dobbses, that loose O is the Oyelaran twins. By four a.m. every name is back, slightly crooked, and the starry woman overhead seems to nod.",
               "art": "A teenager and a young paperboy leaping to catch glowing letters out of the night air and pressing them onto suburban mailboxes under a starry sky figure",
               "effects": {
                 "nerve": 1,
@@ -334,6 +336,7 @@
             },
             "success": {
               "text": "Bea brings her star chart and you both lie in the wet grass, comparing. \"That's Orion,\" she says, \"but tilted, like from way farther south.\" The arching woman's starry hand points one way, steady as a compass needle: east, across the ocean. She is not attacking. She is showing you where home is.",
+              "alone": "You dig out your old star chart and lie in the wet grass, comparing. That's Orion, but tilted, like from way farther south. The arching woman's starry hand points one way, steady as a compass needle: east, across the ocean. She is not attacking. She is showing you where home is.",
               "art": "A teenager and a small girl with a star chart lying on a dewy suburban lawn at night, pointing up at a giant starry woman arching overhead whose hand points toward the horizon",
               "effects": {
                 "nerve": 1,
@@ -425,6 +428,7 @@
             },
             "success": {
               "text": "Delphine finds the folder in about four minutes, because she is Delphine. The 1911 bill of lading lists one crate, Alexandria to Minneapolis, MACHINE PARTS, customs inspection waived, signed with a flourish by C. Halvorsen. Delphine's mouth goes thin. \"That,\" she says, \"is a confession on letterhead.\"",
+              "alone": "You find the folder after twenty dusty minutes in the library office's filing cabinet. The 1911 bill of lading lists one crate, Alexandria to Minneapolis, MACHINE PARTS, customs inspection waived, signed with a flourish by C. Halvorsen. Your mouth goes thin. That is a confession on letterhead.",
               "art": "A librarian in a cardigan and a teenager bent over a yellowed shipping document under a green desk lamp in a cluttered library office, an old red wax customs seal on the page",
               "effects": {
                 "nerve": 1,
@@ -462,6 +466,7 @@
             },
             "success": {
               "text": "Frankie kills the reel and brings the house lights up halfway. Neferet stands in the projector beam and tells it: the famine year, the granaries she opened, the house of healing at Thebes, the night men came with shovels. Nobody throws popcorn. When she finishes, someone in the balcony starts to clap, then the whole room does, and the queen inclines her head.",
+              "alone": "You sprint up to the booth, kill the reel and bring the house lights up halfway. Neferet stands in the projector beam and tells it: the famine year, the granaries she opened, the house of healing at Thebes, the night men came with shovels. Nobody throws popcorn. When she finishes, someone in the balcony starts to clap, then the whole room does, and the queen inclines her head.",
               "art": "A queen in white linen and gold standing in a projector beam on a theater stage speaking with dignity, an audience in red velvet seats rising to applaud, a stage manager in a headset at the side of the stage",
               "effects": {
                 "nerve": 1,
@@ -490,6 +495,7 @@
             },
             "success": {
               "text": "You and Glory turn on the film instead. \"A curse? Honey, she was ROBBED!\" Glory booms as the reel starts again. You narrate every scene the way it actually went, and the audience joins in. Up on stage, Neferet laughs for the first time in four thousand years, a sound like wind chimes in a dry wind.",
+              "alone": "You turn on the film instead. \"A curse? Come on, she was ROBBED!\" you boom as the reel starts again. You narrate every scene the way it actually went, and the audience joins in. Up on stage, Neferet laughs for the first time in four thousand years, a sound like wind chimes in a dry wind.",
               "art": "A drag queen in sequins and a teenager standing on their seats shouting at a movie screen in a crowded theater, the audience laughing along, a queen in white linen and gold laughing on the stage",
               "effects": {
                 "nerve": 1,
@@ -517,6 +523,7 @@
             },
             "success": {
               "text": "Toby holds the flashlight while you razor out the scene where the heroes burn her scroll and tape in the travelogue short from the other can: the Nile at sunset, boats on the water, the west bank. Home. When the projector rolls again, the queen on stage watches it with her hand over her heart.",
+              "alone": "With the flashlight clamped in your teeth, you razor out the scene where the heroes burn her scroll and tape in the travelogue short from the other can: the Nile at sunset, boats on the water, the west bank. Home. When the projector rolls again, the queen on stage watches it with her hand over her heart.",
               "art": "A teenager and a boy with a flashlight splicing a strip of film in a cramped projection booth, through the booth window a screen glows with the Nile at sunset, a queen on stage with a hand over her heart",
               "effects": {
                 "nerve": 1,
@@ -581,6 +588,7 @@
             },
             "success": {
               "text": "Kev knows every house on his route, so he knows which trails don't belong to it. Every stolen thing on Crystal Street finds its own way home, but the sand they shed all drifts, sooner or later, the same direction: toward the library, where one window in the exhibit room glows gold. She's showing you what going home looks like.",
+              "alone": "You know every house on Crystal Street, so you know which trails don't belong to it. Every stolen thing on Crystal Street finds its own way home, but the sand they shed all drifts, sooner or later, the same direction: toward the library, where one window in the exhibit room glows gold. She's showing you what going home looks like.",
               "art": "A teenager and a young paperboy with a canvas bag following glittering trails of golden sand down a dark street toward a distant library with one window glowing gold, little lost objects marching ahead",
               "effects": {
                 "nerve": 1,
@@ -736,6 +744,7 @@
             },
             "success": {
               "text": "Priya holds the scroll under a flashlight for ten seconds. \"These aren't hieroglyphs. It's the English alphabet in a spooky font. Look, A, B, C.\" She decodes it out loud, and the ancient curse reads THANK YOU FOR VISITING THE HALVORSEN COLLECTION. The voice in the dark laughs, low and delighted. \"A scholar. Finally.\"",
+              "alone": "You hold the scroll under a flashlight for ten seconds. These aren't hieroglyphs. It's the English alphabet in a spooky font: look, A, B, C. You decode it out loud, and the ancient curse reads THANK YOU FOR VISITING THE HALVORSEN COLLECTION. The voice in the dark laughs, low and delighted. \"A scholar. Finally.\"",
               "art": "A teen girl with glasses studying a souvenir parchment scroll under a flashlight and pointing at its squiggles, friends leaning in amazed, golden sand settling quietly around a heating vent",
               "effects": {
                 "nerve": 1,
@@ -746,6 +755,7 @@
             },
             "failure": {
               "text": "Priya starts to decode it, and the squiggles crawl off the paper and up her arm like ants. She flings the scroll across the basement into the popcorn bowl. Nobody touches the popcorn again.",
+              "alone": "You start to decode it, and the squiggles crawl off the paper and up your arm like ants. You fling the scroll across the basement into the popcorn bowl. Nobody touches the popcorn again.",
               "art": "Spooky ink squiggles crawling off a souvenir scroll like a line of ants, teens shrieking and leaping out of sleeping bags, a bowl of popcorn spilling, amber flashlight glow",
               "effects": {
                 "nerve": -1,
@@ -856,6 +866,7 @@
             },
             "success": {
               "text": "Raven shuffles a real tarot deck, cool as ice, and you announce on live TV that you're reading Madame Zorova's future. \"I see a lawsuit. I see a refund. I see you getting in your car, right now.\" Raven flips the Tower for emphasis. Madame Zorova looks at the trembling coffin, then at Raven, grabs her incense and leaves, and from the coffin comes a sound suspiciously like a laugh.",
+              "alone": "You shuffle a real tarot deck, cool as ice, and announce on live TV that you're reading Madame Zorova's future. \"I see a lawsuit. I see a refund. I see you getting in your car, right now.\" You flip the Tower for emphasis. Madame Zorova looks at the trembling coffin, then at you, grabs her incense and leaves, and from the coffin comes a sound suspiciously like a laugh.",
               "art": "A goth teen in thrifted velvet flipping a tarot card with deadpan confidence beside a teenager pointing dramatically, a sequined fake psychic fleeing with smoking incense, television lights, an ancient coffin behind",
               "effects": {
                 "nerve": 1,
@@ -984,6 +995,7 @@
           },
           "success": {
             "text": "You and Wade throw your weight onto the lid as the sand roars. It bucks once, twice, then goes still. The sky folds back into an ordinary October night. By morning the Foundation has packed the crate and driven off to the next town, and nothing in Glimmer Falls is cursed. Nothing is fixed, either.",
+            "alone": "You throw all your weight onto the lid as the sand roars. It bucks once, twice, then goes still. The sky folds back into an ordinary October night. By morning the Foundation has packed the crate and driven off to the next town, and nothing in Glimmer Falls is cursed. Nothing is fixed, either.",
             "art": "A teenager and a mullet-haired metalhead pressing down on a coffin lid with all their weight as swirling sand settles around them in a dark library",
             "effects": {
               "nerve": 1
@@ -1009,6 +1021,7 @@
           },
           "success": {
             "text": "You and Toby type up a perfect fake label on the AV room typewriter, LUXOR, EGYPT, URGENT, and paste it on the crate. The queen reads it, and her starlight softens. She lies down. The lid closes gently. At dawn the crate drives off toward the next tour stop in Fresno, and you feel sick about it for a long, long time.",
+            "alone": "You type up a perfect fake label on the AV room typewriter, LUXOR, EGYPT, URGENT, and paste it on the crate. The queen reads it, and her starlight softens. She lies down. The lid closes gently. At dawn the crate drives off toward the next tour stop in Fresno, and you feel sick about it for a long, long time.",
             "art": "A teenager pasting a typed shipping label onto a wooden crate in a dark library, a queen lying back down in her coffin with softening starlight, a guilty-looking kid with a camcorder nearby",
             "effects": {
               "nerve": 1

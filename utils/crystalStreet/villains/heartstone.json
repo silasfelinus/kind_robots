@@ -54,6 +54,7 @@
               },
               "success": {
                 "text": "Father Iggy hauls a water-stained ledger out of the sacristy safe. March 1952: fourteen names, one requiem Mass, and across the whole page in red ink, CANCELLED BY ORDER OF THE TOWN COUNCIL. \"They never even let the priest say the words,\" he murmurs, and photocopies the page for you.",
+                "alone": "The church secretary hauls a water-stained ledger out of the sacristy safe for you. March 1952: fourteen names, one requiem Mass, and across the whole page in red ink, CANCELLED BY ORDER OF THE TOWN COUNCIL. \"They never even let the priest say the words,\" she murmurs, and photocopies the page for you.",
                 "art": "A punk-rock priest in a clerical collar and band shirt opening a water-stained ledger in a candlelit sacristy, a page of fourteen names crossed out in red ink",
                 "effects": {
                   "clues": ["heartstone-blank-slab"],
@@ -144,6 +145,7 @@
               },
               "success": {
                 "text": "Joey snaps the chain with bolt cutters and doesn't say a word when he sees the board. Fourteen brass tags, each stamped with a number and a name: BRANDT, IBARRA, HAYNES, FERRARO, CHU, SILVA, and eight more. A dented lunch pail sits beneath them, still latched. You copy every name, slowly, out loud.",
+                "alone": "You dig a pair of bolt cutters out of the junk pile, snap the chain yourself and don't say a word when you see the board. Fourteen brass tags, each stamped with a number and a name: BRANDT, IBARRA, HAYNES, FERRARO, CHU, SILVA, and eight more. A dented lunch pail sits beneath them, still latched. You copy every name, slowly, out loud.",
                 "art": "Two teenagers in a dusty lamp house, one holding bolt cutters, both looking at a pegboard of fourteen brass name tags, a dented lunch pail on the floor below",
                 "effects": {
                   "clues": ["heartstone-tally-board"],
@@ -214,6 +216,7 @@
               },
               "success": {
                 "text": "Mix cues it up at 2 a.m. Hiss, then hundreds of voices at the quarry rim singing \"Shall We Gather at the River\" in English and Spanish and Portuguese, and then a hard, cheerful man: \"Glimmer Falls does not look back. We look forward.\" The call-in board lights up with crying grandparents until dawn.",
+                "alone": "While the overnight jock steps out for coffee at 2 a.m., you cue it up yourself. Hiss, then hundreds of voices at the quarry rim singing \"Shall We Gather at the River\" in English and Spanish and Portuguese, and then a hard, cheerful man: \"Glimmer Falls does not look back. We look forward.\" The call-in board lights up with crying grandparents until dawn.",
                 "art": "A young DJ in a velvet jacket in a dim radio booth with an acetate spinning, every light on the call-in phone board blinking, an on-air sign glowing",
                 "effects": {
                   "clues": ["heartstone-vigil-acetate"],
@@ -222,6 +225,7 @@
               },
               "failure": {
                 "text": "Mix gets it on the turntable, but the needle skips into a groove that should not exist. Every speaker in the booth hums the Heartstone's note, the ON AIR light turns violet, and Mix pulls the plug with shaking hands. \"Not tonight,\" he says. \"Not like that.\"",
+                "alone": "You get it on the turntable, but the needle skips into a groove that should not exist. Every speaker in the booth hums the Heartstone's note, the ON AIR light turns violet, and you pull the plug with shaking hands. \"Not tonight,\" you whisper. \"Not like that.\"",
                 "art": "A radio booth bathed in violet light, the on-air sign glowing purple, a DJ yanking a power cord as a needle skids across a spinning acetate",
                 "effects": {
                   "nerve": -1,
@@ -777,6 +781,7 @@
             },
             "success": {
               "text": "You sit and put your arm around her, and Barnaby, if he is with you, flops down on her other side with a sympathetic groan. Duchess leans in and howls, long and broken, right at the moon, and you let her, because dogs do not swallow anything. The frost slides off her fur like melting sleet, and the Heartstone dims half a shade, as if it has been answered.",
+              "alone": "You sit and put your arm around her, and she slumps against you with a long, sympathetic groan. Duchess leans in and howls, long and broken, right at the moon, and you let her, because dogs do not swallow anything. The frost slides off her fur like melting sleet, and the Heartstone dims half a shade, as if it has been answered.",
               "art": "A teenager sitting on frosty grass with an arm around an old golden retriever howling at the full moon, a basset hound leaning on her other side, violet frost melting from her fur, a dimming purple geode behind them",
               "effects": {
                 "nerve": 1,
@@ -888,6 +893,7 @@
             },
             "success": {
               "text": "You race up to the booth, hit the house lights and kill the feature mid-sob. Without the music squeezing feelings out of everybody, the goo slows, then stalls, glittering under the lights like a spilled milkshake, and the crowd files out into the lobby in an orderly line. Toby films every second of it.",
+              "alone": "You race up to the booth, hit the house lights and kill the feature mid-sob. Without the music squeezing feelings out of everybody, the goo slows, then stalls, glittering under the lights like a spilled milkshake, and the crowd files out into the lobby in an orderly line. Some kid with a camcorder in the lobby films every second of it.",
               "art": "A brightly lit movie theater with glittering violet goo stalled across the carpet like a spilled milkshake, an audience filing calmly out, a teenager in the projection booth window, a kid with a camcorder filming",
               "effects": {
                 "nerve": 1,
@@ -1013,6 +1019,7 @@
             },
             "success": {
               "text": "The whistle is a long violet crystal pipe growing out of the top of the roundabout lamppost. You shimmy up while Joey braces the ladder, stuff your flannel into its mouth and twist. The shriek chokes down to a wheeze, then silence, and the sleepers stop mid-step, blinking at lunch pails they cannot explain.",
+              "alone": "The whistle is a long violet crystal pipe growing out of the top of the roundabout lamppost. You shimmy up on your own, the cold iron biting your palms, stuff your flannel into its mouth and twist. The shriek chokes down to a wheeze, then silence, and the sleepers stop mid-step, blinking at lunch pails they cannot explain.",
               "art": "A teenager atop a lamppost stuffing a flannel shirt into a glowing violet crystal steam whistle at night, a friend bracing a ladder below, a line of sleepwalkers stopping and blinking in the street",
               "effects": {
                 "nerve": 1,

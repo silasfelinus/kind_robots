@@ -55,6 +55,7 @@
               },
               "success": {
                 "text": "Zelda lights up. \"Tule Marsh! Two weeks of night shoots. Herons, frogs so loud we had to redo every line, a pond that steamed like a teakettle in the cold. The monster was a stuntman in a rubber suit. The marsh was the real star.\" Her face falls. \"They paved it for the mall. I sat in my car and cried.\" She gives you a lobby card: the marsh in full color, alive.",
+                "alone": "The counter is unattended, but tucked inside the clamshell is a lobby card with a note on the back in red ink: Tule Marsh! Two weeks of night shoots, herons, frogs so loud we redid every line, a pond that steamed like a teakettle. The marsh was the real star. They paved it for the mall, and I sat in my car and cried. On the front: the marsh in full color, alive.",
                 "art": "An older glamorous woman behind a video store counter handing over a vintage lobby card showing a lush 1950s marsh with herons and a steaming pond",
                 "effects": {
                   "clues": ["bog-baby-movie"],
@@ -63,6 +64,7 @@
               },
               "failure": {
                 "text": "Zelda's on the phone with a distributor. You play the tape on the store monitor. The rubber monster on screen turns its head and looks right at you, and the picture fills with brown water that drips out of the bottom of the TV onto your sneakers.",
+                "alone": "Nobody's at the counter, so you play the tape on the store monitor yourself. The rubber monster on screen turns its head and looks right at you, and the picture fills with brown water that drips out of the bottom of the TV onto your sneakers.",
                 "art": "A store monitor showing a 1950s rubber swamp monster staring out of the screen, muddy water trickling from the bottom of the television onto a teenager's sneakers",
                 "effects": {
                   "nerve": -1,

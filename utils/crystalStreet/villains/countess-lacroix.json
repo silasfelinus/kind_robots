@@ -81,6 +81,7 @@
               },
               "success": {
                 "text": "Glory turns the guest book page and touches her own signature like an old photograph. \"I hosted her Thursday nights. She was the first person who ever paid me to be fabulous.\" Her voice goes quiet. \"Then one night, at her own rope, she looked at my crow's feet and said I was bad for the look. I bought this building to prove her wrong. I didn't know she was still under it.\"",
+                "alone": "Nobody's free to ask, but the guest book answers for itself: Gloria, age 34, hostess, Thursdays, signed in the same purple ink as every Glitter Box flyer. Beside it, in a sharp hand: Bad for the look. Crow's feet. Struck from the rope. Whoever bought this building years later was proving somebody wrong, and never knew that somebody was still under it.",
                 "art": "A drag queen in a sequined robe at a backstage vanity holding an old white leather guest book, touching a signature with a long painted nail, bittersweet expression, bulb lights glowing",
                 "effects": {
                   "clues": ["countess-lacroix-guestbook"],
@@ -89,6 +90,7 @@
               },
               "failure": {
                 "text": "Glory is gluing on lashes ten minutes to curtain and has no time for ghosts. \"Later, baby.\" As you leave, her vanity mirror fogs, and in the fog a woman in a white jumpsuit blows you a kiss with two very sharp teeth.",
+                "alone": "Backstage is a stampede ten minutes to curtain, and nobody has time for ghosts. As you leave, a vanity mirror fogs, and in the fog a woman in a white jumpsuit blows you a kiss with two very sharp teeth.",
                 "art": "A fogged backstage vanity mirror showing a glamorous woman in a white jumpsuit blowing a kiss with tiny fangs, a drag queen gluing on lashes oblivious",
                 "effects": {
                   "dread": 1
@@ -1048,6 +1050,7 @@
           },
           "success": {
             "text": "You put Sal's scratched record on the turntable, Night Fever Forever, and this time you do not stop it. Onto the floor walk three people with gray in their hair and nothing to apologize for: Glory in full drag, Zelda in her best furs, Sal on his roller skates. \"Doreen,\" Zelda calls, \"your roots are showing, and you look marvelous.\" The Countess stares at them, her old friends, older and happier than she has ever let herself be. The needle reaches the scratch, and passes it.",
+            "alone": "You put Sal's scratched record on the turntable, Night Fever Forever, and this time you do not stop it. Onto the floor walk two people with gray in their hair and nothing to apologize for: Zelda in her best furs, Sal on his roller skates. \"Doreen,\" Zelda calls, \"your roots are showing, and you look marvelous.\" The Countess stares at them, her old friends, older and happier than she has ever let herself be. The needle reaches the scratch, and passes it.",
             "art": "Three joyful older people with gray hair dancing onto a disco floor, a drag queen in sequins, a former scream queen in furs and a silver-haired man on roller skates, holding their hands out to a stunned vampire diva, a record spinning past a scratch on a turntable",
             "effects": {
               "nerve": 2

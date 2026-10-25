@@ -766,6 +766,7 @@
             },
             "success": {
               "text": "You trap it under a pickle jar, and Bea arrives in her pajamas with a notebook and a magnifying glass. \"Wings made of lint,\" she reports. \"Body made of pennies, all from 1974 to 1983, the years Moonbeam Court was open.\" You let it go, and Bea underlines her notes three times.",
+              "alone": "You trap it under a pickle jar and fetch the monster notebook and a magnifying glass. Wings made of lint. Body made of pennies, all from 1974 to 1983, the years Moonbeam Court was open. You let it go, and underline your notes three times.",
               "art": "A young girl in pajamas peering through a magnifying glass at a pale green moth inside a pickle jar on a porch at night, a teenager holding a flashlight, an open notebook full of sketches",
               "effects": {
                 "nerve": 1,
@@ -948,6 +949,7 @@
             },
             "success": {
               "text": "Wade floors it across town, and you burst into the Halloween Ball in the middle of the costume conga, shouting that the kids are alone and the sky is full of moths. Parents in vampire capes and witch hats look at each other, then pile into the van, their station wagons and anything with wheels. The convoy roars down Crystal Street with every headlight blazing, and the swarm scatters like gray mist.",
+              "alone": "The keys are under the van's visor where they always are, and you lurch it across town in second gear and burst into the Halloween Ball in the middle of the costume conga, shouting that the kids are alone and the sky is full of moths. Parents in vampire capes and witch hats look at each other, then pile into the van, their station wagons and anything with wheels. The convoy roars down Crystal Street with every headlight blazing, and the swarm scatters like gray mist.",
               "art": "A convoy of station wagons and a battered van roaring down a suburban street at night with headlights blazing, parents in vampire capes and witch hats leaning out the windows, a swarm of moths scattering",
               "effects": {
                 "nerve": 1,

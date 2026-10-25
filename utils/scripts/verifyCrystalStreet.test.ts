@@ -47,6 +47,11 @@ import {
   resolve,
   villainById,
   successChance,
+  ARC_STEPS,
+  arcProgress,
+  isLoyal,
+  pendingOutcome,
+  reactionTo,
   type RunState,
 } from '../crystalStreet/rules'
 import {
@@ -166,6 +171,121 @@ for (const c of COMPANIONS)
     LOCATIONS.some((l) => l.id === c.location),
     `${c.id} can be met somewhere`,
   )
+
+// Companion arcs (conductor crystal-street t-008): every friend has three
+// hangouts and reactions; one hangout a day at their spot while in your crew;
+// finishing all three makes them Loyal, a finale bonus.
+for (const c of COMPANIONS) {
+  assert.equal(c.arc?.length, ARC_STEPS, `${c.id} has a three-step arc`)
+  assert.ok(
+    Object.keys(c.reactions ?? {}).length >= 2,
+    `${c.id} reacts to nightmares`,
+  )
+}
+{
+  const friend = COMPANIONS[0]!
+  const id = friend.id as (typeof COMPANION_IDS)[number]
+  let week: RunState = {
+    ...newRun({
+      seed: 'arc',
+      name: 'A',
+      pronouns: 'they/them',
+      archetype: 'jock',
+      villain: 'counselor-jess',
+    }),
+    crew: [id],
+    flags: [`recruit:${id}`],
+  }
+  const hangout = () =>
+    activitiesAt(week, friend.location as never).find(
+      (a) => a.kind === 'hangout',
+    )
+  const playHangout = () => {
+    const a = hangout()!
+    week = doActivity(week, friend.location as never, a)
+    assert.equal(week.current?.kind, 'arc')
+    week = resolve(choose(week, currentChoiceId(week)))
+  }
+  const currentChoiceId = (r: RunState) =>
+    friend.arc!.find((e) => e.id === r.current!.id)!.choices[0]!.id
+  assert.deepEqual(hangout(), { kind: 'hangout', companionId: id, step: 1 })
+  playHangout()
+  assert.equal(arcProgress(week, id), 1)
+  assert.equal(hangout(), undefined, 'one hangout a day')
+  for (let step = 2; step <= ARC_STEPS; step++) {
+    week = { ...week, day: week.day + 1, actions: 3 }
+    playHangout()
+  }
+  assert.ok(isLoyal(week, id))
+  assert.equal(hangout(), undefined, 'the story is finished')
+  const finale = villainById('counselor-jess')!.finale
+  const atFinale: RunState = {
+    ...week,
+    phase: 'night',
+    current: { id: finale.id, kind: 'finale' },
+  }
+  const choice = finale.choices[0]!
+  assert.equal(
+    modifierFor(atFinale, choice).modifier -
+      modifierFor({ ...atFinale, flags: [`recruit:${id}`] }, choice).modifier,
+    1,
+    'a Loyal friend adds +1 at the finale',
+  )
+  assert.ok(
+    modifierFor(atFinale, choice).breakdown.some((b) => b.startsWith('Loyal')),
+  )
+  // Reactions show once the nightmare is revealed and a tag matches.
+  const tagged = COMPANIONS.find((c) =>
+    villainById('counselor-jess')!.tags.some((t) => c.reactions?.[t]),
+  )
+  if (tagged) assert.ok(reactionTo({ ...week, revealed: true }, tagged))
+  assert.equal(reactionTo({ ...week, revealed: false }, friend), null)
+}
+
+// An outcome that puts a bonus companion in the scene reads its alone text
+// when they're not in your crew.
+{
+  const owner = [
+    ...VILLAINS.flatMap((v) => [
+      ...v.signature,
+      v.finale,
+      ...v.clues.map((c) => c.encounter),
+    ]),
+    ...LOCATIONS.flatMap((l) => l.beats),
+    ...DECKS.flatMap((d) => d.encounters),
+  ].find((e) => e.choices.some((c) => c.bonus?.companion && c.success.alone))!
+  const choice = owner.choices.find(
+    (c) => c.bonus?.companion && c.success.alone,
+  )!
+  const base: RunState = {
+    ...newRun({
+      seed: 'alone',
+      name: 'A',
+      pronouns: 'they/them',
+      archetype: 'jock',
+      villain: 'counselor-jess',
+    }),
+    current: { id: owner.id, kind: 'beat' },
+  }
+  const roll = {
+    dice: [6, 6],
+    modifier: 0,
+    total: 12,
+    target: choice.target,
+    success: true,
+    breakdown: [],
+  }
+  const pending = { choiceId: choice.id, roll, rerolled: false, shielded: null }
+  assert.equal(pendingOutcome({ ...base, pending })!.text, choice.success.alone)
+  assert.equal(
+    pendingOutcome({
+      ...base,
+      crew: [choice.bonus!.companion as (typeof COMPANION_IDS)[number]],
+      pending,
+    })!.text,
+    choice.success.text,
+  )
+}
 
 // A chosen avatar rides along with the week; an unknown one is dropped.
 assert.equal(

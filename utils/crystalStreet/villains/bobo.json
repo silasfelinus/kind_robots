@@ -216,6 +216,7 @@
               },
               "success": {
                 "text": "Kev knows Trevor has been hunting a rare carburetor gasket for a month. One gasket later, the shoebox is open: the balloon dog, the honking card, and Trevor's seven-year-old handwriting on a note he never mailed. Dear Bobo, I'm sorry they laughed at you. I laughed WITH you. Love, Trevor.",
+                "alone": "A little asking around tells you Trevor has been hunting a rare carburetor gasket for a month. One gasket later, the shoebox is open: the balloon dog, the honking card, and Trevor's seven-year-old handwriting on a note he never mailed. Dear Bobo, I'm sorry they laughed at you. I laughed WITH you. Love, Trevor.",
                 "art": "A paperboy handing over a small engine part in a garage while a teenage boy opens a shoebox to reveal a child's handwritten apology note and a deflated balloon dog",
                 "effects": {
                   "clues": ["bobo-birthday-boy"],
@@ -922,6 +923,7 @@
             },
             "success": {
               "text": "Mix puts you on the air: \"Glimmer Falls, if Bobo ever made your birthday, call in.\" The switchboard lights up like a pinball machine: a mechanic who still has the balloon dinosaur's photo, a nurse whose sick little brother got a free show. Each story floats up to the catwalk on the tower speakers, and the balloons sink gently, setting kids down on the lawns one bunch at a time. At the top of the tower, Bobo sits down with his face in his gloves, listening.",
+              "alone": "You talk your way onto the air: \"Glimmer Falls, if Bobo ever made your birthday, call in.\" The switchboard lights up like a pinball machine: a mechanic who still has the balloon dinosaur's photo, a nurse whose sick little brother got a free show. Each story floats up to the catwalk on the tower speakers, and the balloons sink gently, setting kids down on the lawns one bunch at a time. At the top of the tower, Bobo sits down with his face in his gloves, listening.",
               "art": "A radio booth switchboard blazing with lit call buttons, a teen DJ and a teenager at the microphone, children drifting gently down onto lawns on sinking balloons, a clown seated on a water tower catwalk with his face in his gloves",
               "effects": {
                 "nerve": 1,
@@ -931,6 +933,7 @@
             },
             "failure": {
               "text": "The phones stay dark. One caller gets through, and all he wants is to chant \"Fall down, Bobo\" before Mix cuts him off. Up on the catwalk the honking gets louder, and another bunch of balloons lifts off from Crystal Street.",
+              "alone": "The phones stay dark. One caller gets through, and all he wants is to chant \"Fall down, Bobo\" before you fumble the dump button. Up on the catwalk the honking gets louder, and another bunch of balloons lifts off from Crystal Street.",
               "art": "A dark radio switchboard with one blinking call button, a teen DJ wincing at the microphone, another bunch of balloons lifting a child off a suburban street toward a moonlit water tower",
               "effects": {
                 "nerve": -1,
@@ -980,6 +983,7 @@
             },
             "success": {
               "text": "Joey backs the tow truck up to the tower, and you run across the lawns gathering trailing strings like kite tails and hooking them to the winch. The cable hums. One by one, slow and steady, the floating kids are reeled down to the grass, giggling and dizzy. Up top, Bobo watches his whole sky clear out, and honks once, sadly.",
+              "alone": "The junkyard tow truck is parked by the tower with its winch unlocked, and you run across the lawns gathering trailing strings like kite tails and hooking them on. The cable hums. One by one, slow and steady, the floating kids are reeled down to the grass, giggling and dizzy. Up top, Bobo watches his whole sky clear out, and honks once, sadly.",
               "art": "A rusty tow truck at the base of a water tower at night, its winch reeling in dozens of balloon strings, children in pajamas drifting down to the grass, a teen mechanic working the levers",
               "effects": {
                 "nerve": 1,
@@ -988,6 +992,7 @@
             },
             "failure": {
               "text": "The winch reels in, the balloons pull up, and the tow truck's front wheels lift off the asphalt. Joey says a word his grandmother would not approve of. The truck bobs in the air until sunrise, with both of you sitting on its roof.",
+              "alone": "The winch reels in, the balloons pull up, and the tow truck's front wheels lift off the asphalt. You say a word your grandmother would not approve of. The truck bobs in the air until sunrise, with you sitting on its roof.",
               "art": "A rusty tow truck floating off the ground beneath an enormous cluster of balloons at dawn, two teenagers sitting glumly on its roof, a water tower rising behind them",
               "effects": {
                 "nerve": -1,
@@ -1042,6 +1047,7 @@
           },
           "success": {
             "text": "You lay the peel. Glory distracts him with a high kick. Bobo steps, slips, and goes down in the greatest pratfall the food court has ever seen, and the giant balloons pop in sympathy. The circus folds up like a cheap pop-up tent and is gone.",
+            "alone": "You lay the peel and distract him with the highest kick you can manage. Bobo steps, slips, and goes down in the greatest pratfall the food court has ever seen, and the giant balloons pop in sympathy. The circus folds up like a cheap pop-up tent and is gone.",
             "art": "A giant clown slipping on a banana peel in a mall food court while a drag queen high-kicks beside him, car-sized balloon animals popping in the background",
             "effects": {
               "nerve": 1

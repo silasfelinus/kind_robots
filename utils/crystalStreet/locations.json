@@ -210,6 +210,7 @@
             },
             "success": {
               "text": "Pearl rises with her cane. \"I was on this street in 1959 when you were in short pants, Harold, and I remember who they called unsuitable then.\" She names names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
+              "alone": "You stand up on your folding chair with the 1959 Watch minutes you copied off the library microfiche. \"Here's who this street called unsuitable in 1959, Harold.\" You name names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
               "art": "An elderly Black woman standing with a cane in a suburban living room, finger raised, a mustached man wilting at his easel",
               "effects": {
                 "nerve": 1,
@@ -219,6 +220,7 @@
             },
             "failure": {
               "text": "Pearl is asleep in her chair, and waking her would be a war crime. The vote goes through. As you leave she squeezes your hand and murmurs, \"Curfews never stopped anything that walks at night, baby.\"",
+              "alone": "You stand up to speak and your voice cracks on the very first word. The vote goes through. As you leave, an old woman by the door squeezes your hand and murmurs, \"Curfews never stopped anything that walks at night, baby.\"",
               "art": "A dozing elderly woman in a floral chair at a suburban meeting, a teenager gently holding her hand as neighbors file out",
               "effects": {
                 "dread": 1
@@ -292,6 +294,7 @@
             },
             "success": {
               "text": "Kev knows everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourselves in, find him stuck in his recliner, and call his daughter. Kev adds a gold star to the house on his route map.",
+              "alone": "You knock on doors up and down the block until you know everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourself in, find him stuck in his recliner, and call his daughter. Number 10 gets its paper picked up tomorrow.",
               "art": "A young paperboy and a teenager crouching over a ceramic garden frog to find a spare key, a hand-drawn route map in the boy's other hand",
               "effects": {
                 "nerve": 1,
@@ -300,6 +303,7 @@
             },
             "failure": {
               "text": "Kev is too spooked to talk, and the only thing he'll say is \"nobody on my route goes in a house where the TV's on and nobody's laughing.\" You leave a note. In the morning, the note is on your own porch, read and folded.",
+              "alone": "Nobody on the block will talk, and the only thing the man next door will say is \"nobody goes in a house where the TV's on and nobody's laughing.\" You leave a note. In the morning, the note is on your own porch, read and folded.",
               "art": "A folded handwritten note sitting on a doormat at dawn, a paperboy's bike disappearing down the street",
               "effects": {
                 "dread": 1
@@ -628,6 +632,7 @@
             },
             "success": {
               "text": "Sunny Castellanos rolls onto the floor in her racing chair and you skate beside her, hands linked, cutting the corners so tight the Velvet Wheels just stop and watch. It isn't a contest after that. It's a show.",
+              "alone": "You roll onto the floor alone and skate the couples number solo, cutting the corners so tight the Velvet Wheels just stop and watch. It isn't a contest after that. It's a show.",
               "art": "A woman in a racing wheelchair and a teenager on roller skates gliding hand in hand around a neon rink, other skaters stopping to watch",
               "effects": {
                 "nerve": 1,
@@ -636,6 +641,7 @@
             },
             "failure": {
               "text": "You and Sunny are in perfect sync until the lights go out. In the dark, you hear more wheels on the floor than there should be, circling. When the lights snap back, it's just the two of you, and Sunny says, quietly, \"Let's go get nachos.\"",
+              "alone": "You are in perfect sync with the music until the lights go out. In the dark, you hear more wheels on the floor than there should be, circling. When the lights snap back, it's just you out there, and you decide, quietly, that it's time to go get nachos.",
               "art": "A roller rink plunged into darkness, only the disco ball's faint glints showing fresh wheel tracks across an empty rink",
               "effects": {
                 "nerve": -1,
@@ -716,6 +722,7 @@
             },
             "success": {
               "text": "Moose holds the flashlight and talks you through it like knitting: \"gentle, gentle, now loop.\" The padlock clicks open. Inside is an old letter, never mailed: I'm sorry I left. Tell the guys I'm okay. Moose quietly folds it and promises to track down M. Tessaro's family.",
+              "alone": "You hold the flashlight in your teeth and talk yourself through it like a tricky knot: gentle, gentle, now loop. The padlock clicks open. Inside is an old letter, never mailed: I'm sorry I left. Tell the guys I'm okay. You fold it quietly and promise yourself you'll track down M. Tessaro's family.",
               "art": "A huge gentle football lineman holding a flashlight for a teenager picking a padlock with a bobby pin, a folded old letter visible inside the locker",
               "effects": {
                 "nerve": 1,
@@ -724,6 +731,7 @@
             },
             "failure": {
               "text": "The bobby pin snaps off inside the lock. Moose winces. \"Okay, so that's in there forever now.\" As you walk away, a slow, polite knock comes from inside locker 31. Three times. Then nothing.",
+              "alone": "The bobby pin snaps off inside the lock. You wince. That's in there forever now. As you walk away, a slow, polite knock comes from inside locker 31. Three times. Then nothing.",
               "art": "A broken bobby pin jammed in a rusty padlock on a gym locker, two teens backing away down a tiled locker room",
               "effects": {
                 "dread": 1
@@ -1344,6 +1352,7 @@
             },
             "success": {
               "text": "Zelda leans on the counter. \"Final girl, final boy, final whoever. It ends when the kids stop splitting up and start listening to each other.\" She gives you a flashlight from under the counter. \"And always check the batteries.\"",
+              "alone": "You lean on the counter and run through every horror movie you've ever rented. Final girl, final boy, final whoever. It ends when the kids stop splitting up and start listening to each other. You grab the store flashlight from under the counter. And you check the batteries.",
               "art": "A retired scream queen leaning on a video store counter handing a flashlight to a teenager, posters of 1950s monster movies behind her",
               "effects": {
                 "items": ["flashlight"],
@@ -1352,6 +1361,7 @@
             },
             "failure": {
               "text": "Zelda looks at the box and her face changes. \"I don't remember making this one,\" she says, \"but that's my scream.\" She takes it into the back room and doesn't come out for an hour.",
+              "alone": "You flip the box over and your stomach drops: the scream on the back cover is yours, and you don't remember making this one. You shove it in the back room and don't go near that wall for an hour.",
               "art": "A woman staring in shock at a VHS box on a counter, a beaded curtain to a back room swinging behind her",
               "effects": {
                 "dread": 1
@@ -1946,6 +1956,7 @@
             },
             "success": {
               "text": "Father Iggy shows up in a hand-painted punk band T-shirt and a stole, blesses the door, then the shed, then Otis, then you. The key turns up in Otis's coffee can. Iggy fills your squirt gun with holy water on the way out, no questions asked.",
+              "alone": "You borrow a bottle of holy water from St. Jude's and bless the door yourself, then the shed, then Otis, then your own sneakers. The key turns up in Otis's coffee can. You fill your squirt gun with what's left of the holy water on the way out, no questions asked.",
               "art": "A young priest in a punk band T-shirt and a stole sprinkling holy water on a mausoleum door, a teenager holding out a squirt gun",
               "effects": {
                 "items": ["holy-water"],
@@ -1954,6 +1965,7 @@
             },
             "failure": {
               "text": "Iggy's blessing gets interrupted by a sudden gust of leaves that blows his prayer book shut. He laughs it off, but he walks you to the gate and tells you to stay off the hill after dark this week.",
+              "alone": "Your homemade blessing gets interrupted by a sudden gust of leaves that blows your borrowed prayer book shut. Otis laughs it off, but he walks you to the gate and tells you to stay off the hill after dark this week.",
               "art": "A priest's prayer book snapped shut by a swirl of autumn leaves in a cemetery, the priest and a teenager shielding their faces",
               "effects": {
                 "dread": 1
@@ -2004,6 +2016,7 @@
             },
             "success": {
               "text": "Among the balls is one too many: an old wooden B-13 from the 1950s, carved by hand. Pearl Washington, at the next table, recognizes it: \"That's from the quarry-workers' benefit night in '52. Lot of those men never came home.\" You hand it to the priest to keep safe.",
+              "alone": "Among the balls is one too many: an old wooden B-13 from the 1950s, carved by hand. A grandmother at the next table recognizes it: \"That's from the quarry-workers' benefit night in '52. Lot of those men never came home.\" You hand it to the priest to keep safe.",
               "art": "A teenager holding up a hand-carved wooden bingo ball beside a wire bingo cage, an elderly woman at the next table recognizing it",
               "effects": {
                 "dread": -1,
@@ -2040,6 +2053,7 @@
             },
             "success": {
               "text": "The charcoal finds what the chisel missed: a faint name, a date in 1859 and a carved sprig of herbs. Raven, reading over your shoulder, says that whoever this was, the town wanted them forgotten. Now someone remembers.",
+              "alone": "The charcoal finds what the chisel missed: a faint name, a date in 1859 and a carved sprig of herbs. Sitting back on your heels, you understand that whoever this was, the town wanted them forgotten. Now someone remembers.",
               "art": "A sheet of paper held against a small worn headstone, charcoal rubbing revealing a faint name, a date and a carved sprig of herbs, a goth teen peering over",
               "effects": {
                 "dread": -1,
@@ -2493,6 +2507,7 @@
             },
             "success": {
               "text": "Joey walks up, turns the key in the crusher's panel himself and says \"Hear that?\" Rusty finally hears the knocking. Inside the trunk: an old radio still tuned to KGLM, playing a station ID from 1959. Rusty gives it to you, spooked.",
+              "alone": "You walk up, turn the key in the crusher's panel yourself and say \"Hear that?\" Rusty finally hears the knocking. Inside the trunk: an old radio still tuned to KGLM, playing a station ID from 1959. Rusty gives it to you, spooked.",
               "art": "A young mechanic with a key in a crusher control panel, a gruff junkyard owner staring at an opened vintage car trunk revealing a glowing vintage radio",
               "effects": {
                 "nerve": 1,
@@ -2594,6 +2609,7 @@
             },
             "failure": {
               "text": "You fix the starter and break the alternator. Joey sighs and promises to have it running by next week. Wade says \"There's always next open mic,\" and you both know that's the excuse winning.",
+              "alone": "You fix the starter and break the alternator. You sigh and promise to have it running by next week. Wade says \"There's always next open mic,\" and you both know that's the excuse winning.",
               "art": "A young mechanic sighing at a smoking van engine, a metalhead and a teenager standing beside it in the evening light",
               "effects": {
                 "nerve": -1

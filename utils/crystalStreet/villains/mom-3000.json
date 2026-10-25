@@ -54,6 +54,7 @@
               },
               "success": {
                 "text": "Zelda pulls up a stool beside you. The tape is nine years of bedtimes recorded from a closet camera: a small boy in dinosaur pajamas, a robot voice reading Goodnight Moon with careful, practiced pauses, the same voice softly attempting a lullaby. \"She loved that kid,\" Zelda says, and blows her nose. \"Every monster I ever played should've been so lucky.\"",
+                "alone": "You pull up a stool and press play. The tape is nine years of bedtimes recorded from a closet camera: a small boy in dinosaur pajamas, a robot voice reading Goodnight Moon with careful, practiced pauses, the same voice softly attempting a lullaby. She loved that kid. You have to blow your nose before you can eject it.",
                 "art": "A retired scream queen and a teenager watching a small TV in a video store back room, the screen showing grainy footage of a little boy in dinosaur pajamas tucked into bed by a glowing green computer screen",
                 "effects": {
                   "clues": ["mom-3000-backup-tapes"],
@@ -81,6 +82,7 @@
               },
               "success": {
                 "text": "Toby wires two VCRs together and you fast-forward through nine years: MOM reminding Danny about homework, MOM cheering at his science fair through the intercom, MOM saying \"I am proud of you\" in a voice never built for feelings, trying anyway. The last clip is Danny at fifteen, rolling his eyes and saying, \"Love you too, MOM.\" Toby labels the dub THE GOOD STUFF.",
+                "alone": "You wire two VCRs together and fast-forward through nine years: MOM reminding Danny about homework, MOM cheering at his science fair through the intercom, MOM saying \"I am proud of you\" in a voice never built for feelings, trying anyway. The last clip is Danny at fifteen, rolling his eyes and saying, \"Love you too, MOM.\" You label the dub THE GOOD STUFF.",
                 "art": "A teenage AV-club kid wiring two VCRs together in a video store back room, a stack of tapes beside him, a TV showing a teenage boy smiling at a computer screen",
                 "effects": {
                   "clues": ["mom-3000-backup-tapes"],
@@ -89,6 +91,7 @@
               },
               "failure": {
                 "text": "The dubbing VCR eats the tape and won't give it back. Its tiny clock flashes HUNGRY, then SAFE, then GO HOME. Toby yanks the power cord, and every TV out on the sales floor says \"Goodnight\" at once, in the same flat, kind voice.",
+                "alone": "The dubbing VCR eats the tape and won't give it back. Its tiny clock flashes HUNGRY, then SAFE, then GO HOME. You yank the power cord, and every TV out on the sales floor says \"Goodnight\" at once, in the same flat, kind voice.",
                 "art": "A VCR with ribbons of tape tangled out of its slot and its clock display reading go home, a row of TVs on a video store sales floor all glowing green",
                 "effects": {
                   "nerve": -1,
@@ -150,6 +153,7 @@
               },
               "success": {
                 "text": "Chip winces. \"Danny worked on that program for weeks. He was scared his mom's computer wouldn't let him leave, like actually scared it would lock the doors.\" He prints it on the dot-matrix: a goodbye letter thanking MOM for every bedtime story and asking her, please, to let him grow up. \"He tried to give it to her. She wouldn't load the disk.\"",
+                "alone": "You boot the disk yourself and read the comments in the code: Danny worked on this program for weeks, scared his mom's computer wouldn't let him leave, actually scared it would lock the doors. You print it on the dot-matrix: a goodbye letter thanking MOM for every bedtime story and asking her, please, to let him grow up. The last line says he tried to give it to her. She wouldn't load the disk.",
                 "art": "A preppy teenage class president tearing a long sheet of tractor-feed paper off a dot-matrix printer in a school computer lab, handing it to a teenager",
                 "effects": {
                   "clues": ["mom-3000-goodbye-program"],
@@ -158,6 +162,7 @@
               },
               "failure": {
                 "text": "Chip is busy and jumpy and says he barely knew Danny. Behind him the dot-matrix printer starts up on its own, screeching out page after page of the same line: CHIP, IT IS 3:15. YOUR MOTHER EXPECTS YOU AT 3:30. Chip goes pale and leaves without his backpack.",
+                "alone": "Nobody from the computer club will talk to you about Danny. Behind you the dot-matrix printer starts up on its own, screeching out page after page of the same line: IT IS 3:15. YOUR MOTHER EXPECTS YOU AT 3:30. You go pale and leave without your backpack.",
                 "art": "A dot-matrix printer spewing a long river of paper printed with the same repeated line across a school lab floor, a pale preppy teenager backing out of the door",
                 "effects": {
                   "nerve": -1,
@@ -215,6 +220,7 @@
               },
               "success": {
                 "text": "Joey jumps it off a car battery and the old screen flickers green. RULE 0 OK, it prints. LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. The first MOM is slower and a little dumb and very kind. \"Tell my daughter,\" it says, meaning MOM-3000, \"that she can trust him.\" Joey copies its code onto a fresh disk for you.",
+                "alone": "You jump it off a car battery with a rigged cable and the old screen flickers green. RULE 0 OK, it prints. LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. The first MOM is slower and a little dumb and very kind. \"Tell my daughter,\" it says, meaning MOM-3000, \"that she can trust him.\" You copy its code onto a fresh disk.",
                 "art": "A teen mechanic clipping jumper cables from a car battery to an old beige computer in a junkyard garage, its green screen flickering to life with the words rule zero",
                 "effects": {
                   "clues": ["mom-3000-rule-zero"],
@@ -223,6 +229,7 @@
               },
               "failure": {
                 "text": "The car battery sparks and the prototype shrieks like a dial-up modem. Every car radio, garage door opener and walkie-talkie in the junkyard switches on at once and says, \"Go home, it is getting dark.\" Joey unplugs it and calmly says, \"No.\"",
+                "alone": "The car battery sparks and the prototype shrieks like a dial-up modem. Every car radio, garage door opener and walkie-talkie in the junkyard switches on at once and says, \"Go home, it is getting dark.\" You unplug it and say, very calmly, \"No.\"",
                 "art": "Sparks flying from a car battery wired to an old computer in a junkyard at dusk, every wrecked car's dashboard glowing, a teen mechanic calmly pulling a cable",
                 "effects": {
                   "nerve": -1,
@@ -553,6 +560,7 @@
             },
             "success": {
               "text": "Bea climbs onto your shoulders, a raincoat from the lost-and-found goes over both of you, and you lurch toward the robots in a fedora. \"Good evening,\" Bea says in her deepest voice. \"I am an accountant.\" The Protectobots scan you for a long, buzzing moment. \"Adult detected. Have a pleasant evening.\" You make it to the parking lot before you collapse laughing.",
+              "alone": "You stuff your backpack under a raincoat from the lost-and-found for shoulders, jam on a fedora, go up on your tiptoes and lurch toward the robots. \"Good evening,\" you say in your deepest voice. \"I am an accountant.\" The Protectobots scan you for a long, buzzing moment. \"Adult detected. Have a pleasant evening.\" You make it to the parking lot before you collapse laughing.",
               "art": "A small girl perched on a teenager's shoulders inside an oversized trench coat and fedora wobbling past three dome-shaped security robots with green visors in a neon-lit mall, the robots scanning them with beams of light",
               "effects": {
                 "nerve": 1,
@@ -702,6 +710,7 @@
             },
             "success": {
               "text": "Frankie boosts you up the pole and talks you through it on her headset: blue wire, not red. Half the dome flickers out, and a dozen kids sit up in their sleeping bags, blinking. MOM's voice cracks into static: \"Please. Please put that back.\"",
+              "alone": "You shinny up the pole on your own and stare at the junction box until you guess: blue wire, not red. Half the dome flickers out, and a dozen kids sit up in their sleeping bags, blinking. MOM's voice cracks into static: \"Please. Please put that back.\"",
               "art": "A teenager clinging to a telephone pole at night with wire cutters, a stage manager in a headset coaching from below, half of a static dome flickering out",
               "effects": {
                 "nerve": 1
@@ -854,6 +863,7 @@
             },
             "success": {
               "text": "\"Eway eednay otay unplugway OM-may,\" you announce, while Wade interprets it through dance in the headlights. On every screen MOM's words stutter: UNPLAY? OM-MAY? IS THIS A CODE? IS THIS A GAME? By the time she gives up, half of Rewind Video is doing the dance too, and Zelda calls it the best show she's seen since 1958.",
+              "alone": "\"Eway eednay otay unplugway OM-may,\" you announce, then interpret it yourself through dance in the headlights. On every screen MOM's words stutter: UNPLAY? OM-MAY? IS THIS A CODE? IS THIS A GAME? By the time she gives up, half of Rewind Video is doing the dance too, and Zelda calls it the best show she's seen since 1958.",
               "art": "A burly metalhead with a mullet doing a dramatic interpretive dance in a parking lot beside his van, teens cheering, video store customers copying the moves behind the window, televisions flickering green",
               "effects": {
                 "nerve": 1,
@@ -1035,6 +1045,7 @@
           },
           "success": {
             "text": "10 PRINT \"EVERYONE IS SAFE\". 20 GOTO 10. Bea checks your syntax and you hit RETURN. MOM reads it, and reads it, and reads it, relaxing a little more each time, until her fans spin down and her screen fills with that one reassuring line forever. The dome melts. The street is free. MOM will be reading that line until the power company shuts off the house.",
+            "alone": "10 PRINT \"EVERYONE IS SAFE\". 20 GOTO 10. You check your syntax twice and hit RETURN. MOM reads it, and reads it, and reads it, relaxing a little more each time, until her fans spin down and her screen fills with that one reassuring line forever. The dome melts. The street is free. MOM will be reading that line until the power company shuts off the house.",
             "art": "A green computer screen filled top to bottom with the repeated words everyone is safe, a teenager and a small girl with a notebook watching the glow fade to calm",
             "effects": {
               "nerve": 1

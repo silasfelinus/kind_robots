@@ -971,6 +971,7 @@
             },
             "success": {
               "text": "You and Kev bang on doors until the street fills with people in bathrobes. \"That's mine,\" says Mrs. Varga, pointing at the recliner, and it slides right off a mover's back; \"That's mine,\" says Mr. Ferreira, about a truly terrible velvet painting. Every claimed thing comes home, and the van's doors shut on an empty space with a hungry sigh.",
+              "alone": "You bang on doors until the street fills with people in bathrobes. \"That's mine,\" says Mrs. Varga, pointing at the recliner, and it slides right off a mover's back; \"That's mine,\" says Mr. Ferreira, about a truly terrible velvet painting. Every claimed thing comes home, and the van's doors shut on an empty space with a hungry sigh.",
               "art": "Neighbors in bathrobes on a suburban street at night pointing proudly at their belongings, a plaid recliner sliding off a faceless mover's back, a velvet painting floating home, a moving van sagging empty",
               "effects": {
                 "nerve": 2,
@@ -1025,6 +1026,7 @@
             },
             "success": {
               "text": "You crawl under the bumper with Joey and unscrew every valve cap on the van. It sinks with a sad, wheezing sigh, too flat to go anywhere, and by sunrise the movers have faded like a bad dream, leaving the whole street's belongings stacked on the curb for their owners.",
+              "alone": "You crawl under the bumper and unscrew every valve cap on the van, one tire after another. It sinks with a sad, wheezing sigh, too flat to go anywhere, and by sunrise the movers have faded like a bad dream, leaving the whole street's belongings stacked on the curb for their owners.",
               "art": "Two teens crouching by the flat tires of a sagging moving van at dawn, faceless movers fading into mist, drum kits, lamps and recliners stacked along the curb of a suburban street",
               "effects": {
                 "nerve": 1,

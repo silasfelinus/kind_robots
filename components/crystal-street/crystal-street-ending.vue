@@ -51,6 +51,9 @@
           <li class="cs-pill">Leads {{ run.clues.length }}/3</li>
           <li class="cs-pill">Night wins {{ run.wins }}/{{ BEST_WINS }}</li>
           <li class="cs-pill">Crew {{ run.crew.length }}</li>
+          <li v-if="loyal.length" class="cs-pill cs-pill-good">
+            Loyal: {{ loyal.join(', ') }}
+          </li>
           <li class="cs-pill cs-pill-good">Pasted into your scrapbook</li>
         </ul>
         <p v-if="hint" class="text-sm opacity-80">{{ hint }}</p>
@@ -82,7 +85,10 @@ import {
   BEST_WINS,
   DAY_NAMES,
   TIER_LABELS,
+  companionById,
   endingOf,
+  isLoyal,
+  shortName,
   specialEndingOf,
   villainOf,
 } from '~/utils/crystalStreet/rules'
@@ -109,4 +115,11 @@ const hint = computed(() => {
     return `You understood the nightmare. Win ${BEST_WINS} night rolls in a week and reach its heart for the Best ending.`
   return 'You had everything you needed. Reach for its heart on Halloween.'
 })
+const loyal = computed(() =>
+  run.value
+    ? run.value.crew
+        .filter((id) => isLoyal(run.value!, id))
+        .map((id) => shortName(companionById(id)?.name ?? ''))
+    : [],
+)
 </script>

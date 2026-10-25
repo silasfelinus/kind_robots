@@ -96,6 +96,11 @@ function choice(p: Problems, where: string, c: Choice): void {
     text(p, `${where}.${side}.text`, o.text, 60)
     art(p, `${where}.${side}.art`, o.art, 30)
     effects(p, `${where}.${side}.effects`, o.effects)
+    if (o.alone !== undefined) {
+      text(p, `${where}.${side}.alone`, o.alone, 60)
+      if (!c.bonus?.companion)
+        p.push(`${where}.${side}.alone: only for a companion bonus choice`)
+    }
   }
   if (c.success && c.failure && c.success.text === c.failure.text)
     p.push(`${where}: success and failure share text`)
@@ -265,6 +270,19 @@ export function validateCompanion(p: Problems, c: Companion): void {
     )
   )
     p.push(`${w}.meet: a success must carry flag recruit:${c.id}`)
+  if (c.arc !== undefined) {
+    if (!Array.isArray(c.arc) || c.arc.length !== 3)
+      p.push(`${w}.arc: exactly 3 hangouts`)
+    ;(c.arc ?? []).forEach((e, i) => {
+      validateEncounter(p, `${w}.arc[${i}]`, e)
+      if (!e?.id?.startsWith(`${c.id}-arc-`))
+        p.push(`${w}.arc[${i}]: id must start with ${c.id}-arc-`)
+    })
+  }
+  for (const [tag, line] of Object.entries(c.reactions ?? {})) {
+    if (!has(TAGS, tag)) p.push(`${w}.reactions: unknown tag ${tag}`)
+    text(p, `${w}.reactions.${tag}`, line, 20)
+  }
 }
 
 export function validateLocation(p: Problems, l: Location): void {

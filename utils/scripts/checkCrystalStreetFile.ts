@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
-import { ART_STYLE, villainById } from '../crystalStreet/rules'
+import { ART_STYLE, companionById, villainById } from '../crystalStreet/rules'
 import {
   duplicateIds,
   validateCompanion,
@@ -15,7 +15,7 @@ import type { Choice, Encounter } from '../crystalStreet/types'
 const [kind, path, villainId] = process.argv.slice(2)
 if (!kind || !path) {
   console.error(
-    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|locations|decks|items|encounters> <file.json> | edges <file.json> <villain-id>',
+    'usage: npx tsx utils/scripts/checkCrystalStreetFile.ts <villains|companions|arcs|locations|decks|items|encounters> <file.json> | edges <file.json> <villain-id>',
   )
   process.exit(2)
 }
@@ -76,7 +76,27 @@ for (const entry of data) {
     )
   } else if (kind === 'companions') {
     validateCompanion(problems, entry)
-    encounters.push(entry.meet)
+    encounters.push(entry.meet, ...(entry.arc ?? []))
+  } else if (kind === 'arcs') {
+    // Drafted arcs and reactions ({ id, arc, reactions }) checked as part of
+    // the companion they belong to (conductor crystal-street t-008).
+    const companion = companionById(entry.id)
+    if (!companion) problems.push(`unknown companion ${entry.id}`)
+    else {
+      validateCompanion(problems, {
+        ...companion,
+        arc: entry.arc,
+        reactions: entry.reactions,
+      })
+      encounters.push(...(entry.arc ?? []))
+      for (const e of (entry.arc ?? []) as Encounter[]) {
+        contract(`${e.id}`, e.art)
+        for (const c of e.choices ?? []) {
+          contract(`${e.id}/${c.id} success`, c.success?.art)
+          contract(`${e.id}/${c.id} failure`, c.failure?.art)
+        }
+      }
+    }
   } else if (kind === 'locations') {
     validateLocation(problems, entry)
     encounters.push(...entry.beats)

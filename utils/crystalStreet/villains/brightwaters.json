@@ -77,6 +77,7 @@
               },
               "success": {
                 "text": "Chip stares at his loafers. \"Kimmy said after dinner I'd never have to worry about being different again.\" He swallows. \"I almost went. I wanted to stop being scared.\" He hands you the invitation. On the back, in green ink: First the strange ones, then everyone.",
+                "alone": "Under a stack of proofs on the yearbook desk you find a Brightwater dinner invitation with a note clipped to it in a class president's careful hand: Kimmy said after dinner I'd never have to worry about being different again. I almost went. I wanted to stop being scared. On the back of the invitation, in green ink: First the strange ones, then everyone.",
                 "art": "A preppy teen class president sitting on a hallway bench, holding out a pastel dinner invitation with green handwriting on the back, his face anxious and relieved",
                 "effects": {
                   "clues": ["brightwaters-retakes"],
@@ -85,6 +86,7 @@
               },
               "failure": {
                 "text": "Chip laughs too loud and says he is \"totally fine, totally normal.\" Then Kimmy Brightwater appears at his elbow, links her arm through his, and smiles at you without blinking until you walk away.",
+                "alone": "The yearbook office is empty except for the hum of the light table. Then Kimmy Brightwater appears in the doorway, tilts her head, and smiles at you without blinking until you walk away.",
                 "art": "A smiling blond girl linking arms with a nervous preppy boy in a school hallway, staring unblinking at the viewer",
                 "effects": {
                   "nerve": -1,
@@ -388,6 +390,7 @@
             },
             "success": {
               "text": "You do the robot, the worm, and something Raven calls the Banshee Waltz. Around the edges of the party, the real people who have not been replaced start clapping, then whooping. Three of the polo shirts falter, their smiles slipping, and one of them says, in a small, real voice, \"Wait, I used to dance like that.\"",
+              "alone": "You do the robot, the worm, and something you invent on the spot and name the Banshee Waltz. Around the edges of the party, the real people who have not been replaced start clapping, then whooping. Three of the polo shirts falter, their smiles slipping, and one of them says, in a small, real voice, \"Wait, I used to dance like that.\"",
               "art": "A teenager doing an outrageous dance on a picnic table beside a goth in velvet spinning dramatically, real neighbors cheering while three pastel-clad figures falter",
               "effects": {
                 "nerve": 1,
@@ -452,6 +455,7 @@
             },
             "success": {
               "text": "Truth: Raven once held a funeral for a mushroom. Dare: Priya sings the entire Bill of Rights in a Muppet voice. By the time somebody confesses they put ketchup on their Froot Rings, everyone is shrieking with laughter and fully awake, and the pods under the sleeping bags are quivering in confusion. One of them pops like a soap bubble.",
+              "alone": "Truth: you once held a funeral for a mushroom. Dare: Priya sings the entire Bill of Rights in a Muppet voice. By the time somebody confesses they put ketchup on their Froot Rings, everyone is shrieking with laughter and fully awake, and the pods under the sleeping bags are quivering in confusion. One of them pops like a soap bubble.",
               "art": "Teenagers laughing hysterically in a circle of sleeping bags in a basement at night, a goth teen in velvet gesturing dramatically, a green pod popping into a puff of glitter",
               "effects": {
                 "nerve": 1,

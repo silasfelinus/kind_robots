@@ -216,6 +216,7 @@
               },
               "success": {
                 "text": "Mix leans into the mic. \"If you were at the Spring Fling in '66, the line is open.\" At 2:14 a.m. an old man calls in: Smokey Lamarr, who spun records that night. \"She came to the booth with a card. Wanted one song for the queen's dance. They wouldn't let me play it.\" His voice cracks. \"Card's still in the cabinet, second drawer. I put it back myself.\"",
+                "alone": "The overnight DJ is out on a smoke break, so you lean into the mic yourself. \"If you were at the Spring Fling in '66, the line is open.\" At 2:14 a.m. an old man calls in: Smokey Lamarr, who spun records that night. \"She came to the booth with a card. Wanted one song for the queen's dance. They wouldn't let me play it.\" His voice cracks. \"Card's still in the cabinet, second drawer. I put it back myself.\"",
                 "art": "A young DJ in headphones at a glowing 1980s radio console taking a call at 2 a.m., a teenager beside him reading a pink request card, the phone line light blinking",
                 "effects": {
                   "clues": ["spring-queen-dedication"],

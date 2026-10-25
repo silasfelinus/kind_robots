@@ -62,6 +62,11 @@ export type Outcome = {
   text: string
   art: string
   effects: Effects
+  /**
+   * Shown instead of ``text`` when the choice's bonus companion is not in
+   * your crew, for an outcome that would otherwise put them in the scene.
+   */
+  alone?: string
 }
 
 export type Choice = {
@@ -186,6 +191,13 @@ export type Companion = {
   poster: string
   emotions: Record<Emotion, { line: string; art: string }>
   meet: Encounter
+  /**
+   * Three hangouts across the week, one a day while they're in your crew;
+   * finishing all three makes them Loyal (conductor crystal-street t-008).
+   */
+  arc?: Encounter[]
+  /** What they say when the nightmare carries this tag. */
+  reactions?: Partial<Record<Tag, string>>
 }
 
 export type Location = {

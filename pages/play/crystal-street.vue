@@ -115,6 +115,7 @@
       <crystal-street-scrapbook v-else-if="view === 'scrapbook'" />
       <crystal-street-title
         v-else-if="view === 'title' || !run"
+        :shared="shared"
         @resume="view = 'stage'"
         @started="view = 'stage'"
         @open="openMenu"
@@ -207,6 +208,7 @@ import {
   MAX_NERVE,
   characterFor,
   remixLine,
+  sharedWeekFrom,
 } from '~/utils/crystalStreet/rules'
 import type { DialItem, MenuView } from '~/utils/crystalStreet/menu'
 
@@ -296,6 +298,9 @@ useHead({
 
 const run = computed(() => store.run)
 const villain = computed(() => store.villain)
+// A friend's shared week (?week=<seed>&nightmare=<id>), offered on the title.
+const route = useRoute()
+const shared = computed(() => sharedWeekFrom(route.query))
 const view = ref<View>('title')
 // Settings or credits opened from the in-game dial keep the game's header,
 // so Play is one tap away instead of Menu > title > Continue (roadmap #4143,

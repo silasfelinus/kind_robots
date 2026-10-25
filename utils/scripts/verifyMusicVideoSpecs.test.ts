@@ -23,6 +23,8 @@ assert.deepEqual(
     'zuzu-intro',
     'giant-skeleton',
     'zuzu-lair-ch1',
+    'crystal-street-theme',
+    'rainbow-princess-opening',
   ],
 )
 assert.equal(musicVideoSpecByKey('nope'), null)
@@ -134,7 +136,9 @@ for (const spec of MUSIC_VIDEO_SPECS) {
     )
   }
 }
-console.log('✅ both prepared specs import cleanly and pass the prompt rules')
+console.log(
+  '✅ every prepared spec imports cleanly and passes the prompt rules',
+)
 
 {
   const zuzu = specToDoc(musicVideoSpecByKey('zuzu-intro')!)
@@ -209,5 +213,47 @@ console.log('✅ the theme song stars the androids, with the logo twice')
   assert.ok(!('song' in doc), "the song is Silas's upload")
 }
 console.log('✅ the skeleton song cuts on its transcribed lines')
+
+// Silas, 2026-10-25: Terrors on Crystal Street and Rainbow Space Princess get
+// intro videos in the creator. Both reuse their reviewed stills and the song
+// already rendered for them, so Produce only animates the hero shots.
+{
+  const crystal = specToDoc(musicVideoSpecByKey('crystal-street-theme')!)
+  assert.equal(crystal.scenes.length, 14)
+  assert.ok(crystal.scenes.every((scene) => scene.image.source === 'gallery'))
+  assert.deepEqual(
+    [crystal.scenes[2]?.image.artImageId, crystal.scenes[9]?.image.artImageId],
+    [253090, 253091],
+    'the re-rendered Jess and Countess stills',
+  )
+  assert.equal(crystal.song?.artImageId, 253093)
+  assert.equal(crystal.song?.durationSec, crystal.settings.durationSec)
+  assert.equal(crystal.settings.bpm, crystal.song?.bpm)
+
+  const rainbow = specToDoc(musicVideoSpecByKey('rainbow-princess-opening')!)
+  assert.deepEqual(
+    rainbow.scenes.map((scene) => scene.image.artImageId),
+    [247738, 247809, 247752, 247644, 247649, 247803, 247844, 247740, 247508],
+    'the OPENING-CLIPS-1 stills, in shot order',
+  )
+  assert.equal(rainbow.settings.vocal, 'instrumental')
+  assert.equal(rainbow.song?.artImageId, 252834)
+  assert.equal(rainbow.song?.durationSec, rainbow.settings.durationSec)
+  // The four pilots power up back to back as the fast cuts in the middle.
+  assert.deepEqual(
+    rainbow.scenes.slice(3, 7).map((scene) => scene.motion.kind),
+    ['clip', 'clip', 'clip', 'clip'],
+  )
+  assert.ok(
+    rainbow.scenes
+      .slice(3, 7)
+      .every((scene) => scene.endSec - scene.startSec < 1.5),
+  )
+  // A spec without a finished song leaves the song to Produce.
+  assert.ok(!('song' in specToDoc(musicVideoSpecByKey('zuzu-intro')!)))
+}
+console.log(
+  '✅ the Crystal Street and Rainbow intros reuse their art and songs',
+)
 
 console.log('✅ verifyMusicVideoSpecs: all assertions passed')

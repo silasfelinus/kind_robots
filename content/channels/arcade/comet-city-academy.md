@@ -2,17 +2,17 @@
 contentType: tab
 channelKey: arcade
 tabKey: comet-city-academy
-label: Comet City Academy
-title: 'Comet City Academy: Final Exam'
-subtitle: Superhero school, difficult choices and one very dangerous prom
-summary: Superhero training, secrets and prom.
-description: 'An illustrated superhero-school playbook game. Choose a unique power set, command up to three classmates at a time during training simulations, encounter campus secrets, and survive an unforgettable Comet Ball. A playable first-week preview; the complete three-act term is still being developed.'
+label: Capes & Tassels
+title: 'Capes & Tassels: Prom of Doom'
+subtitle: Thirty days until graduation · A superhero romance and patrol playbook
+summary: Capes, crushes, patrols and prom.
+description: 'An illustrated superhero-school playbook game. Choose a unique power set, command up to three classmates at a time during training simulations, encounter campus secrets, and survive an unforgettable Comet Ball. A playable first-week simulation preview; the complete thirty-day story, romance and patrol game is in development.'
 icon: kind-icon:star
 image: /comet-city-academy/academy-stage.svg
 route: /play/comet-city-academy
 sort: 143
 tutorial:
-  title: Your first week at Comet City
+  title: Capes & Tassels · First-week preview
   image: /comet-city-academy/academy-stage.svg
   body: >-
     Start by choosing one of six power families. Hero or villain comes from your
@@ -27,4 +27,4 @@ tutorial:
     chapter, not the complete planned twenty-one-day adventure.
 ---
 
-A new year begins at Comet City Academy. The city has a long memory, and your classmates are already making plans for prom.
+Your final month at the academy begins in Comet City. This first-week preview introduces powers, patrol simulations and classmates; the complete thirty-day adventure remains in production.

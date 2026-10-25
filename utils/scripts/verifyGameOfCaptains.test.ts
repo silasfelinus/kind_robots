@@ -83,4 +83,7 @@ assert.ok(
   home.includes("route: '/play/game-of-captains'") &&
     home.includes("route: '/play/comet-city-academy'"),
 )
-console.log('Game of Captains seeded voyage and highlight contract: OK')
+assert.ok(page.includes('This Means Warp | Kind Robots'))
+assert.ok(tab.includes('title: This Means Warp'))
+assert.ok(home.includes("title: 'This Means Warp'"))
+console.log('This Means Warp seeded voyage and highlight contract: OK')

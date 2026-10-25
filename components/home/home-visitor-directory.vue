@@ -315,7 +315,7 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
-    title: 'Comet City Academy',
+    title: 'Capes & Tassels',
     tag: 'Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
@@ -323,7 +323,7 @@ const features = [
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {
-    title: 'Game of Captains',
+    title: 'This Means Warp',
     tag: 'Playable space adventure',
     category: 'play',
     route: '/play/game-of-captains',

@@ -301,7 +301,7 @@ export function startAcademy(power: PowerId, seed = Date.now()): AcademyRun {
     assignments: [],
     reports: [],
     scene:
-      'The first bell rings. You have seven days to earn the confidence of the city before the Comet Ball.',
+      'The first bell rings. A thirty-day final month begins with a strange week of field simulations.',
     log: [],
     ending: null,
   }
@@ -459,7 +459,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       ...run,
       phase: 'finale',
       scene:
-        'Prom night. The academy is dressed for a future that somebody intends to cancel.',
+        'At the end of week one, the faculty projects a prom-night disaster simulation. Real graduation is still weeks away.',
     }
   return {
     ...run,
@@ -483,18 +483,18 @@ export function finishAcademy(
     : run.influence <= -2
   const ending = protect
     ? earned
-      ? 'HERO OF COMET CITY'
-      : 'THE GRADUATE WHO STAYED'
+      ? 'HONORS IN THE PROM SIMULATION'
+      : 'THE RESCUE THAT COUNTED'
     : earned
-      ? 'THE UNWELCOME HEADMASTER'
-      : 'A KINGDOM OF PAPER CROWNS'
+      ? 'MASTER OF THE SIMULATION'
+      : 'AN UNEXPECTED REBOOT'
   const scene = protect
     ? earned
-      ? 'You refuse the easy sacrifice. Your classmates stand with you and the comet turns aside.'
-      : 'The last rescue costs your diploma, but the people you pulled from the ballroom remember.'
+      ? 'You refuse the easy sacrifice. Your classmates stand with you and the projected comet turns aside. The simulation records a lesson worth remembering.'
+      : 'Your simulated rescue costs the perfect training grade, but the classmates beside you remember who you protected.'
     : earned
-      ? 'You take command of the machine, save the city and write your own inconvenient rules.'
-      : 'You take the controls. The machine decides what control means. Your rival pulls you free.'
+      ? 'You hijack the simulated catastrophe engine and rewrite its rules. The dean files a very interesting report.'
+      : 'You seize the simulated controls. The machine decides what control means. Your rival pulls you free before the exercise can complete.'
   return {
     ...run,
     phase: 'ending',

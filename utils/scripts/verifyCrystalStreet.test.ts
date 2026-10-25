@@ -3,6 +3,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   ARCHETYPES,
+  GROCERY_COST,
+  HEAL_NERVE,
   EDGE_BONUS,
   NIGHT_DRAWS,
   actOf,
@@ -195,6 +197,36 @@ assert.ok(
   !activitiesAt(run, 'library').some((a) => a.kind === 'train'),
   'one training a day',
 )
+// The nurse and the market (Silas, 2026-10-24 PT): the clinic patches you up
+// and steadies a shaken friend; the market trades quarters for nerve and less
+// dread.
+{
+  let day = newRun({
+    seed: 'stops',
+    name: 'S',
+    pronouns: 'they/them',
+    archetype: 'jock',
+  })
+  day.nerve = 4
+  day.dread = 3
+  day.quarters = 5
+  const heal = activitiesAt(day, 'mercy-clinic').find((a) => a.kind === 'heal')
+  assert.ok(heal, 'the clinic offers the nurse')
+  day = doActivity(day, 'mercy-clinic', heal!)
+  assert.equal(day.nerve, 4 + HEAL_NERVE)
+  const food = activitiesAt(day, 'thriftee-mart').find(
+    (a) => a.kind === 'groceries',
+  )
+  assert.ok(food, 'the market sells comfort food')
+  day = doActivity(day, 'thriftee-mart', food!)
+  assert.equal(day.quarters, 5 - GROCERY_COST)
+  assert.equal(day.dread, 2)
+  day.quarters = 1
+  assert.ok(
+    !activitiesAt(day, 'thriftee-mart').some((a) => a.kind === 'groceries'),
+    'comfort food costs quarters',
+  )
+}
 run = nightfall(run)
 assert.equal(run.phase, 'night')
 assert.equal(run.revealed, true)

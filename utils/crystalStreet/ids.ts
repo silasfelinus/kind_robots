@@ -10,6 +10,8 @@ export const LOCATION_IDS = [
   'kglm-radio',
   'junkyard',
   'pawnshop',
+  'mercy-clinic',
+  'thriftee-mart',
 ] as const
 export type LocationId = (typeof LOCATION_IDS)[number]
 

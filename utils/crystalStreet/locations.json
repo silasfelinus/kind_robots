@@ -2887,5 +2887,644 @@
         ]
       }
     ]
+  },
+  {
+    "id": "mercy-clinic",
+    "name": "Mercy Valley Clinic",
+    "blurb": "A flat-roofed 1960s walk-in clinic with a lollipop jar on every counter, a waiting-room TV stuck on one channel, and Nurse Inez Duarte, who has patched up every kid on Crystal Street and believes every word they tell her about the monsters.",
+    "art": "A low flat-roofed 1960s walk-in clinic of pale green brick with a red cross painted above wide glass doors, potted marigolds and a wooden bench out front, a parked bicycle, a warm waiting room of orange plastic chairs glowing through big windows in bright afternoon sun",
+    "train": "nerve",
+    "x": 90,
+    "y": 40,
+    "beats": [
+      {
+        "id": "mercy-clinic-bike-crash",
+        "title": "Wipeout on Larkspur Hill",
+        "place": "The front walk, Mercy Valley Clinic",
+        "text": "A kid in a homemade daredevil cape comes off his BMX at the bottom of Larkspur Hill and skids right up to the clinic doors, howling. Nurse Inez is elbow-deep in a waiting room full of sniffles, so she points at you and then at the first-aid cart. \"You. Wash your hands. Go.\" Behind the kid, his bike is still rolling. Uphill. Pedals turning all by themselves.",
+        "art": "A small boy in a homemade star-spangled cape sitting on a clinic front walk with a scraped knee, a teenager kneeling beside him with a white first-aid kit, a brisk nurse with silver-streaked curls waving through glass doors, a riderless BMX bike rolling uphill behind them, sunny autumn afternoon",
+        "choices": [
+          {
+            "id": "patch-him-up",
+            "label": "Clean the scrape and bandage it like a pro",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 7,
+            "bonus": {
+              "item": "first-aid",
+              "amount": 2
+            },
+            "success": {
+              "text": "You keep your voice low and calm, dab on the stinging stuff, count to three and fib that it's two. One butterfly bandage, one grape lollipop. Inez checks your work over the top of her glasses and nods. \"Steady hands. Come back in a couple years and I'll put you on the schedule.\"",
+              "art": "A teenager pressing a bandage onto a grinning boy's knee on a sunny clinic step, a brisk nurse with silver-streaked curls and a teal cardigan peering approvingly over her glasses, a purple lollipop clutched in the boy's fist, his cape spread on the concrete",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "You get a good look at the scrape and your knees go to jelly. The kid ends up patting your back and telling you to breathe into a paper bag. Inez patches him up in forty seconds flat and hands the lollipop to you instead.",
+              "art": "A woozy teenager sitting on a clinic bench with their head between their knees breathing into a brown paper bag, a small caped boy patting their back, a nurse in a teal cardigan briskly bandaging the boy's knee in afternoon sun",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "stunt-show",
+            "label": "Distract him with a death-defying stunt special",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You narrate his crash like a TV daredevil special: the jump, the wind, the cape, the crowd on its feet. By the slow-motion replay he's laughing too hard to notice the bandage going on. His mom tips you a quarter for the show, and he asks for your autograph on his knee.",
+              "art": "A teenager gesturing like a TV announcer into a rolled-up magazine microphone, a caped boy laughing on a clinic step while a nurse in a teal cardigan wraps his knee, his mother in a windbreaker clapping, golden afternoon light",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Your dramatic reenactment ends with you tripping over the curb. Now there are two patients. Inez sighs the sigh of a woman who has seen this exact thing every Halloween since 1971 and hands you an ice pack shaped like a pumpkin.",
+              "art": "A teenager sprawled on a curb outside a green brick clinic holding a pumpkin-shaped ice pack to one elbow, a caped boy giggling on the step, a nurse with silver-streaked curls shaking her head with hands on her hips",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "chase-bike",
+            "label": "Chase the bike before it reaches the woods",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "You sprint up Larkspur Hill and grab the bike by the seat just as it noses into the pines. It shudders once, like a dog shaking off water, and goes still. There's a pinecone jammed in the spokes, and it's warm. You wheel it back down to a kid who now believes you can fly.",
+              "art": "A teenager sprinting uphill and grabbing the seat of a riderless BMX bike at the edge of a pine forest, autumn leaves whirling around them, a small green brick clinic far below at the bottom of the hill, bright afternoon sky",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The bike beats you to the treeline and rolls into the shade under the pines. You stop at the edge, lungs burning. Somewhere in the dark between the trunks, something rings the bike bell twice, politely. The kid's mom says she'll just buy him a new one.",
+              "art": "A winded teenager bent over at the edge of a shadowy pine forest, a BMX bike vanishing between dark tree trunks, a chrome bike bell glinting deep in the gloom, late afternoon sun slanting across the hillside",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mercy-clinic-candy-striper",
+        "title": "Candy Striper for a Day",
+        "place": "The short-stay ward, Mercy Valley Clinic",
+        "text": "Inez's volunteer called in sick, so you get the red-and-white striped smock and the gelatin cart. The three-bed short-stay ward holds a snoring mailman, a girl recovering from her tonsils with a stack of comic books, and Mrs. Esperanza Ochoa, 88, who says her late husband Teo visits every day at four. The ward clock says 3:58.",
+        "art": "A teenager in a red-and-white striped volunteer smock pushing a cart of wobbling lime gelatin cups into a small sunny clinic ward, an elderly woman in a crocheted shawl sitting up in bed watching the doorway, a round wall clock nearly at four",
+        "choices": [
+          {
+            "id": "sit-with-her",
+            "label": "Pull up a chair and ask Mrs. Ochoa about Teo",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "She tells you how Teo danced the mambo at the Grange Hall in 1949 and hummed while he fixed the sink. At four o'clock the curtain by her bed sways, and the room smells like aftershave and motor oil for exactly one minute. She squeezes your hand. \"See? He likes you.\"",
+              "art": "A teenager in a striped smock holding hands with a smiling elderly woman in a clinic bed, the curtain beside the bed swaying gently in golden afternoon light, a vase of carnations on the windowsill",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She tells you about Teo until four o'clock comes and goes with nothing at all. Her face falls. \"He's never late.\" You stay with her until the dinner trays come, and you can't stop glancing at the empty chair by the window.",
+              "art": "An elderly woman in a clinic bed gazing at a vacant vinyl chair beside a sunny window, a teenager in a striped smock sitting quietly at her bedside, a dinner tray with a covered plate cooling on the side table",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "visitor-log",
+            "label": "Check the front desk's visitor sheets",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Every day since September, at 4:00 on the dot, in shaky old-fashioned cursive: T. Ochoa, in and out. Inez reads it over your shoulder and doesn't blink. \"He signs in, he signs out, he wipes his feet. Best-behaved visitor I've got.\" She pours you a cup of coffee like you're staff.",
+              "art": "A teenager in a striped smock and a brisk nurse with silver-streaked curls leaning together over a clipboard at a clinic front desk, a long column of identical looping ink cursive, a mug of coffee steaming beside it",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You flip through the visitor sheets: T. Ochoa, every day at four, in the same shaky hand. Then you turn the last page and find tomorrow's date, already signed. The paper is cold as a freezer door. You put the clipboard down very carefully.",
+              "art": "A teenager in a striped smock holding a yellowed clipboard at arm's length over a clinic front desk, old visitor sheets fanned out across the counter, chilly blue light falling through the window blinds",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wait-in-hall",
+            "label": "Wait in the hallway at four and see who comes",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "At four on the dot the hall lights hum and dim. Unhurried footsteps you can't see pass you, pause, and something pats your shoulder the way an old man thanks a kid who held the door. From the ward comes Mrs. Ochoa's laugh, bright as a girl's at a dance.",
+              "art": "A teenager in a striped smock standing tall in a dim clinic hallway, overhead lights glowing low and amber, a trail of faint shining footprints on the polished linoleum leading toward a sunlit ward doorway",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The hall lights dim and you lose your nerve, ducking into the supply closet with the mops. Slow footsteps pass, and somebody hums a mambo. When you come out, there's a fresh red carnation on the gelatin cart, and you're pretty sure it's for you.",
+              "art": "A teenager in a striped smock peeking out of a cramped clinic supply closet full of mops into a dim amber hallway, a single red carnation resting on a cart of lime gelatin cups",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mercy-clinic-nose-jar",
+        "title": "The Nose Jar",
+        "place": "The exam room cabinet, Mercy Valley Clinic",
+        "text": "Mercy Valley turns twenty-five this week, and Inez wants a lobby display of the Nose Jar: every object she has pulled out of a Glimmer Falls kid's nose, ear or sneaker since 1961. Marbles. A tiny silver board-game top hat. Forty-one popcorn kernels. Each has a paper tag in Inez's tidy hand. One small purple pebble has a tag with your name on it, dated November 1, 1986.",
+        "art": "A big glass apothecary jar tipped open on a clinic exam table, colorful marbles, a tiny silver board-game top hat, popcorn kernels and a small glowing purple pebble spilling out, little paper tags on strings, a teenager leaning in close under a hanging lamp",
+        "choices": [
+          {
+            "id": "ask-opal",
+            "label": "Show Inez the tag and ask what it means",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "Inez turns the tag over and over. \"That's my handwriting. I didn't write it.\" Then she does the most comforting thing any adult has done all week: she believes you completely, writes her home phone number on your hand, and says, \"Whatever's coming, you come here first.\"",
+              "art": "A brisk nurse with silver-streaked curls and a teal cardigan holding a small paper tag up to the window light, her other hand pressing a ballpoint pen to a teenager's open palm, a glass jar of marbles on the exam table",
+              "effects": {
+                "nerve": 2,
+                "flags": ["inez-phone"]
+              }
+            },
+            "failure": {
+              "text": "Inez reads the tag, goes pale and tears it in half. \"Somebody's idea of a joke.\" She says it too fast. For the rest of the afternoon she keeps finding reasons to walk past the exam room, checking that you're still there.",
+              "art": "A pale nurse in a teal cardigan tearing a small paper tag in half beside a glass jar of marbles, a worried teenager sitting on a crinkly exam table, afternoon sun striping through window blinds",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "catalog-it",
+            "label": "Catalog the whole jar for the anniversary display",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You sort twenty-five years of nose treasures into a display a museum would envy, with a chart of the top objects by decade: marbles own the sixties, crayons the seventies. Inez is so delighted she hands you a tin of bandages and Bactine \"for the week you're about to have.\"",
+              "art": "A teenager arranging marbles, crayons, buttons and tiny toys in neat rows on a felt-lined tray at a clinic counter, a smiling nurse with silver-streaked curls holding out a white tin first-aid kit",
+              "effects": {
+                "nerve": 1,
+                "items": ["first-aid"]
+              }
+            },
+            "failure": {
+              "text": "You sort for an hour. Every time you look away, the purple pebble is back on top of the pile, no matter where you put it. Inez finds you staring at it, and without a word she locks the whole jar in the cabinet.",
+              "art": "A small purple pebble perched on top of a heap of marbles and buttons on a clinic counter, a teenager staring at it with narrowed eyes, a nurse in a teal cardigan reaching for a ring of cabinet keys",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pocket-pebble",
+            "label": "Slip the humming pebble into your pocket",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "It hums against your leg all afternoon like a purring cat. It goes quiet by the lollipop jar and buzzes by any window that faces Crystal Street. Somebody filed this pebble under your name, and you intend to find out why. Until then, it's a pretty good weirdness detector.",
+              "art": "A teenager walking down a clinic hallway with a faint violet glow shining through their jeans pocket, a glass lollipop jar on the counter beside them, a sunny window looking out on a suburban cul-de-sac",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                },
+                "flags": ["humming-pebble"]
+              }
+            },
+            "failure": {
+              "text": "Inez clocks it the second the pebble leaves the jar. \"Pocket,\" she says, palm out, the way she's said it to every Crystal Street kid since Kennedy. You hand it over. It's warm, and her eyebrows climb all the way up.",
+              "art": "A brisk nurse with silver-streaked curls holding out an open palm toward a sheepish teenager, a small glowing purple pebble resting in the teenager's hand between them, a glass jar of marbles on the exam table",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mercy-clinic-halloween-binder",
+        "title": "The Halloween Binder",
+        "place": "The night desk, Mercy Valley Clinic",
+        "text": "Inez's night desk hides a fat orange binder marked HALLOWEEN WEEK, one page per kid, every year since 1961. Glitter burns that won't wash off. A lunchbox chewed by something with far too many tiny teeth. A boy who walked in with his shadow on backwards. She catches you looking. \"Nobody else believes them,\" she says. \"So I write it all down.\"",
+        "art": "A fat orange three-ring binder open on a cluttered clinic night desk under a gooseneck lamp, taped instant photos of grinning kids with bandaged elbows, a mug of coffee, a nurse with silver-streaked curls and a teal cardigan leaning on the counter beside a curious teenager",
+        "choices": [
+          {
+            "id": "tell-her",
+            "label": "Tell her what you've seen this week",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You tell her everything, even the parts that sound ridiculous out loud. Inez doesn't laugh once. She takes a fresh page, writes your name across the top and underlines it twice. \"Now it's on the record,\" she says. \"And now somebody's watching your back.\"",
+              "art": "A teenager talking earnestly across a clinic night desk, a nurse with silver-streaked curls listening intently with a pen poised over an open orange binder, warm gooseneck lamplight pooling between them",
+              "effects": {
+                "nerve": 2,
+                "flags": ["inez-believes"]
+              }
+            },
+            "failure": {
+              "text": "You start to tell her, and the words jam up somewhere behind your teeth. Inez waits, then slides a cherry lollipop across the desk. \"When you're ready. I'm here till midnight and back at seven.\" You leave with the lollipop and the story still stuck.",
+              "art": "A teenager slumped at a clinic night desk turning a red lollipop in their fingers, a patient nurse in a teal cardigan waiting with folded hands under a gooseneck lamp, an orange binder closed between them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "read-binder",
+            "label": "Read the binder cover to cover",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Twenty-five Halloweens of patterns. The worst nights cluster on the same few streets, and the kids who came in together always healed faster than the ones who came in alone. You copy the useful parts into your notebook. Inez's binder is the best monster manual in California.",
+              "art": "A teenager curled in an orange plastic waiting-room chair poring over a fat orange binder, a spiral notebook balanced on one knee, taped instant photos of smiling bandaged kids on the open pages, afternoon light through the windows",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Somewhere around 1979 the pages start describing kids you know, with dates that haven't happened yet. You shut the binder fast. Inez takes it back and doesn't ask what you saw, which is somehow worse.",
+              "art": "A wide-eyed teenager snapping a fat orange binder shut at a clinic night desk, a nurse with silver-streaked curls reaching to take it back, the gooseneck lamp flickering over a cold cup of coffee",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "thriftee-mart",
+    "name": "Thriftee-Mart",
+    "blurb": "The only supermarket in Glimmer Falls: buzzing fluorescent aisles, a Halloween candy aisle stacked to the ceiling, a manager who flinches at every price, and a bag boy who hears every rumor in town before it happens.",
+    "art": "A sprawling 1980s supermarket storefront with wide plate-glass windows, a pyramid of orange pumpkins and a row of shopping carts out front, bright fluorescent aisles glowing inside, a bag boy in a red apron pushing a long train of carts across a sunny parking lot",
+    "train": "hustle",
+    "x": 33,
+    "y": 46,
+    "beats": [
+      {
+        "id": "thriftee-mart-price-gun",
+        "title": "Sticker Shock",
+        "place": "Aisle 2, canned goods, Thriftee-Mart",
+        "text": "Mr. Pettibone, the manager, is sweating through his short-sleeved dress shirt. His pricing gun has gone haywire: every sticker it spits out says 13 cents, the price of a can of ham at the 1959 grand opening, and half the aisle is already tagged. Shoppers are filling carts like it's the end of the world. \"It's possessed,\" he whispers. \"Or it's under warranty.\"",
+        "art": "A sweating supermarket manager in a short-sleeved shirt and clip-on tie clutching a hand-held pricing gun that spits a long curling ribbon of orange stickers, cheerful shoppers piling canned hams into carts under buzzing fluorescent lights",
+        "choices": [
+          {
+            "id": "reprice-aisle",
+            "label": "Grab a sticker roll and re-price the aisle by hand",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You go shelf by shelf at a speed that makes the stock boys whistle, peeling off 13-cent stickers and slapping on real ones. By noon the aisle is sane again. Mr. Pettibone presses two quarters into your hand like he's donating a kidney.",
+              "art": "A teenager racing along a supermarket shelf of canned goods peeling off orange price stickers, a manager in a clip-on tie watching in grateful awe, two stock boys whistling from a rolling ladder under fluorescent light",
+              "effects": {
+                "quarters": 2,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You re-price the entire aisle. When you step back to admire it, every new sticker has quietly changed to 13 cents too. Mr. Pettibone has to sit down on a case of creamed corn and breathe into his tie.",
+              "art": "A supermarket manager slumped on a cardboard case of creamed corn holding his clip-on tie to his face, a teenager staring at a long shelf of cans dotted with identical orange stickers",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "calm-manager",
+            "label": "Talk Mr. Pettibone down off the ledge",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You walk him to the break room, get him a paper cup of water, and point out that a town that buys cheap ham today will buy full-price mustard all week. He laughs for the first time since 1983 and makes you an honorary assistant manager, plastic name tag and all.",
+              "art": "A teenager handing a paper cup of water to a frazzled supermarket manager in a tiny break room with a dented coffee maker and a cluttered corkboard, the manager smiling weakly, a plastic name tag in his other hand",
+              "effects": {
+                "nerve": 1,
+                "flags": ["thriftee-honorary"]
+              }
+            },
+            "failure": {
+              "text": "Halfway through your pep talk, the pricing gun fires on its own and tags the intercom, which squeals like a stuck pig. Mr. Pettibone locks himself in the walk-in freezer to \"think,\" and you get stuck covering the courtesy desk, getting yelled at about coupons.",
+              "art": "A teenager stuck behind a supermarket courtesy desk facing a line of annoyed shoppers waving clipped coupons, a heavy walk-in freezer door shut tight in the background, frost curling from its seams",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "fire-the-gun",
+            "label": "Pull the trigger yourself and see what it wants",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 11,
+            "success": {
+              "text": "You squeeze the trigger and the gun prints one sticker that says THANK YOU in a curly old store font, then a normal price, then another. Folded tight behind the roll you find a yellowed 1959 grand-opening coupon. Old store, old ghosts, small favors. The gun behaves after that.",
+              "art": "A teenager holding a hand-held pricing gun up to the fluorescent light, a tiny yellowed coupon unfolding from inside its roll, a curl of orange stickers drifting down around them like confetti",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The gun bucks in your hand and fires a sticker square onto your forehead: 13 cents. It will not come off. Kids in the parking lot point and laugh, and for the rest of the day every stray cat in Glimmer Falls follows you at a respectful distance.",
+              "art": "A teenager with a bright orange price sticker stuck to the middle of their forehead walking across a sunny supermarket parking lot, a parade of curious stray cats trailing behind them, kids pointing from a station wagon",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "thriftee-mart-bag-boy",
+        "title": "Paper, Plastic or Rumor",
+        "place": "Checkout lane 4, Thriftee-Mart",
+        "text": "Dez Farrow has bagged groceries for half of Glimmer Falls, and he hears everything: who's getting divorced, who bought forty cans of hairspray, who keeps buying cat food with no cat. He trades rumors for favors, never money. Today he leans over the bagging counter and whispers that one shopping cart in the lot rolls off toward the old quarry end every night, by itself.",
+        "art": "A lanky teen bag boy in a red apron and paper hat leaning conspiratorially over a checkout lane toward a listening teenager, brown paper grocery bags and a conveyor belt of cereal boxes, a lone shopping cart drifting across the parking lot beyond the window",
+        "choices": [
+          {
+            "id": "round-up-carts",
+            "label": "Help him round up the carts in the lot",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You and Dez snake a train of thirty carts across the blacktop and slam it home. He pays up with a whole afternoon of gossip, including which houses on Crystal Street keep their porch lights on all night, and why. Hold a rumor right and it's a map.",
+              "art": "A teenager and a bag boy in a red apron pushing a long snaking train of shopping carts across a sunny supermarket parking lot, autumn leaves skittering under the wheels, the store windows glowing behind them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                },
+                "flags": ["dez-rumors"]
+              }
+            },
+            "failure": {
+              "text": "The cart train jackknifes and rolls into the side of Mr. Pettibone's station wagon. Dez winces. \"Rumors are on hold until I'm not fired.\" One cart breaks loose and rolls away toward the quarry end of the lot, in no hurry at all.",
+              "art": "A tangle of shopping carts crashed against the side of a wood-paneled station wagon, a bag boy in a red apron covering his face with both hands, a single cart rolling away across the far end of the parking lot",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "trade-gossip",
+            "label": "Trade him a juicy rumor of your own",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "You tell him the one about the vice principal and the karaoke contest, with voices and a dance break. Dez is so delighted he pays you back three rumors and a free Bolt Cola from the checkout cooler. \"You,\" he says, \"are wasted on honesty.\"",
+              "art": "A teenager acting out a dramatic story with jazz hands at a supermarket checkout lane, a bag boy in a paper hat doubled over laughing and holding out a cold bottle of cola from a glowing cooler",
+              "effects": {
+                "nerve": 1,
+                "items": ["jolt-cola"]
+              }
+            },
+            "failure": {
+              "text": "Your rumor bombs. Worse, Dez already heard it, and a better version. By closing time there's a brand-new rumor going around the Thriftee-Mart about you, and somehow it involves a llama.",
+              "art": "A deflated teenager at a checkout lane while a bag boy in a paper hat whispers behind his hand to a giggling cashier with a teased perm, paper grocery bags stacked high between them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "follow-cart",
+            "label": "Watch the wandering cart at closing time",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "At closing, the cart rolls out of its corral and heads for the quarry end of the lot, and you walk right beside it. It stops at a storm drain, wheels pointed down, waiting. You wheel it back and tie it to the corral with your shoelace. In the morning it's still there, and Dez looks at you like you hung the moon.",
+              "art": "A teenager walking calmly beside a lone shopping cart rolling across a dusky supermarket parking lot toward a storm drain, long shadows stretching under tall sodium lights, a violet sunset over the foothills",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The cart turns to face you. That's all it does. It just faces you, for a long time, one wheel squeaking softly, while the parking-lot lights buzz on one by one. You walk home the long way, and you don't look back until your own porch.",
+              "art": "A shopping cart sitting alone in a vast dusky parking lot turned toward a frozen teenager, a row of tall parking lot lights flickering on one after another into the distance",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "thriftee-mart-candy-aisle",
+        "title": "The Last Bag of Full-Size Bars",
+        "place": "Aisle 7, Halloween candy, Thriftee-Mart",
+        "text": "The candy aisle is a fortress of orange and black: Three Muskrateers, Reesey's Pieces, Kit-Kaboom and, at the very end, one last bag of full-size Choco-Lotta bars. Two Crystal Street moms have their hands on it and neither one is letting go. Meanwhile, from somewhere deep inside the giant candy-corn pyramid, comes a steady, happy crunching.",
+        "art": "A towering supermarket Halloween candy display of orange and black bags stacked to the ceiling beside a giant pyramid of candy corn, two determined moms in pastel sweatsuits tugging a bag of chocolate bars between them, a teenager stepping in with hands raised",
+        "choices": [
+          {
+            "id": "broker-peace",
+            "label": "Broker a peace treaty between the moms",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You propose joint custody: they split the bag and team up on one haunted garage for both houses, double the scares. They shake on it like heads of state. Each one slips you a quarter, and one of them asks if you're available to babysit.",
+              "art": "A teenager holding up a bag of chocolate bars between two moms in pastel sweatsuits shaking hands in an orange and black candy aisle, each mom pressing a coin into the teenager's free palm",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Both moms turn on you at once. They storm off in opposite directions, and you're left holding the bag, which Mr. Pettibone makes you pay for because \"it's been squeezed.\"",
+              "art": "A teenager left holding a crumpled bag of chocolate bars in an orange and black candy aisle, two moms storming away in opposite directions, a manager in a clip-on tie approaching with his hand out",
+              "effects": {
+                "nerve": -1,
+                "quarters": -1
+              }
+            }
+          },
+          {
+            "id": "dig-pyramid",
+            "label": "Dig into the candy-corn pyramid to find the cruncher",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You plunge both arms into the pyramid and haul out a raccoon in a tiny striped sweater, fat as a pillow and deeply unbothered. The whole aisle laughs. The sweater is stitched BANDIT. You carry him out to the parking lot, where a very relieved old man has been calling his name for an hour.",
+              "art": "A teenager hauling a plump raccoon in a little striped sweater out of a collapsing pyramid of candy corn, kernels cascading everywhere, laughing shoppers crowding the bright supermarket aisle",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The pyramid collapses on you in an avalanche of candy corn. When you dig yourself out, the crunching has stopped, and every kernel within a yard of you has one neat little bite taken out of it. Whatever it was, it has very small teeth, and it got away.",
+              "art": "A teenager buried to the shoulders in a heap of spilled candy corn in a supermarket aisle, nibbled kernels scattered all around, a small furry striped tail disappearing under the bottom shelf",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "candy-castle",
+            "label": "Build a display so spectacular nobody wants to fight",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You build a candy castle with turrets of Kit-Kaboom, a drawbridge of Choco-Lotta bars and a moat of Bolt Cola cans. Shoppers stop to take pictures. Mr. Pettibone doesn't know what to do with his face, so he hands you a six-cell flashlight off the endcap. \"For the week,\" he mutters.",
+              "art": "A teenager placing the final candy bar on a towering castle built of Halloween candy bags with a moat of soda cans, a supermarket manager staring open-mouthed, shoppers snapping instant photos in bright fluorescent light",
+              "effects": {
+                "nerve": 1,
+                "items": ["flashlight"]
+              }
+            },
+            "failure": {
+              "text": "Your castle looks magnificent for nine whole seconds. Then a toddler pulls one bar out of the bottom row. They hear the collapse in the parking lot. Mr. Pettibone just points at the mop.",
+              "art": "A collapsed heap of Halloween candy bags and rolling soda cans spread across a supermarket floor, a triumphant toddler holding up a single candy bar, a teenager gripping a mop and bucket",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "thriftee-mart-aisle-zero",
+        "title": "Price Check, Aisle Zero",
+        "place": "The courtesy desk, Thriftee-Mart",
+        "text": "Thriftee-Mart has twelve aisles. The intercom keeps calling for a price check on aisle zero. It's Mr. Pettibone's voice, and Mr. Pettibone is standing right next to you holding a cantaloupe, looking ill. \"I haven't touched that microphone,\" he says. \"I'm a produce man.\" At the back of the store, past frozen foods, a pair of swinging doors you've never noticed is gently swaying.",
+        "art": "A pale supermarket manager in a clip-on tie holding a cantaloupe and staring up at a ceiling speaker, a teenager beside him, a pair of dented swinging doors gently swaying at the far end of a long fluorescent frozen-food aisle",
+        "choices": [
+          {
+            "id": "through-doors",
+            "label": "Push through the swinging doors and find aisle zero",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "Behind the doors is a 1959 grocery aisle, perfectly stocked and mint: tins of things they don't make anymore, a crank cash register, glass bottles of soda with the old formula. A radio plays a doo-wop song you almost know. You tip your head to the aisle like a guest, back out, and the doors settle shut, calm and satisfied.",
+              "art": "A teenager with a flashlight standing in a perfectly stocked 1959 grocery aisle of tin cans and glass soda bottles, a brass crank cash register and a wooden tabletop radio, dust glittering in a single warm beam of light",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Behind the doors is a stockroom that goes back much farther than the building does. The fluorescent tubes buzz on ahead of you one at a time, inviting. You back out and let the doors swing shut. The intercom says, very softly, \"Price check cancelled.\"",
+              "art": "A teenager backing out through swinging doors from an impossibly long stockroom of stacked cardboard boxes, fluorescent tubes flickering on one by one into the far distance",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "take-mic",
+            "label": "Grab the courtesy-desk microphone and answer it",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Attention, Thriftee-Mart shoppers,\" you purr in your best late-night DJ voice, \"aisle zero is closed for the season. Please enjoy ten percent off courage.\" The whole store applauds. The intercom crackles once, like a laugh, and goes back to soft-rock elevator music.",
+              "art": "A teenager leaning into a gooseneck microphone at a supermarket courtesy desk with a sultry late-night DJ grin, shoppers in the aisles turning to applaud, a manager hiding a laugh behind a cantaloupe",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You key the mic, and your own voice comes out of the ceiling speakers a full second before you speak, saying something slightly different. The whole store hears it. Mr. Pettibone gently takes the microphone and puts it in a drawer.",
+              "art": "A startled teenager pulling back from a gooseneck microphone at a supermarket courtesy desk, a manager reaching to take it, shoppers frozen mid-aisle staring up at the ceiling speakers",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-blueprints",
+            "label": "Dig the store blueprints out of the manager's office",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "success": {
+              "text": "The 1959 plans show thirteen aisles. Aisle zero was walled off after the grand opening because \"customers reported feeling watched by the canned peaches.\" You and Mr. Pettibone agree to leave it be and stack pumpkins in front of the wall. He's so relieved he tips you two quarters.",
+              "art": "A teenager and a supermarket manager unrolling yellowed architectural blueprints across a cluttered office desk, a coffee mug pinning one corner and a cantaloupe holding down another, a desk lamp glowing",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You find the blueprints, but someone has been at them first: aisle zero is circled over and over in red grease pencil. Mr. Pettibone swears he's never seen those circles. You both agree, out loud, to stop looking at blueprints for the day.",
+              "art": "Yellowed store blueprints spread across a desk with one narrow aisle circled again and again in red grease pencil, a teenager and a supermarket manager staring down at it under a buzzing desk lamp",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
   }
 ]

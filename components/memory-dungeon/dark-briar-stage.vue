@@ -35,9 +35,7 @@
       </div>
     </div>
 
-    <div
-      class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2"
-    >
+    <div class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2">
       <div
         class="relative grid min-h-0 place-items-center overflow-hidden rounded-xl border-2 border-[#886c9e] bg-[#171a2c] p-2 shadow-2xl"
       >

@@ -34,12 +34,12 @@ It checks canvas bounds, overscroll in X, backing-store ceiling, browser errors,
 and touch-control reachability in a documented phone/tablet/desktop matrix at
 DPR 1, 2 and 3. The workflow saves PNGs for side-by-side review.
 
-The script reports an _estimated_ CSS silhouette height using source art or
-logical sprite sizes. This is a diagnostic, not proof of readability. Physical
-device measurements, per-game camera visibility and boss tell lead-time checks
-are still necessary. Keyboard, gamepad, and touch-input behavior are tested
-separately; four active seats on a tablet are **not** evidence that four people
-can comfortably share a phone.
+The script reports nominal CSS art-box extents (Plumber height and Rainbow
+maximum ship width), not actual visible silhouettes. Physical device measurements,
+per-game camera visibility and boss tell lead-time checks are still necessary.
+Keyboard, gamepad, and touch-input behavior are tested separately; four active
+seats on a tablet are **not** evidence that four people can comfortably share a
+phone.
 
 ### Visual review gates
 

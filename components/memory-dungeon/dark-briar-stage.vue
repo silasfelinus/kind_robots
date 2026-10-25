@@ -35,8 +35,14 @@
       </div>
     </div>
 
-    <memory-dungeon-dark-house-stage v-if="world.darkHouseOpen" class="min-h-0 flex-1" />
-    <div v-else class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2">
+    <memory-dungeon-dark-house-stage
+      v-if="world.darkHouseOpen"
+      class="min-h-0 flex-1"
+    />
+    <div
+      v-else
+      class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2"
+    >
       <div
         class="relative grid min-h-0 place-items-center overflow-hidden rounded-xl border-2 border-[#886c9e] bg-[#171a2c] p-2 shadow-2xl"
       >

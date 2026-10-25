@@ -2,6 +2,16 @@ import { defineStore } from 'pinia'
 import {
   canEnterDarkHouse,
   darkHouseChoose as makeDarkHouseChoice,
+  darkHouseFlip as flipDarkHouseCard,
+  darkHouseCloseMismatch as closeDarkHouseMismatch,
+  darkHouseRecall as recallDarkHousePair,
+  darkHouseAnswerPuzzle as answerDarkHousePuzzle,
+  darkHousePuzzleHint as hintDarkHousePuzzle,
+  darkHouseEchoes,
+  darkHouseStrain,
+  darkHouseRoomResolved,
+  darkHouseTrialSolved,
+  darkHouseVerdict,
   darkHouseExits,
   darkHouseMove as advanceDarkHouseRoom,
   newDarkHouseProgress,
@@ -9,6 +19,11 @@ import {
   DARK_HOUSE_ROOMS,
   type DarkHouseProgress,
 } from '~/utils/memoryDungeon/darkHouse'
+import {
+  DARK_HOUSE_TRIALS,
+  DARK_HOUSE_PUZZLES,
+  darkHouseTrialFaces,
+} from '~/utils/memoryDungeon/darkHouseChallenges'
 import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
@@ -125,6 +140,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     () => DARK_HOUSE_ROOMS[darkHouse.value.current] ?? null,
   )
   const darkHouseDoors = computed(() => darkHouseExits(darkHouse.value))
+  const darkHouseTrial = computed(
+    () => DARK_HOUSE_TRIALS[darkHouse.value.current] ?? null,
+  )
+  const darkHouseCards = computed(() =>
+    darkHouseTrialFaces(darkHouse.value.current),
+  )
+  const darkHousePuzzle = computed(
+    () => DARK_HOUSE_PUZZLES[darkHouse.value.current] ?? null,
+  )
+  const darkHouseReady = computed(() => darkHouseRoomResolved(darkHouse.value))
+  const darkHouseTrialComplete = computed(() =>
+    darkHouseTrialSolved(darkHouse.value, darkHouse.value.current),
+  )
+  const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
+  const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
+  const darkHouseEndingCopy = computed(() => darkHouseVerdict(darkHouse.value))
   const canEnterDarkBriar = computed(() =>
     campaign.value.completed.includes('e01'),
   )
@@ -533,6 +564,46 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = makeDarkHouseChoice(darkHouse.value, id)
     if (next === darkHouse.value) return
     darkHouse.value = next
+    persistReality()
+  }
+
+  function darkHouseFlipCard(id: string): void {
+    if (activeReality.value !== 'e02') return
+    const updated = flipDarkHouseCard(darkHouse.value, id)
+    if (updated === darkHouse.value) return
+    darkHouse.value = updated
+    persistReality()
+  }
+
+  function darkHouseTurnCardsOver(): void {
+    if (activeReality.value !== 'e02') return
+    const updated = closeDarkHouseMismatch(darkHouse.value)
+    if (updated === darkHouse.value) return
+    darkHouse.value = updated
+    persistReality()
+  }
+
+  function darkHouseUseRecall(): void {
+    if (activeReality.value !== 'e02') return
+    const updated = recallDarkHousePair(darkHouse.value)
+    if (updated === darkHouse.value) return
+    darkHouse.value = updated
+    persistReality()
+  }
+
+  function darkHouseAnswer(id: string): void {
+    if (activeReality.value !== 'e02') return
+    const updated = answerDarkHousePuzzle(darkHouse.value, id)
+    if (updated === darkHouse.value) return
+    darkHouse.value = updated
+    persistReality()
+  }
+
+  function darkHouseUseHint(): void {
+    if (activeReality.value !== 'e02') return
+    const updated = hintDarkHousePuzzle(darkHouse.value)
+    if (updated === darkHouse.value) return
+    darkHouse.value = updated
     persistReality()
   }
 
@@ -1537,6 +1608,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     canEnterDarkHouseAtCamp,
     darkHouseRoom,
     darkHouseDoors,
+    darkHouseTrial,
+    darkHouseCards,
+    darkHousePuzzle,
+    darkHouseReady,
+    darkHouseTrialComplete,
+    darkHouseEchoCount,
+    darkHouseScarCount,
+    darkHouseEndingCopy,
+    darkHouseFlipCard,
+    darkHouseTurnCardsOver,
+    darkHouseUseRecall,
+    darkHouseAnswer,
+    darkHouseUseHint,
     enterDarkHouse,
     leaveDarkHouse,
     walkDarkHouse,

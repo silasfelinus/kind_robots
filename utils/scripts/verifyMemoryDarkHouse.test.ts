@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { HOUSE_ENTRY, HOUSE_ROOMS } from '../memoryDungeon/house'
+import { darkHouseTrialFaces } from '../memoryDungeon/darkHouseChallenges'
 import {
   DARK_HOUSE_ROOMS,
   newDarkHouseProgress,
@@ -9,6 +10,7 @@ import {
   darkHouseChoose,
   darkHouseExits,
   darkHouseMove,
+  darkHouseFlip,
   validateDarkHouse,
 } from '../memoryDungeon/darkHouse'
 import {
@@ -116,7 +118,17 @@ assert.ok(
   !darkHouseExits(passage).includes('HD-33'),
   'Guardian decision opens HD-33',
 )
-const guardian = darkHouseChoose(passage, 'attend')
+let guardian = passage
+for (const pairId of new Set(
+  darkHouseTrialFaces('HD-32').map((face) => face.pair),
+)) {
+  for (const face of darkHouseTrialFaces('HD-32').filter(
+    (item) => item.pair === pairId,
+  )) {
+    guardian = darkHouseFlip(guardian, face.id)
+  }
+}
+guardian = darkHouseChoose(guardian, 'attend')
 assert.ok(darkHouseExits(guardian).includes('HD-33'))
 const hearth = restoreDarkHouseProgress({
   active: true,

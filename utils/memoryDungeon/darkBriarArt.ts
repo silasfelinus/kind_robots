@@ -93,16 +93,18 @@ export const DARK_BRIAR_ART_REQUESTS: readonly DarkBriarArtRequest[] = [
 
 /** Thirty original faces tied to scenes and branch consequences, plus two cross-world visual clues. */
 export const DARK_BRIAR_COLLECTIBLE_ART: readonly DarkBriarArtRequest[] = [
-  ...sites.map((scene, index) =>
-    shot(
-      `dark-briar-face-${String(index + 1).padStart(2, '0')}`,
-      `Mirrored memory: ${scene.title}`,
-      'matching-gallery',
-      `Single centered legible picture-card composition, visually distinct at phone scale: ${scene.artPrompt}`,
-      `${root}/gallery/${String(index + 1).padStart(2, '0')}.webp`,
-      'variant',
+  ...sites
+    .slice(0, 16)
+    .map((scene, index) =>
+      shot(
+        `dark-briar-face-${String(index + 1).padStart(2, '0')}`,
+        `Mirrored memory: ${scene.title}`,
+        'matching-gallery',
+        `Single centered legible picture-card composition, visually distinct at phone scale: ${scene.artPrompt}`,
+        `${root}/gallery/${String(index + 1).padStart(2, '0')}.webp`,
+        'variant',
+      ),
     ),
-  ),
   ...sites
     .slice(0, 14)
     .map((scene, index) =>
@@ -137,9 +139,9 @@ export function validateDarkBriarArtRequests(): string[] {
   const errors: string[] = []
   if (DARK_BRIAR_COLLECTIBLE_ART.length !== 32)
     errors.push('Dark gallery must have 30+2 independent images')
-  if (DARK_BRIAR_ART_REQUESTS.length !== 51)
+  if (DARK_BRIAR_ART_REQUESTS.length !== 195)
     errors.push(
-      'Dark pilot requires 3 hero + 16 encounter + 32 consequence briefs',
+      'Dark map requires 3 hero + 64 encounters + 128 consequence briefs',
     )
   const all = [...DARK_BRIAR_ART_REQUESTS, ...DARK_BRIAR_COLLECTIBLE_ART]
   if (new Set(all.map((asset) => asset.id)).size !== all.length)

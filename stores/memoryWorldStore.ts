@@ -6,8 +6,9 @@ import {
 } from '~/utils/memoryDungeon/reimaginerCampaign'
 import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
 import {
-  DARK_BRIAR_KEYS,
+  DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
+  advanceDarkBriarWave,
   darkBriarOpening,
   darkBriarChoose,
   darkBriarCanTravel,
@@ -479,20 +480,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkLoading.value = true
     darkDeckError.value = ''
     try {
+      const wave = DARK_BRIAR_WAVES[dark.value.waveIndex]!
+      const expected = wave.length / 2
       const paths = await resolveMemoryDungeonDeck(
         deck.value,
-        DARK_BRIAR_KEYS.length / 2,
+        expected,
+        dark.value.waveIndex * 8,
+        dark.value.seenImages,
       )
       if (ticket !== darkEpoch) return
-      if (
-        paths.length !== DARK_BRIAR_KEYS.length / 2 ||
-        new Set(paths).size !== paths.length
-      ) {
+      if (paths.length !== expected || new Set(paths).size !== paths.length) {
         throw new Error(
           'The selected gallery does not have eight distinct matching pictures.',
         )
       }
-      dark.value.mapCards = createBriarWaveCards(DARK_BRIAR_KEYS, paths)
+      dark.value.mapCards = createBriarWaveCards(wave, paths)
+      dark.value.seenImages = [...new Set([...dark.value.seenImages, ...paths])]
       dark.value.status =
         'Find the matching pictures. Every pair reveals two familiar, changed landmarks.'
       persistReality()
@@ -515,6 +518,23 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistReality()
     if (darkMatching.value && !dark.value.mapCards.length)
       await prepareDarkDeck()
+  }
+
+  async function nextDarkWave(): Promise<void> {
+    if (
+      activeReality.value !== 'e02' ||
+      darkLoading.value ||
+      darkTurnLocked.value
+    )
+      return
+    const next = advanceDarkBriarWave(dark.value)
+    if (next === dark.value) return
+    darkEpoch++
+    darkFirstCard.value = null
+    darkDeckError.value = ''
+    dark.value = next
+    persistReality()
+    await prepareDarkDeck()
   }
 
   function returnToBriar(): void {
@@ -565,10 +585,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         }
         if (dark.value.mapCards.every((item) => item.matched)) {
           dark.value.phase = 'exploring'
-          dark.value.visited = [BRIAR_START]
-          dark.value.player = BRIAR_START
+          if (!dark.value.visited.includes(BRIAR_START))
+            dark.value.visited.push(BRIAR_START)
           dark.value.status =
-            'The familiar forest returns, but the people remember it differently.'
+            dark.value.waveIndex === DARK_BRIAR_WAVES.length - 1
+              ? 'Every reflected road has emerged. The House will hear all eight witnesses.'
+              : 'Another ring of Briar is revealed. The forest keeps its earlier decisions.'
         }
         darkTurnLocked.value = false
         persistReality()
@@ -1452,6 +1474,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     canEnterDarkBriar,
     prepareDarkDeck,
     enterDarkBriar,
+    nextDarkWave,
     returnToBriar,
     darkPickCard,
     darkWalk,

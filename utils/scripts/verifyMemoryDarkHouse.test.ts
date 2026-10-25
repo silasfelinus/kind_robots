@@ -153,7 +153,7 @@ const parent = readFileSync(
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.ok(component.includes('data-testid="dark-house-console"'))
 assert.ok(component.includes('data-testid="dark-house-choices"'))
-assert.ok(component.includes('world.walkDarkHouse(room.id)'))
+assert.ok(component.includes('world.walkDarkHouse(tileRoom.id)'))
 assert.ok(component.includes('world.chooseDarkHouse(choice.id)'))
 assert.ok(parent.includes('<memory-dungeon-dark-house-stage'))
 assert.ok(parent.includes('world.enterDarkHouse()'))

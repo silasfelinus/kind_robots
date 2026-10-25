@@ -18,37 +18,55 @@ export interface MemoryRealitySave {
   progress: MemoryCampaignProgress
 }
 
-export function restoreMemoryCampaignProgress(raw: unknown): MemoryCampaignProgress {
+export function restoreMemoryCampaignProgress(
+  raw: unknown,
+): MemoryCampaignProgress {
   const fresh = newMemoryCampaignProgress()
   if (!raw || typeof raw !== 'object') return fresh
   const saved = raw as Partial<MemoryCampaignProgress>
-  const valid = new Set<ExperienceId>(MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id))
+  const valid = new Set<ExperienceId>(
+    MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id),
+  )
   const completed = Array.isArray(saved.completed)
-    ? [...new Set(saved.completed.filter((id): id is ExperienceId => valid.has(id)))]
+    ? [
+        ...new Set(
+          saved.completed.filter((id): id is ExperienceId => valid.has(id)),
+        ),
+      ]
     : []
   const anchorIds = Object.keys(MEMORY_WISH_ANCHORS) as MemoryWishAnchorId[]
   const anchors = Array.isArray(saved.rememberedAnchors)
-    ? [...new Set(saved.rememberedAnchors.filter(
-        (id): id is MemoryWishAnchorId => anchorIds.includes(id),
-      ))]
+    ? [
+        ...new Set(
+          saved.rememberedAnchors.filter((id): id is MemoryWishAnchorId =>
+            anchorIds.includes(id),
+          ),
+        ),
+      ]
     : []
   return {
     completed,
     rememberedAnchors: anchors,
-    finaleCommitted: Boolean(saved.finaleCommitted) && completed.includes('e12'),
+    finaleCommitted:
+      Boolean(saved.finaleCommitted) && completed.includes('e12'),
   }
 }
 
 export function restoreMemoryRealitySave(raw: unknown): MemoryRealitySave {
   const fallback: MemoryRealitySave = {
-    version: 1, active: 'e01', progress: newMemoryCampaignProgress(),
+    version: 1,
+    active: 'e01',
+    progress: newMemoryCampaignProgress(),
   }
   if (!raw || typeof raw !== 'object') return fallback
   const saved = raw as Partial<MemoryRealitySave>
   const progress = restoreMemoryCampaignProgress(saved.progress)
   return {
     version: 1,
-    active: saved.active === 'e02' && progress.completed.includes('e01') ? 'e02' : 'e01',
+    active:
+      saved.active === 'e02' && progress.completed.includes('e01')
+        ? 'e02'
+        : 'e01',
     progress,
   }
 }

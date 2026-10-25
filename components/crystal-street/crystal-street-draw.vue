@@ -97,8 +97,9 @@
           >
           <span class="block text-sm">
             The ordinary terrors its kind brings to Crystal Street:
-            {{ villain.tags.join(', ') }}. Steadier, and every win still counts
-            toward the Best ending.
+            {{
+              villain.tags.map((t) => TAG_LABELS[t].toLowerCase()).join(', ')
+            }}. Steadier, and every win still counts toward the Best ending.
           </span>
         </span>
       </button>
@@ -111,6 +112,7 @@ import { computed } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   NIGHT_DRAWS,
+  TAG_LABELS,
   actOf,
   edgesOf,
   shortName,

@@ -311,6 +311,163 @@
             }
           }
         ]
+      },
+      {
+        "id": "crystal-street-pumpkin-judging",
+        "title": "The Thirteenth Pumpkin",
+        "place": "The Heartstone roundabout, Crystal Street, Halloween morning",
+        "days": [7],
+        "text": "It's the Crystal Street Jack-o'-Lantern Judging, and Mr. Delacorte has a clipboard, a sash and a ribbon that says BEST ON THE BLOCK. Twelve pumpkins line the roundabout curb, one for every house. A thirteenth sits right up against the Heartstone, and nobody will admit to bringing it. Its face is carved with tiny, careful teeth, and it's already lit.",
+        "art": "A row of carved jack-o-lanterns along a suburban roundabout curb on a bright autumn morning, a mustached man in a judge's sash holding a clipboard, one extra pumpkin glowing against a car-sized purple geode, its carved grin full of tiny teeth",
+        "choices": [
+          {
+            "id": "carve-showstopper",
+            "label": "Build a last-minute showstopper out of leftover gourds",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Eleven minutes and a box of Mrs. Kwan's decorative squash: you build a pumpkin drag queen with a gourd beehive and a corn-husk boa. The street loses its mind. Mr. Delacorte, through clenched teeth, awards you BEST ON THE BLOCK and two quarters from the prize jar.",
+              "art": "A teenager beside a jack-o-lantern dressed up with a tall gourd beehive hairdo and a corn-husk boa, neighbors laughing and clapping on a sunny cul-de-sac",
+              "effects": {
+                "quarters": 2,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your squash beehive collapses mid-judging, rolls off the curb and comes to rest against the thirteenth pumpkin. Its candle flares up bright and pleased. When you go to fetch your gourd back, it's warm, and its stem has been nibbled.",
+              "art": "A small decorative gourd resting against a glowing jack-o-lantern at the foot of a purple geode, its stem nibbled, a dismayed teenager reaching for it",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "lift-the-lid",
+            "label": "Lift the lid off the thirteenth pumpkin",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Past the candle, a folded paper is pressed into the pulp: an entry form for the very first Crystal Street judging, October 1959, signed by a kid at number 13, the model home nobody ever bought. You blow the candle out. The whole street lets out a breath it didn't know it was holding.",
+              "art": "A teenager lifting the lid of a glowing jack-o-lantern beside a purple geode, a yellowed folded paper tucked inside among the seeds",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The lid comes off with a wet sigh and a burst of warm orange seeds hits you square in the face. They stick everywhere. All day you find seeds in your collar and your socks, and every one you flick away lands pointing at the Heartstone.",
+              "art": "A startled teenager covered in sticky pumpkin seeds holding a jack-o-lantern lid, a purple geode glowing in the roundabout behind them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "help-bea",
+            "label": "Help Bea finish her scientifically accurate entry",
+            "intent": "kind",
+            "skill": "brains",
+            "target": 7,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 2
+            },
+            "success": {
+              "text": "Bea's pumpkin is a working model of the solar system with a flashlight sun, and with your help the planets finally orbit. Mr. Delacorte gives it HONORABLE MENTION, which Bea calls \"a peer-reviewed insult.\" By noon the thirteenth pumpkin has quietly gone dark, outshone.",
+              "alone": "You rig your own family's pumpkin into a working model of the solar system with a flashlight sun, and the planets finally orbit. Mr. Delacorte gives it HONORABLE MENTION, which is an insult in a sash. By noon the thirteenth pumpkin has quietly gone dark, outshone.",
+              "art": "An eleven-year-old girl with white-blonde braids and round red glasses beside a teenager adjusting a jack-o-lantern carved as a glowing solar-system model with wire-hung planets, on a sunny curb",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The planets tangle, the flashlight sun dies and Bea's model sags into a sad orange heap in front of the whole street. Bea writes RESULTS INCONCLUSIVE in her notebook and refuses to cry. The thirteenth pumpkin's grin looks a little wider.",
+              "alone": "Your planets tangle, the flashlight sun dies and your model sags into a sad orange heap in front of the whole street. Mr. Delacorte makes a note on his clipboard. The thirteenth pumpkin's grin looks a little wider.",
+              "art": "A sagging jack-o-lantern with tangled wire planets on a curb, a small girl in a yellow slicker writing in a notebook, a toothy pumpkin glowing by a purple geode",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "crystal-street-mailbox",
+        "title": "The Mailbox at Number 11",
+        "place": "The front lawn of 11 Crystal Street, morning",
+        "text": "Every morning this week, the mailbox at number 11 has been knocked flat. The new owners, Mr. Okafor and Mr. Lund, a retired band teacher and a florist the street keeps calling \"the roommates,\" stand it back up and pretend it's funny. Today Mr. Lund is out with a level and a sack of cement. The post has been bent toward the Heartstone, like something leaned on it all night.",
+        "art": "A bent mailbox post on a tidy suburban lawn in morning light, a gray-haired florist with a carpenter's level and a sack of cement, a purple geode glowing faintly in the roundabout down the street",
+        "choices": [
+          {
+            "id": "reset-post",
+            "label": "Help sink the post in fresh cement",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 7,
+            "success": {
+              "text": "You mix, pour and hold the post steady while Mr. Lund fusses with the level. When it sets, Mr. Okafor plays a victory march on his trombone from the porch, badly, on purpose. Mr. Lund tips you two quarters \"for structural integrity.\"",
+              "art": "A teenager holding a mailbox post upright in wet cement on a suburban lawn, a gray-haired man with a level, a second man playing trombone on the porch",
+              "effects": {
+                "quarters": 2,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The bag splits and you end up with cement to the elbows and a mailbox leaning worse than before. Mr. Lund laughs so hard he has to sit down. In the morning the post is flat again, and the wet cement shows small bare footprints leading toward the roundabout.",
+              "art": "A crooked mailbox in a patch of wet cement on a lawn at dawn, small bare footprints pressed into it leading toward a purple geode in the roundabout",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stake-out",
+            "label": "Hide in the hedge tonight and see who does it",
+            "intent": "sneaky",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "At two in the morning it's three varsity kids from across town in a pickup, laughing, and you get the plate. Before they reach the mailbox, every porch light on the block snaps on at once and they peel out screaming. Whatever the Heartstone is, tonight it was on number 11's side.",
+              "art": "A teenager crouched in a hedge at night watching a pickup truck of startled teens speed away as every porch light on a cul-de-sac blazes on at once",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You fall asleep in the hedge, wake up with a beetle in your ear and find the mailbox flat again. Taped to it is a note in Mr. Okafor's tidy hand: THANK YOU FOR TRYING. WE SAW YOU SNORING. COFFEE'S ON. It helps, a little.",
+              "art": "A sleepy teenager crawling out of a hedge at dawn toward a knocked-over mailbox with a folded note taped to it",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "lawn-party",
+            "label": "Throw them the welcome party the street never did",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You round up the Ruizes, Mrs. Kwan and anyone with a folding chair, and by sundown there's a potluck on the lawn of number 11 with paper lanterns and a boom box. Mr. Okafor cries into the ambrosia salad. Mr. Delacorte watches from his window and, for once, stays inside.",
+              "art": "A sundown potluck on a suburban front lawn, folding chairs and casserole dishes, two middle-aged men laughing with neighbors under paper lanterns",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You knock on nine doors and get nine excuses. In the end it's you, the two of them and a tuna casserole on the porch steps, which is honestly a lovely evening. Still, every curtain on the street twitches while you eat.",
+              "art": "Three people sharing a casserole on porch steps at dusk while curtains twitch in the windows of identical houses across the street",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -574,6 +731,164 @@
               "effects": {
                 "nerve": -1,
                 "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "library-lost-sneaker",
+        "title": "The Lost and Found Column",
+        "place": "The microfiche room, Glimmer Falls Public Library",
+        "text": "Ms. Hart asked you to check the microfiche reader before the history club arrives, and it keeps stopping on its own. Every time, it lands on the November 1 edition of the Glimmer Falls Gazette, a different year each time: 1961, 1968, 1974, 1983. Every time, the Lost and Found column runs the same tiny ad. FOUND: ONE SNEAKER, NEAR THE ROUNDABOUT. CLAIM AT LIBRARY. On top of the cabinet, as if waiting, sits one small sneaker.",
+        "art": "A dim library microfiche room, a teenager at a glowing reader screen showing an old newspaper page, stacked film reels, a single small sneaker sitting on top of the cabinet",
+        "choices": [
+          {
+            "id": "count-years",
+            "label": "Crank through every Halloween and count the sneakers",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Twenty-seven Halloweens, twenty-seven sneakers, and you match them to the kids who lost shoes to the storm drains, every one of whom grew up fine and a little jumpy. You tape the list to the cabinet. The reader stops misbehaving, as if somebody finally got the count right.",
+              "art": "A teenager at a microfiche reader with a long handwritten list taped beside the glowing screen, film reels stacked high on the table",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The reels spin faster than you can read and the screen fills with sneaker after sneaker, until the machine smells like hot rubber and pops a fuse. Ms. Hart finds you in the dark with the small sneaker in your lap and decides not to ask.",
+              "art": "A teenager in a dark library room lit only by a smoking microfiche reader, a small sneaker resting in their lap",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "claim-it",
+            "label": "Take the sneaker to the desk and claim it, like the ad says",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Ms. Hart opens a drawer behind the circulation desk you've never noticed: dozens of single sneakers, each tagged with a year. She adds yours. \"The town never claims them,\" she says. \"Someone should keep count.\" She gives you a quarter from the fine jar for honesty.",
+              "art": "A librarian in a cardigan opening a deep wooden drawer full of single sneakers with paper tags, a teenager handing over one more",
+              "effects": {
+                "quarters": 1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The moment you pick it up, the sneaker is soaking wet, dripping storm-drain water across the carpet in a trail toward the door. You drop it. When you look again it's dry and gone, and your own left shoe feels a size too loose all afternoon.",
+              "art": "A small wet sneaker on library carpet with a trail of dripping water leading toward the front doors, a startled teenager stepping back",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-abernathy",
+            "label": "Ask the history club's oldest member what it means",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "Mr. Abernathy, ninety and sharp as a tack, laughs. \"Every Halloween some kid loses a shoe to that drain, and every year the library finds it. Never the kid. Always the shoe.\" He makes it sound like a tradition instead of a warning, which helps more than it should.",
+              "art": "A ninety-year-old man in a tweed cap laughing at a library table with a teenager, old newspaper printouts spread between them",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Mr. Abernathy goes pale, gathers his notes and leaves the meeting early without a word. The rest of the history club spends the whole hour staring at your feet.",
+              "art": "Elderly history-club members around a library table all staring down at a teenager's sneakers, an empty chair pushed back",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "library-sunday-shush",
+        "title": "The Shush",
+        "place": "The reading room, Glimmer Falls Public Library, Sunday afternoon",
+        "days": [2],
+        "text": "Sunday hours are short and sleepy, and today they're too quiet. Every time anyone speaks above a whisper, a long soft SHHHH answers from somewhere in the stacks, and the speaker can't make a sound for a minute afterward. A toddler has been silenced mid-giggle. Two old men are arguing in furious, total silence. The SHHHH is drifting closer to the front desk.",
+        "art": "A sunlit library reading room on a lazy Sunday, patrons pressing hands over their open silent mouths, a toddler frozen mid-laugh, a faint ripple of air moving between the tall shelves",
+        "choices": [
+          {
+            "id": "make-noise",
+            "label": "Drop the big dictionary and sing back at it",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "BOOM goes the unabridged dictionary, and you follow it with the loudest show-tune note you own. The SHHHH tries to answer and chokes on it. All at once everyone's voice comes back, mid-argument, mid-giggle, and the reading room erupts in the happiest noise it has heard in years.",
+              "art": "A teenager singing at full voice beside a giant dictionary flat on a library floor, patrons cheering and laughing as dust motes dance in the sunlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You get out half a note before the SHHHH lands on you like a wet towel. You spend the rest of the afternoon mouthing words nobody can hear, and Ms. Hart has to write GO HOME AND REST on a notepad for you.",
+              "art": "A teenager clutching their throat in a quiet library, a librarian in a cardigan holding up a notepad toward them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "follow-shush",
+            "label": "Tiptoe into the stacks and follow the SHHHH to its source",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Deep in the 900s you find it: a hand-painted QUIET PLEASE placard from 1931, trembling on its nail. You take it down and tuck it gently into the donation bin for the Glitter Box prop room, where it will finally be in a show. The stacks go back to an ordinary hush.",
+              "art": "A teenager in a narrow aisle of tall library shelves lifting an old hand-painted wooden placard off a nail, dust swirling in a shaft of afternoon light",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You round the end of an aisle and the SHHHH is right in your ear, warm and disapproving. Your footsteps vanish, then your breathing, then your own heartbeat, until you bolt back to the sunny front desk and the world rushes back in.",
+              "art": "A teenager running out of a dim aisle of library shelves toward a sunlit front desk, a shadowy ripple of air close behind them",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pass-notes",
+            "label": "Run the whole library on passed notes with Priya",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "Priya hands out graph paper and pencils like it's a dungeon crawl: Silent Library Mode, house rules. In twenty minutes everyone is passing notes and laughing without a sound. Starved of noise, the SHHHH thins out, and by closing it's just the hum of the lights.",
+              "alone": "You hand out scratch paper and golf pencils from the card catalog and declare Silent Library Mode. In twenty minutes everyone is passing notes and laughing without a sound. Starved of noise, the SHHHH thins out, and by closing it's just the hum of the lights.",
+              "art": "Library patrons of all ages passing folded paper notes and laughing silently around a big reading table, an Indian American teen girl with a long braid and gold glasses directing them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Someone passes a note that says SO FUNNY, and someone else laughs out loud. The SHHHH sweeps the whole table at once. Priya, mute, writes NAT 1 on the back of her hand and shows it to you.",
+              "alone": "Someone passes a note that says SO FUNNY, and someone else laughs out loud. The SHHHH sweeps the whole table at once, you included, and you can't so much as hum on the walk home.",
+              "art": "A reading table of startled library patrons covering their mouths, paper notes scattered, a gust stirring their hair, a teen girl in a purple cardigan holding up her hand",
+              "effects": {
+                "nerve": -1
               }
             }
           }
@@ -854,6 +1169,158 @@
             }
           }
         ]
+      },
+      {
+        "id": "gym-record-attempt",
+        "title": "Spot Me",
+        "place": "The weight room, Pump Iron Gym",
+        "text": "Big Lorraine Mbeki, fifty-two, regional bench-press champion and owner of the loudest laugh at Pump Iron, is going for the state record today, and her usual spotter has the flu. Between warm-up sets, you notice the plates on her bar keep changing. Forty-five pounds becomes fifty, then fifty-five, stamped with numbers that aren't on any plate in the rack. Lorraine hasn't noticed. She's chalking up.",
+        "art": "A powerfully built middle-aged Black woman chalking her hands beside a loaded bench-press bar in a chrome 1980s weight room, one extra iron plate faintly glowing at the end of the bar, a teenager staring at it",
+        "choices": [
+          {
+            "id": "spot-her",
+            "label": "Spot her and trust your arms",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "She drives the bar up, it stalls, and you're there with two fingers and everything you've got. It goes up. The room explodes. Lorraine hugs you off the floor and swears it felt heavier than it should. The strange plate is gone when you rack it, and you're a little stronger for having held it.",
+              "art": "A teenager spotting a straining woman on a bench press as the bar locks out, lifters around them cheering with fists raised",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The bar dips, you both strain, and two lifters have to haul it back to the rack. Lorraine is fine, and furious at the bar instead of you. The strange plate rolls under the squat cage, and when the manager fishes it out, it's a dusty 1979 hubcap.",
+              "art": "Two burly lifters hauling a heavy barbell off a bench as a woman sits up gasping, a dusty hubcap rolling across the rubber floor",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "do-the-math",
+            "label": "Pull her aside and do the math on the bar",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You add it up on a towel with a marker: the bar is carrying thirty pounds more than the record. You strip the strange plates off before her attempt and stack them in the corner, where they sulk. Lorraine breaks the record clean, then breaks it again for fun.",
+              "art": "A teenager sliding odd iron plates off a barbell and stacking them in a corner of a weight room while a champion lifter watches with arms crossed",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your math says the bar is fine. Your math is wrong. Lorraine misses the attempt by an inch, and when she sits up, the strange plates are stacked neatly in the corner, waiting, as if they had been there all along.",
+              "art": "A disappointed champion lifter sitting up on a bench, a neat stack of strange iron plates in the corner of the weight room behind her",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hype-her",
+            "label": "Get the whole gym chanting her name",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "LOR-RAINE. LOR-RAINE. You get the lifters stomping, the aerobics class banging tambourines and the sauna regulars yelling from the doorway in towels. She lifts on pure adrenaline and the extra weight doesn't stand a chance. She buys you a protein shake that tastes like chalk and victory.",
+              "art": "A packed 1980s weight room chanting and stomping, an aerobics class shaking tambourines in the doorway, a woman pressing a heavy barbell up in triumph",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Nobody chants. One guy claps twice. Lorraine shoots you a look that says \"baby, please\" and lifts in total silence, and the strange plate seems to drink up the quiet.",
+              "art": "A silent weight room of unimpressed lifters, one man clapping limply, a teenager with raised arms looking embarrassed",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "gym-cubby-zero",
+        "title": "Cubby Zero",
+        "place": "The skate-rental counter, the roller-rink annex at Pump Iron",
+        "text": "Dwayne at the rental counter has a problem in cubby zero. A pair of white 1950s boot skates with pink pom-poms keeps turning up there, laced and polished, no matter how many times he locks them in the back. The wall of fame says they belonged to Bunny Albescu, who skated here every Saturday until she was eighty-one and passed last spring. Today they're in your size.",
+        "art": "A roller-rink skate-rental counter with cubbies full of brown rental skates, one pair of polished white vintage boot skates with pink pom-poms glowing in the bottom cubby, a disco ball overhead, framed photos on the wall behind",
+        "choices": [
+          {
+            "id": "one-lap",
+            "label": "Lace them up and take one lap for Bunny",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The skates know the floor better than you do. They carry you through a perfect slow lap under the disco ball, finishing in the little backward spin Bunny was famous for. The old regulars on the rail stand up and clap. The skates go back in cubby zero and stay there, finally resting.",
+              "art": "A teenager gliding backward in white vintage boot skates under a spinning disco ball, elderly regulars standing at the rail applauding",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The skates want a faster song than the DJ is playing. They take you twice around the rink at a speed nobody should reach in rentals and deposit you in a heap at the snack bar, in the nachos. By the time you get them unlaced, Dwayne is already putting them back in cubby zero.",
+              "art": "A teenager sprawled at a roller-rink snack bar with nachos scattered everywhere, white vintage skates on their feet still spinning their wheels",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "wall-of-fame",
+            "label": "Read the wall of fame for what she left unfinished",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 7,
+            "success": {
+              "text": "In the 1957 photo, Bunny is mid-couples-skate with a woman in a matching pom-pom pair, but the caption names only Bunny. The partner's name is penciled on the back of the frame: Marguerite Ferreira. Dwayne adds it to the caption with his label maker and gives you a free skate pass. The pom-poms stay quiet after that.",
+              "art": "A teenager studying a framed black-and-white photograph on a roller-rink wall, showing two women in matching pom-pom skates skating arm in arm",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The photos are faded and the captions are mostly skating puns. When you turn around, the white skates are sitting on the counter right in front of you, laces loose, toes pointed at you, waiting.",
+              "art": "A pair of white vintage boot skates sitting on a rental counter with loose laces, toes pointed toward a nervous teenager",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "bring-home",
+            "label": "Find Bunny's granddaughter and bring the skates home",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Her granddaughter Rosa runs the alterations shop across the parking lot and bursts into tears at the pom-poms. She hangs the skates over her sewing machine, where Bunny can watch the whole street go by. She swears she'll hem your jeans for free, forever.",
+              "art": "A tearful woman in a tailor's shop hanging white vintage roller skates above a sewing machine, a teenager smiling in the doorway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Rosa thanks you politely and takes them inside. By the time you walk back across the parking lot, Dwayne is waving at you from the rink door, holding up a pair of white skates with pink pom-poms and looking haunted.",
+              "art": "A rink employee in the doorway of a roller rink holding up white vintage pom-pom skates with a haunted look, a parking lot in late afternoon",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -1122,6 +1589,162 @@
             }
           }
         ]
+      },
+      {
+        "id": "high-school-morning-announcements",
+        "title": "Paging Daniel Wexler",
+        "place": "Homeroom and the main office, Glimmer Falls High, a school morning",
+        "days": [3, 4, 5, 6, 7],
+        "text": "After the pledge and the cafeteria menu, the PA crackles and a different voice comes on, older, with a hiss under it like a worn record. \"Daniel Wexler, report to the principal's office.\" Your homeroom teacher goes white. Daniel Wexler graduated in 1966 and runs the night shift at the Thriftee-Mart now. The announcement repeats every school morning, and every morning it sounds a little more impatient.",
+        "art": "A 1980s high-school homeroom of startled students looking up at a crackling wall-mounted PA speaker, a pale teacher frozen at the chalkboard, morning sun through tall windows",
+        "choices": [
+          {
+            "id": "answer-call",
+            "label": "Go to the office in his place",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The principal's office is empty, but the old intercom on the wall is warm. You press the button and say, \"Danny grew up, sir. He turned out okay.\" A long pause, a click, then a sound like a man finally exhaling. The PA plays the school song, slightly off-key, and goes quiet for good.",
+              "art": "A teenager speaking into a wall-mounted vintage intercom in an empty principal's office lit by morning sun through venetian blinds",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The secretary, Mrs. Delgado, looks at you like you're the ghost. \"You're not Daniel,\" she says, and the PA says it too, from every speaker in the building at once. You get a tardy slip and a chill that lasts until lunch.",
+              "art": "A startled school secretary at her desk staring at a teenager, PA speakers mounted high on the office wall",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "record-it",
+            "label": "Tape the announcement and play it backward in the AV room",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "cassette-recorder",
+              "amount": 2
+            },
+            "success": {
+              "text": "Backward, under the hiss, the old principal is saying something else: \"I was wrong to call him in that day. I was wrong to tell his folks.\" You bring the tape to Mr. Wexler on his break at the Thriftee-Mart. He listens twice, nods slowly and presses two quarters on you \"for the tape.\"",
+              "art": "A teenager in a cluttered high-school AV room wearing headphones beside a portable cassette recorder, a reel-to-reel deck and cables behind them",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Backward, the announcement is just your name, over and over, in that old impatient voice. The recorder eats the tape. Vice Principal Kroll confiscates it for being in the AV room without a pass, which is honestly the least scary part of your morning.",
+              "art": "A stern vice principal holding up a tangled cassette tape in a high-school AV room, a sheepish teenager beside a jammed recorder",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ask-delgado",
+            "label": "Ask Mrs. Delgado in the office what happened in 1966",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "Mrs. Delgado has been the school secretary since 1964. She closes the door. \"Principal Harlan called Danny in and told his parents he'd been seen holding hands with the Fischer boy. Harlan regretted it until the day he died.\" She writes Danny's number on a pink message slip. \"Somebody should tell him that.\"",
+              "art": "A gray-haired school secretary leaning across her desk to confide in a teenager, a pink message slip in her hand, the office door closed",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Mrs. Delgado's smile goes stiff. \"Ancient history, sweetheart,\" she says, and hands you a hall pass to anywhere else. As you turn to go, the PA crackles and the old voice says, \"Mrs. Delgado, hold my calls.\" She drops her coffee.",
+              "art": "A school secretary dropping a coffee mug in surprise beneath a crackling PA speaker, a teenager holding a hall pass in the doorway",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "high-school-costume-parade",
+        "title": "Costume Code",
+        "place": "The quad at lunch, Glimmer Falls High, Halloween",
+        "days": [7],
+        "text": "Halloween lunch means the costume parade around the quad, and Vice Principal Kroll has taped a list of APPROPRIATE COSTUMES to the cafeteria door. A sophomore named Ozzie Brandt is in a sequined swamp-queen gown he sewed by hand, with a glittering train of felt lily pads, and Kroll is pointing at the list and then at the bathroom, telling him to change. The trophy case behind them flickers like it's watching. Ozzie's chin is up, but his hands are shaking.",
+        "art": "A sunny high-school quad at lunchtime decorated for Halloween, a sophomore in a glittering homemade swamp-queen gown with a train of felt lily pads facing a stern vice principal holding a clipboard, students in costumes watching, a flickering trophy case behind them",
+        "choices": [
+          {
+            "id": "march-with",
+            "label": "Offer Ozzie your arm and start the parade yourself",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You offer Ozzie your arm and walk. The drama kids fall in, then the softball team, then half the quad, until Kroll is standing alone with his list while the parade sweeps past him. Ozzie wins Best Costume by a landslide and wears the sash to every class.",
+              "art": "A sophomore in a glittering swamp-queen gown walking arm in arm with a teenager at the head of a cheering costume parade across a sunny school quad",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Kroll steps between you and writes you both up before the parade can start. You spend lunch on the bench outside the office together. Ozzie fixes a sequin and says, very quietly, \"Thanks for being the only one.\" It counts. It still stings.",
+              "art": "Two teenagers on a bench outside a principal's office at lunchtime, one in a glittering gown fixing a sequin, the other holding a detention slip",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "read-the-rules",
+            "label": "Pull the student handbook and read Kroll the actual rules",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "success": {
+              "text": "Page 41, dress code: there is no costume rule at all. Kroll invented the list this morning. You read the page aloud in front of the principal, who is judging the parade in a witch hat. The list comes off the door, and Kroll goes to check on the cafeteria for a very long time.",
+              "art": "A teenager holding up an open student handbook to a frowning vice principal in a school quad while a principal in a witch hat looks on",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The dress code is vague enough that Kroll can call anything a distraction, and he smiles and says so. Ozzie changes into gym clothes and folds the gown into his locker. The trophy-case lights stay dark all afternoon.",
+              "art": "A gloomy school hallway beside a darkened trophy case, a teenager in gym clothes folding a glittering gown into a locker",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "gowns-for-all",
+            "label": "Raid the drama closet so everyone shows up in a gown",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Twenty minutes later the football team is in ball gowns, the chess club is in feather boas and Coach Pruitt is in a tuxedo with tails, refereeing. Kroll can't send the whole school to change. Ozzie leads the parade in a crown somebody made out of a pie tin.",
+              "art": "A school quad full of laughing teenagers in mismatched ball gowns and feather boas, a sturdy coach in a tuxedo with a whistle, a sophomore in a pie-tin crown leading them",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The drama teacher catches you with an armful of gowns and marches you to Kroll, who gives you detention and keeps the gowns \"as evidence.\" Ozzie walks the parade alone in his. He gets a few cheers and a lot of stares.",
+              "art": "A drama teacher catching a teenager carrying an armful of sparkly gowns out of a costume closet, a stern vice principal in the doorway",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -1363,6 +1986,159 @@
               "text": "Zelda looks at the box and her face changes. \"I don't remember making this one,\" she says, \"but that's my scream.\" She takes it into the back room and doesn't come out for an hour.",
               "alone": "You flip the box over and your stomach drops: the scream on the back cover is yours, and you don't remember making this one. You shove it in the back room and don't go near that wall for an hour.",
               "art": "A woman staring in shock at a VHS box on a counter, a beaded curtain to a back room swinging behind her",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewind-video-standee",
+        "title": "Mangler Mack Moved",
+        "place": "The front window, Rewind Video, opening time",
+        "text": "The life-size cardboard standee of Mangler Mack, the masked janitor from Summer Camp Carnage IV, faced the street when Zelda locked up last night. This morning he's facing the counter, one cardboard arm raised in a little wave, and there are dusty prints on the carpet between the window and the register. The manager wants him out by the dumpster before customers arrive. Mack weighs two pounds and somehow feels heavier.",
+        "art": "A life-size cardboard cutout of a masked movie janitor holding a mop, standing in a video-store aisle and facing the counter with one arm raised, dusty footprints on the carpet leading from the front window, morning light",
+        "choices": [
+          {
+            "id": "haul-out",
+            "label": "Drag him out to the dumpster yourself",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 7,
+            "success": {
+              "text": "You fold Mack in half, march him out the back and wedge him behind the dumpster. When you come back in, the bell over the door jingles behind you and you refuse to turn around. He stays out there. The manager pays you two quarters for the haul.",
+              "art": "A teenager hauling a folded cardboard cutout out a back door toward an alley dumpster in morning light",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Mack catches on the door frame, tears down the middle, and the top half flops over your shoulder like a hug. By lunchtime he's back in the window, taped together, waving at the street. Nobody admits to the tape.",
+              "art": "A taped-together cardboard cutout of a masked janitor standing in a video-store window waving at the street, a dismayed teenager on the sidewalk outside",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "raffle",
+            "label": "Raffle him off to the horror regulars, a quarter a ticket",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "The horror regulars go feral. A sixth-grader named Lupe wins and rides him home on her bike like a prize marlin. She calls the store the next morning: he moved again, and she loves him. You clear two quarters after the prize.",
+              "art": "A kid on a bicycle riding away from a video store with a life-size cardboard cutout of a masked janitor strapped to her back, regulars cheering in the doorway",
+              "effects": {
+                "quarters": 2,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Three kids buy tickets, and one of them wants a refund the moment Mack's head turns toward him. Then they all do. You refund everybody. Mack stays in the window, having made his point.",
+              "art": "A teenager handing coins back to a frightened kid at a video-store counter, a cardboard cutout in the window turned to watch them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "security-tape",
+            "label": "Check the store's overnight security tape",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "On the grainy tape, at 3:12 a.m., an opossum squeezes in through the night-drop slot, knocks Mack over, props him up the wrong way around and spends an hour in the candy rack. You laugh until you cry. You decide to skip the part where it looks right at the camera.",
+              "art": "A grainy security monitor in a video-store back room showing an opossum in a candy rack beside a toppled cardboard cutout, a teenager laughing at the screen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tape shows the store empty all night. Mack faces the street, then the counter, with nothing in between. Then, at the very end, the frame jumps and Mack is standing right in front of the camera.",
+              "art": "A teenager recoiling from a security monitor in a dark back room, the screen filled by a cardboard masked face up close",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewind-video-home-movie",
+        "title": "For Nico, When He's Older",
+        "place": "The returns counter, Rewind Video",
+        "text": "Inside the case of a returned copy of Beach Blanket Bigfoot is the wrong tape: a home-video cassette with a peeling label, FOR NICO, WHEN HE'S OLDER, XMAS '76. The account belongs to Nico Ferrante, nineteen, who dropped off eleven tapes in a laundry bag and left for basic training this morning. The cassette is warm. From inside the case comes the faint sound of a woman humming a carol.",
+        "art": "A video-store returns counter with an open rental case holding a worn home-video cassette, a laundry bag spilling tapes beside it, warm lamplight, a teenager leaning close to listen",
+        "choices": [
+          {
+            "id": "watch-it",
+            "label": "Watch it in the back room to find out whose it is",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "It's Christmas 1976, and a young woman with the camera in her lap is talking to a baby in a high chair. \"When you're big, Nico, and someone tells you who you're allowed to be, play this.\" Then she sings him a carol, badly and joyfully. You know exactly where it needs to go.",
+              "art": "A teenager in a dim video-store back room watching a TV that shows a young woman singing to a baby in a high chair beside a decorated tree",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The tape is chewed in the middle, and the deck mangles the rest, spooling a long ribbon of Christmas onto the floor. You wind it back by hand with a pencil for an hour. The humming in the case stops, and you hope it's resting.",
+              "art": "A teenager sitting on a back-room floor winding a long ribbon of spilled videotape back into a cassette with a pencil",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "find-family",
+            "label": "Find the family through the membership file",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The emergency contact is Rita Ferrante on Larkspur Lane. She opens the door, sees the label and sits right down on the step. \"That's his mother. My sister. I'll send it to him at basic.\" She presses two quarters into your hand and won't take them back.",
+              "art": "A woman sitting on her front step clutching a home-video cassette to her chest, a teenager on the front walk in afternoon light",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The address on file is a house that sold last month, and the new owners have never heard of any Ferrantes. You leave a note at the post office. The tape sits in Rewind's lost-and-found, humming quietly to itself every evening at closing.",
+              "art": "A teenager on the porch of an unfamiliar house with moving boxes stacked inside the screen door, holding a cassette and looking lost",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "dub-a-copy",
+            "label": "Dub a copy with Zelda so it can never be lost again",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 7,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "Zelda runs two decks at once like a pro and narrates the whole time about how home movies are the only horror films with happy endings. The dub comes out perfect. One copy goes to Nico's aunt, one goes in a drawer marked KEEP, and Zelda calls you a born archivist.",
+              "alone": "You chain two decks together with a cable from the back room and sit with the tape the whole way through. The dub comes out perfect. One copy goes to Nico's aunt, and one goes in a drawer under the counter marked KEEP.",
+              "art": "A woman in her sixties with a silver-streaked black bouffant and cat-eye glasses beside a teenager watching two stacked VCRs dub a tape, a TV glowing with a family Christmas",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The dub comes out with a second voice humming under the carol, lower and wrong. Zelda erases the copy without a word and hands you back the original. \"Some things you don't copy,\" she says.",
+              "alone": "Your dub comes out with a second voice humming under the carol, lower and wrong. You erase the copy fast and put the original back in its case with both hands.",
+              "art": "A video-store counter at dusk, a TV showing static over a faint Christmas tree, a woman in cat-eye glasses ejecting a cassette from stacked VCRs beside a teenager",
               "effects": {
                 "dread": 1
               }
@@ -1634,6 +2410,160 @@
             }
           }
         ]
+      },
+      {
+        "id": "starlight-mall-holly-jolly",
+        "title": "Ho Ho Ho, October",
+        "place": "Center court, Starlight Mall",
+        "text": "It's still October and the mall is already building the Holly Jolly Village at center court: fake snow, a plywood gingerbread house and eleven animatronic elves in their shipping crates. The setup crew is two people short and paying two quarters for the afternoon. The problem is elf number seven. He's unplugged, his batteries are in a bag on the floor, and he keeps singing \"Up on the Housetop\" in a slow, deep voice.",
+        "art": "A shopping-mall center court half-built into a Christmas village with fake snow and a plywood gingerbread house, animatronic elves in open shipping crates, one elf with glowing eyes and an open mouth, Halloween decorations still hanging from the railings",
+        "choices": [
+          {
+            "id": "work-crew",
+            "label": "Pitch in with the setup crew for the pay",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 7,
+            "success": {
+              "text": "You haul crates, spread fake snow and hang lights for three hours while the elf sings. By the end you're humming along. The crew boss pays you two quarters and tells you elf seven \"does this every year, kid, just don't let him finish the song.\"",
+              "art": "A teenager hanging strings of lights on a plywood gingerbread house in a mall center court beside a row of animatronic elves",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You lift elf seven's crate and he finishes the song. Every elf in the village turns its head toward you at once, with a little whir. The crew boss sends you home early for scaring the merchandise, with fake snow in your ears.",
+              "art": "A row of animatronic elves in a fake-snow Christmas village all turned to stare at a startled teenager holding an empty crate",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "open-him-up",
+            "label": "Open elf seven up and find out what's powering him",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Behind his felt vest, wedged in the gears, is a cassette from 1983, the year the old department store closed: a Woolmart holiday jingle on a loop. You pull it and elf seven stops mid-ho. The silence is enormous. The crew boss lets you keep the tape, and it turns out to have a great B-side.",
+              "art": "A teenager with a small screwdriver opening the back of an animatronic elf's felt vest, gears and an old cassette tape visible inside",
+              "effects": {
+                "dread": -1,
+                "items": ["mixtape"]
+              }
+            },
+            "failure": {
+              "text": "You get the vest open and find gears, wires and no power source of any kind. Elf seven stops singing, turns his head all the way around to look at you and says, in that deep voice, \"Naughty.\" You button him back up very gently.",
+              "art": "An animatronic elf with its head turned all the way around staring at a frozen teenager in a half-built mall Christmas village",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "duet",
+            "label": "Sing along and turn it into a show for the shoppers",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You grab a candy-cane prop and duet with elf seven at full volume, adding harmonies and a kick line. A crowd gathers. The elf, bewildered, speeds up to match you and finishes in a perfectly normal chipper squeak. Shoppers toss quarters into the fake snow.",
+              "art": "A teenager doing a kick line with a candy-cane prop beside a singing animatronic elf in a fake-snow mall village, shoppers clapping",
+              "effects": {
+                "quarters": 1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your harmony makes it worse. Elf seven drops an octave lower than any speaker should, and every Christmas light in center court flickers in time. Mall security asks you to take your act to the parking lot.",
+              "art": "A mall security guard escorting a teenager away from a flickering Christmas village, an animatronic elf singing with wide glowing eyes",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "starlight-mall-mall-walkers",
+        "title": "Lap Eleven Hundred",
+        "place": "The upper concourse, Starlight Mall, 7 a.m. before the gates go up",
+        "text": "The Starlight Striders, a dozen retirees in matching teal tracksuits, walk laps of the mall every morning before the shops open. This morning they flag you down. Ida Feeney, seventy-eight, started walking on Tuesday and hasn't stopped. She's polite, she's chatty, she waves every lap, and her eyes lock on the dead-wing plywood every time she passes it. Her sneakers are worn through to the socks.",
+        "art": "Retirees in matching teal tracksuits on an empty early-morning mall concourse with shuttered storefronts, one elderly woman in worn sneakers walking briskly past a plywood wall, the others watching with worry",
+        "choices": [
+          {
+            "id": "walk-with",
+            "label": "Fall into step beside her and slow her down lap by lap",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "Sunny rolls up alongside, sets the pace and talks Ida down lap by lap, slower and slower, like a cooldown. On the last lap Ida blinks, looks around and says, \"Goodness, I'd love a cinnamon roll.\" The Striders cheer, and you get a cinnamon roll too.",
+              "alone": "You set a pace beside her and talk her down lap by lap, slower and slower, like a cooldown, while your legs scream. On the last lap Ida blinks, looks around and says, \"Goodness, I'd love a cinnamon roll.\" The Striders cheer, and you get a cinnamon roll too.",
+              "art": "A Puerto Rican woman in a racing wheelchair with an orange headband and a teenager pacing an elderly woman in a teal tracksuit along an empty mall concourse at dawn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She speeds up to match you. For three laps you're both nearly running, and the plywood seems to lean out as you pass. A Strider finally catches Ida's arm and she sits, confused and exhausted, and you both get fanned with a food-court menu on the pretzel bench.",
+              "art": "An exhausted elderly woman and a panting teenager slumped on a mall bench at dawn, retirees in teal tracksuits fanning them with menus",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "behind-plywood",
+            "label": "Look behind the plywood she keeps staring at",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Through a gap you see the old Woolmart lunch counter and a faded sign for a 1983 seniors' special: walk ten laps, coffee's free. Ida worked that counter for twenty years. You bring her a coffee in a paper cup, and she stops, takes it and says, \"Oh, they finally remembered.\"",
+              "art": "A teenager peering through a gap in plywood at a dusty abandoned department-store lunch counter with chrome stools, faint morning light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Through the gap there's only dark, and then a pair of teal sneakers walking toward you inside, worn through to the socks. You stumble back. When you look at Ida again, she's walking the concourse in her stocking feet.",
+              "art": "A pair of worn teal sneakers walking by themselves across the dark floor of an abandoned department store, seen through a gap in plywood",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "slow-song",
+            "label": "Talk your way into the PA closet and change the music",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You talk the maintenance man into the PA closet and swap the bouncy tape for a slow-dance standard. Ida's pace drops to a stroll, then a sway, and then she's slow-dancing with a Strider named Herb by the fountain. She sits down afterward like nothing happened, and Herb tips you a quarter.",
+              "art": "Two retirees in teal tracksuits slow dancing beside a mall fountain in early-morning light, other walkers applauding",
+              "effects": {
+                "quarters": 1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The only other tape in the closet is a marching-band album. Ida's laps get faster and crisper, and three more Striders fall in behind her, swinging their arms. It takes until opening to get them all to stop.",
+              "art": "A line of determined retirees in teal tracksuits marching briskly along a mall concourse, a teenager chasing after them with a cassette tape",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ]
   },
@@ -1873,6 +2803,171 @@
               "effects": {
                 "nerve": -1,
                 "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "glitter-box-marquee",
+        "title": "Letters on the Marquee",
+        "place": "The marquee ladder, The Glitter Box Playhouse, Saturday afternoon before the midnight double feature",
+        "days": [1],
+        "text": "Frankie Fontaine hands you a crate of plastic letters and points up. Tonight's midnight double feature is ATTACK OF THE 50-FOOT PROM QUEEN and REVENGE OF THE ROLLER GHOULS, and the marquee has to say so by sundown. But every time you climb down for more letters, the ones already up have rearranged themselves. First it was COME IN. Then it was SIT TOGETHER. Now it just says TONIGHT, three times.",
+        "art": "A teenager on a tall ladder against the glowing marquee of a 1920s vaudeville theatre on a sunny afternoon, a crate of plastic marquee letters at the foot of the ladder, a young woman in a headset pointing up",
+        "choices": [
+          {
+            "id": "set-it-fast",
+            "label": "Climb up and set the whole thing in one go",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You haul the crate up the ladder and slam letters in faster than they can move, until both titles are up and spelled right. Frankie whoops from the sidewalk and slips you a quarter. The letters stay put, though at sundown the 50 in 50-FOOT looks suspiciously like it's winking.",
+              "art": "A teenager atop a ladder slotting the last plastic letters into a theatre marquee at sunset, a woman in a headset cheering from the sidewalk",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The crate tips, and plastic letters rain down on the sidewalk like hail. When you gather them up, there are exactly enough to spell TONIGHT three times, and not one letter more. Frankie chalks the titles on a sandwich board by the door.",
+              "art": "Plastic marquee letters scattered across a theatre sidewalk at golden hour, a teenager on hands and knees gathering them, a tall ladder above",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "read-the-message",
+            "label": "Leave the letters be and work out what they want",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You copy every message down and line them up: COME IN. SIT TOGETHER. TONIGHT. It's an invitation, not a threat. You add one line under the titles, ALL WELCOME, and the letters settle like a cat that's finally been understood. That night the line wraps around the block.",
+              "art": "A theatre marquee glowing at dusk above a line of costumed moviegoers wrapping around the block, a teenager looking up with a notebook",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You stare at the marquee until your neck hurts, and the letters spell your name, then your street, then your house number. Frankie climbs up herself, pulls every letter, drops them in the crate and sits on the lid.",
+              "art": "A woman in a headset sitting firmly on the lid of a crate of marquee letters at the foot of a ladder, an empty marquee glowing above her",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "glue-them",
+            "label": "Glue every letter down with Frankie's stage adhesive",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 7,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "Frankie mixes a glue she swears could hold a chandelier through an earthquake, and you slap every letter in place. They twitch, hard, then give up. At midnight she lets you announce the double feature over the lobby PA, which is the best ten seconds of your life.",
+              "alone": "You find a tub of stage adhesive in the scene shop that could hold a chandelier through an earthquake, and you slap every letter in place. They twitch, hard, then give up. At midnight the house manager lets you announce the double feature over the lobby PA.",
+              "art": "A young Portuguese American trans woman with dark curls and a headset and a teenager pressing glue-smeared letters into a theatre marquee from a ladder, afternoon sun",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The glue sets on your hands before it sets on the letters. You and Frankie spend an hour on the curb peeling it off your fingers while the marquee spells out HA HA, very slowly, above you.",
+              "alone": "The glue sets on your hands before it sets on the letters. You spend an hour on the curb peeling it off your fingers while the marquee spells out HA HA, very slowly, above you.",
+              "art": "A teenager and a woman in a headset sitting on a theatre curb peeling glue off their fingers, a glowing marquee above them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "glitter-box-mermaid-tail",
+        "title": "The Mermaid Tail",
+        "place": "The costume-rental loft, The Glitter Box Playhouse",
+        "text": "Halloween week, the Glitter Box rents its costume loft to the whole town, and you're working the racks. A boy of about nine named Mateo has both hands pressed to a sequined mermaid tail like it's an aquarium. His mother keeps steering him toward the pirate rack, saying, \"Something normal, mijo.\" Behind them, the tail's sequins ripple on the hanger, though every window in the loft is shut.",
+        "art": "A cluttered theatre costume loft with racks of sequined gowns and capes, a nine-year-old boy gazing at a shimmering mermaid tail on a hanger, his mother holding a pirate hat, a teenager behind the rental counter",
+        "choices": [
+          {
+            "id": "talk-to-mom",
+            "label": "Talk to his mom, gently",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You tell her what Glory told you once: Halloween is the one night a year everyone gets to be what they love. She watches Mateo's face for a long moment, then sighs and pays for the tail. \"He gets the pirate hat too,\" she says. He wears both, and the sequins go perfectly still.",
+              "art": "A mother paying at a theatre costume counter while her son twirls in a shimmering mermaid tail and a pirate hat, a teenager smiling behind the register",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She thanks you stiffly and rents the pirate suit. Mateo doesn't argue. He just touches the tail once on his way out. That evening the tail is gone from its hanger, and you find it folded neatly on the loft steps, damp and smelling of the sea.",
+              "art": "A sequined mermaid tail folded neatly on the steps of a dim theatre loft, damp and glittering in a slant of evening light",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pin-it",
+            "label": "Pin and hem the tail so it fits him right now",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You pin it on him in ninety seconds flat and he walks out of the dressing room glowing. His mother's whole argument dies in her throat when she sees his face. She pays and tips you a quarter for the tailoring. The tail's ripple settles into a contented shimmer.",
+              "art": "A teenager kneeling with a pincushion hemming a sequined mermaid tail on a beaming nine-year-old boy, his mother softening in the dressing-room doorway",
+              "effects": {
+                "quarters": 1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You drop the pin box and half the sequins come off the hem in one long glittering ribbon. His mother takes it as a sign. \"See? It's falling apart.\" They leave with the pirate suit, and you spend an hour picking sequins out of the floorboards.",
+              "art": "A teenager on hands and knees picking sequins out of old floorboards in a costume loft, a half-stripped mermaid tail on the counter",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "model-it",
+            "label": "Model the tail yourself and make it a fashion show",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Glory hears the fuss, sweeps up the stairs and declares a fashion show. You flop down the aisle in the tail like a beached glamour queen while Glory narrates, and Mateo's mom laughs so hard she has to sit down. She rents him the tail. Glory hands you a can of Aqua-Glow Max Hold for commitment to the bit.",
+              "alone": "You declare a fashion show and flop down the aisle between the racks in the tail like a beached glamour queen, narrating yourself. Mateo's mom laughs so hard she has to sit down. She rents him the tail. The loft manager hands you a can of Aqua-Glow Max Hold for commitment to the bit.",
+              "art": "A teenager in a shimmering mermaid tail posing dramatically on the floor of a costume loft as a tall drag queen in a magenta sequin gown narrates with a feather fan, a mother and son laughing",
+              "effects": {
+                "nerve": 1,
+                "items": ["aqua-net"]
+              }
+            },
+            "failure": {
+              "text": "The sequins ripple up your legs and lock tight, and for one awful minute you can't stand up. Glory hauls you upright, and in the confusion Mateo's mom hustles him down the stairs with a pirate hat. \"Next year, baby,\" Glory calls after him.",
+              "alone": "The sequins ripple up your legs and lock tight, and for one awful minute you can't stand up. In the confusion Mateo's mom hustles him down the stairs with a pirate hat. It takes you an hour to wriggle free.",
+              "art": "A teenager stuck in a tight mermaid tail on a costume-loft floor being hauled upright by a drag queen in a magenta sequin gown, a mother and boy heading down the stairs",
+              "effects": {
+                "nerve": -1
               }
             }
           }
@@ -2152,6 +3247,165 @@
             }
           }
         ]
+      },
+      {
+        "id": "pinecrest-folk-mass",
+        "title": "The Eleven O'Clock Folk Mass",
+        "place": "The nave and organ loft, St. Jude's, Sunday morning",
+        "days": [2],
+        "text": "Sunday at St. Jude's means Father Iggy's folk mass: two acoustic guitars, a bongo and a tambourine player who is home with the flu. Iggy presses the tambourine into your hands before you can object. Then the first hymn starts, and up in the loft the old pipe organ, silent since the organist retired in 1979, joins in on one low, held note. The pews hum under everyone's knees.",
+        "art": "A small stone church nave on a sunny Sunday morning, a young priest with a guitar leading a folk band of parishioners, a teenager holding a tambourine at the front, and high in the dim loft an old pipe organ with its brass pipes faintly glowing",
+        "choices": [
+          {
+            "id": "shake-it",
+            "label": "Play the tambourine like it's a stadium show",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You find the beat, then you find the congregation, and by the second verse fifty parishioners are clapping on two and four. The organ's low note climbs, wobbles and slides into the right key, like it just wanted to be in the band. Iggy mouths \"Hired\" from the altar.",
+              "art": "A teenager shaking a tambourine high overhead in a church aisle, smiling parishioners clapping along, a young priest grinning over his guitar",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "On the big chorus the tambourine slips out of your hand, sails over the front pew and lands in the holy water font with a jingling splash. The organ lets out one long, low note that sounds exactly like a sigh. A grandmother in the second row pats your arm.",
+              "art": "A tambourine splashing into a stone holy water font at the front of a church, startled parishioners turning in their pews, a teenager covering their face",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "climb-loft",
+            "label": "Slip up the spiral stairs to see who's playing",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The loft is empty. A gray cardigan hangs on the organ bench, and a fat old hymnal has slid onto the lowest pedal. You lift it off, the note stops, and you play the hymn's last chord with one careful finger. The church below thinks it was planned. In the cardigan pocket is a wrapped peppermint, and somehow it feels like a thank-you.",
+              "art": "An empty church organ loft with a gray cardigan draped on the bench, a teenager lifting a heavy hymnal off a wooden organ pedal, dusty sunbeams through a round stained-glass window",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Halfway up the spiral stairs, the note stops. At the top, the organ bench is warm, the cardigan is gone, and the hymnal on the music stand is open to a hymn for the dead, with your street's name penciled lightly in the margin. You take the stairs back down two at a time.",
+              "art": "A narrow stone spiral staircase in a church tower, a teenager peering up toward a shadowy organ loft, an open hymnal on a music stand lit by one slanting sunbeam",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-bellows",
+            "label": "Check the organ's bellows in the basement",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Down past the bingo tables, the organ's big leather bellows is wheezing with its motor switched off. Behind it, a family of mice has built a nest of shredded bingo cards right in the wind valve. You move the nest into a shoebox, the note upstairs stops mid-hymn, and the old sexton gives you two quarters from his own coin purse.",
+              "art": "A church basement with folding bingo tables, a teenager carrying a shoebox of tiny mice away from a huge old leather organ bellows, an elderly sexton smiling with a coin purse",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The bellows is breathing. Its motor is unplugged, the cord coiled neatly on the floor, and the great leather lung swells and settles, swells and settles, in time with the hymn upstairs. When you step closer, it holds its breath. You decide the basement can keep its secrets.",
+              "art": "A huge old leather organ bellows swelling in a dim church basement, its unplugged cord coiled on the stone floor, a teenager backing slowly toward the stairs",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pinecrest-stone-angel",
+        "title": "The Angel Moves at Night",
+        "place": "The children's section, Pinecrest Cemetery",
+        "text": "Otis Fenn swears the marble angel from the 1902 Halloran plot stood ten rows deeper in the cemetery last Monday. Every morning this week it's a little closer to the front gate, and every morning it faces a little more toward Crystal Street. It weighs half a ton. There are no drag marks in the grass, only a trail of small, perfect footprints pressed into the dew.",
+        "art": "A weathered marble angel statue with folded wings standing among small leaning headstones near a wrought-iron cemetery gate, morning dew on the grass, an old groundskeeper in overalls scratching his head beside it",
+        "choices": [
+          {
+            "id": "chalk-ring",
+            "label": "Chalk a ring around its base and keep watch",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You chalk the base, stretch a string from the statue to the gate and sit in Otis's shed doorway with a thermos until the light goes orange. It never budges while anyone watches, but the string's angle tells the story: it isn't heading out the gate. It's heading for the Heartstone, like a mourner walking to a grave. You write that down.",
+              "art": "A teenager kneeling to draw a chalk ring around the base of a marble angel statue, a ball of string stretched from the statue to an iron gate, late afternoon light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You chalk the ring, look down to cap your chalk and look up again. The angel is outside the ring now, a full step closer to you, its marble hand lifted a little higher than before. Otis says, very calmly, that it's time for both of you to get some lunch somewhere else.",
+              "art": "A marble angel statue standing one step outside a chalk ring on the grass with its stone hand slightly raised, a startled teenager and an old groundskeeper backing away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "scrub-face",
+            "label": "Scrub the moss streaks off its face",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "Green moss has run down from the angel's eyes like tear tracks. You scrub them clean with Otis's bucket and brush, and under the grime the plaque on its base comes clear: FOR OUR LITTLE BRIDGET, WHO LOVED THE LAKE. When you finish, the stone face looks less sad, and it stays exactly where it is all day.",
+              "art": "A teenager on a stepladder gently scrubbing green moss from the face of a marble angel statue, a bucket of soapy water below, a small brass plaque on the base gleaming",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The moss comes off, then comes back while you watch, two green lines running fresh down the marble cheeks. Your brush water turns as cold as a lake in November. You leave the bucket behind, and when you glance back from the gate, the angel's head has turned to follow you.",
+              "art": "Fresh green moss streaks running down the cheeks of a marble angel statue, an abandoned bucket and scrub brush at its base, a teenager glancing back from a cemetery gate",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "read-cards",
+            "label": "Have Raven lay a tarot spread on its pedestal",
+            "intent": "camp",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "Raven lays three cards on the pedestal with enormous ceremony: the Star, the Six of Cups, the World. \"It's homesick,\" they say. \"Six of Cups is childhood. It wants to go back to the water it remembers.\" A single dry leaf settles on the World card like a finger pointing. Knowing what it wants makes the whole hill feel kinder.",
+              "art": "A goth teen in thrifted velvet laying three tarot cards on the pedestal of a marble angel statue, a single dry leaf drifting onto the middle card, autumn oaks behind",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              },
+              "alone": "You lay three cards from a borrowed deck on the pedestal with enormous ceremony: the Star, the Six of Cups, the World. The little booklet says the Six of Cups means childhood and going home. It's homesick, you realize, for water it remembers. A single dry leaf settles on the World card like a finger pointing."
+            },
+            "failure": {
+              "text": "Every card Raven turns over is the same card, the Tower, and on the fourth flip they gather the deck up fast and wrap it in black silk. \"Nope,\" Raven says. \"Not today. We ask again when it's in a better mood.\" The angel's shadow is lying across both of you, though the sun is on the other side.",
+              "art": "Four identical tarot cards showing a lightning-struck tower on a marble pedestal, a goth teen wrapping a deck in black silk, a long statue shadow falling across them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              },
+              "alone": "Every card you turn over from your borrowed deck is the same card, the Tower, and on the fourth flip you gather the deck up fast and stuff it in your pocket. Not today. You'll ask again when it's in a better mood. The angel's shadow is lying across you, though the sun is on the other side."
+            }
+          }
+        ]
       }
     ]
   },
@@ -2383,6 +3637,163 @@
             "failure": {
               "text": "You run out of time mid-rewrite and read half of each version. The ad makes no sense, Sal threatens to sue and the manager pays you in mints. Somewhere in the transmitter, something laughs once.",
               "art": "A station manager angrily on the phone in a radio office, a teenager slumped holding a crumpled page and a handful of mints",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "kglm-radio-martian-rehearsal",
+        "title": "Martians Over Glimmer Falls",
+        "place": "The production booth, KGLM 103.3, Halloween afternoon",
+        "days": [7],
+        "text": "For Halloween, the station manager is re-staging the famous 1938 Martian-invasion radio play at six o'clock with local voices, and you've been cast as the reporter at the crash site. During the afternoon rehearsal, the old teletype in the corner starts chattering on its own. It's typing your lines a beat before you read them. Then it types one that isn't in the script: LIGHTS OVER CRYSTAL STREET. LOOK UP.",
+        "art": "A cramped radio production booth with a teenager at a microphone holding a script, a vintage teletype machine in the corner spitting paper, a window behind showing a hilltop water tower against an orange Halloween sky",
+        "choices": [
+          {
+            "id": "ham-it-up",
+            "label": "Ham it up and finish the rehearsal on script",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You give the crash-site reporter everything: the gasps, the crackle, the \"Ladies and gentlemen, it's indescribable!\" The teletype goes quiet to listen. When you finish, it types one word, APPLAUSE, then a perfectly normal weather report. The station manager says you're the best Martian victim KGLM has ever had.",
+              "art": "A teenager dramatically clutching a radio microphone with wide eyes mid-scream, a station manager in shirtsleeves applauding, a teletype quietly printing behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You flub the big line, and the teletype finishes it for you in capital letters, then keeps going: a second reporter, a second crash site, an address on Crystal Street. The station manager tears the paper off, laughing too loudly. \"Kids,\" he says, and locks the roll in a drawer.",
+              "art": "A long curl of teletype paper spilling across a radio booth floor, a station manager laughing nervously as he tears it off, a teenager staring at the printed words",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "climb-tower",
+            "label": "Climb the water tower and look up",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "From the top of the tower the whole valley is gold and orange. Over Crystal Street, three pale lights hang in a perfect triangle, then drift apart and wink out one by one, as if they only wanted to be noticed. You climb down steady and tell Mix, who puts the sighting on air as a Halloween bonus. The phones light up with people who saw them too.",
+              "art": "A teenager on the catwalk of a hilltop water tower at golden hour gazing at three pale lights in a triangle above a suburban cul-de-sac far below",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Halfway up the ladder, every radio in the station below blares the same Martian sound effect at once, and you freeze with both arms locked around a rung. By the time your hands work again, the sky is ordinary and empty. Mix helps you down and pretends he can't tell you're shaking.",
+              "art": "A teenager clinging tight to the rungs of a water tower ladder, a small cinderblock radio station below with its door flung open, an empty orange evening sky",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "read-roll",
+            "label": "Unspool the teletype roll back to the start",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You unroll the paper across the whole booth. Hidden in the gibberish, every thirteenth letter spells a sentence: WE ARE ONLY LISTENING. You show Mix, who decides he'll end tonight's broadcast by saying hello back. It feels like the most polite thing anyone has said to the sky all week.",
+              "art": "A long strip of teletype paper unrolled across a radio station floor, a teenager on hands and knees circling letters with a red pencil, a young DJ with headphones leaning over to look",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              },
+              "alone": "You unroll the paper across the whole booth. Hidden in the gibberish, every thirteenth letter spells a sentence: WE ARE ONLY LISTENING. You leave a note for tonight's announcer: end the broadcast by saying hello back. It feels like the most polite thing anyone has said to the sky all week."
+            },
+            "failure": {
+              "text": "The paper goes back much farther than today. At the very start of the roll, dated October 31, 1938, someone typed a single line: SEE YOU IN FORTY-EIGHT YEARS. You count it on your fingers twice. Then you roll the paper back up and decide you're bad at math.",
+              "art": "A teenager holding the yellowed start of a teletype roll under a desk lamp, an old radio station console glowing behind them",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "kglm-radio-backmasking",
+        "title": "Play It Backward",
+        "place": "The record library, KGLM 103.3",
+        "text": "A committee of Concerned Parents has marched up the KGLM hill with a petition and a cardboard box. In the box: every heavy metal album in the station library, plus Mix's whole Glitter Box disco set, which they call \"a gateway.\" They insist the records hide satanic messages when played backward. The station manager is sweating. Mix is very, very calm, which is how you know he's furious.",
+        "art": "A wood-paneled radio station record library lined with album shelves, a group of stern parents in cardigans holding a clipboard and a cardboard box of records, a young DJ with headphones around his neck standing calmly with folded arms",
+        "choices": [
+          {
+            "id": "spin-backward",
+            "label": "Play the \"evidence\" backward, live on air",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You drop the needle, spin the platter backward by hand and lean into the mic. Out comes a slurry of garbled vowels that, if you squint, says \"Pass the potato salad.\" The committee's leader turns pink. Half the parents start laughing, and one admits she owns that album. The box goes back on the shelf.",
+              "art": "A teenager spinning a vinyl record backward by hand on a radio station turntable, red-faced parents in cardigans, one mother laughing behind her clipboard",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You spin it backward and, under the garble, a voice that isn't on the record says your name, slowly, twice. The committee gasps in triumph. The station manager pulls the plug and agrees to \"review the library.\" Mix doesn't blame you, but the box spends the night in the manager's office.",
+              "art": "A record turntable in a radio station with its tonearm lifted, a teenager recoiling from the speaker, stern parents leaning forward with satisfied expressions",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hear-them-out",
+            "label": "Sit down with the parents and actually listen",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You ask what they're afraid of, and it all spills out: kids who don't talk at dinner, a son who locks his door, the evening news. You tell them these records are how half the kids you know find each other. One dad goes quiet, then asks Mix the name of the dance song his daughter plays. The committee leaves with its petition unsigned.",
+              "art": "A teenager on a stool talking earnestly with a small group of parents in a radio station library, one father listening thoughtfully, a young DJ writing down a song title for him",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You try, but the committee's leader talks over you, then over Mix, then over the station manager, until he signs a promise to \"keep it wholesome\" just to make it stop. The box goes into the back of a station wagon. Mix spends the afternoon taping a new show called Requests Nobody Can Ban.",
+              "art": "A cardboard box of vinyl records being loaded into the back of a wood-paneled station wagon, a young DJ watching from the radio station steps with his jaw set",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "smuggle-box",
+            "label": "Smuggle the box out to the tower shed",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "While everyone argues about the devil, you walk the box out the back door, across the gravel and into the padlocked shed under the water tower. When the committee goes looking, the shelves have a suspiciously tidy gap. Mix slips you two quarters and a wink: \"Lost in the archive. Tragic.\"",
+              "art": "A teenager sneaking across a gravel lot carrying a heavy cardboard box of records toward a small shed beneath a towering water tank, a radio station back door ajar behind them",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The box bottom gives out halfway across the gravel, and forty albums fan out at the feet of the committee's leader. She picks up a disco record in a sequined sleeve and holds it up like evidence at a trial. The station manager makes you carry them all back in, one by one, while she watches.",
+              "art": "Dozens of vinyl albums scattered across a gravel lot, a stern woman with a clipboard holding up a glittering record sleeve, a teenager kneeling among the records",
               "effects": {
                 "nerve": -1
               }
@@ -2632,6 +4043,171 @@
             "failure": {
               "text": "You hit a pothole on Elm and both go down. Wade's notebook goes into a storm drain. He sits on the curb a long time, then starts reciting the poem from memory to you, right there. It's good. He still doesn't go.",
               "art": "A metalhead sitting on a curb beside a fallen bicycle reciting from memory to a teenager under a streetlight, a storm drain nearby",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "junkyard-swap-meet",
+        "title": "Instant Pets, Some Assembly Required",
+        "place": "The Sunday swap meet in the front lot, Rusty's Junkyard",
+        "days": [2],
+        "text": "On Sundays, Rusty opens the front lot to a swap meet: card tables of hubcaps, eight-tracks and lawn gnomes. One vendor found a crate of 1962 Brine Buddies, the mail-order instant sea pets, and dumped every packet into a kiddie pool to see what would happen. What happened is that they're now the size of hamsters, pink, cheerful and wearing tiny crowns, exactly like the ad promised. Barnaby is howling his head off.",
+        "art": "A sunny junkyard swap meet of card tables loaded with hubcaps and lawn gnomes, a plastic kiddie pool full of pink hamster-sized sea creatures with tiny crowns, a basset hound howling beside it and a vendor in a straw hat",
+        "choices": [
+          {
+            "id": "set-free",
+            "label": "Buy the whole pool and set them free",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You talk the vendor down from ten quarters to one and a pack of gum. Then you and Joey wheel the kiddie pool to the drainage creek behind the lot and tip it in. The Buddies wave tiny fins and paddle off in a line like a parade. Rusty says if they ever come back as big as dogs, that's on you.",
+              "art": "A teenager and a teen mechanic tipping a kiddie pool into a reedy creek behind a junkyard, a line of small pink crowned sea creatures paddling away waving their fins",
+              "effects": {
+                "quarters": -1,
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You haggle so long that the vendor gets bored and sells the whole pool to a man who runs a bait shop. As his pickup pulls away, two hundred tiny crowned heads turn to look at you over the tailgate, betrayed. You'll see that look in your sleep.",
+              "art": "A rusty pickup truck driving away from a junkyard lot with a kiddie pool in its bed, rows of tiny pink crowned sea creatures peering sadly over the tailgate",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "vet-advice",
+            "label": "Fetch Dr. Haddad and his vet bag",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dr. Haddad takes one look, rolls up his sleeves and says, \"Brine shrimp. Very ambitious brine shrimp.\" He tests the water, adds a box of salt from his car and prescribes shade. By noon the Buddies have shrunk back to fingernail size, and the vendor is selling them in jars with care instructions you lettered in marker. She pays you two quarters for the copywriting.",
+              "art": "A veterinarian in rolled shirtsleeves kneeling by a kiddie pool of pink crowned sea creatures pouring in salt, a teenager lettering care instructions on cardboard under a beach umbrella",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              },
+              "alone": "You remember Dr. Haddad saying that anything living in water needs salt and shade. You pour in a box of rock salt from Rusty's shed and rig a beach umbrella. By noon the Buddies have shrunk back to fingernail size, and the vendor is selling them in jars with care instructions you lettered in marker. She pays you two quarters for the copywriting."
+            },
+            "failure": {
+              "text": "Dr. Haddad says \"more salt,\" you hear \"more water\" and blast the pool with Rusty's hose. The Buddies love it. They grow another inch, start chirping in harmony and spend the rest of the swap meet following you around the lot in a line. Barnaby will never forgive you.",
+              "art": "A teenager walking across a junkyard lot followed by a chirping line of plump pink sea creatures with tiny crowns, a basset hound glaring from under a card table",
+              "effects": {
+                "nerve": -1
+              },
+              "alone": "You half remember something about salt, decide it was \"more water\" and blast the pool with Rusty's hose. The Buddies love it. They grow another inch, start chirping in harmony and spend the rest of the swap meet following you around the lot in a line. Barnaby will never forgive you."
+            }
+          },
+          {
+            "id": "sideshow",
+            "label": "Charge a nickel a look: SEE THE BRINE ROYALTY",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You drape a bedsheet over two sawhorses, letter a cardboard sign and bark like a carnival pro: \"Behold the crowned monarchs of the briny deep!\" The line wraps around the hubcap table twice. You split a coffee can of nickels with the vendor, and the Buddies seem to enjoy the applause.",
+              "art": "A teenager in a top hat barking at a line of kids outside a bedsheet tent on sawhorses, a hand-lettered cardboard sign, a kiddie pool of pink crowned sea creatures inside",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Your big unveiling is the exact moment the Buddies decide to molt. Two hundred tiny pink shells pop off at once with a sound like popcorn, and the front row gets a faceful of sea glitter. Parents want their nickels back. The vendor wants her cut of the nickels you no longer have.",
+              "art": "A crowd of startled kids sprinkled with sparkly pink flakes in front of a bedsheet tent, a kiddie pool erupting with tiny shells, a teenager in a top hat wincing",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "junkyard-parade-hearse",
+        "title": "Glory's Getaway Car",
+        "place": "Joey's garage bus, Rusty's Junkyard",
+        "text": "Glory Hallelujah is riding in Friday's Halloween parade as the Bride of Glimmerstein, and she wants to arrive in style: a 1961 Cadwell hearse Rusty dragged out of the back lot. Joey has the engine purring. The problem is the back door. It keeps unlatching by itself, and every time it swings open, the rolling casket tray glides out toward whoever is standing closest. Right now, that's you.",
+        "art": "A long black vintage hearse parked in a junkyard beside a converted school-bus garage, its rear door swinging open and a chrome casket tray sliding out toward a startled teenager, a teen mechanic wiping his hands on a rag",
+        "choices": [
+          {
+            "id": "fix-latch",
+            "label": "Rebuild the latch with Joey",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Joey pull the latch apart on the workbench. Wedged in the spring is a folded parade ribbon from 1961: GRAND MARSHAL. The hearse was meant to lead a parade once and never made it. Joey rebuilds the latch, you tie the ribbon to the hood ornament, and the back door stays shut, like a car that's finally satisfied.",
+              "art": "A teen mechanic and a teenager at a cluttered garage workbench examining a car door latch, a faded blue parade ribbon unfolded between them, a black hearse visible through the bus windows",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "hustle": 1
+                }
+              },
+              "alone": "You pull the latch apart on Joey's workbench. Wedged in the spring is a folded parade ribbon from 1961: GRAND MARSHAL. The hearse was meant to lead a parade once and never made it. You rebuild the latch, tie the ribbon to the hood ornament, and the back door stays shut, like a car that's finally satisfied."
+            },
+            "failure": {
+              "text": "The new latch holds for ten minutes. Then, with both of you bent over the engine, the back door creaks open and the casket tray rolls out and nudges you gently behind the knees. You sit down on it hard. Joey says, \"It likes you,\" and doesn't sound like he's joking.",
+              "art": "A teenager sitting down hard on a chrome casket tray that has rolled out of the back of a black hearse, a teen mechanic leaning on the open hood looking amused",
+              "effects": {
+                "nerve": -1
+              },
+              "alone": "The new latch holds for ten minutes. Then, while you're bent over the engine, the back door creaks open and the casket tray rolls out and nudges you gently behind the knees. You sit down on it hard. Somewhere in the stacks, Barnaby howls once, like he told you so."
+            }
+          },
+          {
+            "id": "lie-down",
+            "label": "Lie down in the back and see what it wants",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You climb in, lie back on the tray and pull the door shut. It's dark and smells like carnations. After a long minute, the dome light flickers on by itself and the radio clicks over to a slow, dignified march. Then the door unlatches gently, like an invitation to step out. It never opens on its own again, and Glory insists you ride up front in the parade.",
+              "art": "A teenager lying on their back on a casket tray inside a dim vintage hearse, the dome light glowing softly, carnation petals scattered on the carpet",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You lie down and pull the door shut, and the locks drop on every door at once. The engine turns over by itself. For one long minute the hearse idles, patient as a taxi waiting for an address, until Joey pops the lock with a coat hanger and hauls you out by the sneakers.",
+              "art": "A teen mechanic prying open the rear door of a black hearse with a bent coat hanger, a teenager's sneakers poking out, exhaust curling from the tailpipe",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "bedazzle",
+            "label": "Bedazzle it until it can't possibly be scary",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "Purple sequins on the fenders, a pink feather boa on the grille, glitter on every inch of chrome. The hearse seems stunned into good behavior. When Glory sweeps in to see it, she screams with joy, and the back door swings open slowly, like a gentleman holding it for a lady. She tips you two quarters and names you her costume department.",
+              "art": "A black vintage hearse covered in purple sequins with a pink feather boa on its grille, a glamorous drag queen in a towering wig clapping with delight, glitter drifting in the junkyard sunlight",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The hearse does not want to be fabulous. Every sequin you glue on pops off within a minute, one by one, like it's spitting them out, and the boa ends up knotted around the antenna like a sulking flamingo. Joey sweeps up glitter for an hour and will be finding it in his toolbox for years.",
+              "art": "Sequins scattered across junkyard dirt around a stubbornly plain black hearse, a pink feather boa tangled on its antenna, a teen mechanic sweeping up glitter with a push broom",
               "effects": {
                 "nerve": -1
               }
@@ -2894,6 +4470,159 @@
             "failure": {
               "text": "The lighter burns your fingers, and you drop it. When you pick it up, the engraving reads KEEP ME AWAY. Ms. Oddment is standing right behind you. \"Thieves dust for free, dear.\" You finish the shelves unpaid.",
               "art": "An engraved silver lighter lying on a pawnshop floor, a teenager blowing on burnt fingertips, a tall shopkeeper standing right behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pawnshop-pawn-ticket",
+        "title": "Redeemable Through Friday",
+        "place": "The counter, Oddment and Daughters",
+        "text": "A pawn ticket falls out of your jacket pocket as you walk in, and it's in your own handwriting. ITEM: one (1) courage, pawned for two quarters. DATED: Friday, October 31, 1986. Ms. Oddment sees it and raises one elegant eyebrow. \"Ah. You haven't done that yet,\" she says. \"But you will. Would you like it back early?\"",
+        "art": "A cluttered pawnshop counter with a brass scale and a jeweler's loupe, a tall woman in a velvet waistcoat raising an eyebrow, a teenager holding up a small paper pawn ticket in disbelief",
+        "choices": [
+          {
+            "id": "redeem-it",
+            "label": "Pay the two quarters and redeem it now",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "You slide two quarters across the counter. Ms. Oddment fetches a small glass jar from a high shelf, and inside it a warm little light is pacing like a firefly. She uncorks it under your nose. You breathe in, and for the first time all week your shoulders come down from around your ears.",
+              "art": "A tall shopkeeper in a velvet waistcoat uncorking a small glass jar holding a warm golden glow, a teenager leaning close to breathe it in, shelves of curios behind",
+              "effects": {
+                "quarters": -2,
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "You pay. She uncorks the jar, and the little light zips straight past your nose and out through the mail slot into the street. \"Oh dear. It isn't ready to come home yet,\" Ms. Oddment says, and refunds you one quarter for the trouble. You can feel it out there somewhere, waiting for Friday.",
+              "art": "A tiny golden light zipping out through the brass mail slot of a pawnshop door, a teenager lunging after it, a shopkeeper in velvet holding an empty uncorked jar",
+              "effects": {
+                "quarters": -1,
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "void-it",
+            "label": "Argue that a ticket from the future can't count",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 11,
+            "success": {
+              "text": "You cite the date, the missing witness signature and the ancient principle that you can't sell what you haven't done yet. Ms. Oddment listens with growing delight, then tears the ticket in half. \"Void. Nobody has out-argued me since 1891.\" She gives you a lucky quarter for the performance. Whatever you meant to pawn on Friday, now you'll have to keep.",
+              "art": "A teenager arguing passionately across a pawnshop counter, a delighted shopkeeper in a velvet waistcoat tearing a small paper ticket in half, a brass scale between them",
+              "effects": {
+                "quarters": 1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Ms. Oddment hears you out, then turns the ticket over. On the back, also in your handwriting, it says: I KNEW YOU'D TRY THAT. You have no comeback for yourself. She hands the ticket back with a sympathetic smile, and it sits in your pocket all day like a stone.",
+              "art": "A teenager staring at the back of a small paper pawn ticket covered in handwriting, a shopkeeper in velvet smiling sympathetically across a cluttered counter",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-ledger",
+            "label": "Get Wednesday to check the ledger in back",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Wednesday flips the ledger open behind the beaded curtain while her mother is busy. \"Friday, you trade your courage for a flashlight battery and a head start,\" she whispers. \"You don't use the head start. You go back for somebody instead.\" She closes the book. \"So you get it back anyway. That's what it says.\" The ticket in your hand goes warm.",
+              "art": "A girl with tea-colored eyes and a name tag reading WEDNESDAY whispering to a teenager behind a beaded curtain, a thick leather ledger open on a shelf of glass eyes",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Wednesday opens the ledger, and Ms. Oddment's voice comes from directly behind you both: \"Customers do not read the ledger, dear.\" Wednesday is sent to restock the glass eyes. You get a lecture on the ethics of futures trading that lasts until closing time.",
+              "art": "A tall shopkeeper in a velvet waistcoat looming at a beaded curtain, a teenager and a girl with a name tag caught over an open leather ledger",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pawnshop-moving-day",
+        "title": "Everything Must Fit",
+        "place": "The back lot, Oddment and Daughters, Halloween afternoon",
+        "days": [7],
+        "text": "On Halloween afternoon, Oddment and Daughters is packing up. Every shelf is going into seven steamer trunks, one per daughter, because at midnight the shop moves on to whatever town needs it next. Ms. Oddment hires you to help. \"Two rules,\" she says. \"Wrap everything that ticks. And whatever you do, don't let the locked case see you leave.\"",
+        "art": "Seven open steamer trunks in a gravel lot behind a crooked little pawnshop, shelves of curios being packed in straw, a tall woman in a velvet waistcoat directing a teenager under an orange Halloween sky",
+        "choices": [
+          {
+            "id": "pack-tight",
+            "label": "Pack every trunk like a jigsaw puzzle",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Clocks wrapped, music boxes muffled, the cymbal monkey packed face-down with its hands taped. Every trunk shuts with a satisfying click. Ms. Oddment inspects your work through her loupe, pays you two quarters and gives you a small, formal bow. \"The next town will never know you helped,\" she says. \"That's the highest compliment I have.\"",
+              "art": "Neatly packed steamer trunks lined with straw holding wrapped clocks and music boxes, a cymbal monkey toy lying face-down, a shopkeeper inspecting through a jeweler's loupe",
+              "effects": {
+                "quarters": 2,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "One mantel clock goes into a trunk unwrapped, and it starts ticking backward. Everything in that trunk unpacks itself in reverse, item by item, back onto the shelves, while you watch. Ms. Oddment sighs, rolls up her velvet sleeves and helps you start over. You finish with blisters and straw in your hair.",
+              "art": "Curios floating up out of an open steamer trunk back onto pawnshop shelves, a teenager staring with an armful of straw, a ticking mantel clock sitting on top of the pile",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ask-parting-gift",
+            "label": "Ask what she'll leave behind for Glimmer Falls",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Ms. Oddment pauses with a snow globe in each hand. \"Nobody has ever asked me that.\" She digs through the last trunk and presses a heavy pouch into your hands: rock salt, coarse and gray. \"Old-country recipe. Something tonight will need a line it can't cross.\" Then she does something you've never seen her do. She hugs you.",
+              "art": "A tall shopkeeper in a velvet waistcoat pressing a heavy cloth pouch of coarse gray salt into a teenager's hands beside open steamer trunks, golden late-afternoon light",
+              "effects": {
+                "nerve": 1,
+                "items": ["rock-salt"]
+              }
+            },
+            "failure": {
+              "text": "\"Leave behind?\" Ms. Oddment looks honestly puzzled. \"Dear, a shop like mine only ever takes things with it.\" Then she glances at the locked case, which has turned its glass front toward you. \"Best you go home early,\" she says gently. \"It's started looking at people.\"",
+              "art": "A tall glass-fronted locked display case in a half-empty pawnshop turned toward a teenager, a shopkeeper in velvet laying a hand on the teen's shoulder to steer them away",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "quiet-goodbyes",
+            "label": "Say goodbye to the daughters while the case faces the wall",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You make your rounds while the case's glass is turned to the wall: a handshake from Monday, a fist bump from Thursday, a thank-you note folded into a pretzel from Wednesday. You slip out the back with your heart thudding, and the bell over the door stays perfectly still. Some goodbyes are better small.",
+              "art": "A teenager tiptoeing between steamer trunks waving to a row of girls with tea-colored eyes, a tall locked glass case turned to face the wall in the background",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bell rings on its own as you reach the door, and behind you the locked case turns, glass creaking. For a second your reflection in it is wearing a Halloween costume you don't own yet. Seven daughters say \"Bye!\" in perfect unison. You run all the way to the corner.",
+              "art": "A teenager's reflection in the glass of a tall locked display case, the reflection wearing an unfamiliar costume, seven girls waving in unison behind",
               "effects": {
                 "nerve": -1,
                 "dread": 1
@@ -3204,6 +4933,157 @@
               "art": "A wide-eyed teenager snapping a fat orange binder shut at a clinic night desk, a nurse with silver-streaked curls reaching to take it back, the gooseneck lamp flickering over a cold cup of coffee",
               "effects": {
                 "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mercy-clinic-captain-cosmo",
+        "title": "Captain Cosmo Wants a Volunteer",
+        "place": "The waiting room, Mercy Valley Clinic",
+        "text": "The waiting-room TV has been stuck on Channel 13 since 1974, and Channel 13 went off the air in 1975. Today it's showing Captain Cosmo's Rocket Club, the after-school kids' show from 1963, in fuzzy black and white. Captain Cosmo leans into the camera, looks straight at you over the heads of the coughing patients and says, \"You there. Yes, you. Come on up, space cadet.\"",
+        "art": "A small 1960s clinic waiting room with orange plastic chairs and coughing patients, a wall-mounted television showing a smiling black-and-white kids' show host in a space helmet pointing out of the glowing screen at a teenager",
+        "choices": [
+          {
+            "id": "salute",
+            "label": "Salute and play along like a real space cadet",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You stand, salute and recite the Rocket Club pledge as he feeds it to you line by line: brush your teeth, mind your mother, never fly alone. The whole waiting room joins in. A boy with an ear infection stops crying. Captain Cosmo beams, says \"Club dismissed!\" and the set switches to a soap opera for the first time in twelve years.",
+              "art": "A teenager standing in a clinic waiting room saluting a black-and-white television, patients of all ages saluting along, a small boy with a bandaged ear grinning",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You salute, the picture zooms in, and suddenly you're on the screen too, fuzzy and black and white in a cardboard space helmet, standing next to the Captain. The real you blinks. The TV you doesn't. Nurse Inez turns the set to face the wall, firmly, and doesn't say a word.",
+              "art": "A wall-mounted clinic television showing a black-and-white teenager in a cardboard space helmet beside a smiling host, the real teenager staring up at it, a nurse reaching for the set",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "fix-knob",
+            "label": "Climb up and unstick the channel knob",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You stand on a chair, pry the back off the cabinet and find the knob gummed up with twenty years of lollipop residue. Scratched into the dial underneath: FOR GRANDPA WALT, WHO WATCHED WITH ME HERE. You free the knob, but you leave it on 13. Inez slips you a quarter and two lollipops. \"Good call,\" she says.",
+              "art": "A teenager standing on an orange plastic chair peering into the open back of a wall-mounted television, a nurse with reading glasses holding out lollipops below",
+              "effects": {
+                "quarters": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The knob turns freely now, and every channel is Channel 13. The news, the game show, the cartoons: Captain Cosmo hosts all of them, and he looks a little hurt that you tried. Inez pockets the knob and says she'll call the repairman, the one who doesn't ask questions.",
+              "art": "A wall television in a clinic waiting room showing a black-and-white space-helmeted host as a teenager twists the dial, a nurse pocketing the knob",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ask-inez",
+            "label": "Ask Nurse Inez who Captain Cosmo was",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 7,
+            "success": {
+              "text": "Inez smiles, a little sad. \"Cosmo was Harold Pike from the pharmacy counter. He brought his Rocket Club here every Halloween to visit the kids stuck in bed.\" She points to a faded photo by the door: a man in a cardboard helmet surrounded by kids in casts. \"He hasn't missed a Halloween since. I just leave the set on.\"",
+              "art": "A nurse with reading glasses pointing to a faded photo by a clinic door of a smiling man in a cardboard space helmet surrounded by children in casts",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Inez opens her mouth to answer, and the TV cranks its own volume to full: \"NO SPOILERS, NURSE!\" Every patient jumps. Inez sets her jaw, says \"Later,\" and goes back to her clipboard, but she keeps glaring at the set like it owes her money.",
+              "art": "A wall television blaring with a black-and-white host in a space helmet wagging his finger, startled patients jumping in their chairs, a nurse frowning over her clipboard",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mercy-clinic-candy-xray",
+        "title": "Free Candy X-Rays Tonight",
+        "place": "The X-ray room, Mercy Valley Clinic, Halloween afternoon",
+        "days": [7],
+        "text": "Ever since the 1982 scare stories, Mercy Valley has offered free X-rays of trick-or-treat candy on Halloween night, and tonight the line will wrap around the block. This afternoon Nurse Inez needs a test run, so she slides a sample bag of fun-size bars under the machine. The film comes back clean: no pins, no razor blades. Except one Choco-Lotta bar has a tiny skeleton inside it, and the tiny skeleton is waving.",
+        "art": "A 1960s clinic X-ray room with a wall lightbox glowing behind an X-ray film of fun-size candy bars, one bar holding a tiny waving skeleton, a nurse in cat-eye glasses and a teenager leaning in close",
+        "choices": [
+          {
+            "id": "unwrap-it",
+            "label": "Unwrap the bar and meet whoever's in there",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You peel back the wrapper. Inside is an ordinary chocolate bar, and stuck to its bottom, a tiny glow-in-the-dark plastic skeleton from a cereal-box prize. Inez laughs so hard she has to sit down. You keep the skeleton for luck, and that night it waves at you from your bedpost, very slightly.",
+              "art": "A teenager holding up a tiny glow-in-the-dark plastic skeleton peeled from a chocolate bar, a nurse in cat-eye glasses laughing in her chair, an X-ray lightbox glowing behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You unwrap the bar and it's hollow: a skeleton-shaped space in the chocolate and a trail of tiny chocolate footprints across the counter, leading to the heating vent. Inez stares at the vent a long time, then tapes a fresh candy bar beside it. \"Tribute,\" she says.",
+              "art": "Tiny chocolate footprints trailing across a clinic counter to a metal heating vent, an empty candy wrapper, a nurse taping a fresh chocolate bar beside the vent",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "set-up-line",
+            "label": "Help Inez set up the line before the crowd comes",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You tape arrows on the floor, set out a table of free apple slices, letter a sign that says CANDY GOES IN, FUN COMES OUT and practice your everything's-fine smile. When the doors open at six, the line moves like a dream. Inez slips you two quarters and the title Head of Halloween Operations.",
+              "art": "A teenager taping orange arrows on a clinic floor beside a folding table of apple slices and a hand-lettered sign, a nurse setting up a lightbox in the background",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You get the line set up, but the practice bag you run comes back with every single candy holding a tiny waving skeleton. You hide the film. Inez finds it. \"We tell no one,\" she says, and you both smile far too brightly at the first parents through the door.",
+              "art": "An X-ray film on a clinic lightbox showing a pile of candy bars each holding a tiny waving skeleton, a nurse and a teenager standing in front of it with stiff smiles",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "calm-parents",
+            "label": "Talk down the parents who think every bag is poisoned",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "An early dad is already shouting about razor blades in apples. You tell him what Inez told you: in twenty-five years she's never found one, but she's patched up plenty of kids who tripped over their own capes. Reflective tape, walk in groups, check the bag, then let them eat it. He actually writes it down.",
+              "art": "A teenager calmly talking to a worried father in a clinic lobby, the father writing in a small notebook, a bowl of candy and a roll of reflective tape on the counter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The dad won't hear it, and his panic spreads down the early line like a cold. Within ten minutes six parents have sworn off Halloween forever and one wants Inez to X-ray their kid's costume. Inez does it, sighing. The costume, a cardboard robot, has a tiny skeleton waving inside it too.",
+              "art": "A line of anxious parents with candy bags in a clinic lobby, a nurse aiming an X-ray machine at a child's cardboard robot costume, a teenager wincing at the counter",
+              "effects": {
                 "dread": 1
               }
             }
@@ -3534,6 +5414,157 @@
             "failure": {
               "text": "You find the blueprints, but someone has been at them first: aisle zero is circled over and over in red grease pencil. Mr. Pettibone swears he's never seen those circles. You both agree, out loud, to stop looking at blueprints for the day.",
               "art": "Yellowed store blueprints spread across a desk with one narrow aisle circled again and again in red grease pencil, a teenager and a supermarket manager staring down at it under a buzzing desk lamp",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "thriftee-mart-free-samples",
+        "title": "Free Samples, Aisle 5",
+        "place": "The demo table, aisle 5, Thriftee-Mart",
+        "text": "Doreen Mulcahy, in a paper hat and apron, is handing out free samples of Sunny Acres Fluff-Whip, \"the dessert topping of tomorrow,\" on little crackers. Every shopper who tries one walks off humming the same jingle with the same calm, glassy little smile. Doreen's own smile hasn't moved in an hour. She holds out a cracker. \"Free,\" she says. \"Everybody's doing it.\"",
+        "art": "A supermarket aisle demo table with a woman in a paper hat and apron offering tiny crackers topped with fluffy white whipped spread, shoppers strolling away with identical calm smiles, buzzing fluorescent lights overhead",
+        "choices": [
+          {
+            "id": "taste-it",
+            "label": "Eat the cracker and find out what's so great",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "It tastes like marshmallow, vanilla and, faintly, a sunny afternoon you've never actually had. The jingle starts up in your head, and you hum one bar before you shake it off like water from your ears. Now you know what it feels like from the inside, which means you'll know it when you hear it again.",
+              "art": "A teenager biting a small cracker heaped with white whipped spread, eyes squeezed shut and shaking their head, a smiling woman in a paper hat at the demo table",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It's delicious. You hum the jingle all the way to the dairy case before you notice you're smiling like Doreen and can't stop. Your cheeks ache. It wears off around dinner, but for the rest of the day every grown-up who smiles at you looks like they know a secret you almost joined.",
+              "art": "A teenager standing in a supermarket dairy aisle with a fixed wide smile and glazed eyes, rows of milk cartons, a half-eaten cracker in hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-label",
+            "label": "Read the fine print on the tub",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Ingredients: sugar, corn syrup, whipped vegetable oil and, in tiny type at the very bottom, \"a proprietary sense of belonging.\" You show Mr. Pettibone, who reads it twice, goes pale and pulls the whole display. Doreen blinks, rubs her cheeks and asks why her face is so tired. Mr. Pettibone gives you two quarters out of pure relief.",
+              "art": "A teenager squinting at the tiny print on a plastic dessert tub, a sweaty supermarket manager in a short-sleeved dress shirt reading over their shoulder in alarm",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The ingredients list goes on and on, wrapping around the tub and onto a second tub, and somewhere in the middle it starts listing the names of people who live on Crystal Street. You put the tub down. Doreen picks it up and sets it back exactly in its place, smiling, smiling.",
+              "art": "A plastic dessert tub covered in a spiraling list of tiny printed words, a teenager setting it down nervously, a smiling woman in a paper hat reaching to straighten it",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "crack-her-up",
+            "label": "Make Doreen laugh, a real laugh",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You do the worst Mr. Pettibone impression ever attempted: the sweating, the tie, \"It's under warranty!\" Doreen's frozen smile cracks into a real, snorting laugh, and the jingle in the aisle cuts off like a needle lifted from a record. She takes off the paper hat. \"Three jobs,\" she says. \"I just wanted one easy shift.\" She gives you the whole box of crackers.",
+              "art": "A teenager doing a goofy impression with a loosened tie at a supermarket demo table, a woman in an apron doubled over laughing with her paper hat in her hand",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You do your best bit. Doreen watches politely with her perfect smile. Then every shopper in the aisle laughs at exactly the same moment, for exactly the same length, and stops. Doreen offers you the cracker again. You buy a candy bar instead and leave by the far door.",
+              "art": "A row of supermarket shoppers laughing in eerie unison beside a demo table, a teenager mid-joke frozen in confusion, a woman in a paper hat holding out a cracker",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "thriftee-mart-pumpkin-weigh-in",
+        "title": "The Great Pumpkin Weigh-In",
+        "place": "The parking lot, Thriftee-Mart, Saturday morning",
+        "days": [1],
+        "text": "Saturday morning is Thriftee-Mart's Great Pumpkin Weigh-In, and the favorite is Mr. Albert Voss's backyard giant: a lumpy orange monster on a flatbed trailer, wider than a compact car. Every few minutes it thumps from somewhere deep inside, like something knocking to come out. Mr. Voss says it's settling. At the end of the line, a seven-year-old named Rosie Delgado holds her entry, the size of a softball, in both hands.",
+        "art": "A supermarket parking lot weigh-in with hay bales and a giant lumpy orange pumpkin on a flatbed trailer, a proud old man in suspenders beside it, and at the end of the line a little girl holding a softball-sized pumpkin in both hands",
+        "choices": [
+          {
+            "id": "heave-it",
+            "label": "Help heave the giant onto the scale",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You, Dez and three stock boys roll it up the plywood ramp on the count of three. The scale reads 666 pounds, which makes the crowd gasp and then crack up. The thumping stops the moment it's weighed, like it only wanted to know. Mr. Voss pumps your hand and pays you two quarters from his overalls.",
+              "art": "A teenager and a group of stock boys straining to roll a giant orange pumpkin up a plywood ramp onto a big platform scale, a cheering crowd in a supermarket parking lot",
+              "effects": {
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Halfway up the ramp, the giant thumps hard enough to shove all five of you backward into the hay bales. It rolls back down onto the trailer and settles with a satisfied thud. Mr. Voss says it doesn't like being rushed. Your back disagrees with everyone.",
+              "art": "A teenager and stock boys tumbling backward into hay bales as a giant pumpkin rolls down a plywood ramp, an old man in suspenders wincing",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "check-vine",
+            "label": "Look at where the vine was cut",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "The stem isn't cut. It's torn, and the vine stub is still green and reaching, wet with sap. Mr. Voss admits the vine crawled across his whole yard from the direction of the Heartstone roundabout in six weeks, and he had to saw it loose. You talk him into burning the vine and keeping the seeds in a jar, far from any soil. He looks relieved someone finally asked.",
+              "art": "A teenager crouching to inspect a thick torn green vine curling from the stem of a giant pumpkin, beads of sap on the end, an old man in suspenders looking guilty",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You lean close to the stem, and the vine stub twitches and curls gently around your wrist, warm as a hand. You jerk free. The crowd is busy cheering at the scale, but by the time you're back in line there's a thin green ring on your skin that takes all weekend to fade.",
+              "art": "A green pumpkin tendril curling gently around a teenager's wrist beside a giant pumpkin, the teen pulling back in alarm, a parking-lot crowd cheering at a scale in the distance",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "back-rosie",
+            "label": "Talk up Rosie's tiny pumpkin to the judges",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You get the judges to invent a brand-new category on the spot: Most Loved Pumpkin. Rosie explains that she grew hers in a coffee can and sang to it every night. She wins a ribbon and a free cupcake, and as she walks past the giant on the trailer, it stops thumping, as if it's listening to her too.",
+              "art": "A beaming little girl holding a softball-sized pumpkin and a blue ribbon in a supermarket parking lot, a teenager and smiling judges clapping, a giant pumpkin on a trailer behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The judges smile politely and move on. Rosie's lip trembles. You sit with her on a hay bale and help her name the pumpkin, which she decides is Lord Pumpkington. It isn't a ribbon. She still holds your hand until her mom comes back from the checkout.",
+              "art": "A small girl sitting on a hay bale in a supermarket parking lot holding a tiny pumpkin, a teenager sitting beside her, her small hand in theirs",
               "effects": {
                 "nerve": -1
               }

@@ -31,7 +31,7 @@
           <p class="cs-quote">“{{ taunt }}”</p>
           <p class="flex flex-wrap gap-1">
             <span v-for="t in villain.tags" :key="t" class="cs-pill">{{
-              t
+              TAG_LABELS[t]
             }}</span>
           </p>
         </template>
@@ -115,6 +115,7 @@ import { computed } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   BEST_WINS,
+  TAG_LABELS,
   caseBoard,
   edgesOf,
   locationById,

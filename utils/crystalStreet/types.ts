@@ -17,6 +17,8 @@ export const TAGS = [
   'camp',
   'cult',
   'dream',
+  'biohazard',
+  'suburban',
 ] as const
 export type Tag = (typeof TAGS)[number]
 
@@ -92,6 +94,11 @@ export type Encounter = {
   choices: Choice[]
   /** Villain-deck cards only: the act (nights 1-2, 3-4, 5-6) that deals it. */
   act?: 1 | 2 | 3
+  /**
+   * Location beats only: the days (1 = Saturday ... 7 = Friday) it can be
+   * dealt, e.g. school on weekdays or the Saturday midnight movie.
+   */
+  days?: number[]
 }
 
 export type Clue = {

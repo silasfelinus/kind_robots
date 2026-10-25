@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import {
+  DARK_BRIAR_ART_REQUESTS,
+  DARK_BRIAR_COLLECTIBLE_ART,
+  validateDarkBriarArtRequests,
+} from '../memoryDungeon/darkBriarArt'
 import { newBriarSave, restoreBriarSave, BRIAR_START, BRIAR_GATE } from '../memoryDungeonWorld'
 import { createBriarWaveCards } from '../memoryDungeonWaves'
 import {
@@ -25,6 +30,10 @@ import {
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateDarkBriarSlice(), [])
+assert.deepEqual(validateDarkBriarArtRequests(), [])
+assert.equal(DARK_BRIAR_ART_REQUESTS.length, 51)
+assert.equal(DARK_BRIAR_COLLECTIBLE_ART.length, 32)
+assert.ok(DARK_BRIAR_ART_REQUESTS.every((request) => request.jobId === null && request.delivery === 'not-submitted'))
 assert.equal(DARK_BRIAR_KEYS.length, 16)
 assert.equal(new Set(DARK_BRIAR_KEYS).size, 16)
 assert.ok(DARK_BRIAR_KEYS.includes(BRIAR_START))

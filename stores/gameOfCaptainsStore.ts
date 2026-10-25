@@ -1,9 +1,17 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
-  assignAwayTeam, decidePolicy, finishVoyage, launchMission, nextDestination,
-  restoreVoyage, startVoyage,
-  type CaptainId, type CrewId, type PolicyId, type VoyageRun,
+  assignAwayTeam,
+  decidePolicy,
+  finishVoyage,
+  launchMission,
+  nextDestination,
+  restoreVoyage,
+  startVoyage,
+  type CaptainId,
+  type CrewId,
+  type PolicyId,
+  type VoyageRun,
 } from '~/utils/gameOfCaptains/rules'
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
@@ -20,7 +28,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       else localStorage.removeItem(SAVE_KEY)
       storageWarning.value = ''
     } catch {
-      storageWarning.value = 'Local saves are blocked by your browser. Keep this tab open to finish your voyage.'
+      storageWarning.value =
+        'Local saves are blocked by your browser. Keep this tab open to finish your voyage.'
     }
   }
   function load() {
@@ -31,7 +40,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       run.value = restoreVoyage(raw ? JSON.parse(raw) : null)
     } catch {
       run.value = null
-      storageWarning.value = 'Previous voyage could not be loaded. You can begin a new one.'
+      storageWarning.value =
+        'Previous voyage could not be loaded. You can begin a new one.'
     }
   }
   function begin(captain: CaptainId, crew: CrewId[]) {
@@ -67,5 +77,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = null
     persist()
   }
-  return { run, loaded, saved, storageWarning, load, begin, assign, launch, decide, next, finish, restart }
+  return {
+    run,
+    loaded,
+    saved,
+    storageWarning,
+    load,
+    begin,
+    assign,
+    launch,
+    decide,
+    next,
+    finish,
+    restart,
+  }
 })

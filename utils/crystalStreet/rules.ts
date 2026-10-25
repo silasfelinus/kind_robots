@@ -1,4 +1,5 @@
 import avatarsData from './avatars.json'
+import charactersData from './characters.json'
 import companionsData from './companions.json'
 import decksData from './decks.json'
 import itemsData from './items.json'
@@ -10,6 +11,7 @@ import {
   SKILLS,
   type Archetype,
   type Avatar,
+  type Character,
   type Choice,
   type Companion,
   type Effects,
@@ -19,6 +21,7 @@ import {
   type Item,
   type Location,
   type Skill,
+  type Style,
   type Tag,
   type TagDeck,
   type Villain,
@@ -27,6 +30,7 @@ import type { CompanionId, ItemId, LocationId, VillainId } from './ids'
 
 export { VILLAINS }
 export const AVATARS = avatarsData as Avatar[]
+export const CHARACTERS = charactersData as Character[]
 export const COMPANIONS = companionsData as Companion[]
 /** The idyllic daytime Crystal Street behind the title. */
 export const TITLE_ART: string = titleArtData.title
@@ -42,7 +46,7 @@ export const START_NERVE = 7
 export const MAX_DREAD = 10
 export const SKILL_CAP = 5
 export const TRAIN_CAP = 4
-export const BEST_WINS = 10
+export const BEST_WINS = 12
 export const NIGHT_DRAWS = 2
 export const HEAL_NERVE = 3
 export const GROCERY_COST = 2
@@ -67,41 +71,70 @@ export const DAY_NAMES = [
 export const ARCHETYPES: Archetype[] = [
   {
     id: 'jock',
+    style: 'brave',
     name: 'The Jock',
     text: 'Varsity jacket, mouthguard, unexpectedly great at hugs.',
     skills: { brawn: 3, brains: 1, charm: 2, nerve: 2, lore: 0, hustle: 1 },
   },
   {
     id: 'brain',
+    style: 'clever',
     name: 'The Brain',
     text: 'Calculator watch, library card, a theory about everything.',
     skills: { brawn: 0, brains: 3, charm: 1, nerve: 1, lore: 2, hustle: 2 },
   },
   {
     id: 'theatre-kid',
+    style: 'camp',
     name: 'The Theatre Kid',
     text: 'Knows every word of every midnight movie. Projects to the back row.',
     skills: { brawn: 1, brains: 1, charm: 3, nerve: 2, lore: 1, hustle: 1 },
   },
   {
     id: 'burnout',
+    style: 'reckless',
     name: 'The Burnout',
     text: 'Leather jacket, cassette deck, knows every shortcut in town.',
     skills: { brawn: 2, brains: 0, charm: 1, nerve: 2, lore: 1, hustle: 3 },
   },
   {
     id: 'prep',
+    style: 'kind',
     name: 'The Prep',
     text: 'Popped collar, perfect grades, secretly tired of both.',
     skills: { brawn: 1, brains: 2, charm: 3, nerve: 1, lore: 0, hustle: 2 },
   },
   {
     id: 'weirdo',
+    style: 'sneaky',
     name: 'The Weirdo',
     text: 'Ouija board in the backpack. Has been waiting for this week all year.',
     skills: { brawn: 0, brains: 2, charm: 0, nerve: 2, lore: 3, hustle: 2 },
   },
 ]
+
+export const STYLE_LABELS: Record<Style, string> = {
+  brave: 'Brave',
+  clever: 'Clever',
+  kind: 'Kind',
+  camp: 'Camp',
+  sneaky: 'Sneaky',
+  reckless: 'Reckless',
+}
+
+/**
+ * A look's signature style bonus. The rarer ways to play (camp, sneaky,
+ * reckless turn up on about half as many choices) pay double so every look
+ * pulls its weight.
+ */
+export const STYLE_BONUS: Record<Style, number> = {
+  brave: 1,
+  clever: 1,
+  kind: 1,
+  camp: 2,
+  sneaky: 2,
+  reckless: 2,
+}
 
 export const SKILL_LABELS: Record<Skill, string> = {
   brawn: 'Brawn',
@@ -260,6 +293,50 @@ export function encounterById(id: string): Encounter | null {
 
 export function allEncounters(): Encounter[] {
   return [...ENCOUNTERS.values()]
+}
+
+export function archetypeById(id: string): Archetype | null {
+  return ARCHETYPES.find((a) => a.id === id) ?? null
+}
+
+export function characterId(avatar: string, archetype: string): string {
+  return `${avatar}--${archetype}`
+}
+
+export function characterFor(
+  avatar: string | null | undefined,
+  archetype: string,
+): Character | null {
+  if (!avatar) return null
+  const id = characterId(avatar, archetype)
+  return CHARACTERS.find((c) => c.id === id) ?? null
+}
+
+export type StyleBonus = { style: Style; amount: number; why: string }
+
+/**
+ * Look × clique synergy. The look brings its signature style; a clique
+ * whose home style matches is Typecast (+1 more on it), any other clique
+ * plays Against type (+1 on the clique's own style too).
+ */
+export function synergyOf(
+  avatarId: string | null | undefined,
+  archetypeId: string,
+): { typecast: boolean; bonuses: StyleBonus[] } | null {
+  const look = avatarById(avatarId ?? '')
+  const clique = archetypeById(archetypeId)
+  if (!look || !clique) return null
+  const typecast = look.style === clique.style
+  const bonuses: StyleBonus[] = [
+    {
+      style: look.style,
+      amount: STYLE_BONUS[look.style] + (typecast ? 1 : 0),
+      why: typecast ? `${look.name}, typecast` : look.name,
+    },
+  ]
+  if (!typecast)
+    bonuses.push({ style: clique.style, amount: 1, why: 'Against type' })
+  return { typecast, bonuses }
 }
 
 export function avatarById(id: string): Avatar | null {
@@ -527,6 +604,15 @@ export function modifierFor(
       modifier += edges
       breakdown.push(`Edges from the week +${edges}`)
     }
+  }
+  const style = synergyOf(run.avatar, run.archetype)?.bonuses.find(
+    (b) => b.style === choice.intent,
+  )
+  if (style) {
+    modifier += style.amount
+    breakdown.push(
+      `${STYLE_LABELS[style.style]} (${style.why}) +${style.amount}`,
+    )
   }
   const penalty = dreadPenalty(run)
   if (penalty) {

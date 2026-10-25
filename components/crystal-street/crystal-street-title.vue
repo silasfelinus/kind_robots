@@ -144,7 +144,91 @@
             {{ STEPS[stepIndex]!.title }}
           </h3>
 
-          <template v-if="step === 'you'">
+          <template v-if="step === 'look'">
+            <p class="text-sm opacity-80">
+              Who you are. Each look has a style, the way they face trouble, and
+              it adds to every choice played that way.
+            </p>
+            <div
+              class="grid grid-cols-3 gap-2 @lg:grid-cols-4"
+              data-testid="cs-avatars"
+            >
+              <button
+                v-for="a in AVATARS"
+                :key="a.id"
+                type="button"
+                class="cs-card overflow-hidden text-left"
+                :class="avatar === a.id ? 'ring-2 ring-primary' : ''"
+                :aria-pressed="avatar === a.id"
+                :aria-label="a.name"
+                @click="avatar = a.id"
+              >
+                <crystal-street-art
+                  frame="aspect-[2/3]"
+                  kind="day"
+                  :seed="`avatar:${a.id}`"
+                  :src="`/crystal-street/avatars/${a.id}.webp`"
+                  :alt="a.art"
+                />
+                <span
+                  class="block truncate px-1 pt-0.5 text-[10px] font-semibold"
+                  >{{ a.name }}</span
+                >
+                <span
+                  class="block px-1 pb-1 text-[9px] uppercase tracking-wider opacity-70"
+                  >{{ STYLE_LABELS[a.style] }}</span
+                >
+              </button>
+            </div>
+            <p class="text-xs opacity-75">
+              <strong>{{ chosenAvatar.name }}.</strong>
+              {{ chosenAvatar.blurb }} Style:
+              {{ STYLE_LABELS[chosenAvatar.style] }}.
+            </p>
+          </template>
+
+          <template v-else-if="step === 'clique'">
+            <p class="text-sm opacity-80">
+              The crowd you run with this week. It sets your starting skills,
+              and a clique that shares {{ chosenAvatar.name }}'s
+              {{ STYLE_LABELS[chosenAvatar.style].toLowerCase() }} style makes
+              you Typecast.
+            </p>
+            <div class="grid grid-cols-1 gap-2 @md:grid-cols-2">
+              <button
+                v-for="a in ARCHETYPES"
+                :key="a.id"
+                type="button"
+                class="cs-choice text-left"
+                :class="archetype === a.id ? 'ring-2 ring-primary' : ''"
+                :aria-pressed="archetype === a.id"
+                @click="archetype = a.id"
+              >
+                <span class="block font-semibold">{{ a.name }}</span>
+                <span class="block text-xs leading-snug opacity-75">{{
+                  a.text
+                }}</span>
+                <span
+                  class="mt-1 flex flex-wrap items-center gap-1 text-[10px] uppercase tracking-wider"
+                >
+                  <span class="opacity-70">{{ topSkills(a.skills) }}</span>
+                  <span class="opacity-70">· {{ STYLE_LABELS[a.style] }}</span>
+                  <span
+                    v-if="a.style === chosenAvatar.style"
+                    class="rounded-full bg-accent px-1.5 font-black text-accent-content"
+                    >Typecast</span
+                  >
+                </span>
+              </button>
+            </div>
+          </template>
+
+          <template v-else-if="step === 'character'">
+            <crystal-street-character
+              :avatar="avatar"
+              :archetype="archetype"
+              compact
+            />
             <label class="form-control">
               <span class="cs-kicker mb-1">Your name</span>
               <input
@@ -184,81 +268,19 @@
             </div>
           </template>
 
-          <template v-else-if="step === 'look'">
-            <p class="text-sm opacity-80">
-              How you look in the scrapbook photos. It changes nothing about how
-              you play.
-            </p>
-            <div
-              class="grid grid-cols-3 gap-2 @lg:grid-cols-4"
-              data-testid="cs-avatars"
-            >
-              <button
-                v-for="a in AVATARS"
-                :key="a.id"
-                type="button"
-                class="cs-card overflow-hidden text-left"
-                :class="avatar === a.id ? 'ring-2 ring-primary' : ''"
-                :aria-pressed="avatar === a.id"
-                :aria-label="a.name"
-                @click="avatar = a.id"
-              >
-                <crystal-street-art
-                  frame="aspect-[2/3]"
-                  kind="day"
-                  :seed="`avatar:${a.id}`"
-                  :src="`/crystal-street/avatars/${a.id}.webp`"
-                  :alt="a.art"
-                />
-                <span
-                  class="block truncate px-1 py-0.5 text-[10px] font-semibold"
-                  >{{ a.name }}</span
-                >
-              </button>
-            </div>
-            <p class="text-xs opacity-75">
-              <strong>{{ chosenAvatar.name }}.</strong> {{ chosenAvatar.blurb }}
-            </p>
-          </template>
-
-          <template v-else-if="step === 'who'">
-            <p class="text-sm opacity-80">
-              Your role this week sets your starting skills.
-            </p>
-            <div class="grid grid-cols-1 gap-2 @md:grid-cols-2">
-              <button
-                v-for="a in ARCHETYPES"
-                :key="a.id"
-                type="button"
-                class="cs-choice text-left"
-                :class="archetype === a.id ? 'ring-2 ring-primary' : ''"
-                :aria-pressed="archetype === a.id"
-                @click="archetype = a.id"
-              >
-                <span class="block font-semibold">{{ a.name }}</span>
-                <span class="block text-xs leading-snug opacity-75">{{
-                  a.text
-                }}</span>
-                <span
-                  class="mt-1 block text-[10px] uppercase tracking-wider opacity-70"
-                  >{{ topSkills(a.skills) }}</span
-                >
-              </button>
-            </div>
-          </template>
-
           <template v-else>
             <div class="cs-card flex items-center gap-3 p-2">
               <img
-                :src="`/crystal-street/avatars/${avatar}.webp`"
-                :alt="chosenAvatar.name"
+                :src="portrait"
+                :alt="chosenCharacter?.title ?? chosenAvatar.name"
                 class="h-20 w-14 shrink-0 rounded-lg bg-black object-cover object-top"
+                @error="portraitFailed = true"
               />
               <div class="text-sm">
                 <p class="font-bold">{{ name || 'Alex' }}</p>
                 <p class="opacity-75">
                   {{ customPronouns.trim() || pronouns }} ·
-                  {{ chosenArchetype.name }}
+                  {{ chosenCharacter?.title ?? chosenArchetype.name }}
                 </p>
               </div>
             </div>
@@ -326,13 +348,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import { useNavStore } from '~/stores/navStore'
 import {
   ARCHETYPES,
   AVATARS,
+  characterFor,
   SKILL_LABELS,
+  STYLE_LABELS,
   TITLE_ART,
   VILLAINS,
 } from '~/utils/crystalStreet/rules'
@@ -343,10 +367,12 @@ import type { MenuView } from '~/utils/crystalStreet/menu'
 const emit = defineEmits<{ resume: []; open: [MenuView]; started: [] }>()
 
 const PRONOUNS = ['she/her', 'he/him', 'they/them']
+// Look + clique = your character (Silas, 2026-10-24 PT); the names keep the
+// two picks from reading as the same question.
 const STEPS = [
-  { id: 'you', title: 'Who is moving in?' },
-  { id: 'look', title: 'Pick your look' },
-  { id: 'who', title: 'Who are you this week?' },
+  { id: 'look', title: 'Pick a look' },
+  { id: 'clique', title: 'Pick a clique' },
+  { id: 'character', title: 'Meet your character' },
   { id: 'nightmare', title: 'The nightmare' },
 ] as const
 
@@ -367,6 +393,16 @@ const chosenAvatar = computed(
 )
 const chosenArchetype = computed(
   () => ARCHETYPES.find((a) => a.id === archetype.value) ?? ARCHETYPES[0]!,
+)
+const chosenCharacter = computed(() =>
+  characterFor(avatar.value, archetype.value),
+)
+const portraitFailed = ref(false)
+watch(chosenCharacter, () => (portraitFailed.value = false))
+const portrait = computed(() =>
+  chosenCharacter.value && !portraitFailed.value
+    ? `/crystal-street/characters/${chosenCharacter.value.id}.webp`
+    : `/crystal-street/avatars/${avatar.value}.webp`,
 )
 
 type MenuItem = {

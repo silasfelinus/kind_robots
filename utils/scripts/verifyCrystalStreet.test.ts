@@ -16,6 +16,10 @@ import {
   DAYS,
   AVATARS,
   BEST_WINS,
+  CHARACTERS,
+  STYLE_BONUS,
+  characterFor,
+  synergyOf,
   COMPANIONS,
   CREW_LIMIT,
   DECKS,
@@ -46,6 +50,8 @@ import {
 import {
   duplicateIds,
   validateAvatar,
+  validateCharacter,
+  validateStyle,
   validateCompanion,
   validateDeck,
   validateItem,
@@ -89,7 +95,29 @@ for (const i of ITEMS) validateItem(problems, i)
 // Player avatars (Silas, 2026-10-24 PT): a real cast to choose from.
 assert.ok(AVATARS.length >= 12, 'twelve or more avatars')
 assert.equal(new Set(AVATARS.map((a) => a.id)).size, AVATARS.length)
-for (const a of AVATARS) validateAvatar(problems, a)
+for (const a of AVATARS) {
+  validateAvatar(problems, a)
+  validateStyle(problems, `avatar ${a.id}`, a.style)
+}
+for (const a of ARCHETYPES) validateStyle(problems, `clique ${a.id}`, a.style)
+// Look × clique = character (Silas, 2026-10-24 PT): every pairing exists,
+// with its own name, bio and portrait prompt.
+assert.equal(CHARACTERS.length, AVATARS.length * ARCHETYPES.length)
+assert.equal(new Set(CHARACTERS.map((c) => c.title)).size, CHARACTERS.length)
+for (const look of AVATARS)
+  for (const clique of ARCHETYPES)
+    assert.ok(
+      characterFor(look.id, clique.id),
+      `${look.id} × ${clique.id} has a character`,
+    )
+for (const c of CHARACTERS) validateCharacter(problems, c)
+// The avatar names never collide with a clique's (Silas: "confusion between
+// role and character in the select screen").
+for (const a of AVATARS)
+  assert.ok(
+    !ARCHETYPES.some((c) => c.name === a.name),
+    `${a.name} is not also a clique`,
+  )
 assert.deepEqual(problems, [], problems.slice(0, 20).join('\n'))
 
 const encounters = [
@@ -151,6 +179,43 @@ assert.equal(
   }).avatar,
   undefined,
 )
+
+// Synergy: a typecast look doubles down on its style, an against-type one
+// also plays the clique's home style; style bonuses reach the roll.
+{
+  const typecast = synergyOf('goalie', 'jock')!
+  assert.equal(typecast.typecast, true)
+  assert.deepEqual(
+    typecast.bonuses.map((b) => [b.style, b.amount]),
+    [['brave', STYLE_BONUS.brave + 1]],
+  )
+  const against = synergyOf('vogue', 'brain')!
+  assert.equal(against.typecast, false)
+  assert.deepEqual(
+    against.bonuses.map((b) => [b.style, b.amount]),
+    [
+      ['camp', STYLE_BONUS.camp],
+      ['clever', 1],
+    ],
+  )
+  assert.equal(synergyOf(null, 'jock'), null)
+  const styled = newRun({
+    seed: 's',
+    name: 'S',
+    pronouns: 'they/them',
+    archetype: 'brain',
+    avatar: 'vogue',
+  })
+  const bare = { ...styled, avatar: undefined }
+  const campChoice = VILLAINS.flatMap((v) => v.signature)
+    .flatMap((e) => e.choices)
+    .find((c) => c.intent === 'camp')!
+  assert.equal(
+    modifierFor(styled, campChoice).modifier -
+      modifierFor(bare, campChoice).modifier,
+    STYLE_BONUS.camp,
+  )
+}
 
 // Ending rules.
 const probe = newRun({
@@ -329,6 +394,7 @@ for (const v of VILLAINS) {
       `${v.id}-${i}`,
       v.id as VillainId,
       ARCHETYPES[i % 6]!.id,
+      AVATARS[(i * 7) % AVATARS.length]!.id,
     )
     assert.equal(end.phase, 'ended', `${v.id}-${i} finishes`)
     assert.ok(end.ending, `${v.id}-${i} has an ending`)

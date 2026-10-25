@@ -124,10 +124,30 @@ export type Villain = {
 }
 
 /** A selectable player avatar: a full-body character in an exaggerated pose. */
+/** How you face trouble: the intent a choice is played with. */
+export type Style = Choice['intent']
+
 export type Avatar = {
   id: string
   name: string
   blurb: string
+  /** The look's signature style: a bonus on every choice played that way. */
+  style: Style
+  art: string
+}
+
+/**
+ * Look × clique = your character (Silas, 2026-10-24 PT): every pairing has
+ * its own name, bio and portrait so the player has made someone unique.
+ */
+export type Character = {
+  id: string
+  avatar: string
+  archetype: string
+  title: string
+  tagline: string
+  bio: string
+  catchphrase: string
   art: string
 }
 
@@ -189,5 +209,7 @@ export type Archetype = {
   id: string
   name: string
   text: string
+  /** The clique's home style; a look that shares it is typecast. */
+  style: Style
   skills: Record<Skill, number>
 }

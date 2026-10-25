@@ -1,0 +1,962 @@
+[
+  {
+    "id": "scream-queen--jock",
+    "avatar": "scream-queen",
+    "archetype": "jock",
+    "title": "The Varsity Banshee",
+    "tagline": "The loudest cheer in the bleachers is also the scariest scream on the field.",
+    "bio": "You tried out for track on a dare and set a district record running from a raccoon. Now you wear the varsity jacket over your prom sequins, and the whole squad swears your scream is a secret weapon. When the lights on Crystal Street flicker, you warn the block first and sprint second, mascara streaming like war paint.",
+    "catchphrase": "That wasn't fear, coach. That was a warm-up.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, wearing a sequined prom jacket layered over a varsity jacket, gym shorts and knee socks, mid-scream in a hurdler's leap, a coach's whistle flying from the neck, one sneaker kicked high"
+  },
+  {
+    "id": "scream-queen--brain",
+    "avatar": "scream-queen",
+    "archetype": "brain",
+    "title": "The Shrieking Honor Roll",
+    "tagline": "Every scream is calibrated, measured, and logged in a spiral notebook.",
+    "bio": "You discovered in sophomore physics that your scream can shatter a beaker at forty paces, and the science club adopted you on the spot. You keep a decibel chart taped inside your locker and a calculator watch under the sequins. This week you plan to scream at every haunted thing in town and write down which ones flinch.",
+    "catchphrase": "Hold on, let me scream at it again for the control group.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, sequined prom jacket over a pocket protector shirt and ripped jeans, calculator watch on one wrist, mid-scream in a dramatic backbend holding a cracked beaker aloft, a spiral notebook tucked under one arm"
+  },
+  {
+    "id": "scream-queen--theatre-kid",
+    "avatar": "scream-queen",
+    "archetype": "theatre-kid",
+    "title": "The Final Girl Understudy",
+    "tagline": "Born for the spotlight, and the spotlight has never been more terrifying.",
+    "bio": "You have screamed through every midnight movie sing-along at the Bijou since 1983, and the drama club gave you a standing ovation before you finished your audition. Everybody always cast you as the first one to go. This Halloween you finally get to play the one who makes it to the credits, and you have rehearsed the ending in the mirror.",
+    "catchphrase": "From the top, everyone, and this time scream like you mean it!",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, dramatic stage glitter on the cheeks, oversized sequined prom jacket over a striped leotard and ripped jeans, in a sweeping backbend under a spotlight beam, both hands framing the face, a rolled script clutched in one fist"
+  },
+  {
+    "id": "scream-queen--burnout",
+    "avatar": "scream-queen",
+    "archetype": "burnout",
+    "title": "The Parking Lot Howler",
+    "tagline": "Screams along to every tape, and some tapes scream back.",
+    "bio": "You started screaming backup vocals for a garage band behind the 7-Eleven and never really stopped. The burnouts love you because you know every shortcut through the woods and your scream carries over a full amp. You trade mixtapes, skip third period, and walk home through the cemetery on purpose, which turns out to be great training for this particular week.",
+    "catchphrase": "Turn it up. If it's gonna haunt us, it can at least hear the guitar solo.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, sequined prom jacket over a studded leather vest and ripped jeans, hoisting a boombox overhead mid-scream in a wild backbend, cassette tapes spilling from the pockets, one knee popped"
+  },
+  {
+    "id": "scream-queen--prep",
+    "avatar": "scream-queen",
+    "archetype": "prep",
+    "title": "The Country Club Shriek",
+    "tagline": "Perfect posture, perfect grades, and a perfectly spine-chilling scream.",
+    "bio": "You were raised on cotillion lessons and tennis camp, and nobody at the club knows what to do with the kid who screams at the dessert cart. You pop your collar under the sequins, ace every exam, and secretly practice shrieking in the pool house. This week the manners finally meet the lungs, and the whole cul-de-sac is about to hear it.",
+    "catchphrase": "Pardon me. I'm about to be absolutely deafening.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, pastel polo with a popped collar under an oversized sequined prom jacket, pressed khakis and boat shoes, a sweater tied around the shoulders, mid-scream in a dramatic backbend with both hands on the cheeks"
+  },
+  {
+    "id": "scream-queen--weirdo",
+    "avatar": "scream-queen",
+    "archetype": "weirdo",
+    "title": "The Seance Siren",
+    "tagline": "When the ouija board needs a volume knob, it calls you.",
+    "bio": "You held your first seance at age nine, screamed when the planchette moved, and the spirits seemed to like it. Now the weirdos at the back of the bus treat your scream like a doorbell for the other side. You carry a ouija board in your backpack, glitter in your pockets, and an honest belief that this week is the one you were born for.",
+    "catchphrase": "Knock once for yes, twice for no, and I'll scream for both.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara, sequined prom jacket over a thrifted velvet poncho and ripped jeans, mid-scream in a dramatic backbend while balancing a ouija board on one palm, stubby candles poking from the jacket pockets, one knee popped"
+  },
+  {
+    "id": "flashlight--jock",
+    "avatar": "flashlight",
+    "archetype": "jock",
+    "title": "The Varsity Beam Fencer",
+    "tagline": "Captain of the team, and captain of pointing at the scary thing.",
+    "bio": "You started the fencing club yourself, then talked the football coach into giving you a varsity jacket for it, and somehow nobody argues. You run drills in the dark with a flashlight because the real foils kept getting confiscated. Your teammates follow your beam into the woods without a second thought, and you would never let a single one of them get left behind.",
+    "catchphrase": "En garde! And somebody grab the spare batteries!",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, varsity jacket thrown over a huge flannel shirt, cargo shorts and knee pads, mouthguard in, lunging in a fencing stance with a giant chrome flashlight thrust forward like a sword, one eye squinting"
+  },
+  {
+    "id": "flashlight--brain",
+    "avatar": "flashlight",
+    "archetype": "brain",
+    "title": "The Lumen Lab Partner",
+    "tagline": "Has a hypothesis about the shadows and a flashlight to test it.",
+    "bio": "You took apart the family VCR at eight and rebuilt it with a better clock. The brains adopted you after you rewired your flashlight to throw a beam three blocks, then wrote a ten-page report on why shadows run from it. Monster week is basically the science fair you always wanted, with considerably more running.",
+    "catchphrase": "Light travels 186,000 miles per second. Let's see you outrun that.",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, huge flannel shirt with a pocket protector, cargo shorts stuffed with batteries, calculator watch, safety goggles pushed up, crouched in a fencing stance aiming a giant chrome flashlight wired with extra gadgets, one eye squinting"
+  },
+  {
+    "id": "flashlight--theatre-kid",
+    "avatar": "flashlight",
+    "archetype": "theatre-kid",
+    "title": "The Follow-Spot Swashbuckler",
+    "tagline": "Runs the spotlight for every show and knows exactly where to aim it.",
+    "bio": "You joined the drama club to run the follow spot and accidentally stole the spring musical with a stage-combat cameo. Now you know every swordfight from every midnight movie by heart and perform them with your trusty flashlight. When Crystal Street goes dark this week, you fully intend to light the scene, find the drama, and take a bow.",
+    "catchphrase": "Lights up on the monster! Places, everybody!",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, huge flannel shirt worn open over a ruffled pirate blouse, cargo shorts and a swishing stage cape, in a flamboyant fencing lunge brandishing a giant chrome flashlight like a rapier, one eye squinting theatrically"
+  },
+  {
+    "id": "flashlight--burnout",
+    "avatar": "flashlight",
+    "archetype": "burnout",
+    "title": "The Backroad Beam Bandit",
+    "tagline": "Knows every dark shortcut in town because the flashlight found them first.",
+    "bio": "You spend your nights riding the back roads on a borrowed BMX, lighting the way home for the burnouts after the arcade closes. Nobody else knows the drainage tunnels like you do, and nobody else carries a flashlight this big. You keep a Walkman clipped to your cargo shorts, one mixtape on repeat, and zero fear of the woods behind the quarry.",
+    "catchphrase": "Shortcut's this way. Stay in the light and don't touch the slime.",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, studded denim vest over a huge flannel shirt, cargo shorts and high-tops, a Walkman clipped at the hip and headphones around the neck, crouched low in a fencing stance swinging a giant chrome flashlight like a sword, one eye squinting"
+  },
+  {
+    "id": "flashlight--prep",
+    "avatar": "flashlight",
+    "archetype": "prep",
+    "title": "The Yacht Club Torchbearer",
+    "tagline": "Polished manners, polished chrome, and a beam that never wavers.",
+    "bio": "You made the honor roll, the debate team, and the country club fencing ladder before anyone thought to ask whether you liked any of it. You do like the fencing. Your parents gave you a monogrammed flashlight for your sixteenth birthday, and you have finally found the one week where pointing it into dark corners counts as an extracurricular.",
+    "catchphrase": "I'll have you know this flashlight has a lifetime warranty.",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, pastel polo with a popped collar under a huge flannel shirt, cargo shorts and boat shoes, a cable-knit sweater tied over the shoulders, crouched in an elegant fencing stance with a gleaming chrome flashlight, one eye squinting"
+  },
+  {
+    "id": "flashlight--weirdo",
+    "avatar": "flashlight",
+    "archetype": "weirdo",
+    "title": "The Cryptid Spotlight Seeker",
+    "tagline": "Points the light at Bigfoot, ghosts, and anything else that might wave back.",
+    "bio": "You keep a binder of every UFO sighting in the county since 1971 and a flashlight strong enough to signal any of them. The weirdos took you in after you camped out three nights waiting for the swamp lights to return. This week you finally get to point your beam at something everyone swore was made up, and you plan to say hello first.",
+    "catchphrase": "I'm not scared, I'm documenting. Hold still, I need a clear beam.",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade, huge flannel shirt covered in alien pins, cargo shorts, a backpack with a ouija board poking out, crouched in a fencing stance aiming a giant chrome flashlight at the starry sky, one eye squinting"
+  },
+  {
+    "id": "rake-grandparent--jock",
+    "avatar": "rake-grandparent",
+    "archetype": "jock",
+    "title": "The Class of '44 Linebacker",
+    "tagline": "Earned the varsity jacket in 1944 and has been running drills ever since.",
+    "bio": "You lettered in football back in 1944 and have worn the jacket to every homecoming since, moth holes and all. The neighborhood kids call you Coach even though you only ever coached tomatoes. When something starts lurking in the hedges on Crystal Street, you limber up, grab the rake, and run the play you have been saving for forty years.",
+    "catchphrase": "Huddle up, kids. I've got a play from before your parents were born.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, faded vintage varsity jacket over a mustard cardigan, orthopedic sneakers and tube socks, charging forward in a linebacker crouch with a garden rake raised high overhead, a coach's whistle bouncing at the chest"
+  },
+  {
+    "id": "rake-grandparent--brain",
+    "avatar": "rake-grandparent",
+    "archetype": "brain",
+    "title": "The Professor of Leaf Science",
+    "tagline": "Retired from teaching chemistry, but never from being right.",
+    "bio": "You taught chemistry at Crystal Street High for thirty-one years and still correct the newspaper crossword in red pen. The neighborhood brains bring you their homework, their theories, and their strange noises in the attic. You have seen three Halloweens like this one, kept careful notes on all of them, and know precisely which end of the rake to use.",
+    "catchphrase": "I have a theory, a thermos of coffee, and a rake. In that order.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, mustard cardigan with reading glasses on a chain and a slide rule in the pocket, orthopedic sneakers, lunging forward with a garden rake raised high like a lecture pointer, an armful of notebooks tucked close"
+  },
+  {
+    "id": "rake-grandparent--theatre-kid",
+    "avatar": "rake-grandparent",
+    "archetype": "theatre-kid",
+    "title": "The Matinee Idol Next Door",
+    "tagline": "Has played every lead at the community playhouse since Eisenhower.",
+    "bio": "You have played every lead at the Crystal Street Community Playhouse since the Eisenhower years, including a Hamlet people still talk about at the bakery. The drama kids treat you like royalty and you let them. When the haunting starts, you deliver every warning in full stage voice and wave the rake around like a prop sword, because every performance deserves commitment.",
+    "catchphrase": "Darlings, I did three weeks of Macbeth in a thunderstorm. This is nothing.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, mustard cardigan draped like a cape over a velvet smoking jacket, a silk ascot and orthopedic sneakers, in a grand theatrical lunge holding a garden rake aloft like a scepter, a paper stage crown tilted jauntily"
+  },
+  {
+    "id": "rake-grandparent--burnout",
+    "avatar": "rake-grandparent",
+    "archetype": "burnout",
+    "title": "The Harley Garden Rebel",
+    "tagline": "Rode with a motorcycle club in 1958 and still knows every back road.",
+    "bio": "You rode with a motorcycle club through the fifties and never quite gave back the leather jacket. These days you fix the burnouts' bikes in your driveway and play them old jukebox records while they pretend not to like them. You know every shortcut on Crystal Street because you helped pave half of them, and you keep the rake by the door just in case.",
+    "catchphrase": "Kids, I was out after curfew before curfew was invented.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, battered leather motorcycle jacket over a mustard cardigan, orthopedic sneakers and aviator sunglasses, lunging forward with a garden rake held high, a portable cassette deck swinging from the other hand"
+  },
+  {
+    "id": "rake-grandparent--prep",
+    "avatar": "rake-grandparent",
+    "archetype": "prep",
+    "title": "The Garden Club President",
+    "tagline": "Runs the garden club with an iron trowel and a flawless lawn.",
+    "bio": "You have chaired the Crystal Street Garden Club since 1962, and your hedges have taken the blue ribbon every year since. You still pop the collar on your tennis whites and host a very civilized brunch. When something starts tearing up the neighborhood lawns this week, you treat it as a personal insult and a matter for immediate committee action.",
+    "catchphrase": "That creature is in direct violation of the homeowners' association bylaws.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, crisp polo with a popped collar under a mustard cardigan tied neatly over the shoulders, pressed slacks and orthopedic sneakers, lunging forward with a polished garden rake raised overhead, a blue ribbon pinned proudly"
+  },
+  {
+    "id": "rake-grandparent--weirdo",
+    "avatar": "rake-grandparent",
+    "archetype": "weirdo",
+    "title": "The Psychic Porch Sitter",
+    "tagline": "Has read tea leaves on the porch since Truman, and it shows.",
+    "bio": "You have read tea leaves on your front porch every evening since the Truman administration, and the leaves have been nervous about this week since July. The weirdo kids gather on your steps for ghost stories and fig cookies. You keep a ouija board in the cardigan drawer, a rake by the door, and a long list of neighbors who owe you an apology.",
+    "catchphrase": "The leaves told me you'd come. They also said bring a rake.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, mustard cardigan draped in crystal pendants and beaded necklaces, orthopedic sneakers, lunging forward with a garden rake raised high overhead, a teacup balanced in the other hand and a ouija board tucked underarm"
+  },
+  {
+    "id": "fainting-goth--jock",
+    "avatar": "fainting-goth",
+    "archetype": "jock",
+    "title": "The Swooning Shortstop",
+    "tagline": "Faints at every pitch and still somehow steals second base.",
+    "bio": "You joined the softball team because the uniforms were black and the dugout was shady, then discovered that a dramatic swoon makes the perfect slide into home. Your teammates now count your faints as stolen bases. You bring snacks to every practice, cry at every win, and you will absolutely get back up when Crystal Street gets scary.",
+    "catchphrase": "I'm fine! I fainted on purpose! Did we score?",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair in a ponytail, black lace top under a varsity jacket, velvet skirt over softball leggings and combat boots, mid-swoon sliding toward a base with one wrist on the forehead, silver crucifix swinging, a baseball mitt raised"
+  },
+  {
+    "id": "fainting-goth--brain",
+    "avatar": "fainting-goth",
+    "archetype": "brain",
+    "title": "The Swooning Valedictorian",
+    "tagline": "Faints at the poetry, wakes up for the calculus.",
+    "bio": "You read Poe for fun, ace every calculus test, and faint at least once a week in the library, usually over something Byron wrote. The brains respect you because you always swoon into exactly the right reference book. This week you plan to research every haunted thing in town, faint at the scariest page, and wake up with the answer.",
+    "catchphrase": "Wake me when the footnotes get interesting. Actually, they just did.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair, black lace top with a calculator watch, velvet skirt and combat boots, glasses askew, collapsing in a theatrical swoon onto a tall stack of library books, one wrist on the forehead, silver crucifix swinging"
+  },
+  {
+    "id": "fainting-goth--theatre-kid",
+    "avatar": "fainting-goth",
+    "archetype": "theatre-kid",
+    "title": "The Opening Night Swooner",
+    "tagline": "Has fainted on every stage in the tri-county area, always on cue.",
+    "bio": "You have fainted on every stage in the tri-county area, always on cue and always into someone's waiting arms. The drama club calls you its secret weapon for Act Two. You know every line of every gothic midnight movie and deliver them in full Victorian mourning. When the real monsters show up, you plan to faint fabulously and then steal the scene.",
+    "catchphrase": "Catch me, I'm going! No, wait, curtain call first.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair, dramatic stage makeup, black lace top with a flowing velvet cape over a velvet skirt and combat boots, collapsing in a sweeping theatrical swoon center stage, one wrist pressed to the forehead, silver crucifix swinging, roses scattered at the feet"
+  },
+  {
+    "id": "fainting-goth--burnout",
+    "avatar": "fainting-goth",
+    "archetype": "burnout",
+    "title": "The Mosh Pit Fainter",
+    "tagline": "Faints in the mosh pit and gets crowd-surfed to safety every time.",
+    "bio": "You started going to punk shows at the VFW hall for the music and stayed because the crowd always catches you when you swoon. The burnouts treat you like their tiny dark mascot and save you the front seat of the van. You know every shortcut behind the strip mall and carry a gloomy mixtape everywhere, which honestly helps with the haunting.",
+    "catchphrase": "If I faint, carry me toward the exit. Or the snack bar. Either works.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair, ripped leather jacket over a black lace top, velvet skirt and scuffed combat boots, swooning backward in a crowd-surf pose with one wrist on the forehead, silver crucifix swinging, a cassette deck clutched to the chest"
+  },
+  {
+    "id": "fainting-goth--prep",
+    "avatar": "fainting-goth",
+    "archetype": "prep",
+    "title": "The Cotillion Collapse",
+    "tagline": "Swoons with impeccable manners onto only the finest upholstery.",
+    "bio": "You were raised on etiquette classes and honor roll bumper stickers, and you agreed to the popped collar only if it came in black. You faint at country club mixers with perfect posture and somehow always land on the good furniture. The preps adore you as their gothic secret, and this week you get to prove that manners and moodiness both work on monsters.",
+    "catchphrase": "Do forgive me, I seem to be fainting again.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair tied with a velvet bow, black polo with a popped collar under a black lace cardigan, pleated velvet skirt and polished combat boots, swooning elegantly onto a chaise with one wrist on the forehead, silver crucifix swinging"
+  },
+  {
+    "id": "fainting-goth--weirdo",
+    "avatar": "fainting-goth",
+    "archetype": "weirdo",
+    "title": "The Swooning Spirit Medium",
+    "tagline": "Faints at every seance and comes back with a message from beyond.",
+    "bio": "You have fainted at every seance you ever attended, and you always wake up with a message from the other side, usually about lost car keys. The weirdos consider you their best phone line to the beyond. You keep a ouija board in your backpack and candle wax on your boots, and you have been counting down to this Halloween since last November.",
+    "catchphrase": "Hold my hand and keep the circle closed. I'm about to go under.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair, black lace top under a shawl of crystal beads, velvet skirt and combat boots, collapsing in a theatrical swoon over a glowing ouija board, one wrist pressed to the forehead, silver crucifix swinging, candles all around"
+  },
+  {
+    "id": "wrench--jock",
+    "avatar": "wrench",
+    "archetype": "jock",
+    "title": "The Tailgate Torque Coach",
+    "tagline": "Coaches the defensive line and the transmission at equal volume.",
+    "bio": "You lettered in shop and football at Crystal Street High in 1962 and never quite left the sidelines; now you run the garage across from the field and fix the team bus for free. Every Friday you're in the bleachers in a letter jacket over your coveralls, yelling plays nobody asked for. Monster week? You've survived worse fourth quarters, and you're bringing jumper cables and a halftime speech.",
+    "catchphrase": "Huddle up! You're on flashlight, I'm on wrench, and nobody runs!",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and inked forearms, wearing a faded varsity jacket over grease-smudged coveralls, a whistle around the neck, charging forward mid-roar with a giant wrench hoisted like a game-winning football."
+  },
+  {
+    "id": "wrench--brain",
+    "avatar": "wrench",
+    "archetype": "brain",
+    "title": "The Socket Set Scholar",
+    "tagline": "Diagnoses the engine knock and the poltergeist in one look.",
+    "bio": "You read the repair manual for every car ever built, then the physics textbooks behind them, and your garage wall is a chalkboard of torque equations. The Brain crowd found you when their science-fair robot caught fire and you fixed it in nine minutes. You keep a calculator watch under the grease and a theory for every haunting. If it has bolts, you already know how it comes apart.",
+    "catchphrase": "Every monster is just a machine nobody has read the manual for yet.",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, coveralls tied at the waist over a pocket-protector shirt, calculator watch gleaming, leaping onto an engine block with a huge wrench raised high and blueprints flapping."
+  },
+  {
+    "id": "wrench--theatre-kid",
+    "avatar": "wrench",
+    "archetype": "theatre-kid",
+    "title": "The Fog Machine Whisperer",
+    "tagline": "Builds the trapdoor, runs the fog, and sobs at every curtain call.",
+    "bio": "You started building sets for the community theatre in 1971 because the director's Volkswagen died outside your garage, and you never left the wings. You've rigged flying witches, collapsing staircases and one very convincing papier-mache werewolf. Secretly you know every lyric of every musical and belt them under cars. This week the whole street is a stage, and your fog machine is tuned.",
+    "catchphrase": "Places, everyone! And somebody hand me a nine-sixteenths for the ghost.",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, coveralls tied at the waist over a sequined vest, dramatic stage makeup, arms flung wide in a curtain-call pose, a huge wrench held aloft like a spotlit trophy, fog swirling around the boots."
+  },
+  {
+    "id": "wrench--burnout",
+    "avatar": "wrench",
+    "archetype": "burnout",
+    "title": "The Chop Shop Philosopher",
+    "tagline": "Knows every back alley in town and keeps the van idling.",
+    "bio": "You dropped out in 1961, rebuilt a Harley in your mom's driveway and have smelled like motor oil and spearmint gum ever since. The burnouts hang around your garage because you never call their parents and you let them blast Judas Priest on the shop radio. You know every alley, every back fence and which streetlights flicker. When the monsters come, you'll have the van running.",
+    "catchphrase": "Get in, buckle up, and somebody flip the tape to side B.",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, a studded leather jacket over grease-stained coveralls, a battered cassette deck hooked to one hip, kicking open a garage door mid-shout with a huge wrench swung over one shoulder."
+  },
+  {
+    "id": "wrench--prep",
+    "avatar": "wrench",
+    "archetype": "prep",
+    "title": "The Polo Shirt Pit Crew",
+    "tagline": "Pops the collar, pops the hood, and RSVPs to every brunch.",
+    "bio": "You keep the country club's Mercedes fleet purring, and somewhere along the way the members adopted you: tennis on Thursdays, a pastel polo with the collar popped over your tattoos. You pretend to hate the brunches. You absolutely do not. The prep kids trust you with their parents' cars and their secrets, and this week you'll fix both the BMW and the broken hearts.",
+    "catchphrase": "Darling, that's a loose fan belt, not a ghost. Mimosa?",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, a pastel polo with the collar popped tucked into pressed coveralls, a sweater knotted over the shoulders, striking a jaunty victory pose with a polished chrome wrench raised overhead."
+  },
+  {
+    "id": "wrench--weirdo",
+    "avatar": "wrench",
+    "archetype": "weirdo",
+    "title": "The Haunted Engine Mystic",
+    "tagline": "Talks to carburetors, and lately the carburetors talk back.",
+    "bio": "You swear the 1957 Bel Air in bay two is possessed, and honestly, you're right. You talk to engines, burn sage over the carburetors and keep a Ouija board in the toolbox next to the feeler gauges. The weirdo kids drift in after school to hear you explain ley lines and spark plugs in the same breath. You've been ready for this week since the shop radio started whispering.",
+    "catchphrase": "Hush. Hear that knocking? That's either a bad piston or the dead.",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, grease-stained coveralls draped with crystal pendants and a fringed shawl, crouched dramatically over a glowing Ouija board balanced on a toolbox, a huge wrench raised like a dowsing rod."
+  },
+  {
+    "id": "roller--jock",
+    "avatar": "roller",
+    "archetype": "jock",
+    "title": "The Varsity Jammer",
+    "tagline": "Lapped the whole track team, then joined it.",
+    "bio": "You talked your way onto the varsity track team on skates, and when the coach said no, you lapped the sprinters until the answer changed. Now you wear the letter jacket over your derby pads and hip-check linebackers for fun. You're the jock who cheers loudest for everyone else. On monster week you'll be the fastest blur on Crystal Street, glow necklaces streaking behind you.",
+    "catchphrase": "Clear the lane! Coming through at thirty and accelerating!",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, a varsity jacket over a derby jersey, rainbow roller skates and sticker-covered knee pads, glow necklaces whirling, crouched in a speed-skating sprint with a mouthguard grin and one fist pumped high."
+  },
+  {
+    "id": "roller--brain",
+    "avatar": "roller",
+    "archetype": "brain",
+    "title": "The Velocity Valedictorian",
+    "tagline": "Calculates the escape route at full speed and checks the math mid-spin.",
+    "bio": "You measured the friction of every floor in the school so you could skate the halls at optimal speed, and the Brain table adopted you on the spot. You carry a protractor in your fanny pack and a notebook of skid-mark diagrams. You think fast and roll faster, which is usually the same thing. This week, every monster is just a math problem with a getaway route.",
+    "catchphrase": "Factoring in momentum, I'll be gone in roughly two seconds. One.",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, rainbow roller skates, sticker-covered knee pads, oversized glasses and a calculator watch, spinning on one skate with a clipboard of equations flung high, glow necklaces and a protractor whirling around."
+  },
+  {
+    "id": "roller--theatre-kid",
+    "avatar": "roller",
+    "archetype": "theatre-kid",
+    "title": "The Skate Musical Understudy",
+    "tagline": "Every entrance is a skate-in, every exit is a spin.",
+    "bio": "You saw a bootleg tape of a musical on roller skates in 1985 and have been auditioning for it in the school parking lot ever since. Drama club made you choreographer after your one-skate spin stopped the spring show cold. You live for the spotlight and the screech of wheels. If this week ends with a big number on Crystal Street, you've already blocked it.",
+    "catchphrase": "Five, six, seven, eight, and everybody skate for your lives!",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, glittery stage makeup and a sequined leotard, rainbow roller skates and sticker-covered knee pads, spinning on one skate in a grand finale pose with jazz hands, glow necklaces swirling like a spotlight halo."
+  },
+  {
+    "id": "roller--burnout",
+    "avatar": "roller",
+    "archetype": "burnout",
+    "title": "The Rink Rat Rebel",
+    "tagline": "Banned from the rink three times and back in four.",
+    "bio": "You've been banned from the Crystal Street Roller Rink three times and snuck back in four, which is how the burnouts knew you were one of them. You skate the storm drains after dark with a boombox on your shoulder and know every shortcut under the overpass. Reckless is just your resting speed. When monsters show up, you'll be the first one there and the last one caught.",
+    "catchphrase": "Shortcut through the drainage ditch. Trust me, I've only fallen in twice.",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, a patched leather jacket over a ripped band tee, rainbow roller skates and sticker-covered knee pads, carving a sharp turn with a cassette boombox on one shoulder, glow necklaces whipping behind."
+  },
+  {
+    "id": "roller--prep",
+    "avatar": "roller",
+    "archetype": "prep",
+    "title": "The Pastel Pace Car",
+    "tagline": "Skated into the country club and somehow got voted social chair.",
+    "bio": "Your parents bought you a tennis membership; you showed up on skates, and the club kids decided it was a bold new look. Now you glide through debutante parties in a pink polo, collar popped, handing out mixtapes and compliments at top speed. Nobody's idea of a prep, everybody's friend, and secretly the kindest person at the gala. This week you'll roll in with snacks.",
+    "catchphrase": "Okay, team, I made laminated maps of the haunted house. In pastels!",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, a pink polo with the collar popped, a tennis sweater knotted at the shoulders, rainbow roller skates and sticker-covered knee pads, gliding backward with a picnic basket raised high, glow necklaces swinging."
+  },
+  {
+    "id": "roller--weirdo",
+    "avatar": "roller",
+    "archetype": "weirdo",
+    "title": "The Midnight Rink Medium",
+    "tagline": "Couple-skates with ghosts every Tuesday after midnight.",
+    "bio": "You skate the abandoned rink at midnight because a ghostly 1950s couple still couple-skates there, and you think they're adorable. The weirdo crowd took you in after you rolled up to a seance on wheels. You keep tarot cards tucked in your knee pads and read them mid-spin. This week the whole street is haunted, and you've been practicing your spins for exactly this.",
+    "catchphrase": "The spirits say turn left. Hard left. Now!",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, a black lace shawl over a moon-print shirt, rainbow roller skates and sticker-covered knee pads, spinning on one skate with tarot cards fanning out from both hands, glow necklaces whirling like a ghostly ring."
+  },
+  {
+    "id": "wheelie--jock",
+    "avatar": "wheelie",
+    "archetype": "jock",
+    "title": "The Sticker-Chair Slugger",
+    "tagline": "Pops a wheelie rounding third and slides home in a shower of sparks.",
+    "bio": "You joined the wheelchair basketball league in 1984 and the varsity baseball team the same week, and by spring both coaches were fighting over you. You pop wheelies on the base paths and give the best hugs in the dugout. Your letter jacket is covered in pins from every tournament. When the monsters come, you're batting cleanup, and you never strike out twice.",
+    "catchphrase": "Batter up, creep. I've been warming up all season.",
+    "art": "A grinning teenager with a spiked violet mohawk in a varsity jacket and baseball cap, popping a wheelie in a sticker-covered wheelchair, studded fingerless gloves on the rims, winding up a mighty baseball bat swing with a mouthguard grin and dirt flying from the wheels."
+  },
+  {
+    "id": "wheelie--brain",
+    "avatar": "wheelie",
+    "archetype": "brain",
+    "title": "The Mohawk Mathlete",
+    "tagline": "Solves for x while popping a wheelie down the library ramp.",
+    "bio": "You aced the state math olympiad with a violet mohawk and a calculator duct-taped to your armrest, and the Brain crowd never recovered. You designed your own chair upgrades: shocks, a cup holder, a periscope for spotting trouble. Everyone underestimates the punk kid until you solve the problem in your head. This week you'll engineer the getaway, and probably pop a wheelie doing it.",
+    "catchphrase": "I ran the numbers. We survive if we go faster. So, faster.",
+    "art": "A grinning teenager with a spiked violet mohawk and thick taped glasses, popping a wheelie in a sticker-covered wheelchair rigged with a periscope and calculator, studded fingerless gloves on the rims, a baseball bat raised like a pointer at a flying chalkboard of equations."
+  },
+  {
+    "id": "wheelie--theatre-kid",
+    "avatar": "wheelie",
+    "archetype": "theatre-kid",
+    "title": "The Rock Opera Showstopper",
+    "tagline": "Every entrance is on one wheel, every exit gets a standing ovation.",
+    "bio": "You auditioned for the school musical with a punk cover of a show tune, and the drama teacher wept and rewrote the whole second act around you. Now your wheelchair has footlights bolted to it and you make every entrance on one back wheel. You know every line of every midnight movie and you shout them all. This week you're the star, and the monsters are your audience.",
+    "catchphrase": "Hold for applause. Okay, now hold for screaming. Perfect.",
+    "art": "A grinning teenager with a spiked violet mohawk, glittery stage makeup and a sequined cape, popping a wheelie in a sticker-covered wheelchair trimmed with tiny footlights, studded fingerless gloves on the rims, brandishing a baseball bat like a microphone in a showstopping finale pose."
+  },
+  {
+    "id": "wheelie--burnout",
+    "avatar": "wheelie",
+    "archetype": "burnout",
+    "title": "The Back Alley Daredevil",
+    "tagline": "Jumped the ditch behind the 7-Eleven forty times and counting.",
+    "bio": "You've jumped the drainage ditch behind the 7-Eleven so many times the cashier keeps a scorecard. The burnouts found you there, grinning, a Ramones tape blasting from the speakers bolted under your seat. You know every curb cut, alley and loading dock in town, and you've never once braked. Monster week is just another dare, and you have never turned one down.",
+    "catchphrase": "Brakes? I think I had brakes once. Hold on to something!",
+    "art": "A grinning teenager with a spiked violet mohawk in a studded leather jacket, popping a wheelie off a curb in a sticker-covered wheelchair with a cassette deck strapped under the seat, studded fingerless gloves on the rims, a baseball bat slung over one shoulder."
+  },
+  {
+    "id": "wheelie--prep",
+    "avatar": "wheelie",
+    "archetype": "prep",
+    "title": "The Popped-Collar Punk",
+    "tagline": "Won the student council race with a wheelie across the stage.",
+    "bio": "You're the student council treasurer with a violet mohawk, and you won the election by popping a wheelie across the stage during your speech. The prep crowd adores you: you remember birthdays, balance the prom budget and tuck a pastel polo into your ripped jeans. Under the collar you're still pure punk. This week you'll organize the monster hunt with color-coded binders and zero fear.",
+    "catchphrase": "Motion to kick this monster's butt. All in favor? Motion carries!",
+    "art": "A grinning teenager with a spiked violet mohawk in a pastel polo with the collar popped and a sweater knotted over the shoulders, popping a wheelie in a sticker-covered wheelchair, studded fingerless gloves on the rims, waving a baseball bat like a gavel beside a stack of binders."
+  },
+  {
+    "id": "wheelie--weirdo",
+    "avatar": "wheelie",
+    "archetype": "weirdo",
+    "title": "The Cemetery Cruiser",
+    "tagline": "Hosts seances on a lap tray and pops wheelies between headstones.",
+    "bio": "You do wheelies between the headstones at Crystal Street Cemetery because the acoustics are great and the residents never complain. The weirdo crowd found you there, holding a candlelit seance on your lap tray. You've got a Ouija board zip-tied to the back of your chair and a list of every local haunting since 1903. You've been waiting all year for this week.",
+    "catchphrase": "Relax, the ghosts here love me. It's the new ones I'm worried about.",
+    "art": "A grinning teenager with a spiked violet mohawk in a black velvet cloak and skull-print shirt, popping a wheelie in a sticker-covered wheelchair hung with a Ouija board and dangling candles, studded fingerless gloves on the rims, a baseball bat balanced on one shoulder."
+  },
+  {
+    "id": "vampire-hunter--jock",
+    "avatar": "vampire-hunter",
+    "archetype": "jock",
+    "title": "The Garlic-Braid Linebacker",
+    "tagline": "Tackles first, quotes folklore second, hugs everyone after.",
+    "bio": "You read every book in the occult aisle and then tried out for linebacker, because anyone hunting the undead needs a decent tackle. The team laughed until you flattened the quarterback at practice and offered the poor kid a garlic knot afterward. Now you wear a letter jacket over your argyle vest and lead the pregame chants. This week, you were born for the front line.",
+    "catchphrase": "Helmets on, garlic out, and nobody goes in the crypt alone!",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest under a varsity jacket, football shoulder pads strapped on, leaping into a flying tackle with a braid of garlic in one hand and a wooden stake in the other, tie flying."
+  },
+  {
+    "id": "vampire-hunter--brain",
+    "avatar": "vampire-hunter",
+    "archetype": "brain",
+    "title": "The Occult Honor Roll",
+    "tagline": "Has footnotes for every monster and the nerve to test them.",
+    "bio": "You've checked out every folklore book in the Crystal Street library twice and annotated the margins in three colors of ink. The Brain crowd counts you as their resident expert on the undead and the only one who'll actually go into the basement. You bring index cards, holy water in a thermos and a citation for everything. This week, your research finally gets a field test.",
+    "catchphrase": "According to page 214, this should work. Stand back for science!",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest, a calculator watch and a stack of library books under one arm, leaping into the air brandishing a braid of garlic and a wooden stake, index cards and tie flying everywhere."
+  },
+  {
+    "id": "vampire-hunter--theatre-kid",
+    "avatar": "vampire-hunter",
+    "archetype": "theatre-kid",
+    "title": "The Midnight Matinee Van Helsing",
+    "tagline": "Played the vampire hunter once and never took the cape off.",
+    "bio": "You played the vampire hunter in the drama club's Dracula and simply never stopped. You still wear the costume cape over your argyle vest and deliver every warning in a booming stage voice. You know every line of every midnight creature feature and quote them in moments of mortal danger. This week the monsters are real, and you've been rehearsing the big confrontation for years.",
+    "catchphrase": "Creature of the night, I have rehearsed this moment for three years!",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest under a swirling velvet opera cape, dramatic stage makeup, leaping mid-soliloquy with a braid of garlic held high in one hand and a wooden stake in the other, tie flying."
+  },
+  {
+    "id": "vampire-hunter--burnout",
+    "avatar": "vampire-hunter",
+    "archetype": "burnout",
+    "title": "The Heavy Metal Slayer",
+    "tagline": "Studies the occult one album cover at a time.",
+    "bio": "You discovered that half your burnout friends' album covers were basically occult reference guides, and you've been taking notes ever since. You wear a denim vest of band patches over your argyle and blast thrash tapes to keep the undead jumpy. The burnouts call you Professor and always save you the front seat. This week, you'll lead them through every shortcut to the crypt.",
+    "catchphrase": "Crank it up! Vampires hate a guitar solo almost as much as garlic.",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest under a patched denim jacket, a cassette deck clipped to the belt, leaping off a car hood mid-headbang with a braid of garlic in one hand and a wooden stake in the other."
+  },
+  {
+    "id": "vampire-hunter--prep",
+    "avatar": "vampire-hunter",
+    "archetype": "prep",
+    "title": "The Garden Party Exorcist",
+    "tagline": "Puts garlic in the canapes and writes thank-you notes to survivors.",
+    "bio": "You attend every garden party with a sweater tied over your shoulders and garlic tucked discreetly into the canapes, because one can never be too careful. The prep crowd finds your folklore obsession eccentric and charming; you consider it basic etiquette. You write thank-you notes to everyone who survives. This week, you'll protect your friends politely, thoroughly and with excellent posture.",
+    "catchphrase": "Pardon me, but you appear to be undead. Shall we take this outside?",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest under a pastel blazer with the collar popped, a tennis sweater knotted at the shoulders, leaping gracefully with a braid of garlic in one hand and a wooden stake in the other."
+  },
+  {
+    "id": "vampire-hunter--weirdo",
+    "avatar": "vampire-hunter",
+    "archetype": "weirdo",
+    "title": "The Graveyard Shift Scholar",
+    "tagline": "Has waited for vampires since fourth grade, and finally gets some.",
+    "bio": "You've kept a vampire-sighting log since the fourth grade, and the weirdo crowd was the first to read it without laughing. You sleep with garlic on the windowsill and a Ouija board under the bed, just in case. Everyone else thinks this week came out of nowhere. You've had it circled on your calendar all year, and you're finally, gloriously right.",
+    "catchphrase": "I told you. I told all of you. Now grab some garlic and follow me.",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest under a long black trench coat, a Ouija board strapped to a backpack, leaping across a moonlit tombstone with a braid of garlic in one hand and a wooden stake in the other."
+  },
+  {
+    "id": "vogue--jock",
+    "avatar": "vogue",
+    "archetype": "jock",
+    "title": "The Varsity Voguer",
+    "tagline": "Strikes a pose at center court, then blocks the shot.",
+    "bio": "You joined the wrestling team on a dare in 1985 and stayed because the singlet was, frankly, a look. Coach still pretends the death drops at practice are a warm-up stretch, and the whole squad now duckwalks into every meet. When the monster week hits, you are the one who can carry a fainting teammate in one arm and fan them back to life with the other.",
+    "catchphrase": "Hit the showers? Darling, I am the showers.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, wearing a satin varsity jacket cinched like a kimono over gym shorts and tube socks, lunging into a dramatic dip with a whistle in the teeth and a lace fan snapped open over a football."
+  },
+  {
+    "id": "vogue--brain",
+    "avatar": "vogue",
+    "archetype": "brain",
+    "title": "The Calculated Serve",
+    "tagline": "Can solve for x while holding a perfect pose.",
+    "bio": "You are the only member of the Mathletes who arrives to regionals in a kimono, and the only one with a trophy shelf to match. You treat every equation like a runway: confident steps, sharp angles, a flourish at the answer. This week you have charted the haunting on graph paper, color-coded by drama level, and the pattern says the whole street is about to get served.",
+    "catchphrase": "Show your work, honey, and make it fierce.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, in a flowing satin kimono over a short-sleeve button-down with a pocket protector, calculator watch flashing, one hand framing the face with a protractor while the lace fan points at a chalkboard full of equations."
+  },
+  {
+    "id": "vogue--theatre-kid",
+    "avatar": "vogue",
+    "archetype": "theatre-kid",
+    "title": "The Diva Ex Machina",
+    "tagline": "Born under a spotlight and refusing to leave it.",
+    "bio": "You have played every lead at Crystal Street High, including two that were written for a chorus of twelve, and you did them all in the same kimono. The drama club treats you as both director and patron saint, and the midnight movie crowd throws rice when you walk in. A haunted week is just a production with very committed extras, and you already know your light.",
+    "catchphrase": "Places, everyone. The ghost is upstaging me.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, in thick stage makeup and a sweeping sequined satin kimono, striking a towering vogue pose atop a stage trunk, one arm framing the face, the lace fan flared high under a single dramatic spotlight beam."
+  },
+  {
+    "id": "vogue--burnout",
+    "avatar": "vogue",
+    "archetype": "burnout",
+    "title": "The Back-Alley Ballroom",
+    "tagline": "Leather, lace and a mixtape that slaps.",
+    "bio": "You found the burnouts behind the bowling alley the summer your parents stopped asking questions, and they never asked any either. Now your leather jacket has a lace collar and your cassette deck plays nothing but Grace Jones and the Cramps. You know every alley on Crystal Street by how the light hits it, which turns out to be a very useful skill when something is lurking down one.",
+    "catchphrase": "Turn it up. If we die, we die on the beat.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, in a studded leather jacket worn open over a satin kimono, a boombox balanced on one shoulder, hips cocked in a sharp vogue pose while the lace fan fans a lazy curl of fog-machine haze."
+  },
+  {
+    "id": "vogue--prep",
+    "avatar": "vogue",
+    "archetype": "prep",
+    "title": "The Country Club Kiki",
+    "tagline": "Debutante manners, ballroom attitude, perfect posture.",
+    "bio": "You were raised on cotillion lessons and yacht club brunches, and you learned early that a popped collar is just a costume with better tailoring. The other preps adore you because you make their parties legendary, even if their parents whisper about the eyeshadow. When the monster week starts, you host the emergency planning meeting with finger sandwiches and a seating chart.",
+    "catchphrase": "Pearls on, shoulders back, and nobody screams before dessert.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, in a pink polo with the collar popped under a satin kimono, a cable-knit sweater knotted over the shoulders, pearls gleaming, posing mid-twirl on a tennis lawn with the lace fan held like a fancy invitation."
+  },
+  {
+    "id": "vogue--weirdo",
+    "avatar": "vogue",
+    "archetype": "weirdo",
+    "title": "The Ouija Runway",
+    "tagline": "The spirits asked for a performance, so they got one.",
+    "bio": "You and the weirdos run a seance every Friday in the arcade storeroom, and you insist on making an entrance at each one. The ghosts seem to respond best when you vogue the alphabet, which nobody can explain and nobody wants to stop. This week the other side is finally answering back, and you intend to look absolutely incredible when it does.",
+    "catchphrase": "The spirits said yes. Also, they love the kimono.",
+    "art": "a stocky person with a full black beard and golden glitter eyeshadow, in a velvet satin kimono embroidered with moons, candle wax on the cuffs, kneeling in a dramatic backbend over a ouija board, one hand framing the face and the lace fan sweeping a cloud of glowing mist."
+  },
+  {
+    "id": "goalie--jock",
+    "avatar": "goalie",
+    "archetype": "jock",
+    "title": "The Crease Commander",
+    "tagline": "Nothing gets past the net, or the front door.",
+    "bio": "You have been the starting goalie since freshman year and you have never once let a sibling, a teammate or a raccoon get past you. The team calls you Mom, the coach calls you a miracle, and your knee socks have their own fan club. When the monster week arrives, you simply plant your feet at the end of Crystal Street and dare it.",
+    "catchphrase": "Come on then. I have stopped worse at regionals.",
+    "art": "a tall, muscular teenager with short copper curls, in a varsity jacket, shin guards and tall knee socks, braced in a wide goalie crouch with a field hockey stick across the body, mouthguard in, teeth bared in a fierce grin, a sports bag spilling flashlights at the feet."
+  },
+  {
+    "id": "goalie--brain",
+    "avatar": "goalie",
+    "archetype": "brain",
+    "title": "The Statistical Save",
+    "tagline": "Has calculated every angle a monster could take.",
+    "bio": "You keep a binder of every shot you have ever faced, charted by angle, speed and time of day, and you were recruited to the science club the minute someone saw it. Now you spend lunch building a better shin guard out of a lunch tray and physics. This week you are applying the same method to the thing in the woods, and the numbers say it is going down.",
+    "catchphrase": "Statistically, I block that. Watch.",
+    "art": "a tall, muscular teenager with short copper curls, in a varsity jacket over a sweater vest, calculator watch on the wrist, safety goggles pushed up into the curls, crouched low with a field hockey stick in one hand and a clipboard of diagrams in the other, grinning fiercely."
+  },
+  {
+    "id": "goalie--theatre-kid",
+    "avatar": "goalie",
+    "archetype": "theatre-kid",
+    "title": "The Fight Choreographer",
+    "tagline": "Blocks every hit on the field and every scene on stage.",
+    "bio": "You wandered into the auditorium to return a lost stick and walked out cast as Mercutio, which surprised everyone except the drama teacher. Turns out goalkeeping and stage combat are the same skill: read the move, commit, make it look heroic. Now you run the fight calls for every show, and this week the stage combat is getting very real.",
+    "catchphrase": "Again, from the top, and this time actually duck.",
+    "art": "a tall, muscular teenager with short copper curls, in stage makeup with a ruffled pirate shirt worn over knee socks and a varsity jacket tied at the waist, lunging in a theatrical fencing pose with a field hockey stick held like a rapier, grinning fiercely at the back row."
+  },
+  {
+    "id": "goalie--burnout",
+    "avatar": "goalie",
+    "archetype": "burnout",
+    "title": "The Parking Lot Keeper",
+    "tagline": "Got cut from the team and kept the stick.",
+    "bio": "You quit the team after coach benched you for skipping practice to fix your cousin's van, and you never looked back. Now you defend the bowling alley parking lot instead, swatting soda cans into the dumpster with a battered stick while a cassette deck blares Motorhead. When things start crawling out of the storm drains, your old reflexes are right where you left them.",
+    "catchphrase": "Net's closed. Go haunt the mall.",
+    "art": "a tall, muscular teenager with short copper curls, in a leather jacket with the sleeves torn off over a faded varsity jersey, knee socks and high-tops, cassette deck at the hip, crouched in a fierce stance on an asphalt lot, swinging a duct-taped field hockey stick."
+  },
+  {
+    "id": "goalie--prep",
+    "avatar": "goalie",
+    "archetype": "prep",
+    "title": "The Field Hockey Heiress",
+    "tagline": "Captain of the team, the yearbook and the family yacht.",
+    "bio": "You come from a long line of field hockey captains and your grandmother still has the sweater from 1952. You are polite, punctual and terrifying in the crease, and the prep table respects you because you once blocked a lacrosse ball with a tray of cucumber sandwiches. This week you organize the defense of Crystal Street like a charity gala with shin guards.",
+    "catchphrase": "Lovely evening. Kindly stay out of my circle.",
+    "art": "a tall, muscular teenager with short copper curls, in a pleated kilt, pastel polo with the collar popped, a cardigan tied over the shoulders and knee socks, braced in a low crouch on a manicured lawn with a polished field hockey stick, grinning fiercely under a headband."
+  },
+  {
+    "id": "goalie--weirdo",
+    "avatar": "goalie",
+    "archetype": "weirdo",
+    "title": "The Goalie of the Veil",
+    "tagline": "Guards the net between this world and the next.",
+    "bio": "You started wearing your goalie mask everywhere after you saw a ghost at the regional finals, and the weirdos took you in immediately. They say you have a gift for standing at thresholds, and honestly the net has always felt like a doorway. This week you plant yourself between the living and the restless dead and refuse to let anyone cross in either direction.",
+    "catchphrase": "Nobody crosses over on my watch. Nobody.",
+    "art": "a tall, muscular teenager with short copper curls, in a hand-painted varsity jacket covered in moons and stars, knee socks and a goalie mask pushed up on the copper curls, crouched in a ready stance with a field hockey stick before a glowing ouija board, grinning fiercely."
+  },
+  {
+    "id": "librarian--jock",
+    "avatar": "librarian",
+    "archetype": "jock",
+    "title": "The Bookmobile Linebacker",
+    "tagline": "Lettered in football, came back for the library.",
+    "bio": "You lettered in three sports in 1953 and still wear the jacket to work every Tuesday, which is when the overdue notices go out. The kids think it is a costume until you catch a falling shelf one-handed. You run the after-school reading program like a training camp, and this week you are coaching the whole street through overtime.",
+    "catchphrase": "Hustle! Overdue books do not return themselves!",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, wearing a vintage varsity jacket over a cardigan and sensible slacks, a coach's whistle beside the glasses chain, charging forward in a linebacker stance with a thick library book tucked under one arm like a football."
+  },
+  {
+    "id": "librarian--brain",
+    "avatar": "librarian",
+    "archetype": "brain",
+    "title": "The Card Catalog Oracle",
+    "tagline": "Has a microfiche for every monster in town.",
+    "bio": "You were valedictorian in 1954 and the brightest person in every room since, and you chose the library because it was the only place with enough answers. You have cross-referenced every strange event on Crystal Street since the founding, and you keep the files in a drawer marked Miscellaneous. This week, finally, someone needs that drawer.",
+    "catchphrase": "It is in the stacks. It is always in the stacks.",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in a tweed blazer with a calculator watch and a pencil tucked behind one ear, perched on a rolling ladder and stretching dramatically toward a card catalog drawer, a thick library book raised in the other hand."
+  },
+  {
+    "id": "librarian--theatre-kid",
+    "avatar": "librarian",
+    "archetype": "theatre-kid",
+    "title": "The Shushing Soliloquy",
+    "tagline": "Played Lady Macbeth in 1969 and still gives notes.",
+    "bio": "You played Lady Macbeth at the community theatre in 1969 and the reviews still hang beside the circulation desk. You run the library's puppet hour with full voices, lighting cues and occasional standing ovations from toddlers. When the monster week starts, you discover that a well-projected shush carries all the way to the cemetery.",
+    "catchphrase": "Out, out, damned noise. This is a library.",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in stage makeup and a dramatic velvet cape over a cardigan, striking a grand tragic pose on a library table, one arm flung skyward, the other clutching a thick library book to the chest, leg kicked up mid-gasp."
+  },
+  {
+    "id": "librarian--burnout",
+    "avatar": "librarian",
+    "archetype": "burnout",
+    "title": "The Back Room Roadie",
+    "tagline": "Ran sound on a 1968 tour, now runs the archives.",
+    "bio": "You toured with a psychedelic band in 1968, came home with a leather jacket and a lot of stories, and somehow ended up running the town archive. The burnouts know you as the one adult who lets them sit in the periodicals with a cassette deck as long as they keep it low. This week those kids are your crew, and you know every back door in the building.",
+    "catchphrase": "Keep it down, keep it real, and return the Zeppelin tapes.",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in a fringed leather jacket over a peasant blouse, a cassette deck hanging from one shoulder, hopping backward in comic fright with one leg kicked up and a thick library book raised high like a shield."
+  },
+  {
+    "id": "librarian--prep",
+    "avatar": "librarian",
+    "archetype": "prep",
+    "title": "The Overdue Debutante",
+    "tagline": "Pearls, pressed slacks and a perfectly sharpened pencil.",
+    "bio": "You were the Crystal Street Garden Club princess in 1952 and you never stopped dressing for the occasion, even if the occasion is stamping return dates. Your summer reading lists are famous and your fines are ruthless. When the monster week arrives, you organize the volunteers into committees with color-coded name tags and a punch bowl.",
+    "catchphrase": "Manners, darling. Even the undead may use a coaster.",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in a pastel twinset with a popped collar, pearls layered with the glasses chain, and a crisp pleated skirt, hopping backward in dainty fright with one heel kicked up, holding a thick library book up like a silver serving tray."
+  },
+  {
+    "id": "librarian--weirdo",
+    "avatar": "librarian",
+    "archetype": "weirdo",
+    "title": "The Restricted Section Regular",
+    "tagline": "Has been shushing ghosts since long before it was cool.",
+    "bio": "You kept a ouija board in the reference desk drawer for thirty years, just in case, and this October the just-in-case finally arrived. The weirdos discovered your occult collection in seventh grade and have been loyal ever since. You know which books are safe to read aloud and which ones you should keep firmly closed, and this week that knowledge is priceless.",
+    "catchphrase": "Shh. They can hear you. Also, they have late fees.",
+    "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in a long velvet shawl embroidered with stars, crystal pendants mixed into the glasses chain, hopping backward in comic fright with one leg kicked up, holding a glowing leather spellbook high like a shield over a ouija board."
+  },
+  {
+    "id": "stage-diver--jock",
+    "avatar": "stage-diver",
+    "archetype": "jock",
+    "title": "The Mosh Pit Quarterback",
+    "tagline": "Throws the ball, then throws themself after it.",
+    "bio": "You joined the football team because tackling people sounded like a mosh pit with snacks, and you were right. The coach hates the mohawk but loves that you never hesitate, and the team now headbangs before every kickoff. When the monster week starts, you are first through every door, and somehow you always land on your feet.",
+    "catchphrase": "Coach said leave it all on the field. So I jumped.",
+    "art": "a teenager with a tall green liberty-spike mohawk poking out the top of a football helmet, wearing shoulder pads under a studded denim vest, an electric guitar slung across the back, airborne in a flying tackle with sneakers kicking and a football tucked tight."
+  },
+  {
+    "id": "stage-diver--brain",
+    "avatar": "stage-diver",
+    "archetype": "brain",
+    "title": "The Feedback Theorist",
+    "tagline": "Builds amps from scratch and blows them up on purpose.",
+    "bio": "You were kicked out of the AV club for wiring the auditorium speakers into the bus loop, then invited into the science club for the exact same reason. You keep a soldering iron in your vest and a notebook of amplifier designs that could wake the dead. This week you suspect they might actually work, which is either terrific or terrible.",
+    "catchphrase": "Hypothesis: louder. Conclusion: louder.",
+    "art": "a teenager with a tall green liberty-spike mohawk, in a studded denim vest over a short-sleeve shirt with a pocket protector, calculator watch and safety goggles, leaping off a lab bench with arms spread, an electric guitar on the back trailing cables from a homemade amplifier."
+  },
+  {
+    "id": "stage-diver--theatre-kid",
+    "avatar": "stage-diver",
+    "archetype": "theatre-kid",
+    "title": "The Spotlight Kamikaze",
+    "tagline": "Jumps off the stage at curtain call, every single night.",
+    "bio": "You were cast as Puck in the spring play and turned the final speech into a stage dive, and the drama department decided to keep it. Now you play guitar in the pit for every musical and do your own stunts in all of them. This week the whole town is a stage, and you are absolutely going to jump off it.",
+    "catchphrase": "Catch me, back row! Here comes the finale!",
+    "art": "a teenager with a tall green liberty-spike mohawk glittered with stage makeup, wearing a studded denim vest over a frilly costume tunic, caught mid-dive off a stage edge with arms flung wide and an electric guitar strapped across the back, sneakers kicking beneath a spotlight."
+  },
+  {
+    "id": "stage-diver--burnout",
+    "avatar": "stage-diver",
+    "archetype": "burnout",
+    "title": "The Basement Show Legend",
+    "tagline": "Has dived off every stage in three counties.",
+    "bio": "You have been to every basement show from here to the state line, and you have left a sneaker print on half the ceilings. The burnouts treat you like a local landmark, and your cassette deck holds a bootleg of every band that ever played the VFW hall. When the monster week hits, you throw yourself into it exactly the way you throw yourself into a crowd.",
+    "catchphrase": "Somebody catch me. Or the monster. Whoever is closer.",
+    "art": "a teenager with a tall green liberty-spike mohawk, in a leather jacket worn over a studded denim vest, a cassette deck hanging from the belt, launched mid-air over a crowd of raised hands, arms spread wide, electric guitar strapped across the back, sneakers kicking."
+  },
+  {
+    "id": "stage-diver--prep",
+    "avatar": "stage-diver",
+    "archetype": "prep",
+    "title": "The Yacht Club Crowdsurfer",
+    "tagline": "Popped collar, safety pins, impeccable table manners.",
+    "bio": "Your parents sent you to boarding school to fix the mohawk and you came back with a popped collar and the same mohawk. The preps adopted you because you make their parties wild and still write thank-you notes. This week you are bringing that same polite chaos to Crystal Street, and you RSVP yes to every terrible idea.",
+    "catchphrase": "Pardon me, terribly sorry, coming through at speed!",
+    "art": "a teenager with a tall green liberty-spike mohawk, in a pink polo with the collar popped under a studded denim vest, khaki shorts and boat shoes, an electric guitar across the back, diving gleefully off a yacht deck with arms wide and a croquet mallet in hand."
+  },
+  {
+    "id": "stage-diver--weirdo",
+    "avatar": "stage-diver",
+    "archetype": "weirdo",
+    "title": "The Seance Shredder",
+    "tagline": "Plays guitar solos for the spirits, who request encores.",
+    "bio": "You discovered that the ghosts in the old church only show up when you play loud enough, so the weirdos made you their official summoner. You paint runes on your guitar, keep a ouija board in your gig bag and never miss a full moon. This week every spirit in town wants a front-row seat, and you are thrilled to give it to them.",
+    "catchphrase": "This one goes out to everyone on the other side!",
+    "art": "a teenager with a tall green liberty-spike mohawk, in a studded denim vest painted with moons and stars, candles at the feet, leaping off a cemetery wall with arms spread wide, an electric guitar strapped across the back, a ouija board tumbling from a gig bag, sneakers kicking."
+  },
+  {
+    "id": "prep-shriek--jock",
+    "avatar": "prep-shriek",
+    "archetype": "jock",
+    "title": "The Varsity Backhand",
+    "tagline": "Screams at every serve, wins every set, swings first at shadows.",
+    "bio": "You made varsity tennis by accident: a bee landed on your racket and you shrieked a serve clean across three courts. Now the football team adopts you like a mascot with a backhand. In a monster week you swing first and scream second, and the linebackers have learned that your shriek means duck.",
+    "catchphrase": "Fifteen-love, creep. Now get off my baseline!",
+    "art": "A teenager with a glossy black bob, mouth wide in a shriek, wearing a maroon letter jacket over a popped pink polo, sweater knotted at the shoulders, leaping into a full overhead smash with a tennis racket, mouthguard clenched, sweatband on one wrist."
+  },
+  {
+    "id": "prep-shriek--brain",
+    "avatar": "prep-shriek",
+    "archetype": "brain",
+    "title": "The Calculated Lob",
+    "tagline": "Has computed the exact angle to return any monster to sender.",
+    "bio": "You keep a spiral notebook of serve trajectories and a calculator watch set to beep at every tiebreak. The chess club let you in after you proved, with diagrams, that a racket is a lever. You still scream at every creak in the dark, but now you scream while computing the escape route, which honestly helps.",
+    "catchphrase": "Statistically, screaming improves my backhand by eleven percent.",
+    "art": "A teenager with a glossy black bob and a popped pink polo collar under a sweater vest, oversized glasses askew, shrieking while swinging a tennis racket overhead, calculator watch glowing on one wrist, graph paper and pencils flying from a shirt pocket."
+  },
+  {
+    "id": "prep-shriek--theatre-kid",
+    "avatar": "prep-shriek",
+    "archetype": "theatre-kid",
+    "title": "The Shrieking Ingenue",
+    "tagline": "The scream heard round the drama department, now with a racket.",
+    "bio": "You joined the spring musical by accident, shrieking at a spider in the wings, and the director cast you as lead victim on the spot. Now you hit high C on command and run lines between tennis lessons. In a monster week your scream is a cue: the whole crew knows exactly when to run.",
+    "catchphrase": "That was my warm-up scream. Wait until you hear the real one!",
+    "art": "A teenager with a glossy black bob in dramatic stage makeup, popped pink polo collar under a velvet cape, sweater draped over the shoulders, flung backward in a theatrical swooning shriek, one hand clutching a tennis racket like a scepter, bathed in spotlight glow."
+  },
+  {
+    "id": "prep-shriek--burnout",
+    "avatar": "prep-shriek",
+    "archetype": "burnout",
+    "title": "The Country Club Dropout",
+    "tagline": "Traded the club pro for the arcade parking lot and never looked back.",
+    "bio": "You quit the country club in June, the week your parents asked about Princeton again, and now you spend afternoons behind the Quik-Stop with a boom box and a racket strung with duct tape. The burnouts call you Fancy and mean it kindly. You still shriek at everything, but you know every shortcut to scream from.",
+    "catchphrase": "The club can keep its courts. I've got a parking lot and a grudge.",
+    "art": "A teenager with a glossy black bob, pink polo collar popped under a studded leather jacket, sweater tied around the waist, shrieking mid-swing with a duct-taped tennis racket, a cassette deck slung on a strap, one high-top sneaker stomping down."
+  },
+  {
+    "id": "prep-shriek--prep",
+    "avatar": "prep-shriek",
+    "archetype": "prep",
+    "title": "The Tennis Whites Debutante",
+    "tagline": "Perfect serve, perfect grades, perfectly terrified of everything.",
+    "bio": "You were born into tennis whites and monogrammed sweaters, and you have never once let your collar lie flat. Student council, mixed doubles, cotillion: all yours. Nobody expected you to face a monster week, least of all you, but you scream like a smoke alarm and swing like a champion, and that turns out to be a whole plan.",
+    "catchphrase": "Ew, ew, ew! Okay. Game, set, get out of my house!",
+    "art": "A teenager with a glossy black bob in crisp tennis whites and a popped pink polo collar, a pastel sweater knotted perfectly at the shoulders, recoiling in a shriek while swinging a tennis racket two-handed, a tennis ball launching away, a gold bracelet catching the light."
+  },
+  {
+    "id": "prep-shriek--weirdo",
+    "avatar": "prep-shriek",
+    "archetype": "weirdo",
+    "title": "The Haunted Doubles Partner",
+    "tagline": "Plays mixed doubles with a ghost and has never lost a point.",
+    "bio": "You started talking to the ghost on court four in seventh grade, and the weirdos at the lunch table were the only ones who believed you. Now you keep a ouija board in your racket bag and a crystal in each sock. You still shriek when something answers back, but you always write down what it said.",
+    "catchphrase": "My doubles partner is invisible, and frankly, a better listener than you.",
+    "art": "A teenager with a glossy black bob streaked purple, popped pink polo collar under a thrift-store cardigan covered in star patches, sweater over the shoulders, shrieking as a ouija planchette floats up, swinging a tennis racket wrapped in crystals and string."
+  },
+  {
+    "id": "pizza-runner--jock",
+    "avatar": "pizza-runner",
+    "archetype": "jock",
+    "title": "The Thirty-Minute Quarterback",
+    "tagline": "Still runs the fastest route in town, just with pepperoni now.",
+    "bio": "You ran the forty in four-point-five for Crystal Street High, then a knee and a scholarship both gave out the same autumn. Now you run deliveries in your old letter jacket, and every porch is an end zone. Monsters are slower than linebackers, and you have never once dropped a pie.",
+    "catchphrase": "Hut, hut, extra cheese! Thirty minutes or your monster's free!",
+    "art": "A lanky twenty-something with long braids under a red delivery cap, wearing a faded varsity letter jacket and a knee brace, sprinting in a stiff-arm pose, a tower of pizza boxes tucked like a football, one sneaker flying off."
+  },
+  {
+    "id": "pizza-runner--brain",
+    "avatar": "pizza-runner",
+    "archetype": "brain",
+    "title": "The Delivery Route Algorithm",
+    "tagline": "Has optimized every route in town, including the escape routes.",
+    "bio": "You dropped out of State engineering after one semester and a lot of feelings, but you never stopped calculating. Your car has a hand-drawn map of every street with arrival times penciled in. During a monster week you know the fastest way out of anywhere, and you can prove it on a napkin before the cheese cools.",
+    "catchphrase": "Left, left, right, alley. Trust the math and keep the box flat.",
+    "art": "A lanky twenty-something with long braids under a red delivery cap, thick glasses and a calculator watch, sprinting mid-stride while studying a hand-drawn street map, a tower of pizza boxes balanced to the chin, pencils behind each ear, one sneaker flying off."
+  },
+  {
+    "id": "pizza-runner--theatre-kid",
+    "avatar": "pizza-runner",
+    "archetype": "theatre-kid",
+    "title": "The Delivery Diva",
+    "tagline": "Every delivery is a performance, and every porch is a stage.",
+    "bio": "You played the lead in Pippin senior year, and nobody ever told you the show was over. Now every delivery comes with a song, a bow, and occasionally a costume change in the hatchback. In a monster week you can fake a scream, a faint, or a delivery so convincing that anything with fangs opens the door.",
+    "catchphrase": "One large pepperoni, delivered with feeling, to the back row!",
+    "art": "A lanky twenty-something with long braids under a red delivery cap tilted with flair, glittering stage makeup and a feather boa, sprinting in a showstopping leap, a tower of pizza boxes held aloft like a trophy, one jazz hand spread, one sneaker flying off."
+  },
+  {
+    "id": "pizza-runner--burnout",
+    "avatar": "pizza-runner",
+    "archetype": "burnout",
+    "title": "The Hatchback Night Shift",
+    "tagline": "Knows every shortcut, back alley, and all-night arcade in town.",
+    "bio": "You never really left the parking lot behind the Roller Dome; you just started getting paid to drive past it. Your hatchback has a busted muffler, a Judas Priest tape stuck in the deck, and a glove box full of hot sauce packets. Monsters are scary, but you have delivered to the frat houses on Elm at two in the morning.",
+    "catchphrase": "Shortcut's through the cemetery. Hold the pizzas and don't ask.",
+    "art": "A lanky twenty-something with long braids under a backward red delivery cap, a studded leather jacket over a pizza uniform, sprinting mid-stride with a cassette deck on one shoulder and a tower of pizza boxes balanced to the chin, one sneaker flying off."
+  },
+  {
+    "id": "pizza-runner--prep",
+    "avatar": "pizza-runner",
+    "archetype": "prep",
+    "title": "The Cul-de-Sac Courier",
+    "tagline": "Delivers to the rich side of town and knows all their secrets.",
+    "bio": "You were class treasurer with a five-year plan, until you realized the plan belonged to your parents. Now you deliver pizza to the same cul-de-sacs you grew up on, collar still popped under the uniform. The rich kids tip badly, but they talk freely, and in a monster week you know exactly who has a basement worth hiding in.",
+    "catchphrase": "Large mushroom, tip not included, gossip on the house.",
+    "art": "A lanky twenty-something with long braids under a red delivery cap, a pink polo with a popped collar and a sweater knotted at the shoulders, sprinting mid-stride in loafers, a tower of pizza boxes balanced to the chin, one loafer flying off."
+  },
+  {
+    "id": "pizza-runner--weirdo",
+    "avatar": "pizza-runner",
+    "archetype": "weirdo",
+    "title": "The Midnight Pizza Medium",
+    "tagline": "Takes orders from the living and, lately, from everyone else.",
+    "bio": "You picked up the overnight shift because the strange calls only come after midnight, and you have been writing them down for three years. Your delivery bag holds a ouija board, salt packets, and a tape recorder. Nobody slips in and out of a haunted house faster, and you always leave extra garlic knots on the porch, just in case.",
+    "catchphrase": "Order for the house on Crystal Street? Nobody's lived there since 1953.",
+    "art": "A lanky twenty-something with long braids under a red delivery cap pinned with moon charms, a thrift-store trench coat flapping, sprinting mid-stride with a ouija board under one arm and a tower of pizza boxes balanced to the chin, one sneaker flying off."
+  },
+  {
+    "id": "cheer-captain--jock",
+    "avatar": "cheer-captain",
+    "archetype": "jock",
+    "title": "The Pom-Pom Linebacker",
+    "tagline": "Cheers the team on, then tackles anything that threatens it.",
+    "bio": "You tried out for football first, made the team, and then switched to cheer because the squad needed someone who could hold up a three-person pyramid alone. The linemen still call you Coach. In a monster week you lead the chant, lift the crew over the fence, and tackle whatever comes through it.",
+    "catchphrase": "Give me a T! Give me an ACKLE! What's that spell? Incoming!",
+    "art": "A stocky teenager with a sweep of dark hair in a maroon and gold cheer uniform under shoulder pads and a letter jacket, mid-tackle high kick, pom-poms bursting upward, a megaphone tucked under one arm, eye black smeared across both cheeks."
+  },
+  {
+    "id": "cheer-captain--brain",
+    "avatar": "cheer-captain",
+    "archetype": "brain",
+    "title": "The Pyramid Physicist",
+    "tagline": "Has calculated the load-bearing capacity of every cheer stunt.",
+    "bio": "You joined cheer for the physics. Every pyramid is a center-of-mass problem, every basket toss a parabola, and your binder of stunt diagrams has a bibliography. The brains treat you as their secret weapon at the science fair. In a monster week you know exactly how high to toss a friend over a fence, and exactly where they land.",
+    "catchphrase": "Ready? Okay! Gravity is nine point eight meters per second squared!",
+    "art": "A stocky teenager with a sweep of dark hair in a maroon and gold cheer uniform, oversized glasses and a calculator watch, frozen at the top of a high kick, one pom-pom raised and a stuffed stunt binder in the other hand, a megaphone below."
+  },
+  {
+    "id": "cheer-captain--theatre-kid",
+    "avatar": "cheer-captain",
+    "archetype": "theatre-kid",
+    "title": "The Halftime Showstopper",
+    "tagline": "Turned every halftime into a full Broadway number, uninvited.",
+    "bio": "You treat every pep rally like opening night on Broadway, complete with a costume change the athletic director never approved. The drama club claimed you after your halftime tribute to Cats ran eleven minutes over. In a monster week you can rally a terrified crowd with one chant, and your high kick has stunned more than one thing in the dark.",
+    "catchphrase": "Five, six, seven, eight! Everybody scream on the downbeat!",
+    "art": "A stocky teenager with a sweep of dark hair in a sequined maroon and gold cheer uniform and glitter stage makeup, frozen at the top of a high kick, pom-poms thrown up like fireworks, a top hat tumbling, a megaphone below."
+  },
+  {
+    "id": "cheer-captain--burnout",
+    "avatar": "cheer-captain",
+    "archetype": "burnout",
+    "title": "The Spirit Squad Rebel",
+    "tagline": "Got kicked off the squad and started a better one in the parking lot.",
+    "bio": "You were captain until the principal caught you leading a cheer for the smokers behind the gym. Now you run a two-person squad with a burnout named Dez, a boom box, and pom-poms made from shredded cassette tape. You still believe in team spirit, just the kind that shows up for each other at two in the morning.",
+    "catchphrase": "Two, four, six, eight, who do we appreciate? Us. Obviously.",
+    "art": "A stocky teenager with a sweep of dark hair in a maroon and gold cheer uniform under a studded leather jacket, frozen at the top of a high kick, pom-poms of shredded cassette ribbon flung skyward, a battered megaphone and boom box below."
+  },
+  {
+    "id": "cheer-captain--prep",
+    "avatar": "cheer-captain",
+    "archetype": "prep",
+    "title": "The Homecoming Hype Machine",
+    "tagline": "The heart of every pep rally and the glue of every crew.",
+    "bio": "You have planned every homecoming since freshman year and remember every single person's birthday. Your planner is color-coded, your smile is genuine, and your pep talks have made a linebacker cry. In a monster week you are the one who keeps the crew together, hands out snacks, and refuses, flatly, to let anyone be left behind.",
+    "catchphrase": "Nobody gets left in the haunted house! That's a team rule!",
+    "art": "A stocky teenager with a sweep of dark hair tied with a maroon ribbon, a pristine maroon and gold cheer uniform with a pastel cardigan knotted at the shoulders, frozen at the top of a high kick, pom-poms thrown up like fireworks, a megaphone below."
+  },
+  {
+    "id": "cheer-captain--weirdo",
+    "avatar": "cheer-captain",
+    "archetype": "weirdo",
+    "title": "The Ouija Spirit Squad",
+    "tagline": "Brings school spirit to the spirits, and they love it.",
+    "bio": "You took school spirit literally. Your squad warms up in the cemetery, your routines come from a book of medieval chants, and you once got a poltergeist to do the wave. The weirdos adopted you on the spot. In a monster week you lead cheers that rattle the dead, and every ghost in town is secretly rooting for you.",
+    "catchphrase": "Gimme an S! Gimme a P! Gimme an IRIT! Louder, the dead can't hear you!",
+    "art": "A stocky teenager with a sweep of dark hair in a maroon and gold cheer uniform under a black lace shawl, frozen at the top of a high kick inside a candlelit circle, pom-poms thrown up beside a floating ouija board, a megaphone below."
+  },
+  {
+    "id": "magician--jock",
+    "avatar": "magician",
+    "archetype": "jock",
+    "title": "The Sleight-of-Hand Halfback",
+    "tagline": "Lettered in 1941 and still pulls a fast one on any field.",
+    "bio": "You lettered as a halfback in 1941, famous for a hidden-ball trick so smooth the referees never found the football. You have worn the jacket to every homecoming since. In a monster week your knees creak, but your misdirection is still varsity grade, and your rabbit has never once fumbled.",
+    "catchphrase": "Watch the left hand. Watch the left hand. Touchdown!",
+    "art": "A small elderly stage magician with a pencil mustache, wearing a moth-eaten maroon letter jacket over a sequined cape, lunging into a stiff-arm pose while flinging a fan of playing cards like a pass, a white rabbit peeking from a top hat tucked like a football."
+  },
+  {
+    "id": "magician--brain",
+    "avatar": "magician",
+    "archetype": "brain",
+    "title": "The Probability Prestidigitator",
+    "tagline": "Knows the odds of every card trick and every escape.",
+    "bio": "You were math club president in 1939 and spent fifty years proving that magic is just probability with better costumes. Your cape pockets hold a slide rule, a deck of marked cards, and a notebook of escape calculations. In a monster week you can always tell which door the thing is behind, and your rabbit has never doubted you.",
+    "catchphrase": "Pick a card. Any card. I already calculated which one you'll pick.",
+    "art": "A small elderly stage magician with a pencil mustache, thick spectacles and a sequined cape over a tweed vest, flinging a fan of playing cards into the air with a dramatic flourish, a slide rule in the other hand, a white rabbit peeking out of a top hat."
+  },
+  {
+    "id": "magician--theatre-kid",
+    "avatar": "magician",
+    "archetype": "theatre-kid",
+    "title": "The Vaudeville Grand Finale",
+    "tagline": "Has been taking a final bow since the vaudeville days.",
+    "bio": "You started in vaudeville at eight years old, making your cousin vanish twice nightly, and you have never met a spotlight you did not want to stand in. The community theater still saves you the dressing room with the star on the door. In a monster week you know that every scream is better with timing, a puff of smoke, and a rabbit.",
+    "catchphrase": "And for my final trick, everybody run! Thank you, you've been lovely!",
+    "art": "A small elderly stage magician with a pencil mustache in heavy stage makeup, a sequined cape billowing under a spotlight, taking a sweeping bow while flinging a fan of playing cards into the air, roses scattered at the feet, a white rabbit peeking out of a top hat."
+  },
+  {
+    "id": "magician--burnout",
+    "avatar": "magician",
+    "archetype": "burnout",
+    "title": "The Back-Alley Card Sharp",
+    "tagline": "Has hustled card games behind the bowling alley since 1952.",
+    "bio": "You were a greaser in the fifties, running three-card monte behind the bowling alley, and you never saw a reason to stop. Your leather jacket has a sequined lining and your pompadour has gone silver. The teenagers who hang out behind the arcade think you are the coolest person in town, and in a monster week, they are right.",
+    "catchphrase": "Keep your eye on the queen, kid. The monster never does.",
+    "art": "A small elderly stage magician with a silver pompadour and a pencil mustache, a leather jacket over a sequined cape, leaning into a sly crouch while flinging a fan of playing cards, a cassette deck by the boots, a white rabbit peeking from a top hat."
+  },
+  {
+    "id": "magician--prep",
+    "avatar": "magician",
+    "archetype": "prep",
+    "title": "The Country Club Conjurer",
+    "tagline": "Has performed at every debutante ball on the hill since 1950.",
+    "bio": "You were the wonder child of the country club set in 1940, and you never stopped dressing for the yacht club. Your sweater is cashmere, your rabbit has a monogrammed collar, and you have performed at three generations of debutante balls. In a monster week you bring impeccable manners, a sleeve full of aces, and a handkerchief that never ends.",
+    "catchphrase": "Darling, a true professional never reveals... oh fine, it's up my sleeve.",
+    "art": "A small elderly stage magician with a pencil mustache in a popped-collar polo and a cashmere sweater knotted under a sequined cape, flinging a fan of playing cards into the air with a dramatic flourish, a white rabbit in a tiny bow tie peeking out of a top hat."
+  },
+  {
+    "id": "magician--weirdo",
+    "avatar": "magician",
+    "archetype": "weirdo",
+    "title": "The Spook Show Illusionist",
+    "tagline": "Has been waiting since 1946 for the real ghosts to show up.",
+    "bio": "You toured the midnight spook shows in the forties, conjuring ghosts in theaters across three states, and you always suspected a few of them were real. Now you keep a ouija board in your top hat beside the rabbit. In a monster week you know every illusion, every escape, and exactly which shadows are part of something older than the act.",
+    "catchphrase": "Friends, fiends, and lingering spirits: prepare to be amazed!",
+    "art": "A small elderly stage magician with a pencil mustache and a sequined cape embroidered with moons, flinging a fan of playing cards that swirl into glowing ghosts, a ouija board floating alongside, a white rabbit peeking out of a top hat."
+  }
+]

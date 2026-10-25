@@ -69,12 +69,14 @@ export function autoplay(
   seed: string,
   villain?: VillainId,
   archetype = 'theatre-kid',
+  avatar?: string,
 ): RunState {
   let run = newRun({
     seed,
     name: 'Sim',
     pronouns: 'they/them',
     archetype,
+    avatar,
     villain,
   })
   for (let guard = 0; guard < 500 && run.phase !== 'ended'; guard++) {

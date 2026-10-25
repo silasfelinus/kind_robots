@@ -84,9 +84,9 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
       },
       {
         id: 'close',
-        label: 'Stop the well being used for other people\'s lives',
+        label: "Stop the well being used for other people's lives",
         outcome:
-          'The villagers agree nobody may cast another person\'s history into the water, no matter how merciful they feel.',
+          "The villagers agree nobody may cast another person's history into the water, no matter how merciful they feel.",
       },
     ],
   },
@@ -168,7 +168,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
         id: 'anchor',
         label: 'Anchor the boat to a real landmark',
         outcome:
-          'The river slows. A carpenter loses a week\'s wages, but stranded passengers can once again choose their destination.',
+          "The river slows. A carpenter loses a week's wages, but stranded passengers can once again choose their destination.",
       },
       {
         id: 'ask',

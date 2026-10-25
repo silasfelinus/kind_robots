@@ -6,6 +6,11 @@ import {
 } from './house'
 import type { DarkBriarProgress } from './darkBriar'
 import { DARK_BRIAR_WITNESSES } from './darkBriar'
+import {
+  DARK_HOUSE_TRIALS,
+  DARK_HOUSE_PUZZLES,
+  darkHouseTrialFaces,
+} from './darkHouseChallenges'
 
 export type DarkHouseEnding = 'return' | 'commons'
 export interface DarkHouseChoice {
@@ -394,22 +399,73 @@ export const DARK_HOUSE_ROOMS: Record<string, DarkHouseRoom> =
       ]
     }),
   )
+export interface DarkHouseTrialProgress {
+  matched: string[]
+  faceUp: string[]
+  failures: number
+  clue: string | null
+  note: string
+}
+export interface DarkHousePuzzleProgress {
+  solved: boolean
+  wrong: string[]
+  hint: boolean
+  note: string
+}
 export interface DarkHouseProgress {
-  version: 1
+  version: 2
   active: boolean
   current: HouseRoomId
   visited: HouseRoomId[]
   decisions: Record<string, string>
+  trials: Record<string, DarkHouseTrialProgress>
+  puzzles: Record<string, DarkHousePuzzleProgress>
+  spentEchoes: number
   ending: DarkHouseEnding | null
   status: string
 }
+
+function emptyTrial(): DarkHouseTrialProgress {
+  return { matched: [], faceUp: [], failures: 0, clue: null, note: '' }
+}
+function emptyPuzzle(): DarkHousePuzzleProgress {
+  return { solved: false, wrong: [], hint: false, note: '' }
+}
+
+export function darkHouseTrialSolved(progress: DarkHouseProgress, room: string): boolean {
+  const faces = darkHouseTrialFaces(room)
+  return faces.length > 0 && faces.every(face => progress.trials[room]?.matched.includes(face.id))
+}
+export function darkHousePuzzleSolved(progress: DarkHouseProgress, room: string): boolean {
+  return progress.puzzles[room]?.solved === true
+}
+export function darkHouseRoomResolved(progress: DarkHouseProgress, room = progress.current): boolean {
+  // Older saves already contain committed decisions. Respect these rather than
+  // retroactively stranding existing players behind newly introduced games.
+  if (progress.decisions[room]) return true
+  if (DARK_HOUSE_TRIALS[room] && !darkHouseTrialSolved(progress, room)) return false
+  if (DARK_HOUSE_PUZZLES[room] && !darkHousePuzzleSolved(progress, room)) return false
+  return true
+}
+export function darkHouseEchoes(progress: DarkHouseProgress): number {
+  const earned = Object.keys(DARK_HOUSE_TRIALS).filter(room => darkHouseTrialSolved(progress, room)).length
+    + Object.keys(DARK_HOUSE_PUZZLES).filter(room => darkHousePuzzleSolved(progress, room)).length
+  return Math.max(0, earned - progress.spentEchoes)
+}
+export function darkHouseStrain(progress: DarkHouseProgress): number {
+  return Object.values(progress.trials).reduce((total, trial) => total + Math.floor(trial.failures / 3), 0)
+    + Object.values(progress.puzzles).reduce((total, puzzle) => total + puzzle.wrong.length, 0)
+}
 export function newDarkHouseProgress(): DarkHouseProgress {
   return {
-    version: 1,
+    version: 2,
     active: false,
     current: HOUSE_ENTRY,
     visited: [HOUSE_ENTRY],
     decisions: {},
+    trials: {},
+    puzzles: {},
+    spentEchoes: 0,
     ending: null,
     status: 'The reflected House is waiting for its witnesses.',
   }
@@ -419,110 +475,196 @@ export function canEnterDarkHouse(progress: DarkBriarProgress): boolean {
     progress.phase === 'exploring' &&
     progress.waveIndex === 3 &&
     progress.mapCards.length === 16 &&
-    progress.mapCards.every((card) => card.matched) &&
+    progress.mapCards.every(card => card.matched) &&
     progress.player === '6,2' &&
-    DARK_BRIAR_WITNESSES.every((key) => Boolean(progress.sceneChoices[key]))
+    DARK_BRIAR_WITNESSES.every(key => Boolean(progress.sceneChoices[key]))
   )
 }
+
 export function darkHouseExits(progress: DarkHouseProgress): HouseRoomId[] {
   const room = DARK_HOUSE_ROOMS[progress.current]
   if (!room) return []
   const forward = [...room.exits]
   const backtrack = Object.values(DARK_HOUSE_ROOMS)
-    .filter(
-      (previous) =>
-        previous.exits.includes(progress.current) &&
-        progress.visited.includes(previous.id),
-    )
-    .map((previous) => previous.id)
-  return [...new Set([...forward, ...backtrack])].filter(
-    (id) =>
-      !(id === 'HD-33' && !progress.decisions['HD-32']) &&
-      !(id === 'HD-36' && !progress.ending),
+    .filter(previous => previous.exits.includes(progress.current) && progress.visited.includes(previous.id))
+    .map(previous => previous.id)
+  const exits = [...new Set([...forward, ...backtrack])]
+  // Real gameplay gates: you may always retreat along a visited passage, but
+  // forward travel requires resolving the memory encounter or logic puzzle.
+  return exits.filter(id =>
+    (darkHouseRoomResolved(progress) || progress.visited.includes(id))
+    && !(id === 'HD-33' && (!progress.decisions['HD-32'] || !darkHouseRoomResolved(progress, 'HD-32')))
+    && !(id === 'HD-36' && !progress.ending)
   )
 }
-export function darkHouseMove(
-  progress: DarkHouseProgress,
-  target: HouseRoomId,
-): DarkHouseProgress {
-  if (!progress.active || !darkHouseExits(progress).includes(target))
-    return progress
+
+export function darkHouseMove(progress: DarkHouseProgress, target: HouseRoomId): DarkHouseProgress {
+  if (!progress.active || !darkHouseExits(progress).includes(target)) return progress
+  return { ...progress, current: target, visited: [...new Set([...progress.visited, target])],
+    status: DARK_HOUSE_ROOMS[target]!.opening }
+}
+
+/** Card flips are synchronous, save-safe and touch/keyboard friendly. An
+ * incorrect pair stays face up until dismissed by the player. */
+export function darkHouseFlip(progress: DarkHouseProgress, id: string): DarkHouseProgress {
+  const room = progress.current
+  if (!progress.active || !DARK_HOUSE_TRIALS[room] || progress.decisions[room]) return progress
+  const faces = darkHouseTrialFaces(room)
+  const card = faces.find(face => face.id === id)
+  const trial = progress.trials[room] ?? emptyTrial()
+  if (!card || trial.matched.includes(id) || trial.faceUp.includes(id) || trial.faceUp.length >= 2) return progress
+  const faceUp = [...trial.faceUp, id]
+  if (faceUp.length === 1) return {
+    ...progress,
+    trials: { ...progress.trials, [room]: { ...trial, faceUp, note: 'Choose the corresponding piece of evidence.' } },
+  }
+  const previous = faces.find(face => face.id === faceUp[0])!
+  if (previous.pair === card.pair) {
+    const matched = [...trial.matched, ...faceUp]
+    const done = matched.length === faces.length
+    const note = done
+      ? 'The full testimony is restored. The chamber offers two ways to respond.'
+      : previous.label + ' connects to ' + card.label + '. A remembered link holds.'
+    return {
+      ...progress,
+      trials: { ...progress.trials, [room]: { ...trial, matched, faceUp: [], note } },
+      status: note,
+    }
+  }
+  const failures = trial.failures + 1
+  const note = failures % 3 === 0
+    ? 'The House presses back. A scar remains in your Chronicle, but the cards and choices remain available.'
+    : 'These memories belong to different events. Study both, then turn them over.'
   return {
     ...progress,
-    current: target,
-    visited: [...new Set([...progress.visited, target])],
-    status: DARK_HOUSE_ROOMS[target]!.opening,
+    trials: { ...progress.trials, [room]: { ...trial, faceUp, failures, note } },
+    status: note,
   }
 }
-export function darkHouseChoose(
-  progress: DarkHouseProgress,
-  id: string,
-): DarkHouseProgress {
-  if (!progress.active || progress.decisions[progress.current]) return progress
-  const choice = DARK_HOUSE_ROOMS[progress.current]?.choices.find(
-    (choice) => choice.id === id,
-  )
+export function darkHouseCloseMismatch(progress: DarkHouseProgress): DarkHouseProgress {
+  const room = progress.current
+  const trial = progress.trials[room]
+  if (!progress.active || !trial || trial.faceUp.length !== 2) return progress
+  const faces = darkHouseTrialFaces(room)
+  if (faces.find(face => face.id === trial.faceUp[0])?.pair === faces.find(face => face.id === trial.faceUp[1])?.pair) return progress
+  return { ...progress, trials: { ...progress.trials, [room]: { ...trial, faceUp: [] } } }
+}
+export function darkHouseRecall(progress: DarkHouseProgress): DarkHouseProgress {
+  const room = progress.current
+  const trial = progress.trials[room] ?? emptyTrial()
+  if (!progress.active || !DARK_HOUSE_TRIALS[room] || trial.clue || darkHouseTrialSolved(progress, room) || darkHouseEchoes(progress) < 1) return progress
+  const faces = darkHouseTrialFaces(room)
+  const next = faces.find(face => !trial.matched.includes(face.id))
+  if (!next) return progress
+  return { ...progress, spentEchoes: progress.spentEchoes + 1,
+    trials: { ...progress.trials, [room]: { ...trial, clue: next.pair,
+      note: 'A remembered fragment identifies one complete pair.' } } }
+}
+export function darkHouseAnswerPuzzle(progress: DarkHouseProgress, id: string): DarkHouseProgress {
+  const room = progress.current
+  const puzzle = DARK_HOUSE_PUZZLES[room]
+  const previous = progress.puzzles[room] ?? emptyPuzzle()
+  if (!progress.active || !puzzle || previous.solved || progress.decisions[room]) return progress
+  const option = puzzle.options.find(item => item.id === id)
+  if (!option || previous.wrong.includes(id)) return progress
+  const solved = id === puzzle.answer
+  const next: DarkHousePuzzleProgress = {
+    ...previous, solved, wrong: solved ? previous.wrong : [...previous.wrong, id], note: option.response,
+  }
+  return { ...progress, puzzles: { ...progress.puzzles, [room]: next }, status: option.response }
+}
+export function darkHousePuzzleHint(progress: DarkHouseProgress): DarkHouseProgress {
+  const room = progress.current
+  const puzzle = DARK_HOUSE_PUZZLES[room]
+  const previous = progress.puzzles[room] ?? emptyPuzzle()
+  if (!progress.active || !puzzle || previous.solved || previous.hint || darkHouseEchoes(progress) < 1) return progress
+  return { ...progress, spentEchoes: progress.spentEchoes + 1,
+    puzzles: { ...progress.puzzles, [room]: { ...previous, hint: true } } }
+}
+export function darkHouseChoose(progress: DarkHouseProgress, id: string): DarkHouseProgress {
+  if (!progress.active || progress.decisions[progress.current] || !darkHouseRoomResolved(progress)) return progress
+  const choice = DARK_HOUSE_ROOMS[progress.current]?.choices.find(choice => choice.id === id)
   if (!choice) return progress
   return {
     ...progress,
     decisions: { ...progress.decisions, [progress.current]: id },
-    ending:
-      progress.current === 'HD-35'
-        ? id === 'attend'
-          ? 'return'
-          : 'commons'
-        : progress.ending,
+    ending: progress.current === 'HD-35' ? (id === 'attend' ? 'return' : 'commons') : progress.ending,
     status: choice.outcome,
   }
+}
+export function darkHouseVerdict(progress: DarkHouseProgress): string {
+  if (!progress.ending) return ''
+  const preface = progress.ending === 'commons'
+    ? 'The House becomes a revocable commons. Every person may withdraw their testimony.'
+    : 'The memories return to their individual owners. Nobody inherits the right to speak for them.'
+  const after = darkHouseEchoes(progress) >= 3
+    ? 'The recovered evidence lets villagers reopen old disputes with witnesses present.'
+    : 'Some disputes remain unproven. The villagers make space for uncertain stories.'
+  const cost = darkHouseStrain(progress) >= 4
+    ? 'The crossings left visible fractures. Repairs require time and the willing help of those affected.'
+    : 'The House survives the crossing with enough trust to begin its repairs together.'
+  return [preface, after, cost].join(' ')
 }
 export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const fresh = newDarkHouseProgress()
   if (!value || typeof value !== 'object') return fresh
-  const saved = value as Partial<DarkHouseProgress>
+  const saved = value as Partial<DarkHouseProgress> & { version?: number }
   const decisions: Record<string, string> = {}
   if (saved.decisions && typeof saved.decisions === 'object')
     for (const [room, id] of Object.entries(saved.decisions))
-      if (DARK_HOUSE_ROOMS[room]?.choices.some((c) => c.id === id))
-        decisions[room] = id
+      if (DARK_HOUSE_ROOMS[room]?.choices.some(c => c.id === id)) decisions[room] = id
   const visited = Array.isArray(saved.visited)
-    ? saved.visited.filter(
-        (id): id is HouseRoomId =>
-          typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id]),
-      )
+    ? saved.visited.filter((id): id is HouseRoomId => typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id]))
     : []
-  const current =
-    typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current]
-      ? (saved.current as HouseRoomId)
-      : HOUSE_ENTRY
-  return {
-    version: 1,
-    active: saved.active === true,
-    current,
-    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
-    decisions,
-    ending:
-      decisions['HD-35'] === 'attend'
-        ? 'return'
-        : decisions['HD-35'] === 'refuse'
-          ? 'commons'
-          : null,
-    status:
-      typeof saved.status === 'string'
-        ? saved.status.slice(0, 500)
-        : fresh.status,
+  const current = typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current]
+    ? saved.current as HouseRoomId : HOUSE_ENTRY
+  const trials: Record<string, DarkHouseTrialProgress> = {}
+  if (saved.trials && typeof saved.trials === 'object') for (const [room, raw] of Object.entries(saved.trials)) {
+    if (!DARK_HOUSE_TRIALS[room] || !raw || typeof raw !== 'object') continue
+    const input = raw as DarkHouseTrialProgress
+    const faces = darkHouseTrialFaces(room)
+    const ids = new Set(faces.map(face => face.id))
+    const selected = new Set(Array.isArray(input.matched) ? input.matched.filter(id => typeof id === 'string' && ids.has(id)) : [])
+    // Never restore half of a "solved" pair or duplicate cards.
+    const matched = faces.filter(face => selected.has(face.id)
+      && faces.filter(other => other.pair === face.pair).every(other => selected.has(other.id))).map(face => face.id)
+    const faceUp = Array.isArray(input.faceUp)
+      ? [...new Set(input.faceUp.filter(id => typeof id === 'string' && ids.has(id) && !matched.includes(id)))].slice(0, 2) : []
+    trials[room] = {
+      matched, faceUp, failures: Number.isSafeInteger(input.failures) ? Math.max(0, Math.min(999, input.failures)) : 0,
+      clue: typeof input.clue === 'string' && faces.some(face => face.pair === input.clue) ? input.clue : null,
+      note: typeof input.note === 'string' ? input.note.slice(0, 350) : '',
+    }
   }
+  const puzzles: Record<string, DarkHousePuzzleProgress> = {}
+  if (saved.puzzles && typeof saved.puzzles === 'object') for (const [room, raw] of Object.entries(saved.puzzles)) {
+    const puzzle = DARK_HOUSE_PUZZLES[room]
+    if (!puzzle || !raw || typeof raw !== 'object') continue
+    const input = raw as DarkHousePuzzleProgress
+    puzzles[room] = {
+      solved: input.solved === true,
+      wrong: [...new Set(Array.isArray(input.wrong) ? input.wrong.filter(id =>
+        typeof id === 'string' && id !== puzzle.answer && puzzle.options.some(option => option.id === id)) : [])],
+      hint: input.hint === true, note: typeof input.note === 'string' ? input.note.slice(0, 350) : '',
+    }
+  }
+  const partial: DarkHouseProgress = {
+    version: 2, active: saved.active === true, current,
+    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
+    decisions, trials, puzzles, spentEchoes: 0,
+    ending: decisions['HD-35'] === 'attend' ? 'return' : decisions['HD-35'] === 'refuse' ? 'commons' : null,
+    status: typeof saved.status === 'string' ? saved.status.slice(0, 500) : fresh.status,
+  }
+  const spent = typeof saved.spentEchoes === 'number' && Number.isSafeInteger(saved.spentEchoes) ? saved.spentEchoes : 0
+  return { ...partial, spentEchoes: Math.max(0, Math.min(darkHouseEchoes(partial), spent)) }
 }
 export function validateDarkHouse(): string[] {
   const problems: string[] = []
   if (keys.length !== 36 || Object.keys(DARK_HOUSE_ROOMS).length !== 36)
     problems.push('Dark House requires 36 rooms')
   for (const room of Object.values(DARK_HOUSE_ROOMS)) {
-    if (room.opening.length < 70 || room.artPrompt.length < 70)
-      problems.push('Incomplete dark room ' + room.id)
-    if (
-      room.choices.length !== 2 ||
-      room.choices.some((c) => !c.label || !c.outcome)
-    )
+    if (room.opening.length < 70 || room.artPrompt.length < 70) problems.push('Incomplete dark room ' + room.id)
+    if (room.choices.length !== 2 || room.choices.some(c => !c.label || !c.outcome))
       problems.push('Incomplete room choice ' + room.id)
   }
   return problems

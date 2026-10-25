@@ -193,7 +193,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     firstTwoWorldFrames(state.value, darkHouse.value),
   )
   const darkCallbacks = computed(() =>
-    firstTwoSceneCallbacks(dark.value.player, state.value.sceneChoices, dark.value),
+    firstTwoSceneCallbacks(
+      dark.value.player,
+      state.value.sceneChoices,
+      dark.value,
+    ),
   )
   const darkPhysicalConsequence = computed(() =>
     firstTwoPhysicalConsequence(dark.value.player, firstTwoFrames.value),
@@ -809,7 +813,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       activeReality.value !== 'e02' ||
       darkMatching.value ||
-      !darkBriarCanTravel(dark.value.player, key, dark.value.revealed, dark.value)
+      !darkBriarCanTravel(
+        dark.value.player,
+        key,
+        dark.value.revealed,
+        dark.value,
+      )
     )
       return
     dark.value.player = key

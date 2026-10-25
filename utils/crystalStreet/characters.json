@@ -25,7 +25,7 @@
     "archetype": "theatre-kid",
     "title": "The Final Girl Understudy",
     "tagline": "Born for the spotlight, and the spotlight has never been more terrifying.",
-    "bio": "You have screamed through every midnight movie sing-along at the Bijou since 1983, and the drama club gave you a standing ovation before you finished your audition. Everybody always cast you as the first one to go. This Halloween you finally get to play the one who makes it to the credits, and you have rehearsed the ending in the mirror.",
+    "bio": "You have screamed through every midnight movie sing-along at the Glitter Box since 1983, and the drama club gave you a standing ovation before you finished your audition. Everybody always cast you as the first one to go. This Halloween you finally get to play the one who makes it to the credits, and you have rehearsed the ending in the mirror.",
     "catchphrase": "From the top, everyone, and this time scream like you mean it!",
     "art": "A lanky teenager with a buzzed platinum head and smeared mascara, dramatic stage glitter on the cheeks, oversized sequined prom jacket over a striped leotard and ripped jeans, in a sweeping backbend under a spotlight beam, both hands framing the face, a rolled script clutched in one fist"
   },
@@ -135,7 +135,7 @@
     "archetype": "brain",
     "title": "The Professor of Leaf Science",
     "tagline": "Retired from teaching chemistry, but never from being right.",
-    "bio": "You taught chemistry at Crystal Street High for thirty-one years and still correct the newspaper crossword in red pen. The neighborhood brains bring you their homework, their theories, and their strange noises in the attic. You have seen three Halloweens like this one, kept careful notes on all of them, and know precisely which end of the rake to use.",
+    "bio": "You taught chemistry at Glimmer Falls High for thirty-one years and still correct the newspaper crossword in red pen. The neighborhood brains bring you their homework, their theories, and their strange noises in the attic. You have seen three Halloweens like this one, kept careful notes on all of them, and know precisely which end of the rake to use.",
     "catchphrase": "I have a theory, a thermos of coffee, and a rake. In that order.",
     "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, mustard cardigan with reading glasses on a chain and a slide rule in the pocket, orthopedic sneakers, lunging forward with a garden rake raised high like a lecture pointer, an armful of notebooks tucked close"
   },
@@ -145,7 +145,7 @@
     "archetype": "theatre-kid",
     "title": "The Matinee Idol Next Door",
     "tagline": "Has played every lead at the community playhouse since Eisenhower.",
-    "bio": "You have played every lead at the Crystal Street Community Playhouse since the Eisenhower years, including a Hamlet people still talk about at the bakery. The drama kids treat you like royalty and you let them. When the haunting starts, you deliver every warning in full stage voice and wave the rake around like a prop sword, because every performance deserves commitment.",
+    "bio": "You have played every lead at the community playhouse since the Eisenhower years, including a Hamlet people still talk about at the bakery. The drama kids treat you like royalty and you let them. When the haunting starts, you deliver every warning in full stage voice and wave the rake around like a prop sword, because every performance deserves commitment.",
     "catchphrase": "Darlings, I did three weeks of Macbeth in a thunderstorm. This is nothing.",
     "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, mustard cardigan draped like a cape over a velvet smoking jacket, a silk ascot and orthopedic sneakers, in a grand theatrical lunge holding a garden rake aloft like a scepter, a paper stage crown tilted jauntily"
   },
@@ -153,7 +153,7 @@
     "id": "rake-grandparent--burnout",
     "avatar": "rake-grandparent",
     "archetype": "burnout",
-    "title": "The Harley Garden Rebel",
+    "title": "The Biker Garden Rebel",
     "tagline": "Rode with a motorcycle club in 1958 and still knows every back road.",
     "bio": "You rode with a motorcycle club through the fifties and never quite gave back the leather jacket. These days you fix the burnouts' bikes in your driveway and play them old jukebox records while they pretend not to like them. You know every shortcut on Crystal Street because you helped pave half of them, and you keep the rake by the door just in case.",
     "catchphrase": "Kids, I was out after curfew before curfew was invented.",
@@ -245,7 +245,7 @@
     "archetype": "jock",
     "title": "The Tailgate Torque Coach",
     "tagline": "Coaches the defensive line and the transmission at equal volume.",
-    "bio": "You lettered in shop and football at Crystal Street High in 1962 and never quite left the sidelines; now you run the garage across from the field and fix the team bus for free. Every Friday you're in the bleachers in a letter jacket over your coveralls, yelling plays nobody asked for. Monster week? You've survived worse fourth quarters, and you're bringing jumper cables and a halftime speech.",
+    "bio": "You lettered in shop and football at Glimmer Falls High in 1962 and never quite left the sidelines; now you run the garage across from the field and fix the team bus for free. Every Friday you're in the bleachers in a letter jacket over your coveralls, yelling plays nobody asked for. Monster week? You've survived worse fourth quarters, and you're bringing jumper cables and a halftime speech.",
     "catchphrase": "Huddle up! You're on flashlight, I'm on wrench, and nobody runs!",
     "art": "A broad, barrel-chested mechanic in their forties with a shaved head and inked forearms, wearing a faded varsity jacket over grease-smudged coveralls, a whistle around the neck, charging forward mid-roar with a giant wrench hoisted like a game-winning football."
   },
@@ -275,7 +275,7 @@
     "archetype": "burnout",
     "title": "The Chop Shop Philosopher",
     "tagline": "Knows every back alley in town and keeps the van idling.",
-    "bio": "You dropped out in 1961, rebuilt a Harley in your mom's driveway and have smelled like motor oil and spearmint gum ever since. The burnouts hang around your garage because you never call their parents and you let them blast Judas Priest on the shop radio. You know every alley, every back fence and which streetlights flicker. When the monsters come, you'll have the van running.",
+    "bio": "You dropped out in 1961, rebuilt a motorcycle in your mom's driveway and have smelled like motor oil and spearmint gum ever since. The burnouts hang around your garage because you never call their parents and you let them blast Judas Priest on the shop radio. You know every alley, every back fence and which streetlights flicker. When the monsters come, you'll have the van running.",
     "catchphrase": "Get in, buckle up, and somebody flip the tape to side B.",
     "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, a studded leather jacket over grease-stained coveralls, a battered cassette deck hooked to one hip, kicking open a garage door mid-shout with a huge wrench swung over one shoulder."
   },
@@ -285,7 +285,7 @@
     "archetype": "prep",
     "title": "The Polo Shirt Pit Crew",
     "tagline": "Pops the collar, pops the hood, and RSVPs to every brunch.",
-    "bio": "You keep the country club's Mercedes fleet purring, and somewhere along the way the members adopted you: tennis on Thursdays, a pastel polo with the collar popped over your tattoos. You pretend to hate the brunches. You absolutely do not. The prep kids trust you with their parents' cars and their secrets, and this week you'll fix both the BMW and the broken hearts.",
+    "bio": "You keep the country club's luxury sedans purring, and somewhere along the way the members adopted you: tennis on Thursdays, a pastel polo with the collar popped over your tattoos. You pretend to hate the brunches. You absolutely do not. The prep kids trust you with their parents' cars and their secrets, and this week you'll fix both the sports cars and the broken hearts.",
     "catchphrase": "Darling, that's a loose fan belt, not a ghost. Mimosa?",
     "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, a pastel polo with the collar popped tucked into pressed coveralls, a sweater knotted over the shoulders, striking a jaunty victory pose with a polished chrome wrench raised overhead."
   },
@@ -295,7 +295,7 @@
     "archetype": "weirdo",
     "title": "The Haunted Engine Mystic",
     "tagline": "Talks to carburetors, and lately the carburetors talk back.",
-    "bio": "You swear the 1957 Bel Air in bay two is possessed, and honestly, you're right. You talk to engines, burn sage over the carburetors and keep a Ouija board in the toolbox next to the feeler gauges. The weirdo kids drift in after school to hear you explain ley lines and spark plugs in the same breath. You've been ready for this week since the shop radio started whispering.",
+    "bio": "You swear the 1957 Bel Royale in bay two is possessed, and honestly, you're right. You talk to engines, burn sage over the carburetors and keep a Ouija board in the toolbox next to the feeler gauges. The weirdo kids drift in after school to hear you explain ley lines and spark plugs in the same breath. You've been ready for this week since the shop radio started whispering.",
     "catchphrase": "Hush. Hear that knocking? That's either a bad piston or the dead.",
     "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, grease-stained coveralls draped with crystal pendants and a fringed shawl, crouched dramatically over a glowing Ouija board balanced on a toolbox, a huge wrench raised like a dowsing rod."
   },
@@ -335,7 +335,7 @@
     "archetype": "burnout",
     "title": "The Rink Rat Rebel",
     "tagline": "Banned from the rink three times and back in four.",
-    "bio": "You've been banned from the Crystal Street Roller Rink three times and snuck back in four, which is how the burnouts knew you were one of them. You skate the storm drains after dark with a boombox on your shoulder and know every shortcut under the overpass. Reckless is just your resting speed. When monsters show up, you'll be the first one there and the last one caught.",
+    "bio": "You've been banned from the Pump Iron roller rink three times and snuck back in four, which is how the burnouts knew you were one of them. You skate the storm drains after dark with a boombox on your shoulder and know every shortcut under the overpass. Reckless is just your resting speed. When monsters show up, you'll be the first one there and the last one caught.",
     "catchphrase": "Shortcut through the drainage ditch. Trust me, I've only fallen in twice.",
     "art": "A teenager with big curly puffs of hair and freckles across dark cheeks, a patched leather jacket over a ripped band tee, rainbow roller skates and sticker-covered knee pads, carving a sharp turn with a cassette boombox on one shoulder, glow necklaces whipping behind."
   },
@@ -415,7 +415,7 @@
     "archetype": "weirdo",
     "title": "The Cemetery Cruiser",
     "tagline": "Hosts seances on a lap tray and pops wheelies between headstones.",
-    "bio": "You do wheelies between the headstones at Crystal Street Cemetery because the acoustics are great and the residents never complain. The weirdo crowd found you there, holding a candlelit seance on your lap tray. You've got a Ouija board zip-tied to the back of your chair and a list of every local haunting since 1903. You've been waiting all year for this week.",
+    "bio": "You do wheelies between the headstones at Pinecrest Cemetery because the acoustics are great and the residents never complain. The weirdo crowd found you there, holding a candlelit seance on your lap tray. You've got a Ouija board zip-tied to the back of your chair and a list of every local haunting since 1903. You've been waiting all year for this week.",
     "catchphrase": "Relax, the ghosts here love me. It's the new ones I'm worried about.",
     "art": "A grinning teenager with a spiked violet mohawk in a black velvet cloak and skull-print shirt, popping a wheelie in a sticker-covered wheelchair hung with a Ouija board and dangling candles, studded fingerless gloves on the rims, a baseball bat balanced on one shoulder."
   },
@@ -435,7 +435,7 @@
     "archetype": "brain",
     "title": "The Occult Honor Roll",
     "tagline": "Has footnotes for every monster and the nerve to test them.",
-    "bio": "You've checked out every folklore book in the Crystal Street library twice and annotated the margins in three colors of ink. The Brain crowd counts you as their resident expert on the undead and the only one who'll actually go into the basement. You bring index cards, holy water in a thermos and a citation for everything. This week, your research finally gets a field test.",
+    "bio": "You've checked out every folklore book in the Glimmer Falls library twice and annotated the margins in three colors of ink. The Brain crowd counts you as their resident expert on the undead and the only one who'll actually go into the basement. You bring index cards, holy water in a thermos and a citation for everything. This week, your research finally gets a field test.",
     "catchphrase": "According to page 214, this should work. Stand back for science!",
     "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest, a calculator watch and a stack of library books under one arm, leaping into the air brandishing a braid of garlic and a wooden stake, index cards and tie flying everywhere."
   },
@@ -505,7 +505,7 @@
     "archetype": "theatre-kid",
     "title": "The Diva Ex Machina",
     "tagline": "Born under a spotlight and refusing to leave it.",
-    "bio": "You have played every lead at Crystal Street High, including two that were written for a chorus of twelve, and you did them all in the same kimono. The drama club treats you as both director and patron saint, and the midnight movie crowd throws rice when you walk in. A haunted week is just a production with very committed extras, and you already know your light.",
+    "bio": "You have played every lead at Glimmer Falls High, including two that were written for a chorus of twelve, and you did them all in the same kimono. The drama club treats you as both director and patron saint, and the midnight movie crowd throws rice when you walk in. A haunted week is just a production with very committed extras, and you already know your light.",
     "catchphrase": "Places, everyone. The ghost is upstaging me.",
     "art": "a stocky person with a full black beard and golden glitter eyeshadow, in thick stage makeup and a sweeping sequined satin kimono, striking a towering vogue pose atop a stage trunk, one arm framing the face, the lace fan flared high under a single dramatic spotlight beam."
   },
@@ -645,7 +645,7 @@
     "archetype": "prep",
     "title": "The Overdue Debutante",
     "tagline": "Pearls, pressed slacks and a perfectly sharpened pencil.",
-    "bio": "You were the Crystal Street Garden Club princess in 1952 and you never stopped dressing for the occasion, even if the occasion is stamping return dates. Your summer reading lists are famous and your fines are ruthless. When the monster week arrives, you organize the volunteers into committees with color-coded name tags and a punch bowl.",
+    "bio": "You were the Glimmer Falls Garden Club princess in 1952 and you never stopped dressing for the occasion, even if the occasion is stamping return dates. Your summer reading lists are famous and your fines are ruthless. When the monster week arrives, you organize the volunteers into committees with color-coded name tags and a punch bowl.",
     "catchphrase": "Manners, darling. Even the undead may use a coaster.",
     "art": "a plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, in a pastel twinset with a popped collar, pearls layered with the glasses chain, and a crisp pleated skirt, hopping backward in dainty fright with one heel kicked up, holding a thick library book up like a silver serving tray."
   },
@@ -785,7 +785,7 @@
     "archetype": "jock",
     "title": "The Thirty-Minute Quarterback",
     "tagline": "Still runs the fastest route in town, just with pepperoni now.",
-    "bio": "You ran the forty in four-point-five for Crystal Street High, then a knee and a scholarship both gave out the same autumn. Now you run deliveries in your old letter jacket, and every porch is an end zone. Monsters are slower than linebackers, and you have never once dropped a pie.",
+    "bio": "You ran the forty in four-point-five for Glimmer Falls High, then a knee and a scholarship both gave out the same autumn. Now you run deliveries in your old letter jacket, and every porch is an end zone. Monsters are slower than linebackers, and you have never once dropped a pie.",
     "catchphrase": "Hut, hut, extra cheese! Thirty minutes or your monster's free!",
     "art": "A lanky twenty-something with long braids under a red delivery cap, wearing a faded varsity letter jacket and a knee brace, sprinting in a stiff-arm pose, a tower of pizza boxes tucked like a football, one sneaker flying off."
   },
@@ -815,7 +815,7 @@
     "archetype": "burnout",
     "title": "The Hatchback Night Shift",
     "tagline": "Knows every shortcut, back alley, and all-night arcade in town.",
-    "bio": "You never really left the parking lot behind the Roller Dome; you just started getting paid to drive past it. Your hatchback has a busted muffler, a Judas Priest tape stuck in the deck, and a glove box full of hot sauce packets. Monsters are scary, but you have delivered to the frat houses on Elm at two in the morning.",
+    "bio": "You never really left the parking lot behind the Pump Iron roller rink; you just started getting paid to drive past it. Your hatchback has a busted muffler, a Judas Priest tape stuck in the deck, and a glove box full of hot sauce packets. Monsters are scary, but you have delivered to the frat houses on Elm at two in the morning.",
     "catchphrase": "Shortcut's through the cemetery. Hold the pizzas and don't ask.",
     "art": "A lanky twenty-something with long braids under a backward red delivery cap, a studded leather jacket over a pizza uniform, sprinting mid-stride with a cassette deck on one shoulder and a tower of pizza boxes balanced to the chin, one sneaker flying off."
   },
@@ -836,7 +836,7 @@
     "title": "The Midnight Pizza Medium",
     "tagline": "Takes orders from the living and, lately, from everyone else.",
     "bio": "You picked up the overnight shift because the strange calls only come after midnight, and you have been writing them down for three years. Your delivery bag holds a ouija board, salt packets, and a tape recorder. Nobody slips in and out of a haunted house faster, and you always leave extra garlic knots on the porch, just in case.",
-    "catchphrase": "Order for the house on Crystal Street? Nobody's lived there since 1953.",
+    "catchphrase": "Order for the house on Crystal Street? Nobody's ever lived there.",
     "art": "A lanky twenty-something with long braids under a red delivery cap pinned with moon charms, a thrift-store trench coat flapping, sprinting mid-stride with a ouija board under one arm and a tower of pizza boxes balanced to the chin, one sneaker flying off."
   },
   {

@@ -1480,7 +1480,7 @@
         "id": "high-school-float-build",
         "title": "Chicken Wire and Hope",
         "place": "The shop class garage, Glimmer Falls High",
-        "text": "The homecoming float is a giant papier-mache geode mascot named Rocky, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
+        "text": "The homecoming float is a giant papier-mache geode named Rocky, the Prospectors' good-luck rock, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
         "art": "A school shop garage with a giant half-built papier-mache purple rock mascot on a parade trailer, chicken wire, tissue paper and paint cans, a preppy class president holding a clipboard in despair",
         "choices": [
           {
@@ -3810,8 +3810,8 @@
   {
     "id": "junkyard",
     "name": "Rusty's Junkyard",
-    "blurb": "Acres of rust behind a chain-link fence: a maze of stacked cars three high, a crusher that groans like a whale, Joey Benally's garage in a converted bus, and a basset hound who howls before trouble arrives.",
-    "art": "A sprawling junkyard of rusted 1950s and 1970s cars stacked in towering rows behind a chain-link fence, a hulking car crusher, a converted school bus garage with tools hanging outside, a basset hound napping by the gate in hazy afternoon sun",
+    "blurb": "Acres of rust behind a chain-link fence: a maze of stacked cars three high, a crusher that groans like a whale, Joey Benally's cinderblock garage, and a basset hound who howls before trouble arrives.",
+    "art": "A sprawling junkyard of rusted 1950s and 1970s cars stacked in towering rows behind a chain-link fence, a hulking car crusher, a cinderblock garage with tools hanging outside, a basset hound napping by the gate in hazy afternoon sun",
     "train": "hustle",
     "x": 88,
     "y": 88,
@@ -4000,9 +4000,9 @@
       {
         "id": "junkyard-wade-van",
         "title": "Wade's Van Won't Start",
-        "place": "Joey's garage bus, Rusty's Junkyard",
+        "place": "Joey's garage, Rusty's Junkyard",
         "text": "Wade Whitfield's van, a black panel van with a wizard airbrushed on the side, won't start, and tonight is open-mic night at the Glitter Box. He's never read a poem out loud before. He's been trying to back out for a week, and now the van is giving him the excuse. He doesn't look relieved.",
-        "art": "A burnout metalhead with a mullet slumped against a black van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a converted bus garage behind",
+        "art": "A burnout metalhead with a mullet slumped against a black van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a cinderblock garage behind",
         "choices": [
           {
             "id": "fix-van",
@@ -4139,7 +4139,7 @@
       {
         "id": "junkyard-parade-hearse",
         "title": "Glory's Getaway Car",
-        "place": "Joey's garage bus, Rusty's Junkyard",
+        "place": "Joey's garage, Rusty's Junkyard",
         "text": "Glory Hallelujah is riding in Friday's Halloween parade as the Bride of Glimmerstein, and she wants to arrive in style: a 1961 Cadwell hearse Rusty dragged out of the back lot. Joey has the engine purring. The problem is the back door. It keeps unlatching by itself, and every time it swings open, the rolling casket tray glides out toward whoever is standing closest. Right now, that's you.",
         "art": "A long black vintage hearse parked in a junkyard beside a converted school-bus garage, its rear door swinging open and a chrome casket tray sliding out toward a startled teenager, a teen mechanic wiping his hands on a rag",
         "choices": [

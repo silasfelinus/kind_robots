@@ -1049,6 +1049,27 @@ export type DayActivity =
   | { kind: 'heal' }
   | { kind: 'groceries' }
 
+/** A week a friend shared: same nightmare, same seed, same deck order. */
+export type SharedWeek = { seed: string; villain: VillainId }
+
+const SHARE_SEED = /^[a-z0-9-]{1,40}$/
+
+/** Read a shared week from a link's query (?week=<seed>&nightmare=<id>). */
+export function sharedWeekFrom(query: {
+  week?: unknown
+  nightmare?: unknown
+}): SharedWeek | null {
+  const seed = typeof query.week === 'string' ? query.week : ''
+  const villain = typeof query.nightmare === 'string' ? query.nightmare : ''
+  if (!SHARE_SEED.test(seed) || !villainById(villain)) return null
+  return { seed, villain: villain as VillainId }
+}
+
+/** The link that replays a week: path plus query, for the share button. */
+export function shareLink(week: SharedWeek): string {
+  return `/play/crystal-street?week=${encodeURIComponent(week.seed)}&nightmare=${week.villain}`
+}
+
 /** Street-deck tags as players read them on the draw screen. */
 export const TAG_LABELS: Record<Tag, string> = {
   paranormal: 'Supernatural',

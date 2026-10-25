@@ -28,32 +28,32 @@
         aria-label="Thirty-six linked House chambers"
       >
         <button
-          v-for="room in rooms"
-          :key="room.id"
+          v-for="tileRoom in rooms"
+          :key="tileRoom.id"
           type="button"
           class="relative min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
           :class="
-            world.darkHouse.current === room.id
+            world.darkHouse.current === tileRoom.id
               ? 'border-[#f5d89a] bg-[#655179] text-white'
-              : world.darkHouse.visited.includes(room.id)
+              : world.darkHouse.visited.includes(tileRoom.id)
                 ? 'border-[#81b7a8] bg-[#34544f] text-[#f4fff8]'
-                : world.darkHouseDoors.includes(room.id)
+                : world.darkHouseDoors.includes(tileRoom.id)
                   ? 'border-[#b99bcf] bg-[#4d3d61] text-white'
                   : 'border-[#42445d] bg-[#1b2031] text-[#8390a3]'
           "
-          :disabled="!world.darkHouseDoors.includes(room.id)"
-          :aria-label="`${room.id}: ${world.darkHouse.visited.includes(room.id) || world.darkHouseDoors.includes(room.id) ? room.title : 'unknown room'}`"
-          @click="world.walkDarkHouse(room.id)"
+          :disabled="!world.darkHouseDoors.includes(tileRoom.id)"
+          :aria-label="`${tileRoom.id}: ${world.darkHouse.visited.includes(tileRoom.id) || world.darkHouseDoors.includes(tileRoom.id) ? tileRoom.title : 'unknown room'}`"
+          @click="world.walkDarkHouse(tileRoom.id)"
         >
           <span class="block text-[10px] font-black sm:text-xs">{{
-            room.id.slice(3)
+            tileRoom.id.slice(3)
           }}</span>
           <span class="block text-sm" aria-hidden="true">{{
-            world.darkHouse.current === room.id
+            world.darkHouse.current === tileRoom.id
               ? '✦'
-              : world.darkHouse.visited.includes(room.id)
+              : world.darkHouse.visited.includes(tileRoom.id)
                 ? '✓'
-                : world.darkHouseDoors.includes(room.id)
+                : world.darkHouseDoors.includes(tileRoom.id)
                   ? '◇'
                   : '·'
           }}</span>

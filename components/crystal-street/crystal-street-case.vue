@@ -54,7 +54,7 @@
             class="cs-card p-3"
             :class="lead.found ? 'border-success' : ''"
           >
-            <p class="text-[11px] uppercase tracking-wider opacity-70">
+            <p class="cs-label uppercase tracking-wider opacity-70">
               {{ locationById(lead.location)?.name }}
             </p>
             <p class="font-semibold">

@@ -67,7 +67,7 @@
                   "
                   :alt="h.art"
                 />
-                <p class="mt-1 line-clamp-2 text-[10px] leading-tight">
+                <p class="mt-1 line-clamp-2 cs-micro leading-tight">
                   <span :class="h.success ? 'text-success' : 'text-error'"
                     >●</span
                   >
@@ -89,7 +89,7 @@
             </button>
             <p
               v-if="manual === entry.seed"
-              class="mt-1 break-all text-[10px] opacity-80"
+              class="mt-1 break-all cs-micro opacity-80"
             >
               {{ linkFor(entry) }}
             </p>

@@ -38,7 +38,7 @@
       <span class="sr-only"
         >{{ FACTION_LABELS[f] }} {{ standing[f] }} of {{ MAX_STANDING }}</span
       >
-      <span v-if="full" class="text-[11px] leading-snug opacity-70">{{
+      <span v-if="full" class="cs-label leading-snug opacity-70">{{
         FACTION_HINTS[f]
       }}</span>
     </li>

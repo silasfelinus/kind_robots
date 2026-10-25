@@ -15,7 +15,7 @@
       />
       <span
         v-if="synergy"
-        class="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-widest"
+        class="absolute left-2 top-2 rounded-full px-2 py-0.5 cs-micro font-black uppercase tracking-widest"
         :class="
           synergy.typecast
             ? 'bg-accent text-accent-content'
@@ -48,7 +48,7 @@
         <li
           v-for="b in synergy.bonuses"
           :key="b.style"
-          class="rounded-full border border-primary/40 px-2 py-0.5 text-[11px] font-semibold"
+          class="rounded-full border border-primary/40 px-2 py-0.5 cs-label font-semibold"
         >
           {{ STYLE_LABELS[b.style] }} +{{ b.amount }}
           <span class="opacity-70">· {{ b.why }}</span>
@@ -70,7 +70,7 @@
       </p>
       <dl
         v-if="clique"
-        class="grid grid-cols-3 gap-1 text-center text-[11px]"
+        class="grid grid-cols-3 gap-1 text-center cs-label"
         aria-label="Starting skills"
       >
         <div

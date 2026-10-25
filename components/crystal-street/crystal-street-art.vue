@@ -26,7 +26,7 @@
     />
     <p
       v-if="brief && !loaded"
-      class="absolute inset-x-2 bottom-2 line-clamp-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] italic leading-snug text-white/80"
+      class="absolute inset-x-2 bottom-2 line-clamp-2 rounded-lg bg-black/60 px-2 py-1 cs-micro italic leading-snug text-white/80"
     >
       {{ brief }}
     </p>

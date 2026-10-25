@@ -51,10 +51,10 @@
         />
         <div>
           <h3 class="cs-display text-2xl leading-tight">{{ villain.name }}</h3>
-          <p class="text-[11px] uppercase tracking-wider opacity-75">
+          <p class="cs-label uppercase tracking-wider opacity-75">
             {{ villain.epithet }}
           </p>
-          <p class="mt-1 text-[11px] uppercase tracking-wider text-secondary">
+          <p class="mt-1 cs-label uppercase tracking-wider text-secondary">
             {{ remixLine(villain) }}
           </p>
         </div>

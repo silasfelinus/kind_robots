@@ -155,6 +155,26 @@
           </span>
         </div>
         <div class="kr-pane-scroll space-y-3 p-3">
+          <div
+            v-if="isLast"
+            class="cs-card flex items-center gap-3 p-2"
+            data-testid="cs-wizard-player"
+          >
+            <img
+              :src="portrait"
+              :alt="chosenCharacter?.title ?? chosenAvatar.name"
+              class="h-20 w-14 shrink-0 rounded-lg bg-black object-cover object-top"
+              @error="portraitFailed = true"
+            />
+            <div class="min-w-0 text-sm">
+              <span class="cs-kicker mb-1 block">Your character</span>
+              <p class="font-bold">{{ name || 'Alex' }}</p>
+              <p class="opacity-75">
+                {{ customPronouns.trim() || pronouns }} ·
+                {{ chosenCharacter?.title ?? chosenArchetype.name }}
+              </p>
+            </div>
+          </div>
           <h3 class="cs-display text-2xl leading-tight">
             {{ STEPS[stepIndex]!.title }}
           </h3>
@@ -296,21 +316,6 @@
           </template>
 
           <template v-else>
-            <div class="cs-card flex items-center gap-3 p-2">
-              <img
-                :src="portrait"
-                :alt="chosenCharacter?.title ?? chosenAvatar.name"
-                class="h-20 w-14 shrink-0 rounded-lg bg-black object-cover object-top"
-                @error="portraitFailed = true"
-              />
-              <div class="text-sm">
-                <p class="font-bold">{{ name || 'Alex' }}</p>
-                <p class="opacity-75">
-                  {{ customPronouns.trim() || pronouns }} ·
-                  {{ chosenCharacter?.title ?? chosenArchetype.name }}
-                </p>
-              </div>
-            </div>
             <p
               v-if="playingShared && sharedVillain"
               class="cs-card p-2 text-sm"

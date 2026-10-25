@@ -420,6 +420,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     typeof data.trust !== 'number' ||
     typeof data.intervention !== 'number' ||
     typeof data.reputation !== 'number' ||
+    typeof data.antagonist !== 'number' ||
     !Number.isInteger(data.antagonist) ||
     data.antagonist < 0 ||
     data.antagonist >= ANTAGONISTS.length

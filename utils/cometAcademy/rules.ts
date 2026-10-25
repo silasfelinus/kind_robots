@@ -314,7 +314,8 @@ export function assignTeam(
 ): AcademyRun {
   if (run.phase !== 'dispatch') return run
   if (!incidentsFor(run).some((incident) => incident.id === caseId)) return run
-  if (selected.length > 3 || new Set(selected).size !== selected.length) return run
+  if (selected.length > 3 || new Set(selected).size !== selected.length)
+    return run
   if (selected.some((id) => !STUDENTS.some((student) => student.id === id)))
     return run
   const remaining = run.assignments.filter(
@@ -339,59 +340,190 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   let influence = run.influence
   let danger = run.danger
   const reports = incidentsFor(run).map((incident) => {
-    const assignment = run.assignments.find((entry) => entry.caseId === incident.id)
+    const assignment = run.assignments.find(
+      (entry) => entry.caseId === incident.id,
+    )
     if (!assignment) {
       danger += 1
-      return { caseId: incident.id, title: incident.title, names: 'No team dispatched', grade: 'failed' as Grade, text: 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.' }
+      return {
+        caseId: incident.id,
+        title: incident.title,
+        names: 'No team dispatched',
+        grade: 'failed' as Grade,
+        text: 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
+      }
     }
-    const affinity = assignment.students.some((id) => STUDENTS.find((person) => person.id === id)?.skill === incident.need)
-    const roll = hash(run.seed, `${run.day}:${incident.id}:${assignment.students.join(',')}`) % 6
-    const score = roll + assignment.students.length + (affinity ? 2 : 0) + (run.power === incident.need ? 1 : 0)
-    const grade: Grade = score >= incident.risk + 4 ? 'honors' : score >= incident.risk + 2 ? 'pass' : score >= incident.risk ? 'partial' : 'failed'
-    influence += grade === 'honors' ? 2 : grade === 'pass' ? 1 : grade === 'failed' ? -1 : 0
-    danger += grade === 'failed' ? 2 : grade === 'partial' ? 1 : grade === 'honors' ? -1 : 0
+    const affinity = assignment.students.some(
+      (id) =>
+        STUDENTS.find((person) => person.id === id)?.skill === incident.need,
+    )
+    const roll =
+      hash(
+        run.seed,
+        `${run.day}:${incident.id}:${assignment.students.join(',')}`,
+      ) % 6
+    const score =
+      roll +
+      assignment.students.length +
+      (affinity ? 2 : 0) +
+      (run.power === incident.need ? 1 : 0)
+    const grade: Grade =
+      score >= incident.risk + 4
+        ? 'honors'
+        : score >= incident.risk + 2
+          ? 'pass'
+          : score >= incident.risk
+            ? 'partial'
+            : 'failed'
+    influence +=
+      grade === 'honors'
+        ? 2
+        : grade === 'pass'
+          ? 1
+          : grade === 'failed'
+            ? -1
+            : 0
+    danger +=
+      grade === 'failed'
+        ? 2
+        : grade === 'partial'
+          ? 1
+          : grade === 'honors'
+            ? -1
+            : 0
     const text = {
-      honors: 'An elegant rescue, with time left to notice the simulation has hidden a real distress code.',
+      honors:
+        'An elegant rescue, with time left to notice the simulation has hidden a real distress code.',
       pass: 'Everyone is accounted for. The instructor marks your judgment as sound, but the evidence is stranger than the scenario.',
-      partial: 'Most people make it out. Your team refuses to pretend the ones left behind were only numbers.',
-      failed: 'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
+      partial:
+        'Most people make it out. Your team refuses to pretend the ones left behind were only numbers.',
+      failed:
+        'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
-    return { caseId: incident.id, title: incident.title, grade, text, names: assignment.students.map((id) => STUDENTS.find((s) => s.id === id)!.name).join(' · ') }
+    return {
+      caseId: incident.id,
+      title: incident.title,
+      grade,
+      text,
+      names: assignment.students
+        .map((id) => STUDENTS.find((s) => s.id === id)!.name)
+        .join(' · '),
+    }
   })
-  return { ...run, phase: 'campus', influence, danger: Math.max(0, danger), reports, scene: 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.', log: [...run.log, ...reports.map((report) => `Day ${run.day}: ${report.title} — ${report.grade}`)] }
+  return {
+    ...run,
+    phase: 'campus',
+    influence,
+    danger: Math.max(0, danger),
+    reports,
+    scene:
+      'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    log: [
+      ...run.log,
+      ...reports.map(
+        (report) => `Day ${run.day}: ${report.title} — ${report.grade}`,
+      ),
+    ],
+  }
 }
 
 export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   if (run.phase !== 'campus') return run
-  const option = encounterFor(run).options.find((entry) => entry.id === optionId)
+  const option = encounterFor(run).options.find(
+    (entry) => entry.id === optionId,
+  )
   if (!option) return run
-  const powerUsed = option.id === 'truth' && run.power === 'empathy' || option.id === 'cover' && run.power === 'technopathy'
-  const scene = option.text + (powerUsed ? ' Your power opens a detail that nobody else notices.' : '')
-  return { ...run, phase: 'debrief', influence: run.influence + option.influence, danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)), scene, log: [...run.log, `Day ${run.day}: ${encounterFor(run).title} — ${option.label}`] }
+  const powerUsed =
+    (option.id === 'truth' && run.power === 'empathy') ||
+    (option.id === 'cover' && run.power === 'technopathy')
+  const scene =
+    option.text +
+    (powerUsed ? ' Your power opens a detail that nobody else notices.' : '')
+  return {
+    ...run,
+    phase: 'debrief',
+    influence: run.influence + option.influence,
+    danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)),
+    scene,
+    log: [
+      ...run.log,
+      `Day ${run.day}: ${encounterFor(run).title} — ${option.label}`,
+    ],
+  }
 }
 
 export function nextSchoolDay(run: AcademyRun): AcademyRun {
   if (run.phase !== 'debrief') return run
-  if (run.day >= 7) return { ...run, phase: 'finale', scene: 'Prom night. The academy is dressed for a future that somebody intends to cancel.' }
-  return { ...run, phase: 'dispatch', day: run.day + 1, assignments: [], reports: [], scene: 'The next bell rings. Yesterday has already changed who will answer your calls.' }
+  if (run.day >= 7)
+    return {
+      ...run,
+      phase: 'finale',
+      scene:
+        'Prom night. The academy is dressed for a future that somebody intends to cancel.',
+    }
+  return {
+    ...run,
+    phase: 'dispatch',
+    day: run.day + 1,
+    assignments: [],
+    reports: [],
+    scene:
+      'The next bell rings. Yesterday has already changed who will answer your calls.',
+  }
 }
 
-export function finishAcademy(run: AcademyRun, choice: 'protect' | 'command'): AcademyRun {
+export function finishAcademy(
+  run: AcademyRun,
+  choice: 'protect' | 'command',
+): AcademyRun {
   if (run.phase !== 'finale') return run
   const protect = choice === 'protect'
-  const earned = protect ? run.influence >= 2 && run.danger <= 12 : run.influence <= -2
+  const earned = protect
+    ? run.influence >= 2 && run.danger <= 12
+    : run.influence <= -2
   const ending = protect
-    ? earned ? 'HERO OF COMET CITY' : 'THE GRADUATE WHO STAYED'
-    : earned ? 'THE UNWELCOME HEADMASTER' : 'A KINGDOM OF PAPER CROWNS'
+    ? earned
+      ? 'HERO OF COMET CITY'
+      : 'THE GRADUATE WHO STAYED'
+    : earned
+      ? 'THE UNWELCOME HEADMASTER'
+      : 'A KINGDOM OF PAPER CROWNS'
   const scene = protect
-    ? earned ? 'You refuse the easy sacrifice. Your classmates stand with you and the comet turns aside.' : 'The last rescue costs your diploma, but the people you pulled from the ballroom remember.'
-    : earned ? 'You take command of the machine, save the city and write your own inconvenient rules.' : 'You take the controls. The machine decides what control means. Your rival pulls you free.'
-  return { ...run, phase: 'ending', ending, scene, log: [...run.log, `Finale: ${ending}`] }
+    ? earned
+      ? 'You refuse the easy sacrifice. Your classmates stand with you and the comet turns aside.'
+      : 'The last rescue costs your diploma, but the people you pulled from the ballroom remember.'
+    : earned
+      ? 'You take command of the machine, save the city and write your own inconvenient rules.'
+      : 'You take the controls. The machine decides what control means. Your rival pulls you free.'
+  return {
+    ...run,
+    phase: 'ending',
+    ending,
+    scene,
+    log: [...run.log, `Finale: ${ending}`],
+  }
 }
 
 export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (!raw || typeof raw !== 'object') return null
   const data = raw as Partial<AcademyRun>
-  if (data.version !== 1 || !POWERS.some((p) => p.id === data.power) || typeof data.seed !== 'number' || typeof data.day !== 'number' || !Number.isInteger(data.day) || data.day < 1 || data.day > 7 || !['dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(data.phase ?? '') || !Array.isArray(data.log) || !Array.isArray(data.assignments) || !Array.isArray(data.reports) || typeof data.influence !== 'number' || typeof data.danger !== 'number') return null
+  if (
+    data.version !== 1 ||
+    !POWERS.some((p) => p.id === data.power) ||
+    typeof data.seed !== 'number' ||
+    typeof data.day !== 'number' ||
+    !Number.isInteger(data.day) ||
+    data.day < 1 ||
+    data.day > 7 ||
+    !['dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
+      data.phase ?? '',
+    ) ||
+    !Array.isArray(data.log) ||
+    !Array.isArray(data.assignments) ||
+    !Array.isArray(data.reports) ||
+    typeof data.influence !== 'number' ||
+    typeof data.danger !== 'number'
+  )
+    return null
   return data as AcademyRun
 }

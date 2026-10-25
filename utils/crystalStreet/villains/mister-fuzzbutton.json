@@ -119,7 +119,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "\"Ollie Tolliver. His dad works till midnight, his mom's in Phoenix. He's home alone every night.\" Kev chews his lip. \"I leave him the funnies even though they don't subscribe. He used to run out and talk to me every day. He stopped in January. After his birthday.\"",
+                "text": "\"Ollie Tolliver. His dad works till eleven, his mom's in Phoenix. He's home alone every night.\" Kev chews his lip. \"I leave him the funnies even though they don't subscribe. He used to run out and talk to me every day. He stopped in January. After his birthday.\"",
                 "art": "A young paperboy straddling his bike, looking up at a lit window with a worried frown, a folded comics section in his hand",
                 "effects": {
                   "clues": ["mister-fuzzbutton-window"],
@@ -420,7 +420,7 @@
           },
           {
             "id": "polaroid-it",
-            "label": "Snap a Polaroid every time you look away and study the pictures",
+            "label": "Snap an instant photo every time you look away and study the pictures",
             "intent": "clever",
             "skill": "brains",
             "target": 9,
@@ -663,7 +663,7 @@
               "amount": 2
             },
             "success": {
-              "text": "A clattering wall of Huffys, trash cans and somebody's old mattress goes up across the street. The bears pile up behind it, waddling in place, and the kids in the doorways blink, look across the street, and see each other instead.",
+              "text": "A clattering wall of BMX bikes, trash cans and somebody's old mattress goes up across the street. The bears pile up behind it, waddling in place, and the kids in the doorways blink, look across the street, and see each other instead.",
               "art": "A makeshift barricade of bicycles, trash cans and a mattress across a suburban street, hundreds of glowing teddy bears piled against it, kids in doorways looking up and waving to each other",
               "effects": {
                 "nerve": 1,

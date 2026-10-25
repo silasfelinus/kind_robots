@@ -221,7 +221,7 @@
                 }
               },
               "failure": {
-                "text": "The winch snaps and the trailer door bursts open on its own. Sugarlings pour out across the junkyard in a pastel flood, eating Joey's lunch, Wade's air freshener and the vinyl off a Buick seat. It takes all afternoon to herd them back.",
+                "text": "The winch snaps and the trailer door bursts open on its own. Sugarlings pour out across the junkyard in a pastel flood, eating Joey's lunch, Wade's air freshener and the vinyl off a junked sedan's seat. It takes all afternoon to herd them back.",
                 "art": "A pastel flood of fuzzy critters pouring out of a truck across a junkyard, nibbling car seats and a lunch bag, two teens chasing them with brooms",
                 "effects": {
                   "nerve": -1,
@@ -248,7 +248,7 @@
                 }
               },
               "failure": {
-                "text": "You lose track of time. When you look at your Casio, it reads 12:01, and every Sugarling that ate your candy is shivering and splitting, two, four, eight. You run for the gate under a sky full of purring.",
+                "text": "You lose track of time. When you look at your digital watch, it reads 12:01, and every Sugarling that ate your candy is shivering and splitting, two, four, eight. You run for the gate under a sky full of purring.",
                 "art": "A teenager staring in horror at a digital watch reading midnight while fuzzy critters around them split in two in a moonlit junkyard",
                 "effects": {
                   "nerve": -2,
@@ -620,8 +620,8 @@
         "id": "sugarlings-cocoon-season",
         "act": 3,
         "title": "Cocoon Season",
-        "place": "The Glimmer Falls Grange Hall, five a.m., before the PTA bake sale",
-        "text": "You and the crew volunteered for bake sale setup at the Grange Hall, which seemed like a nice idea until you flip on the lights at five in the morning. A dozen folding tables of brownies and caramel apples stand ready, and the ceiling above them is covered in cocoons, hundreds of them, glittering, spun from candy wrappers and rustling like a bag of chips. One splits along its seam. Something drops onto the brownie table: still fuzzy, bigger than before, wearing a crinkly wrapper like a suit of armor. It looks at the caramel apples. Sunrise is forty minutes away.",
+        "place": "The Glimmer Falls Grange Hall, 5:45 a.m., before the PTA bake sale",
+        "text": "You and the crew volunteered for bake sale setup at the Grange Hall, which seemed like a nice idea until you flip on the lights at a quarter to six in the morning. A dozen folding tables of brownies and caramel apples stand ready, and the ceiling above them is covered in cocoons, hundreds of them, glittering, spun from candy wrappers and rustling like a bag of chips. One splits along its seam. Something drops onto the brownie table: still fuzzy, bigger than before, wearing a crinkly wrapper like a suit of armor. It looks at the caramel apples. Sunrise is forty minutes away.",
         "art": "A wood-beamed grange hall at dawn with folding tables of brownies and caramel apples, the ceiling covered in hundreds of glittering cocoons spun from candy wrappers, one bigger fuzzy critter in crinkly wrapper armor landing on a brownie table",
         "choices": [
           {
@@ -783,7 +783,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "You flick the lights three times and bang the counter. \"Last call, folks! You don't have to go home, but you can't stay here!\" The Sugarlings freeze, then very politely climb off the hot-dog rollers and form a single-file line. They waddle out the automatic doors one by one into the night, the last one tipping an imaginary hat. Creatures made of wanting, it turns out, understand closing time.",
+              "text": "You flick the lights three times and bang the counter. \"Last call, folks! Finish up and mosey on home!\" The Sugarlings freeze, then very politely climb off the hot-dog rollers and form a single-file line. They waddle out the automatic doors one by one into the night, the last one tipping an imaginary hat. Creatures made of wanting, it turns out, understand closing time.",
               "art": "A teenager behind a convenience store counter flicking the lights and shouting, a single-file line of fuzzy pastel critters waddling out sliding glass doors into the night, the last one tipping its paw",
               "effects": {
                 "nerve": 1,
@@ -1174,7 +1174,7 @@
         },
         {
           "id": "edge-3",
-          "label": "Remember the night before Halloween, when the town let go, and pour your candy out for everyone",
+          "label": "Remember the bake sale, when the town let go, and pour your candy out for everyone",
           "intent": "kind",
           "skill": "charm",
           "target": 7,
@@ -1188,7 +1188,7 @@
             "clues": 3
           },
           "success": {
-            "text": "The night before Halloween you learned that the wanting stops when nobody is hoarding anything. So you sit down on the roundabout curb, empty your pillowcase onto the grass and say, \"Everybody, take what you need.\" The crew does it next, then the kid in the dinosaur costume, then the parents, until all of Crystal Street is sitting in a circle, trading and sharing. The mountain goes quiet. It folds down, and down, into one round, fuzzy creature with moon eyes, which waddles across the grass, takes exactly one gumdrop and climbs into your lap. \"Enough,\" it purrs.",
+            "text": "At the Grange Hall bake sale you learned that the wanting stops when nobody is hoarding anything. So you sit down on the roundabout curb, empty your pillowcase onto the grass and say, \"Everybody, take what you need.\" The crew does it next, then the kid in the dinosaur costume, then the parents, until all of Crystal Street is sitting in a circle, trading and sharing. The mountain goes quiet. It folds down, and down, into one round, fuzzy creature with moon eyes, which waddles across the grass, takes exactly one gumdrop and climbs into your lap. \"Enough,\" it purrs.",
             "art": "Neighbors and costumed kids sitting in a wide circle on a roundabout lawn at night sharing piles of candy, a single round fuzzy critter with moon eyes climbing into a smiling teenager's lap, a purple geode glowing softly",
             "effects": {
               "nerve": 2

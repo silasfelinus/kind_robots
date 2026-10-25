@@ -169,8 +169,8 @@
               "amount": 2
             },
             "success": {
-              "text": "Dots and dashes fill your notebook. L-O-O-K U-N-D-E-R M-A-T. Under your own doormat is a 1944 silver dollar and a note in faded pencil: Thank you for noticing us. Every porch light gives one warm, long blink and goes out for the night.",
-              "art": "A teenager kneeling at a front door holding a silver dollar and a faded pencil note found under the doormat, porch lights along the street glowing warm gold",
+              "text": "Dots and dashes fill your notebook. L-O-O-K U-N-D-E-R M-A-T. Under your own doormat is a 1944 silver half-dollar and a note in faded pencil: Thank you for noticing us. Every porch light gives one warm, long blink and goes out for the night.",
+              "art": "A teenager kneeling at a front door holding a silver half-dollar and a faded pencil note found under the doormat, porch lights along the street glowing warm gold",
               "effects": {
                 "dread": -1,
                 "quarters": 2
@@ -406,7 +406,7 @@
       {
         "id": "deck-slasher-babysitter-call",
         "title": "Have You Checked the Children?",
-        "place": "The Delgado house, 9 Crystal Street, 11:40 p.m.",
+        "place": "The Delgado house on Crystal Street, 11:40 p.m.",
         "text": "You are babysitting the Delgado twins for five dollars an hour and a fridge full of Bolt Cola. The kids are asleep. The phone has rung three times. Each time it is the same slow breathing, and then a voice like a rake on gravel: \"Have you checked the children?\" This time it adds, \"Nice socks.\"",
         "art": "A teenager on a shag carpet clutching a wall phone with a long curly cord in a dim split-level living room, a babysitter's note on the fridge, the dark staircase to the bedrooms behind them",
         "choices": [
@@ -471,7 +471,7 @@
               "amount": 2
             },
             "success": {
-              "text": "You carry one twin and drag the other in a sleeping bag across three back lawns to the only porch light on the street. Grandma Pearl is already up, rocking, a shotgun full of rock salt across her knees. \"Sit,\" she says, and nothing follows you. She sends you home with a coffee can of salt.",
+              "text": "You carry one twin and drag the other in a sleeping bag across three back lawns to the only porch light on the street. Mrs. Washington is already up, rocking, a shotgun full of rock salt across her knees. \"Sit,\" she says, and nothing follows you. She sends you home with a coffee can of salt.",
               "art": "A teenager hauling two sleepy kids across dark backyards toward a glowing porch where an elderly woman rocks with a rock-salt shotgun across her knees",
               "effects": {
                 "nerve": 1,
@@ -745,8 +745,8 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "You lift the needle off the record. The masked skater freezes mid-glide, like it is playing musical statues and cannot help it. You leave it there, frozen in the mirror-ball light, and find three quarters on the floor of the booth on your way out.",
-              "art": "A teenager lifting a needle off a spinning record in a DJ booth, a masked skater frozen mid-glide on the rink below, quarters scattered on the booth floor",
+              "text": "You lift the needle off the record. The masked skater freezes mid-glide, like it is playing musical statues and cannot help it. You leave it there, frozen in the mirror-ball light, and find a quarter on the floor of the booth on your way out.",
+              "art": "A teenager lifting a needle off a spinning record in a DJ booth, a masked skater frozen mid-glide on the rink below, a quarter glinting on the booth floor",
               "effects": {
                 "dread": -1,
                 "quarters": 1
@@ -781,16 +781,16 @@
               "amount": 2
             },
             "success": {
-              "text": "Flash. The Polaroid develops slowly: the streetlight, the lawn, and in the figure's place, a garden gnome wearing a cheap rubber mask. When you look up, the lawn is empty. The gnome is back in the Fergusons' flowerbed, and the mask is in their trash can.",
-              "art": "A developing Polaroid photo showing a garden gnome wearing a rubber mask under a streetlight, a teenager's hand holding it by a bedroom window",
+              "text": "Flash. The instant photo develops slowly: the streetlight, the lawn, and in the figure's place, a garden gnome wearing a cheap rubber mask. When you look up, the lawn is empty. The gnome is back in the Fergusons' flowerbed, and the mask is in their trash can.",
+              "art": "A developing instant photo showing a garden gnome wearing a rubber mask under a streetlight, a teenager's hand holding it by a bedroom window",
               "effects": {
                 "nerve": 1,
                 "dread": -1
               }
             },
             "failure": {
-              "text": "Flash. The Polaroid develops slowly: your bedroom, your back, and the mask standing directly behind you. You spin around. Nobody. When you look out the window again, the streetlight is empty too.",
-              "art": "A Polaroid photo showing a teenager at a window with a pale masked figure standing right behind them, the real bedroom behind the teen empty",
+              "text": "Flash. The instant photo develops slowly: your bedroom, your back, and the mask standing directly behind you. You spin around. Nobody. When you look out the window again, the streetlight is empty too.",
+              "art": "An instant photo showing a teenager at a window with a pale masked figure standing right behind them, the real bedroom behind the teen empty",
               "effects": {
                 "nerve": -1,
                 "dread": 1
@@ -903,8 +903,8 @@
               "amount": 2
             },
             "success": {
-              "text": "Knee-deep in cold water, you find a nest: lost sneakers, tennis balls, three Frisbees and a pile of coins, all arranged with care. It has been collecting. Something huge rumbles behind you like an outboard motor purring. You leave it a Frisbee and keep the change it offers.",
-              "art": "A teenager knee-deep in a storm drain tunnel beside a nest of lost sneakers, tennis balls, Frisbees and coins, a huge shadowy reptile curled contentedly behind them",
+              "text": "Knee-deep in cold water, you find a nest: lost sneakers, tennis balls, three flying discs and a pile of coins, all arranged with care. It has been collecting. Something huge rumbles behind you like an outboard motor purring. You leave it a flying disc and keep the change it offers.",
+              "art": "A teenager knee-deep in a storm drain tunnel beside a nest of lost sneakers, tennis balls, flying discs and coins, a huge shadowy reptile curled contentedly behind them",
               "effects": {
                 "nerve": 1,
                 "quarters": 2
@@ -1084,7 +1084,7 @@
             "skill": "brawn",
             "target": 9,
             "success": {
-              "text": "One throw and the tarp comes down over the whole lump. It wiggles, chirps, and gives up. You slide it back into its crate and latch it. The next day there are three dollars in quarters in your mailbox with a sketch of a three-eyed smiley face.",
+              "text": "One throw and the tarp comes down over the whole lump. It wiggles, chirps, and gives up. You slide it back into its crate and latch it. The next day there are two quarters in your mailbox with a sketch of a three-eyed smiley face.",
               "art": "A teenager wrestling a wiggling tarp-covered lump into a pet crate in a garage, a stern warning tag tied to the crate",
               "effects": {
                 "nerve": 1,
@@ -1384,7 +1384,7 @@
         "id": "deck-cosmic-missing-time",
         "title": "Missing Time",
         "place": "Quarry Road, on your bike, 9:58 p.m.",
-        "text": "A light is hovering over the old quarry, perfectly still, the color of a Creamsicle. Your bike headlight flickers. The next thing you know, your digital watch says 1:14 a.m., you are three miles farther down the road, your bike seat is warm, and your sneakers are on the wrong feet.",
+        "text": "A light is hovering over the old quarry, perfectly still, the color of orange sherbet. Your bike headlight flickers. The next thing you know, your digital watch says 1:14 a.m., you are three miles farther down the road, your bike seat is warm, and your sneakers are on the wrong feet.",
         "art": "A teenager on a BMX bike on a dark country road staring up at a glowing orange light hovering over a quarry, a digital watch reading 1:14, sneakers laced on the wrong feet",
         "choices": [
           {
@@ -1936,7 +1936,7 @@
         "id": "deck-tech-side-b",
         "title": "Side B",
         "place": "Your bed, headphones on, two a.m.",
-        "text": "Your Walkman clicks and flips to side B by itself. The tape is one you made off the radio last summer, but this is not what you recorded. It is your own voice, whispering, saying things you only thought today, things you never said out loud to anyone.",
+        "text": "Your tape player clicks and flips to side B by itself. The tape is one you made off the radio last summer, but this is not what you recorded. It is your own voice, whispering, saying things you only thought today, things you never said out loud to anyone.",
         "art": "A teenager lying in bed in the dark wearing foam headphones, a portable cassette player glowing on the blanket with its tape spinning, faint whispering sound lines curling from the earpieces",
         "choices": [
           {
@@ -1981,7 +1981,7 @@
               }
             },
             "failure": {
-              "text": "At the end of the tape there is a long, slow breath, and then a click: someone pressing STOP. Not on your Walkman. On a tape recorder, somewhere close behind your headboard.",
+              "text": "At the end of the tape there is a long, slow breath, and then a click: someone pressing STOP. Not on your tape player. On a tape recorder, somewhere close behind your headboard.",
               "art": "A teenager pulling off headphones in alarm in a dark bedroom, a shadow of a hand pressing a button on a tape recorder behind the headboard",
               "effects": {
                 "nerve": -1,
@@ -2674,7 +2674,7 @@
             "skill": "charm",
             "target": 11,
             "success": {
-              "text": "\"I nominate the president, for her service.\" The room erupts. Old grudges about fence heights and holiday lights pour out. Robes come off. Someone throws the coffee urn. You slip out the back while the Fellowship tears itself apart over a hedge dispute from 1974.",
+              "text": "\"I nominate the president, for his service.\" The room erupts. Old grudges about fence heights and holiday lights pour out. Robes come off. Someone throws the coffee urn. You slip out the back while the Fellowship tears itself apart over a hedge dispute from 1974.",
               "art": "A suburban clubhouse meeting erupting into chaos, robed adults arguing and waving ballots, a coffee urn flying, a teenager slipping out a back door",
               "effects": {
                 "nerve": 1,

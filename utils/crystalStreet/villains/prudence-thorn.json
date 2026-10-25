@@ -15,7 +15,7 @@
     "palette": ["#ff6a13", "#b9a3d6", "#1c1a1f"],
     "sigil": "matchbook",
     "logline": "The Concerned Parents of Glimmer Falls lit a bonfire to burn the devil out of rock records and roleplaying games. It worked backward: now there is a demon, and every scared grown-up on Crystal Street is feeding it.",
-    "backstory": "Pastor Prudence Thorn runs the Lamplight Fellowship out of a former carpet store on Route 9 and hosts a public-access show called Prudence Says, where she plays heavy metal records backward on a turntable and gasps at what she hears. In 1984 she founded the Concerned Parents of Glimmer Falls, who have since challenged 212 library books, pulled every horror tape from the drugstore and scared the PTA into banning Caverns and Chimeras from the school. This Halloween week they are holding a series of bonfires on the Crystal Street roundabout, right beside the Heartstone, to burn records, comics and rulebooks and replace Halloween with a wholesome Hallelujah Night. But the Heartstone amplifies whatever a crowd feels, and what that crowd felt was fear. The first fire gave it a body: Backmask, a demon of smoke, melted vinyl and torn rulebook pages that speaks only in reverse and grows every time a grown-up panics. Prudence is certain the answer is a bigger fire. Nobody in town knows that the first thing she ever burned, in 1972, was a record her own son made, the week before he left home for good.",
+    "backstory": "Pastor Prudence Thorn runs the Lamplight Fellowship out of a former carpet store on Route 9 and hosts a public-access show called Prudence Says, where she plays heavy metal records backward on a turntable and gasps at what she hears. In 1984 she founded the Concerned Parents of Glimmer Falls, who have since pulled every horror tape from the drugstore and scared the PTA into banning Caverns and Chimeras from the school. Her library challenges, the first one filed alone in 1972, now number 212. This Halloween week they are holding a series of bonfires on the Crystal Street roundabout, right beside the Heartstone, to burn records, comics and rulebooks and replace Halloween with a wholesome Hallelujah Night. But the Heartstone amplifies whatever a crowd feels, and what that crowd felt was fear. The first fire gave it a body: Backmask, a demon of smoke, melted vinyl and torn rulebook pages that speaks only in reverse and grows every time a grown-up panics. Prudence is certain the answer is a bigger fire. Almost nobody in town remembers that the first thing she ever burned, in 1972, was a record her own son made, the week before he left home for good.",
     "centralIssue": {
       "title": "Moral panic and censorship",
       "summary": "The demon is real, but it was never hiding in the records. It is made of fear, and every book banned and record burned has only fed it. Prudence is not wicked; she is a frightened mother who decided her son was taken by music so she would never have to ask why he really left. Find what she lost, learn what the demon eats, and help her hear the one hidden message that was actually meant for her."
@@ -26,7 +26,7 @@
     "taunts": [
       "Do you know what your children are listening to? I do. I listen to it backward.",
       "Rules are love, sweetie. Rules are love.",
-      ".nraw ot gniyrt saw ehS .ruoy ot gninetsil m'I",
+      ".uoy nraw ot gniyrt saw ehS .uoy ot gninetsil m'I",
       "It isn't the fire that's hungry, dear. It's you. Keep being afraid for me."
     ],
     "clues": [
@@ -123,7 +123,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Iggy wipes his forehead with a bandana. \"Phobophage. Old Latin, fancy word for fear-eater. It shows up wherever folks start burning things to feel safe.\" He taps a line of the text. \"It can't abide laughter, or a song played for love. Perfect love casts out fear. First John, chapter four.\" He grins. \"Prudence got the verse right. She just read it backward.\"",
+                "text": "Iggy wipes his forehead with a bandana. \"Phobophage. Old Greek by way of Latin, fancy word for fear-eater. It shows up wherever folks start burning things to feel safe.\" He taps a line of the text. \"It can't abide laughter, or a song played for love. Perfect love casts out fear. First John, chapter four.\" He grins. \"Prudence got the verse right. She just read it backward.\"",
                 "art": "A young priest in a clerical collar and a band t-shirt pointing to a line in an ancient book on an amplifier, a teenager reading over his shoulder, guitars leaning on bingo tables",
                 "effects": {
                   "clues": ["prudence-thorn-phobophage"],
@@ -185,7 +185,7 @@
               "skill": "charm",
               "target": 9,
               "success": {
-                "text": "\"Gideon Thorn. Best voice in the county, sixteen years old.\" Rhonda lifts the glass. \"We pressed a hundred copies of Come Find Me. His mother bought ninety-nine at the drugstore and burned them on her patio. He left a week later.\" She hands you the last one. \"He runs a guitar shop up in Eureka now. Sends her a postcard every Christmas. They come back unopened.\"",
+                "text": "\"Gideon Thorn. Best voice in the county, sixteen years old.\" Rhonda lifts the glass. \"We pressed a hundred copies of Come Find Me. His mother bought ninety-nine at the drugstore and burned them on her patio. He left a week later.\" She hands you the last one. \"He runs a guitar shop up in Eureka now. Sends her a postcard every Christmas. She keeps them in a shoebox, unopened.\"",
                 "art": "A gray-braided record store owner lifting a glass case to hand a teenager a single with a hand-drawn sleeve, a faded band photo of a teenage singer pinned on the wall behind her",
                 "effects": {
                   "clues": ["prudence-thorn-come-find-me"],
@@ -330,7 +330,7 @@
         "act": 2,
         "title": "Play It Backward",
         "place": "Every house on Crystal Street, midnight",
-        "text": "At midnight every turntable, tape deck and Walkman on Crystal Street starts playing backward at once. Under the warble, a smoky voice is saying something to each listener alone. In house after house, lights snap on and parents start locking their kids in their rooms \"for their own protection.\" Your own door clicks shut. Through the wall you hear your boombox whisper your name in reverse.",
+        "text": "At midnight every turntable, tape deck and headphone stereo on Crystal Street starts playing backward at once. Under the warble, a smoky voice is saying something to each listener alone. In house after house, lights snap on and parents start locking their kids in their rooms \"for their own protection.\" Your own door clicks shut. Through the wall you hear your boombox whisper your name in reverse.",
         "art": "A cutaway view of suburban houses at midnight with turntables and cassette decks glowing red and playing backward in every room, parents locking bedroom doors, smoky backward letters curling out of speakers",
         "choices": [
           {
@@ -394,7 +394,7 @@
         "act": 1,
         "title": "Hallelujah House",
         "place": "The Lamplight Fellowship on Route 9, 9 p.m.",
-        "text": "The Lamplight Fellowship has turned its old carpet showroom into a Hallelujah House, a walk-through scare tour of the Dangers Facing Today's Teens. Room one: a boy in a cape is dragged off by a man in a red devil suit for playing Caverns and Chimeras. Room two: a girl with a Walkman loses her soul to a fog machine. But in room three the fog machine is unplugged and the fog is still rising, the actor in the devil suit is screaming for real, and something made of smoke and melted vinyl is climbing out of the prop record crate, grinning.",
+        "text": "The Lamplight Fellowship has turned its old carpet showroom into a Hallelujah House, a walk-through scare tour of the Dangers Facing Today's Teens. Room one: a boy in a cape is dragged off by a man in a red devil suit for playing Caverns and Chimeras. Room two: a girl with headphones loses her soul to a fog machine. But in room three the fog machine is unplugged and the fog is still rising, the actor in the devil suit is screaming for real, and something made of smoke and melted vinyl is climbing out of the prop record crate, grinning.",
         "art": "A church scare walk-through built of plywood rooms inside an old carpet showroom, red gel lights and fog, a terrified actor in a cheap red devil costume backing away from a grinning creature of smoke and melted vinyl rising from a crate of records",
         "choices": [
           {
@@ -408,7 +408,7 @@
               "amount": 2
             },
             "success": {
-              "text": "\"Ooh, not the TWENTY-SIDED DIE!\" you wail at room one, and the tour group cracks up. You do commentary on every room: the fog, the Walkman, the moment the actor's tail falls off. Parents who came in clutching their kids are laughing by room three, and the smoke-thing deflates like a whoopee cushion and slithers back into its crate.",
+              "text": "\"Ooh, not the TWENTY-SIDED DIE!\" you wail at room one, and the tour group cracks up. You do commentary on every room: the fog, the headphones, the moment the actor's tail falls off. Parents who came in clutching their kids are laughing by room three, and the smoke-thing deflates like a whoopee cushion and slithers back into its crate.",
               "art": "A teenager cupping their hands and heckling inside a red-lit plywood scare room, a tour group of parents and kids laughing, a creature of smoke and vinyl shrinking back into a crate of records",
               "effects": {
                 "nerve": 1,
@@ -441,7 +441,7 @@
               }
             },
             "failure": {
-              "text": "You trip over a fog-machine cord and land in the room-two set, where a man with a clipboard mistakes you for the next actor. Before you can explain, you've been handed a Walkman, shoved into a spotlight and told to lose your soul convincingly. You do it for forty minutes, for three tour groups.",
+              "text": "You trip over a fog-machine cord and land in the room-two set, where a man with a clipboard mistakes you for the next actor. Before you can explain, you've been handed a headphone stereo, shoved into a spotlight and told to lose your soul convincingly. You do it for forty minutes, for three tour groups.",
               "art": "A bewildered teenager in a spotlight holding a portable cassette player on a fog-filled plywood stage set, a man with a clipboard gesturing from the side, tour groups watching",
               "effects": {
                 "nerve": -1,
@@ -484,9 +484,9 @@
       {
         "id": "prudence-thorn-game-night-raid",
         "act": 2,
-        "title": "Deliver Us From Dungeons",
+        "title": "Deliver Us From Caverns",
         "place": "A Caverns and Chimeras game in the Ramans' basement, 10 p.m.",
-        "text": "You're three hours into Priya's Caverns and Chimeras campaign when the doorbell rings. It's Mrs. Kettering from the Concerned Parents, with a Polaroid camera, a pamphlet titled Is Your Child Playing With Demons? and four more worried parents behind her, here to rescue you all from the game. Their fear rolls down the basement stairs like cold air. On the battle map, the little pewter minotaur stands up on its own, stretches, and starts to grow.",
+        "text": "You're three hours into Priya's Caverns and Chimeras campaign when the doorbell rings. It's Mrs. Kettering from the Concerned Parents, with an instant camera, a pamphlet titled Is Your Child Playing With Demons? and four more worried parents behind her, here to rescue you all from the game. Their fear rolls down the basement stairs like cold air. On the battle map, the little pewter minotaur stands up on its own, stretches, and starts to grow.",
         "art": "A cozy wood-paneled basement game night with teens around a table of dice and hand-drawn maps, worried parents crowding the stairs with a camera, a pewter minotaur figurine on the map swelling huge and smoky",
         "choices": [
           {
@@ -759,7 +759,7 @@
               }
             },
             "failure": {
-              "text": "You sticker the flamingo, and somehow the flamingo stickers you back. By dawn there's an orange warning on your forehead, your Walkman and your bedroom door, and your mom has started reading the fine print.",
+              "text": "You sticker the flamingo, and somehow the flamingo stickers you back. By dawn there's an orange warning on your forehead, your headphones and your bedroom door, and your mom has started reading the fine print.",
               "art": "A teenager in pajamas with a bright orange warning sticker on their forehead staring at a stickered bedroom door, a worried parent squinting closely at a sticker, pale dawn light",
               "effects": {
                 "nerve": -1,
@@ -812,7 +812,7 @@
               }
             },
             "failure": {
-              "text": "The sticker tears in half and half of it stays. Teo bursts into tears, his mom comes out and takes the lunchbox away just to be safe, and the smoke above your porch thickens.",
+              "text": "The sticker tears in half and half of it stays. Teo bursts into tears, a grown-up in a bathrobe comes out and takes the lunchbox away just to be safe, and the smoke above your porch thickens.",
               "art": "A tired parent in a bathrobe carrying away a cartoon lunchbox with a torn orange sticker, a small boy crying on porch steps, a teenager holding a scrap of sticker, smoke thickening overhead",
               "effects": {
                 "nerve": -1,
@@ -827,7 +827,7 @@
         "act": 2,
         "title": "The Lock-In",
         "place": "The Lamplight Fellowship youth lock-in, 2 a.m.",
-        "text": "After a Concerned Parents pamphlet landed on every porch in town, your parents signed you up for the Lamplight Fellowship's Halloween-alternative youth lock-in, so here you are in a sleeping bag on the old carpet-showroom floor. At the door a volunteer confiscated every Walkman, comic and cassette into a laundry basket, for safekeeping. At 2 a.m. the basket starts to smoke. The confiscated tapes are unspooling into a shape with horns and a grin, the youth group kids are pressed against the locked glass doors, and their chaperone, Mrs. Kettering, is screaming that this is exactly what she warned everyone about. The shape grows with every scream.",
+        "text": "After a Concerned Parents pamphlet landed on every porch in town, your parents signed you up for the Lamplight Fellowship's Halloween-alternative youth lock-in, so here you are in a sleeping bag on the old carpet-showroom floor. At the door a volunteer confiscated every tape player, comic and cassette into a laundry basket, for safekeeping. At 2 a.m. the basket starts to smoke. The confiscated tapes are unspooling into a shape with horns and a grin, the youth group kids are pressed against the locked glass doors, and their chaperone, Mrs. Kettering, is screaming that this is exactly what she warned everyone about. The shape grows with every scream.",
         "art": "A converted carpet showroom at night full of sleeping bags and frightened teens, a laundry basket of confiscated cassettes and comics billowing smoke into a horned grinning shape, a chaperone shrieking by locked glass doors",
         "choices": [
           {
@@ -865,8 +865,8 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "You belly-crawl past Mrs. Kettering and pull Walkmans out of the smoke one by one, sliding each back to its owner across the carpet. Kids clutch their tapes, press play and slip on their headphones, and the basket stops smoking. The music was never the fuel. The fear of it was.",
-              "art": "A teenager belly-crawling across a showroom carpet sliding Walkmans back to teens in sleeping bags, kids putting on headphones with relieved smiles, a laundry basket smoking less and less",
+              "text": "You belly-crawl past Mrs. Kettering and pull tape players out of the smoke one by one, sliding each back to its owner across the carpet. Kids clutch their tapes, press play and slip on their headphones, and the basket stops smoking. The music was never the fuel. The fear of it was.",
+              "art": "A teenager belly-crawling across a showroom carpet sliding tape players back to teens in sleeping bags, kids putting on headphones with relieved smiles, a laundry basket smoking less and less",
               "effects": {
                 "nerve": 1,
                 "skills": {
@@ -875,8 +875,8 @@
               }
             },
             "failure": {
-              "text": "Mrs. Kettering catches you with an armful of Walkmans and shrieks \"THIEF!\" so loudly that the smoke-shape practically purrs. You spend the rest of the lock-in shut in the folding-chair storage room, listening to it grow.",
-              "art": "A shrieking chaperone pointing at a teenager holding an armful of Walkmans, a horned smoke shape swelling behind her, teens in sleeping bags ducking for cover",
+              "text": "Mrs. Kettering catches you with an armful of tape players and shrieks \"THIEF!\" so loudly that the smoke-shape practically purrs. You spend the rest of the lock-in shut in the folding-chair storage room, listening to it grow.",
+              "art": "A shrieking chaperone pointing at a teenager holding an armful of tape players, a horned smoke shape swelling behind her, teens in sleeping bags ducking for cover",
               "effects": {
                 "nerve": -1,
                 "dread": 1,
@@ -892,7 +892,7 @@
             "target": 9,
             "success": {
               "text": "Prudence is alone in her dark office, holding an old record sleeve she shoves into a drawer the second you walk in. You tell her the kids are scared and the doors are locked, and something in her face changes at the word kids. She unlocks every door herself, the youth group spills out under the stars, and the shape, robbed of its audience, unravels into loose tape.",
-              "art": "A tense pastor in a cardigan unlocking glass doors as teens in pajamas pour out into a starry parking lot, a smoke shape unraveling into loose ribbons of cassette tape behind them",
+              "art": "A tense pastor in a lavender pantsuit unlocking glass doors as teens in pajamas pour out into a starry parking lot, a smoke shape unraveling into loose ribbons of cassette tape behind them",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -1049,7 +1049,7 @@
             "amount": 2
           },
           "success": {
-            "text": "You run a speaker off Joey's van battery and play the demon's whisper forward. It is just the crowd's own fears, mumbled back: my kids are growing up, I don't understand them, what if they leave. Backmask hears itself with nothing behind it and, like any echo, gets fainter and fainter until it is only smoke.",
+            "text": "You run a speaker off Wade's van battery and play the demon's whisper forward. It is just the crowd's own fears, mumbled back: my kids are growing up, I don't understand them, what if they leave. Backmask hears itself with nothing behind it and, like any echo, gets fainter and fainter until it is only smoke.",
             "art": "A speaker wired to a van battery blasting sound at a towering smoke demon that is fading into wisps, parents listening to their own fears and looking at their kids",
             "effects": {
               "nerve": 1
@@ -1106,7 +1106,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You learned it the very first week, with the bullhorn, the work lights and the orange stickers: Backmask can't eat a laugh. So you grab Prudence's bullhorn and host the demon like a midnight movie. \"Ooh, terrifying, a chest made of easy-listening records! Hairdo by a VCR that ate the tape!\" The crew howls. Then a dad snorts, then a mom, then the whole roundabout is laughing, and Backmask shrinks with every giggle, thirty feet, ten, the size of a lawn flamingo, and finally a puff of smoke that smells like a burnt album sleeve. Prudence stares at the laughing crowd as if she has never heard the sound before.",
+            "text": "You learned it the very first week: Backmask can't eat a laugh. So you grab Prudence's bullhorn and host the demon like a midnight movie. \"Ooh, terrifying, a chest made of easy-listening records! Hairdo by a VCR that ate the tape!\" The crew howls. Then a dad snorts, then a mom, then the whole roundabout is laughing, and Backmask shrinks with every giggle, thirty feet, ten, the size of a lawn flamingo, and finally a puff of smoke that smells like a burnt album sleeve. Prudence stares at the laughing crowd as if she has never heard the sound before.",
             "art": "A teenager in a Halloween costume hosting into a bullhorn beside a bonfire, a crowd of parents doubled over laughing, a smoke demon shrunk to the size of a lawn flamingo, a stunned pastor clutching a Bible",
             "effects": {
               "nerve": 1
@@ -1135,7 +1135,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You've stood your ground before, the week the fear came into your own house, down the basement stairs and through the lock-in doors. So you lock arms with the crew between the crowd and the fire and say it together, loud: \"We are not afraid of you.\" Backmask lunges and finds nothing to eat. It lunges again, smaller. Then you break the line, grab rakes and shovels and drag the burning pile apart into the wet grass, ember by ember, until the demon is a puddle of steam and soggy album covers and the Concerned Parents are blinking at their kids through the drifting smoke.",
+            "text": "You've stood your ground before, midweek, when the fear came indoors after you. So you lock arms with the crew between the crowd and the fire and say it together, loud: \"We are not afraid of you.\" Backmask lunges and finds nothing to eat. It lunges again, smaller. Then you break the line, grab rakes and shovels and drag the burning pile apart into the wet grass, ember by ember, until the demon is a puddle of steam and soggy album covers and the Concerned Parents are blinking at their kids through the drifting smoke.",
             "art": "A teen crew in Halloween costumes raking a huge bonfire apart into wet grass, a smoke demon with videotape hair recoiling and shrinking, startled parents standing in drifting steam",
             "effects": {
               "nerve": 1
@@ -1152,7 +1152,7 @@
         {
           "id": "edge-3",
           "approach": "heart",
-          "label": "Ask Prudence the question you asked the town that last night, what she's really afraid of, then play the record",
+          "label": "Ask Prudence what she's really afraid of, the question the last nights taught you to ask, then play the record",
           "intent": "kind",
           "skill": "charm",
           "target": 7,
@@ -1165,7 +1165,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You kneel beside her in the grass. The night before Halloween you asked this town what it was afraid of, and nobody said the devil. \"Your whole town told me what scares them,\" you say. \"What scares you, Pastor Thorn? Really.\" She looks at the fire a long time. \"That he left because of me,\" she whispers. So you show her the form she signed in 1972 and the page about the fear-eater, set a battery record player in the grass and play Come Find Me. She knows her son's voice from the first note. When the song ends you spin it backward, and a boy says, Mom. I'm okay. Come find me. Prudence makes a sound like something breaking open. She is not afraid now, only sad and missing him, and Backmask has nothing left to eat.",
+            "text": "You kneel beside her in the grass. The last nights of the week taught you that when frightened people say what they are really afraid of, nobody says the devil. \"I've heard what scares this town,\" you say. \"What scares you, Pastor Thorn? Really.\" She looks at the fire a long time. \"That he left because of me,\" she whispers. So you show her the form she signed in 1972 and the page about the fear-eater, set a battery record player in the grass and play Come Find Me. She knows her son's voice from the first note. When the song ends you spin it backward, and a boy says, Mom. I'm okay. Come find me. Prudence makes a sound like something breaking open. She is not afraid now, only sad and missing him, and Backmask has nothing left to eat.",
             "art": "A teenager in a Halloween costume kneeling in the grass beside a weeping pastor, a battery record player spinning a single vinyl record between them, a smoke demon fading into wisps above a dying bonfire",
             "effects": {
               "nerve": 2
@@ -1173,7 +1173,7 @@
           },
           "failure": {
             "text": "She opens her mouth to answer, a parent screams, and she shuts it again. \"I'm afraid of that,\" she says, pointing at the demon, and covers her ears. She isn't ready to hear it yet.",
-            "art": "A pastor in a cardigan kneeling with her hands over her ears before a towering bonfire, a teenager holding out a vinyl record, a smoke demon roaring above the crowd",
+            "art": "A pastor in a lavender pantsuit kneeling with her hands over her ears before a towering bonfire, a teenager holding out a vinyl record, a smoke demon roaring above the crowd",
             "effects": {
               "nerve": -2
             }

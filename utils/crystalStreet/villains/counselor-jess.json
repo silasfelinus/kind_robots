@@ -20,9 +20,9 @@
       "title": "Neglect, and blaming the girls",
       "summary": "Jess was not a cautionary tale, and the girl on the dock was not the reason she drowned. A grown-up left kids in charge of kids, then blamed a sixteen-year-old girl for being boy-crazy, and the town has been warning its daughters ever since while forgetting the drowned girl's name. Jess rages at every teen who looks away, and she wears the mask the town handed her, but what she never had was someone who would get in the water with her. Find her swim card, hear Judy's side and learn what her mother wrote, then say her name and teach her she is not alone in the water."
     },
-    "poster": "A towering, muscular adult woman with long dark wavy hair streaming lake water, pulling a cracked, scarred hockey-style mask over her face with one hand, wearing a torn sleeveless dark navy lace-up dress cinched with a leather belt, stitched scars along her arms and thigh, a big gleaming machete in her other hand, standing in tall reeds on a moonlit lakeshore beside a wooden dock, teens skinny-dipping in the silver water behind her, a lit cabin across the lake, a cooler, folding chairs, an inner tube and scattered clothes on the grass, a full moon over dark pines",
-    "portrait": "Close portrait of a towering, muscular woman lifting a cracked, scarred hockey-style mask off her face to reveal wide, hurt eyes much younger than the rest of her, freckles on lake-pale skin, long dark wavy hair dripping water, a torn sleeveless dark navy lace-up dress, stitched scars across her bare shoulders, lit by moonlight and a teal glow from the water below",
-    "endingPhoto": "A towering, muscular woman with long wet dark hair pulling a cracked, scarred lake-rescue mask over her face at the edge of a moonlit lake, torn navy lace-up dress and leather belt, a machete low at her side, skinny-dipping teens splashing away toward the dock behind her, coolers, towels and a folding chair scattered across the shore, pines and a cabin under a huge moon",
+    "poster": "A towering, muscular adult woman with long dark wavy hair streaming lake water, pulling a cracked hockey-style mask over her face with one hand, wearing a soaked, torn, high-necked navy camp-staff dress with short sleeves and a tin whistle on a lanyard, a dull rusty machete held low and pointed at the ground in her other hand, standing in tall reeds on a moonlit lakeshore beside a wooden dock, an empty swim raft on the silver water, a lit cabin across the lake, a cooler, folding chairs, an inner tube and towels on the grass, a full moon over dark pines",
+    "portrait": "Close portrait of a towering, muscular woman lifting a cracked hockey-style mask off her face to reveal wide, hurt eyes much younger than the rest of her, freckles on lake-pale skin, long dark wavy hair dripping water, a soaked high-necked navy camp-staff dress with a tin whistle on a lanyard, lit by moonlight and a teal glow from the water below",
+    "endingPhoto": "A towering, muscular woman with long wet dark hair pulling a cracked hockey-style mask over her face at the edge of a moonlit lake, a soaked high-necked navy camp-staff dress and a tin whistle on a lanyard, a dull rusty machete pointed at the ground, teens in pajamas and sweatshirts fleeing up the shore toward a lit cabin, coolers, towels and a folding chair scattered across the grass, pines under a huge moon",
     "taunts": [
       "NO RUNNING!",
       "Buddy check! Where's your buddy? Nobody? Figures.",
@@ -235,8 +235,8 @@
         "act": 1,
         "title": "Lights Out!",
         "place": "Crystal Street, which is a lakeshore after curfew",
-        "text": "At midnight the storm drains on Crystal Street start running backward. By the time you reach the porch the cul-de-sac is gone: in its place lies a moonlit lakeshore, cattails where the lawns were, a wooden dock where the Delgados' driveway used to be, and a lit cabin across black water where the roundabout should be. Somebody's folding chairs and a cooler sit abandoned on the grass beside an inner tube. Then the whistle: one long blast. A woman seven feet tall wades out of the shallows, long dark hair streaming, torn navy dress clinging, a machete gleaming at her side. She pulls a cracked hockey mask down over her face. \"LIGHTS OUT WAS AN HOUR AGO!\" Her voice cracks on the last word like a twelve-year-old's. \"Buddy check! Where's your buddy?\"",
-        "art": "A moonlit lakeshore where a suburban cul-de-sac should be, a wooden dock, a lit cabin across black water, folding chairs, a cooler and an inner tube on the grass, a towering muscular woman in a torn navy lace-up dress wading out of the shallows pulling a cracked hockey mask over her face, a gleaming machete at her side",
+        "text": "At midnight the storm drains on Crystal Street start running backward. By the time you reach the porch the cul-de-sac is gone: in its place lies a moonlit lakeshore, cattails where the lawns were, a wooden dock where the Delgados' driveway used to be, and a lit cabin across black water where the roundabout should be. Somebody's folding chairs and a cooler sit abandoned on the grass beside an inner tube. Then the whistle: one long blast. A woman seven feet tall wades out of the shallows, long dark hair streaming, torn navy dress dripping, a machete gleaming at her side. She pulls a cracked hockey mask down over her face. \"LIGHTS OUT WAS AN HOUR AGO!\" Her voice cracks on the last word like a twelve-year-old's. \"Buddy check! Where's your buddy?\"",
+        "art": "A moonlit lakeshore where a suburban cul-de-sac should be, a wooden dock, a lit cabin across black water, folding chairs, a cooler and an inner tube on the grass, a towering muscular woman in a torn high-necked navy dress wading out of the shallows pulling a cracked hockey mask over her face, a gleaming machete at her side",
         "choices": [
           {
             "id": "buddy-up",
@@ -757,7 +757,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "You scramble up, grab the whistle and blow one long blast: everybody out. Danny freezes on the ladder and climbs back down. In the water, the tall shape stops and tilts its head back, and through the black water you see a cracked hockey mask looking up at you, sitting where a grown-up should have been. It turns and walks away into the deep end, and the pool drains like a long sigh.",
+              "text": "You scramble up, grab the whistle and blow three short blasts: everybody out. Danny freezes on the ladder and climbs back down. In the water, the tall shape stops and tilts its head back, and through the black water you see a cracked hockey mask looking up at you, sitting where a grown-up should have been. It turns and walks away into the deep end, and the pool drains like a long sigh.",
               "art": "A teenager perched in a tall lifeguard chair blowing a tin whistle under the moon, a cracked hockey mask gazing up from beneath black pool water, a boy climbing down a high dive ladder",
               "effects": {
                 "nerve": 1,
@@ -812,7 +812,7 @@
               }
             },
             "failure": {
-              "text": "The tarp slips out of your hands and sinks slowly into the black water. A hand pushes it back up and flings it onto the deck with a wet slap. Then a whistle blows from somewhere under the surface: one long blast, which means get out.",
+              "text": "The tarp slips out of your hands and sinks slowly into the black water. A hand pushes it back up and flings it onto the deck with a wet slap. Then a whistle blows from somewhere under the surface: three short blasts, which means get out.",
               "art": "A soaked blue tarp flung onto a pool deck with a splash, a long scarred arm sinking back into black water, teenagers scrambling backward under the moon",
               "effects": {
                 "nerve": -2
@@ -864,8 +864,8 @@
             "skill": "brawn",
             "target": 9,
             "success": {
-              "text": "That warning has hung by the gym doors since 1958. You climb the folded bleachers, grab a corner and rip it down the middle with a sound like a slap. The filmstrip sputters, and the water stops at your ankles. Up under the scoreboard, Jess stands up very slowly, and through the cracked mask you think you see the corner of a smile.",
-              "art": "A teenager on folded bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering masked figure rising slowly under the scoreboard",
+              "text": "That warning has hung by the gym doors since 1958. You climb the end of the bleachers, grab a corner and rip it down the middle with a sound like a slap. The filmstrip sputters, and the water stops at your ankles. Up under the scoreboard, Jess stands up very slowly, and through the cracked mask you think you see the corner of a smile.",
+              "art": "A teenager at the end of the bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering masked figure rising slowly under the scoreboard",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -1004,7 +1004,7 @@
       "title": "The Last Night Swim",
       "place": "Crystal Springs lake, which is Crystal Street, Halloween night",
       "text": "On Halloween night the lake comes all the way back. Moonlight pours over black water lapping at the porch roofs of Crystal Street, jack-o'-lanterns bob past a drifting cooler and a tangle of folding chairs, and the old raft rides over the drowned Heartstone, glowing purple from below. Every teen in Glimmer Falls is treading water around it in their Halloween costumes, too cold to scream. Jess stands on the raft, mask down, machete raised to the moon. \"Nobody watched me,\" she says, and her voice is twelve years old. \"Nobody even says my name. They just tell girls to keep their eyes off the boys. So nobody gets out of the water. Not until somebody watches.\"",
-      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn navy lace-up dress and cracked hockey mask standing on it with a machete raised, teens in Halloween costumes treading water around her",
+      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn high-necked navy dress and cracked hockey mask standing on it with a machete raised, teens in Halloween costumes treading water around her",
       "choices": [
         {
           "id": "fight",
@@ -1099,7 +1099,7 @@
             "flag": "edge-1"
           },
           "success": {
-            "text": "That first week taught you that Jess cannot ignore a camp rule, any more than she can stop being twelve. So you cup your hands and bellow across the black water, \"BUDDY CHECK!\" Every teen in the lake grabs a hand and holds it high, pairs and pairs and pairs, and Jess has to count them, porch by porch and raft by raft, mask pushed up so she can see. When she finishes, nobody is missing, and the girl nobody counted lowers her machete, blows one soft blast that means swim's over, and wades away into the dark as the water drains after her.",
+            "text": "That first week taught you that Jess cannot ignore a camp rule, any more than she can stop being twelve. So you cup your hands and bellow across the black water, \"BUDDY CHECK!\" Every teen in the lake grabs a hand and holds it high, pairs and pairs and pairs, and Jess has to count them, porch by porch and raft by raft, mask pushed up so she can see. When she finishes, nobody is missing, and the girl nobody counted lowers her machete, blows three soft blasts that mean swim's over, and wades away into the dark as the water drains after her.",
             "art": "Dozens of costumed teenagers treading moonlit water and holding joined hands high in pairs, a towering woman in a torn navy dress on a raft counting them with her hockey mask pushed up, porch roofs poking above the lake",
             "effects": {
               "nerve": 1
@@ -1192,7 +1192,7 @@
       },
       "bad": {
         "title": "Swim Lessons",
-        "text": "The lake drains away at dawn and takes you with it. Every Halloween after, when the storm drains run backward and the moonlit water rises over Crystal Street, your crew sees you under the surface: in a faded staff t-shirt with a tin whistle, standing beside a towering woman in a cracked hockey mask, lining up teenagers who are not watching each other. You look like you are blowing your whistle. Nobody can hear it.",
+        "text": "The lake drains away at dawn and takes you with it, not drowned but Taken, down into a night swim that never ends. Every Halloween after, when the storm drains run backward and the moonlit water rises over Crystal Street, your crew sees you under the surface: in a faded staff t-shirt with a tin whistle, standing beside a towering woman in a cracked hockey mask, lining up teenagers who are not watching each other. You look like you are blowing your whistle. Nobody can hear it.",
         "art": "Black moonlit floodwater over a suburban street with the faint underwater figures of a teen in a camp staff t-shirt with a tin whistle standing beside a towering masked woman in a torn navy dress, worried friends peering down from a porch roof"
       }
     }

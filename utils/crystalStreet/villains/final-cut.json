@@ -54,7 +54,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "\"I know how every monster movie ends,\" Zelda says. \"That one ended wrong.\" She pries out a folded call sheet: DAY 23, SC. 88, DAWN, ALL CAMPERS EXIT THE WOODS. Top of the cast list: Celeste Navarro, Nurse Robin (LEAD). The movie on the tape has no Nurse Robin in it at all.",
+                "text": "\"I know how every monster movie ends,\" Zelda says. \"That one ended wrong.\" She pries out a folded call sheet: DAY 23, SC. 88, DAWN, ALL CAMPERS EXIT THE WOODS. Top of the cast list: Celeste Navarro, Nurse Robin (LEAD). In the movie on the tape, Nurse Robin never leads anyone out of the woods.",
                 "art": "A silver-haired woman at a video store counter unfolding a yellowed 1980 film call sheet under a desk lamp, a teenager leaning in beside her, horror tapes stacked all around",
                 "effects": {
                   "clues": ["final-cut-call-sheet"],
@@ -807,12 +807,12 @@
         "act": 1,
         "title": "You're All Doomed",
         "place": "The Gas-N-Go on Quarry Road, 11 p.m.",
-        "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Abernathy from the hardware store lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
+        "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Hensley from the bowling alley lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
         "art": "A wild-eyed old man in a trucker cap gripping a teenager's sleeve beside glowing gas pumps at night, a chalk slate hovering under the fluorescent canopy, moths circling the lights, an ice machine humming, a station wagon parked at the pump",
         "choices": [
           {
             "id": "ask-his-line",
-            "label": "Ask Mr. Abernathy what he would actually say to you",
+            "label": "Ask Mr. Hensley what he would actually say to you",
             "intent": "kind",
             "skill": "charm",
             "target": 7,
@@ -867,7 +867,7 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "\"DOOMED?\" you wail, dropping to your knees by the pumps. \"Doomed by the curse of the Gas-N-Go hot dogs?\" The night clerk laughs so hard he snorts, Mr. Abernathy cackles, a real laugh, and the chalk slate cracks like a dropped plate. He presses two quarters into your hand for the air pump.",
+              "text": "\"DOOMED?\" you wail, dropping to your knees by the pumps. \"Doomed by the curse of the Gas-N-Go hot dogs?\" The night clerk laughs so hard he snorts, Mr. Hensley cackles, a real laugh, and the chalk slate cracks like a dropped plate. He presses two quarters into your hand for the air pump.",
               "art": "A teenager dramatically kneeling by a gas pump with arms flung wide at night, an old man in a trucker cap cackling, a clerk laughing in the shop doorway, a chalk slate cracking apart in midair",
               "effects": {
                 "nerve": 1,
@@ -875,7 +875,7 @@
               }
             },
             "failure": {
-              "text": "You overdo it, and the slate loves it. A boom mic drops into view over the ice machine, a spotlight snaps on, and you and Mr. Abernathy play the scene again and again, each take hammier, until sunrise finally sets you both free.",
+              "text": "You overdo it, and the slate loves it. A boom mic drops into view over the ice machine, a spotlight snaps on, and you and Mr. Hensley play the scene again and again, each take hammier, until sunrise finally sets you both free.",
               "art": "A teenager and an old man in a trucker cap overacting under a hard white spotlight at a gas station at night, a boom microphone dangling above an ice machine, a glowing chalk slate",
               "effects": {
                 "nerve": -2
@@ -889,12 +889,12 @@
         "act": 2,
         "title": "Lovers' Lane",
         "place": "Glimmer Point overlook, midnight",
-        "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Camaro and watching the town lights, the way they do every Friday when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Camaro. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
-        "art": "A cherry-red Camaro parked at a hilltop overlook at midnight with two teenage girls sharing a milkshake inside, a glittering valley of town lights below, a hard white spotlight beam stabbing down onto the car from the sky",
+        "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Thunderjet and watching the town lights, the way they do every Friday when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Thunderjet. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
+        "art": "A cherry-red 1970s muscle car parked at a hilltop overlook at midnight with two teenage girls sharing a milkshake inside, a glittering valley of town lights below, a hard white spotlight beam stabbing down onto the car from the sky",
         "choices": [
           {
             "id": "dedicate-a-song",
-            "label": "Call KGLM from the pay phone and dedicate a love song to the Camaro",
+            "label": "Call KGLM from the pay phone and dedicate a love song to the Thunderjet",
             "intent": "camp",
             "skill": "charm",
             "target": 9,
@@ -904,7 +904,7 @@
             },
             "success": {
               "text": "You sprint to the pay phone, and Mix puts you straight on the air: \"This one goes out to the best couple on Glimmer Point, from all of us.\" The bulletin chokes off mid-word, the slow song swells back, and half the town hears the dedication. Denise and Lorna laugh so hard they spill the milkshake, and the spotlight slinks away like it got caught.",
-              "art": "A teenager shouting happily into a roadside pay phone at night, a red Camaro nearby with two girls laughing inside and a spilled milkshake, a spotlight beam retreating into the sky, town lights twinkling below",
+              "art": "A teenager shouting happily into a roadside pay phone at night, a red 1970s muscle car nearby with two girls laughing inside and a spilled milkshake, a spotlight beam retreating into the sky, town lights twinkling below",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -912,8 +912,8 @@
               }
             },
             "failure": {
-              "text": "The pay phone plays you the hook bulletin too, in the same flat voice, and then the line goes dead. By the time you run back, the Camaro's windows are fogged with chalk dust and both girls sit frozen, staring straight ahead, waiting for a scratch on the roof. It takes the rest of the night to snap them out of it.",
-              "art": "A red Camaro with chalk-fogged windows at a midnight overlook, two frozen teenage girls staring ahead inside, a teenager running back from a pay phone, a hard spotlight pinning the car",
+              "text": "The pay phone plays you the hook bulletin too, in the same flat voice, and then the line goes dead. By the time you run back, the Thunderjet's windows are fogged with chalk dust and both girls sit frozen, staring straight ahead, waiting for a scratch on the roof. It takes the rest of the night to snap them out of it.",
+              "art": "A red 1970s muscle car with chalk-fogged windows at a midnight overlook, two frozen teenage girls staring ahead inside, a teenager running back from a pay phone, a hard spotlight pinning the car",
               "effects": {
                 "nerve": -1,
                 "dread": 1
@@ -928,7 +928,7 @@
             "target": 9,
             "success": {
               "text": "You knock, wave and say, \"It's just me. The radio is lying.\" Denise rolls down the window, Lorna shines a flashlight past you into the trees, and the three of you stand guard at the guardrail until the bulletin gives up. On the bumper you find a rubber hook from a costume shop, which is somehow the funniest thing all week.",
-              "art": "Three teenagers standing guard at a hilltop guardrail at night beside a red Camaro, one sweeping a flashlight into dark pine trees, a rubber costume hook dangling from the bumper, town lights glowing below",
+              "art": "Three teenagers standing guard at a hilltop guardrail at night beside a red 1970s muscle car, one sweeping a flashlight into dark pine trees, a rubber costume hook dangling from the bumper, town lights glowing below",
               "effects": {
                 "nerve": 1,
                 "skills": {
@@ -937,8 +937,8 @@
               }
             },
             "failure": {
-              "text": "Your knuckles hit the glass at the exact moment the radio says \"hook.\" Both girls scream, you scream, and so does something in the trees that is definitely not you. The Camaro peels out with you on the hood for twenty terrifying feet before you roll off into the gravel.",
-              "art": "A teenager clinging to the hood of a speeding red Camaro on a gravel overlook at night, two screaming girls behind the windshield, a spotlight swinging through dark pines, dust spraying from the tires",
+              "text": "Your knuckles hit the glass at the exact moment the radio says \"hook.\" Both girls scream, you scream, and so does something in the trees that is definitely not you. The Thunderjet peels out with you on the hood for twenty terrifying feet before you roll off into the gravel.",
+              "art": "A teenager clinging to the hood of a speeding red 1970s muscle car on a gravel overlook at night, two screaming girls behind the windshield, a spotlight swinging through dark pines, dust spraying from the tires",
               "effects": {
                 "nerve": -2,
                 "dread": 1,
@@ -953,16 +953,16 @@
             "skill": "lore",
             "target": 9,
             "success": {
-              "text": "\"In every version, the couple drives away and lives,\" you shout. \"Start the car!\" Lorna turns the key, Denise floors it, and the Camaro roars down the mountain with you in the back seat, honking all the way. Behind you, the spotlight sweeps an empty overlook, hunting for an ending it is not going to get.",
-              "art": "A red Camaro roaring down a winding mountain road at night with three laughing teens inside, headlights blazing, a lonely spotlight sweeping across a deserted hilltop overlook behind them",
+              "text": "\"In every version, the couple drives away and lives,\" you shout. \"Start the car!\" Lorna turns the key, Denise floors it, and the Thunderjet roars down the mountain with you in the back seat, honking all the way. Behind you, the spotlight sweeps an empty overlook, hunting for an ending it is not going to get.",
+              "art": "A red 1970s muscle car roaring down a winding mountain road at night with three laughing teens inside, headlights blazing, a lonely spotlight sweeping across a deserted hilltop overlook behind them",
               "effects": {
                 "nerve": 1,
                 "dread": -1
               }
             },
             "failure": {
-              "text": "You start the legend, and the reel finishes it in your mouth: \"...and when they got home, there was a hook hanging from the door handle.\" Everybody screams, nobody drives, and the spotlight holds on the Camaro until dawn while the three of you huddle inside with the doors locked.",
-              "art": "Three frightened teenagers huddled inside a locked red Camaro at a hilltop overlook, a hard spotlight glaring through the windshield, pine trees swaying in the dark, the first gray of dawn on the horizon",
+              "text": "You start the legend, and the reel finishes it in your mouth: \"...and when they got home, there was a hook hanging from the door handle.\" Everybody screams, nobody drives, and the spotlight holds on the Thunderjet until dawn while the three of you huddle inside with the doors locked.",
+              "art": "Three frightened teenagers huddled inside a locked red 1970s muscle car at a hilltop overlook, a hard spotlight glaring through the windshield, pine trees swaying in the dark, the first gray of dawn on the horizon",
               "effects": {
                 "nerve": -1,
                 "dread": 1
@@ -1071,7 +1071,7 @@
       "id": "final-cut-finale",
       "title": "The Final Cut",
       "place": "The Glitter Box Playhouse, Halloween midnight",
-      "text": "On Halloween the whole street ends up in the Glitter Box without remembering buying tickets. Every seat holds a neighbor in costume, every neighbor clutching sides with a role typed at the top. The Slate looms in the projector beam above the stage, chalk squealing out the last scene number. \"Final reel,\" it booms. \"Everybody knows how this ends.\" Up in the booth, Frankie Fontaine has her headset on, and in the aisle, in row F, Celeste Navarro is standing exactly where she sat in 1980.",
+      "text": "On Halloween the whole street ends up in the Glitter Box without remembering buying tickets. Every seat holds a neighbor in costume, every neighbor clutching sides with a role typed at the top. The Slate looms in the projector beam above the stage, chalk squealing out the last scene number. \"Final reel,\" it booms. \"Everybody knows how this ends.\" Up in the booth, Frankie Fontaine has her headset on, and in the aisle by row F, Celeste Navarro has stayed for the midnight show after all.",
       "art": "A packed movie palace on Halloween midnight with neighbors in costumes holding script pages, a giant figure of projector light with a clapperboard face and megaphone looming over the stage, a teen crew in Halloween costumes facing it, a poised woman in cat-eye glasses standing in the aisle",
       "choices": [
         {
@@ -1093,7 +1093,7 @@
           },
           "failure": {
             "text": "The beam swings onto you before you reach the booth. For a long, grainy moment you are inside the movie, flickering at twenty-four frames a second, saying a line you never agreed to say.",
-            "art": "A teenager rendered in flickering black-and-white film grain on a giant movie screen, mouth open mid-line, the real theater audience staring up",
+            "art": "A teenager made of flickering black-and-white film grain on a giant movie screen, mouth open mid-line, the real theater audience staring up",
             "effects": {
               "nerve": -3
             }

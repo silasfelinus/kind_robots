@@ -14,11 +14,11 @@
     "text": "Ninety minutes of synth-pop guaranteed to keep you awake. Wards against dream encounters.",
     "price": 3,
     "ward": "dream",
-    "art": "A hand-labeled cassette mixtape reading Insomnia Mix 86 in glitter pen, glowing faintly in a Walkman"
+    "art": "A hand-labeled cassette mixtape reading Insomnia Mix 86 in glitter pen, glowing faintly in a cassette player"
   },
   {
     "id": "holy-water",
-    "name": "Blessed Super Soaker",
+    "name": "Blessed Squirt Blaster",
     "text": "A neon squirt gun filled at St. Jude's, no questions asked. Wards against paranormal encounters.",
     "price": 4,
     "ward": "paranormal",
@@ -128,7 +128,7 @@
   },
   {
     "id": "first-aid",
-    "name": "Bandages and Bactine",
+    "name": "Bandages and Antiseptic",
     "text": "Use from your pack for +2 nerve.",
     "price": 2,
     "consumable": true,

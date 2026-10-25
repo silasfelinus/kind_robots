@@ -39,7 +39,7 @@
           "id": "brightwaters-clue-yearbook-office",
           "title": "Proofs and Retakes",
           "place": "Yearbook office, Glimmer Falls High",
-          "text": "The yearbook office smells like rubber cement. Two contact sheets are pinned to the corkboard: September picture day and October retakes. In September, Vernon Kessler wears a Starfleet uniform and Shelby Duarte has black lipstick and a spiderweb choker. In October they are combed, collared and smiling the exact same smile. Kip Brightwater is the new yearbook photographer. His camera is sitting on the desk.",
+          "text": "The yearbook office smells like rubber cement. Two contact sheets are pinned to the corkboard: September picture day and October retakes. In September, Vernon Kessler wears a homemade space-captain uniform and Shelby Duarte has black lipstick and a spiderweb choker. In October they are combed, collared and smiling the exact same smile. Kip Brightwater is the new yearbook photographer. His camera is sitting on the desk.",
           "art": "A cluttered high school yearbook office with two photo contact sheets pinned side by side, quirky September portraits beside identical smiling October retakes, a camera resting on the desk",
           "choices": [
             {
@@ -331,9 +331,7 @@
               "art": "A suburban mom's face flickering into a soft green glow of drifting light and star-like seeds, her kitchen dimming around her",
               "effects": {
                 "dread": -1,
-                "skills": {
-                  "lore": 1
-                }
+                "nerve": 1
               }
             },
             "failure": {
@@ -362,7 +360,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "Down the stairs, under one bare bulb, rows of green pods pulse like slow hearts. Inside one, Vernon Kessler sleeps in his Starfleet uniform. Inside another, Shelby Duarte, choker and all. They are not hurt. They are dreaming, and one of them is smiling for real. You back up the stairs and count every pod.",
+              "text": "Down the stairs, under one bare bulb, rows of green pods pulse like slow hearts. Inside one, Vernon Kessler sleeps in his space-captain uniform. Inside another, Shelby Duarte, choker and all. They are not hurt. They are dreaming, and one of them is smiling for real. You back up the stairs and count every pod.",
               "art": "A dim basement lit by a single bulb, rows of translucent green pods holding sleeping teenagers in their own quirky clothes, one in a sci-fi uniform, one in goth lace",
               "effects": {
                 "nerve": 1,
@@ -389,7 +387,7 @@
               "amount": 2
             },
             "success": {
-              "text": "You do the robot, the worm, and something Raven calls the Banshee Waltz. Around the edges of the party, the real people who have not been replaced start clapping, then whooping. Three of the polo shirts falter, their smiles slipping, and one of them says, in a small, real voice, \"Wait, that's my song.\"",
+              "text": "You do the robot, the worm, and something Raven calls the Banshee Waltz. Around the edges of the party, the real people who have not been replaced start clapping, then whooping. Three of the polo shirts falter, their smiles slipping, and one of them says, in a small, real voice, \"Wait, I used to dance like that.\"",
               "art": "A teenager doing an outrageous dance on a picnic table beside a goth in velvet spinning dramatically, real neighbors cheering while three pastel-clad figures falter",
               "effects": {
                 "nerve": 1,
@@ -725,7 +723,7 @@
               "amount": 2
             },
             "success": {
-              "text": "Within ten minutes your bedroom is full of friends in pajamas reading bad poetry, singing show tunes and arguing about Star Trek. The pod copy watches, confused, then slowly, wonderfully, starts laughing along. It goes still and empty, and in the morning it is just a dry husk.",
+              "text": "Within ten minutes your bedroom is full of friends in pajamas reading bad poetry, singing show tunes and arguing about which starship captain is best. The pod copy watches, confused, then slowly, wonderfully, starts laughing along. It goes still and empty, and in the morning it is just a dry husk.",
               "art": "A crowded bedroom of teens in pajamas singing, gesturing and laughing around a green pod in an open closet, the copy inside cracking a bewildered smile",
               "effects": {
                 "nerve": 1,
@@ -1105,7 +1103,7 @@
             "amount": 1
           },
           "success": {
-            "text": "Glory takes the mic. Raven, Vernon's D&D group and the Glitter Box chorus line climb up beside you. You read the old letters, and then you read the names. \"Vernon Kessler, who taught half of us to play Dungeons and Dragons. Shelby Duarte, who made the best Halloween makeup in town.\" Neighbors start shouting their own: the accordion man, the girl in the cape. With every name said with love, a pod opens. The hive goes quiet. It finally understands what the town really wanted.",
+            "text": "Glory takes the mic. Raven, Vernon's Caverns and Chimeras group and the Glitter Box chorus line climb up beside you. You read the old letters, and then you read the names. \"Vernon Kessler, who taught half of us to play Caverns and Chimeras. Shelby Duarte, who made the best Halloween makeup in town.\" Neighbors start shouting their own: the accordion man, the girl in the cape. With every name said with love, a pod opens. The hive goes quiet. It finally understands what the town really wanted.",
             "art": "A drag queen with a microphone, goth teens, nerds and chorus dancers on a roundabout beside a teen reading names aloud, green pods opening behind them, neighbors pulling off paper masks and cheering",
             "effects": {
               "nerve": 2
@@ -1163,7 +1161,7 @@
             "flag": "edge-2"
           },
           "success": {
-            "text": "Midweek you learned that the hive hates one thing even more than a mess: somebody refusing in public, where real people can see. So you climb the roundabout and shout it over the hum. \"NO! We didn't wish for this! We take it back!\" The neighbors who saw you dance, sing and speak up this week tear off their paper masks and shout it with you, and your crew storms the basement of number 7, ripping pods open while the copies wilt like cut flowers. By midnight the Brightwaters have folded into their lawn, and Crystal Street is loud again.",
+            "text": "Midweek you learned that the hive hates one thing even more than a mess: somebody refusing in public, where real people can see. So you climb the roundabout and shout it over the hum. \"NO! We didn't wish for this! We take it back!\" The neighbors who watched you stand out this week tear off their paper masks and shout it with you, and your crew storms the basement of number 7, ripping pods open while the copies wilt like cut flowers. By midnight the Brightwaters have folded into their lawn, and Crystal Street is loud again.",
             "art": "A costumed teenager standing defiantly on a glowing geode shouting, neighbors ripping off paper masks and raising fists, teenagers hauling neighbors out of green pods through a basement window, a parade scattered across the street",
             "effects": {
               "nerve": 1
@@ -1193,8 +1191,8 @@
             "clues": 3
           },
           "success": {
-            "text": "The night before Halloween proved it: under every copy is somebody specific, a scruffy mutt named Pickles, a girl who wants to be a vampire bat, a you that no pod could hold. So you walk the parade and say it to each mask. \"Vernon, who taught half of us Dungeons and Dragons. Shelby, who does the best Halloween makeup in town. Kimmy, who wants to be a bat.\" Kimmy pulls off a paper mask with fangs drawn on it, the neighbors start shouting the weird, wonderful things they love about each other, and with every name a pod in the basement opens, until the hive goes quiet and finally understands what the town really wanted: not everyone the same, only nobody alone.",
-            "art": "A joyful Halloween parade on a suburban street, neighbors pulling off paper masks and hugging, a blond girl holding a mask with drawn-on fangs, a scruffy brown mutt bounding through the crowd, green light softening into dawn",
+            "text": "The night before Halloween proved it: under every copy is somebody specific, somebody no pod could hold. So you walk the parade and say it to each mask. \"Vernon, who taught half of us Caverns and Chimeras. Shelby, who does the best Halloween makeup in town.\" Masks start coming off, the neighbors start shouting the weird, wonderful things they love about each other, and with every name a pod in the basement opens, until the hive goes quiet and finally understands what the town really wanted: not everyone the same, only nobody alone.",
+            "art": "A joyful Halloween parade on a suburban street, neighbors pulling off paper masks and hugging, a blond girl lowering her own paper mask in wonder, green light softening into dawn",
             "effects": {
               "nerve": 2
             }
@@ -1212,7 +1210,7 @@
     "endings": {
       "best": {
         "title": "The Weirdo Parade",
-        "text": "On November first Glimmer Falls holds its first annual Weirdo Parade. The Glitter Box leads in sequins, the goths march in velvet, the AV club rolls a cardboard starship down Main Street, Vernon wears his Starfleet uniform and Shelby does everyone's makeup. The PTA petition is shredded and thrown as confetti. And the youngest Brightwater, Kip, does not go home with the hive. He dyes his hair green, joins the yearbook club, and takes the worst, blurriest, most wonderful photos anyone has ever seen.",
+        "text": "On November first Glimmer Falls holds its first annual Weirdo Parade. The Glitter Box leads in sequins, the goths march in velvet, the AV club rolls a cardboard starship down Main Street, Vernon wears his space-captain uniform and Shelby does everyone's makeup. The PTA petition is shredded and thrown as confetti. And one Brightwater, Kip, does not go home with the hive. He dyes his hair green, joins the yearbook club, and takes the worst, blurriest, most wonderful photos anyone has ever seen.",
         "art": "A joyful small-town parade on Main Street with drag performers in sequins, goths in velvet, nerds pushing a cardboard starship, shredded petition confetti in the air, a boy with fresh green hair snapping a photo"
       },
       "good": {

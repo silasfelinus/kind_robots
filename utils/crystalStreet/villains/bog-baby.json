@@ -40,7 +40,7 @@
           "id": "bog-baby-clue-creature-feature",
           "title": "The Thing from Tule Marsh (1958)",
           "place": "The horror aisle, Rewind Video",
-          "text": "Third shelf down, between The Blob and Them!, a battered clamshell case: THE THING FROM TULE MARSH, starring a very young Zelda Fishbein screaming at something with too many reeds. The box is damp. The tape smells like pond water. When you pick it up, frogs start singing somewhere in the store, and the floor drain at the end of the aisle burps.",
+          "text": "Third shelf down, between The Blob and Them!, a battered clamshell case: THE THING FROM TULE MARSH, starring a young Zelda Fishbein screaming at something with too many reeds. The box is damp. The tape smells like pond water. When you pick it up, frogs start singing somewhere in the store, and the floor drain at the end of the aisle burps.",
           "art": "A video store horror aisle with a battered clamshell tape case of a 1950s creature feature, a damp ring of water beneath it, a floor drain bubbling at the end of the aisle under neon light",
           "choices": [
             {
@@ -150,7 +150,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "From the very top you snap a Polaroid of Lot C. As it develops, it shows what your eyes can't: the cracks in the asphalt trace the exact outline of the old pond, and curled in the middle, glowing faintly gold through the blacktop, is something enormous shaped like a tadpole, with a violet heart.",
+                "text": "From the very top you snap an instant photo of Lot C. As it develops, it shows what your eyes can't: the cracks in the asphalt trace the exact outline of the old pond, and curled in the middle, glowing faintly gold through the blacktop, is something enormous shaped like a tadpole, with a violet heart.",
                 "art": "A developing instant photo held up against the night sky, showing a parking lot with a giant glowing tadpole shape curled beneath the asphalt, a violet light at its center",
                 "effects": {
                   "clues": ["bog-baby-sit-in"],
@@ -219,7 +219,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Lou doesn't look up from Galaga. \"Dead-wing kids dare each other to stand on the soft spot in Lot C. It's warm, man. Like a waterbed. Last week it swallowed a shopping cart, and in the morning there were cattails growing out of the hole.\" He fishes one out of his backpack. Its fluff glows faintly gold in the dark of the arcade.",
+                "text": "Lou doesn't look up from Starbug Blitz. \"Dead-wing kids dare each other to stand on the soft spot in Lot C. It's warm, man. Like a waterbed. Last week it swallowed a shopping cart, and in the morning there were cattails growing out of the hole.\" He fishes one out of his backpack. Its fluff glows faintly gold in the dark of the arcade.",
                 "art": "An arcade champion at a glowing cabinet holding out a single cattail whose fluff glows gold, other kids crowded around the machines in neon light",
                 "effects": {
                   "clues": ["bog-baby-grease-trap"],
@@ -1132,7 +1132,7 @@
             "text": "It reaches for you, then the mall's flood alarms start shrieking, and it snatches its hand back and wails. You were close enough to feel its cold, wet finger. You know the way; it just needs to trust you a little longer.",
             "art": "A giant mud baby pulling its hand back from a costumed teenager under flashing alarm lights on a flooded parking lot, cattails trembling on its head, its violet heart flickering",
             "effects": {
-              "nerve": -1
+              "nerve": -2
             }
           }
         }

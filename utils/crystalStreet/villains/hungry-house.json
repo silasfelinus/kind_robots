@@ -197,7 +197,7 @@
           "id": "hungry-house-clue-imperfect-pile",
           "title": "The Imperfect Pile",
           "place": "The back lot, Rusty's Junkyard",
-          "text": "Behind the crusher is a mound of things somebody did not want seen: a lamp with a cracked shade, report cards with C-minuses, a ratty recliner, a box of sympathy cards, a Mohawk wig dyed green. Joey says a white moving truck with no driver drops a load every year and the plates are from 1959. At the very bottom sits a steamer trunk stenciled M. VAIL.",
+          "text": "Behind the crusher is a mound of things somebody did not want seen: a lamp with a cracked shade, report cards with C-minuses, a ratty recliner, a box of sympathy cards, a mohawk wig dyed green. Joey says a white moving truck with no driver drops a load every year and the plates are from 1959. At the very bottom sits a steamer trunk stenciled M. VAIL.",
           "art": "A junkyard mound of ordinary family clutter, cracked lamps, report cards and a green wig, an old steamer trunk stenciled with a name at the bottom, a driverless 1950s moving truck parked in the fog",
           "choices": [
             {
@@ -239,7 +239,7 @@
                 "amount": 1
               },
               "success": {
-                "text": "The newest things belong to the Okonjo family from 1979: a divorce paper, a kid's broken trophy, a frying pan with a burned bottom. Every pile is somebody's normal bad day. At the bottom of all of them, under everything, Marjorie's trunk is full of the one thing she was never allowed to show: her own art.",
+                "text": "The newest things belong to the Okonjo family, taken last Halloween: a divorce paper, a kid's broken trophy, a frying pan with a burned bottom. Every pile is somebody's normal bad day. At the bottom of all of them, under everything, Marjorie's trunk is full of the one thing she was never allowed to show: her own art.",
                 "art": "A teenager kneeling in junkyard clutter holding a child's broken trophy and an old frying pan, a trunk of paintings visible underneath, sunset light through crushed cars",
                 "effects": {
                   "clues": ["hungry-house-hidden-trunk"],
@@ -1188,7 +1188,7 @@
         },
         {
           "id": "edge-3",
-          "label": "Claim her paintings for her, the way the street took back what was theirs the night before",
+          "label": "Claim her paintings for her, the way you learned to claim what was yours the night before",
           "intent": "kind",
           "skill": "charm",
           "target": 7,

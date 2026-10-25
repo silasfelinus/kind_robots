@@ -5,7 +5,7 @@ import {
   type HouseKind,
 } from './house'
 import type { DarkBriarProgress } from './darkBriar'
-import { DARK_BRIAR_WITNESSES } from './darkBriar'
+import { DARK_BRIAR_WITNESSES, darkBriarHasWitness } from './darkBriar'
 import {
   DARK_HOUSE_TRIALS,
   DARK_HOUSE_PUZZLES,
@@ -504,7 +504,7 @@ export function canEnterDarkHouse(progress: DarkBriarProgress): boolean {
     progress.mapCards.length === 16 &&
     progress.mapCards.every((card) => card.matched) &&
     progress.player === '6,2' &&
-    DARK_BRIAR_WITNESSES.every((key) => Boolean(progress.sceneChoices[key]))
+    DARK_BRIAR_WITNESSES.every((key) => darkBriarHasWitness(progress, key))
   )
 }
 

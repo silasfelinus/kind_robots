@@ -80,7 +80,12 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   isolation: isolate;
   background:
     radial-gradient(ellipse at 55% 16%, #6e657660, transparent 55%),
-    repeating-linear-gradient(90deg, #2c2735 0 26px, #39303c 27px 30px, #201b29 31px 55px),
+    repeating-linear-gradient(
+      90deg,
+      #2c2735 0 26px,
+      #39303c 27px 30px,
+      #201b29 31px 55px
+    ),
     #211a2a;
 }
 .cs-tv-room::before {
@@ -89,7 +94,11 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   z-index: 1;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 45%, transparent 15%, #08060dc9 100%);
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    transparent 15%,
+    #08060dc9 100%
+  );
 }
 .cs-tv-window {
   position: absolute;
@@ -98,8 +107,17 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   width: 20%;
   height: 38%;
   border: 9px solid #241923;
-  box-shadow: inset 0 0 0 2px #9e8164, 0 0 0 4px #4d3345, 0 6px 16px #050207;
-  background: radial-gradient(circle at 58% 35%, #eae1c3 0 14%, #8d98ae 16%, #273552 46%, #111a32 100%);
+  box-shadow:
+    inset 0 0 0 2px #9e8164,
+    0 0 0 4px #4d3345,
+    0 6px 16px #050207;
+  background: radial-gradient(
+    circle at 58% 35%,
+    #eae1c3 0 14%,
+    #8d98ae 16%,
+    #273552 46%,
+    #111a32 100%
+  );
   transform: rotate(3deg);
 }
 .cs-tv-window::before,
@@ -111,12 +129,17 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   width: 20%;
   background: linear-gradient(90deg, #180e20, #6b3b50 55%, #180e20);
 }
-.cs-tv-window::before { left: -21%; }
-.cs-tv-window::after { right: -21%; }
+.cs-tv-window::before {
+  left: -21%;
+}
+.cs-tv-window::after {
+  right: -21%;
+}
 .cs-tv-window-cross {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 47%, #281f32 47% 54%, transparent 54%),
+  background:
+    linear-gradient(90deg, transparent 47%, #281f32 47% 54%, transparent 54%),
     linear-gradient(transparent 47%, #281f32 47% 54%, transparent 54%);
 }
 .cs-tv-portrait {
@@ -134,7 +157,8 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   position: absolute;
   inset: 17% 19% 8%;
   border-radius: 47% 47% 8% 8%;
-  background: radial-gradient(ellipse at 50% 27%, #271d2b 0 22%, transparent 24%),
+  background:
+    radial-gradient(ellipse at 50% 27%, #271d2b 0 22%, transparent 24%),
     linear-gradient(transparent 32%, #17111f 33% 100%);
 }
 .cs-tv-lamp {
@@ -143,7 +167,12 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   left: 8%;
   height: 27%;
   width: 9%;
-  background: linear-gradient(90deg, transparent 46%, #4f413b 46% 54%, transparent 54%);
+  background: linear-gradient(
+    90deg,
+    transparent 46%,
+    #4f413b 46% 54%,
+    transparent 54%
+  );
 }
 .cs-tv-lamp::before {
   content: '';
@@ -172,7 +201,8 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   right: 0;
   height: 25%;
   border-top: 9px solid #20141e;
-  background: repeating-linear-gradient(174deg, transparent 0 23px, #0f0a14 24px 26px),
+  background:
+    repeating-linear-gradient(174deg, transparent 0 23px, #0f0a14 24px 26px),
     linear-gradient(#48333c, #18131e);
   transform: perspective(400px) rotateX(25deg);
   transform-origin: bottom;
@@ -213,8 +243,16 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   padding: 3%;
   border-radius: 12% / 11%;
   border: 4px solid #2f1a18;
-  background: linear-gradient(120deg, #9b6042, #4b2825 24%, #825236 57%, #301b20 94%);
-  box-shadow: inset 0 0 0 3px #b28a60, inset 0 0 26px #130a0b;
+  background: linear-gradient(
+    120deg,
+    #9b6042,
+    #4b2825 24%,
+    #825236 57%,
+    #301b20 94%
+  );
+  box-shadow:
+    inset 0 0 0 3px #b28a60,
+    inset 0 0 26px #130a0b;
 }
 .cs-tv-screen {
   position: relative;
@@ -222,7 +260,9 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   border: clamp(4px, 0.8cqw, 12px) solid #1c1921;
   border-radius: 12% / 13%;
   aspect-ratio: 16 / 9;
-  box-shadow: 0 0 0 3px #a07956, inset 0 0 25px #020407;
+  box-shadow:
+    0 0 0 3px #a07956,
+    inset 0 0 25px #020407;
   background: #05030a;
 }
 .cs-tv-video {
@@ -238,7 +278,13 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  background: linear-gradient(138deg, #ffffff29, transparent 28%, transparent 76%, #50c5bf12);
+  background: linear-gradient(
+    138deg,
+    #ffffff29,
+    transparent 28%,
+    transparent 76%,
+    #50c5bf12
+  );
   box-shadow: inset 0 0 25px #80e9df40;
 }
 .cs-tv-control-panel {
@@ -265,11 +311,20 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   width: 52%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 30%, #d4b387, #6a4a37 48%, #1e1920 50%, #7a6351 64%, #1a151b 70%);
+  background: radial-gradient(
+    circle at 38% 30%,
+    #d4b387,
+    #6a4a37 48%,
+    #1e1920 50%,
+    #7a6351 64%,
+    #1a151b 70%
+  );
   border: 2px solid #241b1e;
   box-shadow: 1px 2px 3px #100a0e;
 }
-.cs-tv-knob-small { width: 37%; }
+.cs-tv-knob-small {
+  width: 37%;
+}
 .cs-tv-speaker {
   flex: 1;
   width: 78%;
@@ -296,7 +351,9 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   background: linear-gradient(90deg, #160e12, #5e3a2e, #160e12);
   transform: skewX(-14deg);
 }
-.cs-tv-feet span:last-child { transform: skewX(14deg); }
+.cs-tv-feet span:last-child {
+  transform: skewX(14deg);
+}
 .cs-tv-room-label {
   position: absolute;
   z-index: 2;
@@ -311,6 +368,10 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
   text-shadow: 0 2px 4px #000;
 }
 @media (prefers-reduced-motion: reduce) {
-  .cs-tv-room *, .cs-tv-room *::before, .cs-tv-room *::after { animation: none; }
+  .cs-tv-room *,
+  .cs-tv-room *::before,
+  .cs-tv-room *::after {
+    animation: none;
+  }
 }
 </style>

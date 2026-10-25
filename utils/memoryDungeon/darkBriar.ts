@@ -467,7 +467,7 @@ export function newDarkBriarProgress(): DarkBriarProgress {
 export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
   const initial = newDarkBriarProgress()
   if (!input || typeof input !== 'object') return initial
-  const saved = input as Partial<DarkBriarProgress> & { version?: number }
+  const saved = input as Partial<Omit<DarkBriarProgress, 'version'>> & { version?: number }
   const keyset = new Set(DARK_BRIAR_KEYS)
   const validKeys = (value: unknown): string[] =>
     Array.isArray(value)

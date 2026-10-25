@@ -135,16 +135,19 @@ try {
         }
         assert.deepEqual(errors, [], `${label}: no uncaught browser exceptions`)
         const logicalWidth = testCase.slug === GHOST ? 320 : 480
-        const characterCssPixels =
-          (metrics.stage.width / logicalWidth) *
-          (testCase.slug === PLUMBER ? 36 : testCase.slug === RAINBOW ? 34 : 32)
+        const nominalSpriteExtent =
+          testCase.slug === PLUMBER ? 36 : testCase.slug === RAINBOW ? 34 : null
+        const nominalSpriteCssPixels =
+          nominalSpriteExtent === null
+            ? null
+            : Math.round((metrics.stage.width / logicalWidth) * nominalSpriteExtent)
         summary.push({
           slug: testCase.slug,
           viewport: `${testCase.width}x${testCase.height}`,
           dpr,
           stage: `${Math.round(metrics.stage.width)}x${Math.round(metrics.stage.height)}`,
           backingPixels: metrics.canvasWidth * metrics.canvasHeight,
-          characterCssPixels: Math.round(characterCssPixels),
+          nominalSpriteCssPixels,
           touchTargets: metrics.controls.length,
         })
       } finally {
@@ -155,6 +158,6 @@ try {
 } finally {
   await browser.close()
 }
-console.log('Arcade viewport geometry matrix (CSS silhouette estimates, not visual approval):')
+console.log('Arcade viewport geometry matrix (nominal art-box estimates (Plumber height, Rainbow max width), not visual approval):')
 console.log(JSON.stringify(summary, null, 2))
 console.log(`Arcade viewport matrix: ${summary.length} real-cabinet cases passed`)

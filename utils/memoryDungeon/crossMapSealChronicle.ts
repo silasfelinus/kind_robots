@@ -25,20 +25,28 @@ export const FIRST_MAP_SEAL_RECOVERY: Readonly<
   Record<CrossMapSealKey, { earthClue: string; alteredEarthClue: string }>
 > = {
   '5,2': {
-    earthClue: 'A pressed leaf in an office notebook has a split vein exactly matching the northern Briar sigil.',
-    alteredEarthClue: 'A mirrored root grows around a train-station sign with the same asymmetric leaf.',
+    earthClue:
+      'A pressed leaf in an office notebook has a split vein exactly matching the northern Briar sigil.',
+    alteredEarthClue:
+      'A mirrored root grows around a train-station sign with the same asymmetric leaf.',
   },
   '1,1': {
-    earthClue: 'An old star chart marks a seven-point northern star with one point missing.',
-    alteredEarthClue: 'Two different north stars appear above the altered city; one bears the old stone notch.',
+    earthClue:
+      'An old star chart marks a seven-point northern star with one point missing.',
+    alteredEarthClue:
+      'Two different north stars appear above the altered city; one bears the old stone notch.',
   },
   '8,1': {
-    earthClue: 'A photograph of a migrating gull reveals the absent feather in the northeastern marker.',
-    alteredEarthClue: 'The enchanted birds cast paired feather shadows over a northeastern route.',
+    earthClue:
+      'A photograph of a migrating gull reveals the absent feather in the northeastern marker.',
+    alteredEarthClue:
+      'The enchanted birds cast paired feather shadows over a northeastern route.',
   },
   '8,8': {
-    earthClue: 'An ordinary transit-tunnel cable is knotted exactly like the southeast Briar root.',
-    alteredEarthClue: 'Living underground roots braid around the cable in the opposite direction.',
+    earthClue:
+      'An ordinary transit-tunnel cable is knotted exactly like the southeast Briar root.',
+    alteredEarthClue:
+      'Living underground roots braid around the cable in the opposite direction.',
   },
 }
 
@@ -67,7 +75,9 @@ const valid = (value: unknown): CrossMapSealKey[] =>
       ]
     : []
 
-export function restoreCrossMapSealChronicle(value: unknown): CrossMapSealChronicle {
+export function restoreCrossMapSealChronicle(
+  value: unknown,
+): CrossMapSealChronicle {
   const initial = newCrossMapSealChronicle()
   if (!value || typeof value !== 'object') return initial
   const old = value as Partial<CrossMapSealChronicle>
@@ -75,9 +85,19 @@ export function restoreCrossMapSealChronicle(value: unknown): CrossMapSealChroni
   const mirrorSeen = valid(old.mirrorSeen)
   const seen = [...new Set([...valid(old.seen), ...inspected, ...mirrorSeen])]
   const counterpartSeen = valid(old.counterpartSeen)
-  const matched = valid(old.matched).filter((key) => counterpartSeen.includes(key) && inspected.includes(key))
+  const matched = valid(old.matched).filter(
+    (key) => counterpartSeen.includes(key) && inspected.includes(key),
+  )
   const resolved = valid(old.resolved).filter((key) => matched.includes(key))
-  return { version: 1, seen, inspected, mirrorSeen, counterpartSeen, matched, resolved }
+  return {
+    version: 1,
+    seen,
+    inspected,
+    mirrorSeen,
+    counterpartSeen,
+    matched,
+    resolved,
+  }
 }
 
 export function inspectCrossMapSeal(
@@ -85,7 +105,8 @@ export function inspectCrossMapSeal(
   key: string,
   world: SealInspectionWorld,
 ): CrossMapSealChronicle {
-  if (!(BRIAR_CROSS_MAP_KEYS as readonly string[]).includes(key)) return chronicle
+  if (!(BRIAR_CROSS_MAP_KEYS as readonly string[]).includes(key))
+    return chronicle
   const seal = key as CrossMapSealKey
   return {
     ...chronicle,
@@ -113,21 +134,23 @@ export function crossMapSealProgress(chronicle: CrossMapSealChronicle) {
 }
 
 export function missingFirstMapSeals(chronicle: CrossMapSealChronicle) {
-  return BRIAR_CROSS_MAP_KEYS.filter((key) => !chronicle.inspected.includes(key)).map(
-    (key) => ({
-      key,
-      title: BRIAR_CROSS_MAP_PUZZLES[key].title,
-      coordinate: key,
-      destination: BRIAR_CROSS_MAP_PUZZLES[key].counterpart,
-      earthClue: FIRST_MAP_SEAL_RECOVERY[key].earthClue,
-      alteredEarthClue: FIRST_MAP_SEAL_RECOVERY[key].alteredEarthClue,
-    }),
-  )
+  return BRIAR_CROSS_MAP_KEYS.filter(
+    (key) => !chronicle.inspected.includes(key),
+  ).map((key) => ({
+    key,
+    title: BRIAR_CROSS_MAP_PUZZLES[key].title,
+    coordinate: key,
+    destination: BRIAR_CROSS_MAP_PUZZLES[key].counterpart,
+    earthClue: FIRST_MAP_SEAL_RECOVERY[key].earthClue,
+    alteredEarthClue: FIRST_MAP_SEAL_RECOVERY[key].alteredEarthClue,
+  }))
 }
 
 /** Future e04 implementation gate: completion of that experience must require
  * four original-world inspections, with a playable revisit for anything missed.
  * This function only checks discovery and never grants it automatically. */
-export function firstMapRecoveryComplete(chronicle: CrossMapSealChronicle): boolean {
+export function firstMapRecoveryComplete(
+  chronicle: CrossMapSealChronicle,
+): boolean {
   return BRIAR_CROSS_MAP_KEYS.every((key) => chronicle.inspected.includes(key))
 }

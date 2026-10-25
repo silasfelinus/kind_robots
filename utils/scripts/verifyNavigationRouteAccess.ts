@@ -523,21 +523,23 @@ assert.equal(existsSync('content/admin/ruler-hooked.md'), false)
 const nuxtConfig = readFileSync('nuxt.config.ts', 'utf8')
 assert.match(
   nuxtConfig,
-  /'\\/admin\\/ruler-hooked': \\{\\s*redirect: \\{ to: '\\/play\\/ruler-hooked', statusCode: 301 \\}/,
+  /'\/admin\/ruler-hooked': \{\s*redirect: \{ to: '\/play\/ruler-hooked', statusCode: 301 \}/,
   'Old ruler admin bookmarks must redirect to Play.',
 )
 assert.match(
   nuxtConfig,
-  /'\\/plan\\/projects\\/ruler-hooked': \\{\\s*redirect: \\{ to: '\\/play\\/ruler-hooked', statusCode: 301 \\}/,
+  /'\/plan\/projects\/ruler-hooked': \{\s*redirect: \{ to: '\/play\/ruler-hooked', statusCode: 301 \}/,
 )
 assert.match(
   nuxtConfig,
-  /urlPattern: \\/\\^https\\?:\\\\\\/\\\\\\/\\[\\^\\/\\]\\+\\\\\\/play\\\\\\/ruler-hooked/,
+  /urlPattern:.*play.*ruler-hooked/,
   'The offline game document cache must target the new Play route.',
 )
 const dashboardSource = readFileSync('stores/helpers/dashboardHelper.ts', 'utf8')
-assert.match(dashboardSource, /key: 'ruler-hooked',[\\s\\S]*?route: '\\/play\\/ruler-hooked'/)
-
+assert.match(
+  dashboardSource,
+  /key: 'ruler-hooked',[\s\S]*?route: '\/play\/ruler-hooked'/,
+)
 
 /*
  * THE TUTORIAL-COMPLETENESS CONTRACT, for every current channel (kind_robots

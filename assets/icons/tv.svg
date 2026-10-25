@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Retro television">
+  <path d="M20 4 32 17 44 4" fill="none" stroke="#d4b78c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M7 17h50a5 5 0 0 1 5 5v29a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V22a5 5 0 0 1 5-5Z" fill="#865638" stroke="#35262c" stroke-width="3"/>
+  <rect x="7" y="22" width="39" height="28" rx="7" fill="#232233" stroke="#d4a679" stroke-width="2"/>
+  <rect x="11" y="26" width="31" height="20" rx="5" fill="#8ad7c5"/>
+  <path d="M15 30q8-4 23-2" fill="none" stroke="#dffff0" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <circle cx="53" cy="29" r="4" fill="#c6b18c" stroke="#382d30" stroke-width="2"/>
+  <circle cx="53" cy="42" r="3" fill="#c6b18c" stroke="#382d30" stroke-width="2"/>
+  <path d="M49 51h9m-47 5-2 4m42-4 2 4" stroke="#34222a" stroke-width="3" stroke-linecap="round"/>
+</svg>

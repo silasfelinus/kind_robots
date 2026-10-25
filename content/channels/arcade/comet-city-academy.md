@@ -26,4 +26,5 @@ tutorial:
     The game auto-saves locally after each decision. This is the first playable
     chapter, not the complete planned twenty-one-day adventure.
 ---
+
 A new year begins at Comet City Academy. The city has a long memory, and your classmates are already making plans for prom.

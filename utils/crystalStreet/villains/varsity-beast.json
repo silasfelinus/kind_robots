@@ -135,7 +135,7 @@
           "id": "varsity-beast-clue-trophy-case",
           "title": "The Shrine",
           "place": "Trophy case and yearbook office, Glimmer Falls High",
-          "text": "The trophy case outside the gym glows like a chapel: the 1966 state trophy, a game ball signed DUKE, and the banner the boosters hang every October, MAN UP, PROSPECTORS. Next door the yearbook office is unlocked and smells of rubber cement. The 1966 Gold Nugget sits on a shelf with its spine cracked open at a single page.",
+          "text": "The trophy case outside the gym glows like a chapel: the 1966 state trophy, a game ball signed DUKE, and the banner the boosters hang every October, MAN UP, PROSPECTORS. Next door the yearbook office is unlocked and smells of rubber cement. The 1966 Glimmer Light sits on a shelf with its spine cracked open at a single page.",
           "art": "A glowing high school trophy case with a 1966 state trophy and a signed football under a maroon banner reading man up, an open doorway to a cluttered yearbook office beside it",
           "choices": [
             {
@@ -612,7 +612,7 @@
               "amount": 2
             },
             "success": {
-              "text": "You step into the flashlight beams. Then Moose steps up beside you, all six foot four of him, knitting bag on one shoulder, and says, \"That's my quarterback. You want him, you go through the line.\" The Booster Club shuffles. Ron Stavros sputters. One by one, forty grown men remember they have work in the morning. Behind you, a soft, gruff voice says, \"Nobody ever blocked for me before.\"",
+              "text": "You step into the flashlight beams. Then Moose steps up beside you, all six-foot-five of him, knitting bag on one shoulder, and says, \"That's my quarterback. You want him, you go through the line.\" The Booster Club shuffles. Ron Stavros sputters. One by one, forty grown men remember they have work in the morning. Behind you, a soft, gruff voice says, \"Nobody ever blocked for me before.\"",
               "alone": "You step into the flashlight beams alone, plant your feet and say it loud: \"That's our quarterback. You want him, you go through me.\" The Booster Club shuffles. Ron Stavros sputters. One by one, forty grown men remember they have work in the morning. Behind you, a soft, gruff voice says, \"Nobody ever blocked for me before.\"",
               "art": "A teenager and a towering gentle lineman with a knitting bag standing shoulder to shoulder in flashlight beams before a drainage culvert, a crowd of men in maroon windbreakers lowering their rakes",
               "effects": {

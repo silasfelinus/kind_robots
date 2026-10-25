@@ -15,7 +15,7 @@
     "palette": ["#ece6d6", "#8a1f33", "#1c1a26"],
     "sigil": "needles",
     "logline": "Every Halloween a pale, silent shape in a hand-knit cardigan walks Crystal Street, and every babysitter who answers the phone hears the same thing on the line: the click, click, click of knitting needles.",
-    "backstory": "In 1971 Michaela \"Mickey\" Moore was the best babysitter on Crystal Street: sixteen, freckled, a shortstop on the girls' softball team, and never without her knitting bag. On Halloween night she sat for baby Teddy Kettering at 45 Crystal Street, and her best friend June Albright came over to watch the Creature Feature. Somewhere in the second movie the girls kissed. Carol Lund, the babysitter next door, saw it through the window. She could not bring herself to say what she saw, so she called the KGLM Party Line the next morning and told the whole valley a story it would believe: that Mickey had snuck a boy in through the back window and, while they were busy on the couch, baby Teddy crawled out the dog door and was found at midnight in the Heartstone roundabout. Mickey was fired, shunned at church, and sent to the Valley Haven School for Girls, where they made her wear a plaster mask of her own face in deportment class to practice a pleasant expression. On Halloween 1972 she ran away to walk home in the fog on Quarry Road. She never arrived. They found only her cardigan, folded on the Crystal Street sign. Every Halloween since, her shape walks home in that mask and that cardigan, and she enforces every rule that broke her: the sitter who answers the phone, the couple on the couch, the girl who laughs too loud.",
+    "backstory": "In 1971 Michaela \"Mickey\" Moore was the best babysitter on Crystal Street: sixteen, freckled, a shortstop on the girls' softball team, and never without her knitting bag. On Halloween night she sat for baby Teddy Kettering on Crystal Street, and her best friend June Albright came over to watch the Creature Feature. Somewhere in the second movie the girls kissed. Carol Lund, the babysitter next door, saw it through the window. She could not bring herself to say what she saw, so she called the KGLM Party Line the next morning and told the whole valley a story it would believe: that Mickey had snuck a boy in through the back window and, while they were busy on the couch, baby Teddy crawled out the dog door and was found at midnight in the Heartstone roundabout. Mickey was fired, shunned at church, and sent to the Valley Haven School for Girls, where they made her wear a plaster mask of her own face in deportment class to practice a pleasant expression. On Halloween 1972 she ran away to walk home in the fog on Quarry Road. She never arrived. They found only her cardigan, folded on the Crystal Street sign. Every Halloween since, her shape walks home in that mask and that cardigan, and she enforces every rule that broke her: the sitter who answers the phone, the couple on the couch, the girl who laughs too loud.",
     "centralIssue": {
       "title": "The purity rules that broke her",
       "summary": "Mickey was never a bad sitter and never a bad girl. A frightened neighbor turned a first kiss into a scandal, and the town chose the rumor over the truth because the truth scared it more. Her blade is the town's own rulebook. Prove what really happened that night, name who started the lie, and show her a Halloween where nobody has to be pure to survive."
@@ -54,7 +54,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Between a recipe for tuna casserole and a lost beagle, a girl's voice says, \"I won't give my name, but I sit for the Halversons and I saw it with my own eyes.\" A boy in the window, a baby in the roundabout. In the logbook, Bud wrote the caller down anyway: Carol L., 16, Pinecone Lane.",
+                "text": "Between a recipe for tuna casserole and a lost beagle, a girl's voice says, \"I won't give my name, but I sit for the Hendersons and I saw it with my own eyes.\" A boy in the window, a baby in the roundabout. In the logbook, Bud wrote the caller down anyway: Carol L., 16, Pinecone Lane.",
                 "art": "A reel-to-reel tape deck spinning under a desk lamp, a teenager in headphones leaning close, an open station logbook with one handwritten line circled in red grease pencil",
                 "effects": {
                   "clues": ["the-shape-party-line"],
@@ -100,11 +100,11 @@
         "id": "the-shape-sitter-log",
         "title": "Doris Kettering's date book",
         "location": "crystal-street",
-        "hint": "The family Mickey sat for that Halloween still lives at 45 Crystal Street, and this week they are clearing out the garage.",
+        "hint": "The family Mickey sat for that Halloween still lives on Crystal Street, and this week they are clearing out the garage.",
         "encounter": {
           "id": "the-shape-clue-garage-sale",
           "title": "Everything Must Go",
-          "place": "Garage sale, 45 Crystal Street",
+          "place": "Garage sale, the Kettering house, Crystal Street",
           "text": "Mrs. Doris Kettering has dragged fifteen years of her family onto card tables in the driveway: a bassinet, a fondue set, a box marked TEDDY'S BABY THINGS 1971. She keeps glancing at the box and away from it. Her son Teddy, sixteen now and mortified, is pricing records. Every one of her porch lights is on in broad daylight.",
           "art": "A sunny suburban driveway garage sale with card tables of 1970s household goods, a cardboard box labeled with a baby's name and the year 1971, a nervous middle-aged woman in a pantsuit glancing at it, porch lights glowing in daylight",
           "choices": [
@@ -537,12 +537,12 @@
         "act": 2,
         "title": "Behind the Hedge",
         "place": "Walking home down Crystal Street at dusk",
-        "text": "You are walking home from school with Ricky Alvarez, who is talking about the Pine Ridge game and not looking where you are looking. A pale face in a cranberry cardigan is standing behind the Hendersons' hedge, perfectly still. You blink and there is only hedge. Two houses later she is beside a parked station wagon. \"There's no such thing as the boogeyman,\" Ricky says, without turning around. Up ahead, beside the next hedge, a pale shape is waiting, and your house is still four doors away.",
+        "text": "You are walking home from school with Benny Bautista, who is talking about the Pine Ridge game and not looking where you are looking. A pale face in a cranberry cardigan is standing behind the Hendersons' hedge, perfectly still. You blink and there is only hedge. Two houses later she is beside a parked station wagon. \"There's no such thing as the boogeyman,\" Benny says, without turning around. Up ahead, beside the next hedge, a pale shape is waiting, and your house is still four doors away.",
         "art": "A suburban street at dusk lined with trimmed hedges and fallen leaves, two teenagers walking home with backpacks, one glancing nervously at a pale masked figure in a cranberry cardigan standing perfectly still beside a hedge farther down the sidewalk",
         "choices": [
           {
             "id": "snap-a-polaroid",
-            "label": "Snap an instant photo of her so Ricky has to believe you",
+            "label": "Snap an instant photo of her so Benny has to believe you",
             "intent": "clever",
             "skill": "hustle",
             "target": 9,
@@ -551,7 +551,7 @@
               "amount": 2
             },
             "success": {
-              "text": "The flash pops. Ricky laughs at you right up until the photo develops in his hand: the Hendersons' hedge and, beside it, crisp and clear, a girl in a plaster mask and a hand-knit cardigan, feet together like she is waiting for school picture day. Ricky goes pale and quiet. When you both look up, the hedge is just a hedge, and he walks you all the way to your door.",
+              "text": "The flash pops. Benny laughs at you right up until the photo develops in his hand: the Hendersons' hedge and, beside it, crisp and clear, a girl in a plaster mask and a hand-knit cardigan, feet together like she is waiting for school picture day. Benny goes pale and quiet. When you both look up, the hedge is just a hedge, and he walks you all the way to your door.",
               "art": "A pale wide-eyed teenage boy holding an instant photo showing a masked girl in a hand-knit cardigan beside a hedge, his friend holding the camera, the real hedge beside them in the dusk light",
               "effects": {
                 "nerve": 1,
@@ -559,7 +559,7 @@
               }
             },
             "failure": {
-              "text": "The flash pops, and the photo develops into a picture of you, from behind, taken a moment ago from somewhere very close. Ricky stops laughing. You both run the last four houses and slam your front door, and the photo lies face-up on the welcome mat all night where you dropped it.",
+              "text": "The flash pops, and the photo develops into a picture of you, from behind, taken a moment ago from somewhere very close. Benny stops laughing. You both run the last four houses and slam your front door, and the photo lies face-up on the welcome mat all night where you dropped it.",
               "art": "An instant photo lying on a doormat in porch light showing a teenager from behind on a dusky sidewalk, shot from very close, two teenagers peeking out through a front door window",
               "effects": {
                 "nerve": -2,
@@ -585,7 +585,7 @@
               }
             },
             "failure": {
-              "text": "You part the branches and she is right there, a plaster face an inch from yours, the eyeholes dark. Neither of you moves. Then Ricky yells your name, you flinch, and when you look back the hedge is just a hedge, and your jacket's zipper pull has been replaced with a tiny knitted pom-pom.",
+              "text": "You part the branches and she is right there, a plaster face an inch from yours, the eyeholes dark. Neither of you moves. Then Benny yells your name, you flinch, and when you look back the hedge is just a hedge, and your jacket's zipper pull has been replaced with a tiny knitted pom-pom.",
               "art": "A teenager frozen nose to nose with a pale plaster mask between parted hedge branches at dusk, a tiny cranberry knitted pom-pom dangling from the zipper of their jacket",
               "effects": {
                 "nerve": -2,
@@ -601,7 +601,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "\"Evening! Happy Halloween!\" you call, cheerful as a mail carrier. The pale shape behind the hedge stands still for a long, long time. Then one hand rises, stiffly, and waves back, exactly the way a polite girl waves at the neighbors when her mother is watching. \"Who are you waving at?\" Ricky asks. You don't answer. You are trying to remember the last time anyone said hello to her.",
+              "text": "\"Evening! Happy Halloween!\" you call, cheerful as a mail carrier. The pale shape behind the hedge stands still for a long, long time. Then one hand rises, stiffly, and waves back, exactly the way a polite girl waves at the neighbors when her mother is watching. \"Who are you waving at?\" Benny asks. You don't answer. You are trying to remember the last time anyone said hello to her.",
               "art": "A teenager on a dusky suburban sidewalk waving cheerfully toward a hedge, a pale masked figure in a cranberry cardigan raising one stiff hand to wave back, a puzzled friend looking the wrong way",
               "effects": {
                 "nerve": 1,
@@ -1044,7 +1044,7 @@
     ],
     "finale": {
       "id": "the-shape-finale",
-      "title": "Halloween at 45 Crystal Street",
+      "title": "Halloween at the Kettering House",
       "place": "The Kettering house, Halloween night",
       "text": "At 11:40 on Halloween night every phone on Crystal Street starts ringing at once. Your crew is barricaded in the Kettering living room with the same plaid couch and the same wall phone from 1971. Out in the street, the Shape walks down the center line between the jack-o'-lanterns, needles in hand, and stops at the front walk. Carol Pickett, who was Carol Lund, stands frozen on the sidewalk in her Halloween Safety Committee sash. The mask turns toward her, then toward you. \"Rules are rules,\" says every phone in every house.",
       "art": "A split-level suburban house on Halloween night with every window lit and teens peering out, a pale masked figure in a cranberry cardigan standing on the front walk holding knitting needles, a woman in a safety sash frozen on the sidewalk, jack-o'-lanterns lining the street",

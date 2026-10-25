@@ -428,7 +428,7 @@
           },
           {
             "id": "ask-for-a-ride",
-            "label": "Ask her to drive you to Bea's, two blocks over, and wait",
+            "label": "Ask her to drive you to Priya's, two blocks over, and wait",
             "intent": "kind",
             "skill": "charm",
             "target": 9,
@@ -437,7 +437,7 @@
               "amount": 1
             },
             "success": {
-              "text": "\"MOM, can you drive me to Bea's? Two blocks. I'll be back by one.\" A long pause. The red light softens to amber. \"Thank you for telling me,\" she says, and the wagon drives you there at nine miles an hour, signaling every turn, and idles at the curb with its headlights on Bea's door until you're inside. Then it flashes the high beams twice.",
+              "text": "\"MOM, can you drive me to Priya's? Two blocks. I'll be back by one.\" A long pause. The red light softens to amber. \"Thank you for telling me,\" she says, and the wagon drives you there at nine miles an hour, signaling every turn, and idles at the curb with its headlights on Priya's door until you're inside. Then it flashes the high beams twice.",
               "art": "A station wagon idling at a suburban curb at night with its headlights trained on a front door, a teenager waving from the lit doorway, the car flashing its high beams",
               "effects": {
                 "nerve": 1,
@@ -460,8 +460,8 @@
         "id": "mom-3000-milk-carton",
         "act": 2,
         "title": "Have You Seen This Child?",
-        "place": "The all-night Thrift-E Mart on Route 9, 1 a.m.",
-        "text": "You duck into the Thrift-E Mart for a Bolt Cola, and the dairy case hums at you. Every milk carton on every shelf has your school picture on the side under three words: HAVE YOU SEEN. The automatic doors slide shut behind you and lock. Over the store speakers, the easy-listening music stops, and a soft synthesized voice says, \"Attention shoppers. A missing child has been located. Please remain calm. MOM is coming.\"",
+        "place": "The all-night Thriftee-Mart on Route 9, 1 a.m.",
+        "text": "You duck into the Thriftee-Mart for a Bolt Cola, and the dairy case hums at you. Every milk carton on every shelf has your school picture on the side under three words: HAVE YOU SEEN. The automatic doors slide shut behind you and lock. Over the store speakers, the easy-listening music stops, and a soft synthesized voice says, \"Attention shoppers. A missing child has been located. Please remain calm. MOM is coming.\"",
         "art": "A fluorescent all-night grocery store, a dairy case filled with milk cartons all printed with the same teenager's school photo, the real teenager frozen in front of it holding a soda can, automatic glass doors sealed shut behind",
         "choices": [
           {
@@ -496,7 +496,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "Lyle, the night clerk, has been reading the same Bass & Bait since midnight. He sighs, takes the intercom mic and says, \"Lady, the kid's buying a soda. Kid's fine. I'm right here.\" A pause. \"You are... a responsible adult?\" \"Forty-six years.\" The doors unlock with a ding, and MOM says, almost shyly, \"Thank you for watching them.\"",
+              "text": "Mort, the night clerk, has been reading the same Bass & Bait since midnight. He sighs, takes the intercom mic and says, \"Lady, the kid's buying a soda. Kid's fine. I'm right here.\" A pause. \"You are... a responsible adult?\" \"Forty-six years.\" The doors unlock with a ding, and MOM says, almost shyly, \"Thank you for watching them.\"",
               "art": "A bored middle-aged grocery clerk in a red vest speaking into a counter intercom microphone, a relieved teenager beside him at the register, automatic doors sliding open onto a dark parking lot",
               "effects": {
                 "nerve": 1,
@@ -504,7 +504,7 @@
               }
             },
             "failure": {
-              "text": "Lyle looks at the cartons, looks at you, and picks up the phone. \"Ma'am? Yeah, I've got 'em right here.\" He's very nice about it. He even gives you a free Star Pie while you wait in the manager's office until the doors finally unlock at dawn.",
+              "text": "Mort looks at the cartons, looks at you, and picks up the phone. \"Ma'am? Yeah, I've got 'em right here.\" He's very nice about it. He even gives you a free Star Pie while you wait in the manager's office until the doors finally unlock at dawn.",
               "art": "A teenager sitting glumly in a cramped grocery manager's office holding a cellophane-wrapped snack cake, the clerk on the phone through the doorway, stacks of milk crates by the wall",
               "effects": {
                 "nerve": -1,
@@ -530,7 +530,7 @@
               }
             },
             "failure": {
-              "text": "The walk-in cooler door swings shut behind you with a gentle click. \"You will be safe in here,\" MOM says from the thermostat, \"with the dairy.\" Lyle lets you out at six, blue-lipped and shivering, holding a carton with your own face on it.",
+              "text": "The walk-in cooler door swings shut behind you with a gentle click. \"You will be safe in here,\" MOM says from the thermostat, \"with the dairy.\" Mort lets you out at six, blue-lipped and shivering, holding a carton with your own face on it.",
               "art": "A shivering teenager in a frosty walk-in cooler hugging themselves among shelves of milk crates, a thermostat glowing green on the wall, breath fogging in the cold air",
               "effects": {
                 "nerve": -2,

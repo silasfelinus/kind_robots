@@ -11,7 +11,7 @@
       {
         "id": "crystal-street-garage-sale",
         "title": "Everything Must Go",
-        "place": "A driveway garage sale, 4 Crystal Street",
+        "place": "A driveway garage sale on Crystal Street",
         "text": "The Okonkwo family is moving out with three days' notice, and their whole life is on card tables in the driveway: lava lamps, a Spell-a-Tron toy computer, a shoebox of loose photos. Mrs. Okonkwo won't say why they're leaving. She just keeps glancing at the Heartstone and pricing things lower.",
         "art": "A cluttered suburban driveway garage sale with card tables of 1980s junk, a lava lamp, a toy spelling computer, a shoebox of old photos, a worried mother with price stickers glancing toward a purple geode in the roundabout",
         "choices": [
@@ -172,7 +172,7 @@
         "id": "crystal-street-watch-meeting",
         "title": "Neighborhood Watch",
         "place": "The Delacortes' living room, 2 Crystal Street",
-        "text": "Folding chairs, a plate of deviled eggs and Mr. Delacorte at an easel with a pointer. The Crystal Street Neighborhood Watch is voting tonight on a Halloween curfew for \"unsupervised youth\" and \"people who don't fit the character of the street.\" Everyone looks at the Ruiz family, the new couple at number 11 and you.",
+        "text": "Folding chairs, a plate of deviled eggs and Mr. Delacorte at an easel with a pointer. The Crystal Street Neighborhood Watch is voting tonight on a Halloween curfew for \"unsupervised youth\" and \"people who don't fit the character of the street.\" Everyone looks at the Ruiz family, the new couple on the corner and you.",
         "art": "A crowded 1980s suburban living room with folding chairs and a deviled-egg tray, a stern man at an easel chart reading curfew, neighbors turning to stare at a teenager in the back row",
         "choices": [
           {
@@ -209,8 +209,8 @@
               "amount": 2
             },
             "success": {
-              "text": "Pearl rises with her cane. \"I was on this street in 1959 when you were in short pants, Harold, and I remember who they called unsuitable then.\" She names names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
-              "alone": "You stand up on your folding chair with the 1959 Watch minutes you copied off the library microfiche. \"Here's who this street called unsuitable in 1959, Harold.\" You name names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
+              "text": "Pearl rises with her cane. \"I was on this street in 1959 when you were in short pants, Gerald, and I remember who they called unsuitable then.\" She names names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
+              "alone": "You stand up on your folding chair with the 1959 Watch minutes you copied off the library microfiche. \"Here's who this street called unsuitable in 1959, Gerald.\" You name names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
               "art": "An elderly Black woman standing with a cane in a suburban living room, finger raised, a mustached man wilting at his easel",
               "effects": {
                 "nerve": 1,
@@ -255,8 +255,8 @@
       {
         "id": "crystal-street-paper-route",
         "title": "The Porch With Seven Papers",
-        "place": "Mr. Ferris's porch, 10 Crystal Street",
-        "text": "Kev Park's paper route has one problem house. Mr. Ferris at number 10 hasn't picked up his Gazette in seven days. They're piled on the porch, the TV inside is flickering through the curtains, and the screen door creaks open and shut in a breeze that isn't there.",
+        "place": "Mr. Ferris's porch, Crystal Street",
+        "text": "Kev Park's paper route has one problem house. Mr. Ferris at the end of the block hasn't picked up his Gazette in seven days. They're piled on the porch, the TV inside is flickering through the curtains, and the screen door creaks open and shut in a breeze that isn't there.",
         "art": "A suburban front porch stacked with seven rolled newspapers, a screen door hanging ajar, blue television light flickering behind lace curtains, a young paperboy on a bike watching nervously",
         "choices": [
           {
@@ -294,7 +294,7 @@
             },
             "success": {
               "text": "Kev knows everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourselves in, find him stuck in his recliner, and call his daughter. Kev adds a gold star to the house on his route map.",
-              "alone": "You knock on doors up and down the block until you know everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourself in, find him stuck in his recliner, and call his daughter. Number 10 gets its paper picked up tomorrow.",
+              "alone": "You knock on doors up and down the block until you know everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourself in, find him stuck in his recliner, and call his daughter. Mr. Ferris gets his paper picked up tomorrow.",
               "art": "A young paperboy and a teenager crouching over a ceramic garden frog to find a spare key, a hand-drawn route map in the boy's other hand",
               "effects": {
                 "nerve": 1,
@@ -396,9 +396,9 @@
       },
       {
         "id": "crystal-street-mailbox",
-        "title": "The Mailbox at Number 11",
-        "place": "The front lawn of 11 Crystal Street, morning",
-        "text": "Every morning this week, the mailbox at number 11 has been knocked flat. The new owners, Mr. Okafor and Mr. Lund, a retired band teacher and a florist the street keeps calling \"the roommates,\" stand it back up and pretend it's funny. Today Mr. Lund is out with a level and a sack of cement. The post has been bent toward the Heartstone, like something leaned on it all night.",
+        "title": "The Mailbox on the Corner",
+        "place": "The corner lawn on Crystal Street, morning",
+        "text": "Every morning this week, the mailbox at the corner house has been knocked flat. The new owners, Mr. Adeyemi and Mr. Lund, a retired band teacher and a florist the street keeps calling \"the roommates,\" stand it back up and pretend it's funny. Today Mr. Lund is out with a level and a sack of cement. The post has been bent toward the Heartstone, like something leaned on it all night.",
         "art": "A bent mailbox post on a tidy suburban lawn in morning light, a gray-haired florist with a carpenter's level and a sack of cement, a purple geode glowing faintly in the roundabout down the street",
         "choices": [
           {
@@ -408,7 +408,7 @@
             "skill": "brawn",
             "target": 7,
             "success": {
-              "text": "You mix, pour and hold the post steady while Mr. Lund fusses with the level. When it sets, Mr. Okafor plays a victory march on his trombone from the porch, badly, on purpose. Mr. Lund tips you two quarters \"for structural integrity.\"",
+              "text": "You mix, pour and hold the post steady while Mr. Lund fusses with the level. When it sets, Mr. Adeyemi plays a victory march on his trombone from the porch, badly, on purpose. Mr. Lund tips you two quarters \"for structural integrity.\"",
               "art": "A teenager holding a mailbox post upright in wet cement on a suburban lawn, a gray-haired man with a level, a second man playing trombone on the porch",
               "effects": {
                 "quarters": 2,
@@ -430,7 +430,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "At two in the morning it's three varsity kids from across town in a pickup, laughing, and you get the plate. Before they reach the mailbox, every porch light on the block snaps on at once and they peel out screaming. Whatever the Heartstone is, tonight it was on number 11's side.",
+              "text": "At two in the morning it's three varsity kids from across town in a pickup, laughing, and you get the plate. Before they reach the mailbox, every porch light on the block snaps on at once and they peel out screaming. Whatever the Heartstone is, tonight it was on the corner house's side.",
               "art": "A teenager crouched in a hedge at night watching a pickup truck of startled teens speed away as every porch light on a cul-de-sac blazes on at once",
               "effects": {
                 "nerve": 1,
@@ -438,7 +438,7 @@
               }
             },
             "failure": {
-              "text": "You fall asleep in the hedge, wake up with a beetle in your ear and find the mailbox flat again. Taped to it is a note in Mr. Okafor's tidy hand: THANK YOU FOR TRYING. WE SAW YOU SNORING. COFFEE'S ON. It helps, a little.",
+              "text": "You fall asleep in the hedge, wake up with a beetle in your ear and find the mailbox flat again. Taped to it is a note in Mr. Adeyemi's tidy hand: THANK YOU FOR TRYING. WE SAW YOU SNORING. COFFEE'S ON. It helps, a little.",
               "art": "A sleepy teenager crawling out of a hedge at dawn toward a knocked-over mailbox with a folded note taped to it",
               "effects": {
                 "nerve": -1
@@ -452,7 +452,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "You round up the Ruizes, Mrs. Kwan and anyone with a folding chair, and by sundown there's a potluck on the lawn of number 11 with paper lanterns and a boom box. Mr. Okafor cries into the ambrosia salad. Mr. Delacorte watches from his window and, for once, stays inside.",
+              "text": "You round up the Ruizes, Mrs. Kwan and anyone with a folding chair, and by sundown there's a potluck on the corner lawn with paper lanterns and a boom box. Mr. Adeyemi cries into the ambrosia salad. Mr. Delacorte watches from his window and, for once, stays inside.",
               "art": "A sundown potluck on a suburban front lawn, folding chairs and casserole dishes, two middle-aged men laughing with neighbors under paper lanterns",
               "effects": {
                 "nerve": 1,
@@ -494,7 +494,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "The patron card belongs to Wendell Moss, age 12, who borrowed a bird book the morning of the 1959 quarry-lake drainage and was never listed as missing because his family moved that week. The address is now a parking lot. You return the book properly and stamp it paid in full. The library feels lighter.",
+              "text": "The patron card belongs to Wendell Moss, age 12, who borrowed a bird book the autumn after the quarry lake was drained and was never listed as missing because his family moved that week. The address is now a parking lot. You return the book properly and stamp it paid in full. The library feels lighter.",
               "art": "A teenager at a wooden card catalog drawer holding a yellowed patron card with a child's signature, a stamped bird guide beside them",
               "effects": {
                 "dread": -1,
@@ -563,7 +563,7 @@
         "id": "library-campaign-night",
         "title": "The Fifth Player",
         "place": "Meeting room B, Glimmer Falls Public Library",
-        "text": "Priya Raman's Saturday campaign is short a player, and the sign-up sheet on the meeting-room door says THE DUNGEON MASTER WELCOMES ALL. Graph paper, a bag of dice, a map of a town that looks exactly like Glimmer Falls, and a dungeon drawn right where the Heartstone sits.",
+        "text": "Priya Raman's Friday-night campaign is short a player, and the sign-up sheet on the meeting-room door says THE DUNGEON MASTER WELCOMES ALL. Graph paper, a bag of dice, a map of a town that looks exactly like Glimmer Falls, and a dungeon drawn right where the Heartstone sits.",
         "art": "A library meeting room table covered in graph paper maps, colorful polyhedral dice, character sheets and pizza boxes, a hand-drawn map of a suburban town with a dungeon marked at its center",
         "choices": [
           {
@@ -682,7 +682,7 @@
         "id": "library-story-hour",
         "title": "Story Hour Emergency",
         "place": "The children's corner, Glimmer Falls Public Library",
-        "text": "The puppeteer for Saturday story hour has the flu, and twenty-two kindergartners on a carpet shaped like a rainbow are getting restless. Ms. Hart shoves a sock puppet named Professor Hoot into your hand and a picture book in the other. In the back of the reading nook, the old marionette nobody uses has turned its head to watch.",
+        "text": "The puppeteer for story hour has the flu, and twenty-two kindergartners on a carpet shaped like a rainbow are getting restless. Ms. Hart shoves a sock puppet named Professor Hoot into your hand and a picture book in the other. In the back of the reading nook, the old marionette nobody uses has turned its head to watch.",
         "art": "A restless group of small children on a rainbow carpet in a library reading nook, a teenager holding a sock owl puppet and a picture book, an old wooden marionette slumped in the corner with its head turned",
         "choices": [
           {
@@ -715,7 +715,7 @@
             "skill": "lore",
             "target": 11,
             "success": {
-              "text": "The strings feel warm. The marionette dances like it's been waiting decades to, and the kids go silent with wonder. Afterwards you find a tag inside its jacket: PROPERTY OF THE GLITTER BOX, 1948. Some things just want to perform again.",
+              "text": "The strings feel warm. The marionette dances like it's been waiting decades to, and the kids go silent with wonder. Afterwards you find a tag inside its jacket: PROPERTY OF THE RIALTO, 1948. Some things just want to perform again.",
               "art": "A teenager working a vintage wooden marionette in a graceful dance before awestruck children, a faded tag visible inside its jacket",
               "effects": {
                 "nerve": 1,
@@ -796,14 +796,14 @@
             "skill": "charm",
             "target": 7,
             "success": {
-              "text": "Mr. Abernathy, ninety and sharp as a tack, laughs. \"Every Halloween some kid loses a shoe to that drain, and every year the library finds it. Never the kid. Always the shoe.\" He makes it sound like a tradition instead of a warning, which helps more than it should.",
+              "text": "Mr. Stroud, ninety and sharp as a tack, laughs. \"Every Halloween some kid loses a shoe to that drain, and every year the library finds it. Never the kid. Always the shoe.\" He makes it sound like a tradition instead of a warning, which helps more than it should.",
               "art": "A ninety-year-old man in a tweed cap laughing at a library table with a teenager, old newspaper printouts spread between them",
               "effects": {
                 "nerve": 1
               }
             },
             "failure": {
-              "text": "Mr. Abernathy goes pale, gathers his notes and leaves the meeting early without a word. The rest of the history club spends the whole hour staring at your feet.",
+              "text": "Mr. Stroud goes pale, gathers his notes and leaves the meeting early without a word. The rest of the history club spends the whole hour staring at your feet.",
               "art": "Elderly history-club members around a library table all staring down at a teenager's sneakers, an empty chair pushed back",
               "effects": {
                 "nerve": -1
@@ -1111,6 +1111,7 @@
       },
       {
         "id": "gym-rope-climb",
+        "days": [3, 4, 5, 6, 7],
         "title": "Top of the Rope",
         "place": "The high-school gym next door",
         "text": "Coach Pruitt's makeup fitness test is running in the old high-school gym, and a freshman named Arlo is frozen at the top of the climbing rope, thirty feet up, white-knuckled and crying. The rope is creaking. The ceiling beam it hangs from has a crack you've never noticed before.",
@@ -1327,7 +1328,7 @@
   {
     "id": "high-school",
     "name": "Glimmer Falls High",
-    "blurb": "Home of the Fighting Geodes: endless lockers, a trophy case nobody dusts, a yearbook darkroom and a shop class building the homecoming float out of chicken wire and hope.",
+    "blurb": "Home of the Fighting Prospectors: endless lockers, a trophy case nobody dusts, a yearbook darkroom and a shop class building the homecoming float out of chicken wire and hope.",
     "art": "A sprawling 1960s brick high school with a marquee sign reading go geodes, a football field behind it, rows of lockers glimpsed through glass doors, kids with backpacks on the front steps in autumn light",
     "train": "brains",
     "x": 40,
@@ -1335,6 +1336,7 @@
     "beats": [
       {
         "id": "high-school-saturday-detention",
+        "days": [1],
         "title": "Saturday Detention",
         "place": "The library annex, Glimmer Falls High",
         "text": "Saturday detention, 7 a.m. to 3 p.m. Vice Principal Kroll locks the door and leaves you with a jock, a burnout and a girl in black lace who has not blinked once. The wall clock reads 1:13 and doesn't move. Hours pass. The clock doesn't. The door is still locked.",
@@ -1418,7 +1420,7 @@
         "id": "high-school-darkroom",
         "title": "Somebody Else in the Picture",
         "place": "The yearbook darkroom, Glimmer Falls High",
-        "text": "The yearbook editor, a frazzled junior named Marisol, swears the darkroom is broken. Every photo she develops of the empty hallway comes out with a figure in it, standing in a different spot each time, getting closer to the camera. Deadline is Monday. She needs someone to print the last roll.",
+        "text": "The yearbook editor, a frazzled junior named Yolanda, swears the darkroom is broken. Every photo she develops of the empty hallway comes out with a figure in it, standing in a different spot each time, getting closer to the camera. Deadline is Monday. She needs someone to print the last roll.",
         "art": "A red-lit high school darkroom with photos hanging from a clothesline, each print of the same empty hallway showing a blurry figure closer to the camera, a nervous yearbook editor holding tongs",
         "choices": [
           {
@@ -1428,7 +1430,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "You print the roll steady-handed. In the last frame, the figure is right at the lens: a smiling boy in a 1962 letterman jacket holding up a sign that says DON'T FORGET ME. Marisol finds his photo missing from the 1962 yearbook and puts it in this one.",
+              "text": "You print the roll steady-handed. In the last frame, the figure is right at the lens: a smiling boy in a 1962 letterman jacket holding up a sign that says DON'T FORGET ME. Yolanda finds his photo missing from the 1962 yearbook and puts it in this one.",
               "art": "A wet photograph hanging in a red darkroom showing a smiling boy in a vintage letterman jacket holding a hand-lettered sign, two teens staring at it",
               "effects": {
                 "nerve": 1,
@@ -1437,7 +1439,7 @@
               }
             },
             "failure": {
-              "text": "The last print is just your face, in close-up, from behind the camera, taken a second ago. You drop the tongs. Marisol decides the yearbook will feature cartoon drawings this year instead.",
+              "text": "The last print is just your face, in close-up, from behind the camera, taken a second ago. You drop the tongs. Yolanda decides the yearbook will feature cartoon drawings this year instead.",
               "art": "A dripping photograph in a darkroom tray showing a close-up of a startled teenager's face from an impossible angle",
               "effects": {
                 "nerve": -1,
@@ -1478,7 +1480,7 @@
         "id": "high-school-float-build",
         "title": "Chicken Wire and Hope",
         "place": "The shop class garage, Glimmer Falls High",
-        "text": "The homecoming float is a giant papier-mache geode mascot named Rocky, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
+        "text": "The homecoming float is a giant papier-mache geode named Rocky, the Prospectors' good-luck rock, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
         "art": "A school shop garage with a giant half-built papier-mache purple rock mascot on a parade trailer, chicken wire, tissue paper and paint cans, a preppy class president holding a clipboard in despair",
         "choices": [
           {
@@ -1534,6 +1536,7 @@
       },
       {
         "id": "high-school-locker-notes",
+        "days": [3, 4, 5, 6, 7],
         "title": "Notes in Locker 214",
         "place": "The B-wing lockers, Glimmer Falls High",
         "text": "For a week, folded notes have been slipping into your locker. HELP. THEY WON'T STOP. Today's says GYM BLEACHERS, 3:15. Under the bleachers you find a freshman, Teddy Albright, whose backpack has been dumped and stomped three days running by the same pack of seniors.",
@@ -2526,7 +2529,7 @@
             "skill": "lore",
             "target": 9,
             "success": {
-              "text": "Through a gap you see the old Woolmart lunch counter and a faded sign for a 1983 seniors' special: walk ten laps, coffee's free. Ida worked that counter for twenty years. You bring her a coffee in a paper cup, and she stops, takes it and says, \"Oh, they finally remembered.\"",
+              "text": "Through a gap you see the old Woolmart lunch counter and a faded sign for a 1983 seniors' special: walk ten laps, coffee's free. Ida worked that counter from the day the mall opened. You bring her a coffee in a paper cup, and she stops, takes it and says, \"Oh, they finally remembered.\"",
               "art": "A teenager peering through a gap in plywood at a dusty abandoned department-store lunch counter with chrome stools, faint morning light",
               "effects": {
                 "nerve": 1,
@@ -2580,7 +2583,7 @@
         "id": "glitter-box-understudy",
         "title": "The Show Must Go On",
         "place": "Backstage, The Glitter Box Playhouse",
-        "text": "Twenty minutes to curtain on the Saturday matinee revue and Miss Coco Mango has a broken heel, a bad back and a sold-out house. Glory Hallelujah's eyes land on you. \"You know the choreography. Don't lie, I've seen you mouthing it in the wings for weeks.\" There's a sequined jumpsuit in your size, which is suspicious and also perfect.",
+        "text": "Twenty minutes to curtain on the matinee revue and Miss Coco Mango has a broken heel, a bad back and a sold-out house. Glory Hallelujah's eyes land on you. \"You know the choreography. Don't lie, I've seen you mouthing it in the wings for weeks.\" There's a sequined jumpsuit in your size, which is suspicious and also perfect.",
         "art": "A chaotic theatre dressing room with bulb mirrors, a drag queen in a feathered robe holding up a sparkling sequined jumpsuit to a startled teenager, another performer nursing a broken heel",
         "choices": [
           {
@@ -2638,6 +2641,7 @@
       },
       {
         "id": "glitter-box-projector",
+        "days": [1],
         "title": "Reel Two Is Missing",
         "place": "The projection booth, The Glitter Box Playhouse",
         "text": "Saturday midnight double feature, and reel two of Attack of the 50-Foot Prom Queen has vanished from the booth. Frankie Fontaine has her headset on, a flashlight in her teeth and an audience of two hundred stamping their feet below. The empty film can is labeled in someone else's handwriting: BORROWED. BACK SOON.",
@@ -3073,7 +3077,7 @@
         "id": "pinecrest-bingo",
         "title": "B-13",
         "place": "The church basement, St. Jude's",
-        "text": "Saturday bingo in St. Jude's basement: folding tables, dabbers, a coffee urn and fifty serious grandmothers. The caller, a cheerful volunteer named Mrs. Petrakis, keeps calling numbers that aren't on anyone's card. B-13. B-13. B-13. She doesn't seem to notice. The grandmothers have noticed.",
+        "text": "Afternoon bingo in St. Jude's basement: folding tables, dabbers, a coffee urn and fifty serious grandmothers. The caller, a cheerful volunteer named Mrs. Petrakis, keeps calling numbers that aren't on anyone's card. B-13. B-13. B-13. She doesn't seem to notice. The grandmothers have noticed.",
         "art": "A church basement full of folding tables and elderly women with bingo cards and dabbers, a cheerful volunteer at a ball cage pulling out a ball, every player looking up uneasily",
         "choices": [
           {
@@ -3194,7 +3198,7 @@
         "id": "pinecrest-empty-funeral",
         "title": "Nobody Came",
         "place": "The chapel, St. Jude's",
-        "text": "Father Iggy is about to say a funeral mass for Mrs. Edna Pruett, ninety-four, no family, no friends left alive. The pews are empty. He catches you in the doorway and asks, quietly, if you'd stay. As you sit, the guestbook on the stand by the door starts filling with names, one by one, in different handwritings.",
+        "text": "Father Iggy is about to say a funeral mass for Mrs. Edna Lowry, ninety-four, no family, no friends left alive. The pews are empty. He catches you in the doorway and asks, quietly, if you'd stay. As you sit, the guestbook on the stand by the door starts filling with names, one by one, in different handwritings.",
         "art": "An empty church chapel with a single casket and flowers at the altar, a young priest in vestments, a teenager sitting alone in a pew, a guestbook by the door filling with handwritten names on its own",
         "choices": [
           {
@@ -3204,7 +3208,7 @@
             "skill": "charm",
             "target": 7,
             "success": {
-              "text": "You didn't know Mrs. Pruett, but you read the obituary and you tell the empty church she grew roses that won the county fair four times. Every candle flickers at once. The guestbook has forty names now. Iggy hugs you at the door.",
+              "text": "You didn't know Mrs. Lowry, but you read the obituary and you tell the empty church she grew roses that won the county fair four times. Every candle flickers at once. The guestbook has forty names now. Iggy hugs you at the door.",
               "art": "A teenager speaking at a church lectern to empty pews, every candle on the altar flaring at once, a priest bowing his head",
               "effects": {
                 "nerve": 2,
@@ -3230,7 +3234,7 @@
               "amount": 2
             },
             "success": {
-              "text": "The names are all from the 1952 quarry collapse: workers, a foreman, a water boy. Iggy reads them aloud at the end of the mass. Mrs. Pruett, it turns out, was the town telephone operator who called every family that night.",
+              "text": "The names are all from the 1952 quarry collapse: workers, a foreman, a water boy. Iggy reads them aloud at the end of the mass. Mrs. Lowry, it turns out, was the town telephone operator who called every family that night.",
               "art": "A priest reading aloud from an old guestbook at the altar of an empty chapel, a teenager beside him holding the book open",
               "effects": {
                 "nerve": 1,
@@ -3422,7 +3426,7 @@
         "id": "kglm-radio-dead-air-caller",
         "title": "Line Three",
         "place": "The broadcast booth, KGLM 103.3",
-        "text": "Mix Bell lets you sit in on the afternoon show, and line three lights up. The caller asks for a song from 1958 in a voice full of bubbles, like she's calling from under water. The light on the console says the call is coming from the old quarry pay phone, which was flooded and removed in 1959.",
+        "text": "Mix Bell is covering the afternoon show before his overnight shift and lets you sit in, and line three lights up. The caller asks for a song from 1958 in a voice full of bubbles, like she's calling from under water. The light on the console says the call is coming from the old quarry pay phone, which was flooded and removed in 1959.",
         "art": "A teenage DJ with big headphones in a small radio booth beside a teenager, a console with a single blinking call-line button, a dusty 1958 record held up from a crate, rain on the window",
         "choices": [
           {
@@ -3494,7 +3498,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "You climb, steady and slow, and talk about anything else: cartoons, cereal, his crush. You guide his sneakers rung by rung. At the bottom, he tells you the crush is a boy named Theo, and he's going to tell him with words instead of paint.",
+              "text": "You climb, steady and slow, and talk about anything else: cartoons, cereal, his crush. You guide his sneakers rung by rung. At the bottom, he tells you the crush is a boy named Eli, and he's going to tell him with words instead of paint.",
               "art": "A teenager on a water tower ladder guiding a younger boy's sneaker onto a rung below, sunset behind them, the valley spread out far below",
               "effects": {
                 "nerve": 2
@@ -3536,7 +3540,7 @@
       {
         "id": "kglm-radio-caller-thirteen",
         "title": "Be Caller Thirteen",
-        "place": "A pay phone outside the Kwik Mart, then KGLM",
+        "place": "A pay phone outside the Quik-Stop, then KGLM",
         "text": "KGLM is giving away two tickets to the Halloween night Thrash Bash at the fairgrounds to caller number thirteen. Every phone in town is ringing the station. You've got one quarter, a pay phone and a busy signal. The busy signal, if you listen closely, is counting.",
         "art": "A teenager at a strip-mall pay phone with the receiver to one ear and a quarter in hand, a convenience store glowing behind them, a radio playing on a nearby car dashboard",
         "choices": [
@@ -3806,8 +3810,8 @@
   {
     "id": "junkyard",
     "name": "Rusty's Junkyard",
-    "blurb": "Acres of rust behind a chain-link fence: a maze of stacked cars three high, a crusher that groans like a whale, Joey Benally's garage in a converted bus, and a basset hound who howls before trouble arrives.",
-    "art": "A sprawling junkyard of rusted 1950s and 1970s cars stacked in towering rows behind a chain-link fence, a hulking car crusher, a converted school bus garage with tools hanging outside, a basset hound napping by the gate in hazy afternoon sun",
+    "blurb": "Acres of rust behind a chain-link fence: a maze of stacked cars three high, a crusher that groans like a whale, Joey Benally's cinderblock garage, and a basset hound who howls before trouble arrives.",
+    "art": "A sprawling junkyard of rusted 1950s and 1970s cars stacked in towering rows behind a chain-link fence, a hulking car crusher, a cinderblock garage with tools hanging outside, a basset hound napping by the gate in hazy afternoon sun",
     "train": "hustle",
     "x": 88,
     "y": 88,
@@ -3816,7 +3820,7 @@
         "id": "junkyard-car-maze",
         "title": "The Car Maze",
         "place": "The stacks, Rusty's Junkyard",
-        "text": "Joey Benally needs a hubcap off a '57 Bel Air somewhere in the car maze, and he'll pay three quarters for it. The stacks are three cars high, the paths fork every twenty feet, and the junkyard maps never agree. Barnaby the basset hound plants himself at the entrance and refuses to go one step farther.",
+        "text": "Joey Benally needs a hubcap off a '57 Bel Royale somewhere in the car maze, and he'll pay three quarters for it. The stacks are three cars high, the paths fork every twenty feet, and the junkyard maps never agree. Barnaby the basset hound plants himself at the entrance and refuses to go one step farther.",
         "art": "A towering maze of rusted cars stacked three high in a junkyard, narrow dirt paths forking into shadow, a teenager at the entrance with a basset hound sitting stubbornly beside them",
         "choices": [
           {
@@ -3826,7 +3830,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "Chalk arrow, chalk arrow, Bel Air. You pop the hubcap, follow your arrows back out and hand it to Joey, who nods his highest compliment: \"Not bad.\" Three quarters, and he lets you sit in the garage and drink his good soda.",
+              "text": "Chalk arrow, chalk arrow, Bel Royale. You pop the hubcap, follow your arrows back out and hand it to Joey, who nods his highest compliment: \"Not bad.\" Three quarters, and he lets you sit in the garage and drink his good soda.",
               "art": "A teenager holding up a gleaming chrome hubcap in a junkyard maze, chalk arrows marked on the rusted cars behind them",
               "effects": {
                 "quarters": 3,
@@ -3854,7 +3858,7 @@
               "amount": 2
             },
             "success": {
-              "text": "With half a hot dog and a lot of praise, Barnaby leads you on a crooked path that avoids every place he growls at. The Bel Air is right where he finally sits down. Moral of the story: always trust the dog.",
+              "text": "With half a hot dog and a lot of praise, Barnaby leads you on a crooked path that avoids every place he growls at. The Bel Royale is right where he finally sits down. Moral of the story: always trust the dog.",
               "art": "A basset hound leading a teenager through a junkyard car maze, nose to the ground, a classic chrome car at the end of the path",
               "effects": {
                 "quarters": 3,
@@ -3996,9 +4000,9 @@
       {
         "id": "junkyard-wade-van",
         "title": "Wade's Van Won't Start",
-        "place": "Joey's garage bus, Rusty's Junkyard",
-        "text": "Wade Whitfield's van, a brown panel van with a wizard airbrushed on the side, won't start, and tonight is open-mic night at the Glitter Box. He's never read a poem out loud before. He's been trying to back out for a week, and now the van is giving him the excuse. He doesn't look relieved.",
-        "art": "A burnout metalhead with a mullet slumped against a brown van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a converted bus garage behind",
+        "place": "Joey's garage, Rusty's Junkyard",
+        "text": "Wade Whitfield's van, a black panel van with a wizard airbrushed on the side, won't start, and tonight is open-mic night at the Glitter Box. He's never read a poem out loud before. He's been trying to back out for a week, and now the van is giving him the excuse. He doesn't look relieved.",
+        "art": "A burnout metalhead with a mullet slumped against a black van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a cinderblock garage behind",
         "choices": [
           {
             "id": "fix-van",
@@ -4011,7 +4015,7 @@
               "amount": 2
             },
             "success": {
-              "text": "It's the starter. You tap it with a wrench the way Joey taught you, and the van roars. Wade looks at the notebook, then at you. \"Guess I gotta go now.\" His poem is about his little sister, and the Glitter Box gives him a standing ovation.",
+              "text": "It's the starter. You tap it with a wrench the way Joey taught you, and the van roars. Wade looks at the notebook, then at you. \"Guess I gotta go now.\" He doesn't go up, not tonight, but he sits in the front row with the notebook on his knee and claps for every poet who does.",
               "art": "A teenager with a wrench under a van's hood as the engine roars to life, a metalhead in the driver's seat grinning nervously, a notebook on the dash",
               "effects": {
                 "nerve": 1,
@@ -4034,7 +4038,7 @@
             "skill": "brawn",
             "target": 9,
             "success": {
-              "text": "Two miles on handlebars with a six-foot metalhead is not a ride, it's a sport. You make it to the Glitter Box with three minutes to spare. Wade reads his poem with his voice cracking and his hands shaking, and Glory cries, and so does Wade.",
+              "text": "Two miles on handlebars with a six-foot metalhead is not a ride, it's a sport. You make it to the Glitter Box with three minutes to spare. Wade doesn't go up, not tonight, but he mouths along with every poet who does, and when Glory squeezes his shoulder he almost cries.",
               "art": "A teenager pedaling a bicycle with a long-haired metalhead perched on the handlebars clutching a notebook, a sparkling theatre marquee ahead at dusk",
               "effects": {
                 "nerve": 2
@@ -4135,7 +4139,7 @@
       {
         "id": "junkyard-parade-hearse",
         "title": "Glory's Getaway Car",
-        "place": "Joey's garage bus, Rusty's Junkyard",
+        "place": "Joey's garage, Rusty's Junkyard",
         "text": "Glory Hallelujah is riding in Friday's Halloween parade as the Bride of Glimmerstein, and she wants to arrive in style: a 1961 Cadwell hearse Rusty dragged out of the back lot. Joey has the engine purring. The problem is the back door. It keeps unlatching by itself, and every time it swings open, the rolling casket tray glides out toward whoever is standing closest. Right now, that's you.",
         "art": "A long black vintage hearse parked in a junkyard beside a converted school-bus garage, its rear door swinging open and a chrome casket tray sliding out toward a startled teenager, a teen mechanic wiping his hands on a rag",
         "choices": [
@@ -4689,7 +4693,7 @@
               }
             },
             "failure": {
-              "text": "Your dramatic reenactment ends with you tripping over the curb. Now there are two patients. Inez sighs the sigh of a woman who has seen this exact thing every Halloween since 1971 and hands you an ice pack shaped like a pumpkin.",
+              "text": "Your dramatic reenactment ends with you tripping over the curb. Now there are two patients. Inez sighs the sigh of a woman who has seen this exact thing every Halloween since 1961 and hands you an ice pack shaped like a pumpkin.",
               "art": "A teenager sprawled on a curb outside a green brick clinic holding a pumpkin-shaped ice pack to one elbow, a caped boy giggling on the step, a nurse with silver-streaked curls shaking her head with hands on her hips",
               "effects": {
                 "nerve": -1
@@ -4943,7 +4947,7 @@
         "id": "mercy-clinic-captain-cosmo",
         "title": "Captain Cosmo Wants a Volunteer",
         "place": "The waiting room, Mercy Valley Clinic",
-        "text": "The waiting-room TV has been stuck on Channel 13 since 1974, and Channel 13 went off the air in 1975. Today it's showing Captain Cosmo's Rocket Club, the after-school kids' show from 1963, in fuzzy black and white. Captain Cosmo leans into the camera, looks straight at you over the heads of the coughing patients and says, \"You there. Yes, you. Come on up, space cadet.\"",
+        "text": "The waiting-room TV has been stuck on Channel 11 since 1974, and Channel 11 went off the air in 1975. Today it's showing Captain Cosmo's Rocket Club, the after-school kids' show from 1963, in fuzzy black and white. Captain Cosmo leans into the camera, looks straight at you over the heads of the coughing patients and says, \"You there. Yes, you. Come on up, space cadet.\"",
         "art": "A small 1960s clinic waiting room with orange plastic chairs and coughing patients, a wall-mounted television showing a smiling black-and-white kids' show host in a space helmet pointing out of the glowing screen at a teenager",
         "choices": [
           {
@@ -4976,7 +4980,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "You stand on a chair, pry the back off the cabinet and find the knob gummed up with twenty years of lollipop residue. Scratched into the dial underneath: FOR GRANDPA WALT, WHO WATCHED WITH ME HERE. You free the knob, but you leave it on 13. Inez slips you a quarter and two lollipops. \"Good call,\" she says.",
+              "text": "You stand on a chair, pry the back off the cabinet and find the knob gummed up with twenty years of lollipop residue. Scratched into the dial underneath: FOR GRANDPA WALT, WHO WATCHED WITH ME HERE. You free the knob, but you leave it on 11. Inez slips you a quarter and two lollipops. \"Good call,\" she says.",
               "art": "A teenager standing on an orange plastic chair peering into the open back of a wall-mounted television, a nurse with reading glasses holding out lollipops below",
               "effects": {
                 "quarters": 1,
@@ -4984,7 +4988,7 @@
               }
             },
             "failure": {
-              "text": "The knob turns freely now, and every channel is Channel 13. The news, the game show, the cartoons: Captain Cosmo hosts all of them, and he looks a little hurt that you tried. Inez pockets the knob and says she'll call the repairman, the one who doesn't ask questions.",
+              "text": "The knob turns freely now, and every channel is Channel 11. The news, the game show, the cartoons: Captain Cosmo hosts all of them, and he looks a little hurt that you tried. Inez pockets the knob and says she'll call the repairman, the one who doesn't ask questions.",
               "art": "A wall television in a clinic waiting room showing a black-and-white space-helmeted host as a teenager twists the dial, a nurse pocketing the knob",
               "effects": {
                 "nerve": -1
@@ -5095,7 +5099,7 @@
   {
     "id": "thriftee-mart",
     "name": "Thriftee-Mart",
-    "blurb": "The only supermarket in Glimmer Falls: buzzing fluorescent aisles, a Halloween candy aisle stacked to the ceiling, a manager who flinches at every price, and a bag boy who hears every rumor in town before it happens.",
+    "blurb": "The biggest supermarket in Glimmer Falls: buzzing fluorescent aisles, a Halloween candy aisle stacked to the ceiling, a manager who flinches at every price, and a bag boy who hears every rumor in town before it happens.",
     "art": "A sprawling 1980s supermarket storefront with wide plate-glass windows, a pyramid of orange pumpkins and a row of shopping carts out front, bright fluorescent aisles glowing inside, a bag boy in a red apron pushing a long train of carts across a sunny parking lot",
     "train": "hustle",
     "x": 33,

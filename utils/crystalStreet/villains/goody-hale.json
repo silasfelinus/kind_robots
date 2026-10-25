@@ -194,7 +194,7 @@
         "id": "goody-hale-river-stone",
         "title": "The stone under the Heartstone",
         "location": "crystal-street",
-        "hint": "Grandma Pearl says the same herbs come up in the Heartstone roundabout every spring no matter how many times the HOA sprays it.",
+        "hint": "Pearl Washington says the same herbs come up in the Heartstone roundabout every spring no matter how many times the HOA sprays it.",
         "encounter": {
           "id": "goody-hale-clue-roundabout-garden",
           "title": "The Garden That Comes Back",

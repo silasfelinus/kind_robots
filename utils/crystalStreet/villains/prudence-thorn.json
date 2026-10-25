@@ -238,7 +238,7 @@
         "act": 1,
         "title": "The Warm-Up Burning",
         "place": "The Heartstone roundabout, Crystal Street",
-        "text": "The Concerned Parents are holding a weeknight warm-up burning on the roundabout. A pickup truck is backed up to the Heartstone, full of records, comic books and a stack of Caverns and Chimeras binders with Priya's name on the cover. Pastor Prudence stands on a lawn chair with a bullhorn. When the first album hits the flames, the smoke curls into two horns and a grin, and the parents gasp and throw in more.",
+        "text": "The Concerned Parents are holding a Sunday-night warm-up burning on the roundabout. A pickup truck is backed up to the Heartstone, full of records, comic books and a stack of Caverns and Chimeras binders with Priya's name on the cover. Pastor Prudence stands on a lawn chair with a bullhorn. When the first album hits the flames, the smoke curls into two horns and a grin, and the parents gasp and throw in more.",
         "art": "Parents in windbreakers throwing records and comic books into a bonfire on a suburban roundabout beside a giant purple geode, a woman in a lavender pantsuit on a lawn chair with a bullhorn, smoke forming a horned grin above the flames",
         "choices": [
           {
@@ -961,8 +961,8 @@
               "amount": 2
             },
             "success": {
-              "text": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, Glory's whole revue on vinyl, her name on every sleeve in purple marker. You lower it to the curb, where Glory, in a sequined bathrobe, hugs it like a lost child. \"Twenty years of Friday nights,\" she says. \"Thank you, baby.\"",
-              "alone": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, the Glitter Box's whole revue on vinyl, a name on every sleeve in purple marker. You leave it on the theater's doorstep at dawn. By noon there's a note taped to your door in the same purple marker: Twenty years of Friday nights. Thank you, baby.",
+              "text": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, Glory's whole revue on vinyl, her name on every sleeve in purple marker. You lower it to the curb, where Glory, in a sequined bathrobe, hugs it like a lost child. \"Twenty years of Saturday nights,\" she says. \"Thank you, baby.\"",
+              "alone": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, the Glitter Box's whole revue on vinyl, a name on every sleeve in purple marker. You leave it on the theater's doorstep at dawn. By noon there's a note taped to your door in the same purple marker: Twenty years of Saturday nights. Thank you, baby.",
               "art": "A teenager climbing down a towering heap of seized books and videotapes with a crate of vinyl records, a drag queen in a sequined bathrobe waiting at the curb with open arms, flashlights sweeping the dark",
               "effects": {
                 "nerve": 1,

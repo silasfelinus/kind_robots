@@ -119,6 +119,7 @@
               },
               "success": {
                 "text": "Glory sits down hard. \"She cut my hair when I was seventeen, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
+                "alone": "The dressing room is empty, but the album opens on a beaming seventeen-year-old in a brand-new haircut, captioned in purple ink: The first time anyone let me look how I felt inside. She lost her shop over a lie. Every page is signed: You're perfect already. Love, F.",
                 "art": "A drag queen in a feathered robe sitting at a vanity mirror, holding an old photo album to her chest, tearful and smiling, bulb lights glowing",
                 "effects": {
                   "clues": ["frieda-krueger-portfolio"],
@@ -127,6 +128,7 @@
               },
               "failure": {
                 "text": "Glory is mid-rehearsal and waves you off with a fan. When you reach for the album, the beehive wig turns on its foam head to face you. You leave very quickly.",
+                "alone": "The dressing room is empty, a fan still spinning on the vanity. When you reach for the album, the beehive wig turns on its foam head to face you. You leave very quickly.",
                 "art": "A silver beehive wig on a foam mannequin head turned toward the viewer in a dark backstage room, one curler dropping to the floor",
                 "effects": {
                   "nerve": -1,

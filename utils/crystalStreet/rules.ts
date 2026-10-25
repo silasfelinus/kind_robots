@@ -22,6 +22,7 @@ import {
   type Faction,
   type Item,
   type Location,
+  type Outcome,
   type Skill,
   type SpecialEnding,
   type SpecialEndingText,
@@ -301,7 +302,7 @@ const PAWNSHOP_SPOTS = [
 ]
 
 export type EncounterKind =
-  'beat' | 'clue' | 'meet' | 'night' | 'signature' | 'finale'
+  'beat' | 'clue' | 'meet' | 'arc' | 'night' | 'signature' | 'finale'
 
 export type Roll = {
   dice: [number, number]
@@ -400,6 +401,12 @@ for (const d of DECKS)
   }
 for (const l of LOCATIONS) for (const e of l.beats) ENCOUNTERS.set(e.id, e)
 for (const c of COMPANIONS) ENCOUNTERS.set(c.meet.id, c.meet)
+const ARC_STEP = new Map<string, { companion: CompanionId; step: number }>()
+for (const c of COMPANIONS)
+  (c.arc ?? []).forEach((e, i) => {
+    ENCOUNTERS.set(e.id, e)
+    ARC_STEP.set(e.id, { companion: c.id as CompanionId, step: i + 1 })
+  })
 
 export const CRYSTAL_STREET_LIVE_TEXT = liveTextStore()
 
@@ -630,6 +637,51 @@ export function villainOf(run: RunState): Villain {
   return villainById(run.villain) ?? VILLAINS[0]!
 }
 
+/** Hangouts in a companion's arc; finishing them all makes them Loyal. */
+export const ARC_STEPS = 3
+/** Finale bonus per Loyal friend in your crew, and its cap. */
+export const LOYAL_BONUS_CAP = 2
+
+/** How many of a companion's hangouts you've had this week. */
+export function arcProgress(run: RunState, id: string): number {
+  let n = 0
+  while (n < ARC_STEPS && run.flags.includes(`arc:${id}:${n + 1}`)) n++
+  return n
+}
+
+export function isLoyal(run: RunState, id: string): boolean {
+  return arcProgress(run, id) >= ARC_STEPS
+}
+
+/** Loyal friends standing with you (not shaken). */
+export function loyalCrew(run: RunState): Companion[] {
+  return activeCrew(run).filter((c) => isLoyal(run, c.id))
+}
+
+/** A crew member's line about this week's nightmare, once it's revealed. */
+export function reactionTo(run: RunState, companion: Companion): string | null {
+  if (!run.revealed || !companion.reactions) return null
+  for (const tag of villainOf(run).tags)
+    if (companion.reactions[tag]) return companion.reactions[tag]!
+  return null
+}
+
+/**
+ * The outcome text to show: an outcome that puts the choice's bonus
+ * companion in the scene has an ``alone`` version for when they're not in
+ * your crew.
+ */
+export function outcomeText(
+  run: RunState,
+  choice: Choice,
+  outcome: Outcome,
+): string {
+  const friend = choice.bonus?.companion
+  return friend && outcome.alone && !run.crew.includes(friend as CompanionId)
+    ? outcome.alone
+    : outcome.text
+}
+
 export function activeCrew(run: RunState): Companion[] {
   if (isFinalGirl(run)) return []
   return run.crew
@@ -742,6 +794,13 @@ export function modifierFor(
       modifier += edges
       breakdown.push(`Edges from the week +${edges}`)
     }
+    const loyal = loyalCrew(run).slice(0, LOYAL_BONUS_CAP)
+    if (loyal.length) {
+      modifier += loyal.length
+      breakdown.push(
+        `Loyal: ${loyal.map((c) => shortName(c.name)).join(' & ')} +${loyal.length}`,
+      )
+    }
   }
   const style = synergyOf(run.avatar, run.archetype)?.bonuses.find(
     (b) => b.style === choice.intent,
@@ -821,11 +880,12 @@ export function reroll(run: RunState): RunState {
   return next
 }
 
-export function pendingOutcome(run: RunState) {
+export function pendingOutcome(run: RunState): Outcome | null {
   if (!run.pending) return null
   const choice = currentChoice(run, run.pending.choiceId)
   if (!choice) return null
-  return run.pending.roll.success ? choice.success : choice.failure
+  const outcome = run.pending.roll.success ? choice.success : choice.failure
+  return { ...outcome, text: outcomeText(run, choice, outcome) }
 }
 
 function applyEffects(run: RunState, effects: Effects, failed: boolean): void {
@@ -912,10 +972,13 @@ export function resolve(run: RunState): RunState {
     choiceId: choice.id,
     label: choice.label,
     success,
-    text: outcome.text,
+    text: outcomeText(next, choice, outcome),
     art: outcome.art,
   })
   const kind = next.current!.kind
+  const arc = kind === 'arc' ? ARC_STEP.get(encounter.id) : undefined
+  if (arc && !next.flags.includes(`arc:${arc.companion}:${arc.step}`))
+    next.flags.push(`arc:${arc.companion}:${arc.step}`)
   if (success && kind === 'signature') {
     const act = actOfSignature(next, encounter.id)
     if (act && !next.flags.includes(`edge-${act}`))
@@ -979,6 +1042,7 @@ export type DayActivity =
   | { kind: 'clue'; encounterId: string; clueId: string }
   | { kind: 'meet'; companionId: CompanionId }
   | { kind: 'rejoin'; companionId: CompanionId }
+  | { kind: 'hangout'; companionId: CompanionId; step: number }
   | { kind: 'train'; skill: Skill }
   | { kind: 'shop' }
   | { kind: 'rest' }
@@ -1015,7 +1079,18 @@ export function activitiesAt(
   }
   for (const c of COMPANIONS.filter((c) => c.location === location.id)) {
     const id = c.id as CompanionId
-    if (run.crew.includes(id)) continue
+    if (run.crew.includes(id)) {
+      // One hangout a day, with one friend standing with you.
+      const step = arcProgress(run, id) + 1
+      if (
+        c.arc?.[step - 1] &&
+        !run.shaken.includes(id) &&
+        !isFinalGirl(run) &&
+        !run.flags.includes(`hangout-${run.day}`)
+      )
+        list.push({ kind: 'hangout', companionId: id, step })
+      continue
+    }
     list.push(
       run.flags.includes(`recruit:${id}`)
         ? { kind: 'rejoin', companionId: id }
@@ -1081,6 +1156,14 @@ export function doActivity(
         kind: 'meet',
         location: locationId,
       }
+  } else if (activity.kind === 'hangout') {
+    const encounter = companionById(activity.companionId)?.arc?.[
+      activity.step - 1
+    ]
+    if (encounter) {
+      next.flags.push(`hangout-${next.day}`)
+      next.current = { id: encounter.id, kind: 'arc', location: locationId }
+    }
   } else if (activity.kind === 'rejoin') {
     next.crew.push(activity.companionId)
     shiftStanding(next, 'friends', 1)
@@ -1311,6 +1394,7 @@ const ENCOUNTER_KINDS: EncounterKind[] = [
   'beat',
   'clue',
   'meet',
+  'arc',
   'night',
   'signature',
   'finale',

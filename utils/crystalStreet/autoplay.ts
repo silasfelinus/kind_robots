@@ -27,6 +27,7 @@ import type { LocationId, VillainId } from './ids'
 const PRIORITY: DayActivity['kind'][] = [
   'clue',
   'meet',
+  'hangout',
   'beat',
   'train',
   'rest',

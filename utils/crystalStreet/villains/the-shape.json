@@ -275,7 +275,7 @@
             "label": "Hang up and lock every door and window",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "walkie-talkies",
               "amount": 1
@@ -357,7 +357,7 @@
             "label": "Get the couple and everyone else upstairs, now",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "moose-kowalski",
               "amount": 1
@@ -452,7 +452,7 @@
             "label": "Grab the flashlight and go after her",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 1
@@ -508,7 +508,7 @@
             "label": "Shout the oldest rule in the horror-movie book after her",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "toby-nakamura",
               "amount": 2
@@ -878,7 +878,7 @@
         "id": "the-shape-pleasant-expression",
         "title": "Practice a Pleasant Expression",
         "place": "The art room at Glimmer Falls High, after the late bus",
-        "text": "You go back to the art room for your backpack after the late bus and find the plaster masks from Mr. Albright's sculpture unit drying on the shelves: thirty white faces of kids you know, every one smiling the same small, polite, practiced smile. So is the one with your name under it, though you never made one. At the teacher's desk sits a girl in a cranberry cardigan and a plaster mask, tapping a steel needle on the desk like a ruler. \"Again,\" she says, in the voice of every grown-up who ever told a girl to smile. \"Practice a pleasant expression.\"",
+        "text": "You go back to the art room for your backpack after the late bus and find the plaster masks from Mr. Quintero's sculpture unit drying on the shelves: thirty white faces of kids you know, every one smiling the same small, polite, practiced smile. So is the one with your name under it, though you never made one. At the teacher's desk sits a girl in a cranberry cardigan and a plaster mask, tapping a steel needle on the desk like a ruler. \"Again,\" she says, in the voice of every grown-up who ever told a girl to smile. \"Practice a pleasant expression.\"",
         "art": "A dim high school art room after hours, shelves of white plaster face masks all smiling the same small smile, a pale masked girl in a cranberry cardigan seated at the teacher's desk tapping a steel knitting needle, a teenager with a backpack frozen at the entrance",
         "choices": [
           {
@@ -888,7 +888,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "You cross your eyes, stretch your mouth with both pinkies and stick out your tongue as far as it goes. Then the fish. Then the gorilla. Along the shelves, thirty plaster masks crack, pop and grin, gap-toothed and goofy, every one a different face. The girl at the desk drops her needle. In the morning the whole school crowds into the art room to see the masks that made themselves funny, and Mr. Albright gives everybody an A.",
+              "text": "You cross your eyes, stretch your mouth with both pinkies and stick out your tongue as far as it goes. Then the fish. Then the gorilla. Along the shelves, thirty plaster masks crack, pop and grin, gap-toothed and goofy, every one a different face. The girl at the desk drops her needle. In the morning the whole school crowds into the art room to see the masks that made themselves funny, and Mr. Quintero gives everybody an A.",
               "art": "A teenager making a ridiculous cross-eyed face in a dim art room, shelves of white plaster masks cracking into goofy grins, a pale masked girl in a cranberry cardigan dropping a knitting needle",
               "effects": {
                 "nerve": 1,
@@ -1086,6 +1086,7 @@
           },
           "success": {
             "text": "Zelda lets loose the scream that ended The Thing from Crystal Springs, the decoy in the borrowed cardigan slumps just inside the hall closet, and the Shape goes for it like every slasher in every picture. The moment she steps in after it, you slam the slatted door and wedge it with the couch. \"Every monster falls for the third act,\" Zelda says.",
+            "alone": "You let loose the scream that ended The Thing from Crystal Springs, the one you've rewound a hundred times, the decoy in the borrowed cardigan slumps just inside the hall closet, and the Shape goes for it like every slasher in every picture. The moment she steps in after it, you slam the slatted door and wedge it with the couch. Every monster falls for the third act.",
             "art": "A silver-haired older woman screaming theatrically in a living room while teenagers shove a plaid couch against a slatted hall closet door, a dummy in a cardigan slumped inside the closet",
             "effects": {
               "nerve": 1

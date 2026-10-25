@@ -186,6 +186,7 @@
               },
               "success": {
                 "text": "Iggy finds the page. Funeral of Jessamyn Mercer, age 12. Attending: her mother. One camp counselor, a girl, who stood at the back. The director sent flowers and did not attend. Her father did not attend. In the margin, in an old priest's hand: The girl never learned to swim. Her mother says she asked everyone to teach her, and nobody had time. Iggy closes the book softly. \"So the poor kid was alone in the water. Then alone here, too.\"",
+                "alone": "The parish office is unlocked and empty, so you find the page yourself. Funeral of Jessamyn Mercer, age 12. Attending: her mother. One camp counselor, a girl, who stood at the back. The director sent flowers and did not attend. Her father did not attend. In the margin, in an old priest's hand: The girl never learned to swim. Her mother says she asked everyone to teach her, and nobody had time. You close the book softly. Alone in the water. Then alone here, too.",
                 "art": "A young priest in a clerical collar and band t-shirt showing a teenager a handwritten entry in an old parish register at a wooden church desk, afternoon light through stained glass",
                 "effects": {
                   "clues": ["counselor-jess-grave"],
@@ -194,6 +195,7 @@
               },
               "failure": {
                 "text": "The register is in a locked cabinet, and the key is missing. While you search, every holy water font in St. Jude's starts to overflow at once, quietly, a little lake spreading down the aisle. Iggy blesses the puddle out of habit, then hustles you outside.",
+                "alone": "The register is in a locked cabinet, and the key is missing. While you search, every holy water font in St. Jude's starts to overflow at once, quietly, a little lake spreading down the aisle. A sacristan comes running with a mop and hustles you outside.",
                 "art": "Holy water fonts overflowing in a quiet church, water spreading down the center aisle between the pews, a priest and a teen backing away",
                 "effects": {
                   "nerve": -1,
@@ -243,7 +245,7 @@
             "label": "Grab the nearest friend's hand and shout \"Buddy check!\"",
             "intent": "clever",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "walkie-talkies",
               "amount": 1
@@ -308,7 +310,7 @@
             "label": "Dive in and swim for Petey yourself",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "sunny-castellanos",
               "amount": 1
@@ -393,7 +395,7 @@
             "label": "Take the flashlight and tell the story right, with her name in it",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "flag": "jess-saw-them-help",
               "amount": 1
@@ -725,6 +727,7 @@
             },
             "success": {
               "text": "You only know the first verse, but you belt it, and Moose joins in with a baritone like a foghorn. \"Crystal Pines, oh Crystal Pines, where friendship never ends!\" Jess's mouth falls open. Then, very quietly, she sings the second verse. She knows every word. By the end she is sitting on the cooler, the mask in her lap, her huge shoulders shaking.",
+              "alone": "You only know the first verse, but you belt it like a foghorn, off-key and unashamed. \"Crystal Pines, oh Crystal Pines, where friendship never ends!\" Jess's mouth falls open. Then, very quietly, she sings the second verse. She knows every word. By the end she is sitting on the cooler, the mask in her lap, her huge shoulders shaking.",
               "art": "Teens in pajamas singing a camp song arm in arm on a moonlit lakeshore, a towering woman sitting on a cooler with her shoulders shaking, a cracked hockey mask in her lap",
               "effects": {
                 "nerve": 1,

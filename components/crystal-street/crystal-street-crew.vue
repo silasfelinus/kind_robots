@@ -58,7 +58,9 @@
                   inCrew(c.id)
                     ? run?.shaken.includes(c.id as CompanionId)
                       ? 'Shaken till dawn'
-                      : 'In your crew'
+                      : run && isLoyal(run, c.id)
+                        ? 'Loyal'
+                        : 'In your crew'
                     : met(c.id)
                       ? 'Went home'
                       : locationById(c.location)?.name
@@ -86,6 +88,14 @@
           </p>
         </div>
         <p class="cs-quote">“{{ focus.emotions[focusEmotion].line }}”</p>
+        <p
+          v-if="run && reaction"
+          class="cs-frame p-2 text-sm"
+          data-testid="cs-reaction"
+        >
+          <span class="cs-kicker block">On this week's nightmare</span>
+          “{{ reaction }}”
+        </p>
         <div class="flex flex-wrap gap-1" role="group" aria-label="Moods">
           <button
             v-for="e in EMOTIONS"
@@ -105,6 +115,37 @@
         <p class="text-xs uppercase tracking-wider opacity-75">
           Helps with {{ focus.skills.map((s) => SKILL_LABELS[s]).join(' & ') }}
         </p>
+        <div
+          v-if="run && inCrew(focus.id) && focus.arc?.length"
+          class="space-y-1"
+          data-testid="cs-arc"
+        >
+          <p class="flex items-center gap-2 text-xs uppercase tracking-wider">
+            <span class="opacity-75">Their story</span>
+            <span class="flex gap-1" aria-hidden="true">
+              <span
+                v-for="n in ARC_STEPS"
+                :key="n"
+                class="h-2 w-5 rounded-full"
+                :class="
+                  n <= arcProgress(run, focus.id)
+                    ? 'bg-secondary'
+                    : 'bg-base-content/20'
+                "
+              />
+            </span>
+            <span class="sr-only"
+              >{{ arcProgress(run, focus.id) }} of {{ ARC_STEPS }}</span
+            >
+          </p>
+          <p class="text-xs opacity-80">
+            {{
+              isLoyal(run, focus.id)
+                ? `Loyal: ${shortName(focus.name)} adds +1 to your Halloween rolls.`
+                : `Hang out at ${locationById(focus.location)?.name} once a day. Finish their story and they're Loyal: +1 at the finale.`
+            }}
+          </p>
+        </div>
         <button
           v-if="inCrew(focus.id)"
           type="button"
@@ -123,12 +164,16 @@
 import { computed, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
+  ARC_STEPS,
   COMPANIONS,
   CREW_LIMIT,
   SKILL_LABELS,
+  arcProgress,
   companionById,
   emotionOf,
+  isLoyal,
   locationById,
+  reactionTo,
   shortName,
 } from '~/utils/crystalStreet/rules'
 import { EMOTIONS, type Emotion } from '~/utils/crystalStreet/types'
@@ -160,6 +205,11 @@ const friends = computed(() =>
       ),
 )
 const focus = computed(() => companionById(selected.value))
+const reaction = computed(() =>
+  run.value && focus.value && inCrew(focus.value.id)
+    ? reactionTo(run.value, focus.value)
+    : null,
+)
 const focusEmotion = computed<Emotion>(
   () =>
     previewEmotion.value ??

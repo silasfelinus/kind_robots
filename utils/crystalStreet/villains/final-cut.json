@@ -735,6 +735,7 @@
             },
             "success": {
               "text": "Glory sweeps into the beam, lifts the housedress off the hanger, belts it with a sequined sash, swaps the rubber knife for a microphone and sings \"I Am What I Am\" to the rafters. The audience gasps, then stands and cheers. A dress was always just a dress. The beam has nothing left to twist, and it flickers out.",
+              "alone": "You sweep into the beam yourself, lift the housedress off the hanger, belt it with a sequined sash, swap the rubber knife for a microphone and sing \"I Am What I Am\" to the rafters. The audience gasps, then stands and cheers. A dress was always just a dress. The beam has nothing left to twist, and it flickers out.",
               "art": "A radiant drag queen center stage in a housedress belted with a sequined sash, singing into a microphone in a warm spotlight, a theater audience on its feet cheering, a projector beam fading above",
               "effects": {
                 "nerve": 2,
@@ -744,6 +745,7 @@
             },
             "failure": {
               "text": "The curtain slams down between Glory and the beam before she reaches the rack. The projector rewinds the whole scene with a shriek and starts it again from the top. Glory is furious on your behalf, and you are back where you started, in the spotlight.",
+              "alone": "The curtain slams down between you and the rack before you can reach the dress. The projector rewinds the whole scene with a shriek and starts it again from the top. Somebody in the balcony boos on your behalf, and you are back where you started, in the spotlight.",
               "art": "A heavy red theater curtain slamming down across a stage, a drag queen on one side with hands on her hips, a teenager caught in a spotlight on the other",
               "effects": {
                 "nerve": -1,

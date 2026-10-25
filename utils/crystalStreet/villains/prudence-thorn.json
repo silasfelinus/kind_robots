@@ -253,6 +253,7 @@
             },
             "success": {
               "text": "You snatch three binders off the tailgate as a dad reaches for them, and sprint. Behind you the smoke-face snaps at the empty air where they were and shrinks, just a little. Later, Priya flips one open and finds a page she does not remember writing: The fear-eater cannot abide a laugh.",
+              "alone": "You snatch three binders off the tailgate as a dad reaches for them, and sprint. Behind you the smoke-face snaps at the empty air where they were and shrinks, just a little. Later, flipping one open, you find a page that isn't in any of the others, in handwriting nobody can place: The fear-eater cannot abide a laugh.",
               "art": "A teenager sprinting away from a bonfire hugging three game binders, a smoke demon face snapping at empty air behind them, a startled dad in a windbreaker",
               "effects": {
                 "nerve": 1,
@@ -555,6 +556,7 @@
             },
             "success": {
               "text": "You and Moose brace the door while the knob rattles. With the grown-ups' fear shut out on the other side, the minotaur stops growing, wobbles, and shrinks to the size of a hamster. Priya traps it under a dice cup. The parents give up and go home to phone each other about it.",
+              "alone": "You throw your whole weight against the door while the knob rattles. With the grown-ups' fear shut out on the other side, the minotaur stops growing, wobbles, and shrinks to the size of a hamster. Priya traps it under a dice cup. The parents give up and go home to phone each other about it.",
               "art": "Two teens bracing a basement door shut with their backs while the knob rattles, a tiny smoky minotaur trapped under an upturned dice cup on the game table",
               "effects": {
                 "nerve": 1
@@ -619,6 +621,7 @@
             },
             "success": {
               "text": "With Wade feeding you lines, you become Brother Thrash, who once heard a backward message on an Iron Lamb record telling him to clean his room. You weep about how he cleaned it. Then vacuumed. Then did his mother's taxes. Prudence nods gravely until a camera operator snorts on air, then another, and the whole crew dissolves in laughter. The smoke-shape shrivels to a wisp.",
+              "alone": "Making it up as you go, you become Brother Thrash, who once heard a backward message on an Iron Lamb record telling him to clean his room. You weep about how he cleaned it. Then vacuumed. Then did his mother's taxes. Prudence nods gravely until a camera operator snorts on air, then another, and the whole crew dissolves in laughter. The smoke-shape shrivels to a wisp.",
               "art": "A metalhead with a mullet whispering lines to a teenager sobbing theatrically into a phone, a television behind them showing studio crew members doubled over laughing and a smoky shape shriveling",
               "effects": {
                 "nerve": 1,
@@ -751,6 +754,7 @@
             },
             "success": {
               "text": "If everything is dangerous, nothing is. You and Kev sticker a lawn flamingo, a birdbath, a garden gnome and finally Pastor Prudence's own wood-paneled station wagon, parked by the roundabout: CONTENT MAY BE HARMFUL. By the time the neighbors come out in their bathrobes they're laughing, and the curls of smoke thin out and vanish.",
+              "alone": "If everything is dangerous, nothing is. You sticker a lawn flamingo, a birdbath, a garden gnome and finally Pastor Prudence's own wood-paneled station wagon, parked by the roundabout: CONTENT MAY BE HARMFUL. By the time the neighbors come out in their bathrobes they're laughing, and the curls of smoke thin out and vanish.",
               "art": "A teenager and a young paperboy slapping orange warning stickers on a plastic lawn flamingo and a wood-paneled station wagon, neighbors in bathrobes laughing on porches, wisps of smoke fading in moonlight",
               "effects": {
                 "nerve": 1,
@@ -958,6 +962,7 @@
             },
             "success": {
               "text": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, Glory's whole revue on vinyl, her name on every sleeve in purple marker. You lower it to the curb, where Glory, in a sequined bathrobe, hugs it like a lost child. \"Twenty years of Friday nights,\" she says. \"Thank you, baby.\"",
+              "alone": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, the Glitter Box's whole revue on vinyl, a name on every sleeve in purple marker. You leave it on the theater's doorstep at dawn. By noon there's a note taped to your door in the same purple marker: Twenty years of Friday nights. Thank you, baby.",
               "art": "A teenager climbing down a towering heap of seized books and videotapes with a crate of vinyl records, a drag queen in a sequined bathrobe waiting at the curb with open arms, flashlights sweeping the dark",
               "effects": {
                 "nerve": 1,
@@ -988,6 +993,7 @@
             },
             "success": {
               "text": "Delphine parks her motorcycle around the corner with the saddlebags open, and you run a relay all night: an armful of books from the back of the pile, a sprint across the lawn, into the saddlebags, back again. By dawn all forty library books are home on their shelves. The pile is a little shorter and a lot hungrier, and you are very, very tired.",
+              "alone": "You park your bike around the corner with a milk crate bungeed to the back, and you run a relay all night: an armful of books from the back of the pile, a sprint across the lawn, into the crate, back again. By dawn all forty library books are home on their shelves. The pile is a little shorter and a lot hungrier, and you are very, very tired.",
               "art": "A teenager sprinting across a dark lawn with an armful of library books toward a motorcycle with open saddlebags, a librarian in a cardigan loading books, a towering heap glowing faintly behind",
               "effects": {
                 "nerve": 1,

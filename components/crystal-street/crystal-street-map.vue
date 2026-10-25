@@ -170,7 +170,11 @@
               @click="store.activity(location.id as LocationId, activity)"
             >
               <crystal-street-portrait
-                v-if="activity.kind === 'meet' || activity.kind === 'rejoin'"
+                v-if="
+                  activity.kind === 'meet' ||
+                  activity.kind === 'rejoin' ||
+                  activity.kind === 'hangout'
+                "
                 class="w-12 shrink-0"
                 :companion="companionById(activity.companionId)!"
               />
@@ -232,6 +236,7 @@
 import { computed, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
+  ARC_STEPS,
   CREW_LIMIT,
   DAY_NAMES,
   LOCATIONS,
@@ -243,6 +248,7 @@ import {
   encounterById,
   itemById,
   locationById,
+  shortName,
   villainOf,
   type DayActivity,
 } from '~/utils/crystalStreet/rules'
@@ -307,6 +313,7 @@ function iconFor(kind: DayActivity['kind']): string {
       clue: 'kind-icon:search',
       meet: 'kind-icon:person',
       rejoin: 'kind-icon:person',
+      hangout: 'kind-icon:users',
       train: 'kind-icon:lightning',
       shop: 'kind-icon:cart',
       rest: 'kind-icon:heart',
@@ -324,6 +331,8 @@ function titleFor(activity: DayActivity): string {
     return `Meet ${companionById(activity.companionId)?.name}`
   if (activity.kind === 'rejoin')
     return `Ask ${companionById(activity.companionId)?.name} back`
+  if (activity.kind === 'hangout')
+    return `Hang out with ${shortName(companionById(activity.companionId)?.name ?? '')}`
   if (activity.kind === 'train') return `Train ${SKILL_LABELS[activity.skill]}`
   if (activity.kind === 'shop') return 'Browse the pawnshop'
   if (activity.kind === 'heal') return 'See the nurse'
@@ -340,6 +349,10 @@ function subFor(activity: DayActivity): string {
     return companionById(activity.companionId)?.role ?? ''
   if (activity.kind === 'rejoin')
     return 'Rejoins your crew, no roll, +1 friends'
+  if (activity.kind === 'hangout')
+    return activity.step < ARC_STEPS
+      ? `Their story, part ${activity.step} of ${ARC_STEPS}`
+      : `The last part of their story: finish it and they're Loyal`
   if (activity.kind === 'train')
     return selected.value === 'library' || selected.value === 'high-school'
       ? '+1 skill, once a day, up to 4; +1 officials'

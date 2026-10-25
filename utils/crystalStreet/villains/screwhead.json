@@ -53,11 +53,13 @@
               "bonus": { "companion": "joey-benally", "amount": 2 },
               "success": {
                 "text": "Joey rolls out from under a truck and wipes his hands. \"Lady named Magda. Shows up at two in the morning, sorts till dawn, barely says a word. First night she told me my wrench grip was wrong. It was.\" Rusty bought the whole store's fixtures for scrap last year, and last week Joey caught her crying at the crusher, begging Rusty not to flatten the cash register. He shows you where it's hidden, under a tarp: brass, dented, still ringing.",
+                "alone": "The junkyard office is empty, but the logbook on the counter is full of grease-pencil notes: Lady named Magda again. 2 a.m., sorted till dawn. Said my wrench grip was wrong. It was. The last entry: Caught her crying at the crusher, begging Rusty not to flatten the store's cash register. Hid it under the tarp. You lift the tarp: brass, dented, still ringing.",
                 "art": "A teen mechanic lifting a tarp off an old brass cash register hidden in a junkyard, a hardware store sign behind him, a flashlight beam cutting through dusk",
                 "effects": { "clues": ["screwhead-sign"], "nerve": 1 }
               },
               "failure": {
                 "text": "Joey is elbow-deep in a transmission and tells you to come back when you can tell a socket from a spanner. As you walk away, every lid on every jar turns a quarter-turn at once with a single, perfect click.",
+                "alone": "The junkyard is deserted except for a radio playing to nobody, and the office door is locked. As you walk away, every lid on every jar turns a quarter-turn at once with a single, perfect click.",
                 "art": "Rows of glass jars in a dark junkyard, every lid twisting at once, a teenager freezing mid-step in the foreground",
                 "effects": { "nerve": -1, "dread": 1 }
               }
@@ -239,7 +241,7 @@
             "label": "Invite them up for a tour of your gloriously messy room",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You give them the full tour like a museum docent: the laundry mountain, the cassette avalanche, the band photos taped up at nine different angles. \"And this sock,\" you announce grandly, \"lost its partner in 1984 and has made peace with it.\" Mrs. Fenwick lets out a small, shocked laugh, then a bigger one, and her chain slips off her wrist onto the carpet. She sits on your bed and says she had a room exactly like this in 1962.",
               "art": "A teenager in pajamas giving a grand tour of a wildly cluttered bedroom with laundry piles and crooked band photos on the walls, a woman in an orange apron laughing on the bed, a silver chain lying on the carpet",
@@ -329,7 +331,7 @@
             "label": "Go performer to performer and ask what they want their act to be",
             "intent": "kind",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "frankie-fontaine",
               "amount": 1
@@ -357,7 +359,7 @@
             "label": "Climb the fly rail and unbolt the spotlight",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 1
@@ -458,6 +460,7 @@
             },
             "success": {
               "text": "Dani pushes, you ride, and the cart screams down the sidewalk clipping every perfect display: a pyramid of soup cans, a tower of paint, a rack of postcards. Crooked, crooked, crooked. Behind you shopkeepers flinch, then giggle, and one starts restacking the soup cans into a smiley face as silver chains rattle loose all down the block.",
+              "alone": "You get a running start, leap aboard, and the cart screams down the sidewalk clipping every perfect display: a pyramid of soup cans, a tower of paint, a rack of postcards. Crooked, crooked, crooked. Behind you shopkeepers flinch, then giggle, and one starts restacking the soup cans into a smiley face as silver chains rattle loose all down the block.",
               "art": "A teenager riding a speeding shopping cart down a 1960 main street sidewalk pushed by a laughing skate punk girl, soup can pyramids and paint towers toppling, shopkeepers giggling in doorways",
               "effects": {
                 "nerve": 1,
@@ -777,6 +780,7 @@
             },
             "success": {
               "text": "Sunny whoops and takes the lead, and you skate counterclockwise straight into the current, weaving between the chained skaters like salmon. Every time you pass someone, they wobble, glance back and grin. By your fifth lap half the rink has broken formation, and the organ hits a wrong note and keeps it.",
+              "alone": "You whoop and push off, skating counterclockwise straight into the current, weaving between the chained skaters like a salmon. Every time you pass someone, they wobble, glance back and grin. By your fifth lap half the rink has broken formation, and the organ hits a wrong note and keeps it.",
               "art": "A grinning wheelchair racer and a teenager on roller skates speeding counterclockwise through a ring of chained skaters under a mirror ball, skaters breaking formation and laughing",
               "effects": {
                 "nerve": 1,
@@ -807,6 +811,7 @@
             },
             "success": {
               "text": "Mix grabs the mic like he was born there. \"Alright, Glimmer Falls, everybody stop where you are. Left foot in!\" Fifty skaters, unable to resist a direct instruction, stop dead. Then they have to choose which way to turn themselves around, and every single one chooses differently. The chains tangle, snap and fall to the floor like tinsel.",
+              "alone": "You grab the mic like you were born there. \"Alright, Glimmer Falls, everybody stop where you are. Left foot in!\" Fifty skaters, unable to resist a direct instruction, stop dead. Then they have to choose which way to turn themselves around, and every single one chooses differently. The chains tangle, snap and fall to the floor like tinsel.",
               "art": "A teen DJ in a booth speaking into a microphone with a grin, skaters on the rink floor doing a silly dance in every different direction, silver chains snapping and falling like tinsel",
               "effects": {
                 "nerve": 1,

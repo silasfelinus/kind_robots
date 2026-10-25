@@ -148,6 +148,7 @@
               },
               "success": {
                 "text": "Willow bark for Mrs. O'Day's fever, both twins well. Yarrow and clean linen for Ah Ling's boy's leg, healing. Feverfew for Mr. Pell's headaches, no charge. Priya traces the last entry: \"Josiah says the township needs the springs. I told him the land needs no one, only tending. I fear they will make me a story.\" Priya looks up. \"They made her a story.\"",
+                "alone": "Willow bark for Mrs. O'Day's fever, both twins well. Yarrow and clean linen for Ah Ling's boy's leg, healing. Feverfew for Mr. Pell's headaches, no charge. You trace the last entry with one finger: \"Josiah says the township needs the springs. I told him the land needs no one, only tending. I fear they will make me a story.\" You look up at the lurid cover. They made her a story.",
                 "art": "Two teenagers on the floor of library stacks reading a small leather herbal by lamplight, pressed flowers between the pages, careful handwritten remedies",
                 "effects": {
                   "clues": ["goody-hale-receipt-book"],
@@ -353,7 +354,7 @@
             "label": "Climb the briars like a trellis to Abigail's window",
             "intent": "reckless",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "first-aid",
               "amount": 1
@@ -398,6 +399,7 @@
             },
             "success": {
               "text": "It is not a curse. It is a list. Mary O'Day, twins, both well. Ah Ling's boy, leg mended. Sarah Pell, a daughter. Name after name after name, every person Temperance Hale ever healed. Raven squeezes your hand. \"She's not casting anything,\" they whisper. \"She's remembering. They took her name, so she keeps everyone else's.\"",
+              "alone": "It is not a curse. It is a list. Mary O'Day, twins, both well. Ah Ling's boy, leg mended. Sarah Pell, a daughter. Name after name after name, every person Temperance Hale ever healed. Slowly you understand. She's not casting anything. She's remembering. They took her name, so she keeps everyone else's.",
               "art": "A teenager and a goth tarot reader kneeling side by side in a circle of sleepwalking women, eyes wide as faint glowing names drift up from the stone mortars into the dark",
               "effects": {
                 "nerve": 1,
@@ -696,6 +698,7 @@
             },
             "success": {
               "text": "You plant yourself in front of the burning can with your arms out. Father Iggy, bass case still on his back from band practice, walks up beside you, takes a poppet from the bag, blesses it and hangs it back on the nearest porch. \"Nobody burns anybody's medicine tonight,\" he says mildly. The patrol drifts home, grumbling, and the fire burns itself out.",
+              "alone": "You plant yourself in front of the burning can with your arms out. Then you take a poppet from the bag and hang it back on the nearest porch. \"Nobody burns anybody's medicine tonight,\" you say, as mildly as you can. The patrol drifts home, grumbling, and the fire burns itself out.",
               "art": "A teenager standing with arms spread before a burning garbage can on a suburban roundabout at night, a young priest with a bass guitar case on his back hanging a muslin doll on a porch light, neighbors in bathrobes retreating",
               "effects": {
                 "nerve": 2,
@@ -791,6 +794,7 @@
             },
             "success": {
               "text": "You saw through the ropes, Wade backs the van onto the curb with the lights off, and the straw witch goes in the back under a pile of jackets. The gray woman watches you do it. She does not stop you. When you look again, she is gone, and the briars on the nearest lawn have stopped growing.",
+              "alone": "You saw through the ropes and stuff the straw witch into the back of the van parked on the curb, under a pile of jackets. The gray woman watches you do it. She does not stop you. When you look again, she is gone, and the briars on the nearest lawn have stopped growing.",
               "art": "Two teens loading a straw witch effigy into the back of a battered metalhead's van at midnight, a gray ghostly woman watching silently from the roundabout",
               "effects": {
                 "nerve": 1,
@@ -965,6 +969,7 @@
             },
             "success": {
               "text": "You fling the green rubber nose into the orchestra pit and play her like a leading lady: a midwife with a bag of herbs, a sharp tongue and two hundred babies to her name. Glory slips in from the wings with a lantern and starts feeding you better lines. By the end of the scene the parents are cheering, and the founders' beards have wilted into crepe hair.",
+              "alone": "You fling the green rubber nose into the orchestra pit and play her like a leading lady: a midwife with a bag of herbs, a sharp tongue and two hundred babies to her name. You ditch the script and improvise better lines on the fly. By the end of the scene the parents are cheering, and the founders' beards have wilted into crepe hair.",
               "art": "A teenager striding center stage as a proud frontier midwife with an herb satchel, a drag queen in sequins holding a lantern in the wings, cheering parents, wilted crepe beards on three teen actors",
               "effects": {
                 "nerve": 1,
@@ -1060,6 +1065,7 @@
             },
             "success": {
               "text": "Kev knows every path in Glimmer Falls, and the two of you run ahead swapping the committee's little reflector arrows. The Torchlight Walk marches confidently around the roundabout once, twice, five times, until the torches burn low, the bullhorn goes hoarse and everybody goes home grumbling about bad planning. The briars never see a flame.",
+              "alone": "You know enough shortcuts in Glimmer Falls to run ahead swapping the committee's little reflector arrows. The Torchlight Walk marches confidently around the roundabout once, twice, five times, until the torches burn low, the bullhorn goes hoarse and everybody goes home grumbling about bad planning. The briars never see a flame.",
               "art": "Two teens sprinting through suburban hedges at night carrying armfuls of reflector arrows, a torchlit procession circling a glowing purple geode roundabout behind them, torches burning low",
               "effects": {
                 "nerve": 1,
@@ -1152,6 +1158,7 @@
           },
           "success": {
             "text": "Frankie hotwires the Founders' Day floodlights to every porch light on the street and throws the switch. It looks like sunrise. Temperance flinches, the briars wilt, and the women in the ring sink into ordinary sleep. She fades with the false dawn, and her lantern goes out with a sigh. She will sleep. She will not rest.",
+            "alone": "Following the diagram taped inside the junction box, you hotwire the Founders' Day floodlights to every porch light on the street and throw the switch. It looks like sunrise. Temperance flinches, the briars wilt, and the women in the ring sink into ordinary sleep. She fades with the false dawn, and her lantern goes out with a sigh. She will sleep. She will not rest.",
             "art": "A trans stage manager in a headset throwing a giant switch as floodlights and porch lights blaze like sunrise over a roundabout, a gray woman fading and briars wilting",
             "effects": {
               "nerve": 1

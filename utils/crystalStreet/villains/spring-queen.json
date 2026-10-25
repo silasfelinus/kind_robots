@@ -216,6 +216,7 @@
               },
               "success": {
                 "text": "Mix leans into the mic. \"If you were at the Spring Fling in '66, the line is open.\" At 2:14 a.m. an old man calls in: Smokey Lamarr, who spun records that night. \"She came to the booth with a card. Wanted one song for the queen's dance. They wouldn't let me play it.\" His voice cracks. \"Card's still in the cabinet, second drawer. I put it back myself.\"",
+                "alone": "The overnight DJ is out on a smoke break, so you lean into the mic yourself. \"If you were at the Spring Fling in '66, the line is open.\" At 2:14 a.m. an old man calls in: Smokey Lamarr, who spun records that night. \"She came to the booth with a card. Wanted one song for the queen's dance. They wouldn't let me play it.\" His voice cracks. \"Card's still in the cabinet, second drawer. I put it back myself.\"",
                 "art": "A young DJ in headphones at a glowing 1980s radio console taking a call at 2 a.m., a teenager beside him reading a pink request card, the phone line light blinking",
                 "effects": {
                   "clues": ["spring-queen-dedication"],
@@ -447,7 +448,7 @@
             "label": "Call up to Roz and ask who hung the bucket",
             "intent": "clever",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"Look at the knot,\" Roz says. It's a lineman's hitch, the same knot three boys used on a ladder in 1966. You follow her finger down to the bleachers, where two junior varsity guys are trying very hard to look innocent. One word from you and the whole student council turns to stare at them. For once, the people who rigged the joke are the ones everybody is looking at.",
               "art": "A ghostly prom queen on a gym catwalk pointing down at two guilty-looking teenage boys in varsity jackets on the bleachers, a student council turning to stare at them, a teenager at the foot of the ladder",

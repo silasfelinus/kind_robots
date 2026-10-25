@@ -212,6 +212,7 @@
               },
               "success": {
                 "text": "The trailer door groans open. Inside is a cathedral of Sugarlings, stacked to the roof, eating the cardboard boxes they came in. They are not angry. They are hungry, always, and confused, like toddlers at a buffet. On the dashboard Joey finds the original Mallow, and it is the only one that is not eating.",
+                "alone": "You work the junkyard winch yourself, and the trailer door groans open. Inside is a cathedral of Sugarlings, stacked to the roof, eating the cardboard boxes they came in. They are not angry. They are hungry, always, and confused, like toddlers at a buffet. On the dashboard you find the original Mallow, and it is the only one that is not eating.",
                 "art": "A junkyard winch cable dragging open a truck trailer to reveal a towering heap of fuzzy critters munching cardboard boxes, a teen mechanic holding up a lone handmade plush",
                 "effects": {
                   "clues": ["sugarlings-first-mallow"],
@@ -222,6 +223,7 @@
               },
               "failure": {
                 "text": "The winch snaps and the trailer door bursts open on its own. Sugarlings pour out across the junkyard in a pastel flood, eating Joey's lunch, Wade's air freshener and the vinyl off a junked sedan's seat. It takes all afternoon to herd them back.",
+                "alone": "The winch snaps and the trailer door bursts open on its own. Sugarlings pour out across the junkyard in a pastel flood, eating somebody's lunch, an air freshener and the vinyl off a junked sedan's seat. It takes all afternoon to herd them back.",
                 "art": "A pastel flood of fuzzy critters pouring out of a truck across a junkyard, nibbling car seats and a lunch bag, two teens chasing them with brooms",
                 "effects": {
                   "nerve": -1,
@@ -397,6 +399,7 @@
             },
             "success": {
               "text": "Dani skates loops around the bathrobes yelling \"Wake up, Dad!\" while you take wrists and talk softly. One by one they wake. A mom sees what is in her shopping bag, forty Sugarlings, and drops it like it is hot. \"I don't even like them,\" she whispers. \"I just couldn't stop.\"",
+              "alone": "You weave through the bathrobes calling \"Wake up!\", taking wrists and talking softly. One by one they wake. A mom sees what is in her shopping bag, forty Sugarlings, and drops it like it is hot. \"I don't even like them,\" she whispers. \"I just couldn't stop.\"",
               "art": "A skate punk girl looping around sleepwalking adults in bathrobes while a teenager gently wakes a mother who stares in shock at a bag full of fuzzy critters",
               "effects": {
                 "nerve": 1,
@@ -484,6 +487,7 @@
             },
             "success": {
               "text": "Glory sweeps on beside you in a sequined robe, and the two of you conduct the room like a gospel choir. The Sugarlings sing better than most people. When the song ends they applaud with tiny paws, and something strange happens: a theatre full of creatures made of wanting sits perfectly content, because they already got the thing they came for.",
+              "alone": "You sweep on stage in a borrowed sequined robe and conduct the room like a gospel choir. The Sugarlings sing better than most people. When the song ends they applaud with tiny paws, and something strange happens: a theatre full of creatures made of wanting sits perfectly content, because they already got the thing they came for.",
               "art": "A teenager and a drag queen in a sequined robe conducting from a theatre stage with sweeping arms, an audience of fuzzy pastel critters singing joyfully and clapping tiny paws in the velvet seats",
               "effects": {
                 "nerve": 1,
@@ -568,6 +572,7 @@
             },
             "success": {
               "text": "Click. Kev, who knows the etiquette of every door on his paper route, nods gravely. On the dark porch, the tiny costumes stand very still, then turn as one and march down the steps toward the next lit house three blocks down, where a very surprised orthodontist has been handing out toothbrushes all night.",
+              "alone": "Click. Every trick-or-treater alive knows what a dark porch means. The tiny costumes stand very still, then turn as one and march down the steps toward the next lit house three blocks down, where a very surprised orthodontist has been handing out toothbrushes all night.",
               "art": "A darkened suburban porch with a teenager and a young paperboy peeking through the curtains, a procession of tiny costumed fuzzy critters marching away down the sidewalk toward a distant glowing porch",
               "effects": {
                 "nerve": 1
@@ -752,6 +757,7 @@
             },
             "success": {
               "text": "You race down Crystal Street flinging candy behind you like a parade float, and Sunny blazes ahead to open the gate of the empty lot. The whole tide follows you in. You slam the gate. Thousands of Sugarlings sit in the lot, happily sugar-drunk and stuck.",
+              "alone": "You race down Crystal Street flinging candy behind you like a parade float, sprint ahead to throw open the gate of the empty lot, and the whole tide follows you in. You slam the gate. Thousands of Sugarlings sit in the lot, happily sugar-drunk and stuck.",
               "art": "A teenager sprinting down a dark street tossing candy behind them, a wheelchair racer speeding ahead to open a gate, a pastel tide of critters following",
               "effects": {
                 "nerve": 1
@@ -892,6 +898,7 @@
             },
             "success": {
               "text": "You go neighbor to neighbor down the line. \"Mrs. Albescu, if you sell him eleven, he sells forty back by Christmas.\" Kev backs you up with hard facts from his paper route about who has already bought three times. One by one the neighbors look at the van, at the cages, at their own shoeboxes, and walk home. Mrs. Albescu is last, and she hands you one of her eleven. \"Keep it,\" she says. \"One's plenty.\"",
+              "alone": "You go neighbor to neighbor down the line. \"Mrs. Albescu, if you sell him eleven, he sells forty back by Christmas.\" You back it up with hard facts about who on the street has already bought three times. One by one the neighbors look at the van, at the cages, at their own shoeboxes, and walk home. Mrs. Albescu is last, and she hands you one of her eleven. \"Keep it,\" she says. \"One's plenty.\"",
               "art": "Suburban neighbors walking home at dusk carrying shoeboxes, a teenager and a young paperboy talking with an older woman who is handing over a single fuzzy critter, a toy van with cages in the background",
               "effects": {
                 "nerve": 1,
@@ -956,6 +963,7 @@
             },
             "success": {
               "text": "You wrap the rope around your wrists, dig in your heels and pull, and Moose pulls behind you, and the marching band, still in uniform from rehearsal, grabs on too. Hand over hand the balloon comes down until it sits on the asphalt like a sulky beanbag chair. Inside, a thousand muffled purrs settle into snores.",
+              "alone": "You wrap the rope around your wrists, dig in your heels and pull, and the marching band, still in uniform from rehearsal, grabs on behind you. Hand over hand the balloon comes down until it sits on the asphalt like a sulky beanbag chair. Inside, a thousand muffled purrs settle into snores.",
               "art": "A teenager, a big gentle lineman and a marching band in uniforms hauling a giant pastel critter balloon down by its ropes in a parade lot at night, the balloon slumping onto the asphalt",
               "effects": {
                 "nerve": 1,
@@ -1010,6 +1018,7 @@
             },
             "success": {
               "text": "Glory climbs onto a float in a sequined drum major's coat, you rally the marching band, and the Glimmer Falls Halloween Parade starts twenty hours early, at full volume, going the wrong way. The balloon cannot resist a parade. It bobs after the band, tethers dragging, all the way out Route 49 to the empty fairgrounds, where the band plays one last number and the balloon settles down to watch, perfectly happy just to be in a parade at all.",
+              "alone": "You climb onto a float in a borrowed drum major's coat, rally the marching band, and the Glimmer Falls Halloween Parade starts twenty hours early, at full volume, going the wrong way. The balloon cannot resist a parade. It bobs after the band, tethers dragging, all the way out Route 49 to the empty fairgrounds, where the band plays one last number and the balloon settles down to watch, perfectly happy just to be in a parade at all.",
               "art": "A drag queen in a sequined drum major coat leading a marching band down a dark highway at night, a giant pastel critter balloon bobbing happily after them on dragging ropes, a teenager marching alongside",
               "effects": {
                 "nerve": 1,

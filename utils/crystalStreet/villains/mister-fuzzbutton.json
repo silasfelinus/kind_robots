@@ -185,6 +185,7 @@
               },
               "success": {
                 "text": "Sunny wheels over and her face falls. \"January eighteenth. His dad booked the room, said he'd invited the whole third grade, then got stuck at the store. Nobody came. Not one kid. He sat here in his skates for three hours with that bear.\" She swallows. \"I skated with him till close. He told me the bear was the only one who never forgot about him.\"",
+                "alone": "Nobody's around to ask, but the party log hangs by the door, and the January eighteenth slot is filled in a skate guard's handwriting: Dad booked it, whole third grade invited. Nobody came. Not one kid. Birthday boy sat here in his skates for three hours with his bear. Skated with him till close. He said the bear was the only one who never forgot about him.",
                 "art": "A young woman in a racing wheelchair beside an empty party table, looking sadly at a faded birthday banner, roller skaters blurring past outside the party room window",
                 "effects": {
                   "clues": ["mister-fuzzbutton-invitations"],
@@ -193,6 +194,7 @@
               },
               "failure": {
                 "text": "Sunny is teaching a packed aerobics class and can't stop. While you wait, the banner's glitter letters peel off one by one, drift down, and spell out new words on the rink floor: NOBODY CAME.",
+                "alone": "The rink is packed for aerobics and nobody has a minute to talk. While you wait, the banner's glitter letters peel off one by one, drift down, and spell out new words on the rink floor: NOBODY CAME.",
                 "art": "Glitter letters drifting down from a party banner and arranging themselves on a roller rink floor, a teenager staring in horror",
                 "effects": {
                   "nerve": -1,
@@ -783,6 +785,7 @@
             },
             "success": {
               "text": "Bea arrives in a raincoat over her pajamas with a notebook and two walkie-talkies, and in fifteen minutes she has it mapped: the same call is ringing in every house on Crystal Street where a kid is home with a sitter, or with nobody at all. \"It's not trying to scare the babysitters,\" she says, tapping her map. \"It's checking up on the kids. Like a hall monitor.\"",
+              "alone": "You dig two walkie-talkies and a notebook out of the hall closet, and after fifteen minutes of calling around you have it mapped: the same call is ringing in every house on Crystal Street where a kid is home with a sitter, or with nobody at all. You stare at your map until it clicks. It's not trying to scare the babysitters. It's checking up on the kids. Like a hall monitor.",
               "art": "An eleven-year-old girl in a raincoat over pajamas holding a walkie-talkie and a notebook with a hand-drawn street map, a teenager beside her at a kitchen table with a phone, porch lights glowing through the window",
               "effects": {
                 "nerve": 1,
@@ -793,6 +796,7 @@
             },
             "failure": {
               "text": "Bea traces the call to the Delgados' own nursery, and then the walkie-talkie in her hand starts talking in a little boy's voice: \"Have you checked the children? Have you checked YOU?\" She drops it in the sink. Neither of you sleeps.",
+              "alone": "You trace the call to the Delgados' own nursery, and then the walkie-talkie in your hand starts talking in a little boy's voice: \"Have you checked the children? Have you checked YOU?\" You drop it in the sink. You do not sleep.",
               "art": "A walkie-talkie lying in a kitchen sink glowing faint blue, a startled kid genius and a teenage babysitter backing away from the counter, a wall phone receiver dangling on its curly cord",
               "effects": {
                 "nerve": -1,

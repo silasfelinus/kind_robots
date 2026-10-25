@@ -425,6 +425,7 @@
             },
             "success": {
               "text": "You dial the 1-800 number and order nine thousand Burn Belts to a post office box in Antarctica. Then again. Then you call KGLM, and Mix reads the number on air with a dare attached, and half the insomniacs in Glimmer Falls start prank-ordering. The operators on screen drown in ringing phones. Vonda's smile glitches, and the signal collapses into color bars.",
+              "alone": "You dial the 1-800 number and order nine thousand Burn Belts to a post office box in Antarctica. Then again. Then you call the KGLM request line, get yourself put on the air, and read the number out with a dare attached, and half the insomniacs in Glimmer Falls start prank-ordering. The operators on screen drown in ringing phones. Vonda's smile glitches, and the signal collapses into color bars.",
               "art": "A grinning teenager on a bedroom phone extension dialing furiously, a small television showing frantic sweatbanded operators buried in ringing phones, an aerobics star glitching into rainbow color bars",
               "effects": {
                 "nerve": 1,
@@ -599,6 +600,7 @@
             },
             "success": {
               "text": "Glory sweeps in from the wings, takes one look and calls the category: \"Realness, honey, and the realness is you.\" You hit a dip, a duckwalk and hand choreography so committed it counts as a sport. Your After can only do Vonda's count, five, six, seven, eight, and it cannot follow a single beat it wasn't programmed for. It stammers, glitches and folds back into the mirror like a tape rewinding.",
+              "alone": "You sweep in from the wings and call the category yourself: \"Realness, honey, and the realness is me.\" You hit a dip, a duckwalk and hand choreography so committed it counts as a sport. Your After can only do Vonda's count, five, six, seven, eight, and it cannot follow a single beat it wasn't programmed for. It stammers, glitches and folds back into the mirror like a tape rewinding.",
               "art": "A teenager striking a dramatic vogue dip in a theatre dressing room while a drag queen in sequins judges with a fan, a glossy reflection in a magenta sweatband glitching and folding back into a bulb-ringed mirror",
               "effects": {
                 "nerve": 1,
@@ -916,6 +918,7 @@
             },
             "success": {
               "text": "Toby knows every VCR in the electronics store by model number. The two of you sprint down the display hitting PAUSE, PAUSE, PAUSE, and Vonda freezes mid-kick on every screen in a jittering, flickering row, one leg up, mouth open on \"eight.\" The count stops. Out on the center court, two hundred dancers stop with it and sink to the floor, wheezing and laughing and pulling off their shoes.",
+              "alone": "You don't know a single VCR by model number, so you sprint down the display slapping every button marked PAUSE, PAUSE, PAUSE, and Vonda freezes mid-kick on every screen in a jittering, flickering row, one leg up, mouth open on \"eight.\" The count stops. Out on the center court, two hundred dancers stop with it and sink to the floor, wheezing and laughing and pulling off their shoes.",
               "art": "A wall of televisions in an electronics store all frozen on an aerobics star mid-kick, two teenagers at the VCR display, exhausted dancers sinking to the floor of the mall court beyond",
               "effects": {
                 "nerve": 1,

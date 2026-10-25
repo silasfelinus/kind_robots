@@ -1,0 +1,53 @@
+name: Arcade viewport matrix
+
+on:
+  pull_request:
+    paths:
+      - 'components/arcade/**'
+      - 'utils/arcade/**'
+      - 'utils/scripts/arcadeCabinetFixture.mjs'
+      - 'utils/scripts/verifyArcadeViewport.browser.test.mjs'
+      - '.github/workflows/arcade-viewport.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/arcade/**'
+      - 'utils/arcade/**'
+      - 'utils/scripts/arcadeCabinetFixture.mjs'
+      - 'utils/scripts/verifyArcadeViewport.browser.test.mjs'
+      - '.github/workflows/arcade-viewport.yml'
+  workflow_dispatch:
+
+jobs:
+  cabinet-viewport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Real Arcade cabinet responsive matrix
+        run: node utils/scripts/verifyArcadeViewport.browser.test.mjs
+        env:
+          ARCADE_VIEWPORT_SHOTS: test-results/arcade-viewport
+
+      - name: Preserve screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcade-viewport-screenshots
+          path: test-results/arcade-viewport/
+          if-no-files-found: ignore
+          retention-days: 7

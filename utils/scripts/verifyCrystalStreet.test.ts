@@ -750,7 +750,9 @@ assert.ok(existsSync(file('../../public/crystal-street/video/theme.mp4')))
 assert.ok(
   existsSync(file('../../public/crystal-street/video/theme-poster.webp')),
 )
-const trailerRoom = asset('../../components/crystal-street/crystal-street-theme.vue')
+const trailerRoom = asset(
+  '../../components/crystal-street/crystal-street-theme.vue',
+)
 assert.match(trailerRoom, /data-testid="cs-theme-room"/)
 assert.match(trailerRoom, /class="cs-tv-cabinet"/)
 assert.match(trailerRoom, /data-testid="cs-theme-video"/)

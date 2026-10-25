@@ -15,12 +15,12 @@
         <div class="cap-overlay">
           <div class="cap-kicker">STAR COMMAND // INDEPENDENT VESSEL <span>•</span> CREW COMPLEMENT UNKNOWN</div>
           <template v-if="!run">
-            <h1 class="cap-title">GAME <small>OF</small><span>CAPTAINS</span></h1>
+            <h2 class="cap-title">GAME <small>OF</small><span>CAPTAINS</span></h2>
             <p class="cap-tagline">One ship. Six captains. Nobody read the mission brief.</p>
           </template>
           <template v-else>
             <span class="cap-coordinate">{{ starName }}</span>
-            <h1 class="cap-chapter">{{ headline }}</h1>
+            <h2 class="cap-chapter">{{ headline }}</h2>
             <p class="cap-copy">{{ stageCopy }}</p>
           </template>
         </div>

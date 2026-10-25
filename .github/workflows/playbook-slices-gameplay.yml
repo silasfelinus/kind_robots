@@ -1,0 +1,46 @@
+name: Playbook Slices Gameplay
+
+# Exercise the newly authored deterministic play loops before the two
+# console routes can regress. This is intentionally DB-free.
+on:
+  pull_request:
+    paths:
+      - 'utils/cometAcademy/**'
+      - 'utils/gameOfCaptains/**'
+      - 'stores/cometAcademyStore.ts'
+      - 'stores/gameOfCaptainsStore.ts'
+      - 'pages/play/comet-city-academy.vue'
+      - 'pages/play/game-of-captains.vue'
+      - 'components/home/home-visitor-directory.vue'
+      - 'utils/scripts/verifyCometCityAcademy.test.ts'
+      - 'utils/scripts/verifyGameOfCaptains.test.ts'
+      - '.github/workflows/playbook-slices-gameplay.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/cometAcademy/**'
+      - 'utils/gameOfCaptains/**'
+      - 'pages/play/comet-city-academy.vue'
+      - 'pages/play/game-of-captains.vue'
+      - '.github/workflows/playbook-slices-gameplay.yml'
+  workflow_dispatch:
+
+jobs:
+  seeded-playthroughs:
+    name: Seeded game-playthrough contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Academy seeded term and saved outcome verification
+        run: npm run test:comet-city-academy
+      - name: Captains seeded missions and ethical ending verification
+        run: npm run test:game-of-captains

@@ -146,6 +146,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'comet-city-academy',
     route: '/play/comet-city-academy',
   },
+  'game-of-captains': {
+    channelKey: 'arcade',
+    tabKey: 'game-of-captains',
+    route: '/play/game-of-captains',
+  },
   'rainbow-bullet-hell-space-princess': {
     channelKey: 'arcade',
     tabKey: 'rainbow-bullet-hell-space-princess',

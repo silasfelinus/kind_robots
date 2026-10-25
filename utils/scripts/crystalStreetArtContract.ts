@@ -3,6 +3,7 @@ import { allArtPrompts } from '../crystalStreet/artPrompts'
 import {
   ART_STYLE,
   AVATARS,
+  CHARACTERS,
   COMPANIONS,
   DECKS,
   ITEMS,
@@ -18,6 +19,7 @@ const prompts = allArtPrompts({
   decks: DECKS,
   items: ITEMS,
   avatars: AVATARS,
+  characters: CHARACTERS,
   title: TITLE_ART,
 })
 let bad = 0

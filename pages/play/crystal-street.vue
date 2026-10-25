@@ -37,42 +37,18 @@
           <icon name="kind-icon:arrow-left" class="h-3 w-3" /> Menu
         </span>
       </button>
-      <nav class="ml-auto flex gap-1" aria-label="Menu screens">
-        <button
-          v-for="tab in MENU_TABS"
-          :key="tab.id"
-          type="button"
-          class="btn btn-xs rounded-2xl @3xl:btn-sm"
-          :class="view === tab.id ? 'btn-primary' : 'btn-ghost'"
-          :aria-pressed="view === tab.id"
-          @click="view = tab.id"
-        >
-          <icon :name="tab.icon" class="h-4 w-4" />
-          <span class="hidden @2xl:inline">{{ tab.label }}</span>
-        </button>
-      </nav>
-      <button
-        type="button"
-        class="cs-help cs-help-sm shrink-0"
-        aria-label="How to play"
-        title="How to play"
-        @click="openTutorial"
-      >
-        ?
-      </button>
+      <crystal-street-dial
+        :items="dialItems"
+        :model-value="view"
+        label="Menu screens"
+        @select="onDial"
+      />
     </header>
 
     <header
       v-else-if="store.loaded && run && view !== 'title'"
       class="kr-toolbar cs-bar"
     >
-      <img
-        v-if="run.avatar"
-        :src="`/crystal-street/avatars/${run.avatar}.webp`"
-        :alt="`${run.name}'s avatar`"
-        class="h-9 w-9 shrink-0 rounded-full bg-black object-cover object-top ring-2 ring-primary"
-        @error="($event.target as HTMLImageElement).style.display = 'none'"
-      />
       <button
         type="button"
         class="cs-brand"
@@ -112,35 +88,12 @@
           <icon name="kind-icon:dice" class="h-4 w-4" />{{ run.wins }}
         </span>
       </div>
-      <nav class="ml-auto flex gap-1" aria-label="Game panels">
-        <button
-          v-for="tab in TABS"
-          :key="tab.id"
-          type="button"
-          class="btn btn-xs rounded-2xl @3xl:btn-sm"
-          :class="view === tab.id ? 'btn-primary' : 'btn-ghost'"
-          :aria-pressed="view === tab.id"
-          @click="view = tab.id"
-        >
-          <icon :name="tab.icon" class="h-4 w-4" />
-          <span class="hidden @2xl:inline">{{ tab.label }}</span>
-          <span v-if="tab.id === 'crew'" class="text-[10px]">{{
-            run.crew.length
-          }}</span>
-          <span v-if="tab.id === 'case'" class="text-[10px]"
-            >{{ run.clues.length }}/3</span
-          >
-        </button>
-      </nav>
-      <button
-        type="button"
-        class="cs-help cs-help-sm shrink-0"
-        aria-label="How to play"
-        title="How to play"
-        @click="openTutorial"
-      >
-        ?
-      </button>
+      <crystal-street-dial
+        :items="dialItems"
+        :model-value="view"
+        label="Game screens"
+        @select="onDial"
+      />
     </header>
 
     <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
@@ -161,6 +114,21 @@
         @started="view = 'stage'"
         @open="openMenu"
       />
+      <section
+        v-else-if="view === 'you'"
+        class="kr-panes grid-cols-1"
+        aria-label="Your character"
+      >
+        <div class="kr-pane-scroll">
+          <crystal-street-character
+            :avatar="run.avatar"
+            :archetype="run.archetype"
+            :name="run.name"
+            :pronouns="run.pronouns"
+            :skills="run.skills"
+          />
+        </div>
+      </section>
       <crystal-street-crew v-else-if="view === 'crew'" />
       <crystal-street-case v-else-if="view === 'case'" />
       <crystal-street-pack v-else-if="view === 'pack'" />
@@ -221,35 +189,81 @@
 import { computed, onMounted, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import { useNavStore } from '~/stores/navStore'
-import { MAX_DREAD, MAX_NERVE, remixLine } from '~/utils/crystalStreet/rules'
-import type { MenuView } from '~/utils/crystalStreet/menu'
+import {
+  MAX_DREAD,
+  MAX_NERVE,
+  characterFor,
+  remixLine,
+} from '~/utils/crystalStreet/rules'
+import type { DialItem, MenuView } from '~/utils/crystalStreet/menu'
 
 type MenuScreen = 'settings' | 'credits' | 'theme'
 type View =
-  'title' | 'stage' | 'crew' | 'case' | 'pack' | 'scrapbook' | MenuScreen
+  | 'title'
+  | 'stage'
+  | 'you'
+  | 'crew'
+  | 'case'
+  | 'pack'
+  | 'scrapbook'
+  | MenuScreen
 
 const MENU_SCREENS = new Set<View>(['settings', 'credits', 'theme'])
 
-const TABS: { id: View; label: string; icon: string }[] = [
-  { id: 'stage', label: 'Play', icon: 'kind-icon:map' },
-  { id: 'crew', label: 'Crew', icon: 'kind-icon:users' },
-  { id: 'case', label: 'Case', icon: 'kind-icon:search' },
-  { id: 'pack', label: 'Pack', icon: 'kind-icon:bag' },
-  { id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' },
-]
-
 const store = useCrystalStreetStore()
 const navStore = useNavStore()
-// The scrapbook tab appears once a week has been finished.
-const MENU_TABS = computed(() =>
-  [
-    store.scrapbook.runs.length
-      ? { id: 'scrapbook' as View, label: 'Scrapbook', icon: 'kind-icon:book' }
-      : null,
-    { id: 'theme' as View, label: 'Theme', icon: 'kind-icon:movie' },
-    { id: 'settings' as View, label: 'Settings', icon: 'kind-icon:settings' },
-  ].filter((t) => t !== null),
-)
+// Every screen sits on one dial across the top (Silas, 2026-10-24 PT:
+// "settings, info, character bio, scrapbook can be reached via icons on the
+// top, rotating for which is selected"). The scrapbook joins once a week has
+// been finished; "?" opens the tutorial sidebar.
+const dialItems = computed<DialItem[]>(() => {
+  const r = run.value
+  const items: DialItem[] = []
+  if (r && !menuScreen.value) {
+    const character = characterFor(r.avatar, r.archetype)
+    items.push(
+      { id: 'stage', label: 'Play', icon: 'kind-icon:map' },
+      {
+        id: 'you',
+        label: character?.title ?? 'You',
+        icon: 'kind-icon:user',
+        image: character
+          ? `/crystal-street/characters/${character.id}.webp`
+          : undefined,
+        fallback: r.avatar
+          ? `/crystal-street/avatars/${r.avatar}.webp`
+          : undefined,
+      },
+      {
+        id: 'crew',
+        label: 'Crew',
+        icon: 'kind-icon:users',
+        badge: String(r.crew.length),
+      },
+      {
+        id: 'case',
+        label: 'Case',
+        icon: 'kind-icon:search',
+        badge: `${r.clues.length}/3`,
+      },
+      { id: 'pack', label: 'Pack', icon: 'kind-icon:bag' },
+    )
+  }
+  if (store.scrapbook.runs.length || (r && !menuScreen.value))
+    items.push({ id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' })
+  if (!r || menuScreen.value)
+    items.push({ id: 'theme', label: 'Theme', icon: 'kind-icon:movie' })
+  items.push(
+    { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
+    { id: 'help', label: 'How to play', glyph: '?', action: true },
+  )
+  return items
+})
+
+function onDial(id: string): void {
+  if (id === 'help') openTutorial()
+  else view.value = id as View
+}
 
 function openTutorial(): void {
   navStore.openWorkspaceSheet()

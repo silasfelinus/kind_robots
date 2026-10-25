@@ -19,6 +19,16 @@ tutorial:
     nightmare has come this year. Spend your days around Glimmer Falls, survive
     your nights, and face it on Halloween.
   sections:
+    - key: character
+      title: 'Your character: look plus clique'
+      image: /crystal-street/avatars/vogue.webp
+      body: >-
+        Pick a look, then the clique you run with this week; together they make
+        one of 96 characters, each with a name, a story and a portrait. The
+        look brings a style (brave, clever, kind, camp, sneaky or reckless) that
+        adds to every choice played that way. A clique that shares the style is
+        Typecast and doubles down; any other plays Against type and adds the
+        clique's own style too. The clique sets your starting skills.
     - key: days
       title: 'Days: spend three actions'
       image: /crystal-street/locations/library.webp
@@ -40,7 +50,7 @@ tutorial:
       image: /crystal-street/companions/lou-tran-poster.webp
       body: >-
         Every choice rolls two dice plus your skill, +1 if a friend shares it,
-        your best gear, and any bonus the choice names. Nights subtract one, and
+        your best gear, your character's style, and any bonus the choice names. Nights subtract one, and
         more as dread climbs. You need 7, 9 or 11, and the odds show on every
         choice. Double six always works; snake eyes never does.
     - key: friends
@@ -65,7 +75,7 @@ tutorial:
         Fight it, trick it, or, with all three leads, reach its heart. The base
         checks are hard, but every edge adds +1 to each roll and opens a
         straighter way through built from what you did that act. The Best
-        ending needs the heart and ten night wins, the finale included.
+        ending needs the heart and twelve night wins, the finale included.
     - key: scrapbook
       title: The scrapbook
       image: /crystal-street/villains/mister-fuzzbutton-ending.webp

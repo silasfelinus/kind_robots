@@ -4,6 +4,7 @@ import {
   TAGS,
   TARGETS,
   type Avatar,
+  type Character,
   type Choice,
   type Companion,
   type Effects,
@@ -310,6 +311,25 @@ export function validateAvatar(p: Problems, a: Avatar): void {
   text(p, `${w}.name`, a.name, 3)
   text(p, `${w}.blurb`, a.blurb, 10)
   art(p, `${w}.art`, a.art, 80)
+}
+
+const STYLES = ['brave', 'clever', 'kind', 'camp', 'sneaky', 'reckless']
+
+export function validateCharacter(p: Problems, c: Character): void {
+  const w = `character ${c?.id}`
+  if (c.id !== `${c.avatar}--${c.archetype}`) p.push(`${w}: id`)
+  if (!/^The \S/.test(c.title ?? '')) p.push(`${w}.title starts with "The"`)
+  text(p, `${w}.tagline`, c.tagline, 20)
+  text(p, `${w}.bio`, c.bio, 150)
+  if (!c.bio?.startsWith('You')) p.push(`${w}.bio is second person`)
+  if (/\b(he|she|him|her|his|hers)\b/i.test(c.bio ?? ''))
+    p.push(`${w}.bio leaves pronouns to the player`)
+  text(p, `${w}.catchphrase`, c.catchphrase, 10)
+  art(p, `${w}.art`, c.art, 80)
+}
+
+export function validateStyle(p: Problems, where: string, style: string): void {
+  if (!STYLES.includes(style)) p.push(`${where}: style`)
 }
 
 export function duplicateIds(encounters: Encounter[]): string[] {

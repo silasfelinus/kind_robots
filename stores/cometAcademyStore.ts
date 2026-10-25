@@ -29,7 +29,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       else localStorage.removeItem(SAVE_KEY)
       storageWarning.value = ''
     } catch {
-      storageWarning.value = 'This browser cannot save your term. Keep the page open to continue.'
+      storageWarning.value =
+        'This browser cannot save your term. Keep the page open to continue.'
     }
   }
 
@@ -41,7 +42,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       run.value = restoreAcademy(raw ? JSON.parse(raw) : null)
     } catch {
       run.value = null
-      storageWarning.value = 'Your previous save could not be loaded. You can begin a new term.'
+      storageWarning.value =
+        'Your previous save could not be loaded. You can begin a new term.'
     }
   }
 
@@ -85,5 +87,18 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
-  return { loaded, run, incidents, storageWarning, load, begin, assign, dispatch, choose, next, end, restart }
+  return {
+    loaded,
+    run,
+    incidents,
+    storageWarning,
+    load,
+    begin,
+    assign,
+    dispatch,
+    choose,
+    next,
+    end,
+    restart,
+  }
 })

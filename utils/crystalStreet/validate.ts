@@ -120,6 +120,13 @@ export function validateEncounter(
   text(p, `${where}.place`, e.place, 3)
   text(p, `${where}.text`, e.text, 80)
   art(p, `${where}.art`, e.art, 40)
+  if (
+    e.days !== undefined &&
+    (!Array.isArray(e.days) ||
+      !e.days.length ||
+      e.days.some((d) => !Number.isInteger(d) || d < 1 || d > 7))
+  )
+    p.push(`${where}.days: day numbers 1 (Saturday) to 7 (Friday)`)
   // A finale holds fight, trick and heart plus up to three edge choices.
   const most = where.endsWith('.finale') ? 6 : 3
   if (

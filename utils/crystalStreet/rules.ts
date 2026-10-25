@@ -1049,8 +1049,25 @@ export type DayActivity =
   | { kind: 'heal' }
   | { kind: 'groceries' }
 
+/** Street-deck tags as players read them on the draw screen. */
+export const TAG_LABELS: Record<Tag, string> = {
+  paranormal: 'Supernatural',
+  slasher: 'Slasher',
+  creature: 'Creature',
+  cosmic: 'Alien',
+  tech: 'Tech',
+  camp: 'Camp',
+  cult: 'Cult',
+  dream: 'Dream',
+  biohazard: 'Biohazard',
+  suburban: 'Suburban trouble',
+}
+
 export function nextBeat(run: RunState, location: Location): string | null {
-  const unseen = location.beats.filter((b) => !run.seenBeats.includes(b.id))
+  const unseen = location.beats.filter(
+    (b) =>
+      !run.seenBeats.includes(b.id) && (!b.days || b.days.includes(run.day)),
+  )
   if (!unseen.length) return null
   const offset = hashSeed(`${run.seed}:${location.id}`) % unseen.length
   return unseen[offset]!.id

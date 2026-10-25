@@ -469,7 +469,7 @@ const menu = computed<MenuItem[]>(() => {
     {
       view: 'theme',
       label: 'Watch the theme',
-      icon: 'kind-icon:movie',
+      icon: 'kind-icon:tv',
       detail: () => 'One minute of Halloween punk',
     },
   ]

@@ -14,9 +14,11 @@ import {
 import { createBriarWaveCards } from '../memoryDungeonWaves'
 import {
   DARK_BRIAR_KEYS,
+  DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
   DARK_BRIAR_WITNESSES,
   DARK_BRIAR_CLIMAX,
+  advanceDarkBriarWave,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
   darkBriarCanChoose,
@@ -24,6 +26,7 @@ import {
   darkBriarChoose,
   darkBriarOpening,
   validateDarkBriarSlice,
+  type DarkBriarProgress,
 } from '../memoryDungeon/darkBriar'
 import {
   restoreMemoryRealitySave,
@@ -36,29 +39,47 @@ import {
 
 assert.deepEqual(validateDarkBriarSlice(), [])
 assert.deepEqual(validateDarkBriarArtRequests(), [])
-assert.equal(DARK_BRIAR_ART_REQUESTS.length, 51)
+assert.equal(DARK_BRIAR_ART_REQUESTS.length, 195)
 assert.equal(DARK_BRIAR_COLLECTIBLE_ART.length, 32)
 assert.ok(
   DARK_BRIAR_ART_REQUESTS.every(
     (request) => request.jobId === null && request.delivery === 'not-submitted',
   ),
 )
-assert.equal(DARK_BRIAR_KEYS.length, 16)
-assert.equal(new Set(DARK_BRIAR_KEYS).size, 16)
+assert.equal(DARK_BRIAR_KEYS.length, 64)
+assert.equal(new Set(DARK_BRIAR_KEYS).size, 64)
 assert.ok(DARK_BRIAR_KEYS.includes(BRIAR_START))
 assert.ok(DARK_BRIAR_KEYS.includes(DARK_BRIAR_CLIMAX))
+assert.equal(DARK_BRIAR_WAVES.length, 4)
+assert.deepEqual(DARK_BRIAR_KEYS.slice(0, 16), DARK_BRIAR_WAVES[0], 'Preserve pilot location IDs and order')
+assert.deepEqual(new Set(DARK_BRIAR_WAVES.flat()), new Set(DARK_BRIAR_KEYS))
+for (const scene of Object.values(DARK_BRIAR_SCENES)) {
+  assert.ok(scene.opening.length >= 80, 'Every site has substantial authored opening')
+  assert.ok(scene.artPrompt.length >= 60, 'Every site has unique art direction')
+  assert.equal(scene.choices.length, 2)
+  assert.notEqual(scene.choices[0].outcome, scene.choices[1].outcome)
+}
 
-const images = Array.from(
+const imagesFor = (wave: number) => Array.from(
   { length: 8 },
-  (_, i) => `/sample/memory-image-${i}.webp`,
+  (_, i) => '/sample/memory-wave-' + wave + '-image-' + i + '.webp',
 )
-const cards = createBriarWaveCards(DARK_BRIAR_KEYS, images, () => 0.5)
-assert.equal(cards.length, 16)
-assert.equal(new Set(cards.map((card) => card.tile)).size, 16)
-assert.equal(new Set(cards.map((card) => card.image)).size, 8)
+const cardsFor = (wave: number) => createBriarWaveCards(
+  DARK_BRIAR_WAVES[wave]!,
+  imagesFor(wave),
+  () => 0.5,
+)
+for (let wave = 0; wave < 4; wave++) {
+  const cards = cardsFor(wave)
+  assert.equal(cards.length, 16)
+  assert.equal(new Set(cards.map((card) => card.tile)).size, 16)
+  assert.equal(new Set(cards.map((card) => card.image)).size, 8)
+}
 
 const first = newDarkBriarProgress()
 assert.equal(first.phase, 'matching')
+assert.equal(first.version, 2)
+assert.equal(first.waveIndex, 0)
 assert.equal(first.player, BRIAR_START)
 assert.deepEqual(first.sceneChoices, {})
 assert.deepEqual(restoreDarkBriarProgress(null), first)
@@ -67,16 +88,12 @@ const untrusted = restoreDarkBriarProgress({
   completed: true,
   mapCards: [],
 })
-assert.equal(
-  untrusted.completed,
-  false,
-  'A forged/obsolete climax cannot unlock the campaign',
-)
+assert.equal(untrusted.completed, false, 'A forged climax cannot unlock the campaign')
 assert.deepEqual(untrusted.sceneChoices, {})
 
 const interrupted = restoreDarkBriarProgress({
   ...first,
-  mapCards: cards.map((card, index) => ({
+  mapCards: cardsFor(0).map((card, index) => ({
     ...card,
     flipped: index === 0,
     matched: false,
@@ -85,49 +102,42 @@ const interrupted = restoreDarkBriarProgress({
   visited: ['6,2'],
 })
 assert.equal(interrupted.phase, 'matching')
-assert.ok(
-  interrupted.mapCards.every((card) => !card.flipped),
-  'Restored unmatched cards turn face down',
-)
-assert.deepEqual(
-  interrupted.revealed,
-  [],
-  'Saved map cannot forge reveals without matching card evidence',
-)
+assert.ok(interrupted.mapCards.every((card) => !card.flipped))
+assert.deepEqual(interrupted.revealed, [], 'A saved tile needs a real paired match')
 assert.deepEqual(interrupted.visited, [])
 
-const finishedCards = cards.map((card) => ({
-  ...card,
-  matched: true,
-  flipped: true,
-}))
-let dark = restoreDarkBriarProgress({
-  ...first,
-  mapCards: finishedCards,
-  revealed: DARK_BRIAR_KEYS,
-  visited: DARK_BRIAR_KEYS,
-  player: BRIAR_START,
-})
+function completeRound(state: DarkBriarProgress): DarkBriarProgress {
+  const keys = DARK_BRIAR_WAVES[state.waveIndex]!
+  const cards = cardsFor(state.waveIndex).map((card) => ({
+    ...card,
+    matched: true,
+    flipped: true,
+  }))
+  return restoreDarkBriarProgress({
+    ...state,
+    phase: 'exploring',
+    mapCards: cards,
+    revealed: [...state.revealed, ...keys],
+    visited: [...state.visited, ...keys],
+    player: BRIAR_START,
+    seenImages: [...state.seenImages, ...imagesFor(state.waveIndex)],
+  })
+}
+
+let dark = completeRound(first)
 assert.equal(dark.phase, 'exploring')
 assert.equal(dark.revealed.length, 16)
-assert.equal(
-  darkBriarCanTravel(BRIAR_START, DARK_BRIAR_CLIMAX, dark.revealed),
-  true,
-)
+assert.equal(darkBriarCanTravel(BRIAR_START, DARK_BRIAR_CLIMAX, dark.revealed), true)
 assert.equal(darkBriarCanTravel(BRIAR_START, '8,8', dark.revealed), false)
-assert.equal(
-  darkBriarCanTravel(BRIAR_START, DARK_BRIAR_CLIMAX, [
-    BRIAR_START,
-    DARK_BRIAR_CLIMAX,
-  ]),
-  false,
-)
-assert.equal(DARK_BRIAR_SCENES[DARK_BRIAR_CLIMAX]?.choices.length, 2)
+assert.equal(darkBriarCanTravel(BRIAR_START, DARK_BRIAR_CLIMAX, [
+  BRIAR_START, DARK_BRIAR_CLIMAX,
+]), false)
+assert.equal(advanceDarkBriarWave(first), first, 'Cannot skip matching')
 assert.equal(
   darkBriarCanChoose({ ...dark, player: DARK_BRIAR_CLIMAX }, DARK_BRIAR_CLIMAX),
   false,
+  'The original pilot Warden must await testimony from the whole world',
 )
-
 const original = restoreBriarSave({
   ...newBriarSave(),
   prologueChoice: 'terms',
@@ -135,23 +145,35 @@ const original = restoreBriarSave({
   sceneChoices: { '4,4': 'escort', '2,5': 'archive' },
   relics: ['bramble-chime'],
 })
-assert.ok(
-  darkBriarOpening(DARK_BRIAR_SCENES['4,4']!, original).includes(
-    'proclamation',
-  ),
-)
-assert.ok(
-  darkBriarOpening(DARK_BRIAR_SCENES['2,5']!, original).includes('negative'),
-)
+assert.ok(darkBriarOpening(DARK_BRIAR_SCENES['4,4']!, original).includes('proclamation'))
+assert.ok(darkBriarOpening(DARK_BRIAR_SCENES['2,5']!, original).includes('negative'))
+for (let wave = 1; wave < 4; wave++) {
+  const previousChoices = JSON.stringify(dark.sceneChoices)
+  const previousVisited = [...dark.visited]
+  dark = advanceDarkBriarWave(dark)
+  assert.equal(dark.waveIndex, wave)
+  assert.equal(dark.phase, 'matching')
+  assert.equal(dark.mapCards.length, 0)
+  assert.equal(advanceDarkBriarWave(dark), dark, 'A wave cannot be skipped twice')
+  dark = completeRound(dark)
+  assert.equal(dark.revealed.length, 16 * (wave + 1))
+  assert.equal(JSON.stringify(dark.sceneChoices), previousChoices)
+  assert.ok(previousVisited.every((key) => dark.visited.includes(key)))
+  assert.equal(dark.waveIndex, wave)
+  assert.equal(dark.phase, 'exploring')
+  const restored = restoreDarkBriarProgress(JSON.parse(JSON.stringify(dark)))
+  assert.deepEqual(restored.revealed, dark.revealed, 'Save and restore every revealed region')
+  assert.deepEqual(restored.seenImages, dark.seenImages, 'Retain 32 unique image identities')
+}
+assert.equal(dark.revealed.length, 64)
+assert.equal(advanceDarkBriarWave(dark), dark, 'No fifth dark reveal round')
+assert.equal(darkBriarCanTravel(BRIAR_START, '8,8', dark.revealed), true)
 for (const key of DARK_BRIAR_WITNESSES) {
   dark = { ...dark, player: key }
-  assert.equal(
-    darkBriarCanChoose(dark, key),
-    true,
-    `Witness ${key} must be playable`,
-  )
+  assert.equal(darkBriarCanChoose(dark, key), true, 'Witness ' + key + ' must be playable')
   dark = darkBriarChoose(dark, key, DARK_BRIAR_SCENES[key]!.choices[0].id)
 }
+assert.equal(DARK_BRIAR_WITNESSES.length, 8)
 assert.equal(
   darkBriarCanChoose({ ...dark, player: DARK_BRIAR_CLIMAX }, DARK_BRIAR_CLIMAX),
   true,
@@ -159,59 +181,55 @@ assert.equal(
 dark = { ...dark, player: DARK_BRIAR_CLIMAX }
 dark = darkBriarChoose(dark, DARK_BRIAR_CLIMAX, 'witness')
 assert.equal(dark.completed, true)
-const firstEnding = JSON.stringify(dark)
-assert.equal(
-  darkBriarChoose(dark, DARK_BRIAR_CLIMAX, 'refuse'),
-  dark,
-  'Climax rewards are not farmable',
-)
-assert.equal(JSON.stringify(dark), firstEnding)
+assert.equal(darkBriarChoose(dark, DARK_BRIAR_CLIMAX, 'refuse'), dark)
 const restored = restoreDarkBriarProgress(JSON.parse(JSON.stringify(dark)))
 assert.equal(restored.completed, true)
 assert.equal(restored.sceneChoices[DARK_BRIAR_CLIMAX], 'witness')
-assert.equal(
-  original.gateOpened,
-  true,
-  'Dark world never mutates the existing Briar save',
-)
+assert.equal(original.gateOpened, true, 'Dark world cannot rewrite the original save')
 assert.equal(original.sceneChoices['4,4'], 'escort')
 
-const campaign = completeMemoryExperience(newMemoryCampaignProgress(), 'e01')
-const reality = restoreMemoryRealitySave({
+// A player who finished the earlier 16-scene pilot must not lose the ending.
+const legacyV1 = restoreDarkBriarProgress({
+  ...completeRound(first),
   version: 1,
-  active: 'e02',
-  progress: campaign,
+  sceneChoices: { '6,2': 'witness', '2,5': 'question' },
+  completed: true,
 })
-assert.equal(reality.active, 'e02', 'Mirrored mode is resumable after a reload')
-assert.equal(
-  restoreMemoryRealitySave({ active: 'e02', progress: {} }).active,
-  'e01',
-  'Do not unlock the reflection without Briar completion',
-)
+assert.equal(legacyV1.version, 2)
+assert.equal(legacyV1.legacyCompleted, true)
+assert.equal(legacyV1.completed, true)
+const legacyReload = restoreDarkBriarProgress(JSON.parse(JSON.stringify(legacyV1)))
+assert.equal(legacyReload.completed, true, 'Previously earned ending remains complete')
+assert.equal(advanceDarkBriarWave(legacyReload).waveIndex, 1, 'Legacy players can explore new regions')
+
+const forgedLastWave = restoreDarkBriarProgress({
+  ...first,
+  waveIndex: 3,
+  revealed: [],
+  mapCards: cardsFor(3),
+})
+assert.equal(forgedLastWave.waveIndex, 0, 'Cannot skip prior map reveals via invalid save')
+
+const campaign = completeMemoryExperience(newMemoryCampaignProgress(), 'e01')
+const reality = restoreMemoryRealitySave({ version: 1, active: 'e02', progress: campaign })
+assert.equal(reality.active, 'e02')
+assert.equal(restoreMemoryRealitySave({ active: 'e02', progress: {} }).active, 'e01')
 assert.deepEqual(
-  restoreMemoryCampaignProgress({ completed: ['e01', 'e01', 'bogus'] })
-    .completed,
+  restoreMemoryCampaignProgress({ completed: ['e01', 'e01', 'bogus'] }).completed,
   ['e01'],
 )
 const completed = completeMemoryExperience(campaign, 'e02')
-assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
-  'e01',
-  'e02',
-])
+assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, ['e01', 'e02'])
 assert.equal(BRIAR_GATE, '8,4')
 assert.equal(BRIAR_START, '2,4')
 
-const stage = readFileSync(
-  'components/memory-dungeon/dark-briar-stage.vue',
-  'utf-8',
-)
-const overworld = readFileSync(
-  'components/pages/memory-dungeon-overworld.vue',
-  'utf-8',
-)
+const stage = readFileSync('components/memory-dungeon/dark-briar-stage.vue', 'utf-8')
+const overworld = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf-8')
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf-8')
 assert.ok(stage.includes('data-testid="dark-briar-stage"'))
 assert.ok(stage.includes('data-testid="dark-briar-choices"'))
+assert.ok(stage.includes('data-testid="dark-briar-next-wave"'))
+assert.ok(stage.includes('world.dark.revealed.includes(tile.key)'))
 assert.ok(stage.includes('world.darkPickCard(card.tile)'))
 assert.ok(stage.includes('world.darkChooseScene(choice.id)'))
 assert.ok(overworld.includes('<memory-dungeon-dark-briar-stage'))
@@ -220,7 +238,5 @@ assert.ok(store.includes('const REALITY_KEY ='))
 assert.ok(store.includes('const DARK_BRIAR_KEY ='))
 assert.ok(store.includes('grantBriarCompletion()'))
 assert.ok(store.includes('persistReality()'))
-
-console.log(
-  'Dark Briar sixteen-scene playable vertical slice, independent saves, reveals, witness gate and UI wiring pass',
-)
+assert.ok(store.includes('advanceDarkBriarWave(dark.value)'))
+console.log('All 64 Dark Briar encounters, four 8-pair reveal waves, eight-witness House, migration and art briefs pass')

@@ -1,12 +1,23 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
-  POWERS, STUDENTS, INCIDENTS, assignTeam, chooseEncounter, encounterFor,
-  finishAcademy, incidentsFor, nextSchoolDay, resolveDispatch, restoreAcademy, startAcademy,
+  POWERS,
+  STUDENTS,
+  INCIDENTS,
+  assignTeam,
+  chooseEncounter,
+  encounterFor,
+  finishAcademy,
+  incidentsFor,
+  nextSchoolDay,
+  resolveDispatch,
+  restoreAcademy,
+  startAcademy,
   type StudentId,
 } from '../cometAcademy/rules'
 
-const fromRoot = (path: string) => readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+const fromRoot = (path: string) =>
+  readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 assert.equal(POWERS.length, 6)
 assert.equal(STUDENTS.length, 6)
 assert.equal(INCIDENTS.length, 6)
@@ -23,13 +34,25 @@ for (const power of POWERS) {
       assert.equal(rejected, run, 'one volunteer cannot work two cases')
       run = assignTeam(run, b.id, ['imani', 'ash', 'nix'])
       assert.equal(run.assignments.length, 2)
-      assert.deepEqual(assignTeam(run, b.id, ['kit', 'kit']), run, 'no duplicate roster slots')
+      assert.deepEqual(
+        assignTeam(run, b.id, ['kit', 'kit']),
+        run,
+        'no duplicate roster slots',
+      )
       const immutable = JSON.stringify(run)
       const another = resolveDispatch(run)
-      assert.equal(JSON.stringify(run), immutable, 'resolve must not mutate the caller')
+      assert.equal(
+        JSON.stringify(run),
+        immutable,
+        'resolve must not mutate the caller',
+      )
       assert.equal(another.reports.length, 2)
       assert.equal(another.phase, 'campus')
-      assert.ok(another.reports.every((r) => ['honors', 'pass', 'partial', 'failed'].includes(r.grade)))
+      assert.ok(
+        another.reports.every((r) =>
+          ['honors', 'pass', 'partial', 'failed'].includes(r.grade),
+        ),
+      )
       const choice = encounterFor(another).options[day % 2]!
       run = chooseEncounter(another, choice.id)
       assert.equal(run.phase, 'debrief')
@@ -47,7 +70,9 @@ for (const power of POWERS) {
     assert.equal(startAcademy(power.id, seed).seed, seed)
   }
 }
-const fallback = assignTeam(startAcademy('kinetic', 2), 'unlisted', ['mina' as StudentId])
+const fallback = assignTeam(startAcademy('kinetic', 2), 'unlisted', [
+  'mina' as StudentId,
+])
 assert.equal(fallback.assignments.length, 0)
 assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'dispatch')
 assert.equal(restoreAcademy({}), null)

@@ -78,9 +78,11 @@ try {
             }
           }
           const canvas = document.querySelector('.cabinet-canvas')
-          const controls = [...document.querySelectorAll(
-            '.cabinet-overlay .cabinet-dpad, .cabinet-overlay .cabinet-ball, .cabinet-pause-chip',
-          )].map(rect)
+          const controls = [
+            ...document.querySelectorAll(
+              '.cabinet-overlay .cabinet-dpad, .cabinet-overlay .cabinet-ball, .cabinet-pause-chip',
+            ),
+          ].map(rect)
           return {
             stage: rect(canvas),
             canvasWidth: canvas.width,
@@ -115,9 +117,20 @@ try {
           `${label}: backing pixels stay within shared 3.24MP ceiling`,
         )
         if (testCase.touch && testCase.slug === RAINBOW) {
-          assert.equal(metrics.htmlOverflow, 'hidden', `${label}: page scroll locked`)
-          assert.equal(metrics.bodyOverflow, 'hidden', `${label}: body scroll locked`)
-          assert.ok(metrics.controls.length > 0, `${label}: touch controls exist`)
+          assert.equal(
+            metrics.htmlOverflow,
+            'hidden',
+            `${label}: page scroll locked`,
+          )
+          assert.equal(
+            metrics.bodyOverflow,
+            'hidden',
+            `${label}: body scroll locked`,
+          )
+          assert.ok(
+            metrics.controls.length > 0,
+            `${label}: touch controls exist`,
+          )
           for (const [index, rect] of metrics.controls.entries()) {
             assert.ok(
               visibleWithin(rect, testCase.width, testCase.height),
@@ -140,7 +153,9 @@ try {
         const nominalSpriteCssPixels =
           nominalSpriteExtent === null
             ? null
-            : Math.round((metrics.stage.width / logicalWidth) * nominalSpriteExtent)
+            : Math.round(
+                (metrics.stage.width / logicalWidth) * nominalSpriteExtent,
+              )
         summary.push({
           slug: testCase.slug,
           viewport: `${testCase.width}x${testCase.height}`,
@@ -158,6 +173,10 @@ try {
 } finally {
   await browser.close()
 }
-console.log('Arcade viewport geometry matrix (nominal art-box estimates (Plumber height, Rainbow max width), not visual approval):')
+console.log(
+  'Arcade viewport geometry matrix (nominal art-box estimates (Plumber height, Rainbow max width), not visual approval):',
+)
 console.log(JSON.stringify(summary, null, 2))
-console.log(`Arcade viewport matrix: ${summary.length} real-cabinet cases passed`)
+console.log(
+  `Arcade viewport matrix: ${summary.length} real-cabinet cases passed`,
+)

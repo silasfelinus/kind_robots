@@ -121,7 +121,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   let darkEpoch = 0
   const darkHouseOpen = computed(() => darkHouse.value.active)
   const canEnterDarkHouseAtCamp = computed(() => canEnterDarkHouse(dark.value))
-  const darkHouseRoom = computed(() => DARK_HOUSE_ROOMS[darkHouse.value.current] ?? null)
+  const darkHouseRoom = computed(
+    () => DARK_HOUSE_ROOMS[darkHouse.value.current] ?? null,
+  )
   const darkHouseDoors = computed(() => darkHouseExits(darkHouse.value))
   const canEnterDarkBriar = computed(() =>
     campaign.value.completed.includes('e01'),
@@ -335,7 +337,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         }),
       )
       window.localStorage.setItem(DARK_BRIAR_KEY, JSON.stringify(dark.value))
-      window.localStorage.setItem(DARK_HOUSE_KEY, JSON.stringify(darkHouse.value))
+      window.localStorage.setItem(
+        DARK_HOUSE_KEY,
+        JSON.stringify(darkHouse.value),
+      )
     } catch {
       dark.value.status =
         'The other Marches remain playable, but browser storage is unavailable.'
@@ -426,7 +431,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       try {
         const savedHouse = window.localStorage.getItem(DARK_HOUSE_KEY)
-        darkHouse.value = restoreDarkHouseProgress(savedHouse ? JSON.parse(savedHouse) : null)
+        darkHouse.value = restoreDarkHouseProgress(
+          savedHouse ? JSON.parse(savedHouse) : null,
+        )
       } catch {
         darkHouse.value = newDarkHouseProgress()
       }
@@ -497,7 +504,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkHouse.value = {
       ...darkHouse.value,
       active: true,
-      status: DARK_HOUSE_ROOMS[darkHouse.value.current]?.opening ?? 'The House listens.',
+      status:
+        DARK_HOUSE_ROOMS[darkHouse.value.current]?.opening ??
+        'The House listens.',
     }
     persistReality()
   }
@@ -510,7 +519,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function walkDarkHouse(id: string): void {
     if (activeReality.value !== 'e02' || !darkHouse.value.active) return
-    const next = advanceDarkHouseRoom(darkHouse.value, id as DarkHouseProgress['current'])
+    const next = advanceDarkHouseRoom(
+      darkHouse.value,
+      id as DarkHouseProgress['current'],
+    )
     if (next === darkHouse.value) return
     darkHouse.value = next
     persistReality()

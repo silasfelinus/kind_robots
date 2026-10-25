@@ -2,14 +2,14 @@
   <main
     class="kr-surface cca-shell h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
-    aria-label="Comet City Academy game"
+    aria-label="Capes & Tassels: Prom of Doom game"
   >
     <header class="cca-topbar">
       <NuxtLink to="/" class="cca-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
       <span class="cca-insignia">✦</span>
-      <span class="cca-top-title">COMET CITY <b>ACADEMY</b></span>
+      <span class="cca-top-title">CAPES <b>&amp; TASSELS</b></span>
       <span class="cca-top-detail">{{
         run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN'
       }}</span>
@@ -43,9 +43,9 @@
             THE CITY IS WATCHING <span>✦</span> YOUR STORY BEGINS
           </div>
           <template v-if="!run">
-            <h2 class="cca-big-title">COMET CITY <span>ACADEMY</span></h2>
+            <h2 class="cca-big-title">CAPES <span>&amp; TASSELS</span></h2>
             <p class="cca-intro">
-              Heroes are made. Villains graduate. Prom is Saturday.
+              Prom of Doom · Your final month begins with a very strange first week.
             </p>
           </template>
           <template v-else>
@@ -247,7 +247,7 @@
               @click="store.next()"
             >
               {{
-                run.day === 7 ? 'GO TO THE COMET BALL' : 'ADVANCE TO NEXT DAY'
+                run.day === 7 ? 'FACE THE PROM-NIGHT SIMULATION' : 'ADVANCE TO NEXT DAY'
               }}
               <span>➜</span>
             </button>
@@ -257,15 +257,15 @@
             <div class="cca-heading">
               <span>05</span>
               <div>
-                <h2>The Comet Ball</h2>
-                <p>The academy's shining night has a very dark underside.</p>
+                <h2>Prom-Night Simulation</h2>
+                <p>The final rehearsal shows how prom could end very badly.</p>
               </div>
             </div>
             <p class="cca-story">
-              The emergency simulations were rehearsals for something real. The
-              ballroom lights are changing color. Your classmates are waiting
-              for orders. You can protect them, or seize the machine behind the
-              whole spectacle.
+              Your first-week final is a simulated prom-night catastrophe.
+              The real graduation is still weeks away. Your classmates are
+              waiting for orders. You can protect them, or seize the machine
+              behind the whole spectacle.
             </p>
             <div class="cca-final-stats">
               <span
@@ -367,7 +367,7 @@ const stageCopy = computed(() =>
     : (run.value?.scene ?? ''),
 )
 onMounted(() => store.load())
-useHead({ title: 'Comet City Academy | Kind Robots' })
+useHead({ title: 'Capes & Tassels: Prom of Doom | Kind Robots' })
 
 function teamFor(caseId: string): StudentId[] {
   return (

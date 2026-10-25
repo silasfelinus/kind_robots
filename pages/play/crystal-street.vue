@@ -66,7 +66,10 @@
           }}
         </span>
       </button>
-      <div class="flex items-center gap-2 text-xs" aria-label="Your state">
+      <div
+        class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs"
+        aria-label="Your state"
+      >
         <span class="cs-meter" :title="`Nerve ${run.nerve} of ${MAX_NERVE}`">
           <icon name="kind-icon:heart" class="h-4 w-4 text-primary" />
           <strong>{{ run.nerve }}</strong>
@@ -161,7 +164,7 @@
           :alt="villain!.poster"
         />
         <div
-          class="absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black/90 to-transparent p-4 text-white"
+          class="absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-4 pt-16 text-white"
         >
           <p class="cs-kicker text-secondary">
             Saturday night. Something wakes under Crystal Street.
@@ -307,6 +310,7 @@ const arrival = computed(
     run.value.phase === 'night' &&
     run.value.day === 1 &&
     run.value.log.every((l) => l.phase === 'day') &&
+    !run.value.pending &&
     arrivalSeen.value !== run.value.seed,
 )
 
@@ -503,6 +507,10 @@ onMounted(() => {
 .cs .cs-choice:focus-visible {
   border-color: var(--color-primary);
   transform: translateY(-1px);
+}
+.cs :is(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 .cs .cs-choice:disabled {
   opacity: 0.5;

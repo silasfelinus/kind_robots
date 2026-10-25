@@ -14,7 +14,11 @@
       :src="src"
       :alt="alt"
       class="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
-      :class="loaded ? 'opacity-100' : 'opacity-0'"
+      :class="[
+        loaded ? 'opacity-100' : 'opacity-0',
+        // Posters are portrait: keep the face when a wide frame crops them.
+        kind === 'villain' ? 'object-[center_20%]' : '',
+      ]"
       @load="loaded = true"
       @error="failed = true"
     />

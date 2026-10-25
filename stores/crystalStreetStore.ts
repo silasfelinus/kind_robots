@@ -12,7 +12,7 @@ import {
   dismiss as dismissInRun,
   doActivity,
   endingKey,
-  isRunState,
+  repairRun,
   specialKey,
   newRun,
   nightfall as nightfallInRun,
@@ -170,7 +170,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     if (loaded.value) return
     try {
       const saved: unknown = JSON.parse(localStorage.getItem(RUN_KEY) ?? 'null')
-      run.value = isRunState(saved) ? saved : null
+      run.value = repairRun(saved)
       scrapbook.value = restoreScrapbook(
         JSON.parse(localStorage.getItem(SCRAPBOOK_KEY) ?? 'null'),
       )

@@ -15,7 +15,11 @@
  * five seeds per combination (over 30,000 weeks).
  */
 import assert from 'node:assert/strict'
-import { autoplay, carelessAutoplay } from '../crystalStreet/autoplay'
+import {
+  autoplay,
+  carelessAutoplay,
+  type Strategy,
+} from '../crystalStreet/autoplay'
 import {
   ARCHETYPES,
   AVATARS,
@@ -301,6 +305,43 @@ for (const v of VILLAINS)
   }
   // An honest save repairs to itself.
   assert.deepEqual(repairRun(saved), base)
+}
+
+// Exploit guard: no single-minded tactic may beat playing the whole week
+// well. Found 2026-10-25 PT: none does (street deck only 23%, rest-spam 39%,
+// train-spam 57%, shop-spam 0% against careful 62%).
+{
+  const RUNS = 16
+  const bestRate = (strategy: Strategy) => {
+    let best = 0
+    for (const v of VILLAINS)
+      for (let i = 0; i < RUNS; i++) {
+        const run = autoplay(
+          `exploit-${v.id}-${i}`,
+          v.id as VillainId,
+          ARCHETYPES[i % ARCHETYPES.length]!.id,
+          AVATARS[(i * 7 + 1) % AVATARS.length]!.id,
+          strategy,
+        )
+        if (run.ending?.tier === 'best') best++
+      }
+    return best / (VILLAINS.length * RUNS)
+  }
+  const careful = bestRate({})
+  const tactics: [string, Strategy][] = [
+    ['always the street deck', { deck: 'street' }],
+    ['rest every action', { day: 'rest' }],
+    ['train every action', { day: 'train' }],
+    ['shop everything', { day: 'shop' }],
+    ['never reroll', { reroll: false }],
+  ]
+  for (const [name, strategy] of tactics) {
+    const rate = bestRate(strategy)
+    assert.ok(
+      rate <= careful + 0.05,
+      `${name} reaches Best ${Math.round(rate * 100)}%, beating careful play (${Math.round(careful * 100)}%)`,
+    )
+  }
 }
 
 console.log(

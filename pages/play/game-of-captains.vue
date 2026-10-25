@@ -2,14 +2,14 @@
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
-    aria-label="Game of Captains"
+    aria-label="This Means Warp"
   >
     <header class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
       <span class="cap-emblem">✧</span
-      ><span class="cap-wordmark">GAME <i>OF</i> CAPTAINS</span>
+      ><span class="cap-wordmark">THIS <i>MEANS</i> WARP</span>
       <span class="cap-flight">{{
         run
           ? 'CAPTAIN’S LOG // ' + run.chapter.toString().padStart(2, '0')
@@ -46,7 +46,7 @@
           </div>
           <template v-if="!run">
             <h2 class="cap-title">
-              GAME <small>OF</small><span>CAPTAINS</span>
+              THIS <small>MEANS</small><span>WARP</span>
             </h2>
             <p class="cap-tagline">
               One ship. Six captains. Nobody read the mission brief.
@@ -463,7 +463,7 @@ const panelLabel = computed(() =>
 )
 
 onMounted(() => store.load())
-useHead({ title: 'Game of Captains | Kind Robots' })
+useHead({ title: 'This Means Warp | Kind Robots' })
 
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)

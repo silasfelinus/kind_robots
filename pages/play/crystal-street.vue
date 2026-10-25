@@ -268,7 +268,7 @@ const dialItems = computed<DialItem[]>(() => {
   if (store.scrapbook.runs.length || (r && !menuScreen.value))
     items.push({ id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' })
   if (!r || menuScreen.value)
-    items.push({ id: 'theme', label: 'Theme', icon: 'kind-icon:movie' })
+    items.push({ id: 'theme', label: 'Trailer', icon: 'kind-icon:tv' })
   items.push(
     { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
     { id: 'help', label: 'How to play', glyph: '?', action: true },

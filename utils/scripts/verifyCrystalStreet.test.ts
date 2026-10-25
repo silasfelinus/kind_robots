@@ -52,6 +52,8 @@ import {
   isLoyal,
   pendingOutcome,
   reactionTo,
+  shareLink,
+  sharedWeekFrom,
   type RunState,
 } from '../crystalStreet/rules'
 import {
@@ -285,6 +287,33 @@ for (const c of COMPANIONS) {
       pending,
     })!.text,
     choice.success.text,
+  )
+}
+
+// Shared weeks (conductor crystal-street t-009): a link carries the seed and
+// the nightmare; anything else in the query is refused.
+{
+  const week = { seed: 'mh3k2x-a1b2c3', villain: 'goody-hale' as VillainId }
+  const link = shareLink(week)
+  assert.equal(
+    link,
+    '/play/crystal-street?week=mh3k2x-a1b2c3&nightmare=goody-hale',
+  )
+  const query = Object.fromEntries(new URL(link, 'https://x.test').searchParams)
+  assert.deepEqual(sharedWeekFrom(query), week)
+  assert.equal(sharedWeekFrom({ week: 'a', nightmare: 'nobody' }), null)
+  assert.equal(
+    sharedWeekFrom({ week: '<script>', nightmare: 'goody-hale' }),
+    null,
+  )
+  assert.equal(sharedWeekFrom({ week: ['a'], nightmare: 'goody-hale' }), null)
+  assert.equal(sharedWeekFrom({}), null)
+  // The same seed and nightmare deal the same first night.
+  const a = autoplay(week.seed, week.villain, 'jock', AVATARS[0]!.id)
+  const b = autoplay(week.seed, week.villain, 'jock', AVATARS[0]!.id)
+  assert.deepEqual(
+    a.log.map((l) => l.encounterId),
+    b.log.map((l) => l.encounterId),
   )
 }
 

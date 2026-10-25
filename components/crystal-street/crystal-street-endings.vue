@@ -13,9 +13,20 @@
         >
       </div>
       <div class="kr-pane-scroll p-3">
+        <button
+          type="button"
+          class="btn btn-sm mb-3 w-full rounded-2xl"
+          :class="wall ? 'btn-primary' : 'btn-outline'"
+          :aria-pressed="wall"
+          data-testid="cs-endings-wall-toggle"
+          @click="wall = !wall"
+        >
+          {{ wall ? 'Back to one nightmare' : 'See every ending at once' }}
+        </button>
         <crystal-street-villain-list
           v-model="selected"
           label="Choose a nightmare"
+          @update:model-value="wall = false"
         />
         <h3 class="cs-kicker mb-1 mt-4">Special endings</h3>
         <ul
@@ -40,7 +51,73 @@
       </div>
     </div>
 
-    <div class="kr-pane cs-frame" data-testid="cs-endings-reel">
+    <div v-if="wall" class="kr-pane cs-frame" data-testid="cs-endings-wall">
+      <div class="kr-toolbar px-3 pt-3">
+        <h3 class="cs-display text-lg">Every ending</h3>
+        <span class="ml-auto text-xs opacity-75"
+          >{{ villainEndings(store.scrapbook.endings).length }}/{{
+            VILLAINS.length * ENDING_TIERS.length
+          }}
+          found</span
+        >
+      </div>
+      <div class="kr-pane-scroll p-3">
+        <ul
+          class="mx-auto max-w-xl space-y-1"
+          aria-label="Every nightmare's four endings"
+        >
+          <li
+            v-for="v in VILLAINS"
+            :key="v.id"
+            class="grid grid-cols-[minmax(0,7rem)_repeat(4,minmax(0,1fr))] items-center gap-1.5"
+          >
+            <button
+              type="button"
+              class="truncate text-left text-xs font-semibold"
+              :class="store.metVillains.has(v.id) ? '' : 'opacity-50'"
+              @click="openVillain(v.id)"
+            >
+              {{ store.metVillains.has(v.id) ? v.name : '???' }}
+            </button>
+            <button
+              v-for="tier in ENDING_TIERS"
+              :key="tier"
+              type="button"
+              class="cs-card block w-full overflow-hidden text-left"
+              :aria-label="
+                isFound(v.id, tier)
+                  ? `${v.name}: ${v.endings[tier].title}`
+                  : `${store.metVillains.has(v.id) ? v.name : 'Unknown nightmare'}: ${TIER_LABELS[tier]} not found`
+              "
+              @click="openVillain(v.id)"
+            >
+              <crystal-street-art
+                v-if="isFound(v.id, tier)"
+                frame="aspect-[16/9]"
+                kind="ending"
+                :seed="`${v.id}:${tier}`"
+                :src="`/crystal-street/endings/${v.id}-${tier}.webp`"
+                :palette="v.palette"
+                :sigil="v.sigil"
+                :alt="v.endings[tier].art"
+              />
+              <span
+                v-else
+                class="flex aspect-[16/9] items-center justify-center bg-base-300 text-sm font-black opacity-40"
+                aria-hidden="true"
+                >?</span
+              >
+              <span
+                class="block truncate px-1 text-[9px] uppercase tracking-wider"
+                >{{ TIER_LABELS[tier] }}</span
+              >
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div v-else class="kr-pane cs-frame" data-testid="cs-endings-reel">
       <div class="kr-toolbar px-3 pt-3">
         <h3 class="cs-display truncate text-lg">
           {{ met && villain ? villain.name : '???' }}
@@ -147,6 +224,14 @@ const met = computed(() => store.metVillains.has(selected.value))
 const found = (tier: EndingTier) =>
   store.scrapbook.endings.includes(endingKey(selected.value, tier))
 const foundTiers = computed(() => ENDING_TIERS.filter(found))
+// The wall: every nightmare's four endings at once, found ones illustrated.
+const wall = ref(false)
+const isFound = (id: string, tier: EndingTier) =>
+  store.scrapbook.endings.includes(endingKey(id, tier))
+function openVillain(id: string): void {
+  selected.value = id
+  wall.value = false
+}
 const foundCount = computed(() => foundTiers.value.length)
 
 const SPECIALS: SpecialEnding[] = [

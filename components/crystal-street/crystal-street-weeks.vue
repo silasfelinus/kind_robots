@@ -44,17 +44,55 @@
                   .join(', ') || 'none'
               }}
             </p>
-            <ul class="mt-1 space-y-1 text-xs">
+            <ul
+              v-if="entry.highlights.length"
+              class="mt-2 flex gap-2 overflow-x-auto pb-1"
+              aria-label="Highlights"
+              data-testid="cs-highlights"
+            >
               <li
                 v-for="h in entry.highlights"
                 :key="`${h.encounterId}${h.choiceId}`"
+                class="cs-polaroid w-24 shrink-0"
               >
-                <span :class="h.success ? 'text-success' : 'text-error'"
-                  >●</span
-                >
-                {{ h.title }}: {{ h.label }}
+                <crystal-street-art
+                  frame="aspect-square"
+                  :kind="h.phase === 'night' ? 'night' : 'day'"
+                  :seed="`${h.encounterId}:${h.choiceId}`"
+                  :src="outcomeArt(h)"
+                  :palette="
+                    h.phase === 'night'
+                      ? (villainById(entry.villain)?.palette ?? [])
+                      : []
+                  "
+                  :alt="h.art"
+                />
+                <p class="mt-1 line-clamp-2 text-[10px] leading-tight">
+                  <span :class="h.success ? 'text-success' : 'text-error'"
+                    >●</span
+                  >
+                  {{ h.title }}
+                </p>
               </li>
             </ul>
+            <button
+              type="button"
+              class="btn btn-xs btn-outline mt-2 rounded-2xl"
+              :data-testid="`cs-share-${entry.seed}`"
+              @click="share(entry)"
+            >
+              {{
+                copied === entry.seed
+                  ? 'Link copied: send it to a friend'
+                  : 'Share this week'
+              }}
+            </button>
+            <p
+              v-if="manual === entry.seed"
+              class="mt-1 break-all text-[10px] opacity-80"
+            >
+              {{ linkFor(entry) }}
+            </p>
           </li>
         </ul>
         <p v-else class="text-sm opacity-75">
@@ -66,14 +104,45 @@
 </template>
 
 <script setup lang="ts">
-import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { ref } from 'vue'
+import {
+  useCrystalStreetStore,
+  type ScrapbookRun,
+} from '~/stores/crystalStreetStore'
 import {
   TIER_LABELS,
   VILLAINS,
   companionById,
+  shareLink,
   shortName,
   villainById,
+  type LogEntry,
 } from '~/utils/crystalStreet/rules'
+import type { VillainId } from '~/utils/crystalStreet/ids'
 
 const store = useCrystalStreetStore()
+const copied = ref('')
+const manual = ref('')
+
+// Each highlight's outcome plate (art round 3); the drawn scene fills in
+// until it is rendered.
+function outcomeArt(h: LogEntry): string {
+  return `/crystal-street/outcomes/${h.encounterId}--${h.choiceId}-${h.success ? 'success' : 'failure'}.webp`
+}
+
+function linkFor(entry: ScrapbookRun): string {
+  return `${window.location.origin}${shareLink({ seed: entry.seed, villain: entry.villain as VillainId })}`
+}
+
+// A shared link replays the same nightmare and deck order with the friend's
+// own look and clique.
+async function share(entry: ScrapbookRun): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(linkFor(entry))
+    copied.value = entry.seed
+    manual.value = ''
+  } catch {
+    manual.value = entry.seed
+  }
+}
 </script>

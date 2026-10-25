@@ -73,11 +73,26 @@
           </span>
         </button>
         <button
+          v-if="sharedVillain"
+          type="button"
+          class="cs-menu-item cs-menu-glass cs-menu-primary"
+          data-testid="cs-shared-week"
+          @click="openWizard(true)"
+        >
+          <icon name="kind-icon:link" class="h-5 w-5 shrink-0" />
+          <span>
+            <span class="block font-bold">Play the week a friend shared</span>
+            <span class="block text-xs opacity-80"
+              >{{ sharedVillain.name }} · same nightmare, same deck order</span
+            >
+          </span>
+        </button>
+        <button
           type="button"
           class="cs-menu-item cs-menu-glass"
-          :class="inProgress ? '' : 'cs-menu-primary'"
+          :class="inProgress || sharedVillain ? '' : 'cs-menu-primary'"
           data-testid="cs-new-week"
-          @click="openWizard"
+          @click="openWizard(false)"
         >
           <icon name="kind-icon:ghost" class="h-5 w-5 shrink-0" />
           <span>
@@ -296,7 +311,16 @@
                 </p>
               </div>
             </div>
-            <fieldset>
+            <p
+              v-if="playingShared && sharedVillain"
+              class="cs-card p-2 text-sm"
+              data-testid="cs-shared-note"
+            >
+              <strong>A friend's week:</strong> {{ sharedVillain.name }} comes
+              for you, and the nights deal in the same order they did for your
+              friend. Your choices take it from there.
+            </p>
+            <fieldset v-else>
               <legend class="cs-kicker mb-1">Who comes for you?</legend>
               <div class="flex flex-wrap gap-1">
                 <button
@@ -371,12 +395,20 @@ import {
   STYLE_LABELS,
   TITLE_ART,
   VILLAINS,
+  villainById,
+  type SharedWeek,
 } from '~/utils/crystalStreet/rules'
 import type { Skill } from '~/utils/crystalStreet/types'
 import type { VillainId } from '~/utils/crystalStreet/ids'
 import type { MenuView } from '~/utils/crystalStreet/menu'
 
+const props = defineProps<{ shared?: SharedWeek | null }>()
 const emit = defineEmits<{ resume: []; open: [MenuView]; started: [] }>()
+// Playing a friend's shared week: their nightmare and seed, your character.
+const playingShared = ref(false)
+const sharedVillain = computed(() =>
+  props.shared ? villainById(props.shared.villain) : null,
+)
 
 const PRONOUNS = ['she/her', 'he/him', 'they/them']
 // Look + clique = your character (Silas, 2026-10-24 PT); the names keep the
@@ -457,7 +489,8 @@ function openTutorial(): void {
   navStore.openWorkspaceSheet()
 }
 
-function openWizard(): void {
+function openWizard(fromShare: boolean): void {
+  playingShared.value = fromShare && !!sharedVillain.value
   stepIndex.value = 0
   mode.value = 'new'
 }
@@ -518,12 +551,14 @@ function pickPronouns(p: string): void {
 }
 
 function begin(): void {
+  const week = playingShared.value ? props.shared : null
   store.start({
     name: name.value || 'Alex',
     pronouns: customPronouns.value.trim() || pronouns.value,
     archetype: archetype.value,
     avatar: avatar.value,
-    villain: villain.value,
+    villain: week ? week.villain : villain.value,
+    ...(week ? { seed: week.seed } : {}),
   })
   emit('started')
 }

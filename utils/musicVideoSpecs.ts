@@ -16,7 +16,9 @@ import type {
   MusicVideoScene,
   MusicVideoSection,
   MusicVideoSettings,
+  MusicVideoSong,
 } from '@/utils/musicVideoDoc'
+import { RAINBOW_OPENING_TRACK } from './arcade/games/rainbowOpening'
 
 export type MusicVideoSpecScene = {
   /** Length in beats; scenes run back to back from 0:00. The last runs to the end. */
@@ -54,6 +56,11 @@ export type MusicVideoSpec = {
   settings: Omit<MusicVideoSettings, 'comicSeriesId'>
   sections: MusicVideoSection[]
   scenes: MusicVideoSpecScene[]
+  /**
+   * A song already rendered for this video, so Produce skips straight to the
+   * pictures. The import checks the ArtImage still exists.
+   */
+  song?: MusicVideoSong
 }
 
 /** The doc a spec describes, minus the comic series id the server resolves. */
@@ -66,6 +73,7 @@ export function specToDoc(spec: MusicVideoSpec): {
     markers: []
   }
   scenes: MusicVideoScene[]
+  song?: MusicVideoSong
 } {
   const bpm = spec.settings.bpm ?? 120
   const beat = 60 / bpm
@@ -110,6 +118,7 @@ export function specToDoc(spec: MusicVideoSpec): {
       markers: [],
     },
     scenes,
+    ...(spec.song ? { song: spec.song } : {}),
   }
 }
 
@@ -1239,12 +1248,317 @@ const zuzuLairCh1: MusicVideoSpec = {
   ],
 }
 
+/*
+ * E. "Terrors on Crystal Street" theme (conductor crystal-street/t-015).
+ * Silas, 2026-10-24 PT: "a 1 minute long high energy Addams family meets
+ * Halloween theme punk music video". The first cut is MusicVideo 15 (shipped
+ * as /crystal-street/video/theme.mp4). Every scene was a pan or zoom, so this
+ * spec takes the same song (ArtJob 45179) and the 14 reviewed stills, including
+ * the re-rendered Jess, Countess and flashlight crew, and animates four
+ * hero shots. 172 BPM, 12 beats a scene, the last to 0:60. Family and film
+ * names stay banned; the counselor is Jess, never the film's killer.
+ */
+const CRYSTAL_STREET_CHORUS = [
+  'Terrors on Crystal Street, we’re not afraid',
+  'Finger snaps unite, in the ghost parade',
+  'Terrors on Crystal Street, together we’ll stand',
+  'No one’s a monster, we’re a brave band',
+]
+
+const crystalStreetTheme: MusicVideoSpec = {
+  key: 'crystal-street-theme',
+  title: 'Terrors on Crystal Street: Theme',
+  summary:
+    '60 s horror-punk duet, 172 BPM, 14 scenes from the reviewed stills, its song already made, 4 hero shots to animate.',
+  pitch:
+    "A one-minute high-energy theme for Terrors on Crystal Street, an 80s horror-comedy game: gothic family-sitcom swagger meets a relentless slasher-movie synth pulse, played as snotty Halloween punk. A gang of misfit teens and their drag-queen ally ride bikes down an idyllic white-picket cul-de-sac as Halloween week turns weird: jack-o'-lanterns grin, porch lights flicker, a towering masked lake counselor rises from the water, a beehived salon nightmare snips dream-smoke, a teddy bear with a cassette tummy waddles at the head of an army of bears, a disco vampire spins under a mirror ball, a werewolf in a letterman jacket waits at the homecoming bonfire. A shout-along chorus, finger snaps, and the crew vowing to survive seven nights together and to let nobody be the monster for who they are. Campy, funny, queer-joyful, spooky, never gory.",
+  settings: {
+    durationSec: 60,
+    aspect: '16:9',
+    bpm: 172,
+    vocal: 'duet',
+    genre: 'horror punk, gothic surf, synth punk',
+    mood: 'campy, menacing, triumphant, fun',
+    heroShots: 4,
+    styleBible:
+      'painted 1986 horror-comedy VHS box art, airbrushed gouache, hot magenta and cyan neon rim light, deep midnight purple shadows, suburban Halloween atmosphere, playful spooky mood',
+    bannedTerms: [
+      'addams',
+      'halloween theme',
+      'michael myers',
+      'jason',
+      'freddy',
+      'krueger',
+      'carpenter',
+      'wednesday',
+      'gomez',
+      'morticia',
+    ],
+  },
+  song: {
+    source: 'comfy-acestep',
+    artImageId: 253093,
+    jobId: 45179,
+    durationSec: 60,
+    bpm: 172,
+    seed: 1993197032,
+    tags: 'horror punk, gothic surf, synth punk, campy, menacing, triumphant, fun, male and female duet vocals',
+  },
+  sections: [
+    section('v1', 'verse', [
+      "Cruisin' down the street, bikes flashin' bright",
+      "Jack-o'-lanterns grin, under the moonlight",
+      'Masked counselor looms, from the lake she creeps',
+      'Hiding in shadows, where the laughter leaps',
+    ]),
+    section('c1', 'chorus', CRYSTAL_STREET_CHORUS),
+    section('v2', 'verse', [
+      'Beehived nightmare snips, with a wicked twist',
+      'Teddy bear brigade, can’t let them be missed',
+      'Disco vampire spins, under the mirror glow',
+      'Werewolf in a jacket, ready for the show',
+    ]),
+    section('c2', 'chorus', CRYSTAL_STREET_CHORUS),
+  ],
+  scenes: [
+    {
+      beats: 12,
+      prompt:
+        'A group of misfit teens rides colorful bikes down a tree-lined cul-de-sac, laughter in their expressions, with white picket fences and glowing Halloween decorations framing the scene under a vibrant purple sky.',
+      lyrics: ['v1:0'],
+      artImageId: 253055,
+      motionPrompt:
+        'The teens pedal hard down the street toward the camera as porch lights flicker and autumn leaves whirl up behind their bikes.',
+    },
+    {
+      beats: 12,
+      prompt:
+        "A cluster of grinning jack-o'-lanterns sits on porches, flickering candlelight casting playful shadows, while the full moon bathes the street in silver light, creating a whimsical yet eerie atmosphere.",
+      lyrics: ['v1:1'],
+      artImageId: 253056,
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 12,
+      prompt:
+        'A towering muscular woman with long wet dark hair pulling a cracked, scarred lake-rescue mask over her face as she rises waist-deep from a moonlit lake, a torn navy lace-up dress and a leather belt, a summer-camp whistle on a lanyard around her neck, pines and a lit cabin across the water behind her',
+      lyrics: ['v1:2'],
+      artImageId: 253090,
+      motionPrompt:
+        'She rises slowly out of the moonlit lake, water streaming from her shoulders, as she pulls the cracked mask down over her face.',
+    },
+    {
+      beats: 12,
+      prompt:
+        'Laughing teens hide in the deep shadows of a tall hedge, vibrant colors glowing from nearby houses, as ghostly shapes swirl around them, evoking a sense of playful mischief.',
+      lyrics: ['v1:3'],
+      artImageId: 253058,
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 12,
+      prompt:
+        'The gang stands together, fists raised in defiance, surrounded by glowing pumpkins and swirling mist, with a backdrop of brightly lit houses casting a warm glow against the midnight sky.',
+      lyrics: ['c1:0'],
+      artImageId: 253059,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 12,
+      prompt:
+        'A diverse group of friends snaps their fingers in unison, vibrant colors swirling around them, as they march down the street, illuminated by flickering porch lights and glowing decorations.',
+      lyrics: ['c1:1'],
+      artImageId: 253060,
+      kenBurns: 'pan-right',
+    },
+    {
+      beats: 12,
+      prompt:
+        'The crew stands united, arms around each other, against a backdrop of colorful lights and Halloween decor, with a sense of camaraderie and bravery radiating from their expressions.',
+      lyrics: ['c1:2', 'c1:3'],
+      artImageId: 253061,
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 12,
+      prompt:
+        'A beehived salon nightmare, scissors in hand, snips through ethereal dream-smoke, surrounded by floating sparkles and vibrant colors, capturing a whimsical yet slightly sinister mood.',
+      lyrics: ['v2:0'],
+      artImageId: 253062,
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 12,
+      prompt:
+        'A teddy bear with a cassette tummy waddles proudly at the forefront of an army of plush bears, all dressed in colorful costumes, marching energetically down the street under a playful, glowing sky.',
+      lyrics: ['v2:1'],
+      artImageId: 253063,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 12,
+      prompt:
+        "A glamorous vampire disco diva in a white jumpsuit with a towering collar and a black satin cape, a golden lion's-mane of hair and glinting fangs, arms raised beneath a giant glowing mirror ball on a light-up dance floor, teen dancers in glitter and leg warmers spinning around her",
+      lyrics: ['v2:2'],
+      artImageId: 253091,
+      motionPrompt:
+        'The mirror ball spins and throws sparkles across the floor as she flings her cape wide and the dancers whirl around her.',
+    },
+    {
+      beats: 12,
+      prompt:
+        'A werewolf in a letterman jacket stands confidently by a roaring bonfire, shadows flickering across the scene, with embers rising against a backdrop of ecstatic teens and colorful decorations.',
+      lyrics: ['v2:3'],
+      artImageId: 253065,
+      kenBurns: 'zoom-out',
+    },
+    {
+      beats: 12,
+      prompt:
+        "The crew of misfit teens stands together on a misty cul-de-sac, shoulder to shoulder, holding up flashlights, walkie-talkies and a boombox, determined grins lit by rows of glowing jack-o'-lanterns, porch lights shining from the houses behind them",
+      lyrics: ['c2:0'],
+      artImageId: 253092,
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 12,
+      prompt:
+        'Friends snap their fingers in unison again, the vibrant colors of Halloween swirling around them, as they march joyfully through a ghostly parade of playful spirits and decorations.',
+      lyrics: ['c2:1'],
+      artImageId: 253067,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 12,
+      prompt:
+        'The group forms a tight circle, each member shining with confidence and joy, surrounded by glowing ghosts and colorful lights, united in their pledge of bravery and acceptance.',
+      lyrics: ['c2:2', 'c2:3'],
+      artImageId: 253068,
+      motionPrompt:
+        'The friends close the circle and throw their fists up together as the glowing ghosts swirl around them and the camera pulls back.',
+    },
+  ],
+}
+
+/*
+ * F. The Rainbow Space Princess opening (conductor rainbow t-034). Silas,
+ * 2026-10-23 PT: "We can use a real animation at the beginning, maybe a 15
+ * second high energy thrash metal music video." The thrash track (ArtJob
+ * 44644) and nine approved stills from the clip ledger (OPENING-CLIPS-1.yaml)
+ * already exist; those clips rendered as animated webp, which the exporter
+ * cannot decode, so Produce animates the six hero shots again as mp4. The
+ * four pilots' power-ups are the fast cuts in the middle. 176 BPM, 16 s,
+ * instrumental. The genre benchmarks it was pitched against stay banned.
+ */
+const rainbowPrincessOpening: MusicVideoSpec = {
+  key: 'rainbow-princess-opening',
+  title: 'Rainbow Space Princess: Opening',
+  summary:
+    '16 s instrumental thrash-metal opening, 176 BPM, 9 shots from the approved stills, its track already made, 6 hero shots to animate.',
+  pitch:
+    'The opening of Rainbow Bullet Hell Space Princess, a four-player candy-colored space shooter. Sixteen seconds of blistering instrumental thrash metal: a violet storm breaks over the pearl palace, the mission-control liaison Lilt turns from a cracked mirror screen as alarms strobe, the dark eclipse orb wakes in its chains, then four fast cuts as each pilot powers up (Maribel in rose pink, Azure in cyan, Solenne in butter yellow, Vivi in lilac), the robot dolphin fleet surges across the stars, and the four ships blast off over the palace in rainbow trails on the final hit.',
+  settings: {
+    durationSec: 16,
+    aspect: '16:9',
+    bpm: RAINBOW_OPENING_TRACK.bpm,
+    vocal: 'instrumental',
+    genre: 'thrash metal',
+    mood: 'blistering, aggressive, triumphant, high energy',
+    heroShots: 6,
+    styleBible:
+      'bold flat-color cartoon animation, clean ink outlines, candy pink, lilac, powder cyan and butter-yellow neon glow against deep navy space, glossy pearl and glass highlights, high-energy anime opening framing',
+    bannedTerms: ['gradius', 'darius', 'r-type', 'konami', 'irem', 'taito'],
+  },
+  song: {
+    source: 'comfy-acestep',
+    artImageId: 252834,
+    jobId: 44644,
+    durationSec: RAINBOW_OPENING_TRACK.seconds,
+    bpm: RAINBOW_OPENING_TRACK.bpm,
+    tags: RAINBOW_OPENING_TRACK.prompt,
+  },
+  sections: [],
+  scenes: [
+    {
+      beats: 6,
+      prompt:
+        'A gleaming pearl palace with tall glowing towers on a glowing ocean at dawn, violet lightning forking across a stormy pink sky, crashing waves, wide shot',
+      artImageId: 247738,
+      motionPrompt:
+        "Violet lightning forks across the dawn sky and the glowing ocean heaves into crashing waves; the pearl palace's towers flare with pink alarm lights and the clouds race.",
+    },
+    {
+      beats: 5,
+      prompt:
+        'A calm androgynous pearl-glass synthetic person with luminous filaments and warm gold eyes turning in alarm at a cracked mirror screen, red warning light, sparks',
+      artImageId: 247809,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 5,
+      prompt:
+        'A huge dark eclipse orb wrapped in glowing chains, throbbing with violet energy, rings of light pulsing outward, crackling lightning, deep space',
+      artImageId: 247752,
+      kenBurns: 'zoom-in',
+    },
+    {
+      beats: 4,
+      prompt:
+        'A compact short-haired pink-haired pilot princess in a rose-pink flight suit leaning into a power-up, pink petals of light blasting outward, sparks streaming past',
+      artImageId: 247644,
+      motionPrompt:
+        'The pink-haired pilot leans into the charge as her hair whips back, pink petals of light blast outward and sparks stream past.',
+    },
+    {
+      beats: 4,
+      prompt:
+        'A tall pilot princess in a long cyan coat snapping a glowing lance forward, a beam of cyan light flaring, coat whipping in the blast',
+      artImageId: 247649,
+      motionPrompt:
+        'The cyan-coated pilot snaps her lance forward as a beam of cyan light flares and her coat whips in the blast.',
+    },
+    {
+      beats: 4,
+      prompt:
+        'A powerfully muscular pilot princess in butter-yellow armor bracing as a golden halo ring spins and blazes above her, rings of warm light pulsing outward',
+      artImageId: 247803,
+      motionPrompt:
+        'The muscular pilot braces as her golden halo ring spins up and blazes, rings of warm light pulsing outward.',
+    },
+    {
+      beats: 4,
+      prompt:
+        'A curvy punk pilot princess with a shaved side and lilac-streaked hair grinning as lilac comet sparks burst around them, hair streaking back',
+      artImageId: 247844,
+      motionPrompt:
+        'The punk pilot grins as lilac comet sparks burst around them and their hair streaks back in the rush.',
+    },
+    {
+      beats: 6,
+      prompt:
+        'A fleet of sleek robot dolphin starships surging across a starry sky at full speed, glowing trails streaking behind them',
+      artImageId: 247740,
+      kenBurns: 'pan-left',
+    },
+    {
+      beats: 8,
+      prompt:
+        'Four pilot starships blasting forward over a pearl palace, engines flaring in pink, cyan, gold and lilac rainbow trails, sparks and light streaks, triumphant',
+      artImageId: 247508,
+      motionPrompt:
+        'The four pilot ships blast forward over the pearl palace, engines flaring in pink, cyan, gold and lilac rainbow trails as sparks and light streaks whip past.',
+    },
+  ],
+}
+
 export const MUSIC_VIDEO_SPECS: readonly MusicVideoSpec[] = [
   kindRobotsTheme,
   kindRobotsThemeClassic,
   zuzuIntro,
   giantSkeleton,
   zuzuLairCh1,
+  crystalStreetTheme,
+  rainbowPrincessOpening,
 ]
 
 export function musicVideoSpecByKey(key: string): MusicVideoSpec | null {

@@ -261,9 +261,10 @@ export default defineEventHandler(async (event) => {
     // A keyframe that no longer exists becomes a fresh still, not a failure.
     const keyframeIds = [
       ...new Set(
-        raw.scenes
-          .map((scene) => scene.image.artImageId)
-          .filter((id): id is number => typeof id === 'number'),
+        [
+          ...raw.scenes.map((scene) => scene.image.artImageId),
+          raw.song?.artImageId,
+        ].filter((id): id is number => typeof id === 'number'),
       ),
     ]
     const found = new Set(
@@ -323,8 +324,15 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // A spec's finished song that no longer exists is made again by Produce.
     let finalScenes = scenes
-    let song: MusicVideoSong | null = null
+    let song: MusicVideoSong | null = raw.song ?? null
+    if (song?.artImageId && !found.has(song.artImageId)) {
+      warnings.push(
+        `Song ArtImage ${song.artImageId} was not found, so Produce will make a new one.`,
+      )
+      song = null
+    }
     if (body.reuseDeleted === true) {
       const recovered = await recoverDeleted(
         auth.user.id,
@@ -332,12 +340,13 @@ export default defineEventHandler(async (event) => {
         buildSongTags(normalizeMusicVideoDoc(raw).doc),
       )
       finalScenes = recovered.scenes
-      song = recovered.song
+      song = recovered.song ?? song
       warnings.push(...recovered.notes)
     }
 
+    const { song: _specSong, ...rest } = raw
     const doc = serializeValidatedDoc({
-      ...raw,
+      ...rest,
       settings: {
         ...raw.settings,
         ...(comicSeriesId ? { comicSeriesId } : {}),

@@ -122,7 +122,7 @@
         </g>
       </svg>
       <p
-        class="absolute bottom-2 left-2 rounded-xl bg-black/60 px-2 py-1 text-[11px] font-bold uppercase tracking-widest text-white"
+        class="absolute bottom-2 left-2 rounded-xl bg-black/60 px-2 py-1 cs-label font-bold uppercase tracking-widest text-white"
       >
         {{ dayName }} · {{ run.actions }} action{{
           run.actions === 1 ? '' : 's'

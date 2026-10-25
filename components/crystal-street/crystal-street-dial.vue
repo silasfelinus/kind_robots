@@ -44,7 +44,7 @@
       </li>
     </ul>
     <p
-      class="cs-dial-label pointer-events-none text-center text-[10px] font-bold uppercase tracking-widest"
+      class="cs-dial-label pointer-events-none text-center cs-micro font-bold uppercase tracking-widest"
       aria-hidden="true"
     >
       {{ items[selectedIndex]?.label }}
@@ -161,7 +161,7 @@ function step(dir: number): void {
   background: var(--color-secondary);
   color: var(--color-secondary-content);
   padding: 0 0.2rem;
-  font-size: 9px;
+  font-size: 0.625rem;
   font-weight: 800;
   line-height: 1rem;
 }

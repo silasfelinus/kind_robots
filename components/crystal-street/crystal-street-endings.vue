@@ -108,7 +108,7 @@
                 >?</span
               >
               <span
-                class="block truncate px-1 text-[9px] uppercase tracking-wider"
+                class="block truncate px-1 cs-micro uppercase tracking-wider"
                 >{{ TIER_LABELS[tier] }}</span
               >
             </button>

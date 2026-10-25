@@ -20,7 +20,7 @@
       >
         <icon :name="t.icon" class="h-4 w-4" />
         <span>{{ t.label }}</span>
-        <span class="text-[10px] opacity-75">{{ t.count() }}</span>
+        <span class="cs-micro opacity-75">{{ t.count() }}</span>
       </button>
     </nav>
     <crystal-street-weeks v-if="tab === 'weeks'" />

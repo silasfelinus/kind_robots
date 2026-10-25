@@ -32,7 +32,7 @@
           >Crystal Street</span
         >
         <span
-          class="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest"
+          class="flex items-center gap-1 cs-label font-bold uppercase tracking-widest"
         >
           <icon name="kind-icon:arrow-left" class="h-3 w-3" /> Menu
         </span>
@@ -58,7 +58,7 @@
         <span class="cs-display hidden text-sm leading-none @3xl:block"
           >Crystal Street</span
         >
-        <span class="text-[11px] font-bold uppercase tracking-widest">
+        <span class="cs-label font-bold uppercase tracking-widest">
           {{
             run.ending
               ? 'Week over'
@@ -415,8 +415,16 @@ onMounted(() => {
   color: #fff;
   text-shadow: 0 2px 6px rgb(0 0 0 / 0.8);
 }
+/* The type scale's two smallest steps, in rem so the Text size setting
+   scales them with everything else (pixel sizes ignored it). */
+.cs .cs-label {
+  font-size: 0.6875rem;
+}
+.cs .cs-micro {
+  font-size: 0.625rem;
+}
 .cs .cs-kicker {
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -565,7 +573,7 @@ onMounted(() => {
   display: inline-block;
   border-radius: 999px;
   padding: 0.05rem 0.5rem;
-  font-size: 0.68rem;
+  font-size: 0.6875rem;
   border: 1px solid
     color-mix(in oklch, var(--color-base-content) 25%, transparent);
 }

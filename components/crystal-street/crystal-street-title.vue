@@ -34,7 +34,7 @@
           >
           <span class="cs-on-street block">on Crystal Street</span>
         </h2>
-        <p class="mt-2 text-[10px] uppercase tracking-[0.3em] text-white/80">
+        <p class="mt-2 cs-micro uppercase tracking-[0.3em] text-white/80">
           One week · seven nights · {{ VILLAINS.length }} nightmares
         </p>
       </div>
@@ -186,11 +186,11 @@
                   :alt="a.art"
                 />
                 <span
-                  class="block truncate px-1 pt-0.5 text-[10px] font-semibold"
+                  class="block truncate px-1 pt-0.5 cs-micro font-semibold"
                   >{{ a.name }}</span
                 >
                 <span
-                  class="block px-1 pb-1 text-[9px] uppercase tracking-wider opacity-70"
+                  class="block px-1 pb-1 cs-micro uppercase tracking-wider opacity-70"
                   >{{ STYLE_LABELS[a.style] }}</span
                 >
               </button>
@@ -233,7 +233,7 @@
                     a.text
                   }}</span>
                   <span
-                    class="mt-1 flex flex-wrap items-center gap-1 text-[10px] uppercase tracking-wider"
+                    class="mt-1 flex flex-wrap items-center gap-1 cs-micro uppercase tracking-wider"
                   >
                     <span class="opacity-70">{{ topSkills(a.skills) }}</span>
                     <span class="opacity-70"

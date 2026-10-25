@@ -20,6 +20,7 @@ import queenNeferet from './queen-neferet.json'
 import momThreeThousand from './mom-3000.json'
 import theShape from './the-shape.json'
 import finalCut from './final-cut.json'
+import dotRuskin from './dot-ruskin.json'
 import type { Villain } from '../types'
 
 export const VILLAINS = [
@@ -45,4 +46,5 @@ export const VILLAINS = [
   ...momThreeThousand,
   ...theShape,
   ...finalCut,
+  ...dotRuskin,
 ] as Villain[]

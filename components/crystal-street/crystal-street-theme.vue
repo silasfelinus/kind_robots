@@ -180,7 +180,7 @@ import { THEME_LYRICS } from '~/utils/crystalStreet/theme'
 .cs-tv-set {
   position: relative;
   z-index: 2;
-  width: min(96cqw, 153cqh, 65rem);
+  width: min(96cqw, 130cqh, 65rem);
   max-width: 96%;
   transform: translateY(4%);
   filter: drop-shadow(0 12px 10px #050309cc) drop-shadow(0 24px 18px #050309bb);

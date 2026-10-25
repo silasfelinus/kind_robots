@@ -14,7 +14,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
         id: 'investigate',
         label: 'Compare the two star charts',
         outcome:
-          'One chart follows a road that exists only when the daughter chooses it; the astronomer admits that safety was her wish, not the girl\'s.',
+          "One chart follows a road that exists only when the daughter chooses it; the astronomer admits that safety was her wish, not the girl's.",
       },
       {
         id: 'ask',
@@ -62,7 +62,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
       },
       {
         id: 'cut',
-        label: 'Free the chain from the surveyor\'s wrist',
+        label: "Free the chain from the surveyor's wrist",
         outcome:
           'The chain becomes ordinary iron and the map loses its predictions. The surveyor thanks you for restoring a useful kind of ignorance.',
       },
@@ -84,7 +84,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
       },
       {
         id: 'teach',
-        label: 'Find the old bellmaker\'s code',
+        label: "Find the old bellmaker's code",
         outcome:
           'You teach residents the difference between fire, flood and supper. They insist on adding a fourth signal for unreasonable rulers.',
       },
@@ -114,7 +114,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
   },
   '6,1': {
     key: '6,1',
-    title: 'The Mason\'s Absent Bridge',
+    title: "The Mason's Absent Bridge",
     opening:
       'A bridge-builder is blamed for a collapse that has not happened. People have been evacuated for years while an immaculate unused span gathers vines.',
     artPrompt:
@@ -124,13 +124,13 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
         id: 'inspect',
         label: 'Inspect the untouched foundation',
         outcome:
-          'The foundation is sound. The prediction was the Warden\'s attempt to avoid paying the mason for completed work.',
+          "The foundation is sound. The prediction was the Warden's attempt to avoid paying the mason for completed work.",
       },
       {
         id: 'cross',
         label: 'Help the mason lead the first crossing',
         outcome:
-          'The bridge holds. Travelers cheer; the Warden\'s unpaid invoice does not disappear just because the crossing succeeded.',
+          "The bridge holds. Travelers cheer; the Warden's unpaid invoice does not disappear just because the crossing succeeded.",
       },
     ],
   },
@@ -210,9 +210,9 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     choices: [
       {
         id: 'audit',
-        label: 'Open the clinic\'s day ledger',
+        label: "Open the clinic's day ledger",
         outcome:
-          'You find that the days were never the healer\'s to sell. Former patients organize a free ward and ask the doctor to help run it.',
+          "You find that the days were never the healer's to sell. Former patients organize a free ward and ask the doctor to help run it.",
       },
       {
         id: 'confront',
@@ -246,9 +246,9 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
   },
   '4,2': {
     key: '4,2',
-    title: 'Mosswick\'s Shop of Unpriced Things',
+    title: "Mosswick's Shop of Unpriced Things",
     opening:
-      'Mosswick still sells lanterns, but he no longer accepts flowers. His shelves hold promises made by customers who forgot they had made them, and he refuses to display the owner\'s names.',
+      "Mosswick still sells lanterns, but he no longer accepts flowers. His shelves hold promises made by customers who forgot they had made them, and he refuses to display the owner's names.",
     artPrompt:
       'Moss-covered merchant stall with lanterns illuminating sealed jars of promises, careful badger-like merchant in dark traveling apron, storybook marketplace without signs.',
     choices: [
@@ -260,7 +260,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
       },
       {
         id: 'safeguard',
-        label: 'Help him hide the owners\' names',
+        label: "Help him hide the owners' names",
         outcome:
           'You build a ledger that lets customers reclaim their promises without letting the Warden search for them.',
       },

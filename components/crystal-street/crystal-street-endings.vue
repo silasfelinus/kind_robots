@@ -7,7 +7,9 @@
       <div class="kr-toolbar px-3 pt-3">
         <h2 class="cs-display text-xl">Endings</h2>
         <span class="cs-pill cs-pill-good ml-auto"
-          >{{ store.scrapbook.endings.length }}/{{ VILLAINS.length * 4 }}</span
+          >{{ villainEndings(store.scrapbook.endings).length }}/{{
+            VILLAINS.length * 4
+          }}</span
         >
       </div>
       <div class="kr-pane-scroll p-3">
@@ -15,6 +17,26 @@
           v-model="selected"
           label="Choose a nightmare"
         />
+        <h3 class="cs-kicker mb-1 mt-4">Special endings</h3>
+        <ul
+          class="grid grid-cols-2 gap-2"
+          aria-label="Special endings"
+          data-testid="cs-special-endings"
+        >
+          <li
+            v-for="special in SPECIALS"
+            :key="special"
+            class="cs-card p-2 text-xs"
+            :class="foundSpecial(special) ? '' : 'opacity-60'"
+          >
+            <p class="font-semibold">
+              {{
+                foundSpecial(special) ? SPECIAL_ENDINGS[special].title : '???'
+              }}
+            </p>
+            <p class="opacity-75">{{ SPECIAL_HOW[special] }}</p>
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -104,10 +126,13 @@ import {
   ENDING_TIERS,
   TIER_LABELS,
   VILLAINS,
+  SPECIAL_ENDINGS,
   endingKey,
+  specialKey,
   villainById,
+  villainEndings,
 } from '~/utils/crystalStreet/rules'
-import type { EndingTier } from '~/utils/crystalStreet/types'
+import type { EndingTier, SpecialEnding } from '~/utils/crystalStreet/types'
 
 const props = defineProps<{ initial?: string }>()
 
@@ -123,4 +148,19 @@ const found = (tier: EndingTier) =>
   store.scrapbook.endings.includes(endingKey(selected.value, tier))
 const foundTiers = computed(() => ENDING_TIERS.filter(found))
 const foundCount = computed(() => foundTiers.value.length)
+
+const SPECIALS: SpecialEnding[] = [
+  'final-girl',
+  'family',
+  'officials',
+  'neighbors',
+]
+const SPECIAL_HOW: Record<SpecialEnding, string> = {
+  'final-girl': 'Win Halloween alone after your friends fall away.',
+  family: 'Let your family run out of patience.',
+  officials: 'Let the sheriff and the school run out of patience.',
+  neighbors: 'Let the cul-de-sac run out of patience.',
+}
+const foundSpecial = (special: SpecialEnding) =>
+  store.scrapbook.endings.includes(specialKey(special))
 </script>

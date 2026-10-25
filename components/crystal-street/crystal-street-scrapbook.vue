@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { villainEndings } from '~/utils/crystalStreet/rules'
 import type { ScrapbookTab } from '~/utils/crystalStreet/menu'
 
 const props = defineProps<{ initial?: ScrapbookTab }>()
@@ -70,7 +71,7 @@ const TABS: {
     id: 'endings',
     label: 'Endings',
     icon: 'kind-icon:trophy',
-    count: () => String(store.scrapbook.endings.length),
+    count: () => String(villainEndings(store.scrapbook.endings).length),
   },
   {
     id: 'friends',

@@ -33,6 +33,19 @@ export type Emotion = (typeof EMOTIONS)[number]
 export const TARGETS = [7, 9, 11] as const
 export type Target = (typeof TARGETS)[number]
 
+/**
+ * The four groups whose standing the week wears down (Silas, 2026-10-24 PT:
+ * "factions: friends family officials neighbors. if any of them drop to zero
+ * that could trigger a special end sequence").
+ */
+export const FACTIONS = ['friends', 'family', 'officials', 'neighbors'] as const
+export type Faction = (typeof FACTIONS)[number]
+
+/** A special end sequence: a faction hit zero, or the Final Girl won. */
+export type SpecialEnding = Exclude<Faction, 'friends'> | 'final-girl'
+
+export type SpecialEndingText = { title: string; text: string; art: string }
+
 export type Effects = {
   nerve?: number
   dread?: number

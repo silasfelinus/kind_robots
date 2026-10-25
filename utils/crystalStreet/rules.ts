@@ -4,6 +4,7 @@ import companionsData from './companions.json'
 import decksData from './decks.json'
 import itemsData from './items.json'
 import locationsData from './locations.json'
+import specialEndingsData from './special-endings.json'
 import titleArtData from './title-art.json'
 import { VILLAINS } from './villains'
 import { editChoices, joinBody, liveTextStore } from '../playbook/textOverlay'
@@ -18,9 +19,12 @@ import {
   type Emotion,
   type Encounter,
   type EndingTier,
+  type Faction,
   type Item,
   type Location,
   type Skill,
+  type SpecialEnding,
+  type SpecialEndingText,
   type Style,
   type Tag,
   type TagDeck,
@@ -136,6 +140,125 @@ export const STYLE_BONUS: Record<Style, number> = {
   reckless: 2,
 }
 
+export const START_STANDING = 3
+export const MAX_STANDING = 5
+
+export const FACTION_LABELS: Record<Faction, string> = {
+  friends: 'Friends',
+  family: 'Family',
+  officials: 'Officials',
+  neighbors: 'Neighbors',
+}
+
+export const FACTION_ICONS: Record<Faction, string> = {
+  friends: 'kind-icon:users',
+  family: 'kind-icon:house',
+  officials: 'kind-icon:shield',
+  neighbors: 'kind-icon:door',
+}
+
+export const FACTION_HINTS: Record<Faction, string> = {
+  friends:
+    'Drops when a friend is shaken or sent home, or when you face a night alone and it goes wrong; rises when one joins.',
+  family:
+    'Drops the first time each night a nightmare card goes wrong and you come home late; rises when you rest at home or bring home comfort food.',
+  officials:
+    'Drops when a sneaky or reckless night roll fails; rises when you study at the library or the high school.',
+  neighbors:
+    'Drops the first time each night a street card goes wrong; rises with every kind choice that works.',
+}
+
+export const SPECIAL_ENDINGS = specialEndingsData as Record<
+  SpecialEnding,
+  SpecialEndingText
+>
+
+export function startingStanding(): Record<Faction, number> {
+  // Family starts with a little more patience: every nightmare card risks it.
+  return {
+    friends: START_STANDING,
+    family: START_STANDING + 1,
+    officials: START_STANDING,
+    neighbors: START_STANDING,
+  }
+}
+
+export function standingOf(run: RunState): Record<Faction, number> {
+  return run.standing ?? startingStanding()
+}
+
+/** The standing a resolved roll moves, before chance (shaken friends). */
+export function standingShift(
+  run: RunState,
+  choice: Choice,
+  success: boolean,
+): Partial<Record<Faction, number>> {
+  const shift: Partial<Record<Faction, number>> = {}
+  if (run.current?.kind === 'finale') return shift
+  if (success && choice.intent === 'kind') shift.neighbors = 1
+  if (!success && run.phase === 'night') {
+    if (choice.intent === 'sneaky' || choice.intent === 'reckless')
+      shift.officials = -1
+    const once = (tag: string) => !run.flags.includes(`${tag}-${run.day}`)
+    if (run.current?.kind === 'night' && once('ruckus'))
+      shift.neighbors = (shift.neighbors ?? 0) - 1
+    if (run.current?.kind === 'signature' && once('curfew')) shift.family = -1
+    if (!activeCrew(run).length && once('alone')) shift.friends = -1
+  }
+  return shift
+}
+
+function shiftStanding(run: RunState, faction: Faction, delta: number): void {
+  const standing = { ...standingOf(run) }
+  standing[faction] = clamp(standing[faction] + delta, 0, MAX_STANDING)
+  run.standing = standing
+}
+
+/**
+ * A faction at zero ends the week its own way. Friends at zero start the
+ * Final Girl sequence instead: the finale comes early, faced alone.
+ */
+function checkStanding(run: RunState): void {
+  if (run.phase === 'ended') return
+  const standing = standingOf(run)
+  const fallen = (['family', 'officials', 'neighbors'] as const).find(
+    (f) => standing[f] <= 0,
+  )
+  if (fallen) {
+    run.pending = null
+    run.current = null
+    run.queue = []
+    run.draws = 0
+    run.phase = 'ended'
+    run.ending = { tier: 'bittersweet', at: Date.now(), special: fallen }
+    return
+  }
+  if (standing.friends <= 0 && !run.flags.includes(FINAL_GIRL)) {
+    run.flags.push(FINAL_GIRL)
+    if (run.phase === 'night') {
+      run.queue = [{ id: villainOf(run).finale.id, kind: 'finale' }]
+      run.draws = 0
+    }
+  }
+}
+
+export const FINAL_GIRL = 'final-girl'
+
+export function isFinalGirl(run: RunState): boolean {
+  return run.flags.includes(FINAL_GIRL)
+}
+
+export function specialEndingOf(run: RunState): SpecialEndingText | null {
+  const special = run.ending?.special
+  if (!special) return null
+  const base = SPECIAL_ENDINGS[special]
+  const fill = (text: string) =>
+    text
+      .replaceAll('{villain}', villainOf(run).name)
+      .replaceAll('{name}', run.name)
+  return { title: fill(base.title), text: fill(base.text), art: base.art }
+}
+
 export const SKILL_LABELS: Record<Skill, string> = {
   brawn: 'Brawn',
   brains: 'Brains',
@@ -238,11 +361,18 @@ export type RunState = {
   teleported: boolean
   current: { id: string; kind: EncounterKind; location?: LocationId } | null
   pending: Pending | null
+  /** Standing with each faction, 0-5; weeks saved before factions have none. */
+  standing?: Record<Faction, number>
   revealed: boolean
   wins: number
   rolls: number
   log: LogEntry[]
-  ending: { tier: EndingTier; at: number } | null
+  ending: {
+    tier: EndingTier
+    at: number
+    /** A faction collapse or the Final Girl's win. */
+    special?: SpecialEnding
+  } | null
 }
 
 const ENCOUNTERS = new Map<string, Encounter>()
@@ -477,6 +607,7 @@ export function newRun(options: NewRunOptions): RunState {
     teleported: false,
     current: null,
     pending: null,
+    standing: startingStanding(),
     revealed: false,
     wins: 0,
     rolls: 0,
@@ -494,6 +625,7 @@ export function villainOf(run: RunState): Villain {
 }
 
 export function activeCrew(run: RunState): Companion[] {
+  if (isFinalGirl(run)) return []
   return run.crew
     .filter((id) => !run.shaken.includes(id))
     .map((id) => companionById(id))
@@ -720,11 +852,16 @@ function applyEffects(run: RunState, effects: Effects, failed: boolean): void {
   for (const flag of effects.flags ?? []) {
     if (flag.startsWith('recruit:')) {
       const id = flag.slice(8) as CompanionId
-      if (!run.crew.includes(id) && run.crew.length < CREW_LIMIT)
+      if (!run.crew.includes(id) && run.crew.length < CREW_LIMIT) {
         run.crew.push(id)
+        shiftStanding(run, 'friends', 1)
+      }
     } else if (flag === 'crew-shaken') {
       const steady = run.crew.filter((id) => !run.shaken.includes(id))
-      if (steady.length) run.shaken.push(pick(run, steady))
+      if (steady.length) {
+        run.shaken.push(pick(run, steady))
+        shiftStanding(run, 'friends', -1)
+      }
     }
     if (!run.flags.includes(flag)) run.flags.push(flag)
   }
@@ -749,9 +886,17 @@ export function resolve(run: RunState): RunState {
   if (success && next.phase === 'night') next.wins += 1
   else if (next.phase === 'night' && next.crew.length) {
     const steady = next.crew.filter((id) => !next.shaken.includes(id))
-    if (steady.length && random(next) < 0.35)
+    if (steady.length && random(next) < 0.35) {
       next.shaken.push(pick(next, steady))
+      shiftStanding(next, 'friends', -1)
+    }
   }
+  const shift = standingShift(next, choice, success)
+  for (const [faction, delta] of Object.entries(shift))
+    shiftStanding(next, faction as Faction, delta ?? 0)
+  if (shift.family) next.flags.push(`curfew-${next.day}`)
+  if ((shift.neighbors ?? 0) < 0) next.flags.push(`ruckus-${next.day}`)
+  if (shift.friends) next.flags.push(`alone-${next.day}`)
   applyEffects(next, outcome.effects, !success)
   next.log.push({
     day: next.day,
@@ -776,6 +921,9 @@ export function resolve(run: RunState): RunState {
     next.ending = {
       tier: finaleTier(next, choice.approach ?? choice.id, success),
       at: Date.now(),
+      ...(success && isFinalGirl(next)
+        ? { special: 'final-girl' as const }
+        : {}),
     }
     next.phase = 'ended'
     return next
@@ -785,6 +933,8 @@ export function resolve(run: RunState): RunState {
     next.phase = 'ended'
     return next
   }
+  checkStanding(next)
+  if (next.phase === 'ended') return next
   if (next.phase === 'night') advanceNight(next)
   return next
 }
@@ -807,6 +957,15 @@ export function endingOf(run: RunState) {
 
 export function endingKey(villain: string, tier: EndingTier): string {
   return `${villain}:${tier}`
+}
+
+export function specialKey(special: SpecialEnding): string {
+  return `special:${special}`
+}
+
+/** Villain ending keys only (special endings are tallied on their own). */
+export function villainEndings(keys: string[]): string[] {
+  return keys.filter((k) => !k.startsWith('special:'))
 }
 
 export type DayActivity =
@@ -859,7 +1018,10 @@ export function activitiesAt(
   }
   if (!run.trainedToday && run.skills[location.train] < TRAIN_CAP)
     list.push({ kind: 'train', skill: location.train })
-  if (location.id === 'crystal-street' && run.nerve < MAX_NERVE)
+  if (
+    location.id === 'crystal-street' &&
+    (run.nerve < MAX_NERVE || standingOf(run).family < MAX_STANDING)
+  )
     list.push({ kind: 'rest' })
   // Day stops Silas listed (2026-10-24 PT): the nurse patches you up and
   // steadies a shaken friend; the market sells the comfort food that makes a
@@ -915,7 +1077,10 @@ export function doActivity(
       }
   } else if (activity.kind === 'rejoin') {
     next.crew.push(activity.companionId)
+    shiftStanding(next, 'friends', 1)
   } else if (activity.kind === 'train') {
+    if (locationId === 'library' || locationId === 'high-school')
+      shiftStanding(next, 'officials', 1)
     next.skills[activity.skill] = Math.min(
       TRAIN_CAP,
       next.skills[activity.skill] + 1,
@@ -926,6 +1091,7 @@ export function doActivity(
     next.shopOpen = true
   } else if (activity.kind === 'rest') {
     next.nerve = Math.min(MAX_NERVE, next.nerve + 2)
+    shiftStanding(next, 'family', 1)
   } else if (activity.kind === 'heal') {
     next.nerve = Math.min(MAX_NERVE, next.nerve + HEAL_NERVE)
     next.shaken = []
@@ -933,6 +1099,7 @@ export function doActivity(
     next.quarters -= GROCERY_COST
     next.nerve = Math.min(MAX_NERVE, next.nerve + 1)
     next.dread = Math.max(0, next.dread - 1)
+    shiftStanding(next, 'family', 1)
   }
   return next
 }
@@ -972,6 +1139,8 @@ export function dismiss(run: RunState, companionId: CompanionId): RunState {
   const next = cloneRun(run)
   next.crew = next.crew.filter((id) => id !== companionId)
   next.shaken = next.shaken.filter((id) => id !== companionId)
+  shiftStanding(next, 'friends', -1)
+  checkStanding(next)
   return next
 }
 
@@ -1030,6 +1199,7 @@ export function drawFrom(run: RunState, deck: DeckChoice): RunState {
   next.draws = (next.draws ?? 1) - 1
   if (card) next.current = card
   else advanceNight(next)
+  checkStanding(next)
   return next
 }
 
@@ -1044,7 +1214,8 @@ function actOfSignature(run: RunState, id: string): number | null {
 
 function nightQueue(run: RunState): { id: string; kind: EncounterKind }[] {
   const villain = villainOf(run)
-  if (run.day >= DAYS) return [{ id: villain.finale.id, kind: 'finale' }]
+  if (run.day >= DAYS || isFinalGirl(run))
+    return [{ id: villain.finale.id, kind: 'finale' }]
   run.draws = NIGHT_DRAWS
   return []
 }

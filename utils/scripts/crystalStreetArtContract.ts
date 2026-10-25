@@ -8,6 +8,7 @@ import {
   DECKS,
   ITEMS,
   LOCATIONS,
+  SPECIAL_ENDINGS,
   TITLE_ART,
   VILLAINS,
 } from '../crystalStreet/rules'
@@ -20,6 +21,7 @@ const prompts = allArtPrompts({
   items: ITEMS,
   avatars: AVATARS,
   characters: CHARACTERS,
+  specialEndings: SPECIAL_ENDINGS,
   title: TITLE_ART,
 })
 let bad = 0

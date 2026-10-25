@@ -6,7 +6,6 @@ import {
 } from '~/utils/memoryDungeon/reimaginerCampaign'
 import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
 import {
-  DARK_BRIAR_KEYS,
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
   advanceDarkBriarWave,

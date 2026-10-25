@@ -87,7 +87,7 @@
               },
               "failure": {
                 "text": "The files have turned to soggy pulp. Every page you peel apart is the same printed swim-safety poster, rotted and simpering: a cartoon teen girl on a dock with hearts for eyes, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. The drowned girl is on none of them. On the last one, someone has scratched JESS into the cartoon water in careful block letters.",
-                "art": "Soggy old file folders in a junkyard trailer revealing rotted swim-safety placards of a cartoon teen girl with heart eyes on a dock, a name scratched into the cartoon water",
+                "art": "Soggy old file folders in a junkyard trailer revealing rotted swim-safety placards of a cartoon girl in a one-piece swimsuit and an orange life jacket waving from a dock, a name scratched into the cartoon water",
                 "effects": {
                   "nerve": -1,
                   "dread": 1
@@ -280,7 +280,7 @@
             },
             "success": {
               "text": "\"NO RUNNING!\" she roars, but you are already up your front steps, through the door and slamming it. The machete bites into the porch post once, hard enough to rattle the family photos. Then quiet. In the morning there is a deep notch in the post, a wet handprint on the door, and a single damp, folded camp rule sheet on the welcome mat.",
-              "art": "A front porch in the morning with a deep notch cut in the wooden post, a wet handprint on the door, a damp folded camp rule sheet on the welcome mat, puddles drying on the steps",
+              "art": "A front porch in the morning with a deep notch cut in the wooden post, a muddy grey handprint on the door, a damp folded camp rule sheet on the welcome mat, clear rainwater puddles drying on the steps",
               "effects": {
                 "nerve": 1
               }
@@ -342,7 +342,7 @@
             "target": 9,
             "success": {
               "text": "\"HEY! KID IN THE WATER!\" They do not hesitate. The girl kicks out for Petey, bare-shouldered and fast as a seal, and the boy shoves the cooler lid across the water like a kickboard. Together they get him up onto the dock and wrap him in somebody's beach towel. Jess, shin-deep in the shallows with the machete raised, stops. She watches the girl rub Petey's arms warm, and slowly lowers the blade, like she is seeing the end of a movie she never got to see.",
-              "art": "Two teens shoulder-deep in moonlit water at the end of a dock pushing a small boy wrapped in a beach towel up onto the planks, a heap of clothes and a cooler beside them, a towering masked woman shin-deep in the shallows slowly lowering a gleaming machete",
+              "art": "Two teens in T-shirts shoulder-deep in moonlit water at the end of a dock pushing a small boy wrapped in a beach towel up onto the planks, a heap of clothes and a cooler beside them, a towering masked woman in a soaked navy dress shin-deep in the shallows, her dull grey steel machete held low and pointed at the water",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -351,7 +351,7 @@
             },
             "failure": {
               "text": "They do not hear you over the radio. They are sixteen and the moon is out. By the time you reach Petey he is sitting on the raft beside Jess, who has her mask pushed up and is showing him how to blow a tin whistle properly. They both turn and look at the skinny-dippers. Jess writes one name on her soggy clipboard: the girl's. Then she writes yours.",
-              "art": "A small boy sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens swimming off a dock, the woman writing on a soggy clipboard",
+              "art": "A small boy sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens in T-shirts swimming off a dock, the woman in a soaked high-necked navy dress writing on a soggy clipboard",
               "effects": {
                 "nerve": -1,
                 "dread": 2
@@ -700,7 +700,7 @@
             },
             "success": {
               "text": "\"No,\" you say. \"Nobody swims tonight. Nobody gets left in the water.\" The line goes silent. Then, one by one, every teen on Crystal Street steps out beside you. Jess looks at all of you standing together and the machete sinks slowly to her side. \"That's,\" she says. \"That's what counselors are supposed to say.\"",
-              "art": "A line of teens in pajamas stepping forward together in defiance on a moonlit lakeshore, a towering woman in a torn navy dress lowering her machete in astonishment",
+              "art": "A line of teens in pajamas stepping forward together in defiance on a moonlit lakeshore, a towering woman in a torn navy dress staring in astonishment, her dull grey steel machete hanging low and pointed at the ground",
               "effects": {
                 "nerve": 2,
                 "dread": -1
@@ -786,7 +786,7 @@
             "target": 9,
             "success": {
               "text": "\"Danny. The bet's off. Kev will pay you the dollar anyway, just come down.\" He hesitates at the top, then sees your face and climbs down rung by rung. The moment his sneakers touch concrete, the dark water goes still as glass, and a cracked voice from under the surface says, \"Good. Good job.\"",
-              "art": "A boy climbing carefully down a high dive ladder toward a teenager holding out a hand, the black pool below going still as glass, a faint pale shape resting under the moonlit surface",
+              "art": "A boy climbing carefully down a high dive ladder toward a teenager holding out a hand, the black pool below going still as glass, a faint glint of a sunken tin whistle under the moonlit surface",
               "effects": {
                 "nerve": 1,
                 "dread": -1
@@ -868,7 +868,7 @@
             "target": 9,
             "success": {
               "text": "That warning has hung by the gym doors since 1958. You climb the end of the bleachers, grab a corner and rip it down the middle with a sound like a slap. The filmstrip sputters, and the water stops at your ankles. Up under the scoreboard, Jess stands up very slowly, and through the cracked mask you think you see the corner of a smile.",
-              "art": "A teenager at the end of the bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering masked figure rising slowly under the scoreboard",
+              "art": "A teenager at the end of the bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering woman in a soaked navy dress and a cracked hockey mask rising slowly under the scoreboard",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -877,7 +877,7 @@
             },
             "failure": {
               "text": "It will not tear. The paper stretches like wet taffy and snaps back flat, and the lake water surges up two rows at once. A whistle blows from the top of the bleachers, one long blast, and every kid in the gym lifts their feet.",
-              "art": "A teenager straining to tear a stubborn faded notice off a gym wall, black water surging up the bleachers, students in pajamas lifting their feet, a masked figure blowing a whistle at the top",
+              "art": "A teenager straining to tear a stubborn faded notice off a gym wall, black water surging up the bleachers, students in pajamas lifting their feet, a towering woman in a soaked navy dress and a cracked hockey mask blowing a tin whistle at the top",
               "effects": {
                 "nerve": -2,
                 "teleport": "paranormal"

@@ -51,7 +51,7 @@ tutorial:
         Comic Studio is where you pitch to the Editor, compare panel renders,
         and lay out pages. Zuzu's Lair is a quick-time adventure under development.
         Tzaddikim presents a sourced gallery. Other experimental production
-        tools are on the Retired shelf. The Ruler Is Hooked is now in Play.
+        tools are on the Retired shelf.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp
     - key: people
       title: Accounts and the forum

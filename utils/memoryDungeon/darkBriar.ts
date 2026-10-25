@@ -1,3 +1,7 @@
+import {
+  BRIAR_CROSS_MAP_KEYS,
+  BRIAR_CROSS_MAP_PUZZLES,
+} from '../memoryDungeonWaves'
 import { DARK_BRIAR_NORTH } from './darkBriarNorth'
 import { DARK_BRIAR_BORDER } from './darkBriarBorder'
 import { DARK_BRIAR_RIVER } from './darkBriarRiver'
@@ -42,7 +46,7 @@ function scene(
 }
 
 /** Existing sixteen-scene pilot, with four additional authored geographical quadrants. */
-export const DARK_BRIAR_SCENES: Record<string, DarkBriarScene> = {
+const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
   '2,4': scene(
     '2,4',
     'The Camp That Knows You',
@@ -390,7 +394,50 @@ export const DARK_BRIAR_SCENES: Record<string, DarkBriarScene> = {
   ...DARK_BRIAR_DEPTHS,
 }
 
-export const DARK_BRIAR_KEYS = Object.keys(DARK_BRIAR_SCENES)
+/** All 64 stable map coordinates remain in the existing saved reveal rounds. */
+export const DARK_BRIAR_KEYS = Object.keys(DARK_BRIAR_LEGACY_AUTHORED)
+export const DARK_BRIAR_SEAL_KEYS = BRIAR_CROSS_MAP_KEYS
+const darkSeals = new Set<string>(DARK_BRIAR_SEAL_KEYS)
+
+/** Four inscription sites are interactive landmarks, never ordinary encounters. */
+export const DARK_BRIAR_SEALS = Object.fromEntries(
+  BRIAR_CROSS_MAP_KEYS.map((key) => [
+    key,
+    {
+      key,
+      title: BRIAR_CROSS_MAP_PUZZLES[key].title,
+      opening: DARK_BRIAR_LEGACY_AUTHORED[key]!.opening,
+      artPrompt: DARK_BRIAR_LEGACY_AUTHORED[key]!.artPrompt,
+      hint: BRIAR_CROSS_MAP_PUZZLES[key].hint,
+    },
+  ]),
+) as Record<string, {
+  key: string
+  title: string
+  opening: string
+  artPrompt: string
+  hint: string
+}>
+
+export const DARK_BRIAR_SCENES: Record<string, DarkBriarScene> = Object.fromEntries(
+  Object.entries(DARK_BRIAR_LEGACY_AUTHORED).filter(([key]) => !darkSeals.has(key)),
+)
+export const DARK_BRIAR_ENCOUNTER_KEYS = Object.keys(DARK_BRIAR_SCENES)
+
+/** Old players may have earned testimony on the Sleeping Sigil before it was
+ * reserved. Honor that existing record as a one-time substitute at (5,3). */
+export function darkBriarHasWitness(
+  progress: Pick<DarkBriarProgress, 'sceneChoices'>,
+  key: string,
+): boolean {
+  return Boolean(
+    progress.sceneChoices[key] ||
+      (key === '5,3' && ['testify', 'shield'].includes(progress.sceneChoices['5,2'] ?? '')),
+  )
+}
+export function darkBriarWitnessCount(progress: Pick<DarkBriarProgress, 'sceneChoices'>): number {
+  return DARK_BRIAR_WITNESSES.filter((key) => darkBriarHasWitness(progress, key)).length
+}
 
 /**
  * Four 8-pair reveals, preserving all sixteen pilot coordinates and route IDs.
@@ -475,7 +522,7 @@ export const DARK_BRIAR_WITNESSES = [
   '2,5',
   '4,4',
   '4,6',
-  '5,2',
+  '5,3',
   '3,1',
   '7,6',
   '3,8',
@@ -484,7 +531,7 @@ export const DARK_BRIAR_WITNESSES = [
 export const DARK_BRIAR_CLIMAX = '6,2'
 
 export interface DarkBriarProgress {
-  version: 2
+  version: 3
   waveIndex: number
   phase: 'matching' | 'exploring'
   mapCards: BriarMapCard[]
@@ -492,6 +539,8 @@ export interface DarkBriarProgress {
   visited: string[]
   player: string
   sceneChoices: Record<string, string>
+  /** Separate from scenes and late-act counterpart matches. */
+  sealInspections: string[]
   seenImages: string[]
   attempts: number
   completed: boolean
@@ -502,7 +551,7 @@ export interface DarkBriarProgress {
 
 export function newDarkBriarProgress(): DarkBriarProgress {
   return {
-    version: 2,
+    version: 3,
     waveIndex: 0,
     phase: 'matching',
     mapCards: [],
@@ -510,6 +559,7 @@ export function newDarkBriarProgress(): DarkBriarProgress {
     visited: [],
     player: BRIAR_START,
     sceneChoices: {},
+    sealInspections: [],
     seenImages: [],
     attempts: 0,
     completed: false,
@@ -540,7 +590,7 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
       : []
   const savedRevealed = validKeys(saved.revealed)
   const proposedIndex =
-    saved.version === 2 &&
+    (saved.version === 2 || saved.version === 3) &&
     Number.isSafeInteger(saved.waveIndex) &&
     (saved.waveIndex ?? -1) >= 0 &&
     (saved.waveIndex ?? 99) < DARK_BRIAR_WAVES.length
@@ -593,7 +643,8 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         revealed.includes(key) &&
-        DARK_BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
+        (DARK_BRIAR_SCENES[key]?.choices.some((option) => option.id === choice) ||
+          (key === '5,2' && ['testify', 'shield'].includes(choice)))
       ) {
         sceneChoices[key] = choice
       }
@@ -627,7 +678,7 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     (legacyCompleted ||
       (waveIndex === 3 &&
         allMatched &&
-        DARK_BRIAR_WITNESSES.every((key) => Boolean(sceneChoices[key]))))
+        DARK_BRIAR_WITNESSES.every((key) => darkBriarHasWitness({ sceneChoices }, key))))
   return {
     ...initial,
     mapCards,
@@ -637,7 +688,8 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     visited,
     player,
     sceneChoices,
-    seenImages,
+    sealInspections: validKeys(saved.sealInspections).filter((key) => darkSeals.has(key) && visited.includes(key)),
+    seenImages:
     attempts:
       Number.isSafeInteger(saved.attempts) && (saved.attempts ?? 0) >= 0
         ? saved.attempts!
@@ -677,8 +729,28 @@ export function darkBriarCanTravel(
   revealed: readonly string[],
 ): boolean {
   return (
-    DARK_BRIAR_SCENES[to] !== undefined && briarConnected(from, to, revealed)
+    DARK_BRIAR_KEYS.includes(to) && briarConnected(from, to, revealed)
   )
+}
+
+export function darkBriarInspectSeal(
+  progress: DarkBriarProgress,
+  key: string,
+): DarkBriarProgress {
+  const seal = DARK_BRIAR_SEALS[key]
+  if (
+    !seal ||
+    progress.phase !== 'exploring' ||
+    progress.player !== key ||
+    !progress.visited.includes(key) ||
+    !progress.revealed.includes(key)
+  ) return progress
+  if (progress.sealInspections.includes(key)) return progress
+  return {
+    ...progress,
+    sealInspections: [...progress.sealInspections, key],
+    status: `${seal.title}: the changed inscription is recorded in your Chronicle. ${seal.hint} Its final match belongs to another world.`,
+  }
 }
 
 export function darkBriarOpening(
@@ -711,7 +783,7 @@ export function darkBriarCanChoose(
     return (
       progress.waveIndex === DARK_BRIAR_WAVES.length - 1 &&
       DARK_BRIAR_WITNESSES.every((witness) =>
-        Boolean(progress.sceneChoices[witness]),
+        darkBriarHasWitness(progress, witness),
       )
     )
   }
@@ -741,7 +813,13 @@ export function darkBriarChoose(
 export function validateDarkBriarSlice(): string[] {
   const errors: string[] = []
   if (DARK_BRIAR_KEYS.length !== 64)
-    errors.push('Every 8x8 Dark Briar position needs an authored encounter')
+    errors.push('All 64 Dark Briar positions must remain on the map')
+  if (DARK_BRIAR_ENCOUNTER_KEYS.length !== 60)
+    errors.push('Dark Briar must contain exactly 60 ordinary encounters')
+  if (DARK_BRIAR_SEAL_KEYS.length !== 4)
+    errors.push('Four special cross-world seals are required')
+  if (DARK_BRIAR_SEAL_KEYS.some((key) => DARK_BRIAR_SCENES[key] !== undefined))
+    errors.push('A reserved seal cannot also be an ordinary encounter')
   if (new Set(DARK_BRIAR_KEYS).size !== 64)
     errors.push('Duplicate Dark Briar positions')
   if (
@@ -753,7 +831,7 @@ export function validateDarkBriarSlice(): string[] {
   if (
     waveKeys.length !== 64 ||
     new Set(waveKeys).size !== 64 ||
-    waveKeys.some((key) => !DARK_BRIAR_SCENES[key])
+    waveKeys.some((key) => !DARK_BRIAR_KEYS.includes(key))
   )
     errors.push('Four reveal rounds must cover each scene exactly once')
   if (!DARK_BRIAR_WAVES[0]?.includes(BRIAR_START))

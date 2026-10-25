@@ -100,6 +100,7 @@
       />
     </header>
 
+    <crystal-street-tip v-if="store.loaded && view === 'stage'" />
     <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
     <div v-else class="kr-stage">
       <crystal-street-credits

@@ -76,6 +76,7 @@ import {
 } from '../crystalStreet/validate'
 import { autoplay } from '../crystalStreet/autoplay'
 import { TAGS } from '../crystalStreet/types'
+import { TIPS, tipFor } from '../crystalStreet/tips'
 import { buildPlaybook } from '../playbook/games'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -288,6 +289,31 @@ for (const c of COMPANIONS) {
     })!.text,
     choice.success.text,
   )
+}
+
+// First-week tips (conductor crystal-street t-016): one at a time, the first
+// time each moment comes up, never again once seen.
+{
+  const day1 = newRun({
+    seed: 'tips',
+    name: 'T',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    villain: 'goody-hale',
+  })
+  assert.equal(new Set(TIPS.map((t) => t.id)).size, TIPS.length)
+  assert.equal(tipFor(day1, [])?.id, 'map')
+  assert.equal(tipFor(day1, ['map']), null, 'nothing else is new on day one')
+  const beat = activitiesAt(day1, 'library').find((a) => a.kind === 'beat')!
+  const atCard = doActivity(day1, 'library', beat)
+  assert.equal(tipFor(atCard, ['map'])?.id, 'card')
+  const rolled = choose(
+    atCard,
+    allEncounters().find((e) => e.id === atCard.current!.id)!.choices[0]!.id,
+  )
+  assert.equal(tipFor(rolled, ['map', 'card'])?.id, 'outcome')
+  assert.equal(tipFor({ ...day1, day: 2 }, ['map'])?.id, 'standing')
+  assert.equal(tipFor({ ...day1, phase: 'ended' }, []), null)
 }
 
 // Shared weeks (conductor crystal-street t-009): a link carries the seed and

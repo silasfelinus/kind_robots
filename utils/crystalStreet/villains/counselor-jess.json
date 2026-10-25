@@ -280,7 +280,7 @@
             },
             "success": {
               "text": "\"NO RUNNING!\" she roars, but you are already up your front steps, through the door and slamming it. The machete bites into the porch post once, hard enough to rattle the family photos. Then quiet. In the morning there is a deep notch in the post, a wet handprint on the door, and a single damp, folded camp rule sheet on the welcome mat.",
-              "art": "A front porch in the morning with a deep notch cut in the wooden post, a muddy grey handprint on the door, a damp folded camp rule sheet on the welcome mat, clear rainwater puddles drying on the steps",
+              "art": "A front porch in the morning with a deep notch cut in the wooden post, a damp folded camp rule sheet on the welcome mat, a trail of green lake weed across the steps",
               "effects": {
                 "nerve": 1
               }
@@ -351,7 +351,7 @@
             },
             "failure": {
               "text": "They do not hear you over the radio. They are sixteen and the moon is out. By the time you reach Petey he is sitting on the raft beside Jess, who has her mask pushed up and is showing him how to blow a tin whistle properly. They both turn and look at the skinny-dippers. Jess writes one name on her soggy clipboard: the girl's. Then she writes yours.",
-              "art": "A small boy sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens in T-shirts swimming off a dock, the woman in a soaked high-necked navy dress writing on a soggy clipboard",
+              "art": "A small boy in a striped T-shirt sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens in plain white T-shirts swimming off a dock, the woman in a soaked high-necked navy dress writing on a soggy clipboard",
               "effects": {
                 "nerve": -1,
                 "dread": 2
@@ -953,7 +953,7 @@
             "target": 9,
             "success": {
               "text": "There is a brass bell by the door with a frayed rope beneath it. You haul on it, and the bell nobody rang in 1957 clangs out across the lake, again and again. The poker players look up, startled, for the first time in twenty-nine years. Outside, the pounding stops, and the clock ticks past ten with the whole lodge listening.",
-              "art": "A teenager hauling on the rope of a big brass bell beside a lodge door in a thunderstorm, ghostly poker players looking up startled from their cards, an old wall clock ticking past ten",
+              "art": "Inside a log lodge during a thunderstorm, a teenager hauling on the rope of a big brass bell by the open door, ghostly poker players at a green card table looking up startled, an old wall clock past ten",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -1021,7 +1021,7 @@
           },
           "success": {
             "text": "You haul yourself onto the raft, grab her wrist with both hands and twist until the machete spins away into the lake. Without it, Jess staggers, slips and falls back with an enormous splash. The water goes with her, pouring down every storm drain on Crystal Street at once like a bathtub draining, and you are left standing on a wooden raft in the middle of a dry roundabout.",
-            "art": "A teen gripping a towering masked woman's wrist with both hands on a moonlit raft as her machete spins away into the lake and she topples backward into the water, black floodwater swirling down storm drains, the street draining dry",
+            "art": "A teen gripping both hands around the wrist of a towering woman in a soaked high-necked navy dress and a cracked hockey mask on a moonlit raft as her machete spins away into the lake and she topples backward into the water, black floodwater swirling down storm drains, the street draining dry",
             "effects": {
               "nerve": 1
             }
@@ -1132,7 +1132,7 @@
           },
           "success": {
             "text": "Midweek you watched teenagers prove the town wrong: skinny-dippers who swam for a little kid, friends who went into a dark garage in pairs, a gym full of kids who finally heard who really left the lake unwatched. So you shout it across the black water, and every teen treading water shouts it back: \"WE WATCH EACH OTHER NOW!\" They link arms and kick together, a raft of costumes pushing back against her raft, until Jess staggers with the machete drooping and her rule broken in front of her. With a long, cracked wail she sinks off the raft, and the lake pours down every storm drain on Crystal Street after her.",
-            "art": "A huge ring of costumed teenagers linking arms in moonlit water and shouting together, pushing toward a wooden raft, a towering masked woman staggering backward with her machete drooping, water swirling down toward storm drains",
+            "art": "A huge ring of costumed teenagers linking arms in moonlit water and shouting together, pushing toward a wooden raft, a towering masked woman in a soaked navy dress staggering backward, her dull grey steel machete hanging low and pointed at the water, water swirling down toward storm drains",
             "effects": {
               "nerve": 1
             }

@@ -689,7 +689,7 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     player,
     sceneChoices,
     sealInspections: validKeys(saved.sealInspections).filter((key) => darkSeals.has(key) && visited.includes(key)),
-    seenImages:
+    seenImages,
     attempts:
       Number.isSafeInteger(saved.attempts) && (saved.attempts ?? 0) >= 0
         ? saved.attempts!

@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#111821] text-[#f5e5ca]"
+    class="md-dark-stage flex min-h-0 flex-1 flex-col overflow-hidden bg-[#111821] text-[#f5e5ca]"
     aria-label="The other Briar Marches"
     data-testid="dark-briar-stage"
   >
@@ -36,7 +36,7 @@
     </div>
 
     <div
-      class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,0.50fr)_minmax(0,0.50fr)] gap-2 p-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
+      class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2"
     >
       <div
         class="relative grid min-h-0 place-items-center overflow-hidden rounded-xl border-2 border-[#886c9e] bg-[#171a2c] p-2 shadow-2xl"
@@ -319,3 +319,18 @@ const sceneStyle = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+.md-dark-stage {
+  container: dark-briar / inline-size;
+}
+.md-dark-layout {
+  grid-template-rows: minmax(0, 0.5fr) minmax(0, 0.5fr);
+}
+@container dark-briar (min-width: 760px) {
+  .md-dark-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+</style>

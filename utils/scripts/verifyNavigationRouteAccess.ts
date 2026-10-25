@@ -394,10 +394,10 @@ const navigationMoves = [
   },
   {
     slug: 'ruler-hooked',
-    from: 'projects',
-    to: 'admin',
-    route: '/admin/ruler-hooked',
-    admin: true,
+    from: 'admin',
+    to: 'arcade',
+    route: '/play/ruler-hooked',
+    admin: false,
   },
   {
     slug: 'brainstorm',
@@ -508,13 +508,36 @@ assert.match(storybookIcon, /fill="#51ddf3"/)
 assert.match(storybookIcon, /fill="#ff77be"/)
 assert.match(storybookIcon, /fill="#ffe46b"/)
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
-for (const path of ['content/brainstorm.md', 'content/admin/ruler-hooked.md']) {
-  assert.ok(
-    readFileSync(path, 'utf8').includes(
-      `${newline}channelKey: admin${newline}`,
-    ),
-  )
-}
+assert.ok(
+  readFileSync('content/brainstorm.md', 'utf8').includes(
+    `${newline}channelKey: admin${newline}`,
+  ),
+)
+
+const rulerPlayPage = readFileSync('content/play/ruler-hooked.md', 'utf8')
+assert.match(rulerPlayPage, /^channelKey: arcade$/m)
+assert.match(rulerPlayPage, /^tabKey: ruler-hooked$/m)
+assert.match(rulerPlayPage, /^:ruler-hooked-page$/m)
+assert.equal(existsSync('content/admin/ruler-hooked.md'), false)
+
+const nuxtConfig = readFileSync('nuxt.config.ts', 'utf8')
+assert.match(
+  nuxtConfig,
+  /'\\/admin\\/ruler-hooked': \\{\\s*redirect: \\{ to: '\\/play\\/ruler-hooked', statusCode: 301 \\}/,
+  'Old ruler admin bookmarks must redirect to Play.',
+)
+assert.match(
+  nuxtConfig,
+  /'\\/plan\\/projects\\/ruler-hooked': \\{\\s*redirect: \\{ to: '\\/play\\/ruler-hooked', statusCode: 301 \\}/,
+)
+assert.match(
+  nuxtConfig,
+  /urlPattern: \\/\\^https\\?:\\\\\\/\\\\\\/\\[\\^\\/\\]\\+\\\\\\/play\\\\\\/ruler-hooked/,
+  'The offline game document cache must target the new Play route.',
+)
+const dashboardSource = readFileSync('stores/helpers/dashboardHelper.ts', 'utf8')
+assert.match(dashboardSource, /key: 'ruler-hooked',[\\s\\S]*?route: '\\/play\\/ruler-hooked'/)
+
 
 /*
  * THE TUTORIAL-COMPLETENESS CONTRACT, for every current channel (kind_robots

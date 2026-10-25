@@ -5,7 +5,7 @@ tabKey: comet-city-academy
 label: Capes & Tassels
 title: 'Capes & Tassels: Prom of Doom'
 subtitle: Thirty days until graduation · A superhero romance and patrol playbook
-summary: Heroism, heartbreak and a very dangerous graduation.
+summary: Capes, crushes, patrols and prom.
 description: 'An illustrated superhero-school playbook game. Choose a unique power set, command up to three classmates at a time during training simulations, encounter campus secrets, and survive an unforgettable Comet Ball. A playable first-week simulation preview; the complete thirty-day story, romance and patrol game is in development.'
 icon: kind-icon:star
 image: /comet-city-academy/academy-stage.svg

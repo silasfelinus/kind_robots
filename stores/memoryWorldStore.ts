@@ -1,4 +1,20 @@
 import { defineStore } from 'pinia'
+import {
+  newMemoryCampaignProgress,
+  completeMemoryExperience,
+  type MemoryCampaignProgress,
+} from '~/utils/memoryDungeon/reimaginerCampaign'
+import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
+import {
+  DARK_BRIAR_KEYS,
+  DARK_BRIAR_SCENES,
+  darkBriarOpening,
+  darkBriarChoose,
+  darkBriarCanTravel,
+  newDarkBriarProgress,
+  restoreDarkBriarProgress,
+  type DarkBriarProgress,
+} from '~/utils/memoryDungeon/darkBriar'
 import { computed, ref, watch } from 'vue'
 import { useUserStore } from './userStore'
 import { WORLD_ONE_GALLERY } from '~/utils/memoryDungeon/realmGallery'
@@ -63,6 +79,8 @@ const STORAGE_KEY = 'memoryDungeonBriarCampV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
 const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
 const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
+const REALITY_KEY = 'memoryDungeonRealityV1'
+const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -80,6 +98,32 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const unlockedRealms = ref<number[]>([])
   const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
+  const campaign = ref<MemoryCampaignProgress>(newMemoryCampaignProgress())
+  const activeReality = ref<'e01' | 'e02'>('e01')
+  const dark = ref<DarkBriarProgress>(newDarkBriarProgress())
+  const darkDeckError = ref('')
+  const darkLoading = ref(false)
+  const darkTurnLocked = ref(false)
+  const darkFirstCard = ref<string | null>(null)
+  let darkEpoch = 0
+  const canEnterDarkBriar = computed(() =>
+    campaign.value.completed.includes('e01'),
+  )
+  const darkMatching = computed(() => dark.value.phase === 'matching')
+  const darkPairsMatched = computed(
+    () => dark.value.mapCards.filter((card) => card.matched).length / 2,
+  )
+  const darkSelectedScene = computed(
+    () => DARK_BRIAR_SCENES[dark.value.player] ?? null,
+  )
+  const darkCurrentText = computed(() => {
+    const scene = darkSelectedScene.value
+    if (!scene) return dark.value.status
+    const chosen = scene.choices.find(
+      (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
+    )
+    return chosen?.outcome ?? darkBriarOpening(scene, state.value)
+  })
   const ready = ref(false)
   const loading = ref(false)
   const turnLocked = ref(false)
@@ -262,6 +306,30 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     () => state.value.cards.filter((card) => card.matched).length / 2,
   )
 
+  function persistReality(): void {
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(
+        REALITY_KEY,
+        JSON.stringify({
+          version: 1,
+          active: activeReality.value,
+          progress: campaign.value,
+        }),
+      )
+      window.localStorage.setItem(DARK_BRIAR_KEY, JSON.stringify(dark.value))
+    } catch {
+      dark.value.status =
+        'The other Marches remain playable, but browser storage is unavailable.'
+    }
+  }
+
+  function grantBriarCompletion(): void {
+    if (campaign.value.completed.includes('e01')) return
+    campaign.value = completeMemoryExperience(campaign.value, 'e01')
+    persistReality()
+  }
+
   function persist(): void {
     if (!import.meta.client) return
     try {
@@ -318,8 +386,45 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         state.value = newBriarSave()
       }
     }
+    if (import.meta.client) {
+      try {
+        const rawReality = window.localStorage.getItem(REALITY_KEY)
+        const reality = restoreMemoryRealitySave(
+          rawReality ? JSON.parse(rawReality) : null,
+        )
+        campaign.value = reality.progress
+        activeReality.value = reality.active
+      } catch {
+        campaign.value = newMemoryCampaignProgress()
+        activeReality.value = 'e01'
+      }
+      try {
+        const rawDark = window.localStorage.getItem(DARK_BRIAR_KEY)
+        dark.value = restoreDarkBriarProgress(
+          rawDark ? JSON.parse(rawDark) : null,
+        )
+      } catch {
+        dark.value = newDarkBriarProgress()
+      }
+      if (state.value.gateOpened) grantBriarCompletion()
+      if (
+        dark.value.completed &&
+        !campaign.value.completed.includes('e02') &&
+        campaign.value.completed.includes('e01')
+      ) {
+        campaign.value = completeMemoryExperience(campaign.value, 'e02')
+        persistReality()
+      }
+      if (activeReality.value === 'e02' && !canEnterDarkBriar.value) {
+        activeReality.value = 'e01'
+      }
+    }
     ready.value = true
-    if (import.meta.client) void checkRealmGalleryReady()
+    if (import.meta.client) {
+      void checkRealmGalleryReady()
+      if (activeReality.value === 'e02' && !dark.value.mapCards.length)
+        void prepareDarkDeck()
+    }
   }
 
   /** A saved round can predate the source selector; resync it without losing matches. */
@@ -361,6 +466,151 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         'You held fast to the memory of an ordinary morning. A single silver flower survives the crossing with you.'
     }
     persist()
+  }
+
+  async function prepareDarkDeck(): Promise<void> {
+    if (
+      dark.value.phase !== 'matching' ||
+      dark.value.mapCards.length > 0 ||
+      darkLoading.value
+    )
+      return
+    const ticket = ++darkEpoch
+    darkLoading.value = true
+    darkDeckError.value = ''
+    try {
+      const paths = await resolveMemoryDungeonDeck(
+        deck.value,
+        DARK_BRIAR_KEYS.length / 2,
+      )
+      if (ticket !== darkEpoch) return
+      if (
+        paths.length !== DARK_BRIAR_KEYS.length / 2 ||
+        new Set(paths).size !== paths.length
+      ) {
+        throw new Error(
+          'The selected gallery does not have eight distinct matching pictures.',
+        )
+      }
+      dark.value.mapCards = createBriarWaveCards(DARK_BRIAR_KEYS, paths)
+      dark.value.status =
+        'Find the matching pictures. Every pair reveals two familiar, changed landmarks.'
+      persistReality()
+    } catch (error) {
+      if (ticket === darkEpoch) {
+        darkDeckError.value =
+          error instanceof Error
+            ? error.message
+            : 'The mirrored pictures did not load.'
+      }
+    } finally {
+      if (ticket === darkEpoch) darkLoading.value = false
+    }
+  }
+
+  async function enterDarkBriar(): Promise<void> {
+    if (!canEnterDarkBriar.value || loading.value || darkTurnLocked.value)
+      return
+    activeReality.value = 'e02'
+    persistReality()
+    if (darkMatching.value && !dark.value.mapCards.length)
+      await prepareDarkDeck()
+  }
+
+  function returnToBriar(): void {
+    darkEpoch++
+    darkTurnLocked.value = false
+    darkFirstCard.value = null
+    darkLoading.value = false
+    dark.value.mapCards.forEach((card) => {
+      if (!card.matched) card.flipped = false
+    })
+    activeReality.value = 'e01'
+    persistReality()
+  }
+
+  function darkPickCard(tile: string): void {
+    if (
+      activeReality.value !== 'e02' ||
+      !darkMatching.value ||
+      darkLoading.value ||
+      darkTurnLocked.value ||
+      darkDeckError.value
+    )
+      return
+    const card = dark.value.mapCards.find((item) => item.tile === tile)
+    if (!card || card.matched || card.flipped) return
+    card.flipped = true
+    if (darkFirstCard.value === null) {
+      darkFirstCard.value = tile
+      persistReality()
+      return
+    }
+    const first = dark.value.mapCards.find(
+      (item) => item.tile === darkFirstCard.value,
+    )
+    darkFirstCard.value = null
+    if (!first || first.tile === card.tile) return
+    dark.value.attempts++
+    darkTurnLocked.value = true
+    const ticket = darkEpoch
+    if (first.pairId === card.pairId) {
+      dark.value.status = 'Two altered memories agree. The reflection sharpens.'
+      window.setTimeout(() => {
+        if (ticket !== darkEpoch) return
+        first.matched = true
+        card.matched = true
+        for (const key of [first.tile, card.tile]) {
+          if (!dark.value.revealed.includes(key)) dark.value.revealed.push(key)
+        }
+        if (dark.value.mapCards.every((item) => item.matched)) {
+          dark.value.phase = 'exploring'
+          dark.value.visited = [BRIAR_START]
+          dark.value.player = BRIAR_START
+          dark.value.status =
+            'The familiar forest returns, but the people remember it differently.'
+        }
+        darkTurnLocked.value = false
+        persistReality()
+      }, 680)
+    } else {
+      dark.value.status =
+        'Not the same memory. Watch which pair of pictures truly belongs together.'
+      window.setTimeout(() => {
+        if (ticket !== darkEpoch) return
+        first.flipped = false
+        card.flipped = false
+        darkTurnLocked.value = false
+        persistReality()
+      }, 1150)
+    }
+    persistReality()
+  }
+
+  function darkWalk(key: string): void {
+    if (
+      activeReality.value !== 'e02' ||
+      darkMatching.value ||
+      !darkBriarCanTravel(dark.value.player, key, dark.value.revealed)
+    )
+      return
+    dark.value.player = key
+    if (!dark.value.visited.includes(key)) dark.value.visited.push(key)
+    dark.value.status =
+      DARK_BRIAR_SCENES[key]?.opening ?? 'The dark road waits.'
+    persistReality()
+  }
+
+  function darkChooseScene(id: string): void {
+    if (activeReality.value !== 'e02' || darkMatching.value) return
+    const key = dark.value.player
+    const next = darkBriarChoose(dark.value, key, id)
+    if (next === dark.value) return
+    dark.value = next
+    if (next.completed && !campaign.value.completed.includes('e02')) {
+      campaign.value = completeMemoryExperience(campaign.value, 'e02')
+    }
+    persistReality()
   }
 
   function reset(): void {
@@ -1168,6 +1418,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function openGate(): void {
     if (state.value.player !== BRIAR_GATE || !hasChime.value) return
     state.value.gateOpened = true
+    grantBriarCompletion()
     if (!unlockedRealms.value.includes(1)) unlockedRealms.value.push(1)
     if (import.meta.client) {
       try {
@@ -1182,12 +1433,29 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     }
     void checkRealmGalleryReady()
     state.value.status =
-      'The Bramble Chime parts the thorns! Briar Camp is complete. Bloom Orchard is the next region to build.'
+      'The Bramble Chime parts the thorns. Your own forest appears beyond them, but its memories have changed. Follow the reflection.'
     persist()
   }
 
   return {
     state,
+    campaign,
+    activeReality,
+    dark,
+    darkDeckError,
+    darkLoading,
+    darkTurnLocked,
+    darkMatching,
+    darkPairsMatched,
+    darkSelectedScene,
+    darkCurrentText,
+    canEnterDarkBriar,
+    prepareDarkDeck,
+    enterDarkBriar,
+    returnToBriar,
+    darkPickCard,
+    darkWalk,
+    darkChooseScene,
     deck,
     cardBack,
     selectCardBack,

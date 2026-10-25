@@ -10,18 +10,40 @@
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
           Memory Dungeon
-          <span class="font-normal text-[#d1c19c]">/ Briar Camp</span>
+          <span class="font-normal text-[#d1c19c]">{{
+            world.activeReality === 'e02'
+              ? '/ The Other Marches'
+              : '/ Briar Camp'
+          }}</span>
         </h2>
         <p class="hidden text-xs text-[#d1c19c] sm:block">
-          Remember matching pictures to reveal the world.
+          {{
+            world.activeReality === 'e02'
+              ? 'The same place tells a different story.'
+              : 'Remember matching pictures to reveal the world.'
+          }}
         </p>
       </div>
       <span
         class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
       >
-        Attempts {{ world.state.attempts }}
+        Attempts
+        {{
+          world.activeReality === 'e02'
+            ? world.dark.attempts
+            : world.state.attempts
+        }}
       </span>
+      <button
+        v-if="world.canEnterDarkBriar && world.activeReality === 'e01'"
+        type="button"
+        class="shrink-0 rounded-lg border border-[#d7a5ee] bg-[#483759] px-2 py-1.5 text-xs font-bold text-[#fff1da] hover:bg-[#62496d]"
+        @click="world.enterDarkBriar()"
+      >
+        The reflection
+      </button>
       <span
+        v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
         :aria-label="`${world.state.hearts} hearts`"
       >
@@ -153,8 +175,12 @@
       </div>
     </div>
 
+    <memory-dungeon-dark-briar-stage
+      v-if="world.activeReality === 'e02'"
+      class="min-h-0 flex-1"
+    />
     <div
-      v-if="world.state.room === 'map'"
+      v-else-if="world.state.room === 'map'"
       class="md-map-stage relative min-h-0 flex-1 overflow-hidden p-2"
       data-testid="memory-world-console-stage"
     >
@@ -553,14 +579,17 @@
                 >
                   Ring Bramble Chime
                 </button>
-                <span
+                <button
                   v-if="
                     world.selectedSite?.kind === 'gate' &&
                     world.state.gateOpened
                   "
-                  class="text-xs font-bold"
-                  >✓ Briar Camp cleared</span
+                  type="button"
+                  class="md-btn border-[#a26fb0] bg-[#64476f]"
+                  @click="world.enterDarkBriar()"
                 >
+                  Enter the changed forest
+                </button>
                 <template
                   v-if="
                     world.selectedSite?.kind === 'puzzle' &&
@@ -791,6 +820,7 @@ import {
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 import MemoryDungeonHouseStage from '~/components/memory-dungeon/house-stage.vue'
+import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()

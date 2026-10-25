@@ -29,4 +29,5 @@ tutorial:
     captains, team combinations and ending routes. The full-length three-act
     space opera is still in development.
 ---
+
 The galaxy is vast, inhabited, and full of people certain they know what is best for everyone else. Welcome aboard.

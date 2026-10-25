@@ -198,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import { useNavStore } from '~/stores/navStore'
 import {
@@ -273,8 +273,9 @@ const dialItems = computed<DialItem[]>(() => {
 })
 
 function onDial(id: string): void {
-  if (id === 'help') openTutorial()
-  else view.value = id as View
+  if (id === 'help') return openTutorial()
+  if (!menuScreen.value && run.value) fromGame.value = true
+  view.value = id as View
 }
 
 function openTutorial(): void {
@@ -295,15 +296,34 @@ useHead({
 const run = computed(() => store.run)
 const villain = computed(() => store.villain)
 const view = ref<View>('title')
+// Settings or credits opened from the in-game dial keep the game's header,
+// so Play is one tap away instead of Menu > title > Continue (roadmap #4143,
+// UI torture). From the title they stay menu screens.
+const fromGame = ref(false)
 const menuScreen = computed(
   () =>
-    MENU_SCREENS.has(view.value) || (view.value === 'scrapbook' && !run.value),
+    (MENU_SCREENS.has(view.value) && !fromGame.value) ||
+    (view.value === 'scrapbook' && !run.value),
 )
+watch(view, (next) => {
+  if (next === 'title') fromGame.value = false
+})
 
 function openMenu(target: MenuView): void {
+  fromGame.value = false
   view.value = target
 }
+// Remembered for the tab, so a refresh on night one doesn't replay the
+// arrival poster over a draw or a roll.
+const ARRIVAL_KEY = 'crystal-street-arrival-seen'
 const arrivalSeen = ref('')
+watch(arrivalSeen, (seed) => {
+  try {
+    sessionStorage.setItem(ARRIVAL_KEY, seed)
+  } catch {
+    // Private mode: the poster may show again after a refresh.
+  }
+})
 const arrival = computed(
   () =>
     !!run.value &&
@@ -315,6 +335,11 @@ const arrival = computed(
 )
 
 onMounted(() => {
+  try {
+    arrivalSeen.value = sessionStorage.getItem(ARRIVAL_KEY) ?? ''
+  } catch {
+    // Storage blocked: start unseen.
+  }
   store.load()
   if (store.run && !store.run.ending) view.value = 'stage'
 })
@@ -633,10 +658,29 @@ onMounted(() => {
 .cs .cs-polaroid:nth-child(even) {
   transform: rotate(1deg);
 }
+/* Windows high contrast blanks mask-drawn icons, the dread bar and the
+   standing pips; keep their own colors so the HUD still reads. */
+@media (forced-colors: active) {
+  .cs .iconify,
+  .cs .cs-dread > span,
+  .cs [data-testid='cs-standing'] li > span > span {
+    forced-color-adjust: none;
+  }
+  /* One-color icons take the system text color; full-color ones keep theirs. */
+  .cs .iconify {
+    color: CanvasText;
+  }
+  .cs .cs-dread {
+    border: 1px solid CanvasText;
+  }
+}
+/* The system setting does what the in-game Motion setting does. */
 @media (prefers-reduced-motion: reduce) {
-  .cs .cs-choice,
-  .cs .cs-menu-item {
-    transition: none;
+  .cs *,
+  .cs *::before,
+  .cs *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>

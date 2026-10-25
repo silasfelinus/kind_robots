@@ -1301,6 +1301,171 @@ export function isRunState(value: unknown): value is RunState {
   )
 }
 
+const ENCOUNTER_KINDS: EncounterKind[] = [
+  'beat',
+  'clue',
+  'meet',
+  'night',
+  'signature',
+  'finale',
+]
+
+/**
+ * Rebuild a saved week from localStorage, clamping every number and dropping
+ * every id the game does not know, so a hand-edited or stale save can never
+ * crash a screen (roadmap #4143, save tampering). Returns null when the save
+ * is not a week of this schema at all.
+ */
+export function repairRun(value: unknown): RunState | null {
+  if (!isRunState(value)) return null
+  const v = value as RunState & Record<string, unknown>
+  const int = (x: unknown, lo: number, hi: number, fallback: number) =>
+    typeof x === 'number' && Number.isFinite(x)
+      ? clamp(Math.round(x), lo, hi)
+      : fallback
+  const bool = (x: unknown) => x === true
+  const list = (x: unknown, limit = 400) =>
+    Array.isArray(x)
+      ? x.filter((s): s is string => typeof s === 'string').slice(0, limit)
+      : []
+  const strings = (x: unknown, limit = 400) => [...new Set(list(x, limit))]
+  const known = <T extends string>(x: unknown, ok: (id: string) => boolean) =>
+    strings(x).filter(ok) as T[]
+  const villain = villainById(v.villain)!
+  const crew = known<CompanionId>(v.crew, (id) => !!companionById(id)).slice(
+    0,
+    CREW_LIMIT,
+  )
+  const archetype = archetypeById(String(v.archetype))?.id ?? ARCHETYPES[0]!.id
+  const encounter = (x: unknown) => {
+    const c = x as { id?: unknown; kind?: unknown; location?: unknown } | null
+    if (!c || typeof c.id !== 'string' || !encounterById(c.id)) return null
+    if (!ENCOUNTER_KINDS.includes(c.kind as EncounterKind)) return null
+    return {
+      id: c.id,
+      kind: c.kind as EncounterKind,
+      ...(typeof c.location === 'string' && locationById(c.location)
+        ? { location: c.location as LocationId }
+        : {}),
+    }
+  }
+  const current = encounter(v.current)
+  const pendingRaw = v.pending as Pending | null
+  const roll = pendingRaw?.roll
+  const pending =
+    current &&
+    pendingRaw &&
+    typeof pendingRaw.choiceId === 'string' &&
+    encounterById(current.id)?.choices.some(
+      (c) => c.id === pendingRaw.choiceId,
+    ) &&
+    roll &&
+    Array.isArray(roll.dice) &&
+    [roll.total, roll.modifier, roll.target, ...roll.dice].every(
+      (n) => typeof n === 'number' && Number.isFinite(n),
+    )
+      ? {
+          choiceId: pendingRaw.choiceId,
+          roll: {
+            ...roll,
+            breakdown: list(roll.breakdown, 20),
+            success: roll.success === true,
+          },
+          rerolled: bool(pendingRaw.rerolled),
+          shielded:
+            typeof pendingRaw.shielded === 'string' &&
+            crew.includes(pendingRaw.shielded)
+              ? pendingRaw.shielded
+              : null,
+        }
+      : null
+  const phase = (['day', 'night', 'ended'] as const).includes(v.phase as 'day')
+    ? v.phase
+    : 'day'
+  const endingRaw = v.ending as RunState['ending']
+  const ending =
+    endingRaw &&
+    ENDING_TIERS.includes(endingRaw.tier) &&
+    typeof endingRaw.at === 'number' &&
+    (!endingRaw.special || endingRaw.special in SPECIAL_ENDINGS)
+      ? {
+          tier: endingRaw.tier,
+          at: endingRaw.at,
+          ...(endingRaw.special ? { special: endingRaw.special } : {}),
+        }
+      : null
+  if (phase === 'ended' && !ending) return null
+  const standing = standingOf(v)
+  const log = (Array.isArray(v.log) ? v.log : [])
+    .filter(
+      (l): l is LogEntry =>
+        !!l &&
+        typeof l === 'object' &&
+        typeof (l as LogEntry).encounterId === 'string' &&
+        typeof (l as LogEntry).text === 'string',
+    )
+    .slice(-200)
+  return {
+    version: SCHEMA_VERSION,
+    seed: v.seed.slice(0, 80),
+    rng: int(v.rng, 0, 2 ** 32 - 1, hashSeed(v.seed)),
+    name: String(v.name ?? 'You').slice(0, 24) || 'You',
+    pronouns: String(v.pronouns ?? 'they/them').slice(0, 16) || 'they/them',
+    ...(typeof v.avatar === 'string' && avatarById(v.avatar)
+      ? { avatar: v.avatar }
+      : {}),
+    archetype,
+    villain: villain.id as VillainId,
+    day: int(v.day, 1, DAYS, 1),
+    phase,
+    actions: int(v.actions, 0, ACTIONS_PER_DAY, 0),
+    skills: Object.fromEntries(
+      SKILLS.map((k) => [k, int(v.skills[k], 0, SKILL_CAP, 0)]),
+    ) as Record<Skill, number>,
+    nerve: int(v.nerve, 0, MAX_NERVE, START_NERVE),
+    dread: int(v.dread, 0, MAX_DREAD, 0),
+    quarters: int(v.quarters, 0, 999, 0),
+    items: known<ItemId>(v.items, (id) => !!itemById(id)),
+    clues: known<string>(v.clues, (id) =>
+      villain.clues.some((c) => c.id === id),
+    ),
+    flags: strings(v.flags),
+    crew,
+    shaken: known<CompanionId>(v.shaken, (id) =>
+      crew.includes(id as CompanionId),
+    ),
+    perksUsed: known<CompanionId>(v.perksUsed, (id) => !!companionById(id)),
+    trained: int(v.trained, 0, 99, 0),
+    trainedToday: bool(v.trainedToday),
+    seenBeats: list(v.seenBeats),
+    usedDeck: list(v.usedDeck),
+    shopOpen: bool(v.shopOpen),
+    stock: known<ItemId>(v.stock, (id) => !!itemById(id)),
+    pawnshopSpot: typeof v.pawnshopSpot === 'string' ? v.pawnshopSpot : '',
+    queue: (Array.isArray(v.queue) ? v.queue : [])
+      .map(encounter)
+      .filter((q) => q !== null)
+      .slice(0, 8),
+    ...(v.draws === undefined
+      ? {}
+      : { draws: int(v.draws, 0, NIGHT_DRAWS, 0) }),
+    teleported: bool(v.teleported),
+    current,
+    pending,
+    standing: Object.fromEntries(
+      Object.entries(standing).map(([f, n]) => [
+        f,
+        int(n, 0, MAX_STANDING, START_STANDING),
+      ]),
+    ) as Record<Faction, number>,
+    revealed: bool(v.revealed),
+    wins: int(v.wins, 0, 99, 0),
+    rolls: int(v.rolls, 0, 9999, 0),
+    log,
+    ending: phase === 'ended' ? ending : null,
+  }
+}
+
 export type Chip = { text: string; tone: 'good' | 'bad' | 'info' }
 
 export function effectChips(effects: Effects): Chip[] {

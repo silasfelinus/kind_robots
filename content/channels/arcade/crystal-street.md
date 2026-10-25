@@ -4,7 +4,7 @@ channelKey: arcade
 tabKey: crystal-street
 label: Crystal Street
 title: Terrors on Crystal Street
-subtitle: Work in progress · One week, seven nights, twenty-two nightmares
+subtitle: Work in progress · One week, seven nights, twenty-three nightmares
 summary: Survive Halloween week, 1986.
 description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. A public work in progress.'
 icon: kind-icon:mask

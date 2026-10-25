@@ -321,7 +321,7 @@ const features = [
     route: '/play/crystal-street',
     image: '/crystal-street/cover.webp',
     description:
-      'Survive Halloween week, 1986, against twenty-two remixed nightmares.',
+      'Survive Halloween week, 1986, against twenty-three remixed nightmares.',
   },
   {
     title: 'Emperor of Dust',

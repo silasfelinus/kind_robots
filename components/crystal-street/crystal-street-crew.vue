@@ -53,7 +53,7 @@
                 c.name
               }}</span>
               <span
-                class="block truncate text-[11px] uppercase tracking-wider opacity-70"
+                class="block truncate cs-label uppercase tracking-wider opacity-70"
                 >{{
                   inCrew(c.id)
                     ? run?.shaken.includes(c.id as CompanionId)
@@ -83,7 +83,7 @@
         />
         <div>
           <h3 class="cs-display text-xl leading-tight">{{ focus.name }}</h3>
-          <p class="text-[11px] uppercase tracking-wider opacity-70">
+          <p class="cs-label uppercase tracking-wider opacity-70">
             {{ focus.pronouns }} · {{ focus.age }} · {{ focus.role }}
           </p>
         </div>

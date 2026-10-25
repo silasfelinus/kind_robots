@@ -171,7 +171,7 @@
           "id": "mallrat-mothman-clue-paper-route",
           "title": "Collection Day",
           "place": "Kev Park's paper route, Crystal Street",
-          "text": "It is collection day on the paper route, and Kev Park is doing math on his fingers on his bike. \"Number 11 hasn't picked up a paper since Saturday. The Holcombs' porch has six. And there's a kid's bike in the Gaskins yard that hasn't moved in four days.\" He frowns at his notebook. \"Nobody called the cops. Nobody even called me to stop delivery.\"",
+          "text": "It is collection day on the paper route, and Kev Park is doing math on his fingers on his bike. \"The Ferreiras haven't picked up a paper since Saturday. The Holcombs' porch has six. And there's a kid's bike in the Gaskins yard that hasn't moved in four days.\" He frowns at his notebook. \"Nobody called the cops. Nobody even called me to stop delivery.\"",
           "art": "A twelve-year-old Korean American paperboy straddling a bike with a canvas bag full of newspapers on a cul-de-sac, pointing at a porch piled with unread papers, a child's bike abandoned on a lawn",
           "choices": [
             {
@@ -299,8 +299,8 @@
         "id": "mallrat-mothman-porch-lights",
         "act": 2,
         "title": "Porch Lights",
-        "place": "5 Crystal Street, eleven p.m.",
-        "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the roof of number 5. On the front steps below sits ten-year-old Ricky Alvarado in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
+        "place": "The Alvarado house, Crystal Street, eleven p.m.",
+        "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the Alvarados' roof. On the front steps below sits ten-year-old Ricky Alvarad in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
         "art": "A huge moth creature perched on a split-level roof at night, wings spread over a suburban street of flickering porch lights, a small boy in pajamas sitting alone on the front steps gazing up at it calmly",
         "choices": [
           {
@@ -387,8 +387,8 @@
         "id": "mallrat-mothman-have-you-seen-me",
         "act": 1,
         "title": "Have You Seen Me?",
-        "place": "The all-night Quik-Mart on Quarry Road, 1 a.m.",
-        "text": "You stop at the all-night Quik-Mart for a Bolt Cola, and the dairy case is wrong. Every milk carton has a kid's face printed on the side under HAVE YOU SEEN ME?, and they are faces you know from the arcade, the food court, the bus stop. Their mouths move. They are whispering their own names, so softly you can barely hear. The clerk has his headphones on and has not looked up once. On the roof, something heavy shifts, and gray dust sifts past the front window like snow.",
+        "place": "The all-night Quik-Stop on Quarry Road, 1 a.m.",
+        "text": "You stop at the all-night Quik-Stop for a Bolt Cola, and the dairy case is wrong. Every milk carton has a kid's face printed on the side under HAVE YOU SEEN ME?, and they are faces you know from the arcade, the food court, the bus stop. Their mouths move. They are whispering their own names, so softly you can barely hear. The clerk has his headphones on and has not looked up once. On the roof, something heavy shifts, and gray dust sifts past the front window like snow.",
         "art": "A fluorescent-lit convenience store at 1 a.m., a teenager staring into a glowing dairy case of milk cartons printed with small kids' faces, a clerk in headphones at the counter, gray dust drifting past the front window",
         "choices": [
           {
@@ -398,7 +398,7 @@
             "skill": "charm",
             "target": 11,
             "success": {
-              "text": "You set a carton on the counter and ease his headphones off. \"Look. Do you know her?\" The clerk, Gary, squints, and then his face falls. \"That's Marcy. She bought gum here every Saturday, until she didn't.\" He picks up the phone to call it in. On the roof, the heavy thing shifts once more and goes still, as if it is listening.",
+              "text": "You set a carton on the counter and ease his headphones off. \"Look. Do you know her?\" The clerk, Rudy, squints, and then his face falls. \"That's Marcy. She bought gum here every Saturday, until she didn't.\" He picks up the phone to call it in. On the roof, the heavy thing shifts once more and goes still, as if it is listening.",
               "art": "A teenager holding up a milk carton to a startled convenience-store clerk with headphones around his neck at 1 a.m., fluorescent lights, a glowing dairy case behind, gray dust drifting past the front window",
               "effects": {
                 "nerve": 1,
@@ -407,7 +407,7 @@
               }
             },
             "failure": {
-              "text": "Gary glances at the carton and shrugs. \"Kids run off. Their folks'll call.\" He puts his headphones back on. On every carton in the case, the faces turn away from you, and the whispering stops, which is worse than the whispering.",
+              "text": "Rudy glances at the carton and shrugs. \"Kids run off. Their folks'll call.\" He puts his headphones back on. On every carton in the case, the faces turn away from you, and the whispering stops, which is worse than the whispering.",
               "art": "A bored convenience-store clerk in headphones ignoring a teenager at 1 a.m., a dairy case behind them full of milk cartons with tiny printed faces turned away, gray dust sifting past the window",
               "effects": {
                 "nerve": -2,
@@ -465,7 +465,7 @@
               }
             },
             "failure": {
-              "text": "You get the cartons as far as the door, and every one of them is suddenly ordinary: a cartoon cow, a sale price, and that is all. Gary makes you pay anyway. You drink milk for a week, and every glass tastes faintly of dust.",
+              "text": "You get the cartons as far as the door, and every one of them is suddenly ordinary: a cartoon cow, a sale price, and that is all. Rudy makes you pay anyway. You drink milk for a week, and every glass tastes faintly of dust.",
               "art": "A glum teenager at a kitchen table surrounded by a towering stack of ordinary milk cartons with cartoon cows, a glass of milk in hand, morning light through the window",
               "effects": {
                 "nerve": -1,
@@ -662,7 +662,7 @@
         "act": 3,
         "title": "The Dead Wing",
         "place": "Moonbeam Court, Starlight Mall, after midnight",
-        "text": "You slip behind the plywood into Moonbeam Court. The neon signs are dead, but they hum. From every one of them hang soft gray cocoons, dozens, swaying like paper lanterns, and through the silk you can see sleeping faces: Marcy Holcomb, Tyler Gaskins, kids you have seen at the arcade a hundred times and never once learned the names of. On the dead sign of Bergdahl's Department Store, the Mothman watches you with its clock-face eyespots, wings slowly opening.",
+        "text": "You slip behind the plywood into Moonbeam Court. The neon signs are dead, but they hum. From every one of them hang soft gray cocoons, dozens, swaying like paper lanterns, and through the silk you can see sleeping faces: Marcy Holcomb, Tyler Gaskins, kids you have seen at the arcade a hundred times and never once learned the names of. On the dead sign of the Woolmart department store, the Mothman watches you with its clock-face eyespots, wings slowly opening.",
         "art": "A boarded-up mall wing at midnight with dead neon signs from which dozens of gray silk cocoons hang like lanterns, sleeping children's faces faintly visible inside, a giant moth perched on a dead department store sign with eyespots like clocks",
         "choices": [
           {
@@ -1007,7 +1007,7 @@
       "choices": [
         {
           "id": "fight",
-          "label": "Bring down the Bergdahl's sign with the creature on it",
+          "label": "Bring down the Woolmart sign with the creature on it",
           "intent": "brave",
           "skill": "brawn",
           "target": 11,
@@ -1186,7 +1186,7 @@
       },
       "bittersweet": {
         "title": "One Cocoon Left",
-        "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Bergdahl's sign, too high to reach, and the Mothman is curled around it. The mall boards the wing up again that winter, tighter than before. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
+        "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Woolmart sign, too high to reach, and the Mothman is curled around it. The mall boards the wing up again that winter, tighter than before. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
         "art": "A single gray cocoon hanging from a dead neon sign in a dark mall wing with a giant moth curled protectively around it, workers nailing fresh plywood over the entrance"
       },
       "bad": {

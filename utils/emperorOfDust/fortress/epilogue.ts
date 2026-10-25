@@ -2339,6 +2339,14 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: 'The square in Hollow Bell remains a place to sleep. Sera rings twelve strokes for the living and writes the thirteenth on paper. There is a thick book of these strokes now.',
       },
       {
+        when: { flags: ['sera-bell-muffled'] },
+        text: 'Sera keeps the hand bell wrapped in wool for years. She rings it unmuffled only once, on the day the road opens, and the whole valley hears the hour.',
+      },
+      {
+        when: { flags: ['sera-bell-rung-on'] },
+        text: 'Lamps still appear in the shuttered windows under the tower at the hour Sera rings. Nobody says who lights them. The bell has stopped needing an answer.',
+      },
+      {
         when: { flags: ['sera-names-public'] },
         text: "Sera's register hangs in the market. Descendants who bought silence have to pass the names every morning. Some add fresh flowers. Some walk another road.",
       },

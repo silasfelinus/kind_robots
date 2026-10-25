@@ -21,7 +21,7 @@
           :sigil="v.sigil"
           :alt="v.name"
         />
-        <span class="block truncate px-1.5 pt-1 text-[11px] font-semibold">
+        <span class="block truncate px-1.5 pt-1 cs-label font-semibold">
           {{ v.name }}
         </span>
         <span class="flex gap-0.5 px-1.5 pb-1.5" aria-hidden="true">

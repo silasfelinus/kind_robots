@@ -37,6 +37,9 @@ tutorial:
         to train once a day, and sometimes a friend to meet or a lead to follow.
         Rest at home for nerve, see the nurse at Mercy Valley Clinic, stock up on
         comfort food at the Thriftee-Mart, or shop the traveling pawnshop.
+        Some stops have something on only one day: Sunday folk mass at St.
+        Jude's, a school-day page at Glimmer Falls High, and five happenings
+        that wait for Halloween itself.
     - key: nights
       title: 'Nights: choose your deck'
       image: /crystal-street/villains/counselor-jess-poster.webp
@@ -60,6 +63,9 @@ tutorial:
         Up to ten friends can join your crew. Each helps with their skills and
         brings a perk, though perks do not stack. A friend shaken by a bad
         night gives no help until dawn, or until the nurse steadies them.
+        Once a day you can hang out with a friend at their spot; three
+        hangouts tell their story and make them Loyal, worth +1 on Halloween
+        (up to +2 in all).
     - key: standing
       title: 'Standing: friends, family, officials, neighbors'
       image: /crystal-street/locations/crystal-street.webp
@@ -94,7 +100,19 @@ tutorial:
       body: >-
         Every finished week is pasted into your scrapbook, along with each
         nightmare you have faced, every ending you have found and every friend
-        you have met. Collect a Best ending for every nightmare.
+        you have met. Each week keeps its best moments as polaroids, and the
+        endings wall shows every ending at once, found or not. Share a
+        finished week as a link: a friend who opens it plays the same
+        nightmare and the same deal with their own character. Collect a Best
+        ending for every nightmare.
+    - key: settings
+      title: Tips, sound and settings
+      image: /crystal-street/cliques/theatre-kid.webp
+      body: >-
+        Your first week coaches you with a short tip the first time each part
+        of the week comes up. Settings can turn tips on for every week or off,
+        replay them, switch the sound effects off, and change text size,
+        contrast and motion. Your week and scrapbook are saved in this browser.
 ---
 
 Glimmer Falls, California. Halloween week, 1986. Something under Crystal Street is

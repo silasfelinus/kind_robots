@@ -15,7 +15,7 @@
     "palette": ["#3b5323", "#c9a227", "#7b4fa0"],
     "sigil": "egg",
     "logline": "They drained the marsh and paved it for parking, but something down there was about to be born. It has been drinking food-court grease for five years. This week it hatches.",
-    "backstory": "Before Starlight Mall there was Tule Marsh: two hundred acres of cattails, herons and chorus frogs around a deep pool that steamed in winter like something breathing. It was fed by the same cold spring as the old quarry lake, and on sunny days you could see violet crystals glittering on the bottom, little cousins of the Heartstone. Kids caught tadpoles there for a hundred years. The founders called it a swamp. In 1981 the county approved the mall, and in one summer the bulldozers drained the marsh, sealed the spring into culverts and poured asphalt over the deepest pool, which became Lot C. A biology teacher chained herself to a bulldozer and was fired for it. But the marsh had been getting ready for something. Two hundred acres of life had been folding itself into the deep pool like an egg, waiting to hatch, and the asphalt sealed it in. For five years the only thing that has reached it is what runs down the food court drains: fryer grease from Corn Dog Castle and Wok This Way, fifty gallons a night. It has been drinking. It has been growing. This Halloween week the soft spot in Lot C is warm to the touch, shopping carts are sinking into the asphalt, herons circle the parking lot at dusk, and from somewhere underground comes the sound of a thousand frogs crying like a baby that wants its mother.",
+    "backstory": "Behind Starlight Mall there was Tule Marsh: two hundred acres of cattails, herons and chorus frogs around a deep pool that steamed in winter like something breathing. It was fed by the same cold spring as the old quarry lake, and on sunny days you could see violet crystals glittering on the bottom, little cousins of the Heartstone. Kids caught tadpoles there for a hundred years. The founders called it a swamp. In 1981 the county approved the mall's new Lot C, and in one summer the bulldozers drained the marsh, sealed the spring into culverts and poured asphalt over the deepest pool, which became Lot C. A biology teacher chained herself to a bulldozer and was fired for it. But the marsh had been getting ready for something. Two hundred acres of life had been folding itself into the deep pool like an egg, waiting to hatch, and the asphalt sealed it in. For five years the only thing that has reached it is what runs down the food court drains: fryer grease from Corn Dog Castle and Wok This Way, fifty gallons a night. It has been drinking. It has been growing. This Halloween week the soft spot in Lot C is warm to the touch, shopping carts are sinking into the asphalt, herons circle the parking lot at dusk, and from somewhere underground comes the sound of a thousand frogs crying like a baby that wants its mother.",
     "centralIssue": {
       "title": "Paved over for convenience",
       "summary": "The Bog Baby is a wetland that was never allowed to be born: two hundred acres of life buried under a parking lot so nobody would have to walk far to the Orange Jubilee. It eats grease because grease is all that reaches it. It doesn't need killing. It needs its water back."
@@ -35,7 +35,7 @@
         "id": "bog-baby-movie",
         "title": "The Thing from Tule Marsh",
         "location": "rewind-video",
-        "hint": "Zelda Fishbein's first movie was shot on location at a marsh that isn't on any map anymore. Rewind Video has a copy in the horror aisle.",
+        "hint": "One of Zelda Fishbein's old movies was shot on location at a marsh that isn't on any map anymore. Rewind Video has a copy in the horror aisle.",
         "encounter": {
           "id": "bog-baby-clue-creature-feature",
           "title": "The Thing from Tule Marsh (1958)",
@@ -464,7 +464,7 @@
         "act": 2,
         "title": "The Baby Monitor",
         "place": "The Lindqvist bathroom, next door, 2 a.m.",
-        "text": "Bea's walkie-talkie crackles you awake. \"Get over here. The baby monitor is picking up something, and it isn't my brother.\" Through the little speaker on the Lindqvists' dresser comes a wet gurgle, then a hiccup, then a long, lonely wail. Bea's baby brother is asleep in his crib, perfectly quiet. The sound is coming from the bathtub, where the drain is bubbling up duckweed, tadpoles and a slow tide of warm brown water that smells like the fryers at Corn Dog Castle.",
+        "text": "Bea's walkie-talkie crackles you awake. \"Get over here. The baby monitor is picking up something, and it isn't my cousin.\" Through the little speaker on the Lindqvists' dresser comes a wet gurgle, then a hiccup, then a long, lonely wail. Bea's baby cousin, here for the week, is asleep in his crib, perfectly quiet. The sound is coming from the bathtub, where the drain is bubbling up duckweed, tadpoles and a slow tide of warm brown water that smells like the fryers at Corn Dog Castle.",
         "art": "A pastel 1980s bathroom at night, a bathtub filling with murky brown water, duckweed and swirling tadpoles, a kid genius in pajamas holding a baby monitor, a teenager in the doorway with a walkie-talkie",
         "choices": [
           {

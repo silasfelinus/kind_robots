@@ -463,7 +463,7 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "At the bottom of the hill the light turns red and you swerve hard into the Quik-Mart lot. He floats right on without you, still sitting in midair where your handlebars were, all the way down Main Street, waving cheerfully. The night cashier, who saw everything, slides you a free cocoa and the change from the tip jar.",
+              "text": "At the bottom of the hill the light turns red and you swerve hard into the Quik-Stop lot. He floats right on without you, still sitting in midair where your handlebars were, all the way down Main Street, waving cheerfully. The night cashier, who saw everything, slides you a free cocoa and the change from the tip jar.",
               "art": "A translucent boy in a letter jacket sitting in midair as he floats down an empty small-town main street at night, waving, a teenager on a bicycle braking hard in a convenience store parking lot",
               "effects": {
                 "nerve": 1,
@@ -471,7 +471,7 @@
               }
             },
             "failure": {
-              "text": "You swerve. He does not. He just keeps sitting on your handlebars, dripping and patient, while you pedal frantic circles around the Quik-Mart lot. \"Wrong way, pal,\" he says kindly, and the bike tugs toward a road you have never seen, lined with neon signs that went dark years ago.",
+              "text": "You swerve. He does not. He just keeps sitting on your handlebars, dripping and patient, while you pedal frantic circles around the Quik-Stop lot. \"Wrong way, pal,\" he says kindly, and the bike tugs toward a road you have never seen, lined with neon signs that went dark years ago.",
               "art": "A teenager on a bicycle pedaling onto a strange dreamlike road lined with flickering old neon signs, a translucent boy in a letter jacket riding the handlebars and pointing the way",
               "effects": {
                 "nerve": -1,
@@ -485,7 +485,7 @@
       {
         "id": "deck-paranormal-dryer-thirteen",
         "title": "Dryer Number Thirteen",
-        "place": "Suds-O-Rama 24-Hour Laundromat, Main Street, two a.m.",
+        "place": "Suds-O-Mat 24-Hour Laundromat, Main Street, two a.m.",
         "text": "You are washing the slime out of your jacket at the all-night laundromat, the only customer under the buzzing lights. Dryer number thirteen starts up by itself, no quarter. Through its round window tumble clothes nobody has worn in thirty years: a poodle skirt, a Sunday hat, a tiny sailor suit. A woman in a housecoat and pink curlers is folding at the counter, and you can see the vending machine right through her.",
         "art": "A fluorescent-lit all-night laundromat at two in the morning, a translucent woman in a housecoat and pink curlers folding laundry at a counter, one round dryer window glowing with tumbling 1950s clothes, a teenager holding a slimy jacket",
         "choices": [
@@ -780,7 +780,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "The operator traces it to the payphone outside the Quik-Mart on Quarry Road. You call the sheriff, then watch from the window as a cruiser's lights sweep the booth. A tall figure hangs up, drops the receiver, and walks away into the trees. It does not call again tonight.",
+              "text": "The operator traces it to the payphone outside the Quik-Stop on Quarry Road. You call the sheriff, then watch from the window as a cruiser's lights sweep the booth. A tall figure hangs up, drops the receiver, and walks away into the trees. It does not call again tonight.",
               "art": "A payphone booth outside a convenience store at night lit by a sheriff cruiser's red and blue lights, a tall masked figure walking away into the trees, the receiver dangling",
               "effects": {
                 "dread": -1,
@@ -1312,13 +1312,13 @@
               "amount": 2
             },
             "success": {
-              "text": "Moose lowers his shoulder beside you, and on three you hit the display like the Gophers' front line. Mannequins topple like bowling pins. Under the pile, the figure is just one more plastic dummy with a cap on its head and a pricing gun glued to its hand. Moose stands it back up, apologetically, and you walk out laughing.",
+              "text": "Moose lowers his shoulder beside you, and on three you hit the display like the varsity front line. Mannequins topple like bowling pins. Under the pile, the figure is just one more plastic dummy with a cap on its head and a pricing gun glued to its hand. Moose stands it back up, apologetically, and you walk out laughing.",
               "art": "Mannequins toppling like bowling pins in a dusty boutique window, a teenager mid-tackle, a plastic dummy in a guard cap lying on top of the pile with a pricing gun glued to its hand",
               "effects": {
                 "nerve": 1,
                 "dread": -1
               },
-              "alone": "You lower your shoulder and hit the display like the Gophers' front line. Mannequins topple like bowling pins. Under the pile, the figure is just one more plastic dummy with a cap on its head and a pricing gun glued to its hand. You stand it back up, apologetically, and walk out laughing."
+              "alone": "You lower your shoulder and hit the display like the varsity front line. Mannequins topple like bowling pins. Under the pile, the figure is just one more plastic dummy with a cap on its head and a pricing gun glued to its hand. You stand it back up, apologetically, and walk out laughing."
             },
             "failure": {
               "text": "You hit the pile and the mannequins hug you back. Plastic arms lock around your middle, your shoulders, your knees, and for one awful moment you are part of the display. You wriggle free, leaving your jacket on a dummy in a leisure suit and a tag stuck to your forehead that reads SOLD.",
@@ -1449,7 +1449,7 @@
         "id": "deck-slasher-bleacher-gopher",
         "title": "The Gopher Under the Bleachers",
         "place": "Under the football bleachers at Glimmer Falls High, late",
-        "text": "You are crawling around under the bleachers hunting for the retainer you lost at practice. Up in the seats, something is coming down: thump, thump, thump, one row at a time. The scoreboard flickers on by itself and reads HOME 0, GUEST 1. Then Goldie the Gopher, the school mascot, drops down beside you with huge foam buck teeth and a megaphone it never says a word through.",
+        "text": "You are crawling around under the bleachers hunting for the retainer you lost at practice. Up in the seats, something is coming down: thump, thump, thump, one row at a time. The scoreboard flickers on by itself and reads HOME 0, GUEST 1. Then Goldie the Gopher, the Little League mascot, drops down beside you with huge foam buck teeth and a megaphone it never says a word through.",
         "art": "The dark underside of high-school football bleachers at night, slats of light falling through, a giant foam gopher mascot with huge buck teeth and a megaphone crouched between the struts, a lit scoreboard glowing beyond",
         "choices": [
           {
@@ -2988,7 +2988,7 @@
       {
         "id": "deck-tech-arcade-cabinet",
         "title": "Insert Coin",
-        "place": "Starlight Arcade, after closing",
+        "place": "The Galaxy Zone arcade, after closing",
         "text": "In the back corner of the arcade, behind the pinball machines, is a cabinet that was not there this afternoon. No brand name, no art, just black glass and a coin slot. It powers on by itself. PLAYER 1: it types your name. The joystick moves, and your arm moves with it. The little pixel hero on screen is you.",
         "art": "A dark arcade after hours lit by a single black cabinet glowing with a pixelated version of a teenager on screen, the teenager's hand gripped on the joystick against their will, pinball machines in shadow",
         "choices": [
@@ -3654,7 +3654,7 @@
         "id": "deck-tech-say-and-spell",
         "title": "Spell It Out",
         "place": "Your bedroom, 3 a.m.",
-        "text": "The orange Say-and-Spell you got when you were eight switches itself on at the bottom of your toy box. Its flat robot voice cuts through the dark: SPELL... CLOSET. Then: SPELL... BEHIND. The keys light up one at a time, waiting. Across the room, a closet door you know you shut eases open an inch.",
+        "text": "The orange Spell-a-Tron you got when you were eight switches itself on at the bottom of your toy box. Its flat robot voice cuts through the dark: SPELL... CLOSET. Then: SPELL... BEHIND. The keys light up one at a time, waiting. Across the room, a closet door you know you shut eases open an inch.",
         "art": "A dark bedroom lit by the glowing display of an orange electronic spelling toy sitting in an open toy box, a closet door across the room open a sliver onto deeper darkness",
         "choices": [
           {
@@ -3890,7 +3890,7 @@
       {
         "id": "deck-camp-midnight-double-feature",
         "title": "Midnight at the Glitter Box",
-        "place": "The Glitter Box Playhouse, Saturday midnight double feature",
+        "place": "The Glitter Box Playhouse, a Halloween-week midnight double feature",
         "text": "The Glitter Box is packed for the midnight double feature: \"The Martian Bride of Dr. Glamour\" followed by a cheap slasher nobody stays for. The audience is in lab coats and fishnets, throwing toast and shouting every callback. When the whole house gets up for the big dance number, the Moon Hop, the screen ripples like water, and the front row starts sliding into it.",
         "art": "A glittering old movie palace at midnight packed with a costumed audience in lab coats and sequins dancing in the aisles, toast flying, the movie screen rippling like water as the front row slides into it",
         "choices": [
@@ -5166,7 +5166,7 @@
         "id": "deck-cult-news-special",
         "title": "Satan in the Suburbs?",
         "place": "The roundabout under a TV news crew's floodlights, midnight",
-        "text": "A Channel 8 news van is parked at the roundabout for a live special called SATAN IN THE SUBURBS?, and the anchorman's helmet of hair does not move in the wind. He spots you and swings the microphone over, smiling with too many teeth. \"Our viewers want to know: your Thursday-night dungeon game, is it a coven?\" The camera's red light glows, and every porch on the street is watching.",
+        "text": "A Channel 8 news van is parked at the roundabout for a live special called SATAN IN THE SUBURBS?, and the anchorman's helmet of hair does not move in the wind. He spots you and swings the microphone over, smiling with too many teeth. \"Our viewers want to know: your Friday-night dungeon game, is it a coven?\" The camera's red light glows, and every porch on the street is watching.",
         "art": "A local TV news van with a tall antenna parked by a suburban roundabout at night under harsh floodlights, a smiling anchorman with stiff sculpted hair thrusting a microphone toward a teenager, a camera with a glowing red light",
         "choices": [
           {
@@ -6345,7 +6345,7 @@
         "id": "deck-biohazard-instant-pets",
         "title": "Instant Pets",
         "place": "The youngest Pell kid's bedroom, two doors down, 12:45 a.m.",
-        "text": "The youngest Pell kid calls your house in tears. His mail-order Aqua-Buddies, the tiny brine shrimp from the back of a comic book, got a cup of creek water in their tank after the rain. Now there are three of them, each the size of a cocker spaniel, crammed in the fish tank with their long feathery legs, tapping on the glass in rhythm, wanting out.",
+        "text": "The youngest Pell kid calls your house in tears. His mail-order Brine Buddies, the tiny brine shrimp from the back of a comic book, got a cup of creek water in their tank after the rain. Now there are three of them, each the size of a cocker spaniel, crammed in the fish tank with their long feathery legs, tapping on the glass in rhythm, wanting out.",
         "art": "Three dog-sized pink brine shrimp with feathery legs crammed in a bubbling bedroom fish tank at night, tapping on the glass, a small boy in pajamas peeking out from behind a bunk bed",
         "choices": [
           {

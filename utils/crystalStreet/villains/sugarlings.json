@@ -533,8 +533,8 @@
         "id": "sugarlings-trick-or-treat",
         "act": 2,
         "title": "Trick or Treat? More!",
-        "place": "Mr. Fennimore's front porch, number 3 Crystal Street, after dark",
-        "text": "You are house-sitting for Mr. Fennimore at number 3, and the doorbell keeps ringing, even though Halloween is still days away. On the porch stands a crowd of tiny trick-or-treaters in perfect little costumes, a ghost, a pirate, a pumpkin, a miniature astronaut, all knee high, pillowcases held out. \"Trick or treat!\" they squeak, and then, all together and much softer, \"More?\" You drop one candy bar into the pirate's bag. The doorbell rings again. Now there are twice as many.",
+        "place": "Mr. Fennimore's front porch, Crystal Street, after dark",
+        "text": "You are house-sitting for Mr. Fennimore down the street, and the doorbell keeps ringing, even though Halloween is still days away. On the porch stands a crowd of tiny trick-or-treaters in perfect little costumes, a ghost, a pirate, a pumpkin, a miniature astronaut, all knee high, pillowcases held out. \"Trick or treat!\" they squeak, and then, all together and much softer, \"More?\" You drop one candy bar into the pirate's bag. The doorbell rings again. Now there are twice as many.",
         "art": "A glowing suburban front porch at night with a jack-o'-lantern, a crowd of knee-high fuzzy critters in tiny Halloween costumes holding out pillowcases, a ghost, a pirate, a pumpkin and an astronaut, a teenager in the doorway holding a candy bowl",
         "choices": [
           {

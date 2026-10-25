@@ -11,7 +11,7 @@
           <ul class="grid grid-cols-3 gap-2 @xl:grid-cols-6">
             <li v-for="s in SKILLS" :key="s" class="cs-card p-2 text-center">
               <span
-                class="block text-[11px] uppercase tracking-wider opacity-70"
+                class="block cs-label uppercase tracking-wider opacity-70"
                 >{{ SKILL_LABELS[s] }}</span
               >
               <strong class="cs-display text-2xl">{{ run.skills[s] }}</strong>

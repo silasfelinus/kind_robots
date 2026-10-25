@@ -239,7 +239,7 @@
                 "amount": 1
               },
               "success": {
-                "text": "The newest things belong to the Okonjo family, taken last Halloween: a divorce paper, a kid's broken trophy, a frying pan with a burned bottom. Every pile is somebody's normal bad day. At the bottom of all of them, under everything, Marjorie's trunk is full of the one thing she was never allowed to show: her own art.",
+                "text": "The newest things belong to the Brennan family, taken last Halloween: a divorce paper, a kid's broken trophy, a frying pan with a burned bottom. Every pile is somebody's normal bad day. At the bottom of all of them, under everything, Marjorie's trunk is full of the one thing she was never allowed to show: her own art.",
                 "art": "A teenager kneeling in junkyard clutter holding a child's broken trophy and an old frying pan, a trunk of paintings visible underneath, sunset light through crushed cars",
                 "effects": {
                   "clues": ["hungry-house-hidden-trunk"],
@@ -436,8 +436,8 @@
         "id": "hungry-house-chair-stack",
         "act": 1,
         "title": "Turn Your Back",
-        "place": "Mrs. Varga's kitchen, 10 Crystal Street, house-sitting at midnight",
-        "text": "You are house-sitting for Mrs. Varga at 10 Crystal Street while she visits her sister, and her kitchen is a glorious disaster: dishes in the sink, a cereal box on the stove, the cat's bowl upside down. You turn your back for one second to fill the cat's water. When you turn around, every kitchen chair is stacked on the table in a perfect, impossible tower, the dishes are gone, and the counter shines. Out the window, the porch light at 13 is blinking on and off, like it is winking at you.",
+        "place": "Mrs. Varga's kitchen, Crystal Street, house-sitting at midnight",
+        "text": "You are house-sitting for Mrs. Varga across the street while she visits her sister, and her kitchen is a glorious disaster: dishes in the sink, a cereal box on the stove, the cat's bowl upside down. You turn your back for one second to fill the cat's water. When you turn around, every kitchen chair is stacked on the table in a perfect, impossible tower, the dishes are gone, and the counter shines. Out the window, the porch light at 13 is blinking on and off, like it is winking at you.",
         "art": "A gleaming 1980s kitchen at midnight with every kitchen chair balanced in an impossible tower on the table, a startled teenager holding a cat's water bowl, a porch light glowing in a house across the street through the window",
         "choices": [
           {
@@ -500,7 +500,7 @@
             "skill": "charm",
             "target": 11,
             "success": {
-              "text": "You call her sister's number in Sacramento. Mrs. Varga answers, sleepy, and you tell her the house is lonely and the dishes miss her. She laughs, cries a little, and admits nobody has seen her kitchen since the divorce. \"Leave the dishes. I'll be home Sunday.\" Behind you, very softly, the chair tower topples over.",
+              "text": "You call her sister's number in Sacramento. Mrs. Varga answers, sleepy, and you tell her the house is lonely and the dishes miss her. She laughs, cries a little, and admits nobody has seen her kitchen since the divorce. \"Leave the dishes. I'll be home tomorrow.\" Behind you, very softly, the chair tower topples over.",
               "art": "A teenager on a kitchen wall phone with a long curly cord at midnight, smiling gently, a tower of chairs toppling over behind them, a cat curled on the windowsill",
               "effects": {
                 "nerve": 1,
@@ -1233,7 +1233,7 @@
       },
       "bittersweet": {
         "title": "One Frame Left",
-        "text": "You get out, and so does almost everyone. But when the police finally walk through 13, there is one photograph still hanging in the hallway: the family from number 9, smiling in matching sweaters. Their house goes up for sale in December. Sometimes, late at night, you are sure you hear them laughing politely from the end of the street.",
+        "text": "You get out, and so does almost everyone. But when the police finally walk through 13, there is one photograph still hanging in the hallway: the family from the end of the street, smiling in matching sweaters. Their house goes up for sale in December. Sometimes, late at night, you are sure you hear them laughing politely from the end of the street.",
         "art": "A single framed photograph of a smiling family in matching sweaters hanging in an empty pastel hallway, a police flashlight beam falling across it"
       },
       "bad": {

@@ -176,7 +176,7 @@
           "id": "big-gertie-clue-request-line",
           "title": "The Request Line",
           "place": "The overnight booth, KGLM 103.3",
-          "text": "At two in the morning the KGLM booth glows like a fish tank: reels turning, the ON AIR light burning red. Mix Bell slides a battered request log across the console. Every Friday since 1971 there's the same entry: Friday Night Lady. \"Stand By Me.\" For the kids at the high school. Tell them to eat their vegetables. The request line starts blinking. It's Friday.",
+          "text": "At two in the morning the KGLM booth glows like a fish tank: reels turning, the ON AIR light burning red. Mix Bell slides a battered request log across the console. Every Friday since 1971 there's the same entry: Friday Night Lady. \"Stand By Me.\" For the kids at the high school. Tell them to eat their vegetables. The request line starts blinking.",
           "art": "A late-night radio booth glowing with VU meters and spinning reel-to-reel tapes, a teen DJ sliding a worn logbook across the console, a blinking request-line phone in the foreground",
           "choices": [
             {
@@ -478,7 +478,7 @@
         "act": 2,
         "title": "The Car Won't Start",
         "place": "The faculty parking lot, Glimmer Falls High, 11 p.m.",
-        "text": "Joey's '71 Roadhawk has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
+        "text": "The '71 Roadhawk Joey borrowed off Rusty's lot has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
         "art": "A rusty muscle car stalled in a dark school parking lot, teenagers peering through a fogged rear window, a towering lunch lady in a hairnet stepping out of a floodlit loading dock holding a huge whirring potato masher",
         "choices": [
           {
@@ -830,7 +830,7 @@
         "act": 2,
         "title": "The Night Shift",
         "place": "Donut Dynasty on Route 9, 3 a.m.",
-        "text": "The only place open in Glimmer Falls at three in the morning is Donut Dynasty, and tonight something is wrong with the waitress. Marisol has poured coffee here for nineteen years, and right now she is going gray and see-through, like a snapshot left too long in a sunny window. The customers keep ordering from her without looking up, and every order fades her a little more, while a fresh hairnet waits on a hook by the kitchen door. It is happening all over town this week: the crossing guard, the night janitor at the bank, the bag boy at Thriftee-Mart. In the back booth, folded into a seat too small for her, Big Gertie sips black coffee and watches with tired, knowing eyes.",
+        "text": "The only place open in Glimmer Falls at three in the morning is Donut Dynasty, and tonight something is wrong with the waitress. Bernadette has poured coffee here for nineteen years, and right now she is going gray and see-through, like a snapshot left too long in a sunny window. The customers keep ordering from her without looking up, and every order fades her a little more, while a fresh hairnet waits on a hook by the kitchen door. It is happening all over town this week: the crossing guard, the night janitor at the bank, the bag boy at Thriftee-Mart. In the back booth, folded into a seat too small for her, Big Gertie sips black coffee and watches with tired, knowing eyes.",
         "art": "A neon-lit all-night donut shop on a highway at three in the morning, a waitress in a pink uniform fading gray and translucent as she pours coffee, customers hunched over plates, a towering lunch lady in a hairnet watching from a small back booth",
         "choices": [
           {
@@ -844,7 +844,7 @@
               "amount": 1
             },
             "success": {
-              "text": "\"Marisol,\" she says, surprised, and color floods back into her cheeks like someone turned up a dial. She tells you about her kids, her bad knee, the regular who tips in pennies. From the back booth comes the creak of vinyl: Big Gertie is leaning out to listen too. When you leave, there is a quarter under your saucer and a napkin printed in neat block capitals: SHE ALWAYS REMEMBERS HOW I TAKE IT.",
+              "text": "\"Bernadette,\" she says, surprised, and color floods back into her cheeks like someone turned up a dial. She tells you about her kids, her bad knee, the regular who tips in pennies. From the back booth comes the creak of vinyl: Big Gertie is leaning out to listen too. When you leave, there is a quarter under your saucer and a napkin printed in neat block capitals: SHE ALWAYS REMEMBERS HOW I TAKE IT.",
               "art": "A waitress in a pink uniform glowing back to full color behind a donut shop counter, smiling at a teenager on a stool, a tall lunch lady leaning out of a back booth to listen, neon light on the coffee pots",
               "effects": {
                 "nerve": 1,
@@ -868,7 +868,7 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "Mugs, plates, crumbs, ashtrays, sugar caddies: you move faster than you have ever moved in your life. When the last table gleams, the clock over the register jumps to six and the shift is over. Marisol unties her apron, solid and pink-cheeked and blinking, and the hairnet slides off its hook and dissolves into steam.",
+              "text": "Mugs, plates, crumbs, ashtrays, sugar caddies: you move faster than you have ever moved in your life. When the last table gleams, the clock over the register jumps to six and the shift is over. Bernadette unties her apron, solid and pink-cheeked and blinking, and the hairnet slides off its hook and dissolves into steam.",
               "art": "A teenager racing between booths in a neon donut shop carrying a gray bus tub piled with mugs, a wall clock over the register jumping to six, a smiling waitress untying her apron in relief",
               "effects": {
                 "nerve": 1,
@@ -893,7 +893,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "CRASH. Every head in Donut Dynasty snaps up, and for the first time all night they see her: Marisol, standing in the middle of the floor with a coffee pot, solid and furious. \"Who's going to sweep that up?\" she demands, and three customers jump to help. In the back booth, Big Gertie raises her cup to you, very slightly.",
+              "text": "CRASH. Every head in Donut Dynasty snaps up, and for the first time all night they see her: Bernadette, standing in the middle of the floor with a coffee pot, solid and furious. \"Who's going to sweep that up?\" she demands, and three customers jump to help. In the back booth, Big Gertie raises her cup to you, very slightly.",
               "art": "Shattered coffee mugs on a checkered donut shop floor, every customer turning to stare at a waitress standing tall with a coffee pot, a tall lunch lady in a back booth raising her cup",
               "effects": {
                 "nerve": 1,
@@ -901,7 +901,7 @@
               }
             },
             "failure": {
-              "text": "Crash, and every head snaps up and stares straight at you. Not one of them looks at Marisol. The manager hands you a broom, and you spend the rest of the night sweeping up mugs that keep breaking themselves all over again.",
+              "text": "Crash, and every head snaps up and stares straight at you. Not one of them looks at Bernadette. The manager hands you a broom, and you spend the rest of the night sweeping up mugs that keep breaking themselves all over again.",
               "art": "A teenager sweeping shattered coffee mugs across a checkered donut shop floor under buzzing neon, customers staring at them, broken mugs magically reassembling and toppling on the counter",
               "effects": {
                 "nerve": -1,

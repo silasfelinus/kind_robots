@@ -5,7 +5,7 @@
     "pronouns": "she/her",
     "age": 16,
     "role": "Skate punk and mall-security nemesis",
-    "bio": "Dani Ortega has been banned from Starlight Mall four times and has come back five. She skates the drained fountain in the dead wing, knows every service corridor and loose ceiling tile, and can rebuild a cracked deck with nothing but duct tape and spite. She is loud, fearless and very funny, especially when she is scared, which she will never admit. She has a hopeless crush on the girl who works the Corn Dog Corral counter and has been 'about to talk to her' since August. Her flaw is that she would rather eat concrete than ask for help, and she picks fights with things twice her size because somebody has to.",
+    "bio": "Dani Ortega has been banned from Starlight Mall four times and has come back five. She skates the drained fountain in the dead wing, knows every service corridor and loose ceiling tile, and can rebuild a cracked deck with nothing but duct tape and spite. She is loud, fearless and very funny, especially when she is scared, which she will never admit. She has a hopeless crush on the girl who works the Corn Dog Castle counter and has been 'about to talk to her' since August. Her flaw is that she would rather eat concrete than ask for help, and she picks fights with things twice her size because somebody has to.",
     "location": "starlight-mall",
     "skills": ["brawn", "hustle"],
     "perk": {
@@ -123,7 +123,7 @@
         "id": "dani-ortega-arc-1",
         "title": "Rehearsal",
         "place": "The dry fountain in the dead wing, Starlight Mall, noon",
-        "text": "Dani is skating slow circles in the drained fountain, talking to a cardboard corn-dog mascot she rescued from a dumpster. \"Hi. Hey. Hi. I'm Dani, I skate, you fry things, we should...\" She sees you and nearly eats concrete. \"You heard none of that.\" The food-court costume contest is Friday, and she has been about to ask Marisol from the Corn Dog Corral to go with her since August.",
+        "text": "Dani is skating slow circles in the drained fountain, talking to a cardboard corn-dog mascot she rescued from a dumpster. \"Hi. Hey. Hi. I'm Dani, I skate, you fry things, we should...\" She sees you and nearly eats concrete. \"You heard none of that.\" The food-court costume contest is Friday, and she has been about to ask Marisol from the Corn Dog Castle to go with her since August.",
         "art": "A teenage skate punk girl with a hot-pink undercut and a duct-taped board, skating circles in a dry mall fountain while rehearsing a speech to a battered cardboard corn-dog mascot propped on the fountain lip",
         "choices": [
           {
@@ -133,7 +133,7 @@
             "skill": "charm",
             "target": 7,
             "success": {
-              "text": "\"Welcome to Corn Dog Corral, can I take your order?\" Dani gets through the whole invitation without falling off the fountain once. She punches the air. \"I can talk to a corn dog. That's PROGRESS.\"",
+              "text": "\"Welcome to Corn Dog Castle, can I take your order?\" Dani gets through the whole invitation without falling off the fountain once. She punches the air. \"I can talk to a corn dog. That's PROGRESS.\"",
               "art": "A teenager in a folded paper food-counter hat playing the cashier while a skate punk girl delivers a nervous speech, both standing in a dry mall fountain, the girl punching the air",
               "effects": {
                 "nerve": 1
@@ -266,7 +266,7 @@
       {
         "id": "dani-ortega-arc-3",
         "title": "The Ask",
-        "place": "The Corn Dog Corral, Starlight Mall food court, 4 p.m.",
+        "place": "The Corn Dog Castle, Starlight Mall food court, 4 p.m.",
         "text": "Dani is in her best flannel, her undercut freshly buzzed, the patched board under her arm. Marisol is wiping down the counter beneath a giant fiberglass corn dog in a cowboy hat. Dani looks at you, deadly serious. \"If I bail, you push me. If I eat it, you tape me back together. Deal?\" Then she takes a breath and rolls forward.",
         "art": "A skate punk girl in her best flannel holding a patched skateboard at the edge of a neon mall food court, a fiberglass corn dog in a cowboy hat above a counter where a teen cashier is wiping up",
         "choices": [
@@ -405,7 +405,7 @@
           "skill": "lore",
           "target": 9,
           "success": {
-            "text": "\"'Moon Over Crystal Springs,'\" you say. \"The slow dance from the old prom records.\" Mix stares, then dives into the archive and comes up with a dusty 1966 single. \"Nobody knows that record. NOBODY.\" He presses a mixtape into your hands. \"You're on my crew now.\"",
+            "text": "\"'Hold Me Till the Morning,'\" you say. \"The slow dance from the old prom records.\" Mix stares, then dives into the archive and comes up with a dusty 1966 single. \"Nobody knows that record. NOBODY.\" He presses a mixtape into your hands. \"You're on my crew now.\"",
             "art": "A teenage DJ holding up a dusty vintage 45 record in triumph inside a radio archive, a teenager beside him holding a cassette mixtape",
             "effects": {
               "items": ["mixtape"],
@@ -851,7 +851,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "\"'Moon Over Crystal Springs.'\" She hums two bars before she catches herself, cheeks pink. She has never been able to listen to it since. You mention that a DJ at KGLM found the 1966 single, and she goes very still. \"Does he,\" she says. \"Does he really.\"",
+              "text": "\"'Hold Me Till the Morning.'\" She hums two bars before she catches herself, cheeks pink. She has never been able to listen to it since. You mention that a DJ at KGLM found the 1966 single, and she goes very still. \"Does he,\" she says. \"Does he really.\"",
               "art": "A librarian in a cardigan humming with her eyes closed behind a lamp-lit desk, one hand over the silver ring, a teenager smiling across from her",
               "effects": {
                 "nerve": 1
@@ -1441,12 +1441,12 @@
       "id": "meet-glory-hallelujah",
       "title": "The Closing Number",
       "place": "Backstage, the Glitter Box Playhouse",
-      "text": "Backstage at the Glitter Box smells of hairspray, mothballs and fresh coffee. A towering queen in a half-zipped magenta gown is pacing between racks of costumes. \"Bunny dropped out. Nightmares, she says, every night, somebody trying to cut her hair.\" She whirls on you, takes you in from shoes to scalp, and her eyes stop on a single gray streak in your hair you didn't have last week. Her face changes. \"Well,\" Glory says softly. \"Sit down, sugar.\"",
+      "text": "Backstage at the Glitter Box smells of hairspray, mothballs and fresh coffee. A towering queen in a half-zipped magenta gown is pacing between racks of costumes. \"Trixie dropped out. Nightmares, she says, every night, somebody trying to cut her hair.\" She whirls on you, takes you in from shoes to scalp, and her eyes stop on a single gray streak in your hair you didn't have last week. Her face changes. \"Well,\" Glory says softly. \"Sit down, sugar.\"",
       "art": "A towering drag queen in a magenta sequin gown pacing backstage among costume racks and lighted mirrors, a teenager standing by the stage door, a single gray streak in the teenager's hair",
       "choices": [
         {
           "id": "learn-the-number",
-          "label": "Learn Bunny's closing number in one afternoon",
+          "label": "Learn Trixie's closing number in one afternoon",
           "intent": "camp",
           "skill": "charm",
           "target": 9,
@@ -1954,7 +1954,7 @@
               }
             },
             "failure": {
-              "text": "Every exchange is closed on weekends. When Frankie wakes, she finds you asleep on the phone with the receiver on your chest, and covers you with a costume cape. She is laughing when you open your eyes. \"Look at us. Two of a kind.\"",
+              "text": "Every exchange puts you on hold until closing. When Frankie wakes, she finds you asleep on the phone with the receiver on your chest, and covers you with a costume cape. She is laughing when you open your eyes. \"Look at us. Two of a kind.\"",
               "art": "A young woman draping a glittery costume cape over a teenager asleep in a chair with a telephone receiver on their chest, smiling tiredly in a cluttered theater office",
               "effects": {
                 "nerve": -1
@@ -3399,7 +3399,7 @@
     "pronouns": "he/him",
     "age": 15,
     "role": "Arcade champion",
-    "bio": "Lou Tran holds the high score on every cabinet at Starlight Arcade except one, and that one is killing him. His parents run the Saigon Noodle stand in the food court, and between homework and refills he has turned their dinner rush into a training regimen; he can catch a falling chopstick without looking. He keeps a coin belt of quarters for every emergency and a coffee can at home where he is saving to buy his mom a dishwasher. Lou is cocky, hilarious and an absolute menace at trash talk. His flaw is that he hates losing more than he loves winning, can't sit still for more than a minute, and hides how much he worries his family is working too hard for him.",
+    "bio": "Lou Tran holds the high score on every cabinet at the Galaxy Zone arcade except one, and that one is killing him. His parents run the Saigon Noodle stand in the food court, and between homework and refills he has turned their dinner rush into a training regimen; he can catch a falling chopstick without looking. He keeps a coin belt of quarters for every emergency and a coffee can at home where he is saving to buy his mom a dishwasher. Lou is cocky, hilarious and an absolute menace at trash talk. His flaw is that he hates losing more than he loves winning, can't sit still for more than a minute, and hides how much he worries his family is working too hard for him.",
     "location": "starlight-mall",
     "skills": ["hustle", "nerve"],
     "perk": {
@@ -3441,8 +3441,8 @@
     "meet": {
       "id": "meet-lou-tran",
       "title": "Nightmare Lane",
-      "place": "Starlight Arcade, Starlight Mall",
-      "text": "In the back of Starlight Arcade there is a cabinet nobody remembers being delivered. It's called NIGHTMARE LANE, the art on the side is a suburban street at night, and the top score has belonged to the same initials since it arrived: FKR. A kid with a lightning bolt shaved into his hair is pounding the buttons, loses, and kicks the coin door. \"Every machine in this place says LOU at the top,\" he says. \"Except this one. You any good?\"",
+      "place": "The Galaxy Zone arcade, Starlight Mall",
+      "text": "In the back of the Galaxy Zone arcade there is a cabinet nobody remembers being delivered. It's called NIGHTMARE LANE, the art on the side is a suburban street at night, and the top score has belonged to the same initials since it arrived: FKR. A kid with a lightning bolt shaved into his hair is pounding the buttons, loses, and kicks the coin door. \"Every machine in this place says LOU at the top,\" he says. \"Except this one. You any good?\"",
       "art": "A shadowy arcade cabinet in the back of a neon arcade, side art of a suburban street at night, a high score screen with three mysterious initials, a boy with a lightning bolt haircut glaring at it",
       "choices": [
         {
@@ -3518,7 +3518,7 @@
         "id": "lou-tran-arc-1",
         "title": "The Coffee Can",
         "place": "The Saigon Noodle stand, Starlight Mall food court, 5 p.m.",
-        "text": "Lou dumps a coffee can of quarters onto a food court table and counts them with the speed of a bank machine. \"A hundred and eighty-four dollars and fifty cents. The dishwasher at Sears is three forty-nine.\" Behind the counter his mom is up to her elbows in a sink of noodle bowls. Taped to the arcade entrance across the court is a flyer: STARLIGHT MONSTER MASH HIGH SCORE TOURNAMENT, FRIDAY 4 P.M., GRAND PRIZE $200. \"Two hundred,\" Lou says. \"Do you know what I could do with two hundred?\" He's already doing the math with his fingers.",
+        "text": "Lou dumps a coffee can of quarters onto a food court table and counts them with the speed of a bank machine. \"A hundred and eighty-four dollars and fifty cents. The dishwasher at the appliance store on Main is three forty-nine.\" Behind the counter his mom is up to her elbows in a sink of noodle bowls. Taped to the arcade entrance across the court is a flyer: STARLIGHT MONSTER MASH HIGH SCORE TOURNAMENT, FRIDAY 4 P.M., GRAND PRIZE $200. \"Two hundred,\" Lou says. \"Do you know what I could do with two hundred?\" He's already doing the math with his fingers.",
         "art": "A wiry teenage boy with a lightning bolt shaved into his hair counting a pile of quarters at a food court table, a woman washing a sink full of bowls behind a noodle stand counter, a tournament flyer taped to a neon arcade entrance across the mall",
         "choices": [
           {
@@ -3665,8 +3665,8 @@
       {
         "id": "lou-tran-arc-3",
         "title": "Final Round",
-        "place": "Starlight Arcade, Friday at 4 p.m.",
-        "text": "The final is Lou against Gwen Abernathy, age ten, on the Starlight's big racing cabinet. There is a crowd. There is a banner. And at the front of the crowd, in her apron, on her break, with Mr. Tran leaning on a cane beside her, is Mrs. Tran, who has never once come into the arcade. Lou sees them and his hands freeze on the wheel. \"They've never watched me play,\" he whispers to you. \"What if I lose in front of them?\" The countdown starts. Three. Two.",
+        "place": "The Galaxy Zone arcade, Friday at 4 p.m.",
+        "text": "The final is Lou against Gwen Abernathy, age ten, on the Galaxy Zone's big racing cabinet. There is a crowd. There is a banner. And at the front of the crowd, in her apron, on her break, with Mr. Tran leaning on a cane beside her, is Mrs. Tran, who has never once come into the arcade. Lou sees them and his hands freeze on the wheel. \"They've never watched me play,\" he whispers to you. \"What if I lose in front of them?\" The countdown starts. Three. Two.",
         "art": "A crowded neon arcade with a big racing cabinet, a wiry boy with a lightning bolt haircut and a small ten-year-old girl in a ponytail side by side at the wheels, a woman in an apron and a man with a cane watching at the front of the crowd, a teenager beside the boy",
         "choices": [
           {
@@ -4155,7 +4155,7 @@
           "skill": "charm",
           "target": 7,
           "success": {
-            "text": "She tells you: they do the tape at midnight, every midnight, and the woman on the screen counts them down and won't let them stop. \"Mrs. Delgado's seventy. She cried in the parking lot.\" Sunny cracks her knuckles. \"I'm not losing my people to a tape. You in?\"",
+            "text": "She tells you: they do the tape at midnight, every midnight, and the woman on the screen counts them down and won't let them stop. \"Mrs. Esposito's seventy. She cried in the parking lot.\" Sunny cracks her knuckles. \"I'm not losing my people to a tape. You in?\"",
             "art": "A woman in a racing wheelchair holding up a lurid aerobics videotape, her face serious, a teenager listening in a mirrored studio",
             "effects": {
               "flags": ["recruit:sunny-castellanos", "sunny-vonda-tape"]
@@ -5289,12 +5289,12 @@
         "id": "kev-park-arc-2",
         "title": "Off the Record",
         "place": "The bus bench at the end of Crystal Street, late afternoon",
-        "text": "Kev skids up on his BMX, pale and talking at top speed. Collecting at number 3, he saw Mr. Gaines's kitchen table: a library literacy-program workbook, a brand-new library card, and Mr. Gaines's big, careful handwriting copying out the alphabet. Mr. Gaines, who coached Little League for twenty years, is learning to read. \"It's the biggest story on the route,\" Kev says. \"It's an amazing story. It'd win.\" He already has a headline. He also looks like he might throw up.",
+        "text": "Kev skids up on his BMX, pale and talking at top speed. Collecting at the Gaines house, he saw Mr. Gaines's kitchen table: a library literacy-program workbook, a brand-new library card, and Mr. Gaines's big, careful handwriting copying out the alphabet. Mr. Gaines, who coached Little League for twenty years, is learning to read. \"It's the biggest story on the route,\" Kev says. \"It's an amazing story. It'd win.\" He already has a headline. He also looks like he might throw up.",
         "art": "a skinny boy with a black bowl cut under a backwards red cap and a canvas newspaper sack skidding his red BMX to a stop beside a bus bench at the end of a cul-de-sac, a teenager sitting there, late afternoon shadows long",
         "choices": [
           {
             "id": "ask-mr-gaines",
-            "label": "Walk with him to number 3 and ask Mr. Gaines what he wants",
+            "label": "Walk with him to the Gaines house and ask Mr. Gaines what he wants",
             "intent": "kind",
             "skill": "charm",
             "target": 9,
@@ -5797,7 +5797,7 @@
     "pronouns": "she/her",
     "age": 45,
     "role": "Softball coach and last line of defense",
-    "bio": "Tammy Jo Pruitt pitched fast-pitch softball for a Tulsa barnstorming team in the sixties, struck out a minor-league home-run king at a county fair, and has coached the Glimmer Falls High Lady Lynx to four league titles. She is six feet tall, built like a refrigerator, and has never lost a fight with a parent, a referee or a monster. Her office door is always open after school, and every kid in town knows it is the safe room: no questions, cold orange slices, a couch. She is loud, blunt, warm under all the gravel and a terrible cook who insists on bringing casseroles anyway. Her flaw is that she would rather run through a wall than talk about a feeling, and she takes every kid's trouble home with her at night.",
+    "bio": "Tammy Jo Pruitt pitched fast-pitch softball for a Tulsa barnstorming team in the sixties, struck out a minor-league home-run king at a county fair, and has coached the Glimmer Falls High Lady Prospectors to four league titles. She is six feet tall, built like a refrigerator, and has never lost a fight with a parent, a referee or a monster. Her office door is always open after school, and every kid in town knows it is the safe room: no questions, cold orange slices, a couch. She is loud, blunt, warm under all the gravel and a terrible cook who insists on bringing casseroles anyway. Her flaw is that she would rather run through a wall than talk about a feeling, and she takes every kid's trouble home with her at night.",
     "location": "high-school",
     "skills": ["brawn", "nerve"],
     "perk": {
@@ -6191,7 +6191,7 @@
       "id": "meet-amir-haddad",
       "title": "The Crystal Possum",
       "place": "The Haddad Animal Clinic, a garage on Crystal Street",
-      "text": "The garage door at number 9 is rolled up, and inside, under a hanging shop light, a man in a lab coat is bent over a wire cage. In it is a possum, and sprouting from its fur along its spine are tiny purple crystals, glittering like rock candy. \"Found her under the roundabout this morning,\" Dr. Haddad says. \"Third one this month. She's frightened, and she's very sick, and I don't have enough hands.\" A calico cat on his shoulder stares at you, unimpressed.",
+      "text": "Dr. Haddad's garage door is rolled up, and inside, under a hanging shop light, a man in a lab coat is bent over a wire cage. In it is a possum, and sprouting from its fur along its spine are tiny purple crystals, glittering like rock candy. \"Found her under the roundabout this morning,\" Dr. Haddad says. \"Third one this month. She's frightened, and she's very sick, and I don't have enough hands.\" A calico cat on his shoulder stares at you, unimpressed.",
       "art": "A converted garage clinic under a hanging shop light, a veterinarian in a lab coat bent over a wire cage holding a possum with small purple crystals growing from its fur, a calico cat on his shoulder",
       "choices": [
         {
@@ -6266,7 +6266,7 @@
         "id": "amir-haddad-arc-1",
         "title": "Notice of Violation",
         "place": "The Haddad Animal Clinic garage, 5 p.m.",
-        "text": "A pink notice is taped to the garage door at number 9: COMMERCIAL USE OF A RESIDENTIAL GARAGE. HEARING THURSDAY. By order of the Crystal Street Homeowners' Association. Dr. Haddad is pretending it isn't there. He's stirring a pot of lentil soup big enough to bathe in and telling the two-headed garter snake about his day. \"It's a misunderstanding,\" he says. \"I'll close for a while. Nobody needs a fuss.\" Behind him, a wall of cages watches you, every patient in them with nowhere else to go.",
+        "text": "A pink notice is taped to Dr. Haddad's garage door: COMMERCIAL USE OF A RESIDENTIAL GARAGE. HEARING THURSDAY. By order of the Crystal Street Homeowners' Association. Dr. Haddad is pretending it isn't there. He's stirring a pot of lentil soup big enough to bathe in and telling the two-headed garter snake about his day. \"It's a misunderstanding,\" he says. \"I'll close for a while. Nobody needs a fuss.\" Behind him, a wall of cages watches you, every patient in them with nowhere else to go.",
         "art": "A gentle veterinarian in a lab coat and glasses stirring a huge pot of soup on a hot plate in a garage clinic, a bright pink official notice taped to the open garage door behind him, cages of odd animals including a two-headed snake and a faintly glowing cat",
         "choices": [
           {
@@ -6714,7 +6714,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "Missy Albright, it turns out, is in the band room hiding from her own mother. \"I'd rather go with Denise from flute section,\" she blurts, then turns crimson. You promise her secret is safe and say nothing about anybody else's. When you tell Chip that Missy wants out of the date as badly as he does, he laughs so hard he cries. \"A conspiracy. Oh, thank goodness.\"",
+              "text": "Missy Albright, it turns out, is in the band room hiding from her own mother. \"I'd rather go with Yvonne from flute section,\" she blurts, then turns crimson. You promise her secret is safe and say nothing about anybody else's. When you tell Chip that Missy wants out of the date as badly as he does, he laughs so hard he cries. \"A conspiracy. Oh, thank goodness.\"",
               "art": "A blushing teen girl clutching a clarinet case in a cluttered high school band room, a teenager crouched beside a music stand listening kindly, rows of folding chairs and a tuba in the background",
               "effects": {
                 "nerve": 1
@@ -6987,7 +6987,7 @@
             "skill": "charm",
             "target": 7,
             "success": {
-              "text": "Joey turns the letter over. \"She drove it thirty years. Hauled water, hauled feed for the sheep, hauled me to school when the bus got stuck in the mud.\" He almost smiles. \"When we moved, she gave me the keys and said, bring it home running.\" He folds the letter into his shirt pocket, over his heart, without seeming to notice.",
+              "text": "Joey turns the letter over. \"She drove it eighteen years. Hauled water, hauled feed for the sheep, hauled me to school when the bus got stuck in the mud.\" He almost smiles. \"When we moved, she gave me the keys and said, bring it home running.\" He folds the letter into his shirt pocket, over his heart, without seeming to notice.",
               "art": "A teen mechanic sitting on a pickup tailgate folding a penciled letter into his shirt pocket with a faint smile, a teenager beside him, a faded snapshot of a grandmother beside the same truck taped to the dashboard",
               "effects": {
                 "dread": -1

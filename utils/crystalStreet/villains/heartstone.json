@@ -15,7 +15,7 @@
     "palette": ["#8a2be2", "#1b1630", "#e8a33d"],
     "sigil": "lamp",
     "logline": "The purple rock on the Crystal Street roundabout has been drinking the town's tears for thirty-four years. This Halloween week, it wants the rest.",
-    "backstory": "On the night of March 3, 1952, the east wall of the Crystal Springs quarry gave way and buried fourteen quarrymen in the lower gallery. Their families kept vigil at the rim for three nights, singing hymns so the men below would know someone was waiting. On the fourth morning, quarry owner Harlan Gage declared the gallery unreachable, let the pit flood, and told the town over KGLM that Glimmer Falls \"does not look back.\" The council cancelled the funeral at St. Jude's. The memorial stone the widows paid for was never carved. The brass tally tags the men left on the lamp-house board were hauled off with the scrap. In 1958 Gage drained the lake to build Crystal Street, and his bulldozers turned up a car-sized geode at the exact spot where the men had been working. He set it on the roundabout lawn and put a plaque on it: NATURE'S JEWEL. For thirty-four years every feeling the town swallowed has gone into that stone, and it has grown violet and heavy and full. This Halloween week it is finally hungry enough to wake. It hums, it cracks the asphalt, and it has started drinking feelings straight out of sleeping people, leaving them glassy, quiet, and slowly turning to crystal.",
+    "backstory": "On the night of March 3, 1952, the east wall of the Crystal Springs quarry gave way and buried fourteen quarrymen in the lower gallery. Their families kept vigil at the rim for three nights, singing hymns so the men below would know someone was waiting. On the fourth morning, quarry owner Harlan Gage declared the gallery unreachable, let the pit flood, and told the town over KGLM that Glimmer Falls \"does not look back.\" The council cancelled the funeral at St. Jude's. The memorial stone the widows paid for was never carved. The brass tally tags the men left on the lamp-house board were hauled off with the scrap. In 1958 Gage drained the lake and sold the lakebed to Larkspur Homes for Crystal Street, and his bulldozers turned up a car-sized geode at the exact spot where the men had been working. He set it on the roundabout lawn and put a plaque on it: NATURE'S JEWEL. For thirty-four years every feeling the town swallowed has gone into that stone, and it has grown violet and heavy and full. This Halloween week it is finally hungry enough to wake. It hums, it cracks the asphalt, and it has started drinking feelings straight out of sleeping people, leaving them glassy, quiet, and slowly turning to crystal.",
     "centralIssue": {
       "title": "A town that never mourned",
       "summary": "Fourteen quarrymen died in 1952 and Glimmer Falls was told to look forward: no funeral, no names, no place to grieve. The Heartstone is that swallowed sorrow, grown hungry. It cannot be smashed away. The town has to finally say the names out loud and mourn together."
@@ -77,7 +77,7 @@
               "skill": "nerve",
               "target": 9,
               "success": {
-                "text": "At dusk an old man in a faded quarry company jacket shuffles up with three carnations. Gus Ferraro, eighty-one. \"My brother Sal is under Crystal Street,\" he says, not even surprised to see you. \"The widows bought this stone with egg money. The council wouldn't let us carve one name. Said it would scare off the new families.\"",
+                "text": "At dusk an old man in a faded quarry company jacket shuffles up with three carnations. Enzo Ferraro, eighty-one. \"My brother Sal is under Crystal Street,\" he says, not even surprised to see you. \"The widows bought this stone with egg money. The council wouldn't let us carve one name. Said it would scare off the new families.\"",
                 "art": "An elderly man in a faded work jacket kneeling to lay carnations at a blank granite slab at dusk, a teenager stepping out from behind a hedge",
                 "effects": {
                   "clues": ["heartstone-blank-slab"],
@@ -334,7 +334,7 @@
         "id": "heartstone-under-the-lawn",
         "act": 2,
         "title": "Under the Lawn",
-        "place": "Front yard of 4 Crystal Street, after midnight",
+        "place": "The Dobbses' front yard, Crystal Street, after midnight",
         "text": "With a sound like a dropped tray of dishes, the Dobbses' front lawn caves in. The hole goes down and down into black water, and far below, fourteen small amber lights are moving in a slow line, the way men walk at the end of a long shift. Something down there is calling your name in a voice like rock grinding on rock.",
         "art": "A sinkhole torn open in a suburban front lawn at night, black water far below with fourteen small amber lamps moving in a line, a teenager on hands and knees at the edge peering down",
         "choices": [
@@ -495,7 +495,7 @@
         "act": 2,
         "title": "Nobody Believes Teenagers",
         "place": "The front desk of the Glimmer Falls police station, 12:30 a.m.",
-        "text": "You burst into the police station to report that the rock on the Crystal Street roundabout is humming, cracking the asphalt and making people cry. Sergeant Lyle Haas does not look up from his crossword. \"Kid, that rock's been sitting there since 1958.\" Behind him the water cooler glugs one slow violet bubble, and the fluorescent lights hum the same low note you heard on the roundabout. Every drive-in monster movie you have ever seen says nobody is going to listen to the next line, and the next line is yours.",
+        "text": "You burst into the police station to report that the rock on the Crystal Street roundabout is humming, cracking the asphalt and making people cry. Sergeant Dwight Haas does not look up from his crossword. \"Kid, that rock's been sitting there since 1958.\" Behind him the water cooler glugs one slow violet bubble, and the fluorescent lights hum the same low note you heard on the roundabout. Every drive-in monster movie you have ever seen says nobody is going to listen to the next line, and the next line is yours.",
         "art": "A small-town police station front desk at night, a frantic teenager leaning over the counter, a bored mustached sergeant doing a crossword, a water cooler behind him glowing with a violet bubble, fluorescent lights humming overhead",
         "choices": [
           {
@@ -1212,7 +1212,7 @@
     "endings": {
       "best": {
         "title": "Shall We Gather",
-        "text": "On November 2, 1986, Glimmer Falls holds the funeral it skipped in 1952. Father Iggy says the requiem at St. Jude's, thirty-four years late. Gus Ferraro carves the first name into the blank slab at Pinecrest himself, and a stonemason finishes the other thirteen. The Ibarra family builds an ofrenda on the roundabout with marigolds and a quarryman's lamp, and the whole street brings photographs, pan dulce, casseroles and stories. Pearl leads the hymn. The Heartstone is just a pretty purple rock now, warm to the touch. People sit beside it when they need to cry, and nobody tells them to stop.",
+        "text": "On November 2, 1986, Glimmer Falls holds the funeral it skipped in 1952. Father Iggy says the requiem at St. Jude's, thirty-four years late. Enzo Ferraro carves the first name into the blank slab at Pinecrest himself, and a stonemason finishes the other thirteen. The Ibarra family builds an ofrenda on the roundabout with marigolds and a quarryman's lamp, and the whole street brings photographs, pan dulce, casseroles and stories. Pearl leads the hymn. The Heartstone is just a pretty purple rock now, warm to the touch. People sit beside it when they need to cry, and nobody tells them to stop.",
         "art": "A candlelit memorial on a suburban roundabout at dusk, a marigold ofrenda with old photographs and a quarryman's lamp beside a softly glowing purple geode, neighbors of all ages holding candles and each other, a newly carved granite slab with fourteen names"
       },
       "good": {

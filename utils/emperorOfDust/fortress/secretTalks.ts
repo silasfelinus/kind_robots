@@ -273,6 +273,40 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     ],
   },
   {
+    id: 'sera-exile',
+    follower: 'F023',
+    title: 'The Bell That Followed',
+    fromDay: 45,
+    requires: { flags: ['komodo-betrayal', 'heard:sera-1'] },
+    lines: [
+      'Sera has carried a hand bell out of Hollow Bell wrapped in a wet blanket. In the hideout its note is thin and carries farther than it should.',
+      'The wounded sleep better when it rings the hours. Scouts say the tower garrison can hear it from the ridge, and have started to answer it.',
+      '“A bell that tells the hours also tells them where we are,” Sera says. “I can muffle it, or I can ring it and let them count.”',
+    ],
+    options: [
+      {
+        id: 'muffle',
+        label: 'Wrap the clapper in wool. The hideout keeps its silence.',
+        effects: {
+          local: { 'gate-watch': 2, lamplight: -1 },
+          flags: ['sera-bell-muffled'],
+        },
+        response:
+          'The scouts sleep through no raid that night. The wounded ask twice for the hours, and Sera counts them aloud, quietly, by hand.',
+      },
+      {
+        id: 'ring-on',
+        label: 'Ring the hours. Let the people under the tower hear it.',
+        effects: {
+          local: { lamplight: 2, 'gate-watch': -1 },
+          flags: ['sera-bell-rung-on'],
+        },
+        response:
+          'Three nights later a lamp appears in a shuttered window under the tower, then another. Nobody on the ridge says what the lamps mean.',
+      },
+    ],
+  },
+  {
     id: 'tarn-1',
     follower: 'F024',
     title: 'The Wrong Map',

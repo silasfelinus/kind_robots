@@ -16,7 +16,7 @@
       :brief="artAlt"
     >
       <div
-        class="absolute left-2 top-2 flex flex-wrap gap-1 text-[10px] font-bold uppercase tracking-widest"
+        class="absolute left-2 top-2 flex flex-wrap gap-1 cs-micro font-bold uppercase tracking-widest"
       >
         <span class="cs-tag">{{ kindLabel }}</span>
         <span v-if="ward" class="cs-tag cs-tag-ward">Ward: {{ ward }}</span>
@@ -62,7 +62,7 @@
                   choice.label
                 }}</span>
                 <span
-                  class="mt-1 flex flex-wrap items-center gap-1 text-[11px] uppercase tracking-wider opacity-85"
+                  class="mt-1 flex flex-wrap items-center gap-1 cs-label uppercase tracking-wider opacity-85"
                 >
                   <span class="cs-pill">{{ SKILL_LABELS[choice.skill] }}</span>
                   <span class="cs-pill">{{ difficulty(choice.target) }}</span>
@@ -96,7 +96,7 @@
             {{ Math.abs(pending.roll.modifier) }} = {{ pending.roll.total }} vs
             {{ pending.roll.target }}
           </p>
-          <p class="text-[11px] uppercase tracking-wider opacity-70">
+          <p class="cs-label uppercase tracking-wider opacity-70">
             {{ chosen?.label }} · {{ pending.roll.breakdown.join(' · ') }}
           </p>
           <p class="text-sm leading-relaxed sm:text-base">{{ outcome.text }}</p>

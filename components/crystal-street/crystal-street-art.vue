@@ -13,6 +13,8 @@
       :key="src"
       :src="src"
       :alt="alt"
+      loading="lazy"
+      decoding="async"
       class="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
       :class="[
         loaded ? 'opacity-100' : 'opacity-0',

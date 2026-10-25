@@ -237,4 +237,6 @@ export type Archetype = {
   /** The clique's home style; a look that shares it is typecast. */
   style: Style
   skills: Record<Skill, number>
+  /** Group-shot brief for the clique card (conductor art/CLIQUES-1.yaml). */
+  art: string
 }

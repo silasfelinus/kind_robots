@@ -199,25 +199,37 @@
                 v-for="a in ARCHETYPES"
                 :key="a.id"
                 type="button"
-                class="cs-choice text-left"
+                class="cs-choice flex items-start gap-3 text-left"
                 :class="archetype === a.id ? 'ring-2 ring-primary' : ''"
                 :aria-pressed="archetype === a.id"
                 @click="archetype = a.id"
               >
-                <span class="block font-semibold">{{ a.name }}</span>
-                <span class="block text-xs leading-snug opacity-75">{{
-                  a.text
-                }}</span>
-                <span
-                  class="mt-1 flex flex-wrap items-center gap-1 text-[10px] uppercase tracking-wider"
-                >
-                  <span class="opacity-70">{{ topSkills(a.skills) }}</span>
-                  <span class="opacity-70">· {{ STYLE_LABELS[a.style] }}</span>
+                <crystal-street-art
+                  class="shrink-0 rounded-xl"
+                  frame="h-20 w-20 @lg:h-24 @lg:w-24"
+                  kind="day"
+                  :seed="`clique:${a.id}`"
+                  :src="`/crystal-street/cliques/${a.id}.webp`"
+                  :alt="a.art"
+                />
+                <span class="min-w-0">
+                  <span class="block font-semibold">{{ a.name }}</span>
+                  <span class="block text-xs leading-snug opacity-75">{{
+                    a.text
+                  }}</span>
                   <span
-                    v-if="a.style === chosenAvatar.style"
-                    class="rounded-full bg-accent px-1.5 font-black text-accent-content"
-                    >Typecast</span
+                    class="mt-1 flex flex-wrap items-center gap-1 text-[10px] uppercase tracking-wider"
                   >
+                    <span class="opacity-70">{{ topSkills(a.skills) }}</span>
+                    <span class="opacity-70"
+                      >· {{ STYLE_LABELS[a.style] }}</span
+                    >
+                    <span
+                      v-if="a.style === chosenAvatar.style"
+                      class="rounded-full bg-accent px-1.5 font-black text-accent-content"
+                      >Typecast</span
+                    >
+                  </span>
                 </span>
               </button>
             </div>

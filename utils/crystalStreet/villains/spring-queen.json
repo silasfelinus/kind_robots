@@ -15,14 +15,14 @@
     "palette": ["#9fe2bf", "#3b2a5c", "#f4efe1"],
     "sigil": "corsage",
     "logline": "Every couple in Glimmer Falls is dreaming of the same 1966 prom, and the girl in the rain-soaked crown will not let anyone leave the floor until she gets her dance.",
-    "backstory": "In May 1966 Rosalind \"Roz\" Vance was voted Spring Queen of Glimmer Falls High: track star, terrible singer, the kind of girl who laughed with her whole face. She was also secretly in love with Delphine Hart, the quiet senior who rode a secondhand Triumph and read poetry in the bleachers. They had a plan. When the band struck up the queen's dance, Roz would walk past the Spring King and ask Delphine instead, in front of everyone. Three boys found the letter Roz wrote about it. They forged a note in Delphine's handwriting, Meet me on the gym roof before the crowning, look at the stars, and when Roz climbed up they took the ladder away so she would miss her big moment. Then the spring storm came. Roz tried to climb down the drainpipe in her gown. The school called it a terrible accident involving a silly girl who went where she should not. The boys were never named. The yearbook printed her photo beside the Spring King, and Delphine was not allowed at the funeral. Twenty years later the Heartstone has woken Roz in her crown of wilted gardenias, still waiting for the dance the whole town pretended was never going to happen.",
+    "backstory": "In May 1966 Rosalind \"Roz\" Vance was voted Spring Queen of Glimmer Falls High: track star, terrible singer, the kind of girl who laughed with her whole face. She was also secretly in love with Delphine Hart, the quiet senior who rode a secondhand motorcycle and read poetry in the bleachers. They had a plan. When the band struck up the queen's dance, Roz would walk past the Spring King and ask Delphine instead, in front of everyone. Three boys found the letter Roz wrote about it. They forged a note in Delphine's handwriting, Meet me on the gym roof before the crowning, look at the stars, and when Roz climbed up they took the ladder away so she would miss her big moment. Then the spring storm came. Roz tried to climb down the drainpipe in her gown. The school called it a terrible accident involving a silly girl who went where she should not. The boys were never named. The yearbook printed her photo beside the Spring King, and Delphine was not allowed at the funeral. Twenty years later the Heartstone has woken Roz in her crown of wilted gardenias, still waiting for the dance the whole town pretended was never going to happen.",
     "centralIssue": {
       "title": "Love that was erased",
       "summary": "Roz did not die because she loved a girl. She died because three boys thought that love was a joke, and then the whole town buried the truth with her. Her rage is real, but it is grief with nowhere to go. Uncover what the yearbook hid, who took the ladder and what song she meant to dance to, and give Roz and Delphine the last dance they were promised."
     },
     "poster": "A teenage girl ghost in a rain-soaked mint 1966 prom gown and a crown of wilted gardenias standing on the roof of a high school gym in a lightning storm, below her a suburban street of couples slow-dancing in their pajamas, paper moons drifting up into the clouds",
     "portrait": "Close portrait of a 1960s prom queen ghost, dark curls plastered by rain, freckles, a crooked tiara woven with brown-edged gardenias, mascara streaked, a fierce and heartbroken smile, lit pale green by a gym exit sign",
-    "endingPhoto": "A teenage girl ghost in a rain-soaked mint 1966 prom gown and a crown of wilted gardenias floating above a high school gym stage in a lightning storm, a single spotlight on her, crepe paper streamers whipping around, a disco of teens in rented tuxedos and puffy dresses frozen mid-slow-dance on the gym floor below",
+    "endingPhoto": "A teenage girl ghost in a rain-soaked mint 1966 prom gown and a crown of wilted gardenias floating above a high school gym stage in a lightning storm, a single spotlight on her, crepe paper streamers whipping around, a crowd of teens in rented tuxedos and puffy dresses frozen mid-slow-dance on the gym floor below",
     "taunts": [
       "Everyone's dancing. Why aren't you?",
       "Hold on tight. They'll tell you it never happened.",
@@ -39,7 +39,7 @@
           "id": "spring-queen-clue-dead-files",
           "title": "Do Not Print",
           "place": "Yearbook office, Glimmer Falls High",
-          "text": "The yearbook office smells like fixer and old pizza. The 1966 Glimmer is open on the light table to a memorial page: Roz Vance in her crown, smiling beside a square-jawed boy, captioned Our Queen and Her King, Forever. Behind you, a gray filing drawer labeled DEAD FILES 1966 slides open by itself, just an inch, the way a door opens when someone wants you to follow.",
+          "text": "The yearbook office smells like fixer and old pizza. The 1966 Gold Nugget yearbook is open on the light table to a memorial page: Roz Vance in her crown, smiling beside a square-jawed boy, captioned Our Queen and Her King, Forever. Behind you, a gray filing drawer labeled DEAD FILES 1966 slides open by itself, just an inch, the way a door opens when someone wants you to follow.",
           "art": "A cluttered high school yearbook office with a glowing light table showing a 1966 yearbook memorial page of a prom queen, a gray filing drawer labeled dead files sliding open by itself, a faint wet footprint on the linoleum",
           "choices": [
             {
@@ -78,7 +78,7 @@
               "target": 7,
               "success": {
                 "text": "Wendy Ostrowski, senior editor and permanent resident of this room, pushes up her glasses. \"Stuff the principal killed. Smoking, protest signs, two boys holding hands at the '71 picnic.\" She digs out a 1966 sleeve without looking. \"This one gets me. They printed her with the king. Look who she actually wanted to be photographed with.\"",
-                "art": "A bespectacled teen yearbook editor in a cardigan covered in buttons handing a negative sleeve to another teenager across a cluttered desk, an X-Acto knife and rubber cement nearby",
+                "art": "A bespectacled teen yearbook editor in a cardigan covered in buttons handing a negative sleeve to another teenager across a cluttered desk, a hobby knife and rubber cement nearby",
                 "effects": {
                   "clues": ["spring-queen-yearbook"],
                   "nerve": 1
@@ -303,7 +303,7 @@
         "title": "Rain on the Roof",
         "place": "The roof of the Glimmer Falls High gym",
         "text": "You wake up soaked, on the flat tar roof of the high school gym, in a storm that did not exist when you went to bed. Your crew is up here too, blinking in their pajamas. The ladder is gone. At the edge of the roof stands Roz, crown streaming, staring down at the parking lot. \"This is where they left me,\" she says. \"Let's see who comes for you.\"",
-        "art": "Teenagers in soaked pajamas stranded on a flat high school gym roof in a lightning storm, stranded high above the ground, a ghostly prom queen standing at the edge in a streaming gown, a drainpipe leading down into darkness",
+        "art": "Teenagers in soaked pajamas stranded on a flat high school gym roof in a lightning storm, a ghostly prom queen standing at the edge in a streaming gown, a drainpipe leading down into darkness",
         "choices": [
           {
             "id": "climb-the-drainpipe",
@@ -342,7 +342,7 @@
               "amount": 2
             },
             "success": {
-              "text": "Three short, three long, three short. A porch light flicks on across the street, then another. Grandma Pearl's station wagon pulls into the lot with Coach Pruitt in the passenger seat and a ladder strapped to the roof. Roz stares at the headlights like she has never seen anything so beautiful. \"Somebody came,\" she whispers.",
+              "text": "Three short, three long, three short. A porch light flicks on across the street, then another. Pearl Washington's station wagon pulls into the lot with Coach Pruitt in the passenger seat and a ladder strapped to the roof. Roz stares at the headlights like she has never seen anything so beautiful. \"Somebody came,\" she whispers.",
               "art": "A teenager on a stormy gym roof flashing a beam of light toward a suburban street, a station wagon with a ladder on top pulling into the parking lot, porch lights blinking on",
               "effects": {
                 "nerve": 1,
@@ -1053,7 +1053,7 @@
             "amount": 2
           },
           "success": {
-            "text": "You hold up the photo they never printed and Rick's towel of names, and then you drop the needle on the forty-five nobody ever opened. Hold Me Till the Morning, by the Starlettes. The rain stops in midair. The gym doors swing open and Delphine Hart walks in, leather jacket, cardigan, Roz's ring on her finger, crying already. \"I came,\" she says. \"I'm late. I'm so sorry I'm late.\" Roz drops the lightning.",
+            "text": "You hold up the photo they never printed and the three names Rick finally said out loud, and then you drop the needle on the forty-five nobody ever opened. Hold Me Till the Morning, by the Starlettes. The rain stops in midair. The gym doors swing open and Delphine Hart walks in, leather jacket, cardigan, Roz's ring on her finger, crying already. \"I came,\" she says. \"I'm late. I'm so sorry I'm late.\" Roz drops the lightning.",
             "art": "A middle-aged woman in a leather jacket over a cardigan walking into a rain-frozen 1966 prom gym, raindrops hanging in midair, a prom queen ghost on stage dropping her lightning, a teen lowering a record needle onto a turntable",
             "effects": {
               "nerve": 2

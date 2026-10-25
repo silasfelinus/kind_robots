@@ -734,7 +734,7 @@
     "pronouns": "she/her",
     "age": 71,
     "role": "Porch sentinel and retired Army radio operator",
-    "bio": "Pearl Washington ran a radio set for the Women's Army Corps in 1944, came home, married Harold, and in 1959 became one of the first Black families on Crystal Street after a fight with the developer that she still describes in detail. Harold has been gone eight years. Pearl has not missed a sunset on her porch since. She keeps a logbook of every strange thing the Heartstone has ever done, a double-barrel shotgun loaded with rock salt across her knees, and a story for every house on the street. She is sharp, funny, proud, and stubborn as a mule; she refuses to see a doctor, talks to Harold out loud, and has never once been wrong about a ghost.",
+    "bio": "Pearl Washington ran a radio set for the Women's Army Corps in 1944, came home, married Harold, and in 1959 the two of them became one of the first Black families on Crystal Street after a fight with the developer that she still describes in detail. Harold has been gone eight years. Pearl has not missed a sunset on her porch since. She keeps a logbook of every strange thing the Heartstone has ever done, a double-barrel shotgun loaded with rock salt across her knees, and a story for every house on the street. She is sharp, funny, proud, and stubborn as a mule; she refuses to see a doctor, talks to Harold out loud, and has never once been wrong about a ghost.",
     "location": "crystal-street",
     "skills": ["lore", "nerve"],
     "perk": {
@@ -1146,7 +1146,7 @@
           "skill": "charm",
           "target": 7,
           "success": {
-            "text": "You roll a bard named Sir Vical and seduce a gelatinous cube with a sea shanty. Priya fights it and fails and laughs so hard she snorts. \"That's not in the rules. That's BETTER than the rules.\" She slides a character sheet over with your name on it. \"Party of two. For real.\"",
+            "text": "You roll a bard named Sir Vical and seduce a gelatinous cube with a sea shanty. Priya tries to keep a straight face, fails, and laughs so hard she snorts. \"That's not in the rules. That's BETTER than the rules.\" She slides a character sheet over with your name on it. \"Party of two. For real.\"",
             "art": "A teenager and a girl in a purple cardigan laughing over a tabletop game, dice scattered across a hand-drawn map, a cardboard game screen between them",
             "effects": {
               "nerve": 1,
@@ -1656,7 +1656,7 @@
           "skill": "brawn",
           "target": 9,
           "success": {
-            "text": "You both shove, the van rolls, Wade pops the clutch and the engine roars to life with a blast of heavy metal from the tape deck. He leans out the window, hand up for a high five. \"Get in, loser. You're crew now.\"",
+            "text": "You both shove, the van rolls, Wade pops the clutch and the engine roars to life with a blast of heavy metal from the tape deck. He leans out the window, hand up for a high five. \"Get in, slowpoke. You're crew now.\"",
             "art": "A black van roaring down a gravel hill in a junkyard, a guy with a mullet leaning out the window for a high five, a teenager running alongside",
             "effects": {
               "nerve": 1,
@@ -2428,7 +2428,7 @@
     "pronouns": "he/him",
     "age": 17,
     "role": "Junkyard mechanic",
-    "bio": "Joey Benally's family moved from Shiprock, New Mexico, to Glimmer Falls when his mom took a nursing job at County General, and he has hated the fog every day since. He works after school in the garage at Rusty's Junkyard, where he can make anything with an engine run, and he is rebuilding a 1968 pickup to drive home to his grandmother's every summer. He built Sunny Castellanos's racing chair out of bicycle parts and spite. Joey is dry, practical and allergic to nonsense; he has a dozen rational explanations for every haunting and is annoyed every time they don't work. His flaw is that he would rather fix everything himself than ask for help, and he trusts machines faster than people.",
+    "bio": "Joey Benally's family moved from Shiprock, New Mexico, to Glimmer Falls when his mom took a nursing job at County General, and he has hated the fog every day since. He works after school in the garage at Rusty's Junkyard, where he can make anything with an engine run, and he is rebuilding a 1968 pickup to drive home to his grandmother's every summer. He helped Sunny Castellanos build her racing chair out of bicycle parts and stubbornness. Joey is dry, practical and allergic to nonsense; he has a dozen rational explanations for every haunting and is annoyed every time they don't work. His flaw is that he would rather fix everything himself than ask for help, and he trusts machines faster than people.",
     "location": "junkyard",
     "skills": ["hustle", "brawn"],
     "perk": {
@@ -2503,7 +2503,7 @@
           "target": 9,
           "success": {
             "text": "You hold the cables steady, he turns the key, and the old V8 coughs and roars to life for the first time in years. Joey slaps the hood, almost smiling. \"Okay. You're useful and you don't flinch. You can ride shotgun.\"",
-            "art": "A teenager holding jumper cables between a junked car and a roaring old pickup, a young mechanic in the driver's seat slapping the dashboard",
+            "art": "A teenager holding jumper cables between a junked car and a roaring old pickup, a young mechanic leaning out of the driver's seat to slap the hood",
             "effects": {
               "nerve": 1,
               "flags": ["recruit:joey-benally"]
@@ -2524,7 +2524,7 @@
           "skill": "charm",
           "target": 7,
           "success": {
-            "text": "\"Not if it moves,\" you say. \"Which way.\" Joey pauses, then rolls out and draws on the dusty floor with a rag: the rows always shift toward Crystal Street, every night this week. \"First person who asked me something useful. Fine. I'm in.\"",
+            "text": "\"Not whether it moves,\" you say. \"Which way it moves.\" Joey pauses, then rolls out and draws on the dusty floor with a rag: the rows always shift toward Crystal Street, every night this week. \"First person who asked me something useful. Fine. I'm in.\"",
             "art": "A young mechanic sketching a map of junkyard rows in the dust on a garage floor with a red rag, a teenager crouched beside him",
             "effects": {
               "flags": ["recruit:joey-benally", "joey-maze-map"]
@@ -2607,8 +2607,8 @@
             }
           },
           "failure": {
-            "text": "He takes his half. Then he takes your half, and the bag, and vanishes under a Cadillac with a smug thump of his tail. He'll be back tomorrow. He knows where your lunch lives now.",
-            "art": "A basset hound's tail sticking out from under a rusty Cadillac, an empty sandwich bag nearby, a teenager staring at their empty hands",
+            "text": "He takes his half. Then he takes your half, and the bag, and vanishes under a rusted tail-finned sedan with a smug thump of his tail. He'll be back tomorrow. He knows where your lunch lives now.",
+            "art": "A basset hound's tail sticking out from under a rusty tail-finned sedan, an empty sandwich bag nearby, a teenager staring at their empty hands",
             "effects": {
               "quarters": -1
             }

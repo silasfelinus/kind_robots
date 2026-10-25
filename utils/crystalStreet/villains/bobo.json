@@ -188,7 +188,7 @@
               "skill": "charm",
               "target": 9,
               "success": {
-                "text": "After an hour of grease and silence, Trevor opens the shoebox. Inside is a deflated blue balloon dog, a birthday card signed with a honking-horn doodle, and a Channel 6 envelope. \"My dad sent them the tape. Mom and Dad were screaming at each other and Bobo kept falling so I'd stop crying. I laughed. Then everybody laughed at him.\" He wants to say sorry. He never knew how.",
+                "text": "After an hour of grease and silence, Trevor opens the shoebox. Inside is a deflated blue balloon dog, a birthday card signed with a honking-horn doodle, and a Channel 6 envelope. \"My dad signed the papers so Channel 6 could air it. Mom and Dad were screaming at each other and Bobo kept falling so I'd stop crying. I laughed. Then everybody laughed at him.\" He wants to say sorry. He never knew how.",
                 "art": "Two teenagers in a garage sitting on overturned buckets, an open shoebox between them holding a deflated blue balloon dog and an old birthday card, late afternoon light",
                 "effects": {
                   "clues": ["bobo-birthday-boy"],
@@ -715,7 +715,7 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "You dive under the plastic balls and crawl. The pit is deeper than it should be, and down near the bottom you find a scorched old wig and a pair of glasses. You come up behind the prize counter, by the exit, holding Lenny Moffat's spectacles.",
+              "text": "You dive under the plastic balls and crawl. The pit is deeper than it should be, and down near the bottom you find a scorched old wig and a pair of glasses. You come up behind the prize counter, by the exit, holding Lenny Moffat's spectacles and a first-aid kit you grabbed off the wall on the way.",
               "art": "A teenager surfacing from a deep ball pit beside a prize counter, holding a pair of old wire glasses and a scorched rainbow wig, a party raging in the background",
               "effects": {
                 "nerve": 1,
@@ -1135,7 +1135,7 @@
           },
           "failure": {
             "text": "You shout, but the laughter is seven years deep and it rolls right over you. The mallet comes down with a cartoon BOING an inch from your sneakers. The grown-ups are still laughing, but a couple of them look embarrassed about it, which is a start.",
-            "art": "A giant cartoonish mallet slamming down beside a costumed teenager's sneakers in a circus ring, a clown on stilts looming, laughing grown-ups in spotlights, two of them covering their mouths sheepishly",
+            "art": "A giant wooden mallet slamming down beside a costumed teenager's sneakers in a circus ring, a clown on stilts looming, laughing grown-ups in spotlights, two of them covering their mouths sheepishly",
             "effects": {
               "nerve": -2
             }
@@ -1167,7 +1167,7 @@
             "text": "You start the story, but the frozen laughter is too loud, and Bobo cannot hear the kind parts over it. He turns away, mallet drooping. You have the story right; the room just isn't ready to listen.",
             "art": "A costumed teenager speaking earnestly in a circus ring while grown-ups laugh frozen in spotlights, a giant clown on stilts turning away with his mallet drooping, balloon animals prowling between tables",
             "effects": {
-              "nerve": -1
+              "nerve": -2
             }
           }
         }

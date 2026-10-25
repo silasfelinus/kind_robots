@@ -2452,18 +2452,18 @@
         "id": "junkyard-crusher",
         "title": "Something in the Trunk",
         "place": "The crusher, Rusty's Junkyard",
-        "text": "Rusty is about to drop a 1959 Cadillac into the crusher, and from the trunk comes a knock. Three slow knocks. Rusty can't hear it over the engine and won't stop the job for \"a teenager's imagination.\" The crusher plates are already grinding open like the jaws of something hungry.",
-        "art": "A hulking junkyard car crusher with its plates open, a crane lowering a pink 1959 Cadillac with tailfins toward it, a gruff man in the operator's seat, a teenager waving their arms frantically",
+        "text": "Rusty is about to drop a 1959 Cadwell into the crusher, and from the trunk comes a knock. Three slow knocks. Rusty can't hear it over the engine and won't stop the job for \"a teenager's imagination.\" The crusher plates are already grinding open like the jaws of something hungry.",
+        "art": "A hulking junkyard car crusher with its plates open, a crane lowering a pink 1959 tail-finned car toward it, a gruff man in the operator's seat, a teenager waving their arms frantically",
         "choices": [
           {
             "id": "jump-on",
-            "label": "Climb onto the Cadillac and pop the trunk",
+            "label": "Climb onto the Cadwell and pop the trunk",
             "intent": "reckless",
             "skill": "brawn",
             "target": 11,
             "success": {
               "text": "You leap onto the tailfin and yank the trunk open. A family of raccoons pours out, along with a dusty steel box: a 1959 time capsule from the Glimmer Falls Elementary class, never buried. Rusty stops the crane and turns very red. He pays you not to tell anyone.",
-              "art": "A teenager clinging to the tailfin of a pink Cadillac dangling from a crane, the trunk open, raccoons tumbling out with a dusty metal box",
+              "art": "A teenager clinging to the tailfin of a pink 1959 car dangling from a crane, the trunk open, raccoons tumbling out with a dusty metal box",
               "effects": {
                 "quarters": 3,
                 "nerve": 1,
@@ -2473,7 +2473,7 @@
               }
             },
             "failure": {
-              "text": "You slip off the bumper and hit the dirt hard. The Cadillac drops into the crusher. The knocking stops before the plates close. You'll never know. That's the worst part.",
+              "text": "You slip off the bumper and hit the dirt hard. The Cadwell drops into the crusher. The knocking stops before the plates close. You'll never know. That's the worst part.",
               "art": "A teenager lying in junkyard dirt looking up at a crushed pink car between steel plates, dust hanging in the air",
               "effects": {
                 "nerve": -2,
@@ -2493,7 +2493,7 @@
             },
             "success": {
               "text": "Joey walks up, turns the key in the crusher's panel himself and says \"Hear that?\" Rusty finally hears the knocking. Inside the trunk: an old radio still tuned to KGLM, playing a station ID from 1959. Rusty gives it to you, spooked.",
-              "art": "A young mechanic with a key in a crusher control panel, a gruff junkyard owner staring at an opened Cadillac trunk revealing a glowing vintage radio",
+              "art": "A young mechanic with a key in a crusher control panel, a gruff junkyard owner staring at an opened vintage car trunk revealing a glowing vintage radio",
               "effects": {
                 "nerve": 1,
                 "dread": -1,
@@ -2501,8 +2501,8 @@
               }
             },
             "failure": {
-              "text": "Rusty brushes you both off and drops the Cadillac. As the plates close, every car radio in the junkyard switches on at once to the same song, and then off. Rusty shuts down for the day without a word.",
-              "art": "Dozens of junked car dashboards lighting up at once across a dusk junkyard, a crushed Cadillac in the crusher",
+              "text": "Rusty brushes you both off and drops the Cadwell. As the plates close, every car radio in the junkyard switches on at once to the same song, and then off. Rusty shuts down for the day without a word.",
+              "art": "Dozens of junked car dashboards lighting up at once across a dusk junkyard, a crushed vintage car in the crusher",
               "effects": {
                 "nerve": -1,
                 "dread": 1
@@ -3091,7 +3091,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "You sort twenty-five years of nose treasures into a display a museum would envy, with a chart of the top objects by decade: marbles own the sixties, crayons the seventies. Inez is so delighted she hands you a tin of bandages and Bactine \"for the week you're about to have.\"",
+              "text": "You sort twenty-five years of nose treasures into a display a museum would envy, with a chart of the top objects by decade: marbles own the sixties, crayons the seventies. Inez is so delighted she hands you a tin of bandages and antiseptic spray \"for the week you're about to have.\"",
               "art": "A teenager arranging marbles, crayons, buttons and tiny toys in neat rows on a felt-lined tray at a clinic counter, a smiling nurse with silver-streaked curls holding out a white tin first-aid kit",
               "effects": {
                 "nerve": 1,

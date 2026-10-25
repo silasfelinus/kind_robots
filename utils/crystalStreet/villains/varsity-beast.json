@@ -14,7 +14,7 @@
     "tags": ["creature", "slasher"],
     "palette": ["#8b1e2d", "#f2b632", "#26262b"],
     "sigil": "helmet",
-    "logline": "Glimmer Falls High's star quarterback has three days to become a man before the Halloween Monster Bowl. Something inside him has decided to become a wolf instead.",
+    "logline": "Glimmer Falls High's star quarterback has one week to become a man before the Halloween Monster Bowl. Something inside him has decided to become a wolf instead.",
     "backstory": "Brick Delaney is seventeen, six foot three, and the best quarterback Glimmer Falls High has had since his father, Duke Delaney, won state in 1966 and then sold cars on the strength of it for twenty years. Duke wakes Brick at five every morning for the Delaney Man Plan: drills, raw eggs, and three rules taped to the fridge. Delaneys don't cry. Delaneys don't quit. Delaneys don't dance. The last rule is personal. Duke's own father, Augie \"Featherfoot\" Delaney, was a tap dancer who headlined the old Rialto, the theatre that became the Glitter Box, and Duke spent his whole childhood being mocked for it until he swore his son would never be soft. Brick has been holding himself together like a clenched fist for years. This Halloween week, with the Heartstone amplifying every feeling on Crystal Street, everything Brick is not allowed to feel has turned into fur and teeth. When the pressure peaks (a coach screaming, a crowd chanting, his father going silent), Brick becomes the Varsity Beast: a seven-foot wolf in a shredded letterman jacket, his helmet cracked over its ears, hunting anyone who looks soft. The Monster Bowl against Pine Ridge is Friday night, Halloween, and the whole town will be watching.",
     "centralIssue": {
       "title": "The pressure to be a man",
@@ -80,8 +80,8 @@
                 "amount": 1
               },
               "success": {
-                "text": "X's and O's, arrows and loops, and in the margins in tiny careful letters: shuffle, ball-change, flap, wings. Every play is a tap routine. On the last page, pressed so hard the pen tore through: I'M SO TIRED OF BEING SCARY. You snap a Polaroid and slide the notebook back with ten seconds to spare.",
-                "art": "A notebook page covered in football X's and O's with tiny dance step notes in the margins, the words so tired of being scary pressed through the paper, a fresh Polaroid developing beside it",
+                "text": "X's and O's, arrows and loops, and in the margins in tiny careful letters: shuffle, ball-change, flap, wings. Every play is a tap routine. On the last page, pressed so hard the pen tore through: I'M SO TIRED OF BEING SCARY. You snap an instant photo and slide the notebook back with ten seconds to spare.",
+                "art": "A notebook page covered in football X's and O's with tiny dance step notes in the margins, the words so tired of being scary pressed through the paper, a fresh instant photo developing beside it",
                 "effects": {
                   "clues": ["varsity-beast-playbook"],
                   "dread": -1
@@ -170,7 +170,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Coach Pruitt marches you into the field house and points at Coach Hollings's whiteboard: BRICK. NO CRYING. NO QUITTING. NO SOFTNESS. Below it, in a different hand: HE HAS TO BE A MAN BY FRIDAY. D.D. Pruitt photographs it. \"I have been yelling at that man about this for years,\" she says. \"Let's yell louder.\"",
+                "text": "Coach Pruitt marches you into the field house and points at Coach Hollings's whiteboard: BRICK. NO CRYING. NO QUITTING. NO SOFTNESS. Below it, in a different hand: HE HAS TO BE A MAN BY FRIDAY. D.D. Pruitt photographs it. \"I have been yelling at that man about this for years,\" she says. \"Let's yell louder.\" On the way out, she pulls Duke's 1966 yearbook off the office shelf and tucks it under your arm.",
                 "art": "A big fierce softball coach pointing at a field house whiteboard covered in harsh rules in marker, a teenager beside her holding a camera",
                 "effects": {
                   "clues": ["varsity-beast-yearbook"],
@@ -193,7 +193,7 @@
         "id": "varsity-beast-tap-shoes",
         "title": "Featherfoot's tap shoes",
         "location": "glitter-box",
-        "hint": "The Glitter Box was the Rialto before the war, and its lobby still remembers who headlined.",
+        "hint": "The Glitter Box used to be the old Rialto, and its lobby still remembers who headlined.",
         "encounter": {
           "id": "varsity-beast-clue-rialto-lobby",
           "title": "Featherfoot",
@@ -390,7 +390,7 @@
         "act": 1,
         "title": "Surfin' Route 49",
         "place": "Route 49 in Lyle's Pizza delivery van, after midnight",
-        "text": "You catch a ride home from the late session at Pump Iron in Lyle's Pizza delivery van, sitting on a stack of flat boxes, when something lands on the roof hard enough to dent it. In the side mirror a huge furry shape is crouched on top of the giant fiberglass pizza, letterman jacket flapping, arms out like a surfer, howling at the moon. Behind you a Camaro full of linebackers is honking and chanting, \"WOLF! WOLF! WOLF!\" Lyle grips the wheel. \"Kid,\" he says carefully, \"there's a werewolf on my pizza.\"",
+        "text": "You catch a ride home from the late session at Pump Iron in Lyle's Pizza delivery van, sitting on a stack of flat boxes, when something lands on the roof hard enough to dent it. In the side mirror a huge furry shape is crouched on top of the giant fiberglass pizza, letterman jacket flapping, arms out like a surfer, howling at the moon. Behind you a muscle car full of linebackers is honking and chanting, \"WOLF! WOLF! WOLF!\" Lyle grips the wheel. \"Kid,\" he says carefully, \"there's a werewolf on my pizza.\"",
         "art": "A pizza delivery van speeding down a moonlit country highway with a giant fiberglass pizza on its roof, a huge wolf in a torn letterman jacket surfing on top with arms spread, a muscle car full of cheering football players chasing behind",
         "choices": [
           {
@@ -424,7 +424,7 @@
             "skill": "hustle",
             "target": 7,
             "success": {
-              "text": "\"Signal, brake gently, easy does it,\" you coach, and Lyle rolls onto the gravel shoulder like he's delivering a wedding cake. The Camaro roars past, booing. With the chanting gone, the shape on the roof goes quiet. You hear a soft thump, claws on gravel, and then a voice that is almost Brick's says, \"Thanks for the ride,\" from the dark of the orchard.",
+              "text": "\"Signal, brake gently, easy does it,\" you coach, and Lyle rolls onto the gravel shoulder like he's delivering a wedding cake. The muscle car roars past, booing. With the chanting gone, the shape on the roof goes quiet. You hear a soft thump, claws on gravel, and then a voice that is almost Brick's says, \"Thanks for the ride,\" from the dark of the orchard.",
               "art": "A pizza delivery van parked on a gravel road shoulder at night, a muscle car's taillights disappearing ahead, a large wolf shape loping quietly into a moonlit orchard, a teenager leaning out the passenger window",
               "effects": {
                 "nerve": 1,
@@ -432,7 +432,7 @@
               }
             },
             "failure": {
-              "text": "Lyle panics and stomps the brakes. The Beast sails off the roof, lands on all fours in the headlights and turns, eyes stadium white. The linebackers pile out of the Camaro cheering, the Beast charges the noise, and everyone scatters into a pumpkin patch, you included.",
+              "text": "Lyle panics and stomps the brakes. The Beast sails off the roof, lands on all fours in the headlights and turns, eyes stadium white. The linebackers pile out of the muscle car cheering, the Beast charges the noise, and everyone scatters into a pumpkin patch, you included.",
               "art": "A huge wolf in a torn letterman jacket landing on all fours in the glare of van headlights, glowing white eyes, teenagers and football players scattering into a moonlit pumpkin patch",
               "effects": {
                 "nerve": -2,
@@ -452,7 +452,7 @@
               "amount": 1
             },
             "success": {
-              "text": "\"Hey! You don't have to show them anything!\" you yell over the wind. \"It's just a ride!\" The howling stops. The Beast hunkers down on the pizza, and you swear its ears go soft. When the Camaro swerves past chanting, it doesn't even turn its head. At a red light it slides down the windshield, gives Lyle a sheepish little wave and lopes off.",
+              "text": "\"Hey! You don't have to show them anything!\" you yell over the wind. \"It's just a ride!\" The howling stops. The Beast hunkers down on the pizza, and you swear its ears go soft. When the muscle car swerves past chanting, it doesn't even turn its head. At a red light it slides down the windshield, gives Lyle a sheepish little wave and lopes off.",
               "art": "A wolf in a letterman jacket sliding sheepishly down the windshield of a pizza van at a red light, waving one huge paw at a startled driver, a teenager grinning from the passenger window",
               "effects": {
                 "nerve": 1,
@@ -461,7 +461,7 @@
               }
             },
             "failure": {
-              "text": "The wind steals every word. All the Beast hears is the Camaro chanting, so it gives them a show: it rips the fiberglass pizza clean off the roof and hurls it like a discus into a cow pasture. The linebackers go wild. Lyle weeps a little.",
+              "text": "The wind steals every word. All the Beast hears is the muscle car full of chanting linebackers, so it gives them a show: it rips the fiberglass pizza clean off the roof and hurls it like a discus into a cow pasture. The linebackers go wild. Lyle weeps a little.",
               "art": "A huge wolf in a letterman jacket hurling a giant fiberglass pizza like a discus off a speeding van into a moonlit cow pasture, football players whooping from a muscle car, startled cows",
               "effects": {
                 "nerve": -1,
@@ -800,7 +800,7 @@
       {
         "id": "varsity-beast-wolfmania",
         "title": "Wolfmania",
-        "place": "Sports Hut at Starlight Mall, the Friday-night autograph table",
+        "place": "Sports Hut at Starlight Mall, the late-night autograph table",
         "text": "Word about the wolf has gotten around, and the town loves it. Sports Hut at Starlight Mall is selling WOLF PACK T-shirts as fast as it can print them, the line for Brick Delaney's autograph table snakes past the fountain, and Duke Delaney is out front shaking hands like he's running for mayor. Brick sits behind a stack of glossy photos, sweating through his letterman jacket, signing the same name over and over while the line chants, \"Do the howl! Do the howl!\" Every time they chant, the hand holding his pen sprouts a little more fur. He finds your face in the line, and his eyes say help.",
         "art": "A crowded 1980s mall sporting goods store, a long line of fans in wolf T-shirts snaking past a fountain, a sweating teenage quarterback in a letterman jacket at an autograph table with fur sprouting on his hand, his beaming father shaking hands nearby",
         "choices": [
@@ -978,7 +978,7 @@
       "id": "varsity-beast-finale",
       "title": "The Monster Bowl",
       "place": "Prospector Stadium, Halloween night",
-      "text": "Fourth quarter, Halloween night, and the full moon has come up over the scoreboard like a spotlight. The Prospectors are down by six. Coach Hollings is screaming, the stands are chanting BE A MAN, and on the fifty-yard line Brick Delaney comes apart in front of three thousand people: shoulder pads splitting, jersey 33 shredding, a seven-foot wolf in a cracked maroon helmet howling at the moon. The crowd thinks it's the halftime show. Then it charges the stands where Duke is sitting.",
+      "text": "Fourth quarter, Halloween night, and the full moon has come up over the scoreboard like a spotlight. The Prospectors are down by six. Coach Hollings is screaming, the stands are chanting BE A MAN, and on the fifty-yard line Brick Delaney comes apart in front of three thousand people: shoulder pads splitting, jersey 33 shredding, a seven-foot wolf in a cracked maroon helmet howling at the moon. The crowd thinks it's part of the show. Then it charges the stands where Duke is sitting.",
       "art": "A small-town football stadium on Halloween night under a huge full moon, a seven-foot wolf in shredded jersey 33 and a cracked maroon helmet charging toward packed bleachers, a teen crew in Halloween costumes racing onto the field",
       "choices": [
         {

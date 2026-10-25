@@ -542,7 +542,7 @@
         "choices": [
           {
             "id": "snap-a-polaroid",
-            "label": "Snap a Polaroid of her so Ricky has to believe you",
+            "label": "Snap an instant photo of her so Ricky has to believe you",
             "intent": "clever",
             "skill": "hustle",
             "target": 9,
@@ -559,7 +559,7 @@
               }
             },
             "failure": {
-              "text": "The flash pops, and the photo develops into a picture of you, from behind, taken a moment ago from somewhere very close. Ricky stops laughing. You both run the last four houses and slam your front door, and the Polaroid lies face-up on the welcome mat all night where you dropped it.",
+              "text": "The flash pops, and the photo develops into a picture of you, from behind, taken a moment ago from somewhere very close. Ricky stops laughing. You both run the last four houses and slam your front door, and the photo lies face-up on the welcome mat all night where you dropped it.",
               "art": "An instant photo lying on a doormat in porch light showing a teenager from behind on a dusky sidewalk, shot from very close, two teenagers peeking out through a front door window",
               "effects": {
                 "nerve": -2,
@@ -624,8 +624,8 @@
         "id": "the-shape-stay-with-your-group",
         "act": 3,
         "title": "Stay With Your Group",
-        "place": "The Jaycees Haunted House in the old Woolco on Route 49",
-        "text": "The Jaycees Haunted House fills the dead Woolco on Route 49 with plywood hallways, fog machines and dads in rubber masks. A hand-painted board at the entrance lists the house rules: STAY WITH YOUR GROUP. NO RUNNING. NO SCREAMING. In the Babysitter Room, a set with a plaid couch and a wall phone, a volunteer in a white mask and a cardigan lies face down on the carpet as a prop. Your group walks past. You look back. The prop is sitting up, head tilted, counting you with one steel needle.",
+        "place": "The Jaycees Haunted House in the old Thriftco on Route 49",
+        "text": "The Jaycees Haunted House fills the dead Thriftco on Route 49 with plywood hallways, fog machines and dads in rubber masks. A hand-painted board at the entrance lists the house rules: STAY WITH YOUR GROUP. NO RUNNING. NO SCREAMING. In the Babysitter Room, a set with a plaid couch and a wall phone, a volunteer in a white mask and a cardigan lies face down on the carpet as a prop. Your group walks past. You look back. The prop is sitting up, head tilted, counting you with one steel needle.",
         "art": "A cheap plywood haunted house set built inside an old dime store, a fake living room with a plaid couch and a yellow wall phone, fog curling across the carpet, a pale masked figure in a cardigan sitting up from the floor, a group of teens walking past",
         "choices": [
           {
@@ -662,7 +662,7 @@
               "amount": 1
             },
             "success": {
-              "text": "Behind a plywood tombstone you find the old Woolco breaker panel and throw every switch. The fluorescents stutter on, humming, and the haunted house becomes a cheap maze of painted plywood and embarrassed dads. In the bald white light the figure in the cardigan raises her hands against the glare, steps back into the one dark hallway left, and is gone.",
+              "text": "Behind a plywood tombstone you find the old Thriftco breaker panel and throw every switch. The fluorescents stutter on, humming, and the haunted house becomes a cheap maze of painted plywood and embarrassed dads. In the bald white light the figure in the cardigan raises her hands against the glare, steps back into the one dark hallway left, and is gone.",
               "art": "Harsh fluorescent tube lights flickering on over a maze of painted plywood walls, embarrassed dads in rubber masks blinking, a pale masked figure in a cardigan shielding her face and backing into a shadowy hallway",
               "effects": {
                 "nerve": 1,
@@ -746,7 +746,7 @@
               "amount": 2
             },
             "success": {
-              "text": "You laugh like a hyena and point at the next person until they crack, and they point at the next, and in thirty seconds the whole rink is howling. She cannot pick one loud girl out of a building full of them. She stands still in the strobe, and for a moment her shoulders shake too.",
+              "text": "You laugh like a hyena and point at the next person until they crack, and they point at the next, and in thirty seconds the whole rink is howling. She cannot pick one loud laugh out of a building full of them. She stands still in the strobe, and for a moment her shoulders shake too.",
               "art": "A whole roller rink crowd doubled over laughing under a disco ball, a pale masked figure in a cardigan standing still in the middle with her shoulders lifted as if laughing",
               "effects": {
                 "nerve": 2,
@@ -996,7 +996,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "You run roll call on channel nine like an air-traffic controller. \"House three, check in.\" \"House three, all good, Joey's asleep.\" \"House six?\" Every ten minutes, again and again. Out on the street the Shape stops at each window and hears a sitter reporting that the kids are safe, and you watch her nod once at every house, as if checking it off a list.",
+              "text": "You run roll call on channel nine like an air-traffic controller. \"House three, check in.\" \"House three, all good, Jamie's asleep.\" \"House six?\" Every ten minutes, again and again. Out on the street the Shape stops at each window and hears a sitter reporting that the kids are safe, and you watch her nod once at every house, as if checking it off a list.",
               "art": "A teenager on a porch speaking into a walkie-talkie under a porch light, lit rooms all around a cul-de-sac with babysitters answering on their own radios, a pale masked girl nodding beside a lit house",
               "effects": {
                 "nerve": 1,
@@ -1004,7 +1004,7 @@
               }
             },
             "failure": {
-              "text": "At the 10:20 check-in, house five does not answer. You sprint over. The sitter is fine, she dropped her walkie in the toilet, but by the time you get back, every walkie on the street is playing the same slow click, click, click.",
+              "text": "At the 10:20 check-in, house five does not answer. You sprint over. The sitter is fine (she dropped her walkie in the toilet), but by the time you get back, every walkie on the street is playing the same slow click, click, click.",
               "art": "A teenager sprinting across a dark lawn toward a lit house at night, a crackling walkie-talkie in hand, a pale cardigan-clad shape at the edge of a streetlight",
               "effects": {
                 "nerve": -1,
@@ -1085,15 +1085,15 @@
             "amount": 2
           },
           "success": {
-            "text": "Zelda lets loose the scream that ended The Thing from Crystal Springs, the decoy in the borrowed cardigan slumps on the couch, and the Shape goes for it like every slasher in every picture. The moment she is inside the hall closet, you slam the slatted door and wedge it with the couch. \"Every monster falls for the third act,\" Zelda says.",
-            "art": "A silver-haired older woman screaming theatrically in a living room while teenagers shove a plaid couch against a slatted hall closet door, a dummy in a cardigan slumped on the floor",
+            "text": "Zelda lets loose the scream that ended The Thing from Crystal Springs, the decoy in the borrowed cardigan slumps just inside the hall closet, and the Shape goes for it like every slasher in every picture. The moment she steps in after it, you slam the slatted door and wedge it with the couch. \"Every monster falls for the third act,\" Zelda says.",
+            "art": "A silver-haired older woman screaming theatrically in a living room while teenagers shove a plaid couch against a slatted hall closet door, a dummy in a cardigan slumped inside the closet",
             "effects": {
               "nerve": 1
             }
           },
           "failure": {
             "text": "She walks straight past the decoy and does not even turn her head. She has seen this movie. She has been in this movie for fifteen years. The closet door swings open on its own, and it is you she steps toward.",
-            "art": "A pale masked figure walking past a slumped decoy dummy on a couch toward a frightened teenager, a slatted hall closet door swinging open behind her",
+            "art": "A pale masked figure walking past a decoy dummy slumped in a hall closet doorway toward a frightened teenager, the slatted closet door swinging open behind her",
             "effects": {
               "nerve": -3
             }

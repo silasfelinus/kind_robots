@@ -243,7 +243,7 @@
         "act": 1,
         "title": "The Line",
         "place": "Glimmer Falls High cafeteria, midnight",
-        "text": "You don't remember coming to school. You're holding a beige tray in a cafeteria lit by one buzzing tube, standing in a line that stretches back into the dark: every kid in Glimmer Falls since 1956, in letterman jackets and poodle skirts and Members Only, shuffling forward without a word. At the steam table, a tall shape in a hairnet ladles something that moves. \"Tray,\" it says. \"Fork. Napkin. Next.\"",
+        "text": "You don't remember coming to school. You're holding a beige tray in a cafeteria lit by one buzzing tube, standing in a line that stretches back into the dark: every kid in Glimmer Falls since 1956, in letterman jackets and poodle skirts and Members Mostly jackets, shuffling forward without a word. At the steam table, a tall shape in a hairnet ladles something that moves. \"Tray,\" it says. \"Fork. Napkin. Next.\"",
         "art": "A dark school cafeteria at midnight lit by one flickering fluorescent tube, a ghostly line of teenagers from three decades of fashion holding beige trays, a towering lunch lady in a hairnet ladling quivering food at the steam table",
         "choices": [
           {
@@ -478,7 +478,7 @@
         "act": 2,
         "title": "The Car Won't Start",
         "place": "The faculty parking lot, Glimmer Falls High, 11 p.m.",
-        "text": "Joey's '71 Duster has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
+        "text": "Joey's '71 Roadhawk has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
         "art": "A rusty muscle car stalled in a dark school parking lot, teenagers peering through a fogged rear window, a towering lunch lady in a hairnet stepping out of a floodlit loading dock holding a huge whirring potato masher",
         "choices": [
           {
@@ -492,7 +492,7 @@
               "amount": 2
             },
             "success": {
-              "text": "Two wires, one spark, and the Duster roars. You peel out of the lot as the potato masher bites into the space where your bumper was. In the rearview mirror she stands alone under the floodlight, watching you go, and for one strange second she lifts a hand like she is waving goodbye to a bus.",
+              "text": "Two wires, one spark, and the Roadhawk roars. You peel out of the lot as the potato masher bites into the space where your bumper was. In the rearview mirror she stands alone under the floodlight, watching you go, and for one strange second she lifts a hand like she is waving goodbye to a bus.",
               "art": "A muscle car roaring out of a school parking lot with its taillights blazing, a lone lunch lady standing under a floodlight behind it lifting one hand in a wave",
               "effects": {
                 "nerve": 1,
@@ -515,7 +515,7 @@
             "skill": "brawn",
             "target": 9,
             "success": {
-              "text": "You throw your shoulder into the trunk and shove. The Duster rolls, gathers speed down the bus lane, coughs and catches. You dive into the back seat through the open door like a stunt double. Behind you, the potato masher winds down with a disappointed groan.",
+              "text": "You throw your shoulder into the trunk and shove. The Roadhawk rolls, gathers speed down the bus lane, coughs and catches. You dive into the back seat through the open door like a stunt double. Behind you, the potato masher winds down with a disappointed groan.",
               "art": "A teenager diving into the open back door of a rolling car speeding down a school bus lane, exhaust smoke curling, a hairnetted giant far behind in the floodlight",
               "effects": {
                 "nerve": 1,
@@ -544,7 +544,7 @@
               "amount": 1
             },
             "success": {
-              "text": "\"You need a lift, ma'am? It's late.\" The masher clicks off. She folds herself into the back seat with her knees around her ears, hairnet brushing the roof, and the Duster starts on the first try. You drop her outside the Suds-O-Mat. \"Thirty years,\" she mutters, climbing out, \"and I always took the bus.\"",
+              "text": "\"You need a lift, ma'am? It's late.\" The masher clicks off. She folds herself into the back seat with her knees around her ears, hairnet brushing the roof, and the Roadhawk starts on the first try. You drop her outside the Suds-O-Mat. \"Thirty years,\" she mutters, climbing out, \"and I always took the bus.\"",
               "art": "A towering lunch lady folded into the back seat of a small muscle car with her knees up, hairnet brushing the roof, teenagers in front glancing back nervously, a glowing laundromat sign outside",
               "effects": {
                 "nerve": 2,
@@ -658,8 +658,8 @@
         "act": 3,
         "title": "The Walk-In",
         "place": "The cafeteria walk-in freezer, 3 a.m.",
-        "text": "The heavy freezer door thunks shut behind you. Frost on everything. Tater-tot boxes stacked to the ceiling, and hanging from steel hooks in a neat row, rimed white, are the letterman jackets, cheer sweaters and Walkmans of every kid who skipped her line this week. Down the aisle comes the scrape of a cleaver on a sharpening steel, slow and patient. \"I know you,\" says Big Gertie. \"I know every face. I just never bothered with the names.\"",
-        "art": "A frost-covered walk-in freezer lit blue, letterman jackets and Walkmans hanging frozen on meat hooks, a towering hairnetted silhouette sharpening a cleaver at the far end of the aisle",
+        "text": "The heavy freezer door thunks shut behind you. Frost on everything. Tater-tot boxes stacked to the ceiling, and hanging from steel hooks in a neat row, rimed white, are the letterman jackets, cheer sweaters and headphone tape players of every kid who skipped her line this week. Down the aisle comes the scrape of a cleaver on a sharpening steel, slow and patient. \"I know you,\" says Big Gertie. \"I know every face. I just never bothered with the names.\"",
+        "art": "A frost-covered walk-in freezer lit blue, letterman jackets and headphone tape players hanging frozen on meat hooks, a towering hairnetted silhouette sharpening a cleaver at the far end of the aisle",
         "choices": [
           {
             "id": "trade-names",
@@ -1105,7 +1105,7 @@
             "text": "She looks at the chair like it is a trap. \"Sitting's for people with somewhere to be,\" she says, and kicks it into the dish pit. The line lurches forward again, but she glances back at the chair once, and that look is something you can work with.",
             "art": "A towering lunch lady kicking an orange plastic chair across a cafeteria toward a steaming dish pit, a costumed teenager holding an untouched tray, the endless lunch line shuffling forward",
             "effects": {
-              "nerve": -1
+              "nerve": -2
             }
           }
         },
@@ -1164,7 +1164,7 @@
             "text": "The napkin gets halfway down the first table before someone uses it to wipe up spilled gravy. Big Gertie watches it happen. You know exactly what she needs to hear, but the room is not looking up yet.",
             "art": "A crumpled paper napkin soaking in spilled gravy on a crowded cafeteria table, bowed heads over trays, a giant lunch lady watching from behind the steam table with a heavy sigh",
             "effects": {
-              "nerve": -1
+              "nerve": -2
             }
           }
         }

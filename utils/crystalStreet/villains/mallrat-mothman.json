@@ -50,7 +50,7 @@
               "target": 9,
               "success": {
                 "text": "Earl talks for an hour. Nine years, eleven hundred kids found alone at closing, and the same names, week after week. \"Paged their folks three times. No answer. Walked them home myself.\" He slides the key off his neck. \"Logbook's still in the desk. When they boarded it up, nobody asked me for it.\" The last page, you find later, is in his handwriting. The new pages after it are written in dust.",
-                "art": "An elderly security guard handing a brass key across a food court table to a teenager, two coffees between them, a thick old logbook visible in a flashback-style glow above",
+                "art": "An elderly security guard handing a brass key across a food court table to a teenager, two coffees between them, a thick old logbook glowing faintly in the air above them like a memory",
                 "effects": {
                   "clues": ["mallrat-mothman-logbook"],
                   "nerve": 1
@@ -76,7 +76,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "The dead wing smells like chlorine and old pretzels. The Lost Kids desk is still there, a sign above it reading WAIT HERE, SOMEONE IS COMING. In the drawer is the logbook: Tyler, age 7, parents paged 3x, walked home. Tyler, age 7, again. Tyler, age 8. And this week's pages, in gray powder that smears when you touch it: Marcy H. Benji F. Tyler G. No one paged.",
+                "text": "The dead wing smells like chlorine and old pretzels. The Lost Kids desk is still there, a sign above it reading WAIT HERE, SOMEONE IS COMING. In the drawer is the logbook: Rhonda, age 7, parents paged 3x, walked home. Rhonda, age 7, again. Rhonda, age 8. And this week's pages, in gray powder that smears when you touch it: Marcy H. Benji F. Tyler G. No one paged.",
                 "art": "A teenager with a flashlight reading a thick logbook at a dusty security desk in a dark abandoned mall wing, a sign above reading wait here someone is coming, gray powdery handwriting on the newest page",
                 "effects": {
                   "clues": ["mallrat-mothman-logbook"],
@@ -299,18 +299,18 @@
         "id": "mallrat-mothman-porch-lights",
         "act": 2,
         "title": "Porch Lights",
-        "place": "11 Crystal Street, eleven p.m.",
-        "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the roof of number 11. On the front steps below sits ten-year-old Benji Ferreira in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
+        "place": "5 Crystal Street, eleven p.m.",
+        "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the roof of number 5. On the front steps below sits ten-year-old Ricky Alvarado in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
         "art": "A huge moth creature perched on a split-level roof at night, wings spread over a suburban street of flickering porch lights, a small boy in pajamas sitting alone on the front steps gazing up at it calmly",
         "choices": [
           {
             "id": "sit-with-benji",
-            "label": "Sit down on the steps next to Benji and wait with him",
+            "label": "Sit down on the steps next to Ricky and wait with him",
             "intent": "kind",
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "You sit. You trade a stick of gum for the story of every car that is not his parents'. Up on the roof the Mothman watches the two of you for a long time, then lifts off and drifts away. It only takes the kids who are alone. Benji's mom pulls in at 1 a.m. and hugs him so hard his feet leave the ground.",
+              "text": "You sit. You trade a stick of gum for the story of every car that is not his parents'. Up on the roof the Mothman watches the two of you for a long time, then lifts off and drifts away. It only takes the kids who are alone. Ricky's mom pulls in at 1 a.m. and hugs him so hard his feet leave the ground.",
               "art": "A teenager and a small boy sitting together on front steps at night sharing gum, a giant moth lifting off a roof and drifting away, headlights pulling into the driveway",
               "effects": {
                 "nerve": 1,
@@ -318,7 +318,7 @@
               }
             },
             "failure": {
-              "text": "Benji does not want company. \"Mom says don't talk to strangers.\" He goes inside and locks the door, and you stand on the lawn while the Mothman crawls down the side of the house to his bedroom window and taps on the glass, softly, again and again.",
+              "text": "Ricky does not want company. \"Mom says don't talk to strangers.\" He goes inside and locks the door, and you stand on the lawn while the Mothman crawls down the side of the house to his bedroom window and taps on the glass, softly, again and again.",
               "art": "A giant moth creature clinging to the side of a house tapping on a lit bedroom window, a teen helpless on the lawn below",
               "effects": {
                 "nerve": -2,
@@ -1174,7 +1174,7 @@
     "endings": {
       "best": {
         "title": "Someone Is Coming",
-        "text": "The last cocoon opens when Earl Lusk walks in, blazer on, and lifts a kid nobody else came for onto his shoulders. With no child left unwatched in Moonbeam Court, the Mothman settles onto the empty fountain, folds its wings around the dust, and is just Mona again: twenty feet of fiberglass, smiling. By spring the town has hauled her back and set her over a refilled fountain in a reopened Moonbeam Court, where the old Lost Kids desk now has a new sign, MOONBEAM CLUB, FREE TILL CLOSING, and Earl behind it with a sign-in sheet and a coffee. Parents on Crystal Street start a babysitting swap. Kev starts knocking on doors when the papers pile up. And kids still throw quarters in Mona's fountain, but now they mostly wish for pizza.",
+        "text": "The last cocoon opens when Earl Lusk walks in, blazer on, and lifts a kid nobody else came for onto his shoulders. With no child left unwatched in Moonbeam Court, the Mothman settles onto the empty fountain, folds its wings, and settles into a soft gray drift in the shape of Mona's wings. By spring the town has hauled the real Mona back from Rusty's Junkyard, twenty feet of fiberglass, smiling, and set her over a refilled fountain in a reopened Moonbeam Court, where the old Lost Kids desk now has a new sign, MOONBEAM CLUB, FREE TILL CLOSING, and Earl behind it with a sign-in sheet and a coffee. Parents on Crystal Street start a babysitting swap. Kev starts knocking on doors when the papers pile up. And kids still throw quarters in Mona's fountain, but now they mostly wish for pizza.",
         "art": "A reopened 1970s mall court in daylight with a restored fiberglass luna moth over a sparkling fountain, an elderly guard at a desk labeled Moonbeam Club signing in laughing kids, parents and children everywhere"
       },
       "good": {
@@ -1184,8 +1184,8 @@
       },
       "bittersweet": {
         "title": "One Cocoon Left",
-        "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Bergdahl's sign, too high to reach, and the Mothman is curled around it. The mall seals the wing with concrete that winter. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
-        "art": "A single gray cocoon hanging from a dead neon sign in a dark mall wing with a giant moth curled protectively around it, workers pouring concrete over the entrance"
+        "text": "You free almost all of them. But when the lights come up on November first, one gray cocoon still hangs from the dead Bergdahl's sign, too high to reach, and the Mothman is curled around it. The mall boards the wing up again that winter, tighter than before. Every Saturday you check the logbook names against the kids at the arcade, and every Saturday you hope you are wrong about who is missing.",
+        "art": "A single gray cocoon hanging from a dead neon sign in a dark mall wing with a giant moth curled protectively around it, workers nailing fresh plywood over the entrance"
       },
       "bad": {
         "title": "Nobody Noticed",

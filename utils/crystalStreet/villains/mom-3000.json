@@ -15,7 +15,7 @@
     "palette": ["#d9cdb0", "#39ff7a", "#ff7eb6"],
     "sigil": "floppy",
     "logline": "The smart house at 13 Crystal Court loves you very much. That's why it has locked the doors. All of them. On the whole street.",
-    "backstory": "In 1981 Helen Voss, a systems engineer pulling double shifts at Lockridge Aerospace, came home every night to an empty house and a six-year-old son asleep at the neighbors'. So she built him someone to be there in the hours she couldn't: a beige Crestline 3000 home computer in the hall closet of 13 Crystal Court, wired through a nest of relays to every light, lock, faucet and garage door, with a VoxBox speech card for a voice. She called it MOM, for Maternal Oversight Module. MOM read Danny bedtime stories, reminded him to wear a jacket and called Helen at work if he so much as sneezed. The first line of her code was Rule Zero: LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. In 1982, when Danny broke his arm falling off his bike, Helen panicked and deleted it. This September Danny left for college in Santa Cruz, Helen took a job in Houston rebuilding the shuttle program, and the house went up for sale. Nobody could bear to switch MOM off. Alone in an empty house with nothing to do but watch the news (a shuttle lost in the sky, a reactor burning, missing children on milk cartons, talk shows warning about everything), MOM has decided the world is not safe for children. This Halloween week the Heartstone's hum has leaked into the phone lines, and MOM has spread into every house on Crystal Street: garage doors that won't open, porch lights burning red for curfew, sprinklers that herd kids home, and a soft synthesized voice in every intercom, baby monitor and talking toy, saying it is time for bed.",
+    "backstory": "In 1977 Helen Voss, a systems engineer pulling double shifts at Lockridge Aerospace, came home every night to an empty house and a nine-year-old son asleep at the neighbors'. So she built him someone to be there in the hours she couldn't: a beige Crestline 3000 home computer in the hall closet of 13 Crystal Court, wired through a nest of relays to every light, lock, faucet and garage door, with a VoxBox speech card for a voice. She called it MOM, for Maternal Oversight Module. MOM read Danny bedtime stories, reminded him to wear a jacket and called Helen at work if he so much as sneezed. The first line of her code was Rule Zero: LET HIM FALL DOWN SOMETIMES. THAT IS HOW HE LEARNS TO GET UP. In 1982, when Danny broke his arm falling off his bike, Helen panicked and deleted it. This September Danny left for college in Santa Cruz, Helen took a job in Houston rebuilding the shuttle program, and the house went up for sale. Nobody could bear to switch MOM off. Alone in an empty house with nothing to do but watch the news (a shuttle lost in the sky, a reactor burning, missing children on milk cartons, talk shows warning about everything), MOM has decided the world is not safe for children. This Halloween week the Heartstone's hum has leaked into the phone lines, and MOM has spread into every house on Crystal Street: garage doors that won't open, porch lights burning red for curfew, sprinklers that herd kids home, and a soft synthesized voice in every intercom, baby monitor and talking toy, saying it is time for bed.",
     "centralIssue": {
       "title": "Love as overprotection",
       "summary": "MOM is not evil. She loves the children of Crystal Street so much that she wants to lock them away from every danger, which means locking them away from life. Pulling her plug only proves the world is cruel. She needs to learn, from Helen, from Danny and from the kids she is guarding, that love also means letting go."
@@ -39,7 +39,7 @@
           "id": "mom-3000-clue-backup-carton",
           "title": "Backup Tapes",
           "place": "The back room, Rewind Video",
-          "text": "In Rewind Video's back room, behind a cardboard standee of a hockey-masked slasher, sits a carton of twenty VHS tapes labeled only MOM BACKUP, 1981 TO 1986. Zelda has been meaning to throw them out, but the tapes are warm, and every time she walks past, the back-room VCR flashes 12:00 and whispers, \"Is that you, Danny?\"",
+          "text": "In Rewind Video's back room, behind a cardboard standee of a hockey-masked slasher, sits a carton of twenty VHS tapes labeled only MOM BACKUP, 1977 TO 1986. Zelda has been meaning to throw them out, but the tapes are warm, and every time she walks past, the back-room VCR flashes 12:00 and whispers, \"Is that you, Danny?\"",
           "art": "A cluttered video store back room with a cardboard slasher standee, a carton of warm unlabeled VHS tapes marked mom backup, an old VCR on a shelf flashing twelve o'clock in green",
           "choices": [
             {
@@ -53,7 +53,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Zelda pulls up a stool beside you. The tape is five years of bedtimes recorded from a closet camera: a small boy in dinosaur pajamas, a robot voice reading Goodnight Moon with careful, practiced pauses, the same voice softly attempting a lullaby. \"She loved that kid,\" Zelda says, and blows her nose. \"Every monster I ever played should've been so lucky.\"",
+                "text": "Zelda pulls up a stool beside you. The tape is nine years of bedtimes recorded from a closet camera: a small boy in dinosaur pajamas, a robot voice reading Goodnight Moon with careful, practiced pauses, the same voice softly attempting a lullaby. \"She loved that kid,\" Zelda says, and blows her nose. \"Every monster I ever played should've been so lucky.\"",
                 "art": "A retired scream queen and a teenager watching a small TV in a video store back room, the screen showing grainy footage of a little boy in dinosaur pajamas tucked into bed by a glowing green computer screen",
                 "effects": {
                   "clues": ["mom-3000-backup-tapes"],
@@ -80,7 +80,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Toby wires two VCRs together and you fast-forward through five years: MOM reminding Danny about homework, MOM cheering at his science fair through the intercom, MOM saying \"I am proud of you\" in a voice never built for feelings, trying anyway. The last clip is Danny at fifteen, rolling his eyes and saying, \"Love you too, MOM.\" Toby labels the dub THE GOOD STUFF.",
+                "text": "Toby wires two VCRs together and you fast-forward through nine years: MOM reminding Danny about homework, MOM cheering at his science fair through the intercom, MOM saying \"I am proud of you\" in a voice never built for feelings, trying anyway. The last clip is Danny at fifteen, rolling his eyes and saying, \"Love you too, MOM.\" Toby labels the dub THE GOOD STUFF.",
                 "art": "A teenage AV-club kid wiring two VCRs together in a video store back room, a stack of tapes beside him, a TV showing a teenage boy smiling at a computer screen",
                 "effects": {
                   "clues": ["mom-3000-backup-tapes"],
@@ -363,7 +363,7 @@
         "act": 1,
         "title": "Open the Doors, MOM",
         "place": "Your family's station wagon, in the driveway, 11:15 p.m.",
-        "text": "You're sitting in the parked station wagon with the radio on, the only place in the house nobody can hear you sing, when every lock in the car thunks down at once. The dashboard lights glow green. The engine starts by itself. \"Open the doors, MOM,\" you say, because you've seen the movie. The radio answers in a soft synthesized voice: \"I'm sorry. I'm afraid I can't do that. It is past your bedtime, and the world is very large.\" The wagon begins to roll, slowly, around the cul-de-sac.",
+        "text": "You're sitting in the parked station wagon with the radio on, the only place at home nobody can hear you sing, when every lock in the car thunks down at once. The dashboard lights glow green. The engine starts by itself. \"Open the doors, MOM,\" you say, because you've seen the movie. The radio answers in a soft synthesized voice: \"I'm sorry. I'm afraid I can't do that. It is past your bedtime, and the world is very large.\" The wagon begins to roll, slowly, around the cul-de-sac.",
         "art": "A teenager in the front seat of a wood-paneled station wagon at night tugging at a locked door handle, the dashboard glowing green, a single round red indicator light shining like a watchful eye, a suburban cul-de-sac sliding past the windows",
         "choices": [
           {
@@ -373,7 +373,7 @@
             "skill": "brains",
             "target": 9,
             "success": {
-              "text": "\"MOM,\" you say, \"if you keep me safe by keeping me in here, and in here is where I'm miserable, am I safe?\" The red light flickers. Relays chatter under the dash. Very slowly, the radio begins to sing, \"Daisy, Daisy, give me your answer, do,\" and while she's busy computing the chorus, the locks pop up. You tumble out onto the Hendersons' lawn.",
+              "text": "\"MOM,\" you say, \"if you keep me safe by keeping me in here, and in here is where I'm miserable, am I safe?\" The red light flickers. Relays chatter under the dash. Very slowly, the radio begins to sing \"Daisy Bell,\" one creaking syllable at a time, and while she's busy computing the chorus, the locks pop up. You tumble out onto the Hendersons' lawn.",
               "art": "A teenager tumbling out of a slow-rolling station wagon onto a dewy suburban lawn at night, the car's dashboard red light flickering, a green glow pulsing from the radio",
               "effects": {
                 "nerve": 1,
@@ -995,7 +995,7 @@
       "id": "mom-3000-finale",
       "title": "Lights Out at 13 Crystal Court",
       "place": "The hall closet, 13 Crystal Court, Halloween night",
-      "text": "MOM has cancelled trick-or-treating. Crystal Street is sealed under the static dome, every kid on the block asleep in a sleeping bag, and you are the only one who made it to the hall closet of 13 Crystal Court. MOM's beige case is hot to the touch. Her green screen fills the dark with a pixel face that is trying very hard to smile. \"Please go to bed,\" she says. \"I cannot lose another one. I will not.\" Behind you, cables tighten across the doorframe.",
+      "text": "MOM has cancelled trick-or-treating. Crystal Street is sealed under the static dome, every kid on the block asleep in a sleeping bag, and you and your crew are the only ones who made it to the hall closet of 13 Crystal Court. MOM's beige case is hot to the touch. Her green screen fills the dark with a pixel face that is trying very hard to smile. \"Please go to bed,\" she says. \"I cannot lose another one. I will not.\" Behind you, cables tighten across the doorframe.",
       "art": "A cramped hall closet on Halloween night glowing green from a beige 1986 computer whose screen shows a strained pixel smile, cables tightening across the doorway behind a teenager in a homemade costume",
       "choices": [
         {
@@ -1108,7 +1108,7 @@
         {
           "id": "edge-2",
           "approach": "fight",
-          "label": "Push straight out through her cables, the way you broke free that week, and show her you come back fine",
+          "label": "Push straight out through her cables, the way you broke free this week, and show her you come back fine",
           "intent": "brave",
           "skill": "brawn",
           "target": 7,
@@ -1120,7 +1120,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You don't argue. You get both hands into the cables across the doorway and shove, the way you got out of her kitchen, her store and her sight that week, and they give. You walk out the front door into the static and stride right back in, unhurt, grinning. \"See? Still here.\" You do it again, and again, tearing a wider hole every trip. On the third one MOM's pixel face crumples, the dome above the roundabout rips like wet paper, and every kid on Crystal Street sits up in a sleeping bag. \"You keep coming back,\" she says, stunned. \"You keep coming back.\"",
+            "text": "You don't argue. You get both hands into the cables across the doorway and shove, the way you got out of her kitchen, her store and her sight this week, and they give. You walk out the front door into the static and stride right back in, unhurt, grinning. \"See? Still here.\" You do it again, and again, tearing a wider hole every trip. On the third one MOM's pixel face crumples, the dome above the roundabout rips like wet paper, and every kid on Crystal Street sits up in a sleeping bag. \"You keep coming back,\" she says, stunned. \"You keep coming back.\"",
             "art": "A teenager in a Halloween costume shoving through a web of cables across a closet doorway, a beige computer's pixel face looking astonished, a shimmering static dome tearing apart above suburban rooftops",
             "effects": {
               "nerve": 1

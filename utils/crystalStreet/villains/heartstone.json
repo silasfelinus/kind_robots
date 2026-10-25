@@ -99,7 +99,7 @@
               "skill": "lore",
               "target": 11,
               "success": {
-                "text": "The paper comes up plain gray, and then the pencil finds grooves the eye cannot see. Fourteen names surface in the rubbing, as if the stone has been carving them in secret for thirty-four years: BRANDT, IBARRA, HAYNES, FERRARO, CHU. The last letter is still warm.",
+                "text": "The paper comes up plain gray, and then the pencil finds grooves the eye cannot see. Fourteen names surface in the rubbing, as if the stone has been carving them in secret for thirty-four years: BRANDT, IBARRA, HAYNES, FERRARO, CHU, and nine more. The last letter is still warm.",
                 "art": "A sheet of paper pressed to a blank granite slab, ghostly names surfacing in pencil rubbing, a teenager's hand holding a pencil stub, faint violet glow",
                 "effects": {
                   "clues": ["heartstone-blank-slab"],
@@ -399,7 +399,7 @@
         "act": 1,
         "title": "Who Goes There?",
         "place": "Joey's garage at Rusty's Junkyard, 2 a.m.",
-        "text": "The power dies at Joey's garage, and your crew huddles around a camp lantern between stripped-down cars. Then someone knocks: Gus Petrakis from number 8 Crystal Street, in his bathrobe and slippers, smiling, saying he is \"fine, just fine\" in a voice as flat as a dial tone. His eyes have a violet sheen. Crystal glitters across his knuckles like frost. And out in the dark, polite knocks begin on every wall of the garage at once.",
+        "text": "The power dies at Joey's garage, and your crew huddles around a camp lantern between stripped-down cars. Then someone knocks: Nick Petrakis from number 8 Crystal Street, in his bathrobe and slippers, smiling, saying he is \"fine, just fine\" in a voice as flat as a dial tone. His eyes have a violet sheen. Crystal glitters across his knuckles like frost. And out in the dark, polite knocks begin on every wall of the garage at once.",
         "art": "A junkyard garage at night lit by one camp lantern between stripped-down cars, teens huddled together, a smiling middle-aged man in a bathrobe and slippers in the doorway with violet-sheened eyes and glittering crystal frost on his knuckles",
         "choices": [
           {
@@ -413,7 +413,7 @@
               "amount": 1
             },
             "success": {
-              "text": "You crank a slow dance on the car radio, the kind they play at the end of every wedding. Gus listens with that empty smile, and then his chin wobbles, and one tear runs down his cheek. Where it lands, the crystal on his knuckles melts like frost on a windshield. \"That was our song,\" he says in his own voice, and sits down hard on a tire.",
+              "text": "You crank a slow dance on the car radio, the kind they play at the end of every wedding. Nick listens with that empty smile, and then his chin wobbles, and one tear runs down his cheek. Where it lands, the crystal on his knuckles melts like frost on a windshield. \"That was our song,\" he says in his own voice, and sits down hard on a tire.",
               "art": "A middle-aged man in a bathrobe sitting on a tire in a lantern-lit junkyard garage with one tear on his cheek, violet crystal melting off his knuckles, teens gathered by a glowing car radio",
               "effects": {
                 "nerve": 1,
@@ -422,7 +422,7 @@
               }
             },
             "failure": {
-              "text": "Gus does not react at all. The radio does. The song slides out of tune into a low violet hum, and the knocking on the walls stops at once, which is so much worse. When you look back, Gus is gone, his slippers are on the floor, and the door stands open on the dark.",
+              "text": "Nick does not react at all. The radio does. The song slides out of tune into a low violet hum, and the knocking on the walls stops at once, which is so much worse. When you look back, Nick is gone, his slippers are on the floor, and the door stands open on the dark.",
               "art": "A dark junkyard garage lit by a single camp lantern, a car radio glowing violet, an open doorway onto blackness, frightened teens staring at a pair of slippers on the concrete floor",
               "effects": {
                 "nerve": -1,
@@ -442,7 +442,7 @@
               "amount": 1
             },
             "success": {
-              "text": "You wedge a car hood across the door, and the crew takes shifts with flashlights. The knocking goes on for hours, patient as rain, then fades at first light. On the threshold you find a ring of violet frost, already melting, and Gus asleep on the hood of a pickup outside, snoring and perfectly normal.",
+              "text": "You wedge a car hood across the door, and the crew takes shifts with flashlights. The knocking goes on for hours, patient as rain, then fades at first light. On the threshold you find a ring of violet frost, already melting, and Nick asleep on the hood of a pickup outside, snoring and perfectly normal.",
               "art": "Teens keeping watch with flashlights behind a car hood wedged against a garage door at dawn, a ring of violet frost melting on the threshold, a man in a bathrobe asleep on a pickup truck outside",
               "effects": {
                 "nerve": 1,

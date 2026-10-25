@@ -9,7 +9,7 @@
       "year": 1932,
       "kind": "flip",
       "oldScript": "The orientalist mummy's curse: a foreign dead man menacing the West for revenge.",
-      "newLens": "A queen taken from her tomb by a collector who wants to go home. The Best ending is repatriation with dignity."
+      "newLens": "A queen, taken from her tomb by a collector, who wants to go home. The Best ending is repatriation with dignity."
     },
     "tags": ["paranormal", "cosmic"],
     "palette": ["#d4a72c", "#16325c", "#2fa39a"],
@@ -210,8 +210,8 @@
                 "amount": 1
               },
               "success": {
-                "text": "She reads it before you finish holding it up. \"Neferet. Great Royal Wife.\" Her eyes fill. \"On the west bank where I grew up, the old women still say her name at the harvest. We never stopped.\" From a drawer she takes her brother's 1972 letter to the Halvorsen Foundation, and the Foundation's reply, a single line from a lawyer: NO RESPONSE REQUIRED.",
-                "art": "An older woman with tears in her eyes holding up a sketch of a cartouche on her porch, a teenager beside her, an old typed letter and a curt one-line reply laid on the table",
+                "text": "She reads it before you finish holding it up. \"Neferet. Great Royal Wife.\" Her eyes fill. \"On the west bank where I grew up, the old women still say her name at the harvest. We never stopped.\" From a drawer she takes her brother's 1972 letter to the Halvorsen Foundation, still sealed in the envelope it came back in, stamped by the Foundation's lawyers: RETURN TO SENDER.",
+                "art": "An older woman with tears in her eyes holding up a sketch of a cartouche on her porch, a teenager beside her, an old unopened envelope stamped return to sender laid on the table",
                 "effects": {
                   "clues": ["queen-neferet-request"],
                   "dread": -1
@@ -542,7 +542,7 @@
         "title": "Everything Walks Home",
         "place": "Crystal Street, 2 a.m.",
         "text": "A soft scraping sound wakes you. Out on Crystal Street, things are walking home. A stolen stop sign is hopping back to the corner of Vista Way. The Lindgrens' garden gnome, swiped in 1979, is trudging up their driveway trailing golden sand. A library book eleven years overdue flaps past like a tired bird. A cool, patient voice says, \"Everything taken wants to go home.\" And in your own dresser drawer, something is knocking to be let out.",
-        "art": "A moonlit suburban street at 2 a.m., a pink plastic lawn flamingo hopping back across a front lawn, a garden gnome trudging up a driveway trailing golden sand, a library book flapping through the air like a bird, a teenager watching wide-eyed from a bedroom window",
+        "art": "A moonlit suburban street at 2 a.m., a stolen stop sign hopping back to a street corner, a garden gnome trudging up a driveway trailing golden sand, a library book flapping through the air like a bird, a teenager watching wide-eyed from a bedroom window",
         "choices": [
           {
             "id": "return-it",
@@ -551,7 +551,7 @@
             "skill": "nerve",
             "target": 9,
             "success": {
-              "text": "It's your cousin Marisol's Walkman, borrowed in June and never returned. You pull on a jacket and walk it three blocks to her porch, where it settles on the mat with a contented click. When you turn around, the stars overhead have shifted, just slightly, and a voice that sounds almost pleased says, \"So you do understand.\"",
+              "text": "It's your neighbor Marisol's tape player, borrowed in June and never returned. You pull on a jacket and walk it three blocks to her porch, where it settles on the mat with a contented click. When you turn around, the stars overhead have shifted, just slightly, and a voice that sounds almost pleased says, \"So you do understand.\"",
               "art": "A teenager in a jacket setting a portable cassette player gently on a front porch mat at night, golden sand glittering in a trail behind them, a strange sky of unfamiliar stars overhead",
               "effects": {
                 "nerve": 1,
@@ -560,7 +560,7 @@
               }
             },
             "failure": {
-              "text": "You open the drawer and the Walkman bolts. You chase it six blocks in your pajamas, past porch after porch of neighbors watching their own lost things leave, and you finally corner it at the Heartstone roundabout, where it nips your finger and escapes into the dark.",
+              "text": "You open the drawer and the tape player bolts. You chase it six blocks in your pajamas, past porch after porch of neighbors watching their own lost things leave, and you finally corner it at the Heartstone roundabout, where it nips your finger and escapes into the dark.",
               "art": "A teenager in pajamas sprinting down a moonlit street after a small portable cassette player scuttling away on a trail of golden sand, neighbors in doorways watching, a giant purple geode ahead",
               "effects": {
                 "nerve": -1,
@@ -1061,7 +1061,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You wade through the sand to the coffin and knock three times, slow and polite, the way a guest knocks. The first nights of the week she spoke to you through a book slot, a shipping crate, a heating vent, and she always answered good manners. She answers now. The sand stops pouring. \"An audience,\" she says, amused, \"in the middle of my own escape.\" With every courtesy you know, you ask her to wait one more night, not in a box this time, but as an honored guest of the library with her name on the door. She considers the plastic palms, the fog machine, the man in the rubber suit. \"One night,\" she says. \"As a guest.\" She lies down, and the sky folds back over Glimmer Falls as gently as a blanket.",
+            "text": "You wade through the sand to the coffin and knock three times, slow and polite, the way a guest knocks. In the first nights of the week she spoke to you out of the dark, and she always answered good manners. She answers now. The sand stops pouring. \"An audience,\" she says, amused, \"in the middle of my own escape.\" With every courtesy you know, you ask her to wait one more night, not in a box this time, but as an honored guest of the library with her name on the door. She considers the plastic palms, the fog machine, the man in the rubber suit. \"One night,\" she says. \"As a guest.\" She lies down, and the sky folds back over Glimmer Falls as gently as a blanket.",
             "art": "A teenager in a Halloween costume knocking politely on an ancient painted coffin amid drifts of golden sand, a regal queen in white linen and gold rising with an amused expression, plastic palms and a fog machine behind",
             "effects": {
               "nerve": 1
@@ -1090,7 +1090,7 @@
             "amount": 1
           },
           "success": {
-            "text": "You've done this before. In front of a theater, a TV camera and a whole street of drifting names, you stood up for her in public. So you climb onto the gala stage, rip down the CURSE OF THE PHARAOH banner, yank the fog machine's plug and take the Foundation director's microphone right out of his hand. \"Show's over. She isn't a curse. She's a person, and she was robbed.\" The man in the rubber mummy suit pulls off his head and nods. The screaming stops. In the sudden quiet the queen looks at you, and the sand stops rising. \"Someone fights for me,\" she says, \"instead of against me.\" She lies down to wait, and for the first time in seventy-five years she believes the waiting will end.",
+            "text": "You've done this before. Midweek, you stood up for her in public. So you climb onto the gala stage, rip down the CURSE OF THE PHARAOH banner, yank the fog machine's plug and take the Foundation director's microphone right out of his hand. \"Show's over. She isn't a curse. She's a person, and she was robbed.\" The man in the rubber mummy suit pulls off his head and nods. The screaming stops. In the sudden quiet the queen looks at you, and the sand stops rising. \"Someone fights for me,\" she says, \"instead of against me.\" She lies down to wait, and for the first time in seventy-five years she believes the waiting will end.",
             "art": "A teenager in a Halloween costume tearing down a gala banner on a library stage among plastic palms, a man in a rubber mummy costume pulling off his mask, a queen in white linen and gold watching with surprise",
             "effects": {
               "nerve": 1
@@ -1154,8 +1154,8 @@
       },
       "bad": {
         "title": "Unknown Teenager, 1986",
-        "text": "The sky closes with the queen inside it, and something else goes with her: your name. You are found on November first lying perfectly still in her empty glass case, and nobody, not your crew, not your family, can remember what to call you. The Foundation adds you to the tour. Your placard reads UNKNOWN TEENAGER, PROVENANCE SUBURBAN CALIFORNIA. Far away, a queen is finally home, and she is sorry about the fare.",
-        "art": "A teenager lying perfectly still in a museum glass case with folded hands under a typed placard reading unknown teenager, grieving friends pressed against the glass"
+        "text": "The sky closes with the queen inside it, and something else goes with her: your name. You are found on November first in her empty glass case, breathing slow and deep like a sleeper who cannot be woken, and nobody, not your crew, not your family, can remember what to call you. The Foundation adds you to the tour. Your placard reads UNKNOWN TEENAGER, PROVENANCE SUBURBAN CALIFORNIA. Far away, a queen is finally home, and she is sorry about the fare.",
+        "art": "A teenager asleep and gently breathing in a museum glass case with folded hands under a typed placard reading unknown teenager, worried friends pressed against the glass"
       }
     }
   }

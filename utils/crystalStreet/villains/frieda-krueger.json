@@ -104,7 +104,7 @@
           "id": "frieda-krueger-clue-wig-room",
           "title": "The wig room",
           "place": "Backstage, The Glitter Box Playhouse",
-          "text": "Glory Hallelujah's wig room is a wall of foam heads, each with a name: Cher, Dusty, Big Sandy, Miss Frieda. That last one wears a towering silver beehive, and under it, taped to the foam, is an old photo album bursting with Polaroids of kids in impossible haircuts, all of them grinning.",
+          "text": "Glory Hallelujah's wig room is a wall of foam heads, each with a name: Cher, Dusty, Big Sandy, Miss Frieda. That last one wears a towering silver beehive, and under it, taped to the foam, is an old photo album bursting with snapshots of kids in impossible haircuts, all of them grinning.",
           "art": "A backstage wig room lined with foam mannequin heads wearing sparkling wigs, one silver beehive labeled Miss Frieda, an old photo album open beneath it full of 1960s haircut snapshots",
           "choices": [
             {
@@ -118,7 +118,7 @@
                 "amount": 2
               },
               "success": {
-                "text": "Glory sits down hard. \"She cut my hair when I was nine, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
+                "text": "Glory sits down hard. \"She cut my hair when I was seventeen, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
                 "art": "A drag queen in a feathered robe sitting at a vanity mirror, holding an old photo album to her chest, tearful and smiling, bulb lights glowing",
                 "effects": {
                   "clues": ["frieda-krueger-portfolio"],
@@ -145,8 +145,8 @@
                 "amount": 2
               },
               "success": {
-                "text": "Click, whirr, click. Twelve Polaroids develop in your pocket: a boy with a lightning-bolt part, twin girls with matching blue bobs, a kid in a tiara who looks a lot like a young Glory. Frieda made people brave.",
-                "art": "A spread of fresh Polaroid photos on a backstage floor showing 1960s kids with bold, joyful haircuts, a camera beside them",
+                "text": "Click, whirr, click. Twelve instant photos develop in your pocket: a boy with a lightning-bolt part, twin girls with matching blue bobs, a kid in a tiara who looks a lot like a young Glory. Frieda made people brave.",
+                "art": "A spread of fresh instant photos on a backstage floor showing 1960s kids with bold, joyful haircuts, a camera beside them",
                 "effects": {
                   "clues": ["frieda-krueger-portfolio"],
                   "quarters": 1
@@ -219,7 +219,7 @@
               },
               "failure": {
                 "text": "She laughs at you, a brittle, practiced laugh, and goes inside. Every light in her house goes out at once. For the first time in twenty-five years, Mrs. Whitlock is asleep, and the whole street hears her scream.",
-                "art": "A split-level house on a cul-de-sac with every light suddenly out, a single scream line drawn in the air above it, neighbors' porch lights flicking on",
+                "art": "A split-level house on a cul-de-sac with every light suddenly out, neighbors' porch lights flicking on",
                 "effects": {
                   "nerve": -2,
                   "dread": 2
@@ -308,7 +308,7 @@
             "skill": "brawn",
             "target": 9,
             "success": {
-              "text": "Your sneakers slap gray asphalt. Grandma Pearl's porch light is still yellow, and you dive through it like a finish line. Inside, everything is warm and loud and real, and you wake up laughing.",
+              "text": "Your sneakers slap gray asphalt. Pearl Washington's porch light is still yellow, and you dive through it like a finish line. Inside, everything is warm and loud and real, and you wake up laughing.",
               "art": "A teenager diving through a glowing yellow porch light into a warm, colorful living room while a gray suburban street reaches after them",
               "effects": {
                 "nerve": 1,
@@ -316,7 +316,7 @@
               }
             },
             "failure": {
-              "text": "The neighbors move without walking, like a slide show. Every time you blink they are closer. When you wake, your favorite jacket is gray, and so is the poster above your bed.",
+              "text": "The neighbors move without walking, like a slide show. Every time you blink they are closer. When you wake, the poster above your bed is gray, and your favorite leg warmers have faded to dust in your drawer.",
               "art": "Gray-robed neighbors frozen mid-step much closer than before, like slides in a slideshow, surrounding a frightened teenager on a gray street",
               "effects": {
                 "nerve": -2,

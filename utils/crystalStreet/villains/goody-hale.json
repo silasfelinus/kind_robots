@@ -24,7 +24,7 @@
     "portrait": "Close portrait of a weathered woman in her late forties with gray-streaked hair falling loose, a crown of briars and orange calendula, deep lines of grief around kind, furious eyes, a sprig of yarrow tucked behind one ear, lit green from below by a lantern",
     "endingPhoto": "A tall woman in gray 1850s homespun rising from a suburban roundabout garden at night, a crown of briars and marigolds on her loose gray hair, a lantern burning green in her hand, thorny vines curling over mailboxes and lawn flamingos, a ring of teens joining hands around her with candles",
     "taunts": [
-      "I sat up with your great-great-grandmother through three nights of fever. Did they tell you that?",
+      "I sat up with your town's great-great-grandmothers through their fevers. Did they tell you that?",
       "Every year you burn me. Every year I watch.",
       "My garden fed this valley. Your founders salted it.",
       "Names are cheap in Glimmer Falls. They gave me theirs for free: witch."
@@ -406,7 +406,7 @@
               }
             },
             "failure": {
-              "text": "The chant gets into your mouth. You find yourself grinding herbs with your bare hands, saying names you have never heard, and under them a new one, hissed: Crane, Pell, Averill. You come to at dawn with green-stained fingers.",
+              "text": "The chant gets into your mouth. You find yourself grinding herbs with your bare hands, saying names you have never heard, and under them three new ones, hissed: Crane, Pell, Averill. You come to at dawn with green-stained fingers.",
               "art": "A teenager waking at dawn in an oak grove with green-stained fingers and a stone mortar in their lap, the circle of sleepwalkers gone",
               "effects": {
                 "nerve": -1,
@@ -519,7 +519,7 @@
               }
             },
             "failure": {
-              "text": "The voice past the glass laughs, short and bitter. \"Manners. The men who burned my garden had lovely manners.\" The fog freezes into frost ferns across the mirror, and downstairs Becky's whole sleepover screams at once.",
+              "text": "The voice past the glass laughs, short and bitter. \"Manners. The men who burned my garden had lovely manners.\" The fog freezes into frost ferns across the mirror, and outside the door Becky's whole sleepover screams at once.",
               "art": "A bathroom mirror frosted over with icy fern patterns around a teenager's shocked reflection, a candle flame bent sideways by a cold draft, sleeping bags visible through the doorway",
               "effects": {
                 "nerve": -1,
@@ -799,7 +799,7 @@
             },
             "failure": {
               "text": "Halfway through the ropes, porch lights snap on. The committee chairman is in his bathrobe on the curb shouting about vandals, and the effigy stays up. Behind him, a briar is climbing his porch post, faster now.",
-              "art": "A councilman in a bathrobe shouting from his porch at teens caught sawing at an effigy's ropes, a briar racing up his porch post behind him",
+              "art": "A committee chairman in a bathrobe shouting from the curb at teens caught sawing at an effigy's ropes, a briar racing up his porch post behind him",
               "effects": {
                 "nerve": -1,
                 "dread": 1

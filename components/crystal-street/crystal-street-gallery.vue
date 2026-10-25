@@ -90,7 +90,7 @@
         </div>
         <p class="flex flex-wrap gap-1">
           <span v-for="tag in villain.tags" :key="tag" class="cs-pill">{{
-            tag
+            TAG_LABELS[tag]
           }}</span>
         </p>
         <ul class="grid grid-cols-2 gap-1 text-xs" aria-label="Endings found">
@@ -137,6 +137,7 @@ import { computed, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   ENDING_TIERS,
+  TAG_LABELS,
   TIER_LABELS,
   VILLAINS,
   endingKey,

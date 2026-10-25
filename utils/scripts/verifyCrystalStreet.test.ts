@@ -73,6 +73,7 @@ import {
   validateVillain,
 } from '../crystalStreet/validate'
 import { autoplay } from '../crystalStreet/autoplay'
+import { TAGS } from '../crystalStreet/types'
 import { buildPlaybook } from '../playbook/games'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -90,7 +91,7 @@ assert.deepEqual(COMPANIONS.map((c) => c.id).sort(), [...COMPANION_IDS].sort())
 assert.equal(CREW_LIMIT, 10, 'ten active companions at most')
 assert.deepEqual(LOCATIONS.map((l) => l.id).sort(), [...LOCATION_IDS].sort())
 assert.deepEqual(ITEMS.map((i) => i.id).sort(), [...ITEM_IDS].sort())
-assert.equal(DECKS.length, 8, 'one night deck per tag')
+assert.equal(DECKS.length, TAGS.length, 'one night deck per tag')
 assert.equal(ARCHETYPES.length, 6)
 for (const a of ARCHETYPES)
   assert.equal(
@@ -632,8 +633,12 @@ for (const v of VILLAINS)
     (bestBy.get(v.id) ?? 0) > 0,
     `${v.id}: a careful week can reach the best ending`,
   )
+// A guard, not the balance target: 460 seeded weeks carry about +/-2 points
+// of noise around careful play's true rate (64% on the 2,208-week report,
+// conductor projects/crystal-street/BALANCE-REPORT.md, which holds every
+// nightmare to 40-75%), so the line sits a little above it.
 assert.ok(
-  tiers.best! < total * 0.65,
+  tiers.best! < total * 0.68,
   'the best ending is earned, not automatic',
 )
 assert.ok(tiers.bad! + tiers.bittersweet! > 0, 'weeks can go wrong')

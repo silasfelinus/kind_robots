@@ -144,6 +144,7 @@ import {
   SKILL_LABELS,
   bonusApplies,
   companionById,
+  FACTION_LABELS,
   effectChips,
   itemById,
   lockReason,
@@ -153,8 +154,9 @@ import {
   villainOf,
   wardFor,
   shortName,
+  standingShift,
 } from '~/utils/crystalStreet/rules'
-import type { Choice } from '~/utils/crystalStreet/types'
+import type { Choice, Faction } from '~/utils/crystalStreet/types'
 
 const store = useCrystalStreetStore()
 const run = computed(() => store.run!)
@@ -164,9 +166,20 @@ const outcome = computed(() => store.outcome)
 const chosen = computed(() =>
   encounter.value?.choices.find((c) => c.id === pending.value?.choiceId),
 )
-const chips = computed(() =>
-  outcome.value ? effectChips(outcome.value.effects) : [],
-)
+const chips = computed(() => {
+  if (!outcome.value) return []
+  const list = effectChips(outcome.value.effects)
+  if (chosen.value && pending.value)
+    for (const [faction, delta] of Object.entries(
+      standingShift(run.value, chosen.value, pending.value.roll.success),
+    ))
+      if (delta)
+        list.push({
+          text: `${delta > 0 ? '+' : '−'}${Math.abs(delta)} ${FACTION_LABELS[faction as Faction]}`,
+          tone: delta > 0 ? 'good' : 'bad',
+        })
+  return list
+})
 const helper = computed(() => (store.run ? rerollHelper(store.run) : null))
 const shieldName = computed(() =>
   shortName(companionById(pending.value?.shielded ?? '')?.name ?? ''),

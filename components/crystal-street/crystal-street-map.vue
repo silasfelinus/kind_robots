@@ -338,14 +338,18 @@ function subFor(activity: DayActivity): string {
   }
   if (activity.kind === 'meet')
     return companionById(activity.companionId)?.role ?? ''
-  if (activity.kind === 'rejoin') return 'Rejoins your crew, no roll'
-  if (activity.kind === 'train') return '+1 skill, once a day, up to 4'
+  if (activity.kind === 'rejoin')
+    return 'Rejoins your crew, no roll, +1 friends'
+  if (activity.kind === 'train')
+    return selected.value === 'library' || selected.value === 'high-school'
+      ? '+1 skill, once a day, up to 4; +1 officials'
+      : '+1 skill, once a day, up to 4'
   if (activity.kind === 'shop') return 'Spend quarters on gear'
-  if (activity.kind === 'rest') return '+2 nerve'
+  if (activity.kind === 'rest') return '+2 nerve, +1 family'
   if (activity.kind === 'heal')
     return `+${HEAL_NERVE} nerve, shaken friends steady again`
   if (activity.kind === 'groceries')
-    return `${GROCERY_COST} quarters: +1 nerve, −1 dread`
+    return `${GROCERY_COST} quarters: +1 nerve, −1 dread, +1 family`
   return 'A daylight adventure'
 }
 </script>

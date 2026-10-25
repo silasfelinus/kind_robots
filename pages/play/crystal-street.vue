@@ -87,6 +87,7 @@
         <span class="cs-meter hidden @lg:flex" title="Night wins">
           <icon name="kind-icon:dice" class="h-4 w-4" />{{ run.wins }}
         </span>
+        <crystal-street-standing :run="run" class="cs-meter" />
       </div>
       <crystal-street-dial
         :items="dialItems"
@@ -127,6 +128,14 @@
             :pronouns="run.pronouns"
             :skills="run.skills"
           />
+          <section class="cs-frame mt-3 space-y-2 p-3" aria-label="Standing">
+            <h3 class="cs-kicker">Standing in town</h3>
+            <p class="text-xs opacity-75">
+              If any of these hits zero the week ends its own way. Lose every
+              friend and you face Halloween alone, as the Final Girl.
+            </p>
+            <crystal-street-standing :run="run" full />
+          </section>
         </div>
       </section>
       <crystal-street-crew v-else-if="view === 'crew'" />

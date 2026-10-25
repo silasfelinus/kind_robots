@@ -17,7 +17,14 @@ import {
   AVATARS,
   BEST_WINS,
   CHARACTERS,
+  FINAL_GIRL,
+  SPECIAL_ENDINGS,
   STYLE_BONUS,
+  activeCrew,
+  isFinalGirl,
+  specialEndingOf,
+  standingOf,
+  standingShift,
   characterFor,
   synergyOf,
   COMPANIONS,
@@ -30,6 +37,7 @@ import {
   activitiesAt,
   allEncounters,
   choose,
+  dismiss,
   deckByTag,
   doActivity,
   finaleTier,
@@ -37,6 +45,7 @@ import {
   newRun,
   nightfall,
   resolve,
+  villainById,
   successChance,
   type RunState,
 } from '../crystalStreet/rules'
@@ -215,6 +224,93 @@ assert.equal(
       modifierFor(bare, campChoice).modifier,
     STYLE_BONUS.camp,
   )
+}
+
+// Factions (Silas, 2026-10-24 PT: "friends family officials neighbors. if
+// any of them drop to zero that could trigger a special end sequence").
+{
+  const fresh = newRun({
+    seed: 'factions',
+    name: 'F',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    avatar: AVATARS[0]!.id,
+    villain: 'counselor-jess',
+  })
+  assert.deepEqual(standingOf(fresh), {
+    friends: 3,
+    family: 4,
+    officials: 3,
+    neighbors: 3,
+  })
+  const jess = villainById('counselor-jess')!
+  const card = jess.signature[0]!
+  const sneaky = { ...card.choices[0]!, intent: 'sneaky' as const }
+  const kind = { ...card.choices[0]!, intent: 'kind' as const }
+  const night: RunState = {
+    ...fresh,
+    phase: 'night',
+    current: { id: card.id, kind: 'signature' },
+  }
+  // Failures cost standing (family once a night for a nightmare card,
+  // officials for sneaky or reckless, friends when you face it alone);
+  // kind successes win the neighbors back.
+  assert.deepEqual(standingShift(night, sneaky, false), {
+    officials: -1,
+    family: -1,
+    friends: -1,
+  })
+  assert.deepEqual(standingShift(night, kind, true), { neighbors: 1 })
+  assert.deepEqual(
+    standingShift({ ...night, flags: ['curfew-1', 'alone-1'] }, sneaky, false),
+    { officials: -1 },
+  )
+  // A faction at zero ends the week its own way.
+  const brink: RunState = {
+    ...night,
+    standing: { ...standingOf(fresh), family: 1 },
+  }
+  const choice = card.choices[0]!
+  let lost = choose(brink, choice.id)
+  lost = {
+    ...lost,
+    pending: {
+      ...lost.pending!,
+      roll: { ...lost.pending!.roll, success: false },
+    },
+  }
+  const ended = resolve(lost)
+  assert.equal(ended.phase, 'ended')
+  assert.equal(ended.ending?.special, 'family')
+  assert.match(specialEndingOf(ended)!.text, /Counselor Jess/)
+  // Friends at zero start the Final Girl sequence: the finale tonight, alone.
+  const lonely: RunState = {
+    ...night,
+    crew: ['dani-ortega'],
+    standing: { ...standingOf(fresh), friends: 1 },
+  }
+  let shaken = choose(lonely, choice.id)
+  shaken = {
+    ...shaken,
+    pending: {
+      ...shaken.pending!,
+      roll: { ...shaken.pending!.roll, success: false },
+    },
+  }
+  const solo = dismiss(resolve(shaken), 'dani-ortega')
+  assert.ok(isFinalGirl(solo) && solo.flags.includes(FINAL_GIRL))
+  assert.equal(activeCrew({ ...solo, crew: ['dani-ortega'] }).length, 0)
+  assert.ok(
+    solo.phase === 'ended' ||
+      solo.queue.some((q) => q.kind === 'finale') ||
+      solo.current?.kind === 'finale' ||
+      solo.phase === 'day',
+  )
+  for (const [id, e] of Object.entries(SPECIAL_ENDINGS)) {
+    assert.ok(e.title.length > 3, `${id} title`)
+    assert.ok(e.text.length > 200, `${id} text`)
+    assert.ok(e.art.length > 80, `${id} art`)
+  }
 }
 
 // Ending rules.

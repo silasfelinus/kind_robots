@@ -30,11 +30,16 @@ export function allArtPrompts(content: {
   items: Item[]
   avatars: Avatar[]
   characters: Character[]
+  specialEndings: Record<string, { art: string }>
   title: string
 }): ArtPrompt[] {
   return [
     { key: 'title/crystal-street', prompt: content.title },
     ...content.avatars.map((a) => ({ key: `avatars/${a.id}`, prompt: a.art })),
+    ...Object.entries(content.specialEndings).map(([id, e]) => ({
+      key: `endings/special-${id}`,
+      prompt: e.art,
+    })),
     ...content.characters.map((c) => ({
       key: `characters/${c.id}`,
       prompt: c.art,

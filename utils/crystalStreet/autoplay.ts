@@ -13,6 +13,7 @@ import {
   reroll,
   rerollHelper,
   resolve,
+  standingOf,
   successChance,
   villainDeck,
   type DayActivity,
@@ -28,12 +29,30 @@ const PRIORITY: DayActivity['kind'][] = [
   'rest',
 ]
 
+// A careful player mends whichever standing is about to give out first.
+function mending(
+  run: RunState,
+  location: LocationId,
+  activity: DayActivity,
+): boolean {
+  const standing = standingOf(run)
+  if (standing.family <= 1)
+    return activity.kind === 'rest' || activity.kind === 'groceries'
+  if (standing.officials <= 1)
+    return (
+      activity.kind === 'train' &&
+      (location === 'library' || location === 'high-school')
+    )
+  return false
+}
+
 function bestActivity(run: RunState): [LocationId, DayActivity] | null {
   let best: [LocationId, DayActivity, number] | null = null
   for (const location of LOCATIONS) {
     for (const activity of activitiesAt(run, location.id as LocationId)) {
-      if (activity.kind === 'rest' && run.nerve > 5) continue
-      const rank = PRIORITY.indexOf(activity.kind)
+      const mend = mending(run, location.id as LocationId, activity)
+      if (activity.kind === 'rest' && run.nerve > 5 && !mend) continue
+      const rank = mend ? -1 : PRIORITY.indexOf(activity.kind)
       if (rank < 0) continue
       if (
         (activity.kind === 'meet' || activity.kind === 'rejoin') &&
@@ -89,7 +108,12 @@ export function autoplay(
       continue
     }
     if (awaitingDraw(run)) {
-      run = drawFrom(run, villainDeck(run).length ? 'villain' : 'street')
+      const curfew =
+        standingOf(run).family <= 1 && !run.flags.includes(`curfew-${run.day}`)
+      run = drawFrom(
+        run,
+        villainDeck(run).length && !curfew ? 'villain' : 'street',
+      )
       continue
     }
     if (run.phase === 'day') {

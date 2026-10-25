@@ -60,6 +60,18 @@ tutorial:
         Up to ten friends can join your crew. Each helps with their skills and
         brings a perk, though perks do not stack. A friend shaken by a bad
         night gives no help until dawn, or until the nurse steadies them.
+    - key: standing
+      title: 'Standing: friends, family, officials, neighbors'
+      image: /crystal-street/locations/crystal-street.webp
+      body: >-
+        Four groups keep an eye on you, and failures wear their patience down.
+        A nightmare card gone wrong sends you home late to your family; a sneaky
+        or reckless slip gets the sheriff and the school asking questions; a
+        street card gone wrong riles the neighbors; a shaken friend, or a night
+        faced alone, costs friendship. Rest at home, eat comfort food, study at
+        the library and do kind things to win them back. If one hits zero, the
+        week ends its own way, and if your friends all fall away, you face
+        Halloween alone as the Final Girl, a title anyone can earn.
     - key: acts
       title: Three acts and your edges
       image: /crystal-street/villains/frieda-krueger-poster.webp

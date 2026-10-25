@@ -126,7 +126,9 @@
         >
           <div v-for="tile in tiles" :key="tile.key" class="min-h-0 min-w-0">
             <button
-              v-if="darkScenes[tile.key] && world.dark.revealed.includes(tile.key)"
+              v-if="
+                darkScenes[tile.key] && world.dark.revealed.includes(tile.key)
+              "
               type="button"
               class="relative grid h-full w-full place-items-center border border-[#b3a1c0]/30 text-[clamp(10px,1.7vw,22px)] transition hover:bg-purple-200/25 focus-visible:outline-2 focus-visible:outline-white"
               :class="{
@@ -325,8 +327,9 @@ const tiles = BRIAR_TILES
 const darkScenes = DARK_BRIAR_SCENES
 const scene = computed(() => darkScenes[world.dark.player])
 const decisions = computed(() => Object.keys(world.dark.sceneChoices).length)
-const witnessCount = computed(() =>
-  DARK_BRIAR_WITNESSES.filter((key) => world.dark.sceneChoices[key]).length,
+const witnessCount = computed(
+  () =>
+    DARK_BRIAR_WITNESSES.filter((key) => world.dark.sceneChoices[key]).length,
 )
 const sceneStyle = computed(() => {
   const [x = 1, y = 1] = world.dark.player.split(',').map(Number)

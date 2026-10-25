@@ -460,7 +460,7 @@ export function synergyOf(
   const bonuses: StyleBonus[] = [
     {
       style: look.style,
-      amount: STYLE_BONUS[look.style] + (typecast ? 1 : 0),
+      amount: Math.min(2, STYLE_BONUS[look.style] + (typecast ? 1 : 0)),
       why: typecast ? `${look.name}, typecast` : look.name,
     },
   ]

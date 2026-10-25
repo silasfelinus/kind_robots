@@ -251,7 +251,7 @@
             "label": "Look her in the eye and say thank you",
             "intent": "kind",
             "skill": "charm",
-            "target": 11,
+            "target": 7,
             "success": {
               "text": "The ladle stops halfway. The whole line goes silent. For one second you see under the hairnet: a tired woman's face, astonished. \"Well,\" she says, \"nobody's ever...\" The cafeteria fades into morning, and on your tray sits a perfect cinnamon roll, still warm.",
               "art": "A towering lunch lady frozen mid-scoop, her stern face softening in astonishment, a teenager holding a tray with a single glowing cinnamon roll, the dark cafeteria dissolving into morning light",
@@ -330,7 +330,7 @@
             "label": "Blast it with Aqua-Glow until it hardens",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "aqua-net",
               "amount": 2
@@ -395,7 +395,7 @@
             "label": "Take a big bite and compliment the cook by name",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "big-gertie-named",
               "amount": 2
@@ -538,7 +538,7 @@
             "label": "Roll down the window and offer her a ride home",
             "intent": "kind",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "flag": "big-gertie-thanked",
               "amount": 1
@@ -576,7 +576,7 @@
             "label": "Grab a flashlight and go after Chip",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "flashlight",
               "amount": 2

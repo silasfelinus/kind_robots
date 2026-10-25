@@ -275,7 +275,7 @@
             "label": "Scoop them all into the bathtub and shut the door",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You scoop them up in a laundry basket, eight purring armfuls, and dump them in the tub. They roll around happily in the dry porcelain and fall asleep in a pile. No sugar, no splitting. For once, the bathroom is the safest room in the house.",
               "art": "A teenager dumping a laundry basket of sleepy fuzzy critters into a bathtub, the creatures curling into a contented pile",
@@ -325,7 +325,7 @@
             "label": "Feed them one candy each to see what they really want",
             "intent": "reckless",
             "skill": "lore",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "You give each one a single gumdrop and say, out loud, \"That's all. That's enough.\" Three of them stop, considering. They do not split. One of them burps, looks surprised, and goes to sleep. It is not much, but it means it can be done.",
               "art": "A teenager carefully handing out single gumdrops to a row of fuzzy critters, three of them pausing thoughtfully, one fast asleep after a tiny burp",
@@ -362,7 +362,7 @@
             "label": "Find the mall's PA closet and cut the jingle",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "debug-disk",
               "amount": 2
@@ -416,7 +416,7 @@
             "label": "Ride the escalator rail over the mountain and grab the Golden one on top",
             "intent": "reckless",
             "skill": "brawn",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "You slide down the rail, leap, and snatch the glittering Golden Sugarling off the peak. The mountain freezes. Without its rarest piece, the heap loses interest in itself. It slumps, dozes and slowly spreads into ordinary fuzz. The Golden one bites your thumb and pays you in arcade tokens.",
               "art": "A teenager leaping from an escalator rail to snatch a glittering golden critter from the top of a mountain of fuzz in a mall food court",
@@ -449,7 +449,7 @@
             "label": "Help Frankie keep the movie running while the crew sneaks the candy out",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "frankie-fontaine",
               "amount": 2
@@ -505,7 +505,7 @@
             "label": "Throw every house light on at once",
             "intent": "reckless",
             "skill": "nerve",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "The lights hit like a slap of daylight. The whole audience squeals, covers its moon eyes and pours out the fire exits in a fuzzy flood, blinking and sneezing, straight into the alley dumpster, where they curl up in the dark and pout. Frankie gives you a slow, impressed whistle from the booth.",
               "art": "Blazing theatre house lights flooding a velvet auditorium, fuzzy pastel critters squinting and covering their eyes as they pour out a fire exit into a dark alley dumpster, a teenager with a hand on a big lever",
@@ -538,7 +538,7 @@
             "label": "Raid Mr. Fennimore's pantry and hand out raisins and dental floss",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "Mr. Fennimore is that neighbor, so his pantry is all little boxes of raisins and spools of dental floss. You drop one in every bag. The tiny ghost peers inside, looks up at you with betrayed moon eyes, and the whole crowd turns and toddles off the porch in disgust, muttering. You have never been prouder to be the worst house on the street.",
               "art": "A smug teenager on a porch dropping tiny raisin boxes into pillowcases, a crowd of costumed fuzzy critters peering inside with betrayed faces and toddling away down the steps in disgust",
@@ -587,7 +587,7 @@
             "label": "Invite the littlest one inside and split one candy bar, half each",
             "intent": "kind",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "flag": "sugarlings-enough",
               "amount": 1
@@ -629,7 +629,7 @@
             "label": "Prop open every window and let the sunrise in",
             "intent": "clever",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "amir-haddad",
               "amount": 2
@@ -717,7 +717,7 @@
             "label": "Run to the kid and help him give his candy away to everyone on the porch",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "sugarlings-enough",
               "amount": 1
@@ -828,7 +828,7 @@
             "label": "Shove a shopping cart down the candy aisle at full speed and scoop up the whole party",
             "intent": "reckless",
             "skill": "hustle",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "You grab a cart, take a running start and plow down the candy aisle like a game-show contestant on a shopping spree. Sugarlings tumble in by the dozen, squealing with joy. You wheel the heaped cart straight out the doors and across Route 49 to the dark church parking lot, where the purring pile falls asleep in the cart, a whole highway away from any candy.",
               "art": "A teenager racing a shopping cart heaped with squealing fuzzy pastel critters across a dark highway toward a church parking lot, a convenience store glowing behind them",
@@ -913,7 +913,7 @@
             "label": "Stand in front of the van and refuse to move until Chet stops feeding them",
             "intent": "brave",
             "skill": "nerve",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "You plant yourself in front of the van's bumper with your arms folded. Chet honks. You stay. Then the Channel 6 camera swings around to film you, and Chet, who has never once been on the news as the bad guy, goes pale and orders his assistant to put the candy corn away. The neighbors start booing him. He drives off with empty pockets and a van full of very sleepy Sugarlings.",
               "art": "A teenager standing with folded arms in front of a pastel toy company van at dusk, a news camera filming, a pale man in a pastel blazer behind the wheel, neighbors booing",

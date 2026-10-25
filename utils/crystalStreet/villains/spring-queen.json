@@ -249,7 +249,7 @@
             "label": "Take her hand and dance while you ask who she means",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "Roz dances like a track star, all elbows and enthusiasm, and steps on your feet twice. \"Del rides a motorcycle,\" she tells you, glowing. \"She reads Emily Dickinson in the bleachers like it's a dare.\" The band finally changes songs, and you wake with the smell of gardenias on your hands and the feeling you made a friend.",
               "art": "A teenager in pajamas slow-dancing with a laughing ghostly prom queen in a mint gown under paper moons, her crown slipping sideways, faceless couples blurring around them",
@@ -336,7 +336,7 @@
             "label": "Signal the street below until somebody comes",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 2
@@ -400,7 +400,7 @@
             "label": "Climb the catwalk ladder and grab the bucket before it drops",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You shinny up the ladder and get both hands on the rope just as the last strand gives. The bucket is heavier than it looks. Inside is a quart of lime gelatin and a card in a jock's blocky print: For Our Queen. Roz looks at it for a long time. \"Lime,\" she says. \"Mine was rain.\"",
               "art": "A teenager on a high gym catwalk gripping a fraying rope and a heavy galvanized bucket of green gelatin, a ghostly prom queen in a mint gown seated beside them, a student rehearsal on the stage far below",
@@ -739,7 +739,7 @@
             "label": "Slip the corsage on your wrist and follow the wet footprints",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "The footprints lead you down Crystal Street, around the Heartstone and up to the gym doors, where they stop toes together, like someone waiting to be let in. The corsage on your wrist turns warm. Behind you a girl's voice says, \"Thanks for walking me. Nobody ever walks me,\" and when you turn there is only a puddle shaped like a high-heeled shoe.",
               "art": "A teenager in socks standing at the doors of a high school gym at night, a gardenia corsage glowing on one wrist, a puddle shaped like a high-heeled shoe on the step, wet footprints ending toe to toe",

@@ -248,7 +248,7 @@
             "label": "Sprint through the sprinklers for home",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "dani-ortega",
               "amount": 1
@@ -308,7 +308,7 @@
             "label": "Eat a cookie, play along and look for the closet where she lives",
             "intent": "sneaky",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You thank her, eat a cookie (honestly, it's good) and ask to use the bathroom. In the hall closet you find her: a beige computer in a nest of wires, its green screen glowing, a crayon drawing of a stick-figure boy taped to the monitor. You memorize the wiring. On your way out through the dog door, she says, \"Sleep tight.\"",
               "art": "A teenager peeking into a hall closet at a beige computer nested in tangled wires and relays, its green screen glowing, a child's crayon drawing taped to the monitor",

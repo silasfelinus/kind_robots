@@ -272,7 +272,7 @@
             "label": "Sprint for the bleachers and climb",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "sunny-castellanos",
               "amount": 1
@@ -332,7 +332,7 @@
             "label": "Grab the cheer squad's megaphone and change the chant",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "chip-merriweather",
               "amount": 2
@@ -398,7 +398,7 @@
             "label": "Climb out the window and surf the pizza with him",
             "intent": "reckless",
             "skill": "nerve",
-            "target": 11,
+            "target": 7,
             "success": {
               "text": "You haul yourself up and get your feet under you on the fiberglass pepperoni. The Beast looks at you, startled, then grins with way too many teeth. You surf Route 49 side by side, arms out, wind roaring, and for one stupid, glorious mile he is laughing, a real teenage laugh, with nobody keeping score. At the Glimmer Falls exit he leaps off into the orchards, still laughing.",
               "art": "A teenager and a huge laughing wolf in a letterman jacket surfing side by side on a giant fiberglass pizza atop a speeding van, arms out, a full moon and orchards rushing past",
@@ -422,7 +422,7 @@
             "label": "Talk Lyle into easing onto the shoulder, slow and steady",
             "intent": "clever",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "\"Signal, brake gently, easy does it,\" you coach, and Lyle rolls onto the gravel shoulder like he's delivering a wedding cake. The Camaro roars past, booing. With the chanting gone, the shape on the roof goes quiet. You hear a soft thump, claws on gravel, and then a voice that is almost Brick's says, \"Thanks for the ride,\" from the dark of the orchard.",
               "art": "A pizza delivery van parked on a gravel road shoulder at night, a muscle car's taillights disappearing ahead, a large wolf shape loping quietly into a moonlit orchard, a teenager leaning out the passenger window",
@@ -484,7 +484,7 @@
             "label": "Sit down outside the door and tell him he's allowed to skip it",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "varsity-sat-with-brick",
               "amount": 1
@@ -512,7 +512,7 @@
             "label": "Put on the lot's old wolf-mascot suit and do the commercial yourself",
             "intent": "camp",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "companion": "toby-nakamura",
               "amount": 2
@@ -573,7 +573,7 @@
             "label": "Record a howl and lead the mob the wrong way",
             "intent": "sneaky",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "cassette-recorder",
               "amount": 2
@@ -601,7 +601,7 @@
             "label": "Stand in front of the culvert and tell the Booster Club to go home",
             "intent": "kind",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "companion": "moose-kowalski",
               "amount": 2
@@ -665,7 +665,7 @@
             "label": "Stand in the doorway and tell Duke he has to wait",
             "intent": "brave",
             "skill": "nerve",
-            "target": 11,
+            "target": 7,
             "bonus": {
               "companion": "tammy-jo-pruitt",
               "amount": 2
@@ -725,7 +725,7 @@
             "label": "Hold out your hand for the tape and wrap the paw properly",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "first-aid",
               "amount": 2
@@ -809,7 +809,7 @@
             "label": "Get to the front of the line and ask him something nobody else is asking",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "When it's your turn you slide your T-shirt across the table and ask, \"What do you actually like? Not football. Anything.\" Brick stares at you. The chant fades in his ears. \"Old movies,\" he says finally, very quietly. \"The ones where people just dance down the street for no reason.\" The fur on his hand settles back into skin. On your shirt he signs, small and careful: Brick. Just Brick.",
               "art": "A teenage quarterback at a mall autograph table talking quietly with a teenager across the table, his hand ordinary again, a long line of fans blurring behind them",
@@ -861,7 +861,7 @@
             "label": "Jump up on the table and turn the chant into a conga line",
             "intent": "camp",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "You hop up on the autograph table and start a conga. \"One, two, three, KICK!\" The line, which will chant anything, happily follows you in a loop around the fountain, kicking. Brick watches from behind his stack of photos and laughs so hard his eyes water, and when the conga comes back around he gets up and joins the end of it, kicking higher than anybody.",
               "art": "A teenager leading a kicking conga line of fans in wolf T-shirts around a mall fountain, a laughing teenage quarterback in a letterman jacket joining the end of the line",
@@ -894,7 +894,7 @@
             "label": "Climb past the freshmen to the catwalk and talk to the Beast face to face",
             "intent": "brave",
             "skill": "brawn",
-            "target": 11,
+            "target": 7,
             "success": {
               "text": "You climb past twelve shaking freshmen, telling each one, \"You're fine, hold on,\" and pull yourself onto the catwalk beside a seven-foot wolf. It turns its huge head toward you. \"You don't have to be up here either,\" you say. The Beast sits down heavily, legs dangling over the town, and lets the kid on the top rung climb down past it. By the time the last freshman reaches the ground, its paws are hands again, holding a paint can he never opened.",
               "art": "A teenager sitting beside a seven-foot wolf in a cracked football helmet on a water tower catwalk under a full moon, freshmen climbing safely down the ladder below, town lights spread out beneath",

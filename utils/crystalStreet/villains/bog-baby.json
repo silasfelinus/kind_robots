@@ -253,7 +253,7 @@
             "label": "Grab the cart before it goes under",
             "intent": "reckless",
             "skill": "brawn",
-            "target": 9,
+            "target": 7,
             "success": {
               "text": "You plant your feet and heave. The cart comes free with a sucking pop, draped in duckweed, and sitting in the child seat is a small, very offended green frog. The ground stops crying. For tonight, it's been given something back.",
               "art": "A teenager hauling a shopping cart out of soft asphalt, the cart draped in duckweed with a small green frog sitting in the child seat",
@@ -314,7 +314,7 @@
             "label": "Vault the counters and kill every fryer",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "lou-tran",
               "amount": 1
@@ -378,7 +378,7 @@
             "label": "Hit the gas and peel out down the ramp",
             "intent": "reckless",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "wade-whitfield",
               "amount": 2
@@ -470,7 +470,7 @@
             "label": "Run the cold tap full blast and give it clean water",
             "intent": "kind",
             "skill": "brains",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "flag": "bog-baby-water",
               "amount": 2
@@ -560,7 +560,7 @@
             "label": "Carry the frogs and turtles out the service door to the storm channel",
             "intent": "kind",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "amir-haddad",
               "amount": 2
@@ -612,7 +612,7 @@
             "label": "Run to the mall cop and make him look at the drain",
             "intent": "brave",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "Officer Duane does not believe you, until he does. He shines his light on the drain just as the little mud hand gives him a wave. He sits down hard on a bench, takes off his hat, and says, \"My granddad used to catch frogs out there, before the lot.\" Then he radios maintenance to shut off the grease line for the night.",
               "art": "A heavyset mall security guard sitting stunned on a concourse bench with his hat in his hands, his flashlight lighting a small mud hand waving from a floor drain, a teenager beside him",
@@ -645,7 +645,7 @@
             "label": "Get the onlookers and their cars back from the edge",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "wade-whitfield",
               "amount": 1
@@ -671,7 +671,7 @@
             "label": "Climb down into the crater and touch its glowing chest",
             "intent": "reckless",
             "skill": "lore",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "item": "silver-scrunchie",
               "amount": 2
@@ -802,7 +802,7 @@
             "label": "Lead the hunters off with a splashy fake trail down the next block",
             "intent": "sneaky",
             "skill": "hustle",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "companion": "lou-tran",
               "amount": 1
@@ -830,7 +830,7 @@
             "label": "Step in front of the Channel 6 camera and tell the town what's really down there",
             "intent": "brave",
             "skill": "charm",
-            "target": 11,
+            "target": 9,
             "success": {
               "text": "\"It isn't an alligator,\" you tell the camera, as calm as you can. \"It's the marsh they paved over for Lot C, and it's scared.\" The reporter laughs, then stops laughing when the whole crowd hears it: frogs singing under Main Street. An old man in a bathrobe says, \"I used to catch tadpoles out there,\" and the hunter climbs back up his ladder with his net hanging limp.",
               "art": "A teenager speaking calmly into a television camera on a night street, a reporter lowering her microphone in surprise, townspeople in bathrobes leaning toward a storm grate, an officer climbing back up a ladder",
@@ -892,7 +892,7 @@
             "label": "Follow the mist heron upstream to the welded valve",
             "intent": "clever",
             "skill": "lore",
-            "target": 9,
+            "target": 7,
             "bonus": {
               "item": "flashlight",
               "amount": 1
@@ -945,7 +945,7 @@
             "label": "Wade straight up the tunnel against the grease tide",
             "intent": "brave",
             "skill": "brawn",
-            "target": 11,
+            "target": 9,
             "bonus": {
               "companion": "wade-whitfield",
               "amount": 1

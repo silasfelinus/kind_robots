@@ -93,16 +93,18 @@ export const DARK_BRIAR_ART_REQUESTS: readonly DarkBriarArtRequest[] = [
 
 /** Thirty original faces tied to scenes and branch consequences, plus two cross-world visual clues. */
 export const DARK_BRIAR_COLLECTIBLE_ART: readonly DarkBriarArtRequest[] = [
-  ...sites.slice(0, 16).map((scene, index) =>
-    shot(
-      `dark-briar-face-${String(index + 1).padStart(2, '0')}`,
-      `Mirrored memory: ${scene.title}`,
-      'matching-gallery',
-      `Single centered legible picture-card composition, visually distinct at phone scale: ${scene.artPrompt}`,
-      `${root}/gallery/${String(index + 1).padStart(2, '0')}.webp`,
-      'variant',
+  ...sites
+    .slice(0, 16)
+    .map((scene, index) =>
+      shot(
+        `dark-briar-face-${String(index + 1).padStart(2, '0')}`,
+        `Mirrored memory: ${scene.title}`,
+        'matching-gallery',
+        `Single centered legible picture-card composition, visually distinct at phone scale: ${scene.artPrompt}`,
+        `${root}/gallery/${String(index + 1).padStart(2, '0')}.webp`,
+        'variant',
+      ),
     ),
-  ),
   ...sites
     .slice(0, 14)
     .map((scene, index) =>

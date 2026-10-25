@@ -750,6 +750,21 @@ assert.ok(existsSync(file('../../public/crystal-street/video/theme.mp4')))
 assert.ok(
   existsSync(file('../../public/crystal-street/video/theme-poster.webp')),
 )
+const trailerRoom = asset('../../components/crystal-street/crystal-street-theme.vue')
+assert.match(trailerRoom, /data-testid="cs-theme-room"/)
+assert.match(trailerRoom, /class="cs-tv-cabinet"/)
+assert.match(trailerRoom, /data-testid="cs-theme-video"/)
+assert.match(trailerRoom, /src="\/crystal-street\/video\/theme\.mp4"/)
+assert.match(trailerRoom, /controls\s+playsinline/)
+assert.match(
+  asset('../../components/crystal-street/crystal-street-title.vue'),
+  /icon: 'kind-icon:tv'/,
+)
+assert.match(
+  asset('../../pages/play/crystal-street.vue'),
+  /label: 'Trailer', icon: 'kind-icon:tv'/,
+)
+assert.ok(existsSync(file('../../assets/icons/tv.svg')))
 assert.match(
   asset('../../components/home/home-visitor-directory.vue'),
   /route: '\/play\/crystal-street'/,

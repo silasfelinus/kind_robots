@@ -24,6 +24,7 @@ export const RING_CLEAR_SCORE = 400
 const RING_WALLS: Readonly<Record<string, { col: number; row: number }>> = {
   'vine-2b': { col: 5, row: 2 },
   'vine-3b': { col: 5, row: 0 },
+  'vine-4a': { col: 5, row: 2 },
   'vine-4b': { col: 5, row: 3 },
 }
 

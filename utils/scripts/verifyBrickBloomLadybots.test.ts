@@ -24,7 +24,7 @@ import { parseWall } from '../arcade/brickBloom/walls'
 
 assert.equal(ringedCrate(0, 'vine-3b'), null, 'no rings outside Vine Hall')
 assert.equal(ringedCrate(1, 'vine-1'), null, 'not every Vine Hall wall')
-for (const id of ['vine-2b', 'vine-3b', 'vine-4b']) {
+for (const id of ['vine-2b', 'vine-3b', 'vine-4a', 'vine-4b']) {
   const at = ringedCrate(1, id)
   assert.ok(at, `${id} has a ringed crate`)
   const wall = houseWall(HOUSES[1]!, id)!

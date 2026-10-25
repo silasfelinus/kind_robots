@@ -2303,6 +2303,14 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "A railway spike marks Tiller's grave. When the wind crosses the dead line, the pipes in the signal tower answer with three knocks.",
       },
       {
+        when: { flags: ['tiller-wire-answered'] },
+        text: 'The wire from the ridge to the tower district stays strung. Tiller reads its taps like a letter and answers every one. The Archive keeps the chalk wall as a map.',
+      },
+      {
+        when: { flags: ['tiller-wire-cut'] },
+        text: 'Tiller keeps the cut wire coiled and oiled. When the road opens he lays it between two towns that never had a line, and for a year it carries only greetings.',
+      },
+      {
         when: { flags: ['tiller-river-saved'] },
         text: 'The river settlement stands. One passenger is missing from the ruined train, and the bell at the crossing rings once a month. Tiller keeps a spool of wire in the Archive with the name burned into it.',
       },

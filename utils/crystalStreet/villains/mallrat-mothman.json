@@ -420,7 +420,7 @@
             "label": "Follow the trail of dust around back",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 1

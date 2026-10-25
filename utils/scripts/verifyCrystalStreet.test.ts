@@ -140,7 +140,7 @@ const encounters = [
     ...v.signature,
     v.finale,
   ]),
-  ...COMPANIONS.map((c) => c.meet),
+  ...COMPANIONS.flatMap((c) => [c.meet, ...(c.arc ?? [])]),
   ...LOCATIONS.flatMap((l) => l.beats),
   ...DECKS.flatMap((d) => d.encounters),
 ]
@@ -268,12 +268,12 @@ for (const c of COMPANIONS) {
     current: { id: owner.id, kind: 'beat' },
   }
   const roll = {
-    dice: [6, 6],
+    dice: [6, 6] as [number, number],
     modifier: 0,
     total: 12,
     target: choice.target,
     success: true,
-    breakdown: [],
+    breakdown: [] as string[],
   }
   const pending = { choiceId: choice.id, roll, rerolled: false, shielded: null }
   assert.equal(pendingOutcome({ ...base, pending })!.text, choice.success.alone)

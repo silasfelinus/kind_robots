@@ -1074,13 +1074,13 @@ export function activitiesAt(
   for (const c of COMPANIONS.filter((c) => c.location === location.id)) {
     const id = c.id as CompanionId
     if (run.crew.includes(id)) {
-      // One hangout a day with each friend standing with you.
+      // One hangout a day, with one friend standing with you.
       const step = arcProgress(run, id) + 1
       if (
         c.arc?.[step - 1] &&
         !run.shaken.includes(id) &&
         !isFinalGirl(run) &&
-        !run.flags.includes(`hangout-${id}-${run.day}`)
+        !run.flags.includes(`hangout-${run.day}`)
       )
         list.push({ kind: 'hangout', companionId: id, step })
       continue
@@ -1155,7 +1155,7 @@ export function doActivity(
       activity.step - 1
     ]
     if (encounter) {
-      next.flags.push(`hangout-${activity.companionId}-${next.day}`)
+      next.flags.push(`hangout-${next.day}`)
       next.current = { id: encounter.id, kind: 'arc', location: locationId }
     }
   } else if (activity.kind === 'rejoin') {

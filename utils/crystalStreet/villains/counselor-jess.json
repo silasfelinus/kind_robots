@@ -245,7 +245,7 @@
             "label": "Grab the nearest friend's hand and shout \"Buddy check!\"",
             "intent": "clever",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "walkie-talkies",
               "amount": 1
@@ -310,7 +310,7 @@
             "label": "Dive in and swim for Petey yourself",
             "intent": "brave",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "sunny-castellanos",
               "amount": 1
@@ -395,7 +395,7 @@
             "label": "Take the flashlight and tell the story right, with her name in it",
             "intent": "kind",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "flag": "jess-saw-them-help",
               "amount": 1

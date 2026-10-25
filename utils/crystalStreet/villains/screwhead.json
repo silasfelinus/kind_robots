@@ -241,7 +241,7 @@
             "label": "Invite them up for a tour of your gloriously messy room",
             "intent": "camp",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You give them the full tour like a museum docent: the laundry mountain, the cassette avalanche, the band photos taped up at nine different angles. \"And this sock,\" you announce grandly, \"lost its partner in 1984 and has made peace with it.\" Mrs. Fenwick lets out a small, shocked laugh, then a bigger one, and her chain slips off her wrist onto the carpet. She sits on your bed and says she had a room exactly like this in 1962.",
               "art": "A teenager in pajamas giving a grand tour of a wildly cluttered bedroom with laundry piles and crooked band photos on the walls, a woman in an orange apron laughing on the bed, a silver chain lying on the carpet",
@@ -331,7 +331,7 @@
             "label": "Go performer to performer and ask what they want their act to be",
             "intent": "kind",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "frankie-fontaine",
               "amount": 1
@@ -359,7 +359,7 @@
             "label": "Climb the fly rail and unbolt the spotlight",
             "intent": "brave",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 1

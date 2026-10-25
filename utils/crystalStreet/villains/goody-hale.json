@@ -354,7 +354,7 @@
             "label": "Climb the briars like a trellis to Abigail's window",
             "intent": "reckless",
             "skill": "hustle",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "first-aid",
               "amount": 1

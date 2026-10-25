@@ -272,7 +272,7 @@
             "label": "Go in and be the most polite guest it has ever had",
             "intent": "clever",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You compliment the drapes, the shag, the plastic grapes. The house purrs. While it preens, you notice a hairline crack in the plaster by the coat closet, and someone has written in it, tiny, with a fingernail: I painted here once. You slip out before the cookies finish.",
               "art": "A teenager politely admiring a spotless 1959 living room, a tiny handwritten message visible in a hairline crack beside a coat closet",
@@ -319,7 +319,7 @@
             "label": "Pull up the sign and tell the house you are not buying",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "rock-salt",
               "amount": 1
@@ -355,7 +355,7 @@
             "label": "Wake everyone up and make your family be themselves, loudly",
             "intent": "kind",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "pearl-washington",
               "amount": 1
@@ -408,7 +408,7 @@
             "label": "Pull every frame off the wall and turn it face down",
             "intent": "reckless",
             "skill": "brawn",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "flashlight",
               "amount": 1
@@ -469,7 +469,7 @@
             "label": "Turn your back again, and watch in the toaster's chrome",
             "intent": "clever",
             "skill": "brains",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "item": "polaroid",
               "amount": 1
@@ -498,7 +498,7 @@
             "label": "Call Mrs. Varga and tell her the kitchen misses her",
             "intent": "kind",
             "skill": "charm",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "You call her sister's number in Sacramento. Mrs. Varga answers, sleepy, and you tell her the house is lonely and the dishes miss her. She laughs, cries a little, and admits nobody has seen her kitchen since the divorce. \"Leave the dishes. I'll be home Sunday.\" Behind you, very softly, the chair tower topples over.",
               "art": "A teenager on a kitchen wall phone with a long curly cord at midnight, smiling gently, a tower of chairs toppling over behind them, a cat curled on the windowsill",
@@ -532,7 +532,7 @@
             "label": "Stand your ground and finish the full minute",
             "intent": "brave",
             "skill": "nerve",
-            "target": 9,
+            "target": 11,
             "bonus": {
               "companion": "kev-park",
               "amount": 1

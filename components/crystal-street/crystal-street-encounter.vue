@@ -208,6 +208,7 @@ const kindLabel = computed(
       beat: 'Daylight',
       clue: 'Investigation',
       meet: 'New friend',
+      arc: 'Hanging out',
       night: 'Night',
       signature: villain.value?.name ?? 'Nightmare',
       finale: 'Halloween',

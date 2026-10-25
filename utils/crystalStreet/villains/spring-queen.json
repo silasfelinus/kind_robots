@@ -448,7 +448,7 @@
             "label": "Call up to Roz and ask who hung the bucket",
             "intent": "clever",
             "skill": "lore",
-            "target": 9,
+            "target": 11,
             "success": {
               "text": "\"Look at the knot,\" Roz says. It's a lineman's hitch, the same knot three boys used on a ladder in 1966. You follow her finger down to the bleachers, where two junior varsity guys are trying very hard to look innocent. One word from you and the whole student council turns to stare at them. For once, the people who rigged the joke are the ones everybody is looking at.",
               "art": "A ghostly prom queen on a gym catwalk pointing down at two guilty-looking teenage boys in varsity jackets on the bleachers, a student council turning to stare at them, a teenager at the foot of the ladder",

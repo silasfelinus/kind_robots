@@ -43,74 +43,109 @@ interface Callback {
 
 const CALLBACKS: readonly Callback[] = [
   {
-    target: '2,4', source: '2,4', priority: 10,
+    target: '2,4',
+    source: '2,4',
+    priority: 10,
     responses: {
       lend: 'The courier holds the lantern you lent. Its glass is cracked where another traveler took shelter beneath it.',
       copy: 'The courier produces the copy of the impossible address. The village used the record to contest an unpaid debt.',
     },
   },
   {
-    target: '4,3', source: '4,3', priority: 10,
+    target: '4,3',
+    source: '4,3',
+    priority: 10,
     responses: {
       plan: 'Oren still uses the route you planned together. Its spare column names every traveler who chose another road.',
       load: 'Oren has kept count of the provisions you carried. Someone ate because the account included actual meals.',
     },
   },
   {
-    target: '3,2', source: '3,2', priority: 10,
+    target: '3,2',
+    source: '3,2',
+    priority: 10,
     responses: {
       ask: 'Vesper remembers you asking whom the map omitted. A real name has appeared in the gap, and Vesper is not laughing.',
-      offer: 'Vesper unfolds the map purchased with your wildflower. A second ink line reveals someone paid to copy it.',
+      offer:
+        'Vesper unfolds the map purchased with your wildflower. A second ink line reveals someone paid to copy it.',
     },
   },
   {
-    target: '5,4', source: '5,4', priority: 10,
+    target: '5,4',
+    source: '5,4',
+    priority: 10,
     responses: {
-      truth: 'The Brass Knight recognizes the false oath you challenged. His replacement instructions mention actual travelers.',
-      errand: 'The sealed apology reached the intended family. It also allowed the Knight to remain at his empty station.',
+      truth:
+        'The Brass Knight recognizes the false oath you challenged. His replacement instructions mention actual travelers.',
+      errand:
+        'The sealed apology reached the intended family. It also allowed the Knight to remain at his empty station.',
     },
   },
   {
-    target: '6,4', source: '6,4', priority: 9,
+    target: '6,4',
+    source: '6,4',
+    priority: 9,
     responses: {
-      carry: 'The apology you carried brought a temporary truce. The undisclosed warning still haunts the village wall.',
+      carry:
+        'The apology you carried brought a temporary truce. The undisclosed warning still haunts the village wall.',
       read: 'The Vault received your warning. The neighborhood evacuated in time, but an apology never arrived.',
     },
   },
   {
-    target: '2,6', source: '2,6', priority: 8,
+    target: '2,6',
+    source: '2,6',
+    priority: 8,
     responses: {
-      trace: 'A perfect copy of your original rune order is here, but the river has changed which end counts as first.',
-      listen: 'The gardener you listened to left a mark indicating the shore from which the old instructions were true.',
+      trace:
+        'A perfect copy of your original rune order is here, but the river has changed which end counts as first.',
+      listen:
+        'The gardener you listened to left a mark indicating the shore from which the old instructions were true.',
     },
   },
   {
-    target: '3,5', source: '3,5', priority: 8,
+    target: '3,5',
+    source: '3,5',
+    priority: 8,
     responses: {
-      light: 'Pip knows that you exposed the borrowed voice. They ask whether you also listened to what it needed.',
-      listen: 'The borrowed voice remembers that you heard its story to the end. One traveler wishes you had interrupted.',
+      light:
+        'Pip knows that you exposed the borrowed voice. They ask whether you also listened to what it needed.',
+      listen:
+        'The borrowed voice remembers that you heard its story to the end. One traveler wishes you had interrupted.',
     },
   },
   {
-    target: '6,3', source: '6,3', priority: 8,
+    target: '6,3',
+    source: '6,3',
+    priority: 8,
     responses: {
-      remember: 'The name-record you copied is useful evidence. The person it describes can now be summoned by strangers.',
-      protect: 'The protected witness is safe, but Oren needs an indirect method to validate their testimony.',
+      remember:
+        'The name-record you copied is useful evidence. The person it describes can now be summoned by strangers.',
+      protect:
+        'The protected witness is safe, but Oren needs an indirect method to validate their testimony.',
     },
   },
   {
-    target: '2,5', source: '2,5', priority: 7,
+    target: '2,5',
+    source: '2,5',
+    priority: 7,
     responses: {
-      archive: 'The timestamp you saved on Morrow’s Earth photograph can be checked against this new shadow.',
-      grieve: 'Your unease over the lost Earth life returns. The second shadow belongs to someone you have not met.',
+      archive:
+        'The timestamp you saved on Morrow’s Earth photograph can be checked against this new shadow.',
+      grieve:
+        'Your unease over the lost Earth life returns. The second shadow belongs to someone you have not met.',
     },
   },
 ]
 
-const CUSTODY_OBJECTS: Readonly<Record<Exclude<MemoryCustody, 'unset'>, string>> = {
-  release: 'Individual villagers carry wax-sealed memory packets toward the House. Several paper locks stand empty; a frightened courier guards a packet that belongs to its owner.',
-  renew: 'A small elected witness circle stands beside a wooden cabinet with removable brass locks. Each person holds a key to revoke their own agreement.',
-  break: 'The House archive lies in splintered cupboards. Villagers carry glass memory shards in cloth pockets, rebuilding a public path without a central ledger.',
+const CUSTODY_OBJECTS: Readonly<
+  Record<Exclude<MemoryCustody, 'unset'>, string>
+> = {
+  release:
+    'Individual villagers carry wax-sealed memory packets toward the House. Several paper locks stand empty; a frightened courier guards a packet that belongs to its owner.',
+  renew:
+    'A small elected witness circle stands beside a wooden cabinet with removable brass locks. Each person holds a key to revoke their own agreement.',
+  break:
+    'The House archive lies in splintered cupboards. Villagers carry glass memory shards in cloth pockets, rebuilding a public path without a central ledger.',
 }
 
 /** This is one concrete physical scene projection, not three new maps.
@@ -141,7 +176,9 @@ export function firstTwoSceneCallbacks(
     })
     .filter((value): value is string => Boolean(value))
   if (target === '5,4' && mirrored.sceneChoices['5,4'] === 'draw') {
-    available.unshift('The new timber crossing now connects the Knight’s bridge to the far road, giving you a shorter physical route through Dark Briar.')
+    available.unshift(
+      'The new timber crossing now connects the Knight’s bridge to the far road, giving you a shorter physical route through Dark Briar.',
+    )
   }
   return available.slice(0, Math.min(max, 2))
 }

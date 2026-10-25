@@ -198,6 +198,40 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     ],
   },
   {
+    id: 'tiller-exile',
+    follower: 'F022',
+    title: 'The Wire That Still Answers',
+    fromDay: 46,
+    requires: { flags: ['komodo-betrayal', 'heard:tiller-1'] },
+    lines: [
+      'Tiller has strung a single signal wire from the hideout to the ridge. At night it hums with a code he did not send.',
+      'Someone in the tower district is tapping back. The message is short and repeats: still here, still here.',
+      '“I can answer, and they will know we are listening,” Tiller says. “Or I can cut the line and keep the ridge dark.”',
+    ],
+    options: [
+      {
+        id: 'answer',
+        label: 'Tap back. Tell the tower district the wire is open.',
+        effects: {
+          local: { yard: 1, 'gate-watch': -1 },
+          flags: ['tiller-wire-answered'],
+        },
+        response:
+          'By the third night the replies carry names, then grain counts, then a map of which streets the patrols skip. Tiller writes all of it on the wall in chalk.',
+      },
+      {
+        id: 'cut-line',
+        label: 'Cut the wire. The ridge stays dark and unheard.',
+        effects: {
+          local: { 'gate-watch': 2 },
+          flags: ['tiller-wire-cut'],
+        },
+        response:
+          'The hum stops. Tiller coils the wire and keeps it under his bunk. Some nights he taps the empty air with two fingers, just to be sure of the rhythm.',
+      },
+    ],
+  },
+  {
     id: 'sera-1',
     follower: 'F023',
     title: 'The Record of Twenty-Three',

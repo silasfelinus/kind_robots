@@ -10,10 +10,10 @@ import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 assert.equal(
   SECRET_TALKS.length,
-  13,
+  14,
   'five secret wanderers each have follow-up stories',
 )
-assert.equal(new Set(SECRET_TALKS.map((talk) => talk.id)).size, 13)
+assert.equal(new Set(SECRET_TALKS.map((talk) => talk.id)).size, 14)
 const secretIds = ['F021', 'F022', 'F023', 'F024', 'F025']
 for (const follower of secretIds) {
   const talks = SECRET_TALKS.filter((entry) => entry.follower === follower)
@@ -77,6 +77,16 @@ const tarnFinal = epilogueFor(tarn, 'open-roads').find(
 )
 assert.ok(tarnFinal?.variant.text.includes('pass tolls'))
 
+let tiller = withFollower('F022', 46)
+tiller.flags.push('komodo-betrayal', 'heard:tiller-1')
+assert.equal(talkFor(tiller, 'F022')?.id, 'tiller-exile')
+tiller = chooseTalkOption(tiller, 'tiller-exile', 'answer').run
+assert.ok(tiller.flags.includes('tiller-wire-answered'))
+const tillerFinal = epilogueFor(tiller, 'open-roads').find(
+  (entry) => entry.subject.follower === 'F022',
+)
+assert.ok(tillerFinal?.variant.text.includes('chalk wall'))
+
 let sera = withFollower('F023', 45)
 sera.flags.push('komodo-betrayal', 'heard:sera-1')
 assert.equal(talkFor(sera, 'F023')?.id, 'sera-exile')
@@ -102,5 +112,5 @@ const odoFinal = epilogueFor(odo, 'open-roads').find(
 assert.ok(odoFinal?.variant.text.includes('broken rain gauge'))
 
 console.log(
-  'Emperor of Dust: thirteen hidden-follower conversations, costly decisions, rare artifacts and remembered endings verified.',
+  'Emperor of Dust: fourteen hidden-follower conversations, costly decisions, rare artifacts and remembered endings verified.',
 )

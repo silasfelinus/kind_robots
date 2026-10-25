@@ -58,6 +58,15 @@
             <button
               type="button"
               class="btn btn-sm btn-outline rounded-2xl"
+              data-testid="cs-settings-replay-tips"
+              :disabled="!store.tipsSeen.length"
+              @click="store.resetTips()"
+            >
+              Replay the tips
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline rounded-2xl"
               :disabled="!store.run || !!store.run.ending"
               @click="confirmAbandon"
             >
@@ -133,6 +142,16 @@ const GROUPS: Group[] = [
     options: [
       { value: 'full', label: 'Full' },
       { value: 'reduced', label: 'Reduced' },
+    ],
+  },
+  {
+    key: 'tips',
+    label: 'Tips',
+    hint: 'Short coaching notes the first time each part of the week comes up.',
+    options: [
+      { value: 'auto', label: 'First week' },
+      { value: 'on', label: 'Always' },
+      { value: 'off', label: 'Off' },
     ],
   },
 ]

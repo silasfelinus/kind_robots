@@ -27,24 +27,29 @@ import {
   type NewRunOptions,
   type RunState,
 } from '~/utils/crystalStreet/rules'
+import { TIP_IDS, tipFor } from '~/utils/crystalStreet/tips'
 import type { EndingTier, SpecialEnding } from '~/utils/crystalStreet/types'
 import type { CompanionId, ItemId, LocationId } from '~/utils/crystalStreet/ids'
 
 const RUN_KEY = 'crystal-street-run-v1'
 const SCRAPBOOK_KEY = 'crystal-street-scrapbook-v1'
 const SETTINGS_KEY = 'crystal-street-settings-v1'
+const TIPS_KEY = 'crystal-street-tips-v1'
 const SCRAPBOOK_LIMIT = 80
 
 export type CrystalStreetSettings = {
   textSize: 'small' | 'medium' | 'large'
   contrast: 'normal' | 'high'
   motion: 'full' | 'reduced'
+  /** Coach tips: during the first week only, always, or never. */
+  tips: 'auto' | 'on' | 'off'
 }
 
 export const DEFAULT_SETTINGS: CrystalStreetSettings = {
   textSize: 'medium',
   contrast: 'normal',
   motion: 'full',
+  tips: 'auto',
 }
 
 function restoreSettings(raw: unknown): CrystalStreetSettings {
@@ -62,6 +67,7 @@ function restoreSettings(raw: unknown): CrystalStreetSettings {
     ),
     contrast: pick('contrast', ['normal', 'high'], DEFAULT_SETTINGS.contrast),
     motion: pick('motion', ['full', 'reduced'], DEFAULT_SETTINGS.motion),
+    tips: pick('tips', ['auto', 'on', 'off'], DEFAULT_SETTINGS.tips),
   }
 }
 
@@ -134,6 +140,25 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   const run = ref<RunState | null>(null)
   const scrapbook = ref<Scrapbook>(emptyScrapbook())
   const settings = ref<CrystalStreetSettings>({ ...DEFAULT_SETTINGS })
+  const tipsSeen = ref<string[]>([])
+  // Tips run through a player's first week unless they choose otherwise.
+  const tip = computed(() => {
+    const mode = settings.value.tips
+    if (!run.value || mode === 'off') return null
+    if (mode === 'auto' && scrapbook.value.runs.length) return null
+    return tipFor(run.value, tipsSeen.value)
+  })
+
+  function resetTips(): void {
+    tipsSeen.value = []
+    persist()
+  }
+
+  function seeTip(id: string): void {
+    if (tipsSeen.value.includes(id)) return
+    tipsSeen.value = [...tipsSeen.value, id]
+    persist()
+  }
   const loaded = ref(false)
   const storageWarning = ref('')
 
@@ -159,6 +184,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       else localStorage.removeItem(RUN_KEY)
       localStorage.setItem(SCRAPBOOK_KEY, JSON.stringify(scrapbook.value))
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
+      localStorage.setItem(TIPS_KEY, JSON.stringify(tipsSeen.value))
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -177,6 +203,10 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       settings.value = restoreSettings(
         JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null'),
       )
+      const seen: unknown = JSON.parse(localStorage.getItem(TIPS_KEY) ?? '[]')
+      tipsSeen.value = Array.isArray(seen)
+        ? TIP_IDS.filter((id) => seen.includes(id))
+        : []
     } catch {
       run.value = null
       scrapbook.value = emptyScrapbook()
@@ -308,6 +338,10 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     abandon,
     setSetting,
     resetScrapbook,
+    tip,
+    tipsSeen,
+    seeTip,
+    resetTips,
     choose: (choiceId: string) => move(chooseInRun, choiceId),
     reroll: () => move(rerollInRun),
     resolve: () => move(resolveInRun),

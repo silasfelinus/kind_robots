@@ -1,11 +1,23 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
-  CAPTAINS, CREW, MISSIONS, ANTAGONISTS, assignAwayTeam, antagonistFor, decidePolicy,
-  finishVoyage, launchMission, missionFor, nextDestination, restoreVoyage, startVoyage,
+  CAPTAINS,
+  CREW,
+  MISSIONS,
+  ANTAGONISTS,
+  assignAwayTeam,
+  antagonistFor,
+  decidePolicy,
+  finishVoyage,
+  launchMission,
+  missionFor,
+  nextDestination,
+  restoreVoyage,
+  startVoyage,
 } from '../gameOfCaptains/rules'
 
-const fromRoot = (path: string) => readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+const fromRoot = (path: string) =>
+  readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 assert.equal(CAPTAINS.length, 6)
 assert.equal(CREW.length, 6)
 assert.equal(MISSIONS.length, 3)
@@ -27,18 +39,30 @@ for (const captain of CAPTAINS) {
       run = launchMission(run)
       assert.equal(run.phase, 'decision')
       assert.equal(run.report?.missionId, MISSIONS[chapter - 1]?.id)
-      assert.ok(['flawless', 'success', 'costly', 'disaster'].includes(run.report!.result))
+      assert.ok(
+        ['flawless', 'success', 'costly', 'disaster'].includes(
+          run.report!.result,
+        ),
+      )
       assert.notEqual(JSON.stringify(run), original)
       assert.equal(launchMission(run), run)
       const saved = JSON.parse(JSON.stringify(run)) as unknown
-      assert.deepEqual(restoreVoyage(saved), run, 'valid saved voyages survive restoration')
-      run = decidePolicy(run, ['aid','observe','intervene'][(seed + chapter) % 3] as 'aid' | 'observe' | 'intervene')
+      assert.deepEqual(
+        restoreVoyage(saved),
+        run,
+        'valid saved voyages survive restoration',
+      )
+      run = decidePolicy(
+        run,
+        ['aid', 'observe', 'intervene'][(seed + chapter) % 3] as
+          'aid' | 'observe' | 'intervene',
+      )
       assert.equal(run.phase, 'debrief')
       assert.ok(run.scene.length > 40)
       run = nextDestination(run)
     }
     assert.equal(run.phase, 'finale')
-    for (const choice of ['protect','compromise'] as const) {
+    for (const choice of ['protect', 'compromise'] as const) {
       const ended = finishVoyage(run, choice)
       assert.equal(ended.phase, 'ending')
       assert.ok(ended.ending && ended.scene.length > 50)
@@ -55,5 +79,8 @@ const home = fromRoot('components/home/home-visitor-directory.vue')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('data-testid="captains-launch"'))
 assert.ok(tab.includes('route: /play/game-of-captains'))
-assert.ok(home.includes("route: '/play/game-of-captains'") && home.includes("route: '/play/comet-city-academy'"))
+assert.ok(
+  home.includes("route: '/play/game-of-captains'") &&
+    home.includes("route: '/play/comet-city-academy'"),
+)
 console.log('Game of Captains seeded voyage and highlight contract: OK')

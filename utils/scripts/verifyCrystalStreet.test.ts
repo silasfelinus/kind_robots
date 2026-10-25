@@ -77,6 +77,7 @@ import {
 import { autoplay } from '../crystalStreet/autoplay'
 import { TAGS } from '../crystalStreet/types'
 import { TIPS, tipFor } from '../crystalStreet/tips'
+import { cuesFor } from '../crystalStreet/sound'
 import { buildPlaybook } from '../playbook/games'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -341,6 +342,37 @@ for (const c of COMPANIONS) {
     a.log.map((l) => l.encounterId),
     b.log.map((l) => l.encounterId),
   )
+}
+
+// Sound cues (conductor crystal-street t-016): a roll rattles then stings,
+// dusk and dawn mark the phase, a new week or a reload stays silent.
+{
+  const day1 = newRun({
+    seed: 'cues',
+    name: 'C',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    villain: 'goody-hale',
+  })
+  assert.deepEqual(cuesFor(null, day1), [])
+  assert.deepEqual(cuesFor(day1, { ...day1 }), [])
+  assert.deepEqual(cuesFor({ ...day1, seed: 'other' }, day1), [])
+  const beat = activitiesAt(day1, 'library').find((a) => a.kind === 'beat')!
+  const atCard = doActivity(day1, 'library', beat)
+  assert.deepEqual(cuesFor(day1, atCard), ['card'])
+  const rolled = choose(
+    atCard,
+    allEncounters().find((e) => e.id === atCard.current!.id)!.choices[0]!.id,
+  )
+  assert.deepEqual(cuesFor(atCard, rolled), [
+    'roll',
+    rolled.pending!.roll.success ? 'success' : 'failure',
+  ])
+  assert.deepEqual(cuesFor(day1, { ...day1, phase: 'night' }), ['dusk'])
+  assert.deepEqual(cuesFor({ ...day1, phase: 'night' }, day1), ['dawn'])
+  assert.deepEqual(cuesFor(day1, { ...day1, ending: { tier: 'bad', at: 1 } }), [
+    'ending-bad',
+  ])
 }
 
 // A chosen avatar rides along with the week; an unknown one is dropped.

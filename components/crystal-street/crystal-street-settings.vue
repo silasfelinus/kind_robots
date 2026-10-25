@@ -154,6 +154,15 @@ const GROUPS: Group[] = [
       { value: 'off', label: 'Off' },
     ],
   },
+  {
+    key: 'sound',
+    label: 'Sound',
+    hint: 'Dice, card swishes, a drone at dusk and a sting for every win and loss.',
+    options: [
+      { value: 'on', label: 'On' },
+      { value: 'off', label: 'Off' },
+    ],
+  },
 ]
 
 defineEmits<{ credits: [] }>()

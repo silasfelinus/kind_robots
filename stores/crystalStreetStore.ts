@@ -43,6 +43,8 @@ export type CrystalStreetSettings = {
   motion: 'full' | 'reduced'
   /** Coach tips: during the first week only, always, or never. */
   tips: 'auto' | 'on' | 'off'
+  /** Synthesised sound effects for rolls, cards, dusk and endings. */
+  sound: 'on' | 'off'
 }
 
 export const DEFAULT_SETTINGS: CrystalStreetSettings = {
@@ -50,6 +52,7 @@ export const DEFAULT_SETTINGS: CrystalStreetSettings = {
   contrast: 'normal',
   motion: 'full',
   tips: 'auto',
+  sound: 'on',
 }
 
 function restoreSettings(raw: unknown): CrystalStreetSettings {
@@ -68,6 +71,7 @@ function restoreSettings(raw: unknown): CrystalStreetSettings {
     contrast: pick('contrast', ['normal', 'high'], DEFAULT_SETTINGS.contrast),
     motion: pick('motion', ['full', 'reduced'], DEFAULT_SETTINGS.motion),
     tips: pick('tips', ['auto', 'on', 'off'], DEFAULT_SETTINGS.tips),
+    sound: pick('sound', ['on', 'off'], DEFAULT_SETTINGS.sound),
   }
 }
 

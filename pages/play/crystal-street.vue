@@ -200,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import { useNavStore } from '~/stores/navStore'
 import {
@@ -211,6 +211,7 @@ import {
   sharedWeekFrom,
 } from '~/utils/crystalStreet/rules'
 import type { DialItem, MenuView } from '~/utils/crystalStreet/menu'
+import { StreetSound, cuesFor } from '~/utils/crystalStreet/sound'
 
 type MenuScreen = 'settings' | 'credits' | 'theme'
 type View =
@@ -314,6 +315,13 @@ const menuScreen = computed(
 watch(view, (next) => {
   if (next === 'title') fromGame.value = false
 })
+
+// Sound effects follow the week's moves (conductor crystal-street t-016).
+const sound = new StreetSound()
+watch(run, (next, prev) => {
+  if (store.settings.sound === 'on') sound.play(cuesFor(prev, next))
+})
+onBeforeUnmount(() => sound.dispose())
 
 function openMenu(target: MenuView): void {
   fromGame.value = false

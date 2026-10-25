@@ -807,12 +807,12 @@
         "act": 1,
         "title": "You're All Doomed",
         "place": "The Gas-N-Go on Quarry Road, 11 p.m.",
-        "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Abernathy from the hardware store lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
+        "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Hensley from the bowling alley lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
         "art": "A wild-eyed old man in a trucker cap gripping a teenager's sleeve beside glowing gas pumps at night, a chalk slate hovering under the fluorescent canopy, moths circling the lights, an ice machine humming, a station wagon parked at the pump",
         "choices": [
           {
             "id": "ask-his-line",
-            "label": "Ask Mr. Abernathy what he would actually say to you",
+            "label": "Ask Mr. Hensley what he would actually say to you",
             "intent": "kind",
             "skill": "charm",
             "target": 7,
@@ -867,7 +867,7 @@
             "skill": "hustle",
             "target": 9,
             "success": {
-              "text": "\"DOOMED?\" you wail, dropping to your knees by the pumps. \"Doomed by the curse of the Gas-N-Go hot dogs?\" The night clerk laughs so hard he snorts, Mr. Abernathy cackles, a real laugh, and the chalk slate cracks like a dropped plate. He presses two quarters into your hand for the air pump.",
+              "text": "\"DOOMED?\" you wail, dropping to your knees by the pumps. \"Doomed by the curse of the Gas-N-Go hot dogs?\" The night clerk laughs so hard he snorts, Mr. Hensley cackles, a real laugh, and the chalk slate cracks like a dropped plate. He presses two quarters into your hand for the air pump.",
               "art": "A teenager dramatically kneeling by a gas pump with arms flung wide at night, an old man in a trucker cap cackling, a clerk laughing in the shop doorway, a chalk slate cracking apart in midair",
               "effects": {
                 "nerve": 1,
@@ -875,7 +875,7 @@
               }
             },
             "failure": {
-              "text": "You overdo it, and the slate loves it. A boom mic drops into view over the ice machine, a spotlight snaps on, and you and Mr. Abernathy play the scene again and again, each take hammier, until sunrise finally sets you both free.",
+              "text": "You overdo it, and the slate loves it. A boom mic drops into view over the ice machine, a spotlight snaps on, and you and Mr. Hensley play the scene again and again, each take hammier, until sunrise finally sets you both free.",
               "art": "A teenager and an old man in a trucker cap overacting under a hard white spotlight at a gas station at night, a boom microphone dangling above an ice machine, a glowing chalk slate",
               "effects": {
                 "nerve": -2

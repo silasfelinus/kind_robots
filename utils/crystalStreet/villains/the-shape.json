@@ -878,7 +878,7 @@
         "id": "the-shape-pleasant-expression",
         "title": "Practice a Pleasant Expression",
         "place": "The art room at Glimmer Falls High, after the late bus",
-        "text": "You go back to the art room for your backpack after the late bus and find the plaster masks from Mr. Ferreira's sculpture unit drying on the shelves: thirty white faces of kids you know, every one smiling the same small, polite, practiced smile. So is the one with your name under it, though you never made one. At the teacher's desk sits a girl in a cranberry cardigan and a plaster mask, tapping a steel needle on the desk like a ruler. \"Again,\" she says, in the voice of every grown-up who ever told a girl to smile. \"Practice a pleasant expression.\"",
+        "text": "You go back to the art room for your backpack after the late bus and find the plaster masks from Mr. Albright's sculpture unit drying on the shelves: thirty white faces of kids you know, every one smiling the same small, polite, practiced smile. So is the one with your name under it, though you never made one. At the teacher's desk sits a girl in a cranberry cardigan and a plaster mask, tapping a steel needle on the desk like a ruler. \"Again,\" she says, in the voice of every grown-up who ever told a girl to smile. \"Practice a pleasant expression.\"",
         "art": "A dim high school art room after hours, shelves of white plaster face masks all smiling the same small smile, a pale masked girl in a cranberry cardigan seated at the teacher's desk tapping a steel knitting needle, a teenager with a backpack frozen at the entrance",
         "choices": [
           {
@@ -888,7 +888,7 @@
             "skill": "charm",
             "target": 9,
             "success": {
-              "text": "You cross your eyes, stretch your mouth with both pinkies and stick out your tongue as far as it goes. Then the fish. Then the gorilla. Along the shelves, thirty plaster masks crack, pop and grin, gap-toothed and goofy, every one a different face. The girl at the desk drops her needle. In the morning the whole school crowds into the art room to see the masks that made themselves funny, and Mr. Ferreira gives everybody an A.",
+              "text": "You cross your eyes, stretch your mouth with both pinkies and stick out your tongue as far as it goes. Then the fish. Then the gorilla. Along the shelves, thirty plaster masks crack, pop and grin, gap-toothed and goofy, every one a different face. The girl at the desk drops her needle. In the morning the whole school crowds into the art room to see the masks that made themselves funny, and Mr. Albright gives everybody an A.",
               "art": "A teenager making a ridiculous cross-eyed face in a dim art room, shelves of white plaster masks cracking into goofy grins, a pale masked girl in a cranberry cardigan dropping a knitting needle",
               "effects": {
                 "nerve": 1,

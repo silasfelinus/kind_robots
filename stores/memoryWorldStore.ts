@@ -1,5 +1,15 @@
 import { defineStore } from 'pinia'
 import {
+  canEnterDarkHouse,
+  darkHouseChoose as makeDarkHouseChoice,
+  darkHouseExits,
+  darkHouseMove as advanceDarkHouseRoom,
+  newDarkHouseProgress,
+  restoreDarkHouseProgress,
+  DARK_HOUSE_ROOMS,
+  type DarkHouseProgress,
+} from '~/utils/memoryDungeon/darkHouse'
+import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
   type MemoryCampaignProgress,
@@ -82,6 +92,7 @@ const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
 const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
 const REALITY_KEY = 'memoryDungeonRealityV1'
 const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
+const DARK_HOUSE_KEY = 'memoryDungeonDarkHouseV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -102,11 +113,18 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const campaign = ref<MemoryCampaignProgress>(newMemoryCampaignProgress())
   const activeReality = ref<'e01' | 'e02'>('e01')
   const dark = ref<DarkBriarProgress>(newDarkBriarProgress())
+  const darkHouse = ref<DarkHouseProgress>(newDarkHouseProgress())
   const darkDeckError = ref('')
   const darkLoading = ref(false)
   const darkTurnLocked = ref(false)
   const darkFirstCard = ref<string | null>(null)
   let darkEpoch = 0
+  const darkHouseOpen = computed(() => darkHouse.value.active)
+  const canEnterDarkHouseAtCamp = computed(() => canEnterDarkHouse(dark.value))
+  const darkHouseRoom = computed(
+    () => DARK_HOUSE_ROOMS[darkHouse.value.current] ?? null,
+  )
+  const darkHouseDoors = computed(() => darkHouseExits(darkHouse.value))
   const canEnterDarkBriar = computed(() =>
     campaign.value.completed.includes('e01'),
   )
@@ -319,6 +337,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         }),
       )
       window.localStorage.setItem(DARK_BRIAR_KEY, JSON.stringify(dark.value))
+      window.localStorage.setItem(
+        DARK_HOUSE_KEY,
+        JSON.stringify(darkHouse.value),
+      )
     } catch {
       dark.value.status =
         'The other Marches remain playable, but browser storage is unavailable.'
@@ -407,6 +429,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       } catch {
         dark.value = newDarkBriarProgress()
       }
+      try {
+        const savedHouse = window.localStorage.getItem(DARK_HOUSE_KEY)
+        darkHouse.value = restoreDarkHouseProgress(
+          savedHouse ? JSON.parse(savedHouse) : null,
+        )
+      } catch {
+        darkHouse.value = newDarkHouseProgress()
+      }
       if (state.value.gateOpened) grantBriarCompletion()
       if (
         dark.value.completed &&
@@ -467,6 +497,43 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         'You held fast to the memory of an ordinary morning. A single silver flower survives the crossing with you.'
     }
     persist()
+  }
+
+  function enterDarkHouse(): void {
+    if (activeReality.value !== 'e02' || !canEnterDarkHouse(dark.value)) return
+    darkHouse.value = {
+      ...darkHouse.value,
+      active: true,
+      status:
+        DARK_HOUSE_ROOMS[darkHouse.value.current]?.opening ??
+        'The House listens.',
+    }
+    persistReality()
+  }
+
+  function leaveDarkHouse(): void {
+    if (!darkHouse.value.active) return
+    darkHouse.value.active = false
+    persistReality()
+  }
+
+  function walkDarkHouse(id: string): void {
+    if (activeReality.value !== 'e02' || !darkHouse.value.active) return
+    const next = advanceDarkHouseRoom(
+      darkHouse.value,
+      id as DarkHouseProgress['current'],
+    )
+    if (next === darkHouse.value) return
+    darkHouse.value = next
+    persistReality()
+  }
+
+  function chooseDarkHouse(id: string): void {
+    if (activeReality.value !== 'e02' || !darkHouse.value.active) return
+    const next = makeDarkHouseChoice(darkHouse.value, id)
+    if (next === darkHouse.value) return
+    darkHouse.value = next
+    persistReality()
   }
 
   async function prepareDarkDeck(): Promise<void> {
@@ -539,6 +606,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function returnToBriar(): void {
     darkEpoch++
+    darkHouse.value.active = false
     darkTurnLocked.value = false
     darkFirstCard.value = null
     darkLoading.value = false
@@ -1464,6 +1532,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     campaign,
     activeReality,
     dark,
+    darkHouse,
+    darkHouseOpen,
+    canEnterDarkHouseAtCamp,
+    darkHouseRoom,
+    darkHouseDoors,
+    enterDarkHouse,
+    leaveDarkHouse,
+    walkDarkHouse,
+    chooseDarkHouse,
     darkDeckError,
     darkLoading,
     darkTurnLocked,

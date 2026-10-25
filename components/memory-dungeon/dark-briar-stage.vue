@@ -35,7 +35,14 @@
       </div>
     </div>
 
-    <div class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2">
+    <memory-dungeon-dark-house-stage
+      v-if="world.darkHouseOpen"
+      class="min-h-0 flex-1"
+    />
+    <div
+      v-else
+      class="md-dark-layout grid min-h-0 flex-1 grid-cols-1 gap-2 p-2"
+    >
       <div
         class="relative grid min-h-0 place-items-center overflow-hidden rounded-xl border-2 border-[#886c9e] bg-[#171a2c] p-2 shadow-2xl"
       >
@@ -233,6 +240,15 @@
             {{ world.dark.revealed.length }}/64 landmarks revealed ·
             {{ witnessCount }}/8 House witnesses
           </p>
+          <button
+            v-if="!world.darkMatching && world.canEnterDarkHouseAtCamp"
+            type="button"
+            data-testid="dark-house-enter"
+            class="rounded-lg border border-[#8a68a6] bg-[#443158] px-3 py-2 font-bold text-white"
+            @click="world.enterDarkHouse()"
+          >
+            Enter the Unremembered House · 36 rooms
+          </button>
           <p
             v-if="world.darkDeckError"
             role="alert"
@@ -314,6 +330,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import MemoryDungeonDarkHouseStage from '~/components/memory-dungeon/dark-house-stage.vue'
 import { BRIAR_TILES } from '~/utils/memoryDungeonWorld'
 import {
   DARK_BRIAR_SCENES,

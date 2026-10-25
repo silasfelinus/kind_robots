@@ -54,7 +54,8 @@ assert.ok(
 assert.equal(DARK_BRIAR_KEYS.length, 64)
 assert.equal(DARK_BRIAR_ENCOUNTER_KEYS.length, 60)
 assert.equal(Object.keys(DARK_BRIAR_SEALS).length, 4)
-for (const key of Object.keys(DARK_BRIAR_SEALS)) assert.equal(DARK_BRIAR_SCENES[key], undefined)
+for (const key of Object.keys(DARK_BRIAR_SEALS))
+  assert.equal(DARK_BRIAR_SCENES[key], undefined)
 assert.equal(new Set(DARK_BRIAR_KEYS).size, 64)
 assert.ok(DARK_BRIAR_KEYS.includes(BRIAR_START))
 assert.ok(DARK_BRIAR_KEYS.includes(DARK_BRIAR_CLIMAX))
@@ -154,9 +155,13 @@ const inspected = darkBriarInspectSeal(unexamined, '5,2')
 assert.deepEqual(inspected.sealInspections, ['5,2'])
 assert.equal(darkBriarInspectSeal(inspected, '5,2'), inspected)
 assert.equal(darkBriarCanChoose(inspected, '5,2'), false)
-assert.equal(darkBriarInspectSeal({ ...unexamined, visited: [] }, '5,2'), unexamined)
+assert.equal(
+  darkBriarInspectSeal({ ...unexamined, visited: [] }, '5,2'),
+  unexamined,
+)
 assert.deepEqual(
-  restoreDarkBriarProgress(JSON.parse(JSON.stringify(inspected))).sealInspections,
+  restoreDarkBriarProgress(JSON.parse(JSON.stringify(inspected)))
+    .sealInspections,
   ['5,2'],
 )
 assert.equal(

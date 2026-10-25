@@ -200,7 +200,7 @@ export async function openCabinet(
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.setContent(
-    '<!doctype html><html><head></head><body style="margin:0"><div id="app"></div></body></html>',
+    '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="app"></div></body></html>',
   )
   await page.evaluate(
     ({ items, seatCount, game, tab }) => {

@@ -34,7 +34,7 @@ It checks canvas bounds, overscroll in X, backing-store ceiling, browser errors,
 and touch-control reachability in a documented phone/tablet/desktop matrix at
 DPR 1, 2 and 3. The workflow saves PNGs for side-by-side review.
 
-The script reports an *estimated* CSS silhouette height using source art or
+The script reports an _estimated_ CSS silhouette height using source art or
 logical sprite sizes. This is a diagnostic, not proof of readability. Physical
 device measurements, per-game camera visibility and boss tell lead-time checks
 are still necessary. Keyboard, gamepad, and touch-input behavior are tested
@@ -82,14 +82,14 @@ design; current shipping choices are Pixel/HD.
 
 ## Scope inventory
 
-| Surface | What must be checked |
-| --- | --- |
+| Surface          | What must be checked                                                          |
+| ---------------- | ----------------------------------------------------------------------------- |
 | Classic cabinets | Variable aspect ratios, bezels, CRT, portrait pinball, safe-area and controls |
-| Save the Plumber | Heroine pose/silhouette, camera, vertical subareas and offscreen threats |
-| Rainbow Princess | Ship/bullet separation, four-seat readability, touch occlusion |
-| Ghost Trail | 4:3 camera, character animation and landscape phone |
-| Zuzu Showdown | Fighter visibility through camera zoom, HUD, simultaneous touch inputs |
-| Memory Dungeon | Square 8×8 tile reachability, independent match-board sizing and focus |
+| Save the Plumber | Heroine pose/silhouette, camera, vertical subareas and offscreen threats      |
+| Rainbow Princess | Ship/bullet separation, four-seat readability, touch occlusion                |
+| Ghost Trail      | 4:3 camera, character animation and landscape phone                           |
+| Zuzu Showdown    | Fighter visibility through camera zoom, HUD, simultaneous touch inputs        |
+| Memory Dungeon   | Square 8×8 tile reachability, independent match-board sizing and focus        |
 
 **Do not close issue #4062** on the strength of the basic canvas fit, the
 fixture or this document alone. Complete the gameplay and device audit and

@@ -9,7 +9,6 @@ import {
   createRun,
   findCard,
   restoreRun,
-  type RunState,
 } from '../ecotone/engine'
 import { openingLensChoices } from '../ecotone/openingLensChoices'
 import { EVENTS } from '../ecotone/story'

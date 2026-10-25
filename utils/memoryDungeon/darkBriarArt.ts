@@ -1,7 +1,12 @@
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 
 export type DarkBriarArtKind =
-  'encounter' | 'consequence' | 'seal' | 'backdrop' | 'transition' | 'matching-gallery'
+  | 'encounter'
+  | 'consequence'
+  | 'seal'
+  | 'backdrop'
+  | 'transition'
+  | 'matching-gallery'
 export interface DarkBriarArtRequest {
   id: string
   title: string

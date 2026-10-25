@@ -5,7 +5,7 @@ tabKey: comet-city-academy
 label: Comet City Academy
 title: 'Comet City Academy: Final Exam'
 subtitle: Superhero school, difficult choices and one very dangerous prom
-summary: Choose your powers, direct rescue drills, and shape your graduation.
+summary: Superhero training, secrets and prom.
 description: 'An illustrated superhero-school playbook game. Choose a unique power set, command up to three classmates at a time during training simulations, encounter campus secrets, and survive an unforgettable Comet Ball. A playable first-week preview; the complete three-act term is still being developed.'
 icon: kind-icon:star
 image: /comet-city-academy/academy-stage.svg

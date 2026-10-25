@@ -188,12 +188,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'projects',
     route: '/plan/projects/coat-dance',
   },
-  // Moved to Admin on 2026-10-11 (Silas: "move the ruler is hooked to admin,
-  // it's not ready for prime time"); /plan/projects/ruler-hooked redirects.
+  // Silas, 2026-10-24: promote the playable game from Admin into Play.
+  // Older Admin/project URLs are compatibility redirects to the same saves.
   'ruler-hooked': {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'ruler-hooked',
-    route: '/admin/ruler-hooked',
+    route: '/play/ruler-hooked',
   },
   'tzaddik-gallery': {
     channelKey: 'admin',

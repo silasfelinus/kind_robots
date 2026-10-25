@@ -411,17 +411,23 @@ export const DARK_BRIAR_SEALS = Object.fromEntries(
       hint: BRIAR_CROSS_MAP_PUZZLES[key].hint,
     },
   ]),
-) as Record<string, {
-  key: string
-  title: string
-  opening: string
-  artPrompt: string
-  hint: string
-}>
+) as Record<
+  string,
+  {
+    key: string
+    title: string
+    opening: string
+    artPrompt: string
+    hint: string
+  }
+>
 
-export const DARK_BRIAR_SCENES: Record<string, DarkBriarScene> = Object.fromEntries(
-  Object.entries(DARK_BRIAR_LEGACY_AUTHORED).filter(([key]) => !darkSeals.has(key)),
-)
+export const DARK_BRIAR_SCENES: Record<string, DarkBriarScene> =
+  Object.fromEntries(
+    Object.entries(DARK_BRIAR_LEGACY_AUTHORED).filter(
+      ([key]) => !darkSeals.has(key),
+    ),
+  )
 export const DARK_BRIAR_ENCOUNTER_KEYS = Object.keys(DARK_BRIAR_SCENES)
 
 /** Old players may have earned testimony on the Sleeping Sigil before it was
@@ -432,11 +438,16 @@ export function darkBriarHasWitness(
 ): boolean {
   return Boolean(
     progress.sceneChoices[key] ||
-      (key === '5,3' && ['testify', 'shield'].includes(progress.sceneChoices['5,2'] ?? '')),
+    (key === '5,3' &&
+      ['testify', 'shield'].includes(progress.sceneChoices['5,2'] ?? '')),
   )
 }
-export function darkBriarWitnessCount(progress: Pick<DarkBriarProgress, 'sceneChoices'>): number {
-  return DARK_BRIAR_WITNESSES.filter((key) => darkBriarHasWitness(progress, key)).length
+export function darkBriarWitnessCount(
+  progress: Pick<DarkBriarProgress, 'sceneChoices'>,
+): number {
+  return DARK_BRIAR_WITNESSES.filter((key) =>
+    darkBriarHasWitness(progress, key),
+  ).length
 }
 
 /**
@@ -643,7 +654,9 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         revealed.includes(key) &&
-        (DARK_BRIAR_SCENES[key]?.choices.some((option) => option.id === choice) ||
+        (DARK_BRIAR_SCENES[key]?.choices.some(
+          (option) => option.id === choice,
+        ) ||
           (key === '5,2' && ['testify', 'shield'].includes(choice)))
       ) {
         sceneChoices[key] = choice
@@ -678,7 +691,9 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     (legacyCompleted ||
       (waveIndex === 3 &&
         allMatched &&
-        DARK_BRIAR_WITNESSES.every((key) => darkBriarHasWitness({ sceneChoices }, key))))
+        DARK_BRIAR_WITNESSES.every((key) =>
+          darkBriarHasWitness({ sceneChoices }, key),
+        )))
   return {
     ...initial,
     mapCards,
@@ -688,7 +703,9 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
     visited,
     player,
     sceneChoices,
-    sealInspections: validKeys(saved.sealInspections).filter((key) => darkSeals.has(key) && visited.includes(key)),
+    sealInspections: validKeys(saved.sealInspections).filter(
+      (key) => darkSeals.has(key) && visited.includes(key),
+    ),
     seenImages,
     attempts:
       Number.isSafeInteger(saved.attempts) && (saved.attempts ?? 0) >= 0
@@ -728,9 +745,7 @@ export function darkBriarCanTravel(
   to: string,
   revealed: readonly string[],
 ): boolean {
-  return (
-    DARK_BRIAR_KEYS.includes(to) && briarConnected(from, to, revealed)
-  )
+  return DARK_BRIAR_KEYS.includes(to) && briarConnected(from, to, revealed)
 }
 
 export function darkBriarInspectSeal(
@@ -744,7 +759,8 @@ export function darkBriarInspectSeal(
     progress.player !== key ||
     !progress.visited.includes(key) ||
     !progress.revealed.includes(key)
-  ) return progress
+  )
+    return progress
   if (progress.sealInspections.includes(key)) return progress
   return {
     ...progress,

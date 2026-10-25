@@ -10,24 +10,40 @@
       <div class="min-w-0 flex-1">
         <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
           Memory Dungeon
-          <span class="font-normal text-[#d1c19c]">{{ world.activeReality === 'e02' ? '/ The Other Marches' : '/ Briar Camp' }}</span>
+          <span class="font-normal text-[#d1c19c]">{{
+            world.activeReality === 'e02'
+              ? '/ The Other Marches'
+              : '/ Briar Camp'
+          }}</span>
         </h2>
         <p class="hidden text-xs text-[#d1c19c] sm:block">
-          {{ world.activeReality === 'e02' ? 'The same place tells a different story.' : 'Remember matching pictures to reveal the world.' }}
+          {{
+            world.activeReality === 'e02'
+              ? 'The same place tells a different story.'
+              : 'Remember matching pictures to reveal the world.'
+          }}
         </p>
       </div>
       <span
         class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
       >
-        Attempts {{ world.activeReality === 'e02' ? world.dark.attempts : world.state.attempts }}
+        Attempts
+        {{
+          world.activeReality === 'e02'
+            ? world.dark.attempts
+            : world.state.attempts
+        }}
       </span>
       <button
         v-if="world.canEnterDarkBriar && world.activeReality === 'e01'"
         type="button"
         class="shrink-0 rounded-lg border border-[#d7a5ee] bg-[#483759] px-2 py-1.5 text-xs font-bold text-[#fff1da] hover:bg-[#62496d]"
         @click="world.enterDarkBriar()"
-      >The reflection</button>
-      <span v-if="world.activeReality === 'e01'"
+      >
+        The reflection
+      </button>
+      <span
+        v-if="world.activeReality === 'e01'"
         class="shrink-0 text-xs"
         :aria-label="`${world.state.hearts} hearts`"
       >
@@ -571,7 +587,9 @@
                   type="button"
                   class="md-btn border-[#a26fb0] bg-[#64476f]"
                   @click="world.enterDarkBriar()"
-                >Enter the changed forest</button>
+                >
+                  Enter the changed forest
+                </button>
                 <template
                   v-if="
                     world.selectedSite?.kind === 'puzzle' &&

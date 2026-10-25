@@ -43,7 +43,7 @@
             THE CITY IS WATCHING <span>✦</span> YOUR STORY BEGINS
           </div>
           <template v-if="!run">
-            <h1 class="cca-big-title">COMET CITY <span>ACADEMY</span></h1>
+            <h2 class="cca-big-title">COMET CITY <span>ACADEMY</span></h2>
             <p class="cca-intro">
               Heroes are made. Villains graduate. Prom is Saturday.
             </p>
@@ -52,7 +52,7 @@
             <p class="cca-chapter">
               CHAPTER {{ run.day.toString().padStart(2, '0') }} / THE FIRST WEEK
             </p>
-            <h1 class="cca-scene-title">{{ sceneTitle }}</h1>
+            <h2 class="cca-scene-title">{{ sceneTitle }}</h2>
             <p class="cca-scene-copy">{{ stageCopy }}</p>
           </template>
         </div>

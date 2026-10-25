@@ -359,17 +359,41 @@ const briefs: readonly RoomBrief[] = [
   ],
 ]
 const keys = Object.keys(HOUSE_ROOMS) as HouseRoomId[]
-export const DARK_HOUSE_ROOMS: Record<string, DarkHouseRoom> = Object.fromEntries(
-  keys.map((id, index) => {
-    const base = HOUSE_ROOMS[id]!
-    const [title, opening, artPrompt, firstLabel, firstOutcome, secondLabel, secondOutcome] = briefs[index]!
-    const choices: DarkHouseChoice[] = [
-      { id: 'attend', label: firstLabel, outcome: firstOutcome },
-      { id: 'refuse', label: secondLabel, outcome: secondOutcome },
-    ]
-    return [id, { id, title, kind: base.kind, opening, artPrompt, imagePath: '/images/memory-dungeon/dark-briar/house/rooms/' + id.toLowerCase() + '.webp', exits: base.exits, choices }]
-  }),
-)
+export const DARK_HOUSE_ROOMS: Record<string, DarkHouseRoom> =
+  Object.fromEntries(
+    keys.map((id, index) => {
+      const base = HOUSE_ROOMS[id]!
+      const [
+        title,
+        opening,
+        artPrompt,
+        firstLabel,
+        firstOutcome,
+        secondLabel,
+        secondOutcome,
+      ] = briefs[index]!
+      const choices: DarkHouseChoice[] = [
+        { id: 'attend', label: firstLabel, outcome: firstOutcome },
+        { id: 'refuse', label: secondLabel, outcome: secondOutcome },
+      ]
+      return [
+        id,
+        {
+          id,
+          title,
+          kind: base.kind,
+          opening,
+          artPrompt,
+          imagePath:
+            '/images/memory-dungeon/dark-briar/house/rooms/' +
+            id.toLowerCase() +
+            '.webp',
+          exits: base.exits,
+          choices,
+        },
+      ]
+    }),
+  )
 export interface DarkHouseProgress {
   version: 1
   active: boolean
@@ -380,37 +404,76 @@ export interface DarkHouseProgress {
   status: string
 }
 export function newDarkHouseProgress(): DarkHouseProgress {
-  return { version: 1, active: false, current: HOUSE_ENTRY, visited: [HOUSE_ENTRY], decisions: {}, ending: null, status: 'The reflected House is waiting for its witnesses.' }
+  return {
+    version: 1,
+    active: false,
+    current: HOUSE_ENTRY,
+    visited: [HOUSE_ENTRY],
+    decisions: {},
+    ending: null,
+    status: 'The reflected House is waiting for its witnesses.',
+  }
 }
 export function canEnterDarkHouse(progress: DarkBriarProgress): boolean {
-  return progress.phase === 'exploring' && progress.waveIndex === 3
-    && progress.mapCards.length === 16 && progress.mapCards.every(card => card.matched)
-    && progress.player === '6,2'
-    && DARK_BRIAR_WITNESSES.every(key => Boolean(progress.sceneChoices[key]))
+  return (
+    progress.phase === 'exploring' &&
+    progress.waveIndex === 3 &&
+    progress.mapCards.length === 16 &&
+    progress.mapCards.every((card) => card.matched) &&
+    progress.player === '6,2' &&
+    DARK_BRIAR_WITNESSES.every((key) => Boolean(progress.sceneChoices[key]))
+  )
 }
 export function darkHouseExits(progress: DarkHouseProgress): HouseRoomId[] {
   const room = DARK_HOUSE_ROOMS[progress.current]
   if (!room) return []
   const forward = [...room.exits]
-  const backtrack = Object.values(DARK_HOUSE_ROOMS).filter(previous =>
-    previous.exits.includes(progress.current) && progress.visited.includes(previous.id)
-  ).map(previous => previous.id)
-  return [...new Set([...forward, ...backtrack])].filter(id =>
-    !(id === 'HD-33' && !progress.decisions['HD-32'])
-    && !(id === 'HD-36' && !progress.ending)
+  const backtrack = Object.values(DARK_HOUSE_ROOMS)
+    .filter(
+      (previous) =>
+        previous.exits.includes(progress.current) &&
+        progress.visited.includes(previous.id),
+    )
+    .map((previous) => previous.id)
+  return [...new Set([...forward, ...backtrack])].filter(
+    (id) =>
+      !(id === 'HD-33' && !progress.decisions['HD-32']) &&
+      !(id === 'HD-36' && !progress.ending),
   )
 }
-export function darkHouseMove(progress: DarkHouseProgress, target: HouseRoomId): DarkHouseProgress {
-  if (!progress.active || !darkHouseExits(progress).includes(target)) return progress
-  return { ...progress, current: target, visited: [...new Set([...progress.visited, target])], status: DARK_HOUSE_ROOMS[target]!.opening }
+export function darkHouseMove(
+  progress: DarkHouseProgress,
+  target: HouseRoomId,
+): DarkHouseProgress {
+  if (!progress.active || !darkHouseExits(progress).includes(target))
+    return progress
+  return {
+    ...progress,
+    current: target,
+    visited: [...new Set([...progress.visited, target])],
+    status: DARK_HOUSE_ROOMS[target]!.opening,
+  }
 }
-export function darkHouseChoose(progress: DarkHouseProgress, id: string): DarkHouseProgress {
+export function darkHouseChoose(
+  progress: DarkHouseProgress,
+  id: string,
+): DarkHouseProgress {
   if (!progress.active || progress.decisions[progress.current]) return progress
-  const choice = DARK_HOUSE_ROOMS[progress.current]?.choices.find(choice => choice.id === id)
+  const choice = DARK_HOUSE_ROOMS[progress.current]?.choices.find(
+    (choice) => choice.id === id,
+  )
   if (!choice) return progress
-  return { ...progress, decisions: { ...progress.decisions, [progress.current]: id },
-    ending: progress.current === 'HD-35' ? (id === 'attend' ? 'return' : 'commons') : progress.ending,
-    status: choice.outcome }
+  return {
+    ...progress,
+    decisions: { ...progress.decisions, [progress.current]: id },
+    ending:
+      progress.current === 'HD-35'
+        ? id === 'attend'
+          ? 'return'
+          : 'commons'
+        : progress.ending,
+    status: choice.outcome,
+  }
 }
 export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const fresh = newDarkHouseProgress()
@@ -419,19 +482,48 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const decisions: Record<string, string> = {}
   if (saved.decisions && typeof saved.decisions === 'object')
     for (const [room, id] of Object.entries(saved.decisions))
-      if (DARK_HOUSE_ROOMS[room]?.choices.some(c => c.id === id)) decisions[room] = id
-  const visited = Array.isArray(saved.visited) ? saved.visited.filter((id): id is HouseRoomId => typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id])) : []
-  const current = typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current] ? saved.current as HouseRoomId : HOUSE_ENTRY
-  return { version: 1, active: saved.active === true, current, visited: [...new Set([HOUSE_ENTRY, ...visited, current])], decisions,
-    ending: decisions['HD-35'] === 'attend' ? 'return' : decisions['HD-35'] === 'refuse' ? 'commons' : null,
-    status: typeof saved.status === 'string' ? saved.status.slice(0, 500) : fresh.status }
+      if (DARK_HOUSE_ROOMS[room]?.choices.some((c) => c.id === id))
+        decisions[room] = id
+  const visited = Array.isArray(saved.visited)
+    ? saved.visited.filter(
+        (id): id is HouseRoomId =>
+          typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id]),
+      )
+    : []
+  const current =
+    typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current]
+      ? (saved.current as HouseRoomId)
+      : HOUSE_ENTRY
+  return {
+    version: 1,
+    active: saved.active === true,
+    current,
+    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
+    decisions,
+    ending:
+      decisions['HD-35'] === 'attend'
+        ? 'return'
+        : decisions['HD-35'] === 'refuse'
+          ? 'commons'
+          : null,
+    status:
+      typeof saved.status === 'string'
+        ? saved.status.slice(0, 500)
+        : fresh.status,
+  }
 }
 export function validateDarkHouse(): string[] {
   const problems: string[] = []
-  if (keys.length !== 36 || Object.keys(DARK_HOUSE_ROOMS).length !== 36) problems.push('Dark House requires 36 rooms')
+  if (keys.length !== 36 || Object.keys(DARK_HOUSE_ROOMS).length !== 36)
+    problems.push('Dark House requires 36 rooms')
   for (const room of Object.values(DARK_HOUSE_ROOMS)) {
-    if (room.opening.length < 70 || room.artPrompt.length < 70) problems.push('Incomplete dark room ' + room.id)
-    if (room.choices.length !== 2 || room.choices.some(c => !c.label || !c.outcome)) problems.push('Incomplete room choice ' + room.id)
+    if (room.opening.length < 70 || room.artPrompt.length < 70)
+      problems.push('Incomplete dark room ' + room.id)
+    if (
+      room.choices.length !== 2 ||
+      room.choices.some((c) => !c.label || !c.outcome)
+    )
+      problems.push('Incomplete room choice ' + room.id)
   }
   return problems
 }

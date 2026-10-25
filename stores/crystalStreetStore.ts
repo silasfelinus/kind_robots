@@ -275,6 +275,22 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     if (run.value) commit(fn(run.value, ...args))
   }
 
+  // A click that lands just as the screen changes (the second half of a
+  // double-click on Continue) would hit whatever button replaced the one
+  // pressed, often the next card's first choice. Moves that change the
+  // screen ignore input until it has settled (roadmap #4143, UI torture).
+  const SETTLE_MS = 350
+  let changedAt = 0
+  function move<T extends unknown[]>(
+    fn: (state: RunState, ...args: T) => RunState,
+    ...args: T
+  ): void {
+    if (!run.value || Date.now() - changedAt < SETTLE_MS) return
+    const before = run.value
+    act(fn, ...args)
+    if (run.value !== before) changedAt = Date.now()
+  }
+
   return {
     run,
     scrapbook,
@@ -292,13 +308,13 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     abandon,
     setSetting,
     resetScrapbook,
-    choose: (choiceId: string) => act(chooseInRun, choiceId),
-    reroll: () => act(rerollInRun),
-    resolve: () => act(resolveInRun),
+    choose: (choiceId: string) => move(chooseInRun, choiceId),
+    reroll: () => move(rerollInRun),
+    resolve: () => move(resolveInRun),
     activity: (location: LocationId, activity: DayActivity) =>
-      act(doActivity, location, activity),
-    nightfall: () => act(nightfallInRun),
-    drawFrom: (deck: DeckChoice) => act(drawFromInRun, deck),
+      move(doActivity, location, activity),
+    nightfall: () => move(nightfallInRun),
+    drawFrom: (deck: DeckChoice) => move(drawFromInRun, deck),
     buy: (item: ItemId) => act(buyInRun, item),
     useItem: (item: ItemId) => act(useItemInRun, item),
     dismiss: (id: CompanionId) => act(dismissInRun, id),

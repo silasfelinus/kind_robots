@@ -13,6 +13,7 @@ import {
   doActivity,
   endingKey,
   isRunState,
+  specialKey,
   newRun,
   nightfall as nightfallInRun,
   pendingOutcome,
@@ -26,7 +27,7 @@ import {
   type NewRunOptions,
   type RunState,
 } from '~/utils/crystalStreet/rules'
-import type { EndingTier } from '~/utils/crystalStreet/types'
+import type { EndingTier, SpecialEnding } from '~/utils/crystalStreet/types'
 import type { CompanionId, ItemId, LocationId } from '~/utils/crystalStreet/ids'
 
 const RUN_KEY = 'crystal-street-run-v1'
@@ -77,6 +78,8 @@ export type ScrapbookRun = {
   day: number
   endedAt: number
   highlights: LogEntry[]
+  /** A faction collapse or the Final Girl's win. */
+  special?: SpecialEnding
 }
 
 // friends: every companion ever recruited, so the scrapbook shows only the
@@ -190,7 +193,12 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   function record(next: RunState): void {
     if (!next.ending) return
     if (scrapbook.value.runs.some((r) => r.seed === next.seed)) return
-    const key = endingKey(next.villain, next.ending.tier)
+    const special = next.ending.special
+    const keys = special
+      ? special === 'final-girl'
+        ? [endingKey(next.villain, next.ending.tier), specialKey(special)]
+        : [specialKey(special)]
+      : [endingKey(next.villain, next.ending.tier)]
     scrapbook.value = {
       ...scrapbook.value,
       runs: [
@@ -207,12 +215,14 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
           day: next.day,
           endedAt: next.ending.at,
           highlights: highlightsOf(next),
+          ...(special ? { special } : {}),
         },
         ...scrapbook.value.runs,
       ].slice(0, SCRAPBOOK_LIMIT),
-      endings: scrapbook.value.endings.includes(key)
-        ? scrapbook.value.endings
-        : [...scrapbook.value.endings, key],
+      endings: [
+        ...scrapbook.value.endings,
+        ...keys.filter((k) => !scrapbook.value.endings.includes(k)),
+      ],
     }
   }
 

@@ -1,17 +1,16 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: ruler-hooked
 label: The Ruler Is Hooked
 title: The Ruler Is Hooked
-subtitle: Fish first. Govern eventually. Admin only until it launches.
+subtitle: Fish first. Govern eventually. The kingdom can wait.
 description: A fishing-and-kingdom game where you cast for fish, answer the decisions your advisor brings, and steer a seaside realm toward one of several endings.
 summary: Fish, rule, and reshape the shore.
-icon: kind-icon:crown
+icon: kind-icon:water
 image: /images/channels/admin/ruler-hooked.webp
-route: /admin/ruler-hooked
-requiredRole: ADMIN
-sort: 130
+route: /play/ruler-hooked
+sort: 143
 tutorial:
   title: Fish, then rule
   body: >-

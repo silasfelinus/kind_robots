@@ -3323,7 +3323,7 @@ export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
     day: 11,
     hidden: true,
     when: { flags: ['d10-coldbrooks-escorted'] },
-    line: 'The wagon comes through the gate before dawn. Wenna Coldbrook counts four children down from the bed, then counts the two riders. One limps. She puts her seed sack under his head while the Yard brings water.',
+    line: 'The wagon comes through the gate before dawn. Wenna Coldbrook counts four children down from the bed, then counts the two riders. One limps. She puts her seed sack under his head. “We go home when the road clears,” she tells the Yard. Nobody argues.',
     effects: { flags: ['d11-coldbrooks-safe'], local: { yard: 1 } },
   },
   {

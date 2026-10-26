@@ -659,13 +659,15 @@ assert.ok(
 )
 assert.match(
   visitorDirectorySource,
-  /@container \\(min-width: 36rem\\)[\\s\\S]*?\\.visitor-featured-grid \\{[\\s\\S]*?repeat\\(2, minmax\\(0, 1fr\\)\\)/,
+  /@container \(min-width: 36rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/,
   'wider tablet containers must restore two featured experience columns',
 )
-const featuredPanel = visitorDirectorySource.split('id="visitor-featured"')[1]?.split('id="visitor-updates"')[0] ?? ''
+const featuredPanel =
+  visitorDirectorySource.split('id="visitor-featured"')[1]
+    ?.split('id="visitor-updates"')[0] ?? ''
 assert.match(
   featuredPanel,
-  /class="kr-pane-scroll min-h-0 pr-1"[\\s\\S]*?id="visitor-hero-title"[\\s\\S]*?Featured experiences[\\s\\S]*?Filter experiences[\\s\\S]*?visitor-featured-grid/,
+  /class="kr-pane-scroll min-h-0 pr-1"[\s\S]*?id="visitor-hero-title"[\s\S]*?Featured experiences[\s\S]*?Filter experiences[\s\S]*?visitor-featured-grid/,
   'the Crystal Street promo, heading, filters, and gallery must share the one bounded scroll owner',
 )
 assert.match(

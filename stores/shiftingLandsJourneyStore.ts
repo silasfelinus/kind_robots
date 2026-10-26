@@ -482,7 +482,10 @@ export const useShiftingLandsJourneyStore = defineStore(
     function fresh() {
       if (!loaded.value) return
       ledger.value = newJourneyLedgerV8(Date.now() % 2147483647)
-      usePlaybookRunReviewStore().begin('shifting-lands', String(ledger.value.seed))
+      usePlaybookRunReviewStore().begin(
+        'shifting-lands',
+        String(ledger.value.seed),
+      )
       restoreWarning.value = false
       persist()
     }

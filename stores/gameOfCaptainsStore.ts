@@ -49,7 +49,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function begin(captain: CaptainId, crew: CrewId[]) {
     run.value = startVoyage(captain, crew)
-    usePlaybookRunReviewStore().begin('game-of-captains', playbookRunKey(run.value))
+    usePlaybookRunReviewStore().begin(
+      'game-of-captains',
+      playbookRunKey(run.value),
+    )
     persist()
   }
   function assign(crew: CrewId[]) {

@@ -7,6 +7,7 @@ import {
 } from './saveLedgerV8'
 import type { JourneyActionV7 } from './saveLedgerV7'
 import { kitchenNoviceSourcesV8 } from './followerEchoesV8'
+import { v6CharacterSheet } from './saveLedgerV6'
 import type { WorldEchoV7 } from './worldEchoesV7'
 
 export type KitchenNoviceChoiceV9 =

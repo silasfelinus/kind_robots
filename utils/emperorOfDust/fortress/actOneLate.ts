@@ -3170,6 +3170,50 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'The rider carries it east herself. At dusk the fiddler plays one long sour note from the lead wagon and turns her wagons round. Half the raiders go with her. Half do not. The posting stays up. Somebody still has to stand in the granary door.',
               },
               {
+                id: 'hill-guides',
+                label:
+                  'Ask the hill farmers you fed to guide Thistledown’s families through the gullies. The Yard loses two cooks.',
+                requires: { flags: ['d09-farmers-fed'] },
+                effects: {
+                  local: { yard: -2 },
+                  affinity: { freeholds: 6 },
+                  flags: ['d10-hill-guides'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'Hill farmers guiding families through the gullies',
+                      bonus: 2,
+                      stat: 'heart',
+                    },
+                  ],
+                  schedule: ['d10-hill-guides-return'],
+                },
+                response:
+                  'Dunmore sends two cooks with bread and lanterns. The hill farmers know which gullies the painted wagons cannot cross. The cooks leave their aprons on the kitchen hooks. Nobody can say when they will be back.',
+              },
+              {
+                id: 'iron-barricade',
+                label:
+                  'Ask the hill farmers to sacrifice the iron wagon you gave them. Pull Watch hands off the gate to block the raider road.',
+                requires: { flags: ['d09-wagon-left'] },
+                effects: {
+                  local: { 'gate-watch': -2 },
+                  affinity: { saltroad: -5, freeholds: 6 },
+                  flags: ['d10-iron-barricade'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'Salvaged iron blocking the painted wagons',
+                      bonus: 2,
+                      stat: 'might',
+                    },
+                  ],
+                  schedule: ['d10-iron-barricade-return'],
+                },
+                response:
+                  'The Watch takes chain and wedges east. Oriel Saltmarsh hears what you have ordered done with her missing wagon. She does not protest. She sends a driver to count every bar before the road is closed.',
+              },
+              {
                 id: 'promise',
                 label: 'Promise her every hand the board can field.',
                 effects: {
@@ -3335,6 +3379,26 @@ export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
     when: { flags: ['d10-coldbrooks-warned'] },
     line: 'The runner returns without his map. He nailed it to Wenna’s empty cart, wheel still in the ditch. Small footprints led toward the reeds. He cannot say whether the children reached cover.',
     effects: { flags: ['d11-coldbrooks-unaccounted'] },
+  },
+  // Day 9's canyon bargains buy distinct, costly Day 10 options.
+  // The dawn reports record the people helped without declaring the raid won.
+  {
+    id: 'd10-hill-guides-return',
+    title: 'The gully guides',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-hill-guides'] },
+    line: 'Three hill farmers bring seven Thistledown families through the gullies before dawn. Dunmore’s two cooks come last, carrying a child between them. The granary may still be lost. Seven families are not.',
+    effects: { flags: ['d11-hill-guides-returned'] },
+  },
+  {
+    id: 'd10-iron-barricade-return',
+    title: 'The iron at the crossing',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-iron-barricade'] },
+    line: 'The salvaged iron wagon lies across the raider road, burned down to its axles. The painted wagons had to turn aside. Oriel’s driver returns with a list of every bar the crown spent. She will send the bill to the next market.',
+    effects: { flags: ['d11-iron-barricade-spent'] },
   },
   // t-035: “Never cheaply” is the oath the last emperor broke. Sworn with
   // people already on the lethal canyon road, the Watch holds you to it.

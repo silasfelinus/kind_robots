@@ -5437,9 +5437,7 @@ for (const def of DAYS)
   const warningDawn = finishDay(warned)
   assert.ok(warningDawn.run.flags.includes('d11-coldbrooks-unaccounted'))
   assert.ok(!warningDawn.run.flags.includes('d11-coldbrooks-safe'))
-  assert.ok(
-    warningDawn.report.events.some((event) => /empty cart/.test(event)),
-  )
+  assert.ok(warningDawn.report.events.some((event) => /empty cart/.test(event)))
   const villageFirst = answer(
     onDay(5, 10, { flags: ['d08-coldbrooks-home'] }),
     'd10-thistledown',

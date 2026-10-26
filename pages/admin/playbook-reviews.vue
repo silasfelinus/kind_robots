@@ -3,7 +3,7 @@
     <header class="flex shrink-0 flex-wrap items-center justify-between gap-2">
       <div>
         <p class="text-xs font-black uppercase tracking-widest text-warning">Playbook Studio</p>
-        <h1 class="font-serif text-2xl font-bold">Player run reviews</h1>
+        <h2 class="font-serif text-2xl font-bold">Player run reviews</h2>
         <p class="text-sm opacity-70">Learn what worked, which endings landed, and what each playthrough actually did.</p>
       </div>
       <NuxtLink class="btn btn-outline btn-sm" to="/admin/playbook-manager">Story Atlas</NuxtLink>
@@ -29,8 +29,8 @@
         <span class="text-xs opacity-70">{{ store.reviews.length }} most recent matches</span>
       </div>
       <p v-if="store.error" role="alert" class="text-error">{{ store.error }}</p>
-      <div class="grid min-h-0 flex-1 gap-3 overflow-hidden lg:grid-cols-[minmax(15rem,1fr)_minmax(20rem,1.2fr)]">
-        <div class="kr-scroll min-h-0 space-y-2">
+      <div class="kr-scroll grid min-h-0 flex-1 items-start gap-3 lg:grid-cols-[minmax(15rem,1fr)_minmax(20rem,1.2fr)]">
+        <div class="min-h-0 space-y-2">
           <p v-if="store.loading" role="status">Loading reviews…</p>
           <p v-else-if="!store.reviews.length" class="opacity-70">No reviews match these filters yet.</p>
           <button
@@ -50,7 +50,7 @@
             <span class="mt-2 block text-sm">{{ review.comment || 'No written comment' }}</span>
           </button>
         </div>
-        <section class="kr-scroll min-h-0 rounded-2xl border border-base-content/20 bg-base-200 p-3 sm:p-4" aria-label="Selected review playthrough history">
+        <section class="min-h-0 rounded-2xl border border-base-content/20 bg-base-200 p-3 sm:p-4" aria-label="Selected review playthrough history">
           <template v-if="selected">
             <h2 class="font-serif text-xl font-bold">Run history: {{ selected.endingKey }}</h2>
             <p class="text-sm">{{ selected.gameSlug }} · {{ selected.stars }}/5 stars</p>

@@ -6,7 +6,7 @@ parentTabKey: retired
 label: Run Reviews
 title: Playbook Run Reviews
 subtitle: Player feedback with the choices behind it.
-summary: Inspect player ratings and full run traces.
+summary: Inspect player ratings and run traces.
 description: Administrator review history for Playbook games. Filter by game or star rating and inspect each ending's recorded playthrough decisions to find content improvements.
 icon: kind-icon:star
 route: /admin/playbook-reviews

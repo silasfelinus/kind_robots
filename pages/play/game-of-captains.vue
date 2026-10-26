@@ -22,6 +22,7 @@
         >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
         <b>{{ run.trust }}</b></span
       >
+      <span v-if="run" class="cap-hud" aria-label="Couch force shield charge">BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span>
       <button
         v-if="run"
         type="button"
@@ -209,6 +210,36 @@
               </p>
               <small>{{ antagonist.title }}</small>
             </div>
+            <section class="cap-insight" aria-label="Couch pocket rooms and shield">
+              <strong>Where is the rest of the spaceship?</strong>
+              <small>This long red couch IS the ship. Its invisible bubble keeps the vacuum out. Unfold one temporary room behind the backrest for one supply: matching a mission's specialty boosts success odds by 10%.</small>
+              <div class="cap-crew-picker">
+                <button
+                  type="button"
+                  class="cap-crew-button"
+                  :class="{ chosen: !run.pocketRoom }"
+                  :aria-pressed="!run.pocketRoom"
+                  @click="store.chooseRoom(null)"
+                ><span><strong>Just the couch</strong><small>No room, no supply cost</small></span></button>
+                <button
+                  v-for="room in POCKET_ROOMS"
+                  :key="room.id"
+                  type="button"
+                  class="cap-crew-button"
+                  :class="{ chosen: run.pocketRoom === room.id }"
+                  :aria-pressed="run.pocketRoom === room.id"
+                  :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
+                  @click="store.chooseRoom(room.id)"
+                ><span><strong>{{ room.name }}</strong><small>{{ room.blurb }}</small></span></button>
+              </div>
+              <button
+                class="cap-option"
+                type="button"
+                data-testid="couch-recharge-shield"
+                :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
+                @click="store.rechargeShield()"
+              ><span><b>Recharge invisible force bubble (1 supply)</b><small>Charge {{ run.shieldCharge ?? 2 }}/3. Backup life support remains safe at zero, but mission odds lose 10%.</small></span>↗</button>
+            </section>
             <section
               v-if="missionPreview"
               class="cap-odds"
@@ -527,6 +558,7 @@ import {
   CAPTAINS,
   CREW,
   MISSIONS,
+  POCKET_ROOMS,
   previewMission,
   antagonistFor,
   missionFor,

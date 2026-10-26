@@ -8,6 +8,10 @@ import {
 import { readFileSync } from 'node:fs'
 import {
   CAPTAINS,
+  POCKET_ROOMS,
+  SPACE_COUCH,
+  configurePocketRoom,
+  rechargeCouchShield,
   CREW,
   MISSIONS,
   ANTAGONISTS,
@@ -27,6 +31,26 @@ import {
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 assert.equal(CAPTAINS.length, 6)
+assert.equal(POCKET_ROOMS.length, 3)
+assert.ok(SPACE_COUCH.vessel.includes('red couch'))
+let couch = startVoyage('fluke', ['pell', 'mox', 'rue'], 41)
+const unpreparedOdds = previewMission(couch).chance
+couch = configurePocketRoom(couch, 'infirmary')
+assert.equal(previewMission(couch).chance, Math.min(94, unpreparedOdds + 10))
+assert.equal(configurePocketRoom(couch, 'wrong' as 'holodeck'), couch)
+const launchedCouch = launchMission(couch)
+assert.equal(launchedCouch.shieldCharge, 1)
+assert.equal(launchedCouch.supplies, couch.supplies - 1)
+assert.equal(launchedCouch.active?.chance, previewMission(couch).chance)
+assert.equal(configurePocketRoom(launchedCouch, 'holodeck'), launchedCouch)
+couch = rechargeCouchShield(couch)
+assert.equal(couch.shieldCharge, 3)
+assert.equal(couch.supplies, 6)
+assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(couch))), couch)
+const oldSave = JSON.parse(JSON.stringify(couch))
+delete oldSave.pocketRoom
+delete oldSave.shieldCharge
+assert.ok(restoreVoyage(oldSave), 'legacy saves remain readable')
 assert.equal(CREW.length, 12)
 assert.equal(CREW_PROFILES.length, 12)
 assert.equal(new Set(CREW.map((x) => x.id)).size, 12)
@@ -124,6 +148,11 @@ const page = fromRoot('pages/play/game-of-captains.vue')
 const tab = fromRoot('content/channels/arcade/game-of-captains.md')
 const home = fromRoot('components/home/home-visitor-directory.vue')
 assert.ok(page.includes('data-layout="console-fixed"'))
+assert.ok(page.includes('space-couch-stage.svg'))
+assert.ok(page.includes('data-testid="couch-recharge-shield"'))
+assert.ok(page.includes('POCKET_ROOMS'))
+assert.ok(tab.includes('Space Couch'))
+assert.ok(home.includes('Space Couch'))
 assert.ok(page.includes('data-testid="captains-launch"'))
 assert.ok(tab.includes('route: /play/game-of-captains'))
 assert.ok(

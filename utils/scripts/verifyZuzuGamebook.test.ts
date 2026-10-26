@@ -489,6 +489,54 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
+// The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
+// It must not become a free escape for Zuzu when she remains tied to the altar.
+const woundedAlone: Run = {
+  ...startRun(19),
+  sceneId: 'a8-voice-wound',
+  health: 1,
+  resolve: 0,
+  flags: [],
+}
+assert.deepEqual(
+  scene('a8-voice-wound')
+    .choices?.slice(0, 3)
+    .map((choice) => choice.id),
+  ['refuse', 'dream', 'take'],
+  'positional golden witnesses retain their original choice indices',
+)
+const escapeChoice = scene('a8-voice-wound').choices?.find(
+  (choice) => choice.id === 'escape-with-sister',
+)
+assert.ok(escapeChoice, 'the wounded bargain offers a retreat')
+assert.ok(lockReason(woundedAlone, escapeChoice))
+assert.equal(takeChoice(woundedAlone, 'escape-with-sister'), woundedAlone)
+for (const health of [1, 3, 6, 12]) {
+  for (const resolve of [0, 4]) {
+    const withSister: Run = {
+      ...woundedAlone,
+      health,
+      resolve,
+      flags: ['sister-free'],
+    }
+    const withdrawn = takeChoice(withSister, 'escape-with-sister')
+    assert.equal(withdrawn.sceneId, 'a8-wounded-flight')
+    assert.equal(withdrawn.health, health, 'retreat cannot secretly heal')
+    assert.equal(withdrawn.resolve, resolve, 'retreat cannot grant Resolve')
+    assert.ok(withdrawn.flags.includes('honor:refused-the-dark'))
+    assert.equal(taint(withdrawn), 0)
+    const escaped = takeChoice(withdrawn, 'carry-them')
+    assert.equal(escaped.sceneId, 'ending-hunted')
+    assert.ok(escaped.flags.includes('breach-left-open'))
+    assert.ok(escaped.endings.includes('ending-hunted'))
+    assert.equal(escaped.health, health)
+    const returned = takeChoice(withdrawn, 'turn-back')
+    assert.equal(returned.sceneId, 'abbess')
+    assert.equal(returned.battle?.hp, 9)
+    assert.ok(!returned.flags.includes('breach-left-open'))
+  }
+}
+
 // Golden journeys must remain replayable without the search solver, including
 // rare moral endings and failures. Changes to choices, dice or consequences
 // require explicit editorial review and deliberate fixture refresh.

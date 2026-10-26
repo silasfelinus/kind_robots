@@ -1,6 +1,7 @@
 import { identityFor, identityStoryFor } from './identityArcs'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
+import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
 import {
   signatureById,
@@ -374,6 +375,8 @@ export type AcademyRun = {
   flowVersion?: 2
   selectedSite?: SiteId
   visitedSites?: SiteId[]
+  academyStanding?: number
+  cityStanding?: number
   phase: AcademyPhase
   day: number
   influence: number
@@ -400,7 +403,12 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 2 && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
-    if (site) return ENCOUNTERS[site.encounterIndex]!
+    if (site) {
+      const districtScene = districtEncounterFor(site.id)
+      if (districtScene) return districtScene
+      if (site.encounterIndex !== undefined)
+        return ENCOUNTERS[site.encounterIndex]!
+    }
   }
   // Existing v1 saves keep the original three-card order mid-term.
   const index =
@@ -444,6 +452,8 @@ export function startAcademy(
     flowVersion: 2,
     phase: 'map',
     visitedSites: [],
+    academyStanding: 0,
+    cityStanding: 0,
     day: 1,
     influence: 0,
     danger: 2,
@@ -514,11 +524,40 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         run.seed,
         `${run.day}:${incident.id}:${assignment.students.join(',')}`,
       ) % 6
+    // Residents and classmates remember the player's prior decisions.
+    // City goodwill helps public rescues; underworld contacts aid covert
+    // operations. Neither modifies the original training-save outcomes.
+    const cityStanding = run.cityStanding ?? 0
+    const academyStanding = run.academyStanding ?? 0
+    const civicSupport =
+      run.flowVersion === 2 && run.day > 2
+        ? incident.allegiance === 'villain'
+          ? cityStanding <= -2
+            ? 1
+            : cityStanding >= 2
+              ? -1
+              : 0
+          : cityStanding >= 2
+            ? 1
+            : cityStanding <= -2
+              ? -1
+              : 0
+        : 0
+    const academySupport =
+      run.flowVersion === 2 && run.day > 2
+        ? academyStanding >= 2
+          ? 1
+          : academyStanding <= -2
+            ? -1
+            : 0
+        : 0
     const score =
       roll +
       assignment.students.length +
       (affinity ? 2 : 0) +
-      (run.power === incident.need ? 1 : 0)
+      (run.power === incident.need ? 1 : 0) +
+      civicSupport +
+      academySupport
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -601,10 +640,19 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (special
       ? ` Your signature technique, ${special.name}, offers another approach: ${special.action}. ${special.cost}.`
       : '')
+  const neighborhood = CITY_SITES.find((site) => site.id === run.selectedSite)
+  const trustChange =
+    'trust' in option && typeof option.trust === 'number' ? option.trust : 0
   return {
     ...run,
     phase: run.flowVersion === 2 ? 'dispatch' : 'debrief',
     influence: run.influence + option.influence,
+    academyStanding:
+      (run.academyStanding ?? 0) +
+      (neighborhood?.district === 'academy' ? trustChange : 0),
+    cityStanding:
+      (run.cityStanding ?? 0) +
+      (neighborhood?.district === 'city' ? trustChange : 0),
     danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)),
     scene:
       run.flowVersion === 2
@@ -739,7 +787,13 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     !Array.isArray(data.assignments) ||
     !Array.isArray(data.reports) ||
     typeof data.influence !== 'number' ||
-    typeof data.danger !== 'number'
+    typeof data.danger !== 'number' ||
+    (data.academyStanding !== undefined &&
+      (!Number.isFinite(data.academyStanding) ||
+        !Number.isInteger(data.academyStanding))) ||
+    (data.cityStanding !== undefined &&
+      (!Number.isFinite(data.cityStanding) ||
+        !Number.isInteger(data.cityStanding)))
   )
     return null
   return data as AcademyRun

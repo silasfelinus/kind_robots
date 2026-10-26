@@ -336,6 +336,7 @@ export const ACT_IV: Act = {
             label: "Trust the sister's escape route. Give up your bandage.",
             to: 'a4-well-slip',
             needs: 'sister-trust',
+            unless: 'sister-wary',
             hint: 'She has not learned to trust you with her brother.',
             requires: 'bandage',
             spend: 'bandage',
@@ -350,7 +351,7 @@ export const ACT_IV: Act = {
       'dry-well',
       "The sister is already moving. She shoves her brother into a crack too narrow for Hollis's band to follow, then catches your sleeve. You throw the clean bandage to the raider she bit. His bleeding hand closes on it by reflex; Hollis turns at his cry. It buys three heartbeats. You spend them crawling after the children, leaving the well and its water behind. When you look back, Hollis is watching the cleft. She has learned the shape of your face.",
       {
-        effects: { flags: ['sister-led-escape'], resolve: -1 },
+        effects: { flags: ['sister-led-escape', 'debt:sister'], resolve: -1 },
         choices: [
           {
             id: 'on',

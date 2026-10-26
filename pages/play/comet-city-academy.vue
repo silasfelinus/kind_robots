@@ -347,6 +347,7 @@
                 :style="{ left: site.left + '%', top: site.top + '%' }"
                 :disabled="run.visitedSites?.includes(site.id)"
                 :title="site.name"
+                :aria-label="site.name + ': ' + site.teaser"
                 @click="store.visit(site.id)"
               >
                 <span class="cca-map-dot" aria-hidden="true">{{
@@ -358,8 +359,31 @@
             </div>
             <p class="cca-map-legend">
               ✦ Academy &nbsp; ◆ City &nbsp; · &nbsp;
-              {{ run.visitedSites?.length ?? 0 }} of 7 first-week leads followed
+              {{ run.visitedSites?.length ?? 0 }} locations explored of 24
+              <span class="cca-map-trust">
+                ACADEMY {{ run.academyStanding ?? 0 }} · CITY
+                {{ run.cityStanding ?? 0 }}
+              </span>
             </p>
+            <div
+              class="cca-map-sites"
+              data-testid="academy-map-sites"
+              aria-label="Available neighborhood story choices"
+            >
+              <button
+                v-for="site in mapNodes"
+                :key="'choice-' + site.id"
+                type="button"
+                class="cca-map-site-choice"
+                :disabled="run.visitedSites?.includes(site.id)"
+                @click="store.visit(site.id)"
+              >
+                <strong>{{ site.name }}</strong>
+                <small>{{
+                  run.visitedSites?.includes(site.id) ? 'EXPLORED' : site.teaser
+                }}</small>
+              </button>
+            </div>
           </template>
 
           <template v-else-if="run.phase === 'dispatch'">
@@ -1387,19 +1411,15 @@ function toggleStudent(caseId: string, id: StudentId): void {
   position: absolute;
   transform: translate(-50%, -50%);
   display: grid;
-  justify-items: center;
-  gap: 0.2rem;
-  max-width: 7.3rem;
-  min-width: 3.1rem;
-  padding: 0.25rem;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.1rem;
   color: #fdf0df;
-  background: #15263ddc;
+  background: #15263de8;
   border: 1px solid #b3cad5;
-  border-radius: 0.55rem;
-  font-size: 0.58rem;
+  border-radius: 50%;
   font-weight: 800;
-  text-align: center;
-  line-height: 1.2;
 }
 .cca-map-pin.city {
   border-color: #d9a7ce;
@@ -1417,7 +1437,22 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 1rem;
 }
 .cca-map-name {
-  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.35rem;
+  color: #fff3df;
+  background: #14243dec;
+  border-radius: 0.25rem;
+  font-size: 0.58rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+.cca-map-pin:focus-visible .cca-map-name,
+.cca-map-pin:not(:disabled):hover .cca-map-name {
+  opacity: 1;
 }
 .cca-map-compass {
   position: absolute;
@@ -1427,9 +1462,52 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.75rem;
 }
 .cca-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem;
   color: #c6dce8;
   font-size: 0.69rem;
   margin: 0.65rem 0;
+}
+.cca-map-trust {
+  color: #ffe0b9;
+  font-weight: 800;
+}
+.cca-map-sites {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  padding-bottom: 0.65rem;
+}
+.cca-map-site-choice {
+  min-width: 0;
+  min-height: 3.9rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #7da2b1a6;
+  border-radius: 0.45rem;
+  background: #14253ccc;
+  text-align: left;
+}
+.cca-map-site-choice strong {
+  display: block;
+  color: #ffe0b9;
+  font-size: 0.73rem;
+}
+.cca-map-site-choice small {
+  display: block;
+  margin-top: 0.15rem;
+  color: #bad4da;
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+.cca-map-site-choice:disabled {
+  opacity: 0.45;
+}
+.cca-map-site-choice:not(:disabled):hover,
+.cca-map-site-choice:focus-visible {
+  outline: 2px solid #ffe0a9;
+  background: #2a4661;
 }
 .cca-footer {
   min-height: 2rem;

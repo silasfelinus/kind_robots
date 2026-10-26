@@ -498,6 +498,11 @@ const woundedAlone: Run = {
   resolve: 0,
   flags: [],
 }
+assert.deepEqual(
+  scene('a8-voice-wound').choices?.slice(0, 3).map((choice) => choice.id),
+  ['refuse', 'dream', 'take'],
+  'positional golden witnesses retain their original choice indices',
+)
 const escapeChoice = scene('a8-voice-wound').choices?.find(
   (choice) => choice.id === 'escape-with-sister',
 )

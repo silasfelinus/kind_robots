@@ -822,6 +822,53 @@ console.log(
   'Gamebook Abbess trust regression: seeded 48 trusted/estranged preconditions, guarded rescue and explicit wound cues',
 )
 
+// A later betrayal must retire the mechanical trust bonus as well as the rescue.
+// Seed 28 rolls 4+4: Mercy 0 fails the 9 target, while earned trust passes.
+for (const [encounter, choiceId, successScene, failureScene] of [
+  ['a8-standoff', 'wait', 'a8-standoff-break', 'nuns-attack'],
+  ['a9-sister-knife', 'hand', 'a9-beside', 'a9-behind'],
+] as const) {
+  const bonus = scene(encounter).choices?.find(
+    (choice) => choice.id === choiceId,
+  )?.check?.bonus
+  assert.deepEqual(bonus, {
+    flag: 'sister-trust',
+    amount: 2,
+    unless: 'sister-wary',
+  })
+  const base: Run = {
+    ...startRun(28),
+    sceneId: encounter,
+    health: 3,
+    resolve: 0,
+    flags: [],
+  }
+  const trusted = takeChoice({ ...base, flags: ['sister-trust'] }, choiceId)
+  const estranged: Run = {
+    ...base,
+    flags: ['sister-trust', 'sister-wary'],
+  }
+  const betrayed = takeChoice(estranged, choiceId)
+  const untrusted = takeChoice(base, choiceId)
+  assert.deepEqual(trusted.lastRoll?.dice, [4, 4])
+  assert.deepEqual(betrayed.lastRoll?.dice, trusted.lastRoll?.dice)
+  assert.deepEqual(untrusted.lastRoll?.dice, trusted.lastRoll?.dice)
+  assert.equal(trusted.lastRoll?.modifier, 2)
+  assert.equal(betrayed.lastRoll?.modifier, 0)
+  assert.equal(untrusted.lastRoll?.modifier, 0)
+  assert.equal(trusted.sceneId, successScene)
+  assert.equal(betrayed.sceneId, failureScene)
+  assert.equal(untrusted.sceneId, failureScene)
+  assert.equal(betrayed.health, 3)
+  assert.equal(betrayed.resolve, 0)
+  assert.ok(betrayed.flags.includes('sister-wary'))
+  assert.ok(isSavedRun(JSON.parse(JSON.stringify(betrayed))))
+  assert.deepEqual(estranged.flags, ['sister-trust', 'sister-wary'])
+}
+console.log(
+  'Gamebook Abbess and sister knife: estrangement retires trust dice bonuses',
+)
+
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
 // It must not become a free escape for Zuzu when she remains tied to the altar.
 const woundedAlone: Run = {

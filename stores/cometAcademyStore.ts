@@ -1,4 +1,8 @@
 import { computed, ref } from 'vue'
+import type {
+  SignaturePowerId,
+  PowerVowId,
+} from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
 import {
   assignTeam,
@@ -47,8 +51,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     }
   }
 
-  function begin(power: PowerId) {
-    run.value = startAcademy(power)
+  function begin(power: PowerId, signature?: SignaturePowerId, vow?: PowerVowId) {
+    run.value = startAcademy(power, Date.now(), signature, vow)
     persist()
   }
 

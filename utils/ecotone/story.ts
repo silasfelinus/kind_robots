@@ -1310,7 +1310,15 @@ export const BEATS: EncounterCard[] = [
       juniper: 'Juniper trails a hand in the water and listens to it.',
     },
     aloneLine:
-      'Dot leans out of the hatch. “Is it supposed to do that?” Nobody on the crew knows. You are the closest thing to an expert aboard.',
+      'The crew looks to you for a decision. Nobody aboard knows whether the slug was built to make this noise.',
+    flagLines: {
+      dot_aboard: {
+        all: 'Dot is inside the cargo hold with her sprained ankle braced, checking the safety list and calling out the leak by its actual location.',
+      },
+      dot_chasing: {
+        all: 'Dot is on the shore road with the chase bike. Her bright flag appears between gaps in the fog; she cannot hear a shouted order from the bay.',
+      },
+    },
     choices: [
       {
         id: 'pedal',
@@ -1375,6 +1383,18 @@ export const BEATS: EncounterCard[] = [
     flagLines: {
       slug_sank: {
         all: 'Main Street has heard about the bay. When the slug rolls in, still sloshing, the crowd starts chanting “SUNK! SUNK! SUNK!” with enormous affection.',
+      },
+      slug_dot_safety_coordinated: {
+        all: 'Dot has a list of the volunteers who saved the crossing. She insists the finish-line announcer read every name before announcing your place.',
+      },
+      slug_dot_bailout_delayed: {
+        all: 'Dot carries the soggy safety checklist. The crew now knows why a shouted order needs someone assigned to repeat it.',
+      },
+      slug_shore_relay_confirmed: {
+        all: 'The shore marshal has posted Dot’s safer ramp route for the next sculpture. You lost a place and left something useful behind.',
+      },
+      slug_shore_relay_missed: {
+        all: 'Dot and the marshal compare the flags lost in the fog. Next year the team will have a backup signal, if the slug ever floats again.',
       },
     },
     lensLines: {
@@ -1474,7 +1494,7 @@ export const BEATS: EncounterCard[] = [
         'Juniper pats the dune like a large, patient animal. “It doesn’t mind,” she says. “Go on.”',
     },
     aloneLine:
-      'Dot shouts up from the bottom of the drop, frozen peas held aloft like a torch: “Don’t brake! Braking is how you die!”',
+      'A race marshal shouts up from the bottom of the drop: “Don’t brake! Braking is how you die!”',
     choices: [
       {
         id: 'ride',

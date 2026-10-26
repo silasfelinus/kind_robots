@@ -176,8 +176,8 @@
           </button>
         </div>
         <div
-          class="kr-pane-scroll space-y-2 px-3 py-2"
           :key="selectedId + ':' + detailStep"
+          class="kr-pane-scroll space-y-2 px-3 py-2"
         >
           <div v-if="detailStep === 'briefing'" class="space-y-3">
             <div

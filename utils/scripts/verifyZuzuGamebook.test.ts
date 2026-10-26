@@ -865,7 +865,9 @@ for (const [encounter, choiceId, successScene, failureScene] of [
   assert.ok(isSavedRun(JSON.parse(JSON.stringify(betrayed))))
   assert.deepEqual(estranged.flags, ['sister-trust', 'sister-wary'])
 }
-console.log('Gamebook Abbess and sister knife: estrangement retires trust dice bonuses')
+console.log(
+  'Gamebook Abbess and sister knife: estrangement retires trust dice bonuses',
+)
 
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
 // It must not become a free escape for Zuzu when she remains tied to the altar.

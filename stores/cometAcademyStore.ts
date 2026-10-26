@@ -114,7 +114,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
-  function end(choice: 'protect' | 'command') {
+  function end(choice: 'protect' | 'command' | 'share' | 'evacuate') {
     if (!run.value) return
     run.value = finishAcademy(run.value, choice)
     persist()

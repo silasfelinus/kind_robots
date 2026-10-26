@@ -336,6 +336,7 @@ export const ACT_IV: Act = {
             label: "Trust the sister's escape route. Give up your bandage.",
             to: 'a4-well-slip',
             needs: 'sister-trust',
+            unless: 'sister-wary',
             hint: 'She has not learned to trust you with her brother.',
             requires: 'bandage',
             spend: 'bandage',

@@ -193,6 +193,61 @@ export function campaignAccomplice(villain: VillainPlan, index: number) {
 }
 
 
+
+// Hand-authored story gates. The day-20 betrayal cannot be avoided by a random
+// draw; day 24 allows reconciliation but never erases the original betrayal.
+export function campaignPlotEvent(seed: number, savedId: string | undefined, day: number, betrayerName: string) {
+  const villain = campaignVillain(seed, savedId)
+  const index = day === 11 ? 0 : day === 17 ? 1 : day === 26 ? 2 : -1
+  const accomplice = index < 0 ? undefined : campaignAccomplice(villain, index)
+  if (accomplice) return {
+    title: `The ${villain.name} Network: ${accomplice.name}`,
+    location: 'Comet City / Civilian Investigation',
+    scene: `${accomplice.name} ${accomplice.sabotage}, while insisting they must ${accomplice.motive}. This is an independent accomplice with a bargain and a motive, not a faceless minion. ${villain.clue}`,
+    options: [
+      { id: `plot-a${index + 1}-expose`, label: 'Protect witnesses and expose the operation', text: `You document how ${accomplice.name} ${accomplice.sabotage}. Residents obtain the evidence before the villain can confiscate it; the immediate threat recedes, though the accomplice may still appeal the accusation.`, influence: 2, danger: -1 },
+      { id: `plot-a${index + 1}-bargain`, label: 'Hear the accomplice and negotiate privately', text: `You discover why ${accomplice.name} wants to ${accomplice.motive}. The meeting yields useful access, but the sabotage continues while the terms are debated.`, influence: -1, danger: 1 },
+    ],
+  }
+  if (day === 8) return {
+    title: 'The Unscheduled Message',
+    location: 'Academy / Student Lockers',
+    scene: `${betrayerName} receives an anonymous message that promises to settle an old grievance. When asked, they close the screen too quickly. Elsewhere the shield grid repeats a clue: ${villain.clue}`,
+    options: [
+      { id: 'plot-warning-question', label: 'Ask what the message is offering', text: `${betrayerName} admits someone knows their family's worst secret. You offer help, but they do not surrender the sender's name.`, influence: 1, danger: 0 },
+      { id: 'plot-warning-leave', label: 'Respect their privacy and watch from afar', text: `You refuse to turn friendship into surveillance. ${betrayerName} thanks you, then deletes a reply before you can read it.`, influence: 0, danger: 1 },
+    ],
+  }
+  if (day === 15) return {
+    title: 'The Missing Relay Keys',
+    location: 'Engineering Workshop',
+    scene: `A duplicate emergency key appears in ${betrayerName}'s equipment case. The key was used to mute a neighborhood distress call. The evidence points toward ${villain.name}, but nobody has proved why ${betrayerName} kept it.`,
+    options: [
+      { id: 'plot-suspicion-open', label: 'Confront them with a witness present', text: `${betrayerName} admits the key was used to intercept a rescue. They refuse to explain who is holding them to the agreement.`, influence: 1, danger: -1 },
+      { id: 'plot-suspicion-cover', label: 'Shield them from an immediate investigation', text: `The dean lets the incident vanish from the log. ${betrayerName} is relieved and ashamed, but the intercepted call is still missing.`, influence: -1, danger: 1 },
+    ],
+  }
+  if (day === 20) return {
+    title: 'The Hero Turns at the Gate',
+    location: 'Academy / Shield Relay',
+    scene: `${betrayerName} diverts the academy rescue team into a dead-end corridor and transfers its emergency access keys to ${villain.name}. Their betrayal is real. They say the villain threatened someone they love, but the abandoned civilians still had to wait for rescue. You cannot undo this night by choosing a softer accusation.`,
+    options: [
+      { id: 'plot-betrayal-expose', label: 'Expose the betrayal and secure the public exits', text: `The civilians reach safety and the missing rescue keys are named in a public report. ${betrayerName} flees rather than face the people they endangered.`, influence: 2, danger: 0 },
+      { id: 'plot-betrayal-hear', label: 'Hear the threat while protecting civilians', text: `You listen without excusing the deception. ${betrayerName} tells you whom ${villain.name} threatened, then walks away from the team before the next call.`, influence: 0, danger: 1 },
+    ],
+  }
+  if (day === 24) return {
+    title: 'The Price of Coming Back',
+    location: 'Academy / Student Council',
+    scene: `${betrayerName} offers to return with a signed confession and the villain's relay codes. The people they abandoned deserve a hearing, not a convenient reset. Any reconciliation requires public accountability and cannot erase the day-20 betrayal.`,
+    options: [
+      { id: 'plot-return-accountable', label: 'Offer a supervised return and restitution', text: `${betrayerName} gives the neighborhood rescuers the relay codes, accepts community oversight, and rejoins the roster under clear conditions. Their betrayal remains in the chronicle.`, influence: 2, danger: -1 },
+      { id: 'plot-return-separate', label: 'Protect the city without reinstating them', text: `The team retains independent control of its rescue keys. ${betrayerName} testifies about the plot and must build trust elsewhere; your roster remains one person smaller.`, influence: 1, danger: -1 },
+    ],
+  }
+  return undefined
+}
+
 export const GUEST_LIST_EVENT = {
   title: 'The Guest List',
   location: 'Academy Ballroom / Day 29',

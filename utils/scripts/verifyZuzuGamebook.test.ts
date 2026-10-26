@@ -958,9 +958,7 @@ function findWoundedAbbessWitness(): {
       moves: PlaytestMove[],
     ): { seed: number; moves: PlaytestMove[]; run: Run } | null => {
       if (run.sceneId === target)
-        return run.flags.includes('sister-free')
-          ? { seed, moves, run }
-          : null
+        return run.flags.includes('sister-free') ? { seed, moves, run } : null
       if (
         --budget < 0 ||
         moves.length >= 145 ||

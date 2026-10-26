@@ -87,8 +87,9 @@ async function studio(id: string, ignore: string[] = []): Promise<BuiltCounts> {
 export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
   {
     slug: 'game-of-captains',
+    studio: 'game-of-captains',
     title: 'This Means Warp',
-    cover: '/game-of-captains/bridge-stage.svg',
+    cover: '/game-of-captains/front/splash.webp',
     route: '/play/game-of-captains',
     planSource: 'Conductor goal and master issue kind_robots#4182',
     plan: plan('game-of-captains', 'This Means Warp', {
@@ -136,8 +137,9 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
   },
   {
     slug: 'comet-city-academy',
+    studio: 'comet-city-academy',
     title: 'Capes & Tassels: Prom of Doom',
-    cover: '/comet-city-academy/academy-stage.svg',
+    cover: '/comet-city-academy/front/splash.webp',
     route: '/play/comet-city-academy',
     planSource: 'Conductor goal and master issue kind_robots#4181',
     plan: plan('comet-city-academy', 'Capes & Tassels: Prom of Doom', {

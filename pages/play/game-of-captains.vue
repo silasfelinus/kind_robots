@@ -38,7 +38,7 @@
       <section class="cap-stage" aria-label="Illustrated bridge and starfield">
         <img
           class="cap-painting"
-          src="/game-of-captains/bridge-stage.svg"
+          :src="stagePainting"
           alt="A command bridge looking toward a turbulent nebula, a distant ship and a floating planet"
         />
         <div class="cap-vignette" aria-hidden="true" />
@@ -110,7 +110,14 @@
                   class="cap-captain-icon"
                   :data-portrait-key="'captain-' + captain.id"
                   aria-hidden="true"
-                  >{{ captain.name.split(' ').at(-1)?.slice(0, 1) }}</span
+                  ><img
+                    v-if="portrait('captain-' + captain.id)"
+                    :src="portrait('captain-' + captain.id)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{
+                    captain.name.split(' ').at(-1)?.slice(0, 1)
+                  }}</template></span
                 >
                 <span
                   ><strong>{{ captain.name }}</strong
@@ -160,7 +167,12 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
-                  >{{ member.monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(member.id).portraitKey)"
+                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
                   ><strong>{{ member.name }}</strong
@@ -271,7 +283,12 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
-                  >{{ member.monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(member.id).portraitKey)"
+                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
                   ><strong>{{ member.name }}</strong
@@ -333,7 +350,14 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(id).portraitKey"
-                  >{{ crewProfile(id).monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(id).portraitKey)"
+                    :src="portrait(crewProfile(id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{
+                    crewProfile(id).monogram
+                  }}</template></span
                 >
                 <span
                   ><strong>{{ crewProfile(id).name }}</strong
@@ -540,11 +564,18 @@ import {
   SKILLS,
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
+import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import { voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>(['pell', 'vela', 'rue'])
 const run = computed(() => store.run)
+/** A captain or crew portrait once its render ships; the monogram stands in until then. */
+const portrait = (key: string) => warpArt(`portraits/${key}`)
+const stagePainting = computed(
+  () => voyageStageArt(run.value) ?? '/game-of-captains/bridge-stage.svg',
+)
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
 )
@@ -925,6 +956,7 @@ function toggleAway(id: CrewId) {
   background: #43677677;
 }
 .cap-captain-icon {
+  overflow: hidden;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -1002,7 +1034,15 @@ function toggleAway(id: CrewId) {
   font-size: 0.57rem;
   color: #f1c190;
 }
+.cap-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: inherit;
+}
 .cap-monogram {
+  overflow: hidden;
   display: grid;
   place-items: center;
   width: 2rem;

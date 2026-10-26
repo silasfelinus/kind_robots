@@ -433,7 +433,7 @@
               <span>↗</span>
             </button>
             <div
-              v-if="showRelationships && run.relationships"
+              v-if="socialPanelActive && run.relationships"
               class="cca-report-mini"
               data-testid="academy-social-panel"
             >
@@ -502,7 +502,7 @@
               >
             </div>
             <div
-              v-if="!showRelationships"
+              v-if="!socialPanelActive"
               class="cca-map-tabs"
               aria-label="Map view"
             >
@@ -524,7 +524,7 @@
               </button>
             </div>
             <div
-              v-if="!showRelationships"
+              v-if="!socialPanelActive"
               class="cca-map"
               data-testid="academy-map"
               :aria-label="
@@ -970,6 +970,7 @@ const socialDayAvailable = computed(() => {
   const current = run.value
   return current?.flowVersion === 3 && SOCIAL_DAYS.some(day => day === current.day)
 })
+const socialPanelActive = computed(() => Boolean(showRelationships.value && socialDayAvailable.value))
 const selectedSocialProfile = computed(() =>
   SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
 )

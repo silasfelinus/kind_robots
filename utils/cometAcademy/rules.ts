@@ -1,5 +1,15 @@
-import { fieldFor, identityFor, identityStoryFor, IDENTITY_ARCS } from './identityArcs'
-import { antagonistBeat, antagonistFinale, campaignOpponent, opponentPressure } from './opponents'
+import {
+  fieldFor,
+  identityFor,
+  identityStoryFor,
+  IDENTITY_ARCS,
+} from './identityArcs'
+import {
+  antagonistBeat,
+  antagonistFinale,
+  campaignOpponent,
+  opponentPressure,
+} from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
@@ -678,7 +688,9 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     const sabotagePenalty =
       activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
     const identityPressure =
-      run.flowVersion === 3 && run.day >= 15 && incident.allegiance !== 'villain'
+      run.flowVersion === 3 &&
+      run.day >= 15 &&
+      incident.allegiance !== 'villain'
         ? opponentPressure(run.signature, run.opponentSignature)
         : 0
     const score =
@@ -923,9 +935,16 @@ export function finishAcademy(
       (run.academyStanding ?? 0) +
       evidenceCount * 2 +
       (reconciled ? 2 : 0)
-    const identityPressure = opponentPressure(run.signature, run.opponentSignature)
-    const earned = support >= 2 + identityPressure && run.danger <= 48 + evidenceCount * 2 - identityPressure
-    const opponent = run.opponentSignature ? identityFor(run.opponentSignature) : null
+    const identityPressure = opponentPressure(
+      run.signature,
+      run.opponentSignature,
+    )
+    const earned =
+      support >= 2 + identityPressure &&
+      run.danger <= 48 + evidenceCount * 2 - identityPressure
+    const opponent = run.opponentSignature
+      ? identityFor(run.opponentSignature)
+      : null
     const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
@@ -1081,7 +1100,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         (data.opponentSignature !== undefined &&
           (!data.signature ||
             data.opponentSignature === data.signature ||
-            !IDENTITY_ARCS.some((arc) => arc.signature === data.opponentSignature))) ||
+            !IDENTITY_ARCS.some(
+              (arc) => arc.signature === data.opponentSignature,
+            ))) ||
         (data.betrayer !== undefined &&
           data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
         (data.plotEvidence !== undefined &&

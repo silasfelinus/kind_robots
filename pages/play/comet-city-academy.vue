@@ -104,7 +104,9 @@
                 <small>{{ form.mechanic }}</small>
               </button>
             </div>
-            <p class="cca-selection-label">STEP 2 · AFFINITY / WHAT IT CONTROLS</p>
+            <p class="cca-selection-label">
+              STEP 2 · AFFINITY / WHAT IT CONTROLS
+            </p>
             <div class="cca-power-grid cca-affinity-grid">
               <button
                 v-for="affinity in POWER_AFFINITIES"
@@ -118,11 +120,16 @@
                 <strong>{{ affinity.name }}</strong>
               </button>
             </div>
-            <div class="cca-power-detail" data-testid="academy-signature-detail">
+            <div
+              class="cca-power-detail"
+              data-testid="academy-signature-detail"
+            >
               <strong>{{ currentSignature.name }}</strong>
               <p>{{ currentSignature.training }}</p>
               <small>Limit: {{ currentSignature.cost }}</small>
-              <p class="cca-signature-tradeoff">{{ currentSignature.special_route.trigger }}</p>
+              <p class="cca-signature-tradeoff">
+                {{ currentSignature.special_route.trigger }}
+              </p>
             </div>
             <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
             <div class="cca-vow-grid">
@@ -147,13 +154,20 @@
               class="cca-primary"
               type="button"
               data-testid="academy-begin"
-              @click="store.begin(currentSignature.legacy, currentSignature.id, selectedVow)"
+              @click="
+                store.begin(
+                  currentSignature.legacy,
+                  currentSignature.id,
+                  selectedVow,
+                )
+              "
             >
-              ENTER WITH {{ currentSignature.name.toUpperCase() }} <span>➜</span>
+              ENTER WITH {{ currentSignature.name.toUpperCase() }}
+              <span>➜</span>
             </button>
             <p class="cca-under">
-              48 signature powers · The first-week training is playable.
-              The real thirty-day Prom of Doom is in development.
+              48 signature powers · The first-week training is playable. The
+              real thirty-day Prom of Doom is in development.
             </p>
           </template>
 
@@ -356,7 +370,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
-import { STUDENTS, encounterFor, type StudentId } from '~/utils/cometAcademy/rules'
+import {
+  STUDENTS,
+  encounterFor,
+  type StudentId,
+} from '~/utils/cometAcademy/rules'
 import {
   POWER_FORMS,
   POWER_AFFINITIES,
@@ -372,8 +390,12 @@ const selectedForm = ref<PowerFormId>('impact')
 const selectedElement = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
 const run = computed(() => store.run)
-const currentSignature = computed(() => signatureFor(selectedForm.value, selectedElement.value))
-const activeVow = computed(() => POWER_VOWS.find((vow) => vow.id === selectedVow.value)!)
+const currentSignature = computed(() =>
+  signatureFor(selectedForm.value, selectedElement.value),
+)
+const activeVow = computed(() =>
+  POWER_VOWS.find((vow) => vow.id === selectedVow.value)!,
+)
 const campusEncounter = computed(() =>
   run.value ? encounterFor(run.value) : encounterFor({ day: 1 } as never),
 )
@@ -696,7 +718,8 @@ function toggleStudent(caseId: string, id: StudentId): void {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
 }
-.cca-vow-detail, .cca-future-preview {
+.cca-vow-detail,
+.cca-future-preview {
   margin: 0.5rem 0;
   font-size: 0.75rem;
   line-height: 1.4;

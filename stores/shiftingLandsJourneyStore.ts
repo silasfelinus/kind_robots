@@ -126,11 +126,13 @@ export const useShiftingLandsJourneyStore = defineStore(
     const session = computed(() => ledger.value.current)
     const state = computed(() => session.value.journey)
     const characterSheet = computed(() =>
-      ledger.value.version === 6 ||
-      ledger.value.version === 7 ||
-      (ledger.value.version === 8 || ledger.value.version === 9)
-        ? v6CharacterSheet(ledger.value.current, ledger.value.usedRewards)
-        : journeyCharacterSheet(
+      ledger.value.version === 9
+        ? v9CharacterSheet(ledger.value)
+        : ledger.value.version === 6 ||
+            ledger.value.version === 7 ||
+            ledger.value.version === 8
+          ? v6CharacterSheet(ledger.value.current, ledger.value.usedRewards)
+          : journeyCharacterSheet(
             ledger.value.current as AuthoredJourneyState,
             ledger.value.usedRewards,
           ),

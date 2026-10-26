@@ -334,6 +334,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const kitId = ref(KIT_PLAYBOOKS[0]?.id ?? '')
   const beatSection = ref<'all' | number>('all')
   const beatSearch = ref('')
+  const beatView = ref<'list' | 'cards'>('list')
 
   /**
    * Playbook Studio inside the Forge: a game's beats with the scene editor,
@@ -703,6 +704,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     kitId,
     beatSection,
     beatSearch,
+    beatView,
     focusSection,
     cycleLane,
     askSubmit,

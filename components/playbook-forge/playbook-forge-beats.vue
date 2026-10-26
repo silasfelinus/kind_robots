@@ -79,67 +79,103 @@
           <span v-if="i === 0" class="sr-only">beats</span>
         </button>
       </div>
-      <input
-        v-model="forge.beatSearch"
-        type="search"
-        data-nav
-        aria-label="Search beats"
-        placeholder="Search beats"
-        class="pf-field shrink-0 text-sm"
-      />
-      <ul
+      <div class="flex shrink-0 gap-1.5">
+        <input
+          v-model="forge.beatSearch"
+          type="search"
+          data-nav
+          aria-label="Search beats"
+          placeholder="Search beats"
+          class="pf-field min-w-0 flex-1 text-sm"
+        />
+        <button
+          type="button"
+          class="pf-tab shrink-0"
+          :class="forge.beatView === 'list' ? 'pf-tab-on' : ''"
+          :aria-pressed="forge.beatView === 'list'"
+          @click="forge.beatView = 'list'"
+        >
+          List
+        </button>
+        <button
+          type="button"
+          class="pf-tab shrink-0"
+          :class="forge.beatView === 'cards' ? 'pf-tab-on' : ''"
+          :aria-pressed="forge.beatView === 'cards'"
+          @click="forge.beatView = 'cards'"
+        >
+          Cards
+        </button>
+      </div>
+      <div
         ref="list"
-        class="kr-scroll -mx-1 flex min-h-0 flex-col gap-1 px-1 py-1"
+        class="kr-scroll -mx-1 min-h-0 px-1 py-1"
         aria-label="Beat list"
       >
-        <li v-for="(key, i) in keys" :key="key">
-          <button
-            type="button"
-            data-nav
-            :data-autofocus="key === studio.selectedKey ? '' : undefined"
-            class="pf-row pf-focusable min-h-[2.6rem] py-1"
-            :class="key === studio.selectedKey ? 'pf-row-on' : ''"
-            :data-key="key"
-            @click="studio.selectedKey = key"
-            @focus="studio.selectedKey = key"
-          >
-            <span class="w-6 shrink-0 text-right text-[0.65rem] opacity-50">{{
-              i + 1
-            }}</span>
-            <span class="flex min-w-0 flex-1 flex-col text-left">
-              <span class="truncate text-sm">{{ title(key) }}</span>
-              <span class="pf-kicker truncate text-[0.55rem] opacity-60">{{
-                kindOf(key)
+        <div
+          v-if="forge.beatView === 'cards'"
+          class="playbook-studio pf-studio grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3"
+        >
+          <div v-for="key in keys" :key="key" :data-key="key">
+            <PlaybookAtlasCard
+              :node-key="key"
+              :index="studio.playbook.order.indexOf(key)"
+              @open="studio.selectedKey = $event"
+            />
+          </div>
+        </div>
+        <ul v-else class="flex flex-col gap-1">
+          <li v-for="(key, i) in keys" :key="key">
+            <button
+              type="button"
+              data-nav
+              :data-autofocus="key === studio.selectedKey ? '' : undefined"
+              class="pf-row pf-focusable min-h-[2.6rem] py-1"
+              :class="key === studio.selectedKey ? 'pf-row-on' : ''"
+              :data-key="key"
+              @click="studio.selectedKey = key"
+              @focus="studio.selectedKey = key"
+            >
+              <span class="w-6 shrink-0 text-right text-[0.65rem] opacity-50">{{
+                i + 1
               }}</span>
-            </span>
-            <span class="flex shrink-0 items-center gap-1 text-[0.65rem]">
-              <span
-                v-if="studio.flags(key).needsArt"
-                class="size-2 rounded-full bg-base-content/30"
-                title="No art yet"
-              />
-              <span
-                v-else-if="studio.playbook.nodes[key]?.artUrl"
-                class="size-2 rounded-full bg-success"
-                title="Has art"
-              />
-              <span v-if="studio.flags(key).live" class="text-success"
-                >LIVE</span
-              >
-              <span v-else-if="studio.flags(key).edited" class="text-warning"
-                >EDIT</span
-              >
-              <span v-if="studio.flags(key).notes" class="text-info"
-                >✎{{ studio.flags(key).notes }}</span
-              >
-              <span v-if="studio.flags(key).flagged" class="text-error">⚑</span>
-            </span>
-          </button>
-        </li>
-        <li v-if="!keys.length" class="p-3 text-sm opacity-60">
-          No beat matches.
-        </li>
-      </ul>
+              <span class="flex min-w-0 flex-1 flex-col text-left">
+                <span class="truncate text-sm">{{ title(key) }}</span>
+                <span class="pf-kicker truncate text-[0.55rem] opacity-60">{{
+                  kindOf(key)
+                }}</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-1 text-[0.65rem]">
+                <span
+                  v-if="studio.flags(key).needsArt"
+                  class="size-2 rounded-full bg-base-content/30"
+                  title="No art yet"
+                />
+                <span
+                  v-else-if="studio.playbook.nodes[key]?.artUrl"
+                  class="size-2 rounded-full bg-success"
+                  title="Has art"
+                />
+                <span v-if="studio.flags(key).live" class="text-success"
+                  >LIVE</span
+                >
+                <span v-else-if="studio.flags(key).edited" class="text-warning"
+                  >EDIT</span
+                >
+                <span v-if="studio.flags(key).notes" class="text-info"
+                  >✎{{ studio.flags(key).notes }}</span
+                >
+                <span v-if="studio.flags(key).flagged" class="text-error"
+                  >⚑</span
+                >
+              </span>
+            </button>
+          </li>
+          <li v-if="!keys.length" class="p-3 text-sm opacity-60">
+            No beat matches.
+          </li>
+        </ul>
+      </div>
     </section>
 
     <PlaybookForgeBeat />

@@ -406,7 +406,8 @@ export function encounterFor(run: AcademyRun) {
     if (site) {
       const districtScene = districtEncounterFor(site.id)
       if (districtScene) return districtScene
-      if (site.encounterIndex !== undefined) return ENCOUNTERS[site.encounterIndex]!
+      if (site.encounterIndex !== undefined)
+        return ENCOUNTERS[site.encounterIndex]!
     }
   }
   // Existing v1 saves keep the original three-card order mid-term.
@@ -788,9 +789,11 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     typeof data.influence !== 'number' ||
     typeof data.danger !== 'number' ||
     (data.academyStanding !== undefined &&
-      (!Number.isFinite(data.academyStanding) || !Number.isInteger(data.academyStanding))) ||
+      (!Number.isFinite(data.academyStanding) ||
+        !Number.isInteger(data.academyStanding))) ||
     (data.cityStanding !== undefined &&
-      (!Number.isFinite(data.cityStanding) || !Number.isInteger(data.cityStanding)))
+      (!Number.isFinite(data.cityStanding) ||
+        !Number.isInteger(data.cityStanding)))
   )
     return null
   return data as AcademyRun

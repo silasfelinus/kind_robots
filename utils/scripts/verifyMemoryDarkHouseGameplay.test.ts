@@ -7,6 +7,7 @@ import {
   validateDarkHouseChallenges,
 } from '../memoryDungeon/darkHouseChallenges'
 import {
+  DARK_HOUSE_ROOMS,
   newDarkHouseProgress,
   restoreDarkHouseProgress,
   darkHouseTrialSolved,
@@ -241,6 +242,90 @@ const damaged = restoreDarkHouseProgress({
   },
 })
 assert.ok(darkHouseVerdict(damaged).includes('visible fractures'))
+
+// Adversarial full-house expedition. Earlier graph-only tests could report
+// every chamber reachable even though a player could advance past 25+ authored
+// choices with no response. Exercise the *actual reducer*, both ethical
+// endings, all puzzle/trial rooms, repeated save/load and DFS backtracking.
+function completeRoom(
+  original: DarkHouseProgress,
+  philosophy: 'attend' | 'refuse',
+): DarkHouseProgress {
+  let progress = original
+  const id = progress.current
+  if (DARK_HOUSE_TRIALS[id]) {
+    const faces = darkHouseTrialFaces(id)
+    for (const pairId of new Set(faces.map((face) => face.pair)))
+      for (const face of faces.filter((card) => card.pair === pairId))
+        progress = darkHouseFlip(progress, face.id)
+  }
+  if (DARK_HOUSE_PUZZLES[id])
+    progress = darkHouseAnswerPuzzle(progress, DARK_HOUSE_PUZZLES[id]!.answer)
+  assert.equal(darkHouseRoomResolved(progress), true, `${id} must resolve`)
+  assert.equal(
+    darkHouseExits(progress).filter((next) => !progress.visited.includes(next))
+      .length,
+    0,
+    `${id} cannot be skipped even when memory or puzzle is solved`,
+  )
+  progress = darkHouseChoose(progress, philosophy)
+  assert.equal(progress.decisions[id], philosophy, `${id} decision committed`)
+  return progress
+}
+for (const philosophy of ['attend', 'refuse'] as const) {
+  let run: DarkHouseProgress = { ...newDarkHouseProgress(), active: true }
+  const newlyVisited = new Set<string>([run.current])
+  let moves = 0
+  function explore(): void {
+    const room = run.current
+    run = completeRoom(run, philosophy)
+    // Every room is allowed to retain its solved response after save/reload.
+    run = restoreDarkHouseProgress(JSON.parse(JSON.stringify(run)))
+    assert.equal(run.decisions[room], philosophy)
+    for (const exit of DARK_HOUSE_ROOMS[room]!.exits) {
+      if (newlyVisited.has(exit)) continue
+      assert.ok(
+        darkHouseExits(run).includes(exit),
+        `${philosophy}: cannot reach ${exit} from ${room}`,
+      )
+      run = darkHouseMove(run, exit)
+      assert.equal(run.current, exit)
+      newlyVisited.add(exit)
+      assert.ok(++moves < 150, 'Bounded thirty-six-room expedition')
+      explore()
+      assert.ok(
+        darkHouseExits(run).includes(room),
+        `${philosophy}: backtrack from ${run.current} to ${room}`,
+      )
+      run = darkHouseMove(run, room)
+    }
+  }
+  explore()
+  assert.equal(newlyVisited.size, 36, `${philosophy}: full dungeon reachable`)
+  assert.equal(
+    Object.keys(run.decisions).length,
+    36,
+    `${philosophy}: all authored rooms actually receive a choice`,
+  )
+  assert.equal(
+    run.ending,
+    philosophy === 'attend' ? 'return' : 'commons',
+    'Opposite moral philosophies earn distinct House endings',
+  )
+  assert.ok(
+    darkHouseVerdict(run).includes(
+      philosophy === 'attend' ? 'individual owners' : 'revocable commons',
+    ),
+  )
+  const old = run.decisions['HD-35']
+  const reloaded = restoreDarkHouseProgress(JSON.parse(JSON.stringify(run)))
+  assert.equal(reloaded.decisions['HD-35'], old)
+  assert.equal(reloaded.ending, run.ending)
+  assert.equal(darkHouseChoose(reloaded, philosophy === 'attend' ? 'refuse' : 'attend'), reloaded)
+}
+console.log(
+  'Adversarial mirrored House: both complete 36-room ethical playthroughs, 72 real choices, save/reload, witness gate and every backtrack verified',
+)
 
 const component = readFileSync(
   'components/memory-dungeon/dark-house-stage.vue',

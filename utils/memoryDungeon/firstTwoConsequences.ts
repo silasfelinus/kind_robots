@@ -193,3 +193,78 @@ export function darkBriarExtraBridge(
   if (!mirrored || mirrored.sceneChoices['5,4'] !== 'draw') return false
   return (from === '5,4' && to === '7,4') || (from === '7,4' && to === '5,4')
 }
+
+/** Carry only story-scale facts forward. Minor scene choices stay in the
+ * original save; this projection never becomes another mutable save ledger. */
+export interface CrossRealmConsequenceLedger {
+  memoryCustody: MemoryCustody
+  crossingAccord: CrossingAccord
+  witnessRecord: 'unset' | 'copied' | 'protected'
+  orensProvision: 'unset' | 'route' | 'supplies'
+}
+
+export function crossRealmConsequenceLedger(
+  briar: Pick<BriarSave, 'house' | 'sceneChoices'>,
+  mirroredHouse: Pick<DarkHouseProgress, 'ending'> | null,
+): CrossRealmConsequenceLedger {
+  const frames = firstTwoWorldFrames(briar, mirroredHouse)
+  const witnessChoice = briar.sceneChoices['6,3']
+  const orensChoice = briar.sceneChoices['4,3']
+  return {
+    memoryCustody: frames.memoryCustody,
+    crossingAccord: frames.crossingAccord,
+    witnessRecord:
+      witnessChoice === 'remember'
+        ? 'copied'
+        : witnessChoice === 'protect'
+          ? 'protected'
+          : 'unset',
+    orensProvision:
+      orensChoice === 'plan'
+        ? 'route'
+        : orensChoice === 'load'
+          ? 'supplies'
+          : 'unset',
+  }
+}
+
+const WITNESS_EPILOGUES = {
+  copied: {
+    return:
+      'The names you copied in Briar allow the returned memories to find their owners. Three witnesses consent to a public record; a fourth refuses, and the House honors that refusal.',
+    commons:
+      'Your copied names expose a false claim against a villager. The commons votes to correct the record, but first asks each named witness whether their testimony may be shared.',
+  },
+  protected: {
+    return:
+      'Because you shielded the names in Briar, the House sends sealed invitations instead of posting a list. The owners recover their memories without becoming targets for the Index.',
+    commons:
+      'The names you protected remain private. The commons accepts anonymous testimony with a slower, voluntary verification process rather than making safety the price of being believed.',
+  },
+} as const
+
+const OREN_EPILOGUES = {
+  route:
+    'Oren uses the route you planned together to escort two missing travelers home. He records their arrival, not their identities, in the public manifest.',
+  supplies:
+    'Oren draws on the provisions you counted together to feed the returning witnesses. He refuses to call a full stomach a debt of gratitude.',
+} as const
+
+/** An earned ending callback, not an extra global branch or a reward loop.
+ * Unrecorded and invalid past choices add nothing; neither House ending locks. */
+export function crossRealmHouseEpilogue(
+  briar: Pick<BriarSave, 'house' | 'sceneChoices'>,
+  mirroredHouse: Pick<DarkHouseProgress, 'ending'>,
+): string {
+  if (!mirroredHouse.ending) return ''
+  const ledger = crossRealmConsequenceLedger(briar, mirroredHouse)
+  const witness =
+    ledger.witnessRecord === 'unset'
+      ? ''
+      : WITNESS_EPILOGUES[ledger.witnessRecord][mirroredHouse.ending]
+  const provision =
+    ledger.orensProvision === 'unset'
+      ? ''
+      : OREN_EPILOGUES[ledger.orensProvision]
+  return [witness, provision].filter(Boolean).join(' ')
+}

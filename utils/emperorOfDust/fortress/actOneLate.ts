@@ -2992,7 +2992,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
         lines: [
-          'The rider from Thistledown is standing only because nobody has told her she can stop. A young stoat, soot in her fur, a broken pitchfork tine through her belt for a knife. Her pony stands foundered in the courtyard.',
+          'The rider from Thistledown is standing only because nobody has told her she can stop. Soot stripes her face. A broken pitchfork tine hangs from her belt for a knife. Her pony stands foundered in the courtyard.',
           '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. The storm took the fields at dawn. They came at noon for the granary. It’s what the Ford has left. They’ll be back at dusk for the rest.”',
           {
             who: 'Young Komodo',

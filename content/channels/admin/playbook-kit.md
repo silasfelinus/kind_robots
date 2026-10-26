@@ -5,7 +5,7 @@ tabKey: playbook-kit
 label: Playbook Kit
 title: Playbook Kit
 subtitle: One frame for every story game. Start small, earn every complication.
-description: The shared framework for Kind Robots story games ("playbooks") like Emperor of Dust, Shifting Lands, Shifting Desks, Prom of Doom, This Means Warp and Ecotone. One-screen shell, settings, title trailer, scrapbook of cinematic moments, cast, factions, secrets and endings, audited against a complexity budget.
+description: The shared framework for Kind Robots story games ("playbooks") like Emperor of Dust, Shifting Lands, Shifting Desks, Prom of Doom, Space Couch and Ecotone. One-screen shell, settings, title trailer, scrapbook of cinematic moments, cast, factions, secrets and endings, audited against a complexity budget.
 summary: Build and audit new playbook games.
 icon: kind-icon:blueprint
 route: /admin/playbook-kit

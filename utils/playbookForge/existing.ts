@@ -87,11 +87,11 @@ async function studio(id: string, ignore: string[] = []): Promise<BuiltCounts> {
 export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
   {
     slug: 'game-of-captains',
-    title: 'This Means Warp',
-    cover: '/game-of-captains/bridge-stage.svg',
+    title: 'Space Couch',
+    cover: '/game-of-captains/space-couch-stage.svg',
     route: '/play/game-of-captains',
-    planSource: 'Conductor goal and master issue kind_robots#4182',
-    plan: plan('game-of-captains', 'This Means Warp', {
+    planSource: 'Space Couch vessel bible, Conductor goal and master issue kind_robots#4182',
+    plan: plan('game-of-captains', 'Space Couch', {
       genre: 'space-comedy',
       placement: 'play',
       creator: 'roster',

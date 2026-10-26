@@ -93,7 +93,7 @@ export function playSlugFromPath(path: string): string | null {
 const PLAY_TITLES: Record<string, string> = {
   arcade: 'the Kind Robots Arcade',
   'comet-city-academy': 'Capes & Tassels',
-  'game-of-captains': 'This Means Warp',
+  'game-of-captains': 'Space Couch',
   'crystal-street': 'Terrors on Crystal Street',
   'emperor-of-dust': 'Emperor of Dust',
   'save-the-plumber': 'Save the Plumber',

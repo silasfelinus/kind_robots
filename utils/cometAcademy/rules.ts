@@ -625,6 +625,24 @@ export function finishAcademy(
   const identityProjection = projectedStory
     ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${projectedStory.setup}. ${projectedStory.decision}. That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
     : ''
+  const zuzuChoice = run.log.find((line) =>
+    line.includes('The Stray Blade Arrives —'),
+  )
+  const tessChoice = run.log.find((line) =>
+    line.includes('A Visitor from the Stars —'),
+  )
+  const visitorProjection = [
+    zuzuChoice?.includes('Protect Zuzu')
+      ? 'Zuzu remembers that you refused to sell him. In one projected future the Koala Assassin stands beside the city's defenders, still free to disagree.'
+      : zuzuChoice
+        ? 'Zuzu remembers the warrant. A possible future flashes Shogun Null, his exosuit aimed at the registry of people Comet City can erase.'
+        : '',
+    tessChoice?.includes('Find a safe route')
+      ? 'Tess Helio sends a discreet Starwake bearing for a rescue, with the sanctuary coordinates removed by her own hand.'
+      : tessChoice
+        ? 'Tess Helio knows her map was copied. The rehearsal hints at the Void Cartographer, a name born from the cost of someone else owning her routes.'
+        : '',
+  ].filter(Boolean)
   const signatureProjection =
     run.signature && run.vow
       ? `The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
@@ -633,7 +651,7 @@ export function finishAcademy(
     ...run,
     phase: 'ending',
     ending,
-    scene: [scene, identityProjection, signatureProjection]
+    scene: [scene, identityProjection, signatureProjection, ...visitorProjection]
       .filter(Boolean)
       .join(' '),
     log: [...run.log, `Finale: ${ending}`],

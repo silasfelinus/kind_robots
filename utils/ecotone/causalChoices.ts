@@ -158,9 +158,11 @@ const sunkenSlugRepair: Choice = {
     text: 'The marshal checks the axle before anybody lifts a wrench. Your spare stabilizer wheel fits the Snerfmobile after three improvised spacers and an argument about the word “round.” The otters paddle clear, then help you push the still-damp slug into Ferndale. You lose your official finish time, but both crews sign the repair log so next year’s racers know exactly what held.',
     effects: { goodwill: 2, nerve: -1, flag: 'slug_shared_wheel_rebuilt' },
     leadLines: {
-      cedar: 'Cedar writes the spacer sizes on the back of his race number. “A rescue that can be repeated. Now that is a finish.”',
+      cedar:
+        'Cedar writes the spacer sizes on the back of his race number. “A rescue that can be repeated. Now that is a finish.”',
       mara: 'Mara draws the two crews holding up one wheel. Nobody in the sketch gets to stand alone in the center.',
-      alone: 'You hand the wheel to the marshal and work beside people whose names you only learned in the bay.',
+      alone:
+        'You hand the wheel to the marshal and work beside people whose names you only learned in the bay.',
     },
   },
   failure: {
@@ -168,8 +170,10 @@ const sunkenSlugRepair: Choice = {
     effects: { goodwill: 1, nerve: -1, flag: 'slug_shared_wheel_deferred' },
     leadLines: {
       kit: 'Kit puts the hammer away. “Not finishing is better than finishing in the river again.”',
-      juniper: 'Juniper sits with the otters until the cart arrives. She does not call the failed repair a secret success.',
-      alone: 'You sign the marshal’s unfinished-work sheet. The next crew deserves to know what still needs fixing.',
+      juniper:
+        'Juniper sits with the otters until the cart arrives. She does not call the failed repair a secret success.',
+      alone:
+        'You sign the marshal’s unfinished-work sheet. The next crew deserves to know what still needs fixing.',
     },
   },
 }
@@ -184,8 +188,10 @@ const uprightSlugTow: Choice = {
     effects: { goodwill: 2, nerve: -1, flag: 'slug_tandem_finish' },
     leadLines: {
       kit: 'Kit waves the two race numbers like a single flag. “We made last place look expensive.”',
-      cedar: 'Cedar checks the towbar one final time before he lets the crew celebrate.',
-      alone: 'The otters thank you by name. You remember theirs, even after the announcer forgets your placing.',
+      cedar:
+        'Cedar checks the towbar one final time before he lets the crew celebrate.',
+      alone:
+        'The otters thank you by name. You remember theirs, even after the announcer forgets your placing.',
     },
   },
   failure: {
@@ -193,8 +199,10 @@ const uprightSlugTow: Choice = {
     effects: { goodwill: 1, nerve: -1, flag: 'slug_tandem_walk' },
     leadLines: {
       mara: 'Mara sketches the bent bar beside the recovery cart. “That is the honest version,” she says.',
-      juniper: 'Juniper helps an exhausted otter over the bridge, then comes back for the next one.',
-      alone: 'You walk at the rear and count the crew twice. No one gets left behind for a finish photo.',
+      juniper:
+        'Juniper helps an exhausted otter over the bridge, then comes back for the next one.',
+      alone:
+        'You walk at the rear and count the crew twice. No one gets left behind for a finish photo.',
     },
   },
 }

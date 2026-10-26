@@ -193,7 +193,8 @@ export function takeChoice(run: Run, id: string): Run {
     const bonus =
       choice.check.bonus &&
       run.flags.includes(choice.check.bonus.flag) &&
-      (!choice.check.bonus.unless || !run.flags.includes(choice.check.bonus.unless))
+      (!choice.check.bonus.unless ||
+        !run.flags.includes(choice.check.bonus.unless))
         ? choice.check.bonus.amount
         : 0
     const modifier = run.attributes[choice.check.attribute] + bonus

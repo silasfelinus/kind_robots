@@ -7,6 +7,10 @@ import {
   CAMPAIGN_ANCHORS,
   campaignAnchor,
   campaignVillain,
+  campaignBetrayer,
+  campaignPlotEvent,
+  campaignAccomplice,
+  CAMPAIGN_VILLAINS,
   GUEST_LIST_EVENT,
 } from './campaign'
 import {
@@ -388,6 +392,13 @@ export type AcademyRun = {
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
+  betrayer?: StudentId
+  betrayal?: {
+    day: number
+    person: StudentId
+    status: 'active' | 'reconciled' | 'isolated'
+  }
+  plotEvidence?: string[]
   academyStanding?: number
   cityStanding?: number
   phase: AcademyPhase
@@ -415,6 +426,19 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if (run.flowVersion === 3) {
+    const person = STUDENTS.find(
+      (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
+    )!
+    const plot = campaignPlotEvent(
+      run.seed,
+      run.mastermind,
+      run.day,
+      person.name,
+    )
+    if (plot)
+      return { ...plot, scene: `${campaignAnchor(run.day)} ${plot.scene}` }
+  }
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {
@@ -508,12 +532,22 @@ export function startFullAcademy(
     injuries: {},
     infirmaryDays: [],
     mastermind: campaignVillain(base.seed).id,
+    betrayer: campaignBetrayer(base.seed),
+    plotEvidence: [],
     scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
   }
 }
 
 export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
-  return (run.injuries?.[id] ?? 0) <= run.day
+  return (
+    (run.injuries?.[id] ?? 0) <= run.day &&
+    !(
+      run.flowVersion === 3 &&
+      run.day >= 20 &&
+      run.betrayal?.person === id &&
+      run.betrayal.status !== 'reconciled'
+    )
+  )
 }
 
 export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
@@ -622,13 +656,25 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
             ? -1
             : 0
         : 0
+    const villain =
+      run.flowVersion === 3
+        ? campaignVillain(run.seed, run.mastermind)
+        : undefined
+    const reportedNetwork = run.plotEvidence?.length ?? 0
+    const activeNetwork =
+      run.flowVersion === 3 &&
+      run.day >= 11 &&
+      reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
+    const sabotagePenalty =
+      activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
     const score =
       roll +
       assignment.students.length +
       (affinity ? 2 : 0) +
       (run.power === incident.need ? 1 : 0) +
       civicSupport +
-      academySupport
+      academySupport -
+      sabotagePenalty
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -662,10 +708,18 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       failed:
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
-    const text =
+    const baseText =
       ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
+    const sabotagedBy =
+      villain && activeNetwork
+        ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
+        : undefined
+    const text =
+      sabotagedBy && incident.allegiance !== 'villain'
+        ? `${baseText} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
+        : baseText
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -722,6 +776,43 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (special
       ? ` Your signature technique, ${special.name}, offers another approach: ${special.action}. ${special.cost}.`
       : '')
+  const plot =
+    run.flowVersion === 3
+      ? campaignPlotEvent(
+          run.seed,
+          run.mastermind,
+          run.day,
+          STUDENTS.find(
+            (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
+          )!.name,
+        )
+      : undefined
+  const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
+  const plotEvidence = [...(run.plotEvidence ?? [])]
+  if (
+    run.flowVersion === 3 &&
+    option.id.startsWith('plot-a') &&
+    option.id.endsWith('-expose')
+  ) {
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const index = Number(option.id[6]) - 1
+    const evidence = villain.accomplices?.[index]?.id
+    if (evidence && !plotEvidence.includes(evidence))
+      plotEvidence.push(evidence)
+  }
+  const betrayal =
+    run.flowVersion === 3 && run.day === 20
+      ? { day: 20, person: betrayerId, status: 'active' as const }
+      : run.flowVersion === 3 && run.day === 24
+        ? {
+            day: 20,
+            person: betrayerId,
+            status:
+              option.id === 'plot-return-accountable'
+                ? ('reconciled' as const)
+                : ('isolated' as const),
+          }
+        : run.betrayal
   const neighborhood = CITY_SITES.find((site) => site.id === run.selectedSite)
   const trustChange =
     'trust' in option && typeof option.trust === 'number' ? option.trust : 0
@@ -736,6 +827,12 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
               : option.id === 'guest-private'
                 ? ('private' as const)
                 : ('duplicate' as const),
+        }
+      : {}),
+    ...(run.flowVersion === 3 && plot
+      ? {
+          plotEvidence,
+          ...(betrayal ? { betrayal } : {}),
         }
       : {}),
     influence: run.influence + option.influence,
@@ -775,7 +872,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       phase: 'finale',
       assignments: [],
       reports: [],
-      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed).name} now ${campaignVillain(run.seed).method}. This is real, not a simulation.`,
+      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed, run.mastermind).name} now ${campaignVillain(run.seed, run.mastermind).method}. This is real, not a simulation.`,
       log: [...run.log, 'Day 30: The fourth dance and the real Prom of Doom'],
     }
   if (run.flowVersion !== 3 && run.day >= 7)
@@ -803,9 +900,15 @@ export function finishAcademy(
 ): AcademyRun {
   if (run.phase !== 'finale') return run
   if (run.flowVersion === 3) {
-    const villain = campaignVillain(run.seed)
-    const support = (run.cityStanding ?? 0) + (run.academyStanding ?? 0)
-    const earned = support >= 2 && run.danger <= 48
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const evidenceCount = run.plotEvidence?.length ?? 0
+    const reconciled = run.betrayal?.status === 'reconciled'
+    const support =
+      (run.cityStanding ?? 0) +
+      (run.academyStanding ?? 0) +
+      evidenceCount * 2 +
+      (reconciled ? 2 : 0)
+    const earned = support >= 2 && run.danger <= 48 + evidenceCount * 2
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
     const ending = shared
@@ -825,6 +928,10 @@ export function finishAcademy(
         : run.guestPlan === 'open'
           ? 'The ballroom serves as public shelter, crowding the exits.'
           : 'Private security controls the ballroom doors.'
+    const conspiracyOutcome = earned ? villain.fall : villain.coup
+    const betrayalOutcome = run.betrayal
+      ? `${STUDENTS.find((s) => s.id === run.betrayal!.person)!.name} betrayed the rescue network on day 20. ${reconciled ? 'They returned under public oversight and helped repair the damage.' : 'The damaged relationship never received an easy pardon.'}`
+      : 'An unidentified classmate remains connected to the compromised emergency grid.'
     const cost = shared
       ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'
       : rescue
@@ -834,7 +941,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${betrayalOutcome} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -952,7 +1059,25 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         typeof data.injuries !== 'object' ||
         !Array.isArray(data.infirmaryDays) ||
         (data.mastermind !== undefined &&
-          data.mastermind !== campaignVillain(data.seed ?? 0).id) ||
+          !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
+        (data.betrayer !== undefined &&
+          data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
+        (data.plotEvidence !== undefined &&
+          (!Array.isArray(data.plotEvidence) ||
+            data.plotEvidence.some(
+              (id) =>
+                !campaignVillain(
+                  data.seed ?? 0,
+                  data.mastermind,
+                ).accomplices?.some((a) => a.id === id),
+            ) ||
+            new Set(data.plotEvidence).size !== data.plotEvidence.length)) ||
+        (data.betrayal !== undefined &&
+          (!['active', 'reconciled', 'isolated'].includes(
+            data.betrayal.status,
+          ) ||
+            data.betrayal.day !== 20 ||
+            data.betrayal.person !== campaignBetrayer(data.seed ?? 0))) ||
         Object.entries(data.visitedDays).some(
           ([site, day]) =>
             !CITY_SITES.some((entry) => entry.id === site) ||

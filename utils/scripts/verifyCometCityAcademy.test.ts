@@ -14,6 +14,8 @@ import {
   CAMPAIGN_VILLAINS,
   PROM_FINALE,
   campaignVillain,
+  campaignBetrayer,
+  campaignPlotEvent,
 } from '../cometAcademy/campaign'
 import {
   IDENTITY_ARCS,
@@ -590,8 +592,107 @@ assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 // New sessions take a deterministic, mandatory thirty-day route.
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
-assert.equal(CAMPAIGN_VILLAINS.length, 4)
-assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 4)
+assert.equal(CAMPAIGN_VILLAINS.length, 8)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 8)
+const allAccomplices = CAMPAIGN_VILLAINS.flatMap((v) => v.accomplices ?? [])
+assert.equal(allAccomplices.length, 24)
+assert.equal(new Set(allAccomplices.map((a) => a.id)).size, 24)
+assert.equal(new Set(allAccomplices.map((a) => a.name)).size, 24)
+assert.ok(
+  allAccomplices.every((a) => a.motive.length > 24 && a.sabotage.length > 24),
+)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.method)).size, 8)
+for (let seed = 1; seed <= 8; seed++) {
+  const villain = campaignVillain(seed)
+  assert.equal(villain.id, CAMPAIGN_VILLAINS[seed % 8]!.id)
+  assert.ok(villain.countermeasure && villain.fall && villain.coup)
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 8, 'Mina')?.scene.includes(
+      'anonymous message',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 15, 'Mina')?.scene.includes(
+      'duplicate emergency key',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 20, 'Mina')?.scene.includes(
+      'betrayal is real',
+    ),
+  )
+  for (const [day, index] of [
+    [11, 0],
+    [17, 1],
+    [26, 2],
+  ] as const) {
+    const event = campaignPlotEvent(seed, villain.id, day, 'Mina')!
+    assert.ok(event.scene.includes(villain.accomplices![index]!.name))
+    assert.equal(event.options.length, 2)
+  }
+  const original = startFullAcademy('kinetic', seed)
+  assert.equal(original.mastermind, villain.id)
+  assert.equal(original.betrayer, campaignBetrayer(seed))
+  const go = (day: number, choice: string) =>
+    chooseEncounter({ ...original, day, phase: 'campus' }, choice)
+  const betrayed = go(20, 'plot-betrayal-hear')
+  assert.equal(betrayed.betrayal?.person, campaignBetrayer(seed))
+  assert.equal(betrayed.betrayal?.day, 20)
+  assert.equal(betrayed.betrayal?.status, 'active')
+  assert.equal(studentAvailable(betrayed, campaignBetrayer(seed)), false)
+  const blockedTeam = { ...betrayed, phase: 'dispatch' as const }
+  assert.deepEqual(
+    assignTeam(blockedTeam, incidentsFor(blockedTeam)[0]!.id, [
+      campaignBetrayer(seed),
+    ]),
+    blockedTeam,
+  )
+  assert.ok(
+    betrayed.log.some((line) => line.includes('The Hero Turns at the Gate')),
+  )
+  assert.deepEqual(
+    restoreAcademy(JSON.parse(JSON.stringify(betrayed))),
+    betrayed,
+  )
+  const reconciled = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-accountable',
+  )
+  assert.equal(reconciled.betrayal?.status, 'reconciled')
+  assert.equal(studentAvailable(reconciled, campaignBetrayer(seed)), true)
+  const isolated = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-separate',
+  )
+  assert.equal(isolated.betrayal?.status, 'isolated')
+  assert.equal(studentAvailable(isolated, campaignBetrayer(seed)), false)
+  const exposed = go(11, 'plot-a1-expose')
+  assert.deepEqual(exposed.plotEvidence, [villain.accomplices![0]!.id])
+  const withheld = go(11, 'plot-a1-bargain')
+  assert.deepEqual(withheld.plotEvidence, [])
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(exposed))), exposed)
+  assert.equal(
+    restoreAcademy({ ...exposed, plotEvidence: ['fabricated-lead'] }),
+    null,
+  )
+  assert.equal(
+    restoreAcademy({
+      ...betrayed,
+      betrayal: { day: 20, person: 'nobody', status: 'active' },
+    }),
+    null,
+  )
+}
+const formerFourSeed = {
+  ...startFullAcademy('kinetic', 4),
+  mastermind: 'the-architect',
+}
+assert.equal(campaignVillain(4, formerFourSeed.mastermind).id, 'the-architect')
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(formerFourSeed))),
+  formerFourSeed,
+)
+
 assert.equal(PROM_FINALE.choices.length, 4)
 for (const seed of [1, 2, 3, 4, 997]) {
   let run = startFullAcademy(
@@ -617,6 +718,11 @@ for (const seed of [1, 2, 3, 4, 997]) {
       ]!
     run = chooseEncounter(run, choice.id)
     assert.equal(run.phase, 'dispatch')
+    if (day === 20) {
+      assert.equal(run.betrayal?.day, 20)
+      assert.equal(studentAvailable(run, campaignBetrayer(seed)), false)
+    }
+    if (day === 24) assert.ok(run.betrayal?.status)
     if (day === 29) assert.ok(run.guestPlan)
     const cases = incidentsFor(run)
     for (const incident of cases) {
@@ -693,6 +799,7 @@ assert.ok(page.includes('data-testid="academy-identity-preview"'))
 assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
 assert.ok(page.includes('data-testid="academy-first-week"'))
+assert.ok(page.includes('data-testid="academy-plot-status"'))
 assert.ok(page.includes("store.end('share')"))
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))

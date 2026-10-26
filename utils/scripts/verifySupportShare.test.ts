@@ -4,7 +4,7 @@ import {
   FUNDRAISER_URL,
   GAVE_QUIET_MS,
   PROMPT_COOLDOWN_MS,
-  absoluteSiteUrl,
+  shareableUrl,
   buildShareTargets,
   parseSupportProgress,
   playSlugFromPath,
@@ -13,19 +13,16 @@ import {
 } from '../supportShare'
 
 assert.equal(
-  absoluteSiteUrl('/play/crystal-street#top'),
+  shareableUrl('/play/crystal-street#top'),
   'https://kindrobots.org/play/crystal-street',
 )
 assert.equal(
-  absoluteSiteUrl('/play/arcade?game=kind-pinball'),
+  shareableUrl('/play/arcade?game=kind-pinball'),
   'https://kindrobots.org/play/arcade?game=kind-pinball',
 )
-assert.equal(
-  absoluteSiteUrl('play/memory'),
-  'https://kindrobots.org/play/memory',
-)
-assert.equal(absoluteSiteUrl(''), 'https://kindrobots.org/')
-assert.equal(absoluteSiteUrl(FUNDRAISER_URL), FUNDRAISER_URL)
+assert.equal(shareableUrl('play/memory'), 'https://kindrobots.org/play/memory')
+assert.equal(shareableUrl(''), 'https://kindrobots.org/')
+assert.equal(shareableUrl(FUNDRAISER_URL), FUNDRAISER_URL)
 
 const targets = buildShareTargets({
   url: 'https://kindrobots.org/play/memory',

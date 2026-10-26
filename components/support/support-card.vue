@@ -213,7 +213,7 @@ import { useSupportStore } from '@/stores/supportStore'
 import {
   FUNDRAISER_SHARE_TEXT,
   FUNDRAISER_URL,
-  absoluteSiteUrl,
+  shareableUrl,
   buildShareTargets,
 } from '~/utils/supportShare'
 
@@ -228,7 +228,7 @@ const route = useRoute()
 const openLane = ref<'page' | 'fundraiser' | null>(null)
 const nativeShareReady = ref(false)
 
-const pageUrl = computed(() => absoluteSiteUrl(props.path || route.path))
+const pageUrl = computed(() => shareableUrl(props.path || route.path))
 const pageText = computed(() =>
   props.title
     ? `I just played ${props.title} on Kind Robots. Free, handmade, no ads, and it supports malaria nets:`

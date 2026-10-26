@@ -1,4 +1,5 @@
-export const SITE_ORIGIN = 'https://kindrobots.org'
+import { SITE_ORIGIN } from './sharePreview'
+
 export const FUNDRAISER_URL = 'https://www.againstmalaria.com/amibot'
 export const FUNDRAISER_SHARE_TEXT =
   'Kind Robots makes free games and raises money for bed nets. Help AMI protect families from malaria:'
@@ -29,7 +30,7 @@ export const EMPTY_SUPPORT_PROGRESS: SupportProgress = {
   gaveAt: 0,
 }
 
-export function absoluteSiteUrl(path: string): string {
+export function shareableUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path
   const clean = (path || '/').split('#')[0] || '/'
   return SITE_ORIGIN + (clean.startsWith('/') ? clean : '/' + clean)

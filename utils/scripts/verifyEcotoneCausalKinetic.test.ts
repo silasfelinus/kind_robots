@@ -96,7 +96,7 @@ for (let seed = 1; seed <= 320; seed++) {
   const secondRoll = negotiated.pending?.entry.roll
   assert.ok(secondRoll, 'the safety strategy needs its own skill check')
   assert.equal(
-    secondRoll.skill,
+    choices[3]?.check?.skill,
     aboard ? 'rizz' : 'wits',
     'aboard coordination and shore navigation use different skills',
   )

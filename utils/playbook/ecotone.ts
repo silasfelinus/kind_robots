@@ -248,6 +248,20 @@ function endingNode(lead: EndingLine): PlaybookNode {
   })
   const lenses = LENSES.filter((lens) => lens.open).map((lens) => lens.id)
   node.lenses = lenses
+  // Every lead × lens × fate ending is painted as endings/<lead>-<lens>-<fate>;
+  // the storyline shows the first one that has art in the default style.
+  const painted = lenses
+    .flatMap((lens) =>
+      (['hope', 'dark'] as Fate[]).map(
+        (fate) => `endings/${lead}-${lens}-${fate}`,
+      ),
+    )
+    .find((asset) => ecotoneArtSrc(asset, DEFAULT_ECOTONE_ART_STYLE))
+  if (painted) {
+    node.art = painted
+    node.artUrl = ecotoneArtSrc(painted, DEFAULT_ECOTONE_ART_STYLE)
+    node.needsArt = false
+  }
   for (const lens of lenses) {
     for (const fate of ['hope', 'dark'] as Fate[]) {
       const signature = SIGNATURES[`${lead}.${lens}`]?.[fate]

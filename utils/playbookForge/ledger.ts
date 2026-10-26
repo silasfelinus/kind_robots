@@ -78,7 +78,14 @@ export type Ledger = {
   takenSeconds: number
   remainingSeconds: number
   remainingWords: number
+  /** Half writing, half art, averaged over every beat: a written but unpainted game is half done. */
   progress: number
+  /** Share of beats whose scene and outcome text are written. */
+  writtenShare: number
+  /** Share of beats with delivered art (or none needed). */
+  paintedShare: number
+  /** Share of beats both written and painted (what stars a section). */
+  finishedShare: number
   gaps: PlanGap[]
   discrepancies: string[]
   shine: Shine
@@ -176,6 +183,20 @@ function emptyCounts(): SectionCounts {
   return { delivered: 0, rendered: 0, queued: 0, failed: 0, missing: 0 }
 }
 
+/** How written a beat is: its scene text, then its outcomes. */
+export function unitWriting(unit: LedgerUnit): number {
+  const scene = unit.written ? 1 : 0
+  if (!unit.outcomes.expected) return scene
+  return (
+    (scene + Math.min(1, unit.outcomes.written / unit.outcomes.expected)) / 2
+  )
+}
+
+/** A beat's share of done: half its writing, half its art. */
+export function unitProgress(unit: LedgerUnit): number {
+  return unitWriting(unit) / 2 + (unit.art === 'delivered' ? 0.5 : 0)
+}
+
 export function unitComplete(unit: LedgerUnit): boolean {
   return (
     unit.art === 'delivered' &&
@@ -255,10 +276,10 @@ export function buildLedger(
     outcomes.expected += section.outcomes.expected
   }
   const units = sections.reduce((n, s) => n + s.units.length, 0)
-  const complete = sections.reduce(
-    (n, s) => n + s.units.filter(unitComplete).length,
-    0,
-  )
+  const all = sections.flatMap((s) => s.units)
+  const complete = all.filter(unitComplete).length
+  const share = (score: (unit: LedgerUnit) => number) =>
+    units ? all.reduce((n, unit) => n + score(unit), 0) / units : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
 
   const discrepancies: string[] = []
@@ -300,7 +321,10 @@ export function buildLedger(
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
     remainingSeconds: sections.reduce((n, s) => n + s.remainingSeconds, 0),
     remainingWords: sections.reduce((n, s) => n + s.remainingWords, 0),
-    progress: units ? complete / units : 0,
+    progress: share(unitProgress),
+    writtenShare: share(unitWriting),
+    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)),
+    finishedShare: units ? complete / units : 0,
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',

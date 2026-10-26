@@ -2300,6 +2300,203 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         ],
       },
       {
+        id: 'd09-ledger-cart',
+        title: 'The Cart Nobody Searches',
+        speaker: 'A Gate Watch corporal',
+        faction: 'ledger',
+        requires: { flags: ['ledger-credit'] },
+        lines: [
+          'The corporal carries a splintered wheel chock. Someone has carved the Ledger seal into it. She sets it on the throne arm beside yesterday’s loan agreement.',
+          '“The first cart came at dawn. Medicine under canvas. Three locked cases beneath the floorboards. Our sergeant showed the driver the search order. The driver showed him your signature.”',
+          '“I can open the cases,” she says. “But I cannot put your name back on that paper afterward.”',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'The loan bought the crown forty brass and sold the Watch one small power. The factor has come to collect that power. She is entitled to it.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-manifest',
+            label: 'Ask what the driver put on the manifest.',
+            effects: {},
+            response:
+              'The corporal unfolds a receipt stiff with rain. There are two lists, written in different hands.',
+            next: 'manifest',
+          },
+          {
+            id: 'search',
+            label:
+              'Break the loan term. Search the cases in front of the driver.',
+            effects: {
+              local: { ledger: -2, 'gate-watch': 2 },
+              flags: ['d09-ledger-cart-searched'],
+            },
+            response:
+              'The Watch opens the cases. Two hold fever medicine. The third holds blank debt warrants, already stamped with the crown’s seal. The driver takes the medicine away until the Ledger receives an apology. A mother at the gate watches the cart leave.',
+          },
+          {
+            id: 'pass',
+            label: 'Honor the contract. Let the cart pass unopened.',
+            effects: {
+              local: { ledger: 2, 'gate-watch': -2 },
+              flags: ['d09-ledger-cart-passed'],
+            },
+            response:
+              'The driver bows and rolls through. The corporal returns her search key to the hook. Behind the cart, two families wait for the medicine it carries. The Ledger clerk asks each family to sign a blank form before unloading.',
+          },
+        ],
+        beats: [
+          {
+            id: 'manifest',
+            lines: [
+              '“The top list is medicine. Bandages, fever salts, a crate of needles. The lower list is paper. Blank warrants, each with the crown’s seal. No debtor named yet.”',
+              '“The driver says the warrants are only for people who refuse to pay. My sister borrowed from the Ledger when her roof went. She pays every month. I would rather the Watch knew which cart held her name.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'You can keep your word to the Ledger or keep your Watch useful. You can also buy the right to stand beside a cart you already own.',
+              },
+            ],
+            options: [
+              {
+                id: 'escort',
+                label:
+                  'Pay ten brass for a Watch escort. Let the medicine through, but witness every signature.',
+                requires: { cost: 10 },
+                effects: {
+                  local: { ledger: -1, 'gate-watch': 1, yard: 1 },
+                  flags: ['d09-ledger-cart-witnessed'],
+                },
+                response:
+                  'The driver accepts the escort fee with two fingers. The Watch counts every bottle and every name. The families get their medicine. The Ledger keeps its warrants. The corporal stays at the gate until dark.',
+              },
+              {
+                id: 'search',
+                label:
+                  'Search the cases anyway. A signature cannot blind the Watch.',
+                effects: {
+                  local: { ledger: -2, 'gate-watch': 2 },
+                  flags: ['d09-ledger-cart-searched'],
+                },
+                response:
+                  'The Watch opens the cases. Two hold fever medicine. The third holds blank debt warrants stamped with your seal. The driver takes the medicine away pending an apology. The sick wait at the gate.',
+              },
+              {
+                id: 'pass',
+                label:
+                  'Keep the loan bargain. The medicine must reach the sick today.',
+                effects: {
+                  local: { ledger: 2, 'gate-watch': -2 },
+                  flags: ['d09-ledger-cart-passed'],
+                },
+                response:
+                  'The cart passes. The medicine is unloaded beside a table of blank forms. The corporal stands on the wrong side of the gate while families sign.',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'd09-postern-list',
+        title: 'A List Written in Flour',
+        speaker: 'The night stablehand',
+        faction: 'gate-watch',
+        requires: { flags: ['d06-postern-informant'] },
+        lines: [
+          'The stablehand waits beside the petitioners’ line with a folded sheet inside his apron. His knuckles are white with flour. He keeps looking at the Watch sergeant by the door.',
+          '“You told me to write down who uses the postern. I did. The kitchen girls, the water carriers, my sister. Some come in hungry. Some go out with bread.”',
+          '“The sergeant wants names. He says a gate is a gate, and an order is an order.” The boy holds out the sheet. He has left a space for your signature.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'He did exactly what you asked. That is why he looks frightened. The Watch will use the list. The Yard will know who made it.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-first',
+            label: 'Ask whose name he wrote first.',
+            effects: {},
+            response:
+              'He opens the paper at the crease. There is a thumbprint over the first line.',
+            next: 'first-name',
+          },
+          {
+            id: 'file-list',
+            label:
+              'Give the list to the Watch. A hidden gate cannot stay hidden.',
+            effects: {
+              local: { 'gate-watch': 2, yard: -2 },
+              flags: ['d09-postern-list-filed'],
+            },
+            response:
+              'The sergeant takes the paper before the boy can fold it. At supper three kitchen hands are missing from the bench. Their bowls are still set out. The stablehand eats standing up.',
+          },
+          {
+            id: 'burn-list',
+            label:
+              'Burn the list. No one goes to the stocks for carrying bread.',
+            effects: {
+              local: { yard: 2, 'gate-watch': -2 },
+              flags: ['d09-postern-list-burned'],
+            },
+            response:
+              'The paper catches at the corner and curls into ash. The boy watches until there is nothing to read. The sergeant does not salute. He asks who will stand watch at the postern tonight.',
+          },
+        ],
+        beats: [
+          {
+            id: 'first-name',
+            lines: [
+              '“Mine,” he says. “I wrote mine first. Then my sister’s. I wanted him to see I wasn’t hiding anything.”',
+              '“She comes through after the cooks have scraped the pots. Sometimes there is nothing left. Sometimes I take the heel before they scrape.”',
+              'The sergeant steps forward. “That is theft of rations, Majesty. I can keep the gate shut if you give me the list.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'A closed gate is safer. A hungry family outside it does not stop being hungry. Your sergeant can enforce one of those facts.',
+              },
+            ],
+            options: [
+              {
+                id: 'take-blame',
+                label:
+                  'Sign the sheet yourself. Make the Watch answer to the crown, not the boy.',
+                effects: {
+                  local: { 'gate-watch': -1, yard: 1 },
+                  flags: ['d09-postern-crown-witness'],
+                },
+                response:
+                  'You sign above the first name. The sergeant reads it and folds the list into his own pocket. The boy leaves by the main gate. The Watch will remember who overruled it.',
+              },
+              {
+                id: 'file-list',
+                label:
+                  'Give the Watch the names, including his. No more secret passages.',
+                effects: {
+                  local: { 'gate-watch': 2, yard: -2 },
+                  flags: ['d09-postern-list-filed'],
+                },
+                response:
+                  'The sergeant takes the list. Three kitchen hands are missing at supper. The stablehand puts his own bowl aside and goes looking for his sister.',
+              },
+              {
+                id: 'burn-list',
+                label:
+                  'Burn the list and order the Watch to guard the postern, not the bread.',
+                effects: {
+                  local: { yard: 2, 'gate-watch': -2 },
+                  flags: ['d09-postern-list-burned'],
+                },
+                response:
+                  'The names blacken. The sergeant takes the night watch himself. At dawn he sends you a tally of everyone who passed. He has left the names blank.',
+              },
+            ],
+          },
+        ],
+      },
+      {
         id: 'd09-kitchens',
         title: 'The Kitchens Send Their Cook',
         speaker: 'Juniper Slate of the Yard',

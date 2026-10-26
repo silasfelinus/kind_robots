@@ -51,7 +51,12 @@
           </template>
           <template v-else>
             <p class="cca-chapter">
-              CHAPTER {{ run.day.toString().padStart(2, '0') }} / {{ run.flowVersion === 3 ? 'THE LAST THIRTY DAYS' : 'THE FIRST WEEK' }}
+              CHAPTER {{ run.day.toString().padStart(2, '0') }} /
+              {{
+                run.flowVersion === 3
+                  ? 'THE LAST THIRTY DAYS'
+                  : 'THE FIRST WEEK'
+              }}
             </p>
             <h2 class="cca-scene-title">{{ sceneTitle }}</h2>
             <p class="cca-scene-copy">{{ stageCopy }}</p>
@@ -73,7 +78,11 @@
             class="cca-day-lights"
             aria-label="Seven day countdown"
           >
-            <span v-for="n in (run.flowVersion === 3 ? 30 : 7)" :key="n" :class="{ filled: n <= run.day }" />
+            <span
+              v-for="n in run.flowVersion === 3 ? 30 : 7"
+              :key="n"
+              :class="{ filled: n <= run.day }"
+            />
           </div>
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
@@ -277,11 +286,21 @@
               <span>➜</span>
             </button>
             <p class="cca-under">
-              48 signature powers · The first-week training is playable. The
-              new thirty-day campaign is playable in an early narrative form.
+              48 signature powers · The first-week training is playable. The new
+              thirty-day campaign is playable in an early narrative form.
             </p>
-            <button class="cca-choice" type="button" data-testid="academy-first-week"
-              @click="store.beginFirstWeek(currentSignature.legacy, currentSignature.id, selectedVow)">
+            <button
+              class="cca-choice"
+              type="button"
+              data-testid="academy-first-week"
+              @click="
+                store.beginFirstWeek(
+                  currentSignature.legacy,
+                  currentSignature.id,
+                  selectedVow,
+                )
+              "
+            >
               <span>Play the original seven-day simulation</span>
             </button>
           </template>
@@ -297,11 +316,19 @@
             <p v-if="run.flowVersion === 3" class="cca-under">
               DAY {{ run.day }} / 30 · MASTERMIND: {{ mastermind?.name }}
             </p>
-            <div v-if="run.flowVersion === 3 && injuredStudents.length"
-                 class="cca-report-mini" aria-label="Infirmary roster">
+            <div
+              v-if="run.flowVersion === 3 && injuredStudents.length"
+              class="cca-report-mini"
+              aria-label="Infirmary roster"
+            >
               <strong>INFIRMARY: USE YOUR DAY ACTION TO RECOVER</strong>
-              <button v-for="student in injuredStudents" :key="student.id" type="button"
-                class="cca-choice" @click="store.heal(student.id)">
+              <button
+                v-for="student in injuredStudents"
+                :key="student.id"
+                type="button"
+                class="cca-choice"
+                @click="store.heal(student.id)"
+              >
                 Treat {{ student.name }} before night patrol ↗
               </button>
             </div>
@@ -355,10 +382,7 @@
                 :key="site.id"
                 type="button"
                 class="cca-map-pin"
-                :class="[
-                  site.district,
-                  { explored: !canVisitSite(site.id) },
-                ]"
+                :class="[site.district, { explored: !canVisitSite(site.id) }]"
                 :style="{ left: site.left + '%', top: site.top + '%' }"
                 :disabled="!canVisitSite(site.id)"
                 :title="site.name"
@@ -451,7 +475,9 @@
                   class="cca-roster-button"
                   :class="{
                     active: isSelected(incident.id, student.id),
-                    unavailable: isAssignedElsewhere(incident.id, student.id) || !store.available(student.id),
+                    unavailable:
+                      isAssignedElsewhere(incident.id, student.id) ||
+                      !store.available(student.id),
                   }"
                   :disabled="
                     isAssignedElsewhere(incident.id, student.id) ||
@@ -561,7 +587,9 @@
             >
               {{
                 (run.flowVersion === 3 ? run.day === 29 : run.day === 7)
-                  ? (run.flowVersion === 3 ? 'ENTER THE REAL PROM OF DOOM' : 'FACE THE PROM-NIGHT SIMULATION')
+                  ? run.flowVersion === 3
+                    ? 'ENTER THE REAL PROM OF DOOM'
+                    : 'FACE THE PROM-NIGHT SIMULATION'
                   : 'ADVANCE TO NEXT DAY'
               }}
               <span>➜</span>
@@ -572,13 +600,30 @@
             <div class="cca-heading">
               <span>05</span>
               <div>
-                <h2>{{ run.flowVersion === 3 ? 'PROM OF DOOM: THE FOURTH DANCE' : 'Prom-Night Simulation' }}</h2>
-                <p>{{ run.flowVersion === 3 ? 'The catastrophe is real.' : 'The final rehearsal shows how prom could end very badly.' }}</p>
+                <h2>
+                  {{
+                    run.flowVersion === 3
+                      ? 'PROM OF DOOM: THE FOURTH DANCE'
+                      : 'Prom-Night Simulation'
+                  }}
+                </h2>
+                <p>
+                  {{
+                    run.flowVersion === 3
+                      ? 'The catastrophe is real.'
+                      : 'The final rehearsal shows how prom could end very badly.'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">
               <template v-if="run.flowVersion === 3">{{ run.scene }}</template>
-              <template v-else>Your first-week final is a simulated prom-night catastrophe. The real graduation is still weeks away. Your classmates are waiting for orders. You can protect them, or seize the machine behind the whole spectacle.</template>
+              <template v-else
+                >Your first-week final is a simulated prom-night catastrophe.
+                The real graduation is still weeks away. Your classmates are
+                waiting for orders. You can protect them, or seize the machine
+                behind the whole spectacle.</template
+              >
             </p>
             <div class="cca-final-stats">
               <span
@@ -592,21 +637,39 @@
               class="cca-choice"
               @click="store.end('protect')"
             >
-              <span>{{ run.flowVersion === 3 ? 'Evacuate the guests immediately' : 'Save the classmates, even if the school expels you' }}</span> ↗
+              <span>{{
+                run.flowVersion === 3
+                  ? 'Evacuate the guests immediately'
+                  : 'Save the classmates, even if the school expels you'
+              }}</span>
+              ↗
             </button>
             <button
               type="button"
               class="cca-choice"
               @click="store.end('command')"
             >
-              <span>{{ run.flowVersion === 3 ? 'Seize the shield console' : 'Take the catastrophe engine for yourself' }}</span> ↗
+              <span>{{
+                run.flowVersion === 3
+                  ? 'Seize the shield console'
+                  : 'Take the catastrophe engine for yourself'
+              }}</span>
+              ↗
             </button>
-            <button v-if="run.flowVersion === 3" type="button" class="cca-choice"
-              @click="store.end('share')">
+            <button
+              v-if="run.flowVersion === 3"
+              type="button"
+              class="cca-choice"
+              @click="store.end('share')"
+            >
               <span>Give every neighborhood a shield key</span> ↗
             </button>
-            <button v-if="run.flowVersion === 3" type="button" class="cca-choice"
-              @click="store.end('evacuate')">
+            <button
+              v-if="run.flowVersion === 3"
+              type="button"
+              class="cca-choice"
+              @click="store.end('evacuate')"
+            >
               <span>Destroy the transmitter and carry out the injured</span> ↗
             </button>
           </template>
@@ -616,7 +679,13 @@
               <span>✦</span>
               <div>
                 <h2>{{ run.ending }}</h2>
-                <p>{{ run.flowVersion === 3 ? 'THIRTY-DAY GRADUATION CHRONICLE' : 'YOUR FIRST-WEEK YEARBOOK' }}</p>
+                <p>
+                  {{
+                    run.flowVersion === 3
+                      ? 'THIRTY-DAY GRADUATION CHRONICLE'
+                      : 'YOUR FIRST-WEEK YEARBOOK'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">{{ run.scene }}</p>
@@ -688,11 +757,18 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
-const mastermind = computed(() => run.value?.flowVersion === 3 ? campaignVillain(run.value.seed) : null)
-const injuredStudents = computed(() => run.value?.flowVersion === 3 ? STUDENTS.filter(s => !store.available(s.id)) : [])
+const mastermind = computed(() =>
+  run.value?.flowVersion === 3 ? campaignVillain(run.value.seed) : null,
+)
+const injuredStudents = computed(() =>
+  run.value?.flowVersion === 3
+    ? STUDENTS.filter((s) => !store.available(s.id))
+    : [],
+)
 function canVisitSite(id: SiteId) {
   if (!run.value) return false
-  if (run.value.flowVersion === 3) return (run.value.visitedDays?.[id] ?? -7) <= run.value.day - 7
+  if (run.value.flowVersion === 3)
+    return (run.value.visitedDays?.[id] ?? -7) <= run.value.day - 7
   return !run.value.visitedSites?.includes(id)
 }
 const currentSignature = computed(() =>
@@ -717,13 +793,15 @@ const panelLabel = computed(() =>
   run.value
     ? {
         map: 'DAY // EXPLORE THE CITY',
-        dispatch:
-          [2, 3].includes(run.value.flowVersion ?? 0)
-            ? 'NIGHT // PATROL BOARD'
-            : 'TRAINING // ASSIGNMENT BOARD',
+        dispatch: [2, 3].includes(run.value.flowVersion ?? 0)
+          ? 'NIGHT // PATROL BOARD'
+          : 'TRAINING // ASSIGNMENT BOARD',
         campus: 'CAMPUS // ENCOUNTER DRAW',
         debrief: 'RESULTS // DAY REPORT',
-        finale: run.value.flowVersion === 3 ? 'PROM // REAL CATASTROPHE' : 'PROM // FINAL EXAM',
+        finale:
+          run.value.flowVersion === 3
+            ? 'PROM // REAL CATASTROPHE'
+            : 'PROM // FINAL EXAM',
         ending: 'YEARBOOK // COMPLETED RUN',
       }[run.value.phase]
     : 'NEW STUDENT // POWER SELECTION',
@@ -735,7 +813,10 @@ const sceneTitle = computed(() =>
         dispatch: 'The Call To Action',
         campus: campusEncounter.value.title,
         debrief: 'What Comes After',
-        finale: run.value.flowVersion === 3 ? 'The Fourth Dance' : 'The Night of the Comet',
+        finale:
+          run.value.flowVersion === 3
+            ? 'The Fourth Dance'
+            : 'The Night of the Comet',
         ending: run.value.ending ?? 'Yearbook',
       }[run.value.phase]
     : '',

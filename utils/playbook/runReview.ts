@@ -24,7 +24,17 @@ const TRACE_FIELDS = [
   'riddles', 'decisions', 'quests', 'outcome', 'timeline', 'chapterHistory',
   'branch', 'loans', 'affinity', 'strength', 'mapLog', 'controllers',
   'audiencesHeard', 'chanceHistory', 'active', 'inventory', 'board',
-  'revealedFactions', 'wipedOut', 'site', 'checkpoints',
+  'revealedFactions', 'wipedOut', 'site', 'checkpoints', 'skills', 'archetype',
+  'perkUsedChapters', 'rolls', 'step', 'prospect', 'openingState',
+  'currentState', 'clarity', 'substanceMoments', 'activeLead',
+  'travelCompanions', 'meetingOrder', 'followHistory', 'newcomerOrder',
+  'card', 'offered', 'played', 'goodwill', 'weird', 'wild', 'evidence',
+  'department', 'departmentOutcomes', 'restructurings', 'societyRecord',
+  'terminations', 'societyId', 'societyStatus', 'mutationId', 'jobId',
+  'grades', 'generation', 'bossAttempts', 'departmentOutcome',
+  'antagonist', 'away', 'injuredUntil', 'assignments', 'intervention',
+  'villain', 'clues', 'crew', 'wins', 'shaken', 'standing', 'seenBeats',
+  'usedDeck', 'report', 'story', 'scenario', 'encounterDeckVersion',
 ] as const
 
 const FORBIDDEN_FIELD = /^(?:name|playername|realname|username|email|phone|address|pronouns|birthdate|dob|token|password|apikey|auth|session|cookie|userid|deviceid|ipaddress)$/i
@@ -98,7 +108,7 @@ export function validateRunReview(raw: unknown): RunReviewSubmission {
   if (!item.history || typeof item.history !== 'object' || Array.isArray(item.history))
     throw new Error('A gameplay trace is required.')
   const history = collectPlaybookHistory(item.history)
-  if (JSON.stringify(history).length > 180000)
+  if (JSON.stringify(history).length > 1400000)
     throw new Error('Gameplay history exceeds the supported size.')
   return {
     game: item.game as string,

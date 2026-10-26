@@ -162,6 +162,9 @@ export function validSocialState(raw: unknown, currentDay: number): raw is Socia
   if (state.partner && (!connections[state.partner]?.helped || connections[state.partner].trust < 2)) return false
   if (state.sidekick && (!SOCIAL_CAST.find(p => p.id === state.sidekick)?.sidekickEligible ||
     !connections[state.sidekick]?.helped || connections[state.sidekick].trust < 3)) return false
+  if (Object.entries(connections).some(([id, v]) =>
+    v.romance && (!v.helped || v.trust < 3 || v.courtingDay === undefined ||
+      v.courtingDay >= currentDay || !SOCIAL_CAST.find(p => p.id === id)?.romanceable))) return false
   if (state.romance && (!SOCIAL_CAST.find(p => p.id === state.romance)?.romanceable ||
       !connections[state.romance]?.romance || connections[state.romance].trust < 3 ||
       connections[state.romance].courtingDay === undefined)) return false

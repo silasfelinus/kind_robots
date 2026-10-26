@@ -28,6 +28,7 @@ import {
   firstTwoWorldFrames,
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
+  crossRealmHouseEpilogue,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -206,7 +207,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   )
   const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
   const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
-  const darkHouseEndingCopy = computed(() => darkHouseVerdict(darkHouse.value))
+  const darkHouseEndingCopy = computed(() =>
+    [
+      darkHouseVerdict(darkHouse.value),
+      crossRealmHouseEpilogue(state.value, darkHouse.value),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  )
   const canEnterDarkBriar = computed(() =>
     campaign.value.completed.includes('e01'),
   )

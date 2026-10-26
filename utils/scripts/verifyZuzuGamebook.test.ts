@@ -811,8 +811,12 @@ for (const risky of ['trust', 'strike']) {
   const riskChoice: { label: string; check?: { failure: string } } | undefined =
     abbessKnifepoint.choices?.find((entry) => entry.id === risky)
   assert.match(riskChoice?.label ?? '', /fail: 3 HP wound/)
-  assert.equal(riskChoice?.check?.failure, 'stabbed')
+  assert.equal(
+    riskChoice?.check?.failure,
+    risky === 'trust' ? 'a8-word-broken' : 'stabbed',
+  )
 }
+assert.equal(scene('a8-word-broken').choices?.[0]?.to, 'stabbed')
 assert.equal(scene('stabbed').effects?.hurt, 3)
 console.log(
   'Gamebook Abbess trust regression: seeded 48 trusted/estranged preconditions, guarded rescue and explicit wound cues',

@@ -180,50 +180,44 @@
           :key="selectedId + ':' + detailStep"
         >
           <div v-if="detailStep === 'briefing'" class="space-y-3">
-            <EmperorFortressQuestImage
-              :quest-id="selected.id"
-              :region="selected.region"
-              :label="selected.title"
-              class="float-right mb-2 ml-3 aspect-[4/3] w-32 rounded-lg @md:w-44"
-            />
-            <div>
-              <p
-                class="text-xs font-semibold uppercase tracking-widest text-warning"
-              >
-                {{ regionName(selected.region) }}
-                <span
-                  v-if="
-                    selected.faction &&
-                    factionName(selected.faction) !==
-                      regionName(selected.region)
-                  "
-                  >· {{ factionName(selected.faction) }}</span
-                >
-              </p>
-              <h3 class="font-serif text-xl font-bold">{{ selected.title }}</h3>
-              <p class="mt-1 font-serif text-sm leading-snug">
-                {{ selected.summary.split('\n\n')[0] }}
-              </p>
-              <details
-                v-if="selected.summary.includes('\n\n')"
-                class="clear-both pt-1 text-xs"
-              >
-                <summary class="cursor-pointer font-semibold text-warning">
-                  Read the full dispatch
-                </summary>
-                <p class="mt-1 whitespace-pre-line font-serif leading-snug">
-                  {{ selected.summary }}
+            <div class="grid min-w-0 gap-3 @md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+              <EmperorFortressQuestImage
+                :quest-id="selected.id"
+                :region="selected.region"
+                :label="selected.title"
+                class="aspect-[16/10] max-h-52 w-full rounded-lg object-cover @md:aspect-[4/5]"
+              />
+              <div class="min-w-0 space-y-2">
+                <p class="text-xs font-semibold uppercase tracking-widest text-warning">
+                  {{ regionName(selected.region) }}
+                  <span
+                    v-if="selected.faction && factionName(selected.faction) !== regionName(selected.region)"
+                  >· {{ factionName(selected.faction) }}</span>
                 </p>
-              </details>
-              <p
-                v-if="selected.mustInclude"
-                class="mt-1 text-xs font-semibold text-warning"
-              >
-                {{ nameOf(selected.mustInclude) }} must go on this quest.
-              </p>
+                <h3 class="font-serif text-xl font-bold leading-tight">
+                  {{ selected.title }}
+                </h3>
+                <p class="whitespace-pre-line font-serif text-sm leading-relaxed">
+                  {{ selected.summary.split('\n\n')[0] }}
+                </p>
+                <p v-if="selected.mustInclude" class="text-xs font-semibold text-warning">
+                  {{ nameOf(selected.mustInclude) }} must go on this quest.
+                </p>
+              </div>
             </div>
+            <details
+              v-if="selected.summary.includes('\n\n')"
+              class="rounded-lg border border-warning/20 bg-base-200 p-2 font-serif text-sm"
+            >
+              <summary class="cursor-pointer font-sans text-xs font-semibold uppercase text-warning">
+                More mission intelligence
+              </summary>
+              <p class="mt-2 whitespace-pre-line leading-relaxed">
+                {{ selected.summary.split('\n\n').slice(1).join('\n\n') }}
+              </p>
+            </details>
 
-            <dl class="clear-both grid grid-cols-4 gap-1 text-xs">
+            <dl class="grid grid-cols-2 gap-1 text-xs @md:grid-cols-4">
               <div class="rounded-lg bg-base-200 p-1.5">
                 <dt class="text-[10px] uppercase opacity-60">Takes</dt>
                 <dd class="font-bold">

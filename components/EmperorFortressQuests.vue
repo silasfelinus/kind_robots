@@ -180,7 +180,9 @@
           :key="selectedId + ':' + detailStep"
         >
           <div v-if="detailStep === 'briefing'" class="space-y-3">
-            <div class="grid min-w-0 gap-3 @md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div
+              class="grid min-w-0 gap-3 @md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+            >
               <EmperorFortressQuestImage
                 :quest-id="selected.id"
                 :region="selected.region"
@@ -188,19 +190,31 @@
                 class="aspect-[16/10] max-h-52 w-full rounded-lg object-cover @md:aspect-[4/5]"
               />
               <div class="min-w-0 space-y-2">
-                <p class="text-xs font-semibold uppercase tracking-widest text-warning">
+                <p
+                  class="text-xs font-semibold uppercase tracking-widest text-warning"
+                >
                   {{ regionName(selected.region) }}
                   <span
-                    v-if="selected.faction && factionName(selected.faction) !== regionName(selected.region)"
-                  >· {{ factionName(selected.faction) }}</span>
+                    v-if="
+                      selected.faction &&
+                      factionName(selected.faction) !==
+                        regionName(selected.region)
+                    "
+                    >· {{ factionName(selected.faction) }}</span
+                  >
                 </p>
                 <h3 class="font-serif text-xl font-bold leading-tight">
                   {{ selected.title }}
                 </h3>
-                <p class="whitespace-pre-line font-serif text-sm leading-relaxed">
+                <p
+                  class="whitespace-pre-line font-serif text-sm leading-relaxed"
+                >
                   {{ selected.summary.split('\n\n')[0] }}
                 </p>
-                <p v-if="selected.mustInclude" class="text-xs font-semibold text-warning">
+                <p
+                  v-if="selected.mustInclude"
+                  class="text-xs font-semibold text-warning"
+                >
                   {{ nameOf(selected.mustInclude) }} must go on this quest.
                 </p>
               </div>
@@ -209,7 +223,9 @@
               v-if="selected.summary.includes('\n\n')"
               class="rounded-lg border border-warning/20 bg-base-200 p-2 font-serif text-sm"
             >
-              <summary class="cursor-pointer font-sans text-xs font-semibold uppercase text-warning">
+              <summary
+                class="cursor-pointer font-sans text-xs font-semibold uppercase text-warning"
+              >
                 More mission intelligence
               </summary>
               <p class="mt-2 whitespace-pre-line leading-relaxed">

@@ -85,44 +85,75 @@
             <div class="cca-heading">
               <span>01</span>
               <div>
-                <h2>Choose your power</h2>
-                <p>
-                  Six talents. Six completely different ways to leave a mark.
-                </p>
+                <h2>Shape your power</h2>
+                <p>How it moves, what it controls, and the vow you make.</p>
               </div>
             </div>
+            <p class="cca-selection-label">STEP 1 · FORM / HOW IT WORKS</p>
             <div class="cca-power-grid">
               <button
-                v-for="power in POWERS"
-                :key="power.id"
+                v-for="form in POWER_FORMS"
+                :key="form.id"
                 type="button"
-                class="cca-power"
-                :class="{ chosen: selectedPower === power.id }"
-                :aria-pressed="selectedPower === power.id"
-                @click="selectedPower = power.id"
+                class="cca-power cca-power-compact"
+                :class="{ chosen: selectedForm === form.id }"
+                :aria-pressed="selectedForm === form.id"
+                @click="selectedForm = form.id"
               >
-                <span class="cca-power-glyph" aria-hidden="true">{{
-                  power.crest
-                }}</span>
-                <strong>{{ power.name }}</strong>
+                <strong>{{ form.name }}</strong>
+                <small>{{ form.mechanic }}</small>
               </button>
             </div>
-            <div class="cca-power-detail">
-              <strong>{{ currentPower.name }}</strong>
-              <p>{{ currentPower.ability }}</p>
-              <small>Trade-off: {{ currentPower.drawback }}</small>
+            <p class="cca-selection-label">STEP 2 · AFFINITY / WHAT IT CONTROLS</p>
+            <div class="cca-power-grid cca-affinity-grid">
+              <button
+                v-for="affinity in POWER_AFFINITIES"
+                :key="affinity.id"
+                type="button"
+                class="cca-power cca-power-compact"
+                :class="{ chosen: selectedElement === affinity.id }"
+                :aria-pressed="selectedElement === affinity.id"
+                @click="selectedElement = affinity.id"
+              >
+                <strong>{{ affinity.name }}</strong>
+              </button>
             </div>
+            <div class="cca-power-detail" data-testid="academy-signature-detail">
+              <strong>{{ currentSignature.name }}</strong>
+              <p>{{ currentSignature.training }}</p>
+              <small>Limit: {{ currentSignature.cost }}</small>
+              <p class="cca-signature-tradeoff">{{ currentSignature.special_route.trigger }}</p>
+            </div>
+            <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
+            <div class="cca-vow-grid">
+              <button
+                v-for="vow in POWER_VOWS"
+                :key="vow.id"
+                type="button"
+                class="cca-power cca-power-compact"
+                :class="{ chosen: selectedVow === vow.id }"
+                :aria-pressed="selectedVow === vow.id"
+                @click="selectedVow = vow.id"
+              >
+                <strong>{{ vow.name }}</strong>
+              </button>
+            </div>
+            <p class="cca-vow-detail">{{ activeVow.promise }}</p>
+            <details class="cca-future-preview">
+              <summary>A possible Prom of Doom consequence</summary>
+              <p>{{ currentSignature.finales[selectedVow] }}</p>
+            </details>
             <button
               class="cca-primary"
               type="button"
               data-testid="academy-begin"
-              @click="store.begin(selectedPower)"
+              @click="store.begin(currentSignature.legacy, currentSignature.id, selectedVow)"
             >
-              ENROLL AT THE ACADEMY <span>➜</span>
+              ENTER WITH {{ currentSignature.name.toUpperCase() }} <span>➜</span>
             </button>
             <p class="cca-under">
-              Playable first-week chapter · Choice-driven training, social
-              encounters and graduation preview
+              48 signature powers · The first-week training is playable.
+              The real thirty-day Prom of Doom is in development.
             </p>
           </template>
 
@@ -325,20 +356,24 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
+import { STUDENTS, encounterFor, type StudentId } from '~/utils/cometAcademy/rules'
 import {
-  POWERS,
-  STUDENTS,
-  encounterFor,
-  type PowerId,
-  type StudentId,
-} from '~/utils/cometAcademy/rules'
+  POWER_FORMS,
+  POWER_AFFINITIES,
+  POWER_VOWS,
+  signatureFor,
+  type PowerFormId,
+  type PowerAffinityId,
+  type PowerVowId,
+} from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
-const selectedPower = ref<PowerId>('spatial')
+const selectedForm = ref<PowerFormId>('impact')
+const selectedElement = ref<PowerAffinityId>('fire')
+const selectedVow = ref<PowerVowId>('shelter')
 const run = computed(() => store.run)
-const currentPower = computed(() =>
-  POWERS.find((power) => power.id === selectedPower.value)!,
-)
+const currentSignature = computed(() => signatureFor(selectedForm.value, selectedElement.value))
+const activeVow = computed(() => POWER_VOWS.find((vow) => vow.id === selectedVow.value)!)
 const campusEncounter = computed(() =>
   run.value ? encounterFor(run.value) : encounterFor({ day: 1 } as never),
 )
@@ -636,6 +671,45 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.76rem;
   line-height: 1.45;
   margin-top: 0.25rem;
+}
+.cca-selection-label {
+  margin: 0.65rem 0 0.45rem;
+  color: #ffd1a0;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+.cca-power-compact {
+  min-height: 3.1rem;
+  padding: 0.45rem 0.3rem;
+}
+.cca-power-compact small {
+  color: #cad7e5;
+  font-size: 0.58rem;
+  line-height: 1.2;
+}
+.cca-affinity-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.cca-vow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.cca-vow-detail, .cca-future-preview {
+  margin: 0.5rem 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #e1e7f1;
+}
+.cca-future-preview {
+  border: 1px solid #aac5d859;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+.cca-future-preview summary {
+  cursor: pointer;
+  color: #ffd1a0;
 }
 .cca-power-grid {
   display: grid;

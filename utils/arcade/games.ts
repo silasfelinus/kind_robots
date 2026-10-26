@@ -771,6 +771,29 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     accent: '#f59e5b',
     controls: 'Dig, pump',
   },
+  {
+    slug: 'zuzu-pinball',
+    title: 'Zuzu: The Last Bell',
+    riffsOn: 'original multi-level pinball',
+    blurb:
+      'Private Zuzu pinball preview. The 3D table has three ramps, two orbits, the River Croc, the Citadel lock and three multiballs, a raised Abbey deck with its own upper flippers, and its own score namespace. It is still being built; this is not the finished FX3-class game.',
+    howTo: [
+      'ARROWS  FLIPPERS',
+      'DOWN  CHARGE PLUNGER',
+      'RELEASE  LAUNCH',
+      'UP  NUDGE',
+      'SHOOT RIVER CROC',
+      'HOLD B  UPPER ONLY',
+    ],
+    width: 288,
+    height: 488,
+    maxPlausibleScore: 0,
+    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    accent: '#c78e62',
+    controls: 'Flippers, plunge, nudge (engineering preview)',
+    renderMode: 'webgl',
+    touchLayout: 'pinball',
+  },
 ]
 
 export type ComingSoonCabinet = {
@@ -848,29 +871,6 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     mastery: RAINBOW_MASTERY,
     calmMotion: true,
     fourButtons: true,
-  },
-  {
-    slug: 'zuzu-pinball',
-    title: 'Zuzu: The Last Bell',
-    riffsOn: 'original multi-level pinball',
-    blurb:
-      'Private Zuzu pinball preview. The 3D table has three ramps, two orbits, the River Croc, the Citadel lock and three multiballs, a raised Abbey deck with its own upper flippers, and its own score namespace. It is still being built; this is not the finished FX3-class game.',
-    howTo: [
-      'ARROWS  FLIPPERS',
-      'DOWN  CHARGE PLUNGER',
-      'RELEASE  LAUNCH',
-      'UP  NUDGE',
-      'SHOOT RIVER CROC',
-      'HOLD B  UPPER ONLY',
-    ],
-    width: 288,
-    height: 488,
-    maxPlausibleScore: 0,
-    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
-    accent: '#c78e62',
-    controls: 'Flippers, plunge, nudge (engineering preview)',
-    renderMode: 'webgl',
-    touchLayout: 'pinball',
   },
 ]
 

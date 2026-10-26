@@ -87,11 +87,19 @@ for (const entry of GAME_ACHIEVEMENTS) {
     continue
   }
   const meta = ARCADE_GAMES.find((g) => g.slug === entry.game)!
-  assert.notEqual(
-    rule.kind,
-    'event',
-    `${id}: a cabinet achievement needs a run rule.`,
-  )
+  if (rule.kind === 'event') {
+    assert.equal(
+      entry.game,
+      'zuzu-pinball',
+      `${id}: arcade cabinet event awards must be explicitly integrated.`,
+    )
+    assert.equal(
+      meta.maxPlausibleScore,
+      0,
+      `${id}: an event-driven pinball cabinet must not claim score-rule awards.`,
+    )
+    continue
+  }
   if (rule.kind === 'score') {
     assert.ok(
       rule.min > 0 && rule.min <= meta.maxPlausibleScore,

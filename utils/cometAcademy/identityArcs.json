@@ -1,0 +1,965 @@
+{
+  "version": 1,
+  "identityCatalog": [
+    {
+      "signature": "impact-fire",
+      "student": {
+        "alias": "Cinder Mitts",
+        "conflict": "A friend was burned by their first rescue"
+      },
+      "hero": {
+        "alias": "The Firebreak",
+        "method": "Ventilated rescue punches"
+      },
+      "villain": {
+        "alias": "Ash Baron",
+        "method": "Furnace-powered siege suit"
+      },
+      "quests": {
+        "protagonist": "Expose the boiler sabotage with the burn ward's help",
+        "antagonist": "The Baron offers free winter heat but controls every home",
+        "partner": "A partner can call off a reckless rescue"
+      }
+    },
+    {
+      "signature": "impact-ice",
+      "student": {
+        "alias": "Snow Gloves",
+        "conflict": "An inspector hid the bridge failure"
+      },
+      "hero": {
+        "alias": "Glacierheart",
+        "method": "Contact-frozen bridge supports"
+      },
+      "villain": {
+        "alias": "Pale Magistrate",
+        "method": "Cryogenic prison apparatus"
+      },
+      "quests": {
+        "protagonist": "Rebuild a bus crossing and clear an expelled student",
+        "antagonist": "The Magistrate freezes the city reservoir to coerce jurors",
+        "partner": "Their date rejects perfect grades at any cost"
+      }
+    },
+    {
+      "signature": "impact-storm",
+      "student": {
+        "alias": "Zip Knuckles",
+        "conflict": "A friend lost a hearing aid during practice"
+      },
+      "hero": {
+        "alias": "Thunderhand",
+        "method": "Grounded electrical strikes"
+      },
+      "villain": {
+        "alias": "Doctor Overload",
+        "method": "Robotic lightning battery"
+      },
+      "quests": {
+        "protagonist": "Reopen the unsafe academy power lab",
+        "antagonist": "Overload sabotages emergency backup power",
+        "partner": "A teammate must be heard over the sparks"
+      }
+    },
+    {
+      "signature": "impact-stone",
+      "student": {
+        "alias": "Pebble Fist",
+        "conflict": "Family contractors covered up a collapse"
+      },
+      "hero": {
+        "alias": "Bedrock Sentinel",
+        "method": "Precise safe demolition"
+      },
+      "villain": {
+        "alias": "Quarry King",
+        "method": "Commandable mineral sentries"
+      },
+      "quests": {
+        "protagonist": "Recover records from the condemned gym",
+        "antagonist": "The King sells homes with hidden structural faults",
+        "partner": "A lover insists they confront family corruption"
+      }
+    },
+    {
+      "signature": "impact-light",
+      "student": {
+        "alias": "Glow Punch",
+        "conflict": "Someone photographed a crime they deny witnessing"
+      },
+      "hero": {
+        "alias": "Solar Vanguard",
+        "method": "Precise rescue signaling strikes"
+      },
+      "villain": {
+        "alias": "Blinding Judge",
+        "method": "Mirrored surveillance drones"
+      },
+      "quests": {
+        "protagonist": "Find the original negative and protect its maker",
+        "antagonist": "The Judge projects false evidence onto witnesses",
+        "partner": "A sidekick can demand privacy"
+      }
+    },
+    {
+      "signature": "impact-shadow",
+      "student": {
+        "alias": "Ink Mitt",
+        "conflict": "Their sibling vanished during curfew"
+      },
+      "hero": {
+        "alias": "Eclipse Warden",
+        "method": "Disable threatening spotlights"
+      },
+      "villain": {
+        "alias": "Blackout Jack",
+        "method": "Emergency-signal spoofing armor"
+      },
+      "quests": {
+        "protagonist": "Recover the erased curfew footage",
+        "antagonist": "Jack plants deceptive shadows to split the team",
+        "partner": "A partner protects the evidence ledger"
+      }
+    },
+    {
+      "signature": "impact-bloom",
+      "student": {
+        "alias": "Thorn Gloves",
+        "conflict": "Their mentor sold a rare seed"
+      },
+      "hero": {
+        "alias": "Hedgeguard",
+        "method": "Gentle living handholds"
+      },
+      "villain": {
+        "alias": "Thorn Duchess",
+        "method": "Parasitic plant gauntlets"
+      },
+      "quests": {
+        "protagonist": "Return a stolen seed library to students",
+        "antagonist": "The Duchess offers a vine-grown addictive cure",
+        "partner": "A partner chooses whether to forgive the mentor"
+      }
+    },
+    {
+      "signature": "impact-gravity",
+      "student": {
+        "alias": "Little Anvil",
+        "conflict": "Their first rescue stranded a stranger"
+      },
+      "hero": {
+        "alias": "Atlas Punch",
+        "method": "Balanced contact mass shifts"
+      },
+      "villain": {
+        "alias": "Lord Downfall",
+        "method": "Industrial gravity hammer suit"
+      },
+      "quests": {
+        "protagonist": "Land a falling school bus without injuries",
+        "antagonist": "Downfall redirects mass into the stadium",
+        "partner": "A companion insists strength is not control"
+      }
+    },
+    {
+      "signature": "arc-fire",
+      "student": {
+        "alias": "Matchstick",
+        "conflict": "Their parent sold the city a bad energy deal"
+      },
+      "hero": {
+        "alias": "Phoenix Lancer",
+        "method": "Thread safe plasma lines"
+      },
+      "villain": {
+        "alias": "Sun Taxer",
+        "method": "Solar weapon-tower network"
+      },
+      "quests": {
+        "protagonist": "Rescue delegates from an energy hearing fire",
+        "antagonist": "The Taxer charges for safe passage through fire",
+        "partner": "A lover asks if mercy can mean losing"
+      }
+    },
+    {
+      "signature": "arc-ice",
+      "student": {
+        "alias": "Ice Pin",
+        "conflict": "A lab partner was blamed for a chemical leak"
+      },
+      "hero": {
+        "alias": "Frostline",
+        "method": "Surgical coolant sealing"
+      },
+      "villain": {
+        "alias": "Cryocrat",
+        "method": "Cryogenic sniper-drone fleet"
+      },
+      "quests": {
+        "protagonist": "Recreate the accident to clear them",
+        "antagonist": "The Cryocrat takes a reservoir hostage",
+        "partner": "A partner gets to choose their own risks"
+      }
+    },
+    {
+      "signature": "arc-storm",
+      "student": {
+        "alias": "Static Kid",
+        "conflict": "They damaged a friend's medical device"
+      },
+      "hero": {
+        "alias": "Chainbreaker",
+        "method": "Grounded power redirection"
+      },
+      "villain": {
+        "alias": "Circuit Tyrant",
+        "method": "Orbital shock satellite controls"
+      },
+      "quests": {
+        "protagonist": "Restore the missing distress network",
+        "antagonist": "The Tyrant hijacks emergency frequencies",
+        "partner": "A date cannot be monitored"
+      }
+    },
+    {
+      "signature": "arc-stone",
+      "student": {
+        "alias": "Bricklet",
+        "conflict": "Their family hid a quarry map"
+      },
+      "hero": {
+        "alias": "Pillar of Dawn",
+        "method": "Evacuation support columns"
+      },
+      "villain": {
+        "alias": "Spire Regent",
+        "method": "Weaponized subway monuments"
+      },
+      "quests": {
+        "protagonist": "Open the blocked tunnel and find survivors",
+        "antagonist": "The Regent barricades city districts against each other",
+        "partner": "A sidekick defies a family's legacy"
+      }
+    },
+    {
+      "signature": "arc-light",
+      "student": {
+        "alias": "Flashcard",
+        "conflict": "A prank exposed a classmate's confidential file"
+      },
+      "hero": {
+        "alias": "Prism Knight",
+        "method": "Privacy-preserving ray relays"
+      },
+      "villain": {
+        "alias": "Spectral Auditor",
+        "method": "Citywide camera-lens array"
+      },
+      "quests": {
+        "protagonist": "Invent a consent-based evacuation signal",
+        "antagonist": "The Auditor leaks intimate histories as public safety",
+        "partner": "A romance establishes the right to disappear"
+      }
+    },
+    {
+      "signature": "arc-shadow",
+      "student": {
+        "alias": "Night Thread",
+        "conflict": "An instructor taught them a forbidden trick"
+      },
+      "hero": {
+        "alias": "Dusk Ranger",
+        "method": "Disable hostile lights at range"
+      },
+      "villain": {
+        "alias": "Silk Guillotine",
+        "method": "Invisible razor-filament traps"
+      },
+      "quests": {
+        "protagonist": "Rescue the disgraced teacher without hiding the crime",
+        "antagonist": "The Guillotine impersonates an absent friend",
+        "partner": "A sidekick refuses dangerous shortcuts"
+      }
+    },
+    {
+      "signature": "arc-bloom",
+      "student": {
+        "alias": "Seed Dart",
+        "conflict": "A company stole their seed collection"
+      },
+      "hero": {
+        "alias": "Verdant Archer",
+        "method": "Deliver medicine on living vines"
+      },
+      "villain": {
+        "alias": "Thorn Marshal",
+        "method": "Territorial rooting projectiles"
+      },
+      "quests": {
+        "protagonist": "Liberate the seed auction before the hospital closes",
+        "antagonist": "The Marshal annexes the hospital courtyard",
+        "partner": "A partner asks who owns the healing plants"
+      }
+    },
+    {
+      "signature": "arc-gravity",
+      "student": {
+        "alias": "Orbit Pebble",
+        "conflict": "A coach falsified an arena test"
+      },
+      "hero": {
+        "alias": "Orbiter",
+        "method": "Arc falling debris away from crowds"
+      },
+      "villain": {
+        "alias": "Gravitarch",
+        "method": "Train-displacing tractor array"
+      },
+      "quests": {
+        "protagonist": "Catch the observatory dish intact",
+        "antagonist": "The Gravitarch reroutes commuter trains toward disaster",
+        "partner": "A lover wants them home between rescues"
+      }
+    },
+    {
+      "signature": "veil-fire",
+      "student": {
+        "alias": "Warm Blanket",
+        "conflict": "Their roommate fears locked rooms"
+      },
+      "hero": {
+        "alias": "Embercloak",
+        "method": "Breathable warming shields"
+      },
+      "villain": {
+        "alias": "Lady Pyre",
+        "method": "Armored refuge with locked exits"
+      },
+      "quests": {
+        "protagonist": "Lead a rival through a burning dormitory",
+        "antagonist": "Pyre makes shelter conditional on silence",
+        "partner": "A date refuses any shelter with no exit"
+      }
+    },
+    {
+      "signature": "veil-ice",
+      "student": {
+        "alias": "Rime Wrap",
+        "conflict": "A guardian abandoned an earlier rescue"
+      },
+      "hero": {
+        "alias": "Frostguard",
+        "method": "Breathable moving ice shields"
+      },
+      "villain": {
+        "alias": "Glass Widow",
+        "method": "Prisonlike frozen conservatories"
+      },
+      "quests": {
+        "protagonist": "Find the lost refugees in a blizzard",
+        "antagonist": "The Widow freezes a hospital to preserve one beloved life",
+        "partner": "A sidekick may break the shield"
+      }
+    },
+    {
+      "signature": "veil-storm",
+      "student": {
+        "alias": "Grounding Cape",
+        "conflict": "Their own hearing aid is at risk"
+      },
+      "hero": {
+        "alias": "Stormshield",
+        "method": "Medical-safe grounded protection"
+      },
+      "villain": {
+        "alias": "Static Saint",
+        "method": "Jamming sanctuary apparatus"
+      },
+      "quests": {
+        "protagonist": "Design a safe route through the generator wing",
+        "antagonist": "The Saint scrambles every hospital beacon",
+        "partner": "A partner leads the access campaign"
+      }
+    },
+    {
+      "signature": "veil-stone",
+      "student": {
+        "alias": "Little Boulder",
+        "conflict": "Their suit once trapped a teammate"
+      },
+      "hero": {
+        "alias": "Bulwark",
+        "method": "Flexible lightweight stone armor"
+      },
+      "villain": {
+        "alias": "Grand Bastion",
+        "method": "Automated stone lockdown fortress"
+      },
+      "quests": {
+        "protagonist": "Design armor with exits for every wearer",
+        "antagonist": "Bastion traps the council in fortified offices",
+        "partner": "A sidekick can destroy the beloved armor"
+      }
+    },
+    {
+      "signature": "veil-light",
+      "student": {
+        "alias": "Pocket Halo",
+        "conflict": "Family fame ruined a hidden friendship"
+      },
+      "hero": {
+        "alias": "Beacon Shield",
+        "method": "Diffuse evacuation domes"
+      },
+      "villain": {
+        "alias": "Sister Spotlight",
+        "method": "Searchlight-based citizen tracking"
+      },
+      "quests": {
+        "protagonist": "Shield an anonymous witness from a mob",
+        "antagonist": "Spotlight exposes every student identity",
+        "partner": "A lover is not required to go public"
+      }
+    },
+    {
+      "signature": "veil-shadow",
+      "student": {
+        "alias": "Curtain Kid",
+        "conflict": "They survived a surveillance raid"
+      },
+      "hero": {
+        "alias": "Night Guardian",
+        "method": "Shield witnesses from surveillance"
+      },
+      "villain": {
+        "alias": "Unseen Queen",
+        "method": "Crime-scene erasure field"
+      },
+      "quests": {
+        "protagonist": "Escort a whistleblower unseen but accounted for",
+        "antagonist": "The Queen hides missing classmates behind an eclipse",
+        "partner": "A partner tracks evidence honestly"
+      }
+    },
+    {
+      "signature": "veil-bloom",
+      "student": {
+        "alias": "Moss Mittens",
+        "conflict": "Their community garden was condemned"
+      },
+      "hero": {
+        "alias": "Greenwall",
+        "method": "Living armor with release seams"
+      },
+      "villain": {
+        "alias": "Mother Bindweed",
+        "method": "Constricting plant restraints"
+      },
+      "quests": {
+        "protagonist": "Save the garden without trapping dissenters",
+        "antagonist": "Bindweed makes a refuge into a cage",
+        "partner": "A romance values people over plants"
+      }
+    },
+    {
+      "signature": "veil-gravity",
+      "student": {
+        "alias": "Orbit Blanket",
+        "conflict": "Their best friend fears falling"
+      },
+      "hero": {
+        "alias": "Eventide Guardian",
+        "method": "Safe low-gravity rescue bubbles"
+      },
+      "villain": {
+        "alias": "Baron Zero",
+        "method": "Weightless pleasure prison"
+      },
+      "quests": {
+        "protagonist": "Bring the aerial rescue team to earth",
+        "antagonist": "Zero traps the prom crowd above the ballroom",
+        "partner": "A partner insists on grounded choices"
+      }
+    },
+    {
+      "signature": "step-fire",
+      "student": {
+        "alias": "Hotfoot",
+        "conflict": "A courier was blamed for their trail"
+      },
+      "hero": {
+        "alias": "Cinder Runner",
+        "method": "Fast emberless evacuation routes"
+      },
+      "villain": {
+        "alias": "Arson Ghost",
+        "method": "Teleporting ignition decoys"
+      },
+      "quests": {
+        "protagonist": "Prove the courier innocent before parade day",
+        "antagonist": "The Ghost ignites false routes through the crowd",
+        "partner": "A partner demands proof before chasing"
+      }
+    },
+    {
+      "signature": "step-ice",
+      "student": {
+        "alias": "Snowshoe",
+        "conflict": "Their mentor cannot run anymore"
+      },
+      "hero": {
+        "alias": "Whitepath",
+        "method": "Safe icy access ramps"
+      },
+      "villain": {
+        "alias": "Captain Black Ice",
+        "method": "Invisible freezing pursuit traps"
+      },
+      "quests": {
+        "protagonist": "Open the winter crossing to every body",
+        "antagonist": "Black Ice freezes the only accessible bridge",
+        "partner": "A date asks before being carried"
+      }
+    },
+    {
+      "signature": "step-storm",
+      "student": {
+        "alias": "Blink Bolt",
+        "conflict": "A rival taught them a lethal shortcut"
+      },
+      "hero": {
+        "alias": "Flashstride",
+        "method": "Grounded medicine deliveries"
+      },
+      "villain": {
+        "alias": "Surge Phantom",
+        "method": "Hijacked high-voltage strike routes"
+      },
+      "quests": {
+        "protagonist": "Race medicine across damaged rails",
+        "antagonist": "The Phantom strands rescue crews at live junctions",
+        "partner": "A sidekick sets a shared speed limit"
+      }
+    },
+    {
+      "signature": "step-stone",
+      "student": {
+        "alias": "Crackstep",
+        "conflict": "The academy displaced their neighborhood"
+      },
+      "hero": {
+        "alias": "Faultwalker",
+        "method": "Stable passages through rubble"
+      },
+      "villain": {
+        "alias": "Rift Baron",
+        "method": "Seismic shortcuts and floor fractures"
+      },
+      "quests": {
+        "protagonist": "Recover deeds beneath the old street",
+        "antagonist": "The Baron shatters the historic archive",
+        "partner": "A partner opposes shortcuts in trust"
+      }
+    },
+    {
+      "signature": "step-light",
+      "student": {
+        "alias": "Sunbeam Shoes",
+        "conflict": "A friend needs safe medical light"
+      },
+      "hero": {
+        "alias": "Daypath",
+        "method": "Light-guided hospital transfers"
+      },
+      "villain": {
+        "alias": "Noon Thief",
+        "method": "Daylight extraction transport grid"
+      },
+      "quests": {
+        "protagonist": "Light a sealed ward without exposing patients",
+        "antagonist": "The Thief steals noon from the transit plaza",
+        "partner": "A lover asks for time in the shade"
+      }
+    },
+    {
+      "signature": "step-shadow",
+      "student": {
+        "alias": "Shadow Socks",
+        "conflict": "They used a tunnel to dodge blame"
+      },
+      "hero": {
+        "alias": "Night Ferry",
+        "method": "Hidden consented passage routes"
+      },
+      "villain": {
+        "alias": "Phantom Fare",
+        "method": "Toll tunnel network for secrets"
+      },
+      "quests": {
+        "protagonist": "Escort witnesses toward an honest hearing",
+        "antagonist": "Fare sells private routes to dangerous places",
+        "partner": "A romance wants a public way home"
+      }
+    },
+    {
+      "signature": "step-bloom",
+      "student": {
+        "alias": "Vine Hopper",
+        "conflict": "A treasured street tree is threatened"
+      },
+      "hero": {
+        "alias": "Canopy Runner",
+        "method": "Rooted tree-top rescue transport"
+      },
+      "villain": {
+        "alias": "Kudzu Prince",
+        "method": "Invasive shortcut vines"
+      },
+      "quests": {
+        "protagonist": "Save the tree and neighbors under it",
+        "antagonist": "The Prince tangles the tramline to control travel",
+        "partner": "A partner chooses stewardship over speed"
+      }
+    },
+    {
+      "signature": "step-gravity",
+      "student": {
+        "alias": "Bounce Cadet",
+        "conflict": "They once failed to catch a stranger"
+      },
+      "hero": {
+        "alias": "Skybound",
+        "method": "Safe gravity-cushioned landings"
+      },
+      "villain": {
+        "alias": "Drop Collector",
+        "method": "Gravity siphons in elevators"
+      },
+      "quests": {
+        "protagonist": "Rescue passengers from a broken lift",
+        "antagonist": "The Collector makes rescuers sacrifice another floor",
+        "partner": "A lover can forgive without denying"
+      }
+    },
+    {
+      "signature": "weave-fire",
+      "student": {
+        "alias": "Soot Apprentice",
+        "conflict": "Their invention poisoned a clinic"
+      },
+      "hero": {
+        "alias": "Smokesmith",
+        "method": "Clean-air temporary smoke tools"
+      },
+      "villain": {
+        "alias": "Furnace Architect",
+        "method": "Smog-fueled machine army"
+      },
+      "quests": {
+        "protagonist": "Build a safe filtration machine",
+        "antagonist": "The Architect sells pollution as its own cure",
+        "partner": "A sidekick can veto harmful ingenuity"
+      }
+    },
+    {
+      "signature": "weave-ice",
+      "student": {
+        "alias": "Cube Cadet",
+        "conflict": "Their invention was sold without consent"
+      },
+      "hero": {
+        "alias": "Icewright",
+        "method": "Temporary precision medical braces"
+      },
+      "villain": {
+        "alias": "Professor Permafrost",
+        "method": "Patented cryogenic prosthetics cartel"
+      },
+      "quests": {
+        "protagonist": "Repair the clinic without owning its patients",
+        "antagonist": "Permafrost withholds a life-saving brace patent",
+        "partner": "A lover sides with the patients"
+      }
+    },
+    {
+      "signature": "weave-storm",
+      "student": {
+        "alias": "Wire Sprout",
+        "conflict": "Their AI companion asked for a name"
+      },
+      "hero": {
+        "alias": "Circuit Weaver",
+        "method": "Accessible independent rescue radios"
+      },
+      "villain": {
+        "alias": "Gridmaster",
+        "method": "Enslaved sentient command grid"
+      },
+      "quests": {
+        "protagonist": "Allow the radio network to disconnect freely",
+        "antagonist": "The Gridmaster compels rescue gear to betray crews",
+        "partner": "A partner treats the AI as a person"
+      }
+    },
+    {
+      "signature": "weave-stone",
+      "student": {
+        "alias": "Brick Stitch",
+        "conflict": "Neighbors refused their monumental gift"
+      },
+      "hero": {
+        "alias": "Mason",
+        "method": "Reversible accessible rescue ramps"
+      },
+      "villain": {
+        "alias": "Lord Keystone",
+        "method": "Automated rubble fortress"
+      },
+      "quests": {
+        "protagonist": "Let the market design its reconstruction",
+        "antagonist": "Keystone builds a wall through the market",
+        "partner": "A date demands collaboration"
+      }
+    },
+    {
+      "signature": "weave-light",
+      "student": {
+        "alias": "Prism Trainee",
+        "conflict": "A hologram framed their friend"
+      },
+      "hero": {
+        "alias": "Luxwright",
+        "method": "Solid-light walkways"
+      },
+      "villain": {
+        "alias": "Doctor Refraction",
+        "method": "Memory-distorting hologram theater"
+      },
+      "quests": {
+        "protagonist": "Reconstruct the false confession openly",
+        "antagonist": "Refraction stages a fake prom attack",
+        "partner": "A partner values physical evidence"
+      }
+    },
+    {
+      "signature": "weave-shadow",
+      "student": {
+        "alias": "Hemline",
+        "conflict": "A graduate stole their costume designs"
+      },
+      "hero": {
+        "alias": "Umbra Tailor",
+        "method": "Privacy-preserving rescue screens"
+      },
+      "villain": {
+        "alias": "Black Seam",
+        "method": "Impersonating animated cloaks"
+      },
+      "quests": {
+        "protagonist": "Expose fraud without exposing victims",
+        "antagonist": "Black Seam dresses campus guards as vanished students",
+        "partner": "A romance demands creative credit"
+      }
+    },
+    {
+      "signature": "weave-bloom",
+      "student": {
+        "alias": "Sprig Builder",
+        "conflict": "Their housing prototype displaced gardeners"
+      },
+      "hero": {
+        "alias": "Rootwright",
+        "method": "Removable living bridges"
+      },
+      "villain": {
+        "alias": "Hothouse Emperor",
+        "method": "Invasive buildings that imprison tenants"
+      },
+      "quests": {
+        "protagonist": "Build community-owned emergency shelter",
+        "antagonist": "The Emperor grows inescapable cheap homes",
+        "partner": "A partner wins veto rights over roots"
+      }
+    },
+    {
+      "signature": "weave-gravity",
+      "student": {
+        "alias": "Tether Trainee",
+        "conflict": "Their family owes a corrupt benefactor"
+      },
+      "hero": {
+        "alias": "Masswright",
+        "method": "Releasable mass rescue anchors"
+      },
+      "villain": {
+        "alias": "Anchor Broker",
+        "method": "Debt-linked gravity cuffs"
+      },
+      "quests": {
+        "protagonist": "Free borrowers without transferring debt",
+        "antagonist": "The Broker sells debt relief for obedience",
+        "partner": "A lover refuses rescue as indenture"
+      }
+    },
+    {
+      "signature": "beacon-fire",
+      "student": {
+        "alias": "Little Hearth",
+        "conflict": "Their mother vanished after a failed alert"
+      },
+      "hero": {
+        "alias": "Hearthkeeper",
+        "method": "Adjustable warmth guidance"
+      },
+      "villain": {
+        "alias": "Fever King",
+        "method": "Weaponized citywide heat broadcast"
+      },
+      "quests": {
+        "protagonist": "Restore the waterfront warning beacons",
+        "antagonist": "The King lures refugees to a rigged shelter",
+        "partner": "A partner teaches trust in volunteers"
+      }
+    },
+    {
+      "signature": "beacon-ice",
+      "student": {
+        "alias": "Snowbell",
+        "conflict": "Their real warning was called a prank"
+      },
+      "hero": {
+        "alias": "Winter Lantern",
+        "method": "Hazard-marking cold light"
+      },
+      "villain": {
+        "alias": "Cold Caller",
+        "method": "Paralyzing freezing broadcast"
+      },
+      "quests": {
+        "protagonist": "Prove the winter carnival hazard is real",
+        "antagonist": "The Caller silences other rescue signals",
+        "partner": "A date asks for unmonitored quiet"
+      }
+    },
+    {
+      "signature": "beacon-storm",
+      "student": {
+        "alias": "Radio Spark",
+        "conflict": "Their pulse erased a distress message"
+      },
+      "hero": {
+        "alias": "Stormcaller",
+        "method": "Rescue-radio synchronization"
+      },
+      "villain": {
+        "alias": "Signal Prince",
+        "method": "Censorship frequency weapon"
+      },
+      "quests": {
+        "protagonist": "Retrieve the unheard survivor recording",
+        "antagonist": "The Prince commandeers graduation announcements",
+        "partner": "A romance needs private communication"
+      }
+    },
+    {
+      "signature": "beacon-stone",
+      "student": {
+        "alias": "Pebble Bell",
+        "conflict": "Their hometown has no memorial"
+      },
+      "hero": {
+        "alias": "Stonewarden",
+        "method": "Safe earthquake wayfinding columns"
+      },
+      "villain": {
+        "alias": "Monument Maker",
+        "method": "Crowd-herding mineral maze"
+      },
+      "quests": {
+        "protagonist": "Build a memorial away from exits",
+        "antagonist": "The Maker writes false evacuation directions",
+        "partner": "A sidekick prioritizes living people"
+      }
+    },
+    {
+      "signature": "beacon-light",
+      "student": {
+        "alias": "Lumen Junior",
+        "conflict": "They exposed a hidden refuge once"
+      },
+      "hero": {
+        "alias": "Dawncaller",
+        "method": "Privacy-safe coded signals"
+      },
+      "villain": {
+        "alias": "Radiant Censor",
+        "method": "Blinding propaganda aurora"
+      },
+      "quests": {
+        "protagonist": "Code evacuation lights without revealing addresses",
+        "antagonist": "The Censor broadcasts a false all-clear at prom",
+        "partner": "A romance honors protective silence"
+      }
+    },
+    {
+      "signature": "beacon-shadow",
+      "student": {
+        "alias": "Bellshade",
+        "conflict": "Their roommate trusts a secret camera"
+      },
+      "hero": {
+        "alias": "Midnight Herald",
+        "method": "Guided surveillance masking"
+      },
+      "villain": {
+        "alias": "Quiet Rector",
+        "method": "Coercive blackout chamber"
+      },
+      "quests": {
+        "protagonist": "Audit the camera with informed volunteers",
+        "antagonist": "The Rector makes witnesses vanish in the dark",
+        "partner": "A partner has a non-negotiable privacy boundary"
+      }
+    },
+    {
+      "signature": "beacon-bloom",
+      "student": {
+        "alias": "Seed Choir",
+        "conflict": "Their neighborhood split over a public garden"
+      },
+      "hero": {
+        "alias": "Garden Bell",
+        "method": "Community-guided root support"
+      },
+      "villain": {
+        "alias": "Queen Spore",
+        "method": "Crowd-controlling engineered pollen"
+      },
+      "quests": {
+        "protagonist": "Negotiate a seed swap before the fair",
+        "antagonist": "The Queen weaponizes festival pollen",
+        "partner": "A lover's allergies outweigh spectacle"
+      }
+    },
+    {
+      "signature": "beacon-gravity",
+      "student": {
+        "alias": "Small Orbit",
+        "conflict": "Their younger sibling fears falling"
+      },
+      "hero": {
+        "alias": "Centerpoint",
+        "method": "Balanced gravity rescue pulses"
+      },
+      "villain": {
+        "alias": "Emperor Tides",
+        "method": "Underground gravity throne"
+      },
+      "quests": {
+        "protagonist": "Land emergency gliders at the airshow",
+        "antagonist": "Tides draws every vehicle toward the prom hall",
+        "partner": "A sidekick gets an equal say over the field"
+      }
+    }
+  ]
+}

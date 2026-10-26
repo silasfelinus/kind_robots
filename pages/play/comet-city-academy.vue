@@ -131,6 +131,39 @@
                 {{ currentSignature.special_route.trigger }}
               </p>
             </div>
+            <details
+              class="cca-identity-preview"
+              data-testid="academy-identity-preview"
+            >
+              <summary>
+                <strong>{{ currentIdentity.student.alias }}</strong>
+                <small>
+                  HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
+                  {{ currentIdentity.villain.alias }}
+                </small>
+              </summary>
+              <div class="cca-identity-triad">
+                <div>
+                  <small>STUDENT / SIDEKICK</small>
+                  <strong>{{ currentIdentity.student.alias }}</strong>
+                  <p>{{ currentIdentity.student.conflict }}</p>
+                </div>
+                <div>
+                  <small>HERO</small>
+                  <strong>{{ currentIdentity.hero.alias }}</strong>
+                  <p>{{ currentIdentity.hero.method }}</p>
+                </div>
+                <div>
+                  <small>VILLAIN</small>
+                  <strong>{{ currentIdentity.villain.alias }}</strong>
+                  <p>{{ currentIdentity.villain.method }}</p>
+                </div>
+              </div>
+              <p class="cca-identity-caveat">
+                These are possible futures, not a starting allegiance. Bonds,
+                betrayals and choices will determine the transformation.
+              </p>
+            </details>
             <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
             <div class="cca-vow-grid">
               <button
@@ -370,6 +403,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
+import { identityFor } from '~/utils/cometAcademy/identityArcs'
 import {
   STUDENTS,
   encounterFor,
@@ -393,6 +427,7 @@ const run = computed(() => store.run)
 const currentSignature = computed(() =>
   signatureFor(selectedForm.value, selectedElement.value),
 )
+const currentIdentity = computed(() => identityFor(currentSignature.value.id))
 const activeVow = computed(() =>
   POWER_VOWS.find((vow) => vow.id === selectedVow.value)!,
 )
@@ -787,6 +822,52 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-power-detail small {
   color: #a8b9c6;
 }
+.cca-identity-preview {
+  padding: 0.65rem;
+  border: 1px solid #98b8cc66;
+  border-radius: 0.7rem;
+  background: #121e32b8;
+}
+.cca-identity-preview summary {
+  cursor: pointer;
+  color: #ffe0b9;
+  font-size: 0.78rem;
+}
+.cca-identity-preview summary small {
+  display: block;
+  color: #b2d5cb;
+  font-size: 0.66rem;
+}
+.cca-identity-triad {
+  display: grid;
+  gap: 0.55rem;
+}
+.cca-identity-triad > div {
+  border-left: 2px solid #e4ab83;
+  padding-left: 0.6rem;
+}
+.cca-identity-triad small {
+  display: block;
+  color: #a3cbd6;
+  font-size: 0.59rem;
+  letter-spacing: 0.09em;
+}
+.cca-identity-triad strong {
+  color: #ffe0b9;
+  font-size: 0.88rem;
+}
+.cca-identity-triad p,
+.cca-identity-caveat {
+  margin: 0.2rem 0 0;
+  color: #d1ddeb;
+  font-size: 0.69rem;
+  line-height: 1.4;
+}
+.cca-identity-caveat {
+  margin-top: 0.65rem;
+  color: #b2d5cb;
+}
+
 .cca-primary {
   width: 100%;
   min-height: 2.9rem;

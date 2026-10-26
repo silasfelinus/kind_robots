@@ -922,13 +922,15 @@ export const ACT_VIII: Act = {
         choices: [
           {
             id: 'carry-them',
-            label: 'Get both children out. Leave the Abbess and the breach unresolved.',
+            label:
+              'Get both children out. Leave the Abbess and the breach unresolved.',
             to: 'ending-hunted',
             flag: 'breach-left-open',
           },
           {
             id: 'turn-back',
-            label: 'Send them up the stairs. Turn back, wounded, to face the Abbess.',
+            label:
+              'Send them up the stairs. Turn back, wounded, to face the Abbess.',
             to: 'abbess',
           },
         ],
@@ -955,7 +957,8 @@ export const ACT_VIII: Act = {
               'Refuse the bargain. Let the freed sister rescue her brother and retreat.',
             to: 'a8-wounded-flight',
             needs: 'sister-free',
-            hint: 'The sister is still bound; there is no one to carry her brother.',
+            hint:
+              'The sister is still bound; there is no one to carry her brother.',
             flag: 'honor:refused-the-dark',
           },
           {

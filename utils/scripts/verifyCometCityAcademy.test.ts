@@ -512,7 +512,7 @@ for (const seed of [1, 2, 3, 4, 997]) {
     assert.equal(run.phase, 'dispatch')
     if (day === 29) assert.ok(run.guestPlan)
     const cases = incidentsFor(run)
-    for (const [index, incident] of cases.entries()) {
+    for (const incident of cases) {
       const picked = STUDENTS.find(
         (student) =>
           studentAvailable(run, student.id) &&

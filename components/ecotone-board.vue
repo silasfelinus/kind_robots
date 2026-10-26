@@ -355,11 +355,11 @@
       <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
-        class="h-full overflow-y-auto overscroll-contain"
+        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
       >
         <div class="relative min-h-full @4xl:h-full">
           <div
-            class="absolute inset-x-0 top-0 h-[30rem] overflow-hidden @4xl:inset-0 @4xl:h-auto"
+            class="absolute inset-x-0 top-0 h-[32vh] min-h-[13rem] max-h-[22rem] overflow-hidden @4xl:inset-y-0 @4xl:left-[55%] @4xl:right-0 @4xl:h-full @4xl:max-h-none"
           >
             <EcotoneScene
               :kind="stage.scene"
@@ -372,14 +372,34 @@
               :key="portraitSrc"
               :src="portraitSrc"
               :alt="stage.alt"
-              class="eco-portrait absolute inset-y-0 right-0 h-full w-full object-cover object-[50%_15%] @4xl:w-[48%]"
+              class="eco-portrait absolute inset-0 h-full w-full object-cover object-[50%_15%]"
             />
             <div
-              class="absolute inset-0 bg-gradient-to-b from-[#09141c]/35 via-[#09141c]/30 to-[#09141c] @4xl:bg-gradient-to-r @4xl:from-[#09141c]/95 @4xl:via-[#09141c]/45 @4xl:to-transparent"
+              class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#09141c]/30 via-transparent to-[#09141c]/10"
             />
             <div
-              class="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-[#09141c] via-[#09141c]/50 to-transparent @4xl:block"
+              class="pointer-events-none absolute inset-x-0 bottom-0 hidden h-1/5 bg-gradient-to-t from-[#09141c]/45 to-transparent @4xl:block"
             />
+            <div
+              v-if="game.run.phase === 'end' && game.ending && game.endings.includes(game.ending.id)"
+              class="absolute inset-0 flex items-center justify-center bg-[#09141c]/55 p-3 @4xl:p-6"
+            >
+              <div
+                class="relative h-full max-h-[36rem] aspect-[2/3] overflow-hidden rounded-2xl border-2 border-[#d9b877] bg-[#10212e] shadow-[0_0_40px_rgba(0,0,0,.65)]"
+              >
+                <EcotoneScene
+                  :kind="stage.scene"
+                  :art="endingArtKey(game.ending.id)"
+                  :label="signature?.title ?? stage.title"
+                  class="absolute inset-0"
+                />
+                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071016] via-[#071016]/90 to-transparent px-4 pb-5 pt-16 text-center">
+                  <p class="text-xs font-black uppercase tracking-[.22em] text-[#d9b877]">Ending earned</p>
+                  <h3 class="mt-2 font-serif text-2xl font-black leading-tight">{{ signature?.title ?? stage.title }}</h3>
+                  <p class="mt-1 text-xs font-bold uppercase tracking-wide text-[#f3e6c8]/85">{{ game.ending.id }}</p>
+                </div>
+              </div>
+            </div>
             <div
               v-if="stage.mysteryCard"
               class="absolute right-4 top-4 w-20 rotate-3 drop-shadow-xl @xl:w-24 @4xl:right-10 @4xl:top-8 @4xl:w-36"
@@ -401,13 +421,13 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[minmax(0,1fr)] @4xl:content-start @4xl:gap-6 @4xl:p-8 @4xl:pt-8"
+            class="relative grid min-h-full grid-cols-1 content-start gap-4 p-4 pt-[calc(32vh+1.25rem)] @xl:p-6 @xl:pt-[calc(32vh+1.5rem)] @4xl:h-full @4xl:grid-cols-[minmax(0,55%)_minmax(0,45%)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:gap-0 @4xl:p-0"
           >
             <div
-              class="flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:h-full @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:pr-2"
+              class="flex min-h-0 flex-col gap-3 bg-[#09141c] @4xl:col-start-1 @4xl:row-start-1 @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pt-6"
             >
               <div
-                class="flex min-h-[12rem] flex-col justify-end gap-2 @4xl:min-h-0 @4xl:shrink-0 @4xl:justify-start"
+                class="flex flex-col justify-start gap-2 @4xl:shrink-0"
               >
                 <span class="eco-kicker self-start">{{ stage.kicker }}</span>
                 <h2
@@ -443,7 +463,7 @@
               </div>
 
               <div
-                class="eco-panel flex min-h-0 flex-col gap-3 @4xl:shrink-0 @4xl:max-h-none"
+                class="eco-panel flex min-h-0 flex-col gap-3 @4xl:flex-1 @4xl:overflow-hidden"
                 aria-live="polite"
               >
                 <template v-if="pending">
@@ -765,73 +785,17 @@
             </div>
 
             <div
-              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-start-1 @4xl:max-h-full"
+              class="eco-choices flex min-h-0 flex-col gap-3 self-start rounded-xl bg-[#09141c] @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[42vh] @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pb-5 @4xl:pt-3"
             >
               <button
-                v-if="game.canUndo && !stagedChoice"
+                v-if="game.canUndo"
                 type="button"
                 class="rounded-lg border border-[#8fb8b0]/60 bg-[#8fb8b0]/15 px-3 py-2 text-base font-bold text-[#f3e6c8] hover:border-[#d9b877]"
                 @click="game.undo()"
               >
                 ↶ Undo last decision
               </button>
-              <template v-if="stagedChoice">
-                <p class="eco-label">
-                  {{
-                    stagedChoice.preview
-                      ? 'A look down the road'
-                      : 'Confirm your decision'
-                  }}
-                </p>
-                <div
-                  v-if="stagedChoice.preview && stagedChoice.thumb"
-                  class="relative aspect-[16/8] shrink-0 overflow-hidden rounded-xl border border-[#d9b877]/40"
-                >
-                  <EcotoneScene
-                    :kind="stagedChoice.thumb.scene"
-                    :art="stagedChoice.thumb.art"
-                    :label="stagedChoice.label"
-                    class="absolute inset-0"
-                  />
-                </div>
-                <p class="font-serif text-lg font-bold leading-snug">
-                  {{ stagedChoice.label }}
-                </p>
-                <template v-if="stagedChoice.preview">
-                  <p class="font-serif text-base leading-relaxed">
-                    {{ stagedChoice.preview }}
-                  </p>
-                  <p class="text-sm leading-relaxed text-[#f3e6c8]/80">
-                    {{ stagedChoice.possibilities }}
-                  </p>
-                  <p class="text-xs text-[#8fb8b0]">
-                    These are possibilities, not promises. The story responds to
-                    your decisions.
-                  </p>
-                </template>
-                <p v-else class="text-sm text-[#f3e6c8]/80">
-                  Nothing has changed yet. You can still change your mind.
-                </p>
-                <button
-                  type="button"
-                  class="eco-gold-button"
-                  @click="confirmDecision"
-                >
-                  {{ stagedChoice.preview ? 'Go there' : 'Make this choice' }}
-                </button>
-                <button
-                  type="button"
-                  class="eco-choice justify-center text-base"
-                  @click="stagedChoice = null"
-                >
-                  {{
-                    stagedChoice.preview
-                      ? 'Explore other places'
-                      : 'Change my mind'
-                  }}
-                </button>
-              </template>
-              <template v-else-if="pending">
+              <template v-if="pending">
                 <button
                   ref="continueButton"
                   type="button"
@@ -940,6 +904,14 @@
                             .join(' · ')
                         }}</span
                       >
+                      <span
+                        v-if="option.preview"
+                        class="mt-1 block text-sm leading-snug text-[#8fb8b0]"
+                      >{{ option.preview }}</span>
+                      <span
+                        v-if="option.possibilities"
+                        class="mt-1 block text-xs leading-snug text-[#f3e6c8]/65"
+                      >{{ option.possibilities }}</span>
                     </span>
                     <Icon
                       name="kind-icon:chevron-right"
@@ -2038,15 +2010,6 @@ const saveNotice = ref('')
 const saveImportInput = ref<HTMLInputElement | null>(null)
 const revealCount = ref(0)
 let revealTimer: ReturnType<typeof setInterval> | null = null
-const stagedChoice = ref<{
-  id: string
-  label: string
-  preview?: string
-  possibilities?: string
-  thumb?: { scene: SceneKind; art?: string | string[] }
-  act: () => void
-} | null>(null)
-
 const continueButton = ref<HTMLButtonElement | null>(null)
 const momentOffer = computed(() =>
   game.run && game.card ? sceneMomentOffer(game.card, game.run) : null,
@@ -2071,7 +2034,6 @@ watch(
   () => game.run?.card,
   () => {
     perkSelected.value = false
-    stagedChoice.value = null
   },
 )
 
@@ -2399,7 +2361,6 @@ function start() {
 }
 
 function restart() {
-  stagedChoice.value = null
   game.abandon()
   tab.value = 'road'
 }
@@ -2752,20 +2713,7 @@ type Option = {
 
 function queueDecision(option: Option) {
   if (option.disabled) return
-  stagedChoice.value = {
-    id: option.id,
-    label: option.label,
-    preview: option.preview,
-    possibilities: option.possibilities,
-    thumb: option.thumb,
-    act: option.act,
-  }
-}
-
-function confirmDecision() {
-  const decision = stagedChoice.value
-  stagedChoice.value = null
-  decision?.act()
+  option.act()
 }
 
 const options = computed<Option[]>(() => {

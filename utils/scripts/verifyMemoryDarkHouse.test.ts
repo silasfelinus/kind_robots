@@ -68,8 +68,11 @@ assert.equal(fresh.active, false)
 assert.equal(darkHouseChoose(fresh, 'attend'), fresh)
 let house = { ...fresh, active: true }
 assert.deepEqual(house.visited, ['HD-01'])
-assert.ok(darkHouseExits(house).includes('HD-02'))
-assert.ok(darkHouseExits(house).includes('HD-07'))
+assert.deepEqual(
+  darkHouseExits(house),
+  [],
+  'Unanswered opening scene cannot be bypassed by clicking another square',
+)
 assert.equal(
   darkHouseMove(house, 'HD-36'),
   house,
@@ -77,6 +80,8 @@ assert.equal(
 )
 house = darkHouseChoose(house, 'attend')
 assert.equal(house.decisions['HD-01'], 'attend')
+assert.ok(darkHouseExits(house).includes('HD-02'))
+assert.ok(darkHouseExits(house).includes('HD-07'))
 assert.equal(
   darkHouseChoose(house, 'refuse'),
   house,

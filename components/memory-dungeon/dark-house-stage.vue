@@ -280,6 +280,18 @@
             Reconstruct the evidence to move deeper into the House. Earlier
             passages remain available.
           </p>
+          <p
+            v-if="
+              !world.darkHouse.decisions[world.darkHouse.current] &&
+              world.darkHouseReady
+            "
+            class="mt-3 rounded-md border border-[#b9a3c2] bg-[#f8f0e4] p-2 text-xs font-semibold"
+            role="status"
+            data-testid="dark-house-choice-gate"
+          >
+            Choose a response to unlock new rooms. Already visited passages
+            remain available if you need to retreat.
+          </p>
           <div
             v-if="
               !world.darkHouse.decisions[world.darkHouse.current] &&

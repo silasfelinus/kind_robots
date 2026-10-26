@@ -33,6 +33,28 @@ full-game human playthrough. ArtJob submission does not prove image delivery.
   House graph, six memory trials and five logic puzzles remain covered by
   their respective CI contract suites.
 
+## Second adversarial installment: mirrored-House full-run bypass
+
+**New source-level P1 finding:** `darkHouseExits` previously treated an ordinary
+room as automatically resolved when it contained no minigame. A fast reader
+could advance through nearly all the 36-room House without choosing either
+authored consequence; even a solved puzzle could be left without its ethical
+follow-up. Only the Warden and ending gates forced responses.
+
+**Repair:** An unvisited passage now requires **both** the completed local
+memory/logic challenge (when present) **and** a committed room choice. Returning
+through already-visited passages stays possible. The UI explains why an
+unvisited room is locked; old saves keep their existing visited routes and
+committed choices.
+
+**New adversarial contract:** Perform two 36-room depth-first House expeditions,
+one consistently honoring the first response and one the second; solve all
+six evidence-pair challenges and five logic puzzles; refuse all premature
+unvisited exits; serialize/restore after every chamber; verify retreat routes,
+72 immutable consequential room choices, all 36 rooms reached and **distinct
+`return` / `commons` endings**. Source reducers and visible choice gates are
+tested; browser screenshots and commissioned illustrations remain separate.
+
 ## Remaining blockers, not claimed tested
 
 1. Actual **phone, tablet and desktop browser journeys** including scrolling,

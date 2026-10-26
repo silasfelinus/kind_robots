@@ -775,6 +775,7 @@ export function originPerkAvailable(
   const choice =
     card && openingLensChoices(card).find((item) => item.id === choiceId)
   if (!card || !choice || choice.locked) return false
+  if (choice.lens && !state.openingState) return false
   if ((state.perkUsedChapters ?? []).includes(card.chapter)) return false
   const skill = choice.check?.skill
   switch (state.archetype) {

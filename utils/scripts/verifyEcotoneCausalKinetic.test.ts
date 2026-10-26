@@ -12,6 +12,7 @@ import {
   type RunState,
 } from '../ecotone/engine'
 import { contextualOpeningChoices } from '../ecotone/sceneOffers'
+import { ecotoneArtSlots, outcomeArtKey } from '../ecotone/artSlots'
 
 const startLine = findCard('KN-4')
 const bay = findCard('KN-5')
@@ -50,6 +51,13 @@ function walkTo(initial: RunState, target: string, solo: boolean): RunState {
   }
   assert.fail(`cannot reach ${target} from a new Kinetic game`)
 }
+
+for (const choiceId of ['dot-bailout', 'shore-relay'])
+  for (const result of ['success', 'failure'] as const)
+    assert.ok(
+      ecotoneArtSlots().outcomes.includes(outcomeArtKey('KN-5', choiceId, result)),
+      `earned bay choice ${choiceId}/${result} needs a durable art slot`,
+    )
 
 const witnesses: Record<string, number> = {}
 const outcomes = {

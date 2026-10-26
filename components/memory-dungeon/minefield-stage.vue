@@ -154,10 +154,10 @@
         <button
           type="button"
           class="rounded-lg border border-[#947a58] bg-[#263c3d] px-3 py-1.5 text-xs font-bold focus-visible:outline-2 disabled:opacity-40"
-          :disabled="world.state.lanterns < 1"
+          :disabled="world.state.lanterns < 1 || !!world.minefieldHint"
           @click="world.requestMinefieldHint()"
         >
-          Lantern hint ({{ world.state.lanterns }})
+          {{ world.minefieldHint ? 'Hint revealed' : 'Lantern hint' }} ({{ world.state.lanterns }})
         </button>
       </div>
       <div

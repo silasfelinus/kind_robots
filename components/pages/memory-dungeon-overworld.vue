@@ -665,7 +665,8 @@
                 class="mt-2 rounded-lg border border-[#a68958]/80 bg-[#f8e8cb] px-3 py-2 text-xs font-bold text-[#4c3928] hover:bg-[#e6d0ad]"
                 @click="chronicleOpen = true"
               >
-                Open the Earth Chronicle · {{ world.earthPhotos.length }} fragments
+                Open the Earth Chronicle ·
+                {{ world.earthPhotos.length }} fragments
               </button>
             </div>
           </div>

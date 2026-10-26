@@ -9,7 +9,12 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
-import { CAMPAIGN_ANCHORS, CAMPAIGN_VILLAINS, PROM_FINALE, campaignVillain } from '../cometAcademy/campaign'
+import {
+  CAMPAIGN_ANCHORS,
+  CAMPAIGN_VILLAINS,
+  PROM_FINALE,
+  campaignVillain,
+} from '../cometAcademy/campaign'
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
@@ -484,7 +489,7 @@ assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
 assert.equal(CAMPAIGN_VILLAINS.length, 4)
-assert.equal(new Set(CAMPAIGN_VILLAINS.map(v => v.id)).size, 4)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 4)
 assert.equal(PROM_FINALE.choices.length, 4)
 for (const seed of [1, 2, 3, 4, 997]) {
   let run = startFullAcademy('kinetic', seed, 'impact-fire', 'shelter')
@@ -499,15 +504,21 @@ for (const seed of [1, 2, 3, 4, 997]) {
     run = visitCitySite(run, site.id)
     assert.equal(run.phase, 'campus')
     assert.ok(encounterFor(run).scene.includes(CAMPAIGN_ANCHORS[day - 1]!))
-    const choice = encounterFor(run).options[(seed + day) % encounterFor(run).options.length]!
+    const choice =
+      encounterFor(run).options[
+        (seed + day) % encounterFor(run).options.length
+      ]!
     run = chooseEncounter(run, choice.id)
     assert.equal(run.phase, 'dispatch')
     if (day === 29) assert.ok(run.guestPlan)
     const cases = incidentsFor(run)
     for (const [index, incident] of cases.entries()) {
-      const picked = STUDENTS.find(student =>
-        studentAvailable(run, student.id) &&
-        !run.assignments.some(assignment => assignment.students.includes(student.id)),
+      const picked = STUDENTS.find(
+        (student) =>
+          studentAvailable(run, student.id) &&
+          !run.assignments.some((assignment) =>
+            assignment.students.includes(student.id),
+          ),
       )
       if (picked) run = assignTeam(run, incident.id, [picked.id])
     }
@@ -526,14 +537,14 @@ for (const seed of [1, 2, 3, 4, 997]) {
   assert.ok(run.scene.includes('real, not a simulation'))
   assert.ok(run.scene.includes('fourth dance'))
   const endings = ['protect', 'command', 'share', 'evacuate'] as const
-  const titles = endings.map(choice => finishAcademy(run, choice).ending)
+  const titles = endings.map((choice) => finishAcademy(run, choice).ending)
   assert.equal(new Set(titles).size, 3)
   for (const choice of endings) {
     const ended = finishAcademy(run, choice)
     assert.equal(ended.phase, 'ending')
     assert.ok(ended.scene.includes('twelve-sided chandelier'))
     assert.ok(ended.scene.includes(campaignVillain(seed).name))
-    assert.ok(ended.log.some(entry => entry.includes('Day 30:')))
+    assert.ok(ended.log.some((entry) => entry.includes('Day 30:')))
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(ended))), ended)
   }
 }
@@ -544,7 +555,10 @@ const injuredRun = {
 }
 assert.equal(studentAvailable(injuredRun, 'mina'), false)
 const dispatched = { ...injuredRun, phase: 'dispatch' as const }
-assert.deepEqual(assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']), dispatched)
+assert.deepEqual(
+  assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']),
+  dispatched,
+)
 const healed = tendInfirmary(injuredRun, 'mina')
 assert.equal(healed.phase, 'dispatch')
 assert.equal(healed.injuries?.mina, 6)
@@ -552,7 +566,10 @@ assert.equal(healed.infirmaryDays?.[0], 6)
 assert.equal(studentAvailable(healed, 'mina'), true)
 assert.deepEqual(tendInfirmary(injuredRun, 'sol'), injuredRun)
 assert.equal(restoreAcademy({ ...injuredRun, injuries: { mystery: 9 } }), null)
-assert.equal(restoreAcademy({ ...injuredRun, visitedDays: { mystery: 2 } }), null)
+assert.equal(
+  restoreAcademy({ ...injuredRun, visitedDays: { mystery: 2 } }),
+  null,
+)
 
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
@@ -570,7 +587,7 @@ assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
 assert.ok(page.includes('data-testid="academy-first-week"'))
 assert.ok(page.includes("store.end('share')"))
-assert.ok(page.includes("store.heal(student.id)"))
+assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))

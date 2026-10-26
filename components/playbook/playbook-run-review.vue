@@ -48,7 +48,7 @@ const props = defineProps<{ game: string; run: unknown; ending: string }>()
 const reviews = usePlaybookRunReviewStore()
 const rating = ref(0)
 const comment = ref('')
-const commentId = 'playbook-review-comment-' + Math.random().toString(36).slice(2)
+const commentId = 'playbook-review-comment-' + props.game
 const runKey = computed(() => playbookRunKey(props.run))
 const session = computed(() => reviews.sessions[props.game + ':' + runKey.value])
 watch(

@@ -3183,7 +3183,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                       questId: 'q-d10-freehold-raid',
                       label: 'Hill farmers guiding families through the gullies',
                       bonus: 2,
-                      stat: 'heart',
+                      stat: 'wits',
                     },
                   ],
                   schedule: ['d10-hill-guides-return'],

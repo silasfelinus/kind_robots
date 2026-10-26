@@ -751,6 +751,24 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (special
       ? ` Your signature technique, ${special.name}, offers another approach: ${special.action}. ${special.cost}.`
       : '')
+  const plot = run.flowVersion === 3
+    ? campaignPlotEvent(run.seed, run.mastermind, run.day,
+        STUDENTS.find(s => s.id === (run.betrayer ?? campaignBetrayer(run.seed)))!.name)
+    : undefined
+  const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
+  const plotEvidence = [...(run.plotEvidence ?? [])]
+  if (run.flowVersion === 3 && option.id.startsWith('plot-a') && option.id.endsWith('-expose')) {
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const index = Number(option.id[6]) - 1
+    const evidence = villain.accomplices?.[index]?.id
+    if (evidence && !plotEvidence.includes(evidence)) plotEvidence.push(evidence)
+  }
+  const betrayal =
+    run.flowVersion === 3 && run.day === 20
+      ? { day: 20, person: betrayerId, status: 'active' as const }
+      : run.flowVersion === 3 && run.day === 24
+        ? { day: 20, person: betrayerId, status: option.id === 'plot-return-accountable' ? 'reconciled' as const : 'isolated' as const }
+        : run.betrayal
   const neighborhood = CITY_SITES.find((site) => site.id === run.selectedSite)
   const trustChange =
     'trust' in option && typeof option.trust === 'number' ? option.trust : 0
@@ -767,6 +785,10 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
                 : ('duplicate' as const),
         }
       : {}),
+    ...(run.flowVersion === 3 && plot ? {
+      plotEvidence,
+      ...(betrayal ? { betrayal } : {}),
+    } : {}),
     influence: run.influence + option.influence,
     academyStanding:
       (run.academyStanding ?? 0) +
@@ -804,7 +826,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       phase: 'finale',
       assignments: [],
       reports: [],
-      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed).name} now ${campaignVillain(run.seed).method}. This is real, not a simulation.`,
+      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed, run.mastermind).name} now ${campaignVillain(run.seed, run.mastermind).method}. This is real, not a simulation.`,
       log: [...run.log, 'Day 30: The fourth dance and the real Prom of Doom'],
     }
   if (run.flowVersion !== 3 && run.day >= 7)
@@ -832,9 +854,11 @@ export function finishAcademy(
 ): AcademyRun {
   if (run.phase !== 'finale') return run
   if (run.flowVersion === 3) {
-    const villain = campaignVillain(run.seed)
-    const support = (run.cityStanding ?? 0) + (run.academyStanding ?? 0)
-    const earned = support >= 2 && run.danger <= 48
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const evidenceCount = run.plotEvidence?.length ?? 0
+    const reconciled = run.betrayal?.status === 'reconciled'
+    const support = (run.cityStanding ?? 0) + (run.academyStanding ?? 0) + evidenceCount * 2 + (reconciled ? 2 : 0)
+    const earned = support >= 2 && run.danger <= 48 + evidenceCount * 2
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
     const ending = shared
@@ -854,6 +878,10 @@ export function finishAcademy(
         : run.guestPlan === 'open'
           ? 'The ballroom serves as public shelter, crowding the exits.'
           : 'Private security controls the ballroom doors.'
+    const conspiracyOutcome = earned ? villain.fall : villain.coup
+    const betrayalOutcome = run.betrayal
+      ? `${STUDENTS.find(s => s.id === run.betrayal!.person)!.name} betrayed the rescue network on day 20. ${reconciled ? 'They returned under public oversight and helped repair the damage.' : 'The damaged relationship never received an easy pardon.'}`
+      : 'An unidentified classmate remains connected to the compromised emergency grid.'
     const cost = shared
       ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'
       : rescue
@@ -863,7 +891,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${betrayalOutcome} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,

@@ -92,7 +92,6 @@
           <Icon name="kind-icon:star" class="size-5" />
         </NuxtLink>
 
-
         <button
           type="button"
           class="pf-icon-btn shrink-0"

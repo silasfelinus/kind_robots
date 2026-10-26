@@ -20,7 +20,16 @@ import {
   opponentPressure,
 } from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
-import { applySocialChoice, newSocialState, socialChoices, socialFinaleText, socialMissionBonus, validSocialState, type SocialState, type SocialActionId } from './relationships'
+import {
+  applySocialChoice,
+  newSocialState,
+  socialChoices,
+  socialFinaleText,
+  socialMissionBonus,
+  validSocialState,
+  type SocialState,
+  type SocialActionId,
+} from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
@@ -620,20 +629,32 @@ export function socialize(
   id: StudentId,
   choice: SocialActionId,
 ): AcademyRun {
-  if (run.flowVersion !== 3 || run.phase !== 'map' ||
-    !run.relationships || !studentAvailable(run, id)) return run
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'map' ||
+    !run.relationships ||
+    !studentAvailable(run, id)
+  )
+    return run
   const options = socialChoices(run.relationships, id, run.day, {
     unavailable: !studentAvailable(run, id),
     form: run.playerEvolution?.form,
     danger: run.danger,
   })
-  const selection = options.find(option => option.id === choice)
+  const selection = options.find((option) => option.id === choice)
   if (!selection) return run
-  const relationships = applySocialChoice(run.relationships, id, run.day, choice, {
-    form: run.playerEvolution?.form, danger: run.danger,
-  })
+  const relationships = applySocialChoice(
+    run.relationships,
+    id,
+    run.day,
+    choice,
+    {
+      form: run.playerEvolution?.form,
+      danger: run.danger,
+    },
+  )
   if (!relationships) return run
-  const person = STUDENTS.find(student => student.id === id)!
+  const person = STUDENTS.find((student) => student.id === id)!
   return {
     ...run,
     relationships,
@@ -805,7 +826,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       villain && activeNetwork
         ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
         : undefined
-    const bondedSupport = socialMissionBonus(run.relationships, assignment.students)
+    const bondedSupport = socialMissionBonus(
+      run.relationships,
+      assignment.students,
+    )
     const textWithBonds = bondedSupport
       ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
       : baseText
@@ -1061,7 +1085,11 @@ export function finishAcademy(
       ? `${STUDENTS.find((s) => s.id === run.betrayal!.person)!.name} betrayed the rescue network on day 20. ${reconciled ? 'They returned under public oversight and helped repair the damage.' : 'The damaged relationship never received an easy pardon.'}`
       : 'An unidentified classmate remains connected to the compromised emergency grid.'
     const relationshipEpilogue = socialFinaleText(
-      run.relationships, Object.fromEntries(STUDENTS.map(s => [s.id, s.name])) as Record<StudentId, string>,
+      run.relationships,
+      Object.fromEntries(STUDENTS.map((s) => [s.id, s.name])) as Record<
+        StudentId,
+        string
+      >,
     )
     const cost = shared
       ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'

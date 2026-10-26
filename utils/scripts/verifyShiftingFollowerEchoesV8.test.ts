@@ -125,8 +125,7 @@ assert.equal(crossing[0]!.sourceTurn, intro.turn)
 assert.equal(crossing[0]!.source, 'encounter')
 assert.match(crossing[0]!.text, /she stays to find the families/)
 assert.equal(
-  kitchenNoviceQuestEchoesV8(atCrossing, [trial(first, 'coerce')])[0]!
-    .title,
+  kitchenNoviceQuestEchoesV8(atCrossing, [trial(first, 'coerce')])[0]!.title,
   'A closed book at the ferry',
   'a coercive first trial cannot receive the trusted-witness callback',
 )
@@ -138,18 +137,12 @@ const wary: V6Result = {
   flags: ['kitchen-novice-wary'],
 }
 assert.equal(
-  kitchenNoviceQuestEchoesV8(
-    atLand(1, [first], wary),
-    [homestead],
-  )[0]!.title,
+  kitchenNoviceQuestEchoesV8(atLand(1, [first], wary), [homestead])[0]!.title,
   'The kitchen sister keeps her distance',
   'failed introduction never grants a trusted companion',
 )
 
-const canyon = kitchenNoviceQuestEchoesV8(atCanyon, [
-  homestead,
-  dustwater,
-])
+const canyon = kitchenNoviceQuestEchoesV8(atCanyon, [homestead, dustwater])
 assert.equal(canyon.length, 2)
 assert.equal(canyon[1]!.landId, 'tablelands')
 assert.equal(canyon[1]!.sourceTurn, second.turn)
@@ -185,11 +178,7 @@ assert.deepEqual(
   'an uncompleted third trial never reveals the cave resolution',
 )
 assert.deepEqual(
-  kitchenNoviceQuestEchoesV8(atCave, [
-    homestead,
-    dustwater,
-    tablelands,
-  ]),
+  kitchenNoviceQuestEchoesV8(atCave, [homestead, dustwater, tablelands]),
   cave,
   'the same replay-verified history always projects identical prose',
 )

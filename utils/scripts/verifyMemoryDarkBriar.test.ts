@@ -360,10 +360,10 @@ const forgedFuture = restoreMemoryCampaignProgress({
   rememberedAnchors: ['char-possible-future', 'morrow-magic-attempt'],
   finaleCommitted: true,
 })
-assert.deepEqual(forgedFuture.completed, ['e01', 'e02', 'e03'])
+assert.deepEqual(forgedFuture.completed, ['e01', 'e02', 'e03', 'e04'])
 assert.deepEqual(forgedFuture.rememberedAnchors, ['morrow-magic-attempt'])
 assert.equal(forgedFuture.finaleCommitted, false)
-assert.deepEqual(availableMemoryExperiences(forgedFuture), ['e04'])
+assert.deepEqual(availableMemoryExperiences(forgedFuture), ['e05'])
 assert.deepEqual(
   restoreMemoryCampaignProgress({
     completed: ['e01', 'e02'],

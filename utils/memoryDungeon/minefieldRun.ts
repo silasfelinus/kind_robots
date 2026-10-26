@@ -68,6 +68,19 @@ export function createMinefieldRun(
   return { version: 1, seed, size, moves: [] }
 }
 
+export function minefieldRunExhausted(run: MinefieldRun): boolean {
+  return run.moves.length >= MINEFIELD_MAX_MOVES
+}
+
+function applyMinefieldMove(state: MinefieldState, move: MinefieldMove): MinefieldState {
+  const cell: Cell = { row: move.row, col: move.col }
+  return move.action === 'step'
+    ? step(state, cell)
+    : move.action === 'flag'
+      ? toggleFlag(state, cell)
+      : disarm(state, cell)
+}
+
 export function playMinefieldRun(run: MinefieldRun): MinefieldState {
   const state = createMinefield({
     seed: run.seed,
@@ -80,13 +93,7 @@ export function playMinefieldRun(run: MinefieldRun): MinefieldState {
   let current = state
   for (const move of run.moves) {
     if (current.outcome !== 'exploring') break
-    const cell: Cell = { row: move.row, col: move.col }
-    current =
-      move.action === 'step'
-        ? step(current, cell)
-        : move.action === 'flag'
-          ? toggleFlag(current, cell)
-          : disarm(current, cell)
+    current = applyMinefieldMove(current, move)
   }
   return current
 }
@@ -95,11 +102,12 @@ export function advanceMinefieldRun(
   run: MinefieldRun,
   move: MinefieldMove,
 ): MinefieldRun {
-  if (
-    run.moves.length >= MINEFIELD_MAX_MOVES ||
-    playMinefieldRun(run).outcome !== 'exploring'
-  )
+  if (minefieldRunExhausted(run) || !restoreMinefieldRun({ ...run, moves: [move] }))
     return run
-  if (!restoreMinefieldRun({ ...run, moves: [move] })) return run
+  const previous = playMinefieldRun(run)
+  if (previous.outcome !== 'exploring') return run
+  // A redundant click is not a turn. Otherwise players can fill the bounded
+  // replay log by selecting an already-revealed clue and softlock the archive.
+  if (applyMinefieldMove(previous, move) === previous) return run
   return { ...run, moves: [...run.moves, move] }
 }

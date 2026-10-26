@@ -726,9 +726,9 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
       run.flowVersion === 2
         ? `${scene} Dusk settles; you must now assign a night team.`
         : scene,
-    visitedDays: run.flowVersion === 3 && run.selectedSite
-      ? { ...run.visitedDays, [run.selectedSite]: run.day }
-      : run.visitedDays,
+    ...(run.flowVersion === 3 && run.selectedSite ? {
+      visitedDays: { ...run.visitedDays, [run.selectedSite]: run.day },
+    } : {}),
     visitedSites:
       [2, 3].includes(run.flowVersion ?? 0) && run.selectedSite
         ? [...(run.visitedSites ?? []), run.selectedSite]

@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { CITY_SITES, projectCitySites, projectedCityRoads } from '../cometAcademy/cityMap'
+import {
+  CITY_SITES,
+  projectCitySites,
+  projectedCityRoads,
+} from '../cometAcademy/cityMap'
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
@@ -47,13 +51,26 @@ assert.ok(projectCitySites('town').some((site) => site.id === 'academy-roof'))
 assert.ok(projectCitySites('campus').some((site) => site.id === 'transit-gate'))
 for (const view of ['campus', 'town'] as const) {
   const nodes = projectCitySites(view)
-  assert.ok(nodes.every((node) => node.left >= 0 && node.left <= 100 && node.top >= 0 && node.top <= 100))
-  assert.ok(projectedCityRoads(view).every((edge) => [edge.x1, edge.x2, edge.y1, edge.y2].every(Number.isFinite)))
+  assert.ok(
+    nodes.every(
+      (node) =>
+        node.left >= 0 && node.left <= 100 && node.top >= 0 && node.top <= 100,
+    ),
+  )
+  assert.ok(
+    projectedCityRoads(view).every((edge) =>
+      [edge.x1, edge.x2, edge.y1, edge.y2].every(Number.isFinite),
+    ),
+  )
 }
 for (const node of CITY_SITES)
   for (const neighbor of node.neighbors)
-    assert.ok(CITY_SITES.find((item) => item.id === neighbor)?.neighbors.includes(node.id),
-      `The geographic graph must be reciprocal: ${node.id} => ${neighbor}`)
+    assert.ok(
+      CITY_SITES.find((item) => item.id === neighbor)?.neighbors.includes(
+        node.id,
+      ),
+      `The geographic graph must be reciprocal: ${node.id} => ${neighbor}`,
+    )
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
@@ -158,7 +175,11 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
 }
 const legacyOrder = startAcademy('kinetic', 14)
 assert.equal(
-  encounterFor({ ...legacyOrder, flowVersion: undefined, encounterDeckVersion: undefined }).title,
+  encounterFor({
+    ...legacyOrder,
+    flowVersion: undefined,
+    encounterDeckVersion: undefined,
+  }).title,
   'A Promise on the Roof',
   'pre-migration saves retain their scheduled campus scene',
 )
@@ -222,7 +243,10 @@ for (const power of POWERS) {
       assert.equal(visitCitySite(run, 'unknown' as never), run)
       run = visitCitySite(run, place.id)
       assert.equal(run.phase, 'campus')
-      assert.equal(encounterFor(run).title, ENCOUNTERS[place.encounterIndex]!.title)
+      assert.equal(
+        encounterFor(run).title,
+        ENCOUNTERS[place.encounterIndex]!.title,
+      )
       assert.equal(visitCitySite(run, place.id), run)
       const choice = encounterFor(run).options[day % 2]!
       run = chooseEncounter(run, choice.id)
@@ -278,9 +302,21 @@ assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'dispatch')
 assert.equal(restoreAcademy({}), null)
 assert.equal(restoreAcademy({ version: 999 }), null)
 const migrated = startAcademy('kinetic', 99)
-const legacy = { ...migrated, flowVersion: undefined, visitedSites: undefined, phase: 'dispatch' as const }
-assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(legacy))), JSON.parse(JSON.stringify(legacy)))
-assert.equal(resolveDispatch(assignTeam(legacy, incidentsFor(legacy)[0]!.id, ['mina'])).phase, 'campus')
+const legacy = {
+  ...migrated,
+  flowVersion: undefined,
+  visitedSites: undefined,
+  phase: 'dispatch' as const,
+}
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(legacy))),
+  JSON.parse(JSON.stringify(legacy)),
+)
+assert.equal(
+  resolveDispatch(assignTeam(legacy, incidentsFor(legacy)[0]!.id, ['mina']))
+    .phase,
+  'campus',
+)
 assert.equal(restoreAcademy({ ...migrated, selectedSite: 'bad-site' }), null)
 assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 const page = fromRoot('pages/play/comet-city-academy.vue')

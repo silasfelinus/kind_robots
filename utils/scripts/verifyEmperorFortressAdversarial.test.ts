@@ -72,17 +72,25 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
     run = chooseAudienceOption(run, visitor.id, 'appoint').run
     const aqueduct = seed % 2 ? 'repair' : 'levy'
     run = chooseAudienceOption(run, 'd01-aqueduct', aqueduct).run
-    assert.equal(run.roster.length, 3)
-    assert.equal(new Set(run.roster.map((f) => f.id)).size, 3)
+    const winners = choice.effects.recruit ?? []
+    const expectedSize = choice.id === 'both' ? 4 : 3
+    assert.equal(run.roster.length, expectedSize)
+    assert.equal(new Set(run.roster.map((f) => f.id)).size, expectedSize)
     assert.ok(run.roster.some((f) => f.id === 'F003'))
-    const winner = choice.effects.recruit?.[0]
-    const opponent = argument.options.find((option) => option.id !== choice.id)
-      ?.effects.recruit?.[0]
-    assert.ok(winner && opponent)
-    assert.ok(run.roster.some((f) => f.id === winner))
-    assert.ok(!run.roster.some((f) => f.id === opponent))
-    assert.ok(run.flags.includes(`court-excluded:${opponent}`))
-    recruited.set(winner, (recruited.get(winner) ?? 0) + 1)
+    const opponents = argument.options
+      .filter((option) => option.id !== 'both')
+      .flatMap((option) => option.effects.recruit ?? [])
+      .filter((id) => !winners.includes(id))
+    assert.ok(winners.length >= 1)
+    for (const winner of winners) {
+      assert.ok(run.roster.some((f) => f.id === winner))
+      recruited.set(winner, (recruited.get(winner) ?? 0) + 1)
+    }
+    for (const opponent of opponents) {
+      assert.ok(!run.roster.some((f) => f.id === opponent))
+      assert.ok(run.flags.includes(`court-excluded:${opponent}`))
+    }
+    if (choice.id === 'both') assert.ok(run.brass <= 10)
     maxOpeningQuests = Math.max(maxOpeningQuests, run.board.length)
     assert.ok(
       run.board.length <= 2,
@@ -125,7 +133,7 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
   }
 }
 
-assert.equal(combinations.size, 4, 'all four visitor/argument pairs appear')
+assert.equal(combinations.size, 8, 'all eight visitor/argument pairs appear')
 assert.equal(recruited.size, 4, 'each of four disputants is recruitable')
 assert.ok(rewoundDifferent > 0, 'rewinds can reroll a different court')
 

@@ -60,6 +60,10 @@ export function ecotoneArtSlots(): {
         outcomeArtKey('KN-5', choiceId, 'success'),
         outcomeArtKey('KN-5', choiceId, 'failure'),
       ]),
+      ...['shared-wheel', 'tandem-tow'].flatMap((choiceId) => [
+        outcomeArtKey('KN-6', choiceId, 'success'),
+        outcomeArtKey('KN-6', choiceId, 'failure'),
+      ]),
     ],
     endings: ENDING_IDS.map(endingArtKey),
   }

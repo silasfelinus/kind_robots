@@ -5386,6 +5386,69 @@ for (const def of DAYS)
   ).run
   assert.ok(struck.flags.includes('thistledown-held'))
 
+  // Day 8's seed-cart choice returns at Thistledown. The player can risk
+  // the Watch to retrieve Wenna's family or send a cheaper, uncertain warning.
+  const coldRun = onDay(5, 10, {
+    flags: ['d08-coldbrooks-home'],
+    brass: 50,
+  })
+  const plainRun = onDay(5, 10, { brass: 50 })
+  const coldScene = audiencesToday(coldRun).find(
+    (audience) => audience.id === 'd10-thistledown',
+  )!
+  const coldOption = coldScene.options.find(
+    (option) => option.id === 'ask-coldbrook',
+  )!
+  assert.ok(optionVisible(coldRun, coldOption))
+  assert.ok(!optionVisible(plainRun, coldOption))
+  assert.ok(optionBlockers(plainRun, coldOption).length > 0)
+  const asked = chooseAudienceOption(
+    coldRun,
+    'd10-thistledown',
+    'ask-coldbrook',
+  )
+  assert.equal(asked.next, 'coldbrook-road')
+  const rescued = chooseAudienceOption(
+    asked.run,
+    'd10-thistledown',
+    'escort-coldbrooks',
+  ).run
+  assert.equal(rescued.brass, coldRun.brass - 15)
+  assert.ok(rescued.local['gate-watch'] < coldRun.local['gate-watch'])
+  assert.ok(rescued.flags.includes('d10-coldbrooks-escorted'))
+  assert.ok(dueIds(rescued).includes('d10-coldbrooks-return'))
+  const rescuedDawn = finishDay(rescued)
+  assert.ok(rescuedDawn.run.flags.includes('d11-coldbrooks-safe'))
+  assert.ok(
+    rescuedDawn.report.events.some((event) =>
+      /Wenna Coldbrook counts four children/.test(event),
+    ),
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(rescuedDawn.run))))
+
+  const warned = answer(
+    onDay(5, 10, { flags: ['d08-coldbrooks-home'], brass: 50 }),
+    'd10-thistledown',
+    'ask-coldbrook',
+    'warn-coldbrooks',
+  )
+  assert.equal(warned.brass, 50, 'the runner costs no brass')
+  assert.ok(dueIds(warned).includes('d10-coldbrooks-warning'))
+  const warningDawn = finishDay(warned)
+  assert.ok(warningDawn.run.flags.includes('d11-coldbrooks-unaccounted'))
+  assert.ok(!warningDawn.run.flags.includes('d11-coldbrooks-safe'))
+  assert.ok(
+    warningDawn.report.events.some((event) => /empty cart/.test(event)),
+  )
+  const villageFirst = answer(
+    onDay(5, 10, { flags: ['d08-coldbrooks-home'] }),
+    'd10-thistledown',
+    'ask-coldbrook',
+    'promise',
+  )
+  assert.ok(villageFirst.flags.includes('d10-thistledown-promised'))
+  assert.ok(!villageFirst.flags.includes('d10-coldbrooks-escorted'))
+
   // Day 9: hiring the Pack rides alongside, it does not replace the escort.
   const convoy = 'q-d09-iron-convoy'
   const day9 = onDay(5, 9, {

@@ -2,6 +2,8 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
   assignAwayTeam,
+  configurePocketRoom,
+  rechargeCouchShield,
   advanceVoyageDay,
   decidePolicy,
   finishVoyage,
@@ -12,6 +14,7 @@ import {
   type CaptainId,
   type CrewId,
   type PolicyId,
+  type PocketRoom,
   type VoyageRun,
 } from '~/utils/gameOfCaptains/rules'
 
@@ -54,6 +57,16 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = assignAwayTeam(run.value, crew)
     persist()
   }
+  function chooseRoom(room: PocketRoom | null) {
+    if (!run.value) return
+    run.value = configurePocketRoom(run.value, room)
+    persist()
+  }
+  function rechargeShield() {
+    if (!run.value) return
+    run.value = rechargeCouchShield(run.value)
+    persist()
+  }
   function launch() {
     if (!run.value) return
     run.value = launchMission(run.value)
@@ -91,6 +104,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     load,
     begin,
     assign,
+    chooseRoom,
+    rechargeShield,
     launch,
     advanceDay,
     decide,

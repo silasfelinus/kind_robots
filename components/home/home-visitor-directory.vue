@@ -32,6 +32,50 @@
         class="visitor-pane visitor-featured min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
         :class="activeSection === 'featured' ? 'flex' : 'hidden'"
       >
+        <section
+          aria-labelledby="visitor-hero-title"
+          class="visitor-hero relative mb-2 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-neutral text-neutral-content"
+        >
+          <img
+            src="/crystal-street/cover.webp"
+            alt=""
+            class="visitor-hero-art absolute inset-0 h-full w-full object-cover"
+          />
+          <div
+            class="visitor-hero-shade absolute inset-0 bg-linear-to-r from-neutral via-neutral/85 to-neutral/40"
+          />
+          <div class="visitor-hero-copy relative flex flex-col gap-1.5 p-3">
+            <h2
+              id="visitor-hero-title"
+              class="font-serif text-base font-black leading-tight"
+            >
+              Free handmade games and stories. No ads, no account needed.
+            </h2>
+            <p class="text-xs leading-snug opacity-85">
+              Kind Robots raises money for the Against Malaria Foundation.
+            </p>
+            <div class="mt-0.5 flex flex-wrap gap-2">
+              <NuxtLink
+                to="/play/crystal-street"
+                class="btn btn-primary btn-sm rounded-xl"
+              >
+                <icon name="kind-icon:play" class="h-4 w-4" />
+                Play Terrors on Crystal Street
+              </NuxtLink>
+              <a
+                href="https://www.againstmalaria.com/amibot"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-outline btn-sm rounded-xl border-neutral-content/60 text-neutral-content hover:border-neutral-content hover:bg-neutral-content hover:text-neutral"
+              >
+                <icon name="kind-icon:hand-heart" class="h-4 w-4" />
+                Give to fight malaria
+                <span aria-hidden="true">↗</span>
+                <span class="sr-only">(opens in a new tab)</span>
+              </a>
+            </div>
+          </div>
+        </section>
         <header
           class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
         >
@@ -155,6 +199,7 @@
               {{ update.description }}
             </p>
             <a
+              v-if="admin"
               :href="
                 'https://github.com/silasfelinus/kind_robots/pull/' + update.pr
               "
@@ -166,7 +211,7 @@
               <span class="sr-only">(opens in a new tab)</span>
             </a>
           </article>
-          <p class="text-[0.65rem] leading-snug opacity-60">
+          <p v-if="admin" class="text-[0.65rem] leading-snug opacity-60">
             These are merged development changes. Production availability can
             follow the code update.
           </p>
@@ -211,7 +256,7 @@
                   variant="card"
                   shape="square"
                   frame="none"
-                  :alt="card.title"
+                  :alt="card.label"
                   :fallback="defaultArtFor(card.kind + '-' + card.id)"
                   fit="cover"
                 />
@@ -220,7 +265,7 @@
                 <p
                   class="truncate text-[0.7rem] font-bold group-hover:text-primary"
                 >
-                  {{ card.title }}
+                  {{ card.label }}
                 </p>
                 <p class="text-[0.6rem] uppercase opacity-60">
                   {{ card.kind }}
@@ -277,9 +322,10 @@
 import { computed, ref } from 'vue'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import {
+  freshShowcaseCards,
   showcaseHref,
   type HomeShowcase,
-  type ShowcaseCard,
+  type LabeledShowcaseCard,
 } from '@/utils/homeShowcase'
 
 const props = defineProps<{
@@ -530,19 +576,14 @@ const updates = [
   },
 ] as const
 
-const newest = computed<ShowcaseCard[]>(() =>
-  [
+const newest = computed<LabeledShowcaseCard[]>(() =>
+  freshShowcaseCards([
     ...props.showcase.rails.art,
     ...props.showcase.rails.dreams,
     ...props.showcase.rails.characters,
     ...props.showcase.rails.scenarios,
     ...props.showcase.rails.rewards,
-  ]
-    .filter((card) =>
-      Boolean(card.art.imagePath || card.art.cardPath || card.art.heroPath),
-    )
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 12),
+  ]),
 )
 </script>
 
@@ -553,6 +594,27 @@ const newest = computed<ShowcaseCard[]>(() =>
 
 .visitor-layout {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.visitor-hero-art {
+  object-position: center 30%;
+}
+
+@container (min-width: 40rem) {
+  .visitor-hero-art {
+    left: auto;
+    right: 0;
+    width: 62%;
+  }
+
+  .visitor-hero-copy {
+    max-width: 34rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .visitor-hero h2 {
+    font-size: 1.25rem;
+  }
 }
 
 @container (min-width: 56rem) {

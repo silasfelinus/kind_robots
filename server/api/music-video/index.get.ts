@@ -7,11 +7,13 @@ import {
   canPlayMusicVideoFinal,
   canViewMusicVideo,
   isMusicVideoOwner,
+  listsInMusicVideoGallery,
 } from '@/utils/musicVideoAccess'
 
 // Silas, 2026-10-07: the Play tab opens on a gallery. A signed-in viewer gets
 // their own videos (drafts and private ones included) plus everyone's public
-// finished ones; a visitor gets the public finished ones.
+// finished ones; a visitor gets the public finished ones. Test renders
+// ("t-012 smoke test") stay out of everyone else's gallery.
 export default defineEventHandler(async (event) => {
   try {
     const viewer = await getArtImageAccessContext(event)
@@ -37,8 +39,10 @@ export default defineEventHandler(async (event) => {
       rows.map((row) => row.finalArtImageId),
     )
     const finalOf = (id: number | null) => (id ? finals.get(id) : null) ?? null
-    const visible = rows.filter((row) =>
-      canViewMusicVideo(row, finalOf(row.finalArtImageId), viewer),
+    const visible = rows.filter(
+      (row) =>
+        canViewMusicVideo(row, finalOf(row.finalArtImageId), viewer) &&
+        listsInMusicVideoGallery(row, viewer),
     )
     const owners = await prisma.user.findMany({
       where: { id: { in: [...new Set(visible.map((row) => row.userId))] } },

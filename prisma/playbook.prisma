@@ -37,3 +37,20 @@ model PlaybookNote {
   @@index([gameSlug, nodeKey])
   @@index([gameSlug, kind, resolved])
 }
+
+ 
+/// One rating for one completed playthrough, with its consented gameplay trace.
+model PlaybookRunReview {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  gameSlug  String   @db.VarChar(64)
+  runId     String   @db.VarChar(36)
+  userId    Int?
+  endingKey String   @db.VarChar(180)
+  stars     Int
+  comment   String?  @db.Text
+  history   String   @db.LongText
+
+  @@unique([gameSlug, runId])
+  @@index([gameSlug, stars, createdAt])
+}

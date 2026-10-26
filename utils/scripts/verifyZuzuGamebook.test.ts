@@ -615,6 +615,116 @@ assert.equal(
   'the existing dangerous choice remains available',
 )
 
+// Real from-new-game Hollis witnesses: a synthetic low-HP setup alone cannot
+// prove that the sister's escape is reachable or that declining her trust matters.
+function followHollisRoute(
+  seed: number,
+  steps: readonly (readonly [string, string])[],
+): Run {
+  let run = startRun(seed)
+  for (const [choice, destination] of steps) {
+    const next = takeChoice(run, choice)
+    assert.notEqual(next, run, 'rejected ' + run.sceneId + '/' + choice)
+    assert.equal(next.sceneId, destination, run.sceneId + '/' + choice)
+    run = next
+  }
+  return run
+}
+
+const trustedHollis = followHollisRoute(48, [
+  ['avoid', 'dust-road'],
+  ['hurry', 'hollow-bell'],
+  ['search', 'survivors'],
+  ['kneel', 'sister-trust'],
+  ['go', 'they-follow'],
+  ['let', 'a3-first-day'],
+  ['shade', 'a3-shade'],
+  ['on', 'two-fires'],
+  ['sleep', 'a3-cold-dawn'],
+  ['road', 'a3-salt-pan'],
+  ['cross', 'apple-tree'],
+  ['leave-all', 'a3-apples-reach'],
+  ['on', 'a3-apple-days'],
+  ['keep', 'a3-theft'],
+  ['seen', 'a3-theft-seen'],
+  ['on', 'a3-fever'],
+  ['kindness', 'a3-fever-vigil'],
+  ['on', 'a3-last-camp'],
+  ['wave', 'a3-one-fire'],
+  ['on', 'canyon-road'],
+  ['long', 'a4-canyon-floor'],
+  ['carry', 'bone-river'],
+  ['pass', 'a4-stone-face'],
+  ['cover', 'a4-face-covered'],
+  ['on', 'a4-dry-well'],
+  ['walk', 'a4-well-toll'],
+  ['why', 'a4-well-grab'],
+])
+assert.deepEqual(trustedHollis.lastRoll?.dice, [1, 3])
+assert.equal(trustedHollis.lastRoll?.success, false)
+assert.ok(trustedHollis.flags.includes('sister-trust'))
+assert.ok(trustedHollis.items.includes('bandage'))
+const sisterRescue = takeChoice(trustedHollis, 'follow-sister')
+assert.equal(sisterRescue.sceneId, 'a4-well-slip')
+assert.ok(sisterRescue.flags.includes('debt:sister'))
+assert.ok(sisterRescue.flags.includes('sister-led-escape'))
+assert.ok(!sisterRescue.items.includes('bandage'))
+assert.equal(sisterRescue.resolve, Math.max(0, trustedHollis.resolve - 1))
+assert.equal(sisterRescue.health, trustedHollis.health)
+assert.deepEqual(journal(sisterRescue.flags).debts, ['The sister'])
+const afterRescue = takeChoice(sisterRescue, 'on')
+assert.equal(afterRescue.sceneId, 'a4-wide-berth')
+assert.equal(afterRescue.health, Math.max(1, sisterRescue.health - 2))
+const resumedRoad = takeChoice(afterRescue, 'on')
+assert.equal(resumedRoad.sceneId, 'a4-waystation')
+assert.equal(resumedRoad.battle, null)
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(resumedRoad))))
+assert.ok(resumedRoad.flags.includes('debt:sister'))
+
+// An actual seed with no earned trust fails the same parley. The new retreat
+// stays locked, while surrendering water remains a legitimate costly choice.
+const untrustedHollis = followHollisRoute(1, [
+  ['avoid', 'dust-road'],
+  ['hurry', 'hollow-bell'],
+  ['search', 'survivors'],
+  ['wait', 'they-follow'],
+  ['let', 'a3-first-day'],
+  ['pace', 'a3-hard-pace'],
+  ['camp', 'two-fires'],
+  ['sleep', 'a3-cold-dawn'],
+  ['road', 'a3-salt-pan'],
+  ['cross', 'apple-tree'],
+  ['leave-all', 'a3-apples-reach'],
+  ['on', 'a3-apple-days'],
+  ['keep', 'a3-theft'],
+  ['let', 'a3-theft-kept'],
+  ['on', 'a3-fever'],
+  ['walk', 'a3-fever-walk'],
+  ['on', 'a3-fever-long-night'],
+  ['on', 'a3-last-camp'],
+  ['apart', 'a3-far-fires'],
+  ['on', 'canyon-road'],
+  ['long', 'a4-canyon-floor'],
+  ['wait', 'bone-river'],
+  ['pass', 'a4-stone-face'],
+  ['listen', 'a4-face-listen'],
+  ['on', 'a4-dry-well'],
+  ['walk', 'a4-well-toll'],
+  ['why', 'a4-well-grab'],
+])
+assert.deepEqual(untrustedHollis.lastRoll?.dice, [4, 2])
+assert.ok(!untrustedHollis.flags.includes('sister-trust'))
+assert.ok(lockReason(untrustedHollis, hollisRetreat))
+assert.equal(takeChoice(untrustedHollis, 'follow-sister'), untrustedHollis)
+const paidHollis = takeChoice(untrustedHollis, 'pay')
+assert.equal(paidHollis.sceneId, 'a4-well-paid')
+assert.ok(!paidHollis.items.includes('water'))
+assert.ok(paidHollis.flags.includes('a4-stripped'))
+assert.ok(!paidHollis.flags.includes('debt:sister'))
+console.log(
+  'Gamebook Hollis from-start witnesses: seed 48 earned rescue, seed 1 paid after failed parley',
+)
+
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
 // It must not become a free escape for Zuzu when she remains tied to the altar.
 const woundedAlone: Run = {

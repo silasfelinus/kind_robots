@@ -3042,7 +3042,6 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               '“Pay them. With what? They’re already taking it.” She leads the pony out, the tine still in her belt. By the time she reaches the horizon the smoke is wider.',
           },
-
           {
             id: 'ask-coldbrook',
             label:

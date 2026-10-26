@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     if (origin && host && new URL(origin).host !== host)
       throw createError({ statusCode: 403, message: 'Reviews must originate on this site.' })
     const length = Number(getHeader(event, 'content-length') ?? 0)
-    if (length > 240000)
+    if (length > 1500000)
       throw createError({ statusCode: 413, message: 'Review exceeds the size limit.' })
     const ip = getRequestIP(event) ?? 'unknown'
     const now = Date.now()

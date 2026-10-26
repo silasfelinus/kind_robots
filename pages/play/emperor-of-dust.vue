@@ -9,6 +9,7 @@
       court.preferences.motion === 'reduced' ? 'eod-motion-reduced' : '',
     ]"
     data-theme="emperor"
+    data-layout="console-fixed"
   >
     <div
       v-if="!court.loaded || !run"
@@ -88,7 +89,7 @@
               v-for="room in rooms"
               :key="room.id"
               type="button"
-              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
               :data-tip="room.hint"
               :aria-label="
                 room.label + (room.badge ? `, ${room.badge} waiting` : '')

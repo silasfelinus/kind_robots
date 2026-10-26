@@ -298,7 +298,7 @@ const fallback = assignTeam(startAcademy('kinetic', 2), 'unlisted', [
   'mina' as StudentId,
 ])
 assert.equal(fallback.assignments.length, 0)
-assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'dispatch')
+assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'map')
 assert.equal(restoreAcademy({}), null)
 assert.equal(restoreAcademy({ version: 999 }), null)
 const migrated = startAcademy('kinetic', 99)

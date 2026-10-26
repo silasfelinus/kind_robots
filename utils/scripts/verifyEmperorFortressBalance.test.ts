@@ -11,6 +11,7 @@ import { ENDINGS } from '../emperorOfDust/fortress/endings'
 
 const RUNS = 10
 const report = balanceReport(RUNS)
+console.log('BALANCE_REPORT_JSON', JSON.stringify(report))
 const of = (id: string) => report.find((r) => r.policy === id)!
 const share = (count: number | undefined) => (count ?? 0) / RUNS
 

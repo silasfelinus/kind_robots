@@ -57,7 +57,7 @@ function main(): void {
   if (drift.length > 0) {
     // Temporary diagnostic: capture exact generated files for connector-only PR repair.
     console.log('BEGIN_GENERATED_CLIENT_FILES')
-    for (const line of git(['-c', 'status.showUntrackedFiles=all', 'status', '--porcelain', '--', 'prisma/generated/']).trim().split('\n')) {
+    for (const line of git(['-c', 'status.showUntrackedFiles=all', 'status', '--porcelain', '--', 'prisma/generated/']).trimEnd().split('\n')) {
       const file = line.slice(3).trim()
       if (!file.startsWith('prisma/generated/') || !file.endsWith('.ts')) continue
       const encoded = Buffer.from(readFileSync(file)).toString('base64')

@@ -28,14 +28,11 @@ export function opponentPressure(
   const foe = identityFor(villain).villain.stats
   // Attack planning against the hero's ability to anticipate and counter it.
   // A maximum villain stat of five is not automatically unbeatable.
-  const difference = (foe.smarts + foe.control) - (hero.smarts + hero.control)
+  const difference = foe.smarts + foe.control - (hero.smarts + hero.control)
   return difference >= 2 ? 1 : difference <= -2 ? -1 : 0
 }
 
-export function antagonistBeat(
-  opponent: IdentityArc,
-  day: number,
-): string {
+export function antagonistBeat(opponent: IdentityArc, day: number): string {
   if (day < 15)
     return `A student with a story nobody has heard in full is caught between two futures: ${opponent.student.conflict} The city has not yet connected this secret to the conspiracy.`
   if (day < 20)

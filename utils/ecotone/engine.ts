@@ -837,6 +837,16 @@ export function chooseBeat(
   let roll: Roll | null = null
   let outcome: Outcome = choice.success
   let result: OutcomeResult = 'success'
+  // The opening has no skill roll, but its seeded story variation keeps
+  // authored complications, outcome art, and future callbacks reachable.
+  if (
+    establishesPerspective &&
+    choice.failure &&
+    (state.seed + card.id.length + choice.id.length) % 4 === 0
+  ) {
+    outcome = choice.failure
+    result = 'failure'
+  }
   if (choice.check && !establishesPerspective) {
     const perkBonus = !usesPerk
       ? 0

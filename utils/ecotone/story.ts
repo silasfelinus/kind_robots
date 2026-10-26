@@ -662,6 +662,7 @@ export const BEATS: EncounterCard[] = [
           text: 'Through the binoculars a heron stands on one leg in exactly the spot it occupies in the photo on the interpretive sign. Exactly. You write that down.',
           effects: {
             evidence: 'A heron standing in the sign photo’s exact spot',
+            flag: 'bench_heron_photo_match',
           },
         },
         failure: {
@@ -766,6 +767,9 @@ export const BEATS: EncounterCard[] = [
     },
     aloneLine: 'Nobody here knows your name. The elk don’t need it.',
     flagLines: {
+      bench_heron_photo_match: {
+        all: 'Your notebook holds the heron observation from the marsh. The ranger asks what you saw yourself, rather than what the interpretive sign seemed to predict.',
+      },
       bench_tally_erased: {
         all: 'The meadow observation board has the same peculiar block handwriting as the marsh tally somebody erased behind your back. Your first impulse is to photograph it. The second is to ask who last touched the chalk.',
       },
@@ -789,7 +793,6 @@ export const BEATS: EncounterCard[] = [
           text: 'The ranger has noticed too. She keeps a whole notebook of the days the herd turns west, and she lets you copy the last page.',
           effects: {
             evidence: 'A ranger’s log of the days the herd turns west',
-            flag: 'elk_ranger_log_copied',
           },
         },
         failure: {
@@ -811,6 +814,36 @@ export const BEATS: EncounterCard[] = [
         failure: {
           text: 'You follow the road too far and miss your ride back. The sandwich shop near the highway is closing; above the counter hangs a photograph of the meadow, dated next Thursday. The bull faces west. At the edge of the frame is your own coat. The owner says the photographer has not been in yet. You write down the date and begin the cold walk back, without the explanation you came for.',
           effects: { weird: 1, nerve: -1, flag: 'elk_future_photo' },
+        },
+      },
+      {
+        id: 'heron-ledger',
+        label: 'Compare the marsh heron record with the ranger’s elk observations',
+        requiresFlag: 'bench_heron_photo_match',
+        cost: 'Spend the afternoon documenting wildlife instead of watching the meadow.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The ranger helps you separate what you saw at the marsh from what the sign showed. You copy the elk times beside the heron date, mark both accounts as observations rather than predictions, and offer the crew a public template that never asks visitors to approach wildlife. You lose your quiet afternoon to careful paperwork. Two places now have records that can be checked without asking anyone to believe your theory.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_heron_joint_log' },
+        },
+        failure: {
+          text: 'Your notes cannot establish when the heron photograph was taken. The ranger will not sign a comparison that suggests more than either record proves. You spend the afternoon labeling the gaps and leave with an honest, incomplete sheet instead of a dramatic discovery. The herd has moved on by the time you return to the meadow.',
+          effects: { nerve: -2, flag: 'elk_heron_log_disputed' },
+        },
+      },
+      {
+        id: 'tally-witness',
+        label: 'Ask the ranger to preserve witness notes after the erased marsh tally',
+        requiresFlag: 'bench_tally_erased',
+        cost: 'Give up the quiet watch to recruit independent witnesses and a record keeper.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The ranger will not call the erased tally proof of anything, but she agrees to a witnessed observation sheet. Three visitors write down the westward turn without seeing one another’s answers. You spend the day collecting names and consent instead of chasing the herd. The result is small, credible and available for the next crew to question.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_tally_witnesses' },
+        },
+        failure: {
+          text: 'The visitors remember different times, and one declines to sign. You refuse to turn their uncertainty into a unanimous report. The ranger keeps the separate accounts; you leave the meadow with a list of questions and no certified tally. At least the next observer will know what was not verified.',
+          effects: { nerve: -2, flag: 'elk_tally_unsigned' },
         },
       },
     ],
@@ -851,8 +884,17 @@ export const BEATS: EncounterCard[] = [
     aloneLine:
       'It is the quietest place you have ever been, and you came here on your own. You could stay.',
     flagLines: {
-      elk_ranger_log_copied: {
-        all: 'The copied ranger log is tucked into your notebook. The volunteer crew asks whether you will help turn observations into a public record without disturbing the herd.',
+      elk_heron_joint_log: {
+        all: 'The wildlife observation template you drafted is in the crew folder. Its first line says what people actually saw, not what tomorrow must bring.',
+      },
+      elk_heron_log_disputed: {
+        all: 'Your incomplete heron-and-elk comparison sits in your notebook. The gaps are still there, clearly marked, and nobody has been asked to call them proof.',
+      },
+      elk_tally_witnesses: {
+        all: 'The ranger’s witnessed elk times have reached the restoration volunteers. They are deciding what, if anything, the observations mean for their next field visit.',
+      },
+      elk_tally_unsigned: {
+        all: 'You kept the conflicting elk accounts instead of inventing agreement. The crew lead appreciates knowing which observations are still unverified.',
       },
       elk_mitten_delivered: {
         all: 'A visitor-center receipt for the red mitten is in your pocket. You spent a day watching animals and one practical hour making sure a lost thing could find its person.',
@@ -989,38 +1031,6 @@ export const BEATS: EncounterCard[] = [
             alone:
               'Nobody appoints you caretaker, hero, or hermit. You leave the neighbor’s name somewhere you can find it.',
           },
-        },
-      },
-      {
-        id: 'elk-ledger',
-        label:
-          'Offer the copied ranger log to a volunteer wildlife-observation network',
-        requiresFlag: 'elk_ranger_log_copied',
-        cost: 'Spend the afternoon documenting observations instead of working on the creek.',
-        check: { skill: 'lore', target: 9 },
-        success: {
-          text: 'You help the crew make a plain-language observation form, with dates, sightlines and a rule against approaching elk. The ranger agrees to review the copied entries, not to endorse a theory about tomorrow. Volunteers will record what they actually see before anyone asks for a road change. The creek loses an afternoon of your labor; the region gains a way to compare notes without turning wildlife into a spectacle.',
-          effects: { goodwill: 1, nerve: -1, flag: 'elk_observation_network' },
-        },
-        failure: {
-          text: 'Your copied log is real, but nobody has time to maintain another form while the creek work is behind schedule. You spend the afternoon making a blank template and leave it with the crew instead of announcing a monitoring program that does not exist. The ranger keeps her own records. You can still help on the next shift, but today you have traded work for an unfinished proposal.',
-          effects: { nerve: -2, flag: 'elk_network_unstaffed' },
-        },
-      },
-      {
-        id: 'elk-safety',
-        label:
-          'Use the fence incident to organize safer public viewing and reporting',
-        requiresFlag: 'elk_ranger_followup',
-        cost: 'Give up the creek shift to recruit stewards for the busy viewing area.',
-        check: { skill: 'rizz', target: 9 },
-        success: {
-          text: 'The ranger has three matching witness times and one too-close visitor to remember. You persuade volunteers to staff a weekend viewing table, point cameras away from the herd and log disturbances without inventing a supernatural explanation. The restoration crew loses your hands for a shift, but the ranger gains people who will tell visitors when to back away.',
-          effects: { goodwill: 1, nerve: -1, flag: 'elk_viewing_stewards' },
-        },
-        failure: {
-          text: 'The volunteers cannot cover the viewing area without leaving the creek crew short. You decline to advertise a safety patrol that will not exist. Instead you pass the ranger the three witness times, the fence incident and the names of people willing to train later. The elk remain undisturbed today, but the promised weekend has no stewards yet.',
-          effects: { nerve: -2, flag: 'elk_viewing_unstaffed' },
         },
       },
     ],

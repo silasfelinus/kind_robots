@@ -327,12 +327,12 @@ export const ENCOUNTERS = [
     title: 'The Class List Has Two Endings',
     location: 'Academy Transit Lab',
     scene:
-      'A machine presents a future where your friend is the city\'s hero and a second future where the same person commands a prison. Both futures use the same childhood name.',
+      "A machine presents a future where your friend is the city's hero and a second future where the same person commands a prison. Both futures use the same childhood name.",
     options: [
       {
         id: 'agency',
         label: 'Tell your friend both futures and let them choose',
-        text: 'Your classmate rejects the machine\'s certainty. They ask you to remember who they are, not just what they might become.',
+        text: "Your classmate rejects the machine's certainty. They ask you to remember who they are, not just what they might become.",
         influence: 2,
         danger: -1,
       },
@@ -651,7 +651,12 @@ export function finishAcademy(
     ...run,
     phase: 'ending',
     ending,
-    scene: [scene, identityProjection, signatureProjection, ...visitorProjection]
+    scene: [
+      scene,
+      identityProjection,
+      signatureProjection,
+      ...visitorProjection,
+    ]
       .filter(Boolean)
       .join(' '),
     log: [...run.log, `Finale: ${ending}`],

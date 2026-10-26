@@ -1,9 +1,27 @@
 <template>
-  <div
-    ref="scrollArea"
-    class="kr-scroll relative grid h-full min-h-0 min-w-0 auto-rows-max content-start gap-3 overflow-y-auto overscroll-contain @6xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
-  >
-    <section class="flex min-h-0 min-w-0 flex-col gap-2">
+  <div class="flex h-full min-h-0 min-w-0 flex-col gap-2 overflow-hidden">
+    <nav class="grid shrink-0 grid-cols-2 gap-2 @4xl:hidden" aria-label="Quest room view">
+      <button
+        type="button"
+        class="btn btn-sm"
+        :class="mobilePane === 'board' ? 'btn-warning' : 'btn-outline'"
+        :aria-pressed="mobilePane === 'board'"
+        @click="mobilePane = 'board'"
+      >Quest board · {{ board.length }}</button>
+      <button
+        type="button"
+        class="btn btn-sm"
+        :class="mobilePane === 'details' ? 'btn-warning' : 'btn-outline'"
+        :aria-pressed="mobilePane === 'details'"
+        @click="mobilePane = 'details'"
+      >Dispatch details</button>
+    </nav>
+    <div class="kr-panes grid-cols-[minmax(0,1fr)] gap-2 @4xl:grid-rows-[minmax(0,1fr)] @4xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
+      <section
+        class="kr-pane flex-col gap-2"
+        :class="mobilePane === 'board' ? 'flex' : 'hidden @4xl:flex'"
+      >
+        <div class="kr-pane-scroll pr-1">
       <div class="eod-board shrink-0 p-3">
         <h2 class="sr-only">The quest board</h2>
         <p
@@ -13,13 +31,13 @@
           The board is empty. Petitions in the throne room can post new quests.
         </p>
         <div
-          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16.25rem),1fr))] gap-3 @7xl:gap-4"
+          class="grid grid-cols-2 gap-2"
         >
           <button
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex min-h-36 flex-col p-4 pt-5 text-left @6xl:min-h-72"
+            class="eod-notice flex min-h-0 flex-col p-2.5 pt-4 text-left"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -32,16 +50,16 @@
               :quest-id="entry.questId"
               :region="entry.quest.region"
               :label="entry.quest.title"
-              class="-mx-1 -mt-1 mb-4 aspect-[16/10] rounded-sm"
+              class="mb-1 aspect-[16/8] max-h-20 w-full rounded-sm object-cover"
             />
-            <strong class="eod-display text-lg leading-snug">{{
+            <strong class="eod-display text-sm leading-tight">{{
               entry.quest.title
             }}</strong>
-            <span class="mt-1 block text-base italic leading-snug opacity-80">
+            <span class="mt-1 block text-xs italic leading-tight opacity-80">
               {{ regionName(entry.quest.region) }}
             </span>
             <span
-              class="mt-2 flex flex-wrap gap-1 text-xs font-semibold uppercase"
+              class="mt-1 flex flex-wrap gap-0.5 text-[10px] font-semibold uppercase"
               :aria-label="`Needs ${bandSummary(entry.questId)}`"
             >
               <span
@@ -52,7 +70,7 @@
               >
             </span>
             <span
-              class="mt-auto flex items-center justify-between gap-2 pt-3 text-xs font-semibold"
+              class="mt-auto flex items-center justify-between gap-1 pt-2 text-[10px] font-semibold"
             >
               <span>
                 {{ entry.quest.durationDays }}
@@ -78,7 +96,7 @@
         </div>
       </div>
 
-      <details class="kr-panel shrink-0 p-3">
+      <details class="kr-panel mt-2 p-2">
         <summary class="cursor-pointer font-serif text-base font-bold">
           Out on quests · {{ run.active.length }}
         </summary>
@@ -115,18 +133,20 @@
           </li>
         </ul>
       </details>
-    </section>
+        </div>
+      </section>
 
-    <section
-      v-if="selected && selectedEntry"
-      ref="detail"
-      class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"
-    >
+      <section
+        v-if="selected && selectedEntry"
+        class="kr-pane kr-panel @container"
+        :class="mobilePane === 'details' ? 'flex' : 'hidden @4xl:flex'"
+      >
+        <div class="kr-pane-scroll space-y-2 px-3 py-2">
       <EmperorFortressQuestImage
         :quest-id="selected.id"
         :region="selected.region"
         :label="selected.title"
-        class="float-right mb-2 ml-3 aspect-[4/3] w-36 rounded-lg @md:w-44"
+        class="float-right mb-1 ml-2 aspect-[4/3] w-24 rounded-lg @xl:w-32"
       />
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-warning">
@@ -139,12 +159,14 @@
             >· {{ factionName(selected.faction) }}</span
           >
         </p>
-        <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
-        <p
-          class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed @xl:text-lg"
-        >
-          {{ selected.summary }}
+        <h3 class="font-serif text-xl font-bold">{{ selected.title }}</h3>
+        <p class="mt-1 font-serif text-sm leading-snug">
+          {{ selected.summary.split('\n\n')[0] }}
         </p>
+        <details v-if="selected.summary.includes('\n\n')" class="clear-both pt-1 text-xs">
+          <summary class="cursor-pointer font-semibold text-warning">Read the full dispatch</summary>
+          <p class="mt-1 whitespace-pre-line font-serif leading-snug">{{ selected.summary }}</p>
+        </details>
         <p
           v-if="selected.mustInclude"
           class="mt-1 text-xs font-semibold text-warning"
@@ -153,8 +175,8 @@
         </p>
       </div>
 
-      <dl class="grid grid-cols-2 gap-2 text-sm @md:grid-cols-4">
-        <div class="rounded-lg bg-base-200 p-2">
+      <dl class="clear-both grid grid-cols-4 gap-1 text-xs">
+        <div class="rounded-lg bg-base-200 p-1.5">
           <dt class="text-[10px] uppercase opacity-60">Takes</dt>
           <dd class="font-bold">
             {{ days(odds?.durationDays ?? selected.durationDays) }}
@@ -171,7 +193,7 @@
           </dd>
         </div>
         <div
-          class="rounded-lg p-2"
+          class="rounded-lg p-1.5"
           :class="
             selectedEntry.expiry.daysLeft <= 1
               ? 'bg-error/15 text-error'
@@ -203,11 +225,11 @@
         >
           Needs <span class="normal-case tracking-normal">(party / need)</span>
         </p>
-        <ul class="mt-1 grid gap-1">
+        <ul class="mt-1 grid grid-cols-2 gap-1">
           <li
             v-for="req in bands"
             :key="req.stat"
-            class="rounded-lg border border-base-content/10 px-2 py-1 text-sm"
+            class="rounded-lg border border-base-content/10 px-2 py-1 text-xs"
           >
             <span class="flex items-center justify-between gap-2">
               <span class="capitalize">
@@ -270,7 +292,7 @@
             v-for="slot in partyLimit(selected, party)"
             :key="slot"
             type="button"
-            class="relative grid h-14 w-12 place-items-center overflow-hidden rounded-md border"
+            class="relative grid h-11 w-10 place-items-center overflow-hidden rounded-md border"
             :class="
               party[slot - 1]
                 ? 'border-warning'
@@ -301,7 +323,7 @@
           </button>
         </div>
         <div
-          class="mt-2 grid grid-cols-2 gap-1.5 @md:grid-cols-3 @lg:grid-cols-4"
+          class="mt-1 grid grid-cols-2 gap-1 @md:grid-cols-3 @lg:grid-cols-4"
         >
           <button
             v-for="state in roster"
@@ -354,7 +376,7 @@
 
       <div
         v-if="odds && party.length"
-        class="rounded-xl border border-warning/40 bg-warning/10 p-3"
+        class="rounded-lg border border-warning/40 bg-warning/10 p-2"
         aria-live="polite"
       >
         <p class="font-serif text-xl font-bold">
@@ -430,10 +452,11 @@
         </li>
       </ul>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <button
+        </div>
+        <div class="flex shrink-0 flex-wrap items-center gap-2 border-t border-warning/30 bg-base-100 p-2">
+          <button
           type="button"
-          class="btn btn-warning"
+          class="btn btn-warning btn-sm"
           :disabled="!canSend"
           @click="send"
         >
@@ -441,7 +464,7 @@
             party.length === 1 ? '' : 's'
           }}
         </button>
-        <EmperorFortressFinish :run="run" class="ml-auto" />
+          <EmperorFortressFinish :run="run" class="ml-auto" />
         <p
           v-if="error"
           class="kr-note kr-note-error w-full p-2 text-sm"
@@ -449,12 +472,13 @@
         >
           {{ error }}
         </p>
-      </div>
-    </section>
-    <section
-      v-else
-      class="kr-panel flex min-h-0 min-w-0 flex-col items-center justify-center gap-3 p-6 text-sm"
-    >
+        </div>
+      </section>
+      <section
+        v-else
+        class="kr-panel kr-pane items-center justify-center gap-3 p-6 text-sm"
+        :class="mobilePane === 'details' ? 'flex' : 'hidden @4xl:flex'"
+      >
       <p class="opacity-75">
         {{
           run.board.length
@@ -466,12 +490,13 @@
         {{ error }}
       </p>
       <EmperorFortressFinish :run="run" />
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { followerPortrait } from '~/utils/emperorOfDust/fortress/castArt'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
@@ -508,8 +533,7 @@ const party = ref<string[]>([])
 const slotArt = (id: string) => followerPortrait(id)
 const hourglass = ref(false)
 const error = ref('')
-const detail = ref<HTMLElement | null>(null)
-const scrollArea = ref<HTMLElement | null>(null)
+const mobilePane = ref<'board' | 'details'>('board')
 
 const board = computed(() =>
   props.run.board
@@ -622,13 +646,7 @@ function select(id: string) {
   party.value = []
   hourglass.value = false
   error.value = ''
-  void nextTick(() => {
-    if (detail.value && scrollArea.value)
-      scrollArea.value.scrollTo({
-        top: detail.value.offsetTop,
-        behavior: 'smooth',
-      })
-  })
+  mobilePane.value = 'details'
 }
 
 function toggle(id: string) {

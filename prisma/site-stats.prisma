@@ -1,0 +1,15 @@
+// First-party site counters (utils/siteStats.ts). Daily aggregates only: no
+// IP address, user agent, cookie or user id is ever stored. kind is 'view'
+// (key: normalized path), 'visit' (key: referrer host or 'direct') or 'event'
+// (key: event name). day is the Pacific calendar date.
+model SiteStatDaily {
+  id        Int      @id @default(autoincrement())
+  day       DateTime @db.Date
+  kind      String   @db.VarChar(16)
+  key       String   @db.VarChar(191)
+  count     Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([day, kind, key])
+  @@index([kind, day])
+}

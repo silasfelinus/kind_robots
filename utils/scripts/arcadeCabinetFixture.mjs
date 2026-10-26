@@ -46,6 +46,7 @@ const stores = {
       return window.__arcadeStore
     }`,
   userStore: `export function useUserStore() { return { user: null } }`,
+  supportStore: `export function useSupportStore() { return { recordRunFinished() {} } }`,
   channelContentStore: `
     import { resolveChannels } from '@/stores/helpers/channelContent'
     export function useChannelContentStore() {
@@ -87,7 +88,7 @@ export async function bundleCabinetFixture() {
       builder.onResolve(
         {
           filter:
-            /^@\/stores\/(arcadeStore|userStore|channelContentStore|tutorialStore)$/,
+            /^@\/stores\/(arcadeStore|userStore|channelContentStore|tutorialStore|supportStore)$/,
         },
         ({ path: name }) => ({
           path: name.split('/').pop(),

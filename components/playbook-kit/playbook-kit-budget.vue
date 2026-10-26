@@ -1,14 +1,9 @@
 <template>
   <div class="flex flex-col gap-3">
-    <div
-      class="flex flex-wrap items-start gap-3 rounded-2xl border border-base-content/10 bg-base-100/80 p-3"
-    >
+    <div class="pk-card flex flex-wrap items-start gap-3 p-3">
       <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span
-          class="text-[10px] font-semibold uppercase tracking-[.2em] opacity-70"
-          >Complexity tier</span
-        >
-        <span class="pk-display text-lg font-black">{{
+        <span class="pf-kicker opacity-70">Complexity tier</span>
+        <span class="pf-display text-2xl text-primary">{{
           TIER_INFO[report.tier].label
         }}</span>
         <span class="text-xs opacity-80"
@@ -30,7 +25,7 @@
 
     <div
       v-if="report.next"
-      class="flex items-start gap-2 rounded-2xl border border-primary/40 bg-primary/10 p-3"
+      class="flex items-start gap-2 border-l-2 border-primary bg-primary/10 p-3"
     >
       <Icon
         name="kind-icon:arrow-right"
@@ -49,7 +44,7 @@
       <li
         v-for="(rung, i) in report.ladder"
         :key="rung.id"
-        class="flex items-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs"
+        class="flex items-center gap-1.5 border px-2 py-1.5 text-xs"
         :class="RUNG[rung.status]"
         :title="rung.goal"
       >
@@ -84,11 +79,9 @@
             <span class="opacity-60">/ {{ row.min }}–{{ row.max }}</span>
           </span>
         </span>
-        <span
-          class="relative h-2 overflow-hidden rounded-full bg-base-content/10"
-        >
+        <span class="relative h-1.5 overflow-hidden bg-base-content/10">
           <span
-            class="absolute inset-y-0 left-0 rounded-full"
+            class="absolute inset-y-0 left-0"
             :class="BAR[row.status]"
             :style="{
               width: `${Math.min(100, (row.count / Math.max(row.max, 1)) * 100)}%`,
@@ -118,7 +111,7 @@
       <li
         v-for="(issue, i) in report.issues"
         :key="i"
-        class="flex items-start gap-2 rounded-xl px-2.5 py-1.5 text-xs"
+        class="flex items-start gap-2 border-l-2 px-2.5 py-1.5 text-xs"
         :class="ISSUE[issue.level]"
       >
         <Icon

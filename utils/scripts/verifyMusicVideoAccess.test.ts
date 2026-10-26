@@ -6,6 +6,8 @@ import assert from 'node:assert/strict'
 import {
   canPlayMusicVideoFinal,
   canViewMusicVideo,
+  listsInMusicVideoGallery,
+  looksLikeTestMusicVideo,
   remixMusicVideoDoc,
   remixMusicVideoTitle,
   type MusicVideoViewer,
@@ -65,6 +67,23 @@ assert.equal(
 assert.equal(
   canViewMusicVideo(video, mature, viewer({ isAdmin: true, restricted: true })),
   false,
+)
+
+// Test renders stay out of other people's gallery, without being deleted.
+assert.equal(looksLikeTestMusicVideo('t-012 smoke test'), true)
+assert.equal(looksLikeTestMusicVideo('T-7 render check'), true)
+assert.equal(looksLikeTestMusicVideo('Pipeline Smoke-Test'), true)
+assert.equal(looksLikeTestMusicVideo('Robot Lullaby'), false)
+assert.equal(looksLikeTestMusicVideo('Smoke on the Water'), false)
+assert.equal(looksLikeTestMusicVideo(null), false)
+const smoke = { ...video, title: 't-012 smoke test' }
+assert.equal(listsInMusicVideoGallery(smoke, anonymous), false)
+assert.equal(listsInMusicVideoGallery(smoke, viewer()), false)
+assert.equal(listsInMusicVideoGallery(smoke, viewer({ userId: 1 })), true)
+assert.equal(listsInMusicVideoGallery(smoke, viewer({ isAdmin: true })), true)
+assert.equal(
+  listsInMusicVideoGallery({ ...video, title: 'Robot Lullaby' }, anonymous),
+  true,
 )
 
 // Remix titles stay inside the column.

@@ -84,6 +84,25 @@ export function canPlayMusicVideoFinal(
   )
 }
 
+const TEST_CONTENT_TITLE = /smoke[ -]?test|^\s*t-\d+\b/i
+
+/** Titles agents and owners give pipeline checks ("t-012 smoke test"). */
+export function looksLikeTestMusicVideo(title: string | null): boolean {
+  return TEST_CONTENT_TITLE.test(title ?? '')
+}
+
+/**
+ * The shared gallery hides test renders from everyone but their owner and
+ * admins. Nothing is deleted, and a direct link still follows canViewMusicVideo.
+ */
+export function listsInMusicVideoGallery(
+  video: Pick<MusicVideoVisibility, 'userId'> & { title: string | null },
+  viewer: Pick<MusicVideoViewer, 'userId' | 'isAdmin'>,
+): boolean {
+  if (viewer.isAdmin || isMusicVideoOwner(video, viewer)) return true
+  return !looksLikeTestMusicVideo(video.title)
+}
+
 export function remixMusicVideoTitle(title: string, maxLength = 255): string {
   const base = title.trim() || 'Untitled music video'
   return `${base.slice(0, maxLength - MUSIC_VIDEO_REMIX_SUFFIX.length)}${MUSIC_VIDEO_REMIX_SUFFIX}`

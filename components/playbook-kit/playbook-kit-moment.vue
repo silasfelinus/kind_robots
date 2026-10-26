@@ -11,7 +11,7 @@
     @keydown.right="step(1)"
   >
     <div
-      class="relative aspect-[21/9] w-full max-w-5xl overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10"
+      class="relative aspect-[21/9] w-full max-w-5xl overflow-hidden shadow-2xl ring-1 ring-white/10"
     >
       <PlaybookKitArt
         :art="moment.art"
@@ -23,7 +23,7 @@
       />
     </div>
     <div class="flex w-full max-w-3xl flex-col items-center gap-1 text-center">
-      <p class="text-[10px] uppercase tracking-[.25em] text-white/60">
+      <p class="pf-kicker text-white/60">
         {{ actTitle(spec, moment.act) }} · {{ MOMENT_KIND_LABELS[moment.kind] }}
       </p>
       <p class="pk-display text-xl font-bold @2xl:text-2xl">
@@ -46,7 +46,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-sm rounded-xl"
+        class="pf-label btn btn-sm"
         @click="kit.showMoment(null)"
       >
         Close

@@ -14,6 +14,9 @@ import {
   resolveDispatch,
   restoreAcademy,
   startAcademy,
+  startFullAcademy,
+  studentAvailable,
+  tendInfirmary,
   visitCitySite,
   type AcademyRun,
   type PowerId,
@@ -58,8 +61,27 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     signature?: SignaturePowerId,
     vow?: PowerVowId,
   ) {
+    run.value = startFullAcademy(power, Date.now(), signature, vow)
+    persist()
+  }
+
+  function beginFirstWeek(
+    power: PowerId,
+    signature?: SignaturePowerId,
+    vow?: PowerVowId,
+  ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
     persist()
+  }
+
+  function heal(studentId: StudentId) {
+    if (!run.value) return
+    run.value = tendInfirmary(run.value, studentId)
+    persist()
+  }
+
+  function available(studentId: StudentId) {
+    return run.value ? studentAvailable(run.value, studentId) : true
   }
 
   function visit(siteId: SiteId) {
@@ -92,7 +114,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
-  function end(choice: 'protect' | 'command') {
+  function end(choice: 'protect' | 'command' | 'share' | 'evacuate') {
     if (!run.value) return
     run.value = finishAcademy(run.value, choice)
     persist()
@@ -110,6 +132,9 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     storageWarning,
     load,
     begin,
+    beginFirstWeek,
+    heal,
+    available,
     visit,
     assign,
     dispatch,

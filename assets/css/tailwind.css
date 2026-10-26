@@ -1,5 +1,6 @@
 /* /assets/css/tailwind.css */
 @import 'tailwindcss';
+@import './playbook-console.css';
 @plugin "daisyui" {
   themes: all;
 }
@@ -220,6 +221,53 @@
   --size-field: 0.25rem;
   --border: 1px;
   --depth: 1;
+  --noise: 0;
+}
+
+/*
+ * ── FORGE — the Playbook Forge console ────────────────────────────────
+ *
+ * Scoped by `data-theme="forge"` on /admin/playbook-forge (and playbook kit
+ * shells that opt in). A console stage, not a page: ink black-blue ground,
+ * forge-ember amber for focus and action, cold cyan for data, magenta for
+ * warnings that are not errors (conductor playbook-kit DESIGN-FORGE.md §9).
+ */
+@plugin "daisyui/theme" {
+  name: 'forge';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(19% 0.03 262);
+  --color-base-200: oklch(13% 0.025 262);
+  --color-base-300: oklch(27% 0.04 262);
+  --color-base-content: oklch(95% 0.012 250);
+
+  --color-primary: oklch(80% 0.16 72);
+  --color-primary-content: oklch(16% 0.03 262);
+  --color-secondary: oklch(82% 0.12 205);
+  --color-secondary-content: oklch(16% 0.03 262);
+  --color-accent: oklch(70% 0.2 345);
+  --color-accent-content: oklch(98% 0.01 345);
+  --color-neutral: oklch(23% 0.03 262);
+  --color-neutral-content: oklch(92% 0.015 250);
+
+  --color-info: oklch(78% 0.12 230);
+  --color-info-content: oklch(16% 0.03 262);
+  --color-success: oklch(78% 0.16 150);
+  --color-success-content: oklch(16% 0.03 262);
+  --color-warning: oklch(84% 0.15 85);
+  --color-warning-content: oklch(16% 0.03 262);
+  --color-error: oklch(66% 0.21 25);
+  --color-error-content: oklch(98% 0.01 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.375rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
   --noise: 0;
 }
 

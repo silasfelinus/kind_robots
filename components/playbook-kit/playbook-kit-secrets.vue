@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col gap-4">
     <section v-for="act in acts" :key="act.id" class="flex flex-col gap-2">
-      <p class="text-[10px] font-semibold uppercase tracking-[.2em] opacity-70">
+      <p class="pf-kicker opacity-70">
         {{ actTitle(spec, act.id) }}
       </p>
       <ul class="flex flex-col gap-2">
         <li
           v-for="reveal in act.reveals"
           :key="reveal.id"
-          class="rounded-xl border p-3"
+          class="pk-card border-l-2 p-3"
           :class="
             kit.isUnlocked('reveals', reveal.id)
               ? 'border-accent/40 bg-accent/10'

@@ -4,6 +4,12 @@ import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
 import {
+  CAMPAIGN_ANCHORS,
+  campaignAnchor,
+  campaignVillain,
+  GUEST_LIST_EVENT,
+} from './campaign'
+import {
   finaleFor,
   migrateSignatureId,
   signatureById,
@@ -374,9 +380,14 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   encounterDeckVersion?: 2
-  flowVersion?: 2
+  flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
+  visitedDays?: Partial<Record<SiteId, number>>
+  injuries?: Partial<Record<StudentId, number>>
+  infirmaryDays?: number[]
+  guestPlan?: 'open' | 'private' | 'duplicate'
+  mastermind?: string
   academyStanding?: number
   cityStanding?: number
   phase: AcademyPhase
@@ -403,13 +414,25 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 }
 
 export function encounterFor(run: AcademyRun) {
-  if (run.flowVersion === 2 && run.selectedSite) {
+  if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {
       const districtScene = districtEncounterFor(site.id)
-      if (districtScene) return districtScene
-      if (site.encounterIndex !== undefined)
-        return ENCOUNTERS[site.encounterIndex]!
+      const base =
+        districtScene ??
+        (site.encounterIndex !== undefined
+          ? ENCOUNTERS[site.encounterIndex]!
+          : undefined)
+      if (base && run.flowVersion === 3) {
+        const previous = run.visitedDays?.[site.id]
+        return {
+          ...base,
+          title: previous ? `${base.title} / Return Visit` : base.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene}`,
+        }
+      }
+      if (base) return base
     }
   }
   // Existing v1 saves keep the original three-card order mid-term.
@@ -421,9 +444,12 @@ export function encounterFor(run: AcademyRun) {
 }
 
 export function visitCitySite(run: AcademyRun, siteId: SiteId): AcademyRun {
-  if (run.flowVersion !== 2 || run.phase !== 'map') return run
+  if (![2, 3].includes(run.flowVersion ?? 0) || run.phase !== 'map') return run
   const site = CITY_SITES.find((entry) => entry.id === siteId)
-  if (!site || run.visitedSites?.includes(siteId)) return run
+  if (!site || (run.flowVersion === 2 && run.visitedSites?.includes(siteId)))
+    return run
+  if (run.flowVersion === 3 && (run.visitedDays?.[siteId] ?? -7) > run.day - 7)
+    return run
   return {
     ...run,
     selectedSite: siteId,
@@ -468,6 +494,43 @@ export function startAcademy(
   }
 }
 
+export function startFullAcademy(
+  power: PowerId,
+  seed = Date.now(),
+  signature?: SignaturePowerId,
+  vow?: PowerVowId,
+): AcademyRun {
+  const base = startAcademy(power, seed, signature, vow)
+  return {
+    ...base,
+    flowVersion: 3,
+    visitedDays: {},
+    injuries: {},
+    infirmaryDays: [],
+    mastermind: campaignVillain(base.seed).id,
+    scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
+  }
+}
+
+export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
+  return (run.injuries?.[id] ?? 0) <= run.day
+}
+
+export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
+  if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
+  if (!STUDENTS.some((person) => person.id === id) || studentAvailable(run, id))
+    return run
+  return {
+    ...run,
+    phase: 'dispatch',
+    injuries: { ...run.injuries, [id]: run.day },
+    infirmaryDays: [...(run.infirmaryDays ?? []), run.day],
+    scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but you forgo a city lead.`,
+    influence: run.influence + 1,
+    log: [...run.log, `Day ${run.day}: Infirmary treatment for ${id}`],
+  }
+}
+
 export function assignTeam(
   run: AcademyRun,
   caseId: string,
@@ -478,6 +541,11 @@ export function assignTeam(
   if (selected.length > 3 || new Set(selected).size !== selected.length)
     return run
   if (selected.some((id) => !STUDENTS.some((student) => student.id === id)))
+    return run
+  if (
+    run.flowVersion === 3 &&
+    selected.some((id) => !studentAvailable(run, id))
+  )
     return run
   const remaining = run.assignments.filter(
     (assignment) => assignment.caseId !== caseId,
@@ -500,6 +568,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   if (run.phase !== 'dispatch' || run.assignments.length === 0) return run
   let influence = run.influence
   let danger = run.danger
+  const injuries = { ...(run.injuries ?? {}) }
   const reports = incidentsFor(run).map((incident) => {
     const assignment = run.assignments.find(
       (entry) => entry.caseId === incident.id,
@@ -512,7 +581,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         names: 'No team dispatched',
         grade: 'failed' as Grade,
         text:
-          run.flowVersion === 2 && run.day > 2
+          [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
             ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
             : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
@@ -532,7 +601,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     const cityStanding = run.cityStanding ?? 0
     const academyStanding = run.academyStanding ?? 0
     const civicSupport =
-      run.flowVersion === 2 && run.day > 2
+      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? incident.allegiance === 'villain'
           ? cityStanding <= -2
             ? 1
@@ -546,7 +615,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
               : 0
         : 0
     const academySupport =
-      run.flowVersion === 2 && run.day > 2
+      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? academyStanding >= 2
           ? 1
           : academyStanding <= -2
@@ -594,9 +663,20 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
     const text =
-      (run.flowVersion === 2 && run.day > 2
+      ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
+    if (
+      run.flowVersion === 3 &&
+      run.day > 2 &&
+      (grade === 'failed' || (grade === 'partial' && roll % 2 === 0))
+    ) {
+      const index =
+        hash(run.seed, `${run.day}:${incident.id}:injury`) %
+        assignment.students.length
+      const injured = assignment.students[index]!
+      injuries[injured] = Math.max(injuries[injured] ?? 0, run.day + 2)
+    }
     return {
       caseId: incident.id,
       title: incident.title,
@@ -609,14 +689,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   })
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'debrief' : 'campus',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
+    ...(run.flowVersion === 3 ? { injuries } : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
-    scene:
-      run.flowVersion === 2
-        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
-        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    scene: [2, 3].includes(run.flowVersion ?? 0)
+      ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+      : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -647,7 +727,17 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     'trust' in option && typeof option.trust === 'number' ? option.trust : 0
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'dispatch' : 'debrief',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'dispatch' : 'debrief',
+    ...(run.flowVersion === 3 && run.day === 29
+      ? {
+          guestPlan:
+            option.id === 'guest-open'
+              ? ('open' as const)
+              : option.id === 'guest-private'
+                ? ('private' as const)
+                : ('duplicate' as const),
+        }
+      : {}),
     influence: run.influence + option.influence,
     academyStanding:
       (run.academyStanding ?? 0) +
@@ -660,8 +750,13 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
       run.flowVersion === 2
         ? `${scene} Dusk settles; you must now assign a night team.`
         : scene,
+    ...(run.flowVersion === 3 && run.selectedSite
+      ? {
+          visitedDays: { ...run.visitedDays, [run.selectedSite]: run.day },
+        }
+      : {}),
     visitedSites:
-      run.flowVersion === 2 && run.selectedSite
+      [2, 3].includes(run.flowVersion ?? 0) && run.selectedSite
         ? [...(run.visitedSites ?? []), run.selectedSite]
         : run.visitedSites,
     log: [
@@ -673,7 +768,17 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
 
 export function nextSchoolDay(run: AcademyRun): AcademyRun {
   if (run.phase !== 'debrief') return run
-  if (run.day >= 7)
+  if (run.flowVersion === 3 && run.day >= 29)
+    return {
+      ...run,
+      day: 30,
+      phase: 'finale',
+      assignments: [],
+      reports: [],
+      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed).name} now ${campaignVillain(run.seed).method}. This is real, not a simulation.`,
+      log: [...run.log, 'Day 30: The fourth dance and the real Prom of Doom'],
+    }
+  if (run.flowVersion !== 3 && run.day >= 7)
     return {
       ...run,
       phase: 'finale',
@@ -682,7 +787,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     }
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'map' : 'dispatch',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
     day: run.day + 1,
     selectedSite: undefined,
     assignments: [],
@@ -694,9 +799,50 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
 
 export function finishAcademy(
   run: AcademyRun,
-  choice: 'protect' | 'command',
+  choice: 'protect' | 'command' | 'share' | 'evacuate',
 ): AcademyRun {
   if (run.phase !== 'finale') return run
+  if (run.flowVersion === 3) {
+    const villain = campaignVillain(run.seed)
+    const support = (run.cityStanding ?? 0) + (run.academyStanding ?? 0)
+    const earned = support >= 2 && run.danger <= 48
+    const rescue = choice === 'protect' || choice === 'evacuate'
+    const shared = choice === 'share'
+    const ending = shared
+      ? earned
+        ? 'A CITY WITH A THOUSAND KEYS'
+        : 'THE BROKEN GRID'
+      : rescue
+        ? earned
+          ? 'THE LAST DANCE LEAVES BY BOAT'
+          : 'THE MUSIC AFTER GLASS'
+        : earned
+          ? 'MASTER OF THE SHIELD'
+          : 'THE PRICE OF A SINGLE SWITCH'
+    const keys =
+      run.guestPlan === 'duplicate'
+        ? 'Independent rescuers possess duplicate emergency keys.'
+        : run.guestPlan === 'open'
+          ? 'The ballroom serves as public shelter, crowding the exits.'
+          : 'Private security controls the ballroom doors.'
+    const cost = shared
+      ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'
+      : rescue
+        ? 'Guests escape, but the ballroom and nearby streets are damaged as people carry the injured through debris.'
+        : 'The centralized shield remains operable, but people who trusted the operator cannot easily reclaim their safety.'
+    return {
+      ...run,
+      phase: 'ending',
+      ending,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} At dawn the survivors decide what graduation and rebuilding mean.`,
+      log: [
+        ...run.log,
+        `Day 30: ${choice} against ${villain.name}`,
+        `Finale: ${ending}`,
+      ],
+    }
+  }
+  if (choice === 'share' || choice === 'evacuate') return run
   const protect = choice === 'protect'
   const earned = protect
     ? run.influence >= 2 && run.danger <= 12
@@ -786,18 +932,41 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
     data.day < 1 ||
-    data.day > 7 ||
+    data.day > (data.flowVersion === 3 ? 30 : 7) ||
+    (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||
-    (data.flowVersion === 2 &&
+    ([2, 3].includes(data.flowVersion ?? 0) &&
       (!Array.isArray(data.visitedSites) ||
         data.visitedSites.some(
           (site) => !CITY_SITES.some((node) => node.id === site),
         ) ||
         (data.selectedSite !== undefined &&
           !CITY_SITES.some((node) => node.id === data.selectedSite)))) ||
-    (data.flowVersion !== 2 && data.phase === 'map') ||
+    (![2, 3].includes(data.flowVersion ?? 0) && data.phase === 'map') ||
+    (data.flowVersion === 3 &&
+      (!data.visitedDays ||
+        typeof data.visitedDays !== 'object' ||
+        !data.injuries ||
+        typeof data.injuries !== 'object' ||
+        !Array.isArray(data.infirmaryDays) ||
+        (data.mastermind !== undefined &&
+          data.mastermind !== campaignVillain(data.seed ?? 0).id) ||
+        Object.entries(data.visitedDays).some(
+          ([site, day]) =>
+            !CITY_SITES.some((entry) => entry.id === site) ||
+            !Number.isInteger(day) ||
+            (day as number) < 1 ||
+            (day as number) > data.day!,
+        ) ||
+        Object.entries(data.injuries).some(
+          ([student, until]) =>
+            !STUDENTS.some((entry) => entry.id === student) ||
+            !Number.isInteger(until) ||
+            (until as number) < 0 ||
+            (until as number) > 32,
+        ))) ||
     !Array.isArray(data.log) ||
     !Array.isArray(data.assignments) ||
     !Array.isArray(data.reports) ||

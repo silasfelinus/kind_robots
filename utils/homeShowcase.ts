@@ -171,6 +171,101 @@ export function showcaseHref(card: {
   return `${path}?${query}=${encodeURIComponent(value)}`
 }
 
+/**
+ * A short visitor-facing name for each kind, used when a card's own title is
+ * a generation prompt with nothing name-like left after cleaning.
+ */
+export const SHOWCASE_KIND_LABELS: Record<ShowcaseKind, string> = {
+  art: 'New artwork',
+  animation: 'New animation',
+  dream: 'Daily Dream',
+  character: 'New character',
+  bot: 'New bot',
+  reward: 'New reward',
+  scenario: 'New story',
+  facet: 'New facet',
+  project: 'Project',
+}
+
+const PROMPT_BOILERPLATE =
+  /^(?:masterpiece|best quality|high quality|top quality|highly detailed|ultra detailed|very detailed|detailed|intricate details?|absurdres|highres|8k|4k|hd|uhd|photorealistic|cinematic|cinematic lighting|wide shot|full body|close-up|score_\d+(?:_up)?)$/i
+
+const LEADING_ARTICLE = /^(?:a|an|the)\s+/i
+
+/**
+ * Art and animation cards carry the first line of their generation prompt as
+ * a title ("Wide painted indoor scene. Western animated mature Grimm fantasy,
+ * a single story scene: a woman in a red cloak ..."). Visitors should see a
+ * name, not a prompt: drop weighting/LoRA syntax and the style preamble before
+ * the last ':', keep the first meaningful clause, and cap it at a few words.
+ * Short titles on named kinds (characters, dreams, rewards) pass through.
+ */
+export function showcaseDisplayTitle(
+  card: Pick<ShowcaseCard, 'kind' | 'title'>,
+  maxWords = 6,
+): string {
+  const fallback = SHOWCASE_KIND_LABELS[card.kind] ?? 'New creation'
+  const raw = (card.title ?? '').replace(/\s+/g, ' ').trim()
+  if (!raw || /^untitled\b/i.test(raw)) return fallback
+
+  const promptLike =
+    card.kind === 'art' || card.kind === 'animation' || raw.length > 60
+  if (!promptLike) return raw
+
+  const unweighted = raw
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\(([^()]*?):\s*[\d.]+\)/g, '$1')
+    .replace(/[()[\]{}]/g, ' ')
+    .replace(/…$/, '')
+  const afterPreamble = unweighted.includes(':')
+    ? unweighted.slice(unweighted.lastIndexOf(':') + 1)
+    : unweighted
+  const clause =
+    afterPreamble
+      .split(/[.,;|]/)
+      .map((part) => part.trim())
+      .find((part) => part && !PROMPT_BOILERPLATE.test(part)) ?? ''
+  const words = clause.replace(LEADING_ARTICLE, '').split(' ').filter(Boolean)
+  if (!words.length || words.join(' ').length < 3) return fallback
+
+  const label = words.slice(0, maxWords).join(' ')
+  const capitalized = label.charAt(0).toUpperCase() + label.slice(1)
+  return words.length > maxWords ? `${capitalized}…` : capitalized
+}
+
+export type LabeledShowcaseCard = ShowcaseCard & { label: string }
+
+/**
+ * Newest-first cards with art, each carrying its visitor-facing label, with
+ * near-duplicate renders (same cleaned label) collapsed to the newest one.
+ * Cards that fell back to their kind's generic label are never collapsed into
+ * each other, since that label says nothing about what the art shows.
+ */
+export function freshShowcaseCards(
+  cards: ShowcaseCard[],
+  limit = 12,
+): LabeledShowcaseCard[] {
+  const seen = new Set<string>()
+  const generic = new Set(Object.values(SHOWCASE_KIND_LABELS))
+  const fresh: LabeledShowcaseCard[] = []
+  const newestFirst = cards
+    .filter((card) =>
+      Boolean(card.art.imagePath || card.art.cardPath || card.art.heroPath),
+    )
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  for (const card of newestFirst) {
+    if (fresh.length >= limit) break
+    const label = showcaseDisplayTitle(card)
+    const key = label.replace(/…$/, '').toLowerCase()
+    if (!generic.has(label)) {
+      if (seen.has(key)) continue
+      seen.add(key)
+    }
+    fresh.push({ ...card, label })
+  }
+  return fresh
+}
+
 /** Empty rails render nothing at all rather than an apologetic empty box. */
 export function emptyShowcase(): HomeShowcase {
   return {

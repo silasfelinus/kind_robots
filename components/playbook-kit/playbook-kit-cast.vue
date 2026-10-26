@@ -5,7 +5,7 @@
       :key="group.role"
       class="flex flex-col gap-2"
     >
-      <p class="text-[10px] font-semibold uppercase tracking-[.2em] opacity-70">
+      <p class="pf-kicker opacity-70">
         {{ group.label }}
       </p>
       <ul
@@ -14,7 +14,7 @@
         <li
           v-for="member in group.members"
           :key="member.id"
-          class="overflow-hidden rounded-xl border bg-base-200/60"
+          class="pk-card overflow-hidden"
           :class="
             member.role === 'villain'
               ? 'border-error/40'
@@ -54,7 +54,7 @@
             }}</span>
             <span
               v-if="member.faction"
-              class="mt-1 self-start rounded-full border border-base-content/15 px-1.5 text-[10px]"
+              class="pf-kicker mt-1 self-start border border-base-content/20 px-1.5 py-0.5 text-[0.55rem]"
             >
               {{ factionName(member.faction) }}
             </span>

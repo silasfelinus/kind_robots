@@ -1,34 +1,36 @@
 <template>
   <span class="pk-art block overflow-hidden bg-neutral">
-    <span
-      class="absolute inset-0 bg-gradient-to-br"
-      :class="TINT[tone ?? 'neutral']"
-    />
-    <span class="pk-art-glow absolute inset-0" />
-    <Icon
-      v-if="!showing"
-      :name="icon ?? 'kind-icon:image'"
-      class="absolute left-1/2 top-1/2 size-1/4 max-h-12 max-w-12 -translate-x-1/2 -translate-y-1/2 text-white/40 drop-shadow"
-    />
-    <span
-      v-if="!showing && withBrief"
-      class="absolute inset-x-0 bottom-0 line-clamp-3 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6 text-[10px] leading-snug text-white/70"
-    >
-      {{ art.brief }}
+    <span class="relative block size-full">
+      <span
+        class="absolute inset-0 bg-gradient-to-br"
+        :class="TINT[tone ?? 'neutral']"
+      />
+      <span class="pk-art-glow absolute inset-0" />
+      <Icon
+        v-if="!showing"
+        :name="icon ?? 'kind-icon:image'"
+        class="absolute left-1/2 top-1/2 size-1/4 max-h-12 max-w-12 -translate-x-1/2 -translate-y-1/2 text-white/40 drop-shadow"
+      />
+      <span
+        v-if="!showing && withBrief"
+        class="absolute inset-x-0 bottom-0 line-clamp-3 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6 text-[10px] leading-snug text-white/70"
+      >
+        {{ art.brief }}
+      </span>
+      <img
+        v-if="art.src && !broken"
+        :key="art.src"
+        :src="art.src"
+        :alt="art.alt ?? ''"
+        loading="lazy"
+        decoding="async"
+        class="absolute inset-0 size-full object-cover transition-opacity duration-500"
+        :class="[loaded ? 'opacity-100' : 'opacity-0', pan ? 'pk-pan' : '']"
+        :style="{ objectPosition: art.focus }"
+        @load="loaded = true"
+        @error="broken = true"
+      />
     </span>
-    <img
-      v-if="art.src && !broken"
-      :key="art.src"
-      :src="art.src"
-      :alt="art.alt ?? ''"
-      loading="lazy"
-      decoding="async"
-      class="absolute inset-0 size-full object-cover transition-opacity duration-500"
-      :class="[loaded ? 'opacity-100' : 'opacity-0', pan ? 'pk-pan' : '']"
-      :style="{ objectPosition: art.focus }"
-      @load="loaded = true"
-      @error="broken = true"
-    />
   </span>
 </template>
 
@@ -69,11 +71,6 @@ const TINT: Record<KitTone, string> = {
 </script>
 
 <style scoped>
-@layer components {
-  .pk-art {
-    position: relative;
-  }
-}
 .pk-art-glow {
   background:
     radial-gradient(

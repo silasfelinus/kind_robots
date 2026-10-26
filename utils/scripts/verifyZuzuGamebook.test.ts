@@ -805,7 +805,8 @@ const untrustedAtAltar: Run = {
 assert.ok(lockReason(untrustedAtAltar, sisterNod))
 assert.equal(takeChoice(untrustedAtAltar, 'nod'), untrustedAtAltar)
 assert.equal(abbessKnifepoint.choices?.[0]?.id, 'trust')
-assert.equal(abbessKnifepoint.choices?.[1]?.id, 'strike')
+assert.equal(abbessKnifepoint.choices?.[1]?.id, 'refuse')
+assert.equal(abbessKnifepoint.choices?.[2]?.id, 'strike')
 for (const risky of ['trust', 'strike']) {
   const riskChoice: { label: string; check?: { failure: string } } | undefined =
     abbessKnifepoint.choices?.find((entry) => entry.id === risky)

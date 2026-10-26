@@ -957,8 +957,7 @@ export const ACT_VIII: Act = {
               'Refuse the bargain. Let the freed sister rescue her brother and retreat.',
             to: 'a8-wounded-flight',
             needs: 'sister-free',
-            hint:
-              'The sister is still bound; there is no one to carry her brother.',
+            hint: 'The sister is still bound; there is no one to carry her brother.',
             flag: 'honor:refused-the-dark',
           },
           {

@@ -159,10 +159,10 @@ assert.ok(
   home.includes("route: '/play/game-of-captains'") &&
     home.includes("route: '/play/comet-city-academy'"),
 )
-assert.ok(page.includes('This Means Warp | Kind Robots'))
+assert.ok(page.includes('Space Couch | Kind Robots'))
 assert.ok(page.includes('data-testid="captains-odds"'))
 assert.ok(page.includes('data-testid="captains-return-day"'))
 assert.ok(page.includes('crewProfile(member.id).portraitKey'))
-assert.ok(tab.includes('title: This Means Warp'))
-assert.ok(home.includes("title: 'This Means Warp'"))
-console.log('This Means Warp seeded voyage and highlight contract: OK')
+assert.ok(tab.includes('title: Space Couch'))
+assert.ok(home.includes("title: 'Space Couch'"))
+console.log('Space Couch seeded voyage and highlight contract: OK')

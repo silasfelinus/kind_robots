@@ -387,8 +387,14 @@ function clone(state: MinefieldState): MinefieldState {
   }
 }
 
+/** Reaching the known-safe exit is necessary, not sufficient: players must
+ * deduce and reveal the rest of the safe floor. Otherwise tapping the bottom
+ * right corner on turn one trivializes every solver-verified challenge. Flags
+ * alone do not count as solved because they are never checked for accuracy. */
 function checkExit(next: MinefieldState) {
-  if (next.tiles[at(next.cols, next.exit)]!.revealed) {
+  const exitReached = next.tiles[at(next.cols, next.exit)]!.revealed
+  const floorCleared = next.tiles.every((tile) => tile.hazard || tile.revealed)
+  if (exitReached && floorCleared) {
     next.outcome = 'escaped'
     next.log.push({ type: 'exit' })
   }
@@ -423,7 +429,7 @@ export function step(state: MinefieldState, cell: Cell): MinefieldState {
 /** Toggle a flag on a hidden cell (a note to self; it never checks the answer). */
 export function toggleFlag(state: MinefieldState, cell: Cell): MinefieldState {
   const tile = state.tiles[at(state.cols, cell)]
-  if (state.outcome !== 'exploring' || !tile || tile.revealed || tile.sprung)
+  if (state.outcome !== 'exploring' || !tile || tile.revealed || tile.sprung || tile.disarmed)
     return state
   const next = clone(state)
   const t = next.tiles[at(next.cols, cell)]!

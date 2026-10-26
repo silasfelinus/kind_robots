@@ -514,7 +514,7 @@ export const BEATS: EncounterCard[] = [
         label: 'Offer the measured forest seam to both competing groups',
         requiresFlag: 'loop_seam_measured',
         cost: 'A joint survey delays both plans, and your measurements must be checked.',
-        check: { skill: 'wits', target: 8 },
+        check: { skill: 'wits', target: 9 },
         success: {
           text: 'You show both tables the eleven missing steps. A retired surveyor asks to reproduce the count before anybody redraws a property line. The trail advocates agree to wait for the habitat survey; the restoration group agrees to keep the shortcut open while it is measured. Neither gets a victory speech tonight.',
           effects: { goodwill: 1, flag: 'forest_joint_survey' },
@@ -529,7 +529,7 @@ export const BEATS: EncounterCard[] = [
         label: 'Negotiate a resurvey of the two contradictory trail maps',
         requiresFlag: 'loop_wrong_map_posted',
         cost: 'The permit decision waits; volunteers must do more work before anyone wins.',
-        check: { skill: 'rizz', target: 8 },
+        check: { skill: 'rizz', target: 9 },
         success: {
           text: 'You lay the two wrong maps on the same table. A trail worker, a wildlife volunteer and the buyer each agree to pay for one day of independent mapping. The gate remains undecided. People who disagree about the forest now share responsibility for measuring it.',
           effects: { goodwill: 1, flag: 'forest_resurvey_agreed' },

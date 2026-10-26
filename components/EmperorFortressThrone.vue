@@ -32,7 +32,9 @@
       </p>
     </section>
 
-    <section class="kr-scroll flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain @4xl:shrink-0">
+    <section
+      class="kr-scroll flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain @4xl:shrink-0"
+    >
       <Teleport v-if="audiences.length" to="#eod-room-tools" defer>
         <div class="flex min-w-0 items-center gap-1.5">
           <span
@@ -125,7 +127,11 @@ import {
   optionBlockers,
   optionVisible,
 } from '~/utils/emperorOfDust/fortress/engine'
-import { followerPortrait, illustration, npcPortrait } from '~/utils/emperorOfDust/fortress/castArt'
+import {
+  followerPortrait,
+  illustration,
+  npcPortrait,
+} from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import {

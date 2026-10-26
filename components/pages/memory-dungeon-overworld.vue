@@ -179,10 +179,7 @@
       v-if="world.activeReality === 'e02'"
       class="min-h-0 flex-1"
     />
-    <div
-      v-else-if="world.minefieldActive"
-      class="min-h-0 flex-1"
-    >
+    <div v-else-if="world.minefieldActive" class="min-h-0 flex-1">
       <memory-dungeon-minefield-stage />
     </div>
     <div
@@ -620,10 +617,30 @@
                     >{{ world.runeInput.length }}/3 runes</span
                   >
                 </template>
-                <template v-if="world.selectedSite?.kind === 'puzzle' && world.state.puzzleSolved">
-                  <span class="w-full text-xs font-bold">✓ Stones solved · Hidden archive unlocked</span>
-                  <button type="button" class="md-btn" @click="world.openMinefield(8)">Enter the 8×8 Minefield Archive</button>
-                  <button v-if="world.state.waveIndex >= 2" type="button" class="md-btn" @click="world.openMinefield(10)">Enter the 10×10 Deep Archive</button>
+                <template
+                  v-if="
+                    world.selectedSite?.kind === 'puzzle' &&
+                    world.state.puzzleSolved
+                  "
+                >
+                  <span class="w-full text-xs font-bold"
+                    >✓ Stones solved · Hidden archive unlocked</span
+                  >
+                  <button
+                    type="button"
+                    class="md-btn"
+                    @click="world.openMinefield(8)"
+                  >
+                    Enter the 8×8 Minefield Archive
+                  </button>
+                  <button
+                    v-if="world.state.waveIndex >= 2"
+                    type="button"
+                    class="md-btn"
+                    @click="world.openMinefield(10)"
+                  >
+                    Enter the 10×10 Deep Archive
+                  </button>
                 </template>
               </div>
               <details

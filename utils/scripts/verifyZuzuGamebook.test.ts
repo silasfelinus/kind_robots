@@ -327,6 +327,70 @@ assert.equal(
   'cannot bypass an active battle',
 )
 
+// Act I's dangerous ground checks are entered from a legitimate fresh run.
+// A failed roll costs 2 HP, but a warned coyote can cover a costly retreat.
+// The 3-HP crocodile stress fixture is synthetic: this seeded approach enters
+// with 10 HP, not an already-wounded late-act character.
+const failedGroundRoutes: Run[] = []
+for (let seed = 1; seed <= 120; seed++) {
+  const warned = takeChoice(takeChoice(startRun(seed), 'approach'), 'defend')
+  assert.equal(warned.sceneId, 'a1-terrain')
+  assert.ok(warned.flags.includes('coyote-warned'))
+  const stones = takeChoice(warned, 'stones')
+  if (stones.sceneId === 'a1-bad-ground') {
+    assert.equal(stones.health, 10)
+    assert.equal(stones.lastRoll?.success, false)
+    failedGroundRoutes.push(stones)
+  } else {
+    assert.equal(stones.sceneId, 'a1-on-the-stones')
+  }
+}
+assert.ok(failedGroundRoutes.length > 0, 'seeded failures reach the retreat')
+for (const id of ['stones', 'reeds']) {
+  const risk = scene('a1-terrain').choices?.find((choice) => choice.id === id)
+  assert.match(risk?.label ?? '', /fail: hurt, cornered/)
+}
+const crocRetreat = scene('a1-bad-ground').choices?.find(
+  (choice) => choice.id === 'ridge',
+)
+assert.ok(crocRetreat)
+assert.equal(scene('a1-bad-ground').choices?.[0]?.id, 'up')
+const grounded = failedGroundRoutes[0]!
+const unWarned: Run = {
+  ...grounded,
+  flags: grounded.flags.filter((flag) => flag !== 'coyote-warned'),
+}
+assert.ok(lockReason(unWarned, crocRetreat))
+assert.equal(takeChoice(unWarned, 'ridge'), unWarned)
+const noBandage: Run = {
+  ...grounded,
+  items: grounded.items.filter((item) => item !== 'bandage'),
+}
+assert.ok(lockReason(noBandage, crocRetreat))
+assert.equal(takeChoice(noBandage, 'ridge'), noBandage)
+for (const health of [1, 3, 6, 12]) {
+  for (const resolve of [0, 4]) {
+    const wounded: Run = { ...grounded, health, resolve }
+    const retreat = takeChoice(wounded, 'ridge')
+    assert.equal(retreat.sceneId, 'a1-ridge-retreat')
+    assert.equal(retreat.health, health, 'retreat cannot heal a wound')
+    assert.equal(retreat.resolve, Math.max(0, resolve - 1))
+    assert.ok(!retreat.items.includes('bandage'))
+    assert.ok(wounded.items.includes('bandage'), 'previous state is immutable')
+    assert.ok(retreat.flags.includes('debt:coyote-cover'))
+    assert.ok(retreat.flags.includes('deed:left-coyote-at-water'))
+    assert.equal(honor(retreat), honor(wounded))
+    assert.equal(taint(retreat), taint(wounded))
+    assert.ok(isSavedRun(JSON.parse(JSON.stringify(retreat))))
+    const east = takeChoice(retreat, 'east')
+    assert.equal(east.sceneId, 'dust-road')
+    assert.equal(east.battle, null)
+    assert.equal(east.health, health)
+  }
+}
+assert.equal(takeChoice(grounded, 'up').sceneId, 'crocodile')
+assert.equal(takeChoice(grounded, 'up').battle?.hp, 8)
+
 const c1 = takeChoice(startRun(888), 'listen')
 const c2 = takeChoice(startRun(888), 'listen')
 assert.deepEqual(c1, c2, 'dice are deterministic for identical seed and move')

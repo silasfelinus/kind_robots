@@ -807,9 +807,10 @@ assert.equal(takeChoice(untrustedAtAltar, 'nod'), untrustedAtAltar)
 assert.equal(abbessKnifepoint.choices?.[0]?.id, 'trust')
 assert.equal(abbessKnifepoint.choices?.[1]?.id, 'strike')
 for (const risky of ['trust', 'strike']) {
-  const choice = abbessKnifepoint.choices?.find((entry) => entry.id === risky)
-  assert.match(choice?.label ?? '', /fail: 3 HP wound/)
-  assert.equal(choice?.check?.failure, 'stabbed')
+  const riskChoice: { label: string; check?: { failure: string } } | undefined =
+    abbessKnifepoint.choices?.find((entry) => entry.id === risky)
+  assert.match(riskChoice?.label ?? '', /fail: 3 HP wound/)
+  assert.equal(riskChoice?.check?.failure, 'stabbed')
 }
 assert.equal(scene('stabbed').effects?.hurt, 3)
 console.log(

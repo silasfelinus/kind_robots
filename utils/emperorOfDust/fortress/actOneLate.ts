@@ -3003,16 +3003,6 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         ],
         options: [
           {
-            id: 'ask-coldbrook',
-            label:
-              'Ask whether she passed Wenna Coldbrook’s cart on the east road.',
-            requires: { flags: ['d08-coldbrooks-home'] },
-            effects: {},
-            response:
-              'She takes the broken pitchfork tine from her belt. “Green cart. Four children. I remember.”',
-            next: 'coldbrook-road',
-          },
-          {
             id: 'ask-colors',
             label: 'Ask whose colors the wagons fly.',
             effects: {},
@@ -3051,6 +3041,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             },
             response:
               '“Pay them. With what? They’re already taking it.” She leads the pony out, the tine still in her belt. By the time she reaches the horizon the smoke is wider.',
+          },
+
+          {
+            id: 'ask-coldbrook',
+            label:
+              'Ask whether she passed Wenna Coldbrook’s cart on the east road.',
+            requires: { flags: ['d08-coldbrooks-home'] },
+            effects: {},
+            response:
+              'She takes the broken pitchfork tine from her belt. “Green cart. Four children. I remember.”',
+            next: 'coldbrook-road',
           },
         ],
         beats: [

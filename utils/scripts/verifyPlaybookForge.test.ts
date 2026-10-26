@@ -8,6 +8,7 @@ import {
   forecast,
   heroPortraits,
   smallestTier,
+  formatDuration,
 } from '../playbookForge/estimate'
 import { EXISTING_PLAYBOOKS, builtBlueprint } from '../playbookForge/existing'
 import {
@@ -29,6 +30,20 @@ import {
   blueprintFromIdea,
 } from '../playbookForge/presets'
 import type { Blueprint } from '../playbookForge/types'
+import {
+  buildLedger,
+  laneClass,
+  nodeArtPrompt,
+  nodeShape,
+  planGaps,
+  projectJobs,
+  unitsToPaint,
+  unitsToWrite,
+  writingBrief,
+  type LedgerJob,
+} from '../playbookForge/ledger'
+import { blankNode, type PlaybookNode } from '../playbook/types'
+import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({
@@ -195,6 +210,202 @@ await Promise.all(
   }),
 )
 
+// The production ledger: every beat's art moves missing → queued → rendered →
+// delivered; a section stars only when all of it is delivered and written.
+const beat = (
+  key: string,
+  kind: PlaybookNode['kind'],
+  patch: Partial<PlaybookNode> = {},
+): PlaybookNode => ({
+  ...blankNode(key, kind, `Beat ${key}`),
+  place: 'the pier',
+  body: ['Fog rolls in. The bell rings.'],
+  needsArt: true,
+  ...patch,
+})
+const job = (
+  id: number,
+  status: LedgerJob['status'],
+  renderSeconds: number | null = null,
+): LedgerJob => ({ id, status, engine: 'KREA2', renderSeconds, error: null })
+const checked = {
+  id: 'climb',
+  label: 'Climb',
+  tags: [],
+  check: { skill: 'nerve', target: 3 },
+  success: { text: 'You reach the top.' },
+  failure: { text: '' },
+}
+const nodes = {
+  a: beat('a', 'encounter', { artUrl: '/a.webp' }),
+  b: beat('b', 'encounter'),
+  c: beat('c', 'encounter', { choices: [checked] }),
+  d: beat('d', 'encounter', { body: [] }),
+  e: beat('e', 'encounter'),
+  f: beat('f', 'follower', { artUrl: '/f.webp' }),
+  g: beat('g', 'ending', { needsArt: false }),
+}
+const book = { order: Object.keys(nodes), nodes }
+const relay = {
+  b: [job(1, 'FAILED'), job(2, 'DONE', 80)],
+  c: [job(3, 'RUNNING')],
+  d: [job(4, 'FAILED')],
+}
+const ledger = buildLedger(book, relay, {
+  laneKey: 'krea2',
+  assumptions: DEFAULT_ASSUMPTIONS,
+})
+const encounters = ledger.sections.find((s) => s.id === 'encounter')!
+assert.deepEqual(
+  encounters.units.map((u) => u.art),
+  ['delivered', 'rendered', 'queued', 'failed', 'missing'],
+  'art moves missing → queued → rendered → delivered, and a later DONE beats an earlier FAILED',
+)
+assert.equal(encounters.takenSeconds, 80, 'only DONE jobs count as spend')
+assert.equal(encounters.unwritten, 1)
+assert.deepEqual(encounters.outcomes, { written: 1, expected: 2 })
+assert.equal(
+  encounters.remainingSeconds,
+  Math.round(2 * 82 * (1 + DEFAULT_ASSUMPTIONS.rerollRate)),
+  'failed and missing beats repaint at the lane median plus rerolls',
+)
+assert.equal(
+  encounters.remainingWords,
+  DEFAULT_ASSUMPTIONS.words.encounterBody +
+    DEFAULT_ASSUMPTIONS.words.outcomeText,
+)
+assert.equal(encounters.starred, false)
+assert.deepEqual(
+  unitsToPaint(encounters).map((u) => u.key),
+  ['d', 'e'],
+  'queued and rendered art is never re-sent',
+)
+assert.deepEqual(
+  unitsToWrite(encounters).map((u) => u.key),
+  ['c', 'd'],
+)
+const brief = writingBrief('ecotone', 'Ecotone', encounters)
+assert.match(brief, /- c "Beat c": 1 outcome text/)
+assert.match(brief, /- d "Beat d": scene text/)
+assert.ok(ledger.sections.find((s) => s.id === 'follower')!.starred)
+assert.ok(ledger.sections.find((s) => s.id === 'ending')!.starred)
+assert.equal(ledger.shine, 'star')
+assert.ok(ledger.discrepancies.some((d) => /rendered but not wired/.test(d)))
+assert.ok(ledger.discrepancies.some((d) => /only ever failed/.test(d)))
+assert.equal(ledger.progress, 3 / 7)
+
+const finished = buildLedger(
+  {
+    order: ['a', 'f', 'g'],
+    nodes: { a: nodes.a, f: nodes.f, g: nodes.g },
+  },
+  {},
+  { laneKey: 'arthemy', assumptions: DEFAULT_ASSUMPTIONS },
+)
+assert.equal(finished.shine, 'super', 'all starred and the plan met')
+assert.equal(finished.discrepancies.length, 0)
+const shortOfPlan = buildLedger(
+  { order: ['a'], nodes: { a: nodes.a } },
+  {},
+  {
+    laneKey: 'arthemy',
+    assumptions: DEFAULT_ASSUMPTIONS,
+    gaps: [{ label: 'Endings', built: 4, planned: 16 }],
+  },
+)
+assert.equal(shortOfPlan.shine, 'star', 'a plan gap holds back super shiny')
+assert.match(shortOfPlan.discrepancies.join(' '), /Endings: 4 built of 16/)
+assert.equal(
+  buildLedger(
+    { order: [], nodes: {} },
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+    },
+  ).shine,
+  'none',
+  'an empty ledger is never shiny',
+)
+
+assert.equal(laneClass('arthemy'), 'illustrious')
+assert.equal(laneClass('novacomic'), 'illustrious')
+assert.equal(laneClass('flux2'), 'flux2')
+assert.equal(
+  nodeArtPrompt(beat('p', 'encounter')),
+  'Beat p, the pier. Fog rolls in.',
+  'the same prompt Playbook Studio offers',
+)
+assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
+assert.equal(nodeShape(beat('p', 'boss')), 'scene')
+
+const rollup = projectJobs('weird-humboldt', [
+  { ...job(1, 'DONE', 20), createdAt: '2026-10-01T00:00:00Z' },
+  { ...job(2, 'DONE', 40), createdAt: '2026-10-02T00:00:00Z' },
+  { ...job(3, 'FAILED'), createdAt: '2026-10-03T00:00:00Z' },
+  { ...job(4, 'PENDING'), createdAt: '2026-10-04T00:00:00Z' },
+])
+assert.equal(rollup.renderSeconds, 60)
+assert.equal(rollup.medianSeconds, 30)
+assert.deepEqual(rollup.counts, {
+  PENDING: 1,
+  RUNNING: 0,
+  DONE: 2,
+  FAILED: 1,
+  CANCELLED: 0,
+})
+assert.deepEqual(rollup.byEngine, [{ engine: 'KREA2', count: 2, seconds: 60 }])
+assert.equal(rollup.failures[0]?.error, 'No error recorded.')
+
+const warp = EXISTING_PLAYBOOKS.find((e) => e.slug === 'game-of-captains')!
+const warpBuilt = await warp.count()
+const gaps = planGaps(warp.plan, warpBuilt)
+for (const gap of gaps) assert.ok(gap.built < gap.planned)
+assert.ok(
+  gaps.every((gap) => FACTOR_ROWS.some((row) => row.label === gap.label)),
+)
+
+// Every Playbook Studio game opens as a ledger with each beat counted once.
+for (const game of PLAYBOOK_GAMES) {
+  const studio = buildPlaybook(game.id)
+  const opened = buildLedger(
+    studio,
+    {},
+    {
+      laneKey: studio.artLanes[0] ?? 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+    },
+  )
+  assert.equal(
+    opened.units,
+    studio.order.filter((key) => studio.nodes[key]).length,
+    `${game.id}: every beat in the ledger once`,
+  )
+  assert.ok(
+    EXISTING_PLAYBOOKS.some((entry) => entry.studio === game.id),
+    `${game.id} has a forge entry to load its ledger from`,
+  )
+}
+
+assert.deepEqual(
+  buildLedger(
+    {
+      order: ['branch'],
+      nodes: {
+        branch: beat('branch', 'encounter', {
+          artUrl: '/b.webp',
+          choices: [{ ...checked, success: undefined, failure: undefined }],
+        }),
+      },
+    },
+    {},
+    { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+  ).outcomes,
+  { written: 0, expected: 0 },
+  'a check that branches to other beats expects no outcome text',
+)
+assert.equal(formatDuration(60 * 3600), '2d 12h', 'days round down')
+
 // The console, its tab, and the store-only rule for storage and API calls.
 const tab = readFileSync(
   fromRoot('content/channels/admin/playbook-forge.md'),
@@ -211,6 +422,9 @@ for (const name of [
   'launch',
   'idea',
   'library',
+  'ledger',
+  'ledger-detail',
+  'relay',
   'title',
   'assumptions',
   'prompts',

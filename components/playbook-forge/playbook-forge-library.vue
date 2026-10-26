@@ -34,7 +34,7 @@
     </section>
 
     <section class="flex flex-col gap-3">
-      <p class="pf-kicker text-secondary">Analyze a playbook</p>
+      <p class="pf-kicker text-secondary">Load a game</p>
       <ul
         class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3"
       >
@@ -46,7 +46,7 @@
               !forge.draftList.length && i === 0 ? '' : undefined
             "
             class="pf-tile pf-focusable"
-            @click="forge.analyze(game.slug)"
+            @click="forge.openLedger(game.slug)"
             @mouseenter="($event.currentTarget as HTMLElement).focus()"
           >
             <img :src="game.cover" alt="" class="pf-tile-art" />

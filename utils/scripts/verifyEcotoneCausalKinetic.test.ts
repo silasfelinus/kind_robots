@@ -60,7 +60,21 @@ for (const choiceId of ['dot-bailout', 'shore-relay'])
       `earned bay choice ${choiceId}/${result} needs a durable art slot`,
     )
 
+for (const choiceId of ['shared-wheel', 'tandem-tow'])
+  for (const result of ['success', 'failure'] as const)
+    assert.ok(
+      ecotoneArtSlots().outcomes.includes(
+        outcomeArtKey('KN-6', choiceId, result),
+      ),
+      `Ferndale choice ${choiceId}/${result} needs a durable art slot`,
+    )
+
 const witnesses: Record<string, number> = {}
+const finishWitnesses: Record<string, number> = {}
+const finishOutcomes = {
+  sunk: new Set<boolean>(),
+  upright: new Set<boolean>(),
+}
 const outcomes = {
   aboard: new Set<boolean>(),
   ashore: new Set<boolean>(),
@@ -146,6 +160,47 @@ for (let seed = 1; seed <= 320; seed++) {
     ),
     'the finale remembers the exact bay rescue outcome',
   )
+  const sunk = finishState.flags.includes('slug_sank')
+  assert.equal(sunk, !secondRoll.success)
+  const finishChoices = contextualOpeningChoices(finish, finishState)
+  assert.deepEqual(
+    finishChoices.slice(0, 3).map((choice) => choice.id),
+    ['finish', 'otters', 'cemetery'],
+    'old saved choice indices at Ferndale must not change',
+  )
+  assert.equal(finishChoices.length, 4, 'one earned finish action, not five')
+  const finishAction = sunk ? 'shared-wheel' : 'tandem-tow'
+  const forbiddenFinish = sunk ? 'tandem-tow' : 'shared-wheel'
+  assert.equal(finishChoices[3]?.id, finishAction)
+  assert.equal(
+    chooseBeat(finishState, forbiddenFinish),
+    finishState,
+    'the reducer rejects the finish action for the opposite crossing',
+  )
+  assert.equal(finishChoices[3]?.check?.skill, sunk ? 'wits' : 'burly')
+  assert.ok(finishChoices[3]?.cost, 'both final compromises carry a cost')
+  const finished = chooseBeat(finishState, finishAction)
+  const finishRoll = finished.pending?.entry.roll
+  assert.ok(finishRoll, 'the final tradeoff must be a real seeded skill check')
+  const finishBranch = sunk ? 'sunk' : 'upright'
+  finishOutcomes[finishBranch].add(finishRoll.success)
+  finishWitnesses[`${finishBranch}:${finishRoll.success}`] ||= seed
+  const finishFlag = sunk
+    ? finishRoll.success
+      ? 'slug_shared_wheel_rebuilt'
+      : 'slug_shared_wheel_deferred'
+    : finishRoll.success
+      ? 'slug_tandem_finish'
+      : 'slug_tandem_walk'
+  assert.ok(finished.flags.includes(finishFlag))
+  assert.equal(finished.flags.includes('slug_sank'), sunk)
+  assert.ok(finished.goodwill >= finishState.goodwill)
+  assert.ok(finished.nerve <= finishState.nerve)
+  assert.deepEqual(
+    restoreRun(JSON.parse(JSON.stringify(finished))),
+    finished,
+    'the Ferndale decision survives a saved-game round trip',
+  )
 }
 
 assert.deepEqual([...outcomes.aboard].sort(), [false, true])
@@ -155,6 +210,42 @@ assert.equal(
   4,
   'all four earned outcomes must be reachable from genuine new games',
 )
+assert.deepEqual([...finishOutcomes.sunk].sort(), [false, true])
+assert.deepEqual([...finishOutcomes.upright].sort(), [false, true])
+assert.equal(
+  Object.keys(finishWitnesses).length,
+  4,
+  'both Ferndale tradeoffs must pass and fail in legitimate new-game journeys',
+)
+
+// The first three bay choices remain playable even when Dot was never recruited.
+// Every one must earn the appropriate Ferndale action from its actual crossing.
+for (const bayAction of ['pedal', 'current', 'buoy']) {
+  const observed = new Set<boolean>()
+  for (let seed = 1; seed <= 120; seed++) {
+    const initial = advance(chooseEvent(createRun(seed, 'reporter'), 'kinetic'))
+    const start = walkTo(initial, 'KN-4', true)
+    const withoutDot = chooseBeat(start, 'pilot')
+    const bayStart = walkTo(advance(withoutDot), 'KN-5', true)
+    const crossing = chooseBeat(bayStart, bayAction)
+    assert.ok(crossing.pending?.entry.roll)
+    const sunk = crossing.flags.includes('slug_sank')
+    observed.add(sunk)
+    const finishStart = walkTo(advance(crossing), 'KN-6', true)
+    const choices = contextualOpeningChoices(finish, finishStart)
+    assert.equal(choices.length, 4)
+    assert.equal(choices[3]?.id, sunk ? 'shared-wheel' : 'tandem-tow')
+    assert.equal(
+      chooseBeat(finishStart, sunk ? 'tandem-tow' : 'shared-wheel'),
+      finishStart,
+    )
+  }
+  assert.deepEqual(
+    [...observed].sort(),
+    [false, true],
+    `${bayAction} must witness both crossing outcomes without Dot`,
+  )
+}
 console.log(
-  `Ecotone Kinetic Dot-to-bay consequences: ${JSON.stringify(witnesses)}; 320 fresh seeded journeys, solo agency, saved outcomes and Ferndale callbacks verified`,
+  `Ecotone Kinetic bay-to-Ferndale causal tradeoffs: ${JSON.stringify(finishWitnesses)}; 320 fresh Dot journeys plus 360 original-bay journeys, all four final outcomes, solo play, forged-choice rejection and saves verified`,
 )

@@ -175,7 +175,11 @@ for (const witnessChoice of ['remember', 'protect'] as const) {
     earnedHouseEpilogues.add(text)
   }
 }
-assert.equal(earnedHouseEpilogues.size, 4, 'Both House endings react to both witness policies')
+assert.equal(
+  earnedHouseEpilogues.size,
+  4,
+  'Both House endings react to both witness policies',
+)
 const supplies = crossRealmHouseEpilogue(
   { ...base, sceneChoices: { '4,3': 'load' } },
   { ...mirror, ending: 'commons' },

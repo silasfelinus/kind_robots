@@ -694,7 +694,13 @@
                     <PlaybookRunReview
                       game="ecotone"
                       :run="game.run"
-                      :ending="game.ending.fate + ':' + game.ending.lead + ':' + game.ending.lens"
+                      :ending="
+                        game.ending.fate +
+                        ':' +
+                        game.ending.lead +
+                        ':' +
+                        game.ending.lens
+                      "
                     />
                     <p class="text-xs text-[#f3e6c8]/60">
                       Ending earned and added to your gallery. These finales are

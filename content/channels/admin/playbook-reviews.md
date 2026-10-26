@@ -20,4 +20,5 @@ tutorial:
     individual run decisions and outcomes, and use recurring feedback to
     prioritize story revisions. Skipped reviews never count as low ratings.
 ---
+
 Player reviews linked to their game histories.

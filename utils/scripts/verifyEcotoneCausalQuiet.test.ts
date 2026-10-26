@@ -64,8 +64,12 @@ for (let seed = 1; seed <= 200; seed++) {
   const start = advance(chooseEvent(createRun(seed, 'reporter'), 'quiet'))
   const morning = walkTo(start, 'QW-2')
   const observed = chooseBeat(morning, 'sober')
-  const firstRoll = observed.pending?.entry.roll
-  assert.ok(firstRoll, 'the bench observation requires a 2d6 check')
+  assert.ok(observed.pending, 'the opening lens must produce an authored result')
+  assert.equal(
+    observed.pending.entry.roll,
+    null,
+    'the opening perspective uses a seeded complication, not a dice roll',
+  )
   const matched = observed.flags.includes('bench_heron_photo_match')
   const erased = observed.flags.includes('bench_tally_erased')
   assert.notEqual(
@@ -73,7 +77,11 @@ for (let seed = 1; seed <= 200; seed++) {
     erased,
     'one bench outcome grants exactly one later route',
   )
-  assert.equal(matched, firstRoll.success)
+  assert.equal(
+    matched,
+    (seed + 'QW-2'.length + 'sober'.length) % 4 !== 0,
+    'the opening complication must remain deterministic across seeds',
+  )
 
   const meadowState = walkTo(advance(observed), 'QW-4')
   const offered = available(meadowState)

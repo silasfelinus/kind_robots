@@ -6640,11 +6640,7 @@ for (const def of DAYS)
   assert.ok(escort.flags.includes('d09-ledger-cart-witnessed'))
   assert.ok(escort.audiencesHeard.includes('d09-ledger-cart'))
   assert.ok(!escort.audienceBeats?.['d09-ledger-cart'])
-  const searched = chooseAudienceOption(
-    debtor,
-    'd09-ledger-cart',
-    'search',
-  ).run
+  const searched = chooseAudienceOption(debtor, 'd09-ledger-cart', 'search').run
   assert.ok(searched.flags.includes('d09-ledger-cart-searched'))
   assert.ok(searched.local['gate-watch'] > debtor.local['gate-watch'])
 
@@ -6656,11 +6652,7 @@ for (const def of DAYS)
   )!
   assert.ok(posternScene)
   assert.equal(posternScene.requires?.flags?.[0], 'd06-postern-informant')
-  const first = chooseAudienceOption(
-    informant,
-    'd09-postern-list',
-    'ask-first',
-  )
+  const first = chooseAudienceOption(informant, 'd09-postern-list', 'ask-first')
   assert.equal(first.next, 'first-name')
   const witness = chooseAudienceOption(
     first.run,

@@ -51,6 +51,7 @@ import {
   buildLedger,
   laneClass,
   nodeArtPrompt,
+  artPromptBrief,
   nodeShape,
   planGaps,
   projectJobs,
@@ -364,9 +365,31 @@ assert.equal(laneClass('novacomic'), 'illustrious')
 assert.equal(laneClass('flux2'), 'flux2')
 assert.equal(
   nodeArtPrompt(beat('p', 'encounter')),
-  'Beat p, the pier. Fog rolls in.',
-  'the same prompt Playbook Studio offers',
+  null,
+  'a beat without an authored prompt has none: titles are never assembled into one',
 )
+assert.equal(
+  nodeArtPrompt({
+    ...beat('p', 'encounter'),
+    artPrompt: ' A fogbound pier at dawn. ',
+  }),
+  'A fogbound pier at dawn.',
+)
+{
+  const brief = artPromptBrief(
+    'ecotone',
+    'Ecotone',
+    'weird-humboldt',
+    'Encounters',
+    [beat('p', 'encounter')],
+  )
+  assert.match(
+    brief,
+    /projects\/weird-humboldt\/art\/<ROUND>\.yaml with auto_submit: true/,
+  )
+  assert.match(brief, /Never use the beat title, chapter title, subtitle/)
+  assert.match(brief, /- p "Beat p"/)
+}
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')
 

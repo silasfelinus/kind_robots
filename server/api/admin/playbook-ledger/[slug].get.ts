@@ -39,6 +39,9 @@ export default defineEventHandler(async (event) => {
             gameSlug: studio,
             kind: 'art-request',
             artJobId: { not: null },
+            // A resolved request is superseded (2026-10-26: the ledger's
+            // title-built prompts were cancelled and re-authored as rounds).
+            resolved: false,
           },
           select: { nodeKey: true, artJobId: true },
           take: MAX_JOBS,

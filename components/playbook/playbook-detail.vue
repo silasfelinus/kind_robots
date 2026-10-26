@@ -507,6 +507,7 @@
         <textarea
           v-model="art.prompt"
           class="textarea textarea-bordered w-full mt-1 min-h-24 w-full text-xs"
+          placeholder="Describe the picture: who is there, where, what is happening, the light. No titles or lettering."
           aria-label="Art prompt"
         />
         <div class="mt-1.5 flex flex-wrap gap-1.5">
@@ -1131,16 +1132,15 @@ const submitId = ref<number | null>(null)
 const submitNote = ref('')
 const comment = ref('')
 
+// The beat's authored prompt, or nothing: a prompt is a described picture,
+// never the beat or chapter title (titles end up painted as lettering).
 function defaultPrompt() {
-  const n = node.value
-  if (!n) return ''
-  const first = n.body[0]?.split(/(?<=\.)\s/)[0] ?? ''
-  return `${n.title}, ${n.place}. ${first}`.trim()
+  return node.value?.artPrompt?.trim() ?? ''
 }
 
 function askArtFor(id: string, label: string) {
   artChoice.value = { id, label }
-  art.prompt = `${node.value?.title ?? ''}: ${label}. ${defaultPrompt()}`
+  art.prompt = defaultPrompt()
   tab.value = 'art'
 }
 

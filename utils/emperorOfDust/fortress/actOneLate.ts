@@ -3057,7 +3057,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'coldbrook-road',
             lines: [
               '“Green cart. One wheel in the ditch. Wenna Coldbrook had four children under a tarpaulin and no horse strong enough to pull them clear. She told me to ride on. Thistledown was burning.”',
-              'The rider grips the pitchfork tine. “If you send guards east, they won’t stand at our granary. If you keep them here, that family sleeps beside the road.”',
+              'The rider grips the pitchfork tine. “If you send your people east, they won’t stand at our granary. If you keep them here, that family sleeps beside the road.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -3068,21 +3068,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'escort-coldbrooks',
                 label:
-                  'Spend fifteen brass on a wagon. Send two Watch riders to bring Wenna and the children in.',
+                  'Spend fifteen brass on a Yard wagon. Send two porters to bring Wenna and the children in.',
                 requires: { cost: 15 },
                 effects: {
-                  local: { 'gate-watch': -2, yard: -1 },
+                  local: { yard: -2, 'gate-watch': -1 },
                   affinity: { freeholds: 6 },
                   flags: ['d10-coldbrooks-escorted'],
                   schedule: ['d10-coldbrooks-return'],
                 },
                 response:
-                  'Dunmark gives up two riders without asking which family. The Thistledown rider watches the wagon go east. Her granary is west.',
+                  'Dunmore gives up two kitchen porters without asking which family. The Thistledown rider watches the wagon go east. Her granary is west.',
               },
               {
                 id: 'warn-coldbrooks',
                 label:
-                  'Send a runner with the safest road marked. Keep the Watch at Thistledown.',
+                  'Send a runner with the safest road marked. Keep the fighting hands for Thistledown.',
                 effects: {
                   local: { 'gate-watch': 1 },
                   affinity: { freeholds: -2 },
@@ -3316,14 +3316,14 @@ export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
     line: 'With the Watch gone, someone tried the postern near midnight with a file. It held. It has been nailed shut since the stableboy’s day in the stocks.',
   },
   // The Day 8 seed cart is still on the east road. The Day 10 choice
-  // decides whether the crown risks its guards or leaves the family to a map.
+  // decides whether the crown diverts its workers or leaves the family to a map.
   {
     id: 'd10-coldbrooks-return',
     title: 'Wenna’s wagon',
     day: 11,
     hidden: true,
     when: { flags: ['d10-coldbrooks-escorted'] },
-    line: 'The wagon comes through the gate before dawn. Wenna Coldbrook counts four children down from the bed, then counts the two riders. One limps. She puts her seed sack under his head. “We go home when the road clears,” she tells the Yard. Nobody argues.',
+    line: 'The wagon comes through the gate before dawn. Wenna Coldbrook counts four children down from the bed, then counts the two porters. One limps. She puts her seed sack under his head. “We go home when the road clears,” she tells the Yard. Nobody argues.',
     effects: { flags: ['d11-coldbrooks-safe'], local: { yard: 1 } },
   },
   {

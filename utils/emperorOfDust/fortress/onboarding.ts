@@ -3,10 +3,17 @@ import type { AudienceDef } from './types'
 /**
  * First Bell recruitment: nobody is silently assigned to the emperor.
  * A seed picks one independent visitor and one of two authored arguments.
- * The ruler can settle an argument in favor of ONE applicant, never both.
+ * Either rival may be chosen for free, or the ruler can purchase two posts
+ * at the painful price of nearly the entire opening treasury.
  */
 export const COURT_ONBOARDING_FLAG = 'court-onboarding-v1'
-export const RANDOM_ARRIVALS = ['d01-flint-arrives', 'd01-ash-arrives'] as const
+export const RANDOM_ARRIVALS = [
+  'd01-flint-arrives',
+  'd01-ash-arrives',
+  'd01-nera-arrives',
+  'd01-pip-arrives',
+] as const
+export const FIRST_BELL_RIVAL_BARGAIN = 110
 export const RIVAL_ARGUMENTS = [
   'd01-ford-dispute',
   'd01-tunnel-dispute',
@@ -84,6 +91,44 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     ],
   },
   {
+    id: 'd01-nera-arrives',
+    title: 'The Weather Is Not for Sale',
+    speaker: 'Nera Gale',
+    npc: 'F006',
+    lines: [
+      'Nera Gale comes through the gate without a weather token. She holds an empty forecast cylinder, scratched where the Conclave seal used to be.',
+      '“Rain does not belong to the highest bidder, Majesty. I kept copies of the instruments. The elders are looking for the missing pages.”',
+      'She could read the tower’s reports, but the Conclave would know where to find her. Nera waits to see whether this court sells her out.',
+    ],
+    options: [
+      {
+        id: 'appoint',
+        label: 'Offer Nera shelter and a place beside the court’s weather charts.',
+        effects: { recruit: ['F006'], affinity: { 'storm-crows': -2 }, local: { lamplight: 1 } },
+        response: 'Nera lays her cylinder on the table. “Then our forecasts belong to the people who need them.”',
+      },
+    ],
+  },
+  {
+    id: 'd01-pip-arrives',
+    title: 'A Page That Does Not Belong',
+    speaker: 'Pip Thread',
+    npc: 'F005',
+    lines: [
+      'Pip Thread carries three ledgers to the rail, none bound in the same leather. The archivist points to a page with a perfect copy of the royal seal.',
+      '“One of these ledgers was rewritten. I can remember the old entries. I cannot prove who changed them without access to your records.”',
+      'The court could gain a meticulous reader, but the Hollow Bell office will resent anyone who searches its accounts.',
+    ],
+    options: [
+      {
+        id: 'appoint',
+        label: 'Give Pip access to the Archive and a desk at court.',
+        effects: { recruit: ['F005'], local: { lamplight: 1 }, affinity: { 'hollow-bell': -1 } },
+        response: 'Pip opens the oldest ledger. “I remember this page,” they say. “It was not here yesterday.”',
+      },
+    ],
+  },
+  {
     id: 'd01-ford-dispute',
     title: 'The Road or the Bridge',
     speaker: 'Rook Bramble and Saffron Kett',
@@ -96,7 +141,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
       {
         who: 'Young Komodo',
         npc: 'young-komodo',
-        text: 'One place at the dispatch table, Majesty. The one you send away will remember who got it.',
+        text: 'There is one funded post, Majesty. We could keep both, but two commissions and separate wages would eat almost the entire treasury.',
       },
     ],
     options: [
@@ -123,6 +168,13 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
         response:
           'Saffron carries the pin away like a trophy. Rook gives the ruler a short salute and leaves before the doors have finished opening.',
       },
+      {
+        id: 'both',
+        label: 'Commission both Rook and Saffron, with separate commands. Spend 110 brass.',
+        requires: { cost: FIRST_BELL_RIVAL_BARGAIN },
+        effects: { recruit: ['F001', 'F002'], flags: ['first-bell-both-ford'], local: { ledger: -1 } },
+        response: 'The treasury doors open. Rook takes the road command; Saffron takes the bridge works. Neither salutes the other. The court has both talents and scarcely enough brass left to pay for breakfast.',
+      },
     ],
   },
   {
@@ -138,7 +190,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
       {
         who: 'Young Komodo',
         npc: 'young-komodo',
-        text: 'They disagree about who counts, Majesty. This is a question the throne will keep answering.',
+        text: 'They disagree about who counts, Majesty. One posting costs us nothing; two commissions would leave the treasury barely breathing.',
       },
     ],
     options: [
@@ -164,6 +216,13 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
         },
         response:
           'Keel puts the grain sack on a cart bound for the lower tunnels. Bram writes the weight in his notebook before he goes. He does not look back.',
+      },
+      {
+        id: 'both',
+        label: 'Fund Bram’s stores and Keel’s tunnel mission separately. Spend 110 brass.',
+        requires: { cost: FIRST_BELL_RIVAL_BARGAIN },
+        effects: { recruit: ['F008', 'F009'], flags: ['first-bell-both-tunnels'], local: { ledger: -1, yard: 1 } },
+        response: 'The court counts out almost every coin. Bram agrees to ration the garrison while Keel brings food to the tunnels. Their argument does not end, but neither can walk away from the people waiting.',
       },
     ],
   },

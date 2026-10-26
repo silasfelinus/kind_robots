@@ -89,6 +89,13 @@ export const NPCS: readonly NpcDef[] = [
     faction: 'yard',
   },
   {
+    slug: 'storm-crow-envoy',
+    name: 'A Storm Crow envoy',
+    species: 'Crow',
+    pronouns: 'he/him',
+    faction: 'storm-crows',
+  },
+  {
     slug: 'elder-corvane',
     name: 'Elder Corvane',
     species: 'Crow',

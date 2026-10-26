@@ -424,7 +424,11 @@ assert.equal(
 )
 for (const day of DAYS)
   for (const audience of day.audiences)
-    if (audience.npc) assert.ok(npcDef(audience.npc), audience.npc)
+    if (audience.npc)
+      assert.ok(
+        npcDef(audience.npc) || followerDef(audience.npc),
+        audience.npc,
+      )
 for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
   const reps = NPCS.filter((npc) => npc.faction === faction)
   assert.ok(reps.length, `${faction} has a named NPC`)

@@ -4,7 +4,10 @@ import {
   projectCitySites,
   projectedCityRoads,
 } from '../cometAcademy/cityMap'
-import { DISTRICT_ENCOUNTERS, districtEncounterFor } from '../cometAcademy/districtEncounters'
+import {
+  DISTRICT_ENCOUNTERS,
+  districtEncounterFor,
+} from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
   IDENTITY_ARCS,
@@ -45,11 +48,21 @@ import {
 
 assert.equal(CITY_SITES.length, 24)
 assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 7)
-assert.equal(new Set(CITY_SITES.filter((site) => site.encounterIndex !== undefined).map((site) => site.encounterIndex)).size, 7)
+assert.equal(
+  new Set(
+    CITY_SITES.filter((site) => site.encounterIndex !== undefined).map(
+      (site) => site.encounterIndex,
+    ),
+  ).size,
+  7,
+)
 assert.equal(Object.keys(DISTRICT_ENCOUNTERS).length, 17)
 assert.ok(CITY_SITES.filter((site) => site.district === 'academy').length >= 3)
 assert.ok(CITY_SITES.filter((site) => site.district === 'city').length >= 3)
-assert.equal(CITY_SITES.filter((site) => site.district === 'academy').length, 12)
+assert.equal(
+  CITY_SITES.filter((site) => site.district === 'academy').length,
+  12,
+)
 assert.equal(CITY_SITES.filter((site) => site.district === 'city').length, 12)
 assert.equal(projectCitySites('campus').length, 13)
 assert.equal(projectCitySites('town').length, 14)
@@ -94,7 +107,11 @@ for (let i = 0; i < queue.length; i++) {
       queue.push(neighbor)
     }
 }
-assert.equal(connected.size, 24, 'All locations form one connected street graph')
+assert.equal(
+  connected.size,
+  24,
+  'All locations form one connected street graph',
+)
 assert.equal(
   new Set(Object.values(DISTRICT_ENCOUNTERS).map((entry) => entry.title)).size,
   17,
@@ -152,14 +169,32 @@ assert.equal(restoreAcademy({ ...cityChoiceRun, academyStanding: 1.5 }), null)
 const gradeRank = { failed: 0, partial: 1, pass: 2, honors: 3 }
 let goodwillChangedGrade = false
 for (let seed = 1; seed <= 36; seed++) {
-  const base = { ...startAcademy('kinetic', seed), day: 3, phase: 'dispatch' as const }
-  const target = incidentsFor(base).find((incident) => incident.allegiance === 'hero')
+  const base = {
+    ...startAcademy('kinetic', seed),
+    day: 3,
+    phase: 'dispatch' as const,
+  }
+  const target = incidentsFor(base).find(
+    (incident) => incident.allegiance === 'hero',
+  )
   if (!target) continue
   const assigned = assignTeam(base, target.id, ['mina'])
-  const positive = resolveDispatch({ ...assigned, cityStanding: 4, academyStanding: 4 })
-  const negative = resolveDispatch({ ...assigned, cityStanding: -4, academyStanding: -4 })
-  const goodGrade = positive.reports.find((report) => report.caseId === target.id)!.grade
-  const badGrade = negative.reports.find((report) => report.caseId === target.id)!.grade
+  const positive = resolveDispatch({
+    ...assigned,
+    cityStanding: 4,
+    academyStanding: 4,
+  })
+  const negative = resolveDispatch({
+    ...assigned,
+    cityStanding: -4,
+    academyStanding: -4,
+  })
+  const goodGrade = positive.reports.find(
+    (report) => report.caseId === target.id,
+  )!.grade
+  const badGrade = negative.reports.find(
+    (report) => report.caseId === target.id,
+  )!.grade
   assert.ok(gradeRank[goodGrade] >= gradeRank[badGrade])
   if (gradeRank[goodGrade] > gradeRank[badGrade]) goodwillChangedGrade = true
 }

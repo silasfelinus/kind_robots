@@ -116,7 +116,7 @@ assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
 assert.match(
   store,
-  /const key =\s+ledger\.value\.version === 8\s+\? SAVE_KEY\s+: ledger\.value\.version === 7\s+\? LEGACY_V7_SAVE_KEY\s+: ledger\.value\.version === 6/,
+  /const key =\s+ledger\.value\.version === 9\s+\? SAVE_KEY\s+: ledger\.value\.version === 8\s+\? LEGACY_V8_SAVE_KEY\s+: ledger\.value\.version === 7\s+\? LEGACY_V7_SAVE_KEY\s+: ledger\.value\.version === 6/,
 )
 assert.match(store, /if \(savedV7 !== null\) \{/)
 assert.match(store, /if \(savedV6 !== null\) \{/)

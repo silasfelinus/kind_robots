@@ -1,3 +1,4 @@
+import { identityFor } from './identityArcs'
 import {
   signatureById,
   POWER_VOWS,
@@ -519,14 +520,23 @@ export function finishAcademy(
     : earned
       ? 'You hijack the simulated catastrophe engine and rewrite its rules. The dean files a very interesting report.'
       : 'You seize the simulated controls. The machine decides what control means. Your rival pulls you free before the exercise can complete.'
+  const identity = run.signature ? identityFor(run.signature) : undefined
+  const identityProjection = identity
+    ? protect
+      ? `The rehearsal yearbook imagines ${identity.student.alias} eventually becoming ${identity.hero.alias}: ${identity.quests.protagonist}. That transformation is not yet earned.`
+      : `The rehearsal yearbook imagines ${identity.student.alias} falling into the identity of ${identity.villain.alias}: ${identity.quests.antagonist}. That transformation is not yet inevitable.`
+    : ''
+  const signatureProjection =
+    run.signature && run.vow
+      ? `The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
+      : ''
   return {
     ...run,
     phase: 'ending',
     ending,
-    scene:
-      run.signature && run.vow
-        ? `${scene} The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
-        : scene,
+    scene: [scene, identityProjection, signatureProjection]
+      .filter(Boolean)
+      .join(' '),
     log: [...run.log, `Finale: ${ending}`],
   }
 }

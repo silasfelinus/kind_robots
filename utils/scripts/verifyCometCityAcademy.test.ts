@@ -85,6 +85,36 @@ for (const seed of [1, 7, 24, 999]) {
   assert.ok(deck.includes('A Visitor from the Stars'))
 }
 assert.equal(ENCOUNTERS.length, 7)
+for (const visitorAlignment of ['ally', 'opponent'] as const) {
+  let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
+  for (let day = 1; day <= 7; day++) {
+    const [first] = incidentsFor(run)
+    run = assignTeam(run, first!.id, ['mina'])
+    run = resolveDispatch(run)
+    const visit = encounterFor(run)
+    const option = visit.options.find((entry) =>
+      visitorAlignment === 'ally'
+        ? ['shelter-zuzu', 'help-tess'].includes(entry.id)
+        : ['contract-zuzu', 'sell-tess'].includes(entry.id),
+    ) ?? visit.options[0]!
+    run = chooseEncounter(run, option.id)
+    run = nextSchoolDay(run)
+  }
+  const finale = finishAcademy(run, 'protect')
+  assert.ok(finale.scene.includes('Zuzu remembers'))
+  assert.ok(finale.scene.includes('Tess Helio'))
+  assert.ok(finale.scene.includes('Ari Nadir'))
+  assert.ok(
+    finale.scene.includes(
+      visitorAlignment === 'ally' ? 'Koala Assassin' : 'Shogun Null',
+    ),
+  )
+  assert.ok(
+    finale.scene.includes(
+      visitorAlignment === 'ally' ? 'Starwake' : 'Void Cartographer',
+    ),
+  )
+}
 const legacyOrder = startAcademy('kinetic', 14)
 assert.equal(
   encounterFor({ ...legacyOrder, encounterDeckVersion: undefined }).title,

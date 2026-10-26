@@ -1,3 +1,10 @@
+import {
+  signatureById,
+  POWER_VOWS,
+  type SignaturePowerId,
+  type PowerVowId,
+} from './specialPowers'
+
 export type PowerId =
   'kinetic' | 'technopathy' | 'empathy' | 'elemental' | 'spatial' | 'biotech'
 export type AcademyPhase =
@@ -260,6 +267,8 @@ export type AcademyRun = {
   version: 1
   seed: number
   power: PowerId
+  signature?: SignaturePowerId
+  vow?: PowerVowId
   phase: AcademyPhase
   day: number
   influence: number
@@ -287,13 +296,24 @@ export function encounterFor(run: AcademyRun) {
   return ENCOUNTERS[(run.day - 1) % ENCOUNTERS.length]!
 }
 
-export function startAcademy(power: PowerId, seed = Date.now()): AcademyRun {
+export function startAcademy(
+  power: PowerId,
+  seed = Date.now(),
+  signature?: SignaturePowerId,
+  vow?: PowerVowId,
+): AcademyRun {
   if (!POWERS.some((entry) => entry.id === power))
     throw new Error('Unknown power set')
+  if (signature && signatureById(signature)?.legacy !== power)
+    throw new Error('Unknown power combination')
+  if (vow && !POWER_VOWS.some((entry) => entry.id === vow))
+    throw new Error('Unknown hero vow')
   return {
     version: 1,
     seed: Math.abs(Math.floor(seed)) || 1,
     power,
+    ...(signature ? { signature } : {}),
+    ...(vow ? { vow } : {}),
     phase: 'dispatch',
     day: 1,
     influence: 0,
@@ -436,9 +456,11 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   const powerUsed =
     (option.id === 'truth' && run.power === 'empathy') ||
     (option.id === 'cover' && run.power === 'technopathy')
+  const special = run.signature ? signatureById(run.signature) : undefined
   const scene =
     option.text +
-    (powerUsed ? ' Your power opens a detail that nobody else notices.' : '')
+    (powerUsed ? ' Your power opens a detail that nobody else notices.' : '') +
+    (special ? ` Your signature technique, ${special.name}, offers another approach: ${special.action}. ${special.cost}.` : '')
   return {
     ...run,
     phase: 'debrief',
@@ -499,7 +521,9 @@ export function finishAcademy(
     ...run,
     phase: 'ending',
     ending,
-    scene,
+    scene: run.signature && run.vow
+      ? `${scene} The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
+      : scene,
     log: [...run.log, `Finale: ${ending}`],
   }
 }
@@ -510,6 +534,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (
     data.version !== 1 ||
     !POWERS.some((p) => p.id === data.power) ||
+    (data.signature !== undefined && signatureById(data.signature)?.legacy !== data.power) ||
+    (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
     typeof data.seed !== 'number' ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||

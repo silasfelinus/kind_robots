@@ -33,21 +33,38 @@ export function minefieldRewardKey(size: MinefieldSize): string {
 export function restoreMinefieldRun(value: unknown): MinefieldRun | null {
   if (!value || typeof value !== 'object') return null
   const source = value as Partial<MinefieldRun>
-  if (source.version !== 1 || (source.size !== 8 && source.size !== 10)) return null
-  if (!Number.isSafeInteger(source.seed) || source.seed! < 0 || source.seed! > 1000000) return null
-  if (!Array.isArray(source.moves) || source.moves.length > MINEFIELD_MAX_MOVES) return null
+  if (source.version !== 1 || (source.size !== 8 && source.size !== 10))
+    return null
+  if (
+    !Number.isSafeInteger(source.seed) ||
+    source.seed! < 0 ||
+    source.seed! > 1000000
+  )
+    return null
+  if (!Array.isArray(source.moves) || source.moves.length > MINEFIELD_MAX_MOVES)
+    return null
   const moves: MinefieldMove[] = []
   for (const item of source.moves) {
-    if (!item || !['step', 'flag', 'disarm'].includes(item.action)
-      || !Number.isInteger(item.row) || !Number.isInteger(item.col)
-      || item.row < 0 || item.col < 0 || item.row >= source.size || item.col >= source.size)
+    if (
+      !item ||
+      !['step', 'flag', 'disarm'].includes(item.action) ||
+      !Number.isInteger(item.row) ||
+      !Number.isInteger(item.col) ||
+      item.row < 0 ||
+      item.col < 0 ||
+      item.row >= source.size ||
+      item.col >= source.size
+    )
       return null
     moves.push({ action: item.action, row: item.row, col: item.col })
   }
   return { version: 1, seed: source.seed!, size: source.size, moves }
 }
 
-export function createMinefieldRun(seed: number, size: MinefieldSize): MinefieldRun {
+export function createMinefieldRun(
+  seed: number,
+  size: MinefieldSize,
+): MinefieldRun {
   return { version: 1, seed, size, moves: [] }
 }
 
@@ -64,15 +81,24 @@ export function playMinefieldRun(run: MinefieldRun): MinefieldState {
   for (const move of run.moves) {
     if (current.outcome !== 'exploring') break
     const cell: Cell = { row: move.row, col: move.col }
-    current = move.action === 'step' ? step(current, cell)
-      : move.action === 'flag' ? toggleFlag(current, cell)
-      : disarm(current, cell)
+    current =
+      move.action === 'step'
+        ? step(current, cell)
+        : move.action === 'flag'
+          ? toggleFlag(current, cell)
+          : disarm(current, cell)
   }
   return current
 }
 
-export function advanceMinefieldRun(run: MinefieldRun, move: MinefieldMove): MinefieldRun {
-  if (run.moves.length >= MINEFIELD_MAX_MOVES || playMinefieldRun(run).outcome !== 'exploring')
+export function advanceMinefieldRun(
+  run: MinefieldRun,
+  move: MinefieldMove,
+): MinefieldRun {
+  if (
+    run.moves.length >= MINEFIELD_MAX_MOVES ||
+    playMinefieldRun(run).outcome !== 'exploring'
+  )
     return run
   if (!restoreMinefieldRun({ ...run, moves: [move] })) return run
   return { ...run, moves: [...run.moves, move] }

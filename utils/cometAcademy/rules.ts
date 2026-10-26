@@ -633,7 +633,7 @@ export function finishAcademy(
   )
   const visitorProjection = [
     zuzuChoice?.includes('Protect Zuzu')
-      ? 'Zuzu remembers that you refused to sell him. In one projected future the Koala Assassin stands beside the city's defenders, still free to disagree.'
+      ? 'Zuzu remembers that you refused to sell him. In one projected future the Koala Assassin stands beside Comet City defenders, still free to disagree.'
       : zuzuChoice
         ? 'Zuzu remembers the warrant. A possible future flashes Shogun Null, his exosuit aimed at the registry of people Comet City can erase.'
         : '',

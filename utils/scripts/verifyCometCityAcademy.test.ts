@@ -149,12 +149,22 @@ for (const incident of INCIDENTS) {
   assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
 }
 for (const seed of [1, 15, 900]) {
-  let realRun = { ...startAcademy('kinetic', seed), day: 3, phase: 'dispatch' as const }
+  let realRun = {
+    ...startAcademy('kinetic', seed),
+    day: 3,
+    phase: 'dispatch' as const,
+  }
   for (const [index, incident] of incidentsFor(realRun).entries())
     realRun = assignTeam(realRun, incident.id, index === 0 ? ['mina'] : ['sol'])
   const finished = resolveDispatch(realRun)
   assert.equal(finished.phase, 'debrief')
-  assert.ok(finished.reports.every((report) => Object.values(realNightCase(report.caseId)!.consequences).includes(report.text)))
+  assert.ok(
+    finished.reports.every((report) =>
+      Object.values(realNightCase(report.caseId)!.consequences).includes(
+        report.text,
+      ),
+    ),
+  )
 }
 for (const visitorAlignment of ['ally', 'opponent'] as const) {
   let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')

@@ -10,7 +10,7 @@ export const REVIEW_GAME_SLUGS = [
 ] as const
 
 const TRACE_FIELDS = [
-  'seed', 'version', 'flowVersion', 'mode', 'difficulty', 'day', 'chapter',
+  'seed', 'originSeed', 'version', 'flowVersion', 'mode', 'difficulty', 'day', 'chapter',
   'phase', 'status', 'power', 'signature', 'vow', 'captain', 'crew', 'role',
   'alignment', 'stats', 'meters', 'flags', 'visited', 'visitedSites',
   'health', 'resolve', 'brass', 'prosperity', 'horde', 'trust', 'supplies',
@@ -22,6 +22,9 @@ const TRACE_FIELDS = [
   'achievements', 'questHistory', 'questLog', 'actions', 'trialResults',
   'prepared', 'usedRewards', 'resolved', 'shifts', 'current', 'consequences',
   'riddles', 'decisions', 'quests', 'outcome', 'timeline', 'chapterHistory',
+  'branch', 'loans', 'affinity', 'strength', 'mapLog', 'controllers',
+  'audiencesHeard', 'chanceHistory', 'active', 'inventory', 'board',
+  'revealedFactions', 'wipedOut', 'site', 'checkpoints',
 ] as const
 
 const FORBIDDEN_FIELD = /^(?:name|playername|realname|username|email|phone|address|pronouns|birthdate|dob|token|password|apikey|auth|session|cookie|userid|deviceid|ipaddress)$/i
@@ -54,7 +57,7 @@ export function collectPlaybookHistory(run: unknown): Record<string, unknown> {
 
 export function playbookRunKey(run: unknown): string {
   const source = run && typeof run === 'object' ? (run as Record<string, unknown>) : {}
-  const seed = source.seed
+  const seed = source.originSeed ?? source.seed
   if (typeof seed === 'string' || typeof seed === 'number') return String(seed)
   const id = source.id
   if (typeof id === 'string' || typeof id === 'number') return String(id)

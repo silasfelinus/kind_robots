@@ -79,6 +79,7 @@ export type Run = {
   pendingLoot: string[]
   flags: string[]
   seed: number
+  originSeed?: number
   visited: string[]
   endings: string[]
   battle: Battle | null

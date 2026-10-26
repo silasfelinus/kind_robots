@@ -40,6 +40,8 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+      - name: End-of-run reviews across Playbook endings
+        run: npm run test:playbook-run-review
       - name: Academy seeded term and saved outcome verification
         run: npm run test:comet-city-academy
       - name: Captains seeded missions and ethical ending verification

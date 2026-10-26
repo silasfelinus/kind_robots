@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Unknown game.' })
     if (stars !== undefined && (!Number.isInteger(stars) || stars < 1 || stars > 5))
       throw createError({ statusCode: 400, message: 'Invalid star filter.' })
-    const count = Math.max(1, Math.min(100, Number(query.take) || 40))
+    const count = Math.max(1, Math.min(100, Math.trunc(Number(query.take) || 40)))
     const rows = await prisma.playbookRunReview.findMany({
       where: {
         ...(game ? { gameSlug: game } : {}),

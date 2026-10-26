@@ -51,6 +51,7 @@ export function startRun(seed: number): Run {
     pendingLoot: [],
     flags: [],
     seed: seed || 1,
+    originSeed: seed || 1,
     visited: ['the-crossing'],
     endings: [],
     battle: null,

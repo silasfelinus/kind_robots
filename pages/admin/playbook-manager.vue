@@ -34,6 +34,14 @@
         </span>
       </span>
       <div class="ml-auto flex shrink-0 items-center gap-2">
+        <NuxtLink
+          class="inline-flex studio-pill-button"
+          to="/admin/playbook-reviews"
+          title="Read player ratings with their playthrough histories"
+        >
+          <Icon name="kind-icon:star" class="size-4" />
+          <span class="max-sm:sr-only">Run reviews</span>
+        </NuxtLink>
         <button
           v-if="store.game === 'ecotone'"
           type="button"

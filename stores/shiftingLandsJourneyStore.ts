@@ -77,6 +77,7 @@ import {
   kitchenNoviceOptionsV9,
   kitchenNoviceStatusV9,
   kitchenNoviceEchoesV9,
+  v9CharacterSheet,
   type JourneyActionV9,
   type JourneyLedgerV9,
   type KitchenNoviceChoiceV9,

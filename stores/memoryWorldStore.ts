@@ -75,6 +75,7 @@ import {
   advanceMinefieldRun,
   createMinefieldRun,
   MINEFIELD_SITE,
+  minefieldRunExhausted,
   minefieldRewardKey,
   playMinefieldRun,
   type MinefieldMove,
@@ -1253,6 +1254,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       !previous ||
       previous.size !== size ||
+      minefieldRunExhausted(previous) ||
       playMinefieldRun(previous).outcome !== 'exploring'
     ) {
       const round = Math.min(999, state.value.minefieldRound + 1)
@@ -1265,6 +1267,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldHint.value = null
     minefieldActive.value = true
     persist()
+  }
+
+  /** Even a 600-move flag-toggling explorer can restart without a dead save. */
+  function retryExhaustedMinefield(): void {
+    const run = state.value.minefield
+    if (!minefieldActive.value || !run || !minefieldRunExhausted(run)) return
+    minefieldActive.value = false
+    openMinefield(run.size)
   }
 
   function minefieldMove(move: MinefieldMove): void {
@@ -1907,6 +1917,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldHint,
     openMinefield,
     minefieldMove,
+    retryExhaustedMinefield,
     requestMinefieldHint,
     closeMinefield,
     combatShown,

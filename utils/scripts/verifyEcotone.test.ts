@@ -859,8 +859,7 @@ function play(seed: number, plan: Plan) {
     assert.ok(card, 'a beat is in play')
     const playable = card.choices.filter(
       (c) =>
-        !c.locked &&
-        (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+        !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
     )
     const choice =
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??

@@ -1713,7 +1713,10 @@ const resolveQuest = (
       continue
     }
     const ownHide = def.ability.kind === 'thick-hide'
-    const days = Math.min(1, Math.max(0, (ownHide ? Math.ceil(raw / 2) : raw) - surgery))
+    const days = Math.min(
+      1,
+      Math.max(0, (ownHide ? Math.ceil(raw / 2) : raw) - surgery),
+    )
     if (days <= 0) continue
     state.injuredUntilDay = run.day + days
     injuries.push({ followerId: def.id, days })

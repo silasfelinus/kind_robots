@@ -1,3 +1,4 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
@@ -237,6 +238,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         identity,
       ),
     )
+    usePlaybookRunReviewStore().begin('ecotone', String(seed))
   }
 
   /** Cosmetic change: persistent, but never a story decision or undo step. */

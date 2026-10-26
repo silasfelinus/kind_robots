@@ -91,6 +91,7 @@ export const ModelName = {
   MusicVideo: 'MusicVideo',
   PlaybookEdit: 'PlaybookEdit',
   PlaybookNote: 'PlaybookNote',
+  PlaybookRunReview: 'PlaybookRunReview',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -887,6 +888,21 @@ export const PlaybookNoteScalarFieldEnum = {
 } as const
 
 export type PlaybookNoteScalarFieldEnum = (typeof PlaybookNoteScalarFieldEnum)[keyof typeof PlaybookNoteScalarFieldEnum]
+
+
+export const PlaybookRunReviewScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  gameSlug: 'gameSlug',
+  runId: 'runId',
+  userId: 'userId',
+  endingKey: 'endingKey',
+  stars: 'stars',
+  comment: 'comment',
+  history: 'history'
+} as const
+
+export type PlaybookRunReviewScalarFieldEnum = (typeof PlaybookRunReviewScalarFieldEnum)[keyof typeof PlaybookRunReviewScalarFieldEnum]
 
 
 export const ProjectPageContentScalarFieldEnum = {
@@ -3209,6 +3225,17 @@ export const PlaybookNoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type PlaybookNoteOrderByRelevanceFieldEnum = (typeof PlaybookNoteOrderByRelevanceFieldEnum)[keyof typeof PlaybookNoteOrderByRelevanceFieldEnum]
+
+
+export const PlaybookRunReviewOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  runId: 'runId',
+  endingKey: 'endingKey',
+  comment: 'comment',
+  history: 'history'
+} as const
+
+export type PlaybookRunReviewOrderByRelevanceFieldEnum = (typeof PlaybookRunReviewOrderByRelevanceFieldEnum)[keyof typeof PlaybookRunReviewOrderByRelevanceFieldEnum]
 
 
 export const ProjectPageContentOrderByRelevanceFieldEnum = {

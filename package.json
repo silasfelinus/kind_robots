@@ -161,6 +161,7 @@
     "test:memory-dungeon-minefield": "tsx utils/scripts/verifyMemoryDungeonMinefield.test.ts",
     "test:memory-dungeon-rooms": "tsx utils/scripts/verifyMemoryDungeonRooms.test.ts",
     "test:playbook": "tsx utils/scripts/verifyPlaybook.test.ts",
+    "test:playbook-run-review": "tsx utils/scripts/verifyPlaybookRunReview.test.ts",
     "test:playbook-kit": "tsx utils/scripts/verifyPlaybookKit.test.ts",
     "test:playbook-forge": "tsx utils/scripts/verifyPlaybookForge.test.ts",
     "playbook:new": "tsx utils/scripts/scaffoldPlaybook.ts",

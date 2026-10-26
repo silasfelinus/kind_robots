@@ -1,3 +1,4 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { defineStore } from 'pinia'
 import { journeyCharacterSheet } from '~/utils/shiftingLands/progression'
 import {
@@ -555,6 +556,10 @@ export const useShiftingLandsJourneyStore = defineStore(
     function fresh() {
       if (!loaded.value) return
       ledger.value = newJourneyLedgerV9(Date.now() % 2147483647)
+      usePlaybookRunReviewStore().begin(
+        'shifting-lands',
+        String(ledger.value.seed),
+      )
       restoreWarning.value = false
       persist()
     }

@@ -184,8 +184,8 @@ assert.match(store, /function exportSave\(/)
 assert.match(store, /function importSave\(/)
 assert.match(store, /restoreRun\(payload\.run\)/)
 assert.match(board, /portraitRetry/)
-assert.match(board, /:art="stagedChoice.thumb.art"/)
-assert.match(board, /stagedChoice.possibilities/)
+assert.match(board, /:art="option.thumb.art"/)
+assert.match(board, /option.possibilities/)
 assert.match(board, /uploadPortrait/)
 assert.match(board, /game.setPlayerLook/)
 assert.match(board, /max-h-none/)
@@ -197,8 +197,12 @@ assert.ok(
   'emoji-only selection grid was retired',
 )
 assert.match(board, /Opening choice · No roll/)
-assert.match(board, /Confirm your decision/)
-assert.match(board, /Change my mind/)
+assert.match(
+  board,
+  /function queueDecision\(option: Option\) \{\s+if \(option.disabled\) return\s+option.act\(\)/,
+)
+assert.doesNotMatch(board, /Confirm your decision|confirmDecision|stagedChoice/)
+assert.doesNotMatch(board, /Change my mind/)
 assert.match(board, /Undo last decision/)
 assert.match(board, /tab === 'settings'/)
 assert.match(board, /Text reveal speed/)
@@ -210,10 +214,29 @@ assert.match(board, /:style="\{ '--eco-text-scale': displayScale \}"/)
 assert.match(board, /contextualOpeningChoices\(card, run\)/)
 assert.ok(!board.includes('SUBSTANCE_CHOICES'))
 assert.match(board, /v-for="\(paragraph, index\) in revealedBody"/)
-assert.ok(
-  !board.includes('@4xl:overflow-hidden'),
-  'large text must not be clipped at desktop width',
+assert.match(
+  board,
+  /@4xl:col-start-1 @4xl:row-start-1 @4xl:overflow-y-auto/,
+  'story has its own vertical scroll on wide screens',
 )
+assert.match(
+  board,
+  /@4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-\[42vh\] @4xl:overflow-y-auto/,
+  'choices share the text column and can scroll when crowded',
+)
+assert.match(
+  board,
+  /@4xl:left-\[55%\] @4xl:right-0 @4xl:h-full/,
+  'illustration has its own unobstructed right-hand column',
+)
+assert.match(board, /pt-\[calc\(clamp\(13rem,32vh,22rem\)\+1\.25rem\)\]/)
+assert.match(
+  board,
+  /game.endings.includes\(game.ending.id\)/,
+  'earned ending card is visible in the same illustration column',
+)
+assert.match(board, /Ending earned/)
+assert.match(board, /:art="endingArtKey\(game.ending.id\)"/)
 
 console.log(
   'Ecotone first impressions: 12 avatars, personal runs, fewer opening temptations, undo and settings contract passed',

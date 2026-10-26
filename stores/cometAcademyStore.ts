@@ -1,3 +1,5 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type {
@@ -59,6 +61,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     vow?: PowerVowId,
   ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
+    usePlaybookRunReviewStore().begin('comet-city-academy', playbookRunKey(run.value))
     persist()
   }
 

@@ -1,3 +1,4 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useAchievementStore } from './achievementStore'
@@ -126,6 +127,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       ? dailySeed()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     run.value = newRun(seed, jobId)
+    usePlaybookRunReviewStore().begin('shifting-desks', seed)
     envelopeOpened.value = false
     persist()
   }

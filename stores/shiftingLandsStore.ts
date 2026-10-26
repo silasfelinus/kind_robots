@@ -1,3 +1,4 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
@@ -50,6 +51,7 @@ export const useShiftingLandsStore = defineStore('shiftingLands', () => {
   }
   function fresh() {
     state.value = createHomestead(Date.now() % 2147483647)
+    usePlaybookRunReviewStore().begin('shifting-lands', String(state.value.seed))
     persist()
   }
   function draw() {

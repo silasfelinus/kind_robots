@@ -1,3 +1,4 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
@@ -282,6 +283,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       options.seed ??
       `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     commit(newRun({ ...options, seed }))
+    usePlaybookRunReviewStore().begin('crystal-street', seed)
   }
 
   function abandon(): void {

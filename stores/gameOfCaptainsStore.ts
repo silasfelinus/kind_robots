@@ -1,3 +1,5 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
@@ -47,6 +49,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function begin(captain: CaptainId, crew: CrewId[]) {
     run.value = startVoyage(captain, crew)
+    usePlaybookRunReviewStore().begin('game-of-captains', playbookRunKey(run.value))
     persist()
   }
   function assign(crew: CrewId[]) {

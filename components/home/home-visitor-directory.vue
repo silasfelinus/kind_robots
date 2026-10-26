@@ -373,7 +373,7 @@ const features = [
     tag: 'Playable space adventure',
     category: 'play',
     route: '/play/game-of-captains',
-    image: '/game-of-captains/space-couch-stage.svg',
+    image: '/game-of-captains/front/dashboard-highlight.webp',
     description:
       'Four spacers, one long red couch, an invisible force shield, and infinite trouble.',
   },

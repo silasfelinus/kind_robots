@@ -413,6 +413,12 @@ assert.deepEqual(
 )
 assert.equal(formatDuration(60 * 3600), '2d 12h', 'days round down')
 
+assert.equal(
+  new Set(EXISTING_PLAYBOOKS.map((e) => e.slug)).size,
+  EXISTING_PLAYBOOKS.length,
+  'one library entry per game, even when a kit spec shares its slug',
+)
+
 // Openings fan out into endings: the party adds epilogue lines, the hero
 // multiplies the written endings.
 {

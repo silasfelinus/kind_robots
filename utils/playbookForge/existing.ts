@@ -91,7 +91,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     slug: 'game-of-captains',
     studio: 'game-of-captains',
     title: 'Space Couch',
-    cover: '/game-of-captains/space-couch-stage.svg',
+    cover: '/game-of-captains/front/splash.webp',
     route: '/play/game-of-captains',
     planSource:
       'Space Couch ship bible, Conductor goal and master issue kind_robots#4182',
@@ -385,7 +385,13 @@ function kitEntry(spec: PlaybookKitSpec): ExistingPlaybook {
   }
 }
 
-EXISTING_PLAYBOOKS.push(...KIT_PLAYBOOKS.map(kitEntry))
+// A kit spec for a game that already has a full entry (Space Couch) is its
+// rehearsal, reached from that game's ledger, not a second library tile.
+EXISTING_PLAYBOOKS.push(
+  ...KIT_PLAYBOOKS.filter(
+    (spec) => !EXISTING_PLAYBOOKS.some((entry) => entry.slug === spec.id),
+  ).map(kitEntry),
+)
 
 /** The forge entry for a Playbook Studio game id. */
 export function forgeEntryForStudio(

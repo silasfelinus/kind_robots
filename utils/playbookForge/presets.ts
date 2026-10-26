@@ -94,7 +94,7 @@ export const GENRES: Genre[] = [
   },
   {
     id: 'space-comedy',
-    cover: '/game-of-captains/space-couch-stage.svg',
+    cover: '/game-of-captains/front/splash.webp',
     label: 'Space comedy',
     pitch:
       'Pilot a long red couch, unfold pocket rooms and decide who deserves an intervention.',

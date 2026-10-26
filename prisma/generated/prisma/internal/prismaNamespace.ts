@@ -524,6 +524,7 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
   TzaddikRecheckRequest: 'TzaddikRecheckRequest'
@@ -542,7 +543,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -8928,6 +8929,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SiteStatDaily: {
+      payload: Prisma.$SiteStatDailyPayload<ExtArgs>
+      fields: Prisma.SiteStatDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteStatDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteStatDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteStatDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteStatDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        findMany: {
+          args: Prisma.SiteStatDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>[]
+        }
+        create: {
+          args: Prisma.SiteStatDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        createMany: {
+          args: Prisma.SiteStatDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SiteStatDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        update: {
+          args: Prisma.SiteStatDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteStatDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteStatDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SiteStatDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteStatDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteStatDaily>
+        }
+        groupBy: {
+          args: Prisma.SiteStatDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteStatDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteStatDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteStatDailyCountAggregateOutputType> | number
+        }
+      }
+    }
     TzaddikCandidate: {
       payload: Prisma.$TzaddikCandidatePayload<ExtArgs>
       fields: Prisma.TzaddikCandidateFieldRefs
@@ -11635,6 +11702,18 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const SiteStatDailyScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  kind: 'kind',
+  key: 'key',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteStatDailyScalarFieldEnum = (typeof SiteStatDailyScalarFieldEnum)[keyof typeof SiteStatDailyScalarFieldEnum]
+
+
 export const TzaddikCandidateScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -13081,6 +13160,14 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
 
 
+export const SiteStatDailyOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  key: 'key'
+} as const
+
+export type SiteStatDailyOrderByRelevanceFieldEnum = (typeof SiteStatDailyOrderByRelevanceFieldEnum)[keyof typeof SiteStatDailyOrderByRelevanceFieldEnum]
+
+
 export const TzaddikCandidateOrderByRelevanceFieldEnum = {
   displayName: 'displayName',
   slug: 'slug',
@@ -13985,6 +14072,7 @@ export type GlobalOmitConfig = {
   appRepo?: Prisma.AppRepoOmit
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
+  siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit
   tzaddikCandidateTag?: Prisma.TzaddikCandidateTagOmit
   tzaddikRecheckRequest?: Prisma.TzaddikRecheckRequestOmit

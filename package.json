@@ -169,6 +169,7 @@
     "test:zuzu-showdown-render": "tsx utils/scripts/verifyZuzuShowdownRender.test.ts",
     "test:zuzu-showdown-zuzu": "tsx utils/scripts/verifyZuzuShowdownZuzu.test.ts",
     "test:arcade-reviews": "tsx utils/scripts/verifyArcadeReviews.test.ts",
+    "test:site-stats": "tsx utils/scripts/verifySiteStats.test.ts",
     "test:zuzu-lair": "tsx utils/scripts/verifyZuzuLairEngine.test.ts && tsx utils/scripts/verifyZuzuLairArcade.test.ts",
     "test:zuzu-showdown-coyote": "tsx utils/scripts/verifyZuzuShowdownCoyote.test.ts",
     "test:zuzu-showdown-abbess": "tsx utils/scripts/verifyZuzuShowdownAbbess.test.ts",

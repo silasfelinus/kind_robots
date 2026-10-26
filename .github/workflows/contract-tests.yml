@@ -187,6 +187,9 @@ jobs:
       - name: Arcade reviews and private Lair contract
         run: npm run test:arcade-reviews
 
+      - name: Site stats normalization and privacy contract
+        run: npm run test:site-stats
+
       - name: Zuzu Pinball private 3D preview
         run: npm run test:zuzu-pinball
 

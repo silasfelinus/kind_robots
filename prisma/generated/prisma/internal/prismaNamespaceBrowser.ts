@@ -178,6 +178,7 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
   TzaddikRecheckRequest: 'TzaddikRecheckRequest'
@@ -2669,6 +2670,18 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const SiteStatDailyScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  kind: 'kind',
+  key: 'key',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteStatDailyScalarFieldEnum = (typeof SiteStatDailyScalarFieldEnum)[keyof typeof SiteStatDailyScalarFieldEnum]
+
+
 export const TzaddikCandidateScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -4113,6 +4126,14 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const SiteStatDailyOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  key: 'key'
+} as const
+
+export type SiteStatDailyOrderByRelevanceFieldEnum = (typeof SiteStatDailyOrderByRelevanceFieldEnum)[keyof typeof SiteStatDailyOrderByRelevanceFieldEnum]
 
 
 export const TzaddikCandidateOrderByRelevanceFieldEnum = {

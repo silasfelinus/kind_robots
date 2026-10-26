@@ -1126,6 +1126,11 @@ export type MediaEntry = Prisma.MediaEntryModel
  */
 export type ResourcePreview = Prisma.ResourcePreviewModel
 /**
+ * Model SiteStatDaily
+ * 
+ */
+export type SiteStatDaily = Prisma.SiteStatDailyModel
+/**
  * Model TzaddikCandidate
  * 
  */

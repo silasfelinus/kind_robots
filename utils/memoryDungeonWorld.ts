@@ -4,7 +4,10 @@ import {
   type BriarCombat,
 } from './memoryDungeon/rooms'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
-import { restoreMinefieldRun, type MinefieldRun } from './memoryDungeon/minefieldRun'
+import {
+  restoreMinefieldRun,
+  type MinefieldRun,
+} from './memoryDungeon/minefieldRun'
 import {
   newHouseProgress,
   restoreHouseProgress,

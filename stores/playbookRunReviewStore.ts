@@ -59,6 +59,7 @@ export const usePlaybookRunReviewStore = defineStore('playbookRunReview', () => 
 
   function begin(game: string, runKey: string) {
     load()
+    error.value = ''
     sessions.value[key(game, runKey)] = { runId: newId(), status: 'open' }
     persist()
   }

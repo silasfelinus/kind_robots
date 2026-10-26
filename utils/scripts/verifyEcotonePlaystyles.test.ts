@@ -61,7 +61,11 @@ function choiceScore(choice: Choice, style: Style): number {
 function nextChoice(state: RunState, style: Style): string {
   const card = findCard(state.card)
   assert.ok(card, 'a journey must only offer authored cards')
-  const choices = openingLensChoices(card).filter((choice) => !choice.locked)
+  const choices = openingLensChoices(card).filter(
+    (choice) =>
+      !choice.locked &&
+      (!choice.requiresFlag || state.flags.includes(choice.requiresFlag)),
+  )
   assert.ok(choices.length > 0, card.id + ' has a playable decision')
 
   const area = choices.filter((choice) => choice.prospect)

@@ -23,6 +23,7 @@ import {
 import {
   advanceMinefieldRun,
   createMinefieldRun,
+  minefieldRunExhausted,
   minefieldRewardKey,
   playMinefieldRun,
   restoreMinefieldRun,
@@ -276,6 +277,122 @@ for (const floor of FLOORS)
 console.log(
   `Memory Dungeon Minefield: ${SEEDS * FLOORS.length} guess-free floors on 8x8 and 10x10,`,
   'forced guesses rejected, missteps recoverable, exact disarms, leak-free screen-reader text',
+)
+
+// Adversarial persona sweep: a greedy runner taps the always-safe exit on turn
+// one. No seed may award victory before they actually clear the safe terrain.
+// A careful deductive solver should still finish without losing hearts.
+for (const size of [8, 10] as const) {
+  let escaped = 0
+  for (let seed = 1; seed <= 12; seed++) {
+    const label = `${size}x${size} adversarial seed ${seed}`
+    const start = createMinefield({
+      seed: 9800 + seed,
+      rows: size,
+      cols: size,
+      hazards: size === 8 ? 10 : 16,
+    })
+    const greedy = step(start, start.exit)
+    assert.equal(greedy.outcome, 'exploring', `${label}: no free exit victory`)
+    assert.equal(greedy.tiles[idx(greedy, greedy.exit)]!.revealed, true)
+    assert.ok(
+      greedy.tiles.some((tile) => !tile.hazard && !tile.revealed),
+      `${label}: meaningful safe terrain still exists after a greedy click`,
+    )
+    // The novice who flags the exit blocks their own move, not the puzzle;
+    // unflagging the door must restore the original state of progress.
+    const flagged = toggleFlag(start, start.exit)
+    assert.equal(
+      step(flagged, start.exit),
+      flagged,
+      `${label}: a flag blocks stepping`,
+    )
+    assert.equal(
+      toggleFlag(flagged, start.exit).tiles[idx(start, start.exit)]!.flagged,
+      false,
+    )
+    let current = greedy
+    let turns = 0
+    while (current.outcome === 'exploring') {
+      assert.ok(turns++ < size * size, `${label}: no unbounded deduction loop`)
+      const proven = provenCells(current).safe
+      assert.ok(proven.length > 0, `${label}: no mandatory blind guess`)
+      for (const safe of proven) {
+        current = step(current, safe)
+        if (current.outcome !== 'exploring') break
+      }
+    }
+    assert.equal(current.outcome, 'escaped', `${label}: expert can finish`)
+    assert.equal(
+      current.hearts,
+      greedy.hearts,
+      `${label}: no hidden hazard needed`,
+    )
+    assert.ok(current.tiles.every((tile) => tile.hazard || tile.revealed))
+    assert.equal(
+      current.log.filter((event) => event.type === 'exit').length,
+      1,
+      `${label}: no double-awarded victory event`,
+    )
+    assert.equal(
+      step(current, current.exit),
+      current,
+      `${label}: terminal floor immutable`,
+    )
+    escaped++
+  }
+  assert.equal(escaped, 12)
+}
+
+// Save/load and griefing: no-op revealed clues should not consume the finite
+// replay budget. Even a 600-turn flag toggler gets a visible restart route.
+for (const size of [8, 10] as const) {
+  const run = createMinefieldRun(5100 + size, size)
+  const first = playMinefieldRun(run)
+  const redundant = advanceMinefieldRun(run, {
+    action: 'step',
+    ...first.entrance,
+  })
+  assert.equal(
+    redundant,
+    run,
+    'Revealed entrance is a no-op, not a logged move',
+  )
+  const safe = provenCells(first).safe[0]!
+  const advanced = advanceMinefieldRun(run, { action: 'step', ...safe })
+  assert.equal(advanced.moves.length, 1)
+  assert.equal(
+    advanceMinefieldRun(advanced, { action: 'step', ...safe }),
+    advanced,
+    'Repeat taps do not eat move budget or create phantom turns',
+  )
+  const flooded = Array.from({ length: 600 }, (_, i) => ({
+    action: 'flag' as const,
+    row: 1,
+    col: i % 2,
+  }))
+  const exhausted = restoreMinefieldRun({ ...run, moves: flooded })!
+  assert.ok(minefieldRunExhausted(exhausted))
+  assert.equal(
+    advanceMinefieldRun(exhausted, { action: 'step', ...safe }),
+    exhausted,
+    'Bounded exhausted log is not silently extended',
+  )
+}
+const rescueStage = readFileSync(
+  'components/memory-dungeon/minefield-stage.vue',
+  'utf8',
+)
+const rescueStore = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(rescueStage, /data-testid="memory-minefield-exhausted"/)
+assert.match(rescueStage, /world\.retryExhaustedMinefield\(\)/)
+assert.match(rescueStage, /Reveal every safe space/)
+assert.match(rescueStore, /minefieldRunExhausted\(previous\)/)
+assert.match(rescueStore, /minefieldHint.value !== null/)
+assert.match(rescueStage, /world.state.lanterns < 1 \|\| !!world.minefieldHint/)
+
+console.log(
+  'Adversarial Minefield: 24 greedy exits prevented, 24 deduction wins, repeat-click and exhausted save recovery verified',
 )
 
 // 5. In-game archive: 8x8 and 10x10 stage saves store moves, not hidden hazards.

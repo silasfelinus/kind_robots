@@ -259,6 +259,62 @@ assert.deepEqual(
   ['earth-01', 'earth-02'],
   'Older Briar saves gain their already-earned evidence without replaying encounters',
 )
+// The impatient reader may find a Dark Briar photograph before either
+// original, then reset the original map. All 24 permutations should restore
+// the same Earth chronology, preserve consent-based responses, and never leak
+// later-world photographs into the journal.
+const photoEvents = [
+  { reality: 'e01' as const, site: '2,5', id: 'earth-01' },
+  { reality: 'e01' as const, site: '8,6', id: 'earth-02' },
+  { reality: 'e02' as const, site: '2,5', id: 'earth-03' },
+  { reality: 'e02' as const, site: '5,4', id: 'earth-04' },
+]
+function permutations<T>(items: readonly T[]): T[][] {
+  if (!items.length) return [[]]
+  return items.flatMap((item, i) =>
+    permutations(items.filter((_, j) => i !== j)).map((tail) => [
+      item,
+      ...tail,
+    ]),
+  )
+}
+let photoSequences = 0
+for (const sequence of permutations(photoEvents)) {
+  const scenes: { e01: Record<string, string>; e02: Record<string, string> } = {
+    e01: {},
+    e02: {},
+  }
+  let journal = newEarthChronicle()
+  for (const [i, event] of sequence.entries()) {
+    scenes[event.reality][event.site] = 'remember'
+    journal = reconcileEarthChronicle(journal, scenes)
+    assert.equal(journal.found.length, i + 1)
+    const response = i % 2 ? 'hold' : 'challenge'
+    journal = respondToEarthPhoto(journal, event.id, response)
+    assert.equal(journal.responses[event.id], response)
+    journal = restoreEarthChronicle(JSON.parse(JSON.stringify(journal)))
+  }
+  assert.deepEqual(
+    recoveredEarthPhotos(journal).map((photo) => photo.id),
+    ['earth-01', 'earth-02', 'earth-03', 'earth-04'],
+  )
+  const old = journal.responses[sequence[0]!.id]
+  assert.equal(
+    respondToEarthPhoto(journal, sequence[0]!.id, 'hold').responses[
+      sequence[0]!.id
+    ],
+    old,
+  )
+  // An ordinary world restart doesn't destroy the cross-run photograph record.
+  journal = reconcileEarthChronicle(journal, { e01: {}, e02: {} })
+  assert.equal(journal.found.length, 4)
+  photoSequences++
+}
+assert.equal(photoSequences, 24)
+console.log(
+  'Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics',
+)
+
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',
   'utf8',

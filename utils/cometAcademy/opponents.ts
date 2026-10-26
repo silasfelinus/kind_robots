@@ -46,5 +46,5 @@ export function antagonistFinale(
 ): string {
   return hasCounterplay
     ? `${opponent.realName} chose the name ${opponent.villain.alias}, but their defeat does not erase the person: ${opponent.backstory} The public now knows the cost of the plan: ${opponent.villain.method}`
-    : `${opponent.villain.alias} still controls part of the battlefield: ${opponent.villain.method} Investigators must contend with a motive rooted in ${opponent.backstory}`
+    : `${opponent.realName}, now calling themselves ${opponent.villain.alias}, still controls part of the battlefield: ${opponent.villain.method} Investigators must contend with a motive rooted in ${opponent.backstory}`
 }

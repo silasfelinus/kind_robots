@@ -595,7 +595,11 @@ export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
 
 export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
   if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
-  if (!STUDENTS.some((person) => person.id === id) || (run.injuries?.[id] ?? 0) <= run.day || (run.betrayal?.person === id && run.betrayal.status !== 'reconciled'))
+  if (
+    !STUDENTS.some((person) => person.id === id) ||
+    (run.injuries?.[id] ?? 0) <= run.day ||
+    (run.betrayal?.person === id && run.betrayal.status !== 'reconciled')
+  )
     return run
   return {
     ...run,

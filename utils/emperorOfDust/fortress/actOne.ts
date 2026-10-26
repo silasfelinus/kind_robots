@@ -800,6 +800,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd01-toll',
         title: 'Painted Wagons at the Toll',
         speaker: 'A Jackalwire captain',
+        npc: 'jackalwire-toll-captain',
         faction: 'jackalwire',
         lines: [
           'The next petitioner does not wait to be announced. A raider captain with a painted jaw, boots unlaced, a fiddle on her back. Her grin is a dropped knife.',
@@ -1233,6 +1234,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd02-millers-price',
         title: 'The Millers’ Price',
         speaker: 'Aldous Hopper of the Hollow Bell mill families',
+        npc: 'aldous-hopper',
         faction: 'old-houses',
         requires: { flags: ['mara-millers-levy'] },
         lines: [
@@ -1666,6 +1668,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd03-fen-lanterns',
         title: 'Lanterns in the Fen',
         speaker: 'A Mirefen reed-cutter',
+        npc: 'mirefen-reed-cutter',
         lines: [
           'The reed-cutter walked all night and smells of it: black water to the knees, a sickle the Gate Watch made her wrap in sacking. In her other hand, a tally stick. The notches are fresh and pale.',
           '“There’s lanterns in the fen, Majesty, where nobody lives. They walk in step. Not like folk walk. Like a line of geese.”',
@@ -1903,6 +1906,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd03-tincture-letter',
         title: 'A Cold Letter, Delivered Warm',
         speaker: 'A Saltroad tincture factor',
+        npc: 'saltroad-tincture-factor',
         faction: 'saltroad',
         requires: { flags: ['pack-medicine'] },
         lines: [
@@ -2132,6 +2136,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd04-letter-from-bell',
         title: 'Letter From Bell',
         speaker: 'Pip Thread, archivist of Hollow Bell',
+        npc: 'F005',
         faction: 'hollow-bell',
         lines: [
           'Pip Thread comes up the carpet in a coat too heavy for the weather, holding a letter in both hands like evidence. Their spectacles are mended with thread. They stop at the petitioners’ line, check it, and stop again.',
@@ -2322,6 +2327,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd04-silent-crows',
         title: 'The Silent Heights',
         speaker: 'A young Conclave messenger',
+        npc: 'conclave-messenger',
         faction: 'storm-crows',
         lines: [
           'The young messenger wears a runner’s mantle cut for someone twice her size. The hem drags. Its copper chimes are stuffed with wool so they won’t ring. She keeps glancing at the high windows.',
@@ -2482,6 +2488,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd04-painted-feast',
         title: 'A Feast Under Painted Wagons',
         speaker: 'A wagon-painter for hire',
+        npc: 'jackalwire-wagon-painter',
         faction: 'jackalwire',
         lines: [
           'The wagon-painter is a lean artisan with wet paint on his paws. He brings a sample: a wooden panel of the tower and the Pack’s wagons under a fat yellow moon. Everyone smiling. Nobody armed.',

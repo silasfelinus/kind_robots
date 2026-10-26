@@ -33,7 +33,9 @@ assert.equal(quests.split('kr-pane-scroll').length - 1, 2)
 assert.doesNotMatch(quests, /scrollArea\\.value\\.scrollTo|scrollIntoView/)
 assert.match(quests, /mobilePane = ref<'board' \\| 'details'>/)
 assert.match(quests, /class="flex shrink-0 flex-wrap items-center/)
-assert.match(page, /activeRoom === 'briefing' \\|\\| activeRoom === 'quests'/)
+assert.match(page, /activeRoom === 'briefing' \\|\\| activeRoom === 'throne'/)
+assert.match(page, /activeRoom === 'throne' \\|\\| activeRoom === 'quests'/)
+assert.match(page, /data-layout="console-fixed"/)
 
 // Every illustrated fortress room uses the same opaque ink surface. The quest
 // rewards and dispatch controls must not show wood grain through their text.

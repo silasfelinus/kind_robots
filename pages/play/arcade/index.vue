@@ -36,12 +36,7 @@
             class="kr-pane arcade-playfield min-w-0"
             :class="{ 'arcade-playfield--hidden': showDetails }"
           >
-            <ArcadeCabinet
-              :key="meta.slug"
-              :slug="meta.slug"
-              contained
-              @scored="support.recordRunFinished(route.fullPath)"
-            />
+            <ArcadeCabinet :key="meta.slug" :slug="meta.slug" contained />
           </div>
 
           <aside
@@ -203,11 +198,9 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArcadeStore } from '@/stores/arcadeStore'
-import { useSupportStore } from '@/stores/supportStore'
 import { ARCADE_GAMES, findArcadeGame } from '~/utils/arcade/games'
 
 const route = useRoute()
-const support = useSupportStore()
 const store = useArcadeStore()
 const showDetails = ref(false)
 type DetailTab = 'scores' | 'achievements' | 'instructions' | 'reviews'

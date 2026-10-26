@@ -423,6 +423,7 @@ import {
   type DpadDirection,
 } from '../../utils/arcade/dpad'
 import { useUserStore } from '@/stores/userStore'
+import { useSupportStore } from '@/stores/supportStore'
 import type { CSSProperties } from 'vue'
 import {
   fitDisplay,
@@ -498,6 +499,8 @@ const contained = computed(() => props.contained === true)
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
 const store = useArcadeStore()
+const support = useSupportStore()
+const route = useRoute()
 const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
 /** A WebGL game draws on a stage canvas under the 2D UI canvas. */
@@ -1380,6 +1383,7 @@ function tick() {
         ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
         qualifiesForBoard(lastScore, board.value)
       emit('scored', lastScore)
+      support.recordRunFinished(route.fullPath)
       dispatch({ type: 'gameOver' })
     }
     return

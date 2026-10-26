@@ -130,6 +130,12 @@ assert.equal(
   'a coercive first trial cannot receive the trusted-witness callback',
 )
 
+assert.equal(
+  kitchenNoviceQuestEchoesV8(atCrossing, [trial(first, 'parley')])[0]!.title,
+  'The sister at the landing',
+  'a private parley cannot claim the player stood with witnesses',
+)
+
 const wary: V6Result = {
   ...intro,
   roll: { ...intro.roll!, dice: [1, 1], total: 4, success: false },

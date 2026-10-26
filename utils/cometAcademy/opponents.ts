@@ -9,7 +9,9 @@ export function campaignOpponent(
   saved?: SignaturePowerId,
 ): IdentityArc {
   if (saved) return identityFor(saved)
-  const candidates = IDENTITY_ARCS.filter((person) => person.signature !== protagonist)
+  const candidates = IDENTITY_ARCS.filter(
+    (person) => person.signature !== protagonist,
+  )
   const index = (Math.trunc(seed) >>> 0) % candidates.length
   return candidates[index]!
 }

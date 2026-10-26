@@ -5,6 +5,10 @@ import {
 } from './memoryDungeon/rooms'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
+  restoreMinefieldRun,
+  type MinefieldRun,
+} from './memoryDungeon/minefieldRun'
+import {
   newHouseProgress,
   restoreHouseProgress,
   type HouseProgress,
@@ -293,6 +297,9 @@ export interface BriarSave {
   lanterns: number
   chestClaims: string[]
   puzzleSolved: boolean
+  /** Independent, resumable side chamber at the Three Quiet Stones. */
+  minefield: MinefieldRun | null
+  minefieldRound: number
   gateOpened: boolean
   completedEncounters: string[]
   sealedPartnerFound: boolean
@@ -327,6 +334,8 @@ export function newBriarSave(): BriarSave {
     lanterns: 1,
     chestClaims: [],
     puzzleSolved: false,
+    minefield: null,
+    minefieldRound: 0,
     gateOpened: false,
     completedEncounters: [],
     sealedPartnerFound: false,
@@ -478,6 +487,10 @@ export function restoreBriarSave(input: unknown): BriarSave {
       : 1,
     chestClaims: validKeys(saved.chestClaims),
     puzzleSolved: saved.puzzleSolved === true,
+    minefield: restoreMinefieldRun(saved.minefield),
+    minefieldRound: Number.isSafeInteger(saved.minefieldRound)
+      ? Math.max(0, Math.min(999, saved.minefieldRound!))
+      : 0,
     gateOpened: saved.gateOpened === true,
     completedEncounters: Array.isArray(saved.completedEncounters)
       ? saved.completedEncounters.filter(

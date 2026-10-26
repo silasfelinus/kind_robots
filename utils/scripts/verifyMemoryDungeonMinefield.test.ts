@@ -4,6 +4,7 @@
 // forced guess, truthful clues, recoverable missteps, exact one-cell disarms,
 // and screen-reader text that never leaks what a hidden cell holds.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   coordinate,
   createMinefield,
@@ -18,6 +19,14 @@ import {
   type MinefieldState,
   type Tile,
 } from '../memoryDungeon/minefield'
+
+import {
+  advanceMinefieldRun,
+  createMinefieldRun,
+  minefieldRewardKey,
+  playMinefieldRun,
+  restoreMinefieldRun,
+} from '../memoryDungeon/minefieldRun'
 
 const idx = (s: MinefieldState, c: Cell) => c.row * s.cols + c.col
 const cellAt = (s: MinefieldState, i: number): Cell => ({
@@ -268,3 +277,69 @@ console.log(
   `Memory Dungeon Minefield: ${SEEDS * FLOORS.length} guess-free floors on 8x8 and 10x10,`,
   'forced guesses rejected, missteps recoverable, exact disarms, leak-free screen-reader text',
 )
+
+// 5. In-game archive: 8x8 and 10x10 stage saves store moves, not hidden hazards.
+for (const size of [8, 10] as const) {
+  const run = createMinefieldRun(1307 + size, size)
+  const floor = playMinefieldRun(run)
+  assert.equal(floor.rows, size)
+  assert.equal(floor.cols, size)
+  assert.ok(solveWithoutGuessing(floor).solved)
+  const safe = provenCells(floor).safe[0]
+  assert.ok(safe, `${size}x${size} offers an initially provable move`)
+  const advanced = advanceMinefieldRun(run, { action: 'step', ...safe! })
+  assert.equal(advanced.moves.length, 1)
+  const restored = restoreMinefieldRun(JSON.parse(JSON.stringify(advanced)))
+  assert.deepEqual(restored, advanced)
+  assert.deepEqual(playMinefieldRun(restored!), playMinefieldRun(advanced))
+  assert.equal(minefieldRewardKey(size), `2,7:archive-${size}`)
+}
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 8,
+    moves: [{ action: 'step', row: 7, col: 8 }],
+  }),
+  null,
+)
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 8,
+    moves: [{ action: 'step', row: 0, col: 0, hazard: true }],
+  })?.moves[0]?.action,
+  'step',
+)
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 10,
+    moves: [{ action: 'teleport', row: 2, col: 2 }],
+  }),
+  null,
+)
+const bogusMoves = Array.from({ length: 601 }, () => ({
+  action: 'flag',
+  row: 1,
+  col: 1,
+}))
+assert.equal(
+  restoreMinefieldRun({ version: 1, seed: 1, size: 8, moves: bogusMoves }),
+  null,
+)
+const archiveComponent = readFileSync(
+  'components/memory-dungeon/minefield-stage.vue',
+  'utf8',
+)
+const overworldComponent = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.match(archiveComponent, /data-testid="memory-minefield-stage"/)
+assert.match(archiveComponent, /@keydown="handleKey/)
+assert.match(archiveComponent, /aria-label="Minefield tools"/)
+assert.match(overworldComponent, /world\.openMinefield\(8\)/)
+assert.match(overworldComponent, /world\.openMinefield\(10\)/)

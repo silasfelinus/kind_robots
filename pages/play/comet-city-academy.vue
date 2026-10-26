@@ -419,10 +419,7 @@
               </button>
             </div>
             <button
-              v-if="
-                run.flowVersion === 3 &&
-                SOCIAL_DAYS.some((day) => day === run.day)
-              "
+              v-if="socialDayAvailable"
               class="cca-choice"
               type="button"
               data-testid="academy-social-switch"
@@ -969,6 +966,10 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
+const socialDayAvailable = computed(() => {
+  const current = run.value
+  return current?.flowVersion === 3 && SOCIAL_DAYS.some(day => day === current.day)
+})
 const selectedSocialProfile = computed(() =>
   SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
 )

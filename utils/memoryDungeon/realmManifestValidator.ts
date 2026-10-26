@@ -3,7 +3,13 @@ export interface RealmSite {
   title: string
   persistenceKey: string
   choices: readonly { id: string; label: string; outcome: string }[]
-  art?: { path: string; prompt: string; status: 'placeholder' | 'queued' | 'delivered'; jobId?: number | null; url?: string | null }
+  art?: {
+    path: string
+    prompt: string
+    status: 'placeholder' | 'queued' | 'delivered'
+    jobId?: number | null
+    url?: string | null
+  }
 }
 export interface RealmManifest {
   name: string
@@ -19,36 +25,56 @@ export function validateRealmManifest(m: RealmManifest): string[] {
     if (required.has(key)) problems.push(`Duplicate coordinate ${key}`)
     required.add(key)
   }
-  if (!required.size || !required.has(m.start)) problems.push('Invalid start or empty realm')
+  if (!required.size || !required.has(m.start))
+    problems.push('Invalid start or empty realm')
   const seen = new Set<string>()
   const artPaths = new Set<string>()
   for (const site of m.sites) {
     if (seen.has(site.key)) problems.push(`Duplicate site ${site.key}`)
     if (!required.has(site.key)) problems.push(`Unknown site ${site.key}`)
     seen.add(site.key)
-    if (!site.title.trim() || !site.persistenceKey.trim()) problems.push(`Missing title or persistent consequence at ${site.key}`)
+    if (!site.title.trim() || !site.persistenceKey.trim())
+      problems.push(`Missing title or persistent consequence at ${site.key}`)
     if (site.choices.length < 2) problems.push(`Too few choices at ${site.key}`)
     const ids = new Set<string>()
     for (const c of site.choices) {
-      if (!c.id.trim() || ids.has(c.id)) problems.push(`Duplicate choice at ${site.key}`)
-      if (!c.label.trim() || !c.outcome.trim()) problems.push(`Missing choice outcome at ${site.key}`)
+      if (!c.id.trim() || ids.has(c.id))
+        problems.push(`Duplicate choice at ${site.key}`)
+      if (!c.label.trim() || !c.outcome.trim())
+        problems.push(`Missing choice outcome at ${site.key}`)
       ids.add(c.id)
     }
     const art = site.art
-    if (!art) { problems.push(`Missing art or placeholder at ${site.key}`); continue }
-    if (!art.path.startsWith('/images/') || !/\.(webp|png|jpe?g)$/.test(art.path) || art.prompt.trim().length < 40)
+    if (!art) {
+      problems.push(`Missing art or placeholder at ${site.key}`)
+      continue
+    }
+    if (
+      !art.path.startsWith('/images/') ||
+      !/\.(webp|png|jpe?g)$/.test(art.path) ||
+      art.prompt.trim().length < 40
+    )
       problems.push(`Incomplete art brief at ${site.key}`)
-    if (artPaths.has(art.path)) problems.push(`Duplicate art target ${art.path}`)
+    if (artPaths.has(art.path))
+      problems.push(`Duplicate art target ${art.path}`)
     artPaths.add(art.path)
-    if (art.status !== 'placeholder' && (!Number.isSafeInteger(art.jobId) || (art.jobId ?? 0) < 1))
+    if (
+      art.status !== 'placeholder' &&
+      (!Number.isSafeInteger(art.jobId) || (art.jobId ?? 0) < 1)
+    )
       problems.push(`Unverified ArtJob at ${site.key}`)
-    if (art.status === 'delivered' && !/^https:\/\//.test(art.url ?? '')) problems.push(`Undelivered art at ${site.key}`)
+    if (art.status === 'delivered' && !/^https:\/\//.test(art.url ?? ''))
+      problems.push(`Undelivered art at ${site.key}`)
   }
-  for (const key of required) if (!seen.has(key)) problems.push(`Missing site ${key}`)
+  for (const key of required)
+    if (!seen.has(key)) problems.push(`Missing site ${key}`)
   for (const [from, targets] of Object.entries(m.links)) {
     if (!required.has(from)) problems.push(`Unknown link origin ${from}`)
-    if (new Set(targets).size !== targets.length) problems.push(`Duplicate link at ${from}`)
-    for (const target of targets) if (!required.has(target)) problems.push(`Unknown link target ${from} -> ${target}`)
+    if (new Set(targets).size !== targets.length)
+      problems.push(`Duplicate link at ${from}`)
+    for (const target of targets)
+      if (!required.has(target))
+        problems.push(`Unknown link target ${from} -> ${target}`)
   }
   const visited = new Set<string>()
   const pending = required.has(m.start) ? [m.start] : []
@@ -56,8 +82,10 @@ export function validateRealmManifest(m: RealmManifest): string[] {
     const at = pending[i]!
     if (visited.has(at)) continue
     visited.add(at)
-    for (const next of m.links[at] ?? []) if (required.has(next) && !visited.has(next)) pending.push(next)
+    for (const next of m.links[at] ?? [])
+      if (required.has(next) && !visited.has(next)) pending.push(next)
   }
-  for (const key of required) if (!visited.has(key)) problems.push(`Unreachable site ${key}`)
+  for (const key of required)
+    if (!visited.has(key)) problems.push(`Unreachable site ${key}`)
   return problems.map((problem) => `${m.name}: ${problem}`)
 }

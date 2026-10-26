@@ -662,6 +662,7 @@ export const BEATS: EncounterCard[] = [
           text: 'Through the binoculars a heron stands on one leg in exactly the spot it occupies in the photo on the interpretive sign. Exactly. You write that down.',
           effects: {
             evidence: 'A heron standing in the sign photo’s exact spot',
+            flag: 'bench_heron_photo_match',
           },
         },
         failure: {
@@ -766,6 +767,9 @@ export const BEATS: EncounterCard[] = [
     },
     aloneLine: 'Nobody here knows your name. The elk don’t need it.',
     flagLines: {
+      bench_heron_photo_match: {
+        all: 'Your notebook holds the heron observation from the marsh. The ranger asks what you saw yourself, rather than what the interpretive sign seemed to predict.',
+      },
       bench_tally_erased: {
         all: 'The meadow observation board has the same peculiar block handwriting as the marsh tally somebody erased behind your back. Your first impulse is to photograph it. The second is to ask who last touched the chalk.',
       },
@@ -812,6 +816,38 @@ export const BEATS: EncounterCard[] = [
           effects: { weird: 1, nerve: -1, flag: 'elk_future_photo' },
         },
       },
+      {
+        id: 'heron-ledger',
+        label:
+          'Compare the marsh heron record with the ranger’s elk observations',
+        requiresFlag: 'bench_heron_photo_match',
+        cost: 'Spend the afternoon documenting wildlife instead of watching the meadow.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The ranger helps you separate what you saw at the marsh from what the sign showed. You copy the elk times beside the heron date, mark both accounts as observations rather than predictions, and offer the crew a public template that never asks visitors to approach wildlife. You lose your quiet afternoon to careful paperwork. Two places now have records that can be checked without asking anyone to believe your theory.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_heron_joint_log' },
+        },
+        failure: {
+          text: 'Your notes cannot establish when the heron photograph was taken. The ranger will not sign a comparison that suggests more than either record proves. You spend the afternoon labeling the gaps and leave with an honest, incomplete sheet instead of a dramatic discovery. The herd has moved on by the time you return to the meadow.',
+          effects: { nerve: -2, flag: 'elk_heron_log_disputed' },
+        },
+      },
+      {
+        id: 'tally-witness',
+        label:
+          'Ask the ranger to preserve witness notes after the erased marsh tally',
+        requiresFlag: 'bench_tally_erased',
+        cost: 'Give up the quiet watch to recruit independent witnesses and a record keeper.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The ranger will not call the erased tally proof of anything, but she agrees to a witnessed observation sheet. Three visitors write down the westward turn without seeing one another’s answers. You spend the day collecting names and consent instead of chasing the herd. The result is small, credible and available for the next crew to question.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_tally_witnesses' },
+        },
+        failure: {
+          text: 'The visitors remember different times, and one declines to sign. You refuse to turn their uncertainty into a unanimous report. The ranger keeps the separate accounts; you leave the meadow with a list of questions and no certified tally. At least the next observer will know what was not verified.',
+          effects: { nerve: -2, flag: 'elk_tally_unsigned' },
+        },
+      },
     ],
     provenance:
       'Elk Prairie in Prairie Creek Redwoods State Park is real, and so are its Roosevelt elk and its keep-your-distance rules. The herd’s timing, the ranger and her notebook are invented.',
@@ -850,6 +886,18 @@ export const BEATS: EncounterCard[] = [
     aloneLine:
       'It is the quietest place you have ever been, and you came here on your own. You could stay.',
     flagLines: {
+      elk_heron_joint_log: {
+        all: 'The wildlife observation template you drafted is in the crew folder. Its first line says what people actually saw, not what tomorrow must bring.',
+      },
+      elk_heron_log_disputed: {
+        all: 'Your incomplete heron-and-elk comparison sits in your notebook. The gaps are still there, clearly marked, and nobody has been asked to call them proof.',
+      },
+      elk_tally_witnesses: {
+        all: 'The ranger’s witnessed elk times have reached the restoration volunteers. They are deciding what, if anything, the observations mean for their next field visit.',
+      },
+      elk_tally_unsigned: {
+        all: 'You kept the conflicting elk accounts instead of inventing agreement. The crew lead appreciates knowing which observations are still unverified.',
+      },
       elk_mitten_delivered: {
         all: 'A visitor-center receipt for the red mitten is in your pocket. You spent a day watching animals and one practical hour making sure a lost thing could find its person.',
       },

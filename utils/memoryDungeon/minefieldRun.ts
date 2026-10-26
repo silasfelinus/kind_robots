@@ -72,7 +72,10 @@ export function minefieldRunExhausted(run: MinefieldRun): boolean {
   return run.moves.length >= MINEFIELD_MAX_MOVES
 }
 
-function applyMinefieldMove(state: MinefieldState, move: MinefieldMove): MinefieldState {
+function applyMinefieldMove(
+  state: MinefieldState,
+  move: MinefieldMove,
+): MinefieldState {
   const cell: Cell = { row: move.row, col: move.col }
   return move.action === 'step'
     ? step(state, cell)
@@ -102,7 +105,10 @@ export function advanceMinefieldRun(
   run: MinefieldRun,
   move: MinefieldMove,
 ): MinefieldRun {
-  if (minefieldRunExhausted(run) || !restoreMinefieldRun({ ...run, moves: [move] }))
+  if (
+    minefieldRunExhausted(run) ||
+    !restoreMinefieldRun({ ...run, moves: [move] })
+  )
     return run
   const previous = playMinefieldRun(run)
   if (previous.outcome !== 'exploring') return run

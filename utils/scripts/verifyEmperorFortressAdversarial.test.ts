@@ -68,6 +68,7 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
   for (const choice of argument.options) {
     let run = createRun(seed)
     run = chooseAudienceOption(run, argument.id, choice.id).run
+    if (choice.id === 'both') assert.equal(run.brass, dawn.brass - 110)
     run = chooseAudienceOption(run, 'd01-kiyo-arrives', 'appoint').run
     run = chooseAudienceOption(run, visitor.id, 'appoint').run
     const aqueduct = seed % 2 ? 'repair' : 'levy'
@@ -90,7 +91,6 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
       assert.ok(!run.roster.some((f) => f.id === opponent))
       assert.ok(run.flags.includes(`court-excluded:${opponent}`))
     }
-    if (choice.id === 'both') assert.ok(run.brass <= 10)
     maxOpeningQuests = Math.max(maxOpeningQuests, run.board.length)
     assert.ok(
       run.board.length <= 2,

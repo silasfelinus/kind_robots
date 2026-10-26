@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { usePlaybookStore } from '~/stores/playbookStore'
-import { isPlaybookGame } from '~/utils/playbook/games'
+import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
 import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
   DEFAULT_ASSUMPTIONS,
@@ -43,6 +43,7 @@ import {
   unitsToWrite,
   writingBrief,
   type LedgerJob,
+  type Shine,
   type ProjectJobs,
 } from '~/utils/playbookForge/ledger'
 
@@ -84,6 +85,26 @@ export type LedgerSubmit = {
 
 const DRAFTS_KEY = 'kr-playbook-forge-drafts-v1'
 const ASSUMPTIONS_KEY = 'kr-playbook-forge-assumptions-v1'
+const LIBRARY_SORT_KEY = 'kr-playbook-forge-library-sort-v1'
+
+/** One game's ledger at a glance, for the Load a game library. */
+export type LibraryStat = {
+  progress: number
+  starred: number
+  sections: number
+  shine: Shine
+  remainingSeconds: number
+  remainingWords: number
+  units: number
+}
+
+export const LIBRARY_SORTS = [
+  { id: 'progress-asc', label: 'Least done' },
+  { id: 'progress-desc', label: 'Most done' },
+  { id: 'left', label: 'Most render left' },
+  { id: 'title', label: 'A–Z' },
+] as const
+export type LibrarySort = (typeof LIBRARY_SORTS)[number]['id']
 
 function storage(): Storage | null {
   try {
@@ -149,6 +170,79 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     builtPlan.value ? forecast(builtPlan.value, assumptions.value) : null,
   )
 
+  const libraryStats = ref<Record<string, LibraryStat>>({})
+  const libraryLoading = ref(false)
+  const librarySort = ref<LibrarySort>('progress-asc')
+
+  /**
+   * Every game's ledger from its code (beats, art, words, plan gaps), so the
+   * library shows how done each one is. Built one game at a time so the
+   * console stays responsive while the larger adapters load.
+   */
+  async function loadLibraryStats() {
+    if (libraryLoading.value) return
+    libraryLoading.value = true
+    try {
+      for (const entry of EXISTING_PLAYBOOKS) {
+        if (libraryStats.value[entry.slug]) continue
+        if (!entry.studio || !isPlaybookGame(entry.studio)) continue
+        const book = buildPlaybook(entry.studio)
+        const counts = await entry.count().catch(() => null)
+        const ledger = buildLedger(
+          book,
+          {},
+          {
+            laneKey: book.artLanes[0] ?? 'krea2',
+            assumptions: assumptions.value,
+            gaps: counts ? planGaps(entry.plan, counts) : [],
+          },
+        )
+        libraryStats.value = {
+          ...libraryStats.value,
+          [entry.slug]: {
+            progress: ledger.progress,
+            starred: ledger.starred,
+            sections: ledger.sections.length,
+            shine: ledger.shine,
+            remainingSeconds: ledger.remainingSeconds,
+            remainingWords: ledger.remainingWords,
+            units: ledger.units,
+          },
+        }
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+    } finally {
+      libraryLoading.value = false
+    }
+  }
+
+  function setLibrarySort(next: LibrarySort) {
+    librarySort.value = next
+    writeJson(LIBRARY_SORT_KEY, next)
+  }
+
+  /** The library in the chosen order; games still being counted go last. */
+  const libraryGames = computed(() => {
+    const stat = (slug: string) => libraryStats.value[slug]
+    const games = [...EXISTING_PLAYBOOKS]
+    const known = (a: string, b: string) => Number(!stat(a)) - Number(!stat(b))
+    return games.sort((a, b) => {
+      if (librarySort.value === 'title') return a.title.localeCompare(b.title)
+      const unknown = known(a.slug, b.slug)
+      if (unknown) return unknown
+      const sa = stat(a.slug)
+      const sb = stat(b.slug)
+      if (!sa || !sb) return a.title.localeCompare(b.title)
+      if (librarySort.value === 'left')
+        return sb.remainingSeconds - sa.remainingSeconds
+      const diff =
+        librarySort.value === 'progress-asc'
+          ? sa.progress - sb.progress
+          : sb.progress - sa.progress
+      return diff || a.title.localeCompare(b.title)
+    })
+  })
+
   const ledgerBook = ref<Playbook | null>(null)
   const ledgerRelay = ref<LedgerRelay | null>(null)
   const ledgerLoading = ref(false)
@@ -209,6 +303,9 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (loaded.value) return
     loaded.value = true
     drafts.value = readJson<Record<string, Blueprint>>(DRAFTS_KEY) ?? {}
+    const sort = readJson<LibrarySort>(LIBRARY_SORT_KEY)
+    if (sort && LIBRARY_SORTS.some((option) => option.id === sort))
+      librarySort.value = sort
     const saved = readJson<Assumptions>(ASSUMPTIONS_KEY)
     if (saved)
       assumptions.value = {
@@ -691,6 +788,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     deleteDraft,
     analyze,
     ledger,
+    libraryStats,
+    libraryLoading,
+    librarySort,
+    libraryGames,
+    loadLibraryStats,
+    setLibrarySort,
     ledgerBook,
     ledgerRelay,
     ledgerLoading,

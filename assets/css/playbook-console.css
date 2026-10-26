@@ -350,6 +350,22 @@
     transform: scale(1.06);
     filter: saturate(1.1) brightness(1);
   }
+  .pf-tile-badge {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.55rem;
+    background: rgb(5 7 13 / 0.78);
+    border: 1px solid rgb(255 255 255 / 0.18);
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
   .pf-tile-text {
     position: absolute;
     inset: auto 0 0;

@@ -294,13 +294,50 @@ for (const size of [8, 10] as const) {
   assert.deepEqual(playMinefieldRun(restored!), playMinefieldRun(advanced))
   assert.equal(minefieldRewardKey(size), `2,7:archive-${size}`)
 }
-assert.equal(restoreMinefieldRun({ version: 1, seed: 1, size: 8, moves: [{ action: 'step', row: 7, col: 8 }] }), null)
-assert.equal(restoreMinefieldRun({ version: 1, seed: 1, size: 8, moves: [{ action: 'step', row: 0, col: 0, hazard: true }] })?.moves[0]?.action, 'step')
-assert.equal(restoreMinefieldRun({ version: 1, seed: 1, size: 10, moves: [{ action: 'teleport', row: 2, col: 2 }] }), null)
-const bogusMoves = Array.from({ length: 601 }, () => ({ action: 'flag', row: 1, col: 1 }))
-assert.equal(restoreMinefieldRun({ version: 1, seed: 1, size: 8, moves: bogusMoves }), null)
-const archiveComponent = readFileSync('components/memory-dungeon/minefield-stage.vue', 'utf8')
-const overworldComponent = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf8')
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 8,
+    moves: [{ action: 'step', row: 7, col: 8 }],
+  }),
+  null,
+)
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 8,
+    moves: [{ action: 'step', row: 0, col: 0, hazard: true }],
+  })?.moves[0]?.action,
+  'step',
+)
+assert.equal(
+  restoreMinefieldRun({
+    version: 1,
+    seed: 1,
+    size: 10,
+    moves: [{ action: 'teleport', row: 2, col: 2 }],
+  }),
+  null,
+)
+const bogusMoves = Array.from({ length: 601 }, () => ({
+  action: 'flag',
+  row: 1,
+  col: 1,
+}))
+assert.equal(
+  restoreMinefieldRun({ version: 1, seed: 1, size: 8, moves: bogusMoves }),
+  null,
+)
+const archiveComponent = readFileSync(
+  'components/memory-dungeon/minefield-stage.vue',
+  'utf8',
+)
+const overworldComponent = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
 assert.match(archiveComponent, /data-testid="memory-minefield-stage"/)
 assert.match(archiveComponent, /@keydown="handleKey/)
 assert.match(archiveComponent, /aria-label="Minefield tools"/)

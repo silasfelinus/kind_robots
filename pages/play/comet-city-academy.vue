@@ -427,9 +427,7 @@ const run = computed(() => store.run)
 const currentSignature = computed(() =>
   signatureFor(selectedForm.value, selectedElement.value),
 )
-const currentIdentity = computed(() =>
-  identityFor(currentSignature.value.id),
-)
+const currentIdentity = computed(() => identityFor(currentSignature.value.id))
 const activeVow = computed(() =>
   POWER_VOWS.find((vow) => vow.id === selectedVow.value)!,
 )

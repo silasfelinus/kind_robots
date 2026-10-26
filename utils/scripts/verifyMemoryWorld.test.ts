@@ -272,7 +272,10 @@ const photoEvents = [
 function permutations<T>(items: readonly T[]): T[][] {
   if (!items.length) return [[]]
   return items.flatMap((item, i) =>
-    permutations(items.filter((_, j) => i !== j)).map((tail) => [item, ...tail]),
+    permutations(items.filter((_, j) => i !== j)).map((tail) => [
+      item,
+      ...tail,
+    ]),
   )
 }
 let photoSequences = 0
@@ -296,14 +299,21 @@ for (const sequence of permutations(photoEvents)) {
     ['earth-01', 'earth-02', 'earth-03', 'earth-04'],
   )
   const old = journal.responses[sequence[0]!.id]
-  assert.equal(respondToEarthPhoto(journal, sequence[0]!.id, 'hold').responses[sequence[0]!.id], old)
+  assert.equal(
+    respondToEarthPhoto(journal, sequence[0]!.id, 'hold').responses[
+      sequence[0]!.id
+    ],
+    old,
+  )
   // An ordinary world restart doesn't destroy the cross-run photograph record.
   journal = reconcileEarthChronicle(journal, { e01: {}, e02: {} })
   assert.equal(journal.found.length, 4)
   photoSequences++
 }
 assert.equal(photoSequences, 24)
-console.log('Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics')
+console.log(
+  'Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics',
+)
 
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',

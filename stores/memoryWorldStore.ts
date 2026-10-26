@@ -1310,6 +1310,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       !minefieldActive.value ||
       !minefieldBoard.value ||
       minefieldBoard.value.outcome !== 'exploring' ||
+      // Repeated hint taps before the next move must not charge twice
+      // for the same proven square.
+      minefieldHint.value !== null ||
       state.value.lanterns < 1
     )
       return

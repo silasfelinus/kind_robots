@@ -520,11 +520,15 @@ export function darkHouseExits(progress: DarkHouseProgress): HouseRoomId[] {
     )
     .map((previous) => previous.id)
   const exits = [...new Set([...forward, ...backtrack])]
-  // Real gameplay gates: you may always retreat along a visited passage, but
-  // forward travel requires resolving the memory encounter or logic puzzle.
+  // Every room has a story consequence. Solving its challenge unlocks the
+  // two responses, but cannot silently skip the response by clicking the
+  // next numbered square. On older saves, the already-visited route is still
+  // traversable, even if that room predates this stricter decision gate.
+  const canAdvance =
+    darkHouseRoomResolved(progress) && Boolean(progress.decisions[progress.current])
   return exits.filter(
     (id) =>
-      (darkHouseRoomResolved(progress) || progress.visited.includes(id)) &&
+      (canAdvance || progress.visited.includes(id)) &&
       !(
         id === 'HD-33' &&
         (!progress.decisions['HD-32'] ||

@@ -157,6 +157,8 @@ export function isValidPlayerEvolution(
     )
       return false
     if (!signature && event.form !== 'student') return false
+    if (event.form === 'hero' && state.protect! < 2) return false
+    if (event.form === 'villain' && state.exploit! < 2) return false
     previous = event.day
     last = event.form
   }

@@ -51,7 +51,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     }
   }
 
-  function begin(power: PowerId, signature?: SignaturePowerId, vow?: PowerVowId) {
+  function begin(
+    power: PowerId,
+    signature?: SignaturePowerId,
+    vow?: PowerVowId,
+  ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
     persist()
   }

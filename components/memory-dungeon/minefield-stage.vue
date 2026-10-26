@@ -44,7 +44,7 @@
             type="button"
             role="gridcell"
             :tabindex="focused === index ? 0 : -1"
-            :disabled="board.outcome !== 'exploring' || tile.revealed || tile.sprung || tile.disarmed"
+            :aria-disabled="board.outcome !== 'exploring' || tile.revealed || tile.sprung || tile.disarmed"
             :aria-label="describeCell(board, point(index))"
             :aria-selected="focused === index"
             class="relative aspect-square min-h-0 min-w-0 rounded-[3px] border border-[#a18e63]/30 font-mono text-[10px] font-black outline-offset-1 transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-[#f6d99a] sm:text-sm"

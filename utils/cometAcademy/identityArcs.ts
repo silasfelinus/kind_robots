@@ -27,18 +27,21 @@ export type IdentityArc = {
   quests: { protagonist: string; antagonist: string; partner: string }
 }
 
-type AliasArc = Pick<IdentityArc, 'signature' | 'student' | 'hero' | 'villain' | 'quests'>
+type AliasArc = Pick<
+  IdentityArc,
+  'signature' | 'student' | 'hero' | 'villain' | 'quests'
+>
 const biographies = new Map(
   (lives.people as CivilianLife[]).map((life) => [life.signature, life]),
 )
 
-export const IDENTITY_ARCS: IdentityArc[] = (catalog.identityCatalog as AliasArc[]).map(
-  (arc) => {
-    const life = biographies.get(arc.signature)
-    if (!life) throw new Error(`Missing civilian life for ${arc.signature}`)
-    return { ...arc, ...life }
-  },
-)
+export const IDENTITY_ARCS: IdentityArc[] = (
+  catalog.identityCatalog as AliasArc[]
+).map((arc) => {
+  const life = biographies.get(arc.signature)
+  if (!life) throw new Error(`Missing civilian life for ${arc.signature}`)
+  return { ...arc, ...life }
+})
 const bySignature = new Map(IDENTITY_ARCS.map((arc) => [arc.signature, arc]))
 
 export function identityFor(signature: SignaturePowerId): IdentityArc {
@@ -73,9 +76,7 @@ export function identityStoryFor(
         ? character.heroDecision
         : character.quests.antagonist
   const decision =
-    allegiance === 'hero'
-      ? character.heroDecision
-      : character.villainDecision
+    allegiance === 'hero' ? character.heroDecision : character.villainDecision
   const bondScenes: string[] = []
   if (bonds.includes('sidekick')) bondScenes.push(character.sidekick)
   if (bonds.includes('partner')) bondScenes.push(character.quests.partner)

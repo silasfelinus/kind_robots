@@ -654,10 +654,21 @@ assert.equal(
 assert.doesNotMatch(visitorDirectorySource, /\bkr-scroll\b/)
 assert.ok(visitorDirectorySource.includes('container-type: inline-size'))
 assert.ok(
-  visitorDirectorySource.includes(
-    'visitor-featured-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))]',
-  ),
-  'phone and tablet feature cards must keep their existing dense gallery layout',
+  visitorDirectorySource.includes('visitor-featured-grid grid grid-cols-1 gap-2'),
+  'phone featured experience cards must use a legible single column',
+)
+assert.match(
+  visitorDirectorySource,
+  /@container \(min-width: 36rem\)[\s\S]*?\.visitor-featured-grid \{[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/,
+  'wider tablet containers must restore two featured experience columns',
+)
+const featuredPanel =
+  visitorDirectorySource.split('id="visitor-featured"')[1]
+    ?.split('id="visitor-updates"')[0] ?? ''
+assert.match(
+  featuredPanel,
+  /class="kr-pane-scroll min-h-0 pr-1"[\s\S]*?id="visitor-hero-title"[\s\S]*?Featured experiences[\s\S]*?Filter experiences[\s\S]*?visitor-featured-grid/,
+  'the Crystal Street promo, heading, filters, and gallery must share the one bounded scroll owner',
 )
 assert.match(
   visitorDirectorySource,

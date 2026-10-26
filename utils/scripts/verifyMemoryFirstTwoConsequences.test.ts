@@ -129,7 +129,10 @@ const stage = readFileSync(
 )
 assert.ok(store.includes('firstTwoWorldFrames(state.value, darkHouse.value)'))
 assert.match(store, /firstTwoSceneCallbacks\(\s*dark\.value\.player/)
-assert.match(store, /darkBriarCanTravel\([\s\S]*?dark\.value\.revealed,[\s\S]*?dark\.value/)
+assert.match(
+  store,
+  /darkBriarCanTravel\([\s\S]*?dark\.value\.revealed,[\s\S]*?dark\.value/,
+)
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
 console.log(

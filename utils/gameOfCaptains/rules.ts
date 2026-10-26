@@ -25,10 +25,30 @@ export type VoyagePhase =
 export type Result = 'flawless' | 'success' | 'costly' | 'disaster'
 export type PolicyId = 'aid' | 'observe' | 'intervene'
 export type PocketRoom = 'holodeck' | 'war-room' | 'infirmary'
-export const POCKET_ROOMS: { id: PocketRoom; name: string; blurb: string; specialty: string }[] = [
-  { id: 'holodeck', name: 'Holodeck', blurb: 'Rehearse scientific hazards in simulated space.', specialty: 'science' },
-  { id: 'war-room', name: 'War room', blurb: 'Fold out a diplomatic strategy chamber.', specialty: 'diplomacy' },
-  { id: 'infirmary', name: 'Infirmary', blurb: 'Deploy a pop-up clinic for rescues.', specialty: 'rescue' },
+export const POCKET_ROOMS: {
+  id: PocketRoom
+  name: string
+  blurb: string
+  specialty: string
+}[] = [
+  {
+    id: 'holodeck',
+    name: 'Holodeck',
+    blurb: 'Rehearse scientific hazards in simulated space.',
+    specialty: 'science',
+  },
+  {
+    id: 'war-room',
+    name: 'War room',
+    blurb: 'Fold out a diplomatic strategy chamber.',
+    specialty: 'diplomacy',
+  },
+  {
+    id: 'infirmary',
+    name: 'Infirmary',
+    blurb: 'Deploy a pop-up clinic for rescues.',
+    specialty: 'rescue',
+  },
 ]
 export const SPACE_COUCH = {
   vessel: 'A long red couch, not an enclosed starship',
@@ -273,7 +293,8 @@ export function startVoyage(
     trust: 2,
     intervention: 0,
     reputation: 0,
-    scene: 'The red couch sails through the vacuum. The invisible bubble holds the air in; there is no hull, bridge or seatbelt policy.',
+    scene:
+      'The red couch sails through the vacuum. The invisible bubble holds the air in; there is no hull, bridge or seatbelt policy.',
     report: null,
     log: [],
     ending: null,
@@ -290,14 +311,23 @@ export function assignAwayTeam(run: VoyageRun, selected: CrewId[]): VoyageRun {
     return run
   return { ...run, away: [...selected] }
 }
-export function configurePocketRoom(run: VoyageRun, room: PocketRoom | null): VoyageRun {
+export function configurePocketRoom(
+  run: VoyageRun,
+  room: PocketRoom | null,
+): VoyageRun {
   if (run.phase !== 'briefing') return run
-  if (room !== null && !POCKET_ROOMS.some((option) => option.id === room)) return run
+  if (room !== null && !POCKET_ROOMS.some((option) => option.id === room))
+    return run
   if (room && run.supplies < 1) return run
   return { ...run, pocketRoom: room }
 }
 export function rechargeCouchShield(run: VoyageRun): VoyageRun {
-  if (run.phase !== 'briefing' || run.supplies < 1 || (run.shieldCharge ?? 2) >= 3) return run
+  if (
+    run.phase !== 'briefing' ||
+    run.supplies < 1 ||
+    (run.shieldCharge ?? 2) >= 3
+  )
+    return run
   return {
     ...run,
     supplies: run.supplies - 1,
@@ -309,12 +339,19 @@ export function rechargeCouchShield(run: VoyageRun): VoyageRun {
 export function previewMission(run: VoyageRun): MissionPreview {
   const base = previewCrewMission(run, missionFor(run).id, run.away)
   const room = POCKET_ROOMS.find((option) => option.id === run.pocketRoom)
-  const bonus = room?.specialty === missionFor(run).kind && run.supplies > 0 ? 10 : 0
+  const bonus =
+    room?.specialty === missionFor(run).kind && run.supplies > 0 ? 10 : 0
   const penalty = (run.shieldCharge ?? 2) === 0 ? 10 : 0
   return {
     ...base,
     chance: Math.max(5, Math.min(94, base.chance + bonus - penalty)),
-    commentary: [base.commentary, bonus ? 'Pocket room match: +10%.' : '', penalty ? 'Backup force bubble: -10% until recharged.' : ''].filter(Boolean).join(' '),
+    commentary: [
+      base.commentary,
+      bonus ? 'Pocket room match: +10%.' : '',
+      penalty ? 'Backup force bubble: -10% until recharged.' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
   }
 }
 export function launchMission(run: VoyageRun): VoyageRun {

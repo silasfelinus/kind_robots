@@ -5,7 +5,7 @@ tabKey: game-of-captains
 label: Space Couch
 title: Space Couch
 subtitle: One long red couch. An invisible shield. All of space.
-summary: Pilot the galaxy's least aerodynamic spacecraft. Make costly choices.
+summary: A red couch boldly goes.
 description: 'A comic space adventure aboard a long red couch that is literally the ship, shielded from vacuum and equipped with miniaturization technology to unfold holodecks, war rooms and infirmaries behind its backrest. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
 icon: kind-icon:compass
 image: /game-of-captains/space-couch-stage.svg

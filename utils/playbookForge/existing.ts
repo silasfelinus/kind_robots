@@ -91,7 +91,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     title: 'Space Couch',
     cover: '/game-of-captains/space-couch-stage.svg',
     route: '/play/game-of-captains',
-    planSource: 'Space Couch ship bible, Conductor goal and master issue kind_robots#4182',
+    planSource:
+      'Space Couch ship bible, Conductor goal and master issue kind_robots#4182',
     plan: plan('game-of-captains', 'Space Couch', {
       genre: 'space-comedy',
       placement: 'play',

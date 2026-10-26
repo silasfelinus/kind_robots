@@ -1,7 +1,12 @@
 <template>
   <div
     v-if="forge.existing && ledger"
-    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(7.5rem,1fr)_minmax(0,1.25fr)] gap-3 @5xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,1fr)] @5xl:grid-rows-[auto_minmax(0,1fr)] @5xl:gap-4"
+    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 @5xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,1fr)] @5xl:grid-rows-[auto_minmax(0,1fr)] @5xl:gap-4"
+    :class="
+      forge.ledgerPanel === 'adjust'
+        ? 'grid-rows-[auto_minmax(0,1fr)]'
+        : 'grid-rows-[auto_minmax(7.5rem,1fr)_minmax(0,1.25fr)]'
+    "
   >
     <header class="flex min-w-0 flex-col gap-3 @5xl:col-span-2">
       <div class="flex flex-wrap items-end justify-between gap-3">
@@ -25,6 +30,22 @@
             @click="forge.openBeats(forge.existing.slug)"
           >
             Beats
+          </button>
+          <button
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm pf-focusable"
+            :class="
+              forge.ledgerPanel === 'adjust' ? 'btn-secondary' : 'btn-ghost'
+            "
+            :aria-pressed="forge.ledgerPanel === 'adjust'"
+            title="Change plan numbers, add elements and post direction to the game's GitHub issue"
+            @click="
+              forge.ledgerPanel =
+                forge.ledgerPanel === 'adjust' ? 'detail' : 'adjust'
+            "
+          >
+            Adjust
           </button>
           <button
             v-if="kitSpec"
@@ -106,7 +127,10 @@
       </p>
     </header>
 
-    <section class="flex min-h-0 min-w-0 flex-col gap-2">
+    <section
+      class="min-h-0 min-w-0 flex-col gap-2"
+      :class="forge.ledgerPanel === 'adjust' ? 'hidden @5xl:flex' : 'flex'"
+    >
       <p class="pf-kicker shrink-0 text-secondary">
         {{
           ledger.sections.length
@@ -188,7 +212,8 @@
       </ul>
     </section>
 
-    <PlaybookForgeLedgerDetail />
+    <PlaybookForgeAdjust v-if="forge.ledgerPanel === 'adjust'" />
+    <PlaybookForgeLedgerDetail v-else />
   </div>
 </template>
 
@@ -262,13 +287,14 @@ const planRows = computed(() => {
   const entry = forge.existing
   const built = forge.built
   if (!entry || !built || ledger.value?.sections.length) return []
+  const plan = forge.planFor(entry)
   return FACTOR_ROWS.flatMap((row) =>
     row.kind === 'stepper' && built.measured.includes(row.key)
       ? [
           {
             label: row.label,
             built: Number(built.values[row.key] ?? 0),
-            planned: Number(entry.plan[row.key] ?? 0),
+            planned: Number(plan[row.key] ?? 0),
           },
         ]
       : [],

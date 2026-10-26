@@ -99,20 +99,29 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       placement: 'play',
       creator: 'roster',
       rosterSize: 6,
+      // Silas, 2026-10-26 (kind_robots#4182): a galactic nemesis drawn per run,
+      // a personal quest for every crew member that crosses the galaxy, and
+      // endings that change with the opening. Three crew colour an ending;
+      // the captain multiplies it.
       followers: 16,
       partySize: 3,
+      followerQuestSteps: 3,
+      followerEpilogues: true,
       villains: 8,
       villainPerRun: true,
       acts: 3,
       chaptersPerAct: 4,
       encounters: 40,
       quests: 30,
+      locations: 12,
       checks: 'percent',
       outcomes: 'five-tier',
       outcomeArt: 'both',
       endings: 16,
+      endingVersions: 'per-hero',
       factions: 4,
       saveSlots: 3,
+      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, sixteen crew with errands of their own on far-flung worlds, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
     }),
     count: async () => {
       const rules = await import('../gameOfCaptains/rules')
@@ -123,6 +132,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           villains: rules.ANTAGONISTS.length,
           quests: rules.MISSIONS.length,
           encounters: rules.MISSIONS.length,
+          locations: new Set(rules.MISSIONS.map((mission) => mission.system))
+            .size,
+          // No crew member has a personal quest yet.
+          followerQuestSteps: 0,
           endings: 4,
         },
         measured: [
@@ -131,9 +144,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'villains',
           'quests',
           'encounters',
+          'locations',
+          'followerQuestSteps',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts (not yet in Playbook Studio)',
+        source: 'utils/gameOfCaptains/rules.ts',
       }
     },
   },

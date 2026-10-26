@@ -28,8 +28,7 @@ let mistakenSeed = 0
 for (let seed = 1; seed <= 500 && (!measuredSeed || !mistakenSeed); seed++) {
   const result = chooseBeat(loopState(seed), 'seam')
   if (result.pending?.entry.roll?.success) measuredSeed ||= seed
-  else if (result.pending?.entry.roll?.success === false)
-    mistakenSeed ||= seed
+  else if (result.pending?.entry.roll?.success === false) mistakenSeed ||= seed
 }
 assert.ok(measuredSeed && mistakenSeed, 'both seeded outcomes are reachable')
 
@@ -100,7 +99,10 @@ assert.ok(
     ['forest_resurvey_agreed', 'forest_resurvey_unfunded'].includes(flag),
   ),
 )
-assert.notEqual(surveyed.pending?.entry.choice, reconciled.pending?.entry.choice)
+assert.notEqual(
+  surveyed.pending?.entry.choice,
+  reconciled.pending?.entry.choice,
+)
 assert.deepEqual(
   restoreRun(JSON.parse(JSON.stringify(surveyed))),
   surveyed,

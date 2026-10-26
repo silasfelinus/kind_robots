@@ -213,7 +213,8 @@ export const ACT_I: Act = {
           { id: 'up', label: 'Get up. Fight.', to: 'crocodile' },
           {
             id: 'ridge',
-            label: 'Take the coyote\'s covering fire and retreat. (Spend bandage)',
+            label:
+              "Take the coyote's covering fire and retreat. (Spend bandage)",
             to: 'a1-ridge-retreat',
             needs: 'coyote-warned',
             hint: 'You never warned him. He cannot cover your retreat.',

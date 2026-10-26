@@ -440,8 +440,10 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
-  if (run.flowVersion === 3 && (run.day === 16 || run.day === 23) && run.playerEvolution)
-    return evolutionEncounter(run.signature, run.playerEvolution, run.day)
+  if (run.flowVersion === 3 && (run.day === 16 || run.day === 23) && run.playerEvolution) {
+    const event = evolutionEncounter(run.signature, run.playerEvolution, run.day)
+    return { ...event, scene: `${campaignAnchor(run.day)} ${event.scene}` }
+  }
   if (run.flowVersion === 3) {
     const person = STUDENTS.find(
       (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),

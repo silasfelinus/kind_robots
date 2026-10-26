@@ -986,6 +986,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'abacus-bead-tides',
+    label: 'Abacus Bead Tides',
+    reveal:
+      'Nine abacus rods slide their beads in a slow rolling tide from side to side',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Beads on a wooden abacus frame roll across their rods in a staggered tide 🧮 hover to brighten nearby beads, click to send a quick extra ripple down the frame',
+    color: '#c98a4b',
+    releasedAt: '2026-10-26T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

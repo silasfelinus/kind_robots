@@ -199,7 +199,7 @@
         <div
           ref="stage"
           class="@container min-h-0 flex-1 p-2 sm:p-3"
-          :class="activeRoom === 'briefing' || activeRoom === 'quests' ? 'overflow-hidden' : 'kr-scroll overscroll-contain'"
+          :class="activeRoom === 'briefing' || activeRoom === 'throne' || activeRoom === 'quests' ? 'overflow-hidden' : 'kr-scroll overscroll-contain'"
         >
           <section
             v-if="over && activeRoom !== 'chronicle'"

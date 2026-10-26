@@ -616,7 +616,7 @@ export type FortressRun = {
   mapWatch?: MapThreat[]
   /** Every act-end map change so far, for the map room's history. */
   mapLog?: MapEvent[]
-  beds: 6 | 9 | 12
+  beds: number
   roster: FollowerState[]
   recruitable: string[]
   inventory: string[]

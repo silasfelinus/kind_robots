@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type {
   SignaturePowerId,
   PowerVowId,
@@ -13,6 +14,7 @@ import {
   resolveDispatch,
   restoreAcademy,
   startAcademy,
+  visitCitySite,
   type AcademyRun,
   type PowerId,
   type StudentId,
@@ -60,6 +62,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function visit(siteId: SiteId) {
+    if (!run.value) return
+    run.value = visitCitySite(run.value, siteId)
+    persist()
+  }
+
   function assign(caseId: string, students: StudentId[]) {
     if (!run.value) return
     run.value = assignTeam(run.value, caseId, students)
@@ -102,6 +110,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     storageWarning,
     load,
     begin,
+    visit,
     assign,
     dispatch,
     choose,

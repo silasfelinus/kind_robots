@@ -91,8 +91,10 @@ const dotAboardSafety: Choice = {
     effects: { goodwill: 2, nerve: -1, flag: 'slug_dot_safety_coordinated' },
     leadLines: {
       kit: 'Kit stops joking long enough to relay Dot’s signals exactly. “That was teamwork,” she says, “not a stunt.”',
-      cedar: 'Cedar marks the leaking seam for a proper repair on shore. “We do not race on borrowed flotation twice.”',
-      alone: 'You pass Dot’s instructions down the line. Nobody has to pretend you are the hero of a rescue that took six people.',
+      cedar:
+        'Cedar marks the leaking seam for a proper repair on shore. “We do not race on borrowed flotation twice.”',
+      alone:
+        'You pass Dot’s instructions down the line. Nobody has to pretend you are the hero of a rescue that took six people.',
     },
   },
   failure: {
@@ -103,9 +105,11 @@ const dotAboardSafety: Choice = {
       flags: ['slug_dot_bailout_delayed', 'slug_sank'],
     },
     leadLines: {
-      juniper: 'Juniper thanks the rescue crew before asking Dot how her ankle is. The race can wait.',
+      juniper:
+        'Juniper thanks the rescue crew before asking Dot how her ankle is. The race can wait.',
       mara: 'Mara draws the soggy slug with six rescuers in the frame. She refuses to make the picture about one brave pilot.',
-      alone: 'You count every head twice on the rescue boat. The finish line is suddenly a very small thing.',
+      alone:
+        'You count every head twice on the rescue boat. The finish line is suddenly a very small thing.',
     },
   },
 }
@@ -120,9 +124,11 @@ const dotShoreRelay: Choice = {
     text: 'Dot spots your signal from the shore road and persuades a marshal to clear a public ramp. You steer away from the uncharted bell and bring the leaking slug in last, but upright. Dot meets you with a clipboard and a towel. The judges award no speed points; the crew votes to call it a finish.',
     effects: { goodwill: 1, nerve: -1, flag: 'slug_shore_relay_confirmed' },
     leadLines: {
-      cedar: 'Cedar writes down the marshal’s route so the next team can use it without guessing.',
+      cedar:
+        'Cedar writes down the marshal’s route so the next team can use it without guessing.',
       kit: 'Kit bows to the crowd, then makes sure the volunteers get their own applause.',
-      alone: 'You let the marshal take the lead. A safe landing is not diminished by having help.',
+      alone:
+        'You let the marshal take the lead. A safe landing is not diminished by having help.',
     },
   },
   failure: {
@@ -134,8 +140,10 @@ const dotShoreRelay: Choice = {
     },
     leadLines: {
       mara: 'Mara sketches Dot arriving at the ramp after the rescue. “She still came,” she says.',
-      juniper: 'Juniper helps gather floating costume pieces while the marshal explains which ramps are safe.',
-      alone: 'Dot reaches you on the dock. You tell her the signal failed before she has to ask.',
+      juniper:
+        'Juniper helps gather floating costume pieces while the marshal explains which ramps are safe.',
+      alone:
+        'Dot reaches you on the dock. You tell her the signal failed before she has to ask.',
     },
   },
 }

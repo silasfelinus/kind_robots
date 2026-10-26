@@ -102,8 +102,7 @@ function play(
     if (mysteryCardMeta(card.id)) seen.push({ card: card.id, step: state.step })
     const playable = openingLensChoices(card).filter(
       (c) =>
-        !c.locked &&
-        (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+        !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
     )
     const picked =
       choose(state, card.id) ??

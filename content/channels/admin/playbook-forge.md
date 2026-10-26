@@ -6,7 +6,7 @@ label: Playbook Forge
 title: Playbook Forge
 subtitle: Idea in, playbook out, with every cost on the screen.
 description: A console for designing Kind Robots story games. Turn an idea into a configured playbook across seven pages of factors (pitch, player, cast, story, rules, endings, save) with a live forecast of images, render time, words and agent sessions, then launch it as a project. Or analyze an existing playbook's built counts against its plan and send a revised plan to the agents.
-summary: Design playbooks with live gen-time forecasts.
+summary: Design playbooks, forecast gen time.
 icon: kind-icon:hammer
 route: /admin/playbook-forge
 sort: 74

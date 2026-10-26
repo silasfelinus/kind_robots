@@ -1,4 +1,11 @@
 import assert from 'node:assert/strict'
+import {
+  POWER_FORMS,
+  POWER_AFFINITIES,
+  POWER_VOWS,
+  SIGNATURE_POWERS,
+  signatureFor,
+} from '../cometAcademy/specialPowers'
 import { readFileSync } from 'node:fs'
 import {
   POWERS,
@@ -18,6 +25,29 @@ import {
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+assert.equal(POWER_FORMS.length, 6)
+assert.equal(POWER_AFFINITIES.length, 8)
+assert.equal(POWER_VOWS.length, 3)
+assert.equal(SIGNATURE_POWERS.length, 48)
+assert.equal(new Set(SIGNATURE_POWERS.map((p) => p.id)).size, 48)
+assert.equal(signatureFor('impact', 'fire').name, 'Flaming Fists')
+for (const form of POWER_FORMS)
+  for (const element of POWER_AFFINITIES) {
+    const skill = signatureFor(form.id, element.id)
+    assert.equal(skill.legacy, form.legacy)
+    assert.ok(skill.special_route.trigger.length > 35)
+    for (const vow of POWER_VOWS) assert.ok(skill.finales[vow.id].length > 80)
+    const run = startAcademy(form.legacy, 99, skill.id, 'shelter')
+    assert.equal(run.signature, skill.id)
+    assert.equal(run.vow, 'shelter')
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
+  }
+assert.equal(
+  startAcademy('kinetic', 99).signature,
+  undefined,
+  'legacy saves remain valid',
+)
+assert.throws(() => startAcademy('spatial', 99, 'impact-fire'))
 assert.equal(POWERS.length, 6)
 assert.equal(STUDENTS.length, 6)
 assert.equal(INCIDENTS.length, 6)
@@ -87,4 +117,7 @@ assert.ok(art.includes('viewBox="0 0 1440 900"'))
 assert.ok(page.includes('Capes & Tassels: Prom of Doom'))
 assert.ok(tab.includes("title: 'Capes & Tassels: Prom of Doom'"))
 assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
+assert.ok(page.includes('data-testid="academy-signature-detail"'))
+assert.ok(page.includes('selectedElement'))
+assert.ok(page.includes('selectedVow'))
 console.log('Capes & Tassels playable first-week slice and route: OK')

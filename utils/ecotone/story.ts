@@ -545,7 +545,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'glade-witnesses',
-        label: 'Invite independent listeners to document the glade before any land deal',
+        label:
+          'Invite independent listeners to document the glade before any land deal',
         requiresFlag: 'loop_glade_music',
         cost: 'Both groups pause their access claims for a witnessed night survey.',
         check: { skill: 'lore', target: 9 },
@@ -560,7 +561,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'marker-stewards',
-        label: 'Ask both groups to staff a safe trail corridor using your rescue markers',
+        label:
+          'Ask both groups to staff a safe trail corridor using your rescue markers',
         requiresFlag: 'loop_exit_marked',
         cost: 'The shortcut closes temporarily until trained volunteers can cover it.',
         check: { skill: 'rizz', target: 9 },

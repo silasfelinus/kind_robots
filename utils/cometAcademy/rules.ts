@@ -805,10 +805,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       villain && activeNetwork
         ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
         : undefined
+    const bondedSupport = socialMissionBonus(run.relationships, assignment.students)
+    const textWithBonds = bondedSupport
+      ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
+      : baseText
     const text =
       sabotagedBy && incident.allegiance !== 'villain'
-        ? `${baseText} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
-        : baseText
+        ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
+        : textWithBonds
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&

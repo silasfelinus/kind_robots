@@ -70,6 +70,50 @@ export const useArcadeReviewsStore = defineStore('arcadeReviews', () => {
     }
   }
 
+  // Logged-out stars. The random token lives only in this browser; the server
+  // stores a hash of it so each browser has one editable rating per game.
+  function guestToken(): string {
+    try {
+      const key = 'kr-arcade-guest-token'
+      let token = localStorage.getItem(key)
+      if (!token || !/^[A-Za-z0-9-]{16,64}$/.test(token)) {
+        token = crypto.randomUUID()
+        localStorage.setItem(key, token)
+      }
+      return token
+    } catch {
+      return crypto.randomUUID()
+    }
+  }
+
+  async function saveGuestRating(
+    game: string,
+    rating: number,
+    comment: string,
+  ) {
+    saving.value = true
+    error.value = ''
+    try {
+      const res = await performFetch(
+        '/api/arcade/reviews/' + encodeURIComponent(game) + '/guest',
+        {
+          method: 'POST',
+          body: JSON.stringify({ rating, comment, token: guestToken() }),
+        },
+      )
+      if (!res.success)
+        throw new Error(res.message || 'Could not save your rating.')
+      await fetchSummaries()
+      return true
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Could not save your rating.'
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
+
   return {
     summaries,
     reviewsByGame,
@@ -79,5 +123,6 @@ export const useArcadeReviewsStore = defineStore('arcadeReviews', () => {
     fetchSummaries,
     fetchReviews,
     saveReview,
+    saveGuestRating,
   }
 })

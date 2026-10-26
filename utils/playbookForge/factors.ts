@@ -200,8 +200,8 @@ export const FACTOR_ROWS: FactorRow[] = [
     label: 'Followers',
     kind: 'stepper',
     min: 0,
-    max: 25,
-    help: 'Companions who travel with the player. Each needs a portrait, a voice and a moment of their own.',
+    max: 60,
+    help: 'Companions who travel with the player, or the pool a seeded roster deals roles from (Capes & Tassels: 48). Each needs a portrait, a voice and a moment of their own.',
   },
   {
     key: 'partySize',
@@ -264,7 +264,7 @@ export const FACTOR_ROWS: FactorRow[] = [
     label: 'Romances',
     kind: 'stepper',
     min: 0,
-    max: 8,
+    max: 50,
     help: 'Optional, player-chosen, hidden when the romance setting is off. Three scenes each.',
   },
   {

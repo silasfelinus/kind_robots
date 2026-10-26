@@ -2,7 +2,9 @@
 // public/game-of-captains/<entry>.webp. Re-run the export; do not edit by hand.
 
 export const WARP_ART: readonly string[] = [
+  'front/dashboard-highlight',
   'front/splash',
+  'front/tutorial',
   'portraits/captain-fluke',
   'portraits/captain-quill',
   'portraits/captain-rex',

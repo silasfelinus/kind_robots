@@ -10,6 +10,8 @@ import {
   endingArtKey,
   incidentArtKey,
   slugify,
+  identityArtKey,
+  identityKey,
   studentArtKey,
   villainArtKey,
 } from '../cometAcademy/artSlots'
@@ -21,6 +23,7 @@ import {
 } from '../cometAcademy/campaign'
 import { CITY_SITES } from '../cometAcademy/cityMap'
 import { DISTRICT_ENCOUNTERS } from '../cometAcademy/districtEncounters'
+import { CHARACTER_ROSTER } from '../cometAcademy/identityArcs'
 import { REAL_NIGHT_CASES } from '../cometAcademy/nightCases'
 import { ENCOUNTERS, INCIDENTS, POWERS, STUDENTS } from '../cometAcademy/rules'
 import { POWER_VOWS } from '../cometAcademy/specialPowers'
@@ -96,12 +99,99 @@ export function buildPromOfDoomPlaybook(): Playbook {
   }))
   add(withArt(enrol, SPLASH_ART_KEY))
 
+  // The cast is the identity roster, not the week-one dispatch team: 48
+  // origin x affinity people plus two visiting guests. The player becomes one;
+  // each run seeds the rest into the training roster, friends, possible
+  // romances, a partner or sidekick, hero upgrades and enemies
+  // (conductor comet-city-academy IDENTITY-SYSTEM.md, t-016).
+  for (const person of CHARACTER_ROSTER) {
+    const node = blankNode(
+      identityKey(person.signature),
+      'follower',
+      person.realName,
+    )
+    node.place = `${person.student.alias} · ${person.hero.alias} · ${person.villain.alias}`
+    node.body = [
+      person.backstory,
+      `Hero turn: ${person.heroDecision}`,
+      `Villain turn: ${person.villainDecision}`,
+    ]
+    node.lenses = [person.signature]
+    node.variations = [
+      {
+        axis: 'form',
+        key: 'student',
+        label: `Student: ${person.student.alias}`,
+        text: person.student.conflict,
+      },
+      {
+        axis: 'form',
+        key: 'hero',
+        label: `Hero: ${person.hero.alias}`,
+        text: person.hero.method,
+      },
+      {
+        axis: 'form',
+        key: 'villain',
+        label: `Villain: ${person.villain.alias}`,
+        text: person.villain.method,
+      },
+      {
+        axis: 'bond',
+        key: 'sidekick',
+        label: 'As sidekick',
+        text: person.sidekick,
+      },
+      {
+        axis: 'bond',
+        key: 'partner',
+        label: 'As partner',
+        text: person.quests.partner,
+      },
+      {
+        axis: 'bond',
+        key: 'romance',
+        label: 'Optional romance',
+        text: person.romance,
+      },
+      {
+        axis: 'track',
+        key: 'protagonist',
+        label: 'Their own quest',
+        text: person.quests.protagonist,
+      },
+      {
+        axis: 'track',
+        key: 'antagonist',
+        label: 'Against you',
+        text: person.quests.antagonist,
+      },
+    ]
+    add(withArt(node, identityArtKey(person.signature, 'student')))
+  }
+
+  const draw = blankNode('roster:draw', 'fork', 'The seeded roster')
+  draw.place = 'Every new term'
+  draw.body = [
+    'You become one of the 48. The run seed deals everyone else into roles: the training roster you dispatch, friends, possible romances, a partner or sidekick, hero upgrades and enemies, with a guaranteed heel turn among them.',
+    'The playable slice still dispatches the fixed week-one team below; seeding the roster into play is conductor comet-city-academy t-016.',
+  ]
+  draw.pool = CHARACTER_ROSTER.map((person) => identityKey(person.signature))
+  draw.provenance =
+    'Design: conductor projects/comet-city-academy/IDENTITY-SYSTEM.md.'
+  add(draw)
+
   for (const student of STUDENTS) {
-    const node = blankNode(`student:${student.id}`, 'follower', student.name)
-    node.place = `${student.title} · ${powerName(student.skill)}`
+    const node = blankNode(`student:${student.id}`, 'thread', student.name)
+    node.place = `Week-one team · ${student.title} · ${powerName(student.skill)}`
     node.body = [student.note]
     node.companions = [student.id]
-    add(withArt(node, studentArtKey(student.id)))
+    withArt(node, studentArtKey(student.id))
+    // A prototype cast the seeded roster replaces: no new art is owed to it.
+    node.needsArt = false
+    node.provenance =
+      'Fixed week-one dispatch team in the playable slice; replaced by the seeded identity roster (t-016).'
+    add(node)
   }
 
   CAMPAIGN_ANCHORS.forEach((anchor, index) => {
@@ -287,6 +377,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
     nodes,
     order: storyOrder(routes, [
       ...keysOf('follower'),
+      ...keysOf('fork'),
       ...keysOf('encounter'),
       ...keysOf('crossroads'),
       ...keysOf('quest'),
@@ -296,9 +387,15 @@ export function buildPromOfDoomPlaybook(): Playbook {
     ]),
     sections: [
       {
-        title: 'Students',
-        blurb: 'Who you dispatch and befriend.',
+        title: 'Identity roster',
+        blurb:
+          '48 people and two guests: you become one, the seed deals the rest their roles.',
         keys: keysOf('follower'),
+      },
+      {
+        title: 'Week-one team (prototype)',
+        blurb: 'The fixed dispatch team the seeded roster replaces.',
+        keys: Object.keys(nodes).filter((key) => key.startsWith('student:')),
       },
       {
         title: 'Patrol incidents',
@@ -327,7 +424,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       },
     ],
     people: STUDENTS.map((s) => ({ id: s.id, label: s.name })),
-    peopleLabel: 'Students',
+    peopleLabel: 'Week-one team',
     variations: [
       { id: 'hero', label: 'Hero' },
       { id: 'villain', label: 'Villain' },
@@ -338,12 +435,13 @@ export function buildPromOfDoomPlaybook(): Playbook {
     dayLabel: 'Day',
     kindLabels: {
       opening: 'Enrolment',
-      follower: 'Student',
+      follower: 'Identity',
       spine: 'Day',
       encounter: 'Patrol incident',
       crossroads: 'Campus encounter',
       quest: 'District scene',
-      thread: 'Guest List outcome',
+      thread: 'Week-one team or Guest List outcome',
+      fork: 'Seeded roster',
       boss: 'Mastermind',
       ending: 'Ending',
     },

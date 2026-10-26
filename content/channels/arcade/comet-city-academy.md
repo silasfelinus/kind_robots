@@ -8,12 +8,12 @@ subtitle: Thirty days until graduation · A superhero romance and patrol playboo
 summary: Capes, crushes, patrols and prom.
 description: 'An illustrated superhero-school playbook game. Choose an origin and an affinity to meet one of 48 students, each with a possible hero and villain future, then command up to three classmates at a time during training simulations, encounter campus secrets, and survive an unforgettable Comet Ball. A playable first-week simulation preview; the complete thirty-day story, romance and patrol game is in development.'
 icon: kind-icon:star
-image: /comet-city-academy/academy-stage.svg
+image: /comet-city-academy/front/splash.webp
 route: /play/comet-city-academy
 sort: 143
 tutorial:
   title: Capes & Tassels · First-week preview
-  image: /comet-city-academy/academy-stage.svg
+  image: /comet-city-academy/front/tutorial.webp
   body: >-
     Start by choosing an origin (freak accident, mutant, tech, magic,
     alien/dimensional or psychic) and an affinity (fire, air, earth, water,

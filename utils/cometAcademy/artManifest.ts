@@ -2,7 +2,9 @@
 // public/comet-city-academy/<entry>.webp. Re-run the export; do not edit by hand.
 
 export const PROM_ART: readonly string[] = [
+  'front/dashboard-highlight',
   'front/splash',
+  'front/tutorial',
   'prom-of-doom/ct-d29-the-guest-list-open-doors-success',
   'prom-of-doom/ct-d29-the-guest-list-private-guard-success',
   'prom-of-doom/ct-d29-the-guest-list-steal-access-success',

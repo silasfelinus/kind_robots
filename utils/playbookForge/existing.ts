@@ -141,19 +141,24 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     title: 'Capes & Tassels: Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     route: '/play/comet-city-academy',
-    planSource: 'Conductor goal and master issue kind_robots#4181',
+    planSource:
+      'Conductor goal, master issue kind_robots#4181 and IDENTITY-SYSTEM.md (48 people, seeded roles)',
     plan: plan('comet-city-academy', 'Capes & Tassels: Prom of Doom', {
       genre: 'hero-academy',
       placement: 'play',
       creator: 'builder',
       creatorFactors: 2,
-      optionsPerFactor: 7,
+      optionsPerFactor: 8,
       portraits: 'per-combination',
       identityAffectsOdds: true,
       outcomes: 'four-tier',
-      followers: 12,
+      // The 48 origin x affinity people: the player becomes one and the seed
+      // deals the rest roles (training roster, friends, romances, partner or
+      // sidekick, hero upgrades, enemies). Each has student, hero and villain forms.
+      followers: 48,
       partySize: 3,
-      romances: 6,
+      followerExpressions: 3,
+      romances: 48,
       villains: 8,
       villainPerRun: true,
       acts: 4,
@@ -164,16 +169,35 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       saveSlots: 3,
     }),
     count: async () => {
-      const rules = await import('../cometAcademy/rules')
+      const [rules, roster, districts] = await Promise.all([
+        import('../cometAcademy/rules'),
+        import('../cometAcademy/identityArcs'),
+        import('../cometAcademy/districtEncounters'),
+      ])
+      const { PROM_ENDINGS } = await import('../cometAcademy/artSlots')
+      const { CAMPAIGN_VILLAINS } = await import('../cometAcademy/campaign')
+      const people = roster.CHARACTER_ROSTER
       return {
         values: {
-          followers: rules.STUDENTS.length,
-          encounters: rules.ENCOUNTERS.length + rules.INCIDENTS.length,
-          endings: 4,
+          followers: people.length,
+          romances: people.filter((person) => person.romance).length,
+          villains: CAMPAIGN_VILLAINS.length,
+          encounters:
+            rules.INCIDENTS.length +
+            rules.ENCOUNTERS.length +
+            Object.keys(districts.DISTRICT_ENCOUNTERS).length,
+          endings: PROM_ENDINGS.length,
         },
-        measured: ['followers', 'encounters'],
+        measured: [
+          'followers',
+          'romances',
+          'villains',
+          'encounters',
+          'endings',
+        ],
         art: null,
-        source: 'utils/cometAcademy/rules.ts (not yet in Playbook Studio)',
+        source:
+          'the Capes & Tassels identity roster (48 people, 2 guests) and its runtime content',
       }
     },
   },

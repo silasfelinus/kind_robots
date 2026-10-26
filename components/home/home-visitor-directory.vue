@@ -365,7 +365,7 @@ const features = [
     tag: 'Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
-    image: '/comet-city-academy/academy-stage.svg',
+    image: '/comet-city-academy/front/dashboard-highlight.webp',
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {
@@ -373,7 +373,7 @@ const features = [
     tag: 'Playable space adventure',
     category: 'play',
     route: '/play/game-of-captains',
-    image: '/game-of-captains/bridge-stage.svg',
+    image: '/game-of-captains/front/dashboard-highlight.webp',
     description:
       'Command a crew, explore strange worlds, and decide when to intervene.',
   },

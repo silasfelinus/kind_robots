@@ -19,6 +19,13 @@ export const slugify = (text: string) =>
 
 export const SPLASH_ART_KEY = 'front/splash'
 export const studentArtKey = (id: string) => `students/${id}`
+/** A roster person's beat key in Playbook Studio. */
+export const identityKey = (signature: string) => `identity:${signature}`
+/** One of a roster person's three forms: student/sidekick, hero or villain. */
+export const identityArtKey = (
+  signature: string,
+  form: 'student' | 'hero' | 'villain',
+) => `identities/${signature}/${form}`
 export const incidentArtKey = (id: string) => `incidents/${id}`
 export const encounterArtKey = (title: string) => `encounters/${slugify(title)}`
 export const districtArtKey = (siteId: string) => `districts/${siteId}`

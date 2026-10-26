@@ -24,7 +24,6 @@
 //
 //   DATABASE_URL=<dummy> npx tsx utils/scripts/verifyGeneratedClientParity.ts
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
 
 function git(args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf8' })
@@ -55,18 +54,6 @@ function main(): void {
 
   const drift = git(['status', '--porcelain', '--', 'prisma/generated/']).trim()
   if (drift.length > 0) {
-    // Temporary diagnostic: capture exact generated files for connector-only PR repair.
-    console.log('BEGIN_GENERATED_CLIENT_FILES')
-    for (const line of git(['-c', 'status.showUntrackedFiles=all', 'status', '--porcelain', '--', 'prisma/generated/']).trimEnd().split('\n')) {
-      const file = line.slice(3).trim()
-      if (!file.startsWith('prisma/generated/') || !file.endsWith('.ts')) continue
-      const encoded = Buffer.from(readFileSync(file)).toString('base64')
-      console.log('BEGIN_GENERATED_FILE ' + file)
-      for (let index = 0; index < encoded.length; index += 1000)
-        console.log(encoded.slice(index, index + 1000))
-      console.log('END_GENERATED_FILE ' + file)
-    }
-    console.log('END_GENERATED_CLIENT_FILES')
     fail(
       'prisma/generated/ differs from `prisma generate` output for the current schema:\n' +
         `${drift}\n` +

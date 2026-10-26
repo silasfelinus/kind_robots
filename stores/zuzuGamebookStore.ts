@@ -135,7 +135,10 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     if (!loaded.value) return
     recoverable.value = run.value
     run.value = startRun(Date.now() >>> 0 || 1)
-    usePlaybookRunReviewStore().begin('zuzu-gamebook', playbookRunKey(run.value))
+    usePlaybookRunReviewStore().begin(
+      'zuzu-gamebook',
+      playbookRunKey(run.value),
+    )
     rollSerial.value = 0
     save()
   }

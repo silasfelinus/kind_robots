@@ -37,6 +37,8 @@ on:
       - 'utils/channelTabGroups.ts'
       - 'utils/scripts/verifyNavigationConsolidation.ts'
       - 'utils/scripts/verifyRequestedChannelGroups.test.ts'
+      - 'utils/homeShowcase.ts'
+      - 'utils/scripts/verifyHomeShowcaseLabels.test.ts'
       - 'pages/play/zuzu-ghost-trail.vue'
       - 'content/play/aquarium.md'
       - 'content/play/memory.md'
@@ -68,3 +70,4 @@ jobs:
         run: |
           npx tsx utils/scripts/verifyNavigationConsolidation.ts
           npx tsx utils/scripts/verifyRequestedChannelGroups.test.ts
+          npx tsx utils/scripts/verifyHomeShowcaseLabels.test.ts

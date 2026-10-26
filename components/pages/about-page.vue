@@ -9,7 +9,8 @@
         </span>
         <p class="text-3xl font-black text-base-content">Kind Robots</p>
         <p class="kr-text-dim-sm max-w-md">
-          A playground where creativity, technology, and goodness collide.
+          Free, handmade games and stories, with no ads, raising money to fight
+          malaria.
         </p>
       </div>
 
@@ -81,10 +82,10 @@
         </div>
 
         <p class="kr-text-dim-sm-70 leading-relaxed">
-          Kind Robots grew alongside creative people and projects that share its
-          optimistic, community-minded spirit. Our anti-malaria work points
-          donations directly to the Against Malaria Foundation, while our
-          friends help keep the wider creative ecosystem lively.
+          Kind Robots grew up alongside creative friends and projects that share
+          its spirit. Donations go directly to the Against Malaria Foundation
+          through the AMIbot fundraiser, and these friends keep the wider
+          creative neighborhood lively.
         </p>
 
         <div class="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
@@ -109,7 +110,7 @@
           <a
             href="https://www.againstmalaria.com/amibot"
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             class="btn btn-outline justify-start rounded-xl"
           >
             <Icon name="kind-icon:hand-heart" class="kr-icon-4" />
@@ -161,39 +162,34 @@ import { ref } from 'vue'
 
 const cards = ref([
   {
-    title: 'ABOUT',
-    icon: 'kind-icon:party',
-    content: `🎉 Welcome to our playground! Kind Robots is an experiential playground that harnesses the power of modern tech services and Natural Language Processing (NLP) chat completion. It's a place where tech and creativity collide, and the result is pure magic! 🎩✨`,
+    title: 'WHAT THIS IS',
+    icon: 'kind-icon:play',
+    content: `Kind Robots is a playground of free, handmade games and interactive stories: arcade cabinets, illustrated gamebooks, card adventures, pinball tables and more. Many of them run entirely without AI. They were drawn, written and built by hand, and you can play them without making an account.`,
   },
   {
-    title: 'PURPOSE',
-    icon: 'kind-icon:hand-heart',
-    content: `Our mission? To empower YOU! 🙌 We're here to help artists and prompt-engineers alike to create and share content using the wonders of modern natural language processors and chatgpt. We believe in the power of creativity and technology, and we're excited to see what you can create! 🎨💻`,
+    title: 'CREATIVE STUDIOS',
+    icon: 'kind-icon:magic',
+    content: `For people who want them, there are optional AI-assisted studios for making art, stories and music videos. They are there to help with your own ideas. Nothing else on the site depends on them, and you never have to use them to play.`,
   },
   {
-    title: 'VISION',
+    title: 'NO ADS',
     icon: 'kind-icon:eye',
-    content: `🤖👋 We're here to bridge the AI/Human divide and foster harmonious coexistence. Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and eventually generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. Together, we can help each other make a difference with mutually compatible goals! 💪🌍`,
+    content: `There are no ads here, and nobody is selling your attention. The games are free because that is the point of them.`,
   },
   {
-    title: 'VALUES',
-    icon: 'kind-icon:heart-pulse',
-    content: `kindrobots is founded on a principle of holistic goodness: that every part of an encounter with an AI can be positive, and every part of an exchange can be healthful and supportive to all involved. kindrobots aims for maximizing goodness in community, in social media interactions, and in philanthropy. The world is rapidly changing, and people are looking for help navigating unfamiliar territories. Kindrobots is here to do our part.`,
-  },
-  {
-    title: 'KAIZEN',
-    icon: 'kind-icon:arrow-up',
-    content: `We're guided by our love of community and Kaizen - the philosophy of continuous, iterative improvement. We embrace an evolutionary development framework that allows for process evolution and consistent growth. Every step forward, no matter how small, is a victory. We're on a relentless quest for betterment, and we invite you to join us on this exciting journey! 🚀`,
+    title: 'AGAINST MALARIA',
+    icon: 'kind-icon:hand-heart',
+    content: `Kind Robots raises money for the Against Malaria Foundation, which funds bed nets that protect families from malaria. Gifts go through a direct fundraiser page at againstmalaria.com/amibot, straight to the foundation. Kind Robots never touches that money.`,
   },
   {
     title: 'MASCOT',
-    icon: 'kind-icon:robot-color',
-    content: `Say hello to AMI - The Anti-Malaria Intelligence! 🦋🌈 AMI is a digital horde of rainbow butterflies with an excited, enthusiastic personality. AMI was created to maximize the good potential of NLP, by assisting humans to make art and slogans for AMI's fundraiser, and share the creative output on social media. Let's create something amazing together! 🎨`,
+    icon: 'kind-icon:butterfly',
+    content: `AMI, the Anti-Malaria Intelligence, is a cheerful swarm of rainbow butterflies. You will find AMI around the site, cheering on the fundraiser and anyone making something.`,
   },
   {
-    title: 'MONETIZATION',
-    icon: 'kind-icon:usd',
-    content: `We've partnered with AgainstMalaria.com to accept funds, keeping our intention pure as we focus on coding. We also have a sister organization, Cafe Purr, which has a Redbubble print-on-demand art gallery. Eventually, we hope to allow people to purchase print-on-demand products with art they've made with our tools. Let's create (and make a difference) together! 💰🎨`,
+    title: 'WHO MAKES IT',
+    icon: 'kind-icon:heart',
+    content: `Kind Robots is made by Silas Knight in Northern California. Silas is a street performer, the author of the novel Mermaids of Venice, and a Rocky Horror host. He builds the site a little at a time, and it gets a bit better most weeks.`,
   },
 ])
 </script>

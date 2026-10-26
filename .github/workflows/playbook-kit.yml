@@ -1,0 +1,41 @@
+name: Playbook Kit
+
+# Audit every playbook built on the kit against its complexity budget, and
+# prove the scaffold, settings and saved-progress contracts. DB-free.
+on:
+  pull_request:
+    paths:
+      - 'utils/playbookKit/**'
+      - 'stores/playbookKitStore.ts'
+      - 'components/playbook-kit/**'
+      - 'pages/admin/playbook-kit.vue'
+      - 'content/channels/admin/playbook-kit.md'
+      - 'utils/scripts/verifyPlaybookKit.test.ts'
+      - 'utils/scripts/scaffoldPlaybook.ts'
+      - '.github/workflows/playbook-kit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/playbookKit/**'
+      - 'stores/playbookKitStore.ts'
+      - 'components/playbook-kit/**'
+      - '.github/workflows/playbook-kit.yml'
+  workflow_dispatch:
+
+jobs:
+  budget:
+    name: Playbook budgets and kit contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install project dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Audit every playbook against its complexity budget
+        run: npm run test:playbook-kit

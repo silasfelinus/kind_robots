@@ -160,6 +160,8 @@
     "test:memory-dungeon-minefield": "tsx utils/scripts/verifyMemoryDungeonMinefield.test.ts",
     "test:memory-dungeon-rooms": "tsx utils/scripts/verifyMemoryDungeonRooms.test.ts",
     "test:playbook": "tsx utils/scripts/verifyPlaybook.test.ts",
+    "test:playbook-kit": "tsx utils/scripts/verifyPlaybookKit.test.ts",
+    "playbook:new": "tsx utils/scripts/scaffoldPlaybook.ts",
     "test:shifting-desks": "tsx utils/scripts/verifyShiftingDesks.test.ts && tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",
     "test:zuzu-showdown-input": "tsx utils/scripts/verifyZuzuShowdownInput.test.ts",

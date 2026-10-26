@@ -408,6 +408,11 @@ export type PlaybookEdit = Prisma.PlaybookEditModel
  */
 export type PlaybookNote = Prisma.PlaybookNoteModel
 /**
+ * Model PlaybookRunReview
+ * One rating for one completed playthrough, with its consented gameplay trace.
+ */
+export type PlaybookRunReview = Prisma.PlaybookRunReviewModel
+/**
  * Model ProjectPageContent
  * Durable editable presentation copy for Project-owned pages. `projectId` and
  * `updatedById` intentionally remain ownership/audit scalars rather than adding

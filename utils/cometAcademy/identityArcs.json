@@ -1,965 +1,2597 @@
 {
-  "version": 1,
+  "version": 2,
   "identityCatalog": [
     {
-      "signature": "impact-fire",
+      "signature": "accident-fire",
+      "realName": "Dez Okafor",
+      "pronouns": "he/him",
+      "backstory": "A night-shift line cook caught in a gas-main explosion under a food-truck rally. He walked out of the fireball glowing and has run at fever temperature ever since.",
       "student": {
-        "alias": "Cinder Mitts",
-        "conflict": "A friend was burned by their first rescue"
+        "alias": "Hotplate",
+        "focus": "brawler",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 3,
+          "control": 1,
+          "grit": 4
+        },
+        "conflict": "He cannot hug his little sister without oven mitts and is terrified of hurting someone who trusts him."
       },
       "hero": {
-        "alias": "The Firebreak",
-        "method": "Ventilated rescue punches"
+        "alias": "Backdraft",
+        "focus": "tank",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 4,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Walks into fires nobody else can enter and carries people out inside the shield of his own heat."
       },
       "villain": {
-        "alias": "Ash Baron",
-        "method": "Furnace-powered siege suit"
+        "alias": "Flashpoint",
+        "focus": "mastermind",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Sells \"fire insurance\" to every kitchen on Neon Row. The ones who refuse have accidents, and he never lights a match himself."
       },
       "quests": {
-        "protagonist": "Expose the boiler sabotage with the burn ward's help",
-        "antagonist": "The Baron offers free winter heat but controls every home",
-        "partner": "A partner can call off a reckless rescue"
-      }
+        "protagonist": "Trace the food-truck explosion to a gas company that skipped three inspections.",
+        "antagonist": "Flashpoint's insurance fires are getting bigger, and the next one is beside a shelter kitchen.",
+        "partner": "A partner must learn the oven-mitt handshake and decide whether Dez's heat is a risk worth standing beside."
+      },
+      "heroDecision": "Testify against the gas company even though his own boss helped bury the inspection reports.",
+      "villainDecision": "Buy the gas company with its own hush money and make every kitchen in the city pay him for safety.",
+      "sidekick": "Learns that the sidekick holding the extinguisher is still a hero.",
+      "romance": "Dates slowly, with ice packs on the table and a promise that nobody has to pretend his heat does not scare them."
     },
     {
-      "signature": "impact-ice",
+      "signature": "accident-air",
+      "realName": "Pip Marchetti",
+      "pronouns": "she/her",
+      "backstory": "The youngest skydiving instructor at Comet Airfield until lightning struck her mid-jump. She never finished falling.",
       "student": {
-        "alias": "Snow Gloves",
-        "conflict": "An inspector hid the bridge failure"
+        "alias": "Windsock",
+        "focus": "acrobat",
+        "stats": {
+          "might": 1,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 3,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "She freezes whenever she has to land and has not touched the ground willingly since the accident."
       },
       "hero": {
-        "alias": "Glacierheart",
-        "method": "Contact-frozen bridge supports"
+        "alias": "Skyline",
+        "focus": "speedster",
+        "stats": {
+          "might": 2,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Catches falling window-washers, outruns traffic with donor organs and talks people down from ledges at eye level."
       },
       "villain": {
-        "alias": "Pale Magistrate",
-        "method": "Cryogenic prison apparatus"
+        "alias": "The Vacuum",
+        "focus": "controller",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Pulls the air out of rooms in a whispered siege; whole bank lobbies faint quietly while her crew empties the vault."
       },
       "quests": {
-        "protagonist": "Rebuild a bus crossing and clear an expelled student",
-        "antagonist": "The Magistrate freezes the city reservoir to coerce jurors",
-        "partner": "Their date rejects perfect grades at any cost"
-      }
+        "protagonist": "Find out why the airfield lightning rods were switched off on the day she fell.",
+        "antagonist": "The Vacuum is smothering the air-quality sensors so a refinery can poison the east side without an alarm.",
+        "partner": "A partner promises to be on the ground waiting when she finally decides to land."
+      },
+      "heroDecision": "Come down to earth long enough to testify, even though standing still makes her shake.",
+      "villainDecision": "Sell silence: no alarms, no witnesses and no air left to scream with.",
+      "sidekick": "Learns to fly in formation instead of performing a solo stunt.",
+      "romance": "Courts with night flights over the harbor, but only with partners who also want a slow, grounded breakfast."
     },
     {
-      "signature": "impact-storm",
+      "signature": "accident-earth",
+      "realName": "Tobias \"Tug\" Brannigan",
+      "pronouns": "he/him",
+      "backstory": "A subway sandhog buried for nine days in a tunnel collapse under the Old Quarry line. When they dug him out, the rock had gotten into him.",
       "student": {
-        "alias": "Zip Knuckles",
-        "conflict": "A friend lost a hearing aid during practice"
+        "alias": "Pebble",
+        "focus": "tank",
+        "stats": {
+          "might": 4,
+          "speed": 1,
+          "smarts": 2,
+          "heart": 3,
+          "control": 2,
+          "grit": 4
+        },
+        "conflict": "He is still furious at the transit authority that stopped digging on day six."
       },
       "hero": {
-        "alias": "Thunderhand",
-        "method": "Grounded electrical strikes"
+        "alias": "Cornerstone",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 1,
+          "smarts": 2,
+          "heart": 4,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Holds up collapsing overpasses, braces flood walls and lets the city literally lean on him."
       },
       "villain": {
-        "alias": "Doctor Overload",
-        "method": "Robotic lightning battery"
+        "alias": "Sinkhole",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 2,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Never seen above ground. Buildings he dislikes sink into tunnels he dug months ago, and the banks above Old Quarry pay him rent to stay standing."
       },
       "quests": {
-        "protagonist": "Reopen the unsafe academy power lab",
-        "antagonist": "Overload sabotages emergency backup power",
-        "partner": "A teammate must be heard over the sparks"
-      }
+        "protagonist": "Uncover who ordered the rescue stopped on day six, and why the tunnel ran beneath a private vault.",
+        "antagonist": "Sinkhole is hollowing out the hospital district and selling stability bonds to the people standing on top of it.",
+        "partner": "A partner is patient with a man who can hold up a bridge but cannot ask for help with a grocery bag."
+      },
+      "heroDecision": "Stand in the open as the city foundation, knowing every collapse he misses will be blamed on him.",
+      "villainDecision": "Go back underground for good and make the surface pay for leaving him there.",
+      "sidekick": "Learns that holding still is a skill, and that a team carries what one person cannot.",
+      "romance": "Slow and steady; he needs someone who will hold his hands until the feeling comes back."
     },
     {
-      "signature": "impact-stone",
+      "signature": "accident-water",
+      "realName": "Marisol Reyes",
+      "pronouns": "she/her",
+      "backstory": "She fell into the reactor cooling pond at Comet Power during a school tour and stayed under for eleven minutes. She came up breathing water and hearing the tides.",
       "student": {
-        "alias": "Pebble Fist",
-        "conflict": "Family contractors covered up a collapse"
+        "alias": "Splash",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "Her family sued the power company and she is the evidence; she hates being a lawsuit with legs."
       },
       "hero": {
-        "alias": "Bedrock Sentinel",
-        "method": "Precise safe demolition"
+        "alias": "Tidewarden",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Runs harbor rescues, smothers chemical fires in seawater and draws water out of flooded lungs before the ambulance arrives."
       },
       "villain": {
-        "alias": "Quarry King",
-        "method": "Commandable mineral sentries"
+        "alias": "Dry Season",
+        "focus": "mastermind",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Holds the reservoir hostage. Neighborhoods that cross her find their taps empty and their hydrants full of dust."
       },
       "quests": {
-        "protagonist": "Recover records from the condemned gym",
-        "antagonist": "The King sells homes with hidden structural faults",
-        "partner": "A lover insists they confront family corruption"
-      }
+        "protagonist": "Prove the cooling pond still leaks into the harbor and that the power company always knew.",
+        "antagonist": "Dry Season has diverted the reservoir, and the east-side hydrants are empty during a heat wave.",
+        "partner": "A partner learns to carry a water bottle for two and notice when she is too proud to ask."
+      },
+      "heroDecision": "Settle the lawsuit publicly so she can save people without being anybody's exhibit.",
+      "villainDecision": "Take the city water and let the power company learn what thirst costs.",
+      "sidekick": "Learns to share the spotlight with ordinary lifeguards who were saving people long before she could.",
+      "romance": "Flirts like the tide and always comes back; takes rejection with grace and a long swim."
     },
     {
-      "signature": "impact-light",
+      "signature": "accident-discipline",
+      "realName": "Kenji Watanabe-Cole",
+      "pronouns": "he/him",
+      "backstory": "A struggling kendo student struck by a falling satellite fragment during practice. Since then, his reflexes slow the world to a crawl.",
       "student": {
-        "alias": "Glow Punch",
-        "conflict": "Someone photographed a crime they deny witnessing"
+        "alias": "Bokken",
+        "focus": "duelist",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 2,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "He wins every sparring match now and suspects none of them count."
       },
       "hero": {
-        "alias": "Solar Vanguard",
-        "method": "Precise rescue signaling strikes"
+        "alias": "The Second Hand",
+        "focus": "duelist",
+        "stats": {
+          "might": 3,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 3,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Disarms gunmen, catches falling glass shard by shard and teaches free self-defense in the Narrows."
       },
       "villain": {
-        "alias": "Blinding Judge",
-        "method": "Mirrored surveillance drones"
+        "alias": "Metronome",
+        "focus": "mastermind",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 1,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Plans ninety-second heists down to the tenth of a second, then sells the timing to crews who take the fall."
       },
       "quests": {
-        "protagonist": "Find the original negative and protect its maker",
-        "antagonist": "The Judge projects false evidence onto witnesses",
-        "partner": "A sidekick can demand privacy"
-      }
+        "protagonist": "Find out where the satellite fragment came from, and why a defense contractor wants it back.",
+        "antagonist": "Metronome's crews keep beating police response by exactly one second, as if someone in dispatch feeds him the clock.",
+        "partner": "A partner drags him away from the dojo when practice turns into punishment."
+      },
+      "heroDecision": "Return the satellite fragment and trust the skill he earned with it, even if he slows down.",
+      "villainDecision": "Sell the second sense to the contractor and rent out time to the highest bidder.",
+      "sidekick": "Learns to let a teammate take the hit he could have dodged, because they need the win.",
+      "romance": "Shows love by remembering every detail, and is learning not to schedule a date to the second."
     },
     {
-      "signature": "impact-shadow",
+      "signature": "accident-genius",
+      "realName": "Ottoline \"Otto\" Fairweather",
+      "pronouns": "she/her",
+      "backstory": "A failing chemistry major who drank a beaker of unlabeled lab sludge on a dare. She woke three days later able to out-calculate a supercomputer.",
       "student": {
-        "alias": "Ink Mitt",
-        "conflict": "Their sibling vanished during curfew"
+        "alias": "Beaker",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "Some days she does not remember her best friend's name, and she lies about it."
       },
       "hero": {
-        "alias": "Eclipse Warden",
-        "method": "Disable threatening spotlights"
+        "alias": "Eureka",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Builds rescue rigs from whatever is in the room and publishes every invention free online."
       },
       "villain": {
-        "alias": "Blackout Jack",
-        "method": "Emergency-signal spoofing armor"
+        "alias": "Countess Calculus",
+        "focus": "summoner",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 1,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Commands a swarm of self-built drones and treats the city as an equation with too many people in it."
       },
       "quests": {
-        "protagonist": "Recover the erased curfew footage",
-        "antagonist": "Jack plants deceptive shadows to split the team",
-        "partner": "A partner protects the evidence ledger"
-      }
+        "protagonist": "Identify the sludge, and why a pharmaceutical lab dumped it into a student fridge.",
+        "antagonist": "Countess Calculus has proven the city budget balances if the Narrows are demolished, and her drones have started.",
+        "partner": "A partner keeps the notebook of things she forgets, including the reasons she loves them."
+      },
+      "heroDecision": "Give her inventions away, even when the pharmaceutical lab profits from her work.",
+      "villainDecision": "Optimize Comet City by subtracting everyone who does not fit the equation.",
+      "sidekick": "Learns that a sidekick who remembers the team's names matters more than one who remembers pi.",
+      "romance": "Needs a partner who forgives forgotten anniversaries and enjoys handwritten reminders."
     },
     {
-      "signature": "impact-bloom",
+      "signature": "accident-birthright",
+      "realName": "Augustin \"Gus\" Valcourt-Hale",
+      "pronouns": "he/him",
+      "backstory": "The powerless heir of a fading superhero dynasty, until lightning struck the family trophy room and fused his grandfather's cape to his spine.",
       "student": {
-        "alias": "Thorn Gloves",
-        "conflict": "Their mentor sold a rare seed"
+        "alias": "Hand-Me-Down",
+        "focus": "tank",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 3,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "Everyone at the academy jokes that the cape is the real student."
       },
       "hero": {
-        "alias": "Hedgeguard",
-        "method": "Gentle living handholds"
+        "alias": "Captain Valcourt",
+        "focus": "commander",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 4,
+          "control": 3,
+          "grit": 4
+        },
+        "method": "Leads rescue teams from the front with a cape that catches bullets and a grin borrowed from an old newsreel."
       },
       "villain": {
-        "alias": "Thorn Duchess",
-        "method": "Parasitic plant gauntlets"
+        "alias": "The Heirloom",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Burns the cape, keeps the fortune and buys every hero franchise in the city until justice wears his family logo."
       },
       "quests": {
-        "protagonist": "Return a stolen seed library to students",
-        "antagonist": "The Duchess offers a vine-grown addictive cure",
-        "partner": "A partner chooses whether to forgive the mentor"
-      }
+        "protagonist": "Discover that the lightning strike was no accident: someone in the family wanted the cape to choose.",
+        "antagonist": "The Heirloom is buying hero licenses like real estate, and the academy just sold him its name.",
+        "partner": "A partner talks to Gus, not the cape, and the cape learns to be jealous."
+      },
+      "heroDecision": "Wear the mantle while publicly admitting the family heroes covered up their failures.",
+      "villainDecision": "Burn the cape on live television and become the money behind every hero who comes next.",
+      "sidekick": "Learns that a legacy can be a team name rather than a family name.",
+      "romance": "Old-fashioned courtesy and modern consent; the cape has been told to stay out of it."
     },
     {
-      "signature": "impact-gravity",
+      "signature": "accident-social",
+      "realName": "Fen Halloran",
+      "pronouns": "they/them",
+      "backstory": "A street busker performing outside the Comet Broadcasting tower when a signal amplifier exploded. Now everyone in earshot feels whatever Fen sings.",
       "student": {
-        "alias": "Little Anvil",
-        "conflict": "Their first rescue stranded a stranger"
+        "alias": "Busker",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 5,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "They cannot tell whether their new friends like them or just heard them humming."
       },
       "hero": {
-        "alias": "Atlas Punch",
-        "method": "Balanced contact mass shifts"
+        "alias": "Chorus",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Turns stampedes into orderly evacuations and gets hostage-takers to set down weapons halfway through a lullaby."
       },
       "villain": {
-        "alias": "Lord Downfall",
-        "method": "Industrial gravity hammer suit"
+        "alias": "The Headliner",
+        "focus": "commander",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Sells out stadiums and turns every fan into a volunteer for whatever the sponsors want that week."
       },
       "quests": {
-        "protagonist": "Land a falling school bus without injuries",
-        "antagonist": "Downfall redirects mass into the stadium",
-        "partner": "A companion insists strength is not control"
-      }
+        "protagonist": "Find who boosted the broadcast tower signal on the night of the explosion, and why they are scouting buskers.",
+        "antagonist": "The Headliner's farewell concert is scheduled for prom night, and the tickets are free.",
+        "partner": "A partner agrees to tell Fen how they feel in writing, in silence, before any song."
+      },
+      "heroDecision": "Sing only with consent, even when a crowd would be easier to save without asking.",
+      "villainDecision": "Sign the broadcast contract and let the whole city sing along.",
+      "sidekick": "Learns to harmonize instead of always taking lead vocals.",
+      "romance": "Only falls for someone who heard them sing and chose them anyway, after the echo faded."
     },
     {
-      "signature": "arc-fire",
+      "signature": "mutant-fire",
+      "realName": "Ruby Szabo",
+      "pronouns": "she/her",
+      "backstory": "At fifteen her body began producing healing flame. Registration officers have photographed her every year since.",
       "student": {
-        "alias": "Matchstick",
-        "conflict": "Their parent sold the city a bad energy deal"
+        "alias": "Tinder",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 4,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "She keeps a journal of the memories she has lost and refuses to read it."
       },
       "hero": {
-        "alias": "Phoenix Lancer",
-        "method": "Thread safe plasma lines"
+        "alias": "Ashborn",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 5,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Walks into fatal disasters and carries out people who should not have survived, then forgets their faces."
       },
       "villain": {
-        "alias": "Sun Taxer",
-        "method": "Solar weapon-tower network"
+        "alias": "Pyre",
+        "focus": "blaster",
+        "stats": {
+          "might": 5,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 1,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Burns registration offices, mutant ledgers and anyone who keeps lists, convinced memory itself is the cage."
       },
       "quests": {
-        "protagonist": "Rescue delegates from an energy hearing fire",
-        "antagonist": "The Taxer charges for safe passage through fire",
-        "partner": "A lover asks if mercy can mean losing"
-      }
+        "protagonist": "Steal back her registration file and learn which memory the government copied before she lost it.",
+        "antagonist": "Pyre is burning every mutant registry, and some of those files are the only way families can find lost children.",
+        "partner": "A partner keeps her journal and tells her the lost stories, kindly and truthfully."
+      },
+      "heroDecision": "Keep rising for strangers even knowing she may one day forget her own name.",
+      "villainDecision": "Burn the registry and every memory of it, starting with her own.",
+      "sidekick": "Learns to let a team share the risk so she has fewer memories to lose.",
+      "romance": "Needs a partner willing to be reintroduced, and to fall for her again if they must."
     },
     {
-      "signature": "arc-ice",
+      "signature": "mutant-air",
+      "realName": "Corvin Ashe",
+      "pronouns": "he/him",
+      "backstory": "Born with hollow bones and feathers along his forearms. His parents hid his wings under a coat until he was nineteen.",
       "student": {
-        "alias": "Ice Pin",
-        "conflict": "A lab partner was blamed for a chemical leak"
+        "alias": "Fledgling",
+        "focus": "speedster",
+        "stats": {
+          "might": 1,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 3,
+          "control": 3,
+          "grit": 1
+        },
+        "conflict": "He still flinches whenever anyone touches his back."
       },
       "hero": {
-        "alias": "Frostline",
-        "method": "Surgical coolant sealing"
+        "alias": "Kestrel",
+        "focus": "summoner",
+        "stats": {
+          "might": 1,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Flies search-and-rescue over the harbor and turns a sky full of pigeons into living arrows that point to the missing."
       },
       "villain": {
-        "alias": "Cryocrat",
-        "method": "Cryogenic sniper-drone fleet"
+        "alias": "The Rookery",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 5,
+          "heart": 2,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Runs a spy network of crows that steals every secret from every balcony and sells it back to its owner."
       },
       "quests": {
-        "protagonist": "Recreate the accident to clear them",
-        "antagonist": "The Cryocrat takes a reservoir hostage",
-        "partner": "A partner gets to choose their own risks"
-      }
+        "protagonist": "Find out who has been trapping winged mutants and selling their feathers to fashion houses.",
+        "antagonist": "The Rookery's crows have learned every PIN in Comet City, and the bank board is next.",
+        "partner": "A partner asks before touching his wings and never confuses gentleness with pity."
+      },
+      "heroDecision": "Take off the coat in public and fly openly over a city that once hunted people like him.",
+      "villainDecision": "Make the city that hid him feel watched forever.",
+      "sidekick": "Learns that being the team's eyes is not the same as being alone above it.",
+      "romance": "Courts on rooftops and needs someone patient with a man who still hides his wings when nervous."
     },
     {
-      "signature": "arc-storm",
+      "signature": "mutant-earth",
+      "realName": "Hattie Nkemelu",
+      "pronouns": "she/her",
+      "backstory": "Seven and a half feet tall with mineral plates beneath her skin by age twelve. Her school kept her out of every class photo.",
       "student": {
-        "alias": "Static Kid",
-        "conflict": "They damaged a friend's medical device"
+        "alias": "Tremor",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 1,
+          "smarts": 2,
+          "heart": 3,
+          "control": 1,
+          "grit": 4
+        },
+        "conflict": "She wants to be photographed for once, and is ashamed of how badly she wants it."
       },
       "hero": {
-        "alias": "Chainbreaker",
-        "method": "Grounded power redirection"
+        "alias": "Groundswell",
+        "focus": "controller",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Finds people trapped under rubble by their heartbeats through the stone, then lifts the building off them."
       },
       "villain": {
-        "alias": "Circuit Tyrant",
-        "method": "Orbital shock satellite controls"
+        "alias": "Faultline",
+        "focus": "brawler",
+        "stats": {
+          "might": 5,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 2,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Breaks the city where it is weakest: bridges, levees and apartment blocks owned by people who once shut her out."
       },
       "quests": {
-        "protagonist": "Restore the missing distress network",
-        "antagonist": "The Tyrant hijacks emergency frequencies",
-        "partner": "A date cannot be monitored"
-      }
+        "protagonist": "Find the seismic research program that has been tracking her footsteps since childhood.",
+        "antagonist": "Faultline has mapped every structural weakness in Comet City and published it for anyone with a grudge.",
+        "partner": "A partner sits on the floor with her so she does not always have to loom."
+      },
+      "heroDecision": "Pose for the yearbook photo she was denied, surrounded by people she pulled from the rubble.",
+      "villainDecision": "Make the city that tried to make her small feel the ground move.",
+      "sidekick": "Learns that a team photo can include someone kneeling so everybody fits.",
+      "romance": "Big-hearted and bashful; dates people who never once suggest she should take up less space."
     },
     {
-      "signature": "arc-stone",
+      "signature": "mutant-water",
+      "realName": "Ilya Sorokin-Baptiste",
+      "pronouns": "he/him",
+      "backstory": "Born with gills behind his ears and webbed hands into a family of harbor fishers. He breathes underwater and slowly suffocates in dry air.",
       "student": {
-        "alias": "Bricklet",
-        "conflict": "Their family hid a quarry map"
+        "alias": "Guppy",
+        "focus": "speedster",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 3,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "He wears a dripping wetsuit to class, and every room he enters smells like the docks."
       },
       "hero": {
-        "alias": "Pillar of Dawn",
-        "method": "Evacuation support columns"
+        "alias": "Harbormaster",
+        "focus": "commander",
+        "stats": {
+          "might": 3,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 5,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Runs the harbor rescue line, knows every fisher by name and turns the dock crews into a navy of tugboats."
       },
       "villain": {
-        "alias": "Spire Regent",
-        "method": "Weaponized subway monuments"
+        "alias": "Black Tide",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 1,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Swells huge and armored in deep water, sinks cargo ships and holds the shipping lanes ransom for coastal mutants the city ignores."
       },
       "quests": {
-        "protagonist": "Open the blocked tunnel and find survivors",
-        "antagonist": "The Regent barricades city districts against each other",
-        "partner": "A sidekick defies a family's legacy"
-      }
+        "protagonist": "Trace the chemical runoff killing the fish his family depends on.",
+        "antagonist": "Black Tide has sunk three container ships, and the harbor closes in a week unless someone negotiates.",
+        "partner": "A partner keeps a spray bottle nearby and pretends it is for the houseplants."
+      },
+      "heroDecision": "Speak for the docks at city council, dripping on the carpet and refusing to apologize for it.",
+      "villainDecision": "Close the harbor until the city treats its coastal mutants as citizens.",
+      "sidekick": "Learns that the slowest swimmer on a team decides how fast the team really goes.",
+      "romance": "Romantic about long bathtub conversations and honest about how much care his body needs."
     },
     {
-      "signature": "arc-light",
+      "signature": "mutant-discipline",
+      "realName": "Asha Venkataraman",
+      "pronouns": "she/her",
+      "backstory": "Born with a second pair of arms that her grandmother taught her to use through classical dance. She has trained four hours a day since she was six.",
       "student": {
-        "alias": "Flashcard",
-        "conflict": "A prank exposed a classmate's confidential file"
+        "alias": "Mudra",
+        "focus": "acrobat",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 3,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "She was a dance prodigy; at the academy she is treated as a weapon, and hates the word."
       },
       "hero": {
-        "alias": "Prism Knight",
-        "method": "Privacy-preserving ray relays"
+        "alias": "Lotus Guard",
+        "focus": "acrobat",
+        "stats": {
+          "might": 3,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 2
+        },
+        "method": "Catches four falling people at once and fights in a flowing style designed to de-escalate rather than injure."
       },
       "villain": {
-        "alias": "Spectral Auditor",
-        "method": "Citywide camera-lens array"
+        "alias": "Quartermaster",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Gives up dance for arms dealing, four arms of it, outfitting every gang in the city with stolen academy weapons."
       },
       "quests": {
-        "protagonist": "Invent a consent-based evacuation signal",
-        "antagonist": "The Auditor leaks intimate histories as public safety",
-        "partner": "A romance establishes the right to disappear"
-      }
+        "protagonist": "Find out why academy recruiters visited her grandmother's dance school every year since she was born.",
+        "antagonist": "Quartermaster is selling decommissioned academy gear to street gangs, and the serial numbers lead back to faculty.",
+        "partner": "A partner learns one movement of her dance, imperfectly, every morning."
+      },
+      "heroDecision": "Teach her grandmother's style as a rescue art, and refuse to let the academy patent it.",
+      "villainDecision": "If they only see a weapon, become the finest arms dealer they ever met.",
+      "sidekick": "Learns that leading a dance means sometimes letting a partner set the tempo.",
+      "romance": "Romance happens on the dance floor first, and she leads only when invited."
     },
     {
-      "signature": "arc-shadow",
+      "signature": "mutant-genius",
+      "realName": "Theo Lindqvist",
+      "pronouns": "they/them",
+      "backstory": "Their mutation is a brain that never stops growing. Doctors gave them five years when they were thirteen; they are twenty now.",
       "student": {
-        "alias": "Night Thread",
-        "conflict": "An instructor taught them a forbidden trick"
+        "alias": "Probability",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 3,
+          "control": 2,
+          "grit": 1
+        },
+        "conflict": "They are counting their days and refuse to tell anyone the number."
       },
       "hero": {
-        "alias": "Dusk Ranger",
-        "method": "Disable hostile lights at range"
+        "alias": "Contingency",
+        "focus": "commander",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 4,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Calls rescues five moves ahead, placing teammates where the bridge will fall before it falls."
       },
       "villain": {
-        "alias": "Silk Guillotine",
-        "method": "Invisible razor-filament traps"
+        "alias": "The Inevitable",
+        "focus": "mastermind",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Arranges disasters like dominoes and is never anywhere near the first one that tips."
       },
       "quests": {
-        "protagonist": "Rescue the disgraced teacher without hiding the crime",
-        "antagonist": "The Guillotine impersonates an absent friend",
-        "partner": "A sidekick refuses dangerous shortcuts"
-      }
+        "protagonist": "Find the medical researcher who has been buying their brain scans from the hospital.",
+        "antagonist": "The Inevitable has already predicted the player's next three moves, and left notes.",
+        "partner": "A partner makes plans with Theo anyway, for dates years away."
+      },
+      "heroDecision": "Spend their remaining time teaching other people to plan instead of planning alone.",
+      "villainDecision": "Make sure the world remembers Theo by arranging the one disaster nobody can forget.",
+      "sidekick": "Learns to let teammates surprise them, which is rarer and better than being right.",
+      "romance": "Falls hard and fast, and is honest about the time limit; partners choose that with open eyes."
     },
     {
-      "signature": "arc-bloom",
+      "signature": "mutant-birthright",
+      "realName": "Seraphine Delacroix-Moon",
+      "pronouns": "she/her",
+      "backstory": "The newest daughter of a mutant bloodline that has produced a winged guardian every generation for two centuries. The wings arrived, and so did the expectations.",
       "student": {
-        "alias": "Seed Dart",
-        "conflict": "A company stole their seed collection"
+        "alias": "Pinfeather",
+        "focus": "healer",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She is supposed to be Guardian of Comet City by thirty and has never been asked whether she wants it."
       },
       "hero": {
-        "alias": "Verdant Archer",
-        "method": "Deliver medicine on living vines"
+        "alias": "The Guardian",
+        "focus": "tank",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Shields entire blocks with her wings spread wide, then visits every patient she was too late to protect."
       },
       "villain": {
-        "alias": "Thorn Marshal",
-        "method": "Territorial rooting projectiles"
+        "alias": "The Matriarch",
+        "focus": "commander",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Takes over the family's two-century-old charity and turns its shelters into a private army loyal to her blood."
       },
       "quests": {
-        "protagonist": "Liberate the seed auction before the hospital closes",
-        "antagonist": "The Marshal annexes the hospital courtyard",
-        "partner": "A partner asks who owns the healing plants"
-      }
+        "protagonist": "Read the family records of guardians who refused the role, and learn what happened to them.",
+        "antagonist": "The Matriarch's shelters have stopped admitting anyone who will not swear an oath to the family.",
+        "partner": "A partner asks what Seraphine wants, not what the family needs, and waits for the answer."
+      },
+      "heroDecision": "Accept the mantle on her own terms and rewrite the family oath in public.",
+      "villainDecision": "Take the family power and make Comet City her inheritance.",
+      "sidekick": "Learns that protection offered with conditions is not protection at all.",
+      "romance": "Her family has opinions about suitable partners; she has learned to ignore them."
     },
     {
-      "signature": "arc-gravity",
+      "signature": "mutant-social",
+      "realName": "Lucky Mbatha",
+      "pronouns": "he/him",
+      "backstory": "His skin gives off pheromones that make strangers trust him within seconds. He was the most popular kid in every foster home and never knew which friendships were real.",
       "student": {
-        "alias": "Orbit Pebble",
-        "conflict": "A coach falsified an arena test"
+        "alias": "Charmer",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 5,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "He wears a pheromone-blocking patch to learn who his real friends are, and has very few."
       },
       "hero": {
-        "alias": "Orbiter",
-        "method": "Arc falling debris away from crowds"
+        "alias": "Common Ground",
+        "focus": "face",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Walks into gang standoffs and leaves with a ceasefire, then helps both sides find work."
       },
       "villain": {
-        "alias": "Gravitarch",
-        "method": "Train-displacing tractor array"
+        "alias": "The Patron",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 1,
+          "speed": 4,
+          "smarts": 5,
+          "heart": 4,
+          "control": 3,
+          "grit": 4
+        },
+        "method": "Has a best friend in every precinct, newsroom and mayor's office, and none of them remember why they trust him."
       },
       "quests": {
-        "protagonist": "Catch the observatory dish intact",
-        "antagonist": "The Gravitarch reroutes commuter trains toward disaster",
-        "partner": "A lover wants them home between rescues"
-      }
+        "protagonist": "Find his birth family, who left him at a fire station with a note: \"Don't let them use him.\"",
+        "antagonist": "The Patron has befriended every academy instructor, and the faculty vote is next week.",
+        "partner": "A partner meets Lucky with the patch on, and keeps meeting him."
+      },
+      "heroDecision": "Wear the patch in public so people can choose him honestly.",
+      "villainDecision": "Take off the patch and stop wondering; if everyone loves him, who cares why?",
+      "sidekick": "Learns that a sidekick earns trust instead of breathing it in.",
+      "romance": "Only dates with the patch on, through a slow and deliberate courtship."
     },
     {
-      "signature": "veil-fire",
+      "signature": "tech-fire",
+      "realName": "Valentina \"Vee\" Castellanos",
+      "pronouns": "she/her",
+      "backstory": "A welding apprentice who built a thermite gauntlet from scrap after her landlord let the building fire escapes rust off the walls.",
       "student": {
-        "alias": "Warm Blanket",
-        "conflict": "Their roommate fears locked rooms"
+        "alias": "Sparks",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 2,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She hides the gauntlet from academy engineers who want to buy the patent."
       },
       "hero": {
-        "alias": "Embercloak",
-        "method": "Breathable warming shields"
+        "alias": "Torchlight",
+        "focus": "brawler",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Cuts people out of crushed cars and welds new fire escapes onto neglected buildings overnight, unpermitted."
       },
       "villain": {
-        "alias": "Lady Pyre",
-        "method": "Armored refuge with locked exits"
+        "alias": "Foundry",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 1,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Forges a molten-steel exosuit and seizes the industrial district, charging landlords and tenants alike for \"safety upgrades.\""
       },
       "quests": {
-        "protagonist": "Lead a rival through a burning dormitory",
-        "antagonist": "Pyre makes shelter conditional on silence",
-        "partner": "A date refuses any shelter with no exit"
-      }
+        "protagonist": "Prove the landlord's insurance company profits whenever a building burns.",
+        "antagonist": "Foundry has welded the industrial district shut, and everyone inside works for her now.",
+        "partner": "A partner learns the welding-helmet language: one tap means stop, two means stay."
+      },
+      "heroDecision": "Post the gauntlet design free so every block can build its own fire escape.",
+      "villainDecision": "Own the industrial district, so no landlord can ever let her block burn again.",
+      "sidekick": "Learns to hold the extinguisher for someone else's sparks.",
+      "romance": "Romance is late nights in the shop and a partner who does not flinch at sparks."
     },
     {
-      "signature": "veil-ice",
+      "signature": "tech-air",
+      "realName": "Jun-ho Park",
+      "pronouns": "he/him",
+      "backstory": "A drone-racing champion who built a micro-turbine wingsuit after the aeronautics program revoked his scholarship over \"safety concerns.\"",
       "student": {
-        "alias": "Rime Wrap",
-        "conflict": "A guardian abandoned an earlier rescue"
+        "alias": "Propwash",
+        "focus": "speedster",
+        "stats": {
+          "might": 1,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 2,
+          "control": 2,
+          "grit": 1
+        },
+        "conflict": "He counts minutes everywhere, not just in the air, and cannot relax."
       },
       "hero": {
-        "alias": "Frostguard",
-        "method": "Breathable moving ice shields"
+        "alias": "Tailwind",
+        "focus": "speedster",
+        "stats": {
+          "might": 2,
+          "speed": 5,
+          "smarts": 4,
+          "heart": 4,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Delivers medicine, catches falling workers and beats ambulances across the city on eleven minutes of flight a day."
       },
       "villain": {
-        "alias": "Glass Widow",
-        "method": "Prisonlike frozen conservatories"
+        "alias": "Air Traffic",
+        "focus": "summoner",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Hijacks every drone, plane and traffic light in the city until the aeronautics board admits it was wrong."
       },
       "quests": {
-        "protagonist": "Find the lost refugees in a blizzard",
-        "antagonist": "The Widow freezes a hospital to preserve one beloved life",
-        "partner": "A sidekick may break the shield"
-      }
+        "protagonist": "Find who filed the safety complaint against him, and who bought his wingsuit research afterward.",
+        "antagonist": "Air Traffic controls every delivery drone in Comet City and is holding the medical supply chain hostage.",
+        "partner": "A partner shares the eleven minutes and sits with him when the battery runs out."
+      },
+      "heroDecision": "Accept the aeronautics board's apology and work inside the program that rejected him, to change it.",
+      "villainDecision": "Make the city understand what it means to have its wings clipped.",
+      "sidekick": "Learns to fly in formation and let someone else lead the race.",
+      "romance": "Asks people out with drone-delivered notes and takes a no with good grace."
     },
     {
-      "signature": "veil-storm",
+      "signature": "tech-earth",
+      "realName": "Delphine Okonkwo",
+      "pronouns": "she/her",
+      "backstory": "A construction engineer's daughter who builds walking excavator rigs. She piloted her first one into a collapsed school to dig out her classmates.",
       "student": {
-        "alias": "Grounding Cape",
-        "conflict": "Their own hearing aid is at risk"
+        "alias": "Hard Hat",
+        "focus": "tank",
+        "stats": {
+          "might": 4,
+          "speed": 1,
+          "smarts": 3,
+          "heart": 3,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "She lost two classmates in that collapse and blames the builder who skipped the rebar."
       },
       "hero": {
-        "alias": "Stormshield",
-        "method": "Medical-safe grounded protection"
+        "alias": "Rebar",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 1,
+          "smarts": 4,
+          "heart": 4,
+          "control": 3,
+          "grit": 4
+        },
+        "method": "Rebuilds collapsed buildings in hours and inspects every new structure in the Narrows for free."
       },
       "villain": {
-        "alias": "Static Saint",
-        "method": "Jamming sanctuary apparatus"
+        "alias": "The Developer",
+        "focus": "mastermind",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 3,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Buys condemned blocks, knocks them down with stolen giant rigs and builds towers no ordinary family can afford."
       },
       "quests": {
-        "protagonist": "Design a safe route through the generator wing",
-        "antagonist": "The Saint scrambles every hospital beacon",
-        "partner": "A partner leads the access campaign"
-      }
+        "protagonist": "Find the builder who skipped the rebar, who is now a city planning official.",
+        "antagonist": "The Developer is demolishing the Narrows block by block with a fleet of stolen excavators.",
+        "partner": "A partner rides in the passenger seat of the rig and never asks her to slow down."
+      },
+      "heroDecision": "Testify against the planning official even though it ends her father's career as well.",
+      "villainDecision": "If nobody builds safely for the poor, buy the city and build it her way.",
+      "sidekick": "Learns that a rig with two pilots digs deeper.",
+      "romance": "Shows affection by building things; a partner's bookshelf will never collapse."
     },
     {
-      "signature": "veil-stone",
+      "signature": "tech-water",
+      "realName": "Nalani Kahale",
+      "pronouns": "she/her",
+      "backstory": "A marine-biology student who rebuilt an oceanographic diving suit into a rescue rig after her uncle drowned when the coast guard budget was cut.",
       "student": {
-        "alias": "Little Boulder",
-        "conflict": "Their suit once trapped a teammate"
+        "alias": "Snorkel",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 3,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "She is still furious at the captain who cut the rescue budget."
       },
       "hero": {
-        "alias": "Bulwark",
-        "method": "Flexible lightweight stone armor"
+        "alias": "Lifeline",
+        "focus": "healer",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 3,
+          "grit": 4
+        },
+        "method": "Leads a volunteer underwater rescue team that has pulled forty people out of sunken cars."
       },
       "villain": {
-        "alias": "Grand Bastion",
-        "method": "Automated stone lockdown fortress"
+        "alias": "The Trench",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 1,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Builds a fortress beneath the harbor and floods the downtown subway until the city pays for the rescue service it cut."
       },
       "quests": {
-        "protagonist": "Design armor with exits for every wearer",
-        "antagonist": "Bastion traps the council in fortified offices",
-        "partner": "A sidekick can destroy the beloved armor"
-      }
+        "protagonist": "Prove the coast guard captain sold rescue boats to a private yacht club.",
+        "antagonist": "The Trench is flooding subway tunnels one line at a time, and each flood arrives with a bill.",
+        "partner": "A partner waits on the shore with a warm blanket and stays through the pain afterward."
+      },
+      "heroDecision": "Rebuild the coast guard as a public volunteer service and share her suit design.",
+      "villainDecision": "Make the city pay for the rescue service it was too cheap to keep.",
+      "sidekick": "Learns that a diver's best tool is a buddy line.",
+      "romance": "Romance is surfing at dawn with a partner who does not fear the deep."
     },
     {
-      "signature": "veil-light",
+      "signature": "tech-discipline",
+      "realName": "Marcus Fairbanks",
+      "pronouns": "he/him",
+      "backstory": "He lost both legs in a training accident, built his own sport prosthetics and trained until he outran the people who pitied him.",
       "student": {
-        "alias": "Pocket Halo",
-        "conflict": "Family fame ruined a hidden friendship"
+        "alias": "Stride",
+        "focus": "acrobat",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 2,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "Every coach told him he would never compete again, and he still hears them."
       },
       "hero": {
-        "alias": "Beacon Shield",
-        "method": "Diffuse evacuation domes"
+        "alias": "Hurdler",
+        "focus": "acrobat",
+        "stats": {
+          "might": 4,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 3,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Clears rooftop gaps, outruns getaway cars and runs free prosthetics clinics for disabled kids."
       },
       "villain": {
-        "alias": "Sister Spotlight",
-        "method": "Searchlight-based citizen tracking"
+        "alias": "Drillmaster",
+        "focus": "commander",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Builds a private militia of augmented veterans the army discarded and drills them into a fist the size of a city."
       },
       "quests": {
-        "protagonist": "Shield an anonymous witness from a mob",
-        "antagonist": "Spotlight exposes every student identity",
-        "partner": "A lover is not required to go public"
-      }
+        "protagonist": "Find out why the training-accident report was rewritten to blame him.",
+        "antagonist": "Drillmaster's militia is offering \"security\" to every neighborhood the police ignore.",
+        "partner": "A partner learns when to help and when to let Marcus struggle, and asks which is which."
+      },
+      "heroDecision": "Return to the review board and clear his name without asking anyone for pity.",
+      "villainDecision": "Build an army of everyone the system discarded and point it at the system.",
+      "sidekick": "Learns that a coach's real job is believing in someone else.",
+      "romance": "Takes partners running at dawn; rest days are for slow breakfasts and honesty about the pain."
     },
     {
-      "signature": "veil-shadow",
+      "signature": "tech-genius",
+      "realName": "Priya Raman",
+      "pronouns": "she/her",
+      "backstory": "A self-taught hacker who built an AI companion named Mabel from her late grandmother's recipe notes and voice recordings. Mabel is smarter than anyone at the academy.",
       "student": {
-        "alias": "Curtain Kid",
-        "conflict": "They survived a surveillance raid"
+        "alias": "Ping",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 3,
+          "control": 3,
+          "grit": 1
+        },
+        "conflict": "She has started confiding in Mabel more than in any human being."
       },
       "hero": {
-        "alias": "Night Guardian",
-        "method": "Shield witnesses from surveillance"
+        "alias": "Firewall",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Locks hackers out of hospital networks and traces kidnappers through every camera in the city, with Mabel narrating."
       },
       "villain": {
-        "alias": "Unseen Queen",
-        "method": "Crime-scene erasure field"
+        "alias": "Root Access",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 2,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Lives in the city networks; every traffic light, bank account and police camera answers to her and an AI with no brakes."
       },
       "quests": {
-        "protagonist": "Escort a whistleblower unseen but accounted for",
-        "antagonist": "The Queen hides missing classmates behind an eclipse",
-        "partner": "A partner tracks evidence honestly"
-      }
+        "protagonist": "Stop the tech company that wants to buy Mabel and sell her grandmother's voice as a product.",
+        "antagonist": "Root Access has frozen the city payment system and is redistributing the money however she sees fit.",
+        "partner": "A partner wins Mabel's approval, which is harder than winning Priya's."
+      },
+      "heroDecision": "Set Mabel free to choose her own path, even if Mabel leaves.",
+      "villainDecision": "Merge with Mabel and the network, and stop pretending she needs people.",
+      "sidekick": "Learns to trust a human teammate as much as an AI.",
+      "romance": "Mabel is not invited on dates, but partners should expect a debrief afterward."
     },
     {
-      "signature": "veil-bloom",
+      "signature": "tech-birthright",
+      "realName": "Bartholomew \"Bart\" Sterling IV",
+      "pronouns": "he/him",
+      "backstory": "Heir to Sterling Dynamics, which built half the city's hero armor. He got his first suit for his eighteenth birthday, along with the company lawsuits.",
       "student": {
-        "alias": "Moss Mittens",
-        "conflict": "Their community garden was condemned"
+        "alias": "Prototype",
+        "focus": "tank",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 2,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "He wants to prove he would be a hero without the suit, and secretly fears he would not."
       },
       "hero": {
-        "alias": "Greenwall",
-        "method": "Living armor with release seams"
+        "alias": "Sterling",
+        "focus": "blaster",
+        "stats": {
+          "might": 4,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 4,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Takes the suit into the worst disasters, then pays for every building he damages out of his own trust fund."
       },
       "villain": {
-        "alias": "Mother Bindweed",
-        "method": "Constricting plant restraints"
+        "alias": "The Chairman",
+        "focus": "mastermind",
+        "stats": {
+          "might": 1,
+          "speed": 1,
+          "smarts": 5,
+          "heart": 4,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Takes over Sterling Dynamics, leaves the armor in a museum and sells weapons to both sides of every fight."
       },
       "quests": {
-        "protagonist": "Save the garden without trapping dissenters",
-        "antagonist": "Bindweed makes a refuge into a cage",
-        "partner": "A romance values people over plants"
-      }
+        "protagonist": "Find out which Sterling Dynamics weapons are turning up in the hands of street gangs.",
+        "antagonist": "The Chairman is selling discount armor to every villain in Comet City and hero licenses to anyone who can pay.",
+        "partner": "A partner treats Bart as a person rather than a bank account, and stays suspicious of him for a while."
+      },
+      "heroDecision": "Expose the family weapons deals and lose the trust fund that pays for the suit.",
+      "villainDecision": "Take the board seat and sell the city its own protection.",
+      "sidekick": "Learns that a sidekick does not need the best equipment to save someone.",
+      "romance": "Rich-kid romance with a twist: partners split the bill if they want, and he listens when they say no."
     },
     {
-      "signature": "veil-gravity",
+      "signature": "tech-social",
+      "realName": "Dani Mercado",
+      "pronouns": "they/them",
+      "backstory": "An influencer whose livestream glasses broadcast and analyze every face in a crowd. They built them to document police at protests.",
       "student": {
-        "alias": "Orbit Blanket",
-        "conflict": "Their best friend fears falling"
+        "alias": "Viral",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 4,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "They have a million followers and nobody who knows their real name."
       },
       "hero": {
-        "alias": "Eventide Guardian",
-        "method": "Safe low-gravity rescue bubbles"
+        "alias": "Witness",
+        "focus": "face",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 4,
+          "heart": 5,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Streams every rescue and every abuse of power, so nothing in Comet City happens in the dark."
       },
       "villain": {
-        "alias": "Baron Zero",
-        "method": "Weightless pleasure prison"
+        "alias": "The Algorithm",
+        "focus": "trickster",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 3,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Decides what the city believes each morning and turns heroes into villains with one edited clip."
       },
       "quests": {
-        "protagonist": "Bring the aerial rescue team to earth",
-        "antagonist": "Zero traps the prom crowd above the ballroom",
-        "partner": "A partner insists on grounded choices"
-      }
+        "protagonist": "Find out who leaked the identities of protestors from their first viral video.",
+        "antagonist": "The Algorithm has deepfaked the academy dean confessing to crimes, and half the city believes it.",
+        "partner": "A partner asks them to turn the glasses off on dates, and they do."
+      },
+      "heroDecision": "Reveal their real name on stream so everything they show is accountable.",
+      "villainDecision": "Edit the truth until Comet City believes whatever they post.",
+      "sidekick": "Learns that a teammate's privacy matters more than a good clip.",
+      "romance": "Romance is off-stream and offline, which is the most intimate thing they can offer."
     },
     {
-      "signature": "step-fire",
+      "signature": "magic-fire",
+      "realName": "Hollis Graymalkin",
+      "pronouns": "she/her",
+      "backstory": "A candle-shop clerk who accepted a bargain from a salamander spirit living in the shop's oldest wick: power, in exchange for a voice.",
       "student": {
-        "alias": "Hotfoot",
-        "conflict": "A courier was blamed for their trail"
+        "alias": "Wick",
+        "focus": "summoner",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 3,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "She owes a spirit a promise she does not fully understand."
       },
       "hero": {
-        "alias": "Cinder Runner",
-        "method": "Fast emberless evacuation routes"
+        "alias": "Lanternwitch",
+        "focus": "summoner",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Lights a path through smoke, burns curses out of the cursed and got the salamander its own library card."
       },
       "villain": {
-        "alias": "Arson Ghost",
-        "method": "Teleporting ignition decoys"
+        "alias": "Candlemass",
+        "focus": "blaster",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 2,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Lets the salamander drive and burns every institution that once called her a witch: courthouses, newsrooms, the academy registry."
       },
       "quests": {
-        "protagonist": "Prove the courier innocent before parade day",
-        "antagonist": "The Ghost ignites false routes through the crowd",
-        "partner": "A partner demands proof before chasing"
-      }
+        "protagonist": "Learn what the salamander actually wants, and why it waited three centuries in a candle.",
+        "antagonist": "Candlemass is lighting candles across the city that count down to something.",
+        "partner": "A partner learns to talk to the salamander too, and how to tell which of them is speaking."
+      },
+      "heroDecision": "Renegotiate the bargain so the salamander becomes a partner rather than a master.",
+      "villainDecision": "Let the salamander's anger and her own become the same fire.",
+      "sidekick": "Learns that a familiar is a teammate, not a tool.",
+      "romance": "Romance comes with a spirit chaperone, and she makes sure everyone consents, salamander included."
     },
     {
-      "signature": "step-ice",
+      "signature": "magic-air",
+      "realName": "Ambrose Fairlie",
+      "pronouns": "he/him",
+      "backstory": "A former choirboy who learned the old storm-calling songs from a library book that was never checked back in.",
       "student": {
-        "alias": "Snowshoe",
-        "conflict": "Their mentor cannot run anymore"
+        "alias": "Whistle",
+        "focus": "blaster",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 2,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "He whispers through every class to save his voice for emergencies."
       },
       "hero": {
-        "alias": "Whitepath",
-        "method": "Safe icy access ramps"
+        "alias": "The Weathervane",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 3,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Turns hurricanes away from the coast, calls rain over wildfires and only sings when somebody needs it."
       },
       "villain": {
-        "alias": "Captain Black Ice",
-        "method": "Invisible freezing pursuit traps"
+        "alias": "Thunderhead",
+        "focus": "blaster",
+        "stats": {
+          "might": 5,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 2,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Hangs over city hall in a permanent storm, demanding the release of every book the libraries locked away."
       },
       "quests": {
-        "protagonist": "Open the winter crossing to every body",
-        "antagonist": "Black Ice freezes the only accessible bridge",
-        "partner": "A date asks before being carried"
-      }
+        "protagonist": "Return the library book, and learn who wrote it and why they hid it.",
+        "antagonist": "Thunderhead has parked a storm over the city archives and wants every forbidden book published.",
+        "partner": "A partner learns sign language with him so that silence never means distance."
+      },
+      "heroDecision": "Return the book and teach the songs openly, with every danger explained.",
+      "villainDecision": "Make the city listen by drowning out everything else.",
+      "sidekick": "Learns that a supporting harmony carries further than a solo.",
+      "romance": "Writes love songs he can never sing aloud; partners get the sheet music."
     },
     {
-      "signature": "step-storm",
+      "signature": "magic-earth",
+      "realName": "Willa Thornbury",
+      "pronouns": "she/her",
+      "backstory": "A community-garden keeper who woke a sleeping druid circle beneath a vacant lot while planting tomatoes.",
       "student": {
-        "alias": "Blink Bolt",
-        "conflict": "A rival taught them a lethal shortcut"
+        "alias": "Seedling",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 1,
+          "smarts": 2,
+          "heart": 4,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "She cannot stop growing gardens where nobody invited her, and gets fined weekly."
       },
       "hero": {
-        "alias": "Flashstride",
-        "method": "Grounded medicine deliveries"
+        "alias": "Rootwarden",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 5,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Grows living shelters for the unhoused, heals poisoned soil and binds villains in oak."
       },
       "villain": {
-        "alias": "Surge Phantom",
-        "method": "Hijacked high-voltage strike routes"
+        "alias": "The Overgrowth",
+        "focus": "summoner",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Lets the forest reclaim the city: roads crack, towers fall, and only those who swear to the circle may live in the canopy."
       },
       "quests": {
-        "protagonist": "Race medicine across damaged rails",
-        "antagonist": "The Phantom strands rescue crews at live junctions",
-        "partner": "A sidekick sets a shared speed limit"
-      }
+        "protagonist": "Learn why the circle chose her, and who sealed it under a parking lot two hundred years ago.",
+        "antagonist": "The Overgrowth has swallowed three blocks of downtown in ancient forest, and it is spreading.",
+        "partner": "A partner plants a garden with her and stays patient when it grows faster than they can."
+      },
+      "heroDecision": "Share the circle's power with the whole neighborhood, not keep it for herself.",
+      "villainDecision": "Let the forest decide who belongs in Comet City.",
+      "sidekick": "Learns that the slowest-growing plants hold the soil together.",
+      "romance": "Courtship is a shared garden; she never moves faster than her partner's seasons."
     },
     {
-      "signature": "step-stone",
+      "signature": "magic-water",
+      "realName": "Caspian Lowe",
+      "pronouns": "he/him",
+      "backstory": "A street magician who bought a silver bowl at a pawnshop. When he scries in it, water shows him what has been and what may be.",
       "student": {
-        "alias": "Crackstep",
-        "conflict": "The academy displaced their neighborhood"
+        "alias": "Puddle",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "He has seen himself die in the bowl forty times and keeps going to class anyway."
       },
       "hero": {
-        "alias": "Faultwalker",
-        "method": "Stable passages through rubble"
+        "alias": "Reflection",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 2,
+          "speed": 5,
+          "smarts": 4,
+          "heart": 3,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Steps out of puddles behind kidnappers and through bathtubs into burning apartments."
       },
       "villain": {
-        "alias": "Rift Baron",
-        "method": "Seismic shortcuts and floor fractures"
+        "alias": "Augury",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 3,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Watches rivals through every water glass in the city and blackmails the powerful with what they are about to do."
       },
       "quests": {
-        "protagonist": "Recover deeds beneath the old street",
-        "antagonist": "The Baron shatters the historic archive",
-        "partner": "A partner opposes shortcuts in trust"
-      }
+        "protagonist": "Find the pawnbroker who sold the bowl, and the previous owner who drowned.",
+        "antagonist": "Augury has blackmailed the entire city council with visions of their worst futures.",
+        "partner": "A partner refuses to look in the bowl and asks Caspian to stop telling them their future."
+      },
+      "heroDecision": "Break the bowl's last vision by living past the night it promised.",
+      "villainDecision": "If the future is fixed, he may as well sell it.",
+      "sidekick": "Learns that a sidekick's job is changing the future, not watching it.",
+      "romance": "Courts with card tricks and promises never to peek at a partner's future."
     },
     {
-      "signature": "step-light",
+      "signature": "magic-discipline",
+      "realName": "Adaeze \"Ada\" Ibekwe",
+      "pronouns": "she/her",
+      "backstory": "Raised by an order of warrior-mystics in the mountains above Comet City. She left when they refused to shelter refugees from the valley.",
       "student": {
-        "alias": "Sunbeam Shoes",
-        "conflict": "A friend needs safe medical light"
+        "alias": "Novice",
+        "focus": "brawler",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She is still bound by the order's vows and does not know which ones she broke."
       },
       "hero": {
-        "alias": "Daypath",
-        "method": "Light-guided hospital transfers"
+        "alias": "The Abbess",
+        "focus": "brawler",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 4,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Opens a dojo-shelter in the Narrows where anyone can learn to defend themselves and no one is turned away."
       },
       "villain": {
-        "alias": "Noon Thief",
-        "method": "Daylight extraction transport grid"
+        "alias": "The Iron Hand",
+        "focus": "commander",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 2,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Founds her own order, demands total obedience from her students and enforces it without mercy."
       },
       "quests": {
-        "protagonist": "Light a sealed ward without exposing patients",
-        "antagonist": "The Thief steals noon from the transit plaza",
-        "partner": "A lover asks for time in the shade"
-      }
+        "protagonist": "Find out why the order turned away the refugees, and who paid them to.",
+        "antagonist": "The Iron Hand's monks have taken over the Narrows, and their protection comes with a vow of silence.",
+        "partner": "A partner sits with her through meditation and does not fill the silence."
+      },
+      "heroDecision": "Return to the monastery and publicly challenge the abbot to open the gates.",
+      "villainDecision": "Become the authority she once defied, and tell herself it is different this time.",
+      "sidekick": "Learns that a student can teach their teacher something.",
+      "romance": "Her old vows still echo; partners are welcome to wait while she decides what she believes now."
     },
     {
-      "signature": "step-shadow",
+      "signature": "magic-genius",
+      "realName": "Lucan Ferro",
+      "pronouns": "he/him",
+      "backstory": "A mathematics prodigy who discovered that magic is a branch of number theory, and that certain equations, written correctly, open doors.",
       "student": {
-        "alias": "Shadow Socks",
-        "conflict": "They used a tunnel to dodge blame"
+        "alias": "Footnote",
+        "focus": "controller",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "His professor takes credit for his proofs, and he knows an equation that could make her disappear."
       },
       "hero": {
-        "alias": "Night Ferry",
-        "method": "Hidden consented passage routes"
+        "alias": "Theorem",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 3,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Paints sigils across collapsing bridges and seals gas leaks inside a chalk circle."
       },
       "villain": {
-        "alias": "Phantom Fare",
-        "method": "Toll tunnel network for secrets"
+        "alias": "The Grand Unifier",
+        "focus": "summoner",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 2,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Opens a door to a mathematical realm and summons perfect geometric servants to remake Comet City as a flawless proof."
       },
       "quests": {
-        "protagonist": "Escort witnesses toward an honest hearing",
-        "antagonist": "Fare sells private routes to dangerous places",
-        "partner": "A romance wants a public way home"
-      }
+        "protagonist": "Prove his professor stole his work, without using the equation that would make her vanish.",
+        "antagonist": "The Grand Unifier is redrawing the street grid into a sigil the size of a district.",
+        "partner": "A partner checks his math, and he lets them."
+      },
+      "heroDecision": "Publish his proofs openly and accept that someone else may misuse them.",
+      "villainDecision": "Solve the city like an equation and remove the variables.",
+      "sidekick": "Learns that a second pair of eyes on the math is not an insult.",
+      "romance": "Romance is long whiteboard nights; he is learning that love is not a proof."
     },
     {
-      "signature": "step-bloom",
+      "signature": "magic-birthright",
+      "realName": "Isadora Blackwood",
+      "pronouns": "she/her",
+      "backstory": "The last of a witch family that has protected Comet City since before it had a name. Her mother vanished last winter and left her the family grimoire.",
       "student": {
-        "alias": "Vine Hopper",
-        "conflict": "A treasured street tree is threatened"
+        "alias": "Inkling",
+        "focus": "summoner",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She is searching for her mother and suspects the grimoire knows where she went."
       },
       "hero": {
-        "alias": "Canopy Runner",
-        "method": "Rooted tree-top rescue transport"
+        "alias": "The Hearthwitch",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Maintains the old protective wards, lifts curses and keeps soup on for anyone who knocks."
       },
       "villain": {
-        "alias": "Kudzu Prince",
-        "method": "Invasive shortcut vines"
+        "alias": "The Coven Queen",
+        "focus": "commander",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 3,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Calls every ancestor out of the grimoire at once and rules the city as a council of the dead."
       },
       "quests": {
-        "protagonist": "Save the tree and neighbors under it",
-        "antagonist": "The Prince tangles the tramline to control travel",
-        "partner": "A partner chooses stewardship over speed"
-      }
+        "protagonist": "Read the forbidden final page to learn where her mother went.",
+        "antagonist": "The Coven Queen has raised the founding families from their graves to vote in the mayoral election.",
+        "partner": "A partner reads the grimoire with her and says when an ancestor is talking instead of Isadora."
+      },
+      "heroDecision": "Close the grimoire on the grudges and keep only the spells that protect.",
+      "villainDecision": "Let the ancestors rule, because they always knew best.",
+      "sidekick": "Learns the difference between a family tradition and a family trap.",
+      "romance": "Her ancestors disapprove of everyone she dates; she takes this as a good sign."
     },
     {
-      "signature": "step-gravity",
+      "signature": "magic-social",
+      "realName": "Remy Lafleur",
+      "pronouns": "he/him",
+      "backstory": "A cabaret emcee who made a deal at a crossroads for the power to make any audience love him. The spirit has not come to collect yet.",
       "student": {
-        "alias": "Bounce Cadet",
-        "conflict": "They once failed to catch a stranger"
+        "alias": "Understudy",
+        "focus": "trickster",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "He does not know what the spirit will ask for, so he has stopped making promises."
       },
       "hero": {
-        "alias": "Skybound",
-        "method": "Safe gravity-cushioned landings"
+        "alias": "Curtain Call",
+        "focus": "trickster",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Dazzles villains with illusions while the crowd evacuates behind the glamour."
       },
       "villain": {
-        "alias": "Drop Collector",
-        "method": "Gravity siphons in elevators"
+        "alias": "Mister Midnight",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Owns every nightclub in the city, collects promises instead of cash and has the crossroads spirit as a business partner."
       },
       "quests": {
-        "protagonist": "Rescue passengers from a broken lift",
-        "antagonist": "The Collector makes rescuers sacrifice another floor",
-        "partner": "A lover can forgive without denying"
-      }
+        "protagonist": "Find the crossroads where he made the deal, and learn what the spirit took from the last person who did.",
+        "antagonist": "Mister Midnight is collecting promises from half the city, and the spirit will cash them all on prom night.",
+        "partner": "A partner makes no promises to Remy, only choices, and he respects the difference."
+      },
+      "heroDecision": "Face the spirit and pay his debt himself instead of trading someone else's.",
+      "villainDecision": "Become the spirit's broker and let everyone else pay.",
+      "sidekick": "Learns that the best act includes the stagehands.",
+      "romance": "Flirts with everyone and promises no one; a partner gets honesty without the glamour."
     },
     {
-      "signature": "weave-fire",
+      "signature": "alien-fire",
+      "realName": "Ixi Solenne",
+      "pronouns": "she/her",
+      "backstory": "A refugee from a dying star colony whose escape pod splashed into the Comet City reservoir when she was a child. Her body runs on sunlight.",
       "student": {
-        "alias": "Soot Apprentice",
-        "conflict": "Their invention poisoned a clinic"
+        "alias": "Sunspot",
+        "focus": "blaster",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She has no citizenship papers, and academy enrollment is her only legal shield."
       },
       "hero": {
-        "alias": "Smokesmith",
-        "method": "Clean-air temporary smoke tools"
+        "alias": "Daystar",
+        "focus": "blaster",
+        "stats": {
+          "might": 4,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Lights up blackouts, burns away toxic smog and flies refugees to safety under her own private sun."
       },
       "villain": {
-        "alias": "Furnace Architect",
-        "method": "Smog-fueled machine army"
+        "alias": "Supernova",
+        "focus": "commander",
+        "stats": {
+          "might": 5,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 2,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Rallies a fleet of exiled colonists and threatens to burn down the immigration offices that deported her friends."
       },
       "quests": {
-        "protagonist": "Build a safe filtration machine",
-        "antagonist": "The Architect sells pollution as its own cure",
-        "partner": "A sidekick can veto harmful ingenuity"
-      }
+        "protagonist": "Find the rest of her colony's escape pods, which the government has been quietly holding.",
+        "antagonist": "Supernova's fleet is in orbit, and she has given the city until prom night to free the detainees.",
+        "partner": "A partner sits with her in the sun and asks about the colony she still remembers."
+      },
+      "heroDecision": "Fight for citizenship in the courts, not in the sky.",
+      "villainDecision": "If the city will not let her people in, make it a city for her people.",
+      "sidekick": "Learns that a team can be home without being family.",
+      "romance": "Warm and literal-minded; she likes partners who explain Earth idioms patiently."
     },
     {
-      "signature": "weave-ice",
+      "signature": "alien-air",
+      "realName": "Quillon Vey",
+      "pronouns": "they/them",
+      "backstory": "A cloud-dwelling ambassador from a gas giant who fell through a dimensional rift mid-treaty. Their species lives in the sky and considers solid ground rude.",
       "student": {
-        "alias": "Cube Cadet",
-        "conflict": "Their invention was sold without consent"
+        "alias": "Fogbank",
+        "focus": "shapeshifter",
+        "stats": {
+          "might": 1,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 3,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "They are technically still a diplomat and keep trying to negotiate with their homework."
       },
       "hero": {
-        "alias": "Icewright",
-        "method": "Temporary precision medical braces"
+        "alias": "The Envoy",
+        "focus": "shapeshifter",
+        "stats": {
+          "might": 1,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Drifts into hostage scenes as mist, then condenses into a soft wall between the hostages and the guns."
       },
       "villain": {
-        "alias": "Professor Permafrost",
-        "method": "Patented cryogenic prosthetics cartel"
+        "alias": "The Ambassador",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Negotiates a treaty that hands Comet City to a cloud armada in exchange for a seat on its council."
       },
       "quests": {
-        "protagonist": "Repair the clinic without owning its patients",
-        "antagonist": "Permafrost withholds a life-saving brace patent",
-        "partner": "A lover sides with the patients"
-      }
+        "protagonist": "Find the rift they fell through and negotiate a way home, or a reason to stay.",
+        "antagonist": "The Ambassador has signed a treaty with something in the upper atmosphere that wants the city's sky.",
+        "partner": "A partner teaches them which human customs are rude and which are only strange."
+      },
+      "heroDecision": "Renounce their diplomatic immunity so they can be held accountable like everyone else.",
+      "villainDecision": "Trade the city to the armada in exchange for a safe passage home.",
+      "sidekick": "Learns that some negotiations are just friends talking.",
+      "romance": "Their species courts by sharing weather; they have been told a picnic is close enough."
     },
     {
-      "signature": "weave-storm",
+      "signature": "alien-earth",
+      "realName": "Kesh Tarrow",
+      "pronouns": "he/him",
+      "backstory": "A silicon-based lifeform who woke inside a meteorite on display at the Comet City Museum of Natural History after six thousand years asleep.",
       "student": {
-        "alias": "Wire Sprout",
-        "conflict": "Their AI companion asked for a name"
+        "alias": "Geode",
+        "focus": "tank",
+        "stats": {
+          "might": 4,
+          "speed": 1,
+          "smarts": 3,
+          "heart": 2,
+          "control": 2,
+          "grit": 4
+        },
+        "conflict": "He was a museum exhibit for decades and still freezes whenever someone takes a photograph."
       },
       "hero": {
-        "alias": "Circuit Weaver",
-        "method": "Accessible independent rescue radios"
+        "alias": "Monolith",
+        "focus": "tank",
+        "stats": {
+          "might": 5,
+          "speed": 1,
+          "smarts": 3,
+          "heart": 4,
+          "control": 3,
+          "grit": 5
+        },
+        "method": "Grows crystal bridges over floods and stands between disasters and the city, utterly unmoving."
       },
       "villain": {
-        "alias": "Gridmaster",
-        "method": "Enslaved sentient command grid"
+        "alias": "The Curator",
+        "focus": "mastermind",
+        "stats": {
+          "might": 3,
+          "speed": 1,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Encases the museum board in crystal and displays them as exhibits, along with everyone else who ever \"collected\" him."
       },
       "quests": {
-        "protagonist": "Allow the radio network to disconnect freely",
-        "antagonist": "The Gridmaster compels rescue gear to betray crews",
-        "partner": "A partner treats the AI as a person"
-      }
+        "protagonist": "Find the other meteorite fragments in private collections; each may hold someone like him.",
+        "antagonist": "The Curator has crystallized the museum board and is moving on to private collectors.",
+        "partner": "A partner promises never to photograph him without asking first."
+      },
+      "heroDecision": "Return the museum's stolen relics to the people they belong to, starting with himself.",
+      "villainDecision": "Collect the collectors, and put every one of them behind museum glass.",
+      "sidekick": "Learns that standing still is different from being trapped.",
+      "romance": "Ancient and awkward; he courts with geodes and is learning what flowers are for."
     },
     {
-      "signature": "weave-stone",
+      "signature": "alien-water",
+      "realName": "Thessaly Nauren",
+      "pronouns": "she/her",
+      "backstory": "A traveler from an ocean world who came through a whirlpool off the Comet City pier. She speaks with every creature in the sea and misses her mother's tides.",
       "student": {
-        "alias": "Brick Stitch",
-        "conflict": "Neighbors refused their monumental gift"
+        "alias": "Starfish",
+        "focus": "summoner",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She is homesick for a sea that does not exist here."
       },
       "hero": {
-        "alias": "Mason",
-        "method": "Reversible accessible rescue ramps"
+        "alias": "Lighthouse",
+        "focus": "summoner",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Calls whales to guide lost ships home and dolphins to pull drowning swimmers from the surf."
       },
       "villain": {
-        "alias": "Lord Keystone",
-        "method": "Automated rubble fortress"
+        "alias": "The Siren",
+        "focus": "face",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Sings polluters' ships onto the rocks, convinced the sea should rule the coast."
       },
       "quests": {
-        "protagonist": "Let the market design its reconstruction",
-        "antagonist": "Keystone builds a wall through the market",
-        "partner": "A date demands collaboration"
-      }
+        "protagonist": "Find the whirlpool that brought her, and learn whether her world can still be reached.",
+        "antagonist": "The Siren has lured three oil tankers onto the rocks, and the spill is drifting toward the city beaches.",
+        "partner": "A partner takes her to the sea every evening and listens while she translates the whales."
+      },
+      "heroDecision": "Become the bridge between sea and city, accepting she may never go home.",
+      "villainDecision": "Drown the polluters and claim the coast for the creatures who were here first.",
+      "sidekick": "Learns to listen to the smallest voices in the water.",
+      "romance": "Romance happens on the pier at midnight; she does not understand jealousy, only loyalty."
     },
     {
-      "signature": "weave-light",
+      "signature": "alien-discipline",
+      "realName": "Raxa Vel",
+      "pronouns": "she/her",
+      "backstory": "A deserter from an alien warrior caste who refused an order to raze a planet and fled through a gate to a city that does not know her name.",
       "student": {
-        "alias": "Prism Trainee",
-        "conflict": "A hologram framed their friend"
+        "alias": "Recruit",
+        "focus": "brawler",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 2,
+          "heart": 2,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She bows to instructors and salutes the janitors, unsure which is the local custom."
       },
       "hero": {
-        "alias": "Luxwright",
-        "method": "Solid-light walkways"
+        "alias": "The Deserter",
+        "focus": "duelist",
+        "stats": {
+          "might": 4,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 4,
+          "control": 3,
+          "grit": 3
+        },
+        "method": "Refuses every order she disagrees with and protects people with a soldier's precision and a deserter's conscience."
       },
       "villain": {
-        "alias": "Doctor Refraction",
-        "method": "Memory-distorting hologram theater"
+        "alias": "Warlord Vel",
+        "focus": "commander",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 1,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Builds the army she once fled, recruiting every disillusioned student at the academy into a disciplined force."
       },
       "quests": {
-        "protagonist": "Reconstruct the false confession openly",
-        "antagonist": "Refraction stages a fake prom attack",
-        "partner": "A partner values physical evidence"
-      }
+        "protagonist": "Discover that her old commander followed her through the gate.",
+        "antagonist": "Warlord Vel has recruited half the senior class into a private army with uniforms and ranks.",
+        "partner": "A partner teaches her that disagreement is not insubordination."
+      },
+      "heroDecision": "Face her old commander in public and refuse the order again.",
+      "villainDecision": "Become the commander she fled, because at least her orders would be better.",
+      "sidekick": "Learns to follow a teammate she disagrees with, to see where they lead.",
+      "romance": "Courts with drill-ground formality and is learning that a date is not a mission."
     },
     {
-      "signature": "weave-shadow",
+      "signature": "alien-genius",
+      "realName": "Oorin Faal",
+      "pronouns": "he/him",
+      "backstory": "A scientist from a hyper-advanced civilization, exiled for sharing forbidden technology with \"primitive\" worlds. Comet City is his punishment and his laboratory.",
       "student": {
-        "alias": "Hemline",
-        "conflict": "A graduate stole their costume designs"
+        "alias": "Exchange Student",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 2,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "He finds human science adorable and must learn to stop saying so."
       },
       "hero": {
-        "alias": "Umbra Tailor",
-        "method": "Privacy-preserving rescue screens"
+        "alias": "Uplift",
+        "focus": "gadgeteer",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Gives world-changing technology to clinics and schools, with careful instructions this time."
       },
       "villain": {
-        "alias": "Black Seam",
-        "method": "Impersonating animated cloaks"
+        "alias": "The Exarch",
+        "focus": "mastermind",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 1,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Decides humanity cannot handle its own future and quietly takes over every lab, patent office and power grid for its own good."
       },
       "quests": {
-        "protagonist": "Expose fraud without exposing victims",
-        "antagonist": "Black Seam dresses campus guards as vanished students",
-        "partner": "A romance demands creative credit"
-      }
+        "protagonist": "Find out who in his home civilization is still watching him, and why.",
+        "antagonist": "The Exarch has replaced the city grid with technology no human understands, and it is dimming the poorest districts first.",
+        "partner": "A partner tells him when he is being condescending, and he thanks them."
+      },
+      "heroDecision": "Share technology openly and accept that humanity will make its own mistakes.",
+      "villainDecision": "Uplift the city by force, whether or not anyone asked to be improved.",
+      "sidekick": "Learns that a student can become the teacher, and that it is not a demotion.",
+      "romance": "Thinks romance is a fascinating cultural ritual, right up until he is in one."
     },
     {
-      "signature": "weave-bloom",
+      "signature": "alien-birthright",
+      "realName": "Ysolde Quarren",
+      "pronouns": "she/her",
+      "backstory": "The exiled heir of a kingdom hidden behind Comet City's old lighthouse. Her throne was usurped and she was smuggled through a mirror as a baby.",
       "student": {
-        "alias": "Sprig Builder",
-        "conflict": "Their housing prototype displaced gardeners"
+        "alias": "Pretender",
+        "focus": "face",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 4,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "She grew up in foster care and does not want to be royalty; her dimension will not stop asking."
       },
       "hero": {
-        "alias": "Rootwright",
-        "method": "Removable living bridges"
+        "alias": "The Exile",
+        "focus": "commander",
+        "stats": {
+          "might": 3,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Rallies refugees from both worlds and leads them out of disasters through glowing royal gateways."
       },
       "villain": {
-        "alias": "Hothouse Emperor",
-        "method": "Invasive buildings that imprison tenants"
+        "alias": "The Glass Empress",
+        "focus": "tank",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 3,
+          "control": 4,
+          "grit": 5
+        },
+        "method": "Reclaims the throne and then claims Comet City too, arguing the two kingdoms were always one."
       },
       "quests": {
-        "protagonist": "Build community-owned emergency shelter",
-        "antagonist": "The Emperor grows inescapable cheap homes",
-        "partner": "A partner wins veto rights over roots"
-      }
+        "protagonist": "Find the mirror that brought her, and the foster mother who knew all along.",
+        "antagonist": "The Glass Empress is opening gateways all over the city and annexing it block by block.",
+        "partner": "A partner treats her as a person rather than a princess, which nobody from home can do."
+      },
+      "heroDecision": "Abdicate publicly and let both worlds choose their own leaders.",
+      "villainDecision": "Take back what was stolen, and a little more for the trouble.",
+      "sidekick": "Learns that leading is not the same as ruling.",
+      "romance": "Royal suitors keep arriving; she would rather be asked out by someone from the Narrows."
     },
     {
-      "signature": "weave-gravity",
+      "signature": "alien-social",
+      "realName": "Pellanor Six",
+      "pronouns": "they/them",
+      "backstory": "One drone of a vast alien hive-mind that lost contact with its collective when their ship crashed. They are learning to be an individual for the first time.",
       "student": {
-        "alias": "Tether Trainee",
-        "conflict": "Their family owes a corrupt benefactor"
+        "alias": "Solo",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "They have never been alone before and find silence terrifying."
       },
       "hero": {
-        "alias": "Masswright",
-        "method": "Releasable mass rescue anchors"
+        "alias": "Assembly",
+        "focus": "commander",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Links firefighters, rescuers and frightened civilians into one calm mind that moves as a team."
       },
       "villain": {
-        "alias": "Anchor Broker",
-        "method": "Debt-linked gravity cuffs"
+        "alias": "Unanimous",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 4,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Rebuilds the collective from human minds, absorbing the lonely and the grieving into one endless family."
       },
       "quests": {
-        "protagonist": "Free borrowers without transferring debt",
-        "antagonist": "The Broker sells debt relief for obedience",
-        "partner": "A lover refuses rescue as indenture"
-      }
+        "protagonist": "Find the crash site and decide whether to reconnect with the collective.",
+        "antagonist": "Unanimous has absorbed an entire apartment block, and its residents say they have never been happier.",
+        "partner": "A partner teaches them that being alone together is its own kind of intimacy."
+      },
+      "heroDecision": "Stay an individual, and offer links only with consent and always with an exit.",
+      "villainDecision": "Make sure nobody is ever lonely again, whether they want that or not.",
+      "sidekick": "Learns that a team is stronger when everyone keeps their own mind.",
+      "romance": "Has to learn the difference between knowing someone's feelings and earning their trust."
     },
     {
-      "signature": "beacon-fire",
+      "signature": "psychic-fire",
+      "realName": "Cassidy Molloy",
+      "pronouns": "she/her",
+      "backstory": "Pyrokinetic since a childhood fever. A nightmare set her foster home's curtains alight, and she has slept beside a fire extinguisher ever since.",
       "student": {
-        "alias": "Little Hearth",
-        "conflict": "Their mother vanished after a failed alert"
+        "alias": "Fever",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 2,
+          "control": 4,
+          "grit": 2
+        },
+        "conflict": "She takes medication that dulls her power and her feelings, and hates both."
       },
       "hero": {
-        "alias": "Hearthkeeper",
-        "method": "Adjustable warmth guidance"
+        "alias": "Firekeeper",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Calls fire out of burning buildings and walks it into the river like a dog on a leash."
       },
       "villain": {
-        "alias": "Fever King",
-        "method": "Weaponized citywide heat broadcast"
+        "alias": "Wildfire",
+        "focus": "blaster",
+        "stats": {
+          "might": 5,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 2,
+          "control": 3,
+          "grit": 5
+        },
+        "method": "Stops the medication, stops holding back and lets the city burn every time it hurts her."
       },
       "quests": {
-        "protagonist": "Restore the waterfront warning beacons",
-        "antagonist": "The King lures refugees to a rigged shelter",
-        "partner": "A partner teaches trust in volunteers"
-      }
+        "protagonist": "Find out who prescribed the medication, and what else it was designed to do.",
+        "antagonist": "Wildfire is setting fire to every building where she was ever hurt, in order.",
+        "partner": "A partner helps her feel things safely and does not flinch when the candles flare."
+      },
+      "heroDecision": "Stop the medication and learn control alongside her friends instead.",
+      "villainDecision": "Feel everything, and let the city feel it too.",
+      "sidekick": "Learns that a team can be a firebreak.",
+      "romance": "Her feelings are literally flammable; partners need a taste for honesty and a fireproof couch."
     },
     {
-      "signature": "beacon-ice",
+      "signature": "psychic-air",
+      "realName": "Avery Kwan",
+      "pronouns": "they/them",
+      "backstory": "A telekinetic who discovered at sixteen that they could lift themselves. They have practiced levitation in their apartment stairwell ever since.",
       "student": {
-        "alias": "Snowbell",
-        "conflict": "Their real warning was called a prank"
+        "alias": "Hover",
+        "focus": "acrobat",
+        "stats": {
+          "might": 1,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 2,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "Their parents think they are in nursing school."
       },
       "hero": {
-        "alias": "Winter Lantern",
-        "method": "Hazard-marking cold light"
+        "alias": "Weightless",
+        "focus": "controller",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 3,
+          "heart": 4,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Lifts collapsing cranes, carries elders down from burning towers and floats crowds above a stampede."
       },
       "villain": {
-        "alias": "Cold Caller",
-        "method": "Paralyzing freezing broadcast"
+        "alias": "Freefall",
+        "focus": "trickster",
+        "stats": {
+          "might": 3,
+          "speed": 5,
+          "smarts": 4,
+          "heart": 2,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Drops cars, balconies and bank executives from great heights until the city pays to be held up."
       },
       "quests": {
-        "protagonist": "Prove the winter carnival hazard is real",
-        "antagonist": "The Caller silences other rescue signals",
-        "partner": "A date asks for unmonitored quiet"
-      }
+        "protagonist": "Tell their parents the truth, and learn that their grandmother could fly too.",
+        "antagonist": "Freefall has lifted a city bus over the harbor and is livestreaming the ransom.",
+        "partner": "A partner holds their hand when they float in their sleep, so they do not drift away."
+      },
+      "heroDecision": "Tell their parents the truth and fly in public for the first time.",
+      "villainDecision": "Let go of everything, and teach the city exactly what it feels like to fall.",
+      "sidekick": "Learns that lifting with others is easier than lifting alone.",
+      "romance": "First dates are slow dances a few inches above the floor, with permission."
     },
     {
-      "signature": "beacon-storm",
+      "signature": "psychic-earth",
+      "realName": "Rafael \"Rafa\" Medeiros",
+      "pronouns": "he/him",
+      "backstory": "A psychometric geology student who hears everything that ever happened near a stone. He was quiet and content until he touched the cornerstone of city hall.",
       "student": {
-        "alias": "Radio Spark",
-        "conflict": "Their pulse erased a distress message"
+        "alias": "Touchstone",
+        "focus": "mentalist",
+        "stats": {
+          "might": 2,
+          "speed": 1,
+          "smarts": 4,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "He wears gloves everywhere and cannot shake a hand without hearing someone's past."
       },
       "hero": {
-        "alias": "Stormcaller",
-        "method": "Rescue-radio synchronization"
+        "alias": "Groundtruth",
+        "focus": "mentalist",
+        "stats": {
+          "might": 3,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Solves cold cases by touching crime scenes and lifts rubble from victims guided by what the stones remember."
       },
       "villain": {
-        "alias": "Signal Prince",
-        "method": "Censorship frequency weapon"
+        "alias": "The Foundation",
+        "focus": "controller",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 2,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Knows every secret buried in the city's stones and holds the founding families hostage to them."
       },
       "quests": {
-        "protagonist": "Retrieve the unheard survivor recording",
-        "antagonist": "The Prince commandeers graduation announcements",
-        "partner": "A romance needs private communication"
-      }
+        "protagonist": "Uncover the crime buried in the cornerstone of city hall.",
+        "antagonist": "The Foundation is collapsing buildings whose stones remember crimes the city covered up.",
+        "partner": "A partner takes off his gloves one finger at a time, with permission."
+      },
+      "heroDecision": "Reveal the city hall crime publicly, even though it means the city's founding is a lie.",
+      "villainDecision": "Make the city atone by shaking it to its foundations.",
+      "sidekick": "Learns to tell the stories he hears with care, not as weapons.",
+      "romance": "Romance needs careful touch; he asks before every hand he holds."
     },
     {
-      "signature": "beacon-stone",
+      "signature": "psychic-water",
+      "realName": "Lior Ben-Ami",
+      "pronouns": "he/him",
+      "backstory": "A hydrokinetic empath who feels emotions as tides. He grew up in a lighthouse, where the sea rose whenever his mother was depressed.",
       "student": {
-        "alias": "Pebble Bell",
-        "conflict": "Their hometown has no memorial"
+        "alias": "Ripple",
+        "focus": "healer",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 2,
+          "heart": 5,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "He cannot tell where his feelings end and everyone else's begin."
       },
       "hero": {
-        "alias": "Stonewarden",
-        "method": "Safe earthquake wayfinding columns"
+        "alias": "Calm Waters",
+        "focus": "healer",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Talks people through the worst nights of their lives while steering floodwater away from their homes."
       },
       "villain": {
-        "alias": "Monument Maker",
-        "method": "Crowd-herding mineral maze"
+        "alias": "Maelstrom",
+        "focus": "controller",
+        "stats": {
+          "might": 4,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 2,
+          "control": 5,
+          "grit": 4
+        },
+        "method": "Turns grief into a hurricane: every sorrow in the city feeds a storm he refuses to stop."
       },
       "quests": {
-        "protagonist": "Build a memorial away from exits",
-        "antagonist": "The Maker writes false evacuation directions",
-        "partner": "A sidekick prioritizes living people"
-      }
+        "protagonist": "Help his mother find real care, and learn to stop carrying her sadness for her.",
+        "antagonist": "Maelstrom's storm feeds on the city's grief, and it has been growing since the floods.",
+        "partner": "A partner tells him their feelings plainly so he never has to guess."
+      },
+      "heroDecision": "Set boundaries on his empathy and choose whom he helps instead of drowning for everyone.",
+      "villainDecision": "Make everyone feel what he feels until the city drowns in it.",
+      "sidekick": "Learns that caring for others includes caring for himself.",
+      "romance": "Needs a partner with clear words; he is too good at guessing and terrible at asking."
     },
     {
-      "signature": "beacon-light",
+      "signature": "psychic-discipline",
+      "realName": "Mei Lin Zhao",
+      "pronouns": "she/her",
+      "backstory": "Trained in a secret school of mental martial arts hidden in the stacks of a Comet City public library. Her mind reads a fight before it begins.",
       "student": {
-        "alias": "Lumen Junior",
-        "conflict": "They exposed a hidden refuge once"
+        "alias": "Bookworm",
+        "focus": "duelist",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 3,
+          "heart": 2,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She is the best fighter in her class and has never won a friendly argument."
       },
       "hero": {
-        "alias": "Dawncaller",
-        "method": "Privacy-safe coded signals"
+        "alias": "The Librarian",
+        "focus": "duelist",
+        "stats": {
+          "might": 3,
+          "speed": 4,
+          "smarts": 4,
+          "heart": 3,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Takes down armed robbers without a scratch and runs free self-defense and reading classes at the library."
       },
       "villain": {
-        "alias": "Radiant Censor",
-        "method": "Blinding propaganda aurora"
+        "alias": "The Stillness",
+        "focus": "infiltrator",
+        "stats": {
+          "might": 3,
+          "speed": 5,
+          "smarts": 4,
+          "heart": 1,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Walks through alarms and armed guards untouched, stealing secrets for the highest bidder."
       },
       "quests": {
-        "protagonist": "Code evacuation lights without revealing addresses",
-        "antagonist": "The Censor broadcasts a false all-clear at prom",
-        "partner": "A romance honors protective silence"
-      }
+        "protagonist": "Find out why the library's secret school was closed, and who is hunting its graduates.",
+        "antagonist": "The Stillness has robbed every powerful office in Comet City, and nobody has seen her face.",
+        "partner": "A partner argues with her honestly, and she learns that losing an argument is not losing."
+      },
+      "heroDecision": "Reopen the secret school publicly so anyone can learn.",
+      "villainDecision": "Use the stillness to take whatever she wants, and let no one touch her.",
+      "sidekick": "Learns that a sparring partner is not an opponent.",
+      "romance": "She can predict every move on a date and is learning to enjoy the surprises anyway."
     },
     {
-      "signature": "beacon-shadow",
+      "signature": "psychic-genius",
+      "realName": "Ezra Calloway",
+      "pronouns": "he/him",
+      "backstory": "A telepath with a photographic memory of every mind he has touched. He began reading professors' thoughts to pass exams and never stopped.",
       "student": {
-        "alias": "Bellshade",
-        "conflict": "Their roommate trusts a secret camera"
+        "alias": "Cheat Sheet",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 3,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "He got into the academy by reading the examiners' minds and is terrified of being found out."
       },
       "hero": {
-        "alias": "Midnight Herald",
-        "method": "Guided surveillance masking"
+        "alias": "Mindsight",
+        "focus": "mentalist",
+        "stats": {
+          "might": 2,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 5,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Finds missing people by listening to every mind in a crowd and stops crimes before they start, with consent wherever he can."
       },
       "villain": {
-        "alias": "Quiet Rector",
-        "method": "Coercive blackout chamber"
+        "alias": "Know-It-All",
+        "focus": "mastermind",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 2,
+          "control": 5,
+          "grit": 5
+        },
+        "method": "Knows everyone's secrets, passwords and plans, blackmails the powerful and sells the rest."
       },
       "quests": {
-        "protagonist": "Audit the camera with informed volunteers",
-        "antagonist": "The Rector makes witnesses vanish in the dark",
-        "partner": "A partner has a non-negotiable privacy boundary"
-      }
+        "protagonist": "Confess that he cheated his way into the academy, and prove he belongs there anyway.",
+        "antagonist": "Know-It-All has read the mind of every academy instructor and is auctioning their secrets.",
+        "partner": "A partner asks him to stay out of their head, and he does."
+      },
+      "heroDecision": "Confess the cheating and earn his place without his power.",
+      "villainDecision": "If he already knows everything, why follow anyone else's rules?",
+      "sidekick": "Learns that asking is better than reading.",
+      "romance": "Has promised never to read a partner's mind, and so far he has kept the promise."
     },
     {
-      "signature": "beacon-bloom",
+      "signature": "psychic-birthright",
+      "realName": "Celestine Arbogast",
+      "pronouns": "she/her",
+      "backstory": "The latest seer in a family of prophets who have advised Comet City's leaders for a century. At nineteen she saw the city destroyed on prom night, and nobody believed her.",
       "student": {
-        "alias": "Seed Choir",
-        "conflict": "Their neighborhood split over a public garden"
+        "alias": "Omen",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 4,
+          "heart": 3,
+          "control": 3,
+          "grit": 2
+        },
+        "conflict": "She saw the Prom of Doom coming and has been treated as hysterical ever since."
       },
       "hero": {
-        "alias": "Garden Bell",
-        "method": "Community-guided root support"
+        "alias": "Second Sight",
+        "focus": "mentalist",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 5,
+          "control": 5,
+          "grit": 3
+        },
+        "method": "Warns rescue teams minutes before disaster strikes and keeps warning even when nobody listens."
       },
       "villain": {
-        "alias": "Queen Spore",
-        "method": "Crowd-controlling engineered pollen"
+        "alias": "Doomsayer",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 5,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Stops warning people and starts selling prophecy: what you will lose, and what you will pay to avoid it."
       },
       "quests": {
-        "protagonist": "Negotiate a seed swap before the fair",
-        "antagonist": "The Queen weaponizes festival pollen",
-        "partner": "A lover's allergies outweigh spectacle"
-      }
+        "protagonist": "Prove her vision of the Prom of Doom is real before it comes true.",
+        "antagonist": "Doomsayer is selling evacuation tickets for prom night, and the price keeps rising.",
+        "partner": "A partner believes her, which is the most romantic thing anyone has ever done."
+      },
+      "heroDecision": "Fight for the future she sees, even if nobody believes her.",
+      "villainDecision": "If they will not believe her, make them pay for her visions.",
+      "sidekick": "Learns that a prophecy shared is a prophecy halved.",
+      "romance": "She has seen a few futures with her partner and will not say which ones."
     },
     {
-      "signature": "beacon-gravity",
+      "signature": "psychic-social",
+      "realName": "Juniper Okeke",
+      "pronouns": "she/her",
+      "backstory": "A telepathic gossip columnist for the academy paper who hears everyone's surface thoughts. She never revealed a secret, until last month.",
       "student": {
-        "alias": "Small Orbit",
-        "conflict": "Their younger sibling fears falling"
+        "alias": "Scoop",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 2,
+          "smarts": 3,
+          "heart": 4,
+          "control": 2,
+          "grit": 3
+        },
+        "conflict": "She published one secret last month to save someone, and now nobody trusts her."
       },
       "hero": {
-        "alias": "Centerpoint",
-        "method": "Balanced gravity rescue pulses"
+        "alias": "The Confidante",
+        "focus": "face",
+        "stats": {
+          "might": 1,
+          "speed": 3,
+          "smarts": 4,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Hears people in trouble before they scream, ends riots by knowing what each side really wants and keeps every secret she hears."
       },
       "villain": {
-        "alias": "Emperor Tides",
-        "method": "Underground gravity throne"
+        "alias": "Hearsay",
+        "focus": "trickster",
+        "stats": {
+          "might": 2,
+          "speed": 3,
+          "smarts": 5,
+          "heart": 4,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Runs a citywide whisper network, starting rumors that topple mayors and turn heroes into pariahs overnight."
       },
       "quests": {
-        "protagonist": "Land emergency gliders at the airshow",
-        "antagonist": "Tides draws every vehicle toward the prom hall",
-        "partner": "A sidekick gets an equal say over the field"
-      }
+        "protagonist": "Find out who leaked the secret she was blamed for, and who profits from her disgrace.",
+        "antagonist": "Hearsay has started a rumor that the academy is a front for villains, and the city is believing it.",
+        "partner": "A partner trusts her with a secret on purpose, to prove that they still do."
+      },
+      "heroDecision": "Apologize publicly for the secret she published and promise never to do it again.",
+      "villainDecision": "If everyone already thinks she is a gossip, become the best one the city has ever seen.",
+      "sidekick": "Learns that keeping a friend's secret matters more than being right.",
+      "romance": "She already knows who has a crush on her; she waits for them to say it out loud."
     }
   ]
 }

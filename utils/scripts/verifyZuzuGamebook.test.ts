@@ -646,7 +646,7 @@ function followHollisRoute(
   return run
 }
 
-const trustedHollis = followHollisRoute(48, [
+const trustedHollisSteps = [
   ['avoid', 'dust-road'],
   ['hurry', 'hollow-bell'],
   ['search', 'survivors'],
@@ -674,7 +674,8 @@ const trustedHollis = followHollisRoute(48, [
   ['on', 'a4-dry-well'],
   ['walk', 'a4-well-toll'],
   ['why', 'a4-well-grab'],
-])
+] as const
+const trustedHollis = followHollisRoute(48, trustedHollisSteps)
 assert.deepEqual(trustedHollis.lastRoll?.dice, [1, 3])
 assert.equal(trustedHollis.lastRoll?.success, false)
 assert.ok(trustedHollis.flags.includes('sister-trust'))
@@ -695,6 +696,30 @@ assert.equal(resumedRoad.sceneId, 'a4-waystation')
 assert.equal(resumedRoad.battle, null)
 assert.ok(isSavedRun(JSON.parse(JSON.stringify(resumedRoad))))
 assert.ok(resumedRoad.flags.includes('debt:sister'))
+
+// The same legal seed can earn trust early, then lose the sister's confidence
+// by walking through her brother's fever. The later rescue must not survive
+// that choice simply because the earlier trust flag remains in the journal.
+const estrangedHollis = followHollisRoute(48, [
+  ...trustedHollisSteps.slice(0, 16),
+  ['walk', 'a3-fever-walk'],
+  ['on', 'a3-fever-long-night'],
+  ['on', 'a3-last-camp'],
+  ['apart', 'a3-far-fires'],
+  ['on', 'canyon-road'],
+  ...trustedHollisSteps.slice(20),
+])
+assert.equal(estrangedHollis.sceneId, 'a4-well-grab')
+assert.deepEqual(estrangedHollis.lastRoll?.dice, [1, 3])
+assert.ok(estrangedHollis.flags.includes('sister-trust'))
+assert.ok(estrangedHollis.flags.includes('sister-wary'))
+assert.ok(
+  !visibleChoices(estrangedHollis, scene('a4-well-grab')).some(
+    (choice) => choice.id === 'follow-sister',
+  ),
+)
+assert.equal(takeChoice(estrangedHollis, 'follow-sister'), estrangedHollis)
+assert.equal(takeChoice(estrangedHollis, 'pay').sceneId, 'a4-well-paid')
 
 // An actual seed with no earned trust fails the same parley. The new retreat
 // stays locked, while surrendering water remains a legitimate costly choice.

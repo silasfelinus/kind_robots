@@ -623,13 +623,29 @@ for (let seed = 1; seed <= 8; seed++) {
   assert.equal(betrayed.betrayal?.status, 'active')
   assert.equal(studentAvailable(betrayed, campaignBetrayer(seed)), false)
   const blockedTeam = { ...betrayed, phase: 'dispatch' as const }
-  assert.deepEqual(assignTeam(blockedTeam, incidentsFor(blockedTeam)[0]!.id, [campaignBetrayer(seed)]), blockedTeam)
-  assert.ok(betrayed.log.some(line => line.includes('The Hero Turns at the Gate')))
-  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(betrayed))), betrayed)
-  const reconciled = chooseEncounter({ ...betrayed, day: 24, phase: 'campus' }, 'plot-return-accountable')
+  assert.deepEqual(
+    assignTeam(blockedTeam, incidentsFor(blockedTeam)[0]!.id, [
+      campaignBetrayer(seed),
+    ]),
+    blockedTeam,
+  )
+  assert.ok(
+    betrayed.log.some((line) => line.includes('The Hero Turns at the Gate')),
+  )
+  assert.deepEqual(
+    restoreAcademy(JSON.parse(JSON.stringify(betrayed))),
+    betrayed,
+  )
+  const reconciled = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-accountable',
+  )
   assert.equal(reconciled.betrayal?.status, 'reconciled')
   assert.equal(studentAvailable(reconciled, campaignBetrayer(seed)), true)
-  const isolated = chooseEncounter({ ...betrayed, day: 24, phase: 'campus' }, 'plot-return-separate')
+  const isolated = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-separate',
+  )
   assert.equal(isolated.betrayal?.status, 'isolated')
   assert.equal(studentAvailable(isolated, campaignBetrayer(seed)), false)
   const exposed = go(11, 'plot-a1-expose')
@@ -637,12 +653,27 @@ for (let seed = 1; seed <= 8; seed++) {
   const withheld = go(11, 'plot-a1-bargain')
   assert.deepEqual(withheld.plotEvidence, [])
   assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(exposed))), exposed)
-  assert.equal(restoreAcademy({ ...exposed, plotEvidence: ['fabricated-lead'] }), null)
-  assert.equal(restoreAcademy({ ...betrayed, betrayal: { day: 20, person: 'nobody', status: 'active' } }), null)
+  assert.equal(
+    restoreAcademy({ ...exposed, plotEvidence: ['fabricated-lead'] }),
+    null,
+  )
+  assert.equal(
+    restoreAcademy({
+      ...betrayed,
+      betrayal: { day: 20, person: 'nobody', status: 'active' },
+    }),
+    null,
+  )
 }
-const formerFourSeed = { ...startFullAcademy('kinetic', 4), mastermind: 'the-architect' }
+const formerFourSeed = {
+  ...startFullAcademy('kinetic', 4),
+  mastermind: 'the-architect',
+}
 assert.equal(campaignVillain(4, formerFourSeed.mastermind).id, 'the-architect')
-assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(formerFourSeed))), formerFourSeed)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(formerFourSeed))),
+  formerFourSeed,
+)
 
 assert.equal(PROM_FINALE.choices.length, 4)
 for (const seed of [1, 2, 3, 4, 997]) {

@@ -149,6 +149,36 @@ export function kitchenNoviceStatusV9(ledger: JourneyLedgerV9): string {
   return labels[last]
 }
 
+export function v9CharacterSheet(ledger: JourneyLedgerV9) {
+  const sheet = v6CharacterSheet(ledger.current, ledger.usedRewards)
+  if (!ledger.followerHistory.length) return sheet
+  const status = kitchenNoviceStatusV9(ledger)
+  const traveling = [
+    'Traveling companion',
+    'Trusted companion',
+    'Loyal ally',
+  ].includes(status)
+  const estranged = [
+    'Departed after betrayal',
+    'Estranged',
+  ].includes(status)
+  const contact = {
+    id: 'kitchen-novice',
+    name: 'Kitchen sister',
+    disposition: estranged ? ('wary' as const) : ('trusted' as const),
+    sourceEncounterId: 'a-crust-for-the-road',
+    traveling,
+    status,
+  }
+  return {
+    ...sheet,
+    relationships: [
+      ...sheet.relationships.filter((entry) => entry.id !== contact.id),
+      contact,
+    ],
+  }
+}
+
 export function kitchenNoviceOptionsV9(
   ledger: JourneyLedgerV9,
 ): FollowerOptionV9[] {

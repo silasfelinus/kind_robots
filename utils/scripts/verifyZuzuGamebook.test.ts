@@ -765,6 +765,63 @@ console.log(
   'Gamebook Hollis from-start witnesses: seed 48 earned rescue, seed 1 paid after failed parley',
 )
 
+// A full seed-48 journey proves that trust and estrangement can coexist in a
+// real save. The isolated knifepoint checks below change only the scene to
+// exercise that later guard; they are not claimed as full Abbess witnesses.
+const abbessKnifepoint = scene('a8-knifepoint')
+const sisterNod = abbessKnifepoint.choices?.find(
+  (choice) => choice.id === 'nod',
+)
+assert.ok(sisterNod)
+assert.equal(sisterNod.needs, 'sister-trust')
+assert.equal(sisterNod.unless, 'sister-wary')
+const trustedAtAltar: Run = {
+  ...trustedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(
+  visibleChoices(trustedAtAltar, abbessKnifepoint).some(
+    (choice) => choice.id === 'nod',
+  ),
+)
+const nodRescue = takeChoice(trustedAtAltar, 'nod')
+assert.equal(nodRescue.sceneId, 'a8-sister-bites')
+assert.ok(nodRescue.flags.includes('sister-free'))
+const estrangedAtAltar: Run = {
+  ...estrangedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(
+  !visibleChoices(estrangedAtAltar, abbessKnifepoint).some(
+    (choice) => choice.id === 'nod',
+  ),
+  'a later betrayal must retire the old trust-only rescue',
+)
+assert.equal(takeChoice(estrangedAtAltar, 'nod'), estrangedAtAltar)
+const untrustedAtAltar: Run = {
+  ...untrustedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(lockReason(untrustedAtAltar, sisterNod))
+assert.equal(takeChoice(untrustedAtAltar, 'nod'), untrustedAtAltar)
+assert.equal(abbessKnifepoint.choices?.[0]?.id, 'trust')
+assert.equal(abbessKnifepoint.choices?.[1]?.id, 'refuse')
+assert.equal(abbessKnifepoint.choices?.[2]?.id, 'strike')
+for (const risky of ['trust', 'strike']) {
+  const riskChoice: { label: string; check?: { failure: string } } | undefined =
+    abbessKnifepoint.choices?.find((entry) => entry.id === risky)
+  assert.match(riskChoice?.label ?? '', /fail: 3 HP wound/)
+  assert.equal(
+    riskChoice?.check?.failure,
+    risky === 'trust' ? 'a8-word-broken' : 'stabbed',
+  )
+}
+assert.equal(scene('a8-word-broken').choices?.[0]?.to, 'stabbed')
+assert.equal(scene('stabbed').effects?.hurt, 3)
+console.log(
+  'Gamebook Abbess trust regression: seeded 48 trusted/estranged preconditions, guarded rescue and explicit wound cues',
+)
+
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
 // It must not become a free escape for Zuzu when she remains tied to the altar.
 const woundedAlone: Run = {

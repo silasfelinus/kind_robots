@@ -8,6 +8,7 @@ on:
       - 'utils/playbookKit/**'
       - 'utils/playbookForge/**'
       - 'utils/consoleInput.ts'
+      - 'assets/css/playbook-console.css'
       - 'stores/playbookKitStore.ts'
       - 'stores/playbookForgeStore.ts'
       - 'components/playbook-kit/**'

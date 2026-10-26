@@ -202,16 +202,3 @@ const maxWords = computed(() =>
   Math.max(1, ...topWords.value.map((l) => l.count)),
 )
 </script>
-
-<style>
-.pf-delta {
-  padding: 0.05rem 0.35rem;
-  background: color-mix(in oklch, var(--color-base-200) 80%, transparent);
-}
-.pf-chip {
-  border: 1px solid;
-  padding: 0.1rem 0.45rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-</style>

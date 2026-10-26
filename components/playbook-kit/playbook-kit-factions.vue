@@ -3,7 +3,7 @@
     <li
       v-for="faction in spec.factions"
       :key="faction.id"
-      class="flex gap-3 overflow-hidden rounded-xl border border-base-content/10 bg-base-200/60 p-2"
+      class="pk-card flex gap-3 overflow-hidden p-2"
     >
       <PlaybookKitArt
         :art="faction.emblem"

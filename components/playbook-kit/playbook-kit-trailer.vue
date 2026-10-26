@@ -59,7 +59,7 @@
           <button
             ref="begin"
             type="button"
-            class="btn btn-primary btn-lg mt-2 rounded-2xl"
+            class="pf-cta mt-2"
             @click="kit.finishTrailer()"
           >
             <Icon name="kind-icon:play" class="size-5" />

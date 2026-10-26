@@ -1,0 +1,483 @@
+/*
+ * Playbook console design system (conductor playbook-kit DESIGN-FORGE.md §9).
+ *
+ * One stylesheet for every playbook surface that should feel like a console
+ * game rather than a web page: the Playbook Forge and the Playbook Kit shell.
+ * Root class .pf-console sets the TV-safe inset, the condensed display face
+ * and the focus glow; everything else is a .pf-* part. Colors come from the
+ * scoped daisyUI theme on the page (forge by default), so a playbook can wear
+ * its own theme without restyling the frame.
+ */
+
+@layer components {
+  /* ── console ── */
+  .pf-console {
+    --pf-safe: clamp(16px, 3.6cqw, 64px);
+    --pf-display:
+      'Bahnschrift', 'DIN Alternate', 'DIN Condensed', 'Roboto Condensed',
+      'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+    --pf-glow:
+      0 0 0 1px color-mix(in oklch, var(--color-primary) 70%, transparent),
+      0 0 28px -4px color-mix(in oklch, var(--color-primary) 55%, transparent);
+    font-size: clamp(15px, 0.55cqw + 12px, 19px);
+    isolation: isolate;
+  }
+  .pf-console :is(.pf-display, .pf-kicker, .pf-tab, .pf-label) {
+    font-family: var(--pf-display);
+    text-transform: uppercase;
+    font-stretch: condensed;
+  }
+  .pf-console .pf-display {
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+  .pf-console .pf-kicker {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+  }
+  .pf-console .pf-label {
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+  .pf-safe {
+    padding: calc(var(--pf-safe) * 0.6) var(--pf-safe)
+      calc(var(--pf-safe) * 0.5);
+  }
+  .pf-backdrop {
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+  }
+  .pf-backdrop-art {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    filter: blur(14px) saturate(1.15) brightness(0.42);
+    transform: scale(1.08);
+    animation: pf-drift 40s ease-in-out infinite alternate;
+  }
+  .pf-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(
+        120% 90% at 30% 20%,
+        transparent 0%,
+        color-mix(in oklch, var(--color-base-200) 70%, transparent) 60%,
+        var(--color-base-200) 100%
+      ),
+      linear-gradient(
+        to top,
+        var(--color-base-200) 0%,
+        transparent 30%,
+        transparent 75%,
+        color-mix(in oklch, var(--color-base-200) 80%, transparent) 100%
+      );
+  }
+  .pf-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.06;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.5) 0 1px,
+      transparent 1px 3px
+    );
+  }
+  .pf-logo-mark {
+    display: block;
+    height: 2.1rem;
+    width: 2.1rem;
+    clip-path: polygon(50% 0, 100% 28%, 100% 72%, 50% 100%, 0 72%, 0 28%);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary),
+      var(--color-accent)
+    );
+    box-shadow: var(--pf-glow);
+  }
+  .pf-tab {
+    position: relative;
+    flex-shrink: 0;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+    transition: color 160ms ease-out;
+  }
+  .pf-tab::after {
+    content: '';
+    position: absolute;
+    inset: auto 0.8rem 0.15rem;
+    height: 2px;
+    transform: scaleX(0);
+    background: var(--color-primary);
+    box-shadow: 0 0 12px var(--color-primary);
+    transition: transform 200ms ease-out;
+  }
+  .pf-tab:hover {
+    color: var(--color-base-content);
+  }
+  .pf-tab-on {
+    color: var(--color-base-content);
+  }
+  .pf-tab-on::after {
+    transform: scaleX(1);
+  }
+  .pf-icon-btn {
+    display: grid;
+    place-items: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 15%, transparent);
+    background: color-mix(in oklch, var(--color-base-100) 60%, transparent);
+  }
+  .pf-icon-btn:hover,
+  .pf-icon-btn:focus-visible {
+    box-shadow: var(--pf-glow);
+    outline: none;
+  }
+  .pf-alert {
+    border-left: 3px solid var(--color-warning);
+    background: color-mix(in oklch, var(--color-warning) 12%, transparent);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .pf-panel {
+    position: relative;
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    background: linear-gradient(
+      160deg,
+      color-mix(in oklch, var(--color-base-100) 82%, transparent),
+      color-mix(in oklch, var(--color-base-200) 88%, transparent)
+    );
+    backdrop-filter: blur(10px);
+  }
+  .pf-panel::before,
+  .pf-panel::after {
+    content: '';
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    border-color: var(--color-primary);
+    pointer-events: none;
+  }
+  .pf-panel::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+  }
+  .pf-panel::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+  }
+  .pf-focusable {
+    outline: none;
+    transition:
+      transform 160ms ease-out,
+      box-shadow 160ms ease-out,
+      background-color 160ms ease-out;
+  }
+  .pf-focusable:focus-visible,
+  .pf-focusable:focus {
+    box-shadow: var(--pf-glow);
+    transform: scale(1.012);
+  }
+  .pf-xfade-enter-active,
+  .pf-xfade-leave-active {
+    transition: opacity 1.4s ease;
+  }
+  .pf-xfade-enter-from,
+  .pf-xfade-leave-to {
+    opacity: 0;
+  }
+  .pf-screen-enter-active,
+  .pf-screen-leave-active {
+    transition:
+      opacity 220ms ease-out,
+      transform 260ms ease-out;
+  }
+  .pf-screen-enter-from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  .pf-screen-leave-to {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  @keyframes pf-drift {
+    from {
+      transform: scale(1.08) translate(-1.5%, -1%);
+    }
+    to {
+      transform: scale(1.14) translate(1.5%, 1%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-console *,
+    .pf-console *::before,
+    .pf-console *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* ── glyph ── */
+  .pf-glyph {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.7rem;
+    height: 1.7rem;
+    padding: 0 0.4rem;
+    font-family: var(--pf-display, ui-sans-serif);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    user-select: none;
+  }
+  .pf-glyph-key {
+    border-radius: 0.3rem;
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 35%, transparent);
+    border-bottom-width: 3px;
+    background: color-mix(in oklch, var(--color-base-100) 80%, transparent);
+    color: var(--color-base-content);
+  }
+  .pf-glyph-pad {
+    border-radius: 999px;
+    color: #0b0d12;
+    min-width: 1.7rem;
+  }
+  .pf-glyph-a {
+    background: #5fd068;
+  }
+  .pf-glyph-b {
+    background: #f0605a;
+  }
+  .pf-glyph-y {
+    background: #f5c84c;
+  }
+  .pf-glyph-menu,
+  .pf-glyph-dpad {
+    background: color-mix(in oklch, var(--color-base-content) 85%, transparent);
+  }
+  .pf-glyph-bumper {
+    border-radius: 0.45rem;
+    padding: 0 0.55rem;
+    background: color-mix(in oklch, var(--color-base-content) 85%, transparent);
+  }
+
+  /* ── title ── */
+  .pf-hero-title {
+    font-size: clamp(3rem, 7.5cqw, 6.5rem);
+    letter-spacing: 0.04em;
+    background: linear-gradient(
+      100deg,
+      var(--color-base-content) 30%,
+      var(--color-primary) 70%,
+      var(--color-accent)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 6px 30px rgb(0 0 0 / 0.6));
+  }
+  .pf-menu-item {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    padding: 0.85rem 1.1rem;
+    border-left: 3px solid transparent;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-base-100) 55%, transparent),
+      transparent
+    );
+    text-align: left;
+  }
+  .pf-menu-item:focus,
+  .pf-menu-item:focus-visible {
+    border-left-color: var(--color-primary);
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-primary) 22%, transparent),
+      transparent
+    );
+  }
+
+  /* ── library ── */
+  .pf-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    background: var(--color-base-100);
+    text-align: left;
+  }
+  .pf-tile-art {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) brightness(0.8);
+    transition:
+      transform 400ms ease-out,
+      filter 300ms ease-out;
+  }
+  .pf-tile:focus .pf-tile-art,
+  .pf-tile:hover .pf-tile-art {
+    transform: scale(1.06);
+    filter: saturate(1.1) brightness(1);
+  }
+  .pf-tile-text {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 2.5rem 0.9rem 0.8rem;
+    background: linear-gradient(to top, rgb(5 7 13 / 0.92), transparent);
+    color: white;
+  }
+  .pf-tile-remove {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    display: grid;
+    place-items: center;
+    height: 1.8rem;
+    width: 1.8rem;
+    border-radius: 999px;
+    background: rgb(5 7 13 / 0.7);
+    color: white;
+    opacity: 0.7;
+  }
+  .pf-tile-remove:hover {
+    opacity: 1;
+  }
+
+  /* ── idea ── */
+  .pf-field {
+    width: 100%;
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 18%, transparent);
+    border-bottom: 2px solid
+      color-mix(in oklch, var(--color-base-content) 35%, transparent);
+    background: color-mix(in oklch, var(--color-base-200) 70%, transparent);
+    padding: 0.7rem 0.9rem;
+    outline: none;
+    transition:
+      border-color 160ms ease-out,
+      box-shadow 160ms ease-out;
+  }
+  .pf-field:focus {
+    border-bottom-color: var(--color-primary);
+    box-shadow: var(--pf-glow);
+  }
+  .pf-tile-on {
+    box-shadow:
+      0 0 0 2px var(--color-primary),
+      0 0 30px -6px var(--color-primary);
+  }
+  .pf-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.6rem;
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    clip-path: polygon(0.8rem 0, 100% 0, calc(100% - 0.8rem) 100%, 0 100%);
+  }
+  .pf-cta:disabled {
+    opacity: 0.5;
+  }
+
+  /* ── loadout ── */
+  .pf-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.1rem;
+    padding: 0.35rem 0.6rem 0.35rem 1rem;
+    border-left: 3px solid transparent;
+    background: color-mix(in oklch, var(--color-base-100) 45%, transparent);
+  }
+  .pf-row-on,
+  .pf-row:focus {
+    border-left-color: var(--color-primary);
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-primary) 20%, transparent),
+      color-mix(in oklch, var(--color-base-100) 50%, transparent)
+    );
+  }
+  .pf-value {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .pf-chev {
+    display: grid;
+    place-items: center;
+    height: 1.9rem;
+    width: 1.4rem;
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    opacity: 0.25;
+    transition: opacity 160ms ease-out;
+    cursor: pointer;
+  }
+  .pf-row:focus .pf-chev,
+  .pf-row:hover .pf-chev {
+    opacity: 1;
+  }
+  .pf-built {
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .pf-help {
+    border-left: 3px solid var(--color-secondary);
+    background: color-mix(in oklch, var(--color-base-100) 60%, transparent);
+    padding: 0.6rem 0.9rem;
+    min-height: 4.2rem;
+  }
+
+  /* ── hud ── */
+  .pf-delta {
+    padding: 0.05rem 0.35rem;
+    background: color-mix(in oklch, var(--color-base-200) 80%, transparent);
+  }
+  .pf-chip {
+    border: 1px solid;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+}

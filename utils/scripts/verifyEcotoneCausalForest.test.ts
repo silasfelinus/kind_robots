@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import {
+  advance,
   chooseBeat,
+  chooseCrossroads,
+  chooseEvent,
+  chooseFork,
   createRun,
   findCard,
   restoreRun,
@@ -113,6 +117,128 @@ assert.deepEqual(
   reconciled,
   'the alternate negotiation survives save and restore',
 )
+let gladeSeed = 0
+let markedSeed = 0
+const negotiationResults = {
+  'glade-witnesses': new Set<boolean>(),
+  'marker-stewards': new Set<boolean>(),
+}
+for (let seed = 1; seed <= 500; seed++) {
+  const result = chooseBeat(loopState(seed), 'slug')
+  const glade = result.flags.includes('loop_glade_music')
+  const marked = result.flags.includes('loop_exit_marked')
+  assert.notEqual(glade, marked, 'slug outcomes must grant exactly one route')
+  if (glade) gladeSeed ||= seed
+  if (marked) markedSeed ||= seed
+  const fire = bonfireState(result)
+  const choices = available(fire)
+  assert.deepEqual(
+    choices.slice(0, 3),
+    ['petition', 'buyer', 'offering'],
+    'existing saved choice positions must remain stable',
+  )
+  assert.equal(choices.length, 4, 'each slug outcome gets one earned action')
+  assert.equal(choices.includes('glade-witnesses'), glade)
+  assert.equal(choices.includes('marker-stewards'), marked)
+  assert.equal(choices.includes('seam-survey'), false)
+  assert.equal(choices.includes('map-reconciliation'), false)
+  const action = glade ? 'glade-witnesses' : 'marker-stewards'
+  const forbidden = glade ? 'marker-stewards' : 'glade-witnesses'
+  assert.equal(
+    chooseBeat(fire, forbidden),
+    fire,
+    'a forged action cannot bypass the opposite history',
+  )
+  const negotiated = chooseBeat(fire, action)
+  const roll = negotiated.pending?.entry.roll
+  assert.ok(roll, 'the negotiated tradeoff must have a real skill check')
+  negotiationResults[action].add(roll.success)
+  assert.ok(
+    negotiated.flags.some((flag) =>
+      glade
+        ? [
+            'forest_glade_listening_committee',
+            'forest_glade_witnesses_uncertain',
+          ].includes(flag)
+        : ['forest_safe_corridor', 'forest_corridor_unstaffed'].includes(flag),
+    ),
+  )
+  assert.deepEqual(
+    restoreRun(JSON.parse(JSON.stringify(negotiated))),
+    negotiated,
+    'both earned decisions and their costs must survive save/restore',
+  )
+}
+assert.ok(gladeSeed && markedSeed, 'both slug results have seeded witnesses')
+assert.deepEqual(
+  [...negotiationResults['glade-witnesses']].sort(),
+  [false, true],
+  'the glade negotiation has reachable success and failure',
+)
+assert.deepEqual(
+  [...negotiationResults['marker-stewards']].sort(),
+  [false, true],
+  'the rescue-marker negotiation has reachable success and failure',
+)
+
+const walkTo = (initial: RunState, target: string): RunState => {
+  let state = initial
+  for (let turn = 0; turn < 100; turn++) {
+    if (state.phase === 'beat' && state.card === target) return state
+    if (state.pending) {
+      state = advance(state)
+      continue
+    }
+    if (state.phase === 'fork') {
+      assert.ok(state.offered[0], 'a fork must offer a playable card')
+      state = chooseFork(state, state.offered[0])
+      continue
+    }
+    if (state.phase === 'crossroads') {
+      state = chooseCrossroads(state, 'stay')
+      continue
+    }
+    assert.equal(state.phase, 'beat', 'the target must precede the ending')
+    const card = findCard(state.card)
+    assert.ok(card)
+    const options = contextualOpeningChoices(card, state).filter(
+      (choice) => !choice.locked,
+    )
+    const selected =
+      card.id === 'GR-1'
+        ? 'acro'
+        : card.id === 'GR-2'
+          ? 'sober'
+          : card.id === 'GR-3'
+            ? 'alone'
+            : options[0]?.id
+    assert.ok(selected, `no playable option on ${card.id}`)
+    const next = chooseBeat(state, selected)
+    assert.notEqual(next, state, `reducer stalled on ${card.id}`)
+    state = next
+  }
+  assert.fail(`could not reach ${target} from a new game`)
+}
+
+for (const seed of [gladeSeed, markedSeed]) {
+  const start = advance(chooseEvent(createRun(seed, 'reporter'), 'green-ribbon'))
+  const forest = walkTo(start, 'GR-4')
+  const result = chooseBeat(forest, 'slug')
+  assert.ok(result.pending?.entry.roll)
+  const fire = walkTo(advance(result), 'GR-5')
+  const expected = result.flags.includes('loop_glade_music')
+    ? 'glade-witnesses'
+    : 'marker-stewards'
+  assert.ok(
+    available(fire).includes(expected),
+    'the earned negotiation must be playable in a genuine new-game journey',
+  )
+  assert.ok(
+    chooseBeat(fire, expected).pending?.entry.roll,
+    'the new-game journey can resolve the negotiated tradeoff',
+  )
+}
+
 console.log(
-  `Ecotone causal forest: seam success seed ${measuredSeed}, failure seed ${mistakenSeed}; divergent playable negotiations and save safety`,
+  `Ecotone causal forest: seam ${measuredSeed}/${mistakenSeed}, slug ${gladeSeed}/${markedSeed}; paired negotiations, new-game journeys and save safety`,
 )

@@ -80,7 +80,7 @@
           />
         </div>
         <div
-          class="kr-scroll flex max-h-28 flex-wrap gap-1.5"
+          class="flex flex-wrap gap-1.5"
           role="radiogroup"
           aria-label="Genre Facets"
         >
@@ -100,6 +100,14 @@
             @click="pickFacetGenre(card)"
           >
             {{ card.title }}
+          </button>
+          <button
+            v-if="hiddenGenres > 0"
+            type="button"
+            class="pf-chip pf-focusable border-secondary/50 text-secondary"
+            @click="showAllGenres = true"
+          >
+            Show all {{ forge.genreFacets.length }}
           </button>
         </div>
         <p v-if="forge.ideaGenre" class="pf-help text-xs leading-snug">
@@ -244,12 +252,26 @@ const genreSearch = ref('')
 
 onMounted(() => void forge.loadFacets())
 
-const shownGenres = computed(() => {
+const showAllGenres = ref(false)
+const GENRE_PREVIEW = 24
+
+const matchingGenres = computed(() => {
   const q = genreSearch.value.trim().toLowerCase()
   return q
     ? forge.genreFacets.filter((card) => card.title.toLowerCase().includes(q))
     : forge.genreFacets
 })
+/** One page of chips until asked for all, keeping the chosen genre in view. */
+const shownGenres = computed(() => {
+  const all = matchingGenres.value
+  if (showAllGenres.value || genreSearch.value.trim()) return all
+  const first = all.slice(0, GENRE_PREVIEW)
+  const chosen = all.find((card) => card.id === forge.ideaGenre?.facetId)
+  return chosen && !first.includes(chosen) ? [...first, chosen] : first
+})
+const hiddenGenres = computed(
+  () => matchingGenres.value.length - shownGenres.value.length,
+)
 const presetLabel = computed(
   () => GENRES.find((g) => g.id === genre.value)?.label ?? 'Open idea',
 )

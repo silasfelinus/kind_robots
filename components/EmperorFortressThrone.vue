@@ -102,13 +102,7 @@
           :key="selected.id + ':' + (scene.beatId ?? '')"
           :title="selected.title"
           :speaker="scene.speaker"
-          :art="
-            npc
-              ? illustration('npcs', npc.slug)
-              : featuredFollower
-                ? illustration('followers', featuredFollower.id)
-                : undefined
-          "
+          :art="speakerPortrait"
           :lines="sceneLines"
           :choices="choices"
           @choose="choose"
@@ -131,7 +125,7 @@ import {
   optionBlockers,
   optionVisible,
 } from '~/utils/emperorOfDust/fortress/engine'
-import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { followerPortrait, illustration, npcPortrait } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import {
@@ -169,6 +163,14 @@ const npc = computed(() =>
 )
 const featuredFollower = computed(() =>
   scene.value?.npc ? followerDef(scene.value.npc) : undefined,
+)
+/** Portrait is a separate crop from the large character figure. */
+const speakerPortrait = computed(() =>
+  featuredFollower.value
+    ? followerPortrait(featuredFollower.value.id)
+    : npc.value
+      ? npcPortrait(npc.value.slug)
+      : undefined,
 )
 /** The answer that led into a beat opens it, so the scene reads straight on. */
 const sceneLines = computed<SceneLine[]>(() => {

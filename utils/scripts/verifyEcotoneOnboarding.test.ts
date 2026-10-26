@@ -144,7 +144,7 @@ for (const [id, event] of [
           ...run,
           openingState: 'sober' as const,
           currentState: 'sober' as const,
-        }
+        },
         option.id,
       )
       assert.equal(later.rolls, run.rolls + 1, 'later skill tests still roll')

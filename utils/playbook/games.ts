@@ -2,8 +2,10 @@ import { buildCrystalStreetPlaybook } from './crystalStreet'
 import { buildEcotonePlaybook } from './ecotone'
 import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
+import { buildPromOfDoomPlaybook } from './promOfDoom'
 import { buildShiftingDesksPlaybook } from './shiftingDesks'
 import { buildShiftingLandsPlaybook } from './shiftingLands'
+import { buildThisMeansWarpPlaybook } from './thisMeansWarp'
 import { sanitizeCardEdit, type CardEdit } from './edits'
 import { sanitizeTextEdit } from './textOverlay'
 import type { Playbook } from './types'
@@ -50,6 +52,18 @@ export const PLAYBOOK_GAMES = [
     title: 'Terrors on Crystal Street',
     cover: '/crystal-street/cover.webp',
     build: buildCrystalStreetPlaybook,
+  },
+  {
+    id: 'game-of-captains',
+    title: 'This Means Warp',
+    cover: '/game-of-captains/front/splash.webp',
+    build: buildThisMeansWarpPlaybook,
+  },
+  {
+    id: 'comet-city-academy',
+    title: 'Capes & Tassels: Prom of Doom',
+    cover: '/comet-city-academy/front/splash.webp',
+    build: buildPromOfDoomPlaybook,
   },
 ] as const
 

@@ -2931,9 +2931,9 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
-// All original cast members have shipped art. Five secret recruits have queued
-// illustrations, and the exporter registers them only after review.
-for (const def of FOLLOWERS.slice(0, 20)) {
+// Every follower has shipped art: the original twenty, and the five secret
+// recruits F021-F025 (conductor SECRET-FOLLOWERS-ROUND-1, exported 2026-10-26).
+for (const def of FOLLOWERS.slice(0, 25)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }
@@ -2955,8 +2955,8 @@ for (const def of NPCS) {
 }
 assert.equal(queuedAudienceArt.size, 7)
 assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
-// The full t-012 set: 20 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
-assert.equal(CAST_ART.length, 20 * 8 + 17 * 5 + 1)
+// The full t-012 set: 25 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
+assert.equal(CAST_ART.length, 25 * 8 + 17 * 5 + 1)
 // An NPC's reaction follows their faction's change in support.
 assert.equal(reactionMood({ affinity: { moles: 10 } }, 'moles'), 'excited')
 assert.equal(reactionMood({ local: { lamplight: 2 } }, 'lamplight'), 'happy')

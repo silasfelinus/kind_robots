@@ -91,7 +91,7 @@ export const GENRES: Genre[] = [
   },
   {
     id: 'space-comedy',
-    cover: '/game-of-captains/bridge-stage.svg',
+    cover: '/game-of-captains/front/splash.webp',
     label: 'Space comedy',
     pitch:
       'Command a ship, staff the away team, answer for every intervention.',
@@ -113,7 +113,7 @@ export const GENRES: Genre[] = [
   },
   {
     id: 'hero-academy',
-    cover: '/comet-city-academy/academy-stage.svg',
+    cover: '/comet-city-academy/front/splash.webp',
     label: 'Hero academy',
     pitch: 'Build a student, learn a power, survive a term and a prom.',
     lineage: 'Capes & Tassels: Prom of Doom',

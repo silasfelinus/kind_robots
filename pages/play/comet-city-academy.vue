@@ -33,9 +33,15 @@
     <div class="cca-layout min-h-0 flex-1">
       <section class="cca-stage" aria-label="Illustrated academy scene">
         <img
-          src="/comet-city-academy/academy-stage.svg"
+          :src="stageScenery"
           alt="The towers of Comet City Academy beneath a glowing comet and a purple sunset"
           class="cca-scenery"
+        />
+        <img
+          v-if="villainPortrait"
+          :src="villainPortrait"
+          alt="The mastermind behind the Prom of Doom"
+          class="cca-villain-inset"
         />
         <div class="cca-stage-grain" aria-hidden="true" />
         <div class="cca-stage-content">
@@ -552,7 +558,14 @@
                   :title="student.note"
                   @click="toggleStudent(incident.id, student.id)"
                 >
-                  <span class="cca-avatar">{{ student.portrait }}</span>
+                  <span class="cca-avatar"
+                    ><img
+                      v-if="studentPortrait(student.id)"
+                      :src="studentPortrait(student.id)!"
+                      alt=""
+                      class="cca-avatar-img"
+                    /><template v-else>{{ student.portrait }}</template></span
+                  >
                   <span class="cca-roster-name">{{
                     student.name.split(' ')[0]
                   }}</span>
@@ -785,6 +798,12 @@ import {
 } from '~/utils/cometAcademy/identityArcs'
 import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import { promArt } from '~/utils/cometAcademy/artManifest'
+import {
+  academyStageArt,
+  academyVillainArt,
+  studentArtKey,
+} from '~/utils/cometAcademy/artSlots'
 import {
   projectCitySites,
   projectedCityRoads,
@@ -824,6 +843,13 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
+
+const stageScenery = computed(
+  () => academyStageArt(run.value) ?? '/comet-city-academy/academy-stage.svg',
+)
+const villainPortrait = computed(() => academyVillainArt(run.value))
+/** A student's portrait once its render ships; initials stand in until then. */
+const studentPortrait = (id: string) => promArt(studentArtKey(id))
 const mastermind = computed(() =>
   run.value?.flowVersion === 3
     ? campaignVillain(run.value.seed, run.value.mastermind)
@@ -1576,7 +1602,27 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-roster-button:disabled {
   cursor: not-allowed;
 }
+.cca-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: inherit;
+}
+.cca-villain-inset {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  width: clamp(4.5rem, 18%, 9rem);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 2px solid rgb(255 255 255 / 0.7);
+  border-radius: 0.6rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+}
 .cca-avatar {
+  overflow: hidden;
   font-family: Georgia, serif;
   display: grid;
   place-items: center;

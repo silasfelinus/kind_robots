@@ -7,7 +7,8 @@ export type CoreSiteId =
   | 'observatory'
   | 'city-grants'
   | 'transit-lab'
-export type SiteId = CoreSiteId
+export type SiteId =
+  | CoreSiteId
   | 'student-commons'
   | 'infirmary'
   | 'training-arena'
@@ -47,7 +48,12 @@ export const CITY_SITES: CitySite[] = [
     y: 0.85,
     encounterIndex: 0,
     teaser: 'A rooftop promise whose timestamp comes from tomorrow',
-    neighbors: ['theater-wing', 'archive-stacks', 'student-commons', 'botanical-conservatory'],
+    neighbors: [
+      'theater-wing',
+      'archive-stacks',
+      'student-commons',
+      'botanical-conservatory',
+    ],
   },
   {
     id: 'theater-wing',
@@ -57,7 +63,12 @@ export const CITY_SITES: CitySite[] = [
     y: 0.75,
     encounterIndex: 1,
     teaser: 'A prom rehearsal that refuses to stay fictional',
-    neighbors: ['academy-roof', 'transit-lab', 'training-arena', 'student-dormitory'],
+    neighbors: [
+      'academy-roof',
+      'transit-lab',
+      'training-arena',
+      'student-dormitory',
+    ],
   },
   {
     id: 'archive-stacks',
@@ -67,7 +78,13 @@ export const CITY_SITES: CitySite[] = [
     y: 0.72,
     encounterIndex: 2,
     teaser: 'The principal offers a dangerous favor',
-    neighbors: ['academy-roof', 'transit-lab', 'student-commons', 'engineering-workshop', 'ethics-hall'],
+    neighbors: [
+      'academy-roof',
+      'transit-lab',
+      'student-commons',
+      'engineering-workshop',
+      'ethics-hall',
+    ],
   },
   {
     id: 'transit-gate',
@@ -77,7 +94,15 @@ export const CITY_SITES: CitySite[] = [
     y: 0.54,
     encounterIndex: 3,
     teaser: 'A stranger from another world needs protection',
-    neighbors: ['transit-lab', 'city-grants', 'observatory', 'ethics-hall', 'transit-union', 'neon-arcade', 'civic-hospital'],
+    neighbors: [
+      'transit-lab',
+      'city-grants',
+      'observatory',
+      'ethics-hall',
+      'transit-union',
+      'neon-arcade',
+      'civic-hospital',
+    ],
   },
   {
     id: 'observatory',
@@ -107,7 +132,13 @@ export const CITY_SITES: CitySite[] = [
     y: 0.57,
     encounterIndex: 6,
     teaser: 'The class list predicts two different futures',
-    neighbors: ['theater-wing', 'archive-stacks', 'transit-gate', 'engineering-workshop', 'ethics-hall'],
+    neighbors: [
+      'theater-wing',
+      'archive-stacks',
+      'transit-gate',
+      'engineering-workshop',
+      'ethics-hall',
+    ],
   },
   {
     id: 'student-commons',
@@ -133,7 +164,7 @@ export const CITY_SITES: CitySite[] = [
     district: 'academy',
     x: 0.94,
     y: 0.58,
-    teaser: 'A staged duel threatens someone else\'s scholarship',
+    teaser: "A staged duel threatens someone else's scholarship",
     neighbors: ['infirmary', 'theater-wing'],
   },
   {
@@ -160,7 +191,7 @@ export const CITY_SITES: CitySite[] = [
     district: 'academy',
     x: 0.94,
     y: 0.91,
-    teaser: 'A stranger\'s curfew pass turns up in a friend\'s room',
+    teaser: "A stranger's curfew pass turns up in a friend's room",
     neighbors: ['botanical-conservatory', 'theater-wing'],
   },
   {
@@ -178,7 +209,7 @@ export const CITY_SITES: CitySite[] = [
     district: 'academy',
     x: 0.6,
     y: 0.92,
-    teaser: 'The school\'s relief boat is carrying secret cargo',
+    teaser: "The school's relief boat is carrying secret cargo",
     neighbors: ['engineering-workshop', 'botanical-conservatory'],
   },
   {
@@ -196,8 +227,13 @@ export const CITY_SITES: CitySite[] = [
     district: 'city',
     x: 0.33,
     y: 0.72,
-    teaser: 'A strike challenges the academy\'s rescue timetable',
-    neighbors: ['waterfront-market', 'night-bazaar', 'neon-arcade', 'transit-gate'],
+    teaser: "A strike challenges the academy's rescue timetable",
+    neighbors: [
+      'waterfront-market',
+      'night-bazaar',
+      'neon-arcade',
+      'transit-gate',
+    ],
   },
   {
     id: 'neon-arcade',
@@ -215,7 +251,12 @@ export const CITY_SITES: CitySite[] = [
     x: 0.39,
     y: 0.44,
     teaser: 'The emergency ward needs volunteers, not publicity',
-    neighbors: ['neon-arcade', 'transit-gate', 'industrial-foundry', 'labor-museum'],
+    neighbors: [
+      'neon-arcade',
+      'transit-gate',
+      'industrial-foundry',
+      'labor-museum',
+    ],
   },
   {
     id: 'industrial-foundry',
@@ -250,7 +291,7 @@ export const CITY_SITES: CitySite[] = [
     district: 'city',
     x: 0.49,
     y: 0.32,
-    teaser: 'The city\'s first hero was erased from the records',
+    teaser: "The city's first hero was erased from the records",
     neighbors: ['civic-hospital', 'skyport', 'observatory'],
   },
   {
@@ -277,9 +318,13 @@ export function projectCitySites(view: CityView) {
   return CITY_SITES.filter((site) =>
     view === 'campus'
       ? site.district === 'academy' || site.id === 'transit-gate'
-      : site.district === 'city' || site.id === 'academy-roof' || site.id === 'transit-lab',
+      : site.district === 'city' ||
+        site.id === 'academy-roof' ||
+        site.id === 'transit-lab',
   )
-    .filter((site) => site.x >= x0 && site.x <= x1 && site.y >= y0 && site.y <= y1)
+    .filter(
+      (site) => site.x >= x0 && site.x <= x1 && site.y >= y0 && site.y <= y1,
+    )
     .map((site) => ({
       ...site,
       left: ((site.x - x0) / (x1 - x0)) * 100,

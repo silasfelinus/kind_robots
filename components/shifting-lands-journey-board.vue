@@ -817,6 +817,11 @@
                   {{ game.state.resolved.length }} encounters visited ·
                   {{ game.state.bosses.length }} trials cleared
                 </p>
+                <PlaybookRunReview
+                  game="shifting-lands"
+                  :run="game.ledger"
+                  :ending="game.ending?.title ?? endTitle"
+                />
                 <button
                   type="button"
                   class="btn btn-primary self-start"

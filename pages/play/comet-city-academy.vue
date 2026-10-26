@@ -580,6 +580,11 @@
                 line
               }}</span>
             </div>
+            <PlaybookRunReview
+              game="comet-city-academy"
+              :run="run"
+              :ending="run.ending ?? 'graduated'"
+            />
             <button class="cca-primary" type="button" @click="store.restart()">
               BEGIN ANOTHER TERM <span>↻</span>
             </button>

@@ -239,6 +239,12 @@
               :run="run"
               :ending="ending.id"
             />
+            <PlaybookRunReview
+              v-if="ending"
+              game="emperor-of-dust"
+              :run="run"
+              :ending="ending.id"
+            />
             <p class="text-sm opacity-75">
               Rewind to any dawn from the Chronicle to try another road, or
               begin again.

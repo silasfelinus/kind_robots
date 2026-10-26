@@ -504,6 +504,11 @@
               <strong>RECORDED CAPTAIN’S LOG</strong>
               <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
             </div>
+            <PlaybookRunReview
+              game="game-of-captains"
+              :run="run"
+              :ending="run.ending ?? 'voyage-complete'"
+            />
             <button class="cap-primary" type="button" @click="store.restart()">
               COMMAND ANOTHER VOYAGE <span>↻</span>
             </button>

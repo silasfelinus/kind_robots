@@ -19,7 +19,9 @@ const TRACE_FIELDS = [
   'completedQuests', 'factions', 'local', 'roster', 'memorials',
   'outcomes', 'score', 'ending', 'bossResolved', 'endings', 'discovered',
   'encounters', 'encounterHistory', 'sceneId', 'position', 'items',
-  'achievements', 'questHistory', 'questLog',
+  'achievements', 'questHistory', 'questLog', 'actions', 'trialResults',
+  'prepared', 'usedRewards', 'resolved', 'shifts', 'current', 'consequences',
+  'riddles', 'decisions', 'quests', 'outcome', 'timeline', 'chapterHistory',
 ] as const
 
 const FORBIDDEN_FIELD = /^(?:name|playername|realname|username|email|phone|address|pronouns|birthdate|dob|token|password|apikey|auth|session|cookie|userid|deviceid|ipaddress)$/i

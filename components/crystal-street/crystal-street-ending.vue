@@ -57,6 +57,11 @@
           <li class="cs-pill cs-pill-good">Pasted into your scrapbook</li>
         </ul>
         <p v-if="hint" class="text-sm opacity-80">{{ hint }}</p>
+        <PlaybookRunReview
+          game="crystal-street"
+          :run="run"
+          :ending="run.ending.special ?? run.ending.tier"
+        />
         <div class="flex flex-wrap gap-2">
           <button
             type="button"

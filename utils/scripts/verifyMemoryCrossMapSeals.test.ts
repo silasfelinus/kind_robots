@@ -175,7 +175,9 @@ for (let subset = 0; subset < 16; subset++) {
     chronicle = inspectCrossMapSeal(chronicle, key, 'e02')
     chronicle = inspectCrossMapSeal(chronicle, key, 'e02')
   }
-  const after = restoreCrossMapSealChronicle(JSON.parse(JSON.stringify(chronicle)))
+  const after = restoreCrossMapSealChronicle(
+    JSON.parse(JSON.stringify(chronicle)),
+  )
   const count = sealKeys.filter((_, k) => Boolean(subset & (1 << k))).length
   assert.equal(after.inspected.length, count)
   assert.equal(after.mirrorSeen.length, 4)
@@ -204,7 +206,9 @@ assert.equal(mirrorOnly.inspected.length, 0)
 assert.equal(mirrorOnly.matched.length, 0)
 assert.equal(mirrorOnly.resolved.length, 0)
 assert.equal(missingFirstMapSeals(mirrorOnly).length, 4)
-console.log('Adversarial cross-map seals: 16 original/mirrored encounter orders cannot bypass future-world gates')
+console.log(
+  'Adversarial cross-map seals: 16 original/mirrored encounter orders cannot bypass future-world gates',
+)
 
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 const original = readFileSync(

@@ -11,7 +11,7 @@ export const KITCHEN_NOVICE_QUEST_ID = 'kitchen-novice-road'
 type Intro = { turn: number; trusted: boolean }
 type PassedTrial = { turn: number; choiceId: string }
 
-const humane = new Set(['witness', 'solidarity', 'evidence', 'scout', 'parley'])
+const witnessed = new Set(['witness', 'solidarity'])
 const coercive = new Set(['coerce', 'tribute'])
 
 function introduction(state: JourneyStateV6): Intro | null {
@@ -94,7 +94,7 @@ export function kitchenNoviceQuestEchoesV8(
   const echoes: WorldEchoV7[] = []
   if (state.journey.landIndex >= 1) {
     const trusted = intro.trusted
-    const protectedPeople = humane.has(homestead.choiceId)
+    const protectedPeople = witnessed.has(homestead.choiceId)
     const frightenedPeople = coercive.has(homestead.choiceId)
     const title = !trusted
       ? 'The kitchen sister keeps her distance'
@@ -126,9 +126,9 @@ export function kitchenNoviceQuestEchoesV8(
   const dustwater = passedTrial(state, trials, 'dustwater')
   if (!dustwater || dustwater.turn <= homestead.turn) return echoes
   if (state.journey.landIndex >= 2) {
-    const repaired = humane.has(dustwater.choiceId)
+    const repaired = witnessed.has(dustwater.choiceId)
     const harmed = coercive.has(dustwater.choiceId)
-    const trusted = intro.trusted && humane.has(homestead.choiceId)
+    const trusted = intro.trusted && witnessed.has(homestead.choiceId)
     const title = harmed
       ? 'The lantern goes the other way'
       : trusted && repaired
@@ -153,9 +153,9 @@ export function kitchenNoviceQuestEchoesV8(
   if (state.journey.landIndex >= 3) {
     const earned =
       intro.trusted &&
-      humane.has(homestead.choiceId) &&
-      humane.has(dustwater.choiceId) &&
-      humane.has(tablelands.choiceId)
+      witnessed.has(homestead.choiceId) &&
+      witnessed.has(dustwater.choiceId) &&
+      witnessed.has(tablelands.choiceId)
     const broken = [homestead, dustwater, tablelands].some((result) =>
       coercive.has(result.choiceId),
     )

@@ -128,6 +128,17 @@ for (const [id, event] of [
     const resolved = chooseBeat(run, option.id)
     assert.notEqual(resolved, run)
     assert.equal(resolved.openingState, option.lens)
+    assert.equal(resolved.rolls, run.rolls, 'opening outlooks never roll dice')
+    assert.equal(resolved.pending?.entry.roll, null)
+    assert.equal(resolved.pending?.entry.text, option.success.text)
+    if (option.check) {
+      const later = chooseBeat(
+        { ...run, openingState: 'sober' as const, currentState: 'sober' as const },
+        option.id,
+      )
+      assert.equal(later.rolls, run.rolls + 1, 'later skill tests still roll')
+      assert.ok(later.pending?.entry.roll)
+    }
     assert.equal(
       restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState,
       option.lens,
@@ -169,6 +180,7 @@ assert.ok(
   !board.includes('grid grid-cols-6 gap-1.5'),
   'emoji-only selection grid was retired',
 )
+assert.match(board, /Opening choice · No roll/)
 assert.match(board, /Confirm your decision/)
 assert.match(board, /Change my mind/)
 assert.match(board, /Undo last decision/)

@@ -13,7 +13,10 @@ import {
   v9CharacterSheet,
   type JourneyLedgerV9,
 } from '../shiftingLands/saveLedgerV9'
-import { newJourneyLedgerV8, restoreJourneyLedgerV8 } from '../shiftingLands/saveLedgerV8'
+import {
+  newJourneyLedgerV8,
+  restoreJourneyLedgerV8,
+} from '../shiftingLands/saveLedgerV8'
 import { canChooseTrialV7 } from '../shiftingLands/trialRulesV7'
 import { trialForLandV8 } from '../shiftingLands/trialRulesV8'
 
@@ -62,7 +65,10 @@ const boss = (landId: string, turn: number) => {
 const first = boss('homestead', 11)
 const second = boss('dustwater', 21)
 const third = boss('tablelands', 31)
-const trial = (entry: ReturnType<typeof boss>, choiceId: string): TrialResult => ({
+const trial = (
+  entry: ReturnType<typeof boss>,
+  choiceId: string,
+): TrialResult => ({
   landId: entry.landId,
   bossId: entry.id,
   choiceId,
@@ -137,7 +143,12 @@ const invited = stepJourneyLedgerV9(atDustwater, {
   choiceId: 'invite-sister',
 })
 assert.equal(kitchenNoviceStatusV9(invited), 'Traveling companion')
-assert.equal(v9CharacterSheet(invited).relationships.find((entry) => entry.id === 'kitchen-novice')?.traveling, true)
+assert.equal(
+  v9CharacterSheet(invited).relationships.find(
+    (entry) => entry.id === 'kitchen-novice',
+  )?.traveling,
+  true,
+)
 assert.ok(invited.current.flags.includes('kitchen-sister-traveling'))
 assert.equal(invited.current.journey.turn, 13)
 assert.equal(invited.current.journey.provisions, 6)
@@ -188,7 +199,12 @@ const sold = stepJourneyLedgerV9(atTablelands, {
 assert.equal(sold.current.journey.provisions, 8)
 assert.equal(sold.current.marks.ruthlessness, 1)
 assert.equal(kitchenNoviceStatusV9(sold), 'Departed after betrayal')
-assert.equal(v9CharacterSheet(sold).relationships.find((entry) => entry.id === 'kitchen-novice')?.traveling, false)
+assert.equal(
+  v9CharacterSheet(sold).relationships.find(
+    (entry) => entry.id === 'kitchen-novice',
+  )?.traveling,
+  false,
+)
 const cave = (ledger: JourneyLedgerV9): JourneyLedgerV9 => ({
   ...ledger,
   trialResults: [homestead, dustwater, tablelands],
@@ -231,7 +247,14 @@ assert.equal(restoreJourneyLedgerV8(newJourneyLedgerV9(606)), null)
 assert.equal(
   restoreJourneyLedgerV9({
     ...fresh,
-    followerHistory: [{ choiceId: 'invite-sister', turn: 1, landId: 'dustwater', text: 'forged' }],
+    followerHistory: [
+      {
+        choiceId: 'invite-sister',
+        turn: 1,
+        landId: 'dustwater',
+        text: 'forged',
+      },
+    ],
   }),
   null,
   'saved companion history must be reproduced from the action ledger',
@@ -253,10 +276,15 @@ for (let seed = 1; seed <= 2500 && !witness; seed++) {
       witnessSeed = seed
       break
     }
-    if (journey.landIndex > 1 || ['fallen', 'complete', 'retired'].includes(journey.phase))
+    if (
+      journey.landIndex > 1 ||
+      ['fallen', 'complete', 'retired'].includes(journey.phase)
+    )
       break
     if (journey.phase === 'boss') {
-      const choices = trialForLandV8(JOURNEY_WORLD.lands[journey.landIndex]!.id)!.choices
+      const choices = trialForLandV8(
+        JOURNEY_WORLD.lands[journey.landIndex]!.id,
+      )!.choices
       const legal = choices.filter((choice) =>
         canChooseTrialV7(choice, state, ledger.prepared),
       )
@@ -266,23 +294,32 @@ for (let seed = 1; seed <= 2500 && !witness; seed++) {
         legal.find((entry) => entry.id === 'parley') ??
         legal[0]
       if (!choice) break
-      const next = stepJourneyLedgerV9(ledger, { type: 'TRIAL', choiceId: choice.id })
+      const next = stepJourneyLedgerV9(ledger, {
+        type: 'TRIAL',
+        choiceId: choice.id,
+      })
       if (next === ledger) break
       ledger = next
     } else if (journey.active) {
       const card = activeV6Card(state)
-      const legal = card?.choices.filter((choice) => !choiceLock(state, choice)) ?? []
+      const legal =
+        card?.choices.filter((choice) => !choiceLock(state, choice)) ?? []
       const choice =
         (card?.id === 'a-crust-for-the-road'
           ? legal.find((entry) => entry.id === 'thank-with-bow')
           : undefined) ??
         [...legal].sort(
           (a, b) =>
-            (b.success.marks?.mercy ?? 0) + (b.success.marks?.honesty ?? 0) -
-            (a.success.marks?.mercy ?? 0) - (a.success.marks?.honesty ?? 0),
+            (b.success.marks?.mercy ?? 0) +
+            (b.success.marks?.honesty ?? 0) -
+            (a.success.marks?.mercy ?? 0) -
+            (a.success.marks?.honesty ?? 0),
         )[0]
       if (!choice) break
-      const next = stepJourneyLedgerV9(ledger, { type: 'CHOOSE', choiceId: choice.id })
+      const next = stepJourneyLedgerV9(ledger, {
+        type: 'CHOOSE',
+        choiceId: choice.id,
+      })
       if (next === ledger) break
       ledger = next
     } else {
@@ -290,13 +327,19 @@ for (let seed = 1; seed <= 2500 && !witness; seed++) {
         (id) => !journey.resolved.some((entry) => entry.locationId === id),
       )
       if (!open.length) break
-      const next = stepJourneyLedgerV9(ledger, { type: 'TRAVEL', locationId: open[0]! })
+      const next = stepJourneyLedgerV9(ledger, {
+        type: 'TRAVEL',
+        locationId: open[0]!,
+      })
       if (next === ledger) break
       ledger = next
     }
   }
 }
-assert.ok(witness, 'at least one legitimate seeded new-game route must recruit the sister')
+assert.ok(
+  witness,
+  'at least one legitimate seeded new-game route must recruit the sister',
+)
 assert.ok(witnessSeed > 0)
 assert.deepEqual(
   restoreJourneyLedgerV9(JSON.parse(JSON.stringify(witness))),

@@ -155,6 +155,7 @@
     "test:ecotone": "tsx utils/scripts/verifyEcotone.test.ts",
     "test:ecotone-mysteries": "tsx utils/scripts/verifyEcotoneMysteries.test.ts",
     "test:ecotone-sober-parity": "tsx utils/scripts/verifyEcotoneSoberParity.test.ts",
+    "test:ecotone-companion-continuity": "tsx utils/scripts/verifyEcotoneCompanionContinuity.test.ts",
     "test:memory-dungeon-combat": "tsx utils/scripts/verifyMemoryDungeonCombat.test.ts",
     "test:memory-dungeon-minefield": "tsx utils/scripts/verifyMemoryDungeonMinefield.test.ts",
     "test:memory-dungeon-rooms": "tsx utils/scripts/verifyMemoryDungeonRooms.test.ts",

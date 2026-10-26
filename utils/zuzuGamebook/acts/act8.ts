@@ -893,6 +893,15 @@ export const ACT_VIII: Act = {
             flag: 'honor:refused-the-dark',
           },
           {
+            id: 'escape-with-sister',
+            label:
+              'Refuse the bargain. Let the freed sister rescue her brother and retreat.',
+            to: 'a8-wounded-flight',
+            needs: 'sister-free',
+            hint: 'The sister is still bound; there is no one to carry her brother.',
+            flag: 'honor:refused-the-dark',
+          },
+          {
             id: 'dream',
             label:
               'Lift the small one from the altar. You have walked this road in a dream.',
@@ -907,6 +916,29 @@ export const ACT_VIII: Act = {
             needsTaint: 2,
             unless: 'taint:dreamed',
             hint: 'Nothing in you is willing to hear it out.',
+          },
+        ],
+      },
+    ),
+    // A wounded Zuzu can earn a retreat by having freed the sister first.
+    s(
+      'a8-wounded-flight',
+      CH.VIII,
+      'The Door You Leave Open',
+      'sister-dagger',
+      'You pull the dagger from your shoulder and fling it across the stones. The Abbess flinches. In that breath the sister reaches her brother, cuts his ropes with a fallen knife, and hauls him down from the altar. You take his weight; she takes yours. The stairs are open. Behind you the prayer continues, and the seam in the air grows wider. You can still turn back. You cannot do both.',
+      {
+        choices: [
+          {
+            id: 'carry-them',
+            label: 'Get both children out. Leave the Abbess and the breach unresolved.',
+            to: 'ending-hunted',
+            flag: 'breach-left-open',
+          },
+          {
+            id: 'turn-back',
+            label: 'Send them up the stairs. Turn back, wounded, to face the Abbess.',
+            to: 'abbess',
           },
         ],
       },

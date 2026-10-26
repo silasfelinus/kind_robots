@@ -141,12 +141,29 @@
         class="kr-pane kr-panel @container"
         :class="mobilePane === 'details' ? 'flex' : 'hidden @4xl:flex'"
       >
-        <div class="kr-pane-scroll space-y-2 px-3 py-2">
+        <div class="flex shrink-0 items-center justify-between gap-2 border-b border-warning/30 bg-base-100 p-2">
+          <button
+            type="button"
+            class="btn btn-xs"
+            :class="detailStep === 'briefing' ? 'btn-warning' : 'btn-outline'"
+            :aria-current="detailStep === 'briefing' ? 'step' : undefined"
+            @click="detailStep = 'briefing'"
+          >1 · Mission briefing</button>
+          <button
+            type="button"
+            class="btn btn-xs"
+            :class="detailStep === 'assignment' ? 'btn-warning' : 'btn-outline'"
+            :aria-current="detailStep === 'assignment' ? 'step' : undefined"
+            @click="detailStep = 'assignment'"
+          >2 · Assign party</button>
+        </div>
+        <div class="kr-pane-scroll space-y-2 px-3 py-2" :key="selectedId + ':' + detailStep">
+          <div v-if="detailStep === 'briefing'" class="space-y-3">
       <EmperorFortressQuestImage
         :quest-id="selected.id"
         :region="selected.region"
         :label="selected.title"
-        class="float-right mb-1 ml-2 aspect-[4/3] w-24 rounded-lg @xl:w-32"
+        class="float-right mb-2 ml-3 aspect-[4/3] w-32 rounded-lg @md:w-44"
       />
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-warning">
@@ -219,6 +236,10 @@
         </p>
       </div>
 
+          </div>
+          <div v-else class="space-y-3">
+            <h3 class="font-serif text-lg font-bold text-warning">{{ selected.title }}</h3>
+            <p class="text-xs opacity-75">{{ partyLabel(selected) }} · {{ days(selected.durationDays) }} · {{ dangerLine(selected) }}</p>
       <div>
         <p
           class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
@@ -451,19 +472,24 @@
           {{ warning }}
         </li>
       </ul>
-
+          </div>
         </div>
         <div class="flex shrink-0 flex-wrap items-center gap-2 border-t border-warning/30 bg-base-100 p-2">
           <button
-          type="button"
-          class="btn btn-warning btn-sm"
-          :disabled="!canSend"
-          @click="send"
-        >
-          Send {{ party.length || '' }} follower{{
-            party.length === 1 ? '' : 's'
-          }}
-        </button>
+            v-if="detailStep === 'briefing'"
+            type="button"
+            class="btn btn-warning btn-sm"
+            @click="detailStep = 'assignment'"
+          >Assign followers <span aria-hidden="true">▸</span></button>
+          <template v-else>
+            <button type="button" class="btn btn-outline btn-sm" @click="detailStep = 'briefing'">◂ Briefing</button>
+            <button
+              type="button"
+              class="btn btn-warning btn-sm"
+              :disabled="!canSend"
+              @click="send"
+            >Send {{ party.length || '' }} follower{{ party.length === 1 ? '' : 's' }}</button>
+          </template>
           <EmperorFortressFinish :run="run" class="ml-auto" />
         <p
           v-if="error"
@@ -534,6 +560,7 @@ const slotArt = (id: string) => followerPortrait(id)
 const hourglass = ref(false)
 const error = ref('')
 const mobilePane = ref<'board' | 'details'>('board')
+const detailStep = ref<'briefing' | 'assignment'>('briefing')
 
 const board = computed(() =>
   props.run.board
@@ -647,6 +674,7 @@ function select(id: string) {
   hourglass.value = false
   error.value = ''
   mobilePane.value = 'details'
+  detailStep.value = 'briefing'
 }
 
 function toggle(id: string) {
@@ -667,6 +695,7 @@ function send() {
     court.assign(selectedId.value, party.value, hourglass.value)
     party.value = []
     hourglass.value = false
+    detailStep.value = 'briefing'
     selectedId.value = board.value[0]?.questId ?? null
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'That did not work.'

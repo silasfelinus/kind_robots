@@ -226,7 +226,9 @@ for (
   seed <= 100 && Object.keys(newGameWitnesses).length < 2;
   seed++
 ) {
-  const start = advance(chooseEvent(createRun(seed, 'reporter'), 'green-ribbon'))
+  const start = advance(
+    chooseEvent(createRun(seed, 'reporter'), 'green-ribbon'),
+  )
   const forest = walkTo(start, 'GR-4')
   const result = chooseBeat(forest, 'slug')
   assert.ok(result.pending?.entry.roll)
@@ -245,8 +247,7 @@ for (
   newGameWitnesses[expected] = seed
 }
 assert.ok(
-  newGameWitnesses['glade-witnesses'] &&
-    newGameWitnesses['marker-stewards'],
+  newGameWitnesses['glade-witnesses'] && newGameWitnesses['marker-stewards'],
   'both outcomes need independent from-new-game seeded witnesses',
 )
 

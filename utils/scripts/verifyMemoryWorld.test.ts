@@ -201,12 +201,15 @@ assert.deepEqual(
 // Independent Earth Chronicle: 32 planned pieces but no future-world spoilers.
 assert.deepEqual(validateEarthPhotoManifest(), [])
 assert.equal(EARTH_PHOTOS.length, 32)
-assert.deepEqual(EARTH_PHOTOS.slice(0, 4).map((photo) => [photo.experience, photo.site]), [
-  ['e01', '2,5'],
-  ['e01', '8,6'],
-  ['e02', '2,5'],
-  ['e02', '5,4'],
-])
+assert.deepEqual(
+  EARTH_PHOTOS.slice(0, 4).map((photo) => [photo.experience, photo.site]),
+  [
+    ['e01', '2,5'],
+    ['e01', '8,6'],
+    ['e02', '2,5'],
+    ['e02', '5,4'],
+  ],
+)
 const recordedBackwards = reconcileEarthChronicle(newEarthChronicle(), {
   e01: { '8,6': 'record' },
   e02: { '5,4': 'keep', '2,5': 'question' },
@@ -237,7 +240,12 @@ assert.equal(
   'Future unwritten reality cannot mint a spoiler response',
 )
 const restoredChronicle = restoreEarthChronicle(
-  JSON.parse(JSON.stringify({ ...reacted, found: [...reacted.found, 'earth-31', 'earth-99'] })),
+  JSON.parse(
+    JSON.stringify({
+      ...reacted,
+      found: [...reacted.found, 'earth-31', 'earth-99'],
+    }),
+  ),
 )
 assert.deepEqual(restoredChronicle.found, reacted.found)
 assert.deepEqual(restoredChronicle.responses, reacted.responses)
@@ -263,7 +271,10 @@ assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
 assert.match(chronicleSurface, /world\.answerEarthPhoto/)
 assert.match(chronicleSurface, /v-if="!failed\[active.id\]"/)
 assert.match(memoryMapSurface, /data-testid="memory-earth-chronicle-open"/)
-assert.doesNotMatch(memoryMapSurface, /\/32 photographs|future photograph|16 realms/i)
+assert.doesNotMatch(
+  memoryMapSurface,
+  /\/32 photographs|future photograph|16 realms/i,
+)
 
 assert.equal(
   Object.keys(BRIAR_SCENES).length,

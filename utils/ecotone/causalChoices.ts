@@ -148,6 +148,65 @@ const dotShoreRelay: Choice = {
   },
 }
 
+const sunkenSlugRepair: Choice = {
+  id: 'shared-wheel',
+  label: 'Offer the rescued slug’s spare wheel to repair the Snerfmobile',
+  requiresFlag: 'slug_sank',
+  cost: 'Donate the last spare wheel and miss the timed finish; no unsafe repairs',
+  check: { skill: 'wits', target: 9 },
+  success: {
+    text: 'The marshal checks the axle before anybody lifts a wrench. Your spare stabilizer wheel fits the Snerfmobile after three improvised spacers and an argument about the word “round.” The otters paddle clear, then help you push the still-damp slug into Ferndale. You lose your official finish time, but both crews sign the repair log so next year’s racers know exactly what held.',
+    effects: { goodwill: 2, nerve: -1, flag: 'slug_shared_wheel_rebuilt' },
+    leadLines: {
+      cedar:
+        'Cedar writes the spacer sizes on the back of his race number. “A rescue that can be repeated. Now that is a finish.”',
+      mara: 'Mara draws the two crews holding up one wheel. Nobody in the sketch gets to stand alone in the center.',
+      alone:
+        'You hand the wheel to the marshal and work beside people whose names you only learned in the bay.',
+    },
+  },
+  failure: {
+    text: 'The hub will not seat safely, no matter how many people volunteer a hammer. The marshal stops the repair, calls a recovery cart and makes everyone drink water while they wait. You have surrendered your spare wheel and your finish time, but nobody is sent downriver on a dangerous axle. The otters promise to help rebuild the slug tomorrow.',
+    effects: { goodwill: 1, nerve: -1, flag: 'slug_shared_wheel_deferred' },
+    leadLines: {
+      kit: 'Kit puts the hammer away. “Not finishing is better than finishing in the river again.”',
+      juniper:
+        'Juniper sits with the otters until the cart arrives. She does not call the failed repair a secret success.',
+      alone:
+        'You sign the marshal’s unfinished-work sheet. The next crew deserves to know what still needs fixing.',
+    },
+  },
+}
+
+const uprightSlugTow: Choice = {
+  id: 'tandem-tow',
+  label: 'Ask a marshal to approve a slow tow for the stranded Snerfmobile',
+  cost: 'Give up your podium chance and share the final mile at rescue speed',
+  check: { skill: 'burly', target: 9 },
+  success: {
+    text: 'The marshal inspects the towbar, clears the route and gives you a pace slower than walking a parade float. The upright slug draws the wheel-less Snerfmobile over the bridge, with the otters steering from their seats. Both sculptures cross the Ferndale line together. The judges record two finishers and a very long time.',
+    effects: { goodwill: 2, nerve: -1, flag: 'slug_tandem_finish' },
+    leadLines: {
+      kit: 'Kit waves the two race numbers like a single flag. “We made last place look expensive.”',
+      cedar:
+        'Cedar checks the towbar one final time before he lets the crew celebrate.',
+      alone:
+        'The otters thank you by name. You remember theirs, even after the announcer forgets your placing.',
+    },
+  },
+  failure: {
+    text: 'The towbar bends under the first careful pull. You stop before it snaps, and the marshal refuses to clear a second attempt. The crews walk both sculptures to the finish behind a recovery cart. You give up the podium, keep everyone safe and learn that asking for help is sometimes the whole engineering solution.',
+    effects: { goodwill: 1, nerve: -1, flag: 'slug_tandem_walk' },
+    leadLines: {
+      mara: 'Mara sketches the bent bar beside the recovery cart. “That is the honest version,” she says.',
+      juniper:
+        'Juniper helps an exhausted otter over the bridge, then comes back for the next one.',
+      alone:
+        'You walk at the rear and count the crew twice. No one gets left behind for a finish photo.',
+    },
+  },
+}
+
 /** Keep the four saved choice IDs stable while making the earned monitoring
  * negotiation depend on the evidence actually gathered at Elk Prairie.
  * This pure function is shared by the visible menu and the reducer.
@@ -165,6 +224,11 @@ export function contextualStoryChoices(
         : null
     return earned ? [...choices, earned] : choices
   }
+  if (card.id === 'KN-6')
+    return [
+      ...choices,
+      flags.includes('slug_sank') ? sunkenSlugRepair : uprightSlugTow,
+    ]
   if (card.id !== 'QW-5') return choices
   const monitoring = flags.includes('elk_road_tracks_vanished')
     ? roadCorridorMonitoring

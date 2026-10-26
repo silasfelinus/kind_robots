@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
+import { usePlaybookStore } from '~/stores/playbookStore'
+import { isPlaybookGame } from '~/utils/playbook/games'
+import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
   DEFAULT_ASSUMPTIONS,
   type Assumptions,
@@ -54,6 +57,8 @@ export type ForgeScreen =
   | 'loadout'
   | 'analyze'
   | 'ledger'
+  | 'beats'
+  | 'kit'
   | 'launch'
   | 'assumptions'
 
@@ -243,6 +248,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       ledgerConfirm.value = null
       return
     } else if (from === 'ledger') screen.value = 'library'
+    else if (from === 'beats')
+      screen.value =
+        ledgerBook.value || ledgerRelay.value ? 'ledger' : 'library'
+    else if (from === 'kit')
+      screen.value = existing.value ? 'ledger' : 'library'
     else if (from === 'analyze')
       screen.value = ledgerBook.value || ledgerRelay.value ? 'ledger' : 'title'
     else if (from === 'idea' || from === 'library') screen.value = 'title'
@@ -320,6 +330,45 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   /** The production ledger: every beat a playbook is made of, its spend and what is left. */
+  /** The kit game the Kit preview screen plays (a Playbook Kit spec id). */
+  const kitId = ref(KIT_PLAYBOOKS[0]?.id ?? '')
+  const beatSection = ref<'all' | number>('all')
+  const beatSearch = ref('')
+
+  /**
+   * Playbook Studio inside the Forge: a game's beats with the scene editor,
+   * overlays, notes and art requests (the Studio store and API).
+   */
+  async function openBeats(slug: string, key?: string) {
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
+    if (!entry?.studio || !isPlaybookGame(entry.studio)) {
+      status.value = entry
+        ? `${entry.title} has no Playbook Studio adapter yet, so its beats cannot be opened.`
+        : 'Unknown playbook.'
+      return
+    }
+    if (existing.value?.slug !== slug) {
+      existing.value = entry
+      draft.value = structuredClone(entry.plan)
+    }
+    beatSection.value = 'all'
+    beatSearch.value = ''
+    go('beats')
+    const studio = usePlaybookStore()
+    await studio.setGame(entry.studio)
+    if (key && studio.playbook.nodes[key]) studio.selectedKey = key
+  }
+
+  /** The Playbook Kit console, for games built on the kit. */
+  function openKit(id: string) {
+    const spec = kitPlaybook(id) ?? KIT_PLAYBOOKS[0]
+    if (!spec) return
+    kitId.value = spec.id
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === spec.id)
+    if (entry) existing.value = entry
+    go('kit')
+  }
+
   async function openLedger(slug: string) {
     const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
     if (!entry) return
@@ -649,6 +698,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     ledgerLane,
     ledgerConfirm,
     openLedger,
+    openBeats,
+    openKit,
+    kitId,
+    beatSection,
+    beatSearch,
     focusSection,
     cycleLane,
     askSubmit,

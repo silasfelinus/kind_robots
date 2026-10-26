@@ -15,7 +15,31 @@
             <span :class="shineClass">{{ shineLabel }}</span>
           </p>
         </div>
-        <p class="hidden max-w-md text-xs leading-snug opacity-70 @3xl:block">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button
+            v-if="forge.existing.studio"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-primary pf-focusable"
+            title="Every beat with the scene editor: overlays, notes and art requests"
+            @click="forge.openBeats(forge.existing.slug)"
+          >
+            Beats
+          </button>
+          <button
+            v-if="kitSpec"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-ghost pf-focusable"
+            title="Rehearse this kit game's moments, reveals and endings"
+            @click="forge.openKit(kitSpec.id)"
+          >
+            Rehearse in the kit
+          </button>
+        </div>
+        <p
+          class="hidden max-w-md basis-full text-xs leading-snug opacity-70 @3xl:block"
+        >
           <template v-if="forge.ledgerLoading"
             >Counting beats and reading the relay…</template
           >
@@ -173,6 +197,7 @@ import { computed } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import { FACTOR_ROWS } from '~/utils/playbookForge/factors'
+import { kitPlaybook } from '~/utils/playbookKit/games'
 import type {
   ArtState,
   LedgerSection,
@@ -181,6 +206,9 @@ import type {
 
 const forge = usePlaybookForgeStore()
 const ledger = computed(() => forge.ledger)
+const kitSpec = computed(() =>
+  forge.existing ? kitPlaybook(forge.existing.slug) : undefined,
+)
 
 const STATE_CLASS: Record<ArtState, string> = {
   delivered: 'bg-success',

@@ -1,5 +1,7 @@
 import type { Playbook } from '../playbook/types'
-import { VIGNETTE_DEFAULTS } from './presets'
+import { KIT_PLAYBOOKS } from '../playbookKit/games'
+import type { PlaybookKitSpec } from '../playbookKit/types'
+import { GENRES, VIGNETTE_DEFAULTS } from './presets'
 import type { Blueprint } from './types'
 
 // Existing playbooks as blueprints. `plan` is each project's Conductor goal
@@ -341,6 +343,33 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     count: () => studio('zuzu-gamebook'),
   },
 ]
+
+/** A Playbook Kit game's plan is its own spec: the kit already budgets every count. */
+function kitEntry(spec: PlaybookKitSpec): ExistingPlaybook {
+  const studioId = `kit-${spec.id}`
+  const cast = (role: string) => spec.cast.filter((c) => c.role === role).length
+  return {
+    slug: spec.id,
+    studio: studioId,
+    title: spec.title,
+    cover: spec.keyArt.src ?? GENRES[0]!.cover,
+    route: spec.route ?? `/admin/playbook-forge?kit=${spec.id}`,
+    planSource: 'its Playbook Kit spec (utils/playbookKit/games)',
+    plan: plan(spec.conductorSlug, spec.title, {
+      tier: spec.tier,
+      acts: spec.acts.length,
+      followers: cast('follower'),
+      villains: cast('villain'),
+      romances: spec.cast.filter((c) => c.romance).length,
+      factions: spec.factions.length,
+      endings: spec.endings.length,
+      encounters: spec.moments.length,
+    }),
+    count: () => studio(studioId),
+  }
+}
+
+EXISTING_PLAYBOOKS.push(...KIT_PLAYBOOKS.map(kitEntry))
 
 /** The forge entry for a Playbook Studio game id. */
 export function forgeEntryForStudio(

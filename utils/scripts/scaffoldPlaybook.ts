@@ -80,4 +80,4 @@ const written = [paths.spec, paths.index, paths.page, paths.tab]
 console.log(`Scaffolded ${title} (${tier}): ${written}
 Next: npx prettier --write ${written}
       npm run test:playbook-kit
-      open /admin/playbook-kit?game=${id}`)
+      open /admin/playbook-forge?kit=${id}`)

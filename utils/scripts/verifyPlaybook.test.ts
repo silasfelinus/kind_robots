@@ -18,6 +18,7 @@ import {
   buildPlaybook,
   isPlaybookGame,
   sanitizePlaybookEdit,
+  isKitGame,
   type PlaybookGame,
 } from '../playbook/games'
 import { applyTextEditToNode } from '../playbook/textOverlay'
@@ -172,7 +173,7 @@ for (const { id } of PLAYBOOK_GAMES) {
       assert.ok(book.nodes[key], `${id}: section ${section.title} ${key}`)
   // Warp and Prom do not read /api/playbook/<game>/live yet: read-only in Studio
   // until their engines take the text overlay (conductor playbook-kit t-013).
-  if (READ_ONLY_GAMES.has(id)) {
+  if (READ_ONLY_GAMES.has(id) || isKitGame(id)) {
     assert.equal(book.editable, false, `${id} is read-only in Studio`)
     for (const node of Object.values(book.nodes))
       assert.ok(!node.editable, `${id}: ${node.key} offers no edits`)

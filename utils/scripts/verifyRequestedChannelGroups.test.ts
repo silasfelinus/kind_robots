@@ -116,6 +116,7 @@ for (const key of [
   'art-review',
   'brainstorm',
   'playbook-manager',
+  'playbook-kit',
 ]) {
   assert.match(nav(`admin/${key}`), /\nparentTabKey: retired\n/)
   assert.match(nav(`admin/${key}`), /\nrequiredRole: ADMIN\n/)

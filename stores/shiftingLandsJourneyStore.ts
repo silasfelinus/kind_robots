@@ -133,21 +133,23 @@ export const useShiftingLandsJourneyStore = defineStore(
             ledger.value.version === 8
           ? v6CharacterSheet(ledger.value.current, ledger.value.usedRewards)
           : journeyCharacterSheet(
-            ledger.value.current as AuthoredJourneyState,
-            ledger.value.usedRewards,
-          ),
+              ledger.value.current as AuthoredJourneyState,
+              ledger.value.usedRewards,
+            ),
     )
     const findCard = (id: string) => v6Card(id) ?? findFiveLandCard(id)
     const lockFor = (choice: V6Choice): string | null =>
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
-      (ledger.value.version === 8 || ledger.value.version === 9)
+      ledger.value.version === 8 ||
+      ledger.value.version === 9
         ? choiceLock(ledger.value.current, choice)
         : null
     const marks = computed(() =>
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
-      (ledger.value.version === 8 || ledger.value.version === 9)
+      ledger.value.version === 8 ||
+      ledger.value.version === 9
         ? ledger.value.current.marks
         : null,
     )
@@ -175,7 +177,8 @@ export const useShiftingLandsJourneyStore = defineStore(
     const activeEncounter = computed(() =>
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
-      (ledger.value.version === 8 || ledger.value.version === 9)
+      ledger.value.version === 8 ||
+      ledger.value.version === 9
         ? activeV6Card(ledger.value.current)
         : ledger.value.version >= 4
           ? activeFiveLandEncounter(
@@ -251,7 +254,8 @@ export const useShiftingLandsJourneyStore = defineStore(
       () => encounterHistory.value.at(-1) ?? null,
     )
     const currentTrial = computed(() =>
-      (ledger.value.version === 8 || ledger.value.version === 9) && state.value.phase === 'boss'
+      (ledger.value.version === 8 || ledger.value.version === 9) &&
+      state.value.phase === 'boss'
         ? trialForLandV8(currentLand.value.id)
         : ledger.value.version === 7 && state.value.phase === 'boss'
           ? trialForLandV7(currentLand.value.id)
@@ -263,7 +267,8 @@ export const useShiftingLandsJourneyStore = defineStore(
       ledger.value.version === 5 ||
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
-      (ledger.value.version === 8 || ledger.value.version === 9)
+      ledger.value.version === 8 ||
+      ledger.value.version === 9
         ? ledger.value.trialResults
         : [],
     )
@@ -287,9 +292,9 @@ export const useShiftingLandsJourneyStore = defineStore(
                 ledger.value.trialResults,
               ),
             ]
-        : ledger.value.version === 7
-          ? worldEchoesV7(ledger.value.current, ledger.value.trialResults)
-          : [],
+          : ledger.value.version === 7
+            ? worldEchoesV7(ledger.value.current, ledger.value.trialResults)
+            : [],
     )
     const kitchenNoviceOptions = computed(() =>
       ledger.value.version === 9 ? kitchenNoviceOptionsV9(ledger.value) : [],
@@ -303,7 +308,9 @@ export const useShiftingLandsJourneyStore = defineStore(
       worldEchoes.value.filter((echo) => echo.landId === currentLand.value.id),
     )
     const ending = computed(() =>
-      ledger.value.version === 7 || (ledger.value.version === 8 || ledger.value.version === 9)
+      ledger.value.version === 7 ||
+      ledger.value.version === 8 ||
+      ledger.value.version === 9
         ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
         : ledger.value.version === 6
           ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
@@ -314,7 +321,11 @@ export const useShiftingLandsJourneyStore = defineStore(
         (item) => item.id === choiceId,
       )
       if (!choice) return false
-      if (ledger.value.version === 7 || (ledger.value.version === 8 || ledger.value.version === 9))
+      if (
+        ledger.value.version === 7 ||
+        ledger.value.version === 8 ||
+        ledger.value.version === 9
+      )
         return canChooseTrialV7(
           choice,
           ledger.value.current,
@@ -324,12 +335,16 @@ export const useShiftingLandsJourneyStore = defineStore(
     }
     const preparedTrial = computed(
       () =>
-        (ledger.value.version === 7 || (ledger.value.version === 8 || ledger.value.version === 9)) &&
+        (ledger.value.version === 7 ||
+          ledger.value.version === 8 ||
+          ledger.value.version === 9) &&
         ledger.value.prepared.includes(currentLand.value.id),
     )
     const canPrepareTrial = computed(
       () =>
-        (ledger.value.version === 7 || (ledger.value.version === 8 || ledger.value.version === 9)) &&
+        (ledger.value.version === 7 ||
+          ledger.value.version === 8 ||
+          ledger.value.version === 9) &&
         canPrepareTrialV7(ledger.value.current, ledger.value.prepared),
     )
     const currentShift = computed(
@@ -436,14 +451,14 @@ export const useShiftingLandsJourneyStore = defineStore(
             : ledger.value.version === 8
               ? LEGACY_V8_SAVE_KEY
               : ledger.value.version === 7
-              ? LEGACY_V7_SAVE_KEY
-              : ledger.value.version === 6
-                ? LEGACY_V6_SAVE_KEY
-                : ledger.value.version === 5
-                  ? LEGACY_V5_SAVE_KEY
-                  : ledger.value.version === 4
-                    ? LEGACY_V4_SAVE_KEY
-                    : LEGACY_V3_SAVE_KEY
+                ? LEGACY_V7_SAVE_KEY
+                : ledger.value.version === 6
+                  ? LEGACY_V6_SAVE_KEY
+                  : ledger.value.version === 5
+                    ? LEGACY_V5_SAVE_KEY
+                    : ledger.value.version === 4
+                      ? LEGACY_V4_SAVE_KEY
+                      : LEGACY_V3_SAVE_KEY
         window.localStorage.setItem(key, JSON.stringify(ledger.value))
       } catch {
         restoreWarning.value = true
@@ -462,16 +477,16 @@ export const useShiftingLandsJourneyStore = defineStore(
         active.version === 9
           ? stepJourneyLedgerV9(active, action as JourneyActionV9)
           : active.version === 8
-          ? stepJourneyLedgerV8(active, action as JourneyActionV7)
-          : active.version === 7
-            ? stepJourneyLedgerV7(active, action as JourneyActionV7)
-            : active.version === 6
-              ? stepJourneyLedgerV6(active, action as JourneyActionV6)
-              : active.version === 5
-                ? stepJourneyLedgerV5(active, action as JourneyActionV5)
-                : active.version === 4
-                  ? stepJourneyLedgerV4(active, action as JourneyLedgerAction)
-                  : stepJourneyLedger(active, action as JourneyLedgerAction)
+            ? stepJourneyLedgerV8(active, action as JourneyActionV7)
+            : active.version === 7
+              ? stepJourneyLedgerV7(active, action as JourneyActionV7)
+              : active.version === 6
+                ? stepJourneyLedgerV6(active, action as JourneyActionV6)
+                : active.version === 5
+                  ? stepJourneyLedgerV5(active, action as JourneyActionV5)
+                  : active.version === 4
+                    ? stepJourneyLedgerV4(active, action as JourneyLedgerAction)
+                    : stepJourneyLedger(active, action as JourneyLedgerAction)
       if (next === ledger.value) return false
       const before = active.current.journey
       ledger.value = next
@@ -526,7 +541,9 @@ export const useShiftingLandsJourneyStore = defineStore(
     }
     function prepareTrial() {
       return (
-        (ledger.value.version === 7 || (ledger.value.version === 8 || ledger.value.version === 9)) &&
+        (ledger.value.version === 7 ||
+          ledger.value.version === 8 ||
+          ledger.value.version === 9) &&
         dispatch({ type: 'PREPARE' })
       )
     }

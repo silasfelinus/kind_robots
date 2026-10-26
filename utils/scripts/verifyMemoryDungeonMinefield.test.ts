@@ -361,6 +361,9 @@ assert.match(rescueStage, /data-testid="memory-minefield-exhausted"/)
 assert.match(rescueStage, /world\.retryExhaustedMinefield\(\)/)
 assert.match(rescueStage, /Reveal every safe space/)
 assert.match(rescueStore, /minefieldRunExhausted\(previous\)/)
+assert.match(rescueStore, /minefieldHint.value !== null/)
+assert.match(rescueStage, /world.state.lanterns < 1 \|\| !!world.minefieldHint/)
+
 console.log('Adversarial Minefield: 24 greedy exits prevented, 24 deduction wins, repeat-click and exhausted save recovery verified')
 
 // 5. In-game archive: 8x8 and 10x10 stage saves store moves, not hidden hazards.

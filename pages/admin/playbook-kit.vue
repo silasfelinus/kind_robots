@@ -8,10 +8,7 @@
         <div
           class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] items-start gap-3"
         >
-          <section
-            class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-100/70"
-            aria-label="Stage"
-          >
+          <section class="pf-panel overflow-hidden" aria-label="Stage">
             <button
               type="button"
               class="group relative block aspect-video w-full overflow-hidden"
@@ -59,7 +56,7 @@
                 Playbook
                 <select
                   v-model="selected"
-                  class="select select-sm flex-1 rounded-xl"
+                  class="pf-field select-sm flex-1 py-1"
                 >
                   <option
                     v-for="entry in KIT_PLAYBOOKS"
@@ -75,24 +72,20 @@
                 <li
                   v-for="act in spec.acts"
                   :key="act.id"
-                  class="rounded-xl border border-base-content/10 bg-base-200/60 px-2 py-1 text-xs"
+                  class="pf-kicker border border-base-content/15 px-2 py-1 text-[0.6rem]"
                   :title="act.blurb"
                 >
                   <span class="font-bold">Act {{ act.id }}</span> ·
                   {{ act.title }}
                 </li>
               </ol>
-              <div
-                class="flex flex-col gap-2 rounded-xl border border-dashed border-base-content/20 p-2"
-              >
-                <span
-                  class="text-[10px] font-semibold uppercase tracking-[.2em] opacity-70"
-                  >Rehearse a run</span
-                >
+              <div class="pf-help flex flex-col gap-2">
+                <span class="pf-kicker opacity-70">Rehearse a run</span>
                 <div class="flex flex-wrap gap-1.5">
                   <button
                     type="button"
-                    class="btn btn-sm rounded-xl"
+                    data-nav
+                    class="pf-label btn btn-sm btn-ghost pf-focusable"
                     :disabled="!nextMoment"
                     @click="live('moments', nextMoment)"
                   >
@@ -101,7 +94,8 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-sm rounded-xl"
+                    data-nav
+                    class="pf-label btn btn-sm btn-ghost pf-focusable"
                     :disabled="!nextReveal"
                     @click="live('reveals', nextReveal)"
                   >
@@ -110,7 +104,8 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-sm rounded-xl"
+                    data-nav
+                    class="pf-label btn btn-sm btn-ghost pf-focusable"
                     :disabled="!nextEnding"
                     @click="live('endings', nextEnding)"
                   >
@@ -143,10 +138,7 @@
             </div>
           </section>
 
-          <section
-            class="rounded-2xl border border-base-content/10 bg-base-200/40 p-3"
-            aria-label="Complexity budget"
-          >
+          <section class="pf-panel p-4" aria-label="Complexity budget">
             <PlaybookKitBudget :spec="spec" />
           </section>
         </div>

@@ -1,5 +1,6 @@
 /* /assets/css/tailwind.css */
 @import 'tailwindcss';
+@import './playbook-console.css';
 @plugin "daisyui" {
   themes: all;
 }

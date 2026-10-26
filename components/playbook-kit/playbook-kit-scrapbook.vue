@@ -9,7 +9,8 @@
         v-for="option in filters"
         :key="option.id"
         type="button"
-        class="btn btn-xs rounded-full"
+        data-nav
+        class="pf-tab btn-xs"
         :class="filter === option.id ? 'btn-primary' : 'btn-ghost'"
         :aria-pressed="filter === option.id"
         @click="filter = option.id"
@@ -23,7 +24,8 @@
       <li v-for="moment in shown" :key="moment.id">
         <button
           type="button"
-          class="group relative block aspect-video w-full overflow-hidden rounded-xl border border-base-content/10 text-left disabled:cursor-default"
+          data-nav
+          class="pf-focusable group relative block aspect-video w-full overflow-hidden border border-base-content/10 text-left disabled:cursor-default"
           :disabled="!kit.isUnlocked('moments', moment.id)"
           :aria-label="
             kit.isUnlocked('moments', moment.id)
@@ -46,9 +48,7 @@
           <span
             class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-1.5 pt-5 text-white"
           >
-            <span
-              class="block text-[9px] uppercase tracking-[.16em] text-white/70"
-            >
+            <span class="pf-kicker block text-[0.55rem] text-white/70">
               {{ actLabel(moment.act) }} · {{ MOMENT_KIND_LABELS[moment.kind] }}
             </span>
             <span class="block truncate text-xs font-semibold">

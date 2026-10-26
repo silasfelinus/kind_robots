@@ -16,7 +16,7 @@
       <li
         v-for="ending in spec.endings"
         :key="ending.id"
-        class="overflow-hidden rounded-xl border border-base-content/10 bg-base-200/60"
+        class="pk-card overflow-hidden"
       >
         <span class="relative block aspect-[4/3]">
           <PlaybookKitArt

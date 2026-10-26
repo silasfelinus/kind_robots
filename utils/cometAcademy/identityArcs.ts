@@ -27,7 +27,7 @@ export type IdentityArc = {
   quests: { protagonist: string; antagonist: string; partner: string }
 }
 
-type AliasArc = Omit<IdentityArc, keyof CivilianLife>
+type AliasArc = Pick<IdentityArc, 'signature' | 'student' | 'hero' | 'villain' | 'quests'>
 const biographies = new Map(
   (lives.people as CivilianLife[]).map((life) => [life.signature, life]),
 )

@@ -7,6 +7,10 @@ import {
   CAMPAIGN_ANCHORS,
   campaignAnchor,
   campaignVillain,
+  campaignBetrayer,
+  campaignPlotEvent,
+  campaignAccomplice,
+  CAMPAIGN_VILLAINS,
   GUEST_LIST_EVENT,
 } from './campaign'
 import {
@@ -388,6 +392,9 @@ export type AcademyRun = {
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
+  betrayer?: StudentId
+  betrayal?: { day: number; person: StudentId; status: 'active' | 'reconciled' | 'isolated' }
+  plotEvidence?: string[]
   academyStanding?: number
   cityStanding?: number
   phase: AcademyPhase
@@ -415,6 +422,11 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if (run.flowVersion === 3) {
+    const person = STUDENTS.find(s => s.id === (run.betrayer ?? campaignBetrayer(run.seed)))!
+    const plot = campaignPlotEvent(run.seed, run.mastermind, run.day, person.name)
+    if (plot) return plot
+  }
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {
@@ -508,12 +520,16 @@ export function startFullAcademy(
     injuries: {},
     infirmaryDays: [],
     mastermind: campaignVillain(base.seed).id,
+    betrayer: campaignBetrayer(base.seed),
+    plotEvidence: [],
     scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
   }
 }
 
 export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
-  return (run.injuries?.[id] ?? 0) <= run.day
+  return (run.injuries?.[id] ?? 0) <= run.day &&
+    !(run.flowVersion === 3 && run.day >= 20 &&
+      run.betrayal?.person === id && run.betrayal.status !== 'reconciled')
 }
 
 export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
@@ -622,13 +638,20 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
             ? -1
             : 0
         : 0
+    const villain = run.flowVersion === 3 ? campaignVillain(run.seed, run.mastermind) : undefined
+    const reportedNetwork = run.plotEvidence?.length ?? 0
+    const activeNetwork =
+      run.flowVersion === 3 && run.day >= 11 &&
+      reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
+    const sabotagePenalty = activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
     const score =
       roll +
       assignment.students.length +
       (affinity ? 2 : 0) +
       (run.power === incident.need ? 1 : 0) +
       civicSupport +
-      academySupport
+      academySupport -
+      sabotagePenalty
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -662,10 +685,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       failed:
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
-    const text =
+    const baseText =
       ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
+    const sabotagedBy = villain && activeNetwork
+      ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
+      : undefined
+    const text = sabotagedBy && incident.allegiance !== 'villain'
+      ? `${baseText} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
+      : baseText
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&

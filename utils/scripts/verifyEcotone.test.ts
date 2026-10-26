@@ -1,5 +1,6 @@
 import './verifyEcotoneClarityRecovery.test'
 import './verifyEcotoneAdversarial.test'
+import './verifyEcotoneCausalForest.test'
 import './verifyEcotoneSoloRepair.test'
 import './verifyEcotonePerks.test'
 import './verifyEcotoneSceneOffers.test'

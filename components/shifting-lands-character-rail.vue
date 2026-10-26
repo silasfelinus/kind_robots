@@ -185,9 +185,9 @@
               <p class="mt-0.5 opacity-60">
                 {{
                   contact.status ??
-                    (contact.traveling
-                      ? 'Traveling companion'
-                      : 'Contact · not traveling')
+                  (contact.traveling
+                    ? 'Traveling companion'
+                    : 'Contact · not traveling')
                 }}
               </p>
             </div>

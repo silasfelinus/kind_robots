@@ -1059,7 +1059,7 @@
                   changes whether she travels beside you, walks away, or
                   trusts you at the cave court.
                 </p>
-                <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                <div class="mt-2 grid gap-2">
                   <button
                     v-for="option in game.kitchenNoviceOptions"
                     :key="option.id"

@@ -5450,10 +5450,7 @@ for (const def of DAYS)
     barricaded.local['gate-watch'],
     ironDay10.local['gate-watch'] - 2,
   )
-  assert.equal(
-    barricaded.affinity.saltroad,
-    ironDay10.affinity.saltroad - 5,
-  )
+  assert.equal(barricaded.affinity.saltroad, ironDay10.affinity.saltroad - 5)
   assert.ok(barricaded.flags.includes('d10-iron-barricade'))
   assert.ok(dueIds(barricaded).includes('d10-iron-barricade-return'))
   assert.ok(

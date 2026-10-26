@@ -968,9 +968,13 @@ const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
 const socialDayAvailable = computed(() => {
   const current = run.value
-  return current?.flowVersion === 3 && SOCIAL_DAYS.some(day => day === current.day)
+  return (
+    current?.flowVersion === 3 && SOCIAL_DAYS.some((day) => day === current.day)
+  )
 })
-const socialPanelActive = computed(() => Boolean(showRelationships.value && socialDayAvailable.value))
+const socialPanelActive = computed(() =>
+  Boolean(showRelationships.value && socialDayAvailable.value),
+)
 const selectedSocialProfile = computed(() =>
   SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
 )

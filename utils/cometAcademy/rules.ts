@@ -1,4 +1,5 @@
-import { fieldFor, identityFor, identityStoryFor } from './identityArcs'
+import { fieldFor, identityFor, identityStoryFor, IDENTITY_ARCS } from './identityArcs'
+import { antagonistBeat, antagonistFinale, campaignOpponent, opponentPressure } from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
@@ -392,6 +393,7 @@ export type AcademyRun = {
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
+  opponentSignature?: SignaturePowerId
   betrayer?: StudentId
   betrayal?: {
     day: number
@@ -436,8 +438,15 @@ export function encounterFor(run: AcademyRun) {
       run.day,
       person.name,
     )
-    if (plot)
-      return { ...plot, scene: `${campaignAnchor(run.day)} ${plot.scene}` }
+    if (plot) {
+      const opponent = run.opponentSignature
+        ? campaignOpponent(run.seed, run.signature, run.opponentSignature)
+        : null
+      return {
+        ...plot,
+        scene: `${campaignAnchor(run.day)} ${plot.scene} ${opponent ? antagonistBeat(opponent, run.day) : ''}`,
+      }
+    }
   }
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
@@ -453,7 +462,7 @@ export function encounterFor(run: AcademyRun) {
         return {
           ...base,
           title: previous ? `${base.title} / Return Visit` : base.title,
-          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene}`,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
         }
       }
       if (base) return base
@@ -532,6 +541,7 @@ export function startFullAcademy(
     injuries: {},
     infirmaryDays: [],
     mastermind: campaignVillain(base.seed).id,
+    opponentSignature: campaignOpponent(base.seed, base.signature).signature,
     betrayer: campaignBetrayer(base.seed),
     plotEvidence: [],
     scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
@@ -667,6 +677,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
     const sabotagePenalty =
       activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
+    const identityPressure =
+      run.flowVersion === 3 && run.day >= 15 && incident.allegiance !== 'villain'
+        ? opponentPressure(run.signature, run.opponentSignature)
+        : 0
     const score =
       roll +
       assignment.students.length +
@@ -674,7 +688,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       (run.power === incident.need ? 1 : 0) +
       civicSupport +
       academySupport -
-      sabotagePenalty
+      sabotagePenalty -
+      identityPressure
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -908,7 +923,10 @@ export function finishAcademy(
       (run.academyStanding ?? 0) +
       evidenceCount * 2 +
       (reconciled ? 2 : 0)
-    const earned = support >= 2 && run.danger <= 48 + evidenceCount * 2
+    const identityPressure = opponentPressure(run.signature, run.opponentSignature)
+    const earned = support >= 2 + identityPressure && run.danger <= 48 + evidenceCount * 2 - identityPressure
+    const opponent = run.opponentSignature ? identityFor(run.opponentSignature) : null
+    const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
     const ending = shared
@@ -941,7 +959,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${betrayalOutcome} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${opponentEpilogue} ${betrayalOutcome} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -1060,6 +1078,10 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         !Array.isArray(data.infirmaryDays) ||
         (data.mastermind !== undefined &&
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
+        (data.opponentSignature !== undefined &&
+          (!data.signature ||
+            data.opponentSignature === data.signature ||
+            !IDENTITY_ARCS.some((arc) => arc.signature === data.opponentSignature))) ||
         (data.betrayer !== undefined &&
           data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
         (data.plotEvidence !== undefined &&

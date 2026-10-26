@@ -24,7 +24,16 @@ import {
   validateBriarStoryAtlas,
 } from '../memoryDungeonStoryAtlas'
 
-import { firstWorldPhotoChronicle } from '../memoryDungeon/chronicle'
+import {
+  EARTH_PHOTOS,
+  firstWorldPhotoChronicle,
+  newEarthChronicle,
+  recoveredEarthPhotos,
+  reconcileEarthChronicle,
+  restoreEarthChronicle,
+  respondToEarthPhoto,
+  validateEarthPhotoManifest,
+} from '../memoryDungeon/chronicle'
 import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
@@ -188,6 +197,73 @@ assert.deepEqual(
   ['2,5', '8,6'],
   'Photograph records survive saving and reloading',
 )
+
+// Independent Earth Chronicle: 32 planned pieces but no future-world spoilers.
+assert.deepEqual(validateEarthPhotoManifest(), [])
+assert.equal(EARTH_PHOTOS.length, 32)
+assert.deepEqual(EARTH_PHOTOS.slice(0, 4).map((photo) => [photo.experience, photo.site]), [
+  ['e01', '2,5'],
+  ['e01', '8,6'],
+  ['e02', '2,5'],
+  ['e02', '5,4'],
+])
+const recordedBackwards = reconcileEarthChronicle(newEarthChronicle(), {
+  e01: { '8,6': 'record' },
+  e02: { '5,4': 'keep', '2,5': 'question' },
+})
+assert.deepEqual(
+  recoveredEarthPhotos(recordedBackwards).map((photo) => photo.order),
+  [2, 3, 4],
+  'Out-of-order cross-reality finds are filed in Earth-side chronology',
+)
+assert.equal(
+  reconcileEarthChronicle(recordedBackwards, {
+    e01: { '8,6': 'record' },
+    e02: { '5,4': 'keep', '2,5': 'question' },
+  }),
+  recordedBackwards,
+  'Once-only photograph claims do not churn or duplicate when the same scene is replayed',
+)
+const reacted = respondToEarthPhoto(recordedBackwards, 'earth-03', 'challenge')
+assert.equal(reacted.responses['earth-03'], 'challenge')
+assert.equal(
+  respondToEarthPhoto(reacted, 'earth-03', 'hold'),
+  reacted,
+  'A later reaction does not overwrite the player’s earlier response',
+)
+assert.equal(
+  respondToEarthPhoto(reacted, 'earth-31', 'challenge'),
+  reacted,
+  'Future unwritten reality cannot mint a spoiler response',
+)
+const restoredChronicle = restoreEarthChronicle(
+  JSON.parse(JSON.stringify({ ...reacted, found: [...reacted.found, 'earth-31', 'earth-99'] })),
+)
+assert.deepEqual(restoredChronicle.found, reacted.found)
+assert.deepEqual(restoredChronicle.responses, reacted.responses)
+assert.equal(recoveredEarthPhotos(newEarthChronicle()).length, 0)
+const migratedChronicle = reconcileEarthChronicle(newEarthChronicle(), {
+  e01: { '8,6': 'record', '2,5': 'archive' },
+  e02: {},
+})
+assert.deepEqual(
+  recoveredEarthPhotos(migratedChronicle).map((photo) => photo.id),
+  ['earth-01', 'earth-02'],
+  'Older Briar saves gain their already-earned evidence without replaying encounters',
+)
+const chronicleSurface = readFileSync(
+  'components/memory-dungeon/earth-chronicle.vue',
+  'utf8',
+)
+const memoryMapSurface = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
+assert.match(chronicleSurface, /world\.answerEarthPhoto/)
+assert.match(chronicleSurface, /v-if="!failed\[active.id\]"/)
+assert.match(memoryMapSurface, /data-testid="memory-earth-chronicle-open"/)
+assert.doesNotMatch(memoryMapSurface, /\/32 photographs|future photograph|16 realms/i)
 
 assert.equal(
   Object.keys(BRIAR_SCENES).length,

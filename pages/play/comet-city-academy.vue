@@ -369,6 +369,26 @@
                 }})
               </span>
             </p>
+            <div
+              v-if="run.playerEvolution"
+              class="cca-report-mini"
+              data-testid="academy-evolution-dossier"
+            >
+              <strong
+                >MY IDENTITY:
+                {{ currentPlayer?.[currentForm]?.alias ?? 'STUDENT' }} ·
+                {{ currentForm.toUpperCase() }}</strong
+              >
+              <span
+                >PROTECT {{ run.playerEvolution.protect }} · EXPLOIT
+                {{ run.playerEvolution.exploit }} · TWO CHOICES EARN A
+                MANTLE</span
+              >
+              <span v-if="run.day < 16">First public reckoning: day 16</span>
+              <span v-else-if="run.day < 23"
+                >Next chance to choose or change: day 23</span
+              >
+            </div>
             <p
               v-if="run.flowVersion === 3 && run.day >= 8"
               class="cca-under"
@@ -609,6 +629,14 @@
                 </p>
               </div>
             </div>
+            <p
+              v-if="run.playerEvolution && (run.day === 16 || run.day === 23)"
+              class="cca-under"
+              data-testid="academy-identity-choice"
+            >
+              PUBLIC IDENTITY RECKONING · YOUR PRIOR CHOICES UNLOCK AVAILABLE
+              MANTLES
+            </p>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
             <div v-if="run.flowVersion !== 2" class="cca-report-mini">
               <strong>AFTER-ACTION REPORT</strong>
@@ -855,6 +883,12 @@ const mastermind = computed(() =>
     ? campaignVillain(run.value.seed, run.value.mastermind)
     : null,
 )
+const currentPlayer = computed(() =>
+  run.value?.signature ? identityFor(run.value.signature) : null,
+)
+const currentForm = computed(
+  () => run.value?.playerEvolution?.form ?? 'student',
+)
 const opponent = computed(() =>
   run.value?.opponentSignature
     ? identityFor(run.value.opponentSignature)
@@ -862,7 +896,9 @@ const opponent = computed(() =>
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3
-    ? STUDENTS.filter((s) => !store.available(s.id))
+    ? STUDENTS.filter(
+        (s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0),
+      )
     : [],
 )
 function canVisitSite(id: SiteId) {

@@ -10,6 +10,15 @@ import {
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
+  beginPlayerEvolution,
+  canEvolve,
+  evolutionEncounter,
+  evolutionNightModifier,
+  isValidPlayerEvolution,
+  recordPlayerValues,
+  resolveEvolution,
+} from '../cometAcademy/protagonistEvolution'
+import {
   campaignOpponent,
   antagonistBeat,
   opponentPressure,
@@ -596,6 +605,164 @@ assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 
 // The original first-week construction stays seven-day for existing saved runs.
 // New sessions take a deterministic, mandatory thirty-day route.
+// Public identity choices are earned, optional and tied to the person's own
+// three unique personas. Every canonical signature can take any earned future.
+const novice = beginPlayerEvolution()
+assert.equal(novice.form, 'student')
+assert.ok(!canEvolve(novice, 'hero', 'accident-fire'))
+assert.ok(!canEvolve(novice, 'villain', 'accident-fire'))
+const protective = recordPlayerValues(
+  recordPlayerValues(novice, { influence: 1, danger: 0 }),
+  { influence: 2, danger: -1 },
+)
+const coercive = recordPlayerValues(
+  recordPlayerValues(novice, { influence: -1, danger: 2 }),
+  { influence: -2, danger: 1 },
+)
+assert.equal(protective.protect, 2)
+assert.equal(coercive.exploit, 2)
+assert.deepEqual(beginPlayerEvolution(), novice)
+assert.equal(resolveEvolution(novice, 'evolve-hero', 16, 'accident-fire'), null)
+assert.equal(
+  resolveEvolution(novice, 'evolve-villain', 16, 'accident-fire'),
+  null,
+)
+assert.equal(
+  resolveEvolution(protective, 'evolve-hero', 15, 'accident-fire'),
+  null,
+)
+assert.equal(
+  resolveEvolution(protective, 'fabricated', 16, 'accident-fire'),
+  null,
+)
+assert.equal(evolutionNightModifier(undefined, 'hero'), 0)
+assert.equal(evolutionNightModifier(protective, 'hero'), 0)
+const allForms = new Set<string>()
+for (const identity of IDENTITY_ARCS) {
+  const token = identity.signature
+  const heroEvent = evolutionEncounter(token, protective, 16)
+  assert.ok(heroEvent.scene.includes(identity.realName))
+  assert.ok(heroEvent.scene.includes(identity.hero.method))
+  assert.ok(heroEvent.options.some((o) => o.id === 'evolve-hero'))
+  assert.ok(!heroEvent.options.some((o) => o.id === 'evolve-villain'))
+  const hero = resolveEvolution(protective, 'evolve-hero', 16, token)!
+  assert.equal(hero.form, 'hero')
+  assert.ok(heroEvent.options[0]!.text.includes(identity.heroDecision))
+  assert.equal(resolveEvolution(hero, 'evolve-hero', 16, token), null)
+  assert.equal(evolutionNightModifier(hero, 'hero'), 2)
+  assert.equal(evolutionNightModifier(hero, 'villain'), -1)
+  const villainEvent = evolutionEncounter(token, coercive, 16)
+  assert.ok(villainEvent.options.some((o) => o.id === 'evolve-villain'))
+  assert.ok(villainEvent.options.some((o) => o.id === 'evolve-student'))
+  const villain = resolveEvolution(coercive, 'evolve-villain', 16, token)!
+  assert.equal(villain.form, 'villain')
+  assert.equal(evolutionNightModifier(villain, 'villain'), 2)
+  assert.equal(evolutionNightModifier(villain, 'hero'), -1)
+  const independent = resolveEvolution(protective, 'evolve-student', 16, token)!
+  assert.equal(independent.form, 'student')
+  assert.ok(isValidPlayerEvolution(independent, token))
+  const earnedBoth = { ...hero, exploit: 3 }
+  const reversal = resolveEvolution(earnedBoth, 'evolve-villain', 23, token)!
+  assert.equal(reversal.form, 'villain')
+  assert.equal(reversal.milestones.length, 2)
+  assert.ok(
+    evolutionEncounter(token, reversal, 23).scene.includes(
+      identity.villainDecision,
+    ),
+  )
+  assert.ok(isValidPlayerEvolution(reversal, token))
+  assert.ok(!isValidPlayerEvolution({ ...reversal, form: 'hero' }, token))
+  allForms.add(identity.hero.alias)
+  allForms.add(identity.villain.alias)
+}
+assert.equal(IDENTITY_ARCS.length, 48)
+assert.ok(allForms.size >= 90)
+assert.deepEqual(
+  evolutionEncounter(undefined, novice, 16).options.map((o) => o.id),
+  ['evolve-student'],
+)
+assert.equal(resolveEvolution(protective, 'evolve-hero', 16), null)
+assert.ok(
+  !isValidPlayerEvolution({ ...protective, exploit: -3 }, 'accident-fire'),
+)
+assert.ok(
+  !isValidPlayerEvolution(
+    { ...protective, milestones: [{ day: 17, form: 'hero' }] },
+    'accident-fire',
+  ),
+)
+
+const evolveSeed = startFullAcademy(
+  fieldFor('accident-fire'),
+  816,
+  'accident-fire',
+)
+const earnedSeed = {
+  ...evolveSeed,
+  day: 16,
+  phase: 'campus' as const,
+  playerEvolution: protective,
+}
+const promotionScene = encounterFor(earnedSeed)
+assert.ok(promotionScene.scene.includes(CAMPAIGN_ANCHORS[15]!))
+assert.ok(promotionScene.options.some((o) => o.id === 'evolve-hero'))
+const promoted = chooseEncounter(earnedSeed, 'evolve-hero')
+assert.equal(promoted.phase, 'dispatch')
+assert.equal(promoted.playerEvolution?.form, 'hero')
+assert.equal(promoted.playerEvolution?.milestones[0]?.day, 16)
+assert.ok(promoted.scene.includes(identityFor('accident-fire').hero.alias))
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(promoted))), promoted)
+assert.deepEqual(chooseEncounter(earnedSeed, 'evolve-villain'), earnedSeed)
+const reckoning = {
+  ...promoted,
+  day: 23,
+  phase: 'campus' as const,
+  playerEvolution: { ...promoted.playerEvolution!, exploit: 3 },
+}
+const changed = chooseEncounter(reckoning, 'evolve-villain')
+assert.equal(changed.playerEvolution?.form, 'villain')
+assert.equal(changed.playerEvolution?.milestones.length, 2)
+const lastDay = { ...changed, day: 30, phase: 'finale' as const }
+const end = finishAcademy(lastDay, 'share')
+assert.ok(end.scene.includes(identityFor('accident-fire').villain.alias))
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(end))), end)
+const oldThirty = { ...evolveSeed, playerEvolution: undefined }
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(oldThirty))),
+  JSON.parse(JSON.stringify(oldThirty)),
+)
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: { ...protective, form: 'hero' },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: {
+      ...promoted.playerEvolution!,
+      milestones: [{ day: 23, form: 'hero' }],
+    },
+  }),
+  null,
+)
+
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: { ...promoted.playerEvolution!, protect: 0 },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...changed,
+    playerEvolution: { ...changed.playerEvolution!, exploit: 0 },
+  }),
+  null,
+)
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
 // All 48 character identities can independently become the antagonist.
@@ -861,6 +1028,17 @@ assert.deepEqual(
   assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']),
   dispatched,
 )
+const betrayedInjured = {
+  ...injuredRun,
+  day: 21,
+  injuries: { mina: 23 },
+  betrayal: {
+    day: 20 as const,
+    person: 'mina' as const,
+    status: 'active' as const,
+  },
+}
+assert.deepEqual(tendInfirmary(betrayedInjured, 'mina'), betrayedInjured)
 const healed = tendInfirmary(injuredRun, 'mina')
 assert.equal(healed.phase, 'dispatch')
 assert.equal(healed.injuries?.mina, 6)
@@ -890,6 +1068,8 @@ assert.ok(page.includes('data-testid="academy-map-sites"'))
 assert.ok(page.includes('data-testid="academy-first-week"'))
 assert.ok(page.includes('data-testid="academy-plot-status"'))
 assert.ok(page.includes('data-testid="academy-villain-identity"'))
+assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
+assert.ok(page.includes('data-testid="academy-identity-choice"'))
 assert.ok(page.includes("store.end('share')"))
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))

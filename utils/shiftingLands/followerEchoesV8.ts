@@ -11,13 +11,7 @@ export const KITCHEN_NOVICE_QUEST_ID = 'kitchen-novice-road'
 type Intro = { turn: number; trusted: boolean }
 type PassedTrial = { turn: number; choiceId: string }
 
-const humane = new Set([
-  'witness',
-  'solidarity',
-  'evidence',
-  'scout',
-  'parley',
-])
+const humane = new Set(['witness', 'solidarity', 'evidence', 'scout', 'parley'])
 const coercive = new Set(['coerce', 'tribute'])
 
 function introduction(state: JourneyStateV6): Intro | null {
@@ -25,8 +19,7 @@ function introduction(state: JourneyStateV6): Intro | null {
     (entry): entry is V6Result =>
       entry.encounterId === 'a-crust-for-the-road' &&
       entry.locationId === 'wayside-refuge' &&
-      (entry.choiceId === 'thank-with-bow' ||
-        entry.choiceId === 'offer-help'),
+      (entry.choiceId === 'thank-with-bow' || entry.choiceId === 'offer-help'),
   )
   if (!result || !result.roll || result.roll.success !== result.success)
     return null
@@ -113,7 +106,7 @@ export function kitchenNoviceQuestEchoesV8(
     const text = !trusted
       ? 'At the ferry, the kitchen sister sets a wrapped list of missing travelers beside the clerk. She remembers how your meeting at the refuge ended. You may read the names with everyone else, but she does not entrust you with the book.'
       : protectedPeople
-        ? 'The kitchen sister waits beside a shuttered ferry lamp with the names of those still missing from the refuge. You helped make room for witnesses at the Abbess\'s gate, so she lets you copy the list. She stays to find the families rather than joining your boat.'
+        ? "The kitchen sister waits beside a shuttered ferry lamp with the names of those still missing from the refuge. You helped make room for witnesses at the Abbess's gate, so she lets you copy the list. She stays to find the families rather than joining your boat."
         : frightenedPeople
           ? 'The kitchen sister reaches the ferry with her bread ledger hidden under a coat. She has heard what you paid or threatened to get through the refuge. When you ask for the names, she shuts the book and carries it to the public clerk instead.'
           : 'The kitchen sister arrives at the landing with a list of missing travelers. She remembers your help in the kitchen, but she has also heard how you opened the refuge gate. She leaves a copy for the ferry crews and asks you to keep your next promise in public.'
@@ -146,19 +139,12 @@ export function kitchenNoviceQuestEchoesV8(
     const text = harmed
       ? 'At the canyon fire, the kitchen sister finds the river families paying again for passage you bought or forced. She takes her lamp and the names she gathered toward their camp. She will not carry your message, though she keeps helping those who are stranded.'
       : trusted && repaired
-        ? 'The kitchen sister spreads the refuge names beside the river crew\'s crossing list. You stood with witnesses at both gates; now two missing families are found among the caravan. She offers to carry the corrected list onward, but makes no promise to follow your orders.'
+        ? "The kitchen sister spreads the refuge names beside the river crew's crossing list. You stood with witnesses at both gates; now two missing families are found among the caravan. She offers to carry the corrected list onward, but makes no promise to follow your orders."
         : repaired
           ? 'At the canyon fire, the kitchen sister agrees to compare her refuge ledger with the river witnesses. She has not forgotten your earlier choices. She lets you hold the lamp while she reads, then takes it back before the caravan leaves.'
           : 'The kitchen sister brings her ledger to the canyon, but leaves it with the caravan elder. Your earlier help has not disappeared, and neither have the people left waiting at the river. She chooses a road where the names will be heard without you.'
     echoes.push(
-      beat(
-        'canyon',
-        'tablelands',
-        'dustwater',
-        dustwater.turn,
-        title,
-        text,
-      ),
+      beat('canyon', 'tablelands', 'dustwater', dustwater.turn, title, text),
     )
   }
 
@@ -183,7 +169,7 @@ export function kitchenNoviceQuestEchoesV8(
           ? 'The sister brings the witnesses'
           : broken
             ? 'An ally you cannot command'
-            : 'A lamp held at arm\'s length',
+            : "A lamp held at arm's length",
         earned
           ? 'At the cave court, the kitchen sister arrives with the two recovered families and a ledger everyone has signed. She stands beside you when the guards demand a single name to blame. She is an ally by choice, not a follower bought with bread, and stays with the families after the hearing.'
           : broken

@@ -224,6 +224,16 @@ export const FACTOR_ROWS: FactorRow[] = [
     help: 'Emotion portraits for each follower.',
   },
   {
+    key: 'followerQuestSteps',
+    tab: 'cast',
+    label: 'Follower quest steps',
+    kind: 'stepper',
+    min: 0,
+    max: 6,
+    visible: (b) => b.followers > 0,
+    help: 'Each follower brings a personal quest that travels the map (Space Couch crew quests). The party chosen decides where the story goes.',
+  },
+  {
     key: 'villains',
     tab: 'cast',
     label: 'Villains',
@@ -322,6 +332,15 @@ export const FACTOR_ROWS: FactorRow[] = [
     max: 5,
     visible: (b) => b.quests > 0,
     help: 'Emperor’s missions run two steps.',
+  },
+  {
+    key: 'locations',
+    tab: 'story',
+    label: 'Places on the map',
+    kind: 'stepper',
+    min: 0,
+    max: 60,
+    help: 'Star systems, districts or towns the story travels between, each with an establishing scene.',
   },
   {
     key: 'reveals',
@@ -457,6 +476,18 @@ export const FACTOR_ROWS: FactorRow[] = [
     min: 1,
     max: 6,
     help: 'Painted cards in each end sequence.',
+  },
+  {
+    key: 'endingVersions',
+    tab: 'endings',
+    label: 'Ending versions',
+    kind: 'choice',
+    visible: (b) => b.creator !== 'fixed',
+    options: [
+      { value: 'one', label: 'One each' },
+      { value: 'per-hero', label: 'Per hero' },
+    ],
+    help: 'Different openings reach different endings. The hero multiplies them: per hero, every ending is written and painted once for each hero you can start as. The party only colours an ending through follower epilogues.',
   },
   {
     key: 'followerEpilogues',

@@ -23,6 +23,53 @@ const OUTCOME_TIERS = {
 } as const
 const OUTCOME_PICTURES = { none: 0, success: 1, both: 2 } as const
 
+/** n choose k, for counting parties. */
+function choose(n: number, k: number): number {
+  if (k < 0 || k > n) return 0
+  let result = 1
+  for (let i = 1; i <= k; i++) result = (result * (n - k + i)) / i
+  return Math.round(result)
+}
+
+/** Heroes an ending can be rewritten for: the roster, or the builder's first factor. */
+export function heroVersions(b: Blueprint): number {
+  if (b.creator === 'roster') return Math.max(1, b.rosterSize)
+  if (b.creator === 'builder') return Math.max(1, b.optionsPerFactor)
+  return 1
+}
+
+export type OpeningCombos = {
+  heroes: number
+  parties: number
+  openings: number
+  /** Endings as written and painted: base endings × hero versions. */
+  endingVersions: number
+  /** Epilogue lines the party adds: every follower, every ending version. */
+  epilogueLines: number
+}
+
+/**
+ * How openings fan out into endings. A party of three from a dozen followers
+ * is hundreds of combinations but only adds epilogue lines; the hero is what
+ * multiplies the written endings.
+ */
+export function openingCombos(b: Blueprint): OpeningCombos {
+  const heroes = heroVersions(b)
+  const parties =
+    b.partySize > 0 && b.followers >= b.partySize
+      ? choose(b.followers, b.partySize)
+      : 1
+  const versions = b.endingVersions === 'per-hero' ? heroes : 1
+  const endingVersions = b.endings * versions
+  return {
+    heroes,
+    parties,
+    openings: heroes * parties,
+    endingVersions,
+    epilogueLines: b.followerEpilogues ? endingVersions * b.followers : 0,
+  }
+}
+
 /** Hero portraits the player chooses between or builds from. */
 export function heroPortraits(b: Blueprint): { count: number; detail: string } {
   if (b.portraits === 'code-drawn') return { count: 0, detail: 'drawn in code' }
@@ -50,8 +97,15 @@ export function heroPortraits(b: Blueprint): { count: number; detail: string } {
   }
 }
 
+function endingDetail(b: Blueprint, combos: OpeningCombos): string {
+  return b.endingVersions === 'per-hero' && combos.heroes > 1
+    ? `${b.endings} endings × ${combos.heroes} hero versions`
+    : `${b.endings} endings`
+}
+
 export function imageLines(b: Blueprint): ForecastLine[] {
   const hero = heroPortraits(b)
+  const combos = openingCombos(b)
   const outcomes =
     b.encounters * b.choicesPerEncounter * OUTCOME_PICTURES[b.outcomeArt]
   const lines: ForecastLine[] = [
@@ -92,9 +146,19 @@ export function imageLines(b: Blueprint): ForecastLine[] {
     },
     { label: 'Quest cards', count: b.quests, detail: `${b.quests} quests` },
     {
+      label: 'Follower quests',
+      count: b.followers * b.followerQuestSteps,
+      detail: `${b.followers} followers × ${b.followerQuestSteps} steps`,
+    },
+    {
+      label: 'Places',
+      count: b.locations,
+      detail: `${b.locations} establishing scenes`,
+    },
+    {
       label: 'Finale sequences',
-      count: b.endings * b.finaleBeats,
-      detail: `${b.endings} endings × ${b.finaleBeats} beats`,
+      count: combos.endingVersions * b.finaleBeats,
+      detail: `${endingDetail(b, combos)} × ${b.finaleBeats} beats`,
     },
     {
       label: 'Scrapbook moments',
@@ -107,6 +171,7 @@ export function imageLines(b: Blueprint): ForecastLine[] {
 
 export function wordLines(b: Blueprint, a: Assumptions): ForecastLine[] {
   const w = a.words
+  const combos = openingCombos(b)
   const tiers = OUTCOME_TIERS[b.outcomes]
   const branch = b.failForward ? 1.35 : 1
   const cast =
@@ -139,6 +204,16 @@ export function wordLines(b: Blueprint, a: Assumptions): ForecastLine[] {
       detail: `${b.quests} × ${b.questSteps} steps`,
     },
     {
+      label: 'Follower quests',
+      count: b.followers * b.followerQuestSteps * w.questStep,
+      detail: `${b.followers} × ${b.followerQuestSteps} steps`,
+    },
+    {
+      label: 'Places',
+      count: b.locations * w.castBio,
+      detail: `${b.locations} places`,
+    },
+    {
       label: 'Reveals',
       count: b.reveals * w.revealText,
       detail: `${b.reveals} reveals`,
@@ -146,11 +221,13 @@ export function wordLines(b: Blueprint, a: Assumptions): ForecastLine[] {
     {
       label: 'Endings',
       count: Math.round(
-        b.endings * w.endingText * (b.endingMode === 'families' ? 1.6 : 1) +
-          b.endings * b.finaleBeats * w.momentCaption +
-          (b.followerEpilogues ? b.endings * b.followers * 40 : 0),
+        combos.endingVersions *
+          w.endingText *
+          (b.endingMode === 'families' ? 1.6 : 1) +
+          combos.endingVersions * b.finaleBeats * w.momentCaption +
+          combos.epilogueLines * 40,
       ),
-      detail: `${b.endings} × ${w.endingText}${b.endingMode === 'families' ? ' × 1.6 variant clauses' : ''}${b.followerEpilogues ? ' + follower epilogues' : ''}`,
+      detail: `${endingDetail(b, combos)} × ${w.endingText}${b.endingMode === 'families' ? ' × 1.6 variant clauses' : ''}${b.followerEpilogues ? ' + follower epilogues' : ''}`,
     },
     {
       label: 'Chapters and factions',
@@ -186,6 +263,8 @@ export function systemSessions(b: Blueprint): number {
     (b.shareSeed ? 0.5 : 0) +
     (b.villainPerRun ? 1 : 0) +
     (b.quests > 0 ? 0.5 : 0) +
+    (b.followerQuestSteps > 0 ? 1 : 0) +
+    (b.locations > 0 ? 0.5 : 0) +
     (b.factions > 0 ? 0.5 : 0) +
     (b.saveSlots > 0 ? 0.5 : 0) +
     (b.undo === 'rewind' ? 1 : b.undo === 'last-choice' ? 0.5 : 0) +
@@ -276,6 +355,11 @@ export function forecast(
     notes.push(
       'More romances than followers: romance should ride on characters the player already travels with.',
     )
+  const combos = openingCombos(b)
+  if (combos.openings > 1)
+    notes.push(
+      `${combos.heroes} hero${combos.heroes === 1 ? '' : 'es'} × ${combos.parties} part${combos.parties === 1 ? 'y' : 'ies'} = ${combos.openings} openings. ${b.endingVersions === 'per-hero' ? `Each ending is written per hero: ${combos.endingVersions} ending versions` : `Endings ignore the hero: ${combos.endingVersions} endings`}${combos.epilogueLines ? `, and parties add ${combos.epilogueLines} epilogue lines` : ''}.`,
+    )
   if (!tier)
     notes.push(
       'Over every tier cap, even Saga: cut, or write allowances that say why.',
@@ -292,7 +376,7 @@ export function forecast(
     totalWords,
     sessions: Math.ceil(totalWords / a.wordsPerSession + systemSessions(b)),
     qaRuns:
-      b.endings * 2 +
+      openingCombos(b).endingVersions * 2 +
       (b.villainPerRun ? b.villains : 0) +
       (b.seededRuns ? 5 : 0),
     tier,

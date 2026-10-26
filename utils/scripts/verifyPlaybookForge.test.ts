@@ -6,6 +6,7 @@ import {
 } from '../playbookForge/calibration'
 import {
   forecast,
+  openingCombos,
   heroPortraits,
   smallestTier,
   formatDuration,
@@ -30,6 +31,12 @@ import {
   blueprintFromIdea,
 } from '../playbookForge/presets'
 import type { Blueprint } from '../playbookForge/types'
+import {
+  adjustmentComment,
+  applyPlanEdit,
+  planChanges,
+  readAdjustment,
+} from '../playbookForge/adjust'
 import {
   buildLedger,
   laneClass,
@@ -406,6 +413,74 @@ assert.deepEqual(
 )
 assert.equal(formatDuration(60 * 3600), '2d 12h', 'days round down')
 
+// Openings fan out into endings: the party adds epilogue lines, the hero
+// multiplies the written endings.
+{
+  const couch = EXISTING_PLAYBOOKS.find((e) => e.slug === 'game-of-captains')!
+  const combos = openingCombos(couch.plan)
+  assert.equal(combos.heroes, 6, 'six captains')
+  assert.equal(combos.parties, 560, '16 crew choose 3')
+  assert.equal(combos.openings, 3360)
+  assert.equal(combos.endingVersions, 96, '16 endings × 6 captains')
+  assert.equal(combos.epilogueLines, 96 * 16)
+  const one = openingCombos({ ...couch.plan, endingVersions: 'one' })
+  assert.equal(one.endingVersions, 16, 'one version each ignores the hero')
+  const f1 = forecast({ ...couch.plan, endingVersions: 'one' })
+  const f6 = forecast(couch.plan)
+  assert.ok(
+    f6.totalImages > f1.totalImages && f6.totalWords > f1.totalWords,
+    'per-hero endings cost pictures and words',
+  )
+  assert.ok(
+    f6.notes.some((note) => note.includes('3360 openings')),
+    'the forecast explains the fan-out',
+  )
+  assert.ok(
+    couch.plan.villainPerRun && couch.plan.followerQuestSteps > 0,
+    'Space Couch plans a nemesis per run and crew quests',
+  )
+
+  // Ledger adjustments: overrides and added elements make the working plan.
+  const edited = applyPlanEdit(couch.plan, {
+    overrides: { followers: 20 },
+    additions: [
+      { id: 'a', kind: 'follower', title: 'A depressed toaster', note: '' },
+      { id: 'b', kind: 'place', title: 'The Customs Moon', note: '' },
+      { id: 'c', kind: 'other', title: 'A theme song', note: '' },
+    ],
+    note: '',
+    posts: [],
+  })
+  assert.equal(edited.followers, 21, 'override plus one added follower')
+  assert.equal(edited.locations, couch.plan.locations + 1)
+  assert.deepEqual(planChanges(couch.plan, { followers: 20 }), [
+    { label: 'Followers', from: '16', to: '20' },
+  ])
+  assert.equal(
+    typeof readAdjustment({ slug: 'game-of-captains', title: 'Space Couch' }),
+    'string',
+    'an empty adjustment is refused',
+  )
+  assert.equal(
+    typeof readAdjustment({ slug: '../etc', title: 'x', note: 'y' }),
+    'string',
+    'a bad slug is refused',
+  )
+  const post = readAdjustment({
+    slug: 'game-of-captains',
+    title: 'Space Couch',
+    note: 'Make the nemesis a tax auditor.',
+    changes: [{ label: 'Followers', from: '16', to: '20' }],
+    additions: [{ kind: 'follower', title: 'A depressed toaster', note: '' }],
+    combos: 'line',
+  })
+  assert.ok(typeof post !== 'string')
+  const comment = adjustmentComment(post, 'silas')
+  assert.match(comment, /tax auditor/)
+  assert.match(comment, /\| Followers \| 16 \| 20 \|/)
+  assert.match(comment, /Follower: A depressed toaster/)
+}
+
 // The console, its tab, and the store-only rule for storage and API calls.
 const tab = readFileSync(
   fromRoot('content/channels/admin/playbook-forge.md'),
@@ -424,6 +499,7 @@ for (const name of [
   'library',
   'ledger',
   'ledger-detail',
+  'adjust',
   'relay',
   'beats',
   'beat',

@@ -302,8 +302,15 @@ for (const size of [8, 10] as const) {
     // The novice who flags the exit blocks their own move, not the puzzle;
     // unflagging the door must restore the original state of progress.
     const flagged = toggleFlag(start, start.exit)
-    assert.equal(step(flagged, start.exit), flagged, `${label}: a flag blocks stepping`)
-    assert.equal(toggleFlag(flagged, start.exit).tiles[idx(start, start.exit)]!.flagged, false)
+    assert.equal(
+      step(flagged, start.exit),
+      flagged,
+      `${label}: a flag blocks stepping`,
+    )
+    assert.equal(
+      toggleFlag(flagged, start.exit).tiles[idx(start, start.exit)]!.flagged,
+      false,
+    )
     let current = greedy
     let turns = 0
     while (current.outcome === 'exploring') {
@@ -316,14 +323,22 @@ for (const size of [8, 10] as const) {
       }
     }
     assert.equal(current.outcome, 'escaped', `${label}: expert can finish`)
-    assert.equal(current.hearts, greedy.hearts, `${label}: no hidden hazard needed`)
+    assert.equal(
+      current.hearts,
+      greedy.hearts,
+      `${label}: no hidden hazard needed`,
+    )
     assert.ok(current.tiles.every((tile) => tile.hazard || tile.revealed))
     assert.equal(
       current.log.filter((event) => event.type === 'exit').length,
       1,
       `${label}: no double-awarded victory event`,
     )
-    assert.equal(step(current, current.exit), current, `${label}: terminal floor immutable`)
+    assert.equal(
+      step(current, current.exit),
+      current,
+      `${label}: terminal floor immutable`,
+    )
     escaped++
   }
   assert.equal(escaped, 12)
@@ -334,8 +349,15 @@ for (const size of [8, 10] as const) {
 for (const size of [8, 10] as const) {
   const run = createMinefieldRun(5100 + size, size)
   const first = playMinefieldRun(run)
-  const redundant = advanceMinefieldRun(run, { action: 'step', ...first.entrance })
-  assert.equal(redundant, run, 'Revealed entrance is a no-op, not a logged move')
+  const redundant = advanceMinefieldRun(run, {
+    action: 'step',
+    ...first.entrance,
+  })
+  assert.equal(
+    redundant,
+    run,
+    'Revealed entrance is a no-op, not a logged move',
+  )
   const safe = provenCells(first).safe[0]!
   const advanced = advanceMinefieldRun(run, { action: 'step', ...safe })
   assert.equal(advanced.moves.length, 1)
@@ -345,7 +367,9 @@ for (const size of [8, 10] as const) {
     'Repeat taps do not eat move budget or create phantom turns',
   )
   const flooded = Array.from({ length: 600 }, (_, i) => ({
-    action: 'flag' as const, row: 1, col: i % 2,
+    action: 'flag' as const,
+    row: 1,
+    col: i % 2,
   }))
   const exhausted = restoreMinefieldRun({ ...run, moves: flooded })!
   assert.ok(minefieldRunExhausted(exhausted))
@@ -355,7 +379,10 @@ for (const size of [8, 10] as const) {
     'Bounded exhausted log is not silently extended',
   )
 }
-const rescueStage = readFileSync('components/memory-dungeon/minefield-stage.vue', 'utf8')
+const rescueStage = readFileSync(
+  'components/memory-dungeon/minefield-stage.vue',
+  'utf8',
+)
 const rescueStore = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(rescueStage, /data-testid="memory-minefield-exhausted"/)
 assert.match(rescueStage, /world\.retryExhaustedMinefield\(\)/)
@@ -364,7 +391,9 @@ assert.match(rescueStore, /minefieldRunExhausted\(previous\)/)
 assert.match(rescueStore, /minefieldHint.value !== null/)
 assert.match(rescueStage, /world.state.lanterns < 1 \|\| !!world.minefieldHint/)
 
-console.log('Adversarial Minefield: 24 greedy exits prevented, 24 deduction wins, repeat-click and exhausted save recovery verified')
+console.log(
+  'Adversarial Minefield: 24 greedy exits prevented, 24 deduction wins, repeat-click and exhausted save recovery verified',
+)
 
 // 5. In-game archive: 8x8 and 10x10 stage saves store moves, not hidden hazards.
 for (const size of [8, 10] as const) {

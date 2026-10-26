@@ -400,7 +400,7 @@ for (const power of POWERS) {
       assert.equal(run.phase, 'campus')
       assert.equal(
         encounterFor(run).title,
-        ENCOUNTERS[place.encounterIndex]!.title,
+        ENCOUNTERS[place.encounterIndex!]!.title,
       )
       assert.equal(visitCitySite(run, place.id), run)
       const choice = encounterFor(run).options[day % 2]!

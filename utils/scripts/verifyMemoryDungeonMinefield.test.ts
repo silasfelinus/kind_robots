@@ -4,6 +4,7 @@
 // forced guess, truthful clues, recoverable missteps, exact one-cell disarms,
 // and screen-reader text that never leaks what a hidden cell holds.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   coordinate,
   createMinefield,

@@ -857,17 +857,16 @@ function play(seed: number, plan: Plan) {
     }
     const card = findCard(state.card)
     assert.ok(card, 'a beat is in play')
+    const playable = card.choices.filter(
+      (c) =>
+        !c.locked &&
+        (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+    )
     const choice =
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
       openingLensChoices(card).find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
-      card.choices.filter(
-        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
-      )[
-        pick(card.choices.filter(
-        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
-      ).length)
-      ]
+      playable[pick(playable.length)]
     state = advance(chooseBeat(state, choice?.id ?? ''))
   }
   return state
@@ -1587,7 +1586,9 @@ function wildRun(seed: number, wild: boolean, lens: LensId = 'sober') {
     else {
       const card = findCard(state.card)!
       const open = openingLensChoices(card).filter(
-        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+        (c) =>
+          !c.locked &&
+          (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
       )
       const pickChoice =
         open.find((c) => c.lens === lens) ??

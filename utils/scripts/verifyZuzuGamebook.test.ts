@@ -827,7 +827,7 @@ console.log(
 for (const [encounter, choiceId, successScene, failureScene] of [
   ['a8-standoff', 'wait', 'a8-standoff-break', 'nuns-attack'],
   ['a9-sister-knife', 'hand', 'a9-beside', 'a9-behind'],
-]) {
+] as const) {
   const bonus = scene(encounter).choices?.find(
     (choice) => choice.id === choiceId,
   )?.check?.bonus

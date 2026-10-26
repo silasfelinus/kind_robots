@@ -9,6 +9,7 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import { CAMPAIGN_ANCHORS, CAMPAIGN_VILLAINS, PROM_FINALE, campaignVillain } from '../cometAcademy/campaign'
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
@@ -41,6 +42,9 @@ import {
   resolveDispatch,
   restoreAcademy,
   startAcademy,
+  startFullAcademy,
+  studentAvailable,
+  tendInfirmary,
   type AcademyRun,
   type StudentId,
   visitCitySite,
@@ -474,6 +478,82 @@ assert.equal(
 )
 assert.equal(restoreAcademy({ ...migrated, selectedSite: 'bad-site' }), null)
 assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
+
+// The original first-week construction stays seven-day for existing saved runs.
+// New sessions take a deterministic, mandatory thirty-day route.
+assert.equal(CAMPAIGN_ANCHORS.length, 30)
+assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
+assert.equal(CAMPAIGN_VILLAINS.length, 4)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map(v => v.id)).size, 4)
+assert.equal(PROM_FINALE.choices.length, 4)
+for (const seed of [1, 2, 3, 4, 997]) {
+  let run = startFullAcademy('kinetic', seed, 'impact-fire', 'shelter')
+  assert.equal(run.flowVersion, 3)
+  assert.equal(run.mastermind, campaignVillain(seed).id)
+  assert.equal(restoreAcademy(JSON.parse(JSON.stringify(run)))?.flowVersion, 3)
+  for (let day = 1; day <= 29; day++) {
+    assert.equal(run.day, day)
+    assert.equal(run.phase, 'map')
+    const site = CITY_SITES[(day - 1) % CITY_SITES.length]!
+    assert.notEqual(visitCitySite(run, 'unknown' as never).phase, 'campus')
+    run = visitCitySite(run, site.id)
+    assert.equal(run.phase, 'campus')
+    assert.ok(encounterFor(run).scene.includes(CAMPAIGN_ANCHORS[day - 1]!))
+    const choice = encounterFor(run).options[(seed + day) % encounterFor(run).options.length]!
+    run = chooseEncounter(run, choice.id)
+    assert.equal(run.phase, 'dispatch')
+    if (day === 29) assert.ok(run.guestPlan)
+    const cases = incidentsFor(run)
+    for (const [index, incident] of cases.entries()) {
+      const picked = STUDENTS.find(student =>
+        studentAvailable(run, student.id) &&
+        !run.assignments.some(assignment => assignment.students.includes(student.id)),
+      )
+      if (picked) run = assignTeam(run, incident.id, [picked.id])
+    }
+    assert.ok(run.assignments.length)
+    run = resolveDispatch(run)
+    assert.equal(run.phase, 'debrief')
+    assert.ok(run.injuries)
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
+    const after = nextSchoolDay(run)
+    assert.equal(after.day, day === 29 ? 30 : day + 1)
+    if (day < 29) assert.equal(after.phase, 'map')
+    run = after
+  }
+  assert.equal(run.day, 30)
+  assert.equal(run.phase, 'finale')
+  assert.ok(run.scene.includes('real, not a simulation'))
+  assert.ok(run.scene.includes('fourth dance'))
+  const endings = ['protect', 'command', 'share', 'evacuate'] as const
+  const titles = endings.map(choice => finishAcademy(run, choice).ending)
+  assert.equal(new Set(titles).size, 3)
+  for (const choice of endings) {
+    const ended = finishAcademy(run, choice)
+    assert.equal(ended.phase, 'ending')
+    assert.ok(ended.scene.includes('twelve-sided chandelier'))
+    assert.ok(ended.scene.includes(campaignVillain(seed).name))
+    assert.ok(ended.log.some(entry => entry.includes('Day 30:')))
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(ended))), ended)
+  }
+}
+const injuredRun = {
+  ...startFullAcademy('kinetic', 88),
+  day: 6,
+  injuries: { mina: 8 },
+}
+assert.equal(studentAvailable(injuredRun, 'mina'), false)
+const dispatched = { ...injuredRun, phase: 'dispatch' as const }
+assert.deepEqual(assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']), dispatched)
+const healed = tendInfirmary(injuredRun, 'mina')
+assert.equal(healed.phase, 'dispatch')
+assert.equal(healed.injuries?.mina, 6)
+assert.equal(healed.infirmaryDays?.[0], 6)
+assert.equal(studentAvailable(healed, 'mina'), true)
+assert.deepEqual(tendInfirmary(injuredRun, 'sol'), injuredRun)
+assert.equal(restoreAcademy({ ...injuredRun, injuries: { mystery: 9 } }), null)
+assert.equal(restoreAcademy({ ...injuredRun, visitedDays: { mystery: 2 } }), null)
+
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
@@ -488,6 +568,9 @@ assert.ok(page.includes('data-testid="academy-signature-detail"'))
 assert.ok(page.includes('data-testid="academy-identity-preview"'))
 assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
+assert.ok(page.includes('data-testid="academy-first-week"'))
+assert.ok(page.includes("store.end('share')"))
+assert.ok(page.includes("store.heal(student.id)"))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))

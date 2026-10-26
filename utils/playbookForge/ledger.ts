@@ -125,12 +125,34 @@ export function laneClass(laneKey: string): CheckpointClassId {
 }
 
 /** The same default prompt Playbook Studio offers for a beat: title, place and its first sentence. */
-export function nodeArtPrompt(node: PlaybookNode): string {
-  const first = node.body[0]?.split(/(?<=\.)\s/)[0] ?? ''
-  return (
-    [node.title, node.place].filter(Boolean).join(', ') +
-    (first ? `. ${first}` : '')
-  )
+/** A beat's authored art prompt, or null: prompts are written, never assembled from titles. */
+export function nodeArtPrompt(node: PlaybookNode): string | null {
+  return node.artPrompt?.trim() || null
+}
+
+/**
+ * The Todo for beats that need a picture but have no authored prompt yet:
+ * write the prompts first, as a Conductor auto_submit round, so the art is
+ * made from a described picture rather than a chapter title.
+ */
+export function artPromptBrief(
+  game: string,
+  title: string,
+  artProject: string,
+  sectionLabel: string,
+  nodes: PlaybookNode[],
+): string {
+  return [
+    `From the Playbook Forge ledger for ${title} (Playbook Studio game "${game}"): ${nodes.length} beat${nodes.length === 1 ? '' : 's'} in ${sectionLabel} need art but have no art prompt.`,
+    `Write a prompt for each as a Conductor round ledger at projects/${artProject}/art/<ROUND>.yaml with auto_submit: true, one subject per beat with its runtime asset path, and check it with python scripts/enqueue_art_requests.py <ledger> (dry run) so the live prompt contract passes.`,
+    'Describe the picture in plain prose: who is there, where, what is happening, light and mood. Never use the beat title, chapter title, subtitle, case number or any lettering; state what is present rather than what is absent.',
+    'Skip any beat held for consultation. Once merged, the Auto Art Generate sweep submits the round; export the renders into the game when they are DONE.',
+    '',
+    ...nodes.map(
+      (node) =>
+        `- ${node.key} "${node.title}"${node.place ? ` (${node.place})` : ''}${node.art ? ` → ${node.art}` : ''}: ${(node.body[0] ?? '').slice(0, 220)}`,
+    ),
+  ].join('\n')
 }
 
 export function nodeShape(node: PlaybookNode): 'scene' | 'portrait' {

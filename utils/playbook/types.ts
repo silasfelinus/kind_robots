@@ -69,6 +69,12 @@ export type PlaybookNode = {
   art: string | null
   artUrl: string | null
   needsArt: boolean
+  /**
+   * The authored art prompt: the picture in plain prose (who, where, what is
+   * happening). Never built from titles or chapter text; a beat without one
+   * gets a prompt-writing task, not a render (Silas, 2026-10-26).
+   */
+  artPrompt?: string
   provenance: string
   editable: boolean
   /** Text-overlay games: which parts the overlay can replace (titles always). */

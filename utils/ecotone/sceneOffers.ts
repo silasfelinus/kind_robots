@@ -13,7 +13,8 @@ export function contextualOpeningChoices(
   state: RunState,
 ): Choice[] {
   const authored = openingLensChoices(card).filter(
-    (choice) => !choice.requiresFlag || state.flags.includes(choice.requiresFlag),
+    (choice) =>
+      !choice.requiresFlag || state.flags.includes(choice.requiresFlag),
   )
   if (card.id === 'GR-2')
     return authored.filter((choice) =>

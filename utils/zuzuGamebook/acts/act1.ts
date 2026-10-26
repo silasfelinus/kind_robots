@@ -143,7 +143,7 @@ export const ACT_I: Act = {
           {
             id: 'stones',
             label:
-              'Back up onto the black stones and make it climb to you. (Shadow · 9)',
+              'Back onto the black stones. (Shadow · 9; fail: hurt, cornered)',
             to: 'a1-bad-ground',
             check: {
               attribute: 'shadow',
@@ -155,7 +155,7 @@ export const ACT_I: Act = {
           {
             id: 'reeds',
             label:
-              'Wade into the dead reeds, where it must come slowly. (Sense · 9)',
+              'Draw it into the dead reeds. (Sense · 9; fail: hurt, cornered)',
             to: 'a1-bad-ground',
             check: {
               attribute: 'sense',
@@ -209,7 +209,37 @@ export const ACT_I: Act = {
       'The ground does not do what you asked of it. A stone turns under your heel; the mud takes your sandal and will not give it back. You are still finding your feet when the tail comes round out of the water like a swung door and takes you across the ribs. You land hard on your side with the breath gone out of you and the sword, thank the old gods, still in your hand. The jaws open over the water, unhurried, as if it has seen this a hundred times.',
       {
         effects: { hurt: 2 },
-        choices: [{ id: 'up', label: 'Get up. Fight.', to: 'crocodile' }],
+        choices: [
+          { id: 'up', label: 'Get up. Fight.', to: 'crocodile' },
+          {
+            id: 'ridge',
+            label: 'Take the coyote\'s covering fire and retreat. (Spend bandage)',
+            to: 'a1-ridge-retreat',
+            needs: 'coyote-warned',
+            hint: 'You never warned him. He cannot cover your retreat.',
+            spend: 'bandage',
+          },
+        ],
+      },
+    ),
+    s(
+      'a1-ridge-retreat',
+      CH.I,
+      'A Debt in the Reeds',
+      'dust-road',
+      'The coyote sees the tail coming before you do. He fires past the beast, and its black eyes turn toward the smoke. He shouts a path up the rocks. You bind your ribs with your last bandage and climb, each breath a small knife. Below, his second shot vanishes into the reeds. You cannot tell whether he escapes. You do not go back. The water keeps its dead, and the road has acquired a debt that will not wash away.',
+      {
+        effects: {
+          resolve: -1,
+          flags: ['debt:coyote-cover', 'deed:left-coyote-at-water'],
+        },
+        choices: [
+          {
+            id: 'east',
+            label: 'Take the high road east. Leave the gunshots behind.',
+            to: 'dust-road',
+          },
+        ],
       },
     ),
     s(

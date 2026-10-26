@@ -119,14 +119,14 @@ export const NPCS: readonly NpcDef[] = [
   {
     slug: 'saltroad-tincture-factor',
     name: 'A Saltroad tincture factor',
-    species: 'Antelope',
+    species: 'Kudu',
     pronouns: 'she/her',
     faction: 'saltroad',
   },
   {
     slug: 'jackalwire-wagon-painter',
     name: 'A wagon-painter for hire',
-    species: 'Civet',
+    species: 'Genet',
     pronouns: 'he/him',
     faction: 'jackalwire',
   },

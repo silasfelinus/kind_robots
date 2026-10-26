@@ -128,10 +128,14 @@ export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   mid: [2, 5],
   high: [3, 8],
 }
-export const BED_UPGRADES = {
-  9: { cost: 40, gateWatch: 0 },
-  12: { cost: 80, gateWatch: 12 },
-} as const
+export const nextBedUpgrade = (beds: number) =>
+  beds >= 12
+    ? null
+    : {
+        beds: beds + 1,
+        cost: 100 + Math.max(0, beds - 6) * 50,
+        gateWatch: beds >= 9 ? 12 : 0,
+      }
 const HOURGLASS = 'komodo-brass-hourglass'
 /** Lamplight Archive support at which its clerks read every '?' on the board. */
 export const LAMPLIGHT_SIGHT = 20
@@ -1469,8 +1473,8 @@ export const injuryRisk = (
     injuryRisk: Math.round(wounded * lasting),
     deathChance: Math.round(100 * death),
     injuryDays: [
-      Math.max(0, lowDays - party.surgery),
-      Math.max(0, highDays - party.surgery),
+      Math.min(1, Math.max(0, lowDays - party.surgery)),
+      Math.min(1, Math.max(0, highDays - party.surgery)),
     ],
   }
 }
@@ -1561,15 +1565,14 @@ export const recruit = (run: FortressRun, id: string): FortressRun => {
 }
 
 export const upgradeBeds = (run: FortressRun): FortressRun => {
-  if (run.beds === 12) throw new Error('the barracks are at full size')
-  const target = run.beds === 6 ? 9 : 12
-  const rule = BED_UPGRADES[target]
+  const rule = nextBedUpgrade(run.beds)
+  if (!rule) throw new Error('the barracks are at full size')
   if (run.brass < rule.cost) throw new Error(`Needs ${rule.cost} brass`)
   if (run.local['gate-watch'] < rule.gateWatch)
     throw new Error(`Needs gate-watch support ${rule.gateWatch}`)
   const next = cloneRun(run)
   next.brass -= rule.cost
-  next.beds = target
+  next.beds = rule.beds
   return next
 }
 
@@ -1710,9 +1713,9 @@ const resolveQuest = (
       continue
     }
     const ownHide = def.ability.kind === 'thick-hide'
-    const days = (ownHide ? Math.ceil(raw / 2) : raw) - surgery
+    const days = Math.min(1, Math.max(0, (ownHide ? Math.ceil(raw / 2) : raw) - surgery))
     if (days <= 0) continue
-    state.injuredUntilDay = Math.max(state.injuredUntilDay ?? 0, run.day + days)
+    state.injuredUntilDay = run.day + days
     injuries.push({ followerId: def.id, days })
   }
 

@@ -75,7 +75,10 @@ for (const quest of quests) {
   }
 }
 const view = readFileSync('components/EmperorFortressQuests.vue', 'utf8')
-assert.ok(view.includes('grid grid-cols-2 gap-2'), 'two compact notices per board row')
+assert.ok(
+  view.includes('grid grid-cols-2 gap-2'),
+  'two compact notices per board row',
+)
 assert.ok(view.includes('max-h-20'), 'illustrations fit compact quest notices')
 assert.ok(
   view.includes('whitespace-pre-line'),

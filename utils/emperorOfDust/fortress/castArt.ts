@@ -266,6 +266,12 @@ export const illustration = (
   castArtUrl(`${group}/${slug}/illustrated/${mood}`) ??
   castArtUrl(`${group}/${slug}/illustrated/neutral`)
 
+/** A speaking NPC's close-up, or their illustrated neutral pose if that is
+ * the only exported art. Never manufacture a URL for an unexported asset. */
+export const npcPortrait = (slug: string): string | undefined =>
+  castArtUrl(`npcs/${slug}/portrait/neutral`) ??
+  illustration('npcs', slug)
+
 /** A follower portrait, falling back to the neutral portrait, then the illustration. */
 export const followerPortrait = (
   id: string,

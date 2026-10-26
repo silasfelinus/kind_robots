@@ -2843,14 +2843,17 @@ const options = computed<Option[]>(() => {
           act: () => undefined,
         }
       const establishesPerspective = Boolean(choice.lens && !run.openingState)
-      const chip = choice.check && !establishesPerspective
-        ? checkChip(choice.check)
-        : {
-            chip: establishesPerspective ? 'Opening choice · No roll' : 'No roll',
-            title: establishesPerspective
-              ? 'Choosing your perspective does not require a skill check'
-              : 'A sure thing',
-          }
+      const chip =
+        choice.check && !establishesPerspective
+          ? checkChip(choice.check)
+          : {
+              chip: establishesPerspective
+                ? 'Opening choice · No roll'
+                : 'No roll',
+              title: establishesPerspective
+                ? 'Choosing your perspective does not require a skill check'
+                : 'A sure thing',
+            }
       const prospect = choice.prospect
         ? COMPANIONS.find((c) => c.id === choice.prospect)
         : undefined

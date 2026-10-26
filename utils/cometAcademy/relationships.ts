@@ -149,14 +149,14 @@ export function validSocialState(raw: unknown, currentDay: number): raw is Socia
   if (!raw || typeof raw !== 'object') return false
   const state = raw as Partial<SocialState>
   if (!state.connections || typeof state.connections !== 'object' || Array.isArray(state.connections) ||
-      !Array.isArray(state.days) || state.days.some(d => !Number.isInteger(d) || d >= currentDay ||
-        !SOCIAL_DAYS.includes(d)) || new Set(state.days).size !== state.days.length) return false
+      !Array.isArray(state.days) || state.days.some(d => !Number.isInteger(d) || d > currentDay ||
+        !SOCIAL_DAYS.some(day => day === d)) || new Set(state.days).size !== state.days.length) return false
   const ids = new Set(SOCIAL_CAST.map(p => p.id))
   const connections = state.connections as Record<string, Connection>
   for (const [id, v] of Object.entries(connections)) {
     if (!ids.has(id as StudentId) || !v || !Number.isInteger(v.trust) || v.trust < 0 || v.trust > 5 ||
         typeof v.helped !== 'boolean' || typeof v.romance !== 'boolean' ||
-        (v.courtingDay !== undefined && (!state.days.includes(v.courtingDay) || v.courtingDay >= currentDay))) return false
+        (v.courtingDay !== undefined && (!state.days.includes(v.courtingDay) || v.courtingDay > currentDay))) return false
   }
   if ([state.partner, state.sidekick, state.romance].some(id => id !== undefined && !ids.has(id))) return false
   if (state.partner && (!connections[state.partner]?.helped || connections[state.partner].trust < 2)) return false

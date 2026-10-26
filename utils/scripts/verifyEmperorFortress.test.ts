@@ -5414,7 +5414,7 @@ for (const def of DAYS)
     'escort-coldbrooks',
   ).run
   assert.equal(rescued.brass, coldRun.brass - 15)
-  assert.ok(rescued.local['gate-watch'] < coldRun.local['gate-watch'])
+  assert.ok(rescued.local.yard < coldRun.local.yard)
   assert.ok(rescued.flags.includes('d10-coldbrooks-escorted'))
   assert.ok(dueIds(rescued).includes('d10-coldbrooks-return'))
   const rescuedDawn = finishDay(rescued)

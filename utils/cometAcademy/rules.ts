@@ -887,7 +887,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       phase: 'finale',
       assignments: [],
       reports: [],
-      scene: `${CAMPAIGN_ANCHORS[29]} ${campaignVillain(run.seed, run.mastermind).name} now ${campaignVillain(run.seed, run.mastermind).method}. This is real, not a simulation.`,
+      scene: `${CAMPAIGN_ANCHORS[29]} The ${campaignVillain(run.seed, run.mastermind).name} conspiracy now ${campaignVillain(run.seed, run.mastermind).method}. ${run.opponentSignature ? antagonistBeat(identityFor(run.opponentSignature), 30) : ''} This is real, not a simulation.`,
       log: [...run.log, 'Day 30: The fourth dance and the real Prom of Doom'],
     }
   if (run.flowVersion !== 3 && run.day >= 7)

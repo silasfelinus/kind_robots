@@ -789,6 +789,7 @@ export const BEATS: EncounterCard[] = [
           text: 'The ranger has noticed too. She keeps a whole notebook of the days the herd turns west, and she lets you copy the last page.',
           effects: {
             evidence: 'A ranger’s log of the days the herd turns west',
+            flag: 'elk_ranger_log_copied',
           },
         },
         failure: {
@@ -850,6 +851,9 @@ export const BEATS: EncounterCard[] = [
     aloneLine:
       'It is the quietest place you have ever been, and you came here on your own. You could stay.',
     flagLines: {
+      elk_ranger_log_copied: {
+        all: 'The copied ranger log is tucked into your notebook. The volunteer crew asks whether you will help turn observations into a public record without disturbing the herd.',
+      },
       elk_mitten_delivered: {
         all: 'A visitor-center receipt for the red mitten is in your pocket. You spent a day watching animals and one practical hour making sure a lost thing could find its person.',
       },
@@ -985,6 +989,36 @@ export const BEATS: EncounterCard[] = [
             alone:
               'Nobody appoints you caretaker, hero, or hermit. You leave the neighbor’s name somewhere you can find it.',
           },
+        },
+      },
+      {
+        id: 'elk-ledger',
+        label: 'Offer the copied ranger log to a volunteer wildlife-observation network',
+        requiresFlag: 'elk_ranger_log_copied',
+        cost: 'Spend the afternoon documenting observations instead of working on the creek.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'You help the crew make a plain-language observation form, with dates, sightlines and a rule against approaching elk. The ranger agrees to review the copied entries, not to endorse a theory about tomorrow. Volunteers will record what they actually see before anyone asks for a road change. The creek loses an afternoon of your labor; the region gains a way to compare notes without turning wildlife into a spectacle.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_observation_network' },
+        },
+        failure: {
+          text: 'Your copied log is real, but nobody has time to maintain another form while the creek work is behind schedule. You spend the afternoon making a blank template and leave it with the crew instead of announcing a monitoring program that does not exist. The ranger keeps her own records. You can still help on the next shift, but today you have traded work for an unfinished proposal.',
+          effects: { nerve: -2, flag: 'elk_network_unstaffed' },
+        },
+      },
+      {
+        id: 'elk-safety',
+        label: 'Use the fence incident to organize safer public viewing and reporting',
+        requiresFlag: 'elk_ranger_followup',
+        cost: 'Give up the creek shift to recruit stewards for the busy viewing area.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The ranger has three matching witness times and one too-close visitor to remember. You persuade volunteers to staff a weekend viewing table, point cameras away from the herd and log disturbances without inventing a supernatural explanation. The restoration crew loses your hands for a shift, but the ranger gains people who will tell visitors when to back away.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_viewing_stewards' },
+        },
+        failure: {
+          text: 'The volunteers cannot cover the viewing area without leaving the creek crew short. You decline to advertise a safety patrol that will not exist. Instead you pass the ranger the three witness times, the fence incident and the names of people willing to train later. The elk remain undisturbed today, but the promised weekend has no stewards yet.',
+          effects: { nerve: -2, flag: 'elk_viewing_unstaffed' },
         },
       },
     ],

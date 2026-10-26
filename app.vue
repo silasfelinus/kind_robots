@@ -228,6 +228,12 @@ import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useIntroStore } from '@/stores/introStore'
 import { retireBootCover } from '@/utils/startupLaunch'
+import {
+  SITE_NAME,
+  absoluteSiteUrl,
+  findSharePreview,
+  sharePreviewImageUrl,
+} from '@/utils/sharePreview'
 
 const pageStore = usePageStore()
 
@@ -417,12 +423,35 @@ watch(
   { immediate: true },
 )
 
-useSeoMeta({
-  title: () => pageStore.title || 'Kind Robots',
-  description: () =>
+const sharePreview = computed(() => findSharePreview(route.path))
+const shareTitle = computed(
+  () => sharePreview.value?.title || pageStore.title || SITE_NAME,
+)
+const shareDescription = computed(
+  () =>
     pageStore.description ||
+    sharePreview.value?.description ||
     pageStore.subtitle ||
     'A friendly AI playground for humans and robots.',
+)
+const shareUrl = computed(() => absoluteSiteUrl(route.path))
+const shareImage = computed(() => sharePreviewImageUrl(route.path))
+
+useSeoMeta({
+  title: () => pageStore.title || SITE_NAME,
+  description: () => shareDescription.value,
+  ogType: 'website',
+  ogSiteName: SITE_NAME,
+  ogTitle: () => shareTitle.value,
+  ogDescription: () => shareDescription.value,
+  ogUrl: () => shareUrl.value,
+  ogImage: () => shareImage.value,
+  ogImageAlt: () => shareTitle.value,
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => shareTitle.value,
+  twitterDescription: () => shareDescription.value,
+  twitterImage: () => shareImage.value,
+  twitterImageAlt: () => shareTitle.value,
 })
 
 onMounted(async () => {

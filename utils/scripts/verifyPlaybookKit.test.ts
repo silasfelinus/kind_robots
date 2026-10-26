@@ -186,6 +186,11 @@ for (const tier of TIERS) {
   const tab = tabSource(spec, 'kind-icon:theater', 80)
   assert.match(tab, /^requiredRole: ADMIN$/m)
   assert.match(tab, /^label: "Moon Laundry: Bob's 'Night'"$/m)
+  const summary = tab.match(/^summary: "(.*)"$/m)?.[1] ?? ''
+  assert.ok(
+    summary && summary.length <= 40,
+    'nav summaries stay at 40 characters or fewer',
+  )
 }
 
 // Settings and saved progress.

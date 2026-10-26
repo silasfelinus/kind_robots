@@ -178,7 +178,7 @@ label: ${yaml(spec.title)}
 title: ${yaml(spec.title)}
 subtitle: ${yaml(spec.tagline)}
 description: ${yaml(spec.premise)}
-summary: ${yaml(`Development preview of the ${spec.title} playbook.`)}
+summary: ${yaml('A playbook in development.')}
 icon: ${icon}
 route: /admin/${spec.id}
 sort: ${sort}

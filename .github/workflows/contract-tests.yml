@@ -429,6 +429,9 @@ jobs:
       - name: Page backdrop contract
         run: npm run test:page-backdrop
 
+      - name: Share preview and sitemap contract
+        run: npm run test:share-preview
+
       - name: Art image caching contract
         run: npm run test:art-image-caching
 

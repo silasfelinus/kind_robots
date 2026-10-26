@@ -1,30 +1,13 @@
 import catalog from './specialPowers.json'
 
 export type PowerFormId =
-  | 'impact'
-  | 'arc'
-  | 'veil'
-  | 'step'
-  | 'weave'
-  | 'beacon'
+  'impact' | 'arc' | 'veil' | 'step' | 'weave' | 'beacon'
 export type PowerAffinityId =
-  | 'fire'
-  | 'ice'
-  | 'storm'
-  | 'stone'
-  | 'light'
-  | 'shadow'
-  | 'bloom'
-  | 'gravity'
+  'fire' | 'ice' | 'storm' | 'stone' | 'light' | 'shadow' | 'bloom' | 'gravity'
 export type PowerVowId = 'shelter' | 'unmask' | 'claim'
 export type SignaturePowerId = `${PowerFormId}-${PowerAffinityId}`
 export type LegacyPowerId =
-  | 'kinetic'
-  | 'technopathy'
-  | 'empathy'
-  | 'elemental'
-  | 'spatial'
-  | 'biotech'
+  'kinetic' | 'technopathy' | 'empathy' | 'elemental' | 'spatial' | 'biotech'
 
 type Signature = {
   id: SignaturePowerId

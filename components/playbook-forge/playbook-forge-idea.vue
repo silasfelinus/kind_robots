@@ -45,7 +45,7 @@
           :aria-checked="genre === entry.id"
           class="pf-tile pf-focusable"
           :class="genre === entry.id ? 'pf-tile-on' : ''"
-          @click="genre = entry.id"
+          @click="pickPreset(entry.id)"
           @mouseenter="($event.currentTarget as HTMLElement).focus()"
         >
           <img :src="entry.cover" alt="" class="pf-tile-art" />
@@ -65,7 +65,153 @@
           />
         </button>
       </div>
+
+      <div v-if="forge.genreFacets.length" class="flex flex-col gap-2">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="pf-kicker text-[0.65rem] opacity-80">
+            More genres from Facets · {{ forge.genreFacets.length }}
+          </p>
+          <input
+            v-model="genreSearch"
+            type="search"
+            class="pf-field w-48 py-1 text-xs"
+            placeholder="Find a genre"
+            aria-label="Find a genre Facet"
+          />
+        </div>
+        <div
+          class="kr-scroll flex max-h-28 flex-wrap gap-1.5"
+          role="radiogroup"
+          aria-label="Genre Facets"
+        >
+          <button
+            v-for="card in shownGenres"
+            :key="card.id"
+            type="button"
+            role="radio"
+            :aria-checked="forge.ideaGenre?.facetId === card.id"
+            class="pf-chip pf-focusable"
+            :class="
+              forge.ideaGenre?.facetId === card.id
+                ? 'border-primary bg-primary/15 text-primary'
+                : 'border-base-content/20 opacity-85'
+            "
+            :title="card.flavorText || card.description || ''"
+            @click="pickFacetGenre(card)"
+          >
+            {{ card.title }}
+          </button>
+        </div>
+        <p v-if="forge.ideaGenre" class="pf-help text-xs leading-snug">
+          <span class="font-semibold">{{ forge.ideaGenre.title }}</span>
+          starts from the
+          <span class="font-semibold">{{ presetLabel }}</span> loadout.
+          {{ forge.ideaGenre.description }}
+        </p>
+      </div>
     </fieldset>
+
+    <section class="flex flex-col gap-3" aria-label="Spark deck">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <p class="pf-kicker text-secondary">
+          Spark deck: Facets dealt into the design
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-ghost pf-focusable"
+            :disabled="forge.facetsState !== 'ready'"
+            @click="forge.dealIdeaSparks()"
+          >
+            Deal again
+          </button>
+          <button
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-secondary pf-focusable"
+            :disabled="!forge.ideaSparks.length && !forge.ideaGenre"
+            title="Replace the idea with a draft written from the genre and sparks"
+            @click="writeIdea"
+          >
+            Write the idea from these
+          </button>
+        </div>
+      </div>
+      <p
+        v-if="forge.facetsState === 'loading' || forge.facetsState === 'idle'"
+        class="text-sm opacity-70"
+      >
+        Loading Facets…
+      </p>
+      <p v-else-if="forge.facetsState === 'error'" class="text-sm text-warning">
+        Facets could not load ({{ forge.facetsError }}). The genres above still
+        work.
+      </p>
+      <ul
+        v-else
+        class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))] gap-2"
+        aria-label="Sparks"
+      >
+        <li
+          v-for="slot in SPARK_SLOTS"
+          :key="slot.id"
+          class="pf-panel flex min-h-[8.5rem] flex-col gap-1 p-3"
+          :class="sparkFor(slot.id)?.locked ? 'border-primary/70' : ''"
+        >
+          <span class="flex items-baseline justify-between gap-2">
+            <span class="pf-kicker text-[0.6rem] text-secondary">{{
+              slot.label
+            }}</span>
+            <span class="text-[0.6rem] opacity-50">{{
+              sparkFor(slot.id)?.taxonomy.toLowerCase().replace(/_/g, ' ')
+            }}</span>
+          </span>
+          <template v-if="sparkFor(slot.id)">
+            <span class="pf-display text-base leading-tight">{{
+              sparkFor(slot.id)!.title
+            }}</span>
+            <span class="line-clamp-2 text-xs leading-snug opacity-75">{{
+              sparkFor(slot.id)!.description || slot.feeds
+            }}</span>
+          </template>
+          <span v-else class="text-xs opacity-60">{{ slot.feeds }}</span>
+          <span class="mt-auto flex gap-1.5 pt-1">
+            <button
+              type="button"
+              class="pf-chip pf-focusable text-[0.65rem]"
+              :class="
+                sparkFor(slot.id)?.locked
+                  ? 'border-primary text-primary'
+                  : 'border-base-content/20'
+              "
+              :aria-pressed="!!sparkFor(slot.id)?.locked"
+              :disabled="!sparkFor(slot.id)"
+              @click="forge.toggleSparkLock(slot.id)"
+            >
+              {{ sparkFor(slot.id)?.locked ? 'Kept' : 'Keep' }}
+            </button>
+            <button
+              type="button"
+              class="pf-chip pf-focusable border-base-content/20 text-[0.65rem]"
+              :disabled="!!sparkFor(slot.id)?.locked"
+              @click="forge.dealIdeaSparks(slot.id)"
+            >
+              Redraw
+            </button>
+            <button
+              v-if="sparkFor(slot.id)"
+              type="button"
+              class="pf-chip pf-focusable border-base-content/20 text-[0.65rem]"
+              :aria-label="`Leave ${slot.label} out`"
+              @click="forge.dropSpark(slot.id)"
+            >
+              ×
+            </button>
+          </span>
+        </li>
+      </ul>
+    </section>
 
     <div class="flex flex-wrap items-center gap-4">
       <button type="submit" data-nav class="pf-cta pf-focusable">
@@ -80,14 +226,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
+import {
+  SPARK_SLOTS,
+  composeIdea,
+  type FacetCard,
+  type SparkSlot,
+} from '~/utils/playbookForge/facets'
 import { GENRES } from '~/utils/playbookForge/presets'
 
 const forge = usePlaybookForgeStore()
 const title = ref('')
 const idea = ref('')
 const genre = ref(GENRES[0]!.id)
+const genreSearch = ref('')
+
+onMounted(() => void forge.loadFacets())
+
+const shownGenres = computed(() => {
+  const q = genreSearch.value.trim().toLowerCase()
+  return q
+    ? forge.genreFacets.filter((card) => card.title.toLowerCase().includes(q))
+    : forge.genreFacets
+})
+const presetLabel = computed(
+  () => GENRES.find((g) => g.id === genre.value)?.label ?? 'Open idea',
+)
+
+function sparkFor(slot: SparkSlot) {
+  return forge.ideaSparks.find((s) => s.slot === slot)
+}
+
+function pickPreset(id: string) {
+  genre.value = id
+  forge.chooseGenreFacet(null)
+}
+
+function pickFacetGenre(card: FacetCard) {
+  const preset =
+    forge.ideaGenre?.facetId === card.id ? null : forge.chooseGenreFacet(card)
+  if (!preset) forge.chooseGenreFacet(null)
+  genre.value = preset ?? genre.value
+}
+
+function writeIdea() {
+  idea.value = composeIdea(
+    [...(forge.ideaGenre ? [forge.ideaGenre] : []), ...forge.ideaSparks],
+    presetLabel.value,
+  )
+}
 
 function submit() {
   forge.forge(title.value, idea.value, genre.value)

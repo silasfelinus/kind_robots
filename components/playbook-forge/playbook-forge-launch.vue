@@ -12,6 +12,22 @@
         {{ forge.draft.idea }}
       </p>
 
+      <ul
+        v-if="forge.draft.sparks?.length"
+        class="flex flex-wrap gap-1.5"
+        aria-label="Sparks from Facets"
+      >
+        <li
+          v-for="spark in forge.draft.sparks"
+          :key="spark.slot"
+          class="pf-chip border-secondary/40 text-xs"
+          :title="spark.description"
+        >
+          <span class="opacity-60">{{ sparkLabel(spark.slot) }}</span>
+          {{ spark.title }}
+        </li>
+      </ul>
+
       <ul class="flex flex-wrap gap-2">
         <li
           v-for="fact in facts"
@@ -114,8 +130,15 @@ import {
   blueprintPitch,
   planDiff,
 } from '~/utils/playbookForge/handoff'
+import { SPARK_SLOTS } from '~/utils/playbookForge/facets'
 
 const forge = usePlaybookForgeStore()
+
+function sparkLabel(slot: string) {
+  return slot === 'genre'
+    ? 'Genre'
+    : (SPARK_SLOTS.find((s) => s.id === slot)?.label ?? slot)
+}
 const copied = ref(false)
 const f = computed(() => forge.current)
 const lane = computed(() =>

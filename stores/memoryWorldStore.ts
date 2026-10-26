@@ -25,6 +25,11 @@ import {
   darkHouseTrialFaces,
 } from '~/utils/memoryDungeon/darkHouseChallenges'
 import {
+  firstTwoWorldFrames,
+  firstTwoSceneCallbacks,
+  firstTwoPhysicalConsequence,
+} from '~/utils/memoryDungeon/firstTwoConsequences'
+import {
   newMemoryCampaignProgress,
   completeMemoryExperience,
   type MemoryCampaignProgress,
@@ -183,6 +188,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   )
   const darkSelectedSeal = computed(
     () => DARK_BRIAR_SEALS[dark.value.player] ?? null,
+  )
+  const firstTwoFrames = computed(() =>
+    firstTwoWorldFrames(state.value, darkHouse.value),
+  )
+  const darkCallbacks = computed(() =>
+    firstTwoSceneCallbacks(
+      dark.value.player,
+      state.value.sceneChoices,
+      dark.value,
+    ),
+  )
+  const darkPhysicalConsequence = computed(() =>
+    firstTwoPhysicalConsequence(dark.value.player, firstTwoFrames.value),
   )
   const darkSelectedScene = computed(
     () => DARK_BRIAR_SCENES[dark.value.player] ?? null,
@@ -795,7 +813,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       activeReality.value !== 'e02' ||
       darkMatching.value ||
-      !darkBriarCanTravel(dark.value.player, key, dark.value.revealed)
+      !darkBriarCanTravel(
+        dark.value.player,
+        key,
+        dark.value.revealed,
+        dark.value,
+      )
     )
       return
     dark.value.player = key
@@ -1688,6 +1711,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkPairsMatched,
     darkSelectedScene,
     darkSelectedSeal,
+    firstTwoFrames,
+    darkCallbacks,
+    darkPhysicalConsequence,
     crossMapSeals,
     crossMapDiscovery,
     missingOriginalSeals,

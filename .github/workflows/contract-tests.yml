@@ -60,6 +60,9 @@ jobs:
       - name: Memory Dungeon first-map 60 plus 4 cross-world seal recovery and migrations
         run: npx tsx utils/scripts/verifyMemoryCrossMapSeals.test.ts
 
+      - name: Memory Dungeon first two worldframes, callbacks and earned routes
+        run: npx tsx utils/scripts/verifyMemoryFirstTwoConsequences.test.ts
+
       - name: Memory Dungeon Dark House thirty-six-room and witness-gate contract
         run: npx tsx utils/scripts/verifyMemoryDarkHouse.test.ts
 

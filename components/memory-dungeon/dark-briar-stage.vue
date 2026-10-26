@@ -155,6 +155,7 @@
                   world.dark.player,
                   tile.key,
                   world.dark.revealed,
+                  world.dark,
                 )
               "
               @click="world.darkWalk(tile.key)"
@@ -233,6 +234,26 @@
           >
             {{ world.darkMatching ? world.dark.status : world.darkCurrentText }}
           </p>
+          <p
+            v-if="!world.darkMatching && !seal && world.darkPhysicalConsequence"
+            class="rounded-md border border-amber-700/40 bg-[#f7ecdf] px-2 py-1.5 text-xs font-semibold"
+            data-testid="dark-briar-custody-world-change"
+          >
+            {{ world.darkPhysicalConsequence }}
+          </p>
+          <div
+            v-if="!world.darkMatching && !seal && world.darkCallbacks.length"
+            class="flex flex-col gap-1.5 border-l-2 border-[#926ca0] pl-2"
+            data-testid="dark-briar-earned-callbacks"
+          >
+            <p
+              v-for="callback in world.darkCallbacks"
+              :key="callback"
+              class="text-xs italic leading-relaxed"
+            >
+              {{ callback }}
+            </p>
+          </div>
           <button
             v-if="!world.darkMatching && world.dark.waveIndex < 3"
             type="button"

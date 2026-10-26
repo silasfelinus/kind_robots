@@ -1,4 +1,5 @@
-import { identityFor } from './identityArcs'
+import { identityFor, identityStoryFor } from './identityArcs'
+import { GUEST_IDENTITIES } from './guestIdentities'
 import {
   signatureById,
   POWER_VOWS,
@@ -254,6 +255,96 @@ export const ENCOUNTERS = [
       },
     ],
   },
+  {
+    title: 'The Stray Blade Arrives',
+    location: 'Comet City Monorail / Dimensional Gate',
+    scene:
+      GUEST_IDENTITIES[0]!.arrival +
+      ' Zuzu has a wanted poster from another world. The corporation operating the gate calls him an escaped asset and offers you a reward for turning him in.',
+    options: [
+      {
+        id: 'shelter-zuzu',
+        label: 'Protect Zuzu and demand a hearing',
+        text: 'Zuzu lowers his sword for the first time that afternoon. The company must publicly explain why it believes a person from another dimension is property.',
+        influence: 2,
+        danger: 1,
+      },
+      {
+        id: 'contract-zuzu',
+        label: 'Accept the warrant and ask what it pays',
+        text: 'The gate operator gives you the extradition key. Zuzu memorizes your face, while the gate cameras quietly change their records.',
+        influence: -2,
+        danger: 2,
+      },
+    ],
+  },
+  {
+    title: 'A Visitor from the Stars',
+    location: 'Comet City Observatory',
+    scene:
+      GUEST_IDENTITIES[1]!.arrival +
+      ' Tess Helio of the This Means Warp crew needs a transit corridor for a refugee ship, but the academy dean wants a copy of her secret sanctuary map.',
+    options: [
+      {
+        id: 'help-tess',
+        label: 'Find a safe route without copying the map',
+        text: 'Tess trusts you with one anonymous bearing. A refugee ship crosses the skyline safely, and Starwake gains an ally without sacrificing a sanctuary.',
+        influence: 2,
+        danger: -1,
+      },
+      {
+        id: 'sell-tess',
+        label: 'Trade the chart for a private navigation license',
+        text: 'The dean hands you the corridor pass. Tess retrieves her original map, but a shadowy copy reaches the people who sell safe passage.',
+        influence: -2,
+        danger: 2,
+      },
+    ],
+  },
+  {
+    title: 'The Unclaimed Scholarship',
+    location: 'Graduation Office',
+    scene:
+      'A scholarship for students injured during rescues was quietly rerouted to the prom fireworks budget. An anonymous donor threatens to withdraw it entirely.',
+    options: [
+      {
+        id: 'fund',
+        label: 'Restore the emergency fund in public',
+        text: 'The prom loses its fireworks, but a student gets their rehabilitation paid for. Someone has begun auditing the dean.',
+        influence: 2,
+        danger: -1,
+      },
+      {
+        id: 'leverage',
+        label: 'Use the records to blackmail the donor',
+        text: 'You get access to the donor registry. The injured students still cannot pay their bills, and the dean now knows you have a price.',
+        influence: -2,
+        danger: 1,
+      },
+    ],
+  },
+  {
+    title: 'The Class List Has Two Endings',
+    location: 'Academy Transit Lab',
+    scene:
+      'A machine presents a future where your friend is the city\'s hero and a second future where the same person commands a prison. Both futures use the same childhood name.',
+    options: [
+      {
+        id: 'agency',
+        label: 'Tell your friend both futures and let them choose',
+        text: 'Your classmate rejects the machine\'s certainty. They ask you to remember who they are, not just what they might become.',
+        influence: 2,
+        danger: -1,
+      },
+      {
+        id: 'weaponize',
+        label: 'Keep the villain projection for leverage',
+        text: 'You keep the evidence, but your classmate catches a glimpse of their projected villain mask on your private display.',
+        influence: -2,
+        danger: 1,
+      },
+    ],
+  },
 ]
 
 export type Assignment = { caseId: string; students: StudentId[] }
@@ -270,6 +361,7 @@ export type AcademyRun = {
   power: PowerId
   signature?: SignaturePowerId
   vow?: PowerVowId
+  encounterDeckVersion?: 2
   phase: AcademyPhase
   day: number
   influence: number
@@ -294,7 +386,12 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 }
 
 export function encounterFor(run: AcademyRun) {
-  return ENCOUNTERS[(run.day - 1) % ENCOUNTERS.length]!
+  // Existing v1 saves keep the original three-card order mid-term.
+  const index =
+    run.encounterDeckVersion === 2
+      ? (run.seed + run.day - 1) % ENCOUNTERS.length
+      : (run.day - 1) % 3
+  return ENCOUNTERS[index]!
 }
 
 export function startAcademy(
@@ -315,6 +412,7 @@ export function startAcademy(
     power,
     ...(signature ? { signature } : {}),
     ...(vow ? { vow } : {}),
+    encounterDeckVersion: 2,
     phase: 'dispatch',
     day: 1,
     influence: 0,
@@ -521,10 +619,11 @@ export function finishAcademy(
       ? 'You hijack the simulated catastrophe engine and rewrite its rules. The dean files a very interesting report.'
       : 'You seize the simulated controls. The machine decides what control means. Your rival pulls you free before the exercise can complete.'
   const identity = run.signature ? identityFor(run.signature) : undefined
-  const identityProjection = identity
-    ? protect
-      ? `The rehearsal yearbook imagines ${identity.student.alias} eventually becoming ${identity.hero.alias}: ${identity.quests.protagonist}. That transformation is not yet earned.`
-      : `The rehearsal yearbook imagines ${identity.student.alias} falling into the identity of ${identity.villain.alias}: ${identity.quests.antagonist}. That transformation is not yet inevitable.`
+  const projectedStory = identity
+    ? identityStoryFor(identity, 'protagonist', protect ? 'hero' : 'villain')
+    : null
+  const identityProjection = projectedStory
+    ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${projectedStory.setup}. ${projectedStory.decision}. That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
     : ''
   const signatureProjection =
     run.signature && run.vow

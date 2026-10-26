@@ -4,6 +4,7 @@ import {
   projectCitySites,
   projectedCityRoads,
 } from '../cometAcademy/cityMap'
+import { DISTRICT_ENCOUNTERS, districtEncounterFor } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
   IDENTITY_ARCS,
@@ -42,13 +43,16 @@ import {
   visitCitySite,
 } from '../cometAcademy/rules'
 
-assert.equal(CITY_SITES.length, 7)
+assert.equal(CITY_SITES.length, 24)
 assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 7)
-assert.equal(new Set(CITY_SITES.map((site) => site.encounterIndex)).size, 7)
+assert.equal(new Set(CITY_SITES.filter((site) => site.encounterIndex !== undefined).map((site) => site.encounterIndex)).size, 7)
+assert.equal(Object.keys(DISTRICT_ENCOUNTERS).length, 17)
 assert.ok(CITY_SITES.filter((site) => site.district === 'academy').length >= 3)
 assert.ok(CITY_SITES.filter((site) => site.district === 'city').length >= 3)
-assert.ok(projectCitySites('campus').length >= 3)
-assert.ok(projectCitySites('town').length >= 6)
+assert.equal(CITY_SITES.filter((site) => site.district === 'academy').length, 12)
+assert.equal(CITY_SITES.filter((site) => site.district === 'city').length, 12)
+assert.equal(projectCitySites('campus').length, 13)
+assert.equal(projectCitySites('town').length, 14)
 assert.ok(projectCitySites('town').some((site) => site.id === 'academy-roof'))
 assert.ok(projectCitySites('campus').some((site) => site.id === 'transit-gate'))
 for (const view of ['campus', 'town'] as const) {
@@ -73,6 +77,93 @@ for (const node of CITY_SITES)
       ),
       `The geographic graph must be reciprocal: ${node.id} => ${neighbor}`,
     )
+
+const projectedIds = new Set(
+  (['campus', 'town'] as const).flatMap((view) =>
+    projectCitySites(view).map((site) => site.id),
+  ),
+)
+assert.equal(projectedIds.size, 24, 'Every landmark is reachable on a map')
+const connected = new Set<string>([CITY_SITES[0]!.id])
+const queue = [CITY_SITES[0]!.id]
+for (let i = 0; i < queue.length; i++) {
+  const current = CITY_SITES.find((site) => site.id === queue[i])!
+  for (const neighbor of current.neighbors)
+    if (!connected.has(neighbor)) {
+      connected.add(neighbor)
+      queue.push(neighbor)
+    }
+}
+assert.equal(connected.size, 24, 'All locations form one connected street graph')
+assert.equal(
+  new Set(Object.values(DISTRICT_ENCOUNTERS).map((entry) => entry.title)).size,
+  17,
+)
+const districtOptionIds = new Set<string>()
+for (const site of CITY_SITES) {
+  assert.ok(site.teaser.length > 20)
+  if (site.encounterIndex !== undefined) continue
+  const story = districtEncounterFor(site.id)
+  assert.ok(story, `Missing story for ${site.id}`)
+  assert.equal(story.options.length, 2)
+  assert.ok(story.scene.length > 100)
+  for (const option of story.options) {
+    assert.ok(option.text.length > 100)
+    assert.ok(option.label.length > 10)
+    assert.ok(!districtOptionIds.has(option.id))
+    districtOptionIds.add(option.id)
+    assert.ok(option.trust !== 0)
+  }
+}
+assert.equal(districtOptionIds.size, 34)
+assert.equal(districtEncounterFor('academy-roof'), undefined)
+
+const campusChoiceRun = chooseEncounter(
+  visitCitySite(startAcademy('kinetic', 31), 'student-commons'),
+  'student-commons-help',
+)
+assert.equal(campusChoiceRun.phase, 'dispatch')
+assert.equal(campusChoiceRun.academyStanding, 2)
+assert.equal(campusChoiceRun.cityStanding, 0)
+assert.deepEqual(campusChoiceRun.visitedSites, ['student-commons'])
+const cityChoiceRun = chooseEncounter(
+  visitCitySite(startAcademy('kinetic', 31), 'civic-hospital'),
+  'civic-hospital-exploit',
+)
+assert.equal(cityChoiceRun.academyStanding, 0)
+assert.equal(cityChoiceRun.cityStanding, -2)
+assert.equal(
+  chooseEncounter(
+    visitCitySite(startAcademy('kinetic', 31), 'civic-hospital'),
+    'unknown',
+  ).phase,
+  'campus',
+  'Unknown encounter options cannot alter state',
+)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(cityChoiceRun))),
+  cityChoiceRun,
+)
+assert.equal(restoreAcademy({ ...cityChoiceRun, cityStanding: NaN }), null)
+assert.equal(restoreAcademy({ ...cityChoiceRun, academyStanding: 1.5 }), null)
+
+// Goodwill should never make public rescue outcomes worse, and its
+// benefits must change real seeded results, not merely UI copy.
+const gradeRank = { failed: 0, partial: 1, pass: 2, honors: 3 }
+let goodwillChangedGrade = false
+for (let seed = 1; seed <= 36; seed++) {
+  const base = { ...startAcademy('kinetic', seed), day: 3, phase: 'dispatch' as const }
+  const target = incidentsFor(base).find((incident) => incident.allegiance === 'hero')
+  if (!target) continue
+  const assigned = assignTeam(base, target.id, ['mina'])
+  const positive = resolveDispatch({ ...assigned, cityStanding: 4, academyStanding: 4 })
+  const negative = resolveDispatch({ ...assigned, cityStanding: -4, academyStanding: -4 })
+  const goodGrade = positive.reports.find((report) => report.caseId === target.id)!.grade
+  const badGrade = negative.reports.find((report) => report.caseId === target.id)!.grade
+  assert.ok(gradeRank[goodGrade] >= gradeRank[badGrade])
+  if (gradeRank[goodGrade] > gradeRank[badGrade]) goodwillChangedGrade = true
+}
+assert.ok(goodwillChangedGrade)
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
@@ -361,6 +452,8 @@ assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
 assert.ok(page.includes('data-testid="academy-signature-detail"'))
 assert.ok(page.includes('data-testid="academy-identity-preview"'))
 assert.ok(page.includes('data-testid="academy-map"'))
+assert.ok(page.includes('data-testid="academy-map-sites"'))
+assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(page.includes('data-testid="academy-crossover-roster"'))

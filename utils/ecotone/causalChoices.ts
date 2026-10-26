@@ -80,6 +80,66 @@ const futurePhotoAudit: Choice = {
   },
 }
 
+const dotAboardSafety: Choice = {
+  id: 'dot-bailout',
+  label: 'Ask Dot to direct a safety relay from inside the slug',
+  requiresFlag: 'dot_aboard',
+  cost: 'Give up your place in the race while Dot coordinates the crew and a rescue boat',
+  check: { skill: 'rizz', target: 9 },
+  success: {
+    text: 'Dot stays seated with her injured ankle and calls out a calm count. You repeat it to the Snerfmobile crew, who match your speed and pass over a spare float. The leak is contained, but the Rainbow Shrimp passes you. Dot writes down every volunteer who helped, then asks who will thank them after the race.',
+    effects: { goodwill: 2, nerve: -1, flag: 'slug_dot_safety_coordinated' },
+    leadLines: {
+      kit: 'Kit stops joking long enough to relay Dot’s signals exactly. “That was teamwork,” she says, “not a stunt.”',
+      cedar: 'Cedar marks the leaking seam for a proper repair on shore. “We do not race on borrowed flotation twice.”',
+      alone: 'You pass Dot’s instructions down the line. Nobody has to pretend you are the hero of a rescue that took six people.',
+    },
+  },
+  failure: {
+    text: 'Your shouted relay reaches the wrong boat. Dot orders everyone into life jackets before the slug rolls sideways and sinks in a slow yellow bow. The Snerfmobile circles back, its fake otters offering very real hands. Dot is carried ashore without putting weight on her ankle. The team loses the crossing and gains a rescue story nobody will stop telling.',
+    effects: {
+      goodwill: 1,
+      nerve: -1,
+      flags: ['slug_dot_bailout_delayed', 'slug_sank'],
+    },
+    leadLines: {
+      juniper: 'Juniper thanks the rescue crew before asking Dot how her ankle is. The race can wait.',
+      mara: 'Mara draws the soggy slug with six rescuers in the frame. She refuses to make the picture about one brave pilot.',
+      alone: 'You count every head twice on the rescue boat. The finish line is suddenly a very small thing.',
+    },
+  },
+}
+
+const dotShoreRelay: Choice = {
+  id: 'shore-relay',
+  label: 'Signal Dot on the chase bike to organize a safe landing',
+  requiresFlag: 'dot_chasing',
+  cost: 'Abandon the racing line for a slower ramp and wait for the shore marshal',
+  check: { skill: 'wits', target: 9 },
+  success: {
+    text: 'Dot spots your signal from the shore road and persuades a marshal to clear a public ramp. You steer away from the uncharted bell and bring the leaking slug in last, but upright. Dot meets you with a clipboard and a towel. The judges award no speed points; the crew votes to call it a finish.',
+    effects: { goodwill: 1, nerve: -1, flag: 'slug_shore_relay_confirmed' },
+    leadLines: {
+      cedar: 'Cedar writes down the marshal’s route so the next team can use it without guessing.',
+      kit: 'Kit bows to the crowd, then makes sure the volunteers get their own applause.',
+      alone: 'You let the marshal take the lead. A safe landing is not diminished by having help.',
+    },
+  },
+  failure: {
+    text: 'Your flag is hidden by the fog. Dot is still searching for a ramp when the slug settles into the water like a tired bathtub. The Snerfmobile pulls everyone clear, and the shore marshal closes the unsafe landing. Dot arrives on her chase bike furious, then counts the crew, sees everyone safe, and laughs until her injured ankle hurts.',
+    effects: {
+      goodwill: 1,
+      weird: 1,
+      flags: ['slug_shore_relay_missed', 'slug_sank'],
+    },
+    leadLines: {
+      mara: 'Mara sketches Dot arriving at the ramp after the rescue. “She still came,” she says.',
+      juniper: 'Juniper helps gather floating costume pieces while the marshal explains which ramps are safe.',
+      alone: 'Dot reaches you on the dock. You tell her the signal failed before she has to ask.',
+    },
+  },
+}
+
 /** Keep the four saved choice IDs stable while making the earned monitoring
  * negotiation depend on the evidence actually gathered at Elk Prairie.
  * This pure function is shared by the visible menu and the reducer.
@@ -89,6 +149,14 @@ export function contextualStoryChoices(
   flags: readonly string[],
 ): Choice[] {
   const choices = openingLensChoices(card)
+  if (card.id === 'KN-5') {
+    const earned = flags.includes('dot_aboard')
+      ? dotAboardSafety
+      : flags.includes('dot_chasing')
+        ? dotShoreRelay
+        : null
+    return earned ? [...choices, earned] : choices
+  }
   if (card.id !== 'QW-5') return choices
   const monitoring = flags.includes('elk_road_tracks_vanished')
     ? roadCorridorMonitoring

@@ -334,7 +334,7 @@ export const ACT_IV: Act = {
           },
           {
             id: 'follow-sister',
-            label: 'Trust the sister\'s escape route. Give up your bandage.',
+            label: "Trust the sister's escape route. Give up your bandage.",
             to: 'a4-well-slip',
             needs: 'sister-trust',
             hint: 'She has not learned to trust you with her brother.',

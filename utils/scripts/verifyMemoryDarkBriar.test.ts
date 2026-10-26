@@ -39,7 +39,10 @@ import {
 } from '../memoryDungeon/campaignPersistence'
 import {
   newMemoryCampaignProgress,
+  availableMemoryExperiences,
+  commitToMemoryFinale,
   completeMemoryExperience,
+  rememberMemoryWish,
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateDarkBriarSlice(), [])
@@ -323,6 +326,53 @@ assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
   'e01',
   'e02',
 ])
+// The finale is earned after any two middle pairs. Requiring e12 on restore
+// silently erased a valid commitment through the Hearth + Market route.
+let alternate = completed
+alternate = rememberMemoryWish(alternate, 'morrow-magic-attempt')
+alternate = completeMemoryExperience(alternate, 'e03')
+alternate = completeMemoryExperience(alternate, 'e04')
+alternate = rememberMemoryWish(alternate, 'scylla-home-wish')
+alternate = completeMemoryExperience(alternate, 'e05')
+alternate = rememberMemoryWish(alternate, 'char-possible-future')
+alternate = completeMemoryExperience(alternate, 'e06')
+for (const id of ['e07', 'e08', 'e09', 'e10'] as const) {
+  alternate = completeMemoryExperience(alternate, id)
+}
+assert.ok(availableMemoryExperiences(alternate).includes('e13'))
+alternate = commitToMemoryFinale(alternate)
+assert.deepEqual(
+  restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(alternate))),
+  alternate,
+  'Save during the committed finale must not require the unchosen Crossing pair',
+)
+alternate = completeMemoryExperience(alternate, 'e13')
+alternate = completeMemoryExperience(alternate, 'e14')
+const alternateReload = restoreMemoryCampaignProgress(
+  JSON.parse(JSON.stringify(alternate)),
+)
+assert.deepEqual(alternateReload, alternate)
+assert.equal(alternateReload.completed.includes('e12'), false)
+assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
+
+const forgedFuture = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e16', 'e03', 'e04', 'e13'],
+  rememberedAnchors: ['char-possible-future', 'morrow-magic-attempt'],
+  finaleCommitted: true,
+})
+assert.deepEqual(forgedFuture.completed, ['e01', 'e02', 'e03', 'e04'])
+assert.deepEqual(forgedFuture.rememberedAnchors, ['morrow-magic-attempt'])
+assert.equal(forgedFuture.finaleCommitted, false)
+assert.deepEqual(availableMemoryExperiences(forgedFuture), ['e05'])
+assert.deepEqual(
+  restoreMemoryCampaignProgress({
+    completed: ['e01', 'e02'],
+    rememberedAnchors: ['morrow-magic-attempt'],
+  }).rememberedAnchors,
+  ['morrow-magic-attempt'],
+  'An in-progress Morrow memory survives before e03 completion',
+)
+
 assert.equal(BRIAR_GATE, '8,4')
 assert.equal(BRIAR_START, '2,4')
 

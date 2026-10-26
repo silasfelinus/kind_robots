@@ -106,7 +106,7 @@ export function specSource(spec: PlaybookKitSpec): string {
   return `import type { PlaybookKitSpec } from '../types'
 
 // ${spec.title}: scaffolded by npm run playbook:new. Build it rung by rung in
-// the order /admin/playbook-kit shows; the kit test fails if it goes over budget.
+// the order the Forge Kit console shows; the kit test fails if it goes over budget.
 
 export const ${constName(spec.id)}: PlaybookKitSpec = ${toSource(spec)}
 `
@@ -146,7 +146,7 @@ export function pageSource(spec: PlaybookKitSpec): string {
           />
           <p class="pk-prose">{{ ${camelCase(spec.id)}.premise }}</p>
           <NuxtLink
-            :to="\`/admin/playbook-kit?game=\${${camelCase(spec.id)}.id}\`"
+            :to="\`/admin/playbook-forge?kit=\${${camelCase(spec.id)}.id}\`"
             class="btn btn-primary self-start rounded-2xl"
           >
             Open the budget and ladder
@@ -178,7 +178,7 @@ label: ${yaml(spec.title)}
 title: ${yaml(spec.title)}
 subtitle: ${yaml(spec.tagline)}
 description: ${yaml(spec.premise)}
-summary: ${yaml(`Development preview of the ${spec.title} playbook.`)}
+summary: ${yaml('A playbook in development.')}
 icon: ${icon}
 route: /admin/${spec.id}
 sort: ${sort}

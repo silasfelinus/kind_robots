@@ -178,6 +178,8 @@
       >
         {{ reactionMessage }}
       </div>
+
+      <support-card compact />
     </div>
   </section>
 </template>

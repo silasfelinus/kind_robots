@@ -8,12 +8,12 @@ subtitle: A comic voyage among civilizations, treaties and impossible odds
 summary: Command a ship. Make costly choices.
 description: 'A comedic science-fiction command adventure. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
 icon: kind-icon:compass
-image: /game-of-captains/bridge-stage.svg
+image: /game-of-captains/front/splash.webp
 route: /play/game-of-captains
 sort: 144
 tutorial:
   title: Take command
-  image: /game-of-captains/bridge-stage.svg
+  image: /game-of-captains/front/tutorial.webp
   body: >-
     Choose a captain and appoint three or four officers. Each captain has a
     command temperament, a useful specialty and a price to pay for it.

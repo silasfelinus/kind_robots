@@ -6,8 +6,8 @@ parentTabKey: retired
 label: Playbook Studio
 title: Playbook Studio
 subtitle: Every beat. Every branch. Every beautiful, strange possibility.
-description: The Story Atlas of every story game (Ecotone, Emperor of Dust, Shifting Lands, Shifting Desks and the Zuzu gamebook) and a focused scene editor. Edit beats and send them live, comment, flag or submit images and request art.
-summary: Edit story beats and their art.
+description: Playbook Studio now lives in the Playbook Forge. Load a game, then Beats, for every beat with the scene editor, live overlays, notes and art requests. This route forwards there.
+summary: Moved into the Playbook Forge.
 icon: kind-icon:git-branch
 route: /admin/playbook-manager
 sort: 76

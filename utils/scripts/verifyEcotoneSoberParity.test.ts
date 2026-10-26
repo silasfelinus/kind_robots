@@ -37,7 +37,11 @@ function soberJourney(event: (typeof EVENTS)[number]['id'], seed: number) {
     }
     const card = findCard(state.card)
     assert.ok(card, `${event}/${seed} offers only authored cards`)
-    const choices = openingLensChoices(card).filter((choice) => !choice.locked)
+    const choices = openingLensChoices(card).filter(
+      (choice) =>
+        !choice.locked &&
+        (!choice.requiresFlag || state.flags.includes(choice.requiresFlag)),
+    )
     assert.ok(choices.length > 0, `${card.id} keeps a playable decision`)
     const sober = choices.find((choice) => choice.lens === 'sober')
     const neutral = choices.filter((choice) => !choice.lens)

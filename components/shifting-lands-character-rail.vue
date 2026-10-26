@@ -184,9 +184,10 @@
               <p class="font-bold">{{ contact.name }}</p>
               <p class="mt-0.5 opacity-60">
                 {{
-                  contact.traveling
+                  contact.status ??
+                  (contact.traveling
                     ? 'Traveling companion'
-                    : 'Contact · not traveling'
+                    : 'Contact · not traveling')
                 }}
               </p>
             </div>

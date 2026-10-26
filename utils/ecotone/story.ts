@@ -339,6 +339,7 @@ export const BEATS: EncounterCard[] = [
           effects: {
             evidence: 'A glade where next year’s music plays',
             weird: 1,
+            flag: 'loop_glade_music',
           },
         },
         failure: {
@@ -352,7 +353,10 @@ export const BEATS: EncounterCard[] = [
         check: { skill: 'wits', target: 9 },
         success: {
           text: 'Every pass is eleven steps shorter than the last. At the end of the count there is a seam in the air, and through it the fair’s parking lot, deserted and thirty years older.',
-          effects: { evidence: 'A seam in the loop, eleven steps short' },
+          effects: {
+            evidence: 'A seam in the loop, eleven steps short',
+            flag: 'loop_seam_measured',
+          },
         },
         failure: {
           text: 'Your map is flawless. The trail it describes does not exist today. A lost hiker points to the same bend on yesterday’s printed map, where it does exist, with a picnic bench that was demolished years ago. You pin both maps to the notice board. The forest has defeated your directions, not your ability to show somebody else the problem.',
@@ -410,6 +414,9 @@ export const BEATS: EncounterCard[] = [
     flagLines: {
       loop_exit_marked: {
         all: 'A volunteer from the looping trail arrives with a roll of bright ribbon and asks whether your improvised exit markers should become a real safety plan. The story of your failed expedition has already recruited its first helpers.',
+      },
+      loop_glade_music: {
+        all: 'A sound technician from the fair wants to visit the glade where you heard next year’s music. She offers to bring witnesses and a recorder, but refuses to call a recording proof of tomorrow.',
       },
       loop_wrong_map_posted: {
         all: 'Two hikers compare the impossible maps you posted. Their trails disagree about where the creek runs, but both show the same ownership boundary. They ask to take copies before either map changes again.',
@@ -506,6 +513,68 @@ export const BEATS: EncounterCard[] = [
           },
         },
       },
+      {
+        id: 'seam-survey',
+        label: 'Offer the measured forest seam to both competing groups',
+        requiresFlag: 'loop_seam_measured',
+        cost: 'A joint survey delays both plans, and your measurements must be checked.',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'You show both tables the eleven missing steps. A retired surveyor asks to reproduce the count before anybody redraws a property line. The trail advocates agree to wait for the habitat survey; the restoration group agrees to keep the shortcut open while it is measured. Neither gets a victory speech tonight.',
+          effects: { goodwill: 1, flag: 'forest_joint_survey' },
+        },
+        failure: {
+          text: 'Your demonstration works once, then the loop closes in front of the witnesses. The surveyor refuses to certify a measurement nobody can repeat. Both groups keep their separate maps, but they agree to post a warning instead of selling your uncertain evidence as a solution.',
+          effects: { nerve: -1, flag: 'forest_survey_disputed' },
+        },
+      },
+      {
+        id: 'map-reconciliation',
+        label: 'Negotiate a resurvey of the two contradictory trail maps',
+        requiresFlag: 'loop_wrong_map_posted',
+        cost: 'The permit decision waits; volunteers must do more work before anyone wins.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'You lay the two wrong maps on the same table. A trail worker, a wildlife volunteer and the buyer each agree to pay for one day of independent mapping. The gate remains undecided. People who disagree about the forest now share responsibility for measuring it.',
+          effects: { goodwill: 1, flag: 'forest_resurvey_agreed' },
+        },
+        failure: {
+          text: 'The buyer will fund the map only if the public group drops its access claim. The volunteers refuse, and you refuse to call that a compromise. The maps stay posted with a clear warning; a safe crossing will have to wait for a less conditional offer.',
+          effects: { nerve: -1, flag: 'forest_resurvey_unfunded' },
+        },
+      },
+      {
+        id: 'glade-witnesses',
+        label:
+          'Invite independent listeners to document the glade before any land deal',
+        requiresFlag: 'loop_glade_music',
+        cost: 'Both groups pause their access claims for a witnessed night survey.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The technician brings two skeptical trail workers and a wildlife volunteer. They hear the impossible music together, then agree to publish what they actually recorded rather than claim to own its source. Both tables accept a temporary access schedule while the habitat team studies the glade. Nobody gets to sell tomorrow as a fact.',
+          effects: { goodwill: 1, flag: 'forest_glade_listening_committee' },
+        },
+        failure: {
+          text: 'The glade plays only ordinary wind for your witnesses. The buyer calls your story a distraction; the trail workers demand that the access vote proceed. You publish the empty recording beside your original account and secure one concession: nobody may advertise the strange music as evidence for either plan.',
+          effects: { nerve: -1, flag: 'forest_glade_witnesses_uncertain' },
+        },
+      },
+      {
+        id: 'marker-stewards',
+        label:
+          'Ask both groups to staff a safe trail corridor using your rescue markers',
+        requiresFlag: 'loop_exit_marked',
+        cost: 'The shortcut closes temporarily until trained volunteers can cover it.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The rescued volunteer brings the bright ribbons. Trail workers agree to mark a safe corridor, habitat advocates supply nesting-season detours, and the buyer pays for two weekends of steward training. The public keeps a path, not unrestricted access, and the people doing the work have names on the plan.',
+          effects: { goodwill: 1, flag: 'forest_safe_corridor' },
+        },
+        failure: {
+          text: 'The volunteers cannot staff even one weekend without abandoning the wildlife survey. You refuse to call an unmonitored path safe. The shortcut closes for now, with your ribbons marking the dangerous turn and a public date set to revisit staffing. People are angry; at least nobody has been promised a rescue crew that does not exist.',
+          effects: { nerve: -1, flag: 'forest_corridor_unstaffed' },
+        },
+      },
     ],
     provenance:
       'An invented fair’s closing night. The forest, the petition and the buyer are invented.',
@@ -593,6 +662,7 @@ export const BEATS: EncounterCard[] = [
           text: 'Through the binoculars a heron stands on one leg in exactly the spot it occupies in the photo on the interpretive sign. Exactly. You write that down.',
           effects: {
             evidence: 'A heron standing in the sign photo’s exact spot',
+            flag: 'bench_heron_photo_match',
           },
         },
         failure: {
@@ -697,6 +767,9 @@ export const BEATS: EncounterCard[] = [
     },
     aloneLine: 'Nobody here knows your name. The elk don’t need it.',
     flagLines: {
+      bench_heron_photo_match: {
+        all: 'Your notebook holds the heron observation from the marsh. The ranger asks what you saw yourself, rather than what the interpretive sign seemed to predict.',
+      },
       bench_tally_erased: {
         all: 'The meadow observation board has the same peculiar block handwriting as the marsh tally somebody erased behind your back. Your first impulse is to photograph it. The second is to ask who last touched the chalk.',
       },
@@ -736,11 +809,44 @@ export const BEATS: EncounterCard[] = [
           effects: {
             evidence: 'Elk tracks that stop in the middle of the road',
             weird: 1,
+            flag: 'elk_road_tracks_vanished',
           },
         },
         failure: {
           text: 'You follow the road too far and miss your ride back. The sandwich shop near the highway is closing; above the counter hangs a photograph of the meadow, dated next Thursday. The bull faces west. At the edge of the frame is your own coat. The owner says the photographer has not been in yet. You write down the date and begin the cold walk back, without the explanation you came for.',
           effects: { weird: 1, nerve: -1, flag: 'elk_future_photo' },
+        },
+      },
+      {
+        id: 'heron-ledger',
+        label:
+          'Compare the marsh heron record with the ranger’s elk observations',
+        requiresFlag: 'bench_heron_photo_match',
+        cost: 'Spend the afternoon documenting wildlife instead of watching the meadow.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The ranger helps you separate what you saw at the marsh from what the sign showed. You copy the elk times beside the heron date, mark both accounts as observations rather than predictions, and offer the crew a public template that never asks visitors to approach wildlife. You lose your quiet afternoon to careful paperwork. Two places now have records that can be checked without asking anyone to believe your theory.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_heron_joint_log' },
+        },
+        failure: {
+          text: 'Your notes cannot establish when the heron photograph was taken. The ranger will not sign a comparison that suggests more than either record proves. You spend the afternoon labeling the gaps and leave with an honest, incomplete sheet instead of a dramatic discovery. The herd has moved on by the time you return to the meadow.',
+          effects: { nerve: -2, flag: 'elk_heron_log_disputed' },
+        },
+      },
+      {
+        id: 'tally-witness',
+        label:
+          'Ask the ranger to preserve witness notes after the erased marsh tally',
+        requiresFlag: 'bench_tally_erased',
+        cost: 'Give up the quiet watch to recruit independent witnesses and a record keeper.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The ranger will not call the erased tally proof of anything, but she agrees to a witnessed observation sheet. Three visitors write down the westward turn without seeing one another’s answers. You spend the day collecting names and consent instead of chasing the herd. The result is small, credible and available for the next crew to question.',
+          effects: { goodwill: 1, nerve: -1, flag: 'elk_tally_witnesses' },
+        },
+        failure: {
+          text: 'The visitors remember different times, and one declines to sign. You refuse to turn their uncertainty into a unanimous report. The ranger keeps the separate accounts; you leave the meadow with a list of questions and no certified tally. At least the next observer will know what was not verified.',
+          effects: { nerve: -2, flag: 'elk_tally_unsigned' },
         },
       },
     ],
@@ -781,11 +887,26 @@ export const BEATS: EncounterCard[] = [
     aloneLine:
       'It is the quietest place you have ever been, and you came here on your own. You could stay.',
     flagLines: {
+      elk_heron_joint_log: {
+        all: 'The wildlife observation template you drafted is in the crew folder. Its first line says what people actually saw, not what tomorrow must bring.',
+      },
+      elk_heron_log_disputed: {
+        all: 'Your incomplete heron-and-elk comparison sits in your notebook. The gaps are still there, clearly marked, and nobody has been asked to call them proof.',
+      },
+      elk_tally_witnesses: {
+        all: 'The ranger’s witnessed elk times have reached the restoration volunteers. They are deciding what, if anything, the observations mean for their next field visit.',
+      },
+      elk_tally_unsigned: {
+        all: 'You kept the conflicting elk accounts instead of inventing agreement. The crew lead appreciates knowing which observations are still unverified.',
+      },
       elk_mitten_delivered: {
         all: 'A visitor-center receipt for the red mitten is in your pocket. You spent a day watching animals and one practical hour making sure a lost thing could find its person.',
       },
       elk_ranger_followup: {
         all: 'The ranger replies to the observation form: three independent visitors recorded the westward turn at the same minute. No one claims to know why. You finally have a date worth keeping.',
+      },
+      elk_road_tracks_vanished: {
+        all: 'Your record of the vanished tracks is dated and kept separate from your theory. The creek crew asks whether you can help survey the road without approaching the herd.',
       },
       elk_future_photo: {
         all: 'Your sandwich-shop receipt is dated today. The photograph you saw on the wall was dated next Thursday. You keep both facts instead of making one cancel the other.',
@@ -1189,7 +1310,15 @@ export const BEATS: EncounterCard[] = [
       juniper: 'Juniper trails a hand in the water and listens to it.',
     },
     aloneLine:
-      'Dot leans out of the hatch. “Is it supposed to do that?” Nobody on the crew knows. You are the closest thing to an expert aboard.',
+      'The crew looks to you for a decision. Nobody aboard knows whether the slug was built to make this noise.',
+    flagLines: {
+      dot_aboard: {
+        all: 'Dot is inside the cargo hold with her sprained ankle braced, checking the safety list and calling out the leak by its actual location.',
+      },
+      dot_chasing: {
+        all: 'Dot is on the shore road with the chase bike. Her bright flag appears between gaps in the fog; she cannot hear a shouted order from the bay.',
+      },
+    },
     choices: [
       {
         id: 'pedal',
@@ -1254,6 +1383,18 @@ export const BEATS: EncounterCard[] = [
     flagLines: {
       slug_sank: {
         all: 'Main Street has heard about the bay. When the slug rolls in, still sloshing, the crowd starts chanting “SUNK! SUNK! SUNK!” with enormous affection.',
+      },
+      slug_dot_safety_coordinated: {
+        all: 'Dot has a list of the volunteers who saved the crossing. She insists the finish-line announcer read every name before announcing your place.',
+      },
+      slug_dot_bailout_delayed: {
+        all: 'Dot carries the soggy safety checklist. The crew now knows why a shouted order needs someone assigned to repeat it.',
+      },
+      slug_shore_relay_confirmed: {
+        all: 'The shore marshal has posted Dot’s safer ramp route for the next sculpture. You lost a place and left something useful behind.',
+      },
+      slug_shore_relay_missed: {
+        all: 'Dot and the marshal compare the flags lost in the fog. Next year the team will have a backup signal, if the slug ever floats again.',
       },
     },
     lensLines: {
@@ -1353,7 +1494,7 @@ export const BEATS: EncounterCard[] = [
         'Juniper pats the dune like a large, patient animal. “It doesn’t mind,” she says. “Go on.”',
     },
     aloneLine:
-      'Dot shouts up from the bottom of the drop, frozen peas held aloft like a torch: “Don’t brake! Braking is how you die!”',
+      'A race marshal shouts up from the bottom of the drop: “Don’t brake! Braking is how you die!”',
     choices: [
       {
         id: 'ride',

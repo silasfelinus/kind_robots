@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import {
   TIERS,
   TIER_BUDGETS,
@@ -186,6 +186,11 @@ for (const tier of TIERS) {
   const tab = tabSource(spec, 'kind-icon:theater', 80)
   assert.match(tab, /^requiredRole: ADMIN$/m)
   assert.match(tab, /^label: "Moon Laundry: Bob's 'Night'"$/m)
+  const summary = tab.match(/^summary: "(.*)"$/m)?.[1] ?? ''
+  assert.ok(
+    summary && summary.length <= 40,
+    'nav summaries stay at 40 characters or fewer',
+  )
 }
 
 // Settings and saved progress.
@@ -257,6 +262,24 @@ assert.ok(
   !/localStorage|\$fetch/.test(shell),
   'components never touch storage or the API',
 )
+
+// One console design system: the forge and the kit share playbook-console.css,
+// imported from tailwind.css so Tailwind declares the layer order first. A
+// component chunk that declares @layer can load before tailwind.css and put
+// `components` ahead of `base`, letting the preflight reset beat every
+// component style on the page; no playbook component may do that.
+const tailwind = readFileSync(fromRoot('assets/css/tailwind.css'), 'utf8')
+assert.match(
+  tailwind,
+  /@import 'tailwindcss';\n@import '\.\/playbook-console\.css';/,
+)
+for (const dir of ['components/playbook-kit', 'components/playbook-forge'])
+  for (const file of readdirSync(fromRoot(dir)))
+    assert.ok(
+      !/@layer/.test(readFileSync(fromRoot(`${dir}/${file}`), 'utf8')),
+      `${dir}/${file} declares a CSS layer`,
+    )
+assert.match(shell, /class="pf-console pk-shell/)
 
 console.log(
   `Playbook Kit: ${KIT_PLAYBOOKS.length} playbook(s) within budget; scaffold, settings and saves verified.`,

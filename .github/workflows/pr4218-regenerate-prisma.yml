@@ -1,0 +1,32 @@
+name: PR 4218 Prisma regeneration
+on:
+  push:
+    branches:
+      - worker/kind-robots-t-148-playbook-reviews-k6fw
+permissions:
+  contents: write
+jobs:
+  regenerate:
+    if: ${{ !contains(github.event.head_commit.message, 'regenerate Prisma client after PR 4218 reconciliation') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+      DATABASE_URL: 'mysql://user:pass@127.0.0.1:3306/kindrobots'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run prisma:generate
+      - name: Commit regenerated Prisma client to PR branch
+        run: |
+          git add prisma/generated/prisma
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore: regenerate Prisma client after PR 4218 reconciliation'
+            git push origin HEAD:refs/heads/worker/kind-robots-t-148-playbook-reviews-k6fw
+          fi

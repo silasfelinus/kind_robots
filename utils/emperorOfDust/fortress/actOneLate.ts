@@ -2631,7 +2631,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         faction: 'gate-watch',
         lines: [
           'Noon. The whole Gate Watch stands in the parade yard below the balcony. Sixty, in dented gorgets and patched tabards. The young ones too straight. The old ones leaning on their spears. East, past the walls, a thin line of smoke stands up where Thistledown should be.',
-          'Captain Ferro Dunmark climbs to the balcony alone. Broad grey wolf, scarred muzzle, one torn ear. He salutes the way a door closes.',
+          'Captain Ferro Dunmark climbs to the balcony alone. Broad-shouldered, a scar across his cheek and one torn ear. He salutes the way a door closes.',
           'The Watch is ready to swear, Majesty. They want to know what you swear back.',
           'Soldiers will die for a crown. They would rather know it won’t spend them like brass.',
           {
@@ -2980,7 +2980,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             flags: ['crow-forecast-day10'],
             lines: [
-              'The rider from Thistledown is standing only because nobody has told her she can stop. A young stoat, soot in her fur, a broken pitchfork tine through her belt for a knife. Her pony stands foundered in the courtyard.',
+              'The rider from Thistledown is standing only because nobody has told her she can stop. Soot stripes her face. A broken pitchfork tine hangs from her belt for a knife. Her pony stands foundered in the courtyard.',
               '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. The crows gave us the storm’s hour and we got the harvest in. Now it’s all in one granary, and they know which one. They’ll be back at dusk.”',
               {
                 who: 'Young Komodo',
@@ -2992,7 +2992,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
         lines: [
-          'The rider from Thistledown is standing only because nobody has told her she can stop. A young stoat, soot in her fur, a broken pitchfork tine through her belt for a knife. Her pony stands foundered in the courtyard.',
+          'The rider from Thistledown is standing only because nobody has told her she can stop. Soot stripes her face. A broken pitchfork tine hangs from her belt for a knife. Her pony stands foundered in the courtyard.',
           '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. The storm took the fields at dawn. They came at noon for the granary. It’s what the Ford has left. They’ll be back at dusk for the rest.”',
           {
             who: 'Young Komodo',
@@ -3042,8 +3042,72 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             response:
               '“Pay them. With what? They’re already taking it.” She leads the pony out, the tine still in her belt. By the time she reaches the horizon the smoke is wider.',
           },
+          {
+            id: 'ask-coldbrook',
+            label:
+              'Ask whether she passed Wenna Coldbrook’s cart on the east road.',
+            requires: { flags: ['d08-coldbrooks-home'] },
+            effects: {},
+            response:
+              'She takes the broken pitchfork tine from her belt. “Green cart. Four children. I remember.”',
+            next: 'coldbrook-road',
+          },
         ],
         beats: [
+          {
+            id: 'coldbrook-road',
+            lines: [
+              '“Green cart. One wheel in the ditch. Wenna Coldbrook had four children under a tarpaulin and no horse strong enough to pull them clear. She told me to ride on. Thistledown was burning.”',
+              'The rider grips the pitchfork tine. “If you send your people east, they won’t stand at our granary. If you keep them here, that family sleeps beside the road.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Five lives in a ditch. Five hundred at the granary. Neither number can carry a spear. Make the order and own it.',
+              },
+            ],
+            options: [
+              {
+                id: 'escort-coldbrooks',
+                label:
+                  'Spend fifteen brass on a Yard wagon. Send two porters to bring Wenna and the children in.',
+                requires: { cost: 15 },
+                effects: {
+                  local: { yard: -2, 'gate-watch': -1 },
+                  affinity: { freeholds: 6 },
+                  flags: ['d10-coldbrooks-escorted'],
+                  schedule: ['d10-coldbrooks-return'],
+                },
+                response:
+                  'Dunmore gives up two kitchen porters without asking which family. The Thistledown rider watches the wagon go east. Her granary is west.',
+              },
+              {
+                id: 'warn-coldbrooks',
+                label:
+                  'Send a runner with the safest road marked. Keep the fighting hands for Thistledown.',
+                effects: {
+                  local: { 'gate-watch': 1 },
+                  affinity: { freeholds: -2 },
+                  flags: ['d10-coldbrooks-warned'],
+                  schedule: ['d10-coldbrooks-warning'],
+                },
+                response:
+                  'A runner leaves with a map. No wagon. No spare horse. The rider watches the road until he is out of sight.',
+              },
+              {
+                id: 'promise',
+                label:
+                  'Keep the riders for Thistledown. Promise every hand the board can field.',
+                effects: {
+                  affinity: { freeholds: 5 },
+                  local: { 'old-houses': -1 },
+                  flags: ['d10-thistledown-promised'],
+                  schedule: ['d10-promise'],
+                },
+                response:
+                  '“Every hand,” the rider says. She looks toward the east road once more, then goes down to the board to see who signs.',
+              },
+            ],
+          },
           {
             id: 'colors',
             lines: [
@@ -3104,6 +3168,51 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'The rider carries it east herself. At dusk the fiddler plays one long sour note from the lead wagon and turns her wagons round. Half the raiders go with her. Half do not. The posting stays up. Somebody still has to stand in the granary door.',
+              },
+              {
+                id: 'hill-guides',
+                label:
+                  'Ask the hill farmers you fed to guide Thistledown’s families through the gullies. The Yard loses two cooks.',
+                requires: { flags: ['d09-farmers-fed'] },
+                effects: {
+                  local: { yard: -2 },
+                  affinity: { freeholds: 6 },
+                  flags: ['d10-hill-guides'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label:
+                        'Hill farmers guiding families through the gullies',
+                      bonus: 2,
+                      stat: 'wits',
+                    },
+                  ],
+                  schedule: ['d10-hill-guides-return'],
+                },
+                response:
+                  'Dunmore sends two cooks with bread and lanterns. The hill farmers know which gullies the painted wagons cannot cross. The cooks leave their aprons on the kitchen hooks. Nobody can say when they will be back.',
+              },
+              {
+                id: 'iron-barricade',
+                label:
+                  'Ask the hill farmers to sacrifice the iron wagon you gave them. Pull Watch hands off the gate to block the raider road.',
+                requires: { flags: ['d09-wagon-left'] },
+                effects: {
+                  local: { 'gate-watch': -2 },
+                  affinity: { saltroad: -5, freeholds: 6 },
+                  flags: ['d10-iron-barricade'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'Salvaged iron blocking the painted wagons',
+                      bonus: 2,
+                      stat: 'might',
+                    },
+                  ],
+                  schedule: ['d10-iron-barricade-return'],
+                },
+                response:
+                  'The Watch takes chain and wedges east. Oriel Saltmarsh hears what you have ordered done with her missing wagon. She does not protest. She sends a driver to count every bar before the road is closed.',
               },
               {
                 id: 'promise',
@@ -3251,6 +3360,46 @@ export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
     hidden: true,
     when: { flags: ['d06-stablehand-stocks'] },
     line: 'With the Watch gone, someone tried the postern near midnight with a file. It held. It has been nailed shut since the stableboy’s day in the stocks.',
+  },
+  // The Day 8 seed cart is still on the east road. The Day 10 choice
+  // decides whether the crown diverts its workers or leaves the family to a map.
+  {
+    id: 'd10-coldbrooks-return',
+    title: 'Wenna’s wagon',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-coldbrooks-escorted'] },
+    line: 'The wagon comes through the gate before dawn. Wenna Coldbrook counts four children down from the bed, then counts the two porters. One limps. She puts her seed sack under his head. “We go home when the road clears,” she tells the Yard. Nobody argues.',
+    effects: { flags: ['d11-coldbrooks-safe'], local: { yard: 1 } },
+  },
+  {
+    id: 'd10-coldbrooks-warning',
+    title: 'The map at the ford',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-coldbrooks-warned'] },
+    line: 'The runner returns without his map. He nailed it to Wenna’s empty cart, wheel still in the ditch. Small footprints led toward the reeds. He cannot say whether the children reached cover.',
+    effects: { flags: ['d11-coldbrooks-unaccounted'] },
+  },
+  // Day 9's canyon bargains buy distinct, costly Day 10 options.
+  // The dawn reports record the people helped without declaring the raid won.
+  {
+    id: 'd10-hill-guides-return',
+    title: 'The gully guides',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-hill-guides'] },
+    line: 'Three hill farmers bring seven Thistledown families through the gullies before dawn. Dunmore’s two cooks come last, carrying a child between them. The granary may still be lost. Seven families are not.',
+    effects: { flags: ['d11-hill-guides-returned'] },
+  },
+  {
+    id: 'd10-iron-barricade-return',
+    title: 'The iron at the crossing',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d10-iron-barricade'] },
+    line: 'The salvaged iron wagon lies across the raider road, burned down to its axles. The painted wagons had to turn aside. Oriel’s driver returns with a list of every bar the crown spent. She will send the bill to the next market.',
+    effects: { flags: ['d11-iron-barricade-spent'] },
   },
   // t-035: “Never cheaply” is the oath the last emperor broke. Sworn with
   // people already on the lethal canyon road, the Watch holds you to it.

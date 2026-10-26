@@ -18,6 +18,7 @@ import {
   buildPlaybook,
   isPlaybookGame,
   sanitizePlaybookEdit,
+  isKitGame,
   type PlaybookGame,
 } from '../playbook/games'
 import { applyTextEditToNode } from '../playbook/textOverlay'
@@ -141,6 +142,7 @@ assert.equal(
 )
 
 // Every story game loads as a chain (conductor weird-humboldt t-036).
+const READ_ONLY_GAMES = new Set(['game-of-captains', 'comet-city-academy'])
 for (const { id } of PLAYBOOK_GAMES) {
   const book = buildPlaybook(id)
   assert.equal(book.game, id)
@@ -169,7 +171,13 @@ for (const { id } of PLAYBOOK_GAMES) {
   for (const section of book.sections)
     for (const key of section.keys)
       assert.ok(book.nodes[key], `${id}: section ${section.title} ${key}`)
-  assert.equal(book.editable, true, `${id} reads live overlays`)
+  // Warp and Prom do not read /api/playbook/<game>/live yet: read-only in Studio
+  // until their engines take the text overlay (conductor playbook-kit t-013).
+  if (READ_ONLY_GAMES.has(id) || isKitGame(id)) {
+    assert.equal(book.editable, false, `${id} is read-only in Studio`)
+    for (const node of Object.values(book.nodes))
+      assert.ok(!node.editable, `${id}: ${node.key} offers no edits`)
+  } else assert.equal(book.editable, true, `${id} reads live overlays`)
   if (id !== 'ecotone')
     for (const node of Object.values(book.nodes))
       if (node.editable)
@@ -462,7 +470,7 @@ assert.equal(ENCOUNTERS.length > 0, true)
 // overlay. Each editable beat resolves to the lookup its game plays through.
 type Overlay = { set(next: Record<string, unknown>): void }
 const LOOKUPS: Record<
-  Exclude<PlaybookGame, 'ecotone'>,
+  Exclude<PlaybookGame, 'ecotone' | 'game-of-captains' | 'comet-city-academy'>,
   { overlay: Overlay; read(key: string): unknown }
 > = {
   'shifting-lands': {

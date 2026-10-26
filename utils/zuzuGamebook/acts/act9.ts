@@ -581,7 +581,7 @@ export const ACT_IX: Act = {
               target: 9,
               success: 'a9-beside',
               failure: 'a9-behind',
-              bonus: { flag: 'sister-trust', amount: 2 },
+              bonus: { flag: 'sister-trust', amount: 2, unless: 'sister-wary' },
             },
           },
           {

@@ -129,6 +129,9 @@ jobs:
       - name: LoRA cfg ceiling contract
         run: npm run test:lora-cfg-ceiling
 
+      - name: Share and support prompt contract
+        run: npm run test:support-share
+
       - name: LoRA cfg ceiling enqueue-path wiring contract
         run: npm run test:lora-cfg-wiring
 
@@ -186,6 +189,9 @@ jobs:
 
       - name: Arcade reviews and private Lair contract
         run: npm run test:arcade-reviews
+
+      - name: Site stats normalization and privacy contract
+        run: npm run test:site-stats
 
       - name: Zuzu Pinball private 3D preview
         run: npm run test:zuzu-pinball
@@ -425,6 +431,9 @@ jobs:
 
       - name: Page backdrop contract
         run: npm run test:page-backdrop
+
+      - name: Share preview and sitemap contract
+        run: npm run test:share-preview
 
       - name: Art image caching contract
         run: npm run test:art-image-caching

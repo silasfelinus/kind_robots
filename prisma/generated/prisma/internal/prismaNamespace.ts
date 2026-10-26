@@ -403,6 +403,7 @@ export const ModelName = {
   AgentNote: 'AgentNote',
   ArcadeScore: 'ArcadeScore',
   ArcadeReview: 'ArcadeReview',
+  ArcadeGuestRating: 'ArcadeGuestRating',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
@@ -436,7 +437,6 @@ export const ModelName = {
   MusicVideo: 'MusicVideo',
   PlaybookEdit: 'PlaybookEdit',
   PlaybookNote: 'PlaybookNote',
-  PlaybookRunReview: 'PlaybookRunReview',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -525,6 +525,7 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
   TzaddikRecheckRequest: 'TzaddikRecheckRequest'
@@ -543,7 +544,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -940,6 +941,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ArcadeReviewCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ArcadeReviewCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArcadeGuestRating: {
+      payload: Prisma.$ArcadeGuestRatingPayload<ExtArgs>
+      fields: Prisma.ArcadeGuestRatingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArcadeGuestRatingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArcadeGuestRatingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        findFirst: {
+          args: Prisma.ArcadeGuestRatingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArcadeGuestRatingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        findMany: {
+          args: Prisma.ArcadeGuestRatingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>[]
+        }
+        create: {
+          args: Prisma.ArcadeGuestRatingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        createMany: {
+          args: Prisma.ArcadeGuestRatingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArcadeGuestRatingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        update: {
+          args: Prisma.ArcadeGuestRatingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArcadeGuestRatingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArcadeGuestRatingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArcadeGuestRatingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArcadeGuestRatingPayload>
+        }
+        aggregate: {
+          args: Prisma.ArcadeGuestRatingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArcadeGuestRating>
+        }
+        groupBy: {
+          args: Prisma.ArcadeGuestRatingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArcadeGuestRatingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArcadeGuestRatingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArcadeGuestRatingCountAggregateOutputType> | number
         }
       }
     }
@@ -3118,72 +3185,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PlaybookNoteCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PlaybookNoteCountAggregateOutputType> | number
-        }
-      }
-    }
-    PlaybookRunReview: {
-      payload: Prisma.$PlaybookRunReviewPayload<ExtArgs>
-      fields: Prisma.PlaybookRunReviewFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.PlaybookRunReviewFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.PlaybookRunReviewFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        findFirst: {
-          args: Prisma.PlaybookRunReviewFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.PlaybookRunReviewFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        findMany: {
-          args: Prisma.PlaybookRunReviewFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>[]
-        }
-        create: {
-          args: Prisma.PlaybookRunReviewCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        createMany: {
-          args: Prisma.PlaybookRunReviewCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.PlaybookRunReviewDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        update: {
-          args: Prisma.PlaybookRunReviewUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        deleteMany: {
-          args: Prisma.PlaybookRunReviewDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.PlaybookRunReviewUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.PlaybookRunReviewUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybookRunReviewPayload>
-        }
-        aggregate: {
-          args: Prisma.PlaybookRunReviewAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePlaybookRunReview>
-        }
-        groupBy: {
-          args: Prisma.PlaybookRunReviewGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PlaybookRunReviewGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.PlaybookRunReviewCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PlaybookRunReviewCountAggregateOutputType> | number
         }
       }
     }
@@ -8995,6 +8996,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SiteStatDaily: {
+      payload: Prisma.$SiteStatDailyPayload<ExtArgs>
+      fields: Prisma.SiteStatDailyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteStatDailyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteStatDailyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteStatDailyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteStatDailyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        findMany: {
+          args: Prisma.SiteStatDailyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>[]
+        }
+        create: {
+          args: Prisma.SiteStatDailyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        createMany: {
+          args: Prisma.SiteStatDailyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SiteStatDailyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        update: {
+          args: Prisma.SiteStatDailyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteStatDailyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteStatDailyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SiteStatDailyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteStatDailyPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteStatDailyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteStatDaily>
+        }
+        groupBy: {
+          args: Prisma.SiteStatDailyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteStatDailyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteStatDailyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteStatDailyCountAggregateOutputType> | number
+        }
+      }
+    }
     TzaddikCandidate: {
       payload: Prisma.$TzaddikCandidatePayload<ExtArgs>
       fields: Prisma.TzaddikCandidateFieldRefs
@@ -9310,6 +9377,20 @@ export const ArcadeReviewScalarFieldEnum = {
 } as const
 
 export type ArcadeReviewScalarFieldEnum = (typeof ArcadeReviewScalarFieldEnum)[keyof typeof ArcadeReviewScalarFieldEnum]
+
+
+export const ArcadeGuestRatingScalarFieldEnum = {
+  id: 'id',
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  rating: 'rating',
+  comment: 'comment',
+  commentHeld: 'commentHeld',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ArcadeGuestRatingScalarFieldEnum = (typeof ArcadeGuestRatingScalarFieldEnum)[keyof typeof ArcadeGuestRatingScalarFieldEnum]
 
 
 export const ArchiveEntryScalarFieldEnum = {
@@ -9904,21 +9985,6 @@ export const PlaybookNoteScalarFieldEnum = {
 } as const
 
 export type PlaybookNoteScalarFieldEnum = (typeof PlaybookNoteScalarFieldEnum)[keyof typeof PlaybookNoteScalarFieldEnum]
-
-
-export const PlaybookRunReviewScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  gameSlug: 'gameSlug',
-  runId: 'runId',
-  userId: 'userId',
-  endingKey: 'endingKey',
-  stars: 'stars',
-  comment: 'comment',
-  history: 'history'
-} as const
-
-export type PlaybookRunReviewScalarFieldEnum = (typeof PlaybookRunReviewScalarFieldEnum)[keyof typeof PlaybookRunReviewScalarFieldEnum]
 
 
 export const ProjectPageContentScalarFieldEnum = {
@@ -11717,6 +11783,18 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const SiteStatDailyScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  kind: 'kind',
+  key: 'key',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteStatDailyScalarFieldEnum = (typeof SiteStatDailyScalarFieldEnum)[keyof typeof SiteStatDailyScalarFieldEnum]
+
+
 export const TzaddikCandidateScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -11848,6 +11926,15 @@ export const ArcadeReviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArcadeReviewOrderByRelevanceFieldEnum = (typeof ArcadeReviewOrderByRelevanceFieldEnum)[keyof typeof ArcadeReviewOrderByRelevanceFieldEnum]
+
+
+export const ArcadeGuestRatingOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  comment: 'comment'
+} as const
+
+export type ArcadeGuestRatingOrderByRelevanceFieldEnum = (typeof ArcadeGuestRatingOrderByRelevanceFieldEnum)[keyof typeof ArcadeGuestRatingOrderByRelevanceFieldEnum]
 
 
 export const ArchiveEntryOrderByRelevanceFieldEnum = {
@@ -12220,17 +12307,6 @@ export const PlaybookNoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type PlaybookNoteOrderByRelevanceFieldEnum = (typeof PlaybookNoteOrderByRelevanceFieldEnum)[keyof typeof PlaybookNoteOrderByRelevanceFieldEnum]
-
-
-export const PlaybookRunReviewOrderByRelevanceFieldEnum = {
-  gameSlug: 'gameSlug',
-  runId: 'runId',
-  endingKey: 'endingKey',
-  comment: 'comment',
-  history: 'history'
-} as const
-
-export type PlaybookRunReviewOrderByRelevanceFieldEnum = (typeof PlaybookRunReviewOrderByRelevanceFieldEnum)[keyof typeof PlaybookRunReviewOrderByRelevanceFieldEnum]
 
 
 export const ProjectPageContentOrderByRelevanceFieldEnum = {
@@ -13174,6 +13250,14 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
 
 
+export const SiteStatDailyOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  key: 'key'
+} as const
+
+export type SiteStatDailyOrderByRelevanceFieldEnum = (typeof SiteStatDailyOrderByRelevanceFieldEnum)[keyof typeof SiteStatDailyOrderByRelevanceFieldEnum]
+
+
 export const TzaddikCandidateOrderByRelevanceFieldEnum = {
   displayName: 'displayName',
   slug: 'slug',
@@ -13957,6 +14041,7 @@ export type GlobalOmitConfig = {
   agentNote?: Prisma.AgentNoteOmit
   arcadeScore?: Prisma.ArcadeScoreOmit
   arcadeReview?: Prisma.ArcadeReviewOmit
+  arcadeGuestRating?: Prisma.ArcadeGuestRatingOmit
   archiveEntry?: Prisma.ArchiveEntryOmit
   archiveActionPreset?: Prisma.ArchiveActionPresetOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
@@ -13990,7 +14075,6 @@ export type GlobalOmitConfig = {
   musicVideo?: Prisma.MusicVideoOmit
   playbookEdit?: Prisma.PlaybookEditOmit
   playbookNote?: Prisma.PlaybookNoteOmit
-  playbookRunReview?: Prisma.PlaybookRunReviewOmit
   projectPageContent?: Prisma.ProjectPageContentOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
@@ -14079,6 +14163,7 @@ export type GlobalOmitConfig = {
   appRepo?: Prisma.AppRepoOmit
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
+  siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit
   tzaddikCandidateTag?: Prisma.TzaddikCandidateTagOmit
   tzaddikRecheckRequest?: Prisma.TzaddikRecheckRequestOmit

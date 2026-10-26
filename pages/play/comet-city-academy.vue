@@ -33,9 +33,15 @@
     <div class="cca-layout min-h-0 flex-1">
       <section class="cca-stage" aria-label="Illustrated academy scene">
         <img
-          src="/comet-city-academy/academy-stage.svg"
+          :src="stageScenery"
           alt="The towers of Comet City Academy beneath a glowing comet and a purple sunset"
           class="cca-scenery"
+        />
+        <img
+          v-if="villainPortrait"
+          :src="villainPortrait"
+          alt="The mastermind behind the Prom of Doom"
+          class="cca-villain-inset"
         />
         <div class="cca-stage-grain" aria-hidden="true" />
         <div class="cca-stage-content">
@@ -51,7 +57,12 @@
           </template>
           <template v-else>
             <p class="cca-chapter">
-              CHAPTER {{ run.day.toString().padStart(2, '0') }} / THE FIRST WEEK
+              CHAPTER {{ run.day.toString().padStart(2, '0') }} /
+              {{
+                run.flowVersion === 3
+                  ? 'THE LAST THIRTY DAYS'
+                  : 'THE FIRST WEEK'
+              }}
             </p>
             <h2 class="cca-scene-title">{{ sceneTitle }}</h2>
             <p class="cca-scene-copy">{{ stageCopy }}</p>
@@ -73,7 +84,11 @@
             class="cca-day-lights"
             aria-label="Seven day countdown"
           >
-            <span v-for="n in 7" :key="n" :class="{ filled: n <= run.day }" />
+            <span
+              v-for="n in run.flowVersion === 3 ? 30 : 7"
+              :key="n"
+              :class="{ filled: n <= run.day }"
+            />
           </div>
           <span class="cca-serial">C.C.A. // 07</span>
         </div>
@@ -85,84 +100,121 @@
             <div class="cca-heading">
               <span>01</span>
               <div>
-                <h2>Shape your power</h2>
-                <p>How it moves, what it controls, and the vow you make.</p>
+                <h2>Who are you becoming?</h2>
+                <p>
+                  Where your power came from, what it answers to, and the three
+                  people you could grow into.
+                </p>
               </div>
             </div>
-            <p class="cca-selection-label">STEP 1 · FORM / HOW IT WORKS</p>
-            <div class="cca-power-grid">
+            <p class="cca-selection-label">
+              STEP 1 · ORIGIN / WHERE IT CAME FROM
+            </p>
+            <div class="cca-power-grid" data-testid="academy-origin-picker">
               <button
-                v-for="form in POWER_FORMS"
-                :key="form.id"
+                v-for="origin in POWER_ORIGINS"
+                :key="origin.id"
                 type="button"
-                class="cca-power cca-power-compact"
-                :class="{ chosen: selectedForm === form.id }"
-                :aria-pressed="selectedForm === form.id"
-                @click="selectedForm = form.id"
+                class="cca-power cca-pick"
+                :class="{ chosen: selectedOrigin === origin.id }"
+                :aria-pressed="selectedOrigin === origin.id"
+                @click="selectedOrigin = origin.id"
               >
-                <strong>{{ form.name }}</strong>
-                <small>{{ form.mechanic }}</small>
+                <span class="cca-pick-glyph" aria-hidden="true">{{
+                  origin.glyph
+                }}</span>
+                <strong>{{ origin.name }}</strong>
+                <small>{{ origin.source }}</small>
               </button>
             </div>
             <p class="cca-selection-label">
-              STEP 2 · AFFINITY / WHAT IT CONTROLS
+              STEP 2 · AFFINITY / WHAT IT ANSWERS TO
             </p>
-            <div class="cca-power-grid cca-affinity-grid">
+            <div
+              class="cca-power-grid cca-affinity-grid"
+              data-testid="academy-affinity-picker"
+            >
               <button
                 v-for="affinity in POWER_AFFINITIES"
                 :key="affinity.id"
                 type="button"
-                class="cca-power cca-power-compact"
-                :class="{ chosen: selectedElement === affinity.id }"
-                :aria-pressed="selectedElement === affinity.id"
-                @click="selectedElement = affinity.id"
+                class="cca-power cca-pick cca-pick-small"
+                :class="{ chosen: selectedAffinity === affinity.id }"
+                :aria-pressed="selectedAffinity === affinity.id"
+                :title="affinity.theme"
+                @click="selectedAffinity = affinity.id"
               >
+                <span class="cca-pick-glyph" aria-hidden="true">{{
+                  affinity.glyph
+                }}</span>
                 <strong>{{ affinity.name }}</strong>
               </button>
             </div>
-            <div
-              class="cca-power-detail"
-              data-testid="academy-signature-detail"
-            >
-              <strong>{{ currentSignature.name }}</strong>
-              <p>{{ currentSignature.training }}</p>
-              <small>Limit: {{ currentSignature.cost }}</small>
-              <p class="cca-signature-tradeoff">
-                {{ currentSignature.special_route.trigger }}
+            <article class="cca-dossier" data-testid="academy-signature-detail">
+              <header class="cca-dossier-head">
+                <span class="cca-dossier-crest" aria-hidden="true"
+                  >{{ activeOrigin.glyph }}{{ activeAffinity.glyph }}</span
+                >
+                <div>
+                  <small
+                    >{{ activeOrigin.name.toUpperCase() }} ×
+                    {{ activeAffinity.name.toUpperCase() }}</small
+                  >
+                  <h3>{{ currentIdentity.realName }}</h3>
+                  <small>{{ currentIdentity.pronouns }}</small>
+                </div>
+              </header>
+              <p class="cca-dossier-story">{{ currentIdentity.backstory }}</p>
+              <p class="cca-dossier-power">
+                <strong>{{ currentSignature.name }}</strong> —
+                {{ currentSignature.action }}.
+                <span>Cost: {{ currentSignature.cost }}.</span>
               </p>
-            </div>
+              <div class="cca-persona-row" data-testid="academy-persona-triad">
+                <section
+                  v-for="card in personaCards"
+                  :key="card.key"
+                  class="cca-persona"
+                  :class="'cca-persona-' + card.key"
+                >
+                  <small>{{ card.label }}</small>
+                  <strong>{{ card.persona.alias }}</strong>
+                  <span class="cca-focus">{{ card.persona.focus }}</span>
+                  <ul class="cca-stats" :aria-label="card.label + ' stats'">
+                    <li
+                      v-for="stat in STATS"
+                      :key="stat.id"
+                      :aria-label="
+                        stat.name + ' ' + card.persona.stats[stat.id] + ' of 5'
+                      "
+                    >
+                      <span>{{ stat.name }}</span>
+                      <i
+                        v-for="n in 5"
+                        :key="n"
+                        :class="{ on: n <= card.persona.stats[stat.id] }"
+                      />
+                    </li>
+                  </ul>
+                  <p>{{ card.text }}</p>
+                </section>
+              </div>
+              <p class="cca-dossier-field">
+                You enroll as {{ currentIdentity.student.alias }}. Strongest
+                stat: {{ studentStrength.name }}, so every night call that needs
+                {{ studentStrength.name }} gets a boost from you.
+              </p>
+            </article>
             <details
               class="cca-identity-preview"
               data-testid="academy-identity-preview"
             >
               <summary>
-                <strong
-                  >{{ currentIdentity.realName }} ·
-                  {{ currentIdentity.student.alias }}</strong
-                >
+                <strong>Explore {{ currentIdentity.realName }}'s story</strong>
                 <small>
-                  HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
-                  {{ currentIdentity.villain.alias }}
+                  {{ activeOrigin.complication }} · {{ activeAffinity.risk }}
                 </small>
               </summary>
-              <p class="cca-identity-caveat">{{ currentIdentity.backstory }}</p>
-              <div class="cca-identity-triad">
-                <div>
-                  <small>STUDENT / SIDEKICK</small>
-                  <strong>{{ currentIdentity.student.alias }}</strong>
-                  <p>{{ currentIdentity.student.conflict }}</p>
-                </div>
-                <div>
-                  <small>HERO</small>
-                  <strong>{{ currentIdentity.hero.alias }}</strong>
-                  <p>{{ currentIdentity.hero.method }}</p>
-                </div>
-                <div>
-                  <small>VILLAIN</small>
-                  <strong>{{ currentIdentity.villain.alias }}</strong>
-                  <p>{{ currentIdentity.villain.method }}</p>
-                </div>
-              </div>
               <p class="cca-selection-label">
                 EXPLORE THIS PERSON'S POSSIBLE STORY
               </p>
@@ -259,7 +311,7 @@
             <p class="cca-vow-detail">{{ activeVow.promise }}</p>
             <details class="cca-future-preview">
               <summary>A possible Prom of Doom consequence</summary>
-              <p>{{ currentSignature.finales[selectedVow] }}</p>
+              <p>{{ currentFinale }}</p>
             </details>
             <button
               class="cca-primary"
@@ -267,19 +319,34 @@
               data-testid="academy-begin"
               @click="
                 store.begin(
-                  currentSignature.legacy,
+                  studentStrength.field,
                   currentSignature.id,
                   selectedVow,
                 )
               "
             >
-              ENTER WITH {{ currentSignature.name.toUpperCase() }}
+              ENROLL AS {{ currentIdentity.student.alias.toUpperCase() }}
               <span>➜</span>
             </button>
             <p class="cca-under">
-              48 signature powers · The first-week training is playable. The
-              real thirty-day Prom of Doom is in development.
+              6 origins × 8 affinities · 48 people, each with a student, hero
+              and villain future. The first week and an early thirty-day
+              campaign are both playable.
             </p>
+            <button
+              class="cca-choice"
+              type="button"
+              data-testid="academy-first-week"
+              @click="
+                store.beginFirstWeek(
+                  studentStrength.field,
+                  currentSignature.id,
+                  selectedVow,
+                )
+              "
+            >
+              <span>Play the original seven-day simulation</span>
+            </button>
           </template>
 
           <template v-else-if="run.phase === 'map'">
@@ -290,7 +357,155 @@
                 <p>One story per day. The places you skip may matter later.</p>
               </div>
             </div>
-            <div class="cca-map-tabs" aria-label="Map view">
+            <p v-if="run.flowVersion === 3" class="cca-under">
+              DAY {{ run.day }} / 30 · CASE FILE:
+              {{ run.day < 15 ? 'UNKNOWN MASTERMIND' : mastermind?.name }}
+              <span
+                v-if="run.day >= 15 && opponent"
+                data-testid="academy-villain-identity"
+              >
+                · ANTAGONIST {{ opponent.villain.alias }} ({{
+                  opponent.realName
+                }})
+              </span>
+            </p>
+            <div
+              v-if="run.playerEvolution"
+              class="cca-report-mini"
+              data-testid="academy-evolution-dossier"
+            >
+              <strong
+                >MY IDENTITY:
+                {{ currentPlayer?.[currentForm]?.alias ?? 'STUDENT' }} ·
+                {{ currentForm.toUpperCase() }}</strong
+              >
+              <span
+                >PROTECT {{ run.playerEvolution.protect }} · EXPLOIT
+                {{ run.playerEvolution.exploit }} · TWO CHOICES EARN A
+                MANTLE</span
+              >
+              <span v-if="run.day < 16">First public reckoning: day 16</span>
+              <span v-else-if="run.day < 23"
+                >Next chance to choose or change: day 23</span
+              >
+            </div>
+            <p
+              v-if="run.flowVersion === 3 && run.day >= 8"
+              class="cca-under"
+              data-testid="academy-plot-status"
+            >
+              {{ run.plotEvidence?.length ?? 0 }} / 3 accomplice operations
+              exposed ·
+              {{
+                run.betrayal
+                  ? 'BETRAYAL: ' + run.betrayal.status.toUpperCase()
+                  : 'TRUST REPORT: OPEN'
+              }}
+            </p>
+            <div
+              v-if="run.flowVersion === 3 && injuredStudents.length"
+              class="cca-report-mini"
+              aria-label="Infirmary roster"
+            >
+              <strong>INFIRMARY: USE YOUR DAY ACTION TO RECOVER</strong>
+              <button
+                v-for="student in injuredStudents"
+                :key="student.id"
+                type="button"
+                class="cca-choice"
+                @click="store.heal(student.id)"
+              >
+                Treat {{ student.name }} before night patrol ↗
+              </button>
+            </div>
+            <button
+              v-if="socialDayAvailable"
+              class="cca-choice"
+              type="button"
+              data-testid="academy-social-switch"
+              @click="showRelationships = !showRelationships"
+            >
+              <span>{{
+                showRelationships
+                  ? 'RETURN TO THE CITY MAP'
+                  : 'SPEND DAYLIGHT WITH A CLASSMATE'
+              }}</span>
+              <span>↗</span>
+            </button>
+            <div
+              v-if="socialPanelActive && run.relationships"
+              class="cca-report-mini"
+              data-testid="academy-social-panel"
+            >
+              <strong>RELATIONSHIPS / ONE DAYTIME ACTION</strong>
+              <span
+                >Making a promise here replaces exploring a city location today.
+                Every classmate can decline, change terms or leave.</span
+              >
+              <div class="cca-map-tabs" aria-label="Choose classmate">
+                <button
+                  v-for="person in STUDENTS"
+                  :key="person.id"
+                  type="button"
+                  :class="{ chosen: selectedSocialId === person.id }"
+                  :aria-pressed="selectedSocialId === person.id"
+                  @click="selectedSocialId = person.id"
+                >
+                  {{ person.name }}
+                </button>
+              </div>
+              <strong>{{ selectedSocialProfile?.dilemma }}</strong>
+              <span v-if="run.relationships.connections[selectedSocialId]">
+                TRUST
+                {{
+                  run.relationships.connections[selectedSocialId]?.trust ?? 0
+                }}
+                ·
+                {{
+                  run.relationships.partner === selectedSocialId
+                    ? 'FIELD PARTNER · '
+                    : ''
+                }}
+                {{
+                  run.relationships.sidekick === selectedSocialId
+                    ? 'SIDEKICK · '
+                    : ''
+                }}
+                {{
+                  run.relationships.romance === selectedSocialId
+                    ? 'ROMANCE · '
+                    : ''
+                }}
+                {{
+                  run.relationships.connections[selectedSocialId]
+                    ?.courtingDay !== undefined &&
+                  run.relationships.romance !== selectedSocialId
+                    ? 'EXPLORING RELATIONSHIP · '
+                    : ''
+                }}
+              </span>
+              <span>{{ selectedSocialProfile?.boundary }}</span>
+              <button
+                v-for="choice in socialActionOptions"
+                :key="choice.id"
+                class="cca-choice"
+                type="button"
+                data-testid="academy-social-choice"
+                @click="store.social(selectedSocialId, choice.id)"
+              >
+                <span>{{ choice.label }}</span
+                ><span>↗</span>
+              </button>
+              <span v-if="!socialActionOptions.length"
+                >This classmate cannot spend time together today. A serious
+                injury or betrayal may have changed the roster.</span
+              >
+            </div>
+            <div
+              v-if="!socialPanelActive"
+              class="cca-map-tabs"
+              aria-label="Map view"
+            >
               <button
                 type="button"
                 :aria-pressed="mapView === 'campus'"
@@ -309,6 +524,7 @@
               </button>
             </div>
             <div
+              v-if="!socialPanelActive"
               class="cca-map"
               data-testid="academy-map"
               :aria-label="
@@ -340,13 +556,11 @@
                 :key="site.id"
                 type="button"
                 class="cca-map-pin"
-                :class="[
-                  site.district,
-                  { explored: run.visitedSites?.includes(site.id) },
-                ]"
+                :class="[site.district, { explored: !canVisitSite(site.id) }]"
                 :style="{ left: site.left + '%', top: site.top + '%' }"
-                :disabled="run.visitedSites?.includes(site.id)"
+                :disabled="!canVisitSite(site.id)"
                 :title="site.name"
+                :aria-label="site.name + ': ' + site.teaser"
                 @click="store.visit(site.id)"
               >
                 <span class="cca-map-dot" aria-hidden="true">{{
@@ -358,8 +572,31 @@
             </div>
             <p class="cca-map-legend">
               ✦ Academy &nbsp; ◆ City &nbsp; · &nbsp;
-              {{ run.visitedSites?.length ?? 0 }} of 7 first-week leads followed
+              {{ run.visitedSites?.length ?? 0 }} unique landmarks explored
+              <span class="cca-map-trust">
+                ACADEMY {{ run.academyStanding ?? 0 }} · CITY
+                {{ run.cityStanding ?? 0 }}
+              </span>
             </p>
+            <div
+              class="cca-map-sites"
+              data-testid="academy-map-sites"
+              aria-label="Available neighborhood story choices"
+            >
+              <button
+                v-for="site in mapNodes"
+                :key="'choice-' + site.id"
+                type="button"
+                class="cca-map-site-choice"
+                :disabled="!canVisitSite(site.id)"
+                @click="store.visit(site.id)"
+              >
+                <strong>{{ site.name }}</strong>
+                <small>{{
+                  !canVisitSite(site.id) ? 'RETURN NEXT WEEK' : site.teaser
+                }}</small>
+              </button>
+            </div>
           </template>
 
           <template v-else-if="run.phase === 'dispatch'">
@@ -384,7 +621,10 @@
             >
               <div class="cca-incident-name">
                 <strong>{{ incident.title }}</strong
-                ><span>RISK {{ incident.risk }} / 06</span>
+                ><span
+                  >NEEDS {{ statForField(incident.need).toUpperCase() }} · RISK
+                  {{ incident.risk }} / 06</span
+                >
               </div>
               <div class="cca-incident-location">
                 {{ incident.site }} ·
@@ -412,10 +652,13 @@
                   class="cca-roster-button"
                   :class="{
                     active: isSelected(incident.id, student.id),
-                    unavailable: isAssignedElsewhere(incident.id, student.id),
+                    unavailable:
+                      isAssignedElsewhere(incident.id, student.id) ||
+                      !store.available(student.id),
                   }"
                   :disabled="
                     isAssignedElsewhere(incident.id, student.id) ||
+                    !store.available(student.id) ||
                     (!isSelected(incident.id, student.id) &&
                       teamFor(incident.id).length >= 3)
                   "
@@ -423,7 +666,14 @@
                   :title="student.note"
                   @click="toggleStudent(incident.id, student.id)"
                 >
-                  <span class="cca-avatar">{{ student.portrait }}</span>
+                  <span class="cca-avatar"
+                    ><img
+                      v-if="studentPortrait(student.id)"
+                      :src="studentPortrait(student.id)!"
+                      alt=""
+                      class="cca-avatar-img"
+                    /><template v-else>{{ student.portrait }}</template></span
+                  >
                   <span class="cca-roster-name">{{
                     student.name.split(' ')[0]
                   }}</span>
@@ -467,6 +717,14 @@
                 </p>
               </div>
             </div>
+            <p
+              v-if="run.playerEvolution && (run.day === 16 || run.day === 23)"
+              class="cca-under"
+              data-testid="academy-identity-choice"
+            >
+              PUBLIC IDENTITY RECKONING · YOUR PRIOR CHOICES UNLOCK AVAILABLE
+              MANTLES
+            </p>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
             <div v-if="run.flowVersion !== 2" class="cca-report-mini">
               <strong>AFTER-ACTION REPORT</strong>
@@ -520,8 +778,10 @@
               @click="store.next()"
             >
               {{
-                run.day === 7
-                  ? 'FACE THE PROM-NIGHT SIMULATION'
+                (run.flowVersion === 3 ? run.day === 29 : run.day === 7)
+                  ? run.flowVersion === 3
+                    ? 'ENTER THE REAL PROM OF DOOM'
+                    : 'FACE THE PROM-NIGHT SIMULATION'
                   : 'ADVANCE TO NEXT DAY'
               }}
               <span>➜</span>
@@ -532,15 +792,30 @@
             <div class="cca-heading">
               <span>05</span>
               <div>
-                <h2>Prom-Night Simulation</h2>
-                <p>The final rehearsal shows how prom could end very badly.</p>
+                <h2>
+                  {{
+                    run.flowVersion === 3
+                      ? 'PROM OF DOOM: THE FOURTH DANCE'
+                      : 'Prom-Night Simulation'
+                  }}
+                </h2>
+                <p>
+                  {{
+                    run.flowVersion === 3
+                      ? 'The catastrophe is real.'
+                      : 'The final rehearsal shows how prom could end very badly.'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">
-              Your first-week final is a simulated prom-night catastrophe. The
-              real graduation is still weeks away. Your classmates are waiting
-              for orders. You can protect them, or seize the machine behind the
-              whole spectacle.
+              <template v-if="run.flowVersion === 3">{{ run.scene }}</template>
+              <template v-else
+                >Your first-week final is a simulated prom-night catastrophe.
+                The real graduation is still weeks away. Your classmates are
+                waiting for orders. You can protect them, or seize the machine
+                behind the whole spectacle.</template
+              >
             </p>
             <div class="cca-final-stats">
               <span
@@ -554,14 +829,40 @@
               class="cca-choice"
               @click="store.end('protect')"
             >
-              <span>Save the classmates, even if the school expels you</span> ↗
+              <span>{{
+                run.flowVersion === 3
+                  ? 'Evacuate the guests immediately'
+                  : 'Save the classmates, even if the school expels you'
+              }}</span>
+              ↗
             </button>
             <button
               type="button"
               class="cca-choice"
               @click="store.end('command')"
             >
-              <span>Take the catastrophe engine for yourself</span> ↗
+              <span>{{
+                run.flowVersion === 3
+                  ? 'Seize the shield console'
+                  : 'Take the catastrophe engine for yourself'
+              }}</span>
+              ↗
+            </button>
+            <button
+              v-if="run.flowVersion === 3"
+              type="button"
+              class="cca-choice"
+              @click="store.end('share')"
+            >
+              <span>Give every neighborhood a shield key</span> ↗
+            </button>
+            <button
+              v-if="run.flowVersion === 3"
+              type="button"
+              class="cca-choice"
+              @click="store.end('evacuate')"
+            >
+              <span>Destroy the transmitter and carry out the injured</span> ↗
             </button>
           </template>
 
@@ -570,7 +871,13 @@
               <span>✦</span>
               <div>
                 <h2>{{ run.ending }}</h2>
-                <p>YOUR FIRST-WEEK YEARBOOK</p>
+                <p>
+                  {{
+                    run.flowVersion === 3
+                      ? 'THIRTY-DAY GRADUATION CHRONICLE'
+                      : 'YOUR FIRST-WEEK YEARBOOK'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">{{ run.scene }}</p>
@@ -600,7 +907,13 @@
 </template>
 
 <script setup lang="ts">
+import {
+  SOCIAL_CAST,
+  SOCIAL_DAYS,
+  socialChoices,
+} from '~/utils/cometAcademy/relationships'
 import { computed, onMounted, ref } from 'vue'
+import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import {
   identityFor,
@@ -611,10 +924,17 @@ import {
 } from '~/utils/cometAcademy/identityArcs'
 import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import { promArt } from '~/utils/cometAcademy/artManifest'
+import {
+  academyStageArt,
+  academyVillainArt,
+  studentArtKey,
+} from '~/utils/cometAcademy/artSlots'
 import {
   projectCitySites,
   projectedCityRoads,
   type CityView,
+  type SiteId,
 } from '~/utils/cometAcademy/cityMap'
 import {
   STUDENTS,
@@ -622,19 +942,25 @@ import {
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
-  POWER_FORMS,
+  POWER_ORIGINS,
   POWER_AFFINITIES,
   POWER_VOWS,
+  STATS,
+  finaleFor,
   signatureFor,
-  type PowerFormId,
+  strongestStat,
+  type LegacyPowerId,
+  type PowerOriginId,
   type PowerAffinityId,
   type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
-const selectedForm = ref<PowerFormId>('impact')
-const selectedElement = ref<PowerAffinityId>('fire')
+const selectedOrigin = ref<PowerOriginId>('accident')
+const selectedAffinity = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
+const showRelationships = ref(false)
+const selectedSocialId = ref<StudentId>('mina')
 const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
@@ -645,10 +971,118 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
+const socialDayAvailable = computed(() => {
+  const current = run.value
+  return (
+    current?.flowVersion === 3 && SOCIAL_DAYS.some((day) => day === current.day)
+  )
+})
+const socialPanelActive = computed(() =>
+  Boolean(showRelationships.value && socialDayAvailable.value),
+)
+const selectedSocialProfile = computed(() =>
+  SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
+)
+const socialActionOptions = computed(() =>
+  run.value?.relationships
+    ? socialChoices(
+        run.value.relationships,
+        selectedSocialId.value,
+        run.value.day,
+        {
+          unavailable: !store.available(selectedSocialId.value),
+          form: run.value.playerEvolution?.form,
+          danger: run.value.danger,
+        },
+      )
+    : [],
+)
+
+const stageScenery = computed(
+  () => academyStageArt(run.value) ?? '/comet-city-academy/academy-stage.svg',
+)
+const villainPortrait = computed(() => academyVillainArt(run.value))
+/** A student's portrait once its render ships; initials stand in until then. */
+const studentPortrait = (id: string) => promArt(studentArtKey(id))
+const mastermind = computed(() =>
+  run.value?.flowVersion === 3
+    ? campaignVillain(run.value.seed, run.value.mastermind)
+    : null,
+)
+const currentPlayer = computed(() =>
+  run.value?.signature ? identityFor(run.value.signature) : null,
+)
+const currentForm = computed(
+  () => run.value?.playerEvolution?.form ?? 'student',
+)
+const opponent = computed(() =>
+  run.value?.opponentSignature
+    ? identityFor(run.value.opponentSignature)
+    : null,
+)
+const injuredStudents = computed(() =>
+  run.value?.flowVersion === 3
+    ? STUDENTS.filter(
+        (s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0),
+      )
+    : [],
+)
+function canVisitSite(id: SiteId) {
+  if (!run.value) return false
+  if (run.value.flowVersion === 3)
+    return (run.value.visitedDays?.[id] ?? -7) <= run.value.day - 7
+  return !run.value.visitedSites?.includes(id)
+}
 const currentSignature = computed(() =>
-  signatureFor(selectedForm.value, selectedElement.value),
+  signatureFor(selectedOrigin.value, selectedAffinity.value),
 )
 const currentIdentity = computed(() => identityFor(currentSignature.value.id))
+const activeOrigin = computed(() =>
+  POWER_ORIGINS.find((origin) => origin.id === selectedOrigin.value)!,
+)
+const activeAffinity = computed(() =>
+  POWER_AFFINITIES.find((affinity) => affinity.id === selectedAffinity.value)!,
+)
+const personaCards = computed(() => {
+  const identity = currentIdentity.value
+  return [
+    {
+      key: 'student',
+      label: 'STUDENT / SIDEKICK',
+      persona: identity.student,
+      text: identity.student.conflict,
+    },
+    {
+      key: 'hero',
+      label: 'HERO',
+      persona: identity.hero,
+      text: identity.hero.method,
+    },
+    {
+      key: 'villain',
+      label: 'VILLAIN',
+      persona: identity.villain,
+      text: identity.villain.method,
+    },
+  ]
+})
+const studentStrength = computed(() =>
+  STATS.find(
+    (stat) => stat.id === strongestStat(currentIdentity.value.student.stats),
+  )!,
+)
+const currentFinale = computed(() =>
+  finaleFor(
+    currentSignature.value,
+    currentIdentity.value.realName,
+    currentIdentity.value.villain.alias,
+    selectedVow.value,
+  ),
+)
+
+function statForField(field: LegacyPowerId): string {
+  return STATS.find((stat) => stat.field === field)?.name ?? field
+}
 const currentIdentityStory = computed(() =>
   identityStoryFor(
     currentIdentity.value,
@@ -667,13 +1101,15 @@ const panelLabel = computed(() =>
   run.value
     ? {
         map: 'DAY // EXPLORE THE CITY',
-        dispatch:
-          run.value.flowVersion === 2
-            ? 'NIGHT // PATROL BOARD'
-            : 'TRAINING // ASSIGNMENT BOARD',
+        dispatch: [2, 3].includes(run.value.flowVersion ?? 0)
+          ? 'NIGHT // PATROL BOARD'
+          : 'TRAINING // ASSIGNMENT BOARD',
         campus: 'CAMPUS // ENCOUNTER DRAW',
         debrief: 'RESULTS // DAY REPORT',
-        finale: 'PROM // FINAL EXAM',
+        finale:
+          run.value.flowVersion === 3
+            ? 'PROM // REAL CATASTROPHE'
+            : 'PROM // FINAL EXAM',
         ending: 'YEARBOOK // COMPLETED RUN',
       }[run.value.phase]
     : 'NEW STUDENT // POWER SELECTION',
@@ -685,7 +1121,10 @@ const sceneTitle = computed(() =>
         dispatch: 'The Call To Action',
         campus: campusEncounter.value.title,
         debrief: 'What Comes After',
-        finale: 'The Night of the Comet',
+        finale:
+          run.value.flowVersion === 3
+            ? 'The Fourth Dance'
+            : 'The Night of the Comet',
         ending: run.value.ending ?? 'Yearbook',
       }[run.value.phase]
     : '',
@@ -985,7 +1424,7 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.58rem;
   line-height: 1.2;
 }
-.cca-affinity-grid {
+.cca-power-grid.cca-affinity-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .cca-vow-grid {
@@ -1046,21 +1485,140 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.73rem;
   text-align: center;
 }
-.cca-power-detail {
-  padding: 0.8rem 0.25rem;
-  min-height: 5.5rem;
+.cca-pick {
+  min-height: 4.6rem;
+  padding: 0.45rem 0.35rem;
+  gap: 0.15rem;
 }
-.cca-power-detail strong {
+.cca-pick-small {
+  min-height: 3.3rem;
+}
+.cca-pick-glyph {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.cca-pick small {
+  color: #cad7e5;
+  font-size: 0.56rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.cca-dossier {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid #ffcb9666;
+  border-radius: 0.8rem;
+  background: linear-gradient(160deg, #2a1f3acc, #0f1d30e6);
+}
+.cca-dossier-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.cca-dossier-crest {
+  font-size: 1.45rem;
+  white-space: nowrap;
+}
+.cca-dossier-head small {
+  display: block;
+  color: #a3cbd6;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+}
+.cca-dossier-head h3 {
+  color: #ffe0b9;
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1.1;
+}
+.cca-dossier-story,
+.cca-dossier-power,
+.cca-dossier-field {
+  margin: 0.45rem 0;
+  color: #d1ddeb;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+.cca-dossier-power strong {
   color: #ffd1a0;
 }
-.cca-power-detail p {
-  font-size: 0.83rem;
-  color: #e1e7f1;
-  line-height: 1.5;
-  margin: 0.3rem 0;
+.cca-dossier-power span,
+.cca-dossier-field {
+  color: #a8c4d2;
 }
-.cca-power-detail small {
-  color: #a8b9c6;
+.cca-persona-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.45rem;
+}
+.cca-persona {
+  --persona: #8fd3c7;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border: 1px solid #ffffff1f;
+  border-top: 3px solid var(--persona);
+  border-radius: 0.6rem;
+  background: #0b1424b3;
+}
+.cca-persona-hero {
+  --persona: #ffcb96;
+}
+.cca-persona-villain {
+  --persona: #e9789a;
+}
+.cca-persona > small {
+  color: var(--persona);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.cca-persona > strong {
+  color: #fff3e3;
+  font-size: 0.92rem;
+  line-height: 1.15;
+}
+.cca-focus {
+  align-self: flex-start;
+  padding: 0.08rem 0.45rem;
+  border: 1px solid #ffffff30;
+  border-radius: 999px;
+  background: #ffffff12;
+  color: #e6edf5;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cca-stats {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0.25rem 0;
+}
+.cca-stats li {
+  display: grid;
+  grid-template-columns: 3.3rem repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 2px;
+}
+.cca-stats span {
+  color: #b8cad8;
+  font-size: 0.56rem;
+}
+.cca-stats i {
+  height: 0.38rem;
+  border-radius: 2px;
+  background: #ffffff1a;
+}
+.cca-stats i.on {
+  background: var(--persona);
+}
+.cca-persona p {
+  color: #d1ddeb;
+  font-size: 0.66rem;
+  line-height: 1.38;
 }
 .cca-storylens-tabs {
   display: flex;
@@ -1101,25 +1659,6 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #b2d5cb;
   font-size: 0.66rem;
 }
-.cca-identity-triad {
-  display: grid;
-  gap: 0.55rem;
-}
-.cca-identity-triad > div {
-  border-left: 2px solid #e4ab83;
-  padding-left: 0.6rem;
-}
-.cca-identity-triad small {
-  display: block;
-  color: #a3cbd6;
-  font-size: 0.59rem;
-  letter-spacing: 0.09em;
-}
-.cca-identity-triad strong {
-  color: #ffe0b9;
-  font-size: 0.88rem;
-}
-.cca-identity-triad p,
 .cca-identity-caveat {
   margin: 0.2rem 0 0;
   color: #d1ddeb;
@@ -1225,7 +1764,27 @@ function toggleStudent(caseId: string, id: StudentId): void {
 .cca-roster-button:disabled {
   cursor: not-allowed;
 }
+.cca-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: inherit;
+}
+.cca-villain-inset {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  width: clamp(4.5rem, 18%, 9rem);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 2px solid rgb(255 255 255 / 0.7);
+  border-radius: 0.6rem;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+}
 .cca-avatar {
+  overflow: hidden;
   font-family: Georgia, serif;
   display: grid;
   place-items: center;
@@ -1392,19 +1951,15 @@ function toggleStudent(caseId: string, id: StudentId): void {
   position: absolute;
   transform: translate(-50%, -50%);
   display: grid;
-  justify-items: center;
-  gap: 0.2rem;
-  max-width: 7.3rem;
-  min-width: 3.1rem;
-  padding: 0.25rem;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0.1rem;
   color: #fdf0df;
-  background: #15263ddc;
+  background: #15263de8;
   border: 1px solid #b3cad5;
-  border-radius: 0.55rem;
-  font-size: 0.58rem;
+  border-radius: 50%;
   font-weight: 800;
-  text-align: center;
-  line-height: 1.2;
 }
 .cca-map-pin.city {
   border-color: #d9a7ce;
@@ -1422,7 +1977,22 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 1rem;
 }
 .cca-map-name {
-  display: block;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.35rem;
+  color: #fff3df;
+  background: #14243dec;
+  border-radius: 0.25rem;
+  font-size: 0.58rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+}
+.cca-map-pin:focus-visible .cca-map-name,
+.cca-map-pin:not(:disabled):hover .cca-map-name {
+  opacity: 1;
 }
 .cca-map-compass {
   position: absolute;
@@ -1432,9 +2002,52 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.75rem;
 }
 .cca-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem;
   color: #c6dce8;
   font-size: 0.69rem;
   margin: 0.65rem 0;
+}
+.cca-map-trust {
+  color: #ffe0b9;
+  font-weight: 800;
+}
+.cca-map-sites {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  padding-bottom: 0.65rem;
+}
+.cca-map-site-choice {
+  min-width: 0;
+  min-height: 3.9rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #7da2b1a6;
+  border-radius: 0.45rem;
+  background: #14253ccc;
+  text-align: left;
+}
+.cca-map-site-choice strong {
+  display: block;
+  color: #ffe0b9;
+  font-size: 0.73rem;
+}
+.cca-map-site-choice small {
+  display: block;
+  margin-top: 0.15rem;
+  color: #bad4da;
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+.cca-map-site-choice:disabled {
+  opacity: 0.45;
+}
+.cca-map-site-choice:not(:disabled):hover,
+.cca-map-site-choice:focus-visible {
+  outline: 2px solid #ffe0a9;
+  background: #2a4661;
 }
 .cca-footer {
   min-height: 2rem;

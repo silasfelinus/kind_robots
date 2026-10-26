@@ -26,8 +26,8 @@ export type Choice = {
     target: number
     success: string
     failure: string
-    /** Knowledge that helps: +amount to the roll when the flag is held. */
-    bonus?: { flag: string; amount: number }
+    /** Knowledge that helps, unless a later event has broken that advantage. */
+    bonus?: { flag: string; amount: number; unless?: string }
   }
 }
 /** Consequences applied when a scene is entered. Damage never drops Zuzu below 1 HP outside combat. */

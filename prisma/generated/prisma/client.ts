@@ -85,6 +85,11 @@ export type ArcadeScore = Prisma.ArcadeScoreModel
  */
 export type ArcadeReview = Prisma.ArcadeReviewModel
 /**
+ * Model ArcadeGuestRating
+ * 
+ */
+export type ArcadeGuestRating = Prisma.ArcadeGuestRatingModel
+/**
  * Model ArchiveEntry
  * Durable archive-entry ledger (art-archive/t-003): filesystem identity and
  * curation state for one legacy AI-art file, independent of any ArtImage it
@@ -402,11 +407,6 @@ export type PlaybookEdit = Prisma.PlaybookEditModel
  * Comments, image flags, image submissions and art requests on a game beat.
  */
 export type PlaybookNote = Prisma.PlaybookNoteModel
-/**
- * Model PlaybookRunReview
- * One rating for one completed playthrough, with its consented gameplay trace.
- */
-export type PlaybookRunReview = Prisma.PlaybookRunReviewModel
 /**
  * Model ProjectPageContent
  * Durable editable presentation copy for Project-owned pages. `projectId` and
@@ -1154,6 +1154,11 @@ export type MediaEntry = Prisma.MediaEntryModel
  * it, and the two are backfilled from the same source.
  */
 export type ResourcePreview = Prisma.ResourcePreviewModel
+/**
+ * Model SiteStatDaily
+ * 
+ */
+export type SiteStatDaily = Prisma.SiteStatDailyModel
 /**
  * Model TzaddikCandidate
  * 

@@ -7,6 +7,7 @@ import type {
   PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
+import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   chooseEncounter,
@@ -15,7 +16,11 @@ import {
   nextSchoolDay,
   resolveDispatch,
   restoreAcademy,
+  socialize,
   startAcademy,
+  startFullAcademy,
+  studentAvailable,
+  tendInfirmary,
   visitCitySite,
   type AcademyRun,
   type PowerId,
@@ -60,11 +65,36 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     signature?: SignaturePowerId,
     vow?: PowerVowId,
   ) {
+    run.value = startFullAcademy(power, Date.now(), signature, vow)
+    persist()
+  }
+
+  function beginFirstWeek(
+    power: PowerId,
+    signature?: SignaturePowerId,
+    vow?: PowerVowId,
+  ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
     usePlaybookRunReviewStore().begin(
       'comet-city-academy',
       playbookRunKey(run.value),
     )
+    persist()
+  }
+
+  function heal(studentId: StudentId) {
+    if (!run.value) return
+    run.value = tendInfirmary(run.value, studentId)
+    persist()
+  }
+
+  function available(studentId: StudentId) {
+    return run.value ? studentAvailable(run.value, studentId) : true
+  }
+
+  function social(id: StudentId, action: SocialActionId) {
+    if (!run.value) return
+    run.value = socialize(run.value, id, action)
     persist()
   }
 
@@ -98,7 +128,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
-  function end(choice: 'protect' | 'command') {
+  function end(choice: 'protect' | 'command' | 'share' | 'evacuate') {
     if (!run.value) return
     run.value = finishAcademy(run.value, choice)
     persist()
@@ -116,6 +146,10 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     storageWarning,
     load,
     begin,
+    beginFirstWeek,
+    heal,
+    available,
+    social,
     visit,
     assign,
     dispatch,

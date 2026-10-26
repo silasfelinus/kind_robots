@@ -6,9 +6,17 @@ on:
   pull_request:
     paths:
       - 'utils/playbookKit/**'
+      - 'utils/playbookForge/**'
+      - 'utils/consoleInput.ts'
+      - 'assets/css/playbook-console.css'
       - 'stores/playbookKitStore.ts'
+      - 'stores/playbookForgeStore.ts'
       - 'components/playbook-kit/**'
+      - 'components/playbook-forge/**'
       - 'pages/admin/playbook-kit.vue'
+      - 'pages/admin/playbook-forge.vue'
+      - 'content/channels/admin/playbook-forge.md'
+      - 'utils/scripts/verifyPlaybookForge.test.ts'
       - 'content/channels/admin/playbook-kit.md'
       - 'utils/scripts/verifyPlaybookKit.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
@@ -17,14 +25,17 @@ on:
     branches: [main]
     paths:
       - 'utils/playbookKit/**'
+      - 'utils/playbookForge/**'
       - 'stores/playbookKitStore.ts'
+      - 'stores/playbookForgeStore.ts'
       - 'components/playbook-kit/**'
+      - 'components/playbook-forge/**'
       - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:
 
 jobs:
   budget:
-    name: Playbook budgets and kit contracts
+    name: Playbook budgets, kit and forge contracts
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -39,3 +50,5 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Audit every playbook against its complexity budget
         run: npm run test:playbook-kit
+      - name: Forge factors, forecasts, handoff and live counts of existing playbooks
+        run: npm run test:playbook-forge

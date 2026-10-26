@@ -2,10 +2,14 @@ import { buildCrystalStreetPlaybook } from './crystalStreet'
 import { buildEcotonePlaybook } from './ecotone'
 import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
+import { KIT_STUDIO_PREFIX, buildKitPlaybook } from './kit'
+import { buildPromOfDoomPlaybook } from './promOfDoom'
 import { buildShiftingDesksPlaybook } from './shiftingDesks'
 import { buildShiftingLandsPlaybook } from './shiftingLands'
+import { buildThisMeansWarpPlaybook } from './thisMeansWarp'
 import { sanitizeCardEdit, type CardEdit } from './edits'
 import { sanitizeTextEdit } from './textOverlay'
+import { KIT_PLAYBOOKS } from '../playbookKit/games'
 import type { Playbook } from './types'
 
 // Every story game the Playbook Manager can open. Each builder reads that
@@ -14,7 +18,7 @@ import type { Playbook } from './types'
 
 // `cover` is the game's own key art: the manager's game switcher, and the
 // backdrop for any beat that has no picture yet.
-export const PLAYBOOK_GAMES = [
+const AUTHORED_GAMES = [
   {
     id: 'ecotone',
     title: 'Ecotone',
@@ -51,9 +55,46 @@ export const PLAYBOOK_GAMES = [
     cover: '/crystal-street/cover.webp',
     build: buildCrystalStreetPlaybook,
   },
+  {
+    id: 'game-of-captains',
+    title: 'This Means Warp',
+    cover: '/game-of-captains/front/splash.webp',
+    build: buildThisMeansWarpPlaybook,
+  },
+  {
+    id: 'comet-city-academy',
+    title: 'Capes & Tassels: Prom of Doom',
+    cover: '/comet-city-academy/front/splash.webp',
+    build: buildPromOfDoomPlaybook,
+  },
 ] as const
 
-export type PlaybookGame = (typeof PLAYBOOK_GAMES)[number]['id']
+/** A game built on the Playbook Kit, listed in Studio as kit-<spec id>. */
+export type KitPlaybookGame = `${typeof KIT_STUDIO_PREFIX}${string}`
+export type PlaybookGame =
+  (typeof AUTHORED_GAMES)[number]['id'] | KitPlaybookGame
+
+type StudioGame = {
+  id: PlaybookGame
+  title: string
+  cover: string
+  build: () => Playbook
+}
+
+/** Authored games, then every Playbook Kit game: one manager for all of them. */
+export const PLAYBOOK_GAMES: readonly StudioGame[] = [
+  ...AUTHORED_GAMES,
+  ...KIT_PLAYBOOKS.map((spec) => ({
+    id: `${KIT_STUDIO_PREFIX}${spec.id}` as KitPlaybookGame,
+    title: spec.title,
+    cover: spec.keyArt.src ?? '',
+    build: () => buildKitPlaybook(spec),
+  })),
+]
+
+export function isKitGame(id: string): id is KitPlaybookGame {
+  return id.startsWith(KIT_STUDIO_PREFIX)
+}
 
 const cache = new Map<string, Playbook>()
 

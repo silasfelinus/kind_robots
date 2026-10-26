@@ -1,36 +1,42 @@
 <template>
   <div class="flex flex-col gap-3">
-    <fieldset v-for="key in keys" :key="key" class="flex flex-col gap-1">
-      <legend class="mb-1 text-xs font-semibold opacity-80">
-        {{ KIT_SETTING_LABELS[key].label }}
-      </legend>
-      <div class="join w-full">
+    <ul class="flex flex-col gap-1.5" aria-label="Settings">
+      <li v-for="key in keys" :key="key">
         <button
-          v-for="option in KIT_SETTING_OPTIONS[key]"
-          :key="option"
           type="button"
-          class="btn join-item btn-sm flex-1"
-          :class="
-            kit.settings[key] === option
-              ? 'btn-primary'
-              : 'btn-ghost border-base-content/15'
-          "
-          :aria-pressed="kit.settings[key] === option"
-          @click="kit.setSetting(key, option)"
+          data-nav
+          data-adjust
+          class="pf-row pf-focusable"
+          :aria-label="`${KIT_SETTING_LABELS[key].label}: ${label(key)}`"
+          @mouseenter="($event.currentTarget as HTMLElement).focus()"
+          @click="step(key, 1)"
+          @pf-adjust="step(key, ($event as CustomEvent<1 | -1>).detail)"
         >
-          {{ KIT_SETTING_LABELS[key].options[option] }}
+          <span class="pf-label min-w-0 flex-1 truncate text-left text-sm">{{
+            KIT_SETTING_LABELS[key].label
+          }}</span>
+          <span class="pf-value">
+            <span class="pf-chev" aria-hidden="true" @click.stop="step(key, -1)"
+              >◀</span
+            >
+            <span class="pf-display min-w-[6.5rem] text-center text-sm">{{
+              label(key)
+            }}</span>
+            <span class="pf-chev" aria-hidden="true" @click.stop="step(key, 1)"
+              >▶</span
+            >
+          </span>
         </button>
-      </div>
-    </fieldset>
-    <p
-      class="pk-prose rounded-xl border border-base-content/10 bg-base-200/50 p-2 text-sm"
-    >
+      </li>
+    </ul>
+    <p class="pk-prose pf-help text-sm">
       A sample line of story text, at the size and font you have chosen.
     </p>
     <div class="flex flex-wrap gap-2">
       <button
         type="button"
-        class="btn btn-sm btn-ghost"
+        data-nav
+        class="pf-label btn btn-sm btn-ghost pf-focusable"
         @click="kit.playTrailer()"
       >
         <Icon name="kind-icon:play" class="size-4" />
@@ -38,23 +44,21 @@
       </button>
       <button
         type="button"
-        class="btn btn-sm btn-ghost"
+        data-nav
+        class="pf-label btn btn-sm btn-ghost pf-focusable"
         @click="kit.resetSettings()"
       >
         <Icon name="kind-icon:refresh" class="size-4" />
-        Default settings
+        Defaults
       </button>
       <button
         type="button"
-        class="btn btn-sm"
+        data-nav
+        class="pf-label btn btn-sm pf-focusable"
         :class="confirming ? 'btn-error' : 'btn-ghost text-error'"
         @click="forget"
       >
-        {{
-          confirming
-            ? 'Tap again to forget everything'
-            : 'Forget scrapbook, secrets and endings'
-        }}
+        {{ confirming ? 'Again to forget everything' : 'Forget progress' }}
       </button>
     </div>
   </div>
@@ -67,6 +71,7 @@ import {
   KIT_SETTING_LABELS,
   KIT_SETTING_OPTIONS,
   type KitSettingKey,
+  type KitSettings,
 } from '~/utils/playbookKit/settings'
 import type { PlaybookKitSpec } from '~/utils/playbookKit/types'
 
@@ -79,6 +84,17 @@ const keys = computed(() =>
     (key) => key !== 'romance' || props.spec.cast.some((c) => c.romance),
   ),
 )
+
+function label(key: KitSettingKey): string {
+  return KIT_SETTING_LABELS[key].options[kit.settings[key]] ?? kit.settings[key]
+}
+
+function step(key: KitSettingKey, direction: number) {
+  const options = KIT_SETTING_OPTIONS[key] as readonly string[]
+  const at = options.indexOf(kit.settings[key])
+  const next = options[(at + direction + options.length) % options.length]
+  kit.setSetting(key, next as KitSettings[typeof key])
+}
 
 function forget() {
   if (!confirming.value) {

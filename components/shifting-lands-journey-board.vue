@@ -1049,6 +1049,40 @@
               </p>
 
               <section
+                v-if="game.kitchenNoviceOptions.length"
+                class="rounded-2xl border border-warning/40 bg-base-100/95 p-3 shadow-lg"
+                aria-label="Kitchen sister companion decision"
+              >
+                <p
+                  class="text-[10px] font-black uppercase tracking-widest text-warning"
+                >
+                  Companion quest · The names we carry
+                </p>
+                <h3 class="mt-1 font-serif text-lg font-black">
+                  The kitchen sister asks what comes next
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed">
+                  Her ledger belongs to the missing families. Your decision
+                  changes whether she travels beside you, walks away, or trusts
+                  you at the cave court.
+                </p>
+                <div class="mt-2 grid gap-2">
+                  <button
+                    v-for="option in game.kitchenNoviceOptions"
+                    :key="option.id"
+                    type="button"
+                    class="rounded-xl border border-warning/30 bg-base-200/80 px-3 py-2 text-left text-sm font-bold transition-colors hover:bg-warning/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-warning"
+                    @click="game.decideFollower(option.id)"
+                  >
+                    {{ option.label }}
+                  </button>
+                </div>
+                <p class="mt-2 text-xs opacity-75">
+                  Current bond: {{ game.kitchenNoviceStatus }}
+                </p>
+              </section>
+
+              <section
                 v-if="game.currentWorldEchoes.length"
                 class="rounded-2xl border border-info/35 bg-base-100/90 p-2 shadow-sm sm:p-3"
                 aria-label="Consequences returning from earlier lands"

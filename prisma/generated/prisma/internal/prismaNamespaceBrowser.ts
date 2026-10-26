@@ -57,6 +57,7 @@ export const ModelName = {
   AgentNote: 'AgentNote',
   ArcadeScore: 'ArcadeScore',
   ArcadeReview: 'ArcadeReview',
+  ArcadeGuestRating: 'ArcadeGuestRating',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
@@ -90,7 +91,6 @@ export const ModelName = {
   MusicVideo: 'MusicVideo',
   PlaybookEdit: 'PlaybookEdit',
   PlaybookNote: 'PlaybookNote',
-  PlaybookRunReview: 'PlaybookRunReview',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -179,6 +179,7 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
   TzaddikRecheckRequest: 'TzaddikRecheckRequest'
@@ -278,6 +279,20 @@ export const ArcadeReviewScalarFieldEnum = {
 } as const
 
 export type ArcadeReviewScalarFieldEnum = (typeof ArcadeReviewScalarFieldEnum)[keyof typeof ArcadeReviewScalarFieldEnum]
+
+
+export const ArcadeGuestRatingScalarFieldEnum = {
+  id: 'id',
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  rating: 'rating',
+  comment: 'comment',
+  commentHeld: 'commentHeld',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ArcadeGuestRatingScalarFieldEnum = (typeof ArcadeGuestRatingScalarFieldEnum)[keyof typeof ArcadeGuestRatingScalarFieldEnum]
 
 
 export const ArchiveEntryScalarFieldEnum = {
@@ -872,21 +887,6 @@ export const PlaybookNoteScalarFieldEnum = {
 } as const
 
 export type PlaybookNoteScalarFieldEnum = (typeof PlaybookNoteScalarFieldEnum)[keyof typeof PlaybookNoteScalarFieldEnum]
-
-
-export const PlaybookRunReviewScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  gameSlug: 'gameSlug',
-  runId: 'runId',
-  userId: 'userId',
-  endingKey: 'endingKey',
-  stars: 'stars',
-  comment: 'comment',
-  history: 'history'
-} as const
-
-export type PlaybookRunReviewScalarFieldEnum = (typeof PlaybookRunReviewScalarFieldEnum)[keyof typeof PlaybookRunReviewScalarFieldEnum]
 
 
 export const ProjectPageContentScalarFieldEnum = {
@@ -2685,6 +2685,18 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const SiteStatDailyScalarFieldEnum = {
+  id: 'id',
+  day: 'day',
+  kind: 'kind',
+  key: 'key',
+  count: 'count',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteStatDailyScalarFieldEnum = (typeof SiteStatDailyScalarFieldEnum)[keyof typeof SiteStatDailyScalarFieldEnum]
+
+
 export const TzaddikCandidateScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2816,6 +2828,15 @@ export const ArcadeReviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArcadeReviewOrderByRelevanceFieldEnum = (typeof ArcadeReviewOrderByRelevanceFieldEnum)[keyof typeof ArcadeReviewOrderByRelevanceFieldEnum]
+
+
+export const ArcadeGuestRatingOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  comment: 'comment'
+} as const
+
+export type ArcadeGuestRatingOrderByRelevanceFieldEnum = (typeof ArcadeGuestRatingOrderByRelevanceFieldEnum)[keyof typeof ArcadeGuestRatingOrderByRelevanceFieldEnum]
 
 
 export const ArchiveEntryOrderByRelevanceFieldEnum = {
@@ -3188,17 +3209,6 @@ export const PlaybookNoteOrderByRelevanceFieldEnum = {
 } as const
 
 export type PlaybookNoteOrderByRelevanceFieldEnum = (typeof PlaybookNoteOrderByRelevanceFieldEnum)[keyof typeof PlaybookNoteOrderByRelevanceFieldEnum]
-
-
-export const PlaybookRunReviewOrderByRelevanceFieldEnum = {
-  gameSlug: 'gameSlug',
-  runId: 'runId',
-  endingKey: 'endingKey',
-  comment: 'comment',
-  history: 'history'
-} as const
-
-export type PlaybookRunReviewOrderByRelevanceFieldEnum = (typeof PlaybookRunReviewOrderByRelevanceFieldEnum)[keyof typeof PlaybookRunReviewOrderByRelevanceFieldEnum]
 
 
 export const ProjectPageContentOrderByRelevanceFieldEnum = {
@@ -4140,6 +4150,14 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const SiteStatDailyOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  key: 'key'
+} as const
+
+export type SiteStatDailyOrderByRelevanceFieldEnum = (typeof SiteStatDailyOrderByRelevanceFieldEnum)[keyof typeof SiteStatDailyOrderByRelevanceFieldEnum]
 
 
 export const TzaddikCandidateOrderByRelevanceFieldEnum = {

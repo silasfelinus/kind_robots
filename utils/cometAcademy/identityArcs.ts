@@ -1,48 +1,39 @@
 import catalog from './identityArcs.json'
-import lives from './identityLives.json'
 import { GUEST_IDENTITIES, type GuestIdentity } from './guestIdentities'
-import type { SignaturePowerId } from './specialPowers'
+import {
+  fieldForStats,
+  type LegacyPowerId,
+  type PersonaStats,
+  type SignaturePowerId,
+} from './specialPowers'
 
-type CivilianLife = {
-  signature: SignaturePowerId
-  realName: string
-  backstory: string
-  heroDecision: string
-  villainDecision: string
-  sidekick: string
-  romance: string
+export type Persona = {
+  alias: string
+  focus: string
+  stats: PersonaStats
 }
 
 export type IdentityArc = {
   signature: SignaturePowerId
   realName: string
+  pronouns: string
   backstory: string
   heroDecision: string
   villainDecision: string
   sidekick: string
   romance: string
-  student: { alias: string; conflict: string }
-  hero: { alias: string; method: string }
-  villain: { alias: string; method: string }
+  student: Persona & { conflict: string }
+  hero: Persona & { method: string }
+  villain: Persona & { method: string }
   quests: { protagonist: string; antagonist: string; partner: string }
 }
 
-type AliasArc = Pick<
-  IdentityArc,
-  'signature' | 'student' | 'hero' | 'villain' | 'quests'
->
-const biographies = new Map(
-  (lives.people as CivilianLife[]).map((life) => [life.signature, life]),
-)
-
-export const IDENTITY_ARCS: IdentityArc[] = (
-  catalog.identityCatalog as AliasArc[]
-).map((arc) => {
-  const life = biographies.get(arc.signature)
-  if (!life) throw new Error(`Missing civilian life for ${arc.signature}`)
-  return { ...arc, ...life }
-})
+export const IDENTITY_ARCS = catalog.identityCatalog as IdentityArc[]
 const bySignature = new Map(IDENTITY_ARCS.map((arc) => [arc.signature, arc]))
+
+export function fieldFor(signature: SignaturePowerId): LegacyPowerId {
+  return fieldForStats(identityFor(signature).student.stats)
+}
 
 export function identityFor(signature: SignaturePowerId): IdentityArc {
   const identity = bySignature.get(signature)

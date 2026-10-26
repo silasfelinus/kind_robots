@@ -94,9 +94,83 @@
         <span class="text-xs opacity-60">{{ comment.length }}/2000</span>
       </div>
     </form>
-    <p v-else class="mb-4 text-sm opacity-75">
-      Sign in to rate and comment. Everyone can read reviews.
-    </p>
+    <form
+      v-else
+      class="grid"
+      :class="compact ? 'mb-4 gap-2' : 'mb-5 gap-3'"
+      @submit.prevent="submitGuest"
+    >
+      <p
+        v-if="guestThanks"
+        role="status"
+        class="text-sm font-bold text-success"
+      >
+        Thanks for rating! Your stars are counted. Sign in any time to write a
+        full review.
+      </p>
+      <template v-else>
+        <fieldset class="min-w-0">
+          <legend class="mb-1 text-sm font-bold">
+            Rate it — no account needed
+          </legend>
+          <div class="flex items-center gap-1" @mouseleave="hoverRating = 0">
+            <label
+              v-for="stars in [1, 2, 3, 4, 5]"
+              :key="stars"
+              class="flex size-9 cursor-pointer items-center justify-center rounded-lg focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-primary"
+              :title="stars + ' out of 5 stars'"
+              @mouseenter="hoverRating = stars"
+            >
+              <input
+                v-model.number="rating"
+                type="radio"
+                :name="'arcade-guest-rating-' + game"
+                :value="stars"
+                :aria-label="stars + ' out of 5 stars'"
+                class="sr-only"
+                required
+              />
+              <Icon
+                name="kind-icon:star"
+                class="size-7 transition-colors"
+                :class="
+                  stars <= (hoverRating || rating)
+                    ? 'text-warning'
+                    : 'text-base-content/20'
+                "
+                aria-hidden="true"
+              />
+            </label>
+          </div>
+        </fieldset>
+        <input
+          v-model="comment"
+          type="text"
+          class="input input-bordered input-sm w-full"
+          maxlength="280"
+          aria-label="Optional short note"
+          placeholder="Optional short note (reviewed before it shows)"
+        />
+        <div class="flex items-center gap-3">
+          <button
+            type="submit"
+            class="btn btn-primary btn-sm"
+            :disabled="reviews.saving"
+          >
+            {{ reviews.saving ? 'Saving…' : 'Post rating' }}
+          </button>
+          <span class="text-xs opacity-60"
+            >Everyone can read reviews. Sign in to write one.</span
+          >
+        </div>
+      </template>
+    </form>
+    <support-card
+      :compact="compact"
+      :title="title"
+      :path="'/play/arcade?game=' + game"
+      :class="compact ? 'mb-4' : 'mb-5'"
+    />
     <p v-if="reviews.error" role="alert" class="mb-3 text-sm text-error">
       {{ reviews.error }}
     </p>
@@ -140,6 +214,7 @@ const reviews = useArcadeReviewsStore()
 const rating = ref(5)
 const hoverRating = ref(0)
 const comment = ref('')
+const guestThanks = ref(false)
 const title = computed(() => findArcadeGame(props.game)?.title ?? 'Game')
 const summary = computed(() => reviews.summaries[props.game])
 const entries = computed(() => reviews.reviewsByGame[props.game] ?? [])
@@ -157,6 +232,14 @@ async function submit() {
     await load()
 }
 
+async function submitGuest() {
+  guestThanks.value = await reviews.saveGuestRating(
+    props.game,
+    rating.value,
+    comment.value,
+  )
+}
+
 onMounted(() => {
   void load()
   void reviews.fetchSummaries()
@@ -164,6 +247,7 @@ onMounted(() => {
 watch(
   () => props.game,
   () => {
+    guestThanks.value = false
     void load()
   },
 )

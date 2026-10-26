@@ -67,7 +67,11 @@ function play(
     }
     const card = findCard(state.card)
     assert.ok(card, 'only authored cards are offered')
-    const choices = openingLensChoices(card).filter((choice) => !choice.locked)
+    const choices = openingLensChoices(card).filter(
+      (choice) =>
+        !choice.locked &&
+        (!choice.requiresFlag || state.flags.includes(choice.requiresFlag)),
+    )
     assert.ok(choices.length > 0, `${card.id} keeps a playable decision`)
     const requested = choices.find((choice) => choice.lens === lens)
     const meeting = choices.filter((choice) => choice.meet !== undefined)

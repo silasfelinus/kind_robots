@@ -4,10 +4,48 @@ import {
   projectCitySites,
   projectedCityRoads,
 } from '../cometAcademy/cityMap'
+import {
+  DISTRICT_ENCOUNTERS,
+  districtEncounterFor,
+} from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import {
+  SOCIAL_CAST,
+  SOCIAL_DAYS,
+  newSocialState,
+  socialChoices,
+  applySocialChoice,
+  socialMissionBonus,
+  socialFinaleText,
+  validSocialState,
+} from '../cometAcademy/relationships'
+import {
+  beginPlayerEvolution,
+  canEvolve,
+  evolutionEncounter,
+  evolutionNightModifier,
+  isValidPlayerEvolution,
+  recordPlayerValues,
+  resolveEvolution,
+} from '../cometAcademy/protagonistEvolution'
+import {
+  campaignOpponent,
+  antagonistBeat,
+  opponentPressure,
+  antagonistFinale,
+} from '../cometAcademy/opponents'
+import {
+  CAMPAIGN_ANCHORS,
+  CAMPAIGN_VILLAINS,
+  PROM_FINALE,
+  campaignVillain,
+  campaignBetrayer,
+  campaignPlotEvent,
+} from '../cometAcademy/campaign'
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
+  fieldFor,
   identityFor,
   identityStoryFor,
 } from '../cometAcademy/identityArcs'
@@ -16,10 +54,13 @@ import {
   TESS_CREW_SOURCE,
 } from '../cometAcademy/guestIdentities'
 import {
-  POWER_FORMS,
+  POWER_ORIGINS,
   POWER_AFFINITIES,
   POWER_VOWS,
   SIGNATURE_POWERS,
+  STATS,
+  finaleFor,
+  migrateSignatureId,
   signatureFor,
 } from '../cometAcademy/specialPowers'
 import { readFileSync } from 'node:fs'
@@ -35,20 +76,37 @@ import {
   incidentsFor,
   nextSchoolDay,
   resolveDispatch,
+  socialize,
   restoreAcademy,
   startAcademy,
+  startFullAcademy,
+  studentAvailable,
+  tendInfirmary,
   type AcademyRun,
   type StudentId,
   visitCitySite,
 } from '../cometAcademy/rules'
 
-assert.equal(CITY_SITES.length, 7)
-assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 7)
-assert.equal(new Set(CITY_SITES.map((site) => site.encounterIndex)).size, 7)
+assert.equal(CITY_SITES.length, 24)
+assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 24)
+assert.equal(
+  new Set(
+    CITY_SITES.filter((site) => site.encounterIndex !== undefined).map(
+      (site) => site.encounterIndex,
+    ),
+  ).size,
+  7,
+)
+assert.equal(Object.keys(DISTRICT_ENCOUNTERS).length, 17)
 assert.ok(CITY_SITES.filter((site) => site.district === 'academy').length >= 3)
 assert.ok(CITY_SITES.filter((site) => site.district === 'city').length >= 3)
-assert.ok(projectCitySites('campus').length >= 3)
-assert.ok(projectCitySites('town').length >= 6)
+assert.equal(
+  CITY_SITES.filter((site) => site.district === 'academy').length,
+  12,
+)
+assert.equal(CITY_SITES.filter((site) => site.district === 'city').length, 12)
+assert.equal(projectCitySites('campus').length, 13)
+assert.equal(projectCitySites('town').length, 14)
 assert.ok(projectCitySites('town').some((site) => site.id === 'academy-roof'))
 assert.ok(projectCitySites('campus').some((site) => site.id === 'transit-gate'))
 for (const view of ['campus', 'town'] as const) {
@@ -74,10 +132,134 @@ for (const node of CITY_SITES)
       `The geographic graph must be reciprocal: ${node.id} => ${neighbor}`,
     )
 
+const projectedIds = new Set(
+  (['campus', 'town'] as const).flatMap((view) =>
+    projectCitySites(view).map((site) => site.id),
+  ),
+)
+assert.equal(projectedIds.size, 24, 'Every landmark is reachable on a map')
+const connected = new Set<string>([CITY_SITES[0]!.id])
+const queue = [CITY_SITES[0]!.id]
+for (let i = 0; i < queue.length; i++) {
+  const current = CITY_SITES.find((site) => site.id === queue[i])!
+  for (const neighbor of current.neighbors)
+    if (!connected.has(neighbor)) {
+      connected.add(neighbor)
+      queue.push(neighbor)
+    }
+}
+assert.equal(
+  connected.size,
+  24,
+  'All locations form one connected street graph',
+)
+assert.equal(
+  new Set(Object.values(DISTRICT_ENCOUNTERS).map((entry) => entry.title)).size,
+  17,
+)
+const districtOptionIds = new Set<string>()
+for (const site of CITY_SITES) {
+  assert.ok(site.teaser.length > 20)
+  if (site.encounterIndex !== undefined) continue
+  const story = districtEncounterFor(site.id)
+  assert.ok(story, `Missing story for ${site.id}`)
+  assert.equal(story.options.length, 2)
+  assert.ok(story.scene.length > 100)
+  for (const option of story.options) {
+    assert.ok(option.text.length > 100)
+    assert.ok(option.label.length > 10)
+    assert.ok(!districtOptionIds.has(option.id))
+    districtOptionIds.add(option.id)
+    assert.ok(option.trust !== 0)
+  }
+}
+assert.equal(districtOptionIds.size, 34)
+assert.equal(districtEncounterFor('academy-roof'), undefined)
+
+const campusChoiceRun = chooseEncounter(
+  visitCitySite(startAcademy('kinetic', 31), 'student-commons'),
+  'student-commons-help',
+)
+assert.equal(campusChoiceRun.phase, 'dispatch')
+assert.equal(campusChoiceRun.academyStanding, 2)
+assert.equal(campusChoiceRun.cityStanding, 0)
+assert.deepEqual(campusChoiceRun.visitedSites, ['student-commons'])
+const cityChoiceRun = chooseEncounter(
+  visitCitySite(startAcademy('kinetic', 31), 'civic-hospital'),
+  'civic-hospital-exploit',
+)
+assert.equal(cityChoiceRun.academyStanding, 0)
+assert.equal(cityChoiceRun.cityStanding, -2)
+assert.equal(
+  chooseEncounter(
+    visitCitySite(startAcademy('kinetic', 31), 'civic-hospital'),
+    'unknown',
+  ).phase,
+  'campus',
+  'Unknown encounter options cannot alter state',
+)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(cityChoiceRun))),
+  cityChoiceRun,
+)
+assert.equal(restoreAcademy({ ...cityChoiceRun, cityStanding: NaN }), null)
+assert.equal(restoreAcademy({ ...cityChoiceRun, academyStanding: 1.5 }), null)
+
+// Goodwill should never make public rescue outcomes worse, and its
+// benefits must change real seeded results, not merely UI copy.
+const gradeRank = { failed: 0, partial: 1, pass: 2, honors: 3 }
+let goodwillChangedGrade = false
+for (let seed = 1; seed <= 36; seed++) {
+  const base = {
+    ...startAcademy('kinetic', seed),
+    day: 3,
+    phase: 'dispatch' as const,
+  }
+  const target = incidentsFor(base).find(
+    (incident) => incident.allegiance === 'hero',
+  )
+  if (!target) continue
+  const assigned = assignTeam(base, target.id, ['mina'])
+  const positive = resolveDispatch({
+    ...assigned,
+    cityStanding: 4,
+    academyStanding: 4,
+  })
+  const negative = resolveDispatch({
+    ...assigned,
+    cityStanding: -4,
+    academyStanding: -4,
+  })
+  const goodGrade = positive.reports.find(
+    (report) => report.caseId === target.id,
+  )!.grade
+  const badGrade = negative.reports.find(
+    (report) => report.caseId === target.id,
+  )!.grade
+  assert.ok(gradeRank[goodGrade] >= gradeRank[badGrade])
+  if (gradeRank[goodGrade] > gradeRank[badGrade]) goodwillChangedGrade = true
+}
+assert.ok(goodwillChangedGrade)
+
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
-assert.equal(POWER_FORMS.length, 6)
-assert.equal(POWER_AFFINITIES.length, 8)
+assert.deepEqual(
+  POWER_ORIGINS.map((origin) => origin.id),
+  ['accident', 'mutant', 'tech', 'magic', 'alien', 'psychic'],
+)
+assert.deepEqual(
+  POWER_AFFINITIES.map((affinity) => affinity.id),
+  [
+    'fire',
+    'air',
+    'earth',
+    'water',
+    'discipline',
+    'genius',
+    'birthright',
+    'social',
+  ],
+)
 assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
@@ -168,7 +350,12 @@ for (const seed of [1, 15, 900]) {
   )
 }
 for (const visitorAlignment of ['ally', 'opponent'] as const) {
-  let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
+  let run = startAcademy(
+    fieldFor('accident-fire'),
+    24,
+    'accident-fire',
+    'shelter',
+  )
   for (let day = 1; day <= 7; day++) {
     const [first] = incidentsFor(run)
     run = visitCitySite(run, CITY_SITES[day - 1]!.id)
@@ -190,7 +377,7 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
   const finale = finishAcademy(run, 'protect')
   assert.ok(finale.scene.includes('Zuzu remembers'))
   assert.ok(finale.scene.includes('Tess Helio'))
-  assert.ok(finale.scene.includes('Ari Nadir'))
+  assert.ok(finale.scene.includes('Dez Okafor'))
   assert.ok(
     finale.scene.includes(
       visitorAlignment === 'ally' ? 'Koala Assassin' : 'Shogun Null',
@@ -224,12 +411,39 @@ for (const state of ['student', 'hero', 'villain'] as const) {
   )
 }
 assert.equal(new Set(SIGNATURE_POWERS.map((p) => p.id)).size, 48)
-assert.equal(signatureFor('impact', 'fire').name, 'Flaming Fists')
-for (const form of POWER_FORMS)
-  for (const element of POWER_AFFINITIES) {
-    const skill = signatureFor(form.id, element.id)
-    assert.equal(skill.legacy, form.legacy)
+assert.equal(signatureFor('accident', 'fire').name, 'Pilot Light')
+assert.equal(identityFor('accident-fire').hero.alias, 'Backdraft')
+const statTotal = (stats: Record<string, number>) =>
+  Object.values(stats).reduce((sum, value) => sum + value, 0)
+const heroFoci = new Set<string>()
+const villainFoci = new Set<string>()
+let divergentFocus = 0
+for (const origin of POWER_ORIGINS)
+  for (const affinity of POWER_AFFINITIES) {
+    const skill = signatureFor(origin.id, affinity.id)
+    assert.equal(skill.id, `${origin.id}-${affinity.id}`)
     const identity = identityFor(skill.id)
+    for (const role of ['student', 'hero', 'villain'] as const) {
+      const persona = identity[role]
+      assert.ok(persona.focus.length > 2)
+      for (const stat of STATS) {
+        const value = persona.stats[stat.id]
+        assert.ok(Number.isInteger(value) && value >= 1 && value <= 5)
+      }
+      const total = statTotal(persona.stats)
+      if (role === 'student') assert.ok(total >= 12 && total <= 16)
+      else assert.ok(total >= 18 && total <= 23)
+    }
+    assert.notDeepEqual(
+      identity.hero.stats,
+      identity.villain.stats,
+      `${skill.id} hero and villain must play differently`,
+    )
+    heroFoci.add(identity.hero.focus)
+    villainFoci.add(identity.villain.focus)
+    if (identity.hero.focus !== identity.villain.focus) divergentFocus++
+    assert.ok(identity.pronouns.includes('/'))
+    assert.ok(skill.prom.length > 30)
     assert.notEqual(identity.student.alias, identity.hero.alias)
     assert.notEqual(identity.hero.alias, identity.villain.alias)
     assert.notEqual(identity.hero.method, identity.villain.method)
@@ -237,9 +451,12 @@ for (const form of POWER_FORMS)
     assert.ok(identity.quests.partner.length > 16)
     assert.ok(identity.quests.protagonist.length > 16)
     assert.ok(identity.quests.antagonist.length > 16)
-    assert.ok(skill.special_route.trigger.length > 35)
-    for (const vow of POWER_VOWS) assert.ok(skill.finales[vow.id].length > 80)
-    const run = startAcademy(form.legacy, 99, skill.id, 'shelter')
+    for (const vow of POWER_VOWS)
+      assert.ok(
+        finaleFor(skill, identity.realName, identity.villain.alias, vow.id)
+          .length > 80,
+      )
+    const run = startAcademy(fieldFor(skill.id), 99, skill.id, 'shelter')
     assert.equal(run.signature, skill.id)
     assert.equal(run.vow, 'shelter')
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
@@ -252,13 +469,61 @@ for (const form of POWER_FORMS)
     assert.ok(villainousPreview.scene.includes(identity.villain.alias))
     assert.ok(heroicPreview.scene.includes('not yet earned'))
     assert.ok(villainousPreview.scene.includes('not yet inevitable'))
+    assert.ok(!heroicPreview.scene.includes('..'))
   }
+assert.ok(heroFoci.size >= 10, 'heroes span many play styles')
+assert.ok(villainFoci.size >= 10, 'villains span many play styles')
+assert.ok(
+  divergentFocus >= 36,
+  'most villains abandon the hero toolkit rather than reskinning it',
+)
+assert.equal(migrateSignatureId('impact-fire'), 'accident-fire')
+assert.equal(migrateSignatureId('veil-shadow'), 'psychic-social')
+assert.equal(migrateSignatureId('accident-fire'), 'accident-fire')
+assert.equal(migrateSignatureId('nonsense'), undefined)
+assert.equal(
+  new Set(
+    ['impact', 'arc', 'veil', 'step', 'weave', 'beacon'].flatMap((form) =>
+      [
+        'fire',
+        'ice',
+        'storm',
+        'stone',
+        'light',
+        'shadow',
+        'bloom',
+        'gravity',
+      ].map((element) => migrateSignatureId(`${form}-${element}`)),
+    ),
+  ).size,
+  48,
+  'every pre-redesign signature maps to a distinct new person',
+)
+const legacySave = {
+  ...startAcademy('kinetic', 7),
+  signature: 'impact-fire',
+  vow: 'shelter',
+}
+const migratedSave = restoreAcademy(JSON.parse(JSON.stringify(legacySave)))
+assert.equal(migratedSave?.signature, 'accident-fire')
+assert.equal(migratedSave?.power, fieldFor('accident-fire'))
+assert.equal(
+  restoreAcademy({ ...legacySave, signature: 'impact-nothing' }),
+  null,
+)
 assert.equal(
   startAcademy('kinetic', 99).signature,
   undefined,
   'legacy saves remain valid',
 )
-assert.throws(() => startAcademy('spatial', 99, 'impact-fire'))
+assert.throws(() => startAcademy('spatial', 99, 'impact-fire' as never))
+assert.throws(() =>
+  startAcademy(
+    STATS.find((stat) => stat.field !== fieldFor('accident-fire'))!.field,
+    99,
+    'accident-fire',
+  ),
+)
 assert.equal(POWERS.length, 6)
 assert.equal(STUDENTS.length, 6)
 assert.equal(INCIDENTS.length, 6)
@@ -274,7 +539,7 @@ for (const power of POWERS) {
       assert.equal(run.phase, 'campus')
       assert.equal(
         encounterFor(run).title,
-        ENCOUNTERS[place.encounterIndex]!.title,
+        ENCOUNTERS[place.encounterIndex!]!.title,
       )
       assert.equal(visitCitySite(run, place.id), run)
       const choice = encounterFor(run).options[day % 2]!
@@ -348,6 +613,643 @@ assert.equal(
 )
 assert.equal(restoreAcademy({ ...migrated, selectedSite: 'bad-site' }), null)
 assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
+
+// The original first-week construction stays seven-day for existing saved runs.
+// New sessions take a deterministic, mandatory thirty-day route.
+// Public identity choices are earned, optional and tied to the person's own
+// three unique personas. Every canonical signature can take any earned future.
+const novice = beginPlayerEvolution()
+assert.equal(novice.form, 'student')
+assert.ok(!canEvolve(novice, 'hero', 'accident-fire'))
+assert.ok(!canEvolve(novice, 'villain', 'accident-fire'))
+const protective = recordPlayerValues(
+  recordPlayerValues(novice, { influence: 1, danger: 0 }),
+  { influence: 2, danger: -1 },
+)
+const coercive = recordPlayerValues(
+  recordPlayerValues(novice, { influence: -1, danger: 2 }),
+  { influence: -2, danger: 1 },
+)
+assert.equal(protective.protect, 2)
+assert.equal(coercive.exploit, 2)
+assert.deepEqual(beginPlayerEvolution(), novice)
+assert.equal(resolveEvolution(novice, 'evolve-hero', 16, 'accident-fire'), null)
+assert.equal(
+  resolveEvolution(novice, 'evolve-villain', 16, 'accident-fire'),
+  null,
+)
+assert.equal(
+  resolveEvolution(protective, 'evolve-hero', 15, 'accident-fire'),
+  null,
+)
+assert.equal(
+  resolveEvolution(protective, 'fabricated', 16, 'accident-fire'),
+  null,
+)
+assert.equal(evolutionNightModifier(undefined, 'hero'), 0)
+assert.equal(evolutionNightModifier(protective, 'hero'), 0)
+const allForms = new Set<string>()
+for (const identity of IDENTITY_ARCS) {
+  const token = identity.signature
+  const heroEvent = evolutionEncounter(token, protective, 16)
+  assert.ok(heroEvent.scene.includes(identity.realName))
+  assert.ok(heroEvent.scene.includes(identity.hero.method))
+  assert.ok(heroEvent.options.some((o) => o.id === 'evolve-hero'))
+  assert.ok(!heroEvent.options.some((o) => o.id === 'evolve-villain'))
+  const hero = resolveEvolution(protective, 'evolve-hero', 16, token)!
+  assert.equal(hero.form, 'hero')
+  assert.ok(heroEvent.options[0]!.text.includes(identity.heroDecision))
+  assert.equal(resolveEvolution(hero, 'evolve-hero', 16, token), null)
+  assert.equal(evolutionNightModifier(hero, 'hero'), 2)
+  assert.equal(evolutionNightModifier(hero, 'villain'), -1)
+  const villainEvent = evolutionEncounter(token, coercive, 16)
+  assert.ok(villainEvent.options.some((o) => o.id === 'evolve-villain'))
+  assert.ok(villainEvent.options.some((o) => o.id === 'evolve-student'))
+  const villain = resolveEvolution(coercive, 'evolve-villain', 16, token)!
+  assert.equal(villain.form, 'villain')
+  assert.equal(evolutionNightModifier(villain, 'villain'), 2)
+  assert.equal(evolutionNightModifier(villain, 'hero'), -1)
+  const independent = resolveEvolution(protective, 'evolve-student', 16, token)!
+  assert.equal(independent.form, 'student')
+  assert.ok(isValidPlayerEvolution(independent, token))
+  const earnedBoth = { ...hero, exploit: 3 }
+  const reversal = resolveEvolution(earnedBoth, 'evolve-villain', 23, token)!
+  assert.equal(reversal.form, 'villain')
+  assert.equal(reversal.milestones.length, 2)
+  assert.ok(
+    evolutionEncounter(token, reversal, 23).scene.includes(
+      identity.villainDecision,
+    ),
+  )
+  assert.ok(isValidPlayerEvolution(reversal, token))
+  assert.ok(!isValidPlayerEvolution({ ...reversal, form: 'hero' }, token))
+  allForms.add(identity.hero.alias)
+  allForms.add(identity.villain.alias)
+}
+assert.equal(IDENTITY_ARCS.length, 48)
+assert.ok(allForms.size >= 90)
+assert.deepEqual(
+  evolutionEncounter(undefined, novice, 16).options.map((o) => o.id),
+  ['evolve-student'],
+)
+assert.equal(resolveEvolution(protective, 'evolve-hero', 16), null)
+assert.ok(
+  !isValidPlayerEvolution({ ...protective, exploit: -3 }, 'accident-fire'),
+)
+assert.ok(
+  !isValidPlayerEvolution(
+    { ...protective, milestones: [{ day: 17, form: 'hero' }] },
+    'accident-fire',
+  ),
+)
+
+const evolveSeed = startFullAcademy(
+  fieldFor('accident-fire'),
+  816,
+  'accident-fire',
+)
+const earnedSeed = {
+  ...evolveSeed,
+  day: 16,
+  phase: 'campus' as const,
+  playerEvolution: protective,
+}
+const promotionScene = encounterFor(earnedSeed)
+assert.ok(promotionScene.scene.includes(CAMPAIGN_ANCHORS[15]!))
+assert.ok(promotionScene.options.some((o) => o.id === 'evolve-hero'))
+const promoted = chooseEncounter(earnedSeed, 'evolve-hero')
+assert.equal(promoted.phase, 'dispatch')
+assert.equal(promoted.playerEvolution?.form, 'hero')
+assert.equal(promoted.playerEvolution?.milestones[0]?.day, 16)
+assert.ok(promoted.scene.includes(identityFor('accident-fire').hero.alias))
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(promoted))), promoted)
+assert.deepEqual(chooseEncounter(earnedSeed, 'evolve-villain'), earnedSeed)
+const reckoning = {
+  ...promoted,
+  day: 23,
+  phase: 'campus' as const,
+  playerEvolution: { ...promoted.playerEvolution!, exploit: 3 },
+}
+const changed = chooseEncounter(reckoning, 'evolve-villain')
+assert.equal(changed.playerEvolution?.form, 'villain')
+assert.equal(changed.playerEvolution?.milestones.length, 2)
+const lastDay = { ...changed, day: 30, phase: 'finale' as const }
+const end = finishAcademy(lastDay, 'share')
+assert.ok(end.scene.includes(identityFor('accident-fire').villain.alias))
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(end))), end)
+const oldThirty = { ...evolveSeed, playerEvolution: undefined }
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(oldThirty))),
+  JSON.parse(JSON.stringify(oldThirty)),
+)
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: { ...protective, form: 'hero' },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: {
+      ...promoted.playerEvolution!,
+      milestones: [{ day: 23, form: 'hero' }],
+    },
+  }),
+  null,
+)
+
+assert.equal(
+  restoreAcademy({
+    ...promoted,
+    playerEvolution: { ...promoted.playerEvolution!, protect: 0 },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...changed,
+    playerEvolution: { ...changed.playerEvolution!, exploit: 0 },
+  }),
+  null,
+)
+// Distinct adult classmates have their own conflicts, boundaries and consent.
+// A social scene uses one daytime action; it is never a free map overlay.
+assert.equal(SOCIAL_CAST.length, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 6)
+assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 3)
+assert.equal(SOCIAL_DAYS.length, 18)
+assert.ok(!SOCIAL_DAYS.includes(20 as never))
+assert.ok(!SOCIAL_DAYS.includes(24 as never))
+assert.ok(!SOCIAL_DAYS.includes(16 as never))
+assert.ok(SOCIAL_CAST.every((p) => p.boundary && p.duty && p.privateMoment))
+const blankSocial = newSocialState()
+assert.ok(validSocialState(blankSocial, 2))
+assert.deepEqual(socialChoices(blankSocial, 'mina', 20), [])
+assert.deepEqual(
+  socialChoices(blankSocial, 'mina', 2, { unavailable: true }),
+  [],
+)
+assert.ok(!socialChoices(blankSocial, 'mina', 2).some((c) => c.id === 'invite'))
+assert.equal(applySocialChoice(blankSocial, 'mina', 2, 'date'), null)
+assert.equal(socialMissionBonus(undefined, ['mina']), 0)
+assert.equal(
+  socialFinaleText(
+    undefined,
+    Object.fromEntries(STUDENTS.map((s) => [s.id, s.name])) as Record<
+      StudentId,
+      string
+    >,
+  ),
+  '',
+)
+let socialRun: AcademyRun = { ...startFullAcademy('kinetic', 101), day: 2 }
+const firstMeet = socialize(socialRun, 'nix', 'listen')
+assert.equal(firstMeet.phase, 'dispatch')
+assert.equal(firstMeet.relationships?.connections.nix?.trust, 1)
+assert.ok(firstMeet.scene.includes('Nix'))
+assert.deepEqual(socialize(firstMeet, 'nix', 'help'), firstMeet)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(firstMeet))),
+  firstMeet,
+)
+socialRun = { ...firstMeet, day: 3, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'help')
+assert.equal(socialRun.relationships?.connections.nix?.trust, 3)
+assert.equal(socialRun.relationships?.connections.nix?.helped, true)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 4, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'invite')
+assert.equal(socialRun.relationships?.connections.nix?.courtingDay, 4)
+assert.equal(socialRun.relationships?.romance, undefined)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 5, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'date')
+assert.equal(socialRun.relationships?.romance, 'nix')
+assert.equal(socialRun.relationships?.connections.nix?.romance, true)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 6, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'partner')
+assert.equal(socialRun.relationships?.partner, 'nix')
+socialRun = { ...socialRun, day: 7, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'sidekick')
+assert.equal(socialRun.relationships?.sidekick, 'nix')
+assert.equal(socialMissionBonus(socialRun.relationships!, ['nix']), 2)
+assert.equal(socialMissionBonus(socialRun.relationships!, ['mina']), 0)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+const finaleSocial = finishAcademy(
+  { ...socialRun, day: 30, phase: 'finale' },
+  'protect',
+)
+assert.ok(finaleSocial.scene.includes('Nix Venn coordinates the rescue line'))
+assert.ok(finaleSocial.scene.includes('Nix Venn meets you after the alarms'))
+assert.ok(finaleSocial.scene.includes('your sidekick'))
+const leaving = socialize(
+  { ...socialRun, day: 9, phase: 'map' },
+  'nix',
+  'release',
+)
+assert.equal(leaving.relationships?.partner, undefined)
+assert.equal(leaving.relationships?.sidekick, undefined)
+assert.equal(leaving.relationships?.romance, undefined)
+assert.equal(leaving.relationships?.connections.nix?.romance, false)
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(leaving))), leaving)
+// No unearned partner, automatic romance, double social day, or forced courtship.
+const noBond = {
+  ...startFullAcademy('kinetic', 100),
+  day: 3,
+  phase: 'map' as const,
+}
+assert.deepEqual(socialize(noBond, 'mina', 'partner'), noBond)
+assert.deepEqual(socialize(noBond, 'mina', 'invite'), noBond)
+assert.deepEqual(socialize({ ...noBond, day: 20 }, 'mina', 'listen'), {
+  ...noBond,
+  day: 20,
+})
+assert.deepEqual(socialize({ ...noBond, day: 29 }, 'mina', 'listen'), {
+  ...noBond,
+  day: 29,
+})
+const unavailableSocial = { ...noBond, day: 21, injuries: { mina: 23 } }
+assert.deepEqual(
+  socialize(unavailableSocial, 'mina', 'listen'),
+  unavailableSocial,
+)
+const separatedSocial = {
+  ...noBond,
+  day: 21,
+  betrayal: {
+    day: 20 as const,
+    person: 'mina' as const,
+    status: 'isolated' as const,
+  },
+}
+assert.deepEqual(socialize(separatedSocial, 'mina', 'listen'), separatedSocial)
+const deniedMina = {
+  ...socialRun,
+  day: 10,
+  phase: 'map' as const,
+  relationships: {
+    ...socialRun.relationships!,
+    partner: undefined,
+    sidekick: undefined,
+    romance: undefined,
+    connections: { mina: { trust: 3, helped: true, romance: false } },
+    days: [2, 3],
+  },
+  playerEvolution: {
+    ...socialRun.playerEvolution!,
+    form: 'villain' as const,
+    protect: 0,
+    exploit: 2,
+    milestones: [{ day: 16 as const, form: 'villain' as const }],
+  },
+}
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'mina', 10, {
+    form: 'villain',
+  }).some((c) => c.id === 'invite'),
+)
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'sol', 10).some(
+    (c) => c.id === 'invite',
+  ),
+)
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'imani', 10, { danger: 20 }).some(
+    (c) => c.id === 'invite',
+  ),
+)
+const olderSocial = { ...noBond, relationships: undefined }
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(olderSocial))),
+  JSON.parse(JSON.stringify(olderSocial)),
+)
+assert.equal(
+  restoreAcademy({ ...noBond, relationships: { ...blankSocial, days: [29] } }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...noBond,
+    relationships: { ...blankSocial, partner: 'bad' },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...noBond,
+    relationships: {
+      ...blankSocial,
+      connections: { mina: { trust: -10, helped: true, romance: true } },
+    },
+  }),
+  null,
+)
+
+assert.equal(CAMPAIGN_ANCHORS.length, 30)
+assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
+// All 48 character identities can independently become the antagonist.
+// The eight conspiracy templates are schemes, not an eight-character ceiling.
+assert.equal(IDENTITY_ARCS.length, 48)
+const observedOpponents = new Set<string>()
+const observedPressures = new Set<number>()
+for (const protagonist of IDENTITY_ARCS) {
+  const rivals = new Set<string>()
+  for (let seed = 1; seed <= 47; seed++) {
+    const villain = campaignOpponent(seed, protagonist.signature)
+    assert.notEqual(villain.signature, protagonist.signature)
+    assert.equal(identityFor(villain.signature).realName, villain.realName)
+    assert.notEqual(villain.hero.alias, villain.villain.alias)
+    assert.ok(villain.quests.antagonist.length > 35)
+    assert.ok(villain.villain.method.length > 35)
+    rivals.add(villain.signature)
+    observedOpponents.add(villain.signature)
+    observedPressures.add(
+      opponentPressure(protagonist.signature, villain.signature),
+    )
+  }
+  assert.equal(
+    rivals.size,
+    47,
+    'Every character can confront all other 47 people',
+  )
+}
+assert.equal(observedOpponents.size, 48)
+assert.ok(observedPressures.has(1))
+assert.ok(observedPressures.has(0))
+assert.ok(observedPressures.has(-1))
+for (const villain of IDENTITY_ARCS) {
+  assert.ok(antagonistBeat(villain, 15).includes(villain.quests.antagonist))
+  assert.ok(antagonistBeat(villain, 20).includes(villain.villain.method))
+  assert.ok(antagonistFinale(villain, true).includes(villain.backstory))
+  assert.ok(antagonistFinale(villain, false).includes(villain.villain.method))
+}
+const identityRun = startFullAcademy(
+  fieldFor('accident-fire'),
+  47,
+  'accident-fire',
+)
+const identityFoe = identityFor(identityRun.opponentSignature!)
+assert.notEqual(identityRun.opponentSignature, identityRun.signature)
+assert.ok(
+  encounterFor({ ...identityRun, day: 15, phase: 'campus' }).scene.includes(
+    identityFoe.quests.antagonist,
+  ),
+)
+assert.ok(
+  nextSchoolDay({ ...identityRun, day: 29, phase: 'debrief' }).scene.includes(
+    identityFoe.villain.alias,
+  ),
+)
+const identityEnding = finishAcademy(
+  { ...identityRun, day: 30, phase: 'finale' },
+  'protect',
+)
+assert.ok(identityEnding.scene.includes(identityFoe.realName))
+assert.ok(identityEnding.scene.includes(identityFoe.villain.method))
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(identityEnding))),
+  identityEnding,
+)
+assert.equal(
+  restoreAcademy({ ...identityRun, opponentSignature: identityRun.signature }),
+  null,
+)
+assert.equal(
+  restoreAcademy({ ...identityRun, opponentSignature: 'unknown-power' }),
+  null,
+)
+const oldCampaign = { ...identityRun, opponentSignature: undefined }
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(oldCampaign))),
+  JSON.parse(JSON.stringify(oldCampaign)),
+)
+assert.ok(
+  !finishAcademy(
+    { ...oldCampaign, day: 30, phase: 'finale' },
+    'protect',
+  ).scene.includes(identityFoe.realName),
+)
+
+assert.equal(CAMPAIGN_VILLAINS.length, 8)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 8)
+const allAccomplices = CAMPAIGN_VILLAINS.flatMap((v) => v.accomplices ?? [])
+assert.equal(allAccomplices.length, 24)
+assert.equal(new Set(allAccomplices.map((a) => a.id)).size, 24)
+assert.equal(new Set(allAccomplices.map((a) => a.name)).size, 24)
+assert.ok(
+  allAccomplices.every((a) => a.motive.length > 24 && a.sabotage.length > 24),
+)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.method)).size, 8)
+for (let seed = 1; seed <= 8; seed++) {
+  const villain = campaignVillain(seed)
+  assert.equal(villain.id, CAMPAIGN_VILLAINS[seed % 8]!.id)
+  assert.ok(villain.countermeasure && villain.fall && villain.coup)
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 8, 'Mina')?.scene.includes(
+      'anonymous message',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 15, 'Mina')?.scene.includes(
+      'duplicate emergency key',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 20, 'Mina')?.scene.includes(
+      'betrayal is real',
+    ),
+  )
+  for (const [day, index] of [
+    [11, 0],
+    [17, 1],
+    [26, 2],
+  ] as const) {
+    const event = campaignPlotEvent(seed, villain.id, day, 'Mina')!
+    assert.ok(event.scene.includes(villain.accomplices![index]!.name))
+    assert.equal(event.options.length, 2)
+  }
+  const original = startFullAcademy('kinetic', seed)
+  assert.equal(original.mastermind, villain.id)
+  assert.equal(original.betrayer, campaignBetrayer(seed))
+  const go = (day: number, choice: string) =>
+    chooseEncounter({ ...original, day, phase: 'campus' }, choice)
+  const betrayed = go(20, 'plot-betrayal-hear')
+  assert.equal(betrayed.betrayal?.person, campaignBetrayer(seed))
+  assert.equal(betrayed.betrayal?.day, 20)
+  assert.equal(betrayed.betrayal?.status, 'active')
+  assert.equal(studentAvailable(betrayed, campaignBetrayer(seed)), false)
+  const blockedTeam = { ...betrayed, phase: 'dispatch' as const }
+  assert.deepEqual(
+    assignTeam(blockedTeam, incidentsFor(blockedTeam)[0]!.id, [
+      campaignBetrayer(seed),
+    ]),
+    blockedTeam,
+  )
+  assert.ok(
+    betrayed.log.some((line) => line.includes('The Hero Turns at the Gate')),
+  )
+  assert.deepEqual(
+    restoreAcademy(JSON.parse(JSON.stringify(betrayed))),
+    betrayed,
+  )
+  const reconciled = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-accountable',
+  )
+  assert.equal(reconciled.betrayal?.status, 'reconciled')
+  assert.equal(studentAvailable(reconciled, campaignBetrayer(seed)), true)
+  const isolated = chooseEncounter(
+    { ...betrayed, day: 24, phase: 'campus' },
+    'plot-return-separate',
+  )
+  assert.equal(isolated.betrayal?.status, 'isolated')
+  assert.equal(studentAvailable(isolated, campaignBetrayer(seed)), false)
+  const exposed = go(11, 'plot-a1-expose')
+  assert.deepEqual(exposed.plotEvidence, [villain.accomplices![0]!.id])
+  const withheld = go(11, 'plot-a1-bargain')
+  assert.deepEqual(withheld.plotEvidence, [])
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(exposed))), exposed)
+  assert.equal(
+    restoreAcademy({ ...exposed, plotEvidence: ['fabricated-lead'] }),
+    null,
+  )
+  assert.equal(
+    restoreAcademy({
+      ...betrayed,
+      betrayal: { day: 20, person: 'nobody', status: 'active' },
+    }),
+    null,
+  )
+}
+const formerFourSeed = {
+  ...startFullAcademy('kinetic', 4),
+  mastermind: 'the-architect',
+}
+assert.equal(campaignVillain(4, formerFourSeed.mastermind).id, 'the-architect')
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(formerFourSeed))),
+  formerFourSeed,
+)
+
+assert.equal(PROM_FINALE.choices.length, 4)
+for (const seed of [1, 2, 3, 4, 997]) {
+  let run = startFullAcademy(
+    fieldFor('accident-fire'),
+    seed,
+    'accident-fire',
+    'shelter',
+  )
+  assert.equal(run.flowVersion, 3)
+  assert.equal(run.mastermind, campaignVillain(seed).id)
+  assert.equal(restoreAcademy(JSON.parse(JSON.stringify(run)))?.flowVersion, 3)
+  for (let day = 1; day <= 29; day++) {
+    assert.equal(run.day, day)
+    assert.equal(run.phase, 'map')
+    const site = CITY_SITES[(day - 1) % CITY_SITES.length]!
+    assert.notEqual(visitCitySite(run, 'unknown' as never).phase, 'campus')
+    run = visitCitySite(run, site.id)
+    assert.equal(run.phase, 'campus')
+    assert.ok(encounterFor(run).scene.includes(CAMPAIGN_ANCHORS[day - 1]!))
+    const choice =
+      encounterFor(run).options[
+        (seed + day) % encounterFor(run).options.length
+      ]!
+    run = chooseEncounter(run, choice.id)
+    assert.equal(run.phase, 'dispatch')
+    if (day === 20) {
+      assert.equal(run.betrayal?.day, 20)
+      assert.equal(studentAvailable(run, campaignBetrayer(seed)), false)
+    }
+    if (day === 24) assert.ok(run.betrayal?.status)
+    if (day === 29) assert.ok(run.guestPlan)
+    const cases = incidentsFor(run)
+    for (const incident of cases) {
+      const picked = STUDENTS.find(
+        (student) =>
+          studentAvailable(run, student.id) &&
+          !run.assignments.some((assignment) =>
+            assignment.students.includes(student.id),
+          ),
+      )
+      if (picked) run = assignTeam(run, incident.id, [picked.id])
+    }
+    assert.ok(run.assignments.length)
+    run = resolveDispatch(run)
+    assert.equal(run.phase, 'debrief')
+    assert.ok(run.injuries)
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
+    const after = nextSchoolDay(run)
+    assert.equal(after.day, day === 29 ? 30 : day + 1)
+    if (day < 29) assert.equal(after.phase, 'map')
+    run = after
+  }
+  assert.equal(run.day, 30)
+  assert.equal(run.phase, 'finale')
+  assert.ok(run.scene.includes('real, not a simulation'))
+  assert.ok(run.scene.includes('fourth dance'))
+  const endings = ['protect', 'command', 'share', 'evacuate'] as const
+  const titles = endings.map((choice) => finishAcademy(run, choice).ending)
+  assert.equal(new Set(titles).size, 3)
+  for (const choice of endings) {
+    const ended = finishAcademy(run, choice)
+    assert.equal(ended.phase, 'ending')
+    assert.ok(ended.scene.includes('twelve-sided chandelier'))
+    assert.ok(ended.scene.includes(campaignVillain(seed).name))
+    assert.ok(ended.log.some((entry) => entry.includes('Day 30:')))
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(ended))), ended)
+  }
+}
+const injuredRun = {
+  ...startFullAcademy('kinetic', 88),
+  day: 6,
+  injuries: { mina: 8 },
+}
+assert.equal(studentAvailable(injuredRun, 'mina'), false)
+const dispatched = { ...injuredRun, phase: 'dispatch' as const }
+assert.deepEqual(
+  assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']),
+  dispatched,
+)
+const betrayedInjured = {
+  ...injuredRun,
+  day: 21,
+  injuries: { mina: 23 },
+  betrayal: {
+    day: 20 as const,
+    person: 'mina' as const,
+    status: 'active' as const,
+  },
+}
+assert.deepEqual(tendInfirmary(betrayedInjured, 'mina'), betrayedInjured)
+const healed = tendInfirmary(injuredRun, 'mina')
+assert.equal(healed.phase, 'dispatch')
+assert.equal(healed.injuries?.mina, 6)
+assert.equal(healed.infirmaryDays?.[0], 6)
+assert.equal(studentAvailable(healed, 'mina'), true)
+assert.deepEqual(tendInfirmary(injuredRun, 'sol'), injuredRun)
+assert.equal(restoreAcademy({ ...injuredRun, injuries: { mystery: 9 } }), null)
+assert.equal(
+  restoreAcademy({ ...injuredRun, visitedDays: { mystery: 2 } }),
+  null,
+)
+
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
@@ -361,11 +1263,27 @@ assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
 assert.ok(page.includes('data-testid="academy-signature-detail"'))
 assert.ok(page.includes('data-testid="academy-identity-preview"'))
 assert.ok(page.includes('data-testid="academy-map"'))
+assert.ok(page.includes('data-testid="academy-map-sites"'))
+assert.ok(page.includes('data-testid="academy-first-week"'))
+assert.ok(page.includes('data-testid="academy-plot-status"'))
+assert.ok(page.includes('data-testid="academy-villain-identity"'))
+assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
+assert.ok(page.includes('data-testid="academy-identity-choice"'))
+assert.ok(page.includes('data-testid="academy-social-switch"'))
+assert.ok(page.includes('data-testid="academy-social-panel"'))
+assert.ok(page.includes('data-testid="academy-social-choice"'))
+assert.ok(page.includes("store.end('share')"))
+assert.ok(page.includes('store.heal(student.id)'))
+assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(page.includes('data-testid="academy-crossover-roster"'))
 assert.ok(page.includes('currentIdentity.backstory'))
 assert.ok(page.includes('currentIdentityStory.setup'))
-assert.ok(page.includes('selectedElement'))
+assert.ok(page.includes('selectedOrigin'))
+assert.ok(page.includes('selectedAffinity'))
+assert.ok(page.includes('data-testid="academy-persona-triad"'))
+assert.ok(page.includes('card.persona.stats[stat.id]'))
+assert.ok(!page.includes('POWER_FORMS'))
 assert.ok(page.includes('selectedVow'))
 console.log('Capes & Tassels playable first-week slice and route: OK')

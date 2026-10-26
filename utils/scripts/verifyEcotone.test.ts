@@ -1,5 +1,8 @@
 import './verifyEcotoneClarityRecovery.test'
 import './verifyEcotoneAdversarial.test'
+import './verifyEcotoneCausalForest.test'
+import './verifyEcotoneCausalQuiet.test'
+import './verifyEcotoneCausalKinetic.test'
 import './verifyEcotoneSoloRepair.test'
 import './verifyEcotonePerks.test'
 import './verifyEcotoneSceneOffers.test'
@@ -717,11 +720,25 @@ assert.ok(
 assert.equal(new Set(ALL_CARDS.map((c) => c.id)).size, ALL_CARDS.length)
 assert.equal(CHAPTERS.length, 6)
 for (const card of ALL_CARDS) {
-  const playable = card.choices.filter((choice) => !choice.locked)
-  assert.ok(
-    playable.length >= 2 && card.choices.length <= 4,
-    `${card.id} offers 2-4 choices, at least two playable`,
-  )
+  const prerequisites = [
+    null,
+    ...new Set(
+      card.choices.flatMap((choice) =>
+        choice.requiresFlag ? [choice.requiresFlag] : [],
+      ),
+    ),
+  ]
+  for (const prerequisite of prerequisites) {
+    const playable = card.choices.filter(
+      (choice) =>
+        !choice.locked &&
+        (!choice.requiresFlag || choice.requiresFlag === prerequisite),
+    )
+    assert.ok(
+      playable.length >= 2 && playable.length <= 4,
+      `${card.id} offers 2-4 choices with prerequisite ${prerequisite ?? 'none'}`,
+    )
+  }
   assert.ok(card.provenance.length > 0, `${card.id} names its provenance`)
   for (const choice of card.choices) {
     if (choice.check) {
@@ -856,13 +873,15 @@ function play(seed: number, plan: Plan) {
     }
     const card = findCard(state.card)
     assert.ok(card, 'a beat is in play')
+    const playable = card.choices.filter(
+      (c) =>
+        !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+    )
     const choice =
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
       openingLensChoices(card).find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
-      card.choices.filter((c) => !c.locked)[
-        pick(card.choices.filter((c) => !c.locked).length)
-      ]
+      playable[pick(playable.length)]
     state = advance(chooseBeat(state, choice?.id ?? ''))
   }
   return state
@@ -1581,7 +1600,11 @@ function wildRun(seed: number, wild: boolean, lens: LensId = 'sober') {
       state = chooseCrossroads(state, false)
     else {
       const card = findCard(state.card)!
-      const open = openingLensChoices(card).filter((c) => !c.locked)
+      const open = openingLensChoices(card).filter(
+        (c) =>
+          !c.locked &&
+          (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+      )
       const pickChoice =
         open.find((c) => c.lens === lens) ??
         open.find((c) => c.meet === false) ??

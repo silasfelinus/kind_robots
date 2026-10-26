@@ -1,8 +1,51 @@
-import { identityFor, identityStoryFor } from './identityArcs'
+import {
+  fieldFor,
+  identityFor,
+  identityStoryFor,
+  IDENTITY_ARCS,
+} from './identityArcs'
+import {
+  beginPlayerEvolution,
+  evolutionEncounter,
+  evolutionNightModifier,
+  isValidPlayerEvolution,
+  recordPlayerValues,
+  resolveEvolution,
+  type PlayerEvolution,
+} from './protagonistEvolution'
+import {
+  antagonistBeat,
+  antagonistFinale,
+  campaignOpponent,
+  opponentPressure,
+} from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
+import {
+  applySocialChoice,
+  newSocialState,
+  socialChoices,
+  socialFinaleText,
+  socialMissionBonus,
+  validSocialState,
+  type SocialState,
+  type SocialActionId,
+} from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
+import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
 import {
+  CAMPAIGN_ANCHORS,
+  campaignAnchor,
+  campaignVillain,
+  campaignBetrayer,
+  campaignPlotEvent,
+  campaignAccomplice,
+  CAMPAIGN_VILLAINS,
+  GUEST_LIST_EVENT,
+} from './campaign'
+import {
+  finaleFor,
+  migrateSignatureId,
   signatureById,
   POWER_VOWS,
   type SignaturePowerId,
@@ -371,9 +414,26 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   encounterDeckVersion?: 2
-  flowVersion?: 2
+  flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
+  visitedDays?: Partial<Record<SiteId, number>>
+  injuries?: Partial<Record<StudentId, number>>
+  infirmaryDays?: number[]
+  guestPlan?: 'open' | 'private' | 'duplicate'
+  mastermind?: string
+  opponentSignature?: SignaturePowerId
+  playerEvolution?: PlayerEvolution
+  relationships?: SocialState
+  betrayer?: StudentId
+  betrayal?: {
+    day: number
+    person: StudentId
+    status: 'active' | 'reconciled' | 'isolated'
+  }
+  plotEvidence?: string[]
+  academyStanding?: number
+  cityStanding?: number
   phase: AcademyPhase
   day: number
   influence: number
@@ -398,9 +458,58 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 }
 
 export function encounterFor(run: AcademyRun) {
-  if (run.flowVersion === 2 && run.selectedSite) {
+  if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if (
+    run.flowVersion === 3 &&
+    (run.day === 16 || run.day === 23) &&
+    run.playerEvolution
+  ) {
+    const event = evolutionEncounter(
+      run.signature,
+      run.playerEvolution,
+      run.day,
+    )
+    return { ...event, scene: `${campaignAnchor(run.day)} ${event.scene}` }
+  }
+  if (run.flowVersion === 3) {
+    const person = STUDENTS.find(
+      (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
+    )!
+    const plot = campaignPlotEvent(
+      run.seed,
+      run.mastermind,
+      run.day,
+      person.name,
+    )
+    if (plot) {
+      const opponent = run.opponentSignature
+        ? campaignOpponent(run.seed, run.signature, run.opponentSignature)
+        : null
+      return {
+        ...plot,
+        scene: `${campaignAnchor(run.day)} ${plot.scene} ${opponent ? antagonistBeat(opponent, run.day) : ''}`,
+      }
+    }
+  }
+  if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
-    if (site) return ENCOUNTERS[site.encounterIndex]!
+    if (site) {
+      const districtScene = districtEncounterFor(site.id)
+      const base =
+        districtScene ??
+        (site.encounterIndex !== undefined
+          ? ENCOUNTERS[site.encounterIndex]!
+          : undefined)
+      if (base && run.flowVersion === 3) {
+        const previous = run.visitedDays?.[site.id]
+        return {
+          ...base,
+          title: previous ? `${base.title} / Return Visit` : base.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
+        }
+      }
+      if (base) return base
+    }
   }
   // Existing v1 saves keep the original three-card order mid-term.
   const index =
@@ -411,9 +520,12 @@ export function encounterFor(run: AcademyRun) {
 }
 
 export function visitCitySite(run: AcademyRun, siteId: SiteId): AcademyRun {
-  if (run.flowVersion !== 2 || run.phase !== 'map') return run
+  if (![2, 3].includes(run.flowVersion ?? 0) || run.phase !== 'map') return run
   const site = CITY_SITES.find((entry) => entry.id === siteId)
-  if (!site || run.visitedSites?.includes(siteId)) return run
+  if (!site || (run.flowVersion === 2 && run.visitedSites?.includes(siteId)))
+    return run
+  if (run.flowVersion === 3 && (run.visitedDays?.[siteId] ?? -7) > run.day - 7)
+    return run
   return {
     ...run,
     selectedSite: siteId,
@@ -430,7 +542,7 @@ export function startAcademy(
 ): AcademyRun {
   if (!POWERS.some((entry) => entry.id === power))
     throw new Error('Unknown power set')
-  if (signature && signatureById(signature)?.legacy !== power)
+  if (signature && (!signatureById(signature) || fieldFor(signature) !== power))
     throw new Error('Unknown power combination')
   if (vow && !POWER_VOWS.some((entry) => entry.id === vow))
     throw new Error('Unknown hero vow')
@@ -444,6 +556,8 @@ export function startAcademy(
     flowVersion: 2,
     phase: 'map',
     visitedSites: [],
+    academyStanding: 0,
+    cityStanding: 0,
     day: 1,
     influence: 0,
     danger: 2,
@@ -453,6 +567,100 @@ export function startAcademy(
       'The first bell rings. A thirty-day final month begins with a strange week of field simulations.',
     log: [],
     ending: null,
+  }
+}
+
+export function startFullAcademy(
+  power: PowerId,
+  seed = Date.now(),
+  signature?: SignaturePowerId,
+  vow?: PowerVowId,
+): AcademyRun {
+  const base = startAcademy(power, seed, signature, vow)
+  return {
+    ...base,
+    flowVersion: 3,
+    playerEvolution: beginPlayerEvolution(),
+    relationships: newSocialState(),
+    visitedDays: {},
+    injuries: {},
+    infirmaryDays: [],
+    mastermind: campaignVillain(base.seed).id,
+    opponentSignature: campaignOpponent(base.seed, base.signature).signature,
+    betrayer: campaignBetrayer(base.seed),
+    plotEvidence: [],
+    scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
+  }
+}
+
+export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
+  return (
+    (run.injuries?.[id] ?? 0) <= run.day &&
+    !(
+      run.flowVersion === 3 &&
+      run.day >= 20 &&
+      run.betrayal?.person === id &&
+      run.betrayal.status !== 'reconciled'
+    )
+  )
+}
+
+export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
+  if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
+  if (
+    !STUDENTS.some((person) => person.id === id) ||
+    (run.injuries?.[id] ?? 0) <= run.day ||
+    (run.betrayal?.person === id && run.betrayal.status !== 'reconciled')
+  )
+    return run
+  return {
+    ...run,
+    phase: 'dispatch',
+    injuries: { ...run.injuries, [id]: run.day },
+    infirmaryDays: [...(run.infirmaryDays ?? []), run.day],
+    scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but you forgo a city lead.`,
+    influence: run.influence + 1,
+    log: [...run.log, `Day ${run.day}: Infirmary treatment for ${id}`],
+  }
+}
+
+export function socialize(
+  run: AcademyRun,
+  id: StudentId,
+  choice: SocialActionId,
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'map' ||
+    !run.relationships ||
+    !studentAvailable(run, id)
+  )
+    return run
+  const options = socialChoices(run.relationships, id, run.day, {
+    unavailable: !studentAvailable(run, id),
+    form: run.playerEvolution?.form,
+    danger: run.danger,
+  })
+  const selection = options.find((option) => option.id === choice)
+  if (!selection) return run
+  const relationships = applySocialChoice(
+    run.relationships,
+    id,
+    run.day,
+    choice,
+    {
+      form: run.playerEvolution?.form,
+      danger: run.danger,
+    },
+  )
+  if (!relationships) return run
+  const person = STUDENTS.find((student) => student.id === id)!
+  return {
+    ...run,
+    relationships,
+    phase: 'dispatch',
+    scene: `Day ${run.day}: ${person.name}. ${selection.text} The daylight is spent; night patrol still needs a team.`,
+    log: [...run.log, `Day ${run.day}: ${person.name} — ${selection.label}`],
   }
 }
 
@@ -466,6 +674,11 @@ export function assignTeam(
   if (selected.length > 3 || new Set(selected).size !== selected.length)
     return run
   if (selected.some((id) => !STUDENTS.some((student) => student.id === id)))
+    return run
+  if (
+    run.flowVersion === 3 &&
+    selected.some((id) => !studentAvailable(run, id))
+  )
     return run
   const remaining = run.assignments.filter(
     (assignment) => assignment.caseId !== caseId,
@@ -488,6 +701,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   if (run.phase !== 'dispatch' || run.assignments.length === 0) return run
   let influence = run.influence
   let danger = run.danger
+  const injuries = { ...(run.injuries ?? {}) }
   const reports = incidentsFor(run).map((incident) => {
     const assignment = run.assignments.find(
       (entry) => entry.caseId === incident.id,
@@ -500,7 +714,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         names: 'No team dispatched',
         grade: 'failed' as Grade,
         text:
-          run.flowVersion === 2 && run.day > 2
+          [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
             ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
             : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
@@ -514,11 +728,63 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         run.seed,
         `${run.day}:${incident.id}:${assignment.students.join(',')}`,
       ) % 6
+    // Residents and classmates remember the player's prior decisions.
+    // City goodwill helps public rescues; underworld contacts aid covert
+    // operations. Neither modifies the original training-save outcomes.
+    const cityStanding = run.cityStanding ?? 0
+    const academyStanding = run.academyStanding ?? 0
+    const civicSupport =
+      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+        ? incident.allegiance === 'villain'
+          ? cityStanding <= -2
+            ? 1
+            : cityStanding >= 2
+              ? -1
+              : 0
+          : cityStanding >= 2
+            ? 1
+            : cityStanding <= -2
+              ? -1
+              : 0
+        : 0
+    const academySupport =
+      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+        ? academyStanding >= 2
+          ? 1
+          : academyStanding <= -2
+            ? -1
+            : 0
+        : 0
+    const villain =
+      run.flowVersion === 3
+        ? campaignVillain(run.seed, run.mastermind)
+        : undefined
+    const reportedNetwork = run.plotEvidence?.length ?? 0
+    const activeNetwork =
+      run.flowVersion === 3 &&
+      run.day >= 11 &&
+      reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
+    const sabotagePenalty =
+      activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
+    const identityPressure =
+      run.flowVersion === 3 &&
+      run.day >= 15 &&
+      incident.allegiance !== 'villain'
+        ? opponentPressure(run.signature, run.opponentSignature)
+        : 0
     const score =
       roll +
       assignment.students.length +
       (affinity ? 2 : 0) +
-      (run.power === incident.need ? 1 : 0)
+      (run.power === incident.need ? 1 : 0) +
+      civicSupport +
+      academySupport -
+      sabotagePenalty -
+      identityPressure +
+      (run.flowVersion === 3
+        ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
+          socialMissionBonus(run.relationships, assignment.students)
+        : 0)
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -552,10 +818,36 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       failed:
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
-    const text =
-      (run.flowVersion === 2 && run.day > 2
+    const baseText =
+      ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
+    const sabotagedBy =
+      villain && activeNetwork
+        ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
+        : undefined
+    const bondedSupport = socialMissionBonus(
+      run.relationships,
+      assignment.students,
+    )
+    const textWithBonds = bondedSupport
+      ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
+      : baseText
+    const text =
+      sabotagedBy && incident.allegiance !== 'villain'
+        ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
+        : textWithBonds
+    if (
+      run.flowVersion === 3 &&
+      run.day > 2 &&
+      (grade === 'failed' || (grade === 'partial' && roll % 2 === 0))
+    ) {
+      const index =
+        hash(run.seed, `${run.day}:${incident.id}:injury`) %
+        assignment.students.length
+      const injured = assignment.students[index]!
+      injuries[injured] = Math.max(injuries[injured] ?? 0, run.day + 2)
+    }
     return {
       caseId: incident.id,
       title: incident.title,
@@ -568,14 +860,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   })
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'debrief' : 'campus',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
+    ...(run.flowVersion === 3 ? { injuries } : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
-    scene:
-      run.flowVersion === 2
-        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
-        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    scene: [2, 3].includes(run.flowVersion ?? 0)
+      ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+      : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -591,6 +883,14 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (entry) => entry.id === optionId,
   )
   if (!option) return run
+  const isEvolution =
+    run.flowVersion === 3 &&
+    [16, 23].includes(run.day) &&
+    Boolean(run.playerEvolution)
+  const evolved = isEvolution
+    ? resolveEvolution(run.playerEvolution!, optionId, run.day, run.signature)
+    : null
+  if (isEvolution && !evolved) return run
   const powerUsed =
     (option.id === 'truth' && run.power === 'empathy') ||
     (option.id === 'cover' && run.power === 'technopathy')
@@ -601,17 +901,90 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (special
       ? ` Your signature technique, ${special.name}, offers another approach: ${special.action}. ${special.cost}.`
       : '')
+  const plot =
+    run.flowVersion === 3
+      ? campaignPlotEvent(
+          run.seed,
+          run.mastermind,
+          run.day,
+          STUDENTS.find(
+            (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
+          )!.name,
+        )
+      : undefined
+  const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
+  const plotEvidence = [...(run.plotEvidence ?? [])]
+  if (
+    run.flowVersion === 3 &&
+    option.id.startsWith('plot-a') &&
+    option.id.endsWith('-expose')
+  ) {
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const index = Number(option.id[6]) - 1
+    const evidence = villain.accomplices?.[index]?.id
+    if (evidence && !plotEvidence.includes(evidence))
+      plotEvidence.push(evidence)
+  }
+  const betrayal =
+    run.flowVersion === 3 && run.day === 20
+      ? { day: 20, person: betrayerId, status: 'active' as const }
+      : run.flowVersion === 3 && run.day === 24
+        ? {
+            day: 20,
+            person: betrayerId,
+            status:
+              option.id === 'plot-return-accountable'
+                ? ('reconciled' as const)
+                : ('isolated' as const),
+          }
+        : run.betrayal
+  const neighborhood = CITY_SITES.find((site) => site.id === run.selectedSite)
+  const trustChange =
+    'trust' in option && typeof option.trust === 'number' ? option.trust : 0
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'dispatch' : 'debrief',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'dispatch' : 'debrief',
+    ...(run.flowVersion === 3 && run.day === 29
+      ? {
+          guestPlan:
+            option.id === 'guest-open'
+              ? ('open' as const)
+              : option.id === 'guest-private'
+                ? ('private' as const)
+                : ('duplicate' as const),
+        }
+      : {}),
+    ...(run.flowVersion === 3 && plot
+      ? {
+          plotEvidence,
+          ...(betrayal ? { betrayal } : {}),
+        }
+      : {}),
+    ...(run.flowVersion === 3 && run.playerEvolution
+      ? {
+          playerEvolution:
+            evolved ?? recordPlayerValues(run.playerEvolution, option),
+        }
+      : {}),
     influence: run.influence + option.influence,
+    academyStanding:
+      (run.academyStanding ?? 0) +
+      (neighborhood?.district === 'academy' ? trustChange : 0),
+    cityStanding:
+      (run.cityStanding ?? 0) +
+      (neighborhood?.district === 'city' ? trustChange : 0),
     danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)),
     scene:
       run.flowVersion === 2
         ? `${scene} Dusk settles; you must now assign a night team.`
         : scene,
+    ...(run.flowVersion === 3 && run.selectedSite
+      ? {
+          visitedDays: { ...run.visitedDays, [run.selectedSite]: run.day },
+        }
+      : {}),
     visitedSites:
-      run.flowVersion === 2 && run.selectedSite
+      [2, 3].includes(run.flowVersion ?? 0) && run.selectedSite
         ? [...(run.visitedSites ?? []), run.selectedSite]
         : run.visitedSites,
     log: [
@@ -623,7 +996,17 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
 
 export function nextSchoolDay(run: AcademyRun): AcademyRun {
   if (run.phase !== 'debrief') return run
-  if (run.day >= 7)
+  if (run.flowVersion === 3 && run.day >= 29)
+    return {
+      ...run,
+      day: 30,
+      phase: 'finale',
+      assignments: [],
+      reports: [],
+      scene: `${CAMPAIGN_ANCHORS[29]} The ${campaignVillain(run.seed, run.mastermind).name} conspiracy now ${campaignVillain(run.seed, run.mastermind).method}. ${run.opponentSignature ? antagonistBeat(identityFor(run.opponentSignature), 30) : ''} This is real, not a simulation.`,
+      log: [...run.log, 'Day 30: The fourth dance and the real Prom of Doom'],
+    }
+  if (run.flowVersion !== 3 && run.day >= 7)
     return {
       ...run,
       phase: 'finale',
@@ -632,7 +1015,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     }
   return {
     ...run,
-    phase: run.flowVersion === 2 ? 'map' : 'dispatch',
+    phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
     day: run.day + 1,
     selectedSite: undefined,
     assignments: [],
@@ -644,9 +1027,88 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
 
 export function finishAcademy(
   run: AcademyRun,
-  choice: 'protect' | 'command',
+  choice: 'protect' | 'command' | 'share' | 'evacuate',
 ): AcademyRun {
   if (run.phase !== 'finale') return run
+  if (run.flowVersion === 3) {
+    const villain = campaignVillain(run.seed, run.mastermind)
+    const evidenceCount = run.plotEvidence?.length ?? 0
+    const identityForm = run.playerEvolution?.form ?? 'student'
+    const roleStanding =
+      identityForm === 'hero' ? 2 : identityForm === 'villain' ? -2 : 0
+    const roleEpilogue =
+      run.signature && run.playerEvolution
+        ? identityForm === 'hero'
+          ? `${identityFor(run.signature).realName} graduates as ${identityFor(run.signature).hero.alias}: ${identityFor(run.signature).hero.method} Their promise persists after the shattered prom.`
+          : identityForm === 'villain'
+            ? `${identityFor(run.signature).realName} leaves the ballroom as ${identityFor(run.signature).villain.alias}: ${identityFor(run.signature).villain.method} The city remembers the cost of their bargain.`
+            : `${identityFor(run.signature).realName} remains ${identityFor(run.signature).student.alias}, choosing a future without compulsory transformation.`
+        : ''
+    const reconciled = run.betrayal?.status === 'reconciled'
+    const support =
+      (run.cityStanding ?? 0) +
+      (run.academyStanding ?? 0) +
+      evidenceCount * 2 +
+      (reconciled ? 2 : 0)
+    const identityPressure = opponentPressure(
+      run.signature,
+      run.opponentSignature,
+    )
+    const earned =
+      support + roleStanding >= 2 + identityPressure &&
+      run.danger <= 48 + evidenceCount * 2 - identityPressure
+    const opponent = run.opponentSignature
+      ? identityFor(run.opponentSignature)
+      : null
+    const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
+    const rescue = choice === 'protect' || choice === 'evacuate'
+    const shared = choice === 'share'
+    const ending = shared
+      ? earned
+        ? 'A CITY WITH A THOUSAND KEYS'
+        : 'THE BROKEN GRID'
+      : rescue
+        ? earned
+          ? 'THE LAST DANCE LEAVES BY BOAT'
+          : 'THE MUSIC AFTER GLASS'
+        : earned
+          ? 'MASTER OF THE SHIELD'
+          : 'THE PRICE OF A SINGLE SWITCH'
+    const keys =
+      run.guestPlan === 'duplicate'
+        ? 'Independent rescuers possess duplicate emergency keys.'
+        : run.guestPlan === 'open'
+          ? 'The ballroom serves as public shelter, crowding the exits.'
+          : 'Private security controls the ballroom doors.'
+    const conspiracyOutcome = earned ? villain.fall : villain.coup
+    const betrayalOutcome = run.betrayal
+      ? `${STUDENTS.find((s) => s.id === run.betrayal!.person)!.name} betrayed the rescue network on day 20. ${reconciled ? 'They returned under public oversight and helped repair the damage.' : 'The damaged relationship never received an easy pardon.'}`
+      : 'An unidentified classmate remains connected to the compromised emergency grid.'
+    const relationshipEpilogue = socialFinaleText(
+      run.relationships,
+      Object.fromEntries(STUDENTS.map((s) => [s.id, s.name])) as Record<
+        StudentId,
+        string
+      >,
+    )
+    const cost = shared
+      ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'
+      : rescue
+        ? 'Guests escape, but the ballroom and nearby streets are damaged as people carry the injured through debris.'
+        : 'The centralized shield remains operable, but people who trusted the operator cannot easily reclaim their safety.'
+    return {
+      ...run,
+      phase: 'ending',
+      ending,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      log: [
+        ...run.log,
+        `Day 30: ${choice} against ${villain.name}`,
+        `Finale: ${ending}`,
+      ],
+    }
+  }
+  if (choice === 'share' || choice === 'evacuate') return run
   const protect = choice === 'protect'
   const earned = protect
     ? run.influence >= 2 && run.danger <= 12
@@ -670,7 +1132,7 @@ export function finishAcademy(
     ? identityStoryFor(identity, 'protagonist', protect ? 'hero' : 'villain')
     : null
   const identityProjection = projectedStory
-    ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${projectedStory.setup}. ${projectedStory.decision}. That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
+    ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${sentence(projectedStory.setup)} ${sentence(projectedStory.decision)} That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
     : ''
   const zuzuChoice = run.log.find((line) =>
     line.includes('The Stray Blade Arrives —'),
@@ -690,9 +1152,10 @@ export function finishAcademy(
         ? 'Tess Helio knows her map was copied. The rehearsal hints at the Void Cartographer, a name born from the cost of someone else owning her routes.'
         : '',
   ].filter(Boolean)
+  const signature = run.signature ? signatureById(run.signature) : undefined
   const signatureProjection =
-    run.signature && run.vow
-      ? `The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
+    signature && identity && run.vow
+      ? `The first-week projection also shows a possible real graduation: ${finaleFor(signature, identity.realName, identity.villain.alias, run.vow)}`
       : ''
   return {
     ...run,
@@ -710,36 +1173,108 @@ export function finishAcademy(
   }
 }
 
+function sentence(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`
+}
+
+function migrateSignature(data: Partial<AcademyRun>): Partial<AcademyRun> {
+  if (data.signature === undefined) return data
+  const signature = migrateSignatureId(data.signature)
+  if (!signature || signature === data.signature) return data
+  return { ...data, signature, power: fieldFor(signature) }
+}
+
 export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (!raw || typeof raw !== 'object') return null
-  const data = raw as Partial<AcademyRun>
+  const data = migrateSignature(raw as Partial<AcademyRun>)
   if (
     data.version !== 1 ||
     !POWERS.some((p) => p.id === data.power) ||
     (data.signature !== undefined &&
-      signatureById(data.signature)?.legacy !== data.power) ||
+      (!signatureById(data.signature) ||
+        fieldFor(data.signature) !== data.power)) ||
     (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
     typeof data.seed !== 'number' ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
     data.day < 1 ||
-    data.day > 7 ||
+    data.day > (data.flowVersion === 3 ? 30 : 7) ||
+    (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||
-    (data.flowVersion === 2 &&
+    ([2, 3].includes(data.flowVersion ?? 0) &&
       (!Array.isArray(data.visitedSites) ||
         data.visitedSites.some(
           (site) => !CITY_SITES.some((node) => node.id === site),
         ) ||
         (data.selectedSite !== undefined &&
           !CITY_SITES.some((node) => node.id === data.selectedSite)))) ||
-    (data.flowVersion !== 2 && data.phase === 'map') ||
+    (![2, 3].includes(data.flowVersion ?? 0) && data.phase === 'map') ||
+    (data.flowVersion === 3 &&
+      (!data.visitedDays ||
+        typeof data.visitedDays !== 'object' ||
+        !data.injuries ||
+        typeof data.injuries !== 'object' ||
+        !Array.isArray(data.infirmaryDays) ||
+        (data.mastermind !== undefined &&
+          !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
+        (data.relationships !== undefined &&
+          !validSocialState(data.relationships, data.day!)) ||
+        (data.playerEvolution !== undefined &&
+          (!isValidPlayerEvolution(data.playerEvolution, data.signature) ||
+            data.playerEvolution.milestones.some(
+              (event) => event.day > data.day!,
+            ))) ||
+        (data.opponentSignature !== undefined &&
+          ((data.signature !== undefined &&
+            data.opponentSignature === data.signature) ||
+            !IDENTITY_ARCS.some(
+              (arc) => arc.signature === data.opponentSignature,
+            ))) ||
+        (data.betrayer !== undefined &&
+          data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
+        (data.plotEvidence !== undefined &&
+          (!Array.isArray(data.plotEvidence) ||
+            data.plotEvidence.some(
+              (id) =>
+                !campaignVillain(
+                  data.seed ?? 0,
+                  data.mastermind,
+                ).accomplices?.some((a) => a.id === id),
+            ) ||
+            new Set(data.plotEvidence).size !== data.plotEvidence.length)) ||
+        (data.betrayal !== undefined &&
+          (!['active', 'reconciled', 'isolated'].includes(
+            data.betrayal.status,
+          ) ||
+            data.betrayal.day !== 20 ||
+            data.betrayal.person !== campaignBetrayer(data.seed ?? 0))) ||
+        Object.entries(data.visitedDays).some(
+          ([site, day]) =>
+            !CITY_SITES.some((entry) => entry.id === site) ||
+            !Number.isInteger(day) ||
+            (day as number) < 1 ||
+            (day as number) > data.day!,
+        ) ||
+        Object.entries(data.injuries).some(
+          ([student, until]) =>
+            !STUDENTS.some((entry) => entry.id === student) ||
+            !Number.isInteger(until) ||
+            (until as number) < 0 ||
+            (until as number) > 32,
+        ))) ||
     !Array.isArray(data.log) ||
     !Array.isArray(data.assignments) ||
     !Array.isArray(data.reports) ||
     typeof data.influence !== 'number' ||
-    typeof data.danger !== 'number'
+    typeof data.danger !== 'number' ||
+    (data.academyStanding !== undefined &&
+      (!Number.isFinite(data.academyStanding) ||
+        !Number.isInteger(data.academyStanding))) ||
+    (data.cityStanding !== undefined &&
+      (!Number.isFinite(data.cityStanding) ||
+        !Number.isInteger(data.cityStanding)))
   )
     return null
   return data as AcademyRun

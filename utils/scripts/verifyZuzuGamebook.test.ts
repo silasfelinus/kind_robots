@@ -551,6 +551,10 @@ assert.deepEqual(notes.deeds, [
   { text: 'listened', dark: true },
 ])
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
+assert.deepEqual(journal(['debt:coyote-cover', 'debt:sister']).debts, [
+  'The Coyote Vagrant',
+  'The sister',
+])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
 // A failed parley at Hollis's well must not force a trusted, prepared sister
@@ -587,6 +591,17 @@ const grabbedUnprepared: Run = {
 }
 assert.ok(lockReason(grabbedUnprepared, hollisRetreat))
 assert.equal(takeChoice(grabbedUnprepared, 'follow-sister'), grabbedUnprepared)
+const estrangedSister: Run = {
+  ...grabbedAlone,
+  flags: ['sister-trust', 'sister-wary'],
+}
+assert.ok(
+  !visibleChoices(estrangedSister, scene('a4-well-grab')).some(
+    (choice) => choice.id === 'follow-sister',
+  ),
+  'neglect after earned trust must retire the sister rescue',
+)
+assert.equal(takeChoice(estrangedSister, 'follow-sister'), estrangedSister)
 for (const health of [1, 3, 6, 12]) {
   for (const resolve of [0, 4]) {
     const trusted: Run = {
@@ -613,6 +628,245 @@ assert.equal(
   takeChoice(grabbedAlone, 'fight').sceneId,
   'a4-well-battle',
   'the existing dangerous choice remains available',
+)
+
+// Real from-new-game Hollis witnesses: a synthetic low-HP setup alone cannot
+// prove that the sister's escape is reachable or that declining her trust matters.
+function followHollisRoute(
+  seed: number,
+  steps: readonly (readonly [string, string])[],
+): Run {
+  let run = startRun(seed)
+  for (const [choice, destination] of steps) {
+    const next = takeChoice(run, choice)
+    assert.notEqual(next, run, 'rejected ' + run.sceneId + '/' + choice)
+    assert.equal(next.sceneId, destination, run.sceneId + '/' + choice)
+    run = next
+  }
+  return run
+}
+
+const trustedHollisSteps = [
+  ['avoid', 'dust-road'],
+  ['hurry', 'hollow-bell'],
+  ['search', 'survivors'],
+  ['kneel', 'sister-trust'],
+  ['go', 'they-follow'],
+  ['let', 'a3-first-day'],
+  ['shade', 'a3-shade'],
+  ['on', 'two-fires'],
+  ['sleep', 'a3-cold-dawn'],
+  ['road', 'a3-salt-pan'],
+  ['cross', 'apple-tree'],
+  ['leave-all', 'a3-apples-reach'],
+  ['on', 'a3-apple-days'],
+  ['keep', 'a3-theft'],
+  ['seen', 'a3-theft-seen'],
+  ['on', 'a3-fever'],
+  ['kindness', 'a3-fever-vigil'],
+  ['on', 'a3-last-camp'],
+  ['wave', 'a3-one-fire'],
+  ['on', 'canyon-road'],
+  ['long', 'a4-canyon-floor'],
+  ['carry', 'bone-river'],
+  ['pass', 'a4-stone-face'],
+  ['cover', 'a4-face-covered'],
+  ['on', 'a4-dry-well'],
+  ['walk', 'a4-well-toll'],
+  ['why', 'a4-well-grab'],
+] as const
+const trustedHollis = followHollisRoute(48, trustedHollisSteps)
+assert.deepEqual(trustedHollis.lastRoll?.dice, [1, 3])
+assert.equal(trustedHollis.lastRoll?.success, false)
+assert.ok(trustedHollis.flags.includes('sister-trust'))
+assert.ok(trustedHollis.items.includes('bandage'))
+const sisterRescue = takeChoice(trustedHollis, 'follow-sister')
+assert.equal(sisterRescue.sceneId, 'a4-well-slip')
+assert.ok(sisterRescue.flags.includes('debt:sister'))
+assert.ok(sisterRescue.flags.includes('sister-led-escape'))
+assert.ok(!sisterRescue.items.includes('bandage'))
+assert.equal(sisterRescue.resolve, Math.max(0, trustedHollis.resolve - 1))
+assert.equal(sisterRescue.health, trustedHollis.health)
+assert.deepEqual(journal(sisterRescue.flags).debts, ['The sister'])
+const afterRescue = takeChoice(sisterRescue, 'on')
+assert.equal(afterRescue.sceneId, 'a4-wide-berth')
+assert.equal(afterRescue.health, Math.max(1, sisterRescue.health - 2))
+const resumedRoad = takeChoice(afterRescue, 'on')
+assert.equal(resumedRoad.sceneId, 'a4-waystation')
+assert.equal(resumedRoad.battle, null)
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(resumedRoad))))
+assert.ok(resumedRoad.flags.includes('debt:sister'))
+
+// The same legal seed can earn trust early, then lose the sister's confidence
+// by walking through her brother's fever. The later rescue must not survive
+// that choice simply because the earlier trust flag remains in the journal.
+const estrangedHollis = followHollisRoute(48, [
+  ...trustedHollisSteps.slice(0, 16),
+  ['walk', 'a3-fever-walk'],
+  ['on', 'a3-fever-long-night'],
+  ['on', 'a3-last-camp'],
+  ['apart', 'a3-far-fires'],
+  ['on', 'canyon-road'],
+  ...trustedHollisSteps.slice(20),
+])
+assert.equal(estrangedHollis.sceneId, 'a4-well-grab')
+assert.deepEqual(estrangedHollis.lastRoll?.dice, [1, 3])
+assert.ok(estrangedHollis.flags.includes('sister-trust'))
+assert.ok(estrangedHollis.flags.includes('sister-wary'))
+assert.ok(
+  !visibleChoices(estrangedHollis, scene('a4-well-grab')).some(
+    (choice) => choice.id === 'follow-sister',
+  ),
+)
+assert.equal(takeChoice(estrangedHollis, 'follow-sister'), estrangedHollis)
+assert.equal(takeChoice(estrangedHollis, 'pay').sceneId, 'a4-well-paid')
+
+// An actual seed with no earned trust fails the same parley. The new retreat
+// stays locked, while surrendering water remains a legitimate costly choice.
+const untrustedHollis = followHollisRoute(1, [
+  ['avoid', 'dust-road'],
+  ['hurry', 'hollow-bell'],
+  ['search', 'survivors'],
+  ['wait', 'they-follow'],
+  ['let', 'a3-first-day'],
+  ['pace', 'a3-hard-pace'],
+  ['camp', 'two-fires'],
+  ['sleep', 'a3-cold-dawn'],
+  ['road', 'a3-salt-pan'],
+  ['cross', 'apple-tree'],
+  ['leave-all', 'a3-apples-reach'],
+  ['on', 'a3-apple-days'],
+  ['keep', 'a3-theft'],
+  ['let', 'a3-theft-kept'],
+  ['on', 'a3-fever'],
+  ['walk', 'a3-fever-walk'],
+  ['on', 'a3-fever-long-night'],
+  ['on', 'a3-last-camp'],
+  ['apart', 'a3-far-fires'],
+  ['on', 'canyon-road'],
+  ['long', 'a4-canyon-floor'],
+  ['wait', 'bone-river'],
+  ['pass', 'a4-stone-face'],
+  ['listen', 'a4-face-listen'],
+  ['on', 'a4-dry-well'],
+  ['walk', 'a4-well-toll'],
+  ['why', 'a4-well-grab'],
+])
+assert.deepEqual(untrustedHollis.lastRoll?.dice, [4, 2])
+assert.ok(!untrustedHollis.flags.includes('sister-trust'))
+assert.ok(lockReason(untrustedHollis, hollisRetreat))
+assert.equal(takeChoice(untrustedHollis, 'follow-sister'), untrustedHollis)
+const paidHollis = takeChoice(untrustedHollis, 'pay')
+assert.equal(paidHollis.sceneId, 'a4-well-paid')
+assert.ok(!paidHollis.items.includes('water'))
+assert.ok(paidHollis.flags.includes('a4-stripped'))
+assert.ok(!paidHollis.flags.includes('debt:sister'))
+console.log(
+  'Gamebook Hollis from-start witnesses: seed 48 earned rescue, seed 1 paid after failed parley',
+)
+
+// A full seed-48 journey proves that trust and estrangement can coexist in a
+// real save. The isolated knifepoint checks below change only the scene to
+// exercise that later guard; they are not claimed as full Abbess witnesses.
+const abbessKnifepoint = scene('a8-knifepoint')
+const sisterNod = abbessKnifepoint.choices?.find(
+  (choice) => choice.id === 'nod',
+)
+assert.ok(sisterNod)
+assert.equal(sisterNod.needs, 'sister-trust')
+assert.equal(sisterNod.unless, 'sister-wary')
+const trustedAtAltar: Run = {
+  ...trustedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(
+  visibleChoices(trustedAtAltar, abbessKnifepoint).some(
+    (choice) => choice.id === 'nod',
+  ),
+)
+const nodRescue = takeChoice(trustedAtAltar, 'nod')
+assert.equal(nodRescue.sceneId, 'a8-sister-bites')
+assert.ok(nodRescue.flags.includes('sister-free'))
+const estrangedAtAltar: Run = {
+  ...estrangedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(
+  !visibleChoices(estrangedAtAltar, abbessKnifepoint).some(
+    (choice) => choice.id === 'nod',
+  ),
+  'a later betrayal must retire the old trust-only rescue',
+)
+assert.equal(takeChoice(estrangedAtAltar, 'nod'), estrangedAtAltar)
+const untrustedAtAltar: Run = {
+  ...untrustedHollis,
+  sceneId: 'a8-knifepoint',
+}
+assert.ok(lockReason(untrustedAtAltar, sisterNod))
+assert.equal(takeChoice(untrustedAtAltar, 'nod'), untrustedAtAltar)
+assert.equal(abbessKnifepoint.choices?.[0]?.id, 'trust')
+assert.equal(abbessKnifepoint.choices?.[1]?.id, 'refuse')
+assert.equal(abbessKnifepoint.choices?.[2]?.id, 'strike')
+for (const risky of ['trust', 'strike']) {
+  const riskChoice: { label: string; check?: { failure: string } } | undefined =
+    abbessKnifepoint.choices?.find((entry) => entry.id === risky)
+  assert.match(riskChoice?.label ?? '', /fail: 3 HP wound/)
+  assert.equal(
+    riskChoice?.check?.failure,
+    risky === 'trust' ? 'a8-word-broken' : 'stabbed',
+  )
+}
+assert.equal(scene('a8-word-broken').choices?.[0]?.to, 'stabbed')
+assert.equal(scene('stabbed').effects?.hurt, 3)
+console.log(
+  'Gamebook Abbess trust regression: seeded 48 trusted/estranged preconditions, guarded rescue and explicit wound cues',
+)
+
+// A later betrayal must retire the mechanical trust bonus as well as the rescue.
+// Seed 28 rolls 4+4: Mercy 0 fails the 9 target, while earned trust passes.
+for (const [encounter, choiceId, successScene, failureScene] of [
+  ['a8-standoff', 'wait', 'a8-standoff-break', 'nuns-attack'],
+  ['a9-sister-knife', 'hand', 'a9-beside', 'a9-behind'],
+] as const) {
+  const bonus = scene(encounter).choices?.find(
+    (choice) => choice.id === choiceId,
+  )?.check?.bonus
+  assert.deepEqual(bonus, {
+    flag: 'sister-trust',
+    amount: 2,
+    unless: 'sister-wary',
+  })
+  const base: Run = {
+    ...startRun(28),
+    sceneId: encounter,
+    health: 3,
+    resolve: 0,
+    flags: [],
+  }
+  const trusted = takeChoice({ ...base, flags: ['sister-trust'] }, choiceId)
+  const estranged: Run = {
+    ...base,
+    flags: ['sister-trust', 'sister-wary'],
+  }
+  const betrayed = takeChoice(estranged, choiceId)
+  const untrusted = takeChoice(base, choiceId)
+  assert.deepEqual(trusted.lastRoll?.dice, [4, 4])
+  assert.deepEqual(betrayed.lastRoll?.dice, trusted.lastRoll?.dice)
+  assert.deepEqual(untrusted.lastRoll?.dice, trusted.lastRoll?.dice)
+  assert.equal(trusted.lastRoll?.modifier, 2)
+  assert.equal(betrayed.lastRoll?.modifier, 0)
+  assert.equal(untrusted.lastRoll?.modifier, 0)
+  assert.equal(trusted.sceneId, successScene)
+  assert.equal(betrayed.sceneId, failureScene)
+  assert.equal(untrusted.sceneId, failureScene)
+  assert.equal(betrayed.health, 3)
+  assert.equal(betrayed.resolve, 0)
+  assert.ok(betrayed.flags.includes('sister-wary'))
+  assert.ok(isSavedRun(JSON.parse(JSON.stringify(betrayed))))
+  assert.deepEqual(estranged.flags, ['sister-trust', 'sister-wary'])
+}
+console.log(
+  'Gamebook Abbess and sister knife: estrangement retires trust dice bonuses',
 )
 
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
@@ -662,6 +916,155 @@ for (const health of [1, 3, 6, 12]) {
     assert.ok(!returned.flags.includes('breach-left-open'))
   }
 }
+
+// Search the actual reducer graph, rather than teleporting a fabricated low-HP
+// save into Act VIII. This route must free the sister, survive the nuns, fail
+// the Abbess's ambush, and arrive at the wounded bargain with real dice.
+function findWoundedAbbessWitness(): {
+  seed: number
+  moves: PlaytestMove[]
+  run: Run
+} | null {
+  const target = 'a8-voice-wound'
+  const parents = new Map<string, string[]>()
+  for (const node of Object.values(BOOK)) {
+    const destinations = [
+      ...(node.choices ?? []).flatMap((choice) =>
+        choice.check
+          ? [choice.check.success, choice.check.failure]
+          : [choice.to],
+      ),
+      ...(node.battle ? [node.battle.win, node.battle.lose] : []),
+    ]
+    for (const destination of destinations)
+      parents.set(destination, [...(parents.get(destination) ?? []), node.id])
+  }
+  const distances = new Map<string, number>([[target, 0]])
+  const queue = [target]
+  for (let i = 0; i < queue.length; i++) {
+    const from = queue[i]!
+    for (const parent of parents.get(from) ?? []) {
+      if (distances.has(parent)) continue
+      distances.set(parent, distances.get(from)! + 1)
+      queue.push(parent)
+    }
+  }
+
+  for (let seed = 1; seed <= 48; seed++) {
+    const seen = new Set<string>()
+    let budget = 6000
+    const search = (
+      run: Run,
+      moves: PlaytestMove[],
+    ): { seed: number; moves: PlaytestMove[]; run: Run } | null => {
+      if (run.sceneId === target)
+        return run.flags.includes('sister-free') ? { seed, moves, run } : null
+      if (
+        --budget < 0 ||
+        moves.length >= 145 ||
+        scene(run.sceneId).ending ||
+        !distances.has(run.sceneId)
+      )
+        return null
+      const key = [
+        run.sceneId,
+        run.seed,
+        run.health,
+        run.resolve,
+        run.battle?.hp ?? '',
+        run.battle?.exposed ?? '',
+        run.items.join(','),
+        run.pendingLoot.join(','),
+        run.flags.join(','),
+      ].join('|')
+      if (seen.has(key)) return null
+      seen.add(key)
+
+      let options: PlaytestMove[]
+      if (run.pendingLoot.length) {
+        options = [{ kind: 'loot', replace: null }]
+      } else if (run.battle) {
+        options = (['quiet-draw', 'feint', 'strike', 'guard'] as const)
+          .filter((action) => action !== 'quiet-draw' || run.resolve >= 2)
+          .map((action) => ({ kind: 'fight' as const, action }))
+      } else {
+        options = visibleChoices(run, scene(run.sceneId))
+          .filter((choice) => !lockReason(run, choice))
+          .filter((choice) =>
+            (choice.check
+              ? [choice.check.success, choice.check.failure]
+              : [choice.to]
+            ).some((destination) => distances.has(destination)),
+          )
+          .sort((a, b) => {
+            const distance = (choice: typeof a) =>
+              Math.min(
+                ...(choice.check
+                  ? [choice.check.success, choice.check.failure]
+                  : [choice.to]
+                ).map((destination) => distances.get(destination) ?? Infinity),
+              )
+            return (
+              distance(a) - distance(b) ||
+              Number(b.id === 'cut') - Number(a.id === 'cut')
+            )
+          })
+          .map((choice) => ({ kind: 'choice' as const, id: choice.id }))
+      }
+      for (const move of options) {
+        const next = applyPlaytestMove(run, move)
+        if (next === run) continue
+        const found = search(next, [...moves, move])
+        if (found) return found
+      }
+      return null
+    }
+    const found = search(startRun(seed), [])
+    if (found) return found
+  }
+  return null
+}
+
+const woundedAbbessWitness = findWoundedAbbessWitness()
+assert.ok(
+  woundedAbbessWitness,
+  'A real seeded journey must reach the wounded Abbess with the sister freed',
+)
+const woundedAbbess = woundedAbbessWitness.run
+assert.equal(woundedAbbess.sceneId, 'a8-voice-wound')
+assert.ok(woundedAbbess.visited.includes('nuns-attack'))
+assert.ok(woundedAbbess.visited.includes('abbess-strikes'))
+assert.ok(woundedAbbess.visited.includes('stabbed'))
+assert.ok(woundedAbbess.flags.includes('sister-free'))
+assert.ok(woundedAbbess.health >= 1 && woundedAbbess.health <= 9)
+assert.deepEqual(
+  replayWitness(woundedAbbessWitness.seed, woundedAbbessWitness.moves),
+  woundedAbbess,
+)
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(woundedAbbess))))
+const earnedRetreat = takeChoice(woundedAbbess, 'escape-with-sister')
+assert.equal(earnedRetreat.sceneId, 'a8-wounded-flight')
+assert.equal(earnedRetreat.health, woundedAbbess.health)
+assert.ok(earnedRetreat.flags.includes('honor:refused-the-dark'))
+const evacuated = takeChoice(earnedRetreat, 'carry-them')
+assert.equal(evacuated.sceneId, 'ending-hunted')
+assert.ok(evacuated.flags.includes('breach-left-open'))
+assert.equal(evacuated.health, woundedAbbess.health)
+const returnedWounded = takeChoice(earnedRetreat, 'turn-back')
+assert.equal(returnedWounded.sceneId, 'abbess')
+assert.equal(returnedWounded.health, woundedAbbess.health)
+assert.equal(returnedWounded.battle?.hp, 9)
+assert.ok(!returnedWounded.flags.includes('breach-left-open'))
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(returnedWounded))))
+console.log(
+  'Gamebook real wounded Abbess witness: seed=' +
+    woundedAbbessWitness.seed +
+    ', moves=' +
+    woundedAbbessWitness.moves.length +
+    ', HP=' +
+    woundedAbbess.health +
+    ', sister freed, retreat and return validated',
+)
 
 // Golden journeys must remain replayable without the search solver, including
 // rare moral endings and failures. Changes to choices, dice or consequences

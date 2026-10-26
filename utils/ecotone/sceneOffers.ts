@@ -1,7 +1,7 @@
 import type { Choice, EncounterCard } from './content'
 import type { RunState } from './engine'
 import type { SubstanceId } from './substanceArc'
-import { openingLensChoices } from './openingLensChoices'
+import { contextualStoryChoices } from './causalChoices'
 
 /**
  * The complete authored lens catalogue is for outcomes, saves and test fixtures.
@@ -12,7 +12,10 @@ export function contextualOpeningChoices(
   card: EncounterCard,
   state: RunState,
 ): Choice[] {
-  const authored = openingLensChoices(card)
+  const authored = contextualStoryChoices(card, state.flags).filter(
+    (choice) =>
+      !choice.requiresFlag || state.flags.includes(choice.requiresFlag),
+  )
   if (card.id === 'GR-2')
     return authored.filter((choice) =>
       ['sober', 'stoned', 'tripping'].includes(choice.id),

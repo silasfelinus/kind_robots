@@ -396,7 +396,7 @@
                     : 'TRAINING SIMULATION'
                 }}
               </div>
-              <p>{{ incident.briefing }}</p>
+              <p>{{ run.flowVersion === 2 && run.day > 2 ? (realNightCase(incident.id)?.briefing ?? incident.briefing) : incident.briefing }}</p>
               <div class="cca-roster">
                 <button
                   v-for="student in STUDENTS"
@@ -598,6 +598,7 @@ import {
   type CharacterBond,
 } from '~/utils/cometAcademy/identityArcs'
 import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
+import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import {
   projectCitySites,
   projectedCityRoads,

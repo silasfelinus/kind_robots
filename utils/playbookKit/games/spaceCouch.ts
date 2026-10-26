@@ -151,7 +151,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
     beats: [
       { moment: 'couch-launch', line: 'What if the spaceship really was just a couch?' },
       { moment: 'bubble-glint', line: 'Fortunately the air comes with a warranty.' },
-      { moment: 'holodeck-fold', line: 'The rooms fit behind the sofa. Science declines to explain.' },
+      { moment: 'war-room', line: 'The rooms fit behind the sofa. Science declines to explain.' },
       { moment: 'final-gate', line: 'And everyone has opinions about where you should sit.' },
     ],
   },

@@ -425,7 +425,7 @@ export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3) {
     const person = STUDENTS.find(s => s.id === (run.betrayer ?? campaignBetrayer(run.seed)))!
     const plot = campaignPlotEvent(run.seed, run.mastermind, run.day, person.name)
-    if (plot) return plot
+    if (plot) return { ...plot, scene: `${campaignAnchor(run.day)} ${plot.scene}` }
   }
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
@@ -1009,7 +1009,17 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         typeof data.injuries !== 'object' ||
         !Array.isArray(data.infirmaryDays) ||
         (data.mastermind !== undefined &&
-          data.mastermind !== campaignVillain(data.seed ?? 0).id) ||
+          !CAMPAIGN_VILLAINS.some(v => v.id === data.mastermind)) ||
+        (data.betrayer !== undefined &&
+          data.betrayer !== campaignBetrayer(data.seed ?? 0)) ||
+        (data.plotEvidence !== undefined &&
+          (!Array.isArray(data.plotEvidence) ||
+            data.plotEvidence.some(id => !campaignVillain(data.seed ?? 0, data.mastermind).accomplices?.some(a => a.id === id)) ||
+            new Set(data.plotEvidence).size !== data.plotEvidence.length)) ||
+        (data.betrayal !== undefined &&
+          (!['active', 'reconciled', 'isolated'].includes(data.betrayal.status) ||
+            data.betrayal.day !== 20 ||
+            data.betrayal.person !== campaignBetrayer(data.seed ?? 0))) ||
         Object.entries(data.visitedDays).some(
           ([site, day]) =>
             !CITY_SITES.some((entry) => entry.id === site) ||

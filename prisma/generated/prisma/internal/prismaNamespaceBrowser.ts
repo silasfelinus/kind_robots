@@ -57,6 +57,7 @@ export const ModelName = {
   AgentNote: 'AgentNote',
   ArcadeScore: 'ArcadeScore',
   ArcadeReview: 'ArcadeReview',
+  ArcadeGuestRating: 'ArcadeGuestRating',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
   BrainstormSession: 'BrainstormSession',
@@ -278,6 +279,20 @@ export const ArcadeReviewScalarFieldEnum = {
 } as const
 
 export type ArcadeReviewScalarFieldEnum = (typeof ArcadeReviewScalarFieldEnum)[keyof typeof ArcadeReviewScalarFieldEnum]
+
+
+export const ArcadeGuestRatingScalarFieldEnum = {
+  id: 'id',
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  rating: 'rating',
+  comment: 'comment',
+  commentHeld: 'commentHeld',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ArcadeGuestRatingScalarFieldEnum = (typeof ArcadeGuestRatingScalarFieldEnum)[keyof typeof ArcadeGuestRatingScalarFieldEnum]
 
 
 export const ArchiveEntryScalarFieldEnum = {
@@ -2813,6 +2828,15 @@ export const ArcadeReviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArcadeReviewOrderByRelevanceFieldEnum = (typeof ArcadeReviewOrderByRelevanceFieldEnum)[keyof typeof ArcadeReviewOrderByRelevanceFieldEnum]
+
+
+export const ArcadeGuestRatingOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  voterHash: 'voterHash',
+  comment: 'comment'
+} as const
+
+export type ArcadeGuestRatingOrderByRelevanceFieldEnum = (typeof ArcadeGuestRatingOrderByRelevanceFieldEnum)[keyof typeof ArcadeGuestRatingOrderByRelevanceFieldEnum]
 
 
 export const ArchiveEntryOrderByRelevanceFieldEnum = {

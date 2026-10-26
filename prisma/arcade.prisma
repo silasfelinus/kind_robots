@@ -34,3 +34,23 @@ model ArcadeReview {
   @@unique([gameSlug, userId])
   @@index([gameSlug, rating])
 }
+
+// One logged-out visitor's star rating per public Arcade title (Silas,
+// 2026-10-26, conductor interface-vision/t-150). voterHash is a SHA-256 of a
+// random per-browser token, so no IP address, cookie value or user id is
+// stored. Guest comments are held (commentHeld) until a moderator releases
+// them; only the stars count toward the public average immediately.
+model ArcadeGuestRating {
+  id          Int      @id @default(autoincrement())
+  gameSlug    String   @db.VarChar(64)
+  voterHash   String   @db.VarChar(64)
+  rating      Int
+  comment     String?  @db.VarChar(280)
+  commentHeld Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([gameSlug, voterHash])
+  @@index([gameSlug, rating])
+  @@index([voterHash, createdAt])
+}

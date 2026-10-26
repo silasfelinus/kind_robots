@@ -37,6 +37,7 @@ import {
   resolveDispatch,
   restoreAcademy,
   startAcademy,
+  type AcademyRun,
   type StudentId,
   visitCitySite,
 } from '../cometAcademy/rules'
@@ -149,7 +150,7 @@ for (const incident of INCIDENTS) {
   assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
 }
 for (const seed of [1, 15, 900]) {
-  let realRun = {
+  let realRun: AcademyRun = {
     ...startAcademy('kinetic', seed),
     day: 3,
     phase: 'dispatch' as const,

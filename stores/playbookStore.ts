@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
+import type { SceneKind } from '~/utils/ecotone/content'
 import { ALL_CARDS } from '~/utils/ecotone/engine'
 import { playbookCardNode } from '~/utils/playbook/ecotone'
 import {
@@ -13,7 +14,10 @@ import { applyTextEditToNode } from '~/utils/playbook/textOverlay'
 import type { NodeKind, PlaybookNode } from '~/utils/playbook/types'
 import {
   applyCardEdit,
+  blankBeatCard,
   isEmptyEdit,
+  isNewBeatKey,
+  makeNewBeatKey,
   type CardEdit,
 } from '~/utils/playbook/edits'
 import {
@@ -82,7 +86,7 @@ export const KIND_NAMES: Record<NodeKind, string> = {
 
 export const usePlaybookStore = defineStore('playbook', () => {
   const game = ref<PlaybookGame>('ecotone')
-  const playbook = computed(() => buildPlaybook(game.value))
+  const authored = computed(() => buildPlaybook(game.value))
   const games = PLAYBOOK_GAMES.map(({ id, title, cover }) => ({
     id,
     title,
@@ -92,6 +96,37 @@ export const usePlaybookStore = defineStore('playbook', () => {
     () => PLAYBOOK_GAMES.find((g) => g.id === game.value)?.cover ?? '',
   )
   const edits = ref<Record<string, PlaybookEditRow>>({})
+  /** The authored playbook plus the Studio's own "+ New beat" rows (Ecotone). */
+  const playbook = computed(() => {
+    const base = authored.value
+    if (game.value !== 'ecotone') return base
+    const keys = Object.keys(edits.value).filter(isNewBeatKey)
+    if (!keys.length) return base
+    const nodes = { ...base.nodes }
+    for (const key of keys) {
+      const content = edits.value[key]!.content
+      const blank = blankBeatCard(key, content)
+      if (!blank) continue
+      nodes[key] = {
+        ...playbookCardNode(applyCardEdit(blank, content)),
+        editable: true,
+      }
+    }
+    return {
+      ...base,
+      nodes,
+      order: [...base.order, ...keys],
+      sections: [
+        ...base.sections,
+        {
+          title: 'Studio beats',
+          blurb:
+            'New beats written here. A beat is dealt in play once it has a title, text and a choice, and is live.',
+          keys,
+        },
+      ],
+    }
+  })
   const notes = ref<PlaybookNoteRow[]>([])
   const loading = ref(false)
   const loaded = ref(false)
@@ -137,6 +172,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
     if (!base) return null
     const edit = edits.value[key]
     if (!edit || !base.editable) return base
+    if (isNewBeatKey(key)) return base
     if (game.value !== 'ecotone') return applyTextEditToNode(base, edit.content)
     const card = ALL_CARDS.find((c) => c.id === key)
     if (!card) return base
@@ -337,6 +373,22 @@ export const usePlaybookStore = defineStore('playbook', () => {
     return true
   }
 
+  /** Starts a "+ New beat" draft row and selects it. */
+  async function newBeat(chapter = 1, scene: SceneKind = 'meadow') {
+    const key = makeNewBeatKey()
+    const ok = await saveEdit(
+      key,
+      {
+        title: 'Untitled beat',
+        body: ['Write the scene here.'],
+        beat: { chapter, scene },
+      },
+      false,
+    )
+    if (ok) selectedKey.value = key
+    return ok ? key : null
+  }
+
   async function addNote(
     key: string,
     note: {
@@ -513,6 +565,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
     clearFilters,
     load,
     saveEdit,
+    newBeat,
     addNote,
     resolveNote,
     requestArt,

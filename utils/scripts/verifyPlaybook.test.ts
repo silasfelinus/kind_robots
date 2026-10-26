@@ -46,7 +46,11 @@ import {
 import {
   MAX_ADDED_CHOICES,
   applyCardEdit,
+  blankBeatCard,
   isEmptyEdit,
+  isNewBeatKey,
+  makeNewBeatKey,
+  newBeatCard,
   sanitizeCardEdit,
   type CardEdit,
 } from '../playbook/edits'
@@ -348,6 +352,32 @@ if (dealt) {
   finished = 1
 }
 assert.ok(reached > 0, 'a new beat is reached in seeded play')
+
+// The Studio's "+ New beat" button writes a draft row; helpers key and shape it.
+const studioKey = makeNewBeatKey()
+assert.ok(isNewBeatKey(studioKey), 'Studio keys are accepted as new beats')
+const draftRow: CardEdit = {
+  title: 'Untitled beat',
+  body: ['Write the scene here.'],
+  beat: { chapter: 2, scene: 'marsh' },
+}
+assert.equal(
+  newBeatCard(studioKey, draftRow),
+  null,
+  'a fresh draft is not dealt',
+)
+const blank = blankBeatCard(studioKey, draftRow)
+assert.equal(blank?.chapter, 2, 'the draft card keeps its chapter')
+assert.equal(blank?.scene, 'marsh', 'and its scene')
+assert.equal(
+  blankBeatCard('KN-1', draftRow),
+  null,
+  'authored keys have no draft',
+)
+assert.ok(
+  newBeatCard(studioKey, { ...draftRow, added: newBeatRow.added }),
+  'adding a choice makes the draft playable',
+)
 assert.ok(finished > 0, 'and its choice resolves like any other')
 setLiveEdits({})
 assert.equal(findCard(NEW_BEAT), null, 'withdrawing the row withdraws the beat')

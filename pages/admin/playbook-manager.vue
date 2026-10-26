@@ -35,6 +35,17 @@
       </span>
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <button
+          v-if="store.game === 'ecotone'"
+          type="button"
+          class="inline-flex studio-pill-button"
+          title="Write a new beat that the game deals like an authored encounter"
+          :disabled="!store.loaded || store.saving"
+          @click="addBeat"
+        >
+          <span aria-hidden="true">+</span>
+          <span class="max-sm:sr-only">New beat</span>
+        </button>
+        <button
           type="button"
           class="inline-flex studio-pill-button"
           title="Download every edit and open note as JSON for an agent to fold into the source"
@@ -592,6 +603,11 @@ const collection = computed(() => [
 function pickCollection(pick: () => void) {
   pick()
   pane.value = 'atlas'
+}
+
+async function addBeat() {
+  const key = await store.newBeat()
+  if (key) openScene(key)
 }
 
 function openScene(key: string) {

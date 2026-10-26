@@ -2363,6 +2363,11 @@ export const finishDay = (
   }
   const next = cloneRun(run)
   const events: string[] = []
+  // Old saved wounds also end after tonight; no follower stays down for weeks.
+  for (const member of next.roster) {
+    if ((member.injuredUntilDay ?? 0) > run.day + 1)
+      member.injuredUntilDay = run.day + 1
+  }
   // Hot Meals First: the wounded resting at home tonight heal a day sooner.
   const cook = homeAbility(run, 'quartermaster')
   if (cook) {

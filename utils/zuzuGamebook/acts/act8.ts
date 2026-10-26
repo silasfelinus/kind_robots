@@ -787,7 +787,7 @@ export const ACT_VIII: Act = {
               target: 9,
               success: 'a8-standoff-break',
               failure: 'nuns-attack',
-              bonus: { flag: 'sister-trust', amount: 2 },
+              bonus: { flag: 'sister-trust', amount: 2, unless: 'sister-wary' },
             },
           },
           { id: 'step', label: 'Step toward her anyway.', to: 'nuns-attack' },

@@ -608,9 +608,10 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     phase: run.flowVersion === 2 ? 'dispatch' : 'debrief',
     influence: run.influence + option.influence,
     danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)),
-    scene: run.flowVersion === 2
-      ? `${scene} Dusk settles; you must now assign a night team.`
-      : scene,
+    scene:
+      run.flowVersion === 2
+        ? `${scene} Dusk settles; you must now assign a night team.`
+        : scene,
     visitedSites:
       run.flowVersion === 2 && run.selectedSite
         ? [...(run.visitedSites ?? []), run.selectedSite]
@@ -730,7 +731,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     ) ||
     (data.flowVersion === 2 &&
       (!Array.isArray(data.visitedSites) ||
-        data.visitedSites.some((site) => !CITY_SITES.some((node) => node.id === site)) ||
+        data.visitedSites.some(
+          (site) => !CITY_SITES.some((node) => node.id === site),
+        ) ||
         (data.selectedSite !== undefined &&
           !CITY_SITES.some((node) => node.id === data.selectedSite)))) ||
     (data.flowVersion !== 2 && data.phase === 'map') ||

@@ -21,8 +21,7 @@ export type KitchenNoviceChoiceV9 =
   | 'refuse-restitution'
 
 export type JourneyActionV9 =
-  | JourneyActionV7
-  | { type: 'FOLLOWER'; choiceId: KitchenNoviceChoiceV9 }
+  JourneyActionV7 | { type: 'FOLLOWER'; choiceId: KitchenNoviceChoiceV9 }
 
 export type FollowerOutcomeV9 = {
   choiceId: KitchenNoviceChoiceV9
@@ -158,10 +157,7 @@ export function v9CharacterSheet(ledger: JourneyLedgerV9) {
     'Trusted companion',
     'Loyal ally',
   ].includes(status)
-  const estranged = [
-    'Departed after betrayal',
-    'Estranged',
-  ].includes(status)
+  const estranged = ['Departed after betrayal', 'Estranged'].includes(status)
   const contact = {
     id: 'kitchen-novice',
     name: 'Kitchen sister',
@@ -226,14 +222,10 @@ export function kitchenNoviceOptionsV9(
   }
   return choices
     .map((id) => OPTIONS[id])
-    .filter(
-      (option) => journey.provisions + option.provisions >= 0,
-    )
+    .filter((option) => journey.provisions + option.provisions >= 0)
 }
 
-export function kitchenNoviceEchoesV9(
-  ledger: JourneyLedgerV9,
-): WorldEchoV7[] {
+export function kitchenNoviceEchoesV9(ledger: JourneyLedgerV9): WorldEchoV7[] {
   return ledger.followerHistory.map((outcome) => ({
     id: `kitchen-novice-v9-${outcome.turn}-${outcome.choiceId}`,
     landId: outcome.landId,

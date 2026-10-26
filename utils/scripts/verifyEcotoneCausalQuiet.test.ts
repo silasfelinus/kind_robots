@@ -178,10 +178,7 @@ for (let seed = 1; seed <= 300; seed++) {
   const meadowState = walkTo(advance(observed), 'QW-4', solo)
 
   if (seed === 1) {
-    const plainCabin = walkTo(
-      advance(chooseBeat(meadowState, 'wait')),
-      'QW-5',
-    )
+    const plainCabin = walkTo(advance(chooseBeat(meadowState, 'wait')), 'QW-5')
     assert.equal(
       contextualOpeningChoices(cabin, plainCabin).find(
         (choice) => choice.id === 'monitor',

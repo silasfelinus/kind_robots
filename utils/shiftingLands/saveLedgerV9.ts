@@ -173,8 +173,9 @@ export function kitchenNoviceOptionsV9(
     journey.landIndex === 2 &&
     history.length === 1 &&
     history[0]?.choiceId === 'invite-sister' &&
+    homestead &&
     dustwater &&
-    dustwater.turn > homestead!.turn
+    dustwater.turn > homestead.turn
   ) {
     choices = ['carry-family-ledger', 'sell-family-ledger']
   } else if (

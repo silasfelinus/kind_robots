@@ -525,7 +525,8 @@ export function darkHouseExits(progress: DarkHouseProgress): HouseRoomId[] {
   // next numbered square. On older saves, the already-visited route is still
   // traversable, even if that room predates this stricter decision gate.
   const canAdvance =
-    darkHouseRoomResolved(progress) && Boolean(progress.decisions[progress.current])
+    darkHouseRoomResolved(progress) &&
+    Boolean(progress.decisions[progress.current])
   return exits.filter(
     (id) =>
       (canAdvance || progress.visited.includes(id)) &&

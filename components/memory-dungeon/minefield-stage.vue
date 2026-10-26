@@ -121,14 +121,29 @@
       </div>
 
       <div
-        v-if="board.outcome === 'exploring' && world.state.minefield && minefieldRunExhausted(world.state.minefield)"
+        v-if="
+          board.outcome === 'exploring' &&
+          world.state.minefield &&
+          minefieldRunExhausted(world.state.minefield)
+        "
         class="flex max-w-lg shrink-0 flex-col items-center gap-2 rounded-lg border border-[#c2ab76] bg-[#202e2c] p-3 text-center"
         role="alert"
         data-testid="memory-minefield-exhausted"
       >
-        <p class="font-serif text-base font-bold">The archive has forgotten its way.</p>
-        <p class="text-xs">Your map is intact, but this floor has exhausted its recorded moves. Start a new layout to continue exploring.</p>
-        <button type="button" class="rounded-md bg-[#ddca98] px-3 py-2 text-sm font-bold text-[#1c302b]" @click="world.retryExhaustedMinefield()">Restart this floor</button>
+        <p class="font-serif text-base font-bold">
+          The archive has forgotten its way.
+        </p>
+        <p class="text-xs">
+          Your map is intact, but this floor has exhausted its recorded moves.
+          Start a new layout to continue exploring.
+        </p>
+        <button
+          type="button"
+          class="rounded-md bg-[#ddca98] px-3 py-2 text-sm font-bold text-[#1c302b]"
+          @click="world.retryExhaustedMinefield()"
+        >
+          Restart this floor
+        </button>
       </div>
       <div
         v-else-if="board.outcome === 'exploring'"
@@ -157,7 +172,9 @@
           :disabled="world.state.lanterns < 1 || !!world.minefieldHint"
           @click="world.requestMinefieldHint()"
         >
-          {{ world.minefieldHint ? 'Hint revealed' : 'Lantern hint' }} ({{ world.state.lanterns }})
+          {{ world.minefieldHint ? 'Hint revealed' : 'Lantern hint' }} ({{
+            world.state.lanterns
+          }})
         </button>
       </div>
       <div
@@ -210,7 +227,10 @@
 import { computed, ref } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { coordinate, describeCell } from '~/utils/memoryDungeon/minefield'
-import { minefieldRunExhausted, type MinefieldMove } from '~/utils/memoryDungeon/minefieldRun'
+import {
+  minefieldRunExhausted,
+  type MinefieldMove,
+} from '~/utils/memoryDungeon/minefieldRun'
 
 const world = useMemoryWorldStore()
 const board = computed(() => world.minefieldBoard)

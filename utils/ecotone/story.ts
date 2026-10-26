@@ -809,6 +809,7 @@ export const BEATS: EncounterCard[] = [
           effects: {
             evidence: 'Elk tracks that stop in the middle of the road',
             weird: 1,
+            flag: 'elk_road_tracks_vanished',
           },
         },
         failure: {
@@ -903,6 +904,9 @@ export const BEATS: EncounterCard[] = [
       },
       elk_ranger_followup: {
         all: 'The ranger replies to the observation form: three independent visitors recorded the westward turn at the same minute. No one claims to know why. You finally have a date worth keeping.',
+      },
+      elk_road_tracks_vanished: {
+        all: 'Your record of the vanished tracks is dated and kept separate from your theory. The creek crew asks whether you can help survey the road without approaching the herd.',
       },
       elk_future_photo: {
         all: 'Your sandwich-shop receipt is dated today. The photograph you saw on the wall was dated next Thursday. You keep both facts instead of making one cancel the other.',

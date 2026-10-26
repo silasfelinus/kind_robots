@@ -4,7 +4,7 @@
       class="kr-toolbar flex-nowrap gap-3 border-b border-base-content/15 bg-[#070f15] px-4 py-3 sm:px-8"
     >
       <NuxtLink
-        to="/admin/playbook-manager"
+        to="/admin/playbook-forge"
         class="inline-flex studio-pill-button"
       >
         <Icon name="kind-icon:chevron-left" class="size-4" /> Playbook Studio

@@ -124,23 +124,28 @@
 
     <div class="kr-scroll -mx-1 flex min-h-0 flex-1 flex-col gap-4 px-1">
       <ul v-if="section" class="flex flex-col gap-1" aria-label="Beats">
-        <li
-          v-for="unit in units"
-          :key="unit.key"
-          class="flex items-center gap-2 border-l-2 py-1 pl-2 text-sm"
-          :class="BORDER[unit.art]"
-        >
-          <span class="min-w-0 flex-1">
-            <span class="block truncate">{{ unit.title }}</span>
-            <span class="block truncate text-[0.7rem] opacity-60">
-              {{ unitNote(unit) }}
-            </span>
-          </span>
-          <span
-            class="pf-kicker shrink-0 text-[0.6rem]"
-            :class="TEXT[unit.art]"
-            >{{ LABEL[unit.art] }}</span
+        <li v-for="unit in units" :key="unit.key">
+          <button
+            type="button"
+            class="pf-focusable flex w-full items-center gap-2 border-l-2 py-1 pl-2 text-left text-sm hover:bg-base-content/5"
+            :class="BORDER[unit.art]"
+            :title="`Open ${unit.title} in the beat editor`"
+            @click="
+              forge.existing && forge.openBeats(forge.existing.slug, unit.key)
+            "
           >
+            <span class="min-w-0 flex-1">
+              <span class="block truncate">{{ unit.title }}</span>
+              <span class="block truncate text-[0.7rem] opacity-60">
+                {{ unitNote(unit) }}
+              </span>
+            </span>
+            <span
+              class="pf-kicker shrink-0 text-[0.6rem]"
+              :class="TEXT[unit.art]"
+              >{{ LABEL[unit.art] }}</span
+            >
+          </button>
         </li>
       </ul>
       <p v-else-if="ledger" class="text-sm opacity-80">

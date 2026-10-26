@@ -5,7 +5,7 @@ tabKey: playbook-forge
 label: Playbook Forge
 title: Playbook Forge
 subtitle: Idea in, playbook out, with every cost on the screen.
-description: A console for designing Kind Robots story games. Turn an idea into a configured playbook across seven pages of factors (pitch, player, cast, story, rules, endings, save) with a live forecast of images, render time, words and agent sessions, then launch it as a project. Or load an existing game's production ledger, with every beat's art and words, the relay time spent and left, stars per finished section and its discrepancies, and send unfinished sections to the art relay or the next agent.
+description: The one admin console for Kind Robots story games. Design a new playbook factor by factor with a live forecast and launch it as a project; load any game (authored or built on the Playbook Kit) to see its production ledger, edit its beats in the Studio editor with live overlays, notes and art requests, compare it against its plan, and rehearse kit games in the Kit console.
 summary: Design playbooks, forecast gen time.
 icon: kind-icon:hammer
 route: /admin/playbook-forge
@@ -32,8 +32,11 @@ tutorial:
     section earns a star; every section starred with the plan met is super
     shiny. Discrepancies are listed. Submit art sends a section's unpainted
     beats to kr-relay (at most 60 at a time); Send writing gives its missing
-    words to the next agent as a Todo. F (or Menu) opens the game's plan:
-    built against planned, and a revised plan to send. Design notes live in
+    words to the next agent as a Todo. Y (or Beats) opens Playbook Studio for
+    that game: every beat with its scene editor, overlays that go live, notes,
+    flags and art requests. F (or Menu) opens the game's plan:
+    built against planned, and a revised plan to send. Kit console on the title
+    screen rehearses games built on the Playbook Kit. Design notes live in
     Conductor projects/playbook-kit/DESIGN-FORGE.md.
   image: /images/art/resources.webp
 ---

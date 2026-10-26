@@ -12,7 +12,11 @@ export type Journal = {
 const words = (slug: string) => slug.replace(/-/g, ' ')
 
 /** Debts owed to someone the journal knows by name (debt:looter is the boy who gave his at the arch). */
-const DEBT_NAMES: Record<string, string> = { looter: 'Jeffery Mittens' }
+const DEBT_NAMES: Record<string, string> = {
+  looter: 'Jeffery Mittens',
+  sister: 'The sister',
+  'coyote-cover': 'The Coyote Vagrant',
+}
 
 export function journal(flags: string[]): Journal {
   const deeds: JournalEntry[] = []

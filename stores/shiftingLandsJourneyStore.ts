@@ -51,6 +51,7 @@ import {
 import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
 import { worldEchoesV7 } from '~/utils/shiftingLands/worldEchoesV7'
+import { kitchenNoviceQuestEchoesV8 } from '~/utils/shiftingLands/followerEchoesV8'
 import {
   restoreJourneyLedgerV7,
   stepJourneyLedgerV7,
@@ -252,9 +253,17 @@ export const useShiftingLandsJourneyStore = defineStore(
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
     const worldEchoes = computed(() =>
-      ledger.value.version === 7 || ledger.value.version === 8
-        ? worldEchoesV7(ledger.value.current, ledger.value.trialResults)
-        : [],
+      ledger.value.version === 8
+        ? [
+            ...worldEchoesV7(ledger.value.current, ledger.value.trialResults),
+            ...kitchenNoviceQuestEchoesV8(
+              ledger.value.current,
+              ledger.value.trialResults,
+            ),
+          ]
+        : ledger.value.version === 7
+          ? worldEchoesV7(ledger.value.current, ledger.value.trialResults)
+          : [],
     )
     const currentWorldEchoes = computed(() =>
       worldEchoes.value.filter((echo) => echo.landId === currentLand.value.id),

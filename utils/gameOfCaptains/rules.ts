@@ -1,7 +1,10 @@
+import { CREW_PROFILES, previewCrewMission, missionRoll, ruleFor } from './crewAssignments'
+import type { MissionPreview } from './crewAssignments'
+
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
-export type CrewId = 'pell' | 'vela' | 'tess' | 'rue' | 'mox' | 'jex'
+export type CrewId = 'pell' | 'vela' | 'tess' | 'rue' | 'mox' | 'jex' | 'sora' | 'kivo' | 'taal' | 'brin' | 'omi' | 'fen'
 export type VoyagePhase =
-  'briefing' | 'decision' | 'debrief' | 'finale' | 'ending'
+  'briefing' | 'transit' | 'decision' | 'debrief' | 'finale' | 'ending'
 export type Result = 'flawless' | 'success' | 'costly' | 'disaster'
 export type PolicyId = 'aid' | 'observe' | 'intervene'
 
@@ -69,56 +72,13 @@ export const CREW: {
   talent: string
   quote: string
   monogram: string
-}[] = [
-  {
-    id: 'pell',
-    name: 'Bosun Pell',
-    role: 'Engineering',
-    talent: 'tactics',
-    quote: 'I repair the ship. I do not repair the captain.',
-    monogram: 'BP',
-  },
-  {
-    id: 'vela',
-    name: 'Dr. Vela Sorn',
-    role: 'Xenomedicine',
-    talent: 'rescue',
-    quote: 'The word primitive is not a diagnosis.',
-    monogram: 'VS',
-  },
-  {
-    id: 'tess',
-    name: 'Tess Helio',
-    role: 'Navigation',
-    talent: 'luck',
-    quote: 'That star is moving. It should not be moving.',
-    monogram: 'TH',
-  },
-  {
-    id: 'rue',
-    name: 'Rue Aster',
-    role: 'Diplomacy',
-    talent: 'diplomacy',
-    quote: 'Ask who wrote the treaty and who was missing.',
-    monogram: 'RA',
-  },
-  {
-    id: 'mox',
-    name: 'Mox-9',
-    role: 'Science',
-    talent: 'science',
-    quote: 'I have opinions. Unfortunately, they are accurate.',
-    monogram: 'M9',
-  },
-  {
-    id: 'jex',
-    name: 'Jex Marr',
-    role: 'Cultural liaison',
-    talent: 'culture',
-    quote: 'People tell me things when I stop correcting them.',
-    monogram: 'JM',
-  },
-]
+  story: string
+  pronouns: string
+  portraitKey: string
+}[] = CREW_PROFILES.map(({id,name,role,talent,quote,monogram,story,pronouns,portraitKey})=>({
+  id,name,role,talent,quote,monogram,story,pronouns,portraitKey
+}))
+
 export const ANTAGONISTS = [
   {
     id: 'auditor',
@@ -196,6 +156,10 @@ export type VoyageRun = {
   crew: CrewId[]
   away: CrewId[]
   chapter: number
+  day?: number
+  postedDay?: number
+  active?: { missionId: string; party: CrewId[]; departedDay: number; returnsDay: number; chance: number; roll: number; routes: string[] } | null
+  injuredUntil?: Partial<Record<CrewId, number>>
   antagonist: number
   supplies: number
   trust: number
@@ -226,12 +190,11 @@ export function startVoyage(
 ): VoyageRun {
   if (
     !CAPTAINS.some((entry) => entry.id === captain) ||
-    crew.length < 3 ||
-    crew.length > 4 ||
+    crew.length !== 3 ||
     new Set(crew).size !== crew.length ||
     crew.some((id) => !CREW.some((member) => member.id === id))
   )
-    throw new Error('Choose a captain and three or four unique crew')
+    throw new Error('Choose a captain and three unique crew')
   const cleanSeed = Math.abs(Math.floor(seed)) || 1
   return {
     version: 1,
@@ -241,6 +204,10 @@ export function startVoyage(
     crew: [...crew],
     away: [],
     chapter: 1,
+    day: 1,
+    postedDay: 1,
+    active: null,
+    injuredUntil: {},
     antagonist: hash(cleanSeed, 'antagonist') % ANTAGONISTS.length,
     supplies: 7,
     trust: 2,
@@ -258,63 +225,68 @@ export function assignAwayTeam(run: VoyageRun, selected: CrewId[]): VoyageRun {
     selected.length > 3 ||
     new Set(selected).size !== selected.length ||
     selected.some((id) => !run.crew.includes(id)) ||
-    selected.length >= run.crew.length
+    false
   )
     return run
   return { ...run, away: [...selected] }
 }
+/** The displayed chance and the eventual return roll share one immutable preview. */
+export function previewMission(run:VoyageRun):MissionPreview {
+  return previewCrewMission(run, missionFor(run).id, run.away)
+}
 export function launchMission(run: VoyageRun): VoyageRun {
   if (run.phase !== 'briefing') return run
-  const mission = missionFor(run)
-  const selected = run.away.map((id) =>
-    CREW.find((member) => member.id === id)!,
-  )
-  const captain = CAPTAINS.find((entry) => entry.id === run.captain)!
-  const specialist = selected.some((member) => member.talent === mission.kind)
-  const roll = hash(run.seed, `${mission.id}:${run.away.join(',')}`) % 6
-  const score =
-    roll +
-    run.away.length +
-    (specialist ? 2 : 0) +
-    (captain.ability === mission.kind ? 1 : 0)
-  const result: Result =
-    score >= 8
-      ? 'flawless'
-      : score >= 6
-        ? 'success'
-        : score >= 4
-          ? 'costly'
-          : 'disaster'
-  const reports = {
-    flawless:
-      'Your team solved the immediate crisis and found the detail command had missed.',
-    success:
-      'The mission holds together. The people involved will remember who stood with them.',
-    costly:
-      'Someone gets home, but your plan leaves a debt in material or trust.',
-    disaster:
-      'The elegant plan breaks apart. Your crew improvises a narrow retreat and a second chance.',
+  const mission=missionFor(run)
+  const preview=previewMission(run)
+  if(!preview.eligible) return run
+  const day=run.day??run.chapter
+  return {...run,phase:'transit',active:{
+    missionId:mission.id,party:[...run.away],departedDay:day,
+    returnsDay:day+preview.durationDays,chance:preview.chance,
+    roll:missionRoll(run.seed,mission.id,day,run.away),
+    routes:preview.specialRoutes,
+  },scene:`The team departs for ${mission.system}. Expected return: ship day ${day+preview.durationDays}. The mission odds were ${preview.chance}% before launch.`,
+  log:[...run.log,`Day ${day}: ${mission.title} departed with ${preview.chance}% success estimate, return day ${day+preview.durationDays}.`]}
+}
+/**
+ * Emulator of Emperor of Dust's dawn: advance the clock, resolve returns,
+ * free their crew and let untouched offers expire without a softlock.
+ */
+export function advanceVoyageDay(run:VoyageRun):VoyageRun {
+  if(run.phase!=='transit' && run.phase!=='briefing')return run
+  const day=(run.day??run.chapter)+1
+  const next={...run,day}
+  if(run.phase==='briefing'){
+    const expiry=(run.postedDay??run.chapter)+ruleFor(missionFor(run).id).boardDays
+    if(day>=expiry){
+      const text=`${missionFor(run).title} expired on ship day ${day}. Civilians act without this crew, and the missed chance enters the captain's log.`
+      return {...next,phase:'debrief',scene:text,report:{
+        missionId:missionFor(run).id,result:'disaster' as Result,names:'Offer expired',text,
+      },trust:run.trust-1,log:[...run.log,text]}
+    }
+    return {...next,scene:`Ship day ${day}. ${missionFor(run).title} remains on the board; no officer has departed yet.`}
   }
-  const names = selected.length
-    ? selected.map((member) => member.name).join(' · ')
-    : 'Shipboard remote intervention'
-  const report = { missionId: mission.id, result, names, text: reports[result] }
-  return {
-    ...run,
-    phase: 'decision',
-    report,
-    supplies: Math.max(
-      0,
-      run.supplies - (result === 'disaster' ? 2 : result === 'costly' ? 1 : 0),
-    ),
-    trust:
-      run.trust + (result === 'flawless' ? 1 : result === 'disaster' ? -1 : 0),
-    scene: `${report.text} ${antagonistFor(run).interference}`,
-    log: [
-      ...run.log,
-      `Chapter ${run.chapter}: ${mission.title} — ${result}, ${names}`,
-    ],
-  }
+  if(!run.active || run.active.returnsDay>day)
+    return {...next,scene:`Ship day ${day}. Crew still away on ${missionFor(run).title}; expected return day ${run.active?.returnsDay??day}.`}
+  const active=run.active
+  const roll=active.roll
+  const chance=active.chance
+  const grade:Result=roll<Math.floor(chance*0.3)?'flawless':roll<chance?'success':roll<chance+Math.floor((100-chance)*0.4)?'costly':'disaster'
+  const base={
+    flawless:'The returning team solved the immediate crisis and brought back information the bridge had missed.',
+    success:'The crew achieved the mission objective, but the people affected still get to decide what it means.',
+    costly:'The team returns with a material debt and a person who may refuse further help.',
+    disaster:'The planned route collapsed; the officers return through a costly emergency extraction.',
+  }[grade]
+  const chosen=active.party.map(id=>CREW.find(c=>c.id===id)!.name).join(' · ')||'Shipboard remote intervention'
+  const routes=active.routes.length?`Special route: ${active.routes.join(' ')}`:''
+  const injury=grade==='disaster' && active.party.length?active.party[0]:undefined
+  const injuredUntil=injury?{...(run.injuredUntil??{}),[injury]:day+2}:{...run.injuredUntil}
+  const scene=`${base} ${routes} ${antagonistFor(run).interference}`
+  return {...next,phase:'decision',active:null,report:{missionId:active.missionId,result:grade,names:chosen,text:`${base} ${routes}`},
+    injuredUntil,trust:run.trust+(grade==='flawless'?1:grade==='disaster'?-1:0),
+    supplies:Math.max(0,run.supplies-(grade==='disaster'?2:grade==='costly'?1:0)),
+    scene,log:[...run.log,`Day ${day}: ${missionFor(run).title} returned as ${grade} (${chance}% forecast, roll ${roll}). ${injury?`${CREW.find(c=>c.id===injury)?.name} injured until day ${day+2}.`:''}`]}
 }
 export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
   if (
@@ -360,6 +332,8 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     ...run,
     phase: 'briefing',
     chapter: run.chapter + 1,
+    postedDay: run.day ?? run.chapter,
+    active: null,
     away: [],
     report: null,
     scene:
@@ -405,6 +379,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     !CAPTAINS.some((p) => p.id === data.captain) ||
     !Array.isArray(data.crew) ||
     data.crew.length < 3 ||
+    data.crew.length > 4 ||
+    new Set(data.crew).size !== data.crew.length ||
     data.crew.some((c) => !CREW.some((m) => m.id === c)) ||
     !Array.isArray(data.away) ||
     typeof data.seed !== 'number' ||
@@ -412,7 +388,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     !Number.isInteger(data.chapter) ||
     data.chapter < 1 ||
     data.chapter > MISSIONS.length ||
-    !['briefing', 'decision', 'debrief', 'finale', 'ending'].includes(
+    !['briefing', 'transit', 'decision', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||
     !Array.isArray(data.log) ||
@@ -423,7 +399,9 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     typeof data.antagonist !== 'number' ||
     !Number.isInteger(data.antagonist) ||
     data.antagonist < 0 ||
-    data.antagonist >= ANTAGONISTS.length
+    data.antagonist >= ANTAGONISTS.length ||
+    (data.day !== undefined && (!Number.isInteger(data.day) || data.day < 1)) ||
+    (data.phase === 'transit' && (!data.active || typeof data.active.returnsDay !== 'number'))
   )
     return null
   return data as VoyageRun

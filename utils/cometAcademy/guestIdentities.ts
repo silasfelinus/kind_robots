@@ -46,13 +46,13 @@ export const GUEST_IDENTITIES = [
   },
   {
     id: 'guest-tess-helio',
-    source: 'This Means Warp',
+    source: 'Space Couch',
     personId: 'tess-helio',
     signature: 'stellar-navigation',
     realName: 'Tess Helio',
     pronouns: 'she/they',
     backstory:
-      'Tess Helio is the navigator from the starship crew of This Means Warp, not an invented academy student. Her grandmother left her a map of moving safe harbors; an emergency jump strands her ship near Comet City, and the academy mistakes her rescue beacon for a weapon.',
+      'Tess Helio is the navigator from the starship crew of Space Couch, not an invented academy student. Her grandmother left her a map of moving safe harbors; an emergency jump strands her ship near Comet City, and the academy mistakes her rescue beacon for a weapon.',
     student: {
       alias: 'Visiting Cadet Starling',
       conflict:

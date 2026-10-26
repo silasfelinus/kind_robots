@@ -81,10 +81,16 @@ type StudioGame = {
   build: () => Playbook
 }
 
-/** Authored games, then every Playbook Kit game: one manager for all of them. */
+/**
+ * Authored games, then every Playbook Kit game: one manager for all of them.
+ * A kit spec for a game with its own authored adapter (Space Couch) is that
+ * game's rehearsal in the Kit console, not a second set of beats.
+ */
 export const PLAYBOOK_GAMES: readonly StudioGame[] = [
   ...AUTHORED_GAMES,
-  ...KIT_PLAYBOOKS.map((spec) => ({
+  ...KIT_PLAYBOOKS.filter(
+    (spec) => !AUTHORED_GAMES.some((game) => game.id === spec.id),
+  ).map((spec) => ({
     id: `${KIT_STUDIO_PREFIX}${spec.id}` as KitPlaybookGame,
     title: spec.title,
     cover: spec.keyArt.src ?? '',

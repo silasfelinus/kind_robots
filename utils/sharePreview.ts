@@ -25,7 +25,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   {
     route: '/play/game-of-captains',
     image: '/game-of-captains/front/dashboard-highlight.webp',
-    title: 'This Means Warp',
+    title: 'Space Couch',
     description:
       'Command a crew, explore strange worlds, and decide when to intervene.',
   },

@@ -99,8 +99,8 @@ export const GENRES: Genre[] = [
     cover: '/game-of-captains/front/splash.webp',
     label: 'Space comedy',
     pitch:
-      'Command a ship, staff the away team, answer for every intervention.',
-    lineage: 'This Means Warp',
+      'Pilot a long red couch, unfold pocket rooms and decide who deserves an intervention.',
+    lineage: 'Space Couch',
     tones: 'comic, ethical, ensemble',
     shape: {
       creator: 'roster',

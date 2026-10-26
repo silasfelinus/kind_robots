@@ -18,12 +18,12 @@ const read = (path: string) =>
   readFileSync(fileURLToPath(new URL(path, import.meta.url)), 'utf8')
 
 assert.equal(
-  ARCADE_GAMES.some((game) => game.slug === 'zuzu-pinball'),
-  false,
+  ARCADE_GAMES.filter((game) => game.slug === 'zuzu-pinball').length,
+  1,
 )
 assert.equal(
-  PREVIEW_GAMES.filter((game) => game.slug === 'zuzu-pinball').length,
-  1,
+  PREVIEW_GAMES.some((game) => game.slug === 'zuzu-pinball'),
+  false,
 )
 assert.equal(findArcadeGame('zuzu-pinball')?.renderMode, 'webgl')
 assert.equal(isPlausibleScore('zuzu-pinball', 5000), false)

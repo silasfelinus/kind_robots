@@ -2,11 +2,11 @@
 contentType: tab
 channelKey: arcade
 tabKey: game-of-captains
-label: This Means Warp
-title: This Means Warp
-subtitle: A comic voyage among civilizations, treaties and impossible odds
-summary: Command a ship. Make costly choices.
-description: 'A comedic science-fiction command adventure. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
+label: Space Couch
+title: Space Couch
+subtitle: One long red couch. An invisible shield. All of space.
+summary: A red couch boldly goes.
+description: 'A comic space adventure aboard a long red couch that is literally the ship, shielded from vacuum and equipped with miniaturization technology to unfold holodecks, war rooms and infirmaries behind its backrest. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
 icon: kind-icon:compass
 image: /game-of-captains/front/splash.webp
 route: /play/game-of-captains
@@ -15,7 +15,7 @@ tutorial:
   title: Take command
   image: /game-of-captains/front/tutorial.webp
   body: >-
-    Choose a captain and appoint three or four officers. Each captain has a
+    The long red couch is your entire spaceship. An invisible force bubble protects everyone from vacuum. Temporary rooms unfold behind the backrest. Choose a captain and appoint three officers. Each captain has a
     command temperament, a useful specialty and a price to pay for it.
     The star chart takes you to three missions in this playable preview.
     For each, send up to three officers on an away team, keeping at least

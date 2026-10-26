@@ -80,7 +80,7 @@ Rules (`utils/playbookKit/budget.ts`, enforced by `npm run test:playbook-kit`):
   is rendered.
 
 Calibration, October 2026: Prom of Doom's first slice (6 students, 4 endings)
-fits Standard. This Means Warp's slice already carries 12 crew, past
+fits Standard. Space Couch's slice already carries 12 crew, past
 Standard's 8 followers, and its full production floor (16 crew, 8 alien
 antagonists, 16 endings) is Saga. Emperor of Dust's 25 followers and 15
 factions would need written allowances even at Saga. That is the point: the

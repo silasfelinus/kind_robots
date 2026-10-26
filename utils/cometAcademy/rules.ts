@@ -335,7 +335,7 @@ export const ENCOUNTERS = [
     location: 'Comet City Observatory',
     scene:
       GUEST_IDENTITIES[1]!.arrival +
-      ' Tess Helio of the This Means Warp crew needs a transit corridor for a refugee ship, but the academy dean wants a copy of her secret sanctuary map.',
+      ' Tess Helio of the Space Couch crew needs a transit corridor for a refugee ship, but the academy dean wants a copy of her secret sanctuary map.',
     options: [
       {
         id: 'help-tess',

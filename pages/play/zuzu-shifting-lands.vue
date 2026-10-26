@@ -322,6 +322,12 @@
                   choose how Zuzu responds.
                 </p></template
               >
+              <PlaybookRunReview
+                v-if="game.state.bossResolved || game.state.health === 0"
+                game="shifting-lands"
+                :run="game.state"
+                :ending="game.state.bossResolved ? 'homestead-clear' : 'fallen'"
+              />
             </div>
           </div>
         </section>

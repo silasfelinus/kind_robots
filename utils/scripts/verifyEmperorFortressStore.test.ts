@@ -21,6 +21,9 @@ const STUBS: Record<string, string> = {
   './utils/playbookLiveText': stub(
     'export const loadPlaybookLiveText = async () => false',
   ),
+  '~/stores/playbookRunReviewStore': stub(
+    'export const usePlaybookRunReviewStore = () => ({ begin: () => {} })',
+  ),
 }
 registerHooks({
   resolve(specifier, context, nextResolve) {

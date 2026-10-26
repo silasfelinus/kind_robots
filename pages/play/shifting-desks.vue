@@ -360,6 +360,13 @@
           @front="toFront"
           @archive="openArchive('milestones')"
         />
+        <div class="shrink-0">
+          <PlaybookRunReview
+            game="shifting-desks"
+            :run="run"
+            :ending="run.status"
+          />
+        </div>
       </section>
 
       <section

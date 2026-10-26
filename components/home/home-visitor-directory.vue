@@ -369,13 +369,13 @@ const features = [
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {
-    title: 'This Means Warp',
+    title: 'Space Couch',
     tag: 'Playable space adventure',
     category: 'play',
     route: '/play/game-of-captains',
     image: '/game-of-captains/front/dashboard-highlight.webp',
     description:
-      'Command a crew, explore strange worlds, and decide when to intervene.',
+      'Four spacers, one long red couch, an invisible force shield, and infinite trouble.',
   },
   {
     title: 'Terrors on Crystal Street',

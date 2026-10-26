@@ -302,6 +302,11 @@
                       Found {{ store.discovered.length }} of
                       {{ ENDING_IDS.length }} endings.
                     </p>
+                    <PlaybookRunReview
+                      game="zuzu-gamebook"
+                      :run="store.run"
+                      :ending="current.ending"
+                    />
                     <button
                       class="btn btn-warning mt-4"
                       type="button"

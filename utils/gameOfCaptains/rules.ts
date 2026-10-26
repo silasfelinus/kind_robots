@@ -24,6 +24,37 @@ export type VoyagePhase =
   'briefing' | 'transit' | 'decision' | 'debrief' | 'finale' | 'ending'
 export type Result = 'flawless' | 'success' | 'costly' | 'disaster'
 export type PolicyId = 'aid' | 'observe' | 'intervene'
+export type PocketRoom = 'holodeck' | 'war-room' | 'infirmary'
+export const POCKET_ROOMS: {
+  id: PocketRoom
+  name: string
+  blurb: string
+  specialty: string
+}[] = [
+  {
+    id: 'holodeck',
+    name: 'Holodeck',
+    blurb: 'Rehearse scientific hazards in simulated space.',
+    specialty: 'science',
+  },
+  {
+    id: 'war-room',
+    name: 'War room',
+    blurb: 'Fold out a diplomatic strategy chamber.',
+    specialty: 'diplomacy',
+  },
+  {
+    id: 'infirmary',
+    name: 'Infirmary',
+    blurb: 'Deploy a pop-up clinic for rescues.',
+    specialty: 'rescue',
+  },
+]
+export const SPACE_COUCH = {
+  vessel: 'A long red couch, not an enclosed starship',
+  bubble: 'An invisible force shield protects everyone from space',
+  expansion: 'Miniaturization unfolds rooms behind the backrest',
+} as const
 
 export const CAPTAINS: {
   id: CaptainId
@@ -192,6 +223,8 @@ export type VoyageRun = {
   captain: CaptainId
   crew: CrewId[]
   away: CrewId[]
+  pocketRoom?: PocketRoom | null
+  shieldCharge?: number
   chapter: number
   day?: number
   postedDay?: number
@@ -248,6 +281,8 @@ export function startVoyage(
     captain,
     crew: [...crew],
     away: [],
+    pocketRoom: null,
+    shieldCharge: 2,
     chapter: 1,
     day: 1,
     postedDay: 1,
@@ -258,7 +293,8 @@ export function startVoyage(
     trust: 2,
     intervention: 0,
     reputation: 0,
-    scene: 'The command chair is warm. Nobody will explain why.',
+    scene:
+      'The red couch sails through the vacuum. The invisible bubble holds the air in; there is no hull, bridge or seatbelt policy.',
     report: null,
     log: [],
     ending: null,
@@ -275,9 +311,48 @@ export function assignAwayTeam(run: VoyageRun, selected: CrewId[]): VoyageRun {
     return run
   return { ...run, away: [...selected] }
 }
+export function configurePocketRoom(
+  run: VoyageRun,
+  room: PocketRoom | null,
+): VoyageRun {
+  if (run.phase !== 'briefing') return run
+  if (room !== null && !POCKET_ROOMS.some((option) => option.id === room))
+    return run
+  if (room && run.supplies < 1) return run
+  return { ...run, pocketRoom: room }
+}
+export function rechargeCouchShield(run: VoyageRun): VoyageRun {
+  if (
+    run.phase !== 'briefing' ||
+    run.supplies < 1 ||
+    (run.shieldCharge ?? 2) >= 3
+  )
+    return run
+  return {
+    ...run,
+    supplies: run.supplies - 1,
+    shieldCharge: (run.shieldCharge ?? 2) + 1,
+    log: [...run.log, 'Recharged the couch force bubble for one supply.'],
+  }
+}
 /** The displayed chance and the eventual return roll share one immutable preview. */
 export function previewMission(run: VoyageRun): MissionPreview {
-  return previewCrewMission(run, missionFor(run).id, run.away)
+  const base = previewCrewMission(run, missionFor(run).id, run.away)
+  const room = POCKET_ROOMS.find((option) => option.id === run.pocketRoom)
+  const bonus =
+    room?.specialty === missionFor(run).kind && run.supplies > 0 ? 10 : 0
+  const penalty = (run.shieldCharge ?? 2) === 0 ? 10 : 0
+  return {
+    ...base,
+    chance: Math.max(5, Math.min(94, base.chance + bonus - penalty)),
+    commentary: [
+      base.commentary,
+      bonus ? 'Pocket room match: +10%.' : '',
+      penalty ? 'Backup force bubble: -10% until recharged.' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
+  }
 }
 export function launchMission(run: VoyageRun): VoyageRun {
   if (run.phase !== 'briefing') return run
@@ -288,6 +363,8 @@ export function launchMission(run: VoyageRun): VoyageRun {
   return {
     ...run,
     phase: 'transit',
+    supplies: Math.max(0, run.supplies - (run.pocketRoom ? 1 : 0)),
+    shieldCharge: Math.max(0, (run.shieldCharge ?? 2) - 1),
     active: {
       missionId: mission.id,
       party: [...run.away],
@@ -297,7 +374,7 @@ export function launchMission(run: VoyageRun): VoyageRun {
       roll: missionRoll(run.seed, mission.id, day, run.away),
       routes: preview.specialRoutes,
     },
-    scene: `The team departs for ${mission.system}. Expected return: ship day ${day + preview.durationDays}. The mission odds were ${preview.chance}% before launch.`,
+    scene: `The long red couch glides toward ${mission.system}, its invisible force bubble keeping everybody breathing. ${run.pocketRoom ? 'A ' + POCKET_ROOMS.find((room) => room.id === run.pocketRoom)?.name + ' unfolds behind the backrest for one supply.' : 'No pocket room is deployed.'} Expected return: ship day ${day + preview.durationDays}. Mission odds: ${preview.chance}%.`,
     log: [
       ...run.log,
       `Day ${day}: ${mission.title} departed with ${preview.chance}% success estimate, return day ${day + preview.durationDays}.`,
@@ -436,7 +513,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       ...run,
       phase: 'finale',
       scene:
-        'Your antagonist is waiting at the jump gate. The crew is asking what kind of captain you became.',
+        'Your antagonist waits at the jump gate. On the red couch the crew asks what kind of captain you became. The force bubble holds; your moral shelter is another matter.',
     }
   return {
     ...run,
@@ -445,6 +522,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     postedDay: run.day ?? run.chapter,
     active: null,
     away: [],
+    pocketRoom: null,
     report: null,
     scene:
       'A new star flickers into the chart. Your crew has opinions about it.',

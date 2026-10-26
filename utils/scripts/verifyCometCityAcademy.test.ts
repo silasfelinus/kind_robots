@@ -277,7 +277,7 @@ assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
 assert.equal(GUEST_IDENTITIES[1].realName, TESS_CREW_SOURCE.name)
 assert.equal(GUEST_IDENTITIES[1].pronouns, TESS_CREW_SOURCE.pronouns)
-assert.equal(GUEST_IDENTITIES[1].source, 'This Means Warp')
+assert.equal(GUEST_IDENTITIES[1].source, 'Space Couch')
 for (const person of CHARACTER_ROSTER) {
   assert.ok(person.backstory.length > 60)
   assert.ok(person.realName.length > 2)

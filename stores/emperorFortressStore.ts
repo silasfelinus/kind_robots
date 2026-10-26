@@ -1,3 +1,5 @@
+import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { playbookRunKey } from '~/utils/playbook/runReview'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
@@ -384,6 +386,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function newRun() {
     if (!loaded.value) load()
     book.value = newBook(createRun(newSeed(), equippedRelics()))
+    usePlaybookRunReviewStore().begin(
+      'emperor-of-dust',
+      playbookRunKey(book.value.current),
+    )
     lastReport.value = null
     lastResponse.value = ''
     lastLearned.value = []

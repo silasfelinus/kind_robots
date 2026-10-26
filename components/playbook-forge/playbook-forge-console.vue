@@ -83,6 +83,15 @@
         </nav>
         <span v-else class="flex-1" />
 
+        <NuxtLink
+          to="/admin/playbook-reviews"
+          class="pf-icon-btn shrink-0"
+          title="Browse completed playthrough reviews"
+          aria-label="Run reviews"
+        >
+          <Icon name="kind-icon:star" class="size-5" />
+        </NuxtLink>
+
         <button
           type="button"
           class="pf-icon-btn shrink-0"

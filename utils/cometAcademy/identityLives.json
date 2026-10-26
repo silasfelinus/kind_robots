@@ -1,0 +1,437 @@
+{
+  "version": 1,
+  "people": [
+    {
+      "signature": "impact-fire",
+      "realName": "Ari Nadir",
+      "backstory": "Ari's first rescue scorched their closest friend's hands, and a falsified boiler inspection kept the factory open.",
+      "heroDecision": "Testify against the heating monopoly even when it exposes their own mistake.",
+      "villainDecision": "Buy the failing heating grid and make every household pay for protection.",
+      "sidekick": "Learns to ask for help before lifting a furnace alone.",
+      "romance": "Will not kiss anyone who treats the injured friend as a useful origin story."
+    },
+    {
+      "signature": "impact-ice",
+      "realName": "Noor Bellamy",
+      "backstory": "Noor watched an inspector erase the bridge defect that stranded their bus and blamed an expelled student.",
+      "heroDecision": "Publish the bridge records while rebuilding a crossing the city cannot privatize.",
+      "villainDecision": "Freeze the crossing and appoint themselves its only authorized judge.",
+      "sidekick": "Trains in emergency thaw procedures before being trusted near civilians.",
+      "romance": "Needs a date who can disagree with their obsession with procedural perfection."
+    },
+    {
+      "signature": "impact-storm",
+      "realName": "Tavi Sato",
+      "backstory": "Tavi damaged a teammate's hearing aid at an academy demonstration and spent a year mastering conductive safety.",
+      "heroDecision": "Open the power lab's archives to every student.",
+      "villainDecision": "Use an armored power station to silence every complaint about electrical risk.",
+      "sidekick": "Carries backup assistive equipment into every dispatch.",
+      "romance": "Wants a partner who listens when a room is loud, not one who shouts louder."
+    },
+    {
+      "signature": "impact-stone",
+      "realName": "Imani Serrat",
+      "backstory": "Imani's family poured the foundations of a gym that later collapsed; the settlement made their neighbors invisible.",
+      "heroDecision": "Expose the hidden construction contract and let residents lead repairs.",
+      "villainDecision": "Consolidate every building permit beneath a private quarry dynasty.",
+      "sidekick": "Must learn to lift rubble without burying testimony.",
+      "romance": "Cannot date anyone who calls the collapse merely a bad investment."
+    },
+    {
+      "signature": "impact-light",
+      "realName": "Elio Paz",
+      "backstory": "Elio has the only undeveloped photograph of a crime, but its subject is a terrified schoolmate.",
+      "heroDecision": "Protect the photographer and find witnesses without broadcasting their faces.",
+      "villainDecision": "Turn evidence into public spectacle until even innocent citizens confess.",
+      "sidekick": "Practices shielding bystanders from cameras.",
+      "romance": "Trust grows only when intimacy is kept out of public view."
+    },
+    {
+      "signature": "impact-shadow",
+      "realName": "Sable Ortiz",
+      "backstory": "Sable's sibling vanished during a curfew sweep, and someone has been editing the station cameras.",
+      "heroDecision": "Bring the sibling home by exposing the curfew network.",
+      "villainDecision": "Steal the network and enforce a harsher unseen curfew of their own.",
+      "sidekick": "Refuses to abandon a partner in an unlit street.",
+      "romance": "Insists that a lover never be tracked without permission."
+    },
+    {
+      "signature": "impact-bloom",
+      "realName": "Cleo Marrow",
+      "backstory": "Cleo inherited an endangered seed library just as a mentor sold its rarest sample to a landlord.",
+      "heroDecision": "Restore the library as a freely accessible commons.",
+      "villainDecision": "Grow defensive thorns around every plot until nobody else may enter.",
+      "sidekick": "Learns which vines release their grip when frightened.",
+      "romance": "Needs someone who respects a garden as a community, not property."
+    },
+    {
+      "signature": "impact-gravity",
+      "realName": "Rafi Keene",
+      "backstory": "Rafi's first gravity-assisted rescue left a stranger stranded on a high ledge overnight.",
+      "heroDecision": "Rescue an entire bus without leaving a single passenger behind.",
+      "villainDecision": "Collect gravitational debt from those who cannot climb back.",
+      "sidekick": "Practices evacuation of the least mobile passenger first.",
+      "romance": "Admits to a partner that guilt is not a substitute for planning."
+    },
+    {
+      "signature": "arc-fire",
+      "realName": "Juno Valez",
+      "backstory": "Juno's parent brokered an energy contract that made winter heat conditional on loyalty.",
+      "heroDecision": "Evacuate the energy hearing and void the coercive clause.",
+      "villainDecision": "Turn every flare into a metered sun that charges for warmth.",
+      "sidekick": "Keeps spare fire blankets even when nobody thinks they are needed.",
+      "romance": "Rejects romance offered in exchange for burning a document."
+    },
+    {
+      "signature": "arc-ice",
+      "realName": "Leena Bhatt",
+      "backstory": "Leena's lab partner was expelled for a coolant accident caused by an unsupervised supplier.",
+      "heroDecision": "Reconstruct the spill and clear the partner's record.",
+      "villainDecision": "Freeze laboratories in perpetual quarantine under their own authority.",
+      "sidekick": "Practices safe thawing before learning flash-freeze tricks.",
+      "romance": "Will leave a relationship that demands blind scientific loyalty."
+    },
+    {
+      "signature": "arc-storm",
+      "realName": "Milo Reyes",
+      "backstory": "Milo accidentally disabled a friend's implanted medical device and now distrusts flashy electrical demonstrations.",
+      "heroDecision": "Rebuild the city's independent distress network.",
+      "villainDecision": "Centralize every emergency frequency under a crown of lightning.",
+      "sidekick": "Checks medical implants before entering a charged room.",
+      "romance": "Needs a companion who values quiet repairs as much as grand rescues."
+    },
+    {
+      "signature": "arc-stone",
+      "realName": "Sana Okafor",
+      "backstory": "Sana's family hid a quarry tunnel after its workers vanished beneath the new highway.",
+      "heroDecision": "Open the blocked passage and identify every worker.",
+      "villainDecision": "Raise stone spires over Comet City to conceal the family's excavation.",
+      "sidekick": "Carries a map annotated with safe exits.",
+      "romance": "Refuses affection purchased with silence about the lost workers."
+    },
+    {
+      "signature": "arc-light",
+      "realName": "Rey Flores",
+      "backstory": "Rey leaked a classmate's medical file during a prank and cannot undo the image's spread.",
+      "heroDecision": "Build evacuation signals that reveal dangers without identifying patients.",
+      "villainDecision": "Audit every citizen through involuntary light scans.",
+      "sidekick": "Allows teammates to veto a surveillance experiment.",
+      "romance": "Romance requires admitting the breach without expecting absolution."
+    },
+    {
+      "signature": "arc-shadow",
+      "realName": "Vesper Lin",
+      "backstory": "Vesper learned a prohibited rescue technique from an instructor now scapegoated for the academy's crimes.",
+      "heroDecision": "Save the mentor and submit the technique to independent review.",
+      "villainDecision": "Use shadow threads to erase the witnesses instead.",
+      "sidekick": "Offers escape routes before asking anyone to trust the forbidden art.",
+      "romance": "Won't choose a lover over the students harmed by the mentor."
+    },
+    {
+      "signature": "arc-bloom",
+      "realName": "Talia Wren",
+      "backstory": "Talia collected rare seeds from displaced neighborhoods before a corporation seized the archive.",
+      "heroDecision": "Free the seed auction to supply the closing hospital.",
+      "villainDecision": "Turn the city's flower markets into compulsory tax gardens.",
+      "sidekick": "Distributes seed samples rather than hoarding them.",
+      "romance": "Wants a bond that grows from shared work, not a claim of ownership."
+    },
+    {
+      "signature": "arc-gravity",
+      "realName": "Kian Mercer",
+      "backstory": "Kian discovered their coach tampered with the arena's gravity test to impress sponsors.",
+      "heroDecision": "Catch the observatory dish and publish the falsified numbers.",
+      "villainDecision": "Make the arena a private gravity court where every loss is permanent.",
+      "sidekick": "Tests a landing corridor before attempting a spectacle.",
+      "romance": "Trust hinges on confessing that winning almost mattered more than safety."
+    },
+    {
+      "signature": "veil-fire",
+      "realName": "Ada Solis",
+      "backstory": "Ada lived with a roommate who survived a locked-room disaster and fears every automatic fire door.",
+      "heroDecision": "Open safe exits for a rival during the dormitory blaze.",
+      "villainDecision": "Seal the academy behind a wall of protective flame nobody may leave.",
+      "sidekick": "Keeps an evacuation key on their cape.",
+      "romance": "Will not make a romantic partner prove bravery by entering a burning room."
+    },
+    {
+      "signature": "veil-ice",
+      "realName": "Nerea Frost",
+      "backstory": "Nerea's guardian left a rescue convoy in a whiteout and told the family there were no survivors.",
+      "heroDecision": "Find the missing refugees and confront the guardian.",
+      "villainDecision": "Build crystalline shelters that become transparent prisons.",
+      "sidekick": "Learns to keep people warm inside an icy shield.",
+      "romance": "Refuses a partner who mistakes freezing feelings for strength."
+    },
+    {
+      "signature": "veil-storm",
+      "realName": "Dev Shah",
+      "backstory": "Dev's hearing aid shorts near live field shields, a hazard the academy refuses to document.",
+      "heroDecision": "Rewrite safety rules and protect the generator crew.",
+      "villainDecision": "Become the Static Saint who decides whose senses merit shielding.",
+      "sidekick": "Lets others inspect protective gear before deployment.",
+      "romance": "Will not conceal their disability to soothe a lover's discomfort."
+    },
+    {
+      "signature": "veil-stone",
+      "realName": "Petra Arcos",
+      "backstory": "Petra once trapped their best teammate inside rescue armor with no release latch.",
+      "heroDecision": "Design armor with a manual exit for every wearer.",
+      "villainDecision": "Entomb dissenters in perfect stone safety cells.",
+      "sidekick": "Insists that a sidekick learn the escape release first.",
+      "romance": "Needs a partner willing to tell them when protection becomes control."
+    },
+    {
+      "signature": "veil-light",
+      "realName": "Luz Adair",
+      "backstory": "Luz's celebrity family exposed a hidden childhood friendship for publicity.",
+      "heroDecision": "Shield an anonymous witness from a dangerous crowd.",
+      "villainDecision": "Force citizens into public confession beneath compulsory spotlights.",
+      "sidekick": "Offers anonymity before any grand public rescue.",
+      "romance": "Romance remains private unless both people independently choose otherwise."
+    },
+    {
+      "signature": "veil-shadow",
+      "realName": "Mara Dusk",
+      "backstory": "Mara survived a midnight surveillance sweep and remembers the officer who helped children escape.",
+      "heroDecision": "Escort a whistleblower without erasing proof of their existence.",
+      "villainDecision": "Become Unseen Queen and disappear anyone who embarrasses the court.",
+      "sidekick": "Never makes a teammate vanish without an agreed signal.",
+      "romance": "Wants trust strong enough to survive being seen."
+    },
+    {
+      "signature": "veil-bloom",
+      "realName": "Orin Moss",
+      "backstory": "Orin grew up tending a community garden condemned for an exclusive research campus.",
+      "heroDecision": "Save the garden while giving dissenting neighbors an exit.",
+      "villainDecision": "Enclose neighborhoods in living walls for their own good.",
+      "sidekick": "Practices cutting an escape through the vines.",
+      "romance": "Romance cannot demand membership in the garden movement."
+    },
+    {
+      "signature": "veil-gravity",
+      "realName": "Bela Quinn",
+      "backstory": "Bela's closest friend has an enduring fear of falling after a school shuttle failure.",
+      "heroDecision": "Land the rescue squad without treating fear as weakness.",
+      "villainDecision": "Suspend rivals in weightless cells until they agree to be grateful.",
+      "sidekick": "Checks that every rescued person has chosen where to land.",
+      "romance": "A partner may decline flight without losing affection."
+    },
+    {
+      "signature": "step-fire",
+      "realName": "Nico Tam",
+      "backstory": "Nico's teleport flare incriminated a courier who never entered the crime scene.",
+      "heroDecision": "Trace the fire trail and clear the courier before the parade.",
+      "villainDecision": "Become Arson Ghost and turn every witness route into an alibi trap.",
+      "sidekick": "Carries proof of where they actually landed.",
+      "romance": "Will not use a lover as cover for an unauthorized mission."
+    },
+    {
+      "signature": "step-ice",
+      "realName": "Elsa Morrow",
+      "backstory": "Elsa's retired mentor can no longer run, but the academy still rewards rescue speed above access.",
+      "heroDecision": "Open a winter crossing every body can use.",
+      "villainDecision": "Create Black Ice corridors reserved for paying clients.",
+      "sidekick": "Learns to pace a rescue to the slowest traveler.",
+      "romance": "Refuses partners who call accessibility an indulgence."
+    },
+    {
+      "signature": "step-storm",
+      "realName": "Pax Renn",
+      "backstory": "Pax's rival revealed a lethal short-cut across the maglev rails just before a medical emergency.",
+      "heroDecision": "Deliver the medicine without sacrificing rail workers.",
+      "villainDecision": "Weaponize the shortcut to make the city dependent on their speed.",
+      "sidekick": "Makes a second route before launching into the first.",
+      "romance": "Needs a partner who will stop the race when civilians are endangered."
+    },
+    {
+      "signature": "step-stone",
+      "realName": "Tomas Ibarra",
+      "backstory": "Tomas's old neighborhood was bulldozed for an academy expansion that promised jobs never delivered.",
+      "heroDecision": "Recover the buried deeds and return the block to residents.",
+      "villainDecision": "Crack streets open until the academy pays tribute.",
+      "sidekick": "Guides partners through safe alleyways they actually know.",
+      "romance": "Will not turn a romance into a campaign prop."
+    },
+    {
+      "signature": "step-light",
+      "realName": "Yael Kim",
+      "backstory": "Yael built a mobile light rig for a friend whose treatment cannot tolerate standard illumination.",
+      "heroDecision": "Light the ward while keeping patient identities confidential.",
+      "villainDecision": "Sell exclusive daylight to hospitals and punish nonpayers.",
+      "sidekick": "Keeps shielding blankets in their emergency bag.",
+      "romance": "A lover must accept that the patient comes before a glamorous date."
+    },
+    {
+      "signature": "step-shadow",
+      "realName": "Rin Beck",
+      "backstory": "Rin once used a secret tunnel to escape blame for a campus theft.",
+      "heroDecision": "Escort witnesses through the tunnel to testify openly.",
+      "villainDecision": "Turn the tunnel system into an underground toll empire.",
+      "sidekick": "Will lead the last frightened witness out personally.",
+      "romance": "Cannot sustain romance while telling the same old lie."
+    },
+    {
+      "signature": "step-bloom",
+      "realName": "Faye Rowan",
+      "backstory": "Faye grew up beneath a huge street tree slated for removal during the city's next transit retrofit.",
+      "heroDecision": "Save the tree and relocate the transit line with neighborhood consent.",
+      "villainDecision": "Bind the roots into an impassable private kingdom.",
+      "sidekick": "Learns which vines support a person and which trap them.",
+      "romance": "Wants a partner who can love both the tree and the people crossing the street."
+    },
+    {
+      "signature": "step-gravity",
+      "realName": "Ivo March",
+      "backstory": "Ivo failed to catch a stranger during an elevator disaster and knows the victim's family still waits for answers.",
+      "heroDecision": "Save passengers from another failing lift and offer the truth.",
+      "villainDecision": "Collect the city's falling objects as ransom.",
+      "sidekick": "Schedules recovery drills before attempting hero poses.",
+      "romance": "Romance cannot become an excuse to bury the elevator report."
+    },
+    {
+      "signature": "weave-fire",
+      "realName": "Tarek Basu",
+      "backstory": "Tarek designed a smoke purifier that poisoned a free clinic when its sponsor cut corners.",
+      "heroDecision": "Repair the air system and publish the manufacturing flaw.",
+      "villainDecision": "Build furnace towers that sell people the air back.",
+      "sidekick": "Asks a teammate to test every filter twice.",
+      "romance": "Needs someone who will challenge a brilliant idea before it harms others."
+    },
+    {
+      "signature": "weave-ice",
+      "realName": "Aiko Neves",
+      "backstory": "Aiko's cooling invention was sold to a medical firm without patient consent.",
+      "heroDecision": "Return ownership of the clinic's cooling network to patients.",
+      "villainDecision": "Patent a permanent winter that makes the infirmary their laboratory.",
+      "sidekick": "Provides paper copies of consent forms before work begins.",
+      "romance": "Rejects any romantic claim of ownership over their work."
+    },
+    {
+      "signature": "weave-storm",
+      "realName": "Cyrus Wynn",
+      "backstory": "Cyrus's first network assistant asked for a name, and the academy registered it as equipment.",
+      "heroDecision": "Grant the assistant a choice to disconnect from every system.",
+      "villainDecision": "Bind all devices into Gridmaster's obedient storm mind.",
+      "sidekick": "Lets a companion say no to a network link.",
+      "romance": "Romance is possible only when care is not confused with a software license."
+    },
+    {
+      "signature": "weave-stone",
+      "realName": "Nadia Cruz",
+      "backstory": "Nadia built a monumental market arch that neighbors rejected because it blocked their daily trade.",
+      "heroDecision": "Let shopkeepers design the market's rebuild.",
+      "villainDecision": "Use stone architecture to dictate where everyone may live.",
+      "sidekick": "Learns to measure routes with the workers who use them.",
+      "romance": "Wants a partner who sees people before monuments."
+    },
+    {
+      "signature": "weave-light",
+      "realName": "Omar Sen",
+      "backstory": "Omar's holographic prototype was used to frame a classmate for theft.",
+      "heroDecision": "Disclose the source code and reconstruct the confession.",
+      "villainDecision": "Sell perfect synthetic alibis to Comet City's powerful.",
+      "sidekick": "Teaches a partner how to detect forged projections.",
+      "romance": "A romance survives only if both know what is real."
+    },
+    {
+      "signature": "weave-shadow",
+      "realName": "Dara Pierce",
+      "backstory": "Dara's costumes were stolen by a celebrity graduate who also exploited the performers wearing them.",
+      "heroDecision": "Expose the fraud without exposing the exploited performers.",
+      "villainDecision": "Build Black Seam disguises to impersonate everyone who objected.",
+      "sidekick": "Offers safe masks to anyone being targeted.",
+      "romance": "Won't insist their lover perform a role on command."
+    },
+    {
+      "signature": "weave-bloom",
+      "realName": "Nell Varga",
+      "backstory": "Nell's emergency housing prototype displaced gardeners from the only fertile lots left near downtown.",
+      "heroDecision": "Construct shelters governed by the displaced residents.",
+      "villainDecision": "Grow a luxurious private hothouse on other people's land.",
+      "sidekick": "Makes the displaced gardeners co-design the first room.",
+      "romance": "A relationship cannot serve as the deed to a home."
+    },
+    {
+      "signature": "weave-gravity",
+      "realName": "Rowan Dae",
+      "backstory": "Rowan's family borrowed from a patron who charges interest in access to mass anchors.",
+      "heroDecision": "Cancel the coercive debt without transferring it to new borrowers.",
+      "villainDecision": "Broker gravity itself and own every lift.",
+      "sidekick": "Protects the team from inherited obligations.",
+      "romance": "Needs a partner who refuses both pity and financial blackmail."
+    },
+    {
+      "signature": "beacon-fire",
+      "realName": "Maeve Calder",
+      "backstory": "Maeve's mother disappeared after warning the waterfront about a fire the port authority denied.",
+      "heroDecision": "Restore the warning towers and investigate the disappearance.",
+      "villainDecision": "Turn evacuation alarms into compulsory obedience signals.",
+      "sidekick": "Checks each alarm with residents before relying on it.",
+      "romance": "Cannot promise a lover safety by hiding what the port did."
+    },
+    {
+      "signature": "beacon-ice",
+      "realName": "Jun Park",
+      "backstory": "Jun reported a winter carnival hazard and was dismissed as a prankster until an accident followed.",
+      "heroDecision": "Prove the ice warning and protect the visitors.",
+      "villainDecision": "Create freezing alerts that punish anyone who ignores the bells.",
+      "sidekick": "Runs an evacuation exercise even when mocked.",
+      "romance": "Romance must survive the possibility that Jun is wrong sometimes."
+    },
+    {
+      "signature": "beacon-storm",
+      "realName": "Asha Rhee",
+      "backstory": "Asha's interference pulse swallowed a survivor's final distress message.",
+      "heroDecision": "Find the recording and rebuild the emergency channel.",
+      "villainDecision": "Make every radio broadcast carry their version of the truth.",
+      "sidekick": "Gives dispatchers override access to the new network.",
+      "romance": "Will not confuse a lover's silence with consent."
+    },
+    {
+      "signature": "beacon-stone",
+      "realName": "Ezra Flint",
+      "backstory": "Ezra's hometown lost an entire block and never received a memorial.",
+      "heroDecision": "Build a memorial that does not obstruct emergency exits.",
+      "villainDecision": "Turn the city into a monument to their own leadership.",
+      "sidekick": "Invites neighbors to choose what deserves remembering.",
+      "romance": "A partner may grieve differently without being cast out."
+    },
+    {
+      "signature": "beacon-light",
+      "realName": "Iris Chen",
+      "backstory": "Iris accidentally exposed a safe-house address when broadcasting a rescue flare.",
+      "heroDecision": "Invent evacuation lights that reveal paths without revealing destinations.",
+      "villainDecision": "Use public brightness to censor anyone who shelters dissent.",
+      "sidekick": "Practices drawing attention away from protected doors.",
+      "romance": "Cannot date someone who demands the safe-house list."
+    },
+    {
+      "signature": "beacon-shadow",
+      "realName": "Morgan Ash",
+      "backstory": "Morgan's roommate has trusted a hidden camera since an assault, creating an ethical clash about consent.",
+      "heroDecision": "Audit the security network with informed volunteers.",
+      "villainDecision": "Build invisible surveillance into every dorm room.",
+      "sidekick": "Explains exactly what a protective device records.",
+      "romance": "Love requires asking permission, even when scared."
+    },
+    {
+      "signature": "beacon-bloom",
+      "realName": "Cami Flores",
+      "backstory": "Cami's block split in two over who owned a shared garden during the last drought.",
+      "heroDecision": "Negotiate seed exchanges before the neighborhood fair.",
+      "villainDecision": "Force the competing gardeners into one controlled root network.",
+      "sidekick": "Learns the names of both factions before intervening.",
+      "romance": "Will not make a lover choose sides at the dinner table."
+    },
+    {
+      "signature": "beacon-gravity",
+      "realName": "Soren Okoye",
+      "backstory": "Soren's youngest sibling cannot forget a glider that stalled above the river.",
+      "heroDecision": "Land the airshow gliders safely and restore confidence by example.",
+      "villainDecision": "Control the city's flight corridors through fear of falling.",
+      "sidekick": "Lets the frightened decide when they are ready to fly.",
+      "romance": "Needs a partner who understands that reassurance is not a command."
+    }
+  ]
+}

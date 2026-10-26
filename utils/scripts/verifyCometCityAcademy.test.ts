@@ -1,5 +1,14 @@
 import assert from 'node:assert/strict'
-import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
+import {
+  IDENTITY_ARCS,
+  CHARACTER_ROSTER,
+  identityFor,
+  identityStoryFor,
+} from '../cometAcademy/identityArcs'
+import {
+  GUEST_IDENTITIES,
+  TESS_CREW_SOURCE,
+} from '../cometAcademy/guestIdentities'
 import {
   POWER_FORMS,
   POWER_AFFINITIES,
@@ -12,6 +21,7 @@ import {
   POWERS,
   STUDENTS,
   INCIDENTS,
+  ENCOUNTERS,
   assignTeam,
   chooseEncounter,
   encounterFor,
@@ -31,6 +41,102 @@ assert.equal(POWER_AFFINITIES.length, 8)
 assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
+assert.equal(CHARACTER_ROSTER.length, 50)
+assert.equal(
+  new Set(CHARACTER_ROSTER.map((person) => person.realName)).size,
+  50,
+)
+assert.equal(
+  new Set(CHARACTER_ROSTER.map((person) => person.backstory)).size,
+  50,
+)
+assert.equal(GUEST_IDENTITIES[0].realName, 'Zuzu')
+assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
+assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
+assert.equal(GUEST_IDENTITIES[1].realName, TESS_CREW_SOURCE.name)
+assert.equal(GUEST_IDENTITIES[1].pronouns, TESS_CREW_SOURCE.pronouns)
+assert.equal(GUEST_IDENTITIES[1].source, 'This Means Warp')
+for (const person of CHARACTER_ROSTER) {
+  assert.ok(person.backstory.length > 60)
+  assert.ok(person.realName.length > 2)
+  assert.notEqual(person.student.alias, person.hero.alias)
+  assert.notEqual(person.hero.alias, person.villain.alias)
+  assert.notEqual(person.hero.method, person.villain.method)
+  for (const viewpoint of ['protagonist', 'antagonist'] as const)
+    for (const allegiance of ['hero', 'villain'] as const) {
+      const lens = identityStoryFor(person, viewpoint, allegiance, [
+        'sidekick',
+        'partner',
+        'romance',
+      ])
+      assert.equal(lens.person, person.realName)
+      assert.equal(lens.backstory, person.backstory)
+      assert.equal(lens.bondScenes.length, 3)
+      assert.ok(lens.setup.length > 28)
+      assert.ok(lens.decision.length > 40)
+      assert.equal(lens.alias, person[allegiance].alias)
+      assert.deepEqual(
+        identityStoryFor(person, viewpoint, allegiance).bondScenes,
+        [],
+      )
+    }
+  assert.notEqual(
+    identityStoryFor(person, 'protagonist', 'hero').setup,
+    identityStoryFor(person, 'protagonist', 'villain').setup,
+  )
+  assert.notEqual(
+    identityStoryFor(person, 'antagonist', 'hero').setup,
+    identityStoryFor(person, 'antagonist', 'villain').setup,
+  )
+}
+for (const seed of [1, 7, 24, 999]) {
+  const sample = startAcademy('kinetic', seed)
+  const deck = Array.from(
+    { length: 7 },
+    (_, index) => encounterFor({ ...sample, day: index + 1 }).title,
+  )
+  assert.equal(new Set(deck).size, 7, 'new runs get unique first-week scenes')
+  assert.ok(deck.includes('The Stray Blade Arrives'))
+  assert.ok(deck.includes('A Visitor from the Stars'))
+}
+assert.equal(ENCOUNTERS.length, 7)
+for (const visitorAlignment of ['ally', 'opponent'] as const) {
+  let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
+  for (let day = 1; day <= 7; day++) {
+    const [first] = incidentsFor(run)
+    run = assignTeam(run, first!.id, ['mina'])
+    run = resolveDispatch(run)
+    const visit = encounterFor(run)
+    const option =
+      visit.options.find((entry) =>
+        visitorAlignment === 'ally'
+          ? ['shelter-zuzu', 'help-tess'].includes(entry.id)
+          : ['contract-zuzu', 'sell-tess'].includes(entry.id),
+      ) ?? visit.options[0]!
+    run = chooseEncounter(run, option.id)
+    run = nextSchoolDay(run)
+  }
+  const finale = finishAcademy(run, 'protect')
+  assert.ok(finale.scene.includes('Zuzu remembers'))
+  assert.ok(finale.scene.includes('Tess Helio'))
+  assert.ok(finale.scene.includes('Ari Nadir'))
+  assert.ok(
+    finale.scene.includes(
+      visitorAlignment === 'ally' ? 'Koala Assassin' : 'Shogun Null',
+    ),
+  )
+  assert.ok(
+    finale.scene.includes(
+      visitorAlignment === 'ally' ? 'Starwake' : 'Void Cartographer',
+    ),
+  )
+}
+const legacyOrder = startAcademy('kinetic', 14)
+assert.equal(
+  encounterFor({ ...legacyOrder, encounterDeckVersion: undefined }).title,
+  'A Promise on the Roof',
+  'pre-migration saves retain their scheduled campus scene',
+)
 assert.deepEqual(
   IDENTITY_ARCS.map((identity) => identity.signature).sort(),
   SIGNATURE_POWERS.map((power) => power.id).sort(),
@@ -149,6 +255,9 @@ assert.ok(tab.includes("title: 'Capes & Tassels: Prom of Doom'"))
 assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
 assert.ok(page.includes('data-testid="academy-signature-detail"'))
 assert.ok(page.includes('data-testid="academy-identity-preview"'))
+assert.ok(page.includes('data-testid="academy-crossover-roster"'))
+assert.ok(page.includes('currentIdentity.backstory'))
+assert.ok(page.includes('currentIdentityStory.setup'))
 assert.ok(page.includes('selectedElement'))
 assert.ok(page.includes('selectedVow'))
 console.log('Capes & Tassels playable first-week slice and route: OK')

@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createRun, restoreRun, chooseBeat, findCard } from '../ecotone/engine'
+import {
+  createRun,
+  restoreRun,
+  chooseBeat,
+  findCard,
+  originPerkAvailable,
+} from '../ecotone/engine'
 import { EVENTS, EVENT_CHOICE } from '../ecotone/story'
 import {
   PLAYER_AVATARS,

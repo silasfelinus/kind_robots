@@ -729,9 +729,16 @@ const fullBarracks: FortressRun = {
 }
 assert.throws(() => recruit(fullBarracks, 'F005'), /barracks are full/)
 const bigger = upgradeBeds(fullBarracks)
-assert.equal(bigger.beds, 9)
+assert.equal(bigger.beds, 7)
+assert.equal(bigger.brass, fullBarracks.brass - 100)
 assert.equal(recruit(bigger, 'F005').roster.length, 7)
-assert.throws(() => upgradeBeds(bigger), /gate-watch support 12/)
+assert.throws(() => upgradeBeds(bigger), /Needs 150 brass/)
+const funded = { ...bigger, brass: 200 }
+assert.equal(upgradeBeds(funded).beds, 8)
+assert.throws(
+  () => upgradeBeds({ ...funded, beds: 9, brass: 400 }),
+  /gate-watch support 12/,
+)
 
 // Seed 1234 lays out the Surveyor's Glass on Day 1 (the market owns buying).
 assert.ok(marketStock(start).includes('surveyors-glass'))
@@ -2353,8 +2360,8 @@ const sore = (ids: string[]) =>
       { id: 'F001', joinedDay: 1, injuredUntilDay: 9, equipment: {} },
     ],
   })
-assert.equal(injuryDaysLeft(finishDay(sore(['F008'])).run, 'F001'), 2)
-assert.equal(injuryDaysLeft(finishDay(sore([])).run, 'F001'), 3)
+assert.equal(injuryDaysLeft(finishDay(sore(['F008'])).run, 'F001'), 0)
+assert.equal(injuryDaysLeft(finishDay(sore([])).run, 'F001'), 0)
 // Reads the Wind: Nera marks the false briefing, but not Komodo's own lie.
 const marks = (day: number, ids: string[]) =>
   DAYS.find((def) => def.day === day)!.briefings.map((b) =>
@@ -3731,19 +3738,20 @@ for (const def of DAYS)
   }
   assert.equal(surgeonPrice(hurt, 'F001'), SURGEON_BASE + SURGEON_PER_DAY * 4)
   const stitched = treatFollower(hurt, 'F001', 'surgeon')
-  assert.equal(stitched.healed, 1)
-  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 3)
+  assert.equal(stitched.healed, 4)
+  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 0)
+  assert.equal(followerStatus(stitched.run, 'F001'), 'ready')
   assert.equal(stitched.run.brass, 100 - surgeonPrice(hurt, 'F001'))
   assert.match(
     treatmentBlocker(stitched.run, 'F001', 'surgeon') ?? '',
-    /Seen today/,
+    /Only the wounded/,
   )
-  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Seen/)
+  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Only the wounded/)
   assert.ok(validateRun(stitched.run), 'a treated run saves')
-  // Tomorrow the surgeon will see them again.
-  assert.equal(
-    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon'),
-    null,
+  // Full recovery means no further treatment is available tomorrow.
+  assert.match(
+    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon') ?? '',
+    /Only the wounded/,
   )
   assert.match(
     treatmentBlocker(hurt, 'F002', 'surgeon') ?? '',
@@ -3771,7 +3779,7 @@ for (const def of DAYS)
   }
   assert.ok(saltroadMedicine(caravans) && !saltroadMedicine(hurt))
   assert.equal(surgeonPrice(caravans, 'F001'), 12)
-  // The Mire poultice: cheap, seeded, sometimes worse; the Abbey hears.
+  // The Mire poultice: cheap and seeded, either a full immediate cure or no effect.
   assert.ok(poulticeOffered(hurt))
   const outcomes = new Set<number>()
   for (let seed = 1; seed <= 40; seed += 1) {
@@ -3782,17 +3790,17 @@ for (const def of DAYS)
       treatFollower(run, 'F001', 'poultice'),
       'the poultice is seeded',
     )
-    assert.ok([2, 0, -1].includes(result.healed))
+    assert.ok([4, 0].includes(result.healed))
     assert.equal(
       injuryDaysLeft(result.run, 'F001'),
       4 - result.healed,
-      'the wound moves by what the poultice did',
+      'a successful poultice restores duty immediately',
     )
     assert.equal(result.run.brass, 100 - POULTICE_PRICE)
     assert.equal(result.run.affinity.abbey, hurt.affinity.abbey - 1)
     outcomes.add(result.healed)
   }
-  assert.equal(outcomes.size, 3, 'the poultice can take, fail or go bad')
+  assert.equal(outcomes.size, 2, 'the poultice either takes or fails')
   assert.ok(!poulticeOffered({ ...hurt, wipedOut: ['mire-mothers'] }))
   assert.match(
     treatmentBlocker(

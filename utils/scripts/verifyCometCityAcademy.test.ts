@@ -63,7 +63,10 @@ for (const form of POWER_FORMS)
     assert.equal(run.vow, 'shelter')
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
     const heroicPreview = finishAcademy({ ...run, phase: 'finale' }, 'protect')
-    const villainousPreview = finishAcademy({ ...run, phase: 'finale' }, 'command')
+    const villainousPreview = finishAcademy(
+      { ...run, phase: 'finale' },
+      'command',
+    )
     assert.ok(heroicPreview.scene.includes(identity.hero.alias))
     assert.ok(villainousPreview.scene.includes(identity.villain.alias))
     assert.ok(heroicPreview.scene.includes('not yet earned'))

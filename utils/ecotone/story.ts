@@ -339,6 +339,7 @@ export const BEATS: EncounterCard[] = [
           effects: {
             evidence: 'A glade where next year’s music plays',
             weird: 1,
+            flag: 'loop_glade_music',
           },
         },
         failure: {
@@ -413,6 +414,9 @@ export const BEATS: EncounterCard[] = [
     flagLines: {
       loop_exit_marked: {
         all: 'A volunteer from the looping trail arrives with a roll of bright ribbon and asks whether your improvised exit markers should become a real safety plan. The story of your failed expedition has already recruited its first helpers.',
+      },
+      loop_glade_music: {
+        all: 'A sound technician from the fair wants to visit the glade where you heard next year’s music. She offers to bring witnesses and a recorder, but refuses to call a recording proof of tomorrow.',
       },
       loop_wrong_map_posted: {
         all: 'Two hikers compare the impossible maps you posted. Their trails disagree about where the creek runs, but both show the same ownership boundary. They ask to take copies before either map changes again.',
@@ -537,6 +541,38 @@ export const BEATS: EncounterCard[] = [
         failure: {
           text: 'The buyer will fund the map only if the public group drops its access claim. The volunteers refuse, and you refuse to call that a compromise. The maps stay posted with a clear warning; a safe crossing will have to wait for a less conditional offer.',
           effects: { nerve: -1, flag: 'forest_resurvey_unfunded' },
+        },
+      },
+      {
+        id: 'glade-witnesses',
+        label:
+          'Invite independent listeners to document the glade before any land deal',
+        requiresFlag: 'loop_glade_music',
+        cost: 'Both groups pause their access claims for a witnessed night survey.',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The technician brings two skeptical trail workers and a wildlife volunteer. They hear the impossible music together, then agree to publish what they actually recorded rather than claim to own its source. Both tables accept a temporary access schedule while the habitat team studies the glade. Nobody gets to sell tomorrow as a fact.',
+          effects: { goodwill: 1, flag: 'forest_glade_listening_committee' },
+        },
+        failure: {
+          text: 'The glade plays only ordinary wind for your witnesses. The buyer calls your story a distraction; the trail workers demand that the access vote proceed. You publish the empty recording beside your original account and secure one concession: nobody may advertise the strange music as evidence for either plan.',
+          effects: { nerve: -1, flag: 'forest_glade_witnesses_uncertain' },
+        },
+      },
+      {
+        id: 'marker-stewards',
+        label:
+          'Ask both groups to staff a safe trail corridor using your rescue markers',
+        requiresFlag: 'loop_exit_marked',
+        cost: 'The shortcut closes temporarily until trained volunteers can cover it.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The rescued volunteer brings the bright ribbons. Trail workers agree to mark a safe corridor, habitat advocates supply nesting-season detours, and the buyer pays for two weekends of steward training. The public keeps a path, not unrestricted access, and the people doing the work have names on the plan.',
+          effects: { goodwill: 1, flag: 'forest_safe_corridor' },
+        },
+        failure: {
+          text: 'The volunteers cannot staff even one weekend without abandoning the wildlife survey. You refuse to call an unmonitored path safe. The shortcut closes for now, with your ribbons marking the dangerous turn and a public date set to revisit staffing. People are angry; at least nobody has been promised a rescue crew that does not exist.',
+          effects: { nerve: -1, flag: 'forest_corridor_unstaffed' },
         },
       },
     ],

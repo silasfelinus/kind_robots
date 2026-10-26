@@ -326,8 +326,17 @@ for (let seed = 1; seed <= 12; seed += 1) {
   assert.equal(briefings.length, 3)
   assert.equal(briefings.filter((b) => b.truth).length, 2)
   assert.equal(briefings.filter((b) => !b.truth).length, 1)
-  openings.add(briefings.map((b) => b.id).sort().join('/'))
-  assert.deepEqual(dayBriefings(run), briefings, 'opening reports do not reroll')
+  openings.add(
+    briefings
+      .map((b) => b.id)
+      .sort()
+      .join('/'),
+  )
+  assert.deepEqual(
+    dayBriefings(run),
+    briefings,
+    'opening reports do not reroll',
+  )
   const save = decodeBook(encodeBook(newBook(run)))!.current
   assert.deepEqual(dayBriefings(save), briefings, 'reports survive saves')
 }
@@ -339,20 +348,29 @@ for (const argumentId of RIVAL_ARGUMENTS) {
     audiencesToday(createUnrecruitedRun(n)).some((a) => a.id === argumentId),
   )!
   let run = createUnrecruitedRun(seed)
-  const both = audiencesToday(run).find((a) => a.id === argumentId)!.options
-    .find((o) => o.id === 'both')!
+  const both = audiencesToday(run)
+    .find((a) => a.id === argumentId)!
+    .options.find((o) => o.id === 'both')!
   assert.equal(both.requires?.cost, FIRST_BELL_RIVAL_BARGAIN)
   const hired = chooseAudienceOption(run, argumentId, 'both').run
   assert.equal(hired.brass, START_BRASS - FIRST_BELL_RIVAL_BARGAIN)
   assert.equal(hired.roster.length, 2)
-  assert.ok(both.effects.recruit!.every((id) => hired.roster.some((m) => m.id === id)))
-  assert.ok(both.effects.recruit!.every((id) => !hired.flags.includes(`court-excluded:${id}`)))
+  assert.ok(
+    both.effects.recruit!.every((id) => hired.roster.some((m) => m.id === id)),
+  )
+  assert.ok(
+    both.effects.recruit!.every(
+      (id) => !hired.flags.includes(`court-excluded:${id}`),
+    ),
+  )
   assert.ok(validateRun(hired))
   run = { ...run, brass: 109 }
   assert.match(optionBlockers(run, both).join(' '), /Needs 110 brass/)
-  assert.throws(() => chooseAudienceOption(run, argumentId, 'both'), /Needs 110 brass/)
+  assert.throws(
+    () => chooseAudienceOption(run, argumentId, 'both'),
+    /Needs 110 brass/,
+  )
 }
-
 
 // --- startup overlay contract ----------------------------------------------
 // The splash fades for 600ms before it unmounts. On a new game, the first
@@ -3789,7 +3807,10 @@ for (const def of DAYS)
     treatmentBlocker(stitched.run, 'F001', 'surgeon') ?? '',
     /Only the wounded/,
   )
-  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Only the wounded/)
+  assert.throws(
+    () => treatFollower(stitched.run, 'F001', 'surgeon'),
+    /Only the wounded/,
+  )
   assert.ok(validateRun(stitched.run), 'a treated run saves')
   // Full recovery means no further treatment is available tomorrow.
   assert.match(

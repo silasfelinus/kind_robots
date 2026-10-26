@@ -8,13 +8,13 @@ import type { WorldEchoV7 } from './worldEchoesV7'
 // successive trial decisions. She is not a recruitable party member yet.
 export const KITCHEN_NOVICE_QUEST_ID = 'kitchen-novice-road'
 
-type Intro = { turn: number; trusted: boolean }
-type PassedTrial = { turn: number; choiceId: string }
+export type KitchenNoviceIntroV8 = { turn: number; trusted: boolean }
+export type KitchenNoviceTrialV8 = { turn: number; choiceId: string }
 
 const witnessed = new Set(['witness', 'solidarity'])
 const coercive = new Set(['coerce', 'tribute'])
 
-function introduction(state: JourneyStateV6): Intro | null {
+function introduction(state: JourneyStateV6): KitchenNoviceIntroV8 | null {
   const result = state.outcomes.find(
     (entry): entry is V6Result =>
       entry.encounterId === 'a-crust-for-the-road' &&
@@ -40,7 +40,7 @@ function passedTrial(
   state: JourneyStateV6,
   trials: readonly TrialResult[],
   landId: string,
-): PassedTrial | null {
+): KitchenNoviceTrialV8 | null {
   const land = JOURNEY_WORLD.lands.find((entry) => entry.id === landId)
   const boss = state.journey.bosses.find(
     (entry) =>
@@ -77,6 +77,20 @@ function beat(
     source,
     title,
     text,
+  }
+}
+
+// Expose only source-verified history to later replay domains. A bare flag
+// cannot impersonate the kitchen meeting or a completed land trial.
+export function kitchenNoviceSourcesV8(
+  state: JourneyStateV6,
+  trials: readonly TrialResult[],
+) {
+  return {
+    intro: introduction(state),
+    homestead: passedTrial(state, trials, 'homestead'),
+    dustwater: passedTrial(state, trials, 'dustwater'),
+    tablelands: passedTrial(state, trials, 'tablelands'),
   }
 }
 

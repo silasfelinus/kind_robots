@@ -32,7 +32,8 @@ export type JourneyRelationship = {
   name: string
   disposition: 'trusted' | 'wary'
   sourceEncounterId: string
-  traveling: false
+  traveling: boolean
+  status?: string
 }
 
 export type JourneyCharacterSheet = {

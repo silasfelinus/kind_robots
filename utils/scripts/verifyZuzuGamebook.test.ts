@@ -917,6 +917,157 @@ for (const health of [1, 3, 6, 12]) {
   }
 }
 
+// Search the actual reducer graph, rather than teleporting a fabricated low-HP
+// save into Act VIII. This route must free the sister, survive the nuns, fail
+// the Abbess's ambush, and arrive at the wounded bargain with real dice.
+function findWoundedAbbessWitness(): {
+  seed: number
+  moves: PlaytestMove[]
+  run: Run
+} | null {
+  const target = 'a8-voice-wound'
+  const parents = new Map<string, string[]>()
+  for (const node of Object.values(BOOK)) {
+    const destinations = [
+      ...(node.choices ?? []).flatMap((choice) =>
+        choice.check
+          ? [choice.check.success, choice.check.failure]
+          : [choice.to],
+      ),
+      ...(node.battle ? [node.battle.win, node.battle.lose] : []),
+    ]
+    for (const destination of destinations)
+      parents.set(destination, [...(parents.get(destination) ?? []), node.id])
+  }
+  const distances = new Map<string, number>([[target, 0]])
+  const queue = [target]
+  for (let i = 0; i < queue.length; i++) {
+    const from = queue[i]!
+    for (const parent of parents.get(from) ?? []) {
+      if (distances.has(parent)) continue
+      distances.set(parent, distances.get(from)! + 1)
+      queue.push(parent)
+    }
+  }
+
+  for (let seed = 1; seed <= 48; seed++) {
+    const seen = new Set<string>()
+    let budget = 6000
+    const search = (
+      run: Run,
+      moves: PlaytestMove[],
+    ): { seed: number; moves: PlaytestMove[]; run: Run } | null => {
+      if (run.sceneId === target)
+        return run.flags.includes('sister-free')
+          ? { seed, moves, run }
+          : null
+      if (
+        --budget < 0 ||
+        moves.length >= 145 ||
+        scene(run.sceneId).ending ||
+        !distances.has(run.sceneId)
+      )
+        return null
+      const key = [
+        run.sceneId,
+        run.seed,
+        run.health,
+        run.resolve,
+        run.battle?.hp ?? '',
+        run.battle?.exposed ?? '',
+        run.items.join(','),
+        run.pendingLoot.join(','),
+        run.flags.join(','),
+      ].join('|')
+      if (seen.has(key)) return null
+      seen.add(key)
+
+      let options: PlaytestMove[]
+      if (run.pendingLoot.length) {
+        options = [{ kind: 'loot', replace: null }]
+      } else if (run.battle) {
+        options = (['quiet-draw', 'feint', 'strike', 'guard'] as const)
+          .filter((action) => action !== 'quiet-draw' || run.resolve >= 2)
+          .map((action) => ({ kind: 'fight' as const, action }))
+      } else {
+        options = visibleChoices(run, scene(run.sceneId))
+          .filter((choice) => !lockReason(run, choice))
+          .filter((choice) =>
+            (choice.check
+              ? [choice.check.success, choice.check.failure]
+              : [choice.to]
+            ).some((destination) => distances.has(destination)),
+          )
+          .sort((a, b) => {
+            const distance = (choice: typeof a) =>
+              Math.min(
+                ...(choice.check
+                  ? [choice.check.success, choice.check.failure]
+                  : [choice.to]
+                ).map((destination) => distances.get(destination) ?? Infinity),
+              )
+            return (
+              distance(a) - distance(b) ||
+              Number(b.id === 'cut') - Number(a.id === 'cut')
+            )
+          })
+          .map((choice) => ({ kind: 'choice' as const, id: choice.id }))
+      }
+      for (const move of options) {
+        const next = applyPlaytestMove(run, move)
+        if (next === run) continue
+        const found = search(next, [...moves, move])
+        if (found) return found
+      }
+      return null
+    }
+    const found = search(startRun(seed), [])
+    if (found) return found
+  }
+  return null
+}
+
+const woundedAbbessWitness = findWoundedAbbessWitness()
+assert.ok(
+  woundedAbbessWitness,
+  'A real seeded journey must reach the wounded Abbess with the sister freed',
+)
+const woundedAbbess = woundedAbbessWitness.run
+assert.equal(woundedAbbess.sceneId, 'a8-voice-wound')
+assert.ok(woundedAbbess.visited.includes('nuns-attack'))
+assert.ok(woundedAbbess.visited.includes('abbess-strikes'))
+assert.ok(woundedAbbess.visited.includes('stabbed'))
+assert.ok(woundedAbbess.flags.includes('sister-free'))
+assert.ok(woundedAbbess.health >= 1 && woundedAbbess.health <= 9)
+assert.deepEqual(
+  replayWitness(woundedAbbessWitness.seed, woundedAbbessWitness.moves),
+  woundedAbbess,
+)
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(woundedAbbess))))
+const earnedRetreat = takeChoice(woundedAbbess, 'escape-with-sister')
+assert.equal(earnedRetreat.sceneId, 'a8-wounded-flight')
+assert.equal(earnedRetreat.health, woundedAbbess.health)
+assert.ok(earnedRetreat.flags.includes('honor:refused-the-dark'))
+const evacuated = takeChoice(earnedRetreat, 'carry-them')
+assert.equal(evacuated.sceneId, 'ending-hunted')
+assert.ok(evacuated.flags.includes('breach-left-open'))
+assert.equal(evacuated.health, woundedAbbess.health)
+const returnedWounded = takeChoice(earnedRetreat, 'turn-back')
+assert.equal(returnedWounded.sceneId, 'abbess')
+assert.equal(returnedWounded.health, woundedAbbess.health)
+assert.equal(returnedWounded.battle?.hp, 9)
+assert.ok(!returnedWounded.flags.includes('breach-left-open'))
+assert.ok(isSavedRun(JSON.parse(JSON.stringify(returnedWounded))))
+console.log(
+  'Gamebook real wounded Abbess witness: seed=' +
+    woundedAbbessWitness.seed +
+    ', moves=' +
+    woundedAbbessWitness.moves.length +
+    ', HP=' +
+    woundedAbbess.health +
+    ', sister freed, retreat and return validated',
+)
+
 // Golden journeys must remain replayable without the search solver, including
 // rare moral endings and failures. Changes to choices, dice or consequences
 // require explicit editorial review and deliberate fixture refresh.

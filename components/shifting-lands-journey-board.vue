@@ -1058,8 +1058,8 @@
                 </h3>
                 <p class="mt-1 text-sm leading-relaxed">
                   Her ledger belongs to the missing families. Your decision
-                  changes whether she travels beside you, walks away, or
-                  trusts you at the cave court.
+                  changes whether she travels beside you, walks away, or trusts
+                  you at the cave court.
                 </p>
                 <div class="mt-2 grid gap-2">
                   <button

@@ -26,3 +26,30 @@ const briar: RealmManifest = {
     art: artFor(`briar-${tile.key.replace(',', '-')}`),
   })),
 }
+const houseRooms = Object.values(HOUSE_ROOMS)
+const house: RealmManifest = {
+  name: 'House That Remembers',
+  coordinates: houseRooms.map((room) => room.id),
+  start: HOUSE_ENTRY,
+  links: Object.fromEntries(houseRooms.map((room) => [room.id, room.exits])),
+  sites: houseRooms.map((room) => ({
+    key: room.id,
+    title: room.title,
+    persistenceKey: `house.decisions.${room.id}`,
+    choices: room.choices,
+    art: artFor(`house-${room.id}`),
+  })),
+}
+
+assert.deepEqual(validateRealmManifest(briar), [])
+assert.deepEqual(validateRealmManifest(house), [])
+
+function mutateFirst(change: (site: RealmSite) => RealmSite): RealmManifest {
+  return { ...briar, sites: [change(briar.sites[0]!), ...briar.sites.slice(1)] }
+}
+function catches(manifest: RealmManifest, reason: string) {
+  assert.ok(
+    validateRealmManifest(manifest).some((issue) => issue.includes(reason)),
+    reason,
+  )
+}

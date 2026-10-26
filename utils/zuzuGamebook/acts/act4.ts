@@ -258,8 +258,7 @@ export const ACT_IV: Act = {
           },
           {
             id: 'trick',
-            label:
-              'Bluff about spotted fever. (Shadow · 9; failure: cornered)',
+            label: 'Bluff about spotted fever. (Shadow · 9; failure: cornered)',
             to: 'a4-well-tricked',
             check: {
               attribute: 'shadow',

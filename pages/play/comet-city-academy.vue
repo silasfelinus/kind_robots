@@ -352,7 +352,11 @@
               </div>
             </div>
             <p v-if="run.flowVersion === 3" class="cca-under">
-              DAY {{ run.day }} / 30 · MASTERMIND: {{ mastermind?.name }}
+              DAY {{ run.day }} / 30 · CASE FILE: {{ run.day < 15 ? 'UNKNOWN MASTERMIND' : mastermind?.name }}
+            </p>
+            <p v-if="run.flowVersion === 3 && run.day >= 8" class="cca-under" data-testid="academy-plot-status">
+              {{ run.plotEvidence?.length ?? 0 }} / 3 accomplice operations exposed ·
+              {{ run.betrayal ? 'BETRAYAL: ' + run.betrayal.status.toUpperCase() : 'TRUST REPORT: OPEN' }}
             </p>
             <div
               v-if="run.flowVersion === 3 && injuredStudents.length"
@@ -803,7 +807,7 @@ const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
 const mastermind = computed(() =>
-  run.value?.flowVersion === 3 ? campaignVillain(run.value.seed) : null,
+  run.value?.flowVersion === 3 ? campaignVillain(run.value.seed, run.value.mastermind) : null,
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3

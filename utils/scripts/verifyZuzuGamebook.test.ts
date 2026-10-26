@@ -489,6 +489,68 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
+// A failed parley at Hollis's well must not force a trusted, prepared sister
+// into a near-certain low-health fight. Retreat costs the bandage and dry miles.
+assert.deepEqual(
+  scene('a4-well-grab')
+    .choices?.slice(0, 2)
+    .map((choice) => choice.id),
+  ['fight', 'pay'],
+  'existing positional replay actions retain their choice indices',
+)
+for (const id of ['trick', 'why']) {
+  const choice = scene('a4-well-toll').choices?.find((entry) => entry.id === id)
+  assert.match(choice?.label ?? '', /failure: cornered/)
+}
+const hollisRetreat = scene('a4-well-grab').choices?.find(
+  (choice) => choice.id === 'follow-sister',
+)
+assert.ok(hollisRetreat, 'the failed parley offers an earned retreat')
+const grabbedAlone: Run = {
+  ...startRun(23),
+  sceneId: 'a4-well-grab',
+  health: 3,
+  resolve: 0,
+  items: ['bandage'],
+  flags: [],
+}
+assert.ok(lockReason(grabbedAlone, hollisRetreat))
+assert.equal(takeChoice(grabbedAlone, 'follow-sister'), grabbedAlone)
+const grabbedUnprepared: Run = {
+  ...grabbedAlone,
+  flags: ['sister-trust'],
+  items: [],
+}
+assert.ok(lockReason(grabbedUnprepared, hollisRetreat))
+assert.equal(takeChoice(grabbedUnprepared, 'follow-sister'), grabbedUnprepared)
+for (const health of [1, 3, 6, 12]) {
+  for (const resolve of [0, 4]) {
+    const trusted: Run = {
+      ...grabbedAlone,
+      health,
+      resolve,
+      flags: ['sister-trust'],
+    }
+    const slipped = takeChoice(trusted, 'follow-sister')
+    assert.equal(slipped.sceneId, 'a4-well-slip')
+    assert.equal(slipped.health, health, 'retreat grants no free healing')
+    assert.equal(slipped.resolve, Math.max(0, resolve - 1))
+    assert.ok(!slipped.items.includes('bandage'), 'escape spends the bandage')
+    assert.ok(slipped.flags.includes('sister-led-escape'))
+    assert.equal(taint(slipped), 0)
+    const dryRoad = takeChoice(slipped, 'on')
+    assert.equal(dryRoad.sceneId, 'a4-wide-berth')
+    assert.equal(dryRoad.health, Math.max(1, health - 2))
+    assert.equal(dryRoad.battle, null)
+    assert.ok(dryRoad.flags.includes('sister-led-escape'))
+  }
+}
+assert.equal(
+  takeChoice(grabbedAlone, 'fight').sceneId,
+  'a4-well-battle',
+  'the existing dangerous choice remains available',
+)
+
 // The sister's rescue is an earned alternative to a near-certain wounded Abbess fight.
 // It must not become a free escape for Zuzu when she remains tied to the altar.
 const woundedAlone: Run = {

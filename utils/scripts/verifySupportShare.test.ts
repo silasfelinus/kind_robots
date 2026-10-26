@@ -11,6 +11,7 @@ import {
   playTitleFromPath,
   promptIsDue,
 } from '../supportShare'
+import { normalizeSiteStat } from '../siteStats'
 
 assert.equal(
   shareableUrl('/play/crystal-street#top'),
@@ -95,5 +96,23 @@ assert.equal(
   playTitleFromPath('/play/arcade', () => 'unused'),
   'the Kind Robots Arcade',
 )
+
+const eventNames = [
+  'shown-plays',
+  'shown-runs',
+  'give',
+  'share-native',
+  'fund-share-native',
+  'copy',
+  'fund-copy',
+  ...targets.flatMap((t) => ['share-' + t.key, 'fund-share-' + t.key]),
+].map((name) => 'support:' + name)
+for (const key of eventNames) {
+  assert.deepEqual(
+    normalizeSiteStat({ kind: 'event', key }),
+    { kind: 'event', key },
+    key + ' is a valid site-stats event',
+  )
+}
 
 console.log('Support share contract verified')

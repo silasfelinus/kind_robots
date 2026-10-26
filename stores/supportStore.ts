@@ -8,6 +8,7 @@ import {
   promptIsDue,
   type SupportProgress,
 } from '~/utils/supportShare'
+import { useSiteStatsStore } from './siteStatsStore'
 
 export type SupportPromptReason = 'plays' | 'runs'
 
@@ -57,7 +58,13 @@ export const useSupportStore = defineStore('support', () => {
     playTimer = null
   }
 
+  function track(name: string) {
+    if (!isClient) return
+    useSiteStatsStore().trackEvent('support:' + name)
+  }
+
   function open(reason: SupportPromptReason, path: string) {
+    track('shown-' + reason)
     progress.value = { ...progress.value, lastPromptAt: Date.now() }
     persist()
     activePrompt.value = { reason, path }
@@ -107,6 +114,7 @@ export const useSupportStore = defineStore('support', () => {
 
   function markGave() {
     ensureLoaded()
+    track('give')
     progress.value = { ...progress.value, gaveAt: Date.now() }
     persist()
   }
@@ -162,6 +170,7 @@ export const useSupportStore = defineStore('support', () => {
     recordRunFinished,
     dismiss,
     markGave,
+    track,
     give,
     openExternal,
     canNativeShare,

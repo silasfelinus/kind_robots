@@ -94,6 +94,7 @@
             rel="noopener noreferrer"
             class="support-chip"
             :aria-label="'Share on ' + target.label + ' (opens in a new tab)'"
+            @click="support.track('share-' + target.key)"
           >
             <Icon :name="target.icon" class="size-3.5" aria-hidden="true" />
             {{ target.label }}
@@ -186,6 +187,7 @@
               target.label +
               ' (opens in a new tab)'
             "
+            @click="support.track('fund-share-' + target.key)"
           >
             <Icon :name="target.icon" class="size-3.5" aria-hidden="true" />
             {{ target.label }}
@@ -257,11 +259,17 @@ function toggle(lane: 'page' | 'fundraiser') {
   openLane.value = openLane.value === lane ? null : lane
 }
 
+function laneFor(url: string) {
+  return url === FUNDRAISER_URL ? 'fund-' : ''
+}
+
 function shareNative(url: string, text: string) {
+  support.track(laneFor(url) + 'share-native')
   void support.nativeShare({ url, text, title: props.title || 'Kind Robots' })
 }
 
 function copy(url: string) {
+  support.track(laneFor(url) + 'copy')
   void support.copyLink(url)
 }
 

@@ -600,9 +600,9 @@ assert.equal(new Set(allAccomplices.map(a => a.id)).size, 24)
 assert.equal(new Set(allAccomplices.map(a => a.name)).size, 24)
 assert.ok(allAccomplices.every(a => a.motive.length > 24 && a.sabotage.length > 24))
 assert.equal(new Set(CAMPAIGN_VILLAINS.map(v => v.method)).size, 8)
-for (let seed = 0; seed < 8; seed++) {
+for (let seed = 1; seed <= 8; seed++) {
   const villain = campaignVillain(seed)
-  assert.equal(villain.id, CAMPAIGN_VILLAINS[seed]!.id)
+  assert.equal(villain.id, CAMPAIGN_VILLAINS[seed % 8]!.id)
   assert.ok(villain.countermeasure && villain.fall && villain.coup)
   assert.ok(campaignPlotEvent(seed, villain.id, 8, 'Mina')?.scene.includes('anonymous message'))
   assert.ok(campaignPlotEvent(seed, villain.id, 15, 'Mina')?.scene.includes('duplicate emergency key'))

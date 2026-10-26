@@ -44,7 +44,7 @@ export function restoreMinefieldRun(value: unknown): MinefieldRun | null {
       return null
     moves.push({ action: item.action, row: item.row, col: item.col })
   }
-  return { version: 1, seed: source.seed, size: source.size, moves }
+  return { version: 1, seed: source.seed!, size: source.size, moves }
 }
 
 export function createMinefieldRun(seed: number, size: MinefieldSize): MinefieldRun {

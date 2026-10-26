@@ -213,12 +213,13 @@ const reunited = stepJourneyLedgerV9(cave(sold), {
 assert.equal(kitchenNoviceStatusV9(reunited), 'Tentatively reunited')
 assert.equal(reunited.current.journey.provisions, 5)
 assert.equal(kitchenNoviceEchoesV9(reunited).length, 3)
+const soldAtCave = cave(sold)
 assert.strictEqual(
-  stepJourneyLedgerV9(cave(sold), {
+  stepJourneyLedgerV9(soldAtCave, {
     type: 'FOLLOWER',
     choiceId: 'stand-as-witness',
   }),
-  cave(sold),
+  soldAtCave,
   'a betrayal cannot jump directly to loyal status',
 )
 assert.deepEqual(restoreJourneyLedgerV9(fresh), fresh)

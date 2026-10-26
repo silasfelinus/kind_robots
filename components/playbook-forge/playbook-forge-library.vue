@@ -147,7 +147,8 @@ function detail(slug: string) {
   const left = s.remainingSeconds
     ? ` · ${formatDuration(s.remainingSeconds)} render left`
     : ''
-  return `${s.starred}/${s.sections} sections starred${left}`
+  const pct = (n: number) => `${Math.round(n * 100)}%`
+  return `Written ${pct(s.writtenShare)} · painted ${pct(s.paintedShare)}${left}`
 }
 
 function badgeClass(slug: string) {

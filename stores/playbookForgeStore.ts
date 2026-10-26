@@ -115,6 +115,8 @@ const PLAN_EDITS_KEY = 'kr-playbook-forge-plan-edits-v1'
 /** One game's ledger at a glance, for the Load a game library. */
 export type LibraryStat = {
   progress: number
+  writtenShare: number
+  paintedShare: number
   starred: number
   sections: number
   shine: Shine
@@ -442,6 +444,8 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
           ...libraryStats.value,
           [entry.slug]: {
             progress: ledger.progress,
+            writtenShare: ledger.writtenShare,
+            paintedShare: ledger.paintedShare,
             starred: ledger.starred,
             sections: ledger.sections.length,
             shine: ledger.shine,

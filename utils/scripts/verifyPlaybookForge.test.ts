@@ -310,7 +310,20 @@ assert.ok(ledger.sections.find((s) => s.id === 'ending')!.starred)
 assert.equal(ledger.shine, 'star')
 assert.ok(ledger.discrepancies.some((d) => /rendered but not wired/.test(d)))
 assert.ok(ledger.discrepancies.some((d) => /only ever failed/.test(d)))
-assert.equal(ledger.progress, 3 / 7)
+assert.equal(
+  ledger.finishedShare,
+  3 / 7,
+  'three of seven beats written and painted',
+)
+assert.ok(
+  ledger.progress > ledger.finishedShare,
+  'progress credits written beats still waiting on art',
+)
+assert.equal(
+  ledger.progress,
+  (ledger.writtenShare + ledger.paintedShare) / 2,
+  'progress is half writing, half art',
+)
 
 const finished = buildLedger(
   {

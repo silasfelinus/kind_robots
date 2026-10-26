@@ -321,7 +321,10 @@ for (const philosophy of ['attend', 'refuse'] as const) {
   const reloaded = restoreDarkHouseProgress(JSON.parse(JSON.stringify(run)))
   assert.equal(reloaded.decisions['HD-35'], old)
   assert.equal(reloaded.ending, run.ending)
-  assert.equal(darkHouseChoose(reloaded, philosophy === 'attend' ? 'refuse' : 'attend'), reloaded)
+  assert.equal(
+    darkHouseChoose(reloaded, philosophy === 'attend' ? 'refuse' : 'attend'),
+    reloaded,
+  )
 }
 console.log(
   'Adversarial mirrored House: both complete 36-room ethical playthroughs, 72 real choices, save/reload, witness gate and every backtrack verified',

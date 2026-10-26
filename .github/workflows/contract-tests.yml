@@ -129,6 +129,9 @@ jobs:
       - name: LoRA cfg ceiling contract
         run: npm run test:lora-cfg-ceiling
 
+      - name: Share and support prompt contract
+        run: npm run test:support-share
+
       - name: LoRA cfg ceiling enqueue-path wiring contract
         run: npm run test:lora-cfg-wiring
 

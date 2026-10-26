@@ -56,6 +56,7 @@
       <fx-clear-all />
       <achievement-popup />
       <first-launch-intro />
+      <support-prompt />
     </ClientOnly>
 
     <section
@@ -431,7 +432,7 @@ const shareDescription = computed(
     pageStore.description ||
     sharePreview.value?.description ||
     pageStore.subtitle ||
-    'A friendly AI playground for humans and robots.',
+    'Free handmade games and stories. No ads, no account needed.',
 )
 const shareUrl = computed(() => absoluteSiteUrl(route.path))
 const shareImage = computed(() => sharePreviewImageUrl(route.path))

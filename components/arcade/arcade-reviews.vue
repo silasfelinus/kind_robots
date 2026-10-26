@@ -97,6 +97,12 @@
     <p v-else class="mb-4 text-sm opacity-75">
       Sign in to rate and comment. Everyone can read reviews.
     </p>
+    <support-card
+      :compact="compact"
+      :title="title"
+      :path="'/play/arcade?game=' + game"
+      :class="compact ? 'mb-4' : 'mb-5'"
+    />
     <p v-if="reviews.error" role="alert" class="mb-3 text-sm text-error">
       {{ reviews.error }}
     </p>

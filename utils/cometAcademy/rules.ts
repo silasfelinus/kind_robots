@@ -4,7 +4,15 @@ import {
   identityStoryFor,
   IDENTITY_ARCS,
 } from './identityArcs'
-import { beginPlayerEvolution, evolutionEncounter, evolutionNightModifier, isValidPlayerEvolution, recordPlayerValues, resolveEvolution, type PlayerEvolution } from './protagonistEvolution'
+import {
+  beginPlayerEvolution,
+  evolutionEncounter,
+  evolutionNightModifier,
+  isValidPlayerEvolution,
+  recordPlayerValues,
+  resolveEvolution,
+  type PlayerEvolution,
+} from './protagonistEvolution'
 import {
   antagonistBeat,
   antagonistFinale,
@@ -440,8 +448,16 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
-  if (run.flowVersion === 3 && (run.day === 16 || run.day === 23) && run.playerEvolution) {
-    const event = evolutionEncounter(run.signature, run.playerEvolution, run.day)
+  if (
+    run.flowVersion === 3 &&
+    (run.day === 16 || run.day === 23) &&
+    run.playerEvolution
+  ) {
+    const event = evolutionEncounter(
+      run.signature,
+      run.playerEvolution,
+      run.day,
+    )
     return { ...event, scene: `${campaignAnchor(run.day)} ${event.scene}` }
   }
   if (run.flowVersion === 3) {
@@ -709,7 +725,9 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       academySupport -
       sabotagePenalty -
       identityPressure +
-      (run.flowVersion === 3 ? evolutionNightModifier(run.playerEvolution, incident.allegiance) : 0)
+      (run.flowVersion === 3
+        ? evolutionNightModifier(run.playerEvolution, incident.allegiance)
+        : 0)
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -801,7 +819,10 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (entry) => entry.id === optionId,
   )
   if (!option) return run
-  const isEvolution = run.flowVersion === 3 && [16, 23].includes(run.day) && Boolean(run.playerEvolution)
+  const isEvolution =
+    run.flowVersion === 3 &&
+    [16, 23].includes(run.day) &&
+    Boolean(run.playerEvolution)
   const evolved = isEvolution
     ? resolveEvolution(run.playerEvolution!, optionId, run.day, run.signature)
     : null
@@ -875,9 +896,12 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
           ...(betrayal ? { betrayal } : {}),
         }
       : {}),
-    ...(run.flowVersion === 3 && run.playerEvolution ? {
-      playerEvolution: evolved ?? recordPlayerValues(run.playerEvolution, option),
-    } : {}),
+    ...(run.flowVersion === 3 && run.playerEvolution
+      ? {
+          playerEvolution:
+            evolved ?? recordPlayerValues(run.playerEvolution, option),
+        }
+      : {}),
     influence: run.influence + option.influence,
     academyStanding:
       (run.academyStanding ?? 0) +
@@ -946,14 +970,16 @@ export function finishAcademy(
     const villain = campaignVillain(run.seed, run.mastermind)
     const evidenceCount = run.plotEvidence?.length ?? 0
     const identityForm = run.playerEvolution?.form ?? 'student'
-    const roleStanding = identityForm === 'hero' ? 2 : identityForm === 'villain' ? -2 : 0
-    const roleEpilogue = run.signature && run.playerEvolution
-      ? identityForm === 'hero'
-        ? `${identityFor(run.signature).realName} graduates as ${identityFor(run.signature).hero.alias}: ${identityFor(run.signature).hero.method} Their promise persists after the shattered prom.`
-        : identityForm === 'villain'
-          ? `${identityFor(run.signature).realName} leaves the ballroom as ${identityFor(run.signature).villain.alias}: ${identityFor(run.signature).villain.method} The city remembers the cost of their bargain.`
-          : `${identityFor(run.signature).realName} remains ${identityFor(run.signature).student.alias}, choosing a future without compulsory transformation.`
-      : ''
+    const roleStanding =
+      identityForm === 'hero' ? 2 : identityForm === 'villain' ? -2 : 0
+    const roleEpilogue =
+      run.signature && run.playerEvolution
+        ? identityForm === 'hero'
+          ? `${identityFor(run.signature).realName} graduates as ${identityFor(run.signature).hero.alias}: ${identityFor(run.signature).hero.method} Their promise persists after the shattered prom.`
+          : identityForm === 'villain'
+            ? `${identityFor(run.signature).realName} leaves the ballroom as ${identityFor(run.signature).villain.alias}: ${identityFor(run.signature).villain.method} The city remembers the cost of their bargain.`
+            : `${identityFor(run.signature).realName} remains ${identityFor(run.signature).student.alias}, choosing a future without compulsory transformation.`
+        : ''
     const reconciled = run.betrayal?.status === 'reconciled'
     const support =
       (run.cityStanding ?? 0) +
@@ -1124,7 +1150,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
         (data.playerEvolution !== undefined &&
           (!isValidPlayerEvolution(data.playerEvolution, data.signature) ||
-            data.playerEvolution.milestones.some(event => event.day > data.day!))) ||
+            data.playerEvolution.milestones.some(
+              (event) => event.day > data.day!,
+            ))) ||
         (data.opponentSignature !== undefined &&
           ((data.signature !== undefined &&
             data.opponentSignature === data.signature) ||

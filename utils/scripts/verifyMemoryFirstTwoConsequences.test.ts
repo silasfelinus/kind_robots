@@ -128,7 +128,7 @@ const stage = readFileSync(
   'utf8',
 )
 assert.ok(store.includes('firstTwoWorldFrames(state.value, darkHouse.value)'))
-assert.ok(store.includes('firstTwoSceneCallbacks(dark.value.player'))
+assert.match(store, /firstTwoSceneCallbacks\(\s*dark\.value\.player/)
 assert.ok(
   store.includes(
     'darkBriarCanTravel(dark.value.player, key, dark.value.revealed, dark.value)',

@@ -36,7 +36,7 @@ import {
   NEW_LENS_CODAS,
 } from './finaleExpansion'
 import { applyCardEdit, newBeatCard, type CardEdit } from '../playbook/edits'
-import { openingLensChoices } from './openingLensChoices'
+import { contextualStoryChoices } from './causalChoices'
 import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
   momentPerspective,
@@ -774,7 +774,7 @@ export function originPerkAvailable(
   const card = findCard(state.card)
   const choice =
     card &&
-    openingLensChoices(card).find(
+    contextualStoryChoices(card, state.flags).find(
       (item) =>
         item.id === choiceId &&
         (!item.requiresFlag || state.flags.includes(item.requiresFlag)),
@@ -814,7 +814,7 @@ export function chooseBeat(
   const card = findCard(state.card)
   const choice =
     card &&
-    openingLensChoices(card).find(
+    contextualStoryChoices(card, state.flags).find(
       (c) =>
         c.id === choiceId &&
         (!c.requiresFlag || state.flags.includes(c.requiresFlag)),

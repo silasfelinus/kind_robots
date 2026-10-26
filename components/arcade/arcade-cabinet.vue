@@ -500,7 +500,6 @@ const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
 const store = useArcadeStore()
 const support = useSupportStore()
-const route = useRoute()
 const userStore = useUserStore()
 const meta = computed(() => findArcadeGame(props.slug))
 /** A WebGL game draws on a stage canvas under the 2D UI canvas. */
@@ -1383,7 +1382,7 @@ function tick() {
         ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
         qualifiesForBoard(lastScore, board.value)
       emit('scored', lastScore)
-      support.recordRunFinished(route.fullPath)
+      support.recordRunFinished()
       dispatch({ type: 'gameOver' })
     }
     return

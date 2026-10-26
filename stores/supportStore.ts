@@ -85,7 +85,11 @@ export const useSupportStore = defineStore('support', () => {
     }, PLAY_PROMPT_DELAY_MS)
   }
 
-  function recordRunFinished(path: string) {
+  function currentPath() {
+    return isClient ? window.location.pathname + window.location.search : '/'
+  }
+
+  function recordRunFinished(path: string = currentPath()) {
     ensureLoaded()
     const runs = progress.value.runs + 1
     progress.value = { ...progress.value, runs }

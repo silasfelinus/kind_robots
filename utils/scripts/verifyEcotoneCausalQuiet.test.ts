@@ -72,7 +72,11 @@ for (let seed = 1; seed <= 200; seed++) {
   assert.ok(firstRoll, 'the ranger interview requires an actual 2d6 check')
   const copied = investigated.flags.includes('elk_ranger_log_copied')
   const followup = investigated.flags.includes('elk_ranger_followup')
-  assert.notEqual(copied, followup, 'one outcome grants exactly one earned route')
+  assert.notEqual(
+    copied,
+    followup,
+    'one outcome grants exactly one earned route',
+  )
   assert.equal(copied, firstRoll.success)
 
   const cabinState = walkTo(advance(investigated), 'QW-5')

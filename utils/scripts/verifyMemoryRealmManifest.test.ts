@@ -3,7 +3,11 @@ import { BRIAR_LINKS, BRIAR_START, BRIAR_TILES } from '../memoryDungeonWorld'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import { HOUSE_ENTRY, HOUSE_ROOMS } from '../memoryDungeon/house'
 import { WORLD_ONE_ART_SHOTS } from '../memoryDungeon/artManifest'
-import { validateRealmManifest, type RealmManifest, type RealmSite } from '../memoryDungeon/realmManifestValidator'
+import {
+  validateRealmManifest,
+  type RealmManifest,
+  type RealmSite,
+} from '../memoryDungeon/realmManifestValidator'
 
 const shots = new Map(WORLD_ONE_ART_SHOTS.map((shot) => [shot.id, shot]))
 function artFor(id: string): RealmSite['art'] {
@@ -53,17 +57,55 @@ function catches(manifest: RealmManifest, reason: string) {
     reason,
   )
 }
-catches({ ...briar, coordinates: [...briar.coordinates, briar.start] }, 'Duplicate coordinate')
-catches({ ...briar, sites: [...briar.sites, briar.sites[0]!] }, 'Duplicate site')
-catches({ ...briar, links: { ...briar.links, [BRIAR_START]: [] } }, 'Unreachable site')
-catches(mutateFirst((s) => ({ ...s, persistenceKey: '' })), 'persistent consequence')
-catches(mutateFirst((s) => ({ ...s, choices: [] })), 'Too few choices')
-catches(mutateFirst((s) => ({
-  ...s,
-  choices: s.choices.map((c, i) => i ? c : { ...c, outcome: '' }),
-})), 'Missing choice outcome')
-catches(mutateFirst((s) => ({ ...s, art: undefined })), 'Missing art or placeholder')
-catches(mutateFirst((s) => ({ ...s, art: { ...s.art!, prompt: '' } })), 'Incomplete art brief')
-catches(mutateFirst((s) => ({ ...s, art: { ...s.art!, status: 'queued', jobId: null } })), 'Unverified ArtJob')
-catches(mutateFirst((s) => ({ ...s, art: { ...s.art!, status: 'delivered', jobId: 42 } })), 'Undelivered art')
-console.log('Memory Dungeon: Briar, House, and manifest mutation contracts verified')
+catches(
+  { ...briar, coordinates: [...briar.coordinates, briar.start] },
+  'Duplicate coordinate',
+)
+catches(
+  { ...briar, sites: [...briar.sites, briar.sites[0]!] },
+  'Duplicate site',
+)
+catches(
+  { ...briar, links: { ...briar.links, [BRIAR_START]: [] } },
+  'Unreachable site',
+)
+catches(
+  mutateFirst((s) => ({ ...s, persistenceKey: '' })),
+  'persistent consequence',
+)
+catches(
+  mutateFirst((s) => ({ ...s, choices: [] })),
+  'Too few choices',
+)
+catches(
+  mutateFirst((s) => ({
+    ...s,
+    choices: s.choices.map((c, i) => (i ? c : { ...c, outcome: '' })),
+  })),
+  'Missing choice outcome',
+)
+catches(
+  mutateFirst((s) => ({ ...s, art: undefined })),
+  'Missing art or placeholder',
+)
+catches(
+  mutateFirst((s) => ({ ...s, art: { ...s.art!, prompt: '' } })),
+  'Incomplete art brief',
+)
+catches(
+  mutateFirst((s) => ({
+    ...s,
+    art: { ...s.art!, status: 'queued', jobId: null },
+  })),
+  'Unverified ArtJob',
+)
+catches(
+  mutateFirst((s) => ({
+    ...s,
+    art: { ...s.art!, status: 'delivered', jobId: 42 },
+  })),
+  'Undelivered art',
+)
+console.log(
+  'Memory Dungeon: Briar, House, and manifest mutation contracts verified',
+)

@@ -1,5 +1,6 @@
 import type { PlaybookKitSpec } from '../types'
 import { LANTERN_FERRY } from './lanternFerry'
+import { SPACE_COUCH_KIT } from './spaceCouch'
 // playbook:new imports
 
 // Every playbook built on the kit. `npm run playbook:new` adds new ones at the
@@ -7,6 +8,7 @@ import { LANTERN_FERRY } from './lanternFerry'
 
 export const KIT_PLAYBOOKS: PlaybookKitSpec[] = [
   LANTERN_FERRY,
+  SPACE_COUCH_KIT,
   // playbook:new entries
 ]
 

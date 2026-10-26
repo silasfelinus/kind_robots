@@ -6,7 +6,7 @@ import type { Spark } from './facets'
 // A playbook blueprint: every factor a designer can set before a story game is
 // built. One shape serves a new idea and an existing game's plan, so the same
 // forecast compares them. The factors are the union of what Emperor of Dust,
-// Shifting Lands, Shifting Desks, Prom of Doom, This Means Warp, Ecotone,
+// Shifting Lands, Shifting Desks, Prom of Doom, Space Couch, Ecotone,
 // Crystal Street and the Zuzu gamebook actually do.
 
 export type Placement = 'admin' | 'play' | 'projects'

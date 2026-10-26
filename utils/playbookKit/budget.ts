@@ -61,7 +61,7 @@ export const TIER_INFO: Record<
     label: 'Saga',
     length: 'A campaign across many sessions',
     blurb:
-      'The full production floor of This Means Warp or Prom of Doom. Only for a proven playbook.',
+      'The full production floor of Space Couch or Prom of Doom. Only for a proven playbook.',
   },
 }
 

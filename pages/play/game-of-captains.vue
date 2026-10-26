@@ -2,14 +2,14 @@
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
-    aria-label="This Means Warp"
+    aria-label="Space Couch"
   >
     <header class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
       <span class="cap-emblem">✧</span
-      ><span class="cap-wordmark">THIS <i>MEANS</i> WARP</span>
+      ><span class="cap-wordmark">SPACE <i>COUCH</i></span>
       <span class="cap-flight">{{
         run
           ? 'SHIP DAY ' +
@@ -21,6 +21,9 @@
       <span v-if="run" class="cap-hud"
         >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
         <b>{{ run.trust }}</b></span
+      >
+      <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
+        >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
       <button
         v-if="run"
@@ -35,24 +38,25 @@
       {{ store.storageWarning }}
     </p>
     <div class="cap-layout min-h-0 flex-1">
-      <section class="cap-stage" aria-label="Illustrated bridge and starfield">
+      <section
+        class="cap-stage"
+        aria-label="Long red couch spacecraft protected by an invisible force bubble"
+      >
         <img
           class="cap-painting"
           :src="stagePainting"
-          alt="A command bridge looking toward a turbulent nebula, a distant ship and a floating planet"
+          alt="Four spacers on a long red sofa travel through space protected by an invisible force bubble; a pocket room folds out behind the backrest"
         />
         <div class="cap-vignette" aria-hidden="true" />
         <div class="cap-overlay">
           <div class="cap-kicker">
-            STAR COMMAND // INDEPENDENT VESSEL <span>•</span> CREW COMPLEMENT
-            UNKNOWN
+            COUCH COMMAND // FORCE BUBBLE // POCKET ROOMS <span>•</span> CREW
+            COMPLEMENT UNKNOWN
           </div>
           <template v-if="!run">
-            <h2 class="cap-title">
-              THIS <small>MEANS</small><span>WARP</span>
-            </h2>
+            <h2 class="cap-title">SPACE <span>COUCH</span></h2>
             <p class="cap-tagline">
-              One ship. Six captains. Nobody read the mission brief.
+              One long red couch. Six captains. No hull. No problem.
             </p>
           </template>
           <template v-else>
@@ -89,9 +93,9 @@
             <div class="cap-heading">
               <span>01</span>
               <div>
-                <h2>Take the chair</h2>
+                <h2>Claim your cushion</h2>
                 <p>
-                  Select a captain, then appoint your bridge officers. A ship
+                  Select a captain, then appoint your bridge officers. The couch
                   runs on personalities as much as fuel.
                 </p>
               </div>
@@ -223,6 +227,61 @@
               <small>{{ antagonist.title }}</small>
             </div>
             <section
+              class="cap-insight"
+              aria-label="Couch pocket rooms and shield"
+            >
+              <strong>Where is the rest of the spaceship?</strong>
+              <small
+                >This long red couch IS the ship. Its invisible bubble keeps the
+                vacuum out. Unfold one temporary room behind the backrest for
+                one supply; a specialty match boosts success odds by 10%.</small
+              >
+              <div class="cap-crew-picker">
+                <button
+                  type="button"
+                  class="cap-crew-button"
+                  :class="{ chosen: !run.pocketRoom }"
+                  :aria-pressed="!run.pocketRoom"
+                  @click="store.chooseRoom(null)"
+                >
+                  <span
+                    ><strong>Just the couch</strong
+                    ><small>No room, no supply cost</small></span
+                  >
+                </button>
+                <button
+                  v-for="room in POCKET_ROOMS"
+                  :key="room.id"
+                  type="button"
+                  class="cap-crew-button"
+                  :class="{ chosen: run.pocketRoom === room.id }"
+                  :aria-pressed="run.pocketRoom === room.id"
+                  :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
+                  @click="store.chooseRoom(room.id)"
+                >
+                  <span
+                    ><strong>{{ room.name }}</strong
+                    ><small>{{ room.blurb }}</small></span
+                  >
+                </button>
+              </div>
+              <button
+                class="cap-option"
+                type="button"
+                data-testid="couch-recharge-shield"
+                :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
+                @click="store.rechargeShield()"
+              >
+                <span
+                  ><b>Recharge invisible force bubble (1 supply)</b
+                  ><small
+                    >Charge {{ run.shieldCharge ?? 2 }}/3. Backup life support
+                    remains safe at zero, but operational odds lose 10%.</small
+                  ></span
+                >↗
+              </button>
+            </section>
+            <section
               v-if="missionPreview"
               class="cap-odds"
               data-testid="captains-odds"
@@ -300,7 +359,7 @@
               AWAY: {{ run.away.length }} / 3
               <span
                 >{{ run.crew.length - run.away.length }} officers aboard ·
-                captain on bridge</span
+                captain on couch</span
               >
             </div>
             <button
@@ -557,6 +616,7 @@ import {
   CAPTAINS,
   CREW,
   MISSIONS,
+  POCKET_ROOMS,
   previewMission,
   antagonistFor,
   missionFor,
@@ -570,7 +630,6 @@ import {
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
-import { voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
@@ -578,9 +637,7 @@ const chosenCrew = ref<CrewId[]>(['pell', 'vela', 'rue'])
 const run = computed(() => store.run)
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => warpArt(`portraits/${key}`)
-const stagePainting = computed(
-  () => voyageStageArt(run.value) ?? '/game-of-captains/bridge-stage.svg',
-)
+const stagePainting = computed(() => '/game-of-captains/space-couch-stage.svg')
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
 )
@@ -640,7 +697,7 @@ const panelLabel = computed(() =>
 )
 
 onMounted(() => store.load())
-useHead({ title: 'This Means Warp | Kind Robots' })
+useHead({ title: 'Space Couch | Kind Robots' })
 
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)

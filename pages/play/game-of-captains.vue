@@ -39,8 +39,8 @@
       <section class="cap-stage" aria-label="Long red couch spacecraft protected by an invisible force bubble">
         <img
           class="cap-painting"
-          src="/game-of-captains/space-couch-stage.svg"
-          alt="A long crimson couch carries four spacers through a nebula inside a force bubble, with a pocket room unfolding behind its backrest"
+          :src="stagePainting"
+          alt="Four spacers on a long red sofa travel through space protected by an invisible force bubble; a pocket room folds out behind the backrest"
         />
         <div class="cap-vignette" aria-hidden="true" />
         <div class="cap-overlay">
@@ -110,7 +110,14 @@
                   class="cap-captain-icon"
                   :data-portrait-key="'captain-' + captain.id"
                   aria-hidden="true"
-                  >{{ captain.name.split(' ').at(-1)?.slice(0, 1) }}</span
+                  ><img
+                    v-if="portrait('captain-' + captain.id)"
+                    :src="portrait('captain-' + captain.id)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{
+                    captain.name.split(' ').at(-1)?.slice(0, 1)
+                  }}</template></span
                 >
                 <span
                   ><strong>{{ captain.name }}</strong
@@ -160,7 +167,12 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
-                  >{{ member.monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(member.id).portraitKey)"
+                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
                   ><strong>{{ member.name }}</strong
@@ -212,33 +224,12 @@
             </div>
             <section class="cap-insight" aria-label="Couch pocket rooms and shield">
               <strong>Where is the rest of the spaceship?</strong>
-              <small>This long red couch IS the ship. Its invisible bubble keeps the vacuum out. Unfold one temporary room behind the backrest for one supply: matching a mission's specialty boosts success odds by 10%.</small>
+              <small>This long red couch IS the ship. Its invisible bubble keeps the vacuum out. Unfold one temporary room behind the backrest for one supply; a specialty match boosts success odds by 10%.</small>
               <div class="cap-crew-picker">
-                <button
-                  type="button"
-                  class="cap-crew-button"
-                  :class="{ chosen: !run.pocketRoom }"
-                  :aria-pressed="!run.pocketRoom"
-                  @click="store.chooseRoom(null)"
-                ><span><strong>Just the couch</strong><small>No room, no supply cost</small></span></button>
-                <button
-                  v-for="room in POCKET_ROOMS"
-                  :key="room.id"
-                  type="button"
-                  class="cap-crew-button"
-                  :class="{ chosen: run.pocketRoom === room.id }"
-                  :aria-pressed="run.pocketRoom === room.id"
-                  :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
-                  @click="store.chooseRoom(room.id)"
-                ><span><strong>{{ room.name }}</strong><small>{{ room.blurb }}</small></span></button>
+                <button type="button" class="cap-crew-button" :class="{ chosen: !run.pocketRoom }" :aria-pressed="!run.pocketRoom" @click="store.chooseRoom(null)"><span><strong>Just the couch</strong><small>No room, no supply cost</small></span></button>
+                <button v-for="room in POCKET_ROOMS" :key="room.id" type="button" class="cap-crew-button" :class="{ chosen: run.pocketRoom === room.id }" :aria-pressed="run.pocketRoom === room.id" :disabled="run.supplies < 1 && run.pocketRoom !== room.id" @click="store.chooseRoom(room.id)"><span><strong>{{ room.name }}</strong><small>{{ room.blurb }}</small></span></button>
               </div>
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="couch-recharge-shield"
-                :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
-                @click="store.rechargeShield()"
-              ><span><b>Recharge invisible force bubble (1 supply)</b><small>Charge {{ run.shieldCharge ?? 2 }}/3. Backup life support remains safe at zero, but mission odds lose 10%.</small></span>↗</button>
+              <button class="cap-option" type="button" data-testid="couch-recharge-shield" :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3" @click="store.rechargeShield()"><span><b>Recharge invisible force bubble (1 supply)</b><small>Charge {{ run.shieldCharge ?? 2 }}/3. Backup life support remains safe at zero, but operational odds lose 10%.</small></span>↗</button>
             </section>
             <section
               v-if="missionPreview"
@@ -301,7 +292,12 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(member.id).portraitKey"
-                  >{{ member.monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(member.id).portraitKey)"
+                    :src="portrait(crewProfile(member.id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{ member.monogram }}</template></span
                 >
                 <span
                   ><strong>{{ member.name }}</strong
@@ -363,7 +359,14 @@
                 <span
                   class="cap-monogram"
                   :data-portrait-key="crewProfile(id).portraitKey"
-                  >{{ crewProfile(id).monogram }}</span
+                  ><img
+                    v-if="portrait(crewProfile(id).portraitKey)"
+                    :src="portrait(crewProfile(id).portraitKey)!"
+                    alt=""
+                    class="cap-portrait-img"
+                  /><template v-else>{{
+                    crewProfile(id).monogram
+                  }}</template></span
                 >
                 <span
                   ><strong>{{ crewProfile(id).name }}</strong
@@ -571,11 +574,15 @@ import {
   SKILLS,
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
+import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>(['pell', 'vela', 'rue'])
 const run = computed(() => store.run)
+/** A captain or crew portrait once its render ships; the monogram stands in until then. */
+const portrait = (key: string) => warpArt(`portraits/${key}`)
+const stagePainting = computed(() => '/game-of-captains/space-couch-stage.svg')
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
 )
@@ -956,6 +963,7 @@ function toggleAway(id: CrewId) {
   background: #43677677;
 }
 .cap-captain-icon {
+  overflow: hidden;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -1033,7 +1041,15 @@ function toggleAway(id: CrewId) {
   font-size: 0.57rem;
   color: #f1c190;
 }
+.cap-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: inherit;
+}
 .cap-monogram {
+  overflow: hidden;
   display: grid;
   place-items: center;
   width: 2rem;

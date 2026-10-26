@@ -103,7 +103,7 @@ assert.equal(
 )
 assert.equal(
   sharePreviewImageUrl('/play/comet-city-academy'),
-  `https://kindrobots.org${DEFAULT_SHARE_IMAGE}`,
+  'https://kindrobots.org/comet-city-academy/front/dashboard-highlight.webp',
 )
 
 const robots = buildRobotsTxt()

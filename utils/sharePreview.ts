@@ -18,13 +18,13 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/play/comet-city-academy',
-    image: DEFAULT_SHARE_IMAGE,
+    image: '/comet-city-academy/front/dashboard-highlight.webp',
     title: 'Capes & Tassels',
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {
     route: '/play/game-of-captains',
-    image: DEFAULT_SHARE_IMAGE,
+    image: '/game-of-captains/space-couch-stage.svg',
     title: 'Space Couch',
     description:
       'Command a crew, explore strange worlds, and decide when to intervene.',

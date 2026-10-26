@@ -365,7 +365,7 @@ const features = [
     tag: 'Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
-    image: '/comet-city-academy/academy-stage.svg',
+    image: '/comet-city-academy/front/dashboard-highlight.webp',
     description: 'Pick a superpower, dispatch classmates, and survive prom.',
   },
   {

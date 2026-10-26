@@ -2931,9 +2931,9 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
-// All original cast members have shipped art. Five secret recruits have queued
-// illustrations, and the exporter registers them only after review.
-for (const def of FOLLOWERS.slice(0, 20)) {
+// Every follower has shipped art: the original twenty, and the five secret
+// recruits F021-F025 (conductor SECRET-FOLLOWERS-ROUND-1, exported 2026-10-26).
+for (const def of FOLLOWERS.slice(0, 25)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }
@@ -2955,8 +2955,8 @@ for (const def of NPCS) {
 }
 assert.equal(queuedAudienceArt.size, 7)
 assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
-// The full t-012 set: 20 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
-assert.equal(CAST_ART.length, 20 * 8 + 17 * 5 + 1)
+// The full t-012 set: 25 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
+assert.equal(CAST_ART.length, 25 * 8 + 17 * 5 + 1)
 // An NPC's reaction follows their faction's change in support.
 assert.equal(reactionMood({ affinity: { moles: 10 } }, 'moles'), 'excited')
 assert.equal(reactionMood({ local: { lamplight: 2 } }, 'lamplight'), 'happy')
@@ -5385,6 +5385,86 @@ for (const def of DAYS)
     ),
   ).run
   assert.ok(struck.flags.includes('thistledown-held'))
+
+  // Day 9's two canyon bargains unlock different, costly ways to help
+  // Thistledown. Neither can be forged without its actual Day 9 decision.
+  const fedCanyon = answer(
+    onDay(5, 9),
+    'd09-convoy',
+    'ask-bands',
+    'farmers-fed',
+  )
+  const ironCanyon = answer(
+    onDay(5, 9),
+    'd09-convoy',
+    'ask-bands',
+    'leave-wagon',
+  )
+  const fedDay10 = onDay(5, 10, { flags: fedCanyon.flags })
+  const ironDay10 = onDay(5, 10, { flags: ironCanyon.flags })
+  const colorsBeat = DAYS[9]!.audiences
+    .find((audience) => audience.id === 'd10-thistledown')!
+    .beats!.find((beat) => beat.id === 'colors')!
+  const guidesOption = colorsBeat.options.find(
+    (option) => option.id === 'hill-guides',
+  )!
+  const barricadeOption = colorsBeat.options.find(
+    (option) => option.id === 'iron-barricade',
+  )!
+  assert.ok(optionVisible(fedDay10, guidesOption))
+  assert.ok(!optionVisible(ironDay10, guidesOption))
+  assert.ok(!optionVisible(onDay(5, 10), guidesOption))
+  assert.ok(optionVisible(ironDay10, barricadeOption))
+  assert.ok(!optionVisible(fedDay10, barricadeOption))
+  assert.ok(optionBlockers(fedDay10, barricadeOption).length > 0)
+
+  const guided = answer(
+    fedDay10,
+    'd10-thistledown',
+    'ask-colors',
+    'hill-guides',
+  )
+  assert.equal(guided.local.yard, fedDay10.local.yard - 2)
+  assert.ok(guided.flags.includes('d10-hill-guides'))
+  assert.ok(dueIds(guided).includes('d10-hill-guides-return'))
+  assert.ok(
+    previewQuest(guided, thistle, ['F003', 'F004']).chance >
+      previewQuest(fedDay10, thistle, ['F003', 'F004']).chance,
+  )
+  const guidedDawn = finishDay(guided)
+  assert.ok(guidedDawn.run.flags.includes('d11-hill-guides-returned'))
+  assert.ok(
+    guidedDawn.report.events.some((event) =>
+      /seven Thistledown families/.test(event),
+    ),
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(guidedDawn.run))))
+
+  const barricaded = answer(
+    ironDay10,
+    'd10-thistledown',
+    'ask-colors',
+    'iron-barricade',
+  )
+  assert.equal(
+    barricaded.local['gate-watch'],
+    ironDay10.local['gate-watch'] - 2,
+  )
+  assert.equal(barricaded.affinity.saltroad, ironDay10.affinity.saltroad - 5)
+  assert.ok(barricaded.flags.includes('d10-iron-barricade'))
+  assert.ok(dueIds(barricaded).includes('d10-iron-barricade-return'))
+  assert.ok(
+    previewQuest(barricaded, thistle, ['F003', 'F004']).chance >
+      previewQuest(ironDay10, thistle, ['F003', 'F004']).chance,
+  )
+  const barricadeDawn = finishDay(barricaded)
+  assert.ok(barricadeDawn.run.flags.includes('d11-iron-barricade-spent'))
+  assert.ok(
+    barricadeDawn.report.events.some((event) =>
+      /burned down to its axles/.test(event),
+    ),
+  )
+  assert.ok(validateRun(JSON.parse(JSON.stringify(barricadeDawn.run))))
 
   // Day 8's seed-cart choice returns at Thistledown. The player can risk
   // the Watch to retrieve Wenna's family or send a cheaper, uncertain warning.

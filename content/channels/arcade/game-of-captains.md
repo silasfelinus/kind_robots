@@ -6,16 +6,16 @@ label: Space Couch
 title: Space Couch
 subtitle: One long red couch. An invisible shield. All of space.
 summary: Pilot the galaxy's least aerodynamic spacecraft. Make costly choices.
-description: 'A comedic science-fiction adventure aboard a long red couch that is literally the spacecraft, protected by an invisible force shield and equipped with miniaturization technology to unfold temporary holodecks, war rooms and infirmaries behind its backrest. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
+description: 'A comic space adventure aboard a long red couch that is literally the ship, shielded from vacuum and equipped with miniaturization technology to unfold holodecks, war rooms and infirmaries behind its backrest. Choose your captain and senior officers, divide responsibility between bridge and away teams, confront a run-specific alien antagonist and decide when advanced civilizations should intervene. A playable three-stop first-voyage preview, with more missions and endings planned.'
 icon: kind-icon:compass
 image: /game-of-captains/space-couch-stage.svg
 route: /play/game-of-captains
 sort: 144
 tutorial:
   title: Take command
-  image: /game-of-captains/space-couch-stage.svg
+  image: /game-of-captains/front/tutorial.webp
   body: >-
-    The long red couch is your entire spaceship. An invisible force bubble protects you from vacuum; temporary rooms unfold behind the backrest. Choose a captain and appoint three officers. Each captain has a
+    The long red couch is your entire spaceship. An invisible force bubble protects everyone from vacuum. Temporary rooms unfold behind the backrest. Choose a captain and appoint three officers. Each captain has a
     command temperament, a useful specialty and a price to pay for it.
     The star chart takes you to three missions in this playable preview.
     For each, send up to three officers on an away team, keeping at least

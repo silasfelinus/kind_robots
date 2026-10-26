@@ -3004,7 +3004,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'ask-coldbrook',
-            label: 'Ask whether she passed Wenna Coldbrook’s cart on the east road.',
+            label:
+              'Ask whether she passed Wenna Coldbrook’s cart on the east road.'
             requires: { flags: ['d08-coldbrooks-home'] },
             effects: {},
             response:

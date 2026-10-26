@@ -20,7 +20,7 @@ export const CAMPAIGN_VILLAINS: VillainPlan[] = [
     accomplice: 'a contract engineer from the shield authority',
     countermeasure: 'shatter the prism without collapsing its supporting towers',
     fall: 'The prism splits into harmless reflections and the grid is returned to engineers.',
-    coup: 'The academy's tower becomes a private lens that bends rescue access toward paying districts.',
+    coup: "The academy's tower becomes a private lens that bends rescue access toward paying districts.",
     accomplices: [
       { id: 'the-architect-a1', name: 'Maera Voss', motive: 'retain her engineering license', sabotage: 'forges load-bearing test data' },
       { id: 'the-architect-a2', name: 'Dr. Luce Perrow', motive: 'protect patients in the hospital beneath her tower', sabotage: 'redirects shielding away from the infirmary' },
@@ -39,7 +39,7 @@ export const CAMPAIGN_VILLAINS: VillainPlan[] = [
     coup: 'Unpowered graduates become property of a registry that decides who may keep their powers.',
     accomplices: [
       { id: 'the-registrar-a1', name: 'Auditor Ell Kest', motive: 'avoid a public fraud inquiry', sabotage: 'erases scholarship applicants' },
-      { id: 'the-registrar-a2', name: 'Evin Calder', motive: 'recover a missing sibling's identity', sabotage: 'copies biometric signatures from enrollment cards' },
+      { id: 'the-registrar-a2', name: 'Evin Calder', motive: "recover a missing sibling's identity", sabotage: 'copies biometric signatures from enrollment cards' },
       { id: 'the-registrar-a3', name: 'Nora Sable', motive: 'win a private data-erasure contract', sabotage: 'sends a universal deletion order through the exam network' },
     ],
   },

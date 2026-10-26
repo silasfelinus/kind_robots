@@ -12,7 +12,7 @@
       ><span class="cap-wordmark">THIS <i>MEANS</i> WARP</span>
       <span class="cap-flight">{{
         run
-          ? 'CAPTAIN’S LOG // ' + run.chapter.toString().padStart(2, '0')
+          ? 'SHIP DAY ' + (run.day ?? run.chapter) + ' // CHAPTER ' + run.chapter
           : 'BRIDGE ACCESS REQUESTED'
       }}</span>
       <span v-if="run" class="cap-hud"
@@ -103,7 +103,7 @@
                 :aria-pressed="captain.id === selectedCaptain"
                 @click="selectedCaptain = captain.id"
               >
-                <span class="cap-captain-icon" aria-hidden="true">{{
+                <span class="cap-captain-icon" :data-portrait-key="'captain-' + captain.id" aria-hidden="true">{{
                   captain.name.split(' ').at(-1)?.slice(0, 1)
                 }}</span>
                 <span
@@ -119,13 +119,18 @@
                 {{ activeCaptain.cost }}</small
               >
             </div>
+            <div class="cap-stats cap-captain-stats" aria-label="Captain statistics">
+              <div v-for="skill in SKILLS" :key="skill">
+                <small>{{ skill.toUpperCase() }}</small><strong>{{ captainStats[skill] }}</strong>
+              </div>
+            </div>
             <div class="cap-heading cap-crew-heading">
               <span>02</span>
               <div>
                 <h2>Appoint your crew</h2>
                 <p>
-                  Choose three or four officers. You'll decide who stays aboard
-                  later.
+                  Choose exactly three officers from twelve. Their abilities,
+                  conflicts and personal quests change the routes.
                 </p>
               </div>
             </div>
@@ -138,22 +143,24 @@
                 :class="{ chosen: chosenCrew.includes(member.id) }"
                 :aria-pressed="chosenCrew.includes(member.id)"
                 :disabled="
-                  chosenCrew.length >= 4 && !chosenCrew.includes(member.id)
+                  chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
                 "
                 @click="toggleCrew(member.id)"
               >
-                <span class="cap-monogram">{{ member.monogram }}</span>
+                <span class="cap-monogram" :data-portrait-key="crewProfile(member.id).portraitKey">{{ member.monogram }}</span>
                 <span
                   ><strong>{{ member.name }}</strong
-                  ><small>{{ member.role }}</small></span
+                  ><small>{{ member.role }} · {{ crewProfile(member.id).pronouns }}</small></span
                 ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
               </button>
             </div>
+            <div class="cap-team-note">{{ chosenCrew.length }} / 3 selected · {{ CREW_PROFILES.length }} candidates</div>
+            <p class="cap-crew-story">{{ chosenCrew.map(id => crewProfile(id).story).join(' ') }}</p>
             <button
               class="cap-primary"
               type="button"
               data-testid="captains-begin"
-              :disabled="chosenCrew.length < 3"
+              :disabled="chosenCrew.length !== 3"
               @click="store.begin(selectedCaptain, chosenCrew)"
             >
               TAKE COMMAND <span>➜</span>
@@ -407,11 +414,13 @@ import {
   CAPTAINS,
   CREW,
   MISSIONS,
+  previewMission,
   antagonistFor,
   missionFor,
   type CaptainId,
   type CrewId,
 } from '~/utils/gameOfCaptains/rules'
+import { CAPTAIN_STATS, CREW_PROFILES, SKILLS, ruleFor } from '~/utils/gameOfCaptains/crewAssignments'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
@@ -429,6 +438,17 @@ const antagonist = computed(() =>
 const availableCrew = computed(() =>
   CREW.filter((person) => run.value?.crew.includes(person.id)),
 )
+const missionRule = computed(() => ruleFor(mission.value.id))
+const missionPreview = computed(() =>
+  run.value?.phase === 'briefing' ? previewMission(run.value) : null,
+)
+const captainStats = computed(() => CAPTAIN_STATS[selectedCaptain.value])
+function crewProfile(id: CrewId) {
+  return CREW_PROFILES.find(person => person.id === id)!
+}
+function unavailable(id: CrewId) {
+  return (run.value?.injuredUntil?.[id] ?? 0) > (run.value?.day ?? 0)
+}
 const starName = computed(() =>
   run.value?.phase === 'ending'
     ? 'THE FINAL LOG'
@@ -438,6 +458,7 @@ const headline = computed(() =>
   run.value
     ? {
         briefing: mission.value.title,
+        transit: 'Away Team En Route',
         decision: 'The Cost Of Knowing',
         debrief: 'Between The Stars',
         finale: 'The Last Jump Gate',
@@ -454,6 +475,7 @@ const panelLabel = computed(() =>
   run.value
     ? {
         briefing: 'STAR CHART // MISSION BRIEF',
+        transit: 'EXPEDITION // RETURN CLOCK',
         decision: 'PRIME DOCTRINE // YOUR ORDER',
         debrief: 'CAPTAIN’S LOG // OUTCOME',
         finale: 'LAST TRANSMISSION // FINALE',
@@ -468,7 +490,7 @@ useHead({ title: 'This Means Warp | Kind Robots' })
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)
     ? chosenCrew.value.filter((x) => x !== id)
-    : chosenCrew.value.length < 4
+    : chosenCrew.value.length < 3
       ? [...chosenCrew.value, id]
       : chosenCrew.value
 }

@@ -209,6 +209,8 @@ import {
   BETRAYAL_FLAG,
   dayBriefings,
   dayLines,
+  FIRST_BELL_TRUTHS,
+  FIRST_BELL_LIES,
   komodoLiesInHindsight,
   RUMOUR_BOUNTY,
   rumourPrompt,
@@ -233,6 +235,7 @@ import {
   COURT_RECRUITMENT_IDS,
   RANDOM_ARRIVALS,
   RIVAL_ARGUMENTS,
+  FIRST_BELL_RIVAL_BARGAIN,
 } from '../emperorOfDust/fortress/onboarding'
 
 // Older systems tests exercise a fully staffed court. This is a deliberate
@@ -276,8 +279,8 @@ for (let seed = 1; seed <= 40; seed += 1) {
   assert.throws(() => finishDay(run), /three recruiting petitions/)
   run = chooseAudienceOption(run, 'd01-kiyo-arrives', 'appoint').run
   run = chooseAudienceOption(run, random.id, 'appoint').run
-  const winner = argument.options[seed % argument.options.length]!
-  const loser = argument.options[(seed + 1) % argument.options.length]!
+  const winner = argument.options[seed % 2]!
+  const loser = argument.options[(seed + 1) % 2]!
   run = chooseAudienceOption(run, argument.id, winner.id).run
   assert.equal(run.roster.length, 3, 'exactly one recruit per audience')
   assert.ok(run.roster.some((f) => f.id === 'F003'))
@@ -304,12 +307,51 @@ for (let seed = 1; seed <= 40; seed += 1) {
   const day3 = finishDay(day2).run
   assert.ok(audiencesToday(day3).some((a) => a.id === 'd01-mirefen'))
 }
-assert.equal(firstBellVisitors.size, 2, 'both chance recruits can visit')
+assert.equal(firstBellVisitors.size, 4, 'all four chance recruits can visit')
 assert.equal(
   firstBellArguments.size,
   2,
   'both authored feuding pairs can appear',
 )
+
+// Day One is a genuine seeded draw: nine possible truths, four lies, exactly
+// two true reports plus one false. Twelve consecutive fresh starts are unique.
+assert.ok(FIRST_BELL_TRUTHS.length >= 9)
+assert.ok(FIRST_BELL_LIES.length >= 3)
+const openings = new Set<string>()
+for (let seed = 1; seed <= 12; seed += 1) {
+  const run = createUnrecruitedRun(seed)
+  const briefings = dayBriefings(run)!
+  assert.equal(briefings.length, 3)
+  assert.equal(briefings.filter((b) => b.truth).length, 2)
+  assert.equal(briefings.filter((b) => !b.truth).length, 1)
+  openings.add(briefings.map((b) => b.id).sort().join('/'))
+  assert.deepEqual(dayBriefings(run), briefings, 'opening reports do not reroll')
+  const save = decodeBook(encodeBook(newBook(run)))!.current
+  assert.deepEqual(dayBriefings(save), briefings, 'reports survive saves')
+}
+assert.equal(openings.size, 12, 'twelve seeded openings have distinct choices')
+
+// Both feuding pairs can be hired at the expense of almost the whole treasury.
+for (const argumentId of RIVAL_ARGUMENTS) {
+  const seed = Array.from({ length: 40 }, (_, i) => i + 1).find((n) =>
+    audiencesToday(createUnrecruitedRun(n)).some((a) => a.id === argumentId),
+  )!
+  let run = createUnrecruitedRun(seed)
+  const both = audiencesToday(run).find((a) => a.id === argumentId)!.options
+    .find((o) => o.id === 'both')!
+  assert.equal(both.requires?.cost, FIRST_BELL_RIVAL_BARGAIN)
+  const hired = chooseAudienceOption(run, argumentId, 'both').run
+  assert.equal(hired.brass, START_BRASS - FIRST_BELL_RIVAL_BARGAIN)
+  assert.equal(hired.roster.length, 2)
+  assert.ok(both.effects.recruit!.every((id) => hired.roster.some((m) => m.id === id)))
+  assert.ok(both.effects.recruit!.every((id) => !hired.flags.includes(`court-excluded:${id}`)))
+  assert.ok(validateRun(hired))
+  run = { ...run, brass: 109 }
+  assert.match(optionBlockers(run, both).join(' '), /Needs 110 brass/)
+  assert.throws(() => chooseAudienceOption(run, argumentId, 'both'), /Needs 110 brass/)
+}
+
 
 // --- startup overlay contract ----------------------------------------------
 // The splash fades for 600ms before it unmounts. On a new game, the first

@@ -38,22 +38,87 @@ export const resolveBriefing = (
 
 /** Day One reports are a pool, not a three-card script. */
 export const FIRST_BELL_TRUTHS: readonly Briefing[] = [
-  { id: 'aqueduct', source: 'Hollow Bell surveyors', text: 'The southern aqueduct is leaking into the old roadbed.', truth: true },
-  { id: 'wagons', source: 'Border outriders', text: 'Painted Jackalwire wagons are massing at the southern toll bridge.', truth: true },
-  { id: 'd01-ford-level', source: 'Eastern Ford ferrymen', text: 'The eastern ford rose past the third marker overnight.', truth: true },
-  { id: 'd01-gate-rations', source: 'The gate quartermaster', text: 'The watch has counted the fortress grain sacks twice, and the totals do not match.', truth: true },
-  { id: 'd01-saltroad-medic', source: 'A Saltroad messenger', text: 'A medicine wagon is delayed at the southern toll bridge.', truth: true },
-  { id: 'd01-lamplight-ink', source: 'Lamplight copyists', text: 'The Archive has run out of blue ink for its royal seals.', truth: true },
-  { id: 'd01-yard-roof', source: 'Workers from the lower yard', text: 'A beam in the northern barracks roof cracked during the last dust storm.', truth: true },
-  { id: 'd01-hollow-wells', source: 'Hollow Bell well-keepers', text: 'The far ward draws its drinking water from a different channel than the palace.', truth: true },
-  { id: 'd01-crow-weather', source: 'A Heights lookout', text: 'Weather-readers were seen setting glass instruments on the Storm Crow ledges.', truth: true },
+  {
+    id: 'aqueduct',
+    source: 'Hollow Bell surveyors',
+    text: 'The southern aqueduct is leaking into the old roadbed.',
+    truth: true,
+  },
+  {
+    id: 'wagons',
+    source: 'Border outriders',
+    text: 'Painted Jackalwire wagons are massing at the southern toll bridge.',
+    truth: true,
+  },
+  {
+    id: 'd01-ford-level',
+    source: 'Eastern Ford ferrymen',
+    text: 'The eastern ford rose past the third marker overnight.',
+    truth: true,
+  },
+  {
+    id: 'd01-gate-rations',
+    source: 'The gate quartermaster',
+    text: 'The watch has counted the fortress grain sacks twice, and the totals do not match.',
+    truth: true,
+  },
+  {
+    id: 'd01-saltroad-medic',
+    source: 'A Saltroad messenger',
+    text: 'A medicine wagon is delayed at the southern toll bridge.',
+    truth: true,
+  },
+  {
+    id: 'd01-lamplight-ink',
+    source: 'Lamplight copyists',
+    text: 'The Archive has run out of blue ink for its royal seals.',
+    truth: true,
+  },
+  {
+    id: 'd01-yard-roof',
+    source: 'Workers from the lower yard',
+    text: 'A beam in the northern barracks roof cracked during the last dust storm.',
+    truth: true,
+  },
+  {
+    id: 'd01-hollow-wells',
+    source: 'Hollow Bell well-keepers',
+    text: 'The far ward draws its drinking water from a different channel than the palace.',
+    truth: true,
+  },
+  {
+    id: 'd01-crow-weather',
+    source: 'A Heights lookout',
+    text: 'Weather-readers were seen setting glass instruments on the Storm Crow ledges.',
+    truth: true,
+  },
 ]
 
 export const FIRST_BELL_LIES: readonly Briefing[] = [
-  { id: 'silver-bell', source: 'An overexcited court herald', text: 'Hollow Bell cast its famous bell from pure silver.', truth: false },
-  { id: 'd01-ford-bridge', source: 'A confident map seller', text: 'A new stone bridge has opened at the eastern ford, free to every caravan.', truth: false },
-  { id: 'd01-wagons-left', source: 'A toll collector', text: 'The Jackalwire Pack broke camp last night and abandoned the southern crossing.', truth: false },
-  { id: 'd01-tower-reserves', source: 'A would-be royal broker', text: 'The former emperor left a sealed treasury of brass underneath the empty throne.', truth: false },
+  {
+    id: 'silver-bell',
+    source: 'An overexcited court herald',
+    text: 'Hollow Bell cast its famous bell from pure silver.',
+    truth: false,
+  },
+  {
+    id: 'd01-ford-bridge',
+    source: 'A confident map seller',
+    text: 'A new stone bridge has opened at the eastern ford, free to every caravan.',
+    truth: false,
+  },
+  {
+    id: 'd01-wagons-left',
+    source: 'A toll collector',
+    text: 'The Jackalwire Pack broke camp last night and abandoned the southern crossing.',
+    truth: false,
+  },
+  {
+    id: 'd01-tower-reserves',
+    source: 'A would-be royal broker',
+    text: 'The former emperor left a sealed treasury of brass underneath the empty throne.',
+    truth: false,
+  },
 ]
 
 /** Every consecutive group of twelve seeds gets distinct Day One report sets.
@@ -67,7 +132,8 @@ export const firstBellBriefings = (
     for (let j = i + 1; j < FIRST_BELL_TRUTHS.length; j += 1)
       pairs.push([FIRST_BELL_TRUTHS[i]!, FIRST_BELL_TRUTHS[j]!])
   const variants = pairs.length * FIRST_BELL_LIES.length
-  const index = ((run.seed + run.branch * 37) % variants + variants) % variants
+  const index =
+    (((run.seed + run.branch * 37) % variants) + variants) % variants
   const truths = pairs[Math.floor(index / FIRST_BELL_LIES.length)]!
   const lie = FIRST_BELL_LIES[index % FIRST_BELL_LIES.length]!
   const ordered = [...truths] as Briefing[]
@@ -89,7 +155,9 @@ export const dayBriefings = (
     run.branch !== undefined
       ? firstBellBriefings(run as Pick<FortressRun, 'seed' | 'branch'>)
       : def.briefings
-  return source.map((briefing) => resolveBriefing(run, briefing)) as DayDef['briefings']
+  return source.map((briefing) =>
+    resolveBriefing(run, briefing),
+  ) as DayDef['briefings']
 }
 
 /**

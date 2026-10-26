@@ -29,6 +29,7 @@ on:
       - 'utils/scripts/verifyShiftingV7Endings.test.ts'
       - 'utils/scripts/verifyShiftingV8.test.ts'
       - 'utils/scripts/verifyShiftingFollowerEchoesV8.test.ts'
+      - 'utils/scripts/verifyShiftingFollowerRecruitmentV9.test.ts'
       - 'components/shifting-lands-check-chip.vue'
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
@@ -61,6 +62,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingV7.test.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV8.test.ts 300
       - run: npx tsx utils/scripts/verifyShiftingFollowerEchoesV8.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingFollowerRecruitmentV9.test.ts
       - run: npx tsx utils/scripts/verifyShiftingV7Endings.test.ts
       - run: npx tsx utils/scripts/verifyShiftingWorldEchoesV7.test.ts
       - run: npx tsx utils/scripts/verifyShiftingMoralChainsV7.test.ts

@@ -5402,7 +5402,7 @@ for (const def of DAYS)
   )
   const fedDay10 = onDay(5, 10, { flags: fedCanyon.flags })
   const ironDay10 = onDay(5, 10, { flags: ironCanyon.flags })
-  const colorsBeat = DAYS[9].audiences
+  const colorsBeat = DAYS[9]!.audiences
     .find((audience) => audience.id === 'd10-thistledown')!
     .beats!.find((beat) => beat.id === 'colors')!
   const guidesOption = colorsBeat.options.find(

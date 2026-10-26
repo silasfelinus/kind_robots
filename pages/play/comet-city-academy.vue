@@ -712,7 +712,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
-import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import {
   identityFor,
@@ -727,6 +726,7 @@ import {
   projectCitySites,
   projectedCityRoads,
   type CityView,
+  type SiteId,
 } from '~/utils/cometAcademy/cityMap'
 import {
   STUDENTS,

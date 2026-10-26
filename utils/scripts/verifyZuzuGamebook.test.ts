@@ -551,6 +551,10 @@ assert.deepEqual(notes.deeds, [
   { text: 'listened', dark: true },
 ])
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
+assert.deepEqual(journal(['debt:coyote-cover', 'debt:sister']).debts, [
+  'The Coyote Vagrant',
+  'The sister',
+])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
 // A failed parley at Hollis's well must not force a trusted, prepared sister

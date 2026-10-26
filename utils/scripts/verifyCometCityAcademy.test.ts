@@ -5,7 +5,10 @@ import {
   identityFor,
   identityStoryFor,
 } from '../cometAcademy/identityArcs'
-import { GUEST_IDENTITIES, TESS_CREW_SOURCE } from '../cometAcademy/guestIdentities'
+import {
+  GUEST_IDENTITIES,
+  TESS_CREW_SOURCE,
+} from '../cometAcademy/guestIdentities'
 import {
   POWER_FORMS,
   POWER_AFFINITIES,
@@ -39,8 +42,14 @@ assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
 assert.equal(CHARACTER_ROSTER.length, 50)
-assert.equal(new Set(CHARACTER_ROSTER.map((person) => person.realName)).size, 50)
-assert.equal(new Set(CHARACTER_ROSTER.map((person) => person.backstory)).size, 50)
+assert.equal(
+  new Set(CHARACTER_ROSTER.map((person) => person.realName)).size,
+  50,
+)
+assert.equal(
+  new Set(CHARACTER_ROSTER.map((person) => person.backstory)).size,
+  50,
+)
 assert.equal(GUEST_IDENTITIES[0].realName, 'Zuzu')
 assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
@@ -56,7 +65,9 @@ for (const person of CHARACTER_ROSTER) {
   for (const viewpoint of ['protagonist', 'antagonist'] as const)
     for (const allegiance of ['hero', 'villain'] as const) {
       const lens = identityStoryFor(person, viewpoint, allegiance, [
-        'sidekick', 'partner', 'romance',
+        'sidekick',
+        'partner',
+        'romance',
       ])
       assert.equal(lens.person, person.realName)
       assert.equal(lens.backstory, person.backstory)
@@ -64,7 +75,10 @@ for (const person of CHARACTER_ROSTER) {
       assert.ok(lens.setup.length > 28)
       assert.ok(lens.decision.length > 40)
       assert.equal(lens.alias, person[allegiance].alias)
-      assert.deepEqual(identityStoryFor(person, viewpoint, allegiance).bondScenes, [])
+      assert.deepEqual(
+        identityStoryFor(person, viewpoint, allegiance).bondScenes,
+        [],
+      )
     }
   assert.notEqual(
     identityStoryFor(person, 'protagonist', 'hero').setup,
@@ -77,8 +91,9 @@ for (const person of CHARACTER_ROSTER) {
 }
 for (const seed of [1, 7, 24, 999]) {
   const sample = startAcademy('kinetic', seed)
-  const deck = Array.from({ length: 7 }, (_, index) =>
-    encounterFor({ ...sample, day: index + 1 }).title,
+  const deck = Array.from(
+    { length: 7 },
+    (_, index) => encounterFor({ ...sample, day: index + 1 }).title,
   )
   assert.equal(new Set(deck).size, 7, 'new runs get unique first-week scenes')
   assert.ok(deck.includes('The Stray Blade Arrives'))
@@ -92,11 +107,12 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
     run = assignTeam(run, first!.id, ['mina'])
     run = resolveDispatch(run)
     const visit = encounterFor(run)
-    const option = visit.options.find((entry) =>
-      visitorAlignment === 'ally'
-        ? ['shelter-zuzu', 'help-tess'].includes(entry.id)
-        : ['contract-zuzu', 'sell-tess'].includes(entry.id),
-    ) ?? visit.options[0]!
+    const option =
+      visit.options.find((entry) =>
+        visitorAlignment === 'ally'
+          ? ['shelter-zuzu', 'help-tess'].includes(entry.id)
+          : ['contract-zuzu', 'sell-tess'].includes(entry.id),
+      ) ?? visit.options[0]!
     run = chooseEncounter(run, option.id)
     run = nextSchoolDay(run)
   }

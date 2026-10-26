@@ -594,20 +594,38 @@ assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
 assert.equal(CAMPAIGN_VILLAINS.length, 8)
 assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 8)
-const allAccomplices = CAMPAIGN_VILLAINS.flatMap(v => v.accomplices ?? [])
+const allAccomplices = CAMPAIGN_VILLAINS.flatMap((v) => v.accomplices ?? [])
 assert.equal(allAccomplices.length, 24)
-assert.equal(new Set(allAccomplices.map(a => a.id)).size, 24)
-assert.equal(new Set(allAccomplices.map(a => a.name)).size, 24)
-assert.ok(allAccomplices.every(a => a.motive.length > 24 && a.sabotage.length > 24))
-assert.equal(new Set(CAMPAIGN_VILLAINS.map(v => v.method)).size, 8)
+assert.equal(new Set(allAccomplices.map((a) => a.id)).size, 24)
+assert.equal(new Set(allAccomplices.map((a) => a.name)).size, 24)
+assert.ok(
+  allAccomplices.every((a) => a.motive.length > 24 && a.sabotage.length > 24),
+)
+assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.method)).size, 8)
 for (let seed = 1; seed <= 8; seed++) {
   const villain = campaignVillain(seed)
   assert.equal(villain.id, CAMPAIGN_VILLAINS[seed % 8]!.id)
   assert.ok(villain.countermeasure && villain.fall && villain.coup)
-  assert.ok(campaignPlotEvent(seed, villain.id, 8, 'Mina')?.scene.includes('anonymous message'))
-  assert.ok(campaignPlotEvent(seed, villain.id, 15, 'Mina')?.scene.includes('duplicate emergency key'))
-  assert.ok(campaignPlotEvent(seed, villain.id, 20, 'Mina')?.scene.includes('betrayal is real'))
-  for (const [day, index] of [[11, 0], [17, 1], [26, 2]] as const) {
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 8, 'Mina')?.scene.includes(
+      'anonymous message',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 15, 'Mina')?.scene.includes(
+      'duplicate emergency key',
+    ),
+  )
+  assert.ok(
+    campaignPlotEvent(seed, villain.id, 20, 'Mina')?.scene.includes(
+      'betrayal is real',
+    ),
+  )
+  for (const [day, index] of [
+    [11, 0],
+    [17, 1],
+    [26, 2],
+  ] as const) {
     const event = campaignPlotEvent(seed, villain.id, day, 'Mina')!
     assert.ok(event.scene.includes(villain.accomplices![index]!.name))
     assert.equal(event.options.length, 2)

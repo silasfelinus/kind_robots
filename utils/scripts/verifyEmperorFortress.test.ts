@@ -80,6 +80,7 @@ import {
   threatsFor,
   traitKnown,
   unmetRequirements,
+  START_BRASS,
   upgradeBeds,
   withdrawQuest,
   LAMPLIGHT_SIGHT,

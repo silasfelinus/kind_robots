@@ -718,11 +718,25 @@ assert.ok(
 assert.equal(new Set(ALL_CARDS.map((c) => c.id)).size, ALL_CARDS.length)
 assert.equal(CHAPTERS.length, 6)
 for (const card of ALL_CARDS) {
-  const playable = card.choices.filter((choice) => !choice.locked)
-  assert.ok(
-    playable.length >= 2 && card.choices.length <= 4,
-    `${card.id} offers 2-4 choices, at least two playable`,
-  )
+  const prerequisites = [
+    null,
+    ...new Set(
+      card.choices.flatMap((choice) =>
+        choice.requiresFlag ? [choice.requiresFlag] : [],
+      ),
+    ),
+  ]
+  for (const prerequisite of prerequisites) {
+    const playable = card.choices.filter(
+      (choice) =>
+        !choice.locked &&
+        (!choice.requiresFlag || choice.requiresFlag === prerequisite),
+    )
+    assert.ok(
+      playable.length >= 2 && playable.length <= 4,
+      `${card.id} offers 2-4 choices with prerequisite ${prerequisite ?? 'none'}`,
+    )
+  }
   assert.ok(card.provenance.length > 0, `${card.id} names its provenance`)
   for (const choice of card.choices) {
     if (choice.check) {

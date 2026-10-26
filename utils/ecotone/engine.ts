@@ -830,10 +830,13 @@ export function chooseBeat(
           ],
     }
   }
+  // Picking an opening perspective is a story decision, not a skill test.
+  // Subsequent checked decisions still use the seeded 2d6 roll.
+  const establishesPerspective = Boolean(choice.lens && !state.openingState)
   let roll: Roll | null = null
   let outcome: Outcome = choice.success
   let result: OutcomeResult = 'success'
-  if (choice.check) {
+  if (choice.check && !establishesPerspective) {
     const perkBonus = !usesPerk
       ? 0
       : state.archetype === 'mechanic' || state.archetype === 'dealer'

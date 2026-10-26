@@ -1365,6 +1365,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         id: 'd02-rain-bargain',
         title: 'A Bargain in Rain',
         speaker: 'A Storm Crow envoy',
+        npc: 'storm-crow-envoy',
         faction: 'storm-crows',
         lines: [
           'The Storm Crow envoy arrives dry. It has not rained on the fortress in thirty-eight days. His oilcloth mantle has never been wet.',

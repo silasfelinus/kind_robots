@@ -103,9 +103,15 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     options: [
       {
         id: 'appoint',
-        label: 'Offer Nera shelter and a place beside the court’s weather charts.',
-        effects: { recruit: ['F006'], affinity: { 'storm-crows': -2 }, local: { lamplight: 1 } },
-        response: 'Nera lays her cylinder on the table. “Then our forecasts belong to the people who need them.”',
+        label:
+          'Offer Nera shelter and a place beside the court’s weather charts.',
+        effects: {
+          recruit: ['F006'],
+          affinity: { 'storm-crows': -2 },
+          local: { lamplight: 1 },
+        },
+        response:
+          'Nera lays her cylinder on the table. “Then our forecasts belong to the people who need them.”',
       },
     ],
   },
@@ -123,8 +129,13 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
       {
         id: 'appoint',
         label: 'Give Pip access to the Archive and a desk at court.',
-        effects: { recruit: ['F005'], local: { lamplight: 1 }, affinity: { 'hollow-bell': -1 } },
-        response: 'Pip opens the oldest ledger. “I remember this page,” they say. “It was not here yesterday.”',
+        effects: {
+          recruit: ['F005'],
+          local: { lamplight: 1 },
+          affinity: { 'hollow-bell': -1 },
+        },
+        response:
+          'Pip opens the oldest ledger. “I remember this page,” they say. “It was not here yesterday.”',
       },
     ],
   },
@@ -170,10 +181,16 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
       },
       {
         id: 'both',
-        label: 'Commission both Rook and Saffron, with separate commands. Spend 110 brass.',
+        label:
+          'Commission both Rook and Saffron, with separate commands. Spend 110 brass.',
         requires: { cost: FIRST_BELL_RIVAL_BARGAIN },
-        effects: { recruit: ['F001', 'F002'], flags: ['first-bell-both-ford'], local: { ledger: -1 } },
-        response: 'The treasury doors open. Rook takes the road command; Saffron takes the bridge works. Neither salutes the other. The court has both talents and scarcely enough brass left to pay for breakfast.',
+        effects: {
+          recruit: ['F001', 'F002'],
+          flags: ['first-bell-both-ford'],
+          local: { ledger: -1 },
+        },
+        response:
+          'The treasury doors open. Rook takes the road command; Saffron takes the bridge works. Neither salutes the other. The court has both talents and scarcely enough brass left to pay for breakfast.',
       },
     ],
   },
@@ -219,10 +236,16 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
       },
       {
         id: 'both',
-        label: 'Fund Bram’s stores and Keel’s tunnel mission separately. Spend 110 brass.',
+        label:
+          'Fund Bram’s stores and Keel’s tunnel mission separately. Spend 110 brass.',
         requires: { cost: FIRST_BELL_RIVAL_BARGAIN },
-        effects: { recruit: ['F008', 'F009'], flags: ['first-bell-both-tunnels'], local: { ledger: -1, yard: 1 } },
-        response: 'The court counts out almost every coin. Bram agrees to ration the garrison while Keel brings food to the tunnels. Their argument does not end, but neither can walk away from the people waiting.',
+        effects: {
+          recruit: ['F008', 'F009'],
+          flags: ['first-bell-both-tunnels'],
+          local: { ledger: -1, yard: 1 },
+        },
+        response:
+          'The court counts out almost every coin. Bram agrees to ration the garrison while Keel brings food to the tunnels. Their argument does not end, but neither can walk away from the people waiting.',
       },
     ],
   },

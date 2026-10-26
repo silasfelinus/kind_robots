@@ -354,6 +354,9 @@
             <p v-if="run.flowVersion === 3" class="cca-under">
               DAY {{ run.day }} / 30 · CASE FILE:
               {{ run.day < 15 ? 'UNKNOWN MASTERMIND' : mastermind?.name }}
+              <span v-if="run.day >= 15 && opponent" data-testid="academy-villain-identity">
+                · ANTAGONIST {{ opponent.villain.alias }} ({{ opponent.realName }})
+              </span>
             </p>
             <p
               v-if="run.flowVersion === 3 && run.day >= 8"
@@ -820,6 +823,9 @@ const mastermind = computed(() =>
   run.value?.flowVersion === 3
     ? campaignVillain(run.value.seed, run.value.mastermind)
     : null,
+)
+const opponent = computed(() =>
+  run.value?.opponentSignature ? identityFor(run.value.opponentSignature) : null,
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3

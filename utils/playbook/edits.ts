@@ -277,6 +277,43 @@ export function applyCardEdit(
   }
 }
 
+export const BEAT_CHAPTER_CHOICES = BEAT_CHAPTERS
+export const BEAT_SCENE_CHOICES = BEAT_SCENES
+
+/** A fresh Studio key such as `new-beat-3f9k2a`. */
+export function makeNewBeatKey(
+  seed = Math.random().toString(36).slice(2, 8),
+): string {
+  const slug = seed
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '')
+    .slice(0, 24)
+  return `${NEW_BEAT_PREFIX}${slug || 'draft'}`
+}
+
+/**
+ * The empty card a "+ New beat" row is measured against in the Studio, so the
+ * same overlay editor works on it. Unlike newBeatCard it exists while a draft.
+ */
+export function blankBeatCard(
+  key: string,
+  raw: CardEdit,
+): EncounterCard | null {
+  if (!isNewBeatKey(key)) return null
+  const edit = sanitizeCardEdit(raw)
+  return {
+    id: key,
+    kind: 'encounter',
+    chapter: edit.beat?.chapter ?? 1,
+    scene: edit.beat?.scene ?? 'meadow',
+    place: 'Somewhere along the route',
+    title: 'Untitled beat',
+    body: [],
+    provenance: 'Written in the Playbook Studio.',
+    choices: [],
+  }
+}
+
 /**
  * A new beat is playable only when it has a title, a body and at least one choice;
  * otherwise it stays a draft and the engine never deals it.

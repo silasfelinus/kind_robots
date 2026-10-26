@@ -54,6 +54,28 @@
 
     <section v-if="tab === 'story'" class="flex flex-col gap-2">
       <template v-if="base">
+        <div v-if="isNewBeat" class="grid grid-cols-2 gap-2">
+          <label class="studio-field">
+            Chapter
+            <select v-model.number="form.chapter" class="kr-input">
+              <option v-for="c in BEAT_CHAPTER_CHOICES" :key="c" :value="c">
+                Chapter {{ c }}
+              </option>
+            </select>
+          </label>
+          <label class="studio-field">
+            Scene
+            <select v-model="form.scene" class="kr-input">
+              <option v-for="s in BEAT_SCENE_CHOICES" :key="s" :value="s">
+                {{ s }}
+              </option>
+            </select>
+          </label>
+          <p class="col-span-2 text-xs text-base-content/65">
+            Dealt from this chapter's fork pool once it has a title, text and at
+            least one choice (add one under Choices) and is saved live.
+          </p>
+        </div>
         <label class="studio-field">
           Title
           <input v-model="form.title" class="kr-input" type="text" />
@@ -724,11 +746,16 @@ import {
   type LeadId,
   type LensId,
   type SkillId,
+  type SceneKind,
 } from '~/utils/ecotone/content'
 import { leadLabel } from '~/utils/playbook/ecotone'
 import {
+  BEAT_CHAPTER_CHOICES,
+  BEAT_SCENE_CHOICES,
   MAX_ADDED_CHOICES,
   applyCardEdit,
+  blankBeatCard,
+  isNewBeatKey,
   type AddedChoice,
   type CardEdit,
 } from '~/utils/playbook/edits'
@@ -743,12 +770,18 @@ const store = usePlaybookStore()
 const node = computed(() => store.selected)
 // Ecotone beats get the full card editor; every other game's editable beats
 // get the text overlay editor (utils/playbook/textOverlay.ts).
+const isNewBeat = computed(
+  () => store.game === 'ecotone' && isNewBeatKey(node.value?.key ?? ''),
+)
 const base = computed<EncounterCard | null>(
   () =>
     (store.game === 'ecotone' &&
       store.playbook.editable &&
       node.value?.editable &&
-      ALL_CARDS.find((card) => card.id === node.value?.key)) ||
+      (ALL_CARDS.find((card) => card.id === node.value?.key) ??
+        (isNewBeat.value && node.value
+          ? blankBeatCard(node.value.key, edit.value?.content ?? {})
+          : null))) ||
     null,
 )
 /** The authored beat the text overlay is measured against. */
@@ -825,6 +858,8 @@ type ChoiceForm = {
 }
 
 const form = reactive({
+  chapter: 1,
+  scene: 'meadow' as SceneKind,
   title: '',
   place: '',
   body: '',
@@ -948,6 +983,8 @@ function resetForm() {
   const card = base.value
   if (!card) return
   const current = applyCardEdit(card, edit.value?.content ?? {})
+  form.chapter = edit.value?.content.beat?.chapter ?? card.chapter
+  form.scene = edit.value?.content.beat?.scene ?? card.scene
   form.title = current.title
   form.place = current.place
   form.body = joinParagraphs(current.body)
@@ -983,10 +1020,13 @@ function buildEdit(): CardEdit {
   const card = base.value
   if (!card) return {}
   const out: CardEdit = {}
-  if (form.title.trim() !== card.title) out.title = form.title
+  if (isNewBeat.value) out.beat = { chapter: form.chapter, scene: form.scene }
+  if (isNewBeat.value || form.title.trim() !== card.title)
+    out.title = form.title
   if (form.place.trim() !== card.place) out.place = form.place
   const body = splitParagraphs(form.body)
-  if (joinParagraphs(body) !== joinParagraphs(card.body)) out.body = body
+  if (isNewBeat.value || joinParagraphs(body) !== joinParagraphs(card.body))
+    out.body = body
   if (form.provenance.trim() !== card.provenance)
     out.provenance = form.provenance
   for (const lens of LENSES) {

@@ -431,7 +431,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function persistEarthChronicle(): void {
     if (!import.meta.client) return
     try {
-      window.localStorage.setItem(EARTH_CHRONICLE_KEY, JSON.stringify(earthChronicle.value))
+      window.localStorage.setItem(
+        EARTH_CHRONICLE_KEY,
+        JSON.stringify(earthChronicle.value),
+      )
     } catch {
       // Keep playable progress even in browsers without durable storage.
     }

@@ -3,6 +3,7 @@ import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
+import { CAMPAIGN_ANCHORS, campaignAnchor, campaignVillain, GUEST_LIST_EVENT } from './campaign'
 import {
   signatureById,
   POWER_VOWS,
@@ -372,9 +373,14 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   encounterDeckVersion?: 2
-  flowVersion?: 2
+  flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
+  visitedDays?: Partial<Record<SiteId, number>>
+  injuries?: Partial<Record<StudentId, number>>
+  infirmaryDays?: number[]
+  guestPlan?: 'open' | 'private' | 'duplicate'
+  mastermind?: string
   academyStanding?: number
   cityStanding?: number
   phase: AcademyPhase
@@ -401,13 +407,22 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 }
 
 export function encounterFor(run: AcademyRun) {
-  if (run.flowVersion === 2 && run.selectedSite) {
+  if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {
       const districtScene = districtEncounterFor(site.id)
-      if (districtScene) return districtScene
-      if (site.encounterIndex !== undefined)
-        return ENCOUNTERS[site.encounterIndex]!
+      const base = districtScene ??
+        (site.encounterIndex !== undefined ? ENCOUNTERS[site.encounterIndex]! : undefined)
+      if (base && run.flowVersion === 3) {
+        const previous = run.visitedDays?.[site.id]
+        return {
+          ...base,
+          title: previous ? `${base.title} / Return Visit` : base.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene}`,
+        }
+      }
+      if (base) return base
     }
   }
   // Existing v1 saves keep the original three-card order mid-term.
@@ -419,9 +434,10 @@ export function encounterFor(run: AcademyRun) {
 }
 
 export function visitCitySite(run: AcademyRun, siteId: SiteId): AcademyRun {
-  if (run.flowVersion !== 2 || run.phase !== 'map') return run
+  if (![2, 3].includes(run.flowVersion ?? 0) || run.phase !== 'map') return run
   const site = CITY_SITES.find((entry) => entry.id === siteId)
-  if (!site || run.visitedSites?.includes(siteId)) return run
+  if (!site || (run.flowVersion === 2 && run.visitedSites?.includes(siteId))) return run
+  if (run.flowVersion === 3 && (run.visitedDays?.[siteId] ?? -7) > run.day - 7) return run
   return {
     ...run,
     selectedSite: siteId,
@@ -466,6 +482,42 @@ export function startAcademy(
   }
 }
 
+export function startFullAcademy(
+  power: PowerId,
+  seed = Date.now(),
+  signature?: SignaturePowerId,
+  vow?: PowerVowId,
+): AcademyRun {
+  const base = startAcademy(power, seed, signature, vow)
+  return {
+    ...base,
+    flowVersion: 3,
+    visitedDays: {},
+    injuries: {},
+    infirmaryDays: [],
+    mastermind: campaignVillain(base.seed).id,
+    scene: `Final month, day one of thirty. ${campaignAnchor(1)} ${campaignVillain(base.seed).clue}`,
+  }
+}
+
+export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
+  return (run.injuries?.[id] ?? 0) <= run.day
+}
+
+export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
+  if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
+  if (!STUDENTS.some((person) => person.id === id) || studentAvailable(run, id)) return run
+  return {
+    ...run,
+    phase: 'dispatch',
+    injuries: { ...run.injuries, [id]: run.day },
+    infirmaryDays: [...(run.infirmaryDays ?? []), run.day],
+    scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but you forgo a city lead.`,
+    influence: run.influence + 1,
+    log: [...run.log, `Day ${run.day}: Infirmary treatment for ${id}`],
+  }
+}
+
 export function assignTeam(
   run: AcademyRun,
   caseId: string,
@@ -477,6 +529,7 @@ export function assignTeam(
     return run
   if (selected.some((id) => !STUDENTS.some((student) => student.id === id)))
     return run
+  if (run.flowVersion === 3 && selected.some((id) => !studentAvailable(run, id))) return run
   const remaining = run.assignments.filter(
     (assignment) => assignment.caseId !== caseId,
   )

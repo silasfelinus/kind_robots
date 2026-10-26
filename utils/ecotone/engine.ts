@@ -773,7 +773,8 @@ export function originPerkAvailable(
   if (state.phase !== 'beat' || state.pending) return false
   const card = findCard(state.card)
   const choice =
-    card && openingLensChoices(card).find(
+    card &&
+    openingLensChoices(card).find(
       (item) =>
         item.id === choiceId &&
         (!item.requiresFlag || state.flags.includes(item.requiresFlag)),
@@ -811,11 +812,13 @@ export function chooseBeat(
 ): RunState {
   if (state.phase !== 'beat' || state.pending) return state
   const card = findCard(state.card)
-  const choice = card && openingLensChoices(card).find(
-    (c) =>
-      c.id === choiceId &&
-      (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
-  )
+  const choice =
+    card &&
+    openingLensChoices(card).find(
+      (c) =>
+        c.id === choiceId &&
+        (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+    )
   if (!card || !choice || choice.locked) return state
   const usesPerk = spendOriginPerk && originPerkAvailable(state, choiceId)
   let next: RunState = state

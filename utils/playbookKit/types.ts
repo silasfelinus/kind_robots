@@ -135,6 +135,8 @@ export type PlaybookKitSpec = {
   tier: PlaybookTier
   /** Where the game itself is played, once it has a route. */
   route?: string
+  /** Scoped daisyUI theme the console frame wears (default `forge`). */
+  theme?: string
   keyArt: KitArt
   acts: KitAct[]
   meters: KitMeter[]

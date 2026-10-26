@@ -1,150 +1,219 @@
 <template>
   <section
-    class="pk-shell kr-panes @container relative grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-0 bg-base-300 text-base-content"
+    ref="root"
+    class="pf-console pk-shell @container relative flex h-full min-h-0 w-full flex-col overflow-clip bg-base-200 text-base-content"
     :class="settingClasses"
+    :data-theme="spec.theme ?? 'forge'"
     :aria-label="spec.title"
+    @pointerdown="onPointer"
   >
-    <header
-      class="kr-toolbar pk-glass flex-nowrap gap-1.5 border-b border-base-content/10 bg-base-100/80 px-2 py-1.5 backdrop-blur @lg:px-3"
-    >
-      <button
-        type="button"
-        class="flex min-w-0 shrink items-center gap-2 rounded-xl px-1 py-0.5 text-left hover:bg-base-content/5"
-        :title="`Play the ${spec.title} trailer`"
-        @click="kit.playTrailer()"
-      >
+    <div class="absolute inset-0 overflow-clip" aria-hidden="true">
+      <div class="pf-backdrop">
         <PlaybookKitArt
           :art="spec.keyArt"
           tone="primary"
           icon="kind-icon:sparkles"
-          class="size-8 shrink-0 rounded-lg @lg:size-9"
+          class="pf-backdrop-art"
         />
-        <span class="hidden min-w-0 leading-tight @md:block">
-          <span class="pk-display block truncate text-sm font-bold">{{
-            spec.title
-          }}</span>
-          <span
-            class="pk-dim block truncate text-[10px] uppercase tracking-[.18em] opacity-70"
-            >{{ spec.tagline }}</span
-          >
-        </span>
-      </button>
-      <ul
-        v-if="spec.meters.length"
-        class="flex min-w-0 flex-1 items-center gap-1 overflow-hidden @lg:justify-center @lg:gap-1.5"
-        aria-label="Meters"
-      >
-        <li
-          v-for="meter in spec.meters"
-          :key="meter.id"
-          class="flex shrink-0 items-center gap-1.5 rounded-full border border-base-content/10 bg-base-200/70 px-1 py-0.5 text-xs @lg:px-2"
-          :title="`${meter.label}: ${meterValue(meter)} of ${meter.max}`"
-        >
-          <span class="pk-dim hidden truncate opacity-75 @6xl:inline">{{
-            meter.label
-          }}</span>
-          <span
-            class="hidden h-1.5 w-10 shrink-0 overflow-hidden rounded-full bg-base-content/15 @5xl:block"
-          >
-            <span
-              class="block h-full rounded-full bg-primary transition-all"
-              :style="{ width: meterPercent(meter) }"
-            />
-          </span>
-          <span class="font-bold tabular-nums">{{ meterValue(meter) }}</span>
-        </li>
-      </ul>
-      <span v-else class="flex-1" />
-      <slot name="toolbar" />
-      <nav
-        class="flex shrink-0 items-center gap-0.5"
-        aria-label="Playbook panes"
+      </div>
+    </div>
+    <div class="pf-vignette" aria-hidden="true" />
+    <div class="pf-scan" aria-hidden="true" />
+
+    <div class="pf-safe relative z-10 flex min-h-0 flex-1 flex-col">
+      <header
+        class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 pb-3 @3xl:flex-nowrap @3xl:gap-5"
       >
         <button
-          v-for="entry in panes"
-          :key="entry.id"
           type="button"
-          class="btn btn-ghost btn-sm gap-1 px-1 @lg:px-2"
-          :class="kit.pane === entry.id ? 'btn-active text-primary' : ''"
-          :aria-pressed="kit.pane === entry.id"
-          :aria-controls="kit.pane === entry.id ? 'pk-pane' : undefined"
-          :title="entry.label"
-          @click="kit.togglePane(entry.id)"
+          class="flex min-w-0 shrink items-center gap-3 text-left"
+          :title="`Play the ${spec.title} trailer`"
+          @click="kit.playTrailer()"
         >
-          <Icon :name="entry.icon" class="size-4" />
-          <span class="hidden text-xs @[88rem]:inline">{{ entry.label }}</span>
-          <span
-            v-if="entry.count"
-            class="pk-dim hidden text-[10px] tabular-nums opacity-70 @3xl:inline"
-            >{{ entry.count }}</span
-          >
+          <PlaybookKitArt
+            :art="spec.keyArt"
+            tone="primary"
+            icon="kind-icon:sparkles"
+            class="pk-crest size-10 shrink-0 @3xl:size-12"
+          />
+          <span class="hidden min-w-0 leading-none @lg:block">
+            <span
+              class="pf-display block truncate text-lg text-primary @3xl:text-2xl"
+              >{{ spec.title }}</span
+            >
+            <span class="pf-kicker mt-1 block truncate opacity-60">{{
+              spec.tagline
+            }}</span>
+          </span>
         </button>
-      </nav>
-    </header>
 
-    <div class="relative flex min-h-0 overflow-hidden">
-      <div class="kr-pane min-w-0 flex-1">
-        <p
-          v-if="kit.storageWarning"
-          class="kr-note kr-note-error m-2 p-2 text-xs"
-          role="alert"
+        <ul
+          v-if="spec.meters.length"
+          class="order-last flex min-w-0 basis-full items-center gap-1.5 overflow-hidden @3xl:order-none @3xl:flex-1 @3xl:basis-auto @3xl:gap-2"
+          aria-label="Meters"
         >
-          {{ kit.storageWarning }}
-        </p>
-        <div class="kr-pane-scroll">
-          <slot />
+          <li
+            v-for="meter in spec.meters"
+            :key="meter.id"
+            class="pk-meter"
+            :title="`${meter.label}: ${meterValue(meter)} of ${meter.max}`"
+          >
+            <span
+              class="pf-kicker hidden text-[0.55rem] opacity-70 @[100rem]:block"
+              >{{ meter.label }}</span
+            >
+            <span class="flex items-center gap-2">
+              <span class="pk-meter-bar hidden @2xl:block">
+                <span :style="{ width: meterPercent(meter) }" />
+              </span>
+              <span class="pf-display text-lg tabular-nums">{{
+                meterValue(meter)
+              }}</span>
+            </span>
+          </li>
+        </ul>
+        <span v-else class="hidden flex-1 @3xl:block" />
+
+        <nav
+          class="ml-auto flex shrink-0 items-center gap-0.5 @3xl:ml-0 @3xl:gap-2"
+          aria-label="Playbook panes"
+        >
+          <PlaybookForgeGlyph
+            command="prevTab"
+            :device="device"
+            class="hidden @3xl:inline-grid"
+            @press="cycle(-1)"
+          />
+          <button
+            v-for="entry in panes"
+            :key="entry.id"
+            type="button"
+            class="pf-tab flex items-center gap-1.5"
+            :class="kit.pane === entry.id ? 'pf-tab-on' : ''"
+            :aria-pressed="kit.pane === entry.id"
+            :aria-controls="kit.pane === entry.id ? 'pk-pane' : undefined"
+            :title="entry.label"
+            @click="kit.togglePane(entry.id)"
+          >
+            <Icon :name="entry.icon" class="size-4 @[90rem]:hidden" />
+            <span class="hidden @[90rem]:inline">{{ entry.label }}</span>
+            <span
+              v-if="entry.count"
+              class="hidden text-[0.65rem] tabular-nums opacity-70 @4xl:inline"
+              >{{ entry.count }}</span
+            >
+          </button>
+          <PlaybookForgeGlyph
+            command="nextTab"
+            :device="device"
+            class="hidden @3xl:inline-grid"
+            @press="cycle(1)"
+          />
+        </nav>
+        <button
+          type="button"
+          class="pf-icon-btn hidden shrink-0 @lg:grid"
+          :title="fullscreen ? 'Leave full screen' : 'Full screen'"
+          @click="toggleFullscreen"
+        >
+          <Icon
+            :name="fullscreen ? 'kind-icon:close' : 'kind-icon:fullscreen'"
+            class="size-5"
+          />
+        </button>
+      </header>
+
+      <p v-if="kit.storageWarning" class="pf-alert mb-2 shrink-0" role="alert">
+        {{ kit.storageWarning }}
+      </p>
+
+      <div
+        class="kr-panes relative gap-4"
+        :class="
+          active
+            ? 'grid-cols-1 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,27rem)]'
+            : 'grid-cols-1'
+        "
+      >
+        <div class="kr-pane min-w-0">
+          <div class="kr-pane-scroll">
+            <slot />
+          </div>
         </div>
+
+        <aside
+          v-if="active"
+          id="pk-pane"
+          ref="paneEl"
+          class="kr-pane pf-panel absolute inset-0 z-20 @4xl:static"
+          :aria-label="active.label"
+        >
+          <div
+            class="kr-toolbar flex-nowrap border-b border-base-content/10 px-4 py-3"
+          >
+            <Icon :name="active.icon" class="size-5 text-primary" />
+            <span class="pf-display text-lg">{{ active.label }}</span>
+            <span
+              v-if="active.count"
+              class="pf-kicker text-[0.6rem] tabular-nums opacity-70"
+              >{{ active.count }}</span
+            >
+            <button
+              type="button"
+              class="pf-icon-btn ml-auto"
+              title="Close"
+              @click="kit.closePane()"
+            >
+              <Icon name="kind-icon:close" class="size-4" />
+            </button>
+          </div>
+          <div class="kr-pane-scroll p-4">
+            <PlaybookKitCast v-if="active.id === 'cast'" :spec="spec" />
+            <PlaybookKitFactions
+              v-else-if="active.id === 'factions'"
+              :spec="spec"
+              :meter-values="meterValues"
+            />
+            <PlaybookKitSecrets
+              v-else-if="active.id === 'secrets'"
+              :spec="spec"
+            />
+            <PlaybookKitScrapbook
+              v-else-if="active.id === 'scrapbook'"
+              :spec="spec"
+            />
+            <PlaybookKitEndings
+              v-else-if="active.id === 'endings'"
+              :spec="spec"
+            />
+            <PlaybookKitSettings v-else :spec="spec" />
+          </div>
+        </aside>
+
+        <PlaybookKitMoment v-if="kit.lightbox" :spec="spec" />
       </div>
 
-      <aside
-        v-if="active"
-        id="pk-pane"
-        class="kr-pane pk-glass absolute inset-0 z-20 border-l border-base-content/10 bg-base-100/95 backdrop-blur @3xl:static @3xl:w-[min(26rem,42%)] @3xl:shrink-0"
-        :aria-label="active.label"
+      <footer
+        v-if="device !== 'touch'"
+        class="flex shrink-0 flex-wrap items-center justify-end gap-x-3 gap-y-1 border-t border-base-content/10 pt-3 @md:gap-x-5"
+        aria-label="Controls"
       >
-        <div
-          class="kr-toolbar flex-nowrap border-b border-base-content/10 px-3 py-2"
+        <span
+          v-for="prompt in prompts"
+          :key="prompt.label"
+          class="flex items-center gap-2"
         >
-          <Icon :name="active.icon" class="size-4 text-primary" />
-          <span class="pk-display text-sm font-bold">{{ active.label }}</span>
-          <span
-            v-if="active.count"
-            class="pk-dim text-xs tabular-nums opacity-70"
-            >{{ active.count }}</span
-          >
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm btn-square ml-auto"
-            title="Close"
-            @click="kit.closePane()"
-          >
-            <Icon name="kind-icon:close" class="size-4" />
-          </button>
-        </div>
-        <div class="kr-pane-scroll p-3">
-          <PlaybookKitCast v-if="active.id === 'cast'" :spec="spec" />
-          <PlaybookKitFactions
-            v-else-if="active.id === 'factions'"
-            :spec="spec"
-            :meter-values="meterValues"
+          <PlaybookForgeGlyph
+            :command="prompt.command"
+            :device="device"
+            :label="prompt.label"
+            @press="prompt.run()"
           />
-          <PlaybookKitSecrets
-            v-else-if="active.id === 'secrets'"
-            :spec="spec"
-          />
-          <PlaybookKitScrapbook
-            v-else-if="active.id === 'scrapbook'"
-            :spec="spec"
-          />
-          <PlaybookKitEndings
-            v-else-if="active.id === 'endings'"
-            :spec="spec"
-          />
-          <PlaybookKitSettings v-else :spec="spec" />
-        </div>
-      </aside>
-
-      <PlaybookKitMoment v-if="kit.lightbox" :spec="spec" />
+          <span class="pf-label hidden text-xs opacity-80 @md:inline">{{
+            prompt.label
+          }}</span>
+        </span>
+      </footer>
     </div>
 
     <PlaybookKitTrailer v-if="kit.trailerOpen" :spec="spec" />
@@ -152,8 +221,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { usePlaybookKitStore, type KitPane } from '~/stores/playbookKitStore'
+import {
+  isTextEntry,
+  moveFocus,
+  newPadMemory,
+  readPad,
+  type ConsoleCommand,
+  type InputDevice,
+} from '~/utils/consoleInput'
 import { visibleMoments } from '~/utils/playbookKit/view'
 import type { KitMeter, PlaybookKitSpec } from '~/utils/playbookKit/types'
 
@@ -163,6 +240,12 @@ const props = defineProps<{
 }>()
 
 const kit = usePlaybookKitStore()
+const root = ref<HTMLElement | null>(null)
+const paneEl = ref<HTMLElement | null>(null)
+const device = ref<InputDevice>('keyboard')
+const fullscreen = ref(false)
+const pad = newPadMemory()
+let frame = 0
 
 const settingClasses = computed(() => [
   `pk-text-${kit.settings.textSize}`,
@@ -247,17 +330,146 @@ const active = computed(
   () => panes.value.find((entry) => entry.id === kit.pane) ?? null,
 )
 
-function onKey(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || kit.trailerOpen) return
-  if (kit.lightbox) kit.showMoment(null)
-  else kit.closePane()
+const prompts = computed<
+  { command: ConsoleCommand; label: string; run: () => void }[]
+>(() => [
+  { command: 'nextTab', label: 'Panes', run: () => cycle(1) },
+  ...(active.value
+    ? [
+        {
+          command: 'confirm' as const,
+          label: 'Select',
+          run: () => run('confirm'),
+        },
+        { command: 'back' as const, label: 'Close', run: () => run('back') },
+      ]
+    : []),
+  { command: 'start', label: 'Trailer', run: () => kit.playTrailer() },
+])
+
+function cycle(direction: 1 | -1) {
+  const ids = panes.value.map((entry) => entry.id)
+  const at = kit.pane ? ids.indexOf(kit.pane) : direction > 0 ? -1 : 0
+  kit.openPane(ids[(at + direction + ids.length) % ids.length]!)
 }
+
+function run(command: ConsoleCommand) {
+  if (kit.trailerOpen) return
+  if (command === 'back') {
+    if (kit.lightbox) kit.showMoment(null)
+    else kit.closePane()
+    return
+  }
+  if (command === 'prevTab' || command === 'nextTab') {
+    cycle(command === 'nextTab' ? 1 : -1)
+    return
+  }
+  if (command === 'start') {
+    kit.playTrailer()
+    return
+  }
+  const pane = paneEl.value
+  if (!pane || command === 'details') return
+  const focused = document.activeElement
+  const inPane = focused instanceof HTMLElement && pane.contains(focused)
+  if (command === 'confirm') {
+    if (inPane) focused.click()
+    return
+  }
+  if (
+    inPane &&
+    (command === 'left' || command === 'right') &&
+    focused.dataset.adjust !== undefined
+  ) {
+    focused.dispatchEvent(
+      new CustomEvent('pf-adjust', { detail: command === 'right' ? 1 : -1 }),
+    )
+    return
+  }
+  moveFocus(pane, command)
+}
+
+const KEYS: Record<string, ConsoleCommand> = {
+  KeyQ: 'prevTab',
+  KeyE: 'nextTab',
+  Escape: 'back',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+}
+
+function onKey(event: KeyboardEvent) {
+  if (event.altKey || event.ctrlKey || event.metaKey) return
+  if (isTextEntry(document.activeElement)) return
+  const command = KEYS[event.code]
+  if (!command) return
+  if (
+    event.code.startsWith('Arrow') &&
+    !paneEl.value?.contains(document.activeElement)
+  )
+    return
+  device.value = 'keyboard'
+  event.preventDefault()
+  run(command)
+}
+
+function onPointer(event: PointerEvent) {
+  device.value = event.pointerType === 'touch' ? 'touch' : 'keyboard'
+}
+
+function pollPads(now: number) {
+  for (const gamepad of navigator.getGamepads?.() ?? []) {
+    if (!gamepad) continue
+    const commands = readPad(gamepad, pad, now)
+    if (commands.length) device.value = 'gamepad'
+    for (const command of commands)
+      if (
+        kit.pane ||
+        command === 'prevTab' ||
+        command === 'nextTab' ||
+        command === 'back'
+      )
+        run(command)
+    break
+  }
+  frame = requestAnimationFrame(pollPads)
+}
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen()
+    else await root.value?.requestFullscreen()
+  } catch {
+    fullscreen.value = !!document.fullscreenElement
+  }
+}
+
+function onFullscreen() {
+  fullscreen.value = !!document.fullscreenElement
+}
+
+watch(
+  () => kit.pane,
+  () =>
+    requestAnimationFrame(() =>
+      paneEl.value
+        ?.querySelector<HTMLElement>('[data-nav]')
+        ?.focus({ preventScroll: true }),
+    ),
+)
 
 onMounted(() => {
   kit.open(props.spec.id)
   window.addEventListener('keydown', onKey)
+  document.addEventListener('fullscreenchange', onFullscreen)
+  frame = requestAnimationFrame(pollPads)
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  document.removeEventListener('fullscreenchange', onFullscreen)
+  cancelAnimationFrame(frame)
+})
 watch(
   () => props.spec.id,
   (id) => kit.open(id),
@@ -284,14 +496,53 @@ watch(
   line-height: 1.6;
 }
 .pk-shell .pk-display {
-  font-family: var(--pk-font);
-  letter-spacing: 0.01em;
+  font-family: var(--pf-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.pk-shell .pf-tab {
+  padding: 0.45rem 0.4rem;
+}
+@container (min-width: 48rem) {
+  .pk-shell .pf-tab {
+    padding: 0.55rem 0.8rem;
+  }
+}
+.pk-shell .pk-crest {
+  clip-path: polygon(50% 0, 100% 28%, 100% 72%, 50% 100%, 0 72%, 0 28%);
+}
+.pk-shell .pk-meter {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.25rem 0.55rem;
+  border-left: 2px solid var(--color-secondary);
+  background: color-mix(in oklch, var(--color-base-100) 55%, transparent);
+}
+.pk-shell .pk-meter-bar {
+  position: relative;
+  height: 0.35rem;
+  width: 3.5rem;
+  background: color-mix(in oklch, var(--color-base-content) 14%, transparent);
+}
+.pk-shell .pk-meter-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--color-secondary);
+  box-shadow: 0 0 10px var(--color-secondary);
+}
+.pk-shell .pk-card {
+  border: 1px solid
+    color-mix(in oklch, var(--color-base-content) 12%, transparent);
+  background: color-mix(in oklch, var(--color-base-200) 70%, transparent);
 }
 .pk-shell.pk-contrast-high .pk-dim {
   opacity: 1;
 }
-.pk-shell.pk-contrast-high .pk-glass {
-  background-color: var(--color-base-100);
+.pk-shell.pk-contrast-high :is(.pf-panel, .pk-card) {
+  background: var(--color-base-100);
   backdrop-filter: none;
 }
 .pk-shell.pk-motion-reduced *,

@@ -419,13 +419,20 @@
               </button>
             </div>
             <button
-              v-if="run.flowVersion === 3 && SOCIAL_DAYS.some(day => day === run.day)"
+              v-if="
+                run.flowVersion === 3 &&
+                SOCIAL_DAYS.some((day) => day === run.day)
+              "
               class="cca-choice"
               type="button"
               data-testid="academy-social-switch"
               @click="showRelationships = !showRelationships"
             >
-              <span>{{ showRelationships ? 'RETURN TO THE CITY MAP' : 'SPEND DAYLIGHT WITH A CLASSMATE' }}</span>
+              <span>{{
+                showRelationships
+                  ? 'RETURN TO THE CITY MAP'
+                  : 'SPEND DAYLIGHT WITH A CLASSMATE'
+              }}</span>
               <span>↗</span>
             </button>
             <div
@@ -434,7 +441,10 @@
               data-testid="academy-social-panel"
             >
               <strong>RELATIONSHIPS / ONE DAYTIME ACTION</strong>
-              <span>Making a promise here replaces exploring a city location today. Every classmate can decline, change terms or leave.</span>
+              <span
+                >Making a promise here replaces exploring a city location today.
+                Every classmate can decline, change terms or leave.</span
+              >
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
                   v-for="person in STUDENTS"
@@ -443,16 +453,39 @@
                   :class="{ chosen: selectedSocialId === person.id }"
                   :aria-pressed="selectedSocialId === person.id"
                   @click="selectedSocialId = person.id"
-                >{{ person.name }}</button>
+                >
+                  {{ person.name }}
+                </button>
               </div>
               <strong>{{ selectedSocialProfile?.dilemma }}</strong>
               <span v-if="run.relationships.connections[selectedSocialId]">
-                TRUST {{ run.relationships.connections[selectedSocialId]?.trust ?? 0 }} ·
-                {{ run.relationships.partner === selectedSocialId ? 'FIELD PARTNER · ' : '' }}
-                {{ run.relationships.sidekick === selectedSocialId ? 'SIDEKICK · ' : '' }}
-                {{ run.relationships.romance === selectedSocialId ? 'ROMANCE · ' : '' }}
-                {{ run.relationships.connections[selectedSocialId]?.courtingDay !== undefined &&
-                  run.relationships.romance !== selectedSocialId ? 'EXPLORING RELATIONSHIP · ' : '' }}
+                TRUST
+                {{
+                  run.relationships.connections[selectedSocialId]?.trust ?? 0
+                }}
+                ·
+                {{
+                  run.relationships.partner === selectedSocialId
+                    ? 'FIELD PARTNER · '
+                    : ''
+                }}
+                {{
+                  run.relationships.sidekick === selectedSocialId
+                    ? 'SIDEKICK · '
+                    : ''
+                }}
+                {{
+                  run.relationships.romance === selectedSocialId
+                    ? 'ROMANCE · '
+                    : ''
+                }}
+                {{
+                  run.relationships.connections[selectedSocialId]
+                    ?.courtingDay !== undefined &&
+                  run.relationships.romance !== selectedSocialId
+                    ? 'EXPLORING RELATIONSHIP · '
+                    : ''
+                }}
               </span>
               <span>{{ selectedSocialProfile?.boundary }}</span>
               <button
@@ -462,10 +495,20 @@
                 type="button"
                 data-testid="academy-social-choice"
                 @click="store.social(selectedSocialId, choice.id)"
-              ><span>{{ choice.label }}</span><span>↗</span></button>
-              <span v-if="!socialActionOptions.length">This classmate cannot spend time together today. A serious injury or betrayal may have changed the roster.</span>
+              >
+                <span>{{ choice.label }}</span
+                ><span>↗</span>
+              </button>
+              <span v-if="!socialActionOptions.length"
+                >This classmate cannot spend time together today. A serious
+                injury or betrayal may have changed the roster.</span
+              >
             </div>
-            <div v-if="!showRelationships" class="cca-map-tabs" aria-label="Map view">
+            <div
+              v-if="!showRelationships"
+              class="cca-map-tabs"
+              aria-label="Map view"
+            >
               <button
                 type="button"
                 :aria-pressed="mapView === 'campus'"
@@ -862,7 +905,11 @@
 </template>
 
 <script setup lang="ts">
-import { SOCIAL_CAST, SOCIAL_DAYS, socialChoices } from '~/utils/cometAcademy/relationships'
+import {
+  SOCIAL_CAST,
+  SOCIAL_DAYS,
+  socialChoices,
+} from '~/utils/cometAcademy/relationships'
 import { computed, onMounted, ref } from 'vue'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
@@ -922,14 +969,21 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
-const selectedSocialProfile = computed(() => SOCIAL_CAST.find(p => p.id === selectedSocialId.value))
+const selectedSocialProfile = computed(() =>
+  SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
+)
 const socialActionOptions = computed(() =>
   run.value?.relationships
-    ? socialChoices(run.value.relationships, selectedSocialId.value, run.value.day, {
-        unavailable: !store.available(selectedSocialId.value),
-        form: run.value.playerEvolution?.form,
-        danger: run.value.danger,
-      })
+    ? socialChoices(
+        run.value.relationships,
+        selectedSocialId.value,
+        run.value.day,
+        {
+          unavailable: !store.available(selectedSocialId.value),
+          form: run.value.playerEvolution?.form,
+          danger: run.value.danger,
+        },
+      )
     : [],
 )
 

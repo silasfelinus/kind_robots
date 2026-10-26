@@ -1098,8 +1098,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         (data.mastermind !== undefined &&
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
         (data.opponentSignature !== undefined &&
-          (!data.signature ||
-            data.opponentSignature === data.signature ||
+          ((data.signature !== undefined &&
+            data.opponentSignature === data.signature) ||
             !IDENTITY_ARCS.some(
               (arc) => arc.signature === data.opponentSignature,
             ))) ||

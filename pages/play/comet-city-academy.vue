@@ -896,7 +896,9 @@ const opponent = computed(() =>
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3
-    ? STUDENTS.filter((s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0))
+    ? STUDENTS.filter(
+        (s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0),
+      )
     : [],
 )
 function canVisitSite(id: SiteId) {

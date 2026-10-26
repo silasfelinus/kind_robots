@@ -134,6 +134,7 @@ for (const [id, event] of [
     const resolved = chooseBeat(run, option.id)
     assert.notEqual(resolved, run)
     assert.equal(resolved.openingState, option.lens)
+    assert.equal(originPerkAvailable(run, option.id), false)
     assert.equal(resolved.rolls, run.rolls, 'opening outlooks never roll dice')
     assert.equal(resolved.pending?.entry.roll, null)
     assert.equal(resolved.pending?.entry.text, option.success.text)

@@ -429,7 +429,13 @@ export function step(state: MinefieldState, cell: Cell): MinefieldState {
 /** Toggle a flag on a hidden cell (a note to self; it never checks the answer). */
 export function toggleFlag(state: MinefieldState, cell: Cell): MinefieldState {
   const tile = state.tiles[at(state.cols, cell)]
-  if (state.outcome !== 'exploring' || !tile || tile.revealed || tile.sprung || tile.disarmed)
+  if (
+    state.outcome !== 'exploring' ||
+    !tile ||
+    tile.revealed ||
+    tile.sprung ||
+    tile.disarmed
+  )
     return state
   const next = clone(state)
   const t = next.tiles[at(next.cols, cell)]!

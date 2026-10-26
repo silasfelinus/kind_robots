@@ -269,6 +269,6 @@ for (let seed = 1; seed <= 128; seed += 1) {
   break
 }
 assert.ok(
-  foundBenchFailure,
-  'the sober bench has an actual losing-roll witness',
+  foundBenchComplication,
+  'the sober bench has a reachable authored complication without a skill roll',
 )

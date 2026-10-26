@@ -162,6 +162,50 @@ const wrongChoice = restoreDarkBriarProgress({
 })
 assert.equal(darkBriarHasWitness(wrongChoice, '5,3'), false)
 
+// Adversarial completionist: inspect any subset of the four original seals,
+// then all four mirror seals in reverse order. Even a complete mirrored set
+// is NOT the later-world counterpart puzzle or a free finale unlock.
+for (let subset = 0; subset < 16; subset++) {
+  let chronicle = newCrossMapSealChronicle()
+  for (let k = 0; k < sealKeys.length; k++) {
+    if (subset & (1 << k))
+      chronicle = inspectCrossMapSeal(chronicle, sealKeys[k]!, 'e01')
+  }
+  for (const key of [...sealKeys].reverse()) {
+    chronicle = inspectCrossMapSeal(chronicle, key, 'e02')
+    chronicle = inspectCrossMapSeal(chronicle, key, 'e02')
+  }
+  const after = restoreCrossMapSealChronicle(JSON.parse(JSON.stringify(chronicle)))
+  const count = sealKeys.filter((_, k) => Boolean(subset & (1 << k))).length
+  assert.equal(after.inspected.length, count)
+  assert.equal(after.mirrorSeen.length, 4)
+  assert.equal(after.matched.length, 0)
+  assert.equal(after.resolved.length, 0)
+  assert.equal(firstMapRecoveryComplete(after), count === 4)
+  assert.equal(missingFirstMapSeals(after).length, 4 - count)
+  assert.equal(new Set(after.seen).size, 4)
+  for (const key of sealKeys) {
+    assert.equal(after.seen.includes(key), true)
+    assert.equal(
+      missingFirstMapSeals(after).some((item) => item.key === key),
+      !after.inspected.includes(key),
+    )
+  }
+}
+// A save claiming all mirrored discoveries never earns a future-world
+// counterpart match. The recovery path must still identify missing originals.
+const mirrorOnly = restoreCrossMapSealChronicle({
+  version: 1,
+  mirrorSeen: sealKeys,
+  matched: sealKeys,
+  resolved: sealKeys,
+})
+assert.equal(mirrorOnly.inspected.length, 0)
+assert.equal(mirrorOnly.matched.length, 0)
+assert.equal(mirrorOnly.resolved.length, 0)
+assert.equal(missingFirstMapSeals(mirrorOnly).length, 4)
+console.log('Adversarial cross-map seals: 16 original/mirrored encounter orders cannot bypass future-world gates')
+
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 const original = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',

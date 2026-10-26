@@ -9,6 +9,7 @@
       court.preferences.motion === 'reduced' ? 'eod-motion-reduced' : '',
     ]"
     data-theme="emperor"
+    data-layout="console-fixed"
   >
     <div
       v-if="!court.loaded || !run"
@@ -88,7 +89,7 @@
               v-for="room in rooms"
               :key="room.id"
               type="button"
-              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center @6xl:min-w-fit @6xl:flex-auto justify-center gap-1.5 whitespace-nowrap px-1.5 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-3"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1 whitespace-nowrap px-1 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-2"
               :data-tip="room.hint"
               :aria-label="
                 room.label + (room.badge ? `, ${room.badge} waiting` : '')
@@ -97,7 +98,9 @@
               @click="enter(room.id)"
             >
               <Icon :name="room.icon" class="h-4 w-4 shrink-0" />
-              <span class="hidden truncate @6xl:inline">{{ room.label }}</span>
+              <span class="hidden min-w-0 truncate @6xl:block">{{
+                room.label
+              }}</span>
               <span
                 v-if="room.badge"
                 class="badge badge-error badge-xs absolute -right-0.5 -top-1 @6xl:static"
@@ -109,7 +112,7 @@
 
           <button
             type="button"
-            class="eod-chip flex shrink-0 items-center gap-1 px-2 py-1.5 text-sm text-warning"
+            class="eod-chip relative z-10 flex shrink-0 items-center gap-1 px-2 py-1.5 text-sm text-warning"
             aria-label="Game settings"
             title="Reading and display settings"
             @click="settingsOpen = true"
@@ -198,7 +201,14 @@
         </div>
         <div
           ref="stage"
-          class="kr-scroll @container min-h-0 flex-1 overscroll-contain p-2 sm:p-3"
+          class="@container min-h-0 flex-1 p-2 sm:p-3"
+          :class="
+            activeRoom === 'briefing' ||
+            activeRoom === 'throne' ||
+            activeRoom === 'quests'
+              ? 'overflow-hidden'
+              : 'kr-scroll overscroll-contain'
+          "
         >
           <section
             v-if="over && activeRoom !== 'chronicle'"

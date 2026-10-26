@@ -166,7 +166,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
     !record(run.strength, KINGDOM_FACTIONS, 0, 10) ||
     !factionList(run.revealedFactions) ||
     !factionList(run.wipedOut) ||
-    ![6, 9, 12].includes(run.beds as number) ||
+    !int(run.beds, 6, 12) ||
     !textList(run.recruitable) ||
     !textList(run.inventory) ||
     !textList(run.audiencesHeard) ||

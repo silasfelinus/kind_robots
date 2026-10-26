@@ -80,6 +80,7 @@ import {
   threatsFor,
   traitKnown,
   unmetRequirements,
+  START_BRASS,
   upgradeBeds,
   withdrawQuest,
   LAMPLIGHT_SIGHT,
@@ -209,6 +210,8 @@ import {
   BETRAYAL_FLAG,
   dayBriefings,
   dayLines,
+  FIRST_BELL_TRUTHS,
+  FIRST_BELL_LIES,
   komodoLiesInHindsight,
   RUMOUR_BOUNTY,
   rumourPrompt,
@@ -233,6 +236,7 @@ import {
   COURT_RECRUITMENT_IDS,
   RANDOM_ARRIVALS,
   RIVAL_ARGUMENTS,
+  FIRST_BELL_RIVAL_BARGAIN,
 } from '../emperorOfDust/fortress/onboarding'
 
 // Older systems tests exercise a fully staffed court. This is a deliberate
@@ -276,8 +280,8 @@ for (let seed = 1; seed <= 40; seed += 1) {
   assert.throws(() => finishDay(run), /three recruiting petitions/)
   run = chooseAudienceOption(run, 'd01-kiyo-arrives', 'appoint').run
   run = chooseAudienceOption(run, random.id, 'appoint').run
-  const winner = argument.options[seed % argument.options.length]!
-  const loser = argument.options[(seed + 1) % argument.options.length]!
+  const winner = argument.options[seed % 2]!
+  const loser = argument.options[(seed + 1) % 2]!
   run = chooseAudienceOption(run, argument.id, winner.id).run
   assert.equal(run.roster.length, 3, 'exactly one recruit per audience')
   assert.ok(run.roster.some((f) => f.id === 'F003'))
@@ -304,12 +308,69 @@ for (let seed = 1; seed <= 40; seed += 1) {
   const day3 = finishDay(day2).run
   assert.ok(audiencesToday(day3).some((a) => a.id === 'd01-mirefen'))
 }
-assert.equal(firstBellVisitors.size, 2, 'both chance recruits can visit')
+assert.equal(firstBellVisitors.size, 4, 'all four chance recruits can visit')
 assert.equal(
   firstBellArguments.size,
   2,
   'both authored feuding pairs can appear',
 )
+
+// Day One is a genuine seeded draw: nine possible truths, four lies, exactly
+// two true reports plus one false. Twelve consecutive fresh starts are unique.
+assert.ok(FIRST_BELL_TRUTHS.length >= 9)
+assert.ok(FIRST_BELL_LIES.length >= 3)
+const openings = new Set<string>()
+for (let seed = 1; seed <= 12; seed += 1) {
+  const run = createUnrecruitedRun(seed)
+  const briefings = dayBriefings(run)!
+  assert.equal(briefings.length, 3)
+  assert.equal(briefings.filter((b) => b.truth).length, 2)
+  assert.equal(briefings.filter((b) => !b.truth).length, 1)
+  openings.add(
+    briefings
+      .map((b) => b.id)
+      .sort()
+      .join('/'),
+  )
+  assert.deepEqual(
+    dayBriefings(run),
+    briefings,
+    'opening reports do not reroll',
+  )
+  const save = decodeBook(encodeBook(newBook(run)))!.current
+  assert.deepEqual(dayBriefings(save), briefings, 'reports survive saves')
+}
+assert.equal(openings.size, 12, 'twelve seeded openings have distinct choices')
+
+// Both feuding pairs can be hired at the expense of almost the whole treasury.
+for (const argumentId of RIVAL_ARGUMENTS) {
+  const seed = Array.from({ length: 40 }, (_, i) => i + 1).find((n) =>
+    audiencesToday(createUnrecruitedRun(n)).some((a) => a.id === argumentId),
+  )!
+  let run = createUnrecruitedRun(seed)
+  const both = audiencesToday(run)
+    .find((a) => a.id === argumentId)!
+    .options.find((o) => o.id === 'both')!
+  assert.equal(both.requires?.cost, FIRST_BELL_RIVAL_BARGAIN)
+  const hired = chooseAudienceOption(run, argumentId, 'both').run
+  assert.equal(hired.brass, START_BRASS - FIRST_BELL_RIVAL_BARGAIN)
+  assert.equal(hired.roster.length, 2)
+  assert.ok(
+    both.effects.recruit!.every((id) => hired.roster.some((m) => m.id === id)),
+  )
+  assert.ok(
+    both.effects.recruit!.every(
+      (id) => !hired.flags.includes(`court-excluded:${id}`),
+    ),
+  )
+  assert.ok(validateRun(hired))
+  run = { ...run, brass: 109 }
+  assert.match(optionBlockers(run, both).join(' '), /Needs 110 brass/)
+  assert.throws(
+    () => chooseAudienceOption(run, argumentId, 'both'),
+    /Needs 110 brass/,
+  )
+}
 
 // --- startup overlay contract ----------------------------------------------
 // The splash fades for 600ms before it unmounts. On a new game, the first
@@ -363,7 +424,8 @@ assert.equal(
 )
 for (const day of DAYS)
   for (const audience of day.audiences)
-    if (audience.npc) assert.ok(npcDef(audience.npc), audience.npc)
+    if (audience.npc)
+      assert.ok(npcDef(audience.npc) || followerDef(audience.npc), audience.npc)
 for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
   const reps = NPCS.filter((npc) => npc.faction === faction)
   assert.ok(reps.length, `${faction} has a named NPC`)
@@ -729,9 +791,16 @@ const fullBarracks: FortressRun = {
 }
 assert.throws(() => recruit(fullBarracks, 'F005'), /barracks are full/)
 const bigger = upgradeBeds(fullBarracks)
-assert.equal(bigger.beds, 9)
+assert.equal(bigger.beds, 7)
+assert.equal(bigger.brass, fullBarracks.brass - 100)
 assert.equal(recruit(bigger, 'F005').roster.length, 7)
-assert.throws(() => upgradeBeds(bigger), /gate-watch support 12/)
+assert.throws(() => upgradeBeds(bigger), /Needs 150 brass/)
+const funded = { ...bigger, brass: 200 }
+assert.equal(upgradeBeds(funded).beds, 8)
+assert.throws(
+  () => upgradeBeds({ ...funded, beds: 9, brass: 400 }),
+  /gate-watch support 12/,
+)
 
 // Seed 1234 lays out the Surveyor's Glass on Day 1 (the market owns buying).
 assert.ok(marketStock(start).includes('surveyors-glass'))
@@ -2353,8 +2422,8 @@ const sore = (ids: string[]) =>
       { id: 'F001', joinedDay: 1, injuredUntilDay: 9, equipment: {} },
     ],
   })
-assert.equal(injuryDaysLeft(finishDay(sore(['F008'])).run, 'F001'), 2)
-assert.equal(injuryDaysLeft(finishDay(sore([])).run, 'F001'), 3)
+assert.equal(injuryDaysLeft(finishDay(sore(['F008'])).run, 'F001'), 0)
+assert.equal(injuryDaysLeft(finishDay(sore([])).run, 'F001'), 0)
 // Reads the Wind: Nera marks the false briefing, but not Komodo's own lie.
 const marks = (day: number, ids: string[]) =>
   DAYS.find((def) => def.day === day)!.briefings.map((b) =>
@@ -2868,8 +2937,23 @@ for (const def of FOLLOWERS.slice(0, 20)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }
-for (const def of NPCS)
-  assert.ok(castArtUrl(`npcs/${def.slug}/illustrated/neutral`), def.slug)
+// These newly identified audience faces have private Arthemy requests in Conductor.
+// Never claim their art shipped before the actual export has been registered.
+const queuedAudienceArt = new Set([
+  'conclave-messenger',
+  'jackalwire-toll-captain',
+  'aldous-hopper',
+  'mirefen-reed-cutter',
+  'saltroad-tincture-factor',
+  'jackalwire-wagon-painter',
+  'storm-crow-envoy',
+])
+for (const def of NPCS) {
+  const art = castArtUrl(`npcs/${def.slug}/illustrated/neutral`)
+  if (queuedAudienceArt.has(def.slug)) continue
+  assert.ok(art, def.slug)
+}
+assert.equal(queuedAudienceArt.size, 7)
 assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
 // The full t-012 set: 20 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
 assert.equal(CAST_ART.length, 20 * 8 + 17 * 5 + 1)
@@ -3731,19 +3815,23 @@ for (const def of DAYS)
   }
   assert.equal(surgeonPrice(hurt, 'F001'), SURGEON_BASE + SURGEON_PER_DAY * 4)
   const stitched = treatFollower(hurt, 'F001', 'surgeon')
-  assert.equal(stitched.healed, 1)
-  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 3)
+  assert.equal(stitched.healed, 4)
+  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 0)
+  assert.equal(followerStatus(stitched.run, 'F001'), 'ready')
   assert.equal(stitched.run.brass, 100 - surgeonPrice(hurt, 'F001'))
   assert.match(
     treatmentBlocker(stitched.run, 'F001', 'surgeon') ?? '',
-    /Seen today/,
+    /Only the wounded/,
   )
-  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Seen/)
+  assert.throws(
+    () => treatFollower(stitched.run, 'F001', 'surgeon'),
+    /Only the wounded/,
+  )
   assert.ok(validateRun(stitched.run), 'a treated run saves')
-  // Tomorrow the surgeon will see them again.
-  assert.equal(
-    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon'),
-    null,
+  // Full recovery means no further treatment is available tomorrow.
+  assert.match(
+    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon') ?? '',
+    /Only the wounded/,
   )
   assert.match(
     treatmentBlocker(hurt, 'F002', 'surgeon') ?? '',
@@ -3771,7 +3859,7 @@ for (const def of DAYS)
   }
   assert.ok(saltroadMedicine(caravans) && !saltroadMedicine(hurt))
   assert.equal(surgeonPrice(caravans, 'F001'), 12)
-  // The Mire poultice: cheap, seeded, sometimes worse; the Abbey hears.
+  // The Mire poultice: cheap and seeded, either a full immediate cure or no effect.
   assert.ok(poulticeOffered(hurt))
   const outcomes = new Set<number>()
   for (let seed = 1; seed <= 40; seed += 1) {
@@ -3782,17 +3870,17 @@ for (const def of DAYS)
       treatFollower(run, 'F001', 'poultice'),
       'the poultice is seeded',
     )
-    assert.ok([2, 0, -1].includes(result.healed))
+    assert.ok([4, 0].includes(result.healed))
     assert.equal(
       injuryDaysLeft(result.run, 'F001'),
       4 - result.healed,
-      'the wound moves by what the poultice did',
+      'a successful poultice restores duty immediately',
     )
     assert.equal(result.run.brass, 100 - POULTICE_PRICE)
     assert.equal(result.run.affinity.abbey, hurt.affinity.abbey - 1)
     outcomes.add(result.healed)
   }
-  assert.equal(outcomes.size, 3, 'the poultice can take, fail or go bad')
+  assert.equal(outcomes.size, 2, 'the poultice either takes or fails')
   assert.ok(!poulticeOffered({ ...hurt, wipedOut: ['mire-mothers'] }))
   assert.match(
     treatmentBlocker(

@@ -1,10 +1,10 @@
 <template>
   <div
-    class="eod-briefing flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(26rem,0.92fr)_minmax(0,1.08fr)] @7xl:grid-cols-[minmax(32rem,0.85fr)_minmax(0,1.15fr)]"
+    class="eod-briefing flex h-full min-h-0 min-w-0 flex-col gap-2 overflow-hidden @4xl:grid @4xl:grid-rows-[minmax(0,1fr)] @4xl:grid-cols-[minmax(26rem,0.92fr)_minmax(0,1.08fr)] @7xl:grid-cols-[minmax(32rem,0.85fr)_minmax(0,1.15fr)]"
   >
     <figure
       v-if="advisorArt"
-      class="eod-figure-box pointer-events-none relative min-h-56 flex-1 basis-0 @4xl:order-2 @4xl:min-h-0"
+      class="eod-figure-box pointer-events-none relative h-28 shrink-0 @4xl:order-2 @4xl:h-auto @4xl:min-h-0 @4xl:flex-1"
     >
       <img
         :key="advisorArt"
@@ -16,7 +16,7 @@
     <div v-else class="hidden @4xl:block" />
 
     <section
-      class="kr-panel kr-scroll flex shrink-0 flex-col gap-3 overflow-y-auto p-4 @4xl:order-1 @4xl:min-h-0 @4xl:p-5 @7xl:p-6"
+      class="kr-panel kr-scroll flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-y-auto p-3 @4xl:order-1 @4xl:p-4 @7xl:p-5"
       aria-live="polite"
     >
       <div>
@@ -77,20 +77,17 @@
           <strong class="not-italic text-warning">{{ advisorName }}:</strong>
           “{{ lines.komodo }}”
         </p>
-        <p
-          v-if="!challenge"
-          class="eod-reading mx-auto w-11/12 max-w-md text-center text-sm italic opacity-85"
-        >
+        <p v-if="!challenge" class="eod-reading text-sm italic opacity-85">
           <strong class="not-italic text-warning"
             >{{ advisorName }} adds:</strong
           >
           “{{ prompt }}”
         </p>
-        <ul class="mx-auto grid w-11/12 max-w-md gap-2 text-center">
+        <ul class="grid gap-1.5 text-center">
           <li v-for="report in reports" :key="report.id">
             <button
               type="button"
-              class="w-full rounded-md border p-3 text-center transition-colors"
+              class="w-full rounded-md border px-3 py-2 text-center transition-colors"
               :class="cardTone(report)"
               :disabled="!!challenge || acting"
               :aria-label="
@@ -217,7 +214,7 @@
       </p>
       <button
         type="button"
-        class="eod-finish mt-auto self-end px-5 py-2 text-base"
+        class="eod-finish mt-auto self-end px-4 py-2 text-sm"
         @click="emit('next')"
       >
         Open the throne room

@@ -42,13 +42,14 @@
 
     <div v-if="title" class="flex items-center gap-3 px-4 pt-4">
       <span
+        v-if="art && !portraitFailed"
         class="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-warning/50 bg-base-200"
       >
         <img
-          v-if="art"
           :src="art"
           alt=""
           class="h-full w-full object-cover object-top"
+          @error="portraitFailed = true"
         />
       </span>
       <span class="min-w-0">
@@ -202,6 +203,13 @@ const STAKE_TONE: Record<Stake['tone'], string> = {
 const emit = defineEmits<{ choose: [id: string] }>()
 
 const court = useEmperorFortressStore()
+const portraitFailed = ref(false)
+watch(
+  () => props.art,
+  () => {
+    portraitFailed.value = false
+  },
+)
 const index = ref(0)
 const visible = ref(0)
 const showLog = ref(false)

@@ -105,11 +105,7 @@
           class="btn btn-outline btn-xs mt-2 w-full"
           @click="act(() => court.expandBarracks())"
         >
-          Add beds ({{
-            run.beds === 6
-              ? '9 beds, 40 brass'
-              : '12 beds, 80 brass, Gate Watch 12'
-          }})
+          Add one bed · {{ nextBedUpgrade(run.beds)?.cost }} brass
         </button>
       </div>
 
@@ -344,6 +340,7 @@ import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import {
   bedsUsed,
+  nextBedUpgrade,
   followerMood,
   followerStatus,
   injuryDaysLeft,

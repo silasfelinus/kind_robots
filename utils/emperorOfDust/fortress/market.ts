@@ -273,10 +273,9 @@ export type TreatmentResult = {
 }
 
 /**
- * The surgeon closes one day of a wound, for a fee that grows with the wound.
- * Kiyo's infirmary provides full recovery in return for a larger brass expense.
- * A Mire poultice is cheap and seeded: half the time it closes two days, some
- * of the time nothing, and sometimes the wound goes bad. The Abbey hears.
+ * Paid surgery restores a wounded follower to duty immediately, even for
+ * an old save with a longer wound. Kiyo provides guaranteed intensive care;
+ * a Mire poultice is cheaper but unreliable. The Abbey hears.
  */
 export const treatFollower = (
   run: FortressRun,
@@ -292,21 +291,19 @@ export const treatFollower = (
   market.treated.push(followerId)
   next.market = market
   const state = next.roster.find((entry) => entry.id === followerId)!
-  let healed = 1
-  let text = `The surgeon works by lamp. ${name} sleeps. One day less.`
+  let healed = injuryDaysLeft(run, followerId)
+  let text = `The surgeon works by lamp. ${name} is fit for duty today.`
   if (kind === 'infirmary') {
     healed = injuryDaysLeft(run, followerId)
-    text = `Kiyo keeps watch through the night. ${name} is fit to return to duty. The court pays for the medicines, not the kindness.`
+    text = `Kiyo works swiftly. ${name} can return to duty today. The court pays for the medicines, not the kindness.`
   }
   if (kind === 'poultice') {
     const roll = rollFor(run, `poultice:${run.day}:${followerId}`)
-    healed = roll < 50 ? 2 : roll < 80 ? 0 : -1
+    healed = roll < 50 ? injuryDaysLeft(run, followerId) : 0
     text =
-      healed === 2
-        ? `The poultice smells of the fen. By morning ${name} can stand. Two days less.`
-        : healed === 0
-          ? `The poultice dries and cracks. Nothing changes.`
-          : `The poultice goes green. ${name} runs a fever. One day more.`
+      healed > 0
+        ? `The poultice smells of the fen. ${name} can ride again today.`
+        : `The poultice dries and cracks. Nothing changes; ${name} must rest until dawn.`
     applyEffects(next, { affinity: { abbey: -1 } })
   }
   const until = (state.injuredUntilDay ?? next.day) - healed

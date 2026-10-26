@@ -24,20 +24,18 @@ assert.match(page, /@done="finishIntroduction"/)
 assert.match(page, /function finishIntroduction\(\)/)
 assert.match(page, /if \(firstAudience\) enter\('throne'\)/)
 
-// Tablet and phone stack the board before details. The quest room is one
-// bounded scroll owner so nothing overlaps, and the shell itself stays still.
-assert.match(quests, /ref="scrollArea"/)
-assert.match(quests, /class="kr-scroll relative grid h-full min-h-0 min-w-0/)
-assert.match(quests, /auto-rows-max content-start gap-3 overflow-y-auto/)
-assert.match(quests, /@6xl:grid-cols-/)
-assert.equal(quests.split('kr-scroll').length - 1, 1)
-assert.equal(quests.split('overflow-y-auto').length - 1, 1)
-assert.match(
-  quests,
-  /class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"/,
-)
-assert.match(quests, /scrollArea\.value\.scrollTo/)
-assert.doesNotMatch(quests, /scrollIntoView/)
+// The quest room uses a fixed-height two-pane grid. Each pane owns its
+// wheel scrolling; phones switch views rather than stacking two long pages.
+assert.match(quests, /class="kr-panes/)
+assert.match(quests, /@4xl:grid-cols-/)
+assert.match(quests, /class="grid grid-cols-2 gap-2"/)
+assert.equal(quests.split('kr-pane-scroll').length - 1, 2)
+assert.doesNotMatch(quests, /scrollArea\\.value\\.scrollTo|scrollIntoView/)
+assert.match(quests, /mobilePane = ref<'board' \\| 'details'>/)
+assert.match(quests, /class="flex shrink-0 flex-wrap items-center/)
+assert.match(page, /activeRoom === 'briefing' \\|\\| activeRoom === 'throne'/)
+assert.match(page, /activeRoom === 'throne' \\|\\| activeRoom === 'quests'/)
+assert.match(page, /data-layout="console-fixed"/)
 
 // Every illustrated fortress room uses the same opaque ink surface. The quest
 // rewards and dispatch controls must not show wood grain through their text.

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-full flex-col gap-3 @4xl:grid"
+    class="flex h-full min-h-0 min-w-0 flex-col gap-2 overflow-hidden @4xl:grid @4xl:grid-rows-[minmax(0,1fr)]"
     :class="
       court.preferences.readingWidth === 'wide'
         ? '@4xl:grid-cols-[minmax(0,1fr)_minmax(38rem,52rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(42rem,58rem)]'
@@ -8,19 +8,19 @@
     "
   >
     <section
-      class="eod-figure-box relative flex min-h-0 flex-1 basis-0 flex-col justify-end"
+      class="eod-figure-box relative flex h-24 min-h-0 shrink-0 flex-col justify-center overflow-hidden @4xl:h-auto @4xl:flex-1 @4xl:basis-0"
       aria-label="The court"
     >
       <figure
         v-if="sceneFigures.length"
-        class="pointer-events-none absolute inset-0 flex items-end justify-center"
+        class="pointer-events-none absolute inset-0 flex items-center justify-center"
       >
         <img
           v-for="figure in sceneFigures"
           :key="figure.slug"
           :src="figure.art"
           :alt="figure.name"
-          class="eod-figure block h-full min-w-0 w-auto object-contain object-bottom"
+          class="eod-figure block h-full min-w-0 w-auto -translate-y-[6%] object-contain object-center"
           :class="sceneFigures.length > 1 ? 'max-w-[50%]' : 'max-w-full'"
         />
       </figure>
@@ -32,7 +32,9 @@
       </p>
     </section>
 
-    <section class="flex shrink-0 flex-col gap-2 @4xl:min-h-0">
+    <section
+      class="kr-scroll flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain @4xl:shrink-0"
+    >
       <Teleport v-if="audiences.length" to="#eod-room-tools" defer>
         <div class="flex min-w-0 items-center gap-1.5">
           <span
@@ -102,13 +104,7 @@
           :key="selected.id + ':' + (scene.beatId ?? '')"
           :title="selected.title"
           :speaker="scene.speaker"
-          :art="
-            npc
-              ? illustration('npcs', npc.slug)
-              : featuredFollower
-                ? illustration('followers', featuredFollower.id)
-                : undefined
-          "
+          :art="speakerPortrait"
           :lines="sceneLines"
           :choices="choices"
           @choose="choose"
@@ -131,7 +127,11 @@ import {
   optionBlockers,
   optionVisible,
 } from '~/utils/emperorOfDust/fortress/engine'
-import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import {
+  followerPortrait,
+  illustration,
+  npcPortrait,
+} from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import {
@@ -169,6 +169,14 @@ const npc = computed(() =>
 )
 const featuredFollower = computed(() =>
   scene.value?.npc ? followerDef(scene.value.npc) : undefined,
+)
+/** Portrait is a separate crop from the large character figure. */
+const speakerPortrait = computed(() =>
+  featuredFollower.value
+    ? followerPortrait(featuredFollower.value.id)
+    : npc.value
+      ? npcPortrait(npc.value.slug)
+      : undefined,
 )
 /** The answer that led into a beat opens it, so the scene reads straight on. */
 const sceneLines = computed<SceneLine[]>(() => {

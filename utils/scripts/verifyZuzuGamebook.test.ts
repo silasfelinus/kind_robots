@@ -591,6 +591,17 @@ const grabbedUnprepared: Run = {
 }
 assert.ok(lockReason(grabbedUnprepared, hollisRetreat))
 assert.equal(takeChoice(grabbedUnprepared, 'follow-sister'), grabbedUnprepared)
+const estrangedSister: Run = {
+  ...grabbedAlone,
+  flags: ['sister-trust', 'sister-wary'],
+}
+assert.ok(
+  !visibleChoices(estrangedSister, scene('a4-well-grab')).some(
+    (choice) => choice.id === 'follow-sister',
+  ),
+  'neglect after earned trust must retire the sister rescue',
+)
+assert.equal(takeChoice(estrangedSister, 'follow-sister'), estrangedSister)
 for (const health of [1, 3, 6, 12]) {
   for (const resolve of [0, 4]) {
     const trusted: Run = {

@@ -1,6 +1,7 @@
 import { identityFor, identityStoryFor } from './identityArcs'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
+import { realNightCase } from './nightCases'
 import {
   signatureById,
   POWER_VOWS,
@@ -498,7 +499,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         title: incident.title,
         names: 'No team dispatched',
         grade: 'failed' as Grade,
-        text: 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
+        text:
+          run.flowVersion === 2 && run.day > 2
+            ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
+            : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
     }
     const affinity = assignment.students.some(
@@ -539,7 +543,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           : grade === 'honors'
             ? -1
             : 0
-    const text = {
+    const trainingText = {
       honors:
         'An elegant rescue, with time left to notice the simulation has hidden a real distress code.',
       pass: 'Everyone is accounted for. The instructor marks your judgment as sound, but the evidence is stranger than the scenario.',
@@ -548,21 +552,15 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       failed:
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
-    const missionConsequence =
-      run.flowVersion !== 2 || run.day <= 2
-        ? ''
-        : incident.allegiance === 'villain'
-          ? ' This real clandestine contract exposes the team to criminal scrutiny; the people harmed will remember.'
-          : incident.allegiance === 'hero'
-            ? ' The civilians are real this time, and a rescue report is sent to the city.'
-            : incident.allegiance === 'rogue'
-              ? ' Neither academy nor syndicate will claim responsibility for the outcome.'
-              : ' Rival factions may both cite the result as justification for their next move.'
+    const text =
+      (run.flowVersion === 2 && run.day > 2
+        ? realNightCase(incident.id)?.consequences[grade]
+        : undefined) ?? trainingText
     return {
       caseId: incident.id,
       title: incident.title,
       grade,
-      text: text + missionConsequence,
+      text,
       names: assignment.students
         .map((id) => STUDENTS.find((s) => s.id === id)!.name)
         .join(' · '),

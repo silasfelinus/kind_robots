@@ -9,7 +9,12 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
-import { campaignOpponent, antagonistBeat, opponentPressure, antagonistFinale } from '../cometAcademy/opponents'
+import {
+  campaignOpponent,
+  antagonistBeat,
+  opponentPressure,
+  antagonistFinale,
+} from '../cometAcademy/opponents'
 import {
   CAMPAIGN_ANCHORS,
   CAMPAIGN_VILLAINS,
@@ -609,9 +614,15 @@ for (const protagonist of IDENTITY_ARCS) {
     assert.ok(villain.villain.method.length > 35)
     rivals.add(villain.signature)
     observedOpponents.add(villain.signature)
-    observedPressures.add(opponentPressure(protagonist.signature, villain.signature))
+    observedPressures.add(
+      opponentPressure(protagonist.signature, villain.signature),
+    )
   }
-  assert.equal(rivals.size, 47, 'Every character can confront all other 47 people')
+  assert.equal(
+    rivals.size,
+    47,
+    'Every character can confront all other 47 people',
+  )
 }
 assert.equal(observedOpponents.size, 48)
 assert.ok(observedPressures.has(1))
@@ -623,20 +634,52 @@ for (const villain of IDENTITY_ARCS) {
   assert.ok(antagonistFinale(villain, true).includes(villain.backstory))
   assert.ok(antagonistFinale(villain, false).includes(villain.villain.method))
 }
-const identityRun = startFullAcademy(fieldFor('accident-fire'), 47, 'accident-fire')
+const identityRun = startFullAcademy(
+  fieldFor('accident-fire'),
+  47,
+  'accident-fire',
+)
 const identityFoe = identityFor(identityRun.opponentSignature!)
 assert.notEqual(identityRun.opponentSignature, identityRun.signature)
-assert.ok(encounterFor({ ...identityRun, day: 15, phase: 'campus' }).scene.includes(identityFoe.quests.antagonist))
-assert.ok(nextSchoolDay({ ...identityRun, day: 29, phase: 'debrief' }).scene.includes(identityFoe.villain.alias))
-const identityEnding = finishAcademy({ ...identityRun, day: 30, phase: 'finale' }, 'protect')
+assert.ok(
+  encounterFor({ ...identityRun, day: 15, phase: 'campus' }).scene.includes(
+    identityFoe.quests.antagonist,
+  ),
+)
+assert.ok(
+  nextSchoolDay({ ...identityRun, day: 29, phase: 'debrief' }).scene.includes(
+    identityFoe.villain.alias,
+  ),
+)
+const identityEnding = finishAcademy(
+  { ...identityRun, day: 30, phase: 'finale' },
+  'protect',
+)
 assert.ok(identityEnding.scene.includes(identityFoe.realName))
 assert.ok(identityEnding.scene.includes(identityFoe.villain.method))
-assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(identityEnding))), identityEnding)
-assert.equal(restoreAcademy({ ...identityRun, opponentSignature: identityRun.signature }), null)
-assert.equal(restoreAcademy({ ...identityRun, opponentSignature: 'unknown-power' }), null)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(identityEnding))),
+  identityEnding,
+)
+assert.equal(
+  restoreAcademy({ ...identityRun, opponentSignature: identityRun.signature }),
+  null,
+)
+assert.equal(
+  restoreAcademy({ ...identityRun, opponentSignature: 'unknown-power' }),
+  null,
+)
 const oldCampaign = { ...identityRun, opponentSignature: undefined }
-assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(oldCampaign))), JSON.parse(JSON.stringify(oldCampaign)))
-assert.ok(!finishAcademy({ ...oldCampaign, day: 30, phase: 'finale' }, 'protect').scene.includes(identityFoe.realName))
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(oldCampaign))),
+  JSON.parse(JSON.stringify(oldCampaign)),
+)
+assert.ok(
+  !finishAcademy(
+    { ...oldCampaign, day: 30, phase: 'finale' },
+    'protect',
+  ).scene.includes(identityFoe.realName),
+)
 
 assert.equal(CAMPAIGN_VILLAINS.length, 8)
 assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 8)

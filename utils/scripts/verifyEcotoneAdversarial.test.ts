@@ -97,6 +97,7 @@ for (const card of allCards) {
       prospect: 'kit',
       openingState: 'sober',
       currentState: 'sober',
+      flags: choice.requiresFlag ? [choice.requiresFlag] : [],
     }
     const passed = chooseBeat(base, choice.id)
     const win = passed.pending?.entry
@@ -187,7 +188,11 @@ function playPersona(plan: Persona): RunState {
     const meetChoice = card.choices.find(
       (choice) => choice.meet === plan.accept,
     )
-    const playable = openingLensChoices(card).filter((choice) => !choice.locked)
+    const playable = openingLensChoices(card).filter(
+      (choice) =>
+        !choice.locked &&
+        (!choice.requiresFlag || state.flags.includes(choice.requiresFlag)),
+    )
     const pick = (plan.seed + plan.strategy * 3 + turns) % playable.length
     const choice = areaChoices.length
       ? areaChoices[plan.area % areaChoices.length]

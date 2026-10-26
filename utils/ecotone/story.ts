@@ -352,7 +352,10 @@ export const BEATS: EncounterCard[] = [
         check: { skill: 'wits', target: 9 },
         success: {
           text: 'Every pass is eleven steps shorter than the last. At the end of the count there is a seam in the air, and through it the fair’s parking lot, deserted and thirty years older.',
-          effects: { evidence: 'A seam in the loop, eleven steps short' },
+          effects: {
+            evidence: 'A seam in the loop, eleven steps short',
+            flag: 'loop_seam_measured',
+          },
         },
         failure: {
           text: 'Your map is flawless. The trail it describes does not exist today. A lost hiker points to the same bend on yesterday’s printed map, where it does exist, with a picnic bench that was demolished years ago. You pin both maps to the notice board. The forest has defeated your directions, not your ability to show somebody else the problem.',
@@ -504,6 +507,36 @@ export const BEATS: EncounterCard[] = [
             alone:
               'There is nobody to ask why. That does not mean you will never regret it.',
           },
+        },
+      },
+      {
+        id: 'seam-survey',
+        label: 'Offer the measured forest seam to both competing groups',
+        requiresFlag: 'loop_seam_measured',
+        cost: 'A joint survey delays both plans, and your measurements must be checked.',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'You show both tables the eleven missing steps. A retired surveyor asks to reproduce the count before anybody redraws a property line. The trail advocates agree to wait for the habitat survey; the restoration group agrees to keep the shortcut open while it is measured. Neither gets a victory speech tonight.',
+          effects: { goodwill: 1, flag: 'forest_joint_survey' },
+        },
+        failure: {
+          text: 'Your demonstration works once, then the loop closes in front of the witnesses. The surveyor refuses to certify a measurement nobody can repeat. Both groups keep their separate maps, but they agree to post a warning instead of selling your uncertain evidence as a solution.',
+          effects: { nerve: -1, flag: 'forest_survey_disputed' },
+        },
+      },
+      {
+        id: 'map-reconciliation',
+        label: 'Negotiate a resurvey of the two contradictory trail maps',
+        requiresFlag: 'loop_wrong_map_posted',
+        cost: 'The permit decision waits; volunteers must do more work before anyone wins.',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'You lay the two wrong maps on the same table. A trail worker, a wildlife volunteer and the buyer each agree to pay for one day of independent mapping. The gate remains undecided. People who disagree about the forest now share responsibility for measuring it.',
+          effects: { goodwill: 1, flag: 'forest_resurvey_agreed' },
+        },
+        failure: {
+          text: 'The buyer will fund the map only if the public group drops its access claim. The volunteers refuse, and you refuse to call that a compromise. The maps stay posted with a clear warning; a safe crossing will have to wait for a less conditional offer.',
+          effects: { nerve: -1, flag: 'forest_resurvey_unfunded' },
         },
       },
     ],

@@ -342,14 +342,14 @@ export function validSocialState(
   if (
     state.partner &&
     (!connections[state.partner]?.helped ||
-      connections[state.partner].trust < 2)
+      (connections[state.partner]?.trust ?? -1) < 2)
   )
     return false
   if (
     state.sidekick &&
     (!SOCIAL_CAST.find((p) => p.id === state.sidekick)?.sidekickEligible ||
       !connections[state.sidekick]?.helped ||
-      connections[state.sidekick].trust < 3)
+      (connections[state.sidekick]?.trust ?? -1) < 3)
   )
     return false
   if (
@@ -368,8 +368,8 @@ export function validSocialState(
     state.romance &&
     (!SOCIAL_CAST.find((p) => p.id === state.romance)?.romanceable ||
       !connections[state.romance]?.romance ||
-      connections[state.romance].trust < 3 ||
-      connections[state.romance].courtingDay === undefined)
+      (connections[state.romance]?.trust ?? -1) < 3 ||
+      connections[state.romance]?.courtingDay === undefined)
   )
     return false
   if (

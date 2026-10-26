@@ -861,8 +861,12 @@ function play(seed: number, plan: Plan) {
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
       openingLensChoices(card).find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
-      card.choices.filter((c) => !c.locked)[
-        pick(card.choices.filter((c) => !c.locked).length)
+      card.choices.filter(
+        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+      )[
+        pick(card.choices.filter(
+        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+      ).length)
       ]
     state = advance(chooseBeat(state, choice?.id ?? ''))
   }
@@ -1582,7 +1586,9 @@ function wildRun(seed: number, wild: boolean, lens: LensId = 'sober') {
       state = chooseCrossroads(state, false)
     else {
       const card = findCard(state.card)!
-      const open = openingLensChoices(card).filter((c) => !c.locked)
+      const open = openingLensChoices(card).filter(
+        (c) => !c.locked && (!c.requiresFlag || state.flags.includes(c.requiresFlag)),
+      )
       const pickChoice =
         open.find((c) => c.lens === lens) ??
         open.find((c) => c.meet === false) ??

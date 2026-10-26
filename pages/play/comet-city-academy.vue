@@ -361,7 +361,8 @@
               ✦ Academy &nbsp; ◆ City &nbsp; · &nbsp;
               {{ run.visitedSites?.length ?? 0 }} locations explored of 24
               <span class="cca-map-trust">
-                ACADEMY {{ run.academyStanding ?? 0 }} · CITY {{ run.cityStanding ?? 0 }}
+                ACADEMY {{ run.academyStanding ?? 0 }} · CITY
+                {{ run.cityStanding ?? 0 }}
               </span>
             </p>
             <div
@@ -378,7 +379,9 @@
                 @click="store.visit(site.id)"
               >
                 <strong>{{ site.name }}</strong>
-                <small>{{ run.visitedSites?.includes(site.id) ? 'EXPLORED' : site.teaser }}</small>
+                <small>{{
+                  run.visitedSites?.includes(site.id) ? 'EXPLORED' : site.teaser
+                }}</small>
               </button>
             </div>
           </template>

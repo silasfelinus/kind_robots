@@ -709,7 +709,7 @@ export const ACT_VIII: Act = {
           {
             id: 'trust',
             label:
-              'Watch her paws, lower your sword and step back. (Sense · 9; fail: wounded, forced fight)',
+              'Watch her paws, lower your sword and step back. (Sense · 9; fail: 3 HP wound)',
             to: 'a8-word-kept',
             check: {
               attribute: 'sense',
@@ -727,7 +727,7 @@ export const ACT_VIII: Act = {
           {
             id: 'strike',
             label:
-              'Close the distance and strike before her paw can move. (Steel · 11; fail: wounded, forced fight)',
+              'Close the distance and strike before her paw can move. (Steel · 11; fail: 3 HP wound)',
             to: 'a8-abbess-down',
             check: {
               attribute: 'steel',

@@ -123,7 +123,7 @@ assert.equal(crossing.length, 1)
 assert.equal(crossing[0]!.landId, 'dustwater')
 assert.equal(crossing[0]!.sourceTurn, intro.turn)
 assert.equal(crossing[0]!.source, 'encounter')
-assert.match(crossing[0]!.text, /she stays to find the families/)
+assert.match(crossing[0]!.text, /She stays to find the families/)
 assert.equal(
   kitchenNoviceQuestEchoesV8(atCrossing, [trial(first, 'coerce')])[0]!.title,
   'A closed book at the ferry',

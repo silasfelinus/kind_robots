@@ -2,14 +2,14 @@
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
-    aria-label="This Means Warp"
+    aria-label="Space Couch"
   >
     <header class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
       <span class="cap-emblem">✧</span
-      ><span class="cap-wordmark">THIS <i>MEANS</i> WARP</span>
+      ><span class="cap-wordmark">SPACE <i>COUCH</i></span>
       <span class="cap-flight">{{
         run
           ? 'SHIP DAY ' +
@@ -35,24 +35,24 @@
       {{ store.storageWarning }}
     </p>
     <div class="cap-layout min-h-0 flex-1">
-      <section class="cap-stage" aria-label="Illustrated bridge and starfield">
+      <section class="cap-stage" aria-label="Long red couch spacecraft protected by an invisible force bubble">
         <img
           class="cap-painting"
-          src="/game-of-captains/bridge-stage.svg"
-          alt="A command bridge looking toward a turbulent nebula, a distant ship and a floating planet"
+          src="/game-of-captains/space-couch-stage.svg"
+          alt="A long crimson couch carries four spacers through a nebula inside a force bubble, with a pocket room unfolding behind its backrest"
         />
         <div class="cap-vignette" aria-hidden="true" />
         <div class="cap-overlay">
           <div class="cap-kicker">
-            STAR COMMAND // INDEPENDENT VESSEL <span>•</span> CREW COMPLEMENT
+            COUCH COMMAND // FORCE BUBBLE // POCKET ROOMS <span>•</span> CREW COMPLEMENT
             UNKNOWN
           </div>
           <template v-if="!run">
             <h2 class="cap-title">
-              THIS <small>MEANS</small><span>WARP</span>
+              SPACE <span>COUCH</span>
             </h2>
             <p class="cap-tagline">
-              One ship. Six captains. Nobody read the mission brief.
+              One long red couch. Six captains. No hull. No problem.
             </p>
           </template>
           <template v-else>
@@ -89,10 +89,9 @@
             <div class="cap-heading">
               <span>01</span>
               <div>
-                <h2>Take the chair</h2>
+                <h2>Claim your cushion</h2>
                 <p>
-                  Select a captain, then appoint your bridge officers. A ship
-                  runs on personalities as much as fuel.
+                  Select a captain, then appoint your bridge officers. The couch runs on personalities as much as fuel.
                 </p>
               </div>
             </div>
@@ -283,7 +282,7 @@
               AWAY: {{ run.away.length }} / 3
               <span
                 >{{ run.crew.length - run.away.length }} officers aboard ·
-                captain on bridge</span
+                captain on couch</span
               >
             </div>
             <button
@@ -604,7 +603,7 @@ const panelLabel = computed(() =>
 )
 
 onMounted(() => store.load())
-useHead({ title: 'This Means Warp | Kind Robots' })
+useHead({ title: 'Space Couch | Kind Robots' })
 
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)

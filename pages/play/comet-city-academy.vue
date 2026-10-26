@@ -136,12 +136,13 @@
               data-testid="academy-identity-preview"
             >
               <summary>
-                <strong>{{ currentIdentity.student.alias }}</strong>
+                <strong>{{ currentIdentity.realName }} · {{ currentIdentity.student.alias }}</strong>
                 <small>
                   HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
                   {{ currentIdentity.villain.alias }}
                 </small>
               </summary>
+              <p class="cca-identity-caveat">{{ currentIdentity.backstory }}</p>
               <div class="cca-identity-triad">
                 <div>
                   <small>STUDENT / SIDEKICK</small>
@@ -159,10 +160,73 @@
                   <p>{{ currentIdentity.villain.method }}</p>
                 </div>
               </div>
-              <p class="cca-identity-caveat">
-                These are possible futures, not a starting allegiance. Bonds,
-                betrayals and choices will determine the transformation.
+              <p class="cca-selection-label">EXPLORE THIS PERSON'S POSSIBLE STORY</p>
+              <div class="cca-storylens-tabs">
+                <button
+                  v-for="viewpoint in viewpointOptions"
+                  :key="viewpoint"
+                  type="button"
+                  class="cca-small"
+                  :aria-pressed="selectedViewpoint === viewpoint"
+                  @click="selectedViewpoint = viewpoint"
+                >
+                  {{ viewpoint === 'protagonist' ? 'PLAY AS' : 'MEET AS NPC' }}
+                </button>
+                <button
+                  v-for="alignment in alignmentOptions"
+                  :key="alignment"
+                  type="button"
+                  class="cca-small"
+                  :aria-pressed="selectedAllegiance === alignment"
+                  @click="selectedAllegiance = alignment"
+                >
+                  {{ alignment === 'hero' ? 'HERO FUTURE' : 'VILLAIN FUTURE' }}
+                </button>
+              </div>
+              <p class="cca-identity-caveat">{{ currentIdentityStory.setup }}</p>
+              <p class="cca-identity-caveat">{{ currentIdentityStory.decision }}</p>
+              <p class="cca-selection-label">RELATIONSHIP PATHS CAN OVERLAP</p>
+              <div class="cca-storylens-tabs">
+                <button
+                  v-for="bond in bondOptions"
+                  :key="bond"
+                  type="button"
+                  class="cca-small"
+                  :aria-pressed="selectedBonds.includes(bond)"
+                  @click="toggleBond(bond)"
+                >
+                  {{ bond.toUpperCase() }}
+                </button>
+              </div>
+              <p
+                v-for="(scene, index) in currentIdentityStory.bondScenes"
+                :key="index"
+                class="cca-identity-caveat"
+              >
+                {{ scene }}
               </p>
+              <p class="cca-identity-caveat">
+                Preview only: the full thirty-day relationship and evolution
+                quests are still in production. Romance is never required to
+                become a hero or save the city.
+              </p>
+            </details>
+            <details class="cca-identity-preview" data-testid="academy-crossover-roster">
+              <summary>VISITORS FROM OTHER WORLDS · {{ GUEST_IDENTITIES.length }}</summary>
+              <article
+                v-for="visitor in GUEST_IDENTITIES"
+                :key="visitor.id"
+                class="cca-crossover"
+              >
+                <strong>{{ visitor.realName }}</strong>
+                <small>{{ visitor.source }} · {{ visitor.signature }}</small>
+                <p>{{ visitor.backstory }}</p>
+                <p>
+                  {{ visitor.student.alias }} → {{ visitor.hero.alias }} /
+                  {{ visitor.villain.alias }}
+                </p>
+                <small>{{ visitor.hero.method }}</small>
+              </article>
             </details>
             <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
             <div class="cca-vow-grid">
@@ -403,7 +467,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
-import { identityFor } from '~/utils/cometAcademy/identityArcs'
+import {
+  identityFor,
+  identityStoryFor,
+  type CharacterViewpoint,
+  type CharacterAllegiance,
+  type CharacterBond,
+} from '~/utils/cometAcademy/identityArcs'
+import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
 import {
   STUDENTS,
   encounterFor,
@@ -423,11 +494,25 @@ const store = useCometAcademyStore()
 const selectedForm = ref<PowerFormId>('impact')
 const selectedElement = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
+const viewpointOptions: CharacterViewpoint[] = ['protagonist', 'antagonist']
+const alignmentOptions: CharacterAllegiance[] = ['hero', 'villain']
+const bondOptions: CharacterBond[] = ['sidekick', 'partner', 'romance']
+const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
+const selectedAllegiance = ref<CharacterAllegiance>('hero')
+const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
 const currentSignature = computed(() =>
   signatureFor(selectedForm.value, selectedElement.value),
 )
 const currentIdentity = computed(() => identityFor(currentSignature.value.id))
+const currentIdentityStory = computed(() =>
+  identityStoryFor(
+    currentIdentity.value,
+    selectedViewpoint.value,
+    selectedAllegiance.value,
+    selectedBonds.value,
+  ),
+)
 const activeVow = computed(() =>
   POWER_VOWS.find((vow) => vow.id === selectedVow.value)!,
 )
@@ -463,6 +548,12 @@ const stageCopy = computed(() =>
 )
 onMounted(() => store.load())
 useHead({ title: 'Capes & Tassels: Prom of Doom | Kind Robots' })
+
+function toggleBond(bond: CharacterBond): void {
+  selectedBonds.value = selectedBonds.value.includes(bond)
+    ? selectedBonds.value.filter((current) => current !== bond)
+    : [...selectedBonds.value, bond]
+}
 
 function teamFor(caseId: string): StudentId[] {
   return (
@@ -821,6 +912,29 @@ function toggleStudent(caseId: string, id: StudentId): void {
 }
 .cca-power-detail small {
   color: #a8b9c6;
+}
+.cca-storylens-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+.cca-storylens-tabs .cca-small[aria-pressed='true'] {
+  border-color: #ffcb96;
+  color: #ffcb96;
+}
+.cca-crossover {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #98b8cc55;
+}
+.cca-crossover strong,
+.cca-crossover small {
+  display: block;
+}
+.cca-crossover p {
+  margin: 0.3rem 0;
+  font-size: 0.69rem;
+  line-height: 1.45;
 }
 .cca-identity-preview {
   padding: 0.65rem;

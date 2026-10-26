@@ -401,7 +401,7 @@
               </div>
             </div>
             <div
-              v-if="stage.mysteryCard"
+              v-if="stage.mysteryCard && game.run.phase !== 'end'"
               class="absolute right-4 top-4 w-20 rotate-3 drop-shadow-xl @xl:w-24 @4xl:right-10 @4xl:top-8 @4xl:w-36"
             >
               <EcotoneMysteryCard :mystery="stage.mysteryCard" compact />
@@ -421,7 +421,7 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-start gap-4 p-4 pt-[calc(32vh+1.25rem)] @xl:p-6 @xl:pt-[calc(32vh+1.5rem)] @4xl:h-full @4xl:grid-cols-[minmax(0,55%)_minmax(0,45%)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:gap-0 @4xl:p-0"
+            class="relative grid min-h-full grid-cols-1 content-start gap-4 p-4 pt-[calc(clamp(13rem,32vh,22rem)+1.25rem)] @xl:p-6 @xl:pt-[calc(clamp(13rem,32vh,22rem)+1.5rem)] @4xl:h-full @4xl:grid-cols-[minmax(0,55%)_minmax(0,45%)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:gap-0 @4xl:p-0"
           >
             <div
               class="flex min-h-0 flex-col gap-3 bg-[#09141c] @4xl:col-start-1 @4xl:row-start-1 @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pt-6"
@@ -2725,7 +2725,7 @@ const options = computed<Option[]>(() => {
       label: event.name,
       hint: `${event.kind}. ${event.blurb}`,
       chip: `${event.days.length} days`,
-      chipTitle: 'Preview this route before committing',
+      chipTitle: 'Choose this route',
       preview: event.arrival,
       possibilities: event.possibilities,
       thumb: { scene: event.scene, art: event.art },

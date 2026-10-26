@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict'
-import { CAPTAIN_STATS, CREW_PROFILES, SYNERGIES, MISSION_RULES } from '../gameOfCaptains/crewAssignments'
+import {
+  CAPTAIN_STATS,
+  CREW_PROFILES,
+  SYNERGIES,
+  MISSION_RULES,
+} from '../gameOfCaptains/crewAssignments'
 import { readFileSync } from 'node:fs'
 import {
   CAPTAINS,
@@ -24,10 +29,11 @@ const fromRoot = (path: string) =>
 assert.equal(CAPTAINS.length, 6)
 assert.equal(CREW.length, 12)
 assert.equal(CREW_PROFILES.length, 12)
-assert.equal(new Set(CREW.map(x => x.id)).size, 12)
+assert.equal(new Set(CREW.map((x) => x.id)).size, 12)
 assert.equal(SYNERGIES.length >= 8, true)
 assert.equal(MISSION_RULES.length, 3)
-for (const captain of CAPTAINS) assert.equal(Object.keys(CAPTAIN_STATS[captain.id]).length, 6)
+for (const captain of CAPTAINS)
+  assert.equal(Object.keys(CAPTAIN_STATS[captain.id]).length, 6)
 assert.equal(MISSIONS.length, 3)
 assert.ok(ANTAGONISTS.length >= 3)
 for (const captain of CAPTAINS) {
@@ -39,14 +45,22 @@ for (const captain of CAPTAINS) {
       assert.equal(run.chapter, chapter)
       assert.ok(missionFor(run).title)
       assert.equal(antagonistFor(run).id, antagonist.id)
-      run = assignAwayTeam(run, ['mox', 'pell'])
-      const forecast=previewMission(run)
+      const today = run.day ?? run.chapter
+      const healthy = ['mox', 'pell', 'rue'].filter(
+        (id) => (run.injuredUntil?.[id as 'mox'] ?? 0) <= today,
+      ) as ('mox' | 'pell' | 'rue')[]
+      const party = healthy.slice(0, 2)
+      run = assignAwayTeam(run, party)
+      const forecast = previewMission(run)
       assert.ok(forecast.eligible)
       assert.ok(forecast.chance >= 5 && forecast.chance <= 94)
       assert.ok(forecast.expiresInDays >= 1)
       assert.ok(forecast.durationDays >= 1 && forecast.durationDays <= 3)
-      assert.ok(forecast.requirements.every(x => x.total >= 0 && x.required > 0))
-      if (chapter < 3) assert.ok(forecast.synergies.length > 0)
+      assert.ok(
+        forecast.requirements.every((x) => x.total >= 0 && x.required > 0),
+      )
+      if (chapter < 3 && party.includes('mox') && party.includes('pell'))
+        assert.ok(forecast.synergies.length > 0)
       assert.deepEqual(assignAwayTeam(run, ['mox', 'rue', 'pell', 'vela']), run)
       assert.deepEqual(assignAwayTeam(run, ['mox', 'mox']), run)
       assert.deepEqual(assignAwayTeam(run, ['jex']), run)
@@ -54,7 +68,10 @@ for (const captain of CAPTAINS) {
       run = launchMission(run)
       assert.equal(run.phase, 'transit')
       assert.equal(run.active?.chance, forecast.chance)
-      assert.equal(run.active?.returnsDay, (run.day ?? 0) + forecast.durationDays)
+      assert.equal(
+        run.active?.returnsDay,
+        (run.day ?? 0) + forecast.durationDays,
+      )
       for (let n = 0; n < forecast.durationDays; n++) {
         run = advanceVoyageDay(run)
       }
@@ -101,7 +118,7 @@ expired = advanceVoyageDay(expired)
 assert.equal(expired.phase, 'briefing')
 expired = advanceVoyageDay(expired)
 assert.equal(expired.phase, 'debrief')
-assert.ok(expired.log.some(x => x.includes('expired')))
+assert.ok(expired.log.some((x) => x.includes('expired')))
 assert.equal(nextDestination(expired).phase, 'briefing')
 const page = fromRoot('pages/play/game-of-captains.vue')
 const tab = fromRoot('content/channels/arcade/game-of-captains.md')

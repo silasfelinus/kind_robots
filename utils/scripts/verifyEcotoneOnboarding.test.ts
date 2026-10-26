@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createRun, restoreRun, chooseBeat, findCard } from '../ecotone/engine'
+import {
+  createRun,
+  restoreRun,
+  chooseBeat,
+  findCard,
+  originPerkAvailable,
+} from '../ecotone/engine'
 import { EVENTS, EVENT_CHOICE } from '../ecotone/story'
 import {
   PLAYER_AVATARS,
@@ -128,6 +134,27 @@ for (const [id, event] of [
     const resolved = chooseBeat(run, option.id)
     assert.notEqual(resolved, run)
     assert.equal(resolved.openingState, option.lens)
+    assert.equal(originPerkAvailable(run, option.id), false)
+    assert.equal(resolved.rolls, run.rolls, 'opening outlooks never roll dice')
+    assert.equal(resolved.pending?.entry.roll, null)
+    assert.ok(
+      [option.success.text, option.failure?.text]
+        .filter(Boolean)
+        .some((text) => resolved.pending?.entry.text.includes(text!)),
+      'opening choice must deliver an authored outcome, not skip its story',
+    )
+    if (option.check) {
+      const later = chooseBeat(
+        {
+          ...run,
+          openingState: 'sober' as const,
+          currentState: 'sober' as const,
+        },
+        option.id,
+      )
+      assert.equal(later.rolls, run.rolls + 1, 'later skill tests still roll')
+      assert.ok(later.pending?.entry.roll)
+    }
     assert.equal(
       restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState,
       option.lens,
@@ -169,6 +196,7 @@ assert.ok(
   !board.includes('grid grid-cols-6 gap-1.5'),
   'emoji-only selection grid was retired',
 )
+assert.match(board, /Opening choice · No roll/)
 assert.match(board, /Confirm your decision/)
 assert.match(board, /Change my mind/)
 assert.match(board, /Undo last decision/)

@@ -195,15 +195,28 @@ function playPersona(plan: Persona): RunState {
     assert.ok(choice && !choice.locked, 'personas cannot take locked options')
     const pending = chooseBeat(state, choice.id)
     assert.ok(pending.pending, 'choice must resolve, never silently do nothing')
-    assert.equal(
-      pending.pending.entry.art,
-      outcomeArtKey(
-        card.id,
-        choice.id,
-        pending.pending.entry.roll?.success === false ? 'failure' : 'success',
-      ),
-      'each actual result must point to its own art slot',
-    )
+    if (choice.lens && !state.openingState) {
+      assert.equal(pending.pending.entry.roll, null)
+      assert.ok(
+        [
+          outcomeArtKey(card.id, choice.id, 'success'),
+          ...(choice.failure
+            ? [outcomeArtKey(card.id, choice.id, 'failure')]
+            : []),
+        ].includes(pending.pending.entry.art ?? ''),
+        'a seeded opening surprise must use its authored outcome art',
+      )
+    } else {
+      assert.equal(
+        pending.pending.entry.art,
+        outcomeArtKey(
+          card.id,
+          choice.id,
+          pending.pending.entry.roll?.success === false ? 'failure' : 'success',
+        ),
+        'each checked result must point to its own art slot',
+      )
+    }
     state = advance(pending)
   }
   assert.ok(state.ending && ENDING_IDS.includes(state.ending))

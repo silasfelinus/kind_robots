@@ -775,6 +775,7 @@ export function originPerkAvailable(
   const choice =
     card && openingLensChoices(card).find((item) => item.id === choiceId)
   if (!card || !choice || choice.locked) return false
+  if (choice.lens && !state.openingState) return false
   if ((state.perkUsedChapters ?? []).includes(card.chapter)) return false
   const skill = choice.check?.skill
   switch (state.archetype) {
@@ -830,10 +831,23 @@ export function chooseBeat(
           ],
     }
   }
+  // Picking an opening perspective is a story decision, not a skill test.
+  // Subsequent checked decisions still use the seeded 2d6 roll.
+  const establishesPerspective = Boolean(choice.lens && !state.openingState)
   let roll: Roll | null = null
   let outcome: Outcome = choice.success
   let result: OutcomeResult = 'success'
-  if (choice.check) {
+  // The opening has no skill roll, but its seeded story variation keeps
+  // authored complications, outcome art, and future callbacks reachable.
+  if (
+    establishesPerspective &&
+    choice.failure &&
+    (state.seed + card.id.length + choice.id.length) % 4 === 0
+  ) {
+    outcome = choice.failure
+    result = 'failure'
+  }
+  if (choice.check && !establishesPerspective) {
     const perkBonus = !usesPerk
       ? 0
       : state.archetype === 'mechanic' || state.archetype === 'dealer'

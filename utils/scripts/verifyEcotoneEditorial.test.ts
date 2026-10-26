@@ -243,7 +243,7 @@ for (const [cardId, choiceId, expectedFlag, scene] of [
 }
 
 const elkMeadow = findCard('QW-4')!
-let foundBenchFailure = false
+let foundBenchComplication = false
 for (let seed = 1; seed <= 128; seed += 1) {
   const start: RunState = {
     ...createRun(seed, 'reporter'),
@@ -252,9 +252,9 @@ for (let seed = 1; seed <= 128; seed += 1) {
     card: 'QW-2',
   }
   const result = chooseBeat(start, 'sober')
-  if (result.log[0]?.roll?.success !== false) continue
-  foundBenchFailure = true
-  assert.ok(result.flags.includes('bench_tally_erased'))
+  if (!result.flags.includes('bench_tally_erased')) continue
+  foundBenchComplication = true
+  assert.equal(result.log[0]?.roll, null, 'opening twists are not skill checks')
   assert.ok(result.nerve < start.nerve)
   assert.match(
     cardAsides(elkMeadow, result).join(' '),
@@ -269,6 +269,6 @@ for (let seed = 1; seed <= 128; seed += 1) {
   break
 }
 assert.ok(
-  foundBenchFailure,
-  'the sober bench has an actual losing-roll witness',
+  foundBenchComplication,
+  'the sober bench has a reachable authored complication without a skill roll',
 )

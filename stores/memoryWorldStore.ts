@@ -58,6 +58,15 @@ import {
 } from '~/utils/memoryDungeon/darkBriar'
 import { computed, ref, watch } from 'vue'
 import {
+  newEarthChronicle,
+  restoreEarthChronicle,
+  reconcileEarthChronicle,
+  respondToEarthPhoto,
+  recoveredEarthPhotos,
+  type EarthChronicle,
+  type PhotoResponse,
+} from '~/utils/memoryDungeon/chronicle'
+import {
   coordinate,
   provenCells,
   type Cell as MineCell,
@@ -137,6 +146,7 @@ const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
 const REALITY_KEY = 'memoryDungeonRealityV1'
 const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
 const DARK_HOUSE_KEY = 'memoryDungeonDarkHouseV1'
+const EARTH_CHRONICLE_KEY = 'memoryDungeonEarthChronicleV1'
 const CROSS_MAP_SEALS_KEY = 'memoryDungeonCrossMapSealsV1'
 
 function shuffle<T>(list: T[]): T[] {
@@ -162,6 +172,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const minefieldBoard = computed(() =>
     state.value.minefield ? playMinefieldRun(state.value.minefield) : null,
   )
+  const earthChronicle = ref<EarthChronicle>(newEarthChronicle())
+  const earthPhotos = computed(() => recoveredEarthPhotos(earthChronicle.value))
   const campaign = ref<MemoryCampaignProgress>(newMemoryCampaignProgress())
   const activeReality = ref<'e01' | 'e02'>('e01')
   const dark = ref<DarkBriarProgress>(newDarkBriarProgress())
@@ -416,6 +428,35 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     () => state.value.cards.filter((card) => card.matched).length / 2,
   )
 
+  function persistEarthChronicle(): void {
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(
+        EARTH_CHRONICLE_KEY,
+        JSON.stringify(earthChronicle.value),
+      )
+    } catch {
+      // Keep playable progress even in browsers without durable storage.
+    }
+  }
+
+  function syncEarthChronicle(): void {
+    const next = reconcileEarthChronicle(earthChronicle.value, {
+      e01: state.value.sceneChoices,
+      e02: dark.value.sceneChoices,
+    })
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
+  function answerEarthPhoto(id: string, response: PhotoResponse): void {
+    const next = respondToEarthPhoto(earthChronicle.value, id, response)
+    if (next === earthChronicle.value) return
+    earthChronicle.value = next
+    persistEarthChronicle()
+  }
+
   function persistReality(): void {
     if (!import.meta.client) return
     try {
@@ -550,6 +591,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       } catch {
         darkHouse.value = newDarkHouseProgress()
       }
+      try {
+        const recorded = window.localStorage.getItem(EARTH_CHRONICLE_KEY)
+        earthChronicle.value = restoreEarthChronicle(
+          recorded ? JSON.parse(recorded) : null,
+        )
+      } catch {
+        earthChronicle.value = newEarthChronicle()
+      }
+      // Pre-Chronicle save compatibility: old scene choices already earned
+      // the photograph, even when the journal did not exist yet.
+      syncEarthChronicle()
       if (state.value.gateOpened) grantBriarCompletion()
       if (
         dark.value.completed &&
@@ -866,6 +918,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
+    syncEarthChronicle()
     if (next.completed && !campaign.value.completed.includes('e02')) {
       campaign.value = completeMemoryExperience(campaign.value, 'e02')
     }
@@ -1143,6 +1196,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.wildflowers += choice.gain?.wildflowers ?? 0
     state.value.lanterns += choice.gain?.lanterns ?? 0
     state.value.sceneChoices[key] = choice.id
+    syncEarthChronicle()
     if (
       choice.settleDuel &&
       BRIAR_SITES[key]?.kind === 'enemy' &&
@@ -1786,6 +1840,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   return {
     state,
     campaign,
+    earthChronicle,
+    earthPhotos,
+    answerEarthPhoto,
     activeReality,
     dark,
     darkHouse,

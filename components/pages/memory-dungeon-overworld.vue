@@ -51,6 +51,17 @@
       </span>
       <button
         type="button"
+        class="shrink-0 rounded-lg border border-[#c7ac7a] bg-[#4d3e32] px-2 py-1.5 text-xs font-bold text-[#f8eaca] hover:bg-[#635044] focus-visible:outline-2 focus-visible:outline-[#ffe7ad]"
+        :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
+        data-testid="memory-earth-chronicle-open"
+        @click="chronicleOpen = true"
+      >
+        <span aria-hidden="true">◫</span>
+        <span class="hidden sm:inline">Chronicle</span>
+        <span class="font-mono">{{ world.earthPhotos.length }}</span>
+      </button>
+      <button
+        type="button"
         class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
         aria-label="Choose gallery and game settings"
         @click="settingsOpen = !settingsOpen"
@@ -65,6 +76,11 @@
         Menu
       </button>
     </header>
+
+    <memory-dungeon-earth-chronicle
+      v-if="chronicleOpen"
+      @close="chronicleOpen = false"
+    />
 
     <div
       v-if="settingsOpen"
@@ -643,22 +659,15 @@
                   </button>
                 </template>
               </div>
-              <details
-                v-if="recoveredPhotos.length"
-                class="mt-2 rounded-lg border border-[#a68958]/80 bg-[#f8e8cb] px-2 py-1 text-xs"
+              <button
+                v-if="world.earthPhotos.length"
+                type="button"
+                class="mt-2 rounded-lg border border-[#a68958]/80 bg-[#f8e8cb] px-3 py-2 text-xs font-bold text-[#4c3928] hover:bg-[#e6d0ad]"
+                @click="chronicleOpen = true"
               >
-                <summary class="cursor-pointer font-bold">
-                  Earth Chronicle · {{ recoveredPhotos.length }}/2 photographs
-                </summary>
-                <div
-                  v-for="photo in recoveredPhotos"
-                  :key="photo.key"
-                  class="mt-2 border-t border-[#bda47b] pt-2"
-                >
-                  <strong>{{ photo.order }}. {{ photo.title }}</strong>
-                  <p class="mt-1">{{ photo.caption }}</p>
-                </div>
-              </details>
+                Open the Earth Chronicle ·
+                {{ world.earthPhotos.length }} fragments
+              </button>
             </div>
           </div>
           <p
@@ -831,7 +840,6 @@ import {
   BRIAR_WAVE_SIZES,
 } from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
-import { firstWorldPhotoChronicle } from '~/utils/memoryDungeon/chronicle'
 import {
   MEMORY_CARD_BACKS,
   memoryCardBackPath,
@@ -841,13 +849,12 @@ import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 import MemoryDungeonHouseStage from '~/components/memory-dungeon/house-stage.vue'
 import MemoryDungeonMinefieldStage from '~/components/memory-dungeon/minefield-stage.vue'
+import MemoryDungeonEarthChronicle from '~/components/memory-dungeon/earth-chronicle.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
-const recoveredPhotos = computed(() =>
-  firstWorldPhotoChronicle(world.state.sceneChoices),
-)
+const chronicleOpen = ref(false)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =

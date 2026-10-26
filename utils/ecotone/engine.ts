@@ -36,7 +36,7 @@ import {
   NEW_LENS_CODAS,
 } from './finaleExpansion'
 import { applyCardEdit, newBeatCard, type CardEdit } from '../playbook/edits'
-import { openingLensChoices } from './openingLensChoices'
+import { contextualOpeningChoices } from './sceneOffers'
 import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
   momentPerspective,
@@ -773,7 +773,7 @@ export function originPerkAvailable(
   if (state.phase !== 'beat' || state.pending) return false
   const card = findCard(state.card)
   const choice =
-    card && openingLensChoices(card).find((item) => item.id === choiceId)
+    card && contextualOpeningChoices(card, state).find((item) => item.id === choiceId)
   if (!card || !choice || choice.locked) return false
   if (choice.lens && !state.openingState) return false
   if ((state.perkUsedChapters ?? []).includes(card.chapter)) return false
@@ -807,7 +807,7 @@ export function chooseBeat(
 ): RunState {
   if (state.phase !== 'beat' || state.pending) return state
   const card = findCard(state.card)
-  const choice = card && openingLensChoices(card).find((c) => c.id === choiceId)
+  const choice = card && contextualOpeningChoices(card, state).find((c) => c.id === choiceId)
   if (!card || !choice || choice.locked) return state
   const usesPerk = spendOriginPerk && originPerkAvailable(state, choiceId)
   let next: RunState = state

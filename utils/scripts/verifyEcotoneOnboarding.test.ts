@@ -140,7 +140,11 @@ for (const [id, event] of [
     assert.equal(resolved.pending?.entry.text, option.success.text)
     if (option.check) {
       const later = chooseBeat(
-        { ...run, openingState: 'sober' as const, currentState: 'sober' as const },
+        {
+          ...run,
+          openingState: 'sober' as const,
+          currentState: 'sober' as const,
+        }
         option.id,
       )
       assert.equal(later.rolls, run.rolls + 1, 'later skill tests still roll')

@@ -221,7 +221,11 @@ const walkTo = (initial: RunState, target: string): RunState => {
 }
 
 const newGameWitnesses: Record<string, number> = {}
-for (let seed = 1; seed <= 100 && Object.keys(newGameWitnesses).length < 2; seed++) {
+for (
+  let seed = 1;
+  seed <= 100 && Object.keys(newGameWitnesses).length < 2;
+  seed++
+) {
   const start = advance(chooseEvent(createRun(seed, 'reporter'), 'green-ribbon'))
   const forest = walkTo(start, 'GR-4')
   const result = chooseBeat(forest, 'slug')

@@ -4,6 +4,7 @@ import {
   projectCitySites,
   projectedCityRoads,
 } from '../cometAcademy/cityMap'
+import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
@@ -138,6 +139,23 @@ for (const seed of [1, 7, 24, 999]) {
   assert.ok(deck.includes('A Visitor from the Stars'))
 }
 assert.equal(ENCOUNTERS.length, 7)
+assert.equal(Object.keys(REAL_NIGHT_CASES).length, INCIDENTS.length)
+for (const incident of INCIDENTS) {
+  const realCase = realNightCase(incident.id)
+  assert.ok(realCase, `Missing real-night branch for ${incident.id}`)
+  assert.ok(realCase.briefing.length > 80)
+  for (const grade of ['honors', 'pass', 'partial', 'failed'] as const)
+    assert.ok(realCase.consequences[grade].length > 90)
+  assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
+}
+for (const seed of [1, 15, 900]) {
+  let realRun = { ...startAcademy('kinetic', seed), day: 3, phase: 'dispatch' as const }
+  for (const [index, incident] of incidentsFor(realRun).entries())
+    realRun = assignTeam(realRun, incident.id, index === 0 ? ['mina'] : ['sol'])
+  const finished = resolveDispatch(realRun)
+  assert.equal(finished.phase, 'debrief')
+  assert.ok(finished.reports.every((report) => Object.values(realNightCase(report.caseId)!.consequences).includes(report.text)))
+}
 for (const visitorAlignment of ['ally', 'opponent'] as const) {
   let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
   for (let day = 1; day <= 7; day++) {

@@ -818,7 +818,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'heron-ledger',
-        label: 'Compare the marsh heron record with the ranger’s elk observations',
+        label:
+          'Compare the marsh heron record with the ranger’s elk observations',
         requiresFlag: 'bench_heron_photo_match',
         cost: 'Spend the afternoon documenting wildlife instead of watching the meadow.',
         check: { skill: 'lore', target: 9 },
@@ -833,7 +834,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'tally-witness',
-        label: 'Ask the ranger to preserve witness notes after the erased marsh tally',
+        label:
+          'Ask the ranger to preserve witness notes after the erased marsh tally',
         requiresFlag: 'bench_tally_erased',
         cost: 'Give up the quiet watch to recruit independent witnesses and a record keeper.',
         check: { skill: 'rizz', target: 9 },

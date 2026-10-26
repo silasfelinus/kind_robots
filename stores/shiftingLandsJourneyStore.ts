@@ -65,7 +65,6 @@ import {
 } from '~/utils/shiftingLands/trialRulesV7'
 import { trialForLandV8 } from '~/utils/shiftingLands/trialRulesV8'
 import {
-  newJourneyLedgerV8,
   restoreJourneyLedgerV8,
   stepJourneyLedgerV8,
   type JourneyLedgerV8,

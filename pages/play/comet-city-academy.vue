@@ -131,11 +131,17 @@
                 {{ currentSignature.special_route.trigger }}
               </p>
             </div>
-            <div
+            <details
               class="cca-identity-preview"
               data-testid="academy-identity-preview"
             >
-              <p class="cca-selection-label">ONE STUDENT · THREE POSSIBLE LIVES</p>
+              <summary>
+                <strong>{{ currentIdentity.student.alias }}</strong>
+                <small>
+                  HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
+                  {{ currentIdentity.villain.alias }}
+                </small>
+              </summary>
               <div class="cca-identity-triad">
                 <div>
                   <small>STUDENT / SIDEKICK</small>
@@ -157,7 +163,7 @@
                 These are possible futures, not a starting allegiance. Bonds,
                 betrayals and choices will determine the transformation.
               </p>
-            </div>
+            </details>
             <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
             <div class="cca-vow-grid">
               <button
@@ -824,6 +830,16 @@ function toggleStudent(caseId: string, id: StudentId): void {
   border-radius: 0.7rem;
   background: #121e32b8;
 }
+.cca-identity-preview summary {
+  cursor: pointer;
+  color: #ffe0b9;
+  font-size: 0.78rem;
+}
+.cca-identity-preview summary small {
+  display: block;
+  color: #b2d5cb;
+  font-size: 0.66rem;
+}
 .cca-identity-triad {
   display: grid;
   gap: 0.55rem;
@@ -853,11 +869,7 @@ function toggleStudent(caseId: string, id: StudentId): void {
   margin-top: 0.65rem;
   color: #b2d5cb;
 }
-@media (min-width: 760px) {
-  .cca-identity-triad {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+
 .cca-primary {
   width: 100%;
   min-height: 2.9rem;

@@ -9,12 +9,19 @@ export default defineEventHandler(async (event) => {
     await requireAdminApiUser(event)
     const query = getQuery(event)
     const game = typeof query.game === 'string' ? query.game : undefined
-    const stars = typeof query.stars === 'string' ? Number(query.stars) : undefined
+    const stars =
+      typeof query.stars === 'string' ? Number(query.stars) : undefined
     if (game && !REVIEW_GAME_SLUGS.some((slug) => slug === game))
       throw createError({ statusCode: 400, message: 'Unknown game.' })
-    if (stars !== undefined && (!Number.isInteger(stars) || stars < 1 || stars > 5))
+    if (
+      stars !== undefined &&
+      (!Number.isInteger(stars) || stars < 1 || stars > 5)
+    )
       throw createError({ statusCode: 400, message: 'Invalid star filter.' })
-    const count = Math.max(1, Math.min(100, Math.trunc(Number(query.take) || 40)))
+    const count = Math.max(
+      1,
+      Math.min(100, Math.trunc(Number(query.take) || 40)),
+    )
     const rows = await prisma.playbookRunReview.findMany({
       where: {
         ...(game ? { gameSlug: game } : {}),
@@ -23,8 +30,13 @@ export default defineEventHandler(async (event) => {
       orderBy: { createdAt: 'desc' },
       take: count,
       select: {
-        id: true, gameSlug: true, endingKey: true, stars: true,
-        comment: true, history: true, createdAt: true,
+        id: true,
+        gameSlug: true,
+        endingKey: true,
+        stars: true,
+        comment: true,
+        history: true,
+        createdAt: true,
       },
     })
     return {

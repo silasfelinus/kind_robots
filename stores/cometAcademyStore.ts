@@ -61,7 +61,10 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     vow?: PowerVowId,
   ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
-    usePlaybookRunReviewStore().begin('comet-city-academy', playbookRunKey(run.value))
+    usePlaybookRunReviewStore().begin(
+      'comet-city-academy',
+      playbookRunKey(run.value),
+    )
     persist()
   }
 

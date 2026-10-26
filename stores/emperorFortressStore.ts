@@ -386,7 +386,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function newRun() {
     if (!loaded.value) load()
     book.value = newBook(createRun(newSeed(), equippedRelics()))
-    usePlaybookRunReviewStore().begin('emperor-of-dust', playbookRunKey(book.value.current))
+    usePlaybookRunReviewStore().begin(
+      'emperor-of-dust',
+      playbookRunKey(book.value.current),
+    )
     lastReport.value = null
     lastResponse.value = ''
     lastLearned.value = []

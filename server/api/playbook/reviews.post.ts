@@ -1,4 +1,10 @@
-import { createError, defineEventHandler, getHeader, getRequestIP, readBody } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getHeader,
+  getRequestIP,
+  readBody,
+} from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
@@ -11,20 +17,30 @@ export default defineEventHandler(async (event) => {
     const origin = getHeader(event, 'origin')
     const host = getHeader(event, 'host')
     if (origin && host && new URL(origin).host !== host)
-      throw createError({ statusCode: 403, message: 'Reviews must originate on this site.' })
+      throw createError({
+        statusCode: 403,
+        message: 'Reviews must originate on this site.',
+      })
     const length = Number(getHeader(event, 'content-length') ?? 0)
     if (length > 1500000)
-      throw createError({ statusCode: 413, message: 'Review exceeds the size limit.' })
+      throw createError({
+        statusCode: 413,
+        message: 'Review exceeds the size limit.',
+      })
     const ip = getRequestIP(event) ?? 'unknown'
     const now = Date.now()
     const previous = attempts.get(ip)
-    const attempt = previous && previous.until > now
-      ? { count: previous.count + 1, until: previous.until }
-      : { count: 1, until: now + 3600000 }
+    const attempt =
+      previous && previous.until > now
+        ? { count: previous.count + 1, until: previous.until }
+        : { count: 1, until: now + 3600000 }
     attempts.set(ip, attempt)
     if (attempts.size > 2000) attempts.clear()
     if (attempt.count > 30)
-      throw createError({ statusCode: 429, message: 'Review rate limit reached.' })
+      throw createError({
+        statusCode: 429,
+        message: 'Review rate limit reached.',
+      })
 
     let payload: ReturnType<typeof validateRunReview>
     try {
@@ -37,7 +53,9 @@ export default defineEventHandler(async (event) => {
     }
     const auth = await getOptionalApiUser(event)
     const review = await prisma.playbookRunReview.upsert({
-      where: { gameSlug_runId: { gameSlug: payload.game, runId: payload.runId } },
+      where: {
+        gameSlug_runId: { gameSlug: payload.game, runId: payload.runId },
+      },
       create: {
         gameSlug: payload.game,
         runId: payload.runId,
@@ -50,7 +68,12 @@ export default defineEventHandler(async (event) => {
       update: {},
       select: { id: true, createdAt: true },
     })
-    return { success: true, data: review, message: 'Review recorded.', statusCode: 200 }
+    return {
+      success: true,
+      data: review,
+      message: 'Review recorded.',
+      statusCode: 200,
+    }
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500

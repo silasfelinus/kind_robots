@@ -793,7 +793,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     controls: 'Flippers, plunge, nudge (engineering preview)',
     renderMode: 'webgl',
     touchLayout: 'pinball',
-  },,
+  }
 ]
 
 export type ComingSoonCabinet = {

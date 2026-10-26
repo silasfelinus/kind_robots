@@ -57,7 +57,11 @@ import {
   type DarkBriarProgress,
 } from '~/utils/memoryDungeon/darkBriar'
 import { computed, ref, watch } from 'vue'
-import { coordinate, provenCells, type Cell as MineCell } from '~/utils/memoryDungeon/minefield'
+import {
+  coordinate,
+  provenCells,
+  type Cell as MineCell,
+} from '~/utils/memoryDungeon/minefield'
 import {
   advanceMinefieldRun,
   createMinefieldRun,
@@ -152,8 +156,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
   const minefieldActive = ref(false)
-  const minefieldHint = ref<{ cell: MineCell; type: 'safe' | 'hazard' } | null>(null)
-  const minefieldBoard = computed(() => state.value.minefield ? playMinefieldRun(state.value.minefield) : null)
+  const minefieldHint = ref<{ cell: MineCell; type: 'safe' | 'hazard' } | null>(
+    null,
+  )
+  const minefieldBoard = computed(() =>
+    state.value.minefield ? playMinefieldRun(state.value.minefield) : null,
+  )
   const campaign = ref<MemoryCampaignProgress>(newMemoryCampaignProgress())
   const activeReality = ref<'e01' | 'e02'>('e01')
   const dark = ref<DarkBriarProgress>(newDarkBriarProgress())
@@ -1178,15 +1186,27 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   /** Rare logic chamber at the Three Quiet Stones. The core map keeps its IDs. */
   function openMinefield(size: MinefieldSize): void {
-    if (activeReality.value !== 'e01' || state.value.room !== 'map'
-      || state.value.wavePhase !== 'exploring'
-      || state.value.player !== MINEFIELD_SITE || !state.value.puzzleSolved
-      || (size === 10 && state.value.waveIndex < 2)) return
+    if (
+      activeReality.value !== 'e01' ||
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      state.value.player !== MINEFIELD_SITE ||
+      !state.value.puzzleSolved ||
+      (size === 10 && state.value.waveIndex < 2)
+    )
+      return
     const previous = state.value.minefield
-    if (!previous || previous.size !== size || playMinefieldRun(previous).outcome !== 'exploring') {
+    if (
+      !previous ||
+      previous.size !== size ||
+      playMinefieldRun(previous).outcome !== 'exploring'
+    ) {
       const round = Math.min(999, state.value.minefieldRound + 1)
       state.value.minefieldRound = round
-      state.value.minefield = createMinefieldRun(73013 + round * 67 + state.value.waveIndex * 997, size)
+      state.value.minefield = createMinefieldRun(
+        73013 + round * 67 + state.value.waveIndex * 997,
+        size,
+      )
     }
     minefieldHint.value = null
     minefieldActive.value = true
@@ -1207,21 +1227,28 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         state.value.completedEncounters.push(rewardKey)
         state.value.lanterns += 1
         state.value.wildflowers += next.size === 10 ? 2 : 1
-        state.value.status = 'The archive door yields. You earn a lantern and flowers; the finding is remembered.'
+        state.value.status =
+          'The archive door yields. You earn a lantern and flowers; the finding is remembered.'
       } else {
-        state.value.status = 'The archive opens again, but a remembered treasure cannot be collected twice.'
+        state.value.status =
+          'The archive opens again, but a remembered treasure cannot be collected twice.'
       }
     } else if (board?.outcome === 'defeated') {
-      state.value.status = 'The thorns return you to the entrance. Your discoveries remain; the chamber can be retried.'
+      state.value.status =
+        'The thorns return you to the entrance. Your discoveries remain; the chamber can be retried.'
     }
     persist()
   }
 
   /** A lantern lights one logically proven cell, never a secret hazard. */
   function requestMinefieldHint(): void {
-    if (!minefieldActive.value || !minefieldBoard.value
-      || minefieldBoard.value.outcome !== 'exploring'
-      || state.value.lanterns < 1) return
+    if (
+      !minefieldActive.value ||
+      !minefieldBoard.value ||
+      minefieldBoard.value.outcome !== 'exploring' ||
+      state.value.lanterns < 1
+    )
+      return
     const known = provenCells(minefieldBoard.value)
     const safe = known.safe[0]
     const hazard = known.hazards[0]

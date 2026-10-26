@@ -2326,7 +2326,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'search',
-            label: 'Break the loan term. Search the cases in front of the driver.',
+            label:
+              'Break the loan term. Search the cases in front of the driver.',
             effects: {
               local: { ledger: -2, 'gate-watch': 2 },
               flags: ['d09-ledger-cart-searched'],
@@ -2360,7 +2361,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'escort',
-                label: 'Pay ten brass for a Watch escort. Let the medicine through, but witness every signature.',
+                label:
+                  'Pay ten brass for a Watch escort. Let the medicine through, but witness every signature.',
                 requires: { cost: 10 },
                 effects: {
                   local: { ledger: -1, 'gate-watch': 1, yard: 1 },
@@ -2371,7 +2373,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'search',
-                label: 'Search the cases anyway. A signature cannot blind the Watch.',
+                label:
+                  'Search the cases anyway. A signature cannot blind the Watch.',
                 effects: {
                   local: { ledger: -2, 'gate-watch': 2 },
                   flags: ['d09-ledger-cart-searched'],
@@ -2381,7 +2384,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'pass',
-                label: 'Keep the loan bargain. The medicine must reach the sick today.',
+                label:
+                  'Keep the loan bargain. The medicine must reach the sick today.',
                 effects: {
                   local: { ledger: 2, 'gate-watch': -2 },
                   flags: ['d09-ledger-cart-passed'],
@@ -2420,7 +2424,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'file-list',
-            label: 'Give the list to the Watch. A hidden gate cannot stay hidden.',
+            label:
+              'Give the list to the Watch. A hidden gate cannot stay hidden.',
             effects: {
               local: { 'gate-watch': 2, yard: -2 },
               flags: ['d09-postern-list-filed'],
@@ -2430,7 +2435,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'burn-list',
-            label: 'Burn the list. No one goes to the stocks for carrying bread.',
+            label:
+              'Burn the list. No one goes to the stocks for carrying bread.',
             effects: {
               local: { yard: 2, 'gate-watch': -2 },
               flags: ['d09-postern-list-burned'],
@@ -2455,7 +2461,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'take-blame',
-                label: 'Sign the sheet yourself. Make the Watch answer to the crown, not the boy.',
+                label:
+                  'Sign the sheet yourself. Make the Watch answer to the crown, not the boy.',
                 effects: {
                   local: { 'gate-watch': -1, yard: 1 },
                   flags: ['d09-postern-crown-witness'],
@@ -2465,7 +2472,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'file-list',
-                label: 'Give the Watch the names, including his. No more secret passages.',
+                label:
+                  'Give the Watch the names, including his. No more secret passages.',
                 effects: {
                   local: { 'gate-watch': 2, yard: -2 },
                   flags: ['d09-postern-list-filed'],
@@ -2475,7 +2483,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'burn-list',
-                label: 'Burn the list and order the Watch to guard the postern, not the bread.',
+                label:
+                  'Burn the list and order the Watch to guard the postern, not the bread.',
                 effects: {
                   local: { yard: 2, 'gate-watch': -2 },
                   flags: ['d09-postern-list-burned'],

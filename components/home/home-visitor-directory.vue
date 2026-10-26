@@ -32,97 +32,97 @@
         class="visitor-pane visitor-featured min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100/95 p-3"
         :class="activeSection === 'featured' ? 'flex' : 'hidden'"
       >
-        <section
-          aria-labelledby="visitor-hero-title"
-          class="visitor-hero relative mb-2 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-neutral text-neutral-content"
-        >
-          <img
-            src="/crystal-street/cover.webp"
-            alt=""
-            class="visitor-hero-art absolute inset-0 h-full w-full object-cover"
-          />
-          <div
-            class="visitor-hero-shade absolute inset-0 bg-linear-to-r from-neutral via-neutral/85 to-neutral/40"
-          />
-          <div class="visitor-hero-copy relative flex flex-col gap-1.5 p-3">
-            <h2
-              id="visitor-hero-title"
-              class="font-serif text-base font-black leading-tight"
-            >
-              Free handmade games and stories. No ads, no account needed.
-            </h2>
-            <p class="text-xs leading-snug opacity-85">
-              Kind Robots raises money for the Against Malaria Foundation.
-            </p>
-            <div class="mt-0.5 flex flex-wrap gap-2">
-              <NuxtLink
-                to="/play/crystal-street"
-                class="btn btn-primary btn-sm rounded-xl"
-              >
-                <icon name="kind-icon:play" class="h-4 w-4" />
-                Play Terrors on Crystal Street
-              </NuxtLink>
-              <a
-                href="https://www.againstmalaria.com/amibot"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-outline btn-sm rounded-xl border-neutral-content/60 text-neutral-content hover:border-neutral-content hover:bg-neutral-content hover:text-neutral"
-              >
-                <icon name="kind-icon:hand-heart" class="h-4 w-4" />
-                Give to fight malaria
-                <span aria-hidden="true">↗</span>
-                <span class="sr-only">(opens in a new tab)</span>
-              </a>
-            </div>
-          </div>
-        </section>
-        <header
-          class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
-        >
-          <div>
-            <h2 class="font-serif text-lg font-black">Featured experiences</h2>
-            <p class="text-xs opacity-65">A handpicked tour of Kind Robots</p>
-          </div>
-          <div class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
-            <button
-              v-if="admin"
-              type="button"
-              class="text-xs font-bold text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-              @click="$emit('openDashboard')"
-            >
-              Admin dashboard →
-            </button>
-            <NuxtLink
-              to="/navigation"
-              class="text-xs font-bold text-primary hover:underline"
-            >
-              All destinations →
-            </NuxtLink>
-          </div>
-        </header>
-        <div
-          class="mb-2 flex shrink-0 flex-wrap gap-1"
-          aria-label="Filter experiences"
-        >
-          <button
-            v-for="filter in categories"
-            :key="filter.key"
-            type="button"
-            class="rounded-full border px-3 py-1 text-xs font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-            :class="
-              selectedCategory === filter.key
-                ? 'border-primary bg-primary text-primary-content'
-                : 'border-base-300 bg-base-200 hover:border-primary/60'
-            "
-            :aria-pressed="selectedCategory === filter.key"
-            @click="selectedCategory = filter.key"
+        <div class="kr-pane-scroll min-h-0 pr-1">
+          <section
+            aria-labelledby="visitor-hero-title"
+            class="visitor-hero relative mb-2 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-neutral text-neutral-content"
           >
-            {{ filter.label }}
-          </button>
-        </div>
-        <div class="kr-pane-scroll pr-1">
+            <img
+              src="/crystal-street/cover.webp"
+              alt=""
+              class="visitor-hero-art absolute inset-0 h-full w-full object-cover"
+            />
+            <div
+              class="visitor-hero-shade absolute inset-0 bg-linear-to-r from-neutral via-neutral/85 to-neutral/40"
+            />
+            <div class="visitor-hero-copy relative flex flex-col gap-1.5 p-3">
+              <h2
+                id="visitor-hero-title"
+                class="font-serif text-base font-black leading-tight"
+              >
+                Free handmade games and stories. No ads, no account needed.
+              </h2>
+              <p class="text-xs leading-snug opacity-85">
+                Kind Robots raises money for the Against Malaria Foundation.
+              </p>
+              <div class="mt-0.5 flex flex-wrap gap-2">
+                <NuxtLink
+                  to="/play/crystal-street"
+                  class="btn btn-primary btn-sm rounded-xl"
+                >
+                  <icon name="kind-icon:play" class="h-4 w-4" />
+                  Play Terrors on Crystal Street
+                </NuxtLink>
+                <a
+                  href="https://www.againstmalaria.com/amibot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-outline btn-sm rounded-xl border-neutral-content/60 text-neutral-content hover:border-neutral-content hover:bg-neutral-content hover:text-neutral"
+                >
+                  <icon name="kind-icon:hand-heart" class="h-4 w-4" />
+                  Give to fight malaria
+                  <span aria-hidden="true">↗</span>
+                  <span class="sr-only">(opens in a new tab)</span>
+                </a>
+              </div>
+            </div>
+          </section>
+          <header
+            class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
+          >
+            <div>
+              <h2 class="font-serif text-lg font-black">Featured experiences</h2>
+              <p class="text-xs opacity-65">A handpicked tour of Kind Robots</p>
+            </div>
+            <div class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <button
+                v-if="admin"
+                type="button"
+                class="text-xs font-bold text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                @click="$emit('openDashboard')"
+              >
+                Admin dashboard →
+              </button>
+              <NuxtLink
+                to="/navigation"
+                class="text-xs font-bold text-primary hover:underline"
+              >
+                All destinations →
+              </NuxtLink>
+            </div>
+          </header>
           <div
-            class="visitor-featured-grid grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2"
+            class="mb-2 flex shrink-0 flex-wrap gap-1"
+            aria-label="Filter experiences"
+          >
+            <button
+              v-for="filter in categories"
+              :key="filter.key"
+              type="button"
+              class="rounded-full border px-3 py-1 text-xs font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              :class="
+                selectedCategory === filter.key
+                  ? 'border-primary bg-primary text-primary-content'
+                  : 'border-base-300 bg-base-200 hover:border-primary/60'
+              "
+              :aria-pressed="selectedCategory === filter.key"
+              @click="selectedCategory = filter.key"
+            >
+              {{ filter.label }}
+            </button>
+          </div>
+          <div
+            class="visitor-featured-grid grid grid-cols-1 gap-2"
           >
             <article
               v-for="feature in filteredFeatures"
@@ -598,6 +598,12 @@ const newest = computed<LabeledShowcaseCard[]>(() =>
 
 .visitor-hero-art {
   object-position: center 30%;
+}
+
+@container (min-width: 36rem) {
+  .visitor-featured-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @container (min-width: 40rem) {

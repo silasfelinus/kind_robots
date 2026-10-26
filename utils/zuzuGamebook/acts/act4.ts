@@ -259,7 +259,7 @@ export const ACT_IV: Act = {
           {
             id: 'trick',
             label:
-              'Make them believe the girl carries the spotted fever. (Shadow · 9)',
+              'Bluff about spotted fever. (Shadow · 9; failure: cornered)',
             to: 'a4-well-tricked',
             check: {
               attribute: 'shadow',
@@ -271,7 +271,7 @@ export const ACT_IV: Act = {
           },
           {
             id: 'why',
-            label: 'Hold her eye and wait for the rest of it. (Mercy · 9)',
+            label: 'Ask what drives her. (Mercy · 9; failure: cornered)',
             to: 'a4-hollis-why',
             check: {
               attribute: 'mercy',
@@ -331,6 +331,32 @@ export const ACT_IV: Act = {
             to: 'a4-well-paid',
             requires: 'water',
             spend: 'water',
+          },
+          {
+            id: 'follow-sister',
+            label: 'Trust the sister\'s escape route. Give up your bandage.',
+            to: 'a4-well-slip',
+            needs: 'sister-trust',
+            hint: 'She has not learned to trust you with her brother.',
+            requires: 'bandage',
+            spend: 'bandage',
+          },
+        ],
+      },
+    ),
+    s(
+      'a4-well-slip',
+      CH.IV,
+      'A Narrow Way Out',
+      'dry-well',
+      "The sister is already moving. She shoves her brother into a crack too narrow for Hollis's band to follow, then catches your sleeve. You throw the clean bandage to the raider she bit. His bleeding hand closes on it by reflex; Hollis turns at his cry. It buys three heartbeats. You spend them crawling after the children, leaving the well and its water behind. When you look back, Hollis is watching the cleft. She has learned the shape of your face.",
+      {
+        effects: { flags: ['sister-led-escape'], resolve: -1 },
+        choices: [
+          {
+            id: 'on',
+            label: 'Keep to the long dry path.',
+            to: 'a4-wide-berth',
           },
         ],
       },

@@ -24,10 +24,9 @@ export function opponentPressure(
   if (!protagonist || !villain) return 0
   const hero = identityFor(protagonist).hero.stats
   const foe = identityFor(villain).villain.stats
-  const dimensions = ['might', 'speed', 'smarts', 'heart', 'control', 'grit'] as const
-  const greatest = dimensions.reduce((winner, stat) =>
-    foe[stat] > foe[winner] ? stat : winner, dimensions[0]!)
-  const difference = foe[greatest] - hero[greatest]
+  // Attack planning against the hero's ability to anticipate and counter it.
+  // A maximum villain stat of five is not automatically unbeatable.
+  const difference = (foe.smarts + foe.control) - (hero.smarts + hero.control)
   return difference >= 2 ? 1 : difference <= -2 ? -1 : 0
 }
 

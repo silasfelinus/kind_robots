@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict'
 import {
+  CITY_SITES,
+  projectCitySites,
+  projectedCityRoads,
+} from '../cometAcademy/cityMap'
+import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
   identityFor,
@@ -31,8 +37,42 @@ import {
   resolveDispatch,
   restoreAcademy,
   startAcademy,
+  type AcademyRun,
   type StudentId,
+  visitCitySite,
 } from '../cometAcademy/rules'
+
+assert.equal(CITY_SITES.length, 7)
+assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 7)
+assert.equal(new Set(CITY_SITES.map((site) => site.encounterIndex)).size, 7)
+assert.ok(CITY_SITES.filter((site) => site.district === 'academy').length >= 3)
+assert.ok(CITY_SITES.filter((site) => site.district === 'city').length >= 3)
+assert.ok(projectCitySites('campus').length >= 3)
+assert.ok(projectCitySites('town').length >= 6)
+assert.ok(projectCitySites('town').some((site) => site.id === 'academy-roof'))
+assert.ok(projectCitySites('campus').some((site) => site.id === 'transit-gate'))
+for (const view of ['campus', 'town'] as const) {
+  const nodes = projectCitySites(view)
+  assert.ok(
+    nodes.every(
+      (node) =>
+        node.left >= 0 && node.left <= 100 && node.top >= 0 && node.top <= 100,
+    ),
+  )
+  assert.ok(
+    projectedCityRoads(view).every((edge) =>
+      [edge.x1, edge.x2, edge.y1, edge.y2].every(Number.isFinite),
+    ),
+  )
+}
+for (const node of CITY_SITES)
+  for (const neighbor of node.neighbors)
+    assert.ok(
+      CITY_SITES.find((item) => item.id === neighbor)?.neighbors.includes(
+        node.id,
+      ),
+      `The geographic graph must be reciprocal: ${node.id} => ${neighbor}`,
+    )
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
@@ -100,12 +140,39 @@ for (const seed of [1, 7, 24, 999]) {
   assert.ok(deck.includes('A Visitor from the Stars'))
 }
 assert.equal(ENCOUNTERS.length, 7)
+assert.equal(Object.keys(REAL_NIGHT_CASES).length, INCIDENTS.length)
+for (const incident of INCIDENTS) {
+  const realCase = realNightCase(incident.id)
+  assert.ok(realCase, `Missing real-night branch for ${incident.id}`)
+  assert.ok(realCase.briefing.length > 80)
+  for (const grade of ['honors', 'pass', 'partial', 'failed'] as const)
+    assert.ok(realCase.consequences[grade].length > 90)
+  assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
+}
+for (const seed of [1, 15, 900]) {
+  let realRun: AcademyRun = {
+    ...startAcademy('kinetic', seed),
+    day: 3,
+    phase: 'dispatch' as const,
+  }
+  for (const [index, incident] of incidentsFor(realRun).entries())
+    realRun = assignTeam(realRun, incident.id, index === 0 ? ['mina'] : ['sol'])
+  const finished = resolveDispatch(realRun)
+  assert.equal(finished.phase, 'debrief')
+  assert.ok(
+    finished.reports.every((report) =>
+      Object.values(realNightCase(report.caseId)!.consequences).includes(
+        report.text,
+      ),
+    ),
+  )
+}
 for (const visitorAlignment of ['ally', 'opponent'] as const) {
   let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
   for (let day = 1; day <= 7; day++) {
     const [first] = incidentsFor(run)
-    run = assignTeam(run, first!.id, ['mina'])
-    run = resolveDispatch(run)
+    run = visitCitySite(run, CITY_SITES[day - 1]!.id)
+    assert.equal(run.phase, 'campus')
     const visit = encounterFor(run)
     const option =
       visit.options.find((entry) =>
@@ -114,6 +181,10 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
           : ['contract-zuzu', 'sell-tess'].includes(entry.id),
       ) ?? visit.options[0]!
     run = chooseEncounter(run, option.id)
+    assert.equal(run.phase, 'dispatch')
+    run = assignTeam(run, first!.id, ['mina'])
+    run = resolveDispatch(run)
+    assert.equal(run.phase, 'debrief')
     run = nextSchoolDay(run)
   }
   const finale = finishAcademy(run, 'protect')
@@ -133,7 +204,11 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
 }
 const legacyOrder = startAcademy('kinetic', 14)
 assert.equal(
-  encounterFor({ ...legacyOrder, encounterDeckVersion: undefined }).title,
+  encounterFor({
+    ...legacyOrder,
+    flowVersion: undefined,
+    encounterDeckVersion: undefined,
+  }).title,
   'A Promise on the Roof',
   'pre-migration saves retain their scheduled campus scene',
 )
@@ -192,7 +267,20 @@ for (const power of POWERS) {
   for (const seed of [1, 5, 10, 888, 2026]) {
     let run = startAcademy(power.id, seed)
     for (let day = 1; day <= 7; day++) {
+      assert.equal(run.phase, 'map')
+      const place = CITY_SITES[day - 1]!
+      assert.equal(visitCitySite(run, 'unknown' as never), run)
+      run = visitCitySite(run, place.id)
+      assert.equal(run.phase, 'campus')
+      assert.equal(
+        encounterFor(run).title,
+        ENCOUNTERS[place.encounterIndex]!.title,
+      )
+      assert.equal(visitCitySite(run, place.id), run)
+      const choice = encounterFor(run).options[day % 2]!
+      run = chooseEncounter(run, choice.id)
       assert.equal(run.phase, 'dispatch')
+      assert.ok(run.visitedSites?.includes(place.id))
       const [a, b] = incidentsFor(run)
       assert.ok(a && b && a.id !== b.id)
       run = assignTeam(run, a.id, ['mina', 'sol'])
@@ -213,14 +301,13 @@ for (const power of POWERS) {
         'resolve must not mutate the caller',
       )
       assert.equal(another.reports.length, 2)
-      assert.equal(another.phase, 'campus')
+      assert.equal(another.phase, 'debrief')
       assert.ok(
         another.reports.every((r) =>
           ['honors', 'pass', 'partial', 'failed'].includes(r.grade),
         ),
       )
-      const choice = encounterFor(another).options[day % 2]!
-      run = chooseEncounter(another, choice.id)
+      run = another
       assert.equal(run.phase, 'debrief')
       const saved = JSON.parse(JSON.stringify(run)) as unknown
       assert.deepEqual(restoreAcademy(saved), run, 'save data remains valid')
@@ -240,9 +327,27 @@ const fallback = assignTeam(startAcademy('kinetic', 2), 'unlisted', [
   'mina' as StudentId,
 ])
 assert.equal(fallback.assignments.length, 0)
-assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'dispatch')
+assert.equal(resolveDispatch(startAcademy('kinetic', 2)).phase, 'map')
 assert.equal(restoreAcademy({}), null)
 assert.equal(restoreAcademy({ version: 999 }), null)
+const migrated = startAcademy('kinetic', 99)
+const legacy = {
+  ...migrated,
+  flowVersion: undefined,
+  visitedSites: undefined,
+  phase: 'dispatch' as const,
+}
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(legacy))),
+  JSON.parse(JSON.stringify(legacy)),
+)
+assert.equal(
+  resolveDispatch(assignTeam(legacy, incidentsFor(legacy)[0]!.id, ['mina']))
+    .phase,
+  'campus',
+)
+assert.equal(restoreAcademy({ ...migrated, selectedSite: 'bad-site' }), null)
+assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
@@ -255,6 +360,9 @@ assert.ok(tab.includes("title: 'Capes & Tassels: Prom of Doom'"))
 assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
 assert.ok(page.includes('data-testid="academy-signature-detail"'))
 assert.ok(page.includes('data-testid="academy-identity-preview"'))
+assert.ok(page.includes('data-testid="academy-map"'))
+assert.ok(page.includes("mapView === 'campus'"))
+assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(page.includes('data-testid="academy-crossover-roster"'))
 assert.ok(page.includes('currentIdentity.backstory'))
 assert.ok(page.includes('currentIdentityStory.setup'))

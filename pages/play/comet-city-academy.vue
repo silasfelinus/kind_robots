@@ -282,11 +282,95 @@
             </p>
           </template>
 
+          <template v-else-if="run.phase === 'map'">
+            <div class="cca-heading">
+              <span>02</span>
+              <div>
+                <h2>Choose where the day begins</h2>
+                <p>One story per day. The places you skip may matter later.</p>
+              </div>
+            </div>
+            <div class="cca-map-tabs" aria-label="Map view">
+              <button
+                type="button"
+                :aria-pressed="mapView === 'campus'"
+                :class="{ chosen: mapView === 'campus' }"
+                @click="mapView = 'campus'"
+              >
+                CAMPUS / SOUTHEAST
+              </button>
+              <button
+                type="button"
+                :aria-pressed="mapView === 'town'"
+                :class="{ chosen: mapView === 'town' }"
+                @click="mapView = 'town'"
+              >
+                COMET CITY / NORTHWEST
+              </button>
+            </div>
+            <div
+              class="cca-map"
+              data-testid="academy-map"
+              :aria-label="
+                mapView === 'campus'
+                  ? 'Academy and northwest city border'
+                  : 'Comet City and southeast academy'
+              "
+            >
+              <div class="cca-map-watermark" aria-hidden="true">
+                {{ mapView === 'campus' ? 'ACADEMY' : 'COMET CITY' }}
+              </div>
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                class="cca-map-roads"
+                aria-hidden="true"
+              >
+                <line
+                  v-for="road in mapRoads"
+                  :key="road.id"
+                  :x1="road.x1"
+                  :y1="road.y1"
+                  :x2="road.x2"
+                  :y2="road.y2"
+                />
+              </svg>
+              <button
+                v-for="site in mapNodes"
+                :key="site.id"
+                type="button"
+                class="cca-map-pin"
+                :class="[
+                  site.district,
+                  { explored: run.visitedSites?.includes(site.id) },
+                ]"
+                :style="{ left: site.left + '%', top: site.top + '%' }"
+                :disabled="run.visitedSites?.includes(site.id)"
+                :title="site.name"
+                @click="store.visit(site.id)"
+              >
+                <span class="cca-map-dot" aria-hidden="true">{{
+                  site.district === 'academy' ? '✦' : '◆'
+                }}</span>
+                <span class="cca-map-name">{{ site.name }}</span>
+              </button>
+              <span class="cca-map-compass" aria-hidden="true">N ↑</span>
+            </div>
+            <p class="cca-map-legend">
+              ✦ Academy &nbsp; ◆ City &nbsp; · &nbsp;
+              {{ run.visitedSites?.length ?? 0 }} of 7 first-week leads followed
+            </p>
+          </template>
+
           <template v-else-if="run.phase === 'dispatch'">
             <div class="cca-heading">
               <span>02</span>
               <div>
-                <h2>Simulation desk</h2>
+                <h2>
+                  {{
+                    run.flowVersion === 2 ? 'Night dispatch' : 'Simulation desk'
+                  }}
+                </h2>
                 <p>
                   Choose up to three volunteers for each call. A student cannot
                   be in two places at once.
@@ -303,9 +387,23 @@
                 ><span>RISK {{ incident.risk }} / 06</span>
               </div>
               <div class="cca-incident-location">
-                {{ incident.site }} · TRAINING SIMULATION
+                {{ incident.site }} ·
+                {{
+                  run.flowVersion === 2
+                    ? incident.allegiance.toUpperCase() +
+                      ' / ' +
+                      (run.day <= 2 ? 'SIMULATION' : 'REAL PATROL')
+                    : 'TRAINING SIMULATION'
+                }}
               </div>
-              <p>{{ incident.briefing }}</p>
+              <p>
+                {{
+                  run.flowVersion === 2 && run.day > 2
+                    ? (realNightCase(incident.id)?.briefing ??
+                      incident.briefing)
+                    : incident.briefing
+                }}
+              </p>
               <div class="cca-roster">
                 <button
                   v-for="student in STUDENTS"
@@ -343,7 +441,14 @@
               :disabled="!run.assignments.length"
               @click="store.dispatch()"
             >
-              RUN TRAINING SIMULATIONS <span>➜</span>
+              {{
+                run.flowVersion === 2
+                  ? run.day <= 2
+                    ? 'RUN NIGHT SIMULATIONS'
+                    : 'SEND NIGHT TEAMS'
+                  : 'RUN TRAINING SIMULATIONS'
+              }}
+              <span>➜</span>
             </button>
           </template>
 
@@ -352,12 +457,19 @@
               <span>03</span>
               <div>
                 <h2>{{ campusEncounter.title }}</h2>
-                <p>{{ campusEncounter.location }} · AFTER CLASS</p>
+                <p>
+                  {{ campusEncounter.location }} ·
+                  {{
+                    run.flowVersion === 2
+                      ? 'DAYTIME EXPLORATION'
+                      : 'AFTER CLASS'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
-            <div class="cca-report-mini">
-              <strong>AFTER-ACTION REPORT</strong
+            <div v-if="run.flowVersion !== 2" class="cca-report-mini">
+              <strong>AFTER-ACTION REPORT</strong>
               ><span v-for="report in run.reports" :key="report.caseId"
                 >{{ report.title }} · {{ report.grade.toUpperCase() }}</span
               >
@@ -378,8 +490,12 @@
             <div class="cca-heading">
               <span>04</span>
               <div>
-                <h2>After the bell</h2>
-                <p>The simulation has ended. The consequences haven't.</p>
+                <h2>
+                  {{
+                    run.flowVersion === 2 ? 'Night debrief' : 'After the bell'
+                  }}
+                </h2>
+                <p>Every choice and every teammate leaves a trace.</p>
               </div>
             </div>
             <p class="cca-story">{{ run.scene }}</p>
@@ -489,6 +605,12 @@ import {
   type CharacterBond,
 } from '~/utils/cometAcademy/identityArcs'
 import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
+import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import {
+  projectCitySites,
+  projectedCityRoads,
+  type CityView,
+} from '~/utils/cometAcademy/cityMap'
 import {
   STUDENTS,
   encounterFor,
@@ -508,6 +630,9 @@ const store = useCometAcademyStore()
 const selectedForm = ref<PowerFormId>('impact')
 const selectedElement = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
+const mapView = ref<CityView>('campus')
+const mapNodes = computed(() => projectCitySites(mapView.value))
+const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const viewpointOptions: CharacterViewpoint[] = ['protagonist', 'antagonist']
 const alignmentOptions: CharacterAllegiance[] = ['hero', 'villain']
 const bondOptions: CharacterBond[] = ['sidekick', 'partner', 'romance']
@@ -536,7 +661,11 @@ const campusEncounter = computed(() =>
 const panelLabel = computed(() =>
   run.value
     ? {
-        dispatch: 'TRAINING // ASSIGNMENT BOARD',
+        map: 'DAY // EXPLORE THE CITY',
+        dispatch:
+          run.value.flowVersion === 2
+            ? 'NIGHT // PATROL BOARD'
+            : 'TRAINING // ASSIGNMENT BOARD',
         campus: 'CAMPUS // ENCOUNTER DRAW',
         debrief: 'RESULTS // DAY REPORT',
         finale: 'PROM // FINAL EXAM',
@@ -547,6 +676,7 @@ const panelLabel = computed(() =>
 const sceneTitle = computed(() =>
   run.value
     ? {
+        map: 'Choose Your Ground',
         dispatch: 'The Call To Action',
         campus: campusEncounter.value.title,
         debrief: 'What Comes After',
@@ -1197,6 +1327,109 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #ffcb93;
   font-size: 1.3rem;
   margin-left: 0.4rem;
+}
+.cca-map-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.6rem 0;
+}
+.cca-map-tabs button {
+  flex: 1;
+  padding: 0.55rem 0.35rem;
+  border: 1px solid #9bb4c37a;
+  border-radius: 0.4rem;
+  font-size: 0.61rem;
+  font-weight: 800;
+}
+.cca-map-tabs button.chosen {
+  color: #101c2d;
+  background: #f6bc90;
+}
+.cca-map {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+  height: clamp(240px, 43vh, 410px);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid #7ba7bb;
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(ellipse at 78% 77%, #926e81a6, transparent 45%),
+    repeating-linear-gradient(31deg, #7191a014 0 2px, transparent 2px 20px),
+    linear-gradient(135deg, #1f3b57, #253e47 60%, #312d53);
+}
+.cca-map-watermark {
+  position: absolute;
+  left: 7%;
+  bottom: 10%;
+  opacity: 0.14;
+  font:
+    900 clamp(1.4rem, 4vw, 3rem) Georgia,
+    serif;
+  letter-spacing: 0.15em;
+}
+.cca-map-roads {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+.cca-map-roads line {
+  stroke: #9fd0c6;
+  stroke-width: 0.7;
+  stroke-dasharray: 1.7 0.8;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.72;
+}
+.cca-map-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  max-width: 7.3rem;
+  min-width: 3.1rem;
+  padding: 0.25rem;
+  color: #fdf0df;
+  background: #15263ddc;
+  border: 1px solid #b3cad5;
+  border-radius: 0.55rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
+}
+.cca-map-pin.city {
+  border-color: #d9a7ce;
+}
+.cca-map-pin.explored {
+  opacity: 0.35;
+}
+.cca-map-pin:focus-visible,
+.cca-map-pin:not(:disabled):hover {
+  outline: 2px solid #ffe0a9;
+  z-index: 3;
+}
+.cca-map-dot {
+  color: #ffcd97;
+  font-size: 1rem;
+}
+.cca-map-name {
+  display: block;
+}
+.cca-map-compass {
+  position: absolute;
+  right: 0.65rem;
+  top: 0.55rem;
+  font-weight: 900;
+  font-size: 0.75rem;
+}
+.cca-map-legend {
+  color: #c6dce8;
+  font-size: 0.69rem;
+  margin: 0.65rem 0;
 }
 .cca-footer {
   min-height: 2rem;

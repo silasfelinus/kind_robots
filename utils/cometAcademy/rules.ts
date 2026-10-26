@@ -1,5 +1,7 @@
 import { identityFor, identityStoryFor } from './identityArcs'
 import { GUEST_IDENTITIES } from './guestIdentities'
+import { CITY_SITES, type SiteId } from './cityMap'
+import { realNightCase } from './nightCases'
 import {
   signatureById,
   POWER_VOWS,
@@ -10,7 +12,7 @@ import {
 export type PowerId =
   'kinetic' | 'technopathy' | 'empathy' | 'elemental' | 'spatial' | 'biotech'
 export type AcademyPhase =
-  'dispatch' | 'campus' | 'debrief' | 'finale' | 'ending'
+  'map' | 'dispatch' | 'campus' | 'debrief' | 'finale' | 'ending'
 export type Grade = 'honors' | 'pass' | 'partial' | 'failed'
 
 export const POWERS: {
@@ -123,6 +125,7 @@ export type Incident = {
   briefing: string
   need: PowerId
   risk: number
+  allegiance: 'hero' | 'villain' | 'rogue' | 'shared'
   art: string
 }
 export const INCIDENTS: Incident[] = [
@@ -134,6 +137,7 @@ export const INCIDENTS: Incident[] = [
       'Thirty holographic commuters. One live student on the tracks who was never on the passenger manifest.',
     need: 'spatial',
     risk: 4,
+    allegiance: 'hero',
     art: 'A gleaming elevated monorail hangs between glittering towers in violet dusk, a rescuer suspended over the tracks.',
   },
   {
@@ -144,6 +148,7 @@ export const INCIDENTS: Incident[] = [
       'A priceless object and twelve guests need rescue. The simulation keeps changing the priceless object.',
     need: 'technopathy',
     risk: 3,
+    allegiance: 'villain',
     art: 'A glass museum diorama cracks beneath holographic rescue beacons and a slowly falling silver sculpture.',
   },
   {
@@ -154,6 +159,7 @@ export const INCIDENTS: Incident[] = [
       'A tidal wall is rushing toward the lower market. The people running it insist they can handle this.',
     need: 'elemental',
     risk: 4,
+    allegiance: 'shared',
     art: 'The blue harbor rises into a translucent wall above market stalls and the broken light of rescue sirens.',
   },
   {
@@ -164,6 +170,7 @@ export const INCIDENTS: Incident[] = [
       'An experimental vine holds two terrified lab technicians. The vine is terrified too.',
     need: 'biotech',
     risk: 3,
+    allegiance: 'rogue',
     art: 'An emerald glass greenhouse alive with huge luminous leaves and a tiny amber emergency beacon.',
   },
   {
@@ -174,6 +181,7 @@ export const INCIDENTS: Incident[] = [
       'An emergency message that tells the truth is about to trigger a panic.',
     need: 'empathy',
     risk: 3,
+    allegiance: 'villain',
     art: 'A city plaza beneath a colossal floating screen, its audience split between celebration and alarm.',
   },
   {
@@ -184,6 +192,7 @@ export const INCIDENTS: Incident[] = [
       'A shuttle and a collapsing glass walkway are falling at different speeds.',
     need: 'kinetic',
     risk: 4,
+    allegiance: 'hero',
     art: 'A brilliant glass bridge falls in shards between immense school towers at sunset.',
   },
 ]
@@ -362,6 +371,9 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   encounterDeckVersion?: 2
+  flowVersion?: 2
+  selectedSite?: SiteId
+  visitedSites?: SiteId[]
   phase: AcademyPhase
   day: number
   influence: number
@@ -386,12 +398,28 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 }
 
 export function encounterFor(run: AcademyRun) {
+  if (run.flowVersion === 2 && run.selectedSite) {
+    const site = CITY_SITES.find((item) => item.id === run.selectedSite)
+    if (site) return ENCOUNTERS[site.encounterIndex]!
+  }
   // Existing v1 saves keep the original three-card order mid-term.
   const index =
     run.encounterDeckVersion === 2
       ? (run.seed + run.day - 1) % ENCOUNTERS.length
       : (run.day - 1) % 3
   return ENCOUNTERS[index]!
+}
+
+export function visitCitySite(run: AcademyRun, siteId: SiteId): AcademyRun {
+  if (run.flowVersion !== 2 || run.phase !== 'map') return run
+  const site = CITY_SITES.find((entry) => entry.id === siteId)
+  if (!site || run.visitedSites?.includes(siteId)) return run
+  return {
+    ...run,
+    selectedSite: siteId,
+    phase: 'campus',
+    scene: `Day ${run.day}: you visit ${site.name} before the evening sirens. The city's future is still unwritten.`,
+  }
 }
 
 export function startAcademy(
@@ -413,7 +441,9 @@ export function startAcademy(
     ...(signature ? { signature } : {}),
     ...(vow ? { vow } : {}),
     encounterDeckVersion: 2,
-    phase: 'dispatch',
+    flowVersion: 2,
+    phase: 'map',
+    visitedSites: [],
     day: 1,
     influence: 0,
     danger: 2,
@@ -469,7 +499,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         title: incident.title,
         names: 'No team dispatched',
         grade: 'failed' as Grade,
-        text: 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
+        text:
+          run.flowVersion === 2 && run.day > 2
+            ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
+            : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
     }
     const affinity = assignment.students.some(
@@ -510,7 +543,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           : grade === 'honors'
             ? -1
             : 0
-    const text = {
+    const trainingText = {
       honors:
         'An elegant rescue, with time left to notice the simulation has hidden a real distress code.',
       pass: 'Everyone is accounted for. The instructor marks your judgment as sound, but the evidence is stranger than the scenario.',
@@ -519,6 +552,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       failed:
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
+    const text =
+      (run.flowVersion === 2 && run.day > 2
+        ? realNightCase(incident.id)?.consequences[grade]
+        : undefined) ?? trainingText
     return {
       caseId: incident.id,
       title: incident.title,
@@ -531,12 +568,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   })
   return {
     ...run,
-    phase: 'campus',
+    phase: run.flowVersion === 2 ? 'debrief' : 'campus',
     influence,
     danger: Math.max(0, danger),
     reports,
     scene:
-      'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+      run.flowVersion === 2
+        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -564,10 +603,17 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
       : '')
   return {
     ...run,
-    phase: 'debrief',
+    phase: run.flowVersion === 2 ? 'dispatch' : 'debrief',
     influence: run.influence + option.influence,
     danger: Math.max(0, run.danger + option.danger - (powerUsed ? 1 : 0)),
-    scene,
+    scene:
+      run.flowVersion === 2
+        ? `${scene} Dusk settles; you must now assign a night team.`
+        : scene,
+    visitedSites:
+      run.flowVersion === 2 && run.selectedSite
+        ? [...(run.visitedSites ?? []), run.selectedSite]
+        : run.visitedSites,
     log: [
       ...run.log,
       `Day ${run.day}: ${encounterFor(run).title} — ${option.label}`,
@@ -586,8 +632,9 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     }
   return {
     ...run,
-    phase: 'dispatch',
+    phase: run.flowVersion === 2 ? 'map' : 'dispatch',
     day: run.day + 1,
+    selectedSite: undefined,
     assignments: [],
     reports: [],
     scene:
@@ -677,9 +724,17 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     !Number.isInteger(data.day) ||
     data.day < 1 ||
     data.day > 7 ||
-    !['dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
+    !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||
+    (data.flowVersion === 2 &&
+      (!Array.isArray(data.visitedSites) ||
+        data.visitedSites.some(
+          (site) => !CITY_SITES.some((node) => node.id === site),
+        ) ||
+        (data.selectedSite !== undefined &&
+          !CITY_SITES.some((node) => node.id === data.selectedSite)))) ||
+    (data.flowVersion !== 2 && data.phase === 'map') ||
     !Array.isArray(data.log) ||
     !Array.isArray(data.assignments) ||
     !Array.isArray(data.reports) ||

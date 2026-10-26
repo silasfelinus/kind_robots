@@ -993,7 +993,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'elk-ledger',
-        label: 'Offer the copied ranger log to a volunteer wildlife-observation network',
+        label:
+          'Offer the copied ranger log to a volunteer wildlife-observation network',
         requiresFlag: 'elk_ranger_log_copied',
         cost: 'Spend the afternoon documenting observations instead of working on the creek.',
         check: { skill: 'lore', target: 9 },
@@ -1008,7 +1009,8 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'elk-safety',
-        label: 'Use the fence incident to organize safer public viewing and reporting',
+        label:
+          'Use the fence incident to organize safer public viewing and reporting',
         requiresFlag: 'elk_ranger_followup',
         cost: 'Give up the creek shift to recruit stewards for the busy viewing area.',
         check: { skill: 'rizz', target: 9 },

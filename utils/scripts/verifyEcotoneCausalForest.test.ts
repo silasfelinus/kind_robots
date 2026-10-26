@@ -220,7 +220,8 @@ const walkTo = (initial: RunState, target: string): RunState => {
   assert.fail(`could not reach ${target} from a new game`)
 }
 
-for (const seed of [gladeSeed, markedSeed]) {
+const newGameWitnesses: Record<string, number> = {}
+for (let seed = 1; seed <= 100 && Object.keys(newGameWitnesses).length < 2; seed++) {
   const start = advance(chooseEvent(createRun(seed, 'reporter'), 'green-ribbon'))
   const forest = walkTo(start, 'GR-4')
   const result = chooseBeat(forest, 'slug')
@@ -237,7 +238,13 @@ for (const seed of [gladeSeed, markedSeed]) {
     chooseBeat(fire, expected).pending?.entry.roll,
     'the new-game journey can resolve the negotiated tradeoff',
   )
+  newGameWitnesses[expected] = seed
 }
+assert.ok(
+  newGameWitnesses['glade-witnesses'] &&
+    newGameWitnesses['marker-stewards'],
+  'both outcomes need independent from-new-game seeded witnesses',
+)
 
 console.log(
   `Ecotone causal forest: seam ${measuredSeed}/${mistakenSeed}, slug ${gladeSeed}/${markedSeed}; paired negotiations, new-game journeys and save safety`,

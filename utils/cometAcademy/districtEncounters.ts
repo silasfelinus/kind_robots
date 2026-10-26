@@ -21,7 +21,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'student-commons': {
     title: 'The Meal Nobody Funded',
     location: 'Student Commons',
-    scene: 'The student meal shelves are empty, yet the donor hologram says they are full. Mina finds invoices rerouted to an exclusive prom balcony. A terrified kitchen volunteer asks you not to reveal their name.',
+    scene:
+      'The student meal shelves are empty, yet the donor hologram says they are full. Mina finds invoices rerouted to an exclusive prom balcony. A terrified kitchen volunteer asks you not to reveal their name.',
     options: [
       {
         id: 'student-commons-help',
@@ -41,15 +42,16 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
       },
     ],
   },
-  'infirmary': {
+  infirmary: {
     title: 'A Name Erased in Ink',
     location: 'Campus Infirmary',
-    scene: 'Kit finds an injured volunteer removed from the clinic\'s digital logs. The student is still in the bed, but the academy insurer says no incident occurred.',
+    scene:
+      "Kit finds an injured volunteer removed from the clinic's digital logs. The student is still in the bed, but the academy insurer says no incident occurred.",
     options: [
       {
         id: 'infirmary-help',
         label: 'Demand independent treatment',
-        text: 'Kit records the volunteer\'s testimony and brings in another medic. The student receives care and the academy must acknowledge the missing report.',
+        text: "Kit records the volunteer's testimony and brings in another medic. The student receives care and the academy must acknowledge the missing report.",
         influence: 2,
         danger: -1,
         trust: 2,
@@ -67,7 +69,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'training-arena': {
     title: 'The Sponsored Duel',
     location: 'Training Arena',
-    scene: 'A network wants Sol to lose a match so a wealthy trainee keeps a scholarship. Sol could win, but a backstage technician\'s unpaid wages depend on the sponsor\'s broadcast.',
+    scene:
+      "A network wants Sol to lose a match so a wealthy trainee keeps a scholarship. Sol could win, but a backstage technician's unpaid wages depend on the sponsor's broadcast.",
     options: [
       {
         id: 'training-arena-help',
@@ -90,7 +93,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'engineering-workshop': {
     title: 'The Off Switch',
     location: 'Engineering Workshop',
-    scene: 'Ash discovers a remote command chip inside a classmate\'s heroic armor. Faculty call it a safety override, but it can lock the wearer inside during a rescue.',
+    scene:
+      "Ash discovers a remote command chip inside a classmate's heroic armor. Faculty call it a safety override, but it can lock the wearer inside during a rescue.",
     options: [
       {
         id: 'engineering-workshop-help',
@@ -113,7 +117,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'botanical-conservatory': {
     title: 'A Cure with Roots',
     location: 'Botanical Conservatory',
-    scene: 'A rare vine produces a pain medicine needed by flood survivors. The institute owns its patent and has locked out the gardener who raised the plant.',
+    scene:
+      'A rare vine produces a pain medicine needed by flood survivors. The institute owns its patent and has locked out the gardener who raised the plant.',
     options: [
       {
         id: 'botanical-conservatory-help',
@@ -136,11 +141,12 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'student-dormitory': {
     title: 'The Borrowed Curfew Pass',
     location: 'Student Dormitory',
-    scene: 'The curfew pass of a vanished student appears beneath Nix\'s door. It could unlock the dean\'s private corridor, but it is also the family\'s only lead.',
+    scene:
+      "The curfew pass of a vanished student appears beneath Nix's door. It could unlock the dean's private corridor, but it is also the family's only lead.",
     options: [
       {
         id: 'student-dormitory-help',
-        label: 'Trace the missing student\'s route',
+        label: "Trace the missing student's route",
         text: 'Nix uncovers a transit stop and tells the family in person. You lose the shortcut, but real volunteers join the search.',
         influence: 2,
         danger: -1,
@@ -159,7 +165,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'ethics-hall': {
     title: 'Who Watches the Rescuers?',
     location: 'Ethics Hall',
-    scene: 'A civilian review panel asks why student heroes patrol neighborhoods without residents\' consent. The dean offers to cancel the hearing if you sign a waiver.',
+    scene:
+      "A civilian review panel asks why student heroes patrol neighborhoods without residents' consent. The dean offers to cancel the hearing if you sign a waiver.",
     options: [
       {
         id: 'ethics-hall-help',
@@ -180,9 +187,10 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
     ],
   },
   'academy-docks': {
-    title: 'The Relief Boat\'s Second Manifest',
+    title: "The Relief Boat's Second Manifest",
     location: 'Academy Docks',
-    scene: 'A barge of emergency generators has three unregistered robotic guards hidden below decks. Dockworkers refuse to unload it without an inspection.',
+    scene:
+      'A barge of emergency generators has three unregistered robotic guards hidden below decks. Dockworkers refuse to unload it without an inspection.',
     options: [
       {
         id: 'academy-docks-help',
@@ -205,7 +213,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'waterfront-market': {
     title: 'The Price of Dry Ground',
     location: 'Waterfront Market',
-    scene: 'A protection broker offers flood barriers at rents the market cannot afford. Vendors have a cheaper plan, but their permits were denied without explanation.',
+    scene:
+      'A protection broker offers flood barriers at rents the market cannot afford. Vendors have a cheaper plan, but their permits were denied without explanation.',
     options: [
       {
         id: 'waterfront-market-help',
@@ -228,7 +237,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'transit-union': {
     title: 'The Last Safe Route',
     location: 'Transit Union',
-    scene: 'Drivers strike after the city hides defective brakes. A hospital still needs medicine, and the mayor wants student heroes to drive the same unsafe trains past the picket line.',
+    scene:
+      'Drivers strike after the city hides defective brakes. A hospital still needs medicine, and the mayor wants student heroes to drive the same unsafe trains past the picket line.',
     options: [
       {
         id: 'transit-union-help',
@@ -251,7 +261,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'neon-arcade': {
     title: 'The Game That Knows Too Much',
     location: 'Neon Arcade',
-    scene: 'An augmented-reality tournament predicts the secret identities of its student players. The creator calls it a behavioral model; scholarships are paid from biometric data sales.',
+    scene:
+      'An augmented-reality tournament predicts the secret identities of its student players. The creator calls it a behavioral model; scholarships are paid from biometric data sales.',
     options: [
       {
         id: 'neon-arcade-help',
@@ -264,7 +275,7 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
       {
         id: 'neon-arcade-exploit',
         label: 'Keep the predictive data',
-        text: 'You gain an enemy\'s movement pattern. Every classmate who played must now wonder whether you will use their secrets too.',
+        text: "You gain an enemy's movement pattern. Every classmate who played must now wonder whether you will use their secrets too.",
         influence: -2,
         danger: 1,
         trust: -2,
@@ -274,11 +285,12 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'civic-hospital': {
     title: 'The Triage Camera',
     location: 'Civic Hospital',
-    scene: 'A new triage camera ranks patients by projected hero potential. A powerless child waits at the bottom of the list while administrators call the algorithm impartial.',
+    scene:
+      'A new triage camera ranks patients by projected hero potential. A powerless child waits at the bottom of the list while administrators call the algorithm impartial.',
     options: [
       {
         id: 'civic-hospital-help',
-        label: 'Support the nurses\' patient-first triage',
+        label: "Support the nurses' patient-first triage",
         text: 'Kit joins an independent triage crew and the child receives care. The administrator suspends the camera pending a safety review.',
         influence: 2,
         danger: -1,
@@ -297,7 +309,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'industrial-foundry': {
     title: 'A Sword for Every Soldier',
     location: 'Industrial Foundry',
-    scene: 'Workers discover their high-strength alloy order will arm an unaccountable militia. Closing the furnace too quickly would cut power to nearby family homes.',
+    scene:
+      'Workers discover their high-strength alloy order will arm an unaccountable militia. Closing the furnace too quickly would cut power to nearby family homes.',
     options: [
       {
         id: 'industrial-foundry-help',
@@ -317,15 +330,16 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
       },
     ],
   },
-  'skyport': {
+  skyport: {
     title: 'No Corridor for the Lost',
     location: 'Comet Skyport',
-    scene: 'A refugee shuttle from Tess Helio\'s trade route requests clearance. The skyport controller demands its passengers reveal a hidden sanctuary before allowing them to land.',
+    scene:
+      "A refugee shuttle from Tess Helio's trade route requests clearance. The skyport controller demands its passengers reveal a hidden sanctuary before allowing them to land.",
     options: [
       {
         id: 'skyport-help',
         label: 'Land the shuttle without copying the map',
-        text: 'Volunteer pilots open a temporary runway. Tess\'s harbor stays confidential, and the controller must explain the coercive demand.',
+        text: "Volunteer pilots open a temporary runway. Tess's harbor stays confidential, and the controller must explain the coercive demand.",
         influence: 2,
         danger: -1,
         trust: 2,
@@ -343,7 +357,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'media-spire': {
     title: 'The Broadcast with Two Endings',
     location: 'Media Spire',
-    scene: 'Two verified camera feeds show incompatible versions of the same rescue. One depicts a heroic evacuation; the other shows that rescuer blocking the only exit.',
+    scene:
+      'Two verified camera feeds show incompatible versions of the same rescue. One depicts a heroic evacuation; the other shows that rescuer blocking the only exit.',
     options: [
       {
         id: 'media-spire-help',
@@ -366,7 +381,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'labor-museum': {
     title: 'The Hero They Unnamed',
     location: 'Labor Museum',
-    scene: 'The museum claims one early superhero saved a factory. Workers\' surviving notebooks say the rescue was designed by their crews and later stripped of their names.',
+    scene:
+      "The museum claims one early superhero saved a factory. Workers' surviving notebooks say the rescue was designed by their crews and later stripped of their names.",
     options: [
       {
         id: 'labor-museum-help',
@@ -389,7 +405,8 @@ export const DISTRICT_ENCOUNTERS: Record<AdditionalSiteId, CityEvent> = {
   'night-bazaar': {
     title: 'The Clinic Under the Lanterns',
     location: 'Night Bazaar',
-    scene: 'An underground medic treats neighbors who cannot safely visit the city hospital. An academy raid is scheduled tonight, and the clinic uses stolen medicines from a corrupt depot.',
+    scene:
+      'An underground medic treats neighbors who cannot safely visit the city hospital. An academy raid is scheduled tonight, and the clinic uses stolen medicines from a corrupt depot.',
     options: [
       {
         id: 'night-bazaar-help',

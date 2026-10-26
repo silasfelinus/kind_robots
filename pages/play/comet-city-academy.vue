@@ -136,7 +136,10 @@
               data-testid="academy-identity-preview"
             >
               <summary>
-                <strong>{{ currentIdentity.realName }} · {{ currentIdentity.student.alias }}</strong>
+                <strong
+                  >{{ currentIdentity.realName }} ·
+                  {{ currentIdentity.student.alias }}</strong
+                >
                 <small>
                   HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
                   {{ currentIdentity.villain.alias }}
@@ -160,7 +163,9 @@
                   <p>{{ currentIdentity.villain.method }}</p>
                 </div>
               </div>
-              <p class="cca-selection-label">EXPLORE THIS PERSON'S POSSIBLE STORY</p>
+              <p class="cca-selection-label">
+                EXPLORE THIS PERSON'S POSSIBLE STORY
+              </p>
               <div class="cca-storylens-tabs">
                 <button
                   v-for="viewpoint in viewpointOptions"
@@ -183,8 +188,12 @@
                   {{ alignment === 'hero' ? 'HERO FUTURE' : 'VILLAIN FUTURE' }}
                 </button>
               </div>
-              <p class="cca-identity-caveat">{{ currentIdentityStory.setup }}</p>
-              <p class="cca-identity-caveat">{{ currentIdentityStory.decision }}</p>
+              <p class="cca-identity-caveat">
+                {{ currentIdentityStory.setup }}
+              </p>
+              <p class="cca-identity-caveat">
+                {{ currentIdentityStory.decision }}
+              </p>
               <p class="cca-selection-label">RELATIONSHIP PATHS CAN OVERLAP</p>
               <div class="cca-storylens-tabs">
                 <button
@@ -211,8 +220,13 @@
                 become a hero or save the city.
               </p>
             </details>
-            <details class="cca-identity-preview" data-testid="academy-crossover-roster">
-              <summary>VISITORS FROM OTHER WORLDS · {{ GUEST_IDENTITIES.length }}</summary>
+            <details
+              class="cca-identity-preview"
+              data-testid="academy-crossover-roster"
+            >
+              <summary>
+                VISITORS FROM OTHER WORLDS · {{ GUEST_IDENTITIES.length }}
+              </summary>
               <article
                 v-for="visitor in GUEST_IDENTITIES"
                 :key="visitor.id"

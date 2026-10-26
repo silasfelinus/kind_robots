@@ -64,7 +64,10 @@ for (let seed = 1; seed <= 200; seed++) {
   const start = advance(chooseEvent(createRun(seed, 'reporter'), 'quiet'))
   const morning = walkTo(start, 'QW-2')
   const observed = chooseBeat(morning, 'sober')
-  assert.ok(observed.pending, 'the opening lens must produce an authored result')
+  assert.ok(
+    observed.pending,
+    'the opening lens must produce an authored result',
+  )
   assert.equal(
     observed.pending.entry.roll,
     null,

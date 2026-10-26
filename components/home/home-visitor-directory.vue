@@ -81,7 +81,9 @@
             class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
           >
             <div>
-              <h2 class="font-serif text-lg font-black">Featured experiences</h2>
+              <h2 class="font-serif text-lg font-black">
+                Featured experiences
+              </h2>
               <p class="text-xs opacity-65">A handpicked tour of Kind Robots</p>
             </div>
             <div class="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -121,9 +123,7 @@
               {{ filter.label }}
             </button>
           </div>
-          <div
-            class="visitor-featured-grid grid grid-cols-1 gap-2"
-          >
+          <div class="visitor-featured-grid grid grid-cols-1 gap-2">
             <article
               v-for="feature in filteredFeatures"
               :key="feature.route"

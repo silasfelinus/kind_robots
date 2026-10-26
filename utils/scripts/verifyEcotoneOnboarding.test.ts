@@ -197,7 +197,10 @@ assert.ok(
   'emoji-only selection grid was retired',
 )
 assert.match(board, /Opening choice · No roll/)
-assert.match(board, /function queueDecision\(option: Option\) \{\s+if \(option.disabled\) return\s+option.act\(\)/)
+assert.match(
+  board,
+  /function queueDecision\(option: Option\) \{\s+if \(option.disabled\) return\s+option.act\(\)/,
+)
 assert.doesNotMatch(board, /Confirm your decision|confirmDecision|stagedChoice/)
 assert.doesNotMatch(board, /Change my mind/)
 assert.match(board, /Undo last decision/)

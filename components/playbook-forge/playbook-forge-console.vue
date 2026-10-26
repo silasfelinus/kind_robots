@@ -108,6 +108,7 @@
         <div :key="screenKey" class="flex min-h-0 flex-1 flex-col">
           <PlaybookForgeTitle v-if="forge.screen === 'title'" />
           <PlaybookForgeLibrary v-else-if="forge.screen === 'library'" />
+          <PlaybookForgeLedger v-else-if="forge.screen === 'ledger'" />
           <PlaybookForgeIdea v-else-if="forge.screen === 'idea'" />
           <PlaybookForgeLaunch v-else-if="forge.screen === 'launch'" />
           <PlaybookForgeAssumptions
@@ -196,6 +197,8 @@ function run(command: ConsoleCommand) {
   }
   if (command === 'start') {
     if (tabbed.value) forge.go('launch')
+    else if (forge.screen === 'ledger' && forge.existing)
+      void forge.analyze(forge.existing.slug)
     return
   }
   if (command === 'details') {
@@ -277,7 +280,9 @@ const route = useRoute()
 onMounted(() => {
   forge.load()
   const analyze = route.query.analyze
+  const ledger = route.query.ledger
   if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
+  else if (typeof ledger === 'string' && ledger) void forge.openLedger(ledger)
   window.addEventListener('keydown', onKey)
   document.addEventListener('fullscreenchange', onFullscreen)
   frame = requestAnimationFrame(pollPads)

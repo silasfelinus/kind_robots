@@ -480,4 +480,55 @@
     font-size: 0.7rem;
     font-weight: 600;
   }
+
+  /* ── ledger ── */
+  .pf-star-on {
+    color: var(--color-warning);
+    text-shadow: 0 0 0.6rem
+      color-mix(in oklch, var(--color-warning) 70%, transparent);
+  }
+  .pf-row-starred {
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-warning) 12%, transparent),
+      color-mix(in oklch, var(--color-base-100) 45%, transparent)
+    );
+  }
+  /* Super shiny: every section starred and the plan met. */
+  .pf-shine-text,
+  .pf-shine-bar {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-warning),
+      var(--color-primary),
+      var(--color-secondary),
+      var(--color-accent),
+      var(--color-warning)
+    );
+    background-size: 250% 100%;
+    animation: pf-holo 4s linear infinite;
+  }
+  .pf-shine-text {
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(
+      0 0 0.5rem color-mix(in oklch, var(--color-warning) 55%, transparent)
+    );
+  }
+  .pf-panel-super {
+    border-color: color-mix(in oklch, var(--color-warning) 60%, transparent);
+    box-shadow: 0 0 2rem -0.5rem
+      color-mix(in oklch, var(--color-warning) 45%, transparent);
+  }
+  @keyframes pf-holo {
+    to {
+      background-position: -250% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pf-shine-text,
+    .pf-shine-bar {
+      animation: none;
+    }
+  }
 }

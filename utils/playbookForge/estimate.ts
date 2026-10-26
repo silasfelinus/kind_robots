@@ -308,7 +308,7 @@ export function formatDuration(seconds: number): string {
   const hours = Math.floor(minutes / 60)
   return hours < 48
     ? `${hours}h ${minutes % 60}m`
-    : `${Math.round(hours / 24)}d ${hours % 24}h`
+    : `${Math.floor(hours / 24)}d ${hours % 24}h`
 }
 
 export function formatCount(n: number): string {

@@ -80,8 +80,8 @@ const menu = computed(() => [
     run: () => forge.startIdea(),
   },
   {
-    label: 'Analyze a game',
-    detail: `Built against planned for ${EXISTING_PLAYBOOKS.length} playbooks, and what is left.`,
+    label: 'Load a game',
+    detail: `Every beat of ${EXISTING_PLAYBOOKS.length} playbooks: spent, left, starred, and its plan.`,
     run: () => forge.go('library'),
   },
   ...(forge.draftList.length

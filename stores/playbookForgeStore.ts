@@ -26,6 +26,22 @@ import {
   planDiff,
 } from '~/utils/playbookForge/handoff'
 import type { Blueprint } from '~/utils/playbookForge/types'
+import {
+  PLAYBOOK_ART_LANES,
+  playbookArtRequest,
+} from '~/utils/playbook/artLanes'
+import type { Playbook } from '~/utils/playbook/types'
+import {
+  buildLedger,
+  nodeArtPrompt,
+  nodeShape,
+  planGaps,
+  unitsToPaint,
+  unitsToWrite,
+  writingBrief,
+  type LedgerJob,
+  type ProjectJobs,
+} from '~/utils/playbookForge/ledger'
 
 // Playbook Forge (conductor playbook-kit t-012). Drafts and assumptions live in
 // this browser; launching a playbook or sending a revised plan writes a Kind
@@ -37,8 +53,29 @@ export type ForgeScreen =
   | 'idea'
   | 'loadout'
   | 'analyze'
+  | 'ledger'
   | 'launch'
   | 'assumptions'
+
+/** Most pictures one Submit sends to the relay, so a slip never floods the queue. */
+export const SUBMIT_CAP = 60
+
+export type LedgerRelay = {
+  studio: string | null
+  project: string
+  edits: number
+  byNode: Record<string, LedgerJob[]>
+  jobs: ProjectJobs
+  truncated: boolean
+}
+
+export type LedgerSubmit = {
+  kind: 'art' | 'text'
+  section: string
+  count: number
+  seconds: number
+  words: number
+}
 
 const DRAFTS_KEY = 'kr-playbook-forge-drafts-v1'
 const ASSUMPTIONS_KEY = 'kr-playbook-forge-assumptions-v1'
@@ -107,6 +144,44 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     builtPlan.value ? forecast(builtPlan.value, assumptions.value) : null,
   )
 
+  const ledgerBook = ref<Playbook | null>(null)
+  const ledgerRelay = ref<LedgerRelay | null>(null)
+  const ledgerLoading = ref(false)
+  const ledgerSection = ref(0)
+  const ledgerLane = ref('')
+  const ledgerConfirm = ref<LedgerSubmit | null>(null)
+
+  const ledger = computed(() => {
+    const entry = existing.value
+    if (!entry) return null
+    const gaps = built.value ? planGaps(entry.plan, built.value) : []
+    const notes: string[] = []
+    if (!entry.studio)
+      notes.push(
+        'No Playbook Studio adapter yet, so its beats cannot be listed one by one (playbook-kit t-013).',
+      )
+    const edits = ledgerRelay.value?.edits ?? 0
+    if (edits)
+      notes.push(
+        `${edits} Playbook Studio edit${edits === 1 ? ' is' : 's are'} not folded into the authored source yet.`,
+      )
+    if (ledgerRelay.value?.truncated)
+      notes.push('Only the newest 5000 relay jobs were read.')
+    return buildLedger(
+      ledgerBook.value ?? { order: [], nodes: {} },
+      ledgerRelay.value?.byNode ?? {},
+      {
+        laneKey: ledgerLane.value,
+        assumptions: assumptions.value,
+        gaps,
+        notes,
+      },
+    )
+  })
+  const ledgerFocused = computed(
+    () => ledger.value?.sections[ledgerSection.value] ?? null,
+  )
+
   /** What one press of ◀ or ▶ on the focused row would do to the forecast. */
   const preview = computed(() => {
     const row = focusedRow.value
@@ -164,8 +239,13 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'
-    else if (from === 'analyze' || from === 'idea' || from === 'library')
-      screen.value = 'title'
+    else if (from === 'ledger' && ledgerConfirm.value) {
+      ledgerConfirm.value = null
+      return
+    } else if (from === 'ledger') screen.value = 'library'
+    else if (from === 'analyze')
+      screen.value = ledgerBook.value || ledgerRelay.value ? 'ledger' : 'title'
+    else if (from === 'idea' || from === 'library') screen.value = 'title'
     status.value = ''
     result.value = null
   }
@@ -209,6 +289,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   async function analyze(slug: string) {
     const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
     if (!entry) return
+    // From a game's ledger, Plan keeps the ledger to come back to.
+    if (existing.value?.slug !== slug || screen.value !== 'ledger') {
+      ledgerBook.value = null
+      ledgerRelay.value = null
+    }
     existing.value = entry
     draft.value = structuredClone(entry.plan)
     built.value = null
@@ -222,6 +307,191 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       status.value = `Could not count ${entry.title}: ${error instanceof Error ? error.message : String(error)}`
     } finally {
       loadingBuilt.value = false
+    }
+  }
+
+  async function loadRelay(slug: string) {
+    const res = await performFetch<LedgerRelay>(
+      `/api/admin/playbook-ledger/${encodeURIComponent(slug)}`,
+    )
+    if (res.success && res.data) ledgerRelay.value = res.data
+    else
+      status.value = `Relay records unavailable: ${res.message || 'no response'}. Beats are counted from code only.`
+  }
+
+  /** The production ledger: every beat a playbook is made of, its spend and what is left. */
+  async function openLedger(slug: string) {
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
+    if (!entry) return
+    existing.value = entry
+    draft.value = structuredClone(entry.plan)
+    built.value = null
+    ledgerBook.value = null
+    ledgerRelay.value = null
+    ledgerSection.value = 0
+    ledgerConfirm.value = null
+    go('ledger')
+    ledgerLoading.value = true
+    try {
+      const [counts, book] = await Promise.all([
+        entry.count(),
+        (async () => {
+          if (!entry.studio) return null
+          const { buildPlaybook, isPlaybookGame } =
+            await import('~/utils/playbook/games')
+          return isPlaybookGame(entry.studio)
+            ? buildPlaybook(entry.studio)
+            : null
+        })(),
+      ])
+      built.value = counts
+      ledgerBook.value = book
+      ledgerLane.value = book?.artLanes[0] ?? PLAYBOOK_ART_LANES[0]!.key
+      await loadRelay(entry.studio ?? entry.slug)
+    } catch (error) {
+      status.value = `Could not read ${entry.title}: ${error instanceof Error ? error.message : String(error)}`
+    } finally {
+      ledgerLoading.value = false
+    }
+  }
+
+  function focusSection(index: number) {
+    const count = ledger.value?.sections.length ?? 0
+    if (!count) return
+    ledgerSection.value = (index + count) % count
+    ledgerConfirm.value = null
+  }
+
+  function cycleLane(direction: 1 | -1) {
+    const keys = PLAYBOOK_ART_LANES.map((l) => l.key)
+    const at = keys.indexOf(ledgerLane.value)
+    ledgerLane.value = keys[(at + direction + keys.length) % keys.length]!
+    ledgerConfirm.value = null
+  }
+
+  /** First press: the confirm card with the count and time. Second press: send it. */
+  function askSubmit(kind: 'art' | 'text') {
+    const section = ledgerFocused.value
+    if (!section) return
+    const count =
+      kind === 'art'
+        ? Math.min(unitsToPaint(section).length, SUBMIT_CAP)
+        : unitsToWrite(section).length
+    if (!count) {
+      status.value =
+        kind === 'art'
+          ? `${section.label}: nothing to paint. Rendered or queued art is already on its way.`
+          : `${section.label}: every beat is written.`
+      return
+    }
+    const perImage =
+      section.remainingSeconds / Math.max(1, unitsToPaint(section).length)
+    ledgerConfirm.value = {
+      kind,
+      section: section.id,
+      count,
+      seconds: kind === 'art' ? Math.round(perImage * count) : 0,
+      words: kind === 'text' ? section.remainingWords : 0,
+    }
+  }
+
+  async function confirmSubmit() {
+    const pending = ledgerConfirm.value
+    if (!pending || busy.value) return
+    ledgerConfirm.value = null
+    if (pending.kind === 'art') await submitSectionArt()
+    else await submitSectionText()
+  }
+
+  /** Sends a section's unpainted beats to the art relay as Playbook Studio art requests. */
+  async function submitSectionArt() {
+    const book = ledgerBook.value
+    const section = ledgerFocused.value
+    const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
+    if (!book || !section || !lane || busy.value) return
+    const units = unitsToPaint(section).slice(0, SUBMIT_CAP)
+    busy.value = true
+    let sent = 0
+    let refused = ''
+    try {
+      for (const unit of units) {
+        const node = book.nodes[unit.key]
+        if (!node) continue
+        status.value = `Submitting ${section.label} to the relay: ${sent + 1} of ${units.length}…`
+        const prompt = nodeArtPrompt(node)
+        const shape = nodeShape(node)
+        const res = await performFetch<{ jobId?: number }>('/api/art/enqueue', {
+          method: 'POST',
+          body: JSON.stringify(
+            playbookArtRequest(
+              lane,
+              prompt,
+              shape,
+              Math.floor(Math.random() * 2_000_000_000),
+              {
+                projectSlug: book.artProject,
+                designer: book.title,
+                negative: book.artNegative,
+              },
+            ),
+          ),
+        })
+        const jobId = Number(res.data?.jobId)
+        if (!res.success || !Number.isInteger(jobId)) {
+          refused = res.message || 'The art queue refused the request.'
+          break
+        }
+        await performFetch(
+          `/api/admin/playbook/${book.game}/${encodeURIComponent(unit.key)}/notes`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              kind: 'art-request',
+              body: `${lane.label} · ${shape}: ${prompt} (Playbook Forge ledger)`,
+              artJobId: jobId,
+            }),
+          },
+        )
+        sent += 1
+      }
+      await loadRelay(book.game)
+      status.value = refused
+        ? `Sent ${sent} of ${units.length}, then the relay refused: ${refused}`
+        : `Sent ${sent} picture${sent === 1 ? '' : 's'} on ${lane.label}. kr-relay picks them up from the queue.`
+    } finally {
+      busy.value = false
+    }
+  }
+
+  /** Sends a section's missing words to the next agent as a high-priority Todo. */
+  async function submitSectionText() {
+    const entry = existing.value
+    const book = ledgerBook.value
+    const section = ledgerFocused.value
+    if (!entry || !book || !section || busy.value) return
+    busy.value = true
+    status.value = 'Sending…'
+    try {
+      const res = await performFetch<{ id: number; title: string }>(
+        '/api/todos',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            title: `Write ${entry.title} ${section.label.toLowerCase()} from the Playbook Forge ledger`,
+            description: writingBrief(book.game, entry.title, section),
+            priority: 'HIGH',
+            category: 'AGENT',
+          }),
+        },
+      )
+      if (!res.success || !res.data) {
+        status.value = res.message || 'The writing could not be sent.'
+        return
+      }
+      result.value = { kind: 'todo', id: res.data.id, title: res.data.title }
+      status.value = 'Sent. The next agent takes it before any roadmap work.'
+    } finally {
+      busy.value = false
     }
   }
 
@@ -370,6 +640,19 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     openDraft,
     deleteDraft,
     analyze,
+    ledger,
+    ledgerBook,
+    ledgerRelay,
+    ledgerLoading,
+    ledgerSection,
+    ledgerFocused,
+    ledgerLane,
+    ledgerConfirm,
+    openLedger,
+    focusSection,
+    cycleLane,
+    askSubmit,
+    confirmSubmit,
     setTab,
     cycleTab,
     moveFocus,

@@ -5,7 +5,7 @@ tabKey: playbook-forge
 label: Playbook Forge
 title: Playbook Forge
 subtitle: Idea in, playbook out, with every cost on the screen.
-description: A console for designing Kind Robots story games. Turn an idea into a configured playbook across seven pages of factors (pitch, player, cast, story, rules, endings, save) with a live forecast of images, render time, words and agent sessions, then launch it as a project. Or analyze an existing playbook's built counts against its plan and send a revised plan to the agents.
+description: A console for designing Kind Robots story games. Turn an idea into a configured playbook across seven pages of factors (pitch, player, cast, story, rules, endings, save) with a live forecast of images, render time, words and agent sessions, then launch it as a project. Or load an existing game's production ledger, with every beat's art and words, the relay time spent and left, stars per finished section and its discrepancies, and send unfinished sections to the art relay or the next agent.
 summary: Design playbooks, forecast gen time.
 icon: kind-icon:hammer
 route: /admin/playbook-forge
@@ -25,10 +25,16 @@ tutorial:
     checkpoint; words per unit; agent sessions; and seeded QA playthroughs. Its
     tier comes from the Playbook Kit budget. Forge the project creates the Kind
     Robots project and a scaffold Todo carrying the blueprint to Conductor.
-    Analyze a game counts what each playbook has built straight from its code
-    and sets it beside the Conductor plan; send a revised plan and the agents
-    take it before any roadmap work. Design notes live in Conductor
-    projects/playbook-kit/DESIGN-FORGE.md.
+    Load a game opens its production ledger: every beat its Playbook Studio
+    adapter knows, grouped into sections, with art delivered, rendered but not
+    wired, queued, failed or missing, scene and outcome text, the relay time
+    its ArtJobs took and the render time and words still left. A finished
+    section earns a star; every section starred with the plan met is super
+    shiny. Discrepancies are listed. Submit art sends a section's unpainted
+    beats to kr-relay (at most 60 at a time); Send writing gives its missing
+    words to the next agent as a Todo. F (or Menu) opens the game's plan:
+    built against planned, and a revised plan to send. Design notes live in
+    Conductor projects/playbook-kit/DESIGN-FORGE.md.
   image: /images/art/resources.webp
 ---
 

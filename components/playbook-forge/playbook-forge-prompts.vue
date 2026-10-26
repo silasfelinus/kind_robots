@@ -33,12 +33,22 @@
       Back
     </button>
     <button
-      v-if="forge.screen === 'loadout' || forge.screen === 'analyze'"
+      v-if="
+        forge.screen === 'loadout' ||
+        forge.screen === 'analyze' ||
+        forge.screen === 'ledger'
+      "
       type="button"
       class="pf-label btn btn-primary btn-sm ml-auto"
       @click="emit('command', 'start')"
     >
-      {{ forge.existing ? 'Review plan' : 'Launch' }}
+      {{
+        forge.screen === 'ledger'
+          ? 'Plan'
+          : forge.existing
+            ? 'Review plan'
+            : 'Launch'
+      }}
     </button>
   </footer>
 </template>
@@ -63,6 +73,15 @@ const prompts = computed<{ command: ConsoleCommand; label: string }[]>(() => {
     case 'idea':
       return [
         { command: 'confirm', label: 'Select' },
+        { command: 'back', label: 'Back' },
+      ]
+    case 'ledger':
+      return [
+        { command: 'confirm', label: 'Select' },
+        ...(forge.ledgerBook
+          ? [{ command: 'left' as const, label: 'Art lane' }]
+          : []),
+        { command: 'start', label: 'Plan' },
         { command: 'back', label: 'Back' },
       ]
     case 'launch':

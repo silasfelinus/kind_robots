@@ -364,6 +364,7 @@
     "test:component-reachability:self": "tsx utils/scripts/verifyComponentReachability.ts --self-test",
     "test:page-backdrop": "tsx utils/scripts/verifyPageBackdrop.ts",
     "test:page-backdrop:self": "tsx utils/scripts/verifyPageBackdrop.ts --self-test",
+    "test:share-preview": "tsx utils/scripts/verifySharePreview.test.ts",
     "test:art-image-caching": "tsx utils/scripts/verifyArtImageCaching.ts",
     "test:earned-karma-wiring": "tsx utils/scripts/verifyEarnedKarmaWiring.ts",
     "test:stored-art-paths": "tsx utils/scripts/verifyStoredArtPaths.ts",

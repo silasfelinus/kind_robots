@@ -12,6 +12,8 @@ import {
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
+  crossRealmConsequenceLedger,
+  crossRealmHouseEpilogue,
 } from '../memoryDungeon/firstTwoConsequences'
 
 const base = newBriarSave()
@@ -135,6 +137,78 @@ assert.match(
 )
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
+
+const earnedHouseEpilogues = new Set<string>()
+for (const witnessChoice of ['remember', 'protect'] as const) {
+  for (const ending of ['return', 'commons'] as const) {
+    const original = {
+      ...base,
+      house: { ...house, ending: 'release' as const },
+      sceneChoices: { '6,3': witnessChoice, '4,3': 'plan' },
+    }
+    const reflected = { ...mirror, ending }
+    const ledger = crossRealmConsequenceLedger(original, reflected)
+    assert.equal(ledger.memoryCustody, 'release')
+    assert.equal(ledger.crossingAccord, ending)
+    assert.equal(
+      ledger.witnessRecord,
+      witnessChoice === 'remember' ? 'copied' : 'protected',
+    )
+    assert.equal(ledger.orensProvision, 'route')
+    const text = crossRealmHouseEpilogue(original, reflected)
+    assert.ok(text.includes('Oren'), 'Earned logistics must affect the ending')
+    assert.ok(
+      witnessChoice === 'remember'
+        ? text.includes('names you copied') || text.includes('copied names')
+        : text.includes('names you protected') ||
+            text.includes('shielded the names'),
+      'The original witness decision must survive into the ending',
+    )
+    assert.equal(
+      crossRealmHouseEpilogue(
+        JSON.parse(JSON.stringify(original)),
+        JSON.parse(JSON.stringify(reflected)),
+      ),
+      text,
+      'An existing save round-trip must not invent new ledger fields',
+    )
+    earnedHouseEpilogues.add(text)
+  }
+}
+assert.equal(earnedHouseEpilogues.size, 4, 'Both House endings react to both witness policies')
+const supplies = crossRealmHouseEpilogue(
+  { ...base, sceneChoices: { '4,3': 'load' } },
+  { ...mirror, ending: 'commons' },
+)
+assert.ok(supplies.includes('provisions'))
+assert.ok(!supplies.includes('route you planned'))
+assert.equal(
+  crossRealmHouseEpilogue(
+    { ...base, sceneChoices: { '4,3': 'invented', '6,3': 'invented' } },
+    { ...mirror, ending: 'return' },
+  ),
+  '',
+  'Unrecognized source choices must never earn an epilogue',
+)
+assert.equal(
+  crossRealmHouseEpilogue(
+    { ...base, sceneChoices: { '4,3': 'plan', '6,3': 'remember' } },
+    mirror,
+  ),
+  '',
+  'No future ending content may appear before the mirrored House resolves',
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).witnessRecord,
+  'unset',
+  'Old saves without the portable clue remain playable',
+)
+assert.match(
+  store,
+  /crossRealmHouseEpilogue\(state\.value, darkHouse\.value\)/,
+  'The real mirrored House verdict must render the earned epilogue',
+)
+
 console.log(
   'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',
 )

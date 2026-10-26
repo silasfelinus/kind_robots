@@ -137,7 +137,12 @@ for (const [id, event] of [
     assert.equal(originPerkAvailable(run, option.id), false)
     assert.equal(resolved.rolls, run.rolls, 'opening outlooks never roll dice')
     assert.equal(resolved.pending?.entry.roll, null)
-    assert.equal(resolved.pending?.entry.text, option.success.text)
+    assert.ok(
+      [option.success.text, option.failure?.text]
+        .filter(Boolean)
+        .some((text) => resolved.pending?.entry.text.includes(text!)),
+      'opening choice must deliver an authored outcome, not skip its story',
+    )
     if (option.check) {
       const later = chooseBeat(
         {

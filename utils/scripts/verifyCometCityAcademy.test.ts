@@ -10,6 +10,16 @@ import {
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
+  SOCIAL_CAST,
+  SOCIAL_DAYS,
+  newSocialState,
+  socialChoices,
+  applySocialChoice,
+  socialMissionBonus,
+  socialFinaleText,
+  validSocialState,
+} from '../cometAcademy/relationships'
+import {
   beginPlayerEvolution,
   canEvolve,
   evolutionEncounter,
@@ -66,6 +76,7 @@ import {
   incidentsFor,
   nextSchoolDay,
   resolveDispatch,
+  socialize,
   restoreAcademy,
   startAcademy,
   startFullAcademy,
@@ -763,6 +774,194 @@ assert.equal(
   }),
   null,
 )
+// Distinct adult classmates have their own conflicts, boundaries and consent.
+// A social scene uses one daytime action; it is never a free map overlay.
+assert.equal(SOCIAL_CAST.length, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 6)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 6)
+assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 3)
+assert.equal(SOCIAL_DAYS.length, 18)
+assert.ok(!SOCIAL_DAYS.includes(20 as never))
+assert.ok(!SOCIAL_DAYS.includes(24 as never))
+assert.ok(!SOCIAL_DAYS.includes(16 as never))
+assert.ok(SOCIAL_CAST.every((p) => p.boundary && p.duty && p.privateMoment))
+const blankSocial = newSocialState()
+assert.ok(validSocialState(blankSocial, 2))
+assert.deepEqual(socialChoices(blankSocial, 'mina', 20), [])
+assert.deepEqual(
+  socialChoices(blankSocial, 'mina', 2, { unavailable: true }),
+  [],
+)
+assert.ok(!socialChoices(blankSocial, 'mina', 2).some((c) => c.id === 'invite'))
+assert.equal(applySocialChoice(blankSocial, 'mina', 2, 'date'), null)
+assert.equal(socialMissionBonus(undefined, ['mina']), 0)
+assert.equal(
+  socialFinaleText(
+    undefined,
+    Object.fromEntries(STUDENTS.map((s) => [s.id, s.name])) as Record<
+      StudentId,
+      string
+    >,
+  ),
+  '',
+)
+let socialRun: AcademyRun = { ...startFullAcademy('kinetic', 101), day: 2 }
+const firstMeet = socialize(socialRun, 'nix', 'listen')
+assert.equal(firstMeet.phase, 'dispatch')
+assert.equal(firstMeet.relationships?.connections.nix?.trust, 1)
+assert.ok(firstMeet.scene.includes('Nix'))
+assert.deepEqual(socialize(firstMeet, 'nix', 'help'), firstMeet)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(firstMeet))),
+  firstMeet,
+)
+socialRun = { ...firstMeet, day: 3, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'help')
+assert.equal(socialRun.relationships?.connections.nix?.trust, 3)
+assert.equal(socialRun.relationships?.connections.nix?.helped, true)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 4, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'invite')
+assert.equal(socialRun.relationships?.connections.nix?.courtingDay, 4)
+assert.equal(socialRun.relationships?.romance, undefined)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 5, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'date')
+assert.equal(socialRun.relationships?.romance, 'nix')
+assert.equal(socialRun.relationships?.connections.nix?.romance, true)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+socialRun = { ...socialRun, day: 6, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'partner')
+assert.equal(socialRun.relationships?.partner, 'nix')
+socialRun = { ...socialRun, day: 7, phase: 'map' }
+socialRun = socialize(socialRun, 'nix', 'sidekick')
+assert.equal(socialRun.relationships?.sidekick, 'nix')
+assert.equal(socialMissionBonus(socialRun.relationships!, ['nix']), 2)
+assert.equal(socialMissionBonus(socialRun.relationships!, ['mina']), 0)
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(socialRun))),
+  socialRun,
+)
+const finaleSocial = finishAcademy(
+  { ...socialRun, day: 30, phase: 'finale' },
+  'protect',
+)
+assert.ok(finaleSocial.scene.includes('Nix Venn coordinates the rescue line'))
+assert.ok(finaleSocial.scene.includes('Nix Venn meets you after the alarms'))
+assert.ok(finaleSocial.scene.includes('your sidekick'))
+const leaving = socialize(
+  { ...socialRun, day: 9, phase: 'map' },
+  'nix',
+  'release',
+)
+assert.equal(leaving.relationships?.partner, undefined)
+assert.equal(leaving.relationships?.sidekick, undefined)
+assert.equal(leaving.relationships?.romance, undefined)
+assert.equal(leaving.relationships?.connections.nix?.romance, false)
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(leaving))), leaving)
+// No unearned partner, automatic romance, double social day, or forced courtship.
+const noBond = {
+  ...startFullAcademy('kinetic', 100),
+  day: 3,
+  phase: 'map' as const,
+}
+assert.deepEqual(socialize(noBond, 'mina', 'partner'), noBond)
+assert.deepEqual(socialize(noBond, 'mina', 'invite'), noBond)
+assert.deepEqual(socialize({ ...noBond, day: 20 }, 'mina', 'listen'), {
+  ...noBond,
+  day: 20,
+})
+assert.deepEqual(socialize({ ...noBond, day: 29 }, 'mina', 'listen'), {
+  ...noBond,
+  day: 29,
+})
+const unavailableSocial = { ...noBond, day: 21, injuries: { mina: 23 } }
+assert.deepEqual(
+  socialize(unavailableSocial, 'mina', 'listen'),
+  unavailableSocial,
+)
+const separatedSocial = {
+  ...noBond,
+  day: 21,
+  betrayal: {
+    day: 20 as const,
+    person: 'mina' as const,
+    status: 'isolated' as const,
+  },
+}
+assert.deepEqual(socialize(separatedSocial, 'mina', 'listen'), separatedSocial)
+const deniedMina = {
+  ...socialRun,
+  day: 10,
+  phase: 'map' as const,
+  relationships: {
+    ...socialRun.relationships!,
+    partner: undefined,
+    sidekick: undefined,
+    romance: undefined,
+    connections: { mina: { trust: 3, helped: true, romance: false } },
+    days: [2, 3],
+  },
+  playerEvolution: {
+    ...socialRun.playerEvolution!,
+    form: 'villain' as const,
+    protect: 0,
+    exploit: 2,
+    milestones: [{ day: 16 as const, form: 'villain' as const }],
+  },
+}
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'mina', 10, {
+    form: 'villain',
+  }).some((c) => c.id === 'invite'),
+)
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'sol', 10).some(
+    (c) => c.id === 'invite',
+  ),
+)
+assert.ok(
+  !socialChoices(deniedMina.relationships, 'imani', 10, { danger: 20 }).some(
+    (c) => c.id === 'invite',
+  ),
+)
+const olderSocial = { ...noBond, relationships: undefined }
+assert.deepEqual(
+  restoreAcademy(JSON.parse(JSON.stringify(olderSocial))),
+  JSON.parse(JSON.stringify(olderSocial)),
+)
+assert.equal(
+  restoreAcademy({ ...noBond, relationships: { ...blankSocial, days: [29] } }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...noBond,
+    relationships: { ...blankSocial, partner: 'bad' },
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...noBond,
+    relationships: {
+      ...blankSocial,
+      connections: { mina: { trust: -10, helped: true, romance: true } },
+    },
+  }),
+  null,
+)
+
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
 // All 48 character identities can independently become the antagonist.
@@ -1070,6 +1269,9 @@ assert.ok(page.includes('data-testid="academy-plot-status"'))
 assert.ok(page.includes('data-testid="academy-villain-identity"'))
 assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
 assert.ok(page.includes('data-testid="academy-identity-choice"'))
+assert.ok(page.includes('data-testid="academy-social-switch"'))
+assert.ok(page.includes('data-testid="academy-social-panel"'))
+assert.ok(page.includes('data-testid="academy-social-choice"'))
 assert.ok(page.includes("store.end('share')"))
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))

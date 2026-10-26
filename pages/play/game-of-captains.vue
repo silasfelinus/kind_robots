@@ -12,7 +12,10 @@
       ><span class="cap-wordmark">THIS <i>MEANS</i> WARP</span>
       <span class="cap-flight">{{
         run
-          ? 'CAPTAIN’S LOG // ' + run.chapter.toString().padStart(2, '0')
+          ? 'SHIP DAY ' +
+            (run.day ?? run.chapter) +
+            ' // CHAPTER ' +
+            run.chapter
           : 'BRIDGE ACCESS REQUESTED'
       }}</span>
       <span v-if="run" class="cap-hud"
@@ -103,9 +106,12 @@
                 :aria-pressed="captain.id === selectedCaptain"
                 @click="selectedCaptain = captain.id"
               >
-                <span class="cap-captain-icon" aria-hidden="true">{{
-                  captain.name.split(' ').at(-1)?.slice(0, 1)
-                }}</span>
+                <span
+                  class="cap-captain-icon"
+                  :data-portrait-key="'captain-' + captain.id"
+                  aria-hidden="true"
+                  >{{ captain.name.split(' ').at(-1)?.slice(0, 1) }}</span
+                >
                 <span
                   ><strong>{{ captain.name }}</strong
                   ><small>{{ captain.epithet }}</small></span
@@ -119,13 +125,22 @@
                 {{ activeCaptain.cost }}</small
               >
             </div>
+            <div
+              class="cap-stats cap-captain-stats"
+              aria-label="Captain statistics"
+            >
+              <div v-for="skill in SKILLS" :key="skill">
+                <small>{{ skill.toUpperCase() }}</small
+                ><strong>{{ captainStats[skill] }}</strong>
+              </div>
+            </div>
             <div class="cap-heading cap-crew-heading">
               <span>02</span>
               <div>
                 <h2>Appoint your crew</h2>
                 <p>
-                  Choose three or four officers. You'll decide who stays aboard
-                  later.
+                  Choose exactly three officers from twelve. Their abilities,
+                  conflicts and personal quests change the routes.
                 </p>
               </div>
             </div>
@@ -138,22 +153,36 @@
                 :class="{ chosen: chosenCrew.includes(member.id) }"
                 :aria-pressed="chosenCrew.includes(member.id)"
                 :disabled="
-                  chosenCrew.length >= 4 && !chosenCrew.includes(member.id)
+                  chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
                 "
                 @click="toggleCrew(member.id)"
               >
-                <span class="cap-monogram">{{ member.monogram }}</span>
+                <span
+                  class="cap-monogram"
+                  :data-portrait-key="crewProfile(member.id).portraitKey"
+                  >{{ member.monogram }}</span
+                >
                 <span
                   ><strong>{{ member.name }}</strong
-                  ><small>{{ member.role }}</small></span
+                  ><small
+                    >{{ member.role }} ·
+                    {{ crewProfile(member.id).pronouns }}</small
+                  ></span
                 ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
               </button>
             </div>
+            <div class="cap-team-note">
+              {{ chosenCrew.length }} / 3 selected ·
+              {{ CREW_PROFILES.length }} candidates
+            </div>
+            <p class="cap-crew-story">
+              {{ chosenCrew.map((id) => crewProfile(id).story).join(' ') }}
+            </p>
             <button
               class="cap-primary"
               type="button"
               data-testid="captains-begin"
-              :disabled="chosenCrew.length < 3"
+              :disabled="chosenCrew.length !== 3"
               @click="store.begin(selectedCaptain, chosenCrew)"
             >
               TAKE COMMAND <span>➜</span>
@@ -181,6 +210,39 @@
               </p>
               <small>{{ antagonist.title }}</small>
             </div>
+            <section
+              v-if="missionPreview"
+              class="cap-odds"
+              data-testid="captains-odds"
+              aria-live="polite"
+            >
+              <div class="cap-odds-row">
+                <strong>{{ missionPreview.chance }}% successful mission</strong
+                ><span>RETURN: {{ missionPreview.durationDays }} DAYS</span>
+              </div>
+              <p>
+                Expires in {{ missionPreview.expiresInDays }} ship day(s).
+                {{ missionRule.deadline }}
+              </p>
+              <p
+                v-for="requirement in missionPreview.requirements"
+                :key="requirement.skill"
+              >
+                {{ requirement.skill.toUpperCase() }} {{ requirement.total }} /
+                {{ requirement.required }} required
+              </p>
+              <p v-if="missionPreview.specialRoutes.length" class="cap-special">
+                {{ missionPreview.specialRoutes.join(' ') }}
+              </p>
+              <p v-else>{{ missionPreview.commentary }}</p>
+              <p
+                v-for="blocker in missionPreview.blockers"
+                :key="blocker"
+                role="alert"
+              >
+                {{ blocker }}
+              </p>
+            </section>
             <div class="cap-heading cap-crew-heading">
               <span>04</span>
               <div>
@@ -200,13 +262,17 @@
                 :class="{ chosen: run.away.includes(member.id) }"
                 :aria-pressed="run.away.includes(member.id)"
                 :disabled="
-                  !run.away.includes(member.id) &&
-                  run.away.length >= Math.min(3, run.crew.length - 1)
+                  unavailable(member.id) ||
+                  (!run.away.includes(member.id) && run.away.length >= 3)
                 "
                 :title="member.quote"
                 @click="toggleAway(member.id)"
               >
-                <span class="cap-monogram">{{ member.monogram }}</span>
+                <span
+                  class="cap-monogram"
+                  :data-portrait-key="crewProfile(member.id).portraitKey"
+                  >{{ member.monogram }}</span
+                >
                 <span
                   ><strong>{{ member.name }}</strong
                   ><small>{{ member.role }}</small></span
@@ -214,19 +280,74 @@
               </button>
             </div>
             <div class="cap-team-note">
-              AWAY: {{ run.away.length }} /
-              {{ Math.min(3, run.crew.length - 1) }}
+              AWAY: {{ run.away.length }} / 3
               <span
-                >{{ run.crew.length - run.away.length }} remain on board</span
+                >{{ run.crew.length - run.away.length }} officers aboard ·
+                captain on bridge</span
               >
             </div>
             <button
               class="cap-primary"
               type="button"
               data-testid="captains-launch"
+              :disabled="!missionPreview?.eligible"
               @click="store.launch()"
             >
               LAUNCH MISSION <span>➜</span>
+            </button>
+            <button
+              class="cap-option"
+              type="button"
+              data-testid="captains-wait"
+              @click="store.advanceDay()"
+            >
+              <span
+                ><b>Wait one ship day</b
+                ><small
+                  >Deliberate further. This opportunity may expire.</small
+                ></span
+              >
+              ↗
+            </button>
+          </template>
+
+          <template v-else-if="run.phase === 'transit'">
+            <div class="cap-heading">
+              <span>⌛</span>
+              <div>
+                <h2>Away team en route</h2>
+                <p>SHIP DAY {{ run.day }} · {{ mission.system }}</p>
+              </div>
+            </div>
+            <p class="cap-narrative">{{ run.scene }}</p>
+            <p class="cap-alert">
+              Expected return: day {{ run.active?.returnsDay }}. Assigned crew
+              are unavailable until their return.
+            </p>
+            <div class="cap-crew-picker">
+              <div
+                v-for="id in run.active?.party ?? []"
+                :key="id"
+                class="cap-crew-button"
+              >
+                <span
+                  class="cap-monogram"
+                  :data-portrait-key="crewProfile(id).portraitKey"
+                  >{{ crewProfile(id).monogram }}</span
+                >
+                <span
+                  ><strong>{{ crewProfile(id).name }}</strong
+                  ><small>ON MISSION</small></span
+                >
+              </div>
+            </div>
+            <button
+              class="cap-primary"
+              type="button"
+              data-testid="captains-return-day"
+              @click="store.advanceDay()"
+            >
+              ADVANCE SHIP DAY <span>➜</span>
             </button>
           </template>
 
@@ -407,11 +528,18 @@ import {
   CAPTAINS,
   CREW,
   MISSIONS,
+  previewMission,
   antagonistFor,
   missionFor,
   type CaptainId,
   type CrewId,
 } from '~/utils/gameOfCaptains/rules'
+import {
+  CAPTAIN_STATS,
+  CREW_PROFILES,
+  SKILLS,
+  ruleFor,
+} from '~/utils/gameOfCaptains/crewAssignments'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
@@ -429,6 +557,17 @@ const antagonist = computed(() =>
 const availableCrew = computed(() =>
   CREW.filter((person) => run.value?.crew.includes(person.id)),
 )
+const missionRule = computed(() => ruleFor(mission.value.id))
+const missionPreview = computed(() =>
+  run.value?.phase === 'briefing' ? previewMission(run.value) : null,
+)
+const captainStats = computed(() => CAPTAIN_STATS[selectedCaptain.value])
+function crewProfile(id: CrewId) {
+  return CREW_PROFILES.find((person) => person.id === id)!
+}
+function unavailable(id: CrewId) {
+  return (run.value?.injuredUntil?.[id] ?? 0) > (run.value?.day ?? 0)
+}
 const starName = computed(() =>
   run.value?.phase === 'ending'
     ? 'THE FINAL LOG'
@@ -438,6 +577,7 @@ const headline = computed(() =>
   run.value
     ? {
         briefing: mission.value.title,
+        transit: 'Away Team En Route',
         decision: 'The Cost Of Knowing',
         debrief: 'Between The Stars',
         finale: 'The Last Jump Gate',
@@ -454,6 +594,7 @@ const panelLabel = computed(() =>
   run.value
     ? {
         briefing: 'STAR CHART // MISSION BRIEF',
+        transit: 'EXPEDITION // RETURN CLOCK',
         decision: 'PRIME DOCTRINE // YOUR ORDER',
         debrief: 'CAPTAIN’S LOG // OUTCOME',
         finale: 'LAST TRANSMISSION // FINALE',
@@ -468,7 +609,7 @@ useHead({ title: 'This Means Warp | Kind Robots' })
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)
     ? chosenCrew.value.filter((x) => x !== id)
-    : chosenCrew.value.length < 4
+    : chosenCrew.value.length < 3
       ? [...chosenCrew.value, id]
       : chosenCrew.value
 }
@@ -716,6 +857,45 @@ function toggleAway(id: CrewId) {
   font-size: 0.72rem;
   line-height: 1.45;
   margin-top: 0.3rem;
+}
+.cap-captain-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0.5rem 0;
+}
+.cap-captain-stats > div {
+  padding: 0.3rem;
+}
+.cap-odds {
+  border: 1px solid #c6a477;
+  background: #112e4199;
+  padding: 0.7rem;
+  border-radius: 0.65rem;
+  margin: 0.7rem 0;
+}
+.cap-odds-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #ffe0b5;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+.cap-odds p {
+  font-size: 0.71rem;
+  line-height: 1.5;
+  color: #d1e0e3;
+  margin-top: 0.3rem;
+}
+.cap-odds .cap-special {
+  color: #ffd8a5;
+  border-top: 1px solid #caac7c66;
+  padding-top: 0.35rem;
+}
+.cap-crew-story {
+  font-size: 0.67rem;
+  color: #d0e1df;
+  line-height: 1.5;
+  margin: 0.7rem 0;
 }
 .cap-captains {
   display: grid;

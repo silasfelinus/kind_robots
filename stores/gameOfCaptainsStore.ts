@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
   assignAwayTeam,
+  advanceVoyageDay,
   decidePolicy,
   finishVoyage,
   launchMission,
@@ -58,6 +59,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = launchMission(run.value)
     persist()
   }
+  function advanceDay() {
+    if (!run.value) return
+    run.value = advanceVoyageDay(run.value)
+    persist()
+  }
   function decide(policy: PolicyId) {
     if (!run.value) return
     run.value = decidePolicy(run.value, policy)
@@ -86,6 +92,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     begin,
     assign,
     launch,
+    advanceDay,
     decide,
     next,
     finish,

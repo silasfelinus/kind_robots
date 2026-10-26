@@ -296,17 +296,36 @@
                 :aria-pressed="mapView === 'campus'"
                 :class="{ chosen: mapView === 'campus' }"
                 @click="mapView = 'campus'"
-              >CAMPUS / SOUTHEAST</button>
+              >
+                CAMPUS / SOUTHEAST
+              </button>
               <button
                 type="button"
                 :aria-pressed="mapView === 'town'"
                 :class="{ chosen: mapView === 'town' }"
                 @click="mapView = 'town'"
-              >COMET CITY / NORTHWEST</button>
+              >
+                COMET CITY / NORTHWEST
+              </button>
             </div>
-            <div class="cca-map" data-testid="academy-map" :aria-label="mapView === 'campus' ? 'Academy and northwest city border' : 'Comet City and southeast academy'">
-              <div class="cca-map-watermark" aria-hidden="true">{{ mapView === 'campus' ? 'ACADEMY' : 'COMET CITY' }}</div>
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="cca-map-roads" aria-hidden="true">
+            <div
+              class="cca-map"
+              data-testid="academy-map"
+              :aria-label="
+                mapView === 'campus'
+                  ? 'Academy and northwest city border'
+                  : 'Comet City and southeast academy'
+              "
+            >
+              <div class="cca-map-watermark" aria-hidden="true">
+                {{ mapView === 'campus' ? 'ACADEMY' : 'COMET CITY' }}
+              </div>
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                class="cca-map-roads"
+                aria-hidden="true"
+              >
                 <line
                   v-for="road in mapRoads"
                   :key="road.id"
@@ -321,13 +340,18 @@
                 :key="site.id"
                 type="button"
                 class="cca-map-pin"
-                :class="[site.district, { explored: run.visitedSites?.includes(site.id) }]"
+                :class="[
+                  site.district,
+                  { explored: run.visitedSites?.includes(site.id) },
+                ]"
                 :style="{ left: site.left + '%', top: site.top + '%' }"
                 :disabled="run.visitedSites?.includes(site.id)"
                 :title="site.name"
                 @click="store.visit(site.id)"
               >
-                <span class="cca-map-dot" aria-hidden="true">{{ site.district === 'academy' ? '✦' : '◆' }}</span>
+                <span class="cca-map-dot" aria-hidden="true">{{
+                  site.district === 'academy' ? '✦' : '◆'
+                }}</span>
                 <span class="cca-map-name">{{ site.name }}</span>
               </button>
               <span class="cca-map-compass" aria-hidden="true">N ↑</span>
@@ -342,7 +366,11 @@
             <div class="cca-heading">
               <span>02</span>
               <div>
-                <h2>{{ run.flowVersion === 2 ? 'Night dispatch' : 'Simulation desk' }}</h2>
+                <h2>
+                  {{
+                    run.flowVersion === 2 ? 'Night dispatch' : 'Simulation desk'
+                  }}
+                </h2>
                 <p>
                   Choose up to three volunteers for each call. A student cannot
                   be in two places at once.
@@ -360,7 +388,13 @@
               </div>
               <div class="cca-incident-location">
                 {{ incident.site }} ·
-                {{ run.flowVersion === 2 ? incident.allegiance.toUpperCase() + ' / ' + (run.day <= 2 ? 'SIMULATION' : 'REAL PATROL') : 'TRAINING SIMULATION' }}
+                {{
+                  run.flowVersion === 2
+                    ? incident.allegiance.toUpperCase() +
+                      ' / ' +
+                      (run.day <= 2 ? 'SIMULATION' : 'REAL PATROL')
+                    : 'TRAINING SIMULATION'
+                }}
               </div>
               <p>{{ incident.briefing }}</p>
               <div class="cca-roster">
@@ -400,7 +434,14 @@
               :disabled="!run.assignments.length"
               @click="store.dispatch()"
             >
-              {{ run.flowVersion === 2 ? (run.day <= 2 ? 'RUN NIGHT SIMULATIONS' : 'SEND NIGHT TEAMS') : 'RUN TRAINING SIMULATIONS' }} <span>➜</span>
+              {{
+                run.flowVersion === 2
+                  ? run.day <= 2
+                    ? 'RUN NIGHT SIMULATIONS'
+                    : 'SEND NIGHT TEAMS'
+                  : 'RUN TRAINING SIMULATIONS'
+              }}
+              <span>➜</span>
             </button>
           </template>
 
@@ -409,7 +450,14 @@
               <span>03</span>
               <div>
                 <h2>{{ campusEncounter.title }}</h2>
-                <p>{{ campusEncounter.location }} · {{ run.flowVersion === 2 ? 'DAYTIME EXPLORATION' : 'AFTER CLASS' }}</p>
+                <p>
+                  {{ campusEncounter.location }} ·
+                  {{
+                    run.flowVersion === 2
+                      ? 'DAYTIME EXPLORATION'
+                      : 'AFTER CLASS'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
@@ -435,7 +483,11 @@
             <div class="cca-heading">
               <span>04</span>
               <div>
-                <h2>{{ run.flowVersion === 2 ? 'Night debrief' : 'After the bell' }}</h2>
+                <h2>
+                  {{
+                    run.flowVersion === 2 ? 'Night debrief' : 'After the bell'
+                  }}
+                </h2>
                 <p>Every choice and every teammate leaves a trace.</p>
               </div>
             </div>
@@ -602,7 +654,10 @@ const panelLabel = computed(() =>
   run.value
     ? {
         map: 'DAY // EXPLORE THE CITY',
-        dispatch: run.value.flowVersion === 2 ? 'NIGHT // PATROL BOARD' : 'TRAINING // ASSIGNMENT BOARD',
+        dispatch:
+          run.value.flowVersion === 2
+            ? 'NIGHT // PATROL BOARD'
+            : 'TRAINING // ASSIGNMENT BOARD',
         campus: 'CAMPUS // ENCOUNTER DRAW',
         debrief: 'RESULTS // DAY REPORT',
         finale: 'PROM // FINAL EXAM',
@@ -1265,7 +1320,7 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 1.3rem;
   margin-left: 0.4rem;
 }
- .cca-map-tabs {
+.cca-map-tabs {
   display: flex;
   gap: 0.35rem;
   margin: 0.6rem 0;
@@ -1301,7 +1356,9 @@ function toggleStudent(caseId: string, id: StudentId): void {
   left: 7%;
   bottom: 10%;
   opacity: 0.14;
-  font: 900 clamp(1.4rem, 4vw, 3rem) Georgia, serif;
+  font:
+    900 clamp(1.4rem, 4vw, 3rem) Georgia,
+    serif;
   letter-spacing: 0.15em;
 }
 .cca-map-roads {

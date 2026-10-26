@@ -5388,8 +5388,18 @@ for (const def of DAYS)
 
   // Day 9's two canyon bargains unlock different, costly ways to help
   // Thistledown. Neither can be forged without its actual Day 9 decision.
-  const fedCanyon = answer(onDay(5, 9), 'd09-convoy', 'ask-bands', 'farmers-fed')
-  const ironCanyon = answer(onDay(5, 9), 'd09-convoy', 'ask-bands', 'leave-wagon')
+  const fedCanyon = answer(
+    onDay(5, 9),
+    'd09-convoy',
+    'ask-bands',
+    'farmers-fed',
+  )
+  const ironCanyon = answer(
+    onDay(5, 9),
+    'd09-convoy',
+    'ask-bands',
+    'leave-wagon',
+  )
   const fedDay10 = onDay(5, 10, { flags: fedCanyon.flags })
   const ironDay10 = onDay(5, 10, { flags: ironCanyon.flags })
   const colorsBeat = DAYS[9].audiences
@@ -5424,7 +5434,9 @@ for (const def of DAYS)
   const guidedDawn = finishDay(guided)
   assert.ok(guidedDawn.run.flags.includes('d11-hill-guides-returned'))
   assert.ok(
-    guidedDawn.report.events.some((event) => /seven Thistledown families/.test(event)),
+    guidedDawn.report.events.some((event) =>
+      /seven Thistledown families/.test(event),
+    ),
   )
   assert.ok(validateRun(JSON.parse(JSON.stringify(guidedDawn.run))))
 
@@ -5451,7 +5463,9 @@ for (const def of DAYS)
   const barricadeDawn = finishDay(barricaded)
   assert.ok(barricadeDawn.run.flags.includes('d11-iron-barricade-spent'))
   assert.ok(
-    barricadeDawn.report.events.some((event) => /burned down to its axles/.test(event)),
+    barricadeDawn.report.events.some((event) =>
+      /burned down to its axles/.test(event),
+    ),
   )
   assert.ok(validateRun(JSON.parse(JSON.stringify(barricadeDawn.run))))
 

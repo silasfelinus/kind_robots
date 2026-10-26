@@ -98,7 +98,9 @@
               @click="enter(room.id)"
             >
               <Icon :name="room.icon" class="h-4 w-4 shrink-0" />
-              <span class="hidden min-w-0 truncate @6xl:block">{{ room.label }}</span>
+              <span class="hidden min-w-0 truncate @6xl:block">{{
+                room.label
+              }}</span>
               <span
                 v-if="room.badge"
                 class="badge badge-error badge-xs absolute -right-0.5 -top-1 @6xl:static"
@@ -200,7 +202,13 @@
         <div
           ref="stage"
           class="@container min-h-0 flex-1 p-2 sm:p-3"
-          :class="activeRoom === 'briefing' || activeRoom === 'throne' || activeRoom === 'quests' ? 'overflow-hidden' : 'kr-scroll overscroll-contain'"
+          :class="
+            activeRoom === 'briefing' ||
+            activeRoom === 'throne' ||
+            activeRoom === 'quests'
+              ? 'overflow-hidden'
+              : 'kr-scroll overscroll-contain'
+          "
         >
           <section
             v-if="over && activeRoom !== 'chronicle'"

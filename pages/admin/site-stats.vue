@@ -3,9 +3,6 @@
     <div class="kr-scroll kr-container-wide @container p-4 md:p-6">
       <header class="flex flex-wrap items-end justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="text-2xl font-black tracking-tight @3xl:text-3xl">
-            Site Stats
-          </h1>
           <p class="text-sm text-base-content/70">
             First-party daily counts · no cookies, IPs or user agents stored
           </p>

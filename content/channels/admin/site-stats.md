@@ -6,7 +6,7 @@ label: Site Stats
 title: Site Stats
 subtitle: Are real people visiting and playing?
 description: First-party, cookie-free daily counts of page views, visits, referrers and feature events. Only daily totals are stored, never IP addresses, user agents or user ids.
-summary: Daily views, visits, referrers and events.
+summary: Daily views, visits, referrers, events.
 icon: kind-icon:chart
 route: /admin/site-stats
 sort: 49

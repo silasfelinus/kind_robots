@@ -43,7 +43,7 @@ export const useSiteStatsStore = defineStore('siteStats', () => {
       sent = false
     }
     if (sent) return
-    $fetch(TRACK_URL, {
+    $fetch<unknown, string>(TRACK_URL, {
       method: 'POST',
       body,
       headers: { 'Content-Type': 'application/json' },

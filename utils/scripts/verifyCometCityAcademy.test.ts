@@ -749,6 +749,14 @@ assert.equal(
   null,
 )
 
+assert.equal(
+  restoreAcademy({ ...promoted, playerEvolution: { ...promoted.playerEvolution!, protect: 0 } }),
+  null,
+)
+assert.equal(
+  restoreAcademy({ ...changed, playerEvolution: { ...changed.playerEvolution!, exploit: 0 } }),
+  null,
+)
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
 // All 48 character identities can independently become the antagonist.
@@ -1014,6 +1022,9 @@ assert.deepEqual(
   assignTeam(dispatched, incidentsFor(dispatched)[0]!.id, ['mina']),
   dispatched,
 )
+const betrayedInjured = { ...injuredRun, day: 21, injuries: { mina: 23 },
+  betrayal: { day: 20 as const, person: 'mina' as const, status: 'active' as const } }
+assert.deepEqual(tendInfirmary(betrayedInjured, 'mina'), betrayedInjured)
 const healed = tendInfirmary(injuredRun, 'mina')
 assert.equal(healed.phase, 'dispatch')
 assert.equal(healed.injuries?.mina, 6)

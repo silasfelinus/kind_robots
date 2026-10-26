@@ -1048,7 +1048,9 @@
                 class="rounded-2xl border border-warning/40 bg-base-100/95 p-3 shadow-lg"
                 aria-label="Kitchen sister companion decision"
               >
-                <p class="text-[10px] font-black uppercase tracking-widest text-warning">
+                <p
+                  class="text-[10px] font-black uppercase tracking-widest text-warning"
+                >
                   Companion quest · The names we carry
                 </p>
                 <h3 class="mt-1 font-serif text-lg font-black">

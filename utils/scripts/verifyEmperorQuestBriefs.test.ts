@@ -75,16 +75,16 @@ for (const quest of quests) {
   }
 }
 const view = readFileSync('components/EmperorFortressQuests.vue', 'utf8')
-assert.ok(view.includes('minmax(min(100%,16.25rem),1fr)'), 'larger card width')
-assert.ok(view.includes('min-h-72'), 'larger illustrated cards')
+assert.ok(view.includes('grid grid-cols-2 gap-2'), 'two compact notices per board row')
+assert.ok(view.includes('max-h-20'), 'illustrations fit compact quest notices')
 assert.ok(
   view.includes('whitespace-pre-line'),
   'paragraph break remains readable',
 )
 assert.ok(
-  view.includes('overflow-y-auto'),
-  'single overflow owner for long boards',
+  view.includes('kr-pane-scroll'),
+  'board and dispatch details have independent scrolling',
 )
 console.log(
-  `Emperor of Dust: ${quests.length} unique, spoiler-safe, full-length quest briefs and XL notices verified.`,
+  `Emperor of Dust: ${quests.length} unique, spoiler-safe, full-length quest briefs and compact notice grid verified.`,
 )

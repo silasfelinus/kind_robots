@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { usePlaybookStore } from '~/stores/playbookStore'
+import {
+  useFacetCatalogStore,
+  type FacetTaxonomy,
+} from '~/stores/facetCatalogStore'
 import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
 import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
@@ -17,6 +21,18 @@ import {
   type PlanEdit,
 } from '~/utils/playbookForge/adjust'
 import { forecast } from '~/utils/playbookForge/estimate'
+import {
+  SPARK_TAXONOMIES,
+  dealSparks,
+  elementFromFacets,
+  facetPool,
+  genreSpark,
+  presetForGenre,
+  type FacetCard,
+  type FacetPool,
+  type Spark,
+  type SparkSlot,
+} from '~/utils/playbookForge/facets'
 import {
   EXISTING_PLAYBOOKS,
   builtBlueprint,
@@ -339,6 +355,62 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     }
   }
 
+  const facets = ref<FacetPool>({})
+  const facetsState = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
+  const facetsError = ref('')
+  const ideaSparks = ref<Spark[]>([])
+  const ideaGenre = ref<Spark | null>(null)
+  const genreFacets = computed(() => facets.value.GENRE ?? [])
+
+  /** The Facet catalog's genres and the taxonomies sparks are dealt from, once per visit. */
+  async function loadFacets() {
+    if (facetsState.value === 'loading' || facetsState.value === 'ready') return
+    facetsState.value = 'loading'
+    try {
+      const rows = await useFacetCatalogStore().fetchCatalogSlice({
+        taxonomies: SPARK_TAXONOMIES as FacetTaxonomy[],
+        take: 1000,
+      })
+      facets.value = facetPool(rows)
+      facetsState.value = 'ready'
+      if (!ideaSparks.value.length) dealIdeaSparks()
+    } catch (error) {
+      facetsError.value =
+        error instanceof Error ? error.message : 'Facets could not load.'
+      facetsState.value = 'error'
+    }
+  }
+
+  /** Picks a genre Facet for a new idea; returns the loadout it starts from. */
+  function chooseGenreFacet(card: FacetCard | null): string | null {
+    ideaGenre.value = card ? genreSpark(card) : null
+    return card ? presetForGenre(card) : null
+  }
+
+  function dealIdeaSparks(slot?: SparkSlot) {
+    ideaSparks.value = dealSparks(
+      facets.value,
+      ideaSparks.value,
+      Math.random,
+      slot,
+    )
+  }
+
+  function toggleSparkLock(slot: SparkSlot) {
+    ideaSparks.value = ideaSparks.value.map((s) =>
+      s.slot === slot ? { ...s, locked: !s.locked } : s,
+    )
+  }
+
+  function dropSpark(slot: SparkSlot) {
+    ideaSparks.value = ideaSparks.value.filter((s) => s.slot !== slot)
+  }
+
+  /** A named element for the open game's ledger, drawn from Facets. */
+  function drawElement(kind: AdditionKind) {
+    return elementFromFacets(kind, facets.value)
+  }
+
   const libraryStats = ref<Record<string, LibraryStat>>({})
   const libraryLoading = ref(false)
   const librarySort = ref<LibrarySort>('progress-asc')
@@ -538,11 +610,17 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   function forge(title: string, idea: string, genre: string) {
-    draft.value = blueprintFromIdea(
-      title.trim() || 'Untitled playbook',
-      idea.trim(),
-      genre,
-    )
+    draft.value = {
+      ...blueprintFromIdea(
+        title.trim() || 'Untitled playbook',
+        idea.trim(),
+        genre,
+      ),
+      sparks: [
+        ...(ideaGenre.value ? [ideaGenre.value] : []),
+        ...ideaSparks.value.map(({ locked: _locked, ...spark }) => spark),
+      ],
+    }
     tab.value = 'pitch'
     focus.value = 0
     persistDraft()
@@ -976,6 +1054,18 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     clearOverrides,
     pendingAdjustment,
     postAdjustment,
+    facets,
+    facetsState,
+    facetsError,
+    genreFacets,
+    ideaSparks,
+    ideaGenre,
+    loadFacets,
+    chooseGenreFacet,
+    dealIdeaSparks,
+    toggleSparkLock,
+    dropSpark,
+    drawElement,
     libraryStats,
     libraryLoading,
     librarySort,

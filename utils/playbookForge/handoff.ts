@@ -1,6 +1,7 @@
 import { FACTOR_ROWS, displayValue } from './factors'
 import { checkpointClass } from './calibration'
 import { formatCount, formatDuration } from './estimate'
+import { sparkLines } from './facets'
 import type { Blueprint, Forecast } from './types'
 
 // What the forge sends to Conductor: a readable summary for the agent and
@@ -53,6 +54,8 @@ export function blueprintPitch(b: Blueprint, f: Forecast): string {
   return [
     `${b.title}: a playbook forged in /admin/playbook-forge.`,
     b.idea,
+    '',
+    ...sparkLines(b.sparks ?? []),
     '',
     `Start it with: python scripts/new_playbook.py ${b.slug} "${b.title}" --blueprint <this pitch>`,
     `then in kind_robots: npm run playbook:new -- ${b.slug} "${b.title}"`,

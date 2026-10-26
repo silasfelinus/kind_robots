@@ -127,7 +127,23 @@
           placeholder="What it is, where it goes, why it matters"
           aria-label="Element note"
         />
-        <div class="flex justify-end">
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <span v-if="newSource" class="mr-auto text-[0.7rem] opacity-60">{{
+            newSource
+          }}</span>
+          <button
+            type="button"
+            class="pf-label btn btn-sm btn-ghost"
+            :disabled="forge.facetsState !== 'ready'"
+            :title="
+              forge.facetsState === 'error'
+                ? `Facets could not load: ${forge.facetsError}`
+                : 'Draw a name and note for this element from Kind Robots Facets'
+            "
+            @click="draw"
+          >
+            Draw from Facets
+          </button>
           <button
             type="button"
             class="pf-label btn btn-sm btn-primary"
@@ -216,7 +232,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import {
   ADDITION_KINDS,
@@ -337,14 +353,28 @@ function kindName(kind: string) {
   return ADDITION_KINDS.find((k) => k.id === kind)?.label ?? kind
 }
 
+const newSource = ref('')
+
+onMounted(() => void forge.loadFacets())
+
+function draw() {
+  const element = forge.drawElement(newKind.value)
+  if (!element) return
+  newTitle.value = element.title
+  newNote.value = element.note
+  newSource.value = element.source
+}
+
 function add() {
   if (!newTitle.value.trim()) return
   forge.addElement({
     kind: newKind.value,
     title: newTitle.value,
     note: newNote.value,
+    ...(newSource.value ? { source: newSource.value } : {}),
   })
   newTitle.value = ''
   newNote.value = ''
+  newSource.value = ''
 }
 </script>

@@ -69,6 +69,8 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   shareSeed: false,
   metaProgress: true,
   exportSaves: false,
+
+  sparks: [],
 }
 
 export type Genre = {

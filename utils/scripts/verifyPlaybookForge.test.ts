@@ -32,6 +32,16 @@ import {
 } from '../playbookForge/presets'
 import type { Blueprint } from '../playbookForge/types'
 import {
+  SPARK_SLOTS,
+  composeIdea,
+  dealSparks,
+  elementFromFacets,
+  facetPool,
+  presetForGenre,
+  sparkLines,
+  type FacetCard,
+} from '../playbookForge/facets'
+import {
   adjustmentComment,
   applyPlanEdit,
   planChanges,
@@ -61,7 +71,8 @@ const base = (): Blueprint => ({
 const at = (patch: Partial<Blueprint>) => forecast({ ...base(), ...patch })
 
 // Every factor a blueprint carries is a row the designer can reach, once.
-const identity = new Set(['slug', 'title', 'idea', 'genre'])
+// Sparks are design material from Facets, carried like the idea, not a factor.
+const identity = new Set(['slug', 'title', 'idea', 'genre', 'sparks'])
 const rowKeys = FACTOR_ROWS.map((row) => row.key)
 assert.equal(new Set(rowKeys).size, rowKeys.length, 'one row per factor')
 for (const key of Object.keys(VIGNETTE_DEFAULTS) as (keyof Blueprint)[])
@@ -479,6 +490,96 @@ assert.equal(formatDuration(60 * 3600), '2d 12h', 'days round down')
   assert.match(comment, /tax auditor/)
   assert.match(comment, /\| Followers \| 16 \| 20 \|/)
   assert.match(comment, /Follower: A depressed toaster/)
+}
+
+// Facets: genres map to the nearest loadout; the rest are dealt into slots.
+{
+  let id = 0
+  const card = (
+    taxonomy: string,
+    title: string,
+    extra: Partial<FacetCard> = {},
+  ): FacetCard => ({
+    id: ++id,
+    title,
+    taxonomy,
+    description: `${title} described.`,
+    flavorText: null,
+    artPrompt: null,
+    imagePath: null,
+    randomWeight: 1,
+    isRandomizable: true,
+    ...extra,
+  })
+  assert.equal(presetForGenre(card('GENRE', 'Space Opera')), 'space-comedy')
+  assert.equal(presetForGenre(card('GENRE', 'Cyberpunk')), 'office-dystopia')
+  assert.equal(presetForGenre(card('GENRE', 'Gothic Horror')), 'comedy-horror')
+  assert.equal(
+    presetForGenre(card('GENRE', 'Polka')),
+    'open',
+    'unknown genres start open',
+  )
+  const pool = facetPool([
+    card('MOOD', 'Wistful'),
+    card('SETTING', 'Tidal Library'),
+    card('THEME', 'Forgiveness'),
+    card('ARCHETYPE', 'Reluctant Heir'),
+    card('OCCUPATION', 'Lighthouse Keeper'),
+    card('SPECIES', 'Otter'),
+    card('QUIRK', 'Collects Keys'),
+    card('BACKSTORY', 'Exiled Cartographer'),
+    card('MATERIAL', 'Sea Glass'),
+    card('ART_DIRECTION', 'Woodcut', { artPrompt: 'bold woodcut lines' }),
+    card('MOOD', 'Never Dealt', { isRandomizable: false }),
+  ])
+  const dealt = dealSparks(pool, [], () => 0)
+  assert.equal(dealt.length, SPARK_SLOTS.length, 'every slot gets a spark')
+  assert.ok(
+    dealt.every((s) => s.title !== 'Never Dealt'),
+    'only randomizable Facets are dealt',
+  )
+  const kept = dealt.map((s) =>
+    s.slot === 'tone' ? { ...s, locked: true } : s,
+  )
+  const again = dealSparks(pool, kept, () => 0.99)
+  assert.equal(
+    again.find((s) => s.slot === 'tone')?.facetId,
+    kept.find((s) => s.slot === 'tone')?.facetId,
+    'kept sparks survive a redeal',
+  )
+  const idea = composeIdea([
+    {
+      slot: 'genre',
+      facetId: 99,
+      taxonomy: 'GENRE',
+      title: 'Sea Fable',
+      description: '',
+    },
+    ...dealt,
+  ])
+  assert.match(
+    idea,
+    /^A wistful sea fable set in the tidal library, about forgiveness\. You play the reluctant heir, with a lighthouse keeper at your side \(quirk: collects keys\)\./,
+  )
+  assert.match(idea, /Painted as woodcut\./)
+  assert.ok(
+    sparkLines(dealt).some((line) => line.includes('bold woodcut lines')),
+    'the look carries its art prompt into the pitch',
+  )
+  const follower = elementFromFacets('follower', pool, () => 0)
+  assert.equal(follower?.title, 'The Otter Lighthouse Keeper')
+  assert.match(follower?.source ?? '', /^Facets: /)
+  assert.match(
+    follower?.note ?? '',
+    /Collects Keys/,
+    'the quirk goes in the note',
+  )
+  assert.equal(
+    elementFromFacets('place', { SETTING: pool.SETTING! }, () => 0)?.title,
+    'The Tidal Library',
+    'a missing taxonomy leaves its slot out of the name',
+  )
+  assert.equal(elementFromFacets('villain', {}), null, 'no Facets, no draw')
 }
 
 // The console, its tab, and the store-only rule for storage and API calls.

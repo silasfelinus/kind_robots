@@ -56,6 +56,8 @@ export type Choice = {
   lens?: LensId
   /** Meeting beats: travel with the prospect (true) or go alone (false). */
   meet?: boolean
+  /** A prior earned choice must set this flag before the option is offered. */
+  requiresFlag?: string
   /** Shown but not playable yet, e.g. 'Being written'. */
   locked?: string
   /** An animal-first choice; enough of them on the quiet route earns the Wild Way. */

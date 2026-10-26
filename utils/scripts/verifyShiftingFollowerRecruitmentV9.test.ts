@@ -10,6 +10,7 @@ import {
   newJourneyLedgerV9,
   restoreJourneyLedgerV9,
   stepJourneyLedgerV9,
+  v9CharacterSheet,
   type JourneyLedgerV9,
 } from '../shiftingLands/saveLedgerV9'
 import { newJourneyLedgerV8, restoreJourneyLedgerV8 } from '../shiftingLands/saveLedgerV8'
@@ -136,6 +137,7 @@ const invited = stepJourneyLedgerV9(atDustwater, {
   choiceId: 'invite-sister',
 })
 assert.equal(kitchenNoviceStatusV9(invited), 'Traveling companion')
+assert.equal(v9CharacterSheet(invited).relationships.find((entry) => entry.id === 'kitchen-novice')?.traveling, true)
 assert.ok(invited.current.flags.includes('kitchen-sister-traveling'))
 assert.equal(invited.current.journey.turn, 13)
 assert.equal(invited.current.journey.provisions, 6)
@@ -186,6 +188,7 @@ const sold = stepJourneyLedgerV9(atTablelands, {
 assert.equal(sold.current.journey.provisions, 8)
 assert.equal(sold.current.marks.ruthlessness, 1)
 assert.equal(kitchenNoviceStatusV9(sold), 'Departed after betrayal')
+assert.equal(v9CharacterSheet(sold).relationships.find((entry) => entry.id === 'kitchen-novice')?.traveling, false)
 const cave = (ledger: JourneyLedgerV9): JourneyLedgerV9 => ({
   ...ledger,
   trialResults: [homestead, dustwater, tablelands],

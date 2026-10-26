@@ -9,6 +9,7 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import { campaignOpponent, antagonistBeat, opponentPressure, antagonistFinale } from '../cometAcademy/opponents'
 import {
   CAMPAIGN_ANCHORS,
   CAMPAIGN_VILLAINS,
@@ -592,6 +593,51 @@ assert.equal(restoreAcademy({ ...migrated, visitedSites: ['bad-site'] }), null)
 // New sessions take a deterministic, mandatory thirty-day route.
 assert.equal(CAMPAIGN_ANCHORS.length, 30)
 assert.equal(new Set(CAMPAIGN_ANCHORS).size, 30)
+// All 48 character identities can independently become the antagonist.
+// The eight conspiracy templates are schemes, not an eight-character ceiling.
+assert.equal(IDENTITY_ARCS.length, 48)
+const observedOpponents = new Set<string>()
+const observedPressures = new Set<number>()
+for (const protagonist of IDENTITY_ARCS) {
+  const rivals = new Set<string>()
+  for (let seed = 1; seed <= 47; seed++) {
+    const villain = campaignOpponent(seed, protagonist.signature)
+    assert.notEqual(villain.signature, protagonist.signature)
+    assert.equal(identityFor(villain.signature).realName, villain.realName)
+    assert.notEqual(villain.hero.alias, villain.villain.alias)
+    assert.ok(villain.quests.antagonist.length > 35)
+    assert.ok(villain.villain.method.length > 35)
+    rivals.add(villain.signature)
+    observedOpponents.add(villain.signature)
+    observedPressures.add(opponentPressure(protagonist.signature, villain.signature))
+  }
+  assert.equal(rivals.size, 47, 'Every character can confront all other 47 people')
+}
+assert.equal(observedOpponents.size, 48)
+assert.ok(observedPressures.has(1))
+assert.ok(observedPressures.has(0))
+assert.ok(observedPressures.has(-1))
+for (const villain of IDENTITY_ARCS) {
+  assert.ok(antagonistBeat(villain, 15).includes(villain.quests.antagonist))
+  assert.ok(antagonistBeat(villain, 20).includes(villain.villain.method))
+  assert.ok(antagonistFinale(villain, true).includes(villain.backstory))
+  assert.ok(antagonistFinale(villain, false).includes(villain.villain.method))
+}
+const identityRun = startFullAcademy(fieldFor('accident-fire'), 47, 'accident-fire')
+const identityFoe = identityFor(identityRun.opponentSignature!)
+assert.notEqual(identityRun.opponentSignature, identityRun.signature)
+assert.ok(encounterFor({ ...identityRun, day: 15, phase: 'campus' }).scene.includes(identityFoe.quests.antagonist))
+assert.ok(nextSchoolDay({ ...identityRun, day: 29, phase: 'debrief' }).scene.includes(identityFoe.villain.alias))
+const identityEnding = finishAcademy({ ...identityRun, day: 30, phase: 'finale' }, 'protect')
+assert.ok(identityEnding.scene.includes(identityFoe.realName))
+assert.ok(identityEnding.scene.includes(identityFoe.villain.method))
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(identityEnding))), identityEnding)
+assert.equal(restoreAcademy({ ...identityRun, opponentSignature: identityRun.signature }), null)
+assert.equal(restoreAcademy({ ...identityRun, opponentSignature: 'unknown-power' }), null)
+const oldCampaign = { ...identityRun, opponentSignature: undefined }
+assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(oldCampaign))), JSON.parse(JSON.stringify(oldCampaign)))
+assert.ok(!finishAcademy({ ...oldCampaign, day: 30, phase: 'finale' }, 'protect').scene.includes(identityFoe.realName))
+
 assert.equal(CAMPAIGN_VILLAINS.length, 8)
 assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 8)
 const allAccomplices = CAMPAIGN_VILLAINS.flatMap((v) => v.accomplices ?? [])
@@ -800,6 +846,7 @@ assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
 assert.ok(page.includes('data-testid="academy-first-week"'))
 assert.ok(page.includes('data-testid="academy-plot-status"'))
+assert.ok(page.includes('data-testid="academy-villain-identity"'))
 assert.ok(page.includes("store.end('share')"))
 assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))

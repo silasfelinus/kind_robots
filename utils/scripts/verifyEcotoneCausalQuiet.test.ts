@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   advance,
+  cardAsides,
   chooseBeat,
   chooseCrossroads,
   chooseEvent,
@@ -12,15 +13,16 @@ import {
 } from '../ecotone/engine'
 import { contextualOpeningChoices } from '../ecotone/sceneOffers'
 
+const bench = findCard('QW-2')
 const meadow = findCard('QW-4')
 const cabin = findCard('QW-5')
-assert.ok(meadow && cabin)
+assert.ok(bench && meadow && cabin)
 
 const available = (state: RunState) =>
-  contextualOpeningChoices(cabin, state).map((choice) => choice.id)
+  contextualOpeningChoices(meadow, state).map((choice) => choice.id)
 
-// Walk the actual seeded route, including the forks and optional meetings.
-// No test-only flag injection is allowed to stand in for an earned decision.
+// Each witness starts at the actual Quiet Way opening and walks its forks.
+// No synthetic flags or direct jumps to later beats.
 function walkTo(initial: RunState, target: string): RunState {
   let state = initial
   for (let turn = 0; turn < 100; turn++) {
@@ -30,7 +32,7 @@ function walkTo(initial: RunState, target: string): RunState {
       continue
     }
     if (state.phase === 'fork') {
-      assert.ok(state.offered[0], 'the fork must have a playable card')
+      assert.ok(state.offered[0], 'the fork must offer a playable card')
       state = chooseFork(state, state.offered[0])
       continue
     }
@@ -44,12 +46,7 @@ function walkTo(initial: RunState, target: string): RunState {
     const choices = contextualOpeningChoices(card, state).filter(
       (choice) => !choice.locked,
     )
-    const choice =
-      card.id === 'QW-1'
-        ? 'trail'
-        : card.id === 'QW-2'
-          ? 'sober'
-          : choices[0]?.id
+    const choice = card.id === 'QW-1' ? 'trail' : choices[0]?.id
     assert.ok(choice, `no playable choice on ${card.id}`)
     const next = chooseBeat(state, choice)
     assert.notEqual(next, state, `reducer stalled on ${card.id}`)
@@ -60,78 +57,94 @@ function walkTo(initial: RunState, target: string): RunState {
 
 const routeSeeds: Record<string, number> = {}
 const results = {
-  'elk-ledger': new Set<boolean>(),
-  'elk-safety': new Set<boolean>(),
+  'heron-ledger': new Set<boolean>(),
+  'tally-witness': new Set<boolean>(),
 }
-
 for (let seed = 1; seed <= 200; seed++) {
   const start = advance(chooseEvent(createRun(seed, 'reporter'), 'quiet'))
-  const elk = walkTo(start, 'QW-4')
-  const investigated = chooseBeat(elk, 'ranger')
-  const firstRoll = investigated.pending?.entry.roll
-  assert.ok(firstRoll, 'the ranger interview requires an actual 2d6 check')
-  const copied = investigated.flags.includes('elk_ranger_log_copied')
-  const followup = investigated.flags.includes('elk_ranger_followup')
+  const morning = walkTo(start, 'QW-2')
+  const observed = chooseBeat(morning, 'sober')
+  const firstRoll = observed.pending?.entry.roll
+  assert.ok(firstRoll, 'the bench observation requires a 2d6 check')
+  const matched = observed.flags.includes('bench_heron_photo_match')
+  const erased = observed.flags.includes('bench_tally_erased')
   assert.notEqual(
-    copied,
-    followup,
-    'one outcome grants exactly one earned route',
+    matched,
+    erased,
+    'one bench outcome grants exactly one later route',
   )
-  assert.equal(copied, firstRoll.success)
+  assert.equal(matched, firstRoll.success)
 
-  const cabinState = walkTo(advance(investigated), 'QW-5')
-  const offered = available(cabinState)
+  const meadowState = walkTo(advance(observed), 'QW-4')
+  const offered = available(meadowState)
   assert.deepEqual(
-    offered.slice(0, 4),
-    ['restore', 'monitor', 'call', 'porch'],
-    'old choice positions must remain stable for saved games',
+    offered.slice(0, 3),
+    ['wait', 'ranger', 'road'],
+    'old meadow choice positions remain stable for saved games',
   )
-  assert.equal(offered.length, 5, 'exactly one ranger consequence is playable')
-  const earned = copied ? 'elk-ledger' : 'elk-safety'
-  const forbidden = copied ? 'elk-safety' : 'elk-ledger'
+  assert.equal(offered.length, 4, 'one earned fourth choice stays within cap')
+  const earned = matched ? 'heron-ledger' : 'tally-witness'
+  const forbidden = matched ? 'tally-witness' : 'heron-ledger'
   assert.ok(offered.includes(earned))
   assert.ok(!offered.includes(forbidden))
   assert.equal(
-    chooseBeat(cabinState, forbidden),
-    cabinState,
-    'a forged opposite-route action must be rejected',
+    chooseBeat(meadowState, forbidden),
+    meadowState,
+    'the reducer rejects an unearned opposite-route choice',
   )
 
-  const negotiated = chooseBeat(cabinState, earned)
+  const negotiated = chooseBeat(meadowState, earned)
   const secondRoll = negotiated.pending?.entry.roll
-  assert.ok(secondRoll, 'the earned choice must resolve a real skill check')
+  assert.ok(secondRoll, 'the earned choice resolves a real skill check')
   results[earned].add(secondRoll.success)
   routeSeeds[`${earned}:${secondRoll.success}`] ||= seed
-  assert.ok(
-    negotiated.flags.includes(
-      copied
-        ? secondRoll.success
-          ? 'elk_observation_network'
-          : 'elk_network_unstaffed'
-        : secondRoll.success
-          ? 'elk_viewing_stewards'
-          : 'elk_viewing_unstaffed',
-    ),
-    'the exact earned outcome persists in the run state',
-  )
+  const expectedFlag = matched
+    ? secondRoll.success
+      ? 'elk_heron_joint_log'
+      : 'elk_heron_log_disputed'
+    : secondRoll.success
+      ? 'elk_tally_witnesses'
+      : 'elk_tally_unsigned'
+  assert.ok(negotiated.flags.includes(expectedFlag))
   assert.deepEqual(
     restoreRun(JSON.parse(JSON.stringify(negotiated))),
     negotiated,
-    'the outcome and its resource cost survive save and restore',
+    'the result and its real nerve cost survive save and restore',
+  )
+
+  const cabinState = walkTo(advance(negotiated), 'QW-5')
+  assert.deepEqual(
+    contextualOpeningChoices(cabin, cabinState).map((choice) => choice.id),
+    ['restore', 'monitor', 'call', 'porch'],
+    'the final restoration menu keeps its four choices and save indices',
+  )
+  assert.ok(
+    cardAsides(cabin, cabinState).some((line) =>
+      line.includes(
+        matched
+          ? secondRoll.success
+            ? 'wildlife observation template'
+            : 'incomplete heron-and-elk'
+          : secondRoll.success
+            ? 'witnessed elk times'
+            : 'conflicting elk accounts',
+      ),
+    ),
+    'the later scene acknowledges the exact earned outcome',
   )
 }
 
 assert.deepEqual(
-  [...results['elk-ledger']].sort(),
+  [...results['heron-ledger']].sort(),
   [false, true],
-  'the observation network has reachable success and failure',
+  'the comparison route has reachable success and failure',
 )
 assert.deepEqual(
-  [...results['elk-safety']].sort(),
+  [...results['tally-witness']].sort(),
   [false, true],
-  'the safety stewards have reachable success and failure',
+  'the independent-witness route has reachable success and failure',
 )
 assert.equal(Object.keys(routeSeeds).length, 4)
 console.log(
-  `Ecotone Quiet Way ranger consequences: ${JSON.stringify(routeSeeds)}; 200 new-game journeys, both routes and all four roll results verified`,
+  `Ecotone Quiet Way bench-to-meadow consequences: ${JSON.stringify(routeSeeds)}; 200 new-game journeys, all four earned results, callbacks and saves verified`,
 )

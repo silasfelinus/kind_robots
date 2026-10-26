@@ -18,6 +18,7 @@ import {
 import {
   IDENTITY_ARCS,
   CHARACTER_ROSTER,
+  fieldFor,
   identityFor,
   identityStoryFor,
 } from '../cometAcademy/identityArcs'
@@ -26,10 +27,13 @@ import {
   TESS_CREW_SOURCE,
 } from '../cometAcademy/guestIdentities'
 import {
-  POWER_FORMS,
+  POWER_ORIGINS,
   POWER_AFFINITIES,
   POWER_VOWS,
   SIGNATURE_POWERS,
+  STATS,
+  finaleFor,
+  migrateSignatureId,
   signatureFor,
 } from '../cometAcademy/specialPowers'
 import { readFileSync } from 'node:fs'
@@ -211,8 +215,23 @@ assert.ok(goodwillChangedGrade)
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
-assert.equal(POWER_FORMS.length, 6)
-assert.equal(POWER_AFFINITIES.length, 8)
+assert.deepEqual(
+  POWER_ORIGINS.map((origin) => origin.id),
+  ['accident', 'mutant', 'tech', 'magic', 'alien', 'psychic'],
+)
+assert.deepEqual(
+  POWER_AFFINITIES.map((affinity) => affinity.id),
+  [
+    'fire',
+    'air',
+    'earth',
+    'water',
+    'discipline',
+    'genius',
+    'birthright',
+    'social',
+  ],
+)
 assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
@@ -303,7 +322,12 @@ for (const seed of [1, 15, 900]) {
   )
 }
 for (const visitorAlignment of ['ally', 'opponent'] as const) {
-  let run = startAcademy('kinetic', 24, 'impact-fire', 'shelter')
+  let run = startAcademy(
+    fieldFor('accident-fire'),
+    24,
+    'accident-fire',
+    'shelter',
+  )
   for (let day = 1; day <= 7; day++) {
     const [first] = incidentsFor(run)
     run = visitCitySite(run, CITY_SITES[day - 1]!.id)
@@ -325,7 +349,7 @@ for (const visitorAlignment of ['ally', 'opponent'] as const) {
   const finale = finishAcademy(run, 'protect')
   assert.ok(finale.scene.includes('Zuzu remembers'))
   assert.ok(finale.scene.includes('Tess Helio'))
-  assert.ok(finale.scene.includes('Ari Nadir'))
+  assert.ok(finale.scene.includes('Dez Okafor'))
   assert.ok(
     finale.scene.includes(
       visitorAlignment === 'ally' ? 'Koala Assassin' : 'Shogun Null',
@@ -359,12 +383,39 @@ for (const state of ['student', 'hero', 'villain'] as const) {
   )
 }
 assert.equal(new Set(SIGNATURE_POWERS.map((p) => p.id)).size, 48)
-assert.equal(signatureFor('impact', 'fire').name, 'Flaming Fists')
-for (const form of POWER_FORMS)
-  for (const element of POWER_AFFINITIES) {
-    const skill = signatureFor(form.id, element.id)
-    assert.equal(skill.legacy, form.legacy)
+assert.equal(signatureFor('accident', 'fire').name, 'Pilot Light')
+assert.equal(identityFor('accident-fire').hero.alias, 'Backdraft')
+const statTotal = (stats: Record<string, number>) =>
+  Object.values(stats).reduce((sum, value) => sum + value, 0)
+const heroFoci = new Set<string>()
+const villainFoci = new Set<string>()
+let divergentFocus = 0
+for (const origin of POWER_ORIGINS)
+  for (const affinity of POWER_AFFINITIES) {
+    const skill = signatureFor(origin.id, affinity.id)
+    assert.equal(skill.id, `${origin.id}-${affinity.id}`)
     const identity = identityFor(skill.id)
+    for (const role of ['student', 'hero', 'villain'] as const) {
+      const persona = identity[role]
+      assert.ok(persona.focus.length > 2)
+      for (const stat of STATS) {
+        const value = persona.stats[stat.id]
+        assert.ok(Number.isInteger(value) && value >= 1 && value <= 5)
+      }
+      const total = statTotal(persona.stats)
+      if (role === 'student') assert.ok(total >= 12 && total <= 16)
+      else assert.ok(total >= 18 && total <= 23)
+    }
+    assert.notDeepEqual(
+      identity.hero.stats,
+      identity.villain.stats,
+      `${skill.id} hero and villain must play differently`,
+    )
+    heroFoci.add(identity.hero.focus)
+    villainFoci.add(identity.villain.focus)
+    if (identity.hero.focus !== identity.villain.focus) divergentFocus++
+    assert.ok(identity.pronouns.includes('/'))
+    assert.ok(skill.prom.length > 30)
     assert.notEqual(identity.student.alias, identity.hero.alias)
     assert.notEqual(identity.hero.alias, identity.villain.alias)
     assert.notEqual(identity.hero.method, identity.villain.method)
@@ -372,9 +423,12 @@ for (const form of POWER_FORMS)
     assert.ok(identity.quests.partner.length > 16)
     assert.ok(identity.quests.protagonist.length > 16)
     assert.ok(identity.quests.antagonist.length > 16)
-    assert.ok(skill.special_route.trigger.length > 35)
-    for (const vow of POWER_VOWS) assert.ok(skill.finales[vow.id].length > 80)
-    const run = startAcademy(form.legacy, 99, skill.id, 'shelter')
+    for (const vow of POWER_VOWS)
+      assert.ok(
+        finaleFor(skill, identity.realName, identity.villain.alias, vow.id)
+          .length > 80,
+      )
+    const run = startAcademy(fieldFor(skill.id), 99, skill.id, 'shelter')
     assert.equal(run.signature, skill.id)
     assert.equal(run.vow, 'shelter')
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
@@ -387,13 +441,61 @@ for (const form of POWER_FORMS)
     assert.ok(villainousPreview.scene.includes(identity.villain.alias))
     assert.ok(heroicPreview.scene.includes('not yet earned'))
     assert.ok(villainousPreview.scene.includes('not yet inevitable'))
+    assert.ok(!heroicPreview.scene.includes('..'))
   }
+assert.ok(heroFoci.size >= 10, 'heroes span many play styles')
+assert.ok(villainFoci.size >= 10, 'villains span many play styles')
+assert.ok(
+  divergentFocus >= 36,
+  'most villains abandon the hero toolkit rather than reskinning it',
+)
+assert.equal(migrateSignatureId('impact-fire'), 'accident-fire')
+assert.equal(migrateSignatureId('veil-shadow'), 'psychic-social')
+assert.equal(migrateSignatureId('accident-fire'), 'accident-fire')
+assert.equal(migrateSignatureId('nonsense'), undefined)
+assert.equal(
+  new Set(
+    ['impact', 'arc', 'veil', 'step', 'weave', 'beacon'].flatMap((form) =>
+      [
+        'fire',
+        'ice',
+        'storm',
+        'stone',
+        'light',
+        'shadow',
+        'bloom',
+        'gravity',
+      ].map((element) => migrateSignatureId(`${form}-${element}`)),
+    ),
+  ).size,
+  48,
+  'every pre-redesign signature maps to a distinct new person',
+)
+const legacySave = {
+  ...startAcademy('kinetic', 7),
+  signature: 'impact-fire',
+  vow: 'shelter',
+}
+const migratedSave = restoreAcademy(JSON.parse(JSON.stringify(legacySave)))
+assert.equal(migratedSave?.signature, 'accident-fire')
+assert.equal(migratedSave?.power, fieldFor('accident-fire'))
+assert.equal(
+  restoreAcademy({ ...legacySave, signature: 'impact-nothing' }),
+  null,
+)
 assert.equal(
   startAcademy('kinetic', 99).signature,
   undefined,
   'legacy saves remain valid',
 )
-assert.throws(() => startAcademy('spatial', 99, 'impact-fire'))
+assert.throws(() => startAcademy('spatial', 99, 'impact-fire' as never))
+assert.throws(() =>
+  startAcademy(
+    STATS.find((stat) => stat.field !== fieldFor('accident-fire'))!.field,
+    99,
+    'accident-fire',
+  ),
+)
 assert.equal(POWERS.length, 6)
 assert.equal(STUDENTS.length, 6)
 assert.equal(INCIDENTS.length, 6)
@@ -492,7 +594,12 @@ assert.equal(CAMPAIGN_VILLAINS.length, 4)
 assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.id)).size, 4)
 assert.equal(PROM_FINALE.choices.length, 4)
 for (const seed of [1, 2, 3, 4, 997]) {
-  let run = startFullAcademy('kinetic', seed, 'impact-fire', 'shelter')
+  let run = startFullAcademy(
+    fieldFor('accident-fire'),
+    seed,
+    'accident-fire',
+    'shelter',
+  )
   assert.equal(run.flowVersion, 3)
   assert.equal(run.mastermind, campaignVillain(seed).id)
   assert.equal(restoreAcademy(JSON.parse(JSON.stringify(run)))?.flowVersion, 3)
@@ -594,6 +701,10 @@ assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(page.includes('data-testid="academy-crossover-roster"'))
 assert.ok(page.includes('currentIdentity.backstory'))
 assert.ok(page.includes('currentIdentityStory.setup'))
-assert.ok(page.includes('selectedElement'))
+assert.ok(page.includes('selectedOrigin'))
+assert.ok(page.includes('selectedAffinity'))
+assert.ok(page.includes('data-testid="academy-persona-triad"'))
+assert.ok(page.includes('card.persona.stats[stat.id]'))
+assert.ok(!page.includes('POWER_FORMS'))
 assert.ok(page.includes('selectedVow'))
 console.log('Capes & Tassels playable first-week slice and route: OK')

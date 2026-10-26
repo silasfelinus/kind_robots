@@ -1,4 +1,4 @@
-import { identityFor, identityStoryFor } from './identityArcs'
+import { fieldFor, identityFor, identityStoryFor } from './identityArcs'
 import { GUEST_IDENTITIES } from './guestIdentities'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
@@ -10,6 +10,8 @@ import {
   GUEST_LIST_EVENT,
 } from './campaign'
 import {
+  finaleFor,
+  migrateSignatureId,
   signatureById,
   POWER_VOWS,
   type SignaturePowerId,
@@ -464,7 +466,7 @@ export function startAcademy(
 ): AcademyRun {
   if (!POWERS.some((entry) => entry.id === power))
     throw new Error('Unknown power set')
-  if (signature && signatureById(signature)?.legacy !== power)
+  if (signature && (!signatureById(signature) || fieldFor(signature) !== power))
     throw new Error('Unknown power combination')
   if (vow && !POWER_VOWS.some((entry) => entry.id === vow))
     throw new Error('Unknown hero vow')
@@ -864,7 +866,7 @@ export function finishAcademy(
     ? identityStoryFor(identity, 'protagonist', protect ? 'hero' : 'villain')
     : null
   const identityProjection = projectedStory
-    ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${projectedStory.setup}. ${projectedStory.decision}. That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
+    ? `The rehearsal yearbook imagines ${projectedStory.person}, once ${projectedStory.studentAlias}, becoming ${projectedStory.alias}: ${sentence(projectedStory.setup)} ${sentence(projectedStory.decision)} That transformation is ${protect ? 'not yet earned' : 'not yet inevitable'}.`
     : ''
   const zuzuChoice = run.log.find((line) =>
     line.includes('The Stray Blade Arrives —'),
@@ -884,9 +886,10 @@ export function finishAcademy(
         ? 'Tess Helio knows her map was copied. The rehearsal hints at the Void Cartographer, a name born from the cost of someone else owning her routes.'
         : '',
   ].filter(Boolean)
+  const signature = run.signature ? signatureById(run.signature) : undefined
   const signatureProjection =
-    run.signature && run.vow
-      ? `The first-week projection also shows a possible real graduation: ${signatureById(run.signature)?.finales[run.vow] ?? ''}`
+    signature && identity && run.vow
+      ? `The first-week projection also shows a possible real graduation: ${finaleFor(signature, identity.realName, identity.villain.alias, run.vow)}`
       : ''
   return {
     ...run,
@@ -904,14 +907,26 @@ export function finishAcademy(
   }
 }
 
+function sentence(text: string): string {
+  return /[.!?]$/.test(text) ? text : `${text}.`
+}
+
+function migrateSignature(data: Partial<AcademyRun>): Partial<AcademyRun> {
+  if (data.signature === undefined) return data
+  const signature = migrateSignatureId(data.signature)
+  if (!signature || signature === data.signature) return data
+  return { ...data, signature, power: fieldFor(signature) }
+}
+
 export function restoreAcademy(raw: unknown): AcademyRun | null {
   if (!raw || typeof raw !== 'object') return null
-  const data = raw as Partial<AcademyRun>
+  const data = migrateSignature(raw as Partial<AcademyRun>)
   if (
     data.version !== 1 ||
     !POWERS.some((p) => p.id === data.power) ||
     (data.signature !== undefined &&
-      signatureById(data.signature)?.legacy !== data.power) ||
+      (!signatureById(data.signature) ||
+        fieldFor(data.signature) !== data.power)) ||
     (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
     typeof data.seed !== 'number' ||
     typeof data.day !== 'number' ||

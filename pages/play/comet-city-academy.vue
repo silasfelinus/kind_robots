@@ -94,84 +94,121 @@
             <div class="cca-heading">
               <span>01</span>
               <div>
-                <h2>Shape your power</h2>
-                <p>How it moves, what it controls, and the vow you make.</p>
+                <h2>Who are you becoming?</h2>
+                <p>
+                  Where your power came from, what it answers to, and the three
+                  people you could grow into.
+                </p>
               </div>
             </div>
-            <p class="cca-selection-label">STEP 1 · FORM / HOW IT WORKS</p>
-            <div class="cca-power-grid">
+            <p class="cca-selection-label">
+              STEP 1 · ORIGIN / WHERE IT CAME FROM
+            </p>
+            <div class="cca-power-grid" data-testid="academy-origin-picker">
               <button
-                v-for="form in POWER_FORMS"
-                :key="form.id"
+                v-for="origin in POWER_ORIGINS"
+                :key="origin.id"
                 type="button"
-                class="cca-power cca-power-compact"
-                :class="{ chosen: selectedForm === form.id }"
-                :aria-pressed="selectedForm === form.id"
-                @click="selectedForm = form.id"
+                class="cca-power cca-pick"
+                :class="{ chosen: selectedOrigin === origin.id }"
+                :aria-pressed="selectedOrigin === origin.id"
+                @click="selectedOrigin = origin.id"
               >
-                <strong>{{ form.name }}</strong>
-                <small>{{ form.mechanic }}</small>
+                <span class="cca-pick-glyph" aria-hidden="true">{{
+                  origin.glyph
+                }}</span>
+                <strong>{{ origin.name }}</strong>
+                <small>{{ origin.source }}</small>
               </button>
             </div>
             <p class="cca-selection-label">
-              STEP 2 · AFFINITY / WHAT IT CONTROLS
+              STEP 2 · AFFINITY / WHAT IT ANSWERS TO
             </p>
-            <div class="cca-power-grid cca-affinity-grid">
+            <div
+              class="cca-power-grid cca-affinity-grid"
+              data-testid="academy-affinity-picker"
+            >
               <button
                 v-for="affinity in POWER_AFFINITIES"
                 :key="affinity.id"
                 type="button"
-                class="cca-power cca-power-compact"
-                :class="{ chosen: selectedElement === affinity.id }"
-                :aria-pressed="selectedElement === affinity.id"
-                @click="selectedElement = affinity.id"
+                class="cca-power cca-pick cca-pick-small"
+                :class="{ chosen: selectedAffinity === affinity.id }"
+                :aria-pressed="selectedAffinity === affinity.id"
+                :title="affinity.theme"
+                @click="selectedAffinity = affinity.id"
               >
+                <span class="cca-pick-glyph" aria-hidden="true">{{
+                  affinity.glyph
+                }}</span>
                 <strong>{{ affinity.name }}</strong>
               </button>
             </div>
-            <div
-              class="cca-power-detail"
-              data-testid="academy-signature-detail"
-            >
-              <strong>{{ currentSignature.name }}</strong>
-              <p>{{ currentSignature.training }}</p>
-              <small>Limit: {{ currentSignature.cost }}</small>
-              <p class="cca-signature-tradeoff">
-                {{ currentSignature.special_route.trigger }}
+            <article class="cca-dossier" data-testid="academy-signature-detail">
+              <header class="cca-dossier-head">
+                <span class="cca-dossier-crest" aria-hidden="true"
+                  >{{ activeOrigin.glyph }}{{ activeAffinity.glyph }}</span
+                >
+                <div>
+                  <small
+                    >{{ activeOrigin.name.toUpperCase() }} ×
+                    {{ activeAffinity.name.toUpperCase() }}</small
+                  >
+                  <h3>{{ currentIdentity.realName }}</h3>
+                  <small>{{ currentIdentity.pronouns }}</small>
+                </div>
+              </header>
+              <p class="cca-dossier-story">{{ currentIdentity.backstory }}</p>
+              <p class="cca-dossier-power">
+                <strong>{{ currentSignature.name }}</strong> —
+                {{ currentSignature.action }}.
+                <span>Cost: {{ currentSignature.cost }}.</span>
               </p>
-            </div>
+              <div class="cca-persona-row" data-testid="academy-persona-triad">
+                <section
+                  v-for="card in personaCards"
+                  :key="card.key"
+                  class="cca-persona"
+                  :class="'cca-persona-' + card.key"
+                >
+                  <small>{{ card.label }}</small>
+                  <strong>{{ card.persona.alias }}</strong>
+                  <span class="cca-focus">{{ card.persona.focus }}</span>
+                  <ul class="cca-stats" :aria-label="card.label + ' stats'">
+                    <li
+                      v-for="stat in STATS"
+                      :key="stat.id"
+                      :aria-label="
+                        stat.name + ' ' + card.persona.stats[stat.id] + ' of 5'
+                      "
+                    >
+                      <span>{{ stat.name }}</span>
+                      <i
+                        v-for="n in 5"
+                        :key="n"
+                        :class="{ on: n <= card.persona.stats[stat.id] }"
+                      />
+                    </li>
+                  </ul>
+                  <p>{{ card.text }}</p>
+                </section>
+              </div>
+              <p class="cca-dossier-field">
+                You enroll as {{ currentIdentity.student.alias }}. Strongest
+                stat: {{ studentStrength.name }}, so every night call that needs
+                {{ studentStrength.name }} gets a boost from you.
+              </p>
+            </article>
             <details
               class="cca-identity-preview"
               data-testid="academy-identity-preview"
             >
               <summary>
-                <strong
-                  >{{ currentIdentity.realName }} ·
-                  {{ currentIdentity.student.alias }}</strong
-                >
+                <strong>Explore {{ currentIdentity.realName }}'s story</strong>
                 <small>
-                  HERO: {{ currentIdentity.hero.alias }} · VILLAIN:
-                  {{ currentIdentity.villain.alias }}
+                  {{ activeOrigin.complication }} · {{ activeAffinity.risk }}
                 </small>
               </summary>
-              <p class="cca-identity-caveat">{{ currentIdentity.backstory }}</p>
-              <div class="cca-identity-triad">
-                <div>
-                  <small>STUDENT / SIDEKICK</small>
-                  <strong>{{ currentIdentity.student.alias }}</strong>
-                  <p>{{ currentIdentity.student.conflict }}</p>
-                </div>
-                <div>
-                  <small>HERO</small>
-                  <strong>{{ currentIdentity.hero.alias }}</strong>
-                  <p>{{ currentIdentity.hero.method }}</p>
-                </div>
-                <div>
-                  <small>VILLAIN</small>
-                  <strong>{{ currentIdentity.villain.alias }}</strong>
-                  <p>{{ currentIdentity.villain.method }}</p>
-                </div>
-              </div>
               <p class="cca-selection-label">
                 EXPLORE THIS PERSON'S POSSIBLE STORY
               </p>
@@ -268,7 +305,7 @@
             <p class="cca-vow-detail">{{ activeVow.promise }}</p>
             <details class="cca-future-preview">
               <summary>A possible Prom of Doom consequence</summary>
-              <p>{{ currentSignature.finales[selectedVow] }}</p>
+              <p>{{ currentFinale }}</p>
             </details>
             <button
               class="cca-primary"
@@ -276,18 +313,19 @@
               data-testid="academy-begin"
               @click="
                 store.begin(
-                  currentSignature.legacy,
+                  studentStrength.field,
                   currentSignature.id,
                   selectedVow,
                 )
               "
             >
-              ENTER WITH {{ currentSignature.name.toUpperCase() }}
+              ENROLL AS {{ currentIdentity.student.alias.toUpperCase() }}
               <span>➜</span>
             </button>
             <p class="cca-under">
-              48 signature powers · The first-week training is playable. The new
-              thirty-day campaign is playable in an early narrative form.
+              6 origins × 8 affinities · 48 people, each with a student, hero
+              and villain future. The first week and an early thirty-day
+              campaign are both playable.
             </p>
             <button
               class="cca-choice"
@@ -295,7 +333,7 @@
               data-testid="academy-first-week"
               @click="
                 store.beginFirstWeek(
-                  currentSignature.legacy,
+                  studentStrength.field,
                   currentSignature.id,
                   selectedVow,
                 )
@@ -447,7 +485,10 @@
             >
               <div class="cca-incident-name">
                 <strong>{{ incident.title }}</strong
-                ><span>RISK {{ incident.risk }} / 06</span>
+                ><span
+                  >NEEDS {{ statForField(incident.need).toUpperCase() }} · RISK
+                  {{ incident.risk }} / 06</span
+                >
               </div>
               <div class="cca-incident-location">
                 {{ incident.site }} ·
@@ -734,18 +775,22 @@ import {
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
-  POWER_FORMS,
+  POWER_ORIGINS,
   POWER_AFFINITIES,
   POWER_VOWS,
+  STATS,
+  finaleFor,
   signatureFor,
-  type PowerFormId,
+  strongestStat,
+  type LegacyPowerId,
+  type PowerOriginId,
   type PowerAffinityId,
   type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
-const selectedForm = ref<PowerFormId>('impact')
-const selectedElement = ref<PowerAffinityId>('fire')
+const selectedOrigin = ref<PowerOriginId>('accident')
+const selectedAffinity = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
 const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
@@ -772,9 +817,55 @@ function canVisitSite(id: SiteId) {
   return !run.value.visitedSites?.includes(id)
 }
 const currentSignature = computed(() =>
-  signatureFor(selectedForm.value, selectedElement.value),
+  signatureFor(selectedOrigin.value, selectedAffinity.value),
 )
 const currentIdentity = computed(() => identityFor(currentSignature.value.id))
+const activeOrigin = computed(() =>
+  POWER_ORIGINS.find((origin) => origin.id === selectedOrigin.value)!,
+)
+const activeAffinity = computed(() =>
+  POWER_AFFINITIES.find((affinity) => affinity.id === selectedAffinity.value)!,
+)
+const personaCards = computed(() => {
+  const identity = currentIdentity.value
+  return [
+    {
+      key: 'student',
+      label: 'STUDENT / SIDEKICK',
+      persona: identity.student,
+      text: identity.student.conflict,
+    },
+    {
+      key: 'hero',
+      label: 'HERO',
+      persona: identity.hero,
+      text: identity.hero.method,
+    },
+    {
+      key: 'villain',
+      label: 'VILLAIN',
+      persona: identity.villain,
+      text: identity.villain.method,
+    },
+  ]
+})
+const studentStrength = computed(() =>
+  STATS.find(
+    (stat) => stat.id === strongestStat(currentIdentity.value.student.stats),
+  )!,
+)
+const currentFinale = computed(() =>
+  finaleFor(
+    currentSignature.value,
+    currentIdentity.value.realName,
+    currentIdentity.value.villain.alias,
+    selectedVow.value,
+  ),
+)
+
+function statForField(field: LegacyPowerId): string {
+  return STATS.find((stat) => stat.field === field)?.name ?? field
+}
 const currentIdentityStory = computed(() =>
   identityStoryFor(
     currentIdentity.value,
@@ -1116,7 +1207,7 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.58rem;
   line-height: 1.2;
 }
-.cca-affinity-grid {
+.cca-power-grid.cca-affinity-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .cca-vow-grid {
@@ -1177,21 +1268,140 @@ function toggleStudent(caseId: string, id: StudentId): void {
   font-size: 0.73rem;
   text-align: center;
 }
-.cca-power-detail {
-  padding: 0.8rem 0.25rem;
-  min-height: 5.5rem;
+.cca-pick {
+  min-height: 4.6rem;
+  padding: 0.45rem 0.35rem;
+  gap: 0.15rem;
 }
-.cca-power-detail strong {
+.cca-pick-small {
+  min-height: 3.3rem;
+}
+.cca-pick-glyph {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.cca-pick small {
+  color: #cad7e5;
+  font-size: 0.56rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.cca-dossier {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid #ffcb9666;
+  border-radius: 0.8rem;
+  background: linear-gradient(160deg, #2a1f3acc, #0f1d30e6);
+}
+.cca-dossier-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.cca-dossier-crest {
+  font-size: 1.45rem;
+  white-space: nowrap;
+}
+.cca-dossier-head small {
+  display: block;
+  color: #a3cbd6;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+}
+.cca-dossier-head h3 {
+  color: #ffe0b9;
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  line-height: 1.1;
+}
+.cca-dossier-story,
+.cca-dossier-power,
+.cca-dossier-field {
+  margin: 0.45rem 0;
+  color: #d1ddeb;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+.cca-dossier-power strong {
   color: #ffd1a0;
 }
-.cca-power-detail p {
-  font-size: 0.83rem;
-  color: #e1e7f1;
-  line-height: 1.5;
-  margin: 0.3rem 0;
+.cca-dossier-power span,
+.cca-dossier-field {
+  color: #a8c4d2;
 }
-.cca-power-detail small {
-  color: #a8b9c6;
+.cca-persona-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.45rem;
+}
+.cca-persona {
+  --persona: #8fd3c7;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border: 1px solid #ffffff1f;
+  border-top: 3px solid var(--persona);
+  border-radius: 0.6rem;
+  background: #0b1424b3;
+}
+.cca-persona-hero {
+  --persona: #ffcb96;
+}
+.cca-persona-villain {
+  --persona: #e9789a;
+}
+.cca-persona > small {
+  color: var(--persona);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.cca-persona > strong {
+  color: #fff3e3;
+  font-size: 0.92rem;
+  line-height: 1.15;
+}
+.cca-focus {
+  align-self: flex-start;
+  padding: 0.08rem 0.45rem;
+  border: 1px solid #ffffff30;
+  border-radius: 999px;
+  background: #ffffff12;
+  color: #e6edf5;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cca-stats {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0.25rem 0;
+}
+.cca-stats li {
+  display: grid;
+  grid-template-columns: 3.3rem repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 2px;
+}
+.cca-stats span {
+  color: #b8cad8;
+  font-size: 0.56rem;
+}
+.cca-stats i {
+  height: 0.38rem;
+  border-radius: 2px;
+  background: #ffffff1a;
+}
+.cca-stats i.on {
+  background: var(--persona);
+}
+.cca-persona p {
+  color: #d1ddeb;
+  font-size: 0.66rem;
+  line-height: 1.38;
 }
 .cca-storylens-tabs {
   display: flex;
@@ -1232,25 +1442,6 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #b2d5cb;
   font-size: 0.66rem;
 }
-.cca-identity-triad {
-  display: grid;
-  gap: 0.55rem;
-}
-.cca-identity-triad > div {
-  border-left: 2px solid #e4ab83;
-  padding-left: 0.6rem;
-}
-.cca-identity-triad small {
-  display: block;
-  color: #a3cbd6;
-  font-size: 0.59rem;
-  letter-spacing: 0.09em;
-}
-.cca-identity-triad strong {
-  color: #ffe0b9;
-  font-size: 0.88rem;
-}
-.cca-identity-triad p,
 .cca-identity-caveat {
   margin: 0.2rem 0 0;
   color: #d1ddeb;

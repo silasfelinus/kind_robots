@@ -47,7 +47,7 @@ import {
 } from '../cometAcademy/rules'
 
 assert.equal(CITY_SITES.length, 24)
-assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 7)
+assert.equal(new Set(CITY_SITES.map((site) => site.id)).size, 24)
 assert.equal(
   new Set(
     CITY_SITES.filter((site) => site.encounterIndex !== undefined).map(

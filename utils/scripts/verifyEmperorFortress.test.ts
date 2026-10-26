@@ -6612,4 +6612,74 @@ for (const def of DAYS)
   assert.match(rumourVerdict(komodo), /Komodo laughs it off/)
 }
 
+{
+  // Act I's Day 6 informant and Day 8 loan have reachable Day 9 consequences.
+  const ordinary = onDay(919, 9)
+  assert.ok(!audiencesToday(ordinary).some((a) => a.id === 'd09-ledger-cart'))
+  assert.ok(!audiencesToday(ordinary).some((a) => a.id === 'd09-postern-list'))
+
+  const debtor = onDay(919, 9, { flags: ['ledger-credit'], brass: 50 })
+  const ledgerScene = audiencesToday(debtor).find(
+    (a) => a.id === 'd09-ledger-cart',
+  )!
+  assert.ok(ledgerScene)
+  assert.equal(ledgerScene.requires?.flags?.[0], 'ledger-credit')
+  const manifest = chooseAudienceOption(
+    debtor,
+    'd09-ledger-cart',
+    'ask-manifest',
+  )
+  assert.equal(manifest.next, 'manifest')
+  assert.equal(manifest.run.audienceBeats?.['d09-ledger-cart'], 'manifest')
+  const escort = chooseAudienceOption(
+    manifest.run,
+    'd09-ledger-cart',
+    'escort',
+  ).run
+  assert.equal(escort.brass, 40, 'escorting medicine costs real brass')
+  assert.ok(escort.flags.includes('d09-ledger-cart-witnessed'))
+  assert.ok(escort.audiencesHeard.includes('d09-ledger-cart'))
+  assert.ok(!escort.audienceBeats?.['d09-ledger-cart'])
+  const searched = chooseAudienceOption(
+    debtor,
+    'd09-ledger-cart',
+    'search',
+  ).run
+  assert.ok(searched.flags.includes('d09-ledger-cart-searched'))
+  assert.ok(searched.local['gate-watch'] > debtor.local['gate-watch'])
+
+  const informant = onDay(919, 9, {
+    flags: ['d06-postern-informant'],
+  })
+  const posternScene = audiencesToday(informant).find(
+    (a) => a.id === 'd09-postern-list',
+  )!
+  assert.ok(posternScene)
+  assert.equal(posternScene.requires?.flags?.[0], 'd06-postern-informant')
+  const first = chooseAudienceOption(
+    informant,
+    'd09-postern-list',
+    'ask-first',
+  )
+  assert.equal(first.next, 'first-name')
+  const witness = chooseAudienceOption(
+    first.run,
+    'd09-postern-list',
+    'take-blame',
+  ).run
+  assert.ok(witness.flags.includes('d09-postern-crown-witness'))
+  assert.ok(witness.audiencesHeard.includes('d09-postern-list'))
+  const filed = chooseAudienceOption(
+    informant,
+    'd09-postern-list',
+    'file-list',
+  ).run
+  assert.ok(filed.flags.includes('d09-postern-list-filed'))
+  assert.ok(filed.local['gate-watch'] > informant.local['gate-watch'])
+  assert.ok(
+    DAYS.find((day) => day.day === 9)!.audiences.length <= 4,
+    'Day 9 remains within the four-audience cap',
+  )
+}
+
 console.log('Emperor of Dust fortress contract: ok')

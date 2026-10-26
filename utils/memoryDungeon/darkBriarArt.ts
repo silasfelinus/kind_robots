@@ -1,7 +1,12 @@
-import { DARK_BRIAR_SCENES } from './darkBriar'
+import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from './darkBriar'
 
 export type DarkBriarArtKind =
-  'encounter' | 'consequence' | 'backdrop' | 'transition' | 'matching-gallery'
+  | 'encounter'
+  | 'consequence'
+  | 'seal'
+  | 'backdrop'
+  | 'transition'
+  | 'matching-gallery'
 export interface DarkBriarArtRequest {
   id: string
   title: string
@@ -42,6 +47,7 @@ function shot(
 
 const root = '/images/memory-dungeon/dark-briar'
 const sites = Object.values(DARK_BRIAR_SCENES)
+const sigils = Object.values(DARK_BRIAR_SEALS)
 
 export const DARK_BRIAR_ART_REQUESTS: readonly DarkBriarArtRequest[] = [
   shot(
@@ -67,6 +73,15 @@ export const DARK_BRIAR_ART_REQUESTS: readonly DarkBriarArtRequest[] = [
     'Hero artwork of haunted Manor entrance and distant mirrored Rootbound Warden, witnesses reflected in many impossible windows; environment for an ethical standoff rather than a generic boss battle.',
     `${root}/backdrops/warden.webp`,
     'hero',
+  ),
+  ...sigils.map((seal) =>
+    shot(
+      `dark-briar-scene-${seal.key.replace(',', '-')}`,
+      seal.title,
+      'seal',
+      seal.artPrompt,
+      `${root}/scenes/${seal.key.replace(',', '-')}.webp`,
+    ),
   ),
   ...sites.map((scene) =>
     shot(
@@ -139,9 +154,9 @@ export function validateDarkBriarArtRequests(): string[] {
   const errors: string[] = []
   if (DARK_BRIAR_COLLECTIBLE_ART.length !== 32)
     errors.push('Dark gallery must have 30+2 independent images')
-  if (DARK_BRIAR_ART_REQUESTS.length !== 195)
+  if (DARK_BRIAR_ART_REQUESTS.length !== 187)
     errors.push(
-      'Dark map requires 3 hero + 64 encounters + 128 consequence briefs',
+      'Dark map requires 3 hero + 60 encounters + 120 consequences + 4 seal illustrations',
     )
   const all = [...DARK_BRIAR_ART_REQUESTS, ...DARK_BRIAR_COLLECTIBLE_ART]
   if (new Set(all.map((asset) => asset.id)).size !== all.length)

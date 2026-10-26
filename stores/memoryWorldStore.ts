@@ -29,10 +29,20 @@ import {
   completeMemoryExperience,
   type MemoryCampaignProgress,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
+import {
+  newCrossMapSealChronicle,
+  restoreCrossMapSealChronicle,
+  inspectCrossMapSeal,
+  crossMapSealProgress,
+  missingFirstMapSeals,
+  type CrossMapSealChronicle,
+} from '~/utils/memoryDungeon/crossMapSealChronicle'
 import { restoreMemoryRealitySave } from '~/utils/memoryDungeon/campaignPersistence'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
+  DARK_BRIAR_SEALS,
+  darkBriarInspectSeal,
   advanceDarkBriarWave,
   darkBriarOpening,
   darkBriarChoose,
@@ -108,6 +118,7 @@ const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
 const REALITY_KEY = 'memoryDungeonRealityV1'
 const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
 const DARK_HOUSE_KEY = 'memoryDungeonDarkHouseV1'
+const CROSS_MAP_SEALS_KEY = 'memoryDungeonCrossMapSealsV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -128,6 +139,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const campaign = ref<MemoryCampaignProgress>(newMemoryCampaignProgress())
   const activeReality = ref<'e01' | 'e02'>('e01')
   const dark = ref<DarkBriarProgress>(newDarkBriarProgress())
+  const crossMapSeals = ref<CrossMapSealChronicle>(newCrossMapSealChronicle())
   const darkHouse = ref<DarkHouseProgress>(newDarkHouseProgress())
   const darkDeckError = ref('')
   const darkLoading = ref(false)
@@ -163,12 +175,21 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkPairsMatched = computed(
     () => dark.value.mapCards.filter((card) => card.matched).length / 2,
   )
+  const crossMapDiscovery = computed(() =>
+    crossMapSealProgress(crossMapSeals.value),
+  )
+  const missingOriginalSeals = computed(() =>
+    missingFirstMapSeals(crossMapSeals.value),
+  )
+  const darkSelectedSeal = computed(
+    () => DARK_BRIAR_SEALS[dark.value.player] ?? null,
+  )
   const darkSelectedScene = computed(
     () => DARK_BRIAR_SCENES[dark.value.player] ?? null,
   )
   const darkCurrentText = computed(() => {
     const scene = darkSelectedScene.value
-    if (!scene) return dark.value.status
+    if (!scene) return darkSelectedSeal.value?.opening ?? dark.value.status
     const chosen = scene.choices.find(
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
@@ -369,6 +390,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       )
       window.localStorage.setItem(DARK_BRIAR_KEY, JSON.stringify(dark.value))
       window.localStorage.setItem(
+        CROSS_MAP_SEALS_KEY,
+        JSON.stringify(crossMapSeals.value),
+      )
+      window.localStorage.setItem(
         DARK_HOUSE_KEY,
         JSON.stringify(darkHouse.value),
       )
@@ -459,6 +484,24 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         )
       } catch {
         dark.value = newDarkBriarProgress()
+      }
+      try {
+        const rawSeals = window.localStorage.getItem(CROSS_MAP_SEALS_KEY)
+        crossMapSeals.value = restoreCrossMapSealChronicle(
+          rawSeals ? JSON.parse(rawSeals) : null,
+        )
+        // Pre-60+4 Dark progress already inspected seals by visiting their
+        // former ordinary scenes. Preserve discoveries while never minting a
+        // future counterpart match.
+        for (const key of dark.value.sealInspections) {
+          crossMapSeals.value = inspectCrossMapSeal(
+            crossMapSeals.value,
+            key,
+            'e02',
+          )
+        }
+      } catch {
+        crossMapSeals.value = newCrossMapSealChronicle()
       }
       try {
         const savedHouse = window.localStorage.getItem(DARK_HOUSE_KEY)
@@ -758,7 +801,18 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     dark.value.player = key
     if (!dark.value.visited.includes(key)) dark.value.visited.push(key)
     dark.value.status =
-      DARK_BRIAR_SCENES[key]?.opening ?? 'The dark road waits.'
+      DARK_BRIAR_SCENES[key]?.opening ??
+      DARK_BRIAR_SEALS[key]?.opening ??
+      'The dark road waits.'
+    persistReality()
+  }
+
+  function darkInspectSeal(key: string): void {
+    if (activeReality.value !== 'e02') return
+    const updated = darkBriarInspectSeal(dark.value, key)
+    if (updated === dark.value) return
+    dark.value = updated
+    crossMapSeals.value = inspectCrossMapSeal(crossMapSeals.value, key, 'e02')
     persistReality()
   }
 
@@ -1572,6 +1626,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       BRIAR_CROSS_MAP_PUZZLES[key as keyof typeof BRIAR_CROSS_MAP_PUZZLES]
     if (!sigil) return
     inspectedSigil.value = key
+    crossMapSeals.value = inspectCrossMapSeal(crossMapSeals.value, key, 'e01')
+    persistReality()
     state.value.status = `${sigil.title}: ${sigil.hint} Its true match awaits in ${sigil.counterpart}.`
     persist()
   }
@@ -1631,6 +1687,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkMatching,
     darkPairsMatched,
     darkSelectedScene,
+    darkSelectedSeal,
+    crossMapSeals,
+    crossMapDiscovery,
+    missingOriginalSeals,
+    darkInspectSeal,
     darkCurrentText,
     canEnterDarkBriar,
     prepareDarkDeck,

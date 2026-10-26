@@ -22,7 +22,7 @@
           {{
             world.darkMatching
               ? `Round ${world.dark.waveIndex + 1}/4 · Pairs ${world.darkPairsMatched}/8`
-              : `${decisions}/64 stories`
+              : `${decisions}/60 encounters · ${world.dark.sealInspections.length}/4 seals`
           }}
         </span>
         <button
@@ -133,20 +133,23 @@
         >
           <div v-for="tile in tiles" :key="tile.key" class="min-h-0 min-w-0">
             <button
-              v-if="
-                darkScenes[tile.key] && world.dark.revealed.includes(tile.key)
-              "
+              v-if="world.dark.revealed.includes(tile.key)"
               type="button"
               class="relative grid h-full w-full place-items-center border border-[#b3a1c0]/30 text-[clamp(10px,1.7vw,22px)] transition hover:bg-purple-200/25 focus-visible:outline-2 focus-visible:outline-white"
               :class="{
                 'bg-[#f7c47e]/45 outline outline-2 outline-[#ffe7b9]':
                   world.dark.player === tile.key,
-                'bg-emerald-500/20': world.dark.sceneChoices[tile.key],
+                'bg-emerald-500/20':
+                  world.dark.sceneChoices[tile.key] ||
+                  world.dark.sealInspections.includes(tile.key),
+                'bg-violet-500/30':
+                  darkSeals[tile.key] &&
+                  !world.dark.sealInspections.includes(tile.key),
                 'bg-purple-300/20':
                   !world.dark.sceneChoices[tile.key] &&
                   world.dark.player !== tile.key,
               }"
-              :aria-label="`${darkScenes[tile.key]?.title}; ${world.dark.sceneChoices[tile.key] ? 'decision remembered' : 'unresolved'}; square ${tile.x}, ${tile.y}`"
+              :aria-label="`${darkScenes[tile.key]?.title ?? darkSeals[tile.key]?.title}; ${darkSeals[tile.key] ? (world.dark.sealInspections.includes(tile.key) ? 'seal inspected' : 'inspectable cross-world seal') : world.dark.sceneChoices[tile.key] ? 'decision remembered' : 'unresolved'}; square ${tile.x}, ${tile.y}`"
               :disabled="
                 !darkBriarCanTravel(
                   world.dark.player,
@@ -157,18 +160,23 @@
               @click="world.darkWalk(tile.key)"
             >
               <span aria-hidden="true">{{
-                tile.key === '6,2'
-                  ? '♜'
-                  : tile.key === '2,4'
-                    ? '♧'
-                    : tile.key === '4,4'
-                      ? '♛'
-                      : tile.key === '4,3'
-                        ? '⚒'
-                        : '✦'
+                darkSeals[tile.key]
+                  ? '✧'
+                  : tile.key === '6,2'
+                    ? '♜'
+                    : tile.key === '2,4'
+                      ? '♧'
+                      : tile.key === '4,4'
+                        ? '♛'
+                        : tile.key === '4,3'
+                          ? '⚒'
+                          : '✦'
               }}</span>
               <span
-                v-if="world.dark.sceneChoices[tile.key]"
+                v-if="
+                  world.dark.sceneChoices[tile.key] ||
+                  world.dark.sealInspections.includes(tile.key)
+                "
                 class="absolute bottom-0 right-0 rounded-tl bg-[#163d35] px-0.5 text-[9px] font-black"
                 aria-hidden="true"
                 >✓</span
@@ -202,7 +210,7 @@
           <p
             class="absolute bottom-2 left-3 font-serif text-xl font-black text-[#fff0d6] drop-shadow-lg sm:text-2xl"
           >
-            {{ scene?.title ?? 'A Memory Out of Place' }}
+            {{ scene?.title ?? seal?.title ?? 'A Memory Out of Place' }}
           </p>
         </div>
         <div
@@ -214,7 +222,9 @@
             {{
               world.darkMatching
                 ? 'Find the matching memories'
-                : 'Encounter · The Other Marches'
+                : seal
+                  ? 'Cross-world seal · future puzzle'
+                  : 'Encounter · The Other Marches'
             }}
           </p>
           <p
@@ -238,7 +248,39 @@
             class="text-xs font-semibold text-[#5e4a68]"
           >
             {{ world.dark.revealed.length }}/64 landmarks revealed ·
+            {{ decisions }}/60 encounters ·
+            {{ world.dark.sealInspections.length }}/4 seals ·
             {{ witnessCount }}/8 House witnesses
+          </p>
+          <button
+            v-if="
+              !world.darkMatching &&
+              seal &&
+              !world.dark.sealInspections.includes(world.dark.player)
+            "
+            type="button"
+            data-testid="dark-briar-inspect-seal"
+            class="rounded-lg border border-violet-600 bg-[#49305e] px-3 py-2 font-bold text-white"
+            @click="world.darkInspectSeal(world.dark.player)"
+          >
+            Record {{ seal.title }} in the cross-world Chronicle
+          </button>
+          <p
+            v-if="
+              !world.darkMatching &&
+              seal &&
+              world.dark.sealInspections.includes(world.dark.player)
+            "
+            class="rounded-lg border border-emerald-600/50 bg-emerald-100 p-2 text-xs text-[#244b38]"
+            data-testid="dark-briar-seal-recorded"
+          >
+            ✧ Mirrored seal identified. {{ seal.hint }} The paired solution
+            remains in a later world.
+          </p>
+          <p v-if="!world.darkMatching && seal" class="text-xs font-semibold">
+            First-world seals: {{ world.crossMapDiscovery.identified }}/4
+            identified, {{ world.crossMapDiscovery.originalInspected }}/4
+            inspected in original Briar.
           </p>
           <button
             v-if="!world.darkMatching && world.canEnterDarkHouseAtCamp"
@@ -334,7 +376,8 @@ import MemoryDungeonDarkHouseStage from '~/components/memory-dungeon/dark-house-
 import { BRIAR_TILES } from '~/utils/memoryDungeonWorld'
 import {
   DARK_BRIAR_SCENES,
-  DARK_BRIAR_WITNESSES,
+  DARK_BRIAR_SEALS,
+  darkBriarWitnessCount,
   darkBriarCanTravel,
   darkBriarCanChoose,
 } from '~/utils/memoryDungeon/darkBriar'
@@ -342,12 +385,15 @@ import {
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
 const darkScenes = DARK_BRIAR_SCENES
+const darkSeals = DARK_BRIAR_SEALS
+const seal = computed(() => darkSeals[world.dark.player])
 const scene = computed(() => darkScenes[world.dark.player])
-const decisions = computed(() => Object.keys(world.dark.sceneChoices).length)
-const witnessCount = computed(
+const decisions = computed(
   () =>
-    DARK_BRIAR_WITNESSES.filter((key) => world.dark.sceneChoices[key]).length,
+    Object.keys(world.dark.sceneChoices).filter((key) => darkScenes[key])
+      .length,
 )
+const witnessCount = computed(() => darkBriarWitnessCount(world.dark))
 const sceneStyle = computed(() => {
   const [x = 1, y = 1] = world.dark.player.split(',').map(Number)
   return {

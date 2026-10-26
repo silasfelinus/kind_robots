@@ -24,6 +24,9 @@ export type OutcomeArt = 'none' | 'success' | 'both'
 
 export type EndingMode = 'authored' | 'families'
 
+/** One version of each ending, or one per hero the player can start as. */
+export type EndingVersions = 'one' | 'per-hero'
+
 export type UndoMode = 'none' | 'last-choice' | 'rewind'
 
 export type SaveStyle = 'snapshot' | 'ledger'
@@ -77,10 +80,14 @@ export type Blueprint = {
   choicesPerEncounter: number
   quests: number
   questSteps: number
+  /** Places the story travels between: star systems, districts, towns. */
+  locations: number
 
   followers: number
   partySize: number
   followerExpressions: number
+  /** Steps in the personal quest each follower brings (0: none). The party picked decides where the story goes. */
+  followerQuestSteps: number
   villains: number
   /** A different principal villain is drawn each run (Warp: 8, Crystal Street: 22). */
   villainPerRun: boolean
@@ -95,6 +102,8 @@ export type Blueprint = {
   endingMode: EndingMode
   /** Beats in each finale sequence (epilogue cards per ending). */
   finaleBeats: number
+  /** Per-hero: the opening hero rewrites and repaints every ending. A party only adds epilogue lines. */
+  endingVersions: EndingVersions
   /** Each follower gets an epilogue line in every ending. */
   followerEpilogues: boolean
 

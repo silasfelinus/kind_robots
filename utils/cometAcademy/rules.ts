@@ -5,12 +5,31 @@ import {
   IDENTITY_ARCS,
 } from './identityArcs'
 import {
+  beginPlayerEvolution,
+  evolutionEncounter,
+  evolutionNightModifier,
+  isValidPlayerEvolution,
+  recordPlayerValues,
+  resolveEvolution,
+  type PlayerEvolution,
+} from './protagonistEvolution'
+import {
   antagonistBeat,
   antagonistFinale,
   campaignOpponent,
   opponentPressure,
 } from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
+import {
+  applySocialChoice,
+  newSocialState,
+  socialChoices,
+  socialFinaleText,
+  socialMissionBonus,
+  validSocialState,
+  type SocialState,
+  type SocialActionId,
+} from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
 import { realNightCase } from './nightCases'
@@ -404,6 +423,8 @@ export type AcademyRun = {
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
   opponentSignature?: SignaturePowerId
+  playerEvolution?: PlayerEvolution
+  relationships?: SocialState
   betrayer?: StudentId
   betrayal?: {
     day: number
@@ -438,6 +459,18 @@ export function incidentsFor(run: AcademyRun): Incident[] {
 
 export function encounterFor(run: AcademyRun) {
   if (run.flowVersion === 3 && run.day === 29) return GUEST_LIST_EVENT
+  if (
+    run.flowVersion === 3 &&
+    (run.day === 16 || run.day === 23) &&
+    run.playerEvolution
+  ) {
+    const event = evolutionEncounter(
+      run.signature,
+      run.playerEvolution,
+      run.day,
+    )
+    return { ...event, scene: `${campaignAnchor(run.day)} ${event.scene}` }
+  }
   if (run.flowVersion === 3) {
     const person = STUDENTS.find(
       (s) => s.id === (run.betrayer ?? campaignBetrayer(run.seed)),
@@ -547,6 +580,8 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
+    playerEvolution: beginPlayerEvolution(),
+    relationships: newSocialState(),
     visitedDays: {},
     injuries: {},
     infirmaryDays: [],
@@ -572,7 +607,11 @@ export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
 
 export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
   if (run.flowVersion !== 3 || run.phase !== 'map' || run.day >= 29) return run
-  if (!STUDENTS.some((person) => person.id === id) || studentAvailable(run, id))
+  if (
+    !STUDENTS.some((person) => person.id === id) ||
+    (run.injuries?.[id] ?? 0) <= run.day ||
+    (run.betrayal?.person === id && run.betrayal.status !== 'reconciled')
+  )
     return run
   return {
     ...run,
@@ -582,6 +621,46 @@ export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
     scene: `You spend the morning arranging treatment for ${STUDENTS.find((s) => s.id === id)!.name}. They can join tonight, but you forgo a city lead.`,
     influence: run.influence + 1,
     log: [...run.log, `Day ${run.day}: Infirmary treatment for ${id}`],
+  }
+}
+
+export function socialize(
+  run: AcademyRun,
+  id: StudentId,
+  choice: SocialActionId,
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'map' ||
+    !run.relationships ||
+    !studentAvailable(run, id)
+  )
+    return run
+  const options = socialChoices(run.relationships, id, run.day, {
+    unavailable: !studentAvailable(run, id),
+    form: run.playerEvolution?.form,
+    danger: run.danger,
+  })
+  const selection = options.find((option) => option.id === choice)
+  if (!selection) return run
+  const relationships = applySocialChoice(
+    run.relationships,
+    id,
+    run.day,
+    choice,
+    {
+      form: run.playerEvolution?.form,
+      danger: run.danger,
+    },
+  )
+  if (!relationships) return run
+  const person = STUDENTS.find((student) => student.id === id)!
+  return {
+    ...run,
+    relationships,
+    phase: 'dispatch',
+    scene: `Day ${run.day}: ${person.name}. ${selection.text} The daylight is spent; night patrol still needs a team.`,
+    log: [...run.log, `Day ${run.day}: ${person.name} — ${selection.label}`],
   }
 }
 
@@ -701,7 +780,11 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       civicSupport +
       academySupport -
       sabotagePenalty -
-      identityPressure
+      identityPressure +
+      (run.flowVersion === 3
+        ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
+          socialMissionBonus(run.relationships, assignment.students)
+        : 0)
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -743,10 +826,17 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       villain && activeNetwork
         ? campaignAccomplice(villain, run.day >= 26 ? 2 : run.day >= 17 ? 1 : 0)
         : undefined
+    const bondedSupport = socialMissionBonus(
+      run.relationships,
+      assignment.students,
+    )
+    const textWithBonds = bondedSupport
+      ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
+      : baseText
     const text =
       sabotagedBy && incident.allegiance !== 'villain'
-        ? `${baseText} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
-        : baseText
+        ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
+        : textWithBonds
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -793,6 +883,14 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     (entry) => entry.id === optionId,
   )
   if (!option) return run
+  const isEvolution =
+    run.flowVersion === 3 &&
+    [16, 23].includes(run.day) &&
+    Boolean(run.playerEvolution)
+  const evolved = isEvolution
+    ? resolveEvolution(run.playerEvolution!, optionId, run.day, run.signature)
+    : null
+  if (isEvolution && !evolved) return run
   const powerUsed =
     (option.id === 'truth' && run.power === 'empathy') ||
     (option.id === 'cover' && run.power === 'technopathy')
@@ -862,6 +960,12 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
           ...(betrayal ? { betrayal } : {}),
         }
       : {}),
+    ...(run.flowVersion === 3 && run.playerEvolution
+      ? {
+          playerEvolution:
+            evolved ?? recordPlayerValues(run.playerEvolution, option),
+        }
+      : {}),
     influence: run.influence + option.influence,
     academyStanding:
       (run.academyStanding ?? 0) +
@@ -929,6 +1033,17 @@ export function finishAcademy(
   if (run.flowVersion === 3) {
     const villain = campaignVillain(run.seed, run.mastermind)
     const evidenceCount = run.plotEvidence?.length ?? 0
+    const identityForm = run.playerEvolution?.form ?? 'student'
+    const roleStanding =
+      identityForm === 'hero' ? 2 : identityForm === 'villain' ? -2 : 0
+    const roleEpilogue =
+      run.signature && run.playerEvolution
+        ? identityForm === 'hero'
+          ? `${identityFor(run.signature).realName} graduates as ${identityFor(run.signature).hero.alias}: ${identityFor(run.signature).hero.method} Their promise persists after the shattered prom.`
+          : identityForm === 'villain'
+            ? `${identityFor(run.signature).realName} leaves the ballroom as ${identityFor(run.signature).villain.alias}: ${identityFor(run.signature).villain.method} The city remembers the cost of their bargain.`
+            : `${identityFor(run.signature).realName} remains ${identityFor(run.signature).student.alias}, choosing a future without compulsory transformation.`
+        : ''
     const reconciled = run.betrayal?.status === 'reconciled'
     const support =
       (run.cityStanding ?? 0) +
@@ -940,7 +1055,7 @@ export function finishAcademy(
       run.opponentSignature,
     )
     const earned =
-      support >= 2 + identityPressure &&
+      support + roleStanding >= 2 + identityPressure &&
       run.danger <= 48 + evidenceCount * 2 - identityPressure
     const opponent = run.opponentSignature
       ? identityFor(run.opponentSignature)
@@ -969,6 +1084,13 @@ export function finishAcademy(
     const betrayalOutcome = run.betrayal
       ? `${STUDENTS.find((s) => s.id === run.betrayal!.person)!.name} betrayed the rescue network on day 20. ${reconciled ? 'They returned under public oversight and helped repair the damage.' : 'The damaged relationship never received an easy pardon.'}`
       : 'An unidentified classmate remains connected to the compromised emergency grid.'
+    const relationshipEpilogue = socialFinaleText(
+      run.relationships,
+      Object.fromEntries(STUDENTS.map((s) => [s.id, s.name])) as Record<
+        StudentId,
+        string
+      >,
+    )
     const cost = shared
       ? 'Independent district shields save neighborhoods but lose precise coordination; some homes suffer damage.'
       : rescue
@@ -978,7 +1100,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${opponentEpilogue} ${betrayalOutcome} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -1097,6 +1219,13 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         !Array.isArray(data.infirmaryDays) ||
         (data.mastermind !== undefined &&
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
+        (data.relationships !== undefined &&
+          !validSocialState(data.relationships, data.day!)) ||
+        (data.playerEvolution !== undefined &&
+          (!isValidPlayerEvolution(data.playerEvolution, data.signature) ||
+            data.playerEvolution.milestones.some(
+              (event) => event.day > data.day!,
+            ))) ||
         (data.opponentSignature !== undefined &&
           ((data.signature !== undefined &&
             data.opponentSignature === data.signature) ||

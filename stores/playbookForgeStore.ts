@@ -1,10 +1,21 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
+import { usePlaybookStore } from '~/stores/playbookStore'
+import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
+import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
   DEFAULT_ASSUMPTIONS,
   type Assumptions,
 } from '~/utils/playbookForge/calibration'
+import {
+  EMPTY_PLAN_EDIT,
+  applyPlanEdit,
+  combosLine,
+  planChanges,
+  type AdditionKind,
+  type PlanEdit,
+} from '~/utils/playbookForge/adjust'
 import { forecast } from '~/utils/playbookForge/estimate'
 import {
   EXISTING_PLAYBOOKS,
@@ -40,6 +51,7 @@ import {
   unitsToWrite,
   writingBrief,
   type LedgerJob,
+  type Shine,
   type ProjectJobs,
 } from '~/utils/playbookForge/ledger'
 
@@ -54,6 +66,8 @@ export type ForgeScreen =
   | 'loadout'
   | 'analyze'
   | 'ledger'
+  | 'beats'
+  | 'kit'
   | 'launch'
   | 'assumptions'
 
@@ -79,6 +93,27 @@ export type LedgerSubmit = {
 
 const DRAFTS_KEY = 'kr-playbook-forge-drafts-v1'
 const ASSUMPTIONS_KEY = 'kr-playbook-forge-assumptions-v1'
+const LIBRARY_SORT_KEY = 'kr-playbook-forge-library-sort-v1'
+const PLAN_EDITS_KEY = 'kr-playbook-forge-plan-edits-v1'
+
+/** One game's ledger at a glance, for the Load a game library. */
+export type LibraryStat = {
+  progress: number
+  starred: number
+  sections: number
+  shine: Shine
+  remainingSeconds: number
+  remainingWords: number
+  units: number
+}
+
+export const LIBRARY_SORTS = [
+  { id: 'progress-asc', label: 'Least done' },
+  { id: 'progress-desc', label: 'Most done' },
+  { id: 'left', label: 'Most render left' },
+  { id: 'title', label: 'A–Z' },
+] as const
+export type LibrarySort = (typeof LIBRARY_SORTS)[number]['id']
 
 function storage(): Storage | null {
   try {
@@ -144,6 +179,239 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     builtPlan.value ? forecast(builtPlan.value, assumptions.value) : null,
   )
 
+  const planEdits = ref<Record<string, PlanEdit>>({})
+  const ledgerPanel = ref<'detail' | 'adjust'>('detail')
+  const posting = ref(false)
+  const adjustStatus = ref('')
+
+  function editFor(slug: string): PlanEdit {
+    return planEdits.value[slug] ?? structuredClone(EMPTY_PLAN_EDIT)
+  }
+
+  /** A game's plan as this browser has adjusted it: its Conductor plan plus edits and added elements. */
+  function planFor(entry: ExistingPlaybook): Blueprint {
+    return applyPlanEdit(entry.plan, planEdits.value[entry.slug])
+  }
+
+  function saveEdit(slug: string, edit: PlanEdit) {
+    planEdits.value = { ...planEdits.value, [slug]: edit }
+    persistWarning.value = writeJson(PLAN_EDITS_KEY, planEdits.value)
+      ? ''
+      : 'Browser storage is blocked: these adjustments last only this visit.'
+    libraryStats.value = Object.fromEntries(
+      Object.entries(libraryStats.value).filter(([key]) => key !== slug),
+    )
+  }
+
+  /** Changes one plan number (or choice) for the open game; equal to the plan clears it. */
+  function setOverride<K extends keyof Blueprint>(key: K, value: Blueprint[K]) {
+    const entry = existing.value
+    if (!entry) return
+    const edit = editFor(entry.slug)
+    const overrides: Partial<Blueprint> = Object.fromEntries(
+      Object.entries(edit.overrides).filter(([k]) => k !== key),
+    )
+    if (entry.plan[key] !== value) overrides[key] = value
+    saveEdit(entry.slug, { ...edit, overrides })
+    draft.value = planFor(entry)
+  }
+
+  function stepOverride(row: FactorRow, direction: 1 | -1) {
+    const entry = existing.value
+    if (!entry) return
+    const base = { ...entry.plan, ...editFor(entry.slug).overrides }
+    const value = stepValue(row, base, direction)
+    if (value !== null) setOverride(row.key, value)
+  }
+
+  function addElement(element: {
+    kind: AdditionKind
+    title: string
+    note: string
+    source?: string
+  }) {
+    const entry = existing.value
+    const title = element.title.trim()
+    if (!entry || !title) return
+    const edit = editFor(entry.slug)
+    saveEdit(entry.slug, {
+      ...edit,
+      additions: [
+        ...edit.additions,
+        {
+          id: `${Date.now().toString(36)}-${edit.additions.length}`,
+          kind: element.kind,
+          title,
+          note: element.note.trim(),
+          ...(element.source ? { source: element.source } : {}),
+        },
+      ],
+    })
+    draft.value = planFor(entry)
+  }
+
+  function removeElement(id: string) {
+    const entry = existing.value
+    if (!entry) return
+    const edit = editFor(entry.slug)
+    saveEdit(entry.slug, {
+      ...edit,
+      additions: edit.additions.filter((a) => a.id !== id),
+    })
+    draft.value = planFor(entry)
+  }
+
+  function setAdjustNote(note: string) {
+    const entry = existing.value
+    if (!entry) return
+    saveEdit(entry.slug, { ...editFor(entry.slug), note })
+  }
+
+  function clearOverrides() {
+    const entry = existing.value
+    if (!entry) return
+    saveEdit(entry.slug, { ...editFor(entry.slug), overrides: {} })
+    draft.value = planFor(entry)
+  }
+
+  /** What the open game's next post would carry: the note, changed numbers and unposted elements. */
+  const pendingAdjustment = computed(() => {
+    const entry = existing.value
+    if (!entry) return null
+    const edit = editFor(entry.slug)
+    const plan = planFor(entry)
+    return {
+      slug: entry.slug,
+      title: entry.title,
+      note: edit.note.trim(),
+      changes: planChanges(entry.plan, edit.overrides),
+      additions: edit.additions
+        .filter((a) => !a.postedUrl)
+        .map(({ kind, title, note, source }) => ({
+          kind,
+          title,
+          note,
+          source,
+        })),
+      combos: combosLine(plan),
+    }
+  })
+
+  /** Posts the pending adjustment to the game's GitHub issue. Numbers stay as the working plan. */
+  async function postAdjustment() {
+    const entry = existing.value
+    const post = pendingAdjustment.value
+    if (!entry || !post || posting.value) return
+    if (!post.note && !post.changes.length && !post.additions.length) {
+      adjustStatus.value =
+        'Type an adjustment, change a number or add an element first.'
+      return
+    }
+    posting.value = true
+    adjustStatus.value = 'Posting to GitHub…'
+    try {
+      const res = await performFetch<{ issue: number; url: string }>(
+        '/api/playbook-forge/adjustment',
+        { method: 'POST', body: JSON.stringify(post) },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        adjustStatus.value = `Not posted: ${res.message || 'GitHub did not answer.'} The adjustment is kept here.`
+        return
+      }
+      const { url } = res.data
+      const edit = editFor(entry.slug)
+      saveEdit(entry.slug, {
+        ...edit,
+        note: '',
+        additions: edit.additions.map((a) =>
+          a.postedUrl ? a : { ...a, postedUrl: url },
+        ),
+        posts: [{ url, at: new Date().toISOString() }, ...edit.posts].slice(
+          0,
+          20,
+        ),
+      })
+      adjustStatus.value = `Posted to issue #${res.data.issue}.`
+    } finally {
+      posting.value = false
+    }
+  }
+
+  const libraryStats = ref<Record<string, LibraryStat>>({})
+  const libraryLoading = ref(false)
+  const librarySort = ref<LibrarySort>('progress-asc')
+
+  /**
+   * Every game's ledger from its code (beats, art, words, plan gaps), so the
+   * library shows how done each one is. Built one game at a time so the
+   * console stays responsive while the larger adapters load.
+   */
+  async function loadLibraryStats() {
+    if (libraryLoading.value) return
+    libraryLoading.value = true
+    try {
+      for (const entry of EXISTING_PLAYBOOKS) {
+        if (libraryStats.value[entry.slug]) continue
+        if (!entry.studio || !isPlaybookGame(entry.studio)) continue
+        const book = buildPlaybook(entry.studio)
+        const counts = await entry.count().catch(() => null)
+        const ledger = buildLedger(
+          book,
+          {},
+          {
+            laneKey: book.artLanes[0] ?? 'krea2',
+            assumptions: assumptions.value,
+            gaps: counts ? planGaps(planFor(entry), counts) : [],
+          },
+        )
+        libraryStats.value = {
+          ...libraryStats.value,
+          [entry.slug]: {
+            progress: ledger.progress,
+            starred: ledger.starred,
+            sections: ledger.sections.length,
+            shine: ledger.shine,
+            remainingSeconds: ledger.remainingSeconds,
+            remainingWords: ledger.remainingWords,
+            units: ledger.units,
+          },
+        }
+        await new Promise((resolve) => setTimeout(resolve, 0))
+      }
+    } finally {
+      libraryLoading.value = false
+    }
+  }
+
+  function setLibrarySort(next: LibrarySort) {
+    librarySort.value = next
+    writeJson(LIBRARY_SORT_KEY, next)
+  }
+
+  /** The library in the chosen order; games still being counted go last. */
+  const libraryGames = computed(() => {
+    const stat = (slug: string) => libraryStats.value[slug]
+    const games = [...EXISTING_PLAYBOOKS]
+    const known = (a: string, b: string) => Number(!stat(a)) - Number(!stat(b))
+    return games.sort((a, b) => {
+      if (librarySort.value === 'title') return a.title.localeCompare(b.title)
+      const unknown = known(a.slug, b.slug)
+      if (unknown) return unknown
+      const sa = stat(a.slug)
+      const sb = stat(b.slug)
+      if (!sa || !sb) return a.title.localeCompare(b.title)
+      if (librarySort.value === 'left')
+        return sb.remainingSeconds - sa.remainingSeconds
+      const diff =
+        librarySort.value === 'progress-asc'
+          ? sa.progress - sb.progress
+          : sb.progress - sa.progress
+      return diff || a.title.localeCompare(b.title)
+    })
+  })
+
   const ledgerBook = ref<Playbook | null>(null)
   const ledgerRelay = ref<LedgerRelay | null>(null)
   const ledgerLoading = ref(false)
@@ -154,7 +422,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const ledger = computed(() => {
     const entry = existing.value
     if (!entry) return null
-    const gaps = built.value ? planGaps(entry.plan, built.value) : []
+    const gaps = built.value ? planGaps(planFor(entry), built.value) : []
     const notes: string[] = []
     if (!entry.studio)
       notes.push(
@@ -204,6 +472,10 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (loaded.value) return
     loaded.value = true
     drafts.value = readJson<Record<string, Blueprint>>(DRAFTS_KEY) ?? {}
+    planEdits.value = readJson<Record<string, PlanEdit>>(PLAN_EDITS_KEY) ?? {}
+    const sort = readJson<LibrarySort>(LIBRARY_SORT_KEY)
+    if (sort && LIBRARY_SORTS.some((option) => option.id === sort))
+      librarySort.value = sort
     const saved = readJson<Assumptions>(ASSUMPTIONS_KEY)
     if (saved)
       assumptions.value = {
@@ -242,7 +514,15 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     else if (from === 'ledger' && ledgerConfirm.value) {
       ledgerConfirm.value = null
       return
+    } else if (from === 'ledger' && ledgerPanel.value === 'adjust') {
+      ledgerPanel.value = 'detail'
+      return
     } else if (from === 'ledger') screen.value = 'library'
+    else if (from === 'beats')
+      screen.value =
+        ledgerBook.value || ledgerRelay.value ? 'ledger' : 'library'
+    else if (from === 'kit')
+      screen.value = existing.value ? 'ledger' : 'library'
     else if (from === 'analyze')
       screen.value = ledgerBook.value || ledgerRelay.value ? 'ledger' : 'title'
     else if (from === 'idea' || from === 'library') screen.value = 'title'
@@ -295,7 +575,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       ledgerRelay.value = null
     }
     existing.value = entry
-    draft.value = structuredClone(entry.plan)
+    draft.value = planFor(entry)
     built.value = null
     tab.value = 'story'
     focus.value = 0
@@ -320,16 +600,57 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   /** The production ledger: every beat a playbook is made of, its spend and what is left. */
+  /** The kit game the Kit preview screen plays (a Playbook Kit spec id). */
+  const kitId = ref(KIT_PLAYBOOKS[0]?.id ?? '')
+  const beatSection = ref<'all' | number>('all')
+  const beatSearch = ref('')
+  const beatView = ref<'list' | 'cards'>('list')
+
+  /**
+   * Playbook Studio inside the Forge: a game's beats with the scene editor,
+   * overlays, notes and art requests (the Studio store and API).
+   */
+  async function openBeats(slug: string, key?: string) {
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
+    if (!entry?.studio || !isPlaybookGame(entry.studio)) {
+      status.value = entry
+        ? `${entry.title} has no Playbook Studio adapter yet, so its beats cannot be opened.`
+        : 'Unknown playbook.'
+      return
+    }
+    if (existing.value?.slug !== slug) {
+      existing.value = entry
+      draft.value = planFor(entry)
+    }
+    beatSection.value = 'all'
+    beatSearch.value = ''
+    go('beats')
+    const studio = usePlaybookStore()
+    await studio.setGame(entry.studio)
+    if (key && studio.playbook.nodes[key]) studio.selectedKey = key
+  }
+
+  /** The Playbook Kit console, for games built on the kit. */
+  function openKit(id: string) {
+    const spec = kitPlaybook(id) ?? KIT_PLAYBOOKS[0]
+    if (!spec) return
+    kitId.value = spec.id
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === spec.id)
+    if (entry) existing.value = entry
+    go('kit')
+  }
+
   async function openLedger(slug: string) {
     const entry = EXISTING_PLAYBOOKS.find((e) => e.slug === slug)
     if (!entry) return
     existing.value = entry
-    draft.value = structuredClone(entry.plan)
+    draft.value = planFor(entry)
     built.value = null
     ledgerBook.value = null
     ledgerRelay.value = null
     ledgerSection.value = 0
     ledgerConfirm.value = null
+    ledgerPanel.value = 'detail'
     go('ledger')
     ledgerLoading.value = true
     try {
@@ -515,6 +836,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     const value = stepValue(row, draft.value, direction)
     if (value === null) return
     draft.value = { ...draft.value, [row.key]: value }
+    if (existing.value) setOverride(row.key, value)
     if (focus.value >= rows.value.length)
       focus.value = Math.max(0, rows.value.length - 1)
     persistDraft()
@@ -540,7 +862,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   function resetPlan() {
-    if (existing.value) draft.value = structuredClone(existing.value.plan)
+    if (existing.value) draft.value = planFor(existing.value)
   }
 
   /** Creates the Kind Robots Project; its scaffold Todo carries the blueprint to Conductor. */
@@ -641,6 +963,25 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     deleteDraft,
     analyze,
     ledger,
+    planEdits,
+    planFor,
+    ledgerPanel,
+    posting,
+    adjustStatus,
+    setOverride,
+    stepOverride,
+    addElement,
+    removeElement,
+    setAdjustNote,
+    clearOverrides,
+    pendingAdjustment,
+    postAdjustment,
+    libraryStats,
+    libraryLoading,
+    librarySort,
+    libraryGames,
+    loadLibraryStats,
+    setLibrarySort,
     ledgerBook,
     ledgerRelay,
     ledgerLoading,
@@ -649,6 +990,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     ledgerLane,
     ledgerConfirm,
     openLedger,
+    openBeats,
+    openKit,
+    kitId,
+    beatSection,
+    beatSearch,
+    beatView,
     focusSection,
     cycleLane,
     askSubmit,

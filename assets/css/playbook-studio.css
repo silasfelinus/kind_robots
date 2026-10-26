@@ -22,6 +22,22 @@
   );
   color: var(--color-base-content);
 }
+/* Hosted inside the Playbook Forge console: keep the Studio's parts but take
+   the console's own palette and background from the forge theme around it. */
+.playbook-studio.pf-studio {
+  --color-base-100: inherit;
+  --color-base-200: inherit;
+  --color-base-300: inherit;
+  --color-base-content: inherit;
+  --color-primary: inherit;
+  --color-primary-content: inherit;
+  --color-secondary: inherit;
+  --color-secondary-content: inherit;
+  --color-neutral: inherit;
+  --color-neutral-content: inherit;
+  background: none;
+  color: inherit;
+}
 .playbook-studio .studio-heading {
   font-size: 0.85rem;
   font-weight: 800;

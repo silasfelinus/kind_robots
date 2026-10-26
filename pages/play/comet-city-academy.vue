@@ -369,6 +369,26 @@
                 }})
               </span>
             </p>
+            <div
+              v-if="run.playerEvolution"
+              class="cca-report-mini"
+              data-testid="academy-evolution-dossier"
+            >
+              <strong
+                >MY IDENTITY:
+                {{ currentPlayer?.[currentForm]?.alias ?? 'STUDENT' }} ·
+                {{ currentForm.toUpperCase() }}</strong
+              >
+              <span
+                >PROTECT {{ run.playerEvolution.protect }} · EXPLOIT
+                {{ run.playerEvolution.exploit }} · TWO CHOICES EARN A
+                MANTLE</span
+              >
+              <span v-if="run.day < 16">First public reckoning: day 16</span>
+              <span v-else-if="run.day < 23"
+                >Next chance to choose or change: day 23</span
+              >
+            </div>
             <p
               v-if="run.flowVersion === 3 && run.day >= 8"
               class="cca-under"
@@ -398,7 +418,94 @@
                 Treat {{ student.name }} before night patrol ↗
               </button>
             </div>
-            <div class="cca-map-tabs" aria-label="Map view">
+            <button
+              v-if="socialDayAvailable"
+              class="cca-choice"
+              type="button"
+              data-testid="academy-social-switch"
+              @click="showRelationships = !showRelationships"
+            >
+              <span>{{
+                showRelationships
+                  ? 'RETURN TO THE CITY MAP'
+                  : 'SPEND DAYLIGHT WITH A CLASSMATE'
+              }}</span>
+              <span>↗</span>
+            </button>
+            <div
+              v-if="socialPanelActive && run.relationships"
+              class="cca-report-mini"
+              data-testid="academy-social-panel"
+            >
+              <strong>RELATIONSHIPS / ONE DAYTIME ACTION</strong>
+              <span
+                >Making a promise here replaces exploring a city location today.
+                Every classmate can decline, change terms or leave.</span
+              >
+              <div class="cca-map-tabs" aria-label="Choose classmate">
+                <button
+                  v-for="person in STUDENTS"
+                  :key="person.id"
+                  type="button"
+                  :class="{ chosen: selectedSocialId === person.id }"
+                  :aria-pressed="selectedSocialId === person.id"
+                  @click="selectedSocialId = person.id"
+                >
+                  {{ person.name }}
+                </button>
+              </div>
+              <strong>{{ selectedSocialProfile?.dilemma }}</strong>
+              <span v-if="run.relationships.connections[selectedSocialId]">
+                TRUST
+                {{
+                  run.relationships.connections[selectedSocialId]?.trust ?? 0
+                }}
+                ·
+                {{
+                  run.relationships.partner === selectedSocialId
+                    ? 'FIELD PARTNER · '
+                    : ''
+                }}
+                {{
+                  run.relationships.sidekick === selectedSocialId
+                    ? 'SIDEKICK · '
+                    : ''
+                }}
+                {{
+                  run.relationships.romance === selectedSocialId
+                    ? 'ROMANCE · '
+                    : ''
+                }}
+                {{
+                  run.relationships.connections[selectedSocialId]
+                    ?.courtingDay !== undefined &&
+                  run.relationships.romance !== selectedSocialId
+                    ? 'EXPLORING RELATIONSHIP · '
+                    : ''
+                }}
+              </span>
+              <span>{{ selectedSocialProfile?.boundary }}</span>
+              <button
+                v-for="choice in socialActionOptions"
+                :key="choice.id"
+                class="cca-choice"
+                type="button"
+                data-testid="academy-social-choice"
+                @click="store.social(selectedSocialId, choice.id)"
+              >
+                <span>{{ choice.label }}</span
+                ><span>↗</span>
+              </button>
+              <span v-if="!socialActionOptions.length"
+                >This classmate cannot spend time together today. A serious
+                injury or betrayal may have changed the roster.</span
+              >
+            </div>
+            <div
+              v-if="!socialPanelActive"
+              class="cca-map-tabs"
+              aria-label="Map view"
+            >
               <button
                 type="button"
                 :aria-pressed="mapView === 'campus'"
@@ -417,6 +524,7 @@
               </button>
             </div>
             <div
+              v-if="!socialPanelActive"
               class="cca-map"
               data-testid="academy-map"
               :aria-label="
@@ -609,6 +717,14 @@
                 </p>
               </div>
             </div>
+            <p
+              v-if="run.playerEvolution && (run.day === 16 || run.day === 23)"
+              class="cca-under"
+              data-testid="academy-identity-choice"
+            >
+              PUBLIC IDENTITY RECKONING · YOUR PRIOR CHOICES UNLOCK AVAILABLE
+              MANTLES
+            </p>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
             <div v-if="run.flowVersion !== 2" class="cca-report-mini">
               <strong>AFTER-ACTION REPORT</strong>
@@ -786,6 +902,11 @@
 </template>
 
 <script setup lang="ts">
+import {
+  SOCIAL_CAST,
+  SOCIAL_DAYS,
+  socialChoices,
+} from '~/utils/cometAcademy/relationships'
 import { computed, onMounted, ref } from 'vue'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
@@ -833,6 +954,8 @@ const store = useCometAcademyStore()
 const selectedOrigin = ref<PowerOriginId>('accident')
 const selectedAffinity = ref<PowerAffinityId>('fire')
 const selectedVow = ref<PowerVowId>('shelter')
+const showRelationships = ref(false)
+const selectedSocialId = ref<StudentId>('mina')
 const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
@@ -843,6 +966,32 @@ const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
 const selectedAllegiance = ref<CharacterAllegiance>('hero')
 const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
+const socialDayAvailable = computed(() => {
+  const current = run.value
+  return (
+    current?.flowVersion === 3 && SOCIAL_DAYS.some((day) => day === current.day)
+  )
+})
+const socialPanelActive = computed(() =>
+  Boolean(showRelationships.value && socialDayAvailable.value),
+)
+const selectedSocialProfile = computed(() =>
+  SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
+)
+const socialActionOptions = computed(() =>
+  run.value?.relationships
+    ? socialChoices(
+        run.value.relationships,
+        selectedSocialId.value,
+        run.value.day,
+        {
+          unavailable: !store.available(selectedSocialId.value),
+          form: run.value.playerEvolution?.form,
+          danger: run.value.danger,
+        },
+      )
+    : [],
+)
 
 const stageScenery = computed(
   () => academyStageArt(run.value) ?? '/comet-city-academy/academy-stage.svg',
@@ -855,6 +1004,12 @@ const mastermind = computed(() =>
     ? campaignVillain(run.value.seed, run.value.mastermind)
     : null,
 )
+const currentPlayer = computed(() =>
+  run.value?.signature ? identityFor(run.value.signature) : null,
+)
+const currentForm = computed(
+  () => run.value?.playerEvolution?.form ?? 'student',
+)
 const opponent = computed(() =>
   run.value?.opponentSignature
     ? identityFor(run.value.opponentSignature)
@@ -862,7 +1017,9 @@ const opponent = computed(() =>
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3
-    ? STUDENTS.filter((s) => !store.available(s.id))
+    ? STUDENTS.filter(
+        (s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0),
+      )
     : [],
 )
 function canVisitSite(id: SiteId) {

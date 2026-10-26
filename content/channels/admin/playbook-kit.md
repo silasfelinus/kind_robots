@@ -2,11 +2,12 @@
 contentType: tab
 channelKey: admin
 tabKey: playbook-kit
+parentTabKey: retired
 label: Playbook Kit
 title: Playbook Kit
 subtitle: One frame for every story game. Start small, earn every complication.
-description: The shared framework for Kind Robots story games ("playbooks") like Emperor of Dust, Shifting Lands, Shifting Desks, Prom of Doom, Space Couch and Ecotone. One-screen shell, settings, title trailer, scrapbook of cinematic moments, cast, factions, secrets and endings, audited against a complexity budget.
-summary: Build and audit new playbook games.
+description: The Playbook Kit console now lives in the Playbook Forge (title menu, Kit console, or Rehearse in the kit from a kit game's ledger). This route forwards there.
+summary: Moved into the Playbook Forge.
 icon: kind-icon:blueprint
 route: /admin/playbook-kit
 sort: 75

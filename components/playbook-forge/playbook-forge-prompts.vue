@@ -75,9 +75,17 @@ const prompts = computed<{ command: ConsoleCommand; label: string }[]>(() => {
         { command: 'confirm', label: 'Select' },
         { command: 'back', label: 'Back' },
       ]
+    case 'beats':
+      return [
+        { command: 'confirm', label: 'Select' },
+        { command: 'back', label: 'Ledger' },
+      ]
+    case 'kit':
+      return [{ command: 'back', label: 'Back to the Forge' }]
     case 'ledger':
       return [
         { command: 'confirm', label: 'Select' },
+        { command: 'details', label: 'Beats' },
         ...(forge.ledgerBook
           ? [{ command: 'left' as const, label: 'Art lane' }]
           : []),

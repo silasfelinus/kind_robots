@@ -1,7 +1,12 @@
 <template>
   <div
     v-if="forge.existing && ledger"
-    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(7.5rem,1fr)_minmax(0,1.25fr)] gap-3 @5xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,1fr)] @5xl:grid-rows-[auto_minmax(0,1fr)] @5xl:gap-4"
+    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] gap-3 @5xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,1fr)] @5xl:grid-rows-[auto_minmax(0,1fr)] @5xl:gap-4"
+    :class="
+      forge.ledgerPanel === 'adjust'
+        ? 'grid-rows-[auto_minmax(0,1fr)]'
+        : 'grid-rows-[auto_minmax(7.5rem,1fr)_minmax(0,1.25fr)]'
+    "
   >
     <header class="flex min-w-0 flex-col gap-3 @5xl:col-span-2">
       <div class="flex flex-wrap items-end justify-between gap-3">
@@ -15,7 +20,47 @@
             <span :class="shineClass">{{ shineLabel }}</span>
           </p>
         </div>
-        <p class="hidden max-w-md text-xs leading-snug opacity-70 @3xl:block">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button
+            v-if="forge.existing.studio"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-primary pf-focusable"
+            title="Every beat with the scene editor: overlays, notes and art requests"
+            @click="forge.openBeats(forge.existing.slug)"
+          >
+            Beats
+          </button>
+          <button
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm pf-focusable"
+            :class="
+              forge.ledgerPanel === 'adjust' ? 'btn-secondary' : 'btn-ghost'
+            "
+            :aria-pressed="forge.ledgerPanel === 'adjust'"
+            title="Change plan numbers, add elements and post direction to the game's GitHub issue"
+            @click="
+              forge.ledgerPanel =
+                forge.ledgerPanel === 'adjust' ? 'detail' : 'adjust'
+            "
+          >
+            Adjust
+          </button>
+          <button
+            v-if="kitSpec"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-ghost pf-focusable"
+            title="Rehearse this kit game's moments, reveals and endings"
+            @click="forge.openKit(kitSpec.id)"
+          >
+            Rehearse in the kit
+          </button>
+        </div>
+        <p
+          class="hidden max-w-md basis-full text-xs leading-snug opacity-70 @3xl:block"
+        >
           <template v-if="forge.ledgerLoading"
             >Counting beats and reading the relay…</template
           >
@@ -82,7 +127,10 @@
       </p>
     </header>
 
-    <section class="flex min-h-0 min-w-0 flex-col gap-2">
+    <section
+      class="min-h-0 min-w-0 flex-col gap-2"
+      :class="forge.ledgerPanel === 'adjust' ? 'hidden @5xl:flex' : 'flex'"
+    >
       <p class="pf-kicker shrink-0 text-secondary">
         {{
           ledger.sections.length
@@ -164,7 +212,8 @@
       </ul>
     </section>
 
-    <PlaybookForgeLedgerDetail />
+    <PlaybookForgeAdjust v-if="forge.ledgerPanel === 'adjust'" />
+    <PlaybookForgeLedgerDetail v-else />
   </div>
 </template>
 
@@ -173,6 +222,7 @@ import { computed } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import { FACTOR_ROWS } from '~/utils/playbookForge/factors'
+import { kitPlaybook } from '~/utils/playbookKit/games'
 import type {
   ArtState,
   LedgerSection,
@@ -181,6 +231,9 @@ import type {
 
 const forge = usePlaybookForgeStore()
 const ledger = computed(() => forge.ledger)
+const kitSpec = computed(() =>
+  forge.existing ? kitPlaybook(forge.existing.slug) : undefined,
+)
 
 const STATE_CLASS: Record<ArtState, string> = {
   delivered: 'bg-success',
@@ -234,13 +287,14 @@ const planRows = computed(() => {
   const entry = forge.existing
   const built = forge.built
   if (!entry || !built || ledger.value?.sections.length) return []
+  const plan = forge.planFor(entry)
   return FACTOR_ROWS.flatMap((row) =>
     row.kind === 'stepper' && built.measured.includes(row.key)
       ? [
           {
             label: row.label,
             built: Number(built.values[row.key] ?? 0),
-            planned: Number(entry.plan[row.key] ?? 0),
+            planned: Number(plan[row.key] ?? 0),
           },
         ]
       : [],

@@ -1,5 +1,7 @@
 import type { Playbook } from '../playbook/types'
-import { VIGNETTE_DEFAULTS } from './presets'
+import { KIT_PLAYBOOKS } from '../playbookKit/games'
+import type { PlaybookKitSpec } from '../playbookKit/types'
+import { GENRES, VIGNETTE_DEFAULTS } from './presets'
 import type { Blueprint } from './types'
 
 // Existing playbooks as blueprints. `plan` is each project's Conductor goal
@@ -98,20 +100,29 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       placement: 'play',
       creator: 'roster',
       rosterSize: 6,
+      // Silas, 2026-10-26 (kind_robots#4182): a galactic nemesis drawn per run,
+      // a personal quest for every crew member that crosses the galaxy, and
+      // endings that change with the opening. Three crew colour an ending;
+      // the captain multiplies it.
       followers: 16,
       partySize: 3,
+      followerQuestSteps: 3,
+      followerEpilogues: true,
       villains: 8,
       villainPerRun: true,
       acts: 3,
       chaptersPerAct: 4,
       encounters: 40,
       quests: 30,
+      locations: 12,
       checks: 'percent',
       outcomes: 'five-tier',
       outcomeArt: 'both',
       endings: 16,
+      endingVersions: 'per-hero',
       factions: 4,
       saveSlots: 3,
+      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, sixteen crew with errands of their own on far-flung worlds, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
     }),
     count: async () => {
       const rules = await import('../gameOfCaptains/rules')
@@ -122,6 +133,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           villains: rules.ANTAGONISTS.length,
           quests: rules.MISSIONS.length,
           encounters: rules.MISSIONS.length,
+          locations: new Set(rules.MISSIONS.map((mission) => mission.system))
+            .size,
+          // No crew member has a personal quest yet.
+          followerQuestSteps: 0,
           endings: 4,
         },
         measured: [
@@ -130,9 +145,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'villains',
           'quests',
           'encounters',
+          'locations',
+          'followerQuestSteps',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts (not yet in Playbook Studio)',
+        source: 'utils/gameOfCaptains/rules.ts',
       }
     },
   },
@@ -342,6 +359,33 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     count: () => studio('zuzu-gamebook'),
   },
 ]
+
+/** A Playbook Kit game's plan is its own spec: the kit already budgets every count. */
+function kitEntry(spec: PlaybookKitSpec): ExistingPlaybook {
+  const studioId = `kit-${spec.id}`
+  const cast = (role: string) => spec.cast.filter((c) => c.role === role).length
+  return {
+    slug: spec.id,
+    studio: studioId,
+    title: spec.title,
+    cover: spec.keyArt.src ?? GENRES[0]!.cover,
+    route: spec.route ?? `/admin/playbook-forge?kit=${spec.id}`,
+    planSource: 'its Playbook Kit spec (utils/playbookKit/games)',
+    plan: plan(spec.conductorSlug, spec.title, {
+      tier: spec.tier,
+      acts: spec.acts.length,
+      followers: cast('follower'),
+      villains: cast('villain'),
+      romances: spec.cast.filter((c) => c.romance).length,
+      factions: spec.factions.length,
+      endings: spec.endings.length,
+      encounters: spec.moments.length,
+    }),
+    count: () => studio(studioId),
+  }
+}
+
+EXISTING_PLAYBOOKS.push(...KIT_PLAYBOOKS.map(kitEntry))
 
 /** The forge entry for a Playbook Studio game id. */
 export function forgeEntryForStudio(

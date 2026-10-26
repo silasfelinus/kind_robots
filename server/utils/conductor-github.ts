@@ -16,7 +16,7 @@ export interface ConductorFile {
   content: string
 }
 
-function conductorGithubToken(): string {
+export function conductorGithubToken(): string {
   const runtimeToken = useRuntimeConfig().githubToken
   return (
     process.env.GITHUB_TOKEN ||

@@ -5,6 +5,7 @@ import type {
   PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
+import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   chooseEncounter,
@@ -13,6 +14,7 @@ import {
   nextSchoolDay,
   resolveDispatch,
   restoreAcademy,
+  socialize,
   startAcademy,
   startFullAcademy,
   studentAvailable,
@@ -84,6 +86,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     return run.value ? studentAvailable(run.value, studentId) : true
   }
 
+  function social(id: StudentId, action: SocialActionId) {
+    if (!run.value) return
+    run.value = socialize(run.value, id, action)
+    persist()
+  }
+
   function visit(siteId: SiteId) {
     if (!run.value) return
     run.value = visitCitySite(run.value, siteId)
@@ -135,6 +143,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     beginFirstWeek,
     heal,
     available,
+    social,
     visit,
     assign,
     dispatch,

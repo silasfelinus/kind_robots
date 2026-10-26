@@ -81,7 +81,7 @@ const menu = computed(() => [
   },
   {
     label: 'Load a game',
-    detail: `Every beat of ${EXISTING_PLAYBOOKS.length} playbooks: spent, left, starred, and its plan.`,
+    detail: `Every beat of ${EXISTING_PLAYBOOKS.length} playbooks: edit beats, spend and stars, and the plan.`,
     run: () => forge.go('library'),
   },
   ...(forge.draftList.length
@@ -93,6 +93,12 @@ const menu = computed(() => [
         },
       ]
     : []),
+  {
+    label: 'Kit console',
+    detail:
+      'Rehearse the games built on the Playbook Kit, with their settings and budget.',
+    run: () => forge.openKit(''),
+  },
   {
     label: 'Assumptions',
     detail: 'Render times, word rates and session size behind every forecast.',

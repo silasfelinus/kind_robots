@@ -109,6 +109,8 @@
           <PlaybookForgeTitle v-if="forge.screen === 'title'" />
           <PlaybookForgeLibrary v-else-if="forge.screen === 'library'" />
           <PlaybookForgeLedger v-else-if="forge.screen === 'ledger'" />
+          <PlaybookForgeBeats v-else-if="forge.screen === 'beats'" />
+          <PlaybookForgeKit v-else-if="forge.screen === 'kit'" />
           <PlaybookForgeIdea v-else-if="forge.screen === 'idea'" />
           <PlaybookForgeLaunch v-else-if="forge.screen === 'launch'" />
           <PlaybookForgeAssumptions
@@ -202,7 +204,9 @@ function run(command: ConsoleCommand) {
     return
   }
   if (command === 'details') {
-    forge.go(forge.screen === 'assumptions' ? 'title' : 'assumptions')
+    if (forge.screen === 'ledger' && forge.existing)
+      void forge.openBeats(forge.existing.slug)
+    else forge.go(forge.screen === 'assumptions' ? 'title' : 'assumptions')
     return
   }
   if (command === 'confirm') {
@@ -223,6 +227,9 @@ function run(command: ConsoleCommand) {
 
 function onKey(event: KeyboardEvent) {
   if (event.altKey || event.ctrlKey || event.metaKey) return
+  // The Kit preview is its own console; the Studio editor has text fields.
+  if (forge.screen === 'kit') return
+  if (forge.screen === 'beats' && event.code !== 'Escape') return
   const command = KEY_COMMANDS[event.code]
   if (!command) return
   if (isTextEntry(document.activeElement) && event.code !== 'Escape') return
@@ -239,6 +246,10 @@ function onPointer(event: PointerEvent) {
 
 function pollPads(now: number) {
   const pads = navigator.getGamepads?.() ?? []
+  if (forge.screen === 'kit') {
+    frame = requestAnimationFrame(pollPads)
+    return
+  }
   for (const gamepad of pads) {
     if (!gamepad) continue
     const commands = readPad(gamepad, pad, now)
@@ -281,8 +292,21 @@ onMounted(() => {
   forge.load()
   const analyze = route.query.analyze
   const ledger = route.query.ledger
+  const beats = route.query.beats
+  const kitGame = route.query.kit
+  const studioGame = route.query.game
   if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
   else if (typeof ledger === 'string' && ledger) void forge.openLedger(ledger)
+  else if (typeof beats === 'string' && beats)
+    void forge.openBeats(
+      beats,
+      typeof route.query.key === 'string' ? route.query.key : undefined,
+    )
+  else if (typeof kitGame === 'string') forge.openKit(kitGame || '')
+  else if (typeof studioGame === 'string' && studioGame) {
+    const entry = EXISTING_PLAYBOOKS.find((e) => e.studio === studioGame)
+    if (entry) void forge.openBeats(entry.slug)
+  }
   window.addEventListener('keydown', onKey)
   document.addEventListener('fullscreenchange', onFullscreen)
   frame = requestAnimationFrame(pollPads)

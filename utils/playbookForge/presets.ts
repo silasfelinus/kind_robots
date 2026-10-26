@@ -39,10 +39,12 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   choicesPerEncounter: 3,
   quests: 0,
   questSteps: 2,
+  locations: 0,
 
   followers: 3,
   partySize: 1,
   followerExpressions: 1,
+  followerQuestSteps: 0,
   villains: 1,
   villainPerRun: false,
   figures: 2,
@@ -55,6 +57,7 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   endings: 4,
   endingMode: 'authored',
   finaleBeats: 2,
+  endingVersions: 'one',
   followerEpilogues: false,
 
   autosave: true,

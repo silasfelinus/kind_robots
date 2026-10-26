@@ -381,7 +381,11 @@
               class="pointer-events-none absolute inset-x-0 bottom-0 hidden h-1/5 bg-gradient-to-t from-[#09141c]/45 to-transparent @4xl:block"
             />
             <div
-              v-if="game.run.phase === 'end' && game.ending && game.endings.includes(game.ending.id)"
+              v-if="
+                game.run.phase === 'end' &&
+                game.ending &&
+                game.endings.includes(game.ending.id)
+              "
               class="absolute inset-0 flex items-center justify-center bg-[#09141c]/55 p-3 @4xl:p-6"
             >
               <div
@@ -393,10 +397,22 @@
                   :label="signature?.title ?? stage.title"
                   class="absolute inset-0"
                 />
-                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071016] via-[#071016]/90 to-transparent px-4 pb-5 pt-16 text-center">
-                  <p class="text-xs font-black uppercase tracking-[.22em] text-[#d9b877]">Ending earned</p>
-                  <h3 class="mt-2 font-serif text-2xl font-black leading-tight">{{ signature?.title ?? stage.title }}</h3>
-                  <p class="mt-1 text-xs font-bold uppercase tracking-wide text-[#f3e6c8]/85">{{ game.ending.id }}</p>
+                <div
+                  class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071016] via-[#071016]/90 to-transparent px-4 pb-5 pt-16 text-center"
+                >
+                  <p
+                    class="text-xs font-black uppercase tracking-[.22em] text-[#d9b877]"
+                  >
+                    Ending earned
+                  </p>
+                  <h3 class="mt-2 font-serif text-2xl font-black leading-tight">
+                    {{ signature?.title ?? stage.title }}
+                  </h3>
+                  <p
+                    class="mt-1 text-xs font-bold uppercase tracking-wide text-[#f3e6c8]/85"
+                  >
+                    {{ game.ending.id }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -426,9 +442,7 @@
             <div
               class="flex min-h-0 flex-col gap-3 bg-[#09141c] @4xl:col-start-1 @4xl:row-start-1 @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:px-7 @4xl:pt-6"
             >
-              <div
-                class="flex flex-col justify-start gap-2 @4xl:shrink-0"
-              >
+              <div class="flex flex-col justify-start gap-2 @4xl:shrink-0">
                 <span class="eco-kicker self-start">{{ stage.kicker }}</span>
                 <h2
                   class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
@@ -907,11 +921,13 @@
                       <span
                         v-if="option.preview"
                         class="mt-1 block text-sm leading-snug text-[#8fb8b0]"
-                      >{{ option.preview }}</span>
+                        >{{ option.preview }}</span
+                      >
                       <span
                         v-if="option.possibilities"
                         class="mt-1 block text-xs leading-snug text-[#f3e6c8]/65"
-                      >{{ option.possibilities }}</span>
+                        >{{ option.possibilities }}</span
+                      >
                     </span>
                     <Icon
                       name="kind-icon:chevron-right"

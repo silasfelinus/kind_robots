@@ -147,7 +147,7 @@
       <div v-else-if="tab === 'treatments'" class="grid gap-2">
         <p class="text-xs italic opacity-75">
           Kiyo's infirmary can restore a wounded follower for brass from the
-          first day. The surgeon closes one day of a wound.
+          first day. Successful treatment returns them to duty today.
           <span v-if="medicine">Saltroad medicine: a quarter off.</span>
           <span v-if="poultice">
             A Mire poultice is cheap and does not always take. The Abbey
@@ -218,7 +218,7 @@
             class="eod-price shrink-0 px-2 py-1 text-sm font-bold"
             :disabled="!!bedBlocker"
             :title="bedBlocker"
-            :aria-label="`Build ${bedUpgrade.beds} beds for ${bedUpgrade.cost} brass`"
+            :aria-label="`Add one bed for ${bedUpgrade.cost} brass`"
             @click="expand"
           >
             <span
@@ -250,7 +250,7 @@
 import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import {
-  BED_UPGRADES,
+  nextBedUpgrade,
   followerStatus,
   injuryDaysLeft,
 } from '~/utils/emperorOfDust/fortress/engine'
@@ -368,11 +368,7 @@ const wounded = computed(() =>
   ),
 )
 
-const bedUpgrade = computed(() => {
-  if (props.run.beds === 12) return null
-  const beds = props.run.beds === 6 ? 9 : 12
-  return { beds, ...BED_UPGRADES[beds] }
-})
+const bedUpgrade = computed(() => nextBedUpgrade(props.run.beds))
 const bedBlocker = computed(() => {
   const next = bedUpgrade.value
   if (!next) return ''
@@ -387,7 +383,7 @@ const bedLine = computed(() => {
   const watch = next.gateWatch
     ? `, and the Gate Watch at ${next.gateWatch}`
     : ''
-  return `${props.run.beds} beds now. ${next.beds} for ${next.cost} brass${watch}.`
+  return `${props.run.beds} beds now. One more costs ${next.cost} brass${watch}.`
 })
 
 const nameOf = (id: string) => followerDef(id)?.name ?? id
@@ -454,7 +450,7 @@ const treat = (followerId: string, kind: TreatmentKind) =>
 const expand = () =>
   attempt(() => {
     court.expandBarracks()
-    return `The carpenters work all night. ${court.run?.beds ?? props.run.beds} beds.`
+    return `One bed added. ${court.run?.beds ?? props.run.beds} beds now.`
   })
 const equip = (followerId: string, part: ItemSlot, itemId: string | null) =>
   attempt(() => {

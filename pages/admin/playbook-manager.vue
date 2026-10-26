@@ -34,6 +34,15 @@
         </span>
       </span>
       <div class="ml-auto flex shrink-0 items-center gap-2">
+        <NuxtLink
+          v-if="forgeEntry"
+          :to="`/admin/playbook-forge?analyze=${forgeEntry.slug}`"
+          class="inline-flex studio-pill-button"
+          title="Compare what this game has built with its plan, forecast what is left and send a revised plan to the agents"
+        >
+          <Icon name="kind-icon:hammer" class="size-4" aria-hidden="true" />
+          <span class="max-sm:sr-only">Analyze in Forge</span>
+        </NuxtLink>
         <button
           v-if="store.game === 'ecotone'"
           type="button"
@@ -549,10 +558,12 @@ import {
   type PlaybookStatus,
 } from '~/stores/playbookStore'
 import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
+import { forgeEntryForStudio } from '~/utils/playbookForge/existing'
 import type { NodeKind } from '~/utils/playbook/types'
 
 const userStore = useUserStore()
 const store = usePlaybookStore()
+const forgeEntry = computed(() => forgeEntryForStudio(store.game))
 const ready = ref(false)
 // Playbook Studio (conductor weird-humboldt t-040): the Story Atlas, and a
 // focused scene editor that opens over it. Phones switch the Atlas between

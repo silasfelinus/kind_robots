@@ -42,8 +42,7 @@ function walkTo(initial: RunState, target: string, solo: boolean): RunState {
     const choices = contextualOpeningChoices(card, state).filter(
       (choice) => !choice.locked,
     )
-    const selected =
-      card.id === 'KN-3' && solo ? 'alone' : choices[0]?.id
+    const selected = card.id === 'KN-3' && solo ? 'alone' : choices[0]?.id
     assert.ok(selected, `no playable choice for ${card.id}`)
     const next = chooseBeat(state, selected)
     assert.notEqual(next, state, `reducer stalled at ${card.id}`)
@@ -55,7 +54,9 @@ function walkTo(initial: RunState, target: string, solo: boolean): RunState {
 for (const choiceId of ['dot-bailout', 'shore-relay'])
   for (const result of ['success', 'failure'] as const)
     assert.ok(
-      ecotoneArtSlots().outcomes.includes(outcomeArtKey('KN-5', choiceId, result)),
+      ecotoneArtSlots().outcomes.includes(
+        outcomeArtKey('KN-5', choiceId, result),
+      ),
       `earned bay choice ${choiceId}/${result} needs a durable art slot`,
     )
 

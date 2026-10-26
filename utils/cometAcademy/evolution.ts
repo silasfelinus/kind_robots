@@ -17,7 +17,12 @@ export type EvolutionState = {
 }
 
 export type EvolutionEvent =
-  | { kind: 'choice'; id: string; ethical: 'protect' | 'exploit'; weight?: number }
+  | {
+      kind: 'choice'
+      id: string
+      ethical: 'protect' | 'exploit'
+      weight?: number
+    }
   | { kind: 'bond'; id: string; bond: CharacterBond; consent: boolean }
   | { kind: 'betrayal'; id: string; witnessed: boolean }
 
@@ -47,7 +52,8 @@ export function evolveCharacter(
     if (event.ethical === 'protect') next.trust += weight
     else next.pressure += weight
   } else if (event.kind === 'bond') {
-    if (event.consent && !next.bonds.includes(event.bond)) next.bonds.push(event.bond)
+    if (event.consent && !next.bonds.includes(event.bond))
+      next.bonds.push(event.bond)
     if (!event.consent)
       next.bonds = next.bonds.filter((bond) => bond !== event.bond)
   } else if (event.witnessed) {
@@ -68,8 +74,10 @@ export function evolutionStory(
   const character = CHARACTER_ROSTER.find(
     (person) => person.realName === state.person,
   )
-  if (!character) throw new Error('Unknown Comet City identity: ' + state.person)
-  const allegiance = state.allegiance === 'undecided' ? 'hero' : state.allegiance
+  if (!character)
+    throw new Error('Unknown Comet City identity: ' + state.person)
+  const allegiance =
+    state.allegiance === 'undecided' ? 'hero' : state.allegiance
   return {
     ...identityStoryFor(character, viewpoint, allegiance, state.bonds),
     earned: state.allegiance !== 'undecided',

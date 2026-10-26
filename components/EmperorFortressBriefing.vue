@@ -77,10 +77,7 @@
           <strong class="not-italic text-warning">{{ advisorName }}:</strong>
           “{{ lines.komodo }}”
         </p>
-        <p
-          v-if="!challenge"
-          class="eod-reading text-sm italic opacity-85"
-        >
+        <p v-if="!challenge" class="eod-reading text-sm italic opacity-85">
           <strong class="not-italic text-warning"
             >{{ advisorName }} adds:</strong
           >

@@ -71,6 +71,25 @@
       </div>
     </div>
 
+    <div v-else-if="maker.panel === 'reviews'" class="maker-reviews kr-scroll">
+      <p class="maker-tool-head">PLAYER REVIEWS</p>
+      <p class="maker-review-summary">
+        ★ {{ maker.ratingCount ? maker.ratingAverage.toFixed(1) : 'UNRATED' }}
+        <small>({{ maker.ratingCount }} player{{ maker.ratingCount === 1 ? '' : 's' }})</small>
+      </p>
+      <button type="button" class="maker-review-refresh" :disabled="maker.reviewsBusy"
+        @click="maker.fetchReviews()">
+        {{ maker.reviewsBusy ? 'LOADING…' : '↻ REFRESH' }}
+      </button>
+      <p v-if="!maker.reviews.length" class="maker-help">
+        No reviews yet for this exact course version. Complete the level to leave the first one.
+      </p>
+      <article v-for="review in maker.reviews" :key="review.id" class="maker-review">
+        <div><strong>{{ review.username }}</strong><span>{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span></div>
+        <p v-if="review.comment">{{ review.comment }}</p>
+      </article>
+    </div>
+
     <div v-else class="maker-settings kr-scroll">
       <label
         >COURSE NAME
@@ -131,6 +150,7 @@ const panels = [
   { id: 'tools' as const, icon: '▦', label: 'TOOLS' },
   { id: 'library' as const, icon: '▣', label: 'FILES' },
   { id: 'settings' as const, icon: '⚙', label: 'OPTIONS' },
+  { id: 'reviews' as const, icon: '★', label: 'REVIEWS' },
 ]
 const selectedTiles = computed(
   () =>
@@ -271,6 +291,7 @@ select:focus-visible {
 }
 .maker-tools,
 .maker-library,
+.maker-reviews,
 .maker-settings {
   min-height: 0;
   overflow: auto;
@@ -556,4 +577,12 @@ select:focus-visible {
     border-top: 2px solid #416a77;
   }
   .maker-groups {
+.maker-reviews{display:grid;align-content:start;gap:.55rem}
+.maker-review-summary{display:flex;align-items:baseline;gap:.4rem;font-size:1.4rem;color:#ffe199}
+.maker-review-summary small{font-size:.65rem;color:#bcdbd6}
+.maker-review-refresh{background:#25495c;border:1px solid #69949f;border-radius:.4rem;padding:.35rem;color:#fff7df}
+.maker-review{padding:.5rem;background:#244253;border-radius:.5rem;overflow-wrap:anywhere}
+.maker-review div{display:flex;justify-content:space-between;gap:.5rem}
+.maker-review span{color:#ffe199}
+.maker-review p{margin:.25rem 0 0;font-size:.73rem;line-height:1.4;font-weight:400;white-space:pre-wrap}
 </style>

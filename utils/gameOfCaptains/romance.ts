@@ -8,12 +8,7 @@ import {
 
 export type RomanceRoute = StoryRoute | 'none'
 export type RomanceStatus =
-  | 'invited'
-  | 'courting'
-  | 'committed'
-  | 'separated'
-  | 'rejected'
-  | 'friends'
+  'invited' | 'courting' | 'committed' | 'separated' | 'rejected' | 'friends'
 export type RomanceChoiceId =
   | `invite-${StoryRoute}`
   | 'friends'
@@ -60,7 +55,10 @@ function compatible(run: VoyageRun, story: RelationshipStory): boolean {
 }
 
 /** Non-romantic crew quests and actions change what participants have witnessed. */
-function witnessedHistory(run: VoyageRun, people: readonly CrewId[]): string | null {
+function witnessedHistory(
+  run: VoyageRun,
+  people: readonly CrewId[],
+): string | null {
   const steps = (run.journeyHistory ?? []).filter((stop) =>
     people.includes(stop.crewId),
   )
@@ -71,17 +69,18 @@ function witnessedHistory(run: VoyageRun, people: readonly CrewId[]): string | n
 }
 
 const captainReflections: Record<VoyageRun['captain'], string> = {
-  fluke: 'Fluke crosses out a previously invented romantic victory in the log. The real one needs no exaggeration.',
+  fluke:
+    'Fluke crosses out a previously invented romantic victory in the log. The real one needs no exaggeration.',
   vale: 'Vale files this as a personal choice, conspicuously not a treaty.',
   solace: 'Solace records the first occasion nobody asked to be rescued.',
   rex: 'Rex leaves an entire paragraph of his heroic memoir blank to make room for another person.',
-  quill: 'Quill locks away the footnotes and asks permission to tell the story at all.',
+  quill:
+    'Quill locks away the footnotes and asks permission to tell the story at all.',
   ro: 'Ro submits credentials marked simply: invited guest.',
 }
 
 export function romanceMoment(run: VoyageRun): RomanceMoment | null {
-  if (run.phase !== 'debrief' || run.chapter < 1 || run.chapter > 3)
-    return null
+  if (run.phase !== 'debrief' || run.chapter < 1 || run.chapter > 3) return null
   const record = (run as RomanceVoyage).romance
   if (record?.lastChapter === run.chapter) return null
 
@@ -140,8 +139,7 @@ export function romanceMoment(run: VoyageRun): RomanceMoment | null {
     }
   }
 
-  if (record.status !== 'invited' && record.status !== 'courting')
-    return null
+  if (record.status !== 'invited' && record.status !== 'courting') return null
   const story = romanceStory(record.route)
   if (!story) return null
 
@@ -150,10 +148,7 @@ export function romanceMoment(run: VoyageRun): RomanceMoment | null {
     return {
       ...story.chapter2,
       speakers: history
-        ? [
-            ...story.chapter2.speakers,
-            { name: 'Captain’s log', line: history },
-          ]
+        ? [...story.chapter2.speakers, { name: 'Captain’s log', line: history }]
         : [...story.chapter2.speakers],
       portraits: story.portraitKeys,
       choices: [
@@ -214,8 +209,7 @@ export function chooseRomance(
   choice: RomanceChoiceId,
 ): VoyageRun {
   const moment = romanceMoment(run)
-  if (!moment || !moment.choices.some((item) => item.id === choice))
-    return run
+  if (!moment || !moment.choices.some((item) => item.id === choice)) return run
   const previous = (run as RomanceVoyage).romance
   const route: RomanceRoute = choice.startsWith('invite-')
     ? (choice.slice('invite-'.length) as StoryRoute)
@@ -230,7 +224,8 @@ export function chooseRomance(
       'Their friendships remain their own. Nobody loses a job, a mission assignment, or a skill point.'
   } else if (choice === 'step-back' || choice === 'part') {
     status = 'separated'
-    text = story?.separation ??
+    text =
+      story?.separation ??
       'The relationship ends without orders or reprisals. Everyone remains aboard by choice.'
   } else if (choice === 'press') {
     status = 'rejected'

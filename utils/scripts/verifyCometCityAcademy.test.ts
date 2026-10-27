@@ -1550,7 +1550,9 @@ assert.equal(new Set(PERSONAL_QUESTS.map((quest) => quest.betrayal)).size, 48)
 assert.equal(new Set(PERSONAL_QUESTS.map((quest) => quest.location)).size, 48)
 assert.deepEqual(PERSONAL_DAYS, [6, 12, 19, 27])
 for (const identity of IDENTITY_ARCS) {
-  const quest = PERSONAL_QUESTS.find((entry) => entry.signature === identity.signature)
+  const quest = PERSONAL_QUESTS.find(
+    (entry) => entry.signature === identity.signature,
+  )
   assert.ok(quest, 'Personal arc required for ' + identity.realName)
   assert.ok(quest.boundary.length >= 30)
   assert.ok(quest.illustrations.student.includes(identity.student.alias))
@@ -1562,7 +1564,12 @@ for (const identity of IDENTITY_ARCS) {
   }
   for (const day of PERSONAL_DAYS) {
     const run = {
-      ...startFullAcademy(fieldFor(identity.signature), 211, identity.signature, 'claim'),
+      ...startFullAcademy(
+        fieldFor(identity.signature),
+        211,
+        identity.signature,
+        'claim',
+      ),
       day,
       phase: 'campus' as const,
     }
@@ -1572,18 +1579,35 @@ for (const identity of IDENTITY_ARCS) {
     assert.equal(event.options.length, 3)
     assert.ok(event.scene.includes(identity.realName) || day !== 27)
     for (const resolution of ['protect', 'confront', 'exploit'] as const) {
-      const selected = event.options.find((option) => option.id.endsWith(resolution))
+      const selected = event.options.find((option) =>
+        option.id.endsWith(resolution),
+      )
       assert.ok(selected)
       const outcome = chooseEncounter(run, selected.id)
       assert.equal(outcome.phase, 'dispatch')
       assert.deepEqual(outcome.personalHistory, [{ day, choice: resolution }])
-      assert.deepEqual(restoreAcademy(outcome)?.personalHistory, outcome.personalHistory)
-      assert.ok(outcome.scene.includes(quest.boundary) || resolution !== 'exploit')
-      const plate = personalOutcomeArtKey(identity.signature, outcome.personalHistory, day)
+      assert.deepEqual(
+        restoreAcademy(outcome)?.personalHistory,
+        outcome.personalHistory,
+      )
+      assert.ok(
+        outcome.scene.includes(quest.boundary) || resolution !== 'exploit',
+      )
+      const plate = personalOutcomeArtKey(
+        identity.signature,
+        outcome.personalHistory,
+        day,
+      )
       assert.equal(
         plate,
-        'identities/' + identity.signature + '/outcomes/' +
-          (day < 16 || resolution === 'confront' ? 'student' : resolution === 'protect' ? 'hero' : 'villain'),
+        'identities/' +
+          identity.signature +
+          '/outcomes/' +
+          (day < 16 || resolution === 'confront'
+            ? 'student'
+            : resolution === 'protect'
+              ? 'hero'
+              : 'villain'),
       )
     }
   }
@@ -1595,17 +1619,43 @@ for (const identity of IDENTITY_ARCS) {
   assert.equal(validPersonalHistory(good, 19), false)
   assert.equal(validPersonalHistory([...good, good[0]], 30), false)
   assert.equal(validPersonalHistory([{ day: 6, choice: 'hacked' }], 30), false)
-  assert.ok(personalFinale(identity.signature, good).includes(identity.hero.alias))
-  assert.ok(personalFinale(identity.signature, bad).includes(identity.villain.alias))
-  const final = startFullAcademy(fieldFor(identity.signature), 211, identity.signature, 'claim')
-  const honest = finishAcademy({ ...final, day: 30, phase: 'finale', personalHistory: good }, 'share')
-  const corrupt = finishAcademy({ ...final, day: 30, phase: 'finale', personalHistory: bad }, 'share')
+  assert.ok(
+    personalFinale(identity.signature, good).includes(identity.hero.alias),
+  )
+  assert.ok(
+    personalFinale(identity.signature, bad).includes(identity.villain.alias),
+  )
+  const final = startFullAcademy(
+    fieldFor(identity.signature),
+    211,
+    identity.signature,
+    'claim',
+  )
+  const honest = finishAcademy(
+    { ...final, day: 30, phase: 'finale', personalHistory: good },
+    'share',
+  )
+  const corrupt = finishAcademy(
+    { ...final, day: 30, phase: 'finale', personalHistory: bad },
+    'share',
+  )
   assert.ok(honest.scene.includes(identity.hero.alias))
   assert.ok(corrupt.scene.includes(identity.villain.alias))
   assert.notEqual(honest.ending, corrupt.ending)
-  assert.equal(restoreAcademy({ ...final, personalHistory: [{ day: 19, choice: 'hacked' }] }), null)
+  assert.equal(
+    restoreAcademy({
+      ...final,
+      personalHistory: [{ day: 19, choice: 'hacked' }],
+    }),
+    null,
+  )
 }
-assert.equal(personalQuestEvent(startFullAcademy(fieldFor('mutant-genius'), 17, 'mutant-genius')), null)
+assert.equal(
+  personalQuestEvent(
+    startFullAcademy(fieldFor('mutant-genius'), 17, 'mutant-genius'),
+  ),
+  null,
+)
 
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')

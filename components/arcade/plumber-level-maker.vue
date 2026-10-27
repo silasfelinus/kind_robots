@@ -17,64 +17,7 @@
     </div>
 
     <div class="maker-workspace">
-      <aside class="maker-sidebar">
-        <div class="maker-tabs" role="group" aria-label="Maker panels">
-          <button v-for="tab in panels" :key="tab.id" type="button" :aria-pressed="maker.panel === tab.id"
-            @click="maker.panel = tab.id">{{ tab.icon }} <span>{{ tab.label }}</span></button>
-        </div>
-
-        <div v-if="maker.panel === 'tools'" class="maker-tools kr-scroll">
-          <div class="maker-groups" role="group" aria-label="Object categories">
-            <button v-for="group in MAKER_GROUPS" :key="group.name" type="button"
-              :aria-pressed="maker.selectedGroup === group.name"
-              :title="group.name" @click="maker.selectedGroup = group.name">
-              <span>{{ group.icon }}</span><small>{{ group.name }}</small>
-            </button>
-          </div>
-          <div class="maker-tool-head">{{ maker.selectedGroup }} · PICK A TOOL</div>
-          <div class="maker-tiles">
-            <button v-for="tile in selectedTiles" :key="tile.key" type="button"
-              class="maker-tile" :aria-pressed="maker.selectedTile === tile.key"
-              :title="tile.label" @click="maker.selectedTile = tile.key">
-              <span class="maker-glyph">{{ tile.icon }}</span>
-              <span class="maker-tile-name">{{ tile.label }}</span>
-            </button>
-          </div>
-        </div>
-
-        <div v-else-if="maker.panel === 'library'" class="maker-library kr-scroll">
-          <p class="maker-tool-head">YOUR SAVED COURSES · {{ maker.drafts.length }}/24</p>
-          <p v-if="!maker.drafts.length" class="maker-help">Your levels live on this device. Build a course and choose SAVE to begin your library.</p>
-          <div v-for="draft in maker.drafts" :key="draft.id" class="maker-draft">
-            <strong>{{ draft.level.title }}</strong>
-            <small>WORLD {{ draft.level.theme }} · {{ draft.level.rows[0]?.length }} TILES</small>
-            <div class="maker-draft-actions">
-              <button type="button" @click="loadDraft(draft.id)">✎ EDIT</button>
-              <button type="button" @click="playDraft(draft.id)">▶ PLAY</button>
-              <button type="button" aria-label="Delete local draft" @click="removeDraft(draft.id)">✕</button>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="maker-settings kr-scroll">
-          <label>COURSE NAME
-            <input :value="maker.level.title" maxlength="64" @change="changeTitle($event)" />
-          </label>
-          <label>BUILDER
-            <input :value="maker.level.author" maxlength="32" @change="changeAuthor($event)" />
-          </label>
-          <label>WORLD ART + BOSS
-            <select :value="maker.level.theme" @change="changeTheme($event)">
-              <option v-for="world in PLUMBER_WORLDS" :key="world.id" :value="world.id">{{ world.id }} · {{ world.name }}</option>
-            </select>
-          </label>
-          <label class="maker-check">
-            <input type="checkbox" :checked="maker.level.dark" @change="changeDark($event)" />
-            DARK / LANTERN MODE
-          </label>
-          <p class="maker-help">All 8 world styles use the same playable mechanics. A boss uses the selected world's moveset. Place one start, one finish, and matching pipe pairs.</p>
-        </div>
-      </aside>
+      <ArcadePlumberMakerSidebar @load-draft="loadDraft" @play-draft="playDraft" />
 
       <div class="maker-stage">
         <div class="maker-stage-top">
@@ -158,7 +101,6 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useSavePlumberMakerStore } from '~/stores/savePlumberMakerStore'
 import { MAKER_GROUPS, validateMakerLevel, toMakerStage } from '~/utils/arcade/games/savePlumberMaker'
-import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 import { createSavePlumberPreview, type PlumberRun } from '~/utils/arcade/games/savePlumberPreview'
 import { emptyInput, type ArcadeButton } from '~/utils/arcade/types'
 
@@ -171,17 +113,11 @@ const zoom = ref(1)
 const cursor = ref({ x: 3, y: 20 })
 const completed = ref(false)
 const gameOver = ref(false)
-const panels = [
-  { id: 'tools' as const, icon: '▦', label: 'TOOLS' },
-  { id: 'library' as const, icon: '▣', label: 'FILES' },
-  { id: 'settings' as const, icon: '⚙', label: 'OPTIONS' },
-]
 const touchControls: { key: ArcadeButton; icon: string }[] = [
   { key: 'left', icon: '◀' }, { key: 'right', icon: '▶' },
   { key: 'a', icon: 'A / JUMP' }, { key: 'b', icon: 'B / RUN' },
   { key: 'x', icon: 'X' }, { key: 'y', icon: 'Y' },
 ]
-const selectedTiles = computed(() => MAKER_GROUPS.find((group) => group.name === maker.selectedGroup)?.tiles ?? MAKER_GROUPS[0]!.tiles)
 const selectedLabel = computed(() => MAKER_GROUPS.flatMap((group) => group.tiles).find((tile) => tile.key === maker.selectedTile)?.label ?? 'Ground')
 const shareLink = computed(() => { try { return maker.shareUrl() } catch { return '' } })
 const held = new Set<ArcadeButton>()
@@ -295,11 +231,6 @@ function onGridKey(event: KeyboardEvent) {
 function save() { maker.saveDraft() }
 function loadDraft(id: string) { maker.loadDraft(id); maker.panel = 'tools'; mode.value = 'edit'; nextTick(drawEditor) }
 function playDraft(id: string) { maker.loadDraft(id); mode.value = 'play' }
-function removeDraft(id: string) { if (window.confirm('Delete this local draft?')) maker.deleteDraft(id) }
-function changeTitle(e: Event) { maker.updateSettings({ title: (e.target as HTMLInputElement).value }); drawEditor() }
-function changeAuthor(e: Event) { maker.updateSettings({ author: (e.target as HTMLInputElement).value }) }
-function changeTheme(e: Event) { maker.updateSettings({ theme: Number((e.target as HTMLSelectElement).value) }); drawEditor() }
-function changeDark(e: Event) { maker.updateSettings({ dark: (e.target as HTMLInputElement).checked }) }
 
 function togglePlay() {
   if (mode.value === 'play') { stopGame(); mode.value = 'edit'; nextTick(drawEditor); return }

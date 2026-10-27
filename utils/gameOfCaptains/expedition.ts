@@ -3,7 +3,6 @@ import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { WORLD_ENCOUNTERS, type ExpeditionEncounter } from './expeditionLocal'
 import { GALACTIC_MAJOR, GALACTIC_MINOR } from './expeditionGalactic'
 import {
-  REDSHIRTS,
   REDSHIRT_BY_ID,
   nextRedshirt,
   starterRedshirts,
@@ -107,7 +106,8 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
     (run.expeditionHistory ?? []).some((visit) => visit.chapter === run.chapter)
   )
     return run
-  const world = WORLD_ENCOUNTERS[run.missionId as ActOneRouteId]
+  const worldId = run.missionId ?? ['refugees', 'archive', 'bar'][run.chapter - 1]
+  const world = WORLD_ENCOUNTERS[worldId as ActOneRouteId]
   if (!world) return run
   return {
     ...run,
@@ -121,18 +121,15 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
 }
 export function arriveAtWorld(run: VoyageRun): VoyageRun {
   if (run.phase !== 'travel') return run
-  const encounterIds = expeditionBoard(
-    run.seed,
-    run.chapter,
-    run.missionId ?? 'refugees',
-  ).map((e) => e.id)
+  const missionId = run.missionId ?? ['refugees', 'archive', 'bar'][run.chapter - 1]!
+  const encounterIds = expeditionBoard(run.seed, run.chapter, missionId).map((e) => e.id)
   return {
     ...run,
     phase: 'expedition',
     day: (run.day ?? run.chapter) + 1,
     expeditionVisit: {
       chapter: run.chapter,
-      missionId: run.missionId ?? 'refugees',
+      missionId,
       encounterIds,
       results: [],
     },

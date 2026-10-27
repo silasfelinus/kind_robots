@@ -164,6 +164,7 @@
     "test:playbook-run-review": "tsx utils/scripts/verifyPlaybookRunReview.test.ts",
     "test:playbook-kit": "tsx utils/scripts/verifyPlaybookKit.test.ts",
     "test:playbook-forge": "tsx utils/scripts/verifyPlaybookForge.test.ts",
+    "test:playbook-art-prompts": "tsx utils/scripts/verifyPlaybookArtPrompts.test.ts",
     "playbook:new": "tsx utils/scripts/scaffoldPlaybook.ts",
     "test:shifting-desks": "tsx utils/scripts/verifyShiftingDesks.test.ts && tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",

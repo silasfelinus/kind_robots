@@ -339,6 +339,8 @@ export type VoyageRun = {
   shieldCharge?: number
   chapter: number
   missionId?: string
+  captainInstincts?: { chapter: number; approach: 'impulse' | 'restraint' }[]
+  captainBonus?: number
   missionHistory?: {
     chapter: number
     missionId: string
@@ -506,6 +508,8 @@ export function startVoyage(
     chapter: 1,
     missionId: 'refugees',
     missionHistory: [],
+    captainInstincts: [],
+    captainBonus: 0,
     worldFlags: [],
     day: 1,
     postedDay: 1,
@@ -575,6 +579,7 @@ export function previewMission(run: VoyageRun): MissionPreview {
   const enemyThreat = ACT_ONE_NEMESIS[antagonistFor(run).id]
   const enemyPenalty =
     enemyThreat.missionId === current ? enemyThreat.penalty : 0
+  const signatureBonus = run.captainBonus ?? 0
   const civicBonus =
     (current === 'haleth' && flags.includes('convoy-invited') ? 10 : 0) +
     (current === 'nacre' && flags.includes('ashdock-protected') ? 8 : 0) +
@@ -585,7 +590,7 @@ export function previewMission(run: VoyageRun): MissionPreview {
     ...base,
     chance: Math.max(
       5,
-      Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty),
+      Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty + signatureBonus),
     ),
     commentary: [
       base.commentary,
@@ -594,6 +599,7 @@ export function previewMission(run: VoyageRun): MissionPreview {
       civicBonus
         ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.`
         : '',
+      signatureBonus ? `Captain's signature preparation: +${signatureBonus}%.` : '',
       enemyPenalty
         ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.`
         : '',
@@ -889,6 +895,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     phase: 'briefing',
     chapter: run.chapter + 1,
     missionId: ['refugees', 'archive', 'bar'][run.chapter],
+    captainBonus: 0,
     postedDay: run.day ?? run.chapter,
     active: null,
     away: [],
@@ -967,7 +974,12 @@ export function finishVoyage(
     })
     .filter(Boolean)
     .join(' ')
-  const scene = `${verdict} ${remembrance} ${journeys.join(' ')} ${civic}`
+  const captainChoices = (run.captainInstincts ?? []).map((item) =>
+    item.approach === 'impulse'
+      ? `In chapter ${item.chapter}, the captain's reckless signature gained an advantage, at a personal price.`
+      : `In chapter ${item.chapter}, the captain chose to hear the crew before acting.`,
+  ).join(' ')
+  const scene = `${verdict} ${remembrance} ${journeys.join(' ')} ${civic} ${captainChoices}`
   return {
     ...run,
     phase: 'ending',
@@ -1015,6 +1027,11 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     (data.worldFlags !== undefined &&
       (!Array.isArray(data.worldFlags) ||
         data.worldFlags.some((flag) => typeof flag !== 'string'))) ||
+    (data.captainInstincts !== undefined &&
+      (!Array.isArray(data.captainInstincts) ||
+        data.captainInstincts.some((item) => !item || !Number.isInteger(item.chapter) || item.chapter < 1 || item.chapter > data.chapter! || !['impulse', 'restraint'].includes(item.approach)) ||
+        new Set(data.captainInstincts.map((item) => item.chapter)).size !== data.captainInstincts.length)) ||
+    (data.captainBonus !== undefined && ![0, 10].includes(data.captainBonus)) ||
     ![
       'briefing',
       'transit',

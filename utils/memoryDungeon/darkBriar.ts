@@ -728,7 +728,11 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
 export function recoverDarkBriarTurn(
   progress: DarkBriarProgress,
   saved: unknown,
-): { progress: DarkBriarProgress; firstTile: string | null; recovered: boolean } {
+): {
+  progress: DarkBriarProgress
+  firstTile: string | null
+  recovered: boolean
+} {
   const unchanged = { progress, firstTile: null, recovered: false }
   const wave = DARK_BRIAR_WAVES[progress.waveIndex]
   if (
@@ -805,7 +809,9 @@ export function recoverDarkBriarTurn(
     }
   }
   const mapCards = restoredCards.map((card) =>
-    tiles.includes(card.tile) ? { ...card, flipped: true, matched: true } : card,
+    tiles.includes(card.tile)
+      ? { ...card, flipped: true, matched: true }
+      : card,
   )
   const revealed = [...new Set([...progress.revealed, ...tiles])]
   const complete = mapCards.every((card) => card.matched)
@@ -815,7 +821,8 @@ export function recoverDarkBriarTurn(
       mapCards,
       revealed,
       visited:
-        revealed.includes(BRIAR_START) && !progress.visited.includes(BRIAR_START)
+        revealed.includes(BRIAR_START) &&
+        !progress.visited.includes(BRIAR_START)
           ? [...progress.visited, BRIAR_START]
           : progress.visited,
       phase: complete ? 'exploring' : 'matching',

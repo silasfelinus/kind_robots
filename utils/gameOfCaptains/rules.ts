@@ -640,7 +640,7 @@ export function detourFor(run: VoyageRun) {
 export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
   if (!crewDetourOptions(run).includes(crewId)) return run
   const step = run.journeyProgress?.[crewId] ?? 0
-  const destination = CREW_JOURNEYS[crewId][step]
+  const destination = CREW_JOURNEYS[crewId][step]!
   return {
     ...run,
     phase: 'crew-quest',
@@ -667,7 +667,7 @@ export function resolveCrewDetour(
     step > 2
   )
     return run
-  const destination = CREW_JOURNEYS[crewId][step]
+  const destination = CREW_JOURNEYS[crewId][step]!
   const challenged =
     NEMESIS_COUNTERPLAY[antagonistFor(run).id]?.includes(crewId) ?? false
   const result =
@@ -859,7 +859,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     (data.journeyProgress !== undefined &&
       Object.entries(data.journeyProgress).some(
         ([id, n]) =>
-          !data.crew.includes(id as CrewId) ||
+          !data.crew!.includes(id as CrewId) ||
           !Number.isInteger(n) ||
           n! < 0 ||
           n! > 3,

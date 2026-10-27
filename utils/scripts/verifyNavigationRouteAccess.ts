@@ -11,6 +11,7 @@ import {
   navigationPermissions,
 } from '@/stores/helpers/navigationAccess'
 import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteAccess'
+import { isSuperkateServicesViewer } from '@/stores/helpers/superkateNavigation'
 import { PROJECT_PLACEMENTS } from '@/utils/projectPlacements'
 import { tutorialPageKey } from '@/stores/tutorialStore'
 
@@ -197,6 +198,56 @@ const adminAdmin = evaluateNavigationRouteAccess(channels, adminChannels, {
   path: '/navigation-health',
 })
 assert.equal(adminAdmin.allowed, true)
+
+// The services URL is always reachable even when the Projects shortcut is
+// intentionally hidden for unrelated accounts.
+const serviceChannels = resolveChannels([
+  {
+    contentType: 'channel',
+    channelKey: 'projects',
+    label: 'Projects',
+    route: '/storybook',
+  },
+  {
+    contentType: 'tab',
+    channelKey: 'projects',
+    tabKey: 'stylist',
+    label: 'Superkate Services',
+    route: '/stylist',
+    allowDirectAccess: true,
+  },
+  {
+    contentType: 'tab',
+    channelKey: 'projects',
+    tabKey: 'restricted',
+    label: 'Restricted',
+    route: '/restricted',
+  },
+])
+const unrelatedViewerChannels = serviceChannels.map((channel) => ({
+  ...channel,
+  tabs: channel.tabs.filter((tab) => tab.tabKey !== 'stylist' && tab.tabKey !== 'restricted'),
+}))
+assert.equal(
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, { path: '/stylist' }).allowed,
+  true,
+  'An unlisted services tab must still allow a direct link.',
+)
+assert.equal(
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, { path: '/restricted' }).allowed,
+  false,
+  'An unrelated hidden tab must remain inaccessible.',
+)
+assert.match(
+  readFileSync('content/channels/projects/stylist.md', 'utf8'),
+  /\\nallowDirectAccess:\\s*true\\n/,
+  'The canonical Superkate Services tab must opt in to direct-link access.',
+)
+assert.equal(isSuperkateServicesViewer({ id: 1279 }), true)
+assert.equal(isSuperkateServicesViewer({ username: ' SuperKate ' }), true)
+assert.equal(isSuperkateServicesViewer({ email: 'SUPERKATE@KINDROBOTS.ORG' }), true)
+assert.equal(isSuperkateServicesViewer({ username: 'other' }, true), true)
+assert.equal(isSuperkateServicesViewer({ username: 'other' }), false)
 
 const middlewareSource = readFileSync(
   'middleware/navigation-access.global.ts',

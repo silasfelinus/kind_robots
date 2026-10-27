@@ -54,10 +54,10 @@
 
       <section class="sd-print-section" aria-label="Psychological test report">
         <h2>Test Results · {{ resultsVerdict.title }}</h2>
-        <p class="sd-print-small">{{ resultsVerdict.summary }}</p>
+        <p class="sd-print-small">{{ resultsVerdict.text }}</p>
         <dl class="sd-print-grades">
-          <div v-for="grade in grades" :key="grade.key">
-            <dt>{{ grade.label }}</dt>
+          <div v-for="grade in grades" :key="grade.grade">
+            <dt>{{ grade.title }}</dt>
             <dd>{{ grade.score }} · {{ grade.level }}</dd>
           </div>
         </dl>

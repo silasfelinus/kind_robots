@@ -8,7 +8,8 @@
 //
 //   node scripts/sync_cthulhuquarium_canon.mjs [path/to/cthulhuquarium]
 //
-// Writes utils/cthulhuquariumCanon.generated.ts and copies built art into
+// Writes utils/cthulhuquariumCanon.generated.ts and
+// utils/cthulhuquariumArtPrompts.generated.ts, and copies built art into
 // assets/images/cthulhuquarium/{sprites,portraits,backgrounds,plates}/.
 
 import {
@@ -32,11 +33,17 @@ if (!existsSync(join(canon, 'fish'))) {
 
 const readYaml = (path) => parse(readFileSync(path, 'utf8'))
 
+const flat = (text) =>
+  String(text ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
 const motions = {}
 const masses = []
 const voices = {}
 const plates = {}
 const traits = {}
+const speciesPrompts = {}
 for (const file of readdirSync(join(canon, 'fish'))
   .filter((name) => name.endsWith('.yaml'))
   .sort()) {
@@ -44,6 +51,8 @@ for (const file of readdirSync(join(canon, 'fish'))
   if (fish?.sprite?.motion) motions[fish.slug] = fish.sprite.motion
   if (fish?.sprite?.mass === true) masses.push(fish.slug)
   if (fish?.plate) plates[fish.slug] = fish.plate
+  if (!flat(fish?.art_prompt)) throw new Error(`${file} has no art_prompt`)
+  speciesPrompts[fish.slug] = flat(fish.art_prompt)
   traits[fish.slug] = {
     name: fish.name,
     behavior: fish.behavior ?? 'drift',
@@ -67,6 +76,7 @@ const { backgrounds } = readYaml(join(canon, 'backgrounds', 'backgrounds.yaml'))
 const barksPath = join(canon, 'story', 'barks.yaml')
 const barks = existsSync(barksPath) ? (readYaml(barksPath).barks ?? {}) : {}
 const characters = {}
+const characterPrompts = {}
 for (const file of readdirSync(join(canon, 'characters')).filter((name) =>
   name.endsWith('.yaml'),
 )) {
@@ -76,6 +86,13 @@ for (const file of readdirSync(join(canon, 'characters')).filter((name) =>
     role: who.role,
     poses: Object.keys(who.art?.portraits ?? {}),
   }
+  const compact = flat(who.art?.hero?.compact)
+  if (!compact || compact.length > 900) {
+    throw new Error(
+      `characters/${file}: art.hero.compact must be one prompt of 900 characters or fewer`,
+    )
+  }
+  characterPrompts[who.slug] = compact
 }
 
 const speakerSlug = {
@@ -84,20 +101,27 @@ const speakerSlug = {
 }
 // Keys a scene or beat may name as its plate: a still (story/plates.yaml) or a
 // moving picture (videos/videos.yaml), which includes each character's hero.
+const stillPlates = readYaml(join(canon, 'story', 'plates.yaml')).plates ?? []
 const plateKeys = new Set([
-  ...(readYaml(join(canon, 'story', 'plates.yaml')).plates ?? []).map(
-    (entry) => entry.key,
-  ),
+  ...stillPlates.map((entry) => entry.key),
   ...(readYaml(join(canon, 'videos', 'videos.yaml')).videos ?? []).map(
     (entry) => entry.key,
   ),
 ])
+// A plate is shown only once its art is built: a scene that names a plate
+// still waiting on its render plays as it did before the plate was written,
+// instead of opening a full-screen stage with nothing on it. The plate's
+// prompt is still carried (cthulhuquariumArtPrompts.generated.ts).
+const builtPlate = (key) =>
+  !!key &&
+  (existsSync(join(canon, 'story', 'built', `${key}.webp`)) ||
+    existsSync(join(canon, 'videos', 'built', `${key}.webp`)))
 const outScenes = {}
 for (const [id, scene] of Object.entries(scenes)) {
   outScenes[id] = {
     id,
     trigger: scene.trigger,
-    plate: scene.plate ?? null,
+    plate: builtPlate(scene.plate) ? scene.plate : null,
     background: scene.background ?? null,
     covers: scene.covers ?? [],
     beats: scene.beats.map((beat) => {
@@ -116,7 +140,7 @@ for (const [id, scene] of Object.entries(scenes)) {
         text: String(beat.text).replace(/\s+/g, ' ').trim(),
         focus: beat.focus ?? null,
         await: beat.await ?? null,
-        plate: beat.plate ?? null,
+        plate: builtPlate(beat.plate) ? beat.plate : null,
       }
     }),
   }
@@ -139,11 +163,11 @@ for (const [context, bark] of Object.entries(barks)) {
   }
 }
 
-const outBackgrounds = backgrounds.map(({ key, name, unlock }) => ({
-  key,
-  name,
-  unlock,
-}))
+const outBackgrounds = backgrounds.map(({ key, name, unlock, field_note }) => {
+  const fieldNote = flat(field_note)
+  if (!fieldNote) throw new Error(`background ${key} has no field_note`)
+  return { key, name, unlock, fieldNote }
+})
 for (const scene of Object.values(outScenes)) {
   if (
     scene.background &&
@@ -184,6 +208,8 @@ export interface CanonBackground {
   key: string
   name: string
   unlock: string
+  /** The shop's placard for this tank (canon backgrounds.yaml \`field_note\`). */
+  fieldNote: string
 }
 
 export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = ${JSON.stringify(motions, null, 2)}
@@ -231,6 +257,54 @@ export const CTHULHUQUARIUM_CHARACTERS: Record<CanonSpeaker, { name: string; rol
 )}
 `
 writeFileSync(join(repoRoot, 'utils', 'cthulhuquariumCanon.generated.ts'), ts)
+
+const backgroundPrompts = Object.fromEntries(
+  backgrounds.map((bg) => {
+    if (!flat(bg.prompt)) throw new Error(`background ${bg.key} has no prompt`)
+    return [bg.key, flat(bg.prompt)]
+  }),
+)
+const platePrompts = Object.fromEntries(
+  stillPlates.map((entry) => [entry.key, flat(entry.prompt)]),
+)
+const scenePrompts = {}
+for (const [id, scene] of Object.entries(scenes)) {
+  const prompt =
+    (scene.plate && platePrompts[scene.plate]) ||
+    (scene.background && backgroundPrompts[scene.background])
+  if (!prompt) {
+    throw new Error(
+      `scene ${id} has neither a still plate nor a background prompt`,
+    )
+  }
+  scenePrompts[id] = prompt
+}
+writeFileSync(
+  join(repoRoot, 'utils', 'cthulhuquariumArtPrompts.generated.ts'),
+  `${banner}
+// The canon's Krea 2 prompts, one per picture the Playbook Forge shows: each
+// species' Ichthyonomicon plate (fish/*.yaml art_prompt), each tank background,
+// each story scene's plate (story/plates.yaml, or the background a milestone
+// hands over), and each shopkeeper's full-length sitting (art.hero.compact).
+// Kept out of cthulhuquariumCanon.generated.ts so the tank never bundles them.
+
+export const CTHULHUQUARIUM_ART_PROMPTS: {
+  species: Record<string, string>
+  backgrounds: Record<string, string>
+  scenes: Record<string, string>
+  characters: Record<string, string>
+} = ${JSON.stringify(
+    {
+      species: speciesPrompts,
+      backgrounds: backgroundPrompts,
+      scenes: scenePrompts,
+      characters: characterPrompts,
+    },
+    null,
+    2,
+  )}
+`,
+)
 writeFileSync(
   join(repoRoot, 'server', 'utils', 'cthulhuquariumBackgrounds.generated.ts'),
   `${banner}
@@ -281,6 +355,7 @@ execFileSync(
     'prettier',
     '--write',
     'utils/cthulhuquariumCanon.generated.ts',
+    'utils/cthulhuquariumArtPrompts.generated.ts',
     'server/utils/cthulhuquariumBackgrounds.generated.ts',
   ],
   { cwd: repoRoot, stdio: 'ignore' },

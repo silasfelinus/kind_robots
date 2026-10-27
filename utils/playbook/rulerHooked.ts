@@ -5,6 +5,7 @@ import { RULER_PRESETS } from '../rulerHooked/rulerPresets'
 import { GEAR_CATALOG, KINGDOM_CATALOG } from '../rulerHooked/economy'
 import { characterPortraitPath } from '../rulerHooked/characterArt'
 import { cardArtPath } from '../rulerHooked/cardArt'
+import { rulerHookedArtPrompt } from '../rulerHooked/artPrompts'
 import type { Card } from '../../types/ruler-hooked'
 import {
   blankNode,
@@ -22,8 +23,8 @@ import {
 // the cast, the rulers, the rewards and the shop. Every picture is served
 // from the image store (/images/ruler-hooked/…), so each beat names its
 // runtime path as `artPath` and the ledger API reports which files exist.
-// The game authors no art prompts; prompts are written for it, never built
-// from titles.
+// Its Krea 2 prompts live in utils/rulerHooked/artPrompts.ts, keyed by beat
+// key, never built from titles.
 
 const ROOT = '/images/ruler-hooked'
 
@@ -46,6 +47,7 @@ function beat(
   node.body = options.body.filter((line): line is string => !!line?.trim())
   node.artPath = options.artPath
   node.needsArt = !!options.artPath
+  node.artPrompt = options.artPath ? rulerHookedArtPrompt(key) : undefined
   node.companions = options.companions ?? []
   node.provenance = 'utils/rulerHooked'
   node.choices = (options.choices ?? []).map((choice) => ({
@@ -256,5 +258,6 @@ export function buildRulerHookedPlaybook(): Playbook {
     editable: false,
     artProject: 'ruler-hooked',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

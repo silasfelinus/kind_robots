@@ -40,7 +40,7 @@
           "title": "Founders' Row",
           "place": "Pinecrest Cemetery and St. Jude's basement",
           "text": "Founders' Row has three tall obelisks: CRANE, PELL, AVERILL. Overnight, briars have grown up all three, thick as rope, studded with white roses. A small, plain stone beside the Crane obelisk reads ELIZA, AGED 11, and it is the only one with no thorns on it. Down the hill, the basement door of St. Jude's is propped open, and Father Iggy is carrying out a water-stained box marked UNION CHAPEL 1855-1870.",
-          "art": "Three tall founders' obelisks in a hillside cemetery wrapped in thick briars and white roses, a small plain child's headstone untouched beside them, a priest in a band shirt carrying a water-stained archive box from a church basement",
+          "art": "Three tall granite obelisks in a row on a hillside cemetery wrapped in thick briars as heavy as rope and studded with white roses, a small plain child's headstone beside them clean and bare, a teenager kneeling at the small stone, and down the hill a young priest with a black spiked pompadour and a white collar under a band T-shirt carrying a water-stained cardboard archive box out of a church basement door, overcast morning light, wide shot",
           "choices": [
             {
               "id": "search-the-register",
@@ -134,7 +134,7 @@
           "title": "Witches and Wonders",
           "place": "Occult stacks, Glimmer Falls Public Library",
           "text": "Witches and Wonders of the Gold Country has a lurid cover: a cackling hag over a cauldron, labeled THE WITCH OF CRYSTAL WOODS. Inside, the middle pages have been cut into a hollow, and nested in it is a small leather book tied with faded green ribbon. It smells like lavender and woodsmoke. On the first page, in brown ink: Receipts for the Sick, kept by T. Hale.",
-          "art": "A lurid 1920s book with a cackling witch on the cover lying open in the library stacks, a hollowed-out middle holding a small leather notebook tied with green ribbon, dried lavender falling out",
+          "art": "A narrow aisle of old library shelves, a lurid 1920s book with a painted cackling hag over a cauldron on its front lying open on a library table, the middle pages cut into a hollow holding a small brown leather notebook tied with faded green ribbon, dried lavender sprigs spilling out, a 16-year-old Indian American girl with a long braid and round gold glasses leaning over it beside a teenager, warm green-shaded lamp light, close medium shot",
           "choices": [
             {
               "id": "read-the-receipts",
@@ -200,7 +200,7 @@
           "title": "The Garden That Comes Back",
           "place": "The Heartstone roundabout, Crystal Street",
           "text": "The HOA plants marigolds in the roundabout every spring, neat in rows. Every spring something else comes up through them: feverfew, yarrow, rue, calendula, in a patch about six feet long and two feet wide, right against the Heartstone's lip. Pearl Washington is out on her porch with her shotgun across her knees and her coffee in her hand, watching you look at it. \"Took you kids long enough,\" she says.",
-          "art": "A suburban roundabout garden around a giant purple geode, neat rows of marigolds interrupted by a wild six-foot rectangle of feverfew, yarrow and calendula, an elderly woman on a porch nearby with coffee and a shotgun on her knees",
+          "art": "A suburban roundabout garden around a huge purple crystal rock, neat rows of orange marigolds broken by a wild six-foot rectangle of feverfew, yarrow, rue and calendula pressed against the rock's base, a teenager kneeling at the herbs, and on the porch across the street a 71-year-old Black woman in a marigold headwrap and an olive army jacket sitting with a coffee cup and a shotgun across her knees, bright noon sun, wide shot",
           "choices": [
             {
               "id": "ask-pearl",
@@ -294,7 +294,7 @@
         "title": "The Briar Hedge",
         "place": "3 Crystal Street, the Crane house",
         "text": "Overnight, briars have swallowed 3 Crystal Street, home of Councilman Hollis Crane, great-great-grandson of the founder. Thorny canes as thick as your wrist wrap the doors, the garage and the satellite dish, blooming with white roses. Upstairs, his daughter Abigail is pounding on her window. Her father is asleep in a chair on the lawn, briars curled gently around his ankles, like a cat.",
-        "art": "A suburban split-level house completely wrapped in thick thorny briars and white roses at night, a teenage girl pounding on an upstairs window, a man asleep in a lawn chair with vines curled around his ankles",
+        "art": "A suburban split-level house at night completely wrapped in thorny briars as thick as a wrist, canes over the doors, the garage and a satellite dish, blooming with white roses, a teenage girl pounding on an upstairs window, a middle-aged man in a cardigan asleep in a lawn chair on the front lawn with briars curled around his ankles, a teenager with a garden spade at the edge of the hedge, white moonlight, wide shot",
         "choices": [
           {
             "id": "cut-through",
@@ -385,7 +385,7 @@
         "title": "The Midnight Circle",
         "place": "The last stand of Crystal Woods, behind the cul-de-sac",
         "text": "Behind the cul-de-sac's back fences, in the last few acres of oak woods the developer never cleared, a circle of women and girls kneels around a green lantern. Their eyes are closed. They are sleepwalking. Abigail Crane is there, and your English teacher, and the PTA treasurer in curlers. Each grinds herbs in a stone mortar and murmurs the same long chant, and the air smells like lavender, woodsmoke and something sharper, like a storm.",
-        "art": "A moonlit oak grove behind suburban back fences, a circle of sleepwalking women and girls in nightgowns and curlers kneeling around a green lantern, grinding herbs in stone mortars, eyes closed",
+        "art": "A moonlit stand of old oak trees behind suburban back fences, a circle of women and girls in nightgowns, robes and hair curlers kneeling with eyes closed around a lantern burning with a green flame, each grinding herbs in a stone mortar, a teenager crouching at the edge of the circle, green lantern light on their faces and blue moonlight through the leaves, wide shot",
         "choices": [
           {
             "id": "kneel-and-listen",
@@ -476,7 +476,7 @@
         "title": "Say It Three Times",
         "place": "The upstairs bathroom at Becky Pell's sleepover, 12 Crystal Street, midnight",
         "text": "Becky Pell's sleepover has reached the dare portion of the night. The whole party, in sleeping bags and face masks, has shoved you into the upstairs bathroom with a lit candle, the light off, and one rule: look in the mirror and say \"Goody Hale\" three times. Becky's great-great-great-grandfather was a town founder, and she thinks this is hilarious. You have said it twice. The mirror has fogged over on its own, and behind your reflection, where the shower curtain should be, there is a garden at night.",
-        "art": "A teenager holding a lit candle before a fogged bathroom mirror at midnight, the reflection showing a moonlit herb garden where a shower curtain should be, giggling teens in sleeping bags crowding the doorway behind",
+        "art": "A dark upstairs bathroom at midnight, a teenager holding a lit candle in front of a fogged mirror, and in the mirror behind their reflection, where the shower curtain should be, a moonlit garden of herbs drying on strings with a tall gray-haired woman standing among the rows, giggling teens in sleeping bags and green face masks crowded in the doorway behind, candle flame and blue mirror light, medium shot",
         "choices": [
           {
             "id": "say-it",
@@ -561,7 +561,7 @@
         "title": "Dunk the Witch",
         "place": "The Founders' Day carnival lot behind St. Jude's, eleven p.m.",
         "text": "The Founders' Day committee set up its carnival a day early, and the star attraction is a dunk tank painted with a cackling green witch: DUNK THE WITCH, THREE BALLS FOR A QUARTER. Nobody is running it tonight, but it is running anyway. Hannah Averill from your homeroom sits on the plank in a pointed hat, sleepwalking, eyes closed, while softballs rise one by one out of a bucket and hang in the air, aiming at the target.",
-        "art": "A carnival dunk tank painted with a cackling green witch on a dark church lot at night, a sleepwalking teenage girl in a pointed hat on the plank with eyes closed, softballs floating in midair aimed at the target",
+        "art": "A carnival dunk tank on a dark church parking lot at eleven at night, painted with a cackling green-faced witch, a sleepwalking teenage girl in a black pointed hat sitting on the plank above the water with her eyes closed, three softballs hanging in midair aimed at the round target, a bucket of balls tipped over, a teenager running toward the chicken-wire cage, string bulbs and dark sky, wide shot",
         "choices": [
           {
             "id": "pull-her-off",
@@ -656,7 +656,7 @@
         "title": "The Poppets",
         "place": "The porches of Crystal Street, one a.m.",
         "text": "Overnight, little muslin dolls have appeared on Crystal Street, each one stuffed with herbs and tied by a red ribbon to a porch light: on the Crane house, the Pell house, the Averill house, and, for some reason, yours. Now a flashlight patrol of Founders' Day committee members in bathrobes is going door to door, led by Mrs. Dolores Pell, stuffing the dolls into a trash bag. \"Devil work,\" she announces. In the roundabout, a garbage can is already burning.",
-        "art": "Small muslin dolls tied with red ribbons to suburban porch lights at night, a patrol of neighbors in bathrobes with flashlights stuffing them into a trash bag, a garbage can fire glowing in a roundabout",
+        "art": "Small muslin dolls stuffed with herbs tied by red ribbons to the porch lights of suburban houses at one in the morning, a patrol of neighbors in bathrobes with flashlights led by a stern woman stuffing the dolls into a black trash bag, a metal garbage can burning on the roundabout down the street, a teenager on their porch holding one doll, yellow porch lights and orange fire glow, wide shot",
         "choices": [
           {
             "id": "open-one",
@@ -752,7 +752,7 @@
         "title": "The Effigy",
         "place": "The Heartstone roundabout, October 30",
         "text": "The Founders' Day committee has built tomorrow's effigy: a straw witch with a pointed hat, a green paper face and a sign around its neck that says BEGONE, tied to a stake in the roundabout. At midnight you find a woman standing beside it, tall and gray, in homespun with her hair loose. She is touching its straw cheek. All down Crystal Street, briars are bursting up through the lawns of every house that a founder's family still owns, and crows are landing on every roof.",
-        "art": "A straw witch effigy with a pointed hat and a begone sign tied to a stake on a suburban roundabout at midnight, a tall gray woman in homespun touching its cheek, briars bursting through lawns and crows lining the rooftops",
+        "art": "A straw witch effigy with a black pointed hat and a green paper face tied to a wooden stake on a suburban roundabout at midnight, a cardboard square hung on its chest, a tall weathered woman in gray 1850s homespun with long loose gray-streaked hair touching its straw cheek, thick briars bursting up through nearby lawns, crows lining every rooftop, a teenager standing a few steps behind her, white moonlight, wide shot",
         "choices": [
           {
             "id": "speak-to-her",
@@ -844,7 +844,7 @@
         "title": "Apples on the Doorstep",
         "place": "The porches of Crystal Street, eleven p.m.",
         "text": "It is 1986, the year every parent in Glimmer Falls inspects Halloween candy like a bomb squad, and tonight a woven basket of shining red apples has appeared on every porch on Crystal Street. They are a small, striped, old-fashioned kind that nobody has grown in this valley for a hundred years. Mrs. Dolores Pell is already going door to door in her bathrobe with a flashlight, stuffing them into a garbage bag and announcing that they are poisoned. Your basket is still sitting on your welcome mat, smelling like late summer.",
-        "art": "A woven basket of small striped red apples glowing on a suburban welcome mat at night, a porch light casting warm gold, a woman in a bathrobe with a flashlight and a garbage bag marching up the next driveway",
+        "art": "A woven basket of small striped red heirloom apples sitting on a suburban welcome mat at eleven at night, shining under a warm gold porch light, a teenager crouching beside it holding one apple, and across the street a woman in a bathrobe with a flashlight and a black garbage bag marching up the next driveway, warm porch light and blue night, medium shot",
         "choices": [
           {
             "id": "take-a-bite",
@@ -931,7 +931,7 @@
         "title": "The Founders' Day Pageant",
         "place": "The Glimmer Falls High auditorium, dress rehearsal, 11 p.m.",
         "text": "Your history class got roped into the Founders' Day pageant, and the drama teacher has cast you, without asking, as the Witch. The script is the founders' version: a wicked woman, three brave men, a township meeting and a happy town. At the late dress rehearsal, the cardboard meetinghouse starts to smell of real woodsmoke, the actors' fake beards grow in thick and gray, and the boy playing Reverend Pell points at you with a hand that is not his own. \"Speak, witch,\" he says, in a voice from 1859. Out in the dark seats, the parents who came to pick up their kids have all gone very still.",
-        "art": "A high school stage at night dressed as a cardboard 1859 meetinghouse, three teen actors in thick gray beards and black hats pointing at a teenager in a pointed witch hat, wisps of woodsmoke, silent parents in the dark seats",
+        "art": "A high school auditorium stage at eleven at night dressed as a cardboard 1859 meetinghouse, three teen actors in thick real-looking gray beards and black hats pointing at a teenager in a black pointed witch hat and a green rubber nose, wisps of woodsmoke curling from the painted backdrop, parents sitting perfectly still in the dark seats, hot white stage light, wide shot from the house",
         "choices": [
           {
             "id": "speak-for-her",
@@ -1023,7 +1023,7 @@
         "title": "The Torchlight Walk",
         "place": "Crystal Street to the old spring, October 30, midnight",
         "text": "Every year on the night before Founders' Day, Glimmer Falls holds its Torchlight Walk from the roundabout to the old spring in Crystal Woods, to \"drive the witch out of the valley.\" This year the committee has handed out real torches, and nearly the whole town has come, in parkas and Halloween costumes, flames bobbing down the cul-de-sac. At the edge of the woods the briars have risen into a wall taller than a house, and behind it the sleepwalking women of the circle kneel in a ring. Somebody near the front starts shouting about fire.",
-        "art": "A long procession of townspeople in parkas and Halloween costumes carrying flaming torches down a suburban street at midnight toward a towering wall of thorny briars blooming with white roses at the edge of dark oak woods",
+        "art": "A long procession of townspeople in parkas and Halloween costumes carrying flaming torches down a suburban street at midnight toward a towering wall of thorny briars blooming with white roses at the edge of dark oak woods, sleepwalking women kneeling in a ring beyond the briars, a teenager standing on a trailhead bench with arms raised, orange torchlight and black woods, wide shot",
         "choices": [
           {
             "id": "tell-the-walkers",
@@ -1119,7 +1119,7 @@
       "title": "The Burning Garden",
       "place": "The Heartstone roundabout, Halloween night",
       "text": "On Halloween night the Founders' Day bonfire never gets lit. Briars burst from the roundabout and weave a thorn cathedral around the Heartstone, caging Councilman Crane, the committee and every founder's descendant on the street. The sleepwalking women kneel in a ring outside it, grinding herbs. And from the earth of her own garden rises Temperance Hale, crowned with briars and calendula, lantern burning green. \"They burned my garden and called it God's work,\" she says. \"They took my land and my name. Tonight, I take theirs.\"",
-      "art": "A towering cathedral of thorny briars around a glowing purple geode at night, a councilman and townspeople caged inside, sleepwalking women kneeling in a ring, a gray woman crowned with briars and orange flowers rising from the garden with a green lantern, teens in Halloween costumes facing her",
+      "art": "A towering cathedral of woven thorny briars around a glowing purple crystal rock on a suburban roundabout on Halloween night, a councilman in a suit and townspeople caged inside, sleepwalking women in nightgowns kneeling in a ring outside, and rising from the herb garden a tall weathered woman in gray 1850s homespun with loose gray-streaked hair and a crown of briars and orange calendula holding a lantern burning green, four teenagers in homemade costumes facing her, green and violet light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1294,22 +1294,22 @@
       "best": {
         "title": "Here Lies Temperance Hale",
         "text": "In November the town council votes, on Councilman Crane's own motion, to set a granite marker in the roundabout: TEMPERANCE HALE, 1811-1859, MIDWIFE AND HEALER. SHE TENDED THIS VALLEY. The effigy is retired for good, and the Glitter Box rewrites the Founders' Day pageant with Glory as Temperance, receiving a standing ovation from half the town. The HOA stops spraying the herbs. Pearl and Dr. Haddad tend them now, and whenever someone on Crystal Street has a fever, a sprig of feverfew appears on their pillow.",
-        "art": "A granite grave marker engraved with a healer's name set among thriving herbs in a suburban roundabout, a drag queen in 1850s homespun bowing on a theater stage, an old woman and a veterinarian tending the garden"
+        "art": "A new granite marker set among thriving herbs in a suburban roundabout beside a purple crystal rock, a 71-year-old Black woman in a marigold headwrap and a mustached man in a white lab coat kneeling to tend the feverfew and calendula, a tall drag queen in gray 1850s homespun laying a bouquet at the marker, neighbors and teenagers gathered around applauding, bright autumn morning light, wide shot"
       },
       "good": {
         "title": "Back to Sleep",
         "text": "The briars die back, the women stop sleepwalking, and the crows leave Crystal Street. Goody Hale sleeps under her garden again. But nobody carves her name, and next October the committee builds a brand-new straw witch with a pointed hat. You do not go to the bonfire. You leave a handful of calendula on the river stone instead.",
-        "art": "A teenager leaving a handful of orange calendula flowers on a scratched river stone beneath a geode while a new straw effigy is built in the distance"
+        "art": "A teenager kneeling to leave a handful of orange calendula flowers on a scratched river stone at the base of a purple crystal rock on a roundabout at dusk, and in the distance two men building a new straw figure with a pointed hat on a stake, long golden shadows, medium wide shot"
       },
       "bittersweet": {
         "title": "Thorns That Stay",
         "text": "Everyone gets out of the thorn cathedral, but the briars never leave the Crane house, and the Cranes move away by spring. Women all over Glimmer Falls wake some mornings with dirt under their nails and names on their lips they do not know. Temperance sleeps, but not easily, and neither do you.",
-        "art": "A suburban split-level still wrapped in thorny briars with a moving truck outside, a woman at a kitchen sink staring at dirt beneath her fingernails"
+        "art": "A suburban split-level house still wrapped in thorny briars and white roses with a moving truck parked at the curb and movers carrying boxes, and in the foreground through a kitchen window across the street a woman at the sink staring at dark soil under her fingernails, gray spring morning light, wide shot"
       },
       "bad": {
         "title": "Another Name for the List",
         "text": "On November first you do not come home. Your crew finds you in the last stand of Crystal Woods, kneeling in the sleepwalkers' ring with your eyes closed, grinding herbs in a stone mortar and murmuring an endless list of names and grudges. Every night you go back. Every night the list gets longer, and the grave stays nameless.",
-        "art": "A teenager kneeling with closed eyes in a moonlit oak grove grinding herbs in a stone mortar among sleepwalking women, worried friends watching from behind a back fence with flashlights"
+        "art": "A teenager kneeling with closed eyes in a moonlit oak grove grinding herbs in a stone mortar among sleepwalking women in nightgowns around a green lantern, three worried friends watching from behind a wooden back fence with flashlights, green lantern light and white moonlight, wide shot"
       }
     }
   }

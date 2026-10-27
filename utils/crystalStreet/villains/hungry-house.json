@@ -40,7 +40,7 @@
           "title": "Box 13 of the Larkspur Papers",
           "place": "Local history room, Glimmer Falls Public Library",
           "text": "The Larkspur Homes donation fills a wall of gray archive boxes. Box 13 is heavier than the rest. Inside: a 16mm reel labeled THE STARLIGHT DELUXE: A HOME FOR HAPPINESS, 1959, a typed hostess contract with coffee rings, and a little brass doorknob wrapped in a napkin like a sandwich. The old film projector in the corner is already plugged in.",
-          "art": "A teenager in a library archive room opening a gray box that holds a 16mm film reel, a typed contract and a brass doorknob, an old film projector waiting under a dusty lamp",
+          "art": "A local history room in a small public library, a wall of gray archive boxes, a teenager lifting the lid of one heavy box to reveal a round 16mm film reel tin, a typed contract with coffee rings and a small brass doorknob wrapped in a paper napkin, an old film projector plugged in on a cart in the corner under a dusty green lamp, warm lamp light and dust in the air, medium shot",
           "choices": [
             {
               "id": "run-the-film",
@@ -128,7 +128,7 @@
           "title": "Caller from Thirteen",
           "place": "Tape archive, KGLM 103.3",
           "text": "The KGLM tape archive is a closet of reel-to-reel boxes stacked to the ceiling, each one labeled in grease pencil. THE NIGHT OWL LINE, APRIL 1963 has a sticky note on it: CALLER FROM 13 CRYSTAL. DO NOT AIR. Somewhere above you the on-air light buzzes red, and the request line begins to blink, though nobody is on shift.",
-          "art": "A cramped radio station tape closet stacked with labeled reel-to-reel boxes, one box with a red warning sticky note, a red on-air light glowing in the hallway",
+          "art": "A cramped radio station tape closet stacked to the ceiling with flat reel-to-reel tape boxes marked in grease pencil, one box pulled out with a bright yellow sticky note on its lid, a teenager holding it, and down the hallway a red on-air bulb glowing and a request-line phone blinking on an empty desk, dim bulb light and red glow, medium shot",
           "choices": [
             {
               "id": "play-the-reel",
@@ -198,7 +198,7 @@
           "title": "The Imperfect Pile",
           "place": "The back lot, Rusty's Junkyard",
           "text": "Behind the crusher is a mound of things somebody did not want seen: a lamp with a cracked shade, report cards with C-minuses, a ratty recliner, a box of sympathy cards, a mohawk wig dyed green. Joey says a white moving truck with no driver drops a load every year and the plates are from 1959. At the very bottom sits a steamer trunk stenciled M. VAIL.",
-          "art": "A junkyard mound of ordinary family clutter, cracked lamps, report cards and a green wig, an old steamer trunk stenciled with a name at the bottom, a driverless 1950s moving truck parked in the fog",
+          "art": "A junkyard mound behind a car crusher heaped with ordinary family clutter, a lamp with a cracked shade, a ratty recliner, a shoebox of old greeting envelopes, a green-dyed mohawk wig, school papers with red marks, and at the bottom an old steamer trunk with stenciled initials, a lean Diné teenager in an orange work shirt and a teenager pulling at the trunk, a driverless white 1950s moving truck parked in the fog behind them, gray overcast light, wide shot",
           "choices": [
             {
               "id": "dig-out-the-trunk",
@@ -265,7 +265,7 @@
         "title": "Open House, Tonight Only",
         "place": "The sidewalk outside 13 Crystal Street",
         "text": "At eleven p.m. a sign appears on the lawn at 13: OPEN HOUSE, TONIGHT ONLY. The porch light is on, the door is ajar, and the whole street smells of chocolate-chip cookies. A woman in an apron waves from the bay window with a smile that does not move at all. Your feet are already on the welcome mat.",
-        "art": "A pastel model home at night with an open house sign on the lawn, warm light spilling from an open door, a smiling woman in an apron waving from the bay window, a teenager hesitating on the welcome mat",
+        "art": "A spotless pastel split-level model home at eleven at night, a small wooden realtor stake with red ribbons on the striped lawn, warm golden light spilling from the half-open front door, a 1959 housewife with a lacquered blonde flip, pearls, an apron and a fixed lipstick smile waving from the bay window, a teenager standing on the welcome mat with one foot raised, cookie-sweet golden light against a dark blue street, medium wide shot",
         "choices": [
           {
             "id": "play-perfect-guest",
@@ -348,7 +348,7 @@
         "title": "The Family Portrait",
         "place": "Your own house, after midnight",
         "text": "You come downstairs for water and the photos on your own walls have changed. Your family is in every frame, smiling with perfect teeth, wearing sweaters nobody owns. You are not in any of them. The hall carpet has turned pale mint, and from the kitchen comes the sound of someone humming while she wipes a counter that is already clean.",
-        "art": "A 1980s family hallway at night where every framed photo shows the family in matching sweaters with identical smiles and one empty space, mint carpet creeping across the floor, a humming silhouette in the kitchen",
+        "art": "A 1980s suburban upstairs hallway after midnight, every framed photo on the wall showing the same family in matching pastel sweaters with identical smiles and an empty gap where one child should stand, pale mint carpet spreading across the old brown carpet, a teenager in pajamas holding a glass of water, and at the end of the hall the kitchen doorway with the silhouette of a woman in an apron wiping a counter, dim hall light, medium wide shot",
         "choices": [
           {
             "id": "make-a-real-mess",
@@ -438,7 +438,7 @@
         "title": "Turn Your Back",
         "place": "Mrs. Varga's kitchen, Crystal Street, house-sitting at midnight",
         "text": "You are house-sitting for Mrs. Varga across the street while she visits her sister, and her kitchen is a glorious disaster: dishes in the sink, a cereal box on the stove, the cat's bowl upside down. You turn your back for one second to fill the cat's water. When you turn around, every kitchen chair is stacked on the table in a perfect, impossible tower, the dishes are gone, and the counter shines. Out the window, the porch light at 13 is blinking on and off, like it is winking at you.",
-        "art": "A gleaming 1980s kitchen at midnight with every kitchen chair balanced in an impossible tower on the table, a startled teenager holding a cat's water bowl, a porch light glowing in a house across the street through the window",
+        "art": "A gleaming 1980s kitchen at midnight, every kitchen chair stacked upside down on the table in a tall balanced tower, the counters shining empty, a teenager in a sweatshirt holding a cat's water bowl with a stunned face, a tabby cat on the floor, and through the window over the sink a porch light across the street blinking in a pastel house, white overhead light, medium shot",
         "choices": [
           {
             "id": "mess-it-back",
@@ -525,7 +525,7 @@
         "title": "One Minute on the Lawn",
         "place": "The front lawn of 13 Crystal Street, 2 a.m.",
         "text": "The dare is simple: stand on the lawn of 13 Crystal Street for one full minute. Your crew watches from behind the Dombrowskis' station wagon. The grass under your sneakers is greener than any grass has a right to be, mowed into perfect diagonal stripes, and as you stand there the stripes slowly turn to point at the front door. The pink plastic flamingos swivel their heads. Upstairs, two windows light up at once, like eyes opening, and the porch steps settle into a smile.",
-        "art": "A teenager standing alone on a perfectly striped emerald lawn at night before a pristine split-level model home, pink plastic flamingos turning their heads, two upstairs windows glowing like eyes, friends peeking from behind a station wagon",
+        "art": "A teenager standing alone in the middle of a perfectly striped emerald lawn at two in the morning in front of a pristine pastel split-level model home, the mowing stripes curving to point at the front door, pink plastic flamingos turning their heads toward the teen, two upstairs windows lit at the same moment, friends peeking from behind a station wagon across the street, a single dandelion in a crack in the front walk, cold moonlight and warm window glow, wide shot",
         "choices": [
           {
             "id": "stare-it-down",
@@ -613,7 +613,7 @@
         "title": "Get Out",
         "place": "Your bedroom, 3 a.m.",
         "text": "You wake up because your room is clean. Not tidied: clean. Everything on your walls hangs perfectly level, your clothes are folded into squares, your comics are boxed and labeled, and you are tucked into a bed you did not make, with hospital corners so tight you can barely breathe. The room smells like lemon polish and warm cookies. From the heating vent, a woman's voice whispers, urgent: \"Get out. Get out while it still thinks you're tidy.\"",
-        "art": "A teenager tucked rigidly into a perfectly made bed in an eerily spotless 1980s bedroom at night, clothes folded into neat squares, labeled boxes stacked in rows, a faint glow seeping from a heating vent in the wall",
+        "art": "A teenager tucked rigidly into a perfectly made bed with tight hospital corners in a spotless 1980s bedroom at three in the morning, clothes folded into exact squares on the dresser, comic books boxed in rows with neat tags, every picture frame hanging level, and a warm yellow glow seeping from a heating vent in the wall beside the bed, the teen's eyes wide and turned toward the vent, dim lamp light, medium shot",
         "choices": [
           {
             "id": "wreck-the-room",
@@ -700,7 +700,7 @@
         "title": "The Rooms That Weren't There",
         "place": "Inside 13 Crystal Street",
         "text": "You fall asleep on your bed and wake on a sofa wrapped in plastic. You are inside 13, and it has grown: a nursery for a baby who was never born, a den where a TV plays the 1959 promo film on an endless loop, a staircase that goes up into more staircase. At the end of the hall, from inside a coat closet, someone is knocking. Three soft knocks. Then three more.",
-        "art": "A sprawling dreamlike 1959 model home interior with plastic-covered furniture, an empty nursery, a glowing television, staircases that loop into themselves, and a coat closet door at the end of a long hall",
+        "art": "The inside of a 1959 model home grown impossibly large, a teenager sitting up on a sofa covered in clear plastic, an empty pastel nursery visible through one doorway, a den where a boxy television plays a black-and-white film of a smiling woman, a staircase that climbs up into more staircase, and at the end of a long daisy-wallpapered hall a coat closet door, warm lamp light fading into shadow, wide shot down the hall",
         "choices": [
           {
             "id": "open-the-closet",
@@ -787,7 +787,7 @@
         "title": "Welcome Wagon",
         "place": "Your front porch, midnight",
         "text": "At midnight your doorbell plays a chime it does not know. On the welcome mat sits a perfect lime gelatin mold on a paper doily, wrapped in plastic, with a card in flawless cursive: Welcome to the neighborhood! Do come to our open house. Fondly, 13. You have lived on Crystal Street your whole life. Suspended inside the gelatin, wobbling gently, are things from your own house: the spare key, your library card, the friendship bracelet you lost in fourth grade.",
-        "art": "A shimmering lime gelatin mold on a lace doily sitting on a suburban welcome mat at midnight, a house key and a friendship bracelet suspended inside it, warm porch light, a perfect model home glowing across the street",
+        "art": "A shimmering lime gelatin mold on a white paper doily sitting on a suburban welcome mat at midnight, wrapped in clear plastic, a house key, a small laminated library pass and a braided friendship bracelet suspended inside the green gelatin, a teenager in pajamas crouching in the doorway to look at it, a pastel model home glowing gold across the street, yellow porch light, close medium shot",
         "choices": [
           {
             "id": "return-the-dish",
@@ -870,7 +870,7 @@
         "title": "Emergency HOA Meeting",
         "place": "The Crystal Street clubhouse, one a.m.",
         "text": "A pastel flyer under every door calls an emergency meeting of the Crystal Street Homeowners Association at one in the morning, and somehow every grown-up on the street goes. You slip in the back. The neighbors sit in perfect rows of folding chairs, nodding in unison, while a voice from the clubhouse PA, warm as a home economics teacher, reads the complaints: the Ferreiras' brown lawn, Mrs. Varga's dishes, your family's loud Sunday arguments. \"All in favor of sending them an invitation?\" Every hand in the room rises at once, slowly, like puppets.",
-        "art": "A pastel suburban clubhouse at one in the morning, rows of neighbors in bathrobes on folding chairs raising their hands in perfect unison like puppets, a speaker on the wall glowing, a teenager peeking in from the back",
+        "art": "A pastel suburban clubhouse room at one in the morning, perfect rows of neighbors in bathrobes and slippers on folding chairs all raising their right hands at the same moment with blank smiles, a refreshments table with a punch bowl and deviled eggs, a speaker box on the wall glowing warm yellow, a teenager peeking in from the back door, flat fluorescent light, wide shot from the back of the room",
         "choices": [
           {
             "id": "confess",
@@ -957,7 +957,7 @@
         "title": "The Moving Van",
         "place": "Crystal Street, October 30, after midnight",
         "text": "The night before Halloween, a moving van from Larkspur Homes backs down Crystal Street with its hazard lights blinking, and movers in gray coveralls, with faces as smooth as eggs, start carrying out everything that makes the houses look lived in. Drum kits, lava lamps, crayon drawings, an ugly plaid recliner, somebody's entire record collection. Behind them, the houses are being staged: plastic on the sofas, wax fruit in the bowls, smiling family portraits on the walls. The van is already half full, and its back doors are breathing.",
-        "art": "A boxy moving van with blinking hazard lights on a suburban street at night, faceless movers in gray coveralls carrying a drum kit, a lava lamp and a plaid recliner out of houses, the van's back doors gaping and glowing",
+        "art": "A boxy white moving van with blinking orange hazard lights backed up on a suburban street after midnight, movers in gray coveralls with smooth blank egg-shaped faces carrying a drum kit, a lava lamp and a plaid recliner out of the houses, the van's back doors gaping open and glowing warm inside, a teenager and a skinny boy in a backwards red cap running across a lawn, orange hazard light and blue night, wide shot",
         "choices": [
           {
             "id": "thats-mine",
@@ -1050,7 +1050,7 @@
       "title": "The Last Open House",
       "place": "13 Crystal Street, Halloween night",
       "text": "On Halloween night the house swallows the cul-de-sac. Every family on Crystal Street sits at one endless dining table in sweaters they do not own, smiling smiles they cannot drop. At the head of the table, in a 1959 apron, Marjorie Vail carves a roast that is made of wax, and the house speaks through her lipstick: \"Everyone is so happy here. Nobody ever has to be seen crying again.\" The walls breathe in. The front door is gone.",
-      "art": "An endless 1959 dining room holding every family on a suburban street, all wearing matching sweaters and frozen smiles, a housewife in an apron at the head of the table carving a wax roast, the teen crew in Halloween costumes standing in the doorway",
+      "art": "An endless 1959 dining room on Halloween night, every family from a suburban street seated at one long table in matching pastel sweaters with frozen smiles, plates of wax food, and at the head of the table a 1959 housewife with a lacquered blonde flip, pearls, an apron and a fixed lipstick smile with wet pleading eyes carving a wax roast, four teenagers in homemade Halloween costumes standing in the doorway, warm chandelier light, long wide shot down the table",
       "choices": [
         {
           "id": "fight",
@@ -1224,22 +1224,22 @@
       "best": {
         "title": "Excuse the Mess",
         "text": "At dawn Marjorie Vail unties her apron, drops it on the clean carpet, and walks out the front door with a canvas under each arm. The library hangs her paintings that winter, and her sister drives up from Oakland for the opening. The Larkspur sign finally comes down. In the spring, 13 Crystal Street is sold to a loud family with three dogs, a drum kit and a lawn they never mow on time, and the house has never sounded happier.",
-        "art": "A woman in a 1959 dress walking out of a pastel house at dawn with paintings under her arms, an apron dropped on the carpet behind her, teens and neighbors in rumpled costumes cheering on the lawn"
+        "art": "A woman in a 1959 dress with her blonde flip coming loose walking out the front door of a pastel model home at dawn with a rolled painting of a purple dog under each arm, her apron dropped on the white carpet behind her, teenagers and neighbors in rumpled Halloween costumes cheering on the lawn, pink sunrise light, wide shot"
       },
       "good": {
         "title": "Not on the Market",
         "text": "The house goes dark and stays dark. The open house sign never comes back, and the families who vanished in the hallway photos come home with no memory of where they were. But 13 Crystal Street is still perfect, still for sale, still waiting. You never walk past it without wiping your feet.",
-        "art": "A spotless dark model home behind a for sale sign on a gray November morning, a teenager walking past it on the far side of the street"
+        "art": "A spotless dark pastel model home with every window black on a gray November morning, a realtor stake still standing on its striped lawn, a teenager on the far side of the street walking past and wiping their sneakers on the curb, flat gray light, wide shot"
       },
       "bittersweet": {
         "title": "One Frame Left",
         "text": "You get out, and so does almost everyone. But when the police finally walk through 13, there is one photograph still hanging in the hallway: the family from the end of the street, smiling in matching sweaters. Their house goes up for sale in December. Sometimes, late at night, you are sure you hear them laughing politely from the end of the street.",
-        "art": "A single framed photograph of a smiling family in matching sweaters hanging in an empty pastel hallway, a police flashlight beam falling across it"
+        "art": "A single framed photograph of a smiling family in matching pastel sweaters hanging alone in an empty pastel hallway, pale squares on the wallpaper where other frames used to hang, a police officer's flashlight beam falling across the photo from the doorway, dark house and white beam, medium shot"
       },
       "bad": {
         "title": "A Home for Happiness",
         "text": "On November first there is a new photograph in the hallway at 13: you, in a sweater you never owned, smiling perfectly beside a tray of cookies. The open house runs every Sunday now. Your crew takes the tour again and again, standing in front of your picture, trying to make you blink.",
-        "art": "A framed portrait of a teenager in a stranger's sweater with a frozen perfect smile in a pastel hallway, friends in jackets standing before it on a house tour"
+        "art": "A framed portrait of a teenager in a stranger's pastel sweater with a frozen perfect smile beside a tray of cookies hanging in a pastel hallway, three friends in jackets standing in front of it on a Sunday house tour staring up at it, a smiling realtor with a clipboard behind them, warm afternoon light, medium shot"
       }
     }
   }

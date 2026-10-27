@@ -892,6 +892,9 @@
                       !background.unlocked || tankStore.backgroundSaving
                     "
                     :aria-pressed="background.key === tankStore.backgroundKey"
+                    :title="
+                      background.unlocked ? background.fieldNote : undefined
+                    "
                     @click="tankStore.chooseBackground(background.key)"
                   >
                     <img
@@ -913,6 +916,12 @@
                         class="truncate text-[0.65rem] opacity-60"
                       >
                         {{ backgroundUnlockHint(background.unlock) }}
+                      </p>
+                      <p
+                        v-else
+                        class="line-clamp-3 font-serif text-[0.65rem] italic leading-snug opacity-70"
+                      >
+                        {{ background.fieldNote }}
                       </p>
                     </div>
                   </button>

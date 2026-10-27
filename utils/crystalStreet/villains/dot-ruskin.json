@@ -41,7 +41,7 @@
           "title": "November 1966",
           "place": "The microfilm room, Glimmer Falls Public Library",
           "text": "The microfilm reader hums in a windowless room at the back of the library. The reel labeled VALLEY STATE CLARION, FALL 1966 is warm to the touch, and a fine curl of sawdust sits in the bottom of its box, though nothing in this room is wood. Ms. Hart watches from the doorway with her arms folded. \"Gamma Rho,\" she says, before you have even threaded it. \"I wondered when somebody would ask.\"",
-          "art": "A windowless library microfilm room lit by the glow of a humming reader, a warm film reel in an open box with a curl of sawdust inside, a librarian in a cardigan leaning in the doorway with her arms folded",
+          "art": "A small windowless library microfilm room lit by the green glow of a humming reader, an open cardboard reel box on the table with a fine curl of pale sawdust inside, a teenager threading the warm reel, and a freckled 38-year-old librarian with gray-streaked chestnut hair, tortoiseshell glasses on a beaded chain and an oxblood cardigan leaning in the doorway with her arms folded, green screen light and dark walls, medium shot",
           "choices": [
             {
               "id": "thread-the-reel",
@@ -107,7 +107,7 @@
           "title": "Shop Class, 1966",
           "place": "The shop room, Glimmer Falls High",
           "text": "The shop room smells of sawdust and machine oil, and the homecoming float sits half-built under a tarp. On the wall hangs the Industrial Arts Fair winners board, a brass plate for every year since 1960. The plate for 1966 has been pried off, leaving four empty screw holes. As you look at it, the drill press in the corner switches itself on, spins for exactly three seconds, and stops.",
-          "art": "A high school shop room with workbenches, vises and a pegboard of tool outlines, a half-built homecoming float under a tarp, a wall of brass winner plates with one empty space showing four screw holes, a drill press spinning by itself in the corner",
+          "art": "A high school shop room smelling of sawdust, wooden workbenches with iron vises, a pegboard of painted tool outlines, a half-built homecoming float under a blue tarp, a wall of small brass plates on a wooden board with one empty space showing four bare screw holes, a drill press in the corner spinning by itself, a teenager standing frozen by the board, dusty afternoon light through tall windows, wide shot",
           "choices": [
             {
               "id": "dig-through-the-binders",
@@ -173,7 +173,7 @@
           "title": "The Follow Spot",
           "place": "The lighting booth, the Glitter Box Playhouse",
           "text": "Rain plinks into a dozen buckets across the Glitter Box stage, which is why Gamma Rho is raising money in the first place. Glory Hallelujah, in rehearsal sequins and fuzzy slippers, is on a ladder emptying one. High in the back of the house, the old follow spot clicks on by itself and swings slowly across the seats until its circle of light finds you. Glory looks up at it and goes very still. \"Well,\" she says softly. \"Hello, Dot.\"",
-          "art": "An old vaudeville theatre with rain dripping into buckets across the stage, a tall drag queen in rehearsal sequins and fuzzy slippers on a ladder, a follow spot in a high back booth shining a circle of light onto a teenager in the empty seats",
+          "art": "An old vaudeville theater with rain dripping from the ceiling into a dozen metal buckets across the stage, a tall drag queen in rehearsal sequins and fuzzy slippers on a stepladder emptying one bucket, and from a high booth at the back of the house an old follow spot shining a hard circle of white light onto a teenager sitting alone in the empty red seats, dim gray house light and one white beam, wide shot",
           "choices": [
             {
               "id": "ask-glory",
@@ -241,7 +241,7 @@
         "title": "Dress Rehearsal",
         "place": "The Gamma Rho parlor, Old Quarry Road, 10 p.m.",
         "text": "The parlor furniture has been shoved against the walls, and a runway of duct-taped card tables runs down the middle of the Gamma Rho house. Glory Hallelujah sits at the end like a judge, sequined arms folded. \"Shoulders back, chin up, walk like the rent is due!\" Reggie Okafor, the house president, follows his clipboard down the runway in a borrowed gold gown. Teddy Alvarado, the youngest pledge, already walks in heels better than anyone in the room. Moose is hemming a dress on the sewing machine by the fireplace. And Chad Pettigrew, a sweet, six-foot-three, terrified sophomore in a towering blond wig and Fire Engine Fantasy lipstick, wobbles on platform pumps two sizes too small. \"I can do this,\" he whispers. \"I am Lady Chadelier.\" Then every light in the house dims at once, the record player groans down to a crawl, and from somewhere inside the walls comes a thin, rising whine, like a dentist's drill the size of a house. A flashlight beam slides under the front door and sweeps slowly across the floor, looking for someone.",
-        "art": "A Victorian fraternity parlor with a runway of duct-taped card tables, young men in wigs and borrowed gowns frozen mid-walk, a tall drag queen in sequins judging from a chair, a gentle giant at a sewing machine, a gangly young man in a towering blond wig and wobbling pumps, the lights dimming and a flashlight beam sliding under the front door",
+        "art": "A Victorian fraternity parlor at ten at night with the furniture shoved to the walls and a runway of duct-taped folding tables down the middle, young men in wigs and borrowed gowns frozen mid-walk, a tall drag queen in sequins judging from an armchair, a huge lineman with a curly mullet at a sewing machine by the fireplace, a gangly six-foot-three young man in a towering blond wig, red lipstick and too-small platform pumps wobbling, the lamps dimming and a flashlight beam sliding in under the front door, wide shot",
         "choices": [
           {
             "id": "the-show-goes-on",
@@ -330,7 +330,7 @@
         "title": "The Line Is Dead",
         "place": "The Gamma Rho house in a thunderstorm, midnight",
         "text": "Rain hammers the old house. Somebody tries to order a pizza and the phone in the hall has no dial tone, only a hiss, and under the hiss a drill, far off, then close. Reggie checks the front door: screws, a whole row of them, driven in from outside. The back door: screws. Every window has a sheet of plywood over it that was not there at dinner. Chad, in pink foam curlers and a cold-cream face, whispers, \"This is the part in the movie where the phone rings and it's coming from inside the house.\" The phone rings.",
-        "art": "A dark Victorian front hall during a thunderstorm, a young man in pink curlers and white cold cream holding a ringing rotary phone, brothers in half-finished drag staring at a front door lined with screws, plywood screwed over every window",
+        "art": "A dark Victorian front hall at midnight during a thunderstorm, a gangly young man in pink foam curlers and white cold cream holding a ringing black rotary phone receiver out to a teenager, young men in half-finished drag staring at the front door lined with a row of screw heads, plywood screwed over every window, white lightning flashing through the cracks, candle and flashlight light, medium wide shot",
         "choices": [
           {
             "id": "answer-the-phone",
@@ -422,7 +422,7 @@
         "title": "The Heel Snaps",
         "place": "The shortcut through the quarry pines, Old Quarry Road, 11 p.m.",
         "text": "You are walking Chad home from a costume fitting at the Glitter Box along the shortcut through the quarry pines. He insisted on wearing the pumps, because Glory says you have to break them in, and he is wearing the wig, because it would not fit in the bag. The wind picks up. A flashlight beam flickers between the trees behind you. Then the whine of a drill, low and steady, and getting closer. Chad walks faster. Then: snap. His left heel goes, and he goes down in the pine needles, and his towering blond wig catches on a low branch and hangs there like a flag of surrender. \"Go on without me!\" he sobs, mascara running. \"Tell Glory I nailed the walk!\" The beam swings toward you both.",
-        "art": "A dark pine forest at night, a gangly young man in a sequined gown sprawled in pine needles clutching a snapped high heel, a towering blond wig dangling from a low branch above him, a teenager kneeling beside him, a flashlight beam cutting through the trees behind them",
+        "art": "A dark pine forest shortcut at eleven at night, a gangly young man in a sequined gown sprawled in the pine needles clutching a snapped high heel with mascara running down his cheeks, a towering blond wig dangling from a low branch above him, a teenager kneeling beside him, and a flashlight beam cutting between the trees behind them, wind in the pines, blue moonlight and white beam, wide shot",
         "choices": [
           {
             "id": "swap-shoes",
@@ -509,7 +509,7 @@
         "title": "I'll Be Right Back",
         "place": "The Gamma Rho house in a blackout, 1 a.m.",
         "text": "The power is out again. Ten brothers sit in a candlelit circle on the parlor floor, and Chad, in his full Lady Chadelier gown and a fresh coat of lipstick that has smeared in the panic, stands up. \"My lipstick is a disaster. I'm going to go fix it.\" He picks up a candle. \"I'll be right back.\" Every person in the room screams \"NO!\" at once. He is already gone, and not out the front door to the street. Up the stairs. From somewhere above comes the slow, patient whine of a drill.",
-        "art": "A candlelit Victorian parlor during a blackout, young men in gowns and wigs sitting in a circle on the floor screaming, a gangly young man in a towering blond wig and long gown climbing a dark staircase with a single candle",
+        "art": "A candlelit Victorian parlor during a blackout at one in the morning, ten young men in gowns and wigs sitting in a circle on the floor with their mouths open mid-scream, and a gangly young man in a towering blond wig, a long sequined gown and smeared red lipstick climbing a dark staircase holding a single candle, the top of the stairs lost in shadow, warm candlelight and black shadows, wide shot",
         "choices": [
           {
             "id": "go-in-pairs",
@@ -601,7 +601,7 @@
         "title": "The Trophy Case",
         "place": "The Gamma Rho front hall, the night before Halloween",
         "text": "The trophy case is glowing. Inside, behind the glass, are eighteen Halloweens of other people's things, each with a brass plate: RAID 1951, RAID 1958, RAID 1963. A pink sleeping bag. A diary with its little lock pried off. Spare flannel pajamas from somebody's overnight bag, folded small. A coffee can of foam curlers. And in the center, pinned to faded velvet, a blue ribbon: FIRST PLACE, INDUSTRIAL ARTS, 1966. The glass is covered in drill holes, hundreds of them, in perfect circles, not one finished. On the stairs, Dot sits with the drill across her knees, waiting. \"Go on,\" Dot Ruskin says. \"Open it. Twenty years, and nobody in this house ever wanted to.\"",
-        "art": "A glowing glass trophy case in a dim Victorian hallway holding sleeping bags, a pried-open diary, folded flannel pajamas, a coffee can of curlers and a blue ribbon pinned to velvet, the glass dotted with circles of drill holes, a see-through shop-class girl in grease-stained overalls and curlers sitting on the stairs with an old drill across her knees",
+        "art": "A dim Victorian front hall the night before Halloween, a glowing glass trophy case holding a pink sleeping bag, a small diary with its lock pried off, folded flannel pajamas, a coffee can of foam curlers and a blue ribbon pinned to faded velvet, the glass covered in hundreds of small round drill holes, and on the stairs a lanky freckled translucent teenage girl in oil-stained blue coveralls over red plaid pajamas, pink foam curlers and round amber goggles sitting with an old chrome drill across her knees, a teenager facing her, warm case glow, medium wide shot",
         "choices": [
           {
             "id": "pick-the-lock",
@@ -688,7 +688,7 @@
         "title": "The Workbench",
         "place": "The Gamma Rho cellar, which is a 1966 shop room, 2 a.m.",
         "text": "You go down to the cellar for the spare fuses and walk into 1966. The cellar is a high-school shop room now: workbenches, iron vises, a pegboard of painted tool outlines, sawdust in the lamplight. At the oldest bench, Dot Ruskin is sanding a cedar hope chest, the same corner over and over, curlers bobbing. A man's voice crackles from a speaker on the wall: \"Miss Ruskin, home economics is down the hall.\" She does not look up. \"I know where it is,\" she says. Then she looks at you, goggles up, face to face for the first time. \"You lost?\"",
-        "art": "A cellar transformed into an old high school shop room with workbenches, vises and a pegboard of painted tool outlines, a translucent teenage girl in coveralls, plaid pajamas and pink curlers sanding a cedar chest at a workbench under a hanging lamp, looking up at a teenager on the stairs",
+        "art": "A cellar transformed into a 1966 high school shop room at two in the morning, wooden workbenches, iron vises, a pegboard of painted tool outlines, sawdust in the air under a hanging lamp, a lanky freckled translucent teenage girl in oil-stained blue coveralls over red plaid pajamas with pink foam curlers sanding the corner of a cedar hope chest, amber goggles pushed up, looking up at a teenager standing on the cellar stairs, warm lamp light, medium shot",
         "choices": [
           {
             "id": "pull-up-a-stool",
@@ -768,7 +768,7 @@
         "title": "It's Just a Joke, Man",
         "place": "The Gamma Rho driveway, midnight",
         "text": "All rehearsal, Trip Thurston has been filming the brothers on his camcorder \"for the guys at State,\" zooming in on Chad's wobbling walk for laughs, then panning to the trophy case and tapping the glass. \"Harmless fun, man. My dad's year is in there. Boys will be boys. It's just a joke.\" He won't touch a wig either, but that isn't what makes the room go cold. Glory tells him the only joke in the house is his attitude. He storms out to sit in his convertible. Through the parlor window you watch the dome light flicker. The drill whines. One by one, screws go into the car doors from outside, and then the dome light goes out. When you get there the convertible is empty, its doors screwed shut, the camcorder on the seat still recording, and the front door of the house is standing open on an upstairs hallway that runs far, far too long.",
-        "art": "A convertible parked in a dark driveway with its doors studded with screws, an empty driver's seat with a camcorder glowing red, an old Victorian house behind it with its front door open on a staircase rising into an impossibly long glowing hallway",
+        "art": "A white convertible parked in a dark gravel driveway at midnight with its doors studded with fresh screws driven in from outside, an empty driver's seat with a camcorder lying on it with its small red light glowing, a teenager running up to the car, and behind it an old Victorian house with its front door standing open on a staircase rising into an impossibly long glowing hallway, porch light and blue night, wide shot",
         "choices": [
           {
             "id": "watch-the-tape",
@@ -854,7 +854,7 @@
         "title": "The Siege",
         "place": "The Gamma Rho front door, 3 a.m.",
         "text": "The drill is coming through the front door. A ring of holes is going in around the lock, one by one, each with a puff of sawdust, slow as a clock. Inside, a dozen brothers in half-finished drag, sequins and sweatpants, one false eyelash each, shove the parlor couch against the door. The trophy case glows behind them. Chad, in his wig and a fuzzy robe, is holding a curling iron like a baseball bat. \"I am a damsel,\" he announces, voice trembling, \"and I am NOT in distress.\" The fifth hole goes in. Then the sixth.",
-        "art": "A Victorian front door with a ring of fresh drill holes around the lock, sawdust puffing inward, young men in sequins, sweatpants and wigs bracing a couch against it, a young man in a blond wig and fuzzy robe brandishing a curling iron, a glowing glass trophy case behind them",
+        "art": "The inside of a Victorian front door at three in the morning, a ring of fresh drill holes appearing around the lock with puffs of sawdust blowing inward, young men in sequins, sweatpants and wigs with single false eyelashes bracing a heavy couch against the door, a gangly young man in a towering blond wig and a fuzzy pink robe gripping a curling iron in both hands over his shoulder, a glowing glass trophy case behind them, warm lamp light, medium wide shot",
         "choices": [
           {
             "id": "hold-the-door",
@@ -943,7 +943,7 @@
         "title": "Final Dress",
         "place": "The Glitter Box Playhouse, the night before Halloween, 11 p.m.",
         "text": "The last dress rehearsal before drag night, on the Glitter Box stage between the rain buckets. Glory is in the front row with a clipboard and a box of tissues. Chad is mid-number as Lady Chadelier, lip-syncing to Cher in a gown Moose hemmed by hand, giving it everything. Then every stage light dies at once. In the dark, the old follow spot in the back booth clicks on by itself, swings across the house, and pins Chad dead center in a circle of hard white light. Up in the booth, two amber goggles glow. Chad freezes, one arm still raised to the balcony.",
-        "art": "A dark theatre stage dotted with rain buckets, a gangly young man in a towering blond wig and a hand-hemmed sequined gown frozen mid-performance in a single hard circle of follow-spot light, a drag queen in the front row with a clipboard, two amber goggles glowing in the high booth",
+        "art": "A dark theater stage dotted with rain buckets at eleven at night, a gangly young man in a towering blond wig and a hand-hemmed sequined gown frozen mid-performance with one arm raised, pinned in a single hard circle of white follow-spot light, a tall drag queen in the front row with a clipboard and a box of tissues, and high in the back booth two round amber goggles glowing in the dark, wide shot",
         "choices": [
           {
             "id": "finish-the-number",
@@ -1032,7 +1032,7 @@
       "title": "Drag Night",
       "place": "The Gamma Rho house, Halloween night",
       "text": "Halloween night, and the Gamma Rho parlor is packed: Crystal Street kids in costumes, a few brave parents, a jar for the Glitter Box roof already half full. Glory Hallelujah emcees in silver sequins on a stage of card tables. The brothers are ready in full drag, wigs pinned, heels on, Lady Chadelier in front, terrified and radiant. At the stroke of midnight every light dies. Every door and window in the house screws itself shut from the outside, a hundred drills at once. The staircase stretches up into an endless glowing hallway, and down it comes Dot Ruskin, coveralls over plaid pajamas, curlers, goggles glowing, her father's drill revving, its cord running up into the dark where Trip Thurston, the brother who called it all a joke, vanished on the first night. \"Eighteen Halloweens in a glass box,\" she says, \"and you called it fun. They called me dangerous. Give it back. Say it. Or nobody leaves this house until every one of you knows how that cold yard felt.\"",
-      "art": "A packed Victorian parlor on Halloween night, kids in costumes and young men in full drag with wigs and heels in front of a card-table stage, a drag queen emcee in silver sequins, every window crossed with screwed-on boards, a see-through shop-class girl in grease-stained overalls, plaid pajamas and pink curlers coming down a staircase that rises into an endless glowing hallway, an old chrome drill revving in her raised hand, its cord trailing up into the dark",
+      "art": "A packed Victorian parlor on Halloween night, kids in costumes and a few parents crowded around a folding-table stage, young men in full drag with wigs and heels lined up in front, a tall drag queen emcee in silver sequins, every window crossed with screwed-on planks, and coming down a staircase that rises into an endless glowing hallway a lanky freckled translucent teenage girl in oil-stained blue coveralls over red plaid pajamas, pink foam curlers and glowing amber goggles holding an old chrome drill with its cord trailing up into the dark, four teenagers in costumes at the foot of the stairs, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1206,22 +1206,22 @@
       "best": {
         "title": "Opening Night",
         "text": "Dot asks for a hammer. At one in the morning, with Halloween barely over, the whole parlor holding boards and passing nails, she builds the drag night a real stage: pine planks, a proper apron, steps with hand-cut dovetails, and footlights wired off her father's drill, which is just a tool again, humming the way it was meant to. Trip comes down out of the endless hallway with sawdust in his hair, picks up the 1966 brass plate with his father's name on it, walks straight up to Dot and says the two words himself: \"I'm sorry.\" Later, when Chad holds out a spare wig, Trip takes it and asks him, quietly, to teach him the walk. Lady Chadelier opens the show on Dot's stage, and Dot runs the light. At dawn she signs the underside of the stage, D.R. 1986, sets the drill on the cellar workbench, and walks down Old Quarry Road into the sunrise with her ribbon on, smiling, finished at last. Drag night raises enough to fix the Glitter Box roof twice over. That winter Gamma Rho takes down the trophy case and mails every trophy back to the women it belongs to, with a letter. The Gazette prints a correction. And next spring Glimmer Falls High hands out its first Dorothy Ruskin Blue Ribbon for joinery. The winner is a girl.",
-        "art": "A translucent girl in coveralls and pink curlers wearing a blue ribbon, kneeling on a freshly built pine stage in a Victorian parlor with an old chrome drill in her hand, young men in sequined gowns and wigs holding up boards beside her, one in a towering blond wig striking a pose under warm footlights, a drag queen in silver sequins applauding, dawn light through unboarded windows"
+        "art": "A lanky freckled translucent girl in blue coveralls and pink curlers wearing a blue ribbon on her chest, kneeling on a freshly built pine stage in a Victorian parlor with an old chrome drill in her hand, young men in sequined gowns and wigs holding up boards beside her, a gangly one in a towering blond wig posing under warm footlights, a young man in a letterman jacket holding a hammer, a tall drag queen in silver sequins applauding, pink dawn light through unboarded windows, wide shot"
       },
       "good": {
         "title": "Lights Up",
         "text": "At dawn the screws back out of every door and window and fall to the floor like hail, and Gamma Rho staggers out into the sunshine in sequins and smeared lipstick. Trip is found on the porch swing, wrapped in a pink sleeping bag from 1958, shivering and very quiet. Drag night goes on the next weekend, and it is wonderful, and the Glitter Box gets a new roof. But the trophy case stays in the front hall, and the brothers learn to walk past it again. Every so often, a pledge dusting the glass finds a tiny, perfect drill hole in it that was not there the day before.",
-        "art": "Exhausted young men in sequined gowns and smeared lipstick stumbling out of a Victorian house into morning sunlight, screws scattered on the porch, a young man wrapped in a pink sleeping bag on the porch swing, a glowing glass trophy case visible through the open door"
+        "art": "Exhausted young men in sequined gowns and smeared lipstick stumbling out of a Victorian house onto the porch into bright morning sunlight, loose screws scattered across the porch boards, a pale young man wrapped in a pink sleeping bag on the porch swing, a glowing glass trophy case visible through the open front door, warm morning light, wide shot"
       },
       "bittersweet": {
         "title": "Righty Tighty",
         "text": "You get the brothers out through a cellar window at dawn, and Dot lets you go. But she keeps the house. Every door of the Gamma Rho house stays screwed shut from the outside, the college condemns it by Christmas, and drag night is cancelled, so the Glitter Box keeps its buckets one more winter. Trip comes back, but he never talks about the hallway. Out on Old Quarry Road the boarded house sits empty, and on its top porch step stands a coffee can of pink curlers that nobody in town will touch.",
-        "art": "A boarded-up Victorian house at the end of a dark country road, every door and window crossed with screwed-on planks, a coffee can of pink foam curlers sitting alone on the top porch step, dark pines behind"
+        "art": "A boarded-up Victorian house at the end of a dark country road at dusk, every door and window crossed with planks fastened by rows of screws, a coffee can of pink foam curlers sitting alone on the top porch step, tall dark pines behind, a teenager standing at the gate, gray dusk light, wide shot"
       },
       "bad": {
         "title": "The Long Hallway",
         "text": "The hallway takes you, and it takes Trip, still clutching his camcorder. At the last second you shoved Chad toward the stairs, and he made it down. You are not hurt. You are just upstairs, in a hallway of identical doors that never ends, walking side by side with Trip in a flashlight beam, looking for the way down. Lady Chadelier opens every Glitter Box show after that with an empty chair saved in the front row. And the new pledges of Gamma Rho hear two voices upstairs, one calling \"I'll be right back!\" and the other begging him not to say it.",
-        "art": "An endless dim Victorian hallway of identical doors in a single flashlight beam, a teenager and a young man in a letterman jacket holding a camcorder walking side by side away down it, the faint amber glow of goggles far behind them"
+        "art": "An endless dim Victorian hallway of identical doors lit by a single flashlight beam, a teenager and a young man in a letterman jacket clutching a camcorder walking side by side away down it, faded floral wallpaper, and far behind them the faint glow of two round amber goggles, long one-point view down the hall"
       }
     }
   }

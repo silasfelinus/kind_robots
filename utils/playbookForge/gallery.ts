@@ -108,9 +108,11 @@ export function galleryEntry(
     variations: node.variations,
     choices: node.choices,
     artVariants: node.artVariants ?? [],
-    group: node.kind === 'follower' && node.lenses[0]?.includes('-')
-      ? node.lenses[0].split('-')[0]!.replace(/^./, (letter) => letter.toUpperCase())
-      : 'Cast',
+    group: node.kind === 'follower' && node.lenses[0] === 'guest'
+      ? 'Visitors'
+      : node.kind === 'follower' && node.lenses[0]?.includes('-')
+        ? node.lenses[0].split('-')[0]!.replace(/^./, (letter) => letter.toUpperCase())
+        : 'Cast',
   }
 }
 

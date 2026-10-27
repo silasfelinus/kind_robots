@@ -16,10 +16,14 @@ import {
   finishVoyage,
   launchMission,
   nextDestination,
+  beginCrewDetour,
+  resolveCrewDetour,
   restoreVoyage,
   startVoyage,
   type CaptainId,
   type CrewId,
+  type DetourApproach,
+  type FinaleStrategy,
   type PolicyId,
   type PocketRoom,
   type VoyageRun,
@@ -103,7 +107,17 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = applyRomanceChoice(run.value, choice)
     persist()
   }
-  function finish(strategy: 'protect' | 'compromise') {
+  function detour(crewId: CrewId) {
+    if (!run.value) return
+    run.value = beginCrewDetour(run.value, crewId)
+    persist()
+  }
+  function resolveDetour(approach: DetourApproach) {
+    if (!run.value) return
+    run.value = resolveCrewDetour(run.value, approach)
+    persist()
+  }
+  function finish(strategy: FinaleStrategy) {
     if (!run.value) return
     run.value = relationshipEpilogue(finishVoyage(run.value, strategy))
     persist()
@@ -127,6 +141,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     decide,
     next,
     chooseRomance,
+    detour,
+    resolveDetour,
     finish,
     restart,
   }

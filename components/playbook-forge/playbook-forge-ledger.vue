@@ -139,9 +139,10 @@
         class="text-xs leading-snug tabular-nums text-warning"
         role="status"
       >
-        Extra game images verified: {{ formatCount(ledger.extraArt.delivered) }} /
-        {{ formatCount(ledger.extraArt.total) }} (choice outcomes, portraits, villain art and items).
-        SVG fallback scenes are not completed paintings.
+        Extra game images verified:
+        {{ formatCount(ledger.extraArt.delivered) }} /
+        {{ formatCount(ledger.extraArt.total) }} (choice outcomes, portraits,
+        villain art and items). SVG fallback scenes are not completed paintings.
       </p>
       <ul
         class="grid grid-cols-3 gap-x-4 gap-y-2 @3xl:grid-cols-6"

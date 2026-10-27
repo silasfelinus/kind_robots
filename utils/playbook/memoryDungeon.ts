@@ -4,6 +4,7 @@ import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from '../memoryDungeon/darkBriar'
 import { DARK_HOUSE_ROOMS } from '../memoryDungeon/darkHouse'
 import { DARK_HOUSE_TRIALS } from '../memoryDungeon/darkHouseChallenges'
 import { HOUSE_ROOMS } from '../memoryDungeon/house'
+import { BRIAR_QUESTS } from '../memoryDungeon/briarQuests'
 import {
   HOUSE_EPILOGUES,
   HOUSE_EPILOGUE_LENS_LABELS,
@@ -126,6 +127,29 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       ),
     )
   }
+
+  // World One's side quests: threads across Briar scenes and House rooms.
+  const quests = BRIAR_QUESTS.map((quest) => {
+    const key = add(
+      scene(`briar-quest:${quest.id}`, 'quest', quest.title, {
+        place: `Briar Marches · ${quest.giver}`,
+        chapter: 1,
+        body: [
+          quest.hook,
+          ...quest.steps.map(
+            (step) =>
+              `${step.scope === 'house' ? 'House' : 'Briar'} ${step.key}: ${step.text}`,
+          ),
+          quest.complete,
+          quest.closed,
+        ],
+        artPrompt: quest.artPrompt,
+        artPath: quest.artPath,
+      }),
+    )
+    nodes[key]!.lenses = [quest.lens]
+    return key
+  })
 
   // The House beneath the Briar: thirty-six rooms, the Warden, three Hearth resolutions.
   const house: string[] = []
@@ -308,7 +332,12 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     headings: { 0: heading },
   })
   const routes = [
-    route('briar', 'Briar Marches', briar, 'World one: the Briar Marches'),
+    route(
+      'briar',
+      'Briar Marches',
+      [...briar, ...quests],
+      'World one: the Briar Marches',
+    ),
     route(
       'house',
       'The House',
@@ -328,7 +357,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     game: 'memory-dungeon',
     title: 'Memory Dungeon',
     blurb:
-      'Two 8×8 worlds and their Houses: 64 Briar scenes, 36 rooms, the Dark Briar, the Dark House, twelve House epilogues and two Dark House verdicts.',
+      'Two 8×8 worlds and their Houses: 64 Briar scenes, eight side quests, 36 rooms, the Dark Briar, the Dark House, twelve House epilogues and two Dark House verdicts.',
     routes,
     nodes,
     order: storyOrder(routes, [...photos, ...monsters]),
@@ -343,6 +372,12 @@ export function buildMemoryDungeonPlaybook(): Playbook {
         title: 'Memory Hearth resolutions',
         blurb: 'The three promises the House will keep.',
         keys: houseEndings,
+      },
+      {
+        title: 'Side quests',
+        blurb:
+          'Eight threads across the Briar and the House, taken or closed by the choices made along them.',
+        keys: quests,
       },
       {
         title: 'Earth photographs',

@@ -4,6 +4,7 @@ import {
   type HouseProgress,
   type HouseRoomId,
 } from './house'
+import { briarQuestLog } from './briarQuests'
 
 /**
  * The twelve House epilogues: the three Memory Hearth resolutions, each told
@@ -31,7 +32,8 @@ export const HOUSE_EPILOGUE_LENS_LABELS: Record<HouseEpilogueLens, string> = {
 type Signal = readonly [scope: 'house' | 'briar', key: string, choice: string]
 
 /**
- * Each lens is earned by the choices that built it. Ties go to the earlier
+ * Each lens is earned by the choices that built it, and by every World One
+ * side quest finished for it (utils/memoryDungeon/briarQuests.ts). Ties go to the earlier
  * lens in HOUSE_EPILOGUE_LENSES order. The Hearth (HD-35) and the exit
  * (HD-36) are left out on purpose: the epilogue is fixed the moment the
  * resolution is chosen.
@@ -235,6 +237,9 @@ export function houseEpilogueScores(
         choice
       )
         scores[lens] += 1
+  // A finished side quest weighs on the road it was walked for.
+  for (const thread of briarQuestLog(briarDecisions, progress.decisions))
+    if (thread.state === 'complete') scores[thread.quest.lens] += 1
   return scores
 }
 

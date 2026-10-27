@@ -78,6 +78,9 @@ jobs:
       - name: Memory Dungeon House twelve earned epilogues, reachability and saves
         run: npx tsx utils/scripts/verifyMemoryHouseEpilogues.test.ts
 
+      - name: Memory Dungeon World One side quests, closures and epilogue weight
+        run: npx tsx utils/scripts/verifyMemoryBriarQuests.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 

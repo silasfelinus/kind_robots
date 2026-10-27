@@ -95,7 +95,11 @@ export function academyStageArt(run: AcademyRun | null): string | null {
     ['dispatch', 'debrief'].includes(run.phase) &&
     run.personalHistory?.some((entry) => entry.day === run.day)
   ) {
-    const key = personalOutcomeArtKey(run.signature, run.personalHistory, run.day)
+    const key = personalOutcomeArtKey(
+      run.signature,
+      run.personalHistory,
+      run.day,
+    )
     const art = key ? promArt(key) : null
     if (art) return art
   }

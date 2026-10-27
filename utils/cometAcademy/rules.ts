@@ -1,4 +1,8 @@
-import { missionReaction, missionRoute, reactionSuitability } from './missionTeams'
+import {
+  missionReaction,
+  missionRoute,
+  reactionSuitability,
+} from './missionTeams'
 import {
   openingRouteFor,
   isVowMemory,
@@ -181,33 +185,63 @@ export const STUDENTS = [
     introSite: 'botanical-conservatory',
   },
   {
-    id: 'veda', name: 'Professor Veda Cross', title: 'Disgraced stunt instructor',
-    skill: 'kinetic', portrait: 'VC', origin: 'faculty', introSite: 'training-arena',
+    id: 'veda',
+    name: 'Professor Veda Cross',
+    title: 'Disgraced stunt instructor',
+    skill: 'kinetic',
+    portrait: 'VC',
+    origin: 'faculty',
+    introSite: 'training-arena',
     note: 'An ex-stunt hero taking one last shot at glory; hates being sidelined.',
   },
   {
-    id: 'mara', name: 'Mara Fen', title: 'Transit union organizer',
-    skill: 'spatial', portrait: 'MF', origin: 'city', introSite: 'transit-union',
+    id: 'mara',
+    name: 'Mara Fen',
+    title: 'Transit union organizer',
+    skill: 'spatial',
+    portrait: 'MF',
+    origin: 'city',
+    introSite: 'transit-union',
     note: 'Trusts shift workers more than academy legends and refuses publicity stunts.',
   },
   {
-    id: 'drift', name: 'DRIFT-9', title: 'Escaped biotech experiment',
-    skill: 'biotech', portrait: 'D9', origin: 'experiment', introSite: 'transit-lab',
+    id: 'drift',
+    name: 'DRIFT-9',
+    title: 'Escaped biotech experiment',
+    skill: 'biotech',
+    portrait: 'D9',
+    origin: 'experiment',
+    introSite: 'transit-lab',
     note: 'A lab-grown adult person, not a specimen; fiercely protective of fellow escapees.',
   },
   {
-    id: 'tessel', name: 'Tessel Mire', title: 'Dimensional castaway',
-    skill: 'elemental', portrait: 'TM', origin: 'anomaly', introSite: 'skyport',
+    id: 'tessel',
+    name: 'Tessel Mire',
+    title: 'Dimensional castaway',
+    skill: 'elemental',
+    portrait: 'TM',
+    origin: 'anomaly',
+    introSite: 'skyport',
     note: 'A displaced traveler who can hear weather on the other side of a portal.',
   },
   {
-    id: 'jo', name: 'Jo Mercer', title: 'Underground broadcaster',
-    skill: 'technopathy', portrait: 'JM', origin: 'city', introSite: 'media-spire',
+    id: 'jo',
+    name: 'Jo Mercer',
+    title: 'Underground broadcaster',
+    skill: 'technopathy',
+    portrait: 'JM',
+    origin: 'city',
+    introSite: 'media-spire',
     note: 'Will expose a cover-up, even if the revelation wrecks their reputation.',
   },
   {
-    id: 'lark', name: 'Lark Sato', title: 'Civic hospital night medic',
-    skill: 'empathy', portrait: 'LS', origin: 'city', introSite: 'civic-hospital',
+    id: 'lark',
+    name: 'Lark Sato',
+    title: 'Civic hospital night medic',
+    skill: 'empathy',
+    portrait: 'LS',
+    origin: 'city',
+    introSite: 'civic-hospital',
     note: 'Treats people ignored by famous heroes, including those labeled villains.',
   },
 ] as const
@@ -674,11 +708,21 @@ export function knownContacts(run: AcademyRun): StudentId[] {
 const STORY_LOCK_DAYS = [8, 11, 15, 16, 17, 20, 23, 24, 26, 29]
 
 export function recruitableContact(run: AcademyRun) {
-  if (run.flowVersion !== 3 || run.phase !== 'campus' || !run.selectedSite ||
-      run.day >= 29 || STORY_LOCK_DAYS.includes(run.day)) return null
-  return STUDENTS.find((person) =>
-    person.introSite === run.selectedSite && !knownContacts(run).includes(person.id),
-  ) ?? null
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'campus' ||
+    !run.selectedSite ||
+    run.day >= 29 ||
+    STORY_LOCK_DAYS.includes(run.day)
+  )
+    return null
+  return (
+    STUDENTS.find(
+      (person) =>
+        person.introSite === run.selectedSite &&
+        !knownContacts(run).includes(person.id),
+    ) ?? null
+  )
 }
 
 export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
@@ -777,7 +821,9 @@ export function assignTeam(
     return run
   if (
     run.flowVersion === 3 &&
-    selected.some((id) => !knownContacts(run).includes(id) || !studentAvailable(run, id))
+    selected.some(
+      (id) => !knownContacts(run).includes(id) || !studentAvailable(run, id),
+    )
   )
     return run
   const remaining = run.assignments.filter(
@@ -797,41 +843,109 @@ export function assignTeam(
   }
 }
 
-export function dispatchModifier(run: AcademyRun, incident: Incident, students: readonly StudentId[]): number {
-  const affinity = students.some((id) => STUDENTS.find((person) => person.id === id)?.skill === incident.need)
+export function dispatchModifier(
+  run: AcademyRun,
+  incident: Incident,
+  students: readonly StudentId[],
+): number {
+  const affinity = students.some(
+    (id) =>
+      STUDENTS.find((person) => person.id === id)?.skill === incident.need,
+  )
   const cityStanding = run.cityStanding ?? 0
   const academyStanding = run.academyStanding ?? 0
-  const civicSupport = [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-    ? incident.allegiance === 'villain' ? cityStanding <= -2 ? 1 : cityStanding >= 2 ? -1 : 0
-      : cityStanding >= 2 ? 1 : cityStanding <= -2 ? -1 : 0 : 0
-  const academySupport = [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-    ? academyStanding >= 2 ? 1 : academyStanding <= -2 ? -1 : 0 : 0
+  const civicSupport =
+    [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+      ? incident.allegiance === 'villain'
+        ? cityStanding <= -2
+          ? 1
+          : cityStanding >= 2
+            ? -1
+            : 0
+        : cityStanding >= 2
+          ? 1
+          : cityStanding <= -2
+            ? -1
+            : 0
+      : 0
+  const academySupport =
+    [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+      ? academyStanding >= 2
+        ? 1
+        : academyStanding <= -2
+          ? -1
+          : 0
+      : 0
   const reportedNetwork = run.plotEvidence?.length ?? 0
-  const activeNetwork = run.flowVersion === 3 && run.day >= 11 &&
+  const activeNetwork =
+    run.flowVersion === 3 &&
+    run.day >= 11 &&
     reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
-  const sabotagePenalty = activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
-  const identityPressure = run.flowVersion === 3 && run.day >= 15 &&
-    incident.allegiance !== 'villain' ? opponentPressure(run.signature, run.opponentSignature) : 0
-  const response = run.flowVersion === 3 ? Math.max(-2, Math.min(2, students.reduce((total, id) =>
-    total + reactionSuitability(missionReaction(id, incident.id).mood), 0))) : 0
-  const route = run.flowVersion === 3 ? missionRoute(incident.id, students) : null
-  return students.length + (affinity ? 2 : 0) + (run.power === incident.need ? 1 : 0) +
-    civicSupport + academySupport - sabotagePenalty - identityPressure +
-    (run.flowVersion === 3 ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
-      socialMissionBonus(run.relationships, [...students]) : 0) +
-    response + (route?.boost ?? 0)
+  const sabotagePenalty =
+    activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
+  const identityPressure =
+    run.flowVersion === 3 && run.day >= 15 && incident.allegiance !== 'villain'
+      ? opponentPressure(run.signature, run.opponentSignature)
+      : 0
+  const response =
+    run.flowVersion === 3
+      ? Math.max(
+          -2,
+          Math.min(
+            2,
+            students.reduce(
+              (total, id) =>
+                total +
+                reactionSuitability(missionReaction(id, incident.id).mood),
+              0,
+            ),
+          ),
+        )
+      : 0
+  const route =
+    run.flowVersion === 3 ? missionRoute(incident.id, students) : null
+  return (
+    students.length +
+    (affinity ? 2 : 0) +
+    (run.power === incident.need ? 1 : 0) +
+    civicSupport +
+    academySupport -
+    sabotagePenalty -
+    identityPressure +
+    (run.flowVersion === 3
+      ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
+        socialMissionBonus(run.relationships, [...students])
+      : 0) +
+    response +
+    (route?.boost ?? 0)
+  )
 }
 
-export function dispatchChance(run: AcademyRun, caseId: string, students: readonly StudentId[]): number {
+export function dispatchChance(
+  run: AcademyRun,
+  caseId: string,
+  students: readonly StudentId[],
+): number {
   const incident = incidentsFor(run).find((item) => item.id === caseId)
-  if (!incident || !students.length || students.length > 3 ||
-      new Set(students).size !== students.length ||
-      students.some((id) => !STUDENTS.some((member) => member.id === id) ||
-        (run.flowVersion === 3 && !studentAvailable(run, id)))) return 0
+  if (
+    !incident ||
+    !students.length ||
+    students.length > 3 ||
+    new Set(students).size !== students.length ||
+    students.some(
+      (id) =>
+        !STUDENTS.some((member) => member.id === id) ||
+        (run.flowVersion === 3 && !studentAvailable(run, id)),
+    )
+  )
+    return 0
   const baseline = dispatchModifier(run, incident, students)
-  return Math.round(100 * [0, 1, 2, 3, 4, 5].filter(
-    (roll) => roll + baseline >= incident.risk,
-  ).length / 6)
+  return Math.round(
+    (100 *
+      [0, 1, 2, 3, 4, 5].filter((roll) => roll + baseline >= incident.risk)
+        .length) /
+      6,
+  )
 }
 
 export function resolveDispatch(run: AcademyRun): AcademyRun {
@@ -857,11 +971,19 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       }
     }
     const roll =
-      hash(run.seed, `${run.day}:${incident.id}:${assignment.students.join(',')}`) % 6
+      hash(
+        run.seed,
+        `${run.day}:${incident.id}:${assignment.students.join(',')}`,
+      ) % 6
     const score = roll + dispatchModifier(run, incident, assignment.students)
-    const villain = run.flowVersion === 3 ? campaignVillain(run.seed, run.mastermind) : undefined
+    const villain =
+      run.flowVersion === 3
+        ? campaignVillain(run.seed, run.mastermind)
+        : undefined
     const reportedNetwork = run.plotEvidence?.length ?? 0
-    const activeNetwork = run.flowVersion === 3 && run.day >= 11 &&
+    const activeNetwork =
+      run.flowVersion === 3 &&
+      run.day >= 11 &&
       reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
     const grade: Grade =
       score >= incident.risk + 4
@@ -911,12 +1033,17 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     const textWithBonds = bondedSupport
       ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
       : baseText
-    const special = run.flowVersion === 3 ? missionRoute(incident.id, assignment.students) : null
+    const special =
+      run.flowVersion === 3
+        ? missionRoute(incident.id, assignment.students)
+        : null
     const text =
       sabotagedBy && incident.allegiance !== 'villain'
         ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
         : textWithBonds
-    const resolvedText = special ? `${text} SPECIAL ROUTE: ${special.label}. ${special.result}` : text
+    const resolvedText = special
+      ? `${text} SPECIAL ROUTE: ${special.label}. ${special.result}`
+      : text
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -1319,7 +1446,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
           (!Array.isArray(data.contacts) ||
             data.contacts.length > STUDENTS.length ||
             new Set(data.contacts).size !== data.contacts.length ||
-            data.contacts.some((id) => !STUDENTS.some((person) => person.id === id)))) ||
+            data.contacts.some(
+              (id) => !STUDENTS.some((person) => person.id === id),
+            ))) ||
         (data.mastermind !== undefined &&
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
         (data.relationships !== undefined &&

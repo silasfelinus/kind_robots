@@ -3,9 +3,10 @@ import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
-import type {
-  SignaturePowerId,
-  PowerVowId,
+import {
+  signatureById,
+  type SignaturePowerId,
+  type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
 import type { SocialActionId } from '~/utils/cometAcademy/relationships'
@@ -89,7 +90,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
         const parsed: unknown = JSON.parse(history)
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           for (const [key, value] of Object.entries(parsed)) {
-            if (!value || typeof value !== 'object') continue
+            if (!signatureById(key) || !value || typeof value !== 'object' || Array.isArray(value)) continue
             const entry = value as Partial<AcademyYearbookEntry>
             yearbook.value[key] = {
               plays:
@@ -111,6 +112,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
           }
         }
       }
+    } catch {
+      storageWarning.value =
+        'Your Yearbook could not be read. Your current term is still available.'
+    }
+    try {
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreAcademy(raw ? JSON.parse(raw) : null)
       if (run.value?.signature && !yearbook.value[run.value.signature])

@@ -4,6 +4,7 @@ import {
   relationshipEpilogue,
   type RomanceChoiceId,
 } from '~/utils/gameOfCaptains/romance'
+import { chooseCaptainInstinct, type CaptainInstinctChoice } from '~/utils/gameOfCaptains/captainInstincts'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
@@ -78,6 +79,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = chooseMission(run.value, missionId)
     persist()
   }
+  function captainAction(choice: CaptainInstinctChoice) {
+    if (!run.value) return
+    run.value = chooseCaptainInstinct(run.value, choice)
+    persist()
+  }
   function chooseRoom(room: PocketRoom | null) {
     if (!run.value) return
     run.value = configurePocketRoom(run.value, room)
@@ -141,6 +147,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     begin,
     assign,
     chooseRoom,
+    captainAction,
     chartMission,
     rechargeShield,
     launch,

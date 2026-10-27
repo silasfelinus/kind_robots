@@ -305,7 +305,7 @@
                 data-testid="space-couch-travel"
                 @click="store.travel()"
               >
-                TRAVEL TO {{ mission.system.toUpperCase() }} <span>➜</span>
+                TRAVEL TO {{ localSystem.name.toUpperCase() }} <span>➜</span>
               </button>
               <p v-if="(run.redshirtFallen ?? []).length">
                 Fallen redshirts: {{ run.redshirtFallen?.length }}. Personnel
@@ -353,8 +353,8 @@
               :aria-label="actLabel + ' galaxy navigation'"
             >
               <div class="cap-route-heading">
-                <span>{{ actLabel.toUpperCase() }} / STAR ROUTES</span>
-                <strong>CHOOSE ONE CALL</strong>
+                <span>{{ actLabel.toUpperCase() }} / LOCAL DISTRICTS</span>
+                <strong>CHOOSE ONE LOCAL CALL</strong>
               </div>
               <div class="cap-route-grid">
                 <button
@@ -578,7 +578,7 @@
             <div class="cap-heading">
               <span>✦</span>
               <div>
-                <h2>The couch approaches {{ mission.system }}</h2>
+                <h2>The couch approaches {{ localSystem.name }}</h2>
                 <p>
                   TRAVEL / SHIP DAY {{ run.day }} · THE MINIATURIZED BARRACKS
                 </p>
@@ -618,7 +618,7 @@
             <div class="cap-heading">
               <span>✦</span>
               <div>
-                <h2>{{ mission.system }}: a galaxy of dreadful decisions</h2>
+                <h2>{{ localSystem.name }}: a galaxy of dreadful decisions</h2>
                 <p>
                   EXPEDITION / SHIP DAY {{ run.day }} · CAPTAIN + THREE OFFICERS
                   + REDSHIRTS

@@ -238,3 +238,56 @@ export function afterHoursIncident(seed: number, chapter: number, system: SolarS
 export function sceneForChoice(beat: VenueBeat, choice: CasinoChoice): string {
   return beat[choice === 'ask' ? 'ask' : choice === 'document' ? 'document' : 'override']
 }
+
+/**
+ * Complete one interactive casino or bar quest action. The player can finish
+ * a franchise's three-act story during one stop; subsequent visits draw
+ * new seeded after-hours dilemmas, never an empty location.
+ */
+export function visitCasinoVenue(
+  run: import('./rules').VoyageRun,
+  venue: 'bar' | 'casino',
+  choice: CasinoChoice,
+): import('./rules').VoyageRun {
+  if (run.phase !== 'expedition' || !['ask', 'document', 'override'].includes(choice))
+    return run
+  const system = chapterSystem(run.seed, run.chapter)
+  const state = run.venueProgress ?? newVenueProgress()
+  const completed = [...state.completed]
+  const stage = Math.min(3, state.barBeats[system.id] ?? 0)
+  const key = `${run.chapter}:${system.id}:${venue}`
+  if (completed.includes(key)) return run
+  const narrative =
+    venue === 'bar' && stage < 3
+      ? sceneForChoice(system.franchise.beats[stage]!, choice)
+      : venue === 'bar'
+        ? afterHoursIncident(run.seed, run.chapter, system)
+        : casinoIncident(run.seed, run.chapter, system).description
+  const reaction =
+    choice === 'ask'
+      ? `${system.giant} was asked directly; the host's response is entered into the decision, rather than assumed.`
+      : choice === 'document'
+        ? `The evidence is filed publicly so the blue hosts and local workers can challenge the terms.`
+        : `The captain intervenes without a full agreement. Some workers cheer; ${system.giant} asks who decided this was help.`
+  if (venue === 'casino' || stage >= 2) completed.push(key)
+  const nextStage = venue === 'bar' && stage < 3 ? stage + 1 : stage
+  const scene = `${narrative} ${reaction}`
+  return {
+    ...run,
+    venueProgress: {
+      barBeats: { ...state.barBeats, [system.id]: nextStage },
+      completed,
+      choices: [
+        ...state.choices,
+        { systemId: system.id, chapter: run.chapter, venue, choice, scene },
+      ],
+    },
+    supplies: Math.max(0, run.supplies + (choice === 'ask' ? -1 : choice === 'override' ? 1 : 0)),
+    trust: Math.max(0, run.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0)),
+    reputation: run.reputation + (choice === 'document' ? 1 : 0),
+    intervention: run.intervention + (choice === 'override' ? 1 : 0),
+    worldFlags: [...(run.worldFlags ?? []), `casino:${system.id}:${venue}:${choice}`],
+    scene,
+    log: [...run.log, `Ship day ${run.day ?? run.chapter}: ${system.franchise.name} on ${system.giant}'s occupied body. ${scene}`],
+  }
+}

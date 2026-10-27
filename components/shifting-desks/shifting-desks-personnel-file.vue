@@ -11,7 +11,7 @@
         <p
           class="truncate font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
         >
-          Consolidated Wellness &amp; Defense · Personnel File #4471
+          Consolidated Wellness &amp; Defense · Personnel File #{{ filedReceipt?.id ?? 'Pending' }}
           <span v-if="daily" class="text-amber-800">
             · Daily Memo {{ dailyLabel(daily) }}</span
           >
@@ -318,10 +318,11 @@
       </button>
       <button
         type="button"
-        class="btn btn-outline btn-sm max-sm:hidden sm:btn-md"
+        v-if="filedReceipt"
+        class="btn btn-outline btn-sm sm:btn-md"
         @click="printFile"
       >
-        <icon name="kind-icon:document" size="1rem" /> Print your file
+        <icon name="kind-icon:document" size="1rem" /> Print / Save PDF
       </button>
       <button
         v-if="store.archiveUnlocked"
@@ -343,7 +344,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import {
   DEPARTMENTS,
   DEPARTMENT_FLOORS,
@@ -416,6 +417,11 @@ const nextMilestoneProgress = computed(() =>
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const BOTTOM_FLOOR = 5
 const epilogue = computed(() => (run.value ? endingFor(run.value) : null))
+const filedReceipt = computed(() =>
+  store.rewardArchive.runs.find(
+    (receipt) => receipt.id === `${run.value?.seed}:${epilogue.value?.id}`,
+  ) ?? null,
+)
 const epilogueLines = computed(() =>
   run.value && epilogue.value ? endingLines(run.value, epilogue.value) : [],
 )
@@ -522,7 +528,10 @@ async function shareDaily(): Promise<void> {
   }
 }
 
-function printFile(): void {
+async function printFile(): Promise<void> {
+  if (!filedReceipt.value) return
+  store.selectPrintReceipt(filedReceipt.value)
+  await nextTick()
   window.print()
 }
 </script>

@@ -64,6 +64,17 @@ import {
   signatureFor,
 } from '../cometAcademy/specialPowers'
 import {
+  PERSONAL_ARCS,
+  PERSONAL_CHAPTER_DAYS,
+  personalEncounter,
+  personalArcFor,
+  personalCounterpart,
+  personalEnding,
+  personalOutcomeArt,
+  personalOutcomeModifier,
+  isValidPersonalHistory,
+} from '../cometAcademy/identitySerial'
+import {
   openingRouteFor,
   openingRouteDays,
   routeStanding,
@@ -1499,6 +1510,148 @@ assert.ok(
     ?.text.includes('The Union Override'),
 )
 
+assert.equal(PERSONAL_ARCS.length, 48)
+assert.deepEqual(PERSONAL_CHAPTER_DAYS, [4, 12, 21, 27])
+assert.equal(new Set(PERSONAL_ARCS.map((arc) => arc.signature)).size, 48)
+assert.equal(new Set(PERSONAL_ARCS.map((arc) => arc.secret)).size, 48)
+assert.equal(new Set(PERSONAL_ARCS.map((arc) => arc.relationship)).size, 48)
+assert.equal(new Set(PERSONAL_ARCS.map((arc) => arc.betrayal)).size, 48)
+assert.equal(new Set(PERSONAL_ARCS.map((arc) => arc.fallout)).size, 48)
+const uniqueScenes = new Set<string>()
+for (const identity of IDENTITY_ARCS) {
+  const id = identity.signature
+  const peer = personalCounterpart(id)
+  assert.notEqual(peer.signature, id)
+  assert.equal(personalCounterpart(peer.signature).signature, id)
+  assert.equal(personalArcFor(id).signature, id)
+  let narrativeRun = startFullAcademy(fieldFor(id), 742, id, 'shelter')
+  for (const [day, option] of [
+    [4, 'investigate'],
+    [12, 'court'],
+    [21, 'expose'],
+    [27, 'hero'],
+  ] as const) {
+    const campus = {
+      ...narrativeRun,
+      day,
+      phase: 'campus' as const,
+      selectedSite: 'academy-roof' as const,
+    }
+    const episode = personalEncounter(campus)
+    assert.ok(episode)
+    assert.ok(episode.scene.includes(identity.realName))
+    assert.ok(episode.scene.includes(peer.realName))
+    assert.equal(episode.options.length, 3)
+    assert.ok(episode.options.some((choice) => choice.id === option))
+    assert.ok(encounterFor(campus).scene.includes(identity.realName))
+    uniqueScenes.add(episode.scene)
+    narrativeRun = chooseEncounter(campus, option)
+    assert.equal(narrativeRun.phase, 'dispatch')
+    assert.equal(narrativeRun.identityHistory?.at(-1)?.choice, option)
+    assert.deepEqual(
+      restoreAcademy(JSON.parse(JSON.stringify(narrativeRun))),
+      narrativeRun,
+    )
+  }
+  assert.equal(narrativeRun.identityHistory?.length, 4)
+  assert.equal(
+    personalOutcomeArt(narrativeRun),
+    'identities/' + id + '/outcomes/hero',
+  )
+  assert.ok(personalEnding(narrativeRun).includes(identity.realName))
+  assert.ok(personalEnding(narrativeRun).includes(peer.realName))
+  const villainRun = {
+    ...narrativeRun,
+    identityHistory: [
+      { day: 4 as const, choice: 'conceal' as const },
+      { day: 12 as const, choice: 'distance' as const },
+      { day: 21 as const, choice: 'leverage' as const },
+      { day: 27 as const, choice: 'villain' as const },
+    ],
+  }
+  assert.equal(
+    personalOutcomeArt(villainRun),
+    'identities/' + id + '/outcomes/villain',
+  )
+  assert.ok(personalEnding(villainRun).includes(identity.villain.alias))
+  assert.ok(personalEnding(villainRun).includes('broken promise'))
+  assert.ok(
+    personalOutcomeModifier(narrativeRun.identityHistory) >
+      personalOutcomeModifier(villainRun.identityHistory),
+  )
+  const betrayalScene = personalOutcomeArt({
+    ...villainRun,
+    identityHistory: villainRun.identityHistory.slice(0, 3),
+  })
+  assert.equal(betrayalScene, 'identities/' + id + '/outcomes/betrayal')
+  assert.equal(
+    personalOutcomeArt({
+      ...narrativeRun,
+      identityHistory: narrativeRun.identityHistory!.slice(0, 2),
+    }),
+    'identities/' + id + '/outcomes/partner',
+  )
+  const finale = finishAcademy(
+    { ...narrativeRun, day: 30, phase: 'finale' },
+    'share',
+  )
+  assert.ok(finale.scene.includes(personalArcFor(id).fallout))
+  assert.ok(finale.scene.includes(peer.realName))
+}
+assert.equal(uniqueScenes.size, 48 * 4)
+const samplePersonal = startFullAcademy(
+  fieldFor('accident-fire'),
+  12,
+  'accident-fire',
+)
+assert.equal(
+  isValidPersonalHistory([{ day: 4, choice: 'investigate' }], 4),
+  true,
+)
+assert.equal(isValidPersonalHistory([{ day: 12, choice: 'court' }], 4), false)
+assert.equal(
+  isValidPersonalHistory([{ day: 21, choice: 'invented' }], 21),
+  false,
+)
+assert.equal(
+  isValidPersonalHistory(
+    [
+      { day: 12, choice: 'ally' },
+      { day: 4, choice: 'investigate' },
+    ],
+    27,
+  ),
+  false,
+)
+assert.equal(
+  restoreAcademy({
+    ...samplePersonal,
+    day: 30,
+    identityHistory: [{ day: 27, choice: 'invented' }],
+  }),
+  null,
+)
+assert.equal(
+  restoreAcademy({
+    ...samplePersonal,
+    day: 30,
+    identityHistory: [
+      { day: 27, choice: 'hero' },
+      { day: 27, choice: 'villain' },
+    ],
+  }),
+  null,
+)
+assert.ok(
+  restoreAcademy({
+    ...samplePersonal,
+    day: 30,
+    identityHistory: [{ day: 27, choice: 'independent' }],
+  }),
+)
+const selfArt = fromRoot('utils/cometAcademy/artSlots.ts')
+assert.ok(selfArt.includes('personalOutcomeArt'))
+
 const ngPlus = startFullAcademy(
   fieldFor('mutant-genius'),
   20261026,
@@ -1541,6 +1694,8 @@ const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('data-testid="academy-dispatch"'))
+assert.ok(page.includes('data-testid="academy-personal-story-progress"'))
+assert.ok(page.includes('data-testid="academy-personal-identity-chapter"'))
 assert.ok(page.includes('data-testid="academy-quest-poster-row"'))
 assert.ok(page.includes('data-testid="academy-quest-odds"'))
 assert.ok(page.includes('data-testid="academy-special-mission-route"'))

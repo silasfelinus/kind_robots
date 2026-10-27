@@ -1165,7 +1165,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     dark.value.duelReturn = state.value.room === 'house' ? 'house' : 'map'
     persistReality()
     await beginRoom(duel.room)
-    if (state.value.room !== 'memory') {
+    if (!darkDuelActive.value) {
       dark.value.duelReturn = null
       dark.value.status = state.value.status
       persistReality()

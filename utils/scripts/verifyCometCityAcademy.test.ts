@@ -70,6 +70,7 @@ import {
   isVowMemory,
   routeEpilogue,
 } from '../cometAcademy/openingRoutes'
+import { missionReaction, missionRoute, missionRouteRoster } from '../cometAcademy/missionTeams'
 import { readFileSync } from 'node:fs'
 import {
   POWERS,
@@ -77,6 +78,12 @@ import {
   INCIDENTS,
   ENCOUNTERS,
   assignTeam,
+  knownContacts,
+  startingContacts,
+  recruitableContact,
+  recruitContact,
+  dispatchChance,
+  dispatchModifier,
   chooseEncounter,
   encounterFor,
   finishAcademy,
@@ -532,7 +539,7 @@ assert.throws(() =>
   ),
 )
 assert.equal(POWERS.length, 6)
-assert.equal(STUDENTS.length, 6)
+assert.equal(STUDENTS.length, 12)
 assert.equal(INCIDENTS.length, 6)
 
 for (const power of POWERS) {
@@ -1377,6 +1384,64 @@ assert.ok(
   ),
 )
 
+// Every new game starts with only two close friends; legacy saves stay playable.
+for (const seed of [1, 2, 5, 42, 88, 101]) {
+  const run = startFullAcademy('kinetic', seed)
+  assert.equal(knownContacts(run).length, 2)
+  assert.deepEqual(run.contacts, startingContacts(seed))
+  assert.equal(new Set(run.contacts).size, 2)
+  assert.ok(run.contacts.every((id) => STUDENTS.find((p) => p.id === id)?.origin === 'academy'))
+  const outsider = STUDENTS.find((person) => person.origin !== 'academy')!
+  const dispatch = { ...run, phase: 'dispatch' as const }
+  assert.deepEqual(assignTeam(dispatch, incidentsFor(dispatch)[0]!.id, [outsider.id]), dispatch)
+  const oldRun = startAcademy('kinetic', seed)
+  assert.equal(knownContacts(oldRun).length, STUDENTS.length)
+}
+for (const person of STUDENTS) {
+  const run = startFullAcademy('kinetic', 77)
+  if (run.contacts!.includes(person.id)) continue
+  const visited = visitCitySite(run, person.introSite)
+  assert.equal(visited.phase, 'campus')
+  const offered = recruitableContact(visited)
+  assert.equal(offered?.id, person.id)
+  assert.deepEqual(recruitContact(visited, 'nonsense' as StudentId), visited)
+  const gained = recruitContact(visited, person.id)
+  assert.equal(gained.phase, 'dispatch')
+  assert.ok(knownContacts(gained).includes(person.id))
+  assert.equal(knownContacts(gained).length, 3)
+  assert.ok(gained.log.some((line) => line.includes(person.name)))
+  assert.ok(restoreAcademy(gained))
+  assert.equal(recruitableContact(gained), null)
+}
+const badContacts = startFullAcademy('kinetic', 99)
+assert.equal(restoreAcademy({ ...badContacts, contacts: ['mina', 'mina'] }), null)
+assert.equal(restoreAcademy({ ...badContacts, contacts: ['unknown'] }), null)
+const allKnown = { ...startFullAcademy('kinetic', 2), contacts: STUDENTS.map((p) => p.id), phase: 'dispatch' as const }
+for (const incident of INCIDENTS) {
+  const moods = new Set(STUDENTS.map((person) => missionReaction(person.id, incident.id).mood))
+  assert.ok(moods.size >= 2, 'Every quest has distinctive reactions')
+  for (const person of STUDENTS) assert.ok(missionReaction(person.id, incident.id).line.length > 12)
+  assert.ok(missionRouteRoster(incident.id).length >= 2)
+  const panel = { ...allKnown, day: 3, seed: 77 }
+  if (!incidentsFor(panel).some((item) => item.id === incident.id)) continue
+  const team = STUDENTS.slice(0, 3).map((p) => p.id)
+  const threshold = dispatchModifier(panel, incident, team)
+  const expected = Math.round(100 * [0,1,2,3,4,5].filter((n) => n + threshold >= incident.risk).length / 6)
+  assert.equal(dispatchChance(panel, incident.id, team), expected)
+}
+for (const group of missionRouteRoster('monorail')) {
+  assert.ok(missionRoute('monorail', group))
+}
+const commission = { ...startFullAcademy('kinetic', 1), phase: 'dispatch' as const, day: 3, contacts: STUDENTS.map((s) => s.id) }
+const monorail = INCIDENTS.find((caseFile) => caseFile.id === 'monorail')!
+const monorailRun = { ...commission, seed: 6, day: 1 + ((INCIDENTS.length + INCIDENTS.indexOf(monorail) - (6 % INCIDENTS.length)) % INCIDENTS.length) }
+assert.ok(incidentsFor(monorailRun).some((item) => item.id === 'monorail'))
+const joint = assignTeam(monorailRun, 'monorail', ['mara','sol'])
+assert.equal(joint.assignments[0]?.students.length, 2)
+assert.equal(missionRoute('monorail', joint.assignments[0]!.students)?.label, 'The Union Override')
+const outcome = resolveDispatch(joint)
+assert.ok(outcome.reports.find((report) => report.caseId === 'monorail')?.text.includes('The Union Override'))
+
 const ngPlus = startFullAcademy(
   fieldFor('mutant-genius'),
   20261026,
@@ -1419,6 +1484,10 @@ const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('data-testid="academy-dispatch"'))
+assert.ok(page.includes('data-testid="academy-quest-poster-row"'))
+assert.ok(page.includes('data-testid="academy-quest-odds"'))
+assert.ok(page.includes('data-testid="academy-special-mission-route"'))
+assert.ok(page.includes('data-testid="academy-contact-encounter"'))
 assert.ok(tab.includes('route: /play/comet-city-academy'))
 assert.ok(art.includes('viewBox="0 0 1440 900"'))
 assert.ok(page.includes('Prom of Doom | Capes & Tassels'))

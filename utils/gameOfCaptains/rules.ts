@@ -19,7 +19,7 @@ import {
   NEMESIS_COUNTERPLAY,
 } from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
-import { starterRedshirts } from './redshirts'
+import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
@@ -1039,10 +1039,10 @@ export function finishVoyage(
     ]
   })
   const redshirts = (run.redshirtFallen ?? [])
-    .map(loss => `A red uniform numbered ${loss.id} remains on the memorial wall from ${loss.missionId}.`)
+    .map(loss => `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id} is remembered by name, not recruitment number, after ${loss.missionId}. Their bright red uniform hangs beside the others.`)
     .join(' ')
   const expeditionSecrets = (run.expeditionHistory ?? []).flatMap(visit =>
-    visit.results.filter(r => r.secret).map(r => `A side expedition to ${r.encounterId} revealed a secret command never expected.`)
+    visit.results.filter(r => r.secret).map(r => r.outcome.split('SECRET DETOUR: ')[1] ?? r.outcome)
   ).join(' ')
   const civic = (run.missionHistory ?? [])
     .map((event) => {

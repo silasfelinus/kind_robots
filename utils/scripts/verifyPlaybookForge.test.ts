@@ -98,8 +98,6 @@ import {
 } from '../playbookForge/redshirtAtlas'
 import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
 
-
-
 // The Forge must expose all authored recruits, real playable encounter
 // intersections, and distinguish casting an existing Character from a Facet redesign.
 assert.equal(REDSHIRT_ROSTER.length, 100)
@@ -123,14 +121,26 @@ const redesign = redshirtBrief(recruit, edit, 'design')
 assert.match(redesign, /redesign this redshirt using the linked entity/)
 assert.match(redesign, /facets:21/)
 assert.match(redesign, /Proposed fields/)
-assert.match(redshirtPortraitPrompt(recruit, edit), /kangaroo-inspired silhouette/)
-assert.match(redshirtPortraitPrompt(recruit, edit), /Brilliant bright red Space Couch expedition shirt/)
-assert.match(redshirtPortraitPrompt(recruit, edit), /Visual inspiration from facets: Kangaroo/)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /kangaroo-inspired silhouette/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Brilliant bright red Space Couch expedition shirt/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Visual inspiration from facets: Kangaroo/,
+)
 edit.referenceTab = 'characters'
 edit.referenceKey = 'characters:144'
 edit.referenceTitle = 'Existing follower'
 edit.intent = 'appearance'
-assert.match(redshirtBrief(recruit, edit, 'design'), /adapt the linked existing Character as this redshirt/)
+assert.match(
+  redshirtBrief(recruit, edit, 'design'),
+  /adapt the linked existing Character as this redshirt/,
+)
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({

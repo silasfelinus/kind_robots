@@ -11,7 +11,9 @@
         <p
           class="truncate font-mono text-[10px] font-black uppercase tracking-[.3em] text-stone-700 sm:text-xs"
         >
-          Consolidated Wellness &amp; Defense · Personnel File #{{ filedReceipt?.id ?? 'Pending' }}
+          Consolidated Wellness &amp; Defense · Personnel File #{{
+            filedReceipt?.id ?? 'Pending'
+          }}
           <span v-if="daily" class="text-amber-800">
             · Daily Memo {{ dailyLabel(daily) }}</span
           >
@@ -417,10 +419,11 @@ const nextMilestoneProgress = computed(() =>
 const deeperLevel = computed(() => DEPARTMENTS.length)
 const BOTTOM_FLOOR = 5
 const epilogue = computed(() => (run.value ? endingFor(run.value) : null))
-const filedReceipt = computed(() =>
-  store.rewardArchive.runs.find(
-    (receipt) => receipt.id === `${run.value?.seed}:${epilogue.value?.id}`,
-  ) ?? null,
+const filedReceipt = computed(
+  () =>
+    store.rewardArchive.runs.find(
+      (receipt) => receipt.id === `${run.value?.seed}:${epilogue.value?.id}`,
+    ) ?? null,
 )
 const epilogueLines = computed(() =>
   run.value && epilogue.value ? endingLines(run.value, epilogue.value) : [],

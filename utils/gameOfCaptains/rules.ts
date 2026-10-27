@@ -1,5 +1,10 @@
 import { ACT_ONE_MISSIONS } from './actOne'
-import { ACT_TWO_MISSIONS, ACT_TWO_OPENING } from './actTwo'
+import { ACT_TWO_MISSIONS, ACT_TWO_OPENING, ACT_TWO_RESUPPLY } from './actTwo'
+import {
+  NEMESIS_ENDINGS,
+  nemesisEndingId,
+  nemesisEndingVariant,
+} from './nemesisEndings'
 import {
   ACT_TWO_FIRST_CHAPTER,
   VOYAGE_BOARDS,
@@ -382,6 +387,8 @@ export type VoyageRun = {
   detourChapter?: number
   detour?: { crewId: CrewId; step: number; gambit?: DetourApproach } | null
   nemesisPressure?: number
+  /** The nemesis's own ending, `<nemesis>-<undone|bargained|unfinished>`. */
+  nemesisEnding?: string | null
   antagonist: number
   supplies: number
   trust: number
@@ -1001,6 +1008,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       scene:
         'Your antagonist waits at the jump gate. On the red couch the crew asks what kind of captain you became. The force bubble holds; your moral shelter is another matter.',
     }
+  const opensActTwo = run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
   return {
     ...run,
     phase: 'briefing',
@@ -1011,7 +1019,11 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     away: [],
     pocketRoom: null,
     report: null,
-    scene: `${run.chapter + 1 === ACT_TWO_FIRST_CHAPTER ? ACT_TWO_OPENING + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    supplies: run.supplies + (opensActTwo ? ACT_TWO_RESUPPLY : 0),
+    scene: `${opensActTwo ? ACT_TWO_OPENING + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    log: opensActTwo
+      ? [...run.log, `Act II begins: ${ACT_TWO_RESUPPLY} supplies received.`]
+      : run.log,
   }
 }
 export function finishVoyage(
@@ -1097,12 +1109,21 @@ export function finishVoyage(
     })
     .filter(Boolean)
     .join(' ')
-  const scene = `${verdict} ${remembrance} ${journeys.join(' ')} ${civic}`
+  const nemesisId = antagonistFor(run).id as NemesisId
+  const variant = nemesisEndingVariant(
+    nemesisId,
+    strategy,
+    run.worldFlags ?? [],
+    run.supplies,
+  )
+  const nemesisEnding = NEMESIS_ENDINGS[nemesisId][variant]
+  const scene = `${verdict} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic}`
   return {
     ...run,
     phase: 'ending',
     scene,
     ending,
+    nemesisEnding: nemesisEndingId(nemesisId, variant),
     log: [
       ...run.log,
       `Final captain's log: ${ending}. ${captain.voice} ${scene}`,
@@ -1163,6 +1184,9 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     !Number.isInteger(data.antagonist) ||
     data.antagonist < 0 ||
     data.antagonist >= ANTAGONISTS.length ||
+    (data.nemesisEnding !== undefined &&
+      data.nemesisEnding !== null &&
+      typeof data.nemesisEnding !== 'string') ||
     (data.day !== undefined && (!Number.isInteger(data.day) || data.day < 1)) ||
     (data.phase === 'transit' &&
       (!data.active || typeof data.active.returnsDay !== 'number')) ||

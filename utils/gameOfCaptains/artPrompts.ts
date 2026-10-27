@@ -142,6 +142,34 @@ const ENDING_PROMPTS: Record<string, string> = {
   'the-cost-of-command': `Medium shot in a quiet grey hangar. ${Couch}, sits on the floor with one cushion slashed open and stuffing spilling out. A folded captain's coat lies on the middle cushion beside an open handwritten logbook, and three crew members stand around the couch with their heads bowed. A single overhead lamp, cool blue shadows. ${STYLE}`,
 }
 
+/** A nemesis's own three endings (nemesisEndings.ts), keyed `<nemesis>-<variant>`. */
+const NEMESIS_ENDING_PROMPTS: Record<string, string> = {
+  'auditor-undone': `Medium shot in a high-ceilinged bank hall with brass teller windows and tall arched windows. ${cap(RESIDENT_LOOKS.auditor)}, sits behind a teller window stamping a tall stack of folders for a queue of bankers in grey suits. In the background a family in patched coats walks out through the open main doors into daylight. Warm afternoon light. ${STYLE}`,
+  'auditor-bargained': `Wide shot of a rescue route in deep space marked by a line of small blinking beacons, with lifeboats passing between them. ${cap(RESIDENT_LOOKS.auditor)}, floats beside the route and hands each passing lifeboat a thick bound repayment book. Far behind, ${COUCH_LOOK}, watches. Cold blue starlight. ${STYLE}`,
+  'auditor-unfinished': `Interior of a cramped refugee lifeboat cabin with two rows of worn bench seats. ${cap(RESIDENT_LOOKS.auditor)}, kneels in the aisle with a brass tape measure stretched between the benches while a family sits pressed together on the back bench, watching. Dim green cabin lamps. ${STYLE}`,
+  'moth-undone': `Interior of a white public gallery where dozens of translucent ceramic masks hang in neat rows on the walls, each above a small brass plate. Visitors of many species lift their own masks down and hold them. At the end of the room ${RESIDENT_LOOKS.moth}, wears one plain mask slightly crooked. Soft daylight from skylights. ${STYLE}`,
+  'moth-bargained': `A small kiosk on a busy space station concourse. ${cap(RESIDENT_LOOKS.moth)}, sits behind the counter handing a blank white ceramic mask to each traveler in a long queue of people carrying luggage. Warm station lights, a crowd passing behind. ${STYLE}`,
+  'moth-unfinished': `Night view of a crowded station platform under blue lamps. ${cap(RESIDENT_LOOKS.moth)}, walks away into the crowd. In the foreground a young courier in a flight jacket stands still, holding an empty travel pass and staring after her. Blue platform light, long shadows. ${STYLE}`,
+  'curdle-undone': `A busy village kitchen with long wooden tables and many steaming pots. Cooks in aprons ladle three different stews into bowls beneath a white food dispenser machine that has a vase of flowers on top. ${cap(RESIDENT_LOOKS.curdle)}, sits at the end of a bench holding out an empty bowl for a second serving. Warm lamplight. ${STYLE}`,
+  'curdle-bargained': `A long clean white cafeteria where a queue of people of many species receive identical beige bowls from a row of chrome dispensers. A brass clock hangs on the wall. ${cap(RESIDENT_LOOKS.curdle)}, watches the queue with a clipboard in one chrome hand. Flat white light. ${STYLE}`,
+  'curdle-unfinished': `Wide shot of a stone plaza at the foot of a ring-shaped jump gate in space. A tall white food dispenser machine wearing a red mayor's sash raises one chrome arm over a crowd holding empty bowls. ${cap(RESIDENT_LOOKS.curdle)}, claps beside it. Violet light from the gate. ${STYLE}`,
+  'showrunner-undone': `Wide shot of twelve stacked floating stone platforms in clear morning daylight, the stadium floodlights switched off. Nurses and orderlies in hospital scrubs climb down the transparent ladders to the grass below, carrying their folded sashes. Above them the ring of twelve black studio cameras hangs dark, its red lamp unlit. ${STYLE}`,
+  'showrunner-bargained': `Interior of a bright television studio with gold columns. ${Couch}, sits at center stage under a spotlight, with a chrome microphone on a stand beside one armrest. A row of contestants in hospital scrubs sits in chairs to the side; some smile at the cameras and some look toward the exit. ${cap(RESIDENT_LOOKS.showrunner)}, hangs above. ${STYLE}`,
+  'showrunner-unfinished': `Wide shot of a green planet in space being wrapped in steel scaffolding and stadium floodlights by small construction drones. In front of it hovers ${RESIDENT_LOOKS.showrunner}. In the lower corner, ${COUCH_LOOK}, drifts past, small. Hard white floodlight. ${STYLE}`,
+  'regent-undone': `Wide shot of a planet ringed by large silver shield panels holding back a violent orange solar storm. On a hill below, a council of townspeople of many species sits at a long outdoor table, voting with raised hands. At the edge of the hill a black ceremonial crown rests on an empty stone throne. Orange storm light. ${STYLE}`,
+  'regent-bargained': `Interior of a stone council chamber. ${cap(RESIDENT_LOOKS.regent)}, stands at a lectern holding a long lease contract while delegates of many species raise green and red voting paddles from curved benches. Cool daylight from tall windows. ${STYLE}`,
+  'regent-unfinished': `Wide shot of a calm violet sky after a storm, with several small planets each enclosed in a black dome shelter. On a stone balcony ${RESIDENT_LOOKS.regent}, watches as a footman places a sealed envelope with red wax on each cushion of ${COUCH_LOOK}, parked below. ${STYLE}`,
+  'brass-choir-undone': `A stone amphitheater at golden evening. A procession of ${RESIDENT_LOOKS.brassChoir}, has halted on the stage. Three of the machines face the others with their brass mouths wide open and tilted at odd angles, while the rest hold their rulebooks shut. Townspeople listen from the stone steps. ${STYLE}`,
+  'brass-choir-bargained': `Interior of a quiet archive hall with tall shelves of brass cylinders. One of the ${RESIDENT_LOOKS.brassChoir}, holds out a thin bound rulebook to a line of musicians carrying drums, flutes and string instruments. Most of the musicians walk past it. Soft white light. ${STYLE}`,
+  'brass-choir-unfinished': `Wide shot of a starfield filled with small distress beacons, every one glowing the same pale grey. ${cap(RESIDENT_LOOKS.brassChoir)}, float among them and slot the beacons into tidy rows of brass drawers. Far off, ${COUCH_LOOK}, drifts past. ${STYLE}`,
+  'chancellor-undone': `Interior of a public hall where townspeople sit in rows watching a wall of old film projectors play flickering home footage. In the front row ${RESIDENT_LOOKS.chancellor}, sits with the gilded clock in his lap, its hands stopped. Warm projector light, dark room. ${STYLE}`,
+  'chancellor-bargained': `A small repair stall at a crowded space market. ${cap(RESIDENT_LOOKS.chancellor)}, sets the gilded clock on the counter and hands a mended teacup back to a customer. Behind the stall a queue of people holds broken cups and plates. Afternoon light through a canvas awning. ${STYLE}`,
+  'chancellor-unfinished': `Close-up of a captain's logbook lying open on the red velvet cushion of a long couch, its pages blank and freshly white, the ink at one corner fading away. A small gilded tabletop clock stands beside it with its hands spinning. Soft lamp light. ${STYLE}`,
+  'kindly-swarm-undone': `A grassy meadow at dusk. Hundreds of tiny translucent pale-gold beings with little faces drift out of a long knitted scarf strung between two posts. Some fly off alone carrying tiny lanterns, and others stay wrapped in the scarf and wave. Warm lantern light, deep blue sky. ${STYLE}`,
+  'kindly-swarm-bargained': `Interior of a cozy communal hall with a long knitted scarf strung along the ceiling, glowing with tiny translucent pale-gold beings. Below, people of many species sit at separate small tables; some have a strand of the scarf over their shoulders and some sit apart reading. Warm amber light. ${STYLE}`,
+  'kindly-swarm-unfinished': `Close-up of the outside of the clear bubble around ${COUCH_LOOK}. A crowd of tiny translucent pale-gold beings in knitted scarves presses against the bubble wall, their small faces all wearing the same smile. Black space behind, gold glow. ${STYLE}`,
+}
+
 /** Every authored prompt, keyed by asset key under public/game-of-captains. */
 export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
   ...Object.fromEntries(
@@ -167,6 +195,12 @@ export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
   ),
   ...Object.fromEntries(
     Object.entries(ENDING_PROMPTS).map(([slug, p]) => [`endings/${slug}`, p]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(NEMESIS_ENDING_PROMPTS).map(([id, p]) => [
+      `endings/${id}`,
+      p,
+    ]),
   ),
 }
 

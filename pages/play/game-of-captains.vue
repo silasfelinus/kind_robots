@@ -946,7 +946,15 @@
               <span>✦</span>
               <div>
                 <h2>{{ run.ending }}</h2>
-                <p>A CAPTAIN IS WHAT THE CREW REMEMBERS</p>
+                <p data-testid="space-couch-nemesis-ending">
+                  {{
+                    nemesisEndingTitle
+                      ? antagonist.name.toUpperCase() +
+                        ' // ' +
+                        nemesisEndingTitle
+                      : 'A CAPTAIN IS WHAT THE CREW REMEMBERS'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
@@ -1008,7 +1016,12 @@ import {
   actOf,
   earnedCallbacks,
   nemesisMove,
+  type NemesisId,
 } from '~/utils/gameOfCaptains/voyageMap'
+import {
+  NEMESIS_ENDINGS,
+  type NemesisEndingVariant,
+} from '~/utils/gameOfCaptains/nemesisEndings'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -1103,6 +1116,15 @@ const briefingCallbacks = computed(() =>
 const briefingAboard = computed(() =>
   run.value ? aboardLines(mission.value.id, run.value.crew) : [],
 )
+const nemesisEndingTitle = computed(() => {
+  const id = run.value?.nemesisEnding
+  const variant = id?.slice(antagonist.value.id.length + 1)
+  return id?.startsWith(antagonist.value.id + '-')
+    ? (NEMESIS_ENDINGS[antagonist.value.id as NemesisId]?.[
+        variant as NemesisEndingVariant
+      ]?.title ?? '')
+    : ''
+})
 const nemesisLine = computed(() =>
   run.value ? nemesisMove(antagonist.value, run.value.chapter) : '',
 )

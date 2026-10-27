@@ -136,6 +136,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const { VOYAGE_BOARDS, actOf } =
         await import('../gameOfCaptains/voyageMap')
       const acts = new Set(VOYAGE_BOARDS.map((_, i) => actOf(i + 1)))
+      const { NEMESIS_ENDINGS } =
+        await import('../gameOfCaptains/nemesisEndings')
+      const villainEndings = Object.values(NEMESIS_ENDINGS).map(
+        (endings) => Object.keys(endings).length,
+      )
       const { SOLO_ROMANCE_ROUTES } =
         await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
@@ -157,11 +162,14 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           // Solo romances only: pair routes and the fourple are extra.
           romances: SOLO_ROMANCE_ROUTES.length,
           endings: WARP_ENDINGS.length,
-          // No party has an adventure or endings of its own yet, and no
-          // galactic boss an ending of its own.
+          // No party has an adventure or endings of its own yet. Every
+          // galactic boss has its own endings (nemesisEndings.ts); the
+          // factor is the fewest any one boss has.
           partyAdventureSteps: 0,
           partyEndings: 0,
-          villainEndings: 0,
+          villainEndings: villainEndings.length
+            ? Math.min(...villainEndings)
+            : 0,
         },
         measured: [
           'rosterSize',
@@ -181,7 +189,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
         ],
         art: null,
         source:
-          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, crewJourneys.ts, romance.ts',
+          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts',
       }
     },
   },

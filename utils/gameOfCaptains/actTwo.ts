@@ -733,4 +733,7 @@ export const ACT_TWO_MOVES: Record<
 }
 
 export const ACT_TWO_OPENING =
-  'ACT II: UNWELCOME RESPONSIBILITY. Word of the couch has spread, and the galaxy has responded the way galaxies do: with forms. The chart now shows systems that were not there before, or were not willing to be seen.'
+  'ACT II: UNWELCOME RESPONSIBILITY. Word of the couch has spread, and the galaxy has responded the way galaxies do: with forms. It has also sent three crates of supplies, itemized, with a survey about the delivery. The chart now shows systems that were not there before, or were not willing to be seen.'
+
+/** Supplies delivered when Act II opens; the voyage is twice as long now. */
+export const ACT_TWO_RESUPPLY = 3

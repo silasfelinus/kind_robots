@@ -82,12 +82,21 @@ import {
 
 import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
+  NEMESIS_ALLY_FLAGS,
+  NEMESIS_ENDINGS,
+  NEMESIS_ENDING_VARIANTS,
+  nemesisEndingId,
+  nemesisEndingVariant,
+  nemesisGroundwork,
+} from '../gameOfCaptains/nemesisEndings'
+import {
   WARP_ENDINGS,
   antagonistArtKey,
   captainArtKey,
   crewArtKey,
   endingArtKey,
   missionArtKey,
+  nemesisEndingArtKey,
 } from '../gameOfCaptains/artSlots'
 
 const fromRoot = (path: string) =>
@@ -561,6 +570,7 @@ for (const enemy of ANTAGONISTS) {
   const ended = finishVoyage(run, 'counter')
   assert.equal(ended.phase, 'ending')
   assert.ok(ended.scene.includes('witnesses'))
+  assert.equal(ended.nemesisEnding, `${enemy.id}-undone`)
   assert.notEqual(ended.scene, finishVoyage(run, 'protect').scene)
   assert.ok(
     ended.ending?.includes(enemy.id === 'showrunner' ? 'UNION' : 'WITNESS'),
@@ -1152,6 +1162,102 @@ assert.ok(page.includes('data-testid="space-couch-callbacks"'))
 assert.ok(page.includes('v-for="n in VOYAGE_CHAPTERS"'))
 assert.ok(page.includes('nemesisLine'))
 
+// Every seeded nemesis has three endings of its own, earned from play.
+assert.equal(Object.keys(NEMESIS_ENDINGS).length, ANTAGONISTS.length)
+const nemesisTitles = new Set<string>()
+for (const enemy of ANTAGONISTS) {
+  const endings = NEMESIS_ENDINGS[enemy.id]
+  for (const variant of NEMESIS_ENDING_VARIANTS) {
+    assert.ok(endings[variant].text.length > 90, `${enemy.id} ${variant}`)
+    nemesisTitles.add(endings[variant].title)
+    assert.ok(
+      warpArtPrompt(nemesisEndingArtKey(nemesisEndingId(enemy.id, variant))),
+    )
+  }
+  assert.ok(NEMESIS_ALLY_FLAGS[enemy.id].length >= 5)
+  for (const flag of NEMESIS_ALLY_FLAGS[enemy.id])
+    assert.ok(actOneFlags.has(flag) || actTwoFlags.has(flag), flag)
+}
+assert.equal(nemesisTitles.size, 24)
+assert.equal(nemesisEndingVariant('auditor', 'compromise', [], 1), 'unfinished')
+assert.equal(
+  nemesisEndingVariant('auditor', 'compromise', ['tab-covered'], 0),
+  'bargained',
+)
+assert.equal(
+  nemesisEndingVariant('auditor', 'protect', ['tab-covered'], 9),
+  'unfinished',
+)
+assert.equal(
+  nemesisEndingVariant(
+    'auditor',
+    'protect',
+    ['tab-covered', 'ashdock-protected'],
+    0,
+  ),
+  'undone',
+)
+/** Plays every default call with one order from a fresh voyage to the jump gate. */
+function standingOrders(
+  run: ReturnType<typeof startVoyage>,
+  policy: 'aid' | 'observe' | 'intervene',
+) {
+  for (;;) {
+    run = launchMission(staffed(run))
+    while (run.phase === 'transit') run = advanceVoyageDay(run)
+    run = nextDestination(decidePolicy(run, policy))
+    if (run.phase === 'finale') return run
+  }
+}
+const seedsFor = (id: string) =>
+  Array.from({ length: 2000 }, (_, n) => n + 1).filter(
+    (n) =>
+      antagonistFor(startVoyage('vale', ['pell', 'mox', 'rue'], n)).id === id,
+  )
+const seedFor = (id: string) => seedsFor(id)[0]!
+for (const enemy of ANTAGONISTS) {
+  // A bystander voyage that kept enough in the hold to bargain with.
+  const bystander = seedsFor(enemy.id)
+    .slice(0, 12)
+    .map((seed) =>
+      standingOrders(
+        startVoyage('vale', ['pell', 'mox', 'rue'], seed),
+        'observe',
+      ),
+    )
+    .find((run) => run.supplies >= 2)!
+  assert.ok(bystander, `${enemy.id}: a bystander voyage can still bargain`)
+  assert.equal(nemesisGroundwork(enemy.id, bystander.worldFlags!).length, 0)
+  const withdrawn = finishVoyage(bystander, 'protect')
+  assert.equal(withdrawn.nemesisEnding, `${enemy.id}-unfinished`)
+  assert.ok(withdrawn.scene.includes(NEMESIS_ENDINGS[enemy.id].unfinished.text))
+  assert.ok(
+    bystander.supplies >= 2,
+    'a bystander still has supplies to bargain',
+  )
+  const bargain = finishVoyage(bystander, 'compromise')
+  assert.equal(bargain.nemesisEnding, `${enemy.id}-bargained`)
+  assert.ok(bargain.scene.includes(NEMESIS_ENDINGS[enemy.id].bargained.title))
+  const broke = finishVoyage({ ...bystander, supplies: 0 }, 'compromise')
+  assert.equal(broke.nemesisEnding, `${enemy.id}-unfinished`)
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(bargain))), bargain)
+}
+// Groundwork earned in play undoes the Auditor without the counter council.
+let auditorRun = startVoyage('vale', ['pell', 'mox', 'rue'], seedFor('auditor'))
+auditorRun = play(auditorRun, 'ashdock', 'aid')
+auditorRun = play(nextDestination(auditorRun), 'archive', 'observe')
+auditorRun = play(nextDestination(auditorRun), 'bar', 'observe')
+auditorRun = play(nextDestination(auditorRun), 'concord-intake', 'aid')
+assert.deepEqual(nemesisGroundwork('auditor', auditorRun.worldFlags!), [
+  'ashdock-protected',
+  'concord-petition',
+])
+auditorRun = standingOrders(nextDestination(auditorRun), 'observe')
+const auditorUndone = finishVoyage(auditorRun, 'protect')
+assert.equal(auditorUndone.nemesisEnding, 'auditor-undone')
+assert.ok(auditorUndone.scene.includes('THE BOOKS ARE OPENED'))
+assert.ok(page.includes('data-testid="space-couch-nemesis-ending"'))
+
 const gameStore = fromRoot('stores/gameOfCaptainsStore.ts')
 assert.ok(gameStore.includes('relationshipEpilogue(finishVoyage('))
 assert.ok(gameStore.includes('run.value = applyRomanceChoice('))
@@ -1164,13 +1270,22 @@ const slotKeys = [
   ...MISSIONS.map((m) => missionArtKey(m.id)),
   ...ANTAGONISTS.map((a) => antagonistArtKey(a.id)),
   ...WARP_ENDINGS.map((e) => endingArtKey(e)),
+  ...ANTAGONISTS.flatMap((a) =>
+    NEMESIS_ENDING_VARIANTS.map((v) =>
+      nemesisEndingArtKey(nemesisEndingId(a.id, v)),
+    ),
+  ),
 ]
 for (const key of slotKeys) {
   const prompt = warpArtPrompt(key)
   assert.ok(prompt && prompt.length >= 120 && prompt.length <= 900, key)
 }
 assert.equal(new Set(Object.values(WARP_ART_PROMPTS)).size, slotKeys.length)
-for (const key of slotKeys.filter((k) => /^(missions|endings)\//.test(k)))
+for (const key of slotKeys.filter(
+  (k) =>
+    k.startsWith('missions/') ||
+    WARP_ENDINGS.some((ending) => endingArtKey(ending) === k),
+))
   assert.ok(
     /couch|bar with/i.test(warpArtPrompt(key)!),
     `${key} shows the couch or the bar`,

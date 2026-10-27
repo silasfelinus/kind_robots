@@ -122,7 +122,7 @@ export const GENRES: Genre[] = [
     cover: '/comet-city-academy/front/splash.webp',
     label: 'Hero academy',
     pitch: 'Build a student, learn a power, survive a term and a prom.',
-    lineage: 'Capes & Tassels: Prom of Doom',
+    lineage: 'Prom of Doom · Capes & Tassels series',
     tones: 'romantic, comic, coming-of-age',
     shape: {
       creator: 'builder',

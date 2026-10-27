@@ -812,65 +812,170 @@ const raw: StoryDefinition[] = [
     },
   },
   {
-    id:'pair:sora:kivo',people:['sora','kivo'],kind:'pair',label:'Sora + Kivo · The Unopened Message',
-    invitation:'Sora and Kivo admit they have been sharing quiet evenings while tracing a lost courier, and ask for privacy.',
-    refusal:'Kivo and Sora will not turn a relationship into surveillance or compulsory mind-reading.',
-    negotiation:'Sora believes testimony matters; Kivo’s sibling may have chosen disappearance. Either can say no to being searched.',
-    acceptance:'Sora powers down the scanner. Kivo leaves the letter unread. They choose each other without proof.',
-    separation:'The pair stop courting but continue to protect each other’s mission rights.',
-    ending:'An unread letter sits in a shared drawer. It is a promise not to demand every answer.',
-    fault:'Evidence is not permission to invade another life.',
-    interventionLimit:3,trustRequired:2,reputationFloor:0,
-    chapter2:{title:'A Trace Without Permission',setting:'The temporary holodeck shows a message from Kivo’s sibling. Sora refuses to open it by force.',speakers:[
-      {name:'Sora',line:'We could know exactly where they are. I am not sure we have the right.'},
-      {name:'Kivo',line:'I would rather you believed me when I say I am afraid.'}]},
-    chapter3:{title:'The Evidence We Leave Sealed',setting:'A parcel sits untouched on the couch, where its owner can reach it any time.',speakers:[
-      {name:'Kivo',line:'I am tired of being a problem that can be solved.'},
-      {name:'Sora',line:'Then can we be unfinished people together?'}]},
+    id: 'pair:sora:kivo',
+    people: ['sora', 'kivo'],
+    kind: 'pair',
+    label: 'Sora + Kivo · The Unopened Message',
+    invitation:
+      'Sora and Kivo admit they have been sharing quiet evenings while tracing a lost courier, and ask for privacy.',
+    refusal:
+      'Kivo and Sora will not turn a relationship into surveillance or compulsory mind-reading.',
+    negotiation:
+      'Sora believes testimony matters; Kivo’s sibling may have chosen disappearance. Either can say no to being searched.',
+    acceptance:
+      'Sora powers down the scanner. Kivo leaves the letter unread. They choose each other without proof.',
+    separation:
+      'The pair stop courting but continue to protect each other’s mission rights.',
+    ending:
+      'An unread letter sits in a shared drawer. It is a promise not to demand every answer.',
+    fault: 'Evidence is not permission to invade another life.',
+    interventionLimit: 3,
+    trustRequired: 2,
+    reputationFloor: 0,
+    chapter2: {
+      title: 'A Trace Without Permission',
+      setting:
+        'The temporary holodeck shows a message from Kivo’s sibling. Sora refuses to open it by force.',
+      speakers: [
+        {
+          name: 'Sora',
+          line: 'We could know exactly where they are. I am not sure we have the right.',
+        },
+        {
+          name: 'Kivo',
+          line: 'I would rather you believed me when I say I am afraid.',
+        },
+      ],
+    },
+    chapter3: {
+      title: 'The Evidence We Leave Sealed',
+      setting:
+        'A parcel sits untouched on the couch, where its owner can reach it any time.',
+      speakers: [
+        {
+          name: 'Kivo',
+          line: 'I am tired of being a problem that can be solved.',
+        },
+        { name: 'Sora', line: 'Then can we be unfinished people together?' },
+      ],
+    },
   },
   {
-    id:'pair:taal:omi',people:['taal','omi'],kind:'pair',label:'Taal + Omi · Thermal Duet',
-    invitation:'Taal and Omi ask whether the captain can let them translate their feelings without making a diplomatic spectacle.',
-    refusal:'The two will not have their voices used as a forced demonstration of harmony.',
-    negotiation:'Taal’s warmth and Omi’s overtones disagree. They need a language for conflict, not merely a prettier yes.',
-    acceptance:'A quiet chord changes the war room’s temperature. Both partners hear the answer they chose.',
-    separation:'The song and warmth return to neutral; neither officer loses their voice.',
-    ending:'Their duet contains a rest neither one has to fill. It becomes the most honest song in the Harmonic Belt.',
-    fault:'A perfect translation can still misunderstand a person.',
-    interventionLimit:3,trustRequired:2,reputationFloor:0,
-    chapter2:{title:'A Duet Out Of Tune',setting:'The ship’s gravity goes gently sideways as Taal tests a thermal greeting against Omi’s chord.',speakers:[
-      {name:'Taal',line:'Your joyful note feels like a formal objection in my language.'},
-      {name:'Omi',line:'Then let us invent a language in which it can be both.'}]},
-    chapter3:{title:'The Comfortable Discord',setting:'At Serendipity, a corner of the room stays warm while a resonator hums off-key.',speakers:[
-      {name:'Omi',line:'Would you still listen if the harmony never resolves?'},
-      {name:'Taal',line:'Yes. The unresolved part is my favorite.'}]},
+    id: 'pair:taal:omi',
+    people: ['taal', 'omi'],
+    kind: 'pair',
+    label: 'Taal + Omi · Thermal Duet',
+    invitation:
+      'Taal and Omi ask whether the captain can let them translate their feelings without making a diplomatic spectacle.',
+    refusal:
+      'The two will not have their voices used as a forced demonstration of harmony.',
+    negotiation:
+      'Taal’s warmth and Omi’s overtones disagree. They need a language for conflict, not merely a prettier yes.',
+    acceptance:
+      'A quiet chord changes the war room’s temperature. Both partners hear the answer they chose.',
+    separation:
+      'The song and warmth return to neutral; neither officer loses their voice.',
+    ending:
+      'Their duet contains a rest neither one has to fill. It becomes the most honest song in the Harmonic Belt.',
+    fault: 'A perfect translation can still misunderstand a person.',
+    interventionLimit: 3,
+    trustRequired: 2,
+    reputationFloor: 0,
+    chapter2: {
+      title: 'A Duet Out Of Tune',
+      setting:
+        'The ship’s gravity goes gently sideways as Taal tests a thermal greeting against Omi’s chord.',
+      speakers: [
+        {
+          name: 'Taal',
+          line: 'Your joyful note feels like a formal objection in my language.',
+        },
+        {
+          name: 'Omi',
+          line: 'Then let us invent a language in which it can be both.',
+        },
+      ],
+    },
+    chapter3: {
+      title: 'The Comfortable Discord',
+      setting:
+        'At Serendipity, a corner of the room stays warm while a resonator hums off-key.',
+      speakers: [
+        {
+          name: 'Omi',
+          line: 'Would you still listen if the harmony never resolves?',
+        },
+        { name: 'Taal', line: 'Yes. The unresolved part is my favorite.' },
+      ],
+    },
   },
   {
-    id:'fourple',people:['vela','taal','omi'],kind:'fourple',label:'The Four-Cushion Accord · Vela, Taal & Omi',
-    invitation:'Vela agrees to talk without rank. Taal wants everyone asked individually. Omi rings a tentative note. Nobody has agreed to a relationship yet.',
-    refusal:'Vela cannot trust how the captain treats vulnerable people. Taal refuses to turn a command into a vote. Omi says no clearly. All three remain respected crew.',
-    negotiation:'Vela sets clinic boundaries; Taal protects disagreement and privacy; Omi asks the others to hear an unmistakable no. Four independent people may explore affection without a command.',
-    acceptance:'Vela says yes freely. Taal decides separately. Omi rings a clear chord of agreement. The captain answers without giving an order. Four people form a relationship any of them may leave.',
-    separation:'The four-person charter remains unsigned. Nobody is reassigned; the couch stays a safe place to disagree.',
-    ending:'The red couch has a fourth pillow with no captain’s insignia. Vela keeps a clinic on every return route. Taal negotiates their promises. Omi teaches the other three to hear silence. None calls the four-person relationship a chain of command.',
-    fault:'No number of captain’s orders can count as one person’s consent.',
-    interventionLimit:3,trustRequired:2,reputationFloor:0,
-    chapter2:{title:'The Four-Cushion Accord',setting:'The war room unfolds behind the long red couch, but the four stay beneath its invisible, life-preserving bubble. A charter has four empty signatures.',speakers:[
-      {name:'Vela',line:'I will not be the emergency department for your conscience.'},
-      {name:'Taal',line:'We must be able to disagree without turning an argument into an evacuation order.'},
-      {name:'Omi',line:'I can say yes in several chords. I can say no in one. Please learn the second.'}]},
-    chapter3:{title:'Four Separate Signatures',setting:'Vox puts four blank spaces on a menu. The sentient Serendipity bar independently adjusts gravity so everyone sits at equal height.',speakers:[
-      {name:'Taal',line:'I am not voting on a captain.'},
-      {name:'Vela',line:'I want affection that survives being told I am wrong.'},
-      {name:'Omi',line:'A quartet is four people who can leave.'}]},
+    id: 'fourple',
+    people: ['vela', 'taal', 'omi'],
+    kind: 'fourple',
+    label: 'The Four-Cushion Accord · Vela, Taal & Omi',
+    invitation:
+      'Vela agrees to talk without rank. Taal wants everyone asked individually. Omi rings a tentative note. Nobody has agreed to a relationship yet.',
+    refusal:
+      'Vela cannot trust how the captain treats vulnerable people. Taal refuses to turn a command into a vote. Omi says no clearly. All three remain respected crew.',
+    negotiation:
+      'Vela sets clinic boundaries; Taal protects disagreement and privacy; Omi asks the others to hear an unmistakable no. Four independent people may explore affection without a command.',
+    acceptance:
+      'Vela says yes freely. Taal decides separately. Omi rings a clear chord of agreement. The captain answers without giving an order. Four people form a relationship any of them may leave.',
+    separation:
+      'The four-person charter remains unsigned. Nobody is reassigned; the couch stays a safe place to disagree.',
+    ending:
+      'The red couch has a fourth pillow with no captain’s insignia. Vela keeps a clinic on every return route. Taal negotiates their promises. Omi teaches the other three to hear silence. None calls the four-person relationship a chain of command.',
+    fault: 'No number of captain’s orders can count as one person’s consent.',
+    interventionLimit: 3,
+    trustRequired: 2,
+    reputationFloor: 0,
+    chapter2: {
+      title: 'The Four-Cushion Accord',
+      setting:
+        'The war room unfolds behind the long red couch, but the four stay beneath its invisible, life-preserving bubble. A charter has four empty signatures.',
+      speakers: [
+        {
+          name: 'Vela',
+          line: 'I will not be the emergency department for your conscience.',
+        },
+        {
+          name: 'Taal',
+          line: 'We must be able to disagree without turning an argument into an evacuation order.',
+        },
+        {
+          name: 'Omi',
+          line: 'I can say yes in several chords. I can say no in one. Please learn the second.',
+        },
+      ],
+    },
+    chapter3: {
+      title: 'Four Separate Signatures',
+      setting:
+        'Vox puts four blank spaces on a menu. The sentient Serendipity bar independently adjusts gravity so everyone sits at equal height.',
+      speakers: [
+        { name: 'Taal', line: 'I am not voting on a captain.' },
+        {
+          name: 'Vela',
+          line: 'I want affection that survives being told I am wrong.',
+        },
+        { name: 'Omi', line: 'A quartet is four people who can leave.' },
+      ],
+    },
   },
 ]
-export const ROMANCE_STORIES: readonly RelationshipStory[] = raw.map(story=>({
-  ...story,
-  portraitKeys: story.people.map(person=>'crew-'+person),
-}))
+export const ROMANCE_STORIES: readonly RelationshipStory[] = raw.map(
+  (story) => ({
+    ...story,
+    portraitKeys: story.people.map((person) => 'crew-' + person),
+  }),
+)
 export function romanceStory(id: string): RelationshipStory | undefined {
-  return ROMANCE_STORIES.find(story=>story.id===id)
+  return ROMANCE_STORIES.find((story) => story.id === id)
 }
-export const SOLO_ROMANCE_ROUTES = ROMANCE_STORIES.filter(story=>story.kind==='solo')
-export const PAIR_ROMANCE_ROUTES = ROMANCE_STORIES.filter(story=>story.kind==='pair')
+export const SOLO_ROMANCE_ROUTES = ROMANCE_STORIES.filter(
+  (story) => story.kind === 'solo',
+)
+export const PAIR_ROMANCE_ROUTES = ROMANCE_STORIES.filter(
+  (story) => story.kind === 'pair',
+)

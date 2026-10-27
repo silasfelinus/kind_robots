@@ -319,7 +319,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       }
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Could not save review.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Could not save review.'
       return false
     } finally {
       ratingBusy.value = false

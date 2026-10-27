@@ -3,21 +3,25 @@ import { createError, defineEventHandler, getQuery } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import prisma from '~/server/utils/prisma'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
-import {
-  plumberReviewSummary,
-} from '~/server/utils/plumberLevelReviews'
+import { plumberReviewSummary } from '~/server/utils/plumberLevelReviews'
 
 export default defineEventHandler(async (event) => {
   try {
     const { code } = getQuery(event)
     if (typeof code !== 'string' || code.length > 12000) {
-      throw createError({ statusCode: 400, message: 'A valid course share code is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'A valid course share code is required.',
+      })
     }
     let fingerprint: string
     try {
       fingerprint = courseFromShareCode(code).fingerprint
     } catch {
-      throw createError({ statusCode: 400, message: 'Invalid course share code.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid course share code.',
+      })
     }
     const course = await prisma.plumberLevel.findUnique({
       where: { fingerprint },

@@ -19,7 +19,10 @@ export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
     if (user.id === 10 || user.isGuest) {
-      throw createError({ statusCode: 401, message: 'Sign in to review a course.' })
+      throw createError({
+        statusCode: 401,
+        message: 'Sign in to review a course.',
+      })
     }
 
     const body = (await readBody<ReviewBody>(event)) ?? {}
@@ -30,17 +33,29 @@ export default defineEventHandler(async (event) => {
       })
     }
     if (body.comment !== undefined && typeof body.comment !== 'string') {
-      throw createError({ statusCode: 400, message: 'Review comment must be text.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Review comment must be text.',
+      })
     }
-    if (typeof body.comment === 'string' && body.comment.length > PLUMBER_REVIEW_COMMENT_MAX) {
-      throw createError({ statusCode: 400, message: 'Review comment is too long.' })
+    if (
+      typeof body.comment === 'string' &&
+      body.comment.length > PLUMBER_REVIEW_COMMENT_MAX
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'Review comment is too long.',
+      })
     }
 
     let courseData: ReturnType<typeof courseFromShareCode>
     try {
       courseData = courseFromShareCode(body.code)
     } catch {
-      throw createError({ statusCode: 400, message: 'A valid playable course is required.' })
+      throw createError({
+        statusCode: 400,
+        message: 'A valid playable course is required.',
+      })
     }
 
     // A course revision is immutable and content-addressed. Edits create a new
@@ -57,11 +72,13 @@ export default defineEventHandler(async (event) => {
       select: { id: true, isPublic: true },
     })
     if (!course.isPublic) {
-      throw createError({ statusCode: 403, message: 'This course is not available for reviews.' })
+      throw createError({
+        statusCode: 403,
+        message: 'This course is not available for reviews.',
+      })
     }
-    const comment = typeof body.comment === 'string'
-      ? body.comment.trim() || null
-      : null
+    const comment =
+      typeof body.comment === 'string' ? body.comment.trim() || null : null
     const reaction = await prisma.reaction.upsert({
       where: {
         userId_plumberLevelId: {

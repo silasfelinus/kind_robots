@@ -134,23 +134,62 @@
           <div v-if="completed" class="maker-play-result">
             <strong>COURSE CLEARED! ★</strong>
             <p>
-              {{ maker.ratingCount ? maker.ratingAverage.toFixed(1) + ' ★ · ' + maker.ratingCount + ' COMMUNITY REVIEWS' : 'BE THE FIRST TO REVIEW' }}
+              {{
+                maker.ratingCount
+                  ? maker.ratingAverage.toFixed(1) +
+                    ' ★ · ' +
+                    maker.ratingCount +
+                    ' COMMUNITY REVIEWS'
+                  : 'BE THE FIRST TO REVIEW'
+              }}
             </p>
             <template v-if="!user.isGuest">
               <label for="plumber-review-comment">YOUR REVIEW (OPTIONAL)</label>
-              <textarea id="plumber-review-comment" v-model="maker.reviewComment" maxlength="500"
-                rows="2" placeholder="What made this course fun, tricky, or memorable?" />
-              <div class="maker-stars" role="group" aria-label="Rate this course in Kind Robots">
-                <button v-for="stars in 5" :key="stars" type="button"
+              <textarea
+                id="plumber-review-comment"
+                v-model="maker.reviewComment"
+                maxlength="500"
+                rows="2"
+                placeholder="What made this course fun, tricky, or memorable?"
+              />
+              <div
+                class="maker-stars"
+                role="group"
+                aria-label="Rate this course in Kind Robots"
+              >
+                <button
+                  v-for="stars in 5"
+                  :key="stars"
+                  type="button"
                   :disabled="maker.ratingBusy"
                   :aria-label="'Save ' + stars + '-star community rating'"
                   :aria-pressed="maker.myRating === stars"
-                  @click="maker.rate(stars)">{{ stars <= maker.myRating ? '★' : '☆' }}</button>
+                  @click="maker.rate(stars)"
+                >
+                  {{ stars <= maker.myRating ? '★' : '☆' }}
+                </button>
               </div>
-              <small>{{ maker.ratingBusy ? 'SAVING REVIEW…' : maker.myRating ? 'YOUR RATING: ' + maker.myRating + ' STARS' : 'TAP STARS TO SAVE A DATABASE REVIEW' }}</small>
+              <small>{{
+                maker.ratingBusy
+                  ? 'SAVING REVIEW…'
+                  : maker.myRating
+                    ? 'YOUR RATING: ' + maker.myRating + ' STARS'
+                    : 'TAP STARS TO SAVE A DATABASE REVIEW'
+              }}</small>
             </template>
-            <small v-else>Sign in to leave a review. Public ratings are visible to everyone with the link.</small>
-            <button type="button" @click="maker.panel = 'reviews'; togglePlay()">★ READ PLAYER REVIEWS</button>
+            <small v-else
+              >Sign in to leave a review. Public ratings are visible to everyone
+              with the link.</small
+            >
+            <button
+              type="button"
+              @click="
+                maker.panel = 'reviews'
+                togglePlay()
+              "
+            >
+              ★ READ PLAYER REVIEWS
+            </button>
             <button type="button" @click="togglePlay">✎ BACK TO EDITOR</button>
           </div>
           <div v-else-if="gameOver" class="maker-play-result">
@@ -570,8 +609,7 @@ watch(mode, async (next) => {
   if (next === 'play') {
     void maker.fetchReviews()
     restart()
-  }
-  else {
+  } else {
     stopGame()
     drawEditor()
   }
@@ -1027,8 +1065,32 @@ select:focus-visible {
     transition: none !important;
   }
 }
-.maker-play-result textarea{width:min(100%,24rem);min-width:13rem;background:#f6f2df;color:#112d36;border-radius:.5rem;padding:.45rem;font:500 .8rem system-ui}
-.maker-play-result label{font-size:.7rem;color:#e0e5d1}
-.maker-play-result .maker-stars button:disabled{opacity:.45}
-@media(max-height:570px){.maker-play-result{gap:.25rem;padding:.45rem}.maker-stars button{font-size:1.5rem}.maker-play-result textarea{max-height:2.7rem}}
+.maker-play-result textarea {
+  width: min(100%, 24rem);
+  min-width: 13rem;
+  background: #f6f2df;
+  color: #112d36;
+  border-radius: 0.5rem;
+  padding: 0.45rem;
+  font: 500 0.8rem system-ui;
+}
+.maker-play-result label {
+  font-size: 0.7rem;
+  color: #e0e5d1;
+}
+.maker-play-result .maker-stars button:disabled {
+  opacity: 0.45;
+}
+@media (max-height: 570px) {
+  .maker-play-result {
+    gap: 0.25rem;
+    padding: 0.45rem;
+  }
+  .maker-stars button {
+    font-size: 1.5rem;
+  }
+  .maker-play-result textarea {
+    max-height: 2.7rem;
+  }
+}
 </style>

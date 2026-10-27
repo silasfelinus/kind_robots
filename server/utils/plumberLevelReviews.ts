@@ -7,7 +7,14 @@ export async function plumberReviewSummary(
   viewerId: number | null,
 ) {
   if (!levelId) {
-    return { courseId: null, average: 0, count: 0, myRating: 0, myComment: '', reviews: [] }
+    return {
+      courseId: null,
+      average: 0,
+      count: 0,
+      myRating: 0,
+      myComment: '',
+      reviews: [],
+    }
   }
   const where = {
     plumberLevelId: levelId,

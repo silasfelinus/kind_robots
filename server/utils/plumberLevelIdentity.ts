@@ -1,5 +1,8 @@
 import { createHash } from 'node:crypto'
-import { decodeMakerLevel, type MakerLevel } from '~/utils/arcade/games/savePlumberMaker'
+import {
+  decodeMakerLevel,
+  type MakerLevel,
+} from '~/utils/arcade/games/savePlumberMaker'
 
 /** Hash canonical, validated course contents, never an unverified client ID. */
 export function courseFromShareCode(code: unknown): {

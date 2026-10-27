@@ -75,17 +75,36 @@
       <p class="maker-tool-head">PLAYER REVIEWS</p>
       <p class="maker-review-summary">
         ★ {{ maker.ratingCount ? maker.ratingAverage.toFixed(1) : 'UNRATED' }}
-        <small>({{ maker.ratingCount }} player{{ maker.ratingCount === 1 ? '' : 's' }})</small>
+        <small
+          >({{ maker.ratingCount }} player{{
+            maker.ratingCount === 1 ? '' : 's'
+          }})</small
+        >
       </p>
-      <button type="button" class="maker-review-refresh" :disabled="maker.reviewsBusy"
-        @click="maker.fetchReviews()">
+      <button
+        type="button"
+        class="maker-review-refresh"
+        :disabled="maker.reviewsBusy"
+        @click="maker.fetchReviews()"
+      >
         {{ maker.reviewsBusy ? 'LOADING…' : '↻ REFRESH' }}
       </button>
       <p v-if="!maker.reviews.length" class="maker-help">
-        No reviews yet for this exact course version. Complete the level to leave the first one.
+        No reviews yet for this exact course version. Complete the level to
+        leave the first one.
       </p>
-      <article v-for="review in maker.reviews" :key="review.id" class="maker-review">
-        <div><strong>{{ review.username }}</strong><span>{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span></div>
+      <article
+        v-for="review in maker.reviews"
+        :key="review.id"
+        class="maker-review"
+      >
+        <div>
+          <strong>{{ review.username }}</strong
+          ><span
+            >{{ '★'.repeat(review.rating)
+            }}{{ '☆'.repeat(5 - review.rating) }}</span
+          >
+        </div>
         <p v-if="review.comment">{{ review.comment }}</p>
       </article>
     </div>

@@ -1,4 +1,5 @@
 import { personalOutcomeArt } from './identitySerial'
+import { personalOutcomeArtKey } from './personalQuests'
 import { promArt } from './artManifest'
 import { campaignVillain } from './campaign'
 import { districtEncounterFor } from './districtEncounters'
@@ -96,6 +97,20 @@ export function academyStageArt(run: AcademyRun | null): string | null {
   ) {
     const outcome = personalOutcomeArt(run)
     if (outcome && promArt(outcome)) return promArt(outcome)
+  }
+  if (
+    run.flowVersion === 3 &&
+    run.signature &&
+    run.personalHistory?.some((event) => event.day === run.day) &&
+    ['dispatch', 'debrief'].includes(run.phase)
+  ) {
+    const key = personalOutcomeArtKey(
+      run.signature,
+      run.personalHistory,
+      run.day,
+    )
+    const delivered = key ? promArt(key) : null
+    if (delivered) return delivered
   }
   if (run.phase === 'debrief' && run.reports[0])
     return promArt(incidentArtKey(run.reports[0].caseId))

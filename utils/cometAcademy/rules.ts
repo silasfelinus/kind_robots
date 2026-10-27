@@ -1,4 +1,12 @@
 import {
+  personalQuestEvent,
+  personalStanding,
+  personalFinale,
+  validPersonalHistory,
+  type PersonalMemory,
+  type PersonalChoice as WitnessChoice,
+} from './personalQuests'
+import {
   personalEncounter,
   personalEnding,
   isValidPersonalHistory,
@@ -509,6 +517,7 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   vowHistory?: VowMemory[]
+  personalHistory?: PersonalMemory[]
   identityHistory?: PersonalHistory[]
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
@@ -595,6 +604,12 @@ export function encounterFor(run: AcademyRun) {
     return {
       ...characterChapter,
       scene: campaignAnchor(run.day) + ' ' + characterChapter.scene,
+    }
+  const witnessStory = personalQuestEvent(run)
+  if (witnessStory)
+    return {
+      ...witnessStory,
+      scene: campaignAnchor(run.day) + ' ' + witnessStory.scene,
     }
   const personalStory = openingRouteFor(run)
   if (personalStory)
@@ -965,7 +980,8 @@ export function dispatchModifier(
     identityPressure +
     (run.flowVersion === 3
       ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
-        socialMissionBonus(run.relationships, [...students])
+        socialMissionBonus(run.relationships, [...students]) +
+        Math.sign(personalStanding(run.personalHistory))
       : 0) +
     response +
     (route?.boost ?? 0)
@@ -1206,6 +1222,16 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   const vowHistory = vowAction
     ? [...(run.vowHistory ?? []), { day: run.day, action: vowAction }]
     : run.vowHistory
+  const witnessMatch = /^personal-(6|9|19|22)-(protect|confront|exploit)$/.exec(
+    option.id,
+  )
+  const witnessChoice =
+    Number(witnessMatch?.[1]) === run.day
+      ? (witnessMatch?.[2] as WitnessChoice)
+      : null
+  const personalHistory = witnessChoice
+    ? [...(run.personalHistory ?? []), { day: run.day, choice: witnessChoice }]
+    : run.personalHistory
   const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
   const plotEvidence = [...(run.plotEvidence ?? [])]
   if (
@@ -1239,6 +1265,7 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'dispatch' : 'debrief',
     ...(vowAction ? { vowHistory } : {}),
+    ...(witnessChoice ? { personalHistory } : {}),
     ...(personalAction ? { identityHistory } : {}),
     ...(run.flowVersion === 3 && run.day === 29
       ? {
@@ -1347,6 +1374,7 @@ export function finishAcademy(
       evidenceCount * 2 +
       (reconciled ? 2 : 0) +
       routeStanding(run.vowHistory) +
+      personalStanding(run.personalHistory) +
       personalOutcomeModifier(run.identityHistory)
     const identityPressure = opponentPressure(
       run.signature,
@@ -1398,7 +1426,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -1494,6 +1522,10 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
     (data.vowHistory !== undefined &&
       (!data.vow || !isVowMemory(data.vowHistory, data.day ?? 0))) ||
+    (data.personalHistory !== undefined &&
+      (!data.signature ||
+        data.flowVersion !== 3 ||
+        !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
     (data.identityHistory !== undefined &&
       (!data.signature ||
         !isValidPersonalHistory(data.identityHistory, data.day ?? 0))) ||

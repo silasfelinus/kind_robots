@@ -449,13 +449,21 @@ for (const [firstId, secondId] of pairedPhotoCases) {
         'Future photographs must not expose an early comparison',
       )
       assert.equal(
-        respondToEarthPhoto(journal, firstId, firstResponse === 'hold' ? 'challenge' : 'hold'),
+        respondToEarthPhoto(
+          journal,
+          firstId,
+          firstResponse === 'hold' ? 'challenge' : 'hold',
+        ),
         journal,
         'Pair comparisons must never rewrite the original response',
       )
     }
   }
-  assert.equal(outcomes.size, 4, 'Every paired interpretation has unique authored copy')
+  assert.equal(
+    outcomes.size,
+    4,
+    'Every paired interpretation has unique authored copy',
+  )
 }
 assert.equal(earthPhotoReappraisal(newEarthChronicle(), 'earth-01'), null)
 

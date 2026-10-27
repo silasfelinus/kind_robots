@@ -4,6 +4,19 @@ import {
   relationshipEpilogue,
   type RomanceChoiceId,
 } from '~/utils/gameOfCaptains/romance'
+import {
+  chooseTrioStep,
+  restoreTrioAdventure,
+  trioEpilogue,
+  type TrioEndingIndex,
+} from '~/utils/gameOfCaptains/trioAdventures'
+import {
+  startWorldTravel,
+  arriveAtWorld,
+  deployExpedition,
+  leaveExpedition,
+  hireRedshirt,
+} from '~/utils/gameOfCaptains/expedition'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
@@ -54,7 +67,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded.value = true
     try {
       const raw = localStorage.getItem(SAVE_KEY)
-      run.value = restoreVoyage(raw ? JSON.parse(raw) : null)
+      run.value = restoreTrioAdventure(
+        restoreVoyage(raw ? JSON.parse(raw) : null),
+      )
     } catch {
       run.value = null
       storageWarning.value =
@@ -77,6 +92,31 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function chartMission(missionId: string) {
     if (!run.value) return
     run.value = chooseMission(run.value, missionId)
+    persist()
+  }
+  function travel() {
+    if (!run.value) return
+    run.value = startWorldTravel(run.value)
+    persist()
+  }
+  function arrive() {
+    if (!run.value) return
+    run.value = arriveAtWorld(run.value)
+    persist()
+  }
+  function deploy(encounterId: string, lead: string) {
+    if (!run.value) return
+    run.value = deployExpedition(run.value, encounterId, lead)
+    persist()
+  }
+  function endExpedition() {
+    if (!run.value) return
+    run.value = leaveExpedition(run.value)
+    persist()
+  }
+  function hire() {
+    if (!run.value) return
+    run.value = hireRedshirt(run.value)
     persist()
   }
   function chooseRoom(room: PocketRoom | null) {
@@ -114,6 +154,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = applyRomanceChoice(run.value, choice)
     persist()
   }
+  function chooseTrio(option: TrioEndingIndex) {
+    if (!run.value) return
+    run.value = chooseTrioStep(run.value, option)
+    persist()
+  }
   function detour(crewId: CrewId) {
     if (!run.value) return
     run.value = beginCrewDetour(run.value, crewId)
@@ -131,7 +176,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = relationshipEpilogue(finishVoyage(run.value, strategy))
+    run.value = trioEpilogue(
+      relationshipEpilogue(finishVoyage(run.value, strategy)),
+    )
     persist()
   }
   function restart() {
@@ -148,12 +195,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     assign,
     chooseRoom,
     chartMission,
+    travel,
+    arrive,
+    deploy,
+    endExpedition,
+    hire,
     rechargeShield,
     launch,
     advanceDay,
     decide,
     next,
     chooseRomance,
+    chooseTrio,
     detour,
     planDetour,
     resolveDetour,

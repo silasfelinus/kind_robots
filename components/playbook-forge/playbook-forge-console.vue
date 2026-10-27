@@ -42,7 +42,9 @@
         <div
           v-if="
             forge.existing &&
-            ['ledger', 'gallery', 'beats', 'kit'].includes(forge.screen)
+            ['ledger', 'gallery', 'redshirts', 'beats', 'kit'].includes(
+              forge.screen,
+            )
           "
           class="flex min-w-0 flex-1 items-center gap-3"
           aria-label="Selected playbook"
@@ -59,13 +61,15 @@
             </p>
             <p class="truncate text-xs opacity-70">
               {{
-                forge.screen === 'ledger'
-                  ? 'Production ledger'
-                  : forge.screen === 'gallery'
-                    ? 'Visual story atlas'
-                    : forge.screen === 'beats'
-                      ? 'Story editor'
-                      : 'Rehearsal'
+                forge.screen === 'redshirts'
+                  ? 'Redshirt story atlas'
+                  : forge.screen === 'ledger'
+                    ? 'Production ledger'
+                    : forge.screen === 'gallery'
+                      ? 'Visual story atlas'
+                      : forge.screen === 'beats'
+                        ? 'Story editor'
+                        : 'Rehearsal'
               }}
             </p>
           </div>
@@ -150,6 +154,7 @@
           <PlaybookForgeLibrary v-else-if="forge.screen === 'library'" />
           <PlaybookForgeLedger v-else-if="forge.screen === 'ledger'" />
           <PlaybookForgeGallery v-else-if="forge.screen === 'gallery'" />
+          <PlaybookForgeRedshirts v-else-if="forge.screen === 'redshirts'" />
           <PlaybookForgeBeats v-else-if="forge.screen === 'beats'" />
           <PlaybookForgeKit v-else-if="forge.screen === 'kit'" />
           <PlaybookForgeGestation v-else-if="forge.screen === 'gestation'" />
@@ -341,7 +346,9 @@ onMounted(() => {
   const kitGame = route.query.kit
   const studioGame = route.query.game
   const gallery = route.query.gallery
-  if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
+  const redshirts = route.query.redshirts
+  if (redshirts !== undefined) forge.openRedshirts()
+  else if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
   else if (typeof ledger === 'string' && ledger) void forge.openLedger(ledger)
   else if (typeof gallery === 'string' && gallery)
     void forge.openGallery(

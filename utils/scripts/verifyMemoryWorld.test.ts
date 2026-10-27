@@ -75,6 +75,7 @@ import {
   restoreBriarSave,
   recoverBriarCombatDefeat,
   recoverBriarRoomMissPenalty,
+  recoverBriarRoomFirstFlip,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
 import {
@@ -1815,7 +1816,7 @@ assert.doesNotThrow(
 assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
 assert.match(
   worldStoreSource,
-  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = recoveredRoom/,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumedRoom\.progress/,
   'Loading a slot invalidates pending map and mirrored animation callbacks',
 )
 assert.match(
@@ -1937,6 +1938,109 @@ assert.equal(
   ).length,
   2,
   'Both restoration entry points must use the same idempotent combat recovery',
+)
+
+const chamberCards = [
+  { id: 0, pairId: 0, image: '/pair-a.webp', matched: false, flipped: true },
+  { id: 1, pairId: 0, image: '/pair-a.webp', matched: false, flipped: false },
+  { id: 2, pairId: 1, image: '/pair-b.webp', matched: false, flipped: false },
+  { id: 3, pairId: 1, image: '/pair-b.webp', matched: false, flipped: false },
+]
+const firstChamberFlip = {
+  ...newBriarSave(),
+  room: 'memory' as const,
+  roomId: 'vault-1' as const,
+  cards: chamberCards,
+}
+const normalizedChamber = restoreBriarSave(firstChamberFlip)
+assert.equal(normalizedChamber.cards[0]?.flipped, false)
+const recoveredChamber = recoverBriarRoomFirstFlip(
+  normalizedChamber,
+  firstChamberFlip,
+)
+assert.equal(recoveredChamber.firstCard, 0, 'Card zero must survive reload')
+assert.equal(recoveredChamber.progress.cards[0]?.flipped, true)
+assert.equal(
+  recoveredChamber.progress.cards.filter((card) => card.flipped).length,
+  1,
+)
+assert.equal(recoveredChamber.progress.attempts, 0)
+assert.equal(recoveredChamber.progress.hearts, 3)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave(recoveredChamber.progress),
+    recoveredChamber.progress,
+  ).firstCard,
+  0,
+  'Repeated reloads retain one selected picture without charging a turn',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave({
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    }),
+    {
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    },
+  ).firstCard,
+  null,
+  'A pending mismatch must not restore multiple exposed pictures',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
+      card.id === 0 ? { ...card, image: '/forged.webp' } : card,
+    ),
+  }).firstCard,
+  null,
+  'A changed picture identity cannot revive an interrupted first flip',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
+      card.id === 1 ? { ...card, image: '/forged.webp' } : card,
+    ),
+  }).firstCard,
+  null,
+  'A corrupted partner picture cannot turn a preview into a valid pair',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave({ ...firstChamberFlip, room: 'map' }),
+    firstChamberFlip,
+  ).firstCard,
+  null,
+  'Chamber selections never leak into the overworld matching screen',
+)
+assert.ok(
+  restoreMemoryCheckpoint({ ...checkpoint, briar: firstChamberFlip }),
+  'Manual checkpoints preserve a valid pending chamber selection',
+)
+assert.match(
+  worldStoreSource,
+  /const resumedRoom = recoverBriarRoomFirstFlip\(\s*recoveredRoom,\s*checkpoint\.briar,\s*\)/,
+  'Checkpoint loading restores the selected chamber card',
+)
+assert.match(
+  worldStoreSource,
+  /const resumedRoom = recoverBriarRoomFirstFlip\(recoveredRoom, raw\)/,
+  'Autosave hydration restores the same selected chamber card',
+)
+assert.equal(
+  (worldStoreSource.match(/firstCard\.value = resumedRoom\.firstCard/g) ?? [])
+    .length,
+  2,
+  'Both restoration paths reconnect the recovered selection to the next click',
 )
 
 const interruptedThirdMissRoom = {

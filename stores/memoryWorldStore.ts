@@ -107,6 +107,7 @@ import {
   restoreBriarSave,
   recoverBriarCombatDefeat,
   recoverBriarRoomMissPenalty,
+  recoverBriarRoomFirstFlip,
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
@@ -573,6 +574,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     )
     const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
     const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
+    const resumedRoom = recoverBriarRoomFirstFlip(
+      recoveredRoom,
+      checkpoint.briar,
+    )
     const reality = restoreMemoryRealitySave(checkpoint.reality)
     const resumedDark = recoverDarkBriarTurn(
       restoreDarkBriarProgress(checkpoint.dark),
@@ -587,7 +592,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkLoading.value = false
     turnLocked.value = false
     darkTurnLocked.value = false
-    firstCard.value = null
+    firstCard.value = resumedRoom.firstCard
     darkFirstCard.value = resumedDark.firstTile
     firstMapCard.value = resumed.firstTile
     latestMapCardKey.value = resumed.firstTile
@@ -601,7 +606,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldActive.value = false
     minefieldHint.value = null
 
-    state.value = recoveredRoom
+    state.value = resumedRoom.progress
     dark.value = resumedDark.progress
     darkHouse.value = restoredHouse
     crossMapSeals.value = restoredSeals
@@ -658,10 +663,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           const resumed = recoverBriarWaveTurn(restoreBriarSave(raw), raw)
           const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
           const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
-          state.value = recoveredRoom
+          const resumedRoom = recoverBriarRoomFirstFlip(recoveredRoom, raw)
+          state.value = resumedRoom.progress
+          firstCard.value = resumedRoom.firstCard
           firstMapCard.value = resumed.firstTile
           latestMapCardKey.value = resumed.firstTile
-          if (resumed.recovered || recoveredRoom !== resumed.progress) persist()
+          if (
+            resumed.recovered ||
+            recoveredRoom !== resumed.progress ||
+            resumedRoom.recovered
+          )
+            persist()
         }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks

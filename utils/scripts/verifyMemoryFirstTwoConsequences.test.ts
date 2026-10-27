@@ -367,6 +367,63 @@ assert.equal(
   null,
   'Forged witness policy must never earn a clue',
 )
+// A recovered Earth photograph is portable evidence, regardless of whether
+// the protagonist archived it clinically or admitted their fear. Neither
+// reaction invents a clue for a player who skipped the encounter.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('2,5'))
+assert.ok(briarConnected(BRIAR_START, '2,5', BRIAR_REVEAL_WAVES[0]!))
+for (const photoChoice of ['archive', 'grieve'] as const) {
+  const option = BRIAR_SCENES['2,5']?.choices.find(
+    (choice) => choice.id === photoChoice,
+  )
+  assert.ok(option)
+  assert.equal(canChooseBriarScene(option, { wildflowers: 0, lanterns: 1 }), true)
+  const original = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: BRIAR_REVEAL_WAVES[0],
+        visited: [BRIAR_START, '2,5'],
+        player: '2,5',
+        wavePhase: 'exploring',
+        sceneChoices: { '2,5': photoChoice },
+      }),
+    ),
+  )
+  assert.equal(earnedDarkHousePuzzleClue(original, 'HD-13'), 'earth-photo')
+  assert.equal(earnedDarkHousePuzzleClue(original, 'HD-25'), null)
+  const atPantry = {
+    ...newDarkHouseProgress(),
+    active: true,
+    current: 'HD-13' as const,
+  }
+  assert.equal(darkHousePuzzleHint(atPantry), atPantry)
+  assert.equal(darkHousePuzzleHint(atPantry, 'names'), atPantry)
+  const helped = darkHousePuzzleHint(
+    atPantry,
+    earnedDarkHousePuzzleClue(original, 'HD-13'),
+  )
+  assert.equal(helped.spentEchoes, 0)
+  assert.equal(helped.puzzles['HD-13']?.hint, true)
+  assert.match(helped.puzzles['HD-13']?.note ?? '', /photograph|meals/i)
+  const restored = restoreDarkHouseProgress(JSON.parse(JSON.stringify(helped)))
+  assert.equal(darkHousePuzzleHint(restored, 'earth-photo'), restored)
+  const decided = { ...atPantry, decisions: { 'HD-13': 'attend' } }
+  assert.equal(
+    darkHousePuzzleHint(decided, 'earth-photo'),
+    decided,
+    'An already-decided room cannot consume its earned photo clue',
+  )
+}
+assert.equal(earnedDarkHousePuzzleClue(base, 'HD-13'), null)
+assert.equal(
+  earnedDarkHousePuzzleClue(
+    { ...base, sceneChoices: { '2,5': 'invented' } },
+    'HD-13',
+  ),
+  null,
+)
+
 const solvedTrial = darkHouseTrialFaces('HD-09')
 const paidPuzzle = {
   ...newDarkHouseProgress(),
@@ -399,6 +456,7 @@ assert.ok(houseStage.includes('world.darkHouseEarnedClue'))
 assert.ok(houseStage.includes('free clue'))
 assert.ok(houseStage.includes('Witness testimony · free clue'))
 assert.ok(houseStage.includes('Protected witnesses · free clue'))
+assert.ok(houseStage.includes('Dated Earth photograph · free clue'))
 
 console.log(
   'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',

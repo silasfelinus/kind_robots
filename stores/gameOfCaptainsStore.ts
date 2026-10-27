@@ -1,5 +1,8 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
-import { visitCasinoVenue, type CasinoChoice } from '~/utils/gameOfCaptains/solarCircuit'
+import {
+  visitCasinoVenue,
+  type CasinoChoice,
+} from '~/utils/gameOfCaptains/solarCircuit'
 import {
   chooseRomance as applyRomanceChoice,
   relationshipEpilogue,

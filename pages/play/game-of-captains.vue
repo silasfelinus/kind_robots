@@ -312,10 +312,20 @@
                 says they have more.
               </p>
             </section>
-            <section class="cap-solar-circuit" data-testid="space-couch-solar-circuit" aria-label="Voyage solar-system circuit">
+            <section
+              class="cap-solar-circuit"
+              data-testid="space-couch-solar-circuit"
+              aria-label="Voyage solar-system circuit"
+            >
               <header class="cap-expedition-head">
-                <strong>FINITE STAR CIRCUIT · {{ circuit.length }} SOLAR SYSTEMS</strong>
-                <small>One territory per chapter · you may revisit familiar systems</small>
+                <strong
+                  >FINITE STAR CIRCUIT · {{ circuit.length }} SOLAR
+                  SYSTEMS</strong
+                >
+                <small
+                  >One territory per chapter · you may revisit familiar
+                  systems</small
+                >
               </header>
               <div class="cap-system-nodes">
                 <div
@@ -325,10 +335,17 @@
                   :class="{ active: system.id === localSystem.id }"
                 >
                   <strong>{{ system.name }}</strong>
-                  <small>{{ system.giant }} Grand Casino · {{ system.franchise.name }}</small>
+                  <small
+                    >{{ system.giant }} Grand Casino ·
+                    {{ system.franchise.name }}</small
+                  >
                 </div>
               </div>
-              <p class="cap-narrative"><b>{{ localSystem.name }}:</b> {{ localSystem.conflict }} The casino, built across {{ localSystem.giant }}'s living body, contains the local Serendipity bar.</p>
+              <p class="cap-narrative">
+                <b>{{ localSystem.name }}:</b> {{ localSystem.conflict }} The
+                casino, built across {{ localSystem.giant }}'s living body,
+                contains the local Serendipity bar.
+              </p>
             </section>
             <section
               class="cap-route-board"
@@ -573,7 +590,11 @@
             >
               <h3>{{ localSystem.name }} · {{ localSystem.casinoName }}</h3>
               <p>{{ CASINO_ORIGIN }}</p>
-              <p><strong>ON THE LIVING CASINO:</strong> {{ localSystem.franchise.name }}. {{ localSystem.franchise.theme }}. {{ localSystem.conflict }}</p>
+              <p>
+                <strong>ON THE LIVING CASINO:</strong>
+                {{ localSystem.franchise.name }}.
+                {{ localSystem.franchise.theme }}. {{ localSystem.conflict }}
+              </p>
               <h3>{{ REDSHIRT_QUARTERS.name }}</h3>
               <p>{{ run.scene }}</p>
               <p>{{ REDSHIRT_QUARTERS.description }}</p>
@@ -605,15 +626,39 @@
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
-            <section class="cap-casino-scene" data-testid="space-couch-blue-giant-casino">
+            <section
+              class="cap-casino-scene"
+              data-testid="space-couch-blue-giant-casino"
+            >
               <div class="cap-expedition-head">
-                <strong>{{ localSystem.casinoName }} · {{ localSystem.name }}</strong>
-                <small>ONE CASINO · ONE SERENDIPITY FRANCHISE · TWO QUESTS</small>
+                <strong
+                  >{{ localSystem.casinoName }} · {{ localSystem.name }}</strong
+                >
+                <small
+                  >ONE CASINO · ONE SERENDIPITY FRANCHISE · TWO QUESTS</small
+                >
               </div>
               <div class="cap-casino-layout">
                 <div class="cap-casino-art">
-                  <img v-if="franchiseImage" :src="franchiseImage" :alt="localSystem.franchise.name + ' bar built on ' + localSystem.giant + ' the living blue giant casino host'" />
-                  <div v-else class="cap-casino-art-pending" role="img" :aria-label="localSystem.franchise.name + ' venue illustration not yet delivered'">
+                  <img
+                    v-if="franchiseImage"
+                    :src="franchiseImage"
+                    :alt="
+                      localSystem.franchise.name +
+                      ' bar built on ' +
+                      localSystem.giant +
+                      ' the living blue giant casino host'
+                    "
+                  />
+                  <div
+                    v-else
+                    class="cap-casino-art-pending"
+                    role="img"
+                    :aria-label="
+                      localSystem.franchise.name +
+                      ' venue illustration not yet delivered'
+                    "
+                  >
                     <strong>{{ localSystem.franchise.name }}</strong>
                     <span>{{ localSystem.franchise.theme }}</span>
                     <small>Original illustration pending delivery</small>
@@ -621,33 +666,98 @@
                 </div>
                 <div class="cap-casino-description">
                   <h3>{{ localSystem.franchise.name }}</h3>
-                  <p>{{ localSystem.franchise.theme }}. Vox serves beneath a casino built on the living body of the blue giant {{ localSystem.giant }}. The former homeworld was colonized, and the operators call this arrangement fair.</p>
+                  <p>
+                    {{ localSystem.franchise.theme }}. Vox serves beneath a
+                    casino built on the living body of the blue giant
+                    {{ localSystem.giant }}. The former homeworld was colonized,
+                    and the operators call this arrangement fair.
+                  </p>
                   <p class="cap-narrative">{{ localSystem.conflict }}</p>
                 </div>
               </div>
               <div class="cap-venue-quests">
-                <article class="cap-expedition-card" data-testid="space-couch-casino-quest">
-                  <div class="cap-expedition-head"><strong>GIGANTIC CASINO · {{ casinoEvent.title }}</strong><small>Seeded local dilemma</small></div>
+                <article
+                  class="cap-expedition-card"
+                  data-testid="space-couch-casino-quest"
+                >
+                  <div class="cap-expedition-head">
+                    <strong>GIGANTIC CASINO · {{ casinoEvent.title }}</strong
+                    ><small>Seeded local dilemma</small>
+                  </div>
                   <p>{{ casinoEvent.description }}</p>
                   <div v-if="!casinoQuestDone" class="cap-venue-actions">
-                    <button type="button" class="cap-option" data-testid="space-couch-casino-ask" @click="store.visitVenue('casino', 'ask')">Ask the blue host · -1 supply, +1 trust</button>
-                    <button type="button" class="cap-option" @click="store.visitVenue('casino', 'document')">Collect evidence · +1 reputation</button>
-                    <button type="button" class="cap-option" @click="store.visitVenue('casino', 'override')">Intervene now · +1 supply, -1 trust</button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      data-testid="space-couch-casino-ask"
+                      @click="store.visitVenue('casino', 'ask')"
+                    >
+                      Ask the blue host · -1 supply, +1 trust
+                    </button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      @click="store.visitVenue('casino', 'document')"
+                    >
+                      Collect evidence · +1 reputation
+                    </button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      @click="store.visitVenue('casino', 'override')"
+                    >
+                      Intervene now · +1 supply, -1 trust
+                    </button>
                   </div>
-                  <p v-else class="cap-expedition-outcome">Casino issue addressed this visit. The host and workers will remember your approach.</p>
+                  <p v-else class="cap-expedition-outcome">
+                    Casino issue addressed this visit. The host and workers will
+                    remember your approach.
+                  </p>
                 </article>
-                <article class="cap-expedition-card" data-testid="space-couch-serendipity-quest">
+                <article
+                  class="cap-expedition-card"
+                  data-testid="space-couch-serendipity-quest"
+                >
                   <div class="cap-expedition-head">
-                    <strong>SERENDIPITY FRANCHISE · {{ barBeat ? barBeat.title : 'After Hours' }}</strong>
-                    <small>{{ barBeat ? 'Story beat ' + (barStage + 1) + ' of 3' : 'Recurring seeded encounter' }}</small>
+                    <strong
+                      >SERENDIPITY FRANCHISE ·
+                      {{ barBeat ? barBeat.title : 'After Hours' }}</strong
+                    >
+                    <small>{{
+                      barBeat
+                        ? 'Story beat ' + (barStage + 1) + ' of 3'
+                        : 'Recurring seeded encounter'
+                    }}</small>
                   </div>
                   <p>{{ barBeat ? barBeat.situation : barEncore }}</p>
                   <div v-if="!barQuestDone" class="cap-venue-actions">
-                    <button type="button" class="cap-option" data-testid="space-couch-bar-ask" @click="store.visitVenue('bar', 'ask')">Ask and negotiate · -1 supply, +1 trust</button>
-                    <button type="button" class="cap-option" @click="store.visitVenue('bar', 'document')">Record and expose · +1 reputation</button>
-                    <button type="button" class="cap-option" @click="store.visitVenue('bar', 'override')">Act without permission · +1 supply, -1 trust</button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      data-testid="space-couch-bar-ask"
+                      @click="store.visitVenue('bar', 'ask')"
+                    >
+                      Ask and negotiate · -1 supply, +1 trust
+                    </button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      @click="store.visitVenue('bar', 'document')"
+                    >
+                      Record and expose · +1 reputation
+                    </button>
+                    <button
+                      type="button"
+                      class="cap-option"
+                      @click="store.visitVenue('bar', 'override')"
+                    >
+                      Act without permission · +1 supply, -1 trust
+                    </button>
                   </div>
-                  <p v-else class="cap-expedition-outcome">The franchise story is recorded for this visit. New incidents may surface on your return.</p>
+                  <p v-else class="cap-expedition-outcome">
+                    The franchise story is recorded for this visit. New
+                    incidents may surface on your return.
+                  </p>
                 </article>
               </div>
             </section>
@@ -1400,18 +1510,42 @@ const mission = computed(() =>
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
 const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
-const localSystem = computed(() => chapterSystem(run.value?.seed ?? 1, run.value?.chapter ?? 1))
-const casinoEvent = computed(() => casinoIncident(run.value?.seed ?? 1, run.value?.chapter ?? 1, localSystem.value))
-const barEncore = computed(() => afterHoursIncident(run.value?.seed ?? 1, run.value?.chapter ?? 1, localSystem.value))
-const barStage = computed(() => Math.min(3, run.value?.venueProgress?.barBeats[localSystem.value.id] ?? 0))
-const barBeat = computed(() => localSystem.value.franchise.beats[barStage.value] ?? null)
+const localSystem = computed(() =>
+  chapterSystem(run.value?.seed ?? 1, run.value?.chapter ?? 1),
+)
+const casinoEvent = computed(() =>
+  casinoIncident(
+    run.value?.seed ?? 1,
+    run.value?.chapter ?? 1,
+    localSystem.value,
+  ),
+)
+const barEncore = computed(() =>
+  afterHoursIncident(
+    run.value?.seed ?? 1,
+    run.value?.chapter ?? 1,
+    localSystem.value,
+  ),
+)
+const barStage = computed(() =>
+  Math.min(3, run.value?.venueProgress?.barBeats[localSystem.value.id] ?? 0),
+)
+const barBeat = computed(
+  () => localSystem.value.franchise.beats[barStage.value] ?? null,
+)
 const casinoQuestDone = computed(() =>
-  (run.value?.venueProgress?.completed ?? []).includes(`${run.value?.chapter}:${localSystem.value.id}:casino`),
+  (run.value?.venueProgress?.completed ?? []).includes(
+    `${run.value?.chapter}:${localSystem.value.id}:casino`,
+  ),
 )
 const barQuestDone = computed(() =>
-  (run.value?.venueProgress?.completed ?? []).includes(`${run.value?.chapter}:${localSystem.value.id}:bar`),
+  (run.value?.venueProgress?.completed ?? []).includes(
+    `${run.value?.chapter}:${localSystem.value.id}:bar`,
+  ),
 )
-const franchiseImage = computed(() => warpArt('venues/' + localSystem.value.franchise.id))
+const franchiseImage = computed(() =>
+  warpArt('venues/' + localSystem.value.franchise.id),
+)
 
 const dispatchChoice = ref<Record<string, string>>({})
 const expeditionComplete = computed(() =>
@@ -1791,7 +1925,8 @@ function toggleAway(id: CrewId) {
 .cap-redshirt-dorm,
 .cap-solar-circuit,
 .cap-casino-scene {
-  border: 1px solid color-mix(in srgb, var(--color-primary, #e8b779) 45%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary, #e8b779) 45%, transparent);
   border-radius: 1rem;
   background: color-mix(in srgb, #0e1b35 90%, transparent);
   padding: clamp(0.75rem, 2cqi, 1.15rem);
@@ -1834,7 +1969,11 @@ function toggleAway(id: CrewId) {
   background: #142644;
   min-width: 0;
 }
-.cap-casino-art img { width: 100%; height: 100%; object-fit: cover; }
+.cap-casino-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .cap-casino-art-pending {
   width: 100%;
   height: 100%;
@@ -1848,15 +1987,26 @@ function toggleAway(id: CrewId) {
   color: #f6d198;
   background: radial-gradient(ellipse at 68% 25%, #264d94 0, #0a1530 68%);
 }
-.cap-casino-art-pending strong { font-size: clamp(1rem, 2cqi, 1.7rem); }
-.cap-casino-art-pending small { opacity: 0.8; }
+.cap-casino-art-pending strong {
+  font-size: clamp(1rem, 2cqi, 1.7rem);
+}
+.cap-casino-art-pending small {
+  opacity: 0.8;
+}
 .cap-venue-quests {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
   gap: 0.65rem;
 }
-.cap-venue-actions { display: grid; gap: 0.35rem; margin-top: 0.75rem; }
-.cap-venue-actions .cap-option { text-align: left; font-size: 0.8rem; }
+.cap-venue-actions {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+.cap-venue-actions .cap-option {
+  text-align: left;
+  font-size: 0.8rem;
+}
 
 .cap-expedition-board {
   display: grid;

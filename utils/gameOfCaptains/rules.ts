@@ -36,7 +36,11 @@ import {
   NEMESIS_COUNTERPLAY,
 } from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
-import { chapterSystem, newVenueProgress, type VenueProgress } from './solarCircuit'
+import {
+  chapterSystem,
+  newVenueProgress,
+  type VenueProgress,
+} from './solarCircuit'
 import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
@@ -1304,17 +1308,20 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
         typeof data.venueProgress !== 'object' ||
         !data.venueProgress.barBeats ||
         typeof data.venueProgress.barBeats !== 'object' ||
-        Object.values(data.venueProgress.barBeats).some((n) => !Number.isInteger(n) || n < 0 || n > 3) ||
+        Object.values(data.venueProgress.barBeats).some(
+          (n) => !Number.isInteger(n) || n < 0 || n > 3,
+        ) ||
         !Array.isArray(data.venueProgress.completed) ||
         data.venueProgress.completed.some((key) => typeof key !== 'string') ||
         !Array.isArray(data.venueProgress.choices) ||
-        data.venueProgress.choices.some((record) =>
-          !record ||
-          typeof record.systemId !== 'string' ||
-          !Number.isInteger(record.chapter) ||
-          !['bar', 'casino'].includes(record.venue) ||
-          !['ask', 'document', 'override'].includes(record.choice) ||
-          typeof record.scene !== 'string',
+        data.venueProgress.choices.some(
+          (record) =>
+            !record ||
+            typeof record.systemId !== 'string' ||
+            !Number.isInteger(record.chapter) ||
+            !['bar', 'casino'].includes(record.venue) ||
+            !['ask', 'document', 'override'].includes(record.choice) ||
+            typeof record.scene !== 'string',
         ))) ||
     (data.expeditionHistory !== undefined &&
       (!Array.isArray(data.expeditionHistory) ||

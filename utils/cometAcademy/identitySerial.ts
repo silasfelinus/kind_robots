@@ -137,7 +137,7 @@ export function personalEncounter(run: AcademyRun) {
     return {
       title: `${person.student.alias}: Between Two Masks`,
       location: 'Comet City / Private Conversation',
-      scene: `${story.relationship} ${other.realName} has a different origin and will not automatically share ${person.realName}'s solution. ${person.quests.partner} ${early === 'conceal' ? 'The hidden file still casts a shadow over this meeting.' : 'The early search gives both people grounds to speak honestly.'} A strong alliance, an adult romance, or separate paths can all be honorable choices.`,
+      scene: `${person.realName} must decide whom to trust. ${story.relationship} ${other.realName} has a different origin and will not automatically share ${person.realName}'s solution. ${person.quests.partner} ${early === 'conceal' ? 'The hidden file still casts a shadow over this meeting.' : 'The early search gives both people grounds to speak honestly.'} A strong alliance, an adult romance, or separate paths can all be honorable choices.`,
       options: [
         decision(
           'ally',
@@ -166,7 +166,7 @@ export function personalEncounter(run: AcademyRun) {
     return {
       title: `${person.student.alias}: The Price of a Secret`,
       location: 'Comet City / Betrayed Promises',
-      scene: `${story.betrayal} The offer echoes ${person.villainDecision} ${other.realName} insists that protecting a friend never means covering up harm to strangers. ${early === 'conceal' ? 'The original withheld evidence is now part of the blackmail.' : 'The public evidence makes the attempted cover-up harder.'}`,
+      scene: `${person.realName} receives an impossible bargain. ${story.betrayal} The offer echoes ${person.villainDecision} ${other.realName} insists that protecting a friend never means covering up harm to strangers. ${early === 'conceal' ? 'The original withheld evidence is now part of the blackmail.' : 'The public evidence makes the attempted cover-up harder.'}`,
       options: [
         decision(
           'expose',
@@ -194,7 +194,7 @@ export function personalEncounter(run: AcademyRun) {
   return {
     title: `${person.student.alias}: The Person Behind the Legend`,
     location: 'Comet City / Personal Reckoning',
-    scene: `${story.fallout} ${person.heroDecision} Or ${person.villainDecision} ${relationshipStatus} ${crisis === 'leverage' ? `${other.realName} has not forgotten the betrayal and will not play a convenient supporting role.` : `${other.realName} recognizes the choice to hear people who were harmed.`}`,
+    scene: `${person.realName} confronts the person they have become. ${story.fallout} ${person.heroDecision} Or ${person.villainDecision} ${relationshipStatus} ${crisis === 'leverage' ? `${other.realName} has not forgotten the betrayal and will not play a convenient supporting role.` : `${other.realName} recognizes the choice to hear people who were harmed.`}`,
     options: [
       decision(
         'hero',

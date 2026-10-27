@@ -156,7 +156,6 @@
                   tile.key,
                   world.dark.revealed,
                   world.dark,
-                  world.state,
                 )
               "
               @click="world.darkWalk(tile.key)"

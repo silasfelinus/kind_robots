@@ -156,7 +156,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
   {
     slug: 'comet-city-academy',
     studio: 'comet-city-academy',
-    title: 'Capes & Tassels: Prom of Doom',
+    title: 'Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     route: '/play/comet-city-academy',
     planSource:

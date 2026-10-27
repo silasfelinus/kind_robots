@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import {
   TIERS,
   TIER_BUDGETS,
+  allArt,
   auditPlaybookKit,
   countDimensions,
   fitsTier,
@@ -280,6 +282,19 @@ for (const dir of ['components/playbook-kit', 'components/playbook-forge'])
       `${dir}/${file} declares a CSS layer`,
     )
 assert.match(shell, /class="pf-console pk-shell/)
+
+// The reference Vignette carries a literal Krea 2 prompt for every picture,
+// faction emblems included (conductor playbook-kit t-029); the Playbook Forge
+// verifier holds its unpainted beats, this holds the rest.
+assert.ok(LANTERN_FERRY.artPromptsComplete)
+for (const art of allArt(LANTERN_FERRY)) {
+  assert.ok(art.prompt?.trim(), `${art.brief}: has a prompt`)
+  assert.deepEqual(
+    checkArtPromptContract({ prompt: art.prompt!, engine: 'krea2' }),
+    [],
+    `${art.brief}: prompt passes the enqueue contract`,
+  )
+}
 
 console.log(
   `Playbook Kit: ${KIT_PLAYBOOKS.length} playbook(s) within budget; scaffold, settings and saves verified.`,

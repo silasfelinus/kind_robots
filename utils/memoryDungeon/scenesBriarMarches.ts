@@ -6,7 +6,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'An elder walks the lane asleep with a lit candle balanced on one palm. Behind them a shadow wearing their childhood face repeats every footstep half a beat late. Their bare feet are taking them toward the flooded ditch, though the shadow is carefully avoiding it.',
     artPrompt:
-      'Atmospheric hand-painted dark Grimm fairy tale, sleeping elder with candle and a child-shaped shadow lagging behind on a wet forest track, dangerous ditch in moonlight, theatrical adventure game story panel, no lettering',
+      'An elderly man in a nightshirt walks barefoot along a wet forest lane at night with his eyes closed, a lit candle balanced on one open palm. A shadow shaped like a small child follows half a step behind him. Just ahead, a flooded ditch glints in the moonlight. Cold blue moonlight and a small warm candle flame. Wide shot from the side. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'guide',
@@ -48,7 +48,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'An ancient oak has lifted its roots clear of the earth and is trying to cross the road on tiptoe. The woodcutters pursuing it insist this is a theft: its timber was already sold. The oak insists it was never asked.',
     artPrompt:
-      'Enormous uprooted oak walking delicately past tiny woodcutters with axes and stamped contracts, twilight enchanted forest, cinematic fairy tale scene with expressive roots, no text',
+      'An enormous ancient oak walks across a dirt forest road on the tips of its lifted roots. Three small woodcutters with axes and rolled papers run after it. Twilight forest, blue-violet sky and a low warm sun between the trunks. Wide shot from road level. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'shelter',
@@ -69,7 +69,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       "The three carved stones wait where the moss inscription promised: two leaves and a sun, arranged in an order no weather can erase. A gardener keeps watch but will not touch them. 'The puzzle is yours,' they say, 'and so are the consequences of rushing.'",
     artPrompt:
-      'Three standing stones marked by two distinct leaf glyphs and one sun glyph in wet forest glade, wise gardener and moss-lit ruins, close readable carved symbols, original game illustration without letters',
+      'Three standing stones in a wet forest glade, carved with a leaf, a second leaf and a sun with rays. Ruined moss-covered walls stand behind them. An old gardener in a straw hat watches from the edge of the glade, hands folded on a spade. Misty morning light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'rehearse',
@@ -90,7 +90,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'Fresh wolf prints lead from the village toward the House, then return bearing the deep marks of heavy burdens. The claw scars on nearby trees face outward, toward something approaching the homes, not inward toward prey.',
     artPrompt:
-      'Damp fairy-tale woodland trail with wolf footprints carrying drag marks, protective claw scoring on trees facing away from village, storybook investigative scene, no text or human violence',
+      'A muddy woodland trail runs from a small village toward a distant manor grown from roots. Fresh wolf paw prints follow the trail beside deep drag marks from heavy loads. Long claw scratches score the birch trunks on the side facing the village. Grey overcast morning light. Low-angle wide shot along the trail. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'observe',
@@ -133,7 +133,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'An orchard keeps its fruit awake by ringing a brass bell at dusk. The apples have begun answering with an entirely different rhythm, and the keeper fears the trees are trying to vote themselves free of the harvest.',
     artPrompt:
-      'Moonlit orchard of expressive apples and suspended brass bells, weary orchard keeper in thick traveling coat listening to alternating chimes, gothic fairy-tale game environment',
+      'A moonlit apple orchard with small brass bells hanging among the red apples on every branch. A weary grey-haired orchard keeper in a thick brown travelling coat stands between the rows with one hand cupped to her ear, a large brass hand bell at her feet. Cold blue moonlight, a warm lantern on a post. Medium-wide shot at eye level. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'listen',
@@ -175,7 +175,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       "A root archway leads to the service entrance of the House That Remembers. Along its stones someone has etched emergency directions in a very precise hand. Every one of them ends with 'ask the headsman.'",
     artPrompt:
-      'Ancient living-root service arch outside sprawling dark fairy-tale manor, neat supply marks carved into stone and hooded headsman silhouette beyond, moody painted adventure game environmental scene',
+      'A low archway of thick living tree roots forms a side door into a huge dark manor of roots and grey stone. Neat chiselled arrows and tally marks run along the stones of the arch. Beyond it stands Oren Pike, a very tall broad man whose whole head is covered by a rough brown cloth executioner hood with two eyeholes, a heavy ceremonial axe and a leather apron of pouches. Grey dusk light, one lantern hanging by the door. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '4,3',
@@ -253,7 +253,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'A child sits on a doorstep repairing shoes too large for their hands. Instead of coins, customers pay with stories about where the boots have been. A polished pair waiting by the door belongs to someone who has not returned.',
     artPrompt:
-      'Warm yet eerie cottage doorstep, resilient child shoemaker stitching oversized boots beside a rack of shoes and story tokens, painterly fairy-tale adventure game portrait, no words',
+      'A child of about ten with rolled sleeves sits on a cottage doorstep stitching a pair of oversized leather boots. A wooden rack of worn shoes stands beside the door, and one polished pair of black boots waits apart on the step. Warm late-afternoon light, ivy on the stone wall. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'pay',
@@ -274,7 +274,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'A breadcrumb trail winds between the roots in the shape of a perfect spiral. The bird rearranging it knows exactly which children will follow and claims to be helping them get home. Its nest, unfortunately, faces the wrong direction.',
     artPrompt:
-      'Clever dark-feathered forest bird rearranging breadcrumb spiral near tree roots and small stranded wayfarers, overhead patterned path, uncanny illustrated Grimm-style game scene',
+      "A clever black forest bird with a white-tipped beak stands among mossy tree roots, placing breadcrumbs into a neat spiral path on the forest floor. Two small children in wool cloaks wait at the outer end of the spiral. The bird's twig nest sits in the branches above, facing away from the path. Soft green afternoon light. High-angle shot looking down. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     choices: [
       {
         id: 'correct',
@@ -295,7 +295,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'A skeletal crow sits on a gravestone, carefully removing one letter from each forgotten name. It claims the letters are payment for remembering the dead. The gravekeeper insists it is making a second burial out of the first.',
     artPrompt:
-      'Unsettling skeletal crow perched over chipped forest gravestones with loose carved letter-shaped feathers, lantern-carrying gravekeeper, quiet gothic painted game art',
+      'A skeletal crow perches on a chipped grey gravestone in a forest graveyard, pecking at the carved face of the stone, small stone chips scattered at its base. A gravekeeper in a long black coat holds up a lantern two steps away. Evening mist and lantern light. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '5,3',
@@ -323,7 +323,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'A scarlet swan glides against the river current with a silver box tied beneath one wing. Every person it passes becomes briefly certain that they have forgotten someone important. The swan claims it was hired only to carry the box.',
     artPrompt:
-      'Brilliant crimson swan against dark river current, small silver locked box tied beneath wing, worried travelers along misty riverbank, painterly high-fantasy game story scene',
+      'A scarlet swan glides against the current of a dark misty river, a small locked silver box tied beneath one wing with string. Worried travellers in cloaks stand along the reedy bank watching it pass. Early morning fog and pale light. Wide shot from the bank. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'unfasten',

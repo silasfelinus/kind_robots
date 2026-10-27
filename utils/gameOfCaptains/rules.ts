@@ -36,6 +36,7 @@ import {
   NEMESIS_COUNTERPLAY,
 } from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
+import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 
@@ -1122,8 +1123,10 @@ export function finishVoyage(
   const strong = saved
     ? run.reputation >= 2 && run.trust >= 2
     : run.supplies >= 3
+  const family = galacticEndingFor(run, strategy)
   const ending =
-    strategy === 'counter'
+    family?.title ??
+    (strategy === 'counter'
       ? antagonistFor(run).id === 'showrunner'
         ? 'THE UNION CANCELLATION'
         : 'THE WITNESS COALITION'
@@ -1133,9 +1136,10 @@ export function finishVoyage(
           : 'THE LAST SHIP HOME'
         : strong
           ? 'THE GALACTIC BARGAIN'
-          : 'THE COST OF COMMAND'
-  const verdict =
-    strategy === 'counter'
+          : 'THE COST OF COMMAND')
+  const verdict = family
+    ? `${family.text} ${family.captains[run.captain]}`
+    : strategy === 'counter'
       ? `${counterCrew(run)
           .map((id) => CREW.find((c) => c.id === id)!.name)
           .join(

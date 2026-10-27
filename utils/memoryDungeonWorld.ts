@@ -2,6 +2,7 @@ import {
   isCombatRoom,
   restoreBriarCombat,
   type BriarCombat,
+  type CombatRoomId,
 } from './memoryDungeon/rooms'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
@@ -305,7 +306,7 @@ export interface BriarSave {
   sealedPartnerFound: boolean
   room: 'map' | 'memory' | 'house'
   house: HouseProgress | null
-  roomId: 'vault-1' | 'vault-2' | 'sprite' | 'patrol' | null
+  roomId: 'vault-1' | CombatRoomId | null
   cards: BriarMemoryCard[]
   /** A combat room in progress (t-007); null in Classic rooms and on the map. */
   combat: BriarCombat | null
@@ -433,10 +434,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const roomId =
-    saved.roomId === 'vault-1' ||
-    saved.roomId === 'vault-2' ||
-    saved.roomId === 'sprite' ||
-    saved.roomId === 'patrol'
+    saved.roomId === 'vault-1' || isCombatRoom(saved.roomId)
       ? saved.roomId
       : null
   // A combat room restores only with its fight; a Classic room only with its cards.

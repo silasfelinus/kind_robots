@@ -75,6 +75,9 @@ jobs:
       - name: Memory Dungeon per-realm authored content integrity gate
         run: npx tsx utils/scripts/verifyMemoryRealmManifest.test.ts
 
+      - name: Memory Dungeon House twelve earned epilogues, reachability and saves
+        run: npx tsx utils/scripts/verifyMemoryHouseEpilogues.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 

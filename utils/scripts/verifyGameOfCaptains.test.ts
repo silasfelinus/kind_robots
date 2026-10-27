@@ -92,6 +92,9 @@ import {
   nextDestination,
   restoreVoyage,
   startVoyage,
+  type CaptainId,
+  type CrewId,
+  type VoyageRun,
 } from '../gameOfCaptains/rules'
 
 import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
@@ -104,6 +107,11 @@ import {
   nemesisGroundwork,
 } from '../gameOfCaptains/nemesisEndings'
 import {
+  GALACTIC_ENDINGS,
+  galacticEndingFor,
+} from '../gameOfCaptains/galacticEndings'
+import {
+  BASE_ENDINGS,
   WARP_ENDINGS,
   antagonistArtKey,
   captainArtKey,
@@ -1428,5 +1436,291 @@ for (const key of slotKeys.filter(
     /couch|bar with/i.test(warpArtPrompt(key)!),
     `${key} shows the couch or the bar`,
   )
+
+// Sixteen galactic ending families: the base four plus twelve earned ones
+// (galacticEndings.ts). Every family is reached by a from-new-game seeded
+// trace that only charts calls, gives orders and runs crew errands; no flag,
+// stat or history is injected. Each trace names its plan; the first seed in
+// a small window that plays it to the jump gate must earn the family.
+type TraceOrder = 'aid' | 'observe' | 'intervene' | 'miss'
+type TraceStep = {
+  order: TraceOrder
+  at?: string
+  errand?: [CrewId, 'careful' | 'bold', 'careful' | 'bold']
+}
+const call = (
+  order: TraceOrder,
+  at?: string,
+  errand?: TraceStep['errand'],
+): TraceStep => ({ order, at, errand })
+const calls = (count: number, order: TraceOrder) =>
+  Array.from({ length: count }, () => call(order))
+function charted(
+  captain: CaptainId,
+  crew: CrewId[],
+  seed: number,
+  plan: TraceStep[],
+) {
+  let run = startVoyage(captain, crew, seed)
+  for (const step of plan) {
+    if (run.phase !== 'briefing') return null
+    if (step.at && missionFor(run).id !== step.at) {
+      const charted = chooseMission(run, step.at)
+      if (charted === run) return null
+      run = charted
+    }
+    if (step.order === 'miss') {
+      while (run.phase === 'briefing') run = advanceVoyageDay(run)
+    } else {
+      run = launchMission(staffed(run))
+      if (run.phase !== 'transit') return null
+      while (run.phase === 'transit') run = advanceVoyageDay(run)
+      run = decidePolicy(run, step.order)
+    }
+    if (step.errand && crewDetourOptions(run).includes(step.errand[0])) {
+      const [officer, gambit, approach] = step.errand
+      run = stageCrewDetour(beginCrewDetour(run, officer), gambit)
+      const resolved = resolveCrewDetour(run, approach)
+      if (resolved === run) return null
+      run = resolved
+    }
+    run = nextDestination(run)
+  }
+  return run.phase === 'finale' ? run : null
+}
+const ENDING_TRACES: {
+  title: string
+  captain: CaptainId
+  crew: CrewId[]
+  order: 'protect' | 'compromise'
+  plan: TraceStep[]
+}[] = [
+  {
+    title: 'CAPTAIN OF THE OPEN HORIZON',
+    captain: 'vale',
+    crew: ['pell', 'mox', 'rue'],
+    order: 'protect',
+    plan: [...calls(5, 'aid'), ...calls(4, 'observe')],
+  },
+  {
+    title: 'THE LAST SHIP HOME',
+    captain: 'solace',
+    crew: ['fen', 'sora', 'jex'],
+    order: 'protect',
+    plan: [
+      ...calls(4, 'intervene'),
+      ...calls(3, 'aid'),
+      ...calls(2, 'observe'),
+    ],
+  },
+  {
+    title: 'THE GALACTIC BARGAIN',
+    captain: 'quill',
+    crew: ['tess', 'omi', 'kivo'],
+    order: 'compromise',
+    plan: [...calls(4, 'aid'), ...calls(5, 'observe')],
+  },
+  {
+    title: 'THE COST OF COMMAND',
+    captain: 'fluke',
+    crew: ['pell', 'mox', 'rue'],
+    order: 'compromise',
+    plan: [...calls(4, 'intervene'), ...calls(5, 'aid')],
+  },
+  {
+    title: 'RETURN TO SENDER',
+    captain: 'fluke',
+    crew: ['pell', 'mox', 'rue'],
+    order: 'protect',
+    plan: [call('miss'), call('miss'), ...calls(7, 'aid')],
+  },
+  {
+    title: 'THE COMPLETE RECORD',
+    captain: 'vale',
+    crew: ['pell', 'mox', 'rue'],
+    order: 'compromise',
+    plan: calls(9, 'observe'),
+  },
+  {
+    title: 'THE PERMANENT HEARING',
+    captain: 'rex',
+    crew: ['fen', 'sora', 'jex'],
+    order: 'protect',
+    plan: calls(9, 'intervene'),
+  },
+  {
+    title: 'A MOTION OF NO CONFIDENCE',
+    captain: 'solace',
+    crew: ['tess', 'omi', 'kivo'],
+    order: 'protect',
+    plan: [...calls(5, 'observe'), ...calls(4, 'intervene')],
+  },
+  {
+    title: 'SANCTUARY WITHOUT A MAP',
+    captain: 'ro',
+    crew: ['tess', 'kivo', 'fen'],
+    order: 'protect',
+    plan: [
+      call('aid', 'windglass'),
+      ...calls(7, 'aid'),
+      call('aid', 'windglass-exodus'),
+    ],
+  },
+  {
+    title: 'NAMES ON THE HULL THAT ISN’T',
+    captain: 'rex',
+    crew: ['pell', 'fen', 'omi'],
+    order: 'protect',
+    plan: [
+      call('aid', 'ashdock'),
+      ...calls(6, 'aid'),
+      call('aid', 'cushion-recall'),
+      call('aid'),
+    ],
+  },
+  {
+    title: 'THE UNLICENSED CURE',
+    captain: 'quill',
+    crew: ['vela', 'taal', 'omi'],
+    order: 'protect',
+    plan: [
+      call('aid', undefined, ['vela', 'careful', 'careful']),
+      call('aid', 'haleth', ['vela', 'careful', 'careful']),
+      call('aid', undefined, ['vela', 'careful', 'careful']),
+      ...calls(6, 'aid'),
+    ],
+  },
+  {
+    title: 'THE RIGHT TO REFUSE',
+    captain: 'vale',
+    crew: ['mox', 'sora', 'pell'],
+    order: 'compromise',
+    plan: [
+      call('aid'),
+      call('aid', 'archive'),
+      call('aid'),
+      call('aid', 'sesh-backups'),
+      ...calls(3, 'aid'),
+      call('aid', 'foundry-strike'),
+      call('aid'),
+    ],
+  },
+  {
+    title: 'A TABLE FOR EVERY GUEST',
+    captain: 'fluke',
+    crew: ['jex', 'omi', 'tess'],
+    order: 'compromise',
+    plan: [
+      ...calls(2, 'aid'),
+      call('observe', 'bar'),
+      ...calls(3, 'aid'),
+      call('observe', 'serendipity-last-call'),
+      ...calls(2, 'aid'),
+    ],
+  },
+  {
+    title: 'THE COURTESY ACCORD',
+    captain: 'ro',
+    crew: ['rue', 'taal', 'jex'],
+    order: 'compromise',
+    plan: [
+      ...calls(3, 'aid'),
+      call('aid', 'courtesy-reactor'),
+      ...calls(3, 'aid'),
+      call('aid', 'twins-summit'),
+      call('aid'),
+    ],
+  },
+  {
+    title: 'THE CUSHIONS ARE DONATED',
+    captain: 'solace',
+    crew: ['vela', 'brin', 'pell'],
+    order: 'protect',
+    plan: calls(9, 'aid'),
+  },
+  {
+    title: 'THE MEMOIRS',
+    captain: 'rex',
+    crew: ['jex', 'omi', 'kivo'],
+    order: 'compromise',
+    plan: Array.from({ length: 9 }, (_, i) =>
+      call(
+        'aid',
+        undefined,
+        i < 4
+          ? [(['jex', 'omi', 'kivo'] as const)[i % 3]!, 'bold', 'bold']
+          : undefined,
+      ),
+    ),
+  },
+]
+assert.equal(WARP_ENDINGS.length, 16, 'sixteen galactic ending families')
+assert.equal(GALACTIC_ENDINGS.length, 12)
+assert.deepEqual(WARP_ENDINGS.slice(0, 4), [...BASE_ENDINGS])
+assert.equal(
+  new Set(WARP_ENDINGS.map((title) => endingArtKey(title))).size,
+  16,
+  'every family has its own art slot',
+)
+assert.deepEqual(
+  ENDING_TRACES.map((trace) => trace.title).sort(),
+  [...WARP_ENDINGS].sort(),
+  'one seeded trace per family',
+)
+assert.equal(new Set(GALACTIC_ENDINGS.map((ending) => ending.text)).size, 12)
+for (const ending of GALACTIC_ENDINGS) {
+  assert.ok(ending.text.length > 250, ending.title)
+  assert.ok(ending.gate.length > 20, ending.title)
+  assert.ok(ending.orders.length > 0, ending.title)
+  const lines = CAPTAINS.map((captain) => ending.captains[captain.id])
+  assert.equal(new Set(lines).size, 6, `${ending.title}: six captain lines`)
+  for (const line of lines) assert.ok(line && line.length > 60, ending.title)
+}
+const familySeeds: Record<string, number> = {}
+for (const trace of ENDING_TRACES) {
+  let earned: VoyageRun | null = null
+  for (let seed = 1; seed <= 40 && !earned; seed++) {
+    const finale = charted(trace.captain, trace.crew, seed, trace.plan)
+    if (!finale) continue
+    const ended = finishVoyage(finale, trace.order)
+    if (ended.ending !== trace.title) continue
+    earned = ended
+    familySeeds[trace.title] = seed
+  }
+  assert.ok(earned, `${trace.title}: reached from a new voyage`)
+  const family = GALACTIC_ENDINGS.find((e) => e.title === trace.title)
+  if (family) {
+    assert.ok(family.orders.includes(trace.order), trace.title)
+    assert.ok(earned.scene.includes(family.text), trace.title)
+    assert.ok(
+      earned.scene.includes(family.captains[trace.captain]),
+      `${trace.title}: the captain's own line`,
+    )
+  }
+  assert.ok(
+    earned.log.at(-1)!.startsWith(`Final captain's log: ${trace.title}.`),
+  )
+  assert.ok(earned.nemesisEnding, `${trace.title}: the nemesis ending too`)
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(earned))), earned)
+  assert.ok(warpArtPrompt(endingArtKey(trace.title)), trace.title)
+}
+// The counter council keeps its own logs; the families answer the two orders.
+for (const ending of GALACTIC_ENDINGS) {
+  const trace = ENDING_TRACES.find((t) => t.title === ending.title)!
+  const finale = charted(
+    trace.captain,
+    trace.crew,
+    familySeeds[ending.title]!,
+    trace.plan,
+  )!
+  assert.equal(galacticEndingFor(finale, 'counter'), null)
+  for (const order of ['protect', 'compromise'] as const)
+    if (!ending.orders.includes(order))
+      assert.notEqual(
+        finishVoyage(finale, order).ending,
+        ending.title,
+        `${ending.title} is not earned by ${order}`,
+      )
+}
 
 console.log('Space Couch seeded voyage and highlight contract: OK')

@@ -1,7 +1,9 @@
 import {
   BRIAR_TILES,
   BRIAR_SITES,
+  BRIAR_START,
   type BriarMapCard,
+  type BriarSave,
 } from './memoryDungeonWorld'
 
 /**
@@ -157,4 +159,58 @@ export function createBriarWaveCards(
     flipped: false,
     matched: false,
   }))
+}
+
+/** Settle a genuinely matching two-card turn after its flip animation.
+ * Shared by the playable store and seeded fresh-expedition witnesses. */
+export function settleBriarWavePair(
+  progress: BriarSave,
+  firstTile: string,
+  secondTile: string,
+): BriarSave | null {
+  const wave = BRIAR_REVEAL_WAVES[progress.waveIndex]
+  if (
+    progress.room !== 'map' ||
+    progress.wavePhase !== 'matching' ||
+    !wave ||
+    progress.mapCards.length !== wave.length ||
+    firstTile === secondTile
+  )
+    return null
+  const first = progress.mapCards.find((card) => card.tile === firstTile)
+  const second = progress.mapCards.find((card) => card.tile === secondTile)
+  if (
+    !first ||
+    !second ||
+    !wave.includes(firstTile) ||
+    !wave.includes(secondTile) ||
+    !first.flipped ||
+    !second.flipped ||
+    first.matched ||
+    second.matched ||
+    first.pairId !== second.pairId ||
+    first.image !== second.image ||
+    progress.mapCards.filter((card) => card.pairId === first.pairId).length !==
+      2
+  )
+    return null
+  const mapCards = progress.mapCards.map((card) =>
+    card.tile === firstTile || card.tile === secondTile
+      ? { ...card, matched: true, flipped: true }
+      : card,
+  )
+  const revealed = [...new Set([...progress.revealed, firstTile, secondTile])]
+  const visited =
+    revealed.includes(BRIAR_START) && !progress.visited.includes(BRIAR_START)
+      ? [...progress.visited, BRIAR_START]
+      : progress.visited
+  return {
+    ...progress,
+    mapCards,
+    revealed,
+    visited,
+    wavePhase: mapCards.every((card) => card.matched)
+      ? 'exploring'
+      : 'matching',
+  }
 }

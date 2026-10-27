@@ -61,6 +61,7 @@ import {
   recoverDarkBriarTurn,
   type DarkBriarProgress,
 } from '~/utils/memoryDungeon/darkBriar'
+import { settleDarkBriarReturn } from '~/utils/memoryDungeon/darkBriarReturn'
 import { computed, ref, watch } from 'vue'
 import {
   newEarthChronicle,
@@ -1006,13 +1007,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function returnToBriar(): void {
     darkEpoch++
+    dark.value = settleDarkBriarReturn(dark.value)
     darkHouse.value.active = false
     darkTurnLocked.value = false
     darkFirstCard.value = null
     darkLoading.value = false
-    dark.value.mapCards.forEach((card) => {
-      if (!card.matched) card.flipped = false
-    })
     activeReality.value = 'e01'
     persistReality()
   }

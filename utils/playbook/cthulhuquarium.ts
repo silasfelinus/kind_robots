@@ -6,6 +6,7 @@ import {
   CTHULHUQUARIUM_VOICES,
   type CanonSpeaker,
 } from '../cthulhuquariumCanon.generated'
+import { CTHULHUQUARIUM_ART_PROMPTS } from '../cthulhuquariumArtPrompts.generated'
 import { plateFor } from '../cthulhuquariumBook'
 import {
   blankNode,
@@ -24,8 +25,10 @@ import {
 // public/cthulhuquarium-plates; every other picture is bundled by Vite
 // (utils/cthulhuquariumArt.ts), so those beats carry the asset as
 // `art` ("plate:screen-arrival", "background:parlour", "name:char-…") and
-// the Forge resolves it in the browser. Prompts live in the canon bible and
-// conductor's art queue, not here; none is ever built from a title.
+// the Forge resolves it in the browser. Every beat's Krea 2 prompt is the
+// canon's own (fish art_prompt, background prompt, scene plate, the
+// shopkeepers' compact hero sitting), synced into
+// utils/cthulhuquariumArtPrompts.generated.ts; none is built from a title.
 
 const SPEAKER_SLUG: Record<CanonSpeaker, string> = {
   charlotte: 'charlotte-fishmonger',
@@ -42,6 +45,7 @@ function beat(
     body: string[]
     artUrl?: string
     art?: string
+    artPrompt?: string
     companions?: string[]
   },
 ): PlaybookNode {
@@ -51,6 +55,7 @@ function beat(
   node.body = options.body.filter((line) => line.trim())
   node.artUrl = options.artUrl ?? null
   node.art = options.art ?? null
+  if (options.artPrompt) node.artPrompt = options.artPrompt
   node.needsArt = true
   node.companions = options.companions ?? []
   node.provenance = 'utils/cthulhuquariumCanon.generated'
@@ -90,6 +95,7 @@ export function buildCthulhuquariumPlaybook(): Playbook {
             : scene.background
               ? `background:${scene.background}`
               : undefined,
+          artPrompt: CTHULHUQUARIUM_ART_PROMPTS.scenes[scene.id],
           companions: speakers.map((s) => SPEAKER_SLUG[s]),
         },
       ),
@@ -107,6 +113,7 @@ export function buildCthulhuquariumPlaybook(): Playbook {
           ? [`Charlotte: ${voices.charlotte}`, `Wilbur: ${voices.wilbur}`]
           : [],
         artUrl: `/cthulhuquarium-plates/cthulhuquarium-fish-${slug}.webp`,
+        artPrompt: CTHULHUQUARIUM_ART_PROMPTS.species[slug],
       }),
     )
   })
@@ -116,8 +123,9 @@ export function buildCthulhuquariumPlaybook(): Playbook {
       beat(`background:${bg.key}`, 'thread', bg.name, {
         place: `Unlock: ${bg.unlock.replace(/_/g, ' ')}`,
         chapter: 4,
-        body: [],
+        body: [bg.fieldNote],
         art: `background:${bg.key}`,
+        artPrompt: CTHULHUQUARIUM_ART_PROMPTS.backgrounds[bg.key],
       }),
     ),
   )
@@ -135,6 +143,8 @@ export function buildCthulhuquariumPlaybook(): Playbook {
           chapter: 5,
           body: [CTHULHUQUARIUM_CHARACTERS[speaker].role],
           art: `name:char-${SPEAKER_SLUG[speaker]}`,
+          artPrompt:
+            CTHULHUQUARIUM_ART_PROMPTS.characters[SPEAKER_SLUG[speaker]],
           companions: [SPEAKER_SLUG[speaker]],
         },
       ),
@@ -214,6 +224,7 @@ export function buildCthulhuquariumPlaybook(): Playbook {
     editable: false,
     artProject: 'cthulhuquarium',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
     artPipeline:
       'conductor scripts/build_cthulhuquarium_art_queue.py (prompts from the canon bible, queued in projects/art-generate.yaml)',
   }

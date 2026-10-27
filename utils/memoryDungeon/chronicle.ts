@@ -620,9 +620,7 @@ export function earthPhotoReappraisal(
   chronicle: EarthChronicle,
   photoId: string,
 ): EarthPhotoReappraisal | null {
-  const pair = PHOTO_REAPPRAISALS.find(({ photos }) =>
-    photos.includes(photoId),
-  )
+  const pair = PHOTO_REAPPRAISALS.find(({ photos }) => photos.includes(photoId))
   if (!pair || !pair.photos.every((id) => chronicle.found.includes(id)))
     return null
   const first = chronicle.responses[pair.photos[0]]

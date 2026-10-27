@@ -239,8 +239,7 @@ const playablePhotoScenes = [
   { reality: 'e02' as const, site: '5,4', choices: ['draw', 'release'] },
 ]
 for (const { reality, site, choices } of playablePhotoScenes) {
-  const scene =
-    reality === 'e01' ? BRIAR_SCENES[site] : DARK_BRIAR_SCENES[site]
+  const scene = reality === 'e01' ? BRIAR_SCENES[site] : DARK_BRIAR_SCENES[site]
   assert.ok(scene, `Earth photo scene ${reality}/${site} must be authored`)
   assert.match(
     scene.opening,

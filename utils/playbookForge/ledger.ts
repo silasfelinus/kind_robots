@@ -376,9 +376,10 @@ export function buildLedger(
     discrepancies.push(
       `${art.failed} beat${art.failed === 1 ? '' : 's'} only ever failed to render.`,
     )
-  if (art.missing)
+  const missingBeatArt = art.missing - missingExtraArt
+  if (missingBeatArt)
     discrepancies.push(
-      `${art.missing} beat${art.missing === 1 ? ' has' : 's have'} no art and no job.`,
+      `${missingBeatArt} beat${missingBeatArt === 1 ? ' has' : 's have'} no verified art and no completed delivery.`,
     )
   if (missingExtraArt)
     discrepancies.push(

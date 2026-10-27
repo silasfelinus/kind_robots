@@ -2001,9 +2001,11 @@ assert.equal(houseThirdMiss.house?.current, 'HD-18')
 assert.equal(houseThirdMiss.house?.combatOrigin, null)
 assert.equal(houseThirdMiss.hearts, 3)
 assert.match(houseThirdMiss.status, /quiet bedchamber/)
-assert.deepEqual(
-  recoverBriarRoomMissPenalty(restoreBriarSave(houseThirdMiss)),
-  houseThirdMiss,
+const restoredHouseThirdMiss = restoreBriarSave(houseThirdMiss)
+assert.equal(
+  recoverBriarRoomMissPenalty(restoredHouseThirdMiss),
+  restoredHouseThirdMiss,
+  'A settled House retreat cannot be charged again after restoration',
 )
 assert.ok(
   restoreMemoryCheckpoint({

@@ -536,7 +536,7 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
           current: 'HD-18' as const,
           visited: progress.house.visited.includes('HD-18')
             ? progress.house.visited
-            : [...progress.house.visited, 'HD-18'],
+            : [...progress.house.visited, 'HD-18' as const],
         }
       : progress.house
   const lastHeart = progress.hearts <= 1

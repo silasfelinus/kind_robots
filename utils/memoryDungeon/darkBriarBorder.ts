@@ -8,7 +8,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'A pair of sentries maintain a barricade against a disaster due next year. Their actual enemies are the families trying to cross to a school that will never open.',
     artPrompt:
-      'Two weary sentries at thorn barricade; a schoolhouse beyond, children with school satchels and luminous clocks, violet morning, no text.',
+      'Two weary sentries stand at a barricade of thorn branches across a lane. Beyond it waits a small schoolhouse, and families with school satchels stand on the near side. Violet morning light. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'open',
@@ -30,7 +30,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'A registrar counts everybody who lives on the cliffs, including a person who exists only when someone misses them. She refuses to delete the entry without asking the missing person.',
     artPrompt:
-      'Windswept eastern cliff census hut, ghostly extra chair, registrar clutching blue papers, twilight gulls, no writing.',
+      'A small wooden hut on a windswept sea cliff. A registrar in a blue coat stands in its doorway clutching a sheaf of blue papers, and inside an extra empty chair glows faintly. Gulls wheel overhead at twilight. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'call',
@@ -52,7 +52,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       "A farm family's fence is made of vows spoken by their neighbors. When any neighbor changes their mind, the posts loosen and the livestock scatter.",
     artPrompt:
-      'Old orchard fence composed of knotted glowing promises, nervous farmer and wandering goat, moonlit pines, no letters.',
+      'An orchard fence made of knotted ropes of faint golden light. A nervous farmer holds a goat on a lead as the fence posts lean apart. Moonlit pine trees behind. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'renegotiate',
@@ -74,7 +74,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'A lantern keeper has illuminated every hidden danger except the room where she keeps her own memories. There, light turns yesterday into a story told by somebody else.',
     artPrompt:
-      'Rotating brass lantern in a misty watch house, keeper watching inverted silhouettes through panes, no text.',
+      'A rotating brass lantern in a misty stone watch house. Its keeper, an older woman in a knitted shawl, looks through the glass panes at upside-down shadow figures. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'enter',
@@ -96,7 +96,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       "Travelers exchange names to pass an old toll. A young carter has forgotten which name was hers, but remembers the horse's name perfectly.",
     artPrompt:
-      'Old stone toll arch covered in blank nameplates, nervous carter beside patient shaggy horse, reflected roads, no visible letters.',
+      'An old stone toll arch over a road, with rows of small blank brass plates bolted to its stones. A nervous young carter in a flat cap stands beside a patient shaggy brown horse. The wet road reflects the arch. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'untangle',
@@ -140,7 +140,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'The gatekeeper offers two keys, one marked certain and one marked perhaps. Every traveler who took the certain key vanished into a pleasant life somebody else had selected.',
     artPrompt:
-      'Stone gatehouse with two oversized ornate keys hovering before different landscape portals, curious gatekeeper, dramatic side lighting, no readable marks.',
+      'A stone gatehouse with two oversized ornate iron keys floating before two doorways, one opening onto green hills and one onto a grey misty road. A curious gatekeeper with a lantern stands between them. Strong side light. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'perhaps',
@@ -162,7 +162,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'A woodsman swore to cut every dangerous tree. The Reimaginer took him literally and now every stump tells the story of a creature that lost its home.',
     artPrompt:
-      'Woodsman kneeling among thousands of cut stumps showing spectral nests, distant intact oak, somber reverse moonlight, no writing.',
+      'A woodsman in a leather jerkin kneels with his axe on the ground among hundreds of fresh tree stumps, and pale empty bird nests sit on the stumps. One whole oak stands far off on the hill. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'plant',
@@ -184,7 +184,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'At the broad river crossing a guard boasts that nobody has been refused passage. On the other bank, the records show everyone entered the wrong version of their destination.',
     artPrompt:
-      'Bridge over dark broad river, cheerful guard waving travelers across toward cities with split reflections, warning lanterns, no text.',
+      "A wooden bridge over a broad dark river. A cheerful guard waves travellers across toward the far bank, where the town's reflection in the water shows a different town. Warning lanterns hang on the rails. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.",
     choices: [
       {
         id: 'mark',
@@ -206,7 +206,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'The old gate opened with your Bramble Chime. In the reflection it has no hinges, only a mouth asking whether you still want what you wanted before.',
     artPrompt:
-      'Giant woven thorn gate shaped like an open mouth, shining bell suspended beside it, two paths one remembered one unknown, no text.',
+      'A giant gate of woven thorns shaped like an open mouth stands over a forest road, with a shining brass bell hanging from a branch beside it. Two paths lead through it into the forest. Low-angle wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'answer',
@@ -228,7 +228,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'A house is warm in all weather because its founder begged that nobody inside ever feel lonely. Its guests can leave the door, but the house keeps remembering them inside.',
     artPrompt:
-      'Overbright cozy cottage amid black pines, spectral remembered guests seated around fire, homeowner at open doorway, no text.',
+      'A brightly lit cottage among black pines with every window glowing orange. Through the open door, pale translucent guests sit around a fire, and the homeowner stands in the doorway. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'invite',
@@ -250,7 +250,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'The sprite you could have fought has become the judge of every contest in the forest. She rules each bout fairly, then hides that losing contestants remember winning and cannot learn.',
     artPrompt:
-      'Small formidable moss sprite with glowing referee whistle, two grown challengers seeing conflicting mirror scores on a woodland chessboard, no text.',
+      'A knee-high moss-covered sprite with a leaf cap, twig fingers and glinting green eyes blows a tiny wooden whistle while standing on a stone chessboard set into a woodland clearing, between two adult challengers who glare at each other. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'witness',

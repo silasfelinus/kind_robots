@@ -8,7 +8,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A messenger brings news of a reconciliation that will not happen for three years unless the quarrelling siblings stop treating the letter as an order. The seal has no sender.',
     artPrompt:
-      'Two grown siblings facing away under luminous mailbox in forest field, anxious messenger bearing a sealed futuristic letter, golden storm sky, no text.',
+      'Two grown siblings stand back to back in a forest meadow under a golden storm sky. An anxious messenger holds out a sealed envelope between them beside a wooden post box on the path. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'open',
@@ -30,7 +30,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'An elderly gatekeeper takes a regret from every traveler as toll. The road is crowded with people who are brave only because they have forgotten the damage of their mistakes.',
     artPrompt:
-      'Ancient wooden gate and collection of luminous glass regrets held by elderly gatekeeper, confident travelers with missing shadows, no words.',
+      'An elderly gatekeeper at an ancient wooden gate holds a basket of small glowing glass orbs. Travellers stride through the gate with their chins up and empty hands. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'restore',
@@ -52,7 +52,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A grove grants children the talents their parents wished for them. One young apprentice can sing beautifully but wants to build bridges, and her father is proud of the wrong miracle.',
     artPrompt:
-      'Moonlit orchard with luminous musical blossoms and workshop tools, determined adolescent apprentice with protective father, delicate fairy-tale stage lighting, no text.',
+      'A moonlit orchard of pale blue glowing blossoms with carpentry tools hanging from the branches. A determined teenage girl holds a hammer and a small wooden bridge model, her father beside her with a hand on her shoulder. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'support',
@@ -74,7 +74,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       "The watch bell rings for fires that could occur in alternate summers. Firefighters have extinguished hundreds of imaginary blazes and missed a neighbor's real smoke.",
     artPrompt:
-      'Forest watchpost beside fire engine wagon, translucent fire spirits floating in future branches while real smoke curls from cottage, no writing.',
+      'A forest watchpost with a red fire wagon and leather buckets. Translucent orange flame shapes float among the branches overhead, while real grey smoke rises from a cottage chimney in the distance. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'triage',
@@ -96,7 +96,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'In a tidal cave far from the sea sit three crowns belonging to monarchs who never ruled. Their descendants have claimed the authority of lives that were never lived.',
     artPrompt:
-      'Dark subterranean cave of three empty ceremonial crowns hovering over flooded stone shelves, uncertain descendants with lanterns, no letters.',
+      'A dark cave with flooded stone shelves where three empty ceremonial crowns float above the water. Uncertain descendants in plain clothes hold up lanterns at the cave mouth. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'hear',
@@ -118,7 +118,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'An innkeeper has welcomed every possible version of a lost traveler. By morning each double leaves with the wrong coat and an argument about who belongs to the original world.',
     artPrompt:
-      'Cozy eerie travel inn interior filled with overlapping adult travelers holding mismatched cloaks, innkeeper comparing identical pocket watches, no text.',
+      'A cozy inn common room full of adult travellers who look alike in pairs, each holding a cloak too large or too small for them. The innkeeper compares two identical pocket watches at the bar. Warm firelight. Wide interior shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'introduce',
@@ -140,7 +140,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'The lake shows Char standing alone in a drowned palace. The reflection looks certain until a passing cloud changes the angle and reveals Scylla beside her, alive, at a different age.',
     artPrompt:
-      'Mountain lake mirror reflecting adult mermaid princess twins in alternative underwater futures while real forest surrounds shore, no words.',
+      "A mountain lake at the edge of a forest. Its still surface reflects a drowned underwater palace where Char, a stout woman with deep brown skin, a high black braid and black velvet and lace, stands beside Scylla, her twin with light brown skin and a greying chestnut braid. Faint blue-green scales line both twins' wrists. Wide shot from the shore. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.",
     choices: [
       {
         id: 'question',
@@ -162,7 +162,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A mapmaker has left a single blank square on a completed atlas. Nobody can agree whether the square is empty or contains everybody who has not yet chosen where to live.',
     artPrompt:
-      'Huge unfolded hand-painted atlas of forest with one untouched parchment square, mapmaker with ink-stained fingers and refugees nearby, no writing.',
+      'A huge hand-painted atlas of a forest unfolded across a long table, with one square left as bare parchment. A mapmaker with ink-stained fingers leans over it while displaced travellers carrying bundles look on. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'leave',
@@ -184,7 +184,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A warden has locked away creatures formerly called monsters to keep villagers safe. Several have learned to garden, but the gates open only when someone remembers an act of harm.',
     artPrompt:
-      'Moonlit glass conservatory with gentle fantastical creatures tending nightflowers behind heavy locks, sorrowful warden holding key, no text.',
+      'A moonlit glass conservatory with heavy iron locks on its doors. Inside, gentle horned and furred creatures tend glowing night-blooming flowers in clay pots. A sorrowful warden in a long coat holds a large key outside. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'witness',
@@ -206,7 +206,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'An underwater lamp guides drowning memories toward dry land, but it has begun pulling living travelers into recollections they cannot survive. The lightkeeper begs for a way to separate need from longing.',
     artPrompt:
-      'Submerged lighthouse glowing beneath black river, ghosts rising like plankton and living travelers held back by ropes, night-blue fantasy painting, no words.',
+      'A lighthouse stands underwater on a riverbed, its lamp glowing up through black water. Pale figures rise from the river toward the beam, and living travellers on the bank are held back by ropes. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'screen',
@@ -228,7 +228,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A council of small, discarded wishes has built a parliament inside a hollow tree. Each insists somebody meant well when making it, and none knows whose consent would make it law.',
     artPrompt:
-      'Cavernous hollow ancient tree containing tiny luminous wish-creatures seated at circular council beneath roots, magical parliament, no text.',
+      'Inside a vast hollow tree, tiny glowing creatures shaped like sparks with small faces sit on a circle of root benches in council. Roots arch overhead like rafters. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'hear',
@@ -250,7 +250,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'The twin knot at the eastern edge is the last place where Briar still resembles itself. Pull one root and the future orchard thrives; pull the other and the drowned crown can be found. Both roots feed the same tree.',
     artPrompt:
-      'Ancient moonlit knot of two roots, one flowering into orchard and one descending into shimmering underwater palace, original Briar cliff geometry, no symbols.',
+      'Two thick roots twisted into one knot on a moonlit cliff. One root rises into a flowering orchard, and the other descends into a shimmering underwater palace with coral spires below the cliff. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'preserve',

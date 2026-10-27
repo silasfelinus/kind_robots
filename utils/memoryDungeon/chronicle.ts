@@ -57,7 +57,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Acknowledge the harm',
     'The injured friend is looking past the camera at someone offering help. Who was there before the shutter fell?',
     'Whatever the cause, that friend was humiliated under your face. You cannot dismiss their pain simply because Morrow acted.',
-    'Small Earth apartment gathering, conflicted friends, one embarrassed familiar adult, off-center photograph with ambiguous body language, no legible text',
+    'A crowded small apartment living room at night under warm lamplight. an androgynous adult in their thirties with short dark hair and a grey cardigan talks loudly with raised hands while a friend beside them in a green sweater stares at the floor. Off-centre handheld shot with slight motion blur. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e02',
@@ -79,7 +79,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep the blank chair in view',
     'Morrow may have learned an apology before learning the courage to deliver it. A camera cannot establish who came back.',
     'You remember the people left to wait for your face. The empty chair deserves a place in the record.',
-    'Late-night Earth cafe table with two cups and empty chair, blurred envelope reversed on table, rain on window, no readable lettering',
+    'A late-night cafe table beside a rain-streaked window, two coffee cups facing one empty chair and a turned-over envelope beside the cups. Close shot from the side. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e03',
@@ -101,7 +101,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Honor the silence in the room',
     'The gesture is familiar from the other world. On Earth it left no visible miracle, only a frustrated person.',
     'You wanted magic to fail for Morrow. You did not expect the disappointment in your own face to hurt.',
-    'Contemporary desk with hand raised above mundane papers and inert glass of water, no magical glow, documentary realism',
+    'An open hand raised above an office desk scattered with diagrams, a still glass of water beside the papers, a plain wall clock in the background. Overhead fluorescent light. Medium close-up. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e04',
@@ -134,7 +134,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Laugh at the absurdity',
     'Morrow is making a map of ordinary life as earnestly as you map the Marches. It may actually be useful.',
     'Your first laugh at his expense softens into recognition. He is lost in a foreign country, too.',
-    'Contemporary Earth desk, postcard, carefully folded transit guide and pen, uncanny twin-fold symmetry, no legible text',
+    'A tidy desk with a postcard of a seaside town beside a sheet of travel instructions folded into precise thirds and a fountain pen laid parallel to it. Window daylight. Close shot from above. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e05',
@@ -145,7 +145,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Remember the unsolicited helper',
     'He is learning which authorities can help and which only produce another queue. It feels painfully familiar.',
     'This world has its own gatekeepers. Someone chose to make that door easier.',
-    'Government service office waiting area with numbered tickets, androgynous adult beside patient elder, candid photo',
+    'an androgynous adult in their thirties with short dark hair and a grey cardigan sits in a government service waiting room holding a fan of twelve paper number slips, while an older woman in the next plastic chair points to the right form. Fluorescent light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e06',
@@ -156,7 +156,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Thank the unseen colleague',
     'The experiment is small. The dignity of being treated as someone who can learn is not.',
     'You used to demand that coworkers know everything by Friday. This picture makes you reconsider.',
-    'Earth laboratory notebook, colleague gesturing to practical diagram, thoughtful androgynous researcher, unstaged photo',
+    "An open laboratory notebook on a bench. A colleague's hand sketches a simple pencil drawing of an apparatus while an androgynous adult in their thirties with short dark hair and a grey cardigan leans in to watch. Daylight from a lab window. Close-medium shot. Candid 35mm colour photograph, natural light, soft film grain.",
   ],
   [
     'e06',
@@ -167,7 +167,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Allow a person to improve',
     'He made a mistake and did not make another person carry it. You can dislike the theft and still recognize the act.',
     'The person wearing your face is changing in ways no photograph from Briar could have predicted.',
-    'Earth shared office workspace, circled failed experiment and hand-written correction without legible words, candid human moment',
+    'In a shared office, an androgynous adult in their thirties with short dark hair and a grey cardigan sits at a desk holding a red pen beside a printed chart with one error circled in red. Coworkers type at nearby desks. Overcast window light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e07',
@@ -178,7 +178,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Let the kindness stand',
     'There is a story here of being included, though not yet of being forgiven.',
     'You do not owe approval of the exchange to admit that an act of care happened.',
-    'Earth night-shift break room, warm bakery bag passed among tired adult colleagues, documentary image',
+    'A night-shift break room with tired colleagues in scrubs and high-visibility vests. an androgynous adult in their thirties with short dark hair and a grey cardigan passes around a paper bag of warm bread rolls, and one colleague is laughing. Fluorescent light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e07',
@@ -189,7 +189,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Respect the preparation',
     'A draft is not a confession. Someone may still be waiting to hear the truth.',
     'You have also practiced painful words before picking up a telephone.',
-    'Late-night modern apartment desk, mobile phone, scratched-out note, solitary adult reflection, intimate photography',
+    "A late-night apartment desk with a mobile phone face down beside a notepad of crossed-out lines, a desk lamp, and the edge of a person's arm. Warm lamplight. Close shot. Candid 35mm colour photograph, natural light, soft film grain.",
   ],
   [
     'e08',
@@ -200,7 +200,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Honor the chosen help',
     'Moving day is not an ending. It suggests there are people prepared to share the work of beginning again.',
     'You never thought the stolen life might contain new debts of gratitude.',
-    'Contemporary apartment staircase, friends lifting secondhand table toward welcoming open doorway, everyday urban life',
+    'A narrow apartment stairwell where two friends carry a secondhand wooden table up the stairs toward an open doorway, a colleague holding the door. Daylight from a stair window. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e08',
@@ -211,7 +211,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Let the ambiguity remain',
     'Photographs are not population registers. There is still room in the story for someone you cannot name.',
     'You resist inventing a family from crockery. You have been wrong about an empty chair before.',
-    'Modern modest apartment dining table with uneven thrift-store plates, warm lamplight, no visible guests',
+    'A modest apartment dining table set with mismatched thrift-store plates for three, plus a fourth plate squeezed in at a corner, under a warm pendant lamp. The chairs are empty. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e09',
@@ -222,7 +222,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Acknowledge earned belonging',
     'The smiles do not prove everything is right. They do suggest someone expects him to return tomorrow.',
     'He found work that was not yours. That makes your anger more complicated, not less justified.',
-    'Candid group portrait of diverse Earth lab colleagues, androgynous adult researcher among equals, no legible signs',
+    'A small research group of six colleagues stands in a lab doorway for a staff photo. an androgynous adult in their thirties with short dark hair and a grey cardigan stands at the end of the row, relaxed and smiling. Bright overhead light. Medium-wide shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e09',
@@ -233,7 +233,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Accept that change can help',
     'Nobody photographed the result. You cannot claim credit or blame without asking the people involved.',
     'Your face is becoming known for things you did not choose. Some might be good.',
-    'Community noticeboard and hands pinning volunteer hours after work, modern Earth corridor, legible text avoided',
+    'A corridor cork board crowded with pinned paper notes. A hand pins one small extra note into the margin. Evening fluorescent light. Close shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e10',
@@ -255,7 +255,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Respect an unforced closeness',
     'There may be trust here, or merely companionship during a long commute. You cannot deduce a vow from proximity.',
     'The image unsettles you because it shows tenderness you did not authorize and cannot entirely despise.',
-    'Two adults in quiet evening commuter train, hands near each other, city dusk on windows, candid shallow depth',
+    'Two adults sit side by side in a quiet evening commuter train, their hands resting on the seat between them and almost touching. City lights at dusk through the window. Shallow focus. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e11',
@@ -266,7 +266,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Consider mutual trust',
     'An extra key is a promise with rules, and you have not heard either person explain theirs.',
     'You remember what it felt like to give someone access to a home. This is somebody’s real risk.',
-    'Contemporary apartment doorway with grocery bags and spare key between two consenting adults, unposed photo',
+    'an androgynous adult in their thirties with short dark hair and a grey cardigan holds out a spare apartment key at an open doorway to a person balancing two grocery bags. Hallway light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e11',
@@ -277,7 +277,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Value the ordinary work',
     'There is no evidence who made the drawing. Even now, your mind tries to fill every blank.',
     'The dishes are a small proof of continuity. Someone stayed long enough to make a mess together.',
-    'Used kitchen sink and two mugs in shared apartment, clipped indistinct drawing on fridge edge, mundane warm light',
+    'A kitchen sink full of dishes with two mugs drying on a rack beside it. Off to one side, a small paper drawing is held to the refrigerator door by a magnet, half out of view. Warm afternoon light. Close shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e12',
@@ -288,7 +288,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Notice the courage to speak',
     'The conversation may have ended with goodbye. A photograph cannot tell you whether anyone consented to what followed.',
     'You fear what was decided. You also know that difficult talks are not always disasters.',
-    'Two adults in daylight park cafe at distance, serious conversation, blurred public background, documentary photography',
+    'Seen from across a sunny park, two adults sit facing each other at a small cafe table, leaning in with their hands apart. Blurred passers-by cross the foreground. Long lens. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e12',
@@ -299,7 +299,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Recognize a shared decision',
     'Two coats are not proof of marriage, nor proof of captivity. They are evidence of repeated returns.',
     'The shape of the life you left behind is growing less like a thing you can simply pick up.',
-    'Two distinct adult jackets on entryway hooks inside contemporary apartment during rain, realistic everyday snapshot',
+    'A worn grey cardigan and a bright yellow raincoat hang on two hooks beside an apartment front door. Wet autumn leaves are pressed against the frosted glass of the door. Grey daylight. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e13',
@@ -310,7 +310,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep the unfinished record',
     'A name belongs to its speaker. You refuse the temptation to reveal this one by force.',
     'Some truths need consent more than discovery. The card stays face down.',
-    'Modern photograph repair desk overlapping fairytale archive, mysterious face-down plain index card, hands visible',
+    'A photograph restoration desk with a repaired black-and-white photograph under a lamp. A hand lays a plain blank index slip face down beside it. A glass cabinet behind reflects tall archive shelves. Close shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e13',
@@ -321,7 +321,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Guard the obscured square',
     'You cannot decide that someone is lying merely because they protect a piece of their life.',
     'Your certainty was once a defense. You learn to let a blank space stay blank.',
-    'Earth emergency paperwork under drinking glass, hand protecting blurred private line, soft indirect light, no readable text',
+    'A sheet of paperwork lies under a glass of water on a kitchen table, and a thumb presses down on one corner of the sheet. Soft indirect window light, shallow focus. Close-up. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e14',
@@ -332,7 +332,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Allow the address to change',
     'Plans made in one future are not binding on every other reality.',
     'You once imagined returning home as a single coordinate. The world may demand a conversation instead.',
-    'Cardboard moving boxes in present-day apartment hall, overwritten blurred address label, real-life detail',
+    'A stack of cardboard moving boxes in an apartment hallway. The paper sticker on the top box has an address scratched out and written again, slightly out of focus. Daylight from an open door. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e14',
@@ -343,7 +343,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Honor the uncertainty',
     'The urge to tear it open is partly fear. Someone else may have chosen when and how to share this news.',
     'You put your hands down. Knowing is not always the same as earning a right to know.',
-    'Sealed cream envelope with folded corner and out-of-focus sunny garden photo, adult Earth home mantelpiece',
+    'A sealed cream envelope with one folded corner rests on a wooden mantelpiece beside a small out-of-focus photograph of a sunny garden propped against the wall. Warm lamplight. Close shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e15',
@@ -365,7 +365,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep the person outside the frame safe',
     'The camera has made a story feel certain without showing its crucial witness.',
     'You have reached the limits of what evidence alone can settle. The next step must involve living people.',
-    'Contemporary sunny Earth domestic doorway, laughing androgynous adult, ambiguous hand at blurred edge, no child identifiable',
+    'an androgynous adult in their thirties with short dark hair and a grey cardigan stands in a sunny apartment doorway laughing at someone off to the right. Out of focus at the side, a hand rests on the doorpost. Bright morning light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e16',

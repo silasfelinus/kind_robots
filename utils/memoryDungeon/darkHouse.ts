@@ -43,7 +43,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Porch of Names That Return',
     'The porch remembers every guest you refused to name. A chair appears for each apology nobody has delivered.',
-    'Porch of haunted oak manor, mismatched chairs, brass knocker, mirror showing borrowed faces.',
+    'The porch of a haunted oak manor at night lined with mismatched empty chairs. A brass knocker hangs on the door, and a tall mirror beside it reflects the faces of strangers. Wide shot from the steps. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Hear the guest roll',
     'The chairs turn to face their former owners; the Warden must answer for naming them without permission.',
     'Refuse the registry',
@@ -52,7 +52,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Umbrella Stand for Lost Storms',
     "Wet umbrellas drip rain from futures that never arrived. One has a child's name carved into its handle.",
-    'Victorian umbrella rack holding dripping umbrellas beneath indoor thundercloud, lone caretaker.',
+    'A Victorian brass umbrella rack in a manor hall holds dripping umbrellas beneath a small indoor thundercloud. One small umbrella has a carved wooden handle. A lone caretaker in grey watches from the stairs. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Return the smallest umbrella',
     'The caretaker discovers a forgotten visitor and opens a door leading toward a living relative.',
     'Keep the unused shelter',
@@ -61,7 +61,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Boot-Rack Maze of Borrowed Routes',
     'Rows of boots walk in place. Each remembers the journey its owner hoped to take, not the road they actually walked.',
-    'Grand hallway of marching empty boots and spiral stairs, cool lamp light.',
+    'A grand manor hallway where rows of empty boots march in place on the floorboards, with spiral stairs rising behind them. Cool lamplight. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Match boots to owners',
     'The staircase holds still; former travelers reclaim choices they once made under coercion.',
     'Follow the scuffed pair',
@@ -70,7 +70,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Clockwork Pantry of Hungry Memories',
     'Bread tins tick with stolen hours. A hungry family waits beyond the door; the House insists every loaf belongs to the clock.',
-    'Copper clockwork pantry stacked with bread tins, brass clock face, hungry family through doorway.',
+    'A copper clockwork pantry stacked with bread tins under a large brass clock face. Through the doorway, a thin hungry family waits with their hands clasped. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Feed the waiting family',
     'An unpaid hour returns to the cook, and dinner becomes an ordinary shared obligation.',
     'Unwind the clock',
@@ -79,7 +79,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Wolf's Latch, Unlatched",
     "The wolf's warning is still caught in the latch. The villagers call it a threat because the sentence arrived backwards.",
-    'Iron garden latch marked by wolf-claw grooves, door ajar, cottage lights beyond.',
+    'An iron latch on a garden door marked by deep wolf-claw grooves. The door stands ajar onto a path with cottage lights beyond, and a grey wolf waits at the far end of the path. Medium close-up. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Read the warning in reverse',
     "The latch gives back the wolf's account; the village must confront the danger it misidentified.",
     'Release the trapped message',
@@ -88,7 +88,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Broom Closet of Unpaid Work',
     'All the dust swept from the House has formed a second servant who is tired of being thanked instead of paid.',
-    'Tiny servants closet containing animated dust figure, brooms and old brass pay box.',
+    "A tiny servants' closet with brooms and mops, where a grey dust figure shaped like a tired servant leans on a broom. An old brass pay box sits empty on the shelf. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.",
     'Pay the cleaner fairly',
     'The servant receives a wage and opens a shortcut as part of a negotiated agreement.',
     'Share the work',
@@ -97,7 +97,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Portrait Hall of Mistaken Families',
     'Family portraits show the children who might have been adopted rather than the ones who actually were. A father begs you to pick the happier painting.',
-    'Oak gallery with overlapping painted family portraits and uneasy father holding a silver frame.',
+    'An oak gallery hung with overlapping oil paintings of families with different children. An uneasy father in a waistcoat holds a small silver-edged painting in both hands. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Ask the living family',
     'The current children tell their own account; one portrait quietly changes without erasing the others.',
     'Preserve all portraits',
@@ -106,7 +106,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Staircase of Three Unfinished Apologies',
     'Every step repeats a different apology, none addressed to the person it harmed. The steps shift each time someone says they forgive everybody.',
-    'Gothic wooden triple staircase, three floating letter seals, exhausted adult traveler.',
+    'A gothic wooden triple staircase with three red wax seals floating in the air above the steps. An exhausted adult traveller sits on the lowest step with head in hands. Low-angle shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Address the right witness',
     'One staircase settles and a previously hidden passage opens from an answer properly given.',
     'Write an honest apology',
@@ -115,7 +115,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Hearth Guard Who Is Afraid of Fire',
     'A brass guard has protected the cold hearth for decades. He mistakes every spark for an invasion and every visitor for the arsonist.',
-    'Brass hearth sentry shielding an extinguished fireplace, red sparks within stone arch.',
+    'A guard in brass armor crouches with his shield raised in front of a cold stone fireplace, flinching from a few red sparks inside the arch. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Teach him to tend a flame',
     'The guard lowers his weapon and learns which danger a real fire poses.',
     'Carry the embers outside',
@@ -124,7 +124,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Scylla's Inventory of Burdens",
     "Scylla's immaculate inventory lists everything the family needed. It also lists things Char was never asked whether she wanted.",
-    'Sturdy proper-crowned princess over well-ordered table of supplies, second empty chair, ribboned ledger.',
+    'Scylla, a stout broad-shouldered adult woman with light brown skin, a chestnut braid and a small polished silver crown, in a tailored navy travel coat with brass buttons, stands over a long table of neatly ordered supplies with a ribbon-tied ledger in her hands. A second chair sits empty across the table. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Ask Scylla what was omitted',
     'She adds her own doubts to the record and asks Char about the journey itself.',
     'Let Char revise the list',
@@ -133,7 +133,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Char's Wardrobe of Possible Selves",
     'The wardrobe contains outfits Char was expected to wear to become a good sister. The garments hang beside the goth coat she chose herself.',
-    'Arched wardrobe with tailored pale dresses and black velvet goth travel coat, silver chain ornaments.',
+    'An arched wardrobe with pale tailored dresses on one side and a black velvet travel coat with silver chain ornaments on the other. Char, a stout broad-shouldered adult woman with deep brown skin, black hair in a high braid, layered black velvet and lace, silver rings and chains, black lipstick and dark eye makeup, reaches for the velvet coat. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Protect her chosen clothes',
     "Char keeps her own wardrobe key and refuses the House's generous offer to remake her.",
     'Ask what she has outgrown',
@@ -142,7 +142,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Servants' Passage of Invisible Witnesses",
     'The narrow corridor is filled with apologies spoken to empty air. The servants remember every sentence, including the ones never meant for them.',
-    'Narrow stone service passage with small warm lamps and silhouettes listening beside open doors.',
+    'A narrow stone service passage lit by small warm lamps. Servants in aprons stand beside open doors along its length, heads tilted, listening. Long shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Invite testimony voluntarily',
     'Two servants offer evidence; the others decline and retain their privacy.',
     'Open a safe return route',
@@ -151,7 +151,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Kitchen Printing Tomorrow's Menus",
     'The printing press produces menus for meals nobody has eaten. A cook has been fired because the machine predicts she will burn the next loaf.',
-    'Rootwood kitchen with copper letterpress printing blank food lists, angry cook at oven.',
+    'A rootwood kitchen where a copper letterpress turns out blank menus. An angry cook in a white cap stands at a bread oven with her arms crossed. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Let the cook make breakfast',
     'Breakfast succeeds imperfectly, and the press loses its authority to fire people.',
     'Examine the prediction gears',
@@ -160,7 +160,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'First Memory Jar, Second Owner',
     'A glass jar remembers two separate childhood birthdays. Both adults claim it; the House threatens to break it unless one admits to lying.',
-    'Bright blue memory jar on walnut shelf, two adult claimants and a cracked cake tin.',
+    'A bright blue glass jar glows on a walnut shelf while two adults reach toward it from either side. A cracked cake tin sits on the shelf below. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Open it together',
     'They see two birthdays in the same room, neither a fabrication; both families were there.',
     'Keep separate testimonies',
@@ -169,7 +169,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Polite Guest with the Wrong Invitation',
     'The guest arrived for a party that never happened. The House has fed him for years because it is afraid of appearing unkind.',
-    'Tall courteous stranger seated at candlelit dining table, untouched cake, empty invitations.',
+    'A tall courteous stranger in an old dinner suit sits at a candlelit dining table with an untouched cake and a stack of empty envelopes in front of him. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Tell him what changed',
     'He accepts the truth and asks to help clean up the abandoned dinner.',
     'Offer a new invitation',
@@ -178,7 +178,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Housekeeper's Stolen Hour",
     "The thornbound housekeeper is furious that you found her missing hour. She used it to save a traveler and doesn't regret what she did, only the debt imposed afterward.",
-    'Thornroot housekeeper with brass key belt beside tall clock whose hands point both directions.',
+    'The Thornbound Housekeeper, a stout middle-aged woman in armor of interlocking rootwood plates hung with dozens of brass keys, holding a long thorn broom, stands beside a tall grandfather clock whose two hands point in opposite directions. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Return her stolen hour',
     'She remembers the rescue accurately and asks the saved traveler for nothing in return.',
     'Cancel the hidden debt',
@@ -187,7 +187,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Gallery of Unsent Replies',
     'Hundreds of reply letters are stored beneath the letters people sent, but never received. The House calls this arrangement merciful.',
-    'Dusty letter gallery with closed envelopes stacked under an oak writing desk.',
+    'A dusty gallery with stacks of closed envelopes piled under an oak writing desk and in tall drifts along the walls. Dim amber light. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Deliver the consenting replies',
     'Several families reconnect; one recipient refuses and their private letter stays unopened.',
     'Preserve evidence of silence',
@@ -196,7 +196,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Quiet Bedchamber of Restless Futures',
     'A bed offers visions of every safer life the sleeper could have lived. The owner has stopped sleeping to avoid choosing among them.',
-    'Small moonlit bedchamber, one iron bed framed by translucent future landscapes, tired innkeeper.',
+    'A small moonlit bedchamber with one iron bed, surrounded by translucent landscapes of sunny farms and seaside towns hanging in the air. A tired innkeeper sits on the edge of the bed. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Close the vision shutters',
     'The room becomes dark enough for real rest. Tomorrow remains uncertain and possible.',
     'Keep a single lantern',
@@ -205,7 +205,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Mirror Corridor of Morrow's Doubles",
     'Morrow appears in three mirrors: fey thief, exhausted office worker, and someone helping a stranger. Each reflection claims to be his truest self.',
-    'Long silver mirror corridor with three distinct reflections of adult changeling Morrow in dark cloak and office shirt.',
+    'A long silver mirror corridor showing three reflections of an androgynous adult fey with long pointed ears, ash-pale skin and short silver hair, in a dark green cloak over a white collared shirt: one sneaking away with a stolen purse, one slumped in an office chair, one helping a stranger to their feet. Long shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Listen to each account',
     'You learn that guilt and care can coexist; the mirrors stop insisting on a single label.',
     'Match the shared gesture',
@@ -214,7 +214,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Missing Daughter's Chosen Door",
     'The daughter whose absence appears in the ledger built her own doorway years ago. Her parents have kept restoring the wall because they mistake departure for disappearance.',
-    "Empty child's room belonging to grown daughter, free-standing door and packed travel bag, family portraits.",
+    'The empty childhood bedroom of a grown daughter. A freestanding wooden door stands open in the middle of the room, a packed travel bag beside it, family paintings on the walls. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Follow the departure trail',
     'You find evidence of a safe adult traveler who chose a new life.',
     'Leave her a message',
@@ -223,7 +223,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Parlor of Celebrated Embarrassments',
     "The parlor projects the worst moment of every guest's life as party entertainment. Tonight the host's memory is the first on display.",
-    'Faded purple parlor with brass projector and mortified adult party host, few seated guests.',
+    'A faded purple parlor where a brass projector throws a moving picture onto the wall. A mortified adult host in a party hat covers his face while a few seated guests watch. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Turn the projector toward its owner',
     'The host understands why the parties were cruel and cancels the exhibition.',
     'Ask the audience to stop watching',
@@ -232,7 +232,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Collector of Unpaid Stories',
     "An index collector has bound each villager's story into a numbered volume. He calls it preservation; the owners cannot find their own books.",
-    'Stooped collector in leather coat behind towering shelves of unlabeled bound biographies.',
+    'A stooped collector in a long leather coat stands behind towering shelves of plain leather-bound books with blank spines, holding one volume against his chest. Low-angle medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Return the volumes',
     'Villagers reclaim their accounts, keeping some private and sharing others.',
     'Expose the buying contracts',
@@ -241,7 +241,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Small Wardrobe Door to a Third Road',
     'Behind a tiny wardrobe is a route neither princess remembers taking. Its coat hooks have space for three travelers, though the old prophecy counted two.',
-    'Small oak wardrobe with narrow hidden doorway and three hanging traveling cloaks.',
+    'A small oak wardrobe whose back opens onto a narrow hidden doorway. Inside, three hooded travelling cloaks hang on three hooks. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Leave the third hook free',
     'The sisters consider a future companion who may choose their own role.',
     'Measure the new road',
@@ -250,7 +250,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Dry Cellar of Second Chances',
     'The cellar has kept everyone who ever asked to undo a mistake. None has been told that repairs require returning upstairs and speaking to the people harmed.',
-    'Brick root cellar filled with repaired broken crockery and waiting adult travelers.',
+    'A brick root cellar with shelves of mended crockery. Adult travellers sit waiting on benches, and a stairwell door stands at the top of the steps. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Open the stairwell',
     'A repentant traveler goes back to make a real apology instead of reliving the moment.',
     'Build a meeting room',
@@ -259,7 +259,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Bargain Ledger of Two Truths',
     'The House demands one correct account, but the ledger balances only when both sides write their losses. The old instructions have been crossed out.',
-    'Copper-bound account book open across oak table, two ink wells, tangled roots around brass scale.',
+    'A copper-bound account book lies open across an oak table beside two ink wells and a brass balance scale wrapped in tangled roots. Close-up. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Record both debts',
     'The ledger reveals that the House profited from hiding the second invoice.',
     'Refuse a single verdict',
@@ -268,7 +268,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Wolf-Mother's Unasked Defense",
     'The guardian everyone calls a monster remembers protecting the same children the village accused her of stalking. She wants protection for the children, not a pardon bought through silence.',
-    'Tired imposing forest guardian in wool cloak near oak cradle and protective wolf-shaped shadow.',
+    'The Wolf-Mother, a large grey she-wolf with a scarred muzzle and a leather harness of supply pouches, lies curled protectively around an oak cradle in a dim nursery, ears raised toward the door. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Let her testify',
     'The villagers hear an imperfect defense and admit the fear they mistook for proof.',
     'Protect the child witness',
@@ -277,7 +277,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Unclaimed Portrait, Unowned Person',
     'A framed portrait appears to represent the hero before the exchange. A stranger arrives, claiming the painting is their future and asking you to give it to them.',
-    'Empty portrait frame on dark wall, adult traveler and masked stranger holding glass-covered image.',
+    'A dark wall with a bright rectangle of unfaded wallpaper where a painting once hung. An adult fey traveller in a dark green cloak and a masked stranger stand before it, and the stranger holds a glass-covered painting. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Ask who is portrayed',
     'The stranger chooses a name and realizes the image depicts a possibility, not a possession.',
     'Leave the picture unclaimed',
@@ -286,7 +286,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Twinned Guard at an Empty Throne',
     'Two identical guards defend an empty chair. Each believes the other has been ordered to kill the first, and both carry orders with the same seal.',
-    'Two tired royal guards in matching brass armor facing outward beside empty throne, crossed spears.',
+    'Two tired royal guards in matching brass armor stand back to back beside an empty throne, their spears crossed. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Read both orders side by side',
     'The guards find they were given the same protective duty and different invented enemies.',
     'Ask them to lower their spears',
@@ -295,7 +295,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Indenture Room of Borrowed Work',
     'The House has traded decades of service for a promise nobody remembers making. Workers want wages and the right to quit, not a heroic rescue performed for them.',
-    'Long dark workers workshop with copper loom and unpaid wage tins, gathered adults in working aprons.',
+    'A long dark workshop with a copper loom and a shelf of tin wage boxes. Workers in aprons gather at the loom with folded arms. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Open the payroll with workers',
     'They negotiate restitution with evidence from their own surviving records.',
     'Remove the binding lock',
@@ -304,7 +304,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Lantern Landing for the Living',
     'Hundreds of memory lanterns swing above a narrow landing. Each is labeled with a name someone was told to forget, yet the owners can still recognize their voices.',
-    'High wooden stair landing with suspended amber glass lanterns and two dark doorways.',
+    'A high wooden stair landing with hundreds of amber glass lanterns hanging overhead and two dark doorways at the back. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Let owners claim lanterns',
     'People select the memories they wish to carry and leave the rest untouched.',
     'Build a public shelf',
@@ -313,7 +313,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Cellar of Fearful Inventories',
     'The cellar holds every object the Warden confiscated to keep the village safe. Its shelves now block all escape routes.',
-    'Stone underground cellar with brass inventory cage, confiscated umbrellas boots and lanterns piled in walls.',
+    'A stone cellar with a brass inventory cage. Confiscated umbrellas, boots and lanterns are piled into walls that block the passages. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Clear a safe passage',
     'The workers recover useful tools and reopen the corridor.',
     'Return the confiscated goods',
@@ -322,7 +322,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Rootbound Warden's Hearing",
     'The Warden is neither a pure villain nor an impartial judge. It must answer eight witnesses who remember the benefits as well as the damage of its bargains.',
-    'Huge Warden of knotted roots and brass keys stands before an oak tribunal and eight witness lanterns.',
+    'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, stands before an oak tribunal bench with eight witness lanterns burning in a row. Low-angle wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Present all eight witnesses',
     'The Warden admits a wish cannot substitute for consent; the doors open toward a negotiated remedy.',
     'Challenge its claim to own truth',
@@ -331,7 +331,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Last Kind Lie, First Honest Hurt',
     'A memory shows a child safe because their parents were lied to. The now-grown child wants to know what really happened, even if the truth costs a comforting story.',
-    'Cozy dim nursery with adult traveler holding old toy, sealed memory jar on small stool.',
+    'A cozy dim nursery. An adult traveller holds an old stuffed toy rabbit, and a sealed glass jar glows on a small stool beside the crib. Medium shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Tell the grown child the truth',
     'They keep the love and reject the deception; the room stops rewinding the lie.',
     'Offer the testimony to them',
@@ -340,7 +340,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Broken Doorway of Shared Repairs',
     'The door was broken by people trying to leave. One side wants it rebuilt so nobody escapes again; the other wants the doorway enlarged.',
-    'Shattered carved doorframe at root arch, two groups of adult villagers with woodworking tools.',
+    'A shattered carved door arch beneath roots. Two groups of adult villagers holding saws and hammers stand on either side of the broken doorway. Medium-wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Rebuild with an open hinge',
     'A practical door swings both directions and supports a shared watch.',
     'Leave an accessible threshold',
@@ -358,7 +358,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Chime of Many Authors',
     "The exit bell carries every witness's voice, not a single final verdict. Oren has left a practical route out and a blank page in his manifest for the next traveler.",
-    'Rooted exit arch leading to dawn forest, suspended little brass chime and weathered supply ledger on stone ledge.',
+    'A rooted arch opens onto a dawn forest. A little brass bell hangs inside the arch, and a weathered ledger lies open on a stone ledge beside it. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Carry the shared bell',
     'The door opens and the choices of all eight witnesses accompany you into Briar.',
     'Entrust it to Oren',

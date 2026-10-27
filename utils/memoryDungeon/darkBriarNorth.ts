@@ -8,7 +8,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'An astronomer insists her telescope points home in both directions. The needle belongs to the child she adopted, who has been told she was rescued from a future that never happened.',
     artPrompt:
-      'Dark observatory of twin north stars above forest; foster mother astronomer adjusts brass telescope while a young adult watches two constellations, mature fairy-tale imagery, no text.',
+      'A dark stone observatory above a forest at night with two bright north stars in the sky. A middle-aged astronomer adjusts a brass telescope while a young adult woman beside her watches the two star clusters. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'investigate',
@@ -30,7 +30,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'Snow falls inside a greenhouse while the orchard outside bakes. A weather keeper has saved the harvest by transferring winter to the one family who could least afford fuel.',
     artPrompt:
-      'Snow-filled greenhouse inside summer forest, orchard keeper with frosted tools, cottage glowing beside parched rows, dramatic mirrored climate, no words.',
+      'A glass greenhouse full of falling snow stands in the middle of a hot summer orchard. An orchard keeper with frost-covered pruning shears stands at its door. Beside it a small cottage glows with firelight, its garden rows dry and cracked. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'share',
@@ -52,7 +52,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A road surveyor has mapped three routes for every traveler: the journey they made, the journey they were promised, and the journey they still could make. His measuring chain has grown teeth.',
     artPrompt:
-      'Fey cartographer unrolling layered translucent maps at fork, measuring chain with tiny teeth in low fern, night-blue painted road signs without lettering.',
+      'A fey surveyor with long ears unrolls three layered translucent maps at a fork in a fern-lined road. A measuring chain with tiny metal teeth coils around his wrist. Night-blue light. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'compare',
@@ -74,7 +74,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'The alarm bell has rung daily since the garrison left. The nearby town obeys every curfew because nobody remembers how to distinguish an alarm from an invitation.',
     artPrompt:
-      'Empty watchtower above silent woodland village, great swinging brass bell, townspeople frozen indoors, expressive gothic fairytale environment, no text.',
+      'An empty stone watchtower stands above a silent woodland village, a great brass bell swinging in its open top. Villagers peer out from behind shuttered windows below. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'silence',
@@ -96,7 +96,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A forest conservator keeps seedlings from a hundred unrealized springs. Every time she plants one, somebody elsewhere remembers a childhood in a garden that no longer exists.',
     artPrompt:
-      'Ancient seed vault under thorn roots, luminous seeds in glass bowls, botanist woman with heavy gloves, ghost memories of spring, no labels.',
+      'A seed vault under thick thorn roots, with rows of glass bowls holding glowing seeds. A botanist woman in heavy leather gloves lifts one seedling, and faint pale spring blossoms drift in the air around her. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'catalogue',
@@ -118,7 +118,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A bridge-builder is blamed for a collapse that has not happened. People have been evacuated for years while an immaculate unused span gathers vines.',
     artPrompt:
-      'Fey stone bridge untraveled and overgrown, tired mason carrying mortar bucket below ghostly memory of collapse, dark river ravine, no words.',
+      'A pristine stone bridge spans a dark ravine, overgrown with vines and clean of footprints. A tired stonemason holding a mortar bucket stands at its foot looking up at it. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'inspect',
@@ -140,7 +140,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A sentinel watches the forest for a queen who vanished decades ago. A polished empty armor suit now issues his orders in her voice and accepts all his reports.',
     artPrompt:
-      'Forest sentinel and hollow shining royal armor standing beside an ancient signal fire on a rocky ridge, impossible moon behind, no lettering.',
+      'On a rocky ridge, an old sentinel in a worn grey cloak stands beside an ancient signal fire, facing an empty suit of polished royal armor that stands upright with one gauntlet raised. A huge moon hangs behind them. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'listen',
@@ -162,7 +162,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'Two identical white feathers fall from separate skies. One belonged to a messenger who told the truth; the other belonged to a message altered so no one would be hurt.',
     artPrompt:
-      'Twin white feathers suspended over cliff-top stone with reflected sky and far-off signal rooks, enigmatic fantasy carved seal without legible characters.',
+      'Two identical white feathers fall above a flat cliff-top stone carved with a gull that is missing one feather. Rooks fly far off over the sea. Medium close-up. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'read',
@@ -184,7 +184,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'An elderly beekeeper remembers a blizzard she never survived. Her bees have been carrying that winter from house to house, making every family remember a different lost relative.',
     artPrompt:
-      'Haunted honey orchard at edge of Briar, bees glitter like snowflakes over grey hives, elderly beekeeper kneels under fruitless trees, no text.',
+      'An elderly beekeeper kneels beneath bare fruit trees beside grey wooden hives. Her bees glitter white in the air like falling snow. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'follow',
@@ -206,7 +206,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A healer has cured every illness in the valley and started charging patients for the number of healthy days they have left. A recovered soldier refuses to let anyone pay for his survival.',
     artPrompt:
-      'Warm infirmary with impossible tally shadows spilling from sunlit beds, weary doctor and healthy ex-soldier arguing under a green glass lamp, no words.',
+      'A warm infirmary with rows of sunlit beds. A weary doctor in a white apron argues with a healthy broad-shouldered former soldier under a green glass lamp. Long tally-mark shadows stretch across the floor. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'audit',
@@ -228,7 +228,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'A young messenger has taught the rooks to deliver letters to the dead. The birds return with real replies written in handwritings no survivor recognizes.',
     artPrompt:
-      'Tall dark bird rookery, messenger offering sealed letters to intelligent rooks, eerie answering letters carried by moonlit birds, no words.',
+      'A tall dark tower rookery full of black rooks. A young messenger holds up sealed envelopes to the birds while other rooks fly in carrying envelopes in their beaks. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'verify',
@@ -250,7 +250,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       "Mosswick still sells lanterns, but he no longer accepts flowers. His shelves hold promises made by customers who forgot they had made them, and he refuses to display the owner's names.",
     artPrompt:
-      'Moss-covered merchant stall with lanterns illuminating sealed jars of promises, careful badger-like merchant in dark traveling apron, storybook marketplace without signs.',
+      'Mosswick, a stooped old man with a long grey braided beard and a patched moss-green coat, stands at a moss-covered stall where brass lanterns light rows of sealed glass jars, each holding a small curl of light. He rests one hand protectively over a jar. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'barter',

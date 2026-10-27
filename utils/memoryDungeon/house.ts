@@ -26,6 +26,8 @@ export interface HouseChoice {
   label: string
   outcome: string
   gain?: { lanterns?: number; wildflowers?: number; hearts?: number }
+  /** The Memory Hearth endings carry their own illustration. */
+  artPrompt?: string
 }
 export interface HouseRoom {
   id: HouseRoomId
@@ -55,7 +57,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "The house does not ask who you are. It asks whose name you brought. An empty chair appears on the porch for every answer you don't give.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Living Grimm manor porch, borrowed reflections in brass door-knocker, root arches and empty chairs. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      "The crooked wooden porch of a dark manor grown from tree roots, with root arches overhead. A row of empty mismatched wooden chairs lines the porch, and the large brass door knocker reflects several strangers' faces. Evening blue light and a single oil lamp. Wide shot from the steps. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-01.webp',
     exits: ['HD-02', 'HD-07'],
     choices: [
@@ -80,7 +82,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "The rack holds umbrellas wet with other people's last rain. One drips salt water in a town where the sea has never reached.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Elegant dusty umbrella stand dripping different tiny weather systems inside enchanted foyer. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'In a dusty manor foyer, an elegant brass umbrella stand holds a dozen wet umbrellas, each dripping a different weather: snowflakes, rain, sea spray. A small puddle of salt water spreads across the floor tiles. Dim candlelight. Medium close-up. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-02.webp',
     exits: ['HD-03'],
     choices: [
@@ -105,7 +107,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Pairs of boots line the floor, but the Rack remembers owners by the roads they walked, not the size of their feet. Three boots lead home; three lead back into the house.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Twisted fairytale boot-rack labyrinth, muddy footprints forming inspectable routes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A long manor hallway filled with wooden boot racks arranged in a maze. Pairs of boots caked in red clay, black peat and grey river silt fill the racks, and muddy footprints lead off between them in different directions. Low lamplight. High-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-03.webp',
     exits: ['HD-04'],
     choices: [
@@ -130,7 +132,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'A clock strikes dinner with no one at the table. The pantry offers food enough for one traveler, then asks which hungry person will not eat.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Clockwork pantry with tiny automaton cook, turning brass clock, single bread and empty place setting. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A manor pantry with shelves of jars and a large brass clock turning on the wall. A tiny brass automaton cook sets a single loaf of bread on a small table beside one empty place setting. Warm candlelight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-04.webp',
     exits: ['HD-05'],
     choices: [
@@ -156,7 +158,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A gate was put here to keep wolves out. The scratches are on the inside: someone barred the village's protectors from reaching the road.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Iron latch with claw scratches on interior, moonlit silhouettes of guardians outside. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'An iron latch on the inside of a heavy wooden manor door, with deep claw scratches gouged into the inner side of the planks. Through a gap in the door, three grey wolves stand watching in the moonlit yard. Cold moonlight through the gap, warm shadow inside. Close-up. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-05.webp',
     exits: ['HD-06'],
     choices: [
@@ -181,7 +183,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "Oren's immaculate emergency plan is tucked between a broom and a ceremonial coffin. A sign lists departure times, including one that has already happened.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Comedic dark fantasy broom closet with perfect maps and formidable hooded headsman organizing supplies. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A narrow broom closet with brooms, buckets and a black ceremonial coffin standing upright in the corner. Oren Pike, a very tall broad man whose whole head is covered by a rough brown cloth executioner hood with two eyeholes, a heavy ceremonial axe and a leather apron of pouches, carefully arranges water casks and folded maps on a shelf. Warm lantern light. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-06.webp',
     exits: ['HD-01', 'HD-13'],
     choices: [
@@ -206,7 +208,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Portraits crowd the hall. Each family has one painted guest nobody recalls inviting, and none of the guests seem to know who painted them.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Tall portrait hall with dignified fantasy families and barely perceptible extra figure in each oil portrait. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A tall manor hall lined with oil paintings of dignified families in old-fashioned clothes. In every painting one pale extra guest stands at the edge of the group. Candle sconces between the paintings and a worn red runner carpet. Wide shot down the hall. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-07.webp',
     exits: ['HD-08'],
     choices: [
@@ -231,7 +233,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Three apologies are pinned to the steps. The sincerest sounds least polished, because the people who suffered helped write it.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Skewed grand staircase with three illustrated parchment apologies and spectral listeners. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A skewed grand wooden staircase with three folded parchment sheets pinned to three different steps with brass tacks. Pale translucent figures sit on the upper steps, leaning forward to listen. Candlelight from the landing above. Low-angle shot up the stairs. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-08.webp',
     exits: ['HD-09'],
     choices: [
@@ -256,7 +258,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'A coal-shaped defender bars the hearth. It has burned nobody yet, but its warning markings pulse in a fair three-beat pattern.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Animated fiery hearth guardian with glowing protective sigils telegraphing a fair duel. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A man-sized defender shaped from glowing coal stands in front of a stone hearth with its arms spread wide. Orange markings on its chest pulse in a row of three bright spots. A shovel and a bucket of sand stand by the fender. Firelight from below. Medium shot at eye level. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-09.webp',
     exits: ['HD-10'],
     choices: [
@@ -287,7 +289,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Scylla has prepared seven emergency wardrobes, two court complaints, and a waterproof plan. Oren calmly removes the duplicate provisions and adds breakfast.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Sturdy farm-built proper mermaid princess Scylla with crisp coat examining inventory; hooded headsman Oren with ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'Scylla, a stout broad-shouldered adult woman with light brown skin, a chestnut braid and a small polished silver crown, in a tailored navy travel coat with brass buttons, checks a long list beside seven open travel trunks in a manor storeroom, while Oren Pike, a very tall broad man whose whole head is covered by a rough brown cloth executioner hood with two eyeholes, a heavy ceremonial axe and a leather apron of pouches, lifts duplicate bread loaves out of a crate. Warm lamplight. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-10.webp',
     exits: ['HD-11'],
     choices: [
@@ -312,7 +314,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "Char's clothes are genuine subculture, not a dress-up gag: patched velvet, silverwork, old boots and handmade protective sigils. She dares you to call one a costume.",
     artPrompt:
-      "Western animated mature Grimm fantasy, a single story scene: Authentic goth mermaid princess Char matching Scylla's facial structure and broad sturdy physique, handmade gothic streetwear with protective charms. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+      'Char, a stout broad-shouldered adult woman with deep brown skin, black hair in a high braid, layered black velvet and lace, silver rings and chains, black lipstick and dark eye makeup, stands at an open wardrobe of patched velvet coats, silver jewellery and old buckled boots. She holds up a small handmade charm of braided cord and silver wire and raises one eyebrow. Candlelight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-11.webp',
     exits: ['HD-12'],
     choices: [
@@ -337,7 +339,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A narrow corridor connects a forgotten servant's kitchen to a grand hallway without asking whether servants were permitted to use the doors.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Root-lined concealed service tunnel with hand-painted floor marks and dim lamps. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      "A narrow tunnel lined with tree roots connects a small servants' kitchen to a grand hallway. Hand-painted white arrows mark the stone floor, and small oil lamps hang at intervals along the walls. Low warm light. Long shot down the passage. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-12.webp',
     exits: ['HD-07', 'HD-13'],
     choices: [
@@ -362,7 +364,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The recipe is missing its middle line. A printing press stamps dinner menus on every dish, each with a different missing instruction.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Gothic kitchen with letterpress, culinary ciphers, enchanted pies and fractured recipe plates. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A gothic stone kitchen with a black iron printing press on the table beside pies cooling on racks. Cracked recipe plates hang on the wall. A cook in a white apron pulls a fresh sheet from the press. Warm oven glow. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-13.webp',
     exits: ['HD-14'],
     choices: [
@@ -387,7 +389,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A glass jar holds the sound of the village's last festival. The laughter belongs to people who may prefer not to remember the day.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Translucent glass memory jar projecting a village festival with uncertain faces. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      "A glass jar on a dark wooden shelf holds a small glowing village festival inside it, with bunting, dancers and paper lanterns. The tiny dancers' faces are blurred. Dim room lit by the warm glow of the jar. Close-up. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-14.webp',
     exits: ['HD-15'],
     choices: [
@@ -413,7 +415,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'A cursed dinner guest insists on signing away their grief. Their host insists this is hospitality. Both ask you to witness.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Formal dinner table with courteous ghostly guest, hovering pen and unsigned consent form. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A formal dinner table with silver candlesticks. A pale translucent guest in an old-fashioned suit sits upright and smiles politely while a quill pen hovers above a blank parchment beside his plate. The host, a stout woman in a velvet gown, stands at the head of the table. Candlelight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-15.webp',
     exits: ['HD-16'],
     choices: [
@@ -438,7 +440,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The housekeeper wears armor made of returned keys. She is defending residents against memory thieves, and suspects that you may be one.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Rootwood armored housekeeper with many dangling keys, defensive stance, humane face and long thorn broom. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'The Thornbound Housekeeper, a stout middle-aged woman in armor of interlocking rootwood plates hung with dozens of brass keys, holding a long thorn broom across her body in a defensive stance. Her face is calm and watchful. A long manor corridor stretches behind her. Lantern light from the side. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-16.webp',
     exits: ['HD-17'],
     choices: [
@@ -463,7 +465,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Some letters explain why villagers asked the House to hold pain. Others explain why they were never allowed to ask for it back.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Long archive gallery with sealed letters drifting above unread desks, warm and moody light. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A long archive gallery with rows of wooden writing desks. Sealed envelopes float in the air above the desks at different heights. Warm amber lamplight and deep shadows. Wide shot down the gallery. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-17.webp',
     exits: ['HD-18'],
     choices: [
@@ -488,7 +490,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The mattress smells of thyme and clean linen. A sign does not promise safety, only one night without questions. The walls listen but keep their distance.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Cozy candlelit fairytale rest room with simple bed and blooming thyme against intimidating hall. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A small candlelit bedroom with a simple wooden bed, white linen and clay pots of flowering thyme on the windowsill. Through the half-open door, a dark towering hallway. Warm candlelight. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-18.webp',
     exits: ['HD-19', 'HD-25'],
     choices: [
@@ -514,7 +516,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The mirrors show a pair of identical paintings, then reverse one line. You can solve the old Echo Chamber with real card matching or reason through its mirrored geometry.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Endless gothic mirror hall showing recognizable reversed tile geometry and memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A long corridor of tall silver mirrors facing each other. Each mirror shows two matching painted tiles, one of them flipped left to right. A brass handrail runs along one wall, and in the mirrors it bends the other way. Cool silver light. Long shot down the corridor. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-19.webp',
     exits: ['HD-20'],
     choices: [
@@ -539,7 +541,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A young woman's room contains letters she wrote after leaving home. Her family kept calling her missing long after she chose to go.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Quiet bedroom with packed traveling bag, window to old forest, handwritten letters facedown. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'The tidy bedroom of a young woman: a packed travel bag on the bed, an open window onto an old forest, and a stack of envelopes face down on the desk. Soft morning light. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-20.webp',
     exits: ['HD-21'],
     choices: [
@@ -563,7 +565,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A mirror repeats Morrow's first humiliating attempts at being you. The laughter is loud enough to hide how frightened they were.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Vintage parlor with ornate mirror showing awkward Earth office scenes as memory echoes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A vintage parlor with a large ornate mirror over the fireplace. In the mirror, an androgynous adult in their thirties with short dark hair and a grey cardigan fumbles with a jammed photocopier in a fluorescent office while coworkers laugh behind them. The velvet armchairs in the parlor are empty. Lamplight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-21.webp',
     exits: ['HD-22'],
     choices: [
@@ -588,7 +590,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The Collector counts each unpaired card with cold precision. Its next sweep is announced two turns ahead, not sprung as a surprise.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Tall paper-armored bureaucratic collector with glowing marked card-column pattern over its gauntlet. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'The Index Collector, a tall thin figure clad in layered sheets of paper like overlapping armor plates and an ink-stained black coat, raises one gauntlet in a stone archive hall. A grid of glowing pale squares hovers above the gauntlet, with two columns lit brighter than the rest. Cold blue light. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-22.webp',
     exits: ['HD-23'],
     choices: [
@@ -619,7 +621,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'A wardrobe is smaller on the outside than its boots. It recognizes the mud-sorting method from the entrance maze.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Tiny wardrobe inset in cavernous walls, paired boots and secret glowing lock. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A tiny knee-high wooden wardrobe set into a cavernous stone wall. Pairs of large muddy boots stand in a row in front of it, and the small brass lock on its door glows faint gold. Dim lamplight. Medium close-up. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-23.webp',
     exits: ['HD-24'],
     choices: [
@@ -644,7 +646,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'This stair leads back to a room you have already visited. A painted arrow announces NO HEROISM REQUIRED.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Safe brick cellar staircase with practical return signage and warmly glowing root-path. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A dry brick cellar staircase leading down, with a painted white arrow on the wall pointing back up the steps. Tree roots along the wall glow soft gold beside the path. A warm lamp hangs at the top of the stairs. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-24.webp',
     exits: ['HD-13', 'HD-31'],
     choices: [
@@ -669,7 +671,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The ledger lists promises by the date they were made, not the day they were enforced. Two names have been moved to the wrong pages.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Enormous ledger lit by little candles, two misordered dated records and ink stains. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'An enormous open ledger on a wooden lectern lit by small candles, two of its pages marked with red ribbons and ink blots in the margins. Dark archive shelves rise behind it. Close-up from above. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-25.webp',
     exits: ['HD-26'],
     choices: [
@@ -694,7 +696,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The village wanted guardians, then renamed their payment tribute. The patrol leader asks why service becomes robbery in a story told by comfortable people.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Wolf guardian leader in worn traveling armor protecting frightened families at a doorway. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'The Wolf-Mother, a large grey she-wolf with a scarred muzzle and a leather harness of supply pouches, stands in a manor doorway shielding a group of frightened village families who crowd behind her. Lantern light from inside the hall. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-26.webp',
     exits: ['HD-27'],
     choices: [
@@ -719,7 +721,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'An empty painted chair is signed for by someone who never sat there. If you take the painting, the person might never learn they were expected.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Haunting painted empty chair and silhouetted absent subject in ornate cracked portrait frame. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A large oil painting hangs on a dark manor wall, showing an empty wooden chair in a sunlit room. The canvas is cracked at one corner. A single candle on a side table lights it from below. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-27.webp',
     exits: ['HD-28'],
     choices: [
@@ -745,7 +747,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "Two armored figures each protect the other's marked cards. They ask which one must be defeated first, but neither will call it victory.",
     artPrompt:
-      "Western animated mature Grimm fantasy, a single story scene: Two identical armored root guardians guarding mirrored glowing matching cards and each other's shields. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+      'Two identical guardians in armor of rootwood and brass stand back to back, each holding a shield in front of the other. Between them, pairs of glowing matching tiles hover in the air. Stone hall in cold light. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-28.webp',
     exits: ['HD-29'],
     choices: [
@@ -776,7 +778,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Contracts here belong to people who asked for relief from memories. No record shows that any of them agreed to lose the right to remember.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Archive room with opened contracts and tangled living roots growing through broken locks. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'An archive room with open contracts spread across long tables. Thick living roots have grown through the broken iron locks of the cabinets and across the floor. Dusty lamplight. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-29.webp',
     exits: ['HD-30'],
     choices: [
@@ -801,7 +803,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "The landing has enough seats for your party and one empty place. Oren checks rations. Scylla makes tea. Char quietly repairs a stranger's ward.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Warm lantern-lit landing with sturdy mermaid twins proper and goth, masked hooded headsman with supply ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A lantern-lit stair landing with cushioned benches. Oren, a very tall man in a rough brown cloth executioner hood, checks a sack of rations. Scylla, a stout woman with a chestnut braid and a small silver crown, pours tea. Char, her twin in black velvet and lace, mends a small woven charm. One seat is empty. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-30.webp',
     exits: ['HD-31'],
     choices: [
@@ -827,7 +829,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'Fog rises through the floorboards, hiding the newest door but not the paths you have already walked. The House is afraid of the last room.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Dense low fog over known stone passage with still-visible safe lantern markers. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'Dense low fog fills a stone cellar passage up to knee height. A trail of small lanterns set on the floor marks a safe route through the fog, and a door at the far end is lost in the mist. Cold grey light. Long shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-31.webp',
     exits: ['HD-32'],
     choices: [
@@ -852,7 +854,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The Rootbound Warden stands between you and a library that once sheltered the unwanted. It has kept records safe and residents captive. The Warden asks for proof that opening the doors would not simply make the strong richer.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Colossal living rootwood guardian with glass memory jar, defensive stance by archive doors and telegraphed glowing memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, holds a glass jar in one root hand and stands before tall archive doors. Pairs of glowing tiles float around it. Lantern light from below. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-32.webp',
     exits: ['HD-33'],
     choices: [
@@ -877,7 +879,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The village elders once asked the House to keep one terrible truth secret. The people protected by that lie are now old enough to choose what to know.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Candlelit village council table with sealed memory jars and elderly witnesses struggling with a decision. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A candlelit village council table with a row of sealed glass jars down its middle. Elderly villagers sit around it with folded hands while one grey-haired woman reaches toward a jar. Warm candlelight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-33.webp',
     exits: ['HD-34'],
     choices: [
@@ -902,7 +904,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The door ahead bears two near-identical seals. The root marks are reversed, and the House admits it has been showing the wrong way out for years.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Mysterious broken paired seal doorway with reversed root crescents and honest readable puzzle geometry. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A broken arched doorway in a manor wall with two near-identical carved seals on either side, each a crescent of roots, one mirrored. Splintered wood lies across the floor. Lamplight. Medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-34.webp',
     exits: ['HD-35'],
     choices: [
@@ -927,7 +929,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The hearth holds the names, grief and joys that people entrusted to the House. Its fire is almost out. The Warden will honor a choice only if you state whose consent matters.',
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Grand rootwood memory hearth with glass memory jars held in a ring of fire and gathered villagers, anxious hope. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A grand hearth of rootwood with a low dying fire, glass jars of glowing memories set in a ring around the flames. Villagers gather around it in a half-circle, and the Rootbound Warden, a towering guardian of knotted roots and brass keys, stands behind the hearth. Firelight from below. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-35.webp',
     exits: ['HD-36'],
     choices: [
@@ -936,18 +938,24 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
         label: 'Return the stored memories to their owners',
         outcome:
           'The records are released to named people; many regain agency, and some old protections painfully fall away.',
+        artPrompt:
+          'Villagers walk out of a root-grown manor at dawn, each carrying one small glowing glass jar in both hands. An old man at the door opens his jar and weeps. Empty shelves stand in the hall behind them. Pale gold dawn light. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
       },
       {
         id: 'renew',
         label: 'Negotiate a revocable memory commons with witnesses',
         outcome:
           'The House becomes a steward, not a jailer. Each person can reclaim or leave a memory, and every agreement can end.',
+        artPrompt:
+          'Villagers sit in a circle around a rootwood hearth, passing glass jars of glowing memories from hand to hand. The Rootbound Warden, a towering guardian of knotted roots and brass keys, kneels at the edge of the circle holding an open ledger. Warm firelight. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
       },
       {
         id: 'break',
         label: 'Break the mechanism that owns remembrance',
         outcome:
           "Nobody may own memory by decree. The House becomes dangerous and free, and tomorrow's villagers must invent a kinder safety.",
+        artPrompt:
+          'A rootwood hearth lies split in two, roots torn up from the floor and its fire scattered into glowing embers. Broken glass jars release drifting light up through a cracked roof. Villagers stand back in the doorway. Grey morning light. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
       },
     ],
   },
@@ -958,7 +966,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       "A small chime hangs from a living branch. The House will let you carry it only after your choice at the Memory Hearth. Its sound can open the regional gate, but cannot undo the bargain you've made.",
     artPrompt:
-      'Western animated mature Grimm fantasy, a single story scene: Forest-root exit with tiny glowing golden bell above doorway and three winding roads beyond. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
+      'A doorway of forest roots opens onto dawn light, with a small golden bell hanging from a living branch above it. Beyond the door three winding roads lead away into the forest. Warm dawn light. Wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-36.webp',
     exits: [],
     choices: [

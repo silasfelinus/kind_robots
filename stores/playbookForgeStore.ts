@@ -827,6 +827,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const galleryTarget = ref<GalleryTarget | null>(null)
   const galleryFocus = ref<string | null>(null)
   const galleryFilter = ref<GalleryFilter>('all')
+  const galleryGroup = ref('All')
   const galleryBook = computed<Playbook | null>(() =>
     ledgerBook.value
       ? {
@@ -1225,6 +1226,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         ? { type: 'section', id: focused.id }
         : (galleryTiles.value.sections[0]?.target ?? null))
     galleryFilter.value = 'all'
+    galleryGroup.value = 'All'
     galleryFocus.value = null
     ledgerConfirm.value = null
     go('gallery')
@@ -1234,6 +1236,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   function showTarget(target: GalleryTarget) {
+    galleryGroup.value = 'All'
     galleryTarget.value = target
     galleryFocus.value = null
     ledgerConfirm.value = null
@@ -1297,6 +1300,45 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         : 'Saved for the next development.'
       : studio.message
     return ok
+  }
+
+  /** Send a creative brief to the game's master issue, not merely a private beat note. */
+  async function postGalleryDirection(direction: string) {
+    const entry = existing.value
+    const brief = direction.trim()
+    if (!entry || !brief || posting.value) return false
+    const scope = galleryFocus.value
+      ? galleryFocused.value?.title ?? galleryFocus.value
+      : galleryTile.value?.label ?? 'whole playbook'
+    const origin = galleryGroup.value === 'All' ? '' : ` / ${galleryGroup.value} group`
+    posting.value = true
+    adjustStatus.value = 'Sending direction to GitHub…'
+    try {
+      const res = await performFetch<{ issue: number; url: string }>(
+        '/api/playbook-forge/adjustment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            slug: entry.slug,
+            title: entry.title,
+            note: `Creative direction for ${scope}${origin}:\n\n${brief}`,
+            changes: [],
+            additions: [],
+            combos: '',
+          }),
+        },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        adjustStatus.value = `Not posted: ${res.message || 'GitHub did not answer.'}`
+        return false
+      }
+      adjustStatus.value = `Direction posted to #${res.data.issue}.`
+      return true
+    } finally {
+      posting.value = false
+    }
   }
 
   /** Renders a beat from a reviewed prompt (or, for pipeline games, leaves it for the next round). */
@@ -1783,6 +1825,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     galleryTarget,
     galleryFocus,
     galleryFilter,
+    galleryGroup,
     galleryBook,
     galleryTiles,
     galleryTile,
@@ -1795,6 +1838,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     focusEntry,
     galleryRenders,
     galleryNote,
+    postGalleryDirection,
     renderEntry,
     askPrompt,
     ledgerLane,

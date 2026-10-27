@@ -634,6 +634,13 @@ assert.equal(
   assert.equal(combos.partyScenes, 660, 'a three-step adventure per trio')
   assert.equal(combos.villainEndings, 24, 'three endings per boss')
   assert.equal(couch.plan.romances, 12, 'a romance thread per crew member')
+  const measuredCouch = await couch.count()
+  assert.equal(
+    measuredCouch.values.romances,
+    12,
+    'measured romances must reflect all twelve authored crew courtships',
+  )
+
   const noParty = forecast({
     ...couch.plan,
     partyEndings: 0,

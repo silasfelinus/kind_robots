@@ -136,6 +136,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const rules = await import('../gameOfCaptains/rules')
       const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
       const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
+      const { SOLO_ROMANCE_ROUTES } =
+        await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
       return {
         values: {
@@ -149,8 +151,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           followerQuestSteps: journeys.length
             ? Math.min(...journeys.map((steps) => steps.length))
             : 0,
-          // romance.ts: the fourple, Rue and Tess.
-          romances: 3,
+          // Solo romances only: pair routes and the fourple are extra.
+          romances: SOLO_ROMANCE_ROUTES.length,
           endings: WARP_ENDINGS.length,
           // No party has an adventure or endings of its own yet, and no
           // galactic boss an ending of its own.

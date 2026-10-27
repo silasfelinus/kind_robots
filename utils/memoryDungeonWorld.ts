@@ -4,6 +4,7 @@ import {
   type BriarCombat,
   type CombatRoomId,
 } from './memoryDungeon/rooms'
+import { darkBriarDuelForRoom } from './memoryDungeon/darkBriarDuels'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
   restoreMinefieldRun,
@@ -606,9 +607,13 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
         }
       : progress.house
   const lastHeart = progress.hearts <= 1
-  const retreat = lastHeart
-    ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
-    : `${combat.state.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`
+  // A Dark Briar bout never sends the Briar traveller back to camp.
+  const darkBout = darkBriarDuelForRoom(progress.roomId) !== null
+  const retreat = darkBout
+    ? `${combat.state.enemy.name} wins this bout. The challenger waits for a rematch.`
+    : lastHeart
+      ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
+      : `${combat.state.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`
 
   return {
     ...progress,
@@ -618,7 +623,7 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: lastHeart ? 3 : progress.hearts - 1,
-    player: lastHeart ? BRIAR_START : progress.player,
+    player: lastHeart && !darkBout ? BRIAR_START : progress.player,
     house,
     status: houseOrigin
       ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`

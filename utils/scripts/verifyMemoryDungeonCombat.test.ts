@@ -195,6 +195,61 @@ function aimAt(state: CombatState, id: WeaponId, cells: Cell[]) {
   )
 }
 
+// Adversarial coordinate integrity: a flattened index must never allow a
+// forged off-board or fractional pick to resolve a legitimate pair for free.
+for (const [rows, cols] of [
+  [4, 4],
+  [4, 6],
+  [6, 6],
+] as const) {
+  for (let seed = 1; seed <= 24; seed++) {
+    const state = fresh(seed, rows, cols)
+    const first = state.cards[0]!.pair!
+    const mateIndex = state.cards.findIndex(
+      (card, position) => position !== 0 && card.pair === first,
+    )
+    const mate = {
+      row: Math.floor(mateIndex / cols),
+      col: mateIndex % cols,
+    }
+    assert.ok(mateIndex > 0, 'the original first card has a mate')
+    const invalid: Cell[] = [
+      { row: -1, col: cols },
+      { row: 1, col: -1 },
+      { row: 0.5, col: cols / 2 },
+      { row: rows, col: 0 },
+      { row: 0, col: cols },
+      { row: Number.NaN, col: 0 },
+      { row: 0, col: Number.POSITIVE_INFINITY },
+    ]
+    for (const forged of invalid) {
+      assert.equal(
+        scout(state, forged, mate),
+        state,
+        `${rows}x${cols} seed ${seed}: invalid first pick cannot earn a match`,
+      )
+      assert.equal(
+        scout(state, mate, forged),
+        state,
+        `${rows}x${cols} seed ${seed}: invalid second pick cannot earn a match`,
+      )
+      const mask = weaponMask(state, 'twinblade', forged)
+      assert.equal(mask.legal, false, 'invalid strike anchors are illegal')
+      assert.equal(
+        strike(state, 'twinblade', forged),
+        state,
+        'invalid strikes cannot spend Focus, advance enemy tempo or mutate state',
+      )
+    }
+    assert.equal(
+      scout(state, { row: 0, col: 0 }, mate).enemy.hp,
+      state.enemy.hp - 2,
+      'a legitimate remembered pair still deals normal damage',
+    )
+    assert.equal(state.turn, 0, 'rejected moves never mutate the source')
+  }
+}
+
 // 5. Strike: a remembered vertical pair under the Twinblade lands a bullseye hit
 // and banks a Guard.
 {

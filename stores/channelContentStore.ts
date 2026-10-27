@@ -16,6 +16,7 @@ import {
   type NavigationAccessContext,
 } from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
+import { isSuperkateServicesViewer } from '@/stores/helpers/superkateNavigation'
 import { handleError } from '@/stores/utils'
 
 const channelTabsStorageKey = 'channelTabs'
@@ -95,9 +96,10 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       roleFiltered,
       accessContext.value,
     )
-    const userEmail = userStore.user?.email?.trim().toLowerCase() ?? ''
-    const isSuperkate =
-      userStore.userId === 1279 || userEmail === 'superkate@gmail.com'
+    const isSuperkate = isSuperkateServicesViewer(
+      userStore.user,
+      userStore.isAdmin,
+    )
 
     return permissionFiltered
       .map((channel) => ({

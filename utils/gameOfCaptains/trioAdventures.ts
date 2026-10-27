@@ -4,6 +4,7 @@ import { VOYAGE_CHAPTERS } from './voyageMap'
 import { TRIO_ADVENTURES_A } from './trioAdventuresA'
 import { TRIO_ADVENTURES_B } from './trioAdventuresB'
 import { TRIO_ADVENTURES_E } from './trioAdventuresE'
+import { TRIO_ADVENTURES_F } from './trioAdventuresF'
 
 /**
  * Party adventures (Silas, 2026-10-27, kind_robots#4182): the twelve crew
@@ -77,6 +78,7 @@ export const TRIO_ADVENTURES: readonly TrioAdventure[] = [
   ...TRIO_ADVENTURES_A,
   ...TRIO_ADVENTURES_B,
   ...TRIO_ADVENTURES_E,
+  ...TRIO_ADVENTURES_F,
 ]
 export const TRIO_BY_KEY: Readonly<Record<string, TrioAdventure>> =
   Object.fromEntries(

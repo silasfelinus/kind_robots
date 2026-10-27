@@ -32,6 +32,7 @@ import {
   earnedDarkHousePuzzleClue,
   earnedCourierCompensation,
   earnedBorrowedVoiceOutcome,
+  earnedRoyalEscortOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -61,6 +62,12 @@ import {
   recoverDarkBriarTurn,
   type DarkBriarProgress,
 } from '~/utils/memoryDungeon/darkBriar'
+import {
+  DARK_BRIAR_DUELS,
+  darkBriarCanDuel,
+  darkBriarDuelForRoom,
+  type DarkBriarDuel,
+} from '~/utils/memoryDungeon/darkBriarDuels'
 import { settleDarkBriarReturn } from '~/utils/memoryDungeon/darkBriarReturn'
 import { computed, ref, watch } from 'vue'
 import {
@@ -246,6 +253,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     campaign.value.completed.includes('e01'),
   )
   const darkMatching = computed(() => dark.value.phase === 'matching')
+  /** A Dark Briar bout is on the combat board (the stage yields to it). */
+  const darkDuelActive = computed(
+    () =>
+      state.value.room === 'memory' &&
+      darkBriarDuelForRoom(state.value.roomId) !== null,
+  )
   const darkPairsMatched = computed(
     () => dark.value.mapCards.filter((card) => card.matched).length / 2,
   )
@@ -283,7 +296,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const earned =
       dark.value.player === '3,5'
         ? earnedBorrowedVoiceOutcome(state.value, dark.value)
-        : null
+        : dark.value.player === '4,4'
+          ? earnedRoyalEscortOutcome(state.value, dark.value)
+          : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -1112,8 +1127,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
-    if (key === '3,5') {
-      const earned = earnedBorrowedVoiceOutcome(state.value, next)
+    if (key === '3,5' || key === '4,4') {
+      const earned =
+        key === '3,5'
+          ? earnedBorrowedVoiceOutcome(state.value, next)
+          : earnedRoyalEscortOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {
@@ -1131,6 +1149,61 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       campaign.value = completeMemoryExperience(campaign.value, 'e02')
     }
     persistReality()
+  }
+
+  /** Begin the optional bout at the Dark Briar tile the traveller stands on. */
+  async function startDarkDuel(): Promise<void> {
+    if (activeReality.value !== 'e02' || darkMatching.value || loading.value)
+      return
+    const key = dark.value.player
+    const duel = DARK_BRIAR_DUELS[key]
+    if (!duel || !darkBriarCanDuel(dark.value, key)) return
+    if (
+      state.value.room === 'memory' ||
+      state.value.combat ||
+      minefieldActive.value
+    ) {
+      dark.value.status =
+        'Another challenge is still waiting in the Briar Marches. Finish or leave it first.'
+      persistReality()
+      return
+    }
+    dark.value.duelReturn = state.value.room === 'house' ? 'house' : 'map'
+    persistReality()
+    await beginRoom(duel.room)
+    if (!darkDuelActive.value) {
+      dark.value.duelReturn = null
+      dark.value.status = state.value.status
+      persistReality()
+    }
+  }
+
+  /** End a Dark Briar bout and put the Briar save back where it was. */
+  function closeDarkDuel(message: string): void {
+    roomEpoch++
+    state.value.room = dark.value.duelReturn ?? 'map'
+    state.value.roomId = null
+    state.value.cards = []
+    state.value.combat = null
+    state.value.roomMisses = 0
+    state.value.status = message
+    dark.value.duelReturn = null
+    dark.value.status = message
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    firstCard.value = null
+    turnLocked.value = false
+    loading.value = false
+    persist()
+    persistReality()
+  }
+
+  function finishDarkDuel(duel: DarkBriarDuel): void {
+    if (!dark.value.duels.includes(duel.key))
+      dark.value.duels = [...dark.value.duels, duel.key]
+    state.value.lanterns += 1
+    closeDarkDuel(duel.victory)
   }
 
   function reset(): void {
@@ -1880,7 +1953,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         turnLocked.value = false
         if (next.outcome === 'defeat') {
           state.value.hearts -= 1
-          if (state.value.hearts <= 0) {
+          if (darkBriarDuelForRoom(state.value.roomId)) {
+            const rested = state.value.hearts <= 0
+            if (rested) state.value.hearts = 3
+            closeDarkDuel(
+              rested
+                ? `${next.enemy.name} wins this bout. You rest by the road until your strength returns; the challenger waits for a rematch.`
+                : `${next.enemy.name} wins this bout. One heart lost; the challenger waits for a rematch.`,
+            )
+          } else if (state.value.hearts <= 0) {
             leaveRoom(
               'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
             )
@@ -1944,6 +2025,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
+    const darkDuel = darkBriarDuelForRoom(room)
+    if (darkDuel) {
+      finishDarkDuel(darkDuel)
+      return
+    }
     const houseOrigin = state.value.house?.combatOrigin
     if (
       houseOrigin &&
@@ -1991,6 +2077,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function leaveRoom(
     message = 'You step out of the challenge and return to the same place on the map.',
   ): void {
+    if (darkBriarDuelForRoom(state.value.roomId)) {
+      closeDarkDuel(
+        'You step back from the bout. The challenger waits for a rematch.',
+      )
+      return
+    }
     roomEpoch++
     const houseOrigin = state.value.house?.combatOrigin
     if (houseOrigin && state.value.house) {
@@ -2114,6 +2206,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkPickCard,
     darkWalk,
     darkChooseScene,
+    startDarkDuel,
+    darkDuelActive,
     deck,
     cardBack,
     selectCardBack,

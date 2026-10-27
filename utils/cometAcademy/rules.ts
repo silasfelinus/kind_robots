@@ -696,7 +696,6 @@ export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
 export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
   return (
     (run.injuries?.[id] ?? 0) <= run.day &&
-    knownContacts(run).includes(id) &&
     !(
       run.flowVersion === 3 &&
       run.day >= 20 &&
@@ -778,7 +777,7 @@ export function assignTeam(
     return run
   if (
     run.flowVersion === 3 &&
-    selected.some((id) => !studentAvailable(run, id))
+    selected.some((id) => !knownContacts(run).includes(id) || !studentAvailable(run, id))
   )
     return run
   const remaining = run.assignments.filter(

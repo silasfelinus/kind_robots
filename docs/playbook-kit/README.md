@@ -1,7 +1,7 @@
 # Playbook Kit
 
 The shared frame for Kind Robots story games ("playbooks"): Emperor of Dust,
-Zuzu: Shifting Lands, Shifting Desks, Capes & Tassels: Prom of Doom, This
+Zuzu: Shifting Lands, Shifting Desks, Prom of Doom (Capes & Tassels series), This
 Means Warp, Ecotone, and every playbook after them. Conductor coordinates it
 as the `playbook-kit` project.
 

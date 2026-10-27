@@ -23,7 +23,7 @@ import {
   VOYAGE_CONSEQUENCES,
   VOYAGE_ORDERS,
   aboardLines,
-  actOf,
+  actName,
   type NemesisId,
 } from '../gameOfCaptains/voyageMap'
 import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
@@ -38,7 +38,7 @@ import {
 // Playbook Studio adapter for Space Couch (conductor playbook-kit t-013):
 // the runtime voyage as beats. Captains open a run, crew are its followers,
 // the voyage chart (gameOfCaptains/voyageMap.ts) is the chapter spine, one
-// board of calls per chapter across Act I and Act II, each call with its
+// board of calls per chapter across Acts I to III, each call with its
 // three orders, earlier-choice callbacks and officer asides. Pair routes are
 // threads, antagonists wait at the finale and four endings close it. Art
 // slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
@@ -135,7 +135,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   const boardOf = (id: string) =>
     VOYAGE_BOARDS.findIndex((board) => board.includes(id))
   const chapterName = (chapter: number) =>
-    `Act ${actOf(chapter) === 2 ? 'II' : 'I'}, chapter ${chapter}`
+    `${actName(chapter)}, chapter ${chapter}`
   const crewIds = CREW.map((member) => member.id)
   VOYAGE_BOARDS.flat().forEach((id, step) => {
     const mission = MISSIONS.find((m) => m.id === id)!
@@ -310,7 +310,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across two acts, four endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, four endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
     routes,
     nodes,
     order: storyOrder(routes, [

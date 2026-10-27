@@ -1,17 +1,23 @@
 import { ACT_ONE_MISSIONS } from './actOne'
 import { ACT_TWO_MISSIONS, ACT_TWO_OPENING, ACT_TWO_RESUPPLY } from './actTwo'
 import {
+  ACT_THREE_MISSIONS,
+  ACT_THREE_OPENING,
+  ACT_THREE_RESUPPLY,
+} from './actThree'
+import {
   NEMESIS_ENDINGS,
   nemesisEndingId,
   nemesisEndingVariant,
 } from './nemesisEndings'
 import {
+  ACT_THREE_FIRST_CHAPTER,
   ACT_TWO_FIRST_CHAPTER,
   VOYAGE_BOARDS,
   VOYAGE_CHAPTERS,
   VOYAGE_CONSEQUENCES,
   VOYAGE_ECHOES,
-  actOf,
+  actName,
   earnedCallbacks,
   nemesisMove,
   nemesisThreats,
@@ -336,6 +342,7 @@ export const MISSIONS = [
   },
   ...ACT_ONE_MISSIONS,
   ...ACT_TWO_MISSIONS,
+  ...ACT_THREE_MISSIONS,
 ] as const
 export type Mission = (typeof MISSIONS)[number]
 export type MissionReport = {
@@ -481,6 +488,49 @@ export function missionBoard(run: VoyageRun): Mission[] {
           has('taal') ||
           visited('nacre', 'insult-compiler', 'concord-intake')
         )
+      if (id === 'serendipity-last-call')
+        return (
+          has('jex') ||
+          has('omi') ||
+          has('tess') ||
+          visited('bar', 'serendipity-tab')
+        )
+      if (id === 'gameworld-finale')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('omi') ||
+          antagonistFor(run).id === 'showrunner' ||
+          visited('gameworld', 'season-two')
+        )
+      if (id === 'twins-summit')
+        return (
+          has('rue') ||
+          has('taal') ||
+          has('jex') ||
+          visited('courtesy-reactor', 'insult-compiler')
+        )
+      if (id === 'foundry-strike')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('pell') ||
+          visited('sesh-backups', 'warranty')
+        )
+      if (id === 'windglass-exodus')
+        return (
+          has('tess') ||
+          has('kivo') ||
+          has('fen') ||
+          visited('windglass', 'hoa')
+        )
+      if (id === 'deposit-copy')
+        return (
+          has('omi') ||
+          has('mox') ||
+          run.captain === 'quill' ||
+          visited('archive', 'overdue')
+        )
       if (id === 'nacre')
         return (
           witnessed ||
@@ -534,7 +584,7 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
     scene: `The red couch changes course for ${choice.system}. The crew can still refuse the captain’s assignment.`,
     log: [
       ...run.log,
-      `Charted the Act ${actOf(run.chapter) === 2 ? 'II' : 'I'} route to ${choice.system} on day ${run.day ?? 1}.`,
+      `Charted the ${actName(run.chapter)} route to ${choice.system} on day ${run.day ?? 1}.`,
     ],
   }
 }
@@ -1008,7 +1058,16 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       scene:
         'Your antagonist waits at the jump gate. On the red couch the crew asks what kind of captain you became. The force bubble holds; your moral shelter is another matter.',
     }
-  const opensActTwo = run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
+  const opening =
+    run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
+      ? { act: 'Act II', text: ACT_TWO_OPENING, supplies: ACT_TWO_RESUPPLY }
+      : run.chapter + 1 === ACT_THREE_FIRST_CHAPTER
+        ? {
+            act: 'Act III',
+            text: ACT_THREE_OPENING,
+            supplies: ACT_THREE_RESUPPLY,
+          }
+        : null
   return {
     ...run,
     phase: 'briefing',
@@ -1019,10 +1078,13 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     away: [],
     pocketRoom: null,
     report: null,
-    supplies: run.supplies + (opensActTwo ? ACT_TWO_RESUPPLY : 0),
-    scene: `${opensActTwo ? ACT_TWO_OPENING + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
-    log: opensActTwo
-      ? [...run.log, `Act II begins: ${ACT_TWO_RESUPPLY} supplies received.`]
+    supplies: run.supplies + (opening?.supplies ?? 0),
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    log: opening
+      ? [
+          ...run.log,
+          `${opening.act} begins: ${opening.supplies} supplies received.`,
+        ]
       : run.log,
   }
 }

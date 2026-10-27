@@ -1197,7 +1197,7 @@ export const TRIO_ADVENTURES_C: readonly TrioAdventure[] = [
   },
   {
     crew: ['brin', 'sora', 'tess'],
-    title: 'Listed',
+    title: 'The Heritage Listing',
     premise:
       'The Galactic Heritage Commission has listed the couch as a Site of Outstanding Historic Interest, Grade II, on the strength of its upholstery. Listing protects it from alteration. Brin’s garden may no longer be pruned. Sora’s repairs to the bubble generator now need listed-building consent, which takes eleven weeks. Tess has been told that listed sites are shown on every heritage chart in the galaxy, with directions.',
     steps: [
@@ -1267,7 +1267,7 @@ export const TRIO_ADVENTURES_C: readonly TrioAdventure[] = [
     ],
     endings: [
       {
-        title: 'DELISTED',
+        title: 'THE COUCH IS UNLISTED',
         text: 'The couch was removed from the heritage list on appeal, on the grounds that nothing aboard is old except the arguments. Brin prunes when she likes. Sora replaces parts with parts that work. The couch appears on no chart, which Tess prefers to every chart. The Commission keeps a file on the case, labeled precedent: furniture.',
         art: ({ sora, tess, couch, style }) =>
           `Wide shot of ${couch}, moving fast across a field of stars, its garden neatly trimmed along the backrest. Seated on the cushions are ${sora}, and ${tess}, both leaning back. Black space, warm lamp light. ${style}`,
@@ -2047,7 +2047,7 @@ export const TRIO_ADVENTURES_C: readonly TrioAdventure[] = [
   },
   {
     crew: ['fen', 'kivo', 'taal'],
-    title: 'Neighborhood Watch',
+    title: 'The Mallow Rise Watch',
     premise:
       'The residents of Mallow Rise, a quiet suburban moon, have invited Fen to chair their Neighborhood Watch on the strength of his record. They would like him to keep an eye on the newcomers, who have been arriving from the Hollow Lantern in growing numbers and have been seen doing suspicious things such as unpacking. Kivo’s wrists have been whistling at the committee since the minutes were read. Taal is attending as an observer, and the room is three degrees colder than the residents can explain.',
     steps: [
@@ -2117,7 +2117,7 @@ export const TRIO_ADVENTURES_C: readonly TrioAdventure[] = [
     ],
     endings: [
       {
-        title: 'STOOD DOWN',
+        title: 'WATCH DUTY ENDS',
         text: 'The Mallow Rise Neighborhood Watch has been dissolved. Its logbook was given to the newcomers, who use the blank pages for recipes. Fen visits when the couch passes and is greeted on both streets, which he says is the only kind of patrol he still does. Kivo’s wrists are quiet on Mallow Rise now. Taal keeps the temperature of the place on file, as a reference.',
         art: ({ fen, style }) =>
           `Wide shot of a suburban street at dusk where residents and newcomers sit together at a long table set in the road, sharing bowls of food under strings of small lamps. Walking along the table with his hands in his pockets is ${fen}, nodding to both sides. Warm lamp light, blue dusk sky. ${style}`,

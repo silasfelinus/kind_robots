@@ -12,6 +12,7 @@
 // (art/CREW-PORTRAITS-ROUND-1.yaml).
 
 import type { CaptainId, CrewId } from './rules'
+import { SERENDIPITY_FRANCHISES, venueArtPrompt } from './solarCircuit'
 import {
   TRIO_ADVENTURES,
   trioArtKey,
@@ -255,6 +256,19 @@ export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
     ]),
   ),
   ...TRIO_PROMPTS,
+  ...Object.fromEntries(
+    SERENDIPITY_FRANCHISES.map((franchise) => [
+      `venues/${franchise.id}`,
+      venueArtPrompt({
+        id: `art-${franchise.id}`,
+        name: 'Serendipity casino district',
+        conflict: 'The cobalt-blue giant host seeks an end to colonial occupation.',
+        giant: 'Aru',
+        franchise,
+        casinoName: 'Serendipity Grand Casino',
+      }),
+    ]),
+  ),
 }
 
 /** The Krea 2 prompt for an asset key, or undefined when none is authored. */

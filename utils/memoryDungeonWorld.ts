@@ -521,6 +521,45 @@ export function restoreBriarSave(input: unknown): BriarSave {
   }
 }
 
+/** Finish a saved, already-decided defeat whose retreat timer was interrupted. */
+export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
+  const combat = progress.combat
+  if (progress.room !== 'memory' || combat?.state.outcome !== 'defeat')
+    return progress
+
+  const houseOrigin = progress.house?.combatOrigin
+  const house =
+    houseOrigin && progress.house
+      ? {
+          ...progress.house,
+          combatOrigin: null,
+          current: 'HD-18' as const,
+          visited: progress.house.visited.includes('HD-18')
+            ? progress.house.visited
+            : [...progress.house.visited, 'HD-18'],
+        }
+      : progress.house
+  const lastHeart = progress.hearts <= 1
+  const retreat = lastHeart
+    ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
+    : `${combat.state.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`
+
+  return {
+    ...progress,
+    room: houseOrigin ? 'house' : 'map',
+    roomId: null,
+    cards: [],
+    combat: null,
+    roomMisses: 0,
+    hearts: lastHeart ? 3 : progress.hearts - 1,
+    player: lastHeart ? BRIAR_START : progress.player,
+    house,
+    status: houseOrigin
+      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
+      : retreat,
+  }
+}
+
 export type BriarTileProgress =
   'hidden' | 'unvisited' | 'unfinished' | 'complete'
 

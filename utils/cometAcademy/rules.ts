@@ -12,6 +12,7 @@ import {
   recordPlayerValues,
   resolveEvolution,
   type PlayerEvolution,
+  type PlayerForm,
 } from './protagonistEvolution'
 import {
   antagonistBeat,
@@ -413,6 +414,7 @@ export type AcademyRun = {
   power: PowerId
   signature?: SignaturePowerId
   vow?: PowerVowId
+  initialForm?: PlayerForm
   encounterDeckVersion?: 2
   flowVersion?: 2 | 3
   selectedSite?: SiteId
@@ -575,12 +577,16 @@ export function startFullAcademy(
   seed = Date.now(),
   signature?: SignaturePowerId,
   vow?: PowerVowId,
+  initialForm: PlayerForm = 'student',
 ): AcademyRun {
+  if (initialForm !== 'student' && !signature)
+    throw new Error('An earned identity requires a signature')
   const base = startAcademy(power, seed, signature, vow)
   return {
     ...base,
     flowVersion: 3,
-    playerEvolution: beginPlayerEvolution(),
+    initialForm,
+    playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
     visitedDays: {},
     injuries: {},
@@ -1194,6 +1200,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
       (!signatureById(data.signature) ||
         fieldFor(data.signature) !== data.power)) ||
     (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
+    (data.initialForm !== undefined &&
+      (!['student', 'hero', 'villain'].includes(data.initialForm) ||
+        (data.initialForm !== 'student' && !data.signature))) ||
     typeof data.seed !== 'number' ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
@@ -1222,7 +1231,11 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         (data.relationships !== undefined &&
           !validSocialState(data.relationships, data.day!)) ||
         (data.playerEvolution !== undefined &&
-          (!isValidPlayerEvolution(data.playerEvolution, data.signature) ||
+          (!isValidPlayerEvolution(
+            data.playerEvolution,
+            data.signature,
+            data.initialForm ?? 'student',
+          ) ||
             data.playerEvolution.milestones.some(
               (event) => event.day > data.day!,
             ))) ||

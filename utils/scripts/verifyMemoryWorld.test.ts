@@ -1240,9 +1240,10 @@ assert.deepEqual(
   'Leaving during a successful reflected flip must award the already-paid pair',
 )
 assert.ok(
-  mirroredPair.every((card) =>
-    returnedMirroredPair.mapCards.find((item) => item.tile === card.tile)
-      ?.matched,
+  mirroredPair.every(
+    (card) =>
+      returnedMirroredPair.mapCards.find((item) => item.tile === card.tile)
+        ?.matched,
   ),
 )
 assert.ok(

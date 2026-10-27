@@ -159,6 +159,11 @@ const overworld = readFileSync(
 )
 assert.match(overworld, /data-testid="memory-quest-log-open"/)
 assert.match(overworld, /<memory-dungeon-quest-log/)
+assert.match(
+  overworld,
+  /import MemoryDungeonQuestLog from '~\/components\/memory-dungeon\/quest-log\.vue'/,
+  'the log is imported where it mounts',
+)
 const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
 assert.match(log, /world\.briarQuests/)

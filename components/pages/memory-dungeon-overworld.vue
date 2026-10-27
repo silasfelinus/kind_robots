@@ -920,6 +920,7 @@ import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.v
 import MemoryDungeonHouseStage from '~/components/memory-dungeon/house-stage.vue'
 import MemoryDungeonMinefieldStage from '~/components/memory-dungeon/minefield-stage.vue'
 import MemoryDungeonEarthChronicle from '~/components/memory-dungeon/earth-chronicle.vue'
+import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
 
 const emit = defineEmits<{ leave: [] }>()

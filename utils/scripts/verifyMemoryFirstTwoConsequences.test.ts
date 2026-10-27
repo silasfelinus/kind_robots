@@ -420,9 +420,7 @@ for (const source of ['escort', 'question'] as const) {
   assert.equal(original.sceneChoices['4,4'], source)
   for (const sister of ['scylla', 'char'] as const) {
     assert.ok(
-      DARK_BRIAR_SCENES['4,4']?.choices.some(
-        (choice) => choice.id === sister,
-      ),
+      DARK_BRIAR_SCENES['4,4']?.choices.some((choice) => choice.id === sister),
     )
     const chosen = darkBriarChoose(royalBase, '4,4', sister)
     assert.notEqual(chosen, royalBase)
@@ -438,8 +436,7 @@ for (const source of ['escort', 'question'] as const) {
     const accord = `${source}-${sister}`
     assert.equal(earnedRoyalEscortAccord(original, restored), accord)
     assert.equal(
-      crossRealmConsequenceLedger(original, mirror, restored)
-        .royalEscortAccord,
+      crossRealmConsequenceLedger(original, mirror, restored).royalEscortAccord,
       accord,
     )
     const scene = earnedRoyalEscortOutcome(original, restored)

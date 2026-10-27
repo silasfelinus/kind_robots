@@ -219,10 +219,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       saveSlots: 3,
     }),
     count: async () => {
-      const [rules, roster, districts] = await Promise.all([
+      const [rules, roster, districts, returns] = await Promise.all([
         import('../cometAcademy/rules'),
         import('../cometAcademy/identityArcs'),
         import('../cometAcademy/districtEncounters'),
+        import('../cometAcademy/returnVisits'),
       ])
       const { PROM_ENDINGS } = await import('../cometAcademy/artSlots')
       const { CAMPAIGN_VILLAINS } = await import('../cometAcademy/campaign')
@@ -233,9 +234,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           romances: people.filter((person) => person.romance).length,
           villains: CAMPAIGN_VILLAINS.length,
           encounters:
-            rules.INCIDENTS.length +
+            rules.NIGHT_DECK.length +
             rules.ENCOUNTERS.length +
-            Object.keys(districts.DISTRICT_ENCOUNTERS).length,
+            Object.keys(districts.DISTRICT_ENCOUNTERS).length +
+            Object.keys(returns.RETURN_VISITS).length,
           endings: PROM_ENDINGS.length,
         },
         measured: [

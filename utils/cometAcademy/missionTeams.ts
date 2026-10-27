@@ -5,6 +5,27 @@ export type HeroReaction = { mood: HeroMood; line: string }
 
 const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
   mina: {
+    ferris: {
+      mood: 'positive',
+      line: "Lower them by hand. I don't trust that motor.",
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'Ventilators first. Everything else is paperwork.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'Four people under rock. We dig until they are out.',
+    },
+    rally: { mood: 'neutral', line: 'Open more exits. The speeches can wait.' },
+    refinery: {
+      mood: 'positive',
+      line: 'Get the families out of those stairwells.',
+    },
+    vault: {
+      mood: 'neutral',
+      line: 'Get the hostages out. The rest is a lawsuit.',
+    },
     monorail: {
       mood: 'positive',
       line: "I'm not leaving passengers in that train.",
@@ -31,6 +52,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   sol: {
+    ferris: {
+      mood: 'neutral',
+      line: "The owner's control panel is lying about the wind.",
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'A sold generator leaves a receipt. I will find it.',
+    },
+    quarry: {
+      mood: 'neutral',
+      line: 'Those tunnel sensors were switched off on purpose.',
+    },
+    rally: {
+      mood: 'neutral',
+      line: "The publicist's statement was written an hour ago.",
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'Smothered sensors mean a device. Devices leave traces.',
+    },
+    vault: {
+      mood: 'positive',
+      line: 'Those are academy suits. I can shut them down.',
+    },
     monorail: {
       mood: 'positive',
       line: 'That train was hacked. I want the logs.',
@@ -48,6 +93,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   imani: {
+    ferris: {
+      mood: 'positive',
+      line: 'Someone has to talk to the wedding party before they climb out.',
+    },
+    blackout: {
+      mood: 'neutral',
+      line: 'Ask the nurses which floors can wait.',
+    },
+    quarry: {
+      mood: 'neutral',
+      line: 'Talk to the families before the authority does.',
+    },
+    rally: {
+      mood: 'positive',
+      line: 'A crowd is just a lot of frightened people. I will talk.',
+    },
+    refinery: {
+      mood: 'neutral',
+      line: 'Residents have reported that smell for months.',
+    },
+    vault: {
+      mood: 'positive',
+      line: 'They want files, not blood. Let me talk to them.',
+    },
     monorail: {
       mood: 'positive',
       line: 'Talk to the people inside before cutting power.',
@@ -74,6 +143,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   ash: {
+    ferris: {
+      mood: 'positive',
+      line: 'That squall has a gap in eleven minutes. I can widen it.',
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'I can hold a storm over that substation for an hour.',
+    },
+    quarry: {
+      mood: 'negative',
+      line: 'Wind will not move rock, and rain will bring the ceiling down.',
+    },
+    rally: {
+      mood: 'neutral',
+      line: 'Confetti and a crosswind. This could get worse.',
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'I can lift that cloud off the rooftops.',
+    },
+    vault: {
+      mood: 'neutral',
+      line: 'Glass roof over a marble lobby. Careful with weather.',
+    },
     monorail: { mood: 'neutral', line: 'Check the real wind loads first.' },
     museum: { mood: 'neutral', line: 'That glass will shatter if we rush.' },
     flood: {
@@ -88,6 +181,27 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   nix: {
+    ferris: {
+      mood: 'neutral',
+      line: 'I can reach the top car, not carry a wedding.',
+    },
+    blackout: {
+      mood: 'neutral',
+      line: 'I can shuttle batteries, not a power grid.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'I can fold a door through the rubble if someone holds it.',
+    },
+    rally: { mood: 'positive', line: 'I will open the side streets.' },
+    refinery: {
+      mood: 'neutral',
+      line: 'I can move people. I cannot move air.',
+    },
+    vault: {
+      mood: 'neutral',
+      line: 'I can pull hostages out, not through a vault door.',
+    },
     monorail: {
       mood: 'positive',
       line: 'I can open a safe exit by the last carriage.',
@@ -114,6 +228,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   kit: {
+    ferris: {
+      mood: 'neutral',
+      line: 'Bring blankets. Rescued people go into shock.',
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'I know that ward. I will keep the patients steady.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'Crush injuries need care the second they are free.',
+    },
+    rally: {
+      mood: 'positive',
+      line: 'More crush injuries. I will be at the barricades.',
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'Burned lungs. Bring every oxygen kit we own.',
+    },
+    vault: {
+      mood: 'neutral',
+      line: 'Are the testers hurt inside those suits?',
+    },
     monorail: { mood: 'positive', line: 'I can keep the injured stable.' },
     museum: { mood: 'negative', line: 'If this is a theft, count me out.' },
     flood: { mood: 'positive', line: 'The market pharmacy must be protected.' },
@@ -128,6 +266,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   veda: {
+    ferris: {
+      mood: 'positive',
+      line: 'A wheel rescue on live television? I will rig the lines.',
+    },
+    blackout: {
+      mood: 'negative',
+      line: 'Hospital wiring is not a stunt. Call the electricians.',
+    },
+    quarry: {
+      mood: 'neutral',
+      line: 'Tunnels are dark and nobody films them. Fine, I will come.',
+    },
+    rally: {
+      mood: 'negative',
+      line: 'That hero trained with me. I will not embarrass him.',
+    },
+    refinery: {
+      mood: 'neutral',
+      line: 'Chemical clouds are not heroic, but fine.',
+    },
+    vault: {
+      mood: 'negative',
+      line: 'I trained some of those testers. This is a mess.',
+    },
     monorail: {
       mood: 'positive',
       line: "I've survived this kind of stunt without a harness.",
@@ -154,6 +316,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   mara: {
+    ferris: {
+      mood: 'negative',
+      line: 'The ride operators begged for that repair. Ask them first.',
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'The electricians’ local will come if we ask properly.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'Those are transit workers. The union is already there.',
+    },
+    rally: {
+      mood: 'positive',
+      line: 'The protest marshals know these streets. Use them.',
+    },
+    refinery: {
+      mood: 'neutral',
+      line: 'Refinery workers are scared to talk. Be careful.',
+    },
+    vault: {
+      mood: 'positive',
+      line: 'Laid-off workers out of options. Let me negotiate.',
+    },
     monorail: {
       mood: 'positive',
       line: "The conductor is a union member. I'm going.",
@@ -177,6 +363,27 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   drift: {
+    ferris: {
+      mood: 'neutral',
+      line: 'Heights were not in my design specifications.',
+    },
+    blackout: {
+      mood: 'negative',
+      line: 'A stolen machine from criminals. They will take it.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'I was buried in a laboratory once. I will go.',
+    },
+    rally: { mood: 'negative', line: 'Crowds frighten me more than fire.' },
+    refinery: {
+      mood: 'positive',
+      line: 'My lungs filter better than yours. Send me in.',
+    },
+    vault: {
+      mood: 'positive',
+      line: 'They were used and thrown away. I know that feeling.',
+    },
     monorail: { mood: 'neutral', line: 'The machines sound frightened.' },
     museum: {
       mood: 'negative',
@@ -200,6 +407,24 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   tessel: {
+    ferris: {
+      mood: 'positive',
+      line: 'The storm is listening. I can ask it to wait.',
+    },
+    blackout: {
+      mood: 'neutral',
+      line: 'There is thunder behind those clouds, and it is not friendly.',
+    },
+    quarry: {
+      mood: 'neutral',
+      line: 'The stone smells like a world I left. I will try.',
+    },
+    rally: { mood: 'neutral', line: 'So many voices at once. I will try.' },
+    refinery: {
+      mood: 'positive',
+      line: 'That cloud is heavy. The wind can carry it out to sea.',
+    },
+    vault: { mood: 'neutral', line: 'Banks feel the same in every world.' },
     monorail: {
       mood: 'positive',
       line: 'I can fold the route outside the tracks.',
@@ -226,6 +451,30 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   jo: {
+    ferris: {
+      mood: 'neutral',
+      line: 'If the owner wants cameras, I want the repair logs.',
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'That generator went for scrap with somebody’s signature on it.',
+    },
+    quarry: {
+      mood: 'positive',
+      line: 'Why does the authority want this sealed by sunrise?',
+    },
+    rally: {
+      mood: 'positive',
+      line: 'Somebody needs to record what actually happened.',
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'A drill? Then I want the drill schedule.',
+    },
+    vault: {
+      mood: 'positive',
+      line: 'The bank wants one box retrieved quietly. That is the story.',
+    },
     monorail: { mood: 'positive', line: "I'll put the dispatch logs on air." },
     museum: {
       mood: 'positive',
@@ -246,6 +495,27 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   lark: {
+    ferris: {
+      mood: 'positive',
+      line: 'I will set up triage at the foot of the pier.',
+    },
+    blackout: { mood: 'positive', line: 'That is my hospital. I am going.' },
+    quarry: {
+      mood: 'neutral',
+      line: 'I will take surface triage. Tunnels make me panic.',
+    },
+    rally: {
+      mood: 'positive',
+      line: 'Protesters get hurt too. I will treat everyone.',
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'This is exactly who nobody else shows up for.',
+    },
+    vault: {
+      mood: 'neutral',
+      line: 'Hostages first. Then I want to read those injury files.',
+    },
     monorail: { mood: 'positive', line: 'I have emergency beds ready.' },
     museum: {
       mood: 'negative',
@@ -400,6 +670,126 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
         label: 'The Night-Shift Corridor',
         result:
           'Lark opens the old hospital stairwell and creates a triage corridor the academy did not know existed.',
+        boost: 1,
+      },
+    },
+  ],
+  ferris: [
+    {
+      people: ['tessel', 'ash'],
+      route: {
+        label: 'The Calm Above the Pier',
+        result:
+          'Tessel asks the squall to hold still while Ash opens a quiet gap in it, and every car comes down through still air.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['mara'],
+      route: {
+        label: 'The Operators’ Brake',
+        result:
+          'Mara brings the ride operators back, and they set the hand brake the owner never let them use.',
+        boost: 1,
+      },
+    },
+  ],
+  blackout: [
+    {
+      people: ['lark', 'kit'],
+      route: {
+        label: 'The Ward That Stayed Lit',
+        result:
+          'Lark and Kit move the ventilated patients floor by floor and keep every one breathing on hand pumps until the power returns.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['jo'],
+      route: {
+        label: 'The Scrap Receipt',
+        result:
+          'Jo finds the receipt for the old generator and airs it live, and the villain crew withdraws its offer before dawn.',
+        boost: 1,
+      },
+    },
+  ],
+  quarry: [
+    {
+      people: ['nix', 'mara'],
+      route: {
+        label: 'The Sandhogs’ Door',
+        result:
+          'Mara organizes the sandhog crew while Nix folds a door into the dark, and four workers walk out on their own feet.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['drift'],
+      route: {
+        label: 'Breathing in the Dust',
+        result:
+          'DRIFT-9 crawls through dust no human lungs could take and anchors a line to the trapped crew.',
+        boost: 1,
+      },
+    },
+  ],
+  rally: [
+    {
+      people: ['imani', 'mara'],
+      route: {
+        label: 'The Marshals’ Corridor',
+        result:
+          'Imani speaks over the crowd while Mara’s protest marshals link arms into a corridor to the side streets.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['jo'],
+      route: {
+        label: 'The Live Correction',
+        result:
+          'Jo streams the landing from three angles before the publicist can blame anyone.',
+        boost: 1,
+      },
+    },
+  ],
+  refinery: [
+    {
+      people: ['drift', 'ash'],
+      route: {
+        label: 'The Clean Wind',
+        result:
+          'DRIFT-9 walks into the cloud to close the valve while Ash pushes the smoke out over the harbor.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['sol'],
+      route: {
+        label: 'The Smothered Sensors',
+        result:
+          'Sol finds the devices on the sensor masts and wakes every alarm on the east side at once.',
+        boost: 1,
+      },
+    },
+  ],
+  vault: [
+    {
+      people: ['sol', 'imani'],
+      route: {
+        label: 'The Peaceful Shutdown',
+        result:
+          'Sol powers the suits down gently while Imani walks the testers out with their files.',
+        boost: 2,
+      },
+    },
+    {
+      people: ['veda'],
+      route: {
+        label: 'Old Instructor, Old Students',
+        result:
+          'Veda Cross walks into the lobby without armor, and her former testers lower their gauntlets for her.',
         boost: 1,
       },
     },

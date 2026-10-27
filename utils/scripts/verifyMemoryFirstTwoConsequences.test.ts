@@ -446,13 +446,15 @@ for (const source of ['escort', 'question'] as const) {
     assert.ok(scene && scene.length > 110)
     assert.ok(scene.includes(sister === 'scylla' ? 'Scylla' : 'Char'))
     royalScenes.add(scene)
-    const epilogue = crossRealmHouseEpilogue(
-      original,
-      { ...mirror, ending: 'return' },
-      restored,
-    )
-    assert.ok(epilogue.includes(sister === 'scylla' ? 'Scylla' : 'Char'))
-    royalEpilogues.add(epilogue)
+    for (const ending of ['return', 'commons'] as const) {
+      const epilogue = crossRealmHouseEpilogue(
+        original,
+        { ...mirror, ending },
+        restored,
+      )
+      assert.ok(epilogue.includes(sister === 'scylla' ? 'Scylla' : 'Char'))
+      royalEpilogues.add(epilogue)
+    }
     assert.equal(
       crossRealmHouseEpilogue(original, mirror, restored),
       '',

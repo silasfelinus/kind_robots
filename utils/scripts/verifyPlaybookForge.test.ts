@@ -492,10 +492,20 @@ const memoryLedger = buildLedger(
   },
 )
 assert.equal(memoryLedger.scope, 200 / 1600)
-assert.equal(memoryLedger.unbuiltUnits, 1400, 'other fourteen worlds have no authored encounter slots')
+assert.equal(
+  memoryLedger.unbuiltUnits,
+  1400,
+  'other fourteen worlds have no authored encounter slots',
+)
 assert.equal(memoryLedger.plannedUnits, memoryLedger.units + 1400)
-assert.ok(memoryLedger.remainingSeconds > 1400 * 60, 'missing worlds require real future renders')
-assert.equal(memoryLedger.progress, (memoryLedger.writtenShare + memoryLedger.paintedShare) / 2)
+assert.ok(
+  memoryLedger.remainingSeconds > 1400 * 60,
+  'missing worlds require real future renders',
+)
+assert.equal(
+  memoryLedger.progress,
+  (memoryLedger.writtenShare + memoryLedger.paintedShare) / 2,
+)
 assert.ok(memoryLedger.progress <= memoryLedger.scope)
 assert.match(
   memoryLedger.discrepancies.join(' '),
@@ -557,14 +567,35 @@ for (const game of PLAYBOOK_GAMES) {
   }
 }
 const promRoster = buildPlaybook('comet-city-academy')
-const identityNodes = Object.values(promRoster.nodes).filter((node) => node.kind === 'follower' && node.key.startsWith('identity:'))
-assert.ok(identityNodes.length >= 48, 'every authored signature identity appears in the Forge cast')
+const identityNodes = Object.values(promRoster.nodes).filter(
+  (node) => node.kind === 'follower' && node.key.startsWith('identity:'),
+)
+assert.ok(
+  identityNodes.length >= 48,
+  'every authored signature identity appears in the Forge cast',
+)
 const firstIdentity = galleryEntry(identityNodes[0]!)
-assert.equal(firstIdentity.artVariants.length, 3, 'student, hero and villain art slots')
-assert.ok(firstIdentity.body.some((line) => /Hero turn/.test(line)), 'hero consequence visible')
-assert.ok(firstIdentity.variations.some((v) => v.key === 'sidekick'), 'sidekick branch visible')
-assert.ok(firstIdentity.variations.some((v) => v.key === 'romance'), 'romance branch visible')
-assert.ok(firstIdentity.group !== 'Cast', 'origin family is available for visual browsing')
+assert.equal(
+  firstIdentity.artVariants.length,
+  3,
+  'student, hero and villain art slots',
+)
+assert.ok(
+  firstIdentity.body.some((line) => /Hero turn/.test(line)),
+  'hero consequence visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'sidekick'),
+  'sidekick branch visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'romance'),
+  'romance branch visible',
+)
+assert.ok(
+  firstIdentity.group !== 'Cast',
+  'origin family is available for visual browsing',
+)
 
 const captains = buildPlaybook('game-of-captains')
 const captainsLedger = buildLedger(

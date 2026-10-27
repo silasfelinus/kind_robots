@@ -1,6 +1,15 @@
 import { BRIAR_EARTH_PHOTOS } from './chronicle'
 import { WORLD_ONE_GALLERY, validateRealmGallery } from './realmGallery'
 import { HOUSE_ROOMS } from './house'
+import { COMBAT_ROOMS } from './rooms'
+import {
+  BRIAR_STYLE,
+  HOUSE_STYLE,
+  RESEARCHER,
+  TRAVELER,
+  VISIBLE_ACTIONS,
+  consequencePrompt,
+} from './artPromptParts'
 import { BRIAR_TILES } from '../memoryDungeonWorld'
 import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
 
@@ -34,15 +43,15 @@ export interface MemoryArtShot {
   delivery: 'not-submitted'
 }
 
-const look =
-  'Original hand-painted western animation, mature Grimm fairy tale, expressive acting, intricate tactile environments, controlled cinematic lighting. No words, lettering, watermark, montage, or UI.'
-
+// Every brief is a complete literal prompt: authored place, room, photo and
+// enemy prompts are used as written, and the openings below name only what
+// is visible. Shared pieces live in ./artPromptParts.
 function shot(
   id: string,
   kind: MemoryArtKind,
   format: MemoryArtFormat,
   title: string,
-  subject: string,
+  prompt: string,
   targetPath: string,
   priority: MemoryArtShot['priority'] = 'scene',
 ): MemoryArtShot {
@@ -51,7 +60,7 @@ function shot(
     kind,
     format,
     title,
-    prompt: `${look} ${subject}`,
+    prompt,
     targetPath,
     engine: 'comfy',
     priority,
@@ -71,7 +80,7 @@ const openingShots: MemoryArtShot[] = [
     'cinematic',
     'landscape',
     'The Last Ordinary Evening',
-    'A contemporary data-research office at twilight, coffee ring beside tidy datasets, an impossible reflection growing between fluorescent lights and window glass; single cohesive frame.',
+    `An open-plan office at twilight with rows of empty desks under fluorescent ceiling lights. ${RESEARCHER} sits alone at a desk with two monitors of spreadsheets, a coffee mug with a brown ring stain and a stack of tidy folders. In the dark window glass behind them, their reflection has long pointed ears and short silver hair. Cold fluorescent light, deep blue dusk outside. Wide shot at eye level. ${BRIAR_STYLE}`,
     `${artRoot}/cinematics/earth-office.webp`,
     'hero',
   ),
@@ -80,7 +89,7 @@ const openingShots: MemoryArtShot[] = [
     'cinematic',
     'landscape',
     'The Changeling Trade',
-    'Two androgynous adults, the Earth researcher and enigmatic fey Morrow, reflected in a pane separating fluorescent office from living moonlit forest; an unsettling body exchange, not a romance.',
+    `A tall pane of glass divides a fluorescent-lit office on the left from a moonlit forest of ferns on the right. On the office side, ${RESEARCHER} presses one palm flat to the glass. On the forest side, ${TRAVELER} presses one palm to the same spot, and the two stare at each other with wide eyes. White office light on the left, blue moonlight on the right. Medium shot. ${BRIAR_STYLE}`,
     `${artRoot}/cinematics/changeling-trade.webp`,
     'hero',
   ),
@@ -89,7 +98,7 @@ const openingShots: MemoryArtShot[] = [
     'cinematic',
     'landscape',
     'Briar Arrival',
-    'First-person arrival in the Briar Marches, roots curling across old stones, warm campfire ahead, distant forbidding manor, dense illustrated panorama with generous space for game overlays.',
+    `A mossy forest path of old flat stones crossed by curling roots leads toward a small campfire beside a patched canvas tent. Far beyond the treetops, a dark manor grown from roots stands on a hill with three lit windows. Two hands in dark green cloak sleeves reach into the lower edge of the view. Dusk light and warm firelight. Wide first-person view at eye level. ${BRIAR_STYLE}`,
     `${artRoot}/cinematics/briar-arrival.webp`,
     'hero',
   ),
@@ -98,7 +107,7 @@ const openingShots: MemoryArtShot[] = [
     'backdrop',
     'landscape',
     'Briar Marches',
-    'One continuous overhead fantasy adventure board landscape, wooded trails, creek, thorn gate, compact village, dangerous ruins and a rooted mansion at the northeast, landmarks placed for an 8x8 interactive map, no labels.',
+    `Straight-down aerial view of a forest valley at dawn: winding dirt trails between oak woods, a creek along the southern edge, a river with a plank bridge through the eastern third, a small camp with a tent in the west, a compact village of thatched cottages, crumbling grey stone ruins, a gate of woven thorns at the eastern edge and a dark manor grown from roots in the northeast corner. Soft pink dawn light. ${BRIAR_STYLE}`,
     `${artRoot}/backdrops/briar-overworld.webp`,
     'hero',
   ),
@@ -107,7 +116,7 @@ const openingShots: MemoryArtShot[] = [
     'backdrop',
     'landscape',
     'House That Remembers',
-    'Impossible memory-haunted manor hall with bent staircases, brass mirrors and carved roots, believable playable depth and doorways, ominous but intimate.',
+    `A manor hall grown from oak roots, with three wooden staircases bending at odd angles toward upper landings, tall brass mirrors along the walls, carved root pillars and open doorways leading deeper inside. Candles burn in brass wall sconces. Wide shot at eye level. ${HOUSE_STYLE}`,
     `${artRoot}/backdrops/house-interior.webp`,
     'hero',
   ),
@@ -116,7 +125,7 @@ const openingShots: MemoryArtShot[] = [
     'backdrop',
     'landscape',
     'Secret Memory Vault',
-    'Hidden candlelit archive behind twisting root walls, two interlocked leaf sigils in a carved stone doorway, fair environmental puzzle clues, subtle treasure.',
+    `A hidden archive behind twisting root walls: wooden shelves of glowing glass jars and bound ledgers lit by candles, a carved stone doorway marked with two interlocked leaf shapes, and a small brass-bound chest on the flagstones below the shelves. Warm candlelight. Medium-wide shot. ${HOUSE_STYLE}`,
     `${artRoot}/backdrops/secret-vault.webp`,
     'hero',
   ),
@@ -125,7 +134,7 @@ const openingShots: MemoryArtShot[] = [
     'backdrop',
     'landscape',
     'Memory Duel',
-    'Forest clearing transformed into a magic memory duel arena, danger approaching from the far side, quiet low-contrast center reserved for a readable playing board.',
+    `A round forest clearing ringed by tall oaks and bramble walls, its flat mossy ground bare and evenly lit in the middle. On the far side, two dark shapes move between the tree trunks. Lanterns hang from low branches. Dusk light. Wide shot from a high angle. ${BRIAR_STYLE}`,
     `${artRoot}/backdrops/combat.webp`,
     'hero',
   ),
@@ -134,7 +143,7 @@ const openingShots: MemoryArtShot[] = [
     'transition',
     'landscape',
     'First Realm Unveiled',
-    'From darkness to a revealed storybook forest, the mapped camp paths brightening in paired islands through fog, cinematic wide establishing art.',
+    `A dark forest at night with fog lifting in patches, uncovering pairs of lantern-lit clearings joined by pale dirt paths: a campfire beside a tent, a mossy plank bridge, a merchant stall and a gate of woven thorns. Moonlight from above, warm lanterns below. Wide high-angle shot. ${BRIAR_STYLE}`,
     `${artRoot}/transitions/briar-unveil.webp`,
     'hero',
   ),
@@ -143,7 +152,7 @@ const openingShots: MemoryArtShot[] = [
     'transition',
     'landscape',
     'Beyond the Thorn Gate',
-    'A bramble gate opens onto the warm lights of a bread-and-hearth village, first suggestion of the next realm without displaying a finished second map.',
+    `A gate of woven thorns stands open on a forest road at dusk. Through the gap, a valley village of stone cottages with glowing bread ovens and chimney smoke stretches toward low hills. Warm orange oven light ahead, blue dusk behind. Wide shot from behind the gate. ${BRIAR_STYLE}`,
     `${artRoot}/transitions/second-realm.webp`,
     'hero',
   ),
@@ -152,7 +161,7 @@ const openingShots: MemoryArtShot[] = [
     'card-back',
     'card',
     'Briar Crest',
-    'A seamless centered playing-card back, thorn and leaf filigree, dark evergreen and antique gold, symmetric top to bottom, graphic detail legible at mobile size.',
+    'A flat upright panel of dark evergreen lacquer covered edge to edge with symmetric antique gold filigree of thorn stems and oak leaves around a central coiled knot, mirrored top to bottom. Straight-on view under even soft light. Hand-painted gouache and ink illustration in dark evergreen and antique gold.',
     `${artRoot}/card-backs/briar-default.webp`,
     'hero',
   ),
@@ -161,7 +170,7 @@ const openingShots: MemoryArtShot[] = [
     'card-back',
     'card',
     'Moonlit Cipher',
-    'A seamless centered playing-card back, moonlight silver over ink-dark brambles, cryptic twin seals, symmetric top to bottom, graphic detail legible at mobile size.',
+    'A flat upright panel of ink-black lacquer covered edge to edge with silver bramble filigree around two interlocked round seals, mirrored top to bottom, lit by pale moonlight. Straight-on view. Hand-painted gouache and ink illustration in ink black and moonlight silver.',
     `${artRoot}/card-backs/briar-arcane.webp`,
     'hero',
   ),
@@ -169,27 +178,27 @@ const openingShots: MemoryArtShot[] = [
     [
       'scylla',
       'Princess Scylla',
-      'Adult sturdy mermaid princess with poised bearing, meticulously proper travel coat, polished crown, neatly styled hair, same face and physique as twin Char.',
+      'Scylla, a stout broad-shouldered adult woman with light brown skin, a chestnut braid and a small polished silver crown, in a tailored navy travel coat with brass buttons, stands upright with her hands folded and her chin raised in a sunlit forest clearing.',
     ],
     [
       'char',
       'Princess Charybdis',
-      'Adult sturdy mermaid princess, darker skin from different magical waters, authentic layered goth velvet and lace, silver jewelry and distinctive makeup, identical facial structure and build to Scylla.',
+      'Char, a stout broad-shouldered adult woman with deep brown skin, black hair in a high braid, layered black velvet and lace, silver rings and chains, black lipstick and dark eye makeup, grins with one hand on her hip in a sunlit forest clearing.',
     ],
     [
       'oren',
       'Master Oren Pike',
-      'Tired formidable royal headsman with permanent cloth executioner hood with eyeholes, ceremonial axe, precise travel manifest and an implausibly organized supply cart; NEVER reveal face.',
+      'Oren, a very tall broad man in a rough brown cloth executioner hood with two eyeholes and a leather apron of pouches, holds a long ledger in one hand and rests a ceremonial axe on his shoulder beside a neatly packed supply cart.',
     ],
     [
       'morrow',
       'Morrow',
-      'Ambiguous androgynous fey changeling, sharply curious, caught between fairy-tale body and longing for an ordinary data-research career, expressive uncertain gaze.',
+      `Morrow, ${TRAVELER}, stands at the edge of a forest at dusk turning a smartphone with a cracked screen over in both hands, brows raised.`,
     ],
     [
       'mosswick',
       'Mosswick',
-      'Briar Marches traveling merchant beside a weathered forest stall, wildflowers and lanterns for trade, warm but cautious expression.',
+      'Mosswick, a stooped old man with a long grey braided beard and a patched moss-green coat, leans on a wooden forest stall crowded with brass lanterns and bunches of wildflowers, eyes narrowed in a guarded smile.',
     ],
   ].map(([key, title, subject]) =>
     shot(
@@ -197,34 +206,24 @@ const openingShots: MemoryArtShot[] = [
       'portrait',
       'portrait',
       title!,
-      `Individual illustrated dialogue portrait, bust to waist, expressive face and hands, atmospheric forest-neutral background. ${subject}`,
+      `${subject} Warm afternoon light. Waist-up view, medium close-up. ${BRIAR_STYLE}`,
       `${artRoot}/portraits/${key}.webp`,
       'hero',
     ),
   ),
-  ...[
+  ...(
     [
-      'moss-sprite',
-      'Moss Sprite',
-      'Impish moss-covered forest spirit springing from a branch.',
-    ],
-    [
-      'thorn-patrol',
-      'Thorn Patrol',
-      'Two armed sentries of the bramble road, clear combat silhouettes and readable expressions.',
-    ],
-    [
-      'rootbound-warden',
-      'Rootbound Warden',
-      'Ancient guardian of remembered names, roots and brass keys for armor, grave and imposing but capable of mercy.',
-    ],
-  ].map(([key, title, subject]) =>
+      ['moss-sprite', 'sprite'],
+      ['thorn-patrol', 'patrol'],
+      ['rootbound-warden', 'vault-2'],
+    ] as const
+  ).map(([key, room]) =>
     shot(
       `monster-${key}`,
       'monster',
       'landscape',
-      title!,
-      `Individual combat character illustration in an environment suitable for placing alongside a memory board. ${subject}`,
+      COMBAT_ROOMS[room].enemy.name,
+      COMBAT_ROOMS[room].artPrompt,
       `${artRoot}/monsters/${key}.webp`,
       'hero',
     ),
@@ -241,7 +240,7 @@ const tileShots = BRIAR_TILES.flatMap((tile): MemoryArtShot[] => {
       'overworld',
       'landscape',
       scene.title,
-      `Single detailed establishing illustration of the location. ${scene.artDirection} No menus or grids.`,
+      scene.artDirection,
       `${sceneRoot}/sites/${stem}.webp`,
     ),
     ...scene.choices.map((choice) =>
@@ -250,7 +249,11 @@ const tileShots = BRIAR_TILES.flatMap((tile): MemoryArtShot[] => {
         'overworld-outcome',
         'landscape',
         `${scene.title}: ${choice.label}`,
-        `Consequence still frame at ${scene.title}; prior setting: ${scene.artDirection}. Player action: ${choice.label}. Result: ${choice.result}. Show a visible difference from the other outcome.`,
+        consequencePrompt(
+          scene.artDirection,
+          VISIBLE_ACTIONS[`briar-${stem}-${choice.id}`] ?? choice.label,
+          BRIAR_STYLE,
+        ),
         `${sceneRoot}/outcomes/${stem}-${choice.id}.webp`,
         'variant',
       ),
@@ -274,7 +277,12 @@ const roomShots = Object.values(HOUSE_ROOMS).flatMap(
         'dungeon-outcome',
         'landscape',
         `${room.title}: ${choice.label}`,
-        `${room.artPrompt} Choice: ${choice.label}. Consequence: ${choice.outcome}. Focus on one story moment, not a collage.`,
+        choice.artPrompt ??
+          consequencePrompt(
+            room.artPrompt,
+            VISIBLE_ACTIONS[`house-${room.id}-${choice.id}`] ?? choice.label,
+            HOUSE_STYLE,
+          ),
         `${houseRoot}/outcomes/${room.id.toLowerCase()}-${choice.id}.webp`,
         'variant',
       ),
@@ -288,7 +296,7 @@ const photoShots = BRIAR_EARTH_PHOTOS.map((photo) =>
     'photograph',
     'landscape',
     photo.title,
-    `A candid contemporary Earth photograph, natural ordinary lighting, captured moment not a fantasy painting. ${photo.caption} No superimposed text. Preserve chronological ambiguity.`,
+    photo.artPrompt,
     photo.artPath,
     'hero',
   ),

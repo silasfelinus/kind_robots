@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { readFileSync } from 'node:fs'
 import {
   DARK_BRIAR_ART_REQUESTS,
@@ -490,6 +491,27 @@ assert.ok(store.includes('const DARK_BRIAR_KEY ='))
 assert.ok(store.includes('grantBriarCompletion()'))
 assert.ok(store.includes('persistReality()'))
 assert.ok(store.includes('advanceDarkBriarWave(dark.value)'))
+// A literal brief names what is visible and closes on its realm's medium.
+const MEDIUM_LINE =
+  /(?:Hand-painted gouache and ink illustration[^.]*|Candid 35mm colour photograph, natural light, soft film grain)\.$/
+const NON_LITERAL =
+  /\b(?:no|not|without|never|nothing|none|lettering|text|watermark|montage|legible|readable|iconic|composition|collectible|thumbnail|game|story)\b|(?<!shaped )\blike\b/i
+for (const brief of [
+  ...DARK_BRIAR_ART_REQUESTS,
+  ...DARK_BRIAR_COLLECTIBLE_ART,
+]) {
+  const problems = checkArtPromptContract({
+    prompt: brief.prompt,
+    engine: 'krea2',
+  }).map((violation) => violation.rule)
+  const word = brief.prompt.match(NON_LITERAL)?.[0]
+  if (word) problems.push(`non-literal "${word}"`)
+  if (!MEDIUM_LINE.test(brief.prompt)) problems.push('missing its medium line')
+  if (brief.prompt.length < 120 || brief.prompt.length > 900)
+    problems.push(`length ${brief.prompt.length}`)
+  assert.deepEqual(problems, [], `${brief.id} is not a literal Krea 2 prompt`)
+}
+
 console.log(
-  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and art briefs pass',
+  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and literal Krea 2 art briefs pass',
 )

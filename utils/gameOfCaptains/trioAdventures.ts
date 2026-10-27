@@ -3,6 +3,7 @@ import { CREW_PROFILES } from './crewAssignments'
 import { VOYAGE_CHAPTERS } from './voyageMap'
 import { TRIO_ADVENTURES_A } from './trioAdventuresA'
 import { TRIO_ADVENTURES_B } from './trioAdventuresB'
+import { TRIO_ADVENTURES_C } from './trioAdventuresC'
 import { TRIO_ADVENTURES_E } from './trioAdventuresE'
 import { TRIO_ADVENTURES_F } from './trioAdventuresF'
 
@@ -77,6 +78,7 @@ export const trioKey = (crew: readonly string[]) => [...crew].sort().join('-')
 export const TRIO_ADVENTURES: readonly TrioAdventure[] = [
   ...TRIO_ADVENTURES_A,
   ...TRIO_ADVENTURES_B,
+  ...TRIO_ADVENTURES_C,
   ...TRIO_ADVENTURES_E,
   ...TRIO_ADVENTURES_F,
 ]

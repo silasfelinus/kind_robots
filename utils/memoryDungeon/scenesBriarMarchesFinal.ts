@@ -54,7 +54,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       "The House's rootwork has grown around half a sleeping seal. It exhales in time with the footsteps above it. Someone deliberately removed the other half, not to break the symbol but to stop it from being misused.",
     artPrompt:
-      'Close view enchanted warm root-buried seal half-circle, sleeping gilded runes with one absent matching half, Grimm manor steps, cinematic forest light',
+      'Thick roots have grown around half of a round carved stone seal set into the old steps of a manor. Gilded marks run around its curved edge, and its other half is a clean empty socket in the stone. Warm forest light falls through the leaves onto the steps. Close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'remember',
@@ -96,7 +96,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       'The gate hums a note too low for human hearing. Its thorns cradle an unused bell-shaped hollow. A mask embedded in the bark offers to stamp your travel papers without ever reading them, provided you never ask what the seal means.',
     artPrompt:
-      'Great thornbound regional gate, empty bell hollow, tiny mask in bark, golden chime light through leaves, dark mature illustrated fairy tale landscape',
+      'A great gate of woven thorns arches over a forest road, with a round empty hollow among its thorns the size and shape of a bell. A small carved wooden mask is set into the bark of one gatepost, holding a brass stamp in its mouth. Golden sunlight falls through the leaves above. Low-angle wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'law',
@@ -117,7 +117,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       'A damp paper photograph lies trapped in a fern, entirely out of place. It shows your own face leaving the research office with a cardboard box of desk things. The timestamp is from a day you remember working. Morrow, wearing your body, has been fired. For one painful moment, the proof feels like vindication.',
     artPrompt:
-      'A damp paper photograph lies in green ferns on a forest floor, beaded with dew. In the photograph, an androgynous adult in their thirties with short dark hair and a grey cardigan carries a cardboard box of desk things out of a glass office entrance in grey drizzle. Soft overcast forest light. Close-up from above, painted ferns around a realistic printed photograph.',
+      'A damp paper photograph lies in green ferns on a forest floor, beaded with dew. In the photograph, an androgynous adult in their thirties with short dark hair and a grey cardigan carries a cardboard box of desk things out of a glass office entrance in grey drizzle. Soft overcast forest light. Close-up from above, painted ferns around a realistic printed photograph. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'archive',
@@ -180,7 +180,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       "An abandoned river chest rattles when approached. Inside it a lantern burns without oil beside a ferry sketch. The drawing shows three passengers boarding, but only two shadows leaving. The ferryman's name has been scratched out.",
     artPrompt:
-      'Wet driftwood chest among river reeds, warm golden lantern and old sketched ferry map, black water reflecting two shadows, painterly Western fairy tale',
+      'A wet driftwood chest sits open among river reeds at dusk. Inside it, a small brass lantern burns beside a folded paper sketch of a ferry with three passengers. On the black water beside the chest float the reflections of two figures standing on the bank. Warm golden lantern light on dark water. Close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'inspect',
@@ -201,7 +201,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       "A second impossible photograph is wedged beneath a smooth stone. Your face sits at a crowded apartment gathering, speaking much too loudly while an old friend stares at the floor, hurt. The image gives no explanation, and Morrow's body has never felt farther from home.",
     artPrompt:
-      'A paper photograph lies on a smooth dark stone in a mossy forest. In the photograph, an androgynous adult in their thirties with short dark hair and a grey cardigan talks loudly with raised hands at a crowded apartment party under warm lamplight, while a friend in a green sweater stares down at the floor. Close-up from above, painted moss around a realistic printed photograph.',
+      'A paper photograph lies on a smooth dark stone in a mossy forest. In the photograph, an androgynous adult in their thirties with short dark hair and a grey cardigan talks loudly with raised hands at a crowded apartment party under warm lamplight, while a friend in a green sweater stares down at the floor. Close-up from above, painted moss around a realistic printed photograph. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'record',
@@ -222,7 +222,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       "A knight keeps watch over an abandoned community garden that has grown across the old property line. The knight's own deed names the villagers as co-owners, but a newer royal map calls them trespassers. They offer a duel as court procedure, then quietly admit they hope you find another answer.",
     artPrompt:
-      'Weathered armoured knight kneeling over disputed community-garden deed, wildflowers and partly ruined greenhouse in Grimm forest, friendly but tense, gold edged painted fantasy',
+      'A weathered knight in dented armor kneels in an overgrown community garden, unrolling an old paper deed on the ground beside wildflower beds. Behind the knight stands a half-collapsed glass greenhouse with vines growing through its broken panes. Two villagers with garden hoes watch from the gate. Soft afternoon light. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'deed',
@@ -264,7 +264,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       'The mill family has nailed shut a sluice that releases more than river water: the water carries memories belonging to the villages below. Opening the gate too far will flood homes; keeping it closed will leave another village thirsty.',
     artPrompt:
-      'Old Grimm dam spillway with water carrying faint faces and illuminated memories, divided villagers on banks, rusty sluice wheel, dramatic storm sky, compelling cinematic art',
+      'An old stone dam with a nailed-shut wooden sluice gate and a rusty iron sluice wheel. Water spilling over the top glows pale blue, with small faint human faces in the foam. Villagers stand on both banks below, one group holding empty buckets, the other standing in front of their cottages. Dark storm clouds overhead. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'negotiate',
@@ -285,7 +285,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       'From the southern watchtower the forest looks like a stitched quilt of places that refuse to stay sewn. The sentry has been told to guard the gate, but their orders never mention the riverbank refugees who built the tower.',
     artPrompt:
-      'Watchtower over thorn-lined fairytale river shore and forest canopy, lone sentry pointing toward safe path, warm dawn, sophisticated graphic-novel environment',
+      'A wooden watchtower stands above a thorn-lined river shore at dawn. On its platform, a lone sentry in a leather helmet points down toward a narrow path through the thorns, where a family of refugees carrying bundles is walking. The forest canopy spreads out below. Warm dawn light. Wide high-angle shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'route',
@@ -306,7 +306,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       'The field has no crops, yet bootprints cross it in the orderly pattern of a wedding procession. The prints are fresh after rain and old before sunrise. A tin flower lies beneath the grass, still smelling of candlewax.',
     artPrompt:
-      'Abandoned fallow forest field crossed by spectral wedding footprints and one small tin flower, morning mist, melancholy strange fairy-tale atmosphere, painterly',
+      'An empty fallow field at the forest edge in morning mist, crossed by rows of fresh bootprints in pairs, side by side in the mud. In the grass in the foreground lies one small tin flower with a drip of candlewax on its petals. Pale morning light. Low wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'follow',
@@ -348,7 +348,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
     opening:
       "The final sigil is a dark root tied into a knot only moonlight can explain. Its reflection has a reversed loop; the missing half is said to grow below Moonwell Vale. A note etched in bark insists the knot must never be untied for someone else's convenience.",
     artPrompt:
-      'Magical moonlit black fern and knotted living root mirror sigil with crescent reflected backwards, moody indigo/pearl dark storybook closeup, inspectable knot',
+      'A black root tied in a tight knot lies among dark ferns beside a still moonlit pool. In the water, its reflection shows one loop of the knot turning the other way, and a thin crescent moon floats on the surface. Silver-blue moonlight. Close-up. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'sketch',

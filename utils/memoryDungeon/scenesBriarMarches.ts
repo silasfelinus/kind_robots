@@ -27,7 +27,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'From a cramped watchtower window hangs a magnificent rope of braided hair. Its owner, a stubborn old tower keeper, shouts that the ladder was meant for rescuers, not thieves, while a pair of traveling merchants argue over who gets to sell it.',
     artPrompt:
-      'Tall illustrated watchtower among fairy-tale trees, practical silver-haired tower keeper at window, long braided hair-ladder hanging beside arguing merchants, original folk-horror fantasy visual novel artwork',
+      'A tall stone watchtower among dark fir trees, with a long thick rope of braided silver hair hanging from its top window to the ground. A stubborn old tower keeper with silver hair leans out of the window shouting, while two travelling merchants at the base each pull at the braid. Late afternoon light. Low-angle wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'rescue',
@@ -111,7 +111,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'In a narrow clearing a widow has hired the shape of a lost spouse to guard the last cottage they shared. The silhouette performs its duties beautifully and forgets every day that it cannot enter the front door. Tonight it has noticed.',
     artPrompt:
-      'Small lonely cottage and tall silhouetted figure at the locked doorway, elderly widow under lantern holding a folded coat, atmospheric original dark illustrated fairy-tale encounter',
+      "A small stone cottage stands alone in a narrow forest clearing at dusk. A tall dark human-shaped silhouette with a blank black face stands rigid at its shut front door, one hand pressed flat to the wood. An elderly widow in a black shawl holds a lantern and a folded man's coat at the garden gate, watching it. Warm lantern light, blue dusk shadows. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     choices: [
       {
         id: 'invite',
@@ -154,7 +154,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'Rain has filled an old cart rut with a mirror-bright pool. Its reflection shows you with a lantern that you do not own, heading toward a doorway that has not been built. A second reflection stands behind you in your borrowed fey body.',
     artPrompt:
-      'Low cinematic fantasy closeup of a puddle reflecting an impossible future lantern and doorway behind an androgynous changeling traveler, rain-soaked forest track, mysterious illustrated visual novel style',
+      'A mirror-bright rain puddle fills an old cart rut on a wet forest track. In its reflection, an androgynous fey traveller with long pointed ears, short silver hair and a dark green cloak holds a brass lantern beside an unfinished wooden doorway, while the traveller standing over the puddle has empty hands. Grey rain light. Low close-up over the puddle. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'study',
@@ -203,7 +203,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'A bare gallows grows a fresh branch whenever someone repeats the village accusation against a stranger. Below it sits the accused, writing down every charge so no one can quietly change the words tomorrow.',
     artPrompt:
-      'Haunting fairy-tale gallows tree with newly sprouting branches over a calm prisoner holding written charges, distant village torches, expressive cinematic dark fantasy illustration',
+      'A bare wooden gallows stands on a village green with fresh green branches sprouting from its beam. Below it, a calm young man in plain clothes sits cross-legged on the grass writing on a long sheet of paper with a pencil. Distant villagers hold torches at the edge of the green. Dusk light, orange torchlight. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'appeal',
@@ -224,7 +224,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'Saplings have brought a case against their parent oak for stealing sunlight from the public footpath. The oak submits a hundred-year weather record as evidence. The court clerk is a beetle with a terrifying collection of stamps.',
     artPrompt:
-      'Quaint enchanted grove courthouse of rooted oak and young saplings, beetle clerk with tiny ink stamps, sunbeams falling across public forest path, whimsical dark storybook illustration',
+      'A great old oak stands before a semicircle of young saplings on a public forest path, a thick bundle of yellowed weather records tied to its roots with twine. On a flat stump between them, a beetle clerk in a tiny waistcoat raises a rubber stamp over a stack of papers, more stamps lined up beside it. Sunbeams fall across the path. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,2',
@@ -344,7 +344,7 @@ export const BRIAR_MARCHES_FIRST_BATCH: Record<string, BriarScene> = {
     opening:
       'An antlered youth stands accused of leading hunters into their own traps. The hunters admit setting those traps, then insist it was dishonest to remember where they were. A magistrate waits with a scale that measures testimony, not truth.',
     artPrompt:
-      'Young antlered woodland traveler before an impromptu forest trial, weary hunters and uneven brass scales on a stump, richly illustrated fairy tale justice scene',
+      'A young woodland traveller with small antlers stands before a tree stump in a forest clearing, hands loosely tied in front. Three weary hunters in leather jackets stand to one side beside coiled rope snares, and a magistrate in a grey robe sets an uneven brass balance scale on the stump. Afternoon light. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '2,2',

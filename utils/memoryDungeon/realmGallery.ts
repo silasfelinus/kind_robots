@@ -1,4 +1,5 @@
 import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
+import { BRIAR_STYLE, closeUpPrompt } from './artPromptParts'
 
 export type RealmCardRole =
   'character' | 'place' | 'event' | 'creature' | 'relic' | 'collaboration'
@@ -70,7 +71,7 @@ export const WORLD_ONE_GALLERY: readonly RealmGalleryCard[] = [
       sceneKey: key,
       partnerWorld: null,
       artPath: `/images/memory-dungeon/realm-decks/world-01/${number}.webp`,
-      prompt: `Single iconic collectible memory-card illustration, close-up readable at mobile size, centered composition: ${title}. Source scene: ${scene.title}. ${scene.artDirection}. Show this realm's personality, not a generic card symbol. Original dark-Grimm storybook animation, no lettering, text, watermark or collage.`,
+      prompt: closeUpPrompt(scene.artDirection, BRIAR_STYLE),
     }
   }),
   {
@@ -81,8 +82,7 @@ export const WORLD_ONE_GALLERY: readonly RealmGalleryCard[] = [
     sceneKey: null,
     partnerWorld: 2,
     artPath: '/images/memory-dungeon/realm-decks/world-01/31.webp',
-    prompt:
-      'Collectible collaboration image for Briar Marches and Hearth & Hunger. A single warm bread oven hearth with living briars entwined around its masonry, two interlocking motifs, a visual clue only meaningful when both realms are discovered. Centered dark-Grimm animated illustration; no letters.',
+    prompt: `A domed stone bread oven with an orange fire glowing inside, its masonry wrapped in living briar stems with green leaves and red thorns, a wooden peel and two round loaves resting on the hearth stone. Warm firelight. Close-up, centered. ${BRIAR_STYLE}`,
   },
   {
     id: 'w01-32',
@@ -92,8 +92,7 @@ export const WORLD_ONE_GALLERY: readonly RealmGalleryCard[] = [
     sceneKey: null,
     partnerWorld: 4,
     artPath: '/images/memory-dungeon/realm-decks/world-01/32.webp',
-    prompt:
-      'Collectible collaboration image for Briar Marches and Undertide Crown. Two perfectly mirrored mermaid crowns separated by a tide line and linked by one dark briar, the same outline appearing across both realms. Single readable centered dark-Grimm illustration; no letters.',
+    prompt: `Two identical silver mermaid crowns set with pearls, one resting on a wet black rock above a calm tide line and the other reflected upside down in the water below it, one dark briar stem curling from the first crown down to the second. Pale moonlight on the water. Close-up, centered. ${BRIAR_STYLE}`,
   },
 ]
 

@@ -64,7 +64,7 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     intro:
       'The Rootbound Warden guards the Bramble Chime. Every action is a beat of its countdown.',
     artPrompt:
-      'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, guards a small golden bell set on a root pedestal in a chamber lit by glowing glass memory jars. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+      'The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, guards a small golden bell set on a root pedestal in a chamber lit by glowing glass memory jars. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
   // The House's own duels (HD-09, HD-22, HD-28) used to borrow the forest
   // boards; each guardian now fights with its own tempo and tools.
@@ -86,7 +86,7 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     intro:
       'The Index Collector opens its ledger and counts every unpaired card aloud. Its sweeps come quickly but light, and it names each one before it lands.',
     artPrompt:
-      'A tall thin figure clad in layered sheets of paper like overlapping armor plates and an ink-stained black coat sweeps one paper gauntlet across a stone archive hall. A grid of glowing pale squares hangs in the air before it, two columns lit brighter. Loose paper slips swirl around its feet. Cold blue light. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+      'A tall thin figure in armor of overlapping stiff paper sheets and an ink-stained black coat sweeps one paper gauntlet across a stone archive hall. A grid of glowing pale squares hangs in the air before it, two columns lit brighter. Loose paper slips swirl around its feet. Cold blue light. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
   'twinned-guard': {
     enemy: { name: 'Twinned Guard', hp: 14, attack: 2, every: 5 },

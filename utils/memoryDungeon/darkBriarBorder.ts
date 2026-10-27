@@ -118,7 +118,7 @@ export const DARK_BRIAR_BORDER: Record<string, DarkBriarScene> = {
     opening:
       'The disgruntled sentries you might have fought are still guarding a shortcut. Their contract pays them in memories of heroic victories, so their actual courage is never acknowledged.',
     artPrompt:
-      'Forest patrol in battered armor, absurd medals made of fog, thorn gate road under siege, bitter candlelit fairy atmosphere.',
+      'Two forest guards in battered bark armor wrapped with thorny vines, one tall and lean, one short and broad, stand at a shortcut path beside a gate of woven thorns, rows of grey cloth medals pinned across their chests. Both lean wearily on narrow spears. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'settle',

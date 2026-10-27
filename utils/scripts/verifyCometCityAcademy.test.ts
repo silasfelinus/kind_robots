@@ -1259,7 +1259,10 @@ const ngPlus = startFullAcademy(
 )
 assert.equal(ngPlus.playerEvolution?.form, 'hero')
 assert.equal(ngPlus.initialForm, 'hero')
-assert.equal(restoreAcademy(JSON.parse(JSON.stringify(ngPlus)))?.playerEvolution?.form, 'hero')
+assert.equal(
+  restoreAcademy(JSON.parse(JSON.stringify(ngPlus)))?.playerEvolution?.form,
+  'hero',
+)
 assert.equal(
   restoreAcademy({
     ...ngPlus,
@@ -1276,7 +1279,11 @@ const ngVillain = startFullAcademy(
   'villain',
 )
 assert.equal(restoreAcademy(ngVillain)?.playerEvolution?.form, 'villain')
-assert.equal(startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius').playerEvolution?.form, 'student')
+assert.equal(
+  startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius')
+    .playerEvolution?.form,
+  'student',
+)
 
 const page = fromRoot('pages/play/comet-city-academy.vue')
 const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
@@ -1315,4 +1322,6 @@ assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(!page.includes('POWER_FORMS'))
-console.log('Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK')
+console.log(
+  'Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK',
+)

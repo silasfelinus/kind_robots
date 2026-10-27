@@ -26,6 +26,8 @@ export interface CanonBackground {
   key: string
   name: string
   unlock: string
+  /** The shop's placard for this tank (canon backgrounds.yaml `field_note`). */
+  fieldNote: string
 }
 
 export const CTHULHUQUARIUM_SPRITE_MOTIONS: Record<string, string> = {
@@ -2908,81 +2910,113 @@ export const CTHULHUQUARIUM_BACKGROUNDS: CanonBackground[] = [
     key: 'parlour',
     name: 'The Parlour Tank',
     unlock: 'default',
+    fieldNote:
+      'The tank the shop came with. The diving helmets were already in the gravel when it was first filled, and nobody has claimed them.',
   },
   {
     key: 'kelp-stair',
     name: 'The Kelp Stair',
     unlock: 'bestiary_5',
+    fieldNote:
+      'Kelp planted along a stone stair that climbs further back than the tank is deep. The fish keep to the lower steps.',
   },
   {
     key: 'sunken-pantry',
     name: 'The Sunken Pantry',
     unlock: 'bestiary_10',
+    fieldNote:
+      'A pantry laid in for one long winter, every jar still sealed. The preserves are checked regularly and are keeping well.',
   },
   {
     key: 'drowned-chapel',
     name: 'The Drowned Chapel',
     unlock: 'bestiary_15',
+    fieldNote:
+      'A village chapel lowered into the water in one piece, pews and all. The congregation keeps to the back rows and does not mind the fish.',
   },
   {
     key: 'wreck-of-the-portsmouth',
     name: 'The Wreck of the Portsmouth',
     unlock: 'bestiary_20',
+    fieldNote:
+      "The Portsmouth Fishmongers' own ship, as she was found. The figurehead was repainted before she was sunk again.",
   },
   {
     key: 'sorting-office',
     name: 'The Sorting Office',
     unlock: 'bestiary_25',
+    fieldNote:
+      'A sorting office with every pigeonhole full. The letters are all addressed to the shop, and there are more of them each morning.',
   },
   {
     key: 'counting-house',
     name: 'The Counting House',
     unlock: 'bestiary_35',
+    fieldNote:
+      "Clerks' desks, green ledgers and a safe standing open. The accounts balance to the farthing; the coins on the floor are not counted in them.",
   },
   {
     key: 'flooded-conservatory',
     name: 'The Flooded Conservatory',
     unlock: 'bestiary_50',
+    fieldNote:
+      'A glasshouse of palms and ferns, filled to the roof. The ferns have taken to the water better than anyone expected of a fern.',
   },
   {
     key: 'catacomb',
     name: 'The Catacomb',
     unlock: 'bestiary_70',
+    fieldNote:
+      'Burial niches along both walls, their contents stacked with care. The fish keep to the middle of the passage.',
   },
   {
     key: 'abyssal-plain',
     name: 'The Abyssal Plain',
     unlock: 'bestiary_95',
+    fieldNote:
+      'A slice of the deepest floor there is, brought up whole. The tracks in the silt were there when it arrived, and there are more of them now.',
   },
   {
     key: 'opera-house',
     name: "Charlotte's Opera House",
     unlock: 'bestiary_125',
+    fieldNote:
+      "Charlotte's own house, seen from the stalls. Every seat is sold, and the curtain has stayed down since her last performance.",
   },
   {
     key: 'the-reading-room',
     name: 'The Reading Room',
     unlock: 'bestiary_151',
+    fieldNote:
+      'The domed room where the Ichthyonomicon is kept, lying open on the desk. Every page of it is filled.',
   },
   {
     key: 'public-baths',
     name: 'The Public Baths',
     unlock: 'first_full_tank',
+    fieldNote:
+      'A tiled bath hall with cubicles along the back wall. It was built for crowds, and the crowds settle their own order.',
   },
   {
     key: 'hatchery',
     name: 'The Hatchery',
     unlock: 'first_evolution',
+    fieldNote:
+      'Trays and bell jars for the ones that have not decided what to be. The eggs are counted twice a day, and the count is rarely the same twice.',
   },
   {
     key: 'scullery',
     name: 'The Scullery',
     unlock: 'first_spotless_tank',
+    fieldNote:
+      'A scullery scrubbed down to the flagstones. The copper pans are polished every week, whether or not anything has been cooked in them.',
   },
   {
     key: 'duelling-ground',
     name: 'The Duelling Ground',
     unlock: 'first_rivalry_resolved',
+    fieldNote:
+      'A walled yard divided by a low stone wall, two sabres left standing in the sand. Both sides of the wall are kept equally tidy.',
   },
 ]
 

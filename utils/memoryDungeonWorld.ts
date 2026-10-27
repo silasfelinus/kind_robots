@@ -521,6 +521,74 @@ export function restoreBriarSave(input: unknown): BriarSave {
   }
 }
 
+/** Preserve an interrupted first flip in a non-combat chamber without reviving
+ * mismatches, lantern previews or cards with forged picture identities. */
+export function recoverBriarRoomFirstFlip(
+  progress: BriarSave,
+  saved: unknown,
+): { progress: BriarSave; firstCard: number | null; recovered: boolean } {
+  const unchanged = { progress, firstCard: null, recovered: false }
+  if (
+    progress.room !== 'memory' ||
+    progress.combat ||
+    !saved ||
+    typeof saved !== 'object'
+  )
+    return unchanged
+  const rawCards = (saved as Partial<BriarSave>).cards
+  if (!Array.isArray(rawCards)) return unchanged
+  const exposed = rawCards.filter(
+    (card): card is BriarMemoryCard =>
+      !!card &&
+      typeof card === 'object' &&
+      card.flipped === true &&
+      card.matched === false,
+  )
+  if (!exposed.length) return unchanged
+  const discarded = { ...unchanged, recovered: true }
+  if (
+    exposed.length !== 1 ||
+    rawCards.length !== progress.cards.length ||
+    new Set(progress.cards.map((card) => card.id)).size !==
+      progress.cards.length
+  )
+    return discarded
+
+  const rawCard = exposed[0]!
+  const current = progress.cards.find((card) => card.id === rawCard.id)
+  if (
+    !current ||
+    current.matched ||
+    current.pairId !== rawCard.pairId ||
+    current.image !== rawCard.image ||
+    !rawCards.every((card) => {
+      const original = progress.cards.find((item) => item.id === card?.id)
+      return (
+        original &&
+        original.pairId === card.pairId &&
+        original.image === card.image &&
+        original.matched === card.matched
+      )
+    })
+  )
+    return discarded
+  const pair = progress.cards.filter((card) => card.pairId === current.pairId)
+  if (pair.length !== 2 || pair.some((card) => card.image !== current.image))
+    return discarded
+
+  return {
+    progress: {
+      ...progress,
+      cards: progress.cards.map((card) =>
+        card.id === current.id ? { ...card, flipped: true } : card,
+      ),
+      status: 'Your first chamber picture is still face up. Choose its match.',
+    },
+    firstCard: current.id,
+    recovered: true,
+  }
+}
+
 /** Finish a saved, already-decided defeat whose retreat timer was interrupted. */
 export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
   const combat = progress.combat

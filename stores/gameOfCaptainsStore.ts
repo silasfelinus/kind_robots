@@ -1,4 +1,9 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import {
+  chooseRomance as applyRomanceChoice,
+  relationshipEpilogue,
+  type RomanceChoiceId,
+} from '~/utils/gameOfCaptains/romance'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
@@ -93,9 +98,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = nextDestination(run.value)
     persist()
   }
+  function chooseRomance(choice: RomanceChoiceId) {
+    if (!run.value) return
+    run.value = applyRomanceChoice(run.value, choice)
+    persist()
+  }
   function finish(strategy: 'protect' | 'compromise') {
     if (!run.value) return
-    run.value = finishVoyage(run.value, strategy)
+    run.value = relationshipEpilogue(finishVoyage(run.value, strategy))
     persist()
   }
   function restart() {
@@ -116,6 +126,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     advanceDay,
     decide,
     next,
+    chooseRomance,
     finish,
     restart,
   }

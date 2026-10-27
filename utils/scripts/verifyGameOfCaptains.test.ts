@@ -265,7 +265,6 @@ assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(workerRoute))),
   workerRoute,
 )
-const workerOdds = previewMission(workerRoute).chance
 workerRoute = launchMission(workerRoute)
 assert.equal(
   chooseMission(workerRoute, 'refugees'),

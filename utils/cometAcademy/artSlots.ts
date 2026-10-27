@@ -1,5 +1,6 @@
-import { promArt } from './artManifest'
+import { personalOutcomeArt } from './identitySerial'
 import { personalOutcomeArtKey } from './personalQuests'
+import { promArt } from './artManifest'
 import { campaignVillain } from './campaign'
 import { districtEncounterFor } from './districtEncounters'
 import { CITY_SITES, type SiteId } from './cityMap'
@@ -90,18 +91,21 @@ export function academyStageArt(run: AcademyRun | null): string | null {
         : GUEST_LIST_ARRIVAL_ART_KEY,
     )
   if (
-    run.signature &&
     run.flowVersion === 3 &&
-    ['dispatch', 'debrief'].includes(run.phase) &&
-    run.personalHistory?.some((entry) => entry.day === run.day)
+    (run.phase === 'campus' || run.phase === 'debrief') &&
+    [4, 12, 21, 27].includes(run.day)
   ) {
-    const key = personalOutcomeArtKey(
-      run.signature,
-      run.personalHistory,
-      run.day,
-    )
-    const art = key ? promArt(key) : null
-    if (art) return art
+    const outcome = personalOutcomeArt(run)
+    if (outcome && promArt(outcome)) return promArt(outcome)
+  }
+  if (
+    run.flowVersion === 3 && run.signature &&
+    run.personalHistory?.some((event) => event.day === run.day) &&
+    ['dispatch', 'debrief'].includes(run.phase)
+  ) {
+    const key = personalOutcomeArtKey(run.signature, run.personalHistory, run.day)
+    const delivered = key ? promArt(key) : null
+    if (delivered) return delivered
   }
   if (run.phase === 'debrief' && run.reports[0])
     return promArt(incidentArtKey(run.reports[0].caseId))

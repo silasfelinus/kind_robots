@@ -6,7 +6,7 @@ import type { SignaturePowerId } from './specialPowers'
 export type PersonalChoice = 'protect' | 'confront' | 'exploit'
 export type PersonalMemory = { day: number; choice: PersonalChoice }
 export type PersonalArtForm = 'student' | 'hero' | 'villain'
-export const PERSONAL_DAYS = [6, 12, 19, 27] as const
+export const PERSONAL_DAYS = [6, 9, 19, 22] as const
 
 export type PersonalQuest = {
   signature: SignaturePowerId
@@ -109,9 +109,9 @@ export function personalQuestEvent(run: AcademyRun) {
   const title = (
     {
       6: 'A Secret with a Witness',
-      12: 'Terms of Affection and Trust',
+      9: 'Terms of Affection and Trust',
       19: 'The Friend Who Sold a Key',
-      27: 'A Name Worth Becoming',
+      22: 'A Name Worth Becoming',
     } as Record<number, string>
   )[run.day]!
   const frames: Record<number, string> = {
@@ -123,7 +123,7 @@ export function personalQuestEvent(run: AcademyRun) {
       quest.ally +
       ' has kept an original copy. ' +
       'The first person who helped you now needs protection from the institution that made your powers possible.',
-    12:
+    9:
       identity.quests.partner +
       ' ' +
       quest.ally +
@@ -139,8 +139,8 @@ export function personalQuestEvent(run: AcademyRun) {
       quest.ally +
       ' refuses to excuse the betrayal simply because the accused was once a friend. ' +
       'The real mastermind is still active; this personal breach is a separate case.',
-    27:
-      'Prom is four days away. ' +
+    22:
+      'Prom is eight days away. ' +
       identity.realName +
       ' stands at ' +
       quest.location +
@@ -157,13 +157,13 @@ export function personalQuestEvent(run: AcademyRun) {
     {
       id: 'personal-' + run.day + '-protect',
       label:
-        run.day === 12
+        run.day === 9
           ? 'Offer an equal partnership with a right to refuse'
           : run.day === 19
             ? 'Protect witnesses, even if the betrayer walks free for now'
             : 'Put the people at risk first, without claiming ownership',
       text:
-        (run.day === 12
+        (run.day === 9
           ? quest.repair +
             '. ' +
             quest.boundary +
@@ -181,7 +181,7 @@ export function personalQuestEvent(run: AcademyRun) {
     {
       id: 'personal-' + run.day + '-confront',
       label:
-        run.day === 12
+        run.day === 9
           ? 'Share the evidence and accept their own decision'
           : 'Confront the responsible party in front of independent witnesses',
       text:
@@ -199,7 +199,7 @@ export function personalQuestEvent(run: AcademyRun) {
     {
       id: 'personal-' + run.day + '-exploit',
       label:
-        run.day === 12
+        run.day === 9
           ? 'Treat a private confidence as leverage'
           : 'Use the evidence to secure personal control',
       text:
@@ -231,13 +231,13 @@ export function personalFinale(
   const quest = personalQuestForId(signature)
   const final = history[history.length - 1]!
   const relationship = history.some(
-    (event) => event.day === 12 && event.choice === 'protect',
+    (event) => event.day === 9 && event.choice === 'protect',
   )
     ? quest.ally +
       ' returns by choice as an equal and helps rebuild. ' +
       quest.boundary +
       '.'
-    : history.some((event) => event.day === 12 && event.choice === 'exploit')
+    : history.some((event) => event.day === 9 && event.choice === 'exploit')
       ? quest.ally +
         ' will not be used again; trust is not something graduation restores.'
       : quest.ally + ' remains independent and may collaborate on new terms.'

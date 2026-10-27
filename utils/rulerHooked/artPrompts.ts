@@ -215,7 +215,7 @@ export const CARD_PROMPTS: Record<string, string> = {
     `${who('druid-sela')}, stands ankle-deep in a shallow reedy cove marked off with willow wands and string, the clear water around her silver with thousands of tiny fish, and she raises one hand toward the viewer with the palm out. Soft spring morning light.`,
   ),
   'moat-1': scene(
-    `${who('taxman-gristle')}, stands on a stone bridge over a green castle moat holding up a fan of small printed paper licences, while below him village anglers in caps sit along the moat wall with fishing poles. Flat bright morning light.`,
+    `${who('taxman-gristle')}, stands on a stone bridge over a green castle moat holding up a fan of small cream paper slips with red wax stamps, while below him village anglers in caps sit along the moat wall with fishing poles. Flat bright morning light.`,
     'Eye-level view from the castle end of the bridge.',
   ),
   'moat-poachers': scene(

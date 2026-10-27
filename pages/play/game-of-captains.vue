@@ -736,6 +736,7 @@
             >
               {{ romanceRecord.result }}
             </p>
+            <SpaceCouchTrioInterlude />
             <button
               class="cap-primary"
               type="button"
@@ -958,6 +959,7 @@
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
+            <SpaceCouchTrioInterlude />
             <div class="cap-log">
               <strong>RECORDED CAPTAIN’S LOG</strong>
               <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>

@@ -12,6 +12,12 @@
 // (art/CREW-PORTRAITS-ROUND-1.yaml).
 
 import type { CaptainId, CrewId } from './rules'
+import {
+  TRIO_ADVENTURES,
+  trioArtKey,
+  trioKey,
+  type TrioLooks,
+} from './trioAdventures'
 
 /** The ship. Every exterior shot uses this exact phrase. */
 export const COUCH_LOOK =
@@ -191,6 +197,31 @@ const NEMESIS_ENDING_PROMPTS: Record<string, string> = {
   'kindly-swarm-unfinished': `Close-up of the outside of the clear bubble around ${COUCH_LOOK}. A crowd of tiny translucent pale-gold beings in knitted scarves presses against the bubble wall, their small faces all wearing the same smile. Black space behind, gold glow. ${STYLE}`,
 }
 
+/**
+ * Party adventures (trioAdventures.ts): every step and both endings of each
+ * authored party, written beside the step they show and given the same crew
+ * looks and couch phrase as everything else here.
+ */
+const TRIO_LOOKS: TrioLooks = {
+  ...CREW_LOOKS,
+  couch: COUCH_LOOK,
+  Couch,
+  style: STYLE,
+}
+const TRIO_PROMPTS: Record<string, string> = Object.fromEntries(
+  TRIO_ADVENTURES.flatMap((adventure) => {
+    const key = trioKey(adventure.crew)
+    return [
+      ...adventure.steps.map((step, i) => [
+        trioArtKey(key, (i + 1) as 1 | 2 | 3),
+        step.art(TRIO_LOOKS),
+      ]),
+      [trioArtKey(key, 'a'), adventure.endings[0].art(TRIO_LOOKS)],
+      [trioArtKey(key, 'b'), adventure.endings[1].art(TRIO_LOOKS)],
+    ]
+  }),
+)
+
 /** Every authored prompt, keyed by asset key under public/game-of-captains. */
 export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
   ...Object.fromEntries(
@@ -223,6 +254,7 @@ export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
       p,
     ]),
   ),
+  ...TRIO_PROMPTS,
 }
 
 /** The Krea 2 prompt for an asset key, or undefined when none is authored. */

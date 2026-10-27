@@ -144,6 +144,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const { SOLO_ROMANCE_ROUTES } =
         await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
+      const { TRIO_ADVENTURES, ALL_PARTIES, TRIO_STEPS } =
+        await import('../gameOfCaptains/trioAdventures')
+      // The plan asks for every party; the factor stays 0 until all of them
+      // have an adventure, and the authored count is stated in the source.
+      const everyParty = TRIO_ADVENTURES.length >= ALL_PARTIES
       return {
         values: {
           rosterSize: rules.CAPTAINS.length,
@@ -162,11 +167,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           // Solo romances only: pair routes and the fourple are extra.
           romances: SOLO_ROMANCE_ROUTES.length,
           endings: WARP_ENDINGS.length,
-          // No party has an adventure or endings of its own yet. Every
-          // galactic boss has its own endings (nemesisEndings.ts); the
-          // factor is the fewest any one boss has.
-          partyAdventureSteps: 0,
-          partyEndings: 0,
+          // Every galactic boss has its own endings (nemesisEndings.ts);
+          // the factor is the fewest any one boss has.
+          partyAdventureSteps: everyParty ? TRIO_STEPS : 0,
+          partyEndings: everyParty ? 2 : 0,
           villainEndings: villainEndings.length
             ? Math.min(...villainEndings)
             : 0,
@@ -188,8 +192,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'villainEndings',
         ],
         art: null,
-        source:
-          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, galacticEndings.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts',
+        source: `utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, galacticEndings.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts, trioAdventures.ts (${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties authored, each with ${TRIO_STEPS} interlude steps and 2 endings)`,
       }
     },
   },

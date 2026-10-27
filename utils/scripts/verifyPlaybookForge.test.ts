@@ -88,6 +88,45 @@ import {
 import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
 import { withVerifiedArt } from '../playbookForge/verifiedArt'
 import { inspectPlaybookArt } from '../../server/utils/playbookArtInventory'
+import {
+  REDSHIRT_ROSTER,
+  baseRedshirtDraft,
+  redshirtBrief,
+  redshirtChanges,
+  redshirtQuestLinks,
+} from '../playbookForge/redshirtAtlas'
+import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
+
+
+
+// The Forge must expose all authored recruits, real playable encounter
+// intersections, and distinguish casting an existing Character from a Facet redesign.
+assert.equal(REDSHIRT_ROSTER.length, 100)
+assert.equal(new Set(REDSHIRT_ROSTER.map((person) => person.id)).size, 100)
+assert.equal(EXPEDITION_ENCOUNTERS.length, 53)
+for (const person of REDSHIRT_ROSTER) {
+  const assignments = redshirtQuestLinks(person)
+  assert.ok(assignments.length, person.id + ' has no expedition intersections')
+  assert.ok(assignments.every((entry) => entry.skill === person.talent))
+  assert.ok(person.portraitPrompt.includes('red Space Couch expedition uniform'))
+}
+const recruit = REDSHIRT_ROSTER[0]!
+const edit = baseRedshirtDraft(recruit)
+edit.anatomy = 'spring-tailed alien with kangaroo-inspired silhouette'
+edit.referenceTab = 'facets'
+edit.referenceKey = 'facets:21'
+edit.referenceTitle = 'Kangaroo'
+edit.note = 'Preserve the original story and keep the red uniform.'
+assert.equal(redshirtChanges(recruit, edit).length, 1)
+const redesign = redshirtBrief(recruit, edit, 'design')
+assert.match(redesign, /redesign this redshirt using the linked entity/)
+assert.match(redesign, /facets:21/)
+assert.match(redesign, /Proposed fields/)
+edit.referenceTab = 'characters'
+edit.referenceKey = 'characters:144'
+edit.referenceTitle = 'Existing follower'
+edit.intent = 'appearance'
+assert.match(redshirtBrief(recruit, edit, 'design'), /adapt the linked existing Character as this redshirt/)
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({

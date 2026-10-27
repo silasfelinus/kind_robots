@@ -133,27 +133,24 @@
           />
           <div v-if="completed" class="maker-play-result">
             <strong>COURSE CLEARED! ★</strong>
-            <p>How was this level?</p>
-            <div
-              class="maker-stars"
-              role="group"
-              aria-label="Rate this course on this device"
-            >
-              <button
-                v-for="stars in 5"
-                :key="stars"
-                type="button"
-                :aria-label="'Rate ' + stars + ' stars'"
-                :aria-pressed="maker.myRating === stars"
-                @click="maker.rate(stars)"
-              >
-                {{ stars <= maker.myRating ? '★' : '☆' }}
-              </button>
-            </div>
-            <small
-              >Personal rating saved to this device. Community scores are coming
-              later.</small
-            >
+            <p>
+              {{ maker.ratingCount ? maker.ratingAverage.toFixed(1) + ' ★ · ' + maker.ratingCount + ' COMMUNITY REVIEWS' : 'BE THE FIRST TO REVIEW' }}
+            </p>
+            <template v-if="!user.isGuest">
+              <label for="plumber-review-comment">YOUR REVIEW (OPTIONAL)</label>
+              <textarea id="plumber-review-comment" v-model="maker.reviewComment" maxlength="500"
+                rows="2" placeholder="What made this course fun, tricky, or memorable?" />
+              <div class="maker-stars" role="group" aria-label="Rate this course in Kind Robots">
+                <button v-for="stars in 5" :key="stars" type="button"
+                  :disabled="maker.ratingBusy"
+                  :aria-label="'Save ' + stars + '-star community rating'"
+                  :aria-pressed="maker.myRating === stars"
+                  @click="maker.rate(stars)">{{ stars <= maker.myRating ? '★' : '☆' }}</button>
+              </div>
+              <small>{{ maker.ratingBusy ? 'SAVING REVIEW…' : maker.myRating ? 'YOUR RATING: ' + maker.myRating + ' STARS' : 'TAP STARS TO SAVE A DATABASE REVIEW' }}</small>
+            </template>
+            <small v-else>Sign in to leave a review. Public ratings are visible to everyone with the link.</small>
+            <button type="button" @click="maker.panel = 'reviews'; togglePlay()">★ READ PLAYER REVIEWS</button>
             <button type="button" @click="togglePlay">✎ BACK TO EDITOR</button>
           </div>
           <div v-else-if="gameOver" class="maker-play-result">
@@ -233,6 +230,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useSavePlumberMakerStore } from '~/stores/savePlumberMakerStore'
+import { useUserStore } from '~/stores/userStore'
 import {
   MAKER_GROUPS,
   validateMakerLevel,
@@ -246,6 +244,7 @@ import { emptyInput, type ArcadeButton } from '~/utils/arcade/types'
 
 const props = defineProps<{ shareCode?: string }>()
 const maker = useSavePlumberMakerStore()
+const user = useUserStore()
 const mode = ref<'edit' | 'play'>('edit')
 const editorCanvas = ref<HTMLCanvasElement | null>(null)
 const gameCanvas = ref<HTMLCanvasElement | null>(null)
@@ -445,6 +444,7 @@ function loadDraft(id: string) {
 }
 function playDraft(id: string) {
   maker.loadDraft(id)
+  void maker.fetchReviews()
   mode.value = 'play'
 }
 
@@ -458,6 +458,7 @@ function togglePlay() {
   try {
     validateMakerLevel(maker.level)
     maker.error = ''
+    void maker.fetchReviews()
     mode.value = 'play'
   } catch (e) {
     maker.error = e instanceof Error ? e.message : 'Course cannot be played'
@@ -566,7 +567,10 @@ watch(
 )
 watch(mode, async (next) => {
   await nextTick()
-  if (next === 'play') restart()
+  if (next === 'play') {
+    void maker.fetchReviews()
+    restart()
+  }
   else {
     stopGame()
     drawEditor()
@@ -574,6 +578,7 @@ watch(mode, async (next) => {
 })
 onMounted(async () => {
   maker.initialize(props.shareCode)
+  void maker.fetchReviews()
   if (props.shareCode && !maker.error) mode.value = 'play'
   await nextTick()
   if (mode.value === 'edit') drawEditor()
@@ -1022,4 +1027,8 @@ select:focus-visible {
     transition: none !important;
   }
 }
+.maker-play-result textarea{width:min(100%,24rem);min-width:13rem;background:#f6f2df;color:#112d36;border-radius:.5rem;padding:.45rem;font:500 .8rem system-ui}
+.maker-play-result label{font-size:.7rem;color:#e0e5d1}
+.maker-play-result .maker-stars button:disabled{opacity:.45}
+@media(max-height:570px){.maker-play-result{gap:.25rem;padding:.45rem}.maker-stars button{font-size:1.5rem}.maker-play-result textarea{max-height:2.7rem}}
 </style>

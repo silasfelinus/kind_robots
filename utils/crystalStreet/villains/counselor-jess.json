@@ -41,7 +41,7 @@
           "title": "Lost and Found, 1957",
           "place": "A rusted camp office trailer, Rusty's Junkyard",
           "text": "Deep in the car maze, half swallowed by blackberry bushes, sits a mint-green trailer with CAMP CRYSTAL PINES OFFICE still stenciled on the door. Inside: bunk lists, a rack of rotted life jackets and a stack of camper footlockers. One has a name in careful block letters: J. MERCER, FUTURE COUNSELOR. A puddle of lake water spreads slowly out from under it, though it has not rained in weeks.",
-          "art": "A rusted mint-green camp office trailer overgrown with blackberry brambles in a junkyard, the door stenciled with a camp name, inside rotted life jackets and a camper footlocker labeled future counselor with a puddle of water spreading beneath it",
+          "art": "A rusted mint-green camp office trailer half swallowed by blackberry brambles deep in a junkyard car maze, its door hanging open, inside a rack of rotted orange life jackets, bunk lists pinned to a corkboard and a stack of dented camper footlockers, a slow puddle of lake water spreading across the floor from under the bottom footlocker, a teenager crouching in the doorway, dusty afternoon sun through grimy windows, medium wide shot",
           "choices": [
             {
               "id": "open-the-footlocker",
@@ -107,7 +107,7 @@
           "title": "The Nurse's Office",
           "place": "Nurse's office, Glimmer Falls High",
           "text": "Nurse Judy Kessler keeps a bowl of butterscotch candies, a cot with a scratchy blanket and, on the wall where she can see it from her desk, the old county swim-safety poster: a cartoon teen girl on a dock with hearts for eyes while a small shape sinks behind her, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. Every September the school still hands out a pamphlet built on it. She keeps the original up. Her hands, you notice, shake whenever the water fountain in the hall runs.",
-          "art": "A small school nurse's office with a cot and a bowl of butterscotch candies, a middle-aged nurse at her desk staring at a faded swim-safety placard of a cartoon girl in a one-piece swimsuit and a bright orange life jacket waving from a dock",
+          "art": "A small high school nurse's office with a cot under a scratchy plaid blanket and a glass bowl of butterscotch candies on the desk, a middle-aged nurse with short graying hair in a cardigan sitting at the desk with shaking hands, staring at a faded printed placard on the wall of a cartoon girl in a one-piece swimsuit and a bright orange life jacket waving from a dock, a teenager sitting on the cot, flat fluorescent light, medium shot",
           "choices": [
             {
               "id": "ask-about-the-poster",
@@ -172,7 +172,7 @@
           "title": "The Small Grave",
           "place": "The far edge, Pinecrest Cemetery",
           "text": "Jess's headstone is small and tilted, at the very edge of Pinecrest where the mowers do not reach. Beside it lies her mother's, newer, with words carved too small to read from the path. Someone has left an old cork life ring leaning against Jess's stone, sun-bleached and recent. The grass around the grave is soaking wet in a perfect circle, and it is a dry October afternoon.",
-          "art": "A small tilted child's headstone at the overgrown edge of a cemetery beside a newer adult headstone, a sun-bleached cork life ring leaning against it, a perfect circle of wet grass around the grave on a dry autumn afternoon",
+          "art": "A small tilted child's headstone at the overgrown edge of a cemetery where the mowers stop, beside it a newer adult headstone covered in green moss, a sun-bleached cork life ring leaning against the small stone, a perfect circle of soaking wet grass around the grave while the rest of the ground is dry and brown, a teenager kneeling at the grave, golden October afternoon light, medium wide shot",
           "choices": [
             {
               "id": "check-the-register",
@@ -238,7 +238,7 @@
         "title": "Lights Out!",
         "place": "Crystal Street, which is a lakeshore after curfew",
         "text": "At midnight the storm drains on Crystal Street start running backward. By the time you reach the porch the cul-de-sac is gone: in its place lies a moonlit lakeshore, cattails where the lawns were, a wooden dock where the Delgados' driveway used to be, and a lit cabin across black water where the roundabout should be. Somebody's folding chairs and a cooler sit abandoned on the grass beside an inner tube. Then the whistle: one long blast. A woman seven feet tall wades out of the shallows, long dark hair streaming, torn navy dress dripping, a machete gleaming at her side. She pulls a cracked hockey mask down over her face. \"LIGHTS OUT WAS AN HOUR AGO!\" Her voice cracks on the last word like a twelve-year-old's. \"Buddy check! Where's your buddy?\"",
-        "art": "A moonlit lakeshore where a suburban cul-de-sac should be, a wooden dock, a lit cabin across black water, folding chairs, a cooler and an inner tube on the grass, a towering muscular woman in a torn high-necked navy dress wading out of the shallows pulling a cracked hockey mask over her face, a gleaming machete at her side",
+        "art": "A moonlit lakeshore where a suburban cul-de-sac should be, cattails where the lawns were, a wooden dock, a lit cabin across black water, folding chairs, a cooler and an inner tube abandoned on the grass, a seven-foot muscular woman with long dark wet hair and freckled lake-pale skin wading out of the shallows in a torn soaked high-necked navy camp-staff dress with a tin whistle on a lanyard, pulling a cracked hockey mask down over her face, a dull grey machete hanging at her side, a teenager on a porch step, cold blue moonlight, wide shot",
         "choices": [
           {
             "id": "buddy-up",
@@ -303,7 +303,7 @@
         "title": "The Night Swim",
         "place": "Crystal Street, now a lake, two a.m.",
         "text": "The water is waist-deep now and the moon is enormous. Old dock posts stick up out of the roundabout, and in the middle of the lake floats a wooden swimming raft, the Heartstone glowing purple beneath it like a sunken moon. At the end of the nearest dock sit a heap of clothes, two pairs of sneakers, a cooler and a radio playing Bananarama: two teens from down the street are skinny-dipping off the end, shoulders above the water, laughing, completely oblivious. Out past them, little Petey Marchetti, nine years old, is paddling for the raft on a leaky inner tube on a dare. On the far shore, by the lit cabin, a tall masked shape lifts a machete and wades in.",
-        "art": "A moonlit lake over a drowned suburban cul-de-sac, a wooden swim raft above a glowing purple geode under the surface, two teens in T-shirts swimming shoulder-deep off the end of a dock beside a heap of jeans and sweatshirts, sneakers, a cooler and a radio, a small boy in a striped T-shirt on a sagging inner tube paddling toward the raft, a towering masked woman with a machete wading in from a lit cabin on the far shore",
+        "art": "A moonlit lake covering a drowned suburban cul-de-sac at two in the morning, a wooden swim raft floating over a purple crystal glowing under the water, two teens in T-shirts swimming shoulder-deep off the end of a dock beside a heap of jeans, sneakers, a cooler and a radio, a nine-year-old boy in a striped T-shirt on a sagging inner tube paddling toward the raft, and on the far shore by a lit cabin a seven-foot woman in a hockey mask and navy dress wading in, a teenager running down the dock, wide shot",
         "choices": [
           {
             "id": "swim-for-petey",
@@ -388,7 +388,7 @@
         "title": "The Campfire Story",
         "place": "A backyard campout on Crystal Street, 11 p.m.",
         "text": "Six of you are camped in the Delgados' backyard in a leaky pup tent, roasting marshmallows over a coffee-can fire. Danny Delgado holds a flashlight under his chin and starts the old story every kid in Glimmer Falls knows: the boy-crazy counselor who let a camper drown because she was too busy kissing on the dock. The flames turn a cold lake blue. Water seeps up through the grass around the fire ring. Then a seven-foot shadow steps into the circle of light, dripping, mask pushed up on her forehead, and sits down on the cooler to listen to the story about herself.",
-        "art": "A backyard campout at night around a small fire burning cold blue, teenagers in sleeping bags holding marshmallow sticks, lake water seeping through the grass, a towering dripping woman in a torn navy dress with a hockey mask pushed up sitting on a cooler",
+        "art": "A backyard campout at eleven at night, six kids around a coffee-can fire burning cold blue beside a sagging pup tent, a boy holding a flashlight under his chin, marshmallow sticks in hands, lake water seeping up through the grass around the fire ring, and sitting on a cooler at the edge of the light a seven-foot dripping woman in a torn navy dress with a cracked hockey mask pushed up on her forehead, listening, blue firelight on every face, wide shot",
         "choices": [
           {
             "id": "tell-it-right",
@@ -472,7 +472,7 @@
         "title": "I'll Be Right Back",
         "place": "Your house during a Crystal Street blackout, 1 a.m.",
         "text": "Every light on Crystal Street goes out at once. Kev Park, sleeping over, grabs a candle. \"Fuse box is in the garage. I'll be right back.\" Everyone in the living room turns to stare at him, because everyone has seen that movie. He goes anyway. The garage door creaks shut behind him. A thin sheet of cold lake water slides under it and across the kitchen tile, and from inside the garage comes one sharp blast of a tin whistle.",
-        "art": "A dark suburban living room during a blackout lit by a single candle, teenagers staring in horror at a closing garage door, a sheet of moonlit lake water sliding across the kitchen floor",
+        "art": "A dark suburban living room during a blackout at one in the morning lit by a single candle on the coffee table, four teenagers on the couch and floor staring toward the kitchen where a garage door has just swung shut, a thin sheet of cold water sliding under the garage door and across the kitchen tile shining with moonlight, candlelight and blue shadow, medium wide shot",
         "choices": [
           {
             "id": "go-in-pairs",
@@ -568,7 +568,7 @@
         "title": "The Canoe at Dawn",
         "place": "The lake that was Crystal Street, just before sunrise",
         "text": "You wake up curled in the bottom of an aluminum canoe, drifting on a glassy lake where Crystal Street should be. Mist hangs over the water. The sky is going pink. A loon calls, and far off on the shore you can see porch lights and your mother in her bathrobe, waving. It is peaceful and it is beautiful, and you have seen enough movies to know exactly what happens next. The water beside the canoe begins, very gently, to bubble.",
-        "art": "A lone aluminum canoe drifting on a misty glassy lake at sunrise with pink sky, rooftops of suburban houses peeking from the shoreline mist, gentle bubbles rising in the still water beside the canoe",
+        "art": "A teenager sitting up in the bottom of a dented aluminum canoe drifting on a glassy misty lake at sunrise, pink sky, the rooftops and porch lights of a suburban street peeking out of the mist on the far shore with a woman in a bathrobe waving, gentle bubbles rising in the still water right beside the canoe, an orange life jacket on the seat, soft pink and gold light, wide shot",
         "choices": [
           {
             "id": "offer-your-hand",
@@ -659,7 +659,7 @@
         "title": "Inspection",
         "place": "The shore of Crystal Street lake, four a.m.",
         "text": "Jess has made camp. Folding chairs stand in a perfect row along the moonlit waterline, a cooler serves as her podium, and every teenager on Crystal Street has been marched out of bed and lined up on the wet grass in pajamas. She paces in front of you with her mask pushed up on her head and the machete resting on her shoulder, like a drill sergeant at a summer camp in a nightmare. \"Camp rules,\" she reads from a dripping clipboard. \"Rule one: it's the girls' fault. Rule two: nobody's coming. Rule three: everyone takes the swim test.\" She points the machete at the raft, very far away. \"Starting with you.\"",
-        "art": "Teens in pajamas lined up on wet grass along a moonlit lakeshore beside a row of folding chairs and a cooler, a towering muscular woman in a torn navy dress pacing in front of them with a dull grey steel machete held low and pointed at the grass and a cracked hockey mask pushed up on her head, reading from a clipboard, a distant swim raft glowing over a purple geode",
+        "art": "Teenagers in pajamas lined up on wet grass along a moonlit lakeshore at four in the morning beside a perfectly straight row of folding chairs and a cooler, a seven-foot muscular woman with long dark wet hair in a torn high-necked navy camp-staff dress pacing in front of them with a cracked hockey mask pushed up on her head, holding up a dripping clipboard, a dull grey steel machete held low and pointed at the grass, a distant swim raft glowing purple far out on the water, blue moonlight, wide shot",
         "choices": [
           {
             "id": "find-the-missing-rule",
@@ -751,7 +751,7 @@
         "title": "The Pool Is Closed",
         "place": "The Glimmer Falls municipal pool, closed for the season, midnight",
         "text": "Kev bet Danny Delgado a dollar he would not climb the high dive at the closed-up town pool, so now four of you are over the fence at midnight. The pool was drained in September. Tonight it is full to the brim with black, cold water that smells like cattails, and the moon wobbles on the surface. The lifeguard chair stands at the edge with nobody in it, a tin whistle hanging from its arm. Danny is halfway up the high-dive ladder when you see the shape walking along the bottom of the pool, tall and slow, looking up at the unoccupied chair.",
-        "art": "A closed suburban swimming pool at midnight brimming with black lake water, moonlight rippling on the surface, a tall lifeguard chair with a tin whistle hanging from its arm, a boy climbing a high dive ladder, a tall dark shape walking along the bottom",
+        "art": "A closed town swimming pool at midnight brimming with black cold water, moonlight wobbling on the surface, an empty tall white lifeguard chair at the edge with a tin whistle hanging from its arm, a boy halfway up the high-dive ladder, three teenagers on the deck by the fence, and deep under the water a tall dark figure walking along the bottom looking up at the empty chair, pale moonlight, wide shot",
         "choices": [
           {
             "id": "take-the-chair",
@@ -830,7 +830,7 @@
         "title": "The Midnight Assembly",
         "place": "The Glimmer Falls High gym, midnight",
         "text": "The school bell rings at midnight, and you wake up in the gym bleachers in your pajamas with the rest of Glimmer Falls High. A filmstrip clicks on, EYES ON THE WATER, GIRLS, 1958, and a cheerful narrator explains that drownings happen when girl counselors get distracted by boys. Teachers and parents line the walls, nodding along. Lake water is seeping across the gym floor and climbing the bleachers one row at a time. At the very top, under the scoreboard, a seven-foot figure in a torn navy dress sits with her knees up, watching the film about herself.",
-        "art": "A dim high school gym at midnight, students in pajamas packed in the bleachers, an old filmstrip glowing on a pull-down screen, teachers and parents lining the walls, dark lake water creeping up the bleacher rows, a towering figure in a torn navy dress seated at the top",
+        "art": "A dim high school gym at midnight, students in pajamas packed into the bleachers, an old filmstrip projected on a pull-down screen showing a cartoon girl on a dock, teachers and parents lining the walls nodding, dark lake water creeping up the bleacher rows, a middle-aged nurse standing by the doors with her shoes in the water, and at the very top of the bleachers a seven-foot woman in a torn navy dress sitting with her knees up, projector beam and dark shadows, wide shot",
         "choices": [
           {
             "id": "narrate-it-right",
@@ -915,7 +915,7 @@
         "title": "The Lodge",
         "place": "The Camp Crystal Pines lodge, risen on the roundabout, midnight the night before Halloween",
         "text": "A thunderstorm rolls over Crystal Street the night before Halloween, and when the lightning flashes, the Camp Crystal Pines lodge is standing on the roundabout, dripping, risen whole out of 1957. Inside, the fire is lit and a poker game is frozen mid-hand: four grown men in short sleeves, cards fanned, cigar smoke hanging in the air, and at the head of the table Director Harlan Pratt, chuckling at nothing. The lodge clock reads 9:58, two minutes before the night swim went wrong. Someone is pounding on the front door hard enough to rattle the antlers on the wall, and a cracked voice outside is shouting, \"Let me in! Nobody's watching the water!\"",
-        "art": "A rustic summer camp lodge at night in a thunderstorm, a crackling fireplace, four men in short sleeves frozen around a poker table with cards fanned and cigar smoke, an old wall clock near ten, the heavy front door shaking from pounding",
+        "art": "A rustic summer camp lodge at night during a thunderstorm, a crackling stone fireplace, antlers on the log wall, four grown men in short-sleeved shirts frozen around a poker table with playing cards fanned in their hands and cigar smoke hanging in the air, an old wall clock with its hands just before ten, a teenager standing at the heavy front door with a hand on the bolt as the door shakes from pounding outside, white lightning in the windows, warm firelight, wide shot",
         "choices": [
           {
             "id": "let-her-in",
@@ -1007,7 +1007,7 @@
       "title": "The Last Night Swim",
       "place": "Crystal Springs lake, which is Crystal Street, Halloween night",
       "text": "On Halloween night the lake comes all the way back. Moonlight pours over black water lapping at the porch roofs of Crystal Street, jack-o'-lanterns bob past a drifting cooler and a tangle of folding chairs, and the old raft rides over the drowned Heartstone, glowing purple from below. Every teen in Glimmer Falls is treading water around it in their Halloween costumes, too cold to scream. Jess stands on the raft, mask down, machete raised to the moon. \"Nobody watched me,\" she says, and her voice is twelve years old. \"Nobody even says my name. They just tell girls to keep their eyes off the boys. So nobody gets out of the water. Not until somebody watches.\"",
-      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn high-necked navy dress and cracked hockey mask standing on it with a dull grey steel machete held low and pointed at the water, teens in Halloween costumes treading water around her",
+      "art": "A suburban cul-de-sac completely flooded under a full moon on Halloween night, black water lapping at the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating past, a wooden swim raft glowing purple from a sunken crystal below, a seven-foot muscular woman in a torn high-necked navy dress and a cracked hockey mask standing on the raft with a dull grey steel machete held low and pointed at the water, teens in Halloween costumes treading water around her, cold moonlight and purple glow, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1181,22 +1181,22 @@
       "best": {
         "title": "Buddy Check",
         "text": "Jess floats. For the first time in her life, or after it, she floats, and she starts to laugh, a twelve-year-old's laugh, high and astonished. As she laughs she grows smaller and the scars fade, until the hands are holding up a skinny freckled girl in a too-big navy dress with a tin whistle. Judy Kessler takes the faded staff patch off her old camp jacket and pins it on Jess's collar. \"Counselor Jess,\" she says. \"I'm sorry I said tomorrow.\" Jess salutes her, and the whole lake drains away like a long sigh, leaving dew on every lawn, a raft on the roundabout and a cracked hockey mask lying empty in a puddle. That winter every EYES ON THE WATER, GIRLS poster in the county comes down. Next summer the Glimmer Falls public pool opens the Jess Mercer Learn-to-Swim Program, free for every kid, with a sign at the gate that says GROWN-UPS: WATCH THE WATER. Its first three lifeguards are teenage girls. Judy teaches the first class.",
-        "art": "A skinny freckled girl ghost in a too-big navy dress floating on her back on a moonlit lake, laughing, held up by many hands of teens in Halloween costumes, a middle-aged nurse pinning a camp staff patch on her collar, an empty cracked hockey mask drifting away, dawn breaking pink over a suburban cul-de-sac"
+        "art": "A skinny freckled twelve-year-old girl ghost in a too-big navy dress with a tin whistle floating on her back on a moonlit lake and laughing, held up by many hands of teens in Halloween costumes, a middle-aged nurse in the water pinning a faded camp staff patch on her collar, an empty cracked hockey mask drifting away, pink dawn breaking over the roofs of a suburban cul-de-sac, wide shot"
       },
       "good": {
         "title": "Swim's Over",
         "text": "The lake drains down the storm drains at dawn and Crystal Street dries out by lunch, leaving a raft on the roundabout that nobody can explain. The town calls it a water main break. The poster in Nurse Kessler's office stays on the wall, and the pamphlet goes out again in September. Every so often, at the high school pool, a lifeguard swears she saw a tall woman in a cracked hockey mask standing in the deep end, watching.",
-        "art": "A dry suburban roundabout at sunrise with a waterlogged wooden swim raft sitting on the grass beside a purple geode, a cracked hockey mask resting on the raft, puzzled neighbors in bathrobes gathered around it"
+        "art": "A dry suburban roundabout at sunrise, a waterlogged wooden swim raft sitting on the grass beside a purple crystal rock, a cracked hockey mask resting on the raft, puzzled neighbors in bathrobes and slippers gathered around it holding coffee mugs, damp lawns shining, gold morning light, wide shot"
       },
       "bittersweet": {
         "title": "High Water Mark",
         "text": "Jess goes back under, and the water goes with her, but not all the way. Every basement on Crystal Street stays a little damp. Every Halloween after, the storm drains gurgle at midnight, the moon comes up too big, and the water rises an inch, then two, then stops. Nurse Kessler retires that spring without ever taking down the poster, and still nobody in town says Jess's name.",
-        "art": "A flooded suburban basement with a faint waterline on the wall, a storm drain on the moonlit street outside gurgling under a jack-o'-lantern"
+        "art": "A damp suburban basement at night with a faint dark waterline on the wood-paneled wall, cardboard boxes stacked on bricks, and through the small basement window a moonlit street where a storm drain gurgles beside a glowing jack-o'-lantern on the curb, a teenager on the basement stairs looking at the waterline, blue moonlight, medium shot"
       },
       "bad": {
         "title": "Swim Lessons",
         "text": "The lake drains away at dawn and takes you with it, not drowned but Taken, down into a night swim that never ends. Every Halloween after, when the storm drains run backward and the moonlit water rises over Crystal Street, your crew sees you under the surface: in a faded staff t-shirt with a tin whistle, standing beside a towering woman in a cracked hockey mask, lining up teenagers who are not watching each other. You look like you are blowing your whistle. Nobody can hear it.",
-        "art": "Black moonlit floodwater over a suburban street with the faint underwater figures of a teen in a camp staff t-shirt with a tin whistle standing beside a towering masked woman in a torn navy dress, worried friends peering down from a porch roof"
+        "art": "Black moonlit floodwater over a suburban street, and under the surface the pale figures of a teenager in a faded camp staff T-shirt with a tin whistle standing beside a seven-foot woman in a torn navy dress and a cracked hockey mask, three worried friends kneeling on a porch roof and peering down into the water, white moonlight, high angle shot"
       }
     }
   }

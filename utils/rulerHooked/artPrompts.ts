@@ -147,6 +147,53 @@ export const CARD_PROMPTS: Record<string, string> = {
   'bog-refuse': scene(
     `${who('captain-cordelia')}, stands on the dock with relaxed shoulders and her helmet tucked under one arm, smiling slightly, while thin white mist drifts over an empty bog at the lake edge behind her. Soft early evening light.`,
   ),
+  'vex-model-village': scene(
+    `${who('warlock-vex')}, sets a large wooden scale model on a tackle box on the dock: rows of identical tiny white cottages with little balconies climbing a green wooded hillside. He spreads his hands wide and smiles. Bright midday light.`,
+  ),
+  'sela-tree-sit': scene(
+    `On a hillside above rows of new white cottages, ${who('druid-sela')}, sits against the trunk of a huge old oak with an iron chain around her waist and her arms folded. At the foot of the oak ${who('captain-cordelia')}, looks up at her, and builders eat lunch on a pile of timber. Warm afternoon light.`,
+    'Wide view from the lake shore.',
+  ),
+  'lake-watch': scene(
+    `${who('captain-cordelia')}, stands at the end of the dock at night holding up a brass lantern and pointing across the lake, where a line of small rowboats with lanterns floats on the dark water. Deep blue moonlight with warm lantern glow.`,
+  ),
+  'brack-lures': scene(
+    `${who('smuggler-brack')}, crouches on the dock beside an open wooden crate full of shining fishing lures in gold, silver and bright enamel, each in a twist of paper, and holds up a gold fish-shaped lure toward the viewer with a wink. Soft grey morning light.`,
+  ),
+  'brack-trial': scene(
+    `${who('smuggler-brack')}, stands at the end of the dock with iron cuffs on his wrists, gripping a fishing rod in both hands and grinning, while ${who('captain-cordelia')}, holds the end of his chain and frowns. Villagers watch from the shore. Bright morning light.`,
+  ),
+  'thistle-fish-exports': scene(
+    `${who('envoy-thistle')}, stands on the dock with her white gloves tucked into her belt, holding a silver fish up by the tail in one bare hand and pointing at the far shore, where long foreign fishing nets hang on poles over the water. Cool bright morning light.`,
+  ),
+  'fish-tithe': scene(
+    `${who('taxman-gristle')}, stands at the end of the dock beside a set of brass weighing scales piled with small fish and holds out an open hand toward the viewer, a wooden bucket of fish at his feet. Flat grey overcast light.`,
+  ),
+  'fen-satire': scene(
+    `In a cobbled village square, ${who('bard-fen')}, stands on an upturned barrel singing with the lute raised high, while a crowd of laughing villagers in aprons and caps sing along, one man stretching his arms in a huge pretend yawn. Warm afternoon light.`,
+    'Eye-level view from the edge of the crowd.',
+  ),
+  'mossy-price': scene(
+    `${who('witch-mossy')}, stands on the dock holding out an empty wicker basket toward the viewer with a broad grin, a thin crescent moon low in the evening sky behind her and flowering vines covering the far treeline. Violet dusk light.`,
+  ),
+  'public-dock': scene(
+    `${who('sweetheart-ash')}, stands on the shore holding a flat cap in both hands and looking hopefully at the viewer. Behind Ash an old grey village dock with missing planks sticks out into the lake, and village children sit on the bank with fishing poles. Warm morning light.`,
+  ),
+  'vex-sela-truce': scene(
+    `${who('warlock-vex')}, and ${who('druid-sela')}, stand together on the dock holding opposite ends of one long blueprint drawn with a wooden lodge among trees and gardens on its roofs, Vex smiling broadly and Sela smiling stiffly. Bright morning light.`,
+  ),
+  'quill-day-off': scene(
+    `${who('steward-quill')}, stands on the dock with a thick bundle of papers tied with string under one arm and a straw sun hat in his other hand, smiling with embarrassment. Soft morning light on a calm lake.`,
+  ),
+  'nix-old-name': scene(
+    `${who('lake-spirit-nix')}, rises out of the dark water at the end of the dock under a starry sky and holds out cupped watery hands toward the viewer, a small glowing white pearl resting in them. Cool blue moonlight and mist on the water.`,
+  ),
+  'drowned-surface': scene(
+    'Beside a small village dock, dozens of pale bloated carp float belly-up on murky green water while a few have rolled over and begun to swim away. Villagers in aprons crowd the dock edge, pointing and holding their noses. Grey overcast light.',
+  ),
+  'heron-delegation': scene(
+    'Seven tall grey herons stand in a neat row along the dock planks, each on one leg, all facing the viewer, the tallest heron in front with a silver fish lying at its feet. Reed beds and calm water behind them. Soft golden morning light.',
+  ),
 }
 
 /** Character portraits, keyed by cast slug (neutral expression). */

@@ -40,7 +40,7 @@
           "title": "Reel 1961-12",
           "place": "Microfiche room, Glimmer Falls Public Library",
           "text": "The microfiche reader hums like a refrigerator. December 1961 is missing from the drawer, but the reshelving cart has a reel labeled in someone's tidy script: DO NOT CIRCULATE. Ms. Hart is busy at the front desk, and the reel is still warm, as if someone was just reading it.",
-          "art": "A teenager in a dim library microfiche room, a glowing green reader screen showing a 1961 newspaper headline about a salon eviction, a reel with a stern red restricted label",
+          "art": "A teenager in a jean jacket leans over a bulky microfiche reader in a cramped library basement room, threading a film reel by hand, the screen glowing pale green with a blurred 1961 newspaper page, a squeaky reshelving cart beside them holding a gray reel box with a red sticker, metal file drawers along the wall, green screen glow on the teen's face and a dim ceiling bulb behind, medium shot from over the shoulder",
           "choices": [
             {
               "id": "read-the-reel",
@@ -105,7 +105,7 @@
           "title": "The wig room",
           "place": "Backstage, The Glitter Box Playhouse",
           "text": "Glory Hallelujah's wig room is a wall of foam heads, each with a name: Cher, Dusty, Big Sandy, Miss Frieda. That last one wears a towering silver beehive, and under it, taped to the foam, is an old photo album bursting with snapshots of kids in impossible haircuts, all of them grinning.",
-          "art": "A backstage wig room lined with foam mannequin heads wearing sparkling wigs, one silver beehive labeled Miss Frieda, an old photo album open beneath it full of 1960s haircut snapshots",
+          "art": "A cramped backstage wig room at a small drag theater, a wall of white foam mannequin heads wearing sparkly show wigs, the last head wearing a towering silver beehive, a fat old photo album taped open beneath it showing rows of 1960s snapshots of grinning kids with pixie cuts and dyed bobs, a teenager reaching toward it, warm bulbs around a dressing mirror lighting the room gold, medium shot",
           "choices": [
             {
               "id": "ask-glory",
@@ -176,7 +176,7 @@
           "title": "The woman who never sleeps",
           "place": "1 Crystal Street",
           "text": "Old Mrs. Whitlock sits on her porch at noon in a quilted robe, a pot of coffee at her elbow and every light in her house on. Her hair is perfectly, uniformly gray. \"I haven't slept in twenty-five years,\" she says, before you ask anything at all.",
-          "art": "An elderly suburban woman in a quilted robe on a porch at noon, every window of her split-level house lit, a coffee pot beside her, hair perfectly gray, purple shadows under her eyes",
+          "art": "An elderly woman with a perfectly even gray bob sits in a wicker chair on the porch of a split-level suburban house at noon, wrapped in a quilted pink robe, a percolator coffee pot and two mugs on a side table, every lamp inside the house switched on behind the windows, dark purple circles under her wide eyes, a teenager standing at the porch steps, flat bright autumn sun, medium wide shot from the lawn",
           "choices": [
             {
               "id": "sit-with-her",
@@ -239,7 +239,7 @@
         "title": "The Chair",
         "place": "The Shear Delight salon, in a dream",
         "text": "You do not remember falling asleep. You are in a pink vinyl salon chair, the cape snapped at your throat, and in the mirror a woman with a silver beehive is combing your hair with one shear-blade fingernail. \"Just a trim,\" Frieda says. \"Something sensible. Something gray.\"",
-        "art": "A teenager trapped in a pink vinyl salon chair in a dreamy, warped 1961 beauty parlor, a ghostly beautician with a five-shear glove looming in the mirror, hair dryers hanging like moons",
+        "art": "A teenager in pajamas sits in a pink vinyl 1961 salon chair with a black styling cape snapped at the throat, facing a big gold-framed mirror, and in the mirror a tall ghostly woman in a pink beautician's smock with a towering silver beehive and cracked cat-eye glasses combs the teen's hair with one polished shear blade from a glove of five shears, chrome hood dryers floating overhead, hot pink mirror light from the front, close medium shot into the mirror",
         "choices": [
           {
             "id": "wake-yourself",
@@ -301,7 +301,7 @@
         "title": "The Gray Street",
         "place": "Crystal Street, in a dream",
         "text": "Crystal Street is perfectly gray. The lawns, the station wagons, the neighbors standing on every porch in matching gray bathrobes and matching gray bobs. They turn their heads toward you all at once. \"Your turn,\" they say, in your neighbors' voices.",
-        "art": "A 1980s suburban cul-de-sac drained entirely of color, neighbors in identical gray bathrobes and identical gray haircuts on every porch turning toward one colorful teenager in the street",
+        "art": "A suburban cul-de-sac at dusk painted entirely in shades of gray, gray lawns, gray station wagons, gray houses, and on every porch a neighbor in a matching gray bathrobe with a matching gray bob haircut, all of them turning their heads toward one teenager in a bright red jacket and colorful sneakers standing alone in the middle of the street, flat silver light from a gray sky, wide shot from low in the street",
         "choices": [
           {
             "id": "run-for-color",
@@ -362,7 +362,7 @@
         "title": "One, Two, Frieda's Coming",
         "place": "The Crystal Street sidewalk, in a dream, at a dusk that never ends",
         "text": "It is dusk on Crystal Street, and it has been dusk for hours. Under the streetlight, three little girls in matching gray pinafores and matching gray bobs are jumping rope, and the rope makes a sound like scissors closing. \"One, two, Frieda's coming for you,\" they chant. \"Three, four, sweep the salon floor. Five, six, bobby pins and picks.\" On seven, all three of them turn and say your name.",
-        "art": "Three little girls in matching gray pinafores and gray bob haircuts jumping rope under a streetlight on a dreamlike suburban street at an endless violet dusk, a teenager watching from the sidewalk, bobby pins glinting on the pavement",
+        "art": "Three little girls in matching gray pinafores and matching gray bob haircuts jump rope under a single streetlight on a suburban sidewalk at a violet dusk, the rope blurred in mid-swing, bobby pins scattered across the pavement, a teenager in a jacket standing at the curb a few steps away watching them, the three girls turning their faces toward the teen, yellow streetlight from above, purple sky behind rows of houses, wide shot at sidewalk height",
         "choices": [
           {
             "id": "new-verse",
@@ -453,7 +453,7 @@
         "title": "The Rinse",
         "place": "Your bathroom sink, one a.m.",
         "text": "You are rinsing shampoo out of your hair at the bathroom sink, eyes squeezed shut, so tired you are swaying. The water gets warmer. The sink gets deeper. When you crack one eye, the basin has become a black porcelain salon shampoo bowl, the faucet a chrome sprayer, and someone behind you is humming the old Shear Delight radio jingle. Up out of the suds beside your ear rise five polished shears, like the fin of a shark.",
-        "art": "A sleepy teenager bent over a bathroom sink at night with shampoo in their hair, the basin transformed into a deep black porcelain salon shampoo bowl, five polished shear blades rising out of the suds like a shark fin",
+        "art": "A sleepy teenager bends over a small bathroom sink at one in the morning with shampoo lather in their hair and eyes squeezed shut, the sink stretched into a deep black porcelain salon shampoo bowl with a chrome hose sprayer, five polished shear blades rising out of the white suds beside the teen's ear in a row, a medicine cabinet mirror above, a single vanity bulb lighting the room yellow and pink, close medium shot from the side",
         "choices": [
           {
             "id": "slam-the-cabinet",
@@ -536,7 +536,7 @@
         "title": "Bring Something Back",
         "place": "Frieda's basement, in a dream, one minute before your alarm",
         "text": "You fall asleep on purpose, alarm set for three, clutching the old horror-movie rule: grab something in a dream and hold on, and you can bring it back. You land in a cold basement lit by one bare bulb, a salon chair bolted to the concrete beside a dead boiler, and shelves of foam wig heads with faces painted gray. Frieda sits at a card table with her back to you, writing in a pink appointment book. Your alarm will ring in one minute.",
-        "art": "A cold 1961 basement lit by a single bare bulb, a pink salon chair bolted to concrete beside an old boiler, shelves of foam wig heads painted gray, a beehived beautician at a card table writing in a pink appointment book",
+        "art": "A cold concrete basement lit by one bare hanging bulb, a pink salon chair bolted to the floor beside a dead iron boiler, metal shelves of foam wig heads with faces painted gray, a tall woman in a pink 1961 beautician's smock and towering silver beehive sitting at a folding table with her back turned, writing in a pink appointment book, a glove of five shears resting by her elbow, a teenager in pajamas creeping toward the table, hard yellow bulb light and deep shadow, medium wide shot",
         "choices": [
           {
             "id": "grab-the-book",
@@ -621,7 +621,7 @@
         "title": "Slumber Party Rules",
         "place": "Your living room, three a.m.",
         "text": "Your crew is camped on your living room floor in sleeping bags, swearing nobody will fall asleep. It is three a.m. One by one, heads are nodding. In the dark kitchen, very softly, someone is sharpening scissors.",
-        "art": "A 1980s living room slumber party at 3 a.m., teens in sleeping bags fighting sleep around a glowing TV, a silhouette in the dark kitchen sharpening scissors",
+        "art": "A 1980s living room at three in the morning, five teenagers in sleeping bags on the shag carpet with heads drooping, chip bowls and soda cans around them, a television glowing blue static in the corner, and through the open doorway the dark kitchen holds the shadowed outline of a beehived woman sharpening a pair of scissors at the counter, blue TV light on the teens and a thin pink glow in the kitchen, wide shot from the couch",
         "choices": [
           {
             "id": "keep-everyone-awake",
@@ -684,7 +684,7 @@
         "title": "The Stairs Won't Hold",
         "place": "Your own staircase, in a dream, 2 a.m.",
         "text": "You dream you are home, and something is coming up from the basement: an old bonnet hair dryer on squeaky casters, rolling by itself, its hood glowing pink. You run for the stairs, and on the third step your sneakers sink to the ankles in warm pink setting gel that smells like 1961. Every step is softer than the last. At the top, your bedroom door stands wide open, and from inside a cheerful voice calls, \"No running in the salon, sugar.\"",
-        "art": "A teenager in pajamas sinking ankle-deep into glossy pink gel on a suburban staircase at night, a vintage bonnet hair dryer on casters rolling up from a glowing basement, an open bedroom door at the top spilling pink light",
+        "art": "A teenager in pajamas sinks ankle-deep in glossy pink setting gel on the carpeted staircase of a suburban house at night, gripping the banister, an old bonnet hair dryer on squeaky casters rolling up from a glowing basement doorway at the bottom, its hood lit pink, the teen's bedroom door standing open at the top of the stairs with pink light spilling out, low angle from the bottom step looking up",
         "choices": [
           {
             "id": "haul-the-banister",
@@ -774,7 +774,7 @@
         "title": "Your Two O'Clock",
         "place": "Your kitchen telephone, 2 a.m.",
         "text": "The kitchen phone rings at two in the morning, and you grab it before it wakes the house. \"Shear Delight, confirming your appointment,\" purrs a voice with a silver beehive in it, \"Halloween night, wash, cut and gray.\" The curly phone cord is winding tighter around your wrist like a hot roller. Then you hear a click: someone else in your house has picked up the extension, and a grown-up voice, small and shaky, whispers, \"Frieda? Is that you?\"",
-        "art": "A teenager in a dark suburban kitchen at night clutching a wall telephone, the curly cord coiling around their wrist like a hot roller, a faint silver beehive silhouette glowing in the reflection of the oven door",
+        "art": "A teenager in a T-shirt stands in a dark 1980s suburban kitchen at two in the morning holding a yellow wall telephone receiver to their ear, the curly cord wrapped tight around their wrist three times, the faint reflection of a woman with a silver beehive glowing in the black glass of the oven door, a second phone extension visible through the hallway with a grown-up's hand on it, cold moonlight through the window over the sink, medium shot",
         "choices": [
           {
             "id": "let-them-talk",
@@ -860,7 +860,7 @@
         "title": "Picket Line, 1961",
         "place": "The Glimmer Falls shopping plaza, in a dream, December 1961",
         "text": "On the night before Halloween, the whole street dreams the same dream, and you walk into it wide awake. It is December 1961, snow on the plaza, and a crowd of PTA mothers in car coats circles the door of the Shear Delight with handmade placards, chanting about poison dye. Every time they pass a window, the gray creeps a little further into the salon. Inside, a young Frieda with a fresh silver beehive is finishing one last pixie cut for a scared girl, and she will not look up at the glass.",
-        "art": "A snowy 1961 shopping plaza at night, a crowd of women in car coats marching in a circle with handmade placards outside a pink salon, gray frost creeping across its windows, a young stylist with a silver beehive cutting a girl's hair inside",
+        "art": "A snowy 1961 shopping plaza at night, a ring of mothers in wool car coats and headscarves marching in a circle with handmade cardboard placards outside a little pink salon storefront, gray frost spreading across the bottom of the shop windows, and inside under warm pink light a young woman with a fresh silver beehive cuts a pixie cut for a scared girl in the chair, a teenager in a parka standing on the sidewalk in the snow, wide shot from across the plaza",
         "choices": [
           {
             "id": "walk-in",
@@ -952,7 +952,7 @@
       "title": "Closing Time at the Shear Delight",
       "place": "The Shear Delight salon, Halloween night",
       "text": "On Halloween night the whole street falls asleep at once and you all wake up in the Shear Delight. Every neighbor is in a chair. Every chair faces a mirror. Frieda stands in the center with her shears raised, and for the first time you notice she is crying. \"I only wanted them to be perfect,\" she says, \"so nobody could take anything away from them.\"",
-      "art": "A vast dream beauty salon with endless rows of pink chairs holding sleeping neighbors, a weeping ghostly beautician with a raised five-shear glove at the center, the teen crew facing her in Halloween costumes",
+      "art": "A huge dream beauty salon stretching into darkness, rows and rows of pink vinyl chairs each holding a sleeping neighbor in a styling cape, every chair facing a gold-framed mirror, at the center a tall ghostly woman in a pink beautician's smock with a towering silver beehive and cracked cat-eye glasses raises a glove of five shears with tears on her cheeks, four teenagers in homemade Halloween costumes standing together in front of her, pink mirror light and deep purple shadows, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1118,22 +1118,22 @@
       "best": {
         "title": "You're Perfect Already",
         "text": "Frieda spends her last night on Crystal Street giving the most glorious haircuts in Glimmer Falls history: a purple mohawk for Moose, silver stars for Bea, something unrepeatable and rainbow for you. Mrs. Whitlock comes in last, and the two women talk for a long time with the door closed. At dawn the salon is empty except for a signed photo on the mirror: You're perfect already. Love, F. Every November after, someone leaves fresh curlers on the old plaza steps.",
-        "art": "A joyful dream salon at dawn full of teens with wild rainbow haircuts, a softly glowing beautician ghost waving goodbye, a signed photo tucked in the mirror frame"
+        "art": "A pink dream salon at dawn full of laughing teenagers showing off wild new haircuts, a huge boy with a purple mohawk, a small girl with silver stars dyed into her blonde braids, a teen with a rainbow cut, a glowing translucent woman in a pink smock with a silver beehive waving goodbye from the doorway, a signed snapshot tucked into the frame of a mirror, gold sunrise through the front window, wide shot"
       },
       "good": {
         "title": "Lights Out at the Salon",
         "text": "The Shear Delight goes dark for good and Crystal Street wakes up rested for the first time all week. Nobody remembers much, except a smell of hairspray and a vague feeling that they should be kinder to the strange kids. You remember. You keep a single silver curler on your desk, and sometimes you wonder what she was so afraid of.",
-        "art": "A shuttered 1960s beauty salon at dawn with a closed sign, a teenager outside holding one silver curler, morning light on a quiet suburban plaza"
+        "art": "A shuttered little 1960s beauty salon at the end of a quiet suburban shopping plaza at dawn, dusty pink awning, the windows papered over from inside, a teenager in a jean jacket standing on the sidewalk turning one silver hair curler over in their fingers, long gold morning light across the empty parking lot, medium wide shot"
       },
       "bittersweet": {
         "title": "A Little Off the Top",
         "text": "You survive the week, and so does most of Crystal Street, but a few neighbors wake up with gray in their hair that never washes out. Frieda is quiet now, not gone. On the coldest nights you still hear scissors, very far away, and you sleep with the radio on.",
-        "art": "A teenager in bed with a clock radio glowing, a faint silhouette of shears in the frosty window, a gray streak in their hair"
+        "art": "A teenager lies awake in bed on a cold night with a clock radio glowing orange on the nightstand, one fresh gray streak in their dark hair, frost on the bedroom window and a faint silver outline of open scissors in the frost, a bulletin board of snapshots on the wall, orange radio glow and blue moonlight, medium shot from the foot of the bed"
       },
       "bad": {
         "title": "Something Sensible",
         "text": "You wake on November first with a neat gray haircut and no memory of the week. Your clothes are beige now. You like them. Your crew tries to remind you who you were, and you smile politely, and you sit perfectly still while they talk.",
-        "art": "A teenager with a neat gray haircut in beige clothes sitting perfectly still at a kitchen table, worried friends in colorful jackets crowded around them"
+        "art": "A teenager with a neat gray bob haircut in a plain beige sweater and beige slacks sits perfectly upright at a suburban kitchen table with hands folded and a polite blank smile, three worried friends in bright neon jackets crowded around the table talking to them, a bowl of fruit and a wall calendar on November, flat morning daylight through the window, medium shot"
       }
     }
   }

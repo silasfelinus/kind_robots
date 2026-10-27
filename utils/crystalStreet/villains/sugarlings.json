@@ -40,7 +40,7 @@
           "title": "Out of Stock, Back in Stock",
           "place": "Toy Planet stockroom, Starlight Mall",
           "text": "The Sugarlings shelf at Toy Planet was stripped bare by ten a.m. By noon it is full again. The stockroom door hangs open behind the register, and from inside comes a soft, many-voiced purring. A teenage clerk in a sweaty vest is taping a sign to the door: DO NOT FEED THE MERCHANDISE. On the manager's clipboard by the door, a memo on Happimore letterhead flutters in the air vent.",
-          "art": "A frantic 1980s toy store with a freshly refilled shelf of fuzzy pastel critters, a stockroom door ajar with dozens of glowing eyes peeking out, a frazzled teen clerk taping up a warning sign",
+          "art": "A busy 1980s mall toy store, a freshly refilled shelf of round fuzzy pastel-pink, lavender and mint critters with enormous glittering eyes and tiny smiles, the stockroom door behind the register hanging open with dozens of glowing eyes peeking out of the dark, a sweaty teenage clerk in a red vest taping a sheet of paper to the door, a teenager ducking under the counter, bright white store light, medium wide shot",
           "choices": [
             {
               "id": "slip-into-stockroom",
@@ -106,7 +106,7 @@
           "title": "Twelve Spins a Night",
           "place": "Overnight booth, KGLM 103.3",
           "text": "The Sugarlings jingle is on KGLM's paid rotation, a sparkly synth tune with a choir of kids singing \"you can never have too many!\" The reel spins in the corner deck, a Happimore sticker on the box. Mix Bell pulls off his headphones. \"Every night at three, same lady calls in. Accent, real tired. Says she made them. I always figured she was a crank.\" The request line is blinking. It is 2:58.",
-          "art": "A cozy overnight radio booth at nearly 3 a.m., a reel-to-reel deck spinning a tape with a toy company sticker, a velvet-voiced teen DJ pulling off headphones, a request line light blinking",
+          "art": "A cozy overnight radio booth at 2:58 in the morning, a reel-to-reel deck turning a tape whose box has a bright pink toy company sticker, a 17-year-old Black DJ with a high-top fade and a purple satin station jacket pulling off big padded headphones, a teenager beside him staring at a beige request-line phone with its light blinking, a digital clock glowing red, warm desk lamp light, medium shot",
           "choices": [
             {
               "id": "play-it-backward",
@@ -175,7 +175,7 @@
           "title": "The Trailer on Route 49",
           "place": "Rusty's Junkyard",
           "text": "The Happimore truck lies on its side by the crusher, its painted mascot grinning upside down. The trailer door is bent shut, and the inside hums like a beehive full of kittens. Candy wrappers carpet the ground around it. The cab, though, is quiet. On the dashboard sits a small handmade plush with button eyes and crooked stitches, and a spiral notebook tucked under it.",
-          "art": "A jackknifed toy company truck on its side in a junkyard, a grinning cartoon mascot painted upside down, candy wrappers everywhere, a single handmade button-eyed plush on the dashboard of the cab",
+          "art": "A jackknifed pastel toy company delivery truck lying on its side beside a junkyard car crusher, a big painted grinning mascot upside down on the trailer, the bent trailer door humming, candy wrappers carpeting the dirt around it, a teenager climbing up the side toward the cab, and on the dashboard a small handmade plush with button eyes and crooked stitches resting on a spiral notebook, flat afternoon sun, wide shot",
           "choices": [
             {
               "id": "climb-into-cab",
@@ -270,7 +270,7 @@
         "title": "After Midnight",
         "place": "Your bedroom, 12:01 a.m.",
         "text": "You did not feed it. You know you did not feed it. But the Halloween candy bowl on your dresser is empty, and the Sugarling your cousin mailed you is sitting in the middle of it with candy corn on its whiskers. It purrs. It shivers. It splits. There are two now. Then four. They look up at you with moon eyes and sing, very softly, \"More?\"",
-        "art": "A 1980s teen bedroom at midnight lit by a lava lamp, an empty candy bowl on a dresser with a fuzzy critter in the middle splitting into two, four, eight, all looking up with glossy eyes",
+        "art": "A 1980s teenage bedroom at 12:01 at night lit by a red lava lamp, an empty Halloween candy bowl on the dresser with a round fuzzy pastel-pink critter sitting in it with candy corn on its whiskers, splitting into two, four, eight fuzzballs with enormous glittering eyes and tiny smiles all looking up, a teenager in pajamas sitting up in bed staring at them, red lava glow, medium shot",
         "choices": [
           {
             "id": "herd-into-tub",
@@ -357,7 +357,7 @@
         "title": "The Mall Never Closes",
         "place": "Starlight Mall, two a.m.",
         "text": "Starlight Mall is lit up at two in the morning. The escalators are running, the fountain is full of fuzz, and the jingle is playing over the PA on a loop. Dozens of grown-ups in bathrobes shuffle from store to store, eyes half closed, swiping credit cards at empty registers. In the food court, a purring pastel mountain is eating the pretzel stand, and it is taller than it was an hour ago.",
-        "art": "A neon-lit 1980s shopping mall at 2 a.m., sleepwalking adults in bathrobes swiping credit cards at empty registers, a towering mountain of fuzzy critters devouring a pretzel stand in the food court",
+        "art": "A neon-lit 1980s shopping mall at two in the morning with escalators running, adults in bathrobes shuffling between stores with half-closed eyes swiping credit cards at empty registers, a fountain clogged with pastel fuzz, and in the food court a purring mountain taller than a house of round pastel critters with glittering eyes eating a pretzel stand, a teenage girl skater with pink-tipped black hair rolling past, pink and cyan neon, wide shot",
         "choices": [
           {
             "id": "cut-the-pa",
@@ -445,7 +445,7 @@
         "title": "Sing-Along at Midnight",
         "place": "The Glitter Box Playhouse, the midnight movie",
         "text": "Frankie Fontaine's midnight movie tonight is a sing-along print of an old cartoon musical about a princess and seven miners, and every seat in the Glitter Box is full. Not with people. Hundreds of Sugarlings sit in the velvet rows in perfect stillness, moon eyes shining with the light of the screen, singing along in squeaky harmony. The concession stand behind you holds forty pounds of candy. One of them turns around in its seat, sees the licorice rope in your hand, and stops singing.",
-        "art": "A plush velvet theatre at midnight lit by a glowing movie screen, hundreds of round fuzzy pastel critters with huge glossy eyes filling every seat and singing, one critter turning around to stare at a teenager holding a licorice rope by the concession stand",
+        "art": "A plush red velvet theater at midnight lit by a glowing movie screen, hundreds of round fuzzy pastel critters with huge glossy eyes filling every seat and singing with tiny open mouths, one critter in the back row turned around in its seat staring at a teenager holding a licorice rope by the concession stand, a young stage manager in a headset in the projection booth window, silver screen light on the rows, wide shot from behind the seats",
         "choices": [
           {
             "id": "keep-the-reel-running",
@@ -535,7 +535,7 @@
         "title": "Trick or Treat? More!",
         "place": "Mr. Fennimore's front porch, Crystal Street, after dark",
         "text": "You are house-sitting for Mr. Fennimore down the street, and the doorbell keeps ringing, even though Halloween is still days away. On the porch stands a crowd of tiny trick-or-treaters in perfect little costumes, a ghost, a pirate, a pumpkin, a miniature astronaut, all knee high, pillowcases held out. \"Trick or treat!\" they squeak, and then, all together and much softer, \"More?\" You drop one candy bar into the pirate's bag. The doorbell rings again. Now there are twice as many.",
-        "art": "A glowing suburban front porch at night with a jack-o'-lantern, a crowd of knee-high fuzzy critters in tiny Halloween costumes holding out pillowcases, a ghost, a pirate, a pumpkin and an astronaut, a teenager in the doorway holding a candy bowl",
+        "art": "A glowing suburban front porch after dark with a carved jack-o'-lantern, a crowd of knee-high round fuzzy pastel critters in tiny Halloween costumes, a ghost sheet, a pirate hat, a pumpkin suit and a miniature astronaut helmet, all holding out little pillowcases, twice as many crowding up the steps behind them, a teenager in the doorway holding a candy bowl, orange jack-o'-lantern light, medium wide shot",
         "choices": [
           {
             "id": "hand-out-raisins",
@@ -627,7 +627,7 @@
         "title": "Cocoon Season",
         "place": "The Glimmer Falls Grange Hall, 5:45 a.m., before the PTA bake sale",
         "text": "You and the crew volunteered for bake sale setup at the Grange Hall, which seemed like a nice idea until you flip on the lights at a quarter to six in the morning. A dozen folding tables of brownies and caramel apples stand ready, and the ceiling above them is covered in cocoons, hundreds of them, glittering, spun from candy wrappers and rustling like a bag of chips. One splits along its seam. Something drops onto the brownie table: still fuzzy, bigger than before, wearing a crinkly wrapper like a suit of armor. It looks at the caramel apples. Sunrise is forty minutes away.",
-        "art": "A wood-beamed grange hall at dawn with folding tables of brownies and caramel apples, the ceiling covered in hundreds of glittering cocoons spun from candy wrappers, one bigger fuzzy critter in crinkly wrapper armor landing on a brownie table",
+        "art": "A wood-beamed grange hall at 5:45 in the morning with folding tables of brownies and caramel apples, the ceiling covered in hundreds of glittering cocoons spun from crinkly candy wrappers, one cocoon split open and a larger fuzzy pastel critter in shiny wrapper armor landing on the brownie table, four teenagers in volunteer aprons at the light switch, a 39-year-old man with a salt-and-pepper mustache in a white lab coat propping a window open, gray dawn light, wide shot",
         "choices": [
           {
             "id": "let-the-sun-in",
@@ -715,7 +715,7 @@
         "title": "Mischief Night",
         "place": "Crystal Street, October 30",
         "text": "It is the night before Halloween, and every kid on Crystal Street has stockpiled candy for tomorrow. The Sugarlings know. They pour out of storm drains and over fences in a pastel tide, hundreds of them, then thousands, flowing toward the houses with the biggest bowls. A little kid in a dinosaur costume is sitting on his porch hugging a pillowcase full of candy, and the tide is turning toward him.",
-        "art": "A suburban street at night as a pastel tide of fuzzy critters pours out of storm drains and over fences toward porches, a small child in a dinosaur costume hugging a pillowcase of candy on his steps",
+        "art": "A suburban street on the night before Halloween, a pastel tide of thousands of round fuzzy critters with glittering eyes pouring out of storm drains and over picket fences toward the porches, a small boy in a green dinosaur costume sitting on his porch steps hugging a pillowcase full of candy as the tide turns toward him, a teenager running to his side, porch lights and blue night, wide shot",
         "choices": [
           {
             "id": "share-the-candy",
@@ -780,7 +780,7 @@
         "title": "Last Call at the Quik-Stop",
         "place": "The all-night Quik-Stop on Route 49, 12:40 a.m.",
         "text": "You bike to the all-night Quik-Stop for batteries and find the night clerk, Mrs. Oyelaran, asleep on her stool with her head on the counter. The store is having a party. Sugarlings ride the hot-dog rollers like a carnival ride, slurp from the Slushee machine's spout and stack candy bars into a wobbly tower beside the register. One stands on the arcade cabinet in the corner, mashing buttons with both paws. The radio behind the counter is playing the jingle, and the candy aisle is already half gone.",
-        "art": "A brightly lit 1980s all-night convenience store, fuzzy pastel critters riding hot dog rollers, slurping from a slush machine and stacking candy bars by the register, a night clerk asleep on her stool, a teenager in the entrance holding a bike helmet",
+        "art": "A brightly lit 1980s all-night convenience store at 12:40 in the morning, round fuzzy pastel critters riding the hot dog rollers, slurping from the spout of a slush machine and stacking candy bars into a wobbly tower beside the register, one critter on an arcade cabinet mashing buttons, a middle-aged night clerk asleep on her stool with her head on the counter, a teenager in the doorway holding a bike helmet, white fluorescent light, wide shot",
         "choices": [
           {
             "id": "holler-last-call",
@@ -860,7 +860,7 @@
         "title": "Cash for Critters",
         "place": "The curb at the end of Crystal Street, dusk",
         "text": "A Happimore Toys van with a giant plush Sugarling bolted to its roof is parked at the end of Crystal Street, and half your neighbors are lined up beside it holding shoeboxes. A man in a pastel blazer named Chet Varney is paying five dollars a head to buy Sugarlings back, \"for the safety of the community.\" Through the van's open back doors you can see stacked cages, and Chet's assistant feeding candy corn through the bars by the scoopful. Every cage is splitting. A Channel 6 news van is pulling up to cover the story, and Mrs. Albescu is next in line with eleven of them.",
-        "art": "A pastel toy company van with a giant plush critter on its roof parked at a suburban curb at dusk, neighbors lined up holding shoeboxes, a man in a pastel blazer handing out cash, stacked cages of fuzzy critters in the open back of the van, a news van arriving",
+        "art": "A pastel toy company van with a giant plush fuzzy critter bolted to its roof parked at the end of a suburban street at dusk, neighbors lined up beside it holding shoeboxes, a smiling man in a pastel blazer handing out five-dollar bills, through the open back doors stacked wire cages of round pastel critters splitting in two while an assistant scoops candy corn through the bars, a local news van pulling up, a teenager at the bumper, orange dusk light, wide shot",
         "choices": [
           {
             "id": "swap-the-feed",
@@ -949,7 +949,7 @@
         "title": "Up, Up and Away",
         "place": "The parade staging lot behind Main Street, the night before Halloween",
         "text": "Tomorrow's Happimore Halloween Parade is supposed to star a four-story inflatable Sugarling balloon, and tonight it is tethered in the staging lot behind Main Street, moon-eyed and enormous. It is also moving. Real Sugarlings have chewed in through the valve by the thousand, and the balloon is swelling and purring, straining at its ropes as it fills up with critters instead of helium. One rope snaps. The whole thing lifts ten feet off the asphalt and turns, slowly, toward the lights of Crystal Street and every stockpiled bowl of Halloween candy in town.",
-        "art": "A four-story inflatable fuzzy pastel critter balloon straining against tether ropes in a parade staging lot at night, its moon eyes glowing, tiny fuzzy critters crawling in through its valve, one rope snapped and whipping, the lights of a suburban street beyond",
+        "art": "A towering inflatable balloon taller than the buildings of a round fuzzy pastel-pink critter with huge glossy eyes straining against its tether ropes in a parade staging lot behind a main street at night, swollen and lumpy, thousands of tiny real critters crawling in through its valve, one rope snapped and whipping through the air, the balloon lifting off the asphalt, teenagers grabbing the ropes, the lights of a suburban street beyond, floodlights, low wide shot",
         "choices": [
           {
             "id": "haul-the-ropes",
@@ -1043,7 +1043,7 @@
       "title": "Sugar Rush",
       "place": "The Heartstone roundabout, Halloween night",
       "text": "On Halloween night every Sugarling in Glimmer Falls rolls into one. The mountain sits on the Heartstone roundabout, three stories of pastel fuzz with ten thousand glittering eyes, and one enormous mouth singing the jingle. Trick-or-treaters' pillowcases tug out of their hands and float toward it. Parents stand on the sidewalks holding their wallets out, eyes glazed. The mountain opens its mouth and the whole world hears one word: \"MORE.\"",
-      "art": "A three-story mountain of pastel fuzzy critters on a suburban roundabout around a glowing purple geode, ten thousand eyes and one giant open mouth, pillowcases of candy floating toward it, the teen crew in Halloween costumes standing their ground",
+      "art": "A mountain taller than the houses of round pastel fuzzy critters heaped over a glowing purple crystal rock on a suburban roundabout on Halloween night, ten thousand glittering eyes and one enormous open mouth full of candy-corn teeth, trick-or-treaters' pillowcases of candy floating out of their hands toward it, glassy-eyed parents on the sidewalks holding out their wallets, four teenagers in homemade costumes standing their ground, one holding up a small handmade plush, pastel and violet glow, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1217,22 +1217,22 @@
       "best": {
         "title": "One Is Enough",
         "text": "In the morning there is exactly one Sugarling on Crystal Street, asleep in a shoebox on your porch. Ines Coelho drives up from San Jose that weekend with her daughter, and you hand back Mallow and the sleepy little one together. Happimore recalls the line after what the Gazette calls \"the Halloween Candy Incident.\" Every year after, Crystal Street pools its trick-or-treat candy on the roundabout and everyone takes what they need, and somehow there is always enough.",
-        "art": "A seamstress and her young daughter on a suburban porch receiving a handmade plush and one sleepy fuzzy critter from a teenager, neighbors pooling candy on a roundabout in the background"
+        "art": "A suburban front porch on a sunny morning, a teenager handing a small handmade button-eyed plush and one sleepy round pastel-pink fuzzball to a seamstress in her forties with a measuring tape around her neck and her young daughter, both smiling, and in the background neighbors pooling Halloween candy into a big pile on a roundabout beside a purple crystal rock, warm morning light, medium wide shot"
       },
       "good": {
         "title": "Batteries Not Included",
         "text": "By dawn the Sugarlings have gone still, and the town packs them into garbage bags and drives them to Rusty's. Nobody talks about it. By Thanksgiving there is a new ad on TV, for something with glowing eyes and a hundred to collect, and kids are already pointing at the screen and saying \"I want that.\"",
-        "art": "A junkyard pile of garbage bags full of limp pastel toys at dawn, and inside a nearby living room a TV showing an ad for a new collectible while a child points"
+        "art": "A junkyard pile of black garbage bags full of limp pastel fuzzy toys at dawn beside a car crusher, and through the window of a nearby house a boxy television showing a bright toy commercial while a small child points at the screen, pale dawn light and blue TV glow, wide shot"
       },
       "bittersweet": {
         "title": "Picked Clean",
         "text": "You stop them, but not before they eat the Starlight Mall food court, half the Halloween candy in the county and the vinyl siding off three houses on Crystal Street. The mall closes for a month. The kids on the street get nothing on Halloween, and some of them still lie awake at night aching for something they cannot name.",
-        "art": "A chewed-up mall food court with half-eaten tables and pretzel stands behind caution tape, a teenager standing in the wreckage holding one chewed candy wrapper"
+        "art": "A chewed-up mall food court with half-eaten tables, gnawed chairs and a ruined pretzel stand behind yellow caution tape, a teenager standing alone in the wreckage holding one chewed candy wrapper, gray daylight through the skylight, wide shot"
       },
       "bad": {
         "title": "Collect Them All",
         "text": "On November first there is a new Sugarling on the shelf at Toy Planet, sealed in a clear plastic blister pack: round and fuzzy, with your eyes, your hair and a sticker that says RARE! Kids shove each other to get it. Your crew buys every one they can find, trying to work out which one is really you.",
-        "art": "A toy store shelf of blister-packed fuzzy critters, one rare one in front with a teenager's eyes and hair, friends in jackets frantically grabbing packages"
+        "art": "A toy store shelf lined with clear plastic blister packs of round fuzzy pastel critters, one critter in front with a teenager's eyes and hair inside its pack, three friends in jackets grabbing packages off the shelf in a hurry, kids shoving in the aisle behind them, bright store light, medium shot"
       }
     }
   }

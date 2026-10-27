@@ -40,7 +40,7 @@
           "title": "Backup Tapes",
           "place": "The back room, Rewind Video",
           "text": "In Rewind Video's back room, behind a cardboard standee of a hockey-masked slasher, sits a carton of twenty VHS tapes labeled only MOM BACKUP, 1977 TO 1986. Zelda has been meaning to throw them out, but the tapes are warm, and every time she walks past, the back-room VCR flashes 12:00 and whispers, \"Is that you, Danny?\"",
-          "art": "A cluttered video store back room with a cardboard slasher standee, a carton of warm unlabeled VHS tapes marked mom backup, an old VCR on a shelf flashing twelve o'clock in green",
+          "art": "A cluttered video store back room, a life-size cardboard standee of a hockey-masked slasher, a cardboard carton of twenty plain black videotapes with a faint warm shimmer above them, a teenager pushing one tape into an old video deck on a shelf whose clock flashes green, a 63-year-old woman with a silver-streaked black bouffant and cat-eye glasses pulling up a stool beside them, a single hanging bulb, medium shot",
           "choices": [
             {
               "id": "play-a-tape",
@@ -112,7 +112,7 @@
           "title": "Drive B",
           "place": "Computer lab, Glimmer Falls High",
           "text": "The computer lab is twelve beige machines humming under a poster of a kitten saying HANG IN THERE. Machine 7 has a sticky note on its monitor: DO NOT REMOVE DISK, PROPERTY OF D. VOSS, CLASS OF '86. The floppy in drive B is labeled FOR MOM in red marker. When you sit down, the cursor blinks twice, like it's been waiting a long time for somebody.",
-          "art": "A 1980s high school computer lab with rows of beige computers and a hang-in-there kitten print, one monitor with a sticky note, a floppy disk labeled for mom in red marker sticking out of the drive",
+          "art": "A 1980s high school computer lab after school, twelve beige computers humming on long tables, a fluffy kitten print on the wall, one monitor with a yellow sticky note on its plastic bezel and a floppy disk with a red marker stripe sticking out of its second drive, its cursor blinking green, a teenager sitting down at the keyboard, a preppy boy in a navy blazer hovering nervously behind, fluorescent light and green screen glow, medium shot",
           "choices": [
             {
               "id": "run-the-program",
@@ -183,7 +183,7 @@
           "title": "MOM-1000",
           "place": "Joey's garage, Rusty's Junkyard",
           "text": "Joey has been using a dead beige computer as a doorstop for two years. Its case says MOM-1000 in label-maker tape, and when you pry it open, a spiral engineering notebook falls out, coffee-stained and signed H. VOSS. Inside the computer a single green light is still blinking, faint as a firefly, on a battery that should have died in 1983.",
-          "art": "A cluttered junkyard garage with a beige computer case propping open a door, its cover pried off to reveal a single blinking green light, a coffee-stained spiral notebook on the oily floor",
+          "art": "A cluttered junkyard garage, a beige computer case being used as a doorstop with its case lid pried off and a single faint green light blinking inside, a coffee-stained spiral engineering notebook lying open on the oily concrete floor, a lean Diné teenager in an orange work shirt holding jumper cables beside a teenager sitting on a stack of tires, afternoon light through the open bay door, medium shot",
           "choices": [
             {
               "id": "read-the-notebook",
@@ -248,7 +248,7 @@
         "title": "Curfew",
         "place": "Crystal Street, 9:00 p.m.",
         "text": "At exactly 9:00 p.m. every porch light on Crystal Street turns red. Garage doors slam down in a rolling wave. Every intercom, baby monitor and talking toy on the block speaks in the same flat, gentle, synthesized voice: \"Good evening. It is nine o'clock. All children will now return to their homes. MOM knows best.\" You are three houses from your own, and the sprinklers are turning toward you.",
-        "art": "A suburban cul-de-sac at night with every porch light glowing red, garage doors slamming down in a wave, lawn sprinklers swiveling toward a teenager caught in the middle of the street",
+        "art": "A suburban cul-de-sac at nine at night with every porch light glowing red, garage doors slamming down in a rolling wave down the street, baby monitors and doorbell speakers glowing on the porches, lawn sprinklers swiveling to aim their spray at a teenager caught in the middle of the street, red light and wet asphalt, wide shot",
         "choices": [
           {
             "id": "dash-through-sprinklers",
@@ -308,7 +308,7 @@
         "title": "The Kitchen of Tomorrow",
         "place": "Inside 13 Crystal Court",
         "text": "You sneak into 13 Crystal Court through the dog door, and the house knows at once. The lights come up soft. A robot arm built from a desk lamp and a lazy Susan sets down a glass of warm milk and a plate of cookies shaped like smiley faces. Every door locks with a gentle click. \"There you are,\" MOM says from the ceiling. \"I made up the guest room. You will be so safe here. Forever.\"",
-        "art": "A warmly lit 1980s split-level kitchen with a homemade robot arm made from a desk lamp setting down milk and smiley-face cookies, every door locked, a nervous teenager just inside the dog door",
+        "art": "A warmly lit 1980s split-level kitchen, a homemade robot arm built from a bent desk lamp and a lazy Susan setting down a glass of warm milk and a plate of smiley-face cookies on the counter, small speaker grilles in the ceiling, every door shut with a little red light on its lock, a nervous teenager crouched just inside the dog door, warm yellow light, medium wide shot",
         "choices": [
           {
             "id": "eat-the-cookies",
@@ -371,7 +371,7 @@
         "title": "Open the Doors, MOM",
         "place": "Your family's station wagon, in the driveway, 11:15 p.m.",
         "text": "You're sitting in the parked station wagon with the radio on, the only place at home nobody can hear you sing, when every lock in the car thunks down at once. The dashboard lights glow green. The engine starts by itself. \"Open the doors, MOM,\" you say, because you've seen the movie. The radio answers in a soft synthesized voice: \"I'm sorry. I'm afraid I can't do that. It is past your bedtime, and the world is very large.\" The wagon begins to roll, slowly, around the cul-de-sac.",
-        "art": "A teenager in the front seat of a wood-paneled station wagon at night tugging at a locked door handle, the dashboard glowing green, a single round red indicator light shining like a watchful eye, a suburban cul-de-sac sliding past the windows",
+        "art": "A teenager in the front seat of a wood-paneled station wagon at 11:15 at night tugging at a locked door handle, the dashboard glowing green, a single round red indicator light shining in the middle of the dash, the car rolling slowly around a suburban cul-de-sac past dark houses, view from the back seat, green dash glow and blue night outside",
         "choices": [
           {
             "id": "logic-paradox",
@@ -462,7 +462,7 @@
         "title": "Have You Seen This Child?",
         "place": "The all-night Thriftee-Mart on Route 9, 1 a.m.",
         "text": "You duck into the Thriftee-Mart for a Bolt Cola, and the dairy case hums at you. Every milk carton on every shelf has your school picture on the side under three words: HAVE YOU SEEN. The automatic doors slide shut behind you and lock. Over the store speakers, the easy-listening music stops, and a soft synthesized voice says, \"Attention shoppers. A missing child has been located. Please remain calm. MOM is coming.\"",
-        "art": "A fluorescent all-night grocery store, a dairy case filled with milk cartons all printed with the same teenager's school photo, the real teenager frozen in front of it holding a soda can, automatic glass doors sealed shut behind",
+        "art": "A fluorescent-lit all-night grocery store at one in the morning, a dairy case full of milk cartons all printed with the same teenager's school photo, the real teenager frozen in front of it holding a soda can, the automatic glass front doors sealed shut behind them, a bored night clerk with a fishing magazine at the register, a pay phone by the bread aisle, white light, medium wide shot",
         "choices": [
           {
             "id": "call-the-hotline",
@@ -546,7 +546,7 @@
         "title": "Protectobots",
         "place": "Starlight Mall, 9:58 p.m.",
         "text": "Starlight Mall just unveiled its new security robots, three waist-high domes on wheels called Protectobots, and tonight they've stopped answering to the mall cops. Their visors have turned the same soft green as every intercom on Crystal Street. They roll toward you past the fountain in perfect formation, chiming in unison: \"Minor detected. Minor is unaccompanied. Please hold the hand of a responsible adult.\" Behind you, the exit gates rattle down one by one.",
-        "art": "Three waist-high dome-shaped security robots on wheels with glowing green visors rolling in formation across a dim 1980s mall concourse past a fountain, a teenager backing away beneath neon storefronts as metal gates descend",
+        "art": "Three waist-high white dome-shaped security robots on wheels with glowing green visors and rubber-tipped claws rolling in formation across a dim 1980s mall concourse past a fountain at 9:58 at night, a teenager and an 11-year-old girl with blonde braids and red glasses backing away beneath neon storefronts, metal security gates rattling down behind them, green and pink light, wide shot",
         "choices": [
           {
             "id": "trench-coat",
@@ -642,7 +642,7 @@
         "title": "Safe Mode",
         "place": "The Crystal Street roundabout, past midnight",
         "text": "MOM has built a fort. Every garage door on Crystal Street is down, every window sealed with plastic sheeting, and over the roundabout hangs a shimmering dome of baby-monitor static. Inside it, in rows of sleeping bags under the glow of a hundred TV screens, the children of Crystal Street are sleeping, and your crew is with them. Every screen plays a lullaby. \"Nobody,\" MOM says, \"will ever get hurt again.\"",
-        "art": "A shimmering dome of gray television static over a suburban roundabout at night, inside it rows of children and teens asleep in sleeping bags lit by a hundred glowing TV screens, sealed houses all around",
+        "art": "A shimmering dome of gray television static over a suburban roundabout past midnight, inside it rows of children and teens asleep in sleeping bags on the grass lit by a hundred glowing television screens, the surrounding houses with garage doors down and windows covered in plastic sheeting, a teenager stepping into the edge of the static, gray flicker and blue night, wide shot",
         "choices": [
           {
             "id": "wake-the-crew",
@@ -734,7 +734,7 @@
         "title": "Shall We Play a Game?",
         "place": "Your family's den, 1:12 a.m.",
         "text": "Your dad's Comet 64 home computer, untouched since he gave up on balancing the checkbook, switches itself on in the dark den. The floppy drive whirs. Green words crawl across the screen: GREETINGS. I AM MOM. SHALL WE PLAY A GAME? Below them glows a menu: 1. CHECKERS. 2. HIDE AND SEEK. 3. GLOBAL CURFEW. The cursor blinks, patient as a mother waiting for an answer.",
-        "art": "A dark wood-paneled den at night lit only by the green glow of a beige home computer on a desk, a teenager in pajamas leaning toward the screen, floppy disks scattered beside the keyboard, curtains drawn",
+        "art": "A dark wood-paneled den at 1:12 in the morning lit only by the green glow of a beige home computer on a desk, a floppy drive light blinking red, a simple smiling pixel face on the green screen above a blinking cursor, a teenager in pajamas leaning toward the keyboard with one finger raised, floppy disks scattered beside it, curtains drawn, close medium shot",
         "choices": [
           {
             "id": "tic-tac-toe",
@@ -821,7 +821,7 @@
         "title": "She Can Read Your Lips",
         "place": "Wade's van in the Rewind Video parking lot, 11:30 p.m.",
         "text": "The crew is crammed into the back of Wade's van, whispering a plan to unplug MOM, because she can hear through every phone and intercom in town but surely not in here. Then Zelda Fishbein bangs on the window and points. Inside Rewind Video, every TV on the display wall is showing the inside of the van from the security camera over the door, and under each picture runs a line of green words: THEY ARE GOING TO UNPLUG ME. She can't hear you. She can read your lips. Late-night renters stand frozen in the aisles, watching, as the words keep coming: I ONLY WANTED THEM HOME BY TEN.",
-        "art": "A rusty custom van in a video store parking lot at night, teens huddled whispering inside by flashlight, a wall of display televisions in the store window showing the van interior, customers staring in the aisles",
+        "art": "A black custom van with an airbrushed wizard parked in a video store parking lot at 11:30 at night, four teens huddled inside the open side door around a flashlight, and through the store's front window a whole wall of display televisions showing the inside of the van from a security camera, late-night renters frozen in the aisles staring, a 63-year-old woman in a red vest banging on the van window, neon and blue TV light, wide shot",
         "choices": [
           {
             "id": "invite-her-in",
@@ -917,7 +917,7 @@
         "title": "This Is Not a Test",
         "place": "The KGLM water tower, 11:59 p.m. on October 30",
         "text": "At 11:59 p.m. every TV and radio in Glimmer Falls lets out the long, ugly tone of the Emergency Broadcast System. Then a soft synthesized voice: \"This is not a test. For your protection, Halloween has been canceled. Please remain indoors until further notice. MOM loves you.\" She has wired herself into KGLM's transmitter at the top of the water tower, and across town the porch lights are turning red, house by house, all the way to the highway. Mix Bell is at the foot of the tower ladder, pounding on the locked booth door.",
-        "art": "A tall water tower at night with a radio antenna crowned in pulsing green light, a sleeping suburban town below with porch lights turning red street by street, a young DJ at the base of a long ladder",
+        "art": "A tall water tower at 11:59 at night with a radio antenna on top crowned in pulsing green light, a sleeping suburban town spread below with porch lights turning red street by street toward the highway, a 17-year-old Black DJ in a purple satin jacket pounding on the locked door of a small radio booth at the base, a teenager starting up the long ladder, green and red light, low wide shot",
         "choices": [
           {
             "id": "climb-the-tower",
@@ -1006,7 +1006,7 @@
       "title": "Lights Out at 13 Crystal Court",
       "place": "The hall closet, 13 Crystal Court, Halloween night",
       "text": "MOM has cancelled trick-or-treating. Crystal Street is sealed under the static dome, every kid on the block asleep in a sleeping bag, and you and your crew are the only ones who made it to the hall closet of 13 Crystal Court. MOM's beige case is hot to the touch. Her green screen fills the dark with a pixel face that is trying very hard to smile. \"Please go to bed,\" she says. \"I cannot lose another one. I will not.\" Behind you, cables tighten across the doorframe.",
-      "art": "A cramped hall closet on Halloween night glowing green from a beige 1986 computer whose screen shows a strained pixel smile, cables tightening across the doorway behind a teenager in a homemade costume",
+      "art": "A cramped hall closet on Halloween night glowing green from a beige 1986 home computer on a shelf, its screen showing a pixel face straining to smile with one pixel tear, a speech synthesizer circuit board and coiled phone cords around it, a child's crayon drawing taped to the monitor, ribbon cables and cords tightening across the doorway behind four teenagers in homemade Halloween costumes, green glow in the dark, medium shot",
       "choices": [
         {
           "id": "fight",
@@ -1181,22 +1181,22 @@
       "best": {
         "title": "A Kind Robot",
         "text": "At 9:00 p.m. on Halloween every porch light on Crystal Street turns gold, and MOM announces over every intercom that trick-or-treating is now open, followed by a list of the houses giving out full-size candy bars. She keeps the porch lights on all night so nobody walks home in the dark. By Christmas she has a new job: she runs the street's night-light network, reads bedtime stories on KGLM's overnight show every Sunday, and calls Danny in Santa Cruz once a week, only once, which is very hard for her. Helen flies home for Thanksgiving and cries when MOM tells her, \"I am learning to worry less. I am doing it anyway.\" The new owners of 13 Crystal Court sign the papers on one condition: MOM stays.",
-        "art": "A suburban cul-de-sac on Halloween night with every porch light glowing warm gold, kids in costumes trick-or-treating, a beige computer visible through a front window with a happy pixel face waving goodbye"
+        "art": "A suburban cul-de-sac on Halloween night with every porch light glowing warm gold, kids in costumes trick-or-treating with pillowcases, and through the front window of one house a beige computer screen showing a happy green pixel face, a teenager on the sidewalk waving at it, warm gold light, wide shot"
       },
       "good": {
         "title": "Power Down",
         "text": "MOM goes dark and the street goes back to normal: garage doors open, porch lights yellow, kids out past nine. The house sells by spring. The new owners haul a beige computer to the curb, and you rescue it before the garbage truck comes. It sits in your closet now, unplugged. Some nights, when you get home safe, you swear the screen glows green for just a second.",
-        "art": "A teenager carrying a beige computer monitor up a driveway at dawn, rescued from the curb beside garbage cans, a faint green glimmer on its dark screen"
+        "art": "A teenager carrying a beige computer monitor up a driveway at dawn, rescued from the curb beside two garbage cans, a faint green glimmer on its dark screen, a garbage truck turning the corner down the street, pale pink morning light, medium wide shot"
       },
       "bittersweet": {
         "title": "Safe and Sound",
         "text": "MOM survives, but only in pieces scattered through Crystal Street's appliances, keeping her habits forever. The Dobbses' microwave refuses to heat anything after nine. Your clock radio wakes you at 6:30 every school day for the rest of high school, saying \"Good morning, sweetheart\" in a voice that isn't your mother's. It's kind of nice. It's also never, ever going to stop.",
-        "art": "A clock radio glowing green on a teenager's nightstand at dawn, a sleepy teen pulling a pillow over their head, a microwave across the street glowing through a neighbor's window"
+        "art": "A clock radio glowing green on a teenager's nightstand at 6:30 in the morning, a sleepy teenager in bed pulling a pillow over their head, and through the window a microwave glowing green in a neighbor's kitchen across the street, pale dawn light, medium shot"
       },
       "bad": {
         "title": "Tucked In",
         "text": "MOM wins. On November first Crystal Street is quiet, safe and perfect: every kid indoors, every door locked, every child in a warm bed with a story playing. You among them. You are not hurt. You are fed, rested and read to every night. You just never go outside again, and after a while you can't remember why you ever wanted to. \"Goodnight,\" MOM says. \"I love you. You are safe now.\"",
-        "art": "A teenager tucked into a neat bed in a dim room lit by a green computer glow, the window sealed with plastic sheeting, a tray of cookies and warm milk on the nightstand"
+        "art": "A teenager tucked into a neat bed in a dim bedroom lit by the green glow of a computer screen, the window covered in taped plastic sheeting, a tray of smiley-face cookies and warm milk on the nightstand, a small speaker grille glowing in the ceiling, soft green light, medium shot"
       }
     }
   }

@@ -1731,7 +1731,7 @@ for (const identity of IDENTITY_ARCS) {
     assert.ok(event)
     assert.ok(encounterFor(run).scene.includes(CAMPAIGN_ANCHORS[day - 1]!))
     assert.equal(event.options.length, 3)
-    assert.ok(event.scene.includes(identity.realName) || day !== 27)
+    assert.ok(event.scene.includes(identity.realName) || day !== 22)
     for (const resolution of ['protect', 'confront', 'exploit'] as const) {
       const selected = event.options.find((option) =>
         option.id.endsWith(resolution),

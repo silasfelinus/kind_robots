@@ -3,6 +3,7 @@ import {
   ACT_ONE_MISSIONS,
   ACT_ONE_CONSEQUENCES,
   ACT_ONE_ECHOES,
+  ACT_ONE_NEMESIS,
   type ActOneRouteId,
 } from './actOne'
 import {
@@ -524,6 +525,8 @@ export function previewMission(run: VoyageRun): MissionPreview {
   const penalty = (run.shieldCharge ?? 2) === 0 ? 10 : 0
   const flags = run.worldFlags ?? []
   const current = missionFor(run).id
+  const enemyThreat = ACT_ONE_NEMESIS[antagonistFor(run).id]
+  const enemyPenalty = enemyThreat.missionId === current ? enemyThreat.penalty : 0
   const civicBonus =
     (current === 'haleth' && flags.includes('convoy-invited') ? 10 : 0) +
     (current === 'nacre' && flags.includes('ashdock-protected') ? 8 : 0) +
@@ -532,12 +535,13 @@ export function previewMission(run: VoyageRun): MissionPreview {
     (current === 'bar' && flags.includes('windglass-broadcast') ? 10 : 0)
   return {
     ...base,
-    chance: Math.max(5, Math.min(94, base.chance + bonus - penalty + civicBonus)),
+    chance: Math.max(5, Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty)),
     commentary: [
       base.commentary,
       bonus ? 'Pocket room match: +10%.' : '',
       penalty ? 'Backup force bubble: -10% until recharged.' : '',
       civicBonus ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.` : '',
+      enemyPenalty ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.` : '',
     ]
       .filter(Boolean)
       .join(' '),
@@ -641,7 +645,9 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   const injuredUntil = injury
     ? { ...(run.injuredUntil ?? {}), [injury]: day + 2 }
     : { ...run.injuredUntil }
-  const scene = `${base} ${routes} ${antagonistFor(run).acts[Math.min(run.chapter - 1, 2)]}`
+  const threat = ACT_ONE_NEMESIS[antagonistFor(run).id]
+  const twist = threat.missionId === active.missionId ? threat.event : ''
+  const scene = `${base} ${routes} ${antagonistFor(run).acts[Math.min(run.chapter - 1, 2)]} ${twist}`
   return {
     ...next,
     phase: 'decision',
@@ -906,7 +912,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     data.chapter > ACT_ONE_BOARDS.length ||
     (data.missionId !== undefined && (
       !MISSIONS.some((mission) => mission.id === data.missionId) ||
-      !ACT_ONE_BOARDS[data.chapter - 1]?.includes(data.missionId as ActOneRouteId)
+      !ACT_ONE_BOARDS[data.chapter - 1]?.some((id) => id === data.missionId)
     )) ||
     (data.missionHistory !== undefined && (!Array.isArray(data.missionHistory) || data.missionHistory.some((item) =>
       !item || !MISSIONS.some((mission) => mission.id === item.missionId) ||

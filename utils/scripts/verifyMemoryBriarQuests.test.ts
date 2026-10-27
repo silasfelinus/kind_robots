@@ -110,6 +110,50 @@ for (const q of BRIAR_QUESTS) {
   assert.ok(scores[q.lens] >= 1)
 }
 
+// The three legitimate alternatives in the courier thread are different
+// ethical choices, not interchangeable accusations of opened letters.
+const courier = BRIAR_QUESTS.find((q) => q.id === 'every-letter-delivered')!
+const courierClosures = [
+  ['2,4', 'copy', /kept your lantern and copied the impossible address/],
+  ['1,4', 'knock', /made Grandmother name the children excluded/],
+  ['6,4', 'read', /broke the destruction order’s seal and warned the House/],
+] as const
+const courierEndings = new Set<string>()
+for (const [key, choice, expected] of courierClosures) {
+  const decisions = split(courier)
+  decisions.briar[key] = choice
+  const result = briarQuestProgress(courier, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the thread`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, courier.closed)
+  courierEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar })),
+  )
+  assert.equal(
+    briarQuestProgress(courier, restored.sceneChoices, decisions.house).quest
+      .closed,
+    result.quest.closed,
+    'The specific closure survives a save round trip',
+  )
+}
+assert.equal(courierEndings.size, 3, 'three different courier endings')
+const invalidCourier = split(courier)
+invalidCourier.briar['1,4'] = 'forged'
+assert.equal(
+  briarQuestProgress(courier, invalidCourier.briar, invalidCourier.house).state,
+  'active',
+  'Unknown scene choices cannot manufacture a quest closure',
+)
+const twoClosures = split(courier)
+twoClosures.briar['2,4'] = 'copy'
+twoClosures.briar['6,4'] = 'read'
+assert.match(
+  briarQuestProgress(courier, twoClosures.briar, twoClosures.house).quest.closed,
+  /kept your lantern/,
+  'When multiple choices close the quest, its earliest authored step determines the ending',
+)
+
 // Every quest step can be completed together: no two threads demand
 // opposite choices at the same place, so a single run can tie off all eight.
 const all = {

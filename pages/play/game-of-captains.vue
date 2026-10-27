@@ -759,7 +759,11 @@
               </div>
               <small>Next relic: {{ activeDetour?.prize }}</small>
             </div>
-            <p v-if="!run.detour?.gambit" class="cap-narrative" aria-live="polite">
+            <p
+              v-if="!run.detour?.gambit"
+              class="cap-narrative"
+              aria-live="polite"
+            >
               {{ run.scene }}
             </p>
             <p v-if="nemesisCrewLink" class="cap-alert">

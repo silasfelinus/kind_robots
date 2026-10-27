@@ -595,7 +595,10 @@ export function stepValue(
   if (row.kind === 'toggle') return !current
   if (row.kind === 'stepper') {
     const next = (current as number) + direction * (row.step ?? 1)
-    const clamped = Math.min(row.max, Math.max(row.min, next))
+    // A plan already past the stepper's range (Memory Dungeon's 1,600
+    // positions) steps from where it is instead of snapping to the cap.
+    const max = (current as number) > row.max ? Infinity : row.max
+    const clamped = Math.min(max, Math.max(row.min, next))
     return clamped === current ? null : clamped
   }
   const values = row.options.map((o) => o.value)

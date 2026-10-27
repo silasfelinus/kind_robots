@@ -42,7 +42,9 @@
         <div
           v-if="
             forge.existing &&
-            ['ledger', 'gallery', 'redshirts', 'beats', 'kit'].includes(forge.screen)
+            ['ledger', 'gallery', 'redshirts', 'beats', 'kit'].includes(
+              forge.screen,
+            )
           "
           class="flex min-w-0 flex-1 items-center gap-3"
           aria-label="Selected playbook"

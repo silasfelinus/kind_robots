@@ -158,7 +158,7 @@
       <p v-if="forge.ledgerLoading" class="text-sm opacity-70">
         Reading the game…
       </p>
-      <p v-else-if="!forge.galleryShown.length" class="text-sm opacity-70">
+      <p v-else-if="!groupEntries.length" class="text-sm opacity-70">
         {{
           forge.galleryEntries.length
             ? 'Nothing here matches the selected group or art filter.'

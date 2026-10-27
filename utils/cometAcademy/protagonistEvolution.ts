@@ -9,8 +9,8 @@ export type PlayerEvolution = {
   milestones: { day: 16 | 23; form: PlayerForm }[]
 }
 
-export function beginPlayerEvolution(): PlayerEvolution {
-  return { form: 'student', protect: 0, exploit: 0, milestones: [] }
+export function beginPlayerEvolution(form: PlayerForm = 'student'): PlayerEvolution {
+  return { form, protect: 0, exploit: 0, milestones: [] }
 }
 
 export function recordPlayerValues(
@@ -133,6 +133,7 @@ export function evolutionNightModifier(
 export function isValidPlayerEvolution(
   raw: unknown,
   signature?: SignaturePowerId,
+  initialForm: PlayerForm = 'student',
 ): raw is PlayerEvolution {
   if (!raw || typeof raw !== 'object') return false
   const state = raw as Partial<PlayerEvolution>
@@ -147,7 +148,7 @@ export function isValidPlayerEvolution(
   )
     return false
   let previous = 0
-  let last: PlayerForm = 'student'
+  let last: PlayerForm = initialForm
   for (const event of state.milestones) {
     if (
       !event ||

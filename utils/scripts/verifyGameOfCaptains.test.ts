@@ -1436,7 +1436,6 @@ assert.equal(
   null,
 )
 
-
 // Every picture slot carries an authored Krea 2 prompt; mission and ending scenes show the couch.
 const slotKeys = [
   ...CAPTAINS.map((c) => captainArtKey(c.id)),

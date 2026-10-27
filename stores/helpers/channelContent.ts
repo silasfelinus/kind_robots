@@ -61,6 +61,7 @@ export type ChannelContentItem = {
   requiredPermission?: string
   visible?: boolean
   navigation?: boolean
+  allowDirectAccess?: boolean
   status?: string
   loadingMessage?: string
   refreshLabel?: string
@@ -128,6 +129,7 @@ export type ResolvedTab = {
   tutorial: ResolvedTutorialSection | null
   requiredBeforeNext: string[]
   navigation: boolean
+  allowDirectAccess: boolean
   requiredRole: string
   requiredPermission: string
   loadingMessage: string
@@ -366,6 +368,7 @@ function resolveTabItem(
       ? item.requiredBeforeNext
       : [],
     navigation: item.navigation !== false,
+    allowDirectAccess: item.allowDirectAccess === true,
     requiredRole: text(item.requiredRole) || channel.requiredRole,
     requiredPermission:
       text(item.requiredPermission) || channel.requiredPermission,

@@ -86,6 +86,16 @@
         </ul>
       </section>
 
+      <section v-if="activeVariant?.stats" class="space-y-2" aria-label="Character form statistics">
+        <p class="pf-kicker text-secondary">{{ activeVariant.label }} · stats</p>
+        <ul class="grid grid-cols-2 gap-2">
+          <li v-for="[name, value] in Object.entries(activeVariant.stats)" :key="name" class="pf-help rounded p-2">
+            <div class="flex justify-between gap-1 text-xs"><span class="capitalize">{{ name }}</span><strong>{{ value }}</strong></div>
+            <div class="mt-1 h-1 overflow-hidden rounded bg-base-content/10"><span class="block h-full bg-primary" :style="{ width: `${Math.min(100, value * 20)}%` }" /></div>
+          </li>
+        </ul>
+      </section>
+
       <section v-if="entry.body.length || entry.variations.length || entry.choices.length" class="space-y-3" aria-label="Authored character details">
         <p class="pf-kicker text-secondary">Story bible · authored material</p>
         <p v-for="(line, i) in entry.body" :key="i" class="text-sm leading-relaxed whitespace-pre-line">{{ line }}</p>

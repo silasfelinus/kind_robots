@@ -226,7 +226,7 @@ export const REDSHIRT_DETAILS_B = [
   [
     "Fennel Crux",
     "silver mantis with origami armor",
-    "Former judge of a paper moon",
+    "Former judge of a paper moon whose verdicts kept folding themselves into birds",
     "Cuts through impossible legal knots",
     "diplomacy"
   ],

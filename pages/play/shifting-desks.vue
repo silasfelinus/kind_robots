@@ -937,10 +937,10 @@
       </dialog>
     </template>
     <shifting-desks-print-dossier
-    v-if="store.printReceipt"
-    :receipt="store.printReceipt"
-    :run="store.run"
-  />
+      v-if="store.printReceipt"
+      :receipt="store.printReceipt"
+      :run="store.run"
+    />
   </main>
 </template>
 

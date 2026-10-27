@@ -1,5 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { performFetch } from '~/stores/utils'
+import { useUserStore } from '~/stores/userStore'
 import {
   MAKER_SAVE_KEY,
   decodeMakerLevel,
@@ -12,9 +14,28 @@ import {
 } from '~/utils/arcade/games/savePlumberMaker'
 
 type Draft = { id: string; level: MakerLevel; updated: number }
-type Library = { v: 1; drafts: Draft[]; ratings: Record<string, number> }
-
-const emptyLibrary = (): Library => ({ v: 1, drafts: [], ratings: {} })
+type Library = { v: 1; drafts: Draft[] }
+export type PlumberReview = {
+  id: number
+  rating: number
+  comment: string | null
+  username: string
+  updatedAt: string | null
+}
+export type PlumberReviewSummary = {
+  courseId: number | null
+  average: number
+  count: number
+  myRating: number
+  reviews: PlumberReview[]
+}
+const blankReviewSummary = (): PlumberReviewSummary => ({
+  courseId: null,
+  average: 0,
+  count: 0,
+  myRating: 0,
+  reviews: [],
+})
 const clone = (level: MakerLevel): MakerLevel => ({
   ...level,
   rows: level.rows.slice(),
@@ -23,7 +44,11 @@ const clone = (level: MakerLevel): MakerLevel => ({
 export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const level = ref<MakerLevel>(newMakerLevel())
   const drafts = ref<Draft[]>([])
-  const ratings = ref<Record<string, number>>({})
+  const userStore = useUserStore()
+  const reviewSummary = ref<PlumberReviewSummary>(blankReviewSummary())
+  const reviewComment = ref('')
+  const ratingBusy = ref(false)
+  const reviewsBusy = ref(false)
   const currentDraft = ref<string | null>(null)
   const imported = ref(false)
   const error = ref('')
@@ -41,7 +66,10 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       ) !== JSON.stringify(level.value),
   )
   const courseId = computed(() => makerId(level.value))
-  const myRating = computed(() => ratings.value[courseId.value] ?? 0)
+  const myRating = computed(() => reviewSummary.value.myRating)
+  const ratingAverage = computed(() => reviewSummary.value.average)
+  const ratingCount = computed(() => reviewSummary.value.count)
+  const reviews = computed(() => reviewSummary.value.reviews)
 
   function readLibrary() {
     if (!import.meta.client) return
@@ -66,18 +94,6 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
           return []
         }
       })
-      const rawRatings = raw.ratings
-      if (rawRatings && typeof rawRatings === 'object') {
-        ratings.value = Object.fromEntries(
-          Object.entries(rawRatings).filter(
-            ([key, val]) =>
-              /^[a-z0-9]{1,12}$/.test(key) &&
-              Number.isInteger(val) &&
-              (val as number) >= 1 &&
-              (val as number) <= 5,
-          ),
-        ) as Record<string, number>
-      }
     } catch {
       error.value = 'Some saved courses could not be read.'
     }
@@ -89,7 +105,6 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       const data: Library = {
         v: 1,
         drafts: drafts.value,
-        ratings: ratings.value,
       }
       localStorage.setItem(MAKER_SAVE_KEY, JSON.stringify(data))
     } catch {
@@ -141,6 +156,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   function newDraft() {
+    reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
     level.value = newMakerLevel()
     currentDraft.value = null
     imported.value = false
@@ -181,6 +198,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     const found = drafts.value.find((entry) => entry.id === id)
     if (!found) return false
     level.value = clone(found.level)
+    reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
     currentDraft.value = found.id
     imported.value = false
     undoStack.value = []
@@ -199,6 +218,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function loadShare(code: string) {
     try {
       level.value = decodeMakerLevel(code)
+      reviewSummary.value = blankReviewSummary()
+      reviewComment.value = ''
       currentDraft.value = null
       imported.value = true
       undoStack.value = []
@@ -235,11 +256,68 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     }
   }
 
-  function rate(stars: number) {
-    if (!Number.isInteger(stars) || stars < 1 || stars > 5) return
-    ratings.value = { ...ratings.value, [courseId.value]: stars }
-    persist()
-    message.value = 'Your rating saved on this device.'
+  async function fetchReviews() {
+    let code: string
+    try {
+      code = encodeMakerLevel(level.value)
+    } catch {
+      reviewSummary.value = blankReviewSummary()
+      return
+    }
+    reviewsBusy.value = true
+    try {
+      const res = await performFetch<PlumberReviewSummary>(
+        '/api/plumber-levels/reviews?code=' + encodeURIComponent(code),
+      )
+      if (code !== encodeMakerLevel(level.value)) return
+      if (!res.success || !res.data) {
+        error.value = res.message || 'Unable to load course reviews.'
+        return
+      }
+      reviewSummary.value = res.data
+      error.value = ''
+    } finally {
+      reviewsBusy.value = false
+    }
+  }
+
+  async function rate(stars: number): Promise<boolean> {
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5) return false
+    if (userStore.isGuest) {
+      error.value = 'Log in to rate and review this course.'
+      return false
+    }
+    if (ratingBusy.value) return false
+    ratingBusy.value = true
+    try {
+      const code = encodeMakerLevel(level.value)
+      const res = await performFetch<PlumberReviewSummary>(
+        '/api/plumber-levels/reviews',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            rating: stars,
+            comment: reviewComment.value,
+          }),
+        },
+      )
+      if (!res.success || !res.data) {
+        error.value = res.message || 'Could not save your review.'
+        return false
+      }
+      if (code === encodeMakerLevel(level.value)) {
+        reviewSummary.value = res.data
+        message.value = 'Review saved in Kind Robots.'
+        error.value = ''
+      }
+      return true
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : 'Could not save review.'
+      return false
+    } finally {
+      ratingBusy.value = false
+    }
   }
 
   return {
@@ -257,6 +335,13 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     hasChanges,
     courseId,
     myRating,
+    reviewSummary,
+    reviewComment,
+    ratingBusy,
+    reviewsBusy,
+    ratingAverage,
+    ratingCount,
+    reviews,
     initialize,
     beginStroke,
     paint,
@@ -270,6 +355,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     loadShare,
     shareUrl,
     copyShareLink,
+    fetchReviews,
     rate,
   }
 })

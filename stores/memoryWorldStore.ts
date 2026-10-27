@@ -533,9 +533,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       ),
     )
     if (!snapshot) return false
-    const next = writeMemorySaveSlot(saveSlots.value, index, snapshot, overwrite)
+    const next = writeMemorySaveSlot(
+      saveSlots.value,
+      index,
+      snapshot,
+      overwrite,
+    )
     if (!next) {
-      saveSlotMessage.value = 'That checkpoint is occupied. Confirm before replacing it.'
+      saveSlotMessage.value =
+        'That checkpoint is occupied. Confirm before replacing it.'
       return false
     }
     try {
@@ -544,7 +550,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       saveSlotMessage.value = `Checkpoint ${index + 1} saved.`
       return true
     } catch {
-      saveSlotMessage.value = 'The checkpoint could not be stored in this browser.'
+      saveSlotMessage.value =
+        'The checkpoint could not be stored in this browser.'
       return false
     }
   }

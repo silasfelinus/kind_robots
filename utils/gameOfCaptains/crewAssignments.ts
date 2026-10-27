@@ -298,6 +298,55 @@ export const SYNERGIES: Synergy[] = [
     route: 'Build a living oxygen bank from failing medical equipment.',
     cost: 'The cure introduces long-term biosecurity work.',
   },
+  {
+    pair: ['pell', 'mox'],
+    missions: ['ashdock', 'gameworld'],
+    bonus: 3,
+    route: 'Recover the withheld workers’ charter without exposing protected witnesses.',
+    cost: 'Its ownership stays with the workers, not the captain.',
+  },
+  {
+    pair: ['tess', 'kivo'],
+    missions: ['windglass'],
+    bonus: 3,
+    route: 'Navigate an unmarked rescue track by pressure and stellar drift.',
+    cost: 'The safe harbor must remain deliberately absent from public charts.',
+  },
+  {
+    pair: ['rue', 'taal'],
+    missions: ['nacre'],
+    bonus: 3,
+    route: 'Audit the thermal ballot’s silent objections and invite each excluded voter back.',
+    cost: 'A vote is not consent to disclose a voter’s identity.',
+  },
+  {
+    pair: ['vela', 'brin'],
+    missions: ['haleth', 'rootborne'],
+    bonus: 3,
+    route: 'Join a clinic’s treatment plans to the reef’s living oxygen commons.',
+    cost: 'Neither a patient nor a forest becomes a medical product.',
+  },
+  {
+    pair: ['sora', 'omi'],
+    missions: ['gameworld', 'nacre'],
+    bonus: 3,
+    route: 'Decode the Showrunner’s edited announcements into evidence the contestants own.',
+    cost: 'An accurate transmission is not an excuse to speak for the workers.',
+  },
+  {
+    pair: ['jex', 'fen'],
+    missions: ['gameworld', 'ashdock'],
+    bonus: 2,
+    route: 'Turn a ceremonial march into a safe, union-controlled evacuation corridor.',
+    cost: 'Performers must choose whether they want to be a public symbol.',
+  },
+  {
+    pair: ['brin', 'kivo'],
+    missions: ['rootborne', 'windglass'],
+    bonus: 2,
+    route: 'Trace the breathing network with a living sensor instead of a public map.',
+    cost: 'The ecosystem has its own right to refuse the shortcut.',
+  },
 ]
 export type MissionRule = {
   id: string

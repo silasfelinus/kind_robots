@@ -44,7 +44,6 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
     kinds.set(node.kind, (kinds.get(node.kind) ?? 0) + 1)
   const n = (kind: string) =>
     ignore.includes(kind) ? 0 : (kinds.get(kind) ?? 0)
-  const nodes = Object.values(book.nodes)
   const found: Partial<Record<keyof Blueprint, number>> = {
     encounters: n('encounter'),
     quests: n('quest'),

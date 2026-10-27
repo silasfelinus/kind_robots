@@ -695,6 +695,7 @@ export function darkHouseAnswerPuzzle(
 }
 export function darkHousePuzzleHint(
   progress: DarkHouseProgress,
+  earnedClue = false,
 ): DarkHouseProgress {
   const room = progress.current
   const puzzle = DARK_HOUSE_PUZZLES[room]
@@ -704,13 +705,20 @@ export function darkHousePuzzleHint(
     !puzzle ||
     previous.solved ||
     previous.hint ||
-    darkHouseEchoes(progress) < 1
+    progress.decisions[room] ||
+    (!earnedClue && darkHouseEchoes(progress) < 1)
   )
     return progress
+  const note = earnedClue
+    ? room === 'HD-03'
+      ? 'Oren recognizes the river route you planned together. The House cannot charge an echo for your own map.'
+      : 'Oren checks the provisions you counted together. His ledger names the workers who actually paid the debt.'
+    : 'The Chronicle yields a clue in exchange for one echo.'
   return {
     ...progress,
-    spentEchoes: progress.spentEchoes + 1,
-    puzzles: { ...progress.puzzles, [room]: { ...previous, hint: true } },
+    spentEchoes: progress.spentEchoes + (earnedClue ? 0 : 1),
+    puzzles: { ...progress.puzzles, [room]: { ...previous, hint: true, note } },
+    status: note,
   }
 }
 export function darkHouseChoose(

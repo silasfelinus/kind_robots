@@ -228,6 +228,19 @@ export function crossRealmConsequenceLedger(
   }
 }
 
+/** Oren's earned practical help can solve one matching problem without
+ * spending an echo. A route plan aids navigation; counted supplies expose
+ * the labor behind a debt. Neither grants a global free-hint entitlement. */
+export function earnedDarkHousePuzzleClue(
+  briar: Pick<BriarSave, 'sceneChoices'>,
+  room: string,
+): 'route' | 'supplies' | null {
+  const choice = briar.sceneChoices['4,3']
+  if (room === 'HD-03' && choice === 'plan') return 'route'
+  if (room === 'HD-25' && choice === 'load') return 'supplies'
+  return null
+}
+
 const WITNESS_EPILOGUES = {
   copied: {
     return:

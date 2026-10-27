@@ -29,6 +29,7 @@ import {
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
   crossRealmHouseEpilogue,
+  earnedDarkHousePuzzleClue,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -204,6 +205,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkHouseReady = computed(() => darkHouseRoomResolved(darkHouse.value))
   const darkHouseTrialComplete = computed(() =>
     darkHouseTrialSolved(darkHouse.value, darkHouse.value.current),
+  )
+  const darkHouseEarnedClue = computed(() =>
+    earnedDarkHousePuzzleClue(state.value, darkHouse.value.current),
   )
   const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
   const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
@@ -744,7 +748,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function darkHouseUseHint(): void {
     if (activeReality.value !== 'e02') return
-    const updated = hintDarkHousePuzzle(darkHouse.value)
+    const updated = hintDarkHousePuzzle(
+      darkHouse.value,
+      Boolean(darkHouseEarnedClue.value),
+    )
     if (updated === darkHouse.value) return
     darkHouse.value = updated
     persistReality()
@@ -1877,6 +1884,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkHouseReady,
     darkHouseTrialComplete,
     darkHouseEchoCount,
+    darkHouseEarnedClue,
     darkHouseScarCount,
     darkHouseEndingCopy,
     darkHouseFlipCard,

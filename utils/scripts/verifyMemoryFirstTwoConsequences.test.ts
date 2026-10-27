@@ -2,7 +2,13 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { newBriarSave } from '../memoryDungeonWorld'
 import { newHouseProgress } from '../memoryDungeon/house'
-import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
+import {
+  newDarkHouseProgress,
+  darkHousePuzzleHint,
+  darkHouseEchoes,
+  restoreDarkHouseProgress,
+} from '../memoryDungeon/darkHouse'
+import { darkHouseTrialFaces } from '../memoryDungeon/darkHouseChallenges'
 import {
   newDarkBriarProgress,
   darkBriarCanTravel,
@@ -14,6 +20,7 @@ import {
   darkBriarExtraBridge,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
+  earnedDarkHousePuzzleClue,
 } from '../memoryDungeon/firstTwoConsequences'
 
 const base = newBriarSave()
@@ -212,6 +219,84 @@ assert.match(
   /crossRealmHouseEpilogue\(state\.value, darkHouse\.value\)/,
   'The real mirrored House verdict must render the earned epilogue',
 )
+
+// A prior relationship choice must change a later playable puzzle resource,
+// not merely add a sentence to the finale. Both variants are mutually exclusive.
+for (const [choice, room, source] of [
+  ['plan', 'HD-03', 'route'],
+  ['load', 'HD-25', 'supplies'],
+] as const) {
+  const original = { ...base, sceneChoices: { '4,3': choice } }
+  assert.equal(earnedDarkHousePuzzleClue(original, room), source)
+  assert.equal(
+    earnedDarkHousePuzzleClue(original, room === 'HD-03' ? 'HD-25' : 'HD-03'),
+    null,
+    'One earned benefit cannot leak into unrelated puzzle rooms',
+  )
+  const atPuzzle = { ...newDarkHouseProgress(), active: true, current: room }
+  assert.equal(darkHouseEchoes(atPuzzle), 0)
+  assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)
+  const helped = darkHousePuzzleHint(atPuzzle, true)
+  assert.notEqual(helped, atPuzzle)
+  assert.equal(helped.puzzles[room]?.hint, true)
+  assert.equal(
+    helped.spentEchoes,
+    0,
+    'Earned Oren support must not spend echoes',
+  )
+  assert.ok(helped.puzzles[room]?.note.includes('Oren'))
+  assert.equal(darkHousePuzzleHint(helped, true), helped)
+  assert.equal(
+    restoreDarkHouseProgress(JSON.parse(JSON.stringify(helped))).puzzles[room]
+      ?.hint,
+    true,
+    'Reloading cannot reclaim a second free hint',
+  )
+  assert.equal(
+    darkHousePuzzleHint({ ...atPuzzle, decisions: { [room]: 'attend' } }, true)
+      .puzzles[room],
+    undefined,
+    'A decided room cannot consume another clue after completion',
+  )
+}
+assert.equal(
+  earnedDarkHousePuzzleClue(
+    { ...base, sceneChoices: { '4,3': 'invented' } },
+    'HD-03',
+  ),
+  null,
+  'Forged or missing Oren decisions cannot grant puzzle support',
+)
+const solvedTrial = darkHouseTrialFaces('HD-09')
+const paidPuzzle = {
+  ...newDarkHouseProgress(),
+  active: true,
+  current: 'HD-03' as const,
+  trials: {
+    'HD-09': {
+      matched: solvedTrial.map((face) => face.id),
+      faceUp: [],
+      failures: 0,
+      clue: null,
+      note: '',
+    },
+  },
+}
+assert.equal(darkHouseEchoes(paidPuzzle), 1)
+const paidHint = darkHousePuzzleHint(paidPuzzle)
+assert.equal(paidHint.spentEchoes, 1)
+assert.equal(darkHouseEchoes(paidHint), 0)
+assert.equal(darkHousePuzzleHint(paidHint), paidHint)
+assert.match(
+  store,
+  /earnedDarkHousePuzzleClue\(state\.value, darkHouse\.value\.current\)/,
+)
+const houseStage = readFileSync(
+  'components/memory-dungeon/dark-house-stage.vue',
+  'utf8',
+)
+assert.ok(houseStage.includes('world.darkHouseEarnedClue'))
+assert.ok(houseStage.includes('free clue'))
 
 console.log(
   'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',

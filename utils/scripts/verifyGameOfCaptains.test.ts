@@ -205,9 +205,15 @@ for (const member of CREW_PROFILES) {
   assert.equal(new Set(path.map((step) => step.prize)).size, 3)
   for (const step of path) {
     assert.ok(step.reversal.length > 80, member.id)
-    assert.ok(step.scene.length > 200 && step.carefulOutcome.length > 90, member.id)
+    assert.ok(
+      step.scene.length > 200 && step.carefulOutcome.length > 90,
+      member.id,
+    )
     assert.ok(step.boldOutcome.length > 90 && step.prize.length > 12, member.id)
-    assert.ok(step.finalCareful.length > 35 && step.finalBold.length > 35, member.id)
+    assert.ok(
+      step.finalCareful.length > 35 && step.finalBold.length > 35,
+      member.id,
+    )
     assert.ok(step.scene.length > 70, member.id)
     assert.ok(step.careful.length > 25 && step.bold.length > 25, member.id)
     assert.notEqual(step.careful, step.bold)
@@ -430,10 +436,20 @@ for (const member of CREW_PROFILES) {
     const firstAct = stageCrewDetour(detour, chapter === 2 ? 'bold' : 'careful')
     assert.equal(firstAct.detour?.gambit, chapter === 2 ? 'bold' : 'careful')
     assert.ok(firstAct.scene.includes(detourFor(firstAct)!.reversal))
-    assert.equal(stageCrewDetour(firstAct, 'bold'), firstAct, 'cannot stage twice')
-    assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(firstAct))), firstAct)
+    assert.equal(
+      stageCrewDetour(firstAct, 'bold'),
+      firstAct,
+      'cannot stage twice',
+    )
+    assert.deepEqual(
+      restoreVoyage(JSON.parse(JSON.stringify(firstAct))),
+      firstAct,
+    )
     const resolved = resolveCrewDetour(firstAct, 'bold')
-    assert.equal(resolved.journeyHistory?.at(-1)?.prize, detourFor(firstAct)!.prize)
+    assert.equal(
+      resolved.journeyHistory?.at(-1)?.prize,
+      detourFor(firstAct)!.prize,
+    )
     assert.ok(resolved.scene.includes(detourFor(firstAct)!.boldOutcome))
     worldStops.push(resolved.journeyHistory!.at(-1)!.system)
     assert.equal(resolved.phase, 'debrief')

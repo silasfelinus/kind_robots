@@ -933,10 +933,14 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
           )!.name,
         )
       : undefined
-  const vowMatch = /^vow-(shelter|unmask|claim)-(3|10|18|25|28)-(protect|bargain|refuse)$/.exec(option.id)
-  const vowAction = vowMatch?.[1] === run.vow && Number(vowMatch?.[2]) === run.day
-    ? (vowMatch?.[3] as VowAction)
-    : null
+  const vowMatch =
+    /^vow-(shelter|unmask|claim)-(3|10|18|25|28)-(protect|bargain|refuse)$/.exec(
+      option.id,
+    )
+  const vowAction =
+    vowMatch?.[1] === run.vow && Number(vowMatch?.[2]) === run.day
+      ? (vowMatch?.[3] as VowAction)
+      : null
   const vowHistory = vowAction
     ? [...(run.vowHistory ?? []), { day: run.day, action: vowAction }]
     : run.vowHistory

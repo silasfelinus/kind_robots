@@ -243,7 +243,7 @@ export function personalEnding(run: AcademyRun): string {
       : bond === 'ally'
         ? `${peer.realName} can remain a field partner without surrendering an independent future.`
         : `${peer.realName} remains a distinct person with a separate story.`
-  return `${core} ${arc.fallout} ${betrayal === 'leverage' ? 'Their broken promise remains part of the public record.' : 'They chose to hear the people affected by their power.'} ${connection}`
+  return `${person.realName}: ${core} ${arc.fallout} ${betrayal === 'leverage' ? 'Their broken promise remains part of the public record.' : 'They chose to hear the people affected by their power.'} ${connection}`
 }
 
 export function personalOutcomeArt(run: AcademyRun): string | null {

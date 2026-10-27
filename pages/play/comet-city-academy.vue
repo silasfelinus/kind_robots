@@ -217,7 +217,9 @@
               >
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
-                  v-for="person in onCall.filter((person) => person.origin === 'academy')"
+                  v-for="person in onCall.filter(
+                    (person) => person.origin === 'academy',
+                  )"
                   :key="person.id"
                   type="button"
                   :class="{ chosen: selectedSocialId === person.id }"
@@ -378,11 +380,17 @@
               <div>
                 <h2>
                   {{
-                    run.flowVersion === 3 ? 'NIGHT PATROL / HEROES ON CALL' : run.day <= 2 ? 'Simulation desk' : 'Night dispatch'
+                    run.flowVersion === 3
+                      ? 'NIGHT PATROL / HEROES ON CALL'
+                      : run.day <= 2
+                        ? 'Simulation desk'
+                        : 'Night dispatch'
                   }}
                 </h2>
                 <p>
-                  Choose one to three allies per call. The posters show how each person feels about the mission. A hero cannot answer two calls tonight.
+                  Choose one to three allies per call. The posters show how each
+                  person feels about the mission. A hero cannot answer two calls
+                  tonight.
                 </p>
               </div>
             </div>
@@ -416,7 +424,12 @@
                     : incident.briefing
                 }}
               </p>
-              <div class="cca-roster" data-testid="academy-quest-poster-row" role="group" :aria-label="'Heroes available for ' + incident.title">
+              <div
+                class="cca-roster"
+                data-testid="academy-quest-poster-row"
+                role="group"
+                :aria-label="'Heroes available for ' + incident.title"
+              >
                 <button
                   v-for="student in onCall"
                   :key="student.id"
@@ -439,25 +452,65 @@
                   @click="toggleStudent(incident.id, student.id)"
                 >
                   <span class="cca-poster-art">
-                    <img v-if="reactionPortrait(student.id, incident.id)" :src="reactionPortrait(student.id, incident.id)!" alt="" class="cca-avatar-img" />
-                    <span v-else class="cca-poster-initials">{{ student.portrait }}</span>
-                    <span class="cca-expression" :class="'mood-' + missionReaction(student.id, incident.id).mood" :aria-label="missionReaction(student.id, incident.id).mood + ' reaction'">
+                    <img
+                      v-if="reactionPortrait(student.id, incident.id)"
+                      :src="reactionPortrait(student.id, incident.id)!"
+                      alt=""
+                      class="cca-avatar-img"
+                    />
+                    <span v-else class="cca-poster-initials">{{
+                      student.portrait
+                    }}</span>
+                    <span
+                      class="cca-expression"
+                      :class="
+                        'mood-' + missionReaction(student.id, incident.id).mood
+                      "
+                      :aria-label="
+                        missionReaction(student.id, incident.id).mood +
+                        ' reaction'
+                      "
+                    >
                       {{ reactionEmoji(student.id, incident.id) }}
                     </span>
                   </span>
-                  <span class="cca-roster-name">{{ student.name.split(' ')[0] }}</span>
+                  <span class="cca-roster-name">{{
+                    student.name.split(' ')[0]
+                  }}</span>
                   <span class="cca-poster-role">{{ student.title }}</span>
-                  <span class="cca-poster-reaction">{{ missionReaction(student.id, incident.id).line }}</span>
+                  <span class="cca-poster-reaction">{{
+                    missionReaction(student.id, incident.id).line
+                  }}</span>
                 </button>
               </div>
               <div class="cca-crew-count" data-testid="academy-quest-odds">
                 <strong>TEAM {{ teamFor(incident.id).length }}/3</strong>
-                <strong>{{ teamFor(incident.id).length ? dispatchChance(run, incident.id, teamFor(incident.id)) + '% CHANCE OF SUCCESS' : 'CHOOSE HEROES TO SEE ODDS' }}</strong>
+                <strong>{{
+                  teamFor(incident.id).length
+                    ? dispatchChance(run, incident.id, teamFor(incident.id)) +
+                      '% CHANCE OF SUCCESS'
+                    : 'CHOOSE HEROES TO SEE ODDS'
+                }}</strong>
               </div>
-              <p class="cca-odds-note">Estimated chance of at least a partial success. Complete success is harder; injuries and city standing can change the odds.</p>
-              <div v-if="missionRoute(incident.id, teamFor(incident.id))" class="cca-special-route" data-testid="academy-special-mission-route">
-                <strong>✦ SPECIAL ROUTE: {{ missionRoute(incident.id, teamFor(incident.id))?.label }}</strong>
-                <span>This team unlocks an alternative solution with an improved chance of success.</span>
+              <p class="cca-odds-note">
+                Estimated chance of at least a partial success. Complete success
+                is harder; injuries and city standing can change the odds.
+              </p>
+              <div
+                v-if="missionRoute(incident.id, teamFor(incident.id))"
+                class="cca-special-route"
+                data-testid="academy-special-mission-route"
+              >
+                <strong
+                  >✦ SPECIAL ROUTE:
+                  {{
+                    missionRoute(incident.id, teamFor(incident.id))?.label
+                  }}</strong
+                >
+                <span
+                  >This team unlocks an alternative solution with an improved
+                  chance of success.</span
+                >
               </div>
             </article>
             <button
@@ -502,17 +555,33 @@
               MANTLES
             </p>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
-            <div v-if="possibleRecruit" class="cca-recruit-offer" data-testid="academy-contact-encounter">
+            <div
+              v-if="possibleRecruit"
+              class="cca-recruit-offer"
+              data-testid="academy-contact-encounter"
+            >
               <div class="cca-recruit-portrait">
-                <img v-if="studentPortrait(possibleRecruit.id)" :src="studentPortrait(possibleRecruit.id)!" alt="" />
+                <img
+                  v-if="studentPortrait(possibleRecruit.id)"
+                  :src="studentPortrait(possibleRecruit.id)!"
+                  alt=""
+                />
                 <span v-else>{{ possibleRecruit.portrait }}</span>
               </div>
               <div>
-                <strong>NEW CONTACT / {{ possibleRecruit.origin.toUpperCase() }}</strong>
+                <strong
+                  >NEW CONTACT /
+                  {{ possibleRecruit.origin.toUpperCase() }}</strong
+                >
                 <h3>{{ possibleRecruit.name }}</h3>
                 <p>{{ possibleRecruit.title }} · {{ possibleRecruit.note }}</p>
-                <button type="button" class="cca-choice" @click="store.recruit(possibleRecruit.id)">
-                  Invite {{ possibleRecruit.name }} onto the call roster (spend the day) →
+                <button
+                  type="button"
+                  class="cca-choice"
+                  @click="store.recruit(possibleRecruit.id)"
+                >
+                  Invite {{ possibleRecruit.name }} onto the call roster (spend
+                  the day) →
                 </button>
               </div>
             </div>
@@ -715,7 +784,10 @@ import {
   routeStanding,
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
-import { missionReaction, missionRoute } from '~/utils/cometAcademy/missionTeams'
+import {
+  missionReaction,
+  missionRoute,
+} from '~/utils/cometAcademy/missionTeams'
 import {
   academyStageArt,
   academyVillainArt,
@@ -749,8 +821,14 @@ const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const run = computed(() => store.run)
-const onCall = computed(() => run.value ? STUDENTS.filter((person) => knownContacts(run.value!).includes(person.id)) : [])
-const possibleRecruit = computed(() => run.value ? recruitableContact(run.value) : null)
+const onCall = computed(() =>
+  run.value
+    ? STUDENTS.filter((person) => knownContacts(run.value!).includes(person.id))
+    : [],
+)
+const possibleRecruit = computed(() =>
+  run.value ? recruitableContact(run.value) : null,
+)
 const nextRouteDay = computed(() => {
   const state = run.value
   return state?.vow
@@ -898,7 +976,8 @@ function isAssignedElsewhere(caseId: string, id: StudentId): boolean {
 
 function toggleRelationships() {
   if (!showRelationships.value)
-    selectedSocialId.value = onCall.value.find((person) => person.origin === 'academy')?.id ?? 'mina'
+    selectedSocialId.value =
+      onCall.value.find((person) => person.origin === 'academy')?.id ?? 'mina'
   showRelationships.value = !showRelationships.value
 }
 function reactionEmoji(id: StudentId, caseId: string): string {
@@ -1505,23 +1584,115 @@ function toggleStudent(caseId: string, id: StudentId): void {
   flex-direction: column;
   gap: 0.15rem;
 }
-.cca-poster-art { position: relative; display: grid; place-items: center; width: 100%; height: clamp(5.3rem, 13vh, 8.7rem); border-radius: .35rem; overflow: hidden; background: linear-gradient(145deg, #75618b, #22324d); }
-.cca-poster-initials { font: 900 1.7rem Georgia, serif; color: #f9ddc4; }
-.cca-expression { position: absolute; right: .2rem; bottom: .2rem; padding: 0 .28rem; border-radius: 50%; background: #192338d9; font-size: 1.1rem; }
-.cca-expression.mood-positive { color: #97ead9; }
-.cca-expression.mood-negative { color: #ffac9e; }
-.cca-expression.mood-neutral { color: #ffdf9b; }
-.cca-poster-role { font-size: .53rem; color: #eccda9; text-align: center; min-height: 1.5rem; }
-.cca-poster-reaction { font-size: .53rem; line-height: 1.2; text-align: center; color: #d8ddea; min-height: 2.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.cca-odds-note { font-size: .66rem; color: #c5d1dd; margin: .3rem 0 .6rem; }
-.cca-special-route, .cca-recruit-offer { border: 1px solid #e6be8480; background: #3b354b; border-radius: .6rem; padding: .6rem; margin: .5rem 0; font-size: .75rem; }
-.cca-special-route { display: flex; flex-direction: column; gap: .3rem; }
-.cca-special-route strong { color: #ffd3a8; }
-.cca-recruit-offer { display: flex; gap: .75rem; align-items: center; }
-.cca-recruit-offer h3 { font: 800 1.1rem Georgia, serif; }
-.cca-recruit-portrait { flex: 0 0 6rem; height: 8rem; display: grid; place-items: center; font: 800 1.4rem Georgia, serif; background: #55445e; border-radius: .5rem; overflow: hidden; }
-.cca-recruit-portrait img { width: 100%; height: 100%; object-fit: cover; }
-@media(max-width: 480px) { .cca-roster-button { flex-basis: 6rem; } .cca-recruit-portrait { flex-basis: 4rem; height: 5rem; } }
+.cca-poster-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: clamp(5.3rem, 13vh, 8.7rem);
+  border-radius: 0.35rem;
+  overflow: hidden;
+  background: linear-gradient(145deg, #75618b, #22324d);
+}
+.cca-poster-initials {
+  font:
+    900 1.7rem Georgia,
+    serif;
+  color: #f9ddc4;
+}
+.cca-expression {
+  position: absolute;
+  right: 0.2rem;
+  bottom: 0.2rem;
+  padding: 0 0.28rem;
+  border-radius: 50%;
+  background: #192338d9;
+  font-size: 1.1rem;
+}
+.cca-expression.mood-positive {
+  color: #97ead9;
+}
+.cca-expression.mood-negative {
+  color: #ffac9e;
+}
+.cca-expression.mood-neutral {
+  color: #ffdf9b;
+}
+.cca-poster-role {
+  font-size: 0.53rem;
+  color: #eccda9;
+  text-align: center;
+  min-height: 1.5rem;
+}
+.cca-poster-reaction {
+  font-size: 0.53rem;
+  line-height: 1.2;
+  text-align: center;
+  color: #d8ddea;
+  min-height: 2.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cca-odds-note {
+  font-size: 0.66rem;
+  color: #c5d1dd;
+  margin: 0.3rem 0 0.6rem;
+}
+.cca-special-route,
+.cca-recruit-offer {
+  border: 1px solid #e6be8480;
+  background: #3b354b;
+  border-radius: 0.6rem;
+  padding: 0.6rem;
+  margin: 0.5rem 0;
+  font-size: 0.75rem;
+}
+.cca-special-route {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.cca-special-route strong {
+  color: #ffd3a8;
+}
+.cca-recruit-offer {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.cca-recruit-offer h3 {
+  font:
+    800 1.1rem Georgia,
+    serif;
+}
+.cca-recruit-portrait {
+  flex: 0 0 6rem;
+  height: 8rem;
+  display: grid;
+  place-items: center;
+  font:
+    800 1.4rem Georgia,
+    serif;
+  background: #55445e;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.cca-recruit-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 480px) {
+  .cca-roster-button {
+    flex-basis: 6rem;
+  }
+  .cca-recruit-portrait {
+    flex-basis: 4rem;
+    height: 5rem;
+  }
+}
 .cca-roster-button.active {
   border-color: #ffc897;
   background: #a66d6799;

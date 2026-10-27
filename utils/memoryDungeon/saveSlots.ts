@@ -1,4 +1,4 @@
-import type { BriarSave } from '../memoryDungeonWorld'
+import { BRIAR_SAVE_VERSION, type BriarSave } from '../memoryDungeonWorld'
 import type { DarkBriarProgress } from './darkBriar'
 import type { DarkHouseProgress } from './darkHouse'
 import type { MemoryRealitySave } from './campaignPersistence'
@@ -36,7 +36,7 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
   )
     return null
   if (
-    typeof raw.briar.version !== 'number' ||
+    raw.briar.version !== BRIAR_SAVE_VERSION ||
     raw.dark.version !== 3 ||
     raw.house.version !== 2 ||
     raw.reality.version !== 1 ||

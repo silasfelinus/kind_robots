@@ -1265,7 +1265,7 @@ for (const vow of POWER_VOWS) {
     titles.add(event.title)
     assert.equal(event.options.length, 3)
     assert.ok(event.scene.includes('Theo Lindqvist'))
-    assert.ok(event.scene.includes('mutant'))
+    assert.ok(event.scene.includes('Mutant'))
     assert.ok(event.scene.includes('Genius'))
     assert.ok(event.options[0]!.text.includes(signatureFor('mutant', 'genius').name))
     const outcome = chooseEncounter(run, event.options[0]!.id)

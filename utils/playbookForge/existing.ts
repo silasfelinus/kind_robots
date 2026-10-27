@@ -136,7 +136,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const rules = await import('../gameOfCaptains/rules')
       const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
       const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
-      const { SOLO_ROMANCE_ROUTES } = await import('../gameOfCaptains/romanceStories')
+      const { SOLO_ROMANCE_ROUTES } =
+        await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
       return {
         values: {

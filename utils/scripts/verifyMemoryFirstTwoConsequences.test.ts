@@ -377,7 +377,10 @@ for (const photoChoice of ['archive', 'grieve'] as const) {
     (choice) => choice.id === photoChoice,
   )
   assert.ok(option)
-  assert.equal(canChooseBriarScene(option, { wildflowers: 0, lanterns: 1 }), true)
+  assert.equal(
+    canChooseBriarScene(option, { wildflowers: 0, lanterns: 1 }),
+    true,
+  )
   const original = restoreBriarSave(
     JSON.parse(
       JSON.stringify({

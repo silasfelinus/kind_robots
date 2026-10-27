@@ -89,8 +89,11 @@ export function academyStageArt(run: AcademyRun | null): string | null {
         ? GUEST_LIST_ART_KEYS[run.guestPlan]
         : GUEST_LIST_ARRIVAL_ART_KEY,
     )
-  if (run.flowVersion === 3 && (run.phase === 'campus' || run.phase === 'debrief') &&
-    [4, 12, 21, 27].includes(run.day)) {
+  if (
+    run.flowVersion === 3 &&
+    (run.phase === 'campus' || run.phase === 'debrief') &&
+    [4, 12, 21, 27].includes(run.day)
+  ) {
     const outcome = personalOutcomeArt(run)
     if (outcome && promArt(outcome)) return promArt(outcome)
   }

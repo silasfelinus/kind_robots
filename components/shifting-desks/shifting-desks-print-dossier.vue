@@ -6,9 +6,13 @@
     >
       <header class="sd-print-heading">
         <div>
-          <p class="sd-print-overline">Consolidated Wellness &amp; Defense · Personnel Division</p>
+          <p class="sd-print-overline">
+            Consolidated Wellness &amp; Defense · Personnel Division
+          </p>
           <h1>Permanent Personnel Dossier</h1>
-          <p class="sd-print-verdict">{{ ending?.title ?? 'Position Closed' }}</p>
+          <p class="sd-print-verdict">
+            {{ ending?.title ?? 'Position Closed' }}
+          </p>
         </div>
         <div class="sd-print-stamp">FILED</div>
       </header>
@@ -31,8 +35,17 @@
         />
         <div class="sd-print-epilogue">
           <h2>{{ ending?.epilogue.title ?? 'End of employment' }}</h2>
-          <p>{{ ending?.epilogue.text ?? 'The archive has no epilogue for this filing.' }}</p>
-          <p v-for="(line, index) in personalEndingLines" :key="index" class="sd-print-italic">
+          <p>
+            {{
+              ending?.epilogue.text ??
+              'The archive has no epilogue for this filing.'
+            }}
+          </p>
+          <p
+            v-for="(line, index) in personalEndingLines"
+            :key="index"
+            class="sd-print-italic"
+          >
             {{ line }}
           </p>
         </div>
@@ -41,14 +54,38 @@
       <section class="sd-print-section" aria-label="Verified run receipt">
         <h2>Verified Run Receipt</h2>
         <dl class="sd-print-facts">
-          <div><dt>Position</dt><dd>{{ receipt.jobTitle }}</dd></div>
-          <div><dt>Secret society</dt><dd>{{ receipt.society }}</dd></div>
-          <div><dt>Mutation</dt><dd>{{ receipt.mutation }}</dd></div>
-          <div><dt>Departments cleared</dt><dd>{{ receipt.floors }}</dd></div>
-          <div><dt>Files handled</dt><dd>{{ receipt.files }}</dd></div>
-          <div><dt>Employees used</dt><dd>{{ receipt.employees }}</dd></div>
-          <div><dt>Forms remaining</dt><dd>{{ receipt.forms }}</dd></div>
-          <div><dt>Successors remaining</dt><dd>{{ receipt.successors }}</dd></div>
+          <div>
+            <dt>Position</dt>
+            <dd>{{ receipt.jobTitle }}</dd>
+          </div>
+          <div>
+            <dt>Secret society</dt>
+            <dd>{{ receipt.society }}</dd>
+          </div>
+          <div>
+            <dt>Mutation</dt>
+            <dd>{{ receipt.mutation }}</dd>
+          </div>
+          <div>
+            <dt>Departments cleared</dt>
+            <dd>{{ receipt.floors }}</dd>
+          </div>
+          <div>
+            <dt>Files handled</dt>
+            <dd>{{ receipt.files }}</dd>
+          </div>
+          <div>
+            <dt>Employees used</dt>
+            <dd>{{ receipt.employees }}</dd>
+          </div>
+          <div>
+            <dt>Forms remaining</dt>
+            <dd>{{ receipt.forms }}</dd>
+          </div>
+          <div>
+            <dt>Successors remaining</dt>
+            <dd>{{ receipt.successors }}</dd>
+          </div>
         </dl>
       </section>
 
@@ -66,7 +103,8 @@
       <section class="sd-print-section" aria-label="Personnel distinctions">
         <h2>Distinctions on Record</h2>
         <p class="sd-print-small">
-          These are verified local archive milestones, not claims of additional account-level rewards.
+          These are verified local archive milestones, not claims of additional
+          account-level rewards.
         </p>
         <div v-if="awards.length" class="sd-print-awards">
           <div v-for="award in awards" :key="award.id" class="sd-print-award">
@@ -80,7 +118,11 @@
         <p v-else class="sd-print-small">No award dates are on this file.</p>
       </section>
 
-      <section v-if="matchingRun" class="sd-print-section" aria-label="Detailed personnel incidents">
+      <section
+        v-if="matchingRun"
+        class="sd-print-section"
+        aria-label="Detailed personnel incidents"
+      >
         <h2>Department Record</h2>
         <div class="sd-print-departments">
           <div v-for="department in departmentRecord" :key="department.id">
@@ -96,17 +138,20 @@
         </ul>
         <h2 v-if="incidents.length">Key Incidents</h2>
         <ul v-if="incidents.length">
-          <li v-for="(incident, index) in incidents" :key="index">{{ incident }}</li>
+          <li v-for="(incident, index) in incidents" :key="index">
+            {{ incident }}
+          </li>
         </ul>
       </section>
       <p v-else class="sd-print-small">
-        This historical receipt preserves counts and results. Detailed department decisions
-        and termination notes were not retained in the archive.
+        This historical receipt preserves counts and results. Detailed
+        department decisions and termination notes were not retained in the
+        archive.
       </p>
 
       <footer>
-        This document is a keepsake of a completed Shifting Desks run.
-        Official account achievements, where available, remain in Kind Robots.
+        This document is a keepsake of a completed Shifting Desks run. Official
+        account achievements, where available, remain in Kind Robots.
       </footer>
     </article>
   </Teleport>
@@ -129,14 +174,22 @@ import { MILESTONES, type RunReceipt } from '~/utils/shiftingDesks/rewards'
 
 const props = defineProps<{ receipt: RunReceipt; run?: RunState | null }>()
 const store = useShiftingDesksStore()
-const ending = computed(() => ENDINGS.find((entry) => entry.id === props.receipt.endingId))
+const ending = computed(() =>
+  ENDINGS.find((entry) => entry.id === props.receipt.endingId),
+)
 const matchingRun = computed(() => {
   const run = props.run
-  return run && run.seed + ':' + props.receipt.endingId === props.receipt.id ? run : null
+  return run && run.seed + ':' + props.receipt.endingId === props.receipt.id
+    ? run
+    : null
 })
-const filedDate = computed(() => new Date(props.receipt.completedAt).toLocaleString())
+const filedDate = computed(() =>
+  new Date(props.receipt.completedAt).toLocaleString(),
+)
 const personalEndingLines = computed(() =>
-  matchingRun.value && ending.value ? endingLines(matchingRun.value, ending.value) : [],
+  matchingRun.value && ending.value
+    ? endingLines(matchingRun.value, ending.value)
+    : [],
 )
 const grades = computed(() => rankedGrades(props.receipt.grades))
 const resultsVerdict = computed(() => finalVerdict(props.receipt.grades))
@@ -150,14 +203,17 @@ const departmentRecord = computed(() =>
   DEPARTMENTS.map((entry) => ({
     id: entry.department.id,
     title: entry.department.title,
-    outcome: outcomeById(matchingRun.value?.departmentOutcomes[entry.department.id] ?? null)?.title,
+    outcome: outcomeById(
+      matchingRun.value?.departmentOutcomes[entry.department.id] ?? null,
+    )?.title,
   })),
 )
-const incidents = computed(() =>
-  matchingRun.value?.log
-    .filter((entry) => entry.special === 'incident')
-    .slice(-5)
-    .map((entry) => entry.text) ?? [],
+const incidents = computed(
+  () =>
+    matchingRun.value?.log
+      .filter((entry) => entry.special === 'incident')
+      .slice(-5)
+      .map((entry) => entry.text) ?? [],
 )
 </script>
 
@@ -172,7 +228,8 @@ const incidents = computed(() =>
     size: auto;
   }
 
-  body:has(> .shifting-desks-print-dossier) > :not(.shifting-desks-print-dossier) {
+  body:has(> .shifting-desks-print-dossier)
+    > :not(.shifting-desks-print-dossier) {
     display: none !important;
   }
 
@@ -190,7 +247,9 @@ const incidents = computed(() =>
     overflow: visible !important;
     color: #201c19;
     background: white;
-    font: 10pt/1.4 Georgia, serif;
+    font:
+      10pt/1.4 Georgia,
+      serif;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }

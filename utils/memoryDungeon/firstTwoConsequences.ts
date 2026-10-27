@@ -228,6 +228,7 @@ export interface CrossRealmConsequenceLedger {
   crossingAccord: CrossingAccord
   witnessRecord: 'unset' | 'copied' | 'protected'
   orensProvision: 'unset' | 'route' | 'supplies'
+  knightsDuty: 'unset' | 'oath' | 'errand'
 }
 
 export function crossRealmConsequenceLedger(
@@ -237,6 +238,7 @@ export function crossRealmConsequenceLedger(
   const frames = firstTwoWorldFrames(briar, mirroredHouse)
   const witnessChoice = briar.sceneChoices['6,3']
   const orensChoice = briar.sceneChoices['4,3']
+  const knightChoice = briar.sceneChoices['5,4']
   return {
     memoryCustody: frames.memoryCustody,
     crossingAccord: frames.crossingAccord,
@@ -251,6 +253,12 @@ export function crossRealmConsequenceLedger(
         ? 'route'
         : orensChoice === 'load'
           ? 'supplies'
+          : 'unset',
+    knightsDuty:
+      knightChoice === 'truth'
+        ? 'oath'
+        : knightChoice === 'errand'
+          ? 'errand'
           : 'unset',
   }
 }
@@ -297,6 +305,12 @@ const OREN_EPILOGUES = {
     'Oren draws on the provisions you counted together to feed the returning witnesses. He refuses to call a full stomach a debt of gratitude.',
 } as const
 
+const KNIGHT_EPILOGUES = {
+  oath: 'The Brass Knight, freed from the false oath you challenged, stands at the House door only to name each returning traveler aloud.',
+  errand:
+    'The Brass Knight, whose apology you delivered, keeps the House door but admits nobody he has not first greeted by name.',
+} as const
+
 /** An earned ending callback, not an extra global branch or a reward loop.
  * Unrecorded and invalid past choices add nothing; neither House ending locks. */
 export function crossRealmHouseEpilogue(
@@ -313,5 +327,7 @@ export function crossRealmHouseEpilogue(
     ledger.orensProvision === 'unset'
       ? ''
       : OREN_EPILOGUES[ledger.orensProvision]
-  return [witness, provision].filter(Boolean).join(' ')
+  const knight =
+    ledger.knightsDuty === 'unset' ? '' : KNIGHT_EPILOGUES[ledger.knightsDuty]
+  return [witness, provision, knight].filter(Boolean).join(' ')
 }

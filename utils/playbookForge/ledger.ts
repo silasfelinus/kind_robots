@@ -439,6 +439,11 @@ export function buildLedger(
   }
 }
 
+/** Percentage badges may only say 100% when the underlying value is complete. */
+export function completionPercent(value: number): number {
+  return value >= 1 ? 100 : Math.max(0, Math.min(99, Math.round(value * 100)))
+}
+
 /** The units a section would send to the relay: no delivered art, nothing rendered or in flight. */
 export function unitsToPaint(section: LedgerSection): LedgerUnit[] {
   return section.units.filter((u) => u.art === 'missing' || u.art === 'failed')

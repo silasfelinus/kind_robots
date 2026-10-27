@@ -129,7 +129,7 @@ export type ResolvedTab = {
   tutorial: ResolvedTutorialSection | null
   requiredBeforeNext: string[]
   navigation: boolean
-  allowDirectAccess: boolean
+  allowDirectAccess?: boolean
   requiredRole: string
   requiredPermission: string
   loadingMessage: string

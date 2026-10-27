@@ -78,7 +78,14 @@ export type Ledger = {
   takenSeconds: number
   remainingSeconds: number
   remainingWords: number
+  /** Half writing, half art, averaged over every beat: a written but unpainted game is half done. */
   progress: number
+  /** Share of beats whose scene and outcome text are written. */
+  writtenShare: number
+  /** Share of beats with delivered art (or none needed). */
+  paintedShare: number
+  /** Share of beats both written and painted (what stars a section). */
+  finishedShare: number
   gaps: PlanGap[]
   discrepancies: string[]
   shine: Shine
@@ -118,12 +125,52 @@ export function laneClass(laneKey: string): CheckpointClassId {
 }
 
 /** The same default prompt Playbook Studio offers for a beat: title, place and its first sentence. */
-export function nodeArtPrompt(node: PlaybookNode): string {
-  const first = node.body[0]?.split(/(?<=\.)\s/)[0] ?? ''
-  return (
-    [node.title, node.place].filter(Boolean).join(', ') +
-    (first ? `. ${first}` : '')
-  )
+/**
+ * Beats whose picture lives in the image store (\`artPath\`) and was found
+ * there by the ledger API: they count as painted.
+ */
+export function withPainted(
+  book: Pick<Playbook, 'order' | 'nodes'>,
+  painted: Record<string, string> | undefined,
+): Pick<Playbook, 'order' | 'nodes'> {
+  if (!painted || !Object.keys(painted).length) return book
+  const nodes = { ...book.nodes }
+  for (const [key, url] of Object.entries(painted)) {
+    const node = nodes[key]
+    if (node && !node.artUrl)
+      nodes[key] = { ...node, artUrl: url, needsArt: false }
+  }
+  return { ...book, nodes }
+}
+
+/** A beat's authored art prompt, or null: prompts are written, never assembled from titles. */
+export function nodeArtPrompt(node: PlaybookNode): string | null {
+  return node.artPrompt?.trim() || null
+}
+
+/**
+ * The Todo for beats that need a picture but have no authored prompt yet:
+ * write the prompts first, as a Conductor auto_submit round, so the art is
+ * made from a described picture rather than a chapter title.
+ */
+export function artPromptBrief(
+  game: string,
+  title: string,
+  artProject: string,
+  sectionLabel: string,
+  nodes: PlaybookNode[],
+): string {
+  return [
+    `From the Playbook Forge ledger for ${title} (Playbook Studio game "${game}"): ${nodes.length} beat${nodes.length === 1 ? '' : 's'} in ${sectionLabel} need art but have no art prompt.`,
+    `Write a prompt for each as a Conductor round ledger at projects/${artProject}/art/<ROUND>.yaml with auto_submit: true, one subject per beat with its runtime asset path, and check it with python scripts/enqueue_art_requests.py <ledger> (dry run) so the live prompt contract passes.`,
+    'Describe the picture in plain prose: who is there, where, what is happening, light and mood. Never use the beat title, chapter title, subtitle, case number or any lettering; state what is present rather than what is absent.',
+    'Skip any beat held for consultation. Once merged, the Auto Art Generate sweep submits the round; export the renders into the game when they are DONE.',
+    '',
+    ...nodes.map(
+      (node) =>
+        `- ${node.key} "${node.title}"${node.place ? ` (${node.place})` : ''}${node.art ? ` → ${node.art}` : ''}: ${(node.body[0] ?? '').slice(0, 220)}`,
+    ),
+  ].join('\n')
 }
 
 export function nodeShape(node: PlaybookNode): 'scene' | 'portrait' {
@@ -174,6 +221,20 @@ export function ledgerUnit(
 
 function emptyCounts(): SectionCounts {
   return { delivered: 0, rendered: 0, queued: 0, failed: 0, missing: 0 }
+}
+
+/** How written a beat is: its scene text, then its outcomes. */
+export function unitWriting(unit: LedgerUnit): number {
+  const scene = unit.written ? 1 : 0
+  if (!unit.outcomes.expected) return scene
+  return (
+    (scene + Math.min(1, unit.outcomes.written / unit.outcomes.expected)) / 2
+  )
+}
+
+/** A beat's share of done: half its writing, half its art. */
+export function unitProgress(unit: LedgerUnit): number {
+  return unitWriting(unit) / 2 + (unit.art === 'delivered' ? 0.5 : 0)
 }
 
 export function unitComplete(unit: LedgerUnit): boolean {
@@ -255,10 +316,10 @@ export function buildLedger(
     outcomes.expected += section.outcomes.expected
   }
   const units = sections.reduce((n, s) => n + s.units.length, 0)
-  const complete = sections.reduce(
-    (n, s) => n + s.units.filter(unitComplete).length,
-    0,
-  )
+  const all = sections.flatMap((s) => s.units)
+  const complete = all.filter(unitComplete).length
+  const share = (score: (unit: LedgerUnit) => number) =>
+    units ? all.reduce((n, unit) => n + score(unit), 0) / units : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
 
   const discrepancies: string[] = []
@@ -300,7 +361,10 @@ export function buildLedger(
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
     remainingSeconds: sections.reduce((n, s) => n + s.remainingSeconds, 0),
     remainingWords: sections.reduce((n, s) => n + s.remainingWords, 0),
-    progress: units ? complete / units : 0,
+    progress: share(unitProgress),
+    writtenShare: share(unitWriting),
+    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)),
+    finishedShare: units ? complete / units : 0,
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',

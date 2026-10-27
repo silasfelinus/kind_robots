@@ -2,6 +2,7 @@ import { buildCrystalStreetPlaybook } from './crystalStreet'
 import { buildEcotonePlaybook } from './ecotone'
 import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
+import { buildMemoryDungeonPlaybook } from './memoryDungeon'
 import { KIT_STUDIO_PREFIX, buildKitPlaybook } from './kit'
 import { buildPromOfDoomPlaybook } from './promOfDoom'
 import { buildShiftingDesksPlaybook } from './shiftingDesks'
@@ -57,7 +58,7 @@ const AUTHORED_GAMES = [
   },
   {
     id: 'game-of-captains',
-    title: 'This Means Warp',
+    title: 'Space Couch',
     cover: '/game-of-captains/front/splash.webp',
     build: buildThisMeansWarpPlaybook,
   },
@@ -66,6 +67,12 @@ const AUTHORED_GAMES = [
     title: 'Capes & Tassels: Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     build: buildPromOfDoomPlaybook,
+  },
+  {
+    id: 'memory-dungeon',
+    title: 'Memory Dungeon',
+    cover: '/memory-dungeon/front/hero.webp',
+    build: buildMemoryDungeonPlaybook,
   },
 ] as const
 

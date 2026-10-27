@@ -57,13 +57,15 @@ import {
   PLAYBOOK_ART_LANES,
   playbookArtRequest,
 } from '~/utils/playbook/artLanes'
-import type { Playbook } from '~/utils/playbook/types'
+import type { Playbook, PlaybookNode } from '~/utils/playbook/types'
 import {
   buildLedger,
+  artPromptBrief,
   nodeArtPrompt,
   nodeShape,
   planGaps,
   unitsToPaint,
+  withPainted,
   unitsToWrite,
   writingBrief,
   type LedgerJob,
@@ -95,6 +97,8 @@ export type LedgerRelay = {
   project: string
   edits: number
   byNode: Record<string, LedgerJob[]>
+  /** Beats whose image-store picture exists (node key → URL). */
+  painted?: Record<string, string>
   jobs: ProjectJobs
   truncated: boolean
 }
@@ -103,6 +107,8 @@ export type LedgerSubmit = {
   kind: 'art' | 'text'
   section: string
   count: number
+  /** Art: beats with no authored prompt, sent as a prompt-writing Todo instead. */
+  unprompted: number
   seconds: number
   words: number
 }
@@ -115,6 +121,8 @@ const PLAN_EDITS_KEY = 'kr-playbook-forge-plan-edits-v1'
 /** One game's ledger at a glance, for the Load a game library. */
 export type LibraryStat = {
   progress: number
+  writtenShare: number
+  paintedShare: number
   starred: number
   sections: number
   shine: Shine
@@ -429,8 +437,16 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
         const book = buildPlaybook(entry.studio)
         const counts = await entry.count().catch(() => null)
+        // Image-store art (Memory Dungeon) is only known to the server.
+        const painted = Object.values(book.nodes).some((n) => n.artPath)
+          ? (
+              await performFetch<LedgerRelay>(
+                `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}`,
+              )
+            ).data?.painted
+          : undefined
         const ledger = buildLedger(
-          book,
+          withPainted(book, painted),
           {},
           {
             laneKey: book.artLanes[0] ?? 'krea2',
@@ -442,6 +458,8 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
           ...libraryStats.value,
           [entry.slug]: {
             progress: ledger.progress,
+            writtenShare: ledger.writtenShare,
+            paintedShare: ledger.paintedShare,
             starred: ledger.starred,
             sections: ledger.sections.length,
             shine: ledger.shine,
@@ -508,7 +526,10 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (ledgerRelay.value?.truncated)
       notes.push('Only the newest 5000 relay jobs were read.')
     return buildLedger(
-      ledgerBook.value ?? { order: [], nodes: {} },
+      withPainted(
+        ledgerBook.value ?? { order: [], nodes: {} },
+        ledgerRelay.value?.painted,
+      ),
       ledgerRelay.value?.byNode ?? {},
       {
         laneKey: ledgerLane.value,
@@ -772,6 +793,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   function askSubmit(kind: 'art' | 'text') {
     const section = ledgerFocused.value
     if (!section) return
+    const pipeline = ledgerBook.value?.artPipeline
+    if (kind === 'art' && pipeline) {
+      status.value = `${ledgerBook.value?.title} art is written and queued by ${pipeline}, not from the Forge.`
+      return
+    }
     const count =
       kind === 'art'
         ? Math.min(unitsToPaint(section).length, SUBMIT_CAP)
@@ -785,10 +811,23 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     }
     const perImage =
       section.remainingSeconds / Math.max(1, unitsToPaint(section).length)
+    const book = ledgerBook.value
+    const unprompted =
+      kind === 'art' && book
+        ? unitsToPaint(section).filter((unit) => {
+            const node = book.nodes[unit.key]
+            return node && !nodeArtPrompt(node)
+          }).length
+        : 0
     ledgerConfirm.value = {
       kind,
       section: section.id,
-      count,
+      count:
+        kind === 'art'
+          ? Math.min(unitsToPaint(section).length - unprompted, SUBMIT_CAP) +
+            unprompted
+          : count,
+      unprompted,
       seconds: kind === 'art' ? Math.round(perImage * count) : 0,
       words: kind === 'text' ? section.remainingWords : 0,
     }
@@ -808,16 +847,54 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     const section = ledgerFocused.value
     const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
     if (!book || !section || !lane || busy.value) return
-    const units = unitsToPaint(section).slice(0, SUBMIT_CAP)
+    const all = unitsToPaint(section)
+    const unprompted = all
+      .map((unit) => book.nodes[unit.key])
+      .filter((node): node is PlaybookNode => !!node && !nodeArtPrompt(node))
+    if (book.artPipeline) {
+      status.value = `${book.title} art is written and queued by ${book.artPipeline}, not from the Forge. Missing pictures there are submitted by Auto Art Generate.`
+      return
+    }
+    const units = all
+      .filter((unit) => {
+        const node = book.nodes[unit.key]
+        return node && nodeArtPrompt(node)
+      })
+      .slice(0, SUBMIT_CAP)
     busy.value = true
     let sent = 0
     let refused = ''
+    let promptTodo = ''
     try {
+      if (unprompted.length) {
+        status.value = `Queuing prompt writing for ${unprompted.length} beats…`
+        const res = await performFetch<{ id: number; title: string }>(
+          '/api/todos',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              title: `Write art prompts: ${book.title} · ${section.label} (${unprompted.length} beats)`,
+              description: artPromptBrief(
+                book.game,
+                book.title,
+                book.artProject,
+                section.label,
+                unprompted,
+              ),
+              priority: 'HIGH',
+              category: 'AGENT',
+            }),
+          },
+        )
+        promptTodo = res.success
+          ? `${unprompted.length} beats without a prompt went to the agents as a prompt-writing Todo.`
+          : `The prompt-writing Todo was refused: ${res.message || 'no answer'}.`
+      }
       for (const unit of units) {
         const node = book.nodes[unit.key]
         if (!node) continue
         status.value = `Submitting ${section.label} to the relay: ${sent + 1} of ${units.length}…`
-        const prompt = nodeArtPrompt(node)
+        const prompt = nodeArtPrompt(node)!
         const shape = nodeShape(node)
         const res = await performFetch<{ jobId?: number }>('/api/art/enqueue', {
           method: 'POST',
@@ -854,9 +931,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         sent += 1
       }
       await loadRelay(book.game)
-      status.value = refused
-        ? `Sent ${sent} of ${units.length}, then the relay refused: ${refused}`
-        : `Sent ${sent} picture${sent === 1 ? '' : 's'} on ${lane.label}. kr-relay picks them up from the queue.`
+      const pictures = units.length
+        ? refused
+          ? `Sent ${sent} of ${units.length}, then the relay refused: ${refused}`
+          : `Sent ${sent} picture${sent === 1 ? '' : 's'} on ${lane.label}. kr-relay picks them up from the queue.`
+        : ''
+      status.value = [pictures, promptTodo].filter(Boolean).join(' ')
     } finally {
       busy.value = false
     }

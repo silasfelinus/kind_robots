@@ -91,6 +91,12 @@
         <span class="pf-display w-14 text-right tabular-nums"
           >{{ Math.round(ledger.progress * 100) }}%</span
         >
+        <span
+          class="pf-kicker hidden shrink-0 text-[0.6rem] opacity-70 @3xl:inline"
+          title="Progress is half writing, half art, averaged over every beat"
+          >Written {{ Math.round(ledger.writtenShare * 100) }}% · painted
+          {{ Math.round(ledger.paintedShare * 100) }}%</span
+        >
       </div>
 
       <ul

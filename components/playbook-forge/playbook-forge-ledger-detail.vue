@@ -258,8 +258,18 @@ function unitNote(unit: LedgerUnit): string {
 const confirmText = computed(() => {
   const pending = forge.ledgerConfirm
   if (!pending) return ''
-  return pending.kind === 'art'
-    ? `Send ${pending.count} picture${pending.count === 1 ? '' : 's'} to the relay on ${shortLane.value}? About ${formatDuration(pending.seconds)} of render time.`
-    : `Send ${pending.count} beat${pending.count === 1 ? '' : 's'} of missing writing (about ${formatCount(pending.words)} words) to the next agent as a Todo?`
+  if (pending.kind === 'art') {
+    const ready = Math.max(0, pending.count - pending.unprompted)
+    const parts = [
+      ready
+        ? `Send ${ready} picture${ready === 1 ? '' : 's'} with written prompts to the relay on ${shortLane.value} (about ${formatDuration((pending.seconds / Math.max(1, pending.count)) * ready)} of render time)`
+        : '',
+      pending.unprompted
+        ? `queue prompt writing for ${pending.unprompted} beat${pending.unprompted === 1 ? '' : 's'} that ${pending.unprompted === 1 ? 'has' : 'have'} no art prompt yet (no art is made from titles)`
+        : '',
+    ].filter(Boolean)
+    return `${parts.join(', and ')}?`.replace(/^./, (c) => c.toUpperCase())
+  }
+  return `Send ${pending.count} beat${pending.count === 1 ? '' : 's'} of missing writing (about ${formatCount(pending.words)} words) to the next agent as a Todo?`
 })
 </script>

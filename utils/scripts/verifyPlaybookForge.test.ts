@@ -51,6 +51,8 @@ import {
   buildLedger,
   laneClass,
   nodeArtPrompt,
+  artPromptBrief,
+  withPainted,
   nodeShape,
   planGaps,
   projectJobs,
@@ -310,7 +312,20 @@ assert.ok(ledger.sections.find((s) => s.id === 'ending')!.starred)
 assert.equal(ledger.shine, 'star')
 assert.ok(ledger.discrepancies.some((d) => /rendered but not wired/.test(d)))
 assert.ok(ledger.discrepancies.some((d) => /only ever failed/.test(d)))
-assert.equal(ledger.progress, 3 / 7)
+assert.equal(
+  ledger.finishedShare,
+  3 / 7,
+  'three of seven beats written and painted',
+)
+assert.ok(
+  ledger.progress > ledger.finishedShare,
+  'progress credits written beats still waiting on art',
+)
+assert.equal(
+  ledger.progress,
+  (ledger.writtenShare + ledger.paintedShare) / 2,
+  'progress is half writing, half art',
+)
 
 const finished = buildLedger(
   {
@@ -351,9 +366,57 @@ assert.equal(laneClass('novacomic'), 'illustrious')
 assert.equal(laneClass('flux2'), 'flux2')
 assert.equal(
   nodeArtPrompt(beat('p', 'encounter')),
-  'Beat p, the pier. Fog rolls in.',
-  'the same prompt Playbook Studio offers',
+  null,
+  'a beat without an authored prompt has none: titles are never assembled into one',
 )
+assert.equal(
+  nodeArtPrompt({
+    ...beat('p', 'encounter'),
+    artPrompt: ' A fogbound pier at dawn. ',
+  }),
+  'A fogbound pier at dawn.',
+)
+{
+  const brief = artPromptBrief(
+    'ecotone',
+    'Ecotone',
+    'weird-humboldt',
+    'Encounters',
+    [beat('p', 'encounter')],
+  )
+  assert.match(
+    brief,
+    /projects\/weird-humboldt\/art\/<ROUND>\.yaml with auto_submit: true/,
+  )
+  assert.match(brief, /Never use the beat title, chapter title, subtitle/)
+  assert.match(brief, /- p "Beat p"/)
+}
+{
+  // Image-store art counts only when the server finds the file.
+  const book = {
+    order: ['m'],
+    nodes: { m: { ...beat('m', 'encounter'), artPath: '/images/x/m.webp' } },
+  }
+  assert.equal(
+    buildLedger(
+      book,
+      {},
+      { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+    ).art.delivered,
+    0,
+  )
+  assert.equal(
+    buildLedger(
+      withPainted(book, { m: '/images/x/m.webp' }),
+      {},
+      {
+        laneKey: 'krea2',
+        assumptions: DEFAULT_ASSUMPTIONS,
+      },
+    ).art.delivered,
+    1,
+  )
+}
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')
 

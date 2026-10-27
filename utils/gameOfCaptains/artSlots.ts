@@ -15,8 +15,15 @@ export const slugify = (text: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-export const captainArtKey = (id: string) => `portraits/captain-${id}`
-export const crewArtKey = (portraitKey: string) => `portraits/${portraitKey}`
+export const captainArtKey = (id: string) => `portraits/v2/captain-${id}`
+export const crewArtKey = (portraitKey: string) => `portraits/v2/${portraitKey}`
+
+/** Show a delivered redesigned face first; retain the old image during rendering. */
+export const portraitArt = (
+  portraitKey: string,
+  lookup: (asset: string) => string | null = warpArt,
+): string | null =>
+  lookup(`portraits/v2/${portraitKey}`) ?? lookup(`portraits/${portraitKey}`)
 export const missionArtKey = (id: string) => `missions/${id}`
 export const antagonistArtKey = (id: string) => `antagonists/${id}`
 export const endingArtKey = (ending: string) => `endings/${slugify(ending)}`

@@ -1459,6 +1459,7 @@ import {
 } from '~/utils/gameOfCaptains/solarCircuit'
 
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
@@ -1486,7 +1487,7 @@ const romanceRecord = computed(
   () => (run.value as RomanceVoyage | null)?.romance,
 )
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
-const portrait = (key: string) => warpArt(`portraits/${key}`)
+const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
   if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =

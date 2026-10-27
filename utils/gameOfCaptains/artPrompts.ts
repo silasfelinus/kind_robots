@@ -227,13 +227,13 @@ const TRIO_PROMPTS: Record<string, string> = Object.fromEntries(
 export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
   ...Object.fromEntries(
     (Object.keys(CAPTAIN_LOOKS) as CaptainId[]).map((id) => [
-      `portraits/captain-${id}`,
+      `portraits/v2/captain-${id}`,
       portrait(CAPTAIN_LOOKS[id], CAPTAIN_SETTINGS[id]),
     ]),
   ),
   ...Object.fromEntries(
     (Object.keys(CREW_LOOKS) as CrewId[]).map((id) => [
-      `portraits/crew-${id}`,
+      `portraits/v2/crew-${id}`,
       portrait(CREW_LOOKS[id], CREW_SETTINGS[id]),
     ]),
   ),

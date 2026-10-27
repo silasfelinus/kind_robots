@@ -631,6 +631,7 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
         Number.isSafeInteger(card.pairId) &&
         typeof card.matched === 'boolean',
     ) &&
+    new Set(cards.map((card) => card.tile)).size === currentWave.length &&
     [...new Set(cards.map((card) => card.pairId))].length ===
       currentWave.length / 2 &&
     [...new Set(cards.map((card) => card.pairId))].every(

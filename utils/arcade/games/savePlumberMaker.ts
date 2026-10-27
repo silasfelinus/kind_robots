@@ -100,12 +100,16 @@ export const MAKER_GROUPS: MakerGroup[] = [
     ],
   },
 ]
-export const MAKER_TILES = new Set(
-  ['.', ...MAKER_GROUPS.flatMap((group) => group.tiles.map((tile) => tile.key))],
-)
+export const MAKER_TILES = new Set([
+  '.',
+  ...MAKER_GROUPS.flatMap((group) => group.tiles.map((tile) => tile.key)),
+])
 
 export function newMakerLevel(cols = 64): MakerLevel {
-  const width = Math.max(MAKER_MIN_COLS, Math.min(MAKER_MAX_COLS, Math.floor(cols)))
+  const width = Math.max(
+    MAKER_MIN_COLS,
+    Math.min(MAKER_MAX_COLS, Math.floor(cols)),
+  )
   const rows = Array.from({ length: MAKER_ROWS }, (_, y) =>
     y >= 22 ? '#'.repeat(width) : '.'.repeat(width),
   )
@@ -125,7 +129,12 @@ export function newMakerLevel(cols = 64): MakerLevel {
 
 function textField(value: unknown, max: number, fallback: string): string {
   if (typeof value !== 'string') return fallback
-  return value.trim().replace(/[\u0000-\u001f\u007f]/g, '').slice(0, max) || fallback
+  return (
+    value
+      .trim()
+      .replace(/[\u0000-\u001f\u007f]/g, '')
+      .slice(0, max) || fallback
+  )
 }
 
 /** Validation is shared by local drafts and link imports, never trust URL or storage JSON. */
@@ -138,12 +147,18 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     !Array.isArray(value.rows) ||
     value.rows.length !== MAKER_ROWS ||
     !value.rows.every((row) => typeof row === 'string')
-  ) throw new Error('A course needs exactly 24 tile rows')
+  )
+    throw new Error('A course needs exactly 24 tile rows')
   const rows = value.rows as string[]
   const width = rows[0]?.length ?? 0
   if (width < MAKER_MIN_COLS || width > MAKER_MAX_COLS)
     throw new Error('Course width must be 32 to 96 tiles')
-  if (rows.some((row) => row.length !== width || [...row].some((tile) => !MAKER_TILES.has(tile))))
+  if (
+    rows.some(
+      (row) =>
+        row.length !== width || [...row].some((tile) => !MAKER_TILES.has(tile)),
+    )
+  )
     throw new Error('Course contains invalid or uneven tiles')
   const symbols = rows.join('')
   if ((symbols.match(/@/g) ?? []).length !== 1)
@@ -154,7 +169,11 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     throw new Error('Pair every pipe entrance with a return')
   if ((symbols.match(/M/g) ?? []).length > 1)
     throw new Error('Only one boss can appear in a course')
-  if (!Number.isInteger(value.theme) || Number(value.theme) < 1 || Number(value.theme) > 8)
+  if (
+    !Number.isInteger(value.theme) ||
+    Number(value.theme) < 1 ||
+    Number(value.theme) > 8
+  )
     throw new Error('Choose one of the eight available worlds')
   const result: MakerLevel = {
     v: 1,
@@ -190,11 +209,18 @@ export function decodeMakerLevel(code: string): MakerLevel {
   if (!/^[A-Za-z0-9_-]{1,12000}$/.test(code))
     throw new Error('Invalid or oversized share code')
   try {
-    const binary = atob(code.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - code.length % 4) % 4))
+    const binary = atob(
+      code.replace(/-/g, '+').replace(/_/g, '/') +
+        '='.repeat((4 - (code.length % 4)) % 4),
+    )
     const bytes = Uint8Array.from(binary, (letter) => letter.charCodeAt(0))
     return validateMakerLevel(JSON.parse(new TextDecoder().decode(bytes)))
   } catch (error) {
-    throw new Error(error instanceof Error ? 'Cannot open course: ' + error.message : 'Cannot open course')
+    throw new Error(
+      error instanceof Error
+        ? 'Cannot open course: ' + error.message
+        : 'Cannot open course',
+    )
   }
 }
 
@@ -206,13 +232,26 @@ export function makerId(level: MakerLevel): string {
   return (hash >>> 0).toString(36)
 }
 
-export function paintMakerTile(level: MakerLevel, x: number, y: number, tile: string): MakerLevel {
-  if (!MAKER_TILES.has(tile) || y < 0 || y >= MAKER_ROWS || x < 0 || x >= level.rows[0]!.length)
+export function paintMakerTile(
+  level: MakerLevel,
+  x: number,
+  y: number,
+  tile: string,
+): MakerLevel {
+  if (
+    !MAKER_TILES.has(tile) ||
+    y < 0 ||
+    y >= MAKER_ROWS ||
+    x < 0 ||
+    x >= level.rows[0]!.length
+  )
     return level
   const rows = level.rows.slice()
   if (rows[y]![x] === tile) return level
   if (tile === '@' || tile === 'G') {
-    rows.forEach((row, index) => { rows[index] = row.replace(tile, '.') })
+    rows.forEach((row, index) => {
+      rows[index] = row.replace(tile, '.')
+    })
   }
   rows[y] = rows[y]!.slice(0, x) + tile + rows[y]!.slice(x + 1)
   return { ...level, rows }

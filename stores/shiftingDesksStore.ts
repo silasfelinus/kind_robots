@@ -26,6 +26,7 @@ import {
   recordReward,
   restoreRewardArchive,
   type RewardArchive,
+  type RunReceipt,
 } from '~/utils/shiftingDesks/rewards'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
@@ -40,6 +41,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const discovered = ref<string[]>([])
   const endingsFound = ref<string[]>([])
   const rewardArchive = ref<RewardArchive>(emptyRewardArchive())
+  const printReceipt = ref<RunReceipt | null>(null)
   const newlyEarnedMilestones = ref<string[]>([])
   const archiveUnlocked = computed(
     () => endingsFound.value.length > 0 || rewardArchive.value.runs.length > 0,
@@ -129,6 +131,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     const seed = options.daily
       ? dailySeed()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+    printReceipt.value = null
     run.value = newRun(seed, jobId)
     newlyEarnedMilestones.value = []
     usePlaybookRunReviewStore().begin('shifting-desks', seed)
@@ -230,7 +233,12 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     persist()
   }
 
+  function selectPrintReceipt(receipt: RunReceipt): void {
+    printReceipt.value = receipt
+  }
+
   function quit(): void {
+    printReceipt.value = null
     newlyEarnedMilestones.value = []
     run.value = null
     persist()
@@ -244,6 +252,8 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     discovered,
     endingsFound,
     rewardArchive,
+    printReceipt,
+    selectPrintReceipt,
     newlyEarnedMilestones,
     archiveUnlocked,
     loaded,

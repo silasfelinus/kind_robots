@@ -354,7 +354,9 @@
           >
             <b>B</b> MENU
           </button>
-          <span v-if="screen !== 'play' && screen !== 'maker'"><b>A</b> CONFIRM</span>
+          <span v-if="screen !== 'play' && screen !== 'maker'"
+            ><b>A</b> CONFIRM</span
+          >
           <span v-else>GAME CONTROLS ACTIVE</span>
         </div>
       </footer>
@@ -369,7 +371,9 @@ import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 
 type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'maker' | 'play'
 const route = useRoute()
-const shareCode = computed(() => typeof route.query.level === 'string' ? route.query.level : undefined)
+const shareCode = computed(() =>
+  typeof route.query.level === 'string' ? route.query.level : undefined,
+)
 const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
@@ -432,7 +436,13 @@ function stepWorld(direction: number) {
     PLUMBER_WORLDS.length
 }
 function onScreenKey(event: KeyboardEvent) {
-  if (screen.value === 'play' || screen.value === 'maker' || event.altKey || event.ctrlKey || event.metaKey)
+  if (
+    screen.value === 'play' ||
+    screen.value === 'maker' ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey
+  )
     return
   const target = event.target
   if (

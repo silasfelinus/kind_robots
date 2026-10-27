@@ -5,6 +5,8 @@ import {
   ruleFor,
 } from './crewAssignments'
 import type { MissionPreview } from './crewAssignments'
+import { CREW_JOURNEYS, NEMESIS_COUNTERPLAY } from './crewJourneys'
+import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =
@@ -21,9 +23,11 @@ export type CrewId =
   | 'omi'
   | 'fen'
 export type VoyagePhase =
-  'briefing' | 'transit' | 'decision' | 'debrief' | 'finale' | 'ending'
+  'briefing' | 'transit' | 'decision' | 'debrief' | 'crew-quest' | 'finale' | 'ending'
 export type Result = 'flawless' | 'success' | 'costly' | 'disaster'
 export type PolicyId = 'aid' | 'observe' | 'intervene'
+export type DetourApproach = 'careful' | 'bold'
+export type FinaleStrategy = 'protect' | 'compromise' | 'counter'
 export type PocketRoom = 'holodeck' | 'war-room' | 'infirmary'
 export const POCKET_ROOMS: {
   id: PocketRoom
@@ -331,6 +335,11 @@ export type VoyageRun = {
     routes: string[]
   } | null
   injuredUntil?: Partial<Record<CrewId, number>>
+  journeyProgress?: Partial<Record<CrewId, number>>
+  journeyHistory?: { crewId: CrewId; step: number; system: string; approach: DetourApproach }[]
+  detourChapter?: number
+  detour?: { crewId: CrewId; step: number } | null
+  nemesisPressure?: number
   antagonist: number
   supplies: number
   trust: number
@@ -381,6 +390,11 @@ export function startVoyage(
     postedDay: 1,
     active: null,
     injuredUntil: {},
+    journeyProgress: {},
+    journeyHistory: [],
+    detourChapter: 0,
+    detour: null,
+    nemesisPressure: 0,
     antagonist: hash(cleanSeed, 'antagonist') % ANTAGONISTS.length,
     supplies: 7,
     trust: 2,
@@ -599,6 +613,74 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     log: [...run.log, `${mission.system}: ${policy} — ${responses[policy]}`],
   }
 }
+/** One detour may follow each main mission, without replacing the original mission. */
+export function crewDetourOptions(run: VoyageRun): CrewId[] {
+  if (run.phase !== 'debrief' || run.detourChapter === run.chapter) return []
+  return run.crew.filter(
+    (id) =>
+      (run.journeyProgress?.[id] ?? 0) < 3 &&
+      (run.injuredUntil?.[id] ?? 0) <= (run.day ?? run.chapter),
+  )
+}
+export function detourFor(run: VoyageRun) {
+  if (!run.detour) return null
+  return CREW_JOURNEYS[run.detour.crewId]?.[run.detour.step] ?? null
+}
+export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
+  if (!crewDetourOptions(run).includes(crewId)) return run
+  const step = run.journeyProgress?.[crewId] ?? 0
+  const destination = CREW_JOURNEYS[crewId][step]
+  return {
+    ...run,
+    phase: 'crew-quest',
+    detour: { crewId, step },
+    scene: `The red couch turns toward ${destination.system}. ${CREW.find((officer) => officer.id === crewId)!.name} requests a personal stop. The protective bubble remains intact; mission schedules do not.`,
+  }
+}
+export function resolveCrewDetour(
+  run: VoyageRun,
+  approach: DetourApproach,
+): VoyageRun {
+  if (run.phase !== 'crew-quest' || !run.detour || !['careful', 'bold'].includes(approach))
+    return run
+  if (approach === 'careful' && run.supplies < 1) return run
+  const { crewId, step } = run.detour
+  if (!run.crew.includes(crewId) || (run.journeyProgress?.[crewId] ?? 0) !== step || step < 0 || step > 2)
+    return run
+  const destination = CREW_JOURNEYS[crewId][step]
+  const challenged = NEMESIS_COUNTERPLAY[antagonistFor(run).id]?.includes(crewId) ?? false
+  const result = approach === 'careful'
+    ? `You spend one supply honoring local consent. ${CREW.find((person) => person.id === crewId)!.name} earns the witnesses' confidence.`
+    : `You make the evidence public. The witnesses gain a voice; the institutions you embarrassed now have your coordinates.`
+  const nemesis = challenged
+    ? ` ${antagonistFor(run).name} recognizes the evidence. ${CREW_DOSSIERS[crewId].nemesisLink}`
+    : ''
+  const complete = step === 2
+    ? ` ${CREW.find((person) => person.id === crewId)!.name}'s three-system testimony is complete, and it changes the final council.`
+    : ''
+  const scene = `${destination.system}: ${result}${nemesis}${complete}`
+  return {
+    ...run,
+    phase: 'debrief',
+    detour: null,
+    detourChapter: run.chapter,
+    day: (run.day ?? run.chapter) + 1,
+    supplies: Math.max(0, run.supplies - (approach === 'careful' ? 1 : 0)),
+    trust: run.trust + (approach === 'careful' ? 1 : -1),
+    reputation: run.reputation + (approach === 'bold' ? 1 : 0),
+    nemesisPressure: (run.nemesisPressure ?? 0) + (challenged ? 1 : 0) + (approach === 'bold' ? 1 : 0),
+    journeyProgress: { ...(run.journeyProgress ?? {}), [crewId]: step + 1 },
+    journeyHistory: [...(run.journeyHistory ?? []), {
+      crewId, step, system: destination.system, approach,
+    }],
+    scene,
+    log: [...run.log, `Ship day ${(run.day ?? run.chapter) + 1}: ${scene}`],
+  }
+}
+export function counterCrew(run: VoyageRun): CrewId[] {
+  const candidates = NEMESIS_COUNTERPLAY[antagonistFor(run).id] ?? []
+  return run.crew.filter((id) => candidates.includes(id) && (run.journeyProgress?.[id] ?? 0) >= 2)
+}
 export function nextDestination(run: VoyageRun): VoyageRun {
   if (run.phase !== 'debrief') return run
   if (run.chapter >= MISSIONS.length)
@@ -623,33 +705,54 @@ export function nextDestination(run: VoyageRun): VoyageRun {
 }
 export function finishVoyage(
   run: VoyageRun,
-  strategy: 'protect' | 'compromise',
+  strategy: FinaleStrategy,
 ): VoyageRun {
-  if (run.phase !== 'finale') return run
+  if (run.phase !== 'finale' || !['protect', 'compromise', 'counter'].includes(strategy))
+    return run
+  if (strategy === 'counter' && !counterCrew(run).length) return run
   const saved = strategy === 'protect'
   const strong = saved
     ? run.reputation >= 2 && run.trust >= 2
     : run.supplies >= 3
-  const ending = saved
-    ? strong
-      ? 'CAPTAIN OF THE OPEN HORIZON'
-      : 'THE LAST SHIP HOME'
-    : strong
-      ? 'THE GALACTIC BARGAIN'
-      : 'THE COST OF COMMAND'
-  const scene = saved
-    ? strong
-      ? 'Your crew rejects the antagonist’s claim and protects the worlds without owning them. Vox saves your place at the bar.'
-      : 'You bring the wounded home. Some treaties call you a disgrace; the rescued families call you by name.'
-    : strong
-      ? 'You negotiate with the enemy for passage. The galaxy survives at the cost of a debt you will spend a lifetime questioning.'
-      : 'Your gambit fails, but your crew refuses to abandon you. The next captain inherits both the ship and the warning.'
+  const ending = strategy === 'counter'
+    ? antagonistFor(run).id === 'showrunner'
+      ? 'THE UNION CANCELLATION'
+      : 'THE WITNESS COALITION'
+    : saved
+      ? strong
+        ? 'CAPTAIN OF THE OPEN HORIZON'
+        : 'THE LAST SHIP HOME'
+      : strong
+        ? 'THE GALACTIC BARGAIN'
+        : 'THE COST OF COMMAND'
+  const verdict = strategy === 'counter'
+    ? `${counterCrew(run).map((id) => CREW.find((c) => c.id === id)!.name).join(' and ')} present evidence gathered on the couch's detours. ${antagonistFor(run).name} must answer witnesses rather than dictate terms; the people affected take the final vote.`
+    : saved
+      ? strong
+        ? 'Your crew rejects the antagonist’s claim and protects the worlds without owning them. Vox saves your place at the bar.'
+        : 'You bring the wounded home. Some treaties call you a disgrace; the rescued families call you by name.'
+      : strong
+        ? 'You negotiate passage with the enemy. The galaxy survives, but the protection comes with a public debt.'
+        : 'Your gambit fails; the next captain inherits both a surviving crew and your written warning.'
+  const captain = CAPTAIN_DOSSIERS[run.captain]
+  const remembrance = {
+    fluke: 'Fluke signs the amended captain’s log in ink, leaving the earlier fictional victory visible underneath.',
+    vale: 'Vale refuses to backdate the final treaty. For the first time the signatories may say no.',
+    solace: 'Solace reads aloud the names of those still awaiting rescue and authorizes a civilian triage council.',
+    rex: 'Rex permits the inquiry to publish his errors next to the names of the people who survived.',
+    quill: 'Quill deposits the evidence with its owners instead of locking it in her private archive.',
+    ro: 'Ro abandons diplomatic immunity and states their real title on the record: passenger.',
+  }[run.captain]
+  const journeys = (run.journeyHistory ?? [])
+    .filter((item) => item.step === 2)
+    .map((item) => `${CREW.find((c) => c.id === item.crewId)!.name}'s testimony from ${item.system} changes the peace charter.`)
+  const scene = `${verdict} ${remembrance} ${journeys.join(' ')}`
   return {
     ...run,
     phase: 'ending',
     scene,
     ending,
-    log: [...run.log, `Final captain's log: ${ending}`],
+    log: [...run.log, `Final captain's log: ${ending}. ${captain.voice} ${scene}`],
   }
 }
 export function restoreVoyage(raw: unknown): VoyageRun | null {
@@ -674,6 +777,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
       'transit',
       'decision',
       'debrief',
+      'crew-quest',
       'finale',
       'ending',
     ].includes(data.phase ?? '') ||
@@ -688,7 +792,13 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     data.antagonist >= ANTAGONISTS.length ||
     (data.day !== undefined && (!Number.isInteger(data.day) || data.day < 1)) ||
     (data.phase === 'transit' &&
-      (!data.active || typeof data.active.returnsDay !== 'number'))
+      (!data.active || typeof data.active.returnsDay !== 'number')) ||
+    (data.phase === 'crew-quest' && (!data.detour ||
+      !data.crew.includes(data.detour.crewId) ||
+      (data.journeyProgress?.[data.detour.crewId] ?? 0) !== data.detour.step ||
+      data.detour.step < 0 || data.detour.step > 2)) ||
+    (data.detourChapter !== undefined && (!Number.isInteger(data.detourChapter) || data.detourChapter < 0 || data.detourChapter > data.chapter)) ||
+    (data.journeyProgress !== undefined && Object.entries(data.journeyProgress).some(([id, n]) => !data.crew.includes(id as CrewId) || !Number.isInteger(n) || n! < 0 || n! > 3))
   )
     return null
   return data as VoyageRun

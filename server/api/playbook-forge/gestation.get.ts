@@ -32,8 +32,9 @@ export default defineEventHandler(async (event) => {
   const entries = (await conductorList(GESTATION_DIR)) ?? []
   const dates = entries
     .flatMap((entry) => {
-      const match = entry.type === 'file' ? DATED.exec(entry.name) : null
-      return match ? [match[1]!] : []
+      const date =
+        entry.type === 'file' ? DATED.exec(entry.name)?.[1] : undefined
+      return date ? [date] : []
     })
     .sort()
     .slice(-MAX_DOCKETS)

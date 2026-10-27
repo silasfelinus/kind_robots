@@ -7,7 +7,7 @@ export async function plumberReviewSummary(
   viewerId: number | null,
 ) {
   if (!levelId) {
-    return { courseId: null, average: 0, count: 0, myRating: 0, reviews: [] }
+    return { courseId: null, average: 0, count: 0, myRating: 0, myComment: '', reviews: [] }
   }
   const where = {
     plumberLevelId: levelId,
@@ -40,7 +40,7 @@ export async function plumberReviewSummary(
               plumberLevelId: levelId,
             },
           },
-          select: { rating: true },
+          select: { rating: true, comment: true },
         })
       : Promise.resolve(null),
   ])
@@ -49,6 +49,7 @@ export async function plumberReviewSummary(
     average: aggregate._avg.rating ?? 0,
     count: aggregate._count._all,
     myRating: mine?.rating ?? 0,
+    myComment: mine?.comment ?? '',
     reviews: reactions.map((reaction) => ({
       id: reaction.id,
       rating: reaction.rating,

@@ -1,4 +1,5 @@
 import { warpArt } from '../gameOfCaptains/artManifest'
+import { warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
   WARP_ENDINGS,
   antagonistArtKey,
@@ -76,6 +77,7 @@ function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
   node.artUrl = warpArt(key)
   node.needsArt = !node.artUrl
+  node.artPrompt = warpArtPrompt(key)
   node.provenance = `Art slot public/game-of-captains/${key}.webp (conductor projects/game-of-captains/art).`
   return node
 }
@@ -294,5 +296,6 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     editable: false,
     artProject: 'game-of-captains',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

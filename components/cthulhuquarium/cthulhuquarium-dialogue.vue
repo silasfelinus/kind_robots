@@ -133,6 +133,9 @@
               <div class="min-w-0 flex-1">
                 <p class="text-xs uppercase opacity-60">A new background</p>
                 <p class="truncate text-sm font-bold">{{ handover.name }}</p>
+                <p class="line-clamp-2 font-serif text-xs italic opacity-70">
+                  {{ handover.fieldNote }}
+                </p>
               </div>
               <button
                 type="button"

@@ -82,8 +82,8 @@ const artStage = readFileSync(
   'utf8',
 )
 assert.match(artStage, /:src="illustrationPath"/)
-assert.match(artStage, /world\\.dark\\.sceneChoices\\[world\\.dark\\.player\\]/)
-assert.match(artStage, /watch\\(illustrationPath/)
+assert.match(artStage, /world\.dark\.sceneChoices\[world\.dark\.player\]/)
+assert.match(artStage, /watch\(illustrationPath/)
 assert.match(artStage, /@error="artFailed = true"/)
 
 assert.ok(

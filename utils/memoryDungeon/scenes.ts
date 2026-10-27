@@ -109,7 +109,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
     opening:
       'A bell hangs over a dry creek. Beneath it a toll collector has set up a beautiful velvet chair but forgotten the actual bridge. They demand payment for every traveler who crosses the imaginary span.',
     artPrompt:
-      'Full-scene strange forest road, velvet chair and empty bridge toll booth, exasperated toll collector holding a tiny bell, playful dark fantasy atmosphere',
+      'A brass bell hangs from a wooden post over a dry, stony creek bed in the forest. Beside it, a toll collector in a patched waistcoat sits in a red velvet armchair, holding out an open palm toward a passing traveller. The creek has a gap where a bridge would stand. Afternoon light. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'challenge',
@@ -226,7 +226,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
     opening:
       'Vesper sits beneath a tree, drawing a map on the blank side of a farewell letter. It has roads, a tower, and a small hole precisely where a person should be. Vesper folds the letter whenever you look too closely.',
     artPrompt:
-      'Melancholy yet witty young fantasy cartographer Vesper beneath gnarled tree with folded half-finished map, pale afternoon light and distant ruin, emotionally expressive portrait',
+      'Vesper, a slender moth-folk cartographer with soft dusty-grey fur, feathery antennae and large grey wings with brown vein patterns, sits beneath a gnarled oak drawing a map with a silver pen on the back of a folded letter. The map shows roads, a small tower and a round hole cut through the paper. A stone ruin stands far behind. Pale afternoon light. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'ask',
@@ -311,7 +311,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
     opening:
       'At the threshold, someone has scratched a dozen names into the masonry. Each has been crossed out by a different hand. The door waits for you to decide whose version deserves remembering.',
     artPrompt:
-      'Ancient dungeon threshold between massive living roots, scratched-out name tablets, distant glowing vault hall, emotional cinematic fantasy entrance',
+      'A stone doorway between massive living roots leads into a dark vault hall with a faint glow at its far end. A dozen rows of scratched marks cover the masonry around the doorway, each row struck through with a different kind of line. A lantern sits on the threshold. Low warm light. Medium-wide shot at eye level. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '6,4',
@@ -367,7 +367,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
     opening:
       'The Thorn Patrol has a single order between them: stop anyone who knows the wrong name of the Vault. Neither guard is sure what the right name is, and neither will risk asking.',
     artPrompt:
-      'Two tired but distinct fantasy sentries in thorn-wrapped armor arguing over one wrinkled order sheet beside mossy shortcut, expressive theatrical staging',
+      'Two forest guards in bark armor wrapped with thorny vines, one tall and lean, one short and broad, stand on a mossy shortcut path tugging at opposite ends of one wrinkled sheet of paper, their narrow spears leaning against a tree beside them. Afternoon light through the leaves. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     choices: [
       {
         id: 'bribe',

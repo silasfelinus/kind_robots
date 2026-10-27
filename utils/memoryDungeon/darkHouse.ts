@@ -349,7 +349,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Unremembered Hearth',
     'At the final fire every rescued person arrives carrying a different account of home. The Reimaginer offers to restore a single perfect version, and none of the witnesses agrees which one.',
-    'Grand rooted hearth circle, amber memory flames held by glass jars, eight distinct adult witnesses and a veiled guardian.',
+    "A great round hearth of roots in a dark manor hall, its amber flames burning inside rows of glass jars. Eight adult villagers stand around it, each holding a different small thing from home: a key, a cup, a shawl, a child's shoe, a book, a loaf, a pipe and a ribbon. A tall veiled figure stands behind the fire. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.",
     'Return each memory to its owner',
     'The hearth releases the jars to consenting hands; the rebuilt House loses the power to choose the owners.',
     'Create a revocable commons',

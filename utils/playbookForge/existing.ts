@@ -71,10 +71,8 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
   return {
     values,
     measured,
-    art: {
-      painted: nodes.filter((node) => !!node.artUrl).length,
-      total: nodes.length,
-    },
+    // File delivery is audited by the server, not inferred from authored URLs.
+    art: null,
     source: `Playbook Studio adapter: ${nodes.length} authored beats`,
   }
 }

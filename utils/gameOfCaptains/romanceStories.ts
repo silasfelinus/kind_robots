@@ -811,7 +811,14 @@ const raw: StoryDefinition[] = [
       ],
     },
   },
-  {er.',
+  {
+    id:'pair:sora:kivo',people:['sora','kivo'],kind:'pair',label:'Sora + Kivo · The Unopened Message',
+    invitation:'Sora and Kivo admit they have been sharing quiet evenings while tracing a lost courier, and ask for privacy.',
+    refusal:'Kivo and Sora will not turn a relationship into surveillance or compulsory mind-reading.',
+    negotiation:'Sora believes testimony matters; Kivo’s sibling may have chosen disappearance. Either can say no to being searched.',
+    acceptance:'Sora powers down the scanner. Kivo leaves the letter unread. They choose each other without proof.',
+    separation:'The pair stop courting but continue to protect each other’s mission rights.',
+    ending:'An unread letter sits in a shared drawer. It is a promise not to demand every answer.',
     fault:'Evidence is not permission to invade another life.',
     interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'A Trace Without Permission',setting:'The temporary holodeck shows a message from Kivo’s sibling. Sora refuses to open it by force.',speakers:[

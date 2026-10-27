@@ -562,8 +562,9 @@ for (const story of ROMANCE_STORIES) {
   assert.ok(story.portraitKeys.length === story.people.length)
   assert.ok(new Set(story.people).size === story.people.length)
   assert.ok(story.people.every((id) => CREW.some((crew) => crew.id === id)))
-  const third = CREW.map((member) => member.id).filter((id) => !story.people.includes(id))[0]!
-  const team = [...new Set([...story.people, third])].slice(0, 3)
+  const team = [
+    ...new Set([...story.people, ...CREW.map((member) => member.id)]),
+  ].slice(0, 3)
   let voyage = arriveAtRelationshipDebrief(startVoyage('solace', team, 61))
   const invite = `invite-${story.id}` as RomanceChoiceId
   assert.ok(romanceMoment(voyage)?.choices.some((c) => c.id === invite), story.id)

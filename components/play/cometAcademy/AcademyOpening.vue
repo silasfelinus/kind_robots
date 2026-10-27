@@ -28,7 +28,7 @@
           type="button"
           class="prom-start"
           data-testid="academy-new-game"
-          @click="screen = 'origin'"
+          @click="beginNewGame"
         >
           <span aria-hidden="true">✦</span> NEW GAME
         </button>
@@ -157,7 +157,7 @@
         </div>
       </div>
 
-      <div v-else-if="screen === 'dossier'" class="prom-card-room">
+      <div v-else-if="screen === 'dossier' || screen === 'yearbook-detail'" class="prom-card-room">
         <div class="prom-trading-card">
           <div class="prom-card-art">
             <img v-if="personaArtwork" :src="personaArtwork" alt="" />
@@ -199,7 +199,7 @@
           </div>
         </div>
         <div class="prom-card-choices">
-          <p class="prom-eyebrow">03 / WHO COULD YOU BECOME?</p>
+          <p class="prom-eyebrow">{{ screen === 'yearbook-detail' ? 'YEARBOOK / COLLECTIBLE IDENTITY' : '03 / WHO COULD YOU BECOME?' }}</p>
           <h2>{{ identity.realName }}</h2>
           <p
             v-if="previous"
@@ -223,7 +223,7 @@
               :class="{ active: selectedForm === form }"
               :disabled="form !== 'student' && !unlockedForms.includes(form)"
               :aria-pressed="selectedForm === form"
-              @click="selectedForm = form"
+              @click="chooseForm(form)"
             >
               <span>{{
                 form === 'student' ? 'STUDENT / SIDEKICK' : form.toUpperCase()
@@ -249,7 +249,7 @@
             data-testid="academy-dossier-next"
             @click="screen = 'vow'"
           >
-            CHOOSE MY STORY <span>➜</span>
+            {{ screen === 'yearbook-detail' ? 'REPLAY THIS IDENTITY' : 'CHOOSE MY STORY' }} <span>➜</span>
           </button>
         </div>
       </div>
@@ -358,19 +358,23 @@
           yearbook.
         </p>
         <div v-else class="prom-yearbook-list">
-          <article v-for="entry in explored" :key="entry.id">
-            <strong>{{ entry.name }}</strong
-            ><span>{{ entry.plays }} RUNS</span>
-            <p>
-              {{ entry.alias }} ·
-              {{
-                entry.forms.length
-                  ? entry.forms.join(' / ') + ' UNLOCKED'
-                  : 'STUDENT DISCOVERED'
-              }}
-            </p>
-            <small>{{ entry.endings.length }} ENDINGS DISCOVERED</small>
-          </article>
+          <button
+            v-for="entry in explored"
+            :key="entry.id"
+            type="button"
+            class="prom-yearbook-entry"
+            data-testid="academy-yearbook-character"
+            @click="openYearbookCard(entry.id)"
+          >
+            <span class="prom-yearbook-avatar" aria-hidden="true">★</span>
+            <strong>{{ entry.name }}</strong>
+            <span>{{ entry.plays }} RUNS · {{ entry.alias }}</span>
+            <small>
+              {{ entry.forms.length ? entry.forms.join(' / ').toUpperCase() + ' UNLOCKED' : 'STUDENT DISCOVERED' }}
+              · {{ entry.endings.length }} ENDINGS
+            </small>
+            <span class="prom-yearbook-open">OPEN CHARACTER CARD ›</span>
+          </button>
         </div>
       </div>
 
@@ -386,7 +390,7 @@
             >Play the original seven-day simulation instead of the thirty-day
             campaign</span
           >
-          <input v-model="firstWeek" type="checkbox" />
+          <input v-model="firstWeek" type="checkbox" :disabled="selectedForm !== 'student'" />
         </label>
         <p class="prom-card-note">
           Your campaign is autosaved on this device. Returning characters and
@@ -435,8 +439,10 @@ type Screen =
   | 'vow'
   | 'tutorial'
   | 'yearbook'
+  | 'yearbook-detail'
   | 'settings'
 const screen = ref<Screen>('title')
+const fromYearbook = ref(false)
 const selectedOrigin = ref<PowerOriginId>('accident')
 const selectedAffinity = ref<PowerAffinityId>('fire')
 const selectedForm = ref<PlayerForm>('student')
@@ -511,6 +517,7 @@ const chapter = computed(
       vow: '04 / THE CHOICE',
       tutorial: '05 / TUTORIAL',
       yearbook: 'YEARBOOK',
+      'yearbook-detail': 'YEARBOOK / CHARACTER CARD',
       settings: 'SETTINGS',
       title: 'WELCOME',
     })[screen.value],
@@ -541,6 +548,23 @@ const routes = [
     promise: POWER_VOWS[2]!.promise,
   },
 ]
+function beginNewGame() {
+  fromYearbook.value = false
+  screen.value = 'origin'
+}
+function openYearbookCard(id: string) {
+  const [origin, affinity] = id.split('-')
+  if (!POWER_ORIGINS.some((entry) => entry.id === origin) || !POWER_AFFINITIES.some((entry) => entry.id === affinity)) return
+  selectedOrigin.value = origin as PowerOriginId
+  selectedAffinity.value = affinity as PowerAffinityId
+  selectedForm.value = 'student'
+  fromYearbook.value = true
+  screen.value = 'yearbook-detail'
+}
+function chooseForm(form: PlayerForm) {
+  selectedForm.value = form
+  if (form !== 'student') firstWeek.value = false
+}
 function selectOption(id: string) {
   if (screen.value === 'origin') selectedOrigin.value = id as PowerOriginId
   if (screen.value === 'affinity')
@@ -560,9 +584,10 @@ function back() {
     origin: 'title',
     affinity: 'origin',
     dossier: 'affinity',
-    vow: 'dossier',
+    vow: fromYearbook.value ? 'yearbook-detail' : 'dossier',
     tutorial: launchOnTutorial.value ? 'vow' : 'title',
     yearbook: 'title',
+    'yearbook-detail': 'yearbook',
     settings: 'title',
   }
   screen.value = previousScreen[screen.value] ?? 'title'
@@ -1096,6 +1121,22 @@ function launch() {
   margin: 2rem 0 1rem;
 }
 .prom-guide-grid article,
+.prom-yearbook-entry {
+  display: flex;
+  flex-direction: column;
+  gap: .42rem;
+  text-align: left;
+  border: 1px solid #e4b58e74;
+  border-radius: .7rem;
+  padding: 1rem;
+  background: linear-gradient(145deg, #543455, #282d4c);
+}
+.prom-yearbook-entry:hover, .prom-yearbook-entry:focus-visible {
+  border-color: #ffcf9b;
+  background: #543d62;
+}
+.prom-yearbook-avatar { font-size: 1.7rem; color: #ffbb94; }
+.prom-yearbook-open { color: #ffd3a4; letter-spacing: .1em; font-weight: 900; font-size: .65rem; }
 .prom-yearbook-list article {
   padding: 1rem;
   border: 1px solid #e4b58e74;

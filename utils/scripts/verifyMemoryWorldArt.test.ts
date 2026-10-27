@@ -4,6 +4,7 @@ import {
   WORLD_ONE_ART_SHOTS,
   validateWorldOneArtManifest,
   briarIllustrationPath,
+  houseIllustrationPath,
 } from '../memoryDungeon/artManifest'
 import {
   WORLD_ONE_GALLERY,
@@ -16,7 +17,11 @@ import {
 } from '../memoryDungeonCardArt'
 import { BRIAR_TILES } from '../memoryDungeonWorld'
 import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
-import { HOUSE_ROOMS } from '../memoryDungeon/house'
+import {
+  HOUSE_ROOMS,
+  newHouseProgress,
+  restoreHouseProgress,
+} from '../memoryDungeon/house'
 import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
 import {
   DEFAULT_DUNGEON_DECK,
@@ -55,6 +60,49 @@ for (const tile of BRIAR_TILES) {
 }
 assert.equal(illustratedBriarOutcomes, 128)
 assert.equal(briarIllustrationPath('not-a-site'), null)
+
+let illustratedHouseOutcomes = 0
+for (const room of Object.values(HOUSE_ROOMS)) {
+  const establishing = houseIllustrationPath(room.id)
+  assert.equal(establishing, room.imagePath)
+  assert.ok(
+    establishing && authoredShotPaths.has(establishing),
+    `Missing House establishing painting: ${room.id}`,
+  )
+  for (const choice of room.choices) {
+    const outcome = houseIllustrationPath(room.id, choice.id)
+    assert.ok(
+      outcome && authoredShotPaths.has(outcome),
+      `Missing House consequence painting: ${room.id}/${choice.id}`,
+    )
+    assert.notEqual(outcome, establishing)
+    illustratedHouseOutcomes++
+  }
+  assert.equal(
+    houseIllustrationPath(room.id, 'unearned-forged-choice'),
+    establishing,
+    'Forged choices cannot select House consequence art',
+  )
+}
+assert.equal(illustratedHouseOutcomes, 76)
+assert.equal(houseIllustrationPath('HD-99'), null)
+for (const ending of ['release', 'renew', 'break'] as const) {
+  const saved = newHouseProgress()
+  saved.current = 'HD-35'
+  saved.visited.push('HD-35')
+  saved.decisions['HD-35'] = ending
+  saved.ending = ending
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(saved)))
+  assert.ok(restored)
+  assert.equal(
+    houseIllustrationPath(
+      restored.current,
+      restored.decisions[restored.current],
+    ),
+    houseIllustrationPath('HD-35', ending),
+    'Reloaded House decisions must select the same consequence painting',
+  )
+}
 
 assert.deepEqual(validateWorldOneArtManifest(), [])
 assert.deepEqual(validateRealmGallery(WORLD_ONE_GALLERY, 1), [])
@@ -133,6 +181,10 @@ const overworld = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
+const houseStage = readFileSync(
+  'components/memory-dungeon/house-stage.vue',
+  'utf8',
+)
 assert.match(worldStore, /REALM_UNLOCKS_KEY/)
 assert.match(
   worldStore,
@@ -150,7 +202,12 @@ assert.match(overworld, /world\.state\.sceneChoices\[world\.state\.player\]/)
 assert.match(overworld, /watch\(currentIllustrationPath/)
 assert.match(overworld, /@error="sceneArtFailed = true"/)
 assert.match(overworld, /:style="currentSceneStyle"/)
+assert.match(houseStage, /:src="displayArtPath"/)
+assert.match(houseStage, /@error="handleArtError"/)
+assert.match(houseStage, /houseIllustrationPath\(room\.value\?\.id/)
+assert.match(houseStage, /selectedChoice\.value\?\.id/)
+assert.match(houseStage, /fallbackArtFailed/)
 
 console.log(
-  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36-room art briefs, 32-card realm gallery, delivery gates and card-back persistence verified',
+  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 76 consequence selectors, 32-card realm gallery, delivery gates and card-back persistence verified',
 )

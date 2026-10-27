@@ -12,6 +12,7 @@ summary: Manage salon clients and services.
 icon: kind-icon:scissors
 image: /images/dashboard-tabs/art/stylist.webp
 route: /stylist
+allowDirectAccess: true
 sort: 60
 tutorial:
   title: Price and record appointments

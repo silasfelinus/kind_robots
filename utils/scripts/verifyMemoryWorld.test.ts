@@ -259,7 +259,11 @@ for (const { reality, site, choices } of playablePhotoScenes) {
     scenes[reality][site] = choice
     assert.deepEqual(
       reconcileEarthChronicle(newEarthChronicle(), scenes).found,
-      [EARTH_PHOTOS.find((photo) => photo.experience === reality && photo.site === site)!.id],
+      [
+        EARTH_PHOTOS.find(
+          (photo) => photo.experience === reality && photo.site === site,
+        )!.id,
+      ],
       `Earned photo must be granted by ${reality}/${site} choice ${choice}`,
     )
   }
@@ -331,10 +335,30 @@ assert.deepEqual(
 // the same Earth chronology, preserve consent-based responses, and never leak
 // later-world photographs into the journal.
 const photoEvents = [
-  { reality: 'e01' as const, site: '2,5', id: 'earth-01', choice: 'archive' },
-  { reality: 'e01' as const, site: '8,6', id: 'earth-02', choice: 'record' },
-  { reality: 'e02' as const, site: '2,5', id: 'earth-03', choice: 'question' },
-  { reality: 'e02' as const, site: '5,4', id: 'earth-04', choice: 'draw' },
+  {
+    reality: 'e01' as const,
+    site: '2,5',
+    id: 'earth-01',
+    choice: 'archive',
+  },
+  {
+    reality: 'e01' as const,
+    site: '8,6',
+    id: 'earth-02',
+    choice: 'record',
+  },
+  {
+    reality: 'e02' as const,
+    site: '2,5',
+    id: 'earth-03',
+    choice: 'question',
+  },
+  {
+    reality: 'e02' as const,
+    site: '5,4',
+    id: 'earth-04',
+    choice: 'draw',
+  },
 ]
 function permutations<T>(items: readonly T[]): T[][] {
   if (!items.length) return [[]]

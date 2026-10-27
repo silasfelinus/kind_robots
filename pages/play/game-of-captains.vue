@@ -564,7 +564,7 @@
               @click="store.decide('aid')"
             >
               <span
-                ><b>Offer consent-based help</b
+                ><b>{{ ethicalOrders.aid }}</b
                 ><small
                   >Spend supplies; earn trust without claiming authority.</small
                 ></span
@@ -577,7 +577,7 @@
               @click="store.decide('observe')"
             >
               <span
-                ><b>Observe the non-interference rule</b
+                ><b>{{ ethicalOrders.observe }}</b
                 ><small
                   >Preserve legal standing. Others live with the result.</small
                 ></span
@@ -590,7 +590,7 @@
               @click="store.decide('intervene')"
             >
               <span
-                ><b>Break protocol and take command</b
+                ><b>{{ ethicalOrders.intervene }}</b
                 ><small>Act now. Accept the outrage that follows.</small></span
               >
               ↗
@@ -920,6 +920,7 @@ import {
   SKILLS,
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
+import { ACT_ONE_ORDERS, type ActOneRouteId } from '~/utils/gameOfCaptains/actOne'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -997,6 +998,7 @@ const nemesisCrewLink = computed(
 const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
 )
+const ethicalOrders = computed(() => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId])
 const missionRule = computed(() => ruleFor(mission.value.id))
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,

@@ -1201,6 +1201,7 @@ for (const seed of [1, 2, 3, 4, 997]) {
     for (const incident of cases) {
       const picked = STUDENTS.find(
         (student) =>
+          knownContacts(run).includes(student.id) &&
           studentAvailable(run, student.id) &&
           !run.assignments.some((assignment) =>
             assignment.students.includes(student.id),

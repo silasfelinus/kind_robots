@@ -401,7 +401,8 @@ export function buildLedger(
   discrepancies.push(...(options.notes ?? []))
 
   const starred = sections.filter((s) => s.starred).length
-  const allStarred = sections.length > 0 && starred === sections.length && !missingExtraArt
+  const allStarred =
+    sections.length > 0 && starred === sections.length && !missingExtraArt
   return {
     sections,
     units,
@@ -415,15 +416,16 @@ export function buildLedger(
     remainingSeconds:
       sections.reduce((n, s) => n + s.remainingSeconds, 0) +
       Math.round(
-        (unbuiltUnits + missingExtraArt) * secondsPerImage * (1 + options.assumptions.rerollRate),
+        (unbuiltUnits + missingExtraArt) *
+          secondsPerImage *
+          (1 + options.assumptions.rerollRate),
       ),
     remainingWords:
       sections.reduce((n, s) => n + s.remainingWords, 0) +
       unbuiltUnits * words.encounterBody,
     scope,
     progress:
-      (share(unitWriting) +
-        (pictureSlots ? art.delivered / pictureSlots : 0)) /
+      (share(unitWriting) + (pictureSlots ? art.delivered / pictureSlots : 0)) /
       2,
     writtenShare: share(unitWriting),
     paintedShare: pictureSlots ? art.delivered / pictureSlots : 0,

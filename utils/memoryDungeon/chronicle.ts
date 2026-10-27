@@ -569,6 +569,76 @@ export function recoveredEarthPhotos(chronicle: EarthChronicle): EarthPhoto[] {
     .sort((a, b) => a.order - b.order)
 }
 
+export interface EarthPhotoReappraisal {
+  title: string
+  evidence: string
+  reflection: string
+}
+
+type ResponsePair = `${PhotoResponse}:${PhotoResponse}`
+const PHOTO_REAPPRAISALS: ReadonlyArray<{
+  photos: readonly [string, string]
+  title: string
+  evidence: string
+  reflections: Record<ResponsePair, string>
+}> = [
+  {
+    photos: ['earth-01', 'earth-03'],
+    title: 'Two frames, one doorway',
+    evidence:
+      'The first print showed Morrow leaving with a box. The second catches an offered hand. Neither image proves whether the job was lost or whether the offer was accepted.',
+    reflections: {
+      'challenge:challenge':
+        'You questioned the dismissal and the helping hand. Two questions remain, but you can no longer call the exit an abandonment without asking the people at the door.',
+      'challenge:hold':
+        'You doubted the first verdict, then chose to keep both prints. You refuse to turn a possible kindness into a tidy acquittal for the stolen life.',
+      'hold:challenge':
+        'You kept your anger and then sought the person reaching out. Someone may have helped Morrow while your career collapsed. Both things can be true.',
+      'hold:hold':
+        'You kept the hurt and the contradictory print. The offered hand does not undo what you lost; your first judgment no longer gets the only place in the record.',
+    },
+  },
+  {
+    photos: ['earth-02', 'earth-04'],
+    title: 'A hurt and an unfinished apology',
+    evidence:
+      'The gathering shows a friend in pain. The later photograph holds an unsent apology beside an empty chair. Nothing identifies the letter’s intended recipient or proves reconciliation.',
+    reflections: {
+      'challenge:challenge':
+        'You looked beyond the gathering and asked if the apology was delivered. The photographs answer neither question. You owe the friend an inquiry, not an invented happy ending.',
+      'challenge:hold':
+        'You searched the gathering’s edges, then stayed with the empty chair. Someone may have tried to repair a hurt; the person who was hurt still decides what repair means.',
+      'hold:challenge':
+        'You acknowledged the humiliation and questioned the unsent reply. An apology drafted in your handwriting cannot speak for the friend or certify forgiveness.',
+      'hold:hold':
+        'You kept the friend’s pain and the vacant chair in view. Even a sincere apology could be refused. You leave room for that refusal without erasing the effort.',
+    },
+  },
+]
+
+export function earthPhotoReappraisal(
+  chronicle: EarthChronicle,
+  photoId: string,
+): EarthPhotoReappraisal | null {
+  const pair = PHOTO_REAPPRAISALS.find(({ photos }) =>
+    photos.includes(photoId),
+  )
+  if (!pair || !pair.photos.every((id) => chronicle.found.includes(id)))
+    return null
+  const first = chronicle.responses[pair.photos[0]]
+  const second = chronicle.responses[pair.photos[1]]
+  if (
+    (first !== 'challenge' && first !== 'hold') ||
+    (second !== 'challenge' && second !== 'hold')
+  )
+    return null
+  return {
+    title: pair.title,
+    evidence: pair.evidence,
+    reflection: pair.reflections[`${first}:${second}`],
+  }
+}
+
 export function validateEarthPhotoManifest(): string[] {
   const problems: string[] = []
   if (EARTH_PHOTOS.length !== 32) problems.push('Expected 32 fixed photographs')

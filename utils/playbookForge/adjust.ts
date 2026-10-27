@@ -100,7 +100,15 @@ export function combosLine(b: Blueprint): string {
     b.endingVersions === 'per-hero'
       ? `${b.endings} endings × ${c.heroes} hero versions = ${c.endingVersions} written`
       : `${c.endingVersions} endings, the same for every hero`
-  return `${heroes} × ${parties} = ${c.openings} openings; ${endings}${c.epilogueLines ? `; ${c.epilogueLines} follower epilogue lines` : ''}.`
+  const extra = [
+    c.partyScenes
+      ? `${c.parties} party adventures (${c.partyScenes} scenes)`
+      : '',
+    c.partyEndings ? `${c.partyEndings} party endings` : '',
+    c.villainEndings ? `${c.villainEndings} villain endings` : '',
+    c.epilogueLines ? `${c.epilogueLines} follower epilogue lines` : '',
+  ].filter(Boolean)
+  return `${heroes} × ${parties} = ${c.openings} openings; ${endings}${extra.length ? `; ${extra.join('; ')}` : ''}.`
 }
 
 export type AdjustmentPost = {

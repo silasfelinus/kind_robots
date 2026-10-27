@@ -162,7 +162,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'At the eastern ford a little ferry stays still while the landscape slips past it. Passengers applaud the speed until they notice the bank they left has moved closer to their homes.',
     artPrompt:
-      'A small rope ferry sits still in the middle of a river while the forested shoreline slides past it like painted stage scenery on rollers. Travellers holding umbrellas watch from the deck. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+      'A small rope ferry sits still in the middle of a river while the forested shoreline behind it is painted on a long canvas strip that two wooden rollers on the banks wind past. Travellers holding umbrellas watch from the deck. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'anchor',

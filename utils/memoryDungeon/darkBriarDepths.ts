@@ -228,7 +228,7 @@ export const DARK_BRIAR_DEPTHS: Record<string, DarkBriarScene> = {
     opening:
       'A council of small, discarded wishes has built a parliament inside a hollow tree. Each insists somebody meant well when making it, and none knows whose consent would make it law.',
     artPrompt:
-      'Inside a vast hollow tree, tiny glowing creatures shaped like sparks with small faces sit on a circle of root benches in council. Roots arch overhead like rafters. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+      'Inside a vast hollow tree, tiny glowing creatures, each a bright orange spark with a small face, sit on a circle of root benches. Thick roots arch overhead in rows of rafters. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'hear',

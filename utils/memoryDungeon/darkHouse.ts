@@ -322,7 +322,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Rootbound Warden's Hearing",
     'The Warden is neither a pure villain nor an impartial judge. It must answer eight witnesses who remember the benefits as well as the damage of its bargains.',
-    'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, stands before an oak tribunal bench with eight witness lanterns burning in a row. Low-angle wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
+    'The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, stands before an oak tribunal bench with eight witness lanterns burning in a row. Low-angle wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Present all eight witnesses',
     'The Warden admits a wish cannot substitute for consent; the doors open toward a negotiated remedy.',
     'Challenge its claim to own truth',
@@ -349,7 +349,7 @@ const briefs: readonly RoomBrief[] = [
   [
     'Unremembered Hearth',
     'At the final fire every rescued person arrives carrying a different account of home. The Reimaginer offers to restore a single perfect version, and none of the witnesses agrees which one.',
-    'Grand rooted hearth circle, amber memory flames held by glass jars, eight distinct adult witnesses and a veiled guardian.',
+    "A great round hearth of roots in a dark manor hall, its amber flames burning inside rows of glass jars. Eight adult villagers stand around it, each holding a different small thing from home: a key, a cup, a shawl, a child's shoe, a book, a loaf, a pipe and a ribbon. A tall veiled figure stands behind the fire. Wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.",
     'Return each memory to its owner',
     'The hearth releases the jars to consenting hands; the rebuilt House loses the power to choose the owners.',
     'Create a revocable commons',

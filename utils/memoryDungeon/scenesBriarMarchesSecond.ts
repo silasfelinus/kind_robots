@@ -67,7 +67,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'Every bird in the misty firs wears a tiny bell. The bells never ring together; their staggered toll counts something happening beyond sight. A gravekeeper claims forty-five rings warn of a hunting party, but a child insists the count is a roll call of people the forest is trying not to forget.',
     artPrompt:
-      'Dark painterly fairytale fir forest many birds with little brass bells flying in patterned lines, cloaked gravekeeper and attentive child listening, mist-covered tower in distance, visual puzzle art',
+      'A misty forest of tall firs where dozens of small brown birds fly in staggered lines, each wearing a tiny brass bell on a ribbon around its neck. On the path below, a cloaked old gravekeeper with a shovel and a small girl in a red scarf look up, the girl counting on her fingers. A grey stone tower rises through the mist in the distance. Soft grey morning light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '7,1',
@@ -97,7 +97,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A wedding procession circles the abandoned mill even though the groom vanished three storms ago. The bride refuses to be called a widow because no one has found a body. The village priest insists the vows belong to the weather itself now, and the rain keeps arriving in a shape like a familiar face.',
     artPrompt:
-      'Western animated mature fairy-tale bride in storm-worn travel dress leading eerie candlelit procession around abandoned mill, stormcloud rain silhouette of missing partner, lush dramatic scene',
+      "A wedding procession carrying candles circles an abandoned stone mill in heavy rain. At its head, a bride in a storm-soaked travel dress and veil carries a bouquet of wet wildflowers. In the falling rain beside her, the streaks of water form the outline of a man's face and shoulders. A village priest in black follows with a book. Stormy grey light, small candle flames. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '5,1',
@@ -158,7 +158,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "Two newlyweds hide beneath a bridge wearing each other's wedding clothes, determined to confuse the law. A registrar has declared that one of them must transform into a beast before their marriage can be recognized. Neither knows which, and they intend to stay stubbornly human through the ceremony.",
     artPrompt:
-      'Fairy tale stone bridge dusk, two laughing sturdy adult newlyweds hiding in mismatched formal outfits and exchanging wedding garments, stern royal registrar with long parchment approaching, whimsical dark graphic novel style',
+      "Under an arched stone bridge at dusk, two laughing sturdy adult newlyweds crouch in the shallows wearing each other's wedding clothes, one in a lace gown with sleeves too short, the other in a tailcoat that drags in the water. On the bridge above, a stern royal registrar in a black robe unrolls a long parchment. Warm sunset light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.",
     callbacks: [
       {
         at: '2,3',
@@ -187,7 +187,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "A gaunt traveler waits at the crossroads and asks only one question: 'Have you eaten?' Behind them hovers a famine spirit drawn to false answers, not empty stomachs. The traveler admits stealing a crust last week. The spirit will follow until someone decides whether survival counts as theft.",
     artPrompt:
-      'Dark animated Gothic fairytale crossroads cold hungry wanderer with simple pack, abstract famine spirit made of empty dinner plates, distant winter fields, humane unsettling adult adventure art',
+      'At a crossroads of frozen dirt roads, a gaunt traveller with a small pack and a thin coat holds out one hand in greeting. Behind them floats a tall pale figure built from stacked empty white dinner plates, with two dark round holes for eyes. Snowy winter fields stretch away under a grey sky. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '3,3',
@@ -337,7 +337,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       "Only one apple hangs from the orchard's final living branch. The fruit remembers the hands that once worked here: a baker's hands, a thief's, a queen's, and a child's whose name has been scratched from the harvest ledger. The tree asks what being the last should mean.",
     artPrompt:
-      'Atmospheric Grimm fairy tale last glowing apple on ancient gnarled tree above empty orchard, indistinct remembered hands in leaves, warm and eerie painterly fantasy landscape',
+      'A single glowing red apple hangs from the last living branch of an ancient gnarled apple tree above an empty orchard of bare trees. Pale handprints mark the bark of the trunk. Warm late evening light. Low-angle medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '1,7',
@@ -367,7 +367,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A village tribunal has charged a witch with causing the winter she predicted in a public almanac. The witch has brought twenty years of weather records, but the magistrate insists proof of foresight is the same as proof of guilt. Snow has started falling through the courtroom roof.',
     artPrompt:
-      'Dark whimsical fairytale open-air court under falling snow, unflinching older witch displaying detailed weather calendar before pompous magistrate, villagers in winter coats, original cinematic adventure art',
+      'An open-air village court under a crooked oak in falling snow. An older witch in a dark shawl holds up a long hand-drawn weather calendar before a pompous magistrate in a fur-trimmed robe at a wooden bench. Villagers in winter coats sit on benches with snow on their hats. Cold grey light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '1,8',
@@ -427,7 +427,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A clever attorney has bought the rights to every loaf of bread baked with remembered words. They offer to defend the hungry in court, provided the clients surrender their future thanks. A stack of contracts stands as tall as the attorney, and the ink keeps forming new clauses.',
     artPrompt:
-      'Dark animated fairytale courtroom under crooked tree charismatic sharp-eyed short attorney in patched judicial robes with towering contracts and loaf of bread as exhibit, absurd and threatening graphic-novel scene',
+      'A village courtroom set up under a crooked tree. A short sharp-eyed attorney in patched judicial robes stands beside a stack of paper contracts as tall as they are, one hand resting on a loaf of bread on the evidence table. Hungry villagers sit on benches. Afternoon light. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '3,3',
@@ -458,7 +458,7 @@ export const BRIAR_MARCHES_SECOND_BATCH: Record<string, BriarScene> = {
     opening:
       'A miniature throne has appeared on a stump. Anyone who sits on it becomes monarch of the surrounding three footsteps, and every nearby neighbor receives a bill for the privilege. The village children hold an election to decide whether a kingdom this small should exist at all.',
     artPrompt:
-      'Whimsical mature Grimm fantasy tiny gilded throne on mossy stump surrounded by outraged villagers and children with paper ballots, theatrical dark storybook videogame scene',
+      'A tiny gilded throne sits on a mossy tree stump in a village square. Around it, outraged adult villagers wave paper bills, while a line of children drop folded paper slips into a wooden box beside the stump. Bright midday light. Wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '7,1',

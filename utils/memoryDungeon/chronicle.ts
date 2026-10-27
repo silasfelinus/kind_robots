@@ -46,7 +46,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Admit how angry this makes you',
     'A cardboard box is not a verdict. The hour, the photographer and what happened afterward remain unknown.',
     'You are furious that someone else could lose your work in your name. The anger is real; the photograph is incomplete.',
-    'Contemporary rain-soaked research office exit, androgynous adult Morrow wearing protagonist’s Earth body, carrying carton, unseen photographer viewpoint, subtle documentary realism',
+    'An androgynous adult in their thirties with short dark hair and a grey cardigan walks out of a glass research office entrance in grey drizzle, carrying a cardboard box holding a potted plant, a mug and a stack of folders. A security guard holds the door. Seen from across the street. Medium-wide shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e01',
@@ -68,7 +68,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep both contradictory prints',
     'Perhaps someone thought Morrow might need company more than advice. You were not the only one who noticed the fall.',
     'Neither image deserves to replace the other. You preserve both so that your first judgment remains visible.',
-    'Pair of documentary contact prints of an Earth research office, person offering to help another carrying a box, dark fairytale reflected edge',
+    'Two black-and-white contact prints lie side by side on a desk. Both show the same research office doorway with a person carrying a cardboard box, and in the second print a hand reaches out from the doorway toward the box. Desk lamp light from above. Close shot from above. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e02',
@@ -90,7 +90,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Remember the stranger was not an obstacle',
     'Someone spent a minute helping your stolen face. Ordinary generosity survives the strangest first impressions.',
     'It is easier to blame an incomprehensible machine than admit you have needed that kind of help yourself.',
-    'Urban subway fare machine in contemporary Earth station, baffled androgynous adult receiving patient instruction, observational street photograph',
+    'In a subway station, an androgynous adult in their thirties with short dark hair and a grey cardigan frowns at a ticket machine screen while an older stranger in a raincoat points patiently at one button. Commuters walk past behind them. Fluorescent station light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e03',
@@ -112,7 +112,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Notice the rescue',
     'The image proves an altered possibility, not an inevitable future. Whose wish or mistake brought this weather?',
     'You cannot let the spectacle erase the ordinary people carrying strangers to shelter.',
-    'Modern intersection invaded by luminous impossible rain, pharmacy awning, diverse adults shepherding neighbors, urgent photojournalism',
+    'A city intersection at night under falling rain that glows pale gold in the streetlights. Neighbors in coats guide each other under a green pharmacy awning, one holding an elderly man by the arm. The red and blue lights of an approaching ambulance blur in the distance. Wide shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e04',
@@ -123,7 +123,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Respect the overwhelmed helpers',
     'There may be no spell for organizing insulin, clean water and a safe exit. Someone made a plan anyway.',
     'Every future is measured in lives, not the elegance of the miracle that changed it.',
-    'Earth science lab turned emergency shelter during uncanny magical storm, visible supplies and handwritten but illegible board',
+    'A university laboratory turned into an emergency shelter: folding cots between lab benches, stacked water bottles and blankets, and a whiteboard covered in a grid of small marker ticks. A tired volunteer in a lab coat checks a clipboard. Fluorescent light, dark storm clouds through the windows. Wide shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e05',
@@ -244,7 +244,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep the old hurt in view',
     'A person can stand near someone without forgiving them. The later smile cannot cancel the first bruise.',
     'What happened at that first gathering mattered. So might what happens next.',
-    'Small warm Earth apartment party with imperfect cake, friends including earlier embarrassed adult, careful ambiguous distance',
+    'A small apartment party where an androgynous adult in their thirties with short dark hair and a grey cardigan holds a lopsided homemade cake with lit candles, while a friend in a green sweater stands a step away at the edge of the group, half smiling. Warm lamplight and paper streamers. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e10',
@@ -354,7 +354,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Admit the possibility',
     'There are countless reasons for small shoes to stand on a shelf. You need more than this to accuse or celebrate.',
     'A possibility strikes you hard enough to make you afraid of your own next demand.',
-    'Thrift store shelf with small secondhand shoes in the distant background, adult customer foreground, subtle candid framing',
+    "A thrift store aisle with racks of secondhand coats. In the foreground an adult customer browses a coat rack, and on a low shelf in the far background sits a pair of small child's shoes. Fluorescent store light. Medium-wide shot. Candid 35mm colour photograph, natural light, soft film grain.",
   ],
   [
     'e15',
@@ -376,7 +376,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Recognize the children as people',
     'The photograph cannot answer whether the adults told the children about the exchange. You must ask before deciding.',
     'No route home grants you permission to erase children or the love they remember.',
-    'Sensitive contemporary family documentary photograph, androgynous parent and two children in safe everyday home, warm unposed scene',
+    'A warm family kitchen in the evening, where an androgynous adult in their thirties with short dark hair and a grey cardigan sits at the table helping two children, a boy and a girl, with crayons and drawings. Pendant lamp light. Medium shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
   [
     'e16',
@@ -387,7 +387,7 @@ const AUTHOR_PHOTOS: AuthorPhoto[] = [
     'Keep the door open without a promise',
     'Consent cannot be inferred from a smiling picture. Everyone affected deserves a voice in what follows.',
     'You can reclaim a right without pretending others have no rights. The photograph records the question, not the answer.',
-    'Contemporary family doorway overlapping gentle fairytale portal, adults and children with individual agency, respectful hopeful uncertain tableau',
+    'A family stands at an open apartment front door in the evening: an androgynous adult in their thirties with short dark hair and a grey cardigan, a second adult and two children, each looking at a different person in the group. Beyond the door, the hallway carpet turns into green forest moss. Warm hallway light. Medium-wide shot. Candid 35mm colour photograph, natural light, soft film grain.',
   ],
 ]
 
@@ -436,6 +436,7 @@ export const BRIAR_EARTH_PHOTOS = EARTH_PHOTOS.slice(0, 2).map((photo) => ({
   order: photo.order,
   title: photo.title,
   caption: photo.caption,
+  artPrompt: photo.artPrompt,
   artPath: photo.artPath,
 }))
 

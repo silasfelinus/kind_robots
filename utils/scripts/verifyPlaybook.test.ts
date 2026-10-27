@@ -146,6 +146,8 @@ const READ_ONLY_GAMES = new Set([
   'game-of-captains',
   'comet-city-academy',
   'memory-dungeon',
+  'cthulhuquarium',
+  'ruler-hooked',
 ])
 for (const { id } of PLAYBOOK_GAMES) {
   const book = buildPlaybook(id)
@@ -476,7 +478,12 @@ type Overlay = { set(next: Record<string, unknown>): void }
 const LOOKUPS: Record<
   Exclude<
     PlaybookGame,
-    'ecotone' | 'game-of-captains' | 'comet-city-academy' | 'memory-dungeon'
+    | 'ecotone'
+    | 'game-of-captains'
+    | 'comet-city-academy'
+    | 'memory-dungeon'
+    | 'cthulhuquarium'
+    | 'ruler-hooked'
   >,
   { overlay: Overlay; read(key: string): unknown }
 > = {

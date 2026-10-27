@@ -340,6 +340,128 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     },
   },
   {
+    slug: 'cthulhuquarium',
+    studio: 'cthulhuquarium',
+    title: 'Cthulhuquarium',
+    cover: '/cthulhuquarium-front/hero.webp',
+    route: '/play/aquarium',
+    planSource:
+      'conductor projects/cthulhuquarium DESIGN-BRIEF, ECONOMY and FULL-GAME-GAP-AUDIT (151 authored species; the bestiary completing is the credits)',
+    // An aquarium rather than a branching story: species are its encounters,
+    // tank backgrounds its places, the bestiary milestones its quests, the
+    // Last Aquarium its one finale.
+    plan: plan('cthulhuquarium', 'Cthulhuquarium', {
+      genre: 'cozy-mystery',
+      placement: 'play',
+      creator: 'fixed',
+      acts: 1,
+      chaptersPerAct: 1,
+      encounters: 151,
+      choicesPerEncounter: 2,
+      outcomeArt: 'none',
+      quests: 15,
+      questSteps: 1,
+      locations: 16,
+      followers: 2,
+      partySize: 1,
+      followerExpressions: 4,
+      villains: 1,
+      endings: 1,
+      metaProgress: true,
+      saveSlots: 1,
+    }),
+    count: async () => {
+      const counts = await studio('cthulhuquarium')
+      const { buildCthulhuquariumPlaybook } =
+        await import('../playbook/cthulhuquarium')
+      const nodes = Object.values(buildCthulhuquariumPlaybook().nodes)
+      const kind = (k: string) => nodes.filter((n) => n.kind === k).length
+      const measured: (keyof Blueprint)[] = [
+        'encounters',
+        'quests',
+        'locations',
+        'followers',
+      ]
+      return {
+        ...counts,
+        values: {
+          ...counts.values,
+          encounters: kind('encounter'),
+          quests: kind('quest'),
+          locations: kind('thread'),
+          followers: kind('follower'),
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; species, milestones, backgrounds and shopkeepers from the canon`,
+      }
+    },
+  },
+  {
+    slug: 'ruler-hooked',
+    studio: 'ruler-hooked',
+    title: 'The Ruler Is Hooked',
+    cover: '/ruler-hooked/hero.webp',
+    route: '/play/ruler-hooked',
+    planSource:
+      'conductor projects/ruler-hooked FULL-GAME-GAP-AUDIT ("12-20 fish species, several meaningful gear/lure choices, 5-6 substantial character arcs, and enough free-draw encounters that a replay does not immediately repeat") and docs/fish-ecology.md (15 fish)',
+    // Event cards are its encounters, character arcs its quests, the cast
+    // its followers (four expressions each), the playable rulers its heroes.
+    plan: plan('ruler-hooked', 'The Ruler Is Hooked', {
+      genre: 'court-intrigue',
+      placement: 'play',
+      creator: 'roster',
+      rosterSize: 12,
+      acts: 1,
+      chaptersPerAct: 3,
+      encounters: 40,
+      choicesPerEncounter: 2,
+      outcomeArt: 'none',
+      quests: 6,
+      questSteps: 3,
+      locations: 8,
+      followers: 12,
+      partySize: 1,
+      followerExpressions: 3,
+      figures: 15,
+      villains: 1,
+      endings: 4,
+      factions: 3,
+      seededRuns: true,
+      saveSlots: 1,
+    }),
+    count: async () => {
+      const counts = await studio('ruler-hooked')
+      const { RULER_HOOKED_CONTENT } = await import('../rulerHooked/content')
+      const { RULER_HOOKED_FISH } = await import('../rulerHooked/fish')
+      const { RULER_PRESETS } = await import('../rulerHooked/rulerPresets')
+      const content = RULER_HOOKED_CONTENT
+      const measured: (keyof Blueprint)[] = [
+        'encounters',
+        'quests',
+        'followers',
+        'figures',
+        'endings',
+        'rosterSize',
+      ]
+      return {
+        ...counts,
+        values: {
+          ...counts.values,
+          encounters:
+            content.decks.reduce((n, d) => n + d.cards.length, 0) +
+            content.arcs.reduce((n, a) => n + a.steps.length, 0),
+          quests: content.arcs.length,
+          followers: content.characters.length,
+          figures: RULER_HOOKED_FISH.length,
+          endings: content.endings.length,
+          rosterSize: RULER_PRESETS.length,
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; cards, arcs, cast, fish, endings and rulers from utils/rulerHooked`,
+      }
+    },
+  },
+  {
     slug: 'crystal-street',
     studio: 'crystal-street',
     title: 'Terrors on Crystal Street',

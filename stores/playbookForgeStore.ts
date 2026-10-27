@@ -85,6 +85,7 @@ import {
   playbookArtRequest,
 } from '~/utils/playbook/artLanes'
 import type { Playbook, PlaybookNode } from '~/utils/playbook/types'
+import { withBundledArt } from '~/utils/playbook/bundledArt'
 import {
   buildLedger,
   artPromptBrief,
@@ -711,7 +712,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       for (const entry of EXISTING_PLAYBOOKS) {
         if (libraryStats.value[entry.slug]) continue
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
-        const book = buildPlaybook(entry.studio)
+        const book = await withBundledArt(buildPlaybook(entry.studio))
         const counts = await entry.count().catch(() => null)
         // Image-store art (Memory Dungeon) is only known to the server.
         const painted = Object.values(book.nodes).some((n) => n.artPath)
@@ -1108,7 +1109,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       built.value = await entry.count()
       // The plan pages lead with the game's own art.
       if (!ledgerBook.value && entry.studio && isPlaybookGame(entry.studio)) {
-        ledgerBook.value = buildPlaybook(entry.studio)
+        ledgerBook.value = await withBundledArt(buildPlaybook(entry.studio))
         void loadRelay(entry.studio)
       }
     } catch (error) {
@@ -1189,7 +1190,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
           const { buildPlaybook, isPlaybookGame } =
             await import('~/utils/playbook/games')
           return isPlaybookGame(entry.studio)
-            ? buildPlaybook(entry.studio)
+            ? withBundledArt(buildPlaybook(entry.studio))
             : null
         })(),
       ])

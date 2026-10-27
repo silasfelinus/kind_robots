@@ -255,7 +255,8 @@ export function unitComplete(unit: LedgerUnit): boolean {
 }
 
 export function buildLedger(
-  book: Pick<Playbook, 'order' | 'nodes'>,
+  book: Pick<Playbook, 'order' | 'nodes'> &
+    Partial<Pick<Playbook, 'sectionLabels'>>,
   jobsByNode: Record<string, LedgerJob[]>,
   options: {
     laneKey: string
@@ -298,7 +299,7 @@ export function buildLedger(
     const toPaint = art.missing + art.failed
     return {
       id: kind,
-      label: SECTION_LABELS[kind],
+      label: book.sectionLabels?.[kind] ?? SECTION_LABELS[kind],
       units,
       art,
       unwritten,

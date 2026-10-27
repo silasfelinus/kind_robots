@@ -68,6 +68,7 @@ import {
   MILESTONES,
   emptyRewardArchive,
   migrateFoundEndings,
+  newMilestonesForRun,
   recordReward,
   receiptFor,
   restoreRewardArchive,
@@ -988,7 +989,7 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   assert.match(store, /ENDINGS_KEY = 'shifting-desks-endings-v1'/)
   assert.match(
     store,
-    /function recordEnding\(\)[\s\S]*?endingFor\(run\.value\)/,
+    /function recordEnding\([^)]*\)[\s\S]*?endingFor\(run\.value\)/,
   )
   assert.match(
     asset('../../pages/play/shifting-desks.vue'),
@@ -1851,6 +1852,16 @@ assert.match(
   assert.ok(first.milestones['first-ending'])
   assert.ok(first.milestones['employee-of-the-month'])
   assert.equal(recordReward(first, receipt, [receipt.endingId]), first)
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes('first-ending'),
+  )
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes(
+      'employee-of-the-month',
+    ),
+  )
+  assert.deepEqual(newMilestonesForRun(first, first, receipt.id), [])
+  assert.deepEqual(newMilestonesForRun(empty, empty, receipt.id), [])
   assert.equal(
     restoreRewardArchive(JSON.parse(JSON.stringify(first))).runs.length,
     1,

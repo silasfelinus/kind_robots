@@ -247,3 +247,20 @@ export function migrateFoundEndings(
     milestones['three-endings'] = earliest
   return { ...archive, milestones }
 }
+
+/** A repeat completion or restored save must never announce an award again. */
+export function newMilestonesForRun(
+  before: RewardArchive,
+  after: RewardArchive,
+  receiptId: string,
+): string[] {
+  if (
+    before.runs.some((run) => run.id === receiptId) ||
+    !after.runs.some((run) => run.id === receiptId)
+  )
+    return []
+  return MILESTONES.filter(
+    (milestone) =>
+      !before.milestones[milestone.id] && !!after.milestones[milestone.id],
+  ).map((milestone) => milestone.id)
+}

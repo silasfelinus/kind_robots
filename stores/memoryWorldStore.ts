@@ -31,6 +31,7 @@ import {
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
   earnedCourierCompensation,
+  earnedBorrowedVoiceOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -230,7 +231,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkHouseEndingCopy = computed(() =>
     [
       darkHouseVerdict(darkHouse.value),
-      crossRealmHouseEpilogue(state.value, darkHouse.value),
+      crossRealmHouseEpilogue(state.value, darkHouse.value, dark.value),
     ]
       .filter(Boolean)
       .join(' '),
@@ -273,7 +274,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const chosen = scene.choices.find(
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
-    return chosen?.outcome ?? darkBriarOpening(scene, state.value)
+    const earned =
+      dark.value.player === '3,5'
+        ? earnedBorrowedVoiceOutcome(state.value, dark.value)
+        : null
+    return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
   const loading = ref(false)
@@ -1097,6 +1102,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
+    if (key === '3,5') {
+      const earned = earnedBorrowedVoiceOutcome(state.value, next)
+      if (earned) dark.value.status = earned
+    }
     if (key === '3,4') {
       const compensation = earnedCourierCompensation(state.value, id)
       if (compensation === 'lantern') {

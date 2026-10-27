@@ -39,8 +39,9 @@ export function evaluateNavigationRouteAccess(
       )
     : null
   const explicitlyPublicTab = Boolean(
-    requested.tab?.requiredRole === 'GUEST' &&
-      !requested.tab.requiredPermission,
+    (requested.tab?.requiredRole === 'GUEST' &&
+      !requested.tab.requiredPermission) ||
+      requested.tab?.allowDirectAccess === true,
   )
 
   return {

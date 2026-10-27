@@ -17,6 +17,15 @@ on:
       - 'pages/admin/playbook-forge.vue'
       - 'content/channels/admin/playbook-forge.md'
       - 'utils/scripts/verifyPlaybookForge.test.ts'
+      - 'utils/scripts/verifyPlaybookArtPrompts.test.ts'
+      - 'utils/playbook/**'
+      - 'utils/gameOfCaptains/**'
+      - 'utils/cometAcademy/**'
+      - 'utils/crystalStreet/**'
+      - 'utils/ecotone/**'
+      - 'utils/cthulhuquarium/**'
+      - 'utils/rulerHooked/**'
+      - 'utils/memoryDungeon/**'
       - 'content/channels/admin/playbook-kit.md'
       - 'utils/scripts/verifyPlaybookKit.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
@@ -30,6 +39,7 @@ on:
       - 'stores/playbookForgeStore.ts'
       - 'components/playbook-kit/**'
       - 'components/playbook-forge/**'
+      - 'utils/playbook/**'
       - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:
 
@@ -52,3 +62,5 @@ jobs:
         run: npm run test:playbook-kit
       - name: Forge factors, forecasts, handoff and live counts of existing playbooks
         run: npm run test:playbook-forge
+      - name: Art prompts for every unpainted beat in games marked complete
+        run: npm run test:playbook-art-prompts -- --report

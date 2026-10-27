@@ -133,6 +133,8 @@ export type Playbook = {
   artNegative?: string
   /** Art for this game is queued by a Conductor pipeline (named here); the Forge never submits it. */
   artPipeline?: string
+  /** Every beat still to paint has an authored, engine-literal art prompt (held by verifyPlaybookArtPrompts). */
+  artPromptsComplete?: boolean
 }
 
 export function blankNode(

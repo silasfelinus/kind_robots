@@ -180,6 +180,21 @@ export function firstTwoSceneCallbacks(
       'The new timber crossing now connects the Knight’s bridge to the far road, giving you a shorter physical route through Dark Briar.',
     )
   }
+  if (
+    (target === '2,4' || target === '3,4') &&
+    mirrored.sceneChoices['3,4'] === 'shelter'
+  ) {
+    const courierChoice = original['2,4']
+    if (courierChoice === 'lend') {
+      available.unshift(
+        'The courier shelters beneath your old lantern and opens a safe passage from camp to the princesses’ square. The route belongs to travelers, not the crown.',
+      )
+    } else if (courierChoice === 'copy') {
+      available.unshift(
+        'The courier follows the address you copied and marks a back road from camp to Oren’s bridge. No one has to surrender their name to use it.',
+      )
+    }
+  }
   return available.slice(0, Math.min(max, 2))
 }
 
@@ -192,6 +207,29 @@ export function darkBriarExtraBridge(
 ): boolean {
   if (!mirrored || mirrored.sceneChoices['5,4'] !== 'draw') return false
   return (from === '5,4' && to === '7,4') || (from === '7,4' && to === '5,4')
+}
+
+/** The courier's shelter choice can turn an earlier Earth-side decision into
+ * one of two different roads. Both endpoints still have to be revealed. */
+export function darkBriarCourierPassage(
+  from: string,
+  to: string,
+  original: Pick<BriarSave, 'sceneChoices'> | undefined,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'> | undefined,
+): boolean {
+  if (!original || mirrored?.sceneChoices['3,4'] !== 'shelter') return false
+  const originalChoice = original.sceneChoices['2,4']
+  const destination =
+    originalChoice === 'lend'
+      ? '4,4'
+      : originalChoice === 'copy'
+        ? '4,3'
+        : null
+  return (
+    destination !== null &&
+    ((from === '2,4' && to === destination) ||
+      (from === destination && to === '2,4'))
+  )
 }
 
 /** Carry only story-scale facts forward. Minor scene choices stay in the

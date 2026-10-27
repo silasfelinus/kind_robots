@@ -737,6 +737,29 @@ export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
   }
 }
 
+export function emergencyContact(run: AcademyRun) {
+  if (run.flowVersion !== 3 || run.phase !== 'dispatch' ||
+      knownContacts(run).some((id) => studentAvailable(run, id))) return null
+  const candidates = STUDENTS.filter((member) =>
+    !knownContacts(run).includes(member.id) && member.origin !== 'academy')
+  const fallback = candidates.length ? candidates :
+    STUDENTS.filter((member) => !knownContacts(run).includes(member.id))
+  return fallback.length ? fallback[(run.seed + run.day) % fallback.length]! : null
+}
+
+export function callEmergencyVolunteer(run: AcademyRun): AcademyRun {
+  const helper = emergencyContact(run)
+  if (!helper) return run
+  return {
+    ...run,
+    contacts: [...knownContacts(run), helper.id],
+    danger: run.danger + 1,
+    influence: run.influence - 1,
+    scene: `No known hero can answer the call. You ask Comet City's mutual-aid dispatcher for one volunteer. ${helper.name}, ${helper.title}, answers with conditions: ${helper.note} They agree to join tonight's patrol. The urgent favor raises the city's risk and costs your reputation.`,
+    log: [...run.log, `Day ${run.day}: Emergency mutual-aid call answered by ${helper.name}`],
+  }
+}
+
 export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
   return (
     (run.injuries?.[id] ?? 0) <= run.day &&

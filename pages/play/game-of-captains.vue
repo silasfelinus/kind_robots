@@ -282,6 +282,17 @@
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
+            <section class="cap-redshirt-travel" data-testid="space-couch-travel-prompt">
+              <strong>{{ expeditionComplete ? 'ARRIVED · EXPEDITION LOGGED' : 'FIRST, TRAVEL. THEN, QUESTS.' }}</strong>
+              <p>{{ expeditionComplete ? 'Your crew has returned from the world encounters. You can now staff the primary mission.' : 'The couch will fold open its miniature redshirt quarters at the destination. You have a captain and three officers to distribute; everyone else is beautifully, disastrously replaceable.' }}</p>
+              <button v-if="!expeditionComplete" class="cap-primary" type="button"
+                data-testid="space-couch-travel" @click="store.travel()">
+                TRAVEL TO {{ mission.system.toUpperCase() }} <span>➜</span>
+              </button>
+              <p v-if="(run.redshirtFallen ?? []).length">
+                Fallen redshirts: {{ run.redshirtFallen?.length }}. Personnel says they have more.
+              </p>
+            </section>
             <section
               class="cap-route-board"
               data-testid="space-couch-route-board"
@@ -472,7 +483,7 @@
               class="cap-primary"
               type="button"
               data-testid="captains-launch"
-              :disabled="!missionPreview?.eligible"
+              :disabled="!missionPreview?.eligible || !expeditionComplete"
               @click="store.launch()"
             >
               LAUNCH MISSION <span>➜</span>
@@ -491,6 +502,107 @@
               >
               ↗
             </button>
+          </template>
+
+          <template v-else-if="run.phase === 'travel'">
+            <div class="cap-heading">
+              <span>✦</span><div>
+                <h2>The couch approaches {{ mission.system }}</h2>
+                <p>TRAVEL / SHIP DAY {{ run.day }} · THE MINIATURIZED BARRACKS</p>
+              </div>
+            </div>
+            <section class="cap-redshirt-travel" data-testid="space-couch-transit">
+              <h3>{{ REDSHIRT_QUARTERS.name }}</h3>
+              <p>{{ run.scene }}</p>
+              <p>{{ REDSHIRT_QUARTERS.description }}</p>
+              <p>{{ REDSHIRT_QUARTERS.exchange }}</p>
+              <strong>{{ (run.redshirtRoster ?? []).length }} redshirts ready · 12 miniature bunks</strong>
+              <button class="cap-primary" type="button" data-testid="space-couch-arrive"
+                @click="store.arrive()">ARRIVE AND OPEN THE ENCOUNTER BOARD <span>➜</span></button>
+            </section>
+          </template>
+
+          <template v-else-if="run.phase === 'expedition'">
+            <div class="cap-heading">
+              <span>✦</span><div>
+                <h2>{{ mission.system }}: a galaxy of dreadful decisions</h2>
+                <p>EXPEDITION / SHIP DAY {{ run.day }} · CAPTAIN + THREE OFFICERS + REDSHIRTS</p>
+              </div>
+            </div>
+            <p class="cap-narrative">{{ run.scene }}</p>
+            <section class="cap-redshirt-dorm" data-testid="space-couch-redshirt-dorm">
+              <div class="cap-expedition-head">
+                <strong>{{ REDSHIRT_QUARTERS.name }}</strong>
+                <small>{{ (run.redshirtRoster ?? []).length }} on duty / {{ REDSHIRT_QUARTERS.bunks }} bunks · {{ (run.redshirtFallen ?? []).length }} memorials</small>
+              </div>
+              <p>One in three redshirt deployments is fatal. Untrained redshirts handling major diplomacy may achieve something worse than death: an international incident.</p>
+              <div class="cap-redshirt-list">
+                <div v-for="id in run.redshirtRoster ?? []" :key="id" class="cap-redshirt-person">
+                  <b>{{ redshirtFor(id).name }}</b>
+                  <small>{{ redshirtFor(id).anatomy }} · {{ redshirtFor(id).talent }}</small>
+                  <small>{{ redshirtFor(id).history }}</small>
+                  <small>Secret talent: classified until field use</small>
+                </div>
+              </div>
+              <button class="cap-option" type="button" data-testid="space-couch-hire"
+                :disabled="(run.redshirtRoster ?? []).length >= REDSHIRT_QUARTERS.bunks || (run.supplies < 1 && (run.redshirtRoster ?? []).length > 0)"
+                @click="store.hire()">
+                <span><b>Hire another redshirt</b>
+                  <small>1 supply (free emergency hire if none remain). Personnel keeps a suspiciously large list.</small></span>↗
+              </button>
+            </section>
+            <section class="cap-expedition-board" data-testid="space-couch-encounter-board">
+              <div class="cap-expedition-head">
+                <strong>EXPEDITION CHART · {{ expeditionEncounters.filter(e => e.priority === 'major').length }} MAJOR / {{ expeditionEncounters.filter(e => e.priority === 'minor').length }} MINOR</strong>
+                <small>Each of your four command officers can take one assignment. You choose where. Redshirts fill the vacancies.</small>
+              </div>
+              <article v-for="enc in expeditionEncounters" :key="enc.id"
+                class="cap-expedition-card" :class="{ completed: encounterComplete(enc.id) }"
+                data-testid="space-couch-encounter">
+                <div class="cap-expedition-head">
+                  <strong>{{ enc.title }}</strong>
+                  <small>{{ enc.priority.toUpperCase() }} · {{ enc.scope.toUpperCase() }} · {{ enc.skill.toUpperCase() }}</small>
+                </div>
+                <p>{{ enc.setup }}</p>
+                <template v-if="encounterComplete(enc.id)">
+                  <p class="cap-expedition-outcome" aria-live="polite">
+                    {{ expeditionResult(enc.id)?.outcome }}
+                  </p>
+                </template>
+                <template v-else>
+                  <label :for="'space-expedition-' + enc.id">Send whom?</label>
+                  <select :id="'space-expedition-' + enc.id"
+                    :value="dispatchChoice[enc.id] ?? 'auto'"
+                    data-testid="space-couch-expedition-lead"
+                    @change="chooseDispatch(enc.id, $event)">
+                    <option value="auto" :disabled="!remainingRedshirts.length">Next available redshirt (automatic)</option>
+                    <option value="captain" :disabled="busyLeads.includes('captain')">The captain: {{ CAPTAINS.find(c => c.id === run.captain)?.name }}</option>
+                    <option v-for="officer in availableCrew" :key="officer.id" :value="officer.id"
+                      :disabled="busyLeads.includes(officer.id)">
+                      {{ officer.name }} · {{ officer.talent }}
+                    </option>
+                    <option v-for="id in run.redshirtRoster ?? []" :key="id" :value="id"
+                      :disabled="busyLeads.includes(id)">
+                      REDSHIRT: {{ redshirtFor(id).name }} · {{ redshirtFor(id).talent }}
+                    </option>
+                  </select>
+                  <button class="cap-option" type="button"
+                    data-testid="space-couch-expedition-deploy" :disabled="!canDispatch(enc.id)"
+                    @click="store.deploy(enc.id, dispatchChoice[enc.id] ?? 'auto')">
+                    <span><b>DISPATCH THIS TEAM</b>
+                      <small>Assigned personnel cannot be used again at this destination.</small></span>↗
+                  </button>
+                </template>
+              </article>
+            </section>
+            <button class="cap-primary" type="button"
+              data-testid="space-couch-expedition-finish" :disabled="!majorExpeditionDone"
+              @click="store.endExpedition()">
+              RETURN TO COUCH / PRIMARY MISSION <span>➜</span>
+            </button>
+            <p v-if="!majorExpeditionDone" class="cap-alert">
+              Major encounters must be addressed before departure. Minor assignments are optional, but may contain the secrets you need.
+            </p>
           </template>
 
           <template v-else-if="run.phase === 'transit'">
@@ -989,6 +1101,13 @@ import {
   ACT_ONE_ORDERS,
   type ActOneRouteId,
 } from '~/utils/gameOfCaptains/actOne'
+import {
+  REDSHIRT_QUARTERS,
+  currentExpedition,
+  expeditionBusy,
+  type ExpeditionResult,
+} from '~/utils/gameOfCaptains/expedition'
+import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -1040,6 +1159,39 @@ const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
+const dispatchChoice = ref<Record<string, string>>({})
+const expeditionComplete = computed(() =>
+  (run.value?.expeditionHistory ?? []).some(visit => visit.chapter === run.value?.chapter),
+)
+const expeditionEncounters = computed(() => run.value ? currentExpedition(run.value) : [])
+const busyLeads = computed(() => run.value ? expeditionBusy(run.value) : [])
+const remainingRedshirts = computed(() =>
+  (run.value?.redshirtRoster ?? []).filter(id => !busyLeads.value.includes(id)),
+)
+const majorExpeditionDone = computed(() =>
+  expeditionEncounters.value.filter(e => e.priority === 'major')
+    .every(e => !!run.value?.expeditionVisit?.results.some(r => r.encounterId === e.id)),
+)
+function redshirtFor(id: string) {
+  return REDSHIRT_BY_ID[id]!
+}
+function expeditionResult(id: string): ExpeditionResult | undefined {
+  return run.value?.expeditionVisit?.results.find(result => result.encounterId === id)
+}
+function encounterComplete(id: string): boolean {
+  return !!expeditionResult(id)
+}
+function chooseDispatch(id: string, event: Event) {
+  dispatchChoice.value[id] = (event.target as HTMLSelectElement).value
+}
+function canDispatch(id: string): boolean {
+  if (encounterComplete(id)) return false
+  const selection = dispatchChoice.value[id] ?? 'auto'
+  return selection === 'auto'
+    ? remainingRedshirts.value.length > 0
+    : !busyLeads.value.includes(selection)
+}
+
 const routeEcho = computed(() => (run.value ? worldEcho(run.value) : ''))
 const antagonist = computed(() =>
   run.value ? antagonistFor(run.value) : ANTAGONISTS[0]!,
@@ -1344,6 +1496,71 @@ function toggleAway(id: CrewId) {
   border-color: #f0bd80;
   background: linear-gradient(150deg, #50382d, #293046);
 }
+.cap-redshirt-travel,
+.cap-redshirt-dorm,
+.cap-expedition-board {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid #c991857c;
+  background: linear-gradient(140deg, #311d31, #172c3c);
+  border-radius: 0.7rem;
+  padding: 0.85rem;
+}
+.cap-redshirt-dorm p,
+.cap-redshirt-travel p,
+.cap-expedition-card p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.cap-expedition-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.cap-expedition-head strong { color: #ffd5b4; font-size: 0.75rem; }
+.cap-expedition-head small { color: #d0e3e6; font-size: 0.68rem; }
+.cap-redshirt-list {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  max-height: 15rem;
+  overflow-y: auto;
+}
+.cap-redshirt-person {
+  display: grid;
+  gap: 0.23rem;
+  border: 1px solid #f39e8b88;
+  border-left: 4px solid #fa4c59;
+  border-radius: 0.4rem;
+  background: #3b2835;
+  padding: 0.5rem;
+}
+.cap-redshirt-person b { color: #fff0e3; font-size: 0.75rem; }
+.cap-redshirt-person small { color: #c9dadd; font-size: 0.65rem; line-height: 1.3; }
+.cap-expedition-card {
+  display: grid;
+  gap: 0.6rem;
+  border: 1px solid #90a9b57a;
+  border-radius: 0.6rem;
+  padding: 0.8rem;
+  background: #182f3e;
+}
+.cap-expedition-card.completed { border-color: #89cc9f; background: #233c3b; }
+.cap-expedition-card label { font-size: 0.7rem; font-weight: 700; }
+.cap-expedition-card select {
+  width: 100%;
+  padding: 0.55rem;
+  background: #24394c;
+  border: 1px solid #a9c8c7;
+  border-radius: 0.4rem;
+  color: #fff4e6;
+  font-size: 0.76rem;
+}
+.cap-expedition-card select:focus-visible { outline: 2px solid #ffd5b4; }
+.cap-expedition-outcome { color: #ffdbb6; white-space: normal; }
 .cap-route-board {
   padding: 0.65rem;
   border: 1px solid #91b8bf5e;

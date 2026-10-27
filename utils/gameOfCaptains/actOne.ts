@@ -170,3 +170,52 @@ export const ACT_ONE_ECHOES: Record<string, string> = {
   'haleth-owned': 'The patented cure follows the survivors as a legal debt that none consented to.',
   'haleth-raided': 'Patients liberated from the clinic still face the consequences of their records being made public.',
 }
+
+/** Per-location ethical orders: mechanically three policies, dramatically different actions. */
+export const ACT_ONE_ORDERS: Record<ActOneRouteId, Record<ActOnePolicy, string>> = {
+  refugees: {
+    aid: 'Transfer life support only with each ship’s consent',
+    observe: 'Honor the treaty and record who was left behind',
+    intervene: 'Board both lifeboats and seize the oxygen unit',
+  },
+  ashdock: {
+    aid: 'Fund a protected union-led casualty hearing',
+    observe: 'Document the contractor’s refusal and leave',
+    intervene: 'Break into payroll and publish every hidden name',
+  },
+  windglass: {
+    aid: 'Escort survivors through an unmarked safe corridor',
+    observe: 'Keep the beacon secret, but do not follow it',
+    intervene: 'Broadcast the distress coordinates to the sector',
+  },
+  archive: {
+    aid: 'Negotiate evacuation with the living library itself',
+    observe: 'Respect the library’s refusal and document the flare',
+    intervene: 'Extract the catalogue and evacuate without permission',
+  },
+  nacre: {
+    aid: 'Secure testimony with anonymous, protected ballot access',
+    observe: 'Accept the current quorum and lodge a formal dissent',
+    intervene: 'Leak the fraud ledger and demand an emergency vote',
+  },
+  haleth: {
+    aid: 'Place the cure under independent physicians’ control',
+    observe: 'Preserve the clinic contract while recording its abuses',
+    intervene: 'Raid the patent vault and distribute the medicine',
+  },
+  bar: {
+    aid: 'Offer the hidden witness voluntary safe passage',
+    observe: 'Keep Serendipity neutral and preserve the secret',
+    intervene: 'Broadcast the witness’s location to stop the creditor',
+  },
+  gameworld: {
+    aid: 'Organize the contestants around the exit charter',
+    observe: 'Refuse the contest and log its continuing victims',
+    intervene: 'Sabotage the live dungeon and free the contestants',
+  },
+  rootborne: {
+    aid: 'Negotiate two oxygen networks with local consent',
+    observe: 'Let the government filters replace the orchard',
+    intervene: 'Sever the compulsory network before an agreement',
+  },
+}

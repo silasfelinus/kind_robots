@@ -364,7 +364,7 @@ export function chooseRomance(
     lastChapter: run.chapter,
     history: [...(previous?.history ?? []), message],
   }
-  return { ...run, romance, log: [...run.log, message] }
+  return { ...run, romance, log: [...run.log, message] } as RomanceVoyage
 }
 
 export function relationshipEpilogue(run: VoyageRun): VoyageRun {

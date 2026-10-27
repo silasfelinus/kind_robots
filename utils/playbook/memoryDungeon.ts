@@ -2,6 +2,7 @@ import { COMBAT_ROOMS } from '../memoryDungeon/rooms'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from '../memoryDungeon/darkBriar'
 import { DARK_HOUSE_ROOMS } from '../memoryDungeon/darkHouse'
+import { DARK_HOUSE_TRIALS } from '../memoryDungeon/darkHouseChallenges'
 import { HOUSE_ROOMS } from '../memoryDungeon/house'
 import {
   HOUSE_EPILOGUES,
@@ -68,6 +69,18 @@ function scene(
   return node
 }
 
+/**
+ * The Dark House's guardians (the frightened Hearth Guard, the Housekeeper,
+ * the Collector, the Twinned Guard and the Warden's hearing) each bar a door
+ * with their own evidence trial, so they are adversaries, not plain rooms.
+ */
+function darkHouseKind(room: { id: string; kind: string }): NodeKind {
+  return DARK_HOUSE_TRIALS[room.id] &&
+    (room.kind === 'combat' || room.kind === 'guardian')
+    ? 'boss'
+    : 'spine'
+}
+
 /** Beats that are authored map positions: overworld tiles and House rooms. */
 const POSITIONS = new Set(['briar', 'dark', 'dark-seal', 'house', 'dark-house'])
 
@@ -117,8 +130,11 @@ export function buildMemoryDungeonPlaybook(): Playbook {
   // The House beneath the Briar: thirty-six rooms, the Warden, three Hearth resolutions.
   const house: string[] = []
   for (const room of Object.values(HOUSE_ROOMS)) {
+    // The Thornbound Housekeeper is a guardian met in her own room. The
+    // House's three duelling guardians are counted once, as their combat
+    // rooms under Monsters.
     const kind: NodeKind =
-      room.id === 'HD-32'
+      room.id === 'HD-32' || room.id === 'HD-16'
         ? 'boss'
         : room.id === 'HD-35'
           ? 'crossroads'
@@ -214,7 +230,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
   for (const room of Object.values(DARK_HOUSE_ROOMS)) {
     darkHouse.push(
       add(
-        scene(`dark-house:${room.id}`, 'spine', room.title, {
+        scene(`dark-house:${room.id}`, darkHouseKind(room), room.title, {
           place: `The Dark House · ${room.id} · ${room.kind}`,
           chapter: 4,
           body: [room.opening],
@@ -335,7 +351,8 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       },
       {
         title: 'Monsters',
-        blurb: 'Who the combat rooms pit you against.',
+        blurb:
+          'Who the combat rooms pit you against: two forest duels, the House’s three guardians and the Rootbound Warden.',
         keys: monsters,
       },
     ],
@@ -350,7 +367,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       encounter: 'Scene',
       quest: 'Seal',
       crossroads: 'The Memory Hearth',
-      boss: 'Monster',
+      boss: 'Adversary',
       thread: 'Earth photograph',
       ending: 'Ending',
     },

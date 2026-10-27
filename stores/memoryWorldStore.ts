@@ -130,8 +130,11 @@ import {
 import {
   COMBAT_PAIRS,
   COMBAT_ROOMS,
+  HOUSE_DUEL_ROOMS,
   isCombatRoom,
+  isHouseDuelOrigin,
   startCombatRoom,
+  type HouseDuelOrigin,
 } from '~/utils/memoryDungeon/rooms'
 import {
   HOUSE_EXIT_POINTS,
@@ -1614,7 +1617,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       (house.current === 'HD-32' && id === 'fight') ||
       (house.current === 'HD-19' && id === 'match') ||
-      (['HD-09', 'HD-22', 'HD-28'].includes(house.current) && id === 'duel')
+      (isHouseDuelOrigin(house.current) && id === 'duel')
     ) {
       house.combatOrigin = house.current as HouseCombatOrigin
       persist()
@@ -1623,9 +1626,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           ? 'vault-2'
           : house.current === 'HD-19'
             ? 'vault-1'
-            : house.current === 'HD-09'
-              ? 'sprite'
-              : 'patrol'
+            : HOUSE_DUEL_ROOMS[house.current as HouseDuelOrigin]
       await beginRoom(combatRoom)
       if (state.value.room !== 'memory') {
         house.combatOrigin = null
@@ -1945,8 +1946,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       houseOrigin &&
       ((houseOrigin === 'HD-19' && room === 'vault-1') ||
         (houseOrigin === 'HD-32' && room === 'vault-2') ||
-        (['HD-09', 'HD-22', 'HD-28'].includes(houseOrigin) &&
-          (room === 'sprite' || room === 'patrol')))
+        (isHouseDuelOrigin(houseOrigin) &&
+          (room === HOUSE_DUEL_ROOMS[houseOrigin] ||
+            room === 'sprite' ||
+            room === 'patrol')))
     ) {
       finishHouseCombat(houseOrigin)
       return
@@ -1971,13 +1974,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       )
       return
     }
-    if (room) {
+    if (room === 'sprite' || room === 'patrol') {
       const key = room === 'sprite' ? '5,5' : '7,3'
       if (!state.value.completedEncounters.includes(key))
         state.value.completedEncounters.push(key)
       state.value.wildflowers += 1
       leaveRoom('The forest challenger bows and gives you a wildflower.')
+      return
     }
+    if (room) leaveRoom()
   }
 
   function leaveRoom(

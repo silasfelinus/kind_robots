@@ -4,6 +4,7 @@ import {
   DARK_BRIAR_ART_REQUESTS,
   DARK_BRIAR_COLLECTIBLE_ART,
   validateDarkBriarArtRequests,
+  darkBriarIllustrationPath,
 } from '../memoryDungeon/darkBriarArt'
 import {
   newBriarSave,
@@ -49,6 +50,42 @@ assert.deepEqual(validateDarkBriarSlice(), [])
 assert.deepEqual(validateDarkBriarArtRequests(), [])
 assert.equal(DARK_BRIAR_ART_REQUESTS.length, 187)
 assert.equal(DARK_BRIAR_COLLECTIBLE_ART.length, 32)
+const authoredArtPaths = new Set(
+  DARK_BRIAR_ART_REQUESTS.map((request) => request.targetPath),
+)
+for (const scene of Object.values(DARK_BRIAR_SCENES)) {
+  const original = darkBriarIllustrationPath(scene.key)
+  assert.ok(authoredArtPaths.has(original), `Missing scene art for ${scene.key}`)
+  for (const choice of scene.choices) {
+    const consequence = darkBriarIllustrationPath(scene.key, choice.id)
+    assert.ok(
+      authoredArtPaths.has(consequence),
+      `Missing earned consequence art for ${scene.key}/${choice.id}`,
+    )
+    assert.notEqual(consequence, original)
+  }
+  assert.equal(
+    darkBriarIllustrationPath(scene.key, 'forged'),
+    original,
+    'Invalid or unearned choices must not select consequence artwork',
+  )
+}
+for (const key of Object.keys(DARK_BRIAR_SEALS)) {
+  assert.ok(
+    authoredArtPaths.has(darkBriarIllustrationPath(key)),
+    `Missing seal art for ${key}`,
+  )
+}
+assert.ok(authoredArtPaths.has(darkBriarIllustrationPath('not-a-site')))
+const artStage = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+assert.match(artStage, /:src="illustrationPath"/)
+assert.match(artStage, /world\\.dark\\.sceneChoices\\[world\\.dark\\.player\\]/)
+assert.match(artStage, /watch\\(illustrationPath/)
+assert.match(artStage, /@error="artFailed = true"/)
+
 assert.ok(
   DARK_BRIAR_ART_REQUESTS.every(
     (request) => request.jobId === null && request.delivery === 'not-submitted',

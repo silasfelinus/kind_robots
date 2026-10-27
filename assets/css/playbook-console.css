@@ -432,6 +432,25 @@
     gap: 0.15rem;
     padding: 0.5rem 0.6rem 0.6rem;
   }
+  /* The gallery's shelf of sections and people, and its large focused picture. */
+  .pf-gallery-tile {
+    display: flex;
+    flex: 0 0 9.5rem;
+    flex-direction: column;
+    background: color-mix(in oklch, var(--color-base-200) 82%, transparent);
+    border: 1px solid
+      color-mix(in oklch, var(--color-base-content) 12%, transparent);
+    transition: border-color 140ms ease;
+  }
+  .pf-gallery-tile:hover,
+  .pf-gallery-tile:focus-visible {
+    border-color: var(--color-primary);
+  }
+  .pf-gallery-hero {
+    aspect-ratio: 4 / 3;
+    flex-shrink: 0;
+    background: black;
+  }
   .pf-tile-badge {
     position: absolute;
     top: 0.6rem;

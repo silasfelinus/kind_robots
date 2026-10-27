@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
-import { usePlaybookStore } from '~/stores/playbookStore'
+import { usePlaybookStore, type PlaybookNoteKind } from '~/stores/playbookStore'
 import { useFacetCatalogStore } from '~/stores/facetCatalogStore'
 import {
   PLAYBOOK_GAMES,
@@ -13,6 +13,14 @@ import {
   DEFAULT_ASSUMPTIONS,
   type Assumptions,
 } from '~/utils/playbookForge/calibration'
+import {
+  combinedSection,
+  filterEntries,
+  galleryTiles as buildGalleryTiles,
+  targetEntries,
+  type GalleryFilter,
+  type GalleryTarget,
+} from '~/utils/playbookForge/gallery'
 import {
   EMPTY_PLAN_EDIT,
   applyPlanEdit,
@@ -103,6 +111,7 @@ export type ForgeScreen =
   | 'loadout'
   | 'analyze'
   | 'ledger'
+  | 'gallery'
   | 'beats'
   | 'kit'
   | 'gestation'
@@ -810,6 +819,64 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     () => ledger.value?.sections[ledgerSection.value] ?? null,
   )
 
+  // The gallery: a game's sections and people as large art, each beat with
+  // its picture or prompt, its renders and its notes, and comments on whole
+  // sections and people (Silas, 2026-10-27: "more of a command center, with
+  // large image friendly interfaces, than a museum").
+  const galleryTarget = ref<GalleryTarget | null>(null)
+  const galleryFocus = ref<string | null>(null)
+  const galleryFilter = ref<GalleryFilter>('all')
+  const galleryBook = computed<Playbook | null>(() =>
+    ledgerBook.value
+      ? {
+          ...ledgerBook.value,
+          ...withPainted(ledgerBook.value, ledgerRelay.value?.painted),
+        }
+      : null,
+  )
+  const galleryTiles = computed(() =>
+    galleryBook.value
+      ? buildGalleryTiles(galleryBook.value, ledger.value)
+      : { sections: [], people: [] },
+  )
+  const galleryTile = computed(() => {
+    const target = galleryTarget.value
+    if (!target) return null
+    const tiles =
+      target.type === 'section'
+        ? galleryTiles.value.sections
+        : galleryTiles.value.people
+    return tiles.find((t) => t.target.id === target.id) ?? null
+  })
+  const galleryEntries = computed(() =>
+    galleryBook.value && galleryTarget.value
+      ? targetEntries(galleryBook.value, ledger.value, galleryTarget.value)
+      : [],
+  )
+  const galleryShown = computed(() =>
+    filterEntries(galleryEntries.value, galleryFilter.value),
+  )
+  const galleryFocused = computed(
+    () =>
+      galleryEntries.value.find((e) => e.key === galleryFocus.value) ?? null,
+  )
+  /** The gallery's section, or a person's beats as one, for the shared submit flow. */
+  const gallerySection = computed(() => {
+    const target = galleryTarget.value
+    const l = ledger.value
+    if (!target || !l) return null
+    if (target.type === 'section')
+      return l.sections.find((s) => s.id === target.id) ?? null
+    return combinedSection(
+      galleryTile.value?.label ?? target.id,
+      l.sections,
+      galleryEntries.value.map((e) => e.key),
+    )
+  })
+  const submitSection = computed(() =>
+    screen.value === 'gallery' ? gallerySection.value : ledgerFocused.value,
+  )
+
   /** What one press of ◀ or ▶ on the focused row would do to the forecast. */
   const preview = computed(() => {
     const row = focusedRow.value
@@ -879,6 +946,13 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       ledgerPanel.value = 'detail'
       return
     } else if (from === 'ledger') screen.value = 'library'
+    else if (from === 'gallery' && ledgerConfirm.value) {
+      ledgerConfirm.value = null
+      return
+    } else if (from === 'gallery' && galleryFocus.value) {
+      galleryFocus.value = null
+      return
+    } else if (from === 'gallery') screen.value = 'ledger'
     else if (from === 'beats')
       screen.value =
         ledgerBook.value || ledgerRelay.value ? 'ledger' : 'library'
@@ -1130,6 +1204,166 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     }
   }
 
+  /** Opens a game's gallery on a section or person (default: the ledger's focused section). */
+  async function openGallery(
+    slug: string,
+    target?: GalleryTarget,
+    key?: string,
+  ) {
+    if (existing.value?.slug !== slug || !ledgerBook.value)
+      await openLedger(slug)
+    const entry = existing.value
+    if (!entry?.studio || !ledgerBook.value) {
+      status.value = `${entry?.title ?? 'This game'} has no Playbook Studio adapter yet, so it has no gallery.`
+      return
+    }
+    const focused = ledgerFocused.value
+    galleryTarget.value =
+      target ??
+      (focused
+        ? { type: 'section', id: focused.id }
+        : (galleryTiles.value.sections[0]?.target ?? null))
+    galleryFilter.value = 'all'
+    galleryFocus.value = null
+    ledgerConfirm.value = null
+    go('gallery')
+    if (isPlaybookGame(entry.studio))
+      await usePlaybookStore().setGame(entry.studio)
+    if (key) focusEntry(key)
+  }
+
+  function showTarget(target: GalleryTarget) {
+    galleryTarget.value = target
+    galleryFocus.value = null
+    ledgerConfirm.value = null
+  }
+
+  /** Focuses one beat and fetches its renders' previews. */
+  function focusEntry(key: string | null) {
+    galleryFocus.value = key
+    ledgerConfirm.value = null
+    if (!key) return
+    const studio = usePlaybookStore()
+    void studio.refreshJobs(key)
+    for (const job of ledgerRelay.value?.byNode[key] ?? [])
+      if (job.artImageId) void studio.loadPreview(job.artImageId)
+  }
+
+  /** Every render requested for a beat, newest first, with its preview once loaded. */
+  function galleryRenders(key: string) {
+    const studio = usePlaybookStore()
+    const rows = new Map<
+      number,
+      { jobId: number; status: string; imageId: number | null }
+    >()
+    for (const job of ledgerRelay.value?.byNode[key] ?? [])
+      rows.set(job.id, {
+        jobId: job.id,
+        status: job.status,
+        imageId: job.artImageId ?? studio.jobs[job.id]?.artImageId ?? null,
+      })
+    for (const note of studio.notesFor(key)) {
+      const id = note.artJobId
+      if (!id || rows.has(id)) continue
+      const job = studio.jobs[id]
+      rows.set(id, {
+        jobId: id,
+        status: job?.status ?? 'PENDING',
+        imageId: job?.artImageId ?? null,
+      })
+    }
+    return [...rows.values()]
+      .sort((a, b) => b.jobId - a.jobId)
+      .map((row) => ({
+        ...row,
+        src: row.imageId ? (studio.previews[row.imageId] ?? null) : null,
+      }))
+  }
+
+  /** A comment, a re-render flag or a prompt proposal on a beat, section or person. */
+  async function galleryNote(
+    key: string,
+    kind: PlaybookNoteKind,
+    body: string,
+  ): Promise<boolean> {
+    const text = body.trim()
+    if (!text) return false
+    const studio = usePlaybookStore()
+    const ok = await studio.addNote(key, { kind, body: text })
+    status.value = ok
+      ? kind === 'flag'
+        ? 'Flagged for a new picture.'
+        : 'Saved for the next development.'
+      : studio.message
+    return ok
+  }
+
+  /** Renders a beat from a reviewed prompt (or, for pipeline games, leaves it for the next round). */
+  async function renderEntry(key: string, prompt: string) {
+    const book = ledgerBook.value
+    const node = book?.nodes[key]
+    const text = prompt.trim()
+    if (!book || !node || !text || busy.value) return
+    if (book.artPipeline) {
+      await galleryNote(
+        key,
+        'comment',
+        `Prompt for the next ${book.artPipeline} round: ${text}`,
+      )
+      status.value = `${book.title} art is queued by ${book.artPipeline}; the prompt is saved for its next round.`
+      return
+    }
+    busy.value = true
+    try {
+      const studio = usePlaybookStore()
+      const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
+      const ok = await studio.requestArt(key, {
+        prompt: text,
+        laneKey: ledgerLane.value,
+        shape: nodeShape(node),
+      })
+      status.value = ok
+        ? `Sent to ${lane?.label ?? 'the relay'}. The render appears here when kr-relay finishes it.`
+        : studio.message
+      if (ok) await loadRelay(book.game)
+    } finally {
+      busy.value = false
+    }
+  }
+
+  /** Asks the agents to write one beat's art prompt (a beat is never prompted from its title). */
+  async function askPrompt(key: string) {
+    const book = ledgerBook.value
+    const node = book?.nodes[key]
+    if (!book || !node || busy.value) return
+    busy.value = true
+    try {
+      const res = await performFetch<{ id: number; title: string }>(
+        '/api/todos',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            title: `Write art prompt: ${book.title} · ${node.title}`,
+            description: artPromptBrief(
+              book.game,
+              book.title,
+              book.artProject,
+              galleryTile.value?.label ?? node.kind,
+              [node],
+            ),
+            priority: 'HIGH',
+            category: 'AGENT',
+          }),
+        },
+      )
+      status.value = res.success
+        ? 'Sent to the agents as a prompt-writing Todo.'
+        : res.message || 'The Todo was refused.'
+    } finally {
+      busy.value = false
+    }
+  }
+
   function focusSection(index: number) {
     const count = ledger.value?.sections.length ?? 0
     if (!count) return
@@ -1146,7 +1380,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
 
   /** First press: the confirm card with the count and time. Second press: send it. */
   function askSubmit(kind: 'art' | 'text') {
-    const section = ledgerFocused.value
+    const section = submitSection.value
     if (!section) return
     const pipeline = ledgerBook.value?.artPipeline
     if (kind === 'art' && pipeline) {
@@ -1199,7 +1433,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   /** Sends a section's unpainted beats to the art relay as Playbook Studio art requests. */
   async function submitSectionArt() {
     const book = ledgerBook.value
-    const section = ledgerFocused.value
+    const section = submitSection.value
     const lane = PLAYBOOK_ART_LANES.find((l) => l.key === ledgerLane.value)
     if (!book || !section || !lane || busy.value) return
     const all = unitsToPaint(section)
@@ -1301,7 +1535,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   async function submitSectionText() {
     const entry = existing.value
     const book = ledgerBook.value
-    const section = ledgerFocused.value
+    const section = submitSection.value
     if (!entry || !book || !section || busy.value) return
     busy.value = true
     status.value = 'Sending…'
@@ -1545,6 +1779,23 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     ledgerLoading,
     ledgerSection,
     ledgerFocused,
+    galleryTarget,
+    galleryFocus,
+    galleryFilter,
+    galleryBook,
+    galleryTiles,
+    galleryTile,
+    galleryEntries,
+    galleryShown,
+    galleryFocused,
+    gallerySection,
+    openGallery,
+    showTarget,
+    focusEntry,
+    galleryRenders,
+    galleryNote,
+    renderEntry,
+    askPrompt,
     ledgerLane,
     ledgerConfirm,
     openLedger,

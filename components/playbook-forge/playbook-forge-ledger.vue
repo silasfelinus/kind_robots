@@ -26,6 +26,16 @@
             type="button"
             data-nav
             class="pf-label btn btn-sm btn-primary pf-focusable"
+            title="Every section and person as large art: prompts, renders and comments"
+            @click="forge.openGallery(forge.existing.slug)"
+          >
+            Gallery
+          </button>
+          <button
+            v-if="forge.existing.studio"
+            type="button"
+            data-nav
+            class="pf-label btn btn-sm btn-ghost pf-focusable"
             title="Every beat with the scene editor: overlays, notes and art requests"
             @click="forge.openBeats(forge.existing.slug)"
           >

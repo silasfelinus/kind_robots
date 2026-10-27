@@ -118,6 +118,7 @@
           <PlaybookForgeTitle v-if="forge.screen === 'title'" />
           <PlaybookForgeLibrary v-else-if="forge.screen === 'library'" />
           <PlaybookForgeLedger v-else-if="forge.screen === 'ledger'" />
+          <PlaybookForgeGallery v-else-if="forge.screen === 'gallery'" />
           <PlaybookForgeBeats v-else-if="forge.screen === 'beats'" />
           <PlaybookForgeKit v-else-if="forge.screen === 'kit'" />
           <PlaybookForgeGestation v-else-if="forge.screen === 'gestation'" />
@@ -217,6 +218,8 @@ function run(command: ConsoleCommand) {
   if (command === 'details') {
     if (forge.screen === 'ledger' && forge.existing)
       void forge.openBeats(forge.existing.slug)
+    else if (forge.screen === 'gallery' && forge.existing)
+      void forge.openBeats(forge.existing.slug, forge.galleryFocus ?? undefined)
     else forge.go(forge.screen === 'assumptions' ? 'title' : 'assumptions')
     return
   }
@@ -306,8 +309,15 @@ onMounted(() => {
   const beats = route.query.beats
   const kitGame = route.query.kit
   const studioGame = route.query.game
+  const gallery = route.query.gallery
   if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
   else if (typeof ledger === 'string' && ledger) void forge.openLedger(ledger)
+  else if (typeof gallery === 'string' && gallery)
+    void forge.openGallery(
+      gallery,
+      undefined,
+      typeof route.query.key === 'string' ? route.query.key : undefined,
+    )
   else if (typeof beats === 'string' && beats)
     void forge.openBeats(
       beats,

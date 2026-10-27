@@ -5,16 +5,17 @@ import { requireAdminApiUser } from '~/server/utils/authGuard'
 import {
   normalizePlaybookNote,
   resolvePlaybookGame,
-  resolvePlaybookNode,
+  resolvePlaybookNoteTarget,
   serializePlaybookNote,
 } from '~/server/utils/playbook'
 
-// A comment, an image flag, a submitted image or an art request on one beat.
+// A comment, an image flag, a submitted image or an art request on one beat,
+// or a comment on a whole section or person (the Forge gallery).
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)
     const game = resolvePlaybookGame(getRouterParam(event, 'game'))
-    const nodeKey = resolvePlaybookNode(
+    const nodeKey = resolvePlaybookNoteTarget(
       game,
       getRouterParam(event, 'node', { decode: true }),
     )

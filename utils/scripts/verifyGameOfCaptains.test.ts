@@ -6,7 +6,11 @@ import {
   type RomanceVoyage,
   type RomanceChoiceId,
 } from '../gameOfCaptains/romance'
-import { ROMANCE_STORIES, SOLO_ROMANCE_ROUTES, PAIR_ROMANCE_ROUTES } from '../gameOfCaptains/romanceStories'
+import {
+  ROMANCE_STORIES,
+  SOLO_ROMANCE_ROUTES,
+  PAIR_ROMANCE_ROUTES,
+} from '../gameOfCaptains/romanceStories'
 import {
   CAPTAIN_STATS,
   CREW_PROFILES,
@@ -533,8 +537,16 @@ for (const [crew, invite] of [
 let noRomance = arriveAtRelationshipDebrief(
   startVoyage('ro', ['pell', 'mox', 'jex'], 29),
 )
-assert.ok(romanceMoment(noRomance)?.choices.some((choice) => choice.id === 'invite-pell'))
-assert.ok(romanceMoment(noRomance)?.choices.some((choice) => choice.id === 'invite-pair:pell:mox'))
+assert.ok(
+  romanceMoment(noRomance)?.choices.some(
+    (choice) => choice.id === 'invite-pell',
+  ),
+)
+assert.ok(
+  romanceMoment(noRomance)?.choices.some(
+    (choice) => choice.id === 'invite-pair:pell:mox',
+  ),
+)
 assert.equal(chooseRomance(noRomance, 'commit'), noRomance)
 noRomance = chooseRomance(noRomance, 'friends')
 assert.equal(romanceMoment(noRomance), null)
@@ -552,11 +564,15 @@ assert.deepEqual(
   new Set(SOLO_ROMANCE_ROUTES.map((story) => story.id)),
   new Set(CREW.map((crew) => crew.id)),
 )
-const pairedPeople = new Set(PAIR_ROMANCE_ROUTES.flatMap((story) => story.people))
+const pairedPeople = new Set(
+  PAIR_ROMANCE_ROUTES.flatMap((story) => story.people),
+)
 assert.deepEqual(pairedPeople, new Set(CREW.map((crew) => crew.id)))
 assert.equal(ROMANCE_STORIES.length, 19)
 for (const story of ROMANCE_STORIES) {
-  assert.ok(story.chapter2.speakers.length >= 1 && story.chapter3.speakers.length >= 1)
+  assert.ok(
+    story.chapter2.speakers.length >= 1 && story.chapter3.speakers.length >= 1,
+  )
   assert.ok(story.negotiation.length > 60)
   assert.ok(story.ending.length > 55 && story.separation.length > 35)
   assert.ok(story.portraitKeys.length === story.people.length)
@@ -567,7 +583,10 @@ for (const story of ROMANCE_STORIES) {
   ].slice(0, 3)
   let voyage = arriveAtRelationshipDebrief(startVoyage('solace', team, 61))
   const invite = `invite-${story.id}` as RomanceChoiceId
-  assert.ok(romanceMoment(voyage)?.choices.some((c) => c.id === invite), story.id)
+  assert.ok(
+    romanceMoment(voyage)?.choices.some((c) => c.id === invite),
+    story.id,
+  )
   voyage = chooseRomance(voyage, invite)
   assert.equal(romanceStatus(voyage), 'invited')
   assert.equal(chooseRomance(voyage, invite), voyage)
@@ -587,7 +606,10 @@ for (const story of ROMANCE_STORIES) {
   assert.ok(epilogue.scene.includes(story.ending), story.id)
   assert.ok(epilogue.scene.includes('Solace'))
   assert.deepEqual(relationshipEpilogue(epilogue), epilogue)
-  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(epilogue))), epilogue)
+  assert.deepEqual(
+    restoreVoyage(JSON.parse(JSON.stringify(epilogue))),
+    epilogue,
+  )
   // Romance cannot remove staff, supplies or command trust, even on rupture.
   let rupture = arriveAtRelationshipDebrief(startVoyage('solace', team, 72))
   rupture = chooseRomance(rupture, invite)
@@ -595,15 +617,26 @@ for (const story of ROMANCE_STORIES) {
   const previousStats = [rupture.supplies, rupture.trust, ...rupture.crew]
   rupture = chooseRomance(rupture, 'press')
   assert.equal(romanceStatus(rupture), 'rejected')
-  assert.deepEqual([rupture.supplies, rupture.trust, ...rupture.crew], previousStats)
-  assert.equal(romanceMoment(arriveAtRelationshipDebrief(nextDestination(rupture))), null)
+  assert.deepEqual(
+    [rupture.supplies, rupture.trust, ...rupture.crew],
+    previousStats,
+  )
+  assert.equal(
+    romanceMoment(arriveAtRelationshipDebrief(nextDestination(rupture))),
+    null,
+  )
 }
 // Earlier saves with a single Rue or Tess route continue to resolve after expansion.
 for (const legacy of ['rue', 'tess'] as const) {
   const saved = {
     ...startVoyage('fluke', [legacy, 'pell', 'mox'], 42),
-    romance: { route: legacy, status: 'invited', lastChapter: 1,
-      result: 'A conversation without coercion', history: ['A conversation without coercion'] },
+    romance: {
+      route: legacy,
+      status: 'invited',
+      lastChapter: 1,
+      result: 'A conversation without coercion',
+      history: ['A conversation without coercion'],
+    },
   }
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(saved))), saved)
 }

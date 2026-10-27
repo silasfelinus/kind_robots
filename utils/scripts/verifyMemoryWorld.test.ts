@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   DARK_BRIAR_WAVES,
+  DARK_BRIAR_SCENES,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
   recoverDarkBriarTurn,
@@ -231,9 +232,57 @@ assert.deepEqual(
     ['e02', '5,4'],
   ],
 )
+const playablePhotoScenes = [
+  { reality: 'e01' as const, site: '2,5', choices: ['archive', 'grieve'] },
+  { reality: 'e01' as const, site: '8,6', choices: ['record', 'promise'] },
+  { reality: 'e02' as const, site: '2,5', choices: ['question', 'preserve'] },
+  { reality: 'e02' as const, site: '5,4', choices: ['draw', 'release'] },
+]
+for (const { reality, site, choices } of playablePhotoScenes) {
+  const scene = reality === 'e01' ? BRIAR_SCENES[site] : DARK_BRIAR_SCENES[site]
+  assert.ok(scene, `Earth photo scene ${reality}/${site} must be authored`)
+  assert.match(
+    scene.opening,
+    /photograph|photo|print|apology/i,
+    `Earth photo ${reality}/${site} must be discoverable in its scene`,
+  )
+  for (const choice of choices) {
+    assert.ok(
+      scene.choices.some((option) => option.id === choice),
+      `Earth photo ${reality}/${site} must honor choice ${choice}`,
+    )
+    const scenes = { e01: {}, e02: {} } as {
+      e01: Record<string, string>
+      e02: Record<string, string>
+    }
+    scenes[reality][site] = choice
+    assert.deepEqual(
+      reconcileEarthChronicle(newEarthChronicle(), scenes).found,
+      [
+        EARTH_PHOTOS.find(
+          (photo) => photo.experience === reality && photo.site === site,
+        )!.id,
+      ],
+      `Earned photo must be granted by ${reality}/${site} choice ${choice}`,
+    )
+  }
+}
+assert.deepEqual(
+  reconcileEarthChronicle(newEarthChronicle(), {
+    e01: { '2,5': 'forged', '8,6': 'forged' },
+    e02: { '2,5': 'forged', '5,4': 'forged' },
+  }).found,
+  [],
+  'Invalid or forged scene decisions cannot mint Earth Chronicle evidence',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle({ '2,5': 'forged', '8,6': 'forged' }),
+  [],
+  'Legacy photo summaries also reject decisions absent from the authored scenes',
+)
 const recordedBackwards = reconcileEarthChronicle(newEarthChronicle(), {
   e01: { '8,6': 'record' },
-  e02: { '5,4': 'keep', '2,5': 'question' },
+  e02: { '5,4': 'draw', '2,5': 'question' },
 })
 assert.deepEqual(
   recoveredEarthPhotos(recordedBackwards).map((photo) => photo.order),
@@ -243,7 +292,7 @@ assert.deepEqual(
 assert.equal(
   reconcileEarthChronicle(recordedBackwards, {
     e01: { '8,6': 'record' },
-    e02: { '5,4': 'keep', '2,5': 'question' },
+    e02: { '5,4': 'draw', '2,5': 'question' },
   }),
   recordedBackwards,
   'Once-only photograph claims do not churn or duplicate when the same scene is replayed',
@@ -285,10 +334,30 @@ assert.deepEqual(
 // the same Earth chronology, preserve consent-based responses, and never leak
 // later-world photographs into the journal.
 const photoEvents = [
-  { reality: 'e01' as const, site: '2,5', id: 'earth-01' },
-  { reality: 'e01' as const, site: '8,6', id: 'earth-02' },
-  { reality: 'e02' as const, site: '2,5', id: 'earth-03' },
-  { reality: 'e02' as const, site: '5,4', id: 'earth-04' },
+  {
+    reality: 'e01' as const,
+    site: '2,5',
+    id: 'earth-01',
+    choice: 'archive',
+  },
+  {
+    reality: 'e01' as const,
+    site: '8,6',
+    id: 'earth-02',
+    choice: 'record',
+  },
+  {
+    reality: 'e02' as const,
+    site: '2,5',
+    id: 'earth-03',
+    choice: 'question',
+  },
+  {
+    reality: 'e02' as const,
+    site: '5,4',
+    id: 'earth-04',
+    choice: 'draw',
+  },
 ]
 function permutations<T>(items: readonly T[]): T[][] {
   if (!items.length) return [[]]
@@ -307,7 +376,7 @@ for (const sequence of permutations(photoEvents)) {
   }
   let journal = newEarthChronicle()
   for (const [i, event] of sequence.entries()) {
-    scenes[event.reality][event.site] = 'remember'
+    scenes[event.reality][event.site] = event.choice
     journal = reconcileEarthChronicle(journal, scenes)
     assert.equal(journal.found.length, i + 1)
     const response = i % 2 ? 'hold' : 'challenge'

@@ -20,7 +20,9 @@ import {
 import {
   COMBAT_PAIRS,
   COMBAT_ROOMS,
+  HOUSE_DUEL_ROOMS,
   isCombatRoom,
+  isHouseDuelOrigin,
   restoreBriarCombat,
   startCombatRoom,
 } from '../memoryDungeon/rooms'
@@ -47,13 +49,46 @@ assert.equal(
   'a cross aimed at the corner overhangs and is refused, not clipped',
 )
 
-// 2. Rooms: three combat rooms, Classic Echo Chamber untouched, tools that fit.
+// 2. Rooms: the forest duels, the Warden and the House's three guardian duels,
+// Classic Echo Chamber untouched, tools that fit.
 assert.deepEqual(Object.keys(COMBAT_ROOMS).sort(), [
+  'collector',
+  'hearth-guard',
   'patrol',
   'sprite',
+  'twinned-guard',
   'vault-2',
 ])
 assert.equal(isCombatRoom('vault-1'), false, 'the Echo Chamber stays Classic')
+assert.equal(isCombatRoom('toString'), false, 'only authored rooms count')
+assert.equal(
+  new Set(Object.values(COMBAT_ROOMS).map((room) => room.enemy.name)).size,
+  Object.keys(COMBAT_ROOMS).length,
+  'every combat room fights its own enemy',
+)
+assert.equal(
+  new Set(
+    Object.values(COMBAT_ROOMS).map(
+      (room) => `${room.enemy.hp}/${room.enemy.attack}/${room.enemy.every}`,
+    ),
+  ).size,
+  Object.keys(COMBAT_ROOMS).length,
+  'and fights at its own tempo',
+)
+for (const room of Object.values(COMBAT_ROOMS))
+  assert.ok(room.intro.length > 40 && room.artPrompt.length >= 120)
+// HD-09, HD-22 and HD-28 each launch their own guardian, never a forest board.
+assert.deepEqual(HOUSE_DUEL_ROOMS, {
+  'HD-09': 'hearth-guard',
+  'HD-22': 'collector',
+  'HD-28': 'twinned-guard',
+})
+for (const [origin, room] of Object.entries(HOUSE_DUEL_ROOMS)) {
+  assert.ok(isHouseDuelOrigin(origin) && isCombatRoom(room))
+  assert.notEqual(room, 'sprite')
+  assert.notEqual(room, 'patrol')
+}
+assert.equal(isHouseDuelOrigin('HD-32'), false, 'the Warden keeps its vault')
 assert.equal(COMBAT_PAIRS, 8)
 for (const [id, room] of Object.entries(COMBAT_ROOMS)) {
   for (const weapon of room.loadout)
@@ -155,6 +190,21 @@ assert.equal(
 )
 assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
+// A House guardian duel saved mid-fight restores to the same guardian, and a
+// duel saved before the guardians had boards of their own still restores.
+for (const roomId of ['collector', 'sprite'] as const) {
+  const guardian = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...save,
+        roomId,
+        house: { ...newBriarSave().house, current: 'HD-22' },
+      }),
+    ),
+  )
+  assert.equal(guardian.room, 'memory')
+  assert.equal(guardian.roomId, roomId)
+}
 const classic = restoreBriarSave({
   ...newBriarSave(),
   room: 'memory',
@@ -209,6 +259,16 @@ assert.match(
   store,
   /resolveMemoryDungeonDeck\(deck\.value, required\)/,
   'fights use the shared deck choice',
+)
+assert.match(
+  store,
+  /HOUSE_DUEL_ROOMS\[house\.current as HouseDuelOrigin\]/,
+  'a House duel begins its own guardian room',
+)
+assert.match(
+  store,
+  /room === HOUSE_DUEL_ROOMS\[houseOrigin\] \|\|\s+room === 'sprite' \|\|\s+room === 'patrol'/,
+  'and a duel begun before the guardians had boards still finishes',
 )
 
 console.log(

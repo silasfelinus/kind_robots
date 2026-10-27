@@ -140,6 +140,7 @@ import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
   createBriarWaveCards,
+  settleBriarWavePair,
 } from '~/utils/memoryDungeonWaves'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
@@ -1114,25 +1115,26 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.attempts++
     turnLocked.value = true
     const epoch = roomEpoch
-    if (first.pairId === card.pairId) {
+    if (first.pairId === card.pairId && first.image === card.image) {
       // Allow the same 550ms Y-axis animation used in Classic to finish
       // before replacing the successful pair with visible map terrain.
       state.value.status = 'A match! The fog is lifting…'
       persist()
       window.setTimeout(() => {
         if (epoch !== roomEpoch) return
-        first.matched = true
-        card.matched = true
-        for (const tile of [first.tile, card.tile]) {
-          if (!state.value.revealed.includes(tile))
-            state.value.revealed.push(tile)
-          if (tile === BRIAR_START && !state.value.visited.includes(tile))
-            state.value.visited.push(tile)
+        const settled = settleBriarWavePair(
+          state.value,
+          first.tile,
+          card.tile,
+        )
+        if (!settled) {
+          turnLocked.value = false
+          return
         }
+        state.value = settled
         state.value.status =
           'A remembered pair! Two pieces of Briar Camp have emerged.'
-        if (state.value.mapCards.every((tile) => tile.matched)) {
-          state.value.wavePhase = 'exploring'
+        if (state.value.wavePhase === 'exploring') {
           state.value.status =
             state.value.waveIndex === 3
               ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'

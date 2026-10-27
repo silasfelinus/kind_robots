@@ -1816,7 +1816,7 @@ assert.doesNotThrow(
 assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
 assert.match(
   worldStoreSource,
-  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = recoveredRoom/,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumedRoom\.progress/,
   'Loading a slot invalidates pending map and mirrored animation callbacks',
 )
 assert.match(

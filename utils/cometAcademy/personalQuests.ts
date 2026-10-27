@@ -81,6 +81,7 @@ export function personalQuestEvent(run: AcademyRun) {
         : 'Word of your earlier bargain has reached this room. Nobody is certain they can trust you.'
     : 'Nobody can predict which version of this story will become public.'
   const role = run.playerEvolution?.form ?? 'student'
+  const persona = role === 'hero' ? identity.hero : role === 'villain' ? identity.villain : identity.student
   const title = ({
     6: 'A Secret with a Witness',
     12: 'Terms of Affection and Trust',
@@ -101,7 +102,7 @@ export function personalQuestEvent(run: AcademyRun) {
       'The real mastermind is still active; this personal breach is a separate case.',
     27: 'Prom is four days away. ' + identity.realName + ' stands at ' +
       quest.location + ' with evidence of the original wrong. ' +
-      'As ' + (identity as any)[role].alias + ', you can use a changed toolkit to help, negotiate or dominate. ' +
+      'As ' + persona.alias + ', you can use a changed toolkit to help, negotiate or dominate. ' +
       'Heroic option: ' + identity.hero.method +
       ' Villainous option: ' + identity.villain.method,
   }

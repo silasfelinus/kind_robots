@@ -50,7 +50,11 @@ assert.ok(/homeworld/.test(CASINO_ORIGIN) && /colonists/.test(CASINO_ORIGIN))
 for (const franchise of SERENDIPITY_FRANCHISES) {
   assert.equal(franchise.beats.length, 3, franchise.id)
   assert.ok(franchise.illustration.length > 70, franchise.id)
-  assert.equal(new Set(franchise.beats.map((b) => b.title)).size, 3, franchise.id)
+  assert.equal(
+    new Set(franchise.beats.map((b) => b.title)).size,
+    3,
+    franchise.id,
+  )
   for (const beat of franchise.beats) {
     assert.ok(beat.situation.length > 45, franchise.id)
     for (const key of ['ask', 'document', 'override'] as const)
@@ -70,19 +74,32 @@ for (let seed = 1; seed <= 150; seed++) {
     const prompt = venueArtPrompt(system)
     assert.match(prompt, /living planet-sized cobalt-blue alien person/)
     assert.match(prompt, /INSIDE the casino is the Serendipity franchise/)
-    assert.ok(prompt.includes(system.franchise.name) && prompt.includes(system.franchise.illustration))
+    assert.ok(
+      prompt.includes(system.franchise.name) &&
+        prompt.includes(system.franchise.illustration),
+    )
   }
   for (let chapter = 1; chapter <= 9; chapter++)
-    assert.equal(chapterSystem(seed, chapter).id, systems[(chapter - 1) % systems.length]!.id)
+    assert.equal(
+      chapterSystem(seed, chapter).id,
+      systems[(chapter - 1) % systems.length]!.id,
+    )
 }
-assert.equal(themesSeen.size, 20, 'every franchise should be reachable with a seeded voyage')
+assert.equal(
+  themesSeen.size,
+  20,
+  'every franchise should be reachable with a seeded voyage',
+)
 const partyForVenue = ['fen', 'mox', 'rue'] as const
 let venueRun = startVoyage('fluke', [...partyForVenue], 2048)
 venueRun = arriveAtWorld(startWorldTravel(venueRun))
 assert.equal(venueRun.phase, 'expedition')
 const venueSystem = chapterSystem(venueRun.seed, venueRun.chapter)
 const casino = casinoIncident(venueRun.seed, venueRun.chapter, venueSystem)
-assert.deepEqual(casino, casinoIncident(venueRun.seed, venueRun.chapter, venueSystem))
+assert.deepEqual(
+  casino,
+  casinoIncident(venueRun.seed, venueRun.chapter, venueSystem),
+)
 const firstVenue = visitCasinoVenue(venueRun, 'bar', 'ask')
 assert.equal(firstVenue.venueProgress?.barBeats[venueSystem.id], 1)
 assert.equal(firstVenue.trust, venueRun.trust + 1)
@@ -93,16 +110,37 @@ assert.equal(secondVenue.reputation, firstVenue.reputation + 1)
 const thirdVenue = visitCasinoVenue(secondVenue, 'bar', 'override')
 assert.equal(thirdVenue.venueProgress?.barBeats[venueSystem.id], 3)
 assert.equal(thirdVenue.intervention, secondVenue.intervention + 1)
-assert.equal(visitCasinoVenue(thirdVenue, 'bar', 'ask'), thirdVenue, 'bar closes after authored finale this visit')
+assert.equal(
+  visitCasinoVenue(thirdVenue, 'bar', 'ask'),
+  thirdVenue,
+  'bar closes after authored finale this visit',
+)
 const casinoVisit = visitCasinoVenue(thirdVenue, 'casino', 'document')
 assert.equal(casinoVisit.venueProgress?.choices.length, 4)
-assert.equal(visitCasinoVenue(casinoVisit, 'casino', 'override'), casinoVisit, 'casino quest cannot be repeated for free supplies')
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(casinoVisit))), casinoVisit)
+assert.equal(
+  visitCasinoVenue(casinoVisit, 'casino', 'override'),
+  casinoVisit,
+  'casino quest cannot be repeated for free supplies',
+)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(casinoVisit))),
+  casinoVisit,
+)
 const oldVenueSave = JSON.parse(JSON.stringify(venueRun))
 delete oldVenueSave.venueProgress
-assert.ok(restoreVoyage(oldVenueSave), 'old v1 saves restore without venue progress')
+assert.ok(
+  restoreVoyage(oldVenueSave),
+  'old v1 saves restore without venue progress',
+)
 assert.equal(visitCasinoVenue(venueRun, 'bar', 'bogus' as never), venueRun)
-assert.equal(visitCasinoVenue(startVoyage('fluke', [...partyForVenue], 2048), 'casino', 'ask').phase, 'briefing')
+assert.equal(
+  visitCasinoVenue(
+    startVoyage('fluke', [...partyForVenue], 2048),
+    'casino',
+    'ask',
+  ).phase,
+  'briefing',
+)
 
 assert.equal(REDSHIRTS.length, 100)
 assert.equal(new Set(REDSHIRTS.map((r) => r.id)).size, 100)

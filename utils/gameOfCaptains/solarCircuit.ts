@@ -626,14 +626,42 @@ const SYSTEM_SEEDS = [
   ['Tin-Choir', 'A debt court has declared memory a commodity.', 'Orun'],
   ['Low Lantern', 'Refugee docking permits are priced in daylight.', 'Seph'],
   ['Moonspindle', 'The gravity regulator has begun charging rent.', 'Tavrin'],
-  ['Cold Ledger', 'The science council wants to erase a labor strike.', 'Nerel'],
-  ['Bellwake', 'Farmers contest a corporation’s claims to their weather.', 'Bireth'],
-  ['Thistle Halo', 'A council classifies spoken testimony as vandalism.', 'Eshra'],
+  [
+    'Cold Ledger',
+    'The science council wants to erase a labor strike.',
+    'Nerel',
+  ],
+  [
+    'Bellwake',
+    'Farmers contest a corporation’s claims to their weather.',
+    'Bireth',
+  ],
+  [
+    'Thistle Halo',
+    'A council classifies spoken testimony as vandalism.',
+    'Eshra',
+  ],
   ['Morrow Gate', 'A cartel monopolizes the only emergency airlock.', 'Daoran'],
-  ['Dusk Meridian', 'The people who built the ports cannot enter them.', 'Ione'],
-  ['Velvet Umbra', 'A museum buys the legal future of its own residents.', 'Nadri'],
-  ['Porcelain Reach', 'Every voter is being charged for the heat of their ballot.', 'Kelan'],
-  ['Last Parallax', 'A security service auctions other people’s dreams.', 'Nima'],
+  [
+    'Dusk Meridian',
+    'The people who built the ports cannot enter them.',
+    'Ione',
+  ],
+  [
+    'Velvet Umbra',
+    'A museum buys the legal future of its own residents.',
+    'Nadri',
+  ],
+  [
+    'Porcelain Reach',
+    'Every voter is being charged for the heat of their ballot.',
+    'Kelan',
+  ],
+  [
+    'Last Parallax',
+    'A security service auctions other people’s dreams.',
+    'Nima',
+  ],
 ] as const
 
 function hash(seed: number, key: string): number {
@@ -651,11 +679,15 @@ export type SolarSystem = {
 }
 export function solarCircuit(seed: number): SolarSystem[] {
   const length = 4 + (hash(seed, 'systems-count') % 4)
-  const order = SYSTEM_SEEDS.map((row, i) => ({ row, i })).sort(
-    (a, b) => hash(seed, 'system-order-' + a.i) - hash(seed, 'system-order-' + b.i),
-  ).slice(0, length)
+  const order = SYSTEM_SEEDS.map((row, i) => ({ row, i }))
+    .sort(
+      (a, b) =>
+        hash(seed, 'system-order-' + a.i) - hash(seed, 'system-order-' + b.i),
+    )
+    .slice(0, length)
   const themes = SERENDIPITY_FRANCHISES.map((item, i) => ({ item, i })).sort(
-    (a, b) => hash(seed, 'theme-order-' + a.i) - hash(seed, 'theme-order-' + b.i),
+    (a, b) =>
+      hash(seed, 'theme-order-' + a.i) - hash(seed, 'theme-order-' + b.i),
   )
   return order.map(({ row, i }, index) => ({
     id: 'sun-' + i,
@@ -678,25 +710,73 @@ export type VenueProgress = {
   barBeats: Record<string, number>
   /** One casino dilemma and optionally one after-hours Serendipity quest per chapter. */
   completed: string[]
-  choices: { systemId: string; chapter: number; venue: 'bar' | 'casino'; choice: CasinoChoice; scene: string }[]
+  choices: {
+    systemId: string
+    chapter: number
+    venue: 'bar' | 'casino'
+    choice: CasinoChoice
+    scene: string
+  }[]
 }
 export function newVenueProgress(): VenueProgress {
   return { barBeats: {}, completed: [], choices: [] }
 }
 const CASINO_INCIDENTS = [
-  { title: 'The Unauthorized Itch', description: 'A roulette terrace has been constructed over a nerve the host cannot reach; the casino has refused a scratching permit.' },
-  { title: 'Colonial Settlement Day', description: 'The casino celebrates the seizure of the blue giants’ homeworld as a holiday and bills the giant host for the fireworks.' },
-  { title: 'The House Always Wins', description: 'A table dealer reveals that the giant host is automatically billed for every winning hand.' },
-  { title: 'A Question of Consent', description: 'A property inspector insists the giant host consented to carrying the casino, although no translator was present.' },
-  { title: 'Night Shift', description: 'The host wants six hours of sleep, but every casino schedule requires them to remain awake.' },
-  { title: 'A Fair Agreement', description: 'Colonists offer the giant one percent of profits if they surrender the right to move.' },
-  { title: 'Jackpot Evacuation', description: 'A casino fire alarm goes off inside the host’s outer ear, and every emergency exit leads farther onto their body.' },
-  { title: 'The Other Owners', description: 'Another blue giant broadcasts a warning that the casino franchise plans to expand into their sleeping sister.' },
+  {
+    title: 'The Unauthorized Itch',
+    description:
+      'A roulette terrace has been constructed over a nerve the host cannot reach; the casino has refused a scratching permit.',
+  },
+  {
+    title: 'Colonial Settlement Day',
+    description:
+      'The casino celebrates the seizure of the blue giants’ homeworld as a holiday and bills the giant host for the fireworks.',
+  },
+  {
+    title: 'The House Always Wins',
+    description:
+      'A table dealer reveals that the giant host is automatically billed for every winning hand.',
+  },
+  {
+    title: 'A Question of Consent',
+    description:
+      'A property inspector insists the giant host consented to carrying the casino, although no translator was present.',
+  },
+  {
+    title: 'Night Shift',
+    description:
+      'The host wants six hours of sleep, but every casino schedule requires them to remain awake.',
+  },
+  {
+    title: 'A Fair Agreement',
+    description:
+      'Colonists offer the giant one percent of profits if they surrender the right to move.',
+  },
+  {
+    title: 'Jackpot Evacuation',
+    description:
+      'A casino fire alarm goes off inside the host’s outer ear, and every emergency exit leads farther onto their body.',
+  },
+  {
+    title: 'The Other Owners',
+    description:
+      'Another blue giant broadcasts a warning that the casino franchise plans to expand into their sleeping sister.',
+  },
 ] as const
-export function casinoIncident(seed: number, chapter: number, system: SolarSystem) {
-  return CASINO_INCIDENTS[hash(seed, `casino:${chapter}:${system.id}`) % CASINO_INCIDENTS.length]!
+export function casinoIncident(
+  seed: number,
+  chapter: number,
+  system: SolarSystem,
+) {
+  return CASINO_INCIDENTS[
+    hash(seed, `casino:${chapter}:${system.id}`) % CASINO_INCIDENTS.length
+  ]!
 }
-export function afterHoursIncident(seed: number, chapter: number, system: SolarSystem) {
+export function afterHoursIncident(
+  seed: number,
+  chapter: number,
+  system: SolarSystem,
+) {
   const variants = [
     `A guest at ${system.franchise.name} finds a hidden message from ${system.giant} under the next round of drinks.`,
     `The bar's sentient gravity moves the stools away from a tax collector who claims to own ${system.giant}'s name.`,
@@ -706,7 +786,9 @@ export function afterHoursIncident(seed: number, chapter: number, system: SolarS
   return variants[hash(seed, `bar:${chapter}:${system.id}`) % variants.length]!
 }
 export function sceneForChoice(beat: VenueBeat, choice: CasinoChoice): string {
-  return beat[choice === 'ask' ? 'ask' : choice === 'document' ? 'document' : 'override']
+  return beat[
+    choice === 'ask' ? 'ask' : choice === 'document' ? 'document' : 'override'
+  ]
 }
 
 /**
@@ -719,7 +801,10 @@ export function visitCasinoVenue(
   venue: 'bar' | 'casino',
   choice: CasinoChoice,
 ): import('./rules').VoyageRun {
-  if (run.phase !== 'expedition' || !['ask', 'document', 'override'].includes(choice))
+  if (
+    run.phase !== 'expedition' ||
+    !['ask', 'document', 'override'].includes(choice)
+  )
     return run
   const system = chapterSystem(run.seed, run.chapter)
   const state = run.venueProgress ?? newVenueProgress()
@@ -752,12 +837,24 @@ export function visitCasinoVenue(
         { systemId: system.id, chapter: run.chapter, venue, choice, scene },
       ],
     },
-    supplies: Math.max(0, run.supplies + (choice === 'ask' ? -1 : choice === 'override' ? 1 : 0)),
-    trust: Math.max(0, run.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0)),
+    supplies: Math.max(
+      0,
+      run.supplies + (choice === 'ask' ? -1 : choice === 'override' ? 1 : 0),
+    ),
+    trust: Math.max(
+      0,
+      run.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0),
+    ),
     reputation: run.reputation + (choice === 'document' ? 1 : 0),
     intervention: run.intervention + (choice === 'override' ? 1 : 0),
-    worldFlags: [...(run.worldFlags ?? []), `casino:${system.id}:${venue}:${choice}`],
+    worldFlags: [
+      ...(run.worldFlags ?? []),
+      `casino:${system.id}:${venue}:${choice}`,
+    ],
     scene,
-    log: [...run.log, `Ship day ${run.day ?? run.chapter}: ${system.franchise.name} on ${system.giant}'s occupied body. ${scene}`],
+    log: [
+      ...run.log,
+      `Ship day ${run.day ?? run.chapter}: ${system.franchise.name} on ${system.giant}'s occupied body. ${scene}`,
+    ],
   }
 }

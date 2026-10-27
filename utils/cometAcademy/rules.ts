@@ -591,7 +591,10 @@ export function encounterFor(run: AcademyRun) {
   }
   const identityStory = personalQuestEvent(run)
   if (identityStory)
-    return { ...identityStory, scene: campaignAnchor(run.day) + ' ' + identityStory.scene }
+    return {
+      ...identityStory,
+      scene: campaignAnchor(run.day) + ' ' + identityStory.scene,
+    }
   const personalStory = openingRouteFor(run)
   if (personalStory)
     return {
@@ -1178,10 +1181,12 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   const vowHistory = vowAction
     ? [...(run.vowHistory ?? []), { day: run.day, action: vowAction }]
     : run.vowHistory
-  const personalMatch = /^personal-(6|12|19|27)-(protect|confront|exploit)$/.exec(option.id)
-  const personalChoice = Number(personalMatch?.[1]) === run.day
-    ? (personalMatch?.[2] as PersonalChoice)
-    : null
+  const personalMatch =
+    /^personal-(6|12|19|27)-(protect|confront|exploit)$/.exec(option.id)
+  const personalChoice =
+    Number(personalMatch?.[1]) === run.day
+      ? (personalMatch?.[2] as PersonalChoice)
+      : null
   const personalHistory = personalChoice
     ? [...(run.personalHistory ?? []), { day: run.day, choice: personalChoice }]
     : run.personalHistory
@@ -1474,7 +1479,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.vowHistory !== undefined &&
       (!data.vow || !isVowMemory(data.vowHistory, data.day ?? 0))) ||
     (data.personalHistory !== undefined &&
-      (!data.signature || data.flowVersion !== 3 || !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
+      (!data.signature ||
+        data.flowVersion !== 3 ||
+        !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
     (data.initialForm !== undefined &&
       (!['student', 'hero', 'villain'].includes(data.initialForm) ||
         (data.initialForm !== 'student' && !data.signature))) ||

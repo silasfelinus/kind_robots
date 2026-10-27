@@ -26,7 +26,7 @@
     </header>
 
     <div
-      class="grid min-h-0 gap-3 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]"
+      class="kr-scroll grid min-h-0 content-start items-start gap-3 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]"
     >
       <div class="flex min-h-0 flex-col gap-2">
         <div class="flex flex-wrap items-center gap-2">
@@ -76,7 +76,7 @@
         <p class="pf-kicker text-xs opacity-70">
           {{ filtered.length }} recruits · one unique biography and prompt each
         </p>
-        <div class="kr-scroll min-h-0 flex-1 pr-1" aria-label="Redshirt roster">
+        <div class="min-w-0 flex-1 pr-1" aria-label="Redshirt roster">
           <div
             class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,11rem),1fr))] gap-2"
           >
@@ -127,7 +127,7 @@
 
       <aside
         v-if="selected && working"
-        class="kr-scroll pf-panel min-h-0 space-y-3 p-3 @4xl:p-4"
+        class="pf-panel min-h-0 space-y-3 p-3 @4xl:p-4"
         aria-label="Selected redshirt details"
       >
         <div
@@ -220,7 +220,7 @@
             secret ability activates on this skill. These are shared mission
             cards, not authored personal arcs.
           </p>
-          <ul class="max-h-52 space-y-2 overflow-y-auto pr-1">
+          <ul class="space-y-2 pr-1">
             <li
               v-for="encounter in links"
               :key="encounter.id"
@@ -326,7 +326,7 @@
           <p v-else-if="forge.catalogError" class="text-xs text-error">
             {{ forge.catalogError }}
           </p>
-          <div class="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto">
+          <div class="grid grid-cols-2 gap-2">
             <button
               v-for="item in sourcesShown"
               :key="item.key"
@@ -354,7 +354,7 @@
             v-if="sourceLimit < sources.length"
             type="button"
             class="btn btn-ghost btn-xs"
-            @click="sourceLimit += 40"
+            @click="sourceLimit += 12"
           >
             Show more ({{ sources.length - sourceLimit }} left)
           </button>
@@ -467,7 +467,7 @@ const referenceTabs = [
   { id: 'rewards', label: 'Reward' },
 ] as const
 const sourceSearch = ref('')
-const sourceLimit = ref(40)
+const sourceLimit = ref(12)
 const filtered = computed(() =>
   REDSHIRT_ROSTER.filter(
     (p) =>
@@ -524,11 +524,11 @@ watch(
   { deep: true },
 )
 watch(sourceSearch, () => {
-  sourceLimit.value = 40
+  sourceLimit.value = 12
 })
 function chooseTab(tab: CatalogTab) {
   sourceTab.value = tab
-  sourceLimit.value = 40
+  sourceLimit.value = 12
   void forge.loadCatalog(tab)
 }
 function connect(item: CatalogItem) {

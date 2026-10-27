@@ -29,6 +29,7 @@ import {
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
   crossRealmHouseEpilogue,
+  earnedDarkHousePuzzleClue,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,

@@ -656,9 +656,7 @@
               </div>
             </div>
             <div class="cap-mission-report">
-              <strong>{{
-                detourCrewName
-              }}</strong>
+              <strong>{{ detourCrewName }}</strong>
               <p>{{ activeDetour?.scene }}</p>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
@@ -877,7 +875,11 @@ const availableCrew = computed(() =>
 const crewRoutes = computed(() =>
   run.value ? crewDetourOptions(run.value) : [],
 )
-const detourCrewName = computed(() => CREW.find((person) => person.id === run.value?.detour?.crewId)?.name ?? 'Crew member')
+const detourCrewName = computed(
+  () =>
+    CREW.find((person) => person.id === run.value?.detour?.crewId)?.name ??
+    'Crew member',
+)
 const activeDetour = computed(() => (run.value ? detourFor(run.value) : null))
 const nemesisCrewLink = computed(
   () =>

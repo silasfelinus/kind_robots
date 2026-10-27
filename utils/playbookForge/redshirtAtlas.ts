@@ -32,21 +32,25 @@ export function baseRedshirtDraft(person: Redshirt): RedshirtDraft {
 
 /** These are actual playable expedition assignments, NOT authored solo character quests. */
 export function redshirtQuestLinks(person: Redshirt) {
-  return EXPEDITION_ENCOUNTERS.filter((encounter) => encounter.skill === person.talent)
-    .map((encounter) => ({
-      id: encounter.id,
-      title: encounter.title,
-      priority: encounter.priority,
-      scope: encounter.scope,
-      skill: encounter.skill,
-      setup: encounter.setup,
-      outcome: encounter.redshirtResult,
-      activatesPower: true,
-    }))
+  return EXPEDITION_ENCOUNTERS.filter(
+    (encounter) => encounter.skill === person.talent,
+  ).map((encounter) => ({
+    id: encounter.id,
+    title: encounter.title,
+    priority: encounter.priority,
+    scope: encounter.scope,
+    skill: encounter.skill,
+    setup: encounter.setup,
+    outcome: encounter.redshirtResult,
+    activatesPower: true,
+  }))
 }
 
 /** Render the working design, not a stale original when the artist changed the brief. */
-export function redshirtPortraitPrompt(person: Redshirt, draft: RedshirtDraft): string {
+export function redshirtPortraitPrompt(
+  person: Redshirt,
+  draft: RedshirtDraft,
+): string {
   const influence = draft.referenceKey
     ? draft.referenceTab === 'characters' && draft.intent === 'appearance'
       ? `Adapt existing Kind Robots Character ${draft.referenceTitle} as this expedition recruit.`
@@ -71,7 +75,11 @@ export function redshirtChanges(person: Redshirt, draft: RedshirtDraft) {
   )
 }
 
-export function redshirtBrief(person: Redshirt, draft: RedshirtDraft, action: RedshirtAction): string {
+export function redshirtBrief(
+  person: Redshirt,
+  draft: RedshirtDraft,
+  action: RedshirtAction,
+): string {
   const changes = redshirtChanges(person, draft)
   const lines = [
     `### Redshirt ${person.id} · ${person.name}`,

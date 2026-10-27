@@ -660,8 +660,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           state.value = recoveredRoom
           firstMapCard.value = resumed.firstTile
           latestMapCardKey.value = resumed.firstTile
-          if (resumed.recovered || recoveredRoom !== resumed.progress)
-            persist()
+          if (resumed.recovered || recoveredRoom !== resumed.progress) persist()
         }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks

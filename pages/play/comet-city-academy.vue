@@ -514,6 +514,19 @@
               </div>
             </article>
             <button
+              v-if="emergencyBackup"
+              class="cca-choice"
+              type="button"
+              data-testid="academy-emergency-backup"
+              @click="store.requestBackup()"
+            >
+              <span>
+                CALL THE CITY FOR BACKUP · {{ emergencyBackup.name }}
+                <small>Gain a willing volunteer for tonight. Costs goodwill and raises danger.</small>
+              </span>
+              <span>↗</span>
+            </button>
+            <button
               class="cca-primary"
               type="button"
               data-testid="academy-dispatch"
@@ -805,6 +818,7 @@ import {
   dispatchChance,
   knownContacts,
   recruitableContact,
+  emergencyContact,
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
@@ -826,6 +840,7 @@ const onCall = computed(() =>
     ? STUDENTS.filter((person) => knownContacts(run.value!).includes(person.id))
     : [],
 )
+const emergencyBackup = computed(() => run.value ? emergencyContact(run.value) : null)
 const possibleRecruit = computed(() =>
   run.value ? recruitableContact(run.value) : null,
 )

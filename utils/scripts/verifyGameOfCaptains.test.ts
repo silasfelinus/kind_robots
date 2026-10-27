@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { SERENDIPITY_FRANCHISES } from '../gameOfCaptains/solarCircuit'
 import {
   chooseRomance,
   romanceMoment,
@@ -1431,6 +1432,7 @@ const slotKeys = [
       trioArtKey(trioKey(a.crew), part),
     ),
   ),
+  ...SERENDIPITY_FRANCHISES.map((franchise) => `venues/${franchise.id}`),
 ]
 for (const key of slotKeys) {
   const prompt = warpArtPrompt(key)

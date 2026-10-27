@@ -723,6 +723,111 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
   }
 }
 
+/** Finish an interrupted mirrored map turn from a validated restored deck.
+ * A completed pair was already charged before its animation; do not charge twice. */
+export function recoverDarkBriarTurn(
+  progress: DarkBriarProgress,
+  saved: unknown,
+): { progress: DarkBriarProgress; firstTile: string | null; recovered: boolean } {
+  const unchanged = { progress, firstTile: null, recovered: false }
+  const wave = DARK_BRIAR_WAVES[progress.waveIndex]
+  if (
+    progress.phase !== 'matching' ||
+    !wave ||
+    progress.mapCards.length !== wave.length ||
+    !saved ||
+    typeof saved !== 'object'
+  )
+    return unchanged
+  const rawCards = (saved as Partial<DarkBriarProgress>).mapCards
+  if (!Array.isArray(rawCards)) return unchanged
+  const pending = rawCards.filter(
+    (card): card is BriarMapCard =>
+      !!card &&
+      typeof card === 'object' &&
+      card.flipped === true &&
+      card.matched === false &&
+      typeof card.tile === 'string',
+  )
+  if (!pending.length) return unchanged
+  const discarded = { ...unchanged, recovered: true }
+  if (pending.length > 2) return discarded
+  const tiles = pending.map((card) => card.tile)
+  if (
+    new Set(tiles).size !== pending.length ||
+    !pending.every((card) => {
+      const current = progress.mapCards.find(
+        (entry) => entry.tile === card.tile,
+      )
+      return (
+        current &&
+        !current.matched &&
+        wave.includes(card.tile) &&
+        current.id === card.id &&
+        current.pairId === card.pairId &&
+        current.image === card.image
+      )
+    })
+  )
+    return discarded
+
+  const restoredCards = progress.mapCards.map((card) =>
+    tiles.includes(card.tile) ? { ...card, flipped: true } : card,
+  )
+  if (pending.length === 1) {
+    return {
+      progress: {
+        ...progress,
+        mapCards: restoredCards,
+        status: 'Your first reflected picture is still face up. Find its twin.',
+      },
+      firstTile: tiles[0]!,
+      recovered: true,
+    }
+  }
+
+  const first = restoredCards.find((card) => card.tile === tiles[0])
+  const second = restoredCards.find((card) => card.tile === tiles[1])
+  if (
+    !first ||
+    !second ||
+    first.pairId !== second.pairId ||
+    first.image !== second.image ||
+    progress.attempts < 1
+  ) {
+    return {
+      progress: {
+        ...progress,
+        status: 'An interrupted reflected mismatch turned face down.',
+      },
+      firstTile: null,
+      recovered: true,
+    }
+  }
+  const mapCards = restoredCards.map((card) =>
+    tiles.includes(card.tile) ? { ...card, flipped: true, matched: true } : card,
+  )
+  const revealed = [...new Set([...progress.revealed, ...tiles])]
+  const complete = mapCards.every((card) => card.matched)
+  return {
+    progress: {
+      ...progress,
+      mapCards,
+      revealed,
+      visited:
+        revealed.includes(BRIAR_START) && !progress.visited.includes(BRIAR_START)
+          ? [...progress.visited, BRIAR_START]
+          : progress.visited,
+      phase: complete ? 'exploring' : 'matching',
+      status: complete
+        ? 'Your interrupted reflection completed the round. Explore its roads.'
+        : 'Your remembered reflected pair survived the interruption.',
+    },
+    firstTile: null,
+    recovered: true,
+  }
+}
+
 export function advanceDarkBriarWave(
   progress: DarkBriarProgress,
 ): DarkBriarProgress {

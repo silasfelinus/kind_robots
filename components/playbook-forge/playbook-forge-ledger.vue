@@ -109,6 +109,11 @@
         >
       </div>
 
+      <div v-if="ledger.unbuiltUnits" class="flex flex-wrap gap-x-4 gap-y-1 text-xs leading-snug" role="status">
+        <span class="text-warning">{{ formatCount(ledger.unbuiltUnits) }} planned {{ forge.existing.slug === 'memory-dungeon' ? 'realm positions' : 'beats' }} not authored or painted</span>
+        <span>{{ formatCount(ledger.units) }} authored beats inspected · {{ formatCount(ledger.plannedUnits) }} total estimated slots</span>
+        <span v-if="forge.existing.slug === 'memory-dungeon'">2 of 16 realms represented · 14 realms remain to build</span>
+      </div>
       <ul
         class="grid grid-cols-3 gap-x-4 gap-y-2 @3xl:grid-cols-6"
         aria-label="Totals"
@@ -169,6 +174,7 @@
               section.starred ? 'pf-row-starred' : '',
             ]"
             :aria-label="`${section.label}: ${section.starred ? 'starred' : `${section.units.length - section.art.delivered} pictures to go`}`"
+            @click="forge.existing && forge.openGallery(forge.existing.slug, { type: 'section', id: section.id })"
             @focus="forge.focusSection(i)"
             @mouseenter="($event.currentTarget as HTMLElement).focus()"
           >
@@ -324,8 +330,8 @@ const totals = computed(() => {
   return [
     {
       label: 'Art delivered',
-      value: l.units ? `${l.art.delivered}/${l.units}` : '—',
-      cls: l.units && l.art.delivered === l.units ? 'text-success' : '',
+      value: l.plannedUnits ? `${l.art.delivered}/${l.plannedUnits}` : '—',
+      cls: l.plannedUnits && l.art.delivered === l.plannedUnits ? 'text-success' : '',
     },
     {
       label: 'Not wired',

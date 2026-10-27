@@ -7,6 +7,59 @@ import {
   type PowerVowId,
 } from './specialPowers'
 
+export type VowAction = 'protect' | 'bargain' | 'refuse'
+export type VowMemory = { day: number; action: VowAction }
+
+export function isVowMemory(raw: unknown, day: number): raw is VowMemory[] {
+  return (
+    Array.isArray(raw) &&
+    raw.length <= 5 &&
+    raw.every((entry) =>
+      entry !== null &&
+      typeof entry === 'object' &&
+      typeof entry.day === 'number' &&
+      Number.isInteger(entry.day) &&
+      [3, 10, 18, 25, 28].includes(entry.day) &&
+      entry.day <= day &&
+      ['protect', 'bargain', 'refuse'].includes(entry.action),
+    ) &&
+    new Set(raw.map((entry) => entry.day)).size === raw.length &&
+    raw.every((entry, i) => i === 0 || entry.day > raw[i - 1].day)
+  )
+}
+
+export function routeStanding(history: readonly VowMemory[] | undefined): number {
+  return (history ?? []).reduce((score, event) =>
+    score + (event.action === 'protect' ? 2 : event.action === 'bargain' ? -2 : -1), 0)
+}
+
+export function routeMemoryLine(history: readonly VowMemory[] | undefined): string {
+  const recent = history?.[history.length - 1]
+  if (!recent) return 'The story of your promise has not begun.'
+  return recent.action === 'protect'
+    ? 'Your last choice saved people at personal cost. Former witnesses recognize you as someone who stays.'
+    : recent.action === 'bargain'
+      ? 'Your last deal bought an advantage, but somebody you disappointed is keeping the receipt.'
+      : 'Walking away kept your hands free. Someone else now lives with the cost of that decision.'
+}
+
+export function routeEpilogue(vow: PowerVowId | undefined, history: readonly VowMemory[] | undefined): string {
+  if (!vow || !history?.length) return ''
+  const trust = routeStanding(history)
+  const completed = history.length
+  const outcome = trust >= 6
+    ? 'The witnesses who survived your early decisions volunteer for the final rescue.'
+    : trust <= -3
+      ? 'Past bargains and abandoned allies surface at the worst possible moment.'
+      : 'Your allies arrive divided over what your promises have meant.'
+  const legacy = vow === 'shelter'
+    ? 'The missing bus, dangerous clinic and harbor escape become a story Comet City will tell for years.'
+    : vow === 'unmask'
+      ? 'The erased yearbook, stolen faces and underground power source remain part of the public inquiry.'
+      : 'The command key, automated policing and contested prom crown force the city to decide who may govern.'
+  return `Your ${vow} adventure crossed ${completed} decisive chapters. ${legacy} ${outcome}`
+}
+
 type Episode = {
   day: number
   title: string
@@ -266,12 +319,14 @@ export function openingRouteFor(run: AcademyRun) {
     (entry) => entry.id === signature.affinity,
   )!
   const variant = (Math.floor(run.seed / 7) + run.day * 11) % 2
-  const previous = EPISODES[run.vow].filter((event) => event.day < run.day)
-  const callback = previous.some((event) =>
-    run.log.some((line) => line.includes(event.title)),
-  )
-    ? 'Witnesses remember your previous choices in this investigation.'
-    : 'Your classmates do not know whose side you will choose yet.'
+  const memory = run.vowHistory ?? []
+  const callback = routeMemoryLine(memory)
+  const historyShift = routeStanding(memory)
+  const reputation = historyShift >= 4
+    ? 'Your reputation brings an unexpected volunteer to the scene.'
+    : historyShift <= -3
+      ? 'A former contact warns you that people have begun refusing your calls.'
+      : 'Your classmates are still deciding what your promise is worth.'
   return {
     title: episode.title,
     location: episode.location,
@@ -287,6 +342,8 @@ export function openingRouteFor(run: AcademyRun) {
         : 'A live reporter broadcasts the emergency before anyone can prepare a statement. ') +
       ' ' +
       callback +
+      ' ' +
+      reputation +
       ' Your ' +
       origin.name +
       ' origin carries a risk: ' +

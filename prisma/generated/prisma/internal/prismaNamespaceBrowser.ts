@@ -131,6 +131,7 @@ export const ModelName = {
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
+  PlumberLevel: 'PlumberLevel',
   Reaction: 'Reaction',
   Resource: 'Resource',
   Reward: 'Reward',
@@ -1676,6 +1677,19 @@ export const PromptScalarFieldEnum = {
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
 
 
+export const PlumberLevelScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload',
+  userId: 'userId',
+  isPublic: 'isPublic'
+} as const
+
+export type PlumberLevelScalarFieldEnum = (typeof PlumberLevelScalarFieldEnum)[keyof typeof PlumberLevelScalarFieldEnum]
+
+
 export const ReactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -1700,6 +1714,7 @@ export const ReactionScalarFieldEnum = {
   projectId: 'projectId',
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
+  plumberLevelId: 'plumberLevelId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -3634,6 +3649,15 @@ export const PromptOrderByRelevanceFieldEnum = {
 } as const
 
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
+
+
+export const PlumberLevelOrderByRelevanceFieldEnum = {
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload'
+} as const
+
+export type PlumberLevelOrderByRelevanceFieldEnum = (typeof PlumberLevelOrderByRelevanceFieldEnum)[keyof typeof PlumberLevelOrderByRelevanceFieldEnum]
 
 
 export const ReactionOrderByRelevanceFieldEnum = {

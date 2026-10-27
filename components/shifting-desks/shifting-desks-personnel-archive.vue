@@ -164,9 +164,7 @@
                   </h3>
                   <p class="text-xs opacity-80">
                     {{ filedBadgeCount }}/{{ badgeMilestones.length }} personnel
-                    stamps · {{ syncedAwardCount }}/{{
-                      accountBadges.length
-                    }}
+                    stamps · {{ syncedAwardCount }}/{{ accountBadges.length }}
                     account medals
                   </p>
                 </div>

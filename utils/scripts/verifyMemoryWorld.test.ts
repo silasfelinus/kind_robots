@@ -1607,10 +1607,7 @@ assert.equal(
   null,
   'A malformed nested Dark Briar deck cannot replace the current expedition',
 )
-const mixedCheckpoints = restoreMemorySaveSlots([
-  malformedDarkDeck,
-  checkpoint,
-])
+const mixedCheckpoints = restoreMemorySaveSlots([malformedDarkDeck, checkpoint])
 assert.equal(mixedCheckpoints[0], null)
 assert.equal(mixedCheckpoints[1]?.briar.attempts, 9)
 assert.doesNotThrow(

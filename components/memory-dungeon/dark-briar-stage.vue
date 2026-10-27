@@ -371,6 +371,27 @@
             ✓ Your decision is remembered, even if this reality changes again.
           </p>
           <div
+            v-if="!world.darkMatching && duel"
+            class="flex flex-wrap items-center gap-2 pt-1"
+            data-testid="dark-briar-duel"
+          >
+            <button
+              v-if="!world.dark.duels.includes(duel.key)"
+              type="button"
+              class="rounded-lg border border-[#7a2f3a] bg-[#5a2330] px-3 py-2 text-left text-sm font-bold text-[#fff0d9] hover:bg-[#74303f] disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-[#271a38]"
+              :disabled="
+                world.loading ||
+                !darkBriarCanDuel(world.dark, world.dark.player)
+              "
+              @click="world.startDarkDuel()"
+            >
+              {{ duel.offer }}
+            </button>
+            <p v-else class="text-xs font-black text-[#315744]">
+              ✓ Bout won against the {{ COMBAT_ROOMS[duel.room].enemy.name }}.
+            </p>
+          </div>
+          <div
             v-if="world.dark.completed"
             class="mt-2 rounded-lg border border-[#846490] bg-[#f9ecff] p-3"
           >
@@ -413,6 +434,11 @@ import {
   darkBriarCanTravel,
   darkBriarCanChoose,
 } from '~/utils/memoryDungeon/darkBriar'
+import {
+  DARK_BRIAR_DUELS,
+  darkBriarCanDuel,
+} from '~/utils/memoryDungeon/darkBriarDuels'
+import { COMBAT_ROOMS } from '~/utils/memoryDungeon/rooms'
 
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
@@ -420,6 +446,7 @@ const darkScenes = DARK_BRIAR_SCENES
 const darkSeals = DARK_BRIAR_SEALS
 const seal = computed(() => darkSeals[world.dark.player])
 const scene = computed(() => darkScenes[world.dark.player])
+const duel = computed(() => DARK_BRIAR_DUELS[world.dark.player])
 const decisions = computed(
   () =>
     Object.keys(world.dark.sceneChoices).filter((key) => darkScenes[key])

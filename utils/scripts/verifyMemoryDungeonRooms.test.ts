@@ -26,7 +26,23 @@ import {
   restoreBriarCombat,
   startCombatRoom,
 } from '../memoryDungeon/rooms'
-import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
+import {
+  newBriarSave,
+  recoverBriarCombatDefeat,
+  restoreBriarSave,
+} from '../memoryDungeonWorld'
+import {
+  DARK_BRIAR_DUELS,
+  darkBriarCanDuel,
+  darkBriarDuelForRoom,
+} from '../memoryDungeon/darkBriarDuels'
+import {
+  DARK_BRIAR_SCENES,
+  DARK_BRIAR_WAVES,
+  darkBriarChoose,
+  newDarkBriarProgress,
+  restoreDarkBriarProgress,
+} from '../memoryDungeon/darkBriar'
 
 // 1. Aiming: the pointed-at cell is the weapon's pivot (its bullseye when it has one).
 for (const id of Object.keys(WEAPONS) as WeaponId[])
@@ -49,14 +65,18 @@ assert.equal(
   'a cross aimed at the corner overhangs and is refused, not clipped',
 )
 
-// 2. Rooms: the forest duels, the Warden and the House's three guardian duels,
+// 2. Rooms: the forest duels, the Warden, the House's three guardian duels
+// and the Dark Briar's three bouts,
 // Classic Echo Chamber untouched, tools that fit.
 assert.deepEqual(Object.keys(COMBAT_ROOMS).sort(), [
   'collector',
+  'empty-armor',
   'hearth-guard',
+  'moss-judge',
   'patrol',
   'sprite',
   'twinned-guard',
+  'unpaid-patrol',
   'vault-2',
 ])
 assert.equal(isCombatRoom('vault-1'), false, 'the Echo Chamber stays Classic')
@@ -271,6 +291,128 @@ assert.match(
   'and a duel begun before the guardians had boards still finishes',
 )
 
+// 6. The Dark Briar's bouts: three optional fights beside the scene choice,
+// each its own room, remembered in the Dark Briar save, never a gate.
+assert.deepEqual(
+  Object.fromEntries(
+    Object.values(DARK_BRIAR_DUELS).map((duel) => [duel.key, duel.room]),
+  ),
+  { '5,5': 'moss-judge', '7,3': 'unpaid-patrol', '7,1': 'empty-armor' },
+)
+for (const duel of Object.values(DARK_BRIAR_DUELS)) {
+  assert.ok(DARK_BRIAR_SCENES[duel.key], `${duel.key} is a Dark Briar scene`)
+  assert.ok(isCombatRoom(duel.room))
+  assert.equal(darkBriarDuelForRoom(duel.room), duel)
+  assert.ok(duel.offer.length > 10 && duel.victory.length > 60)
+  assert.ok(
+    COMBAT_ROOMS[duel.room].artPrompt.endsWith(
+      'Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+    ),
+    `${duel.room} is painted in the Dark Briar's light`,
+  )
+  assert.equal(isHouseDuelOrigin(duel.key), false)
+}
+assert.equal(darkBriarDuelForRoom('sprite'), null, 'Briar fights stay Briar')
+assert.equal(darkBriarDuelForRoom(null), null)
+
+const explored = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  revealed: ['2,4', '5,5'],
+  visited: ['2,4', '5,5'],
+  player: '5,5',
+}
+assert.equal(darkBriarCanDuel(explored, '5,5'), true)
+assert.equal(
+  darkBriarCanDuel({ ...explored, player: '2,4' }, '5,5'),
+  false,
+  'a bout is offered only where the challenger stands',
+)
+assert.equal(darkBriarCanDuel({ ...explored, phase: 'matching' }, '5,5'), false)
+assert.equal(darkBriarCanDuel({ ...explored, duels: ['5,5'] }, '5,5'), false)
+assert.equal(darkBriarCanDuel(explored, '2,4'), false, 'no bout at camp')
+const decided = darkBriarChoose(explored, '5,5', 'witness')
+assert.equal(
+  darkBriarCanDuel(decided, '5,5'),
+  true,
+  'the bout stays open after the scene decision',
+)
+
+// Saves: won bouts restore; old saves gain an empty list; forged keys drop.
+assert.deepEqual(newDarkBriarProgress().duels, [])
+assert.equal(newDarkBriarProgress().duelReturn, null)
+const earlier = DARK_BRIAR_WAVES.slice(0, 3).flat()
+const darkSave = {
+  ...newDarkBriarProgress(),
+  waveIndex: 3,
+  revealed: earlier,
+  visited: earlier,
+  duels: ['5,5', '7,3', '9,9', '2,4'],
+  duelReturn: 'house',
+}
+const reloadedDark = restoreDarkBriarProgress(
+  JSON.parse(JSON.stringify(darkSave)),
+)
+assert.deepEqual(
+  reloadedDark.duels,
+  ['5,5', '7,3'],
+  'won bouts restore; forged and non-bout keys drop',
+)
+assert.equal(reloadedDark.duelReturn, 'house')
+const { duels: _d, duelReturn: _r, ...olderDark } = darkSave
+const fromOlder = restoreDarkBriarProgress(
+  JSON.parse(JSON.stringify(olderDark)),
+)
+assert.deepEqual(fromOlder.duels, [], 'saves from before the bouts restore')
+assert.equal(fromOlder.duelReturn, null)
+assert.equal(
+  restoreDarkBriarProgress({ ...darkSave, duelReturn: 'memory' }).duelReturn,
+  null,
+)
+
+// A bout in progress restores on the Briar save like any combat room, and a
+// lost bout never sends the Briar traveller back to camp.
+const bout = startCombatRoom('moss-judge', 7, images)
+const boutSave = restoreBriarSave(
+  JSON.parse(
+    JSON.stringify({
+      ...newBriarSave(),
+      room: 'memory',
+      roomId: 'moss-judge',
+      combat: bout,
+      player: '6,4',
+    }),
+  ),
+)
+assert.equal(boutSave.room, 'memory')
+assert.equal(boutSave.roomId, 'moss-judge')
+const lostBout = recoverBriarCombatDefeat({
+  ...newBriarSave(),
+  room: 'memory',
+  roomId: 'moss-judge',
+  player: '6,4',
+  hearts: 1,
+  combat: { ...bout, state: { ...bout.state, outcome: 'defeat' } },
+})
+assert.equal(lostBout.room, 'map')
+assert.equal(lostBout.player, '6,4', 'a lost bout keeps the Briar position')
+assert.equal(lostBout.hearts, 3)
+
+const stage = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+assert.match(stage, /world\.startDarkDuel\(\)/, 'the stage offers the bout')
+assert.match(stage, /data-testid="dark-briar-duel"/)
+assert.match(
+  overworld,
+  /v-if="world\.activeReality === 'e02' && !world\.darkDuelActive"/,
+  'the Dark Briar stage yields to the combat board during a bout',
+)
+assert.match(store, /const darkDuel = darkBriarDuelForRoom\(room\)/)
+assert.match(store, /finishDarkDuel\(darkDuel\)/)
+assert.match(store, /closeDarkDuel\(/)
+
 console.log(
-  'Memory Dungeon combat rooms: aiming, room tools, narration, saves and accessible board verified',
+  'Memory Dungeon combat rooms: aiming, room tools, narration, saves, accessible board and Dark Briar bouts verified',
 )

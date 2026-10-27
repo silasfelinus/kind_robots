@@ -7,6 +7,7 @@ import { DARK_BRIAR_NORTH } from './darkBriarNorth'
 import { DARK_BRIAR_BORDER } from './darkBriarBorder'
 import { DARK_BRIAR_RIVER } from './darkBriarRiver'
 import { DARK_BRIAR_DEPTHS } from './darkBriarDepths'
+import { DARK_BRIAR_DUEL_KEYS } from './darkBriarDuels'
 import {
   BRIAR_START,
   BRIAR_TILES,
@@ -562,6 +563,10 @@ export interface DarkBriarProgress {
   completed: boolean
   /** True only for a completed, previously shipped sixteen-scene save. */
   legacyCompleted: boolean
+  /** Optional bouts won (DARK_BRIAR_DUELS keys). */
+  duels: string[]
+  /** Where the Briar save returns once a Dark Briar bout ends. */
+  duelReturn: 'map' | 'house' | null
   status: string
 }
 
@@ -580,6 +585,8 @@ export function newDarkBriarProgress(): DarkBriarProgress {
     attempts: 0,
     completed: false,
     legacyCompleted: false,
+    duels: [],
+    duelReturn: null,
     status:
       'A familiar road holds a different story. Match the paired pictures to find its altered places.',
   }
@@ -720,6 +727,13 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
         : 0,
     completed,
     legacyCompleted,
+    duels: validKeys(saved.duels).filter(
+      (key) => DARK_BRIAR_DUEL_KEYS.includes(key) && visited.includes(key),
+    ),
+    duelReturn:
+      saved.duelReturn === 'map' || saved.duelReturn === 'house'
+        ? saved.duelReturn
+        : null,
     status:
       typeof saved.status === 'string'
         ? saved.status.slice(0, 450)

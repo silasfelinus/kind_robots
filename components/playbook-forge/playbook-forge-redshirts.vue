@@ -20,6 +20,12 @@
             <option v-for="skill in skills" :key="skill" :value="skill">{{ skill }}</option>
           </select>
         </div>
+        <details class="pf-help">
+          <summary class="pf-display cursor-pointer text-base">Ideas for the entire redshirt corps</summary>
+          <p class="mt-1 text-xs opacity-75">Change the casting philosophy, story threads or alien design language for all 100 without overriding any one recruit.</p>
+          <textarea v-model="overallIdea" class="pf-field mt-2 w-full text-sm" rows="3" maxlength="4000" aria-label="Overall redshirt roster direction" placeholder="For example: give every seventh recruit an unexpected tie to the other crews' personal quests." />
+          <button type="button" data-nav class="btn btn-secondary btn-sm pf-focusable mt-2" :disabled="!overallIdea.trim() || atlas.posting" @click="sendOverall">Send overall direction to GitHub</button>
+        </details>
         <p class="pf-kicker text-xs opacity-70">{{ filtered.length }} recruits · one unique biography and prompt each</p>
         <div class="kr-scroll min-h-0 flex-1 pr-1" aria-label="Redshirt roster">
           <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,11rem),1fr))] gap-2">
@@ -75,7 +81,7 @@
 
         <div class="pf-help flex flex-col gap-2">
           <p class="pf-kicker text-secondary">Portrait production</p>
-          <p class="text-xs leading-snug">{{ selected.portraitPrompt }}</p>
+          <p class="text-xs leading-snug">{{ portraitPreview }}</p>
           <p class="text-xs opacity-75">Rendered concepts are saved in this browser. They count as game art only after being delivered and wired to the Space Couch manifest.</p>
           <div class="flex flex-wrap gap-2">
             <button type="button" data-nav class="btn btn-primary btn-sm pf-focusable" :disabled="atlas.posting || isRendering" @click="atlas.render(selected.id)">
@@ -156,7 +162,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { usePlaybookForgeRedshirtsStore } from '~/stores/playbookForgeRedshirtsStore'
-import { REDSHIRT_ROSTER, redshirtChanges, redshirtQuestLinks, type RedshirtAction, type RedshirtDraft } from '~/utils/playbookForge/redshirtAtlas'
+import { REDSHIRT_ROSTER, redshirtChanges, redshirtQuestLinks, redshirtPortraitPrompt, type RedshirtAction, type RedshirtDraft } from '~/utils/playbookForge/redshirtAtlas'
 import { EXPEDITION_ENCOUNTERS } from '~/utils/gameOfCaptains/expedition'
 import type { CatalogItem, CatalogTab } from '~/utils/playbookForge/catalog'
 
@@ -166,6 +172,7 @@ const selectedId = ref(REDSHIRT_ROSTER[0]?.id ?? '')
 const selected = computed(() => REDSHIRT_ROSTER.find((person) => person.id === selectedId.value))
 const working = ref<RedshirtDraft | null>(null)
 const query = ref('')
+const overallIdea = ref('')
 const talent = ref('all')
 const skills = ['rescue', 'science', 'diplomacy', 'tactics', 'luck', 'culture']
 const sourceTab = ref<CatalogTab>('facets')
@@ -183,6 +190,7 @@ const filtered = computed(() => REDSHIRT_ROSTER.filter((p) =>
 ))
 const links = computed(() => selected.value ? redshirtQuestLinks(selected.value) : [])
 const changes = computed(() => selected.value && working.value ? redshirtChanges(selected.value, working.value) : [])
+const portraitPreview = computed(() => selected.value && working.value ? redshirtPortraitPrompt(selected.value, working.value) : '')
 const renderedCount = computed(() => Object.values(atlas.portraits).filter((p) => !!p.imageUrl).length)
 const isRendering = computed(() => ['QUEUED', 'RUNNING'].includes(atlas.portraits[selectedId.value]?.status ?? ''))
 const sources = computed(() => (forge.catalog[sourceTab.value] ?? [])
@@ -209,6 +217,9 @@ function clearReference() {
   working.value.referenceKey = ''
   working.value.referenceTitle = ''
   working.value.referenceTab = ''
+}
+async function sendOverall() {
+  if (await atlas.submitRosterDirection(overallIdea.value)) overallIdea.value = ''
 }
 async function submit(action: RedshirtAction) {
   if (working.value) await atlas.submit(selectedId.value, working.value, action)

@@ -1,4 +1,5 @@
 import { promArt } from '../cometAcademy/artManifest'
+import { promArtPrompt } from '../cometAcademy/artPrompts'
 import {
   FINALE_ART_KEY,
   GUEST_LIST_ARRIVAL_ART_KEY,
@@ -52,6 +53,7 @@ function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
   node.artUrl = promArt(key)
   node.needsArt = !node.artUrl
+  if (node.needsArt) node.artPrompt = promArtPrompt(key)
   node.provenance = `Art slot public/comet-city-academy/${key}.webp (conductor projects/comet-city-academy/art).`
   return node
 }
@@ -456,5 +458,6 @@ export function buildPromOfDoomPlaybook(): Playbook {
     editable: false,
     artProject: 'comet-city-academy',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

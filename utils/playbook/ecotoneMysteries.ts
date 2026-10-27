@@ -1,3 +1,4 @@
+import { ecotoneArtPrompt } from '../ecotone/artPrompts'
 import { DEFAULT_ECOTONE_ART_STYLE, ecotoneArtSrc } from '../ecotone/artStyles'
 import { findCard } from '../ecotone/engine'
 import { EVENTS, ROUTES } from '../ecotone/story'
@@ -127,6 +128,7 @@ function caseNodes(mystery: Mystery): PlaybookNode[] {
     node.art = art
     node.artUrl = url
     node.needsArt = !url
+    node.artPrompt = ecotoneArtPrompt(art)
     node.choices = [
       {
         id: ending.tone,

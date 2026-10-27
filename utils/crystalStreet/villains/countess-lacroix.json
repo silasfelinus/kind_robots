@@ -40,7 +40,7 @@
           "title": "Under the Stage",
           "place": "Beneath the stage, The Glitter Box Playhouse",
           "text": "Frankie Fontaine is flat on her stomach on the stage with a flashlight in her teeth, prying at a square of floorboards that sparkle when the light hits them. \"Glitter in the grout,\" she says. \"Real glitter, under five years of stage paint. This was a dance floor.\" Below it, a ladder leads down into a mirrored DJ booth, cobwebs strung with sequins, and a white leather guest book still open on the console.",
-          "art": "A trans woman stage manager in a headset lying on a theater stage prying open a sparkling trapdoor, below it a cobwebbed mirrored 1970s DJ booth with turntables and an open white leather guest book",
+          "art": "A 24-year-old trans woman stage manager with long dark curls in a high side ponytail, a pencil through it, a black headset and a cropped black crew jacket lying flat on a theater stage with a flashlight in her teeth, prying up a square of floorboards that sparkle with glitter, below the opening a ladder down into a mirrored 1970s DJ booth with cobwebs strung with sequins and a white leather guest book lying open on the console, a teenager kneeling beside her, flashlight beam and dim stage light, high angle shot",
           "choices": [
             {
               "id": "help-frankie",
@@ -110,7 +110,7 @@
           "title": "Attack of the Bat Brides",
           "place": "The back room, Rewind Video",
           "text": "Zelda Fishbein is rewinding returns at the counter when you mention Club Lacroix. She stops the tape with one long red nail. \"Oh, honey. Doreen.\" She pulls a dusty clamshell from under the counter: ATTACK OF THE BAT BRIDES, 1956. On the cover a young Zelda screams in a negligee, and behind her, third bat from the left, a blonde with very familiar cheekbones.",
-          "art": "A glamorous older woman with a silver bouffant at a video store counter holding up a dusty 1950s horror VHS cover showing screaming women and bat brides, shelves of horror tapes behind her",
+          "art": "A 63-year-old woman with a silver-streaked black bouffant, cat-eye glasses on a pearl chain, bright red lipstick, long red nails and a red video-store vest standing at a rental counter holding up a dusty clamshell videotape case painted with screaming 1950s starlets and women with bat wings, shelves of horror tapes behind her, a teenager leaning on the counter, warm fluorescent store light, medium shot",
           "choices": [
             {
               "id": "ask-zelda",
@@ -180,7 +180,7 @@
           "title": "Disco Tuesday",
           "place": "The roller-rink annex, Pump Iron Gym",
           "text": "Disco Night at the rink draws exactly four regulars, all over fifty, and they are having more fun than anyone you have ever seen. The best of them is Sal Gennaro, the rink manager, a barrel-chested man with a silver pompadour skating backward in a satin jacket, spinning, hands in the air. When he sees the Club Lacroix matchbook in your hand, he coasts to a stop.",
-          "art": "A small roller rink with colored lights and four joyful older skaters in satin jackets, a barrel-chested man with a silver pompadour skating backward with arms up, a teenager at the rail holding a vintage nightclub matchbook",
+          "art": "A small roller rink at night under colored spotlights, four joyful skaters over fifty in satin jackets, a barrel-chested man with a silver pompadour skating backward with both hands in the air, a teenager standing at the rail holding a small vintage nightclub matchbook, a mirror ball scattering white dots, pink and gold rink light, wide shot",
           "choices": [
             {
               "id": "couples-skate",
@@ -243,7 +243,7 @@
         "title": "The Velvet Rope",
         "place": "A back alley off Main Street, midnight",
         "text": "A door that was not there yesterday glows red in the alley behind the Glitter Box. A velvet rope, a bouncer with leathery wings folded under his tuxedo, and a sign in gold script: CLUB LACROIX, TONIGHT ONLY, FOREVER 1977. A line of kids from school snakes down the block. As you watch, a sophomore stumbles out the exit in a cardigan, rubbing her lower back, complaining about property taxes.",
-        "art": "A glowing red nightclub door in a dark alley with a velvet rope and a bouncer with bat wings folded under his tuxedo, a line of teens waiting, a dazed teen girl exiting in a frumpy cardigan rubbing her back",
+        "art": "A dark alley behind a small-town theater at midnight, a door glowing deep red where a brick wall should be, a velvet rope on brass posts, a bouncer in a tuxedo with leathery bat wings folded behind his back, a line of high school kids in jackets waiting along the wall, a dazed teenage girl stumbling out of the exit in a frumpy beige cardigan rubbing her lower back, red door light and blue shadows, wide shot",
         "choices": [
           {
             "id": "talk-past-the-bouncer",
@@ -304,7 +304,7 @@
         "title": "Moonlight Roller Boogie",
         "place": "The roller-rink annex, Pump Iron Gym, after hours",
         "text": "The rink lights are off but the mirror ball is spinning. The Countess glides out of the dark on white roller skates, cape snapping, followed by her backup dancers, the Lacroix Lovelies, four pale skaters in matching gold hot pants with bat-wing capes. \"A little race, darling,\" she purrs. \"Ten laps. You win, the kids go home. I win, I keep your twenties.\"",
-        "art": "A dark roller rink lit only by a spinning mirror ball, a vampire diva in a white jumpsuit and cape gliding on white roller skates, four pale backup skaters in gold hot pants and bat-wing capes behind her, a teenager lacing up skates",
+        "art": "A dark roller rink after hours lit only by a spinning mirror ball, a glamorous vampire disco diva with sky-high feathered golden hair, glitter eyeshadow, wine-dark lipstick over small fangs, a white jumpsuit and a black satin cape gliding on white roller skates, four pale backup skaters in matching gold hot pants and bat-wing capes behind her, a teenager sitting on a bench lacing up rental skates, white sparkles on the dark floor, wide shot",
         "choices": [
           {
             "id": "race-her",
@@ -372,7 +372,7 @@
         "title": "You Have to Invite Me In",
         "place": "Your front door, Crystal Street, 11 p.m.",
         "text": "The doorbell plays the first four notes of a disco song it does not know. On the porch stands a tall woman in a white fur stole, gold platform boots and sunglasses at night, twirling a long-stemmed black rose. \"Darling, my Cadavrillac has died on your charming little street. May I use your telephone?\" She smiles with a few too many teeth and does not step over the threshold. \"Of course,\" she adds lightly, \"you'll have to say the words. House rules. Old-fashioned of me.\"",
-        "art": "A suburban front door at night opened onto a tall glamorous woman in a white fur stole, gold platform boots and sunglasses standing on the porch under a yellow light, a teenager holding the screen door, a gleaming vintage white convertible at the curb",
+        "art": "A suburban front door at eleven at night opening onto a tall glamorous woman on the porch in a white fur stole, gold platform boots and sunglasses, sky-high feathered golden hair, twirling a long-stemmed black rose and smiling with small fangs, standing just outside the doorsill, a teenager in pajamas holding the latched screen door, a long black vintage car with gold tail fins at the curb, yellow porch light, medium shot from inside the hallway",
         "choices": [
           {
             "id": "porch-chat",
@@ -463,7 +463,7 @@
         "title": "Mirror, Mirror at Glamour Snaps",
         "place": "Glamour Snaps portrait studio, Starlight Mall, 10 p.m.",
         "text": "Glamour Snaps is running a midnight special: LOOK LIKE 1977 AGAIN! A line of kids from school sits in the makeover chairs while pale assistants in gold hot pants feather their hair and dab glitter on their cheeks. Each time the big flash pops, the kid in the chair sags a little, and gets up with crow's feet. You are next in line. In the huge lit makeup mirror you can see yourself, the chairs, the hairdryers and the assistants. You cannot see the woman in the gold jumpsuit standing right behind you, her hand resting on your shoulder.",
-        "art": "A glitzy mall portrait studio at night with makeover chairs and a huge bulb-lit makeup mirror, teenagers getting feathered hair from pale assistants in gold hot pants, a camera flash popping, a cold hand resting on one teenager's shoulder",
+        "art": "A glitzy mall portrait studio at ten at night, a row of makeover chairs facing a huge mirror ringed with bulbs, high school kids in the chairs getting feathered hair and glitter cheeks from pale assistants in gold hot pants, a big camera flash popping on a tripod, a kid rising from a chair with crow's feet, a teenager seated at the mirror and in the reflection only the empty room behind them, while a gloved hand rests on the teenager's shoulder, bright bulb light, medium shot",
         "choices": [
           {
             "id": "snap-her-picture",
@@ -558,7 +558,7 @@
         "title": "Tapping at the Window",
         "place": "Your bedroom window, second floor, 2 a.m.",
         "text": "Tap. Tap. Tap. You open your eyes. Outside your second-floor window, floating in the air with her roller skates dangling, is one of the Lacroix Lovelies: pale as milk, gold hot pants, bat-wing cape fluttering, a feathered hairdo that has not moved since 1979. She drags one long nail down the glass with a squeal. \"Let me in, honey,\" she sings. \"The party's just getting started. It's always just getting started.\" Her eyes look very, very tired.",
-        "art": "A pale young woman in gold hot pants and a bat-wing cape floating outside a second-floor bedroom window at night with roller skates dangling, one long nail on the glass, a teenager sitting up in bed in moonlight",
+        "art": "A pale young woman with a stiff feathered 1979 hairdo floating outside a second-floor bedroom window at two in the morning, gold hot pants and a fluttering bat-wing cape, white roller skates dangling from her feet, one long nail dragging down the glass, tired eyes, a teenager sitting up in bed inside, white moonlight through the window and dark bedroom, medium shot from inside the room",
         "choices": [
           {
             "id": "ask-what-year",
@@ -650,7 +650,7 @@
         "title": "Mirror Ball Moon",
         "place": "Crystal Street, one a.m.",
         "text": "A mirror ball the size of a station wagon rises over the Heartstone like a second moon, scattering light across every lawn on Crystal Street. Every teenager on the block is out in their pajamas, dancing in their yards, and with every song they get a little older. Bea is doing her taxes on the porch. Your best friend has reading glasses on a chain and is telling you to turn that racket down. On top of the ball, cape billowing, the Countess blows you a kiss.",
-        "art": "A giant glowing mirror ball floating over a purple geode on a suburban cul-de-sac at night, teens in pajamas dancing on their lawns and aging into frumpy cardigans and reading glasses, a vampire diva in a cape posing on top of the ball",
+        "art": "A mirror ball the size of a station wagon hanging in the sky over a purple crystal rock on a suburban cul-de-sac at one in the morning, scattering white sparkles across every lawn, teenagers in pajamas dancing in their yards, some of them now in frumpy cardigans and reading glasses, an 11-year-old girl with blonde braids and red glasses frowning over a tax form on a porch, a vampire diva with feathered golden hair and a billowing black cape posing on top of the ball, wide shot",
         "choices": [
           {
             "id": "play-the-mixtape",
@@ -715,7 +715,7 @@
         "title": "The Cadavrillac",
         "place": "Crystal Street, midnight",
         "text": "A long black 1977 Cadavrillac with gold tail fins cruises down Crystal Street at midnight, slow as a parade float, disco thumping from its speakers and a little mirror ball spinning on the dashboard. It stops at every house where a teenager lives. Yours is next. The tinted rear window hums down, and a gloved hand flicks a gold-edged invitation onto your lawn: CLUB LACROIX, ADMIT ONE, DRESS CODE FABULOUS. \"Need a ride to the party, darling?\" purrs a voice from the dark back seat. \"The night is young, and so, for now, are you.\"",
-        "art": "A long black vintage luxury car with gold tail fins cruising a moonlit suburban cul-de-sac, a small mirror ball spinning on its dashboard, a gloved hand extending a gold-edged invitation from a rear window, a teenager on a lawn",
+        "art": "A long black 1977 luxury car with gold tail fins cruising slowly down a moonlit suburban cul-de-sac at midnight, a small mirror ball spinning on its dashboard, the tinted rear window rolled down and a gloved hand flicking a gold-edged invitation onto a lawn, a teenager in a jacket standing on the lawn beside a bicycle, white moonlight and red taillights, wide shot from the lawn",
         "choices": [
           {
             "id": "curfew",
@@ -802,7 +802,7 @@
         "title": "Disco Demolition Night",
         "place": "The Glimmer Falls High stadium, midnight",
         "text": "In 1979 a KGLM shock jock named Rocky Rhodes blew up a crate of disco records on the fifty-yard line while the whole town cheered. Tonight at midnight the stadium lights slam on by themselves, and the bleachers fill with sleepwalking neighbors in pajamas. On the field sits a fresh crate, this one full of 1986 records, and tied to it with a gold lamé sash, sweating in his bathrobe, is Rocky Rhodes himself, forty-eight and balding. The Countess swoops down out of the dark on her bat-wing cape and lands on the crate in gold platforms. \"Remember this, Glimmer Falls? You cheered.\" Every time the crowd cheers now, everyone in it ages a year.",
-        "art": "A high school football stadium blazing with lights at midnight, sleepwalking townspeople in pajamas filling the bleachers, a sweating balding man in a bathrobe tied to a wooden crate of records with a gold sash, a caped vampire diva in gold platforms standing on the crate",
+        "art": "A high school football stadium blazing with lights at midnight, bleachers full of sleepwalking townspeople in pajamas, on the fifty-yard line a wooden crate of vinyl records with a sweating balding man in a bathrobe tied to it by a gold lamé sash, and a vampire diva with sky-high feathered golden hair, a black satin cape and gold platform boots landing on top of the crate, a teenager sprinting across the grass, hard white floodlight, wide shot",
         "choices": [
           {
             "id": "spin-the-remix",
@@ -892,7 +892,7 @@
         "title": "Main Street, 1979",
         "place": "Main Street, Glimmer Falls, 11 p.m. the night before Halloween",
         "text": "You turn onto Main Street and it is 1979. Gas is eighty-six cents, a station wagon with wood paneling rolls past, and every shop window glows with platform shoes and lava lamps. At the end of the block Club Lacroix is open, the old Rialto blazing with disco light, and at the velvet rope the Countess, young as ever, is turning someone away: a barrel-chested man of fifty in roller skates and a satin jacket, gray at the temples. \"Sal, darling,\" she says, not unkindly. \"You're bad for the look.\" Behind you, 1979 is spreading down Main Street toward Crystal Street like spilled perfume, and every teenager it touches gets a little older.",
-        "art": "A small town main street at night transformed to 1979, glowing shop windows full of platform shoes and lava lamps, a disco club in an old theater building blazing with colored light, a vampire diva at a velvet rope turning away a graying man on roller skates",
+        "art": "A small-town main street at eleven at night turned back to 1979, a wood-paneled station wagon rolling past, shop windows glowing with platform shoes and lava lamps, an old movie palace at the end of the block blazing with colored disco lights, and at its velvet rope a vampire diva with feathered golden hair and a white jumpsuit holding up a gloved hand to a barrel-chested man of fifty in roller skates and a satin jacket, a teenager on the sidewalk, warm neon, wide shot",
         "choices": [
           {
             "id": "dance-with-sal",
@@ -983,7 +983,7 @@
       "title": "The Last Song at Club Lacroix",
       "place": "The Glitter Box Playhouse, Halloween night",
       "text": "Halfway through the Glitter Box Halloween revue, the stage splits open and the playhouse remembers what it used to be. Red velvet rolls over the seats, the mirror ball descends from the fly loft, and the audience is on its feet dancing, aging a year with every chorus. The Countess rises from the DJ booth in a jumpsuit of solid gold sequins, lit from within by everyone else's youth, glowing like 1977. \"Darling,\" she says, raising a goblet, \"the party never ends.\"",
-      "art": "A theater transformed into a glittering 1977 disco with red velvet and a giant descending mirror ball, a crowd of costumed revue-goers dancing and graying, a radiant vampire diva in a gold sequin jumpsuit rising from a DJ booth with a goblet, teens in Halloween costumes pushing to the front",
+      "art": "A small theater on Halloween night turned into a glittering 1977 disco, red velvet rolling over the seats, a giant mirror ball descending from the fly loft, a crowd of costumed revue-goers dancing with graying hair, and rising from a DJ booth in the middle of the stage a radiant vampire diva in a gold sequin jumpsuit and black satin cape with sky-high feathered golden hair, raising a goblet, four teenagers in homemade Halloween costumes pushing to the front, gold glow and white sparkles, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1158,22 +1158,22 @@
       "best": {
         "title": "Let the Song End",
         "text": "The song ends. For the first time since 1980, there is silence on Doreen's dance floor, and then the whole Glitter Box applauds. The golden light flows out of her and back into the crowd, and every year she stole goes back where it came from. The doors open on dawn. Doreen walks into the sunrise, flinches, and does not burn. She just gets older, nine years in nine seconds: a silver streak like a lightning bolt, laugh lines, reading glasses she pretends are a fashion choice. She is forty-eight, and she is gorgeous, and she knows it. The next Saturday, the Glitter Box revue debuts a new act, Countess Doreen, Forever Fabulous, and Disco Tuesday at the roller rink is packed to the rails with every regular Club Lacroix ever had.",
-        "art": "A glamorous woman in her late forties with a silver lightning-bolt streak in golden hair stepping into sunrise outside a theater, laughing, flanked by a drag queen, an older scream queen in furs and a silver-haired man on roller skates, teens in rumpled Halloween costumes cheering"
+        "art": "A glamorous woman in her late forties with feathered golden hair, one silver streak, laugh lines and reading glasses stepping out of a small theater into a pink sunrise and laughing, flanked by a tall drag queen in a magenta sequin gown, a 63-year-old woman in a white fur coat and cat-eye glasses, and a barrel-chested man with a silver pompadour on roller skates, teenagers in rumpled Halloween costumes cheering on the sidewalk, warm dawn light, wide shot"
       },
       "good": {
         "title": "House Lights Up",
         "text": "The Countess flees into the night, and the youth she stole flows back into the crowd like the bass returning after a skip. Nobody in the audience remembers much except the best dance of their lives. The trapdoor under the Glitter Box stage gets nailed shut. Sometimes, on very slow Tuesday nights, Sal swears he sees a figure in a cape watching the rink from the parking lot.",
-        "art": "A teen hammering nails into a sparkling trapdoor on an empty theater stage at dawn, a scatter of glitter and a single sequined bat-wing feather beside them"
+        "art": "A teenager kneeling on an empty theater stage at dawn hammering nails into a square of sparkling floorboards, a scatter of glitter on the boards and a single black sequined feather beside the hammer, gray dawn light from the open loading door, medium shot"
       },
       "bittersweet": {
         "title": "A Little Gray Around the Edges",
         "text": "You end the party, but not before the Countess takes her tithe. A few kids from the revue keep their reading glasses and an inexplicable love of the evening news, and you have a single silver strand in your hair that never goes away. The Countess is sealed back under the stage in her mirrored coffin, still thirty-nine, still 1977, still alone.",
-        "art": "A teen looking in a bathroom mirror at a single silver strand in their hair, a mirrored coffin glimpsed through cracks in a theater floor below"
+        "art": "A teenager leaning close to a bathroom mirror and pinching a single silver strand in their dark hair, and below the bathroom through a cutaway of the floor a theater stage with cracks in the boards and a mirrored coffin glinting under the stage, soft morning light, medium shot"
       },
       "bad": {
         "title": "Forever 1977",
         "text": "Your crew leaves the Glitter Box at dawn, and you do not. They only see you now in reflections: in the mirror ball, in shop windows, in the chrome of Joey's bumper, always dancing in gold hot pants and a bat-wing cape, the newest of the Lacroix Lovelies. You look young. You look happy. You look like you are trying very hard to tell them something over the music.",
-        "art": "A shop window at dawn reflecting a teen dancing in gold hot pants and a bat-wing cape inside a sparkling disco, while on the real sidewalk their worried friends press their hands to the glass"
+        "art": "A shop window at dawn whose glass reflects a sparkling disco inside, where a teenager in gold hot pants and a bat-wing cape dances with a strained smile and one hand pressed to the glass, while on the real sidewalk three worried friends in jackets press their hands against the window from outside, pale pink dawn light, medium shot"
       }
     }
   }

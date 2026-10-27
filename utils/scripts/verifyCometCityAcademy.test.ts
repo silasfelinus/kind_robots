@@ -9,6 +9,8 @@ import {
   type PersonalMemory,
 } from '../cometAcademy/personalQuests'
 import assert from 'node:assert/strict'
+import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
+import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
 import {
   CITY_SITES,
   projectCitySites,
@@ -1861,6 +1863,27 @@ assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
 assert.ok(!page.includes('POWER_FORMS'))
+// Art prompts: one fixed description per person, reused word for word.
+for (const person of CHARACTER_ROSTER) {
+  const look = CAST_LOOKS[person.signature]
+  assert.ok(look, `${person.signature} has a cast look`)
+  const prompt =
+    PROM_ART_PROMPTS[`identities/${person.signature}/student`] ?? ''
+  assert.ok(
+    prompt.includes(look.look.slice(1)),
+    `${person.signature} portrait reuses its look`,
+  )
+  assert.ok(!prompt.includes(person.realName), 'names stay out of prompts')
+}
+assert.deepEqual(
+  Object.keys(TEAM_LOOKS).sort(),
+  STUDENTS.map((student) => student.id).sort(),
+)
+for (const [key, prompt] of Object.entries(PROM_ART_PROMPTS))
+  assert.ok(
+    prompt.length >= 120 && prompt.length <= 900,
+    `${key} prompt length ${prompt.length}`,
+  )
 console.log(
   'Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK',
 )

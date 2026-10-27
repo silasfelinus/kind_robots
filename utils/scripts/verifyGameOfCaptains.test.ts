@@ -7,6 +7,10 @@ import {
 } from '../gameOfCaptains/crewAssignments'
 import { readFileSync } from 'node:fs'
 import {
+  CAPTAIN_DOSSIERS,
+  CREW_DOSSIERS,
+} from '../gameOfCaptains/characterDossiers'
+import {
   CAPTAINS,
   POCKET_ROOMS,
   SPACE_COUCH,
@@ -31,6 +35,26 @@ import {
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 assert.equal(CAPTAINS.length, 6)
+assert.equal(ANTAGONISTS.length, 8)
+assert.equal(new Set(ANTAGONISTS.map((enemy) => enemy.id)).size, 8)
+assert.ok(ANTAGONISTS.some((enemy) => enemy.id === 'showrunner'))
+for (const enemy of ANTAGONISTS) {
+  assert.equal(enemy.acts.length, 3)
+  assert.ok(enemy.clue.length > 30 && enemy.interference.length > 30)
+  assert.equal(new Set(enemy.acts).size, 3)
+}
+const villainSeeds = new Set(
+  Array.from(
+    { length: 256 },
+    (_, n) =>
+      antagonistFor(startVoyage('fluke', ['pell', 'mox', 'rue'], n + 1)).id,
+  ),
+)
+assert.equal(
+  villainSeeds.size,
+  8,
+  'all eight principal enemies are seed-reachable',
+)
 assert.equal(POCKET_ROOMS.length, 3)
 assert.ok(SPACE_COUCH.vessel.includes('red couch'))
 let couch = startVoyage('fluke', ['pell', 'mox', 'rue'], 41)
@@ -56,8 +80,18 @@ assert.equal(CREW_PROFILES.length, 12)
 assert.equal(new Set(CREW.map((x) => x.id)).size, 12)
 assert.equal(SYNERGIES.length >= 8, true)
 assert.equal(MISSION_RULES.length, 3)
-for (const captain of CAPTAINS)
+for (const captain of CAPTAINS) {
   assert.equal(Object.keys(CAPTAIN_STATS[captain.id]).length, 6)
+  assert.ok(CAPTAIN_DOSSIERS[captain.id].history.length > 80)
+  assert.ok(CAPTAIN_DOSSIERS[captain.id].opening.length > 20)
+}
+for (const member of CREW_PROFILES) {
+  const dossier = CREW_DOSSIERS[member.id]
+  assert.equal(dossier.itinerary.length, 3)
+  assert.equal(new Set(dossier.itinerary).size, 3)
+  assert.ok(dossier.history.length > 70)
+  assert.ok(dossier.crisis.length > 25 && dossier.nemesisLink.length > 25)
+}
 assert.equal(MISSIONS.length, 3)
 assert.ok(ANTAGONISTS.length >= 3)
 for (const captain of CAPTAINS) {
@@ -154,6 +188,11 @@ assert.ok(page.includes('POCKET_ROOMS'))
 assert.ok(tab.includes('Space Couch'))
 assert.ok(home.includes('Space Couch'))
 assert.ok(page.includes('data-testid="captains-launch"'))
+assert.ok(page.includes('data-testid="captains-choose-crew"'))
+assert.ok(page.includes('data-testid="captains-back-to-captains"'))
+assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))
+assert.ok(page.includes("selectionScreen === 'captain'"))
+assert.ok(page.includes('stagePainting'))
 assert.ok(tab.includes('route: /play/game-of-captains'))
 assert.ok(
   home.includes("route: '/play/game-of-captains'") &&

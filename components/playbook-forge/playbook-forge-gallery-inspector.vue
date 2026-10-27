@@ -65,7 +65,9 @@
       </div>
 
       <section v-if="entry.artVariants.length" aria-label="Identity forms">
-        <p class="pf-kicker mb-2 text-secondary">Identity forms · choose a trading card</p>
+        <p class="pf-kicker mb-2 text-secondary">
+          Identity forms · choose a trading card
+        </p>
         <ul class="grid grid-cols-3 gap-2">
           <li v-for="variant in entry.artVariants" :key="variant.id">
             <button
@@ -74,45 +76,99 @@
               class="pf-art-card pf-focusable block w-full"
               :class="selectedForm === variant.id ? 'pf-art-card-on' : ''"
               :aria-pressed="selectedForm === variant.id"
-              @click="selectedForm = selectedForm === variant.id ? null : variant.id"
+              @click="
+                selectedForm = selectedForm === variant.id ? null : variant.id
+              "
             >
               <span class="pf-art-card-frame block">
-                <img v-if="variant.imageUrl" :src="variant.imageUrl" :alt="variant.label" class="pf-art-card-img" />
-                <span v-else class="pf-art-card-empty text-xs">Art pending</span>
+                <img
+                  v-if="variant.imageUrl"
+                  :src="variant.imageUrl"
+                  :alt="variant.label"
+                  class="pf-art-card-img"
+                />
+                <span v-else class="pf-art-card-empty text-xs"
+                  >Art pending</span
+                >
               </span>
-              <span class="pf-label block px-1 py-2 text-left text-xs">{{ variant.label }}</span>
+              <span class="pf-label block px-1 py-2 text-left text-xs">{{
+                variant.label
+              }}</span>
             </button>
           </li>
         </ul>
       </section>
 
-      <section v-if="activeVariant?.stats" class="space-y-2" aria-label="Character form statistics">
-        <p class="pf-kicker text-secondary">{{ activeVariant.label }} · stats</p>
+      <section
+        v-if="activeVariant?.stats"
+        class="space-y-2"
+        aria-label="Character form statistics"
+      >
+        <p class="pf-kicker text-secondary">
+          {{ activeVariant.label }} · stats
+        </p>
         <ul class="grid grid-cols-2 gap-2">
-          <li v-for="[name, value] in Object.entries(activeVariant.stats)" :key="name" class="pf-help rounded p-2">
-            <div class="flex justify-between gap-1 text-xs"><span class="capitalize">{{ name }}</span><strong>{{ value }}</strong></div>
-            <div class="mt-1 h-1 overflow-hidden rounded bg-base-content/10"><span class="block h-full bg-primary" :style="{ width: `${Math.min(100, value * 20)}%` }" /></div>
+          <li
+            v-for="[name, value] in Object.entries(activeVariant.stats)"
+            :key="name"
+            class="pf-help rounded p-2"
+          >
+            <div class="flex justify-between gap-1 text-xs">
+              <span class="capitalize">{{ name }}</span
+              ><strong>{{ value }}</strong>
+            </div>
+            <div class="mt-1 h-1 overflow-hidden rounded bg-base-content/10">
+              <span
+                class="block h-full bg-primary"
+                :style="{ width: `${Math.min(100, value * 20)}%` }"
+              />
+            </div>
           </li>
         </ul>
       </section>
 
-      <section v-if="entry.body.length || entry.variations.length || entry.choices.length" class="space-y-3" aria-label="Authored character details">
+      <section
+        v-if="
+          entry.body.length || entry.variations.length || entry.choices.length
+        "
+        class="space-y-3"
+        aria-label="Authored character details"
+      >
         <p class="pf-kicker text-secondary">Story bible · authored material</p>
-        <p v-for="(line, i) in entry.body" :key="i" class="text-sm leading-relaxed whitespace-pre-line">{{ line }}</p>
+        <p
+          v-for="(line, i) in entry.body"
+          :key="i"
+          class="text-sm leading-relaxed whitespace-pre-line"
+        >
+          {{ line }}
+        </p>
         <div v-if="entry.variations.length" class="space-y-2">
           <details
             v-for="variation in entry.variations"
             :key="`${variation.axis}:${variation.key}`"
             class="pf-help rounded-md p-2"
-            :open="selectedForm === variation.key || (!selectedForm && variation.key === 'student')"
+            :open="
+              selectedForm === variation.key ||
+              (!selectedForm && variation.key === 'student')
+            "
           >
-            <summary class="pf-label cursor-pointer text-sm">{{ variation.label }}</summary>
-            <p class="mt-2 text-sm leading-relaxed whitespace-pre-line">{{ variation.text }}</p>
+            <summary class="pf-label cursor-pointer text-sm">
+              {{ variation.label }}
+            </summary>
+            <p class="mt-2 text-sm leading-relaxed whitespace-pre-line">
+              {{ variation.text }}
+            </p>
           </details>
         </div>
         <div v-if="entry.choices.length" class="space-y-2">
-          <p class="pf-kicker text-[0.6rem] opacity-70">Choices and consequences</p>
-          <article v-for="choice in entry.choices" :key="choice.id" class="pf-help rounded-md p-2 text-sm">
+          <p class="pf-kicker text-[0.6rem] opacity-70">
+            Choices and consequences
+          </p>
+          <article
+            v-for="choice in entry.choices"
+            :key="choice.id"
+            class="pf-help rounded-md p-2 text-sm"
+          >
             <p class="font-semibold">{{ choice.label }}</p>
             <p v-if="choice.effect">{{ choice.effect }}</p>
             <p v-if="choice.success?.text">{{ choice.success.text }}</p>
@@ -327,9 +383,17 @@
       </ul>
     </section>
 
-    <section v-if="forge.galleryTarget" class="pf-help flex flex-col gap-2" aria-label="Creative direction">
+    <section
+      v-if="forge.galleryTarget"
+      class="pf-help flex flex-col gap-2"
+      aria-label="Creative direction"
+    >
       <p class="pf-kicker text-secondary">Direct the writers and artists</p>
-      <p class="text-xs opacity-80">Suggest a theme or reinterpretation for this {{ entry ? 'character' : 'section' }}. It goes to the game's GitHub master issue, where agents can incorporate it into the plan.</p>
+      <p class="text-xs opacity-80">
+        Suggest a theme or reinterpretation for this
+        {{ entry ? 'character' : 'section' }}. It goes to the game's GitHub
+        master issue, where agents can incorporate it into the plan.
+      </p>
       <textarea
         v-model="direction"
         class="pf-field text-sm"
@@ -343,8 +407,12 @@
         class="pf-label btn btn-secondary btn-sm pf-focusable"
         :disabled="!direction.trim() || forge.posting"
         @click="sendDirection"
-      >Send direction to GitHub</button>
-      <p v-if="forge.adjustStatus" class="text-xs" role="status">{{ forge.adjustStatus }}</p>
+      >
+        Send direction to GitHub
+      </button>
+      <p v-if="forge.adjustStatus" class="text-xs" role="status">
+        {{ forge.adjustStatus }}
+      </p>
     </section>
   </aside>
 </template>
@@ -381,8 +449,19 @@ const renders = computed(() =>
 )
 const preview = ref<string | null>(null)
 const selectedForm = ref<string | null>(null)
-const activeVariant = computed(() => entry.value?.artVariants.find((variant) => variant.id === selectedForm.value) ?? null)
-const shown = computed(() => preview.value ?? (selectedForm.value ? activeVariant.value?.imageUrl ?? null : entry.value?.imageUrl ?? null))
+const activeVariant = computed(
+  () =>
+    entry.value?.artVariants.find(
+      (variant) => variant.id === selectedForm.value,
+    ) ?? null,
+)
+const shown = computed(
+  () =>
+    preview.value ??
+    (selectedForm.value
+      ? (activeVariant.value?.imageUrl ?? null)
+      : (entry.value?.imageUrl ?? null)),
+)
 const direction = ref('')
 async function sendDirection() {
   if (await forge.postGalleryDirection(direction.value)) direction.value = ''

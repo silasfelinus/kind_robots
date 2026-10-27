@@ -187,11 +187,11 @@ export function firstTwoSceneCallbacks(
     const courierChoice = original['2,4']
     if (courierChoice === 'lend') {
       available.unshift(
-        'The courier shelters beneath your old lantern and opens a safe passage from camp to the princesses’ square. The route belongs to travelers, not the crown.',
+        'Sheltering the courier repays your lent lantern with a silver wildflower, carried safely back across the reflection.',
       )
     } else if (courierChoice === 'copy') {
       available.unshift(
-        'The courier follows the address you copied and marks a back road from camp to Oren’s bridge. No one has to surrender their name to use it.',
+        'The address you copied leads the sheltered courier to a forgotten lantern, now yours to carry back across the reflection.',
       )
     }
   }
@@ -209,27 +209,16 @@ export function darkBriarExtraBridge(
   return (from === '5,4' && to === '7,4') || (from === '7,4' && to === '5,4')
 }
 
-/** The courier's shelter choice can turn an earlier Earth-side decision into
- * one of two different roads. Both endpoints still have to be revealed. */
-export function darkBriarCourierPassage(
-  from: string,
-  to: string,
-  original: Pick<BriarSave, 'sceneChoices'> | undefined,
-  mirrored: Pick<DarkBriarProgress, 'sceneChoices'> | undefined,
-): boolean {
-  if (!original || mirrored?.sceneChoices['3,4'] !== 'shelter') return false
-  const originalChoice = original.sceneChoices['2,4']
-  const destination =
-    originalChoice === 'lend'
-      ? '4,4'
-      : originalChoice === 'copy'
-        ? '4,3'
-        : null
-  return (
-    destination !== null &&
-    ((from === '2,4' && to === destination) ||
-      (from === destination && to === '2,4'))
-  )
+/** An earned cross-reality resource, not a repeatable encounter payout.
+ * The original courier choice determines which scarce resource is returned. */
+export function earnedCourierCompensation(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirroredChoice: string,
+): 'lantern' | 'wildflower' | null {
+  if (mirroredChoice !== 'shelter') return null
+  if (original.sceneChoices['2,4'] === 'lend') return 'wildflower'
+  if (original.sceneChoices['2,4'] === 'copy') return 'lantern'
+  return null
 }
 
 /** Carry only story-scale facts forward. Minor scene choices stay in the

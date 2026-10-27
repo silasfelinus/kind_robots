@@ -1892,7 +1892,10 @@ const houseDefeat = recoverBriarCombatDefeat(
 assert.equal(houseDefeat.room, 'house')
 assert.equal(houseDefeat.house?.current, 'HD-18')
 assert.equal(houseDefeat.house?.combatOrigin, null)
-assert.equal(houseDefeat.house?.visited.filter((id) => id === 'HD-18').length, 1)
+assert.equal(
+  houseDefeat.house?.visited.filter((id) => id === 'HD-18').length,
+  1,
+)
 assert.equal(houseDefeat.hearts, 1)
 assert.match(houseDefeat.status, /House's quiet bedchamber/)
 assert.deepEqual(
@@ -1927,8 +1930,10 @@ assert.match(
   'Both checkpoint loading and autosave hydration settle interrupted defeats',
 )
 assert.equal(
-  (worldStoreSource.match(/recoverBriarCombatDefeat\(resumed\.progress\)/g) ?? [])
-    .length,
+  (
+    worldStoreSource.match(/recoverBriarCombatDefeat\(resumed\.progress\)/g) ??
+    []
+  ).length,
   2,
   'Both restoration entry points must use the same idempotent combat recovery',
 )

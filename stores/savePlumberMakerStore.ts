@@ -33,10 +33,12 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const selectedTile = ref('#')
   const selectedGroup = ref('Terrain')
   const panel = ref<'tools' | 'library' | 'settings'>('tools')
-  const hasChanges = computed(() =>
-    !currentDraft.value ||
-    JSON.stringify(drafts.value.find((item) => item.id === currentDraft.value)?.level) !==
-      JSON.stringify(level.value),
+  const hasChanges = computed(
+    () =>
+      !currentDraft.value ||
+      JSON.stringify(
+        drafts.value.find((item) => item.id === currentDraft.value)?.level,
+      ) !== JSON.stringify(level.value),
   )
   const courseId = computed(() => makerId(level.value))
   const myRating = computed(() => ratings.value[courseId.value] ?? 0)
@@ -50,12 +52,16 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
         if (!entry || typeof entry !== 'object') return []
         const candidate = entry as Record<string, unknown>
         try {
-          if (typeof candidate.id !== 'string' || candidate.id.length > 64) return []
-          return [{
-            id: candidate.id,
-            level: validateMakerLevel(candidate.level),
-            updated: typeof candidate.updated === 'number' ? candidate.updated : 0,
-          }]
+          if (typeof candidate.id !== 'string' || candidate.id.length > 64)
+            return []
+          return [
+            {
+              id: candidate.id,
+              level: validateMakerLevel(candidate.level),
+              updated:
+                typeof candidate.updated === 'number' ? candidate.updated : 0,
+            },
+          ]
         } catch {
           return []
         }
@@ -63,8 +69,12 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       const rawRatings = raw.ratings
       if (rawRatings && typeof rawRatings === 'object') {
         ratings.value = Object.fromEntries(
-          Object.entries(rawRatings).filter(([key, val]) =>
-            /^[a-z0-9]{1,12}$/.test(key) && Number.isInteger(val) && (val as number) >= 1 && (val as number) <= 5,
+          Object.entries(rawRatings).filter(
+            ([key, val]) =>
+              /^[a-z0-9]{1,12}$/.test(key) &&
+              Number.isInteger(val) &&
+              (val as number) >= 1 &&
+              (val as number) <= 5,
           ),
         )
       }
@@ -76,10 +86,15 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function persist() {
     if (!import.meta.client) return
     try {
-      const data: Library = { v: 1, drafts: drafts.value, ratings: ratings.value }
+      const data: Library = {
+        v: 1,
+        drafts: drafts.value,
+        ratings: ratings.value,
+      }
       localStorage.setItem(MAKER_SAVE_KEY, JSON.stringify(data))
     } catch {
-      error.value = 'Device storage is full or disabled. Use Share to back up this course.'
+      error.value =
+        'Device storage is full or disabled. Use Share to back up this course.'
     }
   }
 
@@ -118,7 +133,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     level.value = next
   }
 
-  function updateSettings(patch: Partial<Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark'>>) {
+  function updateSettings(
+    patch: Partial<Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark'>>,
+  ) {
     pushUndo()
     level.value = validateMakerLevel({ ...level.value, ...patch })
   }
@@ -136,9 +153,17 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function saveDraft() {
     try {
       level.value = validateMakerLevel(level.value)
-      const id = currentDraft.value || 'draft-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 100000).toString(36)
+      const id =
+        currentDraft.value ||
+        'draft-' +
+          Date.now().toString(36) +
+          '-' +
+          Math.floor(Math.random() * 100000).toString(36)
       const entry = { id, level: clone(level.value), updated: Date.now() }
-      drafts.value = [entry, ...drafts.value.filter((draft) => draft.id !== id)].slice(0, 24)
+      drafts.value = [
+        entry,
+        ...drafts.value.filter((draft) => draft.id !== id),
+      ].slice(0, 24)
       currentDraft.value = id
       imported.value = false
       persist()
@@ -146,7 +171,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = ''
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Course cannot be saved'
+      error.value =
+        cause instanceof Error ? cause.message : 'Course cannot be saved'
       return false
     }
   }
@@ -181,15 +207,19 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       message.value = 'Shared course loaded. Play or save a copy to edit.'
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Invalid share link'
+      error.value =
+        cause instanceof Error ? cause.message : 'Invalid share link'
       return false
     }
   }
 
   function shareUrl(): string {
     const code = encodeMakerLevel(level.value)
-    return (import.meta.client ? window.location.origin : 'https://kindrobots.org') +
-      '/play/save-the-plumber?level=' + code
+    return (
+      (import.meta.client ? window.location.origin : 'https://kindrobots.org') +
+      '/play/save-the-plumber?level=' +
+      code
+    )
   }
 
   async function copyShareLink(): Promise<boolean> {
@@ -199,7 +229,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = ''
       return true
     } catch {
-      error.value = 'Clipboard unavailable. Use the share link field to copy manually.'
+      error.value =
+        'Clipboard unavailable. Use the share link field to copy manually.'
       return false
     }
   }
@@ -212,9 +243,33 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   return {
-    level, drafts, currentDraft, imported, error, message, undoStack, redoStack,
-    selectedTile, selectedGroup, panel, hasChanges, courseId, myRating,
-    initialize, beginStroke, paint, undo, redo, updateSettings, newDraft,
-    saveDraft, loadDraft, deleteDraft, loadShare, shareUrl, copyShareLink, rate,
+    level,
+    drafts,
+    currentDraft,
+    imported,
+    error,
+    message,
+    undoStack,
+    redoStack,
+    selectedTile,
+    selectedGroup,
+    panel,
+    hasChanges,
+    courseId,
+    myRating,
+    initialize,
+    beginStroke,
+    paint,
+    undo,
+    redo,
+    updateSettings,
+    newDraft,
+    saveDraft,
+    loadDraft,
+    deleteDraft,
+    loadShare,
+    shareUrl,
+    copyShareLink,
+    rate,
   }
 })

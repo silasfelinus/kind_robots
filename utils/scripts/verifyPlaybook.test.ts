@@ -142,7 +142,11 @@ assert.equal(
 )
 
 // Every story game loads as a chain (conductor weird-humboldt t-036).
-const READ_ONLY_GAMES = new Set(['game-of-captains', 'comet-city-academy'])
+const READ_ONLY_GAMES = new Set([
+  'game-of-captains',
+  'comet-city-academy',
+  'memory-dungeon',
+])
 for (const { id } of PLAYBOOK_GAMES) {
   const book = buildPlaybook(id)
   assert.equal(book.game, id)
@@ -470,7 +474,10 @@ assert.equal(ENCOUNTERS.length > 0, true)
 // overlay. Each editable beat resolves to the lookup its game plays through.
 type Overlay = { set(next: Record<string, unknown>): void }
 const LOOKUPS: Record<
-  Exclude<PlaybookGame, 'ecotone' | 'game-of-captains' | 'comet-city-academy'>,
+  Exclude<
+    PlaybookGame,
+    'ecotone' | 'game-of-captains' | 'comet-city-academy' | 'memory-dungeon'
+  >,
   { overlay: Overlay; read(key: string): unknown }
 > = {
   'shifting-lands': {

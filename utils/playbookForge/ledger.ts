@@ -125,6 +125,24 @@ export function laneClass(laneKey: string): CheckpointClassId {
 }
 
 /** The same default prompt Playbook Studio offers for a beat: title, place and its first sentence. */
+/**
+ * Beats whose picture lives in the image store (\`artPath\`) and was found
+ * there by the ledger API: they count as painted.
+ */
+export function withPainted(
+  book: Pick<Playbook, 'order' | 'nodes'>,
+  painted: Record<string, string> | undefined,
+): Pick<Playbook, 'order' | 'nodes'> {
+  if (!painted || !Object.keys(painted).length) return book
+  const nodes = { ...book.nodes }
+  for (const [key, url] of Object.entries(painted)) {
+    const node = nodes[key]
+    if (node && !node.artUrl)
+      nodes[key] = { ...node, artUrl: url, needsArt: false }
+  }
+  return { ...book, nodes }
+}
+
 /** A beat's authored art prompt, or null: prompts are written, never assembled from titles. */
 export function nodeArtPrompt(node: PlaybookNode): string | null {
   return node.artPrompt?.trim() || null

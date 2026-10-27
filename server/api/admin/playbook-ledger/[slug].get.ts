@@ -1,4 +1,7 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { getImageStorageRoot } from '~/server/utils/imageStorageRoot'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
@@ -112,6 +115,19 @@ export default defineEventHandler(async (event) => {
       byNode[note.nodeKey] = [...(byNode[note.nodeKey] ?? []), job]
     }
 
+    // Beats whose picture is served from the image store (Memory Dungeon):
+    // report which files are actually there, so the ledger counts only those.
+    const painted: Record<string, string> = {}
+    if (studio) {
+      const root = getImageStorageRoot()
+      for (const node of Object.values(playbookFor(studio).nodes)) {
+        if (node.artUrl || !node.artPath?.startsWith('/images/')) continue
+        const file = path.resolve(root, node.artPath.slice('/images/'.length))
+        if (file.startsWith(root + path.sep) && existsSync(file))
+          painted[node.key] = node.artPath
+      }
+    }
+
     event.node.res.statusCode = 200
     return {
       success: true,
@@ -122,6 +138,7 @@ export default defineEventHandler(async (event) => {
         project,
         edits,
         byNode,
+        painted,
         jobs: projectJobs(project, rows),
         truncated: jobs.length >= MAX_JOBS,
       },

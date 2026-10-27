@@ -52,6 +52,7 @@ export const EMPTY_PLAN_EDIT: PlanEdit = {
 export const PLAYBOOK_ISSUES: Record<string, number> = {
   'comet-city-academy': 4181,
   'game-of-captains': 4182,
+  'memory-dungeon': 4136,
   'emperor-of-dust': 4142,
   'weird-humboldt': 4145,
   'zuzu-gamebook': 4139,

@@ -52,6 +52,7 @@ import {
   laneClass,
   nodeArtPrompt,
   artPromptBrief,
+  withPainted,
   nodeShape,
   planGaps,
   projectJobs,
@@ -389,6 +390,32 @@ assert.equal(
   )
   assert.match(brief, /Never use the beat title, chapter title, subtitle/)
   assert.match(brief, /- p "Beat p"/)
+}
+{
+  // Image-store art counts only when the server finds the file.
+  const book = {
+    order: ['m'],
+    nodes: { m: { ...beat('m', 'encounter'), artPath: '/images/x/m.webp' } },
+  }
+  assert.equal(
+    buildLedger(
+      book,
+      {},
+      { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+    ).art.delivered,
+    0,
+  )
+  assert.equal(
+    buildLedger(
+      withPainted(book, { m: '/images/x/m.webp' }),
+      {},
+      {
+        laneKey: 'krea2',
+        assumptions: DEFAULT_ASSUMPTIONS,
+      },
+    ).art.delivered,
+    1,
+  )
 }
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')

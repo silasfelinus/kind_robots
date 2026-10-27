@@ -65,6 +65,7 @@ import {
   nodeShape,
   planGaps,
   unitsToPaint,
+  withPainted,
   unitsToWrite,
   writingBrief,
   type LedgerJob,
@@ -96,6 +97,8 @@ export type LedgerRelay = {
   project: string
   edits: number
   byNode: Record<string, LedgerJob[]>
+  /** Beats whose image-store picture exists (node key → URL). */
+  painted?: Record<string, string>
   jobs: ProjectJobs
   truncated: boolean
 }
@@ -434,8 +437,16 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
         const book = buildPlaybook(entry.studio)
         const counts = await entry.count().catch(() => null)
+        // Image-store art (Memory Dungeon) is only known to the server.
+        const painted = Object.values(book.nodes).some((n) => n.artPath)
+          ? (
+              await performFetch<LedgerRelay>(
+                `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}`,
+              )
+            ).data?.painted
+          : undefined
         const ledger = buildLedger(
-          book,
+          withPainted(book, painted),
           {},
           {
             laneKey: book.artLanes[0] ?? 'krea2',
@@ -515,7 +526,10 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (ledgerRelay.value?.truncated)
       notes.push('Only the newest 5000 relay jobs were read.')
     return buildLedger(
-      ledgerBook.value ?? { order: [], nodes: {} },
+      withPainted(
+        ledgerBook.value ?? { order: [], nodes: {} },
+        ledgerRelay.value?.painted,
+      ),
       ledgerRelay.value?.byNode ?? {},
       {
         laneKey: ledgerLane.value,
@@ -779,6 +793,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   function askSubmit(kind: 'art' | 'text') {
     const section = ledgerFocused.value
     if (!section) return
+    const pipeline = ledgerBook.value?.artPipeline
+    if (kind === 'art' && pipeline) {
+      status.value = `${ledgerBook.value?.title} art is written and queued by ${pipeline}, not from the Forge.`
+      return
+    }
     const count =
       kind === 'art'
         ? Math.min(unitsToPaint(section).length, SUBMIT_CAP)
@@ -832,6 +851,10 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     const unprompted = all
       .map((unit) => book.nodes[unit.key])
       .filter((node): node is PlaybookNode => !!node && !nodeArtPrompt(node))
+    if (book.artPipeline) {
+      status.value = `${book.title} art is written and queued by ${book.artPipeline}, not from the Forge. Missing pictures there are submitted by Auto Art Generate.`
+      return
+    }
     const units = all
       .filter((unit) => {
         const node = book.nodes[unit.key]

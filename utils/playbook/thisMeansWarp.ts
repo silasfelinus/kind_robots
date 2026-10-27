@@ -235,7 +235,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
 
   return {
     game: 'game-of-captains',
-    title: 'This Means Warp',
+    title: 'Space Couch',
     blurb: 'Six captains, twelve crew, three missions and four endings.',
     routes,
     nodes,

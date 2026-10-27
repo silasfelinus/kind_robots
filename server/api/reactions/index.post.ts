@@ -402,7 +402,7 @@ function contentTargetModel(field: string) {
     facetId: prisma.facet,
     projectId: prisma.project,
     plumberLevelId: prisma.plumberLevel,
-    promptId:
+    promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
     scenarioId: prisma.scenario,

@@ -1122,11 +1122,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       persist()
       window.setTimeout(() => {
         if (epoch !== roomEpoch) return
-        const settled = settleBriarWavePair(
-          state.value,
-          first.tile,
-          card.tile,
-        )
+        const settled = settleBriarWavePair(state.value, first.tile, card.tile)
         if (!settled) {
           turnLocked.value = false
           return

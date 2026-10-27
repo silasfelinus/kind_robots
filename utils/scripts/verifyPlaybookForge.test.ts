@@ -504,7 +504,11 @@ assert.equal(
   assert.ok(inspected.progress < 1, 'authored URLs cannot claim 100% delivery')
   assert.equal(inspected.extraArt.total, 3)
   assert.match(inspected.discrepancies.join(' '), /required game images/)
-  assert.notEqual(inspected.shine, 'super', 'missing art prevents a full completion star')
+  assert.notEqual(
+    inspected.shine,
+    'super',
+    'missing art prevents a full completion star',
+  )
   const notAudited = withVerifiedArt(fixture, undefined)
   assert.equal(notAudited.nodes.real?.artUrl, null)
   assert.equal(notAudited.nodes.real?.needsArt, true)

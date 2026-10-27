@@ -76,7 +76,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
               (val as number) >= 1 &&
               (val as number) <= 5,
           ),
-        )
+        ) as Record<string, number>
       }
     } catch {
       error.value = 'Some saved courses could not be read.'

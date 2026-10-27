@@ -55,7 +55,10 @@ const authoredArtPaths = new Set(
 )
 for (const scene of Object.values(DARK_BRIAR_SCENES)) {
   const original = darkBriarIllustrationPath(scene.key)
-  assert.ok(authoredArtPaths.has(original), `Missing scene art for ${scene.key}`)
+  assert.ok(
+    authoredArtPaths.has(original),
+    `Missing scene art for ${scene.key}`,
+  )
   for (const choice of scene.choices) {
     const consequence = darkBriarIllustrationPath(scene.key, choice.id)
     assert.ok(

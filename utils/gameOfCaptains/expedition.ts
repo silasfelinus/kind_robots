@@ -8,6 +8,7 @@ import {
   starterRedshirts,
 } from './redshirts'
 import type { ActOneRouteId } from './actOne'
+import { VOYAGE_BOARDS } from './voyageMap'
 
 export type ExpeditionResult = {
   encounterId: string
@@ -60,7 +61,6 @@ export function expeditionBoard(
   missionId: string,
 ): ExpeditionEncounter[] {
   const pack = WORLD_ENCOUNTERS[missionId as ActOneRouteId]
-  if (!pack) return []
   const key = `${seed}:${chapter}:${missionId}`
   const mainCount = 1 + (hash(key + ':majorCount') % 4)
   const minorCount = 3 + (hash(key + ':minorCount') % 3)
@@ -70,7 +70,15 @@ export function expeditionBoard(
         kb = hash(key + salt + b.id)
       return ka - kb || a.id.localeCompare(b.id)
     })
-  // A local crisis is guaranteed; galactic calls intrude on each destination.
+  // Acts II and III may not have local redshirt encounter packs yet.
+  // Never silently skip their expeditions: draw the full galactic board instead.
+  if (!pack) {
+    return [
+      ...order(GALACTIC_MAJOR, 'later-act-major').slice(0, mainCount),
+      ...order(GALACTIC_MINOR, 'later-act-minor').slice(0, minorCount),
+    ]
+  }
+  // Act I guarantees a local crisis; galactic calls intrude at each stop.
   const main = [
     pack.major[hash(key + 'localM') % pack.major.length]!,
     ...order(GALACTIC_MAJOR, 'gM'),
@@ -106,9 +114,8 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
     (run.expeditionHistory ?? []).some((visit) => visit.chapter === run.chapter)
   )
     return run
-  const worldId = run.missionId ?? ['refugees', 'archive', 'bar'][run.chapter - 1]
-  const world = WORLD_ENCOUNTERS[worldId as ActOneRouteId]
-  if (!world) return run
+  const worldId = run.missionId ?? VOYAGE_BOARDS[run.chapter - 1]?.[0]
+  if (!worldId || !expeditionBoard(run.seed, run.chapter, worldId).length) return run
   return {
     ...run,
     phase: 'travel',
@@ -121,7 +128,7 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
 }
 export function arriveAtWorld(run: VoyageRun): VoyageRun {
   if (run.phase !== 'travel') return run
-  const missionId = run.missionId ?? ['refugees', 'archive', 'bar'][run.chapter - 1]!
+  const missionId = run.missionId ?? VOYAGE_BOARDS[run.chapter - 1]![0]!
   const encounterIds = expeditionBoard(run.seed, run.chapter, missionId).map((e) => e.id)
   return {
     ...run,

@@ -21,6 +21,7 @@ import { dailySeed } from '~/utils/shiftingDesks/daily'
 import {
   emptyRewardArchive,
   migrateFoundEndings,
+  newMilestonesForRun,
   receiptFor,
   recordReward,
   restoreRewardArchive,
@@ -39,6 +40,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const discovered = ref<string[]>([])
   const endingsFound = ref<string[]>([])
   const rewardArchive = ref<RewardArchive>(emptyRewardArchive())
+  const newlyEarnedMilestones = ref<string[]>([])
   const archiveUnlocked = computed(
     () => endingsFound.value.length > 0 || rewardArchive.value.runs.length > 0,
   )
@@ -77,6 +79,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
 
   function load(): void {
     if (loaded.value) return
+    newlyEarnedMilestones.value = []
     try {
       const raw = localStorage.getItem(SAVE_KEY)
       const parsed: unknown = raw ? JSON.parse(raw) : null
@@ -127,6 +130,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       ? dailySeed()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     run.value = newRun(seed, jobId)
+    newlyEarnedMilestones.value = []
     usePlaybookRunReviewStore().begin('shifting-desks', seed)
     envelopeOpened.value = false
     persist()
@@ -143,12 +147,12 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     const id = run.value.departmentOutcome
     if (id && !discovered.value.includes(id))
       discovered.value = [...discovered.value, id]
-    recordEnding()
+    recordEnding(true)
     persist()
   }
 
   // True when this run reached an ending the gallery had not seen yet.
-  function recordEnding(): boolean {
+  function recordEnding(announce = false): boolean {
     if (!run.value) return false
     if (run.value.pending) return false
     if (run.value.status !== 'complete' && run.value.status !== 'eliminated')
@@ -159,13 +163,23 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     if (!endingsFound.value.includes(ending.id))
       endingsFound.value = [...endingsFound.value, ending.id]
     const receipt = receiptFor(run.value, new Date().toISOString())
-    if (receipt)
-      rewardArchive.value = recordReward(
+    if (!receipt) return endingsFound.value.length !== before
+    const previousArchive = rewardArchive.value
+    rewardArchive.value = recordReward(
+      previousArchive,
+      receipt,
+      endingsFound.value,
+    )
+    if (announce)
+      newlyEarnedMilestones.value = newMilestonesForRun(
+        previousArchive,
         rewardArchive.value,
-        receipt,
-        endingsFound.value,
+        receipt.id,
       )
-    return endingsFound.value.length !== before || !!receipt
+    return (
+      endingsFound.value.length !== before ||
+      previousArchive !== rewardArchive.value
+    )
   }
 
   function useInstant(which: 'favor' | 'mutation'): void {
@@ -217,6 +231,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   }
 
   function quit(): void {
+    newlyEarnedMilestones.value = []
     run.value = null
     persist()
   }
@@ -229,6 +244,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     discovered,
     endingsFound,
     rewardArchive,
+    newlyEarnedMilestones,
     archiveUnlocked,
     loaded,
     rollSerial,

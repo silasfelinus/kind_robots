@@ -759,7 +759,10 @@
             <template v-if="!run.detour?.gambit">
               <div class="cap-quest-phase" data-testid="couch-quest-setup">
                 <strong>ACT ONE · MAKE THE PLAN</strong>
-                <small>Both plans uncover a nasty reversal. The captain must choose again after discovering what was really at stake.</small>
+                <small
+                  >Both plans uncover a nasty reversal. The captain must choose
+                  again after discovering what was really at stake.</small
+                >
               </div>
               <button
                 type="button"
@@ -767,8 +770,13 @@
                 data-testid="couch-crew-plan-careful"
                 @click="store.planDetour('careful')"
               >
-                <span><b>{{ activeDetour?.careful }}</b>
-                  <small>A discreet opening gambit. What could possibly go wrong?</small></span>↗
+                <span
+                  ><b>{{ activeDetour?.careful }}</b>
+                  <small
+                    >A discreet opening gambit. What could possibly go
+                    wrong?</small
+                  ></span
+                >↗
               </button>
               <button
                 type="button"
@@ -776,15 +784,26 @@
                 data-testid="couch-crew-plan-bold"
                 @click="store.planDetour('bold')"
               >
-                <span><b>{{ activeDetour?.bold }}</b>
-                  <small>A spectacular opening gambit. Insurance may not cover this.</small></span>↗
+                <span
+                  ><b>{{ activeDetour?.bold }}</b>
+                  <small
+                    >A spectacular opening gambit. Insurance may not cover
+                    this.</small
+                  ></span
+                >↗
               </button>
             </template>
             <template v-else>
-              <div class="cap-quest-phase cap-quest-reversal" data-testid="couch-quest-reversal">
+              <div
+                class="cap-quest-phase cap-quest-reversal"
+                data-testid="couch-quest-reversal"
+              >
                 <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
                 <p>{{ activeDetour?.reversal }}</p>
-                <small>Opening gambit: {{ run.detour.gambit }}. You may change course when it matters most.</small>
+                <small
+                  >Opening gambit: {{ run.detour.gambit }}. You may change
+                  course when it matters most.</small
+                >
               </div>
               <button
                 type="button"
@@ -793,8 +812,13 @@
                 :disabled="run.supplies < 1"
                 @click="store.resolveDetour('careful')"
               >
-                <span><b>{{ activeDetour?.finalCareful }}</b>
-                  <small>Spend 1 supply · +1 trust · preserve local confidence</small></span>↗
+                <span
+                  ><b>{{ activeDetour?.finalCareful }}</b>
+                  <small
+                    >Spend 1 supply · +1 trust · preserve local
+                    confidence</small
+                  ></span
+                >↗
               </button>
               <button
                 type="button"
@@ -802,8 +826,13 @@
                 data-testid="couch-crew-bold"
                 @click="store.resolveDetour('bold')"
               >
-                <span><b>{{ activeDetour?.finalBold }}</b>
-                  <small>+1 public reputation · -1 trust · more enemy attention</small></span>↗
+                <span
+                  ><b>{{ activeDetour?.finalBold }}</b>
+                  <small
+                    >+1 public reputation · -1 trust · more enemy
+                    attention</small
+                  ></span
+                >↗
               </button>
             </template>
           </template>
@@ -1248,7 +1277,8 @@ function toggleAway(id: CrewId) {
   max-width: 43ch;
   color: #d5e5ed;
 }
-.cap-grand-quest, .cap-quest-phase {
+.cap-grand-quest,
+.cap-quest-phase {
   padding: 0.75rem;
   display: grid;
   gap: 0.45rem;
@@ -1256,18 +1286,21 @@ function toggleAway(id: CrewId) {
   border-radius: 0.65rem;
   background: linear-gradient(150deg, #21354c, #18263b);
 }
-.cap-grand-quest strong, .cap-quest-phase strong {
+.cap-grand-quest strong,
+.cap-quest-phase strong {
   color: #ffd9ac;
   font-size: 0.7rem;
   letter-spacing: 0.12em;
 }
-.cap-grand-quest p, .cap-quest-phase p {
+.cap-grand-quest p,
+.cap-quest-phase p {
   font-size: 0.8rem;
   line-height: 1.6;
   margin: 0;
   color: #f3eddf;
 }
-.cap-grand-quest small, .cap-quest-phase small {
+.cap-grand-quest small,
+.cap-quest-phase small {
   color: #bed9df;
   line-height: 1.5;
 }

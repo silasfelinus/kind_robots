@@ -947,14 +947,17 @@ export function finishVoyage(
   const captain = CAPTAIN_DOSSIERS[run.captain]
   const remembrance = {
     fluke:
-      'Fluke signs the amended captain’s log in ink, leaving the earlier fictional victory visible underneath.',
-    vale: 'Vale refuses to backdate the final treaty. For the first time the signatories may say no.',
+      'Fluke lets the final log stand without an unauthorized peek at tomorrow. The present is, at last, interesting enough to stay for.',
+    vale:
+      'Vale publicly releases the schematics that saved the worlds, including the embarrassing part that required a second soldering iron.',
     solace:
-      'Solace reads aloud the names of those still awaiting rescue and authorizes a civilian triage council.',
-    rex: 'Rex permits the inquiry to publish his errors next to the names of the people who survived.',
+      'Solace finally sits down with the living crew, takes off the janitor’s master key, and watches the exits without having to guard them alone.',
+    rex:
+      'Rex leaves the cameras dark while the civilians tell the story of their own rescue. His cape still catches the perfect breeze.',
     quill:
-      'Quill deposits the evidence with its owners instead of locking it in her private archive.',
-    ro: 'Ro abandons diplomatic immunity and states their real title on the record: passenger.',
+      'Quill signs the survivors’ charter with a gloved hand and opens the suit’s medical controls to independent scrutiny. He drinks to the principle from his own flask.',
+    ro:
+      'Ro lowers the fog machine, invites the mourners to speak for themselves, and gives the galaxy a moment of astonishingly untheatrical silence.',
   }[run.captain]
   const journeys = (run.journeyHistory ?? [])
     .filter((item) => item.step === 2)

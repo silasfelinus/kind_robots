@@ -788,7 +788,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     width: 288,
     height: 488,
     maxPlausibleScore: 0,
-    titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
+    titleArt: '/images/arcade/games/zuzu-last-bell-title.webp',
     accent: '#c78e62',
     controls: 'Flippers, plunge, nudge (engineering preview)',
     renderMode: 'webgl',

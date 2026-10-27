@@ -5,6 +5,12 @@ import {
   type RomanceChoiceId,
 } from '~/utils/gameOfCaptains/romance'
 import {
+  chooseTrioStep,
+  restoreTrioAdventure,
+  trioEpilogue,
+  type TrioEndingIndex,
+} from '~/utils/gameOfCaptains/trioAdventures'
+import {
   startWorldTravel,
   arriveAtWorld,
   deployExpedition,
@@ -61,7 +67,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded.value = true
     try {
       const raw = localStorage.getItem(SAVE_KEY)
-      run.value = restoreVoyage(raw ? JSON.parse(raw) : null)
+      run.value = restoreTrioAdventure(
+        restoreVoyage(raw ? JSON.parse(raw) : null),
+      )
     } catch {
       run.value = null
       storageWarning.value =
@@ -146,6 +154,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = applyRomanceChoice(run.value, choice)
     persist()
   }
+  function chooseTrio(option: TrioEndingIndex) {
+    if (!run.value) return
+    run.value = chooseTrioStep(run.value, option)
+    persist()
+  }
   function detour(crewId: CrewId) {
     if (!run.value) return
     run.value = beginCrewDetour(run.value, crewId)
@@ -163,7 +176,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = relationshipEpilogue(finishVoyage(run.value, strategy))
+    run.value = trioEpilogue(
+      relationshipEpilogue(finishVoyage(run.value, strategy)),
+    )
     persist()
   }
   function restart() {
@@ -191,6 +206,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     decide,
     next,
     chooseRomance,
+    chooseTrio,
     detour,
     planDetour,
     resolveDetour,

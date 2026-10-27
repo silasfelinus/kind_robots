@@ -30,6 +30,13 @@ import {
 } from '../gameOfCaptains/voyageMap'
 import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
 import {
+  ALL_PARTIES,
+  TRIO_ADVENTURES,
+  TRIO_FIRST_CHAPTER,
+  trioArtKey,
+  trioKey,
+} from '../gameOfCaptains/trioAdventures'
+import {
   blankNode,
   storyOrder,
   type Playbook,
@@ -313,6 +320,43 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     add(withArt(node, endingArtKey(ending.title)))
   }
 
+  const crewName = (id: string) => CREW.find((c) => c.id === id)?.name ?? id
+  for (const adventure of TRIO_ADVENTURES) {
+    const key = trioKey(adventure.crew)
+    const party = adventure.crew.map(crewName).join(', ')
+    adventure.steps.forEach((step, i) => {
+      const node = blankNode(`trio:${key}:${i + 1}`, 'quest', step.title)
+      node.place = `${adventure.title} · ${party} · interlude ${i + 1}/3`
+      node.chapter = TRIO_FIRST_CHAPTER + i
+      node.body = i === 0 ? [adventure.premise, step.setup] : [step.setup]
+      node.companions = [...adventure.crew]
+      node.choices = step.options.map((option, choice) => ({
+        id: String(choice),
+        label: option.label,
+        tags: [],
+        effect: `Leans toward ${titleCase(adventure.endings[option.ending].title)}`,
+        success: { text: option.outcome },
+        leadsTo: i < 2 ? `trio:${key}:${i + 2}` : undefined,
+      }))
+      add(withArt(node, trioArtKey(key, (i + 1) as 1 | 2 | 3)))
+    })
+    adventure.endings.forEach((ending, i) => {
+      const part = i === 0 ? 'a' : 'b'
+      const node = blankNode(
+        `trio-ending:${key}:${part}`,
+        'ending',
+        titleCase(ending.title),
+      )
+      node.place = `${adventure.title} · ${party} · party ending`
+      node.body = [
+        ending.text,
+        'Earned when at least two of the party’s three interlude choices lean this way.',
+      ]
+      node.companions = [...adventure.crew]
+      add(withArt(node, trioArtKey(key, part)))
+    })
+  }
+
   const routes: PlaybookRoute[] = [
     {
       id: 'voyage',
@@ -335,7 +379,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, ${WARP_ENDINGS.length} galactic endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, ${WARP_ENDINGS.length} galactic endings, ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings and ${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties with adventures of their own.`,
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -343,6 +387,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       ...keysOf('follower'),
       ...keysOf('thread'),
       ...keysOf('boss'),
+      ...keysOf('quest'),
       ...keysOf('ending'),
     ]),
     sections: [
@@ -377,7 +422,16 @@ export function buildThisMeansWarpPlaybook(): Playbook {
         title: 'Nemesis endings',
         blurb: 'Three of its own for each seeded nemesis.',
         keys: keysOf('ending').filter(
-          (key) => !WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+          (key) =>
+            key.startsWith('ending:') &&
+            !WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
+      },
+      {
+        title: 'Party adventures',
+        blurb: `A three-step interlude and two endings for each authored party: ${TRIO_ADVENTURES.length} of ${ALL_PARTIES}.`,
+        keys: [...keysOf('quest'), ...keysOf('ending')].filter((key) =>
+          key.startsWith('trio'),
         ),
       },
     ],
@@ -397,6 +451,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       thread: 'Pair route',
       boss: 'Antagonist',
       crossroads: 'Finale',
+      quest: 'Party interlude',
       ending: 'Ending',
     },
     editable: false,

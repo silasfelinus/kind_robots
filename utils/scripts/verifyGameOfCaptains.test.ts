@@ -99,6 +99,11 @@ import {
 
 import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
+  TRIO_ADVENTURES,
+  trioArtKey,
+  trioKey,
+} from '../gameOfCaptains/trioAdventures'
+import {
   NEMESIS_ALLY_FLAGS,
   NEMESIS_ENDINGS,
   NEMESIS_ENDING_VARIANTS,
@@ -1419,6 +1424,11 @@ const slotKeys = [
   ...ANTAGONISTS.flatMap((a) =>
     NEMESIS_ENDING_VARIANTS.map((v) =>
       nemesisEndingArtKey(nemesisEndingId(a.id, v)),
+    ),
+  ),
+  ...TRIO_ADVENTURES.flatMap((a) =>
+    ([1, 2, 3, 'a', 'b'] as const).map((part) =>
+      trioArtKey(trioKey(a.crew), part),
     ),
   ),
 ]

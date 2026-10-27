@@ -20,7 +20,7 @@
     "test:mandarin-lesson": "tsx utils/scripts/verifyMandarinLesson.test.ts",
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
     "test:comet-city-academy": "tsx utils/scripts/verifyCometCityAcademy.test.ts",
-    "test:game-of-captains": "tsx utils/scripts/verifyGameOfCaptains.test.ts",
+    "test:game-of-captains": "tsx utils/scripts/verifyGameOfCaptains.test.ts && tsx utils/scripts/verifyGameOfCaptainsTrios.test.ts",
     "test:comic-lanes": "tsx utils/scripts/verifyComicLanes.test.ts",
     "test:comic-layouts": "tsx utils/scripts/verifyComicLayouts.test.ts",
     "test:comic-studio": "tsx utils/scripts/verifyComicStudio.test.ts",

@@ -222,6 +222,21 @@ export function seededRandom(seed: number): () => number {
 
 export const index = (cols: number, cell: Cell) => cell.row * cols + cell.col
 
+/** Prevent off-board coordinates from aliasing valid flattened card indices. */
+function isBoardCell(
+  state: Pick<CombatState, 'rows' | 'cols'>,
+  cell: Cell,
+): boolean {
+  return (
+    Number.isInteger(cell.row) &&
+    Number.isInteger(cell.col) &&
+    cell.row >= 0 &&
+    cell.col >= 0 &&
+    cell.row < state.rows &&
+    cell.col < state.cols
+  )
+}
+
 /**
  * A seeded board: rows x cols cells holding pairs, with one obstacle when the
  * cell count is odd (a 5x5 keeps 12 pairs and one empty slot).
@@ -310,10 +325,7 @@ export function weaponMask(
   const bullseye = weapon.bullseye.map((c) => place(rotate(c, rotation)))
   const legal =
     weapon.rotations.includes(((rotation % 4) + 4) % 4) &&
-    cells.every(
-      (c) =>
-        c.row >= 0 && c.col >= 0 && c.row < state.rows && c.col < state.cols,
-    )
+    cells.every((cell) => isBoardCell(state, cell))
   return { cells, bullseye, legal }
 }
 
@@ -401,6 +413,7 @@ function endTurn(next: CombatState, stagger: boolean) {
 }
 
 const live = (state: CombatState, cell: Cell) => {
+  if (!isBoardCell(state, cell)) return null
   const card = state.cards[index(state.cols, cell)]
   return card && card.pair !== null && !card.matched ? card : null
 }

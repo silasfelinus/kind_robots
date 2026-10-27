@@ -248,7 +248,7 @@
     </div>
 
     <memory-dungeon-dark-briar-stage
-      v-if="world.activeReality === 'e02'"
+      v-if="world.activeReality === 'e02' && !world.darkDuelActive"
       class="min-h-0 flex-1"
     />
     <div v-else-if="world.minefieldActive" class="min-h-0 flex-1">
@@ -980,13 +980,14 @@ function progressLabel(key: string): string {
         : 'hidden'
 }
 const settingsOpen = ref(false)
-const roomTitle = computed(() =>
-  world.state.roomId === 'vault-1'
-    ? 'Rootbound Vault · Echo Chamber'
-    : world.state.roomId === 'vault-2'
-      ? 'Rootbound Vault · The Warden'
-      : 'Forest Memory Duel',
-)
+const roomTitle = computed(() => {
+  const enemy = world.state.combat?.state.enemy.name
+  if (world.state.roomId === 'vault-1') return 'Rootbound Vault · Echo Chamber'
+  if (world.state.roomId === 'vault-2') return 'Rootbound Vault · The Warden'
+  if (world.darkDuelActive && enemy) return `The Other Marches · ${enemy}`
+  if (world.state.house?.combatOrigin && enemy) return `The House · ${enemy}`
+  return 'Forest Memory Duel'
+})
 
 function checkpointLabel(savedAt: string): string {
   return new Intl.DateTimeFormat('en-US', {

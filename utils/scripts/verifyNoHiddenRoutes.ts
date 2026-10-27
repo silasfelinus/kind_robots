@@ -48,6 +48,7 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/coloring-page':
     'per-image action, opened from an image card with ?imageId=',
   '/build-bench': 'Art dashboard tab, reached from the Art page',
+  '/projects/build/stylist': 'legacy URL, 301-redirects to /stylist',
   '/admin/crystal-street': 'legacy URL, 301-redirects to /play/crystal-street',
   '/admin/emperor-of-dust':
     'legacy URL, 301-redirects to /play/emperor-of-dust',

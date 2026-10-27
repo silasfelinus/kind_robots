@@ -18,14 +18,11 @@ describe('Superkate services and Hair Studio access', () => {
     cy.contains('Preview a new color or cut').should('exist')
   })
 
-  it('removes the obsolete combined project route', () => {
-    cy.visit('/projects/build/stylist', { failOnStatusCode: false })
+  it('keeps the legacy services URL working as a redirect to the calculator', () => {
+    cy.visit('/projects/build/stylist')
 
-    cy.location('pathname', { timeout: 15000 }).should(
-      'eq',
-      '/projects/build/stylist',
-    )
-    cy.contains('Page not found').should('exist')
-    cy.contains('The whole salon in one tab').should('not.exist')
+    cy.location('pathname', { timeout: 15000 }).should('eq', '/stylist')
+    cy.contains('Superkate Services').should('exist')
+    cy.contains('Calculator').should('exist')
   })
 })

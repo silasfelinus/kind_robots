@@ -329,6 +329,18 @@ export function briarIllustrationPath(
   return `${sceneRoot}/sites/${stem}.webp`
 }
 
+/** Select only an authored House room or its recorded choice consequence. */
+export function houseIllustrationPath(
+  roomId: string,
+  choiceId?: string | null,
+): string | null {
+  const room = HOUSE_ROOMS[roomId]
+  if (!room) return null
+  if (choiceId && room.choices.some((choice) => choice.id === choiceId))
+    return `${houseRoot}/outcomes/${room.id.toLowerCase()}-${choiceId}.webp`
+  return room.imagePath
+}
+
 export function validateWorldOneArtManifest(): string[] {
   const issues: string[] = validateRealmGallery(WORLD_ONE_GALLERY, 1)
   const ids = new Set<string>()

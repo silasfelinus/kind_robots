@@ -1057,6 +1057,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         key,
         dark.value.revealed,
         dark.value,
+        state.value,
       )
     )
       return

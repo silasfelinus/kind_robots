@@ -86,6 +86,8 @@ import {
   startingContacts,
   recruitableContact,
   recruitContact,
+  callEmergencyVolunteer,
+  emergencyContact,
   dispatchChance,
   dispatchModifier,
   chooseEncounter,
@@ -1197,6 +1199,10 @@ for (const seed of [1, 2, 3, 4, 997]) {
     }
     if (day === 24) assert.ok(run.betrayal?.status)
     if (day === 29) assert.ok(run.guestPlan)
+    if (emergencyContact(run)) {
+      run = callEmergencyVolunteer(run)
+      assert.ok(knownContacts(run).length >= 3)
+    }
     const cases = incidentsFor(run)
     for (const incident of cases) {
       const picked = STUDENTS.find(
@@ -1208,6 +1214,12 @@ for (const seed of [1, 2, 3, 4, 997]) {
           ),
       )
       if (picked) run = assignTeam(run, incident.id, [picked.id])
+    }
+    if (!run.assignments.length && emergencyContact(run)) {
+      run = callEmergencyVolunteer(run)
+      const firstCase = cases[0]!
+      const helper = knownContacts(run).find((id) => studentAvailable(run, id))!
+      run = assignTeam(run, firstCase.id, [helper])
     }
     assert.ok(run.assignments.length)
     run = resolveDispatch(run)

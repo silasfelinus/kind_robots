@@ -282,9 +282,15 @@ assert.notEqual(finishes[0], finishes[1])
   assert.equal((done as TrioVoyage).trioAdventure?.ending, undefined)
 }
 
-// A party without an authored adventure is unaffected.
-{
-  const crew: CrewId[] = ['pell', 'mox', 'rue']
+// A party without an authored adventure is unaffected. Batches keep adding
+// parties, so the test takes the first one still unwritten, while any is.
+const unauthored = CREW.flatMap((a, i) =>
+  CREW.slice(i + 1).flatMap((b, j) =>
+    CREW.slice(i + j + 2).map((c) => [a.id, b.id, c.id] as CrewId[]),
+  ),
+).find((crew) => !TRIO_BY_KEY[trioKey(crew)])
+if (unauthored) {
+  const crew = unauthored
   assert.equal(TRIO_BY_KEY[trioKey(crew)], undefined)
   const { run, due } = voyage(crew, 41, [0, 0, 0])
   assert.deepEqual(due, [], 'no interlude offered')

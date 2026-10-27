@@ -142,6 +142,15 @@
               >
             </div>
             <div
+              v-if="run.flowVersion === 3 && run.signature"
+              class="cca-report-mini"
+              data-testid="academy-personal-story-progress"
+            >
+              <strong>YOUR UNIQUE STORY · {{ run.identityHistory?.length ?? 0 }} / 4 CHAPTERS</strong>
+              <span>{{ personalCounterpart(run.signature).realName }} has an independent stake in your choices.</span>
+              <span>PERSONAL MILESTONES · DAYS {{ PERSONAL_CHAPTER_DAYS.join(' / ') }}</span>
+            </div>
+            <div
               v-if="run.flowVersion === 3 && run.vow"
               class="cca-report-mini"
               data-testid="academy-vow-journal"
@@ -570,6 +579,14 @@
               PUBLIC IDENTITY RECKONING · YOUR PRIOR CHOICES UNLOCK AVAILABLE
               MANTLES
             </p>
+            <p
+              v-if="run.flowVersion === 3 && run.signature && PERSONAL_CHAPTER_DAYS.includes(run.day)"
+              class="cca-under"
+              data-testid="academy-personal-identity-chapter"
+            >
+              CHARACTER-LED STORY · {{ run.identityHistory?.length ?? 0 }} / 4 PRIOR CHAPTERS
+              · {{ personalCounterpart(run.signature).realName }} HAS THEIR OWN AGENDA
+            </p>
             <p class="cca-story">{{ campusEncounter.scene }}</p>
             <div
               v-if="possibleRecruit"
@@ -800,6 +817,7 @@ import {
   routeStanding,
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { personalCounterpart, PERSONAL_CHAPTER_DAYS } from '~/utils/cometAcademy/identitySerial'
 import {
   missionReaction,
   missionRoute,

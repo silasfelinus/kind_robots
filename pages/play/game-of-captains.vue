@@ -177,9 +177,7 @@
                 class="cap-crew-button"
                 :class="{ chosen: chosenCrew.includes(member.id) }"
                 :aria-pressed="chosenCrew.includes(member.id)"
-                :disabled="
-                  chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
-                "
+                :title="chosenCrew.length >= 3 && !chosenCrew.includes(member.id) ? 'Release a selected officer to appoint this one' : 'View dossier and toggle crew appointment'"
                 @click="selectCrewForDossier(member.id)"
               >
                 <span
@@ -203,7 +201,8 @@
             </div>
             <div class="cap-team-note">
               {{ chosenCrew.length }} / 3 selected ·
-              {{ CREW_PROFILES.length }} candidates
+              {{ CREW_PROFILES.length }} candidates ·
+              {{ chosenCrew.length === 3 ? 'Unselect an officer to appoint a different one' : 'Choose your complement' }}
             </div>
             <div class="cap-insight" aria-live="polite">
               <strong>{{ crewProfile(focusedCrew).name }} · {{ crewProfile(focusedCrew).culture }}</strong>
@@ -472,7 +471,7 @@
               ><span>{{ run.report.names }}</span>
               <p>{{ run.report.text }}</p>
             </div>
-            <p class="cap-alert">{{ antagonist.interference }}</p>
+            <p class="cap-alert">{{ antagonist.acts[Math.min(run.chapter - 1, 2)] }}</p>
             <button
               class="cap-option"
               type="button"
@@ -657,7 +656,7 @@ import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from '~/utils/gameOfCaptains/characte
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
-const chosenCrew = ref<CrewId[]>(['pell', 'vela', 'rue'])
+const chosenCrew = ref<CrewId[]>([])
 const selectionScreen = ref<'captain' | 'crew'>('captain')
 const focusedCrew = ref<CrewId>('pell')
 const run = computed(() => store.run)

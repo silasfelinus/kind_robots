@@ -13,6 +13,7 @@ import {
 } from './darkHouseChallenges'
 
 export type DarkHouseEnding = 'return' | 'commons'
+export type DarkHouseEarnedClue = 'route' | 'supplies' | 'names' | 'consent'
 export interface DarkHouseChoice {
   id: string
   label: string
@@ -693,30 +694,51 @@ export function darkHouseAnswerPuzzle(
     status: option.response,
   }
 }
+const EARNED_HOUSE_HINTS: Partial<
+  Record<HouseRoomId, { source: DarkHouseEarnedClue; note: string }>
+> = {
+  'HD-03': {
+    source: 'route',
+    note: 'Oren recognizes the river route you planned together. The House cannot charge an echo for your own map.',
+  },
+  'HD-25': {
+    source: 'supplies',
+    note: 'Oren checks the provisions you counted together. His ledger names the workers who actually paid the debt.',
+  },
+  'HD-08': {
+    source: 'names',
+    note: 'The bridge mason consents to identifying the middle apology from the witness names you copied. The House cannot charge an echo for voluntary testimony.',
+  },
+  'HD-34': {
+    source: 'consent',
+    note: 'The witnesses whose names you protected describe an exit they can close themselves: a raised ramp and hinged floodgate, without publishing a single name.',
+  },
+}
+
 export function darkHousePuzzleHint(
   progress: DarkHouseProgress,
-  earnedClue = false,
+  earnedClue: DarkHouseEarnedClue | null = null,
 ): DarkHouseProgress {
   const room = progress.current
   const puzzle = DARK_HOUSE_PUZZLES[room]
   const previous = progress.puzzles[room] ?? emptyPuzzle()
+  const earnedHint = EARNED_HOUSE_HINTS[room]
+  const free = earnedClue !== null && earnedClue === earnedHint?.source
   if (
     !progress.active ||
     !puzzle ||
     previous.solved ||
     previous.hint ||
     progress.decisions[room] ||
-    (!earnedClue && darkHouseEchoes(progress) < 1)
+    (!free && darkHouseEchoes(progress) < 1)
   )
     return progress
-  const note = earnedClue
-    ? room === 'HD-03'
-      ? 'Oren recognizes the river route you planned together. The House cannot charge an echo for your own map.'
-      : 'Oren checks the provisions you counted together. His ledger names the workers who actually paid the debt.'
+  const note = free
+    ? earnedHint!.note
     : 'The Chronicle yields a clue in exchange for one echo.'
   return {
     ...progress,
-    spentEchoes: progress.spentEchoes + (earnedClue ? 0 : 1),
+    spentEchoes: progress.spentEchoes + (free ? 0 : 1),
     puzzles: { ...progress.puzzles, [room]: { ...previous, hint: true, note } },
     status: note,
   }

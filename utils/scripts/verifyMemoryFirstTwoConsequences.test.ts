@@ -451,11 +451,7 @@ for (const [orenChoice, witnessChoice, philosophy] of [
     ['4,3', orenChoice],
     ['6,3', witnessChoice],
   ] as const) {
-    const route = walkEarnedBriarRoute(
-      original.player,
-      site,
-      original.revealed,
-    )
+    const route = walkEarnedBriarRoute(original.player, site, original.revealed)
     for (const step of route.slice(1)) {
       assert.ok(
         briarConnected(original.player, step, original.revealed),
@@ -507,10 +503,7 @@ for (const [orenChoice, witnessChoice, philosophy] of [
       }
     }
     if (DARK_HOUSE_PUZZLES[room]) {
-      journey = darkHouseAnswerPuzzle(
-        journey,
-        DARK_HOUSE_PUZZLES[room]!.answer,
-      )
+      journey = darkHouseAnswerPuzzle(journey, DARK_HOUSE_PUZZLES[room]!.answer)
     }
     assert.equal(darkHouseRoomResolved(journey), true)
     journey = darkHouseChoose(journey, philosophy)
@@ -540,10 +533,7 @@ for (const [orenChoice, witnessChoice, philosophy] of [
     ].sort(),
     'Exactly two earned room-bound clues must be reachable',
   )
-  assert.equal(
-    journey.ending,
-    philosophy === 'attend' ? 'return' : 'commons',
-  )
+  assert.equal(journey.ending, philosophy === 'attend' ? 'return' : 'commons')
   const aftermath = crossRealmHouseEpilogue(original, journey)
   assert.ok(aftermath.includes('Oren'))
   assert.ok(

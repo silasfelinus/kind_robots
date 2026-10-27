@@ -6903,4 +6903,76 @@ for (const def of DAYS)
   )
 }
 
+// --- Playbook Forge court additions (conductor emperor-of-dust t-061) ----------
+// Four audiences and three quests, each reachable in play: the audience holds
+// court on its day, its decisive answer closes it, and the quest is posted.
+{
+  const ADDED: [number, string, string, string | null][] = [
+    [12, 'd12-cistern', 'send-party', 'q-d12-cistern-crack'],
+    [28, 'd28-returned-letters', 'carry', 'q-d28-returned-letters'],
+    [31, 'd31-seed-corn', 'bring', 'q-d31-seed-corn'],
+    [36, 'd36-postern-ladder', 'hang', null],
+  ]
+  for (const [day, id, optionId, questId] of ADDED) {
+    const def = DAYS.find((entry) => entry.day === day)!
+    assert.equal(def.audiences.at(-1)!.id, id, `${id} comes last on its day`)
+    assert.ok(def.audiences.length <= 4, `day ${day} audiences`)
+    const run = onDay(11, day, { brass: 200 })
+    assert.ok(
+      audiencesToday(run).some((audience) => audience.id === id),
+      `${id} holds court on day ${day}`,
+    )
+    const after = chooseAudienceOption(run, id, optionId).run
+    assert.ok(after.audiencesHeard.includes(id), `${id} closes on ${optionId}`)
+    if (questId) {
+      assert.ok(questDef(questId), `${questId} is authored`)
+      assert.ok(
+        after.board.some((entry) => entry.questId === questId),
+        `${questId} is posted by ${id}`,
+      )
+    }
+  }
+  // Asking first still reaches the quest, from inside the probe beat.
+  const probes: [number, string, string, string, string][] = [
+    [12, 'd12-cistern', 'ask-ash', 'send-party', 'q-d12-cistern-crack'],
+    [28, 'd28-returned-letters', 'ask-read', 'carry', 'q-d28-returned-letters'],
+    [31, 'd31-seed-corn', 'ask-carts', 'bring', 'q-d31-seed-corn'],
+  ]
+  for (const [day, id, probe, optionId, questId] of probes) {
+    let run = onDay(11, day, { brass: 200 })
+    run = chooseAudienceOption(run, id, probe).run
+    assert.ok(!run.audiencesHeard.includes(id), `${probe} opens a beat`)
+    run = chooseAudienceOption(run, id, optionId).run
+    assert.ok(
+      run.board.some((entry) => entry.questId === questId),
+      `${id}: ${probe} then ${optionId} posts ${questId}`,
+    )
+  }
+  // Callbacks show only to the runs whose past opened them.
+  const callbacks: [number, string, string, string][] = [
+    [12, 'd12-cistern', 'ask-galleries', 'd07-galleries-found'],
+    [28, 'd28-returned-letters', 'maps', 'maps-copied'],
+    [31, 'd31-seed-corn', 'remind-wells', 'wells-closed'],
+    [36, 'd36-postern-ladder', 'oath-care', 'oath-of-care'],
+    [36, 'd36-postern-ladder', 'oath-crown', 'oath-of-crown'],
+  ]
+  for (const [day, id, optionId, flag] of callbacks) {
+    const audience = DAYS.find((entry) => entry.day === day)!.audiences.find(
+      (entry) => entry.id === id,
+    )!
+    const option = audience.options.find((entry) => entry.id === optionId)!
+    assert.ok(!optionVisible(onDay(11, day), option), `${optionId} hidden`)
+    const remembered = onDay(11, day, { brass: 200, flags: [flag] })
+    assert.ok(optionVisible(remembered, option), `${optionId} after ${flag}`)
+    chooseAudienceOption(remembered, id, optionId)
+  }
+  // Quest results land: the cistern seals, the letters go home, the seed comes in.
+  for (const [questId, flag] of [
+    ['q-d12-cistern-crack', 'd12-cistern-sealed'],
+    ['q-d28-returned-letters', 'd28-letters-delivered'],
+    ['q-d31-seed-corn', 'd31-seed-in-granary'],
+  ] as const)
+    assert.ok(questDef(questId)!.rewards.success.flags?.includes(flag), flag)
+}
+
 console.log('Emperor of Dust fortress contract: ok')

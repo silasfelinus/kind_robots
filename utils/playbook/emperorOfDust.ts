@@ -16,6 +16,7 @@ import {
   followerPortrait,
   illustration,
 } from '../emperorOfDust/fortress/castArt'
+import { PETITIONER_ART_PROMPTS } from '../emperorOfDust/fortress/petitionerArtPrompts'
 import type {
   AudienceDef,
   Effects,
@@ -221,8 +222,15 @@ export function buildEmperorOfDustPlaybook(): Playbook {
     node.editable = true
     node.editFields = { body: true, outcomes: true }
     node.placements.push(placement(day, step))
-    node.artUrl = aud.npc ? (illustration('npcs', aud.npc) ?? null) : null
+    // A speaker can be a follower (Day 4's letter is read by Pip Thread).
+    node.artUrl = aud.npc
+      ? (illustration('npcs', aud.npc) ??
+        illustration('followers', aud.npc) ??
+        null)
+      : null
     node.needsArt = Boolean(aud.npc) && !node.artUrl
+    if (node.needsArt && aud.npc)
+      node.artPrompt = PETITIONER_ART_PROMPTS[aud.npc]
     for (const flag of aud.requires?.flags ?? [])
       push(flagNeeders, flag, { key, label: aud.title, via: 'Appears after' })
     if (aud.requires?.follower)
@@ -267,6 +275,14 @@ export function buildEmperorOfDustPlaybook(): Playbook {
           posted[0] ?? (recruits[0] ? `follower:${recruits[0]}` : undefined),
       }
     })
+    // Quests a later exchange posts are on the board too (Day 7's galleries).
+    const opening = new Set(aud.options.flatMap((o) => o.postsQuests ?? []))
+    for (const id of uniq(
+      (aud.beats ?? []).flatMap((beat) =>
+        beat.options.flatMap((o) => o.postsQuests ?? []),
+      ),
+    ))
+      if (!opening.has(id)) questNode(id, day, step)
     node.companions = uniq(
       aud.options.flatMap((o) => followersIn(o.effects, o.requires)),
     )
@@ -487,5 +503,6 @@ export function buildEmperorOfDustPlaybook(): Playbook {
     editable: true,
     artProject: 'emperor-of-dust',
     artLanes: ['arthemy', 'zimage', 'krea2', 'flux2'],
+    artPromptsComplete: true,
   }
 }

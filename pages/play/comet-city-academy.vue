@@ -592,7 +592,7 @@
               v-if="
                 run.flowVersion === 3 &&
                 run.signature &&
-                PERSONAL_CHAPTER_DAYS.some((day) => day === run.day)
+                PERSONAL_CHAPTER_DAYS.some((day) => day === run?.day)
               "
               class="cca-under"
               data-testid="academy-personal-identity-chapter"

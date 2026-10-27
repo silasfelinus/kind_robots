@@ -1,6 +1,10 @@
 import {
-  personalQuestEvent, personalStanding, personalFinale, validPersonalHistory,
-  type PersonalMemory, type PersonalChoice as WitnessChoice,
+  personalQuestEvent,
+  personalStanding,
+  personalFinale,
+  validPersonalHistory,
+  type PersonalMemory,
+  type PersonalChoice as WitnessChoice,
 } from './personalQuests'
 import {
   personalEncounter,
@@ -603,7 +607,10 @@ export function encounterFor(run: AcademyRun) {
     }
   const witnessStory = personalQuestEvent(run)
   if (witnessStory)
-    return { ...witnessStory, scene: campaignAnchor(run.day) + ' ' + witnessStory.scene }
+    return {
+      ...witnessStory,
+      scene: campaignAnchor(run.day) + ' ' + witnessStory.scene,
+    }
   const personalStory = openingRouteFor(run)
   if (personalStory)
     return {
@@ -1215,9 +1222,13 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   const vowHistory = vowAction
     ? [...(run.vowHistory ?? []), { day: run.day, action: vowAction }]
     : run.vowHistory
-  const witnessMatch = /^personal-(6|9|19|22)-(protect|confront|exploit)$/.exec(option.id)
-  const witnessChoice = Number(witnessMatch?.[1]) === run.day
-    ? (witnessMatch?.[2] as WitnessChoice) : null
+  const witnessMatch = /^personal-(6|9|19|22)-(protect|confront|exploit)$/.exec(
+    option.id,
+  )
+  const witnessChoice =
+    Number(witnessMatch?.[1]) === run.day
+      ? (witnessMatch?.[2] as WitnessChoice)
+      : null
   const personalHistory = witnessChoice
     ? [...(run.personalHistory ?? []), { day: run.day, choice: witnessChoice }]
     : run.personalHistory
@@ -1512,7 +1523,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.vowHistory !== undefined &&
       (!data.vow || !isVowMemory(data.vowHistory, data.day ?? 0))) ||
     (data.personalHistory !== undefined &&
-      (!data.signature || data.flowVersion !== 3 || !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
+      (!data.signature ||
+        data.flowVersion !== 3 ||
+        !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
     (data.identityHistory !== undefined &&
       (!data.signature ||
         !isValidPersonalHistory(data.identityHistory, data.day ?? 0))) ||

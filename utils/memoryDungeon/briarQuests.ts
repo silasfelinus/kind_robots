@@ -65,8 +65,7 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         advance: ['lend'],
         text: 'Lend the night courier your lantern at the two-arrow post.',
         closedOutcomes: {
-          copy:
-            'You kept your lantern and copied the impossible address. The courier can still try the unlit road, but you cannot promise a safe delivery. You keep the address as evidence, though it is no substitute for someone volunteering to walk the road.',
+          copy: 'You kept your lantern and copied the impossible address. The courier can still try the unlit road, but you cannot promise a safe delivery. You keep the address as evidence, though it is no substitute for someone volunteering to walk the road.',
         },
       },
       {
@@ -85,8 +84,7 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         advance: ['carry'],
         text: 'Carry the Brass Knight’s apology for Pip, and leave the destruction order sealed.',
         closedOutcomes: {
-          read:
-            'You broke the destruction order’s seal and warned the House before the threat could arrive. Pip must account for an opened letter, and the Knight’s apology travels more slowly. The House has time to shelter its residents, which matters more than a perfect delivery record.',
+          read: 'You broke the destruction order’s seal and warned the House before the threat could arrive. Pip must account for an opened letter, and the Knight’s apology travels more slowly. The House has time to shelter its residents, which matters more than a perfect delivery record.',
         },
       },
     ],
@@ -381,11 +379,12 @@ export function briarQuestProgress(
         : houseDecisions[step.key]
     return {
       step,
-      state: !made || !choiceIds(step)?.includes(made)
-        ? ('open' as const)
-        : step.advance.includes(made)
-          ? ('done' as const)
-          : ('closed' as const),
+      state:
+        !made || !choiceIds(step)?.includes(made)
+          ? ('open' as const)
+          : step.advance.includes(made)
+            ? ('done' as const)
+            : ('closed' as const),
     }
   })
   const done = steps.filter((s) => s.state === 'done').length

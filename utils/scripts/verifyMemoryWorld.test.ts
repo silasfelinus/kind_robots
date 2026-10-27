@@ -1595,6 +1595,52 @@ assert.equal(
   restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
   null,
 )
+const malformedBriarMapDeck = {
+  ...checkpoint,
+  briar: { ...checkpoint.briar, mapCards: [null] },
+}
+const malformedBriarFightDeck = {
+  ...checkpoint,
+  briar: { ...checkpoint.briar, cards: [null] },
+}
+assert.equal(
+  restoreMemoryCheckpoint(malformedBriarMapDeck),
+  null,
+  'A damaged original Briar map deck must not silently erase a checkpoint wave',
+)
+assert.equal(
+  restoreMemoryCheckpoint(malformedBriarFightDeck),
+  null,
+  'A damaged original Briar combat deck must not silently erase an active fight',
+)
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    briar: {
+      ...checkpoint.briar,
+      mapCards: [
+        {
+          id: 1,
+          pairId: 1,
+          tile: '1,4',
+          image: '/memory-test.webp',
+          flipped: true,
+          matched: false,
+        },
+      ],
+    },
+  })?.briar.mapCards[0]?.flipped,
+  true,
+  'A valid interrupted first flip remains eligible for checkpoint restoration',
+)
+const isolatedBriarCheckpoints = restoreMemorySaveSlots([
+  malformedBriarMapDeck,
+  malformedBriarFightDeck,
+  checkpoint,
+])
+assert.equal(isolatedBriarCheckpoints[0], null)
+assert.equal(isolatedBriarCheckpoints[1], null)
+assert.equal(isolatedBriarCheckpoints[2]?.briar.attempts, 9)
 const malformedDarkDeck = {
   ...checkpoint,
   dark: {

@@ -61,6 +61,18 @@
         <span class="font-mono">{{ world.earthPhotos.length }}</span>
       </button>
       <button
+        v-if="world.activeReality === 'e01'"
+        type="button"
+        class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
+        :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
+        data-testid="memory-quest-log-open"
+        @click="questsOpen = true"
+      >
+        <span aria-hidden="true">❦</span>
+        <span class="hidden sm:inline">Threads</span>
+        <span class="font-mono">{{ questsTied }}</span>
+      </button>
+      <button
         type="button"
         class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
         aria-label="Choose gallery and game settings"
@@ -81,6 +93,7 @@
       v-if="chronicleOpen"
       @close="chronicleOpen = false"
     />
+    <memory-dungeon-quest-log v-if="questsOpen" @close="questsOpen = false" />
 
     <div
       v-if="settingsOpen"
@@ -912,6 +925,11 @@ import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
+const questsOpen = ref(false)
+const questsTied = computed(
+  () =>
+    world.briarQuests.filter((thread) => thread.state === 'complete').length,
+)
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
 const crossMapPuzzles: Record<string, { hint: string; title: string }> =

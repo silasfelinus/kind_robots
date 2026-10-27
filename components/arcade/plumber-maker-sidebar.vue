@@ -595,12 +595,86 @@ select:focus-visible {
     border-top: 2px solid #416a77;
   }
   .maker-groups {
-.maker-reviews{display:grid;align-content:start;gap:.55rem}
-.maker-review-summary{display:flex;align-items:baseline;gap:.4rem;font-size:1.4rem;color:#ffe199}
-.maker-review-summary small{font-size:.65rem;color:#bcdbd6}
-.maker-review-refresh{background:#25495c;border:1px solid #69949f;border-radius:.4rem;padding:.35rem;color:#fff7df}
-.maker-review{padding:.5rem;background:#244253;border-radius:.5rem;overflow-wrap:anywhere}
-.maker-review div{display:flex;justify-content:space-between;gap:.5rem}
-.maker-review span{color:#ffe199}
-.maker-review p{margin:.25rem 0 0;font-size:.73rem;line-height:1.4;font-weight:400;white-space:pre-wrap}
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .maker-groups button {
+    padding: 0.15rem;
+  }
+  .maker-groups button small {
+    font-size: 0.52rem;
+  }
+  .maker-tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .maker-tile {
+    min-height: 2.6rem;
+  }
+  .maker-tile-name {
+    font-size: 0.53rem;
+  }
+  .maker-stage-bottom {
+    display: none;
+  }
+  .maker-footer {
+    padding: 0.25rem;
+    flex-wrap: wrap;
+  }
+  .maker-state {
+    max-width: 100%;
+    width: 100%;
+  }
+  .maker-share-field label {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+.maker-reviews {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+}
+.maker-review-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 1.4rem;
+  color: #ffe199;
+}
+.maker-review-summary small {
+  font-size: 0.65rem;
+  color: #bcdbd6;
+}
+.maker-review-refresh {
+  background: #25495c;
+  border: 1px solid #69949f;
+  border-radius: 0.4rem;
+  padding: 0.35rem;
+  color: #fff7df;
+}
+.maker-review {
+  padding: 0.5rem;
+  background: #244253;
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.maker-review div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.maker-review span {
+  color: #ffe199;
+}
+.maker-review p {
+  margin: 0.25rem 0 0;
+  font-size: 0.73rem;
+  line-height: 1.4;
+  font-weight: 400;
+  white-space: pre-wrap;
+}
 </style>

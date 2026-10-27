@@ -445,7 +445,10 @@ const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
 const firstWeek = ref(false)
 const forms: PlayerForm[] = ['student', 'hero', 'villain']
-const cover = promArt('front/splash')
+const cover =
+  promArt('front/splash-v2') ??
+  promArt('front/dashboard-highlight') ??
+  promArt('front/splash')
 const currentSignature = computed(() =>
   signatureFor(selectedOrigin.value, selectedAffinity.value),
 )

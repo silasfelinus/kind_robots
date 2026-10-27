@@ -560,6 +560,57 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
   }
 }
 
+/** Settle a third failed chamber pair if reload cancelled its heart-loss timer. */
+export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
+  if (
+    progress.room !== 'memory' ||
+    progress.combat ||
+    progress.cards.length === 0 ||
+    !progress.cards.some((card) => !card.matched) ||
+    progress.roomMisses < 3
+  )
+    return progress
+
+  if (progress.hearts > 1)
+    return {
+      ...progress,
+      hearts: progress.hearts - 1,
+      roomMisses: 0,
+      status:
+        'The chamber resets its unpaired cards. Your learned matches remain. One heart lost.',
+    }
+
+  const houseOrigin = progress.house?.combatOrigin
+  const house =
+    houseOrigin && progress.house
+      ? {
+          ...progress.house,
+          combatOrigin: null,
+          current: 'HD-18' as const,
+          visited: progress.house.visited.includes('HD-18')
+            ? progress.house.visited
+            : [...progress.house.visited, 'HD-18' as const],
+        }
+      : progress.house
+  const retreat =
+    'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
+
+  return {
+    ...progress,
+    room: houseOrigin ? 'house' : 'map',
+    roomId: null,
+    cards: [],
+    combat: null,
+    roomMisses: 0,
+    hearts: 3,
+    player: BRIAR_START,
+    house,
+    status: houseOrigin
+      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
+      : retreat,
+  }
+}
+
 export type BriarTileProgress =
   'hidden' | 'unvisited' | 'unfinished' | 'complete'
 

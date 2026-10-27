@@ -74,6 +74,7 @@ import {
   newBriarSave,
   restoreBriarSave,
   recoverBriarCombatDefeat,
+  recoverBriarRoomMissPenalty,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
 import {
@@ -1814,7 +1815,7 @@ assert.doesNotThrow(
 assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
 assert.match(
   worldStoreSource,
-  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = recoveredCombat/,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = recoveredRoom/,
   'Loading a slot invalidates pending map and mirrored animation callbacks',
 )
 assert.match(
@@ -1936,4 +1937,88 @@ assert.equal(
   ).length,
   2,
   'Both restoration entry points must use the same idempotent combat recovery',
+)
+
+const interruptedThirdMissRoom = {
+  ...saved,
+  hearts: 2,
+  roomMisses: 3,
+  attempts: 3,
+  cards: [
+    { id: 0, pairId: 0, image: '/ok.jpg', matched: false, flipped: true },
+    { id: 1, pairId: 1, image: '/other.jpg', matched: false, flipped: true },
+  ],
+}
+const interruptedThirdMiss = restoreBriarSave(interruptedThirdMissRoom)
+assert.equal(interruptedThirdMiss.roomMisses, 3)
+assert.equal(
+  interruptedThirdMiss.cards.every((card) => !card.flipped),
+  true,
+)
+const recoveredThirdMiss = recoverBriarRoomMissPenalty(interruptedThirdMiss)
+assert.equal(recoveredThirdMiss.room, 'memory')
+assert.equal(recoveredThirdMiss.hearts, 1)
+assert.equal(recoveredThirdMiss.roomMisses, 0)
+assert.equal(recoveredThirdMiss.attempts, 3)
+assert.match(recoveredThirdMiss.status, /One heart lost/)
+assert.deepEqual(
+  recoverBriarRoomMissPenalty(restoreBriarSave(recoveredThirdMiss)),
+  recoveredThirdMiss,
+  'Reloading after a third missed pair cannot charge a second heart',
+)
+const pendingSecondMiss = restoreBriarSave({
+  ...interruptedThirdMissRoom,
+  roomMisses: 2,
+})
+assert.equal(
+  recoverBriarRoomMissPenalty(pendingSecondMiss),
+  pendingSecondMiss,
+  'Earlier misses do not incur a premature penalty',
+)
+const lastHeartRoomMiss = recoverBriarRoomMissPenalty(
+  restoreBriarSave({ ...interruptedThirdMissRoom, hearts: 1 }),
+)
+assert.equal(lastHeartRoomMiss.room, 'map')
+assert.equal(lastHeartRoomMiss.hearts, 3)
+assert.equal(lastHeartRoomMiss.player, BRIAR_START)
+assert.equal(lastHeartRoomMiss.roomId, null)
+assert.equal(lastHeartRoomMiss.cards.length, 0)
+assert.match(lastHeartRoomMiss.status, /retreat to Briar Camp/)
+const houseThirdMiss = recoverBriarRoomMissPenalty(
+  restoreBriarSave({
+    ...interruptedThirdMissRoom,
+    hearts: 1,
+    house: {
+      ...newHouseProgress(),
+      current: 'HD-19',
+      visited: ['HD-01', 'HD-19'],
+      combatOrigin: 'HD-19',
+    },
+  }),
+)
+assert.equal(houseThirdMiss.room, 'house')
+assert.equal(houseThirdMiss.house?.current, 'HD-18')
+assert.equal(houseThirdMiss.house?.combatOrigin, null)
+assert.equal(houseThirdMiss.hearts, 3)
+assert.match(houseThirdMiss.status, /quiet bedchamber/)
+const restoredHouseThirdMiss = restoreBriarSave(houseThirdMiss)
+assert.equal(
+  recoverBriarRoomMissPenalty(restoredHouseThirdMiss),
+  restoredHouseThirdMiss,
+  'A settled House retreat cannot be charged again after restoration',
+)
+assert.ok(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    briar: interruptedThirdMissRoom,
+  }),
+  'A valid manual checkpoint captured during a third miss can be recovered',
+)
+assert.equal(
+  (
+    worldStoreSource.match(/recoverBriarRoomMissPenalty\(recoveredCombat\)/g) ??
+    []
+  ).length,
+  2,
+  'Autosave hydration and manual checkpoint loading both settle missed-room penalties',
 )

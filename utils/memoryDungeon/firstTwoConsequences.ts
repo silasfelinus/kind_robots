@@ -238,6 +238,11 @@ export function earnedDarkHousePuzzleClue(
   const witnesses = briar.sceneChoices['6,3']
   if (room === 'HD-03' && oren === 'plan') return 'route'
   if (room === 'HD-25' && oren === 'load') return 'supplies'
+  if (
+    room === 'HD-13' &&
+    ['archive', 'grieve'].includes(briar.sceneChoices['2,5'] ?? '')
+  )
+    return 'earth-photo'
   if (room === 'HD-08' && witnesses === 'remember') return 'names'
   if (room === 'HD-34' && witnesses === 'protect') return 'consent'
   return null

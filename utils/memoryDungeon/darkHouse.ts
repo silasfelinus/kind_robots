@@ -13,7 +13,8 @@ import {
 } from './darkHouseChallenges'
 
 export type DarkHouseEnding = 'return' | 'commons'
-export type DarkHouseEarnedClue = 'route' | 'supplies' | 'names' | 'consent'
+export type DarkHouseEarnedClue =
+  'route' | 'supplies' | 'names' | 'consent' | 'earth-photo'
 export interface DarkHouseChoice {
   id: string
   label: string
@@ -700,6 +701,10 @@ const EARNED_HOUSE_HINTS: Partial<
   'HD-03': {
     source: 'route',
     note: 'Oren recognizes the river route you planned together. The House cannot charge an echo for your own map.',
+  },
+  'HD-13': {
+    source: 'earth-photo',
+    note: 'The dated Earth photograph you recovered shows how a perfect-looking record can conceal a person losing their work. Count the meals served, not the errors reported.',
   },
   'HD-25': {
     source: 'supplies',

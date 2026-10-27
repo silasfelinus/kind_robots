@@ -17,9 +17,9 @@ export type RomanceChoice = { id: RomanceChoiceId; label: string; cost: string }
 export type RomanceMoment = {
   title: string
   setting: string
-  speakers: { name: string; line: string }[]
-  portraits: string[]
-  choices: RomanceChoice[]
+  speakers: readonly { name: string; line: string }[]
+  portraits: readonly string[]
+  choices: readonly RomanceChoice[]
 }
 
 const courtship = {

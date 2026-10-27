@@ -18,6 +18,7 @@ import {
   nextSchoolDay,
   resolveDispatch,
   restoreAcademy,
+  recruitContact,
   socialize,
   startAcademy,
   startFullAcademy,
@@ -177,6 +178,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function recruit(studentId: StudentId) {
+    if (!run.value) return
+    run.value = recruitContact(run.value, studentId)
+    persist()
+  }
+
   function available(studentId: StudentId) {
     return run.value ? studentAvailable(run.value, studentId) : true
   }
@@ -239,6 +246,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     beginFirstWeek,
     heal,
     available,
+    recruit,
     social,
     visit,
     assign,

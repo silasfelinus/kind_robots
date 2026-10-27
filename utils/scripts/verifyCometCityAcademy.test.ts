@@ -11,6 +11,13 @@ import {
 import assert from 'node:assert/strict'
 import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
 import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
+import { promArt } from '../cometAcademy/artManifest'
+import {
+  PROM_ENDINGS,
+  PROM_ENDING_ROUTES,
+  SIMULATION_ENDINGS,
+  endingArtKey,
+} from '../cometAcademy/artSlots'
 import { LATE_INCIDENTS } from '../cometAcademy/lateIncidents'
 import { RETURN_VISITS } from '../cometAcademy/returnVisits'
 import {
@@ -1196,6 +1203,7 @@ assert.deepEqual(
 )
 
 assert.equal(PROM_FINALE.choices.length, 4)
+const realEndingsSeen: string[] = []
 for (const seed of [1, 2, 3, 4, 997]) {
   let run = startFullAcademy(
     fieldFor('accident-fire'),
@@ -1269,7 +1277,20 @@ for (const seed of [1, 2, 3, 4, 997]) {
   assert.ok(run.scene.includes('fourth dance'))
   const endings = ['protect', 'command', 'share', 'evacuate'] as const
   const titles = endings.map((choice) => finishAcademy(run, choice).ending)
-  assert.equal(new Set(titles).size, 3)
+  assert.ok(titles.every((title) => !SIMULATION_ENDINGS.includes(title!)))
+  if (titles.includes('THE SHIELD CHANGES HANDS'))
+    assert.deepEqual(titles, [
+      'THE SHIELD CHANGES HANDS',
+      'THE SHIELD CHANGES HANDS',
+      'THE BROKEN GRID',
+      'THE SHIELD CHANGES HANDS',
+    ])
+  else
+    assert.equal(
+      new Set(titles).size,
+      titles.includes('THE TRANSMITTER GOES DARK') ? 4 : 3,
+    )
+  realEndingsSeen.push(...titles.map((title) => title!))
   for (const choice of endings) {
     const ended = finishAcademy(run, choice)
     assert.equal(ended.phase, 'ending')
@@ -1948,10 +1969,11 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   }
 }
 
-// An untouched thirty-day run that goes back to old haunts meets their return scenes.
-{
-  let run = startFullAcademy('kinetic', 4242)
-  const returnTitles = Object.values(RETURN_VISITS).map((card) => card.title)
+// Untouched thirty-day runs that go back to old haunts. `honest` exposes every
+// accomplice it is offered and takes the first option; otherwise the run takes
+// the last option and never exposes anyone.
+function playThirtyDays(seed: number, honest: boolean): AcademyRun {
+  let run = startFullAcademy('kinetic', seed)
   for (let day = 1; day <= 29; day++) {
     const due = CITY_SITES.find(
       (site) => (run.visitedDays?.[site.id] ?? 99) <= day - 7,
@@ -1959,7 +1981,12 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     const fresh = CITY_SITES.find((site) => !run.visitedDays?.[site.id])
     run = visitCitySite(run, (due ?? fresh ?? CITY_SITES[0]!).id)
     assert.equal(run.phase, 'campus')
-    run = chooseEncounter(run, encounterFor(run).options[0]!.id)
+    const options = encounterFor(run).options
+    const pick = honest
+      ? (options.find((option) => option.id.endsWith('-expose')) ?? options[0]!)
+      : (options.filter((option) => !option.id.endsWith('-expose')).at(-1) ??
+        options[0]!)
+    run = chooseEncounter(run, pick.id)
     if (emergencyContact(run)) run = callEmergencyVolunteer(run)
     for (const incident of incidentsFor(run)) {
       const picked = knownContacts(run).find(
@@ -1973,11 +2000,51 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
     run = nextSchoolDay(run)
   }
+  assert.equal(run.phase, 'finale')
+  return run
+}
+{
+  const returnTitles = Object.values(RETURN_VISITS).map((card) => card.title)
+  const run = playThirtyDays(4242, true)
   const revisits = run.log.filter((line) =>
     returnTitles.some((title) => line.includes(title)),
   )
   assert.ok(revisits.length >= 3, 'return scenes are reachable in play')
-  assert.equal(run.phase, 'finale')
+}
+
+// The two endings added in t-020, each reached from an untouched seed.
+assert.equal(PROM_ENDINGS.length, 12)
+assert.equal(new Set(realEndingsSeen).size >= 3, true)
+for (const seed of [1, 42, 4242]) {
+  const honest = playThirtyDays(seed, true)
+  assert.equal(honest.plotEvidence?.length, 3)
+  const dark = finishAcademy(honest, 'evacuate')
+  assert.equal(dark.ending, 'THE TRANSMITTER GOES DARK')
+  assert.ok(dark.scene.includes('shield towers fall dark'))
+  assert.equal(
+    finishAcademy(honest, 'protect').ending,
+    'THE LAST DANCE LEAVES BY BOAT',
+  )
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(dark))), dark)
+
+  const ruthless = playThirtyDays(seed, false)
+  assert.equal(ruthless.plotEvidence?.length ?? 0, 0)
+  for (const choice of ['protect', 'command', 'evacuate'] as const) {
+    const lost = finishAcademy(ruthless, choice)
+    assert.equal(lost.ending, 'THE SHIELD CHANGES HANDS')
+    assert.ok(lost.scene.includes('new owner'))
+  }
+  assert.equal(finishAcademy(ruthless, 'share').ending, 'THE BROKEN GRID')
+  const oneLead = finishAcademy(
+    { ...ruthless, plotEvidence: honest.plotEvidence!.slice(0, 1) },
+    'command',
+  )
+  assert.notEqual(oneLead.ending, 'THE SHIELD CHANGES HANDS')
+}
+for (const ending of PROM_ENDINGS) {
+  assert.ok(PROM_ENDING_ROUTES[ending].length > 40)
+  const key = endingArtKey(ending)
+  assert.ok(promArt(key) || PROM_ART_PROMPTS[key], `${ending} art or prompt`)
 }
 
 // Return visits: every landmark has its own second scene a week later.

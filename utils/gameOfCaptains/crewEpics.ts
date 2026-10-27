@@ -2,6 +2,7 @@ import type { CrewId } from './rules'
 import { CREW_EPICS_A } from './crewEpicsA'
 import { CREW_EPICS_B } from './crewEpicsB'
 import { CREW_EPICS_C } from './crewEpicsC'
+import { CREW_FINALE_CALLS } from './crewFinalCalls'
 
 export type CrewJourneyStep = {
   system: string
@@ -13,17 +14,30 @@ export type CrewJourneyStep = {
   carefulOutcome: string
   boldOutcome: string
   prize: string
+  finalCareful: string
+  finalBold: string
 }
+export type CrewEpisodeDraft = Omit<CrewJourneyStep, 'finalCareful' | 'finalBold'>
 export type CrewTrilogy = readonly [
-  CrewJourneyStep,
-  CrewJourneyStep,
-  CrewJourneyStep,
+  CrewEpisodeDraft,
+  CrewEpisodeDraft,
+  CrewEpisodeDraft,
 ]
-export const CREW_JOURNEYS: Record<CrewId, CrewTrilogy> = {
+const RAW_EPICS: Record<CrewId, CrewTrilogy> = {
   ...CREW_EPICS_A,
   ...CREW_EPICS_B,
   ...CREW_EPICS_C,
 }
+export const CREW_JOURNEYS = Object.fromEntries(
+  (Object.keys(RAW_EPICS) as CrewId[]).map((id) => [
+    id,
+    RAW_EPICS[id].map((episode, index) => ({
+      ...episode,
+      finalCareful: CREW_FINALE_CALLS[id][index]![0],
+      finalBold: CREW_FINALE_CALLS[id][index]![1],
+    })),
+  ]),
+) as Record<CrewId, readonly [CrewJourneyStep, CrewJourneyStep, CrewJourneyStep]>
 export const CREW_EPILOGUES: Record<
   CrewId,
   { protected: string; exposed: string; unfinished: string }

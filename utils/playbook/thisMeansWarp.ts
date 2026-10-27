@@ -7,8 +7,15 @@ import {
   crewArtKey,
   endingArtKey,
   missionArtKey,
+  nemesisEndingArtKey,
   slugify,
 } from '../gameOfCaptains/artSlots'
+import {
+  NEMESIS_ALLY_FLAGS,
+  NEMESIS_ENDINGS,
+  NEMESIS_ENDING_VARIANTS,
+  nemesisEndingId,
+} from '../gameOfCaptains/nemesisEndings'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
 import {
   MISSION_CALLBACKS,
@@ -17,6 +24,7 @@ import {
   VOYAGE_ORDERS,
   aboardLines,
   actOf,
+  type NemesisId,
 } from '../gameOfCaptains/voyageMap'
 import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
 import {
@@ -217,7 +225,33 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     )
     node.place = antagonist.title
     node.body = [antagonist.motive, antagonist.interference]
+    const nemesis = antagonist.id as NemesisId
+    const groundwork = NEMESIS_ALLY_FLAGS[nemesis].join(', ')
+    const gates = {
+      undone: `Counter council, or protect the worlds with two of: ${groundwork}`,
+      bargained:
+        'Bargain for passage with two supplies, or with one piece of groundwork',
+      unfinished: 'Any other finale order',
+    }
+    node.choices = NEMESIS_ENDING_VARIANTS.map((variant) => ({
+      id: variant,
+      label: titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      tags: [gates[variant]],
+      leadsTo: `ending:${nemesisEndingId(nemesis, variant)}`,
+    }))
     add(withArt(node, antagonistArtKey(antagonist.id)))
+    for (const variant of NEMESIS_ENDING_VARIANTS) {
+      const id = nemesisEndingId(nemesis, variant)
+      const ending = blankNode(
+        `ending:${id}`,
+        'ending',
+        titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      )
+      ending.place = `${antagonist.name} · ${variant}`
+      ending.body = [NEMESIS_ENDINGS[nemesis][variant].text, gates[variant]]
+      ending.companions = []
+      add(withArt(ending, nemesisEndingArtKey(id)))
+    }
   }
 
   const finale = blankNode('finale', 'crossroads', 'The jump gate')
@@ -276,7 +310,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across two acts and four endings.`,
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across two acts, four endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -310,7 +344,16 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       {
         title: 'Endings',
         blurb: 'Final captain’s logs.',
-        keys: keysOf('ending'),
+        keys: keysOf('ending').filter((key) =>
+          WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
+      },
+      {
+        title: 'Nemesis endings',
+        blurb: 'Three of its own for each seeded nemesis.',
+        keys: keysOf('ending').filter(
+          (key) => !WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
       },
     ],
     people: CREW.map((c) => ({ id: c.id, label: c.name })),

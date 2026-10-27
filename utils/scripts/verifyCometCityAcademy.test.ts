@@ -1250,21 +1250,58 @@ assert.equal(
   null,
 )
 
+const ngPlus = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'unmask',
+  'hero',
+)
+assert.equal(ngPlus.playerEvolution?.form, 'hero')
+assert.equal(ngPlus.initialForm, 'hero')
+assert.equal(restoreAcademy(JSON.parse(JSON.stringify(ngPlus)))?.playerEvolution?.form, 'hero')
+assert.equal(
+  restoreAcademy({
+    ...ngPlus,
+    initialForm: undefined,
+  }),
+  null,
+  'Starting in a heroic identity needs an explicit New Game Plus origin',
+)
+const ngVillain = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'claim',
+  'villain',
+)
+assert.equal(restoreAcademy(ngVillain)?.playerEvolution?.form, 'villain')
+assert.equal(startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius').playerEvolution?.form, 'student')
+
 const page = fromRoot('pages/play/comet-city-academy.vue')
+const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
+const store = fromRoot('stores/cometAcademyStore.ts')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('data-testid="academy-dispatch"'))
 assert.ok(tab.includes('route: /play/comet-city-academy'))
 assert.ok(art.includes('viewBox="0 0 1440 900"'))
-assert.ok(page.includes('Capes & Tassels: Prom of Doom'))
-assert.ok(tab.includes("title: 'Capes & Tassels: Prom of Doom'"))
+assert.ok(page.includes('Prom of Doom | Capes & Tassels'))
+assert.ok(tab.includes("title: 'Prom of Doom'"))
+assert.ok(opening.includes('data-testid="academy-new-game"'))
+assert.ok(opening.includes("screen === 'title'"))
+assert.ok(opening.includes("screen === 'origin' || screen === 'affinity'"))
+assert.ok(opening.includes('data-testid="academy-persona-triad"'))
+assert.ok(opening.includes('data-testid="academy-confirm"'))
+assert.ok(opening.includes('data-testid="academy-begin"'))
+assert.ok(opening.includes('unlockedForms.includes(form)'))
+assert.ok(opening.includes('data-testid="academy-returning-hero"'))
+assert.ok(store.includes('YEARBOOK_KEY'))
+assert.ok(store.includes("form !== 'student' && (!signature"))
 assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
-assert.ok(page.includes('data-testid="academy-signature-detail"'))
-assert.ok(page.includes('data-testid="academy-identity-preview"'))
 assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
-assert.ok(page.includes('data-testid="academy-first-week"'))
 assert.ok(page.includes('data-testid="academy-plot-status"'))
 assert.ok(page.includes('data-testid="academy-villain-identity"'))
 assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
@@ -1277,13 +1314,5 @@ assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
-assert.ok(page.includes('data-testid="academy-crossover-roster"'))
-assert.ok(page.includes('currentIdentity.backstory'))
-assert.ok(page.includes('currentIdentityStory.setup'))
-assert.ok(page.includes('selectedOrigin'))
-assert.ok(page.includes('selectedAffinity'))
-assert.ok(page.includes('data-testid="academy-persona-triad"'))
-assert.ok(page.includes('card.persona.stats[stat.id]'))
 assert.ok(!page.includes('POWER_FORMS'))
-assert.ok(page.includes('selectedVow'))
-console.log('Capes & Tassels playable first-week slice and route: OK')
+console.log('Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK')

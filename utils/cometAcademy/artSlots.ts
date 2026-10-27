@@ -99,11 +99,16 @@ export function academyStageArt(run: AcademyRun | null): string | null {
     if (outcome && promArt(outcome)) return promArt(outcome)
   }
   if (
-    run.flowVersion === 3 && run.signature &&
+    run.flowVersion === 3 &&
+    run.signature &&
     run.personalHistory?.some((event) => event.day === run.day) &&
     ['dispatch', 'debrief'].includes(run.phase)
   ) {
-    const key = personalOutcomeArtKey(run.signature, run.personalHistory, run.day)
+    const key = personalOutcomeArtKey(
+      run.signature,
+      run.personalHistory,
+      run.day,
+    )
     const delivered = key ? promArt(key) : null
     if (delivered) return delivered
   }

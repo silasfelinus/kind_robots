@@ -94,6 +94,7 @@ import {
   redshirtBrief,
   redshirtChanges,
   redshirtQuestLinks,
+  redshirtPortraitPrompt,
 } from '../playbookForge/redshirtAtlas'
 import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
 
@@ -122,6 +123,9 @@ const redesign = redshirtBrief(recruit, edit, 'design')
 assert.match(redesign, /redesign this redshirt using the linked entity/)
 assert.match(redesign, /facets:21/)
 assert.match(redesign, /Proposed fields/)
+assert.match(redshirtPortraitPrompt(recruit, edit), /kangaroo-inspired silhouette/)
+assert.match(redshirtPortraitPrompt(recruit, edit), /Brilliant bright red Space Couch expedition shirt/)
+assert.match(redshirtPortraitPrompt(recruit, edit), /Visual inspiration from facets: Kangaroo/)
 edit.referenceTab = 'characters'
 edit.referenceKey = 'characters:144'
 edit.referenceTitle = 'Existing follower'

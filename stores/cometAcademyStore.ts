@@ -56,7 +56,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     const form = current.playerEvolution?.form
     if (form && form !== 'student' && !entry.forms.includes(form))
       entry.forms.push(form)
-    if (current.phase === 'ending' && current.ending && !entry.endings.includes(current.ending))
+    if (
+      current.phase === 'ending' &&
+      current.ending &&
+      !entry.endings.includes(current.ending)
+    )
       entry.endings.push(current.ending)
     yearbook.value = { ...yearbook.value, [current.signature]: entry }
   }
@@ -88,12 +92,20 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
             if (!value || typeof value !== 'object') continue
             const entry = value as Partial<AcademyYearbookEntry>
             yearbook.value[key] = {
-              plays: Number.isInteger(entry.plays) && (entry.plays ?? 0) >= 0 ? entry.plays! : 0,
+              plays:
+                Number.isInteger(entry.plays) && (entry.plays ?? 0) >= 0
+                  ? entry.plays!
+                  : 0,
               forms: Array.isArray(entry.forms)
-                ? entry.forms.filter((form): form is PlayerForm => form === 'hero' || form === 'villain')
+                ? entry.forms.filter(
+                    (form): form is PlayerForm =>
+                      form === 'hero' || form === 'villain',
+                  )
                 : [],
               endings: Array.isArray(entry.endings)
-                ? entry.endings.filter((ending): ending is string => typeof ending === 'string')
+                ? entry.endings.filter(
+                    (ending): ending is string => typeof ending === 'string',
+                  )
                 : [],
             }
           }
@@ -117,8 +129,13 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     vow?: PowerVowId,
     form: PlayerForm = 'student',
   ) {
-    if (form !== 'student' && (!signature || !yearbook.value[signature]?.forms.includes(form)))
-      throw new Error('Earn the mantle during a previous campaign before replaying it')
+    if (
+      form !== 'student' &&
+      (!signature || !yearbook.value[signature]?.forms.includes(form))
+    )
+      throw new Error(
+        'Earn the mantle during a previous campaign before replaying it',
+      )
     run.value = startFullAcademy(power, Date.now(), signature, vow, form)
     recordIdentity(true)
     usePlaybookRunReviewStore().begin(

@@ -128,7 +128,9 @@ for (const [key, choice, expected] of courierClosures) {
   assert.notEqual(result.quest.closed, courier.closed)
   courierEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
-    JSON.parse(JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar })),
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
   )
   assert.equal(
     briarQuestProgress(courier, restored.sceneChoices, decisions.house).quest
@@ -149,7 +151,8 @@ const twoClosures = split(courier)
 twoClosures.briar['2,4'] = 'copy'
 twoClosures.briar['6,4'] = 'read'
 assert.match(
-  briarQuestProgress(courier, twoClosures.briar, twoClosures.house).quest.closed,
+  briarQuestProgress(courier, twoClosures.briar, twoClosures.house).quest
+    .closed,
   /kept your lantern/,
   'When multiple choices close the quest, its earliest authored step determines the ending',
 )

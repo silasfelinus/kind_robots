@@ -1119,10 +1119,10 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
       (!Array.isArray(data.redshirtRoster) ||
         data.redshirtRoster.length > 12 ||
         new Set(data.redshirtRoster).size !== data.redshirtRoster.length ||
-        data.redshirtRoster.some(id => typeof id !== 'string' || !/^rs-\\d{3}$/.test(id) || Number(id.slice(3)) < 1 || Number(id.slice(3)) > 100))) ||
+        data.redshirtRoster.some(id => typeof id !== 'string' || !/^rs-\d{3}$/.test(id) || Number(id.slice(3)) < 1 || Number(id.slice(3)) > 100))) ||
     (data.redshirtFallen !== undefined &&
       (!Array.isArray(data.redshirtFallen) ||
-        data.redshirtFallen.some(loss => !loss || typeof loss.id !== 'string' || !/^rs-\\d{3}$/.test(loss.id) || typeof loss.encounterId !== 'string'))) ||
+        data.redshirtFallen.some(loss => !loss || typeof loss.id !== 'string' || !/^rs-\d{3}$/.test(loss.id) || typeof loss.encounterId !== 'string'))) ||
     (data.expeditionHistory !== undefined &&
       (!Array.isArray(data.expeditionHistory) ||
         data.expeditionHistory.length > 3 ||

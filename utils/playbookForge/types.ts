@@ -108,6 +108,12 @@ export type Blueprint = {
   endingVersions: EndingVersions
   /** Each follower gets an epilogue line in every ending. */
   followerEpilogues: boolean
+  /** Endings each party combination earns of its own (Space Couch: two per trio of crew). */
+  partyEndings: number
+  /** Steps in an adventure written for each party combination (0: none). */
+  partyAdventureSteps: number
+  /** Endings each villain brings, beyond the shared ones (a galactic boss beaten, won over or fled). */
+  villainEndings: number
 
   autosave: boolean
   /** Snapshot stores the run; a ledger stores the seed and every action and replays it. */

@@ -59,6 +59,9 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   finaleBeats: 2,
   endingVersions: 'one',
   followerEpilogues: false,
+  partyEndings: 0,
+  partyAdventureSteps: 0,
+  villainEndings: 0,
 
   autosave: true,
   saveStyle: 'snapshot',

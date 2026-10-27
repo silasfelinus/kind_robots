@@ -102,14 +102,22 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       rosterSize: 6,
       // Silas, 2026-10-26 (kind_robots#4182): a galactic nemesis drawn per run,
       // a personal quest for every crew member that crosses the galaxy, and
-      // endings that change with the opening. Three crew colour an ending;
-      // the captain multiplies it.
-      followers: 16,
+      // endings that change with the opening; the captain multiplies them.
+      // Silas, 2026-10-27: twelve crew in threes is 220 parties, and each
+      // party earns two endings of its own and an interstitial adventure of
+      // several steps; every galactic boss has endings of its own; every crew
+      // member has a romance thread. "This is an adventure across an insane
+      // universe, and we're just along for the ride."
+      followers: 12,
       partySize: 3,
       followerQuestSteps: 3,
       followerEpilogues: true,
+      partyAdventureSteps: 3,
+      partyEndings: 2,
       villains: 8,
       villainPerRun: true,
+      villainEndings: 3,
+      romances: 12,
       acts: 3,
       chaptersPerAct: 4,
       encounters: 40,
@@ -122,10 +130,13 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       endingVersions: 'per-hero',
       factions: 4,
       saveSlots: 3,
-      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, sixteen crew with errands of their own on far-flung worlds, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
+      idea: 'A very long red couch crosses the galaxy inside a force bubble. Six captains, twelve crew with errands and romances of their own on far-flung worlds, 220 possible trios each with an adventure and endings nobody else gets, and one galactic nemesis drawn each run. The absurdity is played dry: procedures, minutes and polite memos about a sofa at warp.',
     }),
     count: async () => {
       const rules = await import('../gameOfCaptains/rules')
+      const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
+      const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
+      const journeys = Object.values(CREW_JOURNEYS)
       return {
         values: {
           rosterSize: rules.CAPTAINS.length,
@@ -135,9 +146,17 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           encounters: rules.MISSIONS.length,
           locations: new Set(rules.MISSIONS.map((mission) => mission.system))
             .size,
-          // No crew member has a personal quest yet.
-          followerQuestSteps: 0,
-          endings: 4,
+          followerQuestSteps: journeys.length
+            ? Math.min(...journeys.map((steps) => steps.length))
+            : 0,
+          // romance.ts: the fourple, Rue and Tess.
+          romances: 3,
+          endings: WARP_ENDINGS.length,
+          // No party has an adventure or endings of its own yet, and no
+          // galactic boss an ending of its own.
+          partyAdventureSteps: 0,
+          partyEndings: 0,
+          villainEndings: 0,
         },
         measured: [
           'rosterSize',
@@ -147,9 +166,14 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'encounters',
           'locations',
           'followerQuestSteps',
+          'romances',
+          'endings',
+          'partyAdventureSteps',
+          'partyEndings',
+          'villainEndings',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts',
+        source: 'utils/gameOfCaptains/rules.ts, crewJourneys.ts, romance.ts',
       }
     },
   },

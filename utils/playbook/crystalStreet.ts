@@ -1,8 +1,11 @@
 import {
+  AVATARS,
+  CHARACTERS,
   COMPANIONS,
   DECKS,
   ITEMS,
   LOCATIONS,
+  SPECIAL_ENDINGS,
   SKILL_LABELS,
   TIER_LABELS,
   VILLAINS,
@@ -262,6 +265,30 @@ export function buildCrystalStreetPlaybook(): Playbook {
       `Item · ${item.name}`,
       `/crystal-street/items/${item.id}.webp`,
     )
+
+  for (const avatar of AVATARS)
+    required(
+      `avatar:${avatar.id}`,
+      `Starter avatar · ${avatar.name}`,
+      `/crystal-street/avatars/${avatar.id}.webp`,
+    )
+  for (const character of CHARACTERS)
+    required(
+      `character:${character.id}`,
+      `Identity · ${character.title}`,
+      `/crystal-street/characters/${character.id}.webp`,
+    )
+  for (const [key, ending] of Object.entries(SPECIAL_ENDINGS))
+    required(
+      `special-ending:${key}`,
+      `Special ending · ${ending.title}`,
+      `/crystal-street/endings/special-${key}.webp`,
+    )
+  required(
+    'title-art',
+    'Crystal Street title',
+    '/crystal-street/title/crystal-street.webp',
+  )
 
   return {
     game: 'crystal-street',

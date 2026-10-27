@@ -2,14 +2,14 @@
   <main
     class="kr-surface cca-shell h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
-    aria-label="Capes & Tassels: Prom of Doom game"
+    aria-label="Prom of Doom game"
   >
-    <header class="cca-topbar">
+    <header v-if="run" class="cca-topbar">
       <NuxtLink to="/" class="cca-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
       <span class="cca-insignia">✦</span>
-      <span class="cca-top-title">CAPES <b>&amp; TASSELS</b></span>
+      <span class="cca-top-title">PROM <b>OF DOOM</b></span>
       <span class="cca-top-detail">{{
         run ? 'YEAR 01 / DAY ' + run.day : 'ADMISSIONS OPEN'
       }}</span>
@@ -30,7 +30,12 @@
     <div v-if="store.storageWarning" class="cca-warning" role="alert">
       {{ store.storageWarning }}
     </div>
-    <div class="cca-layout min-h-0 flex-1">
+    <AcademyOpening
+      v-if="store.loaded && !run"
+      :yearbook="store.yearbook"
+      @start="startFromOpening"
+    />
+    <div v-else class="cca-layout min-h-0 flex-1">
       <section class="cca-stage" aria-label="Illustrated academy scene">
         <img
           :src="stageScenery"
@@ -96,259 +101,6 @@
           <template v-if="!store.loaded">
             <p class="cca-muted">Loading your academy record…</p>
           </template>
-          <template v-else-if="!run">
-            <div class="cca-heading">
-              <span>01</span>
-              <div>
-                <h2>Who are you becoming?</h2>
-                <p>
-                  Where your power came from, what it answers to, and the three
-                  people you could grow into.
-                </p>
-              </div>
-            </div>
-            <p class="cca-selection-label">
-              STEP 1 · ORIGIN / WHERE IT CAME FROM
-            </p>
-            <div class="cca-power-grid" data-testid="academy-origin-picker">
-              <button
-                v-for="origin in POWER_ORIGINS"
-                :key="origin.id"
-                type="button"
-                class="cca-power cca-pick"
-                :class="{ chosen: selectedOrigin === origin.id }"
-                :aria-pressed="selectedOrigin === origin.id"
-                @click="selectedOrigin = origin.id"
-              >
-                <span class="cca-pick-glyph" aria-hidden="true">{{
-                  origin.glyph
-                }}</span>
-                <strong>{{ origin.name }}</strong>
-                <small>{{ origin.source }}</small>
-              </button>
-            </div>
-            <p class="cca-selection-label">
-              STEP 2 · AFFINITY / WHAT IT ANSWERS TO
-            </p>
-            <div
-              class="cca-power-grid cca-affinity-grid"
-              data-testid="academy-affinity-picker"
-            >
-              <button
-                v-for="affinity in POWER_AFFINITIES"
-                :key="affinity.id"
-                type="button"
-                class="cca-power cca-pick cca-pick-small"
-                :class="{ chosen: selectedAffinity === affinity.id }"
-                :aria-pressed="selectedAffinity === affinity.id"
-                :title="affinity.theme"
-                @click="selectedAffinity = affinity.id"
-              >
-                <span class="cca-pick-glyph" aria-hidden="true">{{
-                  affinity.glyph
-                }}</span>
-                <strong>{{ affinity.name }}</strong>
-              </button>
-            </div>
-            <article class="cca-dossier" data-testid="academy-signature-detail">
-              <header class="cca-dossier-head">
-                <span class="cca-dossier-crest" aria-hidden="true"
-                  >{{ activeOrigin.glyph }}{{ activeAffinity.glyph }}</span
-                >
-                <div>
-                  <small
-                    >{{ activeOrigin.name.toUpperCase() }} ×
-                    {{ activeAffinity.name.toUpperCase() }}</small
-                  >
-                  <h3>{{ currentIdentity.realName }}</h3>
-                  <small>{{ currentIdentity.pronouns }}</small>
-                </div>
-              </header>
-              <p class="cca-dossier-story">{{ currentIdentity.backstory }}</p>
-              <p class="cca-dossier-power">
-                <strong>{{ currentSignature.name }}</strong> —
-                {{ currentSignature.action }}.
-                <span>Cost: {{ currentSignature.cost }}.</span>
-              </p>
-              <div class="cca-persona-row" data-testid="academy-persona-triad">
-                <section
-                  v-for="card in personaCards"
-                  :key="card.key"
-                  class="cca-persona"
-                  :class="'cca-persona-' + card.key"
-                >
-                  <small>{{ card.label }}</small>
-                  <strong>{{ card.persona.alias }}</strong>
-                  <span class="cca-focus">{{ card.persona.focus }}</span>
-                  <ul class="cca-stats" :aria-label="card.label + ' stats'">
-                    <li
-                      v-for="stat in STATS"
-                      :key="stat.id"
-                      :aria-label="
-                        stat.name + ' ' + card.persona.stats[stat.id] + ' of 5'
-                      "
-                    >
-                      <span>{{ stat.name }}</span>
-                      <i
-                        v-for="n in 5"
-                        :key="n"
-                        :class="{ on: n <= card.persona.stats[stat.id] }"
-                      />
-                    </li>
-                  </ul>
-                  <p>{{ card.text }}</p>
-                </section>
-              </div>
-              <p class="cca-dossier-field">
-                You enroll as {{ currentIdentity.student.alias }}. Strongest
-                stat: {{ studentStrength.name }}, so every night call that needs
-                {{ studentStrength.name }} gets a boost from you.
-              </p>
-            </article>
-            <details
-              class="cca-identity-preview"
-              data-testid="academy-identity-preview"
-            >
-              <summary>
-                <strong>Explore {{ currentIdentity.realName }}'s story</strong>
-                <small>
-                  {{ activeOrigin.complication }} · {{ activeAffinity.risk }}
-                </small>
-              </summary>
-              <p class="cca-selection-label">
-                EXPLORE THIS PERSON'S POSSIBLE STORY
-              </p>
-              <div class="cca-storylens-tabs">
-                <button
-                  v-for="viewpoint in viewpointOptions"
-                  :key="viewpoint"
-                  type="button"
-                  class="cca-small"
-                  :aria-pressed="selectedViewpoint === viewpoint"
-                  @click="selectedViewpoint = viewpoint"
-                >
-                  {{ viewpoint === 'protagonist' ? 'PLAY AS' : 'MEET AS NPC' }}
-                </button>
-                <button
-                  v-for="alignment in alignmentOptions"
-                  :key="alignment"
-                  type="button"
-                  class="cca-small"
-                  :aria-pressed="selectedAllegiance === alignment"
-                  @click="selectedAllegiance = alignment"
-                >
-                  {{ alignment === 'hero' ? 'HERO FUTURE' : 'VILLAIN FUTURE' }}
-                </button>
-              </div>
-              <p class="cca-identity-caveat">
-                {{ currentIdentityStory.setup }}
-              </p>
-              <p class="cca-identity-caveat">
-                {{ currentIdentityStory.decision }}
-              </p>
-              <p class="cca-selection-label">RELATIONSHIP PATHS CAN OVERLAP</p>
-              <div class="cca-storylens-tabs">
-                <button
-                  v-for="bond in bondOptions"
-                  :key="bond"
-                  type="button"
-                  class="cca-small"
-                  :aria-pressed="selectedBonds.includes(bond)"
-                  @click="toggleBond(bond)"
-                >
-                  {{ bond.toUpperCase() }}
-                </button>
-              </div>
-              <p
-                v-for="(scene, index) in currentIdentityStory.bondScenes"
-                :key="index"
-                class="cca-identity-caveat"
-              >
-                {{ scene }}
-              </p>
-              <p class="cca-identity-caveat">
-                Preview only: the full thirty-day relationship and evolution
-                quests are still in production. Romance is never required to
-                become a hero or save the city.
-              </p>
-            </details>
-            <details
-              class="cca-identity-preview"
-              data-testid="academy-crossover-roster"
-            >
-              <summary>
-                VISITORS FROM OTHER WORLDS · {{ GUEST_IDENTITIES.length }}
-              </summary>
-              <article
-                v-for="visitor in GUEST_IDENTITIES"
-                :key="visitor.id"
-                class="cca-crossover"
-              >
-                <strong>{{ visitor.realName }}</strong>
-                <small>{{ visitor.source }} · {{ visitor.signature }}</small>
-                <p>{{ visitor.backstory }}</p>
-                <p>
-                  {{ visitor.student.alias }} → {{ visitor.hero.alias }} /
-                  {{ visitor.villain.alias }}
-                </p>
-                <small>{{ visitor.hero.method }}</small>
-              </article>
-            </details>
-            <p class="cca-selection-label">STEP 3 · VOW / YOUR APPROACH</p>
-            <div class="cca-vow-grid">
-              <button
-                v-for="vow in POWER_VOWS"
-                :key="vow.id"
-                type="button"
-                class="cca-power cca-power-compact"
-                :class="{ chosen: selectedVow === vow.id }"
-                :aria-pressed="selectedVow === vow.id"
-                @click="selectedVow = vow.id"
-              >
-                <strong>{{ vow.name }}</strong>
-              </button>
-            </div>
-            <p class="cca-vow-detail">{{ activeVow.promise }}</p>
-            <details class="cca-future-preview">
-              <summary>A possible Prom of Doom consequence</summary>
-              <p>{{ currentFinale }}</p>
-            </details>
-            <button
-              class="cca-primary"
-              type="button"
-              data-testid="academy-begin"
-              @click="
-                store.begin(
-                  studentStrength.field,
-                  currentSignature.id,
-                  selectedVow,
-                )
-              "
-            >
-              ENROLL AS {{ currentIdentity.student.alias.toUpperCase() }}
-              <span>➜</span>
-            </button>
-            <p class="cca-under">
-              6 origins × 8 affinities · 48 people, each with a student, hero
-              and villain future. The first week and an early thirty-day
-              campaign are both playable.
-            </p>
-            <button
-              class="cca-choice"
-              type="button"
-              data-testid="academy-first-week"
-              @click="
-                store.beginFirstWeek(
-                  studentStrength.field,
-                  currentSignature.id,
-                  selectedVow,
-                )
-              "
-            >
-              <span>Play the original seven-day simulation</span>
-            </button>
-          </template>
-
           <template v-else-if="run.phase === 'map'">
             <div class="cca-heading">
               <span>02</span>
@@ -913,16 +665,14 @@ import {
   socialChoices,
 } from '~/utils/cometAcademy/relationships'
 import { computed, onMounted, ref } from 'vue'
+import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
+import { fieldFor } from '~/utils/cometAcademy/identityArcs'
+import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import {
   identityFor,
-  identityStoryFor,
-  type CharacterViewpoint,
-  type CharacterAllegiance,
-  type CharacterBond,
 } from '~/utils/cometAcademy/identityArcs'
-import { GUEST_IDENTITIES } from '~/utils/cometAcademy/guestIdentities'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {
@@ -942,34 +692,18 @@ import {
   type StudentId,
 } from '~/utils/cometAcademy/rules'
 import {
-  POWER_ORIGINS,
-  POWER_AFFINITIES,
-  POWER_VOWS,
   STATS,
-  finaleFor,
-  signatureFor,
-  strongestStat,
   type LegacyPowerId,
-  type PowerOriginId,
-  type PowerAffinityId,
+  type SignaturePowerId,
   type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
-const selectedOrigin = ref<PowerOriginId>('accident')
-const selectedAffinity = ref<PowerAffinityId>('fire')
-const selectedVow = ref<PowerVowId>('shelter')
 const showRelationships = ref(false)
 const selectedSocialId = ref<StudentId>('mina')
 const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
-const viewpointOptions: CharacterViewpoint[] = ['protagonist', 'antagonist']
-const alignmentOptions: CharacterAllegiance[] = ['hero', 'villain']
-const bondOptions: CharacterBond[] = ['sidekick', 'partner', 'romance']
-const selectedViewpoint = ref<CharacterViewpoint>('protagonist')
-const selectedAllegiance = ref<CharacterAllegiance>('hero')
-const selectedBonds = ref<CharacterBond[]>([])
 const run = computed(() => store.run)
 const socialDayAvailable = computed(() => {
   const current = run.value
@@ -1033,67 +767,9 @@ function canVisitSite(id: SiteId) {
     return (run.value.visitedDays?.[id] ?? -7) <= run.value.day - 7
   return !run.value.visitedSites?.includes(id)
 }
-const currentSignature = computed(() =>
-  signatureFor(selectedOrigin.value, selectedAffinity.value),
-)
-const currentIdentity = computed(() => identityFor(currentSignature.value.id))
-const activeOrigin = computed(() =>
-  POWER_ORIGINS.find((origin) => origin.id === selectedOrigin.value)!,
-)
-const activeAffinity = computed(() =>
-  POWER_AFFINITIES.find((affinity) => affinity.id === selectedAffinity.value)!,
-)
-const personaCards = computed(() => {
-  const identity = currentIdentity.value
-  return [
-    {
-      key: 'student',
-      label: 'STUDENT / SIDEKICK',
-      persona: identity.student,
-      text: identity.student.conflict,
-    },
-    {
-      key: 'hero',
-      label: 'HERO',
-      persona: identity.hero,
-      text: identity.hero.method,
-    },
-    {
-      key: 'villain',
-      label: 'VILLAIN',
-      persona: identity.villain,
-      text: identity.villain.method,
-    },
-  ]
-})
-const studentStrength = computed(() =>
-  STATS.find(
-    (stat) => stat.id === strongestStat(currentIdentity.value.student.stats),
-  )!,
-)
-const currentFinale = computed(() =>
-  finaleFor(
-    currentSignature.value,
-    currentIdentity.value.realName,
-    currentIdentity.value.villain.alias,
-    selectedVow.value,
-  ),
-)
-
 function statForField(field: LegacyPowerId): string {
   return STATS.find((stat) => stat.field === field)?.name ?? field
 }
-const currentIdentityStory = computed(() =>
-  identityStoryFor(
-    currentIdentity.value,
-    selectedViewpoint.value,
-    selectedAllegiance.value,
-    selectedBonds.value,
-  ),
-)
-const activeVow = computed(() =>
-  POWER_VOWS.find((vow) => vow.id === selectedVow.value)!,
-)
 const campusEncounter = computed(() =>
   run.value ? encounterFor(run.value) : encounterFor({ day: 1 } as never),
 )
@@ -1134,14 +810,20 @@ const stageCopy = computed(() =>
     ? campusEncounter.value.scene
     : (run.value?.scene ?? ''),
 )
-onMounted(() => store.load())
-useHead({ title: 'Capes & Tassels: Prom of Doom | Kind Robots' })
-
-function toggleBond(bond: CharacterBond): void {
-  selectedBonds.value = selectedBonds.value.includes(bond)
-    ? selectedBonds.value.filter((current) => current !== bond)
-    : [...selectedBonds.value, bond]
+function startFromOpening(selection: {
+  signature: SignaturePowerId
+  vow: PowerVowId
+  form: PlayerForm
+  firstWeek: boolean
+}) {
+  const power = fieldFor(selection.signature)
+  if (selection.firstWeek)
+    store.beginFirstWeek(power, selection.signature, selection.vow)
+  else store.begin(power, selection.signature, selection.vow, selection.form)
 }
+
+onMounted(() => store.load())
+useHead({ title: 'Prom of Doom | Capes & Tassels | Kind Robots' })
 
 function teamFor(caseId: string): StudentId[] {
   return (

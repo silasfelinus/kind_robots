@@ -592,7 +592,10 @@ export function encounterFor(run: AcademyRun) {
   }
   const characterChapter = personalEncounter(run)
   if (characterChapter)
-    return { ...characterChapter, scene: campaignAnchor(run.day) + ' ' + characterChapter.scene }
+    return {
+      ...characterChapter,
+      scene: campaignAnchor(run.day) + ' ' + characterChapter.scene,
+    }
   const personalStory = openingRouteFor(run)
   if (personalStory)
     return {
@@ -1168,10 +1171,27 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
         )
       : undefined
   const personalDay = [4, 12, 21, 27].includes(run.day) && run.flowVersion === 3
-  const personalAction = personalDay &&
-    ['investigate','conceal','delegate','ally','court','distance','expose','leverage','listen','hero','villain','independent'].includes(option.id)
-    ? { day: run.day as PersonalChapterDay, choice: option.id as PersonalChoice }
-    : null
+  const personalAction =
+    personalDay &&
+    [
+      'investigate',
+      'conceal',
+      'delegate',
+      'ally',
+      'court',
+      'distance',
+      'expose',
+      'leverage',
+      'listen',
+      'hero',
+      'villain',
+      'independent',
+    ].includes(option.id)
+      ? {
+          day: run.day as PersonalChapterDay,
+          choice: option.id as PersonalChoice,
+        }
+      : null
   const identityHistory = personalAction
     ? [...(run.identityHistory ?? []), personalAction]
     : run.identityHistory
@@ -1475,7 +1495,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.vowHistory !== undefined &&
       (!data.vow || !isVowMemory(data.vowHistory, data.day ?? 0))) ||
     (data.identityHistory !== undefined &&
-      (!data.signature || !isValidPersonalHistory(data.identityHistory, data.day ?? 0))) ||
+      (!data.signature ||
+        !isValidPersonalHistory(data.identityHistory, data.day ?? 0))) ||
     (data.initialForm !== undefined &&
       (!['student', 'hero', 'villain'].includes(data.initialForm) ||
         (data.initialForm !== 'student' && !data.signature))) ||

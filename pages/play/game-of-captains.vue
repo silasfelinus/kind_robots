@@ -920,7 +920,10 @@ import {
   SKILLS,
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
-import { ACT_ONE_ORDERS, type ActOneRouteId } from '~/utils/gameOfCaptains/actOne'
+import {
+  ACT_ONE_ORDERS,
+  type ActOneRouteId,
+} from '~/utils/gameOfCaptains/actOne'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -998,7 +1001,9 @@ const nemesisCrewLink = computed(
 const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
 )
-const ethicalOrders = computed(() => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId])
+const ethicalOrders = computed(
+  () => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId],
+)
 const missionRule = computed(() => ruleFor(mission.value.id))
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,

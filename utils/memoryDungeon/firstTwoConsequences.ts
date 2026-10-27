@@ -281,6 +281,64 @@ export function earnedBorrowedVoiceOutcome(
   return accord === 'unset' ? null : BORROWED_VOICE_OUTCOMES[accord].scene
 }
 
+export type RoyalEscortAccord =
+  | 'unset'
+  | 'escort-scylla'
+  | 'escort-char'
+  | 'question-scylla'
+  | 'question-char'
+
+const ROYAL_ESCORT_OUTCOMES: Record<
+  Exclude<RoyalEscortAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'escort-scylla': {
+    scene:
+      'Scylla studies the escort proclamation you accepted and admits its carriage left a family behind. When you ask for her account, she signs a second order giving the stranded household her own seat. She will walk with you rather than call that sacrifice somebody else’s duty.',
+    epilogue:
+      'Scylla returns her royal carriage to the family her first escort displaced. She walks beside them, having learned that a proclamation is not a passenger list.',
+  },
+  'escort-char': {
+    scene:
+      'Char finds the skull she drew on the escort proclamation you accepted. It matches the House windows, but the stranded family needs a road more than a prophecy. At your invitation she turns the sketch into a warning marker and leads them around the sealed gate.',
+    epilogue:
+      'Char marks a safe footpath for the family left behind by the royal escort. Her old skull drawing becomes a useful warning, not a claim to foresight.',
+  },
+  'question-scylla': {
+    scene:
+      'Scylla remembers that you asked why the sisters look different, not whether they deserved to travel together. She explains the court kept separate records for people it considered interchangeable. Asked for her account, she strikes both sisters’ false signatures from the escort order and takes the refused travelers’ names herself.',
+    epilogue:
+      'Scylla corrects the court registry that confused the sisters and the travelers it refused. Every passenger signs their own account; no royal name stands in for another.',
+  },
+  'question-char': {
+    scene:
+      'Char remembers your question about the sisters’ matching faces and different styles. The lantern they gave you illuminates two royal seals printed as though one sister spoke for both. She recognizes the House-window pattern in her own skull sketch and helps the travelers demand two separate, consenting witnesses.',
+    epilogue:
+      'Char exposes the duplicated royal seals using the lantern from your first meeting. She and Scylla testify separately, and the stranded travelers choose whom to trust.',
+  },
+}
+
+/** A real choice on each side of the mirror is required. Neither sister
+ * becomes a generic reward, and a missing first encounter invents no history. */
+export function earnedRoyalEscortAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): RoyalEscortAccord {
+  const source = original.sceneChoices['4,4']
+  const response = mirrored.sceneChoices['4,4']
+  if (source !== 'escort' && source !== 'question') return 'unset'
+  if (response !== 'scylla' && response !== 'char') return 'unset'
+  return `${source}-${response}`
+}
+
+export function earnedRoyalEscortOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedRoyalEscortAccord(original, mirrored)
+  return accord === 'unset' ? null : ROYAL_ESCORT_OUTCOMES[accord].scene
+}
+
 /** Carry only story-scale facts forward. Minor scene choices stay in the
  * original save; this projection never becomes another mutable save ledger. */
 export interface CrossRealmConsequenceLedger {
@@ -290,6 +348,7 @@ export interface CrossRealmConsequenceLedger {
   orensProvision: 'unset' | 'route' | 'supplies'
   knightsDuty: 'unset' | 'oath' | 'errand'
   borrowedVoiceAccord: BorrowedVoiceAccord
+  royalEscortAccord: RoyalEscortAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -324,6 +383,9 @@ export function crossRealmConsequenceLedger(
           : 'unset',
     borrowedVoiceAccord: mirrored
       ? earnedBorrowedVoiceAccord(briar, mirrored)
+      : 'unset',
+    royalEscortAccord: mirrored
+      ? earnedRoyalEscortAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -399,5 +461,11 @@ export function crossRealmHouseEpilogue(
     ledger.borrowedVoiceAccord === 'unset'
       ? ''
       : BORROWED_VOICE_OUTCOMES[ledger.borrowedVoiceAccord].epilogue
-  return [witness, provision, knight, traveler].filter(Boolean).join(' ')
+  const royals =
+    ledger.royalEscortAccord === 'unset'
+      ? ''
+      : ROYAL_ESCORT_OUTCOMES[ledger.royalEscortAccord].epilogue
+  return [witness, provision, knight, traveler, royals]
+    .filter(Boolean)
+    .join(' ')
 }

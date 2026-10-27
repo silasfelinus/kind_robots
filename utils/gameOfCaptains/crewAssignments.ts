@@ -333,6 +333,55 @@ export const MISSION_RULES: MissionRule[] = [
     deadline: 'The witness leaves Serendipity within three ship days.',
     remoteRoute: 'Remote negotiation cannot verify the witness’s safety.',
   },
+
+  {
+    id: 'ashdock',
+    requirements: { tactics: 10, diplomacy: 8 },
+    durationDays: 2,
+    boardDays: 2,
+    deadline: 'The contractor will destroy the casualty registers within two days.',
+    remoteRoute: 'Shipboard cameras cannot ask the grieving families to testify.',
+  },
+  {
+    id: 'windglass',
+    requirements: { luck: 10, science: 8 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The moving beacon vanishes after three days.',
+    remoteRoute: 'A distant scan cannot tell a rescue from a pursuit beacon.',
+  },
+  {
+    id: 'nacre',
+    requirements: { diplomacy: 11, culture: 8 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The assembly holds its binding quorum in three days.',
+    remoteRoute: 'An anonymous appeal cannot vote in place of excluded residents.',
+  },
+  {
+    id: 'haleth',
+    requirements: { rescue: 11, science: 8 },
+    durationDays: 3,
+    boardDays: 2,
+    deadline: 'The medical patent renews in two days.',
+    remoteRoute: 'Medical advice cannot remove an unsafe implanted registry.',
+  },
+  {
+    id: 'gameworld',
+    requirements: { tactics: 11, culture: 8 },
+    durationDays: 3,
+    boardDays: 2,
+    deadline: 'The involuntary finalists are chosen in two days.',
+    remoteRoute: 'A remote audience may watch, but it cannot open the workers’ exit.',
+  },
+  {
+    id: 'rootborne',
+    requirements: { rescue: 9, science: 10 },
+    durationDays: 2,
+    boardDays: 3,
+    deadline: 'The orchard’s last breathable seed ripens in three days.',
+    remoteRoute: 'A sensor cannot negotiate shared air with a living orchard.',
+  },
 ]
 export type MissionPreview = {
   chance: number

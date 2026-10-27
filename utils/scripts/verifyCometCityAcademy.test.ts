@@ -1867,9 +1867,10 @@ assert.ok(!page.includes('POWER_FORMS'))
 for (const person of CHARACTER_ROSTER) {
   const look = CAST_LOOKS[person.signature]
   assert.ok(look, `${person.signature} has a cast look`)
-  const prompt = PROM_ART_PROMPTS[`identities/${person.signature}/student`]
+  const prompt =
+    PROM_ART_PROMPTS[`identities/${person.signature}/student`] ?? ''
   assert.ok(
-    prompt?.includes(look.look.slice(1)),
+    prompt.includes(look.look.slice(1)),
     `${person.signature} portrait reuses its look`,
   )
   assert.ok(!prompt.includes(person.realName), 'names stay out of prompts')

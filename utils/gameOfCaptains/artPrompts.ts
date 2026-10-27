@@ -262,7 +262,8 @@ export const WARP_ART_PROMPTS: Readonly<Record<string, string>> = {
       venueArtPrompt({
         id: `art-${franchise.id}`,
         name: 'Serendipity casino district',
-        conflict: 'The cobalt-blue giant host seeks an end to colonial occupation.',
+        conflict:
+          'The cobalt-blue giant host seeks an end to colonial occupation.',
         giant: 'Aru',
         franchise,
         casinoName: 'Serendipity Grand Casino',

@@ -146,6 +146,7 @@ import {
   type HouseCombatOrigin,
 } from '~/utils/memoryDungeon/house'
 import { houseEpilogue as earnedHouseEpilogue } from '~/utils/memoryDungeon/houseEpilogues'
+import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
 import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -312,6 +313,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.house
       ? houseExits(state.value.house.current, state.value.house)
       : [],
+  )
+  const briarQuests = computed(() =>
+    briarQuestLog(state.value.sceneChoices, state.value.house?.decisions ?? {}),
   )
   const houseEpilogue = computed(() =>
     earnedHouseEpilogue(state.value.house, state.value.sceneChoices),
@@ -2139,6 +2143,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     houseAvailableDoors,
     houseMayExit,
     houseEpilogue,
+    briarQuests,
     canChooseHouse,
     houseMove,
     chooseHouse,

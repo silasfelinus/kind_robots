@@ -750,7 +750,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (activeReality.value !== 'e02') return
     const updated = hintDarkHousePuzzle(
       darkHouse.value,
-      Boolean(darkHouseEarnedClue.value),
+      darkHouseEarnedClue.value,
     )
     if (updated === darkHouse.value) return
     darkHouse.value = updated

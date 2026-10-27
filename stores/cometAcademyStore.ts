@@ -1,6 +1,7 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
+import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type {
   SignaturePowerId,
@@ -28,18 +29,46 @@ import {
 } from '~/utils/cometAcademy/rules'
 
 const SAVE_KEY = 'comet-city-academy-slice-v1'
+const YEARBOOK_KEY = 'comet-city-academy-yearbook-v1'
+
+export type AcademyYearbookEntry = {
+  plays: number
+  forms: PlayerForm[]
+  endings: string[]
+}
+export type AcademyYearbook = Record<string, AcademyYearbookEntry>
 
 export const useCometAcademyStore = defineStore('cometAcademy', () => {
   const run = ref<AcademyRun | null>(null)
   const loaded = ref(false)
   const storageWarning = ref('')
+  const yearbook = ref<AcademyYearbook>({})
+
+  function recordIdentity(started = false) {
+    const current = run.value
+    if (!current?.signature) return
+    const entry = yearbook.value[current.signature] ?? {
+      plays: 0,
+      forms: [] as PlayerForm[],
+      endings: [] as string[],
+    }
+    if (started) entry.plays += 1
+    const form = current.playerEvolution?.form
+    if (form && form !== 'student' && !entry.forms.includes(form))
+      entry.forms.push(form)
+    if (current.phase === 'ending' && current.ending && !entry.endings.includes(current.ending))
+      entry.endings.push(current.ending)
+    yearbook.value = { ...yearbook.value, [current.signature]: entry }
+  }
 
   const incidents = computed(() => (run.value ? incidentsFor(run.value) : []))
 
   function persist() {
     try {
+      recordIdentity()
       if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       else localStorage.removeItem(SAVE_KEY)
+      localStorage.setItem(YEARBOOK_KEY, JSON.stringify(yearbook.value))
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -51,8 +80,30 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     if (loaded.value) return
     loaded.value = true
     try {
+      const history = localStorage.getItem(YEARBOOK_KEY)
+      if (history) {
+        const parsed: unknown = JSON.parse(history)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          for (const [key, value] of Object.entries(parsed)) {
+            if (!value || typeof value !== 'object') continue
+            const entry = value as Partial<AcademyYearbookEntry>
+            yearbook.value[key] = {
+              plays: Number.isInteger(entry.plays) && (entry.plays ?? 0) >= 0 ? entry.plays! : 0,
+              forms: Array.isArray(entry.forms)
+                ? entry.forms.filter((form): form is PlayerForm => form === 'hero' || form === 'villain')
+                : [],
+              endings: Array.isArray(entry.endings)
+                ? entry.endings.filter((ending): ending is string => typeof ending === 'string')
+                : [],
+            }
+          }
+        }
+      }
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreAcademy(raw ? JSON.parse(raw) : null)
+      if (run.value?.signature && !yearbook.value[run.value.signature])
+        recordIdentity(true)
+      else recordIdentity()
     } catch {
       run.value = null
       storageWarning.value =
@@ -64,8 +115,16 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     power: PowerId,
     signature?: SignaturePowerId,
     vow?: PowerVowId,
+    form: PlayerForm = 'student',
   ) {
-    run.value = startFullAcademy(power, Date.now(), signature, vow)
+    if (form !== 'student' && (!signature || !yearbook.value[signature]?.forms.includes(form)))
+      throw new Error('Earn the mantle during a previous campaign before replaying it')
+    run.value = startFullAcademy(power, Date.now(), signature, vow, form)
+    recordIdentity(true)
+    usePlaybookRunReviewStore().begin(
+      'comet-city-academy',
+      playbookRunKey(run.value),
+    )
     persist()
   }
 
@@ -75,6 +134,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     vow?: PowerVowId,
   ) {
     run.value = startAcademy(power, Date.now(), signature, vow)
+    recordIdentity(true)
     usePlaybookRunReviewStore().begin(
       'comet-city-academy',
       playbookRunKey(run.value),
@@ -144,6 +204,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     run,
     incidents,
     storageWarning,
+    yearbook,
     load,
     begin,
     beginFirstWeek,

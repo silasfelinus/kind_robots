@@ -223,11 +223,20 @@ const serviceChannels = resolveChannels([
     label: 'Restricted',
     route: '/restricted',
   },
+  {
+    contentType: 'tab',
+    channelKey: 'projects',
+    tabKey: 'gated-direct',
+    label: 'Gated direct link',
+    route: '/gated-direct',
+    requiredRole: 'ADMIN',
+    allowDirectAccess: true,
+  },
 ])
 const unrelatedViewerChannels = serviceChannels.map((channel) => ({
   ...channel,
   tabs: channel.tabs.filter(
-    (tab) => tab.tabKey !== 'stylist' && tab.tabKey !== 'restricted',
+    (tab) => !['stylist', 'restricted', 'gated-direct'].includes(tab.tabKey),
   ),
 }))
 assert.equal(
@@ -243,6 +252,13 @@ assert.equal(
   }).allowed,
   false,
   'An unrelated hidden tab must remain inaccessible.',
+)
+assert.equal(
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, {
+    path: '/gated-direct',
+  }).allowed,
+  false,
+  'Direct-link opt-in must never override an explicit role restriction.',
 )
 assert.match(
   readFileSync('content/channels/projects/stylist.md', 'utf8'),

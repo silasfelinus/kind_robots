@@ -272,7 +272,9 @@
                       ? 'Witness testimony · free clue'
                       : world.darkHouseEarnedClue === 'consent'
                         ? 'Protected witnesses · free clue'
-                        : 'Consult the Chronicle · 1 echo'
+                        : world.darkHouseEarnedClue === 'earth-photo'
+                          ? 'Dated Earth photograph · free clue'
+                          : 'Consult the Chronicle · 1 echo'
               }}
             </button>
             <p

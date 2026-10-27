@@ -1,3 +1,5 @@
+import { ADDITION_KINDS, type AdditionKind } from './adjust'
+import { newDesignId } from './designs'
 import { presetForGenre } from './facets'
 import { blueprintFromIdea } from './presets'
 import type { Blueprint } from './types'
@@ -40,6 +42,8 @@ export type GestationPitch = {
   nextQuestions: string[]
   cast: Record<string, number>
   production: Record<string, number>
+  /** Authored design prompts: the pitch's look, before anything is built. */
+  designs: { kind: AdditionKind; title: string; prompt: string }[]
 }
 
 export type GestationNote = {
@@ -109,6 +113,22 @@ export function readPitch(raw: Raw): GestationPitch | null {
     nextQuestions: strs(raw.next_questions),
     cast: nums(raw.cast),
     production: nums(raw.production),
+    designs: (Array.isArray(raw.designs) ? raw.designs : []).flatMap((d) => {
+      const row = (d ?? {}) as Raw
+      const title = str(row.title)
+      const prompt = str(row.prompt)
+      if (!title || !prompt) return []
+      const kind = str(row.kind)
+      return [
+        {
+          kind: (ADDITION_KINDS.some((k) => k.id === kind)
+            ? kind
+            : 'other') as AdditionKind,
+          title,
+          prompt,
+        },
+      ]
+    }),
   }
 }
 
@@ -213,5 +233,13 @@ export function blueprintFromPitch(pitch: GestationPitch): Blueprint {
     encounters: n(p.encounter_scenes, base.encounters),
     endings: n(p.finale_scripts, base.endings),
     romances: p.romance_scenes ? base.romances : 0,
+    designs: pitch.designs.map((d) => ({
+      id: newDesignId(),
+      kind: d.kind,
+      title: d.title,
+      note: '',
+      prompt: d.prompt,
+      source: `Pitch: ${pitch.title}`,
+    })),
   }
 }

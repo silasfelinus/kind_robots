@@ -48,6 +48,29 @@
       </div>
     </dl>
 
+    <section class="flex flex-col gap-2" aria-label="Designs">
+      <p class="pf-kicker text-[0.6rem] text-secondary">
+        Designs · {{ concept.latest.designs.length }}
+      </p>
+      <ul
+        v-if="concept.latest.designs.length"
+        class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,10rem),1fr))] gap-2"
+      >
+        <li v-for="d in concept.latest.designs" :key="d.title">
+          <PlaybookForgeArtCard
+            :title="d.title"
+            :label="d.kind"
+            :prompt="d.prompt"
+            @select="forge.forgePitch(concept.conceptId)"
+          />
+        </li>
+      </ul>
+      <p v-else class="text-xs opacity-70">
+        No design prompts yet. The next development writes them (key art, hero,
+        villain, a place, a turning point); or Forge this and add your own.
+      </p>
+    </section>
+
     <section
       v-if="concept.latest.signatureSystems.length"
       class="flex flex-col gap-1"

@@ -121,6 +121,7 @@
           <PlaybookForgeBeats v-else-if="forge.screen === 'beats'" />
           <PlaybookForgeKit v-else-if="forge.screen === 'kit'" />
           <PlaybookForgeGestation v-else-if="forge.screen === 'gestation'" />
+          <PlaybookForgeCatalog v-else-if="forge.screen === 'catalog'" />
           <PlaybookForgeIdea v-else-if="forge.screen === 'idea'" />
           <PlaybookForgeLaunch v-else-if="forge.screen === 'launch'" />
           <PlaybookForgeAssumptions

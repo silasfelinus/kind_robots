@@ -2,11 +2,12 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { usePlaybookStore } from '~/stores/playbookStore'
+import { useFacetCatalogStore } from '~/stores/facetCatalogStore'
 import {
-  useFacetCatalogStore,
-  type FacetTaxonomy,
-} from '~/stores/facetCatalogStore'
-import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
+  PLAYBOOK_GAMES,
+  buildPlaybook,
+  isPlaybookGame,
+} from '~/utils/playbook/games'
 import { KIT_PLAYBOOKS, kitPlaybook } from '~/utils/playbookKit/games'
 import {
   DEFAULT_ASSUMPTIONS,
@@ -20,6 +21,20 @@ import {
   type AdditionKind,
   type PlanEdit,
 } from '~/utils/playbookForge/adjust'
+import {
+  characterItem,
+  facetItem,
+  gameBeats,
+  gamePlaces,
+  itemDesign,
+  itemSpark,
+  rewardItem,
+  scenarioItem,
+  scenarioLocations,
+  type CatalogItem,
+  type CatalogTab,
+} from '~/utils/playbookForge/catalog'
+import { cardsForTab, type Design } from '~/utils/playbookForge/designs'
 import { forecast } from '~/utils/playbookForge/estimate'
 import {
   blueprintFromPitch,
@@ -27,7 +42,6 @@ import {
   type GestationNote,
 } from '~/utils/playbookForge/gestation'
 import {
-  SPARK_TAXONOMIES,
   dealSparks,
   elementFromFacets,
   facetPool,
@@ -92,6 +106,7 @@ export type ForgeScreen =
   | 'beats'
   | 'kit'
   | 'gestation'
+  | 'catalog'
   | 'launch'
   | 'assumptions'
 
@@ -123,6 +138,7 @@ const DRAFTS_KEY = 'kr-playbook-forge-drafts-v1'
 const ASSUMPTIONS_KEY = 'kr-playbook-forge-assumptions-v1'
 const LIBRARY_SORT_KEY = 'kr-playbook-forge-library-sort-v1'
 const PLAN_EDITS_KEY = 'kr-playbook-forge-plan-edits-v1'
+const TRAY_KEY = 'kr-playbook-forge-tray-v1'
 
 /** One game's ledger at a glance, for the Load a game library. */
 export type LibraryStat = {
@@ -317,11 +333,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       changes: planChanges(entry.plan, edit.overrides),
       additions: edit.additions
         .filter((a) => !a.postedUrl)
-        .map(({ kind, title, note, source }) => ({
+        .map(({ kind, title, note, source, prompt }) => ({
           kind,
           title,
           note,
           source,
+          prompt,
         })),
       combos: combosLine(plan),
     }
@@ -381,8 +398,8 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (facetsState.value === 'loading' || facetsState.value === 'ready') return
     facetsState.value = 'loading'
     try {
+      // Every taxonomy: sparks deal from theirs, the catalogue browses all.
       const rows = await useFacetCatalogStore().fetchCatalogSlice({
-        taxonomies: SPARK_TAXONOMIES as FacetTaxonomy[],
         take: 1000,
       })
       facets.value = facetPool(rows)
@@ -423,6 +440,250 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   /** A named element for the open game's ledger, drawn from Facets. */
   function drawElement(kind: AdditionKind) {
     return elementFromFacets(kind, facets.value)
+  }
+
+  // Designs: every plan page leads with art, either the game's own beats or
+  // designs (an authored prompt, rendered here on request).
+  const designs = computed<Design[]>(() =>
+    existing.value
+      ? editFor(existing.value.slug).additions
+      : (draft.value?.designs ?? []),
+  )
+  const designCards = computed(() =>
+    cardsForTab(
+      tab.value,
+      existing.value && ledgerBook.value
+        ? withPainted(ledgerBook.value, ledgerRelay.value?.painted)
+        : null,
+      designs.value,
+    ),
+  )
+  const designJobs = ref<Record<string, string>>({})
+  const pendingDesigns = ref<Design[]>([])
+
+  /** Adds or updates a design on the open game (its ledger additions) or the draft. */
+  function saveDesign(design: Design) {
+    const entry = existing.value
+    if (entry) {
+      const edit = editFor(entry.slug)
+      const at = edit.additions.findIndex((a) => a.id === design.id)
+      const additions =
+        at >= 0
+          ? edit.additions.map((a, i) => (i === at ? { ...a, ...design } : a))
+          : [...edit.additions, design]
+      saveEdit(entry.slug, { ...edit, additions })
+      draft.value = planFor(entry)
+      return
+    }
+    if (!draft.value) return
+    const list = draft.value.designs ?? []
+    const at = list.findIndex((d) => d.id === design.id)
+    draft.value = {
+      ...draft.value,
+      designs:
+        at >= 0
+          ? list.map((d, i) => (i === at ? { ...d, ...design } : d))
+          : [...list, design],
+    }
+    persistDraft()
+  }
+
+  function removeDesign(id: string) {
+    if (existing.value) return removeElement(id)
+    if (!draft.value) return
+    draft.value = {
+      ...draft.value,
+      designs: (draft.value.designs ?? []).filter((d) => d.id !== id),
+    }
+    persistDraft()
+  }
+
+  /** Renders a design's authored prompt on Krea 2. Never renders without a prompt. */
+  async function renderDesign(id: string) {
+    const design = designs.value.find((d) => d.id === id)
+    const prompt = design?.prompt?.trim()
+    const lane = PLAYBOOK_ART_LANES.find((l) => l.key === 'krea2')
+    if (!design || !prompt || !lane) return
+    designJobs.value = { ...designJobs.value, [id]: 'Sending…' }
+    const shape =
+      design.kind === 'follower' || design.kind === 'villain'
+        ? 'portrait'
+        : 'scene'
+    const res = await performFetch<{ jobId?: number }>('/api/art/enqueue', {
+      method: 'POST',
+      body: JSON.stringify(
+        playbookArtRequest(
+          lane,
+          prompt,
+          shape,
+          Math.floor(Math.random() * 2_000_000_000),
+          {
+            projectSlug:
+              existing.value?.slug || draft.value?.slug || 'playbook-forge',
+            designer: `${existing.value?.title ?? draft.value?.title ?? 'Playbook Forge'} design`,
+          },
+        ),
+      ),
+    })
+    const jobId = Number(res.data?.jobId)
+    if (!res.success || !Number.isInteger(jobId)) {
+      designJobs.value = {
+        ...designJobs.value,
+        [id]: `Refused: ${res.message || 'no answer'}`,
+      }
+      return
+    }
+    saveDesign({ ...design, jobId, imageUrl: undefined })
+    designJobs.value = { ...designJobs.value, [id]: 'Queued' }
+  }
+
+  /** Picks up finished renders for designs that are waiting on a job. */
+  async function refreshDesignJobs() {
+    for (const design of designs.value) {
+      if (!design.jobId || design.imageUrl) continue
+      const res = await performFetch<{
+        job?: { status?: string; artImageId?: number | null }
+      }>(`/api/art/queue/${design.jobId}`)
+      const job = res.data?.job
+      if (!job) continue
+      if (job.status === 'DONE' && job.artImageId) {
+        saveDesign({
+          ...design,
+          imageUrl: `/api/art/images/${job.artImageId}/file`,
+        })
+        designJobs.value = { ...designJobs.value, [design.id]: '' }
+      } else
+        designJobs.value = {
+          ...designJobs.value,
+          [design.id]:
+            job.status === 'RUNNING'
+              ? 'Rendering'
+              : job.status === 'FAILED'
+                ? 'Failed'
+                : 'Queued',
+        }
+    }
+  }
+
+  // The catalogue: Kind Robots content browsed by its art, for brainstorming.
+  const catalogTab = ref<CatalogTab>('facets')
+  const catalog = ref<Partial<Record<CatalogTab, CatalogItem[]>>>({})
+  const catalogLoading = ref<CatalogTab | ''>('')
+  const catalogError = ref('')
+  const catalogSearch = ref('')
+  const catalogFocus = ref('')
+  const tray = ref<CatalogItem[]>([])
+
+  async function list(url: string) {
+    const res = await performFetch<Record<string, unknown>[]>(url, {}, 0, 30000)
+    if (!res.success) throw new Error(res.message || `${url} did not answer.`)
+    return Array.isArray(res.data) ? res.data : []
+  }
+
+  function playbookBooks() {
+    return PLAYBOOK_GAMES.map((game) => ({
+      game,
+      book: buildPlaybook(game.id),
+    }))
+  }
+
+  async function loadCatalog(tab: CatalogTab = catalogTab.value) {
+    if (catalog.value[tab] || catalogLoading.value === tab) return
+    catalogLoading.value = tab
+    catalogError.value = ''
+    try {
+      let items: CatalogItem[] = []
+      if (tab === 'facets' || tab === 'locations') await loadFacets()
+      if (tab === 'facets')
+        items = Object.values(facets.value).flat().map(facetItem)
+      else if (tab === 'characters')
+        items = (await list('/api/characters')).flatMap(
+          (row) => characterItem(row) ?? [],
+        )
+      else if (tab === 'scenarios')
+        items = (await list('/api/scenarios')).flatMap(
+          (row) => scenarioItem(row) ?? [],
+        )
+      else if (tab === 'rewards')
+        items = (await list('/api/rewards')).flatMap(
+          (row) => rewardItem(row) ?? [],
+        )
+      else if (tab === 'locations') {
+        const scenarios = await list('/api/scenarios').catch(() => [])
+        items = [
+          ...(facets.value.SETTING ?? []).map(facetItem),
+          ...playbookBooks().flatMap(({ game, book }) =>
+            gamePlaces(game.id, book),
+          ),
+          ...scenarios.flatMap(scenarioLocations),
+        ]
+      } else if (tab === 'beats')
+        items = playbookBooks().flatMap(({ game, book }) =>
+          gameBeats(game.id, book),
+        )
+      catalog.value = { ...catalog.value, [tab]: items }
+    } catch (error) {
+      catalogError.value =
+        error instanceof Error ? error.message : 'The catalogue could not load.'
+    } finally {
+      catalogLoading.value = ''
+    }
+  }
+
+  function openCatalog(tab?: CatalogTab) {
+    if (tab) catalogTab.value = tab
+    go('catalog')
+    void loadCatalog()
+  }
+
+  function setCatalogTab(tab: CatalogTab) {
+    catalogTab.value = tab
+    catalogFocus.value = ''
+    void loadCatalog(tab)
+  }
+
+  function inTray(key: string) {
+    return tray.value.some((item) => item.key === key)
+  }
+
+  function toggleTray(item: CatalogItem) {
+    tray.value = inTray(item.key)
+      ? tray.value.filter((i) => i.key !== item.key)
+      : [...tray.value, item]
+    writeJson(TRAY_KEY, tray.value)
+  }
+
+  function clearTray() {
+    tray.value = []
+    writeJson(TRAY_KEY, tray.value)
+  }
+
+  /** Starts a new playbook from the tray: Facets become sparks, everything else designs. */
+  function trayToIdea() {
+    const facetsIn = tray.value.flatMap((item) => {
+      const spark = itemSpark(item)
+      return spark ? [spark] : []
+    })
+    ideaGenre.value =
+      facetsIn.find((s) => s.slot === 'genre') ?? ideaGenre.value
+    const sparks = facetsIn.filter((s) => s.slot !== 'genre')
+    ideaSparks.value = [
+      ...ideaSparks.value.filter((s) => !sparks.some((n) => n.slot === s.slot)),
+      ...sparks.map((s) => ({ ...s, locked: true })),
+    ]
+    pendingDesigns.value = tray.value
+      .filter((item) => !item.facet || item.facet.taxonomy === 'SETTING')
+      .map(itemDesign)
+    startIdea()
+  }
+
+  /** Adds the tray to the open game as designs (shown on its plan pages and ledger). */
+  function trayToGame() {
+    const entry = existing.value
+    if (!entry || !tray.value.length) return
+    for (const item of tray.value) saveDesign(itemDesign(item))
+    status.value = `${tray.value.length} designs added to ${entry.title}. Post them from the ledger's Adjust panel.`
+    clearTray()
   }
 
   const libraryStats = ref<Record<string, LibraryStat>>({})
@@ -572,6 +833,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     loaded.value = true
     drafts.value = readJson<Record<string, Blueprint>>(DRAFTS_KEY) ?? {}
     planEdits.value = readJson<Record<string, PlanEdit>>(PLAN_EDITS_KEY) ?? {}
+    tray.value = readJson<CatalogItem[]>(TRAY_KEY) ?? []
     const sort = readJson<LibrarySort>(LIBRARY_SORT_KEY)
     if (sort && LIBRARY_SORTS.some((option) => option.id === sort))
       librarySort.value = sort
@@ -596,7 +858,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const returnTo = ref<ForgeScreen>('title')
 
   function go(next: ForgeScreen) {
-    if (next === 'assumptions' || next === 'launch')
+    if (next === 'assumptions' || next === 'launch' || next === 'catalog')
       returnTo.value = screen.value
     screen.value = next
     status.value = ''
@@ -606,7 +868,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   /** The B button: one step back toward the title screen. */
   function back() {
     const from = screen.value
-    if (from === 'launch' || from === 'assumptions')
+    if (from === 'launch' || from === 'assumptions' || from === 'catalog')
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'
@@ -727,7 +989,9 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         ...(ideaGenre.value ? [ideaGenre.value] : []),
         ...ideaSparks.value.map(({ locked: _locked, ...spark }) => spark),
       ],
+      designs: pendingDesigns.value,
     }
+    pendingDesigns.value = []
     tab.value = 'pitch'
     focus.value = 0
     persistDraft()
@@ -768,6 +1032,11 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     loadingBuilt.value = true
     try {
       built.value = await entry.count()
+      // The plan pages lead with the game's own art.
+      if (!ledgerBook.value && entry.studio && isPlaybookGame(entry.studio)) {
+        ledgerBook.value = buildPlaybook(entry.studio)
+        void loadRelay(entry.studio)
+      }
     } catch (error) {
       status.value = `Could not count ${entry.title}: ${error instanceof Error ? error.message : String(error)}`
     } finally {
@@ -1242,6 +1511,29 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     openGestation,
     postGestationNote,
     forgePitch,
+    designs,
+    designCards,
+    designJobs,
+    pendingDesigns,
+    saveDesign,
+    removeDesign,
+    renderDesign,
+    refreshDesignJobs,
+    catalogTab,
+    catalog,
+    catalogLoading,
+    catalogError,
+    catalogSearch,
+    catalogFocus,
+    tray,
+    loadCatalog,
+    openCatalog,
+    setCatalogTab,
+    inTray,
+    toggleTray,
+    clearTray,
+    trayToIdea,
+    trayToGame,
     libraryStats,
     libraryLoading,
     librarySort,

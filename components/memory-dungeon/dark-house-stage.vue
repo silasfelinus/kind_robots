@@ -268,7 +268,11 @@
                   ? 'Oren’s route ledger · free clue'
                   : world.darkHouseEarnedClue === 'supplies'
                     ? 'Oren’s provision ledger · free clue'
-                    : 'Consult the Chronicle · 1 echo'
+                    : world.darkHouseEarnedClue === 'names'
+                      ? 'Witness testimony · free clue'
+                      : world.darkHouseEarnedClue === 'consent'
+                        ? 'Protected witnesses · free clue'
+                        : 'Consult the Chronicle · 1 echo'
               }}
             </button>
             <p

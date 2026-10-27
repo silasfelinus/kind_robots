@@ -148,13 +148,20 @@
             Three outcomes have different consequences. The House will keep
             whichever promise you make here.
           </p>
-          <p
-            v-if="room?.id === 'HD-36' && progress?.ending"
-            class="mt-2 text-sm font-bold"
+          <div
+            v-if="room?.id === 'HD-36' && epilogue"
+            class="mt-3 rounded-md border border-[#9a804c] bg-[#f9e9c7] p-2 text-sm"
+            data-testid="memory-house-epilogue"
           >
-            The {{ progress.ending }} resolution is recorded. The Bramble Chime
-            is within reach.
-          </p>
+            <p class="text-xs font-bold uppercase tracking-wide text-[#6b5530]">
+              {{ HOUSE_EPILOGUE_LENS_LABELS[epilogue.lens] }}
+            </p>
+            <h4 class="font-serif text-base font-black">
+              {{ epilogue.title }}
+            </h4>
+            <p class="mt-1 leading-relaxed">{{ epilogue.text }}</p>
+            <p class="mt-2 font-bold">The Bramble Chime is within reach.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -183,6 +190,7 @@ import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { houseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import { HOUSE_ROOMS } from '~/utils/memoryDungeon/house'
+import { HOUSE_EPILOGUE_LENS_LABELS } from '~/utils/memoryDungeon/houseEpilogues'
 
 const world = useMemoryWorldStore()
 const rooms = Object.values(HOUSE_ROOMS)
@@ -195,8 +203,11 @@ const selectedChoice = computed(
       (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
     ) ?? null,
 )
+const epilogue = computed(() => world.houseEpilogue)
 const artPath = computed(() =>
-  houseIllustrationPath(room.value?.id ?? '', selectedChoice.value?.id),
+  room.value?.id === 'HD-36' && epilogue.value
+    ? epilogue.value.artPath
+    : houseIllustrationPath(room.value?.id ?? '', selectedChoice.value?.id),
 )
 const establishingArtPath = computed(() =>
   houseIllustrationPath(room.value?.id ?? ''),

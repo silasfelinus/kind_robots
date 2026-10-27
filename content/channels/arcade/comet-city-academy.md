@@ -2,7 +2,7 @@
 contentType: tab
 channelKey: arcade
 tabKey: comet-city-academy
-label: Capes & Tassels
+label: Prom of Doom
 title: 'Capes & Tassels: Prom of Doom'
 subtitle: Thirty days until graduation · A superhero romance and patrol playbook
 summary: Capes, crushes, patrols and prom.

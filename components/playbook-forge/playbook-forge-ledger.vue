@@ -127,8 +127,8 @@
           >{{ formatCount(ledger.units) }} authored beats inspected ·
           {{ formatCount(ledger.plannedUnits) }} total estimated slots</span
         >
-        <span v-if="forge.existing.slug === 'memory-dungeon'"
-          >2 of 16 realms represented · 14 realms remain to build</span
+        <span v-if="memoryRealms"
+          >{{ memoryRealms.built }} of {{ memoryRealms.planned }} realm maps represented · {{ Math.max(0, memoryRealms.planned - memoryRealms.built) }} remain</span
         >
       </div>
       <ul
@@ -276,6 +276,15 @@ import type {
 
 const forge = usePlaybookForgeStore()
 const ledger = computed(() => forge.ledger)
+const memoryRealms = computed(() => {
+  const entry = forge.existing
+  if (entry?.slug !== 'memory-dungeon') return null
+  const perRealm = 64 + 36
+  return {
+    built: Math.floor(Number(forge.built?.values.encounters ?? 0) / perRealm),
+    planned: Math.ceil(forge.planFor(entry).encounters / perRealm),
+  }
+})
 const kitSpec = computed(() =>
   forge.existing ? kitPlaybook(forge.existing.slug) : undefined,
 )

@@ -1976,35 +1976,41 @@ assert.equal(
 )
 assert.equal(
   recoverBriarRoomFirstFlip(
-    restoreBriarSave({ ...firstChamberFlip, cards: chamberCards.map((card) => ({
-      ...card,
-      flipped: card.id === 0 || card.id === 2,
-    })) }),
-    { ...firstChamberFlip, cards: chamberCards.map((card) => ({
-      ...card,
-      flipped: card.id === 0 || card.id === 2,
-    })) },
+    restoreBriarSave({
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    }),
+    {
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    },
   ).firstCard,
   null,
   'A pending mismatch must not restore multiple exposed pictures',
 )
 assert.equal(
-  recoverBriarRoomFirstFlip(
-    restoreBriarSave(firstChamberFlip),
-    { ...firstChamberFlip, cards: chamberCards.map((card) =>
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
       card.id === 0 ? { ...card, image: '/forged.webp' } : card,
-    ) },
-  ).firstCard,
+    ),
+  }).firstCard,
   null,
   'A changed picture identity cannot revive an interrupted first flip',
 )
 assert.equal(
-  recoverBriarRoomFirstFlip(
-    restoreBriarSave(firstChamberFlip),
-    { ...firstChamberFlip, cards: chamberCards.map((card) =>
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
       card.id === 1 ? { ...card, image: '/forged.webp' } : card,
-    ) },
-  ).firstCard,
+    ),
+  }).firstCard,
   null,
   'A corrupted partner picture cannot turn a preview into a valid pair',
 )
@@ -2022,7 +2028,7 @@ assert.ok(
 )
 assert.match(
   worldStoreSource,
-  /const resumedRoom = recoverBriarRoomFirstFlip\(recoveredRoom, checkpoint\.briar\)/,
+  /const resumedRoom = recoverBriarRoomFirstFlip\(\s*recoveredRoom,\s*checkpoint\.briar,\s*\)/,
   'Checkpoint loading restores the selected chamber card',
 )
 assert.match(
@@ -2031,7 +2037,8 @@ assert.match(
   'Autosave hydration restores the same selected chamber card',
 )
 assert.equal(
-  (worldStoreSource.match(/firstCard\.value = resumedRoom\.firstCard/g) ?? []).length,
+  (worldStoreSource.match(/firstCard\.value = resumedRoom\.firstCard/g) ?? [])
+    .length,
   2,
   'Both restoration paths reconnect the recovered selection to the next click',
 )

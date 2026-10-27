@@ -933,7 +933,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const returnTo = ref<ForgeScreen>('title')
 
   function go(next: ForgeScreen) {
-    if (next === 'assumptions' || next === 'launch' || next === 'catalog' || next === 'redshirts')
+    if (
+      next === 'assumptions' ||
+      next === 'launch' ||
+      next === 'catalog' ||
+      next === 'redshirts'
+    )
       returnTo.value = screen.value
     screen.value = next
     status.value = ''

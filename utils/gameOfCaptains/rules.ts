@@ -13,7 +13,11 @@ import {
   ruleFor,
 } from './crewAssignments'
 import type { MissionPreview } from './crewAssignments'
-import { CREW_JOURNEYS, NEMESIS_COUNTERPLAY } from './crewJourneys'
+import {
+  CREW_JOURNEYS,
+  CREW_EPILOGUES,
+  NEMESIS_COUNTERPLAY,
+} from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
@@ -365,9 +369,11 @@ export type VoyageRun = {
     step: number
     system: string
     approach: DetourApproach
+    gambit?: DetourApproach
+    prize?: string
   }[]
   detourChapter?: number
-  detour?: { crewId: CrewId; step: number } | null
+  detour?: { crewId: CrewId; step: number; gambit?: DetourApproach } | null
   nemesisPressure?: number
   antagonist: number
   supplies: number
@@ -797,17 +803,57 @@ export function detourFor(run: VoyageRun) {
   if (!run.detour) return null
   return CREW_JOURNEYS[run.detour.crewId]?.[run.detour.step] ?? null
 }
+
 export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
   if (!crewDetourOptions(run).includes(crewId)) return run
   const step = run.journeyProgress?.[crewId] ?? 0
   const destination = CREW_JOURNEYS[crewId][step]!
+  const prior = [...(run.journeyHistory ?? [])]
+    .reverse()
+    .find((event) => event.crewId === crewId)
+  const callback = prior
+    ? ` The last stop left you with ${prior.prize ?? CREW_JOURNEYS[crewId][prior.step]?.prize ?? 'unfinished business'}. ${prior.approach === 'bold' ? 'The public attention follows the couch here.' : 'People remember that you kept their confidence.'}`
+    : ''
   return {
     ...run,
     phase: 'crew-quest',
     detour: { crewId, step },
-    scene: `The red couch turns toward ${destination.system}. ${CREW.find((officer) => officer.id === crewId)!.name} requests a personal stop. The protective bubble remains intact; mission schedules do not.`,
+    scene: `The couch diverts to ${destination.system} for ${CREW.find((officer) => officer.id === crewId)!.name}. The invisible force bubble is holding, but the universe refuses to sign a waiver.${callback}`,
   }
 }
+
+/** First decision: the crew makes a daring plan. Then the universe changes the problem. */
+export function stageCrewDetour(
+  run: VoyageRun,
+  gambit: DetourApproach,
+): VoyageRun {
+  if (
+    run.phase !== 'crew-quest' ||
+    !run.detour ||
+    run.detour.gambit ||
+    !['careful', 'bold'].includes(gambit)
+  )
+    return run
+  const { crewId, step } = run.detour
+  if (
+    !run.crew.includes(crewId) ||
+    (run.journeyProgress?.[crewId] ?? 0) !== step
+  )
+    return run
+  const episode = CREW_JOURNEYS[crewId][step]!
+  const movement =
+    gambit === 'careful'
+      ? 'The crew acts quietly. For a moment it almost works.'
+      : 'The crew makes an entrance that will be difficult to apologize for.'
+  return {
+    ...run,
+    detour: { ...run.detour, gambit },
+    scene: `${movement} ${episode.reversal}`,
+    log: [...run.log, `Crew gambit: ${crewId} / ${episode.title} / ${gambit}.`],
+  }
+}
+
+/** Second decision: solve the unexpected complication, not the problem expected on arrival. */
 export function resolveCrewDetour(
   run: VoyageRun,
   approach: DetourApproach,
@@ -819,7 +865,7 @@ export function resolveCrewDetour(
   )
     return run
   if (approach === 'careful' && run.supplies < 1) return run
-  const { crewId, step } = run.detour
+  const { crewId, step, gambit } = run.detour
   if (
     !run.crew.includes(crewId) ||
     (run.journeyProgress?.[crewId] ?? 0) !== step ||
@@ -832,16 +878,22 @@ export function resolveCrewDetour(
     NEMESIS_COUNTERPLAY[antagonistFor(run).id]?.includes(crewId) ?? false
   const result =
     approach === 'careful'
-      ? `You spend one supply honoring local consent. ${CREW.find((person) => person.id === crewId)!.name} earns the witnesses' confidence.`
-      : `You make the evidence public. The witnesses gain a voice; the institutions you embarrassed now have your coordinates.`
+      ? destination.carefulOutcome
+      : destination.boldOutcome
+  const pivot =
+    gambit && gambit !== approach
+      ? 'The plan changes at the last second; the crew must live with the first gamble as well as the final order.'
+      : gambit === 'bold'
+        ? 'The first explosion is still visible from orbit.'
+        : 'The captain keeps the promise made before the trap appeared.'
   const nemesis = challenged
-    ? ` ${antagonistFor(run).name} recognizes the evidence. ${CREW_DOSSIERS[crewId].nemesisLink}`
+    ? ` ${antagonistFor(run).name} recognizes the prize. ${CREW_DOSSIERS[crewId].nemesisLink}`
     : ''
   const complete =
     step === 2
-      ? ` ${CREW.find((person) => person.id === crewId)!.name}'s three-system testimony is complete, and it changes the final council.`
+      ? ` The ${CREW.find((officer) => officer.id === crewId)!.name} trilogy reaches its conclusion, but the consequences belong to the worlds left behind.`
       : ''
-  const scene = `${destination.system}: ${result}${nemesis}${complete}`
+  const scene = `${destination.system}: ${result} ${pivot} The crew brings home ${destination.prize}.${nemesis}${complete}`
   return {
     ...run,
     phase: 'debrief',
@@ -854,7 +906,8 @@ export function resolveCrewDetour(
     nemesisPressure:
       (run.nemesisPressure ?? 0) +
       (challenged ? 1 : 0) +
-      (approach === 'bold' ? 1 : 0),
+      (approach === 'bold' ? 1 : 0) +
+      (gambit === 'bold' && approach === 'careful' ? 1 : 0),
     journeyProgress: { ...(run.journeyProgress ?? {}), [crewId]: step + 1 },
     journeyHistory: [
       ...(run.journeyHistory ?? []),
@@ -863,6 +916,8 @@ export function resolveCrewDetour(
         step,
         system: destination.system,
         approach,
+        gambit,
+        prize: destination.prize,
       },
     ],
     scene,
@@ -949,12 +1004,27 @@ export function finishVoyage(
       'Quill deposits the evidence with its owners instead of locking it in her private archive.',
     ro: 'Ro abandons diplomatic immunity and states their real title on the record: passenger.',
   }[run.captain]
-  const journeys = (run.journeyHistory ?? [])
-    .filter((item) => item.step === 2)
-    .map(
-      (item) =>
-        `${CREW.find((c) => c.id === item.crewId)!.name}'s testimony from ${item.system} changes the peace charter.`,
+  const journeys = run.crew.flatMap((id) => {
+    const stops = (run.journeyHistory ?? []).filter(
+      (item) => item.crewId === id,
     )
+    if (!stops.length) return []
+    if (stops.some((item) => item.step === 2)) {
+      const publicStops = stops.filter(
+        (item) => item.approach === 'bold',
+      ).length
+      const epilogue =
+        publicStops >= 2
+          ? CREW_EPILOGUES[id].exposed
+          : CREW_EPILOGUES[id].protected
+      return [
+        `${CREW.find((member) => member.id === id)!.name}'s odyssey: ${epilogue}`,
+      ]
+    }
+    return [
+      `${CREW.find((member) => member.id === id)!.name}'s unfinished odyssey: ${CREW_EPILOGUES[id].unfinished}`,
+    ]
+  })
   const civic = (run.missionHistory ?? [])
     .map((event) => {
       const detail =

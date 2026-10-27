@@ -190,7 +190,8 @@ export function settleBriarWavePair(
     second.matched ||
     first.pairId !== second.pairId ||
     first.image !== second.image ||
-    progress.mapCards.filter((card) => card.pairId === first.pairId).length !== 2
+    progress.mapCards.filter((card) => card.pairId === first.pairId).length !==
+      2
   )
     return null
   const mapCards = progress.mapCards.map((card) =>

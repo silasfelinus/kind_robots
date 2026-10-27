@@ -36,6 +36,7 @@ import {
   NEMESIS_COUNTERPLAY,
 } from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
+import { chapterSystem, newVenueProgress, type VenueProgress } from './solarCircuit'
 import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
@@ -384,6 +385,7 @@ export type VoyageRun = {
   }[]
   expeditionVisit?: ExpeditionVisit | null
   expeditionHistory?: ExpeditionVisit[]
+  venueProgress?: VenueProgress
   day?: number
   postedDay?: number
   active?: {
@@ -598,7 +600,7 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
     missionId: id,
     away: [],
     pocketRoom: null,
-    scene: `The red couch changes course for ${choice.system}. The crew can still refuse the captain’s assignment.`,
+    scene: `The red couch changes course for ${choice.system}, a disputed district of ${chapterSystem(run.seed, run.chapter).name}. The crew can still refuse the captain’s assignment.`,
     log: [
       ...run.log,
       `Charted the ${actName(run.chapter)} route to ${choice.system} on day ${run.day ?? 1}.`,
@@ -653,6 +655,7 @@ export function startVoyage(
     redshirtFallen: [],
     expeditionVisit: null,
     expeditionHistory: [],
+    venueProgress: newVenueProgress(),
     day: 1,
     postedDay: 1,
     active: null,
@@ -1100,7 +1103,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     pocketRoom: null,
     report: null,
     supplies: run.supplies + (opening?.supplies ?? 0),
-    scene: `${opening ? opening.text + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers above ${chapterSystem(run.seed, run.chapter + 1).name}. ${worldEcho(run)} The available local routes reflect what the captain already did.`,
     log: opening
       ? [
           ...run.log,
@@ -1295,6 +1298,23 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
             typeof loss.id !== 'string' ||
             !/^rs-\d{3}$/.test(loss.id) ||
             typeof loss.encounterId !== 'string',
+        ))) ||
+    (data.venueProgress !== undefined &&
+      (!data.venueProgress ||
+        typeof data.venueProgress !== 'object' ||
+        !data.venueProgress.barBeats ||
+        typeof data.venueProgress.barBeats !== 'object' ||
+        Object.values(data.venueProgress.barBeats).some((n) => !Number.isInteger(n) || n < 0 || n > 3) ||
+        !Array.isArray(data.venueProgress.completed) ||
+        data.venueProgress.completed.some((key) => typeof key !== 'string') ||
+        !Array.isArray(data.venueProgress.choices) ||
+        data.venueProgress.choices.some((record) =>
+          !record ||
+          typeof record.systemId !== 'string' ||
+          !Number.isInteger(record.chapter) ||
+          !['bar', 'casino'].includes(record.venue) ||
+          !['ask', 'document', 'override'].includes(record.choice) ||
+          typeof record.scene !== 'string',
         ))) ||
     (data.expeditionHistory !== undefined &&
       (!Array.isArray(data.expeditionHistory) ||

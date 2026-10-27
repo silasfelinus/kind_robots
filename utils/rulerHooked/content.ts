@@ -712,6 +712,544 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
           ],
         },
+        {
+          id: 'vex-model-village',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 2,
+          once: true,
+          characters: ['warlock-vex'],
+          title: 'Lakeview Terraces',
+          body: 'Vex sets a scale model on your tackle box: forty identical cottages climbing the treeline, each with a tiny balcony facing the water. “Everyone deserves a lake view,” he says. “At a reasonable monthly rate.”',
+          art: 'card-vex-model-village',
+          trigger: {
+            minTurn: 8,
+            requires: { flags: ['metWarlock'] },
+            forbids: { flags: ['terracesSettled'] },
+          },
+          choices: [
+            {
+              id: 'approve-terraces',
+              text: 'Approve all forty.',
+              effects: {
+                sliders: { prosperity: +12, nature: -14, joy: +2 },
+                regionOverride: { treeline: 'overbuilt' },
+                flags: { set: ['terracesSettled', 'terracesBuilt'] },
+                counters: { warlockFavors: +1 },
+              },
+              result:
+                'The first balcony goes up by noon. By evening someone on it is shouting at you to keep the splashing down.',
+            },
+            {
+              id: 'orchard-terraces',
+              text: 'Twenty cottages, and the orchard stays between them.',
+              effects: {
+                sliders: { prosperity: +6, nature: -4, joy: +4 },
+                regionOverride: { treeline: 'tended' },
+                flags: { set: ['terracesSettled'] },
+              },
+              result:
+                'Vex calls the result “boutique.” He means it as a compliment to himself.',
+            },
+            {
+              id: 'refuse-terraces',
+              text: 'The treeline stays a treeline.',
+              effects: {
+                sliders: { nature: +4, prosperity: -5 },
+                flags: { set: ['terracesSettled'] },
+              },
+              result:
+                'Vex packs the model away with tender care. He has a cupboard for refused models. It is a large cupboard.',
+            },
+            {
+              id: 'defer-terraces',
+              text: '…I’m fishing. Ask me later.',
+              effects: { sliders: { order: -2 } },
+              requeue: true,
+              result: 'Vex leaves the model on the dock. A duck moves in.',
+            },
+          ],
+        },
+        {
+          id: 'sela-tree-sit',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 3,
+          once: true,
+          characters: ['druid-sela', 'captain-cordelia'],
+          title: 'The Last Oak',
+          body: 'Sela has chained herself to the last old oak above the new terraces. The builders are on their lunch break. Cordelia is waiting for a word from you, and the oak is waiting for nothing at all.',
+          art: 'card-sela-tree-sit',
+          trigger: { requires: { flags: ['terracesBuilt'] } },
+          choices: [
+            {
+              id: 'halt-building',
+              text: 'Halt the building. The oak stays.',
+              effects: {
+                sliders: { nature: +8, prosperity: -6 },
+                counters: { druidFavors: +1 },
+                flags: { set: ['oakSpared'] },
+              },
+              result:
+                'The builders finish lunch, then keep finishing it for the rest of the week. Sela unchains herself and plants an acorn in every lunch pail.',
+            },
+            {
+              id: 'remove-sela',
+              text: 'Have Cordelia carry her off. Gently.',
+              effects: {
+                sliders: { order: +6, joy: -6, nature: -4 },
+                counters: { cordeliaFavors: +1 },
+                flags: { set: ['selaEvicted'] },
+              },
+              result:
+                'Cordelia is very gentle. Sela is very loud. The oak comes down at dusk, and the frogs go quiet.',
+            },
+            {
+              id: 'join-sela',
+              text: 'Climb up and fish from the branch beside her.',
+              effects: {
+                sliders: { joy: +6, order: -4, nature: +3 },
+                counters: { fishCaught: +1 },
+                flags: { set: ['oakSpared'] },
+              },
+              result:
+                'From the oak you can cast clean over the terraces. Sela admits you have good form. The building waits, unsure of the etiquette.',
+            },
+          ],
+        },
+        {
+          id: 'lake-watch',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 2,
+          once: true,
+          characters: ['captain-cordelia'],
+          title: 'A Watch on the Water',
+          body: 'Cordelia wants a night watch on the lake: rowboats, lanterns, and every able angler on a rota. “Smugglers by moonlight,” she says. “Possibly worse. Mostly smugglers.”',
+          art: 'card-lake-watch',
+          trigger: { minTurn: 7 },
+          choices: [
+            {
+              id: 'conscript-anglers',
+              text: 'Every angler takes a shift.',
+              effects: {
+                sliders: { order: +10, joy: -6 },
+                counters: { cordeliaFavors: +1 },
+                flags: { set: ['lakeWatch'] },
+              },
+              result:
+                'The lake glitters with lanterns every night. The fish, unused to being watched, grow extremely self-conscious.',
+            },
+            {
+              id: 'volunteer-watch',
+              text: 'Volunteers only.',
+              effects: { sliders: { order: +4, joy: +2 } },
+              result:
+                'Six volunteers, four rowboats, one very enthusiastic grandmother. Cordelia makes her sergeant.',
+            },
+            {
+              id: 'refuse-watch',
+              text: 'The lake doesn’t need guarding.',
+              effects: { sliders: { order: -4, nature: +2 } },
+              result:
+                'Cordelia nods stiffly and stands the watch herself, alone, every night, to make a point.',
+            },
+            {
+              id: 'defer-watch',
+              text: '…I’m fishing. Ask me later.',
+              effects: { sliders: { order: -2 } },
+              requeue: true,
+              result: 'Cordelia drafts the rota anyway, in pencil.',
+            },
+          ],
+        },
+        {
+          id: 'brack-lures',
+          deck: 'kingdom-core',
+          kind: 'ambient',
+          weight: 2,
+          once: true,
+          characters: ['smuggler-brack'],
+          title: 'Fell Off a Barge',
+          body: 'Brack opens a crate of foreign lures, each gleaming and individually wrapped. “Fell off a barge,” he says. “Several barges. In a very orderly line.”',
+          art: 'card-brack-lures',
+          trigger: { minTurn: 9, requires: { flags: ['metSmuggler'] } },
+          choices: [
+            {
+              id: 'buy-gold-lure',
+              text: 'Buy the gold one. Ask nothing.',
+              effects: {
+                sliders: { treasury: -6, order: -4 },
+                grant: [{ reward: 'gilded-lure' }],
+              },
+              result:
+                'It is the finest lure you have ever held. Somewhere across the border, a duke is having a very bad morning.',
+            },
+            {
+              id: 'tip-cordelia',
+              text: 'Buy nothing, and mention it to Cordelia.',
+              effects: {
+                sliders: { order: +6 },
+                flags: { set: ['smugglerReported'] },
+              },
+              result:
+                'Brack is gone before the guard arrives. He leaves you the cheapest lure, as a professional courtesy.',
+            },
+            {
+              id: 'fish-with-brack',
+              text: 'Close the crate and fish with him a while.',
+              effects: {
+                sliders: { joy: +5 },
+                counters: { fishCaught: +1 },
+                flags: { set: ['brackFriend'] },
+              },
+              result:
+                'Brack knows every cove on the lake and three that are not on it. He shows you one.',
+            },
+          ],
+        },
+        {
+          id: 'brack-trial',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 3,
+          once: true,
+          characters: ['smuggler-brack', 'captain-cordelia'],
+          title: 'Trial by Tackle',
+          body: 'Cordelia has finally caught Brack, mostly because he was napping. He claims the ancient right of trial by fishing. Nobody can find the law that says so. Nobody can find the one that says otherwise.',
+          art: 'card-brack-trial',
+          trigger: { minTurn: 8, requires: { flags: ['smugglerReported'] } },
+          choices: [
+            {
+              id: 'grant-trial',
+              text: 'Grant it. Biggest catch by sundown walks free.',
+              effects: {
+                sliders: { joy: +8, order: -2 },
+                counters: { fishCaught: +1 },
+                flags: { set: ['brackTrialWon'] },
+              },
+              result:
+                'Brack lands a perch the size of a footstool and walks free. Cordelia shakes his hand, then counts her fingers.',
+            },
+            {
+              id: 'exile-brack',
+              text: 'Exile him across the border.',
+              effects: {
+                sliders: { order: +8, treasury: -2 },
+                flags: { set: ['brackExiled'] },
+              },
+              result:
+                'Brack rows away singing. The coves fall very quiet, and so do the night markets.',
+            },
+            {
+              id: 'pardon-brack',
+              text: 'Pardon him into royal service. Customs, specifically.',
+              effects: {
+                sliders: { treasury: +6, order: -3 },
+                flags: { set: ['metSmuggler', 'brackPardoned'] },
+                grant: [{ reward: 'smugglers-map' }],
+              },
+              result:
+                'Brack becomes the best customs officer the realm has ever had. He knows every trick. He invented most of them.',
+            },
+          ],
+        },
+        {
+          id: 'thistle-fish-exports',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 2,
+          once: true,
+          characters: ['envoy-thistle'],
+          title: 'Export Rights',
+          body: 'Thistle is back, gloves off, literally. Her kingdom has developed a taste for your lake’s fish and would like the right to net them. “Not all of them,” she says. “Most of them.”',
+          art: 'card-thistle-fish-exports',
+          trigger: { requires: { flags: ['envoyTreatySigned'] } },
+          choices: [
+            {
+              id: 'sell-netting-rights',
+              text: 'Sell the netting rights.',
+              effects: {
+                sliders: { treasury: +12, prosperity: +6, nature: -10 },
+                flags: { set: ['fishExports'] },
+              },
+              result:
+                'Foreign nets stretch across the far shore by morning. The fish you catch get smaller, and the coins get larger.',
+            },
+            {
+              id: 'rustfish-only',
+              text: 'They can have the rustfish. Only the rustfish.',
+              effects: { sliders: { treasury: +4, prosperity: +2 } },
+              result:
+                'Thistle counts to nine under her breath, then agrees. The rustfish, which grows to fit its container, is about to get a much larger one.',
+            },
+            {
+              id: 'refuse-exports',
+              text: 'The lake’s fish stay in the lake.',
+              effects: { sliders: { nature: +4, prosperity: -4, joy: +2 } },
+              result:
+                'Thistle departs with a cool nod. Gristle follows her halfway to the gate, adding up what you just declined.',
+            },
+            {
+              id: 'defer-exports',
+              text: '…I’m fishing. Ask me later.',
+              effects: { sliders: { order: -2 } },
+              requeue: true,
+              result: 'Thistle waits in the gatehouse, counting.',
+            },
+          ],
+        },
+        {
+          id: 'fish-tithe',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 2,
+          characters: ['taxman-gristle'],
+          title: 'A Levy on Fish',
+          body: 'Gristle proposes a tithe on every fish landed in the kingdom, payable in fish. “Or in coin,” he adds, “at a rate I will calculate later, privately.”',
+          art: 'card-fish-tithe',
+          trigger: {
+            minTurn: 6,
+            cooldown: 10,
+            requires: { counters: { taxHikes: { gte: 1 } } },
+          },
+          choices: [
+            {
+              id: 'levy-fish',
+              text: 'Levy it.',
+              effects: {
+                sliders: { treasury: +8, joy: -6 },
+                counters: { taxHikes: +1 },
+              },
+              result:
+                'Anglers start fishing at night, in disguise. Gristle starts patrolling at night, also in disguise. They keep meeting.',
+            },
+            {
+              id: 'exempt-suppers',
+              text: 'Exempt anyone fishing for their supper.',
+              effects: { sliders: { treasury: +3, joy: +2 } },
+              result:
+                'Everyone is now fishing for their supper, all day, very loudly.',
+            },
+            {
+              id: 'refuse-levy',
+              text: 'Not one fish, Gristle.',
+              effects: { sliders: { joy: +5, treasury: -3 } },
+              result:
+                'Gristle writes something small in the ledger’s margin and underlines it twice.',
+            },
+          ],
+        },
+        {
+          id: 'fen-satire',
+          deck: 'kingdom-core',
+          kind: 'ambient',
+          weight: 3,
+          once: true,
+          characters: ['bard-fen'],
+          title: 'A Song in the Square',
+          body: 'Fen is in the square with a new song. The chorus is about a ruler who hears every complaint “down a fishing line, at a great distance, mid-yawn.” The crowd already knows the words.',
+          art: 'card-fen-satire',
+          trigger: { minTurn: 6, requires: { sliders: { joy: { lte: 40 } } } },
+          choices: [
+            {
+              id: 'join-chorus',
+              text: 'Join the chorus.',
+              effects: { sliders: { joy: +10, order: -4 } },
+              result:
+                'You sing the yawn yourself. The square loses its mind, and Fen adds a verse in your honor on the spot.',
+            },
+            {
+              id: 'ban-song',
+              text: 'Ban the song.',
+              effects: {
+                sliders: { order: +6, joy: -8 },
+                flags: { set: ['fenBanned'] },
+              },
+              result:
+                'By sundown the song is banned and everyone is humming it. Humming, Cordelia reports, is not technically singing.',
+            },
+            {
+              id: 'answer-song',
+              text: 'Commission a reply verse, at royal expense.',
+              effects: {
+                sliders: { joy: +4, treasury: -4 },
+                grant: [{ reward: 'bards-ballad' }],
+              },
+              result:
+                'Fen writes the reply too, and charges double. Both songs are good. One is better, and it is not yours.',
+            },
+          ],
+        },
+        {
+          id: 'mossy-price',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 3,
+          once: true,
+          characters: ['witch-mossy'],
+          title: 'Mossy Names Her Price',
+          body: 'Mossy turns up with an empty basket and a grin. Her price, it turns out, is the first fish you catch every new moon, forever, plus one story about it, told well.',
+          art: 'card-mossy-price',
+          trigger: { requires: { flags: ['bogBloomed'] } },
+          choices: [
+            {
+              id: 'pay-price',
+              text: 'Pay it. A deal is a deal.',
+              effects: {
+                sliders: { nature: +6, joy: +2 },
+                counters: { fishCaught: -1 },
+                flags: { set: ['mossyPaid'] },
+              },
+              result:
+                'Mossy takes the fish and the story. She says the story was the better catch, which stings.',
+            },
+            {
+              id: 'send-fen',
+              text: 'Offer her a night of Fen’s stories instead.',
+              effects: {
+                sliders: { joy: +4, nature: +2 },
+                counters: { balladsSung: +1 },
+                flags: { set: ['mossyPaid'] },
+              },
+              result:
+                'Mossy and Fen talk until dawn. Neither will say about what. Each looks a little frightened of the other afterward.',
+            },
+            {
+              id: 'refuse-price',
+              text: 'Refuse. You never agreed to forever.',
+              effects: {
+                sliders: { nature: -10, order: +4 },
+                regionOverride: { treeline: 'tended' },
+                flags: { set: ['mossyRefused'] },
+              },
+              result:
+                'Mossy shrugs and leaves. Overnight, half the vines wither back to ordinary green. She never mentioned that part either.',
+            },
+          ],
+        },
+        {
+          id: 'public-dock',
+          deck: 'kingdom-core',
+          kind: 'ambient',
+          weight: 2,
+          once: true,
+          characters: ['sweetheart-ash'],
+          title: 'A Dock for Everyone',
+          body: 'Ash, cap in hand, asks whether the old village dock might be mended. It rotted through years ago, and since then the only good fishing on the lake has been off the royal one. “Which is yours,” Ash adds. “Which is fine. Just crowded. For the fish.”',
+          art: 'card-public-dock',
+          trigger: { minTurn: 6, requires: { cardsSeen: ['elope-1'] } },
+          choices: [
+            {
+              id: 'fund-dock',
+              text: 'Rebuild it with royal timber.',
+              effects: {
+                sliders: { joy: +8, treasury: -6, prosperity: +3 },
+                flags: { set: ['publicDock'] },
+              },
+              result:
+                'The new dock is full by dawn: grandparents, children, three herons, and one rival noble pretending he isn’t there.',
+            },
+            {
+              id: 'share-royal-dock',
+              text: 'Open the royal dock on market days.',
+              effects: { sliders: { joy: +4, order: -2 } },
+              result:
+                'Market days get crowded, and loud, and the fishing is somehow better for it.',
+            },
+            {
+              id: 'decline-dock',
+              text: 'The village can mend its own dock.',
+              effects: { sliders: { treasury: +2, joy: -4 } },
+              result: 'Ash thanks you anyway and goes to borrow a hammer.',
+            },
+          ],
+        },
+        {
+          id: 'vex-sela-truce',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          weight: 3,
+          once: true,
+          characters: ['warlock-vex', 'druid-sela'],
+          title: 'An Unlikely Joint Venture',
+          body: 'Vex and Sela arrive together, which has never happened, holding one blueprint between them, which should not be possible. It is a lodge built among the trees: nothing felled, gardens on every roof, and a gift shop.',
+          art: 'card-vex-sela-truce',
+          trigger: {
+            minTurn: 12,
+            requires: {
+              counters: { warlockFavors: { gte: 1 }, druidFavors: { gte: 1 } },
+            },
+          },
+          choices: [
+            {
+              id: 'approve-lodge',
+              text: 'Approve it, gift shop and all.',
+              effects: {
+                sliders: { prosperity: +8, nature: +4, treasury: -4 },
+                flags: { set: ['ecoLodge'] },
+              },
+              result:
+                'Guests come from three kingdoms to look at trees. Sela gives the tours. Vex runs the till. Each insists it was their idea.',
+            },
+            {
+              id: 'reject-lodge',
+              text: 'The woods are not for sale, even nicely.',
+              effects: { sliders: { nature: +2, prosperity: -3, order: +2 } },
+              result:
+                'They leave arguing about whose fault that was. Normal service resumes.',
+            },
+            {
+              id: 'let-them-explain',
+              text: 'Ask each to explain what the other gets out of it.',
+              effects: { sliders: { joy: +6 }, counters: { fishCaught: +2 } },
+              result:
+                'They are still explaining at sunset. You catch two fish.',
+            },
+          ],
+        },
+        {
+          id: 'quill-day-off',
+          deck: 'kingdom-core',
+          kind: 'ambient',
+          weight: 2,
+          once: true,
+          characters: ['steward-quill'],
+          title: 'The Steward’s Request',
+          body: 'Quill asks, with visible discomfort, for a single day off. He has not taken one since your coronation. He has drafted a forty-page handover for it.',
+          art: 'card-quill-day-off',
+          trigger: { minTurn: 15 },
+          choices: [
+            {
+              id: 'grant-day-off',
+              text: 'Take the day. Take two.',
+              effects: {
+                sliders: { joy: +4, order: -4 },
+                flags: { set: ['quillRested'] },
+              },
+              result:
+                'Nothing burns down. Three things nearly do. Quill comes back sunburned and twice as sharp.',
+            },
+            {
+              id: 'fish-with-quill',
+              text: 'Spend it fishing, with me.',
+              effects: {
+                sliders: { joy: +6 },
+                counters: { fishCaught: +1 },
+                flags: { set: ['quillRested'] },
+              },
+              result:
+                'Quill narrates his own catch like court proceedings, then goes quiet for a long while, smiling at the water.',
+            },
+            {
+              id: 'deny-day-off',
+              text: 'The kingdom cannot spare you.',
+              effects: { sliders: { order: +4, joy: -3 } },
+              result:
+                '“Of course,” says Quill, and sharpens his quill a little harder than necessary.',
+            },
+          ],
+        },
       ],
     },
     {
@@ -858,6 +1396,126 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               requeue: true,
               result:
                 'Nix sinks, unbothered by the delay. The deep keeps its own time.',
+            },
+          ],
+        },
+        {
+          id: 'nix-old-name',
+          deck: 'lake-mysteries',
+          kind: 'interrupt',
+          weight: 2,
+          once: true,
+          characters: ['lake-spirit-nix'],
+          title: 'The Lake’s Old Name',
+          body: 'Nix rises beside the dock with a single wet word on its tongue: the lake’s name from before the castle. “Will you call it that,” it asks, “or will you go on calling it yours?”',
+          art: 'card-nix-old-name',
+          trigger: { minTurn: 12, requires: { flags: ['nixAnswered'] } },
+          choices: [
+            {
+              id: 'restore-old-name',
+              text: 'Call it by its old name.',
+              effects: {
+                sliders: { nature: +6, joy: +4, order: -2 },
+                flags: { set: ['lakeNameRestored'] },
+                grant: [{ reward: 'nix-pearl' }],
+              },
+              result:
+                'Nix sets something cold and round in your palm and sinks without another question. That is how you know it was pleased.',
+            },
+            {
+              id: 'keep-royal-name',
+              text: 'It is the Royal Lake. It stays the Royal Lake.',
+              effects: { sliders: { order: +6, nature: -2 } },
+              result: 'Nix asks, “For how long?” and does not wait to hear.',
+            },
+            {
+              id: 'ask-nix-back',
+              text: 'Ask Nix what it would call you.',
+              effects: {
+                sliders: { joy: +6 },
+                flags: { set: ['nixQuestioned'] },
+              },
+              result:
+                'Nix considers this for a long time, then answers with a question you will be turning over for weeks.',
+            },
+          ],
+        },
+        {
+          id: 'drowned-surface',
+          deck: 'lake-mysteries',
+          kind: 'interrupt',
+          weight: 3,
+          title: 'Something Floats Up',
+          body: 'A whole school of pale carp floats up beside the village dock, belly-up. Then, slowly, they turn over and swim away. The village would like a royal statement about this.',
+          art: 'card-drowned-surface',
+          trigger: {
+            minTurn: 8,
+            cooldown: 10,
+            requires: { sliders: { nature: { lt: 35 } } },
+          },
+          choices: [
+            {
+              id: 'clean-water',
+              text: 'Pay to clean the water.',
+              effects: { sliders: { nature: +12, treasury: -8 } },
+              result:
+                'Barrels of sludge are hauled out by the dozen. The carp that floated up stay floated. The rest stop doing it.',
+            },
+            {
+              id: 'blame-vex',
+              text: 'Blame Vex. Publicly.',
+              effects: {
+                sliders: { order: +4, prosperity: -6, joy: +2 },
+                flags: { set: ['vexBlamed'] },
+              },
+              result:
+                'Vex issues a statement blaming the carp. It is very well written.',
+            },
+            {
+              id: 'carp-are-fine',
+              text: 'Announce that the carp are fine. They swam off, didn’t they?',
+              effects: { sliders: { nature: -4, joy: -4 } },
+              result: 'They did swim off. Toward the village wells.',
+            },
+          ],
+        },
+        {
+          id: 'heron-delegation',
+          deck: 'lake-mysteries',
+          kind: 'ambient',
+          weight: 2,
+          once: true,
+          title: 'The Heron Delegation',
+          body: 'Seven herons land on the dock in a row, each on one leg, all facing you. After a long silence the tallest drops a fish at your feet. It is, you realize, an offer.',
+          art: 'card-heron-delegation',
+          trigger: {
+            minTurn: 5,
+            requires: { sliders: { nature: { gte: 55 } } },
+          },
+          choices: [
+            {
+              id: 'grant-shallows',
+              text: 'Give them the reed shallows. Officially.',
+              effects: {
+                sliders: { nature: +6, prosperity: -2 },
+                flags: { set: ['heronShallows'] },
+              },
+              result:
+                'The herons accept with one synchronized blink. The reed beds are theirs now, and they patrol them better than Cordelia.',
+            },
+            {
+              id: 'share-the-dock',
+              text: 'Offer to share the dock.',
+              effects: { sliders: { joy: +4 }, counters: { fishCaught: +1 } },
+              result:
+                'Seven herons and one monarch, fishing in silence. It is the most productive meeting of your reign.',
+            },
+            {
+              id: 'shoo-herons',
+              text: 'Shoo them off.',
+              effects: { sliders: { order: +2, nature: -2 } },
+              result:
+                'They leave in a row, slowly, with enormous dignity. The fish stays behind, like a receipt.',
             },
           ],
         },

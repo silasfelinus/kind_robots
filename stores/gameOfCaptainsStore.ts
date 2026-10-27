@@ -18,6 +18,7 @@ import {
   nextDestination,
   chooseMission,
   beginCrewDetour,
+  stageCrewDetour,
   resolveCrewDetour,
   restoreVoyage,
   startVoyage,
@@ -118,6 +119,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = beginCrewDetour(run.value, crewId)
     persist()
   }
+  function planDetour(approach: DetourApproach) {
+    if (!run.value) return
+    run.value = stageCrewDetour(run.value, approach)
+    persist()
+  }
   function resolveDetour(approach: DetourApproach) {
     if (!run.value) return
     run.value = resolveCrewDetour(run.value, approach)
@@ -149,6 +155,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     next,
     chooseRomance,
     detour,
+    planDetour,
     resolveDetour,
     finish,
     restart,

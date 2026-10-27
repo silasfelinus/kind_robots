@@ -17,7 +17,12 @@ import {
   SYNERGIES,
   MISSION_RULES,
 } from '../gameOfCaptains/crewAssignments'
-import { ACT_ONE_BOARDS, ACT_ONE_CONSEQUENCES, ACT_ONE_NEMESIS, ACT_ONE_ORDERS } from '../gameOfCaptains/actOne'
+import {
+  ACT_ONE_BOARDS,
+  ACT_ONE_CONSEQUENCES,
+  ACT_ONE_NEMESIS,
+  ACT_ONE_ORDERS,
+} from '../gameOfCaptains/actOne'
 import { readFileSync } from 'node:fs'
 import {
   CREW_JOURNEYS,
@@ -226,13 +231,20 @@ assert.equal(Object.keys(ACT_ONE_NEMESIS).length, 8)
 for (const missionId of Object.keys(ACT_ONE_ORDERS)) {
   const commands = ACT_ONE_ORDERS[missionId as keyof typeof ACT_ONE_ORDERS]
   assert.equal(new Set(Object.values(commands)).size, 3, missionId)
-  const consequences = ACT_ONE_CONSEQUENCES[missionId as keyof typeof ACT_ONE_CONSEQUENCES]
-  assert.equal(new Set(Object.values(consequences).map((x) => x.flag)).size, 3, missionId)
+  const consequences =
+    ACT_ONE_CONSEQUENCES[missionId as keyof typeof ACT_ONE_CONSEQUENCES]
+  assert.equal(
+    new Set(Object.values(consequences).map((x) => x.flag)).size,
+    3,
+    missionId,
+  )
 }
 assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 9)
 assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 9)
 assert.deepEqual(
-  missionBoard(startVoyage('vale', ['pell', 'mox', 'rue'], 310)).map((m) => m.id),
+  missionBoard(startVoyage('vale', ['pell', 'mox', 'rue'], 310)).map(
+    (m) => m.id,
+  ),
   ['refugees', 'ashdock', 'windglass'],
 )
 for (const mission of MISSIONS) {
@@ -241,15 +253,27 @@ for (const mission of MISSIONS) {
   assert.ok(MISSION_RULES.some((rule) => rule.id === mission.id))
 }
 let workerRoute = startVoyage('vale', ['pell', 'mox', 'rue'], 310)
-assert.equal(chooseMission(workerRoute, 'gameworld'), workerRoute, 'locked world')
+assert.equal(
+  chooseMission(workerRoute, 'gameworld'),
+  workerRoute,
+  'locked world',
+)
 workerRoute = chooseMission(workerRoute, 'ashdock')
 assert.equal(missionFor(workerRoute).id, 'ashdock')
 assert.equal(chooseMission(workerRoute, 'ashdock'), workerRoute)
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(workerRoute))), workerRoute)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(workerRoute))),
+  workerRoute,
+)
 const workerOdds = previewMission(workerRoute).chance
 workerRoute = launchMission(workerRoute)
-assert.equal(chooseMission(workerRoute, 'refugees'), workerRoute, 'no mid-flight teleport')
-while (workerRoute.phase === 'transit') workerRoute = advanceVoyageDay(workerRoute)
+assert.equal(
+  chooseMission(workerRoute, 'refugees'),
+  workerRoute,
+  'no mid-flight teleport',
+)
+while (workerRoute.phase === 'transit')
+  workerRoute = advanceVoyageDay(workerRoute)
 workerRoute = decidePolicy(workerRoute, 'intervene')
 assert.equal(workerRoute.phase, 'debrief')
 assert.ok(workerRoute.worldFlags?.includes('ashdock-exposed'))
@@ -286,7 +310,10 @@ assert.equal(
 assert.ok(workerEnding.scene.includes('Ashdock Shipyards'))
 assert.ok(workerEnding.scene.includes('Nacre Assembly'))
 assert.ok(workerEnding.scene.includes('Gameworld'))
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(workerEnding))), workerEnding)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(workerEnding))),
+  workerEnding,
+)
 
 let healerRoute = startVoyage('vale', ['vela', 'brin', 'tess'], 310)
 assert.equal(chooseMission(healerRoute, 'ashdock').phase, 'briefing')
@@ -296,14 +323,18 @@ healerRoute = nextDestination(healerRoute)
 assert.ok(missionBoard(healerRoute).some((m) => m.id === 'haleth'))
 healerRoute = chooseMission(healerRoute, 'haleth')
 assert.equal(missionFor(healerRoute).id, 'haleth')
-assert.equal(previewMission(healerRoute).chance,
-  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10))
+assert.equal(
+  previewMission(healerRoute).chance,
+  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10),
+)
 healerRoute = completeMission(healerRoute)
 healerRoute = nextDestination(healerRoute)
 assert.ok(missionBoard(healerRoute).some((m) => m.id === 'rootborne'))
 healerRoute = chooseMission(healerRoute, 'rootborne')
-assert.equal(previewMission(healerRoute).chance,
-  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10))
+assert.equal(
+  previewMission(healerRoute).chance,
+  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10),
+)
 healerRoute = completeMission(healerRoute)
 const healerEnding = finishVoyage(nextDestination(healerRoute), 'protect')
 assert.ok(healerEnding.scene.includes('Haleth Reef'))
@@ -311,15 +342,25 @@ assert.ok(healerEnding.scene.includes('Rootborne Gardens'))
 assert.notEqual(healerEnding.scene, workerEnding.scene)
 assert.notDeepEqual(healerRoute.worldFlags, workerRoute.worldFlags)
 assert.ok(workerEnding.log.some((line) => line.includes('contractor')))
-assert.equal(chooseMission(workerRoute, 'refugees'), workerRoute, 'no post-mission reroute')
+assert.equal(
+  chooseMission(workerRoute, 'refugees'),
+  workerRoute,
+  'no post-mission reroute',
+)
 
 // A captain without diplomatic contacts is not automatically entitled to
 // every sealed hearing; their prior conduct has to change the route board.
 let sealedHearing = startVoyage('rex', ['pell', 'mox', 'jex'], 910)
 sealedHearing = completeMission(sealedHearing)
 sealedHearing = nextDestination(sealedHearing)
-assert.equal(missionBoard(sealedHearing).some((m) => m.id === 'nacre'), false)
-assert.equal(missionBoard(sealedHearing).some((m) => m.id === 'haleth'), true)
+assert.equal(
+  missionBoard(sealedHearing).some((m) => m.id === 'nacre'),
+  false,
+)
+assert.equal(
+  missionBoard(sealedHearing).some((m) => m.id === 'haleth'),
+  true,
+)
 const oldChapterTwo = { ...sealedHearing }
 delete oldChapterTwo.missionId
 delete oldChapterTwo.missionHistory
@@ -327,9 +368,21 @@ delete oldChapterTwo.worldFlags
 assert.equal(missionFor(oldChapterTwo).id, 'archive')
 assert.ok(restoreVoyage(JSON.parse(JSON.stringify(oldChapterTwo))))
 assert.equal(restoreVoyage({ ...sealedHearing, missionId: 'invalid' }), null)
-assert.equal(restoreVoyage({
-  ...sealedHearing, missionHistory: [{ chapter: 9, missionId: 'bar', system: 'Serendipity Space Bar', policy: 'aid', result: 'success' }]
-}), null)
+assert.equal(
+  restoreVoyage({
+    ...sealedHearing,
+    missionHistory: [
+      {
+        chapter: 9,
+        missionId: 'bar',
+        system: 'Serendipity Space Bar',
+        policy: 'aid',
+        result: 'success',
+      },
+    ],
+  }),
+  null,
+)
 
 for (const member of CREW_PROFILES) {
   const crew = [

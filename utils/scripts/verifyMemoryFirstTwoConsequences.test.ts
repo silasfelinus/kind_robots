@@ -7,7 +7,11 @@ import {
   newBriarSave,
   restoreBriarSave,
 } from '../memoryDungeonWorld'
-import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
+import {
+  BRIAR_REVEAL_WAVES,
+  createBriarWaveCards,
+  settleBriarWavePair,
+} from '../memoryDungeonWaves'
 import { BRIAR_SCENES, canChooseBriarScene } from '../memoryDungeon/scenes'
 import { newHouseProgress } from '../memoryDungeon/house'
 import {
@@ -429,24 +433,135 @@ function walkEarnedBriarRoute(
   throw new Error(`No revealed Briar route from ${start} to ${goal}`)
 }
 
-// Four real source-choice combinations, followed by the complete mirrored
-// House reducer. Each journey walks to Oren and the Vault, commits both
-// authored choices, restores the original save, visits all 36 rooms, resolves
-// every trial and puzzle, and consumes only its two earned free clues.
-for (const [orenChoice, witnessChoice, philosophy] of [
-  ['plan', 'remember', 'attend'],
-  ['plan', 'protect', 'refuse'],
-  ['load', 'remember', 'refuse'],
-  ['load', 'protect', 'attend'],
+// A fresh expedition must earn its geography through real two-card matching,
+// not begin with two pre-unlocked waves. This exercises the same pure pair
+// settlement used by the playable store, including interrupted turns, mismatches
+// and save restoration after every successful pair.
+function freshBriarTwoWaves(seed: number) {
+  let randomState = seed >>> 0
+  const random = () => {
+    randomState = (Math.imul(randomState, 1664525) + 1013904223) >>> 0
+    return randomState / 4294967296
+  }
+  let progress = newBriarSave()
+  for (let waveIndex = 0; waveIndex < 2; waveIndex++) {
+    const wave = BRIAR_REVEAL_WAVES[waveIndex]!
+    assert.equal(progress.waveIndex, waveIndex)
+    assert.equal(progress.wavePhase, 'matching')
+    const faces = Array.from(
+      { length: wave.length / 2 },
+      (_, index) => `/memory/fresh-${seed}-${waveIndex}-${index}.webp`,
+    )
+    progress = restoreBriarSave({
+      ...progress,
+      mapCards: createBriarWaveCards(wave, faces, random),
+      seenMapImages: [...progress.seenMapImages, ...faces],
+    })
+    const pairs = [...new Set(progress.mapCards.map((card) => card.pairId))]
+    for (const pair of pairs) {
+      const [first, second] = progress.mapCards.filter(
+        (card) => card.pairId === pair,
+      )
+      assert.ok(first && second)
+      const wrong = progress.mapCards.find(
+        (card) => !card.matched && card.pairId !== pair,
+      )
+      if (wrong) {
+        const wrongTurn = {
+          ...progress,
+          mapCards: progress.mapCards.map((card) =>
+            card.tile === first.tile || card.tile === wrong.tile
+              ? { ...card, flipped: true }
+              : card,
+          ),
+        }
+        assert.equal(
+          settleBriarWavePair(wrongTurn, first.tile, wrong.tile),
+          null,
+          'Different pictures cannot reveal terrain',
+        )
+      }
+      const interrupted = restoreBriarSave({
+        ...progress,
+        mapCards: progress.mapCards.map((card) =>
+          card.tile === first.tile ? { ...card, flipped: true } : card,
+        ),
+      })
+      assert.equal(
+        interrupted.mapCards.find((card) => card.tile === first.tile)?.flipped,
+        false,
+        'An interrupted single-card turn must reset on reload',
+      )
+      const turn = {
+        ...progress,
+        mapCards: progress.mapCards.map((card) =>
+          card.tile === first.tile || card.tile === second.tile
+            ? { ...card, flipped: true }
+            : card,
+        ),
+      }
+      assert.equal(
+        settleBriarWavePair(
+          {
+            ...turn,
+            mapCards: turn.mapCards.map((card) =>
+              card.tile === second.tile
+                ? { ...card, image: '/memory/not-the-same-picture.webp' }
+                : card,
+            ),
+          },
+          first.tile,
+          second.tile,
+        ),
+        null,
+        'A forged pair ID cannot match visibly different pictures',
+      )
+      const settled = settleBriarWavePair(turn, first.tile, second.tile)
+      assert.ok(settled, 'The visible identical pair must settle')
+      progress = restoreBriarSave(JSON.parse(JSON.stringify(settled)))
+      assert.ok(progress.revealed.includes(first.tile))
+      assert.ok(progress.revealed.includes(second.tile))
+      assert.equal(
+        settleBriarWavePair(progress, first.tile, second.tile),
+        null,
+        'A matched pair cannot reveal again after reloading',
+      )
+    }
+    assert.equal(progress.wavePhase, 'exploring')
+    assert.deepEqual(
+      [...progress.revealed].sort(),
+      BRIAR_REVEAL_WAVES.slice(0, waveIndex + 1).flat().sort(),
+      'Only legitimately matched map squares become accessible',
+    )
+    if (waveIndex === 0) {
+      progress = restoreBriarSave({
+        ...progress,
+        waveIndex: 1,
+        wavePhase: 'matching',
+        mapCards: [],
+      })
+    }
+  }
+  assert.equal(progress.revealed.length, 26)
+  assert.equal(progress.visited.includes(BRIAR_START), true)
+  return progress
+}
+assert.match(
+  store,
+  /settleBriarWavePair\\(\\s*state\\.value,\\s*first\\.tile,\\s*card\\.tile/,
+  'The actual store must use the reducer exercised by the fresh-game witness',
+)
+
+// Four independent seeded expeditions earn the first two map waves before
+// walking to Oren and the Vault. They then complete the entire mirrored House
+// with each distinct pair of relationship and witness choices.
+for (const [orenChoice, witnessChoice, philosophy, seed] of [
+  ['plan', 'remember', 'attend', 7],
+  ['plan', 'protect', 'refuse', 23],
+  ['load', 'remember', 'refuse', 101],
+  ['load', 'protect', 'attend', 2026],
 ] as const) {
-  let original = restoreBriarSave({
-    ...newBriarSave(),
-    revealed: earlyReveals,
-    visited: [BRIAR_START],
-    player: BRIAR_START,
-    waveIndex: 1,
-    wavePhase: 'exploring',
-  })
+  let original = freshBriarTwoWaves(seed)
   for (const [site, choice] of [
     ['4,3', orenChoice],
     ['6,3', witnessChoice],
@@ -543,5 +658,5 @@ for (const [orenChoice, witnessChoice, philosophy] of [
   )
 }
 console.log(
-  'Four earned Briar-to-House journeys: 144 resolved rooms, 8 free clues, four source combinations and both endings survive every save round-trip',
+  'Four seeded fresh Briar-to-House journeys: 52 real map pairs, 144 resolved House rooms, 8 earned clues, four source combinations and both endings survive save round-trips',
 )

@@ -3,6 +3,7 @@ import {
   DARK_BRIAR_WAVES,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
+  recoverDarkBriarTurn,
 } from '../memoryDungeon/darkBriar'
 import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
 import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
@@ -1019,10 +1020,158 @@ assert.equal(
   'exploring',
   'The final successful flip resumes directly into exploration',
 )
+const mirroredWave = DARK_BRIAR_WAVES[0]!
+const mirroredCards = createBriarWaveCards(
+  mirroredWave,
+  Array.from(
+    { length: mirroredWave.length / 2 },
+    (_, i) => `/mirrored-memory-${i}.webp`,
+  ),
+  () => 0.4,
+)
+const mirroredPair = mirroredCards.filter((card) => card.pairId === 0)
+const mirroredOther = mirroredCards.find((card) => card.pairId === 1)!
+const mirroredBase = {
+  ...newDarkBriarProgress(),
+  mapCards: mirroredCards,
+}
+const mirroredSingle = {
+  ...mirroredBase,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped: card.tile === mirroredPair[0]!.tile,
+  })),
+}
+const resumedMirroredSingle = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredSingle),
+  mirroredSingle,
+)
+assert.equal(resumedMirroredSingle.firstTile, mirroredPair[0]!.tile)
+assert.equal(resumedMirroredSingle.progress.attempts, 0)
+assert.equal(
+  resumedMirroredSingle.progress.mapCards.find(
+    (card) => card.tile === mirroredPair[0]!.tile,
+  )?.flipped,
+  true,
+  'A reflected first flip survives reload without another attempt',
+)
+const mirroredPending = {
+  ...mirroredBase,
+  attempts: 1,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped: mirroredPair.some((pair) => pair.tile === card.tile),
+  })),
+}
+const resumedMirroredPair = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredPending),
+  mirroredPending,
+)
+assert.equal(resumedMirroredPair.progress.attempts, 1)
+assert.equal(resumedMirroredPair.firstTile, null)
+assert.ok(
+  mirroredPair.every(
+    (pair) =>
+      resumedMirroredPair.progress.revealed.includes(pair.tile) &&
+      resumedMirroredPair.progress.mapCards.find(
+        (card) => card.tile === pair.tile,
+      )?.matched,
+  ),
+  'The already-paid mirrored pair resolves once after an interrupted animation',
+)
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(resumedMirroredPair.progress),
+    resumedMirroredPair.progress,
+  ).recovered,
+  false,
+  'Replaying the restored save cannot mint the same pair again',
+)
+const mirroredMismatch = {
+  ...mirroredPending,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped:
+      card.tile === mirroredPair[0]!.tile || card.tile === mirroredOther.tile,
+  })),
+}
+const closedMirroredMismatch = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredMismatch),
+  mirroredMismatch,
+)
+assert.equal(closedMirroredMismatch.progress.revealed.length, 0)
+assert.equal(closedMirroredMismatch.progress.attempts, 1)
+assert.ok(
+  closedMirroredMismatch.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+)
+const mirroredForgedFace = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.tile === mirroredPair[1]!.tile
+      ? { ...card, image: '/different-mirrored-face.webp' }
+      : card,
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredForgedFace),
+    mirroredForgedFace,
+  ).progress.revealed.length,
+  0,
+  'Same pair ID with different artwork never reveals mirrored terrain',
+)
+const mirroredOverflip = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.tile === mirroredOther.tile ? { ...card, flipped: true } : card,
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredOverflip),
+    mirroredOverflip,
+  ).progress.revealed.length,
+  0,
+  'Three exposed mirrored cards cannot manufacture a match',
+)
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress({ ...mirroredPending, attempts: 0 }),
+    { ...mirroredPending, attempts: 0 },
+  ).progress.revealed.length,
+  0,
+  'A two-face save without a recorded attempt cannot earn terrain',
+)
+const mirroredFinalPair = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredFinalPair),
+    mirroredFinalPair,
+  ).progress.phase,
+  'exploring',
+  'The last reflected pair resumes directly into exploration',
+)
 assert.match(
   readFileSync('stores/memoryWorldStore.ts', 'utf8'),
   /recoverBriarWaveTurn\(restoreBriarSave\(raw\), raw\)/,
   'Production hydration must actually invoke the interrupted-turn recovery',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /recoverDarkBriarTurn\([\s\S]*?restoreDarkBriarProgress\(checkpoint.dark\)/,
+  'Manual checkpoint load settles mirrored turns instead of discarding matches',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /const resumedDark = recoverDarkBriarTurn\([\s\S]*?restoreDarkBriarProgress\(savedDark\)/,
+  'Browser hydration recovers interrupted mirrored matching turns',
 )
 assert.match(
   readFileSync('stores/memoryWorldStore.ts', 'utf8'),

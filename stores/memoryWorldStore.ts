@@ -56,6 +56,7 @@ import {
   darkBriarCanTravel,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
+  recoverDarkBriarTurn,
   type DarkBriarProgress,
 } from '~/utils/memoryDungeon/darkBriar'
 import { computed, ref, watch } from 'vue'
@@ -568,7 +569,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       checkpoint.briar,
     )
     const reality = restoreMemoryRealitySave(checkpoint.reality)
-    const restoredDark = restoreDarkBriarProgress(checkpoint.dark)
+    const resumedDark = recoverDarkBriarTurn(
+      restoreDarkBriarProgress(checkpoint.dark),
+      checkpoint.dark,
+    )
     const restoredHouse = restoreDarkHouseProgress(checkpoint.house)
     const restoredSeals = restoreCrossMapSealChronicle(checkpoint.seals)
 
@@ -579,7 +583,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     turnLocked.value = false
     darkTurnLocked.value = false
     firstCard.value = null
-    darkFirstCard.value = null
+    darkFirstCard.value = resumedDark.firstTile
     firstMapCard.value = resumed.firstTile
     latestMapCardKey.value = resumed.firstTile
     mapDeckError.value = ''
@@ -593,7 +597,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldHint.value = null
 
     state.value = resumed.progress
-    dark.value = restoredDark
+    dark.value = resumedDark.progress
     darkHouse.value = restoredHouse
     crossMapSeals.value = restoredSeals
     for (const key of dark.value.sealInspections)
@@ -632,6 +636,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function hydrate(): void {
     if (ready.value) return
+    let recoveredDarkTurn = false
     if (import.meta.client) {
       try {
         const rawSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
@@ -705,9 +710,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       try {
         const rawDark = window.localStorage.getItem(DARK_BRIAR_KEY)
-        dark.value = restoreDarkBriarProgress(
-          rawDark ? JSON.parse(rawDark) : null,
+        const savedDark = rawDark ? JSON.parse(rawDark) : null
+        const resumedDark = recoverDarkBriarTurn(
+          restoreDarkBriarProgress(savedDark),
+          savedDark,
         )
+        dark.value = resumedDark.progress
+        darkFirstCard.value = resumedDark.firstTile
+        recoveredDarkTurn = resumedDark.recovered
       } catch {
         dark.value = newDarkBriarProgress()
       }
@@ -761,6 +771,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         activeReality.value = 'e01'
       }
     }
+    if (recoveredDarkTurn) persistReality()
     ready.value = true
     if (import.meta.client) {
       void checkRealmGalleryReady()
@@ -996,7 +1007,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     dark.value.attempts++
     darkTurnLocked.value = true
     const ticket = darkEpoch
-    if (first.pairId === card.pairId) {
+    if (first.pairId === card.pairId && first.image === card.image) {
       dark.value.status = 'Two altered memories agree. The reflection sharpens.'
       window.setTimeout(() => {
         if (ticket !== darkEpoch) return

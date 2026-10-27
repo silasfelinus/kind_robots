@@ -30,6 +30,7 @@ import {
   firstTwoPhysicalConsequence,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
+  earnedCourierCompensation,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -1084,6 +1085,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
+    if (key === '3,4') {
+      const compensation = earnedCourierCompensation(state.value, id)
+      if (compensation === 'lantern') {
+        state.value.lanterns += 1
+        persist()
+      } else if (compensation === 'wildflower') {
+        state.value.wildflowers += 1
+        persist()
+      }
+    }
     syncEarthChronicle()
     if (next.completed && !campaign.value.completed.includes('e02')) {
       campaign.value = completeMemoryExperience(campaign.value, 'e02')

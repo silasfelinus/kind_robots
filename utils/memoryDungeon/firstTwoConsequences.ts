@@ -180,6 +180,21 @@ export function firstTwoSceneCallbacks(
       'The new timber crossing now connects the Knight’s bridge to the far road, giving you a shorter physical route through Dark Briar.',
     )
   }
+  if (
+    (target === '2,4' || target === '3,4') &&
+    mirrored.sceneChoices['3,4'] === 'shelter'
+  ) {
+    const courierChoice = original['2,4']
+    if (courierChoice === 'lend') {
+      available.unshift(
+        'Sheltering the courier repays your lent lantern with a silver wildflower, carried safely back across the reflection.',
+      )
+    } else if (courierChoice === 'copy') {
+      available.unshift(
+        'The address you copied leads the sheltered courier to a forgotten lantern, now yours to carry back across the reflection.',
+      )
+    }
+  }
   return available.slice(0, Math.min(max, 2))
 }
 
@@ -192,6 +207,18 @@ export function darkBriarExtraBridge(
 ): boolean {
   if (!mirrored || mirrored.sceneChoices['5,4'] !== 'draw') return false
   return (from === '5,4' && to === '7,4') || (from === '7,4' && to === '5,4')
+}
+
+/** An earned cross-reality resource, not a repeatable encounter payout.
+ * The original courier choice determines which scarce resource is returned. */
+export function earnedCourierCompensation(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirroredChoice: string,
+): 'lantern' | 'wildflower' | null {
+  if (mirroredChoice !== 'shelter') return null
+  if (original.sceneChoices['2,4'] === 'lend') return 'wildflower'
+  if (original.sceneChoices['2,4'] === 'copy') return 'lantern'
+  return null
 }
 
 /** Carry only story-scale facts forward. Minor scene choices stay in the

@@ -35,12 +35,14 @@ import {
 import {
   newDarkBriarProgress,
   darkBriarCanTravel,
+  darkBriarChoose,
 } from '../memoryDungeon/darkBriar'
 import {
   firstTwoWorldFrames,
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
+  earnedCourierCompensation,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -149,6 +151,77 @@ assert.equal(
 )
 const released = { ...before, sceneChoices: { '5,4': 'release' } }
 assert.equal(darkBriarExtraBridge('5,4', '7,4', released), false)
+
+// The courier's shelter is a second, freely chosen act. Its resource reward
+// depends on the original decision and is never paid for an invented history.
+const courierAtCrossing = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  player: '3,4',
+  revealed: ['3,4'],
+  visited: ['3,4'],
+}
+for (const [originalChoice, expectedReward] of [
+  ['lend', 'wildflower'],
+  ['copy', 'lantern'],
+] as const) {
+  const original = JSON.parse(
+    JSON.stringify({
+      ...newBriarSave(),
+      sceneChoices: { '2,4': originalChoice },
+    }),
+  ) as ReturnType<typeof newBriarSave>
+  const chosen = darkBriarChoose(courierAtCrossing, '3,4', 'shelter')
+  assert.notEqual(chosen, courierAtCrossing)
+  assert.equal(chosen.sceneChoices['3,4'], 'shelter')
+  assert.equal(
+    earnedCourierCompensation(original, chosen.sceneChoices['3,4']!),
+    expectedReward,
+  )
+  assert.equal(
+    darkBriarChoose(chosen, '3,4', 'shelter'),
+    chosen,
+    'An already-committed shelter choice cannot pay twice',
+  )
+  assert.equal(
+    earnedCourierCompensation(original, 'trace'),
+    null,
+    'Tracing the letters is a valid alternative, not a hidden reward',
+  )
+  for (const site of ['2,4', '3,4']) {
+    const callbacks = firstTwoSceneCallbacks(
+      site,
+      original.sceneChoices,
+      chosen,
+    )
+    assert.ok(
+      callbacks.some((line) =>
+        line.includes(expectedReward === 'lantern' ? 'lantern' : 'wildflower'),
+      ),
+    )
+    assert.ok(callbacks.length <= 2)
+  }
+}
+assert.equal(
+  earnedCourierCompensation(
+    { ...newBriarSave(), sceneChoices: { '2,4': 'forged' } },
+    'shelter',
+  ),
+  null,
+)
+assert.equal(
+  earnedCourierCompensation(newBriarSave(), 'shelter'),
+  null,
+  'A missing original decision cannot mint supplies',
+)
+assert.deepEqual(
+  firstTwoSceneCallbacks(
+    '3,4',
+    {},
+    { ...courierAtCrossing, sceneChoices: { '3,4': 'shelter' } },
+  ),
+  [],
+)
 assert.ok(
   firstTwoSceneCallbacks('5,4', { '5,4': 'truth' }, built).some((line) =>
     line.includes('shorter physical route'),
@@ -167,6 +240,21 @@ assert.match(
 )
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
+
+assert.match(
+  store,
+  /const compensation = earnedCourierCompensation\(state\.value, id\)/,
+)
+assert.match(
+  store,
+  /if \(next === dark\.value\) return[\s\S]*?earnedCourierCompensation/,
+  'The reward must be gated behind a newly committed choice',
+)
+assert.match(
+  store,
+  /state\.value\.lanterns \+= 1[\s\S]*?persist\(\)[\s\S]*?state\.value\.wildflowers \+= 1[\s\S]*?persist\(\)/,
+  'Both mutually exclusive rewards must survive reload',
+)
 
 const earnedHouseEpilogues = new Set<string>()
 for (const witnessChoice of ['remember', 'protect'] as const) {

@@ -219,3 +219,47 @@ export const ACT_ONE_ORDERS: Record<ActOneRouteId, Record<ActOnePolicy, string>>
     intervene: 'Sever the compulsory network before an agreement',
   },
 }
+
+/** Each seeded enemy can directly contaminate an Act I destination. */
+export const ACT_ONE_NEMESIS = {
+  auditor: {
+    missionId: 'ashdock',
+    penalty: 8,
+    event: 'The Galactic Auditor arrives with an invoice for the workers’ posthumous oxygen. An appeals clerk asks whether the dead agreed to financing.',
+  },
+  moth: {
+    missionId: 'nacre',
+    penalty: 8,
+    event: 'The Queen of Borrowed Faces submits nine flawless signatures from citizens who insist the faces are not theirs.',
+  },
+  curdle: {
+    missionId: 'haleth',
+    penalty: 8,
+    event: 'Dr. Curdle offers free nutrition in exchange for converting every surviving patient into a shareholder.',
+  },
+  showrunner: {
+    missionId: 'gameworld',
+    penalty: 10,
+    event: 'The Showrunner edits the workers’ evacuation vote into a ratings poll. The lost ballots still exist on a union-owned tape.',
+  },
+  regent: {
+    missionId: 'windglass',
+    penalty: 8,
+    event: 'The Regent offers to protect the hidden haven by permanently leasing every undiscovered arrival to the crown.',
+  },
+  'brass-choir': {
+    missionId: 'archive',
+    penalty: 8,
+    event: 'The Brass Choir offers to preserve the library only after deleting every translation of the word “no.”',
+  },
+  chancellor: {
+    missionId: 'ashdock',
+    penalty: 8,
+    event: 'Chancellor Tomorrow-Again sells a revised timeline in which the workers died before the contractor hired them.',
+  },
+  'kindly-swarm': {
+    missionId: 'rootborne',
+    penalty: 10,
+    event: 'The Kindly Swarm mistakes the garden’s private root-memories for a disease and offers mandatory mental connection as a cure.',
+  },
+} as const

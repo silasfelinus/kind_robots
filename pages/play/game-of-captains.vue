@@ -635,16 +635,32 @@
               data-testid="space-couch-romance-scene"
               aria-label="Optional crew relationship conversation"
             >
-              <span class="cap-romance-kicker">OFF DUTY // EVERYONE MAY SAY NO</span>
+              <span class="cap-romance-kicker"
+                >OFF DUTY // EVERYONE MAY SAY NO</span
+              >
               <h3>{{ romanceScene.title }}</h3>
               <div class="cap-romance-faces">
-                <span v-for="key in romanceScene.portraits" :key="key" class="cap-romance-face">
-                  <img v-if="portrait(key)" :src="portrait(key)!" :alt="key.replace('crew-', '') + ' portrait'" />
-                  <span v-else>{{ key.replace('crew-', '').toUpperCase() }}</span>
+                <span
+                  v-for="key in romanceScene.portraits"
+                  :key="key"
+                  class="cap-romance-face"
+                >
+                  <img
+                    v-if="portrait(key)"
+                    :src="portrait(key)!"
+                    :alt="key.replace('crew-', '') + ' portrait'"
+                  />
+                  <span v-else>{{
+                    key.replace('crew-', '').toUpperCase()
+                  }}</span>
                 </span>
               </div>
               <p class="cap-romance-setting">{{ romanceScene.setting }}</p>
-              <p v-for="line in romanceScene.speakers" :key="line.name + line.line" class="cap-romance-line">
+              <p
+                v-for="line in romanceScene.speakers"
+                :key="line.name + line.line"
+                class="cap-romance-line"
+              >
                 <strong>{{ line.name }}:</strong> {{ line.line }}
               </p>
               <button
@@ -655,7 +671,11 @@
                 :data-romance-choice="choice.id"
                 @click="store.chooseRomance(choice.id)"
               >
-                <span><b>{{ choice.label }}</b><small>{{ choice.cost }}</small></span> ↗
+                <span
+                  ><b>{{ choice.label }}</b
+                  ><small>{{ choice.cost }}</small></span
+                >
+                ↗
               </button>
             </section>
             <p
@@ -885,8 +905,12 @@ const chosenCrew = ref<CrewId[]>([])
 const selectionScreen = ref<'captain' | 'crew'>('captain')
 const focusedCrew = ref<CrewId>('pell')
 const run = computed(() => store.run)
-const romanceScene = computed(() => run.value ? romanceMoment(run.value) : null)
-const romanceRecord = computed(() => (run.value as RomanceVoyage | null)?.romance)
+const romanceScene = computed(() =>
+  run.value ? romanceMoment(run.value) : null,
+)
+const romanceRecord = computed(
+  () => (run.value as RomanceVoyage | null)?.romance,
+)
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => warpArt(`portraits/${key}`)
 const stagePainting = computed(() => {
@@ -1354,7 +1378,9 @@ function toggleAway(id: CrewId) {
 }
 .cap-romance h3 {
   margin: 0.35rem 0 0.5rem;
-  font: 900 clamp(1.15rem, 2vw, 1.5rem) Georgia, serif;
+  font:
+    900 clamp(1.15rem, 2vw, 1.5rem) Georgia,
+    serif;
   color: #ffe0b6;
 }
 .cap-romance-faces {

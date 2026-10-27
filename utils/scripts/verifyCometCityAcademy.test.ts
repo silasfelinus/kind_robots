@@ -6,6 +6,7 @@ import {
   validPersonalHistory,
   personalStanding,
   personalFinale,
+  type PersonalMemory,
 } from '../cometAcademy/personalQuests'
 import assert from 'node:assert/strict'
 import {
@@ -1611,8 +1612,8 @@ for (const identity of IDENTITY_ARCS) {
       )
     }
   }
-  const good = PERSONAL_DAYS.map((day) => ({ day, choice: 'protect' as const }))
-  const bad = PERSONAL_DAYS.map((day) => ({ day, choice: 'exploit' as const }))
+  const good: PersonalMemory[] = PERSONAL_DAYS.map((day) => ({ day, choice: 'protect' as const }))
+  const bad: PersonalMemory[] = PERSONAL_DAYS.map((day) => ({ day, choice: 'exploit' as const }))
   assert.equal(personalStanding(good), 8)
   assert.equal(personalStanding(bad), -8)
   assert.equal(validPersonalHistory(good, 30), true)

@@ -94,6 +94,12 @@ const menu = computed(() => [
       ]
     : []),
   {
+    label: 'Gestation',
+    detail:
+      'The daily playbook challenge’s concepts as they grow. Leave notes for the next development, or forge one.',
+    run: () => forge.openGestation(),
+  },
+  {
     label: 'Kit console',
     detail:
       'Rehearse the games built on the Playbook Kit, with their settings and budget.',

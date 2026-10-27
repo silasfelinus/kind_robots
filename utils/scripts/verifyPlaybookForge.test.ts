@@ -31,6 +31,9 @@ import {
   blueprintFromIdea,
 } from '../playbookForge/presets'
 import type { Blueprint } from '../playbookForge/types'
+import { blueprintFromPitch, buildGestation } from '../playbookForge/gestation'
+import { withGestationNote } from '../playbookForge/gestationNotes'
+import { parse as parseYaml } from 'yaml'
 import {
   SPARK_SLOTS,
   composeIdea,
@@ -651,6 +654,92 @@ assert.equal(
   assert.equal(elementFromFacets('villain', {}), null, 'no Facets, no draw')
 }
 
+// Gestation: dated dockets grow concepts; notes ride along; pitches forge drafts.
+{
+  const pitch = (mode: string, evolution: string) => ({
+    slug: 'moon-laundry',
+    concept_id: 'moon-laundry',
+    title: 'Moon Laundry',
+    mode,
+    evolution,
+    hook: 'Lost socks are portals.',
+    genre_pillar: 'Cozy science fiction',
+    cast: { playable: 3, followers: 10, npcs: 16 },
+    production: { maps: 6, encounter_scenes: 168, finale_scripts: 20 },
+  })
+  const concepts = buildGestation(
+    [
+      {
+        date: '2026-10-27',
+        data: { pitches: [pitch('expand', 'Second day')] },
+      },
+      {
+        date: '2026-10-26',
+        data: { pitches: [pitch('new', 'First day'), { bad: true }] },
+      },
+      { date: '2026-10-25', data: null },
+    ],
+    {
+      concepts: {
+        'moon-laundry': { status: 'promising', strengths: ['Socks'] },
+      },
+    },
+    {
+      notes: {
+        'moon-laundry': [
+          { at: '2026-10-27T00:00:00Z', note: 'More moths.', status: 'open' },
+          { note: '' },
+        ],
+      },
+    },
+  )
+  assert.equal(
+    concepts.length,
+    1,
+    'one concept across days; malformed rows skipped',
+  )
+  const [moon] = concepts
+  assert.equal(moon!.versions.length, 2)
+  assert.equal(moon!.latestDate, '2026-10-27')
+  assert.equal(moon!.latest.evolution, 'Second day')
+  assert.equal(moon!.status, 'promising')
+  assert.deepEqual(
+    moon!.notes.map((n) => n.note),
+    ['More moths.'],
+  )
+  const b = blueprintFromPitch(moon!.latest)
+  assert.equal(
+    b.genre,
+    'space-comedy',
+    'science fiction starts from the space loadout',
+  )
+  assert.equal(b.followers, 10)
+  assert.equal(b.rosterSize, 3)
+  assert.equal(b.locations, 6)
+  assert.equal(b.endings, 20)
+  assert.equal(b.idea, 'Lost socks are portals.')
+
+  const header = '# keep me\nnotes: {}\n'
+  const once = withGestationNote(header, 'moon-laundry', {
+    at: 't1',
+    note: 'A: b "c"',
+    status: 'open',
+  })
+  const twice = withGestationNote(once, 'moon-laundry', {
+    at: 't2',
+    note: 'Two',
+    status: 'open',
+  })
+  assert.match(twice, /^# keep me/, 'comments survive')
+  assert.deepEqual(
+    (parseYaml(twice) as { notes: Record<string, { note: string }[]> }).notes[
+      'moon-laundry'
+    ]!.map((n) => n.note),
+    ['A: b "c"', 'Two'],
+  )
+  assert.match(withGestationNote('', 'x', { note: 'first' }), /notes:\n {2}x:/)
+}
+
 // The console, its tab, and the store-only rule for storage and API calls.
 const tab = readFileSync(
   fromRoot('content/channels/admin/playbook-forge.md'),
@@ -670,6 +759,8 @@ for (const name of [
   'ledger',
   'ledger-detail',
   'adjust',
+  'gestation',
+  'gestation-concept',
   'relay',
   'beats',
   'beat',

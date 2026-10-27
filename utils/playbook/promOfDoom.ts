@@ -5,6 +5,8 @@ import {
   GUEST_LIST_ARRIVAL_ART_KEY,
   GUEST_LIST_ART_KEYS,
   PROM_ENDINGS,
+  PROM_ENDING_ROUTES,
+  SIMULATION_ENDINGS,
   SPLASH_ART_KEY,
   districtArtKey,
   returnVisitArtKey,
@@ -254,12 +256,14 @@ export function buildPromOfDoomPlaybook(): Playbook {
     label: choice.title,
     tags: [],
     success: { text: choice.help },
-    leadsTo:
-      choice.id === 'share'
-        ? `ending:${slugify(PROM_ENDINGS[0])}`
-        : choice.id === 'command'
-          ? `ending:${slugify(PROM_ENDINGS[4])}`
-          : `ending:${slugify(PROM_ENDINGS[2])}`,
+    leadsTo: `ending:${slugify(
+      {
+        share: 'A CITY WITH A THOUSAND KEYS',
+        command: 'MASTER OF THE SHIELD',
+        protect: 'THE LAST DANCE LEAVES BY BOAT',
+        evacuate: 'THE TRANSMITTER GOES DARK',
+      }[choice.id],
+    )}`,
   }))
   add(withArt(finale, FINALE_ART_KEY))
 
@@ -337,15 +341,17 @@ export function buildPromOfDoomPlaybook(): Playbook {
     add(withArt(node, villainArtKey(villain.name)))
   }
 
-  PROM_ENDINGS.forEach((ending, index) => {
+  PROM_ENDINGS.forEach((ending) => {
+    const real = !SIMULATION_ENDINGS.includes(ending)
     const node = blankNode(
       `ending:${slugify(ending)}`,
       'ending',
       titleCase(ending),
     )
-    node.place = index < 6 ? 'The real Prom of Doom' : 'The week-one simulation'
+    node.place = real ? 'The real Prom of Doom' : 'The week-one simulation'
     node.body = [
-      index < 6
+      PROM_ENDING_ROUTES[ending],
+      real
         ? 'At dawn the survivors decide what graduation and rebuilding mean.'
         : 'The faculty simulation ends; real graduation is still weeks away.',
     ]
@@ -393,7 +399,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
   return {
     game: 'comet-city-academy',
     title: 'Prom of Doom',
-    blurb: 'Thirty days, six students, four masterminds and ten endings.',
+    blurb: 'Thirty days, six students, eight masterminds and twelve endings.',
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -445,7 +451,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       },
       {
         title: 'Endings',
-        blurb: 'Six real, four from the week-one simulation.',
+        blurb: 'Eight real, four from the week-one simulation.',
         keys: keysOf('ending'),
       },
     ],

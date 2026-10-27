@@ -111,8 +111,15 @@
 
     <section class="kr-scroll -mx-1 min-h-0 px-1 py-1" aria-label="Entries">
       <div v-if="castGroups.length > 1" class="mb-3">
-        <p class="pf-kicker mb-2 text-secondary">Explore the cast by origin · {{ forge.galleryEntries.length }} character cards</p>
-        <div class="flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Cast origin">
+        <p class="pf-kicker mb-2 text-secondary">
+          Explore the cast by origin ·
+          {{ forge.galleryEntries.length }} character cards
+        </p>
+        <div
+          class="flex gap-2 overflow-x-auto pb-2"
+          role="group"
+          aria-label="Cast origin"
+        >
           <button
             v-for="group in castGroups"
             :key="group.name"
@@ -124,11 +131,27 @@
             @click="forge.galleryGroup = group.name"
           >
             <span class="pf-art-card-frame relative block h-20">
-              <img v-if="group.cover" :src="group.cover" alt="" class="pf-art-card-img" />
-              <img v-else-if="forge.existing" :src="forge.existing.cover" alt="" class="pf-art-card-img opacity-25" />
-              <span v-if="!group.cover" class="absolute inset-x-1 bottom-1 bg-base-300/80 px-1 text-[0.6rem]">Group art pending</span>
+              <img
+                v-if="group.cover"
+                :src="group.cover"
+                alt=""
+                class="pf-art-card-img"
+              />
+              <img
+                v-else-if="forge.existing"
+                :src="forge.existing.cover"
+                alt=""
+                class="pf-art-card-img opacity-25"
+              />
+              <span
+                v-if="!group.cover"
+                class="absolute inset-x-1 bottom-1 bg-base-300/80 px-1 text-[0.6rem]"
+                >Group art pending</span
+              >
             </span>
-            <span class="pf-label block truncate px-2 py-1.5 text-left text-xs">{{ group.name }} · {{ group.count }}</span>
+            <span class="pf-label block truncate px-2 py-1.5 text-left text-xs"
+              >{{ group.name }} · {{ group.count }}</span
+            >
           </button>
         </div>
       </div>
@@ -195,15 +218,27 @@ watch(
   () => (limit.value = 90),
 )
 const castGroups = computed(() => {
-  if (forge.galleryTarget?.type !== 'section' || forge.galleryTarget.id !== 'follower') return []
+  if (
+    forge.galleryTarget?.type !== 'section' ||
+    forge.galleryTarget.id !== 'follower'
+  )
+    return []
   const people = forge.galleryEntries
   const groups = [...new Set(people.map((entry) => entry.group))]
   if (groups.length < 2) return []
   return [
-    { name: 'All', count: people.length, cover: people.find((entry) => entry.imageUrl)?.imageUrl ?? null },
+    {
+      name: 'All',
+      count: people.length,
+      cover: people.find((entry) => entry.imageUrl)?.imageUrl ?? null,
+    },
     ...groups.map((name) => {
       const members = people.filter((entry) => entry.group === name)
-      return { name, count: members.length, cover: members.find((entry) => entry.imageUrl)?.imageUrl ?? null }
+      return {
+        name,
+        count: members.length,
+        cover: members.find((entry) => entry.imageUrl)?.imageUrl ?? null,
+      }
     }),
   ]
 })

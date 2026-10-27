@@ -72,7 +72,7 @@ export function auditPlaybook(book: Playbook) {
   const bad: Gap[] = []
   let prompted = 0
   let needsArt = 0
-  for (const key of book.order) {
+  for (const key of new Set([...book.order, ...Object.keys(book.nodes)])) {
     const node = book.nodes[key]
     if (!node) continue
     if (node.needsArt) needsArt += 1

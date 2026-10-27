@@ -9,10 +9,10 @@ This is a feature-by-feature design comparison, **not** a claim of equivalence. 
 - Strict validated, versioned course data with controlled dimensions and glyphs, one start, one exit, paired pipes; rejects malformed/oversized imports.
 - Five grouped palettes covering **every parser glyph** in \`savePlumberLevels.ts\` through a regression test.
 - The actual Save the Plumber platform engine plays imported levels (custom runs never write to campaign saves).
-- Local 1–5-star ratings after a clear, explicitly not online ratings.
+- Authenticated, database-backed 1–5-star ratings and optional written reviews after a clear, using the existing Reaction model and per-course revision identity. Signed-out players can read community averages and comments.
 - Responsive bounded console presentation with compact icon-first tools and a large playable preview.
 
-The feature is an early Maker, not an equivalent to the two commercial editors. The Share URL contains the level itself, so no account or public upload is required and content is portable; it is long, cannot be searched centrally, and does not provide mutable shared records.
+The feature is an early Maker, not an equivalent to the two commercial editors. The Share URL contains the level itself, so no account or public upload is required and content is portable; it is long, cannot yet be searched centrally, and does not provide mutable hosted level records. A verified course snapshot is stored in the database on its first review, and subsequent edits start a fresh Reaction review identity.
 
 ## Relative capability matrix
 
@@ -24,7 +24,7 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 | Native save/load/edit                    | Device-local drafts                                               | Yes                                  | Yes                                                  |
 | Share to another device                  | Portable URL payload                                              | Hosted course IDs                    | Hosted level IDs                                     |
 | Global library/search/discovery          | Not shipped                                                       | Yes                                  | Yes                                                  |
-| Online rating and creator identity       | Device-local only                                                 | Yes, hosted reactions/likes          | Yes, hosted ratings/likes                            |
+| Online rating and creator identity       | Reaction stars/comments shared; level creator verification still missing                                                 | Yes, hosted reactions/likes          | Yes, hosted ratings/likes                            |
 | Multi-select, rectangle/fill, copy/paste | Not shipped                                                       | Broad editing tools                  | Broad editing tools                                  |
 | Course clear check before sharing        | Not enforced                                                      | Yes, online upload gated by clear    | Validation and verification workflow differs         |
 | Multi-area and vertical editing          | Parser pipe pairs work within one stage; subarea authoring absent | Yes                                  | Large freeform editor                                |
@@ -49,7 +49,7 @@ The \`STAGE_GLYPHS\` test enforces palette coverage for the first generation of 
 
 ## Next milestones
 
-1. Persistent authenticated publication, stable share IDs, editing/versions/forks, ownership and community ratings with tamper checks, play counts and discovery. Do not mark this done with localStorage reactions.
+1. Authenticated publication, stable short share IDs, editing/versions/forks, verified creator ownership, tamper protection, play counts and discovery. Rating/comment storage now uses the existing Reaction table; distinguish that from missing hosted level publishing and moderation.
 2. Real course clear-proof testing and fairness/softlock checks before publication; touch gamepad and full device-geometry audits.
 3. Rectangle/fill/selection/copy/paste, multi-select, contextual properties and templates; multi-area, vertical/secret exits, slopes, autoscroll, timed triggers.
 4. Advanced original sequencing system inspired by Geometry Dash's _creative flexibility_, not its copied content: groups, timeline, triggers, preview scrubbing, cameras, player interactions, and a strong undo stack.

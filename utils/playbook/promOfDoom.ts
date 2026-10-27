@@ -7,6 +7,7 @@ import {
   PROM_ENDINGS,
   SPLASH_ART_KEY,
   districtArtKey,
+  returnVisitArtKey,
   encounterArtKey,
   endingArtKey,
   incidentArtKey,
@@ -24,9 +25,10 @@ import {
 } from '../cometAcademy/campaign'
 import { CITY_SITES } from '../cometAcademy/cityMap'
 import { DISTRICT_ENCOUNTERS } from '../cometAcademy/districtEncounters'
+import { RETURN_VISITS } from '../cometAcademy/returnVisits'
 import { CHARACTER_ROSTER } from '../cometAcademy/identityArcs'
 import { REAL_NIGHT_CASES } from '../cometAcademy/nightCases'
-import { ENCOUNTERS, INCIDENTS, POWERS, STUDENTS } from '../cometAcademy/rules'
+import { ENCOUNTERS, NIGHT_DECK, POWERS, STUDENTS } from '../cometAcademy/rules'
 import { POWER_VOWS } from '../cometAcademy/specialPowers'
 import {
   blankNode,
@@ -261,7 +263,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
   }))
   add(withArt(finale, FINALE_ART_KEY))
 
-  for (const incident of INCIDENTS) {
+  for (const incident of NIGHT_DECK) {
     const node = blankNode(
       `incident:${incident.id}`,
       'encounter',
@@ -313,6 +315,15 @@ export function buildPromOfDoomPlaybook(): Playbook {
     node.body = [scene.scene]
     node.choices = optionChoices(scene.options)
     add(withArt(node, districtArtKey(siteId)))
+  }
+
+  for (const [siteId, scene] of Object.entries(RETURN_VISITS)) {
+    const site = CITY_SITES.find((item) => item.id === siteId)
+    const node = blankNode(`return:${siteId}`, 'quest', scene.title)
+    node.place = `${site?.name ?? scene.location} · a week after the first visit`
+    node.body = [scene.scene]
+    node.choices = optionChoices(scene.options)
+    add(withArt(node, returnVisitArtKey(siteId)))
   }
 
   for (const villain of CAMPAIGN_VILLAINS) {
@@ -420,7 +431,12 @@ export function buildPromOfDoomPlaybook(): Playbook {
       {
         title: 'District scenes',
         blurb: 'Two authored routes per city landmark.',
-        keys: keysOf('quest'),
+        keys: keysOf('quest').filter((key) => key.startsWith('district:')),
+      },
+      {
+        title: 'Return visits',
+        blurb: 'Every landmark reopens a week later with its own second scene.',
+        keys: keysOf('quest').filter((key) => key.startsWith('return:')),
       },
       {
         title: 'Masterminds',
@@ -449,7 +465,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       spine: 'Day',
       encounter: 'Patrol incident',
       crossroads: 'Campus encounter',
-      quest: 'District scene',
+      quest: 'District scene or return visit',
       thread: 'Week-one team or Guest List outcome',
       fork: 'Seeded roster',
       boss: 'Mastermind',

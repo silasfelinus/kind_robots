@@ -63,6 +63,8 @@ import {
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
+import { LATE_INCIDENTS } from './lateIncidents'
+import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import {
   CAMPAIGN_ANCHORS,
@@ -521,6 +523,8 @@ export type AcademyRun = {
   identityHistory?: PersonalHistory[]
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
+  /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
+  incidentDeckVersion?: 2
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
@@ -560,9 +564,17 @@ function hash(seed: number, text: string): number {
   return value
 }
 
+/** Every night case a thirty-day run can draw: the first six, then the late six. */
+export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
+
+export function incidentDeck(run: AcademyRun): Incident[] {
+  return run.incidentDeckVersion === 2 ? NIGHT_DECK : INCIDENTS
+}
+
 export function incidentsFor(run: AcademyRun): Incident[] {
-  const offset = (run.seed + run.day - 1) % INCIDENTS.length
-  return [INCIDENTS[offset]!, INCIDENTS[(offset + 3) % INCIDENTS.length]!]
+  const deck = incidentDeck(run)
+  const offset = (run.seed + run.day - 1) % deck.length
+  return [deck[offset]!, deck[(offset + deck.length / 2) % deck.length]!]
 }
 
 export function encounterFor(run: AcademyRun) {
@@ -628,10 +640,13 @@ export function encounterFor(run: AcademyRun) {
           : undefined)
       if (base && run.flowVersion === 3) {
         const previous = run.visitedDays?.[site.id]
+        const revisit = previous ? returnVisitFor(site.id) : undefined
+        const card = revisit ?? base
         return {
-          ...base,
-          title: previous ? `${base.title} / Return Visit` : base.title,
-          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
+          ...card,
+          title:
+            previous && !revisit ? `${base.title} / Return Visit` : card.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. ${revisit ? revisit.scene : 'This new visit is another chance to decide.'}` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
         }
       }
       if (base) return base
@@ -709,6 +724,7 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
+    incidentDeckVersion: 2,
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
@@ -1538,6 +1554,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day < 1 ||
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
+    (data.incidentDeckVersion !== undefined &&
+      (data.incidentDeckVersion !== 2 || data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

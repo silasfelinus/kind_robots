@@ -31,6 +31,8 @@ export const identityArtKey = (
 export const incidentArtKey = (id: string) => `incidents/${id}`
 export const encounterArtKey = (title: string) => `encounters/${slugify(title)}`
 export const districtArtKey = (siteId: string) => `districts/${siteId}`
+/** A landmark's week-later return scene (returnVisits.ts). */
+export const returnVisitArtKey = (siteId: string) => `returns/${siteId}`
 /** Matches the MAPS-AND-MASTERMINDS round: villains/glass-architect-portrait. */
 export const villainArtKey = (name: string) =>
   `villains/${slugify(name).replace(/^the-/, '')}-portrait`
@@ -117,6 +119,11 @@ export function academyStageArt(run: AcademyRun | null): string | null {
   if (run.phase === 'dispatch')
     return promArt(incidentArtKey(incidentsFor(run)[0]!.id))
   if (run.phase === 'campus' && run.selectedSite) {
+    const revisit =
+      run.flowVersion === 3 && run.visitedDays?.[run.selectedSite]
+        ? promArt(returnVisitArtKey(run.selectedSite))
+        : null
+    if (revisit) return revisit
     const key = siteEncounterArtKey(run.selectedSite)
     return key ? promArt(key) : null
   }

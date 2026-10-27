@@ -16,6 +16,7 @@ import {
   finishVoyage,
   launchMission,
   nextDestination,
+  chooseMission,
   beginCrewDetour,
   resolveCrewDetour,
   restoreVoyage,
@@ -70,6 +71,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function assign(crew: CrewId[]) {
     if (!run.value) return
     run.value = assignAwayTeam(run.value, crew)
+    persist()
+  }
+  function chartMission(missionId: string) {
+    if (!run.value) return
+    run.value = chooseMission(run.value, missionId)
     persist()
   }
   function chooseRoom(room: PocketRoom | null) {
@@ -135,6 +141,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     begin,
     assign,
     chooseRoom,
+    chartMission,
     rechargeShield,
     launch,
     advanceDay,

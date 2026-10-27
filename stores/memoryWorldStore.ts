@@ -653,10 +653,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         if (saved) {
           const raw = JSON.parse(saved) as unknown
           const resumed = recoverBriarWaveTurn(restoreBriarSave(raw), raw)
-          state.value = resumed.progress
+          const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
+          state.value = recoveredCombat
           firstMapCard.value = resumed.firstTile
           latestMapCardKey.value = resumed.firstTile
-          if (resumed.recovered) persist()
+          if (resumed.recovered || recoveredCombat !== resumed.progress)
+            persist()
         }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks

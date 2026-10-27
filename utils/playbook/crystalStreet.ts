@@ -271,7 +271,7 @@ export function buildCrystalStreetPlaybook(): Playbook {
     routes,
     nodes,
     artRequirements,
-    order: storyOrder(routes, [...companionKeys, ...endingKeys]),
+    order: storyOrder(routes, [...companionKeys, ...endingKeys, ...Object.keys(nodes)]),
     sections: [
       {
         title: 'Endings',

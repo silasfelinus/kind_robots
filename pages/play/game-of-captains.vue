@@ -42,11 +42,7 @@
         class="cap-stage"
         aria-label="Long red couch spacecraft protected by an invisible force bubble"
       >
-        <img
-          class="cap-painting"
-          :src="stagePainting"
-          alt="Four spacers on a long red sofa travel through space protected by an invisible force bubble; a pocket room folds out behind the backrest"
-        />
+        <img class="cap-painting" :src="stagePainting" :alt="stageAlt" />
         <div class="cap-vignette" aria-hidden="true" />
         <div class="cap-overlay">
           <div class="cap-kicker">
@@ -54,9 +50,22 @@
             COMPLEMENT UNKNOWN
           </div>
           <template v-if="!run">
-            <h2 class="cap-title">SPACE <span>COUCH</span></h2>
+            <span class="cap-coordinate">{{
+              selectionScreen === 'captain' ? 'CAPTAIN DOSSIER' : 'CREW DOSSIER'
+            }}</span>
+            <h2 class="cap-title">
+              {{
+                selectionScreen === 'captain'
+                  ? activeCaptain.name
+                  : crewProfile(focusedCrew).name
+              }}
+            </h2>
             <p class="cap-tagline">
-              One long red couch. Six captains. No hull. No problem.
+              {{
+                selectionScreen === 'captain'
+                  ? CAPTAIN_DOSSIERS[selectedCaptain].voice
+                  : CREW_DOSSIERS[focusedCrew].crisis
+              }}
             </p>
           </template>
           <template v-else>
@@ -90,123 +99,186 @@
           </div>
 
           <template v-else-if="!run">
-            <div class="cap-heading">
-              <span>01</span>
-              <div>
-                <h2>Claim your cushion</h2>
-                <p>
-                  Select a captain, then appoint your bridge officers. The couch
-                  runs on personalities as much as fuel.
-                </p>
+            <template v-if="selectionScreen === 'captain'">
+              <div class="cap-heading">
+                <span>01</span>
+                <div>
+                  <h2>Claim your cushion</h2>
+                  <p>
+                    Select a captain, then appoint your bridge officers. The
+                    couch runs on personalities as much as fuel.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div class="cap-captains">
-              <button
-                v-for="captain in CAPTAINS"
-                :key="captain.id"
-                type="button"
-                class="cap-captain"
-                :class="{ chosen: captain.id === selectedCaptain }"
-                :aria-pressed="captain.id === selectedCaptain"
-                @click="selectedCaptain = captain.id"
+              <div class="cap-captains">
+                <button
+                  v-for="captain in CAPTAINS"
+                  :key="captain.id"
+                  type="button"
+                  class="cap-captain"
+                  :class="{ chosen: captain.id === selectedCaptain }"
+                  :aria-pressed="captain.id === selectedCaptain"
+                  @click="selectedCaptain = captain.id"
+                >
+                  <span
+                    class="cap-captain-icon"
+                    :data-portrait-key="'captain-' + captain.id"
+                    aria-hidden="true"
+                    ><img
+                      v-if="portrait('captain-' + captain.id)"
+                      :src="portrait('captain-' + captain.id)!"
+                      alt=""
+                      class="cap-portrait-img"
+                    /><template v-else>{{
+                      captain.name.split(' ').at(-1)?.slice(0, 1)
+                    }}</template></span
+                  >
+                  <span
+                    ><strong>{{ captain.name }}</strong
+                    ><small>{{ captain.epithet }}</small></span
+                  >
+                </button>
+              </div>
+              <div class="cap-insight">
+                <strong>{{ activeCaptain.doctrine }}</strong
+                ><small
+                  >Advantage: {{ activeCaptain.ability }} · Price:
+                  {{ activeCaptain.cost }}</small
+                >
+              </div>
+              <div
+                class="cap-stats cap-captain-stats"
+                aria-label="Captain statistics"
               >
-                <span
-                  class="cap-captain-icon"
-                  :data-portrait-key="'captain-' + captain.id"
-                  aria-hidden="true"
-                  ><img
-                    v-if="portrait('captain-' + captain.id)"
-                    :src="portrait('captain-' + captain.id)!"
-                    alt=""
-                    class="cap-portrait-img"
-                  /><template v-else>{{
-                    captain.name.split(' ').at(-1)?.slice(0, 1)
-                  }}</template></span
+                <div v-for="skill in SKILLS" :key="skill">
+                  <small>{{ skill.toUpperCase() }}</small
+                  ><strong>{{ captainStats[skill] }}</strong>
+                </div>
+              </div>
+              <div class="cap-insight">
+                <strong>Personal history</strong>
+                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                <small
+                  >First order:
+                  {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
                 >
-                <span
-                  ><strong>{{ captain.name }}</strong
-                  ><small>{{ captain.epithet }}</small></span
+                <small
+                  >Unresolved liability:
+                  {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
                 >
+              </div>
+              <button
+                class="cap-primary"
+                type="button"
+                data-testid="captains-choose-crew"
+                @click="selectionScreen = 'crew'"
+              >
+                APPOINT YOUR CREW <span>➜</span>
               </button>
-            </div>
-            <div class="cap-insight">
-              <strong>{{ activeCaptain.doctrine }}</strong
-              ><small
-                >Advantage: {{ activeCaptain.ability }} · Price:
-                {{ activeCaptain.cost }}</small
-              >
-            </div>
-            <div
-              class="cap-stats cap-captain-stats"
-              aria-label="Captain statistics"
-            >
-              <div v-for="skill in SKILLS" :key="skill">
-                <small>{{ skill.toUpperCase() }}</small
-                ><strong>{{ captainStats[skill] }}</strong>
-              </div>
-            </div>
-            <div class="cap-heading cap-crew-heading">
-              <span>02</span>
-              <div>
-                <h2>Appoint your crew</h2>
-                <p>
-                  Choose exactly three officers from twelve. Their abilities,
-                  conflicts and personal quests change the routes.
-                </p>
-              </div>
-            </div>
-            <div class="cap-crew-picker">
+            </template>
+            <template v-else>
               <button
-                v-for="member in CREW"
-                :key="member.id"
+                class="cap-option"
                 type="button"
-                class="cap-crew-button"
-                :class="{ chosen: chosenCrew.includes(member.id) }"
-                :aria-pressed="chosenCrew.includes(member.id)"
-                :disabled="
-                  chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
-                "
-                @click="toggleCrew(member.id)"
+                data-testid="captains-back-to-captains"
+                @click="selectionScreen = 'captain'"
               >
                 <span
-                  class="cap-monogram"
-                  :data-portrait-key="crewProfile(member.id).portraitKey"
-                  ><img
-                    v-if="portrait(crewProfile(member.id).portraitKey)"
-                    :src="portrait(crewProfile(member.id).portraitKey)!"
-                    alt=""
-                    class="cap-portrait-img"
-                  /><template v-else>{{ member.monogram }}</template></span
-                >
-                <span
-                  ><strong>{{ member.name }}</strong
+                  ><b>← CHANGE CAPTAIN</b
                   ><small
-                    >{{ member.role }} ·
-                    {{ crewProfile(member.id).pronouns }}</small
+                    >{{ activeCaptain.name }} ·
+                    {{ activeCaptain.epithet }}</small
                   ></span
-                ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
+                >
               </button>
-            </div>
-            <div class="cap-team-note">
-              {{ chosenCrew.length }} / 3 selected ·
-              {{ CREW_PROFILES.length }} candidates
-            </div>
-            <p class="cap-crew-story">
-              {{ chosenCrew.map((id) => crewProfile(id).story).join(' ') }}
-            </p>
-            <button
-              class="cap-primary"
-              type="button"
-              data-testid="captains-begin"
-              :disabled="chosenCrew.length !== 3"
-              @click="store.begin(selectedCaptain, chosenCrew)"
-            >
-              TAKE COMMAND <span>➜</span>
-            </button>
-            <div class="cap-subnote">
-              Playable three-stop voyage · Local save · Different captains,
-              different costs
-            </div>
+              <div class="cap-heading cap-crew-heading">
+                <span>02</span>
+                <div>
+                  <h2>Appoint your crew</h2>
+                  <p>
+                    Choose exactly three officers from twelve. Their abilities,
+                    conflicts and personal quests change the routes.
+                  </p>
+                </div>
+              </div>
+              <div class="cap-crew-picker">
+                <button
+                  v-for="member in CREW"
+                  :key="member.id"
+                  type="button"
+                  class="cap-crew-button"
+                  :class="{ chosen: chosenCrew.includes(member.id) }"
+                  :aria-pressed="chosenCrew.includes(member.id)"
+                  :title="
+                    chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
+                      ? 'Release a selected officer to appoint this one'
+                      : 'View dossier and toggle crew appointment'
+                  "
+                  @click="selectCrewForDossier(member.id)"
+                >
+                  <span
+                    class="cap-monogram"
+                    :data-portrait-key="crewProfile(member.id).portraitKey"
+                    ><img
+                      v-if="portrait(crewProfile(member.id).portraitKey)"
+                      :src="portrait(crewProfile(member.id).portraitKey)!"
+                      alt=""
+                      class="cap-portrait-img"
+                    /><template v-else>{{ member.monogram }}</template></span
+                  >
+                  <span
+                    ><strong>{{ member.name }}</strong
+                    ><small
+                      >{{ member.role }} ·
+                      {{ crewProfile(member.id).pronouns }}</small
+                    ></span
+                  ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
+                </button>
+              </div>
+              <div class="cap-team-note">
+                {{ chosenCrew.length }} / 3 selected ·
+                {{ CREW_PROFILES.length }} candidates ·
+                {{
+                  chosenCrew.length === 3
+                    ? 'Unselect an officer to appoint a different one'
+                    : 'Choose your complement'
+                }}
+              </div>
+              <div class="cap-insight" aria-live="polite">
+                <strong
+                  >{{ crewProfile(focusedCrew).name }} ·
+                  {{ crewProfile(focusedCrew).culture }}</strong
+                >
+                <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                <small
+                  >Personal voyage:
+                  {{ CREW_DOSSIERS[focusedCrew].itinerary.join(' → ') }}</small
+                >
+                <small
+                  >Enemy connection:
+                  {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
+                >
+                <div class="cap-stats" aria-label="Focused crew skills">
+                  <div v-for="skill in SKILLS" :key="skill">
+                    <small>{{ skill.toUpperCase() }}</small>
+                    <strong>{{ crewProfile(focusedCrew).stats[skill] }}</strong>
+                  </div>
+                </div>
+              </div>
+              <button
+                class="cap-primary"
+                type="button"
+                data-testid="captains-begin"
+                :disabled="chosenCrew.length !== 3"
+                @click="store.begin(selectedCaptain, chosenCrew)"
+              >
+                TAKE COMMAND <span>➜</span>
+              </button>
+              <div class="cap-subnote">
+                Playable three-stop voyage · Full multi-world personal quests
+                are still in development
+              </div>
+            </template>
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
@@ -449,7 +521,9 @@
               ><span>{{ run.report.names }}</span>
               <p>{{ run.report.text }}</p>
             </div>
-            <p class="cap-alert">{{ antagonist.interference }}</p>
+            <p class="cap-alert">
+              {{ antagonist.acts[Math.min(run.chapter - 1, 2)] }}
+            </p>
             <button
               class="cap-option"
               type="button"
@@ -630,14 +704,34 @@ import {
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import {
+  CAPTAIN_DOSSIERS,
+  CREW_DOSSIERS,
+} from '~/utils/gameOfCaptains/characterDossiers'
 
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
-const chosenCrew = ref<CrewId[]>(['pell', 'vela', 'rue'])
+const chosenCrew = ref<CrewId[]>([])
+const selectionScreen = ref<'captain' | 'crew'>('captain')
+const focusedCrew = ref<CrewId>('pell')
 const run = computed(() => store.run)
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => warpArt(`portraits/${key}`)
-const stagePainting = computed(() => '/game-of-captains/space-couch-stage.svg')
+const stagePainting = computed(() => {
+  if (run.value) return '/game-of-captains/space-couch-stage.svg'
+  const key =
+    selectionScreen.value === 'captain'
+      ? 'captain-' + selectedCaptain.value
+      : 'crew-' + focusedCrew.value
+  return portrait(key) || '/game-of-captains/space-couch-stage.svg'
+})
+const stageAlt = computed(() =>
+  run.value
+    ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
+    : selectionScreen.value === 'captain'
+      ? activeCaptain.value.name + ' selection portrait'
+      : crewProfile(focusedCrew.value).name + ' selection portrait',
+)
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
 )
@@ -699,6 +793,10 @@ const panelLabel = computed(() =>
 onMounted(() => store.load())
 useHead({ title: 'Space Couch | Kind Robots' })
 
+function selectCrewForDossier(id: CrewId) {
+  focusedCrew.value = id
+  toggleCrew(id)
+}
 function toggleCrew(id: CrewId) {
   chosenCrew.value = chosenCrew.value.includes(id)
     ? chosenCrew.value.filter((x) => x !== id)

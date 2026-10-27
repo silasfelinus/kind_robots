@@ -316,6 +316,19 @@ export const WORLD_ONE_ART_SHOTS: readonly MemoryArtShot[] = [
   ),
 ]
 
+/** Select only an authored Briar scene or its recorded choice outcome. */
+export function briarIllustrationPath(
+  key: string,
+  choiceId?: string | null,
+): string | null {
+  const scene = BRIAR_STORY_ATLAS[key]
+  if (!scene) return null
+  const stem = key.replace(',', '-')
+  if (choiceId && scene.choices.some((choice) => choice.id === choiceId))
+    return `${sceneRoot}/outcomes/${stem}-${choiceId}.webp`
+  return `${sceneRoot}/sites/${stem}.webp`
+}
+
 export function validateWorldOneArtManifest(): string[] {
   const issues: string[] = validateRealmGallery(WORLD_ONE_GALLERY, 1)
   const ids = new Set<string>()

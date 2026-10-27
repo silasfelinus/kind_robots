@@ -431,12 +431,25 @@
                 alt="Enlarged illustration of the inspected regional seal"
                 draggable="false"
               />
+              <img
+                v-else-if="
+                  !world.mapMatching &&
+                  currentIllustrationPath &&
+                  !sceneArtFailed
+                "
+                :key="currentIllustrationPath"
+                :src="currentIllustrationPath"
+                class="h-full w-full object-cover"
+                :alt="`Illustration of ${world.activeScene?.title ?? world.selectedSite?.name ?? 'Briar Marches'}`"
+                draggable="false"
+                @error="sceneArtFailed = true"
+              />
               <div
                 v-else-if="!world.mapMatching"
                 class="h-full w-full bg-cover"
                 :style="currentSceneStyle"
                 role="img"
-                :aria-label="`Detailed view of ${world.selectedSite?.name ?? 'the selected map square'}`"
+                :aria-label="`Illustration unavailable for ${world.selectedSite?.name ?? 'the selected map square'}; showing the Briar map detail`"
               ></div>
               <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
               <span class="md-scene-art-label">
@@ -825,7 +838,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
@@ -834,6 +847,7 @@ import {
   briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
 import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
+import { briarIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import {
   BRIAR_CROSS_MAP_KEYS,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -868,6 +882,16 @@ function crossMapImage(key: string): string {
   )
   return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
 }
+const currentIllustrationPath = computed(() =>
+  briarIllustrationPath(
+    world.state.player,
+    world.state.sceneChoices[world.state.player],
+  ),
+)
+const sceneArtFailed = ref(false)
+watch(currentIllustrationPath, () => {
+  sceneArtFailed.value = false
+})
 const currentSceneStyle = computed(() => {
   const [x = 1, y = 1] = world.state.player.split(',').map(Number)
   return {

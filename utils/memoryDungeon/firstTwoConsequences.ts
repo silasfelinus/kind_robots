@@ -328,7 +328,9 @@ export function earnedRoyalEscortAccord(
   const response = mirrored.sceneChoices['4,4']
   if (source !== 'escort' && source !== 'question') return 'unset'
   if (response !== 'scylla' && response !== 'char') return 'unset'
-  return `${source}-${response}`
+  if (source === 'escort')
+    return response === 'scylla' ? 'escort-scylla' : 'escort-char'
+  return response === 'scylla' ? 'question-scylla' : 'question-char'
 }
 
 export function earnedRoyalEscortOutcome(

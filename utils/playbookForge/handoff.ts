@@ -57,6 +57,16 @@ export function blueprintPitch(b: Blueprint, f: Forecast): string {
     '',
     ...sparkLines(b.sparks ?? []),
     '',
+    ...(b.designs?.length
+      ? [
+          'Designs (authored art prompts):',
+          ...b.designs.map(
+            (d) =>
+              `- ${d.kind}: ${d.title}${d.prompt ? ` — ${d.prompt}` : ' — prompt to write'}`,
+          ),
+          '',
+        ]
+      : []),
     `Start it with: python scripts/new_playbook.py ${b.slug} "${b.title}" --blueprint <this pitch>`,
     `then in kind_robots: npm run playbook:new -- ${b.slug} "${b.title}"`,
     '',

@@ -1,9 +1,9 @@
 <template>
   <div
     v-if="forge.draft"
-    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-3 @5xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,1fr)] @5xl:grid-rows-1 @5xl:gap-4"
+    class="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(18rem,1.3fr)_minmax(0,1fr)] gap-3 @5xl:grid-cols-[minmax(0,1.7fr)_minmax(20rem,1fr)] @5xl:grid-rows-[auto_minmax(0,1fr)] @5xl:gap-4"
   >
-    <section class="flex min-h-0 min-w-0 flex-col gap-3">
+    <header class="flex min-w-0 flex-col gap-2 @5xl:col-span-2">
       <div class="flex shrink-0 items-end justify-between gap-3">
         <div class="min-w-0">
           <p class="pf-kicker text-secondary">
@@ -13,7 +13,7 @@
                 : forge.draft.title
             }}
           </p>
-          <p class="pf-display mt-1 hidden text-3xl @3xl:block @3xl:text-4xl">
+          <p class="pf-display mt-1 hidden text-2xl @3xl:block @3xl:text-3xl">
             {{ tabInfo.label }}
           </p>
           <p class="mt-1 text-sm opacity-70">{{ tabInfo.blurb }}</p>
@@ -28,7 +28,10 @@
         </button>
       </div>
 
-      <p v-if="forge.existing" class="shrink-0 text-xs opacity-70">
+      <p
+        v-if="forge.existing"
+        class="hidden shrink-0 text-xs opacity-70 @3xl:block"
+      >
         <template v-if="forge.loadingBuilt">Counting what is built…</template>
         <template v-else-if="forge.built">
           Built is counted from {{ forge.built.source }}; plan is the
@@ -65,7 +68,11 @@
           "
         />
       </div>
+    </header>
 
+    <PlaybookForgeDesigns />
+
+    <section class="flex min-h-0 min-w-0 flex-col gap-3">
       <ul
         class="kr-scroll -mx-1 flex min-h-0 flex-col gap-1.5 px-1 py-1"
         aria-label="Factors"
@@ -84,10 +91,9 @@
             @click="forge.step(1, row)"
             @pf-adjust="forge.step(($event as CustomEvent<1 | -1>).detail, row)"
           >
-            <span
-              class="pf-label min-w-0 flex-1 truncate text-left text-sm @3xl:text-base"
-              >{{ row.label }}</span
-            >
+            <span class="pf-label min-w-0 flex-1 truncate text-left text-sm">{{
+              row.label
+            }}</span>
             <span
               v-if="forge.existing"
               class="pf-built"
@@ -104,7 +110,7 @@
                 >◀</span
               >
               <span
-                class="pf-display min-w-[3.25rem] text-center text-base @3xl:min-w-[5.5rem] @3xl:text-lg"
+                class="pf-display min-w-[3.25rem] text-center text-base"
                 :class="
                   row.kind === 'toggle' && !forge.draft[row.key]
                     ? 'opacity-50'
@@ -131,9 +137,9 @@
           {{ forge.focusedRow.help }}
         </p>
       </div>
-    </section>
 
-    <PlaybookForgeHud />
+      <PlaybookForgeHud compact />
+    </section>
   </div>
 </template>
 

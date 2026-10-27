@@ -1,6 +1,7 @@
 import type { BudgetDimension } from '../playbookKit/budget'
 import type { PlaybookTier } from '../playbookKit/types'
 import type { CheckpointClassId } from './calibration'
+import type { Design } from './designs'
 import type { Spark } from './facets'
 
 // A playbook blueprint: every factor a designer can set before a story game is
@@ -124,6 +125,8 @@ export type Blueprint = {
 
   /** Facets dealt into the design: genre, tone, world, question, cast, look. */
   sparks: Spark[]
+  /** Named elements with their art prompts (and pictures once rendered). */
+  designs: Design[]
 }
 
 export type ForecastLine = { label: string; count: number; detail: string }

@@ -33,6 +33,15 @@ import {
 import type { Blueprint } from '../playbookForge/types'
 import { blueprintFromPitch, buildGestation } from '../playbookForge/gestation'
 import { withGestationNote } from '../playbookForge/gestationNotes'
+import { cardsForTab, designTab } from '../playbookForge/designs'
+import {
+  characterItem,
+  entityImage,
+  facetItem,
+  itemDesign,
+  itemSpark,
+  scenarioLocations,
+} from '../playbookForge/catalog'
 import { parse as parseYaml } from 'yaml'
 import {
   SPARK_SLOTS,
@@ -77,7 +86,14 @@ const at = (patch: Partial<Blueprint>) => forecast({ ...base(), ...patch })
 
 // Every factor a blueprint carries is a row the designer can reach, once.
 // Sparks are design material from Facets, carried like the idea, not a factor.
-const identity = new Set(['slug', 'title', 'idea', 'genre', 'sparks'])
+const identity = new Set([
+  'slug',
+  'title',
+  'idea',
+  'genre',
+  'sparks',
+  'designs',
+])
 const rowKeys = FACTOR_ROWS.map((row) => row.key)
 assert.equal(new Set(rowKeys).size, rowKeys.length, 'one row per factor')
 for (const key of Object.keys(VIGNETTE_DEFAULTS) as (keyof Blueprint)[])
@@ -740,6 +756,94 @@ assert.equal(
   assert.match(withGestationNote('', 'x', { note: 'first' }), /notes:\n {2}x:/)
 }
 
+// Designs: plan pages lead with art, the game's beats and authored designs.
+{
+  const book = {
+    order: ['a', 'b', 'c'],
+    nodes: {
+      a: { ...beat('a', 'follower'), artUrl: '/a.webp' },
+      b: { ...beat('b', 'encounter'), artPrompt: 'A pier at dawn.' },
+      c: beat('c', 'ending'),
+    },
+  }
+  const design = {
+    id: 'd1',
+    kind: 'villain' as const,
+    title: 'The Tax Auditor',
+    note: '',
+    prompt: 'A grey clerk.',
+  }
+  const cast = cardsForTab('cast', book, [design])
+  assert.deepEqual(
+    cast.map((c) => c.id),
+    ['design:d1', 'beat:a'],
+    'designs first, then the page’s beats',
+  )
+  assert.equal(cast[1]!.imageUrl, '/a.webp')
+  const story = cardsForTab('story', book, [design])
+  assert.deepEqual(
+    story.map((c) => c.prompt),
+    ['A pier at dawn.'],
+    'an unpainted beat shows its authored prompt',
+  )
+  assert.equal(designTab('place'), 'story')
+
+  // Catalogue: entities read as art cards; picks become designs and sparks.
+  assert.equal(entityImage({ artImageId: 7 }), '/api/art/images/7/file')
+  assert.equal(entityImage({ imagePath: 'images/x.webp' }), '/images/x.webp')
+  const hero = characterItem({
+    id: 3,
+    name: 'Mosswick',
+    species: 'Otter',
+    class: 'Bard',
+    artImageId: 9,
+  })!
+  assert.equal(hero.imageUrl, '/api/art/images/9/file')
+  assert.equal(
+    itemDesign(hero).kind,
+    'follower',
+    'a character becomes a follower design',
+  )
+  assert.equal(itemDesign(hero).imageUrl, '/api/art/images/9/file')
+  const setting = facetItem({
+    id: 4,
+    title: 'Tidal Library',
+    taxonomy: 'SETTING',
+    description: 'Shelves in the surf.',
+    flavorText: null,
+    artPrompt: null,
+    imagePath: null,
+    randomWeight: 1,
+    isRandomizable: true,
+  })
+  assert.equal(itemDesign(setting).kind, 'place')
+  assert.equal(
+    itemSpark(setting)?.slot,
+    'world',
+    'a SETTING Facet sparks the world',
+  )
+  const genre = facetItem({
+    id: 5,
+    title: 'Solarpunk',
+    taxonomy: 'GENRE',
+    description: null,
+    flavorText: null,
+    artPrompt: null,
+    imagePath: null,
+    randomWeight: 1,
+    isRandomizable: true,
+  })
+  assert.equal(itemSpark(genre)?.slot, 'genre')
+  assert.deepEqual(
+    scenarioLocations({
+      id: 2,
+      title: 'Fog',
+      locations: '- The Pier: where it starts\n- Old Mill',
+    }).map((l) => l.title),
+    ['The Pier', 'Old Mill'],
+  )
+}
+
 // The console, its tab, and the store-only rule for storage and API calls.
 const tab = readFileSync(
   fromRoot('content/channels/admin/playbook-forge.md'),
@@ -761,6 +865,10 @@ for (const name of [
   'adjust',
   'gestation',
   'gestation-concept',
+  'designs',
+  'art-card',
+  'catalog',
+  'catalog-tray',
   'relay',
   'beats',
   'beat',

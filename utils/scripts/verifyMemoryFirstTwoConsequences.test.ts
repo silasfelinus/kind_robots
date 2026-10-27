@@ -530,7 +530,9 @@ function freshBriarTwoWaves(seed: number) {
     assert.equal(progress.wavePhase, 'exploring')
     assert.deepEqual(
       [...progress.revealed].sort(),
-      BRIAR_REVEAL_WAVES.slice(0, waveIndex + 1).flat().sort(),
+      BRIAR_REVEAL_WAVES.slice(0, waveIndex + 1)
+        .flat()
+        .sort(),
       'Only legitimately matched map squares become accessible',
     )
     if (waveIndex === 0) {

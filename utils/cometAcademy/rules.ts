@@ -495,7 +495,7 @@ export function encounterFor(run: AcademyRun) {
     }
   }
   const personalStory = openingRouteFor(run)
-  if (personalStory) return personalStory
+  if (personalStory) return { ...personalStory, scene: campaignAnchor(run.day) + ' ' + personalStory.scene }
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {

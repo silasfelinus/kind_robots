@@ -6,7 +6,10 @@ import {
   MISSION_RULES,
 } from '../gameOfCaptains/crewAssignments'
 import { readFileSync } from 'node:fs'
-import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from '../gameOfCaptains/characterDossiers'
+import {
+  CAPTAIN_DOSSIERS,
+  CREW_DOSSIERS,
+} from '../gameOfCaptains/characterDossiers'
 import {
   CAPTAINS,
   POCKET_ROOMS,
@@ -41,11 +44,17 @@ for (const enemy of ANTAGONISTS) {
   assert.equal(new Set(enemy.acts).size, 3)
 }
 const villainSeeds = new Set(
-  Array.from({ length: 256 }, (_, n) =>
-    antagonistFor(startVoyage('fluke', ['pell', 'mox', 'rue'], n + 1)).id,
+  Array.from(
+    { length: 256 },
+    (_, n) =>
+      antagonistFor(startVoyage('fluke', ['pell', 'mox', 'rue'], n + 1)).id,
   ),
 )
-assert.equal(villainSeeds.size, 8, 'all eight principal enemies are seed-reachable')
+assert.equal(
+  villainSeeds.size,
+  8,
+  'all eight principal enemies are seed-reachable',
+)
 assert.equal(POCKET_ROOMS.length, 3)
 assert.ok(SPACE_COUCH.vessel.includes('red couch'))
 let couch = startVoyage('fluke', ['pell', 'mox', 'rue'], 41)

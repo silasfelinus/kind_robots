@@ -17,6 +17,8 @@ export interface BriarQuestStep {
   /** Choices that take this step; any other choice here closes the thread. */
   advance: readonly string[]
   text: string
+  /** Alternate authored resolutions for choices that close this step. */
+  closedOutcomes?: Readonly<Record<string, string>>
 }
 
 export interface BriarQuest {
@@ -62,18 +64,30 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '2,4',
         advance: ['lend'],
         text: 'Lend the night courier your lantern at the two-arrow post.',
+        closedOutcomes: {
+          copy:
+            'You kept your lantern and copied the impossible address. The courier can still try the unlit road, but you cannot promise a safe delivery. Pip keeps the address in a second ledger so someone else may volunteer to carry the letter.',
+        },
       },
       {
         scope: 'briar',
         key: '1,4',
         advance: ['inspect'],
         text: 'Read the red courier’s contract before anyone knocks.',
+        closedOutcomes: {
+          knock:
+            'You stood beside the red courier and made Grandmother name the children excluded from her bargain. The courier carries their testimony instead of a quietly inspected contract. The letter remains sealed, but its delivery must now wait for the people it would erase.',
+        },
       },
       {
         scope: 'briar',
         key: '6,4',
         advance: ['carry'],
         text: 'Carry the Brass Knight’s apology for Pip, and leave the destruction order sealed.',
+        closedOutcomes: {
+          read:
+            'You broke the destruction order’s seal and warned the House before the threat could arrive. Pip must account for an opened letter, and the Knight’s apology travels more slowly. The House has time to shelter its residents, which matters more than a perfect delivery record.',
+        },
       },
     ],
     complete:
@@ -367,7 +381,7 @@ export function briarQuestProgress(
         : houseDecisions[step.key]
     return {
       step,
-      state: !made
+      state: !made || !choiceIds(step)?.includes(made)
         ? ('open' as const)
         : step.advance.includes(made)
           ? ('done' as const)
@@ -382,7 +396,21 @@ export function briarQuestProgress(
       : done
         ? 'active'
         : 'unstarted'
-  return { quest, state, steps, done }
+  const firstClosed = steps.find((entry) => entry.state === 'closed')
+  const closingChoice = firstClosed
+    ? firstClosed.step.scope === 'briar'
+      ? briarDecisions[firstClosed.step.key]
+      : houseDecisions[firstClosed.step.key]
+    : undefined
+  const closedOutcome = closingChoice
+    ? firstClosed?.step.closedOutcomes?.[closingChoice]
+    : undefined
+  return {
+    quest: closedOutcome ? { ...quest, closed: closedOutcome } : quest,
+    state,
+    steps,
+    done,
+  }
 }
 
 export function briarQuestLog(
@@ -414,7 +442,19 @@ export function validateBriarQuests(): string[] {
       }
       if (!step.advance.every((id) => ids.includes(id)))
         issues.push(`${q.id} step ${step.key} advances on a missing choice`)
-      if (ids.some((id) => !step.advance.includes(id))) closable = true
+      const alternatives = ids.filter((id) => !step.advance.includes(id))
+      if (alternatives.length) closable = true
+      if (step.closedOutcomes) {
+        for (const id of alternatives)
+          if (!step.closedOutcomes[id])
+            issues.push(`${q.id} step ${step.key} lacks ${id} resolution`)
+        for (const [id, ending] of Object.entries(step.closedOutcomes)) {
+          if (!alternatives.includes(id))
+            issues.push(`${q.id} step ${step.key} has invalid ${id} resolution`)
+          if (ending.trim().length < 90)
+            issues.push(`${q.id} step ${step.key} has thin ${id} resolution`)
+        }
+      }
     }
     // A step any choice takes is fine; a thread made only of them would be
     // a checklist, not a quest.

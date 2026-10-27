@@ -376,9 +376,10 @@ const totals = computed(() => {
   return [
     {
       label: 'Art delivered',
-      value: l.plannedUnits + l.extraArt.total
-        ? `${l.art.delivered}/${l.plannedUnits + l.extraArt.total}`
-        : '—',
+      value:
+        l.plannedUnits + l.extraArt.total
+          ? `${l.art.delivered}/${l.plannedUnits + l.extraArt.total}`
+          : '—',
       cls:
         l.plannedUnits + l.extraArt.total > 0 &&
         l.art.delivered === l.plannedUnits + l.extraArt.total

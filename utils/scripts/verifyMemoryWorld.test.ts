@@ -46,6 +46,7 @@ import {
 
 import {
   EARTH_PHOTOS,
+  earthPhotoReappraisal,
   firstWorldPhotoChronicle,
   newEarthChronicle,
   recoveredEarthPhotos,
@@ -406,6 +407,66 @@ console.log(
   'Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics',
 )
 
+const pairedPhotoCases = [
+  ['earth-01', 'earth-03'],
+  ['earth-02', 'earth-04'],
+] as const
+for (const [firstId, secondId] of pairedPhotoCases) {
+  const firstOnly = {
+    ...newEarthChronicle(),
+    found: [firstId],
+    responses: { [firstId]: 'hold' as const },
+  }
+  assert.equal(earthPhotoReappraisal(firstOnly, firstId), null)
+  assert.equal(earthPhotoReappraisal(firstOnly, secondId), null)
+  const unreflected = { ...firstOnly, found: [secondId, firstId] }
+  assert.equal(earthPhotoReappraisal(unreflected, firstId), null)
+  const outcomes = new Set<string>()
+  for (const firstResponse of ['challenge', 'hold'] as const) {
+    for (const secondResponse of ['challenge', 'hold'] as const) {
+      const journal = restoreEarthChronicle(
+        JSON.parse(
+          JSON.stringify({
+            version: 1,
+            found: [secondId, firstId],
+            responses: {
+              [firstId]: firstResponse,
+              [secondId]: secondResponse,
+            },
+          }),
+        ),
+      )
+      const fromFirst = earthPhotoReappraisal(journal, firstId)
+      const fromSecond = earthPhotoReappraisal(journal, secondId)
+      assert.ok(fromFirst)
+      assert.deepEqual(fromFirst, fromSecond)
+      assert.match(fromFirst.evidence, /photograph|print|gathering/i)
+      assert.ok(fromFirst.reflection.length > 80)
+      outcomes.add(fromFirst.reflection)
+      assert.equal(
+        earthPhotoReappraisal(journal, 'earth-31'),
+        null,
+        'Future photographs must not expose an early comparison',
+      )
+      assert.equal(
+        respondToEarthPhoto(
+          journal,
+          firstId,
+          firstResponse === 'hold' ? 'challenge' : 'hold',
+        ),
+        journal,
+        'Pair comparisons must never rewrite the original response',
+      )
+    }
+  }
+  assert.equal(
+    outcomes.size,
+    4,
+    'Every paired interpretation has unique authored copy',
+  )
+}
+assert.equal(earthPhotoReappraisal(newEarthChronicle(), 'earth-01'), null)
+
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',
   'utf8',
@@ -415,6 +476,8 @@ const memoryMapSurface = readFileSync(
   'utf8',
 )
 assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
+assert.match(chronicleSurface, /data-testid="memory-earth-reappraisal"/)
+assert.match(chronicleSurface, /earthPhotoReappraisal/)
 assert.match(chronicleSurface, /world\.answerEarthPhoto/)
 assert.match(chronicleSurface, /v-if="!failed\[active.id\]"/)
 assert.match(memoryMapSurface, /data-testid="memory-earth-chronicle-open"/)

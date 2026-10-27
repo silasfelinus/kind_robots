@@ -70,7 +70,11 @@ import {
   isVowMemory,
   routeEpilogue,
 } from '../cometAcademy/openingRoutes'
-import { missionReaction, missionRoute, missionRouteRoster } from '../cometAcademy/missionTeams'
+import {
+  missionReaction,
+  missionRoute,
+  missionRouteRoster,
+} from '../cometAcademy/missionTeams'
 import { readFileSync } from 'node:fs'
 import {
   POWERS,
@@ -1390,10 +1394,17 @@ for (const seed of [1, 2, 5, 42, 88, 101]) {
   assert.equal(knownContacts(run).length, 2)
   assert.deepEqual(run.contacts, startingContacts(seed))
   assert.equal(new Set(run.contacts).size, 2)
-  assert.ok(run.contacts.every((id) => STUDENTS.find((p) => p.id === id)?.origin === 'academy'))
+  assert.ok(
+    run.contacts.every(
+      (id) => STUDENTS.find((p) => p.id === id)?.origin === 'academy',
+    ),
+  )
   const outsider = STUDENTS.find((person) => person.origin !== 'academy')!
   const dispatch = { ...run, phase: 'dispatch' as const }
-  assert.deepEqual(assignTeam(dispatch, incidentsFor(dispatch)[0]!.id, [outsider.id]), dispatch)
+  assert.deepEqual(
+    assignTeam(dispatch, incidentsFor(dispatch)[0]!.id, [outsider.id]),
+    dispatch,
+  )
   const oldRun = startAcademy('kinetic', seed)
   assert.equal(knownContacts(oldRun).length, STUDENTS.length)
 }
@@ -1414,33 +1425,66 @@ for (const person of STUDENTS) {
   assert.equal(recruitableContact(gained), null)
 }
 const badContacts = startFullAcademy('kinetic', 99)
-assert.equal(restoreAcademy({ ...badContacts, contacts: ['mina', 'mina'] }), null)
+assert.equal(
+  restoreAcademy({ ...badContacts, contacts: ['mina', 'mina'] }),
+  null,
+)
 assert.equal(restoreAcademy({ ...badContacts, contacts: ['unknown'] }), null)
-const allKnown = { ...startFullAcademy('kinetic', 2), contacts: STUDENTS.map((p) => p.id), phase: 'dispatch' as const }
+const allKnown = {
+  ...startFullAcademy('kinetic', 2),
+  contacts: STUDENTS.map((p) => p.id),
+  phase: 'dispatch' as const,
+}
 for (const incident of INCIDENTS) {
-  const moods = new Set(STUDENTS.map((person) => missionReaction(person.id, incident.id).mood))
+  const moods = new Set(
+    STUDENTS.map((person) => missionReaction(person.id, incident.id).mood),
+  )
   assert.ok(moods.size >= 2, 'Every quest has distinctive reactions')
-  for (const person of STUDENTS) assert.ok(missionReaction(person.id, incident.id).line.length > 12)
+  for (const person of STUDENTS)
+    assert.ok(missionReaction(person.id, incident.id).line.length > 12)
   assert.ok(missionRouteRoster(incident.id).length >= 2)
   const panel = { ...allKnown, day: 3, seed: 77 }
   if (!incidentsFor(panel).some((item) => item.id === incident.id)) continue
   const team = STUDENTS.slice(0, 3).map((p) => p.id)
   const threshold = dispatchModifier(panel, incident, team)
-  const expected = Math.round(100 * [0,1,2,3,4,5].filter((n) => n + threshold >= incident.risk).length / 6)
+  const expected = Math.round(
+    (100 *
+      [0, 1, 2, 3, 4, 5].filter((n) => n + threshold >= incident.risk).length) /
+      6,
+  )
   assert.equal(dispatchChance(panel, incident.id, team), expected)
 }
 for (const group of missionRouteRoster('monorail')) {
   assert.ok(missionRoute('monorail', group))
 }
-const commission = { ...startFullAcademy('kinetic', 1), phase: 'dispatch' as const, day: 3, contacts: STUDENTS.map((s) => s.id) }
+const commission = {
+  ...startFullAcademy('kinetic', 1),
+  phase: 'dispatch' as const,
+  day: 3,
+  contacts: STUDENTS.map((s) => s.id),
+}
 const monorail = INCIDENTS.find((caseFile) => caseFile.id === 'monorail')!
-const monorailRun = { ...commission, seed: 6, day: 1 + ((INCIDENTS.length + INCIDENTS.indexOf(monorail) - (6 % INCIDENTS.length)) % INCIDENTS.length) }
+const monorailRun = {
+  ...commission,
+  seed: 6,
+  day:
+    1 +
+    ((INCIDENTS.length + INCIDENTS.indexOf(monorail) - (6 % INCIDENTS.length)) %
+      INCIDENTS.length),
+}
 assert.ok(incidentsFor(monorailRun).some((item) => item.id === 'monorail'))
-const joint = assignTeam(monorailRun, 'monorail', ['mara','sol'])
+const joint = assignTeam(monorailRun, 'monorail', ['mara', 'sol'])
 assert.equal(joint.assignments[0]?.students.length, 2)
-assert.equal(missionRoute('monorail', joint.assignments[0]!.students)?.label, 'The Union Override')
+assert.equal(
+  missionRoute('monorail', joint.assignments[0]!.students)?.label,
+  'The Union Override',
+)
 const outcome = resolveDispatch(joint)
-assert.ok(outcome.reports.find((report) => report.caseId === 'monorail')?.text.includes('The Union Override'))
+assert.ok(
+  outcome.reports
+    .find((report) => report.caseId === 'monorail')
+    ?.text.includes('The Union Override'),
+)
 
 const ngPlus = startFullAcademy(
   fieldFor('mutant-genius'),

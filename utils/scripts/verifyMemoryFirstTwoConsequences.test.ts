@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   BRIAR_START,
+  BRIAR_LINKS,
   briarConnected,
   newBriarSave,
   restoreBriarSave,
@@ -10,12 +11,23 @@ import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
 import { BRIAR_SCENES, canChooseBriarScene } from '../memoryDungeon/scenes'
 import { newHouseProgress } from '../memoryDungeon/house'
 import {
+  DARK_HOUSE_ROOMS,
   newDarkHouseProgress,
   darkHousePuzzleHint,
+  darkHouseFlip,
+  darkHouseAnswerPuzzle,
+  darkHouseChoose,
+  darkHouseMove,
+  darkHouseExits,
+  darkHouseRoomResolved,
   darkHouseEchoes,
   restoreDarkHouseProgress,
 } from '../memoryDungeon/darkHouse'
-import { darkHouseTrialFaces } from '../memoryDungeon/darkHouseChallenges'
+import {
+  DARK_HOUSE_TRIALS,
+  DARK_HOUSE_PUZZLES,
+  darkHouseTrialFaces,
+} from '../memoryDungeon/darkHouseChallenges'
 import {
   newDarkBriarProgress,
   darkBriarCanTravel,
@@ -386,4 +398,150 @@ assert.ok(houseStage.includes('Protected witnesses · free clue'))
 
 console.log(
   'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',
+)
+
+/** Walk only connected, revealed Briar sites, preserving each movement through
+ * the actual save restorer. No teleport to a later choice or invented resource. */
+function walkEarnedBriarRoute(
+  start: string,
+  goal: string,
+  revealed: readonly string[],
+): string[] {
+  const paths = [[start]]
+  const seen = new Set([start])
+  const available = new Set(revealed)
+  while (paths.length) {
+    const path = paths.shift()!
+    const current = path[path.length - 1]!
+    if (current === goal) return path
+    const neighbors = [
+      ...(BRIAR_LINKS[current] ?? []),
+      ...Object.entries(BRIAR_LINKS)
+        .filter(([, exits]) => exits.includes(current))
+        .map(([source]) => source),
+    ]
+    for (const next of neighbors) {
+      if (!available.has(next) || seen.has(next)) continue
+      seen.add(next)
+      paths.push([...path, next])
+    }
+  }
+  throw new Error(`No revealed Briar route from ${start} to ${goal}`)
+}
+
+// Four real source-choice combinations, followed by the complete mirrored
+// House reducer. Each journey walks to Oren and the Vault, commits both
+// authored choices, restores the original save, visits all 36 rooms, resolves
+// every trial and puzzle, and consumes only its two earned free clues.
+for (const [orenChoice, witnessChoice, philosophy] of [
+  ['plan', 'remember', 'attend'],
+  ['plan', 'protect', 'refuse'],
+  ['load', 'remember', 'refuse'],
+  ['load', 'protect', 'attend'],
+] as const) {
+  let original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: earlyReveals,
+    visited: [BRIAR_START],
+    player: BRIAR_START,
+    waveIndex: 1,
+    wavePhase: 'exploring',
+  })
+  for (const [site, choice] of [
+    ['4,3', orenChoice],
+    ['6,3', witnessChoice],
+  ] as const) {
+    const route = walkEarnedBriarRoute(original.player, site, original.revealed)
+    for (const step of route.slice(1)) {
+      assert.ok(
+        briarConnected(original.player, step, original.revealed),
+        `Cannot teleport from ${original.player} to ${step}`,
+      )
+      original = restoreBriarSave({
+        ...original,
+        player: step,
+        visited: [...original.visited, step],
+      })
+    }
+    const option = BRIAR_SCENES[site]!.choices.find(
+      (candidate) => candidate.id === choice,
+    )
+    assert.ok(option && canChooseBriarScene(option, original))
+    original = restoreBriarSave({
+      ...original,
+      sceneChoices: { ...original.sceneChoices, [site]: choice },
+    })
+    assert.equal(original.sceneChoices[site], choice)
+  }
+
+  let journey = { ...newDarkHouseProgress(), active: true }
+  const visitedRooms = new Set<string>([journey.current])
+  const freeClueRooms: string[] = []
+  function exploreEarnedHouse(): void {
+    const room = journey.current
+    const clue = earnedDarkHousePuzzleClue(original, room)
+    if (clue) {
+      assert.ok(DARK_HOUSE_PUZZLES[room], `${room} needs a real puzzle`)
+      const spent = journey.spentEchoes
+      journey = darkHousePuzzleHint(journey, clue)
+      assert.equal(journey.spentEchoes, spent, `${room} must be free`)
+      assert.equal(journey.puzzles[room]?.hint, true)
+      journey = restoreDarkHouseProgress(JSON.parse(JSON.stringify(journey)))
+      assert.equal(
+        darkHousePuzzleHint(journey, clue),
+        journey,
+        `${room} cannot claim the clue twice after reload`,
+      )
+      freeClueRooms.push(room)
+    }
+    if (DARK_HOUSE_TRIALS[room]) {
+      const faces = darkHouseTrialFaces(room)
+      for (const pair of new Set(faces.map((face) => face.pair))) {
+        const match = faces.filter((face) => face.pair === pair)
+        journey = darkHouseFlip(journey, match[0]!.id)
+        journey = darkHouseFlip(journey, match[1]!.id)
+      }
+    }
+    if (DARK_HOUSE_PUZZLES[room]) {
+      journey = darkHouseAnswerPuzzle(journey, DARK_HOUSE_PUZZLES[room]!.answer)
+    }
+    assert.equal(darkHouseRoomResolved(journey), true)
+    journey = darkHouseChoose(journey, philosophy)
+    journey = restoreDarkHouseProgress(JSON.parse(JSON.stringify(journey)))
+    assert.equal(journey.decisions[room], philosophy)
+    for (const next of DARK_HOUSE_ROOMS[room]!.exits) {
+      if (visitedRooms.has(next)) continue
+      assert.ok(
+        darkHouseExits(journey).includes(next),
+        `${room} must open ${next} after its real decision`,
+      )
+      journey = darkHouseMove(journey, next)
+      visitedRooms.add(next)
+      exploreEarnedHouse()
+      journey = darkHouseMove(journey, room)
+      assert.equal(journey.current, room)
+    }
+  }
+  exploreEarnedHouse()
+  assert.equal(visitedRooms.size, 36)
+  assert.equal(Object.keys(journey.decisions).length, 36)
+  assert.deepEqual(
+    freeClueRooms.sort(),
+    [
+      orenChoice === 'plan' ? 'HD-03' : 'HD-25',
+      witnessChoice === 'remember' ? 'HD-08' : 'HD-34',
+    ].sort(),
+    'Exactly two earned room-bound clues must be reachable',
+  )
+  assert.equal(journey.ending, philosophy === 'attend' ? 'return' : 'commons')
+  const aftermath = crossRealmHouseEpilogue(original, journey)
+  assert.ok(aftermath.includes('Oren'))
+  assert.ok(
+    witnessChoice === 'remember'
+      ? aftermath.includes('copied') || aftermath.includes('names you copied')
+      : aftermath.includes('protected') || aftermath.includes('shielded'),
+  )
+}
+console.log(
+  'Four earned Briar-to-House journeys: 144 resolved rooms, 8 free clues, four source combinations and both endings survive every save round-trip',
 )

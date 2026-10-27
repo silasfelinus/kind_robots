@@ -6,6 +6,7 @@ import {
   restoreDarkBriarProgress,
   recoverDarkBriarTurn,
 } from '../memoryDungeon/darkBriar'
+import { settleDarkBriarReturn } from '../memoryDungeon/darkBriarReturn'
 import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
 import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
 import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
@@ -1230,6 +1231,57 @@ assert.equal(
   ).progress.phase,
   'exploring',
   'The last reflected pair resumes directly into exploration',
+)
+const returnedMirroredPair = settleDarkBriarReturn(mirroredPending)
+assert.equal(returnedMirroredPair.attempts, 1)
+assert.deepEqual(
+  [...returnedMirroredPair.revealed].sort(),
+  mirroredPair.map((card) => card.tile).sort(),
+  'Leaving during a successful reflected flip must award the already-paid pair',
+)
+assert.ok(
+  mirroredPair.every((card) =>
+    returnedMirroredPair.mapCards.find((item) => item.tile === card.tile)
+      ?.matched,
+  ),
+)
+assert.ok(
+  returnedMirroredPair.mapCards.every((card) => card.matched || !card.flipped),
+  'No unmatched pictures remain face up when leaving the reflection',
+)
+assert.deepEqual(
+  settleDarkBriarReturn(returnedMirroredPair),
+  returnedMirroredPair,
+  'Returning twice cannot grant an extra pair or attempt',
+)
+const returnedMirroredMismatch = settleDarkBriarReturn(mirroredMismatch)
+assert.equal(returnedMirroredMismatch.attempts, 1)
+assert.equal(returnedMirroredMismatch.revealed.length, 0)
+assert.ok(returnedMirroredMismatch.mapCards.every((card) => !card.flipped))
+const returnedMirroredFirst = settleDarkBriarReturn(mirroredSingle)
+assert.equal(returnedMirroredFirst.attempts, 0)
+assert.equal(returnedMirroredFirst.revealed.length, 0)
+assert.ok(returnedMirroredFirst.mapCards.every((card) => !card.flipped))
+const returnedMirroredFinal = settleDarkBriarReturn({
+  ...mirroredPending,
+  revealed: mirroredCards
+    .filter((card) => card.pairId !== 0)
+    .map((card) => card.tile),
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+})
+assert.equal(returnedMirroredFinal.phase, 'exploring')
+assert.equal(returnedMirroredFinal.revealed.length, mirroredCards.length)
+assert.deepEqual(
+  settleDarkBriarReturn(returnedMirroredFinal),
+  returnedMirroredFinal,
+  'Leaving after the last pair remains idempotent',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /function returnToBriar\(\): void \{[\s\S]*?dark\.value = settleDarkBriarReturn\(dark\.value\)/,
+  'Reality switching must use the same paid-pair recovery as save restoration',
 )
 assert.match(
   readFileSync('stores/memoryWorldStore.ts', 'utf8'),

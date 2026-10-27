@@ -556,5 +556,4 @@ select:focus-visible {
     border-top: 2px solid #416a77;
   }
   .maker-groups {
-
 </style>

@@ -748,10 +748,20 @@
             </div>
             <div class="cap-grand-quest" data-testid="couch-grand-quest">
               <strong>THE IMPOSSIBLE ADVENTURE</strong>
-              <p>{{ activeDetour?.scene }}</p>
+              <div class="cap-quest-portrait-line">
+                <img
+                  v-if="questPortrait"
+                  class="cap-quest-portrait"
+                  :src="questPortrait"
+                  :alt="detourCrewName + ' portrait'"
+                />
+                <p>{{ activeDetour?.scene }}</p>
+              </div>
               <small>Next relic: {{ activeDetour?.prize }}</small>
             </div>
-            <p class="cap-narrative" aria-live="polite">{{ run.scene }}</p>
+            <p v-if="!run.detour?.gambit" class="cap-narrative" aria-live="polite">
+              {{ run.scene }}
+            </p>
             <p v-if="nemesisCrewLink" class="cap-alert">
               {{ antagonist.name }} has a personal stake in this expedition.
               Evidence collected here can change the final confrontation.
@@ -799,7 +809,7 @@
                 data-testid="couch-quest-reversal"
               >
                 <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
-                <p>{{ activeDetour?.reversal }}</p>
+                <p aria-live="polite">{{ run.scene }}</p>
                 <small
                   >Opening gambit: {{ run.detour.gambit }}. You may change
                   course when it matters most.</small
@@ -1042,6 +1052,10 @@ const detourCrewName = computed(
     'Crew member',
 )
 const activeDetour = computed(() => (run.value ? detourFor(run.value) : null))
+const questPortrait = computed(() => {
+  const crewId = run.value?.detour?.crewId
+  return crewId ? portrait(crewProfile(crewId).portraitKey) : null
+})
 const nemesisCrewLink = computed(
   () =>
     !!run.value?.detour &&
@@ -1276,6 +1290,24 @@ function toggleAway(id: CrewId) {
   line-height: 1.55;
   max-width: 43ch;
   color: #d5e5ed;
+}
+.cap-quest-portrait-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.cap-quest-portrait {
+  width: min(30%, 7.5rem);
+  max-height: 9rem;
+  min-width: 4.75rem;
+  flex: 0 0 auto;
+  border-radius: 0.4rem;
+  object-fit: cover;
+  border: 1px solid #e4c49888;
+}
+.cap-quest-portrait-line p {
+  flex: 1 1 12rem;
 }
 .cap-grand-quest,
 .cap-quest-phase {

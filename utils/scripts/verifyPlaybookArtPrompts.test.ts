@@ -50,8 +50,8 @@ export function promptProblems(
   if (text.length < 120) found.push('too short (under 120 characters)')
   if (text.length > 900) found.push('too long (over 900 characters)')
   for (const [pattern, label] of ABSTRACT) {
-    const match = text.match(pattern)
-    if (match) found.push(`${label}: "${match[0]}"`)
+    const word = text.match(pattern)?.[0]
+    if (word) found.push(`${label}: "${word}"`)
   }
   const title = node.title.trim()
   if (

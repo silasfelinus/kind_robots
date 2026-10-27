@@ -48,6 +48,13 @@ export type GalleryEntry = {
   /** False for beats that show no picture in the game (nothing to paint). */
   needsArt: boolean
   written: boolean
+  /** Complete authored story and alternate outcomes, not merely the beat title. */
+  body: string[]
+  variations: PlaybookNode['variations']
+  choices: PlaybookNode['choices']
+  artVariants: NonNullable<PlaybookNode['artVariants']>
+  /** Origin/power family for identity rosters; other casts remain one ensemble. */
+  group: string
 }
 
 export type GalleryStatus =
@@ -97,6 +104,18 @@ export function galleryEntry(
       unit?.art ?? (node.artUrl || !node.needsArt ? 'delivered' : 'missing'),
     needsArt: node.needsArt || !!node.artUrl,
     written: unit?.written ?? node.body.some((line) => line.trim()),
+    body: node.body,
+    variations: node.variations,
+    choices: node.choices,
+    artVariants: node.artVariants ?? [],
+    group:
+      node.kind === 'follower' && node.lenses[0] === 'guest'
+        ? 'Visitors'
+        : node.kind === 'follower' && node.lenses[0]?.includes('-')
+          ? node.lenses[0]
+              .split('-')[0]!
+              .replace(/^./, (letter) => letter.toUpperCase())
+          : 'Cast',
   }
 }
 

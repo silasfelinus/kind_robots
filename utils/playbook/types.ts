@@ -75,6 +75,13 @@ export type PlaybookNode = {
    * gets a prompt-writing task, not a render (Silas, 2026-10-26).
    */
   artPrompt?: string
+  /** Authored identity transformations (student, hero, villain), with real render slots. */
+  artVariants?: {
+    id: string
+    label: string
+    imageUrl: string | null
+    stats?: Record<string, number>
+  }[]
   /** Where the game reads this beat's picture from the image store (/images/…, not in git); the ledger API reports whether it exists. */
   artPath?: string
   provenance: string

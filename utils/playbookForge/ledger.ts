@@ -78,6 +78,9 @@ export type Shine = 'none' | 'star' | 'super'
 export type Ledger = {
   sections: LedgerSection[]
   units: number
+  /** One estimated authored art/text slot for every still-unbuilt primary encounter. */
+  unbuiltUnits: number
+  plannedUnits: number
   starred: number
   art: SectionCounts
   unwritten: number
@@ -329,14 +332,34 @@ export function buildLedger(
   const all = sections.flatMap((s) => s.units)
   const complete = all.filter(unitComplete).length
   const share = (score: (unit: LedgerUnit) => number) =>
-    units ? all.reduce((n, unit) => n + score(unit), 0) / units : 0
+    plannedUnits
+      ? all.reduce((n, unit) => n + score(unit), 0) / plannedUnits
+      : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
   // Encounters the plan calls for but the code has not built count as not
   // started, so two finished worlds of sixteen read as two of sixteen.
   const short = gaps.find((gap) => gap.key === 'encounters')
   const scope = short ? short.built / short.planned : 1
+  // A missing authored encounter is also missing its writing and image. Keep
+  // those future production slots in all denominators, not just the percent.
+  // Other gaps remain individually visible; they may overlap encounter slots.
+  const anchorGap =
+    short ??
+    gaps.reduce<PlanGap | null>(
+      (largest, gap) =>
+        !largest || gap.planned - gap.built > largest.planned - largest.built
+          ? gap
+          : largest,
+      null,
+    )
+  const unbuiltUnits = anchorGap ? anchorGap.planned - anchorGap.built : 0
+  const plannedUnits = units + unbuiltUnits
 
   const discrepancies: string[] = []
+  if (unbuiltUnits)
+    discrepancies.push(
+      `${unbuiltUnits} planned encounter slots are not authored yet; estimate includes one picture and one scene's writing per missing slot.`,
+    )
   if (art.rendered)
     discrepancies.push(
       `${art.rendered} picture${art.rendered === 1 ? ' is' : 's are'} rendered but not wired into the game.`,
@@ -368,18 +391,26 @@ export function buildLedger(
   return {
     sections,
     units,
+    unbuiltUnits,
+    plannedUnits,
     starred,
     art,
     unwritten,
     outcomes,
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
-    remainingSeconds: sections.reduce((n, s) => n + s.remainingSeconds, 0),
-    remainingWords: sections.reduce((n, s) => n + s.remainingWords, 0),
+    remainingSeconds:
+      sections.reduce((n, s) => n + s.remainingSeconds, 0) +
+      Math.round(
+        unbuiltUnits * secondsPerImage * (1 + options.assumptions.rerollRate),
+      ),
+    remainingWords:
+      sections.reduce((n, s) => n + s.remainingWords, 0) +
+      unbuiltUnits * words.encounterBody,
     scope,
-    progress: share(unitProgress) * scope,
-    writtenShare: share(unitWriting) * scope,
-    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)) * scope,
-    finishedShare: units ? (complete / units) * scope : 0,
+    progress: share(unitProgress),
+    writtenShare: share(unitWriting),
+    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)),
+    finishedShare: plannedUnits ? complete / plannedUnits : 0,
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',

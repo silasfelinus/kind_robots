@@ -17,6 +17,7 @@ import {
   SYNERGIES,
   MISSION_RULES,
 } from '../gameOfCaptains/crewAssignments'
+import { ACT_ONE_BOARDS, ACT_ONE_CONSEQUENCES, ACT_ONE_NEMESIS, ACT_ONE_ORDERS } from '../gameOfCaptains/actOne'
 import { readFileSync } from 'node:fs'
 import {
   CREW_JOURNEYS,
@@ -219,6 +220,15 @@ function completeMission(run: ReturnType<typeof startVoyage>) {
 }
 // Act I star chart: different crews, destinations and civic policies lead to
 // different reachable missions, modifiers, witnesses and finale memories.
+assert.equal(ACT_ONE_BOARDS.length, 3)
+assert.equal(Object.keys(ACT_ONE_CONSEQUENCES).length, 9)
+assert.equal(Object.keys(ACT_ONE_NEMESIS).length, 8)
+for (const missionId of Object.keys(ACT_ONE_ORDERS)) {
+  const commands = ACT_ONE_ORDERS[missionId as keyof typeof ACT_ONE_ORDERS]
+  assert.equal(new Set(Object.values(commands)).size, 3, missionId)
+  const consequences = ACT_ONE_CONSEQUENCES[missionId as keyof typeof ACT_ONE_CONSEQUENCES]
+  assert.equal(new Set(Object.values(consequences).map((x) => x.flag)).size, 3, missionId)
+}
 assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 9)
 assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 9)
 assert.deepEqual(
@@ -258,6 +268,21 @@ workerRoute = chooseMission(workerRoute, 'gameworld')
 workerRoute = completeMission(workerRoute)
 assert.equal(workerRoute.worldFlags?.length, 3)
 const workerEnding = finishVoyage(nextDestination(workerRoute), 'protect')
+const villainPressure = {
+  ...startVoyage('quill', ['mox', 'sora', 'omi'], 22),
+  chapter: 3,
+  missionId: 'gameworld',
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'showrunner'),
+}
+const ordinaryPressure = {
+  ...villainPressure,
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'auditor'),
+}
+assert.equal(
+  previewMission(villainPressure).chance,
+  Math.max(5, previewMission(ordinaryPressure).chance - 10),
+  'a seeded nemesis changes the odds at the world it controls',
+)
 assert.ok(workerEnding.scene.includes('Ashdock Shipyards'))
 assert.ok(workerEnding.scene.includes('Nacre Assembly'))
 assert.ok(workerEnding.scene.includes('Gameworld'))

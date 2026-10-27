@@ -741,50 +741,72 @@
               <div>
                 <h2>{{ activeDetour?.title }}</h2>
                 <p>
-                  {{ activeDetour?.system }} · PERSONAL VOYAGE
+                  {{ activeDetour?.system }} · THREE-WORLD ODYSSEY
                   {{ (run.detour?.step ?? 0) + 1 }}/3
                 </p>
               </div>
             </div>
-            <div class="cap-mission-report">
-              <strong>{{ detourCrewName }}</strong>
+            <div class="cap-grand-quest" data-testid="couch-grand-quest">
+              <strong>THE IMPOSSIBLE ADVENTURE</strong>
               <p>{{ activeDetour?.scene }}</p>
+              <small>Next relic: {{ activeDetour?.prize }}</small>
             </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
+            <p class="cap-narrative" aria-live="polite">{{ run.scene }}</p>
             <p v-if="nemesisCrewLink" class="cap-alert">
-              {{ antagonist.name }} may recognize this testimony. Your crew
-              could acquire leverage over the final negotiation.
+              {{ antagonist.name }} has a personal stake in this expedition.
+              Evidence collected here can change the final confrontation.
             </p>
-            <button
-              type="button"
-              class="cap-option"
-              data-testid="couch-crew-careful"
-              :disabled="run.supplies < 1"
-              @click="store.resolveDetour('careful')"
-            >
-              <span
-                ><b>{{ activeDetour?.careful }}</b
-                ><small
-                  >Spend 1 supply · +1 trust · preserve local consent</small
-                ></span
-              >↗
-            </button>
-            <button
-              type="button"
-              class="cap-option"
-              data-testid="couch-crew-bold"
-              @click="store.resolveDetour('bold')"
-            >
-              <span
-                ><b>{{ activeDetour?.bold }}</b
-                ><small
-                  >+1 public reputation · -1 trust · greater nemesis
-                  attention</small
-                ></span
-              >↗
-            </button>
+            <template v-if="!run.detour?.gambit">
+              <div class="cap-quest-phase" data-testid="couch-quest-setup">
+                <strong>ACT ONE · MAKE THE PLAN</strong>
+                <small>Both plans uncover a nasty reversal. The captain must choose again after discovering what was really at stake.</small>
+              </div>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-plan-careful"
+                @click="store.planDetour('careful')"
+              >
+                <span><b>{{ activeDetour?.careful }}</b>
+                  <small>A discreet opening gambit. What could possibly go wrong?</small></span>↗
+              </button>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-plan-bold"
+                @click="store.planDetour('bold')"
+              >
+                <span><b>{{ activeDetour?.bold }}</b>
+                  <small>A spectacular opening gambit. Insurance may not cover this.</small></span>↗
+              </button>
+            </template>
+            <template v-else>
+              <div class="cap-quest-phase cap-quest-reversal" data-testid="couch-quest-reversal">
+                <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
+                <p>{{ activeDetour?.reversal }}</p>
+                <small>Opening gambit: {{ run.detour.gambit }}. You may change course when it matters most.</small>
+              </div>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-careful"
+                :disabled="run.supplies < 1"
+                @click="store.resolveDetour('careful')"
+              >
+                <span><b>{{ activeDetour?.finalCareful }}</b>
+                  <small>Spend 1 supply · +1 trust · preserve local confidence</small></span>↗
+              </button>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-bold"
+                @click="store.resolveDetour('bold')"
+              >
+                <span><b>{{ activeDetour?.finalBold }}</b>
+                  <small>+1 public reputation · -1 trust · more enemy attention</small></span>↗
+              </button>
+            </template>
           </template>
-
           <template v-else-if="run.phase === 'finale'">
             <div class="cap-heading">
               <span>07</span>
@@ -1225,6 +1247,33 @@ function toggleAway(id: CrewId) {
   line-height: 1.55;
   max-width: 43ch;
   color: #d5e5ed;
+}
+.cap-grand-quest, .cap-quest-phase {
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #91b8bf7a;
+  border-radius: 0.65rem;
+  background: linear-gradient(150deg, #21354c, #18263b);
+}
+.cap-grand-quest strong, .cap-quest-phase strong {
+  color: #ffd9ac;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+.cap-grand-quest p, .cap-quest-phase p {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  margin: 0;
+  color: #f3eddf;
+}
+.cap-grand-quest small, .cap-quest-phase small {
+  color: #bed9df;
+  line-height: 1.5;
+}
+.cap-quest-reversal {
+  border-color: #f0bd80;
+  background: linear-gradient(150deg, #50382d, #293046);
 }
 .cap-route-board {
   padding: 0.65rem;

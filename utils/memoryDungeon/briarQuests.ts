@@ -66,7 +66,7 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         text: 'Lend the night courier your lantern at the two-arrow post.',
         closedOutcomes: {
           copy:
-            'You kept your lantern and copied the impossible address. The courier can still try the unlit road, but you cannot promise a safe delivery. Pip keeps the address in a second ledger so someone else may volunteer to carry the letter.',
+            'You kept your lantern and copied the impossible address. The courier can still try the unlit road, but you cannot promise a safe delivery. You keep the address as evidence, though it is no substitute for someone volunteering to walk the road.',
         },
       },
       {

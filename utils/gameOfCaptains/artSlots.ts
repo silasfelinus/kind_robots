@@ -1,6 +1,7 @@
 import { warpArt } from './artManifest'
 import type { VoyageRun } from './rules'
 import { antagonistFor, missionFor } from './rules'
+import { GALACTIC_ENDINGS } from './galacticEndings'
 
 // Every picture This Means Warp shows, by asset key under public/game-of-captains.
 // The play page and the Playbook Studio adapter read the same keys, so a render
@@ -23,12 +24,19 @@ export const endingArtKey = (ending: string) => `endings/${slugify(ending)}`
 export const nemesisEndingArtKey = (id: string) => `endings/${id}`
 export const SPLASH_ART_KEY = 'front/splash'
 
-export const WARP_ENDINGS = [
+/** The four base logs any voyage can close on (rules.ts finishVoyage). */
+export const BASE_ENDINGS = [
   'CAPTAIN OF THE OPEN HORIZON',
   'THE LAST SHIP HOME',
   'THE GALACTIC BARGAIN',
   'THE COST OF COMMAND',
 ] as const
+
+/** Every galactic ending family: the base four, then the twelve earned ones. */
+export const WARP_ENDINGS: readonly string[] = [
+  ...BASE_ENDINGS,
+  ...GALACTIC_ENDINGS.map((ending) => ending.title),
+]
 
 /** The stage picture for a voyage moment, or null to keep the drawn bridge. */
 export function voyageStageArt(run: VoyageRun | null): string | null {

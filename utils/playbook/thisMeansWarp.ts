@@ -1,6 +1,7 @@
 import { warpArt } from '../gameOfCaptains/artManifest'
 import { warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
+  BASE_ENDINGS,
   WARP_ENDINGS,
   antagonistArtKey,
   captainArtKey,
@@ -16,6 +17,7 @@ import {
   NEMESIS_ENDING_VARIANTS,
   nemesisEndingId,
 } from '../gameOfCaptains/nemesisEndings'
+import { GALACTIC_ENDINGS } from '../gameOfCaptains/galacticEndings'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
 import {
   MISSION_CALLBACKS,
@@ -40,7 +42,8 @@ import {
 // the voyage chart (gameOfCaptains/voyageMap.ts) is the chapter spine, one
 // board of calls per chapter across Acts I to III, each call with its
 // three orders, earlier-choice callbacks and officer asides. Pair routes are
-// threads, antagonists wait at the finale and four endings close it. Art
+// threads, antagonists wait at the finale and the galactic ending families
+// (base four plus gameOfCaptains/galacticEndings.ts) close it. Art
 // slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
 // their prompts live in gameOfCaptains/artPrompts.ts; text is authored in
 // code, so beats are read-only here.
@@ -77,7 +80,7 @@ const POLICIES = [
   },
 ] as const
 
-const ENDING_TEXT: Record<(typeof WARP_ENDINGS)[number], string> = {
+const ENDING_TEXT: Record<(typeof BASE_ENDINGS)[number], string> = {
   'CAPTAIN OF THE OPEN HORIZON':
     'Your crew rejects the antagonist’s claim and protects the worlds without owning them. Vox saves your place at the bar.',
   'THE LAST SHIP HOME':
@@ -264,20 +267,26 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       id: 'protect',
       label: 'Protect the worlds',
       tags: ['Strong with reputation ≥ 2 and trust ≥ 2'],
-      leadsTo: `ending:${slugify(WARP_ENDINGS[0])}`,
+      leadsTo: `ending:${slugify(BASE_ENDINGS[0])}`,
     },
     {
       id: 'compromise',
       label: 'Bargain for passage',
       tags: ['Strong with supplies ≥ 3'],
-      leadsTo: `ending:${slugify(WARP_ENDINGS[2])}`,
+      leadsTo: `ending:${slugify(BASE_ENDINGS[2])}`,
     },
+    ...GALACTIC_ENDINGS.map((ending) => ({
+      id: slugify(ending.title),
+      label: `${ending.orders.length > 1 ? 'Protect or bargain' : ending.orders[0] === 'protect' ? 'Protect the worlds' : 'Bargain for passage'}: ${titleCase(ending.title)}`,
+      tags: [ending.gate],
+      leadsTo: `ending:${slugify(ending.title)}`,
+    })),
   ]
   finale.provenance =
     'The stage shows the voyage’s antagonist here (antagonists/<id>).'
   add(finale)
 
-  for (const ending of WARP_ENDINGS) {
+  for (const ending of BASE_ENDINGS) {
     const node = blankNode(
       `ending:${slugify(ending)}`,
       'ending',
@@ -286,6 +295,22 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     node.place = 'Final captain’s log'
     node.body = [ENDING_TEXT[ending]]
     add(withArt(node, endingArtKey(ending)))
+  }
+  for (const ending of GALACTIC_ENDINGS) {
+    const node = blankNode(
+      `ending:${slugify(ending.title)}`,
+      'ending',
+      titleCase(ending.title),
+    )
+    node.place = 'Final captain’s log'
+    node.body = [ending.text, ending.gate]
+    node.variations = CAPTAINS.map((captain) => ({
+      axis: 'captain',
+      key: captain.id,
+      label: captain.name,
+      text: ending.captains[captain.id],
+    }))
+    add(withArt(node, endingArtKey(ending.title)))
   }
 
   const routes: PlaybookRoute[] = [
@@ -310,7 +335,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, four endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, ${WARP_ENDINGS.length} galactic endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
     routes,
     nodes,
     order: storyOrder(routes, [

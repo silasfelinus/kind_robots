@@ -31,7 +31,7 @@
       <span class="file-stamp" aria-hidden="true">{{ verdict.stamp }}</span>
       <div
         v-if="epilogue"
-        class="flex h-44 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-48 print:h-48"
+        class="flex h-52 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-56 print:h-56"
         aria-label="Your ending reward"
       >
         <shifting-desks-art
@@ -45,7 +45,7 @@
           :show-brief="false"
         />
         <div
-          class="flex min-w-0 flex-1 flex-col justify-center gap-1 overflow-y-auto py-2 pr-3"
+          class="flex min-w-0 flex-1 flex-col justify-center gap-1 py-2 pr-3"
         >
           <p
             class="font-mono text-[10px] font-black uppercase tracking-widest text-amber-300"

@@ -64,6 +64,7 @@ import {
   windowApplicant,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
+import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   MILESTONES,
   emptyRewardArchive,
@@ -78,6 +79,30 @@ const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
 assert.equal(ORIENTATION.schemaVersion, 1)
+const cabinetMarkup = asset(
+  '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
+)
+assert.deepEqual(
+  achievementsForGame('shifting-desks').map((row) => row.code),
+  [
+    'shifting-desks-survived-review',
+    'shifting-desks-sub-level-zero',
+    'shifting-desks-faced-the-board',
+  ],
+  'cabinet uses canonical three account achievement triggers',
+)
+assert.match(cabinetMarkup, /achievementStore\\.achievementRecords/)
+assert.match(cabinetMarkup, /record\\.userId === userStore\\.userId/)
+assert.match(cabinetMarkup, /status: award/)
+assert.match(cabinetMarkup, /Catalog unavailable/)
+assert.match(cabinetMarkup, /Start another review/)
+assert.match(cabinetMarkup, /filed\\(milestone\\.id\\)/)
+assert.doesNotMatch(
+  cabinetMarkup,
+  /rewardAchievementByCode/,
+  'the trophy cabinet must never mint account rewards',
+)
+
 assert.equal(ORIENTATION.sourceSha.length, 40)
 assert.equal(ORIENTATION.encounters.length, 24)
 assert.deepEqual(

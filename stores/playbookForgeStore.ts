@@ -1308,9 +1308,10 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     const brief = direction.trim()
     if (!entry || !brief || posting.value) return false
     const scope = galleryFocus.value
-      ? galleryFocused.value?.title ?? galleryFocus.value
-      : galleryTile.value?.label ?? 'whole playbook'
-    const origin = galleryGroup.value === 'All' ? '' : ` / ${galleryGroup.value} group`
+      ? (galleryFocused.value?.title ?? galleryFocus.value)
+      : (galleryTile.value?.label ?? 'whole playbook')
+    const origin =
+      galleryGroup.value === 'All' ? '' : ` / ${galleryGroup.value} group`
     posting.value = true
     adjustStatus.value = 'Sending direction to GitHub…'
     try {

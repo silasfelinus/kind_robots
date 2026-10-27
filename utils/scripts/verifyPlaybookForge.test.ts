@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   CHECKPOINT_CLASSES,
   DEFAULT_ASSUMPTIONS,
@@ -84,6 +85,8 @@ import {
   targetNoteKey,
 } from '../playbookForge/gallery'
 import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
+import { withVerifiedArt } from '../playbookForge/verifiedArt'
+import { inspectPlaybookArt } from '../../server/utils/playbookArtInventory'
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({
@@ -444,6 +447,77 @@ assert.equal(
     ).art.delivered,
     1,
   )
+}
+{
+  const fixture = {
+    order: ['real', 'missing', 'svg'],
+    nodes: {
+      real: beat('real', 'opening', {
+        artUrl: '/crystal-street/cover.webp',
+      }),
+      missing: beat('missing', 'encounter', {
+        artUrl: '/crystal-street/scenes/not-a-real-scene.webp',
+      }),
+      svg: beat('svg', 'ending', {
+        artUrl: '/crystal-street/poster.svg',
+      }),
+    },
+    artRequirements: [
+      { key: 'real-extra', title: 'Delivered', url: '/crystal-street/cover.webp' },
+      { key: 'missing-extra', title: 'Missing', url: '/crystal-street/outcomes/not-rendered.webp' },
+      { key: 'vector-extra', title: 'Vector filler', url: '/crystal-street/poster.svg' },
+    ],
+  }
+  const inventory = inspectPlaybookArt(
+    fixture,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.deepEqual(Object.keys(inventory.verified), ['real'])
+  assert.equal(inventory.extras.total, 3)
+  assert.equal(inventory.extras.delivered, 1)
+  const inspected = buildLedger(
+    withVerifiedArt(fixture, inventory.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: inventory.extras,
+    },
+  )
+  assert.equal(inspected.art.delivered, 2, 'one real beat and one extra image')
+  assert.equal(inspected.art.missing, 4, 'missing, vector and two extra slots')
+  assert.ok(inspected.paintedShare < 0.5)
+  assert.ok(inspected.progress < 1, 'authored URLs cannot claim 100% delivery')
+  assert.equal(inspected.extraArt.total, 3)
+  assert.match(inspected.discrepancies.join(' '), /required game images/)
+  assert.equal(inspected.shine, 'none')
+  const notAudited = withVerifiedArt(fixture, undefined)
+  assert.equal(notAudited.nodes.real?.artUrl, null)
+  assert.equal(notAudited.nodes.real?.needsArt, true)
+
+  const crystal = buildPlaybook('crystal-street')
+  assert.ok(
+    (crystal.artRequirements?.length ?? 0) > 300,
+    'Crystal Street enumerates choice outcomes, emotions, villain and item art',
+  )
+  const crystalAudit = inspectPlaybookArt(
+    crystal,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.ok(crystalAudit.extras.delivered < crystalAudit.extras.total)
+  const crystalLedger = buildLedger(
+    withVerifiedArt(crystal, crystalAudit.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: crystalAudit.extras,
+    },
+  )
+  assert.ok(crystalLedger.paintedShare < 1)
+  assert.ok(crystalLedger.progress < 1)
 }
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')

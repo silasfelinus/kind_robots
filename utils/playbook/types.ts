@@ -76,7 +76,12 @@ export type PlaybookNode = {
    */
   artPrompt?: string
   /** Authored identity transformations (student, hero, villain), with real render slots. */
-  artVariants?: { id: string; label: string; imageUrl: string | null; stats?: Record<string, number> }[]
+  artVariants?: {
+    id: string
+    label: string
+    imageUrl: string | null
+    stats?: Record<string, number>
+  }[]
   /** Where the game reads this beat's picture from the image store (/images/…, not in git); the ledger API reports whether it exists. */
   artPath?: string
   provenance: string

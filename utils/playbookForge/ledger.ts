@@ -64,7 +64,12 @@ export type ProjectJobs = {
   failures: { id: number; engine: string; error: string; createdAt: string }[]
 }
 
-export type PlanGap = { label: string; built: number; planned: number }
+export type PlanGap = {
+  label: string
+  built: number
+  planned: number
+  key?: keyof Blueprint
+}
 
 export type Shine = 'none' | 'star' | 'super'
 
@@ -78,6 +83,8 @@ export type Ledger = {
   takenSeconds: number
   remainingSeconds: number
   remainingWords: number
+  /** Encounters built of those planned (1 when the plan is met); scales every share below. */
+  scope: number
   /** Half writing, half art, averaged over every beat: a written but unpainted game is half done. */
   progress: number
   /** Share of beats whose scene and outcome text are written. */
@@ -321,6 +328,10 @@ export function buildLedger(
   const share = (score: (unit: LedgerUnit) => number) =>
     units ? all.reduce((n, unit) => n + score(unit), 0) / units : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
+  // Encounters the plan calls for but the code has not built count as not
+  // started, so two finished worlds of sixteen read as two of sixteen.
+  const short = gaps.find((gap) => gap.key === 'encounters')
+  const scope = short ? short.built / short.planned : 1
 
   const discrepancies: string[] = []
   if (art.rendered)
@@ -345,7 +356,7 @@ export function buildLedger(
     )
   for (const gap of gaps)
     discrepancies.push(
-      `${gap.label}: ${gap.built} built of ${gap.planned} planned.`,
+      `${gap.label}: ${gap.built} built of ${gap.planned} planned.${gap === short ? ' Progress counts the unbuilt ones as not started.' : ''}`,
     )
   discrepancies.push(...(options.notes ?? []))
 
@@ -361,10 +372,11 @@ export function buildLedger(
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
     remainingSeconds: sections.reduce((n, s) => n + s.remainingSeconds, 0),
     remainingWords: sections.reduce((n, s) => n + s.remainingWords, 0),
-    progress: share(unitProgress),
-    writtenShare: share(unitWriting),
-    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)),
-    finishedShare: units ? complete / units : 0,
+    scope,
+    progress: share(unitProgress) * scope,
+    writtenShare: share(unitWriting) * scope,
+    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)) * scope,
+    finishedShare: units ? (complete / units) * scope : 0,
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',
@@ -414,7 +426,9 @@ export function planGaps(plan: Blueprint, built: BuiltCounts): PlanGap[] {
     if (row.kind !== 'stepper' || !built.measured.includes(row.key)) return []
     const have = Number(built.values[row.key] ?? 0)
     const want = Number(plan[row.key] ?? 0)
-    return have < want ? [{ label: row.label, built: have, planned: want }] : []
+    return have < want
+      ? [{ label: row.label, built: have, planned: want, key: row.key }]
+      : []
   })
 }
 

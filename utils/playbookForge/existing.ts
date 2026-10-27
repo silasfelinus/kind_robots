@@ -283,29 +283,61 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
     cover: '/memory-dungeon/front/hero.webp',
     route: '/play/memory',
     planSource:
-      'Conductor goal and master issue kind_robots#4136 (qualitative; counts are the two worlds as designed)',
+      'Sixteen-Realm Production Bible (conductor projects/memory-dungeon/SIXTEEN-REALM-PRODUCTION.md) and master issue kind_robots#4136',
+    // Silas, 2026-10-27: "Each overworld has 64 encounters, there are 16
+    // overworlds." The bible's targets: 16 realms in four acts, each an 8×8
+    // overworld (1,024 positions) over a 6×6 dungeon (576 rooms); 96 enemies
+    // (a guardian, an elite and four regulars per realm); 128 sidequests; 32
+    // Earth photographs; 64 achievements; 12 illustrated endings (three
+    // choices × four epilogues). Its 128 item definitions and 64 unlocks have
+    // no factor yet.
     plan: plan('memory-dungeon', 'Memory Dungeon', {
       genre: 'fable-journey',
       placement: 'play',
       creator: 'builder',
       creatorFactors: 2,
       optionsPerFactor: 4,
-      // Two 8×8 worlds and a House beneath each: every tile and room a beat.
-      acts: 2,
-      chaptersPerAct: 2,
-      encounters: 124,
-      locations: 128,
-      quests: 8,
-      followers: 5,
-      partySize: 1,
-      villains: 3,
-      endings: 5,
+      acts: 4,
+      chaptersPerAct: 4,
+      encounters: 16 * (64 + 36),
+      choicesPerEncounter: 2,
+      // Realms, dungeons, secret areas and Edgeworlds, each an establishing scene.
+      locations: 16 + 16 + 16 + 4,
+      quests: 16 * 8,
+      // Scylla, Char and Oren travel together; four developments per realm.
+      followers: 3,
+      partySize: 3,
+      followerQuestSteps: Math.round((16 * 4) / 3),
+      villains: 16,
+      figures: 16 * 5,
+      reveals: 32,
+      moments: 16 * 4,
+      endings: 12,
       outcomeArt: 'success',
       seededRuns: true,
       metaProgress: true,
       saveSlots: 3,
     }),
-    count: () => studio('memory-dungeon'),
+    count: async () => {
+      const counts = await studio('memory-dungeon')
+      const { buildMemoryDungeonPlaybook, isMemoryDungeonPosition } =
+        await import('../playbook/memoryDungeon')
+      const nodes = Object.values(buildMemoryDungeonPlaybook().nodes)
+      const measured: (keyof Blueprint)[] = ['encounters', 'reveals']
+      return {
+        ...counts,
+        // Every overworld tile and dungeon room is an authored position, not
+        // only the tiles tagged as encounters.
+        values: {
+          ...counts.values,
+          encounters: nodes.filter((n) => isMemoryDungeonPosition(n.key))
+            .length,
+          reveals: nodes.filter((n) => n.kind === 'thread').length,
+        },
+        measured: [...new Set([...counts.measured, ...measured])],
+        source: `${counts.source}; encounters count every overworld tile and House room`,
+      }
+    },
   },
   {
     slug: 'crystal-street',

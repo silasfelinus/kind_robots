@@ -64,6 +64,13 @@ function scene(
   return node
 }
 
+/** Beats that are authored map positions: overworld tiles and House rooms. */
+const POSITIONS = new Set(['briar', 'dark', 'dark-seal', 'house', 'dark-house'])
+
+export function isMemoryDungeonPosition(key: string): boolean {
+  return POSITIONS.has(key.split(':')[0] ?? '')
+}
+
 export function buildMemoryDungeonPlaybook(): Playbook {
   const nodes: Record<string, PlaybookNode> = {}
   const add = (node: PlaybookNode) => {

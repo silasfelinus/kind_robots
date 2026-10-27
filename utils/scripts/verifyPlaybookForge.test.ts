@@ -465,6 +465,34 @@ assert.ok(
   gaps.every((gap) => FACTOR_ROWS.some((row) => row.label === gap.label)),
 )
 
+// Memory Dungeon is planned at the Sixteen-Realm bible's scale and counted by
+// authored position, so two built worlds read as two of sixteen.
+const memory = EXISTING_PLAYBOOKS.find((e) => e.slug === 'memory-dungeon')!
+assert.equal(memory.plan.encounters, 16 * (64 + 36))
+assert.equal(memory.plan.acts * memory.plan.chaptersPerAct, 16)
+const memoryBuilt = await memory.count()
+assert.equal(memoryBuilt.values.encounters, 2 * (64 + 36))
+assert.equal(memoryBuilt.values.reveals, 32)
+const memoryLedger = buildLedger(
+  buildPlaybook('memory-dungeon'),
+  {},
+  {
+    laneKey: 'krea2',
+    assumptions: DEFAULT_ASSUMPTIONS,
+    gaps: planGaps(memory.plan, memoryBuilt),
+  },
+)
+assert.equal(memoryLedger.scope, 200 / 1600)
+assert.ok(memoryLedger.progress <= memoryLedger.scope)
+assert.match(
+  memoryLedger.discrepancies.join(' '),
+  /Encounters: 200 built of 1600 planned\. Progress counts the unbuilt/,
+)
+// A plan past a stepper's range steps from where it is, not to the cap.
+const encountersRow = FACTOR_ROWS.find((r) => r.key === 'encounters')!
+assert.equal(stepValue(encountersRow, memory.plan, -1), 1595)
+assert.equal(stepValue(encountersRow, memory.plan, 1), 1605)
+
 // Every Playbook Studio game opens as a ledger with each beat counted once.
 for (const game of PLAYBOOK_GAMES) {
   const studio = buildPlaybook(game.id)

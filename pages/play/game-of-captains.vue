@@ -1013,7 +1013,7 @@ import {
   VOYAGE_CHAPTERS,
   VOYAGE_ORDERS,
   aboardLines,
-  actOf,
+  actName,
   earnedCallbacks,
   nemesisMove,
   type NemesisId,
@@ -1105,9 +1105,7 @@ const counterOfficers = computed(() =>
 )
 const ethicalOrders = computed(() => VOYAGE_ORDERS[mission.value.id]!)
 const missionRule = computed(() => ruleFor(mission.value.id))
-const actLabel = computed(() =>
-  actOf(run.value?.chapter ?? 1) === 2 ? 'Act II' : 'Act I',
-)
+const actLabel = computed(() => actName(run.value?.chapter ?? 1))
 const briefingCallbacks = computed(() =>
   run.value
     ? earnedCallbacks(mission.value.id, run.value.worldFlags ?? [])

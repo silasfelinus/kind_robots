@@ -5,6 +5,7 @@
  * - distinct optional synergies/special routes
  * - offers expire; launched teams return after 1–3 ship days
  */
+import { ACT_THREE_RULES } from './actThree'
 import { ACT_TWO_RULES } from './actTwo'
 import type { CaptainId, CrewId, VoyageRun } from './rules'
 
@@ -422,6 +423,46 @@ export const SYNERGIES: Synergy[] = [
     route: 'Perform a silent duet that the bar accepts as payment.',
     cost: 'Jex stays banned; the silence counts as attendance.',
   },
+  {
+    pair: ['pell', 'vela'],
+    missions: ['cushion-recall'],
+    bonus: 3,
+    route:
+      'Treat the couch as a patient: a diagnosis, a repair plan and a second opinion from the dock.',
+    cost: 'The couch is out of service while the union decides.',
+  },
+  {
+    pair: ['tess', 'omi'],
+    missions: ['serendipity-last-call', 'windglass-exodus'],
+    bonus: 3,
+    route:
+      'Move people by quiet routes and a chime only they have been taught to hear.',
+    cost: 'Some guests choose not to follow either.',
+  },
+  {
+    pair: ['mox', 'omi'],
+    missions: ['gameworld-finale', 'deposit-copy'],
+    bonus: 3,
+    route:
+      'Sound the original warning and keep an uncut record of who answered it.',
+    cost: 'The record includes the crew’s own hesitations.',
+  },
+  {
+    pair: ['sora', 'taal'],
+    missions: ['foundry-strike', 'twins-summit'],
+    bonus: 3,
+    route:
+      'Chair the negotiation at a temperature both machines and delegates agree to.',
+    cost: 'The couch’s bubble gets a vote on the thermostat.',
+  },
+  {
+    pair: ['vela', 'fen'],
+    missions: ['inquiry'],
+    bonus: 3,
+    route:
+      'Bring witnesses to the stand with their consent and a clear exit from the room.',
+    cost: 'Several witnesses use the exit.',
+  },
 ]
 export type MissionRule = {
   id: string
@@ -511,6 +552,7 @@ export const MISSION_RULES: MissionRule[] = [
     remoteRoute: 'A sensor cannot negotiate shared air with a living orchard.',
   },
   ...ACT_TWO_RULES,
+  ...ACT_THREE_RULES,
 ]
 export type MissionPreview = {
   chance: number

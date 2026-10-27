@@ -14,21 +14,41 @@ import {
   ACT_TWO_NEMESIS,
   ACT_TWO_ORDERS,
 } from './actTwo'
+import {
+  ACT_THREE_ABOARD,
+  ACT_THREE_BOARDS,
+  ACT_THREE_CALLBACKS,
+  ACT_THREE_CONSEQUENCES,
+  ACT_THREE_ECHOES,
+  ACT_THREE_MOVES,
+  ACT_THREE_NEMESIS,
+  ACT_THREE_ORDERS,
+} from './actThree'
 import type { CrewId } from './rules'
 
 /**
- * The whole voyage as one chart: Act I's three boards, then Act II's three.
- * Chapter n plays board n - 1; the jump gate follows the last board.
+ * The whole voyage as one chart: Act I's three boards, Act II's three, then
+ * Act III's three. Chapter n plays board n - 1; the jump gate follows the
+ * last board.
  */
 export const VOYAGE_BOARDS: readonly (readonly string[])[] = [
   ...ACT_ONE_BOARDS,
   ...ACT_TWO_BOARDS,
+  ...ACT_THREE_BOARDS,
 ]
 export const VOYAGE_CHAPTERS = VOYAGE_BOARDS.length
 export const ACT_TWO_FIRST_CHAPTER = ACT_ONE_BOARDS.length + 1
+export const ACT_THREE_FIRST_CHAPTER =
+  ACT_TWO_FIRST_CHAPTER + ACT_TWO_BOARDS.length
 
 export const actOf = (chapter: number) =>
-  chapter >= ACT_TWO_FIRST_CHAPTER ? 2 : 1
+  chapter >= ACT_THREE_FIRST_CHAPTER
+    ? 3
+    : chapter >= ACT_TWO_FIRST_CHAPTER
+      ? 2
+      : 1
+export const actName = (chapter: number) =>
+  `Act ${['I', 'II', 'III'][actOf(chapter) - 1]}`
 
 type Policy = 'aid' | 'observe' | 'intervene'
 type Aftermath = { flag: string; text: string }
@@ -36,31 +56,37 @@ type Aftermath = { flag: string; text: string }
 export const VOYAGE_CONSEQUENCES: Record<string, Record<Policy, Aftermath>> = {
   ...ACT_ONE_CONSEQUENCES,
   ...ACT_TWO_CONSEQUENCES,
+  ...ACT_THREE_CONSEQUENCES,
 }
 export const VOYAGE_ECHOES: Record<string, string> = {
   ...ACT_ONE_ECHOES,
   ...ACT_TWO_ECHOES,
+  ...ACT_THREE_ECHOES,
 }
 export const VOYAGE_ORDERS: Record<string, Record<Policy, string>> = {
   ...ACT_ONE_ORDERS,
   ...ACT_TWO_ORDERS,
+  ...ACT_THREE_ORDERS,
 }
 
 export type NemesisId = keyof typeof ACT_ONE_NEMESIS
-/** Every call a seeded nemesis contaminates, across both acts. */
+/** Every call a seeded nemesis contaminates, one per act. */
 export function nemesisThreats(id: NemesisId) {
-  return [ACT_ONE_NEMESIS[id], ACT_TWO_NEMESIS[id]]
+  return [ACT_ONE_NEMESIS[id], ACT_TWO_NEMESIS[id], ACT_THREE_NEMESIS[id]]
 }
 
-/** The nemesis's line for a chapter: Act I uses its own three acts, Act II its moves. */
+/** The nemesis's line for a chapter: Act I uses its own three acts, Acts II and III their moves. */
 export function nemesisMove(
   antagonist: { id: string; acts: readonly string[] },
   chapter: number,
 ): string {
   if (chapter < ACT_TWO_FIRST_CHAPTER)
     return antagonist.acts[Math.min(chapter - 1, 2)] ?? ''
-  const moves = ACT_TWO_MOVES[antagonist.id as NemesisId]
-  return moves?.[Math.min(chapter - ACT_TWO_FIRST_CHAPTER, 2)] ?? ''
+  const [moves, first] =
+    chapter < ACT_THREE_FIRST_CHAPTER
+      ? [ACT_TWO_MOVES, ACT_TWO_FIRST_CHAPTER]
+      : [ACT_THREE_MOVES, ACT_THREE_FIRST_CHAPTER]
+  return moves[antagonist.id as NemesisId]?.[Math.min(chapter - first, 2)] ?? ''
 }
 
 export type Callback = { flag: string; odds: number; text: string }
@@ -284,6 +310,7 @@ export const MISSION_CALLBACKS: Record<string, readonly Callback[]> = {
       text: 'The engaged Courtesy Twins have sent the Assembly a strongly worded note on the importance of asking first.',
     },
   ],
+  ...ACT_THREE_CALLBACKS,
 }
 
 /** The callbacks a run has earned for a call. */
@@ -302,7 +329,10 @@ export function aboardLines(
   crew: readonly CrewId[],
 ): string[] {
   const lines = (
-    ACT_TWO_ABOARD as Record<string, Partial<Record<CrewId, string>>>
+    { ...ACT_TWO_ABOARD, ...ACT_THREE_ABOARD } as Record<
+      string,
+      Partial<Record<CrewId, string>>
+    >
   )[missionId]
   return lines ? crew.flatMap((id) => (lines[id] ? [lines[id]!] : [])) : []
 }

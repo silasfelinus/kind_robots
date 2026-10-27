@@ -11,11 +11,7 @@
         >
       </div>
       <div class="maker-actions">
-        <button
-          type="button"
-          class="maker-action"
-          @click="startNewLevel"
-        >
+        <button type="button" class="maker-action" @click="startNewLevel">
           ✚ <span>NEW</span>
         </button>
         <button type="button" class="maker-action" @click="save">
@@ -171,10 +167,7 @@
               >Sign in to leave a review. Public ratings are visible to everyone
               with the link.</small
             >
-            <button
-              type="button"
-              @click="showReviews"
-            >
+            <button type="button" @click="showReviews">
               ★ READ PLAYER REVIEWS
             </button>
             <button type="button" @click="togglePlay">✎ BACK TO EDITOR</button>

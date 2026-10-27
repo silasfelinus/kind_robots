@@ -1951,7 +1951,10 @@ const interruptedThirdMissRoom = {
 }
 const interruptedThirdMiss = restoreBriarSave(interruptedThirdMissRoom)
 assert.equal(interruptedThirdMiss.roomMisses, 3)
-assert.equal(interruptedThirdMiss.cards.every((card) => !card.flipped), true)
+assert.equal(
+  interruptedThirdMiss.cards.every((card) => !card.flipped),
+  true,
+)
 const recoveredThirdMiss = recoverBriarRoomMissPenalty(interruptedThirdMiss)
 assert.equal(recoveredThirdMiss.room, 'memory')
 assert.equal(recoveredThirdMiss.hearts, 1)
@@ -2011,9 +2014,8 @@ assert.ok(
 )
 assert.equal(
   (
-    worldStoreSource.match(
-      /recoverBriarRoomMissPenalty\(recoveredCombat\)/g,
-    ) ?? []
+    worldStoreSource.match(/recoverBriarRoomMissPenalty\(recoveredCombat\)/g) ??
+    []
   ).length,
   2,
   'Autosave hydration and manual checkpoint loading both settle missed-room penalties',

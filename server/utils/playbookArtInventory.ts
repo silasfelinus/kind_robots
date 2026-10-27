@@ -33,7 +33,8 @@ export function inspectPlaybookArt(
     } catch {
       return false
     }
-    if (decoded.includes('\\') || decoded.split('/').includes('..')) return false
+    if (decoded.includes('\\') || decoded.split('/').includes('..'))
+      return false
     const inImageStore = decoded.startsWith('/images/')
     const relative = decoded.slice(inImageStore ? '/images/'.length : 1)
     const roots = inImageStore ? [imageRoot] : publicRoots

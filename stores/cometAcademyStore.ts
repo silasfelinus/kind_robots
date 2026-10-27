@@ -90,7 +90,13 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
         const parsed: unknown = JSON.parse(history)
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           for (const [key, value] of Object.entries(parsed)) {
-            if (!signatureById(key) || !value || typeof value !== 'object' || Array.isArray(value)) continue
+            if (
+              !signatureById(key) ||
+              !value ||
+              typeof value !== 'object' ||
+              Array.isArray(value)
+            )
+              continue
             const entry = value as Partial<AcademyYearbookEntry>
             yearbook.value[key] = {
               plays:

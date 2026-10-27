@@ -417,7 +417,7 @@ const features = [
     tag: 'Haunted pinball',
     category: 'play',
     route: '/play/zuzu-pinball',
-    image: '/zuzu-pinball/last-bell-cover.svg',
+    image: '/zuzu-pinball/last-bell-cover.webp',
     description:
       'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
   },
@@ -462,7 +462,7 @@ const features = [
     tag: 'Make stories',
     category: 'create',
     route: '/storybook',
-    image: '/images/channels/play/channel.webp',
+    image: '/storybook-art/dashboard-highlight.webp',
     description: 'Weave your own worlds, characters and branching tales.',
   },
   {

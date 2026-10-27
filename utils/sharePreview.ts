@@ -111,7 +111,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/storybook',
-    image: '/images/channels/play/channel.webp',
+    image: '/storybook-art/dashboard-highlight.webp',
     title: 'Storybook',
     description: 'Weave your own worlds, characters and branching tales.',
   },

@@ -98,6 +98,7 @@ export default defineEventHandler(async (event) => {
         renderSeconds:
           job.status === 'DONE' ? seconds(job.claimedAt, finished) : null,
         error: job.error ? job.error.slice(0, 280) : null,
+        artImageId: job.artImageId ?? null,
       }
     })
     const rowById = new Map(rows.map((row) => [row.id, row]))
@@ -111,6 +112,7 @@ export default defineEventHandler(async (event) => {
         engine: row.engine,
         renderSeconds: row.renderSeconds,
         error: row.error,
+        artImageId: row.artImageId,
       }
       byNode[note.nodeKey] = [...(byNode[note.nodeKey] ?? []), job]
     }

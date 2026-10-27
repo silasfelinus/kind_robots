@@ -35,13 +35,14 @@ import {
 import {
   newDarkBriarProgress,
   darkBriarCanTravel,
+  darkBriarChoose,
 } from '../memoryDungeon/darkBriar'
 import {
   firstTwoWorldFrames,
   firstTwoSceneCallbacks,
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
-  darkBriarCourierPassage,
+  earnedCourierCompensation,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -151,101 +152,75 @@ assert.equal(
 const released = { ...before, sceneChoices: { '5,4': 'release' } }
 assert.equal(darkBriarExtraBridge('5,4', '7,4', released), false)
 
-// A courier helped in both realities opens one earned route, not free travel.
-// The original lantern and address decisions produce different destinations.
-const courierSheltered = {
+// The courier's shelter is a second, freely chosen act. Its resource reward
+// depends on the original decision and is never paid for an invented history.
+const courierAtCrossing = {
   ...newDarkBriarProgress(),
-  sceneChoices: { '3,4': 'shelter' },
+  phase: 'exploring' as const,
+  player: '3,4',
+  revealed: ['3,4'],
+  visited: ['3,4'],
 }
-const courierLandmarks = ['2,4', '3,4', '4,3', '4,4']
-for (const [choice, destination, other] of [
-  ['lend', '4,4', '4,3'],
-  ['copy', '4,3', '4,4'],
+for (const [originalChoice, expectedReward] of [
+  ['lend', 'wildflower'],
+  ['copy', 'lantern'],
 ] as const) {
-  const original = {
-    ...newBriarSave(),
-    sceneChoices: { '2,4': choice },
-  }
-  const restored = JSON.parse(JSON.stringify(original)) as typeof original
-  const reflected = JSON.parse(
-    JSON.stringify(courierSheltered),
-  ) as typeof courierSheltered
-  assert.equal(
-    darkBriarCourierPassage('2,4', destination, restored, reflected),
-    true,
-  )
-  assert.equal(
-    darkBriarCanTravel(
-      '2,4',
-      destination,
-      courierLandmarks,
-      reflected,
-      restored,
-    ),
-    true,
-  )
-  assert.equal(
-    darkBriarCanTravel(
-      destination,
-      '2,4',
-      courierLandmarks,
-      reflected,
-      restored,
-    ),
-    true,
-    'The earned passage must allow safe backtracking',
-  )
-  assert.equal(
-    darkBriarCanTravel('2,4', other, courierLandmarks, reflected, restored),
-    false,
-    'Only the actual original decision can unlock its corresponding road',
-  )
-  assert.equal(
-    darkBriarCanTravel('2,4', destination, ['2,4', '3,4'], reflected, restored),
-    false,
-    'A passage never teleports the player into unrevealed terrain',
-  )
-  assert.equal(
-    darkBriarCanTravel('2,4', destination, courierLandmarks, reflected),
-    false,
-    'Legacy callers without the original record cannot gain a free passage',
-  )
-  assert.equal(
-    darkBriarCourierPassage('2,4', destination, restored, before),
-    false,
-    'The mirrored courier must first be sheltered',
-  )
-  assert.equal(
-    darkBriarCourierPassage('2,4', destination, restored, {
-      ...reflected,
-      sceneChoices: { '3,4': 'trace' },
+  const original = JSON.parse(
+    JSON.stringify({
+      ...newBriarSave(),
+      sceneChoices: { '2,4': originalChoice },
     }),
-    false,
+  ) as ReturnType<typeof newBriarSave>
+  const chosen = darkBriarChoose(courierAtCrossing, '3,4', 'shelter')
+  assert.notEqual(chosen, courierAtCrossing)
+  assert.equal(chosen.sceneChoices['3,4'], 'shelter')
+  assert.equal(
+    earnedCourierCompensation(original, chosen.sceneChoices['3,4']!),
+    expectedReward,
+  )
+  assert.equal(
+    darkBriarChoose(chosen, '3,4', 'shelter'),
+    chosen,
+    'An already-committed shelter choice cannot pay twice',
+  )
+  assert.equal(
+    earnedCourierCompensation(original, 'trace'),
+    null,
+    'Tracing the letters is a valid alternative, not a hidden reward',
   )
   for (const site of ['2,4', '3,4']) {
     const callbacks = firstTwoSceneCallbacks(
       site,
-      restored.sceneChoices,
-      reflected,
+      original.sceneChoices,
+      chosen,
     )
-    assert.ok(callbacks.some((line) => line.includes('from camp')))
+    assert.ok(
+      callbacks.some((line) =>
+        line.includes(expectedReward === 'lantern' ? 'lantern' : 'wildflower'),
+      ),
+    )
     assert.ok(callbacks.length <= 2)
   }
 }
 assert.equal(
-  darkBriarCourierPassage(
-    '2,4',
-    '4,4',
+  earnedCourierCompensation(
     { ...newBriarSave(), sceneChoices: { '2,4': 'forged' } },
-    courierSheltered,
+    'shelter',
   ),
-  false,
-  'Unknown original decisions must not unlock routes',
+  null,
+)
+assert.equal(
+  earnedCourierCompensation(newBriarSave(), 'shelter'),
+  null,
+  'A missing original decision cannot mint supplies',
 )
 assert.deepEqual(
-  firstTwoSceneCallbacks('3,4', {}, courierSheltered),
+  firstTwoSceneCallbacks(
+    '3,4',
+    {},
+    { ...courierAtCrossing, sceneChoices: { '3,4': 'shelter' } },
+  ),
   [],
-  'The courier cannot remember a choice the player never made',
 )
 assert.ok(
   firstTwoSceneCallbacks('5,4', { '5,4': 'truth' }, built).some((line) =>
@@ -265,15 +240,20 @@ assert.match(
 )
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
+
 assert.match(
   store,
-  /darkBriarCanTravel\([\s\S]*?dark\.value\.revealed,[\s\S]*?dark\.value,[\s\S]*?state\.value/,
-  'Runtime traversal must use both original and mirrored decision records',
+  /const compensation = earnedCourierCompensation\(state\.value, id\)/,
 )
 assert.match(
-  stage,
-  /darkBriarCanTravel\([\s\S]*?world\.dark\.revealed,[\s\S]*?world\.dark,[\s\S]*?world\.state/,
-  'The rendered map must enable the same earned roads as the store',
+  store,
+  /if \(next === dark\.value\) return[\s\S]*?earnedCourierCompensation/,
+  'The reward must be gated behind a newly committed choice',
+)
+assert.match(
+  store,
+  /state\.value\.lanterns \+= 1[\s\S]*?persist\(\)[\s\S]*?state\.value\.wildflowers \+= 1[\s\S]*?persist\(\)/,
+  'Both mutually exclusive rewards must survive reload',
 )
 
 const earnedHouseEpilogues = new Set<string>()

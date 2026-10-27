@@ -51,7 +51,7 @@ export const ACT_TWO_MISSIONS = [
   {
     id: 'serendipity-tab',
     chapter: 4,
-    system: 'Serendipity Space Bar',
+    system: 'Blue Giant Casino / Serendipity',
     title: 'The Tab',
     kind: 'diplomacy',
     briefing:

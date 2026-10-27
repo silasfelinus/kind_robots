@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import {
   WORLD_ONE_ART_SHOTS,
   validateWorldOneArtManifest,
+  briarIllustrationPath,
 } from '../memoryDungeon/artManifest'
 import {
   WORLD_ONE_GALLERY,
@@ -14,12 +15,36 @@ import {
   memoryCardBackPath,
 } from '../memoryDungeonCardArt'
 import { BRIAR_TILES } from '../memoryDungeonWorld'
+import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
 import { HOUSE_ROOMS } from '../memoryDungeon/house'
 import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
 import {
   DEFAULT_DUNGEON_DECK,
   normalizeDungeonDeck,
 } from '../memoryDungeonDeck'
+
+const deliveredShotPaths = new Set(
+  WORLD_ONE_ART_SHOTS.map((shot) => shot.targetPath),
+)
+let illustratedBriarOutcomes = 0
+for (const tile of BRIAR_TILES) {
+  const scene = BRIAR_STORY_ATLAS[tile.key]!
+  const establishing = briarIllustrationPath(tile.key)
+  assert.ok(establishing && deliveredShotPaths.has(establishing), `Missing Briar scene art: ${tile.key}`)
+  for (const choice of scene.choices) {
+    const outcome = briarIllustrationPath(tile.key, choice.id)
+    assert.ok(outcome && deliveredShotPaths.has(outcome), `Missing Briar consequence art: ${tile.key}/${choice.id}`)
+    assert.notEqual(outcome, establishing, 'A choice must change the illustration')
+    illustratedBriarOutcomes++
+  }
+  assert.equal(
+    briarIllustrationPath(tile.key, 'unearned-forged-choice'),
+    establishing,
+    'A forged choice must never select consequence artwork',
+  )
+}
+assert.equal(illustratedBriarOutcomes, 128)
+assert.equal(briarIllustrationPath('not-a-site'), null)
 
 assert.deepEqual(validateWorldOneArtManifest(), [])
 assert.deepEqual(validateRealmGallery(WORLD_ONE_GALLERY, 1), [])
@@ -110,7 +135,12 @@ assert.match(resolver, /loadDungeonImagePaths\(candidates, needed\)/)
 assert.match(selector, /choice\.key === 'realm' && !realmDeckReady/)
 assert.match(overworld, /world\.selectCardBack\(back\.id\)/)
 assert.match(overworld, /memoryCardBackPath\(world\.cardBack\)/)
+assert.match(overworld, /:src="currentIllustrationPath"/)
+assert.match(overworld, /world\.state\.sceneChoices\[world\.state\.player\]/)
+assert.match(overworld, /watch\(currentIllustrationPath/)
+assert.match(overworld, /@error="sceneArtFailed = true"/)
+assert.match(overworld, /:style="currentSceneStyle"/)
 
 console.log(
-  'Memory Dungeon: 64-site and 36-room art briefs, 32-card realm gallery, delivery gates and card-back persistence verified',
+  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36-room art briefs, 32-card realm gallery, delivery gates and card-back persistence verified',
 )

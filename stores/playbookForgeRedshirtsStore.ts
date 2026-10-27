@@ -10,7 +10,10 @@ import {
   type RedshirtDraft,
 } from '~/utils/playbookForge/redshirtAtlas'
 import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
-import { PLAYBOOK_ART_LANES, playbookArtRequest } from '~/utils/playbook/artLanes'
+import {
+  PLAYBOOK_ART_LANES,
+  playbookArtRequest,
+} from '~/utils/playbook/artLanes'
 
 const KEY = 'kr-forge-redshirt-atlas-v1'
 type PortraitJob = { id: number; imageUrl: string | null; status: string }
@@ -163,45 +166,61 @@ export const usePlaybookForgeRedshirtsStore = defineStore('playbookForgeRedshirt
               },
             ),
           ),
-        },
-      )
-      const jobId = Number(res.data?.jobId)
-      if (!res.success || !Number.isInteger(jobId) || jobId <= 0) {
-        status.value = 'Portrait not queued: ' + (res.message || 'No ArtJob returned.')
+        })
+        const jobId = Number(res.data?.jobId)
+        if (!res.success || !Number.isInteger(jobId) || jobId <= 0) {
+          status.value =
+            'Portrait not queued: ' + (res.message || 'No ArtJob returned.')
+          return
+        }
+        portraits.value = {
+          ...portraits.value,
+          [id]: { id: jobId, status: 'QUEUED', imageUrl: null },
+        }
+        status.value = `ArtJob #${jobId} queued; delivery still needs to be wired into the game.`
+        persist()
+      } finally {
+        posting.value = false
+      }
+    }
+
+    async function refresh(id: string) {
+      const portrait = portraits.value[id]
+      if (!portrait) return
+      const res = await performFetch<{
+        job?: { status?: string; artImageId?: number | null }
+      }>(`/api/art/queue/${portrait.id}`)
+      const job = res.data?.job
+      if (!res.success || !job) {
+        status.value = 'Unable to retrieve the portrait job.'
         return
       }
-      portraits.value = { ...portraits.value, [id]: { id: jobId, status: 'QUEUED', imageUrl: null } }
-      status.value = `ArtJob #${jobId} queued; delivery still needs to be wired into the game.`
+      const imageUrl =
+        job.status === 'DONE' && job.artImageId
+          ? `/api/art/images/${job.artImageId}/file`
+          : null
+      portraits.value = {
+        ...portraits.value,
+        [id]: { ...portrait, status: job.status ?? 'QUEUED', imageUrl },
+      }
+      status.value = imageUrl
+        ? `ArtJob #${portrait.id} rendered; concept ready for in-game wiring.`
+        : `ArtJob #${portrait.id}: ${job.status ?? 'QUEUED'}.`
       persist()
-    } finally {
-      posting.value = false
     }
-  }
 
-  async function refresh(id: string) {
-    const portrait = portraits.value[id]
-    if (!portrait) return
-    const res = await performFetch<{ job?: { status?: string; artImageId?: number | null } }>(
-      `/api/art/queue/${portrait.id}`,
-    )
-    const job = res.data?.job
-    if (!res.success || !job) {
-      status.value = 'Unable to retrieve the portrait job.'
-      return
+    return {
+      drafts,
+      portraits,
+      status,
+      posting,
+      load,
+      forPerson,
+      save,
+      submit,
+      submitRosterDirection,
+      render,
+      refresh,
     }
-    const imageUrl =
-      job.status === 'DONE' && job.artImageId
-        ? `/api/art/images/${job.artImageId}/file`
-        : null
-    portraits.value = {
-      ...portraits.value,
-      [id]: { ...portrait, status: job.status ?? 'QUEUED', imageUrl },
-    }
-    status.value = imageUrl
-      ? `ArtJob #${portrait.id} rendered; concept ready for in-game wiring.`
-      : `ArtJob #${portrait.id}: ${job.status ?? 'QUEUED'}.`
-    persist()
-  }
-
-  return { drafts, portraits, status, posting, load, forPerson, save, submit, submitRosterDirection, render, refresh }
-})
+  },
+)

@@ -48,6 +48,19 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
     !Array.isArray(raw.seals.seen)
   )
     return null
+  if (
+    !Array.isArray(raw.dark.mapCards) ||
+    raw.dark.mapCards.some(
+      (card) =>
+        !isRecord(card) ||
+        !Number.isSafeInteger(card.id) ||
+        !Number.isSafeInteger(card.pairId) ||
+        typeof card.tile !== 'string' ||
+        typeof card.image !== 'string' ||
+        typeof card.matched !== 'boolean',
+    )
+  )
+    return null
   return raw as unknown as MemoryCheckpoint
 }
 

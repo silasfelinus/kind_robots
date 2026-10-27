@@ -7,6 +7,10 @@ import {
 } from '../gameOfCaptains/crewAssignments'
 import { readFileSync } from 'node:fs'
 import {
+  CREW_JOURNEYS,
+  NEMESIS_COUNTERPLAY,
+} from '../gameOfCaptains/crewJourneys'
+import {
   CAPTAIN_DOSSIERS,
   CREW_DOSSIERS,
 } from '../gameOfCaptains/characterDossiers'
@@ -25,6 +29,11 @@ import {
   antagonistFor,
   decidePolicy,
   finishVoyage,
+  crewDetourOptions,
+  beginCrewDetour,
+  resolveCrewDetour,
+  counterCrew,
+  detourFor,
   launchMission,
   missionFor,
   nextDestination,
@@ -166,6 +175,172 @@ for (const captain of CAPTAINS) {
     }
   }
 }
+// Every active crew profile owns three distinctive geographical steps.
+for (const member of CREW_PROFILES) {
+  const path = CREW_JOURNEYS[member.id]
+  assert.equal(path.length, 3, member.id)
+  assert.equal(new Set(path.map((step) => step.system)).size, 3)
+  for (const step of path) {
+    assert.ok(step.scene.length > 70, member.id)
+    assert.ok(step.careful.length > 25 && step.bold.length > 25, member.id)
+    assert.notEqual(step.careful, step.bold)
+  }
+}
+for (const enemy of ANTAGONISTS) {
+  const counters = NEMESIS_COUNTERPLAY[enemy.id] ?? []
+  assert.ok(counters.length > 0, enemy.id + ' needs a specific crew counter')
+  assert.ok(
+    counters.every((id) => CREW_PROFILES.some((member) => member.id === id)),
+  )
+}
+
+function completeMission(run: ReturnType<typeof startVoyage>) {
+  run = launchMission(run)
+  assert.equal(run.phase, 'transit')
+  const days = run.active!.returnsDay - (run.day ?? 1)
+  for (let i = 0; i < days; i++) run = advanceVoyageDay(run)
+  assert.equal(run.phase, 'decision')
+  return decidePolicy(run, 'aid')
+}
+for (const member of CREW_PROFILES) {
+  const crew = [
+    member.id,
+    ...CREW.filter((x) => x.id !== member.id)
+      .slice(0, 2)
+      .map((x) => x.id),
+  ]
+  let run = startVoyage('quill', crew, 3207)
+  const worldStops: string[] = []
+  for (let chapter = 1; chapter <= 3; chapter++) {
+    assert.equal(
+      crewDetourOptions(run).length,
+      0,
+      'no detours during a briefing',
+    )
+    run = completeMission(run)
+    assert.ok(crewDetourOptions(run).includes(member.id))
+    const detour = beginCrewDetour(run, member.id)
+    assert.equal(detour.phase, 'crew-quest')
+    assert.equal(
+      detourFor(detour)?.system,
+      CREW_JOURNEYS[member.id][chapter - 1]!.system,
+    )
+    assert.equal(
+      beginCrewDetour(detour, member.id),
+      detour,
+      'no double departure',
+    )
+    const saved = restoreVoyage(JSON.parse(JSON.stringify(detour)))
+    assert.deepEqual(saved, detour, 'mid-quest resume is stable')
+    const resolved = resolveCrewDetour(detour, 'bold')
+    worldStops.push(resolved.journeyHistory!.at(-1)!.system)
+    assert.equal(resolved.phase, 'debrief')
+    assert.equal(resolved.journeyProgress![member.id], chapter)
+    assert.equal(resolved.detourChapter, chapter)
+    assert.deepEqual(
+      crewDetourOptions(resolved),
+      [],
+      'one route stop per chapter',
+    )
+    assert.equal(
+      resolveCrewDetour(resolved, 'bold'),
+      resolved,
+      'cannot double-award a step',
+    )
+    assert.equal(
+      beginCrewDetour(resolved, member.id),
+      resolved,
+      'cannot farm a route',
+    )
+    assert.deepEqual(
+      restoreVoyage(JSON.parse(JSON.stringify(resolved))),
+      resolved,
+    )
+    run = nextDestination(resolved)
+  }
+  assert.equal(new Set(worldStops).size, 3)
+  assert.equal(run.phase, 'finale')
+  assert.ok(finishVoyage(run, 'protect').scene.includes('Quill deposits'))
+  assert.ok(finishVoyage(run, 'protect').scene.includes(member.name))
+}
+// A full crew arc unlocks enemy-specific council action only for a matching nemesis.
+for (const enemy of ANTAGONISTS) {
+  const selected = NEMESIS_COUNTERPLAY[enemy.id]![0]!
+  const seed = Array.from({ length: 800 }, (_, n) => n + 1).find(
+    (n) =>
+      antagonistFor(
+        startVoyage(
+          'vale',
+          [
+            selected,
+            ...CREW.filter((c) => c.id !== selected)
+              .slice(0, 2)
+              .map((c) => c.id),
+          ],
+          n,
+        ),
+      ).id === enemy.id,
+  )!
+  assert.ok(seed > 0, enemy.id)
+  let run = startVoyage(
+    'vale',
+    [
+      selected,
+      ...CREW.filter((c) => c.id !== selected)
+        .slice(0, 2)
+        .map((c) => c.id),
+    ],
+    seed,
+  )
+  assert.equal(counterCrew(run).length, 0)
+  for (let i = 0; i < 3; i++) {
+    run = completeMission(run)
+    run = beginCrewDetour(run, selected)
+    assert.equal(run.phase, 'crew-quest')
+    run = resolveCrewDetour(run, 'bold')
+    if (i < 1) assert.equal(counterCrew(run).length, 0)
+    else assert.ok(counterCrew(run).includes(selected))
+    run = nextDestination(run)
+  }
+  assert.equal(run.phase, 'finale')
+  const ended = finishVoyage(run, 'counter')
+  assert.equal(ended.phase, 'ending')
+  assert.ok(ended.scene.includes('witnesses'))
+  assert.notEqual(ended.scene, finishVoyage(run, 'protect').scene)
+  assert.ok(
+    ended.ending?.includes(enemy.id === 'showrunner' ? 'UNION' : 'WITNESS'),
+  )
+  assert.equal(finishVoyage(ended, 'counter'), ended, 'cannot replay finale')
+}
+const unearned = startVoyage('fluke', ['pell', 'mox', 'rue'], 47)
+assert.equal(counterCrew(unearned).length, 0)
+assert.equal(
+  finishVoyage({ ...unearned, phase: 'finale' }, 'counter').phase,
+  'finale',
+)
+const dryRun = {
+  ...completeMission(startVoyage('rex', ['pell', 'mox', 'rue'], 99)),
+  supplies: 0,
+}
+const withoutSupplies = beginCrewDetour(dryRun, 'pell')
+assert.equal(
+  resolveCrewDetour(withoutSupplies, 'careful'),
+  withoutSupplies,
+  'never spend negative supplies',
+)
+assert.equal(
+  resolveCrewDetour(withoutSupplies, 'bold').phase,
+  'debrief',
+  'no supply softlock',
+)
+for (const captain of CAPTAINS) {
+  const finale = {
+    ...startVoyage(captain.id, ['pell', 'mox', 'rue'], 51),
+    phase: 'finale' as const,
+  }
+  const ending = finishVoyage(finale, 'protect')
+  assert.ok(ending.scene.length > 180)
+}
 assert.equal(restoreVoyage({ version: 1, captain: 'fluke' }), null)
 assert.throws(() => startVoyage('fluke', ['pell', 'pell', 'mox'], 42))
 assert.throws(() => startVoyage('fluke', ['pell', 'mox'], 42))
@@ -189,6 +364,11 @@ assert.ok(tab.includes('Space Couch'))
 assert.ok(home.includes('Space Couch'))
 assert.ok(page.includes('data-testid="captains-launch"'))
 assert.ok(page.includes('data-testid="captains-choose-crew"'))
+assert.ok(page.includes('data-testid="couch-crew-routes"'))
+assert.ok(page.includes('data-testid="couch-crew-careful"'))
+assert.ok(page.includes('data-testid="couch-crew-bold"'))
+assert.ok(page.includes('data-testid="couch-counter-ending"'))
+assert.ok(page.includes("run.phase === 'crew-quest'"))
 assert.ok(page.includes('data-testid="captains-back-to-captains"'))
 assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))
 assert.ok(page.includes("selectionScreen === 'captain'"))

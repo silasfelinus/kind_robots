@@ -587,9 +587,47 @@
                 <small>REPUTATION</small><strong>{{ run.reputation }}</strong>
               </div>
             </div>
-            <p class="cap-alert">
-              The next destination may not agree with how you got here. That is
-              what makes it a destination.
+            <section
+              v-if="crewRoutes.length"
+              class="cap-insight"
+              data-testid="couch-crew-routes"
+            >
+              <strong>CREW STAR CHART · OPTIONAL PERSONAL DETOUR</strong>
+              <small
+                >One detour after each mission. Each officer has a three-system
+                quest; your choice changes the final council. Visiting costs one
+                ship day, not a mission slot.</small
+              >
+              <button
+                v-for="id in crewRoutes"
+                :key="id"
+                class="cap-option"
+                type="button"
+                :data-route="id"
+                @click="store.detour(id)"
+              >
+                <span>
+                  <b
+                    >{{ crewProfile(id).name }} ·
+                    {{
+                      CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]?.system
+                    }}</b
+                  >
+                  <small
+                    >{{
+                      CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]?.title
+                    }}
+                    · Step {{ (run.journeyProgress?.[id] ?? 0) + 1 }}/3</small
+                  > </span
+                >↗
+              </button>
+            </section>
+            <p v-else class="cap-alert">
+              {{
+                run.detourChapter === run.chapter
+                  ? 'This chapter’s personal route has been recorded. Plot the next course.'
+                  : 'No officer is available for a personal detour. The next destination still awaits.'
+              }}
             </p>
             <button
               class="cap-primary"
@@ -606,6 +644,56 @@
             </button>
           </template>
 
+          <template v-else-if="run.phase === 'crew-quest'">
+            <div class="cap-heading">
+              <span>✦</span>
+              <div>
+                <h2>{{ activeDetour?.title }}</h2>
+                <p>
+                  {{ activeDetour?.system }} · PERSONAL VOYAGE
+                  {{ (run.detour?.step ?? 0) + 1 }}/3
+                </p>
+              </div>
+            </div>
+            <div class="cap-mission-report">
+              <strong>{{ detourCrewName }}</strong>
+              <p>{{ activeDetour?.scene }}</p>
+            </div>
+            <p class="cap-narrative">{{ run.scene }}</p>
+            <p v-if="nemesisCrewLink" class="cap-alert">
+              {{ antagonist.name }} may recognize this testimony. Your crew
+              could acquire leverage over the final negotiation.
+            </p>
+            <button
+              type="button"
+              class="cap-option"
+              data-testid="couch-crew-careful"
+              :disabled="run.supplies < 1"
+              @click="store.resolveDetour('careful')"
+            >
+              <span
+                ><b>{{ activeDetour?.careful }}</b
+                ><small
+                  >Spend 1 supply · +1 trust · preserve local consent</small
+                ></span
+              >↗
+            </button>
+            <button
+              type="button"
+              class="cap-option"
+              data-testid="couch-crew-bold"
+              @click="store.resolveDetour('bold')"
+            >
+              <span
+                ><b>{{ activeDetour?.bold }}</b
+                ><small
+                  >+1 public reputation · -1 trust · greater nemesis
+                  attention</small
+                ></span
+              >↗
+            </button>
+          </template>
+
           <template v-else-if="run.phase === 'finale'">
             <div class="cap-heading">
               <span>07</span>
@@ -619,6 +707,39 @@
               will inherit the terms. Your crew stands quietly at their posts,
               letting the final order belong to you.
             </p>
+            <div
+              v-if="counterOfficers.length"
+              class="cap-insight"
+              data-testid="couch-counterplay"
+            >
+              <strong>CREW EVIDENCE UNLOCKED</strong>
+              <small
+                >{{
+                  counterOfficers
+                    .map((id) => crewProfile(id).name)
+                    .join(' and ')
+                }}
+                recovered two or more witnesses across the galaxy.
+                {{ antagonist.name }} can now be confronted on the
+                record.</small
+              >
+              <button
+                class="cap-option"
+                type="button"
+                data-testid="couch-counter-ending"
+                @click="store.finish('counter')"
+              >
+                <span
+                  ><b
+                    >Convene the civilian council and challenge
+                    {{ antagonist.name }}</b
+                  ><small
+                    >Use a crew member’s earned evidence, not the captain’s
+                    rank.</small
+                  ></span
+                >↗
+              </button>
+            </div>
             <button
               class="cap-option"
               type="button"
@@ -694,6 +815,9 @@ import {
   previewMission,
   antagonistFor,
   missionFor,
+  crewDetourOptions,
+  detourFor,
+  counterCrew,
   type CaptainId,
   type CrewId,
 } from '~/utils/gameOfCaptains/rules'
@@ -704,6 +828,10 @@ import {
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import {
+  CREW_JOURNEYS,
+  NEMESIS_COUNTERPLAY,
+} from '~/utils/gameOfCaptains/crewJourneys'
 import {
   CAPTAIN_DOSSIERS,
   CREW_DOSSIERS,
@@ -744,6 +872,25 @@ const antagonist = computed(() =>
 const availableCrew = computed(() =>
   CREW.filter((person) => run.value?.crew.includes(person.id)),
 )
+const crewRoutes = computed(() =>
+  run.value ? crewDetourOptions(run.value) : [],
+)
+const detourCrewName = computed(
+  () =>
+    CREW.find((person) => person.id === run.value?.detour?.crewId)?.name ??
+    'Crew member',
+)
+const activeDetour = computed(() => (run.value ? detourFor(run.value) : null))
+const nemesisCrewLink = computed(
+  () =>
+    !!run.value?.detour &&
+    (NEMESIS_COUNTERPLAY[antagonist.value.id] ?? []).includes(
+      run.value.detour.crewId,
+    ),
+)
+const counterOfficers = computed(() =>
+  run.value ? counterCrew(run.value) : [],
+)
 const missionRule = computed(() => ruleFor(mission.value.id))
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,
@@ -758,7 +905,9 @@ function unavailable(id: CrewId) {
 const starName = computed(() =>
   run.value?.phase === 'ending'
     ? 'THE FINAL LOG'
-    : mission.value.system.toUpperCase(),
+    : run.value?.phase === 'crew-quest'
+      ? (activeDetour.value?.system ?? 'PERSONAL ROUTE').toUpperCase()
+      : mission.value.system.toUpperCase(),
 )
 const headline = computed(() =>
   run.value
@@ -767,6 +916,7 @@ const headline = computed(() =>
         transit: 'Away Team En Route',
         decision: 'The Cost Of Knowing',
         debrief: 'Between The Stars',
+        'crew-quest': activeDetour.value?.title ?? 'Personal Route',
         finale: 'The Last Jump Gate',
         ending: run.value.ending ?? 'Voyage Complete',
       }[run.value.phase]
@@ -784,6 +934,7 @@ const panelLabel = computed(() =>
         transit: 'EXPEDITION // RETURN CLOCK',
         decision: 'PRIME DOCTRINE // YOUR ORDER',
         debrief: 'CAPTAIN’S LOG // OUTCOME',
+        'crew-quest': 'CREW STAR CHART // PERSONAL CONSEQUENCE',
         finale: 'LAST TRANSMISSION // FINALE',
         ending: 'CHRONICLE // A VOYAGE RECORDED',
       }[run.value.phase]

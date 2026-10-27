@@ -128,7 +128,12 @@
           {{ formatCount(ledger.plannedUnits) }} total estimated slots</span
         >
         <span v-if="memoryRealms"
-          >{{ memoryRealms.built }} of {{ memoryRealms.planned }} realm maps represented · {{ Math.max(0, memoryRealms.planned - memoryRealms.built) }} remain</span
+          >{{ memoryRealms.built }} of {{ memoryRealms.planned }} realm maps
+          represented ·
+          {{
+            Math.max(0, memoryRealms.planned - memoryRealms.built)
+          }}
+          remain</span
         >
       </div>
       <ul

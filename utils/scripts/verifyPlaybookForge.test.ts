@@ -463,9 +463,21 @@ assert.equal(
       }),
     },
     artRequirements: [
-      { key: 'real-extra', title: 'Delivered', url: '/crystal-street/cover.webp' },
-      { key: 'missing-extra', title: 'Missing', url: '/crystal-street/outcomes/not-rendered.webp' },
-      { key: 'vector-extra', title: 'Vector filler', url: '/crystal-street/poster.svg' },
+      {
+        key: 'real-extra',
+        title: 'Delivered',
+        url: '/crystal-street/cover.webp',
+      },
+      {
+        key: 'missing-extra',
+        title: 'Missing',
+        url: '/crystal-street/outcomes/not-rendered.webp',
+      },
+      {
+        key: 'vector-extra',
+        title: 'Vector filler',
+        url: '/crystal-street/poster.svg',
+      },
     ],
   }
   const inventory = inspectPlaybookArt(

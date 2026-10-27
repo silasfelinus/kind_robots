@@ -141,6 +141,18 @@
                 >Next chance to choose or change: day 23</span
               >
             </div>
+            <div
+              v-if="run.flowVersion === 3 && run.vow"
+              class="cca-report-mini"
+              data-testid="academy-vow-journal"
+            >
+              <strong>MY STORY · {{ run.vow.toUpperCase() }} · {{ run.vowHistory?.length ?? 0 }} / 5 CHAPTERS</strong>
+              <span>{{ routeMemoryLine(run.vowHistory) }}</span>
+              <span>
+                PROMISE REPUTATION {{ routeStanding(run.vowHistory) >= 0 ? '+' : '' }}{{ routeStanding(run.vowHistory) }}
+                · {{ nextRouteDay ? 'NEXT CHAPTER: DAY ' + nextRouteDay : 'CHAPTERS COMPLETE' }}
+              </span>
+            </div>
             <p
               v-if="run.flowVersion === 3 && run.day >= 8"
               class="cca-under"
@@ -671,6 +683,7 @@ import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import { openingRouteDays, routeMemoryLine, routeStanding } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {
   academyStageArt,
@@ -702,6 +715,12 @@ const mapView = ref<CityView>('campus')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const run = computed(() => store.run)
+const nextRouteDay = computed(() => {
+  const state = run.value
+  return state?.vow
+    ? openingRouteDays(state.vow).find((day) => day >= state.day) ?? null
+    : null
+})
 const socialDayAvailable = computed(() => {
   const current = run.value
   return (

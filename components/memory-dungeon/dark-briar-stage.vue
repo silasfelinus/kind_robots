@@ -199,11 +199,21 @@
         <div
           class="relative h-[35%] min-h-[70px] shrink-0 overflow-hidden border-b border-[#ac8cae] bg-[#29263d] sm:h-[42%]"
         >
+          <img
+            v-if="!artFailed"
+            :key="illustrationPath"
+            :src="illustrationPath"
+            :alt="`Illustration of ${scene?.title ?? seal?.title ?? 'the other forest'}`"
+            class="absolute inset-0 h-full w-full object-cover"
+            draggable="false"
+            @error="artFailed = true"
+          />
           <div
+            v-else
             class="absolute inset-0 bg-cover"
             :style="sceneStyle"
             role="img"
-            :aria-label="`Shadowed landscape of ${scene?.title ?? 'the other forest'}, pending commissioned encounter art`"
+            :aria-label="`Illustration unavailable for ${scene?.title ?? seal?.title ?? 'the other forest'}`"
           ></div>
           <div
             class="absolute inset-0 bg-gradient-to-t from-[#15131ee8] to-transparent"
@@ -391,10 +401,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import MemoryDungeonDarkHouseStage from '~/components/memory-dungeon/dark-house-stage.vue'
 import { BRIAR_TILES } from '~/utils/memoryDungeonWorld'
+import { darkBriarIllustrationPath } from '~/utils/memoryDungeon/darkBriarArt'
 import {
   DARK_BRIAR_SCENES,
   DARK_BRIAR_SEALS,
@@ -415,6 +426,16 @@ const decisions = computed(
       .length,
 )
 const witnessCount = computed(() => darkBriarWitnessCount(world.dark))
+const illustrationPath = computed(() =>
+  darkBriarIllustrationPath(
+    world.dark.player,
+    world.dark.sceneChoices[world.dark.player],
+  ),
+)
+const artFailed = ref(false)
+watch(illustrationPath, () => {
+  artFailed.value = false
+})
 const sceneStyle = computed(() => {
   const [x = 1, y = 1] = world.dark.player.split(',').map(Number)
   return {

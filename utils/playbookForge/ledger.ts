@@ -24,6 +24,8 @@ export type LedgerJob = {
   engine: string
   renderSeconds: number | null
   error: string | null
+  /** The rendered picture, once a job is done (the gallery previews it). */
+  artImageId?: number | null
 }
 
 export type ArtState =

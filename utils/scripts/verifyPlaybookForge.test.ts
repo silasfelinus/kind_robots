@@ -74,6 +74,15 @@ import {
   type LedgerJob,
 } from '../playbookForge/ledger'
 import { blankNode, type PlaybookNode } from '../playbook/types'
+import {
+  combinedSection,
+  entryStatus,
+  filterEntries,
+  galleryEntry,
+  galleryTiles,
+  targetEntries,
+  targetNoteKey,
+} from '../playbookForge/gallery'
 import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
@@ -515,6 +524,75 @@ for (const game of PLAYBOOK_GAMES) {
   )
 }
 
+// The gallery: every section and person as art, with an honest status per
+// beat, and a person's beats submittable as one section.
+for (const game of PLAYBOOK_GAMES) {
+  const book = buildPlaybook(game.id)
+  const ledger = buildLedger(
+    book,
+    {},
+    { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+  )
+  const tiles = galleryTiles(book, ledger)
+  assert.equal(
+    tiles.sections.reduce((n, t) => n + t.count, 0),
+    ledger.units,
+    `${game.id}: the gallery shelves hold every beat once`,
+  )
+  for (const t of tiles.sections)
+    assert.equal(
+      targetEntries(book, ledger, t.target).length,
+      t.count,
+      `${game.id} ${t.label}`,
+    )
+  for (const t of tiles.people) {
+    const keys = targetEntries(book, ledger, t.target).map((e) => e.key)
+    const combined = combinedSection(t.label, ledger.sections, keys)!
+    assert.equal(combined.units.length, keys.length, `${game.id} ${t.label}`)
+    assert.equal(combined.label, t.label)
+  }
+}
+const captains = buildPlaybook('game-of-captains')
+const captainsLedger = buildLedger(
+  captains,
+  {},
+  { laneKey: 'krea2', assumptions: DEFAULT_ASSUMPTIONS },
+)
+const crew = galleryTiles(captains, captainsLedger).people
+assert.ok(crew.length >= 6, 'Space Couch crew each get a page')
+assert.ok(
+  crew.every((t) => t.count > 0),
+  'a person page holds their beats',
+)
+assert.equal(
+  entryStatus(
+    galleryEntry(
+      beat('p', 'encounter', { artPrompt: 'A lighthouse at dusk.' }),
+    ),
+  ),
+  'unpainted',
+)
+assert.equal(entryStatus(galleryEntry(beat('q', 'encounter'))), 'no-prompt')
+assert.equal(
+  entryStatus(galleryEntry(beat('r', 'encounter', { artUrl: '/r.webp' }))),
+  'painted',
+)
+assert.equal(
+  targetNoteKey({ type: 'section', id: 'follower' }),
+  'section:follower',
+)
+assert.equal(targetNoteKey({ type: 'person', id: 'pell' }), 'person:pell')
+assert.equal(
+  filterEntries(
+    [
+      galleryEntry(beat('a1', 'encounter', { artUrl: '/a.webp' })),
+      galleryEntry(beat('a2', 'encounter')),
+    ],
+    'missing',
+  ).length,
+  1,
+)
+
 assert.deepEqual(
   buildLedger(
     {
@@ -912,6 +990,10 @@ for (const name of [
   'art-card',
   'catalog',
   'catalog-tray',
+  'gallery',
+  'gallery-strip',
+  'gallery-card',
+  'gallery-inspector',
   'relay',
   'beats',
   'beat',

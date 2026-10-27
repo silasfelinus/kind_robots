@@ -129,9 +129,14 @@
             type="button"
             class="pf-focusable flex w-full items-center gap-2 border-l-2 py-1 pl-2 text-left text-sm hover:bg-base-content/5"
             :class="BORDER[unit.art]"
-            :title="`Open ${unit.title} in the beat editor`"
+            :title="`Open ${unit.title} in the gallery`"
             @click="
-              forge.existing && forge.openBeats(forge.existing.slug, unit.key)
+              forge.existing &&
+              forge.openGallery(
+                forge.existing.slug,
+                { type: 'section', id: section.id },
+                unit.key,
+              )
             "
           >
             <span class="min-w-0 flex-1">

@@ -41,7 +41,7 @@
           "title": "Cafeteria Staff (Unidentified)",
           "place": "The yearbook office, Glimmer Falls High",
           "text": "The yearbook office smells like rubber cement and deadline panic. A long shelf holds every Glimmer Light annual since 1956, the spines faded from maroon to pink. Chip Merriweather is at the light table pretending he isn't hiding in here. Someone has left a lunch tray of tater tots beside the books. They're still steaming. Nobody in the room brought them.",
-          "art": "A cramped high school yearbook office with a shelf of thirty faded annuals, a preppy teen at a glowing light table, a lunch tray of steaming tater tots sitting ominously beside the books",
+          "art": "A cramped high school yearbook office, a long shelf of thirty faded maroon and pink school annuals, a preppy 17-year-old boy with side-parted chestnut hair, a pink oxford shirt and a navy blazer bent over a glowing light table, a cafeteria lunch tray of steaming tater tots sitting on the shelf beside the books, a teenager pulling one annual down, white light-table glow from below and a dim desk lamp, medium shot",
           "choices": [
             {
               "id": "flip-the-staff-pages",
@@ -110,7 +110,7 @@
           "title": "The Kitchen Behind the Stage",
           "place": "Backstage kitchen, The Glitter Box Playhouse",
           "text": "Behind the stage, under a rack of sequined gowns, is a kitchen nobody talks about: six enormous dented roasting pans, a wall of cast iron and a hand-lettered banner from last November that says THANK YOU MISS RUTHIE! 47 KIDS FED! Glory is ironing a feather boa. Frankie is on her headset. Neither has noticed the pot of gravy simmering on a burner nobody lit.",
-          "art": "A cluttered theatre kitchen behind racks of sequined gowns, dented roasting pans stacked high, a hand-painted thank-you banner, a pot of gravy bubbling on an unlit stove, a drag queen ironing a boa in the background",
+          "art": "A cluttered kitchen hidden behind a backstage rack of sequined gowns, six huge dented roasting pans stacked high, a wall of cast iron skillets, a painted paper streamer from last November taped over the door, a pot of brown gravy bubbling on a cold burner, in the background a tall drag queen with a platinum bouffant wig ironing a pink feather boa, a teenager reaching for a battered recipe tin, warm stage-bulb light, medium wide shot",
           "choices": [
             {
               "id": "ask-glory",
@@ -177,7 +177,7 @@
           "title": "The Request Line",
           "place": "The overnight booth, KGLM 103.3",
           "text": "At two in the morning the KGLM booth glows like a fish tank: reels turning, the ON AIR light burning red. Mix Bell slides a battered request log across the console. Every Friday since 1971 there's the same entry: Friday Night Lady. \"Stand By Me.\" For the kids at the high school. Tell them to eat their vegetables. The request line starts blinking.",
-          "art": "A late-night radio booth glowing with VU meters and spinning reel-to-reel tapes, a teen DJ sliding a worn logbook across the console, a blinking request-line phone in the foreground",
+          "art": "A late-night radio booth at two in the morning, reel-to-reel tapes turning, green VU meter needles glowing, a red on-air bulb lit over the door, a 17-year-old Black DJ with a high-top fade, big padded headphones and a purple satin station jacket sliding a worn spiral logbook across the console to a teenager, a beige request-line phone blinking red in the foreground, dim green and red light, medium shot over the console",
           "choices": [
             {
               "id": "answer-the-line",
@@ -244,7 +244,7 @@
         "title": "The Line",
         "place": "Glimmer Falls High cafeteria, midnight",
         "text": "You don't remember coming to school. You're holding a beige tray in a cafeteria lit by one buzzing tube, standing in a line that stretches back into the dark: every kid in Glimmer Falls since 1956, in letterman jackets and poodle skirts and Members Mostly jackets, shuffling forward without a word. At the steam table, a tall shape in a hairnet ladles something that moves. \"Tray,\" it says. \"Fork. Napkin. Next.\"",
-        "art": "A dark school cafeteria at midnight lit by one flickering fluorescent tube, a ghostly line of teenagers from three decades of fashion holding beige trays, a towering lunch lady in a hairnet ladling quivering food at the steam table",
+        "art": "A school cafeteria at midnight lit by one flickering fluorescent tube, a long line of pale silent teenagers stretching back into darkness, letterman jackets, poodle skirts and nylon windbreakers from three decades, each holding a beige tray, a teenager in pajamas standing in the line holding a tray, at the steam table a towering broad-shouldered woman in her sixties in a tight hairnet and stained white apron ladling gray food that wriggles, cold green-white light, wide shot along the line",
         "choices": [
           {
             "id": "say-thank-you",
@@ -323,7 +323,7 @@
         "title": "The Mystery Meat Is Moving",
         "place": "Crystal Street storm drains, 1 a.m.",
         "text": "Barnaby howls at midnight. Then you hear it: a wet, cheerful squelch from every storm drain on Crystal Street. Gray-brown blobs of Salisbury Surprise ooze up out of the gutters, roll across the lawns and gather into one quivering mound the size of a station wagon, with two canned peas for eyes. It smells exactly like Tuesday. It wants to form a line.",
-        "art": "A suburban street at night with gray-brown mystery meat oozing from storm drains and merging into a car-sized quivering blob with two pea eyes, a basset hound howling on a porch",
+        "art": "A suburban street at one in the morning, gray-brown lumps of meat loaf oozing up out of every storm drain, rolling across the lawns and merging in the road into one quivering brown mound the size of a station wagon with two round green peas for eyes, a tricolor basset hound with long ears and a red bandana howling on a porch, teenagers in pajamas with a can of hairspray and a whistle at the curb, orange streetlight, wide shot",
         "choices": [
           {
             "id": "lacquer-it",
@@ -388,7 +388,7 @@
         "title": "Family Dinner",
         "place": "The Home Ec classroom, Glimmer Falls High, 2 a.m.",
         "text": "You wake up seated at a long dinner table in the Home Ec room, a paper napkin tucked into your collar. Around you sit the classroom's dress-form mannequins, each wearing a hairnet and an apron, each with a lunch tray set neatly in front of it. A 1958 filmstrip called Feeding the Family clicks on the wall projector. Big Gertie ducks through the supply closet door carrying a casserole the size of a bathtub, sets it down at the head of the table, and waits. Nobody has ever stayed for dinner before.",
-        "art": "A dim school home economics classroom at night, a long dinner table lined with dress-form mannequins in hairnets and aprons, a teenager seated with a napkin tucked into their collar, a towering lunch lady setting down a giant steaming casserole",
+        "art": "A school home economics classroom at two in the morning, a long dinner table with a white tablecloth, dress-form mannequins seated in every chair wearing hairnets and aprons with lunch trays in front of them, a teenager sitting at the table with a paper napkin tucked into their collar, a filmstrip projector throwing a pale square of light on the wall, a towering woman in a hairnet and white apron ducking through a closet doorway carrying a steaming casserole dish the size of a bathtub, warm projector glow and dark corners, wide shot",
         "choices": [
           {
             "id": "compliment-the-cook",
@@ -479,7 +479,7 @@
         "title": "The Car Won't Start",
         "place": "The faculty parking lot, Glimmer Falls High, 11 p.m.",
         "text": "The '71 Roadhawk Joey borrowed off Rusty's lot has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
-        "art": "A rusty muscle car stalled in a dark school parking lot, teenagers peering through a fogged rear window, a towering lunch lady in a hairnet stepping out of a floodlit loading dock holding a huge whirring potato masher",
+        "art": "A rusty 1971 muscle car stalled in a dark high school parking lot at eleven at night, two teenagers peering out through a fogged rear window, a lean Diné teenager with a low ponytail and an orange work shirt in the driver's seat, beyond them a cafeteria loading dock door sliding open in a hard white floodlight and a towering woman in a hairnet and white apron stepping out holding a huge industrial potato masher, fog in the floodlight, wide shot from behind the car",
         "choices": [
           {
             "id": "hotwire-it",
@@ -569,7 +569,7 @@
         "title": "I'll Be Right Back",
         "place": "The Fall Lock-In, Glimmer Falls High gym, 1 a.m.",
         "text": "The student council's overnight Fall Lock-In is winding down: sleeping bags on the gym floor, a dead boombox, a mountain of pizza crusts. Chip Merriweather stands up and stretches. \"I'm getting pudding cups from the cafeteria,\" he says. \"I'll be right back.\" That was twenty minutes ago. Now, from far down the dark hallway, comes a sound like a ladle being dragged along every locker, one at a time, getting closer.",
-        "art": "A dark high school gym at night scattered with sleeping bags and pizza boxes, teenagers sitting up in alarm, a long shadowy hallway beyond the open double doors with a faint glow at its far end",
+        "art": "A high school gymnasium at one in the morning scattered with sleeping bags, pizza boxes and a dead boombox, four teenagers sitting up in their sleeping bags staring toward the open double doors, beyond the doors a long dark hallway of lockers with a dim yellow glow at its far end and a long shadow stretching across the floor, blue moonlight through high gym windows, wide shot from the floor",
         "choices": [
           {
             "id": "go-get-chip",
@@ -659,7 +659,7 @@
         "title": "The Walk-In",
         "place": "The cafeteria walk-in freezer, 3 a.m.",
         "text": "The heavy freezer door thunks shut behind you. Frost on everything. Tater-tot boxes stacked to the ceiling, and hanging from steel hooks in a neat row, rimed white, are the letterman jackets, cheer sweaters and headphone tape players of every kid who skipped her line this week. Down the aisle comes the scrape of a cleaver on a sharpening steel, slow and patient. \"I know you,\" says Big Gertie. \"I know every face. I just never bothered with the names.\"",
-        "art": "A frost-covered walk-in freezer lit blue, letterman jackets and headphone tape players hanging frozen on meat hooks, a towering hairnetted silhouette sharpening a cleaver at the far end of the aisle",
+        "art": "The inside of a frost-covered cafeteria walk-in freezer at three in the morning, cardboard boxes of tater tots stacked to the ceiling, letterman jackets, cheer sweaters and headphone tape players hanging in a row from steel meat hooks rimed in white frost, a shivering teenager in a jacket pressed against the shelves, at the far end of the aisle a towering woman in a hairnet and apron sharpening a cleaver on a steel, cold blue light and white breath clouds, medium wide shot down the aisle",
         "choices": [
           {
             "id": "trade-names",
@@ -748,7 +748,7 @@
         "title": "Part of the Furniture",
         "place": "Glimmer Falls High cafeteria, 1 a.m.",
         "text": "You wake up and you cannot move, because you are a chair: molded orange plastic, chrome legs, bolted into a row at table nine. The cafeteria is full of dream students clattering trays, and every one of them drops onto you without a glance, eats, scrapes back and leaves. Nobody says excuse me. Nobody even looks down. After the last bell, a huge shadow in a hairnet lowers herself onto you with a groan, the first time she has sat down all day, and the plastic creaks under thirty years of tired.",
-        "art": "A dim school cafeteria after hours, rows of molded orange plastic chairs on chrome legs, one chair glowing faintly with a startled teenager's face in its seat back, a towering lunch lady in a hairnet slumping wearily onto it, trays stacked on the steam table",
+        "art": "A dim school cafeteria after hours, rows of molded orange plastic chairs on chrome legs bolted along long tables, one chair at the end with a startled teenager's face pressed into its plastic seat back, a towering broad-shouldered woman in her sixties with a tight hairnet and stained apron lowering herself onto that chair with a tired groan and a hand on her knee, trays stacked on the steam table behind, a single warm light over the serving line, medium shot",
         "choices": [
           {
             "id": "hold-her-up",
@@ -831,7 +831,7 @@
         "title": "The Night Shift",
         "place": "Donut Dynasty on Route 9, 3 a.m.",
         "text": "The only place open in Glimmer Falls at three in the morning is Donut Dynasty, and tonight something is wrong with the waitress. Bernadette has poured coffee here for nineteen years, and right now she is going gray and see-through, like a snapshot left too long in a sunny window. The customers keep ordering from her without looking up, and every order fades her a little more, while a fresh hairnet waits on a hook by the kitchen door. It is happening all over town this week: the crossing guard, the night janitor at the bank, the bag boy at Thriftee-Mart. In the back booth, folded into a seat too small for her, Big Gertie sips black coffee and watches with tired, knowing eyes.",
-        "art": "A neon-lit all-night donut shop on a highway at three in the morning, a waitress in a pink uniform fading gray and translucent as she pours coffee, customers hunched over plates, a towering lunch lady in a hairnet watching from a small back booth",
+        "art": "A neon-lit all-night donut shop on a highway at three in the morning, a middle-aged waitress in a pink uniform pouring coffee as her body fades gray and translucent from the feet up, truckers and night-shift workers hunched over plates at the counter, a clean hairnet hanging on a hook by the kitchen door, a teenager at the counter staring at the waitress, and in the small back booth a towering woman in a hairnet sipping black coffee, pink neon and fluorescent light, wide shot",
         "choices": [
           {
             "id": "ask-her-name",
@@ -917,7 +917,7 @@
         "title": "The Dish Machine",
         "place": "The cafeteria dish room, Glimmer Falls High, 2 a.m. the night before Halloween",
         "text": "At two in the morning the dish-return belt starts up by itself, and it is carrying people. Your crew rides it in a slow line, sitting on trays, toward the dish machine: a steel tunnel the size of a boxcar, roaring with scalding spray and whirling brushes that rev like chainsaws. On the far side, in the steam, Big Gertie stacks clean trays in towers to the ceiling, every one of the two million she has handed out. \"Everything comes back to the kitchen,\" she says, without looking up. \"Everything. Nobody ever asks who washes it.\" Tomorrow is Halloween, and the belt is speeding up.",
-        "art": "A steaming school dish room at night, teenagers riding beige trays along a conveyor belt toward a roaring steel dish machine tunnel with whirling brushes and spray, a towering lunch lady stacking tray towers to the ceiling in the steam",
+        "art": "A steaming school dish room at two in the morning, four teenagers riding beige plastic trays along a slow conveyor belt toward a roaring stainless-steel dish machine tunnel the size of a boxcar with whirling brushes and jets of scalding spray, a big red emergency stop button on the wall, on the far side in the steam a towering woman in a hairnet stacking clean trays in towers to the ceiling, white steam and green emergency light, wide shot",
         "choices": [
           {
             "id": "hit-the-stop",
@@ -1004,7 +1004,7 @@
       "title": "Last Call at the Lunch Line",
       "place": "Glimmer Falls High cafeteria, Halloween night",
       "text": "On Halloween the whole town comes to lunch. The cafeteria has grown enormous and endless, every table full of neighbors in costume eating gray food with their heads down, nobody looking up. The steam table runs the length of the room, and behind it Big Gertie towers to the ceiling tiles, hairnet stretched over a cleaver like a shark's fin, ladle as big as a canoe paddle. \"Thirty years,\" she booms. \"Two million lunches. And not one of you ever looked up.\"",
-      "art": "An endless school cafeteria on Halloween night packed with townspeople in costumes eating gray food with bowed heads, a gigantic lunch lady behind a steam table that stretches into darkness, a teen crew in costumes standing in the aisle facing her",
+      "art": "An endless school cafeteria on Halloween night, long tables full of townspeople in costumes eating gray food with heads bowed, a steam table running the whole length of the room, behind it a gigantic woman in a stretched hairnet and stained white apron towering to the ceiling tiles, a cleaver tucked into her hairnet, a ladle the size of a canoe paddle in her fist, four teenagers in homemade costumes standing in the aisle facing her, green fluorescent light and orange steam, low wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1174,22 +1174,22 @@
       "best": {
         "title": "Ruthanne Bixby Day",
         "text": "On November first the school board names the cafeteria the Ruthanne Bixby Dining Hall, and the whole kitchen staff finally gets the raise they've been asking for since 1979. Every staff photo in the 1987 Glimmer Light has a name under it. Ruthanne retires at Thanksgiving with a party at the Glitter Box, where two hundred former students line up to say her name to her face. She learns yours. She never forgets it, and she still yells it across the street when she sees you skipping breakfast.",
-        "art": "A joyful retirement party in a glittering theatre, a tall woman in her sixties in a corsage laughing as a line of former students of every decade hugs her, a banner reading thank you Ruthanne overhead"
+        "art": "A retirement party in a small glittering theater, a tall broad-shouldered woman in her sixties with steel-gray hair wearing a pink corsage on a church dress, laughing as a long line of former students from every decade hug her one by one, a tall drag queen in a magenta sequin gown applauding, balloons and a long buffet table, warm gold stage light, wide shot"
       },
       "good": {
         "title": "Lunch Is Over",
         "text": "The cafeteria goes quiet and the mystery meat stays in the drains where it belongs. The lunch lady is just a tired woman you pass in the hall with a cart of trays. You never quite learn why any of it happened. But you say thank you at the steam table every single day now, just in case it matters.",
-        "art": "A sunny school cafeteria at lunchtime, a teenager saying thank you to a tall lunch lady at the steam table, her face unreadable, students chattering at tables behind them"
+        "art": "A sunny high school cafeteria at lunchtime, a teenager holding a tray and smiling up at a tall woman in a hairnet and white apron behind the steam table, her face tired and still, students chattering at long tables behind them, bright daylight through tall windows, medium shot across the serving line"
       },
       "bittersweet": {
         "title": "Seconds",
         "text": "You survive, and the kids from the walk-in mostly thaw out, though a couple of them shiver all winter. Then Ruthanne retires without a word one Friday in November. No party, no card. By the time you think to look up her name in the payroll files, she has moved to a sister's place in Vallejo, and the Friday Night Lady never calls KGLM again.",
-        "art": "An empty cafeteria serving line with a single hairnet left folded on the steam table, a radio booth phone silent in the background, gray November light through the windows"
+        "art": "An empty school cafeteria serving line on a gray November afternoon, a single folded hairnet left on the clean steel steam table beside a ladle, chairs upturned on the tables, a teenager standing alone at the end of the line with a backpack, flat gray light through the tall windows, medium wide shot"
       },
       "bad": {
         "title": "Tray, Fork, Napkin",
         "text": "On November first you're behind the steam table in a hairnet and a stained apron, serving. Nobody looks up at you. Your crew comes through the line on Monday and takes their trays and doesn't recognize your face. You open your mouth to say your name, and all that comes out is the word next.",
-        "art": "A teenager in a hairnet and apron behind a cafeteria steam table holding a ladle, their friends in the lunch line staring at their trays like strangers"
+        "art": "A teenager in a hairnet and a stained apron stands behind a school cafeteria steam table holding a ladle with a blank face, and their three friends shuffle past in the lunch line with heads down staring at their trays, fluorescent light, long steel counter, medium shot from the students' side of the line"
       }
     }
   }

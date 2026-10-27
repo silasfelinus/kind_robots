@@ -40,7 +40,7 @@
           "title": "Locker 33",
           "place": "Locker room, Pump Iron Gym and Aerobics",
           "text": "Locker 33 at Pump Iron is held shut with athletic tape and hope. Inside, under a protein shaker and a letterman jacket that smells like menthol rub, is a spiral notebook labeled PLAYS, PRIVATE. Down the hall the aerobics class is doing grapevines to a synth beat, and a radio is counting down to the Monster Bowl. Brick will be back from the showers in five minutes.",
-          "art": "A gym locker room with a dented locker numbered 33 taped shut, a spiral notebook labeled plays private peeking out beneath a maroon letterman jacket, steam drifting from the showers",
+          "art": "A steamy gym locker room, a dented gray locker held shut with strips of white athletic tape, its door cracked open on a protein shaker, a maroon and gold letterman jacket and a spiral notebook peeking out underneath, a teenager reaching for the notebook and glancing over their shoulder, steam drifting from the shower doorway, flat fluorescent light, medium shot",
           "choices": [
             {
               "id": "ask-moose",
@@ -136,7 +136,7 @@
           "title": "The Shrine",
           "place": "Trophy case and yearbook office, Glimmer Falls High",
           "text": "The trophy case outside the gym glows like a chapel: the 1966 state trophy, a game ball signed DUKE, and the banner the boosters hang every October, MAN UP, PROSPECTORS. Next door the yearbook office is unlocked and smells of rubber cement. The 1966 Glimmer Light sits on a shelf with its spine cracked open at a single page.",
-          "art": "A glowing high school trophy case with a 1966 state trophy and a signed football under a maroon banner reading man up, an open doorway to a cluttered yearbook office beside it",
+          "art": "A high school hallway at dusk, a glass trophy case glowing warm gold with a 1966 state trophy and a signed leather football under a maroon cloth pennant, beside it the open door of a cluttered yearbook office with an old school annual lying open on a shelf, a teenager standing between them, warm case light and dim hallway, medium wide shot",
           "choices": [
             {
               "id": "read-the-yearbook",
@@ -201,7 +201,7 @@
           "title": "Featherfoot",
           "place": "The lobby, The Glitter Box Playhouse",
           "text": "The Glitter Box lobby is a hall of fame in sequins and dust. Between a poster for the 1977 Miss Glitter Pageant and a signed photo of a 1950s torch singer hangs an old black-and-white of a skinny young man mid-leap, tails flying: AUGIE \"FEATHERFOOT\" DELANEY, THE RIALTO, 1946. Below it, in a glass box, sits a pair of tap shoes so big they look like they belong to a boy who never stopped growing.",
-          "art": "A sparkly theatre lobby wall covered in old show posters, a black and white photo of a young tap dancer mid-leap in tails, a glass case below holding a pair of huge worn tap shoes",
+          "art": "A sparkly small theater lobby wall crowded with old framed show photographs, a black-and-white photo of a skinny young tap dancer mid-leap in tails, a glass box below it holding a pair of huge worn black tap shoes, a tall drag queen with a platinum bouffant wig and pins in her mouth beside a teenager looking at the shoes, warm gold lobby light, medium shot",
           "choices": [
             {
               "id": "ask-glory-about-augie",
@@ -269,7 +269,7 @@
         "title": "Two-a-Days",
         "place": "The practice field, Glimmer Falls High, midnight",
         "text": "You cut across the practice field at midnight and the stadium lights slam on, every bank at once. A whistle shrieks. Something huge is running suicides on the forty-yard line, goal line and back, goal line and back, its letterman jacket shredded across its shoulders. It stops. It sniffs the air. Over the PA, a man's recorded voice says, \"Walk it off, son. Walk it off.\"",
-        "art": "A high school practice field at midnight under blazing floodlights, a hulking wolf in a torn letterman jacket mid-sprint on the yard lines, a small teenager frozen at the fence",
+        "art": "A high school practice field at midnight under blazing floodlights, a hulking seven-foot gray wolf in a shredded maroon and gold letterman jacket and a cracked maroon football helmet sprinting along the white yard lines, a whistle on a lanyard lying on the grass, a small teenager frozen at the chain-link fence, hard white light and black sky, wide shot",
         "choices": [
           {
             "id": "run-for-bleachers",
@@ -329,7 +329,7 @@
         "title": "The Bonfire Rally",
         "place": "The pep rally bonfire, behind Prospector Stadium",
         "text": "The Monster Bowl pep rally bonfire is three stories tall and burning a Pine Ridge dummy in effigy. The boosters have the crowd chanting BE A MAN, BE A MAN, BE A MAN, and with every chant the shape at the edge of the firelight gets bigger: shoulders, claws, a cracked helmet with ears forcing through. Duke Delaney stands on a flatbed with a bullhorn, leading the chant, not looking at it.",
-        "art": "A towering high school pep rally bonfire at night, a chanting crowd in maroon and gold, a broad man with a bullhorn on a flatbed truck, and at the edge of the firelight a growing wolf silhouette in a cracked helmet",
+        "art": "A towering high school pep rally bonfire at night behind a stadium, a chanting crowd in maroon and gold sweatshirts with fists in the air, a broad middle-aged man with a crew cut on a flatbed truck shouting into a bullhorn, a teenager holding a cheer megaphone, and at the edge of the firelight a huge shape growing broad shoulders, claws and a cracked football helmet with wolf ears forcing through, orange firelight, wide shot",
         "choices": [
           {
             "id": "change-the-chant",
@@ -396,7 +396,7 @@
         "title": "Surfin' Route 49",
         "place": "Route 49 in Lyle's Pizza delivery van, after midnight",
         "text": "You catch a ride home from the late session at Pump Iron in Lyle's Pizza delivery van, sitting on a stack of flat boxes, when something lands on the roof hard enough to dent it. In the side mirror a huge furry shape is crouched on top of the giant fiberglass pizza, letterman jacket flapping, arms out like a surfer, howling at the moon. Behind you a muscle car full of linebackers is honking and chanting, \"WOLF! WOLF! WOLF!\" Lyle grips the wheel. \"Kid,\" he says carefully, \"there's a werewolf on my pizza.\"",
-        "art": "A pizza delivery van speeding down a moonlit country highway with a giant fiberglass pizza on its roof, a huge wolf in a torn letterman jacket surfing on top with arms spread, a muscle car full of cheering football players chasing behind",
+        "art": "A pizza delivery van speeding down a moonlit country highway after midnight with a giant fiberglass pizza on its roof, a huge gray wolf in a flapping maroon letterman jacket crouched on top of the pizza with arms spread wide howling at the moon, a teenager leaning out the side window, a muscle car full of shouting football players chasing behind with headlights blazing, full moon, wide shot",
         "choices": [
           {
             "id": "surf-with-him",
@@ -482,7 +482,7 @@
         "title": "The Howling Deal of the Year",
         "place": "Delaney Motors on Route 49, a midnight commercial shoot",
         "text": "Duke Delaney is filming a TV spot at midnight on his car lot, under strings of pennant flags, beside a waving inflatable tube man and a giant cardboard cutout of himself giving a thumbs-up. \"Delaney men never back down!\" he bellows at the camera, take after take. His son is supposed to be in the next shot. Instead you find Brick locked in the showroom restroom, shaving his forearms with his father's electric razor while the fur grows back faster than he can cut it. \"I can't go out there,\" he whispers through the door. \"Not like this.\"",
-        "art": "A used car lot at midnight under floodlights and strings of pennant flags, a waving inflatable tube man, a giant cardboard cutout of a grinning salesman, a broad man shouting at a film camera, a showroom restroom door glowing at the back",
+        "art": "A used car lot at midnight under floodlights and strings of colored pennant flags, a waving inflatable tube man, a giant cardboard cutout of a grinning salesman giving a thumbs-up, a broad man with a crew cut in a sport coat shouting at a film camera on a tripod, and at the back of the glass showroom a teenager kneeling at a restroom door with a light under it, hard white floodlight, wide shot",
         "choices": [
           {
             "id": "talk-through-the-door",
@@ -571,7 +571,7 @@
         "title": "Torches and Pitchforks",
         "place": "The edge of Crystal Woods, behind the quarry, after dark",
         "text": "The Glimmer Falls Booster Club has decided to handle the wolf problem themselves before it ruins the Monster Bowl. Forty grown men in maroon windbreakers are marching into Crystal Woods with flashlights, rakes, a borrowed hunting dog and, for some reason, the silver-plated trophy bat from the 1966 state title. Booster president Ron Stavros is out front, shouting about real men protecting their town. You know who they are hunting. So does the shaking, furry shape curled up in the drainage culvert at your feet.",
-        "art": "A line of men in maroon windbreakers marching into dark woods with flashlights, rakes and a silver trophy bat, a hound straining on a leash, in the foreground a teenager crouched beside a drainage culvert where a huge furry shape trembles",
+        "art": "A line of grown men in maroon windbreakers marching into dark oak woods with flashlights, rakes and a silver-plated baseball bat, a hound straining on a leash, and in the foreground a teenager crouched beside a concrete drainage culvert where a huge gray furry shape in a torn letterman jacket trembles in the dark pipe, flashlight beams cutting through the trees, wide shot",
         "choices": [
           {
             "id": "decoy-howl",
@@ -664,7 +664,7 @@
         "title": "Lock the Door",
         "place": "The varsity locker room, the night before the Monster Bowl",
         "text": "Brick calls you from the pay phone outside the locker room at eleven. \"Please come,\" he says. \"I can feel it coming, and I don't want to hurt anybody.\" You find him tied to a bench with jump ropes, half wolf and shaking. Then headlights sweep across the frosted windows. Duke Delaney's truck. Brick's eyes flare stadium white. \"He can't see me like this.\"",
-        "art": "A dim high school locker room at night, a half-transformed teenage quarterback tied to a bench with jump ropes, truck headlights sweeping across frosted windows",
+        "art": "A dim high school locker room at eleven at night, a tall teenage quarterback half turned into a wolf, gray fur along his arms and jaw, tied to a wooden bench with jump ropes and shaking, a teenager standing in front of the door, truck headlights sweeping across the frosted windows from outside, single caged bulb, medium shot",
         "choices": [
           {
             "id": "stand-in-the-door",
@@ -724,7 +724,7 @@
         "title": "Playing Hurt",
         "place": "The trainer's room in the Glimmer Falls High field house, 1 a.m.",
         "text": "A light is on in the field house trainer's room at one in the morning, and through the wired glass you can see something huge sitting on the taping table. It is the Beast, letterman jacket in ribbons, trying to tape its own swollen paw with a roll of athletic tape and its teeth. It keeps missing. A cassette recorder on the counter plays a man's voice on a loop: \"Delaneys play hurt. Delaneys play hurt.\" The ice bath in the corner has frozen solid. The Beast hears you at the door, and its ears go flat.",
-        "art": "A high school athletic trainer's room at night under a single hanging lamp, a hulking wolf in a shredded letterman jacket on a taping table fumbling athletic tape around a swollen paw, a cassette recorder on the counter, an ice bath frosted solid, a teenager peeking in",
+        "art": "A high school athletic trainer's room at one in the morning under a single hanging lamp, a hulking gray wolf in a shredded maroon letterman jacket sitting on a padded taping table trying to wrap a swollen paw with a roll of white athletic tape held in its teeth, a cassette recorder on the counter, a steel ice bath frozen solid in the corner, a teenager peeking through the wired glass of the door, the wolf's ears flat against its head, warm lamp light, medium shot",
         "choices": [
           {
             "id": "tape-the-paw",
@@ -808,7 +808,7 @@
         "title": "Wolfmania",
         "place": "Sports Hut at Starlight Mall, the late-night autograph table",
         "text": "Word about the wolf has gotten around, and the town loves it. Sports Hut at Starlight Mall is selling WOLF PACK T-shirts as fast as it can print them, the line for Brick Delaney's autograph table snakes past the fountain, and Duke Delaney is out front shaking hands like he's running for mayor. Brick sits behind a stack of glossy photos, sweating through his letterman jacket, signing the same name over and over while the line chants, \"Do the howl! Do the howl!\" Every time they chant, the hand holding his pen sprouts a little more fur. He finds your face in the line, and his eyes say help.",
-        "art": "A crowded 1980s mall sporting goods store, a long line of fans in wolf T-shirts snaking past a fountain, a sweating teenage quarterback in a letterman jacket at an autograph table with fur sprouting on his hand, his beaming father shaking hands nearby",
+        "art": "A crowded 1980s mall sporting goods store at night, a long line of fans in gray wolf T-shirts snaking out past a fountain, a sweating tall teenage quarterback in a maroon letterman jacket at a folding autograph table with a stack of glossy photos, gray fur sprouting on the hand holding his pen, his broad crew-cut father shaking hands nearby, a teenager in the line, bright store light, wide shot",
         "choices": [
           {
             "id": "ask-what-he-likes",
@@ -893,7 +893,7 @@
         "title": "The Tower Climb",
         "place": "The Glimmer Falls water tower beside the KGLM booth, the night before the Monster Bowl",
         "text": "Every year on the night before the big game, the varsity seniors make the freshmen climb the water tower beside the KGLM booth and paint their jersey numbers on the tank to prove they're men. Tonight a dozen freshmen are strung along the ladder in the wind, frozen, while the seniors at the bottom chant \"CLIMB! CLIMB! CLIMB!\" Brick Delaney, team captain, is supposed to be waiting on the catwalk with the paint. Instead a seven-foot wolf in a cracked helmet crouches against the full moon, howling, and the freshman on the top rung can't go up or down.",
-        "art": "A tall water tower beside a small radio station at night under a huge full moon, terrified teenage boys clinging along the ladder, varsity seniors in letterman jackets chanting at the base, a seven-foot wolf in a cracked football helmet crouched on the catwalk howling",
+        "art": "A tall water tower beside a small radio station at night under a huge full moon, a dozen terrified freshman boys clinging to the tower ladder in the wind, varsity seniors in maroon letterman jackets chanting at the base, and on the catwalk a seven-foot gray wolf in a cracked maroon football helmet crouched against the moon howling, a teenager climbing the ladder past the freshmen, silver moonlight, low wide shot",
         "choices": [
           {
             "id": "climb-to-him",
@@ -988,7 +988,7 @@
       "title": "The Monster Bowl",
       "place": "Prospector Stadium, Halloween night",
       "text": "Fourth quarter, Halloween night, and the full moon has come up over the scoreboard like a spotlight. The Prospectors are down by six. Coach Hollings is screaming, the stands are chanting BE A MAN, and on the fifty-yard line Brick Delaney comes apart in front of three thousand people: shoulder pads splitting, jersey 33 shredding, a seven-foot wolf in a cracked maroon helmet howling at the moon. The crowd thinks it's part of the show. Then it charges the stands where Duke is sitting.",
-      "art": "A small-town football stadium on Halloween night under a huge full moon, a seven-foot wolf in shredded jersey 33 and a cracked maroon helmet charging toward packed bleachers, a teen crew in Halloween costumes racing onto the field",
+      "art": "A small-town football stadium on Halloween night under a huge full moon rising over the scoreboard, a seven-foot gray wolf in shredded shoulder pads, a torn maroon jersey and a cracked maroon football helmet charging toward packed bleachers, a marching band scattering, four teenagers in homemade Halloween costumes racing onto the field toward it, one holding a pair of old tap shoes, white floodlight, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1159,22 +1159,22 @@
       "best": {
         "title": "Featherfoot Junior",
         "text": "On the first Saturday in November, the Glitter Box revue has a new act. Brick Delaney, in Featherfoot's tap shoes and a maroon sequined letterman jacket that Moose knitted the trim for, taps a routine he wrote in a notebook disguised as a playbook, and he is magnificent. Moose plays the snare. Glory cries through her lashes. Duke sits in the back row for the first number, then the third row, then the front, and by the finale he is on his feet. Brick still plays football. He also cries at movies now, out loud, and nobody on the team says a word except \"same.\"",
-        "art": "A tall teenage boy tap dancing joyfully on a glittery theatre stage in a maroon sequined letterman jacket and old tap shoes, a big lineman drumming a snare beside him, a drag queen and a broad father cheering from the front row"
+        "art": "A tall teenage boy tap dancing joyfully on a glittery theater stage in a maroon sequined letterman jacket with knitted trim and big old black tap shoes, a huge lineman with a curly mullet playing a snare drum beside him, a drag queen in a magenta sequin gown crying happily and a broad crew-cut father standing and cheering in the front row, warm stage spotlight, wide shot"
       },
       "good": {
         "title": "Final Score",
         "text": "The Beast never comes back, and Brick plays out the season like nothing happened, all clean spirals and polite interviews. The Prospectors win state. His father is very proud. Sometimes, walking past the Glitter Box at night, you see Brick standing across the street with his hands in his jacket pockets, looking at an old photo in the lobby, before he turns and walks home.",
-        "art": "A teenage quarterback in a letterman jacket standing alone on a dark sidewalk at night, looking across the street at a lit theatre lobby with an old dancer's photo in the window"
+        "art": "A tall teenage quarterback in a maroon letterman jacket standing alone on a dark sidewalk at night with his hands in his pockets, looking across the street at a lit theater lobby window where an old black-and-white photo of a leaping dancer hangs, a streetlight above him, medium wide shot"
       },
       "bittersweet": {
         "title": "Howl at the Moon",
         "text": "Brick is human again by November, but he quits the team and moves to his aunt's in Fresno before Thanksgiving without saying goodbye to anyone. Duke puts the house up for sale. On full moons you hear a howl from the foothills, not angry anymore, only lonely. You leave your porch light on, in case he ever wants to come back and try being soft.",
-        "art": "A full moon over dark foothills behind a quiet suburb, a lone wolf silhouette on a ridge, a single porch light glowing on a split-level house below"
+        "art": "A full moon over dark foothills behind a quiet suburb, a lone wolf silhouette standing on a ridge, and below a split-level house with a realtor stake on the lawn and a single porch light glowing on the house next door, silver moonlight, wide shot"
       },
       "bad": {
         "title": "Man of the House",
         "text": "The Beast wins the Monster Bowl single-handed, and nobody ever sees Brick Delaney again, only the thing in jersey 33 that the town keeps cheering for. And you? You wake up on November first in a letterman jacket that won't come off. You do two hundred push-ups before breakfast. When your crew asks if you're okay, you say \"walk it off,\" and you can't remember ever saying anything else.",
-        "art": "A teenager with a blank, hard stare doing push-ups on a bedroom floor in a maroon letterman jacket, worried friends crowded in the doorway, a wolf howling on a stadium scoreboard through the window"
+        "art": "A teenager with a blank hard stare doing push-ups on a bedroom floor in a maroon letterman jacket, three worried friends crowded in the doorway, and through the window a distant stadium with a gray wolf shape howling on top of the scoreboard under the moon, flat lamp light, medium shot"
       }
     }
   }

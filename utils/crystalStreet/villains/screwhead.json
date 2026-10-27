@@ -42,7 +42,7 @@
           "title": "The Sorted Pile",
           "place": "The back lot, Rusty's Junkyard",
           "text": "Between a crushed hatchback and a tower of bald tires, someone has built something impossible. Every bolt, hinge, drawer pull and doorknob from a gutted store has been sorted by size into a hundred baby-food jars, lined up in rows so straight they hum. Propped against a dead refrigerator above them is a hand-painted sign: SZABO & DAUGHTER HARDWARE. KEYS CUT WHILE YOU WAIT. Under DAUGHTER, if you squint, an older word still shows through: SON.",
-          "art": "A junkyard corner at dusk where hundreds of glass jars of sorted screws and hinges stand in perfectly straight rows, a faded hand-painted hardware store sign propped above them with one word painted over an older word, crushed cars looming on either side",
+          "art": "A junkyard corner at dusk between a crushed hatchback and a tower of bald tires, a hundred small glass baby-food jars of bolts, hinges, drawer pulls and doorknobs lined up in perfectly straight rows on the dirt, a faded hand-painted wooden shop board propped against a dead refrigerator above them, a teenager crouching to look closer, orange sunset light from the left and long shadows, wide shot at ground level",
           "choices": [
             {
               "id": "ask-joey",
@@ -112,7 +112,7 @@
           "title": "The Credit Book",
           "place": "Pearl Washington's porch, Crystal Street",
           "text": "Pearl's rocking chair creaks while she cleans a rock-salt shotgun across her knees. When you say the name Szabo, she stops rocking. \"Laszlo,\" she says. \"Now there was a man who never once made me wait while he served somebody whiter first. And his girl Magda was the same, only faster.\" She has a cigar box inside she has never shown anyone.",
-          "art": "An elderly Black woman in a cardigan on a porch rocker with a shotgun across her knees, an old cigar box on the side table, autumn leaves on the lawn of a split-level house",
+          "art": "A 71-year-old Black woman with silver cropped hair under a marigold headwrap and gold wire-rimmed glasses, an olive-drab army field jacket over a floral housedress, sits in a creaking rocking chair on her porch cleaning a broken-open double-barrel shotgun across her knees, a battered cigar box on the side table, a teenager sitting on the porch step looking up at her, autumn leaves on the lawn, warm late afternoon sun, medium shot",
           "choices": [
             {
               "id": "let-her-tell-it",
@@ -162,7 +162,7 @@
           "title": "Plot 112, Perfectly Level",
           "place": "Pinecrest Cemetery",
           "text": "Every grave in Pinecrest leans a little, like old teeth. Except one. Laszlo Szabo's headstone is plumb to the degree, the grass around it trimmed with scissors, the gravel sorted by color. A brass level sits on top of the stone, its bubble dead center. Fresh chrysanthemums stand in a perfect grid. Nearby, Father Iggy pretends to tune his bass.",
-          "art": "An autumn cemetery of crooked old headstones, one grave perfectly straight and manicured with sorted gravel and gridded flowers, a brass level on top of the stone, a priest with a bass guitar watching from a bench",
+          "art": "An autumn cemetery of old headstones all tilted at angles, except one gray headstone standing perfectly straight with gravel around it sorted into color bands, the grass trimmed short, a brass carpenter's level resting on top of the stone, chrysanthemums planted in a neat grid, a young priest with a black spiked pompadour, a white collar and a studded leather jacket tuning a red bass guitar on a nearby bench, a teenager kneeling at the grave, pale morning light, wide shot",
           "choices": [
             {
               "id": "ask-iggy",
@@ -211,7 +211,7 @@
         "title": "We Have Such Tidy Drawers to Show You",
         "place": "Your front door, 1:30 a.m.",
         "text": "The doorbell rings at 1:30 in the morning. On your porch stand Mr. and Mrs. Fenwick from down the street in matching pressed orange HomeMax aprons, smiling with every tooth, a thin silver chain looped politely around each of their wrists. Mrs. Fenwick holds a clipboard and Mr. Fenwick holds a label maker. \"Good evening,\" they say together. \"We're with the Order. We have such tidy drawers to show you.\" Behind them every mailbox on Crystal Street has been straightened, and the Lindgrens' garden gnomes stand in a perfect row, sorted by height.",
-        "art": "A smiling middle-aged couple in matching pressed orange hardware-store aprons on a suburban porch at night, thin silver chains looped around their wrists, holding a clipboard and a handheld gadget, a teenager peering through a screen door",
+        "art": "A smiling middle-aged couple stands on a suburban front porch at 1:30 in the morning in matching pressed orange hardware-store aprons, a thin silver chain looped around each of their wrists, the woman holding a clipboard, the man holding a handheld plastic tape-embossing gun, behind them a row of garden gnomes lined up by height on the lawn and every mailbox standing straight, a teenager in pajamas peering at them through a screen door, yellow porch light from above, medium shot from inside the doorway",
         "choices": [
           {
             "id": "no-thank-you",
@@ -295,7 +295,7 @@
         "title": "Places, Please. Forever.",
         "place": "The Glitter Box Playhouse, midnight rehearsal",
         "text": "You stop by the Glitter Box to help with the Halloween revue and walk into a nightmare of neatness. The Order got here first: every sequin is screwed down, every wig is pinned to a stand in alphabetical order, the spotlight is bolted to one spot, and Glory is frozen center stage mid-kick while Frankie's headset whispers, \"Places. Places forever.\" At the bar, the Velvet Hammers, the leather-jacketed motorcycle club that always takes the back booth, are glaring at the brass chains someone has locked on over their own wallet chains. \"Ours we picked,\" their president growls. \"These, nobody asked.\" Out front, a line of regulars is gathering at the door, asking why the lights won't change.",
-        "art": "A glittering small-town drag theater at midnight, a drag queen in sequins frozen mid-kick center stage under a bolted spotlight, wigs pinned in neat rows, leather-jacketed bikers glaring at brass chains at the bar",
+        "art": "A small glittering drag theater at midnight, a tall drag queen in a magenta sequin gown and a platinum bouffant wig frozen center stage in a high kick, a single spotlight bolted in place on her, wigs pinned to stands in rows along the wings, a young stage manager in a headset standing stiff in the wings, three bikers in leather jackets at the bar glaring at brass chains locked over their wallet chains, a teenager in the aisle, hot pink stage light and blue house light, wide shot from the back of the house",
         "choices": [
           {
             "id": "wild-number",
@@ -391,7 +391,7 @@
         "title": "Main Street, 1960, Forever",
         "place": "Main Street, Glimmer Falls, the night before Halloween",
         "text": "Boarded-up Main Street isn't boarded up tonight. Overnight the Order has rebuilt it exactly as it was in 1960: the soda fountain, the barber pole, the five-and-dime, and in the middle of the block SZABO & DAUGHTER HARDWARE, its window glowing gold. Every shopkeeper is back behind every counter, smiling, chained to the register with a thin silver chain. Every clock on the street reads 5:59, one minute to closing, and the minute hands never move. From the hardware store comes the patient whine of a key-cutting wheel, and a calm voice says, \"Nothing on this street will ever close again.\"",
-        "art": "A small-town main street at night rebuilt into a gleaming 1960 storefront row, a soda fountain, a barber pole, a hardware store window glowing gold, smiling shopkeepers behind counters with thin silver chains, every clock showing one minute to six",
+        "art": "A small-town main street at night rebuilt as a gleaming 1960 storefront row, a soda fountain, a striped barber pole, a five-and-dime and a hardware store window glowing gold in the middle of the block, smiling shopkeepers behind each counter with thin silver chains from their wrists to the cash registers, a round clock on every storefront with hands at one minute to six, a teenager standing in the empty street, warm shop-window light and cold blue night sky, wide shot down the sidewalk",
         "choices": [
           {
             "id": "wind-the-clocks",
@@ -485,7 +485,7 @@
         "title": "Aisle Nine Goes On Forever",
         "place": "A HomeMax that isn't there, 2 a.m.",
         "text": "You walked out for a Bolt Cola and walked into a hardware store that should be the Quik-Stop. Orange aisles stretch to a vanishing point under humming fluorescent light. Every item is faced, priced and identical. A calm voice like a dentist's comes over the PA: \"Attention shoppers. Please remain in your aisle. Order is being restored.\" Far down Aisle Nine, a tall woman with a crown of brass screws is restocking, and she does not look up.",
-        "art": "An endless big-box hardware store aisle under harsh fluorescent light, identical products faced in perfect rows, a lone teenager in pajamas and sneakers, a distant tall woman with brass screws pinned through her hair stocking shelves",
+        "art": "An orange big-box hardware store aisle stretching to a far vanishing point under humming fluorescent tubes, shelves of identical paint cans and boxes faced in perfect rows, a teenager in pajamas and sneakers holding a soda can and standing in the middle of the aisle, and far down the aisle a gaunt woman in an orange apron over a brown shop coat with brass screws pinned through her tight gray-streaked bun stocking a shelf, flat white light, long one-point view down the aisle",
         "choices": [
           {
             "id": "sprint-for-exit",
@@ -547,7 +547,7 @@
         "title": "The Leveling",
         "place": "Crystal Street, midnight",
         "text": "You wake to a sound like a thousand ratchets. Out your window, Crystal Street is rearranging itself: the houses grinding on their foundations into a perfect grid, crooked mailboxes snapping plumb, the round Heartstone garden squaring off into a box. Neighbors stand at their mailboxes in pajamas with silver chains looped kindly around their wrists. Even Mr. and Mr. Abernathy-Cole, who mow in zigzags on principle, are standing at attention. \"Nobody asked us,\" one of them says through a fixed smile, \"but it's fine.\" \"It doesn't hurt,\" calls Mrs. Delgado. \"Nothing moves. Isn't it wonderful?\"",
-        "art": "A suburban cul-de-sac at midnight with houses grinding into a rigid grid, mailboxes snapping straight, neighbors in pajamas standing chained at their mailboxes with peaceful smiles, a purple geode in a garden that is turning square",
+        "art": "A suburban cul-de-sac at midnight seen from a bedroom window, ranch houses grinding sideways on their foundations into a rigid square grid, crooked mailboxes snapping upright, neighbors in pajamas standing at their mailboxes with thin silver chains around their wrists and fixed calm smiles, two middle-aged men in matching robes standing at attention by a zigzag-mowed lawn, a round garden at the center with a purple crystal rock as its edges turn square, white streetlight, high wide shot",
         "choices": [
           {
             "id": "loosen-the-chains",
@@ -593,7 +593,7 @@
         "title": "Some Assembly Required",
         "place": "Your bedroom, 2 a.m.",
         "text": "The flat-pack wardrobe your mom bought at HomeMax has been leaning in its box against your wall for a week. At 2 a.m. the box splits open by itself. Panels slide out, cam locks spin, dowels pop into holes, and an Allen key turns in midair with a patient click, click, click. The instruction booklet flutters open on your carpet to the last page. Step 47 is a neat little drawing of you, folded up and tucked into the bottom drawer, with a smiley face.",
-        "art": "A dark teenage bedroom where a flat-pack wardrobe assembles itself in midair, panels sliding into place, dowels and brass screws floating, a hex key spinning on its own, a wide-eyed teenager sitting up in bed clutching a blanket",
+        "art": "A dark 1980s teenage bedroom at two in the morning, a flat-pack wardrobe assembling itself in midair beside the wall, pale wooden panels sliding into place, dowels and brass screws floating, an Allen key turning by itself, the torn cardboard box split open on the carpet with an instruction booklet open beside it, a wide-eyed teenager sitting up in bed clutching a blanket, cold moonlight through the window and a warm desk lamp glow, medium wide shot",
         "choices": [
           {
             "id": "read-it-backward",
@@ -680,7 +680,7 @@
         "title": "Screwed Shut",
         "place": "Your house, 3 a.m.",
         "text": "You wake to the whine of a power drill. Then another, and another, all around the house. Through the gap in your curtains you see neighbors in pajamas screwing plywood over your windows, a brass screw every four inches, perfectly spaced, and the same thing is happening to every house on Crystal Street. The front door is already sealed. Through the mail slot comes a calm voice like a store intercom: \"Stay in. It's safer. Nothing that's fastened can ever be lost.\"",
-        "art": "A dark suburban bedroom with plywood screwed over the window from outside, rows of evenly spaced brass screws glinting, drill bits poking through the wood, a teenager in pajamas sitting up in bed in alarm",
+        "art": "A dark suburban hallway at three in the morning seen from inside the house, plywood boards screwed over every window from outside with brass screw tips poking through in an even grid, drill bits glinting through the wood, a front door with a brass mail slot glowing from a porch light outside, a teenager in pajamas kneeling at the mail slot in alarm, thin yellow light leaking through gaps in the boards, medium shot",
         "choices": [
           {
             "id": "ask-through-the-slot",
@@ -766,7 +766,7 @@
         "title": "Clockwise Forever",
         "place": "The roller-rink annex at Pump Iron, 11 p.m.",
         "text": "The rink should be closed, but the mirror ball is turning and the organ is playing the same eight bars over and over. Out on the floor, fifty skaters glide in a perfect circle, clockwise, single file, each exactly one arm's length from the next, linked wrist to wrist by thin silver chains. Their faces are calm. Their ankles are wobbling. A freshly painted banner over the DJ booth, in neat capitals, reads: ALL SKATE. CLOCKWISE. FOREVER.",
-        "art": "A 1980s roller rink at night under a spinning mirror ball, dozens of skaters gliding in a perfect clockwise circle linked wrist to wrist by thin silver chains, calm faces and wobbling ankles, a teenager at the rail in rental skates",
+        "art": "A 1980s roller rink at eleven at night under a spinning mirror ball, fifty skaters gliding single file in a perfect clockwise circle, each linked wrist to wrist to the next by a thin silver chain, calm faces and wobbling ankles, a freshly painted cloth strip hanging over the DJ booth, an organ in the corner, a teenager standing at the rail in rental skates, scattered white sparkles from the mirror ball and magenta floor light, wide shot from the rail",
         "choices": [
           {
             "id": "wrong-way",
@@ -859,7 +859,7 @@
         "title": "The Box Solves Itself",
         "place": "Your bedroom, 3:33 a.m.",
         "text": "The brass puzzle box is on your nightstand. You never brought it home. It's turning by itself, panels clicking and sliding, each click a little louder, and with every click your room gets neater: posters squared, sheets tucked hospital-tight, cassettes alphabetized. From a seam of gold light, chains begin to unspool across the walls, and a woman's voice like a store intercom says, \"One more turn and you'll never lose anything again. You don't have to say yes. I've already decided.\"",
-        "art": "A cluttered 1980s teenage bedroom snapping into eerie neatness, a brass puzzle box glowing gold on the nightstand, silver chains unspooling from a seam of light across shelves and walls",
+        "art": "A cluttered 1980s teenage bedroom at 3:33 in the morning snapping into perfect order, cassettes stacking themselves in rows, bed sheets pulling tight, a brass puzzle box on the nightstand turning by itself with golden light pouring from a seam, thin silver chains unspooling out of the light across the walls and shelves, a teenager in pajamas sitting up in bed staring at it, gold light from the box and blue shadow, medium shot",
         "choices": [
           {
             "id": "hold-it-shut",
@@ -926,7 +926,7 @@
       "title": "Closing Time at Szabo & Daughter",
       "place": "Inside the Heartstone, Halloween night",
       "text": "On Halloween the Heartstone opens like a puzzle box and Crystal Street folds inside it. You stand in a perfect copy of Szabo & Daughter Hardware, every drawer labeled in her precise capitals, every neighbor standing in an aisle with a silver chain around their wrist, smiling. Behind the counter Magda works a key-cutting wheel that throws sparks like fireworks. She wears her HomeMax apron over her father's brown shop coat, the sleeves rolled twice. \"Nothing will ever close again,\" she says. \"Not on my watch. And nobody will ever walk in here again and ask me if my father is around.\"",
-      "art": "A vast impossible hardware store inside a glowing purple geode, endless labeled drawers, chained smiling neighbors in every aisle, a tall woman with brass screws pinned through her bun behind a counter cutting keys in a shower of sparks, a teen crew in Halloween costumes facing her",
+      "art": "A vast hardware store inside a glowing purple crystal cavern, endless walls of little wooden drawers, smiling neighbors in pajamas standing in every aisle with thin silver chains around their wrists, behind a long counter a gaunt woman with brass screws pinned through her tight gray-streaked bun, wire-rimmed glasses on a beaded chain, an orange apron over a brown shop coat with rolled sleeves, works a key-cutting wheel that throws a shower of orange sparks, four teenagers in homemade Halloween costumes facing her across the counter, violet crystal light and orange sparks, wide shot",
       "choices": [
         {
           "id": "edge-1",
@@ -1075,22 +1075,22 @@
       "best": {
         "title": "Keys Cut While You Wait",
         "text": "On November first Magda goes to Pinecrest and loosens her father's headstone a single quarter-turn so it can lean like everybody else's. Then she goes home and eats dinner. By December there's a card table at the Heartstone roundabout every Saturday: SZABO & DAUGHTER FIX-IT, painted crooked on purpose. Toasters, tape players, bike chains, a quarter each, pay when you can, and she asks before she fixes anything, because some people like their things a little broken. She keeps a green ledger. She lets the crew rearrange her toolbox however they want and only twitches a little. On Friday nights she leaves the table to Frankie, borrows Wade's leather jacket and goes dancing at the Glitter Box with her hair down and every screw out. She teaches you to cut a key, and the first one you make opens nothing at all, and she says that's fine, she'll keep it anyway.",
-        "art": "A smiling woman in a brown shop coat with loose gray-streaked hair at a card table repair stand by a purple geode on a suburban roundabout, a crookedly painted sign above her, teens and neighbors lined up with broken toasters and boomboxes, a green ledger open beside her"
+        "art": "A woman in a brown shop coat with her gray-streaked hair loose around her shoulders smiles behind a folding repair table on a suburban roundabout beside a purple crystal rock, a crookedly painted wooden board propped above her, broken toasters, tape players and a bike chain on the table, a green ledger open at her elbow, a line of teenagers and neighbors waiting with broken gadgets, bright Saturday morning sun, medium wide shot"
       },
       "good": {
         "title": "Everything in Its Place",
         "text": "The store dissolves, the chains fall away, and Crystal Street wakes up with its houses back where they belong, slightly crooked. Magda goes back to the HomeMax and her orange apron. Sometimes, driving past at three a.m., you see her alone in a lit aisle straightening a display that was already straight, and you wonder what it was she lost, and who she had to be to keep it.",
-        "art": "A lone woman in an orange apron straightening a perfect display in a brightly lit, empty big-box store at night, seen through the glass doors from a dark parking lot"
+        "art": "A lone gaunt woman in an orange apron with brass screws pinned through her gray-streaked bun straightens an already perfect pyramid display in a brightly lit, empty big-box hardware store at three in the morning, seen through the glass front doors from a dark parking lot, a teenager in the passenger seat of a passing station wagon in the foreground, white store light and dark blue night, wide shot"
       },
       "bittersweet": {
         "title": "A Quarter-Turn Too Tight",
         "text": "You survive the week and so does most of the street, but a few neighbors never quite loosen up. The Delgados mow their lawn in perfect stripes at six a.m. every day now and never laugh at the same jokes twice. Magda moves away in the spring without saying goodbye. On your wrist there's a faint white line where a chain once was, and on bad days it itches like a screw being turned.",
-        "art": "A suburban lawn mowed in eerily perfect stripes at dawn, a stiff couple standing on the porch, a teenager on the sidewalk rubbing a faint pale line on their wrist"
+        "art": "A suburban front lawn at dawn mowed in perfect straight stripes, a stiff middle-aged couple standing on the porch side by side with identical fixed smiles, a teenager on the sidewalk in a jacket rubbing a thin pale line around their wrist, mist over the street, pale pink sunrise light, medium wide shot from the sidewalk"
       },
       "bad": {
         "title": "Perfect Order",
         "text": "You wake on November first and your life is perfectly organized. Your tapes are alphabetized. Your hair is combed. Every evening at six you stand at your mailbox with your hands folded and wait for nothing in particular. Nobody asked you, and you can't remember how to say stop. Your crew tries to make you laugh. You check your watch, and you smile, and you don't move at all.",
-        "art": "A teenager with neatly combed hair standing perfectly still at a mailbox at dusk with folded hands and a calm smile, friends in colorful costumes trying desperately to get their attention"
+        "art": "A teenager with neatly combed hair and a buttoned shirt stands perfectly still at a suburban mailbox at dusk with hands folded and a calm small smile, wristwatch showing six, three friends in bright Halloween costumes crowded around trying to make them laugh, one waving a rubber chicken, orange dusk light and long shadows, medium shot"
       }
     }
   }

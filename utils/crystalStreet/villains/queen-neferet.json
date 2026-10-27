@@ -40,7 +40,7 @@
           "title": "Unknown Noblewoman",
           "place": "The traveling exhibit room, Glimmer Falls Public Library",
           "text": "The Halvorsen exhibit fills the library's museum room with fake torches, plastic palm fronds and a looping cassette of thunder. A banner promises THE MUMMY'S CURSE! ENTER IF YOU DARE! In the center case lies a painted coffin with a calm golden face, and the typed placard reads only: MUMMY OF AN UNKNOWN NOBLEWOMAN, PROVENANCE PRIVATE. But on the lid, inside a carved oval, are hieroglyphs nobody here has bothered to read.",
-          "art": "A small-town library exhibit room cluttered with plastic palms and fake torches, a cheesy curse banner on the wall, a dignified painted coffin with a calm golden face in a glass case, a carved oval of hieroglyphs on its lid",
+          "art": "A small-town library museum room cluttered with plastic palm fronds and fake tiki torches, a cheap cloth drape painted with pyramids hanging crooked on the wall, and in the center a glass case holding an ancient painted wooden coffin with a calm golden face, a carved oval on its lid filled with tiny painted birds, eyes and reeds, a 16-year-old Indian American girl with a long braid and round gold glasses and a teenager bent over a thick reference book beside the case, warm display lights, medium wide shot",
           "choices": [
             {
               "id": "read-the-cartouche",
@@ -110,7 +110,7 @@
           "title": "Pharaoh Phun",
           "place": "Food court, Starlight Mall",
           "text": "Between the pretzel stand and Orange Jubilee, a kiosk called PHARAOH PHUN sells plaster scarabs, glow-in-the-dark mummy keychains and T-shirts that say I SURVIVED THE CURSE. Behind the register slumps Gil Halvorsen, thirty-something, great-grandson of the collector, in a pith helmet he clearly hates. Under the counter, propping up the cash drawer, is a cracked leather journal stamped C.H. 1911.",
-          "art": "A tacky mall food court kiosk selling plaster scarabs and cartoon mummy keychains under neon, a tired man in a pith helmet slumped at the register, an old leather journal wedged under a cash drawer",
+          "art": "A tacky mall food court kiosk under pink neon, shelves of plaster scarabs, glow-in-the-dark cartoon mummy keychains and folded T-shirts, a tired man in his thirties slumped at the register in a khaki pith helmet, a cracked old leather journal wedged under the cash drawer, a wiry teenage boy with a lightning bolt shaved into his hair waving him toward an arcade machine, a teenager at the counter, neon and fluorescent light, medium shot",
           "choices": [
             {
               "id": "ask-gil",
@@ -176,7 +176,7 @@
           "title": "Tea on the Porch",
           "place": "Mrs. Mansour's porch, Crystal Street",
           "text": "Mrs. Hoda Mansour's porch is the only one on Crystal Street with a lemon tree in a pot and a glass of mint tea waiting for whoever comes by. She saw the exhibit poster at the grocery store and has not stopped frowning since. \"The mummy's curse,\" she says, setting down her crossword. \"Seventy-five years, and still they have not learned her name. Sit. Have you eaten?\"",
-          "art": "A sunny suburban porch with a potted lemon tree, an older woman in reading glasses and a cardigan setting down a crossword beside glasses of mint tea and a plate of date cookies, a teenager on the steps",
+          "art": "A sunny suburban porch with a potted lemon tree, an Egyptian American woman in her sixties with silver-streaked dark hair, reading glasses and a soft cardigan setting down a newspaper crossword, glasses of mint tea and a plate of date cookies on a little table, a teenager sitting on the porch steps holding a pencil sketch, warm afternoon sun, medium shot",
           "choices": [
             {
               "id": "sit-and-listen",
@@ -238,7 +238,7 @@
         "title": "The Night Drop",
         "place": "The book-return slot, Glimmer Falls Public Library, midnight",
         "text": "You are returning an overdue paperback at midnight when the library's brass book-return slot breathes out warm air that smells of cedar and river mud. Fine golden sand trickles out over your sneakers. A woman's voice, low and very old and perfectly polite, speaks from inside the slot in a language you don't know, then tries again in English: \"What is your name? Tell me yours, and I will tell you mine.\"",
-        "art": "A brass library book-return slot at midnight with fine golden sand trickling out over a teenager's sneakers, a warm glow inside the slot, the dark library facade above",
+        "art": "A brass library book-return slot in a stone wall at midnight, fine golden sand trickling out of it over a teenager's sneakers, a warm amber glow inside the slot, an overdue paperback in the teen's hand, the dark library building above and a single streetlight, close medium shot from low",
         "choices": [
           {
             "id": "give-your-name",
@@ -294,7 +294,7 @@
         "title": "Another Sky",
         "place": "Crystal Street, three a.m.",
         "text": "You look up and the sky is wrong. The Big Dipper is gone. Instead an immense figure made of stars arches over Crystal Street from horizon to horizon, a woman's body bent like a bridge, and beneath her shine the stars of a sky four thousand years and eight thousand miles away. Down the street, the names are lifting off the mailboxes, letter by letter, and drifting upward like sparks.",
-        "art": "A suburban cul-de-sac at three in the morning beneath an enormous starry figure of a woman arching across the whole sky, glowing letters floating up off the mailboxes like sparks, a teenager in pajamas staring up",
+        "art": "A suburban cul-de-sac at three in the morning beneath an enormous figure of a woman made of stars arching across the entire sky from horizon to horizon, bent in a high arch, strange tilted constellations under her, small glowing metal shapes lifting off the mailboxes and drifting upward as sparks, a teenager in pajamas on a lawn staring up, a skinny boy in a backwards red cap chasing the sparks, deep blue starlight, wide shot",
         "choices": [
           {
             "id": "catch-the-names",
@@ -361,7 +361,7 @@
         "title": "Machine Parts",
         "place": "The library loading dock, 11 p.m.",
         "text": "The Halvorsen Foundation's truck is backed up to the library loading dock, and in the back, under a moving blanket, sits the original 1911 shipping crate, stenciled MACHINE PARTS. Mr. Ferreira, the night custodian, won't go near it. \"It knocks,\" he tells you, and crosses himself. As if on cue, from inside the crate come three slow, polite knocks, the way a guest knocks when she has been kept waiting at the door for a very long time.",
-        "art": "A library loading dock at night under a buzzing caged bulb, a battered old wooden shipping crate with faded stenciled paint in the back of a box truck, an uneasy custodian clutching a mop, a teenager stepping closer, golden sand trickling from a seam",
+        "art": "A library loading dock at eleven at night under a buzzing caged bulb, a battered old wooden shipping crate with faded stenciled paint in the back of a box truck under a gray moving blanket, a middle-aged custodian in coveralls clutching a mop and backing away, a teenager stepping closer with a raised fist ready to knock, golden sand trickling from a seam in the crate, yellow bulb light, medium wide shot",
         "choices": [
           {
             "id": "knock-back",
@@ -452,7 +452,7 @@
         "title": "That Is Not How It Happened",
         "place": "The Glitter Box Playhouse, midnight double feature",
         "text": "Frankie Fontaine has booked the 1932 mummy picture for the Glitter Box midnight show, and the crowd is having a ball, booing the villain and tossing popcorn. Then the movie stops. On the screen, the bandaged figure turns, looks straight out at the audience and unwinds its wrappings, and underneath is a woman in white linen and gold. She steps out of the light onto the stage, and the theater goes silent. \"That,\" says Queen Neferet, \"is not how it happened.\"",
-        "art": "A plush old community theater at midnight, a projector beam cutting through haze, a regal woman in white linen and a gold crown stepping off a glowing movie screen onto the stage, an audience frozen mid popcorn toss",
+        "art": "A plush old community theater at midnight, a projector beam cutting through haze, a regal ancient Egyptian queen with kohl-lined eyes, a white linen gown, a gold and lapis broad collar and a gold vulture crown stepping off the glowing movie screen onto the stage with loose white bandages falling at her feet, the audience frozen mid popcorn toss, a teenager standing in the aisle, silver projector light, wide shot",
         "choices": [
           {
             "id": "let-her-tell-it",
@@ -549,7 +549,7 @@
         "title": "Everything Walks Home",
         "place": "Crystal Street, 2 a.m.",
         "text": "A soft scraping sound wakes you. Out on Crystal Street, things are walking home. A stolen stop sign is hopping back to the corner of Vista Way. The Lindgrens' garden gnome, swiped in 1979, is trudging up their driveway trailing golden sand. A library book eleven years overdue flaps past like a tired bird. A cool, patient voice says, \"Everything taken wants to go home.\" And in your own dresser drawer, something is knocking to be let out.",
-        "art": "A moonlit suburban street at 2 a.m., a stolen stop sign hopping back to a street corner, a garden gnome trudging up a driveway trailing golden sand, a library book flapping through the air like a bird, a teenager watching wide-eyed from a bedroom window",
+        "art": "A moonlit suburban street at two in the morning, a stolen stop-shaped red metal plate on a post hopping back to a street corner, a garden gnome trudging up a driveway trailing golden sand, an old library book flapping through the air, plastic flamingos waddling home, a teenager watching wide-eyed from a bedroom window with a dresser drawer rattling behind them, white moonlight, wide shot",
         "choices": [
           {
             "id": "return-it",
@@ -635,7 +635,7 @@
         "title": "The Hall of Glass Cases",
         "place": "The exhibit room, endlessly, in a dream",
         "text": "You fall asleep at the kitchen table and wake up in the exhibit room, except now it goes on forever: case after glass case under humming lights, and in every case lies someone from Glimmer Falls, eyes closed, hands folded. Your neighbors. Your crew. Every placard reads UNKNOWN, PROVENANCE PRIVATE. At the far end, a tall woman in white linen and a gold crown stands with her back to you. \"Now you know,\" she says, \"how it feels.\"",
-        "art": "An endless dreamlike museum hall of glass display cases under humming lights, each holding a sleeping suburban neighbor or teen with a placard reading unknown, a tall queen in white linen and gold standing at the far end with her back turned",
+        "art": "An endless museum hall of glass display cases under humming lights, each case holding a sleeping neighbor or teenager with eyes closed and hands folded, a small typed placard at the foot of each, a teenager in pajamas standing among the cases, and at the far end a tall Egyptian queen in white linen and a gold vulture crown standing with her back turned, cold white case light, long wide shot",
         "choices": [
           {
             "id": "correct-the-placards",
@@ -702,7 +702,7 @@
         "title": "Read the Curse Out Loud!",
         "place": "A sleepover in the Oyelarans' basement, midnight",
         "text": "Somebody brought a souvenir from the library exhibit's gift kiosk: a rolled parchment scroll, $1.99, printed in Minneapolis, with READ THE MUMMY'S CURSE OUT LOUD! IF YOU DARE! across the top. Everyone at the sleepover takes a turn hamming it up, flashlight under the chin. On the fourth turn every flashlight dims to candle glow, fine golden sand hisses out of the heating vent, and a woman's voice, low and very old and deeply unimpressed, speaks from the dark: \"That is not my language. That is nonsense your grandfather's printer invented.\" The fake squiggles on the scroll begin to crawl.",
-        "art": "A cozy 1980s basement sleepover with teens in sleeping bags, flashlights dimmed to warm amber, a cheap souvenir parchment scroll unrolled on the carpet with squiggly ink marks crawling off it, golden sand trickling from a heating vent",
+        "art": "A cozy 1980s basement sleepover at midnight, teenagers in sleeping bags with flashlights dimmed to a warm amber glow, a cheap souvenir parchment scroll unrolled on the shag carpet with black squiggly ink marks crawling off the paper, fine golden sand hissing out of a heating vent in the paneled wall, one teen standing on the couch, amber light and dark corners, wide shot",
         "choices": [
           {
             "id": "apologize",
@@ -795,7 +795,7 @@
         "title": "Live at Eleven: Breaking the Curse",
         "place": "The library exhibit room, live on Channel 8, 11 p.m.",
         "text": "The Halvorsen Foundation has hired Madame Zorova, Psychic to the Stars, to break the Mummy's Curse live on Channel 8's late news, and half of Glimmer Falls is crowded outside the library windows with flashlights to watch. Madame Zorova waves a smoking bundle of incense over the coffin and announces she will release the evil spirit by burning the queen's linen wrappings. A Foundation man in a blazer is already holding the lighter. The coffin trembles, sand lifts off the floor in slow spinning ribbons, and the voice you know from the book drop says, very quietly, \"Again?\"",
-        "art": "A library exhibit room under harsh television news lights, a flamboyant fake psychic in a sequined cape waving smoking incense over an ancient painted coffin, a man in a blazer holding a lighter, ribbons of golden sand rising, townspeople pressed to the windows",
+        "art": "A library exhibit room under harsh television news lights at eleven at night, a flamboyant fake psychic in a sequined purple cape and turban waving a smoking bundle of incense over an ancient painted coffin, a man in a blazer holding a lit lighter, a news camera on a tripod, ribbons of golden sand rising off the floor in slow spirals, townspeople pressed against the windows with flashlights, a teenager stepping in front of the coffin, white TV light, wide shot",
         "choices": [
           {
             "id": "stand-in-front",
@@ -890,7 +890,7 @@
         "title": "The Weighing of the Heart",
         "place": "The Crystal Street roundabout, under another sky, 3 a.m.",
         "text": "The night before Halloween, the starry woman arching over Crystal Street lowers her hands, and the roundabout becomes a hall of judgment. The Heartstone tips like one pan of an enormous golden scale, and in the other pan rests a single white feather. Into the Heartstone's pan, piece by piece, float the things Glimmer Falls took and kept: a stolen stop sign, a 1911 ticket stub, a souvenir curse scroll, the gala's rubber mummy suit, and it sinks, and sinks. At the edge of the grass pads a patient creature with a crocodile's head, a lion's mane and a hippo's heavy body, waiting to see which way the scale tips. \"In my country,\" says the queen's voice, \"the dead are weighed. Tonight I weigh your town.\"",
-        "art": "A suburban roundabout at night under a vast arching figure made of stars, a glowing purple geode tilted as one pan of an enormous golden scale, a single white feather on the other pan, a crocodile-headed lion-maned creature pacing nearby",
+        "art": "A suburban roundabout at three in the morning under a vast arching figure of a woman made of stars, a glowing purple geode tilted down as one pan of an enormous golden balance scale, a single white feather resting on the other pan, a stop-shaped metal plate, a ticket stub and a rubber mummy suit floating down into the heavy pan, a creature with a crocodile's head, a lion's mane and a hippo's body pacing at the edge of the grass, a teenager stepping forward, gold and starlight, wide shot",
         "choices": [
           {
             "id": "confess-for-the-town",
@@ -981,7 +981,7 @@
       "title": "The Curse of the Pharaoh Gala",
       "place": "Glimmer Falls Public Library, Halloween night",
       "text": "The Halvorsen Foundation's CURSE OF THE PHARAOH Halloween Gala is in full swing: plastic palms, a fog machine, a man in a rubber mummy suit lurching around for tips. At midnight every light in the library goes out. Sand pours down the stairs like a river. The coffin lid lifts by itself, and Queen Neferet rises, not shambling, not snarling, but standing tall in white linen and gold, starlight in her eyes. The ceiling is gone and the arching sky fills the night. \"I have been patient for seventy-five years,\" she says. \"Tonight I go home, and I will take every name in this town as my fare.\"",
-      "art": "A small-town library gala in chaos on Halloween night, plastic palms and a fog machine, sand pouring down the stairs, a regal Egyptian queen in white linen and gold rising from an open coffin with starlight in her eyes, the roof dissolved into a vast arching starry sky, a teen crew in costumes facing her",
+      "art": "A small-town library gala in chaos on Halloween night, plastic palms and a fog machine, a man in a rubber mummy suit, golden sand pouring down the main staircase in a river, and rising from an open painted coffin a tall regal Egyptian queen with kohl-lined eyes, a white linen gown, a gold and lapis broad collar and a gold vulture crown with starlight in her eyes, the ceiling gone and a vast starry sky above, four teenagers in homemade costumes facing her, gold and blue light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1153,22 +1153,22 @@
       "best": {
         "title": "She Goes Home",
         "text": "In March 1987, after a winter of letters, lawyers and one very determined librarian, Queen Neferet leaves Glimmer Falls in a climate-controlled crate marked with her true name. Mrs. Mansour flies with her. Egyptian conservators meet the plane in Cairo, and in Luxor, on the west bank, families line the road and the old women say her name out loud. In the library's exhibit room a new placard reads: HERE STAYED NEFERET, GREAT ROYAL WIFE, ON HER WAY HOME. Gil Halvorsen sells the kiosk and enrolls in Egyptology. Every Halloween the stars over Crystal Street look, just for a moment, like another country's.",
-        "art": "A respectful farewell in a small-town library, a crate marked with a cartouche being carefully loaded by conservators in white gloves, an older woman with her hand on it, teens and a librarian watching, a new placard on the wall naming the queen"
+        "art": "A small-town library exhibit room at morning, two conservators in white gloves carefully loading a padded wooden crate painted with a carved oval of hieroglyphs onto a dolly, an Egyptian American woman in her sixties resting her hand on the crate, a freckled librarian in an oxblood cardigan and three teenagers watching quietly, soft window light, medium wide shot"
       },
       "good": {
         "title": "Next Stop, Fresno",
         "text": "The crate leaves town, the sand stops, and the Big Dipper comes back. Glimmer Falls forgets the whole thing by Thanksgiving. You don't. Every month you look up the Halvorsen tour schedule at the library: Fresno, Bakersfield, Reno. Somewhere out there a queen is still waiting in a box with the wrong name on it, and you can't stop thinking you could have done more.",
-        "art": "A teenager at a library table reading a printed tour schedule, a moving truck with a crate pulling away through the window under an ordinary night sky"
+        "art": "A teenager sitting at a library table at night with a printed tour schedule spread in front of them, and through the tall window a moving truck with a wooden crate in the back pulling away under an ordinary starry sky with the Big Dipper, green lamp light, medium shot"
       },
       "bittersweet": {
         "title": "The Wrong Name",
         "text": "The queen sleeps again, but the night she woke takes its toll. A few mailboxes on Crystal Street stay blank, and some neighbors never get their names quite right again: Mr. Dobbs answers to Harvey now, and he isn't sure that's wrong. The exhibit leaves. The sand in the library's book drop never quite stops, and Ms. Hart sweeps it up every morning without a word.",
-        "art": "A librarian sweeping a small drift of golden sand from beneath a brass book-return slot at dawn, a row of mailboxes behind her with one blank"
+        "art": "A freckled librarian with gray-streaked chestnut hair in an oxblood cardigan sweeping a small drift of golden sand from beneath a brass book-return slot at dawn, behind her across the street a row of mailboxes with one painted plain and bare, pale gold morning light, medium wide shot"
       },
       "bad": {
         "title": "Unknown Teenager, 1986",
         "text": "The sky closes with the queen inside it, and something else goes with her: your name. You are found on November first in her empty glass case, breathing slow and deep like a sleeper who cannot be woken, and nobody, not your crew, not your family, can remember what to call you. The Foundation adds you to the tour. Your placard reads UNKNOWN TEENAGER, PROVENANCE SUBURBAN CALIFORNIA. Far away, a queen is finally home, and she is sorry about the fare.",
-        "art": "A teenager asleep and gently breathing in a museum glass case with folded hands under a typed placard reading unknown teenager, worried friends pressed against the glass"
+        "art": "A teenager asleep in a museum glass case with folded hands and slow breath fogging the glass, three worried friends pressing their palms against the outside of the case, a tour group in the background, white display light, medium shot"
       }
     }
   }

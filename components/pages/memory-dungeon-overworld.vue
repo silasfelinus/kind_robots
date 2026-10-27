@@ -166,11 +166,7 @@
             >
               <strong class="block text-xs">Slot {{ index + 1 }}</strong>
               <span class="block text-xs text-[#e4d0a8]">
-                {{
-                  checkpoint
-                    ? checkpointLabel(checkpoint.savedAt)
-                    : 'Empty'
-                }}
+                {{ checkpoint ? checkpointLabel(checkpoint.savedAt) : 'Empty' }}
               </span>
               <div class="mt-2 flex gap-1">
                 <button

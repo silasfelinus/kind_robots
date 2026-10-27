@@ -574,7 +574,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     )
     const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
     const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
-    const resumedRoom = recoverBriarRoomFirstFlip(recoveredRoom, checkpoint.briar)
+    const resumedRoom = recoverBriarRoomFirstFlip(
+      recoveredRoom,
+      checkpoint.briar,
+    )
     const reality = restoreMemoryRealitySave(checkpoint.reality)
     const resumedDark = recoverDarkBriarTurn(
       restoreDarkBriarProgress(checkpoint.dark),
@@ -665,7 +668,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           firstCard.value = resumedRoom.firstCard
           firstMapCard.value = resumed.firstTile
           latestMapCardKey.value = resumed.firstTile
-          if (resumed.recovered || recoveredRoom !== resumed.progress || resumedRoom.recovered) persist()
+          if (
+            resumed.recovered ||
+            recoveredRoom !== resumed.progress ||
+            resumedRoom.recovered
+          )
+            persist()
         }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks

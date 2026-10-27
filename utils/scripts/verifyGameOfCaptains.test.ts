@@ -125,6 +125,7 @@ import {
   endingArtKey,
   missionArtKey,
   nemesisEndingArtKey,
+  portraitArt,
 } from '../gameOfCaptains/artSlots'
 
 const fromRoot = (path: string) =>
@@ -1414,6 +1415,15 @@ const gameStore = fromRoot('stores/gameOfCaptainsStore.ts')
 assert.ok(gameStore.includes('relationshipEpilogue(finishVoyage('))
 assert.ok(gameStore.includes('run.value = applyRomanceChoice('))
 assert.ok(gameStore.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"))
+assert.equal(captainArtKey('vale'), 'portraits/v2/captain-vale')
+assert.equal(crewArtKey('crew-mox'), 'portraits/v2/crew-mox')
+const legacyAndRedesignedArt = (key: string) =>
+  key.includes('/v2/') ? '/space-couch/canonical.webp' : '/space-couch/legacy.webp'
+assert.equal(portraitArt('captain-vale', legacyAndRedesignedArt), '/space-couch/canonical.webp')
+assert.equal(portraitArt('crew-mox', (key) =>
+  key.includes('/v2/') ? null : '/space-couch/legacy.webp'), '/space-couch/legacy.webp')
+assert.equal(portraitArt('captain-fluke', () => null), null)
+
 
 // Every picture slot carries an authored Krea 2 prompt; mission and ending scenes show the couch.
 const slotKeys = [

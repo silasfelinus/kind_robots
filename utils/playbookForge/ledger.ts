@@ -94,10 +94,11 @@ export type Ledger = {
   progress: number
   /** Share of beats whose scene and outcome text are written. */
   writtenShare: number
-  /** Share of beats with delivered art (or none needed). */
+  /** Share of independently required pictures that were verified delivered. */
   paintedShare: number
   /** Share of beats both written and painted (what stars a section). */
   finishedShare: number
+  extraArt: { total: number; delivered: number }
   gaps: PlanGap[]
   discrepancies: string[]
   shine: Shine
@@ -265,6 +266,8 @@ export function buildLedger(
     laneKey: string
     assumptions: Assumptions
     gaps?: PlanGap[]
+    /** Additional real game art requirements outside story beats. */
+    extraArt?: { total: number; delivered: number; missing?: string[] }
     /** Discrepancies the caller already knows of (unfolded edits, no adapter). */
     notes?: string[]
   },
@@ -354,6 +357,11 @@ export function buildLedger(
     )
   const unbuiltUnits = anchorGap ? anchorGap.planned - anchorGap.built : 0
   const plannedUnits = units + unbuiltUnits
+  const extraArt = options.extraArt ?? { total: 0, delivered: 0, missing: [] }
+  const missingExtraArt = Math.max(0, extraArt.total - extraArt.delivered)
+  const pictureSlots = plannedUnits + extraArt.total
+  art.delivered += extraArt.delivered
+  art.missing += missingExtraArt
 
   const discrepancies: string[] = []
   if (unbuiltUnits)
@@ -372,6 +380,11 @@ export function buildLedger(
     discrepancies.push(
       `${art.missing} beat${art.missing === 1 ? ' has' : 's have'} no art and no job.`,
     )
+  if (missingExtraArt)
+    discrepancies.push(
+      `${missingExtraArt} required game images outside story beats are missing (choice outcomes, emotional portraits, villain art or inventory items).`,
+      ...(extraArt.missing ?? []).slice(0, 4).map((item) => `Missing: ${item}`),
+    )
   if (unwritten)
     discrepancies.push(
       `${unwritten} beat${unwritten === 1 ? ' has' : 's have'} no scene text.`,
@@ -387,7 +400,7 @@ export function buildLedger(
   discrepancies.push(...(options.notes ?? []))
 
   const starred = sections.filter((s) => s.starred).length
-  const allStarred = sections.length > 0 && starred === sections.length
+  const allStarred = sections.length > 0 && starred === sections.length && !missingExtraArt
   return {
     sections,
     units,
@@ -401,16 +414,22 @@ export function buildLedger(
     remainingSeconds:
       sections.reduce((n, s) => n + s.remainingSeconds, 0) +
       Math.round(
-        unbuiltUnits * secondsPerImage * (1 + options.assumptions.rerollRate),
+        (unbuiltUnits + missingExtraArt) * secondsPerImage * (1 + options.assumptions.rerollRate),
       ),
     remainingWords:
       sections.reduce((n, s) => n + s.remainingWords, 0) +
       unbuiltUnits * words.encounterBody,
     scope,
-    progress: share(unitProgress),
+    progress:
+      (share(unitWriting) +
+        (pictureSlots ? art.delivered / pictureSlots : 0)) /
+      2,
     writtenShare: share(unitWriting),
-    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)),
-    finishedShare: plannedUnits ? complete / plannedUnits : 0,
+    paintedShare: pictureSlots ? art.delivered / pictureSlots : 0,
+    finishedShare: pictureSlots
+      ? (complete + extraArt.delivered) / pictureSlots
+      : 0,
+    extraArt: { total: extraArt.total, delivered: extraArt.delivered },
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',

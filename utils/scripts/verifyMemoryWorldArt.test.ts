@@ -84,7 +84,7 @@ for (const room of Object.values(HOUSE_ROOMS)) {
     'Forged choices cannot select House consequence art',
   )
 }
-assert.equal(illustratedHouseOutcomes, 73)
+assert.equal(illustratedHouseOutcomes, 76)
 assert.equal(houseIllustrationPath('HD-99'), null)
 for (const ending of ['release', 'renew', 'break'] as const) {
   const saved = newHouseProgress()
@@ -209,5 +209,5 @@ assert.match(houseStage, /selectedChoice\.value\?\.id/)
 assert.match(houseStage, /fallbackArtFailed/)
 
 console.log(
-  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 73 consequence selectors, 32-card realm gallery, delivery gates and card-back persistence verified',
+  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 76 consequence selectors, 32-card realm gallery, delivery gates and card-back persistence verified',
 )

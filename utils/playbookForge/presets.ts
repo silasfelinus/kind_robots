@@ -71,6 +71,7 @@ export const VIGNETTE_DEFAULTS: Blueprint = {
   exportSaves: false,
 
   sparks: [],
+  designs: [],
 }
 
 export type Genre = {

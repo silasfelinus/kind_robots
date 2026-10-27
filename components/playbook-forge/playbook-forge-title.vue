@@ -94,6 +94,12 @@ const menu = computed(() => [
       ]
     : []),
   {
+    label: 'Catalogue',
+    detail:
+      'Facets, Characters, Locations, Scenarios, Rewards and every game’s art, for brainstorming.',
+    run: () => forge.openCatalog(),
+  },
+  {
     label: 'Gestation',
     detail:
       'The daily playbook challenge’s concepts as they grow. Leave notes for the next development, or forge one.',

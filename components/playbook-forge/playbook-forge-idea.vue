@@ -221,6 +221,29 @@
       </ul>
     </section>
 
+    <section
+      v-if="forge.pendingDesigns.length"
+      class="flex flex-col gap-2"
+      aria-label="Designs from the tray"
+    >
+      <p class="pf-kicker text-secondary">
+        From your tray · {{ forge.pendingDesigns.length }} designs come with
+        this playbook
+      </p>
+      <ul
+        class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,8rem),1fr))] gap-2"
+      >
+        <li v-for="d in forge.pendingDesigns" :key="d.id">
+          <PlaybookForgeArtCard
+            :title="d.title"
+            :label="d.kind"
+            :image-url="d.imageUrl"
+            :prompt="d.prompt"
+          />
+        </li>
+      </ul>
+    </section>
+
     <div class="flex flex-wrap items-center gap-4">
       <button type="submit" data-nav class="pf-cta pf-focusable">
         <span class="pf-display text-lg">Forge the loadout</span>

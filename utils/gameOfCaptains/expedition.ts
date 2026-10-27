@@ -2,11 +2,7 @@ import type { VoyageRun, CrewId } from './rules'
 import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { WORLD_ENCOUNTERS, type ExpeditionEncounter } from './expeditionLocal'
 import { GALACTIC_MAJOR, GALACTIC_MINOR } from './expeditionGalactic'
-import {
-  REDSHIRT_BY_ID,
-  nextRedshirt,
-  starterRedshirts,
-} from './redshirts'
+import { REDSHIRT_BY_ID, nextRedshirt, starterRedshirts } from './redshirts'
 import type { ActOneRouteId } from './actOne'
 import { VOYAGE_BOARDS } from './voyageMap'
 
@@ -115,7 +111,8 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
   )
     return run
   const worldId = run.missionId ?? VOYAGE_BOARDS[run.chapter - 1]?.[0]
-  if (!worldId || !expeditionBoard(run.seed, run.chapter, worldId).length) return run
+  if (!worldId || !expeditionBoard(run.seed, run.chapter, worldId).length)
+    return run
   return {
     ...run,
     phase: 'travel',
@@ -129,7 +126,9 @@ export function startWorldTravel(run: VoyageRun): VoyageRun {
 export function arriveAtWorld(run: VoyageRun): VoyageRun {
   if (run.phase !== 'travel') return run
   const missionId = run.missionId ?? VOYAGE_BOARDS[run.chapter - 1]![0]!
-  const encounterIds = expeditionBoard(run.seed, run.chapter, missionId).map((e) => e.id)
+  const encounterIds = expeditionBoard(run.seed, run.chapter, missionId).map(
+    (e) => e.id,
+  )
   return {
     ...run,
     phase: 'expedition',

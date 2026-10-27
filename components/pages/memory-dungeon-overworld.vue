@@ -433,7 +433,9 @@
               />
               <img
                 v-else-if="
-                  !world.mapMatching && currentIllustrationPath && !sceneArtFailed
+                  !world.mapMatching &&
+                  currentIllustrationPath &&
+                  !sceneArtFailed
                 "
                 :key="currentIllustrationPath"
                 :src="currentIllustrationPath"

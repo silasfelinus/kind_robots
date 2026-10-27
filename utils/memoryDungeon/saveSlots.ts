@@ -49,7 +49,9 @@ function hasValidDarkHouseProgress(value: Record<string, unknown>): boolean {
     typeof value.current !== 'string' ||
     !isStringArray(value.visited) ||
     !isRecord(value.decisions) ||
-    !Object.values(value.decisions).every((choice) => typeof choice === 'string') ||
+    !Object.values(value.decisions).every(
+      (choice) => typeof choice === 'string',
+    ) ||
     !isRecord(value.trials) ||
     !isRecord(value.puzzles) ||
     !Number.isSafeInteger(value.spentEchoes) ||

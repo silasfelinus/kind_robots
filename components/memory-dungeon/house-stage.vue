@@ -83,19 +83,19 @@
           class="md-house-portrait relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_55%_30%,#59726a,#25333e_75%)]"
         >
           <img
-            v-if="room && !artFailed"
-            :key="room.id"
-            :src="artPath"
+            v-if="room && displayArtPath && !fallbackArtFailed"
+            :key="displayArtPath"
+            :src="displayArtPath"
             :alt="`Illustration of ${room.title}`"
             class="h-full w-full object-cover"
             draggable="false"
-            @error="artFailed = true"
+            @error="handleArtError"
           />
           <div
             v-else
             class="flex h-full w-full items-center justify-center p-5 text-center text-lg font-serif font-bold text-[#d6c39b]"
             role="img"
-            :aria-label="`Illustration pending from the art queue for ${room?.title ?? 'the House'}`"
+            :aria-label="`Illustration unavailable for ${room?.title ?? 'the House'}`"
           >
             <span aria-hidden="true">❖</span>
           </div>
@@ -181,6 +181,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { houseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import { HOUSE_ROOMS } from '~/utils/memoryDungeon/house'
 
 const world = useMemoryWorldStore()
@@ -188,25 +189,32 @@ const rooms = Object.values(HOUSE_ROOMS)
 const progress = computed(() => world.state.house)
 const room = computed(() => world.activeHouseRoom)
 const available = computed(() => world.houseAvailableDoors)
-const artFailed = ref(false)
-const artPath = computed(() => {
-  if (room.value?.id === 'HD-01')
-    return '/images/memory-dungeon/house/foyer.webp'
-  if (room.value?.id === 'HD-32')
-    return '/images/memory-dungeon/house/rootbound-warden.webp'
-  if (room.value?.id === 'HD-35' && progress.value?.ending)
-    return `/images/memory-dungeon/house/ending-${progress.value.ending}.webp`
-  return room.value?.imagePath ?? ''
-})
-watch(artPath, () => {
-  artFailed.value = false
-})
 const selectedChoice = computed(
   () =>
     room.value?.choices.find(
       (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
     ) ?? null,
 )
+const artPath = computed(() =>
+  houseIllustrationPath(room.value?.id ?? '', selectedChoice.value?.id),
+)
+const establishingArtPath = computed(() =>
+  houseIllustrationPath(room.value?.id ?? ''),
+)
+const artFailed = ref(false)
+const fallbackArtFailed = ref(false)
+const displayArtPath = computed(() =>
+  artFailed.value ? establishingArtPath.value : artPath.value,
+)
+function handleArtError() {
+  if (!artFailed.value && artPath.value !== establishingArtPath.value)
+    artFailed.value = true
+  else fallbackArtFailed.value = true
+}
+watch(artPath, () => {
+  artFailed.value = false
+  fallbackArtFailed.value = false
+})
 </script>
 
 <style scoped>

@@ -13,7 +13,7 @@
         "title": "Everything Must Go",
         "place": "A driveway garage sale on Crystal Street",
         "text": "The Okonkwo family is moving out with three days' notice, and their whole life is on card tables in the driveway: lava lamps, a Spell-a-Tron toy computer, a shoebox of loose photos. Mrs. Okonkwo won't say why they're leaving. She just keeps glancing at the Heartstone and pricing things lower.",
-        "art": "A cluttered suburban driveway garage sale with card tables of 1980s junk, a lava lamp, a toy spelling computer, a shoebox of old photos, a worried mother with price stickers glancing toward a purple geode in the roundabout",
+        "art": "A cluttered suburban driveway garage sale on a sunny afternoon, folding tables of 1980s household goods, a lava lamp, a toy spelling computer, a shoebox of loose snapshots, a half-loaded moving van at the curb, a tired Nigerian American mother in a head wrap sticking price stickers on a lamp while glancing toward a huge purple crystal rock on the roundabout, a teenager digging through the shoebox, bright autumn sun, wide shot",
         "choices": [
           {
             "id": "haggle",
@@ -92,7 +92,7 @@
         "title": "Mr. Pickles Is Down There",
         "place": "The storm drain by the Heartstone roundabout",
         "text": "Little Hector Ruiz is sobbing on the curb. His grandmother's poodle, Mr. Pickles, chased a squirrel straight into the storm drain, and now a tiny bark is echoing up from the dark, getting farther away. Something else down there is barking back, a beat too late, a pitch too low.",
-        "art": "A crying young boy kneeling at a curbside storm drain in a sunny cul-de-sac, a tiny white poodle's eyes shining in the dark grate, a second pair of larger eyes far behind it",
+        "art": "A small boy crying as he kneels at a curbside storm drain on a sunny suburban cul-de-sac, a teenager crouched beside him prying at the iron grate, the shining eyes of a tiny white poodle in the dark of the drain and a second, larger pair of eyes far behind it, a package of bologna on the curb, a purple crystal rock on the roundabout nearby, bright midday light and black shadow in the drain, low medium shot",
         "choices": [
           {
             "id": "climb-in",
@@ -173,7 +173,7 @@
         "title": "Neighborhood Watch",
         "place": "The Delacortes' living room, 2 Crystal Street",
         "text": "Folding chairs, a plate of deviled eggs and Mr. Delacorte at an easel with a pointer. The Crystal Street Neighborhood Watch is voting tonight on a Halloween curfew for \"unsupervised youth\" and \"people who don't fit the character of the street.\" Everyone looks at the Ruiz family, the new couple on the corner and you.",
-        "art": "A crowded 1980s suburban living room with folding chairs and a deviled-egg tray, a stern man at an easel chart reading curfew, neighbors turning to stare at a teenager in the back row",
+        "art": "A crowded 1980s suburban living room in the evening, rows of folding chairs, a plate of deviled eggs on a side table, a stern middle-aged man with a pointer standing at an easel with a hand-drawn chart, neighbors turning around in their chairs to stare at a teenager in the back row, a 71-year-old Black woman in a marigold headwrap dozing in an armchair with a cane, warm lamp light, wide shot",
         "choices": [
           {
             "id": "speak-up",
@@ -257,7 +257,7 @@
         "title": "The Porch With Seven Papers",
         "place": "Mr. Ferris's porch, Crystal Street",
         "text": "Kev Park's paper route has one problem house. Mr. Ferris at the end of the block hasn't picked up his Gazette in seven days. They're piled on the porch, the TV inside is flickering through the curtains, and the screen door creaks open and shut in a breeze that isn't there.",
-        "art": "A suburban front porch stacked with seven rolled newspapers, a screen door hanging ajar, blue television light flickering behind lace curtains, a young paperboy on a bike watching nervously",
+        "art": "A suburban front porch stacked with seven rolled newspapers in plastic sleeves, the screen door hanging ajar and swinging, blue television light flickering behind lace curtains, a ceramic frog by the doormat, a skinny 12-year-old Korean American paperboy in a backwards red cap straddling a red bicycle on the walk and watching nervously, a teenager climbing the steps, overcast afternoon light, medium wide shot",
         "choices": [
           {
             "id": "go-in",
@@ -318,7 +318,7 @@
         "place": "The Heartstone roundabout, Crystal Street, Halloween morning",
         "days": [7],
         "text": "It's the Crystal Street Jack-o'-Lantern Judging, and Mr. Delacorte has a clipboard, a sash and a ribbon that says BEST ON THE BLOCK. Twelve pumpkins line the roundabout curb, one for every house. A thirteenth sits right up against the Heartstone, and nobody will admit to bringing it. Its face is carved with tiny, careful teeth, and it's already lit.",
-        "art": "A row of carved jack-o-lanterns along a suburban roundabout curb on a bright autumn morning, a mustached man in a judge's sash holding a clipboard, one extra pumpkin glowing against a car-sized purple geode, its carved grin full of tiny teeth",
+        "art": "A row of twelve carved jack-o'-lanterns along a suburban roundabout curb on a bright Halloween morning, a mustached man in a judge's sash holding a clipboard and a blue ribbon, and a thirteenth pumpkin pressed against a huge purple crystal rock already lit from inside, its carved grin full of tiny careful teeth, an 11-year-old girl with blonde braids and red glasses holding a flashlight sun for her solar-system pumpkin, a teenager with an armful of gourds, crisp sunlight, wide shot",
         "choices": [
           {
             "id": "carve-showstopper",
@@ -399,7 +399,7 @@
         "title": "The Mailbox on the Corner",
         "place": "The corner lawn on Crystal Street, morning",
         "text": "Every morning this week, the mailbox at the corner house has been knocked flat. The new owners, Mr. Adeyemi and Mr. Lund, a retired band teacher and a florist the street keeps calling \"the roommates,\" stand it back up and pretend it's funny. Today Mr. Lund is out with a level and a sack of cement. The post has been bent toward the Heartstone, like something leaned on it all night.",
-        "art": "A bent mailbox post on a tidy suburban lawn in morning light, a gray-haired florist with a carpenter's level and a sack of cement, a purple geode glowing faintly in the roundabout down the street",
+        "art": "A bent mailbox post leaning toward the street on a tidy corner lawn in morning light, a gray-haired florist in a gardening apron holding a carpenter's level beside a sack of cement, a tall retired band teacher in a cardigan holding a trumpet case on the porch, a teenager kneeling with a bucket, and down the street a purple crystal rock glowing faintly on the roundabout, soft gold morning sun, medium wide shot",
         "choices": [
           {
             "id": "reset-post",
@@ -485,7 +485,7 @@
         "title": "Overdue Since 1959",
         "place": "The circulation desk, Glimmer Falls Public Library",
         "text": "A copy of Field Guide to the Birds of the Sierra lands in the return slot with a thump. The card in its pocket shows one borrower, one date: October 26, 1959. The fine notice clipped to it is in the same handwriting as today's date stamp, and the ink is still wet.",
-        "art": "A library return slot with a battered old hardcover bird guide sliding through, a yellowed checkout card showing a single 1959 date, a fine notice with wet ink",
+        "art": "A library circulation desk with a battered old hardcover bird guide sliding through the brass return slot, a yellowed checkout slip in its pocket and a small fine notice clipped to it with ink still glistening wet, a date stamp and ink pad beside it, a teenager behind the desk reaching for the book, green-shaded desk lamp and afternoon window light, close medium shot",
         "choices": [
           {
             "id": "trace-borrower",
@@ -564,7 +564,7 @@
         "title": "The Fifth Player",
         "place": "Meeting room B, Glimmer Falls Public Library",
         "text": "Priya Raman's Friday-night campaign is short a player, and the sign-up sheet on the meeting-room door says THE DUNGEON MASTER WELCOMES ALL. Graph paper, a bag of dice, a map of a town that looks exactly like Glimmer Falls, and a dungeon drawn right where the Heartstone sits.",
-        "art": "A library meeting room table covered in graph paper maps, colorful polyhedral dice, character sheets and pizza boxes, a hand-drawn map of a suburban town with a dungeon marked at its center",
+        "art": "A library meeting room on a Friday night, a long table covered in graph-paper maps, colorful polyhedral dice, character sheets and pizza boxes, a hand-drawn map of a small suburban town with a dungeon drawn at its center, a 16-year-old Indian American girl with a long braid, round gold glasses and a gold twenty-sided die on a cord leading from behind a folded cardboard screen, three teens and a newcomer with a fresh sheet, warm overhead light, wide shot",
         "choices": [
           {
             "id": "play-hero",
@@ -624,7 +624,7 @@
         "title": "The Book Drop Bandit",
         "place": "Behind the library, by the book drop",
         "text": "Somebody keeps checking out every copy of the library's few books about gay and lesbian lives and dumping them in the dumpster behind the building. Ms. Hart keeps fishing them out. Today a note is taped to the book drop: THESE BOOKS DON'T BELONG IN OUR TOWN. The handwriting is shaky, and young.",
-        "art": "A teenager and a librarian in a cardigan beside a library dumpster, rescued paperbacks stacked on a step, a handwritten note taped to a metal book drop",
+        "art": "Behind a red-brick library in the late afternoon, a teenager and a freckled 38-year-old librarian with gray-streaked chestnut hair and an oxblood cardigan beside a green dumpster, a stack of rescued paperbacks on the back step, a folded scrap of paper taped to a metal book drop, a cherry-red motorcycle parked nearby, long gold shadows, medium shot",
         "choices": [
           {
             "id": "stakeout",
@@ -683,7 +683,7 @@
         "title": "Story Hour Emergency",
         "place": "The children's corner, Glimmer Falls Public Library",
         "text": "The puppeteer for story hour has the flu, and twenty-two kindergartners on a carpet shaped like a rainbow are getting restless. Ms. Hart shoves a sock puppet named Professor Hoot into your hand and a picture book in the other. In the back of the reading nook, the old marionette nobody uses has turned its head to watch.",
-        "art": "A restless group of small children on a rainbow carpet in a library reading nook, a teenager holding a sock owl puppet and a picture book, an old wooden marionette slumped in the corner with its head turned",
+        "art": "A library children's corner, twenty restless kindergartners on a rainbow-striped carpet, a teenager kneeling in front of them holding a brown sock owl puppet with button eyes on one hand and a picture book in the other, and in the back of the nook an old wooden marionette slumped on a shelf with its painted head turned toward the room, warm afternoon window light, wide shot",
         "choices": [
           {
             "id": "perform",
@@ -741,7 +741,7 @@
         "title": "The Lost and Found Column",
         "place": "The microfiche room, Glimmer Falls Public Library",
         "text": "Ms. Hart asked you to check the microfiche reader before the history club arrives, and it keeps stopping on its own. Every time, it lands on the November 1 edition of the Glimmer Falls Gazette, a different year each time: 1961, 1968, 1974, 1983. Every time, the Lost and Found column runs the same tiny ad. FOUND: ONE SNEAKER, NEAR THE ROUNDABOUT. CLAIM AT LIBRARY. On top of the cabinet, as if waiting, sits one small sneaker.",
-        "art": "A dim library microfiche room, a teenager at a glowing reader screen showing an old newspaper page, stacked film reels, a single small sneaker sitting on top of the cabinet",
+        "art": "A dim library microfiche room, a teenager at a glowing green reader screen showing an old newspaper page, stacks of film reel boxes, and on top of a gray filing cabinet a single small child's sneaker sitting alone, damp at the toe, a single desk lamp and green screen glow, medium shot",
         "choices": [
           {
             "id": "count-years",
@@ -818,7 +818,7 @@
         "place": "The reading room, Glimmer Falls Public Library, Sunday afternoon",
         "days": [2],
         "text": "Sunday hours are short and sleepy, and today they're too quiet. Every time anyone speaks above a whisper, a long soft SHHHH answers from somewhere in the stacks, and the speaker can't make a sound for a minute afterward. A toddler has been silenced mid-giggle. Two old men are arguing in furious, total silence. The SHHHH is drifting closer to the front desk.",
-        "art": "A sunlit library reading room on a lazy Sunday, patrons pressing hands over their open silent mouths, a toddler frozen mid-laugh, a faint ripple of air moving between the tall shelves",
+        "art": "A sunlit library hall of tables on a lazy Sunday afternoon, patrons pressing hands over their open silent mouths, a toddler frozen mid-giggle on her mother's lap, two old men glaring at each other across a table with their lips moving silently, a faint ripple in the air drifting between the tall shelves toward the front desk, a teenager holding a heavy dictionary over their head, gold dust in the sunbeams, wide shot",
         "choices": [
           {
             "id": "make-noise",
@@ -910,7 +910,7 @@
         "title": "Skate or Die",
         "place": "The roller-rink annex, Pump Iron Gym",
         "text": "The Velvet Wheels, four seniors in matching satin jackets, have claimed the rink every Saturday since August. Today they've thrown down: one couples skate, winner takes the rink, loser buys everyone nachos. The DJ cues up a synth track and the disco ball starts to spin faster than any motor should allow.",
-        "art": "A neon-lit 1980s roller rink with a spinning disco ball, four teens in matching satin jackets on skates striking a pose, a challenger lacing up rental skates at the edge of the floor",
+        "art": "A neon-lit 1980s roller rink on a Saturday afternoon with a disco ball spinning fast, four teens in matching purple satin jackets posing on skates in the middle of the floor, a young woman with dark curls and an orange headband rolling up in a neon-orange racing wheelchair, a teenager lacing up rental skates on the bench at the edge of the floor, colored spotlights, wide shot",
         "choices": [
           {
             "id": "skate-hard",
@@ -997,7 +997,7 @@
         "title": "Locker 31",
         "place": "The sauna and locker room, Pump Iron Gym",
         "text": "The sauna is empty and fogged solid. As you sit, letters appear in the steam on the glass, written from the inside by a finger nobody owns: LOCKER 31. Locker 31 has had the same rusted padlock on it since the gym opened, and the staff swear nobody's ever had the key.",
-        "art": "A steamy wood-paneled sauna with words traced from inside the fogged glass door, a row of old metal gym lockers outside, one sealed with a rusted padlock",
+        "art": "A steamy wood-paneled gym sauna with a fogged glass door, a finger-traced line appearing in the steam on the inside of the glass, and outside the door a row of old metal gym lockers with one sealed by a rusted padlock, a huge teenage boy with a curly sandy mullet in a cream sweater holding a flashlight beside a teenager crouched at the lock, warm amber sauna light, medium shot",
         "choices": [
           {
             "id": "break-lock",
@@ -1060,7 +1060,7 @@
         "title": "The Sweat-a-Thon",
         "place": "The aerobics studio, Pump Iron Gym",
         "text": "Pump Iron is running a Sweat-a-Thon to raise money for the free clinic, and every minute you last earns pledges from the regulars. The music is loud, the leg warmers are many and the mirrors along the wall show a few more people in the back row than are actually in the room.",
-        "art": "A packed mirrored aerobics studio with sweatbands, leg warmers and a boombox, a hand-lettered banner for a charity sweat-a-thon, the mirror reflecting a few extra pale figures in the back row",
+        "art": "A packed mirrored aerobics studio, sweaty people in headbands and leg warmers doing step-touch to a boombox, a painted paper strip for a charity sweat-a-thon taped above the mirrors, a teenager in the front row, and in the mirror reflection three extra pale gray figures dancing in the back row of the reflection, with the real back row empty, bright fluorescent light, wide shot",
         "choices": [
           {
             "id": "go-the-distance",
@@ -1115,7 +1115,7 @@
         "title": "Top of the Rope",
         "place": "The high-school gym next door",
         "text": "Coach Pruitt's makeup fitness test is running in the old high-school gym, and a freshman named Arlo is frozen at the top of the climbing rope, thirty feet up, white-knuckled and crying. The rope is creaking. The ceiling beam it hangs from has a crack you've never noticed before.",
-        "art": "A high-school gymnasium with a scared freshman clinging to the top of a climbing rope near a cracked ceiling beam, a big softball coach and students looking up, old prom banners on the walls",
+        "art": "An old high school gymnasium, a scared freshman boy clinging white-knuckled to the top of a climbing rope thirty feet up near a cracked ceiling beam, a tall broad woman coach with a red-blonde perm under a green cap and students staring up from the floor, blue crash mats being dragged across the boards, a teenager starting up the rope, faded prom streamers on the walls, high window light, low angle shot",
         "choices": [
           {
             "id": "climb-up",
@@ -1176,7 +1176,7 @@
         "title": "Spot Me",
         "place": "The weight room, Pump Iron Gym",
         "text": "Big Lorraine Mbeki, fifty-two, regional bench-press champion and owner of the loudest laugh at Pump Iron, is going for the state record today, and her usual spotter has the flu. Between warm-up sets, you notice the plates on her bar keep changing. Forty-five pounds becomes fifty, then fifty-five, stamped with numbers that aren't on any plate in the rack. Lorraine hasn't noticed. She's chalking up.",
-        "art": "A powerfully built middle-aged Black woman chalking her hands beside a loaded bench-press bar in a chrome 1980s weight room, one extra iron plate faintly glowing at the end of the bar, a teenager staring at it",
+        "art": "A chrome 1980s weight room, a powerfully built fifty-two-year-old Black woman in a red singlet chalking her hands beside a loaded bench-press bar, one extra iron plate at the end of the bar glowing faintly, a teenager standing at the head of the bench staring at the plate, lifters watching from the racks, bright overhead light and mirror reflections, medium shot",
         "choices": [
           {
             "id": "spot-her",
@@ -1253,7 +1253,7 @@
         "title": "Cubby Zero",
         "place": "The skate-rental counter, the roller-rink annex at Pump Iron",
         "text": "Dwayne at the rental counter has a problem in cubby zero. A pair of white 1950s boot skates with pink pom-poms keeps turning up there, laced and polished, no matter how many times he locks them in the back. The wall of fame says they belonged to Bunny Albescu, who skated here every Saturday until she was eighty-one and passed last spring. Today they're in your size.",
-        "art": "A roller-rink skate-rental counter with cubbies full of brown rental skates, one pair of polished white vintage boot skates with pink pom-poms glowing in the bottom cubby, a disco ball overhead, framed photos on the wall behind",
+        "art": "A roller rink skate-rental counter with wooden cubbies full of brown rental skates, one pair of polished white 1950s boot skates with pink pom-poms sitting laced in the bottom cubby with a soft glow, a young man behind the counter rubbing his neck, framed black-and-white photos of skaters on the wall behind, a disco ball overhead, a teenager reaching for the skates, warm counter light, medium shot",
         "choices": [
           {
             "id": "one-lap",
@@ -1340,7 +1340,7 @@
         "title": "Saturday Detention",
         "place": "The library annex, Glimmer Falls High",
         "text": "Saturday detention, 7 a.m. to 3 p.m. Vice Principal Kroll locks the door and leaves you with a jock, a burnout and a girl in black lace who has not blinked once. The wall clock reads 1:13 and doesn't move. Hours pass. The clock doesn't. The door is still locked.",
-        "art": "Five mismatched teenagers slumped at library tables during Saturday detention, a wall clock stuck at one-thirteen, gray morning light through tall windows, a locked door",
+        "art": "Five mismatched teenagers slumped at long tables in a high school library annex during Saturday detention, a jock in a letter jacket, a long-haired burnout, a girl in black lace staring with wide unblinking eyes, a teenager and a quiet freshman, a round wall clock stuck at one-thirteen, a locked door with a wire-glass window, gray light through tall windows, wide shot",
         "choices": [
           {
             "id": "bond",
@@ -1421,7 +1421,7 @@
         "title": "Somebody Else in the Picture",
         "place": "The yearbook darkroom, Glimmer Falls High",
         "text": "The yearbook editor, a frazzled junior named Yolanda, swears the darkroom is broken. Every photo she develops of the empty hallway comes out with a figure in it, standing in a different spot each time, getting closer to the camera. Deadline is Monday. She needs someone to print the last roll.",
-        "art": "A red-lit high school darkroom with photos hanging from a clothesline, each print of the same empty hallway showing a blurry figure closer to the camera, a nervous yearbook editor holding tongs",
+        "art": "A small high school darkroom glowing red under a safelight, black-and-white prints hanging from a clothesline, each one of the same empty school hallway with a blurry figure standing a little closer to the camera in every print, a nervous junior girl with frizzy hair holding print tongs, a teenager leaning in at the developer tray, deep red light, medium shot",
         "choices": [
           {
             "id": "develop",
@@ -1481,7 +1481,7 @@
         "title": "Chicken Wire and Hope",
         "place": "The shop class garage, Glimmer Falls High",
         "text": "The homecoming float is a giant papier-mache geode named Rocky, the Prospectors' good-luck rock, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
-        "art": "A school shop garage with a giant half-built papier-mache purple rock mascot on a parade trailer, chicken wire, tissue paper and paint cans, a preppy class president holding a clipboard in despair",
+        "art": "A school shop garage after hours, a giant half-built papier-mache purple rock mascot with googly eyes on a parade trailer, chicken wire, tissue paper, a smoking glue gun and paint cans everywhere, the rock's head turned toward the window, a preppy 17-year-old boy with side-parted chestnut hair, a pink oxford shirt and a navy blazer clutching a clipboard in despair, a teenager with wire cutters, work lights, wide shot",
         "choices": [
           {
             "id": "build-all-night",
@@ -1540,7 +1540,7 @@
         "title": "Notes in Locker 214",
         "place": "The B-wing lockers, Glimmer Falls High",
         "text": "For a week, folded notes have been slipping into your locker. HELP. THEY WON'T STOP. Today's says GYM BLEACHERS, 3:15. Under the bleachers you find a freshman, Teddy Albright, whose backpack has been dumped and stomped three days running by the same pack of seniors.",
-        "art": "A shy freshman sitting under high-school gym bleachers among scattered papers and a muddy backpack, a teenager crouching with a folded note in hand, slatted light falling across them",
+        "art": "A shy freshman boy sitting under high school gym bleachers among scattered homework and a muddy stomped backpack, a teenager crouching beside him holding a small folded paper, slatted afternoon light falling through the bleacher seats in stripes across them, gum wrappers on the floor, medium shot",
         "choices": [
           {
             "id": "confront",
@@ -1599,7 +1599,7 @@
         "place": "Homeroom and the main office, Glimmer Falls High, a school morning",
         "days": [3, 4, 5, 6, 7],
         "text": "After the pledge and the cafeteria menu, the PA crackles and a different voice comes on, older, with a hiss under it like a worn record. \"Daniel Wexler, report to the principal's office.\" Your homeroom teacher goes white. Daniel Wexler graduated in 1966 and runs the night shift at the Thriftee-Mart now. The announcement repeats every school morning, and every morning it sounds a little more impatient.",
-        "art": "A 1980s high-school homeroom of startled students looking up at a crackling wall-mounted PA speaker, a pale teacher frozen at the chalkboard, morning sun through tall windows",
+        "art": "A 1980s high school homeroom on a school morning, startled students at wooden desks looking up at a crackling wall-mounted PA speaker box, a pale homeroom teacher frozen at the chalkboard with chalk in hand, an empty desk by the window, a teenager half standing, warm morning sun through tall windows, wide shot",
         "choices": [
           {
             "id": "answer-call",
@@ -1679,7 +1679,7 @@
         "place": "The quad at lunch, Glimmer Falls High, Halloween",
         "days": [7],
         "text": "Halloween lunch means the costume parade around the quad, and Vice Principal Kroll has taped a list of APPROPRIATE COSTUMES to the cafeteria door. A sophomore named Ozzie Brandt is in a sequined swamp-queen gown he sewed by hand, with a glittering train of felt lily pads, and Kroll is pointing at the list and then at the bathroom, telling him to change. The trophy case behind them flickers like it's watching. Ozzie's chin is up, but his hands are shaking.",
-        "art": "A sunny high-school quad at lunchtime decorated for Halloween, a sophomore in a glittering homemade swamp-queen gown with a train of felt lily pads facing a stern vice principal holding a clipboard, students in costumes watching, a flickering trophy case behind them",
+        "art": "A sunny high school quad at lunchtime decorated with paper bats and pumpkins, a sophomore boy in a glittering hand-sewn green swamp-queen gown with a long train of felt lily pads standing with his chin up, a stern vice principal with a clipboard pointing toward a doorway, students in Halloween costumes watching, a teenager stepping up to offer the boy an arm, a trophy case flickering through the glass doors behind, bright noon light, wide shot",
         "choices": [
           {
             "id": "march-with",
@@ -1765,7 +1765,7 @@
         "title": "Returned by Mr. Gill",
         "place": "The night-drop bin, Rewind Video",
         "text": "Zelda Fishbein empties the night-drop and goes pale. A Betamax copy of Blood Harvest, returned in its case with a sticky note in shaky pencil: SORRY IT'S LATE. The membership card it's checked out on belongs to Walter Gill, who rented it in October 1979. Zelda went to his funeral that November.",
-        "art": "A sixty-something former movie star at a video store counter holding an old Betamax tape case with a sticky note, an open night-drop bin, a dusty membership card on the counter",
+        "art": "A video store counter in the morning, a 63-year-old woman with a silver-streaked black bouffant, cat-eye glasses on a pearl chain and a red staff vest gone pale as she holds an old Betamax tape case with a yellow sticky note on it, the metal night-drop bin open beside her, a dusty paper membership slip on the counter, a teenager leaning in, soft morning sun through the front glass, medium shot",
         "choices": [
           {
             "id": "watch-it",
@@ -1826,7 +1826,7 @@
         "title": "Be Kind, Rewind",
         "place": "The counter, Rewind Video",
         "text": "Two hundred tapes came back un-rewound this week, and the manager will pay a quarter for every forty you run through the rewinder. It's a dull job, until one tape keeps rewinding past its start. The counter keeps going, into negative numbers, and the motor whines like it's in pain.",
-        "art": "A teenager behind a video store counter surrounded by stacks of VHS tapes, a boxy car-shaped rewinder whirring, its counter display showing negative numbers",
+        "art": "A teenager behind a video store counter surrounded by tall stacks of videotapes, a little boxy rewinder in the shape of a red sports car whirring with smoke curling from its seams, its red digital counter running into minus numbers, the teen staring at it with a tape halfway to the next slot, warm counter light and purple horror-aisle glow behind, medium shot",
         "choices": [
           {
             "id": "finish-job",
@@ -1881,7 +1881,7 @@
         "title": "Toby Needs a Zombie",
         "place": "The horror aisle, Rewind Video",
         "text": "Toby Nakamura is shooting a zombie short on his camcorder in the horror aisle after hours and his lead zombie went home sick. He has a jar of homemade fake blood, a bag of oatmeal guts and a borrowed fog machine that has started making fog shaped like hands.",
-        "art": "A teenage filmmaker with a shoulder camcorder in a video store horror aisle after hours, a fog machine pouring mist shaped like reaching hands, a jar of fake blood and a bag of oatmeal on a shelf",
+        "art": "A video store horror aisle after hours lit purple, a 15-year-old Japanese American boy with a black bowl cut, big wire-rimmed glasses and a yellow windbreaker filming on a bulky shoulder camcorder with a red recording light, a teenager in torn clothes and gray zombie makeup shambling down the aisle, a borrowed fog machine pouring mist that curls into the shapes of reaching hands, a jar of fake blood and a bag of oatmeal on a shelf, purple light and gray fog, wide shot",
         "choices": [
           {
             "id": "act",
@@ -1941,7 +1941,7 @@
         "title": "Staff Pick",
         "place": "The new-release wall, Rewind Video",
         "text": "A handwritten STAFF PICK card has appeared on the new-release wall, in handwriting nobody at Rewind recognizes. It recommends Nightmare on Crystal Street (1986): \"A real scream! You'll feel like you're in it!\" The box is there. The cover shows your street. The back cover shows your house.",
-        "art": "A video store new-release wall with a handwritten staff pick card, a VHS box whose cover art shows a suburban cul-de-sac with a glowing purple geode, a teenager reaching for it",
+        "art": "A video store new-release wall of videotape boxes, a small folded paper tent propped on one shelf, a box whose painted front shows a sunny suburban cul-de-sac with a glowing purple crystal rock in the roundabout, a teenager reaching for it with a puzzled face, a 63-year-old woman in cat-eye glasses watching from the counter, fluorescent store light, medium shot",
         "choices": [
           {
             "id": "rent-it",
@@ -2001,7 +2001,7 @@
         "title": "Mangler Mack Moved",
         "place": "The front window, Rewind Video, opening time",
         "text": "The life-size cardboard standee of Mangler Mack, the masked janitor from Summer Camp Carnage IV, faced the street when Zelda locked up last night. This morning he's facing the counter, one cardboard arm raised in a little wave, and there are dusty prints on the carpet between the window and the register. The manager wants him out by the dumpster before customers arrive. Mack weighs two pounds and somehow feels heavier.",
-        "art": "A life-size cardboard cutout of a masked movie janitor holding a mop, standing in a video-store aisle and facing the counter with one arm raised, dusty footprints on the carpet leading from the front window, morning light",
+        "art": "A video store at opening time, a life-size cardboard cutout of a masked movie janitor holding a mop standing in the aisle facing the register with one cardboard arm raised in a small wave, a trail of dusty prints on the carpet leading from the front window to the counter, a teenager and a store manager staring at it, morning sun through the glass, medium wide shot",
         "choices": [
           {
             "id": "haul-out",
@@ -2075,7 +2075,7 @@
         "title": "For Nico, When He's Older",
         "place": "The returns counter, Rewind Video",
         "text": "Inside the case of a returned copy of Beach Blanket Bigfoot is the wrong tape: a home-video cassette with a peeling label, FOR NICO, WHEN HE'S OLDER, XMAS '76. The account belongs to Nico Ferrante, nineteen, who dropped off eleven tapes in a laundry bag and left for basic training this morning. The cassette is warm. From inside the case comes the faint sound of a woman humming a carol.",
-        "art": "A video-store returns counter with an open rental case holding a worn home-video cassette, a laundry bag spilling tapes beside it, warm lamplight, a teenager leaning close to listen",
+        "art": "A video store returns counter at closing time, an open rental case holding a worn home-video cassette with a peeling paper strip on its spine, a canvas laundry bag spilling eleven tapes beside it, a teenager leaning close to the case with one ear turned toward it, a warm desk lamp on the counter and dark shelves behind, close medium shot",
         "choices": [
           {
             "id": "watch-it",
@@ -2165,7 +2165,7 @@
         "title": "DTH",
         "place": "The Galaxy Zone arcade, Starlight Mall",
         "text": "There's a fight brewing at the Galaxy Gobbler cabinet. Every top-ten score has been knocked off the board by three initials, DTH, and nobody has ever seen who plays. The regulars are accusing each other. A kid named Vince is about to throw a punch. The machine is warm, and nobody's touched it all morning.",
-        "art": "A crowded 1980s arcade with teens shouting around a glowing cabinet game, the high-score screen showing the initials DTH in every slot, one kid winding up a punch",
+        "art": "A crowded 1980s mall arcade, teenagers shouting around one glowing upright cabinet whose high-score screen shows the same three initials in every slot, a kid in a jean jacket winding up a punch, a wiry 15-year-old Vietnamese American boy with a lightning bolt shaved into his hair and a teal windbreaker with hot pink sleeves leaning on the next cabinet, a teenager stepping between them, blue and magenta arcade glow, wide shot",
         "choices": [
           {
             "id": "beat-the-score",
@@ -2249,7 +2249,7 @@
         "title": "The Kid at the Fountain",
         "place": "The wishing fountain, Starlight Mall",
         "text": "A girl of about six sits on the lip of the wishing fountain, holding a balloon and not crying, which is worse. Her name is Penny, her mom said she'd \"be right back\" two hours ago, and she says the fountain told her to wait. The coins at the bottom are all arranged in a spiral.",
-        "art": "A small girl with a balloon sitting alone on the edge of a mall wishing fountain, coins arranged in a spiral on the fountain floor, shoppers passing by, oblivious",
+        "art": "A six-year-old girl in a pink coat holding a red balloon sitting alone and dry-eyed on the edge of a tiled mall wishing fountain, coins on the fountain floor arranged in a perfect spiral, shoppers with bags walking past with their eyes on the shop windows, a teenager kneeling beside her, skylight sun and neon storefronts, medium wide shot",
         "choices": [
           {
             "id": "find-mom",
@@ -2306,7 +2306,7 @@
         "title": "The Dead Wing Dare",
         "place": "Behind the plywood, Starlight Mall",
         "text": "The mall rats have a rule: you're not one of them until you bring back a mannequin head from Woolmart, the department store that closed in 1983 behind the plywood. Dani Ortega is holding the loose board open. Inside, the escalators are still, the fountains are dry and somewhere far in the dark, music is playing.",
-        "art": "A group of mall rat teens holding back a loose sheet of plywood revealing a dark abandoned mall wing, a frozen escalator and a dusty closed department store with faded signage",
+        "art": "A group of teenage mall rats holding back a loose sheet of plywood that reveals a dark abandoned mall wing, a frozen escalator, a dry fountain full of pennies and a dusty closed department store full of mannequins all facing the opening, a 16-year-old Chicana skater with a shaved undercut and pink-tipped black hair holding the board with her skateboard under her arm, a teenager stepping through, a thin beam of light in the dust, wide shot",
         "choices": [
           {
             "id": "go-in",
@@ -2365,7 +2365,7 @@
         "title": "Pretzel Pete",
         "place": "The food court, Starlight Mall",
         "text": "The pretzel stand needs someone in the Pretzel Pete costume for the afternoon rush, a giant foam pretzel with eyes, paying a quarter an hour plus all the salt you can eat. The suit smells like old cheese and a stranger's sweat. Something in the left arm moves when you put it on.",
-        "art": "A giant foam pretzel mascot costume hanging on a hook in a mall food court back room, a teenager holding it up skeptically, neon food stall signs beyond",
+        "art": "A mall food court back room, a giant foam pretzel mascot costume with big googly eyes hanging on a hook, its stuffed left arm bulging and twitching, a teenager holding up the costume's head skeptically with wrinkled nose, crates of pretzel dough and a neon food stall glow through the doorway, warm fluorescent light, medium shot",
         "choices": [
           {
             "id": "work-the-crowd",
@@ -2419,7 +2419,7 @@
         "title": "Ho Ho Ho, October",
         "place": "Center court, Starlight Mall",
         "text": "It's still October and the mall is already building the Holly Jolly Village at center court: fake snow, a plywood gingerbread house and eleven animatronic elves in their shipping crates. The setup crew is two people short and paying two quarters for the afternoon. The problem is elf number seven. He's unplugged, his batteries are in a bag on the floor, and he keeps singing \"Up on the Housetop\" in a slow, deep voice.",
-        "art": "A shopping-mall center court half-built into a Christmas village with fake snow and a plywood gingerbread house, animatronic elves in open shipping crates, one elf with glowing eyes and an open mouth, Halloween decorations still hanging from the railings",
+        "art": "A shopping mall center court half built into a Christmas village in October, fake snow, a plywood gingerbread house, animatronic elves standing in open wooden shipping crates, one elf in a green felt vest with glowing eyes and its mouth wide open singing, its batteries in a plastic bag on the floor, a teenager holding a string of lights, paper bats still hanging from the railings above, wide shot",
         "choices": [
           {
             "id": "work-crew",
@@ -2493,7 +2493,7 @@
         "title": "Lap Eleven Hundred",
         "place": "The upper concourse, Starlight Mall, 7 a.m. before the gates go up",
         "text": "The Starlight Striders, a dozen retirees in matching teal tracksuits, walk laps of the mall every morning before the shops open. This morning they flag you down. Ida Feeney, seventy-eight, started walking on Tuesday and hasn't stopped. She's polite, she's chatty, she waves every lap, and her eyes lock on the dead-wing plywood every time she passes it. Her sneakers are worn through to the socks.",
-        "art": "Retirees in matching teal tracksuits on an empty early-morning mall concourse with shuttered storefronts, one elderly woman in worn sneakers walking briskly past a plywood wall, the others watching with worry",
+        "art": "An empty upper mall concourse at seven in the morning with metal gates still down on every store, a dozen retirees in matching teal tracksuits gathered with worried faces, and a 78-year-old woman with a white bob in a teal tracksuit walking briskly past a tall plywood wall in sneakers worn through to her socks, waving, a teenager falling into step beside her, pale early light from the skylights, wide shot",
         "choices": [
           {
             "id": "walk-with",
@@ -2584,7 +2584,7 @@
         "title": "The Show Must Go On",
         "place": "Backstage, The Glitter Box Playhouse",
         "text": "Twenty minutes to curtain on the matinee revue and Miss Coco Mango has a broken heel, a bad back and a sold-out house. Glory Hallelujah's eyes land on you. \"You know the choreography. Don't lie, I've seen you mouthing it in the wings for weeks.\" There's a sequined jumpsuit in your size, which is suspicious and also perfect.",
-        "art": "A chaotic theatre dressing room with bulb mirrors, a drag queen in a feathered robe holding up a sparkling sequined jumpsuit to a startled teenager, another performer nursing a broken heel",
+        "art": "A chaotic theater dressing room twenty minutes before curtain, bulb-ringed mirrors and wig heads, a tall drag queen with a platinum bouffant wig in a pink feathered robe holding up a sparkling sequined jumpsuit to a startled teenager, another drag performer on a stool holding a broken high heel and pressing a hand to her back, warm bulb light, medium shot",
         "choices": [
           {
             "id": "go-on",
@@ -2645,7 +2645,7 @@
         "title": "Reel Two Is Missing",
         "place": "The projection booth, The Glitter Box Playhouse",
         "text": "Saturday midnight double feature, and reel two of Attack of the 50-Foot Prom Queen has vanished from the booth. Frankie Fontaine has her headset on, a flashlight in her teeth and an audience of two hundred stamping their feet below. The empty film can is labeled in someone else's handwriting: BORROWED. BACK SOON.",
-        "art": "A cramped theatre projection booth with a big film projector, a trans woman stage manager with a headset and a flashlight in her teeth, an empty film can marked borrowed, a stamping audience visible through the booth window",
+        "art": "A cramped theater projection booth at midnight with a big old film projector, a 24-year-old trans woman stage manager with long dark curls in a high side ponytail, a black headset and a flashlight in her teeth, an empty round film can on the bench, a teenager searching a shelf, and through the small booth window an audience of two hundred stamping their feet below, projector glow and dark booth, medium shot",
         "choices": [
           {
             "id": "find-reel",
@@ -2704,7 +2704,7 @@
         "title": "Two Signs on the Sidewalk",
         "place": "The sidewalk outside the Glitter Box",
         "text": "Two picketers are back on the sidewalk outside the matinee: a hard-jawed man with a sign that reads TURN BACK, and a teenage boy holding a sign he won't look at. Patrons are hesitating at the curb. The boy keeps glancing at the poster of the revue like it's a window he wants to climb through.",
-        "art": "A sunny sidewalk outside a sparkling theatre marquee, a stern man holding a protest sign, a teenage boy beside him holding his own sign limply while staring at a glamorous painted revue billboard",
+        "art": "A sunny sidewalk outside a sparkling vaudeville theater with a bulb-lit marquee, a stern hard-jawed man holding a protest placard on a stick, a teenage boy beside him holding his own placard limply at his side while staring at a glamorous painted billboard of drag performers in sequins, patrons hesitating at the curb, a teenager walking up to the boy, bright afternoon light, wide shot",
         "choices": [
           {
             "id": "talk-to-boy",
@@ -2759,7 +2759,7 @@
         "title": "The Lady in M13",
         "place": "The balcony, The Glitter Box Playhouse",
         "text": "Everyone at the Glitter Box knows not to sell seat M13 in the balcony. It belongs to the Lady, a silent-film actress who opened here in 1926, who leaves a lipstick print on a program every closing night. This week there's no program on the seat, and the chandelier keeps swaying even when the doors are closed.",
-        "art": "A dim gilded theatre balcony with one velvet seat marked M13, a faint woman's silhouette in a 1920s cloche hat, a crystal chandelier swaying slightly",
+        "art": "A dim gilded theater balcony, rows of red velvet seats with one seat at the end of a row empty and softly lit, the faint translucent silhouette of a woman in a 1920s cloche hat and beaded dress sitting in it, a crystal chandelier swaying slightly overhead, a teenager sitting in the seat beside her with one hand resting on the armrest, gold and blue shadows, medium wide shot",
         "choices": [
           {
             "id": "leave-program",
@@ -2818,7 +2818,7 @@
         "place": "The marquee ladder, The Glitter Box Playhouse, Saturday afternoon before the midnight double feature",
         "days": [1],
         "text": "Frankie Fontaine hands you a crate of plastic letters and points up. Tonight's midnight double feature is ATTACK OF THE 50-FOOT PROM QUEEN and REVENGE OF THE ROLLER GHOULS, and the marquee has to say so by sundown. But every time you climb down for more letters, the ones already up have rearranged themselves. First it was COME IN. Then it was SIT TOGETHER. Now it just says TONIGHT, three times.",
-        "art": "A teenager on a tall ladder against the glowing marquee of a 1920s vaudeville theatre on a sunny afternoon, a crate of plastic marquee letters at the foot of the ladder, a young woman in a headset pointing up",
+        "art": "A teenager on a tall ladder against the bulb-lit marquee of a 1920s vaudeville theater on a sunny Saturday afternoon, a plastic crate of marquee letter tiles hooked on the ladder, the tiles already on the board sliding around by themselves, a young woman in a black headset on the sidewalk pointing up with a frown, peeling gold paint on the facade, bright afternoon light, low angle shot",
         "choices": [
           {
             "id": "set-it-fast",
@@ -2901,7 +2901,7 @@
         "title": "The Mermaid Tail",
         "place": "The costume-rental loft, The Glitter Box Playhouse",
         "text": "Halloween week, the Glitter Box rents its costume loft to the whole town, and you're working the racks. A boy of about nine named Mateo has both hands pressed to a sequined mermaid tail like it's an aquarium. His mother keeps steering him toward the pirate rack, saying, \"Something normal, mijo.\" Behind them, the tail's sequins ripple on the hanger, though every window in the loft is shut.",
-        "art": "A cluttered theatre costume loft with racks of sequined gowns and capes, a nine-year-old boy gazing at a shimmering mermaid tail on a hanger, his mother holding a pirate hat, a teenager behind the rental counter",
+        "art": "A cluttered theater costume loft with racks of sequined gowns and capes, a nine-year-old boy pressing both hands against a shimmering green sequined mermaid tail on a hanger, its sequins rippling, his mother holding a plastic pirate hat toward him, a teenager behind the rental counter with a pincushion on their wrist, dusty skylight sun, medium wide shot",
         "choices": [
           {
             "id": "talk-to-mom",
@@ -2993,7 +2993,7 @@
         "title": "Otis Lost the Key",
         "place": "The groundskeeper's shed, Pinecrest Cemetery",
         "text": "Otis Fenn has been groundskeeper at Pinecrest for forty years, and this morning he lost the key to the Whitcomb mausoleum. Not misplaced. Lost. It was on his ring at dusk and gone at dawn, and the mausoleum door, which was locked, is now standing an inch open.",
-        "art": "An old groundskeeper in overalls holding a jangling key ring with one empty hook, a stone mausoleum behind him with its iron door standing slightly ajar, morning mist among the graves",
+        "art": "An old groundskeeper in faded overalls holding up a jangling key ring with one empty hook, a gray stone mausoleum behind him with its iron door standing an inch ajar, morning mist drifting among the leaning graves, a crow on the branch of an oak by the gate, a teenager beside him looking toward the door, cool gray morning light, medium wide shot",
         "choices": [
           {
             "id": "search-grounds",
@@ -3078,7 +3078,7 @@
         "title": "B-13",
         "place": "The church basement, St. Jude's",
         "text": "Afternoon bingo in St. Jude's basement: folding tables, dabbers, a coffee urn and fifty serious grandmothers. The caller, a cheerful volunteer named Mrs. Petrakis, keeps calling numbers that aren't on anyone's card. B-13. B-13. B-13. She doesn't seem to notice. The grandmothers have noticed.",
-        "art": "A church basement full of folding tables and elderly women with bingo cards and dabbers, a cheerful volunteer at a ball cage pulling out a ball, every player looking up uneasily",
+        "art": "A church basement on a weekday afternoon full of folding tables and fifty elderly women with paper bingo sheets and ink dabbers, a cheerful volunteer at a wire ball cage holding up one old wooden ball, every player looking up uneasily, a 71-year-old Black woman in a marigold headwrap squinting at the cage, a teenager at the end of a table with a dabber, a coffee urn steaming, fluorescent light, wide shot",
         "choices": [
           {
             "id": "play-to-win",
@@ -3138,7 +3138,7 @@
         "title": "The Name Chiseled Off",
         "place": "The founders' hill, Pinecrest Cemetery",
         "text": "Your history teacher assigned grave rubbings from the founders' hill. Six tall stones of the families who built Glimmer Falls in 1859, and a seventh, smaller, off to the side, its name chiseled away so hard there's a groove. The grass around it grows in a perfect circle, greener than anything else on the hill.",
-        "art": "A grassy cemetery hilltop with six tall weathered founders' headstones and one small stone set apart, its name gouged away, encircled by a ring of unnaturally green grass, a teenager kneeling with paper and charcoal",
+        "art": "A grassy cemetery hilltop on an autumn afternoon with six tall weathered founders' headstones in a row and one small stone set apart, its face gouged deep where a name used to be, a perfect ring of bright green grass around it, a teenager kneeling with paper and a charcoal stick, an olive-skinned goth teen in a plum velvet coat watching, low golden sun, wide shot",
         "choices": [
           {
             "id": "rub-it",
@@ -3199,7 +3199,7 @@
         "title": "Nobody Came",
         "place": "The chapel, St. Jude's",
         "text": "Father Iggy is about to say a funeral mass for Mrs. Edna Lowry, ninety-four, no family, no friends left alive. The pews are empty. He catches you in the doorway and asks, quietly, if you'd stay. As you sit, the guestbook on the stand by the door starts filling with names, one by one, in different handwritings.",
-        "art": "An empty church chapel with a single casket and flowers at the altar, a young priest in vestments, a teenager sitting alone in a pew, a guestbook by the door filling with handwritten names on its own",
+        "art": "An empty stone church chapel at midday, a single closed casket with a spray of roses at the altar, a 31-year-old Filipino American priest with a black spiked pompadour in white vestments standing at the front, a teenager sitting alone in a wooden pew, and by the door a guestbook on a stand with a pen writing by itself across its pages, colored light through stained glass, wide shot",
         "choices": [
           {
             "id": "stay",
@@ -3258,7 +3258,7 @@
         "place": "The nave and organ loft, St. Jude's, Sunday morning",
         "days": [2],
         "text": "Sunday at St. Jude's means Father Iggy's folk mass: two acoustic guitars, a bongo and a tambourine player who is home with the flu. Iggy presses the tambourine into your hands before you can object. Then the first hymn starts, and up in the loft the old pipe organ, silent since the organist retired in 1979, joins in on one low, held note. The pews hum under everyone's knees.",
-        "art": "A small stone church nave on a sunny Sunday morning, a young priest with a guitar leading a folk band of parishioners, a teenager holding a tambourine at the front, and high in the dim loft an old pipe organ with its brass pipes faintly glowing",
+        "art": "A small stone church nave on a sunny Sunday morning, a young Filipino American priest with a spiked pompadour playing an acoustic guitar beside two parishioners on guitar and bongo, a teenager at the front holding a tambourine, the congregation clapping in the pews, and high in the dim loft an old pipe organ with its brass pipes glowing faintly and an empty bench, sunbeams through stained glass, wide shot",
         "choices": [
           {
             "id": "shake-it",
@@ -3331,7 +3331,7 @@
         "title": "The Angel Moves at Night",
         "place": "The children's section, Pinecrest Cemetery",
         "text": "Otis Fenn swears the marble angel from the 1902 Halloran plot stood ten rows deeper in the cemetery last Monday. Every morning this week it's a little closer to the front gate, and every morning it faces a little more toward Crystal Street. It weighs half a ton. There are no drag marks in the grass, only a trail of small, perfect footprints pressed into the dew.",
-        "art": "A weathered marble angel statue with folded wings standing among small leaning headstones near a wrought-iron cemetery gate, morning dew on the grass, an old groundskeeper in overalls scratching his head beside it",
+        "art": "A weathered half-ton marble angel statue with folded wings and green moss streaks under its eyes standing among small leaning children's headstones near a wrought-iron cemetery gate, a line of small perfect footprints pressed into the morning dew behind it, an old groundskeeper in overalls scratching his head, a teenager kneeling with a stick of chalk at its base, pale morning mist, wide shot",
         "choices": [
           {
             "id": "chalk-ring",
@@ -3427,7 +3427,7 @@
         "title": "Line Three",
         "place": "The broadcast booth, KGLM 103.3",
         "text": "Mix Bell is covering the afternoon show before his overnight shift and lets you sit in, and line three lights up. The caller asks for a song from 1958 in a voice full of bubbles, like she's calling from under water. The light on the console says the call is coming from the old quarry pay phone, which was flooded and removed in 1959.",
-        "art": "A teenage DJ with big headphones in a small radio booth beside a teenager, a console with a single blinking call-line button, a dusty 1958 record held up from a crate, rain on the window",
+        "art": "A small radio booth on a rainy afternoon, a 17-year-old Black DJ with a high-top fade, big padded headphones and a purple satin station jacket at the console, a teenager beside him holding up a dusty 1958 seven-inch record pulled from a crate, a single call-line button blinking on the phone, beads of water collecting on the phone and rain streaking the window, gray window light and warm console glow, medium shot",
         "choices": [
           {
             "id": "play-song",
@@ -3489,7 +3489,7 @@
         "title": "Halfway Up the Tower",
         "place": "The water tower ladder, above KGLM",
         "text": "A kid named Jun climbed the water tower to paint his crush's initials on the tank, and now he's stuck forty feet up, clinging to a ladder rung that's peeling away from the rivets. Below him is a can of red spray paint, dented. Above him, painted by someone else, letters older than both of you: GO BACK.",
-        "art": "A boy clinging to a rusty water tower ladder high above a hilltop, a rung pulling loose from its rivets, faded painted letters on the tank above him, a teenager looking up from the base",
+        "art": "A boy of about twelve clinging to a rusty ladder high on the side of a round water tower above a grassy hilltop, one rung peeling away from its rivets under his hands, a dented can of red spray paint on the ground far below, faded old painted marks on the tank above him, a teenager starting up the ladder from the base and a small cinderblock radio station beside the tower, golden afternoon light, low angle shot",
         "choices": [
           {
             "id": "climb",
@@ -3542,7 +3542,7 @@
         "title": "Be Caller Thirteen",
         "place": "A pay phone outside the Quik-Stop, then KGLM",
         "text": "KGLM is giving away two tickets to the Halloween night Thrash Bash at the fairgrounds to caller number thirteen. Every phone in town is ringing the station. You've got one quarter, a pay phone and a busy signal. The busy signal, if you listen closely, is counting.",
-        "art": "A teenager at a strip-mall pay phone with the receiver to one ear and a quarter in hand, a convenience store glowing behind them, a radio playing on a nearby car dashboard",
+        "art": "A teenager at a strip-mall pay phone on a bright afternoon pressing the receiver to one ear and holding a single quarter ready, finger on the hook, a convenience store glowing behind them, a parked car nearby with its windows down and its dashboard radio on, a bicycle leaning on the phone post, long late-day shadows, medium shot",
         "choices": [
           {
             "id": "redial",
@@ -3596,7 +3596,7 @@
         "title": "Live From Sal's Mattress Kingdom",
         "place": "The production booth, KGLM 103.3",
         "text": "The station manager's voice talent quit, and Sal's Mattress Kingdom's Halloween Spooktacular ad runs live in ninety seconds. The copy is three pages of puns. The manager shoves it at you. The microphone has a little piece of tape on it that says DON'T SAY IT THREE TIMES, and nobody will tell you what IT is.",
-        "art": "A cluttered radio production booth with a vintage microphone wrapped in a strip of tape, a panicked station manager handing a teenager pages of ad copy, an on-air light about to go red",
+        "art": "A cluttered radio production booth, a vintage silver microphone with a strip of masking tape wrapped around its neck, a panicked station manager in a short-sleeved shirt and loose tie shoving three pages of ad copy at a teenager, a red on-air bulb above the door about to light, a wall clock ticking toward the hour, fluorescent light and red glow, medium shot",
         "choices": [
           {
             "id": "sell-it",
@@ -3654,7 +3654,7 @@
         "place": "The production booth, KGLM 103.3, Halloween afternoon",
         "days": [7],
         "text": "For Halloween, the station manager is re-staging the famous 1938 Martian-invasion radio play at six o'clock with local voices, and you've been cast as the reporter at the crash site. During the afternoon rehearsal, the old teletype in the corner starts chattering on its own. It's typing your lines a beat before you read them. Then it types one that isn't in the script: LIGHTS OVER CRYSTAL STREET. LOOK UP.",
-        "art": "A cramped radio production booth with a teenager at a microphone holding a script, a vintage teletype machine in the corner spitting paper, a window behind showing a hilltop water tower against an orange Halloween sky",
+        "art": "A cramped radio production booth on Halloween afternoon, a teenager at a microphone holding a script and a pair of headphones, a vintage teletype machine in the corner chattering on its own and spitting a long curl of paper onto the floor, the station manager frozen with a sound-effects board, and through the window behind a hilltop water tower against an orange Halloween sky with three pale lights above the valley, wide shot",
         "choices": [
           {
             "id": "ham-it-up",
@@ -3733,7 +3733,7 @@
         "title": "Play It Backward",
         "place": "The record library, KGLM 103.3",
         "text": "A committee of Concerned Parents has marched up the KGLM hill with a petition and a cardboard box. In the box: every heavy metal album in the station library, plus Mix's whole Glitter Box disco set, which they call \"a gateway.\" They insist the records hide satanic messages when played backward. The station manager is sweating. Mix is very, very calm, which is how you know he's furious.",
-        "art": "A wood-paneled radio station record library lined with album shelves, a group of stern parents in cardigans holding a clipboard and a cardboard box of records, a young DJ with headphones around his neck standing calmly with folded arms",
+        "art": "A wood-paneled radio station record library lined with album shelves, a group of stern parents in cardigans and windbreakers holding a clipboard and a cardboard box full of vinyl records, a 17-year-old Black DJ with headphones around his neck standing calmly with folded arms, a sweating station manager between them, a teenager at a turntable with one hand on the platter, warm overhead light, wide shot",
         "choices": [
           {
             "id": "spin-backward",
@@ -3821,7 +3821,7 @@
         "title": "The Car Maze",
         "place": "The stacks, Rusty's Junkyard",
         "text": "Joey Benally needs a hubcap off a '57 Bel Royale somewhere in the car maze, and he'll pay three quarters for it. The stacks are three cars high, the paths fork every twenty feet, and the junkyard maps never agree. Barnaby the basset hound plants himself at the entrance and refuses to go one step farther.",
-        "art": "A towering maze of rusted cars stacked three high in a junkyard, narrow dirt paths forking into shadow, a teenager at the entrance with a basset hound sitting stubbornly beside them",
+        "art": "A towering maze of rusted 1950s and 1970s cars stacked three high in a junkyard, narrow dirt paths forking into shadow, chalk arrows on a fender at the first turn, a teenager standing at the entrance with a piece of chalk, a tricolor basset hound with long ears and a red bandana sitting stubbornly beside them, a lean Diné teenager in an orange work shirt pointing into the maze, hard afternoon sun and deep shadows, wide shot",
         "choices": [
           {
             "id": "navigate",
@@ -3882,7 +3882,7 @@
         "title": "Something in the Trunk",
         "place": "The crusher, Rusty's Junkyard",
         "text": "Rusty is about to drop a 1959 Cadwell into the crusher, and from the trunk comes a knock. Three slow knocks. Rusty can't hear it over the engine and won't stop the job for \"a teenager's imagination.\" The crusher plates are already grinding open like the jaws of something hungry.",
-        "art": "A hulking junkyard car crusher with its plates open, a crane lowering a pink 1959 tail-finned car toward it, a gruff man in the operator's seat, a teenager waving their arms frantically",
+        "art": "A hulking junkyard car crusher with its steel plates grinding open, a crane lowering a pink 1959 tail-finned sedan toward it, its trunk lid rattling, a gruff old man in a trucker cap in the operator's seat, a teenager waving both arms frantically at the edge of the pit, a lean teenager in an orange work shirt running toward the control panel, dust and diesel smoke, bright afternoon sun, wide shot",
         "choices": [
           {
             "id": "jump-on",
@@ -3946,7 +3946,7 @@
         "title": "Pay by the Pound",
         "place": "The scrap scale, Rusty's Junkyard",
         "text": "Rusty pays by the pound for copper and aluminum, and the old station wagons at the back are full of it. You have a wagon, a pair of pliers and the whole afternoon. The trouble is the back of the lot, where the wagons are parked in a circle facing inward, like they're having a meeting.",
-        "art": "A teenager pulling a rusty little red wagon heaped with copper wire and aluminum cans past a circle of old wood-paneled station wagons parked facing inward in a junkyard",
+        "art": "A teenager pulling a rusty little red wagon heaped with copper wire and crushed aluminum cans through a junkyard, passing a circle of old wood-paneled station wagons parked nose to nose facing inward, one with its dashboard radio glowing, a pair of pliers in the teen's back pocket, long late-afternoon shadows and golden light, wide shot",
         "choices": [
           {
             "id": "strip-fast",
@@ -4002,7 +4002,7 @@
         "title": "Wade's Van Won't Start",
         "place": "Joey's garage, Rusty's Junkyard",
         "text": "Wade Whitfield's van, a black panel van with a wizard airbrushed on the side, won't start, and tonight is open-mic night at the Glitter Box. He's never read a poem out loud before. He's been trying to back out for a week, and now the van is giving him the excuse. He doesn't look relieved.",
-        "art": "A burnout metalhead with a mullet slumped against a black van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a cinderblock garage behind",
+        "art": "An 18-year-old with a long feathered dirty-blond mullet and a patched denim vest slumped against a black custom van with a wizard airbrushed on its side, the hood propped open, a crumpled spiral notebook in his hand, a teenager leaning into the engine with a wrench, a cinderblock garage behind them with tools hanging outside, dusk light, medium shot",
         "choices": [
           {
             "id": "fix-van",
@@ -4060,7 +4060,7 @@
         "place": "The Sunday swap meet in the front lot, Rusty's Junkyard",
         "days": [2],
         "text": "On Sundays, Rusty opens the front lot to a swap meet: card tables of hubcaps, eight-tracks and lawn gnomes. One vendor found a crate of 1962 Brine Buddies, the mail-order instant sea pets, and dumped every packet into a kiddie pool to see what would happen. What happened is that they're now the size of hamsters, pink, cheerful and wearing tiny crowns, exactly like the ad promised. Barnaby is howling his head off.",
-        "art": "A sunny junkyard swap meet of card tables loaded with hubcaps and lawn gnomes, a plastic kiddie pool full of pink hamster-sized sea creatures with tiny crowns, a basset hound howling beside it and a vendor in a straw hat",
+        "art": "A sunny Sunday swap meet in a junkyard front lot, folding tables loaded with hubcaps, eight-track tapes and lawn gnomes, a plastic kiddie pool full of cheerful pink sea creatures the size of hamsters wearing tiny gold crowns, a vendor in a straw hat looking pleased with himself, a tricolor basset hound with a red bandana howling beside the pool, a teenager and a mustached veterinarian in a lab coat leaning over it, bright daylight, wide shot",
         "choices": [
           {
             "id": "set-free",
@@ -4141,7 +4141,7 @@
         "title": "Glory's Getaway Car",
         "place": "Joey's garage, Rusty's Junkyard",
         "text": "Glory Hallelujah is riding in Friday's Halloween parade as the Bride of Glimmerstein, and she wants to arrive in style: a 1961 Cadwell hearse Rusty dragged out of the back lot. Joey has the engine purring. The problem is the back door. It keeps unlatching by itself, and every time it swings open, the rolling casket tray glides out toward whoever is standing closest. Right now, that's you.",
-        "art": "A long black vintage hearse parked in a junkyard beside a converted school-bus garage, its rear door swinging open and a chrome casket tray sliding out toward a startled teenager, a teen mechanic wiping his hands on a rag",
+        "art": "A long black 1961 hearse parked outside a cinderblock junkyard garage, its rear door swinging open by itself and a chrome casket tray rolling out toward a startled teenager, a lean Diné teenager in an orange work shirt wiping his hands on a red rag at the engine, a pile of purple sequins and a pink feather boa on the workbench, late afternoon light, medium wide shot",
         "choices": [
           {
             "id": "fix-latch",
@@ -4235,7 +4235,7 @@
         "title": "The Appraisal",
         "place": "The counter, Oddment and Daughters",
         "text": "Ms. Oddment is a tall woman in a velvet waistcoat with a jeweler's loupe on a chain and eyes the color of tea. She looks you up and down as if you were an estate sale. \"I don't buy things, dear. I buy afternoons. Memories. A little bit of the way you laugh.\" She taps a brass scale. \"What will you sell me?\"",
-        "art": "A tall mysterious woman in a velvet waistcoat behind a cluttered antique pawnshop counter, a jeweler's loupe on a chain, a brass scale with empty pans, shelves of curios glowing in lamplight",
+        "art": "A tall slender woman in a dark velvet waistcoat with tea-colored eyes and a jeweler's loupe on a long chain leaning over a cluttered antique pawnshop counter toward a teenager, a brass balance scale with empty pans between them, a small glass jar with a curl of gray mist inside, shelves of clocks, music boxes and dolls glowing in warm lamplight, medium shot",
         "choices": [
           {
             "id": "sell-memory",
@@ -4315,7 +4315,7 @@
         "title": "All Sales Final",
         "place": "The front door, Oddment and Daughters",
         "text": "A sweating man in a golf visor is trying to return a snow globe of Glimmer Falls. \"It shows tomorrow's weather,\" he babbles, \"and tomorrow's weather has my house on fire in it.\" Ms. Oddment points at a sign: ALL SALES FINAL. He turns to you, holding it out, shaking. Inside the globe, tiny flames flicker over a tiny roof.",
-        "art": "A frantic man in a golf visor holding out a snow globe of a little town in a cramped pawnshop, tiny flames flickering inside the glass over one house, a tall shopkeeper pointing at a sign reading all sales final",
+        "art": "A cramped pawnshop at the front door, a frantic sweating man in a golf visor holding out a snow globe of a little town with tiny orange flames flickering over one roof inside the glass, a tall woman in a velvet waistcoat behind the counter pointing at a small framed placard, a teenager reaching for the snow globe, cluttered shelves of curios, warm lamplight, medium shot",
         "choices": [
           {
             "id": "buy-it",
@@ -4372,7 +4372,7 @@
         "title": "One of the Daughters",
         "place": "The back room, Oddment and Daughters",
         "text": "Behind the beaded curtain a girl about your age is restocking a shelf of glass eyes. She has Ms. Oddment's tea-colored eyes and a name tag that says WEDNESDAY. \"There are seven of us. We're never allowed out of the shop.\" She lowers her voice. \"I want to see the mall. Just once. Will you take me?\"",
-        "art": "A girl in an old-fashioned smock with tea-colored eyes restocking a shelf of glass eyes in a dim pawnshop back room, a beaded curtain behind her, a teenager peeking through",
+        "art": "A dim pawnshop back room behind a beaded curtain, a teenage girl in an old-fashioned gray smock with tea-colored eyes restocking a shelf of glass eyes in little velvet trays, looking back over her shoulder, a teenager peeking through the beads, a single oil lamp and dust in the air, medium shot",
         "choices": [
           {
             "id": "sneak-out",
@@ -4431,7 +4431,7 @@
         "title": "The Things on the Shelves",
         "place": "The aisles, Oddment and Daughters",
         "text": "Ms. Oddment will pay a quarter a shelf to dust. \"Don't touch anything that hums. Don't answer anything that asks you a question. And if the monkey with the cymbals starts clapping, leave the aisle at once.\" The first shelf has a music box, a baby shoe and a lighter engraved KEEP ME. The music box hums.",
-        "art": "A teenager with a feather duster in a narrow pawnshop aisle crammed with curios, a humming music box, a single baby shoe, an engraved lighter, a wind-up cymbal monkey on a high shelf watching",
+        "art": "A teenager with a feather duster in a narrow pawnshop aisle crammed with curios, a humming wooden music box with its lid half open, a single small baby shoe, an engraved silver lighter, and on a high shelf a wind-up cymbal monkey watching with its cymbals held apart, warm lamplight and deep shadows between the shelves, medium shot",
         "choices": [
           {
             "id": "dust-carefully",
@@ -4487,7 +4487,7 @@
         "title": "Redeemable Through Friday",
         "place": "The counter, Oddment and Daughters",
         "text": "A pawn ticket falls out of your jacket pocket as you walk in, and it's in your own handwriting. ITEM: one (1) courage, pawned for two quarters. DATED: Friday, October 31, 1986. Ms. Oddment sees it and raises one elegant eyebrow. \"Ah. You haven't done that yet,\" she says. \"But you will. Would you like it back early?\"",
-        "art": "A cluttered pawnshop counter with a brass scale and a jeweler's loupe, a tall woman in a velvet waistcoat raising an eyebrow, a teenager holding up a small paper pawn ticket in disbelief",
+        "art": "A cluttered pawnshop counter with a brass scale and a jeweler's loupe, a tall woman in a velvet waistcoat raising one eyebrow, a teenager holding up a small paper pawn ticket at arm's length with a stunned face, a small glass jar with a glowing speck of gold light on a high shelf behind her, warm lamplight, medium shot",
         "choices": [
           {
             "id": "redeem-it",
@@ -4564,7 +4564,7 @@
         "place": "The back lot, Oddment and Daughters, Halloween afternoon",
         "days": [7],
         "text": "On Halloween afternoon, Oddment and Daughters is packing up. Every shelf is going into seven steamer trunks, one per daughter, because at midnight the shop moves on to whatever town needs it next. Ms. Oddment hires you to help. \"Two rules,\" she says. \"Wrap everything that ticks. And whatever you do, don't let the locked case see you leave.\"",
-        "art": "Seven open steamer trunks in a gravel lot behind a crooked little pawnshop, shelves of curios being packed in straw, a tall woman in a velvet waistcoat directing a teenager under an orange Halloween sky",
+        "art": "Seven open steamer trunks in a gravel lot behind a crooked little pawnshop on Halloween afternoon, clocks, music boxes and snow globes being packed in straw, a wind-up cymbal monkey lying face down in a trunk, a tall woman in a velvet waistcoat directing a teenager who carries a wrapped mantel clock, a locked glass curio case turned to face the wall, orange Halloween sky, wide shot",
         "choices": [
           {
             "id": "pack-tight",
@@ -4651,7 +4651,7 @@
         "title": "Wipeout on Larkspur Hill",
         "place": "The front walk, Mercy Valley Clinic",
         "text": "A kid in a homemade daredevil cape comes off his BMX at the bottom of Larkspur Hill and skids right up to the clinic doors, howling. Nurse Inez is elbow-deep in a waiting room full of sniffles, so she points at you and then at the first-aid cart. \"You. Wash your hands. Go.\" Behind the kid, his bike is still rolling. Uphill. Pedals turning all by themselves.",
-        "art": "A small boy in a homemade star-spangled cape sitting on a clinic front walk with a scraped knee, a teenager kneeling beside him with a white first-aid kit, a brisk nurse with silver-streaked curls waving through glass doors, a riderless BMX bike rolling uphill behind them, sunny autumn afternoon",
+        "art": "A small boy in a homemade star-spangled cape sitting on the front walk of a pale green brick clinic with a scraped knee, a teenager kneeling beside him with a white first-aid kit and a bandage, a brisk nurse with silver-streaked curls and a teal cardigan waving through the glass doors, and behind them a riderless dirt bike rolling uphill with its pedals turning by themselves, sunny autumn afternoon, wide shot",
         "choices": [
           {
             "id": "patch-him-up",
@@ -4732,7 +4732,7 @@
         "title": "Candy Striper for a Day",
         "place": "The short-stay ward, Mercy Valley Clinic",
         "text": "Inez's volunteer called in sick, so you get the red-and-white striped smock and the gelatin cart. The three-bed short-stay ward holds a snoring mailman, a girl recovering from her tonsils with a stack of comic books, and Mrs. Esperanza Ochoa, 88, who says her late husband Teo visits every day at four. The ward clock says 3:58.",
-        "art": "A teenager in a red-and-white striped volunteer smock pushing a cart of wobbling lime gelatin cups into a small sunny clinic ward, an elderly woman in a crocheted shawl sitting up in bed watching the doorway, a round wall clock nearly at four",
+        "art": "A teenager in a red-and-white striped volunteer smock pushing a cart of wobbling lime gelatin cups into a small sunny three-bed clinic ward, a mailman snoring in one bed, a girl with a stack of comic books in another, an 88-year-old woman in a crocheted shawl sitting up in the third bed watching the doorway with hope, a round wall clock nearly at four, warm afternoon light, wide shot",
         "choices": [
           {
             "id": "sit-with-her",
@@ -4809,7 +4809,7 @@
         "title": "The Nose Jar",
         "place": "The exam room cabinet, Mercy Valley Clinic",
         "text": "Mercy Valley turns twenty-five this week, and Inez wants a lobby display of the Nose Jar: every object she has pulled out of a Glimmer Falls kid's nose, ear or sneaker since 1961. Marbles. A tiny silver board-game top hat. Forty-one popcorn kernels. Each has a paper tag in Inez's tidy hand. One small purple pebble has a tag with your name on it, dated November 1, 1986.",
-        "art": "A big glass apothecary jar tipped open on a clinic exam table, colorful marbles, a tiny silver board-game top hat, popcorn kernels and a small glowing purple pebble spilling out, little paper tags on strings, a teenager leaning in close under a hanging lamp",
+        "art": "A big glass apothecary jar tipped open on a clinic exam table, colorful marbles, a tiny silver top hat token, popcorn kernels and a small glowing purple pebble spilling out, each tied to a little paper tag on a string, a teenager leaning in close under a hanging exam lamp, a nurse with silver-streaked curls watching from the doorway, close medium shot",
         "choices": [
           {
             "id": "ask-opal",
@@ -4888,7 +4888,7 @@
         "title": "The Halloween Binder",
         "place": "The night desk, Mercy Valley Clinic",
         "text": "Inez's night desk hides a fat orange binder marked HALLOWEEN WEEK, one page per kid, every year since 1961. Glitter burns that won't wash off. A lunchbox chewed by something with far too many tiny teeth. A boy who walked in with his shadow on backwards. She catches you looking. \"Nobody else believes them,\" she says. \"So I write it all down.\"",
-        "art": "A fat orange three-ring binder open on a cluttered clinic night desk under a gooseneck lamp, taped instant photos of grinning kids with bandaged elbows, a mug of coffee, a nurse with silver-streaked curls and a teal cardigan leaning on the counter beside a curious teenager",
+        "art": "A fat orange three-ring binder lying open on a cluttered clinic night desk under a gooseneck lamp, instant photos of grinning kids with bandaged elbows taped to its pages, a mug of coffee beside it, a nurse in her sixties with silver-streaked curls, cat-eye glasses and a teal cardigan leaning on the counter beside a curious teenager, dark windows behind, warm lamp light, medium shot",
         "choices": [
           {
             "id": "tell-her",
@@ -4948,7 +4948,7 @@
         "title": "Captain Cosmo Wants a Volunteer",
         "place": "The waiting room, Mercy Valley Clinic",
         "text": "The waiting-room TV has been stuck on Channel 11 since 1974, and Channel 11 went off the air in 1975. Today it's showing Captain Cosmo's Rocket Club, the after-school kids' show from 1963, in fuzzy black and white. Captain Cosmo leans into the camera, looks straight at you over the heads of the coughing patients and says, \"You there. Yes, you. Come on up, space cadet.\"",
-        "art": "A small 1960s clinic waiting room with orange plastic chairs and coughing patients, a wall-mounted television showing a smiling black-and-white kids' show host in a space helmet pointing out of the glowing screen at a teenager",
+        "art": "A small 1960s clinic waiting room with orange plastic chairs and coughing patients, a wall-mounted wooden television showing a smiling black-and-white kids' show host in a fishbowl space helmet leaning out of the fuzzy screen and pointing at one teenager, the teen half standing from a chair, a nurse with silver-streaked curls at the reception window, fluorescent light, wide shot",
         "choices": [
           {
             "id": "salute",
@@ -5025,7 +5025,7 @@
         "place": "The X-ray room, Mercy Valley Clinic, Halloween afternoon",
         "days": [7],
         "text": "Ever since the 1982 scare stories, Mercy Valley has offered free X-rays of trick-or-treat candy on Halloween night, and tonight the line will wrap around the block. This afternoon Nurse Inez needs a test run, so she slides a sample bag of fun-size bars under the machine. The film comes back clean: no pins, no razor blades. Except one Choco-Lotta bar has a tiny skeleton inside it, and the tiny skeleton is waving.",
-        "art": "A 1960s clinic X-ray room with a wall lightbox glowing behind an X-ray film of fun-size candy bars, one bar holding a tiny waving skeleton, a nurse in cat-eye glasses and a teenager leaning in close",
+        "art": "A 1960s clinic X-ray room, a wall lightbox glowing white behind an X-ray film of fun-size candy bars, one bar on the film holding a tiny skeleton that is waving, a nurse with silver-streaked curls and cat-eye glasses and a teenager leaning in close to the lightbox, the big X-ray machine arm overhead, cool white light, medium shot",
         "choices": [
           {
             "id": "unwrap-it",
@@ -5110,7 +5110,7 @@
         "title": "Sticker Shock",
         "place": "Aisle 2, canned goods, Thriftee-Mart",
         "text": "Mr. Pettibone, the manager, is sweating through his short-sleeved dress shirt. His pricing gun has gone haywire: every sticker it spits out says 13 cents, the price of a can of ham at the 1959 grand opening, and half the aisle is already tagged. Shoppers are filling carts like it's the end of the world. \"It's possessed,\" he whispers. \"Or it's under warranty.\"",
-        "art": "A sweating supermarket manager in a short-sleeved shirt and clip-on tie clutching a hand-held pricing gun that spits a long curling ribbon of orange stickers, cheerful shoppers piling canned hams into carts under buzzing fluorescent lights",
+        "art": "A canned-goods aisle in a 1980s supermarket, a sweating balding manager in a short-sleeved dress shirt and clip-on tie clutching a hand-held pricing gun that spits a long curling ribbon of orange stickers, cheerful shoppers piling canned hams into carts, a teenager peeling stickers off cans with a fresh roll, buzzing fluorescent lights, wide shot",
         "choices": [
           {
             "id": "reprice-aisle",
@@ -5188,7 +5188,7 @@
         "title": "Paper, Plastic or Rumor",
         "place": "Checkout lane 4, Thriftee-Mart",
         "text": "Dez Farrow has bagged groceries for half of Glimmer Falls, and he hears everything: who's getting divorced, who bought forty cans of hairspray, who keeps buying cat food with no cat. He trades rumors for favors, never money. Today he leans over the bagging counter and whispers that one shopping cart in the lot rolls off toward the old quarry end every night, by itself.",
-        "art": "A lanky teen bag boy in a red apron and paper hat leaning conspiratorially over a checkout lane toward a listening teenager, brown paper grocery bags and a conveyor belt of cereal boxes, a lone shopping cart drifting across the parking lot beyond the window",
+        "art": "A lanky teen bag boy in a red apron and paper hat leaning over checkout lane four toward a listening teenager, brown paper grocery bags and a conveyor belt of cereal boxes between them, and through the big front window a single shopping cart drifting by itself across the parking lot toward the far end, late afternoon light and fluorescent glow, medium shot",
         "choices": [
           {
             "id": "round-up-carts",
@@ -5270,7 +5270,7 @@
         "title": "The Last Bag of Full-Size Bars",
         "place": "Aisle 7, Halloween candy, Thriftee-Mart",
         "text": "The candy aisle is a fortress of orange and black: Three Muskrateers, Reesey's Pieces, Kit-Kaboom and, at the very end, one last bag of full-size Choco-Lotta bars. Two Crystal Street moms have their hands on it and neither one is letting go. Meanwhile, from somewhere deep inside the giant candy-corn pyramid, comes a steady, happy crunching.",
-        "art": "A towering supermarket Halloween candy display of orange and black bags stacked to the ceiling beside a giant pyramid of candy corn, two determined moms in pastel sweatsuits tugging a bag of chocolate bars between them, a teenager stepping in with hands raised",
+        "art": "A supermarket Halloween candy aisle with orange and black bags stacked to the ceiling beside a giant pyramid of candy corn, two determined moms in pastel sweatsuits tugging one bag of full-size chocolate bars between them, a few candy corns tumbling from a hole in the pyramid, a teenager stepping in with both hands raised, fluorescent light, wide shot",
         "choices": [
           {
             "id": "broker-peace",
@@ -5349,7 +5349,7 @@
         "title": "Price Check, Aisle Zero",
         "place": "The courtesy desk, Thriftee-Mart",
         "text": "Thriftee-Mart has twelve aisles. The intercom keeps calling for a price check on aisle zero. It's Mr. Pettibone's voice, and Mr. Pettibone is standing right next to you holding a cantaloupe, looking ill. \"I haven't touched that microphone,\" he says. \"I'm a produce man.\" At the back of the store, past frozen foods, a pair of swinging doors you've never noticed is gently swaying.",
-        "art": "A pale supermarket manager in a clip-on tie holding a cantaloupe and staring up at a ceiling speaker, a teenager beside him, a pair of dented swinging doors gently swaying at the far end of a long fluorescent frozen-food aisle",
+        "art": "A pale supermarket manager in a clip-on tie holding a cantaloupe and staring up at a ceiling speaker at the courtesy desk, a teenager beside him, and at the far end of a long fluorescent frozen-food aisle a pair of dented swinging stockroom doors gently swaying, cold freezer light, long wide shot",
         "choices": [
           {
             "id": "through-doors",
@@ -5430,7 +5430,7 @@
         "title": "Free Samples, Aisle 5",
         "place": "The demo table, aisle 5, Thriftee-Mart",
         "text": "Doreen Mulcahy, in a paper hat and apron, is handing out free samples of Sunny Acres Fluff-Whip, \"the dessert topping of tomorrow,\" on little crackers. Every shopper who tries one walks off humming the same jingle with the same calm, glassy little smile. Doreen's own smile hasn't moved in an hour. She holds out a cracker. \"Free,\" she says. \"Everybody's doing it.\"",
-        "art": "A supermarket aisle demo table with a woman in a paper hat and apron offering tiny crackers topped with fluffy white whipped spread, shoppers strolling away with identical calm smiles, buzzing fluorescent lights overhead",
+        "art": "A supermarket aisle demo table, a woman in a paper hat and apron with a fixed smile holding out a tiny cracker topped with fluffy white whipped spread, tubs of topping stacked on the table, shoppers strolling away with identical calm glassy smiles, a teenager eyeing the cracker, buzzing fluorescent lights overhead, medium shot",
         "choices": [
           {
             "id": "taste-it",
@@ -5507,7 +5507,7 @@
         "place": "The parking lot, Thriftee-Mart, Saturday morning",
         "days": [1],
         "text": "Saturday morning is Thriftee-Mart's Great Pumpkin Weigh-In, and the favorite is Mr. Albert Voss's backyard giant: a lumpy orange monster on a flatbed trailer, wider than a compact car. Every few minutes it thumps from somewhere deep inside, like something knocking to come out. Mr. Voss says it's settling. At the end of the line, a seven-year-old named Rosie Delgado holds her entry, the size of a softball, in both hands.",
-        "art": "A supermarket parking lot weigh-in with hay bales and a giant lumpy orange pumpkin on a flatbed trailer, a proud old man in suspenders beside it, and at the end of the line a little girl holding a softball-sized pumpkin in both hands",
+        "art": "A supermarket parking lot on a Saturday morning with hay bales and a big platform scale, a giant lumpy orange pumpkin wider than a compact car on a flatbed trailer with a torn green vine stub, a proud old man in suspenders beside it, a teen bag boy in a red apron and a teenager at the ramp, and at the end of the line a seven-year-old girl holding a softball-sized pumpkin in both hands, crisp autumn sun, wide shot",
         "choices": [
           {
             "id": "heave-it",

@@ -41,7 +41,7 @@
           "title": "The Wall of Bears",
           "place": "Toy Galaxy, Starlight Mall",
           "text": "A whole wall of Mister Fuzzbutton boxes, two hundred identical bears behind cellophane, each with a little cassette window in its tummy. The manager is asleep standing up at the register, tie loose, an Orange Jubilee going warm by his elbow. As you walk past the wall, two hundred tape reels start turning at once, and a boy's voice whispers from every box: \"Daddy's at work again.\"",
-          "art": "A brightly lit 1980s toy store with a towering wall of identical boxed teddy bears, every cassette window glowing blue, a tired manager asleep on his feet at the register",
+          "art": "A brightly lit 1980s mall toy store, a towering wall of two hundred identical boxed honey-colored teddy bears behind cellophane, each with a small cassette window in its tummy glowing blue with reels turning, a tired store manager in a loose clip-on tie asleep on his feet at the register beside a warm orange soda, a teenager stopping in the aisle to stare up at the wall, white fluorescent light and blue glow, wide shot",
           "choices": [
             {
               "id": "wake-the-manager",
@@ -106,7 +106,7 @@
           "title": "The Lit Window",
           "place": "Kev Park's paper route, Crystal Street, dusk",
           "text": "Kev pedals beside you with a bag of Gazettes, narrating every porch: who tips, who has a mean dog, whose parents are getting divorced. At the Tolliver house he slows down. Every light in the house is on and there's no car in the driveway. In the upstairs window a kid of about nine sits cross-legged with a teddy bear, holding it up to the glass so it can see the street. He waves. The bear waves too.",
-          "art": "A split-level house at dusk with every light on and an empty driveway, a small boy in an upstairs window holding a teddy bear to the glass, a paperboy on a bike and a teenager slowing on the sidewalk",
+          "art": "A split-level suburban house at dusk with every light on and an empty driveway, a small nine-year-old boy sitting cross-legged in the lit upstairs window holding a honey-colored teddy bear up to the glass and waving, a skinny 12-year-old Korean American paperboy in a backwards red cap with a canvas newspaper sack slowing his red dirt bike on the sidewalk, a teenager walking beside him looking up, purple dusk sky and warm window glow, wide shot from the street",
           "choices": [
             {
               "id": "ask-kev",
@@ -171,7 +171,7 @@
           "title": "Party Room B",
           "place": "The roller-rink annex, Pump Iron Gym",
           "text": "The rink's party room smells like popcorn and floor wax. Taped across the back wall, still up after nine months because nobody had the heart to take it down: HAPPY 9TH BIRTHDAY OLLIE! in glitter letters. Twelve party hats sit in a stack, never opened. The disco ball turns. Somewhere a Fuzzbutton is singing \"Happy Birthday\" to itself, slower and slower, as its batteries die.",
-          "art": "An empty roller rink party room with a faded glitter birthday banner, a stack of unused party hats, a slowly turning disco ball casting dots across a small teddy bear on a table",
+          "art": "An empty party room at a roller rink, a faded glitter birthday streamer still taped across the back wall, a stack of twelve unopened paper party hats on a long table, a small honey-colored teddy bear sitting alone on the table with its tummy cassette window glowing, a slow mirror ball scattering white dots across the walls, a young woman with dark curls and an orange headband in a racing wheelchair in the doorway beside a teenager, dim pink light, medium wide shot",
           "choices": [
             {
               "id": "ask-sunny",
@@ -240,7 +240,7 @@
         "title": "Press My Tummy",
         "place": "Your bedroom, midnight",
         "text": "There's a Mister Fuzzbutton on your pillow. You don't own a Mister Fuzzbutton. Its cassette window glows faint blue and the reels start turning by themselves. \"Hi! I'm Mister Fuzzbutton! Wanna hear a secret?\" Then, in your best friend's voice, it plays back something you said about them last week that you would never, ever want them to hear.",
-        "art": "A dark teenage bedroom lit only by the blue glow of a teddy bear's cassette window, the bear sitting upright on the pillow, a teenager frozen in the doorway",
+        "art": "A dark teenage bedroom at midnight lit only by the faint blue glow of a cassette window in the tummy of a honey-colored teddy bear sitting upright on the pillow, its stitched smile slightly too wide and its black button eyes shining, the little tape reels turning, a teenager in pajamas frozen in the doorway with a hand on the light switch, blue light on the bedsheets, medium shot from behind the bear",
         "choices": [
           {
             "id": "yank-the-tape",
@@ -323,7 +323,7 @@
         "title": "Bear Pile",
         "place": "A rec-room slumber party, 1 a.m.",
         "text": "Somebody brought their little sister's Mister Fuzzbutton to the slumber party as a joke. Now there are nine of them, on the shelves and the TV and the beanbag, and they're taking turns. The bear on the TV tells who has a crush on whom. The bear on the shelf tells whose parents are splitting up. Each secret lands like a slap, and your crew is drifting into separate corners of the rec room, alone.",
-        "art": "A wood-paneled 1980s rec room slumber party with nine teddy bears perched on shelves and a TV, cassette windows glowing, teens in sleeping bags turning away from each other into separate corners",
+        "art": "A wood-paneled 1980s rec room slumber party at one in the morning, nine honey-colored teddy bears perched on the shelves, the beanbag and the top of a boxy TV, their tummy cassette windows glowing blue, five teenagers in sleeping bags scooting away from each other into separate corners of the room with hurt faces, a flashlight lying on the shag carpet, blue glow and dim lamp light, wide shot",
         "choices": [
           {
             "id": "circle-up",
@@ -391,7 +391,7 @@
         "title": "Red Light, Green Light",
         "place": "Your upstairs hallway, 1 a.m., during a blackout",
         "text": "The power is out on Crystal Street, and your flashlight beam lands on a Mister Fuzzbutton at the far end of the upstairs hallway. You don't own a Mister Fuzzbutton. You swing the light toward the bathroom for one second, and when you swing it back, the bear is three steps closer. Its cassette window glows faint blue. \"Red light, green light!\" it chirps in a small boy's voice. \"You're it. You're always it.\"",
-        "art": "A pitch-dark suburban upstairs hallway during a blackout, a flashlight beam landing on a teddy bear with a glowing blue cassette window standing upright on the carpet, a teenager in pajamas gripping the flashlight at the near end",
+        "art": "A pitch-dark suburban upstairs hallway during a blackout, a flashlight beam landing on a small honey-colored teddy bear standing upright on the carpet at the far end of the hall with one paw raised mid-step, its tummy cassette window glowing faint blue, a teenager in pajamas gripping the flashlight at the near end of the hall, family photos in frames along the walls, white flashlight cone and black shadow, long view down the hallway",
         "choices": [
           {
             "id": "stare-it-down",
@@ -479,7 +479,7 @@
         "title": "It Keeps Coming Back",
         "place": "Your front porch, every hour on the hour",
         "text": "At ten o'clock you threw the Mister Fuzzbutton in the trash can by the curb. At eleven it was sitting on your porch swing. At eleven-thirty you tossed it in Crystal Creek and watched it float away. Now it's midnight, and it's on the welcome mat again, soaking wet, one button eye dangling by a thread, reels turning. \"I came back!\" it says. \"Bears always come back. Not like people.\"",
-        "art": "A soggy teddy bear sitting on a suburban welcome mat at midnight under a yellow porch light, one button eye dangling by a thread, its cassette window glowing blue, a teenager staring at it through a screen door",
+        "art": "A soaking wet honey-colored teddy bear sits on a suburban welcome mat at midnight under a yellow porch light, one black button eye dangling on a thread, a puddle of creek water around it, its tummy cassette window glowing blue with reels turning, a teenager in a jacket staring down at it through a screen door, a trash can at the curb in the background, yellow porch light and blue night, medium shot from inside the door",
         "choices": [
           {
             "id": "bury-it",
@@ -566,7 +566,7 @@
         "title": "The Friend Who's Always Home",
         "place": "Your den, 3 a.m., Channel 8",
         "text": "You fall asleep on the couch and wake to the TV playing the Mister Fuzzbutton commercial from 1985, over and over. \"The friend who's always home!\" sings the jingle. But tonight the kids in the commercial are kids you know: the Delgado twins, Kev's little brother, a girl from your bus stop, each one alone in a bright cartoon bedroom with a bear. They're pressing their hands against the inside of the screen. Behind them, every bear turns its head to look at you.",
-        "art": "A dark wood-paneled den lit by a boxy television, the screen showing bright cartoon bedrooms where children sit alone with teddy bears and press their palms against the glass, a teenager on the couch sitting up in alarm",
+        "art": "A dark wood-paneled den at three in the morning lit only by a boxy television, the screen showing a bright cartoon bedroom where three young children sit alone with honey-colored teddy bears and press their palms against the inside of the glass, the bears behind them turning their heads toward the room, a teenager on a plaid couch sitting up from under an afghan, pale TV glow on their face, medium wide shot from behind the couch",
         "choices": [
           {
             "id": "talk-to-them",
@@ -652,7 +652,7 @@
         "title": "Every Bear in Glimmer Falls",
         "place": "Crystal Street, 2 a.m.",
         "text": "They come down the sidewalks in a slow, waddling wave: every Mister Fuzzbutton in Glimmer Falls, hundreds of them, tummies glowing blue, all speaking in the same small voice. \"Everybody go home. Everybody stay home. Friends tell. Bears don't.\" Porch lights snap off one after another. Kids in pajamas stand in their doorways with bears in their arms, nodding along.",
-        "art": "Hundreds of glowing teddy bears waddling down a moonlit suburban street in a wave, porch lights going dark house by house, children in pajamas standing in doorways clutching bears with blank faces",
+        "art": "Hundreds of honey-colored teddy bears with glowing blue tummy cassette windows waddling down a moonlit suburban street in a slow wave, filling both sidewalks, porch lights switching off one after another along the row of houses, small children in pajamas standing in their doorways hugging bears with blank faces, a teenager on a lawn with a boombox, blue glow and white moonlight, high wide shot down the street",
         "choices": [
           {
             "id": "barricade",
@@ -744,7 +744,7 @@
         "title": "Have You Checked the Children?",
         "place": "Babysitting at the Delgado house, 11:40 p.m.",
         "text": "You're babysitting the Delgado twins two doors down, and they've been asleep since nine. The kitchen phone rings. A small, polite voice asks, \"Have you checked the children?\" and hangs up. It rings again every ten minutes, and on the third call you hear the voice twice: once in the receiver, and once, half a second later, through the baby monitor on the counter. The call is coming from inside the house.",
-        "art": "A dim 1980s suburban kitchen at night, a teenage babysitter holding a curly-corded wall phone receiver, a baby monitor glowing on the counter, a dark hallway leading to a nursery door ajar, faint blue light spilling out",
+        "art": "A dim 1980s suburban kitchen at 11:40 at night, a teenage babysitter holding a yellow curly-corded wall phone receiver to their ear with a tense face, a white baby monitor glowing green on the counter, a sink full of dinner plates, a dark hallway beyond leading to a nursery door standing ajar with faint blue light spilling out, a single stove light, medium shot from the kitchen table",
         "choices": [
           {
             "id": "check-the-children",
@@ -840,7 +840,7 @@
         "title": "Secrets on the Request Line",
         "place": "KGLM 103.3, the overnight booth, 1 a.m.",
         "text": "Mix Bell's overnight Dedications hour has a problem: every light on the request line is blinking, and every caller is a Mister Fuzzbutton. \"This one goes out to Mrs. Okafor,\" chirps a small voice, \"from her husband, who bet the car payment on a bowling tournament.\" Mix slams the dump button again and again, sweating, while half of Glimmer Falls listens in its kitchens. The next bear in line says it has a secret about Chip Merriweather, who falls asleep to KGLM every night, and it's going to play it in his own voice.",
-        "art": "A cramped 1980s radio booth at night lit by red on-air lights, a young Black DJ in headphones slamming a console button, a wall of blinking phone lines, a teddy bear with a glowing cassette window perched on the phone bank",
+        "art": "A cramped 1980s radio booth at one in the morning lit by red on-air bulbs, a 17-year-old Black DJ with a high-top fade, a purple satin station jacket and big padded headphones slamming a console button with sweat on his forehead, a wall telephone bank with every line blinking, a honey-colored teddy bear with a glowing blue tummy cassette window sitting on top of the phone bank, a teenager leaning over the microphone, red and green light, medium shot",
         "choices": [
           {
             "id": "not-yours-to-tell",
@@ -935,7 +935,7 @@
         "title": "Midnight Madness at Toy Galaxy",
         "place": "Toy Galaxy, Starlight Mall, the night before Halloween",
         "text": "Toy Galaxy is holding a Midnight Madness sale for the new Mister Fuzzbutton Deluxe, now with a PHONE HOME button, and the line of parents stretches past the food court. At 12:01 the gate rolls up and the whole wall of bears comes alive at once. Boxes tear open from inside, a thousand bears pour off the shelves, and they herd the shoppers into the aisles, chanting, \"Go home. Stay home.\" Behind the register, buried to the shoulders in a landslide of plush, Gary Tolliver is still trying to ring up a sale.",
-        "art": "A neon-lit 1980s toy store at midnight with an avalanche of teddy bears pouring off towering shelves, cassette windows glowing blue, frightened parents herded into aisles, a tired store manager buried to the shoulders in plush behind the register",
+        "art": "A neon-lit mall toy store at midnight, an avalanche of honey-colored teddy bears tearing out of their boxes and pouring off towering shelves, tummy cassette windows glowing blue, frightened parents in jackets backing into the aisles, a tired store manager in a clip-on tie buried to the shoulders in plush bears behind the register still holding a receipt, a teenager climbing over the pile toward him, pink and blue neon light, wide shot",
         "choices": [
           {
             "id": "dig-out-gary",
@@ -1024,7 +1024,7 @@
       "title": "The Last Tape",
       "place": "The Tolliver house, Crystal Street, Halloween night",
       "text": "On Halloween every bear in town crowds into the Tolliver house, filling the stairs, the hallway, the bathtub. In Ollie's bedroom sits a giant Mister Fuzzbutton stitched together out of a thousand bears, its tummy window as big as a TV, playing a whole year of tapes at once. Ollie stands in front of it in a homemade tinfoil astronaut costume, not trick-or-treating, not anything. \"Mister Fuzzbutton says everybody leaves,\" he tells you. \"He says you will too.\" The reels turn. \"Stay,\" says the bear, in Ollie's voice. \"Everybody stay forever.\"",
-      "art": "A child's bedroom overflowing with teddy bears, a towering patchwork bear made of a thousand smaller bears with a glowing TV-sized cassette window, a small boy in a tinfoil astronaut costume standing before it, a teen crew in costumes in the doorway",
+      "art": "A child's bedroom on Halloween night overflowing with teddy bears on the bed, the floor and the stairs, a giant patchwork teddy bear stitched together from a thousand smaller honey-colored bears filling one wall, its tummy cassette window as big as a television glowing blue, a nine-year-old boy in a homemade tinfoil astronaut costume standing in front of it, four teenagers in homemade costumes in the doorway, blue glow and a small orange night-light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1194,22 +1194,22 @@
       "best": {
         "title": "Twenty-Two Invitations",
         "text": "Ollie brings home a pillowcase so heavy his dad has to carry it. Gary moves to day shifts by Thanksgiving and learns to make terrible pancakes. Kev hand-delivers twenty-two brand new invitations, and on a Saturday in November, Party Room B is so full the rink has to open Party Room C. Pearl Washington starts keeping an eye on the Tolliver house after school, mostly by teaching Ollie poker. Mister Fuzzbutton sits on a shelf, just a bear. On his new tape, Ollie recorded one line: \"Hi Mister Fuzzbutton. No secrets today. I was too busy.\"",
-        "art": "A crowded roller rink party room with a fresh birthday banner, a beaming boy in skates surrounded by kids in party hats, his dad laughing beside him, a worn teddy bear sitting happily on a shelf"
+        "art": "A crowded roller rink party room on a Saturday, a fresh glitter streamer across the wall, a beaming nine-year-old boy in rental skates and a party hat surrounded by kids in party hats, his tired dad in a sweater laughing beside him holding a plate of pancakes, a worn honey-colored teddy bear sitting quietly on a shelf, a mirror ball scattering white dots, warm bright light, wide shot"
       },
       "good": {
         "title": "Batteries Not Included",
         "text": "The bears go quiet all over Glimmer Falls. Toy Galaxy takes back a mountain of returns and Wondertoy issues a recall notice about a manufacturing defect. Nobody ever explains the voice. Ollie still sits in his upstairs window most nights with every light on. You wave every time you pass, and every time, he waves back.",
-        "art": "A teenager on the sidewalk waving up at a boy in a lit upstairs window at dusk, a teddy bear lying face-down on the sill beside him"
+        "art": "A teenager on a suburban sidewalk at dusk waving up at a nine-year-old boy in a lit upstairs window, the boy waving back, a honey-colored teddy bear lying face-down on the windowsill beside him, every light in the house on and the driveway empty, purple sky and gold window light, medium wide shot from the street"
       },
       "bittersweet": {
         "title": "Everybody Knows",
         "text": "You stop the bears, but not before half the secrets on Crystal Street get out. Two couples split up, three friendships take until spring to mend, and your crew is a little smaller at lunch than it used to be. The Tollivers move to Phoenix at Christmas. In January you get one postcard with a cactus on it, signed in green crayon.",
-        "art": "A teenager at a mailbox in winter reading a postcard with a cactus on the front, signed in green crayon, a for-sale sign in front of a house down the street"
+        "art": "A teenager in a winter coat standing at a curbside mailbox on a gray January afternoon, holding a picture postcard of a desert cactus and looking at green crayon scribbles on the back, a moving truck parked in front of a house down the street, patches of old snow on the lawns, flat gray light, medium shot"
       },
       "bad": {
         "title": "Best Friends Forever",
         "text": "On November first you sit on your bed with a Mister Fuzzbutton in your lap and tell it everything. Your crew knocks on the door and you don't answer. You aren't supposed to open the door. Every night at eleven you hold down RECORD, and every bear in Glimmer Falls learns a new voice. Yours.",
-        "art": "A teenager sitting alone on a bed in a dim room holding a teddy bear with its record light glowing red, friends' silhouettes knocking on a frosted front door down the hall"
+        "art": "A teenager sitting alone cross-legged on a bed in a dim bedroom holding a honey-colored teddy bear in their lap with its small red record light glowing, the tape reels turning, the bedroom door closed, and down the hallway the shadows of three friends knocking at a frosted glass front door, red glow and blue night, medium shot"
       }
     }
   }

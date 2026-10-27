@@ -1,4 +1,11 @@
-import type { DayDef, DueDef, QuestDef, SceneLine, SceneVariant } from './types'
+import type {
+  AudienceDef,
+  DayDef,
+  DueDef,
+  QuestDef,
+  SceneLine,
+  SceneVariant,
+} from './types'
 import type { EpilogueSubject } from './epilogue'
 
 // Act III, Days 21-30, "Kind Roads" (conductor DAY-PLAN.md): the Black
@@ -458,8 +465,169 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
       ],
     },
   },
+  {
+    // t-061: posted by Day 28's The Post Comes Back audience.
+    id: 'q-d28-returned-letters',
+    title: 'Ninety-One Letters',
+    summary:
+      'Carry the Archive’s sack of returned letters down the mission road and put each one back in the hand that wrote it. Bring Keeper Vellum the names.',
+    region: 'mission-road',
+    durationDays: 2,
+    boardDays: 2,
+    party: { min: 1, max: 3 },
+    requirements: [
+      { stat: 'heart', band: 'high' },
+      { stat: 'wits', band: 'mid' },
+    ],
+    danger: 'low',
+    tags: ['records', 'tracking'],
+    rewards: {
+      triumph: {
+        local: { lamplight: 3, yard: 1 },
+        affinity: { abbey: -5 },
+        flags: ['d28-letters-delivered', 'd28-empty-houses'],
+      },
+      success: {
+        local: { lamplight: 2 },
+        flags: ['d28-letters-delivered'],
+      },
+      partial: { local: { lamplight: 1 } },
+      failure: { local: { lamplight: -1 }, flags: ['d28-letters-lost'] },
+    },
+    expired: { local: { lamplight: -2 }, flags: ['d28-letters-lost'] },
+    outcomes: {
+      triumph:
+        'Eighty-six letters went home into the hands that wrote them. Five houses on the road stood empty, stoves cold, doors on the latch. The party brought Vellum eighty-six names and five addresses. He wrote the five on a page by themselves and locked it in his desk.',
+      success:
+        'Most of the letters went home. Mothers read the brown line on the step and went inside. A father on the high bend asked the party to stay for supper. He did not ask why. Vellum has the names.',
+      partial:
+        'Rain on the mission road. Half the sack came back with the ink run grey. The other half was delivered. Vellum dries the wet ones on a line across the Archive and will not let anyone take them down.',
+      failure:
+        'Two sisters in grey met the party at the post-house and asked, kindly, for the sack. The party gave it to them. Nobody can say afterward why. Vellum asked twice. Then he stopped asking.',
+      expired:
+        'The sack sat in the Archive two more days. On the third a woman came to the post-house and asked whether anything had come from her girl. The clerk said no. He had been told to say no.',
+    },
+  },
 ]
 
+// t-061: the mission road post comes back in one sack.
+const D28_RETURNED_LETTERS: AudienceDef = {
+  id: 'd28-returned-letters',
+  title: 'The Post Comes Back',
+  speaker: 'Keeper Abelard Vellum of the Lamplight Archive',
+  npc: 'abelard-vellum',
+  faction: 'lamplight',
+  lines: [
+    'Keeper Vellum takes a long time to cross the hall. Two archive clerks walk behind him with a mail sack slung between them. They set it down as if it might wake.',
+    '“The Archive keeps the post-house on the mission road, Majesty. Sixty years. This sack came back up the road last night. Ninety-one letters.”',
+    '“Parents write to their children at the Abbey. The Abbey writes back. That is how it has always been done.”',
+    '“Every one of these was opened, read, folded again and sealed with the Abbey’s wax. Every one carries the same answer in the same brown hand. The child is well and asks that you do not visit.”',
+    '“Some of these children were six when they went up that road. I have never met a six-year-old who asked for that.”',
+    {
+      who: 'Young Komodo',
+      npc: 'young-komodo',
+      text: 'The Abbey shelters half the valley’s orphans, Your Majesty. One tired sister with ninety letters and one pen writes one sentence ninety times. That is not a crime. It is a long night.',
+    },
+  ],
+  options: [
+    {
+      id: 'ask-read',
+      label: 'Ask Vellum to read one aloud.',
+      effects: {},
+      response:
+        'Vellum chooses without looking. He unfolds it very slowly. The clerks stop breathing.',
+      next: 'letter',
+    },
+    {
+      id: 'carry',
+      label:
+        'Carry them back down the road. Put each letter in the hand that wrote it.',
+      effects: { local: { lamplight: 1 } },
+      response:
+        'Vellum ties the sack with archive cord and presses his ring into the knot. “Ninety-one,” he says. “I will want ninety-one names back.”',
+      postsQuests: ['q-d28-returned-letters'],
+    },
+    {
+      id: 'abbey',
+      label:
+        'Send the sack to the Abbess with the crown’s compliments. Let her answer for her clerk.',
+      effects: {
+        affinity: { abbey: 5 },
+        local: { lamplight: -2 },
+        flags: ['d28-letters-to-abbey'],
+      },
+      response:
+        'A sister in grey collects the sack before supper and thanks the court for its care. She lifts it alone. It took two clerks to carry it in.',
+    },
+    {
+      id: 'vault',
+      label:
+        'Seal the sack in the Archive. The families can be told when the crown knows more.',
+      effects: {
+        local: { lamplight: 2, yard: -1 },
+        flags: ['d28-letters-vaulted'],
+      },
+      response:
+        'The sack goes into the vault under Vellum’s lamp. In the market a woman asks a clerk whether the post came. He says no. He has been told to say no.',
+    },
+    {
+      id: 'maps',
+      label:
+        'Ask whether the Archive’s copied maps show where the Abbey post really goes.',
+      requires: { flags: ['maps-copied'] },
+      effects: { local: { lamplight: 1 }, flags: ['d28-post-track-mapped'] },
+      response:
+        'Vellum unrolls the old copy across the dais steps. The post-house is marked. So is a second track beyond it, uphill, that the Abbey’s own map leaves off. Vellum puts one claw on it and does not move it.',
+    },
+  ],
+  beats: [
+    {
+      id: 'letter',
+      lines: [
+        'Vellum reads the way he does everything. Slowly. Each word set down like a stone.',
+        '“Mattie. The hens are laying again. Your brother lost his front tooth and wants you to see the gap before it grows in. We kept your cot by the stove. Come home at harvest if the sisters can spare you. Mam.”',
+        'Under it, in brown ink, in a neat hand: The child is well and asks that you do not visit.',
+        '“Mattie Fenwick went up the road at six,” Vellum says. “The Archive has her intake. Four years ago. Ten-year-olds ask for things, Majesty. Not this.”',
+        {
+          who: 'Young Komodo',
+          npc: 'young-komodo',
+          text: 'Then the Fenwicks will want their letter back, Your Majesty. They will not want the answer.',
+        },
+      ],
+      options: [
+        {
+          id: 'carry',
+          label: 'Carry them all back. The Fenwicks first.',
+          effects: { local: { lamplight: 1 } },
+          response:
+            'Vellum puts the Fenwick letter on top and ties the sack himself. His claws are slow on the cord. They do not shake.',
+          postsQuests: ['q-d28-returned-letters'],
+        },
+        {
+          id: 'abbey',
+          label: 'Send them to the Abbess. Ask her whose hand this is.',
+          effects: {
+            affinity: { abbey: 5 },
+            local: { lamplight: -2 },
+            flags: ['d28-letters-to-abbey'],
+          },
+          response:
+            'The Abbess answers by return, warmly. The hand is Sister Ondine’s, who has lovely penmanship and is very tired. The Abbess will see that she rests. The sack does not come back.',
+        },
+        {
+          id: 'vault',
+          label: 'Vault the sack. Nobody reads another one.',
+          effects: {
+            local: { lamplight: 2, yard: -1 },
+            flags: ['d28-letters-vaulted'],
+          },
+          response:
+            'Vellum folds Mattie’s letter along its old creases and puts it back. He locks the vault himself. He keeps the key on its own ring after that.',
+        },
+      ],
+    },
+  ],
+}
 export const ACT_THREE_DAYS: readonly DayDef[] = [
   {
     day: 21,
@@ -3376,6 +3544,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D28_RETURNED_LETTERS,
     ],
   },
   {

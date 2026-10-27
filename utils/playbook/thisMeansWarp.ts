@@ -1,4 +1,5 @@
 import { warpArt } from '../gameOfCaptains/artManifest'
+import { warpArtPrompt } from '../gameOfCaptains/artPrompts'
 import {
   WARP_ENDINGS,
   antagonistArtKey,
@@ -6,9 +7,25 @@ import {
   crewArtKey,
   endingArtKey,
   missionArtKey,
+  nemesisEndingArtKey,
   slugify,
 } from '../gameOfCaptains/artSlots'
+import {
+  NEMESIS_ALLY_FLAGS,
+  NEMESIS_ENDINGS,
+  NEMESIS_ENDING_VARIANTS,
+  nemesisEndingId,
+} from '../gameOfCaptains/nemesisEndings'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
+import {
+  MISSION_CALLBACKS,
+  VOYAGE_BOARDS,
+  VOYAGE_CONSEQUENCES,
+  VOYAGE_ORDERS,
+  aboardLines,
+  actName,
+  type NemesisId,
+} from '../gameOfCaptains/voyageMap'
 import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
 import {
   blankNode,
@@ -18,42 +35,44 @@ import {
   type PlaybookRoute,
 } from './types'
 
-// Playbook Studio adapter for This Means Warp (conductor playbook-kit t-013):
+// Playbook Studio adapter for Space Couch (conductor playbook-kit t-013):
 // the runtime voyage as beats. Captains open a run, crew are its followers,
-// three missions form the chapter spine with the bridge's three policies,
-// special pair routes are threads, antagonists wait at the finale and four
-// endings close it. Art slots are the keys the play page shows
-// (gameOfCaptains/artSlots.ts); text is authored in code, so beats are
-// read-only here.
+// the voyage chart (gameOfCaptains/voyageMap.ts) is the chapter spine, one
+// board of calls per chapter across Acts I to III, each call with its
+// three orders, earlier-choice callbacks and officer asides. Pair routes are
+// threads, antagonists wait at the finale and four endings close it. Art
+// slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
+// their prompts live in gameOfCaptains/artPrompts.ts; text is authored in
+// code, so beats are read-only here.
 
 const RESULT_TEXT = {
   flawless:
-    'The returning team solved the immediate crisis and brought back information the bridge had missed.',
+    'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
   success:
-    'The crew achieved the mission objective, but the people affected still get to decide what it means.',
+    'The away team did what it went to do. The people affected are still deciding what that means.',
   costly:
-    'The team returns with a material debt and a person who may refuse further help.',
+    'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
   disaster:
-    'The planned route collapsed; the officers return through a costly emergency extraction.',
+    'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
 } as const
 
 const POLICIES = [
   {
     id: 'aid',
     label: 'Aid: offer help with informed consent',
-    text: 'You offer help, ask for informed consent and accept the operational costs. A civilian remembers your name.',
+    text: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     effect: 'supplies −1 · intervention +1 · reputation +2 · trust +1',
   },
   {
     id: 'observe',
     label: 'Observe: keep your distance and record',
-    text: 'You remain at a distance and record what happened. Neutrality protects the treaty, but the survivors saw your ship.',
+    text: 'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
     effect: 'intervention −1 · reputation −1 · trust −1',
   },
   {
     id: 'intervene',
     label: 'Intervene without diplomatic permission',
-    text: 'You take direct action without waiting for diplomatic permission. Lives change quickly; sovereignty will remember.',
+    text: 'You act without permission. It works quickly, and the paperwork will take years.',
     effect: 'supplies −2 · intervention +2 · reputation −2',
   },
 ] as const
@@ -76,6 +95,7 @@ function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
   node.artUrl = warpArt(key)
   node.needsArt = !node.artUrl
+  node.artPrompt = warpArtPrompt(key)
   node.provenance = `Art slot public/game-of-captains/${key}.webp (conductor projects/game-of-captains/art).`
   return node
 }
@@ -112,37 +132,62 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     add(withArt(node, crewArtKey(member.portraitKey)))
   }
 
-  MISSIONS.forEach((mission, index) => {
+  const boardOf = (id: string) =>
+    VOYAGE_BOARDS.findIndex((board) => board.includes(id))
+  const chapterName = (chapter: number) =>
+    `${actName(chapter)}, chapter ${chapter}`
+  const crewIds = CREW.map((member) => member.id)
+  VOYAGE_BOARDS.flat().forEach((id, step) => {
+    const mission = MISSIONS.find((m) => m.id === id)!
+    const chapter = boardOf(id) + 1
     const node = blankNode(`mission:${mission.id}`, 'spine', mission.title)
     node.place = mission.system
-    node.chapter = index + 1
+    node.chapter = chapter
     node.body = [mission.briefing, mission.dilemma, mission.note]
     node.companions = SYNERGIES.filter((s) =>
       s.missions.includes(mission.id),
     ).flatMap((s) => [...s.pair])
     node.companions = [...new Set(node.companions)]
     node.lenses = [mission.kind]
-    node.variations = Object.entries(RESULT_TEXT).map(([key, text]) => ({
-      axis: 'result',
-      key,
-      label: `${titleCase(key)} return`,
-      text,
-    }))
-    const next = MISSIONS[index + 1]
+    node.variations = [
+      ...Object.entries(RESULT_TEXT).map(([key, text]) => ({
+        axis: 'result',
+        key,
+        label: `${titleCase(key)} return`,
+        text,
+      })),
+      ...(MISSION_CALLBACKS[mission.id] ?? []).map((callback) => ({
+        axis: 'earlier choice',
+        key: callback.flag,
+        label: `After ${callback.flag} (${callback.odds > 0 ? '+' : ''}${callback.odds}%)`,
+        text: callback.text,
+      })),
+      ...crewIds.flatMap((crewId) =>
+        aboardLines(mission.id, [crewId]).map((text) => ({
+          axis: 'aboard',
+          key: crewId,
+          label: `${CREW.find((c) => c.id === crewId)!.name} aboard`,
+          text,
+        })),
+      ),
+    ]
+    const next = VOYAGE_BOARDS[chapter]?.[0]
     node.choices = POLICIES.map((policy) => ({
       id: policy.id,
-      label: policy.label,
+      label: VOYAGE_ORDERS[mission.id]?.[policy.id] ?? policy.label,
       tags: [],
       effect: policy.effect,
-      success: { text: `${policy.text} ${mission.note}` },
-      leadsTo: next ? `mission:${next.id}` : 'finale',
+      success: {
+        text: `${policy.text} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]?.[policy.id]?.text ?? ''}`.trim(),
+      },
+      leadsTo: next ? `mission:${next}` : 'finale',
     }))
     node.placements.push({
       route: 'voyage',
       routeName: 'The voyage',
-      day: index + 1,
-      dayName: `Chapter ${index + 1}`,
-      step: index,
+      day: chapter,
+      dayName: chapterName(chapter),
+      step,
     })
     add(withArt(node, missionArtKey(mission.id)))
   })
@@ -180,7 +225,33 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     )
     node.place = antagonist.title
     node.body = [antagonist.motive, antagonist.interference]
+    const nemesis = antagonist.id as NemesisId
+    const groundwork = NEMESIS_ALLY_FLAGS[nemesis].join(', ')
+    const gates = {
+      undone: `Counter council, or protect the worlds with two of: ${groundwork}`,
+      bargained:
+        'Bargain for passage with two supplies, or with one piece of groundwork',
+      unfinished: 'Any other finale order',
+    }
+    node.choices = NEMESIS_ENDING_VARIANTS.map((variant) => ({
+      id: variant,
+      label: titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      tags: [gates[variant]],
+      leadsTo: `ending:${nemesisEndingId(nemesis, variant)}`,
+    }))
     add(withArt(node, antagonistArtKey(antagonist.id)))
+    for (const variant of NEMESIS_ENDING_VARIANTS) {
+      const id = nemesisEndingId(nemesis, variant)
+      const ending = blankNode(
+        `ending:${id}`,
+        'ending',
+        titleCase(NEMESIS_ENDINGS[nemesis][variant].title),
+      )
+      ending.place = `${antagonist.name} · ${variant}`
+      ending.body = [NEMESIS_ENDINGS[nemesis][variant].text, gates[variant]]
+      ending.companions = []
+      add(withArt(ending, nemesisEndingArtKey(id)))
+    }
   }
 
   const finale = blankNode('finale', 'crossroads', 'The jump gate')
@@ -221,10 +292,13 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     {
       id: 'voyage',
       name: 'The voyage',
-      kind: 'Three missions, then the jump gate',
-      steps: [...MISSIONS.map((m) => `mission:${m.id}`), 'finale'],
+      kind: `${VOYAGE_BOARDS.length} chapters of calls, then the jump gate`,
+      steps: [...VOYAGE_BOARDS.flat().map((id) => `mission:${id}`), 'finale'],
       headings: Object.fromEntries(
-        MISSIONS.map((m, i) => [i, `Chapter ${i + 1}: ${m.system}`]),
+        VOYAGE_BOARDS.map((board, i) => [
+          VOYAGE_BOARDS.slice(0, i).flat().length,
+          chapterName(i + 1),
+        ]),
       ),
     },
   ]
@@ -236,7 +310,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: 'Six captains, twelve crew, three missions and four endings.',
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across three acts, four endings and ${ANTAGONISTS.length * NEMESIS_ENDING_VARIANTS.length} nemesis endings.`,
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -270,7 +344,16 @@ export function buildThisMeansWarpPlaybook(): Playbook {
       {
         title: 'Endings',
         blurb: 'Final captain’s logs.',
-        keys: keysOf('ending'),
+        keys: keysOf('ending').filter((key) =>
+          WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
+      },
+      {
+        title: 'Nemesis endings',
+        blurb: 'Three of its own for each seeded nemesis.',
+        keys: keysOf('ending').filter(
+          (key) => !WARP_ENDINGS.some((e) => key === `ending:${slugify(e)}`),
+        ),
       },
     ],
     people: CREW.map((c) => ({ id: c.id, label: c.name })),
@@ -294,5 +377,6 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     editable: false,
     artProject: 'game-of-captains',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

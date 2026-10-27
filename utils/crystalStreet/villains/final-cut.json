@@ -41,7 +41,7 @@
           "title": "Returned by Nobody",
           "place": "The night-drop slot, Rewind Video",
           "text": "Rewind Video's night-drop slot clunks at noon, which it should never do while the store is open. Out slides a VHS of Lights Out at Crystal Pines, the 1980 slasher nobody rents, its box cover a shadow holding a kitchen knife. Zelda Fishbein picks it up with two fingers. \"Third time this week. It keeps coming back on its own.\" Something stiff is folded inside the clamshell.",
-          "art": "A VHS tape in a battered clamshell case sliding out of a video store's night-drop slot at noon, a silver-haired woman behind the counter eyeing it, a wall of horror tapes glowing in neon light",
+          "art": "A battered clamshell videotape case sliding out of a video store's brass night-drop slot at noon, its painted front showing a dark shadow holding a kitchen knife, a 63-year-old woman with a silver-streaked black bouffant and cat-eye glasses on a pearl chain picking it up with two fingers behind the counter, a wall of horror tapes under pink neon, a teenager leaning on the counter, bright daylight through the front window, medium shot",
           "choices": [
             {
               "id": "ask-zelda",
@@ -131,7 +131,7 @@
           "title": "Mr. Carraway Keeps the Lights On",
           "place": "The drama room, Glimmer Falls High",
           "text": "Mr. Len Carraway teaches sophomore English and directs every school play with the house lights on full, because he hates a dark room. He is grading essays under every light in the drama room when you walk in. On his desk is a locked drawer with a strip of masking tape across it, and on the tape, in faded marker: CRYSTAL PINES.",
-          "art": "A gentle middle-aged teacher in a tweed blazer grading papers in a brightly lit high-school drama room, a wooden desk with a taped-shut drawer, stage flats and old costumes in the background",
+          "art": "A gentle middle-aged man in a tweed blazer and loosened tie grading essays at a wooden desk in a high school drama room with every light switched on, stage flats and racks of old costumes behind him, a desk drawer sealed with a strip of yellowed masking tape, a teenager standing at the desk holding out a folded sheet of paper, bright even light, medium shot",
           "choices": [
             {
               "id": "tell-him-the-truth",
@@ -221,7 +221,7 @@
           "title": "Row F",
           "place": "The box office, The Glitter Box Playhouse",
           "text": "Celeste Navarro has worked the Glitter Box box office for five years. She does the crossword in pen, wears cat-eye glasses on a beaded chain, and knows every regular's candy order by heart. This week she leaves before the midnight show and will not say why. When you say the words Crystal Pines, she sets down her pen.",
-          "art": "A poised woman in her thirties with dark curls, cat-eye glasses on a beaded chain and a crossword in hand, seated inside a glowing glass theater box office booth at dusk, a marquee blazing above her",
+          "art": "A poised woman in her thirties with dark curls and cat-eye glasses on a beaded chain sitting inside a small glowing glass box office booth at dusk with a newspaper crossword and a pen, the theater marquee blazing with bulbs above her, a teenager at the ticket window, pink and gold marquee light against a purple sky, medium shot",
           "choices": [
             {
               "id": "ask-about-robin",
@@ -307,7 +307,7 @@
         "title": "Places, Everyone",
         "place": "The Glitter Box midnight show",
         "text": "The midnight double feature is a rowdy sing-along until the second reel. Then the house lights dim on their own, a clapperboard snaps somewhere in the dark like a gunshot, and two hundred people in the audience turn to look at you. \"Line!\" booms a megaphone from the projection beam. The person next to you hands you a page of sides. Your name is typed at the top. Your role: EXTRA #4 (DIES).",
-        "art": "A packed 1980s movie theater at midnight with every audience member turned in their seats toward one teenager holding a script page, a hard projector beam slicing overhead with a clapperboard shape inside it",
+        "art": "A packed old movie palace at midnight, two hundred audience members turned around in their red velvet seats all staring at one teenager in the middle row who is holding a single typed page, a hard projector beam slicing overhead with the shape of a clapperboard floating inside it, popcorn spilled in the aisle, silver beam light and dark house, wide shot",
         "choices": [
           {
             "id": "improvise",
@@ -367,7 +367,7 @@
         "title": "The Kill Order",
         "place": "Crystal Street, lit like a soundstage",
         "text": "Crystal Street has become a set. Klieg lights on the roundabout, cables snaking across lawns, the Heartstone glowing like a key light. The Slate floats over the cul-de-sac in its beam of light, megaphone raised, reading from a clipboard. \"First the gay friend. Then the Black friend. Then the girl who went to the boathouse. That's the order. That's always the order.\" Spotlights swing across the porches, hunting for the neighbors it means.",
-        "art": "A 1980s suburban cul-de-sac turned into a film set at night, klieg lights and cables across the lawns, a glowing purple geode at the center, a ghostly figure with a clapperboard face floating in a projector beam with a megaphone and clipboard, spotlights sweeping the porches",
+        "art": "A 1980s suburban cul-de-sac turned into a film set at night, klieg lights on stands, black cables snaking across the lawns, a glowing purple crystal rock at the center under a white key light, a towering ghostly figure woven from pale gold projector light and film grain with a black-and-white clapperboard for a face floating above the street in its own beam, holding a chrome megaphone and a clipboard, spotlights sweeping across the porches, a teenager in the street, wide shot",
         "choices": [
           {
             "id": "one-spotlight",
@@ -453,7 +453,7 @@
         "title": "I'll Be Right Back",
         "place": "The Starlight Drive-In, closed for the season, midnight",
         "text": "The Starlight Drive-In has been shuttered since Labor Day, but tonight its giant screen flickers on while your crew sits in a borrowed station wagon, and the feature is Lights Out at Crystal Pines. The teenagers on screen are wearing your clothes. One of them, in your friend's exact jacket, stretches and says, \"I'll be right back.\" In the back seat, your friend stretches the same way, lips moving in sync, and reaches for the door handle.",
-        "art": "A deserted 1980s drive-in theater at midnight, a wood-paneled station wagon full of teens facing a giant flickering screen showing teens in matching outfits, one teen in the back seat reaching for the door handle, rows of speaker poles",
+        "art": "A deserted 1980s drive-in theater at midnight, rows of metal speaker poles, a wood-paneled station wagon full of teens parked facing a giant flickering screen that shows teens in the exact same jackets, one teen in the back seat stretching and reaching for the door handle while a friend grabs their sleeve, flickering screen light on the windshield, wide shot from behind the wagon",
         "choices": [
           {
             "id": "heckle-the-screen",
@@ -544,7 +544,7 @@
         "title": "The Cat Scare",
         "place": "Your basement, one a.m., lit like a soundstage",
         "text": "You go down to the basement for a flashlight and find it has been dressed for a scene: a fog machine hissing behind the furnace, a boom mic dangling from the rafters, and a tape X on the floor in front of the laundry-room door. From nowhere, violins start to build, high and thin and climbing. Every movie you have ever seen says something is about to jump out of that door. Behind you, very quietly, a slate pencil squeaks.",
-        "art": "A suburban basement at night dressed like a film set, stage fog curling from behind a furnace, a boom microphone dangling from the rafters, a taped mark on the floor before a laundry-room door, a teenager holding their breath",
+        "art": "A suburban basement at one in the morning dressed as a film set, stage fog curling from behind an old furnace, a boom microphone dangling on a pole from the rafters, a taped X on the concrete floor in front of a closed laundry-room door, a teenager standing on the mark holding their breath with a flashlight, a single bare bulb and a cold spotlight from nowhere, medium shot",
         "choices": [
           {
             "id": "open-on-the-beat",
@@ -634,7 +634,7 @@
         "title": "Point of View",
         "place": "Crystal Street sidewalks, 2 a.m., through a viewfinder",
         "text": "You blink and you are looking through a camera viewfinder, gliding low along the sidewalk at walking speed, while somebody breathes heavily in your ears. The breathing is on the soundtrack. You are the killer's point-of-view shot. The dolly is carrying you toward a lit garage where Manny Alvarado, ten-year-old Ricky's big brother, who runs the follow spot at the Glitter Box, is rehearsing a lip-sync alone in a feather boa. A chalk slate floats at the edge of your vision: FRIEND #1. FIRST.",
-        "art": "A low gliding view along a dark suburban sidewalk at night from atop a film dolly on metal track rails, a lit garage ahead where a young man in a feather boa lip-syncs into a hairbrush, a floating chalk slate glowing nearby",
+        "art": "A low view gliding along a dark suburban sidewalk at two in the morning from on top of a film camera dolly running on metal track rails, the edge of a camera viewfinder framing the view, a lit garage ahead where a young man in a pink feather boa lip-syncs into a hairbrush, a floating blank chalk slate glowing beside the track, cold blue night and warm garage light, low tracking shot",
         "choices": [
           {
             "id": "turn-the-camera",
@@ -721,7 +721,7 @@
         "title": "The Twist",
         "place": "The Glitter Box stage, after midnight",
         "text": "The Slate has rolled a wardrobe rack onto the Glitter Box stage. On it hangs the script's 'Killer' costume: a rental wig, a thrift-store housedress and a rubber knife, the outfit a 1980 producer thought was a punchline. A dress is just a dress. What is frightening is the beam: wherever it lands, it tries to staple that costume to someone and make the audience gasp. \"And now,\" the megaphone purrs, \"the twist.\" The spotlight swings toward you.",
-        "art": "A theater stage after midnight with a wardrobe rack holding a limp thrift-store housedress, a curly rental wig and a rubber prop knife, a hard projector beam with a clapperboard-faced figure inside it swinging a spotlight across the stage toward a teenager",
+        "art": "A theater stage after midnight, a rolling wardrobe rack holding a limp thrift-store housedress, a curly rental wig and a rubber prop knife, a hard white projector beam with a figure of pale gold light and a clapperboard face inside it swinging a spotlight across the stage toward a teenager, a tall drag queen in a sequined robe striding in from the wings, dusty light shafts, wide shot",
         "choices": [
           {
             "id": "glory-takes-the-stage",
@@ -810,7 +810,7 @@
         "title": "You're All Doomed",
         "place": "The Gas-N-Go on Quarry Road, 11 p.m.",
         "text": "You pull into the Gas-N-Go for a Bolt Cola, and old Mr. Hensley from the bowling alley lurches out from behind the ice machine in a trucker cap and grabs your sleeve. \"You're all doomed!\" he croaks. \"Crystal Pines has a death curse!\" Then he blinks, looks at his own hand on your arm, and says it again, word for word, with the exact same wobble. A chalk slate hangs in the air above the pumps: THE HARBINGER, TAKE 9. He has been saying it all night.",
-        "art": "A wild-eyed old man in a trucker cap gripping a teenager's sleeve beside glowing gas pumps at night, a chalk slate hovering under the fluorescent canopy, moths circling the lights, an ice machine humming, a station wagon parked at the pump",
+        "art": "A wild-eyed old man in a trucker cap gripping a teenager's sleeve beside glowing gas pumps at eleven at night, a blank chalk slate hovering in the air under the fluorescent canopy, moths circling the lights, a humming ice machine, a station wagon parked at the pump with friends watching through the windows, white canopy light and dark road, medium shot",
         "choices": [
           {
             "id": "ask-his-line",
@@ -892,7 +892,7 @@
         "title": "Lovers' Lane",
         "place": "Glimmer Point overlook, midnight",
         "text": "Up at Glimmer Point, Denise Ocampo and Lorna Sykes from the softball team are sharing a milkshake in Denise's Thunderjet and watching the town lights, the way they do every week when they think nobody knows. Tonight the car radio cuts into their slow song with a bulletin about a hook-handed killer loose in the hills, the oldest campfire story in Glimmer Falls. The reel knows exactly how it wants this one to end, and it has the two girls typed in as the couple who goes first. A spotlight swings down out of the sky onto the Thunderjet. Across the valley, porch lights blink on all over town, as if everyone is tuning in.",
-        "art": "A cherry-red 1970s muscle car parked at a hilltop overlook at midnight with two teenage girls sharing a milkshake inside, a glittering valley of town lights below, a hard white spotlight beam stabbing down onto the car from the sky",
+        "art": "A cherry-red 1970s muscle car parked at a hilltop overlook at midnight, two teenage girls in softball jackets sharing one milkshake with two straws inside, the glittering lights of a small valley town below, a hard white spotlight beam stabbing down onto the car from the dark sky, a teenager running toward the car from a pay phone, wide shot",
         "choices": [
           {
             "id": "dedicate-a-song",
@@ -979,7 +979,7 @@
         "title": "Final Girl",
         "place": "Crystal Street, October 30, lit for the climax",
         "text": "The night before Halloween, the reel shoots its climax on Crystal Street. Rain towers hiss over the lawns, a wind machine roars from the roundabout, and thunder sheets boom from the rooftops while your neighbors run in slow motion from a shadow that is never quite there. Then every light on the set swings onto you. The chalk slate writes FINAL GIRL: SURVIVES. ALONE, and you understand the deal: you get to live, as long as everyone else plays dead. Behind you, a camera crane rises over the street to catch your scream.",
-        "art": "A suburban cul-de-sac at night turned into a storm set, rain towers spraying over lawns, a giant wind machine at a glowing purple geode, neighbors running in slow motion, a towering camera crane, every spotlight converging on one drenched teenager",
+        "art": "A suburban cul-de-sac on the night before Halloween turned into a storm set, rain towers spraying over the lawns, a giant wind machine roaring beside a glowing purple crystal rock, neighbors in pajamas running in slow motion through the rain, a camera crane rising over the street, and every spotlight converging on one drenched teenager standing in the middle of the road, hard white light and rain, wide shot",
         "choices": [
           {
             "id": "turn-back",
@@ -1074,7 +1074,7 @@
       "title": "The Final Cut",
       "place": "The Glitter Box Playhouse, Halloween midnight",
       "text": "On Halloween the whole street ends up in the Glitter Box without remembering buying tickets. Every seat holds a neighbor in costume, every neighbor clutching sides with a role typed at the top. The Slate looms in the projector beam above the stage, chalk squealing out the last scene number. \"Final reel,\" it booms. \"Everybody knows how this ends.\" Up in the booth, Frankie Fontaine has her headset on, and in the aisle by row F, Celeste Navarro has stayed for the midnight show after all.",
-      "art": "A packed movie palace on Halloween midnight with neighbors in costumes holding script pages, a giant figure of projector light with a clapperboard face and megaphone looming over the stage, a teen crew in Halloween costumes facing it, a poised woman in cat-eye glasses standing in the aisle",
+      "art": "A packed old movie palace on Halloween midnight, every seat filled with neighbors in costumes clutching typed pages, a towering figure of pale gold projector light and drifting film grain with a black-and-white clapperboard face and a chrome megaphone looming over the stage in the projector beam, four teenagers in homemade costumes standing in the center aisle facing it, a poised woman in cat-eye glasses standing in the aisle by them, a stage manager in a headset in the booth window, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1244,22 +1244,22 @@
       "best": {
         "title": "Curtain Call",
         "text": "The restored ending plays to a packed house, and everybody lives. When the lights come up, Glory pushes Celeste onto the stage and the Glitter Box gives her a standing ovation that lasts longer than the movie. Len stands in the back row and cries. Reggie Mabry, who played Duane, drives up from Sacramento the next weekend, and Donna Sayer and Tommy Kincaid call long distance. Frankie runs the writers' cut every Halloween after that, and the credits roll with one name restored: Nurse Robin, Celeste Navarro. She takes a bow every time.",
-        "art": "A woman in a sequined gown and cat-eye glasses taking a bow center stage in a warm spotlight, roses landing at her feet, a drag queen applauding beside her, a cheering audience on its feet, a sunrise film still glowing on the movie screen behind"
+        "art": "A poised woman in her thirties with dark curls in a sequined gown and cat-eye glasses taking a bow center stage in a warm spotlight, red roses landing at her feet, a tall drag queen in a magenta sequin gown applauding beside her, a gentle man in a tweed blazer crying in the back row, the audience on its feet, a sunrise film still glowing on the movie screen behind, warm gold light, wide shot"
       },
       "good": {
         "title": "Print Burned",
         "text": "The answer print is a melted lump and Crystal Street wakes up remembering nothing but a smell of hot popcorn. Next Saturday the Glitter Box runs cartoons. Celeste goes back to her crossword and never tells you what the movie was about. You keep a curl of melted film in your jacket pocket, and sometimes you wonder who it was really trying to hurt.",
-        "art": "A teenager outside a theater box office at dawn holding a curl of melted film up to the light, a woman in cat-eye glasses doing a crossword inside the glass booth, a quiet marquee above"
+        "art": "A teenager outside a small theater box office at dawn holding a curl of melted film up to the pink light, a woman in cat-eye glasses doing a crossword inside the glass booth, the marquee bulbs switched off above, a swept sidewalk, soft dawn light, medium shot"
       },
       "bittersweet": {
         "title": "Rental Return",
         "text": "You survive the week, but the curse slips out on tape. Copies of the theatrical cut keep turning up in the Rewind Video night drop, and once in a while a neighbor hums the kill-order music without knowing why. Frankie cancels the midnight show for the season, and for the first time since 1981 the Glitter Box is dark on Saturdays. Celeste still sells tickets to the matinees. She still leaves before midnight.",
-        "art": "A darkened theater marquee on a Saturday night, a stack of identical horror VHS tapes in a video store night-drop bin, a lone woman in cat-eye glasses walking away down a rainy sidewalk"
+        "art": "A darkened theater marquee on a rainy Saturday night with its bulbs off, and down the wet sidewalk a lone woman in cat-eye glasses and a raincoat walking away under an umbrella, a video store window nearby with a bin of identical horror videotapes, reflections on the wet pavement, wide shot"
       },
       "bad": {
         "title": "Extra #4",
         "text": "On November first, your crew finds the cursed print still spooled in the booth, and when they run it you are in it: EXTRA #4, a flicker in the background of reel two, walking toward the boathouse forever. Every midnight showing, if they look closely, you wave. They keep buying tickets, and they keep trying to find the splice that will bring you home.",
-        "art": "A grainy black-and-white film still projected on a movie screen with a tiny teenager in the background waving toward the camera beside a lakeside boathouse, worried friends in the front row staring up"
+        "art": "A grainy black-and-white film projected on a movie palace screen showing a lakeside boathouse with a tiny teenager in the background waving toward the camera, three worried friends in the front row staring up at the screen, the projector beam above their heads, silver light, wide shot from behind the seats"
       }
     }
   }

@@ -1546,6 +1546,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
                 projectSlug: book.artProject,
                 designer: book.title,
                 negative: book.artNegative,
+                style: book.artStyle,
               },
             ),
           ),

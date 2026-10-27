@@ -1,11 +1,28 @@
+import { ACT_ONE_MISSIONS } from './actOne'
+import { ACT_TWO_MISSIONS, ACT_TWO_OPENING, ACT_TWO_RESUPPLY } from './actTwo'
 import {
-  ACT_ONE_BOARDS,
-  ACT_ONE_MISSIONS,
-  ACT_ONE_CONSEQUENCES,
-  ACT_ONE_ECHOES,
-  ACT_ONE_NEMESIS,
-  type ActOneRouteId,
-} from './actOne'
+  ACT_THREE_MISSIONS,
+  ACT_THREE_OPENING,
+  ACT_THREE_RESUPPLY,
+} from './actThree'
+import {
+  NEMESIS_ENDINGS,
+  nemesisEndingId,
+  nemesisEndingVariant,
+} from './nemesisEndings'
+import {
+  ACT_THREE_FIRST_CHAPTER,
+  ACT_TWO_FIRST_CHAPTER,
+  VOYAGE_BOARDS,
+  VOYAGE_CHAPTERS,
+  VOYAGE_CONSEQUENCES,
+  VOYAGE_ECHOES,
+  actName,
+  earnedCallbacks,
+  nemesisMove,
+  nemesisThreats,
+  type NemesisId,
+} from './voyageMap'
 import {
   CREW_PROFILES,
   previewCrewMission,
@@ -300,10 +317,10 @@ export const MISSIONS = [
     title: 'The Last Lifeboat',
     kind: 'rescue',
     briefing:
-      'A drifting refugee convoy has two vessels and one working life support unit. The local treaty forbids interference. The children on both ships were not consulted.',
+      'Two refugee transports are drifting off Hollow Lantern with one working life-support unit between them, passed back and forth on a cable every forty minutes. The local treaty forbids outside assistance without a stamped request. The stamp is aboard whichever ship currently does not have the air.',
     dilemma:
-      'The convoy asks for help. Its home government insists that help would be a violation of sovereign customs.',
-    note: 'The living matter more than a legal metaphor.',
+      'The convoy has asked for help in writing. Its home government has replied, also in writing, that help would breach sovereign customs, and has attached the customs, which run to nine volumes and do not mention air.',
+    note: 'The customs ran to nine volumes. Breathing was not in the index.',
   },
   {
     id: 'archive',
@@ -311,10 +328,10 @@ export const MISSIONS = [
     title: 'The Library Planet',
     kind: 'science',
     briefing:
-      'A sentient planetary library will not evacuate before a stellar flare. It has accepted this risk on behalf of visitors who were never asked.',
+      'The Tellurian Archive, a sentient library the size of a continent, has declined to evacuate ahead of a stellar flare. It has also declined on behalf of its four thousand visiting readers, under a clause in the library card that none of them read. They are reading it now.',
     dilemma:
-      'The library offers to save its catalog if you surrender the coordinates of an uncontacted civilization.',
-    note: 'Knowledge can be a gift or a threat.',
+      'The Archive will save its catalogue, and its readers, if the couch hands over the coordinates of a civilization that has never been catalogued. The civilization has not been asked, and would very much prefer not to be.',
+    note: 'Clause forty-one of the library card is now the most-read text on the planet.',
   },
   {
     id: 'bar',
@@ -322,12 +339,14 @@ export const MISSIONS = [
     title: 'The Patron Who Was Never Here',
     kind: 'diplomacy',
     briefing:
-      'Vox refuses to identify a patron whose debt was paid by a missing diplomat. Serendipity has made gravity itself conceal a witness.',
+      'Someone is hiding at Serendipity. Vox will not say who, on principle, and the bar has bent its gravity so that one corner table sits on the ceiling, which is not a principle but is very effective. A creditor has arrived with a warrant, taken a stool, and ordered a drink he intends to put on the bar’s tab.',
     dilemma:
-      'Someone is safe only because the bar keeps its promise. Exposing them could stop the antagonist; it could also destroy sanctuary for everyone.',
-    note: 'Neutral ground can still have a heart.',
+      'The patron on the ceiling is the only witness against the creditor’s employer. Giving them up could end the voyage’s worst problem in an afternoon. It would also end the only neutral bar between worlds, whose single selling point is that it does not give people up.',
+    note: 'Neutral ground is a policy. Serendipity also has feelings about it.',
   },
   ...ACT_ONE_MISSIONS,
+  ...ACT_TWO_MISSIONS,
+  ...ACT_THREE_MISSIONS,
 ] as const
 export type Mission = (typeof MISSIONS)[number]
 export type MissionReport = {
@@ -383,6 +402,8 @@ export type VoyageRun = {
   detourChapter?: number
   detour?: { crewId: CrewId; step: number; gambit?: DetourApproach } | null
   nemesisPressure?: number
+  /** The nemesis's own ending, `<nemesis>-<undone|bargained|unfinished>`. */
+  nemesisEnding?: string | null
   antagonist: number
   supplies: number
   trust: number
@@ -401,9 +422,10 @@ function hash(seed: number, text: string): number {
   return value
 }
 export function missionFor(run: VoyageRun): Mission {
+  const fallback = VOYAGE_BOARDS[run.chapter - 1]?.[0] ?? 'refugees'
   return (
     MISSIONS.find((item) => item.id === run.missionId) ??
-    MISSIONS[run.chapter - 1]!
+    MISSIONS.find((item) => item.id === fallback)!
   )
 }
 
@@ -415,9 +437,108 @@ export function missionBoard(run: VoyageRun): Mission[] {
     (item) => item.policy === 'observe' || item.policy === 'intervene',
   )
   const has = (id: CrewId) => run.crew.includes(id)
-  const ids = ACT_ONE_BOARDS[run.chapter - 1] ?? ACT_ONE_BOARDS[2]
+  const flags = run.worldFlags ?? []
+  const visited = (...ids: string[]) =>
+    history.some((event) => ids.includes(event.missionId))
+  const flagged = (prefix: string) =>
+    flags.some((flag) => flag.startsWith(prefix))
+  const ids = VOYAGE_BOARDS[run.chapter - 1] ?? VOYAGE_BOARDS.at(-1)!
   return ids
     .filter((id) => {
+      if (id === 'courtesy-reactor')
+        return (
+          helped ||
+          has('jex') ||
+          has('taal') ||
+          has('rue') ||
+          visited('nacre', 'archive')
+        )
+      if (id === 'sesh-backups')
+        return has('mox') || has('sora') || visited('archive', 'gameworld')
+      if (id === 'serendipity-tab')
+        return has('jex') || has('omi') || has('tess') || visited('bar')
+      if (id === 'warranty')
+        return has('pell') || has('sora') || witnessed || visited('ashdock')
+      if (id === 'hoa')
+        return (
+          has('tess') ||
+          has('kivo') ||
+          has('fen') ||
+          visited('windglass') ||
+          flags.includes('concord-petition')
+        )
+      if (id === 'season-two')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('omi') ||
+          antagonistFor(run).id === 'showrunner' ||
+          visited('gameworld') ||
+          flagged('sesh-')
+        )
+      if (id === 'gig-orchard')
+        return (
+          has('brin') ||
+          has('kivo') ||
+          has('pell') ||
+          visited('rootborne', 'warranty')
+        )
+      if (id === 'overdue')
+        return (
+          has('omi') ||
+          has('mox') ||
+          run.captain === 'quill' ||
+          visited('archive', 'sesh-backups')
+        )
+      if (id === 'merger')
+        return (
+          has('rue') ||
+          has('taal') ||
+          visited('nacre', 'insult-compiler', 'concord-intake')
+        )
+      if (id === 'serendipity-last-call')
+        return (
+          has('jex') ||
+          has('omi') ||
+          has('tess') ||
+          visited('bar', 'serendipity-tab')
+        )
+      if (id === 'gameworld-finale')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('omi') ||
+          antagonistFor(run).id === 'showrunner' ||
+          visited('gameworld', 'season-two')
+        )
+      if (id === 'twins-summit')
+        return (
+          has('rue') ||
+          has('taal') ||
+          has('jex') ||
+          visited('courtesy-reactor', 'insult-compiler')
+        )
+      if (id === 'foundry-strike')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('pell') ||
+          visited('sesh-backups', 'warranty')
+        )
+      if (id === 'windglass-exodus')
+        return (
+          has('tess') ||
+          has('kivo') ||
+          has('fen') ||
+          visited('windglass', 'hoa')
+        )
+      if (id === 'deposit-copy')
+        return (
+          has('omi') ||
+          has('mox') ||
+          run.captain === 'quill' ||
+          visited('archive', 'overdue')
+        )
       if (id === 'nacre')
         return (
           witnessed ||
@@ -472,7 +593,7 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
     scene: `The red couch changes course for ${choice.system}. The crew can still refuse the captain’s assignment.`,
     log: [
       ...run.log,
-      `Charted the Act I route to ${choice.system} on day ${run.day ?? 1}.`,
+      `Charted the ${actName(run.chapter)} route to ${choice.system} on day ${run.day ?? 1}.`,
     ],
   }
 }
@@ -484,11 +605,9 @@ export function worldEcho(run: VoyageRun): string {
   const key =
     mostRecent.policy === 'missed'
       ? ''
-      : ACT_ONE_CONSEQUENCES[mostRecent.missionId as ActOneRouteId]?.[
-          mostRecent.policy
-        ]?.flag
+      : VOYAGE_CONSEQUENCES[mostRecent.missionId]?.[mostRecent.policy]?.flag
   return (
-    (key && ACT_ONE_ECHOES[key]) ||
+    (key && VOYAGE_ECHOES[key]) ||
     `The people of ${mostRecent.system} are still living with the captain’s ${mostRecent.policy === 'missed' ? 'absence' : 'decision'}.`
   )
 }
@@ -591,15 +710,13 @@ export function previewMission(run: VoyageRun): MissionPreview {
   const penalty = (run.shieldCharge ?? 2) === 0 ? 10 : 0
   const flags = run.worldFlags ?? []
   const current = missionFor(run).id
-  const enemyThreat = ACT_ONE_NEMESIS[antagonistFor(run).id]
-  const enemyPenalty =
-    enemyThreat.missionId === current ? enemyThreat.penalty : 0
-  const civicBonus =
-    (current === 'haleth' && flags.includes('convoy-invited') ? 10 : 0) +
-    (current === 'nacre' && flags.includes('ashdock-protected') ? 8 : 0) +
-    (current === 'gameworld' && flags.includes('ashdock-exposed') ? 8 : 0) +
-    (current === 'rootborne' && flags.includes('haleth-autonomy') ? 10 : 0) -
-    (current === 'bar' && flags.includes('windglass-broadcast') ? 10 : 0)
+  const enemyPenalty = nemesisThreats(antagonistFor(run).id as NemesisId)
+    .filter((threat) => threat.missionId === current)
+    .reduce((sum, threat) => sum + threat.penalty, 0)
+  const civicBonus = earnedCallbacks(current, flags).reduce(
+    (sum, callback) => sum + callback.odds,
+    0,
+  )
   return {
     ...base,
     chance: Math.max(
@@ -709,13 +826,13 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
           : 'disaster'
   const base = {
     flawless:
-      'The returning team solved the immediate crisis and brought back information the bridge had missed.',
+      'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
     success:
-      'The crew achieved the mission objective, but the people affected still get to decide what it means.',
+      'The away team did what it went to do. The people affected are still deciding what that means.',
     costly:
-      'The team returns with a material debt and a person who may refuse further help.',
+      'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
     disaster:
-      'The planned route collapsed; the officers return through a costly emergency extraction.',
+      'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
   }[grade]
   const chosen =
     active.party.map((id) => CREW.find((c) => c.id === id)!.name).join(' · ') ||
@@ -728,9 +845,11 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   const injuredUntil = injury
     ? { ...(run.injuredUntil ?? {}), [injury]: day + 2 }
     : { ...run.injuredUntil }
-  const threat = ACT_ONE_NEMESIS[antagonistFor(run).id]
-  const twist = threat.missionId === active.missionId ? threat.event : ''
-  const scene = `${base} ${routes} ${antagonistFor(run).acts[Math.min(run.chapter - 1, 2)]} ${twist}`
+  const twist = nemesisThreats(antagonistFor(run).id as NemesisId)
+    .filter((threat) => threat.missionId === active.missionId)
+    .map((threat) => threat.event)
+    .join(' ')
+  const scene = `${base} ${routes} ${nemesisMove(antagonistFor(run), run.chapter)} ${twist}`
   return {
     ...next,
     phase: 'decision',
@@ -763,11 +882,11 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     return run
   const mission = missionFor(run)
   const responses: Record<PolicyId, string> = {
-    aid: 'You offer help, ask for informed consent and accept the operational costs. A civilian remembers your name.',
+    aid: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     observe:
-      'You remain at a distance and record what happened. Neutrality protects the treaty, but the survivors saw your ship.',
+      'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
     intervene:
-      'You take direct action without waiting for diplomatic permission. Lives change quickly; sovereignty will remember.',
+      'You act without permission. It works quickly, and the paperwork will take years.',
   }
   return {
     ...run,
@@ -794,12 +913,12 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     ],
     worldFlags: [
       ...(run.worldFlags ?? []),
-      ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].flag,
+      VOYAGE_CONSEQUENCES[mission.id]![policy].flag,
     ],
-    scene: `${responses[policy]} ${mission.note} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
+    scene: `${responses[policy]} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]![policy].text}`,
     log: [
       ...run.log,
-      `${mission.system}: ${policy} — ${responses[policy]} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
+      `${mission.system}: ${policy} — ${responses[policy]} ${VOYAGE_CONSEQUENCES[mission.id]![policy].text}`,
     ],
   }
 }
@@ -945,24 +1064,41 @@ export function counterCrew(run: VoyageRun): CrewId[] {
 }
 export function nextDestination(run: VoyageRun): VoyageRun {
   if (run.phase !== 'debrief') return run
-  if (run.chapter >= ACT_ONE_BOARDS.length)
+  if (run.chapter >= VOYAGE_CHAPTERS)
     return {
       ...run,
       phase: 'finale',
       scene:
-        'Your antagonist waits at the jump gate. On the red couch the crew asks what kind of captain you became. The force bubble holds; your moral shelter is another matter.',
+        'Your nemesis waits at the jump gate. The force bubble holds. On the cushions, the crew would like a word about what kind of captain you turned out to be.',
     }
+  const opening =
+    run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
+      ? { act: 'Act II', text: ACT_TWO_OPENING, supplies: ACT_TWO_RESUPPLY }
+      : run.chapter + 1 === ACT_THREE_FIRST_CHAPTER
+        ? {
+            act: 'Act III',
+            text: ACT_THREE_OPENING,
+            supplies: ACT_THREE_RESUPPLY,
+          }
+        : null
   return {
     ...run,
     phase: 'briefing',
     chapter: run.chapter + 1,
-    missionId: ['refugees', 'archive', 'bar'][run.chapter],
+    missionId: VOYAGE_BOARDS[run.chapter]![0],
     postedDay: run.day ?? run.chapter,
     active: null,
     away: [],
     pocketRoom: null,
     report: null,
-    scene: `A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    supplies: run.supplies + (opening?.supplies ?? 0),
+    scene: `${opening ? opening.text + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    log: opening
+      ? [
+          ...run.log,
+          `${opening.act} begins: ${opening.supplies} supplies received.`,
+        ]
+      : run.log,
   }
 }
 export function finishVoyage(
@@ -1049,19 +1185,26 @@ export function finishVoyage(
       const detail =
         event.policy === 'missed'
           ? `No one answered the call at ${event.system}.`
-          : ACT_ONE_CONSEQUENCES[event.missionId as ActOneRouteId]?.[
-              event.policy
-            ]?.text
+          : VOYAGE_CONSEQUENCES[event.missionId]?.[event.policy]?.text
       return detail ? `${event.system}: ${detail}` : ''
     })
     .filter(Boolean)
     .join(' ')
-  const scene = `${verdict} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts}`
+  const nemesisId = antagonistFor(run).id as NemesisId
+  const variant = nemesisEndingVariant(
+    nemesisId,
+    strategy,
+    run.worldFlags ?? [],
+    run.supplies,
+  )
+  const nemesisEnding = NEMESIS_ENDINGS[nemesisId][variant]
+  const scene = `${verdict} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts}`
   return {
     ...run,
     phase: 'ending',
     scene,
     ending,
+    nemesisEnding: nemesisEndingId(nemesisId, variant),
     log: [
       ...run.log,
       `Final captain's log: ${ending}. ${captain.voice} ${scene}`,
@@ -1084,10 +1227,10 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     typeof data.chapter !== 'number' ||
     !Number.isInteger(data.chapter) ||
     data.chapter < 1 ||
-    data.chapter > ACT_ONE_BOARDS.length ||
+    data.chapter > VOYAGE_CHAPTERS ||
     (data.missionId !== undefined &&
       (!MISSIONS.some((mission) => mission.id === data.missionId) ||
-        !ACT_ONE_BOARDS[data.chapter - 1]?.some(
+        !VOYAGE_BOARDS[data.chapter - 1]?.some(
           (id) => id === data.missionId,
         ))) ||
     (data.missionHistory !== undefined &&
@@ -1125,7 +1268,7 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
         data.redshirtFallen.some(loss => !loss || typeof loss.id !== 'string' || !/^rs-\d{3}$/.test(loss.id) || typeof loss.encounterId !== 'string'))) ||
     (data.expeditionHistory !== undefined &&
       (!Array.isArray(data.expeditionHistory) ||
-        data.expeditionHistory.length > 3 ||
+        data.expeditionHistory.length > VOYAGE_CHAPTERS ||
         data.expeditionHistory.some(visit => !visit || !Number.isInteger(visit.chapter) || !Array.isArray(visit.results) || !Array.isArray(visit.encounterIds)))) ||
     (data.phase === 'expedition' && (!data.expeditionVisit || data.expeditionVisit.chapter !== data.chapter ||
       !Array.isArray(data.expeditionVisit.encounterIds) || !Array.isArray(data.expeditionVisit.results))) ||
@@ -1138,6 +1281,9 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     !Number.isInteger(data.antagonist) ||
     data.antagonist < 0 ||
     data.antagonist >= ANTAGONISTS.length ||
+    (data.nemesisEnding !== undefined &&
+      data.nemesisEnding !== null &&
+      typeof data.nemesisEnding !== 'string') ||
     (data.day !== undefined && (!Number.isInteger(data.day) || data.day < 1)) ||
     (data.phase === 'transit' &&
       (!data.active || typeof data.active.returnsDay !== 'number')) ||

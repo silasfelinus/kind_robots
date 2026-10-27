@@ -13,6 +13,7 @@ import './verifyEcotoneOnboarding.test'
 import './verifyEcotoneEnsemble.test'
 import './verifyEcotoneHangouts.test'
 import './verifyEcotoneAtlas.test'
+import './verifyEcotoneArtPrompts.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
   isEcotoneReviewHeldArt,

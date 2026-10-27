@@ -41,7 +41,7 @@
           "title": "Studio A, Mirror Wall",
           "place": "Studio A, Pump Iron Gym and Aerobics",
           "text": "Studio A still has the gold-flecked mirror wall from the video. Sunny is setting up for her Wheels and Heels class, rolling between stacks of step boxes. Taped to the mirror, curled and yellow, is a 1983 call sheet: BRANNIGAN HOME VIDEO. BURN IT OFF! DAY 3. TALENT TO WEIGH IN AT 6 A.M. When you glance at your reflection, it's doing jumping jacks. You aren't.",
-          "art": "A sunny aerobics studio with a gold-flecked mirror wall, a woman in a racing wheelchair arranging step boxes, a yellowed call sheet taped to the glass, a teenager's reflection doing jumping jacks while the real teenager stands still",
+          "art": "A gym aerobics studio in afternoon sun with a gold-flecked mirror wall, a 22-year-old Puerto Rican woman with a mane of dark curls, an orange terry headband and a teal leotard rolling her neon-orange racing wheelchair between stacks of step boxes, a curled yellow sheet of paper taped to the mirror, a teenager standing still while their reflection in the mirror does jumping jacks, bright window light, medium wide shot",
           "choices": [
             {
               "id": "ask-sunny",
@@ -107,7 +107,7 @@
           "title": "Bankruptcy Auction, Box 14",
           "place": "The back room, Rewind Video",
           "text": "The back room of Rewind Video is a canyon of returns, bootlegs and dead VCRs. Zelda leans on a box stenciled BRANNIGAN HOME VIDEO, BANKRUPTCY AUCTION 1985. Inside: forty shrink-wrapped copies of BURN IT OFF! and one unlabeled tape in a padded case. On the shelf above, every copy of BURN IT OFF! in the store is humming a count of eight under its breath.",
-          "art": "A cramped video store back room piled with tapes and broken VCRs, an older glamorous woman leaning on a stenciled cardboard box, a row of aerobics videotapes on a shelf faintly glowing pink",
+          "art": "The cramped back room of a 1980s video rental store piled with videotapes and dead video decks, a 63-year-old woman with a silver-streaked black bouffant, cat-eye glasses on a pearl chain, red lipstick and a red staff vest leaning on an open stenciled cardboard box of shrink-wrapped tapes, a shelf above lined with pink aerobics tapes glowing faintly, a teenager holding one unmarked tape in a padded case, a single hanging bulb, medium shot",
           "choices": [
             {
               "id": "ask-zelda",
@@ -178,7 +178,7 @@
           "title": "Coach Pruitt's Office",
           "place": "The PE office, Glimmer Falls High",
           "text": "Coach Tammy Jo Pruitt's office is softballs, dented trophies and a framed photo of her own 1958 high-school state-champion team. On her desk lies a district memo stamped MANDATORY: all PE classes will perform BURN IT OFF! daily and record student weights weekly. Under it is a stack of index cards, each in a different kid's handwriting. Coach is on the phone with the superintendent and losing her patience at a volume you can hear from the parking lot.",
-          "art": "A cluttered high school coach's office with softball trophies and a framed vintage team photo, a big fierce woman shouting into a desk phone, a stamped memo and a stack of handwritten index cards on the desk",
+          "art": "A cluttered high school PE office, softballs in a bucket, dented trophies on shelves, a framed black-and-white photo of a 1958 girls' softball team, a tall broad woman in her forties with a sunburned freckled face, a red-blonde perm under a green ball cap and a green and gold windbreaker shouting into a desk phone, a stamped memo and a stack of small white index slips on the desk, a teenager waiting in the doorway, fluorescent light, medium shot",
           "choices": [
             {
               "id": "ask-coach",
@@ -240,7 +240,7 @@
         "title": "Rewind and Repeat",
         "place": "Your living room, 1 a.m.",
         "text": "The TV turns itself on. The VCR swallows a tape you didn't put in. Synth drums, a gold-flecked studio, and Vonda Velour in a magenta leotard and teal leg warmers with a smile as wide as the screen: \"Good morning, Burners! Let's burn off everything you ate today!\" Your feet start moving. You can't make them stop.",
-        "art": "A dark suburban living room lit by a glowing television showing a glossy aerobics star mid-kick, a teenager in pajamas helplessly doing jumping jacks on the shag carpet",
+        "art": "A dark suburban living room at one in the morning lit by a glowing console television, on screen a glossy aerobics star with enormous teased blond hair, a magenta sweatband, a magenta leotard, teal leg warmers and a headset microphone kicking high in a gold-flecked studio, a video deck on the shelf below with its tape slot lit, a teenager in pajamas on the shag carpet doing jumping jacks with a panicked face, magenta TV glow, medium wide shot",
         "choices": [
           {
             "id": "pull-the-plug",
@@ -300,7 +300,7 @@
         "title": "The Burners",
         "place": "Crystal Street, 4 a.m.",
         "text": "Before dawn a column of joggers comes up Crystal Street in matching magenta sweatbands: your neighbors, your science teacher, the mailman, all in perfect step with glassy eyes, chanting, \"No pain, no gain, no pain, no gain.\" At the front, Mrs. Haskins from down the street carries a boombox like a holy relic. Some of them are limping. None of them stop. One of them is a kid from your homeroom.",
-        "art": "A predawn suburban street with a column of glassy-eyed joggers in matching magenta sweatbands running in perfect step, a woman at the front holding a boombox aloft, a young teen among them limping",
+        "art": "A suburban street at four in the morning before dawn, a column of neighbors jogging in perfect step in matching magenta sweatbands with glassy eyes, a schoolteacher, a mailman in uniform and a middle-aged woman at the front holding a boombox high over her head, a young teen in the column limping, a teenager on the curb holding a bag of rock salt, blue predawn light and orange streetlights, wide shot from the sidewalk",
         "choices": [
           {
             "id": "salt-line",
@@ -387,7 +387,7 @@
         "title": "Operators Are Standing By",
         "place": "Your kitchen, 3 a.m.",
         "text": "You come downstairs for water and find your aunt at the kitchen table in her robe, phone pressed to her ear, credit card in her hand, eyes fixed on the little TV on the counter. On screen, Vonda Velour is selling the Burn Belt in three easy payments. \"Call now, Burners! Operators are standing by!\" Behind her, a bank of operators in magenta sweatbands answers ringing phones, and one of them has your aunt's face. The TV screen is breathing, in and out, slow and warm, like a sleeping animal.",
-        "art": "A dark 1980s kitchen at 3 a.m., a woman in a bathrobe at the table clutching a phone and a credit card, a small countertop television bulging outward and glowing magenta, an aerobics star on screen with a bank of sweatbanded telephone operators",
+        "art": "A dark 1980s kitchen at three in the morning, a middle-aged woman in a bathrobe at the table clutching a yellow phone receiver and a credit card, staring at a small countertop television whose screen bulges outward and glows magenta, on screen a glossy aerobics star with teased blond hair and a headset mic beside a row of telephone operators in magenta sweatbands, a teenager in pajamas on the stairs behind her, magenta glow, medium shot",
         "choices": [
           {
             "id": "hang-up-gently",
@@ -475,7 +475,7 @@
         "title": "Fitness Test Day",
         "place": "Glimmer Falls High gym, midnight",
         "text": "The gym doors bang open as you pass the high school, and inside, under the caged lights, is the worst day of everyone's life: fitness test day. Kids in gym uniforms from every decade since 1959 are climbing ropes, straining at the pull-up bar and reaching for the sit-and-reach box, sweating and terrified. Vonda Velour paces among them with a clipboard and a whistle. \"Fail and you're a before, forever!\" she sings. Gracie Ochoa, a freshman from your bus stop, is dangling halfway up the rope, crying, and she can't let go.",
-        "art": "A high school gym at midnight under caged lights, ghostly students in gym uniforms from many decades climbing ropes and straining on pull-up bars, an aerobics star in a magenta leotard pacing with a clipboard and whistle, a crying girl clinging halfway up a rope",
+        "art": "A high school gym at midnight under caged lights, pale students in gym uniforms from three decades climbing ropes, straining on a pull-up bar and reaching over a sit-and-reach box, a glossy aerobics star with enormous teased blond hair, a magenta leotard and teal leg warmers pacing among them with a clipboard and a whistle, a crying freshman girl clinging halfway up a rope, a teenager at the base of the rope looking up, harsh white light, wide shot",
         "choices": [
           {
             "id": "climb-the-rope",
@@ -562,7 +562,7 @@
         "title": "Your After Picture",
         "place": "The Glitter Box dressing room, after the late show",
         "text": "The Glitter Box dressing room has cleared out after the late show, leaving a long counter of wigs and greasepaint under a row of bulb-ringed mirrors. You sit down to wipe off your Halloween face paint, and your reflection does not wipe along with you. It is smiling. It is glossy, airbrushed and perfectly toned, in a magenta sweatband and leotard: the you Vonda's tape says you are supposed to be. It leans out of the glass and offers you its hand. \"Don't you want to be your after picture?\" it asks, in Vonda's voice. \"I'll take it from here.\"",
-        "art": "A theatre dressing room with bulb-ringed mirrors over a counter of wigs and greasepaint, a teenager in smeared face paint seated before a mirror, their glossy airbrushed reflection in a magenta sweatband leaning out of the glass with an outstretched hand",
+        "art": "A small theater dressing room after the late show, a long counter of wigs on foam heads and greasepaint tins under a row of bulb-ringed mirrors, a teenager in smeared Halloween face paint sitting in front of one mirror holding a tissue, and their reflection, glossy and airbrushed in a magenta sweatband and leotard, leaning out of the glass with a hand held out toward them, warm bulb light and magenta glow from the mirror, medium shot",
         "choices": [
           {
             "id": "the-whole-movie",
@@ -647,7 +647,7 @@
         "title": "No Cool-Down",
         "place": "Pump Iron Gym, midnight",
         "text": "Studio A is packed wall to wall with Burners. The mirror wall has become one giant screen, and Vonda, ten feet tall, leads them through the final tape, BURN IT ALL OFF!, every rep faster than the last. People drop to the floor and get back up. A digital scale in the corner flashes numbers that never stop changing. The room is so hot the mirrors are fogging. \"Nobody leaves,\" Vonda sings, \"until there's nothing left of you.\"",
-        "art": "A sweltering packed aerobics studio at midnight, a ten-foot aerobics star glowing on a mirror wall screen, exhausted people collapsing and rising, a digital scale flashing in the corner, fogged glass everywhere",
+        "art": "A sweltering aerobics studio at midnight packed wall to wall with people in sweatbands, the mirror wall turned into one huge screen showing a ten-foot glossy aerobics star with teased blond hair, a magenta leotard and a headset mic leading the class, exhausted people dropping to the floor and pushing back up, a digital bathroom scale flashing red numbers in the corner, fogged mirrors, a teenager pushing through the crowd, hot magenta light and steam, wide shot",
         "choices": [
           {
             "id": "smash-the-scale",
@@ -712,7 +712,7 @@
         "title": "Slumber Party Workout",
         "place": "Ronnie Patterson's slumber party, the rec room, 1 a.m.",
         "text": "At Ronnie Patterson's slumber party somebody digs BURN IT OFF! out of her mom's tape drawer and puts it on as a joke, and for ten minutes everyone is shrieking at the leotards. Then the laughing stops. Everyone else in a sleeping bag is doing crunches in perfect unison, eyes glassy, counting along with Vonda. Ronnie pinches her own stomach and says, in a voice that sounds dubbed, \"Nobody loves a before picture.\" The pizza in the box has gone cold and untouched. Vonda smiles out of the screen. \"Who's next, sweeties?\"",
-        "art": "A cozy 1980s rec room slumber party at night, kids in sleeping bags doing crunches in perfect unison with glassy eyes, a glowing television showing a smiling aerobics star in a magenta leotard, a cold pizza box on the shag carpet",
+        "art": "A cozy wood-paneled 1980s rec room at one in the morning, girls in sleeping bags doing crunches in perfect unison with glassy eyes, a teenage girl in a nightshirt pinching her own stomach, a boxy television glowing with a smiling aerobics star in a magenta leotard and teal leg warmers, a cold untouched pizza box on the shag carpet, a teenager holding a pillow, magenta TV glow and a dim lamp, wide shot",
         "choices": [
           {
             "id": "pillow-fight",
@@ -795,7 +795,7 @@
         "title": "Biggest Burner",
         "place": "The Glimmer Falls Community Center, a midnight weigh-in",
         "text": "The town council has gone Burner. At midnight the Community Center is packed for the Biggest Burner Halloween Challenge, sponsored by BURN IT OFF!, with a giant industrial scale on the stage, clusters of magenta balloons and a gold trophy shaped like a sweatband. Vonda emcees from a TV on a rolling cart, calling contestants up one by one while the crowd applauds every number on the dial. Your gym teacher is in line. So is the mayor. And at the top of the contestant clipboard, in handwriting you don't recognize, is your name.",
-        "art": "A packed small-town community center at midnight, a giant industrial scale on a stage under clusters of magenta balloons, a gold sweatband-shaped trophy, a glossy aerobics star smiling from a television on a rolling cart, a line of townspeople in sweatbands waiting",
+        "art": "A packed small-town community center at midnight, a giant industrial dial scale on the stage under clusters of magenta balloons, a gold trophy in the shape of a sweatband on a table, a glossy aerobics star with teased blond hair smiling out of a television on a rolling cart, a line of townspeople in sweatbands waiting at the stage steps including a man in a mayor's sash, a teenager at the end of the line, warm stage light and magenta balloons, wide shot from the folding chairs",
         "choices": [
           {
             "id": "team-weigh-in",
@@ -876,7 +876,7 @@
         "title": "Dance Till You Drop",
         "place": "The KGLM Halloween Dance-a-Thon, Starlight Mall center court, October 30",
         "text": "The KGLM Halloween Dance-a-Thon was supposed to raise money for the children's hospital. Thirty hours in, it has raised Vonda. She fills every TV in the electronics store display, her count booming over the mall speakers, and the couples on the center court floor cannot stop moving, sagging against each other, sneakers squeaking, eyes glassy. Every hour a buzzer sounds and Vonda calls out the couple she likes least, \"Too slow, sweeties! Out!\", and their own feet march them toward the glowing screens. Sunny Castellanos is out on the floor in her racing chair, refusing to be counted out, but her partner is about to fall.",
-        "art": "A 1980s mall center court at night during a dance marathon, exhausted couples sagging against each other on the floor, a wall of televisions in an electronics store showing a glossy aerobics star counting, a young woman in a racing wheelchair dancing fiercely",
+        "art": "A 1980s mall center court at night during a dance marathon, exhausted couples sagging against each other on a parquet floor with sneakers squeaking, a wall of televisions in an electronics store window all showing a glossy aerobics star counting with her fingers, a 22-year-old woman with dark curls and an orange headband dancing fiercely in her neon-orange racing wheelchair, her partner about to fall, a teenager running onto the floor, mixed neon light, wide shot",
         "choices": [
           {
             "id": "sit-down-dance",
@@ -969,7 +969,7 @@
       "title": "The Final Burn",
       "place": "The Heartstone roundabout, Halloween night",
       "text": "On Halloween every TV on Crystal Street turns to face out its window, and every one plays Vonda. The whole town is in the street in sweatbands, working out around the Heartstone in rings, and the geode pulses magenta with every rep. Vonda steps out of the biggest screen in a shower of glitter sweat, headset mic on, smile locked. \"Last set, Burners! Burn it all off! Burn until there's nothing wrong with you, because there's nothing left!\"",
-      "art": "A suburban roundabout on Halloween night ringed by townspeople in costumes and sweatbands doing frantic aerobics around a pulsing magenta geode, televisions glowing in every window, a giant glittering aerobics star stepping out of a screen, a teen crew facing her",
+      "art": "A suburban roundabout on Halloween night, rings of townspeople in costumes and magenta sweatbands doing frantic aerobics around a huge purple crystal geode that pulses magenta, televisions in every house window turned to face the street, a giant glossy aerobics star with enormous teased blond hair, a magenta leotard, teal leg warmers and a headset microphone stepping out of the biggest screen in a shower of glitter, four teenagers in homemade costumes facing her, magenta and cyan light, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1135,22 +1135,22 @@
       "best": {
         "title": "The Whole Movie",
         "text": "On November first the Burners hang their sweatbands on the Heartstone like retired jerseys. Coach Pruitt gets the district memo torn up at a school board meeting she will describe for years. Toby cuts the raw footage into DANCE FOR EVERY BODY WITH WANDA, and Rewind Video replaces every copy of the old tape for free. In December, Wanda Fenn drives down from Sacramento to teach a free Saturday class at the Glitter Box, with Sunny co-leading from her chair. Mrs. Haskins comes and dances in the back row. Nobody counts anything except, badly, to eight.",
-        "art": "A joyful dance class on the Glitter Box stage, a curvy woman in her forties leading with arms flung wide, a woman in a wheelchair co-leading beside her, people of every age, size and body dancing and laughing, sweatbands hanging on a purple geode outside the window"
+        "art": "A joyful Saturday dance class on a small theater stage, a curvy woman in her forties in a purple tracksuit leading with her arms flung wide, a young woman with dark curls in a neon-orange racing wheelchair co-leading beside her, people of every age, size and body dancing and laughing, a middle-aged woman dancing in the back row, magenta sweatbands hanging on a purple crystal rock outside the window, warm bright stage light, wide shot"
       },
       "good": {
         "title": "Tracking Error",
         "text": "The tapes demagnetize all over town and the joggers stop running. Nobody ever really says why. Life goes back to normal, mostly. But you still hear that perky count in the back of your head sometimes, when you reach for dessert, and every time, you tell it to shut up, and you take the bigger piece.",
-        "art": "A teenager at a kitchen table cheerfully taking a big slice of cake, a faint ghostly aerobics star scowling from a dark TV screen in the background"
+        "art": "A teenager at a suburban kitchen table grinning as they lift a big slice of chocolate cake onto a plate, and in the background a dark switched-off television with the faint reflection of a blond aerobics star scowling in the glass, warm kitchen light, medium shot"
       },
       "bittersweet": {
         "title": "Rewind",
         "text": "You survive the week. Mrs. Haskins spends three days in the hospital with exhaustion and recovers. The kid from your homeroom transfers schools at Christmas. And in the spring a brand-new workout tape hits the shelves at Rewind Video, with a new name and a new smiling face on the box, and the very same voice.",
-        "art": "A video store new-release shelf with a fresh aerobics tape featuring a new smiling star, a teenager staring at it uneasily, faint pink glow along the box edges"
+        "art": "A video rental store new-release shelf with a fresh row of workout tapes, the boxes showing a new smiling woman in a turquoise leotard, a faint pink glow along their edges, a teenager in a jacket standing in the aisle staring at them uneasily, fluorescent store light, medium shot"
       },
       "bad": {
         "title": "Feel the Burn",
         "text": "You're in the tape now. Back row, gold-flecked studio, magenta sweatband, doing jumping jacks forever. When your crew rents BURN IT OFF! from Rewind Video to look for clues, they see you behind Vonda's shoulder, smiling, waving, counting, and you cannot hear them screaming your name.",
-        "art": "A television screen showing an aerobics video with a teenager in the back row in a magenta sweatband, smiling blankly, while friends on a couch in front of the screen reach toward it in horror"
+        "art": "A boxy television in a dark living room playing an aerobics video in a gold-flecked studio, a glossy blond aerobics star kicking at the front and a teenager in a magenta sweatband in the back row smiling blankly and waving, three friends on the couch in front of the set leaning toward the screen with frightened faces, magenta TV glow, medium wide shot from behind the couch"
       }
     }
   }

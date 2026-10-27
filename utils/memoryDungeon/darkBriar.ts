@@ -376,20 +376,20 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
   '3,5': scene(
     '3,5',
     'A Traveler Who Took the Other Road',
-    'The traveler you directed into the marsh is alive, but carries a map of a life in which you sent them home instead. Both paths have left scars. They want a say in where they go next.',
+    'A traveler emerges from the marsh with two maps: the road they walked and the road a borrowed voice described. Both routes have left scars. They want a say in where they go next.',
     'Rugged adult wayfarer holding two overlapping translucent road maps through mirrored shadow-marsh, warm distant firelight, no text.',
     [
       {
         id: 'apologize',
-        label: 'Own your choice without claiming their future',
+        label: 'Offer to correct the borrowed directions',
         outcome:
-          'The traveler accepts your honesty and chooses a third road. It is not the road you would have picked.',
+          'The traveler accepts your offer to carry their correction to Pip. They choose a third road, not the one a borrowed voice assigned.',
       },
       {
         id: 'ask',
         label: 'Ask what they actually wanted',
         outcome:
-          'To be consulted, they say. Your attempt to help was real, and so was the harm of deciding for them.',
+          'To be consulted, they say. Pip offers a blank map; the traveler decides which roads are worth drawing.',
       },
     ],
   ),

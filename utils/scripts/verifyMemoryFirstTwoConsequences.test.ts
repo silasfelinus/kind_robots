@@ -34,6 +34,9 @@ import {
 } from '../memoryDungeon/darkHouseChallenges'
 import {
   newDarkBriarProgress,
+  restoreDarkBriarProgress,
+  DARK_BRIAR_WAVES,
+  DARK_BRIAR_SCENES,
   darkBriarCanTravel,
   darkBriarChoose,
 } from '../memoryDungeon/darkBriar'
@@ -43,6 +46,8 @@ import {
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
   earnedCourierCompensation,
+  earnedBorrowedVoiceAccord,
+  earnedBorrowedVoiceOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -256,6 +261,124 @@ assert.match(
   'Both mutually exclusive rewards must survive reload',
 )
 
+// Pip's original encounter concerned a borrowed voice, not a traveler
+// supposedly sent into the marsh. Four earned responses reconcile both accounts.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('3,5'))
+assert.ok(briarConnected(BRIAR_START, '3,5', BRIAR_REVEAL_WAVES[0]!))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('3,5'))
+assert.ok(!DARK_BRIAR_SCENES['3,5']?.opening.includes('you directed'))
+const borrowedVoiceScenes = new Set<string>()
+const borrowedVoiceEpilogues = new Set<string>()
+const darkTravelerBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/memory-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: [BRIAR_START, '3,5'],
+  player: '3,5',
+}
+for (const [originalChoice, prefix] of [
+  ['light', 'freed'],
+  ['listen', 'heard'],
+] as const) {
+  assert.ok(
+    BRIAR_SCENES['3,5']?.choices.some((choice) => choice.id === originalChoice),
+  )
+  const original = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...base,
+        revealed: BRIAR_REVEAL_WAVES[0],
+        visited: [BRIAR_START, '3,5'],
+        player: '3,5',
+        wavePhase: 'exploring',
+        sceneChoices: { '3,5': originalChoice },
+      }),
+    ),
+  )
+  assert.equal(original.sceneChoices['3,5'], originalChoice)
+  for (const [mirrorChoice, suffix] of [
+    ['apologize', 'repaired'],
+    ['ask', 'consulted'],
+  ] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['3,5']?.choices.some(
+        (choice) => choice.id === mirrorChoice,
+      ),
+    )
+    const chosen = darkBriarChoose(darkTravelerBase, '3,5', mirrorChoice)
+    assert.notEqual(chosen, darkTravelerBase)
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(reflected.sceneChoices['3,5'], mirrorChoice)
+    const accord = `${prefix}-${suffix}`
+    assert.equal(earnedBorrowedVoiceAccord(original, reflected), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .borrowedVoiceAccord,
+      accord,
+    )
+    const outcome = earnedBorrowedVoiceOutcome(original, reflected)
+    assert.ok(outcome && outcome.length > 80)
+    borrowedVoiceScenes.add(outcome)
+    const ending = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      reflected,
+    )
+    assert.ok(ending.includes('Pip'))
+    borrowedVoiceEpilogues.add(ending)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, reflected),
+      '',
+      'The traveler must not reveal a future verdict before the House ends',
+    )
+    assert.equal(
+      earnedBorrowedVoiceOutcome(original, {
+        sceneChoices: { '3,5': 'invented' },
+      }),
+      null,
+    )
+  }
+}
+assert.equal(borrowedVoiceScenes.size, 4)
+assert.equal(borrowedVoiceEpilogues.size, 4)
+assert.equal(
+  earnedBorrowedVoiceAccord(base, { sceneChoices: { '3,5': 'ask' } }),
+  'unset',
+  'Unvisited original scenes cannot invent a shared past',
+)
+assert.equal(
+  earnedBorrowedVoiceOutcome(
+    { ...base, sceneChoices: { '3,5': 'invented' } },
+    { sceneChoices: { '3,5': 'apologize' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).borrowedVoiceAccord,
+  'unset',
+  'Older saves without a mirrored traveler decision remain valid',
+)
+assert.match(
+  store,
+  /earnedBorrowedVoiceOutcome\(state\.value, dark\.value\)/,
+  'The live mirrored encounter must show the earned dialogue',
+)
+assert.match(
+  store,
+  /crossRealmHouseEpilogue\(state\.value, darkHouse\.value, dark\.value\)/,
+  'The House ending must read the actual mirrored traveler decision',
+)
+
 const earnedHouseEpilogues = new Set<string>()
 for (const witnessChoice of ['remember', 'protect'] as const) {
   for (const ending of ['return', 'commons'] as const) {
@@ -351,7 +474,7 @@ assert.equal(
 )
 assert.match(
   store,
-  /crossRealmHouseEpilogue\(state\.value, darkHouse\.value\)/,
+  /crossRealmHouseEpilogue\(state\.value, darkHouse\.value, dark\.value\)/,
   'The real mirrored House verdict must render the earned epilogue',
 )
 

@@ -19,6 +19,8 @@ export const crewArtKey = (portraitKey: string) => `portraits/${portraitKey}`
 export const missionArtKey = (id: string) => `missions/${id}`
 export const antagonistArtKey = (id: string) => `antagonists/${id}`
 export const endingArtKey = (ending: string) => `endings/${slugify(ending)}`
+/** A nemesis's own ending, by id such as `auditor-undone` (nemesisEndings.ts). */
+export const nemesisEndingArtKey = (id: string) => `endings/${id}`
 export const SPLASH_ART_KEY = 'front/splash'
 
 export const WARP_ENDINGS = [
@@ -32,7 +34,10 @@ export const WARP_ENDINGS = [
 export function voyageStageArt(run: VoyageRun | null): string | null {
   if (!run) return warpArt(SPLASH_ART_KEY)
   if (run.phase === 'ending' && run.ending)
-    return warpArt(endingArtKey(run.ending))
+    return (
+      (run.nemesisEnding && warpArt(nemesisEndingArtKey(run.nemesisEnding))) ||
+      warpArt(endingArtKey(run.ending))
+    )
   if (run.phase === 'finale')
     return warpArt(antagonistArtKey(antagonistFor(run).id))
   return warpArt(missionArtKey(missionFor(run).id))

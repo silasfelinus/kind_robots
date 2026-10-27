@@ -88,7 +88,7 @@
           <span>{{ panelLabel }}</span
           ><span class="cap-leds"
             ><i
-              v-for="n in 3"
+              v-for="n in VOYAGE_CHAPTERS"
               :key="n"
               :class="{ active: !!run && n <= run.chapter }" /></span
           ><span>⌁ LIVE</span>
@@ -315,10 +315,10 @@
             <section
               class="cap-route-board"
               data-testid="space-couch-route-board"
-              aria-label="Act I galaxy navigation"
+              :aria-label="actLabel + ' galaxy navigation'"
             >
               <div class="cap-route-heading">
-                <span>ACT I / STAR ROUTES</span>
+                <span>{{ actLabel.toUpperCase() }} / STAR ROUTES</span>
                 <strong>CHOOSE ONE CALL</strong>
               </div>
               <div class="cap-route-grid">
@@ -354,6 +354,22 @@
               </div>
             </div>
             <p class="cap-narrative">{{ mission.briefing }}</p>
+            <div
+              v-if="briefingCallbacks.length || briefingAboard.length"
+              class="cap-callbacks"
+              data-testid="space-couch-callbacks"
+            >
+              <p v-for="callback in briefingCallbacks" :key="callback.flag">
+                <strong
+                  >{{ callback.odds > 0 ? '+' : ''
+                  }}{{ callback.odds }}%</strong
+                >
+                {{ callback.text }}
+              </p>
+              <p v-for="line in briefingAboard" :key="line">
+                <strong>ABOARD</strong> {{ line }}
+              </p>
+            </div>
             <div class="cap-antagonist">
               <strong>ANOMALY IN THE SIGNAL</strong>
               <p>
@@ -798,7 +814,7 @@
               <p>{{ run.report.text }}</p>
             </div>
             <p class="cap-alert">
-              {{ antagonist.acts[Math.min(run.chapter - 1, 2)] }}
+              {{ nemesisLine }}
             </p>
             <button
               class="cap-option"
@@ -969,7 +985,7 @@
               @click="store.next()"
             >
               {{
-                run.chapter === 3
+                run.chapter === VOYAGE_CHAPTERS
                   ? 'APPROACH THE LAST JUMP GATE'
                   : 'PLOT NEXT COURSE'
               }}
@@ -1172,7 +1188,15 @@
               <span>✦</span>
               <div>
                 <h2>{{ run.ending }}</h2>
-                <p>A CAPTAIN IS WHAT THE CREW REMEMBERS</p>
+                <p data-testid="space-couch-nemesis-ending">
+                  {{
+                    nemesisEndingTitle
+                      ? antagonist.name.toUpperCase() +
+                        ' // ' +
+                        nemesisEndingTitle
+                      : 'A CAPTAIN IS WHAT THE CREW REMEMBERS'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
@@ -1228,9 +1252,18 @@ import {
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import {
-  ACT_ONE_ORDERS,
-  type ActOneRouteId,
-} from '~/utils/gameOfCaptains/actOne'
+  VOYAGE_CHAPTERS,
+  VOYAGE_ORDERS,
+  aboardLines,
+  actName,
+  earnedCallbacks,
+  nemesisMove,
+  type NemesisId,
+} from '~/utils/gameOfCaptains/voyageMap'
+import {
+  NEMESIS_ENDINGS,
+  type NemesisEndingVariant,
+} from '~/utils/gameOfCaptains/nemesisEndings'
 import {
   REDSHIRT_QUARTERS,
   currentExpedition,
@@ -1366,10 +1399,29 @@ const nemesisCrewLink = computed(
 const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
 )
-const ethicalOrders = computed(
-  () => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId],
-)
+const ethicalOrders = computed(() => VOYAGE_ORDERS[mission.value.id]!)
 const missionRule = computed(() => ruleFor(mission.value.id))
+const actLabel = computed(() => actName(run.value?.chapter ?? 1))
+const briefingCallbacks = computed(() =>
+  run.value
+    ? earnedCallbacks(mission.value.id, run.value.worldFlags ?? [])
+    : [],
+)
+const briefingAboard = computed(() =>
+  run.value ? aboardLines(mission.value.id, run.value.crew) : [],
+)
+const nemesisEndingTitle = computed(() => {
+  const id = run.value?.nemesisEnding
+  const variant = id?.slice(antagonist.value.id.length + 1)
+  return id?.startsWith(antagonist.value.id + '-')
+    ? (NEMESIS_ENDINGS[antagonist.value.id as NemesisId]?.[
+        variant as NemesisEndingVariant
+      ]?.title ?? '')
+    : ''
+})
+const nemesisLine = computed(() =>
+  run.value ? nemesisMove(antagonist.value, run.value.chapter) : '',
+)
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,
 )
@@ -1394,6 +1446,8 @@ const headline = computed(() =>
         transit: 'Away Team En Route',
         decision: 'The Cost Of Knowing',
         debrief: 'Between The Stars',
+        travel: 'Couch in Transit',
+        expedition: 'Redshirt Deployment Board',
         'crew-quest': activeDetour.value?.title ?? 'Personal Route',
         finale: 'The Last Jump Gate',
         ending: run.value.ending ?? 'Voyage Complete',
@@ -1412,6 +1466,8 @@ const panelLabel = computed(() =>
         transit: 'EXPEDITION // RETURN CLOCK',
         decision: 'PRIME DOCTRINE // YOUR ORDER',
         debrief: 'CAPTAIN’S LOG // OUTCOME',
+        travel: 'TRANSIT // NEXT WORLD',
+        expedition: 'FIELD EXPEDITION // ALLOCATE PERSONNEL',
         'crew-quest': 'CREW STAR CHART // PERSONAL CONSEQUENCE',
         finale: 'LAST TRANSMISSION // FINALE',
         ending: 'CHRONICLE // A VOYAGE RECORDED',
@@ -2174,6 +2230,23 @@ function toggleAway(id: CrewId) {
   background: #9b495f30;
   padding: 0.7rem;
   margin: 0.8rem 0;
+}
+.cap-callbacks {
+  border-left: 2px solid #f8c79780;
+  padding: 0.2rem 0 0.2rem 0.7rem;
+  margin: 0.6rem 0;
+}
+.cap-callbacks p {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  margin: 0.25rem 0;
+  color: #e5d6c8;
+}
+.cap-callbacks strong {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #f8c797;
+  margin-right: 0.3rem;
 }
 .cap-antagonist strong {
   font-size: 0.6rem;

@@ -503,8 +503,166 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       ],
     },
   },
+  {
+    // t-061: posted by Day 12's Brown Water audience.
+    id: 'q-d12-cistern-crack',
+    title: 'Thirty-One Feet Down',
+    summary:
+      'Go down the fortress cistern on Foreman Ash’s rope, find the crack under the waterline and seal it with clay. The last crew came back one short.',
+    region: 'mole-tunnels',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'might', band: 'mid' },
+      { stat: 'lore', band: 'mid', hidden: true },
+    ],
+    danger: 'mid',
+    tags: ['tunnels', 'repair'],
+    aid: [
+      {
+        flags: ['d07-galleries-found'],
+        label: 'Chalk marks a tunnel keeper left on the old galleries',
+        bonus: 1,
+        stat: 'lore',
+      },
+    ],
+    rewards: {
+      triumph: {
+        brass: 10,
+        local: { yard: 3 },
+        flags: ['d12-cistern-sealed', 'd12-tull-found'],
+      },
+      success: { local: { yard: 2 }, flags: ['d12-cistern-sealed'] },
+      partial: { local: { yard: 1 } },
+      failure: { local: { yard: -2 }, flags: ['d12-cistern-fouled'] },
+    },
+    expired: {
+      local: { yard: -1, 'old-houses': 1 },
+      flags: ['d12-cistern-fouled'],
+    },
+    outcomes: {
+      triumph:
+        'Thirty-one feet down the crack runs along an old seam. Behind it is a dry gallery. In the gallery a lamp hook is driven into the wall, and under the hook a pair of work boots stand side by side. The party sealed the crack and brought the boots up. Ash took them without a word and went back to his ovens.',
+      success:
+        'The crack was a hand wide and weeping. The party packed it with clay and held it till it set. On the third day the water came up clear. The Yard baked white bread and sent the first loaf to the tower.',
+      partial:
+        'They found the crack and packed most of it. The water is better. It is not clear. Ash strains it through flour sacks and says nothing.',
+      failure:
+        'At thirty-one feet the rope went slack. Ash hauled it up hand over hand. The party was on the end of it, soaked and shaking. Nobody will say what took the lamp out of their hands.',
+      expired:
+        'Nobody went down. The cistern water went from brown to grey. The Yard bakes with the Old Houses’ water now and pays for every bucket.',
+    },
+  },
 ]
 
+// t-061: the Yard's cistern, cracked over the old galleries.
+const D12_CISTERN: AudienceDef = {
+  id: 'd12-cistern',
+  title: 'Brown Water',
+  speaker: 'Foreman Dunmore Ash of the Yard',
+  npc: 'dunmore-ash',
+  faction: 'yard',
+  lines: [
+    'Foreman Dunmore Ash comes up the carpet with a bucket. He sets it on the bottom step of the dais. It is half full. The water in it is brown.',
+    '“Cistern water, Majesty. Drawn this morning. Yesterday it was clear.”',
+    '“The Yard bakes for the whole wall. Six hundred loaves on a good day. Brown water makes grey bread, and grey bread makes children sick. The cistern is cracked somewhere under the waterline. It leaks into the old workings, and the old workings leak back.”',
+    '“The Old Houses have their own wells. They want the cistern locked till the rain. The Yard wants it fixed.”',
+    {
+      who: 'Young Komodo',
+      npc: 'young-komodo',
+      text: 'The cistern sits over the old galleries, Your Majesty. The last crew that went down to patch it came back one short. That was under the last emperor. Nobody wrote down the name.',
+    },
+  ],
+  options: [
+    {
+      id: 'ask-ash',
+      label: 'Ask Ash who did not come back.',
+      effects: {},
+      response:
+        'Ash looks at the bucket a long time. “Merrit Tull. My cousin. I held the rope.”',
+      next: 'tull',
+    },
+    {
+      id: 'send-party',
+      label: 'Send our own people down to find the crack and seal it.',
+      effects: { local: { yard: 1 } },
+      response:
+        'Ash nods once and takes the bucket with him. By dusk there is a rope coiled at the cistern head and a lamp beside it, already trimmed.',
+      postsQuests: ['q-d12-cistern-crack'],
+    },
+    {
+      id: 'lock',
+      label:
+        'Lock the cistern. The Yard bakes with the Old Houses’ well water, by ration.',
+      effects: {
+        local: { 'old-houses': 2, yard: -2 },
+        flags: ['d12-cistern-locked'],
+      },
+      response:
+        'Lady Vask’s steward brings the well key on a velvet cushion. The Yard queues at her pump with buckets, and every bucket is counted. The loaves are smaller by the next market.',
+    },
+    {
+      id: 'ask-galleries',
+      label:
+        'The families under the Ford know those galleries. Ask them to find the crack from below.',
+      requires: { flags: ['d07-galleries-found'] },
+      effects: {
+        affinity: { moles: 5 },
+        local: { yard: -1, 'old-houses': -1 },
+        flags: ['d12-cistern-moles'],
+      },
+      response:
+        'A tunnel keeper climbs out of the cistern at midnight with clay to the shoulder. The water clears in three days. Ash carries the first white loaf up to the tower himself and does not say who it is from.',
+    },
+  ],
+  beats: [
+    {
+      id: 'tull',
+      lines: [
+        '“Merrit went down with a lamp and a bag of clay. Forty feet of rope. At thirty-one feet the rope went slack.”',
+        '“We pulled it up. The knot was still tied. The lamp was hanging off it. Lit.”',
+        '“I’m not asking you to send anybody, Majesty. I’m telling you what it costs when you do.”',
+        {
+          who: 'Young Komodo',
+          npc: 'young-komodo',
+          text: 'A lamp sent back lit is a message, Your Majesty. Someone down there wanted the Yard to stop coming. Whether they still do is a question for a better rope.',
+        },
+      ],
+      options: [
+        {
+          id: 'send-party',
+          label: 'Send our people down. Double rope. Ash holds it.',
+          effects: { local: { yard: 1 } },
+          response:
+            'Ash rolls his sleeves to the elbow. “Double rope,” he says. “And I hold it this time too.”',
+          postsQuests: ['q-d12-cistern-crack'],
+        },
+        {
+          id: 'lock',
+          label: 'Lock it. Nobody else goes down that shaft.',
+          effects: {
+            local: { 'old-houses': 2, yard: -2 },
+            flags: ['d12-cistern-locked'],
+          },
+          response:
+            'Ash hangs the cistern key on the nail by the oven door, where he can see it. The Yard bakes with bought water. Nobody goes down. Ash checks the nail every morning.',
+        },
+        {
+          id: 'new-cistern',
+          label: 'Pay the Yard to cut a new cistern on the hill instead.',
+          requires: { cost: 35 },
+          effects: {
+            local: { yard: 2, ledger: -1 },
+            flags: ['d12-new-cistern'],
+          },
+          response:
+            'Thirty-five brass buys picks and three weeks of digging. The new cistern is dry stone until the rain. The Yard bakes grey bread in the meantime and thanks you anyway.',
+        },
+      ],
+    },
+  ],
+}
 export const ACT_TWO_DAYS: readonly DayDef[] = [
   {
     day: 11,
@@ -1199,6 +1357,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D12_CISTERN,
     ],
   },
   {

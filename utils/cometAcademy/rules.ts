@@ -63,6 +63,8 @@ import {
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
 import { districtEncounterFor } from './districtEncounters'
+import { LATE_INCIDENTS } from './lateIncidents'
+import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import {
   CAMPAIGN_ANCHORS,
@@ -521,6 +523,8 @@ export type AcademyRun = {
   identityHistory?: PersonalHistory[]
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
+  /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
+  incidentDeckVersion?: 2
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
@@ -560,9 +564,17 @@ function hash(seed: number, text: string): number {
   return value
 }
 
+/** Every night case a thirty-day run can draw: the first six, then the late six. */
+export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
+
+export function incidentDeck(run: AcademyRun): Incident[] {
+  return run.incidentDeckVersion === 2 ? NIGHT_DECK : INCIDENTS
+}
+
 export function incidentsFor(run: AcademyRun): Incident[] {
-  const offset = (run.seed + run.day - 1) % INCIDENTS.length
-  return [INCIDENTS[offset]!, INCIDENTS[(offset + 3) % INCIDENTS.length]!]
+  const deck = incidentDeck(run)
+  const offset = (run.seed + run.day - 1) % deck.length
+  return [deck[offset]!, deck[(offset + deck.length / 2) % deck.length]!]
 }
 
 export function encounterFor(run: AcademyRun) {
@@ -628,10 +640,13 @@ export function encounterFor(run: AcademyRun) {
           : undefined)
       if (base && run.flowVersion === 3) {
         const previous = run.visitedDays?.[site.id]
+        const revisit = previous ? returnVisitFor(site.id) : undefined
+        const card = revisit ?? base
         return {
-          ...base,
-          title: previous ? `${base.title} / Return Visit` : base.title,
-          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
+          ...card,
+          title:
+            previous && !revisit ? `${base.title} / Return Visit` : card.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. ${revisit ? revisit.scene : 'This new visit is another chance to decide.'}` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
         }
       }
       if (base) return base
@@ -709,6 +724,7 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
+    incidentDeckVersion: 2,
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
@@ -1389,17 +1405,30 @@ export function finishAcademy(
     const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
-    const ending = shared
-      ? earned
-        ? 'A CITY WITH A THOUSAND KEYS'
-        : 'THE BROKEN GRID'
-      : rescue
+    // Nobody exposed an accomplice and nobody came: the mastermind takes
+    // every tower the player did not hand to the neighborhoods.
+    const villainTakesShield = !earned && evidenceCount === 0 && !shared
+    const ending = villainTakesShield
+      ? 'THE SHIELD CHANGES HANDS'
+      : shared
         ? earned
-          ? 'THE LAST DANCE LEAVES BY BOAT'
-          : 'THE MUSIC AFTER GLASS'
-        : earned
-          ? 'MASTER OF THE SHIELD'
-          : 'THE PRICE OF A SINGLE SWITCH'
+          ? 'A CITY WITH A THOUSAND KEYS'
+          : 'THE BROKEN GRID'
+        : rescue
+          ? earned
+            ? choice === 'evacuate'
+              ? 'THE TRANSMITTER GOES DARK'
+              : 'THE LAST DANCE LEAVES BY BOAT'
+            : 'THE MUSIC AFTER GLASS'
+          : earned
+            ? 'MASTER OF THE SHIELD'
+            : 'THE PRICE OF A SINGLE SWITCH'
+    const endingTurn =
+      ending === 'THE SHIELD CHANGES HANDS'
+        ? `Nobody exposed a single accomplice operation, so nobody knows which relay to cut. While you ${choice === 'command' ? 'fight for a console that is already answering someone else' : 'carry guests out through the broken glass'}, ${villain.name} takes the shield towers whole, and by dawn the city's protection answers to a new owner.`
+        : ending === 'THE TRANSMITTER GOES DARK'
+          ? 'Your allies hold the doors while the transmitter dies in a shower of sparks with the beam still climbing. The shield towers fall dark and stay dark, and the city starts rebuilding its defenses by hand, block by block, with the people who carried the injured out.'
+          : ''
     const keys =
       run.guestPlan === 'duplicate'
         ? 'Independent rescuers possess duplicate emergency keys.'
@@ -1426,7 +1455,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -1538,6 +1567,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day < 1 ||
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
+    (data.incidentDeckVersion !== undefined &&
+      (data.incidentDeckVersion !== 2 || data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

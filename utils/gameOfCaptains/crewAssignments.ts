@@ -302,7 +302,8 @@ export const SYNERGIES: Synergy[] = [
     pair: ['pell', 'mox'],
     missions: ['ashdock', 'gameworld'],
     bonus: 3,
-    route: 'Recover the withheld workers’ charter without exposing protected witnesses.',
+    route:
+      'Recover the withheld workers’ charter without exposing protected witnesses.',
     cost: 'Its ownership stays with the workers, not the captain.',
   },
   {
@@ -316,35 +317,40 @@ export const SYNERGIES: Synergy[] = [
     pair: ['rue', 'taal'],
     missions: ['nacre'],
     bonus: 3,
-    route: 'Audit the thermal ballot’s silent objections and invite each excluded voter back.',
+    route:
+      'Audit the thermal ballot’s silent objections and invite each excluded voter back.',
     cost: 'A vote is not consent to disclose a voter’s identity.',
   },
   {
     pair: ['vela', 'brin'],
     missions: ['haleth', 'rootborne'],
     bonus: 3,
-    route: 'Join a clinic’s treatment plans to the reef’s living oxygen commons.',
+    route:
+      'Join a clinic’s treatment plans to the reef’s living oxygen commons.',
     cost: 'Neither a patient nor a forest becomes a medical product.',
   },
   {
     pair: ['sora', 'omi'],
     missions: ['gameworld', 'nacre'],
     bonus: 3,
-    route: 'Decode the Showrunner’s edited announcements into evidence the contestants own.',
+    route:
+      'Decode the Showrunner’s edited announcements into evidence the contestants own.',
     cost: 'An accurate transmission is not an excuse to speak for the workers.',
   },
   {
     pair: ['jex', 'fen'],
     missions: ['gameworld', 'ashdock'],
     bonus: 2,
-    route: 'Turn a ceremonial march into a safe, union-controlled evacuation corridor.',
+    route:
+      'Turn a ceremonial march into a safe, union-controlled evacuation corridor.',
     cost: 'Performers must choose whether they want to be a public symbol.',
   },
   {
     pair: ['brin', 'kivo'],
     missions: ['rootborne', 'windglass'],
     bonus: 2,
-    route: 'Trace the breathing network with a living sensor instead of a public map.',
+    route:
+      'Trace the breathing network with a living sensor instead of a public map.',
     cost: 'The ecosystem has its own right to refuse the shortcut.',
   },
 ]
@@ -388,8 +394,10 @@ export const MISSION_RULES: MissionRule[] = [
     requirements: { tactics: 10, diplomacy: 8 },
     durationDays: 2,
     boardDays: 2,
-    deadline: 'The contractor will destroy the casualty registers within two days.',
-    remoteRoute: 'Shipboard cameras cannot ask the grieving families to testify.',
+    deadline:
+      'The contractor will destroy the casualty registers within two days.',
+    remoteRoute:
+      'Shipboard cameras cannot ask the grieving families to testify.',
   },
   {
     id: 'windglass',
@@ -405,7 +413,8 @@ export const MISSION_RULES: MissionRule[] = [
     durationDays: 2,
     boardDays: 3,
     deadline: 'The assembly holds its binding quorum in three days.',
-    remoteRoute: 'An anonymous appeal cannot vote in place of excluded residents.',
+    remoteRoute:
+      'An anonymous appeal cannot vote in place of excluded residents.',
   },
   {
     id: 'haleth',
@@ -421,7 +430,8 @@ export const MISSION_RULES: MissionRule[] = [
     durationDays: 3,
     boardDays: 2,
     deadline: 'The involuntary finalists are chosen in two days.',
-    remoteRoute: 'A remote audience may watch, but it cannot open the workers’ exit.',
+    remoteRoute:
+      'A remote audience may watch, but it cannot open the workers’ exit.',
   },
   {
     id: 'rootborne',

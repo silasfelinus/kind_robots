@@ -25,8 +25,8 @@ const quests = [
 const names = quests.map((quest) => quest.id)
 assert.equal(
   quests.length,
-  98,
-  'all 68 authored quests and 30 repeatable chores',
+  101,
+  'all 71 authored quests and 30 repeatable chores',
 )
 assert.equal(new Set(names).size, names.length, 'unique quest IDs')
 assert.equal(

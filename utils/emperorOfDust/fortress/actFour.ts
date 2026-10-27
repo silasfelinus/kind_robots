@@ -1,4 +1,4 @@
-import type { DayDef, DueDef, QuestAid, QuestDef } from './types'
+import type { AudienceDef, DayDef, DueDef, QuestAid, QuestDef } from './types'
 import { D34_RUNNER_AT_GATE } from './actTwo'
 import { MOLE_REFORMS_OPEN } from './moles'
 
@@ -392,8 +392,317 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
         'No investigators take the chapel road. The music reaches the tower after dark through a row of empty windows. Dunmark posts a second watch without waiting for an order.',
     },
   },
+  {
+    // t-061: posted by Day 31's Next Year in a Sack audience.
+    id: 'q-d31-seed-corn',
+    title: 'The Carts in the Cut',
+    summary:
+      'Six seed carts wait in the cut below Thistledown with a fourteen-year-old on the whip. Bring them behind the walls before the plum riders come down the cut.',
+    region: 'east-ford',
+    faction: 'freeholds',
+    durationDays: 1,
+    boardDays: 1,
+    party: { min: 2, max: 3 },
+    requirements: [
+      { stat: 'might', band: 'mid' },
+      { stat: 'heart', band: 'mid' },
+    ],
+    danger: 'high',
+    tags: ['defense', 'urgent'],
+    rewards: {
+      triumph: {
+        affinity: { freeholds: 15 },
+        local: { yard: 1 },
+        flags: ['d31-seed-in-granary', 'd31-rafe-safe'],
+      },
+      success: {
+        affinity: { freeholds: 10 },
+        flags: ['d31-seed-in-granary', 'd31-rafe-safe'],
+      },
+      partial: { affinity: { freeholds: 5 }, flags: ['d31-rafe-safe'] },
+      failure: { affinity: { freeholds: -10 }, flags: ['d31-seed-burned'] },
+    },
+    expired: { affinity: { freeholds: -10 }, flags: ['d31-seed-burned'] },
+    outcomes: {
+      triumph:
+        'Six carts came through the postern at dusk with the plum riders a mile behind and turning back. Rafe walked beside the lead ox the whole way and would not ride. Thirty sacks went into the granary. Hester counted every one, then sat down on the last of them and did not get up for an hour.',
+      success:
+        'Five carts came in. The sixth lost a wheel in the cut and the party left it. Rafe wanted to stay with it. They put him on the lead cart and he cried the whole road home without a sound.',
+      partial:
+        'The riders came down the cut early. The party got the boy out and two carts. The rest burned where they stood. Hester has two carts of seed for nine Freeholds. She is already choosing who plants.',
+      failure:
+        'The carts burned in the cut. Rafe lit them himself when the riders came over the rise. The party found him in the ditch with the whip still in his hand, alive, deaf in one ear from the oil going up.',
+      expired:
+        'Nobody rode for the cut. At dusk a black smoke stood over Thistledown, then a smaller one in the cut below it. Rafe walked in two days later with singed eyebrows. He did not look at the tower when he passed it.',
+    },
+  },
 ]
 
+// t-061: nine Freeholds' seed, stuck in the cut while the Ford burns.
+const D31_SEED_CORN: AudienceDef = {
+  id: 'd31-seed-corn',
+  title: 'Next Year in a Sack',
+  speaker: 'Hester Plowright, reeve of the Border Freeholds',
+  npc: 'hester-plowright',
+  faction: 'freeholds',
+  lines: [
+    'Hester Plowright comes in behind the muster with a sack over her shoulder and mud to the knee. She drops it at the foot of the dais. It splits at the seam. Seed corn runs out across the stone, yellow and dry.',
+    '“That is next year, Majesty. All of it, from nine Freeholds. Thirty sacks on six carts. The plum coats are burning fields from the east bank in. When they reach the barns they burn those too.”',
+    '“I want it in your granary. Behind your walls. Till spring.”',
+    {
+      who: 'Foreman Dunmore Ash',
+      npc: 'dunmore-ash',
+      text: 'The granary is the Yard’s winter, Majesty. Thirty sacks of her seed means thirty sacks of our flour sleeping in the rain.',
+    },
+    {
+      who: 'Young Komodo',
+      npc: 'young-komodo',
+      text: 'Seed is a promise to plant, Your Majesty. A granary of promises feeds nobody in the cold months. It does buy a very loyal spring.',
+    },
+  ],
+  options: [
+    {
+      id: 'ask-carts',
+      label: 'Ask Hester who is with the carts.',
+      effects: {},
+      response:
+        'Hester looks at the corn on the floor. She does not pick it up. “My grandson. Rafe. He’s fourteen and he has the whip.”',
+      next: 'carts',
+    },
+    {
+      id: 'bring',
+      label: 'Send riders for the carts. The granary makes room.',
+      effects: { local: { yard: -2 } },
+      response:
+        'Ash says nothing. He goes down to the granary with two clerks and starts carrying Yard flour into the courtyard under oilcloth. Hester watches him do it. She does not thank him. She will.',
+      postsQuests: ['q-d31-seed-corn'],
+    },
+    {
+      id: 'refuse',
+      label:
+        'The granary feeds the people already behind these walls. The Freeholds hide their own seed.',
+      effects: {
+        affinity: { freeholds: -10 },
+        local: { yard: 2, 'old-houses': 1 },
+        flags: ['d31-seed-refused'],
+      },
+      response:
+        'Hester gathers the spilled corn off the floor into her hat, kernel by kernel. It takes a long time. Nobody helps her. Nobody stops her.',
+    },
+    {
+      id: 'remind-wells',
+      label:
+        'Remind Hester whose wells were shut on the strangers in the drought.',
+      requires: { flags: ['wells-closed'] },
+      effects: { local: { yard: 1 }, flags: ['d31-wells-remembered'] },
+      response:
+        '“I remember,” Hester says. “I shut them.” She stands there a while with her hands empty.',
+      next: 'please',
+    },
+  ],
+  beats: [
+    {
+      id: 'carts',
+      lines: [
+        '“The carts are in the cut below Thistledown. The oxen are old. If the riders come down the cut before your people get there, Rafe tips the carts and burns them. I told him to. Better ash than theirs.”',
+        '“He’ll do it, too. He’s a good boy. He does what I tell him.”',
+        {
+          who: 'Young Komodo',
+          npc: 'young-komodo',
+          text: 'Captain Dunmark has half the Watch at the Ford already, Your Majesty. A second party to the cut thins the tower again. The plum riders count gates the way the Ledger counts coin.',
+        },
+      ],
+      options: [
+        {
+          id: 'bring',
+          label: 'Send for the carts. Get the boy out first.',
+          effects: { local: { yard: -2 } },
+          response:
+            'Hester picks one kernel off the floor and puts it in her apron pocket. “For luck,” she says. She has never said that in this hall before.',
+          postsQuests: ['q-d31-seed-corn'],
+        },
+        {
+          id: 'burn-now',
+          label:
+            'Send word to Rafe to burn the carts now. The seed is lost either way. The boy is not.',
+          effects: {
+            affinity: { freeholds: -5 },
+            local: { yard: 1 },
+            flags: ['d31-seed-burned'],
+          },
+          response:
+            'The rider takes the order at a gallop. That night a second smoke stands up east of the Ford, smaller than the first and sweet-smelling. Rafe walks in two days later with his eyebrows singed. He will not look at his grandmother.',
+        },
+        {
+          id: 'refuse',
+          label: 'The granary stays for the wall. Tell her no.',
+          effects: {
+            affinity: { freeholds: -10 },
+            local: { yard: 2, 'old-houses': 1 },
+            flags: ['d31-seed-refused'],
+          },
+          response:
+            'Hester nods as if she expected it. She leaves the split sack where it lies. The Yard sweeps up the corn that night and does not know what to do with it.',
+        },
+      ],
+    },
+    {
+      id: 'please',
+      lines: [
+        '“I shut them because there wasn’t enough. There isn’t enough now. That’s the only reason anybody ever asks anybody for anything.”',
+        'Then she says please. It costs her more than the corn.',
+      ],
+      options: [
+        {
+          id: 'bring',
+          label: 'Send for the carts.',
+          effects: { local: { yard: -2 } },
+          response:
+            'Hester lets out a breath she has been holding since the Ford. She goes to the window to watch the riders go.',
+          postsQuests: ['q-d31-seed-corn'],
+        },
+        {
+          id: 'refuse',
+          label: 'Tell her the wells taught the crown the same lesson.',
+          effects: {
+            affinity: { freeholds: -10 },
+            local: { yard: 2, 'old-houses': 1 },
+            flags: ['d31-seed-refused'],
+          },
+          response:
+            '“Fair,” Hester says. It is the worst thing she could have said. She walks out with the split sack leaking a yellow line down the carpet.',
+        },
+      ],
+    },
+  ],
+}
+
+// t-061: two of the Watch go over the wall; Day 10's oath is called in.
+const D36_POSTERN_LADDER: AudienceDef = {
+  id: 'd36-postern-ladder',
+  title: 'Over the Wall',
+  speaker: 'Captain Ferro Dunmark of the Gate Watch',
+  npc: 'ferro-dunmark',
+  faction: 'gate-watch',
+  lines: [
+    'Dunmark brings them in himself. Two of his own, tabards with the crown badge torn off. A tall one with a bandaged hand. A short one who keeps looking at the windows. Their spears stay outside the door.',
+    '“Caught on the postern ladder at the change of watch, Majesty. Going over. Ward and Cass Tanner. Brothers. Eleven years in the Watch between them.”',
+    '“Their mother’s farm is under the plum riders’ smoke. They asked for leave and I said no. I need every spear I have. So they took it.”',
+    '“The Watch has hanged deserters in a war. The last emperor did it from that balcony. The Watch is waiting to see what this one does.”',
+    {
+      who: 'Young Komodo',
+      npc: 'young-komodo',
+      text: 'A rope is a short speech, Your Majesty. Everyone understands it. That is the trouble with it.',
+    },
+  ],
+  options: [
+    {
+      id: 'ask-brothers',
+      label: 'Ask the brothers why they did not come to the throne.',
+      effects: {},
+      response:
+        'The short one, Cass, looks up for the first time. “We did. We stood in the petition line two days running. It closed both times.”',
+      next: 'brothers',
+    },
+    {
+      id: 'hang',
+      label: 'The law of the Watch stands. Hang them at dawn.',
+      effects: {
+        local: { 'gate-watch': 2, 'old-houses': 2, yard: -3 },
+        flags: ['d36-tanners-hanged'],
+      },
+      response:
+        'Dawn. The whole Watch in the parade yard, the way it stood for the oath. Dunmark reads the order himself. Afterward he stays on the balcony until the yard is empty, and a while after that.',
+    },
+    {
+      id: 'turn-out',
+      label:
+        'Strip their tabards and turn them out the gate. Let them go to their mother.',
+      effects: {
+        local: { 'gate-watch': -2, yard: 1 },
+        flags: ['d36-tanners-turned-out'],
+      },
+      response:
+        'The brothers walk out of the main gate in their shirts with the whole wall watching. Halfway down the road the tall one turns and salutes. Nobody on the wall salutes back. Somebody wants to.',
+    },
+    {
+      id: 'oath-care',
+      label:
+        '“I swore I would never spend you cheaply. A rope is cheap.” Grant the leave they asked for.',
+      requires: { flags: ['oath-of-care'] },
+      effects: {
+        local: { 'gate-watch': 3, 'old-houses': -2 },
+        flags: ['d36-tanners-leave'],
+      },
+      response:
+        'Dunmark looks at you the way he looked at you on the balcony the day of the oath. Then he unlocks the irons himself. “Three days,” he tells them. “Then you come back to me.” They come back on the second.',
+    },
+    {
+      id: 'oath-crown',
+      label:
+        '“You swore you belong to the crown before all else.” Hold them to it.',
+      requires: { flags: ['oath-of-crown'] },
+      effects: {
+        local: { 'gate-watch': 1, 'old-houses': 2, yard: -1 },
+        flags: ['d36-tanners-held'],
+      },
+      response:
+        '“Before all else,” Ward Tanner says, to the floor. They go back on the wall in irons that night, at the post nearest the smoke, where they can watch it all the way down.',
+    },
+  ],
+  beats: [
+    {
+      id: 'brothers',
+      lines: [
+        '“Ma’s got the two little ones and a bad hip,” Cass says. “The riders burn the field first and the house after. Everybody knows the order now. We wanted to get there in between.”',
+        'Ward lifts the bandaged hand. “Cut it on the wall spikes going over. Cass came back down for me. That’s how they got us. He came back down.”',
+        {
+          who: 'Captain Ferro Dunmark',
+          npc: 'ferro-dunmark',
+          text: 'Hanging them tells sixty people the rule. Freeing them tells sixty people there is no rule. Both are true, Majesty. I’ve stopped liking either.',
+        },
+        {
+          who: 'Young Komodo',
+          npc: 'young-komodo',
+          text: 'Send them for the mother under orders, Your Majesty. Then it is not desertion. It is a patrol. Paper is kinder than rope, and it costs only the truth.',
+        },
+      ],
+      options: [
+        {
+          id: 'patrol',
+          label:
+            'Write it as a patrol. Send them for their mother under the crown’s orders.',
+          effects: {
+            local: { 'gate-watch': 1, ledger: -1 },
+            flags: ['d36-tanners-patrol'],
+          },
+          response:
+            'Komodo writes the order in his own hand and dates it yesterday. Dunmark reads it, signs under it and says nothing about the date. The brothers ride out at noon with a mule for the hip.',
+        },
+        {
+          id: 'hang',
+          label: 'Hang them. The rule has to mean something.',
+          effects: {
+            local: { 'gate-watch': 2, 'old-houses': 2, yard: -3 },
+            flags: ['d36-tanners-hanged'],
+          },
+          response:
+            'Cass nods as if he expected it. Ward does not. At dawn Dunmark reads the order himself. He does not use their names. He uses them later, alone, to the empty yard.',
+        },
+        {
+          id: 'turn-out',
+          label: 'Turn them out. They are no longer the Watch’s problem.',
+          effects: {
+            local: { 'gate-watch': -2, yard: 1 },
+            flags: ['d36-tanners-turned-out'],
+          },
+          response:
+            'Dunmark tears the last thread of badge off Ward’s tabard himself. The brothers go out the main gate together, the short one holding the tall one’s good arm.',
+        },
+      ],
+    },
+  ],
+}
 export const ACT_FOUR_DAYS: readonly DayDef[] = [
   {
     day: 31,
@@ -608,6 +917,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D31_SEED_CORN,
     ],
   },
   {
@@ -2116,6 +2426,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D36_POSTERN_LADDER,
     ],
   },
   {

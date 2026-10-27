@@ -11,6 +11,8 @@ import {
 import assert from 'node:assert/strict'
 import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
 import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
+import { LATE_INCIDENTS } from '../cometAcademy/lateIncidents'
+import { RETURN_VISITS } from '../cometAcademy/returnVisits'
 import {
   CITY_SITES,
   projectCitySites,
@@ -103,6 +105,8 @@ import {
   POWERS,
   STUDENTS,
   INCIDENTS,
+  NIGHT_DECK,
+  incidentDeck,
   ENCOUNTERS,
   assignTeam,
   knownContacts,
@@ -365,8 +369,8 @@ for (const seed of [1, 7, 24, 999]) {
   assert.ok(deck.includes('A Visitor from the Stars'))
 }
 assert.equal(ENCOUNTERS.length, 7)
-assert.equal(Object.keys(REAL_NIGHT_CASES).length, INCIDENTS.length)
-for (const incident of INCIDENTS) {
+assert.equal(Object.keys(REAL_NIGHT_CASES).length, NIGHT_DECK.length)
+for (const incident of NIGHT_DECK) {
   const realCase = realNightCase(incident.id)
   assert.ok(realCase, `Missing real-night branch for ${incident.id}`)
   assert.ok(realCase.briefing.length > 80)
@@ -1255,6 +1259,11 @@ for (const seed of [1, 2, 3, 4, 997]) {
     run = after
   }
   assert.equal(run.day, 30)
+  const lateTitles = LATE_INCIDENTS.map((incident) => incident.title)
+  assert.ok(
+    run.log.some((line) => lateTitles.some((title) => line.includes(title))),
+    'a thirty-day run answers late night calls',
+  )
   assert.equal(run.phase, 'finale')
   assert.ok(run.scene.includes('real, not a simulation'))
   assert.ok(run.scene.includes('fourth dance'))
@@ -1471,7 +1480,7 @@ const allKnown = {
   contacts: STUDENTS.map((p) => p.id),
   phase: 'dispatch' as const,
 }
-for (const incident of INCIDENTS) {
+for (const incident of NIGHT_DECK) {
   const moods = new Set(
     STUDENTS.map((person) => missionReaction(person.id, incident.id).mood),
   )
@@ -1884,6 +1893,137 @@ for (const [key, prompt] of Object.entries(PROM_ART_PROMPTS))
     prompt.length >= 120 && prompt.length <= 900,
     `${key} prompt length ${prompt.length}`,
   )
+// Late night calls: new thirty-day runs draw twelve cases, older saves keep six.
+assert.equal(LATE_INCIDENTS.length, 6)
+assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
+{
+  const fresh = startFullAcademy('kinetic', 31)
+  assert.equal(fresh.incidentDeckVersion, 2)
+  const seen = new Set<string>()
+  for (let day = 1; day <= 12; day++) {
+    const [a, b] = incidentsFor({ ...fresh, day })
+    assert.ok(a && b && a.need !== b.need, 'paired calls ask different powers')
+    seen.add(a.id)
+    seen.add(b.id)
+  }
+  assert.equal(seen.size, 12)
+  const { incidentDeckVersion: _dropped, ...legacy } = fresh
+  assert.equal(incidentDeck(legacy as AcademyRun), INCIDENTS)
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(legacy))), legacy)
+  for (let day = 1; day <= 12; day++)
+    for (const incident of incidentsFor({ ...legacy, day } as AcademyRun))
+      assert.ok(INCIDENTS.includes(incident), 'old saves keep the six')
+  assert.equal(restoreAcademy({ ...fresh, incidentDeckVersion: 3 }), null)
+  assert.equal(
+    restoreAcademy({ ...startAcademy('kinetic', 31), incidentDeckVersion: 2 }),
+    null,
+  )
+  for (const incident of LATE_INCIDENTS) {
+    const day = [...Array(12).keys()]
+      .map((index) => index + 3)
+      .find((d) =>
+        incidentsFor({ ...fresh, day: d }).some(
+          (item) => item.id === incident.id,
+        ),
+      )!
+    let night: AcademyRun = {
+      ...fresh,
+      day,
+      phase: 'dispatch',
+      contacts: STUDENTS.map((student) => student.id),
+    }
+    const [first, second] = incidentsFor(night)
+    night = assignTeam(night, first!.id, ['mina', 'sol'])
+    night = assignTeam(night, second!.id, ['imani', 'kit'])
+    const done = resolveDispatch(night)
+    const report = done.reports.find((entry) => entry.caseId === incident.id)!
+    assert.ok(
+      Object.values(realNightCase(incident.id)!.consequences).some((text) =>
+        report.text.startsWith(text),
+      ),
+      `${incident.id} resolves with its own consequence`,
+    )
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(done))), done)
+    assert.ok(PROM_ART_PROMPTS[`incidents/${incident.id}`])
+  }
+}
+
+// An untouched thirty-day run that goes back to old haunts meets their return scenes.
+{
+  let run = startFullAcademy('kinetic', 4242)
+  const returnTitles = Object.values(RETURN_VISITS).map((card) => card.title)
+  for (let day = 1; day <= 29; day++) {
+    const due = CITY_SITES.find(
+      (site) => (run.visitedDays?.[site.id] ?? 99) <= day - 7,
+    )
+    const fresh = CITY_SITES.find((site) => !run.visitedDays?.[site.id])
+    run = visitCitySite(run, (due ?? fresh ?? CITY_SITES[0]!).id)
+    assert.equal(run.phase, 'campus')
+    run = chooseEncounter(run, encounterFor(run).options[0]!.id)
+    if (emergencyContact(run)) run = callEmergencyVolunteer(run)
+    for (const incident of incidentsFor(run)) {
+      const picked = knownContacts(run).find(
+        (id) =>
+          studentAvailable(run, id) &&
+          !run.assignments.some((entry) => entry.students.includes(id)),
+      )
+      if (picked) run = assignTeam(run, incident.id, [picked])
+    }
+    run = resolveDispatch(run)
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
+    run = nextSchoolDay(run)
+  }
+  const revisits = run.log.filter((line) =>
+    returnTitles.some((title) => line.includes(title)),
+  )
+  assert.ok(revisits.length >= 3, 'return scenes are reachable in play')
+  assert.equal(run.phase, 'finale')
+}
+
+// Return visits: every landmark has its own second scene a week later.
+assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
+{
+  const optionIds = new Set<string>()
+  const titles = new Set<string>()
+  for (const site of CITY_SITES) {
+    const card = RETURN_VISITS[site.id]
+    titles.add(card.title)
+    assert.ok(card.scene.length > 120)
+    assert.equal(card.options.length, 2)
+    for (const option of card.options) {
+      assert.ok(!optionIds.has(option.id))
+      optionIds.add(option.id)
+      assert.ok(option.id.startsWith('return-'))
+      assert.ok(option.text.length > 90)
+    }
+    assert.ok(PROM_ART_PROMPTS[`returns/${site.id}`], `${site.id} return art`)
+    const base = startFullAcademy('kinetic', 7)
+    const first = visitCitySite({ ...base, day: 7, phase: 'map' }, site.id)
+    assert.notEqual(encounterFor(first).title, card.title)
+    const back = visitCitySite(
+      { ...base, day: 14, phase: 'map', visitedDays: { [site.id]: 7 } },
+      site.id,
+    )
+    assert.equal(back.phase, 'campus')
+    const scene = encounterFor(back)
+    assert.equal(scene.title, card.title)
+    assert.ok(scene.scene.includes('day 7'))
+    const [good, bad] = card.options
+    const helped = chooseEncounter(back, good!.id)
+    const used = chooseEncounter(back, bad!.id)
+    assert.equal(helped.phase, 'dispatch')
+    assert.ok(helped.influence > used.influence)
+    assert.ok(
+      (helped.cityStanding ?? 0) + (helped.academyStanding ?? 0) >
+        (used.cityStanding ?? 0) + (used.academyStanding ?? 0),
+    )
+    assert.equal(helped.visitedDays?.[site.id], 14)
+    assert.ok(helped.log.at(-1)!.includes(card.title))
+    assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(helped))), helped)
+  }
+  assert.equal(titles.size, CITY_SITES.length)
+}
+
 console.log(
   'Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK',
 )

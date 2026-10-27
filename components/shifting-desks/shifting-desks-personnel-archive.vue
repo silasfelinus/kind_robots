@@ -74,7 +74,7 @@
                 ? 'bg-base-content text-base-100'
                 : 'hover:bg-base-300'
             "
-            @click="tab = section.id"
+            @click="selectTab(section.id)"
           >
             {{ section.label }}
           </button>
@@ -82,14 +82,12 @@
 
         <div class="min-h-0 flex-1 overflow-y-auto pr-1">
           <section
-            v-if="tab === 'milestones' || tab === 'achievements'"
+            v-if="tab === 'milestones'"
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-2"
-            :aria-label="
-              tab === 'achievements' ? 'Achievement badges' : 'Milestones'
-            "
+            :aria-label="'Milestone progress'"
           >
             <article
-              v-for="milestone in visibleMilestones"
+              v-for="milestone in MILESTONES"
               :key="milestone.id"
               class="relative flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border-2 p-3 text-center"
               :class="
@@ -147,6 +145,217 @@
                 >Filed</span
               >
             </article>
+          </section>
+
+          <section
+            v-else-if="tab === 'achievements'"
+            class="flex flex-col gap-4"
+            aria-label="Shifting Desks achievement cabinet"
+          >
+            <header
+              class="rounded-xl border-2 border-warning/40 bg-base-200 p-3"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3
+                    class="font-mono text-base font-black uppercase sm:text-xl"
+                  >
+                    Cabinet of Distinctions
+                  </h3>
+                  <p class="text-xs opacity-80">
+                    {{ filedBadgeCount }}/{{ badgeMilestones.length }} personnel
+                    stamps · {{ syncedAwardCount }}/{{ accountBadges.length }}
+                    account medals
+                  </p>
+                </div>
+                <icon name="kind-icon:trophy" class="size-10 text-warning" />
+              </div>
+              <p class="mt-2 text-xs">
+                Your personnel stamps live in this browser. Kind Robots medals
+                are separate account records. Neither is awarded by opening this
+                cabinet.
+              </p>
+            </header>
+
+            <div>
+              <h4
+                class="mb-2 font-mono text-xs font-black uppercase tracking-widest"
+              >
+                Personnel Stamp Collection
+              </h4>
+              <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3"
+              >
+                <article
+                  v-for="milestone in badgeMilestones"
+                  :key="milestone.id"
+                  class="relative flex flex-col gap-2 overflow-hidden rounded-xl border-2 p-3"
+                  :class="
+                    filed(milestone.id)
+                      ? milestone.id === 'employee-of-the-month'
+                        ? 'border-warning bg-gradient-to-br from-warning/35 via-base-100 to-accent/20'
+                        : 'border-warning/70 bg-base-100'
+                      : 'border-dashed border-base-content/25 bg-base-200/60'
+                  "
+                >
+                  <div
+                    class="relative mx-auto grid aspect-[4/3] w-full max-w-48 place-items-center overflow-hidden rounded-lg border-4"
+                    :class="
+                      filed(milestone.id)
+                        ? 'border-warning/70 bg-base-100'
+                        : 'border-base-content/20 bg-base-300'
+                    "
+                  >
+                    <shifting-desks-art
+                      v-if="
+                        filed(milestone.id) &&
+                        milestone.id === 'employee-of-the-month'
+                      "
+                      frame="h-full w-full"
+                      :src="stationArt('endings', 'employee-of-the-month')"
+                      :prompt="employeeEnding?.epilogue.art_prompt ?? ''"
+                      :show-brief="false"
+                      :alt="employeeEnding?.title ?? 'Employee of the Month'"
+                      fallback-icon="kind-icon:trophy"
+                    />
+                    <icon
+                      v-else
+                      :name="
+                        filed(milestone.id) ? milestone.icon : 'kind-icon:lock'
+                      "
+                      class="size-12"
+                      :class="
+                        filed(milestone.id)
+                          ? 'text-warning'
+                          : 'text-base-content/30'
+                      "
+                    />
+                    <span
+                      v-if="!filed(milestone.id)"
+                      class="absolute inset-0 grid place-items-center bg-base-content/15 font-mono text-[10px] font-black uppercase tracking-widest"
+                      >Classified</span
+                    >
+                  </div>
+                  <h5 class="font-mono text-xs font-black uppercase">
+                    {{ milestone.title }}
+                  </h5>
+                  <p class="text-xs opacity-80">{{ milestone.detail }}</p>
+                  <p class="mt-auto font-mono text-[10px] font-bold uppercase">
+                    {{
+                      filed(milestone.id)
+                        ? 'Earned · ' +
+                          dateLabel(archive.milestones[milestone.id])
+                        : progress(milestone) +
+                          '/' +
+                          milestone.target +
+                          ' · Unfiled'
+                    }}
+                  </p>
+                  <div
+                    v-if="!filed(milestone.id)"
+                    class="h-2 w-full overflow-hidden rounded-full bg-base-content/20"
+                    :aria-label="`${progress(milestone)} of ${milestone.target}`"
+                  >
+                    <div
+                      class="h-full bg-warning"
+                      :style="{
+                        width: `${(100 * progress(milestone)) / milestone.target}%`,
+                      }"
+                    />
+                  </div>
+                  <span
+                    v-else-if="milestone.id === 'employee-of-the-month'"
+                    class="absolute right-1 top-1 rounded bg-warning px-2 py-1 font-mono text-[9px] font-black uppercase text-warning-content"
+                    >Rare foil</span
+                  >
+                </article>
+              </div>
+            </div>
+
+            <div>
+              <h4
+                class="mb-2 font-mono text-xs font-black uppercase tracking-widest"
+              >
+                Kind Robots Account Medals
+              </h4>
+              <div
+                class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3"
+              >
+                <article
+                  v-for="medal in accountBadges"
+                  :key="medal.code"
+                  class="flex flex-col gap-2 rounded-xl border-2 p-3"
+                  :class="
+                    medal.earned
+                      ? 'border-warning bg-warning/10'
+                      : 'border-base-content/20 bg-base-200/65'
+                  "
+                >
+                  <div
+                    class="relative mx-auto grid aspect-[4/3] w-full max-w-48 place-items-center overflow-hidden rounded-lg border-4"
+                    :class="
+                      medal.earned ? 'border-warning' : 'border-base-content/20'
+                    "
+                  >
+                    <img
+                      v-if="medal.earned && medal.imagePath"
+                      :src="medal.imagePath"
+                      :alt="medal.label"
+                      class="h-full w-full object-cover"
+                    />
+                    <icon
+                      v-else
+                      :name="medal.earned ? medal.icon : 'kind-icon:lock'"
+                      class="size-12"
+                      :class="
+                        medal.earned ? 'text-warning' : 'text-base-content/30'
+                      "
+                    />
+                  </div>
+                  <p
+                    class="font-mono text-[10px] font-bold uppercase opacity-60"
+                  >
+                    Kind Robots · Tier {{ medal.tier }}
+                  </p>
+                  <h5 class="font-mono text-xs font-black uppercase">
+                    {{ medal.label }}
+                  </h5>
+                  <p class="text-xs opacity-80">{{ medal.hint }}</p>
+                  <p class="mt-auto font-mono text-[10px] font-bold uppercase">
+                    {{ medal.status }}
+                  </p>
+                </article>
+              </div>
+              <p class="mt-2 text-[11px] opacity-70">
+                Account medals come from the achievement registry and recorded
+                user awards. Missing catalog data never counts as a locked or
+                earned award.
+              </p>
+            </div>
+
+            <div v-if="replayTargets.length" class="rounded-xl bg-base-200 p-3">
+              <h4 class="font-mono text-xs font-black uppercase">
+                Next Personnel Objectives
+              </h4>
+              <ul class="mt-2 space-y-2">
+                <li
+                  v-for="target in replayTargets"
+                  :key="target.id"
+                  class="text-xs"
+                >
+                  <strong>{{ target.title }}</strong>
+                  · {{ progress(target) }}/{{ target.target }} ·
+                  {{ target.detail }}
+                </li>
+              </ul>
+              <button
+                type="button"
+                class="btn btn-warning btn-sm mt-3"
+                @click="replay"
+              >
+                Start another review
+              </button>
+            </div>
           </section>
 
           <section
@@ -260,6 +469,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useAchievementStore } from '~/stores/achievementStore'
+import { useUserStore } from '~/stores/userStore'
+import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import { ENDINGS, stationArt } from '~/utils/shiftingDesks/rules'
 import { MILESTONES, type Milestone } from '~/utils/shiftingDesks/rewards'
@@ -272,6 +484,12 @@ const sections: Array<{ id: ArchiveTab; label: string }> = [
   { id: 'runs', label: 'Runs' },
 ]
 const store = useShiftingDesksStore()
+const achievementStore = useAchievementStore()
+const userStore = useUserStore()
+const achievementDefinitions = achievementsForGame('shifting-desks')
+const employeeEnding = ENDINGS.find(
+  (entry) => entry.id === 'employee-of-the-month',
+)
 const archive = computed(() => store.rewardArchive)
 const sheet = ref<HTMLDialogElement | null>(null)
 const tab = ref<ArchiveTab>('milestones')
@@ -281,12 +499,50 @@ const earnedCount = computed(
 const foundCount = computed(
   () => ENDINGS.filter((ending) => hasEnding(ending.id)).length,
 )
-const visibleMilestones = computed(() =>
-  tab.value === 'achievements' ? MILESTONES.filter((m) => m.badge) : MILESTONES,
+const badgeMilestones = MILESTONES.filter((milestone) => milestone.badge)
+const filed = (id: string) => !!archive.value.milestones[id]
+const filedBadgeCount = computed(
+  () => badgeMilestones.filter((m) => filed(m.id)).length,
 )
-const earned = (id: string) =>
-  !!archive.value.milestones[id] ||
-  MILESTONES.some((m) => m.id === id && progress(m) >= m.target)
+const accountBadges = computed(() =>
+  achievementDefinitions.map((definition) => {
+    const catalog = achievementStore.achievementByCode(definition.code)
+    const award =
+      catalog &&
+      achievementStore.achievementRecords.find(
+        (record) =>
+          record.achievementId === catalog.id &&
+          record.userId === userStore.userId,
+      )
+    const locallyQueued =
+      !!catalog && !award && achievementStore.hasEarnedCode(definition.code)
+    return {
+      code: definition.code,
+      tier: definition.tier,
+      label: catalog?.label ?? definition.label,
+      hint: definition.subtleHint,
+      icon: catalog?.icon ?? definition.icon,
+      imagePath: catalog?.imagePath ?? null,
+      earned: !!award,
+      status: award
+        ? 'Earned · ' + dateLabel(String(award.createdAt))
+        : locallyQueued
+          ? 'Awaiting account sync'
+          : catalog
+            ? 'Not yet recorded'
+            : 'Catalog unavailable',
+    }
+  }),
+)
+const syncedAwardCount = computed(
+  () => accountBadges.value.filter((m) => m.earned).length,
+)
+const replayTargets = computed(() =>
+  MILESTONES.filter((m) => !filed(m.id))
+    .sort((a, b) => a.target - progress(a) - (b.target - progress(b)))
+    .slice(0, 3),
+)
+const earned = filed
 const hasEnding = (id: string) => store.endingsFound.includes(id)
 const endingTitle = (id: string) =>
   ENDINGS.find((ending) => ending.id === id)?.title ?? 'Classified'
@@ -297,9 +553,18 @@ const dateLabel = (value?: string) =>
     ? new Date(value).toLocaleDateString()
     : 'Date redacted'
 
-function open(section: ArchiveTab = 'milestones'): void {
+function selectTab(section: ArchiveTab): void {
   tab.value = section
+  if (section === 'achievements')
+    void achievementStore.initialize({ fetchRemote: true })
+}
+function open(section: ArchiveTab = 'milestones'): void {
+  selectTab(section)
   sheet.value?.showModal()
+}
+function replay(): void {
+  close()
+  store.quit()
 }
 function close(): void {
   sheet.value?.close()

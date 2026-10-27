@@ -155,6 +155,14 @@
                   ><strong>{{ captainStats[skill] }}</strong>
                 </div>
               </div>
+              <section class="cap-character-promise" data-testid="couch-captain-promise">
+                <span>WHO ARE YOU PLAYING?</span>
+                <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
+                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
+                <strong>YOUR KIND OF TROUBLE</strong>
+                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}</p>
+                <small>{{ CAPTAIN_DOSSIERS[selectedCaptain].crewSpark }}</small>
+              </section>
               <div class="cap-insight">
                 <strong>Personal history</strong>
                 <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
@@ -249,7 +257,14 @@
                   >{{ crewProfile(focusedCrew).name }} ·
                   {{ crewProfile(focusedCrew).culture }}</strong
                 >
+                <h3 class="cap-crew-hook">{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
+                <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
                 <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                <div class="cap-character-promise" data-testid="couch-crew-promise">
+                  <strong>THE STORY THIS CREWMATE BRINGS</strong>
+                  <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
+                  <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
+                </div>
                 <small
                   >Personal voyage:
                   {{ CREW_DOSSIERS[focusedCrew].itinerary.join(' → ') }}</small
@@ -324,6 +339,36 @@
               </div>
             </div>
             <p class="cap-narrative">{{ mission.briefing }}</p>
+            <section class="cap-instinct" data-testid="couch-captain-instinct">
+              <span>CAPTAIN'S PERSONAL BAD IDEA</span>
+              <h3>{{ captainInstinct.title }}</h3>
+              <p>{{ captainInstinct.situation }}</p>
+              <p class="cap-instinct-response">{{ captainReply }}</p>
+              <template v-if="captainCanAct">
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-impulse"
+                  :disabled="captainImpulseBlocked"
+                  @click="store.captainAction('impulse')"
+                >
+                  <span><b>{{ captainInstinct.impulse }}</b>
+                    <small>+10% mission success; distinct personal cost</small></span>↗
+                </button>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-restraint"
+                  @click="store.captainAction('restraint')"
+                >
+                  <span><b>{{ captainInstinct.restraint }}</b>
+                    <small>A smaller, safer gain. No tactical bonus.</small></span>↗
+                </button>
+              </template>
+              <p v-else class="cap-instinct-response">
+                {{ run.scene.includes("signature") ? run.scene : "That captain's decision is already recorded for this chapter." }}
+              </p>
+            </section>
             <div class="cap-antagonist">
               <strong>ANOMALY IN THE SIGNAL</strong>
               <p>
@@ -924,6 +969,7 @@ import {
   ACT_ONE_ORDERS,
   type ActOneRouteId,
 } from '~/utils/gameOfCaptains/actOne'
+import { CAPTAIN_INSTINCTS, captainInstinctAvailable, captainInstinctReply } from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -967,6 +1013,14 @@ const stageAlt = computed(() =>
     : selectionScreen.value === 'captain'
       ? activeCaptain.value.name + ' selection portrait'
       : crewProfile(focusedCrew.value).name + ' selection portrait',
+)
+const captainInstinct = computed(() => CAPTAIN_INSTINCTS[(run.value?.captain ?? selectedCaptain.value)])
+const captainCanAct = computed(() => !!run.value && captainInstinctAvailable(run.value))
+const captainReply = computed(() => run.value ? captainInstinctReply(run.value) : '')
+const captainImpulseBlocked = computed(() =>
+  !!run.value &&
+  ((['vale', 'solace'].includes(run.value.captain) && run.value.supplies < 1) ||
+    (run.value.captain === 'quill' && (run.value.shieldCharge ?? 2) < 1)),
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
@@ -1306,6 +1360,38 @@ function toggleAway(id: CrewId) {
   color: #e5d6c8;
   font-size: 0.7rem;
   line-height: 1.4;
+}
+.cap-character-promise, .cap-instinct {
+  padding: 0.85rem;
+  border: 1px solid #8ec3cd7a;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, #253a49, #14243d);
+  display: grid;
+  gap: 0.45rem;
+}
+.cap-character-promise > span, .cap-instinct > span {
+  letter-spacing: 0.1em;
+  font-size: 0.64rem;
+  font-weight: 900;
+  color: #f9c998;
+}
+.cap-character-promise h3, .cap-instinct h3, .cap-crew-hook {
+  font: 800 1rem/1.4 Georgia, serif;
+  color: #ffe3c4;
+  margin: 0;
+}
+.cap-character-promise p, .cap-instinct p {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  margin: 0;
+}
+.cap-character-promise strong {
+  color: #fed2a2;
+  font-size: 0.7rem;
+}
+.cap-character-promise small, .cap-instinct-response {
+  color: #c1d8dd;
+  line-height: 1.5;
 }
 .cap-starmap {
   position: absolute;

@@ -162,8 +162,7 @@ import { MAKER_GROUPS } from '~/utils/arcade/games/savePlumberMaker'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 const maker = useSavePlumberMakerStore()
 const emit = defineEmits<{
-  (event: 'load-draft', id: string): void
-  (event: 'play-draft', id: string): void
+  (event: 'load-draft' | 'play-draft', id: string): void
 }>()
 const panels = [
   { id: 'tools' as const, icon: '▦', label: 'TOOLS' },

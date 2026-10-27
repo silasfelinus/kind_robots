@@ -132,7 +132,7 @@ function textField(value: unknown, max: number, fallback: string): string {
   return (
     value
       .trim()
-      .replace(/[\u0000-\u001f\u007f]/g, '')
+      .replace(/\p{Cc}/gu, '')
       .slice(0, max) || fallback
   )
 }
@@ -220,6 +220,7 @@ export function decodeMakerLevel(code: string): MakerLevel {
       error instanceof Error
         ? 'Cannot open course: ' + error.message
         : 'Cannot open course',
+      { cause: error },
     )
   }
 }

@@ -59,22 +59,22 @@
               <button
                 type="button"
                 :disabled="!maker.undoStack.length"
+                title="Undo (Ctrl+Z)"
                 @click="
                   maker.undo()
                   drawEditor()
                 "
-                title="Undo (Ctrl+Z)"
               >
                 ↶ UNDO
               </button>
               <button
                 type="button"
                 :disabled="!maker.redoStack.length"
+                title="Redo (Ctrl+Y)"
                 @click="
                   maker.redo()
                   drawEditor()
                 "
-                title="Redo (Ctrl+Y)"
               >
                 ↷ REDO
               </button>
@@ -268,6 +268,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import ArcadePlumberMakerSidebar from '~/components/arcade/plumber-maker-sidebar.vue'
 import { useSavePlumberMakerStore } from '~/stores/savePlumberMakerStore'
 import { useUserStore } from '~/stores/userStore'
 import {

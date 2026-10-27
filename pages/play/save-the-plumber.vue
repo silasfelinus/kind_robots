@@ -366,6 +366,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 

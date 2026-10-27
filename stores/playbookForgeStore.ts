@@ -22,6 +22,11 @@ import {
 } from '~/utils/playbookForge/adjust'
 import { forecast } from '~/utils/playbookForge/estimate'
 import {
+  blueprintFromPitch,
+  type GestationConcept,
+  type GestationNote,
+} from '~/utils/playbookForge/gestation'
+import {
   SPARK_TAXONOMIES,
   dealSparks,
   elementFromFacets,
@@ -86,6 +91,7 @@ export type ForgeScreen =
   | 'ledger'
   | 'beats'
   | 'kit'
+  | 'gestation'
   | 'launch'
   | 'assumptions'
 
@@ -618,9 +624,89 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
       screen.value = existing.value ? 'ledger' : 'library'
     else if (from === 'analyze')
       screen.value = ledgerBook.value || ledgerRelay.value ? 'ledger' : 'title'
-    else if (from === 'idea' || from === 'library') screen.value = 'title'
+    else if (from === 'idea' || from === 'library' || from === 'gestation')
+      screen.value = 'title'
     status.value = ''
     result.value = null
+  }
+
+  const gestation = ref<GestationConcept[] | null>(null)
+  const gestationLoading = ref(false)
+  const gestationError = ref('')
+  const gestationId = ref('')
+  const gestationStatus = ref('')
+  const gestationFocused = computed(
+    () =>
+      gestation.value?.find((c) => c.conceptId === gestationId.value) ??
+      gestation.value?.[0] ??
+      null,
+  )
+
+  /** The daily playbook challenge's concepts, read from Conductor. */
+  async function loadGestation() {
+    if (gestationLoading.value) return
+    gestationLoading.value = true
+    gestationError.value = ''
+    try {
+      const res = await performFetch<{ concepts: GestationConcept[] }>(
+        '/api/playbook-forge/gestation',
+        {},
+        0,
+        30000,
+      )
+      if (res.success && res.data) {
+        gestation.value = res.data.concepts
+        if (!gestationId.value)
+          gestationId.value = res.data.concepts[0]?.conceptId ?? ''
+      } else gestationError.value = res.message || 'Conductor did not answer.'
+    } finally {
+      gestationLoading.value = false
+    }
+  }
+
+  function openGestation() {
+    go('gestation')
+    if (!gestation.value) void loadGestation()
+  }
+
+  /** Saves a note for the concept's next development (Conductor SILAS-NOTES.yaml). */
+  async function postGestationNote(conceptId: string, note: string) {
+    const text = note.trim()
+    if (!text || busy.value) return false
+    busy.value = true
+    gestationStatus.value = 'Saving the note…'
+    try {
+      const res = await performFetch<GestationNote>(
+        '/api/playbook-forge/gestation-note',
+        { method: 'POST', body: JSON.stringify({ conceptId, note: text }) },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        gestationStatus.value = `Not saved: ${res.message || 'Conductor did not answer.'}`
+        return false
+      }
+      const concept = gestation.value?.find((c) => c.conceptId === conceptId)
+      if (concept) concept.notes = [...concept.notes, res.data]
+      gestationStatus.value =
+        'Saved. The next daily challenge answers it before anything else.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  /** Turns a gestating pitch into a Forge draft: its genre's loadout plus the counts it names. */
+  function forgePitch(conceptId: string) {
+    const concept = gestation.value?.find((c) => c.conceptId === conceptId)
+    if (!concept) return
+    existing.value = null
+    built.value = null
+    draft.value = blueprintFromPitch(concept.latest)
+    tab.value = 'pitch'
+    focus.value = 0
+    persistDraft()
+    go('loadout')
   }
 
   function startIdea() {
@@ -1146,6 +1232,16 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     toggleSparkLock,
     dropSpark,
     drawElement,
+    gestation,
+    gestationLoading,
+    gestationError,
+    gestationId,
+    gestationStatus,
+    gestationFocused,
+    loadGestation,
+    openGestation,
+    postGestationNote,
+    forgePitch,
     libraryStats,
     libraryLoading,
     librarySort,

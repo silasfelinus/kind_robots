@@ -1,0 +1,352 @@
+export const REDSHIRT_DETAILS_B = [
+  [
+    "Zorro Nudge",
+    "striped three-tailed lemur",
+    "Drove illegal taxis for abandoned planets",
+    "Finds secret public transit in vacuum",
+    "luck"
+  ],
+  [
+    "Aster Clank",
+    "sunflower robot with brass petal teeth",
+    "Filed the first machine divorce petition",
+    "Can open locks using genuine compliments",
+    "diplomacy"
+  ],
+  [
+    "Biscuit Doom",
+    "armored biscuit-shaped arthropod",
+    "Former pastry champion sentenced for treasonous frosting",
+    "Fuses emergency hull patches with saliva",
+    "rescue"
+  ],
+  [
+    "Chroma Kelp",
+    "bioluminescent kelp person on stilts",
+    "Walked out of an aquarium seeking political asylum",
+    "Changes color to reveal unseen frequencies",
+    "science"
+  ],
+  [
+    "Dorian Shush",
+    "velvet-winged owl alien with no beak",
+    "Choirmaster who lost their voice by signing a silence treaty",
+    "Cancels hostile sonic commands",
+    "culture"
+  ],
+  [
+    "Ebbly Prism",
+    "geometric cloud of twelve mirror cubes",
+    "Escaped being sold as a luxury chandelier",
+    "Projects a misleading duplicate of one teammate",
+    "tactics"
+  ],
+  [
+    "Fable Quirk",
+    "pale giraffe with floating antlers",
+    "Earned a doctorate in fraudulent prophecies",
+    "Recognizes when a legend was planted by spies",
+    "culture"
+  ],
+  [
+    "Gasket Bloom",
+    "flowering engine crab with copper claws",
+    "Retired mechanic for a haunted amusement moon",
+    "Restarts broken lifeboats using pollen fuel",
+    "science"
+  ],
+  [
+    "Hazel Racket",
+    "citrine beetle with accordion abdomen",
+    "Once declared war on a nation's national anthem",
+    "Produces noise that masks rescue beacons",
+    "tactics"
+  ],
+  [
+    "Inkwell Voss",
+    "ink-filled translucent humanoid",
+    "Government censor who accidentally swallowed a revolution",
+    "Copies secret writing onto own skin",
+    "diplomacy"
+  ],
+  [
+    "Jibber Glass",
+    "opal squid with faceted spectacles",
+    "Invented an imaginary language that became official",
+    "Translates bureaucratic threats into plain speech",
+    "culture"
+  ],
+  [
+    "Kip Catastrophe",
+    "small orange cyclops wearing a jetpack",
+    "Accidentally won an interstellar disaster lottery",
+    "Finds fortune in apparently doomed supply crates",
+    "luck"
+  ],
+  [
+    "Lark Vortex",
+    "fuzzy dragonfly with a miniature black-hole necklace",
+    "Dismissed from astronomy for misplacing Tuesday",
+    "Detects irregular time loops",
+    "science"
+  ],
+  [
+    "Mossimo Deed",
+    "walking tree stump in red suspenders",
+    "Founded a branch office that became an actual forest",
+    "Can make sentient paperwork grow roots",
+    "diplomacy"
+  ],
+  [
+    "Noodle Prime",
+    "sentient ribbon of pasta in a pressure tube",
+    "Promoted through six navies without ever being interviewed",
+    "Slides through vents to deliver supplies",
+    "rescue"
+  ],
+  [
+    "Ophelia Grin",
+    "rainbow-scaled lizard with transparent skull",
+    "Former palace comedian exiled for telling the truth once",
+    "Can spot an implanted false memory",
+    "culture"
+  ],
+  [
+    "Puck Meridian",
+    "four-legged starfish with compass arms",
+    "Navigation student expelled for finding the galaxy's edge",
+    "Knows when an official destination is fictitious",
+    "luck"
+  ],
+  [
+    "Quanta Muff",
+    "furry sphere with orbiting spoons",
+    "Chef who accidentally seasoned a wormhole",
+    "Stabilizes small dimensional tears",
+    "science"
+  ],
+  [
+    "Rhapsody Flint",
+    "flint-skinned six-armed bard",
+    "Once sang an asteroid into suing its owner",
+    "Can wake ancient planetary warning systems",
+    "culture"
+  ],
+  [
+    "Sprocket Pearl",
+    "pearlescent hermit crab with gear shell",
+    "Left a giant corporate machine after winning an exit vote",
+    "Deciphers repair manuals written as poems",
+    "science"
+  ],
+  [
+    "Trixia Volt",
+    "pink lightning eel on clockwork stilts",
+    "Ran a black-market charging station for android refugees",
+    "Recharges one disabled tool instantly",
+    "rescue"
+  ],
+  [
+    "Ulla Cathedral",
+    "miniature flying cathedral-shaped organism",
+    "Became a saint by sheltering an outlawed choir",
+    "Projects protective acoustic domes",
+    "rescue"
+  ],
+  [
+    "Vesper Nib",
+    "bat-winged pen-shaped alien",
+    "Notary whose signatures sometimes became birds",
+    "Turns counterfeit signatures into visible smoke",
+    "diplomacy"
+  ],
+  [
+    "Waldo Chasm",
+    "walking canyon with four tiny boots",
+    "Discovered tourists excavating its childhood",
+    "Hides a small group in a fold of stone",
+    "tactics"
+  ],
+  [
+    "Xyla Zephyr",
+    "lavender manta with windmill horns",
+    "Sold weather forecasts to a world inside a bottle",
+    "Steers jet streams around fragile transports",
+    "luck"
+  ],
+  [
+    "Yonder Skip",
+    "striped penguin with roller-skate feet",
+    "Circumnavigated a flat planet and was arrested for shortcuts",
+    "Finds the quickest route through complex locks",
+    "tactics"
+  ],
+  [
+    "Zimmy Alarm",
+    "glow-in-the-dark skunk with a brass clock tail",
+    "Fired as an early-warning system for warning too early",
+    "Detects pre-ambush electrical murmurs",
+    "tactics"
+  ],
+  [
+    "Aubergine Q",
+    "purple eight-limbed vegetable aristocrat",
+    "Overthrew a monarchy using soup etiquette",
+    "Persuades guards to honor guest-right laws",
+    "diplomacy"
+  ],
+  [
+    "Brassica Fern",
+    "walking fern with porcelain teeth",
+    "Former solar diplomat banned for photosynthesis speeches",
+    "Reads lies in atmospheric pollen",
+    "culture"
+  ],
+  [
+    "Cinder Vane",
+    "ash-gray antelope with smoke mane",
+    "Survived a starship funeral that forgot its passengers",
+    "Locates missing people through residual ash",
+    "rescue"
+  ],
+  [
+    "Dusk Radish",
+    "root-bodied marsupial with lantern leaves",
+    "Raised by smugglers inside a vegetable cart",
+    "Opens subterranean escape channels",
+    "tactics"
+  ],
+  [
+    "Echo Timpani",
+    "hollow jelly humanoid filled with musical bells",
+    "Involuntary soundtrack to an imperial coronation",
+    "Hears suppressed messages between beats",
+    "culture"
+  ],
+  [
+    "Fennel Crux",
+    "silver mantis with origami armor",
+    "Former judge of a paper moon",
+    "Cuts through impossible legal knots",
+    "diplomacy"
+  ],
+  [
+    "Grumble Oort",
+    "twelve-legged mossy comet larva",
+    "Secretly raised a family inside a meteor shower",
+    "Predicts when debris will miss a ship",
+    "luck"
+  ],
+  [
+    "Helio Knapsack",
+    "tiny sunfish wearing gigantic utility pack",
+    "Tour guide to a collapsed artificial sun",
+    "Creates emergency warmth from stored light",
+    "rescue"
+  ],
+  [
+    "Indigo Clasp",
+    "porcelain centipede with velvet pincers",
+    "Professional wedding crasher of compulsory marriages",
+    "Unlocks ceremonial restraints without pain",
+    "tactics"
+  ],
+  [
+    "Jasper Mneme",
+    "violet elephantlike alien with jeweled ears",
+    "Memory collector who returned everything stolen",
+    "Reconstructs the last safe path from forgotten impressions",
+    "science"
+  ],
+  [
+    "Karma Fizz",
+    "living soda can with many bright eyes",
+    "Corporate mascot that staged a successful labor strike",
+    "Can dissolve one dangerous adhesive contract",
+    "diplomacy"
+  ],
+  [
+    "Lilly Gloom",
+    "black-flowered serpent woman",
+    "Caretaker of a graveyard of failed space empires",
+    "Hears when buried warnings are still active",
+    "science"
+  ],
+  [
+    "Mango Recoil",
+    "orange rhinoceros insect with elastic shell",
+    "Escaped a cannon circus via its own propulsion",
+    "Bounces rescue pods away from collisions",
+    "rescue"
+  ],
+  [
+    "Nocturne Plaid",
+    "shadow-colored plaid mantid",
+    "Fashion critic who discovered uniforms were tracking devices",
+    "Makes one surveillance fabric forget its wearer",
+    "tactics"
+  ],
+  [
+    "Orion Piff",
+    "miniature whale floating in helium suit",
+    "Last postmaster of a doomed moon",
+    "Delivers a sealed message across hostile gravity",
+    "luck"
+  ],
+  [
+    "Parchment Bee",
+    "parchment-winged hornet with human-sized gloves",
+    "Archivist exiled for preserving unapproved laughter",
+    "Recovers deleted consent forms from old paper",
+    "culture"
+  ],
+  [
+    "Quibble Sprout",
+    "sprouting clockwork mushroom with three eyes",
+    "Court-appointed translator for an ant colony",
+    "Can hear a machine politely refusing an order",
+    "diplomacy"
+  ],
+  [
+    "Rivet Halo",
+    "winged rivet cluster arranged like a person",
+    "Emergency engineer assembled by stranded miners",
+    "Seals an air leak from inside the metal",
+    "science"
+  ],
+  [
+    "Saffron Nimbus",
+    "golden cloud cat with raincoat",
+    "Was hired as a palace weather magician",
+    "Creates brief fog that shelters vulnerable witnesses",
+    "tactics"
+  ],
+  [
+    "Tango Dread",
+    "striped octopus with dancing boots",
+    "Former choreography marshal for military parades",
+    "Turns a marching army's formation into chaos",
+    "culture"
+  ],
+  [
+    "Umbra Petit",
+    "pocket-sized goth moon with two arms",
+    "Descendant of a dynasty of eclipses",
+    "Blacks out a spy camera using a tiny eclipse",
+    "luck"
+  ],
+  [
+    "Velvet Coupon",
+    "speckled coupon-shaped flat alien",
+    "Was redeemed by a consumer rights revolution",
+    "Finds hidden fees in binding space contracts",
+    "diplomacy"
+  ],
+  [
+    "Wisp Barley",
+    "glowing cereal-spore swarm in glass person suit",
+    "Escaped being harvested as luxury breakfast",
+    "Divides into harmless decoys to distract predators",
+    "rescue"
+  ]
+] as const

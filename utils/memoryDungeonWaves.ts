@@ -196,7 +196,9 @@ export function recoverBriarWaveTurn(
   if (new Set(tiles).size !== pending.length) return discarded
   if (
     !pending.every((card) => {
-      const current = progress.mapCards.find((entry) => entry.tile === card.tile)
+      const current = progress.mapCards.find(
+        (entry) => entry.tile === card.tile,
+      )
       return (
         current &&
         !current.matched &&

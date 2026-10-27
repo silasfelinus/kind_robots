@@ -157,7 +157,10 @@
         </div>
       </div>
 
-      <div v-else-if="screen === 'dossier' || screen === 'yearbook-detail'" class="prom-card-room">
+      <div
+        v-else-if="screen === 'dossier' || screen === 'yearbook-detail'"
+        class="prom-card-room"
+      >
         <div class="prom-trading-card">
           <div class="prom-card-art">
             <img v-if="personaArtwork" :src="personaArtwork" alt="" />
@@ -199,7 +202,13 @@
           </div>
         </div>
         <div class="prom-card-choices">
-          <p class="prom-eyebrow">{{ screen === 'yearbook-detail' ? 'YEARBOOK / COLLECTIBLE IDENTITY' : '03 / WHO COULD YOU BECOME?' }}</p>
+          <p class="prom-eyebrow">
+            {{
+              screen === 'yearbook-detail'
+                ? 'YEARBOOK / COLLECTIBLE IDENTITY'
+                : '03 / WHO COULD YOU BECOME?'
+            }}
+          </p>
           <h2>{{ identity.realName }}</h2>
           <p
             v-if="previous"
@@ -249,7 +258,12 @@
             data-testid="academy-dossier-next"
             @click="screen = 'vow'"
           >
-            {{ screen === 'yearbook-detail' ? 'REPLAY THIS IDENTITY' : 'CHOOSE MY STORY' }} <span>➜</span>
+            {{
+              screen === 'yearbook-detail'
+                ? 'REPLAY THIS IDENTITY'
+                : 'CHOOSE MY STORY'
+            }}
+            <span>➜</span>
           </button>
         </div>
       </div>
@@ -370,7 +384,11 @@
             <strong>{{ entry.name }}</strong>
             <span>{{ entry.plays }} RUNS · {{ entry.alias }}</span>
             <small>
-              {{ entry.forms.length ? entry.forms.join(' / ').toUpperCase() + ' UNLOCKED' : 'STUDENT DISCOVERED' }}
+              {{
+                entry.forms.length
+                  ? entry.forms.join(' / ').toUpperCase() + ' UNLOCKED'
+                  : 'STUDENT DISCOVERED'
+              }}
               · {{ entry.endings.length }} ENDINGS
             </small>
             <span class="prom-yearbook-open">OPEN CHARACTER CARD ›</span>
@@ -390,7 +408,11 @@
             >Play the original seven-day simulation instead of the thirty-day
             campaign</span
           >
-          <input v-model="firstWeek" type="checkbox" :disabled="selectedForm !== 'student'" />
+          <input
+            v-model="firstWeek"
+            type="checkbox"
+            :disabled="selectedForm !== 'student'"
+          />
         </label>
         <p class="prom-card-note">
           Your campaign is autosaved on this device. Returning characters and
@@ -554,7 +576,11 @@ function beginNewGame() {
 }
 function openYearbookCard(id: string) {
   const [origin, affinity] = id.split('-')
-  if (!POWER_ORIGINS.some((entry) => entry.id === origin) || !POWER_AFFINITIES.some((entry) => entry.id === affinity)) return
+  if (
+    !POWER_ORIGINS.some((entry) => entry.id === origin) ||
+    !POWER_AFFINITIES.some((entry) => entry.id === affinity)
+  )
+    return
   selectedOrigin.value = origin as PowerOriginId
   selectedAffinity.value = affinity as PowerAffinityId
   selectedForm.value = 'student'
@@ -1124,19 +1150,28 @@ function launch() {
 .prom-yearbook-entry {
   display: flex;
   flex-direction: column;
-  gap: .42rem;
+  gap: 0.42rem;
   text-align: left;
   border: 1px solid #e4b58e74;
-  border-radius: .7rem;
+  border-radius: 0.7rem;
   padding: 1rem;
   background: linear-gradient(145deg, #543455, #282d4c);
 }
-.prom-yearbook-entry:hover, .prom-yearbook-entry:focus-visible {
+.prom-yearbook-entry:hover,
+.prom-yearbook-entry:focus-visible {
   border-color: #ffcf9b;
   background: #543d62;
 }
-.prom-yearbook-avatar { font-size: 1.7rem; color: #ffbb94; }
-.prom-yearbook-open { color: #ffd3a4; letter-spacing: .1em; font-weight: 900; font-size: .65rem; }
+.prom-yearbook-avatar {
+  font-size: 1.7rem;
+  color: #ffbb94;
+}
+.prom-yearbook-open {
+  color: #ffd3a4;
+  letter-spacing: 0.1em;
+  font-weight: 900;
+  font-size: 0.65rem;
+}
 .prom-yearbook-list article {
   padding: 1rem;
   border: 1px solid #e4b58e74;

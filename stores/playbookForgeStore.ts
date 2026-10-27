@@ -94,7 +94,6 @@ import {
   nodeShape,
   planGaps,
   unitsToPaint,
-  withPainted,
   unitsToWrite,
   writingBrief,
   type LedgerJob,

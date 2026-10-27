@@ -444,7 +444,7 @@ export function firstWorldPhotoChronicle(
   sceneChoices: Readonly<Record<string, string>>,
 ) {
   return BRIAR_EARTH_PHOTOS.filter((photo) =>
-    Boolean(sceneChoices[photo.key]),
+    earnedPhotoAtScene('e01', photo.key, sceneChoices[photo.key]),
   ).sort((a, b) => a.order - b.order)
 }
 
@@ -459,6 +459,30 @@ export function newEarthChronicle(): EarthChronicle {
 const KNOWN_PHOTOS = new Map(EARTH_PHOTOS.map((photo) => [photo.id, photo]))
 /** Only currently implemented realities may mint a collectible photo. */
 const PLAYABLE = new Set<ExperienceId>(['e01', 'e02'])
+const PLAYABLE_SCENE_CHOICES: Record<
+  'e01' | 'e02',
+  Record<string, readonly string[]>
+> = {
+  e01: {
+    '2,5': ['archive', 'grieve'],
+    '8,6': ['record', 'promise'],
+  },
+  e02: {
+    '2,5': ['question', 'preserve'],
+    '5,4': ['draw', 'release'],
+  },
+}
+
+function earnedPhotoAtScene(
+  experience: 'e01' | 'e02',
+  site: string,
+  choice: string | undefined,
+): boolean {
+  return (
+    typeof choice === 'string' &&
+    Boolean(PLAYABLE_SCENE_CHOICES[experience][site]?.includes(choice))
+  )
+}
 
 export function restoreEarthChronicle(value: unknown): EarthChronicle {
   if (!value || typeof value !== 'object') return newEarthChronicle()
@@ -500,8 +524,12 @@ export function reconcileEarthChronicle(
   const found = new Set(original.found)
   for (const photo of EARTH_PHOTOS) {
     if (
-      PLAYABLE.has(photo.experience) &&
-      Boolean(scenes[photo.experience as 'e01' | 'e02'][photo.site])
+      (photo.experience === 'e01' || photo.experience === 'e02') &&
+      earnedPhotoAtScene(
+        photo.experience,
+        photo.site,
+        scenes[photo.experience][photo.site],
+      )
     ) {
       found.add(photo.id)
     }

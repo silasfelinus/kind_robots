@@ -695,6 +695,7 @@ export function darkHouseAnswerPuzzle(
 }
 export function darkHousePuzzleHint(
   progress: DarkHouseProgress,
+  earnedClue = false,
 ): DarkHouseProgress {
   const room = progress.current
   const puzzle = DARK_HOUSE_PUZZLES[room]

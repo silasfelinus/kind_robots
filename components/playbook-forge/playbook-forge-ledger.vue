@@ -87,7 +87,7 @@
         <span
           class="pf-progress relative h-2 flex-1 overflow-hidden bg-base-content/10"
           role="progressbar"
-          :aria-valuenow="Math.round(ledger.progress * 100)"
+          :aria-valuenow="completionPercent(ledger.progress)"
           aria-valuemin="0"
           aria-valuemax="100"
           aria-label="Verified writing and artwork completion"
@@ -99,7 +99,7 @@
           />
         </span>
         <span class="pf-display w-14 text-right tabular-nums"
-          >{{ Math.round(ledger.progress * 100) }}%</span
+          >{{ completionPercent(ledger.progress) }}%</span
         >
         <span
           class="pf-kicker hidden shrink-0 text-[0.6rem] opacity-70 @3xl:inline"
@@ -281,6 +281,7 @@ import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import { FACTOR_ROWS } from '~/utils/playbookForge/factors'
 import { kitPlaybook } from '~/utils/playbookKit/games'
+import { completionPercent } from '~/utils/playbookForge/ledger'
 import type {
   ArtState,
   LedgerSection,
@@ -375,9 +376,12 @@ const totals = computed(() => {
   return [
     {
       label: 'Art delivered',
-      value: l.plannedUnits ? `${l.art.delivered}/${l.plannedUnits}` : '—',
+      value: l.plannedUnits + l.extraArt.total
+        ? `${l.art.delivered}/${l.plannedUnits + l.extraArt.total}`
+        : '—',
       cls:
-        l.plannedUnits && l.art.delivered === l.plannedUnits
+        l.plannedUnits + l.extraArt.total > 0 &&
+        l.art.delivered === l.plannedUnits + l.extraArt.total
           ? 'text-success'
           : '',
     },

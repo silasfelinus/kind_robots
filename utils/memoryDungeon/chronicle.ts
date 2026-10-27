@@ -436,6 +436,7 @@ export const BRIAR_EARTH_PHOTOS = EARTH_PHOTOS.slice(0, 2).map((photo) => ({
   order: photo.order,
   title: photo.title,
   caption: photo.caption,
+  artPrompt: photo.artPrompt,
   artPath: photo.artPath,
 }))
 

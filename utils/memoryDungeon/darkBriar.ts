@@ -249,7 +249,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '6,2',
     'The Unremembered House',
     'The Warden offers you a remarkable victory: erase every debt of memory by erasing everybody who remembers the debt. It would make the village happy, briefly, and leave nobody who could explain why.',
-    'An enormous vault inside a root-grown manor, its shelves lined with glowing glass jars that each hold a small human figure. The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, stands behind a hanging grey veil. Three doorways open onto sunlit fields, a burning village and a snowy road. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+    'An enormous vault inside a root-grown manor, its shelves lined with glowing glass jars that each hold a small human figure. The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, stands behind a hanging grey veil. Three doorways open onto sunlit fields, a burning village and a snowy road. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'witness',

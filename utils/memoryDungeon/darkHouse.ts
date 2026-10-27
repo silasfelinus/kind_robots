@@ -322,7 +322,7 @@ const briefs: readonly RoomBrief[] = [
   [
     "Rootbound Warden's Hearing",
     'The Warden is neither a pure villain nor an impartial judge. It must answer eight witnesses who remember the benefits as well as the damage of its bargains.',
-    'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, stands before an oak tribunal bench with eight witness lanterns burning in a row. Low-angle wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
+    'The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, stands before an oak tribunal bench with eight witness lanterns burning in a row. Low-angle wide shot. Hand-painted gouache and ink illustration, cold violet moonlight and dim amber lamps.',
     'Present all eight witnesses',
     'The Warden admits a wish cannot substitute for consent; the doors open toward a negotiated remedy.',
     'Challenge its claim to own truth',

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { readFileSync } from 'node:fs'
 import {
   WORLD_ONE_ART_SHOTS,
@@ -208,6 +209,20 @@ assert.match(houseStage, /houseIllustrationPath\(room\.value\?\.id/)
 assert.match(houseStage, /selectedChoice\.value\?\.id/)
 assert.match(houseStage, /fallbackArtFailed/)
 
+const NON_LITERAL =
+  /\b(?:no|not|without|never|lettering|text|watermark|montage|legible|readable|iconic|composition|collectible|thumbnail|game|story)\b|(?<!shaped )\blike\b/i
+for (const brief of WORLD_ONE_ART_SHOTS) {
+  const problems = checkArtPromptContract({
+    prompt: brief.prompt,
+    engine: 'krea2',
+  }).map((violation) => violation.rule)
+  const word = brief.prompt.match(NON_LITERAL)?.[0]
+  if (word) problems.push(`non-literal "${word}"`)
+  if (brief.prompt.length < 120 || brief.prompt.length > 900)
+    problems.push(`length ${brief.prompt.length}`)
+  assert.deepEqual(problems, [], `${brief.id} is not a literal Krea 2 prompt`)
+}
+
 console.log(
-  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 76 consequence selectors, 32-card realm gallery, delivery gates and card-back persistence verified',
+  'Memory Dungeon: 64 scene + 128 consequence image selectors, 36 House rooms + 76 consequence selectors, 32-card realm gallery, literal Krea 2 briefs, delivery gates and card-back persistence verified',
 )

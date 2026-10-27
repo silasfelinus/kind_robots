@@ -590,7 +590,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The Collector counts each unpaired card with cold precision. Its next sweep is announced two turns ahead, not sprung as a surprise.',
     artPrompt:
-      'The Index Collector, a tall thin figure clad in layered sheets of paper like overlapping armor plates and an ink-stained black coat, raises one gauntlet in a stone archive hall. A grid of glowing pale squares hovers above the gauntlet, with two columns lit brighter than the rest. Cold blue light. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+      'The Index Collector, a tall thin figure in armor of overlapping stiff paper sheets and an ink-stained black coat, raises one gauntlet in a stone archive hall. A grid of glowing pale squares hovers above the gauntlet, with two columns lit brighter than the rest. Cold blue light. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-22.webp',
     exits: ['HD-23'],
     choices: [
@@ -854,7 +854,7 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     opening:
       'The Rootbound Warden stands between you and a library that once sheltered the unwanted. It has kept records safe and residents captive. The Warden asks for proof that opening the doors would not simply make the strong richer.',
     artPrompt:
-      'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, holds a glass jar in one root hand and stands before tall archive doors. Pairs of glowing tiles float around it. Lantern light from below. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+      'The Rootbound Warden, a towering guardian of knotted oak roots with rows of brass keys set into its bark and a smooth carved wooden mask for a face, holds a glass jar in one root hand and stands before tall archive doors. Pairs of glowing tiles float around it. Lantern light from below. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-32.webp',
     exits: ['HD-33'],
     choices: [

@@ -282,7 +282,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
     opening:
       "An official in an ink-stained traveling desk introduces itself as the Index. It keeps everyone's names safely filed, then forgets to mention who owns the files. A blank line waits beside your description.",
     artPrompt:
-      'The Index, a tall thin figure clad in layered sheets of paper like overlapping armor plates and an ink-stained black coat, sits inside a portable wooden roll-top desk at a forest roadside. Hundreds of small paper slips spill from its drawers and ink quills stand in a pot. One blank slip lies on the desk, turned toward the viewer. Pale morning mist between the trees. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
+      'The Index, a tall thin figure in armor of overlapping stiff paper sheets and an ink-stained black coat, sits inside a portable wooden roll-top desk at a forest roadside. Hundreds of small paper slips spill from its drawers and ink quills stand in a pot. One blank slip lies on the desk, turned toward the viewer. Pale morning mist between the trees. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
     callbacks: [
       {
         at: '5,4',

@@ -184,7 +184,7 @@ export const DARK_BRIAR_NORTH: Record<string, DarkBriarScene> = {
     opening:
       'An elderly beekeeper remembers a blizzard she never survived. Her bees have been carrying that winter from house to house, making every family remember a different lost relative.',
     artPrompt:
-      'An elderly beekeeper kneels beneath bare fruit trees beside grey wooden hives. Her bees glitter white in the air like falling snow. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+      'An elderly beekeeper kneels beneath bare fruit trees beside grey wooden hives. Her bees drift through the air as tiny glittering white specks. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'follow',

@@ -984,9 +984,10 @@ export function finishVoyage(
     if (!stops.length) return []
     if (stops.some((item) => item.step === 2)) {
       const publicStops = stops.filter((item) => item.approach === 'bold').length
-      return [publicStops >= 2 ? CREW_EPILOGUES[id].exposed : CREW_EPILOGUES[id].protected]
+      const epilogue = publicStops >= 2 ? CREW_EPILOGUES[id].exposed : CREW_EPILOGUES[id].protected
+      return [`${CREW.find((member) => member.id === id)!.name}'s odyssey: ${epilogue}`]
     }
-    return [CREW_EPILOGUES[id].unfinished]
+    return [`${CREW.find((member) => member.id === id)!.name}'s unfinished odyssey: ${CREW_EPILOGUES[id].unfinished}`]
   })
   const civic = (run.missionHistory ?? [])
     .map((event) => {

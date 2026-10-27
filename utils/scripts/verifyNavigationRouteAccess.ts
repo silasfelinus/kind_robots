@@ -226,21 +226,27 @@ const serviceChannels = resolveChannels([
 ])
 const unrelatedViewerChannels = serviceChannels.map((channel) => ({
   ...channel,
-  tabs: channel.tabs.filter((tab) => tab.tabKey !== 'stylist' && tab.tabKey !== 'restricted'),
+  tabs: channel.tabs.filter(
+    (tab) => tab.tabKey !== 'stylist' && tab.tabKey !== 'restricted',
+  ),
 }))
 assert.equal(
-  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, { path: '/stylist' }).allowed,
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, {
+    path: '/stylist',
+  }).allowed,
   true,
   'An unlisted services tab must still allow a direct link.',
 )
 assert.equal(
-  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, { path: '/restricted' }).allowed,
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, {
+    path: '/restricted',
+  }).allowed,
   false,
   'An unrelated hidden tab must remain inaccessible.',
 )
 assert.match(
   readFileSync('content/channels/projects/stylist.md', 'utf8'),
-  /\\nallowDirectAccess:\\s*true\\n/,
+  /\nallowDirectAccess:\s*true\n/,
   'The canonical Superkate Services tab must opt in to direct-link access.',
 )
 assert.equal(isSuperkateServicesViewer({ id: 1279 }), true)

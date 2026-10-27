@@ -14,11 +14,7 @@ import {
 
 export type DarkHouseEnding = 'return' | 'commons'
 export type DarkHouseEarnedClue =
-  | 'route'
-  | 'supplies'
-  | 'names'
-  | 'consent'
-  | 'earth-photo'
+  'route' | 'supplies' | 'names' | 'consent' | 'earth-photo'
 export interface DarkHouseChoice {
   id: string
   label: string

@@ -150,6 +150,24 @@ export const DARK_BRIAR_COLLECTIBLE_ART: readonly DarkBriarArtRequest[] = [
   ),
 ]
 
+/** Select the authored scene, seal or earned consequence plate by its stable
+ * destination. An unknown/forged choice never selects an unrelated outcome.
+ * This resolves paths only; failed media loads retain the illustrated fallback. */
+export function darkBriarIllustrationPath(
+  key: string,
+  choiceId?: string,
+): string {
+  const stem = key.replace(',', '-')
+  const scene = DARK_BRIAR_SCENES[key]
+  if (scene) {
+    if (choiceId && scene.choices.some((choice) => choice.id === choiceId))
+      return `${root}/outcomes/${stem}-${choiceId}.webp`
+    return `${root}/scenes/${stem}.webp`
+  }
+  if (DARK_BRIAR_SEALS[key]) return `${root}/scenes/${stem}.webp`
+  return `${root}/backdrops/map.webp`
+}
+
 export function validateDarkBriarArtRequests(): string[] {
   const errors: string[] = []
   if (DARK_BRIAR_COLLECTIBLE_ART.length !== 32)

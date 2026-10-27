@@ -221,6 +221,66 @@ export function earnedCourierCompensation(
   return null
 }
 
+export type BorrowedVoiceAccord =
+  | 'unset'
+  | 'freed-repaired'
+  | 'freed-consulted'
+  | 'heard-repaired'
+  | 'heard-consulted'
+
+const BORROWED_VOICE_OUTCOMES: Record<
+  Exclude<BorrowedVoiceAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'freed-repaired': {
+    scene:
+      'Pip recognizes the moth you freed from the stump. The traveler asks that its warning be delivered without caging the creature as evidence. You help correct the road notices; the moth is free to leave.',
+    epilogue:
+      'Pip and the traveler repair the misleading road signs together. The freed moth is neither named nor kept as proof.',
+  },
+  'freed-consulted': {
+    scene:
+      'The traveler thanks you for freeing the moth, then asks why nobody consulted the people who followed its borrowed directions. Pip gives them a blank map and lets them draw their own next road.',
+    epilogue:
+      'The traveler draws a new route on a blank map Pip supplied, and nobody mistakes that choice for a debt.',
+  },
+  'heard-repaired': {
+    scene:
+      'Pip compares the stump story you listened to with the traveler’s actual journey. You help mark the false turning without erasing either account. The traveler carries the corrected directions home.',
+    epilogue:
+      'Pip posts corrected directions beside the old stump account, with the traveler’s permission and without publishing their name.',
+  },
+  'heard-consulted': {
+    scene:
+      'The traveler hears the stump account you preserved, then adds what the borrowed voice left out. Pip carries both versions and asks where they want to go next. For once, the answer belongs to them.',
+    epilogue:
+      'Pip preserves both accounts of the journey, while the traveler decides which road to take without an appointed guide.',
+  },
+}
+
+/** Two real original decisions and two freely chosen mirrored responses
+ * yield four earned outcomes. Unvisited scenes cannot invent a shared past. */
+export function earnedBorrowedVoiceAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): BorrowedVoiceAccord {
+  const source = original.sceneChoices['3,5']
+  const response = mirrored.sceneChoices['3,5']
+  if (source !== 'light' && source !== 'listen') return 'unset'
+  if (response !== 'apologize' && response !== 'ask') return 'unset'
+  if (source === 'light')
+    return response === 'apologize' ? 'freed-repaired' : 'freed-consulted'
+  return response === 'apologize' ? 'heard-repaired' : 'heard-consulted'
+}
+
+export function earnedBorrowedVoiceOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedBorrowedVoiceAccord(original, mirrored)
+  return accord === 'unset' ? null : BORROWED_VOICE_OUTCOMES[accord].scene
+}
+
 /** Carry only story-scale facts forward. Minor scene choices stay in the
  * original save; this projection never becomes another mutable save ledger. */
 export interface CrossRealmConsequenceLedger {
@@ -229,11 +289,13 @@ export interface CrossRealmConsequenceLedger {
   witnessRecord: 'unset' | 'copied' | 'protected'
   orensProvision: 'unset' | 'route' | 'supplies'
   knightsDuty: 'unset' | 'oath' | 'errand'
+  borrowedVoiceAccord: BorrowedVoiceAccord
 }
 
 export function crossRealmConsequenceLedger(
   briar: Pick<BriarSave, 'house' | 'sceneChoices'>,
   mirroredHouse: Pick<DarkHouseProgress, 'ending'> | null,
+  mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
 ): CrossRealmConsequenceLedger {
   const frames = firstTwoWorldFrames(briar, mirroredHouse)
   const witnessChoice = briar.sceneChoices['6,3']
@@ -260,6 +322,9 @@ export function crossRealmConsequenceLedger(
         : knightChoice === 'errand'
           ? 'errand'
           : 'unset',
+    borrowedVoiceAccord: mirrored
+      ? earnedBorrowedVoiceAccord(briar, mirrored)
+      : 'unset',
   }
 }
 
@@ -316,9 +381,10 @@ const KNIGHT_EPILOGUES = {
 export function crossRealmHouseEpilogue(
   briar: Pick<BriarSave, 'house' | 'sceneChoices'>,
   mirroredHouse: Pick<DarkHouseProgress, 'ending'>,
+  mirrored?: Pick<DarkBriarProgress, 'sceneChoices'>,
 ): string {
   if (!mirroredHouse.ending) return ''
-  const ledger = crossRealmConsequenceLedger(briar, mirroredHouse)
+  const ledger = crossRealmConsequenceLedger(briar, mirroredHouse, mirrored)
   const witness =
     ledger.witnessRecord === 'unset'
       ? ''
@@ -329,5 +395,9 @@ export function crossRealmHouseEpilogue(
       : OREN_EPILOGUES[ledger.orensProvision]
   const knight =
     ledger.knightsDuty === 'unset' ? '' : KNIGHT_EPILOGUES[ledger.knightsDuty]
-  return [witness, provision, knight].filter(Boolean).join(' ')
+  const traveler =
+    ledger.borrowedVoiceAccord === 'unset'
+      ? ''
+      : BORROWED_VOICE_OUTCOMES[ledger.borrowedVoiceAccord].epilogue
+  return [witness, provision, knight, traveler].filter(Boolean).join(' ')
 }

@@ -57,7 +57,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const redoStack = ref<MakerLevel[]>([])
   const selectedTile = ref('#')
   const selectedGroup = ref('Terrain')
-  const panel = ref<'tools' | 'library' | 'settings'>('tools')
+  const panel = ref<'tools' | 'library' | 'settings' | 'reviews'>('tools')
   const hasChanges = computed(
     () =>
       !currentDraft.value ||

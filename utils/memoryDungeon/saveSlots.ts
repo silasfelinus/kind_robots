@@ -22,6 +22,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
+function hasValidBriarCards(value: unknown, mapCards: boolean): boolean {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (card) =>
+        isRecord(card) &&
+        Number.isSafeInteger(card.id) &&
+        Number.isSafeInteger(card.pairId) &&
+        typeof card.image === 'string' &&
+        card.image.length > 0 &&
+        typeof card.flipped === 'boolean' &&
+        typeof card.matched === 'boolean' &&
+        (!mapCards || (typeof card.tile === 'string' && card.tile.length > 0)),
+    )
+  )
+}
+
 /** Reject incomplete/corrupt slots rather than replacing the current run with defaults. */
 export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
   if (!isRecord(raw) || raw.version !== 1) return null
@@ -49,6 +66,8 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
   )
     return null
   if (
+    !hasValidBriarCards(raw.briar.mapCards, true) ||
+    !hasValidBriarCards(raw.briar.cards, false) ||
     !Array.isArray(raw.dark.mapCards) ||
     raw.dark.mapCards.some(
       (card) =>

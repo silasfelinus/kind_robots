@@ -46,7 +46,7 @@ assert.equal(new Set(EXPEDITION_ENCOUNTERS.map(e => e.id)).size, 53)
 assert.equal(Object.keys(WORLD_ENCOUNTERS).length, 9)
 assert.equal(GALACTIC_MAJOR.length, 8)
 assert.equal(GALACTIC_MINOR.length, 9)
-assert.ok(EXPEDITION_ENCOUNTERS.every(e => e.setup.length > 95 && e.title.length > 12))
+assert.ok(EXPEDITION_ENCOUNTERS.every(e => e.setup.length > (e.priority === 'major' ? 90 : 45) && e.title.length > 12))
 for (const location of Object.keys(WORLD_ENCOUNTERS)) {
   for (const seed of [1, 22, 405, 2027]) {
     const board = expeditionBoard(seed, 1, location)

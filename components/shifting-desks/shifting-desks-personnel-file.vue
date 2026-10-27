@@ -63,19 +63,27 @@
             class="flex items-center gap-2 rounded-md border border-amber-300/70 bg-amber-300/10 px-2 py-1"
             :aria-label="`Personnel award: ${ceremonyAward.title}`"
           >
-            <icon :name="ceremonyAward.icon" class="size-6 shrink-0 text-amber-300" />
+            <icon
+              :name="ceremonyAward.icon"
+              class="size-6 shrink-0 text-amber-300"
+            />
             <div class="min-w-0">
               <p
                 v-if="store.newlyEarnedMilestones.length"
                 class="font-mono text-[9px] font-black uppercase tracking-widest text-amber-300"
                 role="status"
               >
-                {{ store.newlyEarnedMilestones.length }} new distinction{{ store.newlyEarnedMilestones.length === 1 ? '' : 's' }} earned
+                {{ store.newlyEarnedMilestones.length }} new distinction{{
+                  store.newlyEarnedMilestones.length === 1 ? '' : 's'
+                }}
+                earned
               </p>
               <p v-else class="font-mono text-[9px] uppercase text-amber-200">
                 Previously filed distinction
               </p>
-              <p class="truncate text-xs font-black">{{ ceremonyAward.title }}</p>
+              <p class="truncate text-xs font-black">
+                {{ ceremonyAward.title }}
+              </p>
             </div>
           </div>
           <p class="font-mono text-[10px] text-amber-50/85">
@@ -83,11 +91,15 @@
             {{ filesHandled }} files · {{ run.generation + 1 }} employees ·
             {{ run.meters.forms }} forms
           </p>
-          <p class="hidden truncate font-mono text-[10px] text-amber-50/80 sm:block">
+          <p
+            class="hidden truncate font-mono text-[10px] text-amber-50/80 sm:block"
+          >
             {{ jobTitle }} · {{ society.title }} · {{ mutation.title }}
           </p>
           <p v-if="nextMilestone" class="truncate text-[10px] text-amber-200">
-            Next: {{ nextMilestone.title }} · {{ nextMilestoneProgress }}/{{ nextMilestone.target }}
+            Next: {{ nextMilestone.title }} · {{ nextMilestoneProgress }}/{{
+              nextMilestone.target
+            }}
           </p>
           <button
             type="button"
@@ -385,12 +397,20 @@ const ceremonyAward = computed(
 const nextMilestone = computed(
   () =>
     MILESTONES.filter((m) =>
-      ['forms-25', 'three-endings', 'five-departments', 'exceptional-empathy'].includes(m.id),
+      [
+        'forms-25',
+        'three-endings',
+        'five-departments',
+        'exceptional-empathy',
+      ].includes(m.id),
     ).find((m) => !store.rewardArchive.milestones[m.id]) ?? null,
 )
 const nextMilestoneProgress = computed(() =>
   nextMilestone.value
-    ? Math.min(nextMilestone.value.target, nextMilestone.value.value(store.rewardArchive, store.endingsFound))
+    ? Math.min(
+        nextMilestone.value.target,
+        nextMilestone.value.value(store.rewardArchive, store.endingsFound),
+      )
     : 0,
 )
 const deeperLevel = computed(() => DEPARTMENTS.length)

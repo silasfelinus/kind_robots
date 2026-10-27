@@ -1325,8 +1325,14 @@ assert.notEqual(
   'An opening promise should have seeded alternate complications',
 )
 
-const goodPromise = [3, 10, 18, 25, 28].map((day) => ({ day, action: 'protect' as const }))
-const brokenPromise = goodPromise.map((event) => ({ ...event, action: 'bargain' as const }))
+const goodPromise = [3, 10, 18, 25, 28].map((day) => ({
+  day,
+  action: 'protect' as const,
+}))
+const brokenPromise = goodPromise.map((event) => ({
+  ...event,
+  action: 'bargain' as const,
+}))
 assert.equal(routeStanding(goodPromise), 10)
 assert.equal(routeStanding(brokenPromise), -10)
 assert.equal(isVowMemory(goodPromise, 30), true)
@@ -1334,23 +1340,42 @@ assert.equal(isVowMemory(goodPromise, 18), false)
 assert.equal(isVowMemory([...goodPromise, goodPromise[0]], 30), false)
 assert.equal(isVowMemory([{ day: 3, action: 'hacked' }], 30), false)
 assert.ok(routeEpilogue('unmask', goodPromise).includes('yearbook'))
-const baseVowRun = startFullAcademy(fieldFor('mutant-genius'), 20261026, 'mutant-genius', 'shelter')
-const positiveEnding = finishAcademy({ ...baseVowRun, day: 30, phase: 'finale', vowHistory: goodPromise }, 'share')
-const negativeEnding = finishAcademy({ ...baseVowRun, day: 30, phase: 'finale', vowHistory: brokenPromise }, 'share')
+const baseVowRun = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'shelter',
+)
+const positiveEnding = finishAcademy(
+  { ...baseVowRun, day: 30, phase: 'finale', vowHistory: goodPromise },
+  'share',
+)
+const negativeEnding = finishAcademy(
+  { ...baseVowRun, day: 30, phase: 'finale', vowHistory: brokenPromise },
+  'share',
+)
 assert.equal(positiveEnding.ending, 'A CITY WITH A THOUSAND KEYS')
 assert.equal(negativeEnding.ending, 'THE BROKEN GRID')
 assert.ok(positiveEnding.scene.includes('missing bus'))
 assert.ok(negativeEnding.scene.includes('Past bargains'))
 assert.equal(
   restoreAcademy({
-    ...baseVowRun, day: 30,
-    vowHistory: [{ day: 10, action: 'protect' }, { day: 3, action: 'protect' }],
+    ...baseVowRun,
+    day: 30,
+    vowHistory: [
+      { day: 10, action: 'protect' },
+      { day: 3, action: 'protect' },
+    ],
   }),
   null,
   'Route memory cannot be out of order',
 )
 assert.ok(restoreAcademy({ ...baseVowRun, day: 30, vowHistory: brokenPromise }))
-assert.ok(restoreAcademy(startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius')))
+assert.ok(
+  restoreAcademy(
+    startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius'),
+  ),
+)
 
 const ngPlus = startFullAcademy(
   fieldFor('mutant-genius'),

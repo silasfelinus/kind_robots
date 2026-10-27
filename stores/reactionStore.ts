@@ -37,6 +37,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'FACET',
   'MESSAGE',
   'PROJECT',
+  'PLUMBER_LEVEL',
   'PROMPT',
   'RESOURCE',
   'REWARD',
@@ -73,6 +74,7 @@ type AddReactionPayload = {
   dreamId?: number | null
   facetId?: number | null
   projectId?: number | null
+  plumberLevelId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null

@@ -16,6 +16,7 @@ import {
   type MemoryCheckpoint,
 } from '../memoryDungeon/saveSlots'
 import { readFileSync } from 'node:fs'
+import { startCombatRoom } from '../memoryDungeon/rooms'
 import {
   DEFAULT_DUNGEON_DECK,
   DESIGNED_DUNGEON_ART,
@@ -72,6 +73,7 @@ import {
   briarTileProgress,
   newBriarSave,
   restoreBriarSave,
+  recoverBriarCombatDefeat,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
 import {
@@ -1812,7 +1814,7 @@ assert.doesNotThrow(
 assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
 assert.match(
   worldStoreSource,
-  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumed\.progress/,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = recoveredCombat/,
   'Loading a slot invalidates pending map and mirrored animation callbacks',
 )
 assert.match(
@@ -1834,4 +1836,104 @@ assert.match(
   consoleStage,
   /window\.confirm\([\s\S]*?Load checkpoint/,
   'Loading a slot warns before replacing the current autosave',
+)
+
+const combatForDefeat = startCombatRoom(
+  'sprite',
+  91,
+  Array.from({ length: 8 }, (_, index) => `/memory-test-${index}.webp`),
+)
+const defeatedBriar = {
+  ...newBriarSave(),
+  room: 'memory' as const,
+  roomId: 'sprite' as const,
+  hearts: 2,
+  combat: {
+    ...combatForDefeat,
+    state: {
+      ...combatForDefeat.state,
+      playerHp: 0,
+      outcome: 'defeat' as const,
+    },
+  },
+}
+const interruptedDefeat = restoreBriarSave(defeatedBriar)
+assert.equal(interruptedDefeat.combat?.state.outcome, 'defeat')
+const resumedDefeat = recoverBriarCombatDefeat(interruptedDefeat)
+assert.equal(resumedDefeat.room, 'map')
+assert.equal(resumedDefeat.combat, null)
+assert.equal(resumedDefeat.hearts, 1)
+assert.equal(resumedDefeat.roomId, null)
+assert.match(resumedDefeat.status, /One heart lost/)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(resumedDefeat)),
+  resumedDefeat,
+  'Reloading a settled defeat cannot charge a second heart',
+)
+const lastHeartDefeat = recoverBriarCombatDefeat(
+  restoreBriarSave({ ...defeatedBriar, hearts: 1 }),
+)
+assert.equal(lastHeartDefeat.hearts, 3)
+assert.equal(lastHeartDefeat.player, BRIAR_START)
+assert.equal(lastHeartDefeat.room, 'map')
+assert.match(lastHeartDefeat.status, /retreat to Briar Camp/)
+const houseDefeat = recoverBriarCombatDefeat(
+  restoreBriarSave({
+    ...defeatedBriar,
+    hearts: 2,
+    house: {
+      ...newHouseProgress(),
+      current: 'HD-09',
+      visited: ['HD-01', 'HD-09'],
+      combatOrigin: 'HD-09',
+    },
+  }),
+)
+assert.equal(houseDefeat.room, 'house')
+assert.equal(houseDefeat.house?.current, 'HD-18')
+assert.equal(houseDefeat.house?.combatOrigin, null)
+assert.equal(
+  houseDefeat.house?.visited.filter((id) => id === 'HD-18').length,
+  1,
+)
+assert.equal(houseDefeat.hearts, 1)
+assert.match(houseDefeat.status, /House's quiet bedchamber/)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(houseDefeat)),
+  houseDefeat,
+  'A recovered House retreat stays in the House without duplicate damage',
+)
+const victoryBriar = restoreBriarSave({
+  ...defeatedBriar,
+  combat: {
+    ...combatForDefeat,
+    state: { ...combatForDefeat.state, outcome: 'victory' },
+  },
+})
+assert.equal(
+  recoverBriarCombatDefeat(victoryBriar),
+  victoryBriar,
+  'An interrupted victory must remain claimable instead of being treated as defeat',
+)
+const activeBriar = restoreBriarSave({
+  ...defeatedBriar,
+  combat: combatForDefeat,
+})
+assert.equal(recoverBriarCombatDefeat(activeBriar), activeBriar)
+assert.ok(
+  restoreMemoryCheckpoint({ ...checkpoint, briar: defeatedBriar }),
+  'A valid checkpoint captured during the defeat animation can be recovered',
+)
+assert.match(
+  worldStoreSource,
+  /const recoveredCombat = recoverBriarCombatDefeat\(resumed\.progress\)/,
+  'Both checkpoint loading and autosave hydration settle interrupted defeats',
+)
+assert.equal(
+  (
+    worldStoreSource.match(/recoverBriarCombatDefeat\(resumed\.progress\)/g) ??
+    []
+  ).length,
+  2,
+  'Both restoration entry points must use the same idempotent combat recovery',
 )

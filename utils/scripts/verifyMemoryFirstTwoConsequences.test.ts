@@ -304,6 +304,30 @@ const supplies = crossRealmHouseEpilogue(
 )
 assert.ok(supplies.includes('provisions'))
 assert.ok(!supplies.includes('route you planned'))
+for (const [choice, phrase] of [
+  ['truth', 'false oath you challenged'],
+  ['errand', 'apology you delivered'],
+] as const) {
+  const knight = { ...base, sceneChoices: { '5,4': choice } }
+  assert.equal(
+    crossRealmConsequenceLedger(knight, mirror).knightsDuty,
+    choice === 'truth' ? 'oath' : 'errand',
+  )
+  assert.ok(
+    crossRealmHouseEpilogue(knight, { ...mirror, ending: 'return' }).includes(
+      phrase,
+    ),
+  )
+  assert.equal(crossRealmHouseEpilogue(knight, mirror), '')
+}
+assert.equal(
+  crossRealmHouseEpilogue(
+    { ...base, sceneChoices: { '5,4': 'invented' } },
+    { ...mirror, ending: 'commons' },
+  ),
+  '',
+  'Forged Knight choices earn nothing',
+)
 assert.equal(
   crossRealmHouseEpilogue(
     { ...base, sceneChoices: { '4,3': 'invented', '6,3': 'invented' } },

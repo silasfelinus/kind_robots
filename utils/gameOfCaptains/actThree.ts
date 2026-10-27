@@ -25,7 +25,7 @@ export const ACT_THREE_MISSIONS = [
   {
     id: 'serendipity-last-call',
     chapter: 7,
-    system: 'Serendipity Space Bar',
+    system: 'Blue Giant Casino / Serendipity',
     title: 'Last Orders',
     kind: 'rescue',
     briefing:

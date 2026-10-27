@@ -196,7 +196,7 @@
               class="cca-choice"
               type="button"
               data-testid="academy-social-switch"
-              @click="showRelationships = !showRelationships"
+              @click="toggleRelationships"
             >
               <span>{{
                 showRelationships
@@ -217,7 +217,7 @@
               >
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
-                  v-for="person in STUDENTS"
+                  v-for="person in onCall.filter((person) => person.origin === 'academy')"
                   :key="person.id"
                   type="button"
                   :class="{ chosen: selectedSocialId === person.id }"
@@ -896,6 +896,11 @@ function isAssignedElsewhere(caseId: string, id: StudentId): boolean {
   )
 }
 
+function toggleRelationships() {
+  if (!showRelationships.value)
+    selectedSocialId.value = onCall.value.find((person) => person.origin === 'academy')?.id ?? 'mina'
+  showRelationships.value = !showRelationships.value
+}
 function reactionEmoji(id: StudentId, caseId: string): string {
   const mood = missionReaction(id, caseId).mood
   return mood === 'positive' ? '☺' : mood === 'negative' ? '☹' : '•'

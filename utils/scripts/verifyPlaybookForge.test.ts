@@ -624,10 +624,25 @@ assert.equal(
   const couch = EXISTING_PLAYBOOKS.find((e) => e.slug === 'game-of-captains')!
   const combos = openingCombos(couch.plan)
   assert.equal(combos.heroes, 6, 'six captains')
-  assert.equal(combos.parties, 560, '16 crew choose 3')
-  assert.equal(combos.openings, 3360)
+  assert.equal(combos.parties, 220, '12 crew choose 3')
+  assert.equal(combos.openings, 1320)
   assert.equal(combos.endingVersions, 96, '16 endings × 6 captains')
-  assert.equal(combos.epilogueLines, 96 * 16)
+  assert.equal(combos.epilogueLines, 96 * 12)
+  // Silas, 2026-10-27: every trio earns two endings and an adventure of its
+  // own; every galactic boss brings endings of its own.
+  assert.equal(combos.partyEndings, 440, 'two endings per trio')
+  assert.equal(combos.partyScenes, 660, 'a three-step adventure per trio')
+  assert.equal(combos.villainEndings, 24, 'three endings per boss')
+  assert.equal(couch.plan.romances, 12, 'a romance thread per crew member')
+  const noParty = forecast({
+    ...couch.plan,
+    partyEndings: 0,
+    partyAdventureSteps: 0,
+  })
+  assert.ok(
+    forecast(couch.plan).totalImages - noParty.totalImages >= 440 + 660,
+    'party endings and adventures are painted',
+  )
   const one = openingCombos({ ...couch.plan, endingVersions: 'one' })
   assert.equal(one.endingVersions, 16, 'one version each ignores the hero')
   const f1 = forecast({ ...couch.plan, endingVersions: 'one' })
@@ -637,7 +652,7 @@ assert.equal(
     'per-hero endings cost pictures and words',
   )
   assert.ok(
-    f6.notes.some((note) => note.includes('3360 openings')),
+    f6.notes.some((note) => note.includes('1320 openings')),
     'the forecast explains the fan-out',
   )
   assert.ok(
@@ -659,7 +674,7 @@ assert.equal(
   assert.equal(edited.followers, 21, 'override plus one added follower')
   assert.equal(edited.locations, couch.plan.locations + 1)
   assert.deepEqual(planChanges(couch.plan, { followers: 20 }), [
-    { label: 'Followers', from: '16', to: '20' },
+    { label: 'Followers', from: '12', to: '20' },
   ])
   assert.equal(
     typeof readAdjustment({ slug: 'game-of-captains', title: 'Space Couch' }),
@@ -675,14 +690,14 @@ assert.equal(
     slug: 'game-of-captains',
     title: 'Space Couch',
     note: 'Make the nemesis a tax auditor.',
-    changes: [{ label: 'Followers', from: '16', to: '20' }],
+    changes: [{ label: 'Followers', from: '12', to: '20' }],
     additions: [{ kind: 'follower', title: 'A depressed toaster', note: '' }],
     combos: 'line',
   })
   assert.ok(typeof post !== 'string')
   const comment = adjustmentComment(post, 'silas')
   assert.match(comment, /tax auditor/)
-  assert.match(comment, /\| Followers \| 16 \| 20 \|/)
+  assert.match(comment, /\| Followers \| 12 \| 20 \|/)
   assert.match(comment, /Follower: A depressed toaster/)
 }
 

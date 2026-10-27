@@ -48,6 +48,8 @@ import {
   earnedCourierCompensation,
   earnedBorrowedVoiceAccord,
   earnedBorrowedVoiceOutcome,
+  earnedRoyalEscortAccord,
+  earnedRoyalEscortOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -377,6 +379,121 @@ assert.match(
   store,
   /crossRealmHouseEpilogue\(state\.value, darkHouse\.value, dark\.value\)/,
   'The House ending must read the actual mirrored traveler decision',
+)
+
+// Scylla and Char are distinct agents. Both original approaches and both
+// mirrored conversations must earn different, persistent accounts and endings.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('4,4'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('4,4'))
+const royalScenes = new Set<string>()
+const royalEpilogues = new Set<string>()
+const royalMapCards = DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+  id,
+  tile,
+  pairId: Math.floor(id / 2),
+  image: `/test/royal-pair-${Math.floor(id / 2)}.webp`,
+  flipped: true,
+  matched: true,
+}))
+const royalBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: royalMapCards,
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: [BRIAR_START, '4,4'],
+  player: '4,4',
+}
+for (const source of ['escort', 'question'] as const) {
+  assert.ok(BRIAR_SCENES['4,4']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...base,
+        revealed: BRIAR_REVEAL_WAVES[0],
+        visited: [BRIAR_START, '4,4'],
+        player: '4,4',
+        wavePhase: 'exploring',
+        sceneChoices: { '4,4': source },
+      }),
+    ),
+  )
+  assert.equal(original.sceneChoices['4,4'], source)
+  for (const sister of ['scylla', 'char'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['4,4']?.choices.some(
+        (choice) => choice.id === sister,
+      ),
+    )
+    const chosen = darkBriarChoose(royalBase, '4,4', sister)
+    assert.notEqual(chosen, royalBase)
+    assert.equal(
+      darkBriarChoose(chosen, '4,4', sister),
+      chosen,
+      'A royal conversation cannot be repeated for another ending',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['4,4'], sister)
+    const accord = `${source}-${sister}`
+    assert.equal(earnedRoyalEscortAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored)
+        .royalEscortAccord,
+      accord,
+    )
+    const scene = earnedRoyalEscortOutcome(original, restored)
+    assert.ok(scene && scene.length > 110)
+    assert.ok(scene.includes(sister === 'scylla' ? 'Scylla' : 'Char'))
+    royalScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'return' },
+      restored,
+    )
+    assert.ok(epilogue.includes(sister === 'scylla' ? 'Scylla' : 'Char'))
+    royalEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'The sisters must not reveal the House ending early',
+    )
+    assert.equal(
+      earnedRoyalEscortOutcome(original, {
+        sceneChoices: { '4,4': 'forged' },
+      }),
+      null,
+    )
+  }
+}
+assert.equal(royalScenes.size, 4)
+assert.equal(royalEpilogues.size, 4)
+assert.equal(
+  earnedRoyalEscortAccord(base, { sceneChoices: { '4,4': 'scylla' } }),
+  'unset',
+)
+assert.equal(
+  earnedRoyalEscortOutcome(
+    { ...base, sceneChoices: { '4,4': 'invented' } },
+    { sceneChoices: { '4,4': 'char' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).royalEscortAccord,
+  'unset',
+  'Older saves without a royal conversation must remain valid',
+)
+assert.match(
+  store,
+  /earnedRoyalEscortOutcome\(state\.value, dark\.value\)/,
+  'The live stage must render the earned royal conversation',
+)
+assert.ok(
+  DARK_BRIAR_SCENES['4,4']?.originalCallback?.alternate.includes(
+    'question about their matching faces',
+  ),
+  'The old callback must remember the actual lantern question',
 )
 
 const earnedHouseEpilogues = new Set<string>()

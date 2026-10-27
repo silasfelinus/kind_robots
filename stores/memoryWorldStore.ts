@@ -105,6 +105,7 @@ import {
   newBriarSave,
   restoreBriarSave,
   recoverBriarCombatDefeat,
+  recoverBriarRoomMissPenalty,
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
@@ -570,6 +571,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       checkpoint.briar,
     )
     const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
+    const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
     const reality = restoreMemoryRealitySave(checkpoint.reality)
     const resumedDark = recoverDarkBriarTurn(
       restoreDarkBriarProgress(checkpoint.dark),
@@ -598,7 +600,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldActive.value = false
     minefieldHint.value = null
 
-    state.value = recoveredCombat
+    state.value = recoveredRoom
     dark.value = resumedDark.progress
     darkHouse.value = restoredHouse
     crossMapSeals.value = restoredSeals
@@ -654,10 +656,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           const raw = JSON.parse(saved) as unknown
           const resumed = recoverBriarWaveTurn(restoreBriarSave(raw), raw)
           const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
-          state.value = recoveredCombat
+          const recoveredRoom = recoverBriarRoomMissPenalty(recoveredCombat)
+          state.value = recoveredRoom
           firstMapCard.value = resumed.firstTile
           latestMapCardKey.value = resumed.firstTile
-          if (resumed.recovered || recoveredCombat !== resumed.progress)
+          if (resumed.recovered || recoveredRoom !== resumed.progress)
             persist()
         }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)

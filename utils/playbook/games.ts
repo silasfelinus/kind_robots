@@ -64,7 +64,7 @@ const AUTHORED_GAMES = [
   },
   {
     id: 'comet-city-academy',
-    title: 'Capes & Tassels: Prom of Doom',
+    title: 'Prom of Doom',
     cover: '/comet-city-academy/front/splash.webp',
     build: buildPromOfDoomPlaybook,
   },

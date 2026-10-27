@@ -816,7 +816,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       identityPressure +
       (run.flowVersion === 3
         ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
-          socialMissionBonus(run.relationships, assignment.students)
+          socialMissionBonus(run.relationships, assignment.students) +
+          Math.sign(personalStanding(run.personalHistory))
         : 0)
     const grade: Grade =
       score >= incident.risk + 4

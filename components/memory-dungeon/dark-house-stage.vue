@@ -258,10 +258,18 @@
               "
               type="button"
               class="mt-2 rounded-md border border-[#816690] px-3 py-2 text-xs font-bold"
-              :disabled="world.darkHouseEchoCount < 1"
+              :disabled="
+                !world.darkHouseEarnedClue && world.darkHouseEchoCount < 1
+              "
               @click="world.darkHouseUseHint()"
             >
-              Consult the Chronicle · 1 echo
+              {{
+                world.darkHouseEarnedClue === 'route'
+                  ? 'Oren’s route ledger · free clue'
+                  : world.darkHouseEarnedClue === 'supplies'
+                    ? 'Oren’s provision ledger · free clue'
+                    : 'Consult the Chronicle · 1 echo'
+              }}
             </button>
             <p
               v-if="puzzleProgress?.solved"

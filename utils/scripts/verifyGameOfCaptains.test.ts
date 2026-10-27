@@ -49,6 +49,7 @@ import {
   finishVoyage,
   crewDetourOptions,
   beginCrewDetour,
+  stageCrewDetour,
   resolveCrewDetour,
   counterCrew,
   detourFor,
@@ -201,7 +202,12 @@ for (const member of CREW_PROFILES) {
   const path = CREW_JOURNEYS[member.id]
   assert.equal(path.length, 3, member.id)
   assert.equal(new Set(path.map((step) => step.system)).size, 3)
+  assert.equal(new Set(path.map((step) => step.prize)).size, 3)
   for (const step of path) {
+    assert.ok(step.reversal.length > 80, member.id)
+    assert.ok(step.scene.length > 200 && step.carefulOutcome.length > 90, member.id)
+    assert.ok(step.boldOutcome.length > 90 && step.prize.length > 12, member.id)
+    assert.ok(step.finalCareful.length > 35 && step.finalBold.length > 35, member.id)
     assert.ok(step.scene.length > 70, member.id)
     assert.ok(step.careful.length > 25 && step.bold.length > 25, member.id)
     assert.notEqual(step.careful, step.bold)
@@ -421,7 +427,14 @@ for (const member of CREW_PROFILES) {
     )
     const saved = restoreVoyage(JSON.parse(JSON.stringify(detour)))
     assert.deepEqual(saved, detour, 'mid-quest resume is stable')
-    const resolved = resolveCrewDetour(detour, 'bold')
+    const firstAct = stageCrewDetour(detour, chapter === 2 ? 'bold' : 'careful')
+    assert.equal(firstAct.detour?.gambit, chapter === 2 ? 'bold' : 'careful')
+    assert.ok(firstAct.scene.includes(detourFor(firstAct)!.reversal))
+    assert.equal(stageCrewDetour(firstAct, 'bold'), firstAct, 'cannot stage twice')
+    assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(firstAct))), firstAct)
+    const resolved = resolveCrewDetour(firstAct, 'bold')
+    assert.equal(resolved.journeyHistory?.at(-1)?.prize, detourFor(firstAct)!.prize)
+    assert.ok(resolved.scene.includes(detourFor(firstAct)!.boldOutcome))
     worldStops.push(resolved.journeyHistory!.at(-1)!.system)
     assert.equal(resolved.phase, 'debrief')
     assert.equal(resolved.journeyProgress![member.id], chapter)
@@ -557,6 +570,10 @@ assert.ok(page.includes('data-testid="couch-crew-routes"'))
 assert.ok(page.includes('data-testid="couch-crew-careful"'))
 assert.ok(page.includes('data-testid="couch-crew-bold"'))
 assert.ok(page.includes('data-testid="couch-counter-ending"'))
+assert.ok(page.includes('data-testid="couch-grand-quest"'))
+assert.ok(page.includes('data-testid="couch-quest-reversal"'))
+assert.ok(page.includes('data-testid="couch-crew-plan-careful"'))
+assert.ok(page.includes("store.planDetour('bold')"))
 assert.ok(page.includes("run.phase === 'crew-quest'"))
 assert.ok(page.includes('data-testid="captains-back-to-captains"'))
 assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))

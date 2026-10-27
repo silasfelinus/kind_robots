@@ -50,7 +50,10 @@ assert.ok(SERENDIPITY_FRANCHISES.some((f) => /arcade sports bar/.test(f.theme)))
 assert.ok(/homeworld/.test(CASINO_ORIGIN) && /colonists/.test(CASINO_ORIGIN))
 for (const franchise of SERENDIPITY_FRANCHISES) {
   assert.equal(franchise.beats.length, 3, franchise.id)
-  assert.ok(WARP_ART_PROMPTS[`venues/${franchise.id}`], `${franchise.id}: registered Krea2 art slot`)
+  assert.ok(
+    WARP_ART_PROMPTS[`venues/${franchise.id}`],
+    `${franchise.id}: registered Krea2 art slot`,
+  )
   assert.ok(franchise.illustration.length > 70, franchise.id)
   assert.equal(
     new Set(franchise.beats.map((b) => b.title)).size,

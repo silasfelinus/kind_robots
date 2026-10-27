@@ -670,9 +670,7 @@ import { fieldFor } from '~/utils/cometAcademy/identityArcs'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
-import {
-  identityFor,
-} from '~/utils/cometAcademy/identityArcs'
+import { identityFor } from '~/utils/cometAcademy/identityArcs'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {

@@ -5,6 +5,7 @@
  * - distinct optional synergies/special routes
  * - offers expire; launched teams return after 1–3 ship days
  */
+import { ACT_TWO_RULES } from './actTwo'
 import type { CaptainId, CrewId, VoyageRun } from './rules'
 
 export const SKILLS = [
@@ -353,6 +354,74 @@ export const SYNERGIES: Synergy[] = [
       'Trace the breathing network with a living sensor instead of a public map.',
     cost: 'The ecosystem has its own right to refuse the shortcut.',
   },
+  {
+    pair: ['rue', 'fen'],
+    missions: ['concord-intake', 'hoa'],
+    bonus: 3,
+    route:
+      'File each petition by hand, escorted by someone who knows where the checkpoints used to be.',
+    cost: 'Every petitioner signs personally; nobody signs on their behalf.',
+  },
+  {
+    pair: ['mox', 'sora'],
+    missions: ['sesh-backups', 'season-two'],
+    bonus: 3,
+    route: 'Ask each machine what it wants before anybody counts it.',
+    cost: 'Some of them ask to be left exactly where they are.',
+  },
+  {
+    pair: ['rue', 'jex'],
+    missions: ['insult-compiler', 'courtesy-reactor'],
+    bonus: 3,
+    route:
+      'Read the vows as law and as lyrics until the fishing clause turns up.',
+    cost: 'Both parliaments learn who wrote their anthems.',
+  },
+  {
+    pair: ['pell', 'sora'],
+    missions: ['warranty', 'sesh-backups'],
+    bonus: 3,
+    route:
+      'Mend the seam and the suits with tools the warranty has never heard of.',
+    cost: 'The manufacturer will never honor either warranty again.',
+  },
+  {
+    pair: ['tess', 'fen'],
+    missions: ['hoa', 'committee-end'],
+    bonus: 3,
+    route: 'Move the families by a route that appears on no association map.',
+    cost: 'Each family leaves something behind the beige roofs.',
+  },
+  {
+    pair: ['vela', 'kivo'],
+    missions: ['committee-end', 'gig-orchard'],
+    bonus: 2,
+    route:
+      'Triage the second hull by pulse and cabin pressure before the agenda is finished.',
+    cost: 'Kivo flies the flare without a filed flight plan.',
+  },
+  {
+    pair: ['brin', 'omi'],
+    missions: ['gig-orchard', 'overdue'],
+    bonus: 3,
+    route: 'Ring a strike call at a pitch the trees can hear.',
+    cost: 'Breathr rates every participating tree one star.',
+  },
+  {
+    pair: ['taal', 'fen'],
+    missions: ['merger'],
+    bonus: 3,
+    route:
+      'Walk the excluded neighborhood into the chamber with its own heating.',
+    cost: 'The coalition will remember who held the door.',
+  },
+  {
+    pair: ['jex', 'omi'],
+    missions: ['serendipity-tab'],
+    bonus: 2,
+    route: 'Perform a silent duet that the bar accepts as payment.',
+    cost: 'Jex stays banned; the silence counts as attendance.',
+  },
 ]
 export type MissionRule = {
   id: string
@@ -441,6 +510,7 @@ export const MISSION_RULES: MissionRule[] = [
     deadline: 'The orchard’s last breathable seed ripens in three days.',
     remoteRoute: 'A sensor cannot negotiate shared air with a living orchard.',
   },
+  ...ACT_TWO_RULES,
 ]
 export type MissionPreview = {
   chance: number

@@ -432,7 +432,9 @@
                 draggable="false"
               />
               <img
-                v-else-if="!world.mapMatching && currentIllustrationPath && !sceneArtFailed"
+                v-else-if="
+                  !world.mapMatching && currentIllustrationPath && !sceneArtFailed
+                "
                 :key="currentIllustrationPath"
                 :src="currentIllustrationPath"
                 class="h-full w-full object-cover"

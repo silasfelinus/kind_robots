@@ -140,6 +140,7 @@ import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
   createBriarWaveCards,
+  recoverBriarWaveTurn,
   settleBriarWavePair,
 } from '~/utils/memoryDungeonWaves'
 
@@ -518,7 +519,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (import.meta.client) {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
-        if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
+        if (saved) {
+          const raw = JSON.parse(saved) as unknown
+          const resumed = recoverBriarWaveTurn(restoreBriarSave(raw), raw)
+          state.value = resumed.progress
+          firstMapCard.value = resumed.firstTile
+          latestMapCardKey.value = resumed.firstTile
+          if (resumed.recovered) persist()
+        }
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
         const parsedUnlocks: unknown = savedUnlocks
           ? JSON.parse(savedUnlocks)

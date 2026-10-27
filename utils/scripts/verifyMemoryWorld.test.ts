@@ -15,6 +15,7 @@ import {
   BRIAR_REVEAL_WAVES,
   BRIAR_WAVE_SIZES,
   createBriarWaveCards,
+  recoverBriarWaveTurn,
   validateBriarWaves,
 } from '../memoryDungeonWaves'
 
@@ -868,6 +869,152 @@ for (const [index, wave] of BRIAR_REVEAL_WAVES.entries()) {
     assert.equal(cards.filter((card) => card.image === image).length, 2)
   }
 }
+const interruptionWave = BRIAR_REVEAL_WAVES[0]!
+const interruptionCards = createBriarWaveCards(
+  interruptionWave,
+  Array.from(
+    { length: interruptionWave.length / 2 },
+    (_, i) => `/memory-${i}.webp`,
+  ),
+  () => 0.4,
+)
+const interruptionPair = interruptionCards.filter((card) => card.pairId === 0)
+const otherPairCard = interruptionCards.find((card) => card.pairId === 1)!
+assert.equal(interruptionPair.length, 2)
+const interruptionBase = {
+  ...newBriarSave(),
+  mapCards: interruptionCards,
+  mapDeckSignature: 'designed',
+}
+const pendingSingle = {
+  ...interruptionBase,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped: card.tile === interruptionPair[0]!.tile,
+  })),
+}
+const resumedSingle = recoverBriarWaveTurn(
+  restoreBriarSave(pendingSingle),
+  pendingSingle,
+)
+assert.equal(resumedSingle.firstTile, interruptionPair[0]!.tile)
+assert.equal(
+  resumedSingle.progress.mapCards.find(
+    (card) => card.tile === interruptionPair[0]!.tile,
+  )?.flipped,
+  true,
+  'Reload between first and second flips preserves the active first card',
+)
+assert.equal(resumedSingle.progress.attempts, 0)
+const pendingMatch = {
+  ...interruptionBase,
+  attempts: 1,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped: interruptionPair.some((pair) => pair.tile === card.tile),
+  })),
+}
+const resumedMatch = recoverBriarWaveTurn(
+  restoreBriarSave(pendingMatch),
+  pendingMatch,
+)
+assert.equal(resumedMatch.firstTile, null)
+assert.equal(resumedMatch.progress.attempts, 1)
+assert.ok(
+  interruptionPair.every(
+    (pair) =>
+      resumedMatch.progress.revealed.includes(pair.tile) &&
+      resumedMatch.progress.mapCards.find((card) => card.tile === pair.tile)
+        ?.matched,
+  ),
+  'Reload during the success animation commits the already-paid-for pair',
+)
+const replayedMatch = recoverBriarWaveTurn(
+  restoreBriarSave(resumedMatch.progress),
+  resumedMatch.progress,
+)
+assert.equal(replayedMatch.recovered, false)
+assert.equal(replayedMatch.progress.attempts, 1)
+const pendingMismatch = {
+  ...interruptionBase,
+  attempts: 1,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped:
+      card.tile === interruptionPair[0]!.tile ||
+      card.tile === otherPairCard.tile,
+  })),
+}
+const resumedMismatch = recoverBriarWaveTurn(
+  restoreBriarSave(pendingMismatch),
+  pendingMismatch,
+)
+assert.equal(resumedMismatch.firstTile, null)
+assert.equal(resumedMismatch.progress.attempts, 1)
+assert.equal(resumedMismatch.progress.revealed.length, 0)
+assert.ok(
+  resumedMismatch.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+  'Reload during a mismatch closes both cards without another penalty',
+)
+const forgedMatch = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.tile === interruptionPair[1]!.tile
+      ? { ...card, image: '/different-face.webp' }
+      : card,
+  ),
+}
+const rejectedForgery = recoverBriarWaveTurn(
+  restoreBriarSave(forgedMatch),
+  forgedMatch,
+)
+assert.equal(rejectedForgery.progress.revealed.length, 0)
+assert.equal(rejectedForgery.firstTile, null)
+const overflipped = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.tile === otherPairCard.tile ? { ...card, flipped: true } : card,
+  ),
+}
+const rejectedOverflip = recoverBriarWaveTurn(
+  restoreBriarSave(overflipped),
+  overflipped,
+)
+assert.equal(rejectedOverflip.progress.revealed.length, 0)
+assert.ok(
+  rejectedOverflip.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+  'Malformed saves with three exposed faces never mint terrain',
+)
+const finalPair = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+}
+const completedOnReload = recoverBriarWaveTurn(
+  restoreBriarSave(finalPair),
+  finalPair,
+)
+assert.equal(
+  completedOnReload.progress.wavePhase,
+  'exploring',
+  'The final successful flip resumes directly into exploration',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /recoverBriarWaveTurn\(restoreBriarSave\(raw\), raw\)/,
+  'Production hydration must actually invoke the interrupted-turn recovery',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /latestMapCardKey\.value = resumed\.firstTile/,
+  'Restored first flips remain visible in the large image preview',
+)
+
 assert.throws(() =>
   createBriarWaveCards(['2,4', '3,4'], ['/same.jpg', '/same.jpg']),
 )

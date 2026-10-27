@@ -1405,17 +1405,30 @@ export function finishAcademy(
     const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
-    const ending = shared
-      ? earned
-        ? 'A CITY WITH A THOUSAND KEYS'
-        : 'THE BROKEN GRID'
-      : rescue
+    // Nobody exposed an accomplice and nobody came: the mastermind takes
+    // every tower the player did not hand to the neighborhoods.
+    const villainTakesShield = !earned && evidenceCount === 0 && !shared
+    const ending = villainTakesShield
+      ? 'THE SHIELD CHANGES HANDS'
+      : shared
         ? earned
-          ? 'THE LAST DANCE LEAVES BY BOAT'
-          : 'THE MUSIC AFTER GLASS'
-        : earned
-          ? 'MASTER OF THE SHIELD'
-          : 'THE PRICE OF A SINGLE SWITCH'
+          ? 'A CITY WITH A THOUSAND KEYS'
+          : 'THE BROKEN GRID'
+        : rescue
+          ? earned
+            ? choice === 'evacuate'
+              ? 'THE TRANSMITTER GOES DARK'
+              : 'THE LAST DANCE LEAVES BY BOAT'
+            : 'THE MUSIC AFTER GLASS'
+          : earned
+            ? 'MASTER OF THE SHIELD'
+            : 'THE PRICE OF A SINGLE SWITCH'
+    const endingTurn =
+      ending === 'THE SHIELD CHANGES HANDS'
+        ? `Nobody exposed a single accomplice operation, so nobody knows which relay to cut. While you ${choice === 'command' ? 'fight for a console that is already answering someone else' : 'carry guests out through the broken glass'}, ${villain.name} takes the shield towers whole, and by dawn the city's protection answers to a new owner.`
+        : ending === 'THE TRANSMITTER GOES DARK'
+          ? 'Your allies hold the doors while the transmitter dies in a shower of sparks with the beam still climbing. The shield towers fall dark and stay dark, and the city starts rebuilding its defenses by hand, block by block, with the people who carried the injured out.'
+          : ''
     const keys =
       run.guestPlan === 'duplicate'
         ? 'Independent rescuers possess duplicate emergency keys.'
@@ -1442,7 +1455,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,

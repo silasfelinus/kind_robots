@@ -28,7 +28,21 @@ import {
   ACT_TWO_ORDERS,
 } from '../gameOfCaptains/actTwo'
 import {
+  ACT_THREE_ABOARD,
+  ACT_THREE_BOARDS,
+  ACT_THREE_CONSEQUENCES,
+  ACT_THREE_ECHOES,
+  ACT_THREE_MISSIONS,
+  ACT_THREE_MOVES,
+  ACT_THREE_NEMESIS,
+  ACT_THREE_ORDERS,
+  ACT_THREE_RESUPPLY,
+} from '../gameOfCaptains/actThree'
+import {
   MISSION_CALLBACKS,
+  VOYAGE_CONSEQUENCES,
+  aboardLines,
+  actName,
   VOYAGE_BOARDS,
   VOYAGE_CHAPTERS,
   earnedCallbacks,
@@ -159,7 +173,7 @@ for (const member of CREW_PROFILES) {
   assert.ok(dossier.history.length > 70)
   assert.ok(dossier.crisis.length > 25 && dossier.nemesisLink.length > 25)
 }
-assert.equal(MISSIONS.length, 21)
+assert.equal(MISSIONS.length, 30)
 assert.ok(ANTAGONISTS.length >= 3)
 for (const captain of CAPTAINS) {
   for (const seed of [1, 2, 2026, 404, 777]) {
@@ -297,7 +311,7 @@ for (const missionId of Object.keys(ACT_ONE_ORDERS)) {
     missionId,
   )
 }
-assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 21)
+assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 30)
 assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 12)
 assert.deepEqual(
   missionBoard(startVoyage('vale', ['pell', 'mox', 'rue'], 310)).map(
@@ -903,7 +917,7 @@ for (const legacy of ['rue', 'tess'] as const) {
 // played after Act I, reading Act I's flags and leaving flags of their own.
 assert.equal(ACT_TWO_MISSIONS.length, 12)
 assert.equal(ACT_TWO_BOARDS.length, 3)
-assert.equal(VOYAGE_CHAPTERS, 6)
+assert.equal(VOYAGE_CHAPTERS, 9)
 assert.deepEqual(
   [...new Set(ACT_TWO_BOARDS.flat())].sort(),
   ACT_TWO_MISSIONS.map((m) => m.id).sort(),
@@ -999,12 +1013,7 @@ function VOYAGE_CONSEQUENCES_TEXT(
   missionId: string,
   policy: 'aid' | 'observe' | 'intervene',
 ) {
-  return ((
-    ACT_TWO_CONSEQUENCES as Record<string, Record<string, { text: string }>>
-  )[missionId] ??
-    (ACT_ONE_CONSEQUENCES as Record<string, Record<string, { text: string }>>)[
-      missionId
-    ])![policy]!.text
+  return VOYAGE_CONSEQUENCES[missionId]![policy].text
 }
 /** Sends every officer who is fit for duty. */
 function staffed(run: ReturnType<typeof startVoyage>) {
@@ -1066,6 +1075,37 @@ unionVoyage = nextDestination(unionVoyage)
 assert.ok(missionBoard(unionVoyage).some((m) => m.id === 'merger'))
 unionVoyage = play(unionVoyage, 'merger', 'aid')
 assert.equal(unionVoyage.worldFlags!.length, 6)
+// Act III, The Last Command: the same crew comes back to what it built.
+const suppliesBeforeActThree = unionVoyage.supplies
+unionVoyage = nextDestination(unionVoyage)
+assert.equal(unionVoyage.chapter, 7)
+assert.ok(unionVoyage.scene.startsWith('ACT III'))
+assert.equal(unionVoyage.supplies, suppliesBeforeActThree + ACT_THREE_RESUPPLY)
+assert.deepEqual(
+  missionBoard(unionVoyage).map((m) => m.id),
+  ['jump-gate-permit', 'gameworld-finale'],
+)
+unionVoyage = staffed(chooseMission(unionVoyage, 'gameworld-finale'))
+assert.equal(
+  previewMission(unionVoyage).chance,
+  Math.min(94, oddsWithout(unionVoyage) + 10),
+  'the Act I union charter is still taped inside the dressing rooms',
+)
+unionVoyage = play(unionVoyage, 'gameworld-finale', 'aid')
+unionVoyage = nextDestination(unionVoyage)
+unionVoyage = staffed(chooseMission(unionVoyage, 'cushion-recall'))
+assert.deepEqual(
+  earnedCallbacks('cushion-recall', unionVoyage.worldFlags!).map((c) => c.flag),
+  ['warranty-yielded', 'ashdock-protected'],
+)
+assert.equal(
+  previewMission(unionVoyage).chance,
+  Math.min(94, oddsWithout(unionVoyage) + 18),
+  'Ashdock remembers both the union and the queue',
+)
+unionVoyage = play(unionVoyage, 'cushion-recall', 'aid')
+unionVoyage = nextDestination(unionVoyage)
+unionVoyage = play(unionVoyage, 'deposit-copy', 'aid')
 unionVoyage = nextDestination(unionVoyage)
 assert.equal(unionVoyage.phase, 'finale')
 const unionEnding = finishVoyage(unionVoyage, 'protect')
@@ -1073,9 +1113,11 @@ for (const system of [
   'Ashdock Shipyards',
   'Concord Freehold',
   'Nacre Assembly',
+  'Tellurian Archive',
 ])
   assert.ok(unionEnding.scene.includes(system), system)
 assert.ok(unionEnding.scene.includes('eleven degrees'))
+assert.ok(unionEnding.scene.includes('arguing about commas'))
 assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(unionEnding))),
   unionEnding,
@@ -1113,10 +1155,7 @@ assert.equal(
 sanctuaryVoyage = play(sanctuaryVoyage, 'insult-compiler', 'observe')
 sanctuaryVoyage = nextDestination(sanctuaryVoyage)
 sanctuaryVoyage = play(sanctuaryVoyage, 'gig-orchard', 'intervene')
-const sanctuaryEnding = finishVoyage(
-  nextDestination(sanctuaryVoyage),
-  'protect',
-)
+const sanctuaryEnding = finishVoyage(toFinale(sanctuaryVoyage), 'protect')
 assert.ok(sanctuaryEnding.scene.includes('Courtesy Twins'))
 assert.ok(sanctuaryEnding.scene.includes('Courier of the Month'))
 assert.notEqual(sanctuaryEnding.scene, unionEnding.scene)
@@ -1140,7 +1179,7 @@ assert.equal(
 )
 // Save bounds: six chapters, and each call only on its own board.
 assert.ok(restoreVoyage({ ...queenAtConcord }))
-assert.equal(restoreVoyage({ ...queenAtConcord, chapter: 7 }), null)
+assert.equal(restoreVoyage({ ...queenAtConcord, chapter: 10 }), null)
 assert.equal(
   restoreVoyage({ ...queenAtConcord, chapter: 5 }),
   null,
@@ -1161,6 +1200,105 @@ assert.equal(missionFor(resumed).id, 'concord-intake')
 assert.ok(page.includes('data-testid="space-couch-callbacks"'))
 assert.ok(page.includes('v-for="n in VOYAGE_CHAPTERS"'))
 assert.ok(page.includes('nemesisLine'))
+
+// Act III content contracts: nine calls, all reading earlier acts.
+assert.equal(ACT_THREE_MISSIONS.length, 9)
+assert.deepEqual(
+  [...new Set(ACT_THREE_BOARDS.flat())].sort(),
+  ACT_THREE_MISSIONS.map((m) => m.id).sort(),
+)
+const actThreeFlags = new Set(
+  Object.values(ACT_THREE_CONSEQUENCES).flatMap((c) =>
+    Object.values(c).map((x) => x.flag),
+  ),
+)
+assert.equal(actThreeFlags.size, 27)
+for (const flag of actThreeFlags)
+  assert.ok(!actOneFlags.has(flag) && !actTwoFlags.has(flag), flag)
+for (const flag of Object.keys(ACT_THREE_ECHOES))
+  assert.ok(actThreeFlags.has(flag), flag)
+for (const mission of ACT_THREE_MISSIONS) {
+  const id = mission.id
+  assert.ok(mission.briefing.length > 200, id)
+  assert.ok(mission.dilemma.length > 120 && mission.note.length > 30, id)
+  assert.equal(new Set(Object.values(ACT_THREE_ORDERS[id])).size, 3, id)
+  for (const outcome of Object.values(ACT_THREE_CONSEQUENCES[id]))
+    assert.ok(outcome.text.length > 80, id)
+  assert.ok(
+    MISSION_RULES.some((rule) => rule.id === id),
+    id,
+  )
+  assert.ok(Object.keys(ACT_THREE_ABOARD[id]).length >= 3, id)
+  assert.ok(
+    aboardLines(id, [
+      'rue',
+      'mox',
+      'tess',
+      'omi',
+      'pell',
+      'vela',
+      'fen',
+      'sora',
+      'jex',
+      'taal',
+      'kivo',
+    ]).length >= 3,
+    id,
+  )
+  const callbacks = MISSION_CALLBACKS[id] ?? []
+  assert.ok(callbacks.length >= 3, `${id} reads earlier choices`)
+  for (const callback of callbacks)
+    assert.ok(
+      actOneFlags.has(callback.flag) || actTwoFlags.has(callback.flag),
+      `${id} reads ${callback.flag}`,
+    )
+  assert.ok(
+    callbacks.some((c) => c.odds > 0) && callbacks.some((c) => c.odds < 0),
+  )
+  assert.ok(warpArtPrompt(missionArtKey(id)), id)
+}
+for (const enemy of ANTAGONISTS) {
+  assert.ok(
+    ACT_THREE_MISSIONS.some(
+      (m) => m.id === ACT_THREE_NEMESIS[enemy.id].missionId,
+    ),
+  )
+  for (let chapter = 7; chapter <= 9; chapter++)
+    assert.equal(
+      nemesisMove(enemy, chapter),
+      ACT_THREE_MOVES[enemy.id][chapter - 7],
+    )
+}
+assert.equal(
+  new Set(Object.values(ACT_THREE_NEMESIS).map((t) => t.missionId)).size,
+  8,
+)
+assert.deepEqual([1, 3, 4, 6, 7, 9].map(actName), [
+  'Act I',
+  'Act I',
+  'Act II',
+  'Act II',
+  'Act III',
+  'Act III',
+])
+const showrunnerFinale = {
+  ...staffed(startVoyage('quill', ['mox', 'sora', 'omi'], 22)),
+  chapter: 7,
+  missionId: 'gameworld-finale',
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'showrunner'),
+}
+assert.equal(
+  previewMission(showrunnerFinale).chance,
+  Math.max(
+    5,
+    previewMission({
+      ...showrunnerFinale,
+      antagonist: ANTAGONISTS.findIndex((a) => a.id === 'auditor'),
+    }).chance - 12,
+  ),
+  'the Showrunner controls its own finale',
+)
+assert.ok(restoreVoyage(JSON.parse(JSON.stringify(showrunnerFinale))))
 
 // Every seeded nemesis has three endings of its own, earned from play.
 assert.equal(Object.keys(NEMESIS_ENDINGS).length, ANTAGONISTS.length)

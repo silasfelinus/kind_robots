@@ -1870,6 +1870,82 @@ assert.equal(
   restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
   null,
 )
+const damagedHouseCases = [
+  ['missing decisions', { ...checkpoint.house, decisions: null }],
+  ['invalid active state', { ...checkpoint.house, active: 'yes' }],
+  ['invalid current room', { ...checkpoint.house, current: null }],
+  ['invalid visited room', { ...checkpoint.house, visited: ['HD-01', null] }],
+  ['missing trials', { ...checkpoint.house, trials: null }],
+  ['missing puzzles', { ...checkpoint.house, puzzles: null }],
+  ['negative spent echoes', { ...checkpoint.house, spentEchoes: -1 }],
+  [
+    'malformed matching trial',
+    {
+      ...checkpoint.house,
+      trials: {
+        'HD-09': {
+          matched: null,
+          faceUp: [],
+          failures: 0,
+          clue: null,
+          note: '',
+        },
+      },
+    },
+  ],
+  [
+    'malformed logic puzzle',
+    {
+      ...checkpoint.house,
+      puzzles: {
+        'HD-13': { solved: true, wrong: [null], hint: false, note: '' },
+      },
+    },
+  ],
+] as const
+for (const [reason, house] of damagedHouseCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({ ...checkpoint, house }),
+    null,
+    `A checkpoint with ${reason} must not silently erase mirrored House progress`,
+  )
+}
+const damagedHouseSlots = restoreMemorySaveSlots([
+  { ...checkpoint, house: damagedHouseCases[0]![1] },
+  checkpoint,
+])
+assert.equal(damagedHouseSlots[0], null)
+assert.equal(
+  damagedHouseSlots[1]?.briar.attempts,
+  9,
+  'Corrupt House progress in one slot cannot damage a neighboring expedition',
+)
+assert.ok(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    house: {
+      ...checkpoint.house,
+      trials: {
+        'HD-09': {
+          matched: [],
+          faceUp: ['HD-09-a'],
+          failures: 1,
+          clue: null,
+          note: 'One picture is exposed.',
+        },
+      },
+      puzzles: {
+        'HD-13': {
+          solved: false,
+          wrong: ['incorrect'],
+          hint: true,
+          note: 'A clue was earned.',
+        },
+      },
+    },
+  }),
+  'A valid interrupted mirrored House trial and earned clue remain saveable',
+)
 const malformedBriarMapDeck = {
   ...checkpoint,
   briar: { ...checkpoint.briar, mapCards: [null] },

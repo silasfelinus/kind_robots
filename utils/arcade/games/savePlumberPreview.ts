@@ -3202,7 +3202,9 @@ export class PlumberRun implements ArcadeGameInstance {
           this.renderBanner(
             g,
             'GAME OVER',
-            this.customLevel ? 'Try this course again from the Maker' : `Your file keeps ${this.stage.code} on the world map`,
+            this.customLevel
+              ? 'Try this course again from the Maker'
+              : `Your file keeps ${this.stage.code} on the world map`,
           )
     }
   }

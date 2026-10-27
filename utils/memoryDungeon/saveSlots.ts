@@ -72,7 +72,5 @@ export function writeMemorySaveSlot(
     (slots[index] && !overwrite)
   )
     return null
-  return slots.map((slot, position) =>
-    position === index ? checkpoint : slot,
-  )
+  return slots.map((slot, position) => (position === index ? checkpoint : slot))
 }

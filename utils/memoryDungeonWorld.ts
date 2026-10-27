@@ -560,7 +560,6 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
   }
 }
 
-
 /** Settle a third failed chamber pair if reload cancelled its heart-loss timer. */
 export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
   if (

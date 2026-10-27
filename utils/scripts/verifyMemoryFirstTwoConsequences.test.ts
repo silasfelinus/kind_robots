@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { newBriarSave } from '../memoryDungeonWorld'
+import {
+  BRIAR_START,
+  briarConnected,
+  newBriarSave,
+  restoreBriarSave,
+} from '../memoryDungeonWorld'
+import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
+import { BRIAR_SCENES, canChooseBriarScene } from '../memoryDungeon/scenes'
 import { newHouseProgress } from '../memoryDungeon/house'
 import {
   newDarkHouseProgress,
@@ -236,7 +243,7 @@ for (const [choice, room, source] of [
   const atPuzzle = { ...newDarkHouseProgress(), active: true, current: room }
   assert.equal(darkHouseEchoes(atPuzzle), 0)
   assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)
-  const helped = darkHousePuzzleHint(atPuzzle, true)
+  const helped = darkHousePuzzleHint(atPuzzle, source)
   assert.notEqual(helped, atPuzzle)
   assert.equal(helped.puzzles[room]?.hint, true)
   assert.equal(
@@ -245,7 +252,7 @@ for (const [choice, room, source] of [
     'Earned Oren support must not spend echoes',
   )
   assert.ok(helped.puzzles[room]?.note.includes('Oren'))
-  assert.equal(darkHousePuzzleHint(helped, true), helped)
+  assert.equal(darkHousePuzzleHint(helped, source), helped)
   assert.equal(
     restoreDarkHouseProgress(JSON.parse(JSON.stringify(helped))).puzzles[room]
       ?.hint,
@@ -253,7 +260,7 @@ for (const [choice, room, source] of [
     'Reloading cannot reclaim a second free hint',
   )
   assert.equal(
-    darkHousePuzzleHint({ ...atPuzzle, decisions: { [room]: 'attend' } }, true)
+    darkHousePuzzleHint({ ...atPuzzle, decisions: { [room]: 'attend' } }, source)
       .puzzles[room],
     undefined,
     'A decided room cannot consume another clue after completion',
@@ -266,6 +273,86 @@ assert.equal(
   ),
   null,
   'Forged or missing Oren decisions cannot grant puzzle support',
+)
+
+// A second-wave Vault choice must be geographically reachable and authored
+// before its witness testimony can become a free clue in the mirrored House.
+const earlyReveals = BRIAR_REVEAL_WAVES.slice(0, 2).flat()
+assert.ok(earlyReveals.includes('6,3'))
+assert.ok(briarConnected(BRIAR_START, '6,3', earlyReveals))
+assert.match(
+  store,
+  /state\.value\.sceneChoices\[key\] = choice\.id/,
+  'The playable Briar scene action must record the choice that earns support',
+)
+for (const [witnessChoice, room, source] of [
+  ['remember', 'HD-08', 'names'],
+  ['protect', 'HD-34', 'consent'],
+] as const) {
+  const option = BRIAR_SCENES['6,3']?.choices.find(
+    (choice) => choice.id === witnessChoice,
+  )
+  assert.ok(option, 'The original Vault must offer the earned choice')
+  assert.equal(
+    canChooseBriarScene(option, { wildflowers: 0, lanterns: 1 }),
+    true,
+    'The witness choice must be possible without an invented resource grant',
+  )
+  const original = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: earlyReveals,
+        visited: [BRIAR_START, '6,3'],
+        player: '6,3',
+        waveIndex: 1,
+        wavePhase: 'exploring',
+        sceneChoices: { '6,3': option.id },
+      }),
+    ),
+  )
+  assert.equal(original.sceneChoices['6,3'], witnessChoice)
+  assert.equal(earnedDarkHousePuzzleClue(original, room), source)
+  assert.equal(
+    earnedDarkHousePuzzleClue(
+      original,
+      room === 'HD-08' ? 'HD-34' : 'HD-08',
+    ),
+    null,
+    'Opposite witness policy cannot claim both puzzle benefits',
+  )
+  const atPuzzle = { ...newDarkHouseProgress(), active: true, current: room }
+  assert.equal(darkHouseEchoes(atPuzzle), 0)
+  assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)
+  assert.equal(
+    darkHousePuzzleHint(atPuzzle, 'route'),
+    atPuzzle,
+    'An Oren entitlement cannot be forged into a witness clue',
+  )
+  const helped = darkHousePuzzleHint(atPuzzle, source)
+  assert.equal(helped.puzzles[room]?.hint, true)
+  assert.equal(helped.spentEchoes, 0)
+  assert.match(helped.puzzles[room]?.note ?? '', /witness|mason/i)
+  assert.equal(darkHousePuzzleHint(helped, source), helped)
+  const restored = restoreDarkHouseProgress(JSON.parse(JSON.stringify(helped)))
+  assert.equal(restored.puzzles[room]?.hint, true)
+  assert.equal(darkHousePuzzleHint(restored, source), restored)
+  assert.equal(
+    darkHousePuzzleHint(
+      { ...atPuzzle, decisions: { [room]: 'attend' } },
+      source,
+    ),
+    atPuzzle,
+    'No hint can be consumed after a room decision',
+  )
+}
+assert.equal(
+  earnedDarkHousePuzzleClue(
+    { ...base, sceneChoices: { '6,3': 'invented' } },
+    'HD-08',
+  ),
+  null,
+  'Forged witness policy must never earn a clue',
 )
 const solvedTrial = darkHouseTrialFaces('HD-09')
 const paidPuzzle = {
@@ -297,6 +384,8 @@ const houseStage = readFileSync(
 )
 assert.ok(houseStage.includes('world.darkHouseEarnedClue'))
 assert.ok(houseStage.includes('free clue'))
+assert.ok(houseStage.includes('Witness testimony · free clue'))
+assert.ok(houseStage.includes('Protected witnesses · free clue'))
 
 console.log(
   'Six earned worldframes, bounded relationship callbacks, and physical bridge shortcut pass',

@@ -522,7 +522,10 @@
             >
               <span>
                 CALL THE CITY FOR BACKUP · {{ emergencyBackup.name }}
-                <small>Gain a willing volunteer for tonight. Costs goodwill and raises danger.</small>
+                <small
+                  >Gain a willing volunteer for tonight. Costs goodwill and
+                  raises danger.</small
+                >
               </span>
               <span>↗</span>
             </button>
@@ -840,7 +843,9 @@ const onCall = computed(() =>
     ? STUDENTS.filter((person) => knownContacts(run.value!).includes(person.id))
     : [],
 )
-const emergencyBackup = computed(() => run.value ? emergencyContact(run.value) : null)
+const emergencyBackup = computed(() =>
+  run.value ? emergencyContact(run.value) : null,
+)
 const possibleRecruit = computed(() =>
   run.value ? recruitableContact(run.value) : null,
 )

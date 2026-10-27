@@ -62,6 +62,7 @@ import {
 } from '../playbookForge/adjust'
 import {
   buildLedger,
+  completionPercent,
   laneClass,
   nodeArtPrompt,
   artPromptBrief,
@@ -530,7 +531,10 @@ assert.equal(
   )
   assert.ok(crystalLedger.paintedShare < 1)
   assert.ok(crystalLedger.progress < 1)
+  assert.equal(crystal.order.length, Object.keys(crystal.nodes).length)
 }
+assert.equal(completionPercent(0.999), 99)
+assert.equal(completionPercent(1), 100)
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')
 

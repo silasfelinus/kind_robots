@@ -1160,7 +1160,11 @@ const SOLIDS: Record<string, number> = {
 
 /** Parser-supported symbols: the Maker must expose every mechanic when the engine grows. */
 export const STAGE_GLYPHS = Object.freeze([
-  '.', '@', 'X', ...Object.keys(SPAWNS), ...Object.keys(SOLIDS),
+  '.',
+  '@',
+  'X',
+  ...Object.keys(SPAWNS),
+  ...Object.keys(SOLIDS),
 ])
 
 /** The top cell of each vertical run of `mark`, left to right. */

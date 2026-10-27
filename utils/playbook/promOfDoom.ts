@@ -371,7 +371,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
 
   return {
     game: 'comet-city-academy',
-    title: 'Capes & Tassels: Prom of Doom',
+    title: 'Prom of Doom',
     blurb: 'Thirty days, six students, four masterminds and ten endings.',
     routes,
     nodes,

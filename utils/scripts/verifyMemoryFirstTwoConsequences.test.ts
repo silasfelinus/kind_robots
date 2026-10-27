@@ -247,16 +247,6 @@ assert.deepEqual(
   [],
   'The courier cannot remember a choice the player never made',
 )
-assert.match(
-  store,
-  /darkBriarCanTravel\([\s\S]*?dark\.value\.revealed,[\s\S]*?dark\.value,[\s\S]*?state\.value/,
-  'Runtime traversal must use both original and mirrored decision records',
-)
-assert.match(
-  stage,
-  /darkBriarCanTravel\([\s\S]*?world\.dark\.revealed,[\s\S]*?world\.dark,[\s\S]*?world\.state/,
-  'The rendered map must enable the same earned roads as the store',
-)
 assert.ok(
   firstTwoSceneCallbacks('5,4', { '5,4': 'truth' }, built).some((line) =>
     line.includes('shorter physical route'),
@@ -275,6 +265,16 @@ assert.match(
 )
 assert.ok(stage.includes('data-testid="dark-briar-earned-callbacks"'))
 assert.ok(stage.includes('data-testid="dark-briar-custody-world-change"'))
+assert.match(
+  store,
+  /darkBriarCanTravel\([\s\S]*?dark\.value\.revealed,[\s\S]*?dark\.value,[\s\S]*?state\.value/,
+  'Runtime traversal must use both original and mirrored decision records',
+)
+assert.match(
+  stage,
+  /darkBriarCanTravel\([\s\S]*?world\.dark\.revealed,[\s\S]*?world\.dark,[\s\S]*?world\.state/,
+  'The rendered map must enable the same earned roads as the store',
+)
 
 const earnedHouseEpilogues = new Set<string>()
 for (const witnessChoice of ['remember', 'protect'] as const) {

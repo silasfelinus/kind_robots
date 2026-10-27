@@ -319,8 +319,8 @@
         {{ shared ? 'Copied' : "Share today's memo" }}
       </button>
       <button
-        type="button"
         v-if="filedReceipt"
+        type="button"
         class="btn btn-outline btn-sm sm:btn-md"
         @click="printFile"
       >

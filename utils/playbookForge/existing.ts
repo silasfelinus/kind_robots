@@ -44,7 +44,6 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
     kinds.set(node.kind, (kinds.get(node.kind) ?? 0) + 1)
   const n = (kind: string) =>
     ignore.includes(kind) ? 0 : (kinds.get(kind) ?? 0)
-  const nodes = Object.values(book.nodes)
   const found: Partial<Record<keyof Blueprint, number>> = {
     encounters: n('encounter'),
     quests: n('quest'),
@@ -71,11 +70,9 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
   return {
     values,
     measured,
-    art: {
-      painted: nodes.filter((node) => !!node.artUrl).length,
-      total: nodes.length,
-    },
-    source: `Playbook Studio adapter: ${nodes.length} authored beats`,
+    // File delivery is audited by the server, not inferred from authored URLs.
+    art: null,
+    source: `Playbook Studio adapter: ${Object.keys(book.nodes).length} authored beats`,
   }
 }
 

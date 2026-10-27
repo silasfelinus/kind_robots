@@ -85,6 +85,7 @@ import {
   playbookArtRequest,
 } from '~/utils/playbook/artLanes'
 import type { Playbook, PlaybookNode } from '~/utils/playbook/types'
+import { withVerifiedArt } from '~/utils/playbookForge/verifiedArt'
 import { withBundledArt } from '~/utils/playbook/bundledArt'
 import {
   buildLedger,
@@ -93,7 +94,6 @@ import {
   nodeShape,
   planGaps,
   unitsToPaint,
-  withPainted,
   unitsToWrite,
   writingBrief,
   type LedgerJob,
@@ -130,6 +130,9 @@ export type LedgerRelay = {
   byNode: Record<string, LedgerJob[]>
   /** Beats whose image-store picture exists (node key → URL). */
   painted?: Record<string, string>
+  /** URLs independently checked against delivered raster files on the server. */
+  verified?: Record<string, string>
+  extras?: { total: number; delivered: number; missing: string[] }
   jobs: ProjectJobs
   truncated: boolean
 }
@@ -463,7 +466,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     cardsForTab(
       tab.value,
       existing.value && ledgerBook.value
-        ? withPainted(ledgerBook.value, ledgerRelay.value?.painted)
+        ? withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified)
         : null,
       designs.value,
     ),
@@ -714,21 +717,22 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
         const book = await withBundledArt(buildPlaybook(entry.studio))
         const counts = await entry.count().catch(() => null)
-        // Image-store art (Memory Dungeon) is only known to the server.
-        const painted = Object.values(book.nodes).some((n) => n.artPath)
-          ? (
-              await performFetch<LedgerRelay>(
-                `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}`,
-              )
-            ).data?.painted
-          : undefined
+        const inventory = await performFetch<{
+          verified: Record<string, string>
+          extras: { total: number; delivered: number; missing: string[] }
+        }>(
+          `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}?inventory=1`,
+        )
+        // A failed verification is unknown, never an optimistic 100%.
+        if (!inventory.success || !inventory.data) continue
         const ledger = buildLedger(
-          withPainted(book, painted),
+          withVerifiedArt(book, inventory.data.verified),
           {},
           {
             laneKey: book.artLanes[0] ?? 'krea2',
             assumptions: assumptions.value,
             gaps: counts ? planGaps(planFor(entry), counts) : [],
+            extraArt: inventory.data.extras,
           },
         )
         libraryStats.value = {
@@ -803,15 +807,16 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (ledgerRelay.value?.truncated)
       notes.push('Only the newest 5000 relay jobs were read.')
     return buildLedger(
-      withPainted(
+      withVerifiedArt(
         ledgerBook.value ?? { order: [], nodes: {} },
-        ledgerRelay.value?.painted,
+        ledgerRelay.value?.verified,
       ),
       ledgerRelay.value?.byNode ?? {},
       {
         laneKey: ledgerLane.value,
         assumptions: assumptions.value,
         gaps,
+        extraArt: ledgerRelay.value?.extras,
         notes,
       },
     )
@@ -832,7 +837,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     ledgerBook.value
       ? {
           ...ledgerBook.value,
-          ...withPainted(ledgerBook.value, ledgerRelay.value?.painted),
+          ...withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified),
         }
       : null,
   )

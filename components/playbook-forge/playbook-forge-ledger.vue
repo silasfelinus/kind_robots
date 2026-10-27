@@ -87,10 +87,10 @@
         <span
           class="pf-progress relative h-2 flex-1 overflow-hidden bg-base-content/10"
           role="progressbar"
-          :aria-valuenow="Math.round(ledger.progress * 100)"
+          :aria-valuenow="completionPercent(ledger.progress)"
           aria-valuemin="0"
           aria-valuemax="100"
-          aria-label="Beats complete"
+          aria-label="Verified writing and artwork completion"
         >
           <span
             class="absolute inset-y-0 left-0"
@@ -99,11 +99,11 @@
           />
         </span>
         <span class="pf-display w-14 text-right tabular-nums"
-          >{{ Math.round(ledger.progress * 100) }}%</span
+          >{{ completionPercent(ledger.progress) }}%</span
         >
         <span
           class="pf-kicker hidden shrink-0 text-[0.6rem] opacity-70 @3xl:inline"
-          title="Progress is half writing, half art, averaged over every beat"
+          title="Half authored writing, half verified delivered raster art (including extra outcome and portrait slots)"
           >Written {{ Math.round(ledger.writtenShare * 100) }}% · painted
           {{ Math.round(ledger.paintedShare * 100) }}%</span
         >
@@ -134,6 +134,16 @@
           remain</span
         >
       </div>
+      <p
+        v-if="ledger.extraArt.total"
+        class="text-xs leading-snug tabular-nums text-warning"
+        role="status"
+      >
+        Extra game images verified:
+        {{ formatCount(ledger.extraArt.delivered) }} /
+        {{ formatCount(ledger.extraArt.total) }} (choice outcomes, portraits,
+        villain art and items). SVG fallback scenes are not completed paintings.
+      </p>
       <ul
         class="grid grid-cols-3 gap-x-4 gap-y-2 @3xl:grid-cols-6"
         aria-label="Totals"
@@ -271,6 +281,7 @@ import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { formatCount, formatDuration } from '~/utils/playbookForge/estimate'
 import { FACTOR_ROWS } from '~/utils/playbookForge/factors'
 import { kitPlaybook } from '~/utils/playbookKit/games'
+import { completionPercent } from '~/utils/playbookForge/ledger'
 import type {
   ArtState,
   LedgerSection,
@@ -365,9 +376,13 @@ const totals = computed(() => {
   return [
     {
       label: 'Art delivered',
-      value: l.plannedUnits ? `${l.art.delivered}/${l.plannedUnits}` : '—',
+      value:
+        l.plannedUnits + l.extraArt.total
+          ? `${l.art.delivered}/${l.plannedUnits + l.extraArt.total}`
+          : '—',
       cls:
-        l.plannedUnits && l.art.delivered === l.plannedUnits
+        l.plannedUnits + l.extraArt.total > 0 &&
+        l.art.delivered === l.plannedUnits + l.extraArt.total
           ? 'text-success'
           : '',
     },

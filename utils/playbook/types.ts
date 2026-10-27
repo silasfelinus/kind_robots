@@ -113,6 +113,8 @@ export type Playbook = {
   order: string[]
   /** Extra highlighted groups shown under the chains: endings, follower lines, quest lines. */
   sections: PlaybookSection[]
+  /** Required pictures used outside story beats (outcomes, emotional portraits, etc.). */
+  artRequirements?: { key: string; title: string; url: string }[]
   people: PlaybookOption[]
   peopleLabel: string
   variations: PlaybookOption[]

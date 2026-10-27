@@ -703,7 +703,7 @@ export function chapterSystem(seed: number, chapter: number): SolarSystem {
   return systems[(Math.max(1, chapter) - 1) % systems.length]!
 }
 export function venueArtPrompt(system: SolarSystem): string {
-  return `Wide 16:9 sci-fi location illustration of ${GIANT_LOOK}. The alien's name is ${system.giant}; blue skin remains visibly alive and expressive. On its shoulder is ${system.casinoName}: roulette terraces and ringed casino balconies resting on, not cutting through, the titan's skin. INSIDE the casino is the Serendipity franchise "${system.franchise.name}", ${system.franchise.illustration}. Barkeep Vox is a short wrinkled grey-beige humanoid tardigrade in a brown leather apron. A long bright scarlet velvet couch carrying four travelers floats in a transparent atmospheric force bubble alongside the casino. Wide cinematic three-quarter view, warm casino interior lighting against deep violet space. Painted gouache, brown ink outlines, vivid physical scene, legible architectural silhouette, no text labels.`
+  return `Wide 16:9 original gouache painting of ${GIANT_LOOK}. The host ${system.giant} carries ${system.casinoName}: bright roulette terraces and walkways rest ON living blue skin. INSIDE the casino is the Serendipity franchise "${system.franchise.name}", with ${system.franchise.illustration}. Behind its counter stands Barkeep Vox, a grey-beige humanoid tardigrade wearing a brown leather apron. Nearby floats a long scarlet velvet couch with four travelers inside a transparent force bubble. Violet stars, amber lamps, brown ink outlines, physically clear architecture, no text labels.`
 }
 export type VenueProgress = {
   /** Completed authored franchise beats per system. */

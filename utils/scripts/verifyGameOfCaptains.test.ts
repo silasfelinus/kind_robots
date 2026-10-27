@@ -63,6 +63,16 @@ import {
   startVoyage,
 } from '../gameOfCaptains/rules'
 
+import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
+import {
+  WARP_ENDINGS,
+  antagonistArtKey,
+  captainArtKey,
+  crewArtKey,
+  endingArtKey,
+  missionArtKey,
+} from '../gameOfCaptains/artSlots'
+
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
 assert.equal(CAPTAINS.length, 6)
@@ -858,5 +868,24 @@ const gameStore = fromRoot('stores/gameOfCaptainsStore.ts')
 assert.ok(gameStore.includes('relationshipEpilogue(finishVoyage('))
 assert.ok(gameStore.includes('run.value = applyRomanceChoice('))
 assert.ok(gameStore.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"))
+
+// Every picture slot carries an authored Krea 2 prompt; mission and ending scenes show the couch.
+const slotKeys = [
+  ...CAPTAINS.map((c) => captainArtKey(c.id)),
+  ...CREW.map((c) => crewArtKey(c.portraitKey)),
+  ...MISSIONS.map((m) => missionArtKey(m.id)),
+  ...ANTAGONISTS.map((a) => antagonistArtKey(a.id)),
+  ...WARP_ENDINGS.map((e) => endingArtKey(e)),
+]
+for (const key of slotKeys) {
+  const prompt = warpArtPrompt(key)
+  assert.ok(prompt && prompt.length >= 120 && prompt.length <= 900, key)
+}
+assert.equal(new Set(Object.values(WARP_ART_PROMPTS)).size, slotKeys.length)
+for (const key of slotKeys.filter((k) => /^(missions|endings)\//.test(k)))
+  assert.ok(
+    /couch|bar with/i.test(warpArtPrompt(key)!),
+    `${key} shows the couch or the bar`,
+  )
 
 console.log('Space Couch seeded voyage and highlight contract: OK')

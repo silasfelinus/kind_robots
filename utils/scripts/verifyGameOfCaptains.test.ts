@@ -18,6 +18,23 @@ import {
   MISSION_RULES,
 } from '../gameOfCaptains/crewAssignments'
 import {
+  ACT_TWO_ABOARD,
+  ACT_TWO_BOARDS,
+  ACT_TWO_CONSEQUENCES,
+  ACT_TWO_ECHOES,
+  ACT_TWO_MISSIONS,
+  ACT_TWO_MOVES,
+  ACT_TWO_NEMESIS,
+  ACT_TWO_ORDERS,
+} from '../gameOfCaptains/actTwo'
+import {
+  MISSION_CALLBACKS,
+  VOYAGE_BOARDS,
+  VOYAGE_CHAPTERS,
+  earnedCallbacks,
+  nemesisMove,
+} from '../gameOfCaptains/voyageMap'
+import {
   ACT_ONE_BOARDS,
   ACT_ONE_CONSEQUENCES,
   ACT_ONE_NEMESIS,
@@ -62,6 +79,16 @@ import {
   restoreVoyage,
   startVoyage,
 } from '../gameOfCaptains/rules'
+
+import { WARP_ART_PROMPTS, warpArtPrompt } from '../gameOfCaptains/artPrompts'
+import {
+  WARP_ENDINGS,
+  antagonistArtKey,
+  captainArtKey,
+  crewArtKey,
+  endingArtKey,
+  missionArtKey,
+} from '../gameOfCaptains/artSlots'
 
 const fromRoot = (path: string) =>
   readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
@@ -110,7 +137,7 @@ assert.equal(CREW.length, 12)
 assert.equal(CREW_PROFILES.length, 12)
 assert.equal(new Set(CREW.map((x) => x.id)).size, 12)
 assert.equal(SYNERGIES.length >= 8, true)
-assert.equal(MISSION_RULES.length, 9)
+assert.equal(MISSION_RULES.length, MISSIONS.length)
 for (const captain of CAPTAINS) {
   assert.equal(Object.keys(CAPTAIN_STATS[captain.id]).length, 6)
   assert.ok(CAPTAIN_DOSSIERS[captain.id].history.length > 80)
@@ -123,13 +150,13 @@ for (const member of CREW_PROFILES) {
   assert.ok(dossier.history.length > 70)
   assert.ok(dossier.crisis.length > 25 && dossier.nemesisLink.length > 25)
 }
-assert.equal(MISSIONS.length, 9)
+assert.equal(MISSIONS.length, 21)
 assert.ok(ANTAGONISTS.length >= 3)
 for (const captain of CAPTAINS) {
   for (const seed of [1, 2, 2026, 404, 777]) {
     let run = startVoyage(captain.id, ['pell', 'mox', 'rue'], seed)
     const antagonist = antagonistFor(run)
-    for (let chapter = 1; chapter <= 3; chapter++) {
+    for (let chapter = 1; chapter <= VOYAGE_CHAPTERS; chapter++) {
       assert.equal(run.phase, 'briefing')
       assert.equal(run.chapter, chapter)
       assert.ok(missionFor(run).title)
@@ -165,7 +192,7 @@ for (const captain of CAPTAINS) {
         run = advanceVoyageDay(run)
       }
       assert.equal(run.phase, 'decision')
-      assert.equal(run.report?.missionId, MISSIONS[chapter - 1]?.id)
+      assert.equal(run.report?.missionId, VOYAGE_BOARDS[chapter - 1]![0])
       assert.ok(
         ['flawless', 'success', 'costly', 'disaster'].includes(
           run.report!.result,
@@ -227,6 +254,16 @@ for (const enemy of ANTAGONISTS) {
   )
 }
 
+/** Plays every remaining chapter with the default call and aid, then stops at the jump gate. */
+function toFinale(run: ReturnType<typeof startVoyage>) {
+  run = nextDestination(run)
+  while (run.phase === 'briefing') {
+    run = completeMission(run)
+    run = nextDestination(run)
+  }
+  assert.equal(run.phase, 'finale')
+  return run
+}
 function completeMission(run: ReturnType<typeof startVoyage>) {
   run = launchMission(run)
   assert.equal(run.phase, 'transit')
@@ -251,8 +288,8 @@ for (const missionId of Object.keys(ACT_ONE_ORDERS)) {
     missionId,
   )
 }
-assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 9)
-assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 9)
+assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 21)
+assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 12)
 assert.deepEqual(
   missionBoard(startVoyage('vale', ['pell', 'mox', 'rue'], 310)).map(
     (m) => m.id,
@@ -302,7 +339,7 @@ assert.ok(missionBoard(workerRoute).some((m) => m.id === 'gameworld'))
 workerRoute = chooseMission(workerRoute, 'gameworld')
 workerRoute = completeMission(workerRoute)
 assert.equal(workerRoute.worldFlags?.length, 3)
-const workerEnding = finishVoyage(nextDestination(workerRoute), 'protect')
+const workerEnding = finishVoyage(toFinale(workerRoute), 'protect')
 const villainPressure = {
   ...startVoyage('quill', ['mox', 'sora', 'omi'], 22),
   chapter: 3,
@@ -355,7 +392,7 @@ assert.equal(
   ),
 )
 healerRoute = completeMission(healerRoute)
-const healerEnding = finishVoyage(nextDestination(healerRoute), 'protect')
+const healerEnding = finishVoyage(toFinale(healerRoute), 'protect')
 assert.ok(healerEnding.scene.includes('Haleth Reef'))
 assert.ok(healerEnding.scene.includes('Rootborne Gardens'))
 assert.notEqual(healerEnding.scene, workerEnding.scene)
@@ -474,7 +511,7 @@ for (const member of CREW_PROFILES) {
       restoreVoyage(JSON.parse(JSON.stringify(resolved))),
       resolved,
     )
-    run = nextDestination(resolved)
+    run = chapter < 3 ? nextDestination(resolved) : toFinale(resolved)
   }
   assert.equal(new Set(worldStops).size, 3)
   assert.equal(run.phase, 'finale')
@@ -518,7 +555,7 @@ for (const enemy of ANTAGONISTS) {
     run = resolveCrewDetour(run, 'bold')
     if (i < 1) assert.equal(counterCrew(run).length, 0)
     else assert.ok(counterCrew(run).includes(selected))
-    run = nextDestination(run)
+    run = i < 2 ? nextDestination(run) : toFinale(run)
   }
   assert.equal(run.phase, 'finale')
   const ended = finishVoyage(run, 'counter')
@@ -653,7 +690,7 @@ assert.ok(romanceMoment(lovers)?.speakers.some((line) => line.name === 'Taal'))
 lovers = chooseRomance(lovers, 'commit')
 assert.equal(romanceStatus(lovers), 'committed')
 assert.equal((lovers as RomanceVoyage).romance?.history.length, 3)
-lovers = nextDestination(lovers)
+lovers = toFinale(lovers)
 assert.equal(lovers.phase, 'finale')
 const galacticEnding = finishVoyage(lovers, 'protect')
 const loveEnding = relationshipEpilogue(galacticEnding)
@@ -739,9 +776,7 @@ for (const [crew, invite] of [
   solo = arriveAtRelationshipDebrief(nextDestination(solo), 'aid')
   solo = chooseRomance(solo, 'part')
   assert.equal(romanceStatus(solo), 'separated')
-  const epilogue = relationshipEpilogue(
-    finishVoyage(nextDestination(solo), 'protect'),
-  )
+  const epilogue = relationshipEpilogue(finishVoyage(toFinale(solo), 'protect'))
   assert.ok(
     epilogue.log.some((entry) => entry.startsWith('Relationship epilogue: ')),
   )
@@ -813,7 +848,7 @@ for (const story of ROMANCE_STORIES) {
   voyage = chooseRomance(voyage, 'commit')
   assert.equal(romanceStatus(voyage), 'committed', story.id)
   assert.equal((voyage as RomanceVoyage).romance?.history.length, 3)
-  const original = finishVoyage(nextDestination(voyage), 'protect')
+  const original = finishVoyage(toFinale(voyage), 'protect')
   const epilogue = relationshipEpilogue(original)
   assert.equal(epilogue.ending, original.ending)
   assert.ok(epilogue.scene.includes(story.ending), story.id)
@@ -854,9 +889,291 @@ for (const legacy of ['rue', 'tess'] as const) {
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(saved))), saved)
 }
 
+// Act II, Unwelcome Responsibility: twelve more calls on three more boards,
+// played after Act I, reading Act I's flags and leaving flags of their own.
+assert.equal(ACT_TWO_MISSIONS.length, 12)
+assert.equal(ACT_TWO_BOARDS.length, 3)
+assert.equal(VOYAGE_CHAPTERS, 6)
+assert.deepEqual(
+  [...new Set(ACT_TWO_BOARDS.flat())].sort(),
+  ACT_TWO_MISSIONS.map((m) => m.id).sort(),
+)
+for (const system of ['Concord Freehold', 'Courtesy Twins', 'Sesh Foundry'])
+  assert.ok(
+    ACT_TWO_MISSIONS.some((m) => m.system === system),
+    system,
+  )
+const actOneFlags = new Set(
+  Object.values(ACT_ONE_CONSEQUENCES).flatMap((c) =>
+    Object.values(c).map((x) => x.flag),
+  ),
+)
+const actTwoFlags = new Set(
+  Object.values(ACT_TWO_CONSEQUENCES).flatMap((c) =>
+    Object.values(c).map((x) => x.flag),
+  ),
+)
+assert.equal(actTwoFlags.size, 36, 'every Act II order leaves its own flag')
+for (const flag of actTwoFlags) assert.ok(!actOneFlags.has(flag), flag)
+for (const flag of Object.keys(ACT_TWO_ECHOES))
+  assert.ok(actTwoFlags.has(flag), flag)
+for (const mission of ACT_TWO_MISSIONS) {
+  const id = mission.id
+  assert.ok(mission.briefing.length > 200, id)
+  assert.ok(mission.dilemma.length > 120 && mission.note.length > 30, id)
+  assert.equal(new Set(Object.values(ACT_TWO_ORDERS[id])).size, 3, id)
+  for (const outcome of Object.values(ACT_TWO_CONSEQUENCES[id]))
+    assert.ok(outcome.text.length > 80, id)
+  assert.ok(
+    MISSION_RULES.some((rule) => rule.id === id),
+    id,
+  )
+  const asides = Object.entries(ACT_TWO_ABOARD[id])
+  assert.ok(asides.length >= 3, id)
+  assert.ok(asides.every(([crewId]) => CREW.some((c) => c.id === crewId)))
+  const callbacks = MISSION_CALLBACKS[id] ?? []
+  assert.ok(callbacks.length >= 2, `${id} reads earlier choices`)
+  const earlier = new Set([
+    ...actOneFlags,
+    ...ACT_TWO_MISSIONS.filter((m) => m.chapter < mission.chapter).flatMap(
+      (m) => Object.values(ACT_TWO_CONSEQUENCES[m.id]).map((x) => x.flag),
+    ),
+  ])
+  for (const callback of callbacks)
+    assert.ok(earlier.has(callback.flag), `${id} reads ${callback.flag}`)
+  assert.ok(
+    callbacks.some((c) => c.odds > 0) && callbacks.some((c) => c.odds < 0),
+    `${id} remembers both kindness and harm`,
+  )
+}
+for (const enemy of ANTAGONISTS) {
+  const threat = ACT_TWO_NEMESIS[enemy.id]
+  assert.ok(ACT_TWO_MISSIONS.some((m) => m.id === threat.missionId))
+  assert.equal(new Set(ACT_TWO_MOVES[enemy.id]).size, 3)
+  for (let chapter = 4; chapter <= 6; chapter++)
+    assert.equal(
+      nemesisMove(enemy, chapter),
+      ACT_TWO_MOVES[enemy.id][chapter - 4],
+    )
+  assert.equal(nemesisMove(enemy, 2), enemy.acts[1])
+}
+assert.equal(
+  new Set(Object.values(ACT_TWO_NEMESIS).map((t) => t.missionId)).size,
+  8,
+  'each nemesis contaminates its own Act II call',
+)
+
+function play(
+  run: ReturnType<typeof startVoyage>,
+  missionId: string,
+  policy: 'aid' | 'observe' | 'intervene',
+) {
+  assert.ok(
+    missionBoard(run).some((m) => m.id === missionId),
+    `${missionId} is on the chapter ${run.chapter} board`,
+  )
+  run = staffed(chooseMission(run, missionId))
+  assert.equal(missionFor(run).id, missionId)
+  run = launchMission(run)
+  while (run.phase === 'transit') run = advanceVoyageDay(run)
+  assert.equal(run.phase, 'decision')
+  run = decidePolicy(run, policy)
+  assert.equal(run.phase, 'debrief')
+  assert.ok(
+    run.scene.includes(VOYAGE_CONSEQUENCES_TEXT(missionId, policy)),
+    missionId,
+  )
+  return run
+}
+function VOYAGE_CONSEQUENCES_TEXT(
+  missionId: string,
+  policy: 'aid' | 'observe' | 'intervene',
+) {
+  return ((
+    ACT_TWO_CONSEQUENCES as Record<string, Record<string, { text: string }>>
+  )[missionId] ??
+    (ACT_ONE_CONSEQUENCES as Record<string, Record<string, { text: string }>>)[
+      missionId
+    ])![policy]!.text
+}
+/** Sends every officer who is fit for duty. */
+function staffed(run: ReturnType<typeof startVoyage>) {
+  const today = run.day ?? run.chapter
+  return assignAwayTeam(
+    run,
+    run.crew.filter((id) => (run.injuredUntil?.[id] ?? 0) <= today),
+  )
+}
+const oddsWithout = (run: ReturnType<typeof startVoyage>) =>
+  previewMission({ ...run, worldFlags: [] }).chance
+
+// Voyage A: union-minded crew. Act I flags open and sweeten Act II calls.
+let unionVoyage = startVoyage('vale', ['pell', 'mox', 'rue'], 310)
+unionVoyage = play(unionVoyage, 'ashdock', 'aid')
+unionVoyage = play(nextDestination(unionVoyage), 'nacre', 'aid')
+unionVoyage = play(nextDestination(unionVoyage), 'gameworld', 'aid')
+unionVoyage = nextDestination(unionVoyage)
+assert.equal(unionVoyage.phase, 'briefing')
+assert.equal(unionVoyage.chapter, 4)
+assert.ok(unionVoyage.scene.startsWith('ACT II'))
+assert.equal(missionFor(unionVoyage).id, 'concord-intake')
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(unionVoyage))),
+  unionVoyage,
+  'an Act II save restores under the v1 key',
+)
+const unionBoard = missionBoard(unionVoyage).map((m) => m.id)
+assert.deepEqual(unionBoard, [
+  'concord-intake',
+  'courtesy-reactor',
+  'sesh-backups',
+])
+assert.deepEqual(
+  earnedCallbacks('concord-intake', unionVoyage.worldFlags!).map((c) => c.flag),
+  ['nacre-hearing'],
+)
+assert.equal(
+  previewMission(staffed(unionVoyage)).chance,
+  Math.min(94, oddsWithout(staffed(unionVoyage)) + 8),
+  'helping Nacre in Act I improves the Concord odds',
+)
+unionVoyage = play(unionVoyage, 'concord-intake', 'intervene')
+assert.ok(unionVoyage.worldFlags!.includes('concord-guardian'))
+unionVoyage = nextDestination(unionVoyage)
+assert.ok(worldEcho(unionVoyage).includes('birthday'))
+assert.equal(
+  missionBoard(unionVoyage).some((m) => m.id === 'hoa'),
+  false,
+  'nobody aboard knows the Windglass sanctuary',
+)
+unionVoyage = staffed(chooseMission(unionVoyage, 'warranty'))
+assert.equal(
+  previewMission(unionVoyage).chance,
+  Math.min(94, oddsWithout(unionVoyage) + 8),
+)
+unionVoyage = play(unionVoyage, 'warranty', 'aid')
+unionVoyage = nextDestination(unionVoyage)
+assert.ok(missionBoard(unionVoyage).some((m) => m.id === 'merger'))
+unionVoyage = play(unionVoyage, 'merger', 'aid')
+assert.equal(unionVoyage.worldFlags!.length, 6)
+unionVoyage = nextDestination(unionVoyage)
+assert.equal(unionVoyage.phase, 'finale')
+const unionEnding = finishVoyage(unionVoyage, 'protect')
+for (const system of [
+  'Ashdock Shipyards',
+  'Concord Freehold',
+  'Nacre Assembly',
+])
+  assert.ok(unionEnding.scene.includes(system), system)
+assert.ok(unionEnding.scene.includes('eleven degrees'))
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(unionEnding))),
+  unionEnding,
+)
+
+// Voyage B: the same seed, a sanctuary crew and a careless broadcast.
+let sanctuaryVoyage = startVoyage('vale', ['tess', 'kivo', 'vela'], 310)
+sanctuaryVoyage = play(sanctuaryVoyage, 'windglass', 'intervene')
+sanctuaryVoyage = play(nextDestination(sanctuaryVoyage), 'haleth', 'aid')
+sanctuaryVoyage = play(nextDestination(sanctuaryVoyage), 'rootborne', 'aid')
+sanctuaryVoyage = nextDestination(sanctuaryVoyage)
+const sanctuaryBoard = missionBoard(sanctuaryVoyage).map((m) => m.id)
+assert.notDeepEqual(sanctuaryBoard, unionBoard)
+assert.ok(sanctuaryBoard.includes('serendipity-tab'))
+assert.ok(!sanctuaryBoard.includes('sesh-backups'))
+sanctuaryVoyage = staffed(chooseMission(sanctuaryVoyage, 'courtesy-reactor'))
+assert.equal(
+  previewMission(sanctuaryVoyage).chance,
+  Math.max(5, oddsWithout(sanctuaryVoyage) - 6),
+  'the Windglass broadcast follows the couch to the Twins',
+)
+sanctuaryVoyage = play(sanctuaryVoyage, 'courtesy-reactor', 'aid')
+sanctuaryVoyage = nextDestination(sanctuaryVoyage)
+sanctuaryVoyage = staffed(chooseMission(sanctuaryVoyage, 'hoa'))
+assert.equal(
+  previewMission(sanctuaryVoyage).chance,
+  Math.max(5, oddsWithout(sanctuaryVoyage) - 10),
+)
+sanctuaryVoyage = staffed(chooseMission(sanctuaryVoyage, 'insult-compiler'))
+assert.equal(
+  previewMission(sanctuaryVoyage).chance,
+  Math.min(94, oddsWithout(sanctuaryVoyage) + 10),
+  'a reactor repaired with consent earns the Twins’ benefit of the doubt',
+)
+sanctuaryVoyage = play(sanctuaryVoyage, 'insult-compiler', 'observe')
+sanctuaryVoyage = nextDestination(sanctuaryVoyage)
+sanctuaryVoyage = play(sanctuaryVoyage, 'gig-orchard', 'intervene')
+const sanctuaryEnding = finishVoyage(
+  nextDestination(sanctuaryVoyage),
+  'protect',
+)
+assert.ok(sanctuaryEnding.scene.includes('Courtesy Twins'))
+assert.ok(sanctuaryEnding.scene.includes('Courier of the Month'))
+assert.notEqual(sanctuaryEnding.scene, unionEnding.scene)
+
+// A seeded nemesis also controls one Act II call.
+const queenAtConcord = {
+  ...staffed(startVoyage('ro', ['rue', 'fen', 'taal'], 5)),
+  chapter: 4,
+  missionId: 'concord-intake',
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'moth'),
+}
+assert.equal(
+  previewMission(queenAtConcord).chance,
+  Math.max(
+    5,
+    previewMission({
+      ...queenAtConcord,
+      antagonist: ANTAGONISTS.findIndex((a) => a.id === 'auditor'),
+    }).chance - 8,
+  ),
+)
+// Save bounds: six chapters, and each call only on its own board.
+assert.ok(restoreVoyage({ ...queenAtConcord }))
+assert.equal(restoreVoyage({ ...queenAtConcord, chapter: 7 }), null)
+assert.equal(
+  restoreVoyage({ ...queenAtConcord, chapter: 5 }),
+  null,
+  'a chapter 4 call cannot be resumed in chapter 5',
+)
+// A pre-Act II save at the end of chapter 3 continues into Act II.
+const legacyDebrief = {
+  ...completeMission(startVoyage('rex', ['pell', 'mox', 'jex'], 4)),
+  chapter: 3,
+  missionId: 'bar',
+}
+delete (legacyDebrief as Partial<typeof legacyDebrief>).worldFlags
+const resumed = nextDestination(
+  restoreVoyage(JSON.parse(JSON.stringify(legacyDebrief)))!,
+)
+assert.equal(resumed.chapter, 4)
+assert.equal(missionFor(resumed).id, 'concord-intake')
+assert.ok(page.includes('data-testid="space-couch-callbacks"'))
+assert.ok(page.includes('v-for="n in VOYAGE_CHAPTERS"'))
+assert.ok(page.includes('nemesisLine'))
+
 const gameStore = fromRoot('stores/gameOfCaptainsStore.ts')
 assert.ok(gameStore.includes('relationshipEpilogue(finishVoyage('))
 assert.ok(gameStore.includes('run.value = applyRomanceChoice('))
 assert.ok(gameStore.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"))
+
+// Every picture slot carries an authored Krea 2 prompt; mission and ending scenes show the couch.
+const slotKeys = [
+  ...CAPTAINS.map((c) => captainArtKey(c.id)),
+  ...CREW.map((c) => crewArtKey(c.portraitKey)),
+  ...MISSIONS.map((m) => missionArtKey(m.id)),
+  ...ANTAGONISTS.map((a) => antagonistArtKey(a.id)),
+  ...WARP_ENDINGS.map((e) => endingArtKey(e)),
+]
+for (const key of slotKeys) {
+  const prompt = warpArtPrompt(key)
+  assert.ok(prompt && prompt.length >= 120 && prompt.length <= 900, key)
+}
+assert.equal(new Set(Object.values(WARP_ART_PROMPTS)).size, slotKeys.length)
+for (const key of slotKeys.filter((k) => /^(missions|endings)\//.test(k)))
+  assert.ok(
+    /couch|bar with/i.test(warpArtPrompt(key)!),
+    `${key} shows the couch or the bar`,
+  )
 
 console.log('Space Couch seeded voyage and highlight contract: OK')

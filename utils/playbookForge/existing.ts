@@ -133,12 +133,18 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const rules = await import('../gameOfCaptains/rules')
       const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
       const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
+      const { VOYAGE_BOARDS, actOf } =
+        await import('../gameOfCaptains/voyageMap')
+      const acts = new Set(VOYAGE_BOARDS.map((_, i) => actOf(i + 1)))
       const { SOLO_ROMANCE_ROUTES } =
         await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
       return {
         values: {
           rosterSize: rules.CAPTAINS.length,
+          // Chapters are mission boards; an act is a run of boards.
+          acts: acts.size,
+          chaptersPerAct: Math.round(VOYAGE_BOARDS.length / acts.size),
           followers: rules.CREW.length,
           villains: rules.ANTAGONISTS.length,
           quests: rules.MISSIONS.length,
@@ -159,6 +165,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
         },
         measured: [
           'rosterSize',
+          'acts',
+          'chaptersPerAct',
           'followers',
           'villains',
           'quests',
@@ -172,7 +180,8 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'villainEndings',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts, crewJourneys.ts, romance.ts',
+        source:
+          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, crewJourneys.ts, romance.ts',
       }
     },
   },

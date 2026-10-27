@@ -1,3 +1,4 @@
+import { beatArtPrompt } from '../crystalStreet/artPrompts'
 import {
   AVATARS,
   CHARACTERS,
@@ -71,6 +72,7 @@ function encounterNode(
   node.needsArt = true
   node.editable = true
   node.editFields = { body: true, outcomes: true }
+  node.artPrompt = beatArtPrompt(encounter.art)
   node.provenance = `Art prompt: ${encounter.art}`
   return node
 }
@@ -141,6 +143,7 @@ export function buildCrystalStreetPlaybook(): Playbook {
       node.lenses = [...villain.tags]
       node.artUrl = `/crystal-street/endings/${villain.id}-${tier}.webp`
       node.needsArt = true
+      node.artPrompt = beatArtPrompt(ending.art)
       node.provenance = `Art prompt: ${ending.art}`
       endingKeys.push(node.key)
     }
@@ -331,5 +334,6 @@ export function buildCrystalStreetPlaybook(): Playbook {
     editable: true,
     artProject: 'crystal-street',
     artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
+    artPromptsComplete: true,
   }
 }

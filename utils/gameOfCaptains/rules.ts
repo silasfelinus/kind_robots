@@ -1,11 +1,17 @@
+import { ACT_ONE_MISSIONS } from './actOne'
+import { ACT_TWO_MISSIONS, ACT_TWO_OPENING } from './actTwo'
 import {
-  ACT_ONE_BOARDS,
-  ACT_ONE_MISSIONS,
-  ACT_ONE_CONSEQUENCES,
-  ACT_ONE_ECHOES,
-  ACT_ONE_NEMESIS,
-  type ActOneRouteId,
-} from './actOne'
+  ACT_TWO_FIRST_CHAPTER,
+  VOYAGE_BOARDS,
+  VOYAGE_CHAPTERS,
+  VOYAGE_CONSEQUENCES,
+  VOYAGE_ECHOES,
+  actOf,
+  earnedCallbacks,
+  nemesisMove,
+  nemesisThreats,
+  type NemesisId,
+} from './voyageMap'
 import {
   CREW_PROFILES,
   previewCrewMission,
@@ -324,6 +330,7 @@ export const MISSIONS = [
     note: 'Neutral ground can still have a heart.',
   },
   ...ACT_ONE_MISSIONS,
+  ...ACT_TWO_MISSIONS,
 ] as const
 export type Mission = (typeof MISSIONS)[number]
 export type MissionReport = {
@@ -393,9 +400,10 @@ function hash(seed: number, text: string): number {
   return value
 }
 export function missionFor(run: VoyageRun): Mission {
+  const fallback = VOYAGE_BOARDS[run.chapter - 1]?.[0] ?? 'refugees'
   return (
     MISSIONS.find((item) => item.id === run.missionId) ??
-    MISSIONS[run.chapter - 1]!
+    MISSIONS.find((item) => item.id === fallback)!
   )
 }
 
@@ -407,9 +415,65 @@ export function missionBoard(run: VoyageRun): Mission[] {
     (item) => item.policy === 'observe' || item.policy === 'intervene',
   )
   const has = (id: CrewId) => run.crew.includes(id)
-  const ids = ACT_ONE_BOARDS[run.chapter - 1] ?? ACT_ONE_BOARDS[2]
+  const flags = run.worldFlags ?? []
+  const visited = (...ids: string[]) =>
+    history.some((event) => ids.includes(event.missionId))
+  const flagged = (prefix: string) =>
+    flags.some((flag) => flag.startsWith(prefix))
+  const ids = VOYAGE_BOARDS[run.chapter - 1] ?? VOYAGE_BOARDS.at(-1)!
   return ids
     .filter((id) => {
+      if (id === 'courtesy-reactor')
+        return (
+          helped ||
+          has('jex') ||
+          has('taal') ||
+          has('rue') ||
+          visited('nacre', 'archive')
+        )
+      if (id === 'sesh-backups')
+        return has('mox') || has('sora') || visited('archive', 'gameworld')
+      if (id === 'serendipity-tab')
+        return has('jex') || has('omi') || has('tess') || visited('bar')
+      if (id === 'warranty')
+        return has('pell') || has('sora') || witnessed || visited('ashdock')
+      if (id === 'hoa')
+        return (
+          has('tess') ||
+          has('kivo') ||
+          has('fen') ||
+          visited('windglass') ||
+          flags.includes('concord-petition')
+        )
+      if (id === 'season-two')
+        return (
+          has('mox') ||
+          has('sora') ||
+          has('omi') ||
+          antagonistFor(run).id === 'showrunner' ||
+          visited('gameworld') ||
+          flagged('sesh-')
+        )
+      if (id === 'gig-orchard')
+        return (
+          has('brin') ||
+          has('kivo') ||
+          has('pell') ||
+          visited('rootborne', 'warranty')
+        )
+      if (id === 'overdue')
+        return (
+          has('omi') ||
+          has('mox') ||
+          run.captain === 'quill' ||
+          visited('archive', 'sesh-backups')
+        )
+      if (id === 'merger')
+        return (
+          has('rue') ||
+          has('taal') ||
+          visited('nacre', 'insult-compiler', 'concord-intake')
+        )
       if (id === 'nacre')
         return (
           witnessed ||
@@ -463,7 +527,7 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
     scene: `The red couch changes course for ${choice.system}. The crew can still refuse the captain’s assignment.`,
     log: [
       ...run.log,
-      `Charted the Act I route to ${choice.system} on day ${run.day ?? 1}.`,
+      `Charted the Act ${actOf(run.chapter) === 2 ? 'II' : 'I'} route to ${choice.system} on day ${run.day ?? 1}.`,
     ],
   }
 }
@@ -475,11 +539,9 @@ export function worldEcho(run: VoyageRun): string {
   const key =
     mostRecent.policy === 'missed'
       ? ''
-      : ACT_ONE_CONSEQUENCES[mostRecent.missionId as ActOneRouteId]?.[
-          mostRecent.policy
-        ]?.flag
+      : VOYAGE_CONSEQUENCES[mostRecent.missionId]?.[mostRecent.policy]?.flag
   return (
-    (key && ACT_ONE_ECHOES[key]) ||
+    (key && VOYAGE_ECHOES[key]) ||
     `The people of ${mostRecent.system} are still living with the captain’s ${mostRecent.policy === 'missed' ? 'absence' : 'decision'}.`
   )
 }
@@ -578,15 +640,13 @@ export function previewMission(run: VoyageRun): MissionPreview {
   const penalty = (run.shieldCharge ?? 2) === 0 ? 10 : 0
   const flags = run.worldFlags ?? []
   const current = missionFor(run).id
-  const enemyThreat = ACT_ONE_NEMESIS[antagonistFor(run).id]
-  const enemyPenalty =
-    enemyThreat.missionId === current ? enemyThreat.penalty : 0
-  const civicBonus =
-    (current === 'haleth' && flags.includes('convoy-invited') ? 10 : 0) +
-    (current === 'nacre' && flags.includes('ashdock-protected') ? 8 : 0) +
-    (current === 'gameworld' && flags.includes('ashdock-exposed') ? 8 : 0) +
-    (current === 'rootborne' && flags.includes('haleth-autonomy') ? 10 : 0) -
-    (current === 'bar' && flags.includes('windglass-broadcast') ? 10 : 0)
+  const enemyPenalty = nemesisThreats(antagonistFor(run).id as NemesisId)
+    .filter((threat) => threat.missionId === current)
+    .reduce((sum, threat) => sum + threat.penalty, 0)
+  const civicBonus = earnedCallbacks(current, flags).reduce(
+    (sum, callback) => sum + callback.odds,
+    0,
+  )
   return {
     ...base,
     chance: Math.max(
@@ -715,9 +775,11 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   const injuredUntil = injury
     ? { ...(run.injuredUntil ?? {}), [injury]: day + 2 }
     : { ...run.injuredUntil }
-  const threat = ACT_ONE_NEMESIS[antagonistFor(run).id]
-  const twist = threat.missionId === active.missionId ? threat.event : ''
-  const scene = `${base} ${routes} ${antagonistFor(run).acts[Math.min(run.chapter - 1, 2)]} ${twist}`
+  const twist = nemesisThreats(antagonistFor(run).id as NemesisId)
+    .filter((threat) => threat.missionId === active.missionId)
+    .map((threat) => threat.event)
+    .join(' ')
+  const scene = `${base} ${routes} ${nemesisMove(antagonistFor(run), run.chapter)} ${twist}`
   return {
     ...next,
     phase: 'decision',
@@ -781,12 +843,12 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     ],
     worldFlags: [
       ...(run.worldFlags ?? []),
-      ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].flag,
+      VOYAGE_CONSEQUENCES[mission.id]![policy].flag,
     ],
-    scene: `${responses[policy]} ${mission.note} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
+    scene: `${responses[policy]} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]![policy].text}`,
     log: [
       ...run.log,
-      `${mission.system}: ${policy} — ${responses[policy]} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
+      `${mission.system}: ${policy} — ${responses[policy]} ${VOYAGE_CONSEQUENCES[mission.id]![policy].text}`,
     ],
   }
 }
@@ -932,7 +994,7 @@ export function counterCrew(run: VoyageRun): CrewId[] {
 }
 export function nextDestination(run: VoyageRun): VoyageRun {
   if (run.phase !== 'debrief') return run
-  if (run.chapter >= ACT_ONE_BOARDS.length)
+  if (run.chapter >= VOYAGE_CHAPTERS)
     return {
       ...run,
       phase: 'finale',
@@ -943,13 +1005,13 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     ...run,
     phase: 'briefing',
     chapter: run.chapter + 1,
-    missionId: ['refugees', 'archive', 'bar'][run.chapter],
+    missionId: VOYAGE_BOARDS[run.chapter]![0],
     postedDay: run.day ?? run.chapter,
     active: null,
     away: [],
     pocketRoom: null,
     report: null,
-    scene: `A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    scene: `${run.chapter + 1 === ACT_TWO_FIRST_CHAPTER ? ACT_TWO_OPENING + ' ' : ''}A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
   }
 }
 export function finishVoyage(
@@ -1030,9 +1092,7 @@ export function finishVoyage(
       const detail =
         event.policy === 'missed'
           ? `No one answered the call at ${event.system}.`
-          : ACT_ONE_CONSEQUENCES[event.missionId as ActOneRouteId]?.[
-              event.policy
-            ]?.text
+          : VOYAGE_CONSEQUENCES[event.missionId]?.[event.policy]?.text
       return detail ? `${event.system}: ${detail}` : ''
     })
     .filter(Boolean)
@@ -1065,10 +1125,10 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     typeof data.chapter !== 'number' ||
     !Number.isInteger(data.chapter) ||
     data.chapter < 1 ||
-    data.chapter > ACT_ONE_BOARDS.length ||
+    data.chapter > VOYAGE_CHAPTERS ||
     (data.missionId !== undefined &&
       (!MISSIONS.some((mission) => mission.id === data.missionId) ||
-        !ACT_ONE_BOARDS[data.chapter - 1]?.some(
+        !VOYAGE_BOARDS[data.chapter - 1]?.some(
           (id) => id === data.missionId,
         ))) ||
     (data.missionHistory !== undefined &&

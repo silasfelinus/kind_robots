@@ -40,7 +40,7 @@
           "title": "Happy Seventh, Trevor",
           "place": "Captain Cheddar's Pizza Cavern, Starlight Mall dead wing",
           "text": "Behind the rolling gate, Captain Cheddar's is a cave of dusty skee-ball lanes and tipped-over high chairs. Party Room Three still has a banner: HAPPY 7TH TREVOR. On the stage, the animatronic Cheddar Mouse Band slumps over their instruments, and on the floor of the ball pit lies a scorched rainbow wig. Pinned to the corkboard by the door is a stack of yellowed booking cards, every one stamped CANCELLED.",
-          "art": "An abandoned 1970s pizza restaurant party room behind a mall gate, a faded happy 7th Trevor banner, a slumped animatronic mouse band on stage, a scorched rainbow wig in a dusty ball pit",
+          "art": "An abandoned 1970s pizza restaurant party room behind a half-raised mall gate, dusty skee-ball lanes and tipped-over high chairs, a faded crepe-paper birthday streamer still hanging on the wall, an animatronic mouse band slumped over their instruments on a small stage, a scorched rainbow clown wig lying in a dusty ball pit, a stack of yellowed booking slips pinned to a corkboard, a teenager squeezing under the gate with a flashlight, gray dust in the beam, wide shot",
           "choices": [
             {
               "id": "read-the-cards",
@@ -110,7 +110,7 @@
           "title": "Clown Catches Fire",
           "place": "Comedy aisle, Rewind Video",
           "text": "Bay Area Bloopers, Volume 3 is the most-rented tape in the store, its box soft from handling. The cover shows a clown mid-tumble with his wig in flames, and the sticker says AS SEEN ON CHANNEL 6! Zelda Fishbein watches you pick it up from behind the counter and does not smile. \"That one,\" she says, \"I keep meaning to lose.\"",
-          "art": "A battered VHS box in a video store comedy aisle showing a cartoon of a tumbling clown with a flaming wig, a sharp-eyed older woman watching from behind the rental counter",
+          "art": "A video rental store comedy aisle, a teenager holding a soft, battered videotape box with a painted cartoon of a tumbling clown whose rainbow wig is on fire, rows of comedy tapes behind, and at the rental counter a 63-year-old woman with a silver-streaked black bouffant, cat-eye glasses on a pearl chain and a red vest watching unsmiling, fluorescent store light, medium shot",
           "choices": [
             {
               "id": "slow-it-down",
@@ -179,7 +179,7 @@
           "title": "The Kid Who Never Has Parties",
           "place": "The Ashby garage, Crystal Street",
           "text": "Trevor Ashby is fourteen, skinny, and taking apart a lawnmower engine in his garage with total concentration. Everybody on the street knows he is the kid from the clown tape. Everybody on the street has at some point said \"Fall down, Bobo\" in front of him like it was funny. On the workbench, half hidden under a rag, is a shoebox with a crayon drawing of a balloon dog on the lid.",
-          "art": "A skinny teenage boy taking apart a lawnmower engine in a cluttered suburban garage, a shoebox with a crayon drawing of a balloon dog half hidden under a rag on the workbench",
+          "art": "A skinny fourteen-year-old boy in a grease-stained T-shirt taking apart a lawnmower engine on the floor of a cluttered suburban garage, wrenches spread on a rag, a teenager crouching beside him handing over a wrench, and on the workbench behind them a shoebox half hidden under a rag with a crayon drawing of a blue balloon dog on its lid, a single hanging work light, medium shot",
           "choices": [
             {
               "id": "just-hang-out",
@@ -244,7 +244,7 @@
         "title": "The Balloon Zoo",
         "place": "Your front steps, midnight",
         "text": "There is a balloon dog on your doormat. Then a balloon giraffe on the mailbox, a balloon poodle on the porch rail, and a whole squeaking zoo going up your stairs to your bedroom door. They turn to look at you when you come home, rubber necks creaking, and you see that every one of them has a mouthful of thumbtacks.",
-        "art": "A suburban porch and staircase at midnight crowded with brightly colored balloon animals turning their heads toward a teenager, rows of thumbtack teeth glinting",
+        "art": "A suburban porch and front staircase at midnight crowded with brightly colored twisted balloon animals, a blue balloon dog on the doormat, a balloon giraffe on the mailbox, a balloon poodle on the porch rail, a squeaking line of balloon animals climbing the stairs inside, every one turning its rubber head toward a teenager in the doorway and showing rows of thumbtack teeth, yellow porch light, wide shot",
         "choices": [
           {
             "id": "pop-them-all",
@@ -327,7 +327,7 @@
         "title": "The Laugh Track",
         "place": "Your living room, one a.m.",
         "text": "The TV turns itself on to a test pattern. Then the laugh track starts. You drop a cup and the room roars with recorded laughter. You say \"what the heck\" and the audience howls. Down the block, every TV on Crystal Street is laughing too, and in the dark hallway of your house, something in size-twenty shoes takes one squeaky step closer.",
-        "art": "A dark 1980s living room lit only by a TV test pattern, ghostly laughing studio audience faces flickering on the screen, giant clown shoes visible in the hallway doorway",
+        "art": "A dark 1980s living room at one in the morning lit only by a boxy television showing a color-bar test pattern with pale laughing studio audience faces flickering over it, a dropped cup on the carpet, a teenager standing frozen by the couch, and in the dark hallway doorway a pair of enormous red size-twenty clown shoes stepping forward, cold blue TV glow, medium wide shot",
         "choices": [
           {
             "id": "laugh-along",
@@ -388,7 +388,7 @@
         "title": "Down in the Drain",
         "place": "The storm drain at the corner of Crystal Street, in the rain, 11 p.m.",
         "text": "It is pouring, and Kev's whole bundle of Sunday papers has blown out of his bike basket and gone sailing down the gutter like a fleet of soggy boats. The last one swirls into the storm drain on the corner. You crouch to look. Two yellow eyes blink up at you from the dark, and a white glove holds out the newspaper, dry as toast. \"Hiya, kiddo! Lose something? Come and get it! Everything down here bounces!\"",
-        "art": "A rain-soaked suburban street corner at night, newspapers floating down a flooded gutter, a teenager crouching at a storm drain where two glowing yellow eyes and a white-gloved hand hold up a dry newspaper",
+        "art": "A rain-soaked suburban street corner at eleven at night, newspapers floating down a flooded gutter, a red bicycle with an empty basket at the curb, a teenager crouching at a storm drain in a dripping raincoat, and inside the drain two glowing yellow eyes and a white-gloved hand holding up a perfectly dry rolled newspaper, orange streetlight on wet asphalt, low close medium shot",
         "choices": [
           {
             "id": "tell-a-joke",
@@ -481,7 +481,7 @@
         "title": "Hall of Mirrors",
         "place": "The Harvest Carnival funhouse, Glimmer Falls High football field, midnight",
         "text": "The Harvest Carnival closed hours ago, but the funhouse lights are still blinking. Inside the hall of mirrors, a hundred of you walk beside you, stretched and squashed and wobbling. Then you notice that every reflection is wearing white greasepaint and a red nose. You stop. They stop. All except one, three mirrors down, which keeps walking, waves, and takes a slow, deliberate pratfall.",
-        "art": "A neon-lit carnival hall of mirrors at midnight, a teenager surrounded by warped reflections all wearing white clown greasepaint and red noses, one reflection mid-pratfall",
+        "art": "A neon-lit carnival funhouse mirror maze at midnight, a teenager standing among a hundred warped reflections that stretch and squash, every reflection wearing white clown greasepaint and a red nose, and three mirrors down one reflection taking a slow pratfall while the rest stand still, big scuffed clown-shoe prints in the dust on the floor, colored bulb light, medium wide shot",
         "choices": [
           {
             "id": "funny-face",
@@ -569,7 +569,7 @@
         "title": "Have You Checked the Birthday Kid?",
         "place": "The Okafor house on Crystal Street, babysitting, 11 p.m.",
         "text": "Little Ada Okafor is finally asleep and you are halfway through a bag of cheese puffs when the kitchen phone rings. A squeaky honk, then a cheerful voice: \"Is the birthday kid asleep yet? I have a delivery!\" You hang up. It rings again. \"Have you checked the birthday kid?\" Upstairs, very faintly, a bike horn goes honk honk. The phone cord, you notice, is stretched taut across the kitchen and up the stairs.",
-        "art": "A cozy 1980s suburban kitchen at night, a teenager holding a yellow wall phone with its coiled cord stretched tight across the room and up a dark staircase, a bag of cheese puffs on the counter",
+        "art": "A cozy 1980s suburban kitchen at eleven at night, a teenage babysitter holding a yellow wall phone receiver, the coiled phone cord stretched tight across the kitchen and up a dark staircase into the upstairs hallway, an open bag of cheese puffs on the counter, a toddler's drawing on the refrigerator, warm stove light and a dark stairwell, medium shot",
         "choices": [
           {
             "id": "bedtime-story",
@@ -657,7 +657,7 @@
         "title": "A Party in Your Honor",
         "place": "Captain Cheddar's Pizza Cavern, three a.m.",
         "text": "You wake up at a birthday party. It is yours. Captain Cheddar's is lit up like 1979, and everyone you know is wearing a paper hat and smiling stiffly at a cake with seven blue candles. The robot band plays Happy Birthday in the wrong key. Then the kitchen doors bang open and Bobo ducks through them, eight feet tall, holding a cream pie in one hand and a seltzer bottle in the other. \"Everybody laugh!\" he roars.",
-        "art": "A garish 1979 pizza restaurant birthday party at night, friends in paper hats smiling stiffly around a cake with blue candles, an eight-foot clown bursting through kitchen doors with a pie and a seltzer bottle",
+        "art": "A garish 1979 pizza restaurant birthday party at three in the morning, a teenager in pajamas at the head of a long table, friends in paper party hats smiling stiffly around a cake with seven blue candles, an animatronic mouse band playing on a small stage, and an eight-foot sad-eyed clown in smeared white greasepaint, a scorched rainbow wig and a cracked red nose bursting through the kitchen doors holding a cream pie and a seltzer bottle, bright colored party lights, wide shot",
         "choices": [
           {
             "id": "take-the-pie",
@@ -741,7 +741,7 @@
         "title": "Everything Down Here Floats",
         "place": "Your bathroom, midnight",
         "text": "You are brushing your teeth when you hear it: a giggle, deep down the bathroom drain, and a voice like a kazoo in a tunnel. \"Psst. Hey, kiddo. Wanna see a trick?\" The sink gurgles, burps and erupts in a fountain of rainbow confetti, streamers and tiny paper party hats that pours over the counter and fills the tub knee-deep. Your folks walk past the open door, look right at the mess and say goodnight like there is nothing there. From the drain, the voice chuckles: \"Grown-ups never get the good tricks.\"",
-        "art": "A small suburban bathroom at midnight, the sink erupting a fountain of rainbow confetti, streamers and tiny paper party hats, the bathtub filled knee-deep with confetti, a teenager in pajamas frozen with a toothbrush in hand",
+        "art": "A small suburban bathroom at midnight, the sink erupting in a fountain of rainbow confetti, paper streamers and tiny paper party hats pouring over the counter, the bathtub filled knee-deep with confetti, a teenager in pajamas frozen with a toothbrush in their mouth, two parents in bathrobes walking past the open doorway smiling, warm vanity light, medium shot",
         "choices": [
           {
             "id": "ask-if-hes-okay",
@@ -820,7 +820,7 @@
         "title": "Fall Down!",
         "place": "The Glimmer Falls High pep rally bonfire, 10 p.m.",
         "text": "The pep rally bonfire is roaring on the practice field when a sophomore trips over an extension cord and sprawls face-first in the mud. Somebody starts the chant, the one every grown-up in Glimmer Falls learned in 1979: \"Fall down! Fall down!\" The whole crowd picks it up, parents included, laughing and pointing. With every chant, the balloon animals tied along the bleachers swell bigger and grow thumbtack teeth. At the very top of the stands, in the dark, a pair of size-twenty shoes taps along to the beat.",
-        "art": "A roaring high school bonfire at night on a muddy practice field, a sophomore sprawled in the mud, a jeering crowd of teens and parents, giant balloon animals with thumbtack teeth tied to the bleachers, huge clown shoes in the dark stands",
+        "art": "A roaring high school pep rally bonfire on a muddy practice field at ten at night, a sophomore sprawled face-first in the mud by an extension cord, a crowd of teens and parents laughing and pointing, big balloon animals tied along the bleachers swelling with thumbtack teeth, and at the dark top of the stands a pair of huge red clown shoes, a teenager pushing through the crowd, orange firelight, wide shot",
         "choices": [
           {
             "id": "pratfall-partner",
@@ -909,7 +909,7 @@
         "title": "Everybody Floats",
         "place": "The KGLM water tower, 2 a.m. the night before Halloween",
         "text": "Every balloon in Glimmer Falls has slipped its string tonight, and they have all gone looking for kids. From the base of the KGLM water tower you watch your neighbors drift past overhead in their pajamas, lifted by great bunches of balloons, rising toward the catwalk at the top. Up there, against the moon, Bobo stands with a fistful of strings, honking Honkers in time to the circus music pouring out of the radio booth. \"Everybody floats, kiddo!\" he calls down. \"Up here, nobody can laugh at you!\"",
-        "art": "A tall water tower at night under a huge moon, children in pajamas floating upward on bunches of colorful balloons, a towering clown on the catwalk at the top holding a fistful of strings and a bike horn, a radio booth glowing below",
+        "art": "A tall water tower at two in the morning under a huge moon, children and neighbors in pajamas floating up past it on great bunches of colorful balloons, a small radio station booth glowing at the base, and on the catwalk at the top an eight-foot clown in a scorched rainbow wig holding a fistful of balloon strings and a brass bicycle horn, a teenager gripping the tower ladder, silver moonlight, low wide shot",
         "choices": [
           {
             "id": "callers-remember",
@@ -1008,7 +1008,7 @@
       "title": "The Last Laugh",
       "place": "Starlight Mall food court, Halloween night",
       "text": "On Halloween night the Starlight Mall food court has become a three-ring circus. Everyone who ever chanted at him is frozen mid-laugh in a spotlight, mouths wide, unable to stop: grown-ups from the supermarket, the Channel 6 anchorman, Trevor's dad. Balloon animals the size of station wagons prowl between the tables. And in the center ring, on stilts, Bobo swings a giant mallet. \"Go on,\" he says, and his voice cracks. \"Laugh. Everybody else did.\"",
-      "art": "A neon mall food court turned into a nightmare three-ring circus, grown-ups frozen laughing in spotlights, car-sized balloon animals prowling, a towering clown on stilts in the center ring swinging a giant mallet, the teen crew in Halloween costumes below",
+      "art": "A neon mall food court on Halloween night turned into a three-ring circus, grown-ups frozen mid-laugh in white spotlights with mouths wide, balloon animals the size of station wagons prowling between the tables, and in the center ring an eight-foot sad-eyed clown on stilts in smeared white greasepaint, a scorched rainbow wig and a cracked red nose swinging a giant wooden mallet, four teenagers in homemade costumes below him, a skinny boy holding a deflated blue balloon dog, spotlight and neon, wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1183,22 +1183,22 @@
       "best": {
         "title": "Laughing With You",
         "text": "The Glitter Box throws Trevor Ashby the seven-years-late seventh birthday party he never got, and Lenny Moffat comes in a fresh red nose. He makes a balloon dog for every kid in Glimmer Falls, falls down exactly once, and the room laughs the right way, warm and together, with him. Channel 6 runs a correction. By Christmas Bobo is doing Saturday shows at the children's ward in Sacramento, and Trevor helps him carry Honkers.",
-        "art": "A crowded theater birthday party with an old clown in a fresh red nose handing a balloon dog to a grinning teenage boy, kids and drag performers laughing together under streamers"
+        "art": "A crowded small theater birthday party under streamers, an old clown with a fresh red nose and a neat rainbow wig handing a blue balloon dog to a grinning skinny teenage boy, kids and drag performers in sequins laughing together around a cake, warm gold party light, medium wide shot"
       },
       "good": {
         "title": "Party's Over",
         "text": "Bobo is gone, and the balloons stop showing up on porches. The town forgets the whole week by Thanksgiving. Above the shuttered magic shop on Main, the lights stay off, and Bay Area Bloopers, Volume 3 is still the most-rented tape at Rewind Video. You quietly rent it every week so nobody else can.",
-        "art": "A shuttered small-town magic shop with dark windows above it, a teenager walking past holding a rented VHS tape behind their back"
+        "art": "A shuttered small-town magic shop on Main Street at dusk with dark windows above it, a faded painted rabbit and top hat on the glass, a teenager walking past with a rented videotape held behind their back, streetlights just coming on, medium wide shot"
       },
       "bittersweet": {
         "title": "Honk Once for Help",
         "text": "You survive the circus, and so does everyone in the food court. But for months your crew cannot hear a bike horn without flinching, and somebody at school starts chanting \"Fall down, Bobo\" at Trevor again. Nobody laughs this time, at least. Nobody stops it, either.",
-        "art": "A school hallway where a boy stands with his head down while another kid jeers, teenagers watching uncomfortably, a single deflated balloon on the floor"
+        "art": "A high school hallway lined with lockers, a skinny boy standing with his head down while another student jeers at him with hands cupped around his mouth, three teenagers watching uncomfortably from their lockers, a single deflated blue balloon on the floor, flat fluorescent light, medium wide shot"
       },
       "bad": {
         "title": "Everybody Laugh",
         "text": "On November first you wake up in white greasepaint, with a red nose that will not come off and shoes four sizes too big. Every time you speak, the whole town laughs. Your crew is the only one that does not, and they keep trying to wipe your face clean while you smile, and smile, and fall down.",
-        "art": "A teenager in smeared white greasepaint and a stuck red nose sitting on a curb in oversized clown shoes, friends kneeling beside them with washcloths, laughing neighbors watching from porches"
+        "art": "A teenager in smeared white greasepaint with a red nose stuck to their face sitting on a suburban curb in oversized clown shoes, two friends kneeling beside them scrubbing at their cheeks with washcloths, neighbors laughing from their porches, late afternoon light, medium shot"
       }
     }
   }

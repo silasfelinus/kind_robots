@@ -548,7 +548,7 @@ function freshBriarTwoWaves(seed: number) {
 }
 assert.match(
   store,
-  /settleBriarWavePair\\(\\s*state\\.value,\\s*first\\.tile,\\s*card\\.tile/,
+  /settleBriarWavePair\(\s*state\.value,\s*first\.tile,\s*card\.tile/,
   'The actual store must use the reducer exercised by the fresh-game witness',
 )
 

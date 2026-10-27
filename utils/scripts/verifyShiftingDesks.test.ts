@@ -1852,8 +1852,14 @@ assert.match(
   assert.ok(first.milestones['first-ending'])
   assert.ok(first.milestones['employee-of-the-month'])
   assert.equal(recordReward(first, receipt, [receipt.endingId]), first)
-  assert.ok(newMilestonesForRun(empty, first, receipt.id).includes('first-ending'))
-  assert.ok(newMilestonesForRun(empty, first, receipt.id).includes('employee-of-the-month'))
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes('first-ending'),
+  )
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes(
+      'employee-of-the-month',
+    ),
+  )
   assert.deepEqual(newMilestonesForRun(first, first, receipt.id), [])
   assert.deepEqual(newMilestonesForRun(empty, empty, receipt.id), [])
   assert.equal(

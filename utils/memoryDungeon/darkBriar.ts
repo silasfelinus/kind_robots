@@ -122,7 +122,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
       alternateChoice: 'question',
       line: 'The proclamation you accepted hangs here beside a list of people the carriage could not carry.',
       alternate:
-        'Even the lantern from their skeptical offer now bears the seal of their court.',
+        'The lantern the sisters offered after your question about their matching faces now reveals two separate signatures beneath a single royal seal.',
     },
   ),
   '4,3': scene(

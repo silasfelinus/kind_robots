@@ -569,6 +569,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       restoreBriarSave(checkpoint.briar),
       checkpoint.briar,
     )
+    const recoveredCombat = recoverBriarCombatDefeat(resumed.progress)
     const reality = restoreMemoryRealitySave(checkpoint.reality)
     const resumedDark = recoverDarkBriarTurn(
       restoreDarkBriarProgress(checkpoint.dark),

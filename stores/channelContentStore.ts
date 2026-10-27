@@ -96,7 +96,10 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
       roleFiltered,
       accessContext.value,
     )
-    const isSuperkate = isSuperkateServicesViewer(userStore.user, userStore.isAdmin)
+    const isSuperkate = isSuperkateServicesViewer(
+      userStore.user,
+      userStore.isAdmin,
+    )
 
     return permissionFiltered
       .map((channel) => ({

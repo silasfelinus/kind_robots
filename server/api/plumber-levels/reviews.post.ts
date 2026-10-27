@@ -1,3 +1,4 @@
+import { courseFromShareCode } from '~/server/utils/plumberLevelIdentity'
 import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import prisma from '~/server/utils/prisma'
@@ -8,7 +9,6 @@ import {
   reactionTypeForRating,
 } from '~/utils/artReview'
 import {
-  courseFromShareCode,
   plumberReviewSummary,
   PLUMBER_REVIEW_COMMENT_MAX,
 } from '~/server/utils/plumberLevelReviews'

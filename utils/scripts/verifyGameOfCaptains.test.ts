@@ -323,17 +323,25 @@ healerRoute = nextDestination(healerRoute)
 assert.ok(missionBoard(healerRoute).some((m) => m.id === 'haleth'))
 healerRoute = chooseMission(healerRoute, 'haleth')
 assert.equal(missionFor(healerRoute).id, 'haleth')
+const halethDispatch = assignAwayTeam(healerRoute, ['vela', 'brin'])
 assert.equal(
-  previewMission(healerRoute).chance,
-  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10),
+  previewMission(halethDispatch).chance,
+  Math.min(
+    94,
+    previewMission({ ...halethDispatch, worldFlags: [] }).chance + 10,
+  ),
 )
 healerRoute = completeMission(healerRoute)
 healerRoute = nextDestination(healerRoute)
 assert.ok(missionBoard(healerRoute).some((m) => m.id === 'rootborne'))
 healerRoute = chooseMission(healerRoute, 'rootborne')
+const orchardDispatch = assignAwayTeam(healerRoute, ['vela', 'brin'])
 assert.equal(
-  previewMission(healerRoute).chance,
-  Math.min(94, previewMission({ ...healerRoute, worldFlags: [] }).chance + 10),
+  previewMission(orchardDispatch).chance,
+  Math.min(
+    94,
+    previewMission({ ...orchardDispatch, worldFlags: [] }).chance + 10,
+  ),
 )
 healerRoute = completeMission(healerRoute)
 const healerEnding = finishVoyage(nextDestination(healerRoute), 'protect')

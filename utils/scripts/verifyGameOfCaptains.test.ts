@@ -1,5 +1,12 @@
 import assert from 'node:assert/strict'
 import {
+  chooseRomance,
+  romanceMoment,
+  relationshipEpilogue,
+  type RomanceVoyage,
+  type RomanceChoiceId,
+} from '../gameOfCaptains/romance'
+import {
   CAPTAIN_STATS,
   CREW_PROFILES,
   SYNERGIES,
@@ -384,4 +391,158 @@ assert.ok(page.includes('data-testid="captains-return-day"'))
 assert.ok(page.includes('crewProfile(member.id).portraitKey'))
 assert.ok(tab.includes('title: Space Couch'))
 assert.ok(home.includes("title: 'Space Couch'"))
+function arriveAtRelationshipDebrief(
+  run: ReturnType<typeof startVoyage>,
+  policy: 'aid' | 'observe' | 'intervene' = 'aid',
+) {
+  let current = launchMission(run)
+  assert.equal(current.phase, 'transit')
+  while (current.phase === 'transit') current = advanceVoyageDay(current)
+  assert.equal(current.phase, 'decision')
+  return decidePolicy(current, policy)
+}
+function romanceStatus(run: ReturnType<typeof startVoyage>) {
+  return (run as RomanceVoyage).romance?.status
+}
+let lovers = arriveAtRelationshipDebrief(
+  startVoyage('fluke', ['vela', 'taal', 'omi'], 85),
+)
+assert.ok(romanceMoment(lovers)?.choices.some((c) => c.id === 'invite-fourple'))
+assert.equal(
+  romanceStatus(lovers),
+  undefined,
+  'crew appointment never implies romance',
+)
+lovers = chooseRomance(lovers, 'invite-fourple')
+assert.equal(romanceStatus(lovers), 'invited')
+assert.equal(romanceMoment(lovers), null, 'one decision per chapter')
+assert.equal(
+  chooseRomance(lovers, 'invite-fourple'),
+  lovers,
+  'double-submit is a no-op',
+)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(lovers))),
+  lovers,
+  'romantic consent history survives v1 save and reload',
+)
+lovers = arriveAtRelationshipDebrief(nextDestination(lovers))
+assert.ok(romanceMoment(lovers)?.speakers.some((line) => line.name === 'Omi'))
+lovers = chooseRomance(lovers, 'listen')
+assert.equal(romanceStatus(lovers), 'courting')
+lovers = arriveAtRelationshipDebrief(nextDestination(lovers))
+assert.ok(romanceMoment(lovers)?.speakers.some((line) => line.name === 'Taal'))
+lovers = chooseRomance(lovers, 'commit')
+assert.equal(romanceStatus(lovers), 'committed')
+assert.equal((lovers as RomanceVoyage).romance?.history.length, 3)
+lovers = nextDestination(lovers)
+assert.equal(lovers.phase, 'finale')
+const galacticEnding = finishVoyage(lovers, 'protect')
+const loveEnding = relationshipEpilogue(galacticEnding)
+assert.equal(
+  loveEnding.ending,
+  galacticEnding.ending,
+  'romance never overwrites galactic fate',
+)
+assert.ok(
+  loveEnding.scene.includes('Vela') &&
+    loveEnding.scene.includes('Taal') &&
+    loveEnding.scene.includes('Omi'),
+)
+assert.deepEqual(
+  relationshipEpilogue(loveEnding),
+  loveEnding,
+  'epilogue is idempotent',
+)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(loveEnding))),
+  loveEnding,
+)
+
+let pressure = arriveAtRelationshipDebrief(
+  startVoyage('quill', ['vela', 'taal', 'omi'], 96),
+)
+pressure = chooseRomance(pressure, 'invite-fourple')
+pressure = arriveAtRelationshipDebrief(nextDestination(pressure))
+const noPressurePenalty = {
+  supplies: pressure.supplies,
+  trust: pressure.trust,
+  crew: [...pressure.crew],
+}
+pressure = chooseRomance(pressure, 'press')
+assert.equal(romanceStatus(pressure), 'rejected')
+assert.deepEqual(
+  { supplies: pressure.supplies, trust: pressure.trust, crew: pressure.crew },
+  noPressurePenalty,
+  'romantic rejection leaves command resources and staffing alone',
+)
+assert.equal(
+  romanceMoment(arriveAtRelationshipDebrief(nextDestination(pressure))),
+  null,
+)
+
+let disengage = arriveAtRelationshipDebrief(
+  startVoyage('vale', ['vela', 'taal', 'omi'], 117),
+)
+disengage = chooseRomance(disengage, 'friends')
+assert.equal(romanceStatus(disengage), 'friends')
+assert.equal((disengage as RomanceVoyage).romance?.route, 'none')
+assert.equal(
+  romanceMoment(arriveAtRelationshipDebrief(nextDestination(disengage))),
+  null,
+)
+
+let coldCaptain = arriveAtRelationshipDebrief(
+  startVoyage('rex', ['vela', 'taal', 'omi'], 13),
+  'intervene',
+)
+coldCaptain = chooseRomance(coldCaptain, 'invite-fourple')
+coldCaptain = arriveAtRelationshipDebrief(
+  nextDestination(coldCaptain),
+  'intervene',
+)
+coldCaptain = chooseRomance(coldCaptain, 'listen')
+assert.equal(
+  romanceStatus(coldCaptain),
+  'rejected',
+  'ethical and trust choices can end a courtship',
+)
+
+for (const [crew, invite] of [
+  [['rue', 'pell', 'mox'], 'invite-rue'],
+  [['tess', 'pell', 'mox'], 'invite-tess'],
+] as const) {
+  let solo = arriveAtRelationshipDebrief(startVoyage('solace', [...crew], 65))
+  assert.ok(romanceMoment(solo)?.choices.some((c) => c.id === invite))
+  solo = chooseRomance(solo, invite as RomanceChoiceId)
+  solo = arriveAtRelationshipDebrief(nextDestination(solo), 'aid')
+  solo = chooseRomance(solo, 'listen')
+  assert.equal(romanceStatus(solo), 'courting')
+  solo = arriveAtRelationshipDebrief(nextDestination(solo), 'aid')
+  solo = chooseRomance(solo, 'part')
+  assert.equal(romanceStatus(solo), 'separated')
+  const epilogue = relationshipEpilogue(
+    finishVoyage(nextDestination(solo), 'protect'),
+  )
+  assert.ok(
+    epilogue.log.some((entry) => entry.startsWith('Relationship epilogue: ')),
+  )
+}
+
+let noRomance = arriveAtRelationshipDebrief(
+  startVoyage('ro', ['pell', 'mox', 'jex'], 29),
+)
+assert.equal(romanceMoment(noRomance), null)
+assert.equal(chooseRomance(noRomance, 'commit'), noRomance)
+noRomance = nextDestination(noRomance)
+assert.equal(noRomance.phase, 'briefing')
+
+assert.ok(page.includes('data-testid="space-couch-romance-scene"'))
+assert.ok(page.includes('data-romance-choice'))
+assert.ok(page.includes('romanceScene.speakers'))
+const gameStore = fromRoot('stores/gameOfCaptainsStore.ts')
+assert.ok(gameStore.includes('relationshipEpilogue(finishVoyage('))
+assert.ok(gameStore.includes('run.value = applyRomanceChoice('))
+assert.ok(gameStore.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"))
+
 console.log('Space Couch seeded voyage and highlight contract: OK')

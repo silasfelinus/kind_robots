@@ -629,6 +629,63 @@
                   : 'No officer is available for a personal detour. The next destination still awaits.'
               }}
             </p>
+            <section
+              v-if="romanceScene"
+              class="cap-romance"
+              data-testid="space-couch-romance-scene"
+              aria-label="Optional crew relationship conversation"
+            >
+              <span class="cap-romance-kicker"
+                >OFF DUTY // EVERYONE MAY SAY NO</span
+              >
+              <h3>{{ romanceScene.title }}</h3>
+              <div class="cap-romance-faces">
+                <span
+                  v-for="key in romanceScene.portraits"
+                  :key="key"
+                  class="cap-romance-face"
+                >
+                  <img
+                    v-if="portrait(key)"
+                    :src="portrait(key)!"
+                    :alt="key.replace('crew-', '') + ' portrait'"
+                  />
+                  <span v-else>{{
+                    key.replace('crew-', '').toUpperCase()
+                  }}</span>
+                </span>
+              </div>
+              <p class="cap-romance-setting">{{ romanceScene.setting }}</p>
+              <p
+                v-for="line in romanceScene.speakers"
+                :key="line.name + line.line"
+                class="cap-romance-line"
+              >
+                <strong>{{ line.name }}:</strong> {{ line.line }}
+              </p>
+              <button
+                v-for="choice in romanceScene.choices"
+                :key="choice.id"
+                class="cap-option"
+                type="button"
+                :data-romance-choice="choice.id"
+                @click="store.chooseRomance(choice.id)"
+              >
+                <span
+                  ><b>{{ choice.label }}</b
+                  ><small>{{ choice.cost }}</small></span
+                >
+                ↗
+              </button>
+            </section>
+            <p
+              v-else-if="romanceRecord?.lastChapter === run.chapter"
+              class="cap-romance-outcome"
+              data-testid="space-couch-romance-outcome"
+              aria-live="polite"
+            >
+              {{ romanceRecord.result }}
+            </p>
             <button
               class="cap-primary"
               type="button"
@@ -837,12 +894,23 @@ import {
   CREW_DOSSIERS,
 } from '~/utils/gameOfCaptains/characterDossiers'
 
+import {
+  romanceMoment,
+  type RomanceVoyage,
+} from '~/utils/gameOfCaptains/romance'
+
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
 const selectionScreen = ref<'captain' | 'crew'>('captain')
 const focusedCrew = ref<CrewId>('pell')
 const run = computed(() => store.run)
+const romanceScene = computed(() =>
+  run.value ? romanceMoment(run.value) : null,
+)
+const romanceRecord = computed(
+  () => (run.value as RomanceVoyage | null)?.romance,
+)
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => warpArt(`portraits/${key}`)
 const stagePainting = computed(() => {
@@ -1294,6 +1362,74 @@ function toggleAway(id: CrewId) {
   color: #b7c5d2;
   line-height: 1.25;
   margin-top: 0.12rem;
+}
+.cap-romance {
+  margin: 1rem 0;
+  padding: 0.9rem;
+  border: 1px solid #c7ad8999;
+  border-radius: 0.75rem;
+  background: linear-gradient(155deg, #213e51dd, #262438e8);
+}
+.cap-romance-kicker {
+  color: #ffd5ab;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  font-weight: 900;
+}
+.cap-romance h3 {
+  margin: 0.35rem 0 0.5rem;
+  font:
+    900 clamp(1.15rem, 2vw, 1.5rem) Georgia,
+    serif;
+  color: #ffe0b6;
+}
+.cap-romance-faces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.55rem 0;
+}
+.cap-romance-face {
+  display: grid;
+  place-items: center;
+  min-height: 3.4rem;
+  min-width: 3.4rem;
+  max-width: 5.3rem;
+  overflow: hidden;
+  padding: 0.25rem;
+  border: 1px solid #d5b68d8f;
+  border-radius: 0.45rem;
+  color: #ffddb5;
+  font-size: 0.6rem;
+  font-weight: 800;
+  background: #365266;
+}
+.cap-romance-face img {
+  width: 100%;
+  height: 4rem;
+  object-fit: cover;
+}
+.cap-romance-setting,
+.cap-romance-line,
+.cap-romance-outcome {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #dae4e6;
+}
+.cap-romance-setting {
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+.cap-romance-line {
+  margin: 0.35rem 0 0.65rem;
+}
+.cap-romance-line strong {
+  color: #ffdab0;
+}
+.cap-romance-outcome {
+  border-left: 3px solid #efc49c;
+  padding: 0.6rem 0.85rem;
+  background: #39536470;
 }
 .cap-insight {
   display: flex;

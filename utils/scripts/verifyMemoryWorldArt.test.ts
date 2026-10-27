@@ -30,11 +30,21 @@ let illustratedBriarOutcomes = 0
 for (const tile of BRIAR_TILES) {
   const scene = BRIAR_STORY_ATLAS[tile.key]!
   const establishing = briarIllustrationPath(tile.key)
-  assert.ok(establishing && deliveredShotPaths.has(establishing), `Missing Briar scene art: ${tile.key}`)
+  assert.ok(
+    establishing && deliveredShotPaths.has(establishing),
+    `Missing Briar scene art: ${tile.key}`,
+  )
   for (const choice of scene.choices) {
     const outcome = briarIllustrationPath(tile.key, choice.id)
-    assert.ok(outcome && deliveredShotPaths.has(outcome), `Missing Briar consequence art: ${tile.key}/${choice.id}`)
-    assert.notEqual(outcome, establishing, 'A choice must change the illustration')
+    assert.ok(
+      outcome && deliveredShotPaths.has(outcome),
+      `Missing Briar consequence art: ${tile.key}/${choice.id}`,
+    )
+    assert.notEqual(
+      outcome,
+      establishing,
+      'A choice must change the illustration',
+    )
     illustratedBriarOutcomes++
   }
   assert.equal(

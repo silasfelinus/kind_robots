@@ -402,7 +402,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'

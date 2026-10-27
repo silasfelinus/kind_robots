@@ -39,6 +39,50 @@ function hasValidBriarCards(value: unknown, mapCards: boolean): boolean {
   )
 }
 
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
+function hasValidDarkHouseProgress(value: Record<string, unknown>): boolean {
+  if (
+    typeof value.active !== 'boolean' ||
+    typeof value.current !== 'string' ||
+    !isStringArray(value.visited) ||
+    !isRecord(value.decisions) ||
+    !Object.values(value.decisions).every(
+      (choice) => typeof choice === 'string',
+    ) ||
+    !isRecord(value.trials) ||
+    !isRecord(value.puzzles) ||
+    !Number.isSafeInteger(value.spentEchoes) ||
+    (value.spentEchoes as number) < 0 ||
+    (value.ending !== null && typeof value.ending !== 'string') ||
+    typeof value.status !== 'string'
+  )
+    return false
+
+  return (
+    Object.values(value.trials).every(
+      (trial) =>
+        isRecord(trial) &&
+        isStringArray(trial.matched) &&
+        isStringArray(trial.faceUp) &&
+        Number.isSafeInteger(trial.failures) &&
+        (trial.failures as number) >= 0 &&
+        (trial.clue === null || typeof trial.clue === 'string') &&
+        typeof trial.note === 'string',
+    ) &&
+    Object.values(value.puzzles).every(
+      (puzzle) =>
+        isRecord(puzzle) &&
+        typeof puzzle.solved === 'boolean' &&
+        isStringArray(puzzle.wrong) &&
+        typeof puzzle.hint === 'boolean' &&
+        typeof puzzle.note === 'string',
+    )
+  )
+}
+
 /** Reject incomplete/corrupt slots rather than replacing the current run with defaults. */
 export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
   if (!isRecord(raw) || raw.version !== 1) return null
@@ -60,7 +104,7 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
     raw.seals.version !== 1 ||
     !Array.isArray(raw.briar.revealed) ||
     !Array.isArray(raw.dark.revealed) ||
-    !Array.isArray(raw.house.visited) ||
+    !hasValidDarkHouseProgress(raw.house) ||
     !isRecord(raw.reality.progress) ||
     !Array.isArray(raw.seals.seen)
   )

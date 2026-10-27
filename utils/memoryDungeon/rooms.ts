@@ -18,6 +18,9 @@ export type CombatRoomId =
   | 'hearth-guard'
   | 'collector'
   | 'twinned-guard'
+  | 'moss-judge'
+  | 'unpaid-patrol'
+  | 'empty-armor'
 
 export type CombatRoom = {
   enemy: { name: string; hp: number; attack: number; every: number }
@@ -97,6 +100,38 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
       'The Twinned Guard stand back to back, each shielding the other. Their blows are slow and heavy, and only matched pairs get past both shields.',
     artPrompt:
       'Two identical guardians in armor of rootwood and brass stand back to back in a stone hall, each holding a tall shield across the other. Between them, pairs of glowing matching tiles hover in the air. One raises a heavy mace. Cold light from a high window. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+  },
+  // The Dark Briar's optional bouts (DARK_BRIAR_DUELS): the forest's old
+  // challengers met again in the reflected realm, each with its own rules.
+  'moss-judge': {
+    enemy: { name: 'Moss Judge', hp: 9, attack: 1, every: 4 },
+    playerHp: 8,
+    focus: 2,
+    loadout: ['rapier', 'twinblade', 'lantern'],
+    intro:
+      'The Moss Judge blows her whistle and fights her own bout by her own rules: a light tap on every fourth beat, called before it lands. The Needle Rapier lands both points of a pair at once.',
+    artPrompt:
+      'A knee-high moss-covered sprite with a leaf cap, twig fingers and glinting green eyes stands on a stone chessboard set into a woodland clearing, a tiny wooden whistle between her lips and a thin twig sword raised in one hand. A grid of glowing pale squares hovers above the chessboard. Low-angle medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+  },
+  'unpaid-patrol': {
+    enemy: { name: 'Unpaid Patrol', hp: 11, attack: 2, every: 3 },
+    playerHp: 9,
+    focus: 3,
+    loadout: ['twinblade', 'hammer', 'spear', 'lantern'],
+    intro:
+      'The Unpaid Patrol charge the duel their contract demands. Both spears come down together on every third beat, and the Rune Hammer can stagger them a beat late.',
+    artPrompt:
+      'Two forest guards in battered bark armor wrapped with thorny vines, one tall and lean, one short and broad, charge side by side down a moonlit shortcut path with narrow spears lowered, rows of grey cloth medals bouncing on their chests. A gate of woven thorns stands behind them. Low-angle medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+  },
+  'empty-armor': {
+    enemy: { name: 'Empty Armor', hp: 13, attack: 2, every: 5 },
+    playerHp: 9,
+    focus: 3,
+    loadout: ['twinblade', 'hammer', 'spear', 'staff', 'lantern'],
+    intro:
+      "The empty armor raises a gauntlet and gives orders in the vanished queen's voice. Every fifth order is a blow, and it counts each one aloud. Nobody inside it can be talked out of the fight, so remember the pairs.",
+    artPrompt:
+      'An empty suit of polished royal plate armor with a thin gold circlet on its helm stands upright on a rocky ridge beside an ancient signal fire, one gauntlet raised to strike, its open visor showing a hollow dark interior. An old sentinel in a worn grey cloak watches from behind a boulder. A huge moon hangs behind them. Low-angle wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
   },
 }
 

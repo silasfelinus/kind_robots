@@ -40,7 +40,7 @@ export const CREW_JOURNEYS = Object.fromEntries(
       finalBold: CREW_FINALE_CALLS[id][index]![1],
     })),
   ]),
-) as Record<
+) as unknown as Record<
   CrewId,
   readonly [CrewJourneyStep, CrewJourneyStep, CrewJourneyStep]
 >

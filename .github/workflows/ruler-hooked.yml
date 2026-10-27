@@ -36,6 +36,8 @@ jobs:
         run: npx tsx utils/rulerHooked/economy.selftest.ts
       - name: Kingdom incidents self-test
         run: npx tsx utils/rulerHooked/incidents.selftest.ts
+      - name: Kingdom quests self-test
+        run: npx tsx utils/rulerHooked/quests.selftest.ts
       - name: Art prompt self-test
         run: npx tsx utils/rulerHooked/artPrompts.selftest.ts
       - name: Card art self-test

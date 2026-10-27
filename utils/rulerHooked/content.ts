@@ -1782,6 +1782,327 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
         },
       ],
     },
+    {
+      id: 'millrace-weir',
+      title: 'The Millrace Weir',
+      characters: ['warlock-vex', 'lake-spirit-nix'],
+      start: { trigger: { minTurn: 11, chance: 0.5 } },
+      steps: [
+        {
+          id: 'weir-1',
+          kind: 'arc-step',
+          characters: ['warlock-vex'],
+          title: 'A Wheel on the Outflow',
+          body: 'Vex wants to wall off the lake’s outflow with a stone weir and hang a mill wheel on it. “Flour, power, and a very pleasant waterfall,” he says. The stream below the outflow is where the big fish run upriver every spring.',
+          art: 'card-weir-1',
+          choices: [
+            {
+              id: 'build-weir',
+              text: 'Build the weir. Solid stone, top to bottom.',
+              effects: {
+                arc: { advance: 'weir-stone' },
+                sliders: { prosperity: +10, nature: -6 },
+                regionOverride: { village_edge: 'township' },
+                flags: { set: ['weirBuilt'] },
+                counters: { warlockFavors: +1 },
+              },
+              result:
+                'The wheel turns by the week’s end. The waterfall is indeed very pleasant. The stream below it goes very still.',
+            },
+            {
+              id: 'ladder-weir',
+              text: 'Build it with a fish ladder up one side.',
+              effects: {
+                arc: { advance: 'weir-ladder' },
+                sliders: { prosperity: +5, treasury: -6, nature: +2 },
+                regionOverride: { village_edge: 'township' },
+                flags: { set: ['weirBuilt', 'weirLadder'] },
+              },
+              result:
+                'Vex calls the ladder “a staircase for freeloaders.” He builds it anyway, and builds it well.',
+            },
+          ],
+        },
+        {
+          id: 'weir-stone',
+          kind: 'arc-step',
+          characters: ['lake-spirit-nix'],
+          title: 'The Run Stalls',
+          body: 'Spring comes. The sturgeon arrive at the foot of the weir and stop there, hundreds of them, nosing the stone. The village is already lowering nets. Nix rises in the millpond. “Do they know,” it asks, “that you built a wall?”',
+          art: 'card-weir-stone',
+          choices: [
+            {
+              id: 'net-the-run',
+              text: 'Let the village net the run. It’s a feast.',
+              effects: {
+                arc: { complete: 'millrace-weir' },
+                sliders: { treasury: +8, joy: +4, nature: -10 },
+                flags: { set: ['runBlocked'] },
+              },
+              result:
+                'The feast lasts three days. The sturgeon do not come back the next spring, or the one after, and nothing large crosses the far shore again.',
+            },
+            {
+              id: 'open-sluice',
+              text: 'Open the sluice every spring and let them through.',
+              effects: {
+                arc: { complete: 'millrace-weir' },
+                sliders: { prosperity: -4, nature: +6, order: +2 },
+                flags: { set: ['sluiceOpened'] },
+              },
+              result:
+                'Every spring the wheel stops for a week and the run goes through. Vex grumbles about lost flour. The sturgeon keep their road.',
+            },
+          ],
+        },
+        {
+          id: 'weir-ladder',
+          kind: 'arc-step',
+          characters: ['warlock-vex'],
+          title: 'Fish on the Stairs',
+          body: 'The ladder works. Trout climb it in silver steps, one pool at a time, and half the village comes down at dusk to watch. Vex stands at the top pretending not to be proud of it.',
+          art: 'card-weir-ladder',
+          choices: [
+            {
+              id: 'open-ladder-pools',
+              text: 'Make the ladder pools a public fishing spot.',
+              effects: {
+                arc: { complete: 'millrace-weir' },
+                sliders: { joy: +8, order: -2 },
+                flags: { set: ['ladderSpot'] },
+              },
+              result:
+                'Anglers line the ladder every evening. The trout climb past them anyway, which everyone agrees is fair.',
+            },
+            {
+              id: 'guard-ladder',
+              text: 'Keep the ladder for the fish alone.',
+              effects: {
+                arc: { complete: 'millrace-weir' },
+                sliders: { nature: +6, joy: +2 },
+                flags: { set: ['ladderProtected'] },
+              },
+              result:
+                'One small wooden fence and one stern warden. The trout climb in peace and grow enormous.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'reed-shallows',
+      title: 'The Reed Shallows',
+      characters: ['druid-sela', 'envoy-thistle'],
+      start: { trigger: { minTurn: 13, chance: 0.5 } },
+      steps: [
+        {
+          id: 'reed-1',
+          kind: 'arc-step',
+          characters: ['druid-sela', 'envoy-thistle'],
+          title: 'Who Owns the Shallows',
+          body: 'The reed beds in the north cove have spread all summer. Thistle wants them dredged for a marina, so foreign pleasure boats can moor there and spend money. Sela wants them declared a nursery, so the fry can grow up somewhere nobody is mooring.',
+          art: 'card-reed-1',
+          choices: [
+            {
+              id: 'dredge-cove',
+              text: 'Dredge the cove for the marina.',
+              effects: {
+                arc: { advance: 'reed-marina' },
+                sliders: { prosperity: +10, treasury: +4, nature: -10 },
+                regionOverride: { far_shore: 'farmed' },
+                flags: { set: ['shallowsDredged'] },
+              },
+              result:
+                'The dredgers start at dawn. By noon the cove is deep and brown, and the herons have moved somewhere quieter.',
+            },
+            {
+              id: 'declare-nursery',
+              text: 'Declare the shallows a nursery.',
+              effects: {
+                arc: { advance: 'reed-nursery' },
+                sliders: { nature: +8, prosperity: -4 },
+                regionOverride: { far_shore: 'pristine' },
+                flags: { set: ['shallowsNursery'] },
+                counters: { druidFavors: +1 },
+              },
+              result:
+                'Sela stakes out the cove with willow wands and string. Thistle writes a very polite letter of complaint.',
+            },
+          ],
+        },
+        {
+          id: 'reed-marina',
+          kind: 'arc-step',
+          characters: ['envoy-thistle'],
+          title: 'The Marina Opens',
+          body: 'Painted boats crowd the new marina, and their owners throw bread off the sterns all day. Something fat and grey has started living under the hulls. Thistle would like to discuss mooring fees.',
+          art: 'card-reed-marina',
+          choices: [
+            {
+              id: 'charge-moorings',
+              text: 'Charge full mooring fees.',
+              effects: {
+                arc: { complete: 'reed-shallows' },
+                sliders: { treasury: +10, joy: -2 },
+                flags: { set: ['marinaFees'] },
+              },
+              result:
+                'The fees pour in. So does the bread. The grey things under the hulls grow fatter by the week.',
+            },
+            {
+              id: 'village-berths',
+              text: 'Give half the berths to village anglers.',
+              effects: {
+                arc: { complete: 'reed-shallows' },
+                sliders: { joy: +6, prosperity: +2, treasury: -2 },
+                flags: { set: ['villageBerths'] },
+              },
+              result:
+                'Rowboats moor between the pleasure boats. Everyone complains about everyone else, which is how you know it’s working.',
+            },
+          ],
+        },
+        {
+          id: 'reed-nursery',
+          kind: 'arc-step',
+          characters: ['druid-sela'],
+          title: 'The Shallows Boil',
+          body: 'In spring the nursery fills with fry, so many that the shallows shimmer. Sela asks for one more thing: no lines in the cove until autumn. “Not even yours,” she says, looking at your rod.',
+          art: 'card-reed-nursery',
+          choices: [
+            {
+              id: 'close-cove',
+              text: 'Close the cove until autumn, royal line included.',
+              effects: {
+                arc: { complete: 'reed-shallows' },
+                sliders: { nature: +8, joy: -2, order: +2 },
+                flags: { set: ['coveClosed'] },
+              },
+              result:
+                'You fish the far side of the lake all summer. In autumn the koi come back into the bright shallows, in colours you have never seen.',
+            },
+            {
+              id: 'catch-and-release',
+              text: 'Allow catch and release only.',
+              effects: {
+                arc: { complete: 'reed-shallows' },
+                sliders: { nature: +4, joy: +4 },
+                flags: { set: ['catchRelease'] },
+              },
+              result:
+                'Every fish caught in the cove goes straight back, after a short and dignified introduction.',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'castle-moat',
+      title: 'The Castle Moat',
+      characters: ['taxman-gristle', 'smuggler-brack', 'captain-cordelia'],
+      start: { trigger: { minTurn: 16, chance: 0.5 } },
+      steps: [
+        {
+          id: 'moat-1',
+          kind: 'arc-step',
+          characters: ['taxman-gristle'],
+          title: 'A Licence to Fish',
+          body: 'Gristle has noticed that the castle moat is full of fish and empty of revenue. He proposes a royal preserve: licences, a season, and a keeper. The village has fished that moat for free for three hundred years, and would like that noted.',
+          art: 'card-moat-1',
+          choices: [
+            {
+              id: 'enclose-moat',
+              text: 'Enclose it. Sell licences.',
+              effects: {
+                arc: { advance: 'moat-poachers' },
+                sliders: { treasury: +8, order: +4, joy: -6 },
+                counters: { taxHikes: +1 },
+                flags: { set: ['royalPreserve'] },
+              },
+              result:
+                'Gristle prints the licences himself. They are beautiful, and expensive, and almost nobody buys one.',
+            },
+            {
+              id: 'keep-moat-common',
+              text: 'The moat stays common. Free to all.',
+              effects: {
+                arc: { advance: 'moat-crowded' },
+                sliders: { joy: +6, treasury: -2 },
+                flags: { set: ['moatCommons'] },
+              },
+              result:
+                'The village cheers. By morning there are forty lines in the moat and a queue for the bridge.',
+            },
+          ],
+        },
+        {
+          id: 'moat-poachers',
+          kind: 'arc-step',
+          characters: ['smuggler-brack', 'captain-cordelia'],
+          title: 'Lanterns in the Moat',
+          body: 'Cordelia has caught a dozen poachers in the preserve by lantern light, Brack among them, holding a net and an excellent excuse. The rest are grandmothers.',
+          art: 'card-moat-poachers',
+          choices: [
+            {
+              id: 'fine-poachers',
+              text: 'Fine them all. A preserve is a preserve.',
+              effects: {
+                arc: { complete: 'castle-moat' },
+                sliders: { order: +8, treasury: +4, joy: -6 },
+                flags: { set: ['poachersFined'] },
+              },
+              result:
+                'The grandmothers pay in pennies and glares. Gristle is delighted. Something with gold teeth has started feeding in the moat.',
+            },
+            {
+              id: 'hire-poachers',
+              text: 'Hire them as keepers. They clearly know the water.',
+              effects: {
+                arc: { complete: 'castle-moat' },
+                sliders: { order: +2, joy: +6, treasury: -4 },
+                flags: { set: ['poacherKeepers'] },
+                grant: [{ reward: 'smugglers-map' }],
+              },
+              result:
+                'Brack draws you a chart of every deep hole in the moat, and a few beyond it. The grandmothers run the night watch with terrifying efficiency.',
+            },
+          ],
+        },
+        {
+          id: 'moat-crowded',
+          kind: 'arc-step',
+          characters: ['captain-cordelia'],
+          title: 'Forty Lines and Counting',
+          body: 'The moat is so crowded the lines tangle in the middle. The big fish are gone and the small ones are getting smaller. Cordelia asks, with real strain, whether there might be rules.',
+          art: 'card-moat-crowded',
+          choices: [
+            {
+              id: 'honour-rules',
+              text: 'One fish each a day, on their honour.',
+              effects: {
+                arc: { complete: 'castle-moat' },
+                sliders: { nature: +6, joy: +2, order: +2 },
+                counters: { festivals: +1 },
+                flags: { set: ['moatHonour'] },
+              },
+              result:
+                'It works better than anyone expected. At the full moon the village throws a moat fair to celebrate not ruining it.',
+            },
+            {
+              id: 'let-moat-run',
+              text: 'Let them fish. It’s their moat.',
+              effects: {
+                arc: { complete: 'castle-moat' },
+                sliders: { joy: +4, nature: -10 },
+                flags: { set: ['moatFishedOut'] },
+              },
+              result:
+                'By midsummer the moat holds nothing but thin grey roach, all bones and appetite. People still fish it, out of habit.',
+            },
+          ],
+        },
+      ],
+    },
   ],
 
   endings: [

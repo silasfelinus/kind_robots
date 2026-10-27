@@ -194,6 +194,38 @@ export const CARD_PROMPTS: Record<string, string> = {
   'heron-delegation': scene(
     'Seven tall grey herons stand in a neat row along the dock planks, each on one leg, all facing the viewer, the tallest heron in front with a silver fish lying at its feet. Reed beds and calm water behind them. Soft golden morning light.',
   ),
+  'weir-1': scene(
+    `${who('warlock-vex')}, stands on the stone bank where a stream leaves the lake and holds up a drawing of a stone weir with a big wooden mill wheel, smiling. Behind him the clear stream runs fast over pebbles into a wooded valley. Bright spring morning light.`,
+  ),
+  'weir-stone': scene(
+    `Hundreds of huge grey sturgeon crowd the pool below a tall stone weir with a turning mill wheel, their backs breaking the surface. Villagers on the bank lower big rope nets. In the millpond above, ${who('lake-spirit-nix')}, rises to the waist and looks down at them. Cool grey spring light.`,
+    'Wide view from the bank below the weir.',
+  ),
+  'weir-ladder': scene(
+    `A stone weir with a wooden mill wheel, and up one side a stepped fish ladder of small stone pools where silver trout leap from pool to pool. Villagers sit along the bank watching, and at the top ${who('warlock-vex')}, stands with folded arms and a small proud smile. Warm dusk light.`,
+    'Wide view from the bank below the weir.',
+  ),
+  'reed-1': scene(
+    `In a cove thick with tall green reeds, ${who('envoy-thistle')}, stands in a small painted boat pointing at the open water, and on the reedy bank ${who('druid-sela')}, holds a bundle of willow wands with string, frowning. Herons stand in the reeds between them. Clear summer morning light.`,
+  ),
+  'reed-marina': scene(
+    `A new wooden marina in a deep cove crowded with brightly painted pleasure boats, their owners in straw boaters tossing bread off the sterns, fat grey fish gathering in the shadow under the hulls. On the jetty ${who('envoy-thistle')}, holds out a small leather purse toward the viewer. Bright midday light.`,
+  ),
+  'reed-nursery': scene(
+    `${who('druid-sela')}, stands ankle-deep in a shallow reedy cove marked off with willow wands and string, the clear water around her silver with thousands of tiny fish, and she raises one hand toward the viewer with the palm out. Soft spring morning light.`,
+  ),
+  'moat-1': scene(
+    `${who('taxman-gristle')}, stands on a stone bridge over a green castle moat holding up a fan of small cream paper slips with red wax stamps, while below him village anglers in caps sit along the moat wall with fishing poles. Flat bright morning light.`,
+    'Eye-level view from the castle end of the bridge.',
+  ),
+  'moat-poachers': scene(
+    `At night beside the castle moat, ${who('captain-cordelia')}, holds up a lantern over a line of caught poachers: ${who('smuggler-brack')}, holding a dripping net and grinning, and a row of small old grandmothers in shawls holding fishing poles. Deep blue night with warm lantern light.`,
+    'Eye-level view from the moat wall.',
+  ),
+  'moat-crowded': scene(
+    `A castle moat packed shoulder to shoulder with village anglers whose fishing lines tangle in a knot in the middle of the water, and in front of them ${who('captain-cordelia')}, holds a tangled ball of line up toward the viewer. Bright midday light.`,
+    'Eye-level view from the castle bridge.',
+  ),
 }
 
 /** Character portraits, keyed by cast slug (neutral expression). */
@@ -326,6 +358,18 @@ export const FISH_PROMPTS: Record<string, string> = Object.fromEntries(
       [
         'tithe-lamprey',
         'A thick black and gold lamprey with a round open sucker mouth ringed by gold coin-shaped teeth, patches of stolen silver and gold fish scales stuck along its body.',
+      ],
+      [
+        'stairclimber-trout',
+        'A lean silver-green trout with a row of small stair-step ridges down its back, leaping upward with its tail bent.',
+      ],
+      [
+        'mooring-mullet',
+        'A fat blunt grey mullet with a crust-brown belly, round sleepy eyes and a piece of bread in its mouth.',
+      ],
+      [
+        'barebone-roach',
+        'A thin grey roach with ribs visible through translucent skin, an oversized open mouth and ragged fins.',
       ],
       [
         'the-pleasant-island',

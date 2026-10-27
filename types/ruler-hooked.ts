@@ -191,6 +191,8 @@ export interface FishUnlock {
   all?: TriggerClause[]
   /** If supplied, at least one clause must hold. */
   any?: TriggerClause[]
+  /** The species leaves the lake while any of these clauses holds. */
+  closes?: TriggerClause[]
 }
 
 export interface FishDefinition {

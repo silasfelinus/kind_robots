@@ -260,8 +260,10 @@ for (const [choice, room, source] of [
     'Reloading cannot reclaim a second free hint',
   )
   assert.equal(
-    darkHousePuzzleHint({ ...atPuzzle, decisions: { [room]: 'attend' } }, source)
-      .puzzles[room],
+    darkHousePuzzleHint(
+      { ...atPuzzle, decisions: { [room]: 'attend' } },
+      source,
+    ).puzzles[room],
     undefined,
     'A decided room cannot consume another clue after completion',
   )
@@ -314,10 +316,7 @@ for (const [witnessChoice, room, source] of [
   assert.equal(original.sceneChoices['6,3'], witnessChoice)
   assert.equal(earnedDarkHousePuzzleClue(original, room), source)
   assert.equal(
-    earnedDarkHousePuzzleClue(
-      original,
-      room === 'HD-08' ? 'HD-34' : 'HD-08',
-    ),
+    earnedDarkHousePuzzleClue(original, room === 'HD-08' ? 'HD-34' : 'HD-08'),
     null,
     'Opposite witness policy cannot claim both puzzle benefits',
   )

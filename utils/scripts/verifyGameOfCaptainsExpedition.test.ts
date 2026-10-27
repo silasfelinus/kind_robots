@@ -41,6 +41,14 @@ for (const candidate of REDSHIRTS) {
   assert.ok(Object.values(candidate.stats).every(v => v >= 1 && v <= 5))
 }
 assert.equal(REDSHIRT_QUARTERS.bunks, 12)
+// Later acts share a galactic fallback until their bespoke local encounter packs ship.
+for (const chapter of [4, 7, 9]) {
+  const expedition = expeditionBoard(405, chapter, 'act-later-unmapped')
+  assert.ok(expedition.filter(e => e.priority === 'major').length >= 1)
+  assert.ok(expedition.filter(e => e.priority === 'minor').length >= 3)
+  assert.equal(new Set(expedition.map(e => e.id)).size, expedition.length)
+  assert.deepEqual(expedition, expeditionBoard(405, chapter, 'act-later-unmapped'))
+}
 assert.equal(EXPEDITION_ENCOUNTERS.length, 53)
 assert.equal(new Set(EXPEDITION_ENCOUNTERS.map(e => e.id)).size, 53)
 assert.equal(Object.keys(WORLD_ENCOUNTERS).length, 9)

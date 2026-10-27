@@ -387,31 +387,67 @@ function hash(seed: number, text: string): number {
   return value
 }
 export function missionFor(run: VoyageRun): Mission {
-  return MISSIONS.find((item) => item.id === run.missionId) ?? MISSIONS[run.chapter - 1]!
+  return (
+    MISSIONS.find((item) => item.id === run.missionId) ??
+    MISSIONS[run.chapter - 1]!
+  )
 }
 
 /** Previous intervention decisions determine which calls can be accepted. */
 export function missionBoard(run: VoyageRun): Mission[] {
   const history = run.missionHistory ?? []
   const helped = history.some((item) => item.policy === 'aid')
-  const witnessed = history.some((item) => item.policy === 'observe' || item.policy === 'intervene')
+  const witnessed = history.some(
+    (item) => item.policy === 'observe' || item.policy === 'intervene',
+  )
   const has = (id: CrewId) => run.crew.includes(id)
   const ids = ACT_ONE_BOARDS[run.chapter - 1] ?? ACT_ONE_BOARDS[2]
-  return ids.filter((id) => {
-    if (id === 'nacre')
-      return witnessed || has('rue') || has('taal') || history.some((event) => event.missionId === 'ashdock')
-    if (id === 'haleth')
-      return helped || has('vela') || has('brin') || history.some((event) => event.missionId === 'windglass')
-    if (id === 'gameworld')
-      return witnessed || has('mox') || has('sora') || has('omi') || antagonistFor(run).id === 'showrunner' || history.some((event) => event.missionId === 'nacre')
-    if (id === 'rootborne')
-      return helped || has('brin') || has('vela') || history.some((event) => ['archive', 'haleth'].includes(event.missionId))
-    return true
-  }).map((id) => MISSIONS.find((mission) => mission.id === id)!)
+  return ids
+    .filter((id) => {
+      if (id === 'nacre')
+        return (
+          witnessed ||
+          has('rue') ||
+          has('taal') ||
+          history.some((event) => event.missionId === 'ashdock')
+        )
+      if (id === 'haleth')
+        return (
+          helped ||
+          has('vela') ||
+          has('brin') ||
+          history.some((event) => event.missionId === 'windglass')
+        )
+      if (id === 'gameworld')
+        return (
+          witnessed ||
+          has('mox') ||
+          has('sora') ||
+          has('omi') ||
+          antagonistFor(run).id === 'showrunner' ||
+          history.some((event) => event.missionId === 'nacre')
+        )
+      if (id === 'rootborne')
+        return (
+          helped ||
+          has('brin') ||
+          has('vela') ||
+          history.some((event) =>
+            ['archive', 'haleth'].includes(event.missionId),
+          )
+        )
+      return true
+    })
+    .map((id) => MISSIONS.find((mission) => mission.id === id)!)
 }
 
 export function chooseMission(run: VoyageRun, id: string): VoyageRun {
-  if (run.phase !== 'briefing' || missionFor(run).id === id || !missionBoard(run).some((item) => item.id === id)) return run
+  if (
+    run.phase !== 'briefing' ||
+    missionFor(run).id === id ||
+    !missionBoard(run).some((item) => item.id === id)
+  )
+    return run
   const choice = MISSIONS.find((mission) => mission.id === id)!
   return {
     ...run,
@@ -419,7 +455,10 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
     away: [],
     pocketRoom: null,
     scene: `The red couch changes course for ${choice.system}. The crew can still refuse the captain’s assignment.`,
-    log: [...run.log, `Charted the Act I route to ${choice.system} on day ${run.day ?? 1}.`],
+    log: [
+      ...run.log,
+      `Charted the Act I route to ${choice.system} on day ${run.day ?? 1}.`,
+    ],
   }
 }
 
@@ -427,8 +466,16 @@ export function worldEcho(run: VoyageRun): string {
   const history = run.missionHistory ?? []
   const mostRecent = history[history.length - 1]
   if (!mostRecent) return 'No prior systems have reason to recognize the couch.'
-  const key = mostRecent.policy === 'missed' ? '' : ACT_ONE_CONSEQUENCES[mostRecent.missionId as ActOneRouteId]?.[mostRecent.policy]?.flag
-  return (key && ACT_ONE_ECHOES[key]) || `The people of ${mostRecent.system} are still living with the captain’s ${mostRecent.policy === 'missed' ? 'absence' : 'decision'}.`
+  const key =
+    mostRecent.policy === 'missed'
+      ? ''
+      : ACT_ONE_CONSEQUENCES[mostRecent.missionId as ActOneRouteId]?.[
+          mostRecent.policy
+        ]?.flag
+  return (
+    (key && ACT_ONE_ECHOES[key]) ||
+    `The people of ${mostRecent.system} are still living with the captain’s ${mostRecent.policy === 'missed' ? 'absence' : 'decision'}.`
+  )
 }
 
 export function antagonistFor(run: VoyageRun) {
@@ -526,7 +573,8 @@ export function previewMission(run: VoyageRun): MissionPreview {
   const flags = run.worldFlags ?? []
   const current = missionFor(run).id
   const enemyThreat = ACT_ONE_NEMESIS[antagonistFor(run).id]
-  const enemyPenalty = enemyThreat.missionId === current ? enemyThreat.penalty : 0
+  const enemyPenalty =
+    enemyThreat.missionId === current ? enemyThreat.penalty : 0
   const civicBonus =
     (current === 'haleth' && flags.includes('convoy-invited') ? 10 : 0) +
     (current === 'nacre' && flags.includes('ashdock-protected') ? 8 : 0) +
@@ -535,13 +583,20 @@ export function previewMission(run: VoyageRun): MissionPreview {
     (current === 'bar' && flags.includes('windglass-broadcast') ? 10 : 0)
   return {
     ...base,
-    chance: Math.max(5, Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty)),
+    chance: Math.max(
+      5,
+      Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty),
+    ),
     commentary: [
       base.commentary,
       bonus ? 'Pocket room match: +10%.' : '',
       penalty ? 'Backup force bubble: -10% until recharged.' : '',
-      civicBonus ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.` : '',
-      enemyPenalty ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.` : '',
+      civicBonus
+        ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.`
+        : '',
+      enemyPenalty
+        ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.`
+        : '',
     ]
       .filter(Boolean)
       .join(' '),
@@ -598,7 +653,16 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
           names: 'Offer expired',
           text,
         },
-        missionHistory: [...(run.missionHistory ?? []), { chapter: run.chapter, missionId: mission.id, system: mission.system, policy: 'missed' as const, result: 'disaster' as const }],
+        missionHistory: [
+          ...(run.missionHistory ?? []),
+          {
+            chapter: run.chapter,
+            missionId: mission.id,
+            system: mission.system,
+            policy: 'missed' as const,
+            result: 'disaster' as const,
+          },
+        ],
         trust: run.trust - 1,
         log: [...run.log, text],
       }
@@ -699,10 +763,25 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     reputation:
       run.reputation + (policy === 'aid' ? 2 : policy === 'observe' ? -1 : -2),
     trust: run.trust + (policy === 'aid' ? 1 : policy === 'observe' ? -1 : 0),
-    missionHistory: [...(run.missionHistory ?? []), { chapter: run.chapter, missionId: mission.id, system: mission.system, policy, result: run.report?.result ?? 'costly' }],
-    worldFlags: [...(run.worldFlags ?? []), ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].flag],
+    missionHistory: [
+      ...(run.missionHistory ?? []),
+      {
+        chapter: run.chapter,
+        missionId: mission.id,
+        system: mission.system,
+        policy,
+        result: run.report?.result ?? 'costly',
+      },
+    ],
+    worldFlags: [
+      ...(run.worldFlags ?? []),
+      ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].flag,
+    ],
     scene: `${responses[policy]} ${mission.note} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
-    log: [...run.log, `${mission.system}: ${policy} — ${responses[policy]} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`],
+    log: [
+      ...run.log,
+      `${mission.system}: ${policy} — ${responses[policy]} ${ACT_ONE_CONSEQUENCES[mission.id as ActOneRouteId][policy].text}`,
+    ],
   }
 }
 /** One detour may follow each main mission, without replacing the original mission. */
@@ -815,8 +894,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     away: [],
     pocketRoom: null,
     report: null,
-    scene:
-      `A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
+    scene: `A new star flickers into the chart. ${worldEcho(run)} The available routes reflect what the captain already did.`,
   }
 }
 export function finishVoyage(
@@ -877,10 +955,18 @@ export function finishVoyage(
       (item) =>
         `${CREW.find((c) => c.id === item.crewId)!.name}'s testimony from ${item.system} changes the peace charter.`,
     )
-  const civic = (run.missionHistory ?? []).map((event) => {
-    const detail = event.policy === 'missed' ? `No one answered the call at ${event.system}.` : ACT_ONE_CONSEQUENCES[event.missionId as ActOneRouteId]?.[event.policy]?.text
-    return detail ? `${event.system}: ${detail}` : ''
-  }).filter(Boolean).join(' ')
+  const civic = (run.missionHistory ?? [])
+    .map((event) => {
+      const detail =
+        event.policy === 'missed'
+          ? `No one answered the call at ${event.system}.`
+          : ACT_ONE_CONSEQUENCES[event.missionId as ActOneRouteId]?.[
+              event.policy
+            ]?.text
+      return detail ? `${event.system}: ${detail}` : ''
+    })
+    .filter(Boolean)
+    .join(' ')
   const scene = `${verdict} ${remembrance} ${journeys.join(' ')} ${civic}`
   return {
     ...run,
@@ -910,16 +996,25 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
     !Number.isInteger(data.chapter) ||
     data.chapter < 1 ||
     data.chapter > ACT_ONE_BOARDS.length ||
-    (data.missionId !== undefined && (
-      !MISSIONS.some((mission) => mission.id === data.missionId) ||
-      !ACT_ONE_BOARDS[data.chapter - 1]?.some((id) => id === data.missionId)
-    )) ||
-    (data.missionHistory !== undefined && (!Array.isArray(data.missionHistory) || data.missionHistory.some((item) =>
-      !item || !MISSIONS.some((mission) => mission.id === item.missionId) ||
-      !['aid', 'observe', 'intervene', 'missed'].includes(item.policy) ||
-      !Number.isInteger(item.chapter) || item.chapter < 1 || item.chapter > data.chapter!
-    ))) ||
-    (data.worldFlags !== undefined && (!Array.isArray(data.worldFlags) || data.worldFlags.some((flag) => typeof flag !== 'string'))) ||
+    (data.missionId !== undefined &&
+      (!MISSIONS.some((mission) => mission.id === data.missionId) ||
+        !ACT_ONE_BOARDS[data.chapter - 1]?.some(
+          (id) => id === data.missionId,
+        ))) ||
+    (data.missionHistory !== undefined &&
+      (!Array.isArray(data.missionHistory) ||
+        data.missionHistory.some(
+          (item) =>
+            !item ||
+            !MISSIONS.some((mission) => mission.id === item.missionId) ||
+            !['aid', 'observe', 'intervene', 'missed'].includes(item.policy) ||
+            !Number.isInteger(item.chapter) ||
+            item.chapter < 1 ||
+            item.chapter > data.chapter!,
+        ))) ||
+    (data.worldFlags !== undefined &&
+      (!Array.isArray(data.worldFlags) ||
+        data.worldFlags.some((flag) => typeof flag !== 'string'))) ||
     ![
       'briefing',
       'transit',

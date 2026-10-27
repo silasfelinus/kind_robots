@@ -91,12 +91,12 @@ assert.deepEqual(
   ],
   'cabinet uses canonical three account achievement triggers',
 )
-assert.match(cabinetMarkup, /achievementStore\\.achievementRecords/)
-assert.match(cabinetMarkup, /record\\.userId === userStore\\.userId/)
+assert.match(cabinetMarkup, /achievementStore\.achievementRecords/)
+assert.match(cabinetMarkup, /record\.userId === userStore\.userId/)
 assert.match(cabinetMarkup, /status: award/)
 assert.match(cabinetMarkup, /Catalog unavailable/)
 assert.match(cabinetMarkup, /Start another review/)
-assert.match(cabinetMarkup, /filed\\(milestone\\.id\\)/)
+assert.match(cabinetMarkup, /filed\(milestone\.id\)/)
 assert.doesNotMatch(
   cabinetMarkup,
   /rewardAchievementByCode/,

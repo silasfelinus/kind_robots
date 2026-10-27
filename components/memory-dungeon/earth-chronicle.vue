@@ -180,7 +180,9 @@
             data-testid="memory-earth-reappraisal"
             class="rounded-lg border border-[#8eaa9b] bg-[#253b39] p-3"
           >
-            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dbcc]">
+            <p
+              class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dbcc]"
+            >
               Evidence reconsidered
             </p>
             <h4 class="mt-1 font-serif text-lg font-bold">

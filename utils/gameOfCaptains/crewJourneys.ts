@@ -223,7 +223,7 @@ export const CREW_JOURNEYS: Record<
   (Object.keys(SCRIPT) as CrewId[]).map((id) => [
     id,
     SCRIPT[id].map(([scene, careful, bold], index) => {
-      const destination = CREW_DOSSIERS[id].itinerary[index]
+      const destination = CREW_DOSSIERS[id].itinerary[index]!
       const colon = destination.indexOf(':')
       return {
         system: destination.slice(0, colon),
@@ -234,7 +234,7 @@ export const CREW_JOURNEYS: Record<
       }
     }),
   ]),
-) as Record<
+) as unknown as Record<
   CrewId,
   readonly [CrewJourneyStep, CrewJourneyStep, CrewJourneyStep]
 >

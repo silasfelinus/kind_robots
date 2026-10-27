@@ -45,6 +45,23 @@ export function redshirtQuestLinks(person: Redshirt) {
     }))
 }
 
+/** Render the working design, not a stale original when the artist changed the brief. */
+export function redshirtPortraitPrompt(person: Redshirt, draft: RedshirtDraft): string {
+  const influence = draft.referenceKey
+    ? draft.referenceTab === 'characters' && draft.intent === 'appearance'
+      ? `Adapt existing Kind Robots Character ${draft.referenceTitle} as this expedition recruit.`
+      : `Visual inspiration from ${draft.referenceTab}: ${draft.referenceTitle}.`
+    : ''
+  return [
+    `Original space-comedy alien portrait of ${draft.name.trim() || person.name}.`,
+    `Anatomy: ${draft.anatomy.trim() || person.anatomy}.`,
+    `History: ${draft.history.trim() || person.history}.`,
+    influence,
+    'Brilliant bright red Space Couch expedition shirt, visible expedition mission insignia.',
+    'Full-character composition with a distinct expressive face and silhouette.',
+  ].filter(Boolean).join(' ')
+}
+
 export function redshirtChanges(person: Redshirt, draft: RedshirtDraft) {
   const keys = ['name', 'anatomy', 'history', 'secretPower'] as const
   return keys.flatMap((key) =>

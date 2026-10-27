@@ -94,6 +94,11 @@ const menu = computed(() => [
       ]
     : []),
   {
+    label: 'The 100 redshirts',
+    detail: 'Meet Space Couch’s expendable expedition corps, inspect portraits and quests, and direct redesigns.',
+    run: () => forge.openRedshirts(),
+  },
+  {
     label: 'Catalogue',
     detail:
       'Facets, Characters, Locations, Scenarios, Rewards and every game’s art, for brainstorming.',

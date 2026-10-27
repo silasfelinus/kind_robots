@@ -10,6 +10,14 @@ import {
   slugify,
 } from '../gameOfCaptains/artSlots'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
+import {
+  MISSION_CALLBACKS,
+  VOYAGE_BOARDS,
+  VOYAGE_CONSEQUENCES,
+  VOYAGE_ORDERS,
+  aboardLines,
+  actOf,
+} from '../gameOfCaptains/voyageMap'
 import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
 import {
   blankNode,
@@ -19,13 +27,15 @@ import {
   type PlaybookRoute,
 } from './types'
 
-// Playbook Studio adapter for This Means Warp (conductor playbook-kit t-013):
+// Playbook Studio adapter for Space Couch (conductor playbook-kit t-013):
 // the runtime voyage as beats. Captains open a run, crew are its followers,
-// three missions form the chapter spine with the bridge's three policies,
-// special pair routes are threads, antagonists wait at the finale and four
-// endings close it. Art slots are the keys the play page shows
-// (gameOfCaptains/artSlots.ts); text is authored in code, so beats are
-// read-only here.
+// the voyage chart (gameOfCaptains/voyageMap.ts) is the chapter spine, one
+// board of calls per chapter across Act I and Act II, each call with its
+// three orders, earlier-choice callbacks and officer asides. Pair routes are
+// threads, antagonists wait at the finale and four endings close it. Art
+// slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
+// their prompts live in gameOfCaptains/artPrompts.ts; text is authored in
+// code, so beats are read-only here.
 
 const RESULT_TEXT = {
   flawless:
@@ -114,37 +124,62 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     add(withArt(node, crewArtKey(member.portraitKey)))
   }
 
-  MISSIONS.forEach((mission, index) => {
+  const boardOf = (id: string) =>
+    VOYAGE_BOARDS.findIndex((board) => board.includes(id))
+  const chapterName = (chapter: number) =>
+    `Act ${actOf(chapter) === 2 ? 'II' : 'I'}, chapter ${chapter}`
+  const crewIds = CREW.map((member) => member.id)
+  VOYAGE_BOARDS.flat().forEach((id, step) => {
+    const mission = MISSIONS.find((m) => m.id === id)!
+    const chapter = boardOf(id) + 1
     const node = blankNode(`mission:${mission.id}`, 'spine', mission.title)
     node.place = mission.system
-    node.chapter = index + 1
+    node.chapter = chapter
     node.body = [mission.briefing, mission.dilemma, mission.note]
     node.companions = SYNERGIES.filter((s) =>
       s.missions.includes(mission.id),
     ).flatMap((s) => [...s.pair])
     node.companions = [...new Set(node.companions)]
     node.lenses = [mission.kind]
-    node.variations = Object.entries(RESULT_TEXT).map(([key, text]) => ({
-      axis: 'result',
-      key,
-      label: `${titleCase(key)} return`,
-      text,
-    }))
-    const next = MISSIONS[index + 1]
+    node.variations = [
+      ...Object.entries(RESULT_TEXT).map(([key, text]) => ({
+        axis: 'result',
+        key,
+        label: `${titleCase(key)} return`,
+        text,
+      })),
+      ...(MISSION_CALLBACKS[mission.id] ?? []).map((callback) => ({
+        axis: 'earlier choice',
+        key: callback.flag,
+        label: `After ${callback.flag} (${callback.odds > 0 ? '+' : ''}${callback.odds}%)`,
+        text: callback.text,
+      })),
+      ...crewIds.flatMap((crewId) =>
+        aboardLines(mission.id, [crewId]).map((text) => ({
+          axis: 'aboard',
+          key: crewId,
+          label: `${CREW.find((c) => c.id === crewId)!.name} aboard`,
+          text,
+        })),
+      ),
+    ]
+    const next = VOYAGE_BOARDS[chapter]?.[0]
     node.choices = POLICIES.map((policy) => ({
       id: policy.id,
-      label: policy.label,
+      label: VOYAGE_ORDERS[mission.id]?.[policy.id] ?? policy.label,
       tags: [],
       effect: policy.effect,
-      success: { text: `${policy.text} ${mission.note}` },
-      leadsTo: next ? `mission:${next.id}` : 'finale',
+      success: {
+        text: `${policy.text} ${mission.note} ${VOYAGE_CONSEQUENCES[mission.id]?.[policy.id]?.text ?? ''}`.trim(),
+      },
+      leadsTo: next ? `mission:${next}` : 'finale',
     }))
     node.placements.push({
       route: 'voyage',
       routeName: 'The voyage',
-      day: index + 1,
-      dayName: `Chapter ${index + 1}`,
-      step: index,
+      day: chapter,
+      dayName: chapterName(chapter),
+      step,
     })
     add(withArt(node, missionArtKey(mission.id)))
   })
@@ -223,10 +258,13 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     {
       id: 'voyage',
       name: 'The voyage',
-      kind: 'Three missions, then the jump gate',
-      steps: [...MISSIONS.map((m) => `mission:${m.id}`), 'finale'],
+      kind: `${VOYAGE_BOARDS.length} chapters of calls, then the jump gate`,
+      steps: [...VOYAGE_BOARDS.flat().map((id) => `mission:${id}`), 'finale'],
       headings: Object.fromEntries(
-        MISSIONS.map((m, i) => [i, `Chapter ${i + 1}: ${m.system}`]),
+        VOYAGE_BOARDS.map((board, i) => [
+          VOYAGE_BOARDS.slice(0, i).flat().length,
+          chapterName(i + 1),
+        ]),
       ),
     },
   ]
@@ -238,7 +276,7 @@ export function buildThisMeansWarpPlaybook(): Playbook {
   return {
     game: 'game-of-captains',
     title: 'Space Couch',
-    blurb: 'Six captains, twelve crew, three missions and four endings.',
+    blurb: `Six captains, twelve crew, ${MISSIONS.length} missions across two acts and four endings.`,
     routes,
     nodes,
     order: storyOrder(routes, [

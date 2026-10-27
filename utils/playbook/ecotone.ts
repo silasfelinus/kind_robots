@@ -487,6 +487,8 @@ export function buildEcotonePlaybook(): Playbook {
     artProject: 'weird-humboldt',
     artLanes: ['zimage', 'krea2', 'arthemy', 'novacomic'],
     artNegative: 'anthro, furry',
+    artStyle:
+      'north coast california, coastal fog, redwood greens, teal and amber light',
     artPromptsComplete: true,
   }
 }

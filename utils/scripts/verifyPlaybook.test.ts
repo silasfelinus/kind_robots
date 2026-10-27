@@ -447,6 +447,18 @@ for (const lane of PLAYBOOK_ART_LANES) {
     assert.ok(body.checkpoint)
     assert.match(String(body.negativePrompt), /anthro, furry/)
   }
+  // A game's palette rides only on its own art.
+  const other = playbookArtRequest(lane, 'a couch in orbit', 'scene', 4, {
+    projectSlug: 'game-of-captains',
+    designer: 'Space Couch',
+  })
+  assert.doesNotMatch(String(other.promptString), /redwood|coastal fog/)
+  const ecotone = playbookArtRequest(lane, 'a slug on the bay', 'scene', 5, {
+    projectSlug: 'weird-humboldt',
+    designer: 'Ecotone',
+    style: buildPlaybook('ecotone').artStyle,
+  })
+  assert.match(String(ecotone.promptString), /redwood greens/)
 }
 
 // The admin route, its tab and the schema.

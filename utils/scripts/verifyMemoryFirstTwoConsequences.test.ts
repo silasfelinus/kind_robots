@@ -239,7 +239,11 @@ for (const [choice, room, source] of [
   const helped = darkHousePuzzleHint(atPuzzle, true)
   assert.notEqual(helped, atPuzzle)
   assert.equal(helped.puzzles[room]?.hint, true)
-  assert.equal(helped.spentEchoes, 0, 'Earned Oren support must not spend echoes')
+  assert.equal(
+    helped.spentEchoes,
+    0,
+    'Earned Oren support must not spend echoes',
+  )
   assert.ok(helped.puzzles[room]?.note.includes('Oren'))
   assert.equal(darkHousePuzzleHint(helped, true), helped)
   assert.equal(
@@ -249,10 +253,8 @@ for (const [choice, room, source] of [
     'Reloading cannot reclaim a second free hint',
   )
   assert.equal(
-    darkHousePuzzleHint(
-      { ...atPuzzle, decisions: { [room]: 'attend' } },
-      true,
-    ).puzzles[room],
+    darkHousePuzzleHint({ ...atPuzzle, decisions: { [room]: 'attend' } }, true)
+      .puzzles[room],
     undefined,
     'A decided room cannot consume another clue after completion',
   )

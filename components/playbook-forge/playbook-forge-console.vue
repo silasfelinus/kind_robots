@@ -65,11 +65,11 @@
                   ? 'Redshirt story atlas'
                   : forge.screen === 'ledger'
                     ? 'Production ledger'
-                  : forge.screen === 'gallery'
-                    ? 'Visual story atlas'
-                    : forge.screen === 'beats'
-                      ? 'Story editor'
-                      : 'Rehearsal'
+                    : forge.screen === 'gallery'
+                      ? 'Visual story atlas'
+                      : forge.screen === 'beats'
+                        ? 'Story editor'
+                        : 'Rehearsal'
               }}
             </p>
           </div>

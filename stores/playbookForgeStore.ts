@@ -947,13 +947,20 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
 
   /** The B button: one step back toward the title screen. */
   function openRedshirts() {
-    existing.value = EXISTING_PLAYBOOKS.find((entry) => entry.slug === 'game-of-captains') ?? null
+    existing.value =
+      EXISTING_PLAYBOOKS.find((entry) => entry.slug === 'game-of-captains') ??
+      null
     go('redshirts')
   }
 
   function back() {
     const from = screen.value
-    if (from === 'launch' || from === 'assumptions' || from === 'catalog' || from === 'redshirts')
+    if (
+      from === 'launch' ||
+      from === 'assumptions' ||
+      from === 'catalog' ||
+      from === 'redshirts'
+    )
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'

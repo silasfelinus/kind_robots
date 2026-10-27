@@ -107,7 +107,9 @@ for (const person of REDSHIRT_ROSTER) {
   const assignments = redshirtQuestLinks(person)
   assert.ok(assignments.length, person.id + ' has no expedition intersections')
   assert.ok(assignments.every((entry) => entry.skill === person.talent))
-  assert.ok(person.portraitPrompt.includes('red Space Couch expedition uniform'))
+  assert.ok(
+    person.portraitPrompt.includes('red Space Couch expedition uniform'),
+  )
 }
 const recruit = REDSHIRT_ROSTER[0]!
 const edit = baseRedshirtDraft(recruit)

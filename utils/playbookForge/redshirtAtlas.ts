@@ -63,7 +63,9 @@ export function redshirtPortraitPrompt(
     influence,
     'Brilliant bright red Space Couch expedition shirt, visible expedition mission insignia.',
     'Full-character composition with a distinct expressive face and silhouette.',
-  ].filter(Boolean).join(' ')
+  ]
+    .filter(Boolean)
+    .join(' ')
 }
 
 export function redshirtChanges(person: Redshirt, draft: RedshirtDraft) {
@@ -96,12 +98,17 @@ export function redshirtBrief(
   }
   if (changes.length) {
     lines.push('Proposed fields (review before editing the authored roster):')
-    for (const c of changes) lines.push(`- ${c.field}: ${c.before} -> ${c.after}`)
+    for (const c of changes)
+      lines.push(`- ${c.field}: ${c.before} -> ${c.after}`)
   }
   if (draft.note.trim()) lines.push('Direction: ' + draft.note.trim())
   lines.push(
     'Keep the regulation bright red Space Couch expedition uniform. Check authored portrait prompt and expedition outcomes after changing the canon.',
-    `Related playable expedition encounters for ${person.talent}: ${redshirtQuestLinks(person).map((q) => q.id).join(', ')}.`,
+    `Related playable expedition encounters for ${person.talent}: ${redshirtQuestLinks(
+      person,
+    )
+      .map((q) => q.id)
+      .join(', ')}.`,
     'These are skill-matched deployment opportunities, not yet unique redshirt quest arcs.',
   )
   return lines.join('\n')

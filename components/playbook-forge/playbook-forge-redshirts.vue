@@ -91,39 +91,83 @@
               @click="selectedId = person.id"
             >
               <span class="pf-art-card-frame relative block h-32">
-                <img v-if="atlas.portraits[person.id]?.imageUrl" :src="atlas.portraits[person.id]?.imageUrl ?? ''" :alt="person.name + ' portrait concept'" class="pf-art-card-img" />
-                <span v-else class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-base-300/85 px-2 text-center">
-                  <span class="pf-display text-2xl text-primary/70">{{ person.id }}</span>
-                  <span class="text-xs leading-snug opacity-85">{{ person.anatomy }}</span>
-                  <span class="pf-kicker text-[0.6rem] text-secondary">Portrait pending</span>
+                <img
+                  v-if="atlas.portraits[person.id]?.imageUrl"
+                  :src="atlas.portraits[person.id]?.imageUrl ?? ''"
+                  :alt="person.name + ' portrait concept'"
+                  class="pf-art-card-img"
+                />
+                <span
+                  v-else
+                  class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-base-300/85 px-2 text-center"
+                >
+                  <span class="pf-display text-2xl text-primary/70">{{
+                    person.id
+                  }}</span>
+                  <span class="text-xs leading-snug opacity-85">{{
+                    person.anatomy
+                  }}</span>
+                  <span class="pf-kicker text-[0.6rem] text-secondary"
+                    >Portrait pending</span
+                  >
                 </span>
               </span>
               <span class="block px-2 py-2">
-                <span class="pf-display block truncate text-base">{{ person.name }}</span>
-                <span class="pf-kicker block text-[0.6rem] text-secondary">{{ person.talent }} · {{ person.id }}</span>
+                <span class="pf-display block truncate text-base">{{
+                  person.name
+                }}</span>
+                <span class="pf-kicker block text-[0.6rem] text-secondary"
+                  >{{ person.talent }} · {{ person.id }}</span
+                >
               </span>
             </button>
           </div>
         </div>
       </div>
 
-      <aside v-if="selected && working" class="kr-scroll pf-panel min-h-0 space-y-3 p-3 @4xl:p-4" aria-label="Selected redshirt details">
-        <div class="grid grid-cols-[minmax(6rem,0.65fr)_minmax(0,1.35fr)] gap-3">
-          <div class="relative aspect-[3/4] overflow-hidden rounded-lg bg-base-300">
-            <img v-if="atlas.portraits[selected.id]?.imageUrl" :src="atlas.portraits[selected.id]?.imageUrl ?? ''" :alt="selected.name + ' portrait concept'" class="size-full object-cover" />
-            <span v-else class="flex size-full flex-col items-center justify-center gap-2 p-3 text-center text-xs">
-              <span class="pf-display text-3xl text-secondary">{{ selected.id }}</span>
+      <aside
+        v-if="selected && working"
+        class="kr-scroll pf-panel min-h-0 space-y-3 p-3 @4xl:p-4"
+        aria-label="Selected redshirt details"
+      >
+        <div
+          class="grid grid-cols-[minmax(6rem,0.65fr)_minmax(0,1.35fr)] gap-3"
+        >
+          <div
+            class="relative aspect-[3/4] overflow-hidden rounded-lg bg-base-300"
+          >
+            <img
+              v-if="atlas.portraits[selected.id]?.imageUrl"
+              :src="atlas.portraits[selected.id]?.imageUrl ?? ''"
+              :alt="selected.name + ' portrait concept'"
+              class="size-full object-cover"
+            />
+            <span
+              v-else
+              class="flex size-full flex-col items-center justify-center gap-2 p-3 text-center text-xs"
+            >
+              <span class="pf-display text-3xl text-secondary">{{
+                selected.id
+              }}</span>
               <span>{{ selected.anatomy }}</span>
               <span class="opacity-65">Original art not delivered</span>
             </span>
           </div>
           <div class="space-y-2">
-            <p class="pf-kicker text-secondary">{{ selected.id }} · {{ selected.talent }} specialist</p>
+            <p class="pf-kicker text-secondary">
+              {{ selected.id }} · {{ selected.talent }} specialist
+            </p>
             <h3 class="pf-display text-2xl">{{ selected.name }}</h3>
             <p class="text-sm">{{ selected.history }}</p>
-            <p class="text-sm"><strong>Secret:</strong> {{ selected.secretPower }}</p>
+            <p class="text-sm">
+              <strong>Secret:</strong> {{ selected.secretPower }}
+            </p>
             <div class="flex flex-wrap gap-1">
-              <span v-for="(rating, skill) in selected.stats" :key="skill" class="rounded bg-base-300 px-1.5 py-1 text-[0.68rem]">
+              <span
+                v-for="(rating, skill) in selected.stats"
+                :key="skill"
+                class="rounded bg-base-300 px-1.5 py-1 text-[0.68rem]"
+              >
                 {{ skill }} {{ rating }}
               </span>
             </div>
@@ -393,14 +437,23 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { usePlaybookForgeStore } from '~/stores/playbookForgeStore'
 import { usePlaybookForgeRedshirtsStore } from '~/stores/playbookForgeRedshirtsStore'
-import { REDSHIRT_ROSTER, redshirtChanges, redshirtQuestLinks, redshirtPortraitPrompt, type RedshirtAction, type RedshirtDraft } from '~/utils/playbookForge/redshirtAtlas'
+import {
+  REDSHIRT_ROSTER,
+  redshirtChanges,
+  redshirtQuestLinks,
+  redshirtPortraitPrompt,
+  type RedshirtAction,
+  type RedshirtDraft,
+} from '~/utils/playbookForge/redshirtAtlas'
 import { EXPEDITION_ENCOUNTERS } from '~/utils/gameOfCaptains/expedition'
 import type { CatalogItem, CatalogTab } from '~/utils/playbookForge/catalog'
 
 const forge = usePlaybookForgeStore()
 const atlas = usePlaybookForgeRedshirtsStore()
 const selectedId = ref(REDSHIRT_ROSTER[0]?.id ?? '')
-const selected = computed(() => REDSHIRT_ROSTER.find((person) => person.id === selectedId.value))
+const selected = computed(() =>
+  REDSHIRT_ROSTER.find((person) => person.id === selectedId.value),
+)
 const working = ref<RedshirtDraft | null>(null)
 const query = ref('')
 const overallIdea = ref('')
@@ -492,7 +545,8 @@ function clearReference() {
   working.value.referenceTab = ''
 }
 async function sendOverall() {
-  if (await atlas.submitRosterDirection(overallIdea.value)) overallIdea.value = ''
+  if (await atlas.submitRosterDirection(overallIdea.value))
+    overallIdea.value = ''
 }
 async function submit(action: RedshirtAction) {
   if (working.value) await atlas.submit(selectedId.value, working.value, action)

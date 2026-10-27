@@ -47,32 +47,32 @@ import {
 
 const RESULT_TEXT = {
   flawless:
-    'The returning team solved the immediate crisis and brought back information the bridge had missed.',
+    'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
   success:
-    'The crew achieved the mission objective, but the people affected still get to decide what it means.',
+    'The away team did what it went to do. The people affected are still deciding what that means.',
   costly:
-    'The team returns with a material debt and a person who may refuse further help.',
+    'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
   disaster:
-    'The planned route collapsed; the officers return through a costly emergency extraction.',
+    'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
 } as const
 
 const POLICIES = [
   {
     id: 'aid',
     label: 'Aid: offer help with informed consent',
-    text: 'You offer help, ask for informed consent and accept the operational costs. A civilian remembers your name.',
+    text: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     effect: 'supplies −1 · intervention +1 · reputation +2 · trust +1',
   },
   {
     id: 'observe',
     label: 'Observe: keep your distance and record',
-    text: 'You remain at a distance and record what happened. Neutrality protects the treaty, but the survivors saw your ship.',
+    text: 'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
     effect: 'intervention −1 · reputation −1 · trust −1',
   },
   {
     id: 'intervene',
     label: 'Intervene without diplomatic permission',
-    text: 'You take direct action without waiting for diplomatic permission. Lives change quickly; sovereignty will remember.',
+    text: 'You act without permission. It works quickly, and the paperwork will take years.',
     effect: 'supplies −2 · intervention +2 · reputation −2',
   },
 ] as const

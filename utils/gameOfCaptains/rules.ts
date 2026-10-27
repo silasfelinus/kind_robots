@@ -313,10 +313,10 @@ export const MISSIONS = [
     title: 'The Last Lifeboat',
     kind: 'rescue',
     briefing:
-      'A drifting refugee convoy has two vessels and one working life support unit. The local treaty forbids interference. The children on both ships were not consulted.',
+      'Two refugee transports are drifting off Hollow Lantern with one working life-support unit between them, passed back and forth on a cable every forty minutes. The local treaty forbids outside assistance without a stamped request. The stamp is aboard whichever ship currently does not have the air.',
     dilemma:
-      'The convoy asks for help. Its home government insists that help would be a violation of sovereign customs.',
-    note: 'The living matter more than a legal metaphor.',
+      'The convoy has asked for help in writing. Its home government has replied, also in writing, that help would breach sovereign customs, and has attached the customs, which run to nine volumes and do not mention air.',
+    note: 'The customs ran to nine volumes. Breathing was not in the index.',
   },
   {
     id: 'archive',
@@ -324,10 +324,10 @@ export const MISSIONS = [
     title: 'The Library Planet',
     kind: 'science',
     briefing:
-      'A sentient planetary library will not evacuate before a stellar flare. It has accepted this risk on behalf of visitors who were never asked.',
+      'The Tellurian Archive, a sentient library the size of a continent, has declined to evacuate ahead of a stellar flare. It has also declined on behalf of its four thousand visiting readers, under a clause in the library card that none of them read. They are reading it now.',
     dilemma:
-      'The library offers to save its catalog if you surrender the coordinates of an uncontacted civilization.',
-    note: 'Knowledge can be a gift or a threat.',
+      'The Archive will save its catalogue, and its readers, if the couch hands over the coordinates of a civilization that has never been catalogued. The civilization has not been asked, and would very much prefer not to be.',
+    note: 'Clause forty-one of the library card is now the most-read text on the planet.',
   },
   {
     id: 'bar',
@@ -335,10 +335,10 @@ export const MISSIONS = [
     title: 'The Patron Who Was Never Here',
     kind: 'diplomacy',
     briefing:
-      'Vox refuses to identify a patron whose debt was paid by a missing diplomat. Serendipity has made gravity itself conceal a witness.',
+      'Someone is hiding at Serendipity. Vox will not say who, on principle, and the bar has bent its gravity so that one corner table sits on the ceiling, which is not a principle but is very effective. A creditor has arrived with a warrant, taken a stool, and ordered a drink he intends to put on the bar’s tab.',
     dilemma:
-      'Someone is safe only because the bar keeps its promise. Exposing them could stop the antagonist; it could also destroy sanctuary for everyone.',
-    note: 'Neutral ground can still have a heart.',
+      'The patron on the ceiling is the only witness against the creditor’s employer. Giving them up could end the voyage’s worst problem in an afternoon. It would also end the only neutral bar between worlds, whose single selling point is that it does not give people up.',
+    note: 'Neutral ground is a policy. Serendipity also has feelings about it.',
   },
   ...ACT_ONE_MISSIONS,
   ...ACT_TWO_MISSIONS,
@@ -813,13 +813,13 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
           : 'disaster'
   const base = {
     flawless:
-      'The returning team solved the immediate crisis and brought back information the bridge had missed.',
+      'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
     success:
-      'The crew achieved the mission objective, but the people affected still get to decide what it means.',
+      'The away team did what it went to do. The people affected are still deciding what that means.',
     costly:
-      'The team returns with a material debt and a person who may refuse further help.',
+      'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
     disaster:
-      'The planned route collapsed; the officers return through a costly emergency extraction.',
+      'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
   }[grade]
   const chosen =
     active.party.map((id) => CREW.find((c) => c.id === id)!.name).join(' · ') ||
@@ -869,11 +869,11 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
     return run
   const mission = missionFor(run)
   const responses: Record<PolicyId, string> = {
-    aid: 'You offer help, ask for informed consent and accept the operational costs. A civilian remembers your name.',
+    aid: 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
     observe:
-      'You remain at a distance and record what happened. Neutrality protects the treaty, but the survivors saw your ship.',
+      'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
     intervene:
-      'You take direct action without waiting for diplomatic permission. Lives change quickly; sovereignty will remember.',
+      'You act without permission. It works quickly, and the paperwork will take years.',
   }
   return {
     ...run,
@@ -1056,7 +1056,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       ...run,
       phase: 'finale',
       scene:
-        'Your antagonist waits at the jump gate. On the red couch the crew asks what kind of captain you became. The force bubble holds; your moral shelter is another matter.',
+        'Your nemesis waits at the jump gate. The force bubble holds. On the cushions, the crew would like a word about what kind of captain you turned out to be.',
     }
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER

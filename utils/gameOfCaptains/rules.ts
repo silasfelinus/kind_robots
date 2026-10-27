@@ -375,7 +375,12 @@ export type VoyageRun = {
   }[]
   worldFlags?: string[]
   redshirtRoster?: string[]
-  redshirtFallen?: { id: string; chapter: number; encounterId: string; missionId: string }[]
+  redshirtFallen?: {
+    id: string
+    chapter: number
+    encounterId: string
+    missionId: string
+  }[]
   expeditionVisit?: ExpeditionVisit | null
   expeditionHistory?: ExpeditionVisit[]
   day?: number
@@ -580,7 +585,9 @@ export function chooseMission(run: VoyageRun, id: string): VoyageRun {
   if (
     run.phase !== 'briefing' ||
     missionFor(run).id === id ||
-    (run.expeditionHistory ?? []).some((visit) => visit.chapter === run.chapter) ||
+    (run.expeditionHistory ?? []).some(
+      (visit) => visit.chapter === run.chapter,
+    ) ||
     !missionBoard(run).some((item) => item.id === id)
   )
     return run
@@ -1175,11 +1182,18 @@ export function finishVoyage(
     ]
   })
   const redshirts = (run.redshirtFallen ?? [])
-    .map(loss => `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id} is remembered by name, not recruitment number, after ${loss.missionId}. Their bright red uniform hangs beside the others.`)
+    .map(
+      (loss) =>
+        `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id} is remembered by name, not recruitment number, after ${loss.missionId}. Their bright red uniform hangs beside the others.`,
+    )
     .join(' ')
-  const expeditionSecrets = (run.expeditionHistory ?? []).flatMap(visit =>
-    visit.results.filter(r => r.secret).map(r => r.outcome.split('SECRET DETOUR: ')[1] ?? r.outcome)
-  ).join(' ')
+  const expeditionSecrets = (run.expeditionHistory ?? [])
+    .flatMap((visit) =>
+      visit.results
+        .filter((r) => r.secret)
+        .map((r) => r.outcome.split('SECRET DETOUR: ')[1] ?? r.outcome),
+    )
+    .join(' ')
   const civic = (run.missionHistory ?? [])
     .map((event) => {
       const detail =
@@ -1262,16 +1276,37 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
       (!Array.isArray(data.redshirtRoster) ||
         data.redshirtRoster.length > 12 ||
         new Set(data.redshirtRoster).size !== data.redshirtRoster.length ||
-        data.redshirtRoster.some(id => typeof id !== 'string' || !/^rs-\d{3}$/.test(id) || Number(id.slice(3)) < 1 || Number(id.slice(3)) > 100))) ||
+        data.redshirtRoster.some(
+          (id) =>
+            typeof id !== 'string' ||
+            !/^rs-\d{3}$/.test(id) ||
+            Number(id.slice(3)) < 1 ||
+            Number(id.slice(3)) > 100,
+        ))) ||
     (data.redshirtFallen !== undefined &&
       (!Array.isArray(data.redshirtFallen) ||
-        data.redshirtFallen.some(loss => !loss || typeof loss.id !== 'string' || !/^rs-\d{3}$/.test(loss.id) || typeof loss.encounterId !== 'string'))) ||
+        data.redshirtFallen.some(
+          (loss) =>
+            !loss ||
+            typeof loss.id !== 'string' ||
+            !/^rs-\d{3}$/.test(loss.id) ||
+            typeof loss.encounterId !== 'string',
+        ))) ||
     (data.expeditionHistory !== undefined &&
       (!Array.isArray(data.expeditionHistory) ||
         data.expeditionHistory.length > VOYAGE_CHAPTERS ||
-        data.expeditionHistory.some(visit => !visit || !Number.isInteger(visit.chapter) || !Array.isArray(visit.results) || !Array.isArray(visit.encounterIds)))) ||
-    (data.phase === 'expedition' && (!data.expeditionVisit || data.expeditionVisit.chapter !== data.chapter ||
-      !Array.isArray(data.expeditionVisit.encounterIds) || !Array.isArray(data.expeditionVisit.results))) ||
+        data.expeditionHistory.some(
+          (visit) =>
+            !visit ||
+            !Number.isInteger(visit.chapter) ||
+            !Array.isArray(visit.results) ||
+            !Array.isArray(visit.encounterIds),
+        ))) ||
+    (data.phase === 'expedition' &&
+      (!data.expeditionVisit ||
+        data.expeditionVisit.chapter !== data.chapter ||
+        !Array.isArray(data.expeditionVisit.encounterIds) ||
+        !Array.isArray(data.expeditionVisit.results))) ||
     !Array.isArray(data.log) ||
     typeof data.supplies !== 'number' ||
     typeof data.trust !== 'number' ||

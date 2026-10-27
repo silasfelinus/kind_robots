@@ -206,6 +206,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const darkHouseTrialComplete = computed(() =>
     darkHouseTrialSolved(darkHouse.value, darkHouse.value.current),
   )
+  const darkHouseEarnedClue = computed(() =>
+    earnedDarkHousePuzzleClue(state.value, darkHouse.value.current),
+  )
   const darkHouseEchoCount = computed(() => darkHouseEchoes(darkHouse.value))
   const darkHouseScarCount = computed(() => darkHouseStrain(darkHouse.value))
   const darkHouseEndingCopy = computed(() =>

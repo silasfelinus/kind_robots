@@ -1,3 +1,4 @@
+import { missionReaction, missionRoute, reactionSuitability } from './missionTeams'
 import {
   openingRouteFor,
   isVowMemory,
@@ -797,6 +798,43 @@ export function assignTeam(
   }
 }
 
+export function dispatchModifier(run: AcademyRun, incident: Incident, students: readonly StudentId[]): number {
+  const affinity = students.some((id) => STUDENTS.find((person) => person.id === id)?.skill === incident.need)
+  const cityStanding = run.cityStanding ?? 0
+  const academyStanding = run.academyStanding ?? 0
+  const civicSupport = [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+    ? incident.allegiance === 'villain' ? cityStanding <= -2 ? 1 : cityStanding >= 2 ? -1 : 0
+      : cityStanding >= 2 ? 1 : cityStanding <= -2 ? -1 : 0 : 0
+  const academySupport = [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+    ? academyStanding >= 2 ? 1 : academyStanding <= -2 ? -1 : 0 : 0
+  const reportedNetwork = run.plotEvidence?.length ?? 0
+  const activeNetwork = run.flowVersion === 3 && run.day >= 11 &&
+    reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
+  const sabotagePenalty = activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
+  const identityPressure = run.flowVersion === 3 && run.day >= 15 &&
+    incident.allegiance !== 'villain' ? opponentPressure(run.signature, run.opponentSignature) : 0
+  const response = run.flowVersion === 3 ? Math.max(-2, Math.min(2, students.reduce((total, id) =>
+    total + reactionSuitability(missionReaction(id, incident.id).mood), 0))) : 0
+  const route = run.flowVersion === 3 ? missionRoute(incident.id, students) : null
+  return students.length + (affinity ? 2 : 0) + (run.power === incident.need ? 1 : 0) +
+    civicSupport + academySupport - sabotagePenalty - identityPressure +
+    (run.flowVersion === 3 ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
+      socialMissionBonus(run.relationships, [...students]) : 0) +
+    response + (route?.boost ?? 0)
+}
+
+export function dispatchChance(run: AcademyRun, caseId: string, students: readonly StudentId[]): number {
+  const incident = incidentsFor(run).find((item) => item.id === caseId)
+  if (!incident || !students.length || students.length > 3 ||
+      new Set(students).size !== students.length ||
+      students.some((id) => !STUDENTS.some((member) => member.id === id) ||
+        (run.flowVersion === 3 && !studentAvailable(run, id)))) return 0
+  const baseline = dispatchModifier(run, incident, students)
+  return Math.round(100 * [0, 1, 2, 3, 4, 5].filter(
+    (roll) => roll + baseline >= incident.risk,
+  ).length / 6)
+}
+
 export function resolveDispatch(run: AcademyRun): AcademyRun {
   if (run.phase !== 'dispatch' || run.assignments.length === 0) return run
   let influence = run.influence
@@ -819,72 +857,13 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
             : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
     }
-    const affinity = assignment.students.some(
-      (id) =>
-        STUDENTS.find((person) => person.id === id)?.skill === incident.need,
-    )
     const roll =
-      hash(
-        run.seed,
-        `${run.day}:${incident.id}:${assignment.students.join(',')}`,
-      ) % 6
-    // Residents and classmates remember the player's prior decisions.
-    // City goodwill helps public rescues; underworld contacts aid covert
-    // operations. Neither modifies the original training-save outcomes.
-    const cityStanding = run.cityStanding ?? 0
-    const academyStanding = run.academyStanding ?? 0
-    const civicSupport =
-      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-        ? incident.allegiance === 'villain'
-          ? cityStanding <= -2
-            ? 1
-            : cityStanding >= 2
-              ? -1
-              : 0
-          : cityStanding >= 2
-            ? 1
-            : cityStanding <= -2
-              ? -1
-              : 0
-        : 0
-    const academySupport =
-      [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-        ? academyStanding >= 2
-          ? 1
-          : academyStanding <= -2
-            ? -1
-            : 0
-        : 0
-    const villain =
-      run.flowVersion === 3
-        ? campaignVillain(run.seed, run.mastermind)
-        : undefined
+      hash(run.seed, `${run.day}:${incident.id}:${assignment.students.join(',')}`) % 6
+    const score = roll + dispatchModifier(run, incident, assignment.students)
+    const villain = run.flowVersion === 3 ? campaignVillain(run.seed, run.mastermind) : undefined
     const reportedNetwork = run.plotEvidence?.length ?? 0
-    const activeNetwork =
-      run.flowVersion === 3 &&
-      run.day >= 11 &&
+    const activeNetwork = run.flowVersion === 3 && run.day >= 11 &&
       reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
-    const sabotagePenalty =
-      activeNetwork && incident.allegiance !== 'villain' ? 1 : 0
-    const identityPressure =
-      run.flowVersion === 3 &&
-      run.day >= 15 &&
-      incident.allegiance !== 'villain'
-        ? opponentPressure(run.signature, run.opponentSignature)
-        : 0
-    const score =
-      roll +
-      assignment.students.length +
-      (affinity ? 2 : 0) +
-      (run.power === incident.need ? 1 : 0) +
-      civicSupport +
-      academySupport -
-      sabotagePenalty -
-      identityPressure +
-      (run.flowVersion === 3
-        ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
-          socialMissionBonus(run.relationships, assignment.students)
-        : 0)
     const grade: Grade =
       score >= incident.risk + 4
         ? 'honors'
@@ -933,10 +912,12 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     const textWithBonds = bondedSupport
       ? `${baseText} Your negotiated field-partner and sidekick signals strengthen this team's coordination without removing their right to refuse.`
       : baseText
+    const special = run.flowVersion === 3 ? missionRoute(incident.id, assignment.students) : null
     const text =
       sabotagedBy && incident.allegiance !== 'villain'
         ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
         : textWithBonds
+    const resolvedText = special ? `${text} SPECIAL ROUTE: ${special.label}. ${special.result}` : text
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -952,7 +933,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       caseId: incident.id,
       title: incident.title,
       grade,
-      text,
+      text: resolvedText,
       names: assignment.students
         .map((id) => STUDENTS.find((s) => s.id === id)!.name)
         .join(' · '),

@@ -112,6 +112,8 @@ export type Playbook = {
   variationLabel: string
   dayLabel: string
   kindLabels: Partial<Record<NodeKind, string>>
+  /** Ledger and gallery section names, for games whose beats are not story kinds (a Fishopedia, a Bestiary). */
+  sectionLabels?: Partial<Record<NodeKind, string>>
   /** Text edits can go live in play (the game reads /api/playbook/<game>/live). Ecotone takes full card edits; the others a text overlay. */
   editable: boolean
   /** Conductor project slug that art requests are tagged to. */

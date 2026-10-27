@@ -192,9 +192,8 @@ for (const enemy of ANTAGONISTS) {
 function completeMission(run: ReturnType<typeof startVoyage>) {
   run = launchMission(run)
   assert.equal(run.phase, 'transit')
-  for (let i = 0; i < (run.active!.returnsDay - (run.day ?? 1)); i++) {
-    run = advanceVoyageDay(run)
-  }
+  const days = run.active!.returnsDay - (run.day ?? 1)
+  for (let i = 0; i < days; i++) run = advanceVoyageDay(run)
   assert.equal(run.phase, 'decision')
   return decidePolicy(run, 'aid')
 }

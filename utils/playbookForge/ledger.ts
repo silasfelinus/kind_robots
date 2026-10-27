@@ -332,7 +332,9 @@ export function buildLedger(
   const all = sections.flatMap((s) => s.units)
   const complete = all.filter(unitComplete).length
   const share = (score: (unit: LedgerUnit) => number) =>
-    plannedUnits ? all.reduce((n, unit) => n + score(unit), 0) / plannedUnits : 0
+    plannedUnits
+      ? all.reduce((n, unit) => n + score(unit), 0) / plannedUnits
+      : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
   // Encounters the plan calls for but the code has not built count as not
   // started, so two finished worlds of sixteen read as two of sixteen.
@@ -341,13 +343,15 @@ export function buildLedger(
   // A missing authored encounter is also missing its writing and image. Keep
   // those future production slots in all denominators, not just the percent.
   // Other gaps remain individually visible; they may overlap encounter slots.
-  const anchorGap = short ?? gaps.reduce<PlanGap | null>(
-    (largest, gap) =>
-      !largest || gap.planned - gap.built > largest.planned - largest.built
-        ? gap
-        : largest,
-    null,
-  )
+  const anchorGap =
+    short ??
+    gaps.reduce<PlanGap | null>(
+      (largest, gap) =>
+        !largest || gap.planned - gap.built > largest.planned - largest.built
+          ? gap
+          : largest,
+      null,
+    )
   const unbuiltUnits = anchorGap ? anchorGap.planned - anchorGap.built : 0
   const plannedUnits = units + unbuiltUnits
 
@@ -396,7 +400,9 @@ export function buildLedger(
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
     remainingSeconds:
       sections.reduce((n, s) => n + s.remainingSeconds, 0) +
-      Math.round(unbuiltUnits * secondsPerImage * (1 + options.assumptions.rerollRate)),
+      Math.round(
+        unbuiltUnits * secondsPerImage * (1 + options.assumptions.rerollRate),
+      ),
     remainingWords:
       sections.reduce((n, s) => n + s.remainingWords, 0) +
       unbuiltUnits * words.encounterBody,

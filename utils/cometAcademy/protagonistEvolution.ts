@@ -9,7 +9,9 @@ export type PlayerEvolution = {
   milestones: { day: 16 | 23; form: PlayerForm }[]
 }
 
-export function beginPlayerEvolution(form: PlayerForm = 'student'): PlayerEvolution {
+export function beginPlayerEvolution(
+  form: PlayerForm = 'student',
+): PlayerEvolution {
   return { form, protect: 0, exploit: 0, milestones: [] }
 }
 

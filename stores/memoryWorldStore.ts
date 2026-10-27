@@ -598,7 +598,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldActive.value = false
     minefieldHint.value = null
 
-    state.value = resumed.progress
+    state.value = recoveredCombat
     dark.value = resumedDark.progress
     darkHouse.value = restoredHouse
     crossMapSeals.value = restoredSeals

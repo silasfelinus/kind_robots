@@ -46,7 +46,7 @@
         >
           <img
             :src="forge.existing.cover"
-            :alt="${forge.existing.title} key art"
+            :alt="`${forge.existing.title} key art`"
             class="h-16 w-24 shrink-0 rounded-md border border-primary/40 object-cover shadow-lg @3xl:h-20 @3xl:w-36"
           />
           <div class="hidden min-w-0 @md:block">

@@ -189,7 +189,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
         ],
         art: null,
         source:
-          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts',
+          'utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, galacticEndings.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts',
       }
     },
   },

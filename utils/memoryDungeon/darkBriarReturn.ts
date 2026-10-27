@@ -1,7 +1,4 @@
-import {
-  recoverDarkBriarTurn,
-  type DarkBriarProgress,
-} from './darkBriar'
+import { recoverDarkBriarTurn, type DarkBriarProgress } from './darkBriar'
 
 export function settleDarkBriarReturn(
   progress: DarkBriarProgress,

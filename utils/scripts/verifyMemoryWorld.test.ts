@@ -872,7 +872,10 @@ for (const [index, wave] of BRIAR_REVEAL_WAVES.entries()) {
 const interruptionWave = BRIAR_REVEAL_WAVES[0]!
 const interruptionCards = createBriarWaveCards(
   interruptionWave,
-  Array.from({ length: interruptionWave.length / 2 }, (_, i) => `/memory-${i}.webp`),
+  Array.from(
+    { length: interruptionWave.length / 2 },
+    (_, i) => `/memory-${i}.webp`,
+  ),
   () => 0.4,
 )
 const interruptionPair = interruptionCards.filter((card) => card.pairId === 0)
@@ -989,9 +992,7 @@ assert.ok(
 const finalPair = {
   ...pendingMatch,
   mapCards: pendingMatch.mapCards.map((card) =>
-    card.pairId === 0
-      ? card
-      : { ...card, flipped: true, matched: true },
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
   ),
 }
 const completedOnReload = recoverBriarWaveTurn(

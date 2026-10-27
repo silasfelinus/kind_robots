@@ -3,6 +3,7 @@ import { CREW_PROFILES } from './crewAssignments'
 import { VOYAGE_CHAPTERS } from './voyageMap'
 import { TRIO_ADVENTURES_A } from './trioAdventuresA'
 import { TRIO_ADVENTURES_B } from './trioAdventuresB'
+import { TRIO_ADVENTURES_H } from './trioAdventuresH'
 
 /**
  * Party adventures (Silas, 2026-10-27, kind_robots#4182): the twelve crew
@@ -75,6 +76,7 @@ export const trioKey = (crew: readonly string[]) => [...crew].sort().join('-')
 export const TRIO_ADVENTURES: readonly TrioAdventure[] = [
   ...TRIO_ADVENTURES_A,
   ...TRIO_ADVENTURES_B,
+  ...TRIO_ADVENTURES_H,
 ]
 export const TRIO_BY_KEY: Readonly<Record<string, TrioAdventure>> =
   Object.fromEntries(

@@ -83,6 +83,7 @@ const prompts = computed<{ command: ConsoleCommand; label: string }[]>(() => {
     case 'kit':
       return [{ command: 'back', label: 'Back to the Forge' }]
     case 'catalog':
+    case 'redshirts':
     case 'gestation':
       return [
         { command: 'confirm', label: 'Select' },

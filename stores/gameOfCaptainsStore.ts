@@ -10,6 +10,13 @@ import {
   trioEpilogue,
   type TrioEndingIndex,
 } from '~/utils/gameOfCaptains/trioAdventures'
+import {
+  startWorldTravel,
+  arriveAtWorld,
+  deployExpedition,
+  leaveExpedition,
+  hireRedshirt,
+} from '~/utils/gameOfCaptains/expedition'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
@@ -85,6 +92,31 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function chartMission(missionId: string) {
     if (!run.value) return
     run.value = chooseMission(run.value, missionId)
+    persist()
+  }
+  function travel() {
+    if (!run.value) return
+    run.value = startWorldTravel(run.value)
+    persist()
+  }
+  function arrive() {
+    if (!run.value) return
+    run.value = arriveAtWorld(run.value)
+    persist()
+  }
+  function deploy(encounterId: string, lead: string) {
+    if (!run.value) return
+    run.value = deployExpedition(run.value, encounterId, lead)
+    persist()
+  }
+  function endExpedition() {
+    if (!run.value) return
+    run.value = leaveExpedition(run.value)
+    persist()
+  }
+  function hire() {
+    if (!run.value) return
+    run.value = hireRedshirt(run.value)
     persist()
   }
   function chooseRoom(room: PocketRoom | null) {
@@ -163,6 +195,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     assign,
     chooseRoom,
     chartMission,
+    travel,
+    arrive,
+    deploy,
+    endExpedition,
+    hire,
     rechargeShield,
     launch,
     advanceDay,

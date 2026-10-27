@@ -113,6 +113,7 @@ export type ForgeScreen =
   | 'analyze'
   | 'ledger'
   | 'gallery'
+  | 'redshirts'
   | 'beats'
   | 'kit'
   | 'gestation'
@@ -932,7 +933,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const returnTo = ref<ForgeScreen>('title')
 
   function go(next: ForgeScreen) {
-    if (next === 'assumptions' || next === 'launch' || next === 'catalog')
+    if (
+      next === 'assumptions' ||
+      next === 'launch' ||
+      next === 'catalog' ||
+      next === 'redshirts'
+    )
       returnTo.value = screen.value
     screen.value = next
     status.value = ''
@@ -940,9 +946,21 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   /** The B button: one step back toward the title screen. */
+  function openRedshirts() {
+    existing.value =
+      EXISTING_PLAYBOOKS.find((entry) => entry.slug === 'game-of-captains') ??
+      null
+    go('redshirts')
+  }
+
   function back() {
     const from = screen.value
-    if (from === 'launch' || from === 'assumptions' || from === 'catalog')
+    if (
+      from === 'launch' ||
+      from === 'assumptions' ||
+      from === 'catalog' ||
+      from === 'redshirts'
+    )
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'
@@ -1841,6 +1859,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     galleryFocused,
     gallerySection,
     openGallery,
+    openRedshirts,
     showTarget,
     focusEntry,
     galleryRenders,

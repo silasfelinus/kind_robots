@@ -17,6 +17,12 @@ import {
   SYNERGIES,
   MISSION_RULES,
 } from '../gameOfCaptains/crewAssignments'
+import {
+  ACT_ONE_BOARDS,
+  ACT_ONE_CONSEQUENCES,
+  ACT_ONE_NEMESIS,
+  ACT_ONE_ORDERS,
+} from '../gameOfCaptains/actOne'
 import { readFileSync } from 'node:fs'
 import {
   CREW_JOURNEYS,
@@ -48,6 +54,9 @@ import {
   detourFor,
   launchMission,
   missionFor,
+  missionBoard,
+  chooseMission,
+  worldEcho,
   nextDestination,
   restoreVoyage,
   startVoyage,
@@ -100,7 +109,7 @@ assert.equal(CREW.length, 12)
 assert.equal(CREW_PROFILES.length, 12)
 assert.equal(new Set(CREW.map((x) => x.id)).size, 12)
 assert.equal(SYNERGIES.length >= 8, true)
-assert.equal(MISSION_RULES.length, 3)
+assert.equal(MISSION_RULES.length, 9)
 for (const captain of CAPTAINS) {
   assert.equal(Object.keys(CAPTAIN_STATS[captain.id]).length, 6)
   assert.ok(CAPTAIN_DOSSIERS[captain.id].history.length > 80)
@@ -113,7 +122,7 @@ for (const member of CREW_PROFILES) {
   assert.ok(dossier.history.length > 70)
   assert.ok(dossier.crisis.length > 25 && dossier.nemesisLink.length > 25)
 }
-assert.equal(MISSIONS.length, 3)
+assert.equal(MISSIONS.length, 9)
 assert.ok(ANTAGONISTS.length >= 3)
 for (const captain of CAPTAINS) {
   for (const seed of [1, 2, 2026, 404, 777]) {
@@ -214,6 +223,174 @@ function completeMission(run: ReturnType<typeof startVoyage>) {
   assert.equal(run.phase, 'decision')
   return decidePolicy(run, 'aid')
 }
+// Act I star chart: different crews, destinations and civic policies lead to
+// different reachable missions, modifiers, witnesses and finale memories.
+assert.equal(ACT_ONE_BOARDS.length, 3)
+assert.equal(Object.keys(ACT_ONE_CONSEQUENCES).length, 9)
+assert.equal(Object.keys(ACT_ONE_NEMESIS).length, 8)
+for (const missionId of Object.keys(ACT_ONE_ORDERS)) {
+  const commands = ACT_ONE_ORDERS[missionId as keyof typeof ACT_ONE_ORDERS]
+  assert.equal(new Set(Object.values(commands)).size, 3, missionId)
+  const consequences =
+    ACT_ONE_CONSEQUENCES[missionId as keyof typeof ACT_ONE_CONSEQUENCES]
+  assert.equal(
+    new Set(Object.values(consequences).map((x) => x.flag)).size,
+    3,
+    missionId,
+  )
+}
+assert.equal(new Set(MISSIONS.map((m) => m.id)).size, 9)
+assert.equal(new Set(MISSIONS.map((m) => m.system)).size, 9)
+assert.deepEqual(
+  missionBoard(startVoyage('vale', ['pell', 'mox', 'rue'], 310)).map(
+    (m) => m.id,
+  ),
+  ['refugees', 'ashdock', 'windglass'],
+)
+for (const mission of MISSIONS) {
+  assert.ok(mission.briefing.length > 95)
+  assert.ok(mission.dilemma.length > 65)
+  assert.ok(MISSION_RULES.some((rule) => rule.id === mission.id))
+}
+let workerRoute = startVoyage('vale', ['pell', 'mox', 'rue'], 310)
+assert.equal(
+  chooseMission(workerRoute, 'gameworld'),
+  workerRoute,
+  'locked world',
+)
+workerRoute = chooseMission(workerRoute, 'ashdock')
+assert.equal(missionFor(workerRoute).id, 'ashdock')
+assert.equal(chooseMission(workerRoute, 'ashdock'), workerRoute)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(workerRoute))),
+  workerRoute,
+)
+workerRoute = launchMission(workerRoute)
+assert.equal(
+  chooseMission(workerRoute, 'refugees'),
+  workerRoute,
+  'no mid-flight teleport',
+)
+while (workerRoute.phase === 'transit')
+  workerRoute = advanceVoyageDay(workerRoute)
+workerRoute = decidePolicy(workerRoute, 'intervene')
+assert.equal(workerRoute.phase, 'debrief')
+assert.ok(workerRoute.worldFlags?.includes('ashdock-exposed'))
+assert.equal(workerRoute.missionHistory?.[0]?.missionId, 'ashdock')
+assert.ok(workerRoute.scene.includes('contractor'))
+assert.ok(worldEcho(workerRoute).includes('contractor'))
+workerRoute = nextDestination(workerRoute)
+assert.ok(missionBoard(workerRoute).some((m) => m.id === 'nacre'))
+workerRoute = chooseMission(workerRoute, 'nacre')
+assert.equal(missionFor(workerRoute).id, 'nacre')
+workerRoute = completeMission(workerRoute)
+assert.equal(workerRoute.missionHistory?.[1]?.missionId, 'nacre')
+workerRoute = nextDestination(workerRoute)
+assert.ok(missionBoard(workerRoute).some((m) => m.id === 'gameworld'))
+workerRoute = chooseMission(workerRoute, 'gameworld')
+workerRoute = completeMission(workerRoute)
+assert.equal(workerRoute.worldFlags?.length, 3)
+const workerEnding = finishVoyage(nextDestination(workerRoute), 'protect')
+const villainPressure = {
+  ...startVoyage('quill', ['mox', 'sora', 'omi'], 22),
+  chapter: 3,
+  missionId: 'gameworld',
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'showrunner'),
+}
+const ordinaryPressure = {
+  ...villainPressure,
+  antagonist: ANTAGONISTS.findIndex((a) => a.id === 'auditor'),
+}
+assert.equal(
+  previewMission(villainPressure).chance,
+  Math.max(5, previewMission(ordinaryPressure).chance - 10),
+  'a seeded nemesis changes the odds at the world it controls',
+)
+assert.ok(workerEnding.scene.includes('Ashdock Shipyards'))
+assert.ok(workerEnding.scene.includes('Nacre Assembly'))
+assert.ok(workerEnding.scene.includes('Gameworld'))
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(workerEnding))),
+  workerEnding,
+)
+
+let healerRoute = startVoyage('vale', ['vela', 'brin', 'tess'], 310)
+assert.equal(chooseMission(healerRoute, 'ashdock').phase, 'briefing')
+healerRoute = completeMission(healerRoute)
+assert.equal(healerRoute.worldFlags?.[0], 'convoy-invited')
+healerRoute = nextDestination(healerRoute)
+assert.ok(missionBoard(healerRoute).some((m) => m.id === 'haleth'))
+healerRoute = chooseMission(healerRoute, 'haleth')
+assert.equal(missionFor(healerRoute).id, 'haleth')
+const halethDispatch = assignAwayTeam(healerRoute, ['vela', 'brin'])
+assert.equal(
+  previewMission(halethDispatch).chance,
+  Math.min(
+    94,
+    previewMission({ ...halethDispatch, worldFlags: [] }).chance + 10,
+  ),
+)
+healerRoute = completeMission(healerRoute)
+healerRoute = nextDestination(healerRoute)
+assert.ok(missionBoard(healerRoute).some((m) => m.id === 'rootborne'))
+healerRoute = chooseMission(healerRoute, 'rootborne')
+const orchardDispatch = assignAwayTeam(healerRoute, ['vela', 'brin'])
+assert.equal(
+  previewMission(orchardDispatch).chance,
+  Math.min(
+    94,
+    previewMission({ ...orchardDispatch, worldFlags: [] }).chance + 10,
+  ),
+)
+healerRoute = completeMission(healerRoute)
+const healerEnding = finishVoyage(nextDestination(healerRoute), 'protect')
+assert.ok(healerEnding.scene.includes('Haleth Reef'))
+assert.ok(healerEnding.scene.includes('Rootborne Gardens'))
+assert.notEqual(healerEnding.scene, workerEnding.scene)
+assert.notDeepEqual(healerRoute.worldFlags, workerRoute.worldFlags)
+assert.ok(workerEnding.log.some((line) => line.includes('contractor')))
+assert.equal(
+  chooseMission(workerRoute, 'refugees'),
+  workerRoute,
+  'no post-mission reroute',
+)
+
+// A captain without diplomatic contacts is not automatically entitled to
+// every sealed hearing; their prior conduct has to change the route board.
+let sealedHearing = startVoyage('rex', ['pell', 'mox', 'jex'], 910)
+sealedHearing = completeMission(sealedHearing)
+sealedHearing = nextDestination(sealedHearing)
+assert.equal(
+  missionBoard(sealedHearing).some((m) => m.id === 'nacre'),
+  false,
+)
+assert.equal(
+  missionBoard(sealedHearing).some((m) => m.id === 'haleth'),
+  true,
+)
+const oldChapterTwo = { ...sealedHearing }
+delete oldChapterTwo.missionId
+delete oldChapterTwo.missionHistory
+delete oldChapterTwo.worldFlags
+assert.equal(missionFor(oldChapterTwo).id, 'archive')
+assert.ok(restoreVoyage(JSON.parse(JSON.stringify(oldChapterTwo))))
+assert.equal(restoreVoyage({ ...sealedHearing, missionId: 'invalid' }), null)
+assert.equal(
+  restoreVoyage({
+    ...sealedHearing,
+    missionHistory: [
+      {
+        chapter: 9,
+        missionId: 'bar',
+        system: 'Serendipity Space Bar',
+        policy: 'aid',
+        result: 'success',
+      },
+    ],
+  }),
+  null,
+)
+
 for (const member of CREW_PROFILES) {
   const crew = [
     member.id,
@@ -392,6 +569,9 @@ assert.ok(
 )
 assert.ok(page.includes('Space Couch | Kind Robots'))
 assert.ok(page.includes('data-testid="captains-odds"'))
+assert.ok(page.includes('data-testid="space-couch-route-board"'))
+assert.ok(page.includes('data-testid="space-couch-world-echo"'))
+assert.ok(page.includes('store.chartMission(call.id)'))
 assert.ok(page.includes('data-testid="captains-return-day"'))
 assert.ok(page.includes('crewProfile(member.id).portraitKey'))
 assert.ok(tab.includes('title: Space Couch'))

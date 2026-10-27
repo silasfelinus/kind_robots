@@ -282,6 +282,40 @@
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
+            <section
+              class="cap-route-board"
+              data-testid="space-couch-route-board"
+              aria-label="Act I galaxy navigation"
+            >
+              <div class="cap-route-heading">
+                <span>ACT I / STAR ROUTES</span>
+                <strong>CHOOSE ONE CALL</strong>
+              </div>
+              <div class="cap-route-grid">
+                <button
+                  v-for="(call, index) in routeBoard"
+                  :key="call.id"
+                  type="button"
+                  class="cap-route-option"
+                  data-testid="space-couch-route-option"
+                  :class="{ active: mission.id === call.id }"
+                  :aria-pressed="mission.id === call.id"
+                  @click="store.chartMission(call.id)"
+                >
+                  <span class="cap-route-node" aria-hidden="true">
+                    {{ index + 1 }}
+                  </span>
+                  <span class="cap-route-text">
+                    <strong>{{ call.system }}</strong>
+                    <small>{{ call.title }}</small>
+                  </span>
+                  <span class="cap-route-arrow" aria-hidden="true">›</span>
+                </button>
+              </div>
+              <p class="cap-route-memory" data-testid="space-couch-world-echo">
+                {{ routeEcho }}
+              </p>
+            </section>
             <div class="cap-heading">
               <span>03</span>
               <div>
@@ -530,7 +564,7 @@
               @click="store.decide('aid')"
             >
               <span
-                ><b>Offer consent-based help</b
+                ><b>{{ ethicalOrders.aid }}</b
                 ><small
                   >Spend supplies; earn trust without claiming authority.</small
                 ></span
@@ -543,7 +577,7 @@
               @click="store.decide('observe')"
             >
               <span
-                ><b>Observe the non-interference rule</b
+                ><b>{{ ethicalOrders.observe }}</b
                 ><small
                   >Preserve legal standing. Others live with the result.</small
                 ></span
@@ -556,7 +590,7 @@
               @click="store.decide('intervene')"
             >
               <span
-                ><b>Break protocol and take command</b
+                ><b>{{ ethicalOrders.intervene }}</b
                 ><small>Act now. Accept the outrage that follows.</small></span
               >
               ↗
@@ -872,6 +906,8 @@ import {
   previewMission,
   antagonistFor,
   missionFor,
+  missionBoard,
+  worldEcho,
   crewDetourOptions,
   detourFor,
   counterCrew,
@@ -884,6 +920,10 @@ import {
   SKILLS,
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
+import {
+  ACT_ONE_ORDERS,
+  type ActOneRouteId,
+} from '~/utils/gameOfCaptains/actOne'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   CREW_JOURNEYS,
@@ -934,6 +974,8 @@ const activeCaptain = computed(() =>
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
 )
+const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
+const routeEcho = computed(() => (run.value ? worldEcho(run.value) : ''))
 const antagonist = computed(() =>
   run.value ? antagonistFor(run.value) : ANTAGONISTS[0]!,
 )
@@ -958,6 +1000,9 @@ const nemesisCrewLink = computed(
 )
 const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
+)
+const ethicalOrders = computed(
+  () => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId],
 )
 const missionRule = computed(() => ruleFor(mission.value.id))
 const missionPreview = computed(() =>
@@ -1180,6 +1225,87 @@ function toggleAway(id: CrewId) {
   line-height: 1.55;
   max-width: 43ch;
   color: #d5e5ed;
+}
+.cap-route-board {
+  padding: 0.65rem;
+  border: 1px solid #91b8bf5e;
+  border-radius: 0.8rem;
+  background: linear-gradient(145deg, #142a3d, #1d2939 80%);
+  display: grid;
+  gap: 0.5rem;
+}
+.cap-route-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #c2dce3;
+}
+.cap-route-heading strong {
+  color: #f2caa6;
+}
+.cap-route-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.45rem;
+}
+.cap-route-option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 4rem;
+  padding: 0.5rem;
+  border: 1px solid #829eaf80;
+  border-radius: 0.6rem;
+  color: #ebf3f2;
+  text-align: left;
+  background: #243b4c;
+}
+.cap-route-option.active {
+  border-color: #ffd09f;
+  background: #5b473e;
+  box-shadow: inset 0 0 0 1px #e9b48680;
+}
+.cap-route-option:focus-visible {
+  outline: 3px solid #ffdcab;
+  outline-offset: 2px;
+}
+.cap-route-node {
+  display: grid;
+  place-items: center;
+  flex: 0 0 1.8rem;
+  height: 1.8rem;
+  border-radius: 100%;
+  border: 1px solid #b9d5d9;
+  color: #f9dcb4;
+  font-weight: 900;
+}
+.cap-route-text {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.cap-route-text strong {
+  font-size: 0.72rem;
+}
+.cap-route-text small {
+  font-size: 0.63rem;
+  line-height: 1.35;
+  color: #d0dfe2;
+}
+.cap-route-arrow {
+  margin-left: auto;
+  color: #ffd09f;
+  font-size: 1.35rem;
+}
+.cap-route-memory {
+  margin: 0;
+  color: #e5d6c8;
+  font-size: 0.7rem;
+  line-height: 1.4;
 }
 .cap-starmap {
   position: absolute;

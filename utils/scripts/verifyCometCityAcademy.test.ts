@@ -63,6 +63,7 @@ import {
   migrateSignatureId,
   signatureFor,
 } from '../cometAcademy/specialPowers'
+import { openingRouteFor, openingRouteDays } from '../cometAcademy/openingRoutes'
 import { readFileSync } from 'node:fs'
 import {
   POWERS,
@@ -1248,6 +1249,46 @@ assert.equal(restoreAcademy({ ...injuredRun, injuries: { mystery: 9 } }), null)
 assert.equal(
   restoreAcademy({ ...injuredRun, visitedDays: { mystery: 2 } }),
   null,
+)
+
+for (const vow of POWER_VOWS) {
+  assert.deepEqual(openingRouteDays(vow.id), [3, 10, 18, 25, 28])
+  const titles = new Set<string>()
+  for (const day of openingRouteDays(vow.id)) {
+    const run = {
+      ...startFullAcademy(fieldFor('mutant-genius'), 20261026, 'mutant-genius', vow.id),
+      day,
+      phase: 'campus' as const,
+    }
+    const event = openingRouteFor(run)
+    assert.ok(event)
+    titles.add(event.title)
+    assert.equal(event.options.length, 3)
+    assert.ok(event.scene.includes('Theo Lindqvist'))
+    assert.ok(event.scene.includes('mutant'))
+    assert.ok(event.scene.includes('Genius'))
+    assert.ok(event.options[0]!.text.includes(signatureFor('mutant', 'genius').name))
+    const outcome = chooseEncounter(run, event.options[0]!.id)
+    assert.equal(outcome.phase, 'dispatch')
+    assert.ok(outcome.log.some((line) => line.includes(event.title)))
+    assert.ok(outcome.influence > run.influence)
+    assert.ok(outcome.cityStanding !== undefined)
+  }
+  assert.equal(titles.size, 5, 'Each philosophy gets five nonrepeating personal adventures')
+}
+assert.equal(openingRouteFor(startFullAcademy(fieldFor('mutant-genius'), 4, 'mutant-genius', 'claim')), null)
+assert.notEqual(
+  openingRouteFor({
+    ...startFullAcademy(fieldFor('mutant-genius'), 14, 'mutant-genius', 'shelter'),
+    day: 3,
+    phase: 'campus',
+  })?.scene,
+  openingRouteFor({
+    ...startFullAcademy(fieldFor('mutant-genius'), 21, 'mutant-genius', 'shelter'),
+    day: 3,
+    phase: 'campus',
+  })?.scene,
+  'An opening promise should have seeded alternate complications',
 )
 
 const ngPlus = startFullAcademy(

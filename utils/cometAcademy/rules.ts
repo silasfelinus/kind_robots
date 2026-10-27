@@ -1,3 +1,4 @@
+import { openingRouteFor } from './openingRoutes'
 import {
   fieldFor,
   identityFor,
@@ -493,6 +494,8 @@ export function encounterFor(run: AcademyRun) {
       }
     }
   }
+  const personalStory = openingRouteFor(run)
+  if (personalStory) return personalStory
   if ([2, 3].includes(run.flowVersion ?? 0) && run.selectedSite) {
     const site = CITY_SITES.find((item) => item.id === run.selectedSite)
     if (site) {

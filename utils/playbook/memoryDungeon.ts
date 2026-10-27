@@ -145,6 +145,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
         place: 'The Memory Hearth',
         chapter: 2,
         body: [choice.outcome],
+        artPrompt: choice.artPrompt,
         artPath: `${ROOT}/house/ending-${choice.id}.webp`,
       }),
     ),
@@ -244,6 +245,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
         place: `Combat · ${room.enemy.hp} HP`,
         chapter: 6,
         body: [room.intro],
+        artPrompt: room.artPrompt,
         artPath: `${ROOT}/monsters/${room.enemy.name
           .toLowerCase()
           .replace(/^the\s+/, '')
@@ -317,6 +319,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       ending: 'Ending',
     },
     editable: false,
+    artPromptsComplete: true,
     artProject: 'memory-dungeon',
     artLanes: ['krea2'],
     artPipeline:

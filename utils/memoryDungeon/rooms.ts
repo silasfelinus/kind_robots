@@ -20,6 +20,8 @@ export type CombatRoom = {
   /** Tools on the weapon bar, after Scout (which every fight has). */
   loadout: WeaponId[]
   intro: string
+  /** The enemy's combat illustration. */
+  artPrompt: string
 }
 
 export const COMBAT_ROWS = 4
@@ -35,6 +37,8 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     loadout: ['twinblade', 'lantern'],
     intro:
       'The Moss Sprite giggles and counts down on its fingers. Match pairs before it pounces.',
+    artPrompt:
+      'A knee-high moss-covered sprite with a leaf cap, twig fingers and glinting green eyes springs from a gnarled oak branch, grinning, fingers spread as it counts down. A sunlit forest clearing below with dappled light on the moss. Medium shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
   },
   patrol: {
     enemy: { name: 'Thorn Patrol', hp: 8, attack: 2, every: 4 },
@@ -43,6 +47,8 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     loadout: ['twinblade', 'hammer', 'lantern'],
     intro:
       'A Thorn Patrol blocks the trail. Aim the Rune Hammer at pairs you remember.',
+    artPrompt:
+      'Two forest guards in bark armor wrapped with thorny vines, carrying narrow spears, block a narrow bramble road with their spears crossed, one tall and lean, one short and broad. Violet moonlight and a lantern hanging from a branch. Medium-wide shot. Hand-painted gouache and ink illustration in muted moss green, ember orange and slate blue.',
   },
   'vault-2': {
     enemy: { name: 'Rootbound Warden', hp: 12, attack: 2, every: 4 },
@@ -51,6 +57,8 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     loadout: ['twinblade', 'hammer', 'spear', 'staff', 'lantern'],
     intro:
       'The Rootbound Warden guards the Bramble Chime. Every action is a beat of its countdown.',
+    artPrompt:
+      'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, guards a small golden bell set on a root pedestal in a chamber lit by glowing glass memory jars. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
 }
 

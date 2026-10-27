@@ -53,7 +53,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '2,4',
     'The Camp That Knows You',
     'Your campfire is burning under a glass bell. Beside it sits the courier you thought you helped. Here, the courier remembers the price you never agreed to pay. There are two chairs and neither casts your shadow.',
-    'Enchanted dark mirror Briar camp under an enormous glass bell, two empty mismatched chairs, an anxious courier with sealed letters, familiar forest landmarks under reverse moonlight, cinematic frame, no text.',
+    "A travellers' campfire burns under an enormous glass bell jar in a forest clearing. Two empty mismatched wooden chairs sit beside it. An anxious young courier in a dark cloak sits on a log nearby clutching a bundle of sealed envelopes. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.",
     [
       {
         id: 'listen',
@@ -81,7 +81,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '3,4',
     'The Courier Who Received Both Letters',
     'Two royal orders lie opened on a roadside stone. Both were delivered, and both were followed. The courier is exhausted by the idea that you can solve this by choosing which to burn.',
-    'Cinematic fairy tale courier by a stone table with two opened wax-sealed orders, twin conflicting roads visible behind, violet dusk, no legible words.',
+    'A tired courier sits slumped beside a roadside stone on which two opened envelopes with broken red wax seals lie side by side. Behind the stone, the road splits into two diverging forks. Violet dusk. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'trace',
@@ -101,7 +101,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '4,4',
     'The Princesses Who Disagree with Your Memory',
     'Scylla reads the escort proclamation with immaculate outrage. Char has found her drawing on the back, but the skull looks like a warning now. They remember helping you. They disagree about who paid for it.',
-    'Two sturdy identical-faced adult princesses in tailored proper and unmistakably goth travelling attire, one gripping a decree, the other studying a sinister skull sketch, thick forest shadows, no text.',
+    'Scylla, a stout broad-shouldered adult woman with light brown skin, a chestnut braid and a small polished silver crown, in a tailored navy travel coat with brass buttons, grips a printed proclamation with an outraged expression, while Char, her twin with the same broad face and sturdy build, deep brown skin, black hair in a high braid, layered black velvet and lace, silver rings and chains, black lipstick and dark eye makeup, studies a charcoal skull drawn on its back. Thick forest shadows around them. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'scylla',
@@ -129,7 +129,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '4,3',
     'Oren’s Ledger of Absences',
     'Oren has counted every missing passenger twice, once under those who left, once under those nobody saw arrive. He does not remove his hood. He has placed his axe across a bridge to stop a stampede.',
-    'Masked royal headsman with broad axe laid across a bridge, exacting supply manifests covered with illegible tally marks, silhouettes of travelers on both banks, no text.',
+    'Oren Pike, a very tall broad man whose whole head is covered by a rough brown cloth executioner hood with two eyeholes, a heavy ceremonial axe and a leather apron of pouches, lays his axe across a narrow wooden bridge as a barrier and holds up a fat ledger. Crowds of travellers wait on both banks of the stream. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'counts',
@@ -149,7 +149,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '5,3',
     'The Manifest of Lost Tomorrows',
     'A ledger shows errands scheduled for people whose histories were removed. Someone has continued paying them for futures they can no longer imagine.',
-    'Dark fantasy office-like ledger chained to thorn tree, rows rendered as unreadable marks, ghostly workers waiting beside a winding forest road, no text.',
+    'A large ledger chained to a thorny tree beside a winding forest road, its pages full of tiny ink tallies. Pale translucent workers wait in a line beside it, holding out their hands for coins. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'publish',
@@ -169,7 +169,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '5,2',
     'The Sleeping Sigil Wakes',
     'The seal has opened, but it does not reveal a key. It reveals the name of someone you once called a monster, written in the handwriting of the person they protected.',
-    'A split sigil rooted in forest soil, contrasting handprints, reflected silhouettes of a wolf guard and a frightened villager, supernatural engraved marks but no lettering.',
+    'Half of a round carved stone seal lies in forest soil among roots. Two handprints are pressed into the soil beside it, one large and one small. Its reflection in a puddle shows a grey wolf standing guard over a frightened villager. Close-up. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'testify',
@@ -189,7 +189,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '5,4',
     'The Knight at the Wrong Bridge',
     'The Brass Knight stands guard over a crossing that never existed. People queue anyway because his perfect manners make it feel safer than admitting the road has gone.',
-    'Stout weathered brass knight carefully guarding an absent bridge, spectral travelers queuing before an impossible ravine, tragicomic twilight, no text.',
+    'A tall knight in dented brass plate armor stands at attention at the edge of a deep ravine where a bridge should be, open air in front of him. A line of pale travellers queues politely behind him. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'draw',
@@ -209,7 +209,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '6,4',
     'The Two Orders of the Crown',
     'A royal courier delivered both contradictory orders and now two neighborhoods have followed them into the same square. Both have documents proving they belong here.',
-    'Clashing small villages occupying overlapping fairy tale street plan, displaced townsfolk holding unreadable decrees, luminous mirrored borders, no text.',
+    'Two small villages squeezed into one cobbled square, their cottages overlapping. Two groups of townsfolk face each other, each holding papers with red wax seals. A pale glowing line runs across the cobbles between them. High-angle wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'mediate',
@@ -229,7 +229,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '6,3',
     'The House Has an Ear',
     'Its walls now listen without moving. The carved names from your first journey have become doorbells; to ring one is to summon a person who may not want to be found.',
-    'Living manor facade with individual brass bells and carved nameless lintels, dim lit windows with human silhouettes, heavy roots entwined with listening horns, no text.',
+    'The facade of a dark manor grown from roots, covered with dozens of small brass bells hung beside carved stone lintels. Brass listening horns curl out of the roots, and human shapes stand behind the dim windows. Wide shot from the path. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'consent',
@@ -249,7 +249,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '6,2',
     'The Unremembered House',
     'The Warden offers you a remarkable victory: erase every debt of memory by erasing everybody who remembers the debt. It would make the village happy, briefly, and leave nobody who could explain why.',
-    'Dark twin of living rooted manor, enormous memory vault containing luminous human testimonies, imposing Warden behind veil, doors opening onto contradictory outcomes, no text.',
+    'An enormous vault inside a root-grown manor, its shelves lined with glowing glass jars that each hold a small human figure. The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, stands behind a hanging grey veil. Three doorways open onto sunlit fields, a burning village and a snowy road. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'witness',
@@ -269,7 +269,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '2,5',
     'The Photograph with Two Shadows',
     'The Earth photo still shows Morrow carrying a box from the research office. A second shadow suggests someone tried to help. The image was true; your interpretation of it was incomplete.',
-    'Contemporary research office photograph seen through ghostly forest mirror, androgynous Morrow with moving box and another person reaching from doorway, no text.',
+    'A paper photograph pinned to a mirror hung on a tree in a dark forest. In the photograph, an androgynous adult in their thirties with short dark hair and a grey cardigan carries a cardboard box out of an office doorway while a second hand reaches out from the doorway to help, and two shadows fall on the pavement. Close-up. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'question',
@@ -297,7 +297,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '2,6',
     'The Rune That Reads Backward',
     'Leaf, leaf, sun becomes sun, leaf, leaf when the stones are held up to the sky. The inscription was not wrong. It was written for somebody walking in the other direction.',
-    'Three rune stones alongside reflected river, leaf and sun pictograms rearranged in reverse order, luminous moss, no words.',
+    'Three rune stones on the bank of a still river, carved with a sun, a leaf and a leaf. Their reflections in the water show the carvings in reverse order. Glowing moss covers the stones. Low shot at water level. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'reverse',
@@ -317,7 +317,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '3,6',
     'The Cache That Already Paid',
     'The wildflowers are gone from the creekside chest. An old receipt says they were used to buy medicine for someone who never knew a stranger had saved them.',
-    'Open mossy treasure box by a river containing only a silver receipt and one pressed wildflower, moonlit water, no text.',
+    'An open moss-covered wooden chest on a moonlit riverbank holds only a small silver receipt slip and a single pressed blue wildflower. Dark water laps at the sand beside it. Close-up from above. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'follow',
@@ -337,7 +337,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '4,6',
     'The People the Warden Forgot',
     'Three witnesses disagree about which monsters attacked the village. They agree on one point: the House took a memory as payment from each of them, and called their gratitude consent.',
-    'Three distinct adult witnesses gathered at a ruined bridge, fading storybook memories hovering in glass lanterns, faint manor in distance, no letters.',
+    'Three adults in worn village clothes stand at the ruins of a stone bridge, each holding a small glass lantern with a faint glowing scene inside. A dark manor stands on the far horizon. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'hear',
@@ -357,7 +357,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '4,5',
     'The Bridge That Never Burned',
     'In the first Briar you believed a bridge had burned. Here it has never been built, but ash lies beneath the river. Someone remembered a disaster so vividly that nobody dared build it.',
-    'Ash swirling below pristine river with absent wooden bridge, waiting workmen on banks of dark fairy forest, atmospheric cinematic landscape, no text.',
+    'A clear river with a swirl of grey ash beneath its surface. Two bare stone bridge footings face each other across the water with an open gap between them. Workmen with tools wait on both banks of the dark forest. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'build',
@@ -377,7 +377,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     '3,5',
     'A Traveler Who Took the Other Road',
     'A traveler emerges from the marsh with two maps: the road they walked and the road a borrowed voice described. Both routes have left scars. They want a say in where they go next.',
-    'Rugged adult wayfarer holding two overlapping translucent road maps through mirrored shadow-marsh, warm distant firelight, no text.',
+    'A rugged adult wayfarer in a mud-splashed coat wades out of a dark marsh holding two translucent paper road maps that overlap. Warm firelight glows from a distant cottage. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'apologize',

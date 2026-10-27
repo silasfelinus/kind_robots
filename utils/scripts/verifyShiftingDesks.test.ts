@@ -1898,6 +1898,14 @@ assert.match(
     ),
     /Personnel Archive/,
   )
+  const printed = asset('../../components/shifting-desks/shifting-desks-print-dossier.vue')
+  assert.match(printed, /<Teleport to="body">/, 'dossier escapes the game shell for print')
+  assert.match(printed, /:not\\(\\.shifting-desks-print-dossier\\)/, 'print removes surrounding game UI')
+  assert.match(printed, /receipt\\.id/, 'print souvenir uses the real receipt ID')
+  assert.match(printed, /matchingRun/, 'archived runs do not invent detailed incidents')
+  const fileView = asset('../../components/shifting-desks/shifting-desks-personnel-file.vue')
+  assert.match(fileView, /Print \\/ Save PDF/, 'printing is reachable on narrow screens')
+  assert.doesNotMatch(fileView, /Personnel File #4471/, 'no fictional file number')
 }
 
 console.log(

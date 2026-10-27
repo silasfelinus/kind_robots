@@ -29,6 +29,7 @@ export interface DarkBriarScene {
   originalCallback?: {
     key: string
     choice: string
+    alternateChoice: string
     line: string
     alternate: string
   }
@@ -69,10 +70,11 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     ],
     {
       key: '2,4',
-      choice: 'terms',
-      line: 'Your careful original bargain survives as a smudged signature beneath the bell.',
+      choice: 'copy',
+      alternateChoice: 'lend',
+      line: 'The impossible address you copied is pinned beneath the bell. Its intended recipient has finally come looking for the letter.',
       alternate:
-        'The silver flower you carried from Earth has become a pressed accusation.',
+        'The courier still carries the lantern you lent. Its cracked glass sheltered another traveler, though the undelivered letter remains a debt.',
     },
   ),
   '3,4': scene(
@@ -117,6 +119,7 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     {
       key: '4,4',
       choice: 'escort',
+      alternateChoice: 'question',
       line: 'The proclamation you accepted hangs here beside a list of people the carriage could not carry.',
       alternate:
         'Even the lantern from their skeptical offer now bears the seal of their court.',
@@ -284,9 +287,10 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
     {
       key: '2,5',
       choice: 'archive',
+      alternateChoice: 'grieve',
       line: 'You archived the original photo; the negative reveals the helping hand outside its frame.',
       alternate:
-        'The photo you left behind has returned anyway, complete with a hand the first print excluded.',
+        'You admitted how frightened you were for your stolen life. The returned photograph now shows a helping hand outside its first frame.',
     },
   ),
   '2,6': scene(
@@ -897,13 +901,14 @@ export function darkBriarOpening(
 ): string {
   const echo = scene.originalCallback
   if (!echo) return scene.opening
-  return (
-    scene.opening +
-    ' ' +
-    (original.sceneChoices[echo.key] === echo.choice
+  const selected = original.sceneChoices[echo.key]
+  const callback =
+    selected === echo.choice
       ? echo.line
-      : echo.alternate)
-  )
+      : selected === echo.alternateChoice
+        ? echo.alternate
+        : null
+  return callback ? `${scene.opening} ${callback}` : scene.opening
 }
 
 export function darkBriarCanChoose(

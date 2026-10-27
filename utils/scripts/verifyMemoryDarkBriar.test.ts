@@ -13,6 +13,7 @@ import {
   BRIAR_GATE,
 } from '../memoryDungeonWorld'
 import { createBriarWaveCards } from '../memoryDungeonWaves'
+import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import {
   DARK_BRIAR_KEYS,
   DARK_BRIAR_WAVES,
@@ -237,6 +238,57 @@ assert.ok(
 )
 assert.ok(
   darkBriarOpening(DARK_BRIAR_SCENES['2,5']!, original).includes('negative'),
+)
+
+// Mirrored story echoes are earned by an actual authored choice, not by
+// prologue flags, missing records, or unknown values in an old save.
+for (const mirrored of Object.values(DARK_BRIAR_SCENES)) {
+  const echo = mirrored.originalCallback
+  if (!echo) continue
+  const source = BRIAR_SCENES[echo.key]
+  assert.ok(source, `Missing original Briar scene for ${mirrored.key}`)
+  assert.deepEqual(
+    new Set([echo.choice, echo.alternateChoice]),
+    new Set(source.choices.map((choice) => choice.id)),
+    `Mirrored callback at ${mirrored.key} must cover both real Briar decisions`,
+  )
+  for (const [choice, line] of [
+    [echo.choice, echo.line],
+    [echo.alternateChoice, echo.alternate],
+  ] as const) {
+    const earned = restoreBriarSave({
+      ...newBriarSave(),
+      sceneChoices: { [echo.key]: choice },
+    })
+    const expected = `${mirrored.opening} ${line}`
+    assert.equal(darkBriarOpening(mirrored, earned), expected)
+    assert.equal(
+      darkBriarOpening(
+        mirrored,
+        restoreBriarSave(JSON.parse(JSON.stringify(earned))),
+      ),
+      expected,
+      'The earned story branch must survive a save round trip',
+    )
+  }
+  assert.equal(
+    darkBriarOpening(mirrored, newBriarSave()),
+    mirrored.opening,
+    'Unvisited original scenes must not invent a remembered decision',
+  )
+  assert.equal(
+    darkBriarOpening(mirrored, {
+      ...newBriarSave(),
+      sceneChoices: { [echo.key]: 'forged-choice' },
+    }),
+    mirrored.opening,
+    'Unknown original decisions must not select the alternate branch',
+  )
+}
+assert.equal(
+  darkBriarOpening(DARK_BRIAR_SCENES['2,4']!, original),
+  DARK_BRIAR_SCENES['2,4']!.opening,
+  'The prologue terms flag is not the courier lantern decision',
 )
 for (let wave = 1; wave < 4; wave++) {
   const previousChoices = JSON.stringify(dark.sceneChoices)

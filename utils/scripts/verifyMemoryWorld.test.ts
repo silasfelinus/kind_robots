@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { newDarkBriarProgress } from '../memoryDungeon/darkBriar'
+import {
+  DARK_BRIAR_WAVES,
+  newDarkBriarProgress,
+  restoreDarkBriarProgress,
+} from '../memoryDungeon/darkBriar'
 import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
 import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
 import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
@@ -1591,6 +1595,26 @@ assert.equal(
   restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
   null,
 )
+const malformedDarkDeck = {
+  ...checkpoint,
+  dark: {
+    ...checkpoint.dark,
+    mapCards: Array.from({ length: DARK_BRIAR_WAVES[0]!.length }, () => null),
+  },
+}
+assert.equal(
+  restoreMemoryCheckpoint(malformedDarkDeck),
+  null,
+  'A malformed nested Dark Briar deck cannot replace the current expedition',
+)
+const mixedCheckpoints = restoreMemorySaveSlots([malformedDarkDeck, checkpoint])
+assert.equal(mixedCheckpoints[0], null)
+assert.equal(mixedCheckpoints[1]?.briar.attempts, 9)
+assert.doesNotThrow(
+  () => restoreDarkBriarProgress(malformedDarkDeck.dark),
+  'An interrupted or damaged mirrored deck must never crash autosave recovery',
+)
+assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
 assert.match(
   worldStoreSource,
   /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumed\.progress/,

@@ -621,15 +621,17 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
       : []
   const validCards =
     cards.length === currentWave.length &&
-    new Set(cards.map((card) => card.tile)).size === currentWave.length &&
     cards.every(
       (card) =>
+        card !== null &&
+        typeof card === 'object' &&
         allowed.has(card.tile) &&
         typeof card.image === 'string' &&
         card.image.length > 0 &&
         Number.isSafeInteger(card.pairId) &&
         typeof card.matched === 'boolean',
     ) &&
+    new Set(cards.map((card) => card.tile)).size === currentWave.length &&
     [...new Set(cards.map((card) => card.pairId))].length ===
       currentWave.length / 2 &&
     [...new Set(cards.map((card) => card.pairId))].every(

@@ -408,11 +408,19 @@ let lovers = arriveAtRelationshipDebrief(
   startVoyage('fluke', ['vela', 'taal', 'omi'], 85),
 )
 assert.ok(romanceMoment(lovers)?.choices.some((c) => c.id === 'invite-fourple'))
-assert.equal(romanceStatus(lovers), undefined, 'crew appointment never implies romance')
+assert.equal(
+  romanceStatus(lovers),
+  undefined,
+  'crew appointment never implies romance',
+)
 lovers = chooseRomance(lovers, 'invite-fourple')
 assert.equal(romanceStatus(lovers), 'invited')
 assert.equal(romanceMoment(lovers), null, 'one decision per chapter')
-assert.equal(chooseRomance(lovers, 'invite-fourple'), lovers, 'double-submit is a no-op')
+assert.equal(
+  chooseRomance(lovers, 'invite-fourple'),
+  lovers,
+  'double-submit is a no-op',
+)
 assert.deepEqual(
   restoreVoyage(JSON.parse(JSON.stringify(lovers))),
   lovers,
@@ -431,15 +439,36 @@ lovers = nextDestination(lovers)
 assert.equal(lovers.phase, 'finale')
 const galacticEnding = finishVoyage(lovers, 'protect')
 const loveEnding = relationshipEpilogue(galacticEnding)
-assert.equal(loveEnding.ending, galacticEnding.ending, 'romance never overwrites galactic fate')
-assert.ok(loveEnding.scene.includes('Vela') && loveEnding.scene.includes('Taal') && loveEnding.scene.includes('Omi'))
-assert.deepEqual(relationshipEpilogue(loveEnding), loveEnding, 'epilogue is idempotent')
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(loveEnding))), loveEnding)
+assert.equal(
+  loveEnding.ending,
+  galacticEnding.ending,
+  'romance never overwrites galactic fate',
+)
+assert.ok(
+  loveEnding.scene.includes('Vela') &&
+    loveEnding.scene.includes('Taal') &&
+    loveEnding.scene.includes('Omi'),
+)
+assert.deepEqual(
+  relationshipEpilogue(loveEnding),
+  loveEnding,
+  'epilogue is idempotent',
+)
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(loveEnding))),
+  loveEnding,
+)
 
-let pressure = arriveAtRelationshipDebrief(startVoyage('quill', ['vela', 'taal', 'omi'], 96))
+let pressure = arriveAtRelationshipDebrief(
+  startVoyage('quill', ['vela', 'taal', 'omi'], 96),
+)
 pressure = chooseRomance(pressure, 'invite-fourple')
 pressure = arriveAtRelationshipDebrief(nextDestination(pressure))
-const noPressurePenalty = { supplies: pressure.supplies, trust: pressure.trust, crew: [...pressure.crew] }
+const noPressurePenalty = {
+  supplies: pressure.supplies,
+  trust: pressure.trust,
+  crew: [...pressure.crew],
+}
 pressure = chooseRomance(pressure, 'press')
 assert.equal(romanceStatus(pressure), 'rejected')
 assert.deepEqual(
@@ -447,19 +476,37 @@ assert.deepEqual(
   noPressurePenalty,
   'romantic rejection leaves command resources and staffing alone',
 )
-assert.equal(romanceMoment(arriveAtRelationshipDebrief(nextDestination(pressure))), null)
+assert.equal(
+  romanceMoment(arriveAtRelationshipDebrief(nextDestination(pressure))),
+  null,
+)
 
-let disengage = arriveAtRelationshipDebrief(startVoyage('vale', ['vela', 'taal', 'omi'], 117))
+let disengage = arriveAtRelationshipDebrief(
+  startVoyage('vale', ['vela', 'taal', 'omi'], 117),
+)
 disengage = chooseRomance(disengage, 'friends')
 assert.equal(romanceStatus(disengage), 'friends')
 assert.equal((disengage as RomanceVoyage).romance?.route, 'none')
-assert.equal(romanceMoment(arriveAtRelationshipDebrief(nextDestination(disengage))), null)
+assert.equal(
+  romanceMoment(arriveAtRelationshipDebrief(nextDestination(disengage))),
+  null,
+)
 
-let coldCaptain = arriveAtRelationshipDebrief(startVoyage('rex', ['vela', 'taal', 'omi'], 13), 'intervene')
+let coldCaptain = arriveAtRelationshipDebrief(
+  startVoyage('rex', ['vela', 'taal', 'omi'], 13),
+  'intervene',
+)
 coldCaptain = chooseRomance(coldCaptain, 'invite-fourple')
-coldCaptain = arriveAtRelationshipDebrief(nextDestination(coldCaptain), 'intervene')
+coldCaptain = arriveAtRelationshipDebrief(
+  nextDestination(coldCaptain),
+  'intervene',
+)
 coldCaptain = chooseRomance(coldCaptain, 'listen')
-assert.equal(romanceStatus(coldCaptain), 'rejected', 'ethical and trust choices can end a courtship')
+assert.equal(
+  romanceStatus(coldCaptain),
+  'rejected',
+  'ethical and trust choices can end a courtship',
+)
 
 for (const [crew, invite] of [
   [['rue', 'pell', 'mox'], 'invite-rue'],
@@ -474,11 +521,17 @@ for (const [crew, invite] of [
   solo = arriveAtRelationshipDebrief(nextDestination(solo), 'aid')
   solo = chooseRomance(solo, 'part')
   assert.equal(romanceStatus(solo), 'separated')
-  const epilogue = relationshipEpilogue(finishVoyage(nextDestination(solo), 'protect'))
-  assert.ok(epilogue.log.some((entry) => entry.startsWith('Relationship epilogue: ')))
+  const epilogue = relationshipEpilogue(
+    finishVoyage(nextDestination(solo), 'protect'),
+  )
+  assert.ok(
+    epilogue.log.some((entry) => entry.startsWith('Relationship epilogue: ')),
+  )
 }
 
-let noRomance = arriveAtRelationshipDebrief(startVoyage('ro', ['pell', 'mox', 'jex'], 29))
+let noRomance = arriveAtRelationshipDebrief(
+  startVoyage('ro', ['pell', 'mox', 'jex'], 29),
+)
 assert.equal(romanceMoment(noRomance), null)
 assert.equal(chooseRomance(noRomance, 'commit'), noRomance)
 noRomance = nextDestination(noRomance)

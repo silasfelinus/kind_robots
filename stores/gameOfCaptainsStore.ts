@@ -1,4 +1,5 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { visitCasinoVenue, type CasinoChoice } from '~/utils/gameOfCaptains/solarCircuit'
 import {
   chooseRomance as applyRomanceChoice,
   relationshipEpilogue,
@@ -119,6 +120,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = hireRedshirt(run.value)
     persist()
   }
+  function visitVenue(venue: 'bar' | 'casino', choice: CasinoChoice) {
+    if (!run.value) return
+    run.value = visitCasinoVenue(run.value, venue, choice)
+    persist()
+  }
   function chooseRoom(room: PocketRoom | null) {
     if (!run.value) return
     run.value = configurePocketRoom(run.value, room)
@@ -200,6 +206,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     deploy,
     endExpedition,
     hire,
+    visitVenue,
     rechargeShield,
     launch,
     advanceDay,

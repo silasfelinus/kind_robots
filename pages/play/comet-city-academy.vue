@@ -35,7 +35,7 @@
       :yearbook="store.yearbook"
       @start="startFromOpening"
     />
-    <div v-else class="cca-layout min-h-0 flex-1">
+    <div v-else-if="run" class="cca-layout min-h-0 flex-1">
       <section class="cca-stage" aria-label="Illustrated academy scene">
         <img
           :src="stageScenery"

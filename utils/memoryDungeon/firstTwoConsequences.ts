@@ -1,6 +1,6 @@
 import type { BriarSave } from '../memoryDungeonWorld'
 import type { DarkBriarProgress } from './darkBriar'
-import type { DarkHouseProgress } from './darkHouse'
+import type { DarkHouseProgress, DarkHouseEarnedClue } from './darkHouse'
 
 export type MemoryCustody = 'unset' | 'release' | 'renew' | 'break'
 export type CrossingAccord = 'unset' | 'return' | 'commons'
@@ -228,16 +228,18 @@ export function crossRealmConsequenceLedger(
   }
 }
 
-/** Oren's earned practical help can solve one matching problem without
- * spending an echo. A route plan aids navigation; counted supplies expose
- * the labor behind a debt. Neither grants a global free-hint entitlement. */
+/** Each earned clue is bound to a different House puzzle. Oren's practical
+ * help and the Vault witnesses' consent never become transferable currency. */
 export function earnedDarkHousePuzzleClue(
   briar: Pick<BriarSave, 'sceneChoices'>,
   room: string,
-): 'route' | 'supplies' | null {
-  const choice = briar.sceneChoices['4,3']
-  if (room === 'HD-03' && choice === 'plan') return 'route'
-  if (room === 'HD-25' && choice === 'load') return 'supplies'
+): DarkHouseEarnedClue | null {
+  const oren = briar.sceneChoices['4,3']
+  const witnesses = briar.sceneChoices['6,3']
+  if (room === 'HD-03' && oren === 'plan') return 'route'
+  if (room === 'HD-25' && oren === 'load') return 'supplies'
+  if (room === 'HD-08' && witnesses === 'remember') return 'names'
+  if (room === 'HD-34' && witnesses === 'protect') return 'consent'
   return null
 }
 

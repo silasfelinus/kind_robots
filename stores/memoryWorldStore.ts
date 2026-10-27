@@ -104,6 +104,7 @@ import {
   briarConnected,
   newBriarSave,
   restoreBriarSave,
+  recoverBriarCombatDefeat,
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,

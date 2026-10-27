@@ -188,20 +188,20 @@ const DARK_BRIAR_LEGACY_AUTHORED: Record<string, DarkBriarScene> = {
   '5,4': scene(
     '5,4',
     'The Knight at the Wrong Bridge',
-    'The Brass Knight stands guard over a crossing that never existed. People queue anyway because his perfect manners make it feel safer than admitting the road has gone.',
+    'The Brass Knight stands guard over a crossing that never existed. People queue because his manners make it easier than admitting the road has gone. Among their travel papers is a coffee-stained Earth photograph: two cups face an empty chair, and an unsent apology in your handwriting is folded behind it. Someone has been waiting for a reply as stubbornly as this knight waits for a bridge.',
     'A tall knight in dented brass plate armor stands at attention at the edge of a deep ravine where a bridge should be, open air in front of him. A line of pale travellers queues politely behind him. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     [
       {
         id: 'draw',
         label: 'Help the knight build a real crossing',
         outcome:
-          'There is no spell. You spend the night carrying planks. The knight learns a promise can be honored without its original object.',
+          'There is no spell. You spend the night carrying planks. The knight learns a promise can be honored without its original object. You preserve the photograph and its unsent apology in the Chronicle; building a bridge cannot decide whether the letter was ever delivered.',
       },
       {
         id: 'release',
         label: 'Release him from the oath',
         outcome:
-          'He walks away smiling; the queue panics. You must find another way for ordinary travelers to cross.',
+          'He walks away smiling; the queue panics. You must find another way for ordinary travelers to cross. You save the coffee-stained photograph and the unfinished apology for the Chronicle, refusing to mistake a released oath for a repaired relationship.',
       },
     ],
   ),

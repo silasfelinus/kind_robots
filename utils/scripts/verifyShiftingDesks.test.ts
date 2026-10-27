@@ -1053,7 +1053,19 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   const consent = WELLNESS.window_shift!
   assert.equal(consent.id, 'consent-window-rounds')
   assert.equal(consent.location_id, 'mutation-suite')
-  assert.equal(consent.applicants.length, 3)
+  assert.equal(consent.applicants.length, 4)
+  // The fourth volunteer (conductor shifting-desks t-047) starts awake and
+  // finishes asleep: the awake rule, read to the letter, voids her.
+  assert.deepEqual(consent.applicants.map((a) => byTheBook(a)).sort(), [
+    'approve',
+    'deny',
+    'deny',
+    'deny',
+  ])
+  assert.ok(
+    consent.applicants.every((a) => windowApplicant(`${WINDOW_PREFIX}${a.id}`)),
+    'consent volunteers resolve like Window 9 applicants',
+  )
   assert.ok(
     consent.applicants.every(
       (a) =>

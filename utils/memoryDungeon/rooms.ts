@@ -11,7 +11,13 @@ import {
   type WeaponId,
 } from './combat'
 
-export type CombatRoomId = 'vault-2' | 'sprite' | 'patrol'
+export type CombatRoomId =
+  | 'vault-2'
+  | 'sprite'
+  | 'patrol'
+  | 'hearth-guard'
+  | 'collector'
+  | 'twinned-guard'
 
 export type CombatRoom = {
   enemy: { name: string; hp: number; attack: number; every: number }
@@ -60,12 +66,62 @@ export const COMBAT_ROOMS: Record<CombatRoomId, CombatRoom> = {
     artPrompt:
       'The Rootbound Warden, a towering guardian of knotted oak roots with brass keys set into its bark like armor plates and a smooth carved wooden mask for a face, guards a small golden bell set on a root pedestal in a chamber lit by glowing glass memory jars. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
   },
+  // The House's own duels (HD-09, HD-22, HD-28) used to borrow the forest
+  // boards; each guardian now fights with its own tempo and tools.
+  'hearth-guard': {
+    enemy: { name: 'Hearth-Guard', hp: 10, attack: 1, every: 3 },
+    playerHp: 8,
+    focus: 2,
+    loadout: ['twinblade', 'lantern', 'staff'],
+    intro:
+      'The Hearth-Guard plants itself before the fire. Its markings pulse one, two, three, and it strikes on the third beat, never sooner.',
+    artPrompt:
+      'A man-sized defender shaped from glowing coal stands in front of a stone manor hearth in a wide fighting stance, fists raised. Three orange markings on its chest glow in a row, the third brightest. Sparks drift up around it. Firelight from below, deep green shadows in the room. Low-angle medium shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+  },
+  collector: {
+    enemy: { name: 'Index Collector', hp: 12, attack: 1, every: 2 },
+    playerHp: 9,
+    focus: 3,
+    loadout: ['twinblade', 'hammer', 'spear', 'lantern'],
+    intro:
+      'The Index Collector opens its ledger and counts every unpaired card aloud. Its sweeps come quickly but light, and it names each one before it lands.',
+    artPrompt:
+      'A tall thin figure clad in layered sheets of paper like overlapping armor plates and an ink-stained black coat sweeps one paper gauntlet across a stone archive hall. A grid of glowing pale squares hangs in the air before it, two columns lit brighter. Loose paper slips swirl around its feet. Cold blue light. Low-angle wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+  },
+  'twinned-guard': {
+    enemy: { name: 'Twinned Guard', hp: 14, attack: 2, every: 5 },
+    playerHp: 8,
+    focus: 3,
+    loadout: ['twinblade', 'spear', 'staff', 'lantern'],
+    intro:
+      'The Twinned Guard stand back to back, each shielding the other. Their blows are slow and heavy, and only matched pairs get past both shields.',
+    artPrompt:
+      'Two identical guardians in armor of rootwood and brass stand back to back in a stone hall, each holding a tall shield across the other. Between them, pairs of glowing matching tiles hover in the air. One raises a heavy mace. Cold light from a high window. Medium-wide shot. Hand-painted gouache and ink illustration, warm candlelight and deep green shadows.',
+  },
+}
+
+/** The House duel each guardian room launches (HD-09, HD-22, HD-28). */
+export const HOUSE_DUEL_ROOMS = {
+  'HD-09': 'hearth-guard',
+  'HD-22': 'collector',
+  'HD-28': 'twinned-guard',
+} as const satisfies Record<string, CombatRoomId>
+
+export type HouseDuelOrigin = keyof typeof HOUSE_DUEL_ROOMS
+
+export function isHouseDuelOrigin(
+  id: string | null | undefined,
+): id is HouseDuelOrigin {
+  return id === 'HD-09' || id === 'HD-22' || id === 'HD-28'
 }
 
 export function isCombatRoom(
   id: string | null | undefined,
 ): id is CombatRoomId {
-  return id === 'vault-2' || id === 'sprite' || id === 'patrol'
+  return (
+    typeof id === 'string' &&
+    Object.prototype.hasOwnProperty.call(COMBAT_ROOMS, id)
+  )
 }
 
 /** A saved combat room: the fight plus one image per pair id. */

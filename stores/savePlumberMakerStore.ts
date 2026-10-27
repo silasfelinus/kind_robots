@@ -27,6 +27,7 @@ export type PlumberReviewSummary = {
   average: number
   count: number
   myRating: number
+  myComment: string
   reviews: PlumberReview[]
 }
 const blankReviewSummary = (): PlumberReviewSummary => ({
@@ -34,6 +35,7 @@ const blankReviewSummary = (): PlumberReviewSummary => ({
   average: 0,
   count: 0,
   myRating: 0,
+  myComment: '',
   reviews: [],
 })
 const clone = (level: MakerLevel): MakerLevel => ({
@@ -131,7 +133,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   function paint(x: number, y: number) {
-    level.value = paintMakerTile(level.value, x, y, selectedTile.value)
+    const next = paintMakerTile(level.value, x, y, selectedTile.value)
+    if (next !== level.value) reviewSummary.value = blankReviewSummary()
+    level.value = next
   }
 
   function undo() {
@@ -153,6 +157,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   ) {
     pushUndo()
     level.value = validateMakerLevel({ ...level.value, ...patch })
+    reviewSummary.value = blankReviewSummary()
   }
 
   function newDraft() {
@@ -275,6 +280,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
         return
       }
       reviewSummary.value = res.data
+      reviewComment.value = res.data.myComment
       error.value = ''
     } finally {
       reviewsBusy.value = false

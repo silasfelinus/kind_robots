@@ -1008,6 +1008,11 @@ assert.match(
   /recoverBriarWaveTurn\(restoreBriarSave\(raw\), raw\)/,
   'Production hydration must actually invoke the interrupted-turn recovery',
 )
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /latestMapCardKey\.value = resumed\.firstTile/,
+  'Restored first flips remain visible in the large image preview',
+)
 
 assert.throws(() =>
   createBriarWaveCards(['2,4', '3,4'], ['/same.jpg', '/same.jpg']),

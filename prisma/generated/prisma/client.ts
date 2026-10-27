@@ -741,6 +741,11 @@ export type PitchSheet = Prisma.PitchSheetModel
  */
 export type Prompt = Prisma.PromptModel
 /**
+ * Model PlumberLevel
+ * 
+ */
+export type PlumberLevel = Prisma.PlumberLevelModel
+/**
  * Model Reaction
  * 
  */

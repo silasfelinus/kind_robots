@@ -477,6 +477,7 @@ export const ModelName = {
   NarratorThread: 'NarratorThread',
   PitchSheet: 'PitchSheet',
   Prompt: 'Prompt',
+  PlumberLevel: 'PlumberLevel',
   Reaction: 'Reaction',
   Resource: 'Resource',
   Reward: 'Reward',
@@ -545,7 +546,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5829,6 +5830,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PlumberLevel: {
+      payload: Prisma.$PlumberLevelPayload<ExtArgs>
+      fields: Prisma.PlumberLevelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlumberLevelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlumberLevelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        findFirst: {
+          args: Prisma.PlumberLevelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlumberLevelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        findMany: {
+          args: Prisma.PlumberLevelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>[]
+        }
+        create: {
+          args: Prisma.PlumberLevelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        createMany: {
+          args: Prisma.PlumberLevelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PlumberLevelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        update: {
+          args: Prisma.PlumberLevelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlumberLevelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlumberLevelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PlumberLevelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlumberLevelPayload>
+        }
+        aggregate: {
+          args: Prisma.PlumberLevelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlumberLevel>
+        }
+        groupBy: {
+          args: Prisma.PlumberLevelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlumberLevelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlumberLevelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlumberLevelCountAggregateOutputType> | number
+        }
+      }
+    }
     Reaction: {
       payload: Prisma.$ReactionPayload<ExtArgs>
       fields: Prisma.ReactionFieldRefs
@@ -10840,6 +10907,19 @@ export const PromptScalarFieldEnum = {
 export type PromptScalarFieldEnum = (typeof PromptScalarFieldEnum)[keyof typeof PromptScalarFieldEnum]
 
 
+export const PlumberLevelScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload',
+  userId: 'userId',
+  isPublic: 'isPublic'
+} as const
+
+export type PlumberLevelScalarFieldEnum = (typeof PlumberLevelScalarFieldEnum)[keyof typeof PlumberLevelScalarFieldEnum]
+
+
 export const ReactionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10864,6 +10944,7 @@ export const ReactionScalarFieldEnum = {
   projectId: 'projectId',
   facetId: 'facetId',
   tzaddikCandidateId: 'tzaddikCandidateId',
+  plumberLevelId: 'plumberLevelId',
   authorBotId: 'authorBotId',
   authorCharacterId: 'authorCharacterId'
 } as const
@@ -12800,6 +12881,15 @@ export const PromptOrderByRelevanceFieldEnum = {
 export type PromptOrderByRelevanceFieldEnum = (typeof PromptOrderByRelevanceFieldEnum)[keyof typeof PromptOrderByRelevanceFieldEnum]
 
 
+export const PlumberLevelOrderByRelevanceFieldEnum = {
+  fingerprint: 'fingerprint',
+  title: 'title',
+  payload: 'payload'
+} as const
+
+export type PlumberLevelOrderByRelevanceFieldEnum = (typeof PlumberLevelOrderByRelevanceFieldEnum)[keyof typeof PlumberLevelOrderByRelevanceFieldEnum]
+
+
 export const ReactionOrderByRelevanceFieldEnum = {
   comment: 'comment'
 } as const
@@ -14208,6 +14298,7 @@ export type GlobalOmitConfig = {
   narratorThread?: Prisma.NarratorThreadOmit
   pitchSheet?: Prisma.PitchSheetOmit
   prompt?: Prisma.PromptOmit
+  plumberLevel?: Prisma.PlumberLevelOmit
   reaction?: Prisma.ReactionOmit
   resource?: Prisma.ResourceOmit
   reward?: Prisma.RewardOmit

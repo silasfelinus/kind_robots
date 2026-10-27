@@ -138,7 +138,7 @@ export default defineEventHandler(async (event) => {
 
     const existingReaction = await prisma.reaction.findUnique({
       where: { id: reactionId },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, reactionCategory: true },
     })
 
     if (!existingReaction) {
@@ -152,6 +152,13 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to update this reaction.',
+      })
+    }
+
+    if (existingReaction.reactionCategory === 'PLUMBER_LEVEL') {
+      throw createError({
+        statusCode: 400,
+        message: 'Use /api/plumber-levels/reviews to change a course rating.',
       })
     }
 

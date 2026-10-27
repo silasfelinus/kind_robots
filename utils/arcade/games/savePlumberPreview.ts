@@ -334,6 +334,8 @@ export type PlumberRunOptions = {
   endless?: boolean
   /** The Endless run's zone seed (default: drawn from the rng). */
   endlessSeed?: number
+  /** A Maker playtest: run this actual course without touching campaign save slots. */
+  customLevel?: StageDef
 }
 
 const isWall = (s: number) =>
@@ -361,6 +363,8 @@ export class PlumberRun implements ArcadeGameInstance {
   modeTimer = 0
   menu = 0
   storyPanel = 0
+  /** Maker runs use the normal physics but never alter campaign progress. */
+  readonly customLevel: StageDef | null
   /** An Endless run: zone after zone, faster each time, scored in metres. */
   endless = false
   /** The Endless zone she is running (0 is the first). */
@@ -464,6 +468,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   constructor(options: ArcadeGameOptions, run: PlumberRunOptions = {}) {
     this.demo = options.demo
+    this.customLevel = run.customLevel ?? null
     this.autopilot = options.demo || run.autopilot === true
     this.sound = options.sound
     this.rng = options.rng
@@ -474,7 +479,11 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cursor = rosterIndex(this.heroineSeed)
     this.endlessBest = this.file.endlessBest
     this.loadSlotMemory(this.resume)
-    if (run.endless) {
+    if (this.customLevel) {
+      this.loadDef(this.customLevel)
+      this.stageIndex = 0
+      this.mode = 'play'
+    } else if (run.endless) {
       this.beginEndless(run.endlessSeed)
       if (this.autopilot) this.mode = 'play'
     } else if (this.autopilot) {
@@ -493,7 +502,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */
   get save(): PlumberFile | null | undefined {
-    if (this.demo) return undefined
+    if (this.demo || this.customLevel) return undefined
     const empty = this.file.slots.every((slot) => !slot)
     return empty && !this.file.endlessBest ? null : this.file
   }
@@ -600,7 +609,10 @@ export class PlumberRun implements ArcadeGameInstance {
         if (!this.modeTimer) this.afterDeath()
         return
       case 'clear':
-        if (!this.modeTimer) this.nextStage()
+        if (!this.modeTimer) {
+          if (this.customLevel) this.over = true
+          else this.nextStage()
+        }
         return
       case 'victory':
         if (
@@ -2555,13 +2567,15 @@ export class PlumberRun implements ArcadeGameInstance {
       this.deaths++
     }
     if (this.lives <= 0) {
-      this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
+      if (!this.customLevel)
+        this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
       this.setMode('over', 220)
       return
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
-    this.loadStage(this.stageIndex)
+    if (this.customLevel) this.loadDef(this.customLevel)
+    else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
     })
@@ -3188,7 +3202,9 @@ export class PlumberRun implements ArcadeGameInstance {
           this.renderBanner(
             g,
             'GAME OVER',
-            `Your file keeps ${this.stage.code} on the world map`,
+            this.customLevel
+              ? 'Try this course again from the Maker'
+              : `Your file keeps ${this.stage.code} on the world map`,
           )
     }
   }

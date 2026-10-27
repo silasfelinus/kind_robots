@@ -1158,6 +1158,15 @@ const SOLIDS: Record<string, number> = {
   ':': SOLID_BRIDGE,
 }
 
+/** Parser-supported symbols: the Maker must expose every mechanic when the engine grows. */
+export const STAGE_GLYPHS = Object.freeze([
+  '.',
+  '@',
+  'X',
+  ...Object.keys(SPAWNS),
+  ...Object.keys(SOLIDS),
+])
+
 /** The top cell of each vertical run of `mark`, left to right. */
 function pipeTops(def: StageDef, mark: string) {
   const tops: { col: number; row: number }[] = []

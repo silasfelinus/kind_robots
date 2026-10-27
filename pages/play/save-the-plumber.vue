@@ -30,7 +30,7 @@
         <!-- These are the shipped moving Krea world-map plates, not CSS-animated SVG shapes.
              A real still remains visible on unsupported codecs and for reduced motion. -->
         <div
-          v-if="screen !== 'play' && screen !== 'guide'"
+          v-if="screen !== 'play' && screen !== 'maker' && screen !== 'guide'"
           class="plumber-motion"
           aria-hidden="true"
         >
@@ -84,6 +84,14 @@
                     plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
                   }}
                   <span class="plumber-option-arrow">A</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('maker')"
+                >
+                  <span class="plumber-option-icon">▦</span>
+                  LEVEL MAKER <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -308,6 +316,15 @@
           </section>
 
           <section
+            v-else-if="screen === 'maker'"
+            key="maker"
+            class="plumber-view plumber-game-view"
+            aria-label="Save the Plumber Level Maker"
+          >
+            <ArcadePlumberLevelMaker :share-code="shareCode" />
+          </section>
+
+          <section
             v-else
             key="play"
             class="plumber-view plumber-game-view"
@@ -337,7 +354,9 @@
           >
             <b>B</b> MENU
           </button>
-          <span v-if="screen !== 'play'"><b>A</b> CONFIRM</span>
+          <span v-if="screen !== 'play' && screen !== 'maker'"
+            ><b>A</b> CONFIRM</span
+          >
           <span v-else>GAME CONTROLS ACTIVE</span>
         </div>
       </footer>
@@ -347,11 +366,16 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 
-type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'play'
-const screen = ref<Screen>('title')
+type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'maker' | 'play'
+const route = useRoute()
+const shareCode = computed(() =>
+  typeof route.query.level === 'string' ? route.query.level : undefined,
+)
+const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
@@ -413,7 +437,13 @@ function stepWorld(direction: number) {
     PLUMBER_WORLDS.length
 }
 function onScreenKey(event: KeyboardEvent) {
-  if (screen.value === 'play' || event.altKey || event.ctrlKey || event.metaKey)
+  if (
+    screen.value === 'play' ||
+    screen.value === 'maker' ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey
+  )
     return
   const target = event.target
   if (
@@ -434,6 +464,7 @@ function onEscape(event: KeyboardEvent) {
   if (
     event.key !== 'Escape' ||
     screen.value === 'play' ||
+    screen.value === 'maker' ||
     screen.value === 'title'
   )
     return

@@ -2,10 +2,7 @@ import {
   BRIAR_CROSS_MAP_KEYS,
   BRIAR_CROSS_MAP_PUZZLES,
 } from '../memoryDungeonWaves'
-import {
-  darkBriarExtraBridge,
-  darkBriarCourierPassage,
-} from './firstTwoConsequences'
+import { darkBriarExtraBridge } from './firstTwoConsequences'
 import { DARK_BRIAR_NORTH } from './darkBriarNorth'
 import { DARK_BRIAR_BORDER } from './darkBriarBorder'
 import { DARK_BRIAR_RIVER } from './darkBriarRiver'
@@ -867,15 +864,13 @@ export function darkBriarCanTravel(
   to: string,
   revealed: readonly string[],
   progress?: Pick<DarkBriarProgress, 'sceneChoices'>,
-  original?: Pick<BriarSave, 'sceneChoices'>,
 ): boolean {
   return (
     DARK_BRIAR_KEYS.includes(to) &&
     revealed.includes(to) &&
     revealed.includes(from) &&
     (briarConnected(from, to, revealed) ||
-      darkBriarExtraBridge(from, to, progress) ||
-      darkBriarCourierPassage(from, to, original, progress))
+      darkBriarExtraBridge(from, to, progress))
   )
 }
 

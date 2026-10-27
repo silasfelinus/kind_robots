@@ -146,11 +146,20 @@
               class="cca-report-mini"
               data-testid="academy-vow-journal"
             >
-              <strong>MY STORY · {{ run.vow.toUpperCase() }} · {{ run.vowHistory?.length ?? 0 }} / 5 CHAPTERS</strong>
+              <strong
+                >MY STORY · {{ run.vow.toUpperCase() }} ·
+                {{ run.vowHistory?.length ?? 0 }} / 5 CHAPTERS</strong
+              >
               <span>{{ routeMemoryLine(run.vowHistory) }}</span>
               <span>
-                PROMISE REPUTATION {{ routeStanding(run.vowHistory) >= 0 ? '+' : '' }}{{ routeStanding(run.vowHistory) }}
-                · {{ nextRouteDay ? 'NEXT CHAPTER: DAY ' + nextRouteDay : 'CHAPTERS COMPLETE' }}
+                PROMISE REPUTATION
+                {{ routeStanding(run.vowHistory) >= 0 ? '+' : ''
+                }}{{ routeStanding(run.vowHistory) }} ·
+                {{
+                  nextRouteDay
+                    ? 'NEXT CHAPTER: DAY ' + nextRouteDay
+                    : 'CHAPTERS COMPLETE'
+                }}
               </span>
             </div>
             <p
@@ -683,7 +692,11 @@ import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
-import { openingRouteDays, routeMemoryLine, routeStanding } from '~/utils/cometAcademy/openingRoutes'
+import {
+  openingRouteDays,
+  routeMemoryLine,
+  routeStanding,
+} from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {
   academyStageArt,
@@ -718,7 +731,7 @@ const run = computed(() => store.run)
 const nextRouteDay = computed(() => {
   const state = run.value
   return state?.vow
-    ? openingRouteDays(state.vow).find((day) => day >= state.day) ?? null
+    ? (openingRouteDays(state.vow).find((day) => day >= state.day) ?? null)
     : null
 })
 const socialDayAvailable = computed(() => {

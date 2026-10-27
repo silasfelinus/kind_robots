@@ -67,7 +67,7 @@ const raw: StoryDefinition[] = [
     separation:'Tess closes her navigation lens. The captain is not given the coordinates.',
     ending:'Tess leaves one star unmarked on the captain’s chart. They visit it only when invited.',
     fault:'Trust is a route you do not publish.',
-    interventionLimit:2,trustRequired:2,reputationFloor:0,
+    interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'The Unmarked Star',setting:'Tess projects a star route onto the couch upholstery, then covers the sanctuary coordinates with her palm.',speakers:[
       {name:'Tess',line:'The map is not mine to give you. I could choose to show you where I keep it.'},
       {name:'Tess',line:'I need to know you can leave a safe place undiscovered when everyone applauds.'}]},
@@ -147,7 +147,7 @@ const raw: StoryDefinition[] = [
     separation:'Kivo keeps the letter, and the ship keeps its scout.',
     ending:'Kivo chooses not to open the letter tonight. The captain chooses not to ask.',
     fault:'Care must leave room for someone else’s secret.',
-    interventionLimit:2,trustRequired:2,reputationFloor:0,
+    interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'Pressure Wake',setting:'On Windglass, the couches’ invisible bubble catches a faint courier trail. Kivo does not follow it.',speakers:[
       {name:'Kivo',line:'I could locate my sibling. I might also discover that they do not want to be found.'},
       {name:'Kivo',line:'Can you stay with me when there is nothing useful to do?'}]},
@@ -245,7 +245,7 @@ const raw: StoryDefinition[] = [
     separation:'The garden and clinic remain open; the romance closes without retaliation.',
     ending:'Their clinic has a garden door. Patients choose which one they need first.',
     fault:'Care that never asks its recipient is not care.',
-    interventionLimit:2,trustRequired:2,reputationFloor:0,
+    interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'What Grows In A Clinic',setting:'The couch unfolds a clinic behind its backrest. A rescued spore reaches toward Vela’s surgical lamp.',speakers:[
       {name:'Vela',line:'Your organisms keep breaking my sterile protocols.'},
       {name:'Brin',line:'And your protocols keep forgetting they are alive. Perhaps we can write better ones.'}]},
@@ -262,7 +262,7 @@ const raw: StoryDefinition[] = [
     separation:'The song remains unfinished. Both keep their histories, and the ship keeps its navigator and musician.',
     ending:'A melody reaches a refugee convoy without ever naming its home.',
     fault:'Art can travel where people must remain hidden.',
-    interventionLimit:2,trustRequired:2,reputationFloor:0,
+    interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'The Anthem Without A Map',setting:'Tess closes the star chart while Jex tunes a battered instrument on the red couch.',speakers:[
       {name:'Tess',line:'Your song can tell them we are safe. It cannot tell them where.'},
       {name:'Jex',line:'Then I will write a refrain that travels without a destination.'}]},
@@ -296,7 +296,7 @@ const raw: StoryDefinition[] = [
     separation:'The pair stop courting but continue to protect each other’s mission rights.',
     ending:'An unread letter sits in a shared drawer. It is a promise not to demand every answer.',
     fault:'Evidence is not permission to invade another life.',
-    interventionLimit:2,trustRequired:2,reputationFloor:0,
+    interventionLimit:3,trustRequired:2,reputationFloor:0,
     chapter2:{title:'A Trace Without Permission',setting:'The temporary holodeck shows a message from Kivo’s sibling. Sora refuses to open it by force.',speakers:[
       {name:'Sora',line:'We could know exactly where they are. I am not sure we have the right.'},
       {name:'Kivo',line:'I would rather you believed me when I say I am afraid.'}]},

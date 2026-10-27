@@ -13,7 +13,11 @@ import {
   ruleFor,
 } from './crewAssignments'
 import type { MissionPreview } from './crewAssignments'
-import { CREW_JOURNEYS, CREW_EPILOGUES, NEMESIS_COUNTERPLAY } from './crewJourneys'
+import {
+  CREW_JOURNEYS,
+  CREW_EPILOGUES,
+  NEMESIS_COUNTERPLAY,
+} from './crewJourneys'
 import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from './characterDossiers'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
@@ -804,7 +808,9 @@ export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
   if (!crewDetourOptions(run).includes(crewId)) return run
   const step = run.journeyProgress?.[crewId] ?? 0
   const destination = CREW_JOURNEYS[crewId][step]!
-  const prior = [...(run.journeyHistory ?? [])].reverse().find((event) => event.crewId === crewId)
+  const prior = [...(run.journeyHistory ?? [])]
+    .reverse()
+    .find((event) => event.crewId === crewId)
   const callback = prior
     ? ` The last stop left you with ${prior.prize ?? CREW_JOURNEYS[crewId][prior.step]?.prize ?? 'unfinished business'}. ${prior.approach === 'bold' ? 'The public attention follows the couch here.' : 'People remember that you kept their confidence.'}`
     : ''
@@ -826,14 +832,19 @@ export function stageCrewDetour(
     !run.detour ||
     run.detour.gambit ||
     !['careful', 'bold'].includes(gambit)
-  ) return run
+  )
+    return run
   const { crewId, step } = run.detour
-  if (!run.crew.includes(crewId) || (run.journeyProgress?.[crewId] ?? 0) !== step)
+  if (
+    !run.crew.includes(crewId) ||
+    (run.journeyProgress?.[crewId] ?? 0) !== step
+  )
     return run
   const episode = CREW_JOURNEYS[crewId][step]!
-  const movement = gambit === 'careful'
-    ? 'The crew acts quietly. For a moment it almost works.'
-    : 'The crew makes an entrance that will be difficult to apologize for.'
+  const movement =
+    gambit === 'careful'
+      ? 'The crew acts quietly. For a moment it almost works.'
+      : 'The crew makes an entrance that will be difficult to apologize for.'
   return {
     ...run,
     detour: { ...run.detour, gambit },
@@ -851,31 +862,37 @@ export function resolveCrewDetour(
     run.phase !== 'crew-quest' ||
     !run.detour ||
     !['careful', 'bold'].includes(approach)
-  ) return run
+  )
+    return run
   if (approach === 'careful' && run.supplies < 1) return run
   const { crewId, step, gambit } = run.detour
   if (
     !run.crew.includes(crewId) ||
     (run.journeyProgress?.[crewId] ?? 0) !== step ||
-    step < 0 || step > 2
-  ) return run
+    step < 0 ||
+    step > 2
+  )
+    return run
   const destination = CREW_JOURNEYS[crewId][step]!
   const challenged =
     NEMESIS_COUNTERPLAY[antagonistFor(run).id]?.includes(crewId) ?? false
-  const result = approach === 'careful'
-    ? destination.carefulOutcome
-    : destination.boldOutcome
-  const pivot = gambit && gambit !== approach
-    ? 'The plan changes at the last second; the crew must live with the first gamble as well as the final order.'
-    : gambit === 'bold'
-      ? 'The first explosion is still visible from orbit.'
-      : 'The captain keeps the promise made before the trap appeared.'
+  const result =
+    approach === 'careful'
+      ? destination.carefulOutcome
+      : destination.boldOutcome
+  const pivot =
+    gambit && gambit !== approach
+      ? 'The plan changes at the last second; the crew must live with the first gamble as well as the final order.'
+      : gambit === 'bold'
+        ? 'The first explosion is still visible from orbit.'
+        : 'The captain keeps the promise made before the trap appeared.'
   const nemesis = challenged
     ? ` ${antagonistFor(run).name} recognizes the prize. ${CREW_DOSSIERS[crewId].nemesisLink}`
     : ''
-  const complete = step === 2
-    ? ` The ${CREW.find((officer) => officer.id === crewId)!.name} trilogy reaches its conclusion, but the consequences belong to the worlds left behind.`
-    : ''
+  const complete =
+    step === 2
+      ? ` The ${CREW.find((officer) => officer.id === crewId)!.name} trilogy reaches its conclusion, but the consequences belong to the worlds left behind.`
+      : ''
   const scene = `${destination.system}: ${result} ${pivot} The crew brings home ${destination.prize}.${nemesis}${complete}`
   return {
     ...run,
@@ -886,14 +903,22 @@ export function resolveCrewDetour(
     supplies: Math.max(0, run.supplies - (approach === 'careful' ? 1 : 0)),
     trust: run.trust + (approach === 'careful' ? 1 : -1),
     reputation: run.reputation + (approach === 'bold' ? 1 : 0),
-    nemesisPressure: (run.nemesisPressure ?? 0) +
+    nemesisPressure:
+      (run.nemesisPressure ?? 0) +
       (challenged ? 1 : 0) +
       (approach === 'bold' ? 1 : 0) +
       (gambit === 'bold' && approach === 'careful' ? 1 : 0),
     journeyProgress: { ...(run.journeyProgress ?? {}), [crewId]: step + 1 },
     journeyHistory: [
       ...(run.journeyHistory ?? []),
-      { crewId, step, system: destination.system, approach, gambit, prize: destination.prize },
+      {
+        crewId,
+        step,
+        system: destination.system,
+        approach,
+        gambit,
+        prize: destination.prize,
+      },
     ],
     scene,
     log: [...run.log, `Ship day ${(run.day ?? run.chapter) + 1}: ${scene}`],
@@ -980,14 +1005,25 @@ export function finishVoyage(
     ro: 'Ro abandons diplomatic immunity and states their real title on the record: passenger.',
   }[run.captain]
   const journeys = run.crew.flatMap((id) => {
-    const stops = (run.journeyHistory ?? []).filter((item) => item.crewId === id)
+    const stops = (run.journeyHistory ?? []).filter(
+      (item) => item.crewId === id,
+    )
     if (!stops.length) return []
     if (stops.some((item) => item.step === 2)) {
-      const publicStops = stops.filter((item) => item.approach === 'bold').length
-      const epilogue = publicStops >= 2 ? CREW_EPILOGUES[id].exposed : CREW_EPILOGUES[id].protected
-      return [`${CREW.find((member) => member.id === id)!.name}'s odyssey: ${epilogue}`]
+      const publicStops = stops.filter(
+        (item) => item.approach === 'bold',
+      ).length
+      const epilogue =
+        publicStops >= 2
+          ? CREW_EPILOGUES[id].exposed
+          : CREW_EPILOGUES[id].protected
+      return [
+        `${CREW.find((member) => member.id === id)!.name}'s odyssey: ${epilogue}`,
+      ]
     }
-    return [`${CREW.find((member) => member.id === id)!.name}'s unfinished odyssey: ${CREW_EPILOGUES[id].unfinished}`]
+    return [
+      `${CREW.find((member) => member.id === id)!.name}'s unfinished odyssey: ${CREW_EPILOGUES[id].unfinished}`,
+    ]
   })
   const civic = (run.missionHistory ?? [])
     .map((event) => {

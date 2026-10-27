@@ -341,7 +341,7 @@ export const MISSIONS = [
   },
   {
     id: 'bar',
-    system: 'Serendipity Space Bar',
+    system: 'Blue Giant Casino / Serendipity',
     title: 'The Patron Who Was Never Here',
     kind: 'diplomacy',
     briefing:

@@ -337,12 +337,10 @@ for (const [witnessChoice, room, source] of [
   const restored = restoreDarkHouseProgress(JSON.parse(JSON.stringify(helped)))
   assert.equal(restored.puzzles[room]?.hint, true)
   assert.equal(darkHousePuzzleHint(restored, source), restored)
+  const decided = { ...atPuzzle, decisions: { [room]: 'attend' } }
   assert.equal(
-    darkHousePuzzleHint(
-      { ...atPuzzle, decisions: { [room]: 'attend' } },
-      source,
-    ),
-    atPuzzle,
+    darkHousePuzzleHint(decided, source),
+    decided,
     'No hint can be consumed after a room decision',
   )
 }

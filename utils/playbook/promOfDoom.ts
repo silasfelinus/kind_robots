@@ -117,6 +117,11 @@ export function buildPromOfDoomPlaybook(): Playbook {
       `Villain turn: ${person.villainDecision}`,
     ]
     node.lenses = [person.signature]
+    node.artVariants = (['student', 'hero', 'villain'] as const).map((form) => ({
+      id: form,
+      label: `${form.charAt(0).toUpperCase() + form.slice(1)} · ${person[form].alias}`,
+      imageUrl: promArt(identityArtKey(person.signature, form)),
+    }))
     node.variations = [
       {
         axis: 'form',

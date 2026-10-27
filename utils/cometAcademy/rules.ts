@@ -126,6 +126,8 @@ export const STUDENTS = [
     skill: 'kinetic',
     portrait: 'MQ',
     note: 'Would rather save one person than win a competition.',
+    origin: 'academy',
+    introSite: 'engineering-workshop',
   },
   {
     id: 'sol',
@@ -134,6 +136,8 @@ export const STUDENTS = [
     skill: 'technopathy',
     portrait: 'SN',
     note: 'Knows where the cameras look and where they do not.',
+    origin: 'academy',
+    introSite: 'archive-stacks',
   },
   {
     id: 'imani',
@@ -142,6 +146,8 @@ export const STUDENTS = [
     skill: 'empathy',
     portrait: 'IV',
     note: 'Has a habit of hearing what people refuse to say.',
+    origin: 'academy',
+    introSite: 'student-commons',
   },
   {
     id: 'ash',
@@ -150,6 +156,8 @@ export const STUDENTS = [
     skill: 'elemental',
     portrait: 'AC',
     note: 'Always remembers the names of the maintenance staff.',
+    origin: 'academy',
+    introSite: 'academy-roof',
   },
   {
     id: 'nix',
@@ -158,6 +166,8 @@ export const STUDENTS = [
     skill: 'spatial',
     portrait: 'NV',
     note: 'Can get anywhere except a conversation with their father.',
+    origin: 'academy',
+    introSite: 'transit-gate',
   },
   {
     id: 'kit',
@@ -166,6 +176,38 @@ export const STUDENTS = [
     skill: 'biotech',
     portrait: 'KR',
     note: 'Keeps a packet of seeds in every uniform pocket.',
+    origin: 'academy',
+    introSite: 'botanical-conservatory',
+  },
+  {
+    id: 'veda', name: 'Professor Veda Cross', title: 'Disgraced stunt instructor',
+    skill: 'kinetic', portrait: 'VC', origin: 'faculty', introSite: 'training-arena',
+    note: 'An ex-stunt hero taking one last shot at glory; hates being sidelined.',
+  },
+  {
+    id: 'mara', name: 'Mara Fen', title: 'Transit union organizer',
+    skill: 'spatial', portrait: 'MF', origin: 'city', introSite: 'transit-union',
+    note: 'Trusts shift workers more than academy legends and refuses publicity stunts.',
+  },
+  {
+    id: 'drift', name: 'DRIFT-9', title: 'Escaped biotech experiment',
+    skill: 'biotech', portrait: 'D9', origin: 'experiment', introSite: 'transit-lab',
+    note: 'A lab-grown adult person, not a specimen; fiercely protective of fellow escapees.',
+  },
+  {
+    id: 'tessel', name: 'Tessel Mire', title: 'Dimensional castaway',
+    skill: 'elemental', portrait: 'TM', origin: 'anomaly', introSite: 'skyport',
+    note: 'A displaced traveler who can hear weather on the other side of a portal.',
+  },
+  {
+    id: 'jo', name: 'Jo Mercer', title: 'Underground broadcaster',
+    skill: 'technopathy', portrait: 'JM', origin: 'city', introSite: 'media-spire',
+    note: 'Will expose a cover-up, even if the revelation wrecks their reputation.',
+  },
+  {
+    id: 'lark', name: 'Lark Sato', title: 'Civic hospital night medic',
+    skill: 'empathy', portrait: 'LS', origin: 'city', introSite: 'civic-hospital',
+    note: 'Treats people ignored by famous heroes, including those labeled villains.',
   },
 ] as const
 
@@ -430,6 +472,7 @@ export type AcademyRun = {
   visitedSites?: SiteId[]
   visitedDays?: Partial<Record<SiteId, number>>
   injuries?: Partial<Record<StudentId, number>>
+  contacts?: StudentId[]
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
@@ -606,6 +649,7 @@ export function startFullAcademy(
     visitedDays: {},
     injuries: {},
     infirmaryDays: [],
+    contacts: startingContacts(base.seed),
     mastermind: campaignVillain(base.seed).id,
     opponentSignature: campaignOpponent(base.seed, base.signature).signature,
     betrayer: campaignBetrayer(base.seed),
@@ -614,9 +658,44 @@ export function startFullAcademy(
   }
 }
 
+export function startingContacts(seed: number): StudentId[] {
+  const friends = STUDENTS.filter((member) => member.origin === 'academy')
+  const index = Math.abs(seed) % friends.length
+  return [friends[index]!.id, friends[(index + 3) % friends.length]!.id]
+}
+
+export function knownContacts(run: AcademyRun): StudentId[] {
+  if (run.flowVersion !== 3 || !run.contacts)
+    return STUDENTS.map((person) => person.id)
+  return run.contacts
+}
+
+const STORY_LOCK_DAYS = [8, 11, 15, 16, 17, 20, 23, 24, 26, 29]
+
+export function recruitableContact(run: AcademyRun) {
+  if (run.flowVersion !== 3 || run.phase !== 'campus' || !run.selectedSite ||
+      run.day >= 29 || STORY_LOCK_DAYS.includes(run.day)) return null
+  return STUDENTS.find((person) =>
+    person.introSite === run.selectedSite && !knownContacts(run).includes(person.id),
+  ) ?? null
+}
+
+export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
+  const person = recruitableContact(run)
+  if (!person || person.id !== id) return run
+  return {
+    ...run,
+    contacts: [...knownContacts(run), id],
+    phase: 'dispatch',
+    scene: `You meet ${person.name} at ${CITY_SITES.find((site) => site.id === run.selectedSite)?.name}. ${person.note} You explain the danger honestly and they choose to join your calls, keeping the right to refuse any job. The conversation costs your daylight investigation.`,
+    log: [...run.log, `Day ${run.day}: ${person.name} joins the call roster`],
+  }
+}
+
 export function studentAvailable(run: AcademyRun, id: StudentId): boolean {
   return (
     (run.injuries?.[id] ?? 0) <= run.day &&
+    knownContacts(run).includes(id) &&
     !(
       run.flowVersion === 3 &&
       run.day >= 20 &&
@@ -1256,6 +1335,11 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         !data.injuries ||
         typeof data.injuries !== 'object' ||
         !Array.isArray(data.infirmaryDays) ||
+        (data.contacts !== undefined &&
+          (!Array.isArray(data.contacts) ||
+            data.contacts.length > STUDENTS.length ||
+            new Set(data.contacts).size !== data.contacts.length ||
+            data.contacts.some((id) => !STUDENTS.some((person) => person.id === id)))) ||
         (data.mastermind !== undefined &&
           !CAMPAIGN_VILLAINS.some((v) => v.id === data.mastermind)) ||
         (data.relationships !== undefined &&

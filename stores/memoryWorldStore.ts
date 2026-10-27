@@ -143,8 +143,15 @@ import {
   recoverBriarWaveTurn,
   settleBriarWavePair,
 } from '~/utils/memoryDungeonWaves'
+import {
+  restoreMemoryCheckpoint,
+  restoreMemorySaveSlots,
+  writeMemorySaveSlot,
+  type MemorySaveSlots,
+} from '~/utils/memoryDungeon/saveSlots'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
+const SAVE_SLOTS_KEY = 'memoryDungeonManualCheckpointsV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
 const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
 const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
@@ -170,6 +177,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const unlockedRealms = ref<number[]>([])
   const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
+  const saveSlots = ref<MemorySaveSlots>(restoreMemorySaveSlots(null))
+  const saveSlotMessage = ref('')
   const minefieldActive = ref(false)
   const minefieldHint = ref<{ cell: MineCell; type: 'safe' | 'hazard' } | null>(
     null,
@@ -504,6 +513,113 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistReality()
   }
 
+  function saveCheckpoint(index: number, overwrite = false): boolean {
+    if (!import.meta.client) return false
+    const snapshot = restoreMemoryCheckpoint(
+      JSON.parse(
+        JSON.stringify({
+          version: 1,
+          savedAt: new Date().toISOString(),
+          briar: state.value,
+          dark: dark.value,
+          house: darkHouse.value,
+          reality: {
+            version: 1,
+            active: activeReality.value,
+            progress: campaign.value,
+          },
+          seals: crossMapSeals.value,
+        }),
+      ),
+    )
+    if (!snapshot) return false
+    const next = writeMemorySaveSlot(
+      saveSlots.value,
+      index,
+      snapshot,
+      overwrite,
+    )
+    if (!next) {
+      saveSlotMessage.value =
+        'That checkpoint is occupied. Confirm before replacing it.'
+      return false
+    }
+    try {
+      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(next))
+      saveSlots.value = next
+      saveSlotMessage.value = `Checkpoint ${index + 1} saved.`
+      return true
+    } catch {
+      saveSlotMessage.value =
+        'The checkpoint could not be stored in this browser.'
+      return false
+    }
+  }
+
+  function loadCheckpoint(index: number): boolean {
+    if (!import.meta.client) return false
+    const checkpoint = restoreMemoryCheckpoint(saveSlots.value[index])
+    if (!checkpoint) {
+      saveSlotMessage.value = 'That checkpoint is empty or damaged.'
+      return false
+    }
+    const resumed = recoverBriarWaveTurn(
+      restoreBriarSave(checkpoint.briar),
+      checkpoint.briar,
+    )
+    const reality = restoreMemoryRealitySave(checkpoint.reality)
+    const restoredDark = restoreDarkBriarProgress(checkpoint.dark)
+    const restoredHouse = restoreDarkHouseProgress(checkpoint.house)
+    const restoredSeals = restoreCrossMapSealChronicle(checkpoint.seals)
+
+    roomEpoch++
+    darkEpoch++
+    loading.value = false
+    darkLoading.value = false
+    turnLocked.value = false
+    darkTurnLocked.value = false
+    firstCard.value = null
+    darkFirstCard.value = null
+    firstMapCard.value = resumed.firstTile
+    latestMapCardKey.value = resumed.firstTile
+    mapDeckError.value = ''
+    darkDeckError.value = ''
+    runeInput.value = []
+    inspectedSigil.value = null
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    minefieldActive.value = false
+    minefieldHint.value = null
+
+    state.value = resumed.progress
+    dark.value = restoredDark
+    darkHouse.value = restoredHouse
+    crossMapSeals.value = restoredSeals
+    for (const key of dark.value.sealInspections)
+      crossMapSeals.value = inspectCrossMapSeal(crossMapSeals.value, key, 'e02')
+    campaign.value = reality.progress
+    activeReality.value = reality.active
+    if (state.value.gateOpened) grantBriarCompletion()
+    if (
+      dark.value.completed &&
+      campaign.value.completed.includes('e01') &&
+      !campaign.value.completed.includes('e02')
+    )
+      campaign.value = completeMemoryExperience(campaign.value, 'e02')
+    if (activeReality.value === 'e02' && !canEnterDarkBriar.value)
+      activeReality.value = 'e01'
+
+    persist()
+    persistReality()
+    syncEarthChronicle()
+    saveSlotMessage.value = `Checkpoint ${index + 1} restored.`
+    if (activeReality.value === 'e02' && !dark.value.mapCards.length)
+      void prepareDarkDeck()
+    else void syncActiveMapDeck()
+    return true
+  }
+
   function persist(): void {
     if (!import.meta.client) return
     try {
@@ -517,6 +633,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function hydrate(): void {
     if (ready.value) return
     if (import.meta.client) {
+      try {
+        const rawSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
+        saveSlots.value = restoreMemorySaveSlots(
+          rawSlots ? JSON.parse(rawSlots) : null,
+        )
+      } catch {
+        saveSlots.value = restoreMemorySaveSlots(null)
+      }
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) {
@@ -1873,6 +1997,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   return {
     state,
+    saveSlots,
+    saveSlotMessage,
+    saveCheckpoint,
+    loadCheckpoint,
     campaign,
     earthChronicle,
     earthPhotos,

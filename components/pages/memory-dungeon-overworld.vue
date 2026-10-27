@@ -90,7 +90,7 @@
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Choose Memory Dungeon artwork"
+        aria-label="Memory Dungeon settings and checkpoints"
         class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -150,6 +150,49 @@
             Card-back choices are saved separately from your expedition.
             Illustrated crests appear automatically when their Comfy artwork is
             delivered.
+          </p>
+        </fieldset>
+        <fieldset class="mt-3 border-t border-[#9f875e]/50 pt-3">
+          <legend class="px-2 text-sm font-bold">Expedition checkpoints</legend>
+          <p class="mb-2 text-xs text-[#e4d0a8]">
+            Three manual saves. Autosave and your collected Chronicle remain
+            separate. Loading replaces the current expedition.
+          </p>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <div
+              v-for="(checkpoint, index) in world.saveSlots"
+              :key="index"
+              class="min-w-0 rounded-lg border border-[#7b806b] bg-[#182d32] p-2"
+            >
+              <strong class="block text-xs">Slot {{ index + 1 }}</strong>
+              <span class="block text-xs text-[#e4d0a8]">
+                {{ checkpoint ? checkpointLabel(checkpoint.savedAt) : 'Empty' }}
+              </span>
+              <div class="mt-2 flex gap-1">
+                <button
+                  type="button"
+                  class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
+                  @click="saveSlot(index)"
+                >
+                  {{ checkpoint ? 'Overwrite' : 'Save' }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d] disabled:opacity-40"
+                  :disabled="!checkpoint"
+                  @click="loadSlot(index)"
+                >
+                  Load
+                </button>
+              </div>
+            </div>
+          </div>
+          <p
+            v-if="world.saveSlotMessage"
+            role="status"
+            class="mt-2 text-xs text-[#ffe09b]"
+          >
+            {{ world.saveSlotMessage }}
           </p>
         </fieldset>
         <p class="mt-2 text-xs text-[#e7d29e]">
@@ -925,6 +968,39 @@ const roomTitle = computed(() =>
       ? 'Rootbound Vault · The Warden'
       : 'Forest Memory Duel',
 )
+
+function checkpointLabel(savedAt: string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(savedAt))
+}
+
+function saveSlot(index: number): void {
+  const occupied = Boolean(world.saveSlots[index])
+  if (
+    occupied &&
+    !window.confirm(
+      `Replace checkpoint ${index + 1}? Its previous expedition cannot be recovered.`,
+    )
+  )
+    return
+  world.saveCheckpoint(index, occupied)
+}
+
+function loadSlot(index: number): void {
+  if (
+    !world.saveSlots[index] ||
+    !window.confirm(
+      `Load checkpoint ${index + 1}? This replaces your current autosaved expedition.`,
+    )
+  )
+    return
+  if (world.loadCheckpoint(index)) settingsOpen.value = false
+}
 
 function restart(): void {
   if (

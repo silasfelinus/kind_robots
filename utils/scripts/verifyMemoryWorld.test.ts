@@ -1,4 +1,15 @@
 import assert from 'node:assert/strict'
+import { newDarkBriarProgress } from '../memoryDungeon/darkBriar'
+import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
+import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
+import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
+import {
+  MEMORY_SAVE_SLOT_COUNT,
+  restoreMemoryCheckpoint,
+  restoreMemorySaveSlots,
+  writeMemorySaveSlot,
+  type MemoryCheckpoint,
+} from '../memoryDungeon/saveSlots'
 import { readFileSync } from 'node:fs'
 import {
   DEFAULT_DUNGEON_DECK,
@@ -1519,4 +1530,89 @@ assert.match(
   layoutVerifier,
   /!fixedConsoleStage/,
   'Exception is restricted to named fixed consoles, not all pages',
+)
+
+const emptyCheckpoints = restoreMemorySaveSlots(null)
+assert.equal(emptyCheckpoints.length, MEMORY_SAVE_SLOT_COUNT)
+assert.ok(emptyCheckpoints.every((slot) => slot === null))
+const checkpoint: MemoryCheckpoint = {
+  version: 1,
+  savedAt: '2026-10-27T08:46:26Z',
+  briar: { ...newBriarSave(), attempts: 9 },
+  dark: newDarkBriarProgress(),
+  house: newDarkHouseProgress(),
+  reality: {
+    version: 1,
+    active: 'e01',
+    progress: newMemoryCampaignProgress(),
+  },
+  seals: newCrossMapSealChronicle(),
+}
+const firstCheckpoint = writeMemorySaveSlot(emptyCheckpoints, 0, checkpoint)
+assert.ok(firstCheckpoint)
+assert.equal(firstCheckpoint[0]?.briar.attempts, 9)
+assert.equal(
+  writeMemorySaveSlot(firstCheckpoint, 0, checkpoint),
+  null,
+  'An occupied slot cannot be silently overwritten',
+)
+assert.equal(writeMemorySaveSlot(firstCheckpoint, -1, checkpoint), null)
+assert.equal(
+  writeMemorySaveSlot(firstCheckpoint, MEMORY_SAVE_SLOT_COUNT, checkpoint),
+  null,
+)
+const replacedCheckpoint = writeMemorySaveSlot(
+  firstCheckpoint,
+  0,
+  { ...checkpoint, briar: { ...checkpoint.briar, attempts: 12 } },
+  true,
+)
+assert.equal(replacedCheckpoint?.[0]?.briar.attempts, 12)
+assert.equal(firstCheckpoint[0]?.briar.attempts, 9)
+assert.equal(replacedCheckpoint?.[1], null)
+assert.equal(
+  restoreMemorySaveSlots(JSON.parse(JSON.stringify(replacedCheckpoint)))[0]
+    ?.briar.attempts,
+  12,
+)
+assert.equal(
+  restoreMemoryCheckpoint({ ...checkpoint, house: null }),
+  null,
+  'A corrupt snapshot cannot replace a valid current expedition',
+)
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    reality: { ...checkpoint.reality, version: 99 },
+  }),
+  null,
+)
+assert.equal(
+  restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
+  null,
+)
+assert.match(
+  worldStoreSource,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumed\.progress/,
+  'Loading a slot invalidates pending map and mirrored animation callbacks',
+)
+assert.match(
+  worldStoreSource,
+  /syncEarthChronicle\(\)/,
+  'Checkpoint restoration reconciles rather than deletes earned Chronicle memories',
+)
+assert.match(
+  consoleStage,
+  /v-for="\(checkpoint, index\) in world\.saveSlots"/,
+  'All three checkpoint slots are visible in the bounded console settings',
+)
+assert.match(
+  consoleStage,
+  /window\.confirm\([\s\S]*?Replace checkpoint/,
+  'Overwriting a slot requires explicit confirmation',
+)
+assert.match(
+  consoleStage,
+  /window\.confirm\([\s\S]*?Load checkpoint/,
+  'Loading a slot warns before replacing the current autosave',
 )

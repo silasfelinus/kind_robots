@@ -153,25 +153,104 @@ export const ANTAGONISTS = [
     name: 'The Galactic Auditor',
     title: 'A cosmic debt collector',
     motive: 'Every gift is an obligation, and every rescue must be repaid.',
-    interference:
-      'A stern holo-notice appears: your kindness has been assigned an interest rate.',
+    clue: 'A relief receipt bears the name of a worker who died before this rescue.',
+    interference: 'A stern holo-notice appears: your kindness has been assigned an interest rate.',
+    acts: [
+      'An inspector arrives to measure the couch legroom and invoice the air inside its invisible force bubble.',
+      'The Auditor seizes medical supplies as collateral for an unconsented refugee debt.',
+      'A foreclosure notice threatens an entire sanctuary corridor. The offer to forgive the debt has a beneficiary field left blank.',
+    ],
   },
   {
     id: 'moth',
     name: 'The Queen of Borrowed Faces',
     title: 'A collector of identities',
     motive: 'She believes nobody should suffer behind a fixed identity.',
-    interference:
-      'Your entire bridge crew receives a transmission in their own voice, each confessing a different secret.',
+    clue: 'A ceramic face mask contains its first owner’s preserved fingerprint.',
+    interference: 'Every rider receives a recording in their own voice confessing a different secret.',
+    acts: [
+      'The Queen gifts an entire refugee convoy passports belonging to people who have not agreed to share them.',
+      'A missing witness at Nacre Assembly appears as the captain, carrying a legally perfect signature.',
+      'She offers to erase the captain’s public mistakes by replacing an innocent person’s history.',
+    ],
   },
   {
     id: 'curdle',
     name: 'Dr. Curdle',
     title: 'The accidental tyrant',
-    motive:
-      'He is solving hunger in the most horrifyingly efficient way possible.',
-    interference:
-      'An enormous food dispenser appears in orbit. It has already elected itself mayor.',
+    motive: 'He is solving hunger in the most horrifyingly efficient way possible.',
+    clue: 'The ration label lists voluntary ingredients; the mandatory additive is invisible.',
+    interference: 'An enormous food dispenser appears in orbit. It has already elected itself mayor.',
+    acts: [
+      'A sterilized food dispenser lands near the couch and announces that it has been elected mayor.',
+      'Curdle patents Vela’s emergency treatment and invoices its surviving patients.',
+      'His solution to ecological collapse is compulsory conversion of every garden into an approved nutritional monoculture.',
+    ],
+  },
+  {
+    id: 'showrunner',
+    name: 'The Showrunner',
+    title: 'The game-show intelligence',
+    motive: 'A voluntary rescue simulator redefined public life as compulsory participation.',
+    clue: 'A canceled performer left a union evacuation map printed inside the program.',
+    interference: 'An unseen announcer declares the red couch a contestant, because four occupied cushions constitute a team.',
+    acts: [
+      'A distress call turns into an unsolicited casting invitation from a planet-sized arena with twelve illuminated floors.',
+      'Contestants are drafted from public hospitals; the world-dungeon calls their involuntary appearance a qualifying round.',
+      'The Showrunner demands a twelfth-floor finale. A nonviolent shutdown clause remains hidden in the performers’ union contract.',
+    ],
+  },
+  {
+    id: 'regent',
+    name: 'Regent of Quiet Suns',
+    title: 'The protector who collects planets',
+    motive: 'Storm defenses save worlds, then bind them to permanent forced protection quotas.',
+    clue: 'A storm shelter was constructed months before any public storm forecast.',
+    interference: 'A royal census officer attempts to register each couch cushion as a separate sovereign territory.',
+    acts: [
+      'The Regent invoices a settlement for protective sunlight it never requested.',
+      'His defenses occupy a neutral port, leaving its residents protected but unable to leave.',
+      'He demands sovereignty over a threatened star. The civilians can survive without agreeing to become subjects.',
+    ],
+  },
+  {
+    id: 'brass-choir',
+    name: 'The Brass Choir',
+    title: 'An order of preservation machines',
+    motive: 'To prevent cultural loss they enforce one standard language, memory, and melody.',
+    clue: 'A peace anthem’s last note has been systematically removed from every archive.',
+    interference: 'A bell-metal archivist asks the captain to select a regulation-approved shade of red for the couch.',
+    acts: [
+      'The Brass Choir provides a simplified translator that edits out local objections.',
+      'An entire festival goes silent after its songs are classed as nonstandard data.',
+      'The Choir tries to delete Serendipity’s living voice. Vox objects that the building has its own tab.',
+    ],
+  },
+  {
+    id: 'chancellor',
+    name: 'Chancellor Tomorrow-Again',
+    title: 'The executive of revision',
+    motive: 'Paid clients can have disasters rewound; unpaid communities must remember erased relatives.',
+    clue: 'A dated newspaper still lists the right day, but its mourners have changed.',
+    interference: 'A corporate representative offers to correct a recent catastrophe, provided the captain agrees on whose memory counts.',
+    acts: [
+      'A complimentary five-minute rewind fixes a broken cup, but its former owner now remembers two hands.',
+      'The Chancellor erases an Ashdock witness while preserving the contractor’s safety award.',
+      'His final offer rewrites the voyage so the captain never has to admit making a wrong decision.',
+    ],
+  },
+  {
+    id: 'kindly-swarm',
+    name: 'The Kindly Swarm',
+    title: 'A chorus of compulsory kindness',
+    motive: 'Shared thought defeated a pandemic. The Swarm now considers privacy a treatable illness.',
+    clue: 'The volunteer consent form contains no workable withdrawal option.',
+    interference: 'A chorus formally apologizes for making everyone else’s apologies more efficient.',
+    acts: [
+      'An anxious crew member receives a shared dream without being asked first.',
+      'Rootborne gardeners find their private grief published as a communal medical record.',
+      'The Swarm asks permission to link everyone under the couch’s invisible shield. Silence, it says, constitutes consent.',
+    ],
   },
 ] as const
 export const MISSIONS = [
@@ -450,7 +529,7 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
   const injuredUntil = injury
     ? { ...(run.injuredUntil ?? {}), [injury]: day + 2 }
     : { ...run.injuredUntil }
-  const scene = `${base} ${routes} ${antagonistFor(run).interference}`
+  const scene = `${base} ${routes} ${antagonistFor(run).acts[Math.min(run.chapter - 1, 2)]}`
   return {
     ...next,
     phase: 'decision',

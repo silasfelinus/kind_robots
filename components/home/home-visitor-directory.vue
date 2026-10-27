@@ -361,8 +361,8 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
-    title: 'Capes & Tassels',
-    tag: 'Playable superhero school',
+    title: 'Prom of Doom',
+    tag: 'Capes & Tassels · Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
     image: '/comet-city-academy/front/dashboard-highlight.webp',

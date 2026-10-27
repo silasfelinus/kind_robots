@@ -201,7 +201,7 @@ export const FACTOR_ROWS: FactorRow[] = [
     kind: 'stepper',
     min: 0,
     max: 60,
-    help: 'Companions who travel with the player, or the pool a seeded roster deals roles from (Capes & Tassels: 48). Each needs a portrait, a voice and a moment of their own.',
+    help: 'Companions who travel with the player, or the pool a seeded roster deals roles from (Prom of Doom: 48). Each needs a portrait, a voice and a moment of their own.',
   },
   {
     key: 'partySize',

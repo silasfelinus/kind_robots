@@ -63,6 +63,13 @@ import {
   migrateSignatureId,
   signatureFor,
 } from '../cometAcademy/specialPowers'
+import {
+  openingRouteFor,
+  openingRouteDays,
+  routeStanding,
+  isVowMemory,
+  routeEpilogue,
+} from '../cometAcademy/openingRoutes'
 import { readFileSync } from 'node:fs'
 import {
   POWERS,
@@ -1250,21 +1257,186 @@ assert.equal(
   null,
 )
 
+for (const vow of POWER_VOWS) {
+  assert.deepEqual(openingRouteDays(vow.id), [3, 10, 18, 25, 28])
+  const titles = new Set<string>()
+  for (const day of openingRouteDays(vow.id)) {
+    const run = {
+      ...startFullAcademy(
+        fieldFor('mutant-genius'),
+        20261026,
+        'mutant-genius',
+        vow.id,
+      ),
+      day,
+      phase: 'campus' as const,
+    }
+    const event = openingRouteFor(run)
+    assert.ok(event)
+    titles.add(event.title)
+    assert.equal(event.options.length, 3)
+    assert.ok(event.scene.includes('Theo Lindqvist'))
+    assert.ok(event.scene.includes('Mutant'))
+    assert.ok(event.scene.includes('Genius'))
+    assert.ok(
+      event.options[0]!.text.includes(signatureFor('mutant', 'genius').name),
+    )
+    const outcome = chooseEncounter(run, event.options[0]!.id)
+    assert.equal(outcome.phase, 'dispatch')
+    assert.ok(outcome.log.some((line) => line.includes(event.title)))
+    assert.ok(outcome.influence > run.influence)
+    assert.ok(outcome.cityStanding !== undefined)
+    assert.deepEqual(outcome.vowHistory, [{ day, action: 'protect' }])
+    assert.deepEqual(restoreAcademy(outcome)?.vowHistory, outcome.vowHistory)
+  }
+  assert.equal(
+    titles.size,
+    5,
+    'Each philosophy gets five nonrepeating personal adventures',
+  )
+}
+assert.equal(
+  openingRouteFor(
+    startFullAcademy(fieldFor('mutant-genius'), 4, 'mutant-genius', 'claim'),
+  ),
+  null,
+)
+assert.notEqual(
+  openingRouteFor({
+    ...startFullAcademy(
+      fieldFor('mutant-genius'),
+      14,
+      'mutant-genius',
+      'shelter',
+    ),
+    day: 3,
+    phase: 'campus',
+  })?.scene,
+  openingRouteFor({
+    ...startFullAcademy(
+      fieldFor('mutant-genius'),
+      21,
+      'mutant-genius',
+      'shelter',
+    ),
+    day: 3,
+    phase: 'campus',
+  })?.scene,
+  'An opening promise should have seeded alternate complications',
+)
+
+const goodPromise = [3, 10, 18, 25, 28].map((day) => ({
+  day,
+  action: 'protect' as const,
+}))
+const brokenPromise = goodPromise.map((event) => ({
+  ...event,
+  action: 'bargain' as const,
+}))
+assert.equal(routeStanding(goodPromise), 10)
+assert.equal(routeStanding(brokenPromise), -10)
+assert.equal(isVowMemory(goodPromise, 30), true)
+assert.equal(isVowMemory(goodPromise, 18), false)
+assert.equal(isVowMemory([...goodPromise, goodPromise[0]], 30), false)
+assert.equal(isVowMemory([{ day: 3, action: 'hacked' }], 30), false)
+assert.ok(routeEpilogue('unmask', goodPromise).includes('yearbook'))
+const baseVowRun = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'shelter',
+)
+const positiveEnding = finishAcademy(
+  { ...baseVowRun, day: 30, phase: 'finale', vowHistory: goodPromise },
+  'share',
+)
+const negativeEnding = finishAcademy(
+  { ...baseVowRun, day: 30, phase: 'finale', vowHistory: brokenPromise },
+  'share',
+)
+assert.equal(positiveEnding.ending, 'A CITY WITH A THOUSAND KEYS')
+assert.equal(negativeEnding.ending, 'THE BROKEN GRID')
+assert.ok(positiveEnding.scene.includes('missing bus'))
+assert.ok(negativeEnding.scene.includes('Past bargains'))
+assert.equal(
+  restoreAcademy({
+    ...baseVowRun,
+    day: 30,
+    vowHistory: [
+      { day: 10, action: 'protect' },
+      { day: 3, action: 'protect' },
+    ],
+  }),
+  null,
+  'Route memory cannot be out of order',
+)
+assert.ok(restoreAcademy({ ...baseVowRun, day: 30, vowHistory: brokenPromise }))
+assert.ok(
+  restoreAcademy(
+    startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius'),
+  ),
+)
+
+const ngPlus = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'unmask',
+  'hero',
+)
+assert.equal(ngPlus.playerEvolution?.form, 'hero')
+assert.equal(ngPlus.initialForm, 'hero')
+assert.equal(
+  restoreAcademy(JSON.parse(JSON.stringify(ngPlus)))?.playerEvolution?.form,
+  'hero',
+)
+assert.equal(
+  restoreAcademy({
+    ...ngPlus,
+    initialForm: undefined,
+  }),
+  null,
+  'Starting in a heroic identity needs an explicit New Game Plus origin',
+)
+const ngVillain = startFullAcademy(
+  fieldFor('mutant-genius'),
+  20261026,
+  'mutant-genius',
+  'claim',
+  'villain',
+)
+assert.equal(restoreAcademy(ngVillain)?.playerEvolution?.form, 'villain')
+assert.equal(
+  startFullAcademy(fieldFor('mutant-genius'), 42, 'mutant-genius')
+    .playerEvolution?.form,
+  'student',
+)
+
 const page = fromRoot('pages/play/comet-city-academy.vue')
+const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
+const store = fromRoot('stores/cometAcademyStore.ts')
 const tab = fromRoot('content/channels/arcade/comet-city-academy.md')
 const art = fromRoot('public/comet-city-academy/academy-stage.svg')
 assert.ok(page.includes('data-layout="console-fixed"'))
 assert.ok(page.includes('data-testid="academy-dispatch"'))
 assert.ok(tab.includes('route: /play/comet-city-academy'))
 assert.ok(art.includes('viewBox="0 0 1440 900"'))
-assert.ok(page.includes('Capes & Tassels: Prom of Doom'))
-assert.ok(tab.includes("title: 'Capes & Tassels: Prom of Doom'"))
+assert.ok(page.includes('Prom of Doom | Capes & Tassels'))
+assert.ok(tab.includes("title: 'Prom of Doom'"))
+assert.ok(opening.includes('data-testid="academy-new-game"'))
+assert.ok(opening.includes("screen === 'title'"))
+assert.ok(opening.includes("screen === 'origin' || screen === 'affinity'"))
+assert.ok(opening.includes('data-testid="academy-persona-triad"'))
+assert.ok(opening.includes('data-testid="academy-confirm"'))
+assert.ok(opening.includes('data-testid="academy-begin"'))
+assert.ok(opening.includes('unlockedForms.includes(form)'))
+assert.ok(opening.includes('data-testid="academy-returning-hero"'))
+assert.ok(store.includes('YEARBOOK_KEY'))
+assert.ok(store.includes('!yearbook.value[signature]?.forms.includes(form)'))
 assert.ok(page.includes('FACE THE PROM-NIGHT SIMULATION'))
-assert.ok(page.includes('data-testid="academy-signature-detail"'))
-assert.ok(page.includes('data-testid="academy-identity-preview"'))
+assert.ok(page.includes('data-testid="academy-vow-journal"'))
 assert.ok(page.includes('data-testid="academy-map"'))
 assert.ok(page.includes('data-testid="academy-map-sites"'))
-assert.ok(page.includes('data-testid="academy-first-week"'))
 assert.ok(page.includes('data-testid="academy-plot-status"'))
 assert.ok(page.includes('data-testid="academy-villain-identity"'))
 assert.ok(page.includes('data-testid="academy-evolution-dossier"'))
@@ -1277,13 +1449,7 @@ assert.ok(page.includes('store.heal(student.id)'))
 assert.ok(page.includes('site.teaser'))
 assert.ok(page.includes("mapView === 'campus'"))
 assert.ok(page.includes('RUN NIGHT SIMULATIONS'))
-assert.ok(page.includes('data-testid="academy-crossover-roster"'))
-assert.ok(page.includes('currentIdentity.backstory'))
-assert.ok(page.includes('currentIdentityStory.setup'))
-assert.ok(page.includes('selectedOrigin'))
-assert.ok(page.includes('selectedAffinity'))
-assert.ok(page.includes('data-testid="academy-persona-triad"'))
-assert.ok(page.includes('card.persona.stats[stat.id]'))
 assert.ok(!page.includes('POWER_FORMS'))
-assert.ok(page.includes('selectedVow'))
-console.log('Capes & Tassels playable first-week slice and route: OK')
+console.log(
+  'Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK',
+)

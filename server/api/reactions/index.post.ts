@@ -332,6 +332,7 @@ async function getContentOwnerId(
     dreamId: prisma.dream,
     facetId: prisma.facet,
     projectId: prisma.project,
+    plumberLevelId: prisma.plumberLevel,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
@@ -359,6 +360,7 @@ const contentTargetLabels: Record<string, string> = {
   dreamId: 'Dream',
   facetId: 'Facet',
   projectId: 'Project',
+  plumberLevelId: 'PlumberLevel',
   promptId: 'Prompt',
   resourceId: 'Resource',
   rewardId: 'Reward',
@@ -399,7 +401,8 @@ function contentTargetModel(field: string) {
     // facetId." Facets carry 961 published comments that nobody could reply to.
     facetId: prisma.facet,
     projectId: prisma.project,
-    promptId: prisma.prompt,
+    plumberLevelId: prisma.plumberLevel,
+    promptId:
     resourceId: prisma.resource,
     rewardId: prisma.reward,
     scenarioId: prisma.scenario,
@@ -558,6 +561,12 @@ export default defineEventHandler(async (event) => {
     const reactionType = normalizeReactionType(body.reactionType)
     const reactionCategory = normalizeReactionCategory(body.reactionCategory)
     const targets = getTargetFields(body)
+    if (reactionCategory === Reaction_reactionCategory.PLUMBER_LEVEL) {
+      throw createError({
+        statusCode: 400,
+        message: 'Use /api/plumber-levels/reviews to submit a verified course rating.',
+      })
+    }
     const targetWhere = buildTargetWhere(reactionCategory, targets)
 
     const isAdmin = userIsAdmin(user)

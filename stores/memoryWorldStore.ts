@@ -1884,6 +1884,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     darkHouseReady,
     darkHouseTrialComplete,
     darkHouseEchoCount,
+    darkHouseEarnedClue,
     darkHouseScarCount,
     darkHouseEndingCopy,
     darkHouseFlipCard,

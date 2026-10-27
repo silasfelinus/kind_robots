@@ -23,7 +23,7 @@ import {
   normalizeDungeonDeck,
 } from '../memoryDungeonDeck'
 
-const deliveredShotPaths = new Set(
+const authoredShotPaths = new Set(
   WORLD_ONE_ART_SHOTS.map((shot) => shot.targetPath),
 )
 let illustratedBriarOutcomes = 0
@@ -31,13 +31,13 @@ for (const tile of BRIAR_TILES) {
   const scene = BRIAR_STORY_ATLAS[tile.key]!
   const establishing = briarIllustrationPath(tile.key)
   assert.ok(
-    establishing && deliveredShotPaths.has(establishing),
+    establishing && authoredShotPaths.has(establishing),
     `Missing Briar scene art: ${tile.key}`,
   )
   for (const choice of scene.choices) {
     const outcome = briarIllustrationPath(tile.key, choice.id)
     assert.ok(
-      outcome && deliveredShotPaths.has(outcome),
+      outcome && authoredShotPaths.has(outcome),
       `Missing Briar consequence art: ${tile.key}/${choice.id}`,
     )
     assert.notEqual(

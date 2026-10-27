@@ -4,6 +4,8 @@ import { performFetch } from '~/stores/utils'
 import {
   baseRedshirtDraft,
   redshirtBrief,
+  redshirtChanges,
+  redshirtPortraitPrompt,
   type RedshirtAction,
   type RedshirtDraft,
 } from '~/utils/playbookForge/redshirtAtlas'
@@ -64,6 +66,10 @@ export const usePlaybookForgeRedshirtsStore = defineStore('playbookForgeRedshirt
   async function submit(id: string, draft: RedshirtDraft, action: RedshirtAction) {
     const person = REDSHIRT_BY_ID[id]
     if (!person || posting.value) return false
+    if (action === 'edit' && !redshirtChanges(person, draft).length) {
+      status.value = 'No changes to propose yet.'
+      return false
+    }
     if (!draft.note.trim() && !draft.referenceKey && action !== 'edit') {
       status.value = 'Add a direction or linked reference first.'
       return false
@@ -99,6 +105,40 @@ export const usePlaybookForgeRedshirtsStore = defineStore('playbookForgeRedshirt
     }
   }
 
+  /** Whole-roster idea, deliberately distinct from editing one named person. */
+  async function submitRosterDirection(note: string) {
+    const message = note.trim()
+    if (!message || posting.value) return false
+    posting.value = true
+    status.value = 'Sending overall redshirt direction…'
+    try {
+      const res = await performFetch<{ issue: number; url: string }>(
+        '/api/playbook-forge/adjustment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            slug: 'game-of-captains',
+            title: 'Space Couch',
+            note: `Overall direction for all 100 Space Couch redshirts:\\n\\n${message}`,
+            changes: [],
+            additions: [],
+            combos: '',
+          }),
+        },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        status.value = 'Direction not submitted: ' + (res.message || 'GitHub is unavailable.')
+        return false
+      }
+      status.value = `Overall direction posted to issue #${res.data.issue}: ${res.data.url}`
+      return true
+    } finally {
+      posting.value = false
+    }
+  }
+
   /** Queue a concept portrait. The generated image is NOT canonically wired into the game. */
   async function render(id: string) {
     const person = REDSHIRT_BY_ID[id]
@@ -114,7 +154,7 @@ export const usePlaybookForgeRedshirtsStore = defineStore('playbookForgeRedshirt
           body: JSON.stringify(
             playbookArtRequest(
               lane,
-              person.portraitPrompt,
+              redshirtPortraitPrompt(person, forPerson(id) ?? baseRedshirtDraft(person)),
               'portrait',
               Math.floor(Math.random() * 2_000_000_000),
               {
@@ -163,5 +203,5 @@ export const usePlaybookForgeRedshirtsStore = defineStore('playbookForgeRedshirt
     persist()
   }
 
-  return { drafts, portraits, status, posting, load, forPerson, save, submit, render, refresh }
+  return { drafts, portraits, status, posting, load, forPerson, save, submit, submitRosterDirection, render, refresh }
 })

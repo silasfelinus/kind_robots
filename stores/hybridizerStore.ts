@@ -25,7 +25,7 @@ const STORAGE_KEY = 'kind-robots-hybridizer-lab-studies-v1'
 const MAX_STUDY_DEPTH = 4
 
 function pairKey(a: string, b: string): string {
-  return [a, b].sort().join('::')
+  return JSON.stringify([a, b].sort())
 }
 
 function displayName(a: HybridizerIngredient, b: HybridizerIngredient): string {
@@ -33,7 +33,7 @@ function displayName(a: HybridizerIngredient, b: HybridizerIngredient): string {
   if (names.includes('Banana') && names.includes('Cat')) return 'Bananacat'
   if (names.includes('Vampire') && names.includes('Bananacat'))
     return 'Vampire Bananacat'
-  return a.title + '–' + b.title + ' Hybrid'
+  return names[0] + '–' + names[1] + ' Hybrid'
 }
 
 export const useHybridizerStore = defineStore('hybridizer', () => {

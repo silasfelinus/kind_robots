@@ -182,28 +182,38 @@ export const EPISODE_CHOICES: readonly {
 const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {
   planet: {
     ask: 'The municipal council adjourns before hearing the residents. Their objections remain on the docket.',
-    document: 'The archives return a receipt, not the missing evidence. Someone altered the filing dates.',
-    override: 'The immediate danger recedes, but the locals reject the couch as an unelected emergency service.',
+    document:
+      'The archives return a receipt, not the missing evidence. Someone altered the filing dates.',
+    override:
+      'The immediate danger recedes, but the locals reject the couch as an unelected emergency service.',
   },
   casino: {
     ask: 'Management sells tickets to the hearing but refuses to let the giant host testify.',
-    document: 'The house impounds the ledgers under a new confidentiality tariff.',
-    override: 'The casino security contract identifies the intervention as an unauthorized jackpot.',
+    document:
+      'The house impounds the ledgers under a new confidentiality tariff.',
+    override:
+      'The casino security contract identifies the intervention as an unauthorized jackpot.',
   },
   serendipity: {
     ask: 'Vox arranges a table for mediation; the landlord sends a rent collector instead.',
-    document: 'The franchise’s receipts are suddenly listed as proprietary starlight.',
-    override: 'The bar’s repair drones restore the machinery before anyone can discuss consent.',
+    document:
+      'The franchise’s receipts are suddenly listed as proprietary starlight.',
+    override:
+      'The bar’s repair drones restore the machinery before anyone can discuss consent.',
   },
   constellation: {
     ask: 'The omens arrive at the wrong committee and the witnesses refuse a second hearing.',
-    document: 'The star chart’s original ink goes dark before the final clue can be copied.',
-    override: 'The shortcut reaches the gate but the constellation will not open it on command.',
+    document:
+      'The star chart’s original ink goes dark before the final clue can be copied.',
+    override:
+      'The shortcut reaches the gate but the constellation will not open it on command.',
   },
   nemesis: {
     ask: 'The adversary sends a lawyer instead of agreeing to terms.',
-    document: 'The transmission is intercepted and returned stamped EVIDENCE DENIED.',
-    override: 'The villain anticipated the maneuver and filed the counterattack in triplicate.',
+    document:
+      'The transmission is intercepted and returned stamped EVIDENCE DENIED.',
+    override:
+      'The villain anticipated the maneuver and filed the counterattack in triplicate.',
   },
 }
 export function episodeDecks(run: VoyageRun): EpisodeDeck[] {
@@ -569,14 +579,26 @@ export function drawEpisodeDeck(
   if (!venue) {
     changed = {
       ...changed,
-      trust: changed.trust + (successful
-        ? choice === 'ask' ? 1 : choice === 'override' ? -1 : 0
-        : 0),
-      reputation: changed.reputation + (successful && choice === 'document' ? 1 : 0),
-      supplies: changed.supplies + (successful && choice === 'override' ? 1 : 0),
+      trust:
+        changed.trust +
+        (successful
+          ? choice === 'ask'
+            ? 1
+            : choice === 'override'
+              ? -1
+              : 0
+          : 0),
+      reputation:
+        changed.reputation + (successful && choice === 'document' ? 1 : 0),
+      supplies:
+        changed.supplies + (successful && choice === 'override' ? 1 : 0),
       nemesisPressure:
         (changed.nemesisPressure ?? 0) +
-        (deck === 'nemesis' ? (successful && choice !== 'override' ? -1 : 2) : 0),
+        (deck === 'nemesis'
+          ? successful && choice !== 'override'
+            ? -1
+            : 2
+          : 0),
     }
   }
   const record: EpisodeDraw = {

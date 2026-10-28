@@ -10,7 +10,13 @@
           >SPACE COUCH PRESENTS · EPISODE {{ run.chapter }} · SHIP DAY
           {{ run.day ?? run.chapter }}</span
         >
-        <h2>{{ majorDone && !showQuestBoard ? 'The Plot Thickens' : 'Assign the Cast' }}</h2>
+        <h2>
+          {{
+            majorDone && !showQuestBoard
+              ? 'The Plot Thickens'
+              : 'Assign the Cast'
+          }}
+        </h2>
         <p>{{ episodeIncitingEvent(run) }}</p>
       </div>
       <span class="daily-on-air">● ON AIR</span>
@@ -225,7 +231,8 @@
         >
           ✦ {{ openSideCount }} OPTIONAL FIELD QUEST{{
             openSideCount === 1 ? '' : 'S'
-          }} REMAIN · REOPEN REDSHIRT BOARD
+          }}
+          REMAIN · REOPEN REDSHIRT BOARD
         </button>
         <div
           class="daily-deck-row"
@@ -482,9 +489,12 @@ const majorCount = computed(
 const completeCount = computed(
   () => props.run.expeditionVisit?.results.length ?? 0,
 )
-const openSideCount = computed(() => encounters.value.filter(
-  (enc) => enc.priority === 'minor' && !completed(enc.id),
-).length)
+const openSideCount = computed(
+  () =>
+    encounters.value.filter(
+      (enc) => enc.priority === 'minor' && !completed(enc.id),
+    ).length,
+)
 const requiredDecks = computed(() => episodeDecks(props.run))
 const nextDeck = computed(() =>
   requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)),
@@ -1292,7 +1302,12 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   text-align: center;
   cursor: pointer;
 }
-.daily-sidequest-reopen { margin: 0.35rem 0.7rem 0; text-align: left; }
+.daily-sidequest-reopen {
+  margin: 0.35rem 0.7rem 0;
+  text-align: left;
+}
 .daily-sidequest-reopen:hover,
-.daily-return-to-plot:hover { background: #57728b; }
+.daily-return-to-plot:hover {
+  background: #57728b;
+}
 </style>

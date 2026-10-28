@@ -5,6 +5,7 @@ import {
   type CombatRoomId,
 } from './memoryDungeon/rooms'
 import { darkBriarDuelForRoom } from './memoryDungeon/darkBriarDuels'
+import { briarLossContinuation } from './memoryDungeon/lossContinuations'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
   restoreMinefieldRun,
@@ -611,9 +612,12 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
   const darkBout = darkBriarDuelForRoom(progress.roomId) !== null
   const retreat = darkBout
     ? `${combat.state.enemy.name} wins this bout. The challenger waits for a rematch.`
-    : lastHeart
-      ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
-      : `${combat.state.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`
+    : briarLossContinuation(
+        progress,
+        'combat',
+        lastHeart,
+        combat.state.enemy.name,
+      )
 
   return {
     ...progress,
@@ -625,7 +629,7 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
     hearts: lastHeart ? 3 : progress.hearts - 1,
     player: lastHeart && !darkBout ? BRIAR_START : progress.player,
     house,
-    status: houseOrigin
+    status: darkBout && houseOrigin
       ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
       : retreat,
   }
@@ -663,8 +667,7 @@ export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
             : [...progress.house.visited, 'HD-18' as const],
         }
       : progress.house
-  const retreat =
-    'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
+  const retreat = briarLossContinuation(progress, 'chamber', true)
 
   return {
     ...progress,
@@ -676,9 +679,7 @@ export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
     hearts: 3,
     player: BRIAR_START,
     house,
-    status: houseOrigin
-      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
-      : retreat,
+    status: retreat,
   }
 }
 

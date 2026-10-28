@@ -596,11 +596,13 @@ const save = restoreBriarSave(
 assert.deepEqual(save.sceneChoices, all.briar)
 assert.ok(!('quests' in save), 'threads add no save field')
 
-// Three cross-thread rare interludes are genuinely earned: four decisions
+// Six cross-thread rare interludes are genuinely earned: four decisions
 // from different scenes/rooms, two mutually exclusive authored consequences.
 // No invented reward, hidden save field, or unvisited witness can trigger one.
 assert.deepEqual(validateBriarRareEvents(), [])
-assert.equal(BRIAR_RARE_EVENTS.length, 3)
+assert.equal(BRIAR_RARE_EVENTS.length, 6)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 6)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)).size, 6)
 const rareCases = [
   {
     id: 'the-fourth-column',
@@ -625,6 +627,30 @@ const rareCases = [
     branchScope: 'briar',
     branchKey: '6,3',
     choices: ['remember', 'protect'],
+  },
+  {
+    id: 'the-voice-that-came-home',
+    briar: { '2,4': 'lend', '3,5': 'listen' },
+    house: { 'HD-07': 'speak' },
+    branchScope: 'briar',
+    branchKey: '6,4',
+    choices: ['carry', 'read'],
+  },
+  {
+    id: 'the-road-without-an-owner',
+    briar: { '3,2': 'ask', '2,2': 'observe' },
+    house: { 'HD-12': 'map' },
+    branchScope: 'house',
+    branchKey: 'HD-26',
+    choices: ['testify', 'shelter'],
+  },
+  {
+    id: 'two-crowns-one-promise',
+    briar: { '4,4': 'escort' },
+    house: { 'HD-10': 'improvise', 'HD-11': 'respect' },
+    branchScope: 'house',
+    branchKey: 'HD-30',
+    choices: ['rest', 'talk'],
   },
 ] as const
 assert.deepEqual(earnedBriarRareEvents({}, {}), [])
@@ -655,6 +681,17 @@ for (const event of rareCases) {
       ),
       earned,
       `${event.id} survives a save/reload without new state`,
+    )
+    const missingBranchBriar = { ...briar }
+    const missingBranchHouse = { ...house }
+    Reflect.deleteProperty(
+      event.branchScope === 'briar' ? missingBranchBriar : missingBranchHouse,
+      event.branchKey,
+    )
+    assert.equal(
+      earnedBriarRareEvents(missingBranchBriar, missingBranchHouse).length,
+      0,
+      `${event.id} requires a recorded final decision`,
     )
     for (const key of Object.keys(event.briar)) {
       const incomplete = { ...briar }
@@ -718,5 +755,5 @@ assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
 assert.match(store, /earnedBriarRareEvents\(/)
 
 console.log(
-  'Memory Briar quests: 8 side quests, 3 earned rare interludes with 6 authored outcomes, epilogue weight and save restoration verified',
+  'Memory Briar quests: 8 side quests, 6 earned rare interludes with 12 authored outcomes, epilogue weight and save restoration verified',
 )

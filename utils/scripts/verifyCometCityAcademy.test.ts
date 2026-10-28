@@ -385,7 +385,10 @@ for (const incident of NIGHT_DECK) {
   const realCase = realNightCase(incident.id)
   assert.ok(realCase, `Missing real-night branch for ${incident.id}`)
   assert.ok(realCase.briefing.length > 80)
-  assert.ok(realCase.refused.length > 90, `Missing authored refusal for ${incident.id}`)
+  assert.ok(
+    realCase.refused.length > 90,
+    `Missing authored refusal for ${incident.id}`,
+  )
   for (const grade of ['honors', 'pass', 'partial', 'failed'] as const)
     assert.ok(realCase.consequences[grade].length > 90)
   assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
@@ -1931,11 +1934,18 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   for (let day = 1; day <= 12; day++) {
     const cases = incidentsFor({ ...fresh, day })
     assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : 3)
-    assert.equal(new Set(cases.map((incident) => incident.id)).size, cases.length)
+    assert.equal(
+      new Set(cases.map((incident) => incident.id)).size,
+      cases.length,
+    )
     for (const incident of cases) seen.add(incident.id)
   }
   assert.equal(seen.size, 12)
-  const { incidentDeckVersion: _dropped, patrolOpening: _intro, ...legacy } = fresh
+  const {
+    incidentDeckVersion: _dropped,
+    patrolOpening: _intro,
+    ...legacy
+  } = fresh
   assert.equal(incidentDeck(legacy as AcademyRun), INCIDENTS)
   assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(legacy))), legacy)
   for (let day = 1; day <= 12; day++)
@@ -1960,7 +1970,9 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
       phase: 'dispatch',
       contacts: STUDENTS.map((student) => student.id),
     }
-    const other = incidentsFor(night).find((caseFile) => caseFile.id !== incident.id)!
+    const other = incidentsFor(night).find(
+      (caseFile) => caseFile.id !== incident.id,
+    )!
     night = assignTeam(night, incident.id, ['mina', 'sol'])
     night = assignTeam(night, other.id, ['imani', 'kit'])
     const done = resolveDispatch(assignPlayerCase(night, incident.id))
@@ -1975,7 +1987,6 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     assert.ok(PROM_ART_PROMPTS[`incidents/${incident.id}`])
   }
 }
-
 
 // Opening dramatic contract: two monologue nights, then two emergencies and
 // an earned friend who can split coverage or focus one spectacular rescue.
@@ -2008,10 +2019,21 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   const focus = planThirdNight(opening, primary!.id, 'concentrate')
   assert.equal(focus.assignments[0]!.caseId, primary!.id)
   const focusedReports = resolveDispatch(focus).reports
-  assert.equal(focusedReports.find((entry) => entry.caseId === primary!.id)?.grade, 'honors')
-  assert.equal(focusedReports.find((entry) => entry.caseId === secondary!.id)?.grade, 'failed')
-  assert.ok(focusedReports.find((entry) => entry.caseId === secondary!.id)?.text.includes('decline') ||
-    focusedReports.find((entry) => entry.caseId === secondary!.id)?.text.length)
+  assert.equal(
+    focusedReports.find((entry) => entry.caseId === primary!.id)?.grade,
+    'honors',
+  )
+  assert.equal(
+    focusedReports.find((entry) => entry.caseId === secondary!.id)?.grade,
+    'failed',
+  )
+  assert.ok(
+    focusedReports
+      .find((entry) => entry.caseId === secondary!.id)
+      ?.text.includes('decline') ||
+      focusedReports.find((entry) => entry.caseId === secondary!.id)?.text
+        .length,
+  )
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(focus))))
 }
 

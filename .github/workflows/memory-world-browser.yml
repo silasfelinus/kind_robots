@@ -1,0 +1,53 @@
+name: Memory Dungeon browser interruption
+
+on:
+  pull_request:
+    paths:
+      - 'stores/memoryWorldStore.ts'
+      - 'utils/memoryDungeon/**'
+      - 'utils/memoryDungeonWorld.ts'
+      - 'utils/memoryDungeonWaves.ts'
+      - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
+      - '.github/workflows/memory-world-browser.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'stores/memoryWorldStore.ts'
+      - 'utils/memoryDungeon/**'
+      - 'utils/memoryDungeonWorld.ts'
+      - 'utils/memoryDungeonWaves.ts'
+      - 'utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs'
+      - '.github/workflows/memory-world-browser.yml'
+  workflow_dispatch:
+
+jobs:
+  browser-interruptions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Test real Memory World store timers and browser reloads
+        run: node utils/scripts/verifyMemoryWorldBrowser.browser.test.mjs
+
+      - name: Preserve browser interruption results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-world-browser-interruptions
+          path: test-results/memory-browser/
+          if-no-files-found: ignore
+          retention-days: 7

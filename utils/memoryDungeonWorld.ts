@@ -16,6 +16,7 @@ import {
   restoreHouseProgress,
   type HouseProgress,
 } from './memoryDungeon/house'
+import { houseEpilogueLens } from './memoryDungeon/houseEpilogues'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -415,6 +416,8 @@ export function restoreBriarSave(input: unknown): BriarSave {
     : []
   const combat = restoreBriarCombat(saved.combat)
   const house = restoreHouseProgress(saved.house)
+  if (house?.ending && !house.endingLens)
+    house.endingLens = houseEpilogueLens(house, sceneChoices)
   const waveIndex =
     Number.isInteger(saved.waveIndex) &&
     saved.waveIndex! >= 0 &&

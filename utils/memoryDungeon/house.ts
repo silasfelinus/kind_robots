@@ -20,6 +20,7 @@ export type HouseKind =
   | 'climax'
   | 'exit'
 export type HouseEnding = 'release' | 'renew' | 'break'
+export type HouseEndingLens = 'community' | 'bonds' | 'obligation' | 'honesty'
 export type HouseCombatOrigin = 'HD-09' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
 export interface HouseChoice {
   id: string
@@ -44,6 +45,7 @@ export interface HouseProgress {
   visited: HouseRoomId[]
   decisions: Record<string, string>
   ending: HouseEnding | null
+  endingLens: HouseEndingLens | null
   wardenPassed: boolean
   combatOrigin: HouseCombatOrigin | null
   chimeClaimed: boolean
@@ -1043,6 +1045,7 @@ export function newHouseProgress(): HouseProgress {
     visited: [HOUSE_ENTRY],
     decisions: {},
     ending: null,
+    endingLens: null,
     wardenPassed: false,
     combatOrigin: null,
     chimeClaimed: false,
@@ -1080,6 +1083,16 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     ending:
       v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
         ? v.ending
+        : null,
+    endingLens:
+      (v.ending === 'release' ||
+        v.ending === 'renew' ||
+        v.ending === 'break') &&
+      (v.endingLens === 'community' ||
+        v.endingLens === 'bonds' ||
+        v.endingLens === 'obligation' ||
+        v.endingLens === 'honesty')
+        ? v.endingLens
         : null,
     wardenPassed: v.wardenPassed === true,
     combatOrigin:

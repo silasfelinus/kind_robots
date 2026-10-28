@@ -484,9 +484,19 @@ for (const surface of [chronicleSurface, questLogSurface]) {
   assert.match(surface, /@keydown\.esc\.prevent="emit\('close'\)"/)
 }
 assert.match(memoryMapSurface, /ref="settingsDialog"/)
-assert.match(memoryMapSurface, /@keydown="trapMemoryDialogTab\(\$event, settingsDialog\)"/)
-assert.match(memoryMapSurface, /@keydown\.esc\.prevent\.stop="settingsOpen = false"/)
-for (const trigger of ['chronicleTrigger', 'questsTrigger', 'settingsTrigger']) {
+assert.match(
+  memoryMapSurface,
+  /@keydown="trapMemoryDialogTab\(\$event, settingsDialog\)"/,
+)
+assert.match(
+  memoryMapSurface,
+  /@keydown\.esc\.prevent\.stop="settingsOpen = false"/,
+)
+for (const trigger of [
+  'chronicleTrigger',
+  'questsTrigger',
+  'settingsTrigger',
+]) {
   assert.ok(memoryMapSurface.includes(`ref="${trigger}"`))
   assert.ok(memoryMapSurface.includes(`${trigger}.value?.focus()`))
 }

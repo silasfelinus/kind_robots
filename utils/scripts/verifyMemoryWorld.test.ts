@@ -1890,6 +1890,60 @@ const checkpoint: MemoryCheckpoint = {
   },
   seals: newCrossMapSealChronicle(),
 }
+const invalidRealityCases = [
+  ['missing completed history', { ...checkpoint.reality.progress, completed: undefined }],
+  ['missing wish ledger', { ...checkpoint.reality.progress, rememberedAnchors: null }],
+  ['invalid finale commitment', { ...checkpoint.reality.progress, finaleCommitted: 'yes' }],
+  ['duplicate completed experience', { ...checkpoint.reality.progress, completed: ['e01', 'e01'] }],
+  ['unknown experience', { ...checkpoint.reality.progress, completed: ['e99'] }],
+  ['unreachable future experience', { ...checkpoint.reality.progress, completed: ['e03'] }],
+  ['unearned wish', { ...checkpoint.reality.progress, rememberedAnchors: ['char-possible-future'] }],
+  ['premature finale commitment', { ...checkpoint.reality.progress, finaleCommitted: true }],
+] as const
+for (const [reason, progress] of invalidRealityCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({
+      ...checkpoint,
+      reality: { ...checkpoint.reality, progress },
+    }),
+    null,
+    `A checkpoint with ${reason} must not silently discard campaign history`,
+  )
+}
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    reality: { ...checkpoint.reality, active: 'e02' },
+  }),
+  null,
+  'A mirrored reality cannot be active before its original is completed',
+)
+const validMirroredReality = {
+  ...checkpoint,
+  reality: {
+    ...checkpoint.reality,
+    active: 'e02' as const,
+    progress: {
+      ...checkpoint.reality.progress,
+      completed: ['e01' as const],
+    },
+  },
+}
+assert.deepEqual(
+  restoreMemoryCheckpoint(validMirroredReality)?.reality,
+  validMirroredReality.reality,
+  'A legitimately unlocked mirrored reality remains loadable',
+)
+const isolatedRealitySlots = restoreMemorySaveSlots([
+  { ...checkpoint, reality: { ...checkpoint.reality, progress: null } },
+  validMirroredReality,
+])
+assert.equal(isolatedRealitySlots[0], null)
+assert.deepEqual(
+  isolatedRealitySlots[1]?.reality,
+  validMirroredReality.reality,
+  'A damaged campaign ledger cannot erase a neighboring checkpoint',
+)
 const firstCheckpoint = writeMemorySaveSlot(emptyCheckpoints, 0, checkpoint)
 assert.ok(firstCheckpoint)
 assert.equal(firstCheckpoint[0]?.briar.attempts, 9)

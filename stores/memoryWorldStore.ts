@@ -153,7 +153,10 @@ import {
   newHouseProgress,
   type HouseCombatOrigin,
 } from '~/utils/memoryDungeon/house'
-import { houseEpilogue as earnedHouseEpilogue } from '~/utils/memoryDungeon/houseEpilogues'
+import {
+  houseEpilogue as earnedHouseEpilogue,
+  houseEpilogueLens,
+} from '~/utils/memoryDungeon/houseEpilogues'
 import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
 import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
@@ -1730,8 +1733,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       house.current === 'HD-35' &&
       (id === 'release' || id === 'renew' || id === 'break')
-    )
+    ) {
       house.ending = id
+      house.endingLens = houseEpilogueLens(house, state.value.sceneChoices)
+    }
     if (house.current === 'HD-36') {
       house.chimeClaimed = true
       if (!state.value.relics.includes('bramble-chime'))

@@ -2081,6 +2081,373 @@ function toggleAway(id: CrewId) {
   padding: 0.3rem 1rem;
   font-size: 0.75rem;
 }
+
+.cap-layout.cap-layout--personnel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.cap-layout--personnel > .cap-stage {
+  display: none;
+}
+.cap-layout--personnel .cap-bridge {
+  min-width: 0;
+  border-left: 0;
+  background:
+    linear-gradient(90deg, #0d1b30f5, #11243de8 65%, #0b132adc),
+    url('/game-of-captains/space-couch-stage.svg') center / cover;
+}
+.cap-layout--personnel .cap-personnel-scroll {
+  overflow: hidden;
+  min-height: 0;
+  padding: clamp(0.4rem, 1.2cqi, 1rem);
+  container-type: size;
+}
+.cap-personnel-frame {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  gap: clamp(0.3rem, 1.1cqh, 0.8rem);
+  overflow: hidden;
+}
+.cap-personnel-frame[data-screen='background'] {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.cap-personnel-frame[data-screen='captain'],
+.cap-personnel-frame[data-screen='crew'] {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.cap-personnel-frame .cap-heading {
+  grid-column: 1 / -1;
+  min-height: 0;
+  margin: 0;
+  padding-right: 11.5rem;
+}
+.cap-personnel-frame[data-screen='background'] .cap-heading {
+  padding-right: 0;
+}
+.cap-personnel-frame .cap-heading h2 {
+  font-size: clamp(1.15rem, 2.4cqi, 2rem);
+}
+.cap-personnel-frame .cap-heading p {
+  max-width: 70ch;
+  font-size: clamp(0.68rem, 1.2cqi, 0.9rem);
+  line-height: 1.25;
+}
+.cap-personnel-frame > .cap-step-back,
+.cap-personnel-frame > .cap-option {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: auto;
+  max-width: 11rem;
+  margin: 0;
+  padding: 0.5rem;
+  font-size: 0.7rem;
+  text-align: right;
+}
+.cap-personnel-frame > .cap-option small {
+  display: none;
+}
+.cap-personnel-frame .cap-origins {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1.2cqh, 0.8rem);
+}
+.cap-personnel-frame .cap-origin {
+  min-height: 0;
+  align-items: center;
+  padding: clamp(0.35rem, 1.5cqi, 1rem);
+  gap: clamp(0.3rem, 1cqi, 0.8rem);
+}
+.cap-personnel-frame .cap-origin-glyph {
+  font-size: clamp(1.45rem, 3cqi, 2.6rem);
+}
+.cap-personnel-frame .cap-origin strong {
+  font-size: clamp(0.78rem, 1.4cqi, 1.1rem);
+  line-height: 1.12;
+}
+.cap-personnel-frame .cap-origin small {
+  font-size: clamp(0.65rem, 1.05cqi, 0.88rem);
+  line-height: 1.25;
+}
+.cap-personnel-frame .cap-primary {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: clamp(2.6rem, 6cqh, 3.5rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-captains {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.25rem, 0.8cqh, 0.65rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-captain {
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(0.3rem, 1cqi, 0.85rem);
+  gap: 0.5rem;
+}
+.cap-personnel-frame .cap-captain-icon,
+.cap-personnel-frame .cap-monogram {
+  flex: 0 0 clamp(2rem, 4.5cqi, 3.7rem);
+  width: clamp(2rem, 4.5cqi, 3.7rem);
+  height: clamp(2rem, 4.5cqi, 3.7rem);
+}
+.cap-personnel-frame .cap-captain strong,
+.cap-personnel-frame .cap-crew-button strong {
+  font-size: clamp(0.7rem, 1.15cqi, 0.98rem);
+}
+.cap-personnel-frame .cap-captain small,
+.cap-personnel-frame .cap-crew-button small {
+  font-size: clamp(0.6rem, 0.9cqi, 0.78rem);
+}
+.cap-personnel-dossier {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(0.3rem, 0.9cqh, 0.75rem);
+  overflow: hidden;
+  padding: clamp(0.4rem, 1.1cqi, 0.85rem);
+  border: 1px solid #91bbc399;
+  border-radius: 0.8rem;
+  background: linear-gradient(160deg, #1f384fe8, #172238ee);
+}
+.cap-dossier-header {
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  gap: clamp(0.4rem, 1.1cqi, 0.85rem);
+}
+.cap-dossier-header img,
+.cap-dossier-monogram {
+  flex: 0 0 clamp(3rem, 6cqi, 6rem);
+  width: clamp(3rem, 6cqi, 6rem);
+  height: clamp(3rem, 6cqi, 6rem);
+  object-fit: cover;
+  border: 2px solid #f2c893;
+  border-radius: 0.65rem;
+}
+.cap-dossier-monogram {
+  display: grid;
+  place-items: center;
+  font: 900 2rem Georgia, serif;
+  color: #f7c994;
+  background: #30465d;
+}
+.cap-dossier-header > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.cap-dossier-header strong,
+.cap-dossier-header small {
+  display: block;
+  line-height: 1.2;
+}
+.cap-dossier-header strong {
+  color: #ffe2bc;
+  font-size: clamp(0.8rem, 1.5cqi, 1.15rem);
+}
+.cap-dossier-header small {
+  color: #bcdbdf;
+  font-size: clamp(0.64rem, 0.95cqi, 0.78rem);
+}
+.cap-dossier-header button {
+  align-self: flex-start;
+  padding: 0.4rem;
+  border: 1px solid #d8b887;
+  border-radius: 0.3rem;
+  white-space: nowrap;
+  color: #ffe2b7;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+.cap-dossier-header button:hover,
+.cap-dossier-header button:focus-visible,
+.cap-crew-pages button:hover:not(:disabled),
+.cap-crew-pages button:focus-visible {
+  background: #36556a;
+  outline-offset: 2px;
+}
+.cap-personnel-dossier .cap-insight {
+  min-height: 0;
+  margin: 0;
+  padding: 0.4rem;
+}
+.cap-personnel-dossier .cap-stats {
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cap-personnel-dossier .cap-stats > div {
+  padding: clamp(0.2rem, 0.8cqh, 0.6rem);
+}
+.cap-personnel-dossier .cap-stats strong {
+  margin-top: 0.1rem;
+  font-size: clamp(0.9rem, 1.8cqi, 1.5rem);
+}
+.cap-personnel-dossier .cap-dossier-story p,
+.cap-personnel-dossier .cap-dossier-story small {
+  margin: 0.2rem 0;
+  font-size: clamp(0.65rem, 0.95cqi, 0.84rem);
+  line-height: 1.35;
+}
+.cap-crew-roster {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  min-height: 0;
+  min-width: 0;
+  gap: clamp(0.2rem, 0.6cqh, 0.5rem);
+}
+.cap-personnel-frame .cap-crew-picker {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.2rem, 0.65cqh, 0.55rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-crew-button {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  text-align: center;
+  gap: clamp(0.15rem, 0.4cqh, 0.35rem);
+}
+.cap-personnel-frame .cap-crew-button > span:nth-child(2) {
+  min-width: 0;
+}
+.cap-personnel-frame .cap-crew-button > b {
+  position: absolute;
+  right: 0.4rem;
+  top: 0.4rem;
+}
+.cap-crew-pages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.3rem;
+  color: #9de6e8;
+  font-size: clamp(0.59rem, 0.95cqi, 0.76rem);
+  font-weight: 900;
+}
+.cap-crew-pages button {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid #88b2bd;
+  border-radius: 0.3rem;
+  color: #ffdbac;
+}
+.cap-crew-pages button:disabled {
+  opacity: 0.4;
+}
+.cap-personnel-frame .cap-team-note {
+  min-width: 0;
+  line-height: 1.3;
+  font-size: clamp(0.6rem, 0.92cqi, 0.75rem);
+}
+.cap-large-type .cap-personnel-frame .cap-crew-button strong,
+.cap-large-type .cap-personnel-frame .cap-captain strong {
+  font-size: clamp(0.85rem, 1.4cqi, 1.1rem);
+}
+@media (max-width: 650px) {
+  .cap-personnel-frame[data-screen='captain'],
+  .cap-personnel-frame[data-screen='crew'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.55fr) auto;
+  }
+  .cap-personnel-frame .cap-heading {
+    padding-right: 6.5rem;
+  }
+  .cap-personnel-frame .cap-heading p {
+    display: none;
+  }
+  .cap-personnel-frame > .cap-step-back,
+  .cap-personnel-frame > .cap-option {
+    max-width: 6.2rem;
+    font-size: 0.56rem;
+  }
+  .cap-personnel-frame .cap-origins {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-origin {
+    padding: 0.3rem;
+  }
+  .cap-personnel-frame .cap-origin-glyph {
+    font-size: 1.2rem;
+  }
+  .cap-personnel-frame .cap-captains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-crew-picker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-dossier {
+    min-height: 0;
+    grid-row: 3;
+    grid-column: 1;
+  }
+  .cap-dossier-header img,
+  .cap-dossier-monogram {
+    flex-basis: 2.3rem;
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+  .cap-personnel-dossier .cap-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.2rem;
+  }
+  .cap-personnel-dossier .cap-stats > div {
+    padding: 0.2rem;
+  }
+  .cap-personnel-dossier .cap-stats strong {
+    font-size: 0.9rem;
+  }
+  .cap-personnel-dossier .cap-dossier-story p,
+  .cap-personnel-dossier .cap-dossier-story small {
+    font-size: clamp(0.59rem, 2vw, 0.76rem);
+    line-height: 1.2;
+  }
+  .cap-personnel-frame .cap-primary {
+    grid-row: 4;
+  }
+}
+@media (max-width: 420px) {
+  .cap-personnel-frame .cap-origin small {
+    font-size: 0.61rem;
+  }
+  .cap-personnel-frame .cap-captain-icon,
+  .cap-personnel-frame .cap-monogram {
+    flex-basis: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+  .cap-personnel-frame .cap-crew-button small {
+    display: none;
+  }
+  .cap-personnel-frame .cap-crew-pages {
+    font-size: 0.56rem;
+  }
+  .cap-personnel-frame .cap-crew-pages button {
+    padding: 0.3rem;
+  }
+}
+
 .cap-layout.cap-layout--stars {
   display: block;
   min-height: 0;

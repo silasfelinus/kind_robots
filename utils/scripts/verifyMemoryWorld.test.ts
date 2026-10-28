@@ -2587,7 +2587,10 @@ assert.equal(
 const lossContexts = [
   { choices: { '4,3': 'plan' }, expected: /Oren's inked detour/ },
   { choices: { '4,3': 'load' }, expected: /parcels you sorted/ },
-  { choices: { '2,4': 'lend' }, expected: /night courier still has your lantern/ },
+  {
+    choices: { '2,4': 'lend' },
+    expected: /night courier still has your lantern/,
+  },
   { choices: { '2,4': 'copy' }, expected: /copied impossible address/ },
   { choices: { '4,3': 'forged' }, expected: /map and discoveries survive/ },
 ] as const
@@ -2638,10 +2641,9 @@ assert.ok(
   ),
   'The live chamber timer uses the same authored continuation as reload',
 )
-assert.ok(
-  worldStoreSource.includes(
-    "briarLossContinuation(state.value, 'combat', false, next.enemy.name)",
-  ),
+assert.match(
+  worldStoreSource,
+  /briarLossContinuation\(\s*state\.value,\s*'combat',\s*false,\s*next\.enemy\.name,/,
   'The live combat timer uses the same authored continuation as reload',
 )
 

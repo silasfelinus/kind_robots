@@ -325,12 +325,19 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '3,1',
         advance: ['harvest'],
         text: 'Gather only the fruit the Sleepless Orchard releases.',
+        closedOutcomes: {
+          listen:
+            'You counted every answering bell and taught the keeper which trees refused the harvest. Their consent is recorded, but you carried no apples to the field kitchen. The workers must find another supper tonight; the keeper promises to return when the branches choose to release fruit.',
+        },
       },
       {
         scope: 'briar',
         key: '1,3',
         advance: ['return'],
         text: 'Give the bent spoon back to the field cook and share real food.',
+        closedOutcomes: {
+          keep: 'You tasted a remembered meal from Earth and left the enchanted spoon with its owner. The cook understands the difference between longing and hunger, but still has only rainwater in the pot. The orchard workers receive a story about food instead of supper; the kitchen must wait for real supplies.',
+        },
       },
       {
         scope: 'briar',
@@ -343,6 +350,10 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: 'HD-04',
         advance: ['share'],
         text: 'Divide the Clockwork Pantry’s rations with the absent guest.',
+        closedOutcomes: {
+          record:
+            'You wrote the absent guest’s name into the pantry ledger rather than divide its single ration. The House can no longer pretend everyone was fed, but the loaf remains on the table and the orchard workers still need a meal. The cook takes your list to the village council and demands a fair share of the next delivery.',
+        },
       },
     ],
     complete:

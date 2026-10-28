@@ -172,7 +172,11 @@ for (const [scope, key, choice, expected] of patrolClosures) {
   const decisions = split(patrol)
   ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
   const result = briarQuestProgress(patrol, decisions.briar, decisions.house)
-  assert.equal(result.state, 'closed', `${key} ${choice} closes the patrol case`)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the patrol case`,
+  )
   assert.match(result.quest.closed, expected)
   assert.notEqual(result.quest.closed, patrol.closed)
   patrolEndings.add(result.quest.closed)
@@ -181,7 +185,10 @@ for (const [scope, key, choice, expected] of patrolClosures) {
       JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
     ),
   )
-  const house = JSON.parse(JSON.stringify(decisions.house)) as Record<string, string>
+  const house = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
   assert.equal(
     briarQuestProgress(patrol, restored.sceneChoices, house).quest.closed,
     result.quest.closed,

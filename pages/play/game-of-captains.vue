@@ -25,12 +25,7 @@
       <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
-      <button
-        v-if="run"
-        type="button"
-        class="cap-reset"
-        @click="restartVoyage"
-      >
+      <button v-if="run" type="button" class="cap-reset" @click="restartVoyage">
         NEW VOYAGE
       </button>
     </header>
@@ -257,8 +252,8 @@
                 </button>
               </div>
               <div class="cap-team-note">
-                ✧ {{ chosenStarSign?.name }} · {{ chosenCrew.length }} / 3 selected ·
-                {{ CREW_PROFILES.length }} candidates ·
+                ✧ {{ chosenStarSign?.name }} · {{ chosenCrew.length }} / 3
+                selected · {{ CREW_PROFILES.length }} candidates ·
                 {{
                   chosenCrew.length === 3
                     ? 'Unselect an officer to appoint a different one'
@@ -1173,7 +1168,10 @@ import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
-import { starSignFor, type StarAssessment } from '~/utils/gameOfCaptains/starSigns'
+import {
+  starSignFor,
+  type StarAssessment,
+} from '~/utils/gameOfCaptains/starSigns'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,

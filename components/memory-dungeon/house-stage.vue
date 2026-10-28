@@ -179,7 +179,9 @@
       aria-label="Open House passages"
       data-testid="memory-house-passages"
     >
-      <span class="shrink-0 whitespace-nowrap font-bold text-[#e6d49d]">Open passages</span>
+      <span class="shrink-0 whitespace-nowrap font-bold text-[#e6d49d]"
+        >Open passages</span
+      >
       <button
         v-for="exit in available"
         :key="exit"

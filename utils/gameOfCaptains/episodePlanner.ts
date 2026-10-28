@@ -14,15 +14,14 @@ export function planEpisodeAssignment(
   if (!encounterId || !lead) return { ...current }
   const targetLead = current[encounterId]
   const previousQuest = Object.keys(current).find((id) => current[id] === lead)
-  const next = { ...current }
-  if (targetLead === lead) {
-    delete next[encounterId]
-    return next
-  }
-  if (previousQuest) {
-    delete next[previousQuest]
-    if (targetLead) next[previousQuest] = targetLead
-  }
+  if (targetLead === lead)
+    return Object.fromEntries(
+      Object.entries(current).filter(([id]) => id !== encounterId),
+    )
+  const next = Object.fromEntries(
+    Object.entries(current).filter(([id]) => id !== previousQuest),
+  )
+  if (previousQuest && targetLead) next[previousQuest] = targetLead
   next[encounterId] = lead
   return next
 }
@@ -31,7 +30,7 @@ export function removeEpisodeAssignment(
   current: EpisodePlan,
   encounterId: string,
 ): Record<string, string> {
-  const next = { ...current }
-  delete next[encounterId]
-  return next
+  return Object.fromEntries(
+    Object.entries(current).filter(([id]) => id !== encounterId),
+  )
 }

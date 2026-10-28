@@ -81,7 +81,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
-  const preferences = ref<CouchPreferences>({ largeText: false, reducedMotion: false })
+  const preferences = ref<CouchPreferences>({
+    largeText: false,
+    reducedMotion: false,
+  })
   const saved = computed(() => !!run.value)
 
   function persist() {
@@ -110,7 +113,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded.value = true
     try {
       try {
-        const savedPreferences = JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? 'null')
+        const savedPreferences = JSON.parse(
+          localStorage.getItem(PREFERENCES_KEY) ?? 'null',
+        )
         if (savedPreferences && typeof savedPreferences === 'object') {
           preferences.value = {
             largeText: savedPreferences.largeText === true,

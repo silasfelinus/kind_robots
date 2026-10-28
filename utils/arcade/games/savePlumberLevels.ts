@@ -1089,7 +1089,12 @@ export type SpawnKind =
   | 'gear'
   | 'glider'
 
-export type Spawn = { kind: SpawnKind; col: number; row: number; giant?: boolean }
+export type Spawn = {
+  kind: SpawnKind
+  col: number
+  row: number
+  giant?: boolean
+}
 
 export type Door = { col: number; row: number; to: number }
 
@@ -1211,7 +1216,12 @@ export function parseStage(def: StageDef): Stage {
       const ch = line[col]!
       if (SOLIDS[ch]) solid[row * cols + col] = SOLIDS[ch]!
       else if (GIANT_FOES[ch as keyof typeof GIANT_FOES])
-        spawns.push({ kind: GIANT_FOES[ch as keyof typeof GIANT_FOES], col, row, giant: true })
+        spawns.push({
+          kind: GIANT_FOES[ch as keyof typeof GIANT_FOES],
+          col,
+          row,
+          giant: true,
+        })
       else if (SPAWNS[ch]) spawns.push({ kind: SPAWNS[ch]!, col, row })
       else if (ch === '@') start = { col, row }
       else if (ch === 'X') gate = col

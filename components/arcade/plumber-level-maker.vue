@@ -5,8 +5,8 @@
         <span class="maker-kicker">KIND ROBOTS · COURSE WORKSHOP</span>
         <strong>{{ maker.level.title }}</strong>
         <small
-          >{{ maker.level.rows[0]?.length }} × {{ maker.level.rows.length }} · WORLD
-          {{ maker.level.theme }} ·
+          >{{ maker.level.rows[0]?.length }} × {{ maker.level.rows.length }} ·
+          WORLD {{ maker.level.theme }} ·
           {{ maker.hasChanges ? 'UNSAVED' : 'SAVED' }}</small
         >
       </div>
@@ -72,28 +72,36 @@
                 title="Shorter course · 8 columns"
                 :disabled="maker.level.rows[0]!.length <= 32"
                 @click="resizeCourse(-8, 0)"
-              >↔−</button>
+              >
+                ↔−
+              </button>
               <button
                 type="button"
                 aria-label="Add eight columns to the right"
                 title="Longer course · 8 columns"
                 :disabled="maker.level.rows[0]!.length >= 96"
                 @click="resizeCourse(8, 0)"
-              >↔+</button>
+              >
+                ↔+
+              </button>
               <button
                 type="button"
                 aria-label="Remove four empty rows from the sky"
                 title="Lower sky · 4 rows"
                 :disabled="maker.level.rows.length <= 16"
                 @click="resizeCourse(0, -4)"
-              >↕−</button>
+              >
+                ↕−
+              </button>
               <button
                 type="button"
                 aria-label="Add four empty rows above the course"
                 title="Higher sky · 4 rows"
                 :disabled="maker.level.rows.length >= 48"
                 @click="resizeCourse(0, 4)"
-              >↕+</button>
+              >
+                ↕+
+              </button>
               <button type="button" @click="zoom = Math.max(0.65, zoom - 0.15)">
                 −
               </button>

@@ -156,7 +156,10 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function resize(cols: number, rows: number): boolean {
     try {
       const next = resizeMakerLevel(level.value, cols, rows)
-      if (next.rows.length === level.value.rows.length && next.rows[0]!.length === level.value.rows[0]!.length)
+      if (
+        next.rows.length === level.value.rows.length &&
+        next.rows[0]!.length === level.value.rows[0]!.length
+      )
         return true
       pushUndo()
       level.value = next
@@ -166,7 +169,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = ''
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Cannot resize this course.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot resize this course.'
       return false
     }
   }

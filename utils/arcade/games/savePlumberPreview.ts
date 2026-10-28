@@ -2255,8 +2255,7 @@ export class PlumberRun implements ArcadeGameInstance {
         hero.y + TALL > foe.y - (foe.giant ? 36 : 18) &&
         this.heroTop < foe.y
       if (!overlap || this.mode !== 'play') continue
-      const stomp =
-        hero.vy > 0.5 && prevBottom <= foe.y - (foe.giant ? 26 : 10)
+      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - (foe.giant ? 26 : 10)
       if (this.shielded && !stomp) {
         if (this.specialKind === 'charge') this.strikeFoe(foe)
         continue
@@ -4689,7 +4688,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.globalAlpha = alpha
       g.fillStyle = foe.kind === 'pumpbug' ? '#d65a7d' : '#7d8a96'
       g.beginPath()
-      g.arc(foe.x, foe.y - (foe.giant ? 18 : 9), foe.giant ? 18 : 9, 0, Math.PI * 2)
+      g.arc(
+        foe.x,
+        foe.y - (foe.giant ? 18 : 9),
+        foe.giant ? 18 : 9,
+        0,
+        Math.PI * 2,
+      )
       g.fill()
       g.globalAlpha = 1
     }

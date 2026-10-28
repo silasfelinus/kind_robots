@@ -227,17 +227,9 @@ export function resizeMakerLevel(
   rows: number,
 ): MakerLevel {
   const source = validateMakerLevel(level)
-  if (
-    !Number.isInteger(cols) ||
-    cols < MAKER_MIN_COLS ||
-    cols > MAKER_MAX_COLS
-  )
+  if (!Number.isInteger(cols) || cols < MAKER_MIN_COLS || cols > MAKER_MAX_COLS)
     throw new Error('Course width must be 32 to 96 tiles')
-  if (
-    !Number.isInteger(rows) ||
-    rows < MAKER_MIN_ROWS ||
-    rows > MAKER_MAX_ROWS
-  )
+  if (!Number.isInteger(rows) || rows < MAKER_MIN_ROWS || rows > MAKER_MAX_ROWS)
     throw new Error('Course height must be 16 to 48 tiles')
   const oldCols = source.rows[0]!.length
   const oldRows = source.rows.length
@@ -250,13 +242,18 @@ export function resizeMakerLevel(
     )
   )
     throw new Error('Clear tiles at the right edge before reducing width')
-  if (rows < oldRows && source.rows.slice(0, oldRows - rows).some((line) => /[^.]/.test(line)))
+  if (
+    rows < oldRows &&
+    source.rows.slice(0, oldRows - rows).some((line) => /[^.]/.test(line))
+  )
     throw new Error('Clear tiles at the top before reducing height')
   const resized = source.rows.map((line) =>
     line.padEnd(cols, line.endsWith('#') ? '#' : '.').slice(0, cols),
   )
   if (rows > oldRows)
-    resized.unshift(...Array.from({ length: rows - oldRows }, () => '.'.repeat(cols)))
+    resized.unshift(
+      ...Array.from({ length: rows - oldRows }, () => '.'.repeat(cols)),
+    )
   else if (rows < oldRows) resized.splice(0, oldRows - rows)
   return validateMakerLevel({ ...source, rows: resized })
 }

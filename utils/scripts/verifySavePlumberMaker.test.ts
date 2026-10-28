@@ -17,7 +17,11 @@ import {
   toMakerStage,
   validateMakerLevel,
 } from '../arcade/games/savePlumberMaker'
-import { GIANT_FOES, STAGE_GLYPHS, parseStage } from '../arcade/games/savePlumberLevels'
+import {
+  GIANT_FOES,
+  STAGE_GLYPHS,
+  parseStage,
+} from '../arcade/games/savePlumberLevels'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 
 const source = (path: string) =>
@@ -72,22 +76,43 @@ assert.equal(giants?.tiles.length, 14)
 for (const [glyph, kind] of Object.entries(GIANT_FOES)) {
   const variant = paintMakerTile(initial, 9, 20, glyph)
   const parsed = parseStage(toMakerStage(variant))
-  assert.ok(parsed.spawns.some((spawn) => spawn.col === 9 && spawn.kind === kind && spawn.giant))
+  assert.ok(
+    parsed.spawns.some(
+      (spawn) => spawn.col === 9 && spawn.kind === kind && spawn.giant,
+    ),
+  )
   const playable = createSavePlumberPreview(
-    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
     { customLevel: toMakerStage(variant) },
   )
-  assert.ok(playable.foes.some((foe) => foe.kind === kind && foe.giant && foe.giantHits === 0))
+  assert.ok(
+    playable.foes.some(
+      (foe) => foe.kind === kind && foe.giant && foe.giantHits === 0,
+    ),
+  )
   assert.equal(playable.save, undefined)
 }
 const longer = resizeMakerLevel(initial, 72, 24)
 assert.equal(longer.rows[0]!.length, 72)
-assert.equal(longer.rows[23]!.slice(64), '#'.repeat(8), 'Extending width continues the original ground')
+assert.equal(
+  longer.rows[23]!.slice(64),
+  '#'.repeat(8),
+  'Extending width continues the original ground',
+)
 assert.equal(parseStage(toMakerStage(longer)).start.col, 3)
 const taller = resizeMakerLevel(longer, 72, 32)
 assert.equal(taller.rows.length, 32)
 assert.equal(parseStage(toMakerStage(taller)).start.row, 28)
-assert.deepEqual(resizeMakerLevel(taller, 64, 24), initial, 'Unused extension can be removed without losing authored tiles')
+assert.deepEqual(
+  resizeMakerLevel(taller, 64, 24),
+  initial,
+  'Unused extension can be removed without losing authored tiles',
+)
 const tallPlayed = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(taller) },
@@ -95,12 +120,21 @@ const tallPlayed = createSavePlumberPreview(
 assert.equal(tallPlayed.stage.rows, 32)
 assert.equal(tallPlayed.stage.cols, 72)
 assert.equal(tallPlayed.save, undefined)
-assert.equal(resizeMakerLevel(initial, 64, MAKER_MIN_ROWS).rows.length, MAKER_MIN_ROWS)
-assert.equal(resizeMakerLevel(initial, 64, MAKER_MAX_ROWS).rows.length, MAKER_MAX_ROWS)
+assert.equal(
+  resizeMakerLevel(initial, 64, MAKER_MIN_ROWS).rows.length,
+  MAKER_MIN_ROWS,
+)
+assert.equal(
+  resizeMakerLevel(initial, 64, MAKER_MAX_ROWS).rows.length,
+  MAKER_MAX_ROWS,
+)
 assert.throws(() => resizeMakerLevel(initial, 24, 24), /width/)
 assert.throws(() => resizeMakerLevel(initial, 64, 60), /height/)
 assert.throws(() => resizeMakerLevel(initial, 48, 24), /right edge/)
-assert.throws(() => resizeMakerLevel(paintMakerTile(initial, 7, 0, 'p'), 64, 16), /top/)
+assert.throws(
+  () => resizeMakerLevel(paintMakerTile(initial, 7, 0, 'p'), 64, 16),
+  /top/,
+)
 const editedEdge = paintMakerTile(longer, 71, 18, 'p')
 assert.throws(() => resizeMakerLevel(editedEdge, 64, 24), /right edge/)
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(taller)), taller)

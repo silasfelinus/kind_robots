@@ -138,7 +138,11 @@
           </option>
         </select>
       </label>
-      <div class="maker-size-settings" role="group" aria-label="Course dimensions">
+      <div
+        class="maker-size-settings"
+        role="group"
+        aria-label="Course dimensions"
+      >
         <label>
           WIDTH · 32–96 TILES
           <input
@@ -163,7 +167,8 @@
         </label>
       </div>
       <p class="maker-help">
-        Expand right or add sky above with the stage controls. Trimming will never silently erase placed tiles.
+        Expand right or add sky above with the stage controls. Trimming will
+        never silently erase placed tiles.
       </p>
       <label class="maker-check">
         <input
@@ -214,12 +219,18 @@ function removeDraft(id: string) {
 }
 function changeWidth(event: Event) {
   const input = event.target as HTMLInputElement
-  emit('resize-course', { cols: Number(input.value), rows: maker.level.rows.length })
+  emit('resize-course', {
+    cols: Number(input.value),
+    rows: maker.level.rows.length,
+  })
   input.value = String(maker.level.rows[0]!.length)
 }
 function changeHeight(event: Event) {
   const input = event.target as HTMLInputElement
-  emit('resize-course', { cols: maker.level.rows[0]!.length, rows: Number(input.value) })
+  emit('resize-course', {
+    cols: maker.level.rows[0]!.length,
+    rows: Number(input.value),
+  })
   input.value = String(maker.level.rows.length)
 }
 function changeTitle(e: Event) {

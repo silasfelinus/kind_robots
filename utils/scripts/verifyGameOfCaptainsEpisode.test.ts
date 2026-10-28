@@ -25,6 +25,7 @@ import {
   drawEpisodeDeck,
   type EpisodeAssignment,
   type EpisodeQuestResult,
+  type EpisodeRun,
 } from '../gameOfCaptains/episodeConsole'
 
 const base = startVoyage('vale', ['pell', 'mox', 'rue'], 12045)
@@ -41,8 +42,8 @@ const firstRedshirt = landing.redshirtRoster![0]!
 assert.equal(observedRedshirt(landing, firstRedshirt), false)
 assert.equal(questOdds(landing, mandatory[0]!, firstRedshirt), null)
 assert.equal(
-  questDuration(landing, mandatory[0]!),
-  questDuration(landing, mandatory[0]!),
+  questDuration(landing, mandatory[0]!.id),
+  questDuration(landing, mandatory[0]!.id),
 )
 assert.deepEqual(
   EPISODE_CHOICES.map((c) => c.id),
@@ -192,7 +193,7 @@ const alternateEnding = episodeEndingCoda({
       result: 'helped',
     })),
   ],
-})
+} as EpisodeRun)
 assert.match(alternateEnding.scene, /BLUE GIANTS.*ACCORD/)
 assert.equal(
   episodeEndingCoda(bar),
@@ -220,6 +221,10 @@ assert.ok(daily.includes('space-couch-expedition-deploy'))
 assert.ok(daily.includes('space-couch-expedition-finish'))
 assert.ok(daily.includes('APTITUDE SEALED'))
 assert.ok(daily.includes('SUCCESS ODDS CLASSIFIED'))
-assert.ok(store.includes('dispatchEpisodeBatch') && store.includes('drawEpisodeDeck'))
+assert.ok(
+  store.includes('dispatchEpisodeBatch') && store.includes('drawEpisodeDeck'),
+)
 assert.ok(store.includes('!episodeDecksDone(run.value)'))
-console.log('Space Couch episodic card dispatch, fog of war, faction choices and seeded deck cycle verified')
+console.log(
+  'Space Couch episodic card dispatch, fog of war, faction choices and seeded deck cycle verified',
+)

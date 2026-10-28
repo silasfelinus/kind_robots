@@ -223,10 +223,7 @@
         type="button"
         class="cap-reset"
         data-testid="space-couch-return-menu"
-        @click="
-          atTitle = true
-          titlePanel = 'home'
-        "
+        @click="atTitle = true; titlePanel = 'home'"
       >
         MENU
       </button>
@@ -234,11 +231,7 @@
         v-if="run"
         type="button"
         class="cap-reset"
-        @click="
-          atTitle = true
-          titlePanel = 'home'
-          confirmNewVoyage = true
-        "
+        @click="atTitle = true; titlePanel = 'home'; confirmNewVoyage = true"
       >
         NEW VOYAGE
       </button>

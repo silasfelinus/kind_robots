@@ -44,6 +44,7 @@ import {
 import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
+import { validStarAssessment, type StarAssessment } from './starSigns'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =
@@ -366,6 +367,7 @@ export type VoyageRun = {
   seed: number
   phase: VoyagePhase
   captain: CaptainId
+  starAssessment?: StarAssessment
   crew: CrewId[]
   away: CrewId[]
   pocketRoom?: PocketRoom | null
@@ -633,12 +635,14 @@ export function startVoyage(
   captain: CaptainId,
   crew: CrewId[],
   seed = Date.now(),
+  starAssessment?: StarAssessment,
 ): VoyageRun {
   if (
     !CAPTAINS.some((entry) => entry.id === captain) ||
     crew.length !== 3 ||
     new Set(crew).size !== crew.length ||
-    crew.some((id) => !CREW.some((member) => member.id === id))
+    crew.some((id) => !CREW.some((member) => member.id === id)) ||
+    (starAssessment !== undefined && !validStarAssessment(starAssessment))
   )
     throw new Error('Choose a captain and three unique crew')
   const cleanSeed = Math.abs(Math.floor(seed)) || 1
@@ -647,6 +651,7 @@ export function startVoyage(
     seed: cleanSeed,
     phase: 'briefing',
     captain,
+    ...(starAssessment ? { starAssessment } : {}),
     crew: [...crew],
     away: [],
     pocketRoom: null,
@@ -1242,6 +1247,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
   if (
     data.version !== 1 ||
     !CAPTAINS.some((p) => p.id === data.captain) ||
+    (data.starAssessment !== undefined &&
+      !validStarAssessment(data.starAssessment)) ||
     !Array.isArray(data.crew) ||
     data.crew.length < 3 ||
     data.crew.length > 4 ||

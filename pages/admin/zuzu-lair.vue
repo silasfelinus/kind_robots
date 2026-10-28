@@ -8,7 +8,7 @@
         data-testid="lair-stage"
       >
         <zuzu-lair-stage
-          :key="run.node"
+          :key="run.node + ':' + sceneVersion"
           :scene-id="run.node"
           :window-open="windowOpen"
           data-testid="lair-animation"
@@ -335,6 +335,7 @@ const store = useZuzuLairStore()
 const arcade = useArcadeStore()
 
 const phase = ref<'title' | 'play' | 'end'>('title')
+const sceneVersion = ref(0)
 const selectedChapter = ref<'bats' | 'gulch'>('bats')
 const chapter = computed(() =>
   selectedChapter.value === 'bats' ? BAT_CORRIDOR : CHAPTER_1,
@@ -472,6 +473,7 @@ function onKey(event: KeyboardEvent) {
 
 function begin() {
   sound?.unlock()
+  sceneVersion.value++
   run.value = startRun(chapter.value, store.difficulty)
   submitted.value = false
   phase.value = 'play'

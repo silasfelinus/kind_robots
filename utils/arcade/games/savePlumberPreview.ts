@@ -286,8 +286,21 @@ const BRIDGE_CYCLE = 270
 const BRIDGE_LIT = 180
 
 type Vent = { x: number; y: number; offset: number }
-export type Icicle = { x: number; y: number; top: number; vy: number; state: 'idle' | 'warning' | 'falling' | 'gone'; timer: number }
-export type Snowball = { x: number; y: number; vx: number; vy: number; gone: boolean }
+export type Icicle = {
+  x: number
+  y: number
+  top: number
+  vy: number
+  state: 'idle' | 'warning' | 'falling' | 'gone'
+  timer: number
+}
+export type Snowball = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  gone: boolean
+}
 type Spring = { x: number; y: number; squash: number }
 type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
@@ -1049,10 +1062,23 @@ export class PlumberRun implements ArcadeGameInstance {
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
           break
         case 'icicle':
-          this.icicles.push({ x: cx, y: bottom, top: bottom, vy: 0, state: 'idle', timer: 0 })
+          this.icicles.push({
+            x: cx,
+            y: bottom,
+            top: bottom,
+            vy: 0,
+            state: 'idle',
+            timer: 0,
+          })
           break
         case 'snowball':
-          this.snowballs.push({ x: cx, y: bottom, vx: spawn.col % 2 ? 1.7 : -1.7, vy: 0, gone: false })
+          this.snowballs.push({
+            x: cx,
+            y: bottom,
+            vx: spawn.col % 2 ? 1.7 : -1.7,
+            vy: 0,
+            gone: false,
+          })
           break
         case 'springstep':
           this.springs.push({ x: cx, y: bottom, squash: 0 })
@@ -1228,12 +1254,16 @@ export class PlumberRun implements ArcadeGameInstance {
     this.running = runner || (keys.held.b === true && move !== 0)
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     const onIce =
-      this.ground &&
-      this.solidAt(
-        Math.floor(hero.x / TILE),
-        Math.floor((hero.y + TALL + 2) / TILE),
-      ) === SOLID_ICE ||
-      (this.ground && this.solidAt(Math.floor(hero.x / TILE), Math.floor((hero.y + TALL + 2) / TILE)) === SOLID_FRAGILE_ICE)
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_ICE) ||
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_FRAGILE_ICE)
     if (runner) hero.vx += (top - hero.vx) * 0.25
     // A crouch keeps a run's momentum as a slide, then crawls.
     else if (this.ducking && this.ground) {
@@ -2421,7 +2451,10 @@ export class PlumberRun implements ArcadeGameInstance {
           this.hurt(icicle.x < hero.x ? 1 : -1)
         const col = Math.floor(icicle.x / TILE)
         const row = Math.floor((icicle.y + 1) / TILE)
-        if (isWall(this.solidAt(col, row)) || icicle.y > this.stage.rows * TILE) {
+        if (
+          isWall(this.solidAt(col, row)) ||
+          icicle.y > this.stage.rows * TILE
+        ) {
           icicle.state = 'gone'
           this.sound.play('pop')
         }
@@ -2436,7 +2469,10 @@ export class PlumberRun implements ArcadeGameInstance {
       )
       if (isWall(side)) ball.vx *= -1
       ball.x += ball.vx
-      const underneath = this.solidAt(Math.floor(ball.x / TILE), Math.floor((ball.y + 2) / TILE))
+      const underneath = this.solidAt(
+        Math.floor(ball.x / TILE),
+        Math.floor((ball.y + 2) / TILE),
+      )
       if (!isWall(underneath) && underneath !== SOLID_LEDGE) {
         ball.vy = Math.min(8, ball.vy + GRAVITY)
         ball.y += ball.vy
@@ -2444,11 +2480,19 @@ export class PlumberRun implements ArcadeGameInstance {
         ball.y = Math.floor((ball.y + 2) / TILE) * TILE
         ball.vy = 0
       }
-      if (ball.x < 0 || ball.x > this.stage.cols * TILE || ball.y > this.stage.rows * TILE + 20) {
+      if (
+        ball.x < 0 ||
+        ball.x > this.stage.cols * TILE ||
+        ball.y > this.stage.rows * TILE + 20
+      ) {
         ball.gone = true
         continue
       }
-      if (Math.abs(ball.x - hero.x) < HALF + 11 && hero.y + TALL > ball.y - 18 && this.heroTop < ball.y) {
+      if (
+        Math.abs(ball.x - hero.x) < HALF + 11 &&
+        hero.y + TALL > ball.y - 18 &&
+        this.heroTop < ball.y
+      ) {
         if (hero.vy > 0.5 && prevBottom <= ball.y - 11) {
           ball.gone = true
           hero.vy = -6

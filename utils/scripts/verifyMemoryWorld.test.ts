@@ -225,6 +225,8 @@ assert.deepEqual(
   firstWorldPhotoChronicle(
     restoreBriarSave({
       ...newBriarSave(),
+      revealed: ['2,5', '8,6'],
+      visited: ['2,5', '8,6'],
       sceneChoices: { '8,6': 'record', '2,5': 'archive' },
     }).sceneChoices,
   ).map((photo) => photo.key),
@@ -705,6 +707,8 @@ for (const key of firstBriarExpansion) {
   )
   const save = restoreBriarSave({
     ...newBriarSave(),
+    revealed: firstBriarExpansion,
+    visited: firstBriarExpansion,
     sceneChoices: savedChoices,
   })
   assert.equal(save.sceneChoices[key], BRIAR_SCENES[key]?.choices[0]?.id)
@@ -911,6 +915,39 @@ const restoredScene = restoreBriarSave({
 assert.equal(restoredScene.sceneChoices['2,4'], 'copy')
 assert.equal(restoredScene.sceneChoices['3,4'], undefined)
 assert.ok(restoredScene.visited.includes('3,6'))
+const unearnedScene = restoreBriarSave({
+  ...newBriarSave(),
+  revealed: [BRIAR_START, '2,5'],
+  visited: [BRIAR_START],
+  sceneChoices: { '2,5': 'archive', '8,6': 'record' },
+})
+assert.equal(
+  unearnedScene.sceneChoices['2,5'],
+  undefined,
+  'A valid option ID cannot settle a revealed but unvisited scene on reload',
+)
+assert.equal(
+  unearnedScene.sceneChoices['8,6'],
+  undefined,
+  'A valid option ID cannot fabricate a still-hidden scene decision',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle(unearnedScene.sceneChoices),
+  [],
+  'Unvisited choices cannot mint Earth photographs or downstream story rewards',
+)
+const legacyCampChoice = restoreBriarSave({
+  ...newBriarSave(),
+  revealed: [BRIAR_START],
+  player: BRIAR_START,
+  visited: undefined,
+  sceneChoices: { [BRIAR_START]: 'copy' },
+})
+assert.equal(
+  legacyCampChoice.sceneChoices[BRIAR_START],
+  'copy',
+  'Legacy saves recover the current square before validating its decision',
+)
 assert.ok(
   restoreBriarSave({
     ...newBriarSave(),
@@ -2609,8 +2646,8 @@ for (const { choices, expected } of lossContexts) {
 const earnedHouseLoss = {
   ...defeatedBriar,
   hearts: 1,
-  revealed: [BRIAR_START, BRIAR_DUNGEON],
-  visited: [BRIAR_START, BRIAR_DUNGEON],
+  revealed: [BRIAR_START, BRIAR_DUNGEON, '4,3'],
+  visited: [BRIAR_START, BRIAR_DUNGEON, '4,3'],
   player: BRIAR_DUNGEON,
   sceneChoices: { '4,3': 'plan' },
   house: {

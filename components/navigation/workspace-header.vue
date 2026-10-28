@@ -313,7 +313,7 @@
           <Icon name="kind-icon:art-queue" class="kr-icon-5" />
           <span
             v-if="artJobStore.activeJobCount"
-            class="kr-badge-secondary-xs indicator-item"
+            class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
             aria-hidden="true"
           >
             {{ artjobBadge }}
@@ -518,7 +518,9 @@ const artjobActive = computed(() => route.path === '/artjob')
 const artActive = computed(() => route.path === '/art')
 
 const artjobBadge = computed(() =>
-  artJobStore.activeJobCount > 99 ? '99+' : String(artJobStore.activeJobCount),
+  artJobStore.activeJobCount > 9999
+    ? '9999+'
+    : String(artJobStore.activeJobCount),
 )
 
 const artjobLabel = computed(() => {

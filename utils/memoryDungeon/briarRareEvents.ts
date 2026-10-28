@@ -120,8 +120,7 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       outcomes: {
         carry:
           'You keep the Knight’s apology sealed and carry it past the listening stump. The painted guest recognizes the cadence of the vanished courier and tells Pip which doorstep the letter belongs to. Pip writes the destination in his own hand rather than surrendering the voice to the Index. The letter can reach its owner without exposing their name, but nobody can yet prove who took the courier from the road.',
-        read:
-          'You open the destruction order and warn the House before carrying another sealed word. The painted guest recognizes the vanished courier’s voice in the order’s witness clause. Pip copies the clause into his route book so the village can challenge the Knight’s authority, then closes the book before the Index arrives. The House gains time to prepare, but the courier’s private address is now evidence that someone may demand to see.',
+        read: 'You open the destruction order and warn the House before carrying another sealed word. The painted guest recognizes the vanished courier’s voice in the order’s witness clause. Pip copies the clause into his route book so the village can challenge the Knight’s authority, then closes the book before the Index arrives. The House gains time to prepare, but the courier’s private address is now evidence that someone may demand to see.',
       },
     },
   },
@@ -162,10 +161,8 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       scope: 'house',
       key: 'HD-30',
       outcomes: {
-        rest:
-          'You give the sisters a quiet landing instead of demanding their history. Scylla checks the supplies while Char repairs the charm she once wore to leave home; each adds one line to a shared itinerary without asking the other to surrender her version. They agree to travel together tomorrow, not to settle what their crowns mean tonight. Their trust survives, but the unanswered royal summons remains in Oren’s ledger.',
-        talk:
-          'You invite both sisters to say what the House owes them, and each speaks for herself. Scylla asks for a route home that does not bind Char to a throne; Char asks that nobody treat her leaving as proof she stopped loving her family. Oren records two separate wishes rather than a single royal order. The sisters leave with a shared plan to negotiate, but a court that demands one heir may reject both of their terms.',
+        rest: 'You give the sisters a quiet landing instead of demanding their history. Scylla checks the supplies while Char repairs the charm she once wore to leave home; each adds one line to a shared itinerary without asking the other to surrender her version. They agree to travel together tomorrow, not to settle what their crowns mean tonight. Their trust survives, but the unanswered royal summons remains in Oren’s ledger.',
+        talk: 'You invite both sisters to say what the House owes them, and each speaks for herself. Scylla asks for a route home that does not bind Char to a throne; Char asks that nobody treat her leaving as proof she stopped loving her family. Oren records two separate wishes rather than a single royal order. The sisters leave with a shared plan to negotiate, but a court that demands one heir may reject both of their terms.',
       },
     },
   },

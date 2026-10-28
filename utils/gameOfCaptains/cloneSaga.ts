@@ -46,31 +46,37 @@ export const CLONE_FIELD_TRAITS: readonly {
     generation: 1,
     skill: 'science',
     name: 'Echo Survey',
-    effect: 'The copied researcher identifies the evidence their predecessor never lived to file.',
+    effect:
+      'The copied researcher identifies the evidence their predecessor never lived to file.',
   },
   {
     generation: 2,
     skill: 'diplomacy',
     name: 'Second Opinion',
-    effect: 'Two remembered lives negotiate as one free person; the local delegates finally listen.',
+    effect:
+      'Two remembered lives negotiate as one free person; the local delegates finally listen.',
   },
   {
     generation: 3,
     skill: 'tactics',
     name: 'Tomorrow Sense',
-    effect: 'A memory from the villain’s next move exposes a trap before it is sprung.',
+    effect:
+      'A memory from the villain’s next move exposes a trap before it is sprung.',
   },
   {
     generation: 4,
     skill: 'rescue',
     name: 'Continuity Rescue',
-    effect: 'The clone returns for a stranger whom an earlier version could not save.',
+    effect:
+      'The clone returns for a stranger whom an earlier version could not save.',
   },
 ]
 export function cloneFieldTrait(run: VoyageRun, id: string) {
-  return CLONE_FIELD_TRAITS.find(
-    (trait) => trait.generation === cloneGeneration(run, id),
-  ) ?? null
+  return (
+    CLONE_FIELD_TRAITS.find(
+      (trait) => trait.generation === cloneGeneration(run, id),
+    ) ?? null
+  )
 }
 
 export const CLONE_CHAPTERS = [
@@ -160,7 +166,8 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
       record.generation > 4 ||
       (record.iteration !== undefined &&
         (!Number.isInteger(record.iteration) ||
-          record.iteration < 1 || record.iteration > 9)) ||
+          record.iteration < 1 ||
+          record.iteration > 9)) ||
       !Number.isInteger(record.createdChapter) ||
       record.createdChapter < 1 ||
       record.createdChapter > 9 ||
@@ -180,7 +187,8 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
           record.lastDeploymentChapter > 9))
     )
       return false
-    const key = record.id + ':' + record.generation + ':' + (record.iteration ?? 1)
+    const key =
+      record.id + ':' + record.generation + ':' + (record.iteration ?? 1)
     if (seen.has(key)) return false
     seen.add(key)
   }
@@ -227,7 +235,11 @@ export function cloneWitness(run: VoyageRun, step: number): string | null {
     if (!loss) return null
     const person = REDSHIRT_BY_ID[loss.id]
     return person
-      ? person.name + ' disappeared on ' + loss.encounterId + '. ' + person.history
+      ? person.name +
+          ' disappeared on ' +
+          loss.encounterId +
+          '. ' +
+          person.history
       : null
   }
   const witness = program(run).records.find(
@@ -524,22 +536,24 @@ export function recordCloneMissions(
       result.encounterId
     if ((previous.worldFlags ?? []).includes(flag)) return []
     const officer = REDSHIRT_BY_ID[result.lead]!
-    return [{
-      flag,
-      generation: latest.generation,
-      story:
-        officer.name +
-        ' (Generation ' +
-        latest.generation +
-        ') used ' +
-        trait.name +
-        ' at ' +
-        mission.title +
-        ': ' +
-        trait.effect +
-        ' RECOVERED MEMORY: ' +
-        officer.history,
-    }]
+    return [
+      {
+        flag,
+        generation: latest.generation,
+        story:
+          officer.name +
+          ' (Generation ' +
+          latest.generation +
+          ') used ' +
+          trait.name +
+          ' at ' +
+          mission.title +
+          ': ' +
+          trait.effect +
+          ' RECOVERED MEMORY: ' +
+          officer.history,
+      },
+    ]
   })
   return {
     ...resolved,

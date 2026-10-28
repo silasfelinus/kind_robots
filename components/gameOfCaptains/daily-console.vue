@@ -232,10 +232,7 @@
                   ? 'space-couch-serendipity-quest'
                   : 'space-couch-deck-' + deck
             "
-            @click="
-              flipped = deck
-              plotCast = []
-            "
+            @click="revealDeck(deck)"
           >
             <span class="daily-deck-number">{{
               String(index + 1).padStart(2, '0')
@@ -602,6 +599,10 @@ function deckSymbol(deck: EpisodeDeck) {
     constellation: '✧',
     nemesis: '☠',
   }[deck]
+}
+function revealDeck(deck: EpisodeDeck) {
+  flipped.value = deck
+  plotCast.value = []
 }
 function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   if (!plotCast.value.length) return

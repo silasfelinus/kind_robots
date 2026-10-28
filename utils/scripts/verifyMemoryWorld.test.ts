@@ -1951,16 +1951,46 @@ assert.deepEqual(
   'A legitimate cross-world seal sequence survives checkpoint loading intact',
 )
 const damagedSealCases = [
-  ['missing inspected ledger', { ...completeSealCheckpoint.seals, inspected: undefined }],
-  ['missing counterpart ledger', { ...completeSealCheckpoint.seals, counterpartSeen: null }],
-  ['unknown coordinate', { ...completeSealCheckpoint.seals, seen: ['5,2', '0,0'] }],
-  ['duplicate discovery', { ...completeSealCheckpoint.seals, seen: ['5,2', '5,2'] }],
-  ['inspection without discovery', { ...completeSealCheckpoint.seals, seen: [] }],
-  ['mirror inspection without discovery', { ...completeSealCheckpoint.seals, seen: [] }],
-  ['match without original inspection', { ...completeSealCheckpoint.seals, inspected: [] }],
-  ['match without counterpart visit', { ...completeSealCheckpoint.seals, counterpartSeen: [] }],
-  ['resolution without match', { ...completeSealCheckpoint.seals, matched: [] }],
-  ['invalid resolution key', { ...completeSealCheckpoint.seals, resolved: [null] }],
+  [
+    'missing inspected ledger',
+    { ...completeSealCheckpoint.seals, inspected: undefined },
+  ],
+  [
+    'missing counterpart ledger',
+    { ...completeSealCheckpoint.seals, counterpartSeen: null },
+  ],
+  [
+    'unknown coordinate',
+    { ...completeSealCheckpoint.seals, seen: ['5,2', '0,0'] },
+  ],
+  [
+    'duplicate discovery',
+    { ...completeSealCheckpoint.seals, seen: ['5,2', '5,2'] },
+  ],
+  [
+    'inspection without discovery',
+    { ...completeSealCheckpoint.seals, seen: [], mirrorSeen: [] },
+  ],
+  [
+    'mirror inspection without discovery',
+    { ...completeSealCheckpoint.seals, mirrorSeen: ['8,8'] },
+  ],
+  [
+    'match without original inspection',
+    { ...completeSealCheckpoint.seals, inspected: [] },
+  ],
+  [
+    'match without counterpart visit',
+    { ...completeSealCheckpoint.seals, counterpartSeen: [] },
+  ],
+  [
+    'resolution without match',
+    { ...completeSealCheckpoint.seals, matched: [] },
+  ],
+  [
+    'invalid resolution key',
+    { ...completeSealCheckpoint.seals, resolved: [null] },
+  ],
 ] as const
 for (const [reason, seals] of damagedSealCases) {
   assert.equal(

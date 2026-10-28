@@ -12,7 +12,7 @@
             <span class="evt-overline"
               >CAPES &amp; TASSELS / TACTICAL OPERATIONS</span
             >
-            <h1>EVERY <em>VILLAIN</em> TACTICS</h1>
+            <div class="evt-title">EVERY <em>VILLAIN</em> TACTICS</div>
             <span class="evt-subtitle"
               >COMET CITY • FIRST BELL • INTERNAL TRAINING</span
             >
@@ -461,7 +461,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-bottom: 1px solid #e6dcff27;
   padding-bottom: 8px;
 }
-.evt-brand h1 {
+.evt-brand .evt-title {
   font-weight: 1000;
   font-family: Impact, 'Arial Narrow', sans-serif;
   font-stretch: condensed;

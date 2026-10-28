@@ -1618,9 +1618,6 @@ const logEntries = computed(() => {
   )
 })
 const starAssessment = ref<StarAssessment | null>(null)
-const chosenStarSign = computed(() =>
-  starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
-)
 const focusedCrew = ref<CrewId>('pell')
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')

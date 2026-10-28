@@ -469,15 +469,88 @@ export function recordCloneMissions(
       lost: events.some((e) => e.casualty === record.id),
     }
   })
+  // A specialty reward belongs to a genuinely successful field encounter.
+  // A casualty, failed mission, repeated record or merely printed clone earns none.
+  const breakthroughs = gained.flatMap((result) => {
+    const trait = cloneFieldTrait(previous, result.lead)
+    const mission = expeditionEncounter(result.encounterId)
+    const latest = cloneLatest(previous, result.lead)
+    const complete = (result as typeof result & { successful?: boolean })
+      .successful
+    if (
+      !trait ||
+      !latest ||
+      latest.lost ||
+      !mission ||
+      mission.skill !== trait.skill ||
+      complete !== true ||
+      result.casualty
+    )
+      return []
+    const flag =
+      'clone-breakthrough:' +
+      latest.generation +
+      ':' +
+      result.lead +
+      ':' +
+      result.encounterId
+    if ((previous.worldFlags ?? []).includes(flag)) return []
+    const officer = REDSHIRT_BY_ID[result.lead]!
+    return [{
+      flag,
+      generation: latest.generation,
+      story:
+        officer.name +
+        ' (Generation ' +
+        latest.generation +
+        ') used ' +
+        trait.name +
+        ' at ' +
+        mission.title +
+        ': ' +
+        trait.effect,
+    }]
+  })
   return {
     ...resolved,
     cloneProgram: { ...data, records },
+    reputation:
+      resolved.reputation +
+      breakthroughs.filter((event) => event.generation === 1).length,
+    trust:
+      resolved.trust +
+      breakthroughs.filter((event) => event.generation === 2).length,
+    nemesisPressure: Math.max(
+      0,
+      (resolved.nemesisPressure ?? 0) -
+        breakthroughs.filter((event) => event.generation === 3).length,
+    ),
+    supplies:
+      resolved.supplies +
+      breakthroughs.filter((event) => event.generation === 4).length,
+    worldFlags: [
+      ...(resolved.worldFlags ?? []),
+      ...breakthroughs.map((event) => event.flag),
+    ],
+    log: [...resolved.log, ...breakthroughs.map((event) => event.story)],
+    scene:
+      resolved.scene +
+      (breakthroughs.length
+        ? ' SPECIAL EPISODE: ' +
+          breakthroughs.map((event) => event.story).join(' ')
+        : ''),
   }
 }
-/** Advanced clones remember their previous assignments, raising known odds only. */
-export function cloneOddsBonus(run: VoyageRun, id: string): number {
+/** All clones remember more; matching missions also trigger a distinct ability. */
+export function cloneOddsBonus(
+  run: VoyageRun,
+  id: string,
+  skill?: Skill,
+): number {
   const generation = cloneGeneration(run, id)
-  return generation ? generation * 6 : 0
+  if (!generation) return 0
+  const signature = cloneFieldTrait(run, id)
+  return generation * 6 + (skill && signature?.skill === skill ? 10 : 0)
 }
 /** Acknowledges clone rights; the forced-copy path has a separate verdict. */
 export function cloneEndingCoda(run: VoyageRun): VoyageRun {

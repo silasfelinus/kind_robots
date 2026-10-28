@@ -5,7 +5,7 @@ tabKey: every-villain-tactics
 label: Every Villain Tactics
 title: Every Villain Tactics
 subtitle: Prom of Doom · Crossfire
-summary: Command a superhero squad on a tactical card battlefield.
+summary: Tactical superhero squad battles.
 description: 'Internal tactical squad console and first-bell training encounter. Full accuracy engine, six-level campaign and public level sharing are still being built.'
 icon: kind-icon:shield
 route: /admin/every-villain-tactics

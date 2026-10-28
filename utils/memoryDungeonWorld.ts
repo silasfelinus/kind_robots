@@ -629,9 +629,10 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
     hearts: lastHeart ? 3 : progress.hearts - 1,
     player: lastHeart && !darkBout ? BRIAR_START : progress.player,
     house,
-    status: darkBout && houseOrigin
-      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
-      : retreat,
+    status:
+      darkBout && houseOrigin
+        ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
+        : retreat,
   }
 }
 

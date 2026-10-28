@@ -343,7 +343,12 @@ onMounted(() => {
   height: 100%;
   overflow: hidden;
   color: #fff1e8;
-  background: radial-gradient(ellipse at 56% 36%, #553365 0%, #281a45 46%, #140f29 100%);
+  background: radial-gradient(
+    ellipse at 56% 36%,
+    #553365 0%,
+    #281a45 46%,
+    #140f29 100%
+  );
   container-type: inline-size;
 }
 
@@ -421,7 +426,9 @@ onMounted(() => {
   border: 2px solid #9a78a4;
   border-radius: 24px;
   background: linear-gradient(145deg, #38465bba, #2a2147c9 48%, #593774ad);
-  box-shadow: 0 9px 22px #12092599, inset 0 0 0 7px #28204478;
+  box-shadow:
+    0 9px 22px #12092599,
+    inset 0 0 0 7px #28204478;
 }
 
 .specimen-chamber {
@@ -429,7 +436,9 @@ onMounted(() => {
   flex-direction: column;
   text-align: left;
   padding: clamp(8px, 1.2vw, 16px);
-  transition: transform 0.18s, border-color 0.18s;
+  transition:
+    transform 0.18s,
+    border-color 0.18s;
 }
 
 .specimen-chamber:hover,
@@ -483,7 +492,12 @@ onMounted(() => {
   width: 85%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, #cfec94aa, #bd84dc22 56%, transparent 75%);
+  background: radial-gradient(
+    circle,
+    #cfec94aa,
+    #bd84dc22 56%,
+    transparent 75%
+  );
 }
 
 .specimen-glyph {
@@ -563,7 +577,9 @@ onMounted(() => {
 }
 
 .is-working .core {
-  box-shadow: 0 0 70px #ddf3aacc, 0 0 120px #c27ff4aa;
+  box-shadow:
+    0 0 70px #ddf3aacc,
+    0 0 120px #c27ff4aa;
 }
 
 .hybridizer-result {
@@ -596,7 +612,12 @@ onMounted(() => {
   position: absolute;
   inset: 8% 10%;
   border-radius: 50%;
-  background: radial-gradient(circle, #d2ef9b48, #9254c22a 48%, transparent 75%);
+  background: radial-gradient(
+    circle,
+    #d2ef9b48,
+    #9254c22a 48%,
+    transparent 75%
+  );
   z-index: -1;
 }
 
@@ -731,7 +752,9 @@ onMounted(() => {
   border: 2px solid #c69bbd;
   border-radius: 22px;
   padding: clamp(10px, 1.6vw, 22px);
-  box-shadow: 0 0 0 70px #130c2f88, 0 16px 30px #060409aa;
+  box-shadow:
+    0 0 0 70px #130c2f88,
+    0 16px 30px #060409aa;
   z-index: 12;
   display: flex;
   flex-direction: column;

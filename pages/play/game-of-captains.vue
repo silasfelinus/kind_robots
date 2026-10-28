@@ -223,7 +223,7 @@
         type="button"
         class="cap-reset"
         data-testid="space-couch-return-menu"
-        @click="atTitle = true; titlePanel = 'home'"
+        @click="returnToVoyageMenu"
       >
         MENU
       </button>
@@ -231,7 +231,7 @@
         v-if="run"
         type="button"
         class="cap-reset"
-        @click="atTitle = true; titlePanel = 'home'; confirmNewVoyage = true"
+        @click="requestFreshVoyage"
       >
         NEW VOYAGE
       </button>
@@ -1602,6 +1602,14 @@ const selectedOrigin = ref<CaptainOriginId | null>(null)
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)
+function returnToVoyageMenu() {
+  atTitle.value = true
+  titlePanel.value = 'home'
+}
+function requestFreshVoyage() {
+  returnToVoyageMenu()
+  confirmNewVoyage.value = true
+}
 const logPage = ref(0)
 const logEntries = computed(() => {
   const entries = run.value?.log ?? []

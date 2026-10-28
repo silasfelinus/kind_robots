@@ -102,18 +102,17 @@ function hasValidMemoryReality(value: Record<string, unknown>): boolean {
   )
     return false
 
+  const completed = progress.completed
+  const rememberedAnchors = progress.rememberedAnchors
   const restored = restoreMemoryRealitySave(value)
   return (
     restored.active === value.active &&
     restored.progress.finaleCommitted === progress.finaleCommitted &&
-    restored.progress.completed.length === progress.completed.length &&
-    restored.progress.completed.every((id) =>
-      progress.completed.includes(id),
-    ) &&
-    restored.progress.rememberedAnchors.length ===
-      progress.rememberedAnchors.length &&
+    restored.progress.completed.length === completed.length &&
+    restored.progress.completed.every((id) => completed.includes(id)) &&
+    restored.progress.rememberedAnchors.length === rememberedAnchors.length &&
     restored.progress.rememberedAnchors.every((id) =>
-      progress.rememberedAnchors.includes(id),
+      rememberedAnchors.includes(id),
     )
   )
 }

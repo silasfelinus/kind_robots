@@ -200,8 +200,11 @@ const twoApologyClosures = split(apology)
 twoApologyClosures.briar['5,4'] = 'truth'
 twoApologyClosures.briar['6,4'] = 'read'
 assert.match(
-  briarQuestProgress(apology, twoApologyClosures.briar, twoApologyClosures.house)
-    .quest.closed,
+  briarQuestProgress(
+    apology,
+    twoApologyClosures.briar,
+    twoApologyClosures.house,
+  ).quest.closed,
   /crossing never existed/,
   'The earliest authored apology closure wins when several choices diverge',
 )

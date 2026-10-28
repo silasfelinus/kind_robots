@@ -249,11 +249,11 @@
             <span>BRUSH / RECT / FILL / SELECT / PASTE · CTRL+C/V</span>
           </template>
           <template v-else>
-            <span
-              >{{ maker.level.space
-                  ? 'ARROWS AIM · HOLD C FIRE AIR BEHIND · A / SPACE BRAKE · RELEASE TO DRIFT'
-                  : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL' }}</span
-            >
+            <span>{{
+              maker.level.space
+                ? 'ARROWS AIM · HOLD C FIRE AIR BEHIND · A / SPACE BRAKE · RELEASE TO DRIFT'
+                : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
+            }}</span>
             <span>CAMPAIGN SAVES UNTOUCHED</span>
           </template>
         </div>
@@ -684,7 +684,9 @@ function resizeCourse(dx: number, dy: number) {
     rows: Math.max(16, Math.min(48, maker.level.rows.length + dy)),
   })
 }
-function loadStarterTemplate(name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk') {
+function loadStarterTemplate(
+  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk',
+) {
   stopGame()
   maker.loadTemplate(name)
   cursor.value = { x: 3, y: 20 }

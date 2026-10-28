@@ -1318,7 +1318,8 @@ export class PlumberRun implements ArcadeGameInstance {
       this.duckHeld = false
       this.ducking = false
     } else this.updateDuck(keys, move)
-    this.running = !this.stage.space && (runner || (keys.held.b === true && move !== 0))
+    this.running =
+      !this.stage.space && (runner || (keys.held.b === true && move !== 0))
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     const onIce =
       (this.ground &&
@@ -1452,7 +1453,8 @@ export class PlumberRun implements ArcadeGameInstance {
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
       hero.y + TALL > this.goal.y - 48 &&
-      (!this.stage.space || Math.abs(hero.y + TALL / 2 - (this.goal.y - 24)) < 36)
+      (!this.stage.space ||
+        Math.abs(hero.y + TALL / 2 - (this.goal.y - 24)) < 36)
     )
       return this.stageClear()
     if (this.stage.gate !== null && !this.locked) {
@@ -4142,7 +4144,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.lineWidth = 2
       for (const radius of [20, 30, 42]) {
         g.beginPath()
-        g.arc(well.x, well.y, radius + phase, this.tick / 40, this.tick / 40 + Math.PI * 1.5)
+        g.arc(
+          well.x,
+          well.y,
+          radius + phase,
+          this.tick / 40,
+          this.tick / 40 + Math.PI * 1.5,
+        )
         g.stroke()
       }
       g.fillStyle = '#47206f'

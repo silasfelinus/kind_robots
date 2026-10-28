@@ -236,7 +236,10 @@ const maker = useSavePlumberMakerStore()
 const emit = defineEmits<{
   (event: 'load-draft' | 'play-draft', id: string): void
   (event: 'resize-course', dimensions: { cols: number; rows: number }): void
-  (event: 'load-template', name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk'): void
+  (
+    event: 'load-template',
+    name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk',
+  ): void
 }>()
 const starterCourses = [
   {
@@ -323,7 +326,9 @@ function changeSnow(e: Event) {
   })
 }
 function changeSpace(e: Event) {
-  maker.updateSettings({ space: (e.target as HTMLInputElement).checked ? true : undefined })
+  maker.updateSettings({
+    space: (e.target as HTMLInputElement).checked ? true : undefined,
+  })
 }
 function changeDark(e: Event) {
   maker.updateSettings({ dark: (e.target as HTMLInputElement).checked })

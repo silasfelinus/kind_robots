@@ -268,7 +268,10 @@ assert.equal(spaceStage.space, true)
 assert.equal(spaceStage.snow, false)
 assert.equal(spaceCourse.theme, 8)
 assert.ok(spaceStage.spawns.some((spawn) => spawn.kind === 'gravity-well'))
-assert.equal(spaceStage.spawns.filter((spawn) => spawn.kind === 'gravity-well').length, 2)
+assert.equal(
+  spaceStage.spawns.filter((spawn) => spawn.kind === 'gravity-well').length,
+  2,
+)
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(spaceCourse)), spaceCourse)
 assert.notEqual(makerId(spaceCourse), makerId(initial))
 assert.equal('space' in validateMakerLevel(initial), false)
@@ -286,14 +289,25 @@ const initialY = spaceRun.hero.y
 const aimOnly = emptyInput()
 aimOnly.held.right = true
 for (let i = 0; i < 10; i++) spaceRun.update(aimOnly)
-assert.equal(spaceRun.hero.x, initialX, 'Direction alone cannot move in zero gravity')
-assert.equal(spaceRun.hero.y, initialY, 'Zero gravity has no hidden jump or falling')
+assert.equal(
+  spaceRun.hero.x,
+  initialX,
+  'Direction alone cannot move in zero gravity',
+)
+assert.equal(
+  spaceRun.hero.y,
+  initialY,
+  'Zero gravity has no hidden jump or falling',
+)
 const jetUp = emptyInput()
 jetUp.held.up = true
 jetUp.held.x = true
 spaceRun.update(jetUp)
 assert.ok(spaceRun.hero.vy < -0.9, 'Expelling air downward pushes upward')
-assert.ok(spaceRun.hero.y < initialY, 'Directional jet moves heroine vertically')
+assert.ok(
+  spaceRun.hero.y < initialY,
+  'Directional jet moves heroine vertically',
+)
 assert.equal(spaceRun.airAim.y, -1)
 assert.ok(spaceRun.airPlume > 0)
 const jetSpeed = Math.hypot(spaceRun.hero.vx, spaceRun.hero.vy)
@@ -310,7 +324,10 @@ const jetLeft = emptyInput()
 jetLeft.held.left = true
 jetLeft.held.x = true
 for (let i = 0; i < 9; i++) spaceRun.update(jetLeft)
-assert.ok(spaceRun.hero.vx < 0, 'Firing the nozzle behind leftward motion changes x velocity')
+assert.ok(
+  spaceRun.hero.vx < 0,
+  'Firing the nozzle behind leftward motion changes x velocity',
+)
 assert.equal(spaceRun.save, undefined)
 
 const spaceCorridor = validateMakerLevel({
@@ -328,10 +345,17 @@ jetRight.held.right = true
 jetRight.held.x = true
 for (let i = 0; i < 180 && !spaceClear.cleared.length; i++)
   spaceClear.update(jetRight)
-assert.ok(spaceClear.cleared.length > 0, 'A level can be cleared through air thrust alone')
+assert.ok(
+  spaceClear.cleared.length > 0,
+  'A level can be cleared through air thrust alone',
+)
 assert.equal(spaceClear.save, undefined)
 const worldStage = parseStage(toMakerStage(initial))
-assert.equal(worldStage.space, false, 'Existing campaign physics remain unchanged')
+assert.equal(
+  worldStage.space,
+  false,
+  'Existing campaign physics remain unchanged',
+)
 
 const moved = paintMakerTile(initial, 10, 19, '@')
 assert.equal((moved.rows.join('').match(/@/g) ?? []).length, 1)

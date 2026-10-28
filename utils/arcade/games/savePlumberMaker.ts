@@ -537,7 +537,9 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(55, 16, '&')
     put(46, 6, 'u')
     put(41, 5, 'K')
-    put(58, 14, '
+    put(58, 14, '&')
+    for (let x = 8; x < 61; x += 8) put(x, 3, 'o')
+  } else if (template === 'skybridge') {
     for (let x = 17; x < 44; x++) {
       put(x, 22, '.')
       put(x, 23, '.')

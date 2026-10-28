@@ -28,6 +28,11 @@ import {
   recordCloneMissions,
   type CloneChoice,
 } from '~/utils/gameOfCaptains/cloneSaga'
+import {
+  learnRedshirtKnowledge,
+  normalizeRedshirtKnowledge,
+  type RedshirtKnowledge,
+} from '~/utils/gameOfCaptains/redshirtKnowledge'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import {
@@ -66,16 +71,22 @@ import {
 } from '~/utils/gameOfCaptains/rules'
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
+const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
 
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const run = ref<VoyageRun | null>(null)
   const loaded = ref(false)
+  const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
   const saved = computed(() => !!run.value)
 
   function persist() {
     try {
-      if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
+      if (run.value) {
+        redshirtKnowledge.value = learnRedshirtKnowledge(run.value, redshirtKnowledge.value)
+        localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
+      }
+      localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(redshirtKnowledge.value))
       else localStorage.removeItem(SAVE_KEY)
       storageWarning.value = ''
     } catch {
@@ -87,10 +98,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     if (loaded.value) return
     loaded.value = true
     try {
+      redshirtKnowledge.value = normalizeRedshirtKnowledge(
+        JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) ?? '{}'),
+      )
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreTrioAdventure(
         restoreVoyage(raw ? JSON.parse(raw) : null),
       )
+      if (run.value) persist()
     } catch {
       run.value = null
       storageWarning.value =
@@ -147,9 +162,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     )
     persist()
   }
-  function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice) {
+  function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice, cast: string[]) {
     if (!run.value) return
-    run.value = drawEpisodeDeck(run.value, deck, choice)
+    run.value = drawEpisodeDeck(run.value, deck, choice, cast)
     persist()
   }
   function cloneAdvance(choice: CloneChoice) {
@@ -248,6 +263,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   return {
     run,
     loaded,
+    redshirtKnowledge,
     saved,
     storageWarning,
     load,

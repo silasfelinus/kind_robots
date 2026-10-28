@@ -25,6 +25,8 @@ export const REDSHIRT_QUARTERS = {
   description:
     'The couch miniaturizes a dormitory behind the backrest. It has twelve bunks, one hundred forms, and a suspiciously efficient memorial printer.',
   bunks: 12,
+  // Recruitment is scarce even when unused bunks remain. Copies share an identity.
+  recruitmentLimit: 8,
   exchange:
     'Personnel assures the captain that there are always more volunteers if needed. Personnel has never volunteered.',
 } as const
@@ -143,11 +145,15 @@ export function arriveAtWorld(run: VoyageRun): VoyageRun {
       'Touchdown is relative. The red couch remains suspended above the pavement in its transparent force bubble. Local authorities demand to know whether it is a vehicle, a sofa, or an extremely small republic.',
   }
 }
+export function recruitedOriginals(run: VoyageRun): number {
+  const current = run.redshirtRoster ?? starterRedshirts(run.seed)
+  return new Set([...current, ...(run.redshirtFallen ?? []).map((loss) => loss.id)]).size
+}
 export function hireRedshirt(run: VoyageRun): VoyageRun {
   if (!['briefing', 'travel', 'expedition', 'debrief'].includes(run.phase))
     return run
   const roster = run.redshirtRoster ?? starterRedshirts(run.seed)
-  if (roster.length >= REDSHIRT_QUARTERS.bunks) return run
+  if (roster.length >= REDSHIRT_QUARTERS.bunks || recruitedOriginals(run) >= REDSHIRT_QUARTERS.recruitmentLimit) return run
   const cost = roster.length ? 1 : 0
   if (run.supplies < cost) return run
   const id = nextRedshirt(

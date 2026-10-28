@@ -104,7 +104,7 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
     value.step! > CLONE_CHAPTERS.length ||
     !Array.isArray(value.records) ||
     !Array.isArray(value.beats) ||
-    value.records.length > 100 ||
+    value.records.length > 400 ||
     value.beats.length > CLONE_CHAPTERS.length
   )
     return false
@@ -438,6 +438,7 @@ export function cloneEndingCoda(run: VoyageRun): VoyageRun {
       ? 'THE RED THREAD: Every copy has a name, but the crew will remember who took their memories without permission. The clone tribunal promises a second trial.'
       : 'THE RED THREAD: The clone tribunal recognizes every generation as a complete person. Their names are entered beside the originals, not in place of them.'
     : 'THE RED THREAD: The unfinished memory trial remains aboard the couch. The living clones insist their story is still theirs to tell.'
+  if (run.log.includes(epilogue)) return run
   const title = finished
     ? coerced
       ? ' · The Unfinished Consent'

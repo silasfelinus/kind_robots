@@ -198,7 +198,11 @@ const completed = cloneEndingCoda({
 })
 assert.match(completed.ending ?? '', /Rights of Copies/)
 assert.match(completed.scene, /clone tribunal/)
-assert.equal(cloneEndingCoda(completed), completed, 'a final review cannot duplicate the coda')
+assert.equal(
+  cloneEndingCoda(completed),
+  completed,
+  'a final review cannot duplicate the coda',
+)
 assert.equal(cloneEndingCoda(run), run, 'no premature ending')
 
 // The high-speed ethics route is allowed but never forgotten.

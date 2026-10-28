@@ -6,7 +6,9 @@
     <header
       class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
     >
-      <span class="hidden shrink-0 text-xl md:inline" aria-hidden="true">🌿</span>
+      <span class="hidden shrink-0 text-xl md:inline" aria-hidden="true"
+        >🌿</span
+      >
       <div class="min-w-0 w-full md:w-auto md:flex-1">
         <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
           Memory Dungeon

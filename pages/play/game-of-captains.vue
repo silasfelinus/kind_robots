@@ -160,11 +160,27 @@
               <p v-if="!run.log.length">
                 No incidents entered. An encouraging sign, statistically.
               </p>
-              <p v-for="(entry, index) in logEntries" :key="index">{{ entry }}</p>
+              <p v-for="(entry, index) in logEntries" :key="index">
+                {{ entry }}
+              </p>
               <div v-if="run.log.length > 4" class="cap-menu-log-nav">
-                <button type="button" :disabled="logPage >= Math.ceil(run.log.length / 4) - 1" @click="logPage++">OLDER ENTRIES</button>
-                <span>{{ logPage + 1 }} / {{ Math.ceil(run.log.length / 4) }}</span>
-                <button type="button" :disabled="logPage === 0" @click="logPage--">NEWER ENTRIES</button>
+                <button
+                  type="button"
+                  :disabled="logPage >= Math.ceil(run.log.length / 4) - 1"
+                  @click="logPage++"
+                >
+                  OLDER ENTRIES
+                </button>
+                <span
+                  >{{ logPage + 1 }} / {{ Math.ceil(run.log.length / 4) }}</span
+                >
+                <button
+                  type="button"
+                  :disabled="logPage === 0"
+                  @click="logPage--"
+                >
+                  NEWER ENTRIES
+                </button>
               </div>
             </div>
           </template>
@@ -1464,7 +1480,10 @@ const confirmNewVoyage = ref(false)
 const logPage = ref(0)
 const logEntries = computed(() => {
   const entries = run.value?.log ?? []
-  return entries.slice(Math.max(0, entries.length - 4 * (logPage.value + 1)), Math.max(0, entries.length - 4 * logPage.value))
+  return entries.slice(
+    Math.max(0, entries.length - 4 * (logPage.value + 1)),
+    Math.max(0, entries.length - 4 * logPage.value),
+  )
 })
 const starAssessment = ref<StarAssessment | null>(null)
 const chosenStarSign = computed(() =>
@@ -1746,10 +1765,24 @@ function toggleAway(id: CrewId) {
   letter-spacing: -0.08em;
   text-shadow: 0 5px 25px #070a18;
 }
-.cap-menu h2 em { color: #ffc59c; font-style: italic; }
-.cap-menu-deck { max-width: 44ch; font-size: clamp(0.81rem, 1.3cqi, 1.17rem); line-height: 1.4; color: #d9e8ed; }
-.cap-menu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-top: 0.4rem; }
-.cap-menu-actions button, .cap-menu-detail button {
+.cap-menu h2 em {
+  color: #ffc59c;
+  font-style: italic;
+}
+.cap-menu-deck {
+  max-width: 44ch;
+  font-size: clamp(0.81rem, 1.3cqi, 1.17rem);
+  line-height: 1.4;
+  color: #d9e8ed;
+}
+.cap-menu-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.4rem;
+}
+.cap-menu-actions button,
+.cap-menu-detail button {
   border: 1px solid #91bbc0;
   border-left: 3px solid #fbc997;
   border-radius: 0.4rem;
@@ -1760,50 +1793,205 @@ function toggleAway(id: CrewId) {
   font-weight: 900;
   font-size: clamp(0.7rem, 1.1cqi, 0.94rem);
 }
-.cap-menu-actions button:hover, .cap-menu-actions button:focus-visible, .cap-menu-detail button:hover { background: #2e5065; border-color: #ffdda7; }
-.cap-menu-actions button span { float: right; color: #ffc48e; }
-.cap-menu-actions button small { display: block; margin-top: 0.35rem; font-size: 0.74em; font-weight: 500; line-height: 1.25; color: #c3dae0; }
-.cap-menu-detail { min-height: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-.cap-menu-detail h2 { font: 900 clamp(1.4rem, 2.8cqi, 2rem) Georgia, serif; color: #f8cc9c; }
-.cap-menu-detail p { color: #d6e1e6; font-size: 0.78rem; }
-.cap-menu-detail button b { float: right; color: #9ee7e7; }
-.cap-menu-detail button[aria-pressed='true'] { border-color: #9ee7e7; background: #235061; }
-.cap-menu-journal { flex: 1; min-height: 0; max-height: min(26vh, 13rem); padding: 0.25rem 0.65rem; border-left: 2px solid #c0a17a; }
-.cap-menu-journal p { margin: 0.4rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.cap-menu-log-nav { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.65rem; }
-.cap-menu-log-nav button { padding: 0.3rem; }
-.cap-menu-log-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
-.cap-menu-confirm { display: flex; flex-wrap: wrap; gap: 0.45rem; background: #291f32ee; padding: 0.65rem; border: 1px solid #e5ba80; }
-.cap-menu-confirm p { flex-basis: 100%; font-size: 0.76rem; }
-.cap-menu-confirm button { padding: 0.45rem; border: 1px solid #dbb98b; color: #ffdeb3; font-size: 0.7rem; }
-.cap-menu-bottom { margin-top: 0.2rem; }
-.cap-origins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
-.cap-origin { min-width: 0; display: flex; gap: 0.5rem; border: 1px solid #658796; background: #192c40; padding: 0.65rem; border-radius: 0.5rem; text-align: left; }
-.cap-origin:hover, .cap-origin:focus-visible, .cap-origin.chosen { border-color: #ffd39d; background: #294a56; }
-.cap-origin-glyph { font: 900 1.5rem Georgia, serif; color: #f8c58f; }
-.cap-origin strong, .cap-origin small { display: block; }
-.cap-origin strong { font-size: 0.74rem; color: #f9e7d1; }
-.cap-origin small { font-size: 0.62rem; line-height: 1.35; color: #b8cfd5; }
-.cap-origin .cap-origin-perk { margin-top: 0.3rem; color: #ffd29e; }
-.cap-step-back { border: 0; padding: 0.25rem; color: #ffd49d; font-size: 0.7rem; font-weight: 900; }
-.cap-reduce-motion *, .cap-reduce-motion *::before, .cap-reduce-motion *::after { animation: none !important; transition: none !important; }
-.cap-large-type .cap-menu-deck, .cap-large-type .cap-origin small, .cap-large-type .cap-insight p { font-size: 1rem; }
+.cap-menu-actions button:hover,
+.cap-menu-actions button:focus-visible,
+.cap-menu-detail button:hover {
+  background: #2e5065;
+  border-color: #ffdda7;
+}
+.cap-menu-actions button span {
+  float: right;
+  color: #ffc48e;
+}
+.cap-menu-actions button small {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.74em;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #c3dae0;
+}
+.cap-menu-detail {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cap-menu-detail h2 {
+  font:
+    900 clamp(1.4rem, 2.8cqi, 2rem) Georgia,
+    serif;
+  color: #f8cc9c;
+}
+.cap-menu-detail p {
+  color: #d6e1e6;
+  font-size: 0.78rem;
+}
+.cap-menu-detail button b {
+  float: right;
+  color: #9ee7e7;
+}
+.cap-menu-detail button[aria-pressed='true'] {
+  border-color: #9ee7e7;
+  background: #235061;
+}
+.cap-menu-journal {
+  flex: 1;
+  min-height: 0;
+  max-height: min(26vh, 13rem);
+  padding: 0.25rem 0.65rem;
+  border-left: 2px solid #c0a17a;
+}
+.cap-menu-journal p {
+  margin: 0.4rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cap-menu-log-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+}
+.cap-menu-log-nav button {
+  padding: 0.3rem;
+}
+.cap-menu-log-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cap-menu-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  background: #291f32ee;
+  padding: 0.65rem;
+  border: 1px solid #e5ba80;
+}
+.cap-menu-confirm p {
+  flex-basis: 100%;
+  font-size: 0.76rem;
+}
+.cap-menu-confirm button {
+  padding: 0.45rem;
+  border: 1px solid #dbb98b;
+  color: #ffdeb3;
+  font-size: 0.7rem;
+}
+.cap-menu-bottom {
+  margin-top: 0.2rem;
+}
+.cap-origins {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.cap-origin {
+  min-width: 0;
+  display: flex;
+  gap: 0.5rem;
+  border: 1px solid #658796;
+  background: #192c40;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  text-align: left;
+}
+.cap-origin:hover,
+.cap-origin:focus-visible,
+.cap-origin.chosen {
+  border-color: #ffd39d;
+  background: #294a56;
+}
+.cap-origin-glyph {
+  font:
+    900 1.5rem Georgia,
+    serif;
+  color: #f8c58f;
+}
+.cap-origin strong,
+.cap-origin small {
+  display: block;
+}
+.cap-origin strong {
+  font-size: 0.74rem;
+  color: #f9e7d1;
+}
+.cap-origin small {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: #b8cfd5;
+}
+.cap-origin .cap-origin-perk {
+  margin-top: 0.3rem;
+  color: #ffd29e;
+}
+.cap-step-back {
+  border: 0;
+  padding: 0.25rem;
+  color: #ffd49d;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+.cap-reduce-motion *,
+.cap-reduce-motion *::before,
+.cap-reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.cap-large-type .cap-menu-deck,
+.cap-large-type .cap-origin small,
+.cap-large-type .cap-insight p {
+  font-size: 1rem;
+}
 @media (max-width: 700px) {
-  .cap-menu-image { object-position: 72% center; opacity: 0.6; }
-  .cap-menu-body { width: 100%; justify-content: center; padding: 1rem; }
-  .cap-menu h2 { font-size: clamp(2.8rem, 12vw, 5rem); }
-  .cap-menu-actions { gap: 0.4rem; }
-  .cap-menu-actions button { padding: 0.6rem; }
-  .cap-origins { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
-  .cap-origin { padding: 0.35rem; }
-  .cap-origin-glyph { font-size: 1rem; }
+  .cap-menu-image {
+    object-position: 72% center;
+    opacity: 0.6;
+  }
+  .cap-menu-body {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .cap-menu h2 {
+    font-size: clamp(2.8rem, 12vw, 5rem);
+  }
+  .cap-menu-actions {
+    gap: 0.4rem;
+  }
+  .cap-menu-actions button {
+    padding: 0.6rem;
+  }
+  .cap-origins {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .cap-origin {
+    padding: 0.35rem;
+  }
+  .cap-origin-glyph {
+    font-size: 1rem;
+  }
 }
 @media (max-width: 450px) and (max-height: 720px) {
-  .cap-menu-body { gap: 0.3rem; }
-  .cap-menu h2 { font-size: 2.7rem; }
-  .cap-menu-deck { font-size: 0.74rem; }
-  .cap-menu-actions button { padding: 0.5rem; }
-  .cap-menu-bottom { display: none; }
+  .cap-menu-body {
+    gap: 0.3rem;
+  }
+  .cap-menu h2 {
+    font-size: 2.7rem;
+  }
+  .cap-menu-deck {
+    font-size: 0.74rem;
+  }
+  .cap-menu-actions button {
+    padding: 0.5rem;
+  }
+  .cap-menu-bottom {
+    display: none;
+  }
 }
 .cap-shell {
   gap: 0;

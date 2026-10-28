@@ -18,11 +18,17 @@ assert.equal(canonicalFusionPair('starter:cat', 'banana').id, cat.id)
 assert.equal(starterForIdentity('starter:banana')?.taxonomy, 'OTHER')
 assert.equal(clientIngredientKey('starter:banana'), 'banana')
 assert.equal(fusionIdForIdentity('fusion:' + cat.id), cat.id)
-assert.equal(canonicalFusionPair('fusion:' + cat.id, 'vampire').leftKey, 'fusion:' + cat.id)
+assert.equal(
+  canonicalFusionPair('fusion:' + cat.id, 'vampire').leftKey,
+  'fusion:' + cat.id,
+)
 assert.equal(fusionDisplayTitle('Banana', 'Cat'), 'Bananacat')
 assert.equal(fusionDisplayTitle('Vampire', 'Bananacat'), 'Vampire Bananacat')
 assert.notEqual(canonicalFusionPair('cat', 'vampire').id, cat.id)
 assert.throws(() => canonicalFusionPair('cat', 'cat'), /different/)
 assert.throws(() => normalizedIngredientKey('invalid'), /Unknown/)
-assert.throws(() => normalizedIngredientKey('hybrid:some-local-study'), /Unknown/)
+assert.throws(
+  () => normalizedIngredientKey('hybrid:some-local-study'),
+  /Unknown/,
+)
 console.log('Hybridizer canonical pair identity contracts passed.')

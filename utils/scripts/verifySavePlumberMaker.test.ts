@@ -9,6 +9,11 @@ import {
   resizeMakerLevel,
   MAKER_SAVE_KEY,
   MAKER_TILES,
+  makerRectangle,
+  makerFloodFill,
+  makerCopy,
+  makerPaste,
+  makerTemplate,
   decodeMakerLevel,
   encodeMakerLevel,
   makerId,
@@ -19,6 +24,10 @@ import {
 } from '../arcade/games/savePlumberMaker'
 import {
   GIANT_FOES,
+  SOLID_ICE,
+  SOLID_FRAGILE_ICE,
+  SOLID_SNOWBANK,
+  SOLID_WATER,
   STAGE_GLYPHS,
   parseStage,
 } from '../arcade/games/savePlumberLevels'
@@ -33,7 +42,7 @@ assert.deepEqual(
   [...supported].sort(),
   'Every parser symbol must be available in the Maker, including every new runtime mechanic',
 )
-assert.equal(MAKER_GROUPS.length, 6)
+assert.equal(MAKER_GROUPS.length, 7)
 assert.ok(
   MAKER_GROUPS.every((group) =>
     group.tiles.every((tile) => tile.icon && tile.label),
@@ -139,6 +148,120 @@ const editedEdge = paintMakerTile(longer, 71, 18, 'p')
 assert.throws(() => resizeMakerLevel(editedEdge, 64, 24), /right edge/)
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(taller)), taller)
 
+const built = makerRectangle(initial, { x1: 10, y1: 17, x2: 14, y2: 19 }, 'B')
+assert.equal(built.rows[17]!.slice(10, 15), 'BBBBB')
+assert.equal(
+  initial.rows[17]![10],
+  '.',
+  'rectangle must not mutate an earlier state',
+)
+assert.throws(
+  () => makerRectangle(initial, { x1: 10, y1: 17, x2: 11, y2: 17 }, '@'),
+  /one tile/,
+)
+const hollow = paintMakerTile(built, 12, 18, '.')
+const filled = makerFloodFill(hollow, 12, 18, 'f')
+assert.equal(filled.rows[18]![12], 'f')
+assert.equal(filled.rows[18]![11], 'B')
+assert.equal(makerFloodFill(filled, 12, 18, 'f'), filled)
+assert.throws(() => makerFloodFill(initial, -1, 0, 'B'), /inside/)
+const stamp = makerCopy(filled, { x1: 10, y1: 17, x2: 14, y2: 19 })
+assert.equal(stamp.width, 5)
+assert.equal(stamp.height, 3)
+const stamped = makerPaste(filled, 22, 15, stamp)
+assert.equal(stamped.rows[16]!.slice(22, 27), 'BBfBB')
+assert.equal(filled.rows[16]![22], '.')
+assert.throws(() => makerPaste(initial, 63, 23, stamp), /does not fit/)
+const shifted = makerPaste(
+  initial,
+  8,
+  17,
+  makerCopy(initial, { x1: 3, y1: 20, x2: 3, y2: 20 }),
+)
+assert.equal(parseStage(toMakerStage(shifted)).start.col, 8)
+assert.equal(parseStage(toMakerStage(shifted)).start.row, 17)
+assert.equal(shifted.rows[20]![3], '.')
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(stamped)), stamped)
+assert.equal('snow' in decodeMakerLevel(encodeMakerLevel(initial)), false)
+for (const name of ['harbor', 'snowfield', 'skybridge'] as const) {
+  const course = makerTemplate(name)
+  assert.deepEqual(decodeMakerLevel(encodeMakerLevel(course)), course)
+  const parsed = parseStage(toMakerStage(course))
+  assert.equal(parsed.start.col, 3)
+  assert.ok(parsed.spawns.some((spawn) => spawn.kind === 'goal'))
+  const run = createSavePlumberPreview(
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
+    { customLevel: toMakerStage(course) },
+  )
+  assert.equal(run.mode, 'play')
+  assert.equal(run.save, undefined)
+}
+const harbor = parseStage(toMakerStage(makerTemplate('harbor')))
+assert.ok([...harbor.solid].includes(SOLID_WATER))
+assert.ok(harbor.spawns.some((spawn) => spawn.kind === 'raft'))
+const winter = parseStage(toMakerStage(makerTemplate('snowfield')))
+assert.equal(winter.snow, true)
+assert.ok([...winter.solid].includes(SOLID_ICE))
+assert.ok([...winter.solid].includes(SOLID_SNOWBANK))
+assert.ok([...winter.solid].includes(SOLID_FRAGILE_ICE))
+assert.ok(winter.spawns.some((spawn) => spawn.kind === 'icicle'))
+assert.ok(winter.spawns.some((spawn) => spawn.kind === 'snowball'))
+assert.ok(winter.spawns.some((spawn) => spawn.giant))
+const winterTools = MAKER_GROUPS.find((group) => group.name === 'Winter')
+assert.deepEqual(
+  new Set(winterTools?.tiles.map((tile) => tile.key)),
+  new Set(['f', 'b', 'd', 'e', 'q']),
+)
+const icyRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(makerTemplate('snowfield')) },
+)
+assert.equal(icyRun.stage.snow, true)
+assert.equal(icyRun.save, undefined)
+assert.equal(
+  icyRun.icicles.length,
+  1,
+  'Real engine initializes falling icicles',
+)
+assert.equal(
+  icyRun.snowballs.length,
+  1,
+  'Real engine initializes moving snowballs',
+)
+assert.equal(icyRun.solidAt(23, 20), SOLID_SNOWBANK)
+assert.equal(icyRun.solidAt(35, 22), SOLID_FRAGILE_ICE)
+const obstacleVariant = makerRectangle(
+  initial,
+  { x1: 10, y1: 18, x2: 13, y2: 18 },
+  'b',
+)
+const savedObstacleVariant = decodeMakerLevel(encodeMakerLevel(obstacleVariant))
+assert.deepEqual(savedObstacleVariant, obstacleVariant)
+assert.equal(
+  parseStage(toMakerStage(savedObstacleVariant)).solid[18 * 64 + 10],
+  SOLID_SNOWBANK,
+)
+const frozenRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(makerTemplate('snowfield')) },
+)
+frozenRun.hero.x = 35 * 16 + 8
+frozenRun.hero.y = 22 * 16 - 20
+frozenRun.hero.vx = 0
+frozenRun.hero.vy = 0
+frozenRun.ground = true
+for (let i = 0; i < 44; i++) frozenRun.update(emptyInput())
+assert.equal(
+  frozenRun.solidAt(35, 22),
+  0,
+  'Fragile ice shatters under sustained weight',
+)
+
 const moved = paintMakerTile(initial, 10, 19, '@')
 assert.equal((moved.rows.join('').match(/@/g) ?? []).length, 1)
 assert.equal(parseStage(toMakerStage(moved)).start.col, 10)
@@ -178,7 +301,7 @@ invalid(
 invalid(
   {
     ...initial,
-    rows: initial.rows.map((line, i) => (i === 0 ? 'A' + line.slice(1) : line)),
+    rows: initial.rows.map((line, i) => (i === 0 ? '?' + line.slice(1) : line)),
   },
   /invalid/,
 )
@@ -235,6 +358,12 @@ for (const required of [
   'maker-draft',
   'maker-share-field',
   'maker-stars',
+  'editTools',
+  'maker.selection',
+  'maker.flood',
+  'maker.rectangle',
+  'maker.pasteAt',
+  'loadStarterTemplate',
   'requestAnimationFrame',
   'createSavePlumberPreview',
 ])
@@ -242,6 +371,8 @@ for (const required of [
 assert.match(makerStore, /localStorage\.setItem\(MAKER_SAVE_KEY/)
 assert.match(makerStore, /decodeMakerLevel/)
 assert.match(makerStore, /encodeMakerLevel/)
+assert.match(makerStore, /makerTemplate/)
+assert.match(makerStore, /makerCopy/)
 assert.doesNotMatch(
   makerComponent,
   /localStorage|\$fetch/,

@@ -9,9 +9,17 @@ import {
   makerId,
   newMakerLevel,
   paintMakerTile,
+  makerRectangle,
+  makerFloodFill,
+  makerCopy,
+  makerPaste,
+  makerTemplate,
   resizeMakerLevel,
   validateMakerLevel,
   type MakerLevel,
+  type MakerRect,
+  type MakerStamp,
+  type MakerTemplate,
 } from '~/utils/arcade/games/savePlumberMaker'
 
 type Draft = { id: string; level: MakerLevel; updated: number }
@@ -59,6 +67,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const undoStack = ref<MakerLevel[]>([])
   const redoStack = ref<MakerLevel[]>([])
   const selectedTile = ref('#')
+  const tool = ref<'brush' | 'rectangle' | 'fill' | 'select' | 'paste'>('brush')
+  const selection = ref<MakerRect | null>(null)
+  const clipboard = ref<MakerStamp | null>(null)
   const selectedGroup = ref('Terrain')
   const panel = ref<'tools' | 'library' | 'settings' | 'reviews'>('tools')
   const hasChanges = computed(
@@ -139,6 +150,84 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     level.value = next
   }
 
+  function applyEdit(
+    action: (source: MakerLevel) => MakerLevel,
+    successMessage: string,
+  ): boolean {
+    try {
+      const next = action(level.value)
+      if (next === level.value) return true
+      pushUndo()
+      level.value = next
+      reviewSummary.value = blankReviewSummary()
+      reviewComment.value = ''
+      message.value = successMessage
+      error.value = ''
+      return true
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Edit could not be applied.'
+      return false
+    }
+  }
+
+  function rectangle(area: MakerRect): boolean {
+    return applyEdit(
+      (source) => makerRectangle(source, area, selectedTile.value),
+      'Rectangle painted.',
+    )
+  }
+
+  function flood(x: number, y: number): boolean {
+    return applyEdit(
+      (source) => makerFloodFill(source, x, y, selectedTile.value),
+      'Region filled.',
+    )
+  }
+
+  function copySelection(): boolean {
+    if (!selection.value) {
+      error.value = 'Select a region first.'
+      return false
+    }
+    try {
+      clipboard.value = makerCopy(level.value, selection.value)
+      tool.value = 'paste'
+      message.value = `Copied ${clipboard.value.width} × ${clipboard.value.height}. Tap to stamp.`
+      error.value = ''
+      return true
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot copy region.'
+      return false
+    }
+  }
+
+  function pasteAt(x: number, y: number): boolean {
+    if (!clipboard.value) {
+      error.value = 'Select and copy a region first.'
+      return false
+    }
+    return applyEdit(
+      (source) => makerPaste(source, x, y, clipboard.value!),
+      'Selection stamped.',
+    )
+  }
+
+  function loadTemplate(name: MakerTemplate) {
+    level.value = makerTemplate(name)
+    currentDraft.value = null
+    imported.value = false
+    selection.value = null
+    tool.value = 'brush'
+    undoStack.value = []
+    redoStack.value = []
+    reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
+    message.value = 'Starter course loaded. Build something new!'
+    error.value = ''
+  }
+
   function undo() {
     const previous = undoStack.value.pop()
     if (!previous) return
@@ -176,7 +265,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   function updateSettings(
-    patch: Partial<Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark'>>,
+    patch: Partial<
+      Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow'>
+    >,
   ) {
     pushUndo()
     level.value = validateMakerLevel({ ...level.value, ...patch })
@@ -187,6 +278,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     level.value = newMakerLevel()
+    selection.value = null
+    tool.value = 'brush'
     currentDraft.value = null
     imported.value = false
     undoStack.value = []
@@ -226,6 +319,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     const found = drafts.value.find((entry) => entry.id === id)
     if (!found) return false
     level.value = clone(found.level)
+    selection.value = null
+    tool.value = 'brush'
     reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     currentDraft.value = found.id
@@ -246,6 +341,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function loadShare(code: string) {
     try {
       level.value = decodeMakerLevel(code)
+      selection.value = null
+      tool.value = 'brush'
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
       currentDraft.value = null
@@ -361,6 +458,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     redoStack,
     selectedTile,
     selectedGroup,
+    tool,
+    selection,
+    clipboard,
     panel,
     hasChanges,
     courseId,
@@ -375,6 +475,11 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     initialize,
     beginStroke,
     paint,
+    rectangle,
+    flood,
+    copySelection,
+    pasteAt,
+    loadTemplate,
     resize,
     undo,
     redo,

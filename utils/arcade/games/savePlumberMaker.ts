@@ -14,6 +14,7 @@ export type MakerLevel = {
   author: string
   theme: number
   dark: boolean
+  snow?: true
   rows: string[]
 }
 
@@ -35,7 +36,7 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '<', icon: '◀', label: 'Left conveyor' },
       { key: '>', icon: '▶', label: 'Right conveyor' },
       { key: ':', icon: '◇', label: 'Blinking bridge' },
-      { key: 'w', icon: '≈', label: 'Water' },
+      { key: 'w', icon: '≈', label: 'Water hazard' },
       { key: 'c', icon: '▤', label: 'Movable crate' },
       { key: 'g', icon: '▥', label: 'Valve gate' },
     ],
@@ -98,6 +99,17 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: 'V', icon: '✷', label: 'Giant Siphon Sprite' },
       { key: 'W', icon: '♨', label: 'Giant Chimney Spirit' },
       { key: 'Y', icon: '♛', label: 'Giant Tea-kettle Knight' },
+    ],
+  },
+  {
+    name: 'Winter',
+    icon: '❄',
+    tiles: [
+      { key: 'f', icon: '❄', label: 'Slippery ice' },
+      { key: 'b', icon: '▧', label: 'Snowbank · smash with wrench' },
+      { key: 'd', icon: '◇', label: 'Fragile ice · cracks underfoot' },
+      { key: 'e', icon: '▼', label: 'Falling icicle · proximity trigger' },
+      { key: 'q', icon: '●', label: 'Rolling snowball · stomp to break' },
     ],
   },
   {
@@ -205,6 +217,7 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     author: textField(value.author, 32, 'Guest Builder'),
     theme: value.theme as number,
     dark: value.dark === true,
+    ...(value.snow === true ? { snow: true as const } : {}),
     rows: rows.slice(),
   }
   parseStage(toMakerStage(result))
@@ -217,6 +230,7 @@ export function toMakerStage(level: MakerLevel): StageDef {
     name: level.title,
     rows: level.rows,
     dark: level.dark,
+    snow: level.snow === true,
   }
 }
 
@@ -256,6 +270,201 @@ export function resizeMakerLevel(
     )
   else if (rows < oldRows) resized.splice(0, oldRows - rows)
   return validateMakerLevel({ ...source, rows: resized })
+}
+
+export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
+export type MakerStamp = { rows: string[]; width: number; height: number }
+export type MakerTemplate = 'harbor' | 'snowfield' | 'skybridge'
+
+function regionBounds(rect: MakerRect) {
+  return {
+    left: Math.min(rect.x1, rect.x2),
+    right: Math.max(rect.x1, rect.x2),
+    top: Math.min(rect.y1, rect.y2),
+    bottom: Math.max(rect.y1, rect.y2),
+  }
+}
+
+function modifyMakerLevel(
+  level: MakerLevel,
+  paint: (grid: string[][]) => void,
+): MakerLevel {
+  const grid = level.rows.map((row) => row.split(''))
+  paint(grid)
+  const rows = grid.map((row) => row.join(''))
+  if (rows.every((row, y) => row === level.rows[y])) return level
+  return validateMakerLevel({ ...level, rows })
+}
+
+export function makerRectangle(
+  level: MakerLevel,
+  area: MakerRect,
+  tile: string,
+): MakerLevel {
+  if (!MAKER_TILES.has(tile)) throw new Error('Unknown maker tile')
+  const { left, right, top, bottom } = regionBounds(area)
+  if (
+    left < 0 ||
+    top < 0 ||
+    right >= level.rows[0]!.length ||
+    bottom >= level.rows.length
+  )
+    throw new Error('Rectangle must stay within the course')
+  if ((tile === '@' || tile === 'G') && (right !== left || top !== bottom))
+    throw new Error('Start and finish markers occupy one tile')
+  return modifyMakerLevel(level, (grid) => {
+    if (tile === '@' || tile === 'G') {
+      for (const row of grid)
+        for (let x = 0; x < row.length; x++) if (row[x] === tile) row[x] = '.'
+    }
+    for (let y = top; y <= bottom; y++)
+      for (let x = left; x <= right; x++) grid[y]![x] = tile
+  })
+}
+
+export function makerFloodFill(
+  level: MakerLevel,
+  x: number,
+  y: number,
+  tile: string,
+): MakerLevel {
+  if (!MAKER_TILES.has(tile)) throw new Error('Unknown maker tile')
+  const width = level.rows[0]!.length
+  const height = level.rows.length
+  if (x < 0 || y < 0 || x >= width || y >= height)
+    throw new Error('Fill must start inside the course')
+  const original = level.rows[y]![x]!
+  if (original === tile) return level
+  if (tile === '@' || tile === 'G')
+    throw new Error('Use the brush to move the start or finish')
+  return modifyMakerLevel(level, (grid) => {
+    const visited = new Set<number>()
+    const queue = [y * width + x]
+    for (let head = 0; head < queue.length; head++) {
+      const key = queue[head]!
+      if (visited.has(key)) continue
+      visited.add(key)
+      const cx = key % width
+      const cy = Math.floor(key / width)
+      if (grid[cy]![cx] !== original) continue
+      grid[cy]![cx] = tile
+      if (cx > 0) queue.push(key - 1)
+      if (cx + 1 < width) queue.push(key + 1)
+      if (cy > 0) queue.push(key - width)
+      if (cy + 1 < height) queue.push(key + width)
+    }
+  })
+}
+
+export function makerCopy(level: MakerLevel, area: MakerRect): MakerStamp {
+  const { left, right, top, bottom } = regionBounds(area)
+  if (
+    left < 0 ||
+    top < 0 ||
+    right >= level.rows[0]!.length ||
+    bottom >= level.rows.length
+  )
+    throw new Error('Selection must stay within the course')
+  return {
+    rows: level.rows
+      .slice(top, bottom + 1)
+      .map((row) => row.slice(left, right + 1)),
+    width: right - left + 1,
+    height: bottom - top + 1,
+  }
+}
+
+export function makerPaste(
+  level: MakerLevel,
+  x: number,
+  y: number,
+  stamp: MakerStamp,
+): MakerLevel {
+  if (
+    !Number.isInteger(x) ||
+    !Number.isInteger(y) ||
+    x < 0 ||
+    y < 0 ||
+    !Number.isInteger(stamp.width) ||
+    !Number.isInteger(stamp.height) ||
+    stamp.width < 1 ||
+    stamp.height < 1 ||
+    stamp.rows.length !== stamp.height ||
+    x + stamp.width > level.rows[0]!.length ||
+    y + stamp.height > level.rows.length ||
+    stamp.rows.some(
+      (row) =>
+        row.length !== stamp.width ||
+        [...row].some((ch) => !MAKER_TILES.has(ch)),
+    )
+  )
+    throw new Error('Copied region does not fit the course')
+  return modifyMakerLevel(level, (grid) => {
+    const movesStart = stamp.rows.some((row) => row.includes('@'))
+    const movesGoal = stamp.rows.some((row) => row.includes('G'))
+    if (movesStart || movesGoal)
+      for (const row of grid)
+        for (let cx = 0; cx < row.length; cx++)
+          if ((movesStart && row[cx] === '@') || (movesGoal && row[cx] === 'G'))
+            row[cx] = '.'
+    for (let dy = 0; dy < stamp.height; dy++)
+      for (let dx = 0; dx < stamp.width; dx++)
+        grid[y + dy]![x + dx] = stamp.rows[dy]![dx]!
+  })
+}
+
+export function makerTemplate(template: MakerTemplate): MakerLevel {
+  const fresh = newMakerLevel()
+  const grid = fresh.rows.map((row) => row.split(''))
+  const put = (x: number, y: number, symbol: string) => {
+    grid[y]![x] = symbol
+  }
+  if (template === 'harbor') {
+    for (let y = 21; y < 24; y++) for (let x = 20; x <= 27; x++) put(x, y, 'w')
+    for (let x = 18; x <= 30; x += 3) put(x, 18, '=')
+    put(22, 16, 'F')
+    put(30, 20, 'k')
+    put(33, 19, 'K')
+    for (let x = 8; x < 18; x += 2) put(x, 17, 'o')
+  } else if (template === 'snowfield') {
+    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, 'f')
+    for (let x = 14; x < 32; x += 4) put(x, 17, '=')
+    for (let x = 34; x < 40; x++) {
+      put(x, 22, 'd')
+      put(x, 23, '.')
+    }
+    put(18, 13, 'e')
+    put(23, 20, 'b')
+    put(49, 20, 'q')
+    put(28, 20, 'h')
+    put(40, 20, 'N')
+    put(33, 20, 'K')
+    put(17, 20, 's')
+    for (let x = 10; x < 47; x += 5) put(x, 14, 'o')
+  } else if (template === 'skybridge') {
+    for (let x = 17; x < 44; x++) {
+      put(x, 22, '.')
+      put(x, 23, '.')
+    }
+    for (let x = 15; x < 46; x += 3) put(x, 19, '=')
+    put(18, 18, 'L')
+    put(31, 18, 'P')
+    put(44, 20, 'K')
+    put(35, 17, 'y')
+    for (let x = 18; x < 45; x += 4) put(x, 15, 'o')
+  } else throw new Error('Unknown starter layout')
+  return validateMakerLevel({
+    ...fresh,
+    title:
+      template === 'harbor'
+        ? 'Tideglass Crossing'
+        : template === 'snowfield'
+          ? 'Frostglass Run'
+          : 'Cloudrail Leap',
+    theme: template === 'harbor' ? 2 : template === 'snowfield' ? 5 : 5,
+    ...(template === 'snowfield' ? { snow: true } : {}),
+    rows: grid.map((row) => row.join('')),
+  })
 }
 
 /** Compact, portable, versioned URL payload. Every import is validated on decoding. */

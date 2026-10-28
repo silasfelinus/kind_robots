@@ -27,6 +27,9 @@ import {
   SOLID_LEDGE,
   SOLID_PIPE,
   SOLID_WATER,
+  SOLID_ICE,
+  SOLID_SNOWBANK,
+  SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
   parseStage,
@@ -283,6 +286,21 @@ const BRIDGE_CYCLE = 270
 const BRIDGE_LIT = 180
 
 type Vent = { x: number; y: number; offset: number }
+export type Icicle = {
+  x: number
+  y: number
+  top: number
+  vy: number
+  state: 'idle' | 'warning' | 'falling' | 'gone'
+  timer: number
+}
+export type Snowball = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  gone: boolean
+}
 type Spring = { x: number; y: number; squash: number }
 type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
@@ -342,6 +360,9 @@ export type PlumberRunOptions = {
 
 const isWall = (s: number) =>
   s === SOLID_GROUND ||
+  s === SOLID_ICE ||
+  s === SOLID_SNOWBANK ||
+  s === SOLID_FRAGILE_ICE ||
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
   s === SOLID_PIPE ||
@@ -426,6 +447,9 @@ export class PlumberRun implements ArcadeGameInstance {
   platforms: Platform[] = []
   foes: Foe[] = []
   vents: Vent[] = []
+  icicles: Icicle[] = []
+  snowballs: Snowball[] = []
+  fragileIce = new Map<number, number>()
   springs: Spring[] = []
   tokensOnMap: Token[] = []
   checkpoints: Checkpoint[] = []
@@ -889,6 +913,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.platforms = []
     this.foes = []
     this.vents = []
+    this.icicles = []
+    this.snowballs = []
+    this.fragileIce.clear()
     this.springs = []
     this.tokensOnMap = []
     this.checkpoints = []
@@ -1033,6 +1060,25 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'steam-vent':
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
+          break
+        case 'icicle':
+          this.icicles.push({
+            x: cx,
+            y: bottom,
+            top: bottom,
+            vy: 0,
+            state: 'idle',
+            timer: 0,
+          })
+          break
+        case 'snowball':
+          this.snowballs.push({
+            x: cx,
+            y: bottom,
+            vx: spawn.col % 2 ? 1.7 : -1.7,
+            vy: 0,
+            gone: false,
+          })
           break
         case 'springstep':
           this.springs.push({ x: cx, y: bottom, squash: 0 })
@@ -1207,17 +1253,31 @@ export class PlumberRun implements ArcadeGameInstance {
     this.updateDuck(keys, move)
     this.running = runner || (keys.held.b === true && move !== 0)
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
+    const onIce =
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_ICE) ||
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_FRAGILE_ICE)
     if (runner) hero.vx += (top - hero.vx) * 0.25
     // A crouch keeps a run's momentum as a slide, then crawls.
     else if (this.ducking && this.ground) {
       if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
       else hero.vx = move * CRAWL
     } else if (move) {
-      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
+      let next =
+        hero.vx +
+        move *
+          (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
-    } else hero.vx *= 0.77
+    } else hero.vx *= onIce ? 0.965 : 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
     if (keys.pressed.y) this.useSpecial()
@@ -1287,11 +1347,13 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
     this.updateSprings(prevBottom)
+    this.crackIce()
     if (keys.pressed.down && this.ground) this.tryDoor()
     if (keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
     this.updateFoes(prevBottom)
+    this.updateWinterHazards(prevBottom)
     this.updateVents()
     this.updateCargo()
     this.updateSoot()
@@ -1772,7 +1834,11 @@ export class PlumberRun implements ArcadeGameInstance {
       col++
     )
       for (let row = rowTop - 1; row <= rowBottom; row++)
-        if (this.solidAt(col, row) === SOLID_CRATE && !lifted) {
+        if (this.solidAt(col, row) === SOLID_SNOWBANK) {
+          this.setSolid(col, row, 0)
+          this.score += 40
+          struck = true
+        } else if (this.solidAt(col, row) === SOLID_CRATE && !lifted) {
           this.setSolid(col, row, 0)
           struck = true
           if (this.power === 'pocket-lift') {
@@ -2337,6 +2403,105 @@ export class PlumberRun implements ArcadeGameInstance {
     const left = (this.stage.gate ?? 0) * TILE
     const right = this.stage.cols * TILE
     this.waves = this.waves.filter((w) => w.x > left && w.x < right)
+  }
+
+  private crackIce() {
+    if (!this.ground) return
+    const row = Math.floor((this.hero.y + TALL + 2) / TILE)
+    for (const col of [
+      Math.floor((this.hero.x - HALF + 2) / TILE),
+      Math.floor((this.hero.x + HALF - 2) / TILE),
+    ]) {
+      if (this.solidAt(col, row) !== SOLID_FRAGILE_ICE) continue
+      const id = row * this.stage.cols + col
+      const next = (this.fragileIce.get(id) ?? 0) + 1
+      if (next >= 42) {
+        this.setSolid(col, row, 0)
+        this.fragileIce.delete(id)
+        this.sound.play('pop')
+      } else this.fragileIce.set(id, next)
+    }
+  }
+
+  private updateWinterHazards(prevBottom: number) {
+    const hero = this.hero
+    for (const icicle of this.icicles) {
+      if (icicle.state === 'gone') continue
+      if (icicle.state === 'idle') {
+        if (
+          Math.abs(icicle.x - hero.x) <= 42 &&
+          hero.y + TALL >= icicle.top &&
+          hero.y <= icicle.top + 190
+        ) {
+          icicle.state = 'warning'
+          icicle.timer = 28
+          this.sound.play('warn')
+        }
+      } else if (icicle.state === 'warning') {
+        icicle.timer--
+        if (icicle.timer <= 0) icicle.state = 'falling'
+      } else {
+        icicle.vy = Math.min(9, icicle.vy + 0.37)
+        icicle.y += icicle.vy
+        if (
+          Math.abs(icicle.x - hero.x) < HALF + 6 &&
+          icicle.y >= this.heroTop &&
+          icicle.y - 24 <= hero.y + TALL
+        )
+          this.hurt(icicle.x < hero.x ? 1 : -1)
+        const col = Math.floor(icicle.x / TILE)
+        const row = Math.floor((icicle.y + 1) / TILE)
+        if (
+          isWall(this.solidAt(col, row)) ||
+          icicle.y > this.stage.rows * TILE
+        ) {
+          icicle.state = 'gone'
+          this.sound.play('pop')
+        }
+      }
+    }
+    for (const ball of this.snowballs) {
+      if (ball.gone) continue
+      const direction = Math.sign(ball.vx)
+      const side = this.solidAt(
+        Math.floor((ball.x + direction * 10) / TILE),
+        Math.floor((ball.y - 8) / TILE),
+      )
+      if (isWall(side)) ball.vx *= -1
+      ball.x += ball.vx
+      const underneath = this.solidAt(
+        Math.floor(ball.x / TILE),
+        Math.floor((ball.y + 2) / TILE),
+      )
+      if (!isWall(underneath) && underneath !== SOLID_LEDGE) {
+        ball.vy = Math.min(8, ball.vy + GRAVITY)
+        ball.y += ball.vy
+      } else if (ball.vy > 0) {
+        ball.y = Math.floor((ball.y + 2) / TILE) * TILE
+        ball.vy = 0
+      }
+      if (
+        ball.x < 0 ||
+        ball.x > this.stage.cols * TILE ||
+        ball.y > this.stage.rows * TILE + 20
+      ) {
+        ball.gone = true
+        continue
+      }
+      if (
+        Math.abs(ball.x - hero.x) < HALF + 11 &&
+        hero.y + TALL > ball.y - 18 &&
+        this.heroTop < ball.y
+      ) {
+        if (hero.vy > 0.5 && prevBottom <= ball.y - 11) {
+          ball.gone = true
+          hero.vy = -6
+          this.ground = false
+          this.score += 125
+          this.sound.play('pop')
+        } else this.hurt(ball.x < hero.x ? 1 : -1)
+      }
+    }
   }
 
   private updateCheckpoints() {
@@ -3885,6 +4050,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.translate(-Math.round(this.camera), -Math.round(this.cameraY))
     this.renderTiles(g)
     this.renderThings(g)
+    this.renderWinterHazards(g)
     this.renderFoes(g)
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)
@@ -3910,6 +4076,18 @@ export class PlumberRun implements ArcadeGameInstance {
       )
     this.renderSpecial(g, true)
     g.restore()
+    if (this.stage.snow) {
+      g.fillStyle = 'rgba(209, 237, 250, 0.12)'
+      g.fillRect(0, 0, W, H)
+      g.fillStyle = 'rgba(245, 251, 255, 0.88)'
+      for (let i = 0; i < 48; i++) {
+        const x =
+          ((i * 127 + this.tick * (0.35 + (i % 3) * 0.2)) % (W + 24)) - 12
+        const y =
+          ((i * 83 + this.tick * (0.65 + (i % 5) * 0.16)) % (H + 18)) - 9
+        g.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 4 === 0 ? 3 : 2)
+      }
+    }
     if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
   }
@@ -4092,7 +4270,33 @@ export class PlumberRun implements ArcadeGameInstance {
           }
           continue
         }
-        if (s === SOLID_GROUND) {
+        if (s === SOLID_SNOWBANK) {
+          g.fillStyle = '#e9f5fc'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#b9d9eb'
+          g.fillRect(x, y + 12, TILE, 4)
+          g.fillStyle = '#fff'
+          g.fillRect(x + 1, y + 2, TILE - 3, 4)
+        } else if (s === SOLID_FRAGILE_ICE) {
+          const cracks = this.fragileIce.get(row * this.stage.cols + col) ?? 0
+          g.fillStyle = cracks > 20 ? '#98b6d2' : '#b1e4f5'
+          g.fillRect(x, y, TILE, TILE)
+          g.strokeStyle = '#eaf9ff'
+          g.beginPath()
+          g.moveTo(x + 3, y + 1)
+          g.lineTo(x + 9, y + 7)
+          g.lineTo(x + 6, y + 13)
+          if (cracks > 20) g.lineTo(x + 15, y + 15)
+          g.stroke()
+        } else if (s === SOLID_ICE) {
+          g.fillStyle = '#89cbe2'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#d9f7ff'
+          g.fillRect(x + 1, y + 1, TILE - 2, 3)
+          g.fillStyle = 'rgba(51, 123, 174, 0.42)'
+          g.fillRect(x + 2, y + 9, 5, 2)
+          g.fillRect(x + 10, y + 12, 5, 2)
+        } else if (s === SOLID_GROUND) {
           g.fillStyle = ground ?? '#2f6f68'
           g.fillRect(x, y, TILE, TILE)
           if (above !== SOLID_GROUND) {
@@ -4633,6 +4837,36 @@ export class PlumberRun implements ArcadeGameInstance {
               : foe.vy > 2
                 ? 3
                 : 2
+    }
+  }
+
+  private renderWinterHazards(g: CanvasRenderingContext2D) {
+    for (const icicle of this.icicles) {
+      if (icicle.state === 'gone') continue
+      const wiggle =
+        icicle.state === 'warning' ? Math.sin(this.tick * 2) * 2 : 0
+      g.fillStyle = icicle.state === 'warning' ? '#ffe4ae' : '#d0f4ff'
+      g.beginPath()
+      g.moveTo(icicle.x - 7 + wiggle, icicle.y - 22)
+      g.lineTo(icicle.x + 7 + wiggle, icicle.y - 22)
+      g.lineTo(icicle.x + wiggle, icicle.y + 1)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = '#77bcd9'
+      g.stroke()
+    }
+    for (const ball of this.snowballs) {
+      if (ball.gone) continue
+      g.fillStyle = '#f6fcff'
+      g.beginPath()
+      g.arc(ball.x, ball.y - 10, 10, 0, Math.PI * 2)
+      g.fill()
+      g.strokeStyle = '#86bdda'
+      g.lineWidth = 2
+      g.stroke()
+      g.beginPath()
+      g.arc(ball.x - 2, ball.y - 10, 5, this.tick / 8, this.tick / 8 + 3)
+      g.stroke()
     }
   }
 

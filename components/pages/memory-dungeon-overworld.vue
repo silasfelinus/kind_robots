@@ -50,11 +50,11 @@
         ❤️ {{ world.state.hearts }}
       </span>
       <button
+        ref="chronicleTrigger"
         type="button"
         class="shrink-0 rounded-lg border border-[#c7ac7a] bg-[#4d3e32] px-2 py-1.5 text-xs font-bold text-[#f8eaca] hover:bg-[#635044] focus-visible:outline-2 focus-visible:outline-[#ffe7ad]"
         :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
         data-testid="memory-earth-chronicle-open"
-        ref="chronicleTrigger"
         aria-haspopup="dialog"
         :aria-expanded="chronicleOpen"
         @click="chronicleOpen = true"
@@ -64,12 +64,12 @@
         <span class="font-mono">{{ world.earthPhotos.length }}</span>
       </button>
       <button
+        ref="questsTrigger"
         v-if="world.activeReality === 'e01'"
         type="button"
         class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
         :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
         data-testid="memory-quest-log-open"
-        ref="questsTrigger"
         aria-haspopup="dialog"
         :aria-expanded="questsOpen"
         @click="questsOpen = true"
@@ -79,10 +79,10 @@
         <span class="font-mono">{{ questsTied }}</span>
       </button>
       <button
+        ref="settingsTrigger"
         type="button"
         class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
         aria-label="Choose gallery and game settings"
-        ref="settingsTrigger"
         aria-haspopup="dialog"
         :aria-expanded="settingsOpen"
         @click="settingsOpen = !settingsOpen"
@@ -112,10 +112,10 @@
       @keydown="trapMemoryDialogTab($event, settingsDialog)"
     >
       <div
+        ref="settingsDialog"
         role="dialog"
         aria-modal="true"
         aria-label="Memory Dungeon settings and checkpoints"
-        ref="settingsDialog"
         tabindex="-1"
         data-testid="memory-settings-dialog"
         class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"

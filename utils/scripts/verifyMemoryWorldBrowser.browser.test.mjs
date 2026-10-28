@@ -270,27 +270,44 @@ try {
   })
 
   for (const width of [390, 768, 1440]) {
-    await run('Dialog Tab cycle stays contained at ' + width + 'px', async (page) => {
-      await page.setViewportSize({ width, height: 900 })
-      await page.evaluate(() => {
-        document.body.insertAdjacentHTML(
-          'beforeend',
-          '<button id="outside">Map action</button><section id="dialog" tabindex="-1" role="dialog" aria-modal="true"><button id="first">First choice</button><button disabled>Unavailable</button><button style="display:none">Hidden</button><button id="last">Close</button></section>',
+    await run(
+      'Dialog Tab cycle stays contained at ' + width + 'px',
+      async (page) => {
+        await page.setViewportSize({ width, height: 900 })
+        await page.evaluate(() => {
+          document.body.insertAdjacentHTML(
+            'beforeend',
+            '<button id="outside">Map action</button><section id="dialog" tabindex="-1" role="dialog" aria-modal="true"><button id="first">First choice</button><button disabled>Unavailable</button><button style="display:none">Hidden</button><button id="last">Close</button></section>',
+          )
+          const dialog = document.getElementById('dialog')
+          dialog.addEventListener('keydown', (event) =>
+            window.__dialogFocus(event, dialog),
+          )
+          document.getElementById('last').focus()
+        })
+        await page.keyboard.press('Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'first',
         )
-        const dialog = document.getElementById('dialog')
-        dialog.addEventListener('keydown', (event) => window.__dialogFocus(event, dialog))
-        document.getElementById('last').focus()
-      })
-      await page.keyboard.press('Tab')
-      assert.equal(await page.evaluate(() => document.activeElement.id), 'first')
-      await page.keyboard.press('Shift+Tab')
-      assert.equal(await page.evaluate(() => document.activeElement.id), 'last')
-      await page.evaluate(() => document.getElementById('dialog').focus())
-      await page.keyboard.press('Shift+Tab')
-      assert.equal(await page.evaluate(() => document.activeElement.id), 'last')
-      await page.keyboard.press('Tab')
-      assert.equal(await page.evaluate(() => document.activeElement.id), 'first')
-    })
+        await page.keyboard.press('Shift+Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'last',
+        )
+        await page.evaluate(() => document.getElementById('dialog').focus())
+        await page.keyboard.press('Shift+Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'last',
+        )
+        await page.keyboard.press('Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'first',
+        )
+      },
+    )
   }
 
   await run(

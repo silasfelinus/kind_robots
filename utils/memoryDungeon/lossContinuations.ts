@@ -10,7 +10,9 @@ export interface BriarLossContext {
 
 export type BriarLossKind = 'combat' | 'chamber'
 
-function rememberedConsequence(choices: BriarLossContext['sceneChoices']): string {
+function rememberedConsequence(
+  choices: BriarLossContext['sceneChoices'],
+): string {
   if (choices['4,3'] === 'plan')
     return "Oren's inked detour still marks a way forward, but the unfinished danger keeps its place on the itinerary."
   if (choices['4,3'] === 'load')

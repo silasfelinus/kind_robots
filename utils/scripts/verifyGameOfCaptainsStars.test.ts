@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import {
@@ -28,7 +29,7 @@ import {
 assert.equal(
   STAR_QUESTIONS.length,
   4,
-  'four questions before captain selection',
+  'four questions after the captain dossier',
 )
 assert.equal(STAR_SIGNS.length, 12, 'an original dozen constellations')
 assert.deepEqual(STAR_QUEST_CHAPTERS, [1, 4, 7])
@@ -108,6 +109,21 @@ for (const sign of STAR_SIGNS) {
     assert.ok(!sign.quests.some((q) => other.quests.some((b) => b.id === q.id)))
 }
 
+assert.equal(CAPTAIN_ORIGINS.length, 6, 'six independent captain backgrounds')
+assert.equal(new Set(CAPTAIN_ORIGINS.map((origin) => origin.id)).size, 6)
+for (const origin of CAPTAIN_ORIGINS) {
+  const voyage = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, origin.id)
+  assert.equal(voyage.origin, origin.id)
+  assert.ok(voyage.worldFlags?.includes('origin:' + origin.id))
+  assert.ok(voyage.log[0]?.includes(origin.prologue))
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(voyage))), voyage)
+}
+const mechanic = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'mechanic')
+assert.equal(mechanic.shieldCharge, 3, 'the mechanic's origin has a playable bonus')
+const courier = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'courier')
+assert.equal(courier.supplies, 9, 'the courier gets extra supplies')
+const brokenOrigin = { ...courier, origin: 'never-on-the-couch' }
+assert.equal(restoreVoyage(brokenOrigin), null, 'corrupted origin cannot enter a save')
 const astrology = seen.get('princess-mantic-shrimp')!
 assert.ok(astrology)
 const initial = startVoyage('vale', ['pell', 'mox', 'rue'], 12045, astrology!)
@@ -236,6 +252,19 @@ const store = readFileSync(
   new URL('../../stores/gameOfCaptainsStore.ts', import.meta.url),
   'utf8',
 )
+assert.ok(page.includes('data-testid="space-couch-title-screen"'))
+assert.ok(page.includes('data-testid="space-couch-new-game"'))
+assert.ok(page.includes('data-testid="space-couch-continue"'))
+assert.ok(page.includes('data-testid="space-couch-main-settings"'))
+assert.ok(page.includes('data-testid="space-couch-main-log"'))
+assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
+assert.ok(page.includes('data-testid="space-couch-background-next"'))
+assert.ok(page.includes("selectionScreen = 'captain'"))
+assert.ok(page.includes("selectionScreen = 'stars'"))
+assert.ok(page.includes("selectionScreen = 'crew'"))
+assert.ok(page.includes("store.begin(selectedCaptain.value, chosenCrew.value, starAssessment.value, selectedOrigin.value)"))
+assert.ok(page.includes('cap-menu-journal kr-scroll'))
+assert.ok(page.includes('cap-layout--stars'))
 assert.ok(page.includes("selectionScreen === 'stars'"))
 assert.ok(page.includes('SpaceCouchConstellationTest'))
 assert.ok(page.includes('confirmStarAssessment'))
@@ -250,6 +279,30 @@ for (const marker of [
   assert.ok(quiz.includes(marker), marker)
 }
 assert.ok(quiz.includes("emit('confirm', assessment)"))
+assert.ok(quiz.includes("warpArt('couchscope/question-' + index)"))
+assert.ok(quiz.includes('scope-question-art'))
+assert.ok(quiz.includes('space-couch-star-return-captain'))
+assert.ok(quiz.includes('max-height: 560px'))
+for (const [index, subject] of [
+  ['01', 'protesting crescent moon'],
+  ['02', 'time portal'],
+  ['03', 'lost-and-found'],
+  ['04', 'one-time miracle'],
+]) {
+  const drawing = readFileSync(
+    new URL('../../public/game-of-captains/couchscope/question-' + index + '.svg', import.meta.url),
+    'utf8',
+  )
+  assert.ok(drawing.includes('<svg'))
+  assert.ok(drawing.includes(subject), 'distinct authored drawing ' + index)
+}
+const origins = readFileSync(
+  new URL('../../utils/gameOfCaptains/captainOrigins.ts', import.meta.url),
+  'utf8',
+)
+assert.ok(origins.includes('Displaced Diplomat'))
+assert.ok(store.includes('PREFERENCES_KEY'))
+assert.ok(store.includes('origin?: CaptainOriginId'))
 assert.ok(deck.includes('YOUR STAR SIGN QUEST'))
 assert.ok(store.includes('assessment?: StarAssessment'))
 console.log(

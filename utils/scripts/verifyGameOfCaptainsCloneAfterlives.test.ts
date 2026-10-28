@@ -130,11 +130,12 @@ for (const trait of signatures) {
     'cannot farm a previously completed field job',
   )
 
+  const failedMissionRecord = { ...success, successful: false }
   const failed = recordCloneMissions(before, {
     ...before,
     expeditionVisit: {
       ...before.expeditionVisit!,
-      results: [{ ...success, successful: false }],
+      results: [failedMissionRecord],
     },
   })
   assert.ok(

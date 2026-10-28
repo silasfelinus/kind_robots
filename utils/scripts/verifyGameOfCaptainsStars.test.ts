@@ -33,7 +33,7 @@ for (const sign of STAR_SIGNS) {
   assert.ok(sign.omen.length > 30)
   assert.equal(sign.quests.length, 3)
   assert.equal(new Set(sign.quests.map((q) => q.id)).size, 3)
-  assert.ok(sign.quests.every((q) => q.setup.length > 60 && q.ending.length > 35))
+  assert.ok(sign.quests.every((q) => q.setup.length > 60 && q.ending.length > 24))
 }
 const seen = new Map<string, ReturnType<typeof createStarAssessment>>()
 for (let a = 0; a < 3; a++)

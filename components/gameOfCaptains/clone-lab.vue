@@ -15,9 +15,10 @@
       <span>THE CLONE LAB</span>
       <b>{{ program.step }}/5</b>
     </button>
-    <div
-      v-if="opened"
-      id="space-clone-lab-dialog"
+    <Teleport to="body">
+      <div
+        v-if="opened"
+        id="space-clone-lab-dialog"
       class="clone-shade"
       role="presentation"
       @click.self="opened = false"
@@ -146,7 +147,8 @@
           </button>
         </footer>
       </section>
-    </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -188,7 +190,7 @@ const nextOptions = computed(
 <style scoped>
 .clone-lab {
   position: absolute;
-  top: 0.9rem;
+  top: 3rem;
   right: 1rem;
   z-index: 12;
 }
@@ -398,7 +400,7 @@ const nextOptions = computed(
   font-weight: 900;
 }
 @media (max-width: 680px) {
-  .clone-lab { right: 0.4rem; top: 0.4rem; }
+  .clone-lab { right: 0.4rem; top: 3rem; }
   .clone-launcher { padding: 0.32rem; font-size: 0.59rem; }
   .clone-body { grid-template-columns: minmax(0, 1fr); }
   .clone-console { max-height: 96dvh; }

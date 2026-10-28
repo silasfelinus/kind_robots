@@ -272,24 +272,38 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '5,4',
         advance: ['errand'],
         text: 'Agree to carry the Knight’s sealed apology.',
+        closedOutcomes: {
+          truth:
+            'You told the Knight that his promised crossing never existed. He marked the Vault on your map but entrusted you with no letter. He must now decide whether to rebuild the bridge before asking the House to forgive an oath he never kept.',
+        },
       },
       {
         scope: 'briar',
         key: '5,5',
         advance: ['question'],
         text: 'Ask the Moss Sprite whose favour it is remembering.',
+        closedOutcomes: {
+          gift: 'You gave the Moss Sprite a silver wildflower to settle its grievance. It promised to testify that somebody listened, but you did not learn whose broken oath it remembered. The Knight’s apology has no witness to the promise he erased.',
+        },
       },
       {
         scope: 'briar',
         key: '6,4',
         advance: ['carry'],
         text: 'Choose the apology over the destruction order when Pip offers both.',
+        closedOutcomes: {
+          read: 'You opened the Knight’s destruction order and warned the House. Pip must explain the broken seal, but the residents can prepare for danger instead of trusting a private apology. The Knight must answer for both letters in public.',
+        },
       },
       {
         scope: 'briar',
         key: '6,2',
         advance: ['witness'],
         text: 'Promise the House to witness its residents.',
+        closedOutcomes: {
+          demand:
+            'You demanded to know who owns the House’s stored memories before promising to witness its residents. The House admitted you but turned its plaque away. The Knight’s apology cannot stand in for the residents’ testimony or their consent.',
+        },
       },
     ],
     complete:

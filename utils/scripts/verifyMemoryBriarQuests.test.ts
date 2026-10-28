@@ -157,6 +157,58 @@ assert.match(
   'When multiple choices close the quest, its earliest authored step determines the ending',
 )
 
+// The Knight's apology is not a single failed errand. Telling him the truth,
+// paying the Sprite, warning the House and demanding consent carry distinct
+// costs, none of which falsely claims that the House has forgiven him.
+const apology = BRIAR_QUESTS.find((q) => q.id === 'an-apology-for-the-door')!
+const apologyClosures = [
+  ['5,4', 'truth', /crossing never existed/],
+  ['5,5', 'gift', /did not learn whose broken oath/],
+  ['6,4', 'read', /residents can prepare for danger/],
+  ['6,2', 'demand', /residents’ testimony or their consent/],
+] as const
+const apologyEndings = new Set<string>()
+for (const [key, choice, expected] of apologyClosures) {
+  const decisions = split(apology)
+  decisions.briar[key] = choice
+  const result = briarQuestProgress(apology, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the apology`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, apology.closed)
+  apologyEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  assert.equal(
+    briarQuestProgress(apology, restored.sceneChoices, decisions.house).quest
+      .closed,
+    result.quest.closed,
+    'The apology outcome survives a saved scene decision',
+  )
+}
+assert.equal(apologyEndings.size, 4, 'four different apology endings')
+const forgedApology = split(apology)
+forgedApology.briar['6,2'] = 'forged'
+assert.equal(
+  briarQuestProgress(apology, forgedApology.briar, forgedApology.house).state,
+  'active',
+  'A forged House promise cannot manufacture an apology closure',
+)
+const twoApologyClosures = split(apology)
+twoApologyClosures.briar['5,4'] = 'truth'
+twoApologyClosures.briar['6,4'] = 'read'
+assert.match(
+  briarQuestProgress(
+    apology,
+    twoApologyClosures.briar,
+    twoApologyClosures.house,
+  ).quest.closed,
+  /crossing never existed/,
+  'The earliest authored apology closure wins when several choices diverge',
+)
+
 // Four defensible alternatives to the patrol's formal case carry different
 // costs: speaking too early, sheltering witnesses, investigating the gate,
 // and helping without testimony. None invents an official acquittal.

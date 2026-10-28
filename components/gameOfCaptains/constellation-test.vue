@@ -135,7 +135,6 @@
         </div>
       </template>
       <footer class="scope-footer">
-        <button v-if="!answers.length && !assessment" type="button" data-testid="space-couch-star-return-captain" @click="emit('back')">← BACK TO CAPTAIN</button>
         <button
           v-if="answers.length && !assessment"
           type="button"
@@ -144,7 +143,15 @@
         >
           ← PREVIOUS ANSWER
         </button>
-        <span v-else-if="!answers.length || assessment">THE STARS ARE MOSTLY QUALIFIED</span>
+        <button
+          v-else-if="!assessment"
+          type="button"
+          data-testid="space-couch-star-return-captain"
+          @click="emit('back')"
+        >
+          ← BACK TO CAPTAIN
+        </button>
+        <span v-else>THE STARS ARE MOSTLY QUALIFIED</span>
         <span>COMING UP NEXT: YOUR CREW, YOUR TROUBLE</span>
       </footer>
     </div>

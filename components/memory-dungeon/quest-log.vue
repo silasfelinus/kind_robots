@@ -46,7 +46,7 @@
             :key="thread.quest.id"
             type="button"
             :aria-pressed="active?.quest.id === thread.quest.id"
-            class="min-w-36 shrink-0 rounded-lg border p-2 text-left text-xs focus-visible:outline-2 focus-visible:outline-[#ecf7c8] sm:min-w-0"
+            class="min-w-40 shrink-0 rounded-lg border p-3 text-left text-base focus-visible:outline-2 focus-visible:outline-[#ecf7c8] sm:min-w-0"
             :class="
               active?.quest.id === thread.quest.id
                 ? 'border-[#d9e7a8] bg-[#435035] text-white'
@@ -57,7 +57,7 @@
             <span class="block font-mono text-[10px] opacity-75">{{
               STATE_LABELS[thread.state]
             }}</span>
-            <strong class="mt-1 block text-sm">{{ thread.quest.title }}</strong>
+            <strong class="mt-1 block text-base leading-snug sm:text-lg">{{ thread.quest.title }}</strong>
             <span class="mt-1 block opacity-80"
               >{{ thread.done }}/{{ thread.steps.length }} steps</span
             >
@@ -99,7 +99,7 @@
             <h3 class="font-serif text-xl font-bold sm:text-2xl">
               {{ active.quest.title }}
             </h3>
-            <p class="mt-2 text-sm leading-relaxed text-[#ece4cb]">
+            <p class="mt-2 text-base leading-relaxed text-[#ece4cb] sm:text-lg">
               {{ active.quest.hook }}
             </p>
           </div>
@@ -108,7 +108,7 @@
             <li
               v-for="entry in active.steps"
               :key="entry.step.key"
-              class="flex items-start gap-2 rounded-md border px-2 py-1.5 text-sm"
+              class="flex items-start gap-3 rounded-md border px-3 py-2 text-base leading-relaxed sm:text-lg"
               :class="
                 entry.state === 'done'
                   ? 'border-[#9fb67d] bg-[#33402d]'
@@ -136,7 +136,7 @@
 
           <p
             v-if="active.state === 'complete' || active.state === 'closed'"
-            class="rounded-lg border-l-2 border-[#b7c98e] bg-[#262e29] p-3 text-sm leading-relaxed"
+            class="rounded-lg border-l-2 border-[#b7c98e] bg-[#262e29] p-3 text-base leading-relaxed sm:text-lg"
             role="status"
           >
             {{

@@ -18,6 +18,12 @@ This is a feature-by-feature design comparison, **not** a claim of equivalence. 
 
 The feature is an early Maker, not an equivalent to the two commercial editors. The Share URL contains the level itself, so no account or public upload is required and content is portable; it is long, cannot yet be searched centrally, and does not provide mutable hosted level records. A verified course snapshot is stored in the database on its first review, and subsequent edits start a fresh Reaction review identity.
 
+## Space / air-propulsion Maker mode
+
+- A Maker-only `space` flag in the v1 share payload enables a genuine inertia-led zero-gravity movement model. Arrows/WASD **aim the intended travel direction**, and holding C vents air **behind** the heroine to accelerate in that direction. Releasing C preserves momentum, while A/Space provides a measured brake. Steering without firing cannot accelerate you. The same rules apply to the on-screen touch controls, which include vertical aim.
+- A Space starter called **Airlock Drift** provides floating asteroid blockers, collectible routes, a checkpoint, aerial foes and the `?` gravity-well obstacle with positional pull and a hazardous core. The Maker Cosmos palette exposes gravity wells alongside compatible asteroid blocks and phase bridges. Gravity wells and thrust operate in the same runtime used by playtests and portable share links.
+- A seeded parallax starfield, distant nebula and directional air plume visibly distinguish the mode from existing World 8 art. This is an independently selectable **Maker environment**, not a ninth story world or a finished painted-space asset package. Existing campaign movement, draft IDs, save slots and legacy share code normalization remain unchanged.
+
 ## Water and winter truth-in-features
 
 - **Tideglass Marina (World 2)** has a water-themed campaign with rafts, canal locks, minnows and crabs. The existing `w` glyph is lethal water, **not a swimming mechanic**; the new harbor starter is an above-water platforming challenge, not an underwater course.

@@ -42,7 +42,7 @@ assert.deepEqual(
   [...supported].sort(),
   'Every parser symbol must be available in the Maker, including every new runtime mechanic',
 )
-assert.equal(MAKER_GROUPS.length, 7)
+assert.equal(MAKER_GROUPS.length, 8)
 assert.ok(
   MAKER_GROUPS.every((group) =>
     group.tiles.every((tile) => tile.icon && tile.label),
@@ -183,7 +183,7 @@ assert.equal(parseStage(toMakerStage(shifted)).start.row, 17)
 assert.equal(shifted.rows[20]![3], '.')
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(stamped)), stamped)
 assert.equal('snow' in decodeMakerLevel(encodeMakerLevel(initial)), false)
-for (const name of ['harbor', 'snowfield', 'skybridge'] as const) {
+for (const name of ['harbor', 'snowfield', 'skybridge', 'spacewalk'] as const) {
   const course = makerTemplate(name)
   assert.deepEqual(decodeMakerLevel(encodeMakerLevel(course)), course)
   const parsed = parseStage(toMakerStage(course))
@@ -262,6 +262,101 @@ assert.equal(
   'Fragile ice shatters under sustained weight',
 )
 
+const spaceCourse = makerTemplate('spacewalk')
+const spaceStage = parseStage(toMakerStage(spaceCourse))
+assert.equal(spaceStage.space, true)
+assert.equal(spaceStage.snow, false)
+assert.equal(spaceCourse.theme, 8)
+assert.ok(spaceStage.spawns.some((spawn) => spawn.kind === 'gravity-well'))
+assert.equal(
+  spaceStage.spawns.filter((spawn) => spawn.kind === 'gravity-well').length,
+  2,
+)
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(spaceCourse)), spaceCourse)
+assert.notEqual(makerId(spaceCourse), makerId(initial))
+assert.equal('space' in validateMakerLevel(initial), false)
+const cosmosTools = MAKER_GROUPS.find((group) => group.name === 'Cosmos')
+assert.ok(cosmosTools?.tiles.some((tile) => tile.key === '?'))
+const spaceRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCourse) },
+)
+assert.equal(spaceRun.gravityWells.length, 2)
+assert.equal(spaceRun.mode, 'play')
+assert.equal(spaceRun.save, undefined)
+const initialX = spaceRun.hero.x
+const initialY = spaceRun.hero.y
+const aimOnly = emptyInput()
+aimOnly.held.right = true
+for (let i = 0; i < 10; i++) spaceRun.update(aimOnly)
+assert.equal(
+  spaceRun.hero.x,
+  initialX,
+  'Direction alone cannot move in zero gravity',
+)
+assert.equal(
+  spaceRun.hero.y,
+  initialY,
+  'Zero gravity has no hidden jump or falling',
+)
+const jetUp = emptyInput()
+jetUp.held.up = true
+jetUp.held.x = true
+spaceRun.update(jetUp)
+assert.ok(spaceRun.hero.vy < -0.9, 'Expelling air downward pushes upward')
+assert.ok(
+  spaceRun.hero.y < initialY,
+  'Directional jet moves heroine vertically',
+)
+assert.equal(spaceRun.airAim.y, -1)
+assert.ok(spaceRun.airPlume > 0)
+const jetSpeed = Math.hypot(spaceRun.hero.vx, spaceRun.hero.vy)
+spaceRun.update(emptyInput())
+assert.ok(spaceRun.hero.vy < 0, 'Releasing the air jet preserves drift')
+const brake = emptyInput()
+brake.held.a = true
+spaceRun.update(brake)
+assert.ok(
+  Math.hypot(spaceRun.hero.vx, spaceRun.hero.vy) < jetSpeed,
+  'The separate brake reduces momentum',
+)
+const jetLeft = emptyInput()
+jetLeft.held.left = true
+jetLeft.held.x = true
+for (let i = 0; i < 9; i++) spaceRun.update(jetLeft)
+assert.ok(
+  spaceRun.hero.vx < 0,
+  'Firing the nozzle behind leftward motion changes x velocity',
+)
+assert.equal(spaceRun.save, undefined)
+
+const spaceCorridor = validateMakerLevel({
+  ...newMakerLevel(32),
+  title: 'Jet-Only Clearance Test',
+  space: true,
+  rows: newMakerLevel(32).rows.map((row) => row.replace(/#/g, '.')),
+})
+const spaceClear = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCorridor) },
+)
+const jetRight = emptyInput()
+jetRight.held.right = true
+jetRight.held.x = true
+for (let i = 0; i < 180 && !spaceClear.cleared.length; i++)
+  spaceClear.update(jetRight)
+assert.ok(
+  spaceClear.cleared.length > 0,
+  'A level can be cleared through air thrust alone',
+)
+assert.equal(spaceClear.save, undefined)
+const worldStage = parseStage(toMakerStage(initial))
+assert.equal(
+  worldStage.space,
+  false,
+  'Existing campaign physics remain unchanged',
+)
+
 const moved = paintMakerTile(initial, 10, 19, '@')
 assert.equal((moved.rows.join('').match(/@/g) ?? []).length, 1)
 assert.equal(parseStage(toMakerStage(moved)).start.col, 10)
@@ -301,7 +396,7 @@ invalid(
 invalid(
   {
     ...initial,
-    rows: initial.rows.map((line, i) => (i === 0 ? '?' + line.slice(1) : line)),
+    rows: initial.rows.map((line, i) => (i === 0 ? '␀' + line.slice(1) : line)),
   },
   /invalid/,
 )
@@ -364,6 +459,8 @@ for (const required of [
   'maker.rectangle',
   'maker.pasteAt',
   'loadStarterTemplate',
+  'C / AIR',
+  'maker.level.space',
   'requestAnimationFrame',
   'createSavePlumberPreview',
 ])

@@ -28,6 +28,7 @@
  *   +  water heart (restores a heart)
  *   *  the stage's Golden Gear (one per stage, harder to reach each world)
  *   !  a glider: flies at her at head height (duck under it, swing or stomp)
+ *   ?  gravity well (space course): draws the heroine toward its center
  */
 
 export const TILE = 16
@@ -39,6 +40,8 @@ export type StageDef = {
   /** Unlit: only the heroine and moss lanterns cast light. */
   dark?: boolean
   snow?: boolean
+  /** Optional zero-gravity jetpack course, never applied to campaign stages. */
+  space?: boolean
 }
 
 export const WORLD_ONE: StageDef[] = [
@@ -1095,6 +1098,7 @@ export type SpawnKind =
   | 'glider'
   | 'icicle'
   | 'snowball'
+  | 'gravity-well'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1120,6 +1124,7 @@ export type Stage = {
   gate: number | null
   dark: boolean
   snow: boolean
+  space: boolean
 }
 
 const SPAWNS: Record<string, SpawnKind> = {
@@ -1157,6 +1162,7 @@ const SPAWNS: Record<string, SpawnKind> = {
   '!': 'glider',
   e: 'icicle',
   q: 'snowball',
+  '?': 'gravity-well',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */
@@ -1264,5 +1270,6 @@ export function parseStage(def: StageDef): Stage {
     gate,
     dark: def.dark === true,
     snow: def.snow === true,
+    space: def.space === true,
   }
 }

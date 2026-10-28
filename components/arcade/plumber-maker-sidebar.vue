@@ -205,6 +205,19 @@
         />
         ❄ SNOWSTORM / WINTER WEATHER
       </label>
+      <label class="maker-check">
+        <input
+          type="checkbox"
+          :checked="maker.level.space === true"
+          @change="changeSpace"
+        />
+        ✧ ZERO GRAVITY / AIR JET
+      </label>
+      <p v-if="maker.level.space === true" class="maker-help">
+        AIR-JET RULES: Aim your travel direction with arrows, hold C to blast
+        air in the opposite direction, release to coast, hold A to brake.
+        Gravity wells tug you toward their center.
+      </p>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the
         selected world's moveset. Place one start, one finish, and matching pipe
@@ -223,7 +236,10 @@ const maker = useSavePlumberMakerStore()
 const emit = defineEmits<{
   (event: 'load-draft' | 'play-draft', id: string): void
   (event: 'resize-course', dimensions: { cols: number; rows: number }): void
-  (event: 'load-template', name: 'harbor' | 'snowfield' | 'skybridge'): void
+  (
+    event: 'load-template',
+    name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk',
+  ): void
 }>()
 const starterCourses = [
   {
@@ -243,6 +259,12 @@ const starterCourses = [
     icon: '☁',
     name: 'SKY',
     description: 'Suspended platforms and aerial enemies',
+  },
+  {
+    id: 'spacewalk',
+    icon: '✧',
+    name: 'SPACE',
+    description: 'Zero gravity, air propulsion and gravity wells',
   },
 ] as const
 function chooseStarter(name: (typeof starterCourses)[number]['id']) {
@@ -301,6 +323,11 @@ function changeTheme(e: Event) {
 function changeSnow(e: Event) {
   maker.updateSettings({
     snow: (e.target as HTMLInputElement).checked ? true : undefined,
+  })
+}
+function changeSpace(e: Event) {
+  maker.updateSettings({
+    space: (e.target as HTMLInputElement).checked ? true : undefined,
   })
 }
 function changeDark(e: Event) {

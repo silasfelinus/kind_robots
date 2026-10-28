@@ -134,7 +134,7 @@ const mechanic = startVoyage(
 assert.equal(
   mechanic.shieldCharge,
   3,
-  "the mechanic\'s origin has a playable bonus",
+  "the mechanic's origin has a playable bonus",
 )
 const courier = startVoyage(
   'fluke',

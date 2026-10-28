@@ -220,6 +220,40 @@ export function cloneGeneration(run: VoyageRun, id: string): number {
 export function cloneCost(generation: number): number {
   return generation >= 1 && generation <= 4 ? generation * 2 + 1 : Infinity
 }
+/** Testimony must belong to a present survivor, not a memorial or a future copy. */
+export function cloneWitness(run: VoyageRun, step: number): string | null {
+  if (step === 0) {
+    const loss = (run.redshirtFallen ?? []).at(-1)
+    if (!loss) return null
+    const person = REDSHIRT_BY_ID[loss.id]
+    return person
+      ? person.name + ' disappeared on ' + loss.encounterId + '. ' + person.history
+      : null
+  }
+  const witness = program(run).records.find(
+    (record) =>
+      record.generation === step &&
+      record.deployments > 0 &&
+      record.lastDeploymentChapter !== null &&
+      record.lastDeploymentChapter < run.chapter &&
+      !record.lost &&
+      cloneLatest(run, record.id) === record &&
+      (run.redshirtRoster ?? []).includes(record.id),
+  )
+  if (!witness) return null
+  const person = REDSHIRT_BY_ID[witness.id]!
+  return (
+    person.name +
+    ' (Generation ' +
+    witness.generation +
+    ', printing ' +
+    (witness.iteration ?? 1) +
+    ') remembers surviving ' +
+    witness.lastEncounter +
+    '. ' +
+    person.history
+  )
+}
 export function cloneQuestStatus(run: VoyageRun): {
   step: number
   title: string
@@ -249,7 +283,7 @@ export function cloneQuestStatus(run: VoyageRun): {
       reason: 'The next act begins in a future episode.',
     }
   if (step === 0) {
-    const ready = (run.redshirtFallen ?? []).length > 0
+    const ready = cloneWitness(run, step) !== null
     return {
       step,
       ...chapter,
@@ -259,16 +293,7 @@ export function cloneQuestStatus(run: VoyageRun): {
         : 'No redshirt memorial has been opened yet.',
     }
   }
-  const experienced = data.records.some(
-    (record) =>
-      record.generation === step &&
-      record.deployments > 0 &&
-      record.lastDeploymentChapter !== null &&
-      record.lastDeploymentChapter < run.chapter &&
-      !record.lost &&
-      cloneLatest(run, record.id) === record &&
-      (run.redshirtRoster ?? []).includes(record.id),
-  )
+  const experienced = cloneWitness(run, step) !== null
   if (!experienced)
     return {
       step,
@@ -306,7 +331,10 @@ export function advanceCloneQuest(
   const status = cloneQuestStatus(run)
   if (!status.ready || status.step >= CLONE_CHAPTERS.length) return run
   const data = program(run)
-  const narrative = CLONE_CHAPTERS[status.step]!.options[choice]
+  const witness = cloneWitness(run, status.step)
+  const narrative =
+    CLONE_CHAPTERS[status.step]!.options[choice] +
+    (witness ? ' WITNESS: ' + witness : '')
   const next: CloneProgram = {
     ...data,
     step: status.step + 1,
@@ -508,7 +536,9 @@ export function recordCloneMissions(
         ' at ' +
         mission.title +
         ': ' +
-        trait.effect,
+        trait.effect +
+        ' RECOVERED MEMORY: ' +
+        officer.history,
     }]
   })
   return {

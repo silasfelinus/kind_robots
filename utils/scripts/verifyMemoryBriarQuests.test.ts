@@ -157,6 +157,55 @@ assert.match(
   'When multiple choices close the quest, its earliest authored step determines the ending',
 )
 
+// Four defensible alternatives to the patrol's formal case carry different
+// costs: speaking too early, sheltering witnesses, investigating the gate,
+// and helping without testimony. None invents an official acquittal.
+const patrol = BRIAR_QUESTS.find((q) => q.id === 'the-patrols-defense')!
+const patrolClosures = [
+  ['briar', '2,2', 'report', /unrecorded tracks cannot yet protect a witness/],
+  ['briar', '4,6', 'shelter', /patrol must still petition alone/],
+  ['house', 'HD-05', 'test', /gate stays locked/],
+  ['house', 'HD-26', 'shelter', /village can still call protection a raid/],
+] as const
+const patrolEndings = new Set<string>()
+for (const [scope, key, choice, expected] of patrolClosures) {
+  const decisions = split(patrol)
+  ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
+  const result = briarQuestProgress(patrol, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the patrol case`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, patrol.closed)
+  patrolEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  const house = JSON.parse(JSON.stringify(decisions.house)) as Record<string, string>
+  assert.equal(
+    briarQuestProgress(patrol, restored.sceneChoices, house).quest.closed,
+    result.quest.closed,
+    'The authored patrol outcome survives a serialized expedition',
+  )
+}
+assert.equal(patrolEndings.size, 4, 'four different patrol outcomes')
+const forgedPatrol = split(patrol)
+forgedPatrol.house['HD-05'] = 'forged'
+assert.equal(
+  briarQuestProgress(patrol, forgedPatrol.briar, forgedPatrol.house).state,
+  'active',
+  'Forged House testimony cannot manufacture a patrol resolution',
+)
+const twoPatrolClosures = split(patrol)
+twoPatrolClosures.briar['2,2'] = 'report'
+twoPatrolClosures.house['HD-26'] = 'shelter'
+assert.match(
+  briarQuestProgress(patrol, twoPatrolClosures.briar, twoPatrolClosures.house)
+    .quest.closed,
+  /unrecorded tracks cannot yet protect a witness/,
+  'The earliest authored patrol closure takes precedence over later alternatives',
+)
+
 // Every quest step can be completed together: no two threads demand
 // opposite choices at the same place, so a single run can tie off all eight.
 const all = {

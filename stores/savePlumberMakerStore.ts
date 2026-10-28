@@ -266,7 +266,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
 
   function updateSettings(
     patch: Partial<
-      Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow'>
+      Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow' | 'space'>
     >,
   ) {
     pushUndo()

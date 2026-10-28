@@ -82,6 +82,10 @@ import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
 const W = 480
 const H = 270
 const GRAVITY = 0.43
+const AIR_JET_IMPULSE = 1.04
+const AIR_JET_COOLDOWN = 7
+const AIR_JET_TOP_SPEED = 5.2
+const AIR_JET_DRAG = 0.998
 const JUMP = -8.6
 /** Springstep power: a higher jump, and a float while A is held on the way down. */
 const SPRING_JUMP = -10.2
@@ -427,6 +431,11 @@ export class PlumberRun implements ArcadeGameInstance {
 
   hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
   ground = false
+  /** Space is momentum-led; the directional input aims the nozzle but cannot propel alone. */
+  airAim = { x: 1, y: 0 }
+  airPlume = 0
+  airCooldown = 0
+  gravityWells: { x: number; y: number }[] = []
   grace = 0
   jumpBuffer = 0
   jumpHeld = false
@@ -915,6 +924,10 @@ export class PlumberRun implements ArcadeGameInstance {
     this.vents = []
     this.icicles = []
     this.snowballs = []
+    this.gravityWells = []
+    this.airAim = { x: 1, y: 0 }
+    this.airPlume = 0
+    this.airCooldown = 0
     this.fragileIce.clear()
     this.springs = []
     this.tokensOnMap = []
@@ -1060,6 +1073,9 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'steam-vent':
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
+          break
+        case 'gravity-well':
+          this.gravityWells.push({ x: cx, y: bottom - TILE / 2 })
           break
         case 'icicle':
           this.icicles.push({
@@ -1237,6 +1253,50 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  /** Aim toward the desired travel direction; air is expelled behind the heroine. */
+  private updateAirPropulsion(keys: InputFrame) {
+    const hero = this.hero
+    const dx = Number(keys.held.right) - Number(keys.held.left)
+    const dy = Number(keys.held.down) - Number(keys.held.up)
+    if (dx || dy) {
+      const norm = Math.hypot(dx, dy)
+      this.airAim = { x: dx / norm, y: dy / norm }
+      if (dx) this.facing = dx > 0 ? 1 : -1
+    }
+    if (this.airCooldown > 0) this.airCooldown--
+    if (this.airPlume > 0) this.airPlume--
+    hero.vx *= AIR_JET_DRAG
+    hero.vy *= AIR_JET_DRAG
+    if (keys.held.a) {
+      hero.vx *= 0.89
+      hero.vy *= 0.89
+    }
+    if ((keys.held.x || keys.pressed.x) && this.airCooldown === 0) {
+      hero.vx += this.airAim.x * AIR_JET_IMPULSE
+      hero.vy += this.airAim.y * AIR_JET_IMPULSE
+      const speed = Math.hypot(hero.vx, hero.vy)
+      if (speed > AIR_JET_TOP_SPEED) {
+        hero.vx *= AIR_JET_TOP_SPEED / speed
+        hero.vy *= AIR_JET_TOP_SPEED / speed
+      }
+      this.airCooldown = AIR_JET_COOLDOWN
+      this.airPlume = 7
+      this.sound.play('shoot')
+    }
+    for (const well of this.gravityWells) {
+      const xx = well.x - hero.x
+      const yy = well.y - hero.y - TALL / 2
+      const distance = Math.hypot(xx, yy)
+      if (distance < 18) {
+        this.hurt(xx > 0 ? -1 : 1)
+      } else if (distance < 140) {
+        const pull = 0.09 * (1 - distance / 140)
+        hero.vx += (xx / distance) * pull
+        hero.vy += (yy / distance) * pull
+      }
+    }
+  }
+
   private updatePlay(keys: InputFrame) {
     this.updatePlatforms()
     if (this.immune) this.immune--
@@ -1249,9 +1309,16 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.y += this.riding.dy
     }
     const runner = this.runnerOn
-    const move = runner ? 1 : Number(keys.held.right) - Number(keys.held.left)
-    this.updateDuck(keys, move)
-    this.running = runner || (keys.held.b === true && move !== 0)
+    const move = this.stage.space
+      ? 0
+      : runner
+        ? 1
+        : Number(keys.held.right) - Number(keys.held.left)
+    if (this.stage.space) {
+      this.duckHeld = false
+      this.ducking = false
+    } else this.updateDuck(keys, move)
+    this.running = !this.stage.space && (runner || (keys.held.b === true && move !== 0))
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     const onIce =
       (this.ground &&
@@ -1264,7 +1331,8 @@ export class PlumberRun implements ArcadeGameInstance {
           Math.floor(hero.x / TILE),
           Math.floor((hero.y + TALL + 2) / TILE),
         ) === SOLID_FRAGILE_ICE)
-    if (runner) hero.vx += (top - hero.vx) * 0.25
+    if (this.stage.space) this.updateAirPropulsion(keys)
+    else if (runner) hero.vx += (top - hero.vx) * 0.25
     // A crouch keeps a run's momentum as a slide, then crawls.
     else if (this.ducking && this.ground) {
       if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
@@ -1280,8 +1348,8 @@ export class PlumberRun implements ArcadeGameInstance {
     } else hero.vx *= onIce ? 0.965 : 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
-    if (keys.pressed.y) this.useSpecial()
-    this.driveSpecial(keys)
+    if (!this.stage.space && keys.pressed.y) this.useSpecial()
+    if (!this.stage.space) this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
     const blocked = this.heroMoveX(hero.vx)
     if (blocked) hero.vx = 0
@@ -1296,8 +1364,8 @@ export class PlumberRun implements ArcadeGameInstance {
     } else this.pinned = 0
     if (this.ground) this.grace = 7
     else if (this.grace) this.grace--
-    const jumpDown = keys.pressed.a || keys.pressed.up
-    this.jumpHeld = keys.held.a || keys.held.up
+    const jumpDown = !this.stage.space && (keys.pressed.a || keys.pressed.up)
+    this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
     if (jumpDown) this.jumpBuffer = 7
     else if (this.jumpBuffer) this.jumpBuffer--
     if (this.jumpBuffer && this.grace) {
@@ -1309,12 +1377,14 @@ export class PlumberRun implements ArcadeGameInstance {
       this.sound.play('blip')
     }
     if (hero.vy >= 0) this.sprung = false
-    if (!this.jumpHeld && !this.sprung && hero.vy < -3.4) hero.vy = -3.4
+    if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
+      hero.vy = -3.4
     const floating = this.power === 'springstep' && this.jumpHeld && hero.vy > 0
-    hero.vy = Math.min(
-      floating ? 4 : 9,
-      hero.vy + GRAVITY * (floating ? FLOAT : 1),
-    )
+    if (!this.stage.space)
+      hero.vy = Math.min(
+        floating ? 4 : 9,
+        hero.vy + GRAVITY * (floating ? FLOAT : 1),
+      )
     const prevBottom = hero.y + TALL
     const wasGround = this.ground
     this.ground = false
@@ -1349,7 +1419,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.updateSprings(prevBottom)
     this.crackIce()
     if (keys.pressed.down && this.ground) this.tryDoor()
-    if (keys.pressed.x && !this.cooldown) this.useTool()
+    if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
     this.updateFoes(prevBottom)
@@ -1381,7 +1451,8 @@ export class PlumberRun implements ArcadeGameInstance {
     if (
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
-      hero.y + TALL > this.goal.y - 48
+      hero.y + TALL > this.goal.y - 48 &&
+      (!this.stage.space || Math.abs(hero.y + TALL / 2 - (this.goal.y - 24)) < 36)
     )
       return this.stageClear()
     if (this.stage.gate !== null && !this.locked) {
@@ -4038,9 +4109,80 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  private renderSpaceBackdrop(g: CanvasRenderingContext2D) {
+    const sky = g.createLinearGradient(0, 0, W, H)
+    sky.addColorStop(0, '#08112a')
+    sky.addColorStop(0.58, '#172755')
+    sky.addColorStop(1, '#070c1b')
+    g.fillStyle = sky
+    g.fillRect(0, 0, W, H)
+    g.save()
+    g.globalAlpha = 0.3
+    g.fillStyle = '#7a60b8'
+    g.beginPath()
+    g.ellipse(W * 0.75, H * 0.24, 110, 42, -0.45, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+    const drift = this.camera * 0.13
+    for (let i = 0; i < 85; i++) {
+      const x = (((i * 137 - drift) % (W + 20)) + W + 20) % (W + 20)
+      const y = (i * 79 + (i % 5) * 19) % H
+      g.fillStyle =
+        i % 7 === 0 ? '#ffe6bc' : i % 3 === 0 ? '#c4d8ff' : '#f2f7ff'
+      g.globalAlpha = 0.45 + (Math.sin(i * 17 + this.tick * 0.025) + 1) * 0.25
+      g.fillRect(x, y, i % 9 === 0 ? 3 : 1.5, i % 9 === 0 ? 3 : 1.5)
+    }
+    g.globalAlpha = 1
+  }
+
+  private renderSpaceFeatures(g: CanvasRenderingContext2D) {
+    for (const well of this.gravityWells) {
+      const phase = Math.sin(this.tick / 14) * 3
+      g.strokeStyle = 'rgba(173, 136, 250, 0.6)'
+      g.lineWidth = 2
+      for (const radius of [20, 30, 42]) {
+        g.beginPath()
+        g.arc(well.x, well.y, radius + phase, this.tick / 40, this.tick / 40 + Math.PI * 1.5)
+        g.stroke()
+      }
+      g.fillStyle = '#47206f'
+      g.beginPath()
+      g.arc(well.x, well.y, 13, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#f5c0ff'
+      g.beginPath()
+      g.arc(well.x - 3, well.y - 4, 3, 0, Math.PI * 2)
+      g.fill()
+    }
+    const aim = this.airAim
+    const cx = this.hero.x
+    const cy = this.hero.y + TALL / 2
+    g.strokeStyle = 'rgba(194, 228, 255, 0.72)'
+    g.lineWidth = 2
+    g.beginPath()
+    g.moveTo(cx + aim.x * 12, cy + aim.y * 12)
+    g.lineTo(cx + aim.x * 25, cy + aim.y * 25)
+    g.stroke()
+    if (!this.airPlume) return
+    g.save()
+    g.translate(cx - aim.x * 10, cy - aim.y * 10)
+    g.rotate(Math.atan2(-aim.y, -aim.x))
+    g.fillStyle = 'rgba(153, 228, 255, 0.85)'
+    g.beginPath()
+    g.moveTo(0, -5)
+    g.lineTo(26 + this.airPlume * 2, 0)
+    g.lineTo(0, 5)
+    g.closePath()
+    g.fill()
+    g.fillStyle = 'rgba(250, 255, 255, 0.9)'
+    g.fillRect(8, -1, 10, 2)
+    g.restore()
+  }
+
   private renderStage(g: CanvasRenderingContext2D) {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(g, this.stage.code, this.camera / max)
+    if (this.stage.space) this.renderSpaceBackdrop(g)
     const wash = g.createLinearGradient(0, 0, 0, H)
     wash.addColorStop(0, 'rgba(214, 247, 236, 0.08)')
     wash.addColorStop(1, 'rgba(255, 236, 214, 0.22)')
@@ -4049,6 +4191,7 @@ export class PlumberRun implements ArcadeGameInstance {
     g.save()
     g.translate(-Math.round(this.camera), -Math.round(this.cameraY))
     this.renderTiles(g)
+    if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
     this.renderWinterHazards(g)
     this.renderFoes(g)
@@ -4090,6 +4233,14 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
+    if (this.stage.space) {
+      g.fillStyle = 'rgba(7, 14, 33, 0.84)'
+      g.fillRect(8, H - 29, 265, 21)
+      g.fillStyle = '#c7edff'
+      g.font = 'bold 11px system-ui'
+      g.textAlign = 'left'
+      g.fillText('◁ △ ▷ ▽ AIM  ·  HOLD C AIR JET  ·  A BRAKE', 15, H - 15)
+    }
   }
 
   /** Cues for running and the special: behind the heroine, then in front. */

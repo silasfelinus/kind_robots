@@ -143,9 +143,11 @@
           class="maker-grid-scroll kr-scroll"
           :style="{
             backgroundImage:
-              'linear-gradient(#07141d8f, #07141dcf), url(/save-the-plumber/maps/world-' +
-              maker.level.theme +
-              '.webp)',
+              maker.level.space === true
+                ? 'radial-gradient(ellipse at 70% 30%, #584a98 0%, #101b3d 35%, #040a1b 95%)'
+                : 'linear-gradient(#07141d8f, #07141dcf), url(/save-the-plumber/maps/world-' +
+                  maker.level.theme +
+                  '.webp)',
           }"
         >
           <canvas
@@ -248,8 +250,9 @@
           </template>
           <template v-else>
             <span
-              >ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V
-              SPECIAL</span
+              >{{ maker.level.space
+                  ? 'ARROWS AIM · HOLD C FIRE AIR BEHIND · A / SPACE BRAKE · RELEASE TO DRIFT'
+                  : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL' }}</span
             >
             <span>CAMPAIGN SAVES UNTOUCHED</span>
           </template>
@@ -368,14 +371,25 @@ function changeTool(next: (typeof editTools)[number]['id']) {
 const cursor = ref({ x: 3, y: 20 })
 const completed = ref(false)
 const gameOver = ref(false)
-const touchControls: { key: ArcadeButton; icon: string }[] = [
-  { key: 'left', icon: '◀' },
-  { key: 'right', icon: '▶' },
-  { key: 'a', icon: 'A / JUMP' },
-  { key: 'b', icon: 'B / RUN' },
-  { key: 'x', icon: 'X' },
-  { key: 'y', icon: 'Y' },
-]
+const touchControls = computed<{ key: ArcadeButton; icon: string }[]>(() =>
+  maker.level.space
+    ? [
+        { key: 'left', icon: '◀' },
+        { key: 'up', icon: '▲' },
+        { key: 'down', icon: '▼' },
+        { key: 'right', icon: '▶' },
+        { key: 'x', icon: 'C / AIR' },
+        { key: 'a', icon: 'A / BRAKE' },
+      ]
+    : [
+        { key: 'left', icon: '◀' },
+        { key: 'right', icon: '▶' },
+        { key: 'a', icon: 'A / JUMP' },
+        { key: 'b', icon: 'B / RUN' },
+        { key: 'x', icon: 'X' },
+        { key: 'y', icon: 'Y' },
+      ],
+)
 const selectedLabel = computed(
   () =>
     MAKER_GROUPS.flatMap((group) => group.tiles).find(
@@ -407,6 +421,7 @@ const palette: Record<string, string> = {
   ':': '#70dcff',
   w: '#5a9cfc',
   f: '#b7f0ff',
+  '?': '#cba7ff',
   c: '#a67c56',
   g: '#cb7257',
   v: '#ffd064',
@@ -669,7 +684,7 @@ function resizeCourse(dx: number, dy: number) {
     rows: Math.max(16, Math.min(48, maker.level.rows.length + dy)),
   })
 }
-function loadStarterTemplate(name: 'harbor' | 'snowfield' | 'skybridge') {
+function loadStarterTemplate(name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk') {
   stopGame()
   maker.loadTemplate(name)
   cursor.value = { x: 3, y: 20 }

@@ -15,6 +15,7 @@ export type MakerLevel = {
   theme: number
   dark: boolean
   snow?: true
+  space?: true
   rows: string[]
 }
 
@@ -110,6 +111,16 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: 'd', icon: '◇', label: 'Fragile ice · cracks underfoot' },
       { key: 'e', icon: '▼', label: 'Falling icicle · proximity trigger' },
       { key: 'q', icon: '●', label: 'Rolling snowball · stomp to break' },
+    ],
+  },
+  {
+    name: 'Cosmos',
+    icon: '✧',
+    tiles: [
+      { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
+      { key: 'B', icon: '◆', label: 'Asteroid rock · solid obstacle' },
+      { key: ':', icon: '◇', label: 'Phase bridge · flickers on/off' },
+      { key: 'Q', icon: '▦', label: 'Orbital cargo · falling hazard' },
     ],
   },
   {
@@ -218,6 +229,7 @@ export function validateMakerLevel(input: unknown): MakerLevel {
     theme: value.theme as number,
     dark: value.dark === true,
     ...(value.snow === true ? { snow: true as const } : {}),
+    ...(value.space === true ? { space: true as const } : {}),
     rows: rows.slice(),
   }
   parseStage(toMakerStage(result))
@@ -231,6 +243,7 @@ export function toMakerStage(level: MakerLevel): StageDef {
     rows: level.rows,
     dark: level.dark,
     snow: level.snow === true,
+    space: level.space === true,
   }
 }
 
@@ -274,7 +287,7 @@ export function resizeMakerLevel(
 
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
-export type MakerTemplate = 'harbor' | 'snowfield' | 'skybridge'
+export type MakerTemplate = 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk'
 
 function regionBounds(rect: MakerRect) {
   return {
@@ -441,6 +454,25 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(33, 20, 'K')
     put(17, 20, 's')
     for (let x = 10; x < 47; x += 5) put(x, 14, 'o')
+  } else if (template === 'spacewalk') {
+    for (let y = 22; y < 24; y++)
+      for (let x = 0; x < 64; x++) put(x, y, '.')
+    put(3, 14, '@')
+    put(59, 8, 'G')
+    for (let y = 11; y <= 15; y++)
+      for (let x = 24; x <= 26; x++) put(x, y, 'B')
+    for (let y = 4; y <= 7; y++)
+      for (let x = 40; x <= 43; x++) put(x, y, 'B')
+    for (let y = 17; y <= 20; y++)
+      for (let x = 44; x <= 46; x++) put(x, y, 'B')
+    put(16, 9, '?')
+    put(37, 15, '?')
+    put(33, 7, 'K')
+    put(50, 11, 'I')
+    put(21, 6, 'u')
+    put(29, 4, '1')
+    put(51, 6, '+')
+    for (let x = 8; x < 61; x += 6) put(x, 11, 'o')
   } else if (template === 'skybridge') {
     for (let x = 17; x < 44; x++) {
       put(x, 22, '.')
@@ -460,9 +492,12 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
         ? 'Tideglass Crossing'
         : template === 'snowfield'
           ? 'Frostglass Run'
-          : 'Cloudrail Leap',
-    theme: template === 'harbor' ? 2 : template === 'snowfield' ? 5 : 5,
+          : template === 'spacewalk'
+            ? 'Airlock Drift'
+            : 'Cloudrail Leap',
+    theme: template === 'harbor' ? 2 : template === 'spacewalk' ? 8 : 5,
     ...(template === 'snowfield' ? { snow: true } : {}),
+    ...(template === 'spacewalk' ? { space: true } : {}),
     rows: grid.map((row) => row.join('')),
   })
 }

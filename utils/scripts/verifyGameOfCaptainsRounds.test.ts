@@ -16,6 +16,7 @@ import {
   episodePlotOdds,
   episodePlotSeats,
   episodePlotSkill,
+  type EpisodeQuestResult,
   questDuration,
   questOdds,
 } from '../gameOfCaptains/episodeConsole'
@@ -35,7 +36,7 @@ assert.equal(questOdds(first, card, recruit, {}), null)
 const played = dispatchEpisodeBatch(first, [
   { encounterId: card.id, lead: recruit },
 ])
-assert.equal(played.expeditionVisit?.results[0]?.durationDays, 1)
+assert.equal((played.expeditionVisit?.results[0] as EpisodeQuestResult)?.durationDays, 1)
 assert.equal(played.day, first.day, 'no hidden multi-day round advancement')
 const reports = learnRedshirtKnowledge(played)
 assert.deepEqual(knownRedshirtSkills(make(), reports, recruit), [card.skill])

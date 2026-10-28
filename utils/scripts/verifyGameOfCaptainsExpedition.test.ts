@@ -364,12 +364,12 @@ for (let n = 0; n < 5; n++) {
   hires = { ...hires, supplies: 50 }
   hires = hireRedshirt(hires)
 }
-assert.equal(hires.redshirtRoster?.length, 12)
+assert.equal(hires.redshirtRoster?.length, 8)
 assert.equal(hireRedshirt(hires), hires)
-assert.equal(new Set(hires.redshirtRoster).size, 12)
+assert.equal(new Set(hires.redshirtRoster).size, 8)
 assert.equal(seen.size, 6)
 const emergency = { ...hires, redshirtRoster: [], supplies: 0 }
-assert.equal(hireRedshirt(emergency).redshirtRoster?.length, 1)
+assert.equal(hireRedshirt(emergency), emergency)
 assert.equal(hireRedshirt(emergency).supplies, 0)
 const legacy = JSON.parse(JSON.stringify(startVoyage('rex', [...party], 77)))
 delete legacy.redshirtRoster

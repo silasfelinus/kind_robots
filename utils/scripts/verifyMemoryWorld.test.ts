@@ -1881,7 +1881,7 @@ assert.match(
   /:aria-label="`Travel to \$\{exit\},/,
   'Abbreviated phone passage buttons retain their full accessible destination names',
 )
-assert.match(houseScreen, /<span class="hidden sm:inline">·/)
+assert.match(houseScreen, /<span class="sm:hidden">\{\{ exit \}\}<\/span>/)
 assert.match(
   houseScreen,
   /artPath/,

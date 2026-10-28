@@ -81,19 +81,25 @@ const bundle = await build({
             return { path: name, namespace: 'memory-stub' }
           },
         )
-        builder.onLoad({ filter: /.*/, namespace: 'memory-stub' }, ({ path: name }) => ({
-          contents: name === './userStore'
-            ? 'export function useUserStore() { return { isLoggedIn: false, isChild: false, showMature: false } }'
-            : 'export async function resolveMemoryDungeonDeck(_deck, count) { return Array.from({ length: count }, (_, i) => "/test-picture-" + i + ".webp") }',
-          loader: 'ts',
-          resolveDir: root,
-        }))
-        builder.onResolve({ filter: /^[@~]\// }, ({ path: name, kind, importer }) =>
-          builder.resolve('./' + name.slice(2), {
+        builder.onLoad(
+          { filter: /.*/, namespace: 'memory-stub' },
+          ({ path: name }) => ({
+            contents:
+              name === './userStore'
+                ? 'export function useUserStore() { return { isLoggedIn: false, isChild: false, showMature: false } }'
+                : 'export async function resolveMemoryDungeonDeck(_deck, count) { return Array.from({ length: count }, (_, i) => "/test-picture-" + i + ".webp") }',
+            loader: 'ts',
             resolveDir: root,
-            kind,
-            importer,
           }),
+        )
+        builder.onResolve(
+          { filter: /^[@~]\// },
+          ({ path: name, kind, importer }) =>
+            builder.resolve('./' + name.slice(2), {
+              resolveDir: root,
+              kind,
+              importer,
+            }),
         )
       },
     },
@@ -102,8 +108,10 @@ const bundle = await build({
 })
 
 const script = bundle.outputFiles[0].text.replaceAll('</script', '<\\/script')
-const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
-  script + '</script></body></html>'
+const html =
+  '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
+  script +
+  '</script></body></html>'
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
   args: ['--no-sandbox'],
@@ -144,7 +152,11 @@ async function run(name, callback) {
   const opened = await openCase(name)
   try {
     await callback(opened.page)
-    assert.deepEqual(opened.errors, [], name + ': no uncaught browser exceptions')
+    assert.deepEqual(
+      opened.errors,
+      [],
+      name + ': no uncaught browser exceptions',
+    )
     results.push({ name, passed: true })
   } finally {
     await opened.context.close()
@@ -152,83 +164,95 @@ async function run(name, callback) {
 }
 
 try {
-  await run('Dark Briar paid pair survives reload before 680ms animation', async (page) => {
-    const { pair } = await seed(page, 'dark')
-    await pick(page, pair[0])
-    await pick(page, pair[1])
-    assert.equal((await snapshot(page)).attempts, 1)
-    await reload(page)
-    const recovered = await snapshot(page)
-    assert.equal(recovered.attempts, 1)
-    assert.equal(recovered.matched.length, 2)
-    assert.equal(recovered.revealed.length, 2)
-    await page.waitForTimeout(800)
-    assert.deepEqual(await snapshot(page), recovered)
-  })
+  await run(
+    'Dark Briar paid pair survives reload before 680ms animation',
+    async (page) => {
+      const { pair } = await seed(page, 'dark')
+      await pick(page, pair[0])
+      await pick(page, pair[1])
+      assert.equal((await snapshot(page)).attempts, 1)
+      await reload(page)
+      const recovered = await snapshot(page)
+      assert.equal(recovered.attempts, 1)
+      assert.equal(recovered.matched.length, 2)
+      assert.equal(recovered.revealed.length, 2)
+      await page.waitForTimeout(800)
+      assert.deepEqual(await snapshot(page), recovered)
+    },
+  )
 
-  await run('Dark Briar interrupted mismatch turns down without refund', async (page) => {
-    const { pair, other } = await seed(page, 'dark')
-    await pick(page, pair[0])
-    await pick(page, other)
-    await reload(page)
-    const recovered = await snapshot(page)
-    assert.equal(recovered.attempts, 1)
-    assert.deepEqual(recovered.flipped, [])
-    assert.deepEqual(recovered.revealed, [])
-    await page.waitForTimeout(1250)
-    assert.deepEqual(await snapshot(page), recovered)
-  })
+  await run(
+    'Dark Briar interrupted mismatch turns down without refund',
+    async (page) => {
+      const { pair, other } = await seed(page, 'dark')
+      await pick(page, pair[0])
+      await pick(page, other)
+      await reload(page)
+      const recovered = await snapshot(page)
+      assert.equal(recovered.attempts, 1)
+      assert.deepEqual(recovered.flipped, [])
+      assert.deepEqual(recovered.revealed, [])
+      await page.waitForTimeout(1250)
+      assert.deepEqual(await snapshot(page), recovered)
+    },
+  )
 
-  await run('Manual slot load cancels old timer and restores earned pair once', async (page) => {
-    const { pair } = await seed(page, 'dark')
-    assert.equal(
-      await page.evaluate(() => window.__memory.world.saveCheckpoint(0)),
-      true,
-    )
-    await pick(page, pair[0])
-    await pick(page, pair[1])
-    assert.equal(
-      await page.evaluate(() => window.__memory.world.saveCheckpoint(1)),
-      true,
-    )
-    assert.equal(
-      await page.evaluate(() => window.__memory.world.loadCheckpoint(0)),
-      true,
-    )
-    await page.waitForTimeout(800)
-    const oldSlot = await snapshot(page)
-    assert.equal(oldSlot.darkAttempts, 0)
-    assert.deepEqual(oldSlot.darkMatched, [])
-    assert.deepEqual(oldSlot.darkRevealed, [])
-    assert.equal(
-      await page.evaluate(() => window.__memory.world.loadCheckpoint(1)),
-      true,
-    )
-    const earned = await snapshot(page)
-    assert.equal(earned.darkAttempts, 1)
-    assert.equal(earned.darkMatched.length, 2)
-    assert.equal(earned.darkRevealed.length, 2)
-    await page.waitForTimeout(800)
-    assert.deepEqual(await snapshot(page), earned)
-  })
+  await run(
+    'Manual slot load cancels old timer and restores earned pair once',
+    async (page) => {
+      const { pair } = await seed(page, 'dark')
+      assert.equal(
+        await page.evaluate(() => window.__memory.world.saveCheckpoint(0)),
+        true,
+      )
+      await pick(page, pair[0])
+      await pick(page, pair[1])
+      assert.equal(
+        await page.evaluate(() => window.__memory.world.saveCheckpoint(1)),
+        true,
+      )
+      assert.equal(
+        await page.evaluate(() => window.__memory.world.loadCheckpoint(0)),
+        true,
+      )
+      await page.waitForTimeout(800)
+      const oldSlot = await snapshot(page)
+      assert.equal(oldSlot.darkAttempts, 0)
+      assert.deepEqual(oldSlot.darkMatched, [])
+      assert.deepEqual(oldSlot.darkRevealed, [])
+      assert.equal(
+        await page.evaluate(() => window.__memory.world.loadCheckpoint(1)),
+        true,
+      )
+      const earned = await snapshot(page)
+      assert.equal(earned.darkAttempts, 1)
+      assert.equal(earned.darkMatched.length, 2)
+      assert.equal(earned.darkRevealed.length, 2)
+      await page.waitForTimeout(800)
+      assert.deepEqual(await snapshot(page), earned)
+    },
+  )
 
-  await run('Return to Briar settles a paid pair before cancelling animation', async (page) => {
-    const { pair } = await seed(page, 'dark')
-    await pick(page, pair[0])
-    await pick(page, pair[1])
-    await page.evaluate(() => window.__memory.world.returnToBriar())
-    const returned = await snapshot(page)
-    assert.equal(returned.active, 'e01')
-    assert.equal(returned.darkAttempts, 1)
-    assert.equal(returned.darkMatched.length, 2)
-    assert.equal(returned.darkRevealed.length, 2)
-    await page.waitForTimeout(800)
-    assert.deepEqual(await snapshot(page), returned)
-    await page.evaluate(() => window.__memory.world.enterDarkBriar())
-    const revisited = await snapshot(page)
-    assert.equal(revisited.active, 'e02')
-    assert.equal(revisited.matched.length, 2)
-  })
+  await run(
+    'Return to Briar settles a paid pair before cancelling animation',
+    async (page) => {
+      const { pair } = await seed(page, 'dark')
+      await pick(page, pair[0])
+      await pick(page, pair[1])
+      await page.evaluate(() => window.__memory.world.returnToBriar())
+      const returned = await snapshot(page)
+      assert.equal(returned.active, 'e01')
+      assert.equal(returned.darkAttempts, 1)
+      assert.equal(returned.darkMatched.length, 2)
+      assert.equal(returned.darkRevealed.length, 2)
+      await page.waitForTimeout(800)
+      assert.deepEqual(await snapshot(page), returned)
+      await page.evaluate(() => window.__memory.world.enterDarkBriar())
+      const revisited = await snapshot(page)
+      assert.equal(revisited.active, 'e02')
+      assert.equal(revisited.matched.length, 2)
+    },
+  )
 
   await run('Original Briar paid map pair survives reload', async (page) => {
     const { pair } = await seed(page, 'original')
@@ -243,20 +267,23 @@ try {
     assert.deepEqual(await snapshot(page), recovered)
   })
 
-  await run('Original Briar first flip survives reload and can finish its pair', async (page) => {
-    const { pair } = await seed(page, 'original')
-    await pick(page, pair[0])
-    await reload(page)
-    const first = await snapshot(page)
-    assert.equal(first.attempts, 0)
-    assert.deepEqual(first.flipped, [pair[0]])
-    await pick(page, pair[1])
-    await page.waitForTimeout(800)
-    const completed = await snapshot(page)
-    assert.equal(completed.attempts, 1)
-    assert.equal(completed.matched.length, 2)
-    assert.equal(completed.revealed.length, 2)
-  })
+  await run(
+    'Original Briar first flip survives reload and can finish its pair',
+    async (page) => {
+      const { pair } = await seed(page, 'original')
+      await pick(page, pair[0])
+      await reload(page)
+      const first = await snapshot(page)
+      assert.equal(first.attempts, 0)
+      assert.deepEqual(first.flipped, [pair[0]])
+      await pick(page, pair[1])
+      await page.waitForTimeout(800)
+      const completed = await snapshot(page)
+      assert.equal(completed.attempts, 1)
+      assert.equal(completed.matched.length, 2)
+      assert.equal(completed.revealed.length, 2)
+    },
+  )
 } finally {
   await browser.close()
 }
@@ -266,4 +293,6 @@ writeFileSync(
   'test-results/memory-browser/summary.json',
   JSON.stringify({ cases: results, count: results.length }, null, 2) + '\n',
 )
-console.log('Memory Dungeon Chromium interruption tests: ' + results.length + ' passed')
+console.log(
+  'Memory Dungeon Chromium interruption tests: ' + results.length + ' passed',
+)

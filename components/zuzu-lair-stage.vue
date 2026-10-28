@@ -322,6 +322,10 @@ const batPositions = [
   transform-origin: 50% 100%;
   animation: lair-walk 0.57s ease-in-out infinite alternate;
 }
+.scene-opening .zuzu-character,
+.scene-moment .zuzu-character {
+  animation: lair-hunched-walk 0.64s ease-in-out infinite alternate;
+}
 .bat-swarm {
   transform: translate(850px, 165px);
   animation: lair-swarm 4s linear both;
@@ -407,6 +411,14 @@ const batPositions = [
   }
   to {
     transform: rotate(2deg) translateY(-9px);
+  }
+}
+@keyframes lair-hunched-walk {
+  from {
+    transform: translateY(12px) scaleY(0.83) rotate(5deg);
+  }
+  to {
+    transform: translateY(5px) scaleY(0.86) rotate(8deg);
   }
 }
 @keyframes lair-swarm {

@@ -1085,7 +1085,9 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
         ? v.ending
         : null,
     endingLens:
-      (v.ending === 'release' || v.ending === 'renew' || v.ending === 'break') &&
+      (v.ending === 'release' ||
+        v.ending === 'renew' ||
+        v.ending === 'break') &&
       (v.endingLens === 'community' ||
         v.endingLens === 'bonds' ||
         v.endingLens === 'obligation' ||

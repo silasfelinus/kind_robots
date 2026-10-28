@@ -54,13 +54,13 @@
           v-for="(bat, i) in batPositions"
           :key="i"
           :transform="'translate(' + bat.x + ' ' + bat.y + ') scale(' + bat.scale + ')'"
-          class="lair-bat"
-          :style="{ animationDelay: i * -0.09 + 's' }"
         >
+          <g class="lair-bat" :style="{ animationDelay: i * -0.09 + 's' }">
           <path d="M0 5Q-23 -30 -62 -15Q-48 -4 -47 15Q-30 0 -12 20L0 16 12 20Q30 0 47 15Q48 -4 62 -15Q23 -30 0 5Z" fill="#0e1019" stroke="#d59e66" stroke-width="2" />
           <path d="M-4 9L-10 -1 0 5 10 -1 4 9" fill="#1a1c24" />
           <circle cx="-4" cy="9" r="2" fill="#ff644d" />
           <circle cx="4" cy="9" r="2" fill="#ff644d" />
+          </g>
         </g>
       </g>
 
@@ -118,7 +118,8 @@ const props = defineProps<{
   windowOpen?: boolean
 }>()
 
-const beat = computed(() => {
+type CorridorBeat = 'opening' | 'moment' | 'duck' | 'attack' | 'escape' | 'gulch'
+const beat = computed<CorridorBeat>(() => {
   if (props.sceneId === 'bat-opening') return 'opening'
   if (props.sceneId === 'bat-horde') return 'moment'
   if (props.sceneId === 'bat-duck') return 'duck'

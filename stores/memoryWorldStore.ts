@@ -1920,7 +1920,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           state.value.hearts -= 1
           if (state.value.hearts <= 0) {
             leaveRoom(briarLossContinuation(state.value, 'chamber', true), true)
-            state.value.player = '2,4'
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             state.value.status =
@@ -1977,7 +1977,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
               ),
               true,
             )
-            state.value.player = '2,4'
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             leaveRoom(

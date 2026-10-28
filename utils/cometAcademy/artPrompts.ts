@@ -125,7 +125,9 @@ const IDENTITY_MOMENTS: Record<string, string> = {
 const identityPrompts = Object.fromEntries(
   Object.keys(CAST_LOOKS).flatMap((signature) => {
     const look = capital(castLook(signature)!)
-    const person = IDENTITY_ARCS.find((identity) => identity.signature === signature)
+    const person = IDENTITY_ARCS.find(
+      (identity) => identity.signature === signature,
+    )
     const rookie: [string, string] = [
       `identities/${signature}/student`,
       paint(`${look}. ${IDENTITY_MOMENTS[signature] ?? ''}`),
@@ -135,11 +137,15 @@ const identityPrompts = Object.fromEntries(
     // These are contextual compositions, never three separately designed heroes.
     const protagonist: [string, string] = [
       `identities/${signature}/hero`,
-      paint(`${look}. This same distinctive person takes the lead in a night rescue near Comet City's skyline, using their signature ability: ${person.hero.method} Wind, floodlights and cheering distant witnesses, wide cinematic view, full-body readable silhouette.`),
+      paint(
+        `${look}. This same distinctive person takes the lead in a night rescue near Comet City's skyline, using their signature ability: ${person.hero.method} Wind, floodlights and cheering distant witnesses, wide cinematic view, full-body readable silhouette.`,
+      ),
     ]
     const antagonist: [string, string] = [
       `identities/${signature}/villain`,
-      paint(`${look}. This same distinctive person confronts the academy on the city rooftops at night, choosing a dangerous path: ${person.villain.method} Strong backlighting, watchful teammates on a distant roof, wide cinematic view, full-body readable silhouette.`),
+      paint(
+        `${look}. This same distinctive person confronts the academy on the city rooftops at night, choosing a dangerous path: ${person.villain.method} Strong backlighting, watchful teammates on a distant roof, wide cinematic view, full-body readable silhouette.`,
+      ),
     ]
     return [rookie, protagonist, antagonist]
   }),

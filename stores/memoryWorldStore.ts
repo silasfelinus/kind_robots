@@ -1969,14 +1969,24 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
             )
           } else if (state.value.hearts <= 0) {
             leaveRoom(
-              briarLossContinuation(state.value, 'combat', true, next.enemy.name),
+              briarLossContinuation(
+                state.value,
+                'combat',
+                true,
+                next.enemy.name,
+              ),
               true,
             )
             state.value.player = '2,4'
             state.value.hearts = 3
           } else {
             leaveRoom(
-              briarLossContinuation(state.value, 'combat', false, next.enemy.name),
+              briarLossContinuation(
+                state.value,
+                'combat',
+                false,
+                next.enemy.name,
+              ),
               true,
             )
           }

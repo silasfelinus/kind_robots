@@ -1,12 +1,20 @@
 <template>
   <section
     class="couchscope"
-    :class="{ 'scope-large-text': largeText, 'scope-reduced-motion': reducedMotion }"
+    :class="{
+      'scope-large-text': largeText,
+      'scope-reduced-motion': reducedMotion,
+    }"
     data-testid="space-couch-star-assessment"
     aria-label="Space Couch constellation personality assessment"
   >
     <div class="couchscope-sky" aria-hidden="true">
-      <img v-if="!assessment" class="scope-question-art" :src="questionArtwork" alt="" />
+      <img
+        v-if="!assessment"
+        class="scope-question-art"
+        :src="questionArtwork"
+        alt=""
+      />
       <svg v-else viewBox="0 0 480 430" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="scope-starglow">
@@ -168,12 +176,20 @@ import {
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
 
-const { largeText = false, reducedMotion = false } = defineProps<{ largeText?: boolean; reducedMotion?: boolean }>()
+const { largeText = false, reducedMotion = false } = defineProps<{
+  largeText?: boolean
+  reducedMotion?: boolean
+}>()
 const emit = defineEmits<{ confirm: [assessment: StarAssessment]; back: [] }>()
 const answers = ref<number[]>([])
 const questionArtwork = computed(() => {
-  const index = String(Math.min(answers.value.length + 1, STAR_QUESTIONS.length)).padStart(2, '0')
-  return warpArt('couchscope/question-' + index) || '/game-of-captains/couchscope/question-' + index + '.svg'
+  const index = String(
+    Math.min(answers.value.length + 1, STAR_QUESTIONS.length),
+  ).padStart(2, '0')
+  return (
+    warpArt('couchscope/question-' + index) ||
+    '/game-of-captains/couchscope/question-' + index + '.svg'
+  )
 })
 const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>
@@ -333,7 +349,10 @@ function choose(index: number) {
   flex-direction: column;
   justify-content: center;
 }
-.scope-reveal { overflow-y: auto; justify-content: flex-start; }
+.scope-reveal {
+  overflow-y: auto;
+  justify-content: flex-start;
+}
 .scope-episode {
   display: block;
   color: #86e5e9;
@@ -467,12 +486,28 @@ function choose(index: number) {
   text-align: left;
 }
 @media (max-width: 900px) {
-  .scope-question-art { width: 100%; opacity: 0.22; object-fit: cover; }
-  .scope-content, .scope-reveal { width: 100%; }
-  .scope-screen { background: linear-gradient(90deg, #09162bcb, #09162b99); }
-  .scope-content h2, .scope-reveal h2 { font-size: clamp(1.55rem, min(5.5cqi, 5vh), 2.8rem); }
-  .scope-content p { font-size: 0.82rem; }
-  .scope-choices button { padding: 0.52rem; }
+  .scope-question-art {
+    width: 100%;
+    opacity: 0.22;
+    object-fit: cover;
+  }
+  .scope-content,
+  .scope-reveal {
+    width: 100%;
+  }
+  .scope-screen {
+    background: linear-gradient(90deg, #09162bcb, #09162b99);
+  }
+  .scope-content h2,
+  .scope-reveal h2 {
+    font-size: clamp(1.55rem, min(5.5cqi, 5vh), 2.8rem);
+  }
+  .scope-content p {
+    font-size: 0.82rem;
+  }
+  .scope-choices button {
+    padding: 0.52rem;
+  }
 }
 @media (max-width: 660px) {
   .scope-screen {
@@ -492,12 +527,26 @@ function choose(index: number) {
   .scope-reveal h2 {
     font-size: clamp(1.35rem, min(6.5cqi, 4.2vh), 2rem);
   }
-  .scope-header > strong { margin: 0; }
-  .scope-content p { font-size: 0.7rem; line-height: 1.2; }
-  .scope-choices button { padding: 0.4rem; gap: 0.55rem; }
-  .scope-choices strong { font-size: 0.74rem; }
-  .scope-choices small { font-size: 0.61rem; }
-  .scope-footer { font-size: 0.56rem; }
+  .scope-header > strong {
+    margin: 0;
+  }
+  .scope-content p {
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+  .scope-choices button {
+    padding: 0.4rem;
+    gap: 0.55rem;
+  }
+  .scope-choices strong {
+    font-size: 0.74rem;
+  }
+  .scope-choices small {
+    font-size: 0.61rem;
+  }
+  .scope-footer {
+    font-size: 0.56rem;
+  }
   .scope-choices {
     width: 100%;
     gap: 0.4rem;
@@ -506,13 +555,28 @@ function choose(index: number) {
     display: none;
   }
 }
-.scope-large-text .scope-content h2 { font-size: clamp(1.75rem, min(3.6cqi, 5.4vh), 3.5rem); }
-.scope-large-text .scope-choices strong, .scope-large-text .scope-content p { font-size: clamp(0.9rem, 1.2cqi, 1.05rem); }
-.scope-reduced-motion * { animation: none !important; transition: none !important; }
+.scope-large-text .scope-content h2 {
+  font-size: clamp(1.75rem, min(3.6cqi, 5.4vh), 3.5rem);
+}
+.scope-large-text .scope-choices strong,
+.scope-large-text .scope-content p {
+  font-size: clamp(0.9rem, 1.2cqi, 1.05rem);
+}
+.scope-reduced-motion * {
+  animation: none !important;
+  transition: none !important;
+}
 @media (max-height: 560px) {
-  .scope-content { justify-content: flex-start; overflow-y: auto; }
-  .scope-header > strong { font-size: 0.95rem; }
-  .scope-progress { margin: 0.25rem 0; }
+  .scope-content {
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+  .scope-header > strong {
+    font-size: 0.95rem;
+  }
+  .scope-progress {
+    margin: 0.25rem 0;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .couchscope {

@@ -614,22 +614,41 @@ const PHOTO_REAPPRAISALS: ReadonlyArray<{
         'You kept the friend’s pain and the vacant chair in view. Even a sincere apology could be refused. You leave room for that refusal without erasing the effort.',
     },
   },
+  {
+    photos: ['earth-01', 'earth-02'],
+    title: 'Two wounds, no verdict',
+    evidence:
+      'The office exit shows a lost foothold; the gathering shows a friend hurt in your presence. Neither frame proves what Morrow intended or what happened next.',
+    reflections: {
+      'challenge:challenge':
+        'You questioned the dismissal and searched beyond the gathering. Both pictures demand witnesses. You can pursue the truth without deciding in advance that Morrow is innocent.',
+      'challenge:hold':
+        'You doubted the office verdict but acknowledged the friend’s humiliation. A lost job may have a second story; the hurt person still deserves an account of what happened.',
+      'hold:challenge':
+        'You kept your anger about the office and searched the edges of the gathering. You are allowed to grieve what was taken without treating every stranger in the frame as an enemy.',
+      'hold:hold':
+        'You held on to the career loss and the friend’s pain. Neither photograph grants you the full story, and neither injury becomes less real because the other exists.',
+    },
+  },
 ]
 
 export function earthPhotoReappraisal(
   chronicle: EarthChronicle,
   photoId: string,
 ): EarthPhotoReappraisal | null {
-  const pair = PHOTO_REAPPRAISALS.find(({ photos }) => photos.includes(photoId))
-  if (!pair || !pair.photos.every((id) => chronicle.found.includes(id)))
-    return null
-  const first = chronicle.responses[pair.photos[0]]
-  const second = chronicle.responses[pair.photos[1]]
-  if (
-    (first !== 'challenge' && first !== 'hold') ||
-    (second !== 'challenge' && second !== 'hold')
+  const pair = PHOTO_REAPPRAISALS.find(
+    ({ photos }) =>
+      photos.includes(photoId) &&
+      photos.every(
+        (id) =>
+          chronicle.found.includes(id) &&
+          (chronicle.responses[id] === 'challenge' ||
+            chronicle.responses[id] === 'hold'),
+      ),
   )
-    return null
+  if (!pair) return null
+  const first = chronicle.responses[pair.photos[0]]!
+  const second = chronicle.responses[pair.photos[1]]!
   return {
     title: pair.title,
     evidence: pair.evidence,

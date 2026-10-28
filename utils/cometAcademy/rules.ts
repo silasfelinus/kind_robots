@@ -531,6 +531,8 @@ export type AcademyRun = {
   visitedDays?: Partial<Record<SiteId, number>>
   injuries?: Partial<Record<StudentId, number>>
   contacts?: StudentId[]
+  /** One night call personally attended by the protagonist; absent on legacy saves. */
+  playerCaseId?: string
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
@@ -574,7 +576,14 @@ export function incidentDeck(run: AcademyRun): Incident[] {
 export function incidentsFor(run: AcademyRun): Incident[] {
   const deck = incidentDeck(run)
   const offset = (run.seed + run.day - 1) % deck.length
-  return [deck[offset]!, deck[(offset + deck.length / 2) % deck.length]!]
+  if (run.flowVersion !== 3 || !run.incidentDeckVersion)
+    return [deck[offset]!, deck[(offset + deck.length / 2) % deck.length]!]
+  // More opportunities than teams: the choice of what to leave unanswered matters.
+  const count =
+    run.day <= 3 ? 1 : run.day <= 7 ? 2 : run.day <= 14 ? 3 : run.day <= 21 ? 4 : 5
+  return Array.from({ length: count }, (_, index) =>
+    deck[(offset + index * 5) % deck.length]!,
+  )
 }
 
 export function encounterFor(run: AcademyRun) {
@@ -703,6 +712,7 @@ export function startAcademy(
     influence: 0,
     danger: 2,
     assignments: [],
+    playerCaseId: undefined,
     reports: [],
     scene:
       'The first bell rings. A thirty-day final month begins with a strange week of field simulations.',
@@ -740,10 +750,9 @@ export function startFullAcademy(
   }
 }
 
-export function startingContacts(seed: number): StudentId[] {
-  const friends = STUDENTS.filter((member) => member.origin === 'academy')
-  const index = Math.abs(seed) % friends.length
-  return [friends[index]!.id, friends[(index + 3) % friends.length]!.id]
+export function startingContacts(_seed: number): StudentId[] {
+  // The rookie earns friends through daytime encounters. Existing saves retain contacts.
+  return []
 }
 
 export function knownContacts(run: AcademyRun): StudentId[] {
@@ -788,6 +797,7 @@ export function emergencyContact(run: AcademyRun) {
   if (
     run.flowVersion !== 3 ||
     run.phase !== 'dispatch' ||
+    run.day <= 3 ||
     knownContacts(run).some((id) => studentAvailable(run, id))
   )
     return null
@@ -890,6 +900,16 @@ export function socialize(
   }
 }
 
+/** Joining a call is separate from asking a classmate to volunteer for it. */
+export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'dispatch' ||
+    !incidentsFor(run).some((incident) => incident.id === caseId)
+  ) return run
+  return { ...run, playerCaseId: run.playerCaseId === caseId ? undefined : caseId }
+}
+
 export function assignTeam(
   run: AcademyRun,
   caseId: string,
@@ -916,6 +936,8 @@ export function assignTeam(
       remaining.some((assignment) => assignment.students.includes(id)),
     )
   )
+    return run
+  if (run.flowVersion === 3 && selected.length && remaining.length >= 3)
     return run
   return {
     ...run,
@@ -988,8 +1010,11 @@ export function dispatchModifier(
     run.flowVersion === 3 ? missionRoute(incident.id, students) : null
   return (
     students.length +
+    (run.flowVersion === 3 && run.playerCaseId === incident.id ? 1 : 0) +
     (affinity ? 2 : 0) +
-    (run.power === incident.need ? 1 : 0) +
+    (run.flowVersion !== 3 || run.playerCaseId === incident.id
+      ? run.power === incident.need ? 2 : 1
+      : 0) +
     civicSupport +
     academySupport -
     sabotagePenalty -
@@ -1012,7 +1037,7 @@ export function dispatchChance(
   const incident = incidentsFor(run).find((item) => item.id === caseId)
   if (
     !incident ||
-    !students.length ||
+    (!students.length && !(run.flowVersion === 3 && run.playerCaseId === caseId)) ||
     students.length > 3 ||
     new Set(students).size !== students.length ||
     students.some(
@@ -1032,14 +1057,20 @@ export function dispatchChance(
 }
 
 export function resolveDispatch(run: AcademyRun): AcademyRun {
-  if (run.phase !== 'dispatch' || run.assignments.length === 0) return run
+  if (
+    run.phase !== 'dispatch' ||
+    (run.assignments.length === 0 && !run.playerCaseId) ||
+    (run.flowVersion === 3 && !run.playerCaseId)
+  ) return run
   let influence = run.influence
   let danger = run.danger
   const injuries = { ...(run.injuries ?? {}) }
   const reports = incidentsFor(run).map((incident) => {
-    const assignment = run.assignments.find(
-      (entry) => entry.caseId === incident.id,
-    )
+    const assignment =
+      run.assignments.find((entry) => entry.caseId === incident.id) ??
+      (run.playerCaseId === incident.id
+        ? { caseId: incident.id, students: [] as StudentId[] }
+        : undefined)
     if (!assignment) {
       danger += 1
       return {
@@ -1102,7 +1133,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
     const baseText =
-      ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+      ((run.flowVersion === 3 || run.flowVersion === 2) && run.day > 2 ||
+        run.flowVersion === 3
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
     const sabotagedBy =
@@ -1130,6 +1162,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
+      assignment.students.length > 0 &&
       (grade === 'failed' || (grade === 'partial' && roll % 2 === 0))
     ) {
       const index =
@@ -1143,15 +1176,16 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       title: incident.title,
       grade,
       text: resolvedText,
-      names: assignment.students
-        .map((id) => STUDENTS.find((s) => s.id === id)!.name)
-        .join(' · '),
+      names: [
+        ...(run.playerCaseId === incident.id ? ['YOU · on patrol'] : []),
+        ...assignment.students.map((id) => STUDENTS.find((s) => s.id === id)!.name),
+      ].join(' · '),
     }
   })
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
-    ...(run.flowVersion === 3 ? { injuries } : {}),
+    ...(run.flowVersion === 3 ? { injuries, playerCaseId: undefined } : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
@@ -1544,6 +1578,10 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
   const data = migrateSignature(raw as Partial<AcademyRun>)
   if (
     data.version !== 1 ||
+    (data.playerCaseId !== undefined &&
+      (data.flowVersion !== 3 ||
+        typeof data.playerCaseId !== 'string' ||
+        !incidentsFor(data as AcademyRun).some((caseFile) => caseFile.id === data.playerCaseId))) ||
     !POWERS.some((p) => p.id === data.power) ||
     (data.signature !== undefined &&
       (!signatureById(data.signature) ||

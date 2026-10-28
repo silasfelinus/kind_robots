@@ -2106,9 +2106,9 @@ const checkpointConsole = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
-assert.match(checkpointConsole, /memoryCheckpointPreview\\(checkpoint\\)\\.location/)
-assert.match(checkpointConsole, /memoryCheckpointPreview\\(checkpoint\\)\\.progress/)
-assert.match(checkpointConsole, /:aria-label="\\`Load checkpoint/)
+assert.ok(checkpointConsole.includes('memoryCheckpointPreview(checkpoint).location'))
+assert.ok(checkpointConsole.includes('memoryCheckpointPreview(checkpoint).progress'))
+assert.ok(checkpointConsole.includes(':aria-label="`Load checkpoint'))
 const invalidRealityCases = [
   [
     'missing completed history',

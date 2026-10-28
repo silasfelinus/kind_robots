@@ -418,7 +418,9 @@ const actors = computed(() => [
       name: generation ? person.name + ' · GEN ' + generation : person.name,
       subtitle:
         (generation ? 'CLONE · ' : 'REDSHIRT · ') +
-        (revealed ? 'FIELD-TESTED ' + person.talent.toUpperCase() : 'APTITUDE SEALED'),
+        (revealed
+          ? 'FIELD-TESTED ' + person.talent.toUpperCase()
+          : 'APTITUDE SEALED'),
       image: null,
       revealed,
       rank: revealed ? String(person.stats[person.talent]) : '??',

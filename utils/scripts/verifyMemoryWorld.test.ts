@@ -2602,6 +2602,7 @@ for (const { choices, expected } of lossContexts) {
     'Thorn Guard',
   )
   assert.match(text, expected)
+  assert.ok(text.length <= 220, 'Narrative must survive save status limits')
   assert.match(text, /retreat to Briar Camp/)
   assert.equal(text.includes("House's quiet bedchamber"), false)
 }
@@ -2625,6 +2626,7 @@ const narratedHouseLoss = briarLossContinuation(
 )
 assert.match(narratedHouseLoss, /Oren's inked detour/)
 assert.match(narratedHouseLoss, /House's quiet bedchamber/)
+assert.ok(narratedHouseLoss.length <= 220)
 assert.doesNotMatch(narratedHouseLoss, /Briar Camp/)
 const resumedEarnedHouseLoss = recoverBriarCombatDefeat(restoredEarnedHouseLoss)
 assert.equal(resumedEarnedHouseLoss.status, narratedHouseLoss)

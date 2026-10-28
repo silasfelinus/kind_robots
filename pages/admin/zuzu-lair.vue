@@ -30,9 +30,11 @@
           <p class="lair-title">Zuzu's Lair</p>
           <p class="text-sm opacity-80">{{ chapter.title }}</p>
           <p class="max-w-sm text-sm opacity-90">
-            {{ selectedChapter === 'bats'
-              ? 'A playable animated encounter. Duck as the swarm arrives, or face the bats.'
-              : 'The full Dry Gulch storyboard. Its generated film clips are still pending.' }}
+            {{
+              selectedChapter === 'bats'
+                ? 'A playable animated encounter. Duck as the swarm arrives, or face the bats.'
+                : 'The full Dry Gulch storyboard. Its generated film clips are still pending.'
+            }}
           </p>
           <div class="flex flex-wrap justify-center gap-2">
             <button
@@ -41,15 +43,25 @@
               data-testid="lair-start"
               @click="begin"
             >
-              {{ selectedChapter === 'bats' ? 'Enter the corridor' : 'Explore Dry Gulch' }}
+              {{
+                selectedChapter === 'bats'
+                  ? 'Enter the corridor'
+                  : 'Explore Dry Gulch'
+              }}
             </button>
             <button
               type="button"
               class="btn btn-ghost border border-amber-500/40"
               data-testid="lair-chapter-switch"
-              @click="selectChapter(selectedChapter === 'bats' ? 'gulch' : 'bats')"
+              @click="
+                selectChapter(selectedChapter === 'bats' ? 'gulch' : 'bats')
+              "
             >
-              {{ selectedChapter === 'bats' ? 'Dry Gulch storyboard' : 'Play bat corridor' }}
+              {{
+                selectedChapter === 'bats'
+                  ? 'Dry Gulch storyboard'
+                  : 'Play bat corridor'
+              }}
             </button>
           </div>
         </div>
@@ -67,7 +79,12 @@
         </div>
 
         <button
-          v-if="phase === 'play' && selectedChapter === 'bats' && run.node === 'bat-horde' && !showButtons"
+          v-if="
+            phase === 'play' &&
+            selectedChapter === 'bats' &&
+            run.node === 'bat-horde' &&
+            !showButtons
+          "
           type="button"
           class="lair-duck-button"
           data-testid="lair-duck-button"
@@ -95,7 +112,11 @@
         <!-- Finish: score, initials, board -->
         <div v-if="phase === 'end'" class="lair-overlay lair-end">
           <p class="lair-title">
-            {{ selectedChapter === 'bats' ? 'The bats are behind you!' : 'Chapter clear' }}
+            {{
+              selectedChapter === 'bats'
+                ? 'The bats are behind you!'
+                : 'Chapter clear'
+            }}
           </p>
           <p class="text-lg font-bold" data-testid="lair-score">
             {{ run.score.toLocaleString() }} pts
@@ -105,7 +126,8 @@
             {{ run.bonus.time }}
           </p>
           <p v-if="selectedChapter === 'bats'" class="text-sm">
-            You made it through the corridor. Try the wrong direction to see the other outcome.
+            You made it through the corridor. Try the wrong direction to see the
+            other outcome.
           </p>
           <form
             v-if="selectedChapter === 'gulch' && !submitted"
@@ -134,7 +156,11 @@
               Skip
             </button>
           </form>
-          <ol v-if="selectedChapter === 'gulch'" class="lair-board" aria-label="Zuzu's Lair high scores">
+          <ol
+            v-if="selectedChapter === 'gulch'"
+            class="lair-board"
+            aria-label="Zuzu's Lair high scores"
+          >
             <li v-for="row in boardRows" :key="row.id">
               <span class="font-mono">{{ row.initials }}</span>
               <span>{{ row.score.toLocaleString() }}</span>
@@ -226,8 +252,9 @@
           Sound
         </label>
         <p class="kr-text-dim-sm w-full">
-          Arrows or WASD, Space for the sword. Bat Corridor is a playable animated proof
-          of concept; Dry Gulch film renders are not yet connected.
+          Arrows or WASD, Space for the sword. Bat Corridor is a playable
+          animated proof of concept; Dry Gulch film renders are not yet
+          connected.
         </p>
       </section>
     </div>
@@ -536,8 +563,8 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   min-height: 0;
-  gap: .55rem;
-  padding: .4rem;
+  gap: 0.55rem;
+  padding: 0.4rem;
 }
 .lair-stage {
   flex: 1 1 0;
@@ -553,13 +580,15 @@ onBeforeUnmount(() => {
   right: 1rem;
   border: 2px solid #ffb65b;
   border-radius: 1rem;
-  padding: .65rem 1rem;
+  padding: 0.65rem 1rem;
   background: #311b1bdf;
   color: #ffe3ae;
   font-size: 1.2rem;
   font-weight: 900;
 }
-.lair-duck-button:focus-visible { outline: 3px solid white; }
+.lair-duck-button:focus-visible {
+  outline: 3px solid white;
+}
 .lair-overlay {
   position: absolute;
   inset: 0;

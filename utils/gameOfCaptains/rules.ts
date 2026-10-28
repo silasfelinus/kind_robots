@@ -45,6 +45,7 @@ import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
+import { CAPTAIN_ORIGINS, type CaptainOriginId } from './captainOrigins'
 import { validCloneProgram, type CloneProgram } from './cloneSaga'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
@@ -368,6 +369,7 @@ export type VoyageRun = {
   seed: number
   phase: VoyagePhase
   captain: CaptainId
+  origin?: CaptainOriginId
   starAssessment?: StarAssessment
   crew: CrewId[]
   away: CrewId[]
@@ -638,30 +640,39 @@ export function startVoyage(
   crew: CrewId[],
   seed = Date.now(),
   starAssessment?: StarAssessment,
+  origin?: CaptainOriginId,
 ): VoyageRun {
   if (
     !CAPTAINS.some((entry) => entry.id === captain) ||
     crew.length !== 3 ||
     new Set(crew).size !== crew.length ||
     crew.some((id) => !CREW.some((member) => member.id === id)) ||
-    (starAssessment !== undefined && !validStarAssessment(starAssessment))
+    (starAssessment !== undefined && !validStarAssessment(starAssessment)) ||
+    (origin !== undefined &&
+      !CAPTAIN_ORIGINS.some((item) => item.id === origin))
   )
     throw new Error('Choose a captain and three unique crew')
   const cleanSeed = Math.abs(Math.floor(seed)) || 1
+  const originBonus = CAPTAIN_ORIGINS.find((item) => item.id === origin)
   return {
     version: 1,
     seed: cleanSeed,
     phase: 'briefing',
     captain,
+    ...(origin ? { origin } : {}),
     ...(starAssessment ? { starAssessment } : {}),
     crew: [...crew],
     away: [],
     pocketRoom: null,
-    shieldCharge: 2,
+    shieldCharge:
+      2 +
+      (originBonus?.bonus && 'shieldCharge' in originBonus.bonus
+        ? originBonus.bonus.shieldCharge
+        : 0),
     chapter: 1,
     missionId: 'refugees',
     missionHistory: [],
-    worldFlags: [],
+    worldFlags: origin ? ['origin:' + origin] : [],
     redshirtRoster: starterRedshirts(cleanSeed),
     redshirtFallen: [],
     expeditionVisit: null,
@@ -677,14 +688,28 @@ export function startVoyage(
     detour: null,
     nemesisPressure: 0,
     antagonist: hash(cleanSeed, 'antagonist') % ANTAGONISTS.length,
-    supplies: 7,
-    trust: 2,
-    intervention: 0,
-    reputation: 0,
+    supplies:
+      7 +
+      (originBonus?.bonus && 'supplies' in originBonus.bonus
+        ? originBonus.bonus.supplies
+        : 0),
+    trust:
+      2 +
+      (originBonus?.bonus && 'trust' in originBonus.bonus
+        ? originBonus.bonus.trust
+        : 0),
+    intervention:
+      originBonus?.bonus && 'intervention' in originBonus.bonus
+        ? originBonus.bonus.intervention
+        : 0,
+    reputation:
+      originBonus?.bonus && 'reputation' in originBonus.bonus
+        ? originBonus.bonus.reputation
+        : 0,
     scene:
       'The red couch sails through the vacuum. The invisible bubble holds the air in; there is no hull, bridge or seatbelt policy.',
     report: null,
-    log: [],
+    log: originBonus ? ['BEFORE COMMAND: ' + originBonus.prologue] : [],
     ending: null,
   }
 }
@@ -1249,6 +1274,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
   if (
     data.version !== 1 ||
     !CAPTAINS.some((p) => p.id === data.captain) ||
+    (data.origin !== undefined &&
+      !CAPTAIN_ORIGINS.some((item) => item.id === data.origin)) ||
     (data.starAssessment !== undefined &&
       !validStarAssessment(data.starAssessment)) ||
     !Array.isArray(data.crew) ||

@@ -581,7 +581,7 @@
               class="cca-primary"
               type="button"
               data-testid="academy-dispatch"
-              :disabled="run.flowVersion === 3 ? !run.playerCaseId : !run.assignments.length"
+              :disabled="run.patrolOpening === 1 ? !run.playerCaseId : !run.assignments.length"
               @click="store.dispatch()"
             >
               {{

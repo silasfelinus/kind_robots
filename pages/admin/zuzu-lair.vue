@@ -11,6 +11,7 @@
           :key="run.node + ':' + sceneVersion"
           :scene-id="run.node"
           :window-open="windowOpen"
+          :show-cue="flashOn"
           data-testid="lair-animation"
         />
         <video
@@ -68,7 +69,7 @@
 
         <!-- Input hint: the needed direction glows during the window -->
         <div
-          v-if="phase === 'play' && windowOpen"
+          v-if="phase === 'play' && windowOpen && flashOn"
           class="lair-hint"
           :class="{ 'lair-hint-lit': hintOn }"
           data-testid="lair-hint"

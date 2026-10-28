@@ -4,10 +4,10 @@
     data-layout="console-fixed"
   >
     <header
-      class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
+      class="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
     >
-      <span class="shrink-0 text-xl" aria-hidden="true">🌿</span>
-      <div class="min-w-0 flex-1">
+      <span class="hidden shrink-0 text-xl md:inline" aria-hidden="true">🌿</span>
+      <div class="min-w-0 w-full md:w-auto md:flex-1">
         <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
           Memory Dungeon
           <span class="font-normal text-[#d1c19c]">{{
@@ -16,7 +16,7 @@
               : '/ Briar Camp'
           }}</span>
         </h2>
-        <p class="hidden text-xs text-[#d1c19c] sm:block">
+        <p class="hidden text-xs text-[#d1c19c] lg:block">
           {{
             world.activeReality === 'e02'
               ? 'The same place tells a different story.'
@@ -27,7 +27,8 @@
       <span
         class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
       >
-        Attempts
+        <span class="sm:hidden">Tries</span>
+        <span class="hidden sm:inline">Attempts</span>
         {{
           world.activeReality === 'e02'
             ? world.dark.attempts

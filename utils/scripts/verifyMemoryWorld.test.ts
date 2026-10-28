@@ -2592,7 +2592,12 @@ const lossContexts = [
   { choices: { '4,3': 'forged' }, expected: /map and discoveries survive/ },
 ] as const
 for (const { choices, expected } of lossContexts) {
-  const text = briarLossContinuation({ sceneChoices: choices }, 'combat', true, 'Thorn Guard')
+  const text = briarLossContinuation(
+    { sceneChoices: choices },
+    'combat',
+    true,
+    'Thorn Guard',
+  )
   assert.match(text, expected)
   assert.match(text, /retreat to Briar Camp/)
   assert.equal(text.includes("House's quiet bedchamber"), false)
@@ -2628,11 +2633,15 @@ assert.deepEqual(
   resumedEarnedHouseLoss,
 )
 assert.ok(
-  worldStoreSource.includes("briarLossContinuation(state.value, 'chamber', true)"),
+  worldStoreSource.includes(
+    "briarLossContinuation(state.value, 'chamber', true)",
+  ),
   'The live chamber timer uses the same authored continuation as reload',
 )
 assert.ok(
-  worldStoreSource.includes("briarLossContinuation(state.value, 'combat', false, next.enemy.name)"),
+  worldStoreSource.includes(
+    "briarLossContinuation(state.value, 'combat', false, next.enemy.name)",
+  ),
   'The live combat timer uses the same authored continuation as reload',
 )
 

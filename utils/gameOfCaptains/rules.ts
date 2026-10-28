@@ -648,7 +648,8 @@ export function startVoyage(
     new Set(crew).size !== crew.length ||
     crew.some((id) => !CREW.some((member) => member.id === id)) ||
     (starAssessment !== undefined && !validStarAssessment(starAssessment)) ||
-    (origin !== undefined && !CAPTAIN_ORIGINS.some((item) => item.id === origin))
+    (origin !== undefined &&
+      !CAPTAIN_ORIGINS.some((item) => item.id === origin))
   )
     throw new Error('Choose a captain and three unique crew')
   const cleanSeed = Math.abs(Math.floor(seed)) || 1
@@ -663,7 +664,11 @@ export function startVoyage(
     crew: [...crew],
     away: [],
     pocketRoom: null,
-    shieldCharge: 2 + (originBonus?.bonus && 'shieldCharge' in originBonus.bonus ? originBonus.bonus.shieldCharge : 0),
+    shieldCharge:
+      2 +
+      (originBonus?.bonus && 'shieldCharge' in originBonus.bonus
+        ? originBonus.bonus.shieldCharge
+        : 0),
     chapter: 1,
     missionId: 'refugees',
     missionHistory: [],
@@ -683,10 +688,24 @@ export function startVoyage(
     detour: null,
     nemesisPressure: 0,
     antagonist: hash(cleanSeed, 'antagonist') % ANTAGONISTS.length,
-    supplies: 7 + (originBonus?.bonus && 'supplies' in originBonus.bonus ? originBonus.bonus.supplies : 0),
-    trust: 2 + (originBonus?.bonus && 'trust' in originBonus.bonus ? originBonus.bonus.trust : 0),
-    intervention: originBonus?.bonus && 'intervention' in originBonus.bonus ? originBonus.bonus.intervention : 0,
-    reputation: originBonus?.bonus && 'reputation' in originBonus.bonus ? originBonus.bonus.reputation : 0,
+    supplies:
+      7 +
+      (originBonus?.bonus && 'supplies' in originBonus.bonus
+        ? originBonus.bonus.supplies
+        : 0),
+    trust:
+      2 +
+      (originBonus?.bonus && 'trust' in originBonus.bonus
+        ? originBonus.bonus.trust
+        : 0),
+    intervention:
+      originBonus?.bonus && 'intervention' in originBonus.bonus
+        ? originBonus.bonus.intervention
+        : 0,
+    reputation:
+      originBonus?.bonus && 'reputation' in originBonus.bonus
+        ? originBonus.bonus.reputation
+        : 0,
     scene:
       'The red couch sails through the vacuum. The invisible bubble holds the air in; there is no hull, bridge or seatbelt policy.',
     report: null,
@@ -1255,7 +1274,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
   if (
     data.version !== 1 ||
     !CAPTAINS.some((p) => p.id === data.captain) ||
-    (data.origin !== undefined && !CAPTAIN_ORIGINS.some((item) => item.id === data.origin)) ||
+    (data.origin !== undefined &&
+      !CAPTAIN_ORIGINS.some((item) => item.id === data.origin)) ||
     (data.starAssessment !== undefined &&
       !validStarAssessment(data.starAssessment)) ||
     !Array.isArray(data.crew) ||

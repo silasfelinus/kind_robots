@@ -1,7 +1,6 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-3 p-4 md:p-6">
-      <h1 class="text-xl font-semibold">Held guest notes</h1>
       <p v-if="error" class="text-sm">{{ error }}</p>
       <p v-else-if="!notes.length" class="text-sm">Nothing waiting.</p>
       <article

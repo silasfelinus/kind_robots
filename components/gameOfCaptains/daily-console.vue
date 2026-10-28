@@ -1,9 +1,15 @@
 <template>
   <section class="space-daily" data-testid="space-couch-daily-console">
     <header class="daily-opening">
-      <img :src="backdrop" alt="The red couch sails inside its protective bubble" />
+      <img
+        :src="backdrop"
+        alt="The red couch sails inside its protective bubble"
+      />
       <div class="daily-opening-content">
-        <span class="daily-eyebrow">SPACE COUCH PRESENTS · EPISODE {{ run.chapter }} · SHIP DAY {{ run.day ?? run.chapter }}</span>
+        <span class="daily-eyebrow"
+          >SPACE COUCH PRESENTS · EPISODE {{ run.chapter }} · SHIP DAY
+          {{ run.day ?? run.chapter }}</span
+        >
         <h2>{{ majorDone ? 'The Plot Thickens' : 'Assign the Cast' }}</h2>
         <p>{{ episodeIncitingEvent(run) }}</p>
       </div>
@@ -12,19 +18,33 @@
 
     <template v-if="!majorDone">
       <div class="daily-body">
-        <aside class="daily-cast" data-testid="space-couch-redshirt-dorm" aria-label="Personnel cards">
+        <aside
+          class="daily-cast"
+          data-testid="space-couch-redshirt-dorm"
+          aria-label="Personnel cards"
+        >
           <div class="daily-section-head">
             <strong>THE CAST</strong>
             <span>{{ (run.redshirtRoster ?? []).length }} REDSHIRTS</span>
           </div>
-          <p class="daily-instruction">Pick a personnel card, then put it on a quest. A name on a red shirt is not a résumé.</p>
-          <div class="daily-cast-stack" role="group" aria-label="Available personnel cards">
+          <p class="daily-instruction">
+            Pick a personnel card, then put it on a quest. A name on a red shirt
+            is not a résumé.
+          </p>
+          <div
+            class="daily-cast-stack"
+            role="group"
+            aria-label="Available personnel cards"
+          >
             <button
               v-for="actor in actors"
               :key="actor.id"
               type="button"
               class="daily-actor"
-              :class="{ selected: selectedLead === actor.id, busy: busyLeads.includes(actor.id) }"
+              :class="{
+                selected: selectedLead === actor.id,
+                busy: busyLeads.includes(actor.id),
+              }"
               :disabled="busyLeads.includes(actor.id)"
               :aria-pressed="selectedLead === actor.id"
               data-testid="space-couch-expedition-lead"
@@ -38,22 +58,39 @@
                 <b>{{ actor.name }}</b>
                 <small>{{ actor.subtitle }}</small>
               </span>
-              <b class="daily-actor-stats">{{ actor.revealed ? actor.rank : '??' }}</b>
+              <b class="daily-actor-stats">{{
+                actor.revealed ? actor.rank : '??'
+              }}</b>
             </button>
           </div>
           <button
             type="button"
             class="daily-hire"
             data-testid="space-couch-hire"
-            :disabled="(run.redshirtRoster ?? []).length >= 12 || (run.supplies < 1 && (run.redshirtRoster ?? []).length > 0)"
+            :disabled="
+              (run.redshirtRoster ?? []).length >= 12 ||
+              (run.supplies < 1 && (run.redshirtRoster ?? []).length > 0)
+            "
             @click="emit('hire')"
-          >+ RECRUIT · {{ (run.redshirtRoster ?? []).length ? '1 SUPPLY' : 'FREE EMERGENCY' }}</button>
+          >
+            + RECRUIT ·
+            {{
+              (run.redshirtRoster ?? []).length ? '1 SUPPLY' : 'FREE EMERGENCY'
+            }}
+          </button>
         </aside>
 
-        <section class="daily-quest-zone" data-testid="space-couch-encounter-board" aria-label="Quest assignment board">
+        <section
+          class="daily-quest-zone"
+          data-testid="space-couch-encounter-board"
+          aria-label="Quest assignment board"
+        >
           <div class="daily-section-head">
             <strong>QUESTS ON THE BOARD</strong>
-            <span>{{ completeCount }}/{{ encounters.length }} RESOLVED · {{ majorCount }} MAIN</span>
+            <span
+              >{{ completeCount }}/{{ encounters.length }} RESOLVED ·
+              {{ majorCount }} MAIN</span
+            >
           </div>
           <div class="daily-quest-grid">
             <button
@@ -61,45 +98,85 @@
               :key="enc.id"
               type="button"
               class="daily-quest"
-              :class="{ 'daily-major': enc.priority === 'major', 'daily-resolved': completed(enc.id), 'daily-planned': !!assignments[enc.id] }"
+              :class="{
+                'daily-major': enc.priority === 'major',
+                'daily-resolved': completed(enc.id),
+                'daily-planned': !!assignments[enc.id],
+              }"
               :disabled="completed(enc.id) || !selectedLead"
-              :aria-label="'Assign ' + (selectedLead ? actorName(selectedLead) : 'personnel') + ' to ' + enc.title"
+              :aria-label="
+                'Assign ' +
+                (selectedLead ? actorName(selectedLead) : 'personnel') +
+                ' to ' +
+                enc.title
+              "
               data-testid="space-couch-encounter"
               @click="assign(enc.id)"
             >
               <span class="daily-quest-top">
-                <span>{{ enc.priority === 'major' ? '★ FEATURE QUEST' : '✦ SIDE PLOT' }}</span>
-                <b>{{ questDuration(run, enc.id) }} DAY{{ questDuration(run, enc.id) > 1 ? 'S' : '' }}</b>
+                <span>{{
+                  enc.priority === 'major' ? '★ FEATURE QUEST' : '✦ SIDE PLOT'
+                }}</span>
+                <b
+                  >{{ questDuration(run, enc.id) }} DAY{{
+                    questDuration(run, enc.id) > 1 ? 'S' : ''
+                  }}</b
+                >
               </span>
               <strong>{{ enc.title }}</strong>
               <p>{{ enc.setup }}</p>
-              <span class="daily-skill">REQUIRES {{ enc.skill.toUpperCase() }}</span>
+              <span class="daily-skill"
+                >REQUIRES {{ enc.skill.toUpperCase() }}</span
+              >
               <span class="daily-slot">
                 <template v-if="completed(enc.id)">
                   <b>{{ completionResult(enc.id) }}</b>
-                  <small>{{ (run.expeditionVisit?.results.find((r) => r.encounterId === enc.id)?.outcome ?? '').slice(0, 125) }}</small>
+                  <small>{{
+                    (
+                      run.expeditionVisit?.results.find(
+                        (r) => r.encounterId === enc.id,
+                      )?.outcome ?? ''
+                    ).slice(0, 125)
+                  }}</small>
                 </template>
                 <template v-else>
-                  <b>{{ assignments[enc.id] ? actorName(assignments[enc.id]!) : '+ PLACE CARD HERE' }}</b>
+                  <b>{{
+                    assignments[enc.id]
+                      ? actorName(assignments[enc.id]!)
+                      : '+ PLACE CARD HERE'
+                  }}</b>
                   <small>
-                    {{ assignments[enc.id]
-                      ? (questOdds(run, enc, assignments[enc.id]!) === null
+                    {{
+                      assignments[enc.id]
+                        ? questOdds(run, enc, assignments[enc.id]!) === null
                           ? 'SUCCESS ODDS CLASSIFIED · FIELD TEST REQUIRED'
-                          : 'FORECAST ' + questOdds(run, enc, assignments[enc.id]!) + '%')
-                      : 'Tap with a personnel card selected' }}
+                          : 'FORECAST ' +
+                            questOdds(run, enc, assignments[enc.id]!) +
+                            '%'
+                        : 'Tap with a personnel card selected'
+                    }}
                   </small>
                 </template>
               </span>
             </button>
           </div>
           <footer class="daily-action-row">
-            <span>{{ pendingMain === 0 ? 'Main assignments ready' : pendingMain + ' main quests need a card' }} · Side quests optional</span>
+            <span
+              >{{
+                pendingMain === 0
+                  ? 'Main assignments ready'
+                  : pendingMain + ' main quests need a card'
+              }}
+              · Side quests optional</span
+            >
             <button
               type="button"
               data-testid="space-couch-expedition-deploy"
               :disabled="!batchReady"
               @click="dispatchAll"
-            >SEND THE CAST <span>➜</span></button>
+            >
+              SEND THE CAST <span>➜</span>
+            </button>
           </footer>
         </section>
       </div>
@@ -111,31 +188,71 @@
           <strong>THE AFTERNOON ENCOUNTER DECKS</strong>
           <span>QUESTS FIRST · DRAW IN ORDER</span>
         </div>
-        <div class="daily-deck-row" role="group" aria-label="Episode encounter decks">
+        <div
+          class="daily-deck-row"
+          role="group"
+          aria-label="Episode encounter decks"
+        >
           <button
             v-for="(deck, index) in requiredDecks"
             :key="deck"
             type="button"
             class="daily-deck"
-            :class="{ 'daily-deck-turned': episodeDeckDone(run, deck), 'daily-deck-next': nextDeck === deck }"
-            :disabled="!!flipped || episodeDeckDone(run, deck) || nextDeck !== deck"
+            :class="{
+              'daily-deck-turned': episodeDeckDone(run, deck),
+              'daily-deck-next': nextDeck === deck,
+            }"
+            :disabled="
+              !!flipped || episodeDeckDone(run, deck) || nextDeck !== deck
+            "
             :aria-label="'Draw ' + deckName(deck) + ' encounter'"
-            :data-testid="deck === 'casino' ? 'space-couch-casino-quest' : deck === 'serendipity' ? 'space-couch-serendipity-quest' : 'space-couch-deck-' + deck"
+            :data-testid="
+              deck === 'casino'
+                ? 'space-couch-casino-quest'
+                : deck === 'serendipity'
+                  ? 'space-couch-serendipity-quest'
+                  : 'space-couch-deck-' + deck
+            "
             @click="flipped = deck"
           >
-            <span class="daily-deck-number">{{ String(index + 1).padStart(2, '0') }}</span>
+            <span class="daily-deck-number">{{
+              String(index + 1).padStart(2, '0')
+            }}</span>
             <span class="daily-deck-symbol">{{ deckSymbol(deck) }}</span>
             <strong>{{ deckName(deck) }}</strong>
-            <small>{{ episodeDeckDone(run, deck) ? '✓ RESOLVED' : nextDeck === deck ? 'TURN THIS CARD' : 'FACE DOWN' }}</small>
+            <small>{{
+              episodeDeckDone(run, deck)
+                ? '✓ RESOLVED'
+                : nextDeck === deck
+                  ? 'TURN THIS CARD'
+                  : 'FACE DOWN'
+            }}</small>
           </button>
         </div>
-        <article v-if="flipped && nextDeck === flipped" class="daily-reveal" aria-live="polite">
-          <div class="daily-reveal-art" data-testid="space-couch-blue-giant-casino">
-            <img v-if="flipped !== 'casino' || !franchiseImage" :src="backdrop" alt="Space Couch episode backdrop" />
-            <img v-else :src="franchiseImage" alt="A Serendipity venue built inside a casino on a living blue giant" />
+        <article
+          v-if="flipped && nextDeck === flipped"
+          class="daily-reveal"
+          aria-live="polite"
+        >
+          <div
+            class="daily-reveal-art"
+            data-testid="space-couch-blue-giant-casino"
+          >
+            <img
+              v-if="flipped !== 'casino' || !franchiseImage"
+              :src="backdrop"
+              alt="Space Couch episode backdrop"
+            />
+            <img
+              v-else
+              :src="franchiseImage"
+              alt="A Serendipity venue built inside a casino on a living blue giant"
+            />
           </div>
           <div class="daily-reveal-content">
-            <span class="daily-eyebrow">{{ deckName(flipped) }} · THE DAY'S RANDOM DRAW</span>
+            <span class="daily-eyebrow"
+              >{{ deckName(flipped) }} · THE DAY'S RANDOM DRAW</span
+            >
             <h3>{{ episodeCard(run, flipped).title }}</h3>
             <p>{{ episodeCard(run, flipped).setup }}</p>
             <small>{{ episodeCard(run, flipped).link }}</small>
@@ -146,18 +263,27 @@
                 type="button"
                 :data-testid="'space-couch-choose-' + choice.id"
                 @click="decide(flipped!, choice.id)"
-              ><b>{{ choice.label }}</b><small>{{ choice.cost }}</small></button>
+              >
+                <b>{{ choice.label }}</b
+                ><small>{{ choice.cost }}</small>
+              </button>
             </div>
           </div>
         </article>
         <div v-else-if="lastDraw" class="daily-recap" aria-live="polite">
           <strong>PREVIOUSLY, ON SPACE COUCH...</strong>
           <p>{{ lastDraw.result }}</p>
-          <span>{{ episodeDraws(run).length }} / {{ requiredDecks.length }} DECKS RESOLVED</span>
+          <span
+            >{{ episodeDraws(run).length }} / {{ requiredDecks.length }} DECKS
+            RESOLVED</span
+          >
         </div>
         <div v-else class="daily-recap">
           <strong>AND NOW, THE SECOND HALF OF TONIGHT'S PROGRAM</strong>
-          <p>The planet, casino and Serendipity each have a separate deck. The recurring villain gets a guest-star credit every other episode.</p>
+          <p>
+            The planet, casino and Serendipity each have a separate deck. The
+            recurring villain gets a guest-star credit every other episode.
+          </p>
         </div>
         <footer class="daily-action-row">
           <span>{{ episodeStinger(run) }}</span>
@@ -166,7 +292,13 @@
             data-testid="space-couch-expedition-finish"
             :disabled="!episodeDecksDone(run)"
             @click="emit('finish')"
-          >{{ episodeDecksDone(run) ? 'CONTINUE THE VOYAGE ➜' : 'FINISH THE DECKS FIRST' }}</button>
+          >
+            {{
+              episodeDecksDone(run)
+                ? 'CONTINUE THE VOYAGE ➜'
+                : 'FINISH THE DECKS FIRST'
+            }}
+          </button>
         </footer>
       </section>
     </template>
@@ -177,9 +309,15 @@
 import { computed, ref, watch } from 'vue'
 import type { CrewId, VoyageRun } from '~/utils/gameOfCaptains/rules'
 import { CAPTAINS, CREW } from '~/utils/gameOfCaptains/rules'
-import { CAPTAIN_STATS, CREW_PROFILES } from '~/utils/gameOfCaptains/crewAssignments'
+import {
+  CAPTAIN_STATS,
+  CREW_PROFILES,
+} from '~/utils/gameOfCaptains/crewAssignments'
 import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
-import { currentExpedition, expeditionBusy } from '~/utils/gameOfCaptains/expedition'
+import {
+  currentExpedition,
+  expeditionBusy,
+} from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   EPISODE_CHOICES,
@@ -228,9 +366,13 @@ const majorDone = computed(() => episodeMajorComplete(props.run))
 const majorCount = computed(
   () => encounters.value.filter((enc) => enc.priority === 'major').length,
 )
-const completeCount = computed(() => props.run.expeditionVisit?.results.length ?? 0)
+const completeCount = computed(
+  () => props.run.expeditionVisit?.results.length ?? 0,
+)
 const requiredDecks = computed(() => episodeDecks(props.run))
-const nextDeck = computed(() => requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)))
+const nextDeck = computed(() =>
+  requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)),
+)
 const lastDraw = computed(() => episodeDraws(props.run).at(-1))
 const actors = computed(() => [
   {
@@ -248,7 +390,11 @@ const actors = computed(() => [
     subtitle: crew.role.toUpperCase() + ' · ' + crew.talent,
     image: portraitArt(crew.portraitKey),
     revealed: true,
-    rank: String(Math.max(...Object.values(CREW_PROFILES.find((p) => p.id === crew.id)!.stats))),
+    rank: String(
+      Math.max(
+        ...Object.values(CREW_PROFILES.find((p) => p.id === crew.id)!.stats),
+      ),
+    ),
     initial: crew.monogram,
   })),
   ...(props.run.redshirtRoster ?? []).map((id) => {
@@ -257,7 +403,9 @@ const actors = computed(() => [
     return {
       id,
       name: person.name,
-      subtitle: revealed ? 'FIELD-TESTED · ' + person.talent.toUpperCase() : 'REDSHIRT · APTITUDE SEALED',
+      subtitle: revealed
+        ? 'FIELD-TESTED · ' + person.talent.toUpperCase()
+        : 'REDSHIRT · APTITUDE SEALED',
       image: null,
       revealed,
       rank: revealed ? String(person.stats[person.talent]) : '??',
@@ -269,18 +417,30 @@ function actorName(id: string): string {
   return actors.value.find((actor) => actor.id === id)?.name ?? id
 }
 function completed(id: string): boolean {
-  return !!props.run.expeditionVisit?.results.some((record) => record.encounterId === id)
+  return !!props.run.expeditionVisit?.results.some(
+    (record) => record.encounterId === id,
+  )
 }
 function completionResult(id: string) {
-  const item = props.run.expeditionVisit?.results.find((record) => record.encounterId === id) as
-    | (NonNullable<VoyageRun['expeditionVisit']>['results'][number] & EpisodeQuestResult)
+  const item = props.run.expeditionVisit?.results.find(
+    (record) => record.encounterId === id,
+  ) as
+    | (NonNullable<VoyageRun['expeditionVisit']>['results'][number] &
+        EpisodeQuestResult)
     | undefined
-  return (item?.successful ? '✓ SUCCESS' : '✕ COMPLICATION') +
-    ' · ' + actorName(item?.lead ?? '') + ' · ' + (item?.durationDays ?? 1) + ' DAY(S)'
+  return (
+    (item?.successful ? '✓ SUCCESS' : '✕ COMPLICATION') +
+    ' · ' +
+    actorName(item?.lead ?? '') +
+    ' · ' +
+    (item?.durationDays ?? 1) +
+    ' DAY(S)'
+  )
 }
 function assign(encounterId: string) {
   const chosen = selectedLead.value
-  if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId)) return
+  if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId))
+    return
   const next = { ...assignments.value }
   for (const [key, lead] of Object.entries(next))
     if (lead === chosen) delete next[key]
@@ -288,12 +448,18 @@ function assign(encounterId: string) {
   assignments.value = next
 }
 const pendingMain = computed(
-  () => encounters.value.filter(
-    (enc) => enc.priority === 'major' && !completed(enc.id) && !assignments.value[enc.id],
-  ).length,
+  () =>
+    encounters.value.filter(
+      (enc) =>
+        enc.priority === 'major' &&
+        !completed(enc.id) &&
+        !assignments.value[enc.id],
+    ).length,
 )
 const batchReady = computed(
-  () => pendingMain.value === 0 && Object.keys(assignments.value).some((id) => !completed(id)),
+  () =>
+    pendingMain.value === 0 &&
+    Object.keys(assignments.value).some((id) => !completed(id)),
 )
 function dispatchAll() {
   if (!batchReady.value) return
@@ -330,7 +496,12 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   flex-direction: column;
   overflow: hidden;
   color: #f9e9d3;
-  background: radial-gradient(ellipse at 65% 0, #33466c 0, #12182f 47%, #080d20 100%);
+  background: radial-gradient(
+    ellipse at 65% 0,
+    #33466c 0,
+    #12182f 47%,
+    #080d20 100%
+  );
   font-family: system-ui, sans-serif;
 }
 .daily-opening {
@@ -349,36 +520,49 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   height: 100%;
   object-fit: cover;
   object-position: center 44%;
-  opacity: .54;
+  opacity: 0.54;
 }
 .daily-opening::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #0e1228f5 0, #0e1228d0 46%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    #0e1228f5 0,
+    #0e1228d0 46%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 .daily-opening-content {
   position: relative;
   z-index: 1;
-  padding: clamp(.7rem, 2.5cqi, 1.6rem);
+  padding: clamp(0.7rem, 2.5cqi, 1.6rem);
   max-width: min(70%, 50rem);
 }
-.daily-eyebrow, .daily-on-air, .daily-section-head, .daily-quest-top, .daily-skill {
-  font-size: .68rem;
+.daily-eyebrow,
+.daily-on-air,
+.daily-section-head,
+.daily-quest-top,
+.daily-skill {
+  font-size: 0.68rem;
   font-weight: 900;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.daily-eyebrow { color: #ffe0a2; }
+.daily-eyebrow {
+  color: #ffe0a2;
+}
 .daily-opening h2 {
-  font: 900 clamp(1.45rem, 4cqi, 3rem)/1 Georgia,serif;
-  margin: .35rem 0 .45rem;
+  font:
+    900 clamp(1.45rem, 4cqi, 3rem)/1 Georgia,
+    serif;
+  margin: 0.35rem 0 0.45rem;
   text-transform: uppercase;
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
 }
 .daily-opening p {
-  font-size: clamp(.7rem, 1.25cqi, .94rem);
+  font-size: clamp(0.7rem, 1.25cqi, 0.94rem);
   line-height: 1.4;
   max-width: 65ch;
   margin: 0;
@@ -393,34 +577,43 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 }
 .daily-body {
   display: grid;
-  grid-template-columns: minmax(11rem, 25%) minmax(0,1fr);
-  gap: .7rem;
+  grid-template-columns: minmax(11rem, 25%) minmax(0, 1fr);
+  gap: 0.7rem;
   flex: 1 1 auto;
   min-height: 0;
-  padding: .75rem;
+  padding: 0.75rem;
 }
-.daily-cast, .daily-quest-zone, .daily-decks {
+.daily-cast,
+.daily-quest-zone,
+.daily-decks {
   min-height: 0;
   border: 1px solid #7d819c;
-  border-radius: .7rem;
+  border-radius: 0.7rem;
   background: #101b36e8;
 }
-.daily-cast, .daily-quest-zone { display: flex; flex-direction: column; overflow: hidden; }
+.daily-cast,
+.daily-quest-zone {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 .daily-section-head {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: .4rem;
-  padding: .65rem .8rem;
+  gap: 0.4rem;
+  padding: 0.65rem 0.8rem;
   color: #ffd9aa;
   border-bottom: 1px solid #8c83a077;
   background: #2d274c;
 }
-.daily-section-head span { color: #bfd0e5; }
+.daily-section-head span {
+  color: #bfd0e5;
+}
 .daily-instruction {
-  margin: .55rem .75rem;
+  margin: 0.55rem 0.75rem;
   color: #ccd8e6;
-  font-size: .7rem;
+  font-size: 0.7rem;
   line-height: 1.4;
 }
 .daily-cast-stack {
@@ -428,55 +621,82 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   min-height: 0;
   display: grid;
   align-content: start;
-  gap: .4rem;
-  padding: .55rem;
+  gap: 0.4rem;
+  padding: 0.55rem;
 }
 .daily-actor {
   display: flex;
   align-items: center;
-  gap: .6rem;
+  gap: 0.6rem;
   min-width: 0;
-  padding: .35rem .5rem;
+  padding: 0.35rem 0.5rem;
   border: 1px solid #697b99;
-  border-radius: .4rem;
+  border-radius: 0.4rem;
   background: #222945;
   text-align: left;
   color: #fff4dc;
   cursor: pointer;
 }
-.daily-actor.selected { border-color: #ffc67c; box-shadow: inset 0 0 0 2px #ffc67c; background: #553a46; }
-.daily-actor.busy { opacity: .4; cursor: not-allowed; }
+.daily-actor.selected {
+  border-color: #ffc67c;
+  box-shadow: inset 0 0 0 2px #ffc67c;
+  background: #553a46;
+}
+.daily-actor.busy {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 .daily-actor-face {
   flex: 0 0 2.7rem;
   height: 2.7rem;
   display: grid;
   place-items: center;
-  border-radius: .25rem;
+  border-radius: 0.25rem;
   background: #a84a4a;
   font-size: 1.4rem;
   overflow: hidden;
 }
-.daily-actor-face img { width: 100%; height: 100%; object-fit: cover; }
-.daily-actor-text { display: grid; gap: .18rem; flex: 1; min-width: 0; }
-.daily-actor-text b { font-size: .77rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.daily-actor-text small { font-size: .61rem; color: #b5d6e7; }
-.daily-actor-stats { font-size: .75rem; color: #ffe09d; }
+.daily-actor-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.daily-actor-text {
+  display: grid;
+  gap: 0.18rem;
+  flex: 1;
+  min-width: 0;
+}
+.daily-actor-text b {
+  font-size: 0.77rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.daily-actor-text small {
+  font-size: 0.61rem;
+  color: #b5d6e7;
+}
+.daily-actor-stats {
+  font-size: 0.75rem;
+  color: #ffe09d;
+}
 .daily-hire {
-  margin: .5rem;
+  margin: 0.5rem;
   flex: 0 0 auto;
   border: 1px solid #e79a84;
-  border-radius: .4rem;
-  padding: .5rem;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
   background: #532938;
   color: #ffe4c5;
-  font-size: .68rem;
+  font-size: 0.68rem;
   font-weight: 900;
 }
 .daily-quest-grid {
   display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: .55rem;
-  padding: .55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  padding: 0.55rem;
   overflow-y: auto;
   min-height: 0;
   flex: 1;
@@ -485,24 +705,40 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 .daily-quest {
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: 0.3rem;
   min-height: 11rem;
-  padding: .65rem;
+  padding: 0.65rem;
   border: 1px solid #68768f;
   border-top: 4px solid #7592be;
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   background: linear-gradient(153deg, #2d3559, #17233c);
   color: #f6ebdc;
   text-align: left;
   cursor: pointer;
 }
-.daily-quest.daily-major { border-top-color: #f7ac68; }
-.daily-quest.daily-planned { box-shadow: inset 0 0 0 1px #ffc682; }
-.daily-quest.daily-resolved { border-top-color: #78bd9c; background: #213a3c; }
-.daily-quest-top { display:flex; justify-content:space-between; gap: .4rem; color: #ffc794; }
-.daily-quest > strong { font: bold 1.05rem/1.2 Georgia, serif; }
+.daily-quest.daily-major {
+  border-top-color: #f7ac68;
+}
+.daily-quest.daily-planned {
+  box-shadow: inset 0 0 0 1px #ffc682;
+}
+.daily-quest.daily-resolved {
+  border-top-color: #78bd9c;
+  background: #213a3c;
+}
+.daily-quest-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  color: #ffc794;
+}
+.daily-quest > strong {
+  font:
+    bold 1.05rem/1.2 Georgia,
+    serif;
+}
 .daily-quest p {
-  font-size: .72rem;
+  font-size: 0.72rem;
   line-height: 1.4;
   color: #d2dce8;
   display: -webkit-box;
@@ -511,120 +747,320 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   overflow: hidden;
   margin: 0;
 }
-.daily-skill { color: #a7d9ea; margin-top:auto; }
+.daily-skill {
+  color: #a7d9ea;
+  margin-top: auto;
+}
 .daily-slot {
   display: grid;
-  gap: .18rem;
-  padding: .55rem;
+  gap: 0.18rem;
+  padding: 0.55rem;
   border: 1px dashed #f2c07b;
-  border-radius: .3rem;
+  border-radius: 0.3rem;
   background: #11152690;
 }
-.daily-slot b { font-size: .73rem; color: #ffe3b2; }
-.daily-slot small { font-size: .64rem; line-height: 1.3; color: #d2dce8; }
+.daily-slot b {
+  font-size: 0.73rem;
+  color: #ffe3b2;
+}
+.daily-slot small {
+  font-size: 0.64rem;
+  line-height: 1.3;
+  color: #d2dce8;
+}
 .daily-action-row {
-  display:flex;
-  flex:0 0 auto;
-  align-items:center;
-  justify-content:space-between;
-  gap: .7rem;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
   border-top: 1px solid #a6a9b37b;
-  padding: .6rem .8rem;
-  background:#181c32;
+  padding: 0.6rem 0.8rem;
+  background: #181c32;
 }
-.daily-action-row span { font-size: .7rem; color: #c7d9e8; line-height: 1.4; }
+.daily-action-row span {
+  font-size: 0.7rem;
+  color: #c7d9e8;
+  line-height: 1.4;
+}
 .daily-action-row button {
-  flex:0 0 auto;
-  background:#ebae73;
-  color:#1c1b2a;
-  border-radius:.35rem;
-  font-weight:900;
-  padding: .7rem .9rem;
-  font-size: .7rem;
+  flex: 0 0 auto;
+  background: #ebae73;
+  color: #1c1b2a;
+  border-radius: 0.35rem;
+  font-weight: 900;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.7rem;
 }
-.daily-action-row button:disabled, .daily-hire:disabled { opacity: .4; cursor:not-allowed; }
+.daily-action-row button:disabled,
+.daily-hire:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 .daily-decks {
-  flex:1;
-  margin: .75rem;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
+  flex: 1;
+  margin: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .daily-deck-row {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:.6rem;
-  padding:.7rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  padding: 0.7rem;
 }
 .daily-deck {
-  display:grid;
-  place-items:center;
-  gap:.3rem;
-  min-height:7.5rem;
-  padding:.5rem;
-  border-radius:.5rem;
-  border:2px solid #997b92;
-  background:repeating-linear-gradient(135deg,#2a3454 0,#2a3454 8px,#38456e 8px,#38456e 10px);
-  color:#ffe1a9;
-  text-align:center;
+  display: grid;
+  place-items: center;
+  gap: 0.3rem;
+  min-height: 7.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid #997b92;
+  background: repeating-linear-gradient(
+    135deg,
+    #2a3454 0,
+    #2a3454 8px,
+    #38456e 8px,
+    #38456e 10px
+  );
+  color: #ffe1a9;
+  text-align: center;
 }
-.daily-deck:disabled { opacity:.52; }
-.daily-deck.daily-deck-next { border-color:#ffc57d; opacity:1; box-shadow: 0 0 13px #ecaa7a88; }
-.daily-deck.daily-deck-turned { border-color:#7fc8a8; background:#203c3b; opacity:.8; }
-.daily-deck-number { justify-self:start; font-size:.6rem; }
-.daily-deck-symbol { font-size:2rem; }
-.daily-deck strong { font-size:.74rem; }
-.daily-deck small { font-size:.6rem; }
-.daily-reveal { flex:1; min-height:0; display:grid; grid-template-columns: minmax(0,35%) minmax(0,1fr); gap:.75rem; padding:0 .75rem .75rem; }
-.daily-reveal-art { min-height:0; overflow:hidden; border-radius:.6rem; background:#131e34; }
-.daily-reveal-art img { width:100%;height:100%;object-fit:cover; }
-.daily-reveal-content { overflow-y:auto; min-height:0; padding:.5rem; }
-.daily-reveal-content h3 { font:900 clamp(1.2rem,2.8cqi,2rem)/1.08 Georgia,serif; margin:.5rem 0; }
-.daily-reveal-content p { font-size:.87rem; line-height:1.5; }
-.daily-reveal-content small { color:#a6d6e5; }
-.daily-decisions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; margin-top:1rem; }
-.daily-decisions button { display:grid;gap:.2rem; padding:.65rem; border:1px solid #d8aa77; border-radius:.4rem; background:#3b334b; color:#ffe5bb; text-align:left; font-size:.74rem; }
-.daily-decisions button small { font-size:.63rem; }
-.daily-recap { flex:1; min-height:0; overflow-y:auto; padding:1.2rem; display:grid; align-content:center; gap:.6rem; text-align:center; }
-.daily-recap strong { font:900 clamp(1rem,2.2cqi,1.55rem) Georgia,serif; }
-.daily-recap p { font-size:.86rem; line-height:1.5; color:#d1e4eb; max-width:75ch; margin:auto; }
-.daily-recap span { font-size:.7rem;color:#ffe1ac; }
+.daily-deck:disabled {
+  opacity: 0.52;
+}
+.daily-deck.daily-deck-next {
+  border-color: #ffc57d;
+  opacity: 1;
+  box-shadow: 0 0 13px #ecaa7a88;
+}
+.daily-deck.daily-deck-turned {
+  border-color: #7fc8a8;
+  background: #203c3b;
+  opacity: 0.8;
+}
+.daily-deck-number {
+  justify-self: start;
+  font-size: 0.6rem;
+}
+.daily-deck-symbol {
+  font-size: 2rem;
+}
+.daily-deck strong {
+  font-size: 0.74rem;
+}
+.daily-deck small {
+  font-size: 0.6rem;
+}
+.daily-reveal {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 35%) minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0 0.75rem 0.75rem;
+}
+.daily-reveal-art {
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0.6rem;
+  background: #131e34;
+}
+.daily-reveal-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.daily-reveal-content {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0.5rem;
+}
+.daily-reveal-content h3 {
+  font:
+    900 clamp(1.2rem, 2.8cqi, 2rem)/1.08 Georgia,
+    serif;
+  margin: 0.5rem 0;
+}
+.daily-reveal-content p {
+  font-size: 0.87rem;
+  line-height: 1.5;
+}
+.daily-reveal-content small {
+  color: #a6d6e5;
+}
+.daily-decisions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.daily-decisions button {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.65rem;
+  border: 1px solid #d8aa77;
+  border-radius: 0.4rem;
+  background: #3b334b;
+  color: #ffe5bb;
+  text-align: left;
+  font-size: 0.74rem;
+}
+.daily-decisions button small {
+  font-size: 0.63rem;
+}
+.daily-recap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.2rem;
+  display: grid;
+  align-content: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+.daily-recap strong {
+  font:
+    900 clamp(1rem, 2.2cqi, 1.55rem) Georgia,
+    serif;
+}
+.daily-recap p {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #d1e4eb;
+  max-width: 75ch;
+  margin: auto;
+}
+.daily-recap span {
+  font-size: 0.7rem;
+  color: #ffe1ac;
+}
 @container (max-width: 740px) {
-  .daily-body { grid-template-columns:1fr; grid-template-rows: minmax(7rem,26%) minmax(0,1fr); padding:.45rem; gap:.45rem; }
-  .daily-cast-stack { display:flex; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; }
-  .daily-cast { min-height:0; }
-  .daily-actor { min-width:8.8rem; max-width:10.5rem; }
-  .daily-actor-face { flex-basis:2rem;height:2rem; }
-  .daily-instruction { display:none; }
-  .daily-quest { min-height:9rem; }
-  .daily-opening-content { max-width:86%; }
-  .daily-deck { min-height:5.5rem; }
-  .daily-deck-symbol { font-size:1.3rem; }
-  .daily-deck strong { font-size:.59rem; }
-  .daily-reveal { grid-template-columns:1fr; overflow-y:auto; }
-  .daily-reveal-art { max-height:7rem; min-height:5rem; }
+  .daily-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(7rem, 26%) minmax(0, 1fr);
+    padding: 0.45rem;
+    gap: 0.45rem;
+  }
+  .daily-cast-stack {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .daily-cast {
+    min-height: 0;
+  }
+  .daily-actor {
+    min-width: 8.8rem;
+    max-width: 10.5rem;
+  }
+  .daily-actor-face {
+    flex-basis: 2rem;
+    height: 2rem;
+  }
+  .daily-instruction {
+    display: none;
+  }
+  .daily-quest {
+    min-height: 9rem;
+  }
+  .daily-opening-content {
+    max-width: 86%;
+  }
+  .daily-deck {
+    min-height: 5.5rem;
+  }
+  .daily-deck-symbol {
+    font-size: 1.3rem;
+  }
+  .daily-deck strong {
+    font-size: 0.59rem;
+  }
+  .daily-reveal {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .daily-reveal-art {
+    max-height: 7rem;
+    min-height: 5rem;
+  }
 }
 @container (max-width: 420px) {
-  .daily-opening { min-height:6rem; max-height:20%; }
-  .daily-opening-content { padding:.45rem; }
-  .daily-opening h2 { font-size:1.3rem; }
-  .daily-opening p { font-size:.64rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .daily-on-air { display:none; }
-  .daily-section-head { font-size:.53rem; padding:.35rem .45rem; }
-  .daily-quest-grid { gap:.3rem; padding:.3rem; }
-  .daily-quest { padding:.35rem; min-height:8rem; }
-  .daily-quest > strong { font-size:.8rem; }
-  .daily-quest p { font-size:.62rem; -webkit-line-clamp:2; }
-  .daily-quest-top,.daily-skill,.daily-slot small { font-size:.52rem; }
-  .daily-slot { padding:.3rem; }
-  .daily-action-row { padding:.35rem; }
-  .daily-action-row span { font-size:.58rem; }
-  .daily-action-row button { font-size:.62rem; padding:.5rem; }
-  .daily-deck-row { gap:.25rem; padding:.3rem; }
-  .daily-deck { padding:.2rem; }
-  .daily-decisions { grid-template-columns:1fr; }
+  .daily-opening {
+    min-height: 6rem;
+    max-height: 20%;
+  }
+  .daily-opening-content {
+    padding: 0.45rem;
+  }
+  .daily-opening h2 {
+    font-size: 1.3rem;
+  }
+  .daily-opening p {
+    font-size: 0.64rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .daily-on-air {
+    display: none;
+  }
+  .daily-section-head {
+    font-size: 0.53rem;
+    padding: 0.35rem 0.45rem;
+  }
+  .daily-quest-grid {
+    gap: 0.3rem;
+    padding: 0.3rem;
+  }
+  .daily-quest {
+    padding: 0.35rem;
+    min-height: 8rem;
+  }
+  .daily-quest > strong {
+    font-size: 0.8rem;
+  }
+  .daily-quest p {
+    font-size: 0.62rem;
+    -webkit-line-clamp: 2;
+  }
+  .daily-quest-top,
+  .daily-skill,
+  .daily-slot small {
+    font-size: 0.52rem;
+  }
+  .daily-slot {
+    padding: 0.3rem;
+  }
+  .daily-action-row {
+    padding: 0.35rem;
+  }
+  .daily-action-row span {
+    font-size: 0.58rem;
+  }
+  .daily-action-row button {
+    font-size: 0.62rem;
+    padding: 0.5rem;
+  }
+  .daily-deck-row {
+    gap: 0.25rem;
+    padding: 0.3rem;
+  }
+  .daily-deck {
+    padding: 0.2rem;
+  }
+  .daily-decisions {
+    grid-template-columns: 1fr;
+  }
 }
-@media (prefers-reduced-motion:reduce) {
-  .daily-deck, .daily-actor { transition:none; }
+@media (prefers-reduced-motion: reduce) {
+  .daily-deck,
+  .daily-actor {
+    transition: none;
+  }
 }
 </style>

@@ -69,7 +69,7 @@
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
       <button type="button" class="cap-reset" data-testid="space-couch-return-menu" @click="atTitle = true; titlePanel = 'home'">MENU</button>
-      <button v-if="run" type="button" class="cap-reset" @click="restartVoyage">
+      <button v-if="run" type="button" class="cap-reset" @click="atTitle = true; titlePanel = 'home'; confirmNewVoyage = true">
         NEW VOYAGE
       </button>
     </header>

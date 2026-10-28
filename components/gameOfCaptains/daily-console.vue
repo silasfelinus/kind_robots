@@ -15,6 +15,11 @@
       </div>
       <span class="daily-on-air">● ON AIR</span>
     </header>
+    <SpaceCouchCloneLab
+      :run="run"
+      @advance="emit('cloneAdvance', $event)"
+      @print="emit('clonePrint', $event)"
+    />
 
     <template v-if="!majorDone">
       <div class="daily-body">
@@ -307,6 +312,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import SpaceCouchCloneLab from '~/components/gameOfCaptains/clone-lab.vue'
+import type { CloneChoice } from '~/utils/gameOfCaptains/cloneSaga'
 import type { VoyageRun } from '~/utils/gameOfCaptains/rules'
 import { CAPTAINS, CREW } from '~/utils/gameOfCaptains/rules'
 import {
@@ -348,6 +355,8 @@ const emit = defineEmits<{
   dispatch: [assignments: EpisodeAssignment[]]
   draw: [deck: EpisodeDeck, choice: EpisodeChoice]
   finish: []
+  cloneAdvance: [choice: CloneChoice]
+  clonePrint: [id: string]
 }>()
 const selectedLead = ref<string>('captain')
 const assignments = ref<Record<string, string>>({})
@@ -488,6 +497,7 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 
 <style scoped>
 .space-daily {
+  position: relative;
   height: 100%;
   min-height: 0;
   width: 100%;

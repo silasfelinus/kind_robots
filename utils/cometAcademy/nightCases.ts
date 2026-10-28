@@ -10,7 +10,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   monorail: {
     briefing:
       'The last monorail has lost its brakes with sixty-seven people aboard. A passenger on the roof insists the derailment is being remotely steered; shutting down its network may disable the hospital crossing ahead.',
-    refused: 'You stay off the monorail. Transit workers improvise a brake, but the academy contractor\'s remote command survives the night. The conductor\'s family comes looking for the student who ignored the call.',
+    refused:
+      "You stay off the monorail. Transit workers improvise a brake, but the academy contractor's remote command survives the night. The conductor's family comes looking for the student who ignored the call.",
     consequences: {
       honors:
         'The team anchors the lead carriage and escorts every passenger down. They trace the remote signal to an academy contractor, but the city asks why a student had access to its transit controls.',
@@ -24,7 +25,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   museum: {
     briefing:
       'An underworld buyer has arranged a midnight exchange of the city archive key. Security staff and schoolchildren are still in the building after a late gala. Taking the key would give your team leverage over the dean.',
-    refused: 'You decline the museum job. The buyer takes the archive key while the conservator evacuates visitors alone. The next morning the school finds its own accreditation records altered.',
+    refused:
+      'You decline the museum job. The buyer takes the archive key while the conservator evacuates visitors alone. The next morning the school finds its own accreditation records altered.',
     consequences: {
       honors:
         'The team obtains a copy of the key without taking the original and escorts the visitors out. The buyer leaves behind a coded invoice naming a city official.',
@@ -38,7 +40,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   flood: {
     briefing:
       'A real tidal surge is swallowing the lower-market ramps. Some vendors refuse evacuation because their medicine and immigration papers are locked inside the stalls. The seawall operator wants to save the wealthy promenade first.',
-    refused: 'You leave the lower market to the emergency crews. The promenade receives the first sandbags, the vendors lose their medicine, and a dockworker remembers which rooftop you watched from.',
+    refused:
+      'You leave the lower market to the emergency crews. The promenade receives the first sandbags, the vendors lose their medicine, and a dockworker remembers which rooftop you watched from.',
     consequences: {
       honors:
         'The team shelters the market and transfers the medication before the water reaches the electrical cabinets. The vendors invite the rescuers back to explain why the seawall failed.',
@@ -52,7 +55,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   garden: {
     briefing:
       'The university greenhouse has grown across a residential fire lane. Its roots hold a missing botanist alive, but the institute wants every specimen burned before the city learns who financed the experiment.',
-    refused: 'You close the greenhouse file without going inside. The institute burns its logs and the missing botanist\'s sister pins a photograph to the academy gates, asking who signed the order.',
+    refused:
+      "You close the greenhouse file without going inside. The institute burns its logs and the missing botanist's sister pins a photograph to the academy gates, asking who signed the order.",
     consequences: {
       honors:
         'The botanist and rare seedlings are recovered without spreading spores into the neighborhood. Residents gain a say in whether the research garden should remain.',
@@ -66,7 +70,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   broadcast: {
     briefing:
       'A black-market broadcaster offers to leak a verified but terrifying evacuation forecast. The alert would help people leave the city and might also incite a stampede. A villain faction offers to pay your crew to control the release.',
-    refused: 'You decline to intervene in the warning. The broadcaster releases half the forecast, the other half goes on sale, and frightened families blame whichever authority stayed silent.',
+    refused:
+      'You decline to intervene in the warning. The broadcaster releases half the forecast, the other half goes on sale, and frightened families blame whichever authority stayed silent.',
     consequences: {
       honors:
         'The team releases an accurate alert with accessible routes and time for correction. The broadcaster loses a monopoly on fear, and the city begins evacuating the threatened districts.',
@@ -80,7 +85,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   skybridge: {
     briefing:
       'The east-tower skybridge is collapsing during a night shift. Eight cleaners are inside; the academy has already issued a statement describing them as an empty maintenance crew.',
-    refused: 'You watch the tower lights go out from campus. Municipal crews pull the cleaners free late; a forewoman speaks their names at dawn and names every hero who failed to arrive.',
+    refused:
+      'You watch the tower lights go out from campus. Municipal crews pull the cleaners free late; a forewoman speaks their names at dawn and names every hero who failed to arrive.',
     consequences: {
       honors:
         'Every cleaner reaches the landing and their names make the morning bulletin. The bridge’s structural reports reveal that somebody accelerated its demolition.',
@@ -94,7 +100,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   ferris: {
     briefing:
       'A squall has stalled the pier wheel with a wedding party in the top car, and the pier owner is shouting to restart the motor before the news crews leave. The maintenance chief says the gearbox will shear if anyone forces it.',
-    refused: 'You pass on the pier rescue. The owner restarts the wheel, the gearbox fails, and the maintenance chief keeps your unanswered call on the official incident tape.',
+    refused:
+      'You pass on the pier rescue. The owner restarts the wheel, the gearbox fails, and the maintenance chief keeps your unanswered call on the official incident tape.',
     consequences: {
       honors:
         'The team lowers every car by hand and the wedding goes ahead on the pier at midnight, rain and all. The maintenance chief shows the students the deferred-repair logs the owner told her to shred.',
@@ -108,7 +115,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   blackout: {
     briefing:
       'The civic hospital substation has failed, and the backup generator was sold for scrap last spring. Ventilators are running on batteries. A villain crew offers a stolen generator in exchange for one week of academy patrol schedules.',
-    refused: 'You refuse the hospital\'s request. Nurses hand-ventilate patients until sunrise. The stolen generator disappears, and a night orderly starts organizing against both city hall and the academy.',
+    refused:
+      "You refuse the hospital's request. Nurses hand-ventilate patients until sunrise. The stolen generator disappears, and a night orderly starts organizing against both city hall and the academy.",
     consequences: {
       honors:
         'The team holds the ward on channeled lightning while union electricians rewire the substation. The scrap receipt for the old generator carries a city official’s signature, and the hospital gets its power back without buying it from anyone.',
@@ -122,7 +130,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   quarry: {
     briefing:
       'A maintenance tunnel on the Old Quarry line has collapsed on a crew of four. The transit authority wants the shaft sealed by morning because it runs beneath a bank vault. The sandhogs who once dug a buried man out of this same line have already started digging by hand.',
-    refused: 'You leave the quarry workers to municipal rescue. Their own tunnel map saves two people, but the sealed fourth shaft becomes the subject of a furious labor hearing.',
+    refused:
+      'You leave the quarry workers to municipal rescue. Their own tunnel map saves two people, but the sealed fourth shaft becomes the subject of a furious labor hearing.',
     consequences: {
       honors:
         'The team folds a safe passage through the rubble and all four workers walk out. The sandhogs find the private bank entrance the authority wanted buried, and the city has to explain who approved it.',
@@ -136,7 +145,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   rally: {
     briefing:
       'A celebrity hero’s landing has cracked the plaza at a city rally, and the crowd is surging toward a single exit. The hero’s publicist wants students to announce that the panic was started by protesters at the back.',
-    refused: 'You avoid the protest. Private security closes the only safe exit and a street medic spends the morning collecting testimony from people who watched the academy look away.',
+    refused:
+      'You avoid the protest. Private security closes the only safe exit and a street medic spends the morning collecting testimony from people who watched the academy look away.',
     consequences: {
       honors:
         'The team calms the crowd section by section and opens two side streets. Nobody is crushed, the protest marshals help guide families out, and the publicist’s statement is never read.',
@@ -150,7 +160,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   refinery: {
     briefing:
       'A yellow cloud is rolling off the east side refinery, and the air-quality sensors read clean because someone has smothered them. Residents are coughing in their stairwells. The refinery’s security chief says the leak is a scheduled drill.',
-    refused: 'You leave the refinery alert unanswered. Toxic smoke reaches the row houses; residents begin measuring the air themselves and reject the city\'s official drill report.',
+    refused:
+      "You leave the refinery alert unanswered. Toxic smoke reaches the row houses; residents begin measuring the air themselves and reject the city's official drill report.",
     consequences: {
       honors:
         'The team filters the cloud, carries the worst-hit residents to clinics and wakes every sensor. The smothering devices are in an evidence bag by morning, and the east side gets a monitoring station of its own.',
@@ -164,7 +175,8 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
   vault: {
     briefing:
       'Three laid-off armor testers have taken the Harbor Trust Bank in decommissioned academy suits, demanding the injury files the bank’s insurer buried. The bank offers your crew a private reward to retrieve one safe-deposit box before the police arrive.',
-    refused: 'You decline the armor-tester standoff. The bank hires a rival hero, the testers are arrested before anyone reads their injury files, and their families take the story to campus.',
+    refused:
+      'You decline the armor-tester standoff. The bank hires a rival hero, the testers are arrested before anyone reads their injury files, and their families take the story to campus.',
     consequences: {
       honors:
         'The team powers the suits down gently and talks the testers out with the files in hand. Everyone leaves the lobby alive, and the safe-deposit box turns out to hold the insurer’s original denial memos.',

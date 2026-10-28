@@ -124,7 +124,7 @@
             <button
               v-for="choice in room?.choices ?? []"
               :key="choice.id"
-              class="min-h-10 rounded-lg border border-[#807447] bg-[#43563a] px-3 py-2 text-left text-sm font-bold text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
+              class="min-h-12 flex-1 rounded-lg border border-[#807447] bg-[#43563a] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               :disabled="!world.canChooseHouse(choice.id)"
               @click="world.chooseHouse(choice.id)"

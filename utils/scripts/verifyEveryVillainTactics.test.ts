@@ -91,6 +91,21 @@ assert.deepEqual(
   'same seed and inputs resolve to same hit',
 )
 assert.equal(same.seed, initial.seed)
+// Percentage previews must actually resolve as probabilities, not near-zero chances.
+let realized = 0
+for (let seed = 1; seed <= 500; seed++) {
+  const sample = trainingState(seed)
+  moveSelected(sample, { x: 2, y: 4 })
+  const target = sample.units.find((unit) => unit.id === 'remy')!
+  const healthBefore = target.hp
+  fireSelected(sample, target)
+  if (target.hp < healthBefore) realized++
+}
+assert.ok(
+  realized >= 250 && realized <= 380,
+  `64% displayed hit odds should produce roughly 320 hits across 500 seeds, got ${realized}`,
+)
+
 const oldTurn = initial.turn
 endTurn(initial)
 assert.equal(initial.turn, oldTurn + 1)

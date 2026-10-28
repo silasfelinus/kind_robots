@@ -219,6 +219,8 @@
         thrust spends pressure. Collect cyan canisters (◉), approach golden
         charging docks (▣), or touch checkpoints to refill. Gravity wells tug
         you inward.
+        In space, shoot jet exhaust backward into valve switches (◈). All
+        switches must activate before the matching airlock walls (▥) open.
       </p>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the
@@ -241,7 +243,7 @@ const emit = defineEmits<{
   (
     event: 'load-template',
     name:
-      'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
+      'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage' | 'pressure-lock',
   ): void
 }>()
 const starterCourses = [
@@ -274,6 +276,12 @@ const starterCourses = [
     icon: '◌',
     name: 'SALVAGE',
     description: 'Navigate asteroids using pressure docks and canisters',
+  },
+  {
+    id: 'pressure-lock',
+    icon: '◈',
+    name: 'LOCK',
+    description: 'Use reverse jet exhaust to open two airlock valves',
   },
 ] as const
 function chooseStarter(name: (typeof starterCourses)[number]['id']) {

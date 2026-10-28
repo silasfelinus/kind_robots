@@ -251,7 +251,7 @@
           <template v-else>
             <span>{{
               maker.level.space
-                ? 'ARROWS AIM · C THRUST · A BRAKE · ◉ CANISTERS · ▣ DOCKS'
+                ? 'ARROWS AIM · C THRUST / HIT AIR VALVES · A BRAKE · ◉ REFILL'
                 : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
             }}</span>
             <span>CAMPAIGN SAVES UNTOUCHED</span>
@@ -698,7 +698,7 @@ function resizeCourse(dx: number, dy: number) {
   })
 }
 function loadStarterTemplate(
-  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
+  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage' | 'pressure-lock',
 ) {
   stopGame()
   maker.loadTemplate(name)

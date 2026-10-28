@@ -35,6 +35,7 @@ import {
 } from '~/utils/gameOfCaptains/redshirtKnowledge'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
+import type { CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
 import {
   dispatchEpisodeBatch,
   drawEpisodeDeck,
@@ -72,12 +73,15 @@ import {
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
 const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
+const PREFERENCES_KEY = 'game-of-captains-preferences-v1'
+type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
 
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const run = ref<VoyageRun | null>(null)
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
+  const preferences = ref<CouchPreferences>({ largeText: false, reducedMotion: false })
   const saved = computed(() => !!run.value)
 
   function persist() {
@@ -106,6 +110,17 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     loaded.value = true
     try {
       try {
+        const savedPreferences = JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? 'null')
+        if (savedPreferences && typeof savedPreferences === 'object') {
+          preferences.value = {
+            largeText: savedPreferences.largeText === true,
+            reducedMotion: savedPreferences.reducedMotion === true,
+          }
+        }
+      } catch {
+        preferences.value = { largeText: false, reducedMotion: false }
+      }
+      try {
         redshirtKnowledge.value = normalizeRedshirtKnowledge(
           JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) ?? '{}'),
         )
@@ -128,8 +143,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     captain: CaptainId,
     crew: CrewId[],
     assessment?: StarAssessment,
+    origin?: CaptainOriginId,
   ) {
-    run.value = startVoyage(captain, crew, Date.now(), assessment)
+    run.value = startVoyage(captain, crew, Date.now(), assessment, origin)
     usePlaybookRunReviewStore().begin(
       'game-of-captains',
       playbookRunKey(run.value),
@@ -276,12 +292,22 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = null
     persist()
   }
+  function setPreference(key: keyof CouchPreferences, value: boolean) {
+    preferences.value = { ...preferences.value, [key]: value }
+    try {
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences.value))
+    } catch {
+      storageWarning.value = 'Settings could not be stored on this device.'
+    }
+  }
   return {
     run,
     loaded,
     redshirtKnowledge,
     saved,
     storageWarning,
+    preferences,
+    setPreference,
     load,
     begin,
     assign,

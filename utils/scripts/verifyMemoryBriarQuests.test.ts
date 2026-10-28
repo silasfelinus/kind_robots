@@ -711,10 +711,12 @@ assert.match(
 )
 const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
-assert.match(log, /world\.briarQuests/)\nassert.match(log, /data-testid="memory-rare-interlude"/)
+assert.match(log, /world\.briarQuests/)
+assert.match(log, /data-testid="memory-rare-interlude"/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
+assert.match(store, /earnedBriarRareEvents\(/)
 
 console.log(
   'Memory Briar quests: 8 side quests, 3 earned rare interludes with 6 authored outcomes, epilogue weight and save restoration verified',

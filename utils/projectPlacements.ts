@@ -12,6 +12,11 @@ export type ProjectPlacement = {
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
+  hybridizer: {
+    channelKey: 'admin',
+    tabKey: 'hybridizer',
+    route: '/admin/hybridizer',
+  },
   'kind-sliding-tile-gallery': {
     channelKey: 'arcade',
     tabKey: 'sliding-tile-gallery',

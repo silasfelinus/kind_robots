@@ -313,7 +313,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import SpaceCouchCloneLab from '~/components/gameOfCaptains/clone-lab.vue'
-import type { CloneChoice } from '~/utils/gameOfCaptains/cloneSaga'
+import {
+  cloneGeneration,
+  type CloneChoice,
+} from '~/utils/gameOfCaptains/cloneSaga'
 import type { VoyageRun } from '~/utils/gameOfCaptains/rules'
 import { CAPTAINS, CREW } from '~/utils/gameOfCaptains/rules'
 import {
@@ -409,12 +412,13 @@ const actors = computed(() => [
   ...(props.run.redshirtRoster ?? []).map((id) => {
     const person = REDSHIRT_BY_ID[id]!
     const revealed = observedRedshirt(props.run, id)
+    const generation = cloneGeneration(props.run, id)
     return {
       id,
-      name: person.name,
-      subtitle: revealed
-        ? 'FIELD-TESTED · ' + person.talent.toUpperCase()
-        : 'REDSHIRT · APTITUDE SEALED',
+      name: generation ? person.name + ' · GEN ' + generation : person.name,
+      subtitle:
+        (generation ? 'CLONE · ' : 'REDSHIRT · ') +
+        (revealed ? 'FIELD-TESTED ' + person.talent.toUpperCase() : 'APTITUDE SEALED'),
       image: null,
       revealed,
       rank: revealed ? String(person.stats[person.talent]) : '??',

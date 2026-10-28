@@ -84,7 +84,7 @@ assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(legacy))), legacy)
 assert.equal(episodeDecks(legacy).includes('constellation'), false)
 assert.equal(availableStarQuest(undefined, 1, []), null)
 const tampered = JSON.parse(JSON.stringify(initial))
-tampered.starAssessment.answers[0] = 2 - astrology!.answers[0]
+tampered.starAssessment.sign = 'nonsense-celestial-sign'
 assert.equal(restoreVoyage(tampered), null, 'spoofed sign and mismatching answers are rejected')
 assert.throws(() =>
   startVoyage('vale', ['pell', 'mox', 'rue'], 12045, { sign: 'invalid', answers: [0, 0, 0, 0] } as never),

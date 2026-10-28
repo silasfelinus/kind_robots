@@ -20,6 +20,7 @@ import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
 import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
 import {
   MEMORY_SAVE_SLOT_COUNT,
+  memoryCheckpointPreview,
   restoreMemoryCheckpoint,
   restoreMemorySaveSlots,
   writeMemorySaveSlot,
@@ -2054,6 +2055,60 @@ const checkpoint: MemoryCheckpoint = {
   },
   seals: newCrossMapSealChronicle(),
 }
+assert.deepEqual(memoryCheckpointPreview(checkpoint), {
+  location: 'Briar Marches · 2,4',
+  progress: '0/60 revealed · round 1/4 · 9 attempts · 3 hearts',
+})
+assert.deepEqual(
+  memoryCheckpointPreview({
+    ...checkpoint,
+    briar: {
+      ...checkpoint.briar,
+      room: 'house',
+      house: { ...newHouseProgress(), current: 'HD-18' },
+    },
+  }),
+  {
+    location: 'House That Remembers · HD-18',
+    progress: '0/60 revealed · round 1/4 · 9 attempts · 3 hearts',
+  },
+)
+const mirroredCheckpoint: MemoryCheckpoint = {
+  ...checkpoint,
+  reality: { ...checkpoint.reality, active: 'e02' },
+  dark: {
+    ...checkpoint.dark,
+    player: '6,2',
+    waveIndex: 3,
+    revealed: ['6,2'],
+    attempts: 4,
+  },
+}
+assert.deepEqual(memoryCheckpointPreview(mirroredCheckpoint), {
+  location: 'Other Marches · 6,2',
+  progress: '1/60 revealed · round 4/4 · 4 attempts',
+})
+assert.deepEqual(
+  memoryCheckpointPreview({
+    ...mirroredCheckpoint,
+    house: {
+      ...checkpoint.house,
+      active: true,
+      current: 'HD-22',
+    },
+  }),
+  {
+    location: 'Unremembered House · HD-22',
+    progress: '1/60 revealed · round 4/4 · 4 attempts',
+  },
+)
+const checkpointConsole = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.match(checkpointConsole, /memoryCheckpointPreview\\(checkpoint\\)\\.location/)
+assert.match(checkpointConsole, /memoryCheckpointPreview\\(checkpoint\\)\\.progress/)
+assert.match(checkpointConsole, /:aria-label="\\`Load checkpoint/)
 const invalidRealityCases = [
   [
     'missing completed history',

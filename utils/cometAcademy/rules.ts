@@ -532,7 +532,7 @@ export type AcademyRun = {
   injuries?: Partial<Record<StudentId, number>>
   contacts?: StudentId[]
   /** One night call personally attended by the protagonist; absent on legacy saves. */
-  playerCaseId?: string
+  playerCaseId?: string | null
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
   infirmaryDays?: number[]
@@ -723,7 +723,6 @@ export function startAcademy(
     influence: 0,
     danger: 2,
     assignments: [],
-    playerCaseId: undefined,
     reports: [],
     scene:
       'The first bell rings. A thirty-day final month begins with a strange week of field simulations.',
@@ -982,7 +981,7 @@ export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
     return run
   return {
     ...run,
-    playerCaseId: run.playerCaseId === caseId ? undefined : caseId,
+    playerCaseId: run.playerCaseId === caseId ? null : caseId,
   }
 }
 
@@ -1301,7 +1300,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
-    ...(run.flowVersion === 3 ? { injuries, playerCaseId: undefined } : {}),
+    ...(run.flowVersion === 3 ? { injuries, playerCaseId: null } : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
@@ -1708,7 +1707,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.version !== 1 ||
     (data.patrolOpening !== undefined &&
       (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
-    (data.playerCaseId !== undefined &&
+    (data.playerCaseId != null &&
       (data.flowVersion !== 3 ||
         typeof data.playerCaseId !== 'string' ||
         !incidentsFor(data as AcademyRun).some(

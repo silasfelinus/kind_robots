@@ -1529,6 +1529,14 @@ const questScreen = readFileSync(
   'components/memory-dungeon/quest-log.vue',
   'utf8',
 )
+const houseScreen = readFileSync(
+  'components/memory-dungeon/house-stage.vue',
+  'utf8',
+)
+const darkHouseScreen = readFileSync(
+  'components/memory-dungeon/dark-house-stage.vue',
+  'utf8',
+)
 assert.ok(
   mapScreen.includes('src="/images/memory-dungeon/backdrops/briar-overworld.webp"'),
   'Original Briar uses the delivered painted map first',
@@ -1552,6 +1560,16 @@ assert.ok(
 assert.ok(
   darkMapScreen.includes('memory-dungeon-action-beacon'),
   'Dark Briar tiles show actionable markers',
+)
+assert.ok(
+  houseScreen.includes('memory-dungeon-action-beacon') &&
+    houseScreen.includes('!progress?.decisions[item.id]'),
+  'Original House reactivates markers for unfinished chambers',
+)
+assert.ok(
+  darkHouseScreen.includes('memory-dungeon-action-beacon') &&
+    darkHouseScreen.includes('!world.darkHouse.decisions[tileRoom.id]'),
+  'Mirrored House reactivates markers for unfinished chambers',
 )
 assert.ok(
   mapBeacon.includes('rotateY(360deg)'),

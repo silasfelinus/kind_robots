@@ -1478,6 +1478,24 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
     this.updateSprings(prevBottom)
+    if (this.stage.space) {
+      // Vacuum has no fall damage, but the astronaut must never disappear into
+      // unscrollable off-map space. The hull absorbs any outward momentum.
+      if (hero.x < HALF) {
+        hero.x = HALF
+        hero.vx = 0
+      } else if (hero.x > this.stage.cols * TILE - HALF) {
+        hero.x = this.stage.cols * TILE - HALF
+        hero.vx = 0
+      }
+      if (hero.y < 0) {
+        hero.y = 0
+        hero.vy = 0
+      } else if (hero.y > this.stage.rows * TILE - TALL) {
+        hero.y = this.stage.rows * TILE - TALL
+        hero.vy = 0
+      }
+    }
     this.crackIce()
     if (keys.pressed.down && this.ground) this.tryDoor()
     if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()

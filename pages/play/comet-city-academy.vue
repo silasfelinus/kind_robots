@@ -406,11 +406,13 @@
                   }}
                 </h2>
                 <p>
-                  {{ run.patrolOpening === 1 && run.day <= 2
-                    ? 'Tonight it is just you and your thoughts. Choose which emergency you answer.'
-                    : run.patrolOpening === 1 && run.day === 3
-                      ? 'Your friend is on the line. Split to attempt both calls, or combine your strengths to save one perfectly.'
-                      : 'Lead one call yourself; your earned allies can handle other calls. Some incidents may go unanswered.' }}
+                  {{
+                    run.patrolOpening === 1 && run.day <= 2
+                      ? 'Tonight it is just you and your thoughts. Choose which emergency you answer.'
+                      : run.patrolOpening === 1 && run.day === 3
+                        ? 'Your friend is on the line. Split to attempt both calls, or combine your strengths to save one perfectly.'
+                        : 'Lead one call yourself; your earned allies can handle other calls. Some incidents may go unanswered.'
+                  }}
                 </p>
               </div>
             </div>
@@ -450,12 +452,24 @@
                 data-testid="academy-third-night-decision"
               >
                 <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
-                <span>Take {{ incident.title }} yourself and decide how to use your first friend.</span>
-                <button type="button" class="cca-choice" @click="store.planCrisis(incident.id, 'split')">
+                <span
+                  >Take {{ incident.title }} yourself and decide how to use your
+                  first friend.</span
+                >
+                <button
+                  type="button"
+                  class="cca-choice"
+                  @click="store.planCrisis(incident.id, 'split')"
+                >
                   SPLIT UP · attempt both rescues
                 </button>
-                <button type="button" class="cca-choice" @click="store.planCrisis(incident.id, 'concentrate')">
-                  STAY TOGETHER · guarantee the best rescue here, abandon the other
+                <button
+                  type="button"
+                  class="cca-choice"
+                  @click="store.planCrisis(incident.id, 'concentrate')"
+                >
+                  STAY TOGETHER · guarantee the best rescue here, abandon the
+                  other
                 </button>
               </div>
               <button
@@ -467,8 +481,15 @@
                 @click="store.lead(incident.id)"
               >
                 <span>
-                  {{ run.playerCaseId === incident.id ? '✦ YOU ARE LEADING THIS PATROL' : 'TAKE THIS CALL YOURSELF' }}
-                  <small>Choose where your own powers, risks and choices go tonight.</small>
+                  {{
+                    run.playerCaseId === incident.id
+                      ? '✦ YOU ARE LEADING THIS PATROL'
+                      : 'TAKE THIS CALL YOURSELF'
+                  }}
+                  <small
+                    >Choose where your own powers, risks and choices go
+                    tonight.</small
+                  >
                 </span>
                 <span>↗</span>
               </button>
@@ -532,9 +553,13 @@
                 </button>
               </div>
               <div class="cca-crew-count" data-testid="academy-quest-odds">
-                <strong>{{ run.playerCaseId === incident.id ? 'YOU + ' : '' }}TEAM {{ teamFor(incident.id).length }}/3</strong>
+                <strong
+                  >{{ run.playerCaseId === incident.id ? 'YOU + ' : '' }}TEAM
+                  {{ teamFor(incident.id).length }}/3</strong
+                >
                 <strong>{{
-                  teamFor(incident.id).length || run.playerCaseId === incident.id
+                  teamFor(incident.id).length ||
+                  run.playerCaseId === incident.id
                     ? dispatchChance(run, incident.id, teamFor(incident.id)) +
                       '% CHANCE OF SUCCESS'
                     : 'CHOOSE HEROES TO SEE ODDS'
@@ -581,7 +606,11 @@
               class="cca-primary"
               type="button"
               data-testid="academy-dispatch"
-              :disabled="run.patrolOpening === 1 ? !run.playerCaseId : !run.assignments.length"
+              :disabled="
+                run.patrolOpening === 1
+                  ? !run.playerCaseId
+                  : !run.assignments.length
+              "
               @click="store.dispatch()"
             >
               {{
@@ -687,7 +716,9 @@
               <div>
                 <h2>
                   {{
-                    run.flowVersion === 3 || run.flowVersion === 2 ? 'Night debrief' : 'After the bell'
+                    run.flowVersion === 3 || run.flowVersion === 2
+                      ? 'Night debrief'
+                      : 'After the bell'
                   }}
                 </h2>
                 <p>Every choice and every teammate leaves a trace.</p>

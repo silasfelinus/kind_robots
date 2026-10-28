@@ -119,7 +119,7 @@ for (const origin of CAPTAIN_ORIGINS) {
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(voyage))), voyage)
 }
 const mechanic = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'mechanic')
-assert.equal(mechanic.shieldCharge, 3, 'the mechanic's origin has a playable bonus')
+assert.equal(mechanic.shieldCharge, 3, "the mechanic\'s origin has a playable bonus")
 const courier = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'courier')
 assert.equal(courier.supplies, 9, 'the courier gets extra supplies')
 const brokenOrigin = { ...courier, origin: 'never-on-the-couch' }

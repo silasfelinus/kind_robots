@@ -270,8 +270,18 @@ assert.match(
 // cellar shortcut leave different gaps in the public evacuation plan.
 const manifest = BRIAR_QUESTS.find((q) => q.id === 'orens-emergency-manifest')!
 const manifestClosures = [
-  ['briar', '6,1', 'follow', /left no ribbon for the traveler coming behind you/],
-  ['house', 'HD-24', 'retreat', /successful private escape for a public evacuation plan/],
+  [
+    'briar',
+    '6,1',
+    'follow',
+    /left no ribbon for the traveler coming behind you/,
+  ],
+  [
+    'house',
+    'HD-24',
+    'retreat',
+    /successful private escape for a public evacuation plan/,
+  ],
 ] as const
 const manifestEndings = new Set<string>()
 for (const [scope, key, choice, expected] of manifestClosures) {
@@ -302,7 +312,8 @@ assert.equal(manifestEndings.size, 2, 'two distinct manifest outcomes')
 const forgedManifest = split(manifest)
 forgedManifest.house['HD-24'] = 'forged'
 assert.equal(
-  briarQuestProgress(manifest, forgedManifest.briar, forgedManifest.house).state,
+  briarQuestProgress(manifest, forgedManifest.briar, forgedManifest.house)
+    .state,
   'active',
   'A fabricated cellar decision cannot close the manifest',
 )

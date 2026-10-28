@@ -307,7 +307,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { CrewId, VoyageRun } from '~/utils/gameOfCaptains/rules'
+import type { VoyageRun } from '~/utils/gameOfCaptains/rules'
 import { CAPTAINS, CREW } from '~/utils/gameOfCaptains/rules'
 import {
   CAPTAIN_STATS,
@@ -441,9 +441,9 @@ function assign(encounterId: string) {
   const chosen = selectedLead.value
   if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId))
     return
-  const next = { ...assignments.value }
-  for (const [key, lead] of Object.entries(next))
-    if (lead === chosen) delete next[key]
+  const next = Object.fromEntries(
+    Object.entries(assignments.value).filter(([, lead]) => lead !== chosen),
+  )
   next[encounterId] = chosen
   assignments.value = next
 }

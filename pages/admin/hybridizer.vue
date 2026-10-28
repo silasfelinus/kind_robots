@@ -196,7 +196,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useHybridizerStore, type HybridizerIngredient } from '@/stores/hybridizerStore'
+import { useHybridizerStore } from '@/stores/hybridizerStore'
 
 const lab = useHybridizerStore()
 const drawer = ref<'left' | 'right' | 'atlas' | null>(null)

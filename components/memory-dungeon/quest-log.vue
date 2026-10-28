@@ -57,7 +57,9 @@
             <span class="block font-mono text-[10px] opacity-75">{{
               STATE_LABELS[thread.state]
             }}</span>
-            <strong class="mt-1 block text-base leading-snug sm:text-lg">{{ thread.quest.title }}</strong>
+            <strong class="mt-1 block text-base leading-snug sm:text-lg">{{
+              thread.quest.title
+            }}</strong>
             <span class="mt-1 block opacity-80"
               >{{ thread.done }}/{{ thread.steps.length }} steps</span
             >

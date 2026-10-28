@@ -714,7 +714,11 @@ for (const event of rareCases) {
           revealed: Object.keys(briar),
           visited: Object.keys(briar),
           sceneChoices: briar,
-          house: { ...newHouseProgress(), decisions: house },
+          house: {
+            ...newHouseProgress(),
+            visited: ['HD-01', ...Object.keys(house)],
+            decisions: house,
+          },
         }),
       ),
     )

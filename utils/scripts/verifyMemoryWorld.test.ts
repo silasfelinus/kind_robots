@@ -190,7 +190,7 @@ const houseSave = restoreBriarSave({
   house: {
     ...newHouseProgress(),
     current: 'HD-18',
-    visited: ['HD-01', 'HD-18'],
+    visited: ['HD-01', 'HD-03', 'HD-04', 'HD-18', 'HD-35'],
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
     ending: 'release',
   },
@@ -204,6 +204,86 @@ assert.equal(
   false,
   'Ending choice does not grant unlimited rewards',
 )
+
+// Saved House decisions are earned only at rooms the traveller visited.
+// Otherwise a syntactically valid forged choice could create witness evidence,
+// shortcut permissions or an unearned Hearth ending on checkpoint restoration.
+const unvisitedHouseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-18',
+    visited: ['HD-01', 'HD-18'],
+    decisions: {
+      'HD-10': 'manifest',
+      'HD-17': 'read',
+      'HD-35': 'renew',
+    },
+    ending: 'renew',
+    endingLens: 'honesty',
+    wardenPassed: true,
+    combatOrigin: 'HD-32',
+    chimeClaimed: true,
+  },
+})
+assert.deepEqual(unvisitedHouseSave.house?.decisions, {})
+assert.equal(unvisitedHouseSave.house?.ending, null)
+assert.equal(unvisitedHouseSave.house?.endingLens, null)
+assert.equal(unvisitedHouseSave.house?.wardenPassed, false)
+assert.equal(unvisitedHouseSave.house?.combatOrigin, null)
+assert.equal(unvisitedHouseSave.house?.chimeClaimed, false)
+assert.equal(houseWitnessEvidence(unvisitedHouseSave.house!, {}), false)
+assert.ok(
+  !houseExits('HD-25', unvisitedHouseSave.house!).includes('HD-10'),
+  'An unvisited manifest cannot create the House shortcut',
+)
+
+const earnedHouseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-36',
+    visited: ['HD-01', 'HD-10', 'HD-17', 'HD-32', 'HD-35', 'HD-36'],
+    decisions: {
+      'HD-10': 'manifest',
+      'HD-17': 'read',
+      'HD-35': 'renew',
+      'HD-36': 'carry',
+    },
+    ending: 'renew',
+    endingLens: 'honesty',
+    wardenPassed: true,
+    chimeClaimed: true,
+  },
+})
+assert.equal(earnedHouseSave.house?.decisions['HD-10'], 'manifest')
+assert.equal(earnedHouseSave.house?.decisions['HD-17'], 'read')
+assert.equal(earnedHouseSave.house?.ending, 'renew')
+assert.equal(earnedHouseSave.house?.endingLens, 'honesty')
+assert.equal(earnedHouseSave.house?.wardenPassed, true)
+assert.equal(earnedHouseSave.house?.chimeClaimed, true)
+assert.equal(houseWitnessEvidence(earnedHouseSave.house!, {}), true)
+assert.ok(houseExits('HD-25', earnedHouseSave.house!).includes('HD-10'))
+assert.deepEqual(
+  restoreBriarSave(JSON.parse(JSON.stringify(earnedHouseSave))).house,
+  earnedHouseSave.house,
+  'Earned House decisions and rewards survive repeated restoration',
+)
+const mismatchedHearth = restoreBriarSave({
+  ...newBriarSave(),
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-35',
+    visited: ['HD-01', 'HD-35'],
+    decisions: { 'HD-35': 'release' },
+    ending: 'break',
+    endingLens: 'honesty',
+  },
+})
+assert.equal(mismatchedHearth.house?.ending, null)
+assert.equal(mismatchedHearth.house?.endingLens, null)
 for (const id of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32']) {
   const source = HOUSE_ROOMS[id]!
   assert.ok(

@@ -568,9 +568,10 @@ onBeforeUnmount(() => {
   padding: 0.4rem;
 }
 .lair-stage {
-  flex: 1 1 0;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: 10rem;
   width: 100%;
+  aspect-ratio: 16 / 9;
   touch-action: none;
   background: #100e15;
 }

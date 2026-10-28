@@ -21,6 +21,13 @@ import {
   leaveExpedition,
   hireRedshirt,
 } from '~/utils/gameOfCaptains/expedition'
+import {
+  advanceCloneQuest,
+  cloneEndingCoda,
+  printClone,
+  recordCloneMissions,
+  type CloneChoice,
+} from '~/utils/gameOfCaptains/cloneSaga'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import {
@@ -124,17 +131,35 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function deploy(encounterId: string, lead: string) {
     if (!run.value) return
-    run.value = deployExpedition(run.value, encounterId, lead)
+    const before = run.value
+    run.value = recordCloneMissions(
+      before,
+      deployExpedition(before, encounterId, lead),
+    )
     persist()
   }
   function deployBatch(assignments: EpisodeAssignment[]) {
     if (!run.value) return
-    run.value = dispatchEpisodeBatch(run.value, assignments)
+    const before = run.value
+    run.value = recordCloneMissions(
+      before,
+      dispatchEpisodeBatch(before, assignments),
+    )
     persist()
   }
   function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice) {
     if (!run.value) return
     run.value = drawEpisodeDeck(run.value, deck, choice)
+    persist()
+  }
+  function cloneAdvance(choice: CloneChoice) {
+    if (!run.value) return
+    run.value = advanceCloneQuest(run.value, choice)
+    persist()
+  }
+  function clonePrint(id: string) {
+    if (!run.value) return
+    run.value = printClone(run.value, id)
     persist()
   }
   function endExpedition() {
@@ -209,8 +234,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = episodeEndingCoda(
-      trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
+    run.value = cloneEndingCoda(
+      episodeEndingCoda(
+        trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
+      ),
     )
     persist()
   }
@@ -233,6 +260,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     deploy,
     deployBatch,
     drawDailyDeck,
+    cloneAdvance,
+    clonePrint,
     endExpedition,
     hire,
     visitVenue,

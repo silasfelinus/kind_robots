@@ -389,6 +389,67 @@ assert.match(
   'The earliest authored orchard divergence determines the ending',
 )
 
+// Hiding names from a hostile registry, asking a painted witness for consent,
+// and preserving competing letters are defensible choices, not the same
+// failure to count the erased. None falsely claims the village knows the names.
+const lintel = BRIAR_QUESTS.find((q) => q.id === 'names-on-the-lintel')!
+const lintelClosures = [
+  ['briar', '6,3', 'protect', /no public record to reclaim/],
+  ['house', 'HD-07', 'speak', /wrote down their answer with permission/],
+  [
+    'house',
+    'HD-17',
+    'preserve',
+    /village must still learn whom the bargain bound/,
+  ],
+] as const
+const lintelEndings = new Set<string>()
+for (const [scope, key, choice, expected] of lintelClosures) {
+  const decisions = split(lintel)
+  ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
+  const result = briarQuestProgress(lintel, decisions.briar, decisions.house)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the lintel quest`,
+  )
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, lintel.closed)
+  lintelEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
+  assert.equal(
+    briarQuestProgress(lintel, restored.sceneChoices, restoredHouse).quest
+      .closed,
+    result.quest.closed,
+    'The chosen lintel resolution survives serialized decisions',
+  )
+}
+assert.equal(lintelEndings.size, 3, 'three distinct lintel resolutions')
+const forgedLintel = split(lintel)
+forgedLintel.house['HD-17'] = 'forged'
+assert.equal(
+  briarQuestProgress(lintel, forgedLintel.briar, forgedLintel.house).state,
+  'active',
+  'A forged House letter decision cannot manufacture a lintel resolution',
+)
+const twoLintelClosures = split(lintel)
+twoLintelClosures.briar['6,3'] = 'protect'
+twoLintelClosures.house['HD-17'] = 'preserve'
+assert.match(
+  briarQuestProgress(lintel, twoLintelClosures.briar, twoLintelClosures.house)
+    .quest.closed,
+  /no public record to reclaim/,
+  'The earliest authored lintel divergence determines the ending',
+)
+
 // Every quest step can be completed together: no two threads demand
 // opposite choices at the same place, so a single run can tie off all eight.
 const all = {

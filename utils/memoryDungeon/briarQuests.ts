@@ -383,18 +383,30 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '6,3',
         advance: ['remember'],
         text: 'Copy the crossed-out names at the vault threshold.',
+        closedOutcomes: {
+          protect:
+            'You covered the crossed-out names with moss before the Index could claim them. The doorway keeps its visitors safe from a registry that might seize their histories, but the people erased from the village count still have no public record to reclaim. The House remembers them privately; the village has not learned whom it forgot.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-07',
         advance: ['count'],
         text: 'Count the uninvited guests in the Family Portrait Hall.',
+        closedOutcomes: {
+          speak:
+            'You asked a painted stranger what they wanted instead of counting the missing guests. They described a room where their memories belonged to them, and you wrote down their answer with permission. Their voice is no longer absent from the record, but without the count the village council can still dismiss each disappearance as an isolated case.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-17',
         advance: ['read'],
         text: 'Read both sides of the village elder’s bargain.',
+        closedOutcomes: {
+          preserve:
+            'You archived the villagers’ pleas beside the replies they were never allowed to send, making it harder for either side to erase the other. The letters survive together, but you did not examine the bargain that took the names away. The House keeps its evidence; the village must still learn whom the bargain bound before it can offer restitution.',
+        },
       },
     ],
     complete:

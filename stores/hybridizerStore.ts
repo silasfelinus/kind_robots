@@ -100,7 +100,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       '/api/hybridizer/fusions?take=100',
     )
     if (!response.success || !response.data) {
-      status.value = 'Shared library unavailable. Local studies remain accessible.'
+      status.value =
+        'Shared library unavailable. Local studies remain accessible.'
       return
     }
     const merged = new Map<string, HybridizerDiscovery>()
@@ -194,9 +195,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           createdAt: new Date().toISOString(),
           status: 'LOCAL',
         }
-        if (!existing) discoveries.value = [...discoveries.value, local].slice(-200)
+        if (!existing)
+          discoveries.value = [...discoveries.value, local].slice(-200)
         resultKey.value = local.key
-        status.value = 'Local study only. Shared archive is unavailable: ' +
+        status.value =
+          'Local study only. Shared archive is unavailable: ' +
           (response.message || 'request failed')
         save()
         return
@@ -208,9 +211,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         discovery,
       ].slice(-200)
       resultKey.value = discovery.key
-      status.value = discovery.status === 'READY'
-        ? 'Shared illustrated discovery retrieved.'
-        : 'Shared discovery saved. Painted hybrid generation is not connected yet.'
+      status.value =
+        discovery.status === 'READY'
+          ? 'Shared illustrated discovery retrieved.'
+          : 'Shared discovery saved. Painted hybrid generation is not connected yet.'
       save()
     } finally {
       working.value = false

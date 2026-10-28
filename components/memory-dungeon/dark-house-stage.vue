@@ -334,7 +334,11 @@
               {{ choice.label }}
             </button>
           </div>
-          <p v-else class="mt-2 text-xs font-bold text-[#42604e]">
+          <p
+            v-else-if="world.darkHouse.decisions[world.darkHouse.current]"
+            class="mt-2 text-xs font-bold text-[#42604e]"
+            data-testid="dark-house-decision-recorded"
+          >
             ✓ This chamber remembers your decision.
           </p>
           <p
@@ -354,23 +358,38 @@
           >
             {{ world.darkHouseEndingCopy }}
           </p>
-          <div class="mt-3 flex flex-wrap gap-2 border-t border-[#ac95ac] pt-3">
-            <button
-              v-for="door in world.darkHouseDoors"
-              :key="door"
-              class="rounded-md border border-[#78618f] bg-[#493858] px-2 py-1.5 text-xs font-bold text-white"
-              type="button"
-              @click="world.walkDarkHouse(door)"
-            >
-              {{ door }} · {{ roomsById[door]?.title }}
-            </button>
-          </div>
           <p class="mt-3 text-xs text-[#765b7b]">
             {{ world.darkHouse.status }}
           </p>
         </div>
       </aside>
     </div>
+    <footer
+      class="mx-2 mb-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#8d76a8] bg-[#29213a] p-2 text-xs"
+      role="group"
+      aria-label="Open Unremembered House passages"
+      data-testid="dark-house-passages"
+    >
+      <span class="shrink-0 whitespace-nowrap font-bold text-[#f3dcaf]"
+        >Open passages</span
+      >
+      <button
+        v-for="door in world.darkHouseDoors"
+        :key="door"
+        type="button"
+        class="shrink-0 whitespace-nowrap rounded-md border border-[#a992c0] bg-[#493858] px-2 py-1.5 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        :aria-label="`Travel to ${door}, ${roomsById[door]?.title ?? 'unknown chamber'}`"
+        @click="world.walkDarkHouse(door)"
+      >
+        <span class="sm:hidden">{{ door }}</span>
+        <span class="hidden sm:inline"
+          >{{ door }} · {{ roomsById[door]?.title }}</span
+        >
+      </button>
+      <span v-if="!world.darkHouseDoors.length" class="shrink-0">
+        Resolve this chamber to open a passage.
+      </span>
+    </footer>
   </section>
 </template>
 

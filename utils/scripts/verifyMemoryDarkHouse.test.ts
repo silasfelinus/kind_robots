@@ -170,6 +170,26 @@ const parent = readFileSync(
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.ok(component.includes('data-testid="dark-house-console"'))
 assert.ok(component.includes('data-testid="dark-house-choices"'))
+assert.match(
+  component,
+  /v-else-if="world\.darkHouse\.decisions\[world\.darkHouse\.current\]"/,
+  'An unresolved trial cannot announce a recorded decision',
+)
+assert.ok(component.includes('data-testid="dark-house-decision-recorded"'))
+assert.ok(component.includes('data-testid="dark-house-passages"'))
+assert.ok(
+  component.indexOf('data-testid="dark-house-passages"') >
+    component.indexOf('</aside>'),
+  'Passages must remain outside the scrollable encounter panel',
+)
+assert.equal(
+  (component.match(/v-for="door in world\.darkHouseDoors"/g) ?? []).length,
+  1,
+  'One fixed passage strip, not a second list buried in the encounter',
+)
+assert.match(component, /overflow-x-auto overscroll-x-contain/)
+assert.match(component, /v-if="!world\.darkHouseDoors\.length"/)
+assert.match(component, /:aria-label="`Travel to \$\{door\},/)
 assert.ok(component.includes('world.walkDarkHouse(tileRoom.id)'))
 assert.ok(component.includes('world.chooseDarkHouse(choice.id)'))
 assert.ok(parent.includes('<memory-dungeon-dark-house-stage'))

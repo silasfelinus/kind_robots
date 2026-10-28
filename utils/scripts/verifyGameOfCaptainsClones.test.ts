@@ -27,7 +27,7 @@ assert.equal(advanceCloneQuest(original, 'ask'), original, 'cannot skip the memo
 let run: VoyageRun = {
   ...original,
   chapter: 1,
-  phase: 'expedition',
+  phase: 'briefing',
   redshirtRoster: original.redshirtRoster!.filter((person) => person !== id),
   redshirtFallen: [{ id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' }],
   supplies: 90,

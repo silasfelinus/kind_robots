@@ -456,12 +456,20 @@ boundedSpace.hero.x = 32 * 16 - 9.5
 boundedSpace.hero.y = 150
 boundedSpace.hero.vx = 3
 boundedSpace.update(emptyInput())
-assert.equal(boundedSpace.hero.x, 32 * 16 - 9, 'Right boundary remains inside the map')
+assert.equal(
+  boundedSpace.hero.x,
+  32 * 16 - 9,
+  'Right boundary remains inside the map',
+)
 boundedSpace.hero.x = 128
 boundedSpace.hero.y = 24 * 16 - 20 - 0.5
 boundedSpace.hero.vy = 4
 boundedSpace.update(emptyInput())
-assert.equal(boundedSpace.hero.y, 24 * 16 - 20, 'Bottom boundary is traversable, not instant death')
+assert.equal(
+  boundedSpace.hero.y,
+  24 * 16 - 20,
+  'Bottom boundary is traversable, not instant death',
+)
 assert.equal(boundedSpace.hero.vy, 0)
 
 const worldStage = parseStage(toMakerStage(initial))

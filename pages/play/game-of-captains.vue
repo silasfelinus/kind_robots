@@ -326,7 +326,10 @@
         </div>
         <div
           class="cap-scroll kr-scroll"
-          :class="{ 'cap-episode-scroll': run?.phase === 'expedition', 'cap-personnel-scroll': !run && selectionScreen !== 'stars' }"
+          :class="{
+            'cap-episode-scroll': run?.phase === 'expedition',
+            'cap-personnel-scroll': !run && selectionScreen !== 'stars',
+          }"
         >
           <div v-if="!store.loaded" class="cap-placeholder">
             Establishing a secure link to ship registry…
@@ -340,256 +343,363 @@
               @confirm="confirmStarAssessment"
               @back="selectionScreen = 'captain'"
             />
-            <div v-else class="cap-personnel-frame" :data-screen="selectionScreen">
-            <template v-if="selectionScreen === 'background'">
-              <div class="cap-heading">
-                <span>01</span>
-                <div>
-                  <h2>Choose your background</h2>
-                  <p>
-                    Your history belongs to you. It changes your opening
-                    resources and follows you into the captain's log.
-                  </p>
-                </div>
-              </div>
-              <div class="cap-origins" data-testid="space-couch-backgrounds">
-                <button
-                  v-for="origin in CAPTAIN_ORIGINS"
-                  :key="origin.id"
-                  type="button"
-                  class="cap-origin"
-                  :class="{ chosen: selectedOrigin === origin.id }"
-                  :aria-pressed="selectedOrigin === origin.id"
-                  @click="selectedOrigin = origin.id"
-                >
-                  <span class="cap-origin-glyph" aria-hidden="true">{{
-                    origin.glyph
-                  }}</span>
-                  <span
-                    ><strong>{{ origin.name }}</strong
-                    ><small>{{ origin.summary }}</small
-                    ><small class="cap-origin-perk">{{
-                      origin.perk
-                    }}</small></span
-                  >
-                </button>
-              </div>
-              <button
-                class="cap-primary"
-                type="button"
-                :disabled="!selectedOrigin"
-                data-testid="space-couch-background-next"
-                @click="selectionScreen = 'captain'"
-              >
-                CHOOSE YOUR CAPTAIN <span>➜</span>
-              </button>
-            </template>
-            <template v-else-if="selectionScreen === 'captain'">
-              <button
-                type="button"
-                class="cap-step-back"
-                @click="selectionScreen = 'background'"
-              >
-                ← CHANGE BACKGROUND
-              </button>
-              <div class="cap-heading">
-                <span>02</span>
-                <div>
-                  <h2>Claim your cushion</h2>
-                  <p>
-                    Select the commander who inherits your background. The couch
-                    runs on personalities as much as fuel.
-                  </p>
-                </div>
-              </div>
-              <div class="cap-captains">
-                <button
-                  v-for="captain in CAPTAINS"
-                  :key="captain.id"
-                  type="button"
-                  class="cap-captain"
-                  :class="{ chosen: captain.id === selectedCaptain }"
-                  :aria-pressed="captain.id === selectedCaptain"
-                  @click="selectedCaptain = captain.id"
-                >
-                  <span
-                    class="cap-captain-icon"
-                    :data-portrait-key="'captain-' + captain.id"
-                    aria-hidden="true"
-                    ><img
-                      v-if="portrait('captain-' + captain.id)"
-                      :src="portrait('captain-' + captain.id)!"
-                      alt=""
-                      class="cap-portrait-img"
-                    /><template v-else>{{
-                      captain.name.split(' ').at(-1)?.slice(0, 1)
-                    }}</template></span
-                  >
-                  <span
-                    ><strong>{{ captain.name }}</strong
-                    ><small>{{ captain.epithet }}</small></span
-                  >
-                </button>
-              </div>
-              <div class="cap-personnel-dossier" aria-live="polite">
-                <div class="cap-dossier-header">
-                  <img v-if="portrait('captain-' + selectedCaptain)" :src="portrait('captain-' + selectedCaptain)!" :alt="activeCaptain.name + ' portrait'" />
-                  <span v-else class="cap-dossier-monogram">{{ activeCaptain.name.slice(-1) }}</span>
-                  <span><strong>{{ activeCaptain.name }}</strong><small>{{ activeCaptain.epithet }}</small></span>
-                  <button type="button" data-testid="space-couch-captain-dossier-tab" @click="captainDossierTab = captainDossierTab === 'stats' ? 'history' : captainDossierTab === 'history' ? 'orders' : 'stats'">{{ captainDossierTab === 'stats' ? 'STORY ▸' : captainDossierTab === 'history' ? 'ORDERS ▸' : 'STATS ▸' }}</button>
-                </div>
-                <template v-if="captainDossierTab === 'stats'">
-                <div class="cap-insight">
-                <strong>{{ activeCaptain.doctrine }}</strong
-                ><small
-                  >Advantage: {{ activeCaptain.ability }} · Price:
-                  {{ activeCaptain.cost }}</small
-                >
-              </div>
-              <div
-                class="cap-stats cap-captain-stats"
-                aria-label="Captain statistics"
-              >
-                <div v-for="skill in SKILLS" :key="skill">
-                  <small>{{ skill.toUpperCase() }}</small
-                  ><strong>{{ captainStats[skill] }}</strong>
-                </div>
-              </div>
-              </template>
-              <div v-else-if="captainDossierTab === 'history'" class="cap-insight cap-dossier-story">
-                <strong>Personal history</strong>
-                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-              </div>
-              <div v-else class="cap-insight cap-dossier-story">
-                <strong>First order and unresolved liability</strong>
-                <small>First order:
-                  {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
-                >
-                <small
-                  >Unresolved liability:
-                  {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
-                >
-              </div>
-              </div>
-              <button
-                class="cap-primary"
-                type="button"
-                data-testid="captains-choose-crew"
-                @click="selectionScreen = 'stars'"
-              >
-                CONSULT THE COUCHSCOPE <span>➜</span>
-              </button>
-            </template>
-            <template v-else>
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="captains-back-to-captains"
-                @click="selectionScreen = 'stars'"
-              >
-                <span
-                  ><b>← CHANGE STAR CHART</b
-                  ><small
-                    >{{ activeCaptain.name }} ·
-                    {{ activeCaptain.epithet }}</small
-                  ></span
-                >
-              </button>
-              <div class="cap-heading cap-crew-heading">
-                <span>04</span>
-                <div>
-                  <h2>Appoint your crew</h2>
-                  <p>
-                    Choose exactly three officers from twelve. Their abilities,
-                    conflicts and personal quests change the routes.
-                  </p>
-                </div>
-              </div>
-              <div class="cap-crew-roster" data-testid="space-couch-crew-roster">
-              <div class="cap-crew-picker">
-                <button
-                  v-for="member in crewPageMembers"
-                  :key="member.id"
-                  type="button"
-                  class="cap-crew-button"
-                  :class="{ chosen: chosenCrew.includes(member.id) }"
-                  :aria-pressed="chosenCrew.includes(member.id)"
-                  :title="
-                    chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
-                      ? 'Release a selected officer to appoint this one'
-                      : 'View dossier and toggle crew appointment'
-                  "
-                  @click="selectCrewForDossier(member.id)"
-                >
-                  <span
-                    class="cap-monogram"
-                    :data-portrait-key="crewProfile(member.id).portraitKey"
-                    ><img
-                      v-if="portrait(crewProfile(member.id).portraitKey)"
-                      :src="portrait(crewProfile(member.id).portraitKey)!"
-                      alt=""
-                      class="cap-portrait-img"
-                    /><template v-else>{{ member.monogram }}</template></span
-                  >
-                  <span
-                    ><strong>{{ member.name }}</strong
-                    ><small
-                      >{{ member.role }} ·
-                      {{ crewProfile(member.id).pronouns }}</small
-                    ></span
-                  ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
-                </button>
-              </div>
-              <nav class="cap-crew-pages" aria-label="Crew roster pages">
-                <button type="button" data-testid="space-couch-crew-prev" :disabled="crewPage === 0" @click="crewPage--">← PREVIOUS</button>
-                <span>ROSTER {{ crewPage + 1 }} / {{ crewPageCount }} · {{ chosenCrew.length }}/3 APPOINTED</span>
-                <button type="button" data-testid="space-couch-crew-next" :disabled="crewPage >= crewPageCount - 1" @click="crewPage++">NEXT SIX →</button>
-              </nav>
-              <div class="cap-team-note" aria-live="polite">
-                {{ chosenCrew.map((id) => crewProfile(id).name).join(' · ') || 'Choose three officers to take command' }}
-              </div>
-              </div>
-              <div class="cap-personnel-dossier" aria-live="polite">
-                <div class="cap-dossier-header">
-                  <img v-if="portrait(crewProfile(focusedCrew).portraitKey)" :src="portrait(crewProfile(focusedCrew).portraitKey)!" :alt="crewProfile(focusedCrew).name + ' portrait'" />
-                  <span v-else class="cap-dossier-monogram">{{ crewProfile(focusedCrew).name.slice(0, 1) }}</span>
-                  <span><strong>{{ crewProfile(focusedCrew).name }}</strong><small>{{ crewProfile(focusedCrew).role }}</small></span>
-                  <button type="button" data-testid="space-couch-crew-dossier-tab" @click="crewDossierTab = crewDossierTab === 'history' ? 'route' : crewDossierTab === 'route' ? 'stats' : 'history'">{{ crewDossierTab === 'history' ? 'ROUTE ▸' : crewDossierTab === 'route' ? 'SKILLS ▸' : 'STORY ▸' }}</button>
-                </div>
-                <div v-if="crewDossierTab === 'history'" class="cap-insight cap-dossier-story">
-                <strong
-                  >{{ crewProfile(focusedCrew).name }} ·
-                  {{ crewProfile(focusedCrew).culture }}</strong
-                >
-                <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
-                </div>
-                <div v-else-if="crewDossierTab === 'route'" class="cap-insight cap-dossier-story">
-                <strong>Route and nemesis connection</strong>
-                <small>Personal voyage:
-                  {{ CREW_DOSSIERS[focusedCrew].itinerary.join(' → ') }}</small
-                >
-                <small
-                  >Enemy connection:
-                  {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
-                >
-                </div>
-                <div v-else class="cap-stats" aria-label="Focused crew skills">
-                  <div v-for="skill in SKILLS" :key="skill">
-                    <small>{{ skill.toUpperCase() }}</small>
-                    <strong>{{ crewProfile(focusedCrew).stats[skill] }}</strong>
+            <div
+              v-else
+              class="cap-personnel-frame"
+              :data-screen="selectionScreen"
+            >
+              <template v-if="selectionScreen === 'background'">
+                <div class="cap-heading">
+                  <span>01</span>
+                  <div>
+                    <h2>Choose your background</h2>
+                    <p>
+                      Your history belongs to you. It changes your opening
+                      resources and follows you into the captain's log.
+                    </p>
                   </div>
                 </div>
-              </div>
-              <button
-                class="cap-primary"
-                type="button"
-                data-testid="captains-begin"
-                :disabled="chosenCrew.length !== 3"
-                @click="beginWithStarSign"
-              >
-                TAKE COMMAND <span>➜</span>
-              </button>
-            </template>
+                <div class="cap-origins" data-testid="space-couch-backgrounds">
+                  <button
+                    v-for="origin in CAPTAIN_ORIGINS"
+                    :key="origin.id"
+                    type="button"
+                    class="cap-origin"
+                    :class="{ chosen: selectedOrigin === origin.id }"
+                    :aria-pressed="selectedOrigin === origin.id"
+                    @click="selectedOrigin = origin.id"
+                  >
+                    <span class="cap-origin-glyph" aria-hidden="true">{{
+                      origin.glyph
+                    }}</span>
+                    <span
+                      ><strong>{{ origin.name }}</strong
+                      ><small>{{ origin.summary }}</small
+                      ><small class="cap-origin-perk">{{
+                        origin.perk
+                      }}</small></span
+                    >
+                  </button>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  :disabled="!selectedOrigin"
+                  data-testid="space-couch-background-next"
+                  @click="selectionScreen = 'captain'"
+                >
+                  CHOOSE YOUR CAPTAIN <span>➜</span>
+                </button>
+              </template>
+              <template v-else-if="selectionScreen === 'captain'">
+                <button
+                  type="button"
+                  class="cap-step-back"
+                  @click="selectionScreen = 'background'"
+                >
+                  ← CHANGE BACKGROUND
+                </button>
+                <div class="cap-heading">
+                  <span>02</span>
+                  <div>
+                    <h2>Claim your cushion</h2>
+                    <p>
+                      Select the commander who inherits your background. The
+                      couch runs on personalities as much as fuel.
+                    </p>
+                  </div>
+                </div>
+                <div class="cap-captains">
+                  <button
+                    v-for="captain in CAPTAINS"
+                    :key="captain.id"
+                    type="button"
+                    class="cap-captain"
+                    :class="{ chosen: captain.id === selectedCaptain }"
+                    :aria-pressed="captain.id === selectedCaptain"
+                    @click="selectedCaptain = captain.id"
+                  >
+                    <span
+                      class="cap-captain-icon"
+                      :data-portrait-key="'captain-' + captain.id"
+                      aria-hidden="true"
+                      ><img
+                        v-if="portrait('captain-' + captain.id)"
+                        :src="portrait('captain-' + captain.id)!"
+                        alt=""
+                        class="cap-portrait-img"
+                      /><template v-else>{{
+                        captain.name.split(' ').at(-1)?.slice(0, 1)
+                      }}</template></span
+                    >
+                    <span
+                      ><strong>{{ captain.name }}</strong
+                      ><small>{{ captain.epithet }}</small></span
+                    >
+                  </button>
+                </div>
+                <div class="cap-personnel-dossier" aria-live="polite">
+                  <div class="cap-dossier-header">
+                    <img
+                      v-if="portrait('captain-' + selectedCaptain)"
+                      :src="portrait('captain-' + selectedCaptain)!"
+                      :alt="activeCaptain.name + ' portrait'"
+                    />
+                    <span v-else class="cap-dossier-monogram">{{
+                      activeCaptain.name.slice(-1)
+                    }}</span>
+                    <span
+                      ><strong>{{ activeCaptain.name }}</strong
+                      ><small>{{ activeCaptain.epithet }}</small></span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-captain-dossier-tab"
+                      @click="
+                        captainDossierTab =
+                          captainDossierTab === 'stats'
+                            ? 'history'
+                            : captainDossierTab === 'history'
+                              ? 'orders'
+                              : 'stats'
+                      "
+                    >
+                      {{
+                        captainDossierTab === 'stats'
+                          ? 'STORY ▸'
+                          : captainDossierTab === 'history'
+                            ? 'ORDERS ▸'
+                            : 'STATS ▸'
+                      }}
+                    </button>
+                  </div>
+                  <template v-if="captainDossierTab === 'stats'">
+                    <div class="cap-insight">
+                      <strong>{{ activeCaptain.doctrine }}</strong
+                      ><small
+                        >Advantage: {{ activeCaptain.ability }} · Price:
+                        {{ activeCaptain.cost }}</small
+                      >
+                    </div>
+                    <div
+                      class="cap-stats cap-captain-stats"
+                      aria-label="Captain statistics"
+                    >
+                      <div v-for="skill in SKILLS" :key="skill">
+                        <small>{{ skill.toUpperCase() }}</small
+                        ><strong>{{ captainStats[skill] }}</strong>
+                      </div>
+                    </div>
+                  </template>
+                  <div
+                    v-else-if="captainDossierTab === 'history'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong>Personal history</strong>
+                    <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                  </div>
+                  <div v-else class="cap-insight cap-dossier-story">
+                    <strong>First order and unresolved liability</strong>
+                    <small
+                      >First order:
+                      {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
+                    >
+                    <small
+                      >Unresolved liability:
+                      {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
+                    >
+                  </div>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  data-testid="captains-choose-crew"
+                  @click="selectionScreen = 'stars'"
+                >
+                  CONSULT THE COUCHSCOPE <span>➜</span>
+                </button>
+              </template>
+              <template v-else>
+                <button
+                  class="cap-option"
+                  type="button"
+                  data-testid="captains-back-to-captains"
+                  @click="selectionScreen = 'stars'"
+                >
+                  <span
+                    ><b>← CHANGE STAR CHART</b
+                    ><small
+                      >{{ activeCaptain.name }} ·
+                      {{ activeCaptain.epithet }}</small
+                    ></span
+                  >
+                </button>
+                <div class="cap-heading cap-crew-heading">
+                  <span>04</span>
+                  <div>
+                    <h2>Appoint your crew</h2>
+                    <p>
+                      Choose exactly three officers from twelve. Their
+                      abilities, conflicts and personal quests change the
+                      routes.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="cap-crew-roster"
+                  data-testid="space-couch-crew-roster"
+                >
+                  <div class="cap-crew-picker">
+                    <button
+                      v-for="member in crewPageMembers"
+                      :key="member.id"
+                      type="button"
+                      class="cap-crew-button"
+                      :class="{ chosen: chosenCrew.includes(member.id) }"
+                      :aria-pressed="chosenCrew.includes(member.id)"
+                      :title="
+                        chosenCrew.length >= 3 &&
+                        !chosenCrew.includes(member.id)
+                          ? 'Release a selected officer to appoint this one'
+                          : 'View dossier and toggle crew appointment'
+                      "
+                      @click="selectCrewForDossier(member.id)"
+                    >
+                      <span
+                        class="cap-monogram"
+                        :data-portrait-key="crewProfile(member.id).portraitKey"
+                        ><img
+                          v-if="portrait(crewProfile(member.id).portraitKey)"
+                          :src="portrait(crewProfile(member.id).portraitKey)!"
+                          alt=""
+                          class="cap-portrait-img"
+                        /><template v-else>{{
+                          member.monogram
+                        }}</template></span
+                      >
+                      <span
+                        ><strong>{{ member.name }}</strong
+                        ><small
+                          >{{ member.role }} ·
+                          {{ crewProfile(member.id).pronouns }}</small
+                        ></span
+                      ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
+                    </button>
+                  </div>
+                  <nav class="cap-crew-pages" aria-label="Crew roster pages">
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-prev"
+                      :disabled="crewPage === 0"
+                      @click="crewPage--"
+                    >
+                      ← PREVIOUS
+                    </button>
+                    <span
+                      >ROSTER {{ crewPage + 1 }} / {{ crewPageCount }} ·
+                      {{ chosenCrew.length }}/3 APPOINTED</span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-next"
+                      :disabled="crewPage >= crewPageCount - 1"
+                      @click="crewPage++"
+                    >
+                      NEXT SIX →
+                    </button>
+                  </nav>
+                  <div class="cap-team-note" aria-live="polite">
+                    {{
+                      chosenCrew
+                        .map((id) => crewProfile(id).name)
+                        .join(' · ') || 'Choose three officers to take command'
+                    }}
+                  </div>
+                </div>
+                <div class="cap-personnel-dossier" aria-live="polite">
+                  <div class="cap-dossier-header">
+                    <img
+                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
+                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      :alt="crewProfile(focusedCrew).name + ' portrait'"
+                    />
+                    <span v-else class="cap-dossier-monogram">{{
+                      crewProfile(focusedCrew).name.slice(0, 1)
+                    }}</span>
+                    <span
+                      ><strong>{{ crewProfile(focusedCrew).name }}</strong
+                      ><small>{{ crewProfile(focusedCrew).role }}</small></span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-dossier-tab"
+                      @click="
+                        crewDossierTab =
+                          crewDossierTab === 'history'
+                            ? 'route'
+                            : crewDossierTab === 'route'
+                              ? 'stats'
+                              : 'history'
+                      "
+                    >
+                      {{
+                        crewDossierTab === 'history'
+                          ? 'ROUTE ▸'
+                          : crewDossierTab === 'route'
+                            ? 'SKILLS ▸'
+                            : 'STORY ▸'
+                      }}
+                    </button>
+                  </div>
+                  <div
+                    v-if="crewDossierTab === 'history'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong
+                      >{{ crewProfile(focusedCrew).name }} ·
+                      {{ crewProfile(focusedCrew).culture }}</strong
+                    >
+                    <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                  </div>
+                  <div
+                    v-else-if="crewDossierTab === 'route'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong>Route and nemesis connection</strong>
+                    <small
+                      >Personal voyage:
+                      {{
+                        CREW_DOSSIERS[focusedCrew].itinerary.join(' → ')
+                      }}</small
+                    >
+                    <small
+                      >Enemy connection:
+                      {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
+                    >
+                  </div>
+                  <div
+                    v-else
+                    class="cap-stats"
+                    aria-label="Focused crew skills"
+                  >
+                    <div v-for="skill in SKILLS" :key="skill">
+                      <small>{{ skill.toUpperCase() }}</small>
+                      <strong>{{
+                        crewProfile(focusedCrew).stats[skill]
+                      }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  data-testid="captains-begin"
+                  :disabled="chosenCrew.length !== 3"
+                  @click="beginWithStarSign"
+                >
+                  TAKE COMMAND <span>➜</span>
+                </button>
+              </template>
             </div>
           </template>
 
@@ -1516,7 +1626,9 @@ const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
 const crewPageCount = Math.ceil(CREW.length / 6)
-const crewPageMembers = computed(() => CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6))
+const crewPageMembers = computed(() =>
+  CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6),
+)
 const run = computed(() => store.run)
 const romanceScene = computed(() =>
   run.value ? romanceMoment(run.value) : null,
@@ -2247,7 +2359,9 @@ function toggleAway(id: CrewId) {
 .cap-dossier-monogram {
   display: grid;
   place-items: center;
-  font: 900 2rem Georgia, serif;
+  font:
+    900 2rem Georgia,
+    serif;
   color: #f7c994;
   background: #30465d;
 }

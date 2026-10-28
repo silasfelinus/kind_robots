@@ -15,7 +15,8 @@
  *   P  piston (rises and falls)           L  brass lift (slides side to side)
  *   K  checkpoint     G  goal valve       D  pipe door       E  secret-room pipe
  *   @  start          X  boss gate        M  the world's boss
- *   f  slippery ice   w  water          F  bobbing raft     m  clockwork minnow (leaps from water)
+ *   f  slippery ice   b  breakable snowbank   d  fragile ice   e  falling icicle   q  rolling snowball
+ *   w  water          F  bobbing raft     m  clockwork minnow (leaps from water)
  *   k  cork crab      u  glass gull       l  moss lantern     h  spring hare
  *   <  belt carrying left                 >  belt carrying right
  *   j  gasket golem   y  paper kite       n  umbrella mite
@@ -1053,6 +1054,8 @@ export const SOLID_PIPE = 5
 export const SOLID_CRATE = 6
 export const SOLID_WATER = 7
 export const SOLID_ICE = 11
+export const SOLID_SNOWBANK = 12
+export const SOLID_FRAGILE_ICE = 13
 export const SOLID_BELT_LEFT = 8
 export const SOLID_BELT_RIGHT = 9
 export const SOLID_BRIDGE = 10
@@ -1090,6 +1093,8 @@ export type SpawnKind =
   | 'heart'
   | 'gear'
   | 'glider'
+  | 'icicle'
+  | 'snowball'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1150,6 +1155,8 @@ const SPAWNS: Record<string, SpawnKind> = {
   '+': 'heart',
   '*': 'gear',
   '!': 'glider',
+  e: 'icicle',
+  q: 'snowball',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */
@@ -1180,6 +1187,8 @@ const SOLIDS: Record<string, number> = {
   c: SOLID_CRATE,
   w: SOLID_WATER,
   f: SOLID_ICE,
+  b: SOLID_SNOWBANK,
+  d: SOLID_FRAGILE_ICE,
   '<': SOLID_BELT_LEFT,
   '>': SOLID_BELT_RIGHT,
   ':': SOLID_BRIDGE,

@@ -25,6 +25,8 @@ import {
 import {
   GIANT_FOES,
   SOLID_ICE,
+  SOLID_FRAGILE_ICE,
+  SOLID_SNOWBANK,
   SOLID_WATER,
   STAGE_GLYPHS,
   parseStage,
@@ -40,7 +42,7 @@ assert.deepEqual(
   [...supported].sort(),
   'Every parser symbol must be available in the Maker, including every new runtime mechanic',
 )
-assert.equal(MAKER_GROUPS.length, 6)
+assert.equal(MAKER_GROUPS.length, 7)
 assert.ok(
   MAKER_GROUPS.every((group) =>
     group.tiles.every((tile) => tile.icon && tile.label),
@@ -205,13 +207,41 @@ assert.ok(harbor.spawns.some((spawn) => spawn.kind === 'raft'))
 const winter = parseStage(toMakerStage(makerTemplate('snowfield')))
 assert.equal(winter.snow, true)
 assert.ok([...winter.solid].includes(SOLID_ICE))
+assert.ok([...winter.solid].includes(SOLID_SNOWBANK))
+assert.ok([...winter.solid].includes(SOLID_FRAGILE_ICE))
+assert.ok(winter.spawns.some((spawn) => spawn.kind === 'icicle'))
+assert.ok(winter.spawns.some((spawn) => spawn.kind === 'snowball'))
 assert.ok(winter.spawns.some((spawn) => spawn.giant))
+const winterTools = MAKER_GROUPS.find((group) => group.name === 'Winter')
+assert.deepEqual(
+  new Set(winterTools?.tiles.map((tile) => tile.key)),
+  new Set(['f', 'b', 'd', 'e', 'q']),
+)
 const icyRun = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(makerTemplate('snowfield')) },
 )
 assert.equal(icyRun.stage.snow, true)
 assert.equal(icyRun.save, undefined)
+assert.equal(icyRun.icicles.length, 1, 'Real engine initializes falling icicles')
+assert.equal(icyRun.snowballs.length, 1, 'Real engine initializes moving snowballs')
+assert.equal(icyRun.solidAt(23, 20), SOLID_SNOWBANK)
+assert.equal(icyRun.solidAt(35, 22), SOLID_FRAGILE_ICE)
+const obstacleVariant = makerRectangle(initial, { x1: 10, y1: 18, x2: 13, y2: 18 }, 'b')
+const savedObstacleVariant = decodeMakerLevel(encodeMakerLevel(obstacleVariant))
+assert.deepEqual(savedObstacleVariant, obstacleVariant)
+assert.equal(parseStage(toMakerStage(savedObstacleVariant)).solid[18 * 64 + 10], SOLID_SNOWBANK)
+const frozenRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(makerTemplate('snowfield')) },
+)
+frozenRun.hero.x = 35 * 16 + 8
+frozenRun.hero.y = 22 * 16 - 20
+frozenRun.hero.vx = 0
+frozenRun.hero.vy = 0
+frozenRun.ground = true
+for (let i = 0; i < 44; i++) frozenRun.update(emptyInput())
+assert.equal(frozenRun.solidAt(35, 22), 0, 'Fragile ice shatters under sustained weight')
 
 const moved = paintMakerTile(initial, 10, 19, '@')
 assert.equal((moved.rows.join('').match(/@/g) ?? []).length, 1)

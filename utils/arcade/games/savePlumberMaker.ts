@@ -37,7 +37,6 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '>', icon: '▶', label: 'Right conveyor' },
       { key: ':', icon: '◇', label: 'Blinking bridge' },
       { key: 'w', icon: '≈', label: 'Water hazard' },
-      { key: 'f', icon: '❄', label: 'Slippery ice' },
       { key: 'c', icon: '▤', label: 'Movable crate' },
       { key: 'g', icon: '▥', label: 'Valve gate' },
     ],
@@ -100,6 +99,17 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: 'V', icon: '✷', label: 'Giant Siphon Sprite' },
       { key: 'W', icon: '♨', label: 'Giant Chimney Spirit' },
       { key: 'Y', icon: '♛', label: 'Giant Tea-kettle Knight' },
+    ],
+  },
+  {
+    name: 'Winter',
+    icon: '❄',
+    tiles: [
+      { key: 'f', icon: '❄', label: 'Slippery ice' },
+      { key: 'b', icon: '▧', label: 'Snowbank · smash with wrench' },
+      { key: 'd', icon: '◇', label: 'Fragile ice · cracks underfoot' },
+      { key: 'e', icon: '▼', label: 'Falling icicle · proximity trigger' },
+      { key: 'q', icon: '●', label: 'Rolling snowball · stomp to break' },
     ],
   },
   {
@@ -419,6 +429,13 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
   } else if (template === 'snowfield') {
     for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, 'f')
     for (let x = 14; x < 32; x += 4) put(x, 17, '=')
+    for (let x = 34; x < 40; x++) {
+      put(x, 22, 'd')
+      put(x, 23, '.')
+    }
+    put(18, 13, 'e')
+    put(23, 20, 'b')
+    put(49, 20, 'q')
     put(28, 20, 'h')
     put(40, 20, 'N')
     put(33, 20, 'K')

@@ -13,7 +13,7 @@ This is a feature-by-feature design comparison, **not** a claim of equivalence. 
 - Responsive bounded console presentation with compact icon-first tools and a large playable preview.
 - One-click and exact course dimensions: width 32–96 tiles and height 16–48 tiles, extending right/skyward with ground continuity, loss-preventing trim checks, undo and portable share-code round trips.
 - Rectangle painting, connected flood fill, select/copy/stamp and keyboard shortcuts, implemented as atomic validated undoable transactions. Unsafe pastes that erase the sole goal or create unpaired doors are rejected.
-- Harbor, winter and skybridge course templates, all editable and playable in the actual platform engine. The snow modifier overlays falling weather and introduces genuinely slippery ice terrain, playable and shareable without breaking old v1 link identity.
+- Harbor, winter and skybridge course templates, all editable and playable in the actual platform engine. Winter adds breakable snowbanks, cracking thin ice, falling icicles and rolling snowballs as real hazards alongside traction-changing solid ice and snowfall. All mechanics round-trip through validated version-1 links.
 - Giant versions of all 14 ordinary foes, selectable from a separate icon-first Giants category. These preserve the familiar enemy behavior, use doubled sprites and enlarged collision geometry, and resist their first normal stomp. They are distinct from eight existing world bosses.
 
 The feature is an early Maker, not an equivalent to the two commercial editors. The Share URL contains the level itself, so no account or public upload is required and content is portable; it is long, cannot yet be searched centrally, and does not provide mutable hosted level records. A verified course snapshot is stored in the database on its first review, and subsequent edits start a fresh Reaction review identity.
@@ -21,7 +21,7 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 ## Water and winter truth-in-features
 
 - **Tideglass Marina (World 2)** has a water-themed campaign with rafts, canal locks, minnows and crabs. The existing `w` glyph is lethal water, **not a swimming mechanic**; the new harbor starter is an above-water platforming challenge, not an underwater course.
-- **Snow/Winter Maker courses** are introduced here as a course-level optional snowfall effect and `f` ice terrain. Ice has a solid collider and different ground acceleration/friction. Winter does not yet have a dedicated ninth campaign world, custom painted snow art package, snowstorm hazards or swimming.
+- **Snow/Winter Maker courses** now include optional snowfall, slippery `f` ice, wrench-breakable `b` snowbanks, `d` thin ice that fractures after sustained weight, warning-and-drop `e` icicles and rolling `q` snowballs that can be stomped. The new Winter palette and starter demonstrate these through the actual game engine. This is not yet a dedicated ninth campaign world with a separately painted winter art pack or a swimming system.
 - Visual effects and tile types stay within the existing game engine and share-link codec; the exact same level can be playtested, reloaded or linked elsewhere.
 
 ## Relative capability matrix

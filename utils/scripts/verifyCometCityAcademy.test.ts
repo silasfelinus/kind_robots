@@ -339,8 +339,14 @@ assert.equal(GUEST_IDENTITIES[1].source, 'Space Couch')
 for (const person of CHARACTER_ROSTER) {
   assert.ok(person.backstory.length > 60)
   assert.ok(person.realName.length > 2)
-  assert.notEqual(person.student.alias, person.hero.alias)
-  assert.notEqual(person.hero.alias, person.villain.alias)
+  if (IDENTITY_ARCS.some((arc) => arc.signature === person.signature)) {
+    assert.equal(person.student.alias, person.hero.alias)
+    assert.equal(person.hero.alias, person.villain.alias)
+  } else {
+    // Cross-project guest designs still keep their existing independent canon.
+    assert.notEqual(person.student.alias, person.hero.alias)
+    assert.notEqual(person.hero.alias, person.villain.alias)
+  }
   assert.notEqual(person.hero.method, person.villain.method)
   for (const viewpoint of ['protagonist', 'antagonist'] as const)
     for (const allegiance of ['hero', 'villain'] as const) {
@@ -506,8 +512,8 @@ for (const origin of POWER_ORIGINS)
     if (identity.hero.focus !== identity.villain.focus) divergentFocus++
     assert.ok(identity.pronouns.includes('/'))
     assert.ok(skill.prom.length > 30)
-    assert.notEqual(identity.student.alias, identity.hero.alias)
-    assert.notEqual(identity.hero.alias, identity.villain.alias)
+    assert.equal(identity.student.alias, identity.hero.alias)
+    assert.equal(identity.hero.alias, identity.villain.alias)
     assert.notEqual(identity.hero.method, identity.villain.method)
     assert.ok(identity.student.conflict.length > 16)
     assert.ok(identity.quests.partner.length > 16)
@@ -749,7 +755,7 @@ for (const identity of IDENTITY_ARCS) {
   allForms.add(identity.villain.alias)
 }
 assert.equal(IDENTITY_ARCS.length, 48)
-assert.ok(allForms.size >= 90)
+assert.equal(allForms.size, 48, 'A role evolution never creates a new identity')
 assert.deepEqual(
   evolutionEncounter(undefined, novice, 16).options.map((o) => o.id),
   ['evolve-student'],
@@ -1037,7 +1043,7 @@ for (const protagonist of IDENTITY_ARCS) {
     const villain = campaignOpponent(seed, protagonist.signature)
     assert.notEqual(villain.signature, protagonist.signature)
     assert.equal(identityFor(villain.signature).realName, villain.realName)
-    assert.notEqual(villain.hero.alias, villain.villain.alias)
+    assert.equal(villain.hero.alias, villain.villain.alias)
     assert.ok(villain.quests.antagonist.length > 35)
     assert.ok(villain.villain.method.length > 35)
     rivals.add(villain.signature)
@@ -1914,6 +1920,15 @@ for (const person of CHARACTER_ROSTER) {
     `${person.signature} portrait reuses its look`,
   )
   assert.ok(!prompt.includes(person.realName), 'names stay out of prompts')
+  if (IDENTITY_ARCS.some((arc) => arc.signature === person.signature)) {
+    assert.equal(person.student.alias, person.hero.alias)
+    assert.equal(person.hero.alias, person.villain.alias)
+    for (const context of ['hero', 'villain'] as const) {
+      const scene = PROM_ART_PROMPTS[`identities/${person.signature}/${context}`]
+      assert.ok(scene?.includes(look.look.slice(1)), `${person.signature}/${context} keeps one character design`)
+      assert.ok(!scene?.includes(person.realName), 'names stay out of splash prompts')
+    }
+  }
 }
 assert.deepEqual(
   Object.keys(TEAM_LOOKS).sort(),

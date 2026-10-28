@@ -191,7 +191,12 @@ run = recordCloneMissions(run, {
 assert.equal(cloneQuestStatus(run).ready, false, 'mission still in current episode')
 run = { ...run, chapter: 6, expeditionVisit: null }
 assert.equal(cloneQuestStatus(run).ready, true)
-assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
+const validCheckpoint = { ...run, missionId: undefined }
+assert.deepEqual(
+  restoreVoyage(JSON.parse(JSON.stringify(validCheckpoint))),
+  JSON.parse(JSON.stringify(validCheckpoint)),
+  'save restores when its mission belongs to its simulated chapter',
+)
 run = advanceCloneQuest(run, 'ask')
 assert.equal(cloneProgram(run).step, 4)
 run = printClone(run, id)

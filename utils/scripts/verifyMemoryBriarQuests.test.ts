@@ -396,14 +396,23 @@ const lintel = BRIAR_QUESTS.find((q) => q.id === 'names-on-the-lintel')!
 const lintelClosures = [
   ['briar', '6,3', 'protect', /no public record to reclaim/],
   ['house', 'HD-07', 'speak', /wrote down their answer with permission/],
-  ['house', 'HD-17', 'preserve', /village must still learn whom the bargain bound/],
+  [
+    'house',
+    'HD-17',
+    'preserve',
+    /village must still learn whom the bargain bound/,
+  ],
 ] as const
 const lintelEndings = new Set<string>()
 for (const [scope, key, choice, expected] of lintelClosures) {
   const decisions = split(lintel)
   ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
   const result = briarQuestProgress(lintel, decisions.briar, decisions.house)
-  assert.equal(result.state, 'closed', `${key} ${choice} closes the lintel quest`)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the lintel quest`,
+  )
   assert.match(result.quest.closed, expected)
   assert.notEqual(result.quest.closed, lintel.closed)
   lintelEndings.add(result.quest.closed)
@@ -435,11 +444,8 @@ const twoLintelClosures = split(lintel)
 twoLintelClosures.briar['6,3'] = 'protect'
 twoLintelClosures.house['HD-17'] = 'preserve'
 assert.match(
-  briarQuestProgress(
-    lintel,
-    twoLintelClosures.briar,
-    twoLintelClosures.house,
-  ).quest.closed,
+  briarQuestProgress(lintel, twoLintelClosures.briar, twoLintelClosures.house)
+    .quest.closed,
   /no public record to reclaim/,
   'The earliest authored lintel divergence determines the ending',
 )

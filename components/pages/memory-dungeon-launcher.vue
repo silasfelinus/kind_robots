@@ -90,7 +90,9 @@
             @click="finishPrologue('terms')"
           >
             Demand the terms of the bargain
-            <span class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]">
+            <span
+              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
+            >
               Keep a question burning. Begin with an extra Lantern.
             </span>
           </button>
@@ -100,7 +102,9 @@
             @click="finishPrologue('anchor')"
           >
             Remember one unremarkable morning
-            <span class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]">
+            <span
+              class="mt-1 block text-sm font-normal leading-relaxed text-[#e4cfab]"
+            >
               Preserve a fragment of home. Begin with a silver wildflower.
             </span>
           </button>

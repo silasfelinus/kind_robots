@@ -633,8 +633,7 @@ for (const event of rareCases) {
   for (const choice of event.choices) {
     const briar: Record<string, string> = { ...event.briar }
     const house: Record<string, string> = { ...event.house }
-    ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] =
-      choice
+    ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] = choice
     const earned = earnedBriarRareEvents(briar, house)
     assert.equal(earned.length, 1, `${event.id} ${choice} is earned`)
     assert.equal(earned[0]?.id, event.id)
@@ -677,9 +676,9 @@ for (const event of rareCases) {
     }
     const invalidBriar = { ...briar }
     const invalidHouse = { ...house }
-    ;(event.branchScope === 'briar'
-      ? invalidBriar
-      : invalidHouse)[event.branchKey] = 'forged'
+    ;(event.branchScope === 'briar' ? invalidBriar : invalidHouse)[
+      event.branchKey
+    ] = 'forged'
     assert.equal(
       earnedBriarRareEvents(invalidBriar, invalidHouse).length,
       0,

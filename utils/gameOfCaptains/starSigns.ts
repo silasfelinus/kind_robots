@@ -10,8 +10,14 @@ export const STAR_QUESTIONS = [
     prompt: 'A moon is protesting the sunrise. Your first instinct?',
     cue: 'THE MORAL COMPASS',
     options: [
-      { label: 'Offer the moon a blanket and a mediator', flavor: 'Care before procedure' },
-      { label: 'Audit the sun. Something is being hidden.', flavor: 'Evidence before guesses' },
+      {
+        label: 'Offer the moon a blanket and a mediator',
+        flavor: 'Care before procedure',
+      },
+      {
+        label: 'Audit the sun. Something is being hidden.',
+        flavor: 'Evidence before guesses',
+      },
       { label: 'Move the sunrise to Thursday', flavor: 'The bold solution' },
     ],
   },
@@ -19,26 +25,50 @@ export const STAR_QUESTIONS = [
     prompt: 'A stranger on the couch claims to be you from next week.',
     cue: 'THE IMPROBABLE GUEST',
     options: [
-      { label: 'Give them tea and ask how they feel', flavor: 'An excellent listener' },
-      { label: 'Compare fingerprints and contradictory memories', flavor: 'An incurable investigator' },
-      { label: 'Challenge them to a zero-gravity dance-off', flavor: 'An enthusiastic improviser' },
+      {
+        label: 'Give them tea and ask how they feel',
+        flavor: 'An excellent listener',
+      },
+      {
+        label: 'Compare fingerprints and contradictory memories',
+        flavor: 'An incurable investigator',
+      },
+      {
+        label: 'Challenge them to a zero-gravity dance-off',
+        flavor: 'An enthusiastic improviser',
+      },
     ],
   },
   {
     prompt: 'Your miniature redshirts discover a planet-sized lost-and-found.',
     cue: 'THE GREAT RESPONSIBILITY',
     options: [
-      { label: 'Find the owners, even the inconvenient ones', flavor: 'A guardian of promises' },
-      { label: 'Catalogue every mysterious object', flavor: 'A keeper of secrets' },
-      { label: 'Try on the crown marked DO NOT WEAR', flavor: 'A patron of glorious accidents' },
+      {
+        label: 'Find the owners, even the inconvenient ones',
+        flavor: 'A guardian of promises',
+      },
+      {
+        label: 'Catalogue every mysterious object',
+        flavor: 'A keeper of secrets',
+      },
+      {
+        label: 'Try on the crown marked DO NOT WEAR',
+        flavor: 'A patron of glorious accidents',
+      },
     ],
   },
   {
     prompt: 'The universe offers one free miracle, with an invoice to follow.',
     cue: 'THE FINAL TRANSMISSION',
     options: [
-      { label: 'Save someone no one else will remember', flavor: 'A quiet act of courage' },
-      { label: 'Reveal one truth that cannot be erased', flavor: 'A dangerous revelation' },
+      {
+        label: 'Save someone no one else will remember',
+        flavor: 'A quiet act of courage',
+      },
+      {
+        label: 'Reveal one truth that cannot be erased',
+        flavor: 'A dangerous revelation',
+      },
       { label: 'Give everyone a new ending', flavor: 'An extravagant rewrite' },
     ],
   },
@@ -87,9 +117,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'It took nine thousand years to climb one celestial tree. The tree moved closer out of respect.',
     omen: 'Your gentlest choice may change an entire orbit.',
     quests: [
-      { id: 'sloth-vigil', title: 'The Planet That Needs a Nap', setup: 'A sleepless world is being charged interest for its dreams. The Sloth points toward the only quiet room in the system.', ending: 'The planet sleeps for the first time in a century.' },
-      { id: 'sloth-hour', title: 'The Longest Minute', setup: 'A distress signal arrives one minute too early, and a patient star keeper insists the pause is the answer.', ending: 'The survivors discover that waiting was an action.' },
-      { id: 'sloth-accord', title: 'The Right to Rest', setup: 'At the jump gate, the empire intends to abolish downtime. Only a captain beneath the Northern Sloth can present the star keeper’s testimony.', ending: 'The galaxy signs a treaty guaranteeing a little peace.' },
+      {
+        id: 'sloth-vigil',
+        title: 'The Planet That Needs a Nap',
+        setup:
+          'A sleepless world is being charged interest for its dreams. The Sloth points toward the only quiet room in the system.',
+        ending: 'The planet sleeps for the first time in a century.',
+      },
+      {
+        id: 'sloth-hour',
+        title: 'The Longest Minute',
+        setup:
+          'A distress signal arrives one minute too early, and a patient star keeper insists the pause is the answer.',
+        ending: 'The survivors discover that waiting was an action.',
+      },
+      {
+        id: 'sloth-accord',
+        title: 'The Right to Rest',
+        setup:
+          'At the jump gate, the empire intends to abolish downtime. Only a captain beneath the Northern Sloth can present the star keeper’s testimony.',
+        ending: 'The galaxy signs a treaty guaranteeing a little peace.',
+      },
     ],
   },
   {
@@ -100,9 +148,29 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A jewel-bright warrior-princess punched a hole in the night to let the lost find home.',
     omen: 'A small gesture may leave an enormous crater.',
     quests: [
-      { id: 'shrimp-coronation', title: 'The Royal Prawn Uprising', setup: 'A fist-sized heir refuses a throne made from stolen moons. Her ceremonial claws could crack the palace.', ending: 'The heir takes her crown on her own conditions.' },
-      { id: 'shrimp-punch', title: 'A Knock on the Palace Door', setup: 'A sealed fortress recognizes the Princess’s constellation, but the old royal greeting looks suspiciously like an explosion.', ending: 'The fortress learns the difference between force and authority.' },
-      { id: 'shrimp-legacy', title: 'The Smallest Rebellion', setup: 'A future empress asks why a captain born under the tiny princess should decide who deserves power.', ending: 'The tiny princess leaves an enormous constitutional amendment.' },
+      {
+        id: 'shrimp-coronation',
+        title: 'The Royal Prawn Uprising',
+        setup:
+          'A fist-sized heir refuses a throne made from stolen moons. Her ceremonial claws could crack the palace.',
+        ending: 'The heir takes her crown on her own conditions.',
+      },
+      {
+        id: 'shrimp-punch',
+        title: 'A Knock on the Palace Door',
+        setup:
+          'A sealed fortress recognizes the Princess’s constellation, but the old royal greeting looks suspiciously like an explosion.',
+        ending:
+          'The fortress learns the difference between force and authority.',
+      },
+      {
+        id: 'shrimp-legacy',
+        title: 'The Smallest Rebellion',
+        setup:
+          'A future empress asks why a captain born under the tiny princess should decide who deserves power.',
+        ending:
+          'The tiny princess leaves an enormous constitutional amendment.',
+      },
     ],
   },
   {
@@ -113,9 +181,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A comet wore a velvet cape to its own extinction and arrived late enough to miss it.',
     omen: 'Every grand exit has a secret second act.',
     quests: [
-      { id: 'comet-encore', title: 'Encore at the End of Time', setup: 'A traveling troupe performs the last five seconds of history on repeat, begging for a captain with a flair for entrances.', ending: 'The stage curtain opens onto tomorrow.' },
-      { id: 'comet-cape', title: 'The Stolen Tail', setup: 'A cosmic costume thief has stolen the Comet’s luminous train and sold it to a casino billboard.', ending: 'A stolen light returns to the night.' },
-      { id: 'comet-last-act', title: 'The Curtain Will Rise Again', setup: 'The final audience has paid to see the universe end. The Comet offers one alternative performance.', ending: 'The universe earns an encore.' },
+      {
+        id: 'comet-encore',
+        title: 'Encore at the End of Time',
+        setup:
+          'A traveling troupe performs the last five seconds of history on repeat, begging for a captain with a flair for entrances.',
+        ending: 'The stage curtain opens onto tomorrow.',
+      },
+      {
+        id: 'comet-cape',
+        title: 'The Stolen Tail',
+        setup:
+          'A cosmic costume thief has stolen the Comet’s luminous train and sold it to a casino billboard.',
+        ending: 'A stolen light returns to the night.',
+      },
+      {
+        id: 'comet-last-act',
+        title: 'The Curtain Will Rise Again',
+        setup:
+          'The final audience has paid to see the universe end. The Comet offers one alternative performance.',
+        ending: 'The universe earns an encore.',
+      },
     ],
   },
   {
@@ -126,9 +212,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A little silver fish swam upstream through time until all the clocks ran kindly.',
     omen: 'A tiny correction may rescue a century.',
     quests: [
-      { id: 'minnow-tide', title: 'The Hourglass Aquarium', setup: 'The fish who run the city clocks are trapped in yesterday’s water.', ending: 'The clocks begin marking time for everyone.' },
-      { id: 'minnow-second', title: 'The Missing Second', setup: 'A missing heartbeat of history has been auctioned off to the highest temporal bidder.', ending: 'An unowned second is returned to the public.' },
-      { id: 'minnow-paradox', title: 'The Future’s Spare Key', setup: 'A future version of the galaxy has left an emergency exit inside a clockwork fish.', ending: 'The future remembers who opened the door.' },
+      {
+        id: 'minnow-tide',
+        title: 'The Hourglass Aquarium',
+        setup:
+          'The fish who run the city clocks are trapped in yesterday’s water.',
+        ending: 'The clocks begin marking time for everyone.',
+      },
+      {
+        id: 'minnow-second',
+        title: 'The Missing Second',
+        setup:
+          'A missing heartbeat of history has been auctioned off to the highest temporal bidder.',
+        ending: 'An unowned second is returned to the public.',
+      },
+      {
+        id: 'minnow-paradox',
+        title: 'The Future’s Spare Key',
+        setup:
+          'A future version of the galaxy has left an emergency exit inside a clockwork fish.',
+        ending: 'The future remembers who opened the door.',
+      },
     ],
   },
   {
@@ -139,9 +243,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A dust bunny declared a kingdom under a discarded couch and invited every lost thing to stay.',
     omen: 'What was overlooked will prove essential.',
     quests: [
-      { id: 'bunny-court', title: 'The Kingdom Under the Cushions', setup: 'A forgotten court holds a trial about who owns the miniature rooms behind the couch.', ending: 'The overlooked people receive seats at their own table.' },
-      { id: 'bunny-heirloom', title: 'The Lost Crown of Small Things', setup: 'A pawnshop planet has pawned the royal dust crown for a vacuum cleaner.', ending: 'A humble crown finds its rightful keepers.' },
-      { id: 'bunny-throne', title: 'No Throne Too Small', setup: 'An empire demands the little kingdom surrender its identity to a larger map.', ending: 'The tiny nation remains independent.' },
+      {
+        id: 'bunny-court',
+        title: 'The Kingdom Under the Cushions',
+        setup:
+          'A forgotten court holds a trial about who owns the miniature rooms behind the couch.',
+        ending: 'The overlooked people receive seats at their own table.',
+      },
+      {
+        id: 'bunny-heirloom',
+        title: 'The Lost Crown of Small Things',
+        setup:
+          'A pawnshop planet has pawned the royal dust crown for a vacuum cleaner.',
+        ending: 'A humble crown finds its rightful keepers.',
+      },
+      {
+        id: 'bunny-throne',
+        title: 'No Throne Too Small',
+        setup:
+          'An empire demands the little kingdom surrender its identity to a larger map.',
+        ending: 'The tiny nation remains independent.',
+      },
     ],
   },
   {
@@ -152,9 +274,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A star-whale laughed so hard at the first war that its waves washed the weapons away.',
     omen: 'A well-timed joke may outlast a fleet.',
     quests: [
-      { id: 'leviathan-song', title: 'The Whale Who Swallowed a War', setup: 'A colossal singer has swallowed a battle fleet and refuses to perform the encore.', ending: 'The fleet returns without its reasons to fight.' },
-      { id: 'leviathan-echo', title: 'The Sea of Shared Laughter', setup: 'A colony has criminalized jokes after one exposed its governor’s secret submarine.', ending: 'The colony laughs in public again.' },
-      { id: 'leviathan-truce', title: 'The Final Punchline', setup: 'The villain wants a world-ending joke. The Leviathan insists on changing its audience.', ending: 'The final joke ends a feud instead.' },
+      {
+        id: 'leviathan-song',
+        title: 'The Whale Who Swallowed a War',
+        setup:
+          'A colossal singer has swallowed a battle fleet and refuses to perform the encore.',
+        ending: 'The fleet returns without its reasons to fight.',
+      },
+      {
+        id: 'leviathan-echo',
+        title: 'The Sea of Shared Laughter',
+        setup:
+          'A colony has criminalized jokes after one exposed its governor’s secret submarine.',
+        ending: 'The colony laughs in public again.',
+      },
+      {
+        id: 'leviathan-truce',
+        title: 'The Final Punchline',
+        setup:
+          'The villain wants a world-ending joke. The Leviathan insists on changing its audience.',
+        ending: 'The final joke ends a feud instead.',
+      },
     ],
   },
   {
@@ -165,9 +305,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'When the first black hole was lonely, the Teapot invited it to supper and kept its secrets.',
     omen: 'Hospitality may open a locked cosmos.',
     quests: [
-      { id: 'teapot-invitation', title: 'The Black Hole’s Tea Party', setup: 'A silent singularity invites the couch to a banquet for people it has already swallowed.', ending: 'A previously lost guest returns with a recipe.' },
-      { id: 'teapot-guest', title: 'A Place at the Table', setup: 'Two hostile civilizations are offered the same final chair at a star-sized supper.', ending: 'Both delegations discover an extra seat.' },
-      { id: 'teapot-covenant', title: 'The Invitation That Cannot Expire', setup: 'The last star table is being dismantled before the final peace talks.', ending: 'An invitation outlives the empire that issued it.' },
+      {
+        id: 'teapot-invitation',
+        title: 'The Black Hole’s Tea Party',
+        setup:
+          'A silent singularity invites the couch to a banquet for people it has already swallowed.',
+        ending: 'A previously lost guest returns with a recipe.',
+      },
+      {
+        id: 'teapot-guest',
+        title: 'A Place at the Table',
+        setup:
+          'Two hostile civilizations are offered the same final chair at a star-sized supper.',
+        ending: 'Both delegations discover an extra seat.',
+      },
+      {
+        id: 'teapot-covenant',
+        title: 'The Invitation That Cannot Expire',
+        setup:
+          'The last star table is being dismantled before the final peace talks.',
+        ending: 'An invitation outlives the empire that issued it.',
+      },
     ],
   },
   {
@@ -178,9 +336,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'Three heads catalogued every possible ending and then argued over which was the beginning.',
     omen: 'A disputed record can still save someone.',
     quests: [
-      { id: 'librarian-book', title: 'The Book That Unwrote Its Reader', setup: 'A banned volume is erasing the people who check it out of the library.', ending: 'The missing readers regain their names.' },
-      { id: 'librarian-index', title: 'The Unauthorized Index', setup: 'An imperial archive has deleted the last page of every rebellion.', ending: 'The erased pages become a public record.' },
-      { id: 'librarian-truth', title: 'Three Versions of Forever', setup: 'The villain submits three mutually exclusive official endings. Your constellation recognizes the forged one.', ending: 'The record cannot be silently revised again.' },
+      {
+        id: 'librarian-book',
+        title: 'The Book That Unwrote Its Reader',
+        setup:
+          'A banned volume is erasing the people who check it out of the library.',
+        ending: 'The missing readers regain their names.',
+      },
+      {
+        id: 'librarian-index',
+        title: 'The Unauthorized Index',
+        setup:
+          'An imperial archive has deleted the last page of every rebellion.',
+        ending: 'The erased pages become a public record.',
+      },
+      {
+        id: 'librarian-truth',
+        title: 'Three Versions of Forever',
+        setup:
+          'The villain submits three mutually exclusive official endings. Your constellation recognizes the forged one.',
+        ending: 'The record cannot be silently revised again.',
+      },
     ],
   },
   {
@@ -191,9 +367,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'An umbrella learned to fly so it could shelter every person beneath a meteor shower.',
     omen: 'Protection need not mean obedience.',
     quests: [
-      { id: 'umbrella-storm', title: 'The Weather Strike', setup: 'A world’s thunderstorms have unionized and are demanding protective equipment.', ending: 'The storms receive a safer schedule.' },
-      { id: 'umbrella-roof', title: 'The Last Dry Place', setup: 'A refugee station has one roof and a thousand conflicting promises.', ending: 'No traveler is left outside the shelter.' },
-      { id: 'umbrella-canopy', title: 'A Galaxy Under One Canopy', setup: 'The villain offers a shield that protects everyone only if nobody may ever leave.', ending: 'The shield becomes a choice, not a prison.' },
+      {
+        id: 'umbrella-storm',
+        title: 'The Weather Strike',
+        setup:
+          'A world’s thunderstorms have unionized and are demanding protective equipment.',
+        ending: 'The storms receive a safer schedule.',
+      },
+      {
+        id: 'umbrella-roof',
+        title: 'The Last Dry Place',
+        setup:
+          'A refugee station has one roof and a thousand conflicting promises.',
+        ending: 'No traveler is left outside the shelter.',
+      },
+      {
+        id: 'umbrella-canopy',
+        title: 'A Galaxy Under One Canopy',
+        setup:
+          'The villain offers a shield that protects everyone only if nobody may ever leave.',
+        ending: 'The shield becomes a choice, not a prison.',
+      },
     ],
   },
   {
@@ -204,9 +398,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'The last lantern stayed lit after the stars fled, not to lead heroes but to find the missing.',
     omen: 'The lost have been waiting for this signal.',
     quests: [
-      { id: 'lantern-beacon', title: 'The Lighthouse at Zero', setup: 'A beacon shines from a star that never existed and sends the names of missing travelers.', ending: 'The missing travelers get a route home.' },
-      { id: 'lantern-wick', title: 'The Unpaid Keepers', setup: 'Lightkeepers must surrender their last flame to keep an imperial monument glowing.', ending: 'Their own lighthouse stays lit.' },
-      { id: 'lantern-dawn', title: 'The Light After the Credits', setup: 'At the finale, a final distress call arrives from the side the villain thinks is empty.', ending: 'A rescue signal becomes the galaxy’s dawn.' },
+      {
+        id: 'lantern-beacon',
+        title: 'The Lighthouse at Zero',
+        setup:
+          'A beacon shines from a star that never existed and sends the names of missing travelers.',
+        ending: 'The missing travelers get a route home.',
+      },
+      {
+        id: 'lantern-wick',
+        title: 'The Unpaid Keepers',
+        setup:
+          'Lightkeepers must surrender their last flame to keep an imperial monument glowing.',
+        ending: 'Their own lighthouse stays lit.',
+      },
+      {
+        id: 'lantern-dawn',
+        title: 'The Light After the Credits',
+        setup:
+          'At the finale, a final distress call arrives from the side the villain thinks is empty.',
+        ending: 'A rescue signal becomes the galaxy’s dawn.',
+      },
     ],
   },
   {
@@ -217,9 +429,28 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'With thread made from moonbeams, a tailor repaired a tear in the cosmos and forgot to charge.',
     omen: 'Two damaged things may become something new.',
     quests: [
-      { id: 'upholsterer-seam', title: 'A Hole in Tuesday', setup: 'A missing piece of the week falls through a tear in space and into the backrest.', ending: 'The calendar is whole again, although Tuesday feels different.' },
-      { id: 'upholsterer-needle', title: 'The Dress Rehearsal for Reality', setup: 'A tailor is accused of repairing worlds that did not ask to be fixed.', ending: 'The worlds agree on a new seam.' },
-      { id: 'upholsterer-mending', title: 'The Universe Has a Loose Thread', setup: 'The final jump gate is splitting into incompatible futures. Only a moonbeam stitch can hold the choice open.', ending: 'The futures remain different but connected.' },
+      {
+        id: 'upholsterer-seam',
+        title: 'A Hole in Tuesday',
+        setup:
+          'A missing piece of the week falls through a tear in space and into the backrest.',
+        ending:
+          'The calendar is whole again, although Tuesday feels different.',
+      },
+      {
+        id: 'upholsterer-needle',
+        title: 'The Dress Rehearsal for Reality',
+        setup:
+          'A tailor is accused of repairing worlds that did not ask to be fixed.',
+        ending: 'The worlds agree on a new seam.',
+      },
+      {
+        id: 'upholsterer-mending',
+        title: 'The Universe Has a Loose Thread',
+        setup:
+          'The final jump gate is splitting into incompatible futures. Only a moonbeam stitch can hold the choice open.',
+        ending: 'The futures remain different but connected.',
+      },
     ],
   },
   {
@@ -230,9 +461,27 @@ export const STAR_SIGNS: readonly StarSign[] = [
     myth: 'A turnip grew so deep that it rooted every wandering world to somewhere it could call home.',
     omen: 'Belonging begins in unlikely soil.',
     quests: [
-      { id: 'turnip-garden', title: 'The Vegetable That Declared Independence', setup: 'A sentient harvest objects to being called a resource and starts its own space program.', ending: 'A garden sends its first diplomat into orbit.' },
-      { id: 'turnip-root', title: 'The Root of the Problem', setup: 'A supply planet has been eating its own roots to keep neighboring worlds alive.', ending: 'The starving world is finally allowed to grow.' },
-      { id: 'turnip-home', title: 'A Place to Put Down Roots', setup: 'The villain insists all displaced planets must be returned to the places they were born.', ending: 'Every world is permitted to choose its home.' },
+      {
+        id: 'turnip-garden',
+        title: 'The Vegetable That Declared Independence',
+        setup:
+          'A sentient harvest objects to being called a resource and starts its own space program.',
+        ending: 'A garden sends its first diplomat into orbit.',
+      },
+      {
+        id: 'turnip-root',
+        title: 'The Root of the Problem',
+        setup:
+          'A supply planet has been eating its own roots to keep neighboring worlds alive.',
+        ending: 'The starving world is finally allowed to grow.',
+      },
+      {
+        id: 'turnip-home',
+        title: 'A Place to Put Down Roots',
+        setup:
+          'The villain insists all displaced planets must be returned to the places they were born.',
+        ending: 'Every world is permitted to choose its home.',
+      },
     ],
   },
 ] as const
@@ -282,7 +531,9 @@ export function availableStarQuest(
 ): StarQuest | null {
   if (!assessment || !validStarAssessment(assessment)) return null
   const quests = starSignFor(assessment.sign).quests
-  const index = quests.findIndex((quest) => !completed.includes('star-quest:' + quest.id))
+  const index = quests.findIndex(
+    (quest) => !completed.includes('star-quest:' + quest.id),
+  )
   if (index < 0 || chapter < STAR_QUEST_CHAPTERS[index]!) return null
   return quests[index]!
 }

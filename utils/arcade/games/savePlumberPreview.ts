@@ -1290,7 +1290,10 @@ export class PlumberRun implements ArcadeGameInstance {
     hero.vy *= AIR_JET_DRAG
     // A tiny passive trickle means a misplaced level cannot permanently strand
     // the player. Resource placement still determines how often they can thrust.
-    this.airRemaining = Math.min(AIR_MAX, this.airRemaining + AIR_PASSIVE_RECHARGE)
+    this.airRemaining = Math.min(
+      AIR_MAX,
+      this.airRemaining + AIR_PASSIVE_RECHARGE,
+    )
     if (keys.held.a) {
       hero.vx *= 0.89
       hero.vy *= 0.89
@@ -1336,13 +1339,19 @@ export class PlumberRun implements ArcadeGameInstance {
       const distance = Math.hypot(hero.x - dock.x, centerY - dock.y)
       if (distance >= 40) continue
       this.airDockActive = true
-      this.airRemaining = Math.min(AIR_MAX, this.airRemaining + AIR_DOCK_RECHARGE)
+      this.airRemaining = Math.min(
+        AIR_MAX,
+        this.airRemaining + AIR_DOCK_RECHARGE,
+      )
     }
     for (const canister of this.airCanisters) {
       if (canister.taken || this.airRemaining >= AIR_MAX - 0.5) continue
       if (Math.hypot(hero.x - canister.x, centerY - canister.y) >= 18) continue
       canister.taken = true
-      this.airRemaining = Math.min(AIR_MAX, this.airRemaining + AIR_CANISTER_REFILL)
+      this.airRemaining = Math.min(
+        AIR_MAX,
+        this.airRemaining + AIR_CANISTER_REFILL,
+      )
       this.score += 75
       this.sound.play('pickup')
     }
@@ -2636,7 +2645,8 @@ export class PlumberRun implements ArcadeGameInstance {
         this.stage.space &&
         (Math.abs(this.hero.x - flag.x) > 18 ||
           Math.abs(this.hero.y + TALL / 2 - (flag.y - TILE)) > 32)
-      ) continue
+      )
+        continue
       flag.reached = true
       this.checkpoint = { x: flag.x, y: flag.y - TALL }
       if (this.stage.space) this.airRemaining = AIR_MAX

@@ -372,11 +372,18 @@ spaceSupply.hero.y = firstCell.y - 11
 spaceSupply.hero.vx = 0
 spaceSupply.hero.vy = 0
 spaceSupply.update(emptyInput())
-assert.equal(firstCell.taken, true, 'Canisters are collectible in the real engine')
+assert.equal(
+  firstCell.taken,
+  true,
+  'Canisters are collectible in the real engine',
+)
 assert.ok(spaceSupply.airRemaining >= 67, 'Canister restores 45 units of air')
 const afterCell = spaceSupply.airRemaining
 spaceSupply.update(emptyInput())
-assert.ok(spaceSupply.airRemaining < afterCell + 2, 'Each canister can only be collected once')
+assert.ok(
+  spaceSupply.airRemaining < afterCell + 2,
+  'Each canister can only be collected once',
+)
 const dock = spaceSupply.airDocks[0]!
 spaceSupply.airRemaining = 10
 spaceSupply.hero.x = dock.x
@@ -385,7 +392,10 @@ spaceSupply.hero.vx = 0
 spaceSupply.hero.vy = 0
 spaceSupply.update(emptyInput())
 assert.equal(spaceSupply.airDockActive, true)
-assert.ok(spaceSupply.airRemaining > 12, 'Refill docks recharge near the heroine')
+assert.ok(
+  spaceSupply.airRemaining > 12,
+  'Refill docks recharge near the heroine',
+)
 spaceSupply.hero.x = 8 * 16
 spaceSupply.hero.y = 16 * 16
 spaceSupply.hero.vx = 0
@@ -397,17 +407,32 @@ emptyJet.held.right = true
 emptyJet.held.x = true
 spaceSupply.update(emptyJet)
 assert.equal(spaceSupply.hero.vx, 0, 'Empty tank cannot fire the jet')
-assert.ok(spaceSupply.airRemaining > 0, 'Empty tank recharges very slowly to avoid softlocks')
+assert.ok(
+  spaceSupply.airRemaining > 0,
+  'Empty tank recharges very slowly to avoid softlocks',
+)
 for (let i = 0; i < 110; i++) spaceSupply.update(emptyInput())
-assert.ok(spaceSupply.airRemaining >= 8, 'Passive recharge ultimately restores one emergency burst')
+assert.ok(
+  spaceSupply.airRemaining >= 8,
+  'Passive recharge ultimately restores one emergency burst',
+)
 spaceSupply.update(emptyJet)
-assert.ok(spaceSupply.hero.vx > 0, 'Emergency recovered air can propel the heroine')
+assert.ok(
+  spaceSupply.hero.vx > 0,
+  'Emergency recovered air can propel the heroine',
+)
 const salvage = makerTemplate('orbital-salvage')
 assert.equal(salvage.space, true)
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(salvage)), salvage)
 const salvageSpawns = parseStage(toMakerStage(salvage)).spawns
-assert.equal(salvageSpawns.filter((spawn) => spawn.kind === 'air-dock').length, 2)
-assert.equal(salvageSpawns.filter((spawn) => spawn.kind === 'air-canister').length, 2)
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-dock').length,
+  2,
+)
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-canister').length,
+  2,
+)
 assert.ok(salvageSpawns.some((spawn) => spawn.kind === 'gravity-well'))
 
 const worldStage = parseStage(toMakerStage(initial))

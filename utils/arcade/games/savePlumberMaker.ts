@@ -290,11 +290,7 @@ export function resizeMakerLevel(
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
 export type MakerTemplate =
-  | 'harbor'
-  | 'snowfield'
-  | 'skybridge'
-  | 'spacewalk'
-  | 'orbital-salvage'
+  'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage'
 
 function regionBounds(rect: MakerRect) {
   return {
@@ -484,16 +480,12 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
   } else if (template === 'orbital-salvage') {
     put(3, 20, '.')
     put(59, 20, '.')
-    for (let y = 22; y < 24; y++)
-      for (let x = 0; x < 64; x++) put(x, y, '.')
+    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, '.')
     put(3, 16, '@')
     put(59, 4, 'G')
-    for (let x = 13; x <= 15; x++)
-      for (let y = 7; y <= 13; y++) put(x, y, 'B')
-    for (let x = 29; x <= 33; x++)
-      for (let y = 13; y <= 19; y++) put(x, y, 'B')
-    for (let x = 45; x <= 48; x++)
-      for (let y = 3; y <= 10; y++) put(x, y, 'B')
+    for (let x = 13; x <= 15; x++) for (let y = 7; y <= 13; y++) put(x, y, 'B')
+    for (let x = 29; x <= 33; x++) for (let y = 13; y <= 19; y++) put(x, y, 'B')
+    for (let x = 45; x <= 48; x++) for (let y = 3; y <= 10; y++) put(x, y, 'B')
     put(9, 10, ';')
     put(25, 8, '%')
     put(40, 18, ';')
@@ -528,9 +520,16 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
             : template === 'orbital-salvage'
               ? 'Orbital Salvage'
               : 'Cloudrail Leap',
-    theme: template === 'harbor' ? 2 : template === 'spacewalk' || template === 'orbital-salvage' ? 8 : 5,
+    theme:
+      template === 'harbor'
+        ? 2
+        : template === 'spacewalk' || template === 'orbital-salvage'
+          ? 8
+          : 5,
     ...(template === 'snowfield' ? { snow: true } : {}),
-    ...(template === 'spacewalk' || template === 'orbital-salvage' ? { space: true } : {}),
+    ...(template === 'spacewalk' || template === 'orbital-salvage'
+      ? { space: true }
+      : {}),
     rows: grid.map((row) => row.join('')),
   })
 }

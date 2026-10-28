@@ -2,7 +2,10 @@ import { BRIAR_SAVE_VERSION, type BriarSave } from '../memoryDungeonWorld'
 import { BRIAR_CROSS_MAP_KEYS } from '../memoryDungeonWaves'
 import type { DarkBriarProgress } from './darkBriar'
 import type { DarkHouseProgress } from './darkHouse'
-import type { MemoryRealitySave } from './campaignPersistence'
+import {
+  restoreMemoryRealitySave,
+  type MemoryRealitySave,
+} from './campaignPersistence'
 import type { CrossMapSealChronicle } from './crossMapSealChronicle'
 
 export const MEMORY_SAVE_SLOT_COUNT = 3
@@ -84,6 +87,35 @@ function hasValidDarkHouseProgress(value: Record<string, unknown>): boolean {
   )
 }
 
+function hasValidMemoryReality(value: Record<string, unknown>): boolean {
+  if (
+    (value.active !== 'e01' && value.active !== 'e02') ||
+    !isRecord(value.progress)
+  )
+    return false
+
+  const progress = value.progress
+  if (
+    !isStringArray(progress.completed) ||
+    !isStringArray(progress.rememberedAnchors) ||
+    typeof progress.finaleCommitted !== 'boolean'
+  )
+    return false
+
+  const restored = restoreMemoryRealitySave(value)
+  return (
+    restored.active === value.active &&
+    restored.progress.finaleCommitted === progress.finaleCommitted &&
+    restored.progress.completed.length === progress.completed.length &&
+    restored.progress.completed.every((id) => progress.completed.includes(id)) &&
+    restored.progress.rememberedAnchors.length ===
+      progress.rememberedAnchors.length &&
+    restored.progress.rememberedAnchors.every((id) =>
+      progress.rememberedAnchors.includes(id),
+    )
+  )
+}
+
 function hasValidCrossMapSeals(value: Record<string, unknown>): boolean {
   const fields = [
     'seen',
@@ -142,7 +174,7 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
     !Array.isArray(raw.briar.revealed) ||
     !Array.isArray(raw.dark.revealed) ||
     !hasValidDarkHouseProgress(raw.house) ||
-    !isRecord(raw.reality.progress) ||
+    !hasValidMemoryReality(raw.reality) ||
     !hasValidCrossMapSeals(raw.seals)
   )
     return null

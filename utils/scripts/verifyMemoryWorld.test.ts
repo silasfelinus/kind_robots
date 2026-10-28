@@ -7,7 +7,15 @@ import {
   recoverDarkBriarTurn,
 } from '../memoryDungeon/darkBriar'
 import { settleDarkBriarReturn } from '../memoryDungeon/darkBriarReturn'
-import { newDarkHouseProgress } from '../memoryDungeon/darkHouse'
+import {
+  DARK_HOUSE_ROOMS,
+  newDarkHouseProgress,
+} from '../memoryDungeon/darkHouse'
+import {
+  HOUSE_ATLAS_PATHS,
+  HOUSE_ATLAS_ROOM_IDS,
+  HOUSE_ATLAS_SIZE,
+} from '../memoryDungeon/houseAtlas'
 import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
 import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
 import {
@@ -1566,6 +1574,28 @@ const darkHouseScreen = readFileSync(
   'components/memory-dungeon/dark-house-stage.vue',
   'utf8',
 )
+const houseAtlasImage = readFileSync(
+  'components/memory-dungeon-house-map-art.vue',
+  'utf8',
+)
+assert.equal(HOUSE_ATLAS_SIZE, 6)
+assert.equal(HOUSE_ATLAS_ROOM_IDS.length, 36)
+assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(HOUSE_ROOMS))
+assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(DARK_HOUSE_ROOMS))
+assert.equal(new Set(Object.values(HOUSE_ATLAS_PATHS)).size, 2)
+assert.ok(HOUSE_ATLAS_PATHS.original.endsWith('/house/maps/house-atlas.webp'))
+assert.ok(
+  HOUSE_ATLAS_PATHS.mirrored.endsWith(
+    '/dark-briar/house/maps/house-atlas.webp',
+  ),
+)
+assert.match(houseAtlasImage, /@error="available = false"/)
+assert.match(houseAtlasImage, /aria-hidden="true"/)
+assert.match(houseAtlasImage, /loading="eager"/)
+assert.match(houseMapScreen, /memory-dungeon-house-map-art reality="original"/)
+assert.match(darkHouseScreen, /memory-dungeon-house-map-art reality="mirrored"/)
+assert.match(houseMapScreen, /world\.houseMove\(item\.id\)/)
+assert.match(darkHouseScreen, /world\.walkDarkHouse\(tileRoom\.id\)/)
 assert.ok(
   mapScreen.includes(
     'src="/images/memory-dungeon/backdrops/briar-overworld.webp"',

@@ -279,7 +279,11 @@ for (const [scope, key, choice, expected] of orchardClosures) {
   const decisions = split(orchard)
   ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
   const result = briarQuestProgress(orchard, decisions.briar, decisions.house)
-  assert.equal(result.state, 'closed', `${key} ${choice} closes the food thread`)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the food thread`,
+  )
   assert.match(result.quest.closed, expected)
   assert.notEqual(result.quest.closed, orchard.closed)
   orchardEndings.add(result.quest.closed)

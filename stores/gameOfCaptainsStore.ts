@@ -127,13 +127,19 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function deploy(encounterId: string, lead: string) {
     if (!run.value) return
     const before = run.value
-    run.value = recordCloneMissions(before, deployExpedition(before, encounterId, lead))
+    run.value = recordCloneMissions(
+      before,
+      deployExpedition(before, encounterId, lead),
+    )
     persist()
   }
   function deployBatch(assignments: EpisodeAssignment[]) {
     if (!run.value) return
     const before = run.value
-    run.value = recordCloneMissions(before, dispatchEpisodeBatch(before, assignments))
+    run.value = recordCloneMissions(
+      before,
+      dispatchEpisodeBatch(before, assignments),
+    )
     persist()
   }
   function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice) {

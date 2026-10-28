@@ -1529,16 +1529,46 @@ const questScreen = readFileSync(
   'components/memory-dungeon/quest-log.vue',
   'utf8',
 )
-assert.match(mapScreen, /backdrops\\/briar-overworld\\.webp/, 'Original Briar uses the delivered painted map first')
-assert.match(darkMapScreen, /dark-briar\\/backdrops\\/map\\.webp/, 'Dark Briar uses its own delivered map art')
-assert.match(mapScreen, /v-else[\\s\\S]*briar-camp\\.svg/, 'The original map survives a media delivery outage')
-assert.match(mapScreen, /tileNeedsAttention\\(tile\\.key\\)/, 'Briar tiles show actionable markers')
-assert.match(mapScreen, /progress === 'unfinished'/, 'Reactivated scene decisions restore an action beacon')
-assert.match(darkMapScreen, /memory-dungeon-action-beacon/, 'Dark Briar tiles show actionable markers')
-assert.match(mapBeacon, /rotateY\\(360deg\\)/, 'Action markers use depth and 3D rotation')
-assert.match(mapBeacon, /prefers-reduced-motion/, 'Action markers respect reduced motion')
-assert.match(questScreen, /text-base leading-relaxed sm:text-lg/, 'Quest narrative is legible like Shifting Desks')
-assert.match(mapScreen, /font-size: clamp\\(1rem, 1\\.85cqw, 1\\.5rem\\)/, 'Story decisions are large at console widths')
+assert.ok(
+  mapScreen.includes('src="/images/memory-dungeon/backdrops/briar-overworld.webp"'),
+  'Original Briar uses the delivered painted map first',
+)
+assert.ok(
+  darkMapScreen.includes('src="/images/memory-dungeon/dark-briar/backdrops/map.webp"'),
+  'Dark Briar uses its own delivered map art',
+)
+assert.ok(
+  mapScreen.includes('briar-camp.svg') && mapScreen.includes('v-else'),
+  'The original map survives a media delivery outage',
+)
+assert.ok(
+  mapScreen.includes('tileNeedsAttention(tile.key)'),
+  'Briar tiles show actionable markers',
+)
+assert.ok(
+  mapScreen.includes("progress === 'unfinished'"),
+  'Reactivated scene decisions restore an action beacon',
+)
+assert.ok(
+  darkMapScreen.includes('memory-dungeon-action-beacon'),
+  'Dark Briar tiles show actionable markers',
+)
+assert.ok(
+  mapBeacon.includes('rotateY(360deg)'),
+  'Action markers use depth and 3D rotation',
+)
+assert.ok(
+  mapBeacon.includes('prefers-reduced-motion'),
+  'Action markers respect reduced motion',
+)
+assert.ok(
+  questScreen.includes('text-base leading-relaxed sm:text-lg'),
+  'Quest narrative is legible like Shifting Desks',
+)
+assert.ok(
+  mapScreen.includes('font-size: clamp(1rem, 1.85cqw, 1.5rem)'),
+  'Story decisions are large at console widths',
+)
 
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')

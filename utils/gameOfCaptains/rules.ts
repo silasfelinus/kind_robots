@@ -44,6 +44,7 @@ import {
 import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
+import type { CloneProgram } from './cloneSaga'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =
@@ -381,6 +382,7 @@ export type VoyageRun = {
   }[]
   worldFlags?: string[]
   redshirtRoster?: string[]
+  cloneProgram?: CloneProgram
   redshirtFallen?: {
     id: string
     chapter: number

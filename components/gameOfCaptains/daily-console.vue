@@ -339,12 +339,21 @@
                 >
                   <span>{{ actor.initial }}</span>
                   <b>{{ actor.name }}</b>
+                  <small v-if="plotCast.includes(actor.id)">{{
+                    plotCast.indexOf(actor.id) === 0 ? 'LEAD' : 'SUPPORT'
+                  }}</small>
                 </button>
               </div>
               <small v-if="plotCast.length">
                 {{ episodePlotSkill(run, flipped).toUpperCase() }} ·
                 {{ episodePlotOdds(run, flipped, plotCast) }}% forecast ·
                 {{ plotCast.length === 2 ? 'TEAMWORK' : 'SOLO' }}
+              </small>
+              <small v-if="episodePlotConnection(run, flipped, plotCast)">
+                ✦ CREW CONNECTION · {{ episodePlotConnection(run, flipped, plotCast) }}
+              </small>
+              <small v-if="episodeDuoExperience(run, plotCast) > 0">
+                ✦ FAMILIAR PARTNERS · {{ episodeDuoExperience(run, plotCast) }} previous success(es)
               </small>
               <small v-else
                 >Choose at least one command card to unlock a decision.</small
@@ -441,6 +450,8 @@ import {
   episodeMajorComplete,
   episodeStinger,
   episodePlotSkill,
+  episodePlotConnection,
+  episodeDuoExperience,
   episodePlotSeats,
   episodePlotOdds,
   questOdds,

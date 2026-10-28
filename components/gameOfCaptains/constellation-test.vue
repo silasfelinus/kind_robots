@@ -144,8 +144,8 @@
         >
           ← PREVIOUS ANSWER
         </button>
-        <span v-else>THE STARS ARE MOSTLY QUALIFIED</span>
-        <span>COMING UP NEXT: YOUR CAPTAIN, YOUR CREW, YOUR TROUBLE</span>
+        <span v-else-if="!answers.length || assessment">THE STARS ARE MOSTLY QUALIFIED</span>
+        <span>COMING UP NEXT: YOUR CREW, YOUR TROUBLE</span>
       </footer>
     </div>
   </section>

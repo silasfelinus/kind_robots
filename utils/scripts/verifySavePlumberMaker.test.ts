@@ -686,9 +686,6 @@ const freshPuzzle = () =>
 const rightJet = emptyInput()
 rightJet.held.right = true
 rightJet.held.x = true
-const leftJet = emptyInput()
-leftJet.held.left = true
-leftJet.held.x = true
 const positionForExhaust = (
   run: ReturnType<typeof freshPuzzle>,
   col: number,

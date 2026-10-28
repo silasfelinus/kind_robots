@@ -40,8 +40,14 @@ assert.equal(episodeDecksDone(landing), false)
 const firstRedshirt = landing.redshirtRoster![0]!
 assert.equal(observedRedshirt(landing, firstRedshirt), false)
 assert.equal(questOdds(landing, mandatory[0]!, firstRedshirt), null)
-assert.equal(questDuration(landing, mandatory[0]!), questDuration(landing, mandatory[0]!))
-assert.deepEqual(EPISODE_CHOICES.map((c) => c.id), ['ask', 'document', 'override'])
+assert.equal(
+  questDuration(landing, mandatory[0]!),
+  questDuration(landing, mandatory[0]!),
+)
+assert.deepEqual(
+  EPISODE_CHOICES.map((c) => c.id),
+  ['ask', 'document', 'override'],
+)
 const assignment: EpisodeAssignment[] = mandatory.map((card, index) => ({
   encounterId: card.id,
   lead: [firstRedshirt, 'captain', 'pell', 'mox'][index]!,
@@ -55,7 +61,9 @@ assert.equal(
   'duplicate assignment never deploys anyone',
 )
 assert.equal(
-  dispatchEpisodeBatch(landing, [{ encounterId: mandatory[0]!.id, lead: 'fake-id' }]),
+  dispatchEpisodeBatch(landing, [
+    { encounterId: mandatory[0]!.id, lead: 'fake-id' },
+  ]),
   landing,
 )
 const dispatched = dispatchEpisodeBatch(landing, assignment)
@@ -75,21 +83,37 @@ for (const raw of dispatched.expeditionVisit!.results) {
   assert.ok(item.durationDays! >= 1 && item.durationDays! <= 3)
   assert.equal(typeof item.successful, 'boolean')
   assert.ok(item.returnedDay! >= landing.day!)
-  assert.ok(dispatched.worldFlags?.some((flag) => flag.startsWith('episode-quest:' + item.encounterId)))
+  assert.ok(
+    dispatched.worldFlags?.some((flag) =>
+      flag.startsWith('episode-quest:' + item.encounterId),
+    ),
+  )
 }
 assert.equal(
   dispatched.day,
-  landing.day! + Math.max(
-    ...mandatory.map((enc) => questDuration(landing, enc.id)),
-  ) - 1,
+  landing.day! +
+    Math.max(...mandatory.map((enc) => questDuration(landing, enc.id))) -
+    1,
 )
 const restored = restoreVoyage(JSON.parse(JSON.stringify(dispatched)))
-assert.deepEqual(restored, dispatched, 'existing v1 save migrates with new optional results')
-assert.equal(drawEpisodeDeck(dispatched, 'casino', 'ask'), dispatched, 'no skipping the deck')
+assert.deepEqual(
+  restored,
+  dispatched,
+  'existing v1 save migrates with new optional results',
+)
+assert.equal(
+  drawEpisodeDeck(dispatched, 'casino', 'ask'),
+  dispatched,
+  'no skipping the deck',
+)
 const planet = drawEpisodeDeck(dispatched, 'planet', 'ask')
 assert.equal(episodeDraws(planet).length, 1)
 assert.ok(episodeDeckDone(planet, 'planet'))
-assert.equal(drawEpisodeDeck(planet, 'planet', 'override'), planet, 'no reward farming')
+assert.equal(
+  drawEpisodeDeck(planet, 'planet', 'override'),
+  planet,
+  'no reward farming',
+)
 const casino = drawEpisodeDeck(planet, 'casino', 'document')
 assert.equal(episodeDraws(casino).length, 2)
 assert.ok(casino.venueProgress?.choices.some((r) => r.venue === 'casino'))
@@ -104,18 +128,27 @@ assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(bar))), bar)
 for (const chapter of [2, 4, 6, 8]) {
   const even = { ...landing, chapter }
   assert.deepEqual(episodeDecks(even), [
-    'planet', 'casino', 'serendipity', 'nemesis',
+    'planet',
+    'casino',
+    'serendipity',
+    'nemesis',
   ])
   assert.ok(episodeCard(even, 'nemesis').setup.length > 30)
 }
-const even = { ...dispatched, chapter: 2, expeditionVisit: { ...dispatched.expeditionVisit!, chapter: 2 } }
+const even = {
+  ...dispatched,
+  chapter: 2,
+  expeditionVisit: { ...dispatched.expeditionVisit!, chapter: 2 },
+}
 let drawn = drawEpisodeDeck(even, 'planet', 'ask')
 drawn = drawEpisodeDeck(drawn, 'casino', 'document')
 drawn = drawEpisodeDeck(drawn, 'serendipity', 'ask')
 assert.equal(episodeDecksDone(drawn), false)
 drawn = drawEpisodeDeck(drawn, 'nemesis', 'override')
 assert.equal(episodeDecksDone(drawn), true)
-assert.ok(drawn.worldFlags!.some((flag) => flag.startsWith('episode-draw:nemesis:')))
+assert.ok(
+  drawn.worldFlags!.some((flag) => flag.startsWith('episode-draw:nemesis:')),
+)
 
 // Most quest contracts are one day, but two and three days both occur.
 const durationCounts = [0, 0, 0]
@@ -136,7 +169,17 @@ const alternateEnding = episodeEndingCoda({
       chapter: index + 1,
       missionId: 'refugees',
       encounterIds: ['x'],
-      results: [{ encounterId: 'x', lead: 'captain', casualty: null, secret: false, revealedPower: null, outcome: 'good', successful: true }],
+      results: [
+        {
+          encounterId: 'x',
+          lead: 'captain',
+          casualty: null,
+          secret: false,
+          revealedPower: null,
+          outcome: 'good',
+          successful: true,
+        },
+      ],
     })),
   ],
   episodeDrawHistory: [
@@ -151,11 +194,24 @@ const alternateEnding = episodeEndingCoda({
   ],
 })
 assert.match(alternateEnding.scene, /BLUE GIANTS.*ACCORD/)
-assert.equal(episodeEndingCoda(bar), bar, 'coda only applies after an earned finale')
+assert.equal(
+  episodeEndingCoda(bar),
+  bar,
+  'coda only applies after an earned finale',
+)
 
-const page = readFileSync(new URL('../../pages/play/game-of-captains.vue', import.meta.url), 'utf8')
-const daily = readFileSync(new URL('../../components/gameOfCaptains/daily-console.vue', import.meta.url), 'utf8')
-const store = readFileSync(new URL('../../stores/gameOfCaptainsStore.ts', import.meta.url), 'utf8')
+const page = readFileSync(
+  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+  'utf8',
+)
+const daily = readFileSync(
+  new URL('../../components/gameOfCaptains/daily-console.vue', import.meta.url),
+  'utf8',
+)
+const store = readFileSync(
+  new URL('../../stores/gameOfCaptainsStore.ts', import.meta.url),
+  'utf8',
+)
 assert.ok(page.includes('<SpaceCouchDailyConsole'))
 assert.ok(page.includes('cap-layout--episode'))
 assert.ok(daily.includes('space-couch-daily-decks'))

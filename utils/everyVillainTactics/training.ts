@@ -186,7 +186,7 @@ function roll(state: TrainingState) {
   x ^= x >>> 17
   x ^= x << 5
   state.seed = x >>> 0
-  return (state.seed % 10000) / 100
+  return (state.seed % 10000) / 10000
 }
 export function selectedUnit(state: TrainingState) {
   return state.units.find(

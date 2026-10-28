@@ -386,6 +386,10 @@ const store = readFileSync(
   new URL('../../stores/gameOfCaptainsStore.ts', import.meta.url),
   'utf8',
 )
+const consoleScreen = readFileSync(
+  new URL('../../components/gameOfCaptains/daily-console.vue', import.meta.url),
+  'utf8',
+)
 for (const marker of [
   'space-couch-travel-prompt',
   'space-couch-transit',
@@ -396,7 +400,7 @@ for (const marker of [
   'space-couch-expedition-finish',
   'space-couch-hire',
 ])
-  assert.ok(page.includes(marker), marker)
+  assert.ok(page.includes(marker) || consoleScreen.includes(marker), marker)
 for (const action of ['travel', 'arrive', 'deploy', 'endExpedition', 'hire'])
   assert.ok(store.includes(action))
 console.log(

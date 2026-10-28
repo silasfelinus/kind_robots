@@ -26,7 +26,7 @@ import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save
 // already holds, so the contract here is: every one is reachable by real
-// choices, none appears before the Hearth, and old saves still resolve.
+// choices, none appears before the Hearth, and old saves acquire a stable lens.
 
 const briarChoices = Object.fromEntries(
   Object.entries(BRIAR_SCENES).map(([key, scene]) => [

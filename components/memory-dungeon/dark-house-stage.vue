@@ -46,6 +46,15 @@
           :aria-label="`${tileRoom.id}: ${world.darkHouse.visited.includes(tileRoom.id) || world.darkHouseDoors.includes(tileRoom.id) ? tileRoom.title : 'unknown room'}`"
           @click="world.walkDarkHouse(tileRoom.id)"
         >
+          <memory-dungeon-action-beacon
+            v-if="
+              world.darkHouseDoors.includes(tileRoom.id) &&
+              world.darkHouse.current !== tileRoom.id &&
+              (!world.darkHouse.visited.includes(tileRoom.id) ||
+                (tileRoom.choices.length > 0 &&
+                  !world.darkHouse.decisions[tileRoom.id]))
+            "
+          />
           <span class="block text-[10px] font-black sm:text-xs">{{
             tileRoom.id.slice(3)
           }}</span>

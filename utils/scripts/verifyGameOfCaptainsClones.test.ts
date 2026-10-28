@@ -172,13 +172,25 @@ run = { ...run, chapter: 5, expeditionVisit: null }
 // Death alone never satisfies the living-Gen-III testimony gate.
 assert.equal(cloneQuestStatus(run).ready, false)
 const replacement = cloneCandidates(run).find((x) => x.id === id)!
-assert.equal(replacement.generation, 3, 'repeat the unearned tier, do not skip it')
+assert.equal(
+  replacement.generation,
+  3,
+  'repeat the unearned tier, do not skip it',
+)
 assert.equal(replacement.available, true)
 run = printClone(run, id)
 assert.equal(cloneGeneration(run, id), 3)
 assert.equal(cloneProgram(run).records.at(-1)!.iteration, 2)
-assert.equal(run.redshirtFallen?.length, 2, 'both previous deaths remain recorded')
-assert.equal(cloneQuestStatus(run).ready, false, 'reprinting is not field evidence')
+assert.equal(
+  run.redshirtFallen?.length,
+  2,
+  'both previous deaths remain recorded',
+)
+assert.equal(
+  cloneQuestStatus(run).ready,
+  false,
+  'reprinting is not field evidence',
+)
 run = recordCloneMissions(run, {
   ...run,
   expeditionVisit: {
@@ -188,7 +200,11 @@ run = recordCloneMissions(run, {
     results: [{ ...genTwoResult, encounterId: 'reborn-field-record' }],
   },
 })
-assert.equal(cloneQuestStatus(run).ready, false, 'mission still in current episode')
+assert.equal(
+  cloneQuestStatus(run).ready,
+  false,
+  'mission still in current episode',
+)
 run = { ...run, chapter: 6, expeditionVisit: null }
 assert.equal(cloneQuestStatus(run).ready, true)
 const validCheckpoint = { ...run, missionId: undefined }

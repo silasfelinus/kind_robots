@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/space-couch-build-check-temp.yml
       - pages/play/game-of-captains.vue
+      - components/gameOfCaptains/daily-console.vue
 permissions:
   contents: read
 jobs:

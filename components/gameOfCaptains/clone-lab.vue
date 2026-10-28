@@ -127,6 +127,13 @@
                       {{ entry.cost }} SUPPLIES
                     </small>
                     <small>{{ entry.reason }}</small>
+                    <small class="clone-signature">
+                      SPECIALTY · {{ signature(entry.generation)?.name ?? 'RESEARCH PENDING' }}
+                      · {{ signature(entry.generation)?.skill.toUpperCase() ?? 'UNKNOWN' }}
+                    </small>
+                    <small v-if="lastLife(entry.id)?.lastEncounter">
+                      LAST FIELD MEMORY · {{ lastLife(entry.id)?.lastEncounter }}
+                    </small>
                   </div>
                   <button
                     type="button"
@@ -185,6 +192,8 @@ import type { VoyageRun } from '~/utils/gameOfCaptains/rules'
 import {
   cloneCandidates,
   cloneGeneration,
+  cloneLatest,
+  CLONE_FIELD_TRAITS,
   cloneProgram,
   cloneQuestStatus,
   CLONE_CHAPTERS,
@@ -201,6 +210,9 @@ const fallenCount = computed(() => props.run.redshirtFallen?.length ?? 0)
 const program = computed(() => cloneProgram(props.run))
 const status = computed(() => cloneQuestStatus(props.run))
 const candidates = computed(() => cloneCandidates(props.run))
+const signature = (generation: number) =>
+  CLONE_FIELD_TRAITS.find((trait) => trait.generation === generation)
+const lastLife = (id: string) => cloneLatest(props.run, id)
 const livingClones = computed(
   () =>
     new Set(
@@ -425,6 +437,10 @@ const nextOptions = computed(
 .clone-returnee small {
   font-size: 0.65rem;
   color: #d7cbbf;
+}
+.clone-returnee .clone-signature {
+  color: #a9eee2;
+  font-weight: 800;
 }
 .clone-returnee button {
   padding: 0.44rem;

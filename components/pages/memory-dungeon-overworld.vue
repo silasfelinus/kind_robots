@@ -198,10 +198,19 @@
               <span class="block text-xs text-[#e4d0a8]">
                 {{ checkpoint ? checkpointLabel(checkpoint.savedAt) : 'Empty' }}
               </span>
+              <template v-if="checkpoint">
+                <span class="mt-1 block text-xs font-semibold text-[#f6dfab]">
+                  {{ memoryCheckpointPreview(checkpoint).location }}
+                </span>
+                <span class="block text-xs text-[#e4d0a8]">
+                  {{ memoryCheckpointPreview(checkpoint).progress }}
+                </span>
+              </template>
               <div class="mt-2 flex gap-1">
                 <button
                   type="button"
                   class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
+                  :aria-label="`Save checkpoint ${index + 1}${checkpoint ? ', overwrite existing save' : ''}`"
                   @click="saveSlot(index)"
                 >
                   {{ checkpoint ? 'Overwrite' : 'Save' }}
@@ -210,6 +219,7 @@
                   type="button"
                   class="rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d] disabled:opacity-40"
                   :disabled="!checkpoint"
+                  :aria-label="`Load checkpoint ${index + 1}${checkpoint ? ', ' + memoryCheckpointPreview(checkpoint).location : ', empty'}`"
                   @click="loadSlot(index)"
                 >
                   Load
@@ -924,6 +934,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
+import {
+  memoryCheckpointPreview,
+  type MemoryCheckpoint,
+} from '~/utils/memoryDungeon/saveSlots'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
@@ -1063,22 +1077,23 @@ function checkpointLabel(savedAt: string): string {
 }
 
 function saveSlot(index: number): void {
-  const occupied = Boolean(world.saveSlots[index])
+  const checkpoint = world.saveSlots[index]
   if (
-    occupied &&
+    checkpoint &&
     !window.confirm(
-      `Replace checkpoint ${index + 1}? Its previous expedition cannot be recovered.`,
+      `Replace checkpoint ${index + 1} (${memoryCheckpointPreview(checkpoint).location})? Its previous expedition cannot be recovered.`,
     )
   )
     return
-  world.saveCheckpoint(index, occupied)
+  world.saveCheckpoint(index, Boolean(checkpoint))
 }
 
 function loadSlot(index: number): void {
+  const checkpoint = world.saveSlots[index]
   if (
-    !world.saveSlots[index] ||
+    !checkpoint ||
     !window.confirm(
-      `Load checkpoint ${index + 1}? This replaces your current autosaved expedition.`,
+      `Load checkpoint ${index + 1} (${memoryCheckpointPreview(checkpoint).location})? This replaces your current autosaved expedition.`,
     )
   )
     return

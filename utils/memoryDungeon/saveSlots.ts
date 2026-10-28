@@ -42,7 +42,12 @@ export function memoryCheckpointPreview(
       : checkpoint.briar.room === 'memory'
         ? `Briar Marches · Memory duel near ${checkpoint.briar.player}`
         : `Briar Marches · ${checkpoint.briar.player}`
-  const progress = `${map.revealed.length}/60 revealed · round ${map.waveIndex + 1}/4 · ${map.attempts} attempts${mirrored ? '' : ` · ${checkpoint.briar.hearts} hearts`}`
+  const progress = [
+    `${map.revealed.length}/60 revealed`,
+    `round ${map.waveIndex + 1}/4`,
+    `${map.attempts} attempts`,
+    ...(mirrored ? [] : [`${checkpoint.briar.hearts} hearts`]),
+  ].join(' · ')
   return { location, progress }
 }
 

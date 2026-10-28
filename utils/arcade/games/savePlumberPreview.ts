@@ -310,6 +310,27 @@ export type Snowball = {
   vy: number
   gone: boolean
 }
+/** A fixed anchor and phase for a rotating 2-tile-radius asteroid fragment. */
+export type OrbitingDebris = { x: number; y: number; offset: number }
+export type SolarGust = { x: number; y: number; offset: number }
+const SOLAR_CYCLE = 210
+const SOLAR_WARNING = 145
+const SOLAR_BLAST = 185
+const SOLAR_RADIUS = 142
+
+/** Pure, seeded motion used for drawing and collisions in the same frame. */
+export function orbitingDebrisPosition(debris: OrbitingDebris, tick: number) {
+  const angle = tick * 0.032 + debris.offset
+  return {
+    x: debris.x + Math.cos(angle) * 34,
+    y: debris.y + Math.sin(angle) * 34,
+  }
+}
+
+export function solarGustPhase(gust: SolarGust, tick: number) {
+  return (tick + gust.offset) % SOLAR_CYCLE
+}
+
 type Spring = { x: number; y: number; squash: number }
 type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
@@ -446,6 +467,9 @@ export class PlumberRun implements ArcadeGameInstance {
   airDocks: { x: number; y: number }[] = []
   airDockActive = false
   gravityWells: { x: number; y: number }[] = []
+  orbitingDebris: OrbitingDebris[] = []
+  solarGusts: SolarGust[] = []
+  solarBurst = 0
   grace = 0
   jumpBuffer = 0
   jumpHeld = false
@@ -935,6 +959,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.icicles = []
     this.snowballs = []
     this.gravityWells = []
+    this.orbitingDebris = []
+    this.solarGusts = []
+    this.solarBurst = 0
     this.airAim = { x: 1, y: 0 }
     this.airPlume = 0
     this.airCooldown = 0
@@ -1096,6 +1123,22 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'gravity-well':
           this.gravityWells.push({ x: cx, y: bottom - TILE / 2 })
+          break
+        case 'orbital-debris':
+          if (stage.space)
+            this.orbitingDebris.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: spawn.col * 0.71 + spawn.row * 0.37,
+            })
+          break
+        case 'solar-gust':
+          if (stage.space)
+            this.solarGusts.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: (spawn.col * 7 + spawn.row * 11) % SOLAR_CYCLE,
+            })
           break
         case 'icicle':
           this.icicles.push({
@@ -1476,6 +1519,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.collectAirCanisters()
     this.updateFoes(prevBottom)
     this.updateWinterHazards(prevBottom)
+    if (this.stage.space) this.updateSpaceHazards()
     this.updateVents()
     this.updateCargo()
     this.updateSoot()
@@ -2652,6 +2696,40 @@ export class PlumberRun implements ArcadeGameInstance {
           this.sound.play('pop')
         } else this.hurt(ball.x < hero.x ? 1 : -1)
       }
+    }
+  }
+
+  /** Space-only hazards: orbiting fragments deal contact damage; flares announce a radial push. */
+  private updateSpaceHazards() {
+    const hero = this.hero
+    const midY = hero.y + TALL / 2
+    if (this.solarBurst > 0) this.solarBurst--
+    for (const debris of this.orbitingDebris) {
+      const fragment = orbitingDebrisPosition(debris, this.tick)
+      if (
+        Math.abs(fragment.x - hero.x) < HALF + 10 &&
+        Math.abs(fragment.y - midY) < TALL / 2 + 10
+      )
+        this.hurt(hero.x < fragment.x ? -1 : 1)
+    }
+    for (const gust of this.solarGusts) {
+      if (solarGustPhase(gust, this.tick) !== SOLAR_BLAST) continue
+      const dx = hero.x - gust.x
+      const dy = midY - gust.y
+      const distance = Math.hypot(dx, dy)
+      this.solarBurst = 17
+      if (distance >= SOLAR_RADIUS) continue
+      const strength = 3.1 * (1 - distance / (SOLAR_RADIUS * 1.6))
+      const inv = Math.max(distance, 1)
+      hero.vx = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vx + ((dx || 1) / inv) * strength),
+      )
+      hero.vy = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vy + (dy / inv) * strength),
+      )
+      this.sound.play('warn')
     }
   }
 
@@ -4281,6 +4359,72 @@ export class PlumberRun implements ArcadeGameInstance {
       g.beginPath()
       g.arc(well.x - 3, well.y - 4, 3, 0, Math.PI * 2)
       g.fill()
+    }
+    for (const debris of this.orbitingDebris) {
+      const fragment = orbitingDebrisPosition(debris, this.tick)
+      g.strokeStyle = 'rgba(141, 183, 218, 0.45)'
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(debris.x, debris.y, 34, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = '#ffe6b1'
+      g.fillRect(debris.x - 2, debris.y - 2, 4, 4)
+      g.save()
+      g.translate(fragment.x, fragment.y)
+      g.rotate(this.tick * 0.04 + debris.offset)
+      g.fillStyle = '#a985a6'
+      g.strokeStyle = '#ffd89e'
+      g.lineWidth = 2
+      g.beginPath()
+      g.moveTo(-10, -5)
+      g.lineTo(-2, -11)
+      g.lineTo(10, -6)
+      g.lineTo(8, 5)
+      g.lineTo(-1, 11)
+      g.lineTo(-11, 5)
+      g.closePath()
+      g.fill()
+      g.stroke()
+      g.restore()
+    }
+    for (const gust of this.solarGusts) {
+      const phase = solarGustPhase(gust, this.tick)
+      const warning = phase >= SOLAR_WARNING && phase < SOLAR_BLAST
+      const blast = phase >= SOLAR_BLAST && phase < SOLAR_BLAST + 17
+      g.fillStyle = warning ? '#ffe3ae' : '#ec9a52'
+      g.beginPath()
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 10 + Math.sin(this.tick * 0.5) * 3 : 9,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.strokeStyle = warning ? '#ffe4bd' : 'rgba(255, 183, 99, 0.65)'
+      g.lineWidth = warning ? 3 : 2
+      g.beginPath()
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 16 + (phase - SOLAR_WARNING) / 2 : 14,
+        0,
+        Math.PI * 2,
+      )
+      g.stroke()
+      if (blast) {
+        g.strokeStyle = 'rgba(255, 217, 139, 0.6)'
+        g.lineWidth = 4
+        g.beginPath()
+        g.arc(
+          gust.x,
+          gust.y,
+          Math.min(SOLAR_RADIUS, 12 + (phase - SOLAR_BLAST) * 8),
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
     }
     const aim = this.airAim
     const cx = this.hero.x

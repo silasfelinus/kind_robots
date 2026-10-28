@@ -31,6 +31,8 @@
  *   ?  gravity well (space course): draws the heroine toward its center
  *   %  compressed-air canister: restores jet pressure in space
  *   ;  recharge dock: continuously tops up pressure when nearby
+ *   &  orbiting space debris: circles its anchor and hurts on contact
+ *   $  solar gust: pulses outward after a visible warning
  */
 
 export const TILE = 16
@@ -1103,6 +1105,8 @@ export type SpawnKind =
   | 'gravity-well'
   | 'air-canister'
   | 'air-dock'
+  | 'orbital-debris'
+  | 'solar-gust'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1169,6 +1173,8 @@ const SPAWNS: Record<string, SpawnKind> = {
   '?': 'gravity-well',
   '%': 'air-canister',
   ';': 'air-dock',
+  '&': 'orbital-debris',
+  $: 'solar-gust',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */

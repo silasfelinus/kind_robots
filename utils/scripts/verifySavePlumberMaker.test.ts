@@ -31,7 +31,11 @@ import {
   STAGE_GLYPHS,
   parseStage,
 } from '../arcade/games/savePlumberLevels'
-import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
+import {
+  createSavePlumberPreview,
+  orbitingDebrisPosition,
+  solarGustPhase,
+} from '../arcade/games/savePlumberPreview'
 
 const source = (path: string) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
@@ -499,6 +503,103 @@ assert.equal(
   2,
 )
 assert.ok(salvageSpawns.some((spawn) => spawn.kind === 'gravity-well'))
+// Orbital hazards are version-1 shareable Maker tiles and real-time gameplay objects.
+for (const glyph of ['&', '$']) {
+  assert.ok(cosmosTools?.tiles.some((tile) => tile.key === glyph))
+  assert.ok(MAKER_TILES.has(glyph))
+}
+const hazardCourse = paintMakerTile(
+  paintMakerTile(spaceCorridor, 11, 10, '&'),
+  21,
+  10,
+  '$',
+)
+const hazardCopy = decodeMakerLevel(encodeMakerLevel(hazardCourse))
+assert.deepEqual(hazardCopy, hazardCourse)
+const hazardSpawns = parseStage(toMakerStage(hazardCopy)).spawns
+assert.equal(
+  hazardSpawns.filter((spawn) => spawn.kind === 'orbital-debris').length,
+  1,
+)
+assert.equal(
+  hazardSpawns.filter((spawn) => spawn.kind === 'solar-gust').length,
+  1,
+)
+const hazardRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(hazardCopy) },
+)
+assert.equal(hazardRun.orbitingDebris.length, 1)
+assert.equal(hazardRun.solarGusts.length, 1)
+const fragment = hazardRun.orbitingDebris[0]!
+const atFirst = orbitingDebrisPosition(fragment, 1)
+const atLater = orbitingDebrisPosition(fragment, 45)
+assert.ok(
+  Math.hypot(atFirst.x - atLater.x, atFirst.y - atLater.y) > 30,
+  'Debris follows a moving orbit',
+)
+assert.ok(
+  Math.abs(Math.hypot(atFirst.x - fragment.x, atFirst.y - fragment.y) - 34) <
+    0.01,
+)
+hazardRun.hero.x = atFirst.x
+hazardRun.hero.y = atFirst.y - 10
+hazardRun.hero.vx = 0
+hazardRun.hero.vy = 0
+hazardRun.immune = 0
+const heartsBefore = hazardRun.hearts
+hazardRun.update(emptyInput())
+assert.equal(
+  hazardRun.hearts,
+  heartsBefore - 1,
+  'Orbiting fragment damages on actual contact',
+)
+assert.ok(hazardRun.immune > 0, 'Hit protection prevents rapid repeated damage')
+assert.equal(hazardRun.save, undefined)
+
+const gustRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(hazardCopy) },
+)
+const gust = gustRun.solarGusts[0]!
+gustRun.hero.x = gust.x + 60
+gustRun.hero.y = gust.y - 10
+gustRun.hero.vx = 0
+gustRun.hero.vy = 0
+gustRun.tick = 184 + 210 * 2 - gust.offset
+assert.equal(solarGustPhase(gust, gustRun.tick), 184)
+const airBefore = gustRun.airPressure
+gustRun.update(emptyInput())
+assert.equal(solarGustPhase(gust, gustRun.tick), 185)
+assert.ok(
+  gustRun.hero.vx > 1,
+  'Solar gust applies radial impulse without consuming jet pressure',
+)
+assert.ok(gustRun.solarBurst > 0)
+assert.equal(
+  gustRun.airPressure,
+  airBefore,
+  'Space hazards never consume air automatically',
+)
+assert.equal(gustRun.save, undefined)
+const noSpaceHazards = validateMakerLevel({ ...hazardCopy, space: false })
+const quietRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(noSpaceHazards) },
+)
+assert.equal(
+  quietRun.orbitingDebris.length,
+  0,
+  'No moving orbital hazards without space mode',
+)
+assert.equal(quietRun.solarGusts.length, 0, 'Solar gusts remain space-only')
+
+for (const template of ['spacewalk', 'orbital-salvage'] as const) {
+  const parsed = parseStage(toMakerStage(makerTemplate(template)))
+  assert.ok(parsed.spawns.some((spawn) => spawn.kind === 'orbital-debris'))
+  assert.ok(parsed.spawns.some((spawn) => spawn.kind === 'solar-gust'))
+}
+
 const boundedSpace = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(spaceCorridor) },

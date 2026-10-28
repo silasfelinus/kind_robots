@@ -1,7 +1,9 @@
-import { parseStage, type StageDef } from './savePlumberLevels'
+import { GIANT_FOES, parseStage, type StageDef } from './savePlumberLevels'
 
 export const MAKER_VERSION = 1
 export const MAKER_ROWS = 24
+export const MAKER_MIN_ROWS = 16
+export const MAKER_MAX_ROWS = 48
 export const MAKER_MIN_COLS = 32
 export const MAKER_MAX_COLS = 96
 export const MAKER_SAVE_KEY = 'kr:save-plumber:maker:v1'
@@ -79,6 +81,26 @@ export const MAKER_GROUPS: MakerGroup[] = [
     ],
   },
   {
+    name: 'Giants',
+    icon: '♜',
+    tiles: [
+      { key: 'a', icon: '♜', label: 'Giant Pumpbug' },
+      { key: 'A', icon: '◉', label: 'Giant Rivet Roller' },
+      { key: 'C', icon: '◈', label: 'Giant Clockwork Minnow' },
+      { key: 'H', icon: '♜', label: 'Giant Cork Crab' },
+      { key: 'I', icon: '◢', label: 'Giant Glass Gull' },
+      { key: 'J', icon: '✺', label: 'Giant Moss Lantern' },
+      { key: 'N', icon: '♞', label: 'Giant Spring Hare' },
+      { key: 'O', icon: '▣', label: 'Giant Gasket Golem' },
+      { key: 'R', icon: '◥', label: 'Giant Paper Kite' },
+      { key: 'S', icon: '✳', label: 'Giant Umbrella Mite' },
+      { key: 'U', icon: '◡', label: 'Giant Puddle Mimic' },
+      { key: 'V', icon: '✷', label: 'Giant Siphon Sprite' },
+      { key: 'W', icon: '♨', label: 'Giant Chimney Spirit' },
+      { key: 'Y', icon: '♛', label: 'Giant Tea-kettle Knight' },
+    ],
+  },
+  {
     name: 'Rewards',
     icon: '★',
     tiles: [
@@ -101,6 +123,7 @@ export const MAKER_GROUPS: MakerGroup[] = [
   },
 ]
 export const MAKER_TILES = new Set([
+  ...Object.keys(GIANT_FOES),
   '.',
   ...MAKER_GROUPS.flatMap((group) => group.tiles.map((tile) => tile.key)),
 ])
@@ -145,10 +168,11 @@ export function validateMakerLevel(input: unknown): MakerLevel {
   if (value.v !== MAKER_VERSION) throw new Error('Unsupported level version')
   if (
     !Array.isArray(value.rows) ||
-    value.rows.length !== MAKER_ROWS ||
+    value.rows.length < MAKER_MIN_ROWS ||
+    value.rows.length > MAKER_MAX_ROWS ||
     !value.rows.every((row) => typeof row === 'string')
   )
-    throw new Error('A course needs exactly 24 tile rows')
+    throw new Error('Course height must be 16 to 48 tiles')
   const rows = value.rows as string[]
   const width = rows[0]?.length ?? 0
   if (width < MAKER_MIN_COLS || width > MAKER_MAX_COLS)
@@ -194,6 +218,47 @@ export function toMakerStage(level: MakerLevel): StageDef {
     rows: level.rows,
     dark: level.dark,
   }
+}
+
+/** Extend east or skyward, keeping the ground and all existing geometry anchored. */
+export function resizeMakerLevel(
+  level: MakerLevel,
+  cols: number,
+  rows: number,
+): MakerLevel {
+  const source = validateMakerLevel(level)
+  if (
+    !Number.isInteger(cols) ||
+    cols < MAKER_MIN_COLS ||
+    cols > MAKER_MAX_COLS
+  )
+    throw new Error('Course width must be 32 to 96 tiles')
+  if (
+    !Number.isInteger(rows) ||
+    rows < MAKER_MIN_ROWS ||
+    rows > MAKER_MAX_ROWS
+  )
+    throw new Error('Course height must be 16 to 48 tiles')
+  const oldCols = source.rows[0]!.length
+  const oldRows = source.rows.length
+  if (
+    cols < oldCols &&
+    source.rows.some((line) =>
+      [...line.slice(cols)].some(
+        (tile) => tile !== '.' && !(tile === '#' && line[cols - 1] === '#'),
+      ),
+    )
+  )
+    throw new Error('Clear tiles at the right edge before reducing width')
+  if (rows < oldRows && source.rows.slice(0, oldRows - rows).some((line) => /[^.]/.test(line)))
+    throw new Error('Clear tiles at the top before reducing height')
+  const resized = source.rows.map((line) =>
+    line.padEnd(cols, line.endsWith('#') ? '#' : '.').slice(0, cols),
+  )
+  if (rows > oldRows)
+    resized.unshift(...Array.from({ length: rows - oldRows }, () => '.'.repeat(cols)))
+  else if (rows < oldRows) resized.splice(0, oldRows - rows)
+  return validateMakerLevel({ ...source, rows: resized })
 }
 
 /** Compact, portable, versioned URL payload. Every import is validated on decoding. */
@@ -242,7 +307,7 @@ export function paintMakerTile(
   if (
     !MAKER_TILES.has(tile) ||
     y < 0 ||
-    y >= MAKER_ROWS ||
+    y >= level.rows.length ||
     x < 0 ||
     x >= level.rows[0]!.length
   )

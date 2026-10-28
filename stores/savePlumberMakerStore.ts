@@ -9,6 +9,7 @@ import {
   makerId,
   newMakerLevel,
   paintMakerTile,
+  resizeMakerLevel,
   validateMakerLevel,
   type MakerLevel,
 } from '~/utils/arcade/games/savePlumberMaker'
@@ -150,6 +151,24 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     if (!next) return
     undoStack.value.push(clone(level.value))
     level.value = next
+  }
+
+  function resize(cols: number, rows: number): boolean {
+    try {
+      const next = resizeMakerLevel(level.value, cols, rows)
+      if (next.rows.length === level.value.rows.length && next.rows[0]!.length === level.value.rows[0]!.length)
+        return true
+      pushUndo()
+      level.value = next
+      reviewSummary.value = blankReviewSummary()
+      reviewComment.value = ''
+      message.value = `Course resized: ${cols} × ${rows} tiles.`
+      error.value = ''
+      return true
+    } catch (cause) {
+      error.value = cause instanceof Error ? cause.message : 'Cannot resize this course.'
+      return false
+    }
   }
 
   function updateSettings(
@@ -352,6 +371,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     initialize,
     beginStroke,
     paint,
+    resize,
     undo,
     redo,
     updateSettings,

@@ -7,10 +7,12 @@ This is a feature-by-feature design comparison, **not** a claim of equivalence. 
 - A private local library of up to 24 drafts, separate from the three campaign save slots.
 - Save, load, edit, new, undo/redo, palette by category, grid placement by pointer/touch or keyboard, world/theme/darkness, author/title, share link and direct playable import.
 - Strict validated, versioned course data with controlled dimensions and glyphs, one start, one exit, paired pipes; rejects malformed/oversized imports.
-- Five grouped palettes covering **every parser glyph** in \`savePlumberLevels.ts\` through a regression test.
+- Six grouped palettes covering **every parser glyph** in \`savePlumberLevels.ts\` through a regression test.
 - The actual Save the Plumber platform engine plays imported levels (custom runs never write to campaign saves).
 - Authenticated, database-backed 1–5-star ratings and optional written reviews after a clear, using the existing Reaction model and per-course revision identity. Signed-out players can read community averages and comments.
 - Responsive bounded console presentation with compact icon-first tools and a large playable preview.
+- One-click course dimensions: width 32–96 tiles and height 16–48 tiles, extending right/skyward with ground continuity, loss-preventing trim checks, undo and portable share-code round trips.
+- Giant versions of all 14 ordinary foes, selectable from a separate icon-first Giants category. These preserve the familiar enemy behavior, use doubled sprites and enlarged collision geometry, and resist their first normal stomp. They are distinct from eight existing world bosses.
 
 The feature is an early Maker, not an equivalent to the two commercial editors. The Share URL contains the level itself, so no account or public upload is required and content is portable; it is long, cannot yet be searched centrally, and does not provide mutable hosted level records. A verified course snapshot is stored in the database on its first review, and subsequent edits start a fresh Reaction review identity.
 
@@ -20,8 +22,8 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 | ---------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------ | ---------------------------------------------------- |
 | Core tile placement and playable test    | Shipped                                                                  | Yes                                  | Yes                                                  |
 | Categories and icon-first affordances    | Shipped                                                                  | Yes                                  | Yes                                                  |
-| Multiple terrain/enemy/gadget types      | Shipped, engine-bound                                                    | Broad, multiple game styles          | Huge editor object library                           |
-| Native save/load/edit                    | Device-local drafts                                                      | Yes                                  | Yes                                                  |
+| Multiple terrain/enemy/gadget types      | Shipped, engine-bound; 14 giant foe variants                                                    | Broad, multiple game styles          | Huge editor object library                           |
+| Native save/load/edit                    | Device-local drafts, dimensions adjustable by icon                                                      | Yes                                  | Yes                                                  |
 | Share to another device                  | Portable URL payload                                                     | Hosted course IDs                    | Hosted level IDs                                     |
 | Global library/search/discovery          | Not shipped                                                              | Yes                                  | Yes                                                  |
 | Online rating and creator identity       | Reaction stars/comments shared; level creator verification still missing | Yes, hosted reactions/likes          | Yes, hosted ratings/likes                            |
@@ -51,7 +53,7 @@ The \`STAGE_GLYPHS\` test enforces palette coverage for the first generation of 
 
 1. Authenticated publication, stable short share IDs, editing/versions/forks, verified creator ownership, tamper protection, play counts and discovery. Rating/comment storage now uses the existing Reaction table; distinguish that from missing hosted level publishing and moderation.
 2. Real course clear-proof testing and fairness/softlock checks before publication; touch gamepad and full device-geometry audits.
-3. Rectangle/fill/selection/copy/paste, multi-select, contextual properties and templates; multi-area, vertical/secret exits, slopes, autoscroll, timed triggers.
+3. Rectangle/fill/selection/copy/paste, multi-select, contextual properties and templates; subareas and vertical/secret exits, slopes, autoscroll, timed triggers. Single-area vertical sizing is now available.
 4. Advanced original sequencing system inspired by Geometry Dash's _creative flexibility_, not its copied content: groups, timeline, triggers, preview scrubbing, cameras, player interactions, and a strong undo stack.
 5. Re-audit against both Mario Maker generations and Geometry Dash after each substantial game mechanic expansion.
 

@@ -616,7 +616,7 @@
               <p>{{ REDSHIRT_QUARTERS.description }}</p>
               <p>{{ REDSHIRT_QUARTERS.exchange }}</p>
               <strong
-                >{{ (run.redshirtRoster ?? []).length }} redshirts ready · 12
+                >{{ (run.redshirtRoster ?? []).length }} redshirts ready · 8
                 miniature bunks</strong
               >
               <button

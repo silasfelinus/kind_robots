@@ -85,9 +85,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (run.value) {
         redshirtKnowledge.value = learnRedshirtKnowledge(run.value, redshirtKnowledge.value)
         localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
+      } else {
+        localStorage.removeItem(SAVE_KEY)
       }
       localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(redshirtKnowledge.value))
-      else localStorage.removeItem(SAVE_KEY)
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -98,9 +99,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     if (loaded.value) return
     loaded.value = true
     try {
-      redshirtKnowledge.value = normalizeRedshirtKnowledge(
-        JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) ?? '{}'),
-      )
+      try {
+        redshirtKnowledge.value = normalizeRedshirtKnowledge(
+          JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) ?? '{}'),
+        )
+      } catch {
+        // A damaged knowledge cache cannot invalidate an otherwise valid voyage.
+        redshirtKnowledge.value = {}
+      }
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreTrioAdventure(
         restoreVoyage(raw ? JSON.parse(raw) : null),

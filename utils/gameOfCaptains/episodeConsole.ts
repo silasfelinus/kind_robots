@@ -387,13 +387,19 @@ export function dispatchEpisodeBatch(
     const verdict = successful
       ? 'Field objective achieved; the local faction records your intervention.'
       : 'Field objective compromised; the local faction records the consequences.'
+    const leadName = lead === 'captain'
+      ? 'The captain'
+      : CREW_PROFILES.find((person) => person.id === lead)?.name ?? lead
+    const coherentOutcome = !successful && !last.casualty && !REDSHIRT_BY_ID[lead]
+      ? `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${last.secret ? ' SECRET DETOUR: ' + encounter.secretResult : ''}`
+      : last.outcome
     const result = {
       ...last,
       chance: forecast,
       successful,
       durationDays,
       returnedDay: departure + durationDays - 1,
-      outcome: last.outcome + ' ' + verdict,
+      outcome: coherentOutcome + ' ' + verdict,
     }
     next = {
       ...candidate,

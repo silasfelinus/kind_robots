@@ -23,12 +23,12 @@ export type ExpeditionVisit = {
 export const REDSHIRT_QUARTERS = {
   name: 'The Drawer of Infinite Replacements',
   description:
-    'The couch miniaturizes a dormitory behind the backrest. It has twelve bunks, one hundred forms, and a suspiciously efficient memorial printer.',
+    'The couch miniaturizes a dormitory behind the backrest. There are twelve bunks but only eight original personnel contracts per voyage. The memorial printer is suspiciously efficient.',
   bunks: 12,
   // Recruitment is scarce even when unused bunks remain. Copies share an identity.
   recruitmentLimit: 8,
   exchange:
-    'Personnel assures the captain that there are always more volunteers if needed. Personnel has never volunteered.',
+    'Personnel has authorized exactly eight original contracts per voyage. A fallen person does not open a new slot. Personnel has never volunteered.',
 } as const
 
 function hash(text: string): number {

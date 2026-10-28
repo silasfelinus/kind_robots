@@ -7,7 +7,12 @@ import {
   briarQuestProgress,
   validateBriarQuests,
 } from '../memoryDungeon/briarQuests'
-import { HOUSE_ROOMS } from '../memoryDungeon/house'
+import { HOUSE_ROOMS, newHouseProgress } from '../memoryDungeon/house'
+import {
+  BRIAR_RARE_EVENTS,
+  earnedBriarRareEvents,
+  validateBriarRareEvents,
+} from '../memoryDungeon/briarRareEvents'
 import {
   houseEpilogueScores,
   HOUSE_EPILOGUE_LENSES,
@@ -591,6 +596,99 @@ const save = restoreBriarSave(
 assert.deepEqual(save.sceneChoices, all.briar)
 assert.ok(!('quests' in save), 'threads add no save field')
 
+// Three cross-thread rare interludes are genuinely earned: four decisions
+// from different scenes/rooms, two mutually exclusive authored consequences.
+// No invented reward, hidden save field, or unvisited witness can trigger one.
+assert.deepEqual(validateBriarRareEvents(), [])
+assert.equal(BRIAR_RARE_EVENTS.length, 3)
+const rareCases = [
+  {
+    id: 'the-fourth-column',
+    briar: { '6,1': 'mark' },
+    house: { 'HD-24': 'mark', 'HD-05': 'open' },
+    branchScope: 'briar',
+    branchKey: '4,3',
+    choices: ['plan', 'load'],
+  },
+  {
+    id: 'the-second-signature',
+    briar: { '4,2': 'promise', '7,4': 'register' },
+    house: { 'HD-17': 'read' },
+    branchScope: 'house',
+    branchKey: 'HD-25',
+    choices: ['compare', 'recount'],
+  },
+  {
+    id: 'a-letter-written-back',
+    briar: { '5,4': 'errand', '6,4': 'carry' },
+    house: { 'HD-17': 'read' },
+    branchScope: 'briar',
+    branchKey: '6,3',
+    choices: ['remember', 'protect'],
+  },
+] as const
+assert.deepEqual(earnedBriarRareEvents({}, {}), [])
+for (const event of rareCases) {
+  const endings = new Set<string>()
+  for (const choice of event.choices) {
+    const briar: Record<string, string> = { ...event.briar }
+    const house: Record<string, string> = { ...event.house }
+    ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] =
+      choice
+    const earned = earnedBriarRareEvents(briar, house)
+    assert.equal(earned.length, 1, `${event.id} ${choice} is earned`)
+    assert.equal(earned[0]?.id, event.id)
+    assert.ok(earned[0]!.outcome.length > 180)
+    endings.add(earned[0]!.outcome)
+    const restored = restoreBriarSave(
+      JSON.parse(
+        JSON.stringify({
+          ...newBriarSave(),
+          sceneChoices: briar,
+          house: { ...newHouseProgress(), decisions: house },
+        }),
+      ),
+    )
+    assert.deepEqual(
+      earnedBriarRareEvents(
+        restored.sceneChoices,
+        restored.house?.decisions ?? {},
+      ),
+      earned,
+      `${event.id} survives a save/reload without new state`,
+    )
+    for (const key of Object.keys(event.briar)) {
+      const incomplete = { ...briar }
+      delete incomplete[key]
+      assert.equal(
+        earnedBriarRareEvents(incomplete, house).length,
+        0,
+        `${event.id} requires Briar ${key}`,
+      )
+    }
+    for (const key of Object.keys(event.house)) {
+      const incomplete = { ...house }
+      delete incomplete[key]
+      assert.equal(
+        earnedBriarRareEvents(briar, incomplete).length,
+        0,
+        `${event.id} requires House ${key}`,
+      )
+    }
+    const invalidBriar = { ...briar }
+    const invalidHouse = { ...house }
+    ;(event.branchScope === 'briar'
+      ? invalidBriar
+      : invalidHouse)[event.branchKey] = 'forged'
+    assert.equal(
+      earnedBriarRareEvents(invalidBriar, invalidHouse).length,
+      0,
+      `${event.id} rejects forged branch choices`,
+    )
+  }
+  assert.equal(endings.size, 2, `${event.id} has two distinct outcomes`)
+}
+
 // The Forge counts the eight threads as quests.
 const book = buildMemoryDungeonPlaybook()
 const beats = Object.values(book.nodes).filter((n) =>
@@ -613,11 +711,11 @@ assert.match(
 )
 const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
-assert.match(log, /world\.briarQuests/)
+assert.match(log, /world\.briarQuests/)\nassert.match(log, /data-testid="memory-rare-interlude"/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
 
 console.log(
-  'Memory Briar quests: 8 side quests over real Briar and House choices, each finishable and closable, all eight in one run, epilogue weight and saves verified',
+  'Memory Briar quests: 8 side quests, 3 earned rare interludes with 6 authored outcomes, epilogue weight and save restoration verified',
 )

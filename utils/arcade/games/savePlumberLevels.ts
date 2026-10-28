@@ -29,6 +29,7 @@
  *   *  the stage's Golden Gear (one per stage, harder to reach each world)
  *   !  a glider: flies at her at head height (duck under it, swing or stomp)
  *   ?  gravity well (space course): draws the heroine toward its center
+ *   ;  air canister (replenishes jet reserve)  %  refill dock (recharges nearby)
  */
 
 export const TILE = 16
@@ -1099,6 +1100,8 @@ export type SpawnKind =
   | 'icicle'
   | 'snowball'
   | 'gravity-well'
+  | 'air-canister'
+  | 'air-dock'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1163,6 +1166,8 @@ const SPAWNS: Record<string, SpawnKind> = {
   e: 'icicle',
   q: 'snowball',
   '?': 'gravity-well',
+  ';': 'air-canister',
+  '%': 'air-dock',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */

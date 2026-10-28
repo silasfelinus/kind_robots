@@ -24,6 +24,13 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 - A Space starter called **Airlock Drift** provides floating asteroid blockers, collectible routes, a checkpoint, aerial foes and the `?` gravity-well obstacle with positional pull and a hazardous core. The Maker Cosmos palette exposes gravity wells alongside compatible asteroid blocks and phase bridges. Gravity wells and thrust operate in the same runtime used by playtests and portable share links.
 - A seeded parallax starfield, distant nebula and directional air plume visibly distinguish the mode from existing World 8 art. This is an independently selectable **Maker environment**, not a ninth story world or a finished painted-space asset package. Existing campaign movement, draft IDs, save slots and legacy share code normalization remain unchanged.
 
+## Space refueling and long-route design
+
+- The Maker-only space jet now spends 8 units per directional air burst from a 100-unit reserve. Existing starter levels and all eight campaign worlds remain on their original movement rules; only opt-in space stages have air management.
+- A collectible `;` air canister restores 45 units once per attempt, and a `%` refilling dock steadily replenishes the tank by proximity. A tiny ambient trickle can eventually recover one burst if a course is poorly provisioned, preventing permanent softlocks. Checkpoints and respawns refill the tank.
+- The real gameplay screen shows an AIR percentage and charging meter; the Maker Cosmos palette exposes both supply objects as genuine parser spawn kinds. `Airlock Drift` teaches the mechanic, while the new `Orbital Salvage` starter has a longer, more demanding sequence of asteroids, wells, canisters and docks. Both templates round-trip through validated share codes.
+- Space checkpoints now require physical proximity in both axes rather than awarding a checkpoint simply for drifting past the right-hand side at a different altitude. This keeps the skill challenge meaningful in zero gravity.
+
 ## Water and winter truth-in-features
 
 - **Tideglass Marina (World 2)** has a water-themed campaign with rafts, canal locks, minnows and crabs. The existing `w` glyph is lethal water, **not a swimming mechanic**; the new harbor starter is an above-water platforming challenge, not an underwater course.

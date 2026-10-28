@@ -70,13 +70,14 @@ function witnessedHistory(
 
 const captainReflections: Record<VoyageRun['captain'], string> = {
   fluke:
-    'Fluke crosses out a previously invented romantic victory in the log. The real one needs no exaggeration.',
-  vale: 'Vale files this as a personal choice, conspicuously not a treaty.',
-  solace: 'Solace records the first occasion nobody asked to be rescued.',
-  rex: 'Rex leaves an entire paragraph of his heroic memoir blank to make room for another person.',
+    'Fluke resists reading tomorrow’s answer. Nobody gets to skip the uncertain, delicious present.',
+  vale: 'Vale does not try to rewrite the other person’s preferences. This may be her most radical invention.',
+  solace:
+    'Solace checks the exits, then lets someone else keep watch. They make it through the evening alive.',
+  rex: 'Rex declines to commission a statue of this feeling, although he has already drafted the inscription.',
   quill:
-    'Quill locks away the footnotes and asks permission to tell the story at all.',
-  ro: 'Ro submits credentials marked simply: invited guest.',
+    'Quill sets down the flask and unseals his suit’s privacy controls. The invitation is a choice, not a protocol.',
+  ro: 'Ro postpones the organ music. The velvet-clad master of ceremonies lets affection remain gloriously unrehearsed.',
 }
 
 export function romanceMoment(run: VoyageRun): RomanceMoment | null {

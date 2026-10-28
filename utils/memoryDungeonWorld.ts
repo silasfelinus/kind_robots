@@ -627,7 +627,8 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: lastHeart ? 3 : progress.hearts - 1,
-    player: lastHeart && !darkBout ? BRIAR_START : progress.player,
+    player:
+      lastHeart && !darkBout && !houseOrigin ? BRIAR_START : progress.player,
     house,
     status:
       darkBout && houseOrigin
@@ -678,7 +679,7 @@ export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: 3,
-    player: BRIAR_START,
+    player: houseOrigin ? progress.player : BRIAR_START,
     house,
     status: retreat,
   }

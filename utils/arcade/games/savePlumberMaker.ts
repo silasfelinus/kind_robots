@@ -118,6 +118,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
+      {
+        key: '%',
+        icon: '◉',
+        label: 'Air canister · refills compressed jet pressure',
+      },
       { key: 'B', icon: '◆', label: 'Asteroid rock · solid obstacle' },
       { key: ':', icon: '◇', label: 'Phase bridge · flickers on/off' },
       { key: 'Q', icon: '▦', label: 'Orbital cargo · falling hazard' },
@@ -463,12 +468,15 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     for (let y = 11; y <= 15; y++) for (let x = 24; x <= 26; x++) put(x, y, 'B')
     for (let y = 4; y <= 7; y++) for (let x = 40; x <= 43; x++) put(x, y, 'B')
     for (let y = 17; y <= 20; y++) for (let x = 44; x <= 46; x++) put(x, y, 'B')
+    put(12, 12, '%')
     put(16, 9, '?')
     put(37, 15, '?')
+    put(31, 13, '%')
     put(33, 7, 'K')
     put(50, 11, 'I')
     put(21, 6, 'u')
     put(29, 4, '1')
+    put(48, 9, '%')
     put(51, 6, '+')
     for (let x = 8; x < 61; x += 6) put(x, 11, 'o')
   } else if (template === 'skybridge') {

@@ -86,6 +86,10 @@ const AIR_JET_IMPULSE = 1.04
 const AIR_JET_COOLDOWN = 7
 const AIR_JET_TOP_SPEED = 5.2
 const AIR_JET_DRAG = 0.998
+const AIR_PRESSURE_CAPACITY = 100
+const AIR_PRESSURE_COST = 9
+const AIR_PRESSURE_RECOVERY = 0.14
+const AIR_CANISTER_REFILL = 65
 const JUMP = -8.6
 /** Springstep power: a higher jump, and a float while A is held on the way down. */
 const SPRING_JUMP = -10.2
@@ -435,6 +439,9 @@ export class PlumberRun implements ArcadeGameInstance {
   airAim = { x: 1, y: 0 }
   airPlume = 0
   airCooldown = 0
+  /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
+  airPressure = AIR_PRESSURE_CAPACITY
+  airCanisters: { x: number; y: number; taken: boolean }[] = []
   gravityWells: { x: number; y: number }[] = []
   grace = 0
   jumpBuffer = 0
@@ -928,6 +935,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airAim = { x: 1, y: 0 }
     this.airPlume = 0
     this.airCooldown = 0
+    this.airPressure = AIR_PRESSURE_CAPACITY
+    this.airCanisters = []
     this.fragileIce.clear()
     this.springs = []
     this.tokensOnMap = []
@@ -1074,6 +1083,9 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'steam-vent':
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
           break
+        case 'air-canister':
+          this.airCanisters.push({ x: cx, y: bottom - TILE / 2, taken: false })
+          break
         case 'gravity-well':
           this.gravityWells.push({ x: cx, y: bottom - TILE / 2 })
           break
@@ -1157,6 +1169,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.ground = false
     this.riding = null
     this.hearts = HEARTS
+    this.airPressure = AIR_PRESSURE_CAPACITY
     this.immune = 60
     this.facing = 1
     this.camera = this.cameraTarget()
@@ -1271,7 +1284,12 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.vx *= 0.89
       hero.vy *= 0.89
     }
-    if ((keys.held.x || keys.pressed.x) && this.airCooldown === 0) {
+    if (
+      (keys.held.x || keys.pressed.x) &&
+      this.airCooldown === 0 &&
+      this.airPressure >= AIR_PRESSURE_COST
+    ) {
+      this.airPressure = Math.max(0, this.airPressure - AIR_PRESSURE_COST)
       hero.vx += this.airAim.x * AIR_JET_IMPULSE
       hero.vy += this.airAim.y * AIR_JET_IMPULSE
       const speed = Math.hypot(hero.vx, hero.vy)
@@ -1282,6 +1300,12 @@ export class PlumberRun implements ArcadeGameInstance {
       this.airCooldown = AIR_JET_COOLDOWN
       this.airPlume = 7
       this.sound.play('shoot')
+    } else {
+      // A tiny reserve compressor prevents soft locks when a builder omits canisters.
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_PRESSURE_RECOVERY,
+      )
     }
     for (const well of this.gravityWells) {
       const xx = well.x - hero.x
@@ -1423,6 +1447,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
+    this.collectAirCanisters()
     this.updateFoes(prevBottom)
     this.updateWinterHazards(prevBottom)
     this.updateVents()
@@ -1981,6 +2006,24 @@ export class PlumberRun implements ArcadeGameInstance {
         this.carrying = false
       }
       this.sound.play('level')
+    }
+  }
+
+  private collectAirCanisters() {
+    if (!this.stage.space) return
+    const x = this.hero.x
+    const y = this.hero.y + TALL / 2
+    for (const canister of this.airCanisters) {
+      if (canister.taken) continue
+      if (Math.abs(x - canister.x) > 16 || Math.abs(y - canister.y) > 18)
+        continue
+      canister.taken = true
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_CANISTER_REFILL,
+      )
+      this.score += 125
+      this.sound.play('extra')
     }
   }
 
@@ -2579,8 +2622,16 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private updateCheckpoints() {
     for (const flag of this.checkpoints) {
-      if (flag.reached || this.hero.x < flag.x - 8) continue
+      if (flag.reached) continue
+      if (this.stage.space) {
+        if (
+          Math.abs(this.hero.x - flag.x) > 16 ||
+          Math.abs(this.hero.y + TALL / 2 - (flag.y - TALL / 2)) > 22
+        )
+          continue
+      } else if (this.hero.x < flag.x - 8) continue
       flag.reached = true
+      if (this.stage.space) this.airPressure = AIR_PRESSURE_CAPACITY
       this.checkpoint = { x: flag.x, y: flag.y - TALL }
       this.score += 100
       this.sound.play('extra')
@@ -4138,6 +4189,23 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private renderSpaceFeatures(g: CanvasRenderingContext2D) {
+    for (const canister of this.airCanisters) {
+      if (canister.taken) continue
+      const shimmer = 1 + Math.sin(this.tick / 15 + canister.x) * 0.12
+      g.save()
+      g.translate(canister.x, canister.y)
+      g.scale(shimmer, shimmer)
+      g.fillStyle = '#152a50'
+      g.strokeStyle = '#85f1ff'
+      g.lineWidth = 2
+      g.fillRect(-7, -10, 14, 20)
+      g.strokeRect(-7, -10, 14, 20)
+      g.fillStyle = '#ffe5a7'
+      g.fillRect(-4, -13, 8, 4)
+      g.fillStyle = '#7ce2ed'
+      g.fillRect(-3, -5, 6, 12)
+      g.restore()
+    }
     for (const well of this.gravityWells) {
       const phase = Math.sin(this.tick / 14) * 3
       g.strokeStyle = 'rgba(173, 136, 250, 0.6)'
@@ -4247,7 +4315,21 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillStyle = '#c7edff'
       g.font = 'bold 11px system-ui'
       g.textAlign = 'left'
-      g.fillText('◁ △ ▷ ▽ AIM  ·  HOLD C AIR JET  ·  A BRAKE', 15, H - 15)
+      g.fillText('◁ △ ▷ ▽ AIM · C AIR · A BRAKE · ◉ REFILL', 15, H - 15)
+      g.fillStyle = 'rgba(7, 14, 33, 0.88)'
+      g.fillRect(W - 139, 10, 129, 43)
+      g.fillStyle = '#e4f8ff'
+      g.font = 'bold 11px system-ui'
+      g.fillText('AIR  ' + Math.ceil(this.airPressure) + '%', W - 131, 26)
+      g.fillStyle = '#21334c'
+      g.fillRect(W - 131, 32, 113, 11)
+      g.fillStyle = this.airPressure < 25 ? '#f9aa6c' : '#7ce2ed'
+      g.fillRect(
+        W - 130,
+        33,
+        (111 * this.airPressure) / AIR_PRESSURE_CAPACITY,
+        9,
+      )
     }
   }
 

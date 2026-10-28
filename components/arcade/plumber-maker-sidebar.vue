@@ -215,8 +215,9 @@
       </label>
       <p v-if="maker.level.space === true" class="maker-help">
         AIR-JET RULES: Aim your travel direction with arrows, hold C to blast
-        air in the opposite direction, release to coast, hold A to brake.
-        Gravity wells tug you toward their center.
+        air in the opposite direction, release to coast, hold A to brake. Each
+        thrust spends pressure. Collect cyan canisters (◉) to refill, and touch
+        checkpoints to recharge. Gravity wells tug you inward.
       </p>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the

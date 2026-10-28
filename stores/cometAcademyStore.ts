@@ -12,6 +12,7 @@ import { defineStore } from 'pinia'
 import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
+  assignPlayerCase,
   chooseEncounter,
   finishAcademy,
   incidentsFor,
@@ -213,6 +214,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function lead(caseId: string) {
+    if (!run.value) return
+    run.value = assignPlayerCase(run.value, caseId)
+    persist()
+  }
+
   function dispatch() {
     if (!run.value) return
     run.value = resolveDispatch(run.value)
@@ -258,6 +265,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     social,
     visit,
     assign,
+    lead,
     dispatch,
     choose,
     next,

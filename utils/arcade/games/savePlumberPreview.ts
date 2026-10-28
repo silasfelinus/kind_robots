@@ -4375,7 +4375,11 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillText('AIR  ' + Math.ceil(this.airPressure) + '%', W - 131, 26)
       g.fillStyle = '#21334c'
       g.fillRect(W - 131, 32, 113, 11)
-      g.fillStyle = this.airDockActive ? '#ffe49a' : this.airPressure < 25 ? '#f9aa6c' : '#7ce2ed'
+      g.fillStyle = this.airDockActive
+        ? '#ffe49a'
+        : this.airPressure < 25
+          ? '#f9aa6c'
+          : '#7ce2ed'
       g.fillRect(
         W - 130,
         33,

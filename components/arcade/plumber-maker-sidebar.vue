@@ -240,7 +240,8 @@ const emit = defineEmits<{
   (event: 'resize-course', dimensions: { cols: number; rows: number }): void
   (
     event: 'load-template',
-    name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
+    name:
+      'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
   ): void
 }>()
 const starterCourses = [

@@ -490,8 +490,14 @@ const salvage = makerTemplate('orbital-salvage')
 assert.equal(salvage.space, true)
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(salvage)), salvage)
 const salvageSpawns = parseStage(toMakerStage(salvage)).spawns
-assert.equal(salvageSpawns.filter((spawn) => spawn.kind === 'air-dock').length, 2)
-assert.equal(salvageSpawns.filter((spawn) => spawn.kind === 'air-canister').length, 2)
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-dock').length,
+  2,
+)
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-canister').length,
+  2,
+)
 assert.ok(salvageSpawns.some((spawn) => spawn.kind === 'gravity-well'))
 const boundedSpace = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
@@ -514,12 +520,20 @@ boundedSpace.hero.x = 32 * 16 - 9.5
 boundedSpace.hero.y = 150
 boundedSpace.hero.vx = 3
 boundedSpace.update(emptyInput())
-assert.equal(boundedSpace.hero.x, 32 * 16 - 9, 'Right hull keeps the astronaut inside')
+assert.equal(
+  boundedSpace.hero.x,
+  32 * 16 - 9,
+  'Right hull keeps the astronaut inside',
+)
 boundedSpace.hero.x = 128
 boundedSpace.hero.y = 24 * 16 - 20 - 0.5
 boundedSpace.hero.vy = 4
 boundedSpace.update(emptyInput())
-assert.equal(boundedSpace.hero.y, 24 * 16 - 20, 'Bottom hull has no falling softlock')
+assert.equal(
+  boundedSpace.hero.y,
+  24 * 16 - 20,
+  'Bottom hull has no falling softlock',
+)
 assert.equal(boundedSpace.hero.vy, 0)
 
 const worldStage = parseStage(toMakerStage(initial))

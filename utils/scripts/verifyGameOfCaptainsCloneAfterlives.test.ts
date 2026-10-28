@@ -57,6 +57,9 @@ for (const trait of signatures) {
     ...base,
     phase: 'expedition',
     chapter: 6,
+    // This synthetic chapter-six expedition has no legitimate charted route.
+    // A real voyage charts a new mission each chapter.
+    missionId: undefined,
     supplies: 14,
     trust: 4,
     reputation: 4,

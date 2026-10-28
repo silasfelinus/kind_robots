@@ -265,6 +265,60 @@ assert.match(
   'The earliest authored patrol closure takes precedence over later alternatives',
 )
 
+// Oren's manifest records exits for everyone, not just the traveler who
+// successfully used one. Following a marked route and privately testing a
+// cellar shortcut leave different gaps in the public evacuation plan.
+const manifest = BRIAR_QUESTS.find((q) => q.id === 'orens-emergency-manifest')!
+const manifestClosures = [
+  ['briar', '6,1', 'follow', /left no ribbon for the traveler coming behind you/],
+  ['house', 'HD-24', 'retreat', /successful private escape for a public evacuation plan/],
+] as const
+const manifestEndings = new Set<string>()
+for (const [scope, key, choice, expected] of manifestClosures) {
+  const decisions = split(manifest)
+  ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
+  const result = briarQuestProgress(manifest, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the manifest`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, manifest.closed)
+  manifestEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
+  assert.equal(
+    briarQuestProgress(manifest, restored.sceneChoices, restoredHouse).quest
+      .closed,
+    result.quest.closed,
+    'The manifest outcome survives serialized decisions',
+  )
+}
+assert.equal(manifestEndings.size, 2, 'two distinct manifest outcomes')
+const forgedManifest = split(manifest)
+forgedManifest.house['HD-24'] = 'forged'
+assert.equal(
+  briarQuestProgress(manifest, forgedManifest.briar, forgedManifest.house).state,
+  'active',
+  'A fabricated cellar decision cannot close the manifest',
+)
+const twoManifestClosures = split(manifest)
+twoManifestClosures.briar['6,1'] = 'follow'
+twoManifestClosures.house['HD-24'] = 'retreat'
+assert.match(
+  briarQuestProgress(
+    manifest,
+    twoManifestClosures.briar,
+    twoManifestClosures.house,
+  ).quest.closed,
+  /left no ribbon/,
+  'The earliest authored manifest divergence determines the ending',
+)
+
 // Respecting the orchard's consent, sharing a remembered taste, and naming an
 // unfed guest are worthwhile acts, but none supplies the workers' missing meal.
 // The Threads log must report each tradeoff rather than invent a stolen harvest.

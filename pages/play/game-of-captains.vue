@@ -1,43 +1,165 @@
 <template>
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
-    :class="{ 'cap-large-type': store.preferences.largeText, 'cap-reduce-motion': store.preferences.reducedMotion }"
+    :class="{
+      'cap-large-type': store.preferences.largeText,
+      'cap-reduce-motion': store.preferences.reducedMotion,
+    }"
     data-layout="console-fixed"
     aria-label="Space Couch"
   >
-    <section v-if="atTitle" class="cap-menu" data-testid="space-couch-title-screen" aria-label="Space Couch main menu">
-      <img class="cap-menu-image" src="/game-of-captains/space-couch-stage.svg" alt="A red upholstered couch sails across a starfield under its invisible force bubble" />
+    <section
+      v-if="atTitle"
+      class="cap-menu"
+      data-testid="space-couch-title-screen"
+      aria-label="Space Couch main menu"
+    >
+      <img
+        class="cap-menu-image"
+        src="/game-of-captains/space-couch-stage.svg"
+        alt="A red upholstered couch sails across a starfield under its invisible force bubble"
+      />
       <div class="cap-menu-shade" aria-hidden="true" />
       <div class="cap-menu-body">
-        <span class="cap-menu-kicker">AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span>
+        <span class="cap-menu-kicker"
+          >AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span
+        >
         <h2>SPACE <em>COUCH</em></h2>
-        <p class="cap-menu-deck">One red couch. An invisible force bubble. A galaxy full of people who insist this isn't a proper spaceship.</p>
-        <p v-if="!store.loaded" role="status">Retrieving the ship's incident reports…</p>
-        <nav v-else-if="titlePanel === 'home'" class="cap-menu-actions" aria-label="Game menu">
-          <button v-if="run" type="button" data-testid="space-couch-continue" @click="atTitle = false">CONTINUE VOYAGE <span>➜</span><small>Chapter {{ run.chapter }} · {{ CAPTAINS.find((captain) => captain.id === run?.captain)?.name }}</small></button>
-          <button type="button" data-testid="space-couch-new-game" @click="startNewVoyage">START NEW GAME <span>✦</span><small>Choose your background, captain, constellation and crew</small></button>
-          <button type="button" data-testid="space-couch-main-settings" @click="titlePanel = 'settings'">SETTINGS <span>⚙</span><small>Readability and motion controls</small></button>
-          <button type="button" data-testid="space-couch-main-log" @click="titlePanel = 'log'">CAPTAIN'S LOG <span>▤</span><small>{{ run ? run.log.length + ' entries in the current voyage' : 'No voyage recorded yet' }}</small></button>
+        <p class="cap-menu-deck">
+          One red couch. An invisible force bubble. A galaxy full of people who
+          insist this isn't a proper spaceship.
+        </p>
+        <p v-if="!store.loaded" role="status">
+          Retrieving the ship's incident reports…
+        </p>
+        <nav
+          v-else-if="titlePanel === 'home'"
+          class="cap-menu-actions"
+          aria-label="Game menu"
+        >
+          <button
+            v-if="run"
+            type="button"
+            data-testid="space-couch-continue"
+            @click="atTitle = false"
+          >
+            CONTINUE VOYAGE <span>➜</span
+            ><small
+              >Chapter {{ run.chapter }} ·
+              {{
+                CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+              }}</small
+            >
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-new-game"
+            @click="startNewVoyage"
+          >
+            START NEW GAME <span>✦</span
+            ><small
+              >Choose your background, captain, constellation and crew</small
+            >
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-main-settings"
+            @click="titlePanel = 'settings'"
+          >
+            SETTINGS <span>⚙</span
+            ><small>Readability and motion controls</small>
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-main-log"
+            @click="titlePanel = 'log'"
+          >
+            CAPTAIN'S LOG <span>▤</span
+            ><small>{{
+              run
+                ? run.log.length + ' entries in the current voyage'
+                : 'No voyage recorded yet'
+            }}</small>
+          </button>
         </nav>
-        <div v-if="titlePanel === 'home' && confirmNewVoyage && run" class="cap-menu-confirm" role="alert">
-          <p>The current voyage will be replaced. The crew's paperwork will not survive.</p>
-          <button type="button" @click="confirmNewVoyage = false">KEEP MY VOYAGE</button>
-          <button type="button" data-testid="space-couch-confirm-new" @click="startNewVoyage">REPLACE VOYAGE</button>
+        <div
+          v-if="titlePanel === 'home' && confirmNewVoyage && run"
+          class="cap-menu-confirm"
+          role="alert"
+        >
+          <p>
+            The current voyage will be replaced. The crew's paperwork will not
+            survive.
+          </p>
+          <button type="button" @click="confirmNewVoyage = false">
+            KEEP MY VOYAGE
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-confirm-new"
+            @click="startNewVoyage"
+          >
+            REPLACE VOYAGE
+          </button>
         </div>
-        <section v-if="titlePanel === 'settings'" class="cap-menu-detail" aria-label="Game settings">
+        <section
+          v-if="titlePanel === 'settings'"
+          class="cap-menu-detail"
+          aria-label="Game settings"
+        >
           <h2>SHIP SETTINGS</h2>
           <p>Local preferences. No intergalactic committee required.</p>
-          <button type="button" :aria-pressed="store.preferences.largeText" @click="store.setPreference('largeText', !store.preferences.largeText)">LARGER DIALOGUE TEXT <b>{{ store.preferences.largeText ? 'ON' : 'OFF' }}</b></button>
-          <button type="button" :aria-pressed="store.preferences.reducedMotion" @click="store.setPreference('reducedMotion', !store.preferences.reducedMotion)">REDUCE ANIMATION <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b></button>
-          <button type="button" class="cap-menu-back" @click="titlePanel = 'home'">← MAIN MENU</button>
+          <button
+            type="button"
+            :aria-pressed="store.preferences.largeText"
+            @click="
+              store.setPreference('largeText', !store.preferences.largeText)
+            "
+          >
+            LARGER DIALOGUE TEXT
+            <b>{{ store.preferences.largeText ? 'ON' : 'OFF' }}</b>
+          </button>
+          <button
+            type="button"
+            :aria-pressed="store.preferences.reducedMotion"
+            @click="
+              store.setPreference(
+                'reducedMotion',
+                !store.preferences.reducedMotion,
+              )
+            "
+          >
+            REDUCE ANIMATION
+            <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b>
+          </button>
+          <button
+            type="button"
+            class="cap-menu-back"
+            @click="titlePanel = 'home'"
+          >
+            ← MAIN MENU
+          </button>
         </section>
-        <section v-if="titlePanel === 'log'" class="cap-menu-detail" aria-label="Saved captain's log">
+        <section
+          v-if="titlePanel === 'log'"
+          class="cap-menu-detail"
+          aria-label="Saved captain's log"
+        >
           <h2>CAPTAIN'S LOG</h2>
           <template v-if="run">
-            <p>{{ CAPTAINS.find((captain) => captain.id === run?.captain)?.name }} · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}</p>
-            <p v-if="run.starAssessment">Under {{ starSignFor(run.starAssessment.sign).name }}</p>
+            <p>
+              {{
+                CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+              }}
+              · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}
+            </p>
+            <p v-if="run.starAssessment">
+              Under {{ starSignFor(run.starAssessment.sign).name }}
+            </p>
             <div class="cap-menu-journal">
-              <p v-if="!run.log.length">No incidents entered. An encouraging sign, statistically.</p>
+              <p v-if="!run.log.length">
+                No incidents entered. An encouraging sign, statistically.
+              </p>
               <p v-for="(entry, index) in logEntries" :key="index">{{ entry }}</p>
               <div v-if="run.log.length > 4" class="cap-menu-log-nav">
                 <button type="button" :disabled="logPage >= Math.ceil(run.log.length / 4) - 1" @click="logPage++">OLDER ENTRIES</button>
@@ -47,9 +169,17 @@
             </div>
           </template>
           <p v-else>No saved voyage. The logbook is magnificently blank.</p>
-          <button type="button" class="cap-menu-back" @click="titlePanel = 'home'">← MAIN MENU</button>
+          <button
+            type="button"
+            class="cap-menu-back"
+            @click="titlePanel = 'home'"
+          >
+            ← MAIN MENU
+          </button>
         </section>
-        <p class="cap-menu-bottom">CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO</p>
+        <p class="cap-menu-bottom">
+          CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO
+        </p>
       </div>
     </section>
     <header v-if="!atTitle" class="cap-toolbar">
@@ -1602,14 +1732,17 @@ function toggleAway(id: CrewId) {
   flex-direction: column;
   gap: clamp(0.35rem, 1.2vh, 0.85rem);
 }
-.cap-menu-kicker, .cap-menu-bottom {
+.cap-menu-kicker,
+.cap-menu-bottom {
   font-size: clamp(0.55rem, 0.8cqi, 0.77rem);
   letter-spacing: 0.16em;
   font-weight: 900;
   color: #ebc591;
 }
 .cap-menu h2 {
-  font: 900 clamp(3.4rem, 7.7cqi, 8rem)/0.86 Georgia, serif;
+  font:
+    900 clamp(3.4rem, 7.7cqi, 8rem)/0.86 Georgia,
+    serif;
   letter-spacing: -0.08em;
   text-shadow: 0 5px 25px #070a18;
 }

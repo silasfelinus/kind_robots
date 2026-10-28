@@ -252,6 +252,7 @@
       :class="{
         'cap-layout--episode': run?.phase === 'expedition',
         'cap-layout--stars': !run && selectionScreen === 'stars',
+        'cap-layout--personnel': !run && selectionScreen !== 'stars',
       }"
     >
       <section
@@ -325,13 +326,21 @@
         </div>
         <div
           class="cap-scroll kr-scroll"
-          :class="{ 'cap-episode-scroll': run?.phase === 'expedition' }"
+          :class="{ 'cap-episode-scroll': run?.phase === 'expedition', 'cap-personnel-scroll': !run && selectionScreen !== 'stars' }"
         >
           <div v-if="!store.loaded" class="cap-placeholder">
             Establishing a secure link to ship registry…
           </div>
 
           <template v-else-if="!run">
+            <SpaceCouchConstellationTest
+              v-if="selectionScreen === 'stars'"
+              :large-text="store.preferences.largeText"
+              :reduced-motion="store.preferences.reducedMotion"
+              @confirm="confirmStarAssessment"
+              @back="selectionScreen = 'captain'"
+            />
+            <div v-else class="cap-personnel-frame" :data-screen="selectionScreen">
             <template v-if="selectionScreen === 'background'">
               <div class="cap-heading">
                 <span>01</span>
@@ -375,13 +384,6 @@
                 CHOOSE YOUR CAPTAIN <span>➜</span>
               </button>
             </template>
-            <SpaceCouchConstellationTest
-              v-else-if="selectionScreen === 'stars'"
-              :large-text="store.preferences.largeText"
-              :reduced-motion="store.preferences.reducedMotion"
-              @confirm="confirmStarAssessment"
-              @back="selectionScreen = 'captain'"
-            />
             <template v-else-if="selectionScreen === 'captain'">
               <button
                 type="button"
@@ -429,7 +431,15 @@
                   >
                 </button>
               </div>
-              <div class="cap-insight">
+              <div class="cap-personnel-dossier" aria-live="polite">
+                <div class="cap-dossier-header">
+                  <img v-if="portrait('captain-' + selectedCaptain)" :src="portrait('captain-' + selectedCaptain)!" :alt="activeCaptain.name + ' portrait'" />
+                  <span v-else class="cap-dossier-monogram">{{ activeCaptain.name.slice(-1) }}</span>
+                  <span><strong>{{ activeCaptain.name }}</strong><small>{{ activeCaptain.epithet }}</small></span>
+                  <button type="button" data-testid="space-couch-captain-dossier-tab" @click="captainDossierTab = captainDossierTab === 'stats' ? 'history' : 'stats'">{{ captainDossierTab === 'stats' ? 'STORY ▸' : 'STATS ▸' }}</button>
+                </div>
+                <template v-if="captainDossierTab === 'stats'">
+                <div class="cap-insight">
                 <strong>{{ activeCaptain.doctrine }}</strong
                 ><small
                   >Advantage: {{ activeCaptain.ability }} · Price:
@@ -445,7 +455,8 @@
                   ><strong>{{ captainStats[skill] }}</strong>
                 </div>
               </div>
-              <div class="cap-insight">
+              </template>
+              <div v-else class="cap-insight cap-dossier-story">
                 <strong>Personal history</strong>
                 <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
                 <small
@@ -456,6 +467,7 @@
                   >Unresolved liability:
                   {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
                 >
+              </div>
               </div>
               <button
                 class="cap-primary"
@@ -491,9 +503,10 @@
                   </p>
                 </div>
               </div>
+              <div class="cap-crew-roster" data-testid="space-couch-crew-roster">
               <div class="cap-crew-picker">
                 <button
-                  v-for="member in CREW"
+                  v-for="member in crewPageMembers"
                   :key="member.id"
                   type="button"
                   class="cap-crew-button"
@@ -525,16 +538,23 @@
                   ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
                 </button>
               </div>
-              <div class="cap-team-note">
-                ✧ {{ chosenStarSign?.name }} · {{ chosenCrew.length }} / 3
-                selected · {{ CREW_PROFILES.length }} candidates ·
-                {{
-                  chosenCrew.length === 3
-                    ? 'Unselect an officer to appoint a different one'
-                    : 'Choose your complement'
-                }}
+              <nav class="cap-crew-pages" aria-label="Crew roster pages">
+                <button type="button" data-testid="space-couch-crew-prev" :disabled="crewPage === 0" @click="crewPage--">← PREVIOUS</button>
+                <span>ROSTER {{ crewPage + 1 }} / {{ crewPageCount }} · {{ chosenCrew.length }}/3 APPOINTED</span>
+                <button type="button" data-testid="space-couch-crew-next" :disabled="crewPage >= crewPageCount - 1" @click="crewPage++">NEXT SIX →</button>
+              </nav>
+              <div class="cap-team-note" aria-live="polite">
+                {{ chosenCrew.map((id) => crewProfile(id).name).join(' · ') || 'Choose three officers to take command' }}
               </div>
-              <div class="cap-insight" aria-live="polite">
+              </div>
+              <div class="cap-personnel-dossier" aria-live="polite">
+                <div class="cap-dossier-header">
+                  <img v-if="portrait(crewProfile(focusedCrew).portraitKey)" :src="portrait(crewProfile(focusedCrew).portraitKey)!" :alt="crewProfile(focusedCrew).name + ' portrait'" />
+                  <span v-else class="cap-dossier-monogram">{{ crewProfile(focusedCrew).name.slice(0, 1) }}</span>
+                  <span><strong>{{ crewProfile(focusedCrew).name }}</strong><small>{{ crewProfile(focusedCrew).role }}</small></span>
+                  <button type="button" data-testid="space-couch-crew-dossier-tab" @click="crewDossierTab = crewDossierTab === 'history' ? 'stats' : 'history'">{{ crewDossierTab === 'history' ? 'SKILLS ▸' : 'STORY ▸' }}</button>
+                </div>
+                <div v-if="crewDossierTab === 'history'" class="cap-insight cap-dossier-story">
                 <strong
                   >{{ crewProfile(focusedCrew).name }} ·
                   {{ crewProfile(focusedCrew).culture }}</strong
@@ -548,7 +568,8 @@
                   >Enemy connection:
                   {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
                 >
-                <div class="cap-stats" aria-label="Focused crew skills">
+                </div>
+                <div v-else class="cap-stats" aria-label="Focused crew skills">
                   <div v-for="skill in SKILLS" :key="skill">
                     <small>{{ skill.toUpperCase() }}</small>
                     <strong>{{ crewProfile(focusedCrew).stats[skill] }}</strong>
@@ -564,11 +585,8 @@
               >
                 TAKE COMMAND <span>➜</span>
               </button>
-              <div class="cap-subnote">
-                Playable three-stop voyage · Full multi-world personal quests
-                are still in development
-              </div>
             </template>
+            </div>
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
@@ -1490,6 +1508,11 @@ const chosenStarSign = computed(() =>
   starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
 )
 const focusedCrew = ref<CrewId>('pell')
+const captainDossierTab = ref<'stats' | 'history'>('stats')
+const crewDossierTab = ref<'history' | 'stats'>('history')
+const crewPage = ref(0)
+const crewPageCount = Math.ceil(CREW.length / 6)
+const crewPageMembers = computed(() => CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6))
 const run = computed(() => store.run)
 const romanceScene = computed(() =>
   run.value ? romanceMoment(run.value) : null,
@@ -1675,6 +1698,9 @@ function restartVoyage() {
   starAssessment.value = null
   selectionScreen.value = 'background'
   chosenCrew.value = []
+  crewPage.value = 0
+  captainDossierTab.value = 'stats'
+  crewDossierTab.value = 'history'
   selectedOrigin.value = null
   atTitle.value = false
 }

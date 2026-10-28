@@ -35,17 +35,16 @@ const notes = ref<HeldNote[]>([])
 const error = ref('')
 
 async function load() {
-  const res = await $fetch<{
-    success: boolean
-    data?: HeldNote[]
-    message?: string
-  }>('/api/admin/guest-ratings').catch(() => null)
+  const res = await $fetch<
+    { success: boolean; data?: HeldNote[]; message?: string },
+    string
+  >('/api/admin/guest-ratings').catch(() => null)
   if (res?.success) notes.value = res.data ?? []
   else error.value = res?.message ?? 'Admin sign-in required.'
 }
 
 async function decide(id: number, action: 'release' | 'dismiss') {
-  await $fetch(`/api/admin/guest-ratings/${id}`, {
+  await $fetch<unknown, string>(`/api/admin/guest-ratings/${id}`, {
     method: 'POST',
     body: { action },
   }).catch(() => null)

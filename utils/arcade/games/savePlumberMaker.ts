@@ -118,7 +118,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
-      { key: '%', icon: '◉', label: 'Air canister · refills compressed jet pressure' },
+      {
+        key: '%',
+        icon: '◉',
+        label: 'Air canister · refills compressed jet pressure',
+      },
       { key: 'B', icon: '◆', label: 'Asteroid rock · solid obstacle' },
       { key: ':', icon: '◇', label: 'Phase bridge · flickers on/off' },
       { key: 'Q', icon: '▦', label: 'Orbital cargo · falling hazard' },

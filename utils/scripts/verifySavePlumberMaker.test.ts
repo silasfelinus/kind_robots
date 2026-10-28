@@ -283,7 +283,11 @@ const spaceRun = createSavePlumberPreview(
   { customLevel: toMakerStage(spaceCourse) },
 )
 assert.equal(spaceRun.gravityWells.length, 2)
-assert.equal(spaceRun.airCanisters.length, 3, 'Space starter has three fuel pickups')
+assert.equal(
+  spaceRun.airCanisters.length,
+  3,
+  'Space starter has three fuel pickups',
+)
 assert.equal(spaceRun.airPressure, 100)
 assert.equal(spaceRun.mode, 'play')
 assert.equal(spaceRun.save, undefined)
@@ -364,18 +368,32 @@ const pressJet = emptyInput()
 pressJet.held.right = true
 pressJet.held.x = true
 pressureRun.update(pressJet)
-assert.equal(pressureRun.hero.vx, 0, 'An empty tank must not generate free thrust')
+assert.equal(
+  pressureRun.hero.vx,
+  0,
+  'An empty tank must not generate free thrust',
+)
 assert.ok(pressureRun.airPressure > 8 && pressureRun.airPressure < 9)
-for (let i = 0; i < 30 && pressureRun.hero.vx === 0; i++) pressureRun.update(pressJet)
-assert.ok(pressureRun.hero.vx > 0, 'Emergency trickle must prevent an out-of-fuel softlock')
+for (let i = 0; i < 30 && pressureRun.hero.vx === 0; i++)
+  pressureRun.update(pressJet)
+assert.ok(
+  pressureRun.hero.vx > 0,
+  'Emergency trickle must prevent an out-of-fuel softlock',
+)
 assert.ok(pressureRun.airPressure < 9, 'Firing another pulse consumes pressure')
 assert.ok(pressureRun.airPressure >= 0 && pressureRun.airPressure <= 100)
 
 // A canister refuels once, refuels only in space, and survives a v1 shared link.
 const canisterLevel = paintMakerTile(spaceCorridor, 6, 20, '%')
-assert.deepEqual(decodeMakerLevel(encodeMakerLevel(canisterLevel)), canisterLevel)
+assert.deepEqual(
+  decodeMakerLevel(encodeMakerLevel(canisterLevel)),
+  canisterLevel,
+)
 const canisterStage = parseStage(toMakerStage(canisterLevel))
-assert.equal(canisterStage.spawns.filter((spawn) => spawn.kind === 'air-canister').length, 1)
+assert.equal(
+  canisterStage.spawns.filter((spawn) => spawn.kind === 'air-canister').length,
+  1,
+)
 const canisterRun = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(canisterLevel) },
@@ -390,7 +408,10 @@ assert.equal(fuel.taken, true)
 assert.ok(canisterRun.airPressure >= 85 && canisterRun.airPressure < 86)
 const onceOnly = canisterRun.airPressure
 canisterRun.update(emptyInput())
-assert.ok(canisterRun.airPressure < onceOnly + 1, 'The same tank cannot be collected twice')
+assert.ok(
+  canisterRun.airPressure < onceOnly + 1,
+  'The same tank cannot be collected twice',
+)
 canisterRun.airPressure = 98
 const canisterRunMax = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
@@ -412,11 +433,19 @@ const floatingFlag = flagRun.checkpoints[0]!
 flagRun.hero.x = floatingFlag.x
 flagRun.airPressure = 25
 flagRun.update(emptyInput())
-assert.equal(floatingFlag.reached, false, 'Flying beneath a flag is not activation')
+assert.equal(
+  floatingFlag.reached,
+  false,
+  'Flying beneath a flag is not activation',
+)
 flagRun.hero.y = floatingFlag.y - 20
 flagRun.update(emptyInput())
 assert.equal(floatingFlag.reached, true)
-assert.equal(flagRun.airPressure, 100, 'A reached orbital checkpoint refills the tank')
+assert.equal(
+  flagRun.airPressure,
+  100,
+  'A reached orbital checkpoint refills the tank',
+)
 assert.equal(flagRun.checkpoint.x, floatingFlag.x)
 assert.equal(flagRun.checkpoint.y, floatingFlag.y - 20)
 

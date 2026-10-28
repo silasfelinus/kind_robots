@@ -2627,7 +2627,8 @@ export class PlumberRun implements ArcadeGameInstance {
         if (
           Math.abs(this.hero.x - flag.x) > 16 ||
           Math.abs(this.hero.y + TALL / 2 - (flag.y - TALL / 2)) > 22
-        ) continue
+        )
+          continue
       } else if (this.hero.x < flag.x - 8) continue
       flag.reached = true
       if (this.stage.space) this.airPressure = AIR_PRESSURE_CAPACITY
@@ -4322,9 +4323,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillText('AIR  ' + Math.ceil(this.airPressure) + '%', W - 131, 26)
       g.fillStyle = '#21334c'
       g.fillRect(W - 131, 32, 113, 11)
-      g.fillStyle =
-        this.airPressure < 25 ? '#f9aa6c' : '#7ce2ed'
-      g.fillRect(W - 130, 33, 111 * this.airPressure / AIR_PRESSURE_CAPACITY, 9)
+      g.fillStyle = this.airPressure < 25 ? '#f9aa6c' : '#7ce2ed'
+      g.fillRect(
+        W - 130,
+        33,
+        (111 * this.airPressure) / AIR_PRESSURE_CAPACITY,
+        9,
+      )
     }
   }
 

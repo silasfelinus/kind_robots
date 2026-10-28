@@ -1,6 +1,7 @@
 import {
   HOUSE_ROOMS,
   type HouseEnding,
+  type HouseEndingLens,
   type HouseProgress,
   type HouseRoomId,
 } from './house'
@@ -13,7 +14,7 @@ import { briarQuestLog } from './briarQuests'
  * scene choices and House room choices, so no new save field exists and every
  * old save that reached the Hearth resolves to an epilogue.
  */
-export type HouseEpilogueLens = 'community' | 'bonds' | 'obligation' | 'honesty'
+export type HouseEpilogueLens = HouseEndingLens
 
 export const HOUSE_EPILOGUE_LENSES: readonly HouseEpilogueLens[] = [
   'community',
@@ -255,12 +256,15 @@ export function houseEpilogueLens(
 
 /** The earned epilogue, once the Memory Hearth resolution is chosen. */
 export function houseEpilogue(
-  progress: Pick<HouseProgress, 'decisions' | 'ending'> | null | undefined,
+  progress:
+    | Pick<HouseProgress, 'decisions' | 'ending' | 'endingLens'>
+    | null
+    | undefined,
   briarDecisions: Readonly<Record<string, string>>,
 ): HouseEpilogue | null {
   if (!progress?.ending) return null
   return HOUSE_EPILOGUES[
-    `${progress.ending}-${houseEpilogueLens(progress, briarDecisions)}`
+    `${progress.ending}-${progress.endingLens ?? houseEpilogueLens(progress, briarDecisions)}`
   ]
 }
 

@@ -238,7 +238,7 @@ invalid(
 invalid(
   {
     ...initial,
-    rows: initial.rows.map((line, i) => (i === 0 ? 'A' + line.slice(1) : line)),
+    rows: initial.rows.map((line, i) => (i === 0 ? '?' + line.slice(1) : line)),
   },
   /invalid/,
 )

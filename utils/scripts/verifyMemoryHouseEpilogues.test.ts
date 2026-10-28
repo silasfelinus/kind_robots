@@ -20,6 +20,7 @@ import {
   validateHouseEpilogues,
 } from '../memoryDungeon/houseEpilogues'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
+import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
 
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
@@ -149,6 +150,7 @@ for (let seed = 1; seed <= 1500; seed++) {
       progress = {
         ...progress,
         ending,
+        endingLens: houseEpilogueLens(progress, briar),
         decisions: { ...progress.decisions, 'HD-35': ending },
       }
     }
@@ -194,6 +196,51 @@ const legacy = restoreHouseProgress({
 })
 assert.equal(houseEpilogue(legacy, {})?.id, 'renew-community')
 
+// The earned lens is frozen when the Hearth is resolved. Revisiting unfinished
+// rooms can reveal new evidence, but cannot silently rewrite an earned ending.
+const locked = atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew')
+locked.endingLens = houseEpilogueLens(locked, {})
+assert.equal(locked.endingLens, 'community')
+const laterChoices = {
+  ...locked,
+  decisions: {
+    ...locked.decisions,
+    'HD-15': 'question',
+    'HD-17': 'read',
+    'HD-20': 'testify',
+    'HD-21': 'archive',
+    'HD-25': 'recount',
+    'HD-33': 'reveal',
+  },
+}
+assert.equal(houseEpilogueLens(laterChoices, {}), 'honesty')
+assert.equal(houseEpilogue(laterChoices, {})?.id, 'renew-community')
+const savedAfterBacktracking = restoreBriarSave({
+  ...newBriarSave(),
+  house: laterChoices,
+})
+assert.equal(savedAfterBacktracking.house?.endingLens, 'community')
+assert.equal(houseEpilogue(savedAfterBacktracking.house, {})?.id, 'renew-community')
+
+// Pre-existing saves have no snapshot. Hydration derives it once from valid
+// recorded choices, so subsequent scene discoveries cannot change that result.
+const oldSave = restoreBriarSave({
+  ...newBriarSave(),
+  sceneChoices: { '1,5': 'wake' },
+  house: { ...legacy, endingLens: undefined },
+})
+assert.equal(oldSave.house?.endingLens, 'honesty')
+const continued = restoreBriarSave({
+  ...oldSave,
+  sceneChoices: { ...oldSave.sceneChoices, '1,2': 'warn', '1,8': 'plant' },
+})
+assert.equal(houseEpilogue(continued.house, continued.sceneChoices)?.id, 'renew-honesty')
+assert.equal(
+  restoreHouseProgress({ ...laterChoices, endingLens: 'forged' })?.endingLens,
+  null,
+  'Invalid saved epilogue lenses cannot be accepted',
+)
+
 // The Forge sees twelve illustrated epilogue beats and keeps the Hearth
 // resolutions as the choice that leads to them.
 const book = buildMemoryDungeonPlaybook()
@@ -218,7 +265,8 @@ assert.match(stage, /data-testid="memory-house-epilogue"/)
 assert.match(stage, /world\.houseEpilogue/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /earnedHouseEpilogue\(state\.value\.house/)
+assert.match(store, /house\.endingLens = houseEpilogueLens\(house, state\.value\.sceneChoices\)/)
 
 console.log(
-  `Memory House epilogues: 12 earned endings (3 Hearth resolutions × 4 lenses), each reachable from House and Briar choices, ${reached.size}/12 reached by 1500 seeded journeys, saves unchanged`,
+  `Memory House epilogues: 12 earned endings (3 Hearth resolutions × 4 lenses), ${reached.size}/12 reached by 1500 seeded journeys, Hearth lens locked and legacy saves migrated`,
 )

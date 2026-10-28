@@ -79,10 +79,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           Boolean(
             entry &&
             typeof entry.key === 'string' &&
-                typeof entry.title === 'string' &&
+            typeof entry.title === 'string' &&
             Array.isArray(entry.sources) &&
             entry.sources.length === 2 &&
-                typeof entry.depth === 'number' &&
+            typeof entry.depth === 'number' &&
             entry.depth <= MAX_STUDY_DEPTH,
           ),
         )

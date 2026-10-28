@@ -5,6 +5,7 @@ on:
       - worker/space-couch-vue-expression-hotfix-20261028
     paths:
       - .github/workflows/space-couch-build-check-temp.yml
+      - pages/play/game-of-captains.vue
 permissions:
   contents: read
 jobs:

@@ -635,6 +635,7 @@
               :run="run"
               :backdrop="stagePainting"
               :franchise-image="franchiseImage"
+              :knowledge="store.redshirtKnowledge"
               @hire="store.hire()"
               @dispatch="store.deployBatch"
               @draw="store.drawDailyDeck"

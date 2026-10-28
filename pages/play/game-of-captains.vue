@@ -436,7 +436,7 @@
                   <img v-if="portrait('captain-' + selectedCaptain)" :src="portrait('captain-' + selectedCaptain)!" :alt="activeCaptain.name + ' portrait'" />
                   <span v-else class="cap-dossier-monogram">{{ activeCaptain.name.slice(-1) }}</span>
                   <span><strong>{{ activeCaptain.name }}</strong><small>{{ activeCaptain.epithet }}</small></span>
-                  <button type="button" data-testid="space-couch-captain-dossier-tab" @click="captainDossierTab = captainDossierTab === 'stats' ? 'history' : 'stats'">{{ captainDossierTab === 'stats' ? 'STORY ▸' : 'STATS ▸' }}</button>
+                  <button type="button" data-testid="space-couch-captain-dossier-tab" @click="captainDossierTab = captainDossierTab === 'stats' ? 'history' : captainDossierTab === 'history' ? 'orders' : 'stats'">{{ captainDossierTab === 'stats' ? 'STORY ▸' : captainDossierTab === 'history' ? 'ORDERS ▸' : 'STATS ▸' }}</button>
                 </div>
                 <template v-if="captainDossierTab === 'stats'">
                 <div class="cap-insight">
@@ -456,11 +456,13 @@
                 </div>
               </div>
               </template>
-              <div v-else class="cap-insight cap-dossier-story">
+              <div v-else-if="captainDossierTab === 'history'" class="cap-insight cap-dossier-story">
                 <strong>Personal history</strong>
                 <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-                <small
-                  >First order:
+              </div>
+              <div v-else class="cap-insight cap-dossier-story">
+                <strong>First order and unresolved liability</strong>
+                <small>First order:
                   {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
                 >
                 <small
@@ -552,7 +554,7 @@
                   <img v-if="portrait(crewProfile(focusedCrew).portraitKey)" :src="portrait(crewProfile(focusedCrew).portraitKey)!" :alt="crewProfile(focusedCrew).name + ' portrait'" />
                   <span v-else class="cap-dossier-monogram">{{ crewProfile(focusedCrew).name.slice(0, 1) }}</span>
                   <span><strong>{{ crewProfile(focusedCrew).name }}</strong><small>{{ crewProfile(focusedCrew).role }}</small></span>
-                  <button type="button" data-testid="space-couch-crew-dossier-tab" @click="crewDossierTab = crewDossierTab === 'history' ? 'stats' : 'history'">{{ crewDossierTab === 'history' ? 'SKILLS ▸' : 'STORY ▸' }}</button>
+                  <button type="button" data-testid="space-couch-crew-dossier-tab" @click="crewDossierTab = crewDossierTab === 'history' ? 'route' : crewDossierTab === 'route' ? 'stats' : 'history'">{{ crewDossierTab === 'history' ? 'ROUTE ▸' : crewDossierTab === 'route' ? 'SKILLS ▸' : 'STORY ▸' }}</button>
                 </div>
                 <div v-if="crewDossierTab === 'history'" class="cap-insight cap-dossier-story">
                 <strong
@@ -560,8 +562,10 @@
                   {{ crewProfile(focusedCrew).culture }}</strong
                 >
                 <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
-                <small
-                  >Personal voyage:
+                </div>
+                <div v-else-if="crewDossierTab === 'route'" class="cap-insight cap-dossier-story">
+                <strong>Route and nemesis connection</strong>
+                <small>Personal voyage:
                   {{ CREW_DOSSIERS[focusedCrew].itinerary.join(' → ') }}</small
                 >
                 <small
@@ -1508,8 +1512,8 @@ const chosenStarSign = computed(() =>
   starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
 )
 const focusedCrew = ref<CrewId>('pell')
-const captainDossierTab = ref<'stats' | 'history'>('stats')
-const crewDossierTab = ref<'history' | 'stats'>('history')
+const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
+const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const crewPage = ref(0)
 const crewPageCount = Math.ceil(CREW.length / 6)
 const crewPageMembers = computed(() => CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6))

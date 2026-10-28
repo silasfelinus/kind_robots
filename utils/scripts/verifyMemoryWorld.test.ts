@@ -857,7 +857,7 @@ assert.equal(
     {
       ...settledSave,
       sceneChoices: { ...settledSave.sceneChoices, '2,4': '' },
-    }
+    },
     '2,4',
   ),
   'unfinished',

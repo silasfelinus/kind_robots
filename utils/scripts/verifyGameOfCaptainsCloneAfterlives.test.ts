@@ -114,7 +114,8 @@ for (const trait of signatures) {
     trait.generation === 3 ? -1 : 0,
   )
   assert.equal(after.supplies - before.supplies, trait.generation === 4 ? 1 : 0)
-  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
+  const serialized = JSON.parse(JSON.stringify(after))
+  assert.deepEqual(restoreVoyage(serialized), serialized)
   assert.equal(recordCloneMissions(after, after), after, 'idempotent save')
   const repeat = recordCloneMissions(after, {
     ...after,

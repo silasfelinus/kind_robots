@@ -229,12 +229,16 @@ assert.equal(
 // recorded choices, so subsequent scene discoveries cannot change that result.
 const oldSave = restoreBriarSave({
   ...newBriarSave(),
+  revealed: ['1,5'],
+  visited: ['1,5'],
   sceneChoices: { '1,5': 'wake' },
   house: { ...legacy, endingLens: undefined },
 })
 assert.equal(oldSave.house?.endingLens, 'honesty')
 const continued = restoreBriarSave({
   ...oldSave,
+  revealed: ['1,5', '1,2', '1,8'],
+  visited: ['1,5', '1,2', '1,8'],
   sceneChoices: { ...oldSave.sceneChoices, '1,2': 'warn', '1,8': 'plant' },
 })
 assert.equal(

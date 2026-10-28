@@ -229,6 +229,8 @@ const original = restoreBriarSave({
   ...newBriarSave(),
   prologueChoice: 'terms',
   gateOpened: true,
+  revealed: ['4,4', '2,5'],
+  visited: ['4,4', '2,5'],
   sceneChoices: { '4,4': 'escort', '2,5': 'archive' },
   relics: ['bramble-chime'],
 })
@@ -259,6 +261,8 @@ for (const mirrored of Object.values(DARK_BRIAR_SCENES)) {
   ] as const) {
     const earned = restoreBriarSave({
       ...newBriarSave(),
+      revealed: [echo.key],
+      visited: [echo.key],
       sceneChoices: { [echo.key]: choice },
     })
     const expected = `${mirrored.opening} ${line}`

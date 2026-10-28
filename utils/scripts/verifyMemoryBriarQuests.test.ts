@@ -134,7 +134,12 @@ for (const [key, choice, expected] of courierClosures) {
   courierEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   assert.equal(
@@ -183,7 +188,12 @@ for (const [key, choice, expected] of apologyClosures) {
   apologyEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   assert.equal(
@@ -239,7 +249,12 @@ for (const [scope, key, choice, expected] of patrolClosures) {
   patrolEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const house = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -299,7 +314,12 @@ for (const [scope, key, choice, expected] of manifestClosures) {
   manifestEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -354,7 +374,12 @@ for (const [key, choice, expected] of mosswickClosures) {
   mosswickEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   assert.equal(
@@ -410,7 +435,12 @@ for (const [key, choice, expected] of twinClosures) {
   twinEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -466,7 +496,12 @@ for (const [scope, key, choice, expected] of orchardClosures) {
   orchardEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -530,7 +565,12 @@ for (const [scope, key, choice, expected] of lintelClosures) {
   lintelEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -589,6 +629,8 @@ const save = restoreBriarSave(
   JSON.parse(
     JSON.stringify({
       ...newBriarSave(),
+      revealed: Object.keys(all.briar),
+      visited: Object.keys(all.briar),
       sceneChoices: all.briar,
     }),
   ),
@@ -669,6 +711,8 @@ for (const event of rareCases) {
       JSON.parse(
         JSON.stringify({
           ...newBriarSave(),
+          revealed: Object.keys(briar),
+          visited: Object.keys(briar),
           sceneChoices: briar,
           house: { ...newHouseProgress(), decisions: house },
         }),

@@ -228,7 +228,7 @@
                 v-for="answer in world.darkHousePuzzle.options"
                 :key="answer.id"
                 type="button"
-                class="rounded-md border border-[#80608a] bg-[#554266] px-3 py-2 text-left text-xs font-bold text-white disabled:opacity-50"
+                class="min-h-12 rounded-md border border-[#80608a] bg-[#554266] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-white disabled:opacity-50"
                 :disabled="Boolean(puzzleProgress?.wrong.includes(answer.id))"
                 @click="world.darkHouseAnswer(answer.id)"
               >
@@ -318,7 +318,7 @@
               v-for="choice in room?.choices ?? []"
               :key="choice.id"
               type="button"
-              class="min-h-10 rounded-lg bg-[#513d65] px-3 py-2 text-left text-sm font-bold text-[#fff5e5] hover:bg-[#694f7e] focus-visible:outline-2 focus-visible:outline-[#211629]"
+              class="min-h-12 flex-1 rounded-lg bg-[#513d65] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-[#fff5e5] hover:bg-[#694f7e] focus-visible:outline-2 focus-visible:outline-[#211629]"
               @click="world.chooseDarkHouse(choice.id)"
             >
               {{ choice.label }}

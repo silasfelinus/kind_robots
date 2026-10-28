@@ -1221,7 +1221,10 @@ export class PlumberRun implements ArcadeGameInstance {
       if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
       else hero.vx = move * CRAWL
     } else if (move) {
-      let next = hero.vx + move * (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
+      let next =
+        hero.vx +
+        move *
+          (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
@@ -3923,8 +3926,10 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillRect(0, 0, W, H)
       g.fillStyle = 'rgba(245, 251, 255, 0.88)'
       for (let i = 0; i < 48; i++) {
-        const x = ((i * 127 + this.tick * (0.35 + (i % 3) * 0.2)) % (W + 24)) - 12
-        const y = ((i * 83 + this.tick * (0.65 + (i % 5) * 0.16)) % (H + 18)) - 9
+        const x =
+          ((i * 127 + this.tick * (0.35 + (i % 3) * 0.2)) % (W + 24)) - 12
+        const y =
+          ((i * 83 + this.tick * (0.65 + (i % 5) * 0.16)) % (H + 18)) - 9
         g.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 4 === 0 ? 3 : 2)
       }
     }

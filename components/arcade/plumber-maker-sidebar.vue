@@ -52,7 +52,11 @@
         your library.
       </p>
       <p class="maker-tool-head">START A NEW ADVENTURE</p>
-      <div class="maker-starters" role="group" aria-label="Starter course templates">
+      <div
+        class="maker-starters"
+        role="group"
+        aria-label="Starter course templates"
+      >
         <button
           v-for="starter in starterCourses"
           :key="starter.id"
@@ -222,12 +226,31 @@ const emit = defineEmits<{
   (event: 'load-template', name: 'harbor' | 'snowfield' | 'skybridge'): void
 }>()
 const starterCourses = [
-  { id: 'harbor', icon: '🌊', name: 'HARBOR', description: 'Rafts, water hazards and a marina crossing' },
-  { id: 'snowfield', icon: '❄', name: 'FROST', description: 'Slippery ice, winter weather and giant foes' },
-  { id: 'skybridge', icon: '☁', name: 'SKY', description: 'Suspended platforms and aerial enemies' },
+  {
+    id: 'harbor',
+    icon: '🌊',
+    name: 'HARBOR',
+    description: 'Rafts, water hazards and a marina crossing',
+  },
+  {
+    id: 'snowfield',
+    icon: '❄',
+    name: 'FROST',
+    description: 'Slippery ice, winter weather and giant foes',
+  },
+  {
+    id: 'skybridge',
+    icon: '☁',
+    name: 'SKY',
+    description: 'Suspended platforms and aerial enemies',
+  },
 ] as const
 function chooseStarter(name: (typeof starterCourses)[number]['id']) {
-  if (maker.hasChanges && !window.confirm('Replace the current unsaved course with this starter?')) return
+  if (
+    maker.hasChanges &&
+    !window.confirm('Replace the current unsaved course with this starter?')
+  )
+    return
   emit('load-template', name)
 }
 const panels = [
@@ -276,7 +299,9 @@ function changeTheme(e: Event) {
   maker.updateSettings({ theme: Number((e.target as HTMLSelectElement).value) })
 }
 function changeSnow(e: Event) {
-  maker.updateSettings({ snow: (e.target as HTMLInputElement).checked ? true : undefined })
+  maker.updateSettings({
+    snow: (e.target as HTMLInputElement).checked ? true : undefined,
+  })
 }
 function changeDark(e: Event) {
   maker.updateSettings({ dark: (e.target as HTMLInputElement).checked })

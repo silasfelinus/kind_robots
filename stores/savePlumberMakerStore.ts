@@ -165,17 +165,24 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = ''
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Edit could not be applied.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Edit could not be applied.'
       return false
     }
   }
 
   function rectangle(area: MakerRect): boolean {
-    return applyEdit((source) => makerRectangle(source, area, selectedTile.value), 'Rectangle painted.')
+    return applyEdit(
+      (source) => makerRectangle(source, area, selectedTile.value),
+      'Rectangle painted.',
+    )
   }
 
   function flood(x: number, y: number): boolean {
-    return applyEdit((source) => makerFloodFill(source, x, y, selectedTile.value), 'Region filled.')
+    return applyEdit(
+      (source) => makerFloodFill(source, x, y, selectedTile.value),
+      'Region filled.',
+    )
   }
 
   function copySelection(): boolean {
@@ -190,7 +197,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = ''
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Cannot copy region.'
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot copy region.'
       return false
     }
   }
@@ -200,7 +208,10 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       error.value = 'Select and copy a region first.'
       return false
     }
-    return applyEdit((source) => makerPaste(source, x, y, clipboard.value!), 'Selection stamped.')
+    return applyEdit(
+      (source) => makerPaste(source, x, y, clipboard.value!),
+      'Selection stamped.',
+    )
   }
 
   function loadTemplate(name: MakerTemplate) {
@@ -254,7 +265,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   function updateSettings(
-    patch: Partial<Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow'>>,
+    patch: Partial<
+      Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow'>
+    >,
   ) {
     pushUndo()
     level.value = validateMakerLevel({ ...level.value, ...patch })

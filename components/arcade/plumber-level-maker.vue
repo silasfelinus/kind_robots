@@ -75,13 +75,17 @@
                 :title="option.help"
                 :disabled="option.id === 'paste' && !maker.clipboard"
                 @click="changeTool(option.id)"
-              >{{ option.icon }} {{ option.label }}</button>
+              >
+                {{ option.icon }} {{ option.label }}
+              </button>
               <button
                 type="button"
                 title="Copy selected region (Ctrl+C)"
                 :disabled="!maker.selection"
                 @click="maker.copySelection()"
-              >⧉ COPY</button>
+              >
+                ⧉ COPY
+              </button>
               <span class="maker-size-label">SIZE</span>
               <button
                 type="button"
@@ -325,11 +329,36 @@ const editorCanvas = ref<HTMLCanvasElement | null>(null)
 const gameCanvas = ref<HTMLCanvasElement | null>(null)
 const zoom = ref(1)
 const editTools = [
-  { id: 'brush', icon: '✎', label: 'BRUSH', help: 'Paint individual tiles by dragging' },
-  { id: 'rectangle', icon: '▣', label: 'RECT', help: 'Drag to paint a filled rectangle' },
-  { id: 'fill', icon: '◈', label: 'FILL', help: 'Fill a connected area with the selected tile' },
-  { id: 'select', icon: '⬚', label: 'SELECT', help: 'Drag a region and press Copy' },
-  { id: 'paste', icon: '▦', label: 'PASTE', help: 'Stamp copied tiles at a chosen location' },
+  {
+    id: 'brush',
+    icon: '✎',
+    label: 'BRUSH',
+    help: 'Paint individual tiles by dragging',
+  },
+  {
+    id: 'rectangle',
+    icon: '▣',
+    label: 'RECT',
+    help: 'Drag to paint a filled rectangle',
+  },
+  {
+    id: 'fill',
+    icon: '◈',
+    label: 'FILL',
+    help: 'Fill a connected area with the selected tile',
+  },
+  {
+    id: 'select',
+    icon: '⬚',
+    label: 'SELECT',
+    help: 'Drag a region and press Copy',
+  },
+  {
+    id: 'paste',
+    icon: '▦',
+    label: 'PASTE',
+    help: 'Stamp copied tiles at a chosen location',
+  },
 ] as const
 function changeTool(next: (typeof editTools)[number]['id']) {
   maker.tool = next
@@ -450,7 +479,10 @@ function drawEditor() {
   ctx.strokeStyle = '#fff3b2'
   ctx.lineWidth = 2
   ctx.strokeRect(cursor.value.x * 24 + 1, cursor.value.y * 24 + 1, 22, 22)
-  if (maker.selection && (maker.tool === 'select' || maker.tool === 'rectangle')) {
+  if (
+    maker.selection &&
+    (maker.tool === 'select' || maker.tool === 'rectangle')
+  ) {
     const area = maker.selection
     const x = Math.min(area.x1, area.x2) * 24
     const y = Math.min(area.y1, area.y2) * 24
@@ -481,7 +513,13 @@ function cellFromPointer(event: PointerEvent) {
   return { x, y }
 }
 function placeAt(x: number, y: number) {
-  if (x < 0 || x >= maker.level.rows[0]!.length || y < 0 || y >= maker.level.rows.length) return
+  if (
+    x < 0 ||
+    x >= maker.level.rows[0]!.length ||
+    y < 0 ||
+    y >= maker.level.rows.length
+  )
+    return
   cursor.value = { x, y }
   maker.paint(x, y)
   drawEditor()
@@ -577,7 +615,10 @@ function onGridKey(event: KeyboardEvent) {
         0,
         Math.min(maker.level.rows[0]!.length - 1, cursor.value.x + dx),
       ),
-      y: Math.max(0, Math.min(maker.level.rows.length - 1, cursor.value.y + dy)),
+      y: Math.max(
+        0,
+        Math.min(maker.level.rows.length - 1, cursor.value.y + dy),
+      ),
     }
     drawEditor()
   } else if (event.code === 'Space' || event.key === 'Enter') {
@@ -585,13 +626,25 @@ function onGridKey(event: KeyboardEvent) {
     if (maker.tool === 'brush') {
       maker.beginStroke()
       placeAt(cursor.value.x, cursor.value.y)
-    } else if (maker.tool === 'fill') maker.flood(cursor.value.x, cursor.value.y)
-    else if (maker.tool === 'paste') maker.pasteAt(cursor.value.x, cursor.value.y)
+    } else if (maker.tool === 'fill')
+      maker.flood(cursor.value.x, cursor.value.y)
+    else if (maker.tool === 'paste')
+      maker.pasteAt(cursor.value.x, cursor.value.y)
     else if (!dragStart) {
       dragStart = { ...cursor.value }
-      maker.selection = { x1: cursor.value.x, y1: cursor.value.y, x2: cursor.value.x, y2: cursor.value.y }
+      maker.selection = {
+        x1: cursor.value.x,
+        y1: cursor.value.y,
+        x2: cursor.value.x,
+        y2: cursor.value.y,
+      }
     } else {
-      maker.selection = { x1: dragStart.x, y1: dragStart.y, x2: cursor.value.x, y2: cursor.value.y }
+      maker.selection = {
+        x1: dragStart.x,
+        y1: dragStart.y,
+        x2: cursor.value.x,
+        y2: cursor.value.y,
+      }
       if (maker.tool === 'rectangle') {
         maker.rectangle(maker.selection)
         maker.selection = null

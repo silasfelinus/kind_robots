@@ -148,7 +148,11 @@ assert.deepEqual(decodeMakerLevel(encodeMakerLevel(taller)), taller)
 
 const built = makerRectangle(initial, { x1: 10, y1: 17, x2: 14, y2: 19 }, 'B')
 assert.equal(built.rows[17]!.slice(10, 15), 'BBBBB')
-assert.equal(initial.rows[17]![10], '.', 'rectangle must not mutate an earlier state')
+assert.equal(
+  initial.rows[17]![10],
+  '.',
+  'rectangle must not mutate an earlier state',
+)
 assert.throws(
   () => makerRectangle(initial, { x1: 10, y1: 17, x2: 11, y2: 17 }, '@'),
   /one tile/,
@@ -166,7 +170,12 @@ const stamped = makerPaste(filled, 22, 15, stamp)
 assert.equal(stamped.rows[16]!.slice(22, 27), 'BBfBB')
 assert.equal(filled.rows[16]![22], '.')
 assert.throws(() => makerPaste(initial, 63, 23, stamp), /does not fit/)
-const shifted = makerPaste(initial, 8, 17, makerCopy(initial, { x1: 3, y1: 20, x2: 3, y2: 20 }))
+const shifted = makerPaste(
+  initial,
+  8,
+  17,
+  makerCopy(initial, { x1: 3, y1: 20, x2: 3, y2: 20 }),
+)
 assert.equal(parseStage(toMakerStage(shifted)).start.col, 8)
 assert.equal(parseStage(toMakerStage(shifted)).start.row, 17)
 assert.equal(shifted.rows[20]![3], '.')
@@ -179,7 +188,12 @@ for (const name of ['harbor', 'snowfield', 'skybridge'] as const) {
   assert.equal(parsed.start.col, 3)
   assert.ok(parsed.spawns.some((spawn) => spawn.kind === 'goal'))
   const run = createSavePlumberPreview(
-    { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+    {
+      rng: () => 0.5,
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
     { customLevel: toMakerStage(course) },
   )
   assert.equal(run.mode, 'play')

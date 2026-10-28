@@ -262,7 +262,6 @@ export function resizeMakerLevel(
   return validateMakerLevel({ ...source, rows: resized })
 }
 
-
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
 export type MakerTemplate = 'harbor' | 'snowfield' | 'skybridge'
@@ -294,7 +293,12 @@ export function makerRectangle(
 ): MakerLevel {
   if (!MAKER_TILES.has(tile)) throw new Error('Unknown maker tile')
   const { left, right, top, bottom } = regionBounds(area)
-  if (left < 0 || top < 0 || right >= level.rows[0]!.length || bottom >= level.rows.length)
+  if (
+    left < 0 ||
+    top < 0 ||
+    right >= level.rows[0]!.length ||
+    bottom >= level.rows.length
+  )
     throw new Error('Rectangle must stay within the course')
   if ((tile === '@' || tile === 'G') && (right !== left || top !== bottom))
     throw new Error('Start and finish markers occupy one tile')
@@ -344,10 +348,17 @@ export function makerFloodFill(
 
 export function makerCopy(level: MakerLevel, area: MakerRect): MakerStamp {
   const { left, right, top, bottom } = regionBounds(area)
-  if (left < 0 || top < 0 || right >= level.rows[0]!.length || bottom >= level.rows.length)
+  if (
+    left < 0 ||
+    top < 0 ||
+    right >= level.rows[0]!.length ||
+    bottom >= level.rows.length
+  )
     throw new Error('Selection must stay within the course')
   return {
-    rows: level.rows.slice(top, bottom + 1).map((row) => row.slice(left, right + 1)),
+    rows: level.rows
+      .slice(top, bottom + 1)
+      .map((row) => row.slice(left, right + 1)),
     width: right - left + 1,
     height: bottom - top + 1,
   }
@@ -360,13 +371,24 @@ export function makerPaste(
   stamp: MakerStamp,
 ): MakerLevel {
   if (
-    !Number.isInteger(x) || !Number.isInteger(y) ||
-    x < 0 || y < 0 || !Number.isInteger(stamp.width) || !Number.isInteger(stamp.height) ||
-    stamp.width < 1 || stamp.height < 1 ||
+    !Number.isInteger(x) ||
+    !Number.isInteger(y) ||
+    x < 0 ||
+    y < 0 ||
+    !Number.isInteger(stamp.width) ||
+    !Number.isInteger(stamp.height) ||
+    stamp.width < 1 ||
+    stamp.height < 1 ||
     stamp.rows.length !== stamp.height ||
-    x + stamp.width > level.rows[0]!.length || y + stamp.height > level.rows.length ||
-    stamp.rows.some((row) => row.length !== stamp.width || [...row].some((ch) => !MAKER_TILES.has(ch)))
-  ) throw new Error('Copied region does not fit the course')
+    x + stamp.width > level.rows[0]!.length ||
+    y + stamp.height > level.rows.length ||
+    stamp.rows.some(
+      (row) =>
+        row.length !== stamp.width ||
+        [...row].some((ch) => !MAKER_TILES.has(ch)),
+    )
+  )
+    throw new Error('Copied region does not fit the course')
   return modifyMakerLevel(level, (grid) => {
     const movesStart = stamp.rows.some((row) => row.includes('@'))
     const movesGoal = stamp.rows.some((row) => row.includes('G'))
@@ -388,16 +410,14 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     grid[y]![x] = symbol
   }
   if (template === 'harbor') {
-    for (let y = 21; y < 24; y++)
-      for (let x = 20; x <= 27; x++) put(x, y, 'w')
+    for (let y = 21; y < 24; y++) for (let x = 20; x <= 27; x++) put(x, y, 'w')
     for (let x = 18; x <= 30; x += 3) put(x, 18, '=')
     put(22, 16, 'F')
     put(30, 20, 'k')
     put(33, 19, 'K')
     for (let x = 8; x < 18; x += 2) put(x, 17, 'o')
   } else if (template === 'snowfield') {
-    for (let y = 22; y < 24; y++)
-      for (let x = 0; x < 64; x++) put(x, y, 'f')
+    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, 'f')
     for (let x = 14; x < 32; x += 4) put(x, 17, '=')
     put(28, 20, 'h')
     put(40, 20, 'N')
@@ -418,7 +438,12 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
   } else throw new Error('Unknown starter layout')
   return validateMakerLevel({
     ...fresh,
-    title: template === 'harbor' ? 'Tideglass Crossing' : template === 'snowfield' ? 'Frostglass Run' : 'Cloudrail Leap',
+    title:
+      template === 'harbor'
+        ? 'Tideglass Crossing'
+        : template === 'snowfield'
+          ? 'Frostglass Run'
+          : 'Cloudrail Leap',
     theme: template === 'harbor' ? 2 : template === 'snowfield' ? 5 : 5,
     ...(template === 'snowfield' ? { snow: true } : {}),
     rows: grid.map((row) => row.join('')),

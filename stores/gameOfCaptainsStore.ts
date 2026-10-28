@@ -90,7 +90,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         'Previous voyage could not be loaded. You can begin a new one.'
     }
   }
-  function begin(captain: CaptainId, crew: CrewId[], assessment?: StarAssessment) {
+  function begin(
+    captain: CaptainId,
+    crew: CrewId[],
+    assessment?: StarAssessment,
+  ) {
     run.value = startVoyage(captain, crew, Date.now(), assessment)
     usePlaybookRunReviewStore().begin(
       'game-of-captains',

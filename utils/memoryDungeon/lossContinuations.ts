@@ -16,7 +16,7 @@ function rememberedConsequence(
   if (choices['4,3'] === 'plan')
     return "Oren's inked detour still marks a way forward; the unanswered danger waits."
   if (choices['4,3'] === 'load')
-    return 'The parcels you sorted for Oren are safe; the room's bargain remains unanswered.'
+    return "The parcels you sorted for Oren are safe; the room's bargain remains unanswered."
   if (choices['2,4'] === 'lend')
     return 'The night courier still has your lantern; the letter remains undelivered.'
   if (choices['2,4'] === 'copy')

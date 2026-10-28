@@ -107,7 +107,9 @@ function hasValidMemoryReality(value: Record<string, unknown>): boolean {
     restored.active === value.active &&
     restored.progress.finaleCommitted === progress.finaleCommitted &&
     restored.progress.completed.length === progress.completed.length &&
-    restored.progress.completed.every((id) => progress.completed.includes(id)) &&
+    restored.progress.completed.every((id) =>
+      progress.completed.includes(id),
+    ) &&
     restored.progress.rememberedAnchors.length ===
       progress.rememberedAnchors.length &&
     restored.progress.rememberedAnchors.every((id) =>

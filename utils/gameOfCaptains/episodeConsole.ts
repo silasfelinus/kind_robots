@@ -11,6 +11,7 @@ import { currentExpedition, deployExpedition } from './expedition'
 import type { ExpeditionEncounter } from './expeditionLocal'
 import { REDSHIRT_BY_ID } from './redshirts'
 import { availableStarQuest, starSignFor } from './starSigns'
+import { cloneOddsBonus } from './cloneSaga'
 import {
   chapterSystem,
   casinoIncident,
@@ -311,6 +312,7 @@ function actualOdds(
   const baseline = clamp(
     22 +
       skills[enc.skill] * 13 +
+      cloneOddsBonus(run, lead) +
       (secret ? 15 : 0) -
       (enc.priority === 'major' ? 12 : 0),
   )

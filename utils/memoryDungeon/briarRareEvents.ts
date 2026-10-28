@@ -103,6 +103,69 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       },
     },
   },
+  {
+    id: 'the-voice-that-came-home',
+    questId: 'every-letter-delivered',
+    title: 'The Voice That Came Home',
+    premise:
+      'Pip recognizes the voice trapped in the stump as the courier who vanished from his route book. A painted guest remembers the same voice, but not the name that once belonged to it. The last sealed letter may finally tell them whom they have been delivering to.',
+    requires: [
+      { scope: 'briar', key: '2,4', choice: 'lend' },
+      { scope: 'briar', key: '3,5', choice: 'listen' },
+      { scope: 'house', key: 'HD-07', choice: 'speak' },
+    ],
+    branch: {
+      scope: 'briar',
+      key: '6,4',
+      outcomes: {
+        carry:
+          'You keep the Knight’s apology sealed and carry it past the listening stump. The painted guest recognizes the cadence of the vanished courier and tells Pip which doorstep the letter belongs to. Pip writes the destination in his own hand rather than surrendering the voice to the Index. The letter can reach its owner without exposing their name, but nobody can yet prove who took the courier from the road.',
+        read: 'You open the destruction order and warn the House before carrying another sealed word. The painted guest recognizes the vanished courier’s voice in the order’s witness clause. Pip copies the clause into his route book so the village can challenge the Knight’s authority, then closes the book before the Index arrives. The House gains time to prepare, but the courier’s private address is now evidence that someone may demand to see.',
+      },
+    },
+  },
+  {
+    id: 'the-road-without-an-owner',
+    questId: 'the-patrols-defense',
+    title: 'The Road Without an Owner',
+    premise:
+      'Vesper overlays her erased route on the wolf patrol’s tracks and the House service map. The three lines meet at a door nobody has admitted owning. The Wolf-Mother offers to testify, provided the map does not become another list of children for the Index.',
+    requires: [
+      { scope: 'briar', key: '3,2', choice: 'ask' },
+      { scope: 'briar', key: '2,2', choice: 'observe' },
+      { scope: 'house', key: 'HD-12', choice: 'map' },
+    ],
+    branch: {
+      scope: 'house',
+      key: 'HD-26',
+      outcomes: {
+        testify:
+          'You bring the patrol’s evidence into a witnessed hearing. Vesper traces the missing road without naming the children who crossed it; the Wolf-Mother signs for her own actions and refuses to sign for theirs. The Index must acknowledge that the patrol protected travelers rather than hunted them. A public record may clear the wolves, but it also reveals where the House concealed a passage, so Oren begins planning a safer route.',
+        shelter:
+          'You choose food and safe passage over a formal hearing. Vesper redraws the missing road on a map that stays with the Wolf-Mother, and the children leave by a route the Index cannot subpoena. The patrol remains accused in the village ledger, and the Wolf-Mother accepts that cost for tonight. She asks you to remember the witnesses who chose privacy, not to call their silence a confession.',
+      },
+    },
+  },
+  {
+    id: 'two-crowns-one-promise',
+    questId: 'different-waters-same-face',
+    title: 'Two Crowns, One Promise',
+    premise:
+      'Scylla’s careful manifest, Char’s improvised escape and the story behind her charm describe three different versions of the sisters’ departure. Neither will let a court clerk declare which one was the true royal account. At Lantern Landing they ask who gets to remember it.',
+    requires: [
+      { scope: 'briar', key: '4,4', choice: 'escort' },
+      { scope: 'house', key: 'HD-10', choice: 'improvise' },
+      { scope: 'house', key: 'HD-11', choice: 'respect' },
+    ],
+    branch: {
+      scope: 'house',
+      key: 'HD-30',
+      outcomes: {
+        rest: 'You give the sisters a quiet landing instead of demanding their history. Scylla checks the supplies while Char repairs the charm she once wore to leave home; each adds one line to a shared itinerary without asking the other to surrender her version. They agree to travel together tomorrow, not to settle what their crowns mean tonight. Their trust survives, but the unanswered royal summons remains in Oren’s ledger.',
+        talk: 'You invite both sisters to say what the House owes them, and each speaks for herself. Scylla asks for a route home that does not bind Char to a throne; Char asks that nobody treat her leaving as proof she stopped loving her family. Oren records two separate wishes rather than a single royal order. The sisters leave with a shared plan to negotiate, but a court that demands one heir may reject both of their terms.',
+      },
+    },
+  },
 ]
 
 function recordedChoice(

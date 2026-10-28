@@ -54,10 +54,8 @@ export const BRIAR_RARE_EVENTS: readonly RareEventDefinition[] = [
       scope: 'briar',
       key: '4,3',
       outcomes: {
-        plan:
-          'Because you drew the carriage route together, Oren can point to the exact turn where the stairs become too narrow for the injured. He redraws the public route around the mill, adding a slower crossing with room for a stretcher. Scylla signs the correction. Char insists on walking it before anyone calls it safe. The manifest now tells the truth, but the detour will cost the village a night of shelter.',
-        load:
-          'Because you carried the provisions rather than drawing the route, Oren knows precisely which families have enough food to wait for a second cart. He opens the stores to the stranded travelers first, even though the House steward objects that the rations were counted for residents. Char carries the first basket; Scylla records who consented to share. The route remains difficult, but nobody is asked to march hungry to make the ledger balance.',
+        plan: 'Because you drew the carriage route together, Oren can point to the exact turn where the stairs become too narrow for the injured. He redraws the public route around the mill, adding a slower crossing with room for a stretcher. Scylla signs the correction. Char insists on walking it before anyone calls it safe. The manifest now tells the truth, but the detour will cost the village a night of shelter.',
+        load: 'Because you carried the provisions rather than drawing the route, Oren knows precisely which families have enough food to wait for a second cart. He opens the stores to the stranded travelers first, even though the House steward objects that the rations were counted for residents. Char carries the first basket; Scylla records who consented to share. The route remains difficult, but nobody is asked to march hungry to make the ledger balance.',
       },
     },
   },
@@ -156,9 +154,9 @@ function validChoiceIds(
   const scene =
     scope === 'house'
       ? HOUSE_ROOMS[key as HouseRoomId]
-      : (BRIAR_SCENES as Record<string, { choices: readonly { id: string }[] }>)[
-          key
-        ]
+      : (
+          BRIAR_SCENES as Record<string, { choices: readonly { id: string }[] }>
+        )[key]
   return scene?.choices.map((choice) => choice.id)
 }
 
@@ -180,7 +178,11 @@ export function validateBriarRareEvents(): string[] {
       const site = `${condition.scope}:${condition.key}`
       if (sites.has(site)) issues.push(`${event.id} repeats ${site}`)
       sites.add(site)
-      if (!validChoiceIds(condition.scope, condition.key)?.includes(condition.choice))
+      if (
+        !validChoiceIds(condition.scope, condition.key)?.includes(
+          condition.choice,
+        )
+      )
         issues.push(`${event.id} requires an impossible choice at ${site}`)
     }
     const branch = event.branch
@@ -191,7 +193,10 @@ export function validateBriarRareEvents(): string[] {
     if (!allowed || allowed.length !== 2)
       issues.push(`${event.id} needs a two-choice branch at ${branchSite}`)
     const authored = Object.keys(branch.outcomes)
-    if (authored.length !== 2 || authored.some((choice) => !allowed?.includes(choice)))
+    if (
+      authored.length !== 2 ||
+      authored.some((choice) => !allowed?.includes(choice))
+    )
       issues.push(`${event.id} has missing or invented outcomes`)
     for (const [choice, text] of Object.entries(branch.outcomes))
       if (text.trim().length < 180)

@@ -406,9 +406,13 @@
                   }}
                 </h2>
                 <p>
-                  Choose one to three allies per call. The posters show how each
-                  person feels about the mission. A hero cannot answer two calls
-                  tonight.
+                  {{
+                    run.patrolOpening === 1 && run.day <= 2
+                      ? 'Tonight it is just you and your thoughts. Choose which emergency you answer.'
+                      : run.patrolOpening === 1 && run.day === 3
+                        ? 'Your friend is on the line. Split to attempt both calls, or combine your strengths to save one perfectly.'
+                        : 'Lead one call yourself; your earned allies can handle other calls. Some incidents may go unanswered.'
+                  }}
                 </p>
               </div>
             </div>
@@ -427,21 +431,68 @@
               <div class="cca-incident-location">
                 {{ incident.site }} ·
                 {{
-                  run.flowVersion === 2
-                    ? incident.allegiance.toUpperCase() +
-                      ' / ' +
-                      (run.day <= 2 ? 'SIMULATION' : 'REAL PATROL')
-                    : 'TRAINING SIMULATION'
+                  incident.allegiance.toUpperCase() +
+                  ' / ' +
+                  (run.flowVersion === 3 || run.day > 2
+                    ? 'REAL NIGHT PATROL'
+                    : 'TRAINING SIMULATION')
                 }}
               </div>
               <p>
                 {{
-                  run.flowVersion === 2 && run.day > 2
+                  run.flowVersion === 3 || run.day > 2
                     ? (realNightCase(incident.id)?.briefing ??
                       incident.briefing)
                     : incident.briefing
                 }}
               </p>
+              <div
+                v-if="run.patrolOpening === 1 && run.day === 3"
+                class="cca-report-mini"
+                data-testid="academy-third-night-decision"
+              >
+                <strong>THE THIRD NIGHT · AN IMPOSSIBLE CHOICE</strong>
+                <span
+                  >Take {{ incident.title }} yourself and decide how to use your
+                  first friend.</span
+                >
+                <button
+                  type="button"
+                  class="cca-choice"
+                  @click="store.planCrisis(incident.id, 'split')"
+                >
+                  SPLIT UP · attempt both rescues
+                </button>
+                <button
+                  type="button"
+                  class="cca-choice"
+                  @click="store.planCrisis(incident.id, 'concentrate')"
+                >
+                  STAY TOGETHER · guarantee the best rescue here, abandon the
+                  other
+                </button>
+              </div>
+              <button
+                v-if="run.flowVersion === 3"
+                type="button"
+                class="cca-choice"
+                :aria-pressed="run.playerCaseId === incident.id"
+                data-testid="academy-lead-patrol"
+                @click="store.lead(incident.id)"
+              >
+                <span>
+                  {{
+                    run.playerCaseId === incident.id
+                      ? '✦ YOU ARE LEADING THIS PATROL'
+                      : 'TAKE THIS CALL YOURSELF'
+                  }}
+                  <small
+                    >Choose where your own powers, risks and choices go
+                    tonight.</small
+                  >
+                </span>
+                <span>↗</span>
+              </button>
               <div
                 class="cca-roster"
                 data-testid="academy-quest-poster-row"
@@ -502,9 +553,13 @@
                 </button>
               </div>
               <div class="cca-crew-count" data-testid="academy-quest-odds">
-                <strong>TEAM {{ teamFor(incident.id).length }}/3</strong>
+                <strong
+                  >{{ run.playerCaseId === incident.id ? 'YOU + ' : '' }}TEAM
+                  {{ teamFor(incident.id).length }}/3</strong
+                >
                 <strong>{{
-                  teamFor(incident.id).length
+                  teamFor(incident.id).length ||
+                  run.playerCaseId === incident.id
                     ? dispatchChance(run, incident.id, teamFor(incident.id)) +
                       '% CHANCE OF SUCCESS'
                     : 'CHOOSE HEROES TO SEE ODDS'
@@ -551,7 +606,11 @@
               class="cca-primary"
               type="button"
               data-testid="academy-dispatch"
-              :disabled="!run.assignments.length"
+              :disabled="
+                run.patrolOpening === 1
+                  ? !run.playerCaseId
+                  : !run.assignments.length
+              "
               @click="store.dispatch()"
             >
               {{
@@ -559,7 +618,7 @@
                   ? run.day <= 2
                     ? 'RUN NIGHT SIMULATIONS'
                     : 'SEND NIGHT TEAMS'
-                  : 'RUN TRAINING SIMULATIONS'
+                  : 'TAKE THE NIGHT PATROL'
               }}
               <span>➜</span>
             </button>
@@ -657,7 +716,9 @@
               <div>
                 <h2>
                   {{
-                    run.flowVersion === 2 ? 'Night debrief' : 'After the bell'
+                    run.flowVersion === 3 || run.flowVersion === 2
+                      ? 'Night debrief'
+                      : 'After the bell'
                   }}
                 </h2>
                 <p>Every choice and every teammate leaves a trace.</p>
@@ -856,6 +917,7 @@ import {
   encounterFor,
   dispatchChance,
   knownContacts,
+  nightPatrolBeat,
   recruitableContact,
   emergencyContact,
   type StudentId,
@@ -976,11 +1038,14 @@ const panelLabel = computed(() =>
       }[run.value.phase]
     : 'NEW STUDENT // POWER SELECTION',
 )
+const nightBeat = computed(() =>
+  run.value ? nightPatrolBeat(run.value) : null,
+)
 const sceneTitle = computed(() =>
   run.value
     ? {
         map: 'Choose Your Ground',
-        dispatch: 'The Call To Action',
+        dispatch: nightBeat.value?.title ?? 'The Call To Action',
         campus: campusEncounter.value.title,
         debrief: 'What Comes After',
         finale:
@@ -994,7 +1059,9 @@ const sceneTitle = computed(() =>
 const stageCopy = computed(() =>
   run.value?.phase === 'campus'
     ? campusEncounter.value.scene
-    : (run.value?.scene ?? ''),
+    : run.value?.phase === 'dispatch' && nightBeat.value
+      ? nightBeat.value.text
+      : (run.value?.scene ?? ''),
 )
 function startFromOpening(selection: {
   signature: SignaturePowerId

@@ -206,7 +206,7 @@
             {{
               screen === 'yearbook-detail'
                 ? 'YEARBOOK / COLLECTIBLE IDENTITY'
-                : '03 / WHO COULD YOU BECOME?'
+                : '03 / ONE HERO, THREE PATHS'
             }}
           </p>
           <h2>{{ identity.realName }}</h2>
@@ -222,7 +222,8 @@
             >
           </p>
           <p v-else>
-            Your future is still unwritten. Everyone begins as a student.
+            Your name stays yours. Your alliances, methods and reputation are
+            still unwritten.
           </p>
           <div class="prom-form-choices" data-testid="academy-persona-triad">
             <button
@@ -241,7 +242,7 @@
               <small>{{
                 form === 'student' || unlockedForms.includes(form)
                   ? 'PLAYABLE'
-                  : 'EARN THIS MANTLE IN A CAMPAIGN'
+                  : 'UNLOCK THIS ROLE IN A CAMPAIGN'
               }}</small>
             </button>
           </div>
@@ -249,7 +250,7 @@
             {{
               selectedForm === 'student'
                 ? 'Begin with the mistakes, friendships and choices that define the future.'
-                : 'New Game Plus: carry your earned mantle into a different thirty-day story.'
+                : 'New Game Plus: play the same character through a different role and story.'
             }}
           </p>
           <button

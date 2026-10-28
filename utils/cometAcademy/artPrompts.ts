@@ -1,4 +1,5 @@
 import { CAST_LOOKS, DEAN_LOOK, TEAM_LOOKS, castLook } from './castLooks'
+import { IDENTITY_ARCS } from './identityArcs'
 
 // Krea 2 prompts for every Capes & Tassels picture slot still waiting for a
 // render, keyed by the asset key in artSlots.ts. Each names only what is
@@ -17,7 +18,7 @@ const paint = (text: string) =>
   )
 const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
-/** Student-form portraits for the identity roster: one moment from each person's first term. */
+/** A rookie's first context splash. The other two show the same person in different roles. */
 const IDENTITY_MOMENTS: Record<string, string> = {
   'accident-fire':
     'He stands in an academy workshop holding both mitted hands away from a nervous younger classmate, orange welding sparks flying from a broken drone on the steel table. Orange light glows from his hands against cool blue window light. Medium-full shot at eye level.',
@@ -122,12 +123,32 @@ const IDENTITY_MOMENTS: Record<string, string> = {
 }
 
 const identityPrompts = Object.fromEntries(
-  Object.keys(CAST_LOOKS).map((signature) => [
-    `identities/${signature}/student`,
-    paint(
-      `${capital(castLook(signature)!)}. ${IDENTITY_MOMENTS[signature] ?? ''}`,
-    ),
-  ]),
+  Object.keys(CAST_LOOKS).flatMap((signature) => {
+    const look = capital(castLook(signature)!)
+    const person = IDENTITY_ARCS.find(
+      (identity) => identity.signature === signature,
+    )
+    const rookie: [string, string] = [
+      `identities/${signature}/student`,
+      paint(`${look}. ${IDENTITY_MOMENTS[signature] ?? ''}`),
+    ]
+    if (!person) return [rookie]
+    // Three story splash pages, one persistent face, build and codename.
+    // These are contextual compositions, never three separately designed heroes.
+    const protagonist: [string, string] = [
+      `identities/${signature}/hero`,
+      paint(
+        `${look}. This same distinctive person takes the lead in a night rescue near Comet City's skyline, using their signature ability: ${person.hero.method} Wind, floodlights and cheering distant witnesses, wide cinematic view, full-body readable silhouette.`,
+      ),
+    ]
+    const antagonist: [string, string] = [
+      `identities/${signature}/villain`,
+      paint(
+        `${look}. This same distinctive person confronts the academy on the city rooftops at night, choosing a dangerous path: ${person.villain.method} Strong backlighting, watchful teammates on a distant roof, wide cinematic view, full-body readable silhouette.`,
+      ),
+    ]
+    return [rookie, protagonist, antagonist]
+  }),
 )
 
 const { mina, sol, imani, ash, nix, kit, mara } = TEAM_LOOKS

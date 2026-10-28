@@ -853,6 +853,14 @@ assert.equal(
   'The stone puzzle requires both solving the glyphs and settling the encounter',
 )
 assert.equal(
+  briarTileProgress(
+    { ...settledSave, sceneChoices: { ...settledSave.sceneChoices, '2,4': '' } },
+    '2,4',
+  ),
+  'unfinished',
+  'An old cleared square becomes actionable again when its scene is reactivated',
+)
+assert.equal(
   briarTileProgress(settledSave, '5,2'),
   'unfinished',
   'Cross-world seals remain pending',
@@ -1509,6 +1517,29 @@ const launcherScreen = readFileSync(
   'components/pages/memory-dungeon-launcher.vue',
   'utf8',
 )
+const darkMapScreen = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+const mapBeacon = readFileSync(
+  'components/memory-dungeon/action-beacon.vue',
+  'utf8',
+)
+const questScreen = readFileSync(
+  'components/memory-dungeon/quest-log.vue',
+  'utf8',
+)
+assert.match(mapScreen, /backdrops\\/briar-overworld\\.webp/, 'Original Briar uses the delivered painted map first')
+assert.match(darkMapScreen, /dark-briar\\/backdrops\\/map\\.webp/, 'Dark Briar uses its own delivered map art')
+assert.match(mapScreen, /v-else[\\s\\S]*briar-camp\\.svg/, 'The original map survives a media delivery outage')
+assert.match(mapScreen, /tileNeedsAttention\\(tile\\.key\\)/, 'Briar tiles show actionable markers')
+assert.match(mapScreen, /progress === 'unfinished'/, 'Reactivated scene decisions restore an action beacon')
+assert.match(darkMapScreen, /memory-dungeon-action-beacon/, 'Dark Briar tiles show actionable markers')
+assert.match(mapBeacon, /rotateY\\(360deg\\)/, 'Action markers use depth and 3D rotation')
+assert.match(mapBeacon, /prefers-reduced-motion/, 'Action markers respect reduced motion')
+assert.match(questScreen, /text-base leading-relaxed sm:text-lg/, 'Quest narrative is legible like Shifting Desks')
+assert.match(mapScreen, /font-size: clamp\\(1rem, 1\\.85cqw, 1\\.5rem\\)/, 'Story decisions are large at console widths')
+
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(

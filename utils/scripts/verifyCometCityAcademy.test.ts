@@ -1924,9 +1924,16 @@ for (const person of CHARACTER_ROSTER) {
     assert.equal(person.student.alias, person.hero.alias)
     assert.equal(person.hero.alias, person.villain.alias)
     for (const context of ['hero', 'villain'] as const) {
-      const scene = PROM_ART_PROMPTS[`identities/${person.signature}/${context}`]
-      assert.ok(scene?.includes(look.look.slice(1)), `${person.signature}/${context} keeps one character design`)
-      assert.ok(!scene?.includes(person.realName), 'names stay out of splash prompts')
+      const scene =
+        PROM_ART_PROMPTS[`identities/${person.signature}/${context}`]
+      assert.ok(
+        scene?.includes(look.look.slice(1)),
+        `${person.signature}/${context} keeps one character design`,
+      )
+      assert.ok(
+        !scene?.includes(person.realName),
+        'names stay out of splash prompts',
+      )
     }
   }
 }

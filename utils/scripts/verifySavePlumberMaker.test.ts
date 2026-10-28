@@ -699,8 +699,8 @@ const positionForExhaust = (
   run.hero.vy = 0
 }
 const wrongWay = freshPuzzle()
-positionForExhaust(wrongWay, 11)
-wrongWay.update(leftJet)
+positionForExhaust(wrongWay, 6)
+wrongWay.update(rightJet)
 assert.equal(
   wrongWay.valves.filter((v) => v.open).length,
   0,

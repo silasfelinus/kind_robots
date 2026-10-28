@@ -83,12 +83,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function persist() {
     try {
       if (run.value) {
-        redshirtKnowledge.value = learnRedshirtKnowledge(run.value, redshirtKnowledge.value)
+        redshirtKnowledge.value = learnRedshirtKnowledge(
+          run.value,
+          redshirtKnowledge.value,
+        )
         localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       } else {
         localStorage.removeItem(SAVE_KEY)
       }
-      localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(redshirtKnowledge.value))
+      localStorage.setItem(
+        KNOWLEDGE_KEY,
+        JSON.stringify(redshirtKnowledge.value),
+      )
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -168,7 +174,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     )
     persist()
   }
-  function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice, cast: string[]) {
+  function drawDailyDeck(
+    deck: EpisodeDeck,
+    choice: EpisodeChoice,
+    cast: string[],
+  ) {
     if (!run.value) return
     run.value = drawEpisodeDeck(run.value, deck, choice, cast)
     persist()

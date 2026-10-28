@@ -30,11 +30,18 @@
         >
           <div class="daily-section-head">
             <strong>THE CAST</strong>
-            <span>{{ (run.redshirtRoster ?? []).length }} ACTIVE · {{ recruitedOriginals(run) }}/{{ REDSHIRT_QUARTERS.recruitmentLimit }} RECRUITED</span>
+            <span
+              >{{ (run.redshirtRoster ?? []).length }} ACTIVE ·
+              {{ recruitedOriginals(run) }}/{{
+                REDSHIRT_QUARTERS.recruitmentLimit
+              }}
+              RECRUITED</span
+            >
           </div>
           <p class="daily-instruction">
             Pick a personnel card, then put it on a quest. Each card takes one
-            round. Redshirt skills unlock one assignment at a time, even across voyages.
+            round. Redshirt skills unlock one assignment at a time, even across
+            voyages.
           </p>
           <div
             class="daily-cast-stack"
@@ -150,10 +157,20 @@
                   <small>
                     {{
                       assignments[enc.id]
-                        ? questOdds(run, enc, assignments[enc.id]!, knowledge) === null
+                        ? questOdds(
+                            run,
+                            enc,
+                            assignments[enc.id]!,
+                            knowledge,
+                          ) === null
                           ? 'SUCCESS ODDS CLASSIFIED · FIELD TEST REQUIRED'
                           : 'FORECAST ' +
-                            questOdds(run, enc, assignments[enc.id]!, knowledge) +
+                            questOdds(
+                              run,
+                              enc,
+                              assignments[enc.id]!,
+                              knowledge,
+                            ) +
                             '%'
                         : 'Tap with a personnel card selected'
                     }}
@@ -215,7 +232,10 @@
                   ? 'space-couch-serendipity-quest'
                   : 'space-couch-deck-' + deck
             "
-            @click="flipped = deck; plotCast = []"
+            @click="
+              flipped = deck
+              plotCast = []
+            "
           >
             <span class="daily-deck-number">{{
               String(index + 1).padStart(2, '0')
@@ -258,20 +278,38 @@
             <h3>{{ episodeCard(run, flipped).title }}</h3>
             <p>{{ episodeCard(run, flipped).setup }}</p>
             <small>{{ episodeCard(run, flipped).link }}</small>
-            <div class="daily-plot-staff" data-testid="space-couch-plot-assignment">
+            <div
+              class="daily-plot-staff"
+              data-testid="space-couch-plot-assignment"
+            >
               <div class="daily-section-head">
                 <strong>CAST THIS ENCOUNTER · 1 ROUND</strong>
-                <span>{{ plotCast.length }}/{{ episodePlotSeats(run, flipped) }} SLOTS</span>
+                <span
+                  >{{ plotCast.length }}/{{
+                    episodePlotSeats(run, flipped)
+                  }}
+                  SLOTS</span
+                >
               </div>
-              <p>Assign your captain or one of three officers. Some encounters allow a second specialist. Redshirts handle expedition quests.</p>
-              <div class="daily-plot-roster" role="group" aria-label="Captain and three crew for this encounter">
+              <p>
+                Assign your captain or one of three officers. Some encounters
+                allow a second specialist. Redshirts handle expedition quests.
+              </p>
+              <div
+                class="daily-plot-roster"
+                role="group"
+                aria-label="Captain and three crew for this encounter"
+              >
                 <button
                   v-for="actor in commandActors"
                   :key="actor.id"
                   type="button"
                   :aria-pressed="plotCast.includes(actor.id)"
                   :class="{ selected: plotCast.includes(actor.id) }"
-                  :disabled="!plotCast.includes(actor.id) && plotCast.length >= episodePlotSeats(run, flipped)"
+                  :disabled="
+                    !plotCast.includes(actor.id) &&
+                    plotCast.length >= episodePlotSeats(run, flipped)
+                  "
                   data-testid="space-couch-plot-officer"
                   @click="togglePlotCast(actor.id)"
                 >
@@ -284,7 +322,9 @@
                 {{ episodePlotOdds(run, flipped, plotCast) }}% forecast ·
                 {{ plotCast.length === 2 ? 'TEAMWORK' : 'SOLO' }}
               </small>
-              <small v-else>Choose at least one command card to unlock a decision.</small>
+              <small v-else
+                >Choose at least one command card to unlock a decision.</small
+              >
             </div>
             <div class="daily-decisions">
               <button
@@ -355,7 +395,10 @@ import {
   CREW_PROFILES,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
-import { knownRedshirtSkills, type RedshirtKnowledge } from '~/utils/gameOfCaptains/redshirtKnowledge'
+import {
+  knownRedshirtSkills,
+  type RedshirtKnowledge,
+} from '~/utils/gameOfCaptains/redshirtKnowledge'
 import {
   currentExpedition,
   expeditionBusy,
@@ -459,7 +502,10 @@ const actors = computed(() => [
       subtitle:
         (generation ? 'CLONE · ' : 'REDSHIRT · ') +
         (revealed
-          ? 'FIELD REPORTS · ' + known.map((skill) => skill.toUpperCase() + ' ' + person.stats[skill]).join(' · ')
+          ? 'FIELD REPORTS · ' +
+            known
+              .map((skill) => skill.toUpperCase() + ' ' + person.stats[skill])
+              .join(' · ')
           : 'APTITUDE SEALED'),
       image: null,
       revealed,
@@ -468,13 +514,19 @@ const actors = computed(() => [
     }
   }),
 ])
-const commandActors = computed(() => actors.value.filter((actor) =>
-  actor.id === 'captain' || props.run.crew.includes(actor.id as CrewId),
-))
+const commandActors = computed(() =>
+  actors.value.filter(
+    (actor) =>
+      actor.id === 'captain' || props.run.crew.includes(actor.id as CrewId),
+  ),
+)
 function togglePlotCast(id: string) {
   if (plotCast.value.includes(id)) {
     plotCast.value = plotCast.value.filter((actor) => actor !== id)
-  } else if (flipped.value && plotCast.value.length < episodePlotSeats(props.run, flipped.value)) {
+  } else if (
+    flipped.value &&
+    plotCast.value.length < episodePlotSeats(props.run, flipped.value)
+  ) {
     plotCast.value = [...plotCast.value, id]
   }
 }
@@ -1138,22 +1190,56 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   }
 }
 .daily-plot-staff {
-  margin: 0.7rem 0; padding: 0.65rem; border: 1px solid #c6a47699;
-  border-radius: 0.65rem; background: #15283ddb;
+  margin: 0.7rem 0;
+  padding: 0.65rem;
+  border: 1px solid #c6a47699;
+  border-radius: 0.65rem;
+  background: #15283ddb;
 }
-.daily-plot-staff p { font-size: 0.7rem; line-height: 1.4; margin: 0.4rem 0; }
-.daily-plot-staff > small { display: block; color: #f4d5a8; font-weight: 800; margin-top: 0.4rem; }
-.daily-plot-roster { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.3rem; }
+.daily-plot-staff p {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  margin: 0.4rem 0;
+}
+.daily-plot-staff > small {
+  display: block;
+  color: #f4d5a8;
+  font-weight: 800;
+  margin-top: 0.4rem;
+}
+.daily-plot-roster {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.3rem;
+}
 .daily-plot-roster button {
-  min-width: 0; border: 1px solid #8da7ba; border-radius: 0.5rem;
-  background: #344766; color: #f9e5c9; padding: 0.45rem 0.25rem;
-  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
-  font-size: 0.58rem; line-height: 1.2;
+  min-width: 0;
+  border: 1px solid #8da7ba;
+  border-radius: 0.5rem;
+  background: #344766;
+  color: #f9e5c9;
+  padding: 0.45rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.58rem;
+  line-height: 1.2;
 }
-.daily-plot-roster button.selected { border-color: #ffe0aa; background: #8e5f59; }
-.daily-plot-roster button:disabled { opacity: 0.38; }
-.daily-decisions button:disabled { opacity: 0.4; cursor: not-allowed; }
+.daily-plot-roster button.selected {
+  border-color: #ffe0aa;
+  background: #8e5f59;
+}
+.daily-plot-roster button:disabled {
+  opacity: 0.38;
+}
+.daily-decisions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 @container (max-width: 440px) {
-  .daily-plot-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .daily-plot-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>

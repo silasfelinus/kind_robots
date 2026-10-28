@@ -147,13 +147,20 @@ export function arriveAtWorld(run: VoyageRun): VoyageRun {
 }
 export function recruitedOriginals(run: VoyageRun): number {
   const current = run.redshirtRoster ?? starterRedshirts(run.seed)
-  return new Set([...current, ...(run.redshirtFallen ?? []).map((loss) => loss.id)]).size
+  return new Set([
+    ...current,
+    ...(run.redshirtFallen ?? []).map((loss) => loss.id),
+  ]).size
 }
 export function hireRedshirt(run: VoyageRun): VoyageRun {
   if (!['briefing', 'travel', 'expedition', 'debrief'].includes(run.phase))
     return run
   const roster = run.redshirtRoster ?? starterRedshirts(run.seed)
-  if (roster.length >= REDSHIRT_QUARTERS.bunks || recruitedOriginals(run) >= REDSHIRT_QUARTERS.recruitmentLimit) return run
+  if (
+    roster.length >= REDSHIRT_QUARTERS.bunks ||
+    recruitedOriginals(run) >= REDSHIRT_QUARTERS.recruitmentLimit
+  )
+    return run
   const cost = roster.length ? 1 : 0
   if (run.supplies < cost) return run
   const id = nextRedshirt(

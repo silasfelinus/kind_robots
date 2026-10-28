@@ -6,7 +6,10 @@
  */
 import type { CrewId, VoyageRun } from './rules'
 import { SKILLS, type Skill } from './crewAssignments'
-import { knownRedshirtSkills, type RedshirtKnowledge } from './redshirtKnowledge'
+import {
+  knownRedshirtSkills,
+  type RedshirtKnowledge,
+} from './redshirtKnowledge'
 import { antagonistFor } from './rules'
 import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { currentExpedition, deployExpedition } from './expedition'
@@ -332,7 +335,11 @@ export function questOdds(
   lead: string,
   knowledge: RedshirtKnowledge = {},
 ): number | null {
-  if (REDSHIRT_BY_ID[lead] && !knownRedshirtSkills(run, knowledge, lead).includes(enc.skill)) return null
+  if (
+    REDSHIRT_BY_ID[lead] &&
+    !knownRedshirtSkills(run, knowledge, lead).includes(enc.skill)
+  )
+    return null
   const odds = actualOdds(run, enc, lead)
   return odds
     ? REDSHIRT_BY_ID[lead]
@@ -387,12 +394,14 @@ export function dispatchEpisodeBatch(
     const verdict = successful
       ? 'Field objective achieved; the local faction records your intervention.'
       : 'Field objective compromised; the local faction records the consequences.'
-    const leadName = lead === 'captain'
-      ? 'The captain'
-      : CREW_PROFILES.find((person) => person.id === lead)?.name ?? lead
-    const coherentOutcome = !successful && !last.casualty && !REDSHIRT_BY_ID[lead]
-      ? `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${last.secret ? ' SECRET DETOUR: ' + encounter.secretResult : ''}`
-      : last.outcome
+    const leadName =
+      lead === 'captain'
+        ? 'The captain'
+        : (CREW_PROFILES.find((person) => person.id === lead)?.name ?? lead)
+    const coherentOutcome =
+      !successful && !last.casualty && !REDSHIRT_BY_ID[lead]
+        ? `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${last.secret ? ' SECRET DETOUR: ' + encounter.secretResult : ''}`
+        : last.outcome
     const result = {
       ...last,
       chance: forecast,
@@ -428,15 +437,24 @@ export function dispatchEpisodeBatch(
 }
 /** The four permanent command seats run solar-system plot cards, not the redshirt corps. */
 export function episodePlotSkill(run: VoyageRun, deck: EpisodeDeck): Skill {
-  return SKILLS[hash(`${run.seed}:${run.chapter}:${deck}:skill`) % SKILLS.length]!
+  return SKILLS[
+    hash(`${run.seed}:${run.chapter}:${deck}:skill`) % SKILLS.length
+  ]!
 }
 export function episodePlotSeats(run: VoyageRun, deck: EpisodeDeck): 1 | 2 {
   return hash(`${run.seed}:${run.chapter}:${deck}:seats`) % 3 === 0 ? 2 : 1
 }
-export function episodePlotOdds(run: VoyageRun, deck: EpisodeDeck, cast: string[]): number {
-  if (cast.length < 1 || cast.length > episodePlotSeats(run, deck) ||
-      new Set(cast).size !== cast.length ||
-      cast.some((id) => id !== 'captain' && !run.crew.includes(id as CrewId)))
+export function episodePlotOdds(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  cast: string[],
+): number {
+  if (
+    cast.length < 1 ||
+    cast.length > episodePlotSeats(run, deck) ||
+    new Set(cast).size !== cast.length ||
+    cast.some((id) => id !== 'captain' && !run.crew.includes(id as CrewId))
+  )
     return 0
   const skill = episodePlotSkill(run, deck)
   const command = cast.map((id) =>
@@ -465,12 +483,19 @@ export function drawEpisodeDeck(
   const card = episodeCard(run, deck)
   const skill = episodePlotSkill(run, deck)
   const chance = episodePlotOdds(run, deck, cast)
-  const successful = hash(`${run.seed}:${run.chapter}:${deck}:${choice}:${cast.join('+')}:plot`) % 100 < chance
-  const names = cast.map((id) =>
-    id === 'captain'
-      ? 'the captain'
-      : CREW_PROFILES.find((p) => p.id === id)!.name,
-  ).join(' and ')
+  const successful =
+    hash(
+      `${run.seed}:${run.chapter}:${deck}:${choice}:${cast.join('+')}:plot`,
+    ) %
+      100 <
+    chance
+  const names = cast
+    .map((id) =>
+      id === 'captain'
+        ? 'the captain'
+        : CREW_PROFILES.find((p) => p.id === id)!.name,
+    )
+    .join(' and ')
   const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null

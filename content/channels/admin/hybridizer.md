@@ -7,7 +7,7 @@ title: Hybridizer
 subtitle: The impossible creature laboratory
 summary: Fuse animals, fruit, and monsters.
 description: 'An internal art-first fusion-lab prototype with 200 curated starting concepts, local recursive composition studies and a reusable discovery shelf. Shared image generation and upload remain in development.'
-icon: kind-icon:flash
+icon: kind-icon:dna
 route: /admin/hybridizer
 sort: 145
 requiredRole: ADMIN

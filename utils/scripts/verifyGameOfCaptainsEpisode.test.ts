@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { planEpisodeAssignment, removeEpisodeAssignment } from '../gameOfCaptains/episodePlanner'
 import {
   startWorldTravel,
   arriveAtWorld,
@@ -49,6 +50,21 @@ assert.deepEqual(
   EPISODE_CHOICES.map((c) => c.id),
   ['ask', 'document', 'override'],
 )
+const cardAlpha = mandatory[0]!.id
+const cardBeta = board.find((card) => card.id !== cardAlpha)!.id
+const cardGamma = board.find((card) => card.id !== cardAlpha && card.id !== cardBeta)!.id
+const initialPlan = { [cardAlpha]: 'captain', [cardBeta]: 'pell' }
+const moved = planEpisodeAssignment(initialPlan, cardBeta, 'captain')
+assert.deepEqual(moved, { [cardAlpha]: 'pell', [cardBeta]: 'captain' })
+assert.deepEqual(initialPlan, { [cardAlpha]: 'captain', [cardBeta]: 'pell' }, 'planning is immutable')
+const swappedBack = planEpisodeAssignment(moved, cardAlpha, 'captain')
+assert.deepEqual(swappedBack, initialPlan, 'two known actors swap safely')
+assert.deepEqual(planEpisodeAssignment(initialPlan, cardAlpha, 'captain'), { [cardBeta]: 'pell' }, 'tapping same personnel unassigns')
+const added = planEpisodeAssignment(initialPlan, cardGamma, 'mox')
+assert.deepEqual(added, { ...initialPlan, [cardGamma]: 'mox' })
+assert.deepEqual(removeEpisodeAssignment(added, cardBeta), { [cardAlpha]: 'captain', [cardGamma]: 'mox' })
+assert.equal(questOdds(landing, mandatory[0]!, firstRedshirt, {}), null, 'planning never discloses untested aptitude')
+assert.equal(questOdds(landing, mandatory[0]!, 'captain', {}) !== null, true)
 const assignment: EpisodeAssignment[] = mandatory.map((card, index) => ({
   encounterId: card.id,
   lead: [firstRedshirt, 'captain', 'pell', 'mox'][index]!,
@@ -221,6 +237,20 @@ assert.ok(daily.includes('space-couch-expedition-deploy'))
 assert.ok(daily.includes('space-couch-expedition-finish'))
 assert.ok(daily.includes('APTITUDE SEALED'))
 assert.ok(daily.includes('SUCCESS ODDS CLASSIFIED'))
+for (const marker of [
+  'space-couch-compare-cast',
+  'space-couch-scout-console',
+  'space-couch-scout-actor',
+  'space-couch-scout-back',
+  'space-couch-clear-cast',
+  'space-couch-undo-cast',
+  'planEpisodeAssignment',
+  'removeEpisodeAssignment',
+]) {
+  assert.ok(daily.includes(marker), 'Missing tactical planning surface: ' + marker)
+}
+assert.ok(daily.includes("scoutOdds(actor.id) === null ? 'CLASSIFIED'"), 'Do not expose untested redshirt statistics')
+assert.ok(daily.includes('lastPlan.value = { ...assignments.value }'), 'One reversible planning step must be retained')
 assert.ok(
   store.includes('dispatchEpisodeBatch') && store.includes('drawEpisodeDeck'),
 )

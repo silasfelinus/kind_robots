@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import catalog from '~/utils/hybridizer/starterCatalog.json'
+import catalog from '../../utils/hybridizer/starterCatalog.json'
 
 export const HYBRIDIZER_RECIPE_VERSION = 'v1'
 export const HYBRIDIZER_MAX_DEPTH = 4

@@ -119,7 +119,11 @@
             </div>
             <div class="result-foot">
               <p class="study-label">
-                {{ lab.result.key.startsWith('fusion:') ? 'SHARED DISCOVERY · PAINTED ART PENDING' : 'LOCAL STUDY · SHARED ARCHIVE UNAVAILABLE' }}
+                {{
+                  lab.result.key.startsWith('fusion:')
+                    ? 'SHARED DISCOVERY · PAINTED ART PENDING'
+                    : 'LOCAL STUDY · SHARED ARCHIVE UNAVAILABLE'
+                }}
               </p>
               <button
                 type="button"

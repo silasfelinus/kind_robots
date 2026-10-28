@@ -39,6 +39,7 @@
       <ArcadePlumberMakerSidebar
         @load-draft="loadDraft"
         @play-draft="playDraft"
+        @resize-course="resizeCourseTo"
       />
 
       <div class="maker-stage">
@@ -482,16 +483,20 @@ function onGridKey(event: KeyboardEvent) {
     placeAt(cursor.value.x, cursor.value.y)
   }
 }
-function resizeCourse(dx: number, dy: number) {
+function resizeCourseTo({ cols, rows }: { cols: number; rows: number }) {
   const previousRows = maker.level.rows.length
-  const cols = Math.max(32, Math.min(96, maker.level.rows[0]!.length + dx))
-  const rows = Math.max(16, Math.min(48, previousRows + dy))
   if (!maker.resize(cols, rows)) return
   cursor.value = {
     x: Math.min(cols - 1, cursor.value.x),
     y: Math.max(0, Math.min(rows - 1, cursor.value.y + rows - previousRows)),
   }
   nextTick(drawEditor)
+}
+function resizeCourse(dx: number, dy: number) {
+  resizeCourseTo({
+    cols: Math.max(32, Math.min(96, maker.level.rows[0]!.length + dx)),
+    rows: Math.max(16, Math.min(48, maker.level.rows.length + dy)),
+  })
 }
 function startNewLevel() {
   stopGame()

@@ -374,7 +374,7 @@ forgedTwins.house['HD-11'] = 'forged'
 assert.equal(
   briarQuestProgress(twins, forgedTwins.briar, forgedTwins.house).state,
   'active',
-  'A forged wardrobe decision cannot close the twins\' thread',
+  "A forged wardrobe decision cannot close the twins' thread",
 )
 const twoTwinClosures = split(twins)
 twoTwinClosures.house['HD-10'] = 'manifest'

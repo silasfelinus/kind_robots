@@ -350,10 +350,12 @@
                 {{ plotCast.length === 2 ? 'TEAMWORK' : 'SOLO' }}
               </small>
               <small v-if="episodePlotConnection(run, flipped, plotCast)">
-                ✦ CREW CONNECTION · {{ episodePlotConnection(run, flipped, plotCast) }}
+                ✦ CREW CONNECTION ·
+                {{ episodePlotConnection(run, flipped, plotCast) }}
               </small>
               <small v-if="episodeDuoExperience(run, plotCast) > 0">
-                ✦ FAMILIAR PARTNERS · {{ episodeDuoExperience(run, plotCast) }} previous success(es)
+                ✦ FAMILIAR PARTNERS ·
+                {{ episodeDuoExperience(run, plotCast) }} previous success(es)
               </small>
               <small v-else
                 >Choose at least one command card to unlock a decision.</small

@@ -182,13 +182,26 @@ function selectedPlanetCard(run: VoyageRun) {
 }
 /** Encounter requirements must match the actual authored situation. */
 const FRANCHISE_SKILLS: Record<string, Skill> = {
-  mesa: 'diplomacy', arcade: 'tactics', library: 'science',
-  orchid: 'rescue', rink: 'luck', opera: 'culture',
-  laundry: 'science', sauna: 'rescue', bowling: 'luck',
-  chapel: 'diplomacy', cinema: 'culture', mech: 'tactics',
-  farm: 'rescue', haunt: 'culture', karaoke: 'culture',
-  diner: 'diplomacy', market: 'diplomacy', museum: 'science',
-  observatory: 'science', carnival: 'luck',
+  mesa: 'diplomacy',
+  arcade: 'tactics',
+  library: 'science',
+  orchid: 'rescue',
+  rink: 'luck',
+  opera: 'culture',
+  laundry: 'science',
+  sauna: 'rescue',
+  bowling: 'luck',
+  chapel: 'diplomacy',
+  cinema: 'culture',
+  mech: 'tactics',
+  farm: 'rescue',
+  haunt: 'culture',
+  karaoke: 'culture',
+  diner: 'diplomacy',
+  market: 'diplomacy',
+  museum: 'science',
+  observatory: 'science',
+  carnival: 'luck',
 }
 const STAR_SKILLS: Record<string, Skill> = {
   'northern-sloth': 'rescue',
@@ -214,20 +227,32 @@ const NEMESIS_SKILLS: Record<string, Skill> = {
   chancellor: 'diplomacy',
   'kindly-swarm': 'rescue',
 }
-export function episodePlotConnection(run: VoyageRun, deck: EpisodeDeck, cast: string[]): string | null {
+export function episodePlotConnection(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  cast: string[],
+): string | null {
   if (deck !== 'planet') return null
   const connection = selectedPlanetCard(run).crew
   if (!cast.includes(connection)) return null
   const officer = CREW_PROFILES.find((p) => p.id === connection)
-  return officer ? officer.name + ' knows this planetary dilemma; their prior field experience gives the team a home advantage.' : null
+  return officer
+    ? officer.name +
+        ' knows this planetary dilemma; their prior field experience gives the team a home advantage.'
+    : null
 }
 export function episodeDuoExperience(run: VoyageRun, cast: string[]): number {
   if (cast.length !== 2 || new Set(cast).size !== 2) return 0
   const partnership = [...cast].sort().join(':')
-  return Math.min(3, ((run as EpisodeRun).episodeDrawHistory ?? []).filter((draw) =>
-    draw.successful && draw.cast?.length === 2 &&
-    [...draw.cast].sort().join(':') === partnership,
-  ).length)
+  return Math.min(
+    3,
+    ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
+      (draw) =>
+        draw.successful &&
+        draw.cast?.length === 2 &&
+        [...draw.cast].sort().join(':') === partnership,
+    ).length,
+  )
 }
 export const EPISODE_CHOICES: readonly {
   id: EpisodeChoice
@@ -536,9 +561,12 @@ export function dispatchEpisodeBatch(
 export function episodePlotSkill(run: VoyageRun, deck: EpisodeDeck): Skill {
   if (deck === 'planet') return selectedPlanetCard(run).skill
   const system = chapterSystem(run.seed, run.chapter)
-  if (deck === 'casino') return casinoIncident(run.seed, run.chapter, system).skill
-  if (deck === 'serendipity') return FRANCHISE_SKILLS[system.franchise.id] ?? 'culture'
-  if (deck === 'constellation') return STAR_SKILLS[run.starAssessment?.sign ?? ''] ?? 'culture'
+  if (deck === 'casino')
+    return casinoIncident(run.seed, run.chapter, system).skill
+  if (deck === 'serendipity')
+    return FRANCHISE_SKILLS[system.franchise.id] ?? 'culture'
+  if (deck === 'constellation')
+    return STAR_SKILLS[run.starAssessment?.sign ?? ''] ?? 'culture'
   return NEMESIS_SKILLS[antagonistFor(run).id] ?? 'tactics'
 }
 export function episodePlotSeats(run: VoyageRun, deck: EpisodeDeck): 1 | 2 {
@@ -562,10 +590,12 @@ export function episodePlotOdds(
       ? CAPTAIN_STATS[run.captain][skill]
       : CREW_PROFILES.find((p) => p.id === id)!.stats[skill],
   )
-  const connected = deck === 'planet' && cast.includes(selectedPlanetCard(run).crew)
+  const connected =
+    deck === 'planet' && cast.includes(selectedPlanetCard(run).crew)
   const rapport = episodeDuoExperience(run, cast)
   return clamp(
-    14 + command[0]! * 13 +
+    14 +
+      command[0]! * 13 +
       (command[1] ? 8 + command[1] * 5 : 0) +
       (connected ? 12 : 0) +
       rapport * 5,

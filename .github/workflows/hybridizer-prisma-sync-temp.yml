@@ -22,6 +22,10 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
         run: npm ci --ignore-scripts
+      - name: Prepare Nuxt aliases for Prisma generator
+        env:
+          DATABASE_URL: mysql://dummy:dummy@127.0.0.1:3306/kindrobots
+        run: npx nuxt prepare
       - name: Generate checked-in Prisma client
         env:
           DATABASE_URL: mysql://dummy:dummy@127.0.0.1:3306/kindrobots

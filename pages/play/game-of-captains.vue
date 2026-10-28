@@ -224,7 +224,7 @@
         class="cap-reset"
         data-testid="space-couch-return-menu"
         @click="
-          atTitle = true
+          atTitle = true;
           titlePanel = 'home'
         "
       >
@@ -235,8 +235,8 @@
         type="button"
         class="cap-reset"
         @click="
-          atTitle = true
-          titlePanel = 'home'
+          atTitle = true;
+          titlePanel = 'home';
           confirmNewVoyage = true
         "
       >

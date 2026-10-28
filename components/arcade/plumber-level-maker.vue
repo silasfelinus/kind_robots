@@ -251,7 +251,7 @@
           <template v-else>
             <span>{{
               maker.level.space
-                ? 'ARROWS AIM · HOLD C FOR THRUST · A BRAKE · ◉ REFILLS AIR'
+                ? 'ARROWS AIM · C THRUST · A BRAKE · ◉ CANISTERS · ▣ DOCKS'
                 : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
             }}</span>
             <span>CAMPAIGN SAVES UNTOUCHED</span>
@@ -423,6 +423,7 @@ const palette: Record<string, string> = {
   f: '#b7f0ff',
   '?': '#cba7ff',
   '%': '#7ce2ed',
+  ';': '#f8e2a2',
   c: '#a67c56',
   g: '#cb7257',
   v: '#ffd064',
@@ -686,7 +687,7 @@ function resizeCourse(dx: number, dy: number) {
   })
 }
 function loadStarterTemplate(
-  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk',
+  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
 ) {
   stopGame()
   maker.loadTemplate(name)

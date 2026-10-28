@@ -90,6 +90,7 @@ const AIR_PRESSURE_CAPACITY = 100
 const AIR_PRESSURE_COST = 9
 const AIR_PRESSURE_RECOVERY = 0.14
 const AIR_CANISTER_REFILL = 65
+const AIR_DOCK_RECHARGE = 2.5
 const JUMP = -8.6
 /** Springstep power: a higher jump, and a float while A is held on the way down. */
 const SPRING_JUMP = -10.2
@@ -442,6 +443,8 @@ export class PlumberRun implements ArcadeGameInstance {
   /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
   airPressure = AIR_PRESSURE_CAPACITY
   airCanisters: { x: number; y: number; taken: boolean }[] = []
+  airDocks: { x: number; y: number }[] = []
+  airDockActive = false
   gravityWells: { x: number; y: number }[] = []
   grace = 0
   jumpBuffer = 0
@@ -937,6 +940,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airCooldown = 0
     this.airPressure = AIR_PRESSURE_CAPACITY
     this.airCanisters = []
+    this.airDocks = []
+    this.airDockActive = false
     this.fragileIce.clear()
     this.springs = []
     this.tokensOnMap = []
@@ -1086,6 +1091,9 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'air-canister':
           this.airCanisters.push({ x: cx, y: bottom - TILE / 2, taken: false })
           break
+        case 'air-dock':
+          this.airDocks.push({ x: cx, y: bottom - TILE / 2 })
+          break
         case 'gravity-well':
           this.gravityWells.push({ x: cx, y: bottom - TILE / 2 })
           break
@@ -1170,6 +1178,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.riding = null
     this.hearts = HEARTS
     this.airPressure = AIR_PRESSURE_CAPACITY
+    this.airDockActive = false
     this.immune = 60
     this.facing = 1
     this.camera = this.cameraTarget()
@@ -1442,6 +1451,23 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
     this.updateSprings(prevBottom)
+    if (this.stage.space) {
+      // A vacuum stage still has a playable hull. No endless off-screen drift.
+      if (hero.x < HALF) {
+        hero.x = HALF
+        hero.vx = 0
+      } else if (hero.x > this.stage.cols * TILE - HALF) {
+        hero.x = this.stage.cols * TILE - HALF
+        hero.vx = 0
+      }
+      if (hero.y < 0) {
+        hero.y = 0
+        hero.vy = 0
+      } else if (hero.y > this.stage.rows * TILE - TALL) {
+        hero.y = this.stage.rows * TILE - TALL
+        hero.vy = 0
+      }
+    }
     this.crackIce()
     if (keys.pressed.down && this.ground) this.tryDoor()
     if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
@@ -2013,6 +2039,15 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!this.stage.space) return
     const x = this.hero.x
     const y = this.hero.y + TALL / 2
+    this.airDockActive = false
+    for (const dock of this.airDocks) {
+      if (Math.hypot(x - dock.x, y - dock.y) > 40) continue
+      this.airDockActive = true
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_DOCK_RECHARGE,
+      )
+    }
     for (const canister of this.airCanisters) {
       if (canister.taken) continue
       if (Math.abs(x - canister.x) > 16 || Math.abs(y - canister.y) > 18)
@@ -4189,6 +4224,23 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private renderSpaceFeatures(g: CanvasRenderingContext2D) {
+    for (const dock of this.airDocks) {
+      const pulse = Math.sin(this.tick * 0.07) * 0.15 + 0.8
+      g.save()
+      g.translate(dock.x, dock.y)
+      g.strokeStyle = this.airDockActive ? '#ffe49a' : '#80f5fa'
+      g.lineWidth = 3
+      g.beginPath()
+      g.arc(0, 0, 16, -1.3, 1.3)
+      g.arc(0, 0, 16, Math.PI - 1.3, Math.PI + 1.3)
+      g.stroke()
+      g.fillStyle = `rgba(85, 186, 244, ${pulse})`
+      g.fillRect(-9, -9, 18, 18)
+      g.fillStyle = '#f0fbff'
+      g.fillRect(-2, -6, 4, 12)
+      g.fillRect(-6, -2, 12, 4)
+      g.restore()
+    }
     for (const canister of this.airCanisters) {
       if (canister.taken) continue
       const shimmer = 1 + Math.sin(this.tick / 15 + canister.x) * 0.12
@@ -4323,7 +4375,11 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fillText('AIR  ' + Math.ceil(this.airPressure) + '%', W - 131, 26)
       g.fillStyle = '#21334c'
       g.fillRect(W - 131, 32, 113, 11)
-      g.fillStyle = this.airPressure < 25 ? '#f9aa6c' : '#7ce2ed'
+      g.fillStyle = this.airDockActive
+        ? '#ffe49a'
+        : this.airPressure < 25
+          ? '#f9aa6c'
+          : '#7ce2ed'
       g.fillRect(
         W - 130,
         33,

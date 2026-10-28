@@ -24,6 +24,13 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 - A Space starter called **Airlock Drift** provides floating asteroid blockers, collectible routes, a checkpoint, aerial foes, three `%` compressed-air canisters and the `?` gravity-well obstacle with positional pull and a hazardous core. The Maker Cosmos palette exposes gravity wells, pressure refill canisters, asteroid blocks and phase bridges. Canisters add 65 pressure once, with a capped 100% tank; checkpoints refill pressure only when physically reached in both axes. When all tanks are spent, a very slow automatic emergency trickle lets the heroine recover enough pressure to escape without a restart. Pressure, checkpoints, gravity wells and thrust run inside the same engine used for playtests and portable share links.
 - A seeded parallax starfield, distant nebula and directional air plume visibly distinguish the mode from existing World 8 art. This is an independently selectable **Maker environment**, not a ninth story world or a finished painted-space asset package. Existing campaign movement, draft IDs, save slots and legacy share code normalization remain unchanged.
 
+## Additional orbital challenge tools
+
+- The established compressed-air pressure system now also has `;` recharge docks, complementary to the existing `%` collectible canisters. Docks refuel continuously when the heroine comes within 40 engine pixels. Their art and the air-pressure HUD give a distinct visual charging cue.
+- **Airlock Drift** retains the shipped compressed-air canisters and now has a demonstration dock. **Orbital Salvage** is a second editable space starter, combining two refill docks, two canisters, obstacles, gravity wells and an ascending exit.
+- Space movement is bounded to the stage rectangle, so drifting into the top, bottom or sides stops the heroine rather than sending her indefinitely off-screen. Both templates use ordinary validated Maker v1 share links; existing campaign and player progress remain intact.
+- This complements, rather than replaces, the compressed-air pressure and canister mechanics already shipped in the previous space release.
+
 ## Water and winter truth-in-features
 
 - **Tideglass Marina (World 2)** has a water-themed campaign with rafts, canal locks, minnows and crabs. The existing `w` glyph is lethal water, **not a swimming mechanic**; the new harbor starter is an above-water platforming challenge, not an underwater course.

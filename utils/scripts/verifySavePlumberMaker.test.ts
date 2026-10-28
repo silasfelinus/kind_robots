@@ -183,7 +183,13 @@ assert.equal(parseStage(toMakerStage(shifted)).start.row, 17)
 assert.equal(shifted.rows[20]![3], '.')
 assert.deepEqual(decodeMakerLevel(encodeMakerLevel(stamped)), stamped)
 assert.equal('snow' in decodeMakerLevel(encodeMakerLevel(initial)), false)
-for (const name of ['harbor', 'snowfield', 'skybridge', 'spacewalk'] as const) {
+for (const name of [
+  'harbor',
+  'snowfield',
+  'skybridge',
+  'spacewalk',
+  'orbital-salvage',
+] as const) {
   const course = makerTemplate(name)
   assert.deepEqual(decodeMakerLevel(encodeMakerLevel(course)), course)
   const parsed = parseStage(toMakerStage(course))
@@ -278,6 +284,7 @@ assert.equal('space' in validateMakerLevel(initial), false)
 const cosmosTools = MAKER_GROUPS.find((group) => group.name === 'Cosmos')
 assert.ok(cosmosTools?.tiles.some((tile) => tile.key === '?'))
 assert.ok(cosmosTools?.tiles.some((tile) => tile.key === '%'))
+assert.ok(cosmosTools?.tiles.some((tile) => tile.key === ';'))
 const spaceRun = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(spaceCourse) },
@@ -448,6 +455,88 @@ assert.equal(
 )
 assert.equal(flagRun.checkpoint.x, floatingFlag.x)
 assert.equal(flagRun.checkpoint.y, floatingFlag.y - 20)
+
+const supplyStage = parseStage(toMakerStage(spaceCourse))
+assert.equal(
+  supplyStage.spawns.filter((spawn) => spawn.kind === 'air-dock').length,
+  1,
+)
+const supplyRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCourse) },
+)
+assert.equal(supplyRun.airDocks.length, 1)
+const refillDock = supplyRun.airDocks[0]!
+supplyRun.airPressure = 15
+supplyRun.hero.x = refillDock.x
+supplyRun.hero.y = refillDock.y - 10
+supplyRun.hero.vx = 0
+supplyRun.hero.vy = 0
+supplyRun.update(emptyInput())
+assert.equal(supplyRun.airDockActive, true)
+assert.ok(supplyRun.airPressure > 17, 'Dock recharges propellant on proximity')
+const initialPressure = supplyRun.airPressure
+supplyRun.hero.x = 5 * 16
+supplyRun.hero.y = 16 * 16
+supplyRun.hero.vx = 0
+supplyRun.hero.vy = 0
+supplyRun.update(emptyInput())
+assert.equal(supplyRun.airDockActive, false)
+assert.ok(
+  supplyRun.airPressure < initialPressure + 1,
+  'Distant docks cannot instantly refill a tank',
+)
+const salvage = makerTemplate('orbital-salvage')
+assert.equal(salvage.space, true)
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(salvage)), salvage)
+const salvageSpawns = parseStage(toMakerStage(salvage)).spawns
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-dock').length,
+  2,
+)
+assert.equal(
+  salvageSpawns.filter((spawn) => spawn.kind === 'air-canister').length,
+  2,
+)
+assert.ok(salvageSpawns.some((spawn) => spawn.kind === 'gravity-well'))
+const boundedSpace = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCorridor) },
+)
+boundedSpace.hero.x = 9.5
+boundedSpace.hero.y = 150
+boundedSpace.hero.vx = -4
+boundedSpace.hero.vy = 0
+boundedSpace.update(emptyInput())
+assert.ok(
+  boundedSpace.hero.x >= 9 && boundedSpace.hero.x < 9.05,
+  'Vacuum has a left stage boundary',
+)
+assert.equal(boundedSpace.hero.vx, 0)
+boundedSpace.hero.x = 128
+boundedSpace.hero.y = 0.5
+boundedSpace.hero.vy = -3
+boundedSpace.update(emptyInput())
+assert.equal(boundedSpace.hero.y, 0, 'Astronaut cannot drift above the map')
+assert.equal(boundedSpace.hero.vy, 0)
+boundedSpace.hero.x = 32 * 16 - 9.5
+boundedSpace.hero.y = 150
+boundedSpace.hero.vx = 3
+boundedSpace.update(emptyInput())
+assert.ok(
+  boundedSpace.hero.x <= 32 * 16 - 9 && boundedSpace.hero.x > 32 * 16 - 9.05,
+  'Right hull keeps the astronaut inside',
+)
+boundedSpace.hero.x = 128
+boundedSpace.hero.y = 24 * 16 - 20 - 0.5
+boundedSpace.hero.vy = 4
+boundedSpace.update(emptyInput())
+assert.equal(
+  boundedSpace.hero.y,
+  24 * 16 - 20,
+  'Bottom hull has no falling softlock',
+)
+assert.equal(boundedSpace.hero.vy, 0)
 
 const worldStage = parseStage(toMakerStage(initial))
 assert.equal(

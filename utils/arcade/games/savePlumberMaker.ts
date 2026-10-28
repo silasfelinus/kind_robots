@@ -123,6 +123,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
         icon: '◉',
         label: 'Air canister · refills compressed jet pressure',
       },
+      {
+        key: ';',
+        icon: '▣',
+        label: 'Refill dock · continuously charges nearby',
+      },
       { key: 'B', icon: '◆', label: 'Asteroid rock · solid obstacle' },
       { key: ':', icon: '◇', label: 'Phase bridge · flickers on/off' },
       { key: 'Q', icon: '▦', label: 'Orbital cargo · falling hazard' },
@@ -292,7 +297,8 @@ export function resizeMakerLevel(
 
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
-export type MakerTemplate = 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk'
+export type MakerTemplate =
+  'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage'
 
 function regionBounds(rect: MakerRect) {
   return {
@@ -477,8 +483,28 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(21, 6, 'u')
     put(29, 4, '1')
     put(48, 9, '%')
+    put(49, 7, ';')
     put(51, 6, '+')
     for (let x = 8; x < 61; x += 6) put(x, 11, 'o')
+  } else if (template === 'orbital-salvage') {
+    put(3, 20, '.')
+    put(59, 20, '.')
+    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, '.')
+    put(3, 16, '@')
+    put(59, 4, 'G')
+    for (let x = 13; x <= 15; x++) for (let y = 7; y <= 13; y++) put(x, y, 'B')
+    for (let x = 29; x <= 33; x++) for (let y = 13; y <= 19; y++) put(x, y, 'B')
+    for (let x = 45; x <= 48; x++) for (let y = 3; y <= 10; y++) put(x, y, 'B')
+    put(9, 10, '%')
+    put(25, 8, ';')
+    put(40, 18, '%')
+    put(54, 13, ';')
+    put(21, 16, '?')
+    put(37, 6, '?')
+    put(42, 15, 'u')
+    put(18, 3, 'K')
+    put(52, 5, '*')
+    for (let x = 6; x < 61; x += 7) put(x, 20, 'o')
   } else if (template === 'skybridge') {
     for (let x = 17; x < 44; x++) {
       put(x, 22, '.')
@@ -500,10 +526,19 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
           ? 'Frostglass Run'
           : template === 'spacewalk'
             ? 'Airlock Drift'
-            : 'Cloudrail Leap',
-    theme: template === 'harbor' ? 2 : template === 'spacewalk' ? 8 : 5,
+            : template === 'orbital-salvage'
+              ? 'Orbital Salvage'
+              : 'Cloudrail Leap',
+    theme:
+      template === 'harbor'
+        ? 2
+        : template === 'spacewalk' || template === 'orbital-salvage'
+          ? 8
+          : 5,
     ...(template === 'snowfield' ? { snow: true } : {}),
-    ...(template === 'spacewalk' ? { space: true } : {}),
+    ...(template === 'spacewalk' || template === 'orbital-salvage'
+      ? { space: true }
+      : {}),
     rows: grid.map((row) => row.join('')),
   })
 }

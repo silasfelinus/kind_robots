@@ -30,6 +30,7 @@
  *   !  a glider: flies at her at head height (duck under it, swing or stomp)
  *   ?  gravity well (space course): draws the heroine toward its center
  *   %  compressed-air canister: restores jet pressure in space
+ *   ;  recharge dock: continuously tops up pressure when nearby
  */
 
 export const TILE = 16
@@ -1101,6 +1102,7 @@ export type SpawnKind =
   | 'snowball'
   | 'gravity-well'
   | 'air-canister'
+  | 'air-dock'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1166,6 +1168,7 @@ const SPAWNS: Record<string, SpawnKind> = {
   q: 'snowball',
   '?': 'gravity-well',
   '%': 'air-canister',
+  ';': 'air-dock',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */

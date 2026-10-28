@@ -394,6 +394,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         typeof choice === 'string' &&
+        visited.includes(key) &&
         BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
       ) {
         sceneChoices[key] = choice

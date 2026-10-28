@@ -56,7 +56,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const left = computed(() => byKey.value.get(leftKey.value) ?? null)
   const right = computed(() => byKey.value.get(rightKey.value) ?? null)
   const result = computed(() =>
-    resultKey.value ? byKey.value.get(resultKey.value) ?? null : null,
+    resultKey.value ? (byKey.value.get(resultKey.value) ?? null) : null,
   )
   const starterCount = STARTERS.length
 
@@ -78,12 +78,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         .filter((entry): entry is HybridizerDiscovery =>
           Boolean(
             entry &&
-              typeof entry.key === 'string' &&
+            typeof entry.key === 'string' &&
               typeof entry.title === 'string' &&
-              Array.isArray(entry.sources) &&
-              entry.sources.length === 2 &&
+            Array.isArray(entry.sources) &&
+            entry.sources.length === 2 &&
               typeof entry.depth === 'number' &&
-              entry.depth <= MAX_STUDY_DEPTH,
+            entry.depth <= MAX_STUDY_DEPTH,
           ),
         )
         .slice(-200)
@@ -108,12 +108,13 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }
       availableArt.value = imageMap
     } catch {
-      status.value = 'The Facet artwork library is unavailable; lab studies still work.'
+      status.value =
+        'The Facet artwork library is unavailable; lab studies still work.'
     }
   }
 
   function imageFor(ingredient: HybridizerIngredient | null): string | null {
-    return ingredient ? availableArt.value[ingredient.key] ?? null : null
+    return ingredient ? (availableArt.value[ingredient.key] ?? null) : null
   }
 
   function choose(side: 'left' | 'right', key: string) {
@@ -134,7 +135,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
     const depth = Math.max(a.depth ?? 0, b.depth ?? 0) + 1
     if (depth > MAX_STUDY_DEPTH) {
-      status.value = 'This local concept study is limited to four fusion generations.'
+      status.value =
+        'This local concept study is limited to four fusion generations.'
       return
     }
     const key = 'hybrid:' + pairKey(a.key, b.key)
@@ -149,8 +151,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value = null
     status.value = 'The fusion chamber is mixing…'
     if (import.meta.client) {
-      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      await new Promise<void>((resolve) => window.setTimeout(resolve, reducedMotion ? 120 : 1250))
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      await new Promise<void>((resolve) =>
+        window.setTimeout(resolve, reducedMotion ? 120 : 1250),
+      )
     }
     const discovery: HybridizerDiscovery = {
       key,
@@ -163,7 +169,8 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     discoveries.value = [...discoveries.value, discovery].slice(-200)
     resultKey.value = key
     working.value = false
-    status.value = 'Local composition study ready. Generated artwork is not connected yet.'
+    status.value =
+      'Local composition study ready. Generated artwork is not connected yet.'
     save()
   }
 
@@ -173,7 +180,22 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   }
 
   return {
-    leftKey, rightKey, left, right, inputs, discoveries, result, resultKey,
-    working, status, starterCount, imageFor, hydrate, loadArtwork, choose, fuse, remix,
+    leftKey,
+    rightKey,
+    left,
+    right,
+    inputs,
+    discoveries,
+    result,
+    resultKey,
+    working,
+    status,
+    starterCount,
+    imageFor,
+    hydrate,
+    loadArtwork,
+    choose,
+    fuse,
+    remix,
   }
 })

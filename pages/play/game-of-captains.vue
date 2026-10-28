@@ -29,7 +29,7 @@
         v-if="run"
         type="button"
         class="cap-reset"
-        @click="store.restart()"
+        @click="restartVoyage"
       >
         NEW VOYAGE
       </button>
@@ -39,7 +39,10 @@
     </p>
     <div
       class="cap-layout min-h-0 flex-1"
-      :class="{ 'cap-layout--episode': run?.phase === 'expedition' }"
+      :class="{
+        'cap-layout--episode': run?.phase === 'expedition',
+        'cap-layout--stars': !run && selectionScreen === 'stars',
+      }"
     >
       <section
         class="cap-stage"
@@ -54,20 +57,28 @@
           </div>
           <template v-if="!run">
             <span class="cap-coordinate">{{
-              selectionScreen === 'captain' ? 'CAPTAIN DOSSIER' : 'CREW DOSSIER'
+              selectionScreen === 'stars'
+                ? 'THE COUCHSCOPE'
+                : selectionScreen === 'captain'
+                  ? 'CAPTAIN DOSSIER'
+                  : 'CREW DOSSIER'
             }}</span>
             <h2 class="cap-title">
               {{
-                selectionScreen === 'captain'
-                  ? activeCaptain.name
-                  : crewProfile(focusedCrew).name
+                selectionScreen === 'stars'
+                  ? 'Your Constellation Awaits'
+                  : selectionScreen === 'captain'
+                    ? activeCaptain.name
+                    : crewProfile(focusedCrew).name
               }}
             </h2>
             <p class="cap-tagline">
               {{
-                selectionScreen === 'captain'
-                  ? CAPTAIN_DOSSIERS[selectedCaptain].voice
-                  : CREW_DOSSIERS[focusedCrew].crisis
+                selectionScreen === 'stars'
+                  ? 'The stars have very specific opinions about your answers.'
+                  : selectionScreen === 'captain'
+                    ? CAPTAIN_DOSSIERS[selectedCaptain].voice
+                    : CREW_DOSSIERS[focusedCrew].crisis
               }}
             </p>
           </template>
@@ -105,7 +116,11 @@
           </div>
 
           <template v-else-if="!run">
-            <template v-if="selectionScreen === 'captain'">
+            <SpaceCouchConstellationTest
+              v-if="selectionScreen === 'stars'"
+              @confirm="confirmStarAssessment"
+            />
+            <template v-else-if="selectionScreen === 'captain'">
               <div class="cap-heading">
                 <span>01</span>
                 <div>
@@ -242,7 +257,7 @@
                 </button>
               </div>
               <div class="cap-team-note">
-                {{ chosenCrew.length }} / 3 selected ·
+                ✧ {{ chosenStarSign?.name }} · {{ chosenCrew.length }} / 3 selected ·
                 {{ CREW_PROFILES.length }} candidates ·
                 {{
                   chosenCrew.length === 3
@@ -276,7 +291,7 @@
                 type="button"
                 data-testid="captains-begin"
                 :disabled="chosenCrew.length !== 3"
-                @click="store.begin(selectedCaptain, chosenCrew)"
+                @click="beginWithStarSign"
               >
                 TAKE COMMAND <span>➜</span>
               </button>
@@ -1157,6 +1172,8 @@ import {
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
+import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
+import { starSignFor, type StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
@@ -1174,7 +1191,11 @@ import {
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
-const selectionScreen = ref<'captain' | 'crew'>('captain')
+const selectionScreen = ref<'stars' | 'captain' | 'crew'>('stars')
+const starAssessment = ref<StarAssessment | null>(null)
+const chosenStarSign = computed(() =>
+  starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
+)
 const focusedCrew = ref<CrewId>('pell')
 const run = computed(() => store.run)
 const romanceScene = computed(() =>
@@ -1188,17 +1209,21 @@ const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
   if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =
-    selectionScreen.value === 'captain'
-      ? 'captain-' + selectedCaptain.value
-      : 'crew-' + focusedCrew.value
+    selectionScreen.value === 'stars'
+      ? ''
+      : selectionScreen.value === 'captain'
+        ? 'captain-' + selectedCaptain.value
+        : 'crew-' + focusedCrew.value
   return portrait(key) || '/game-of-captains/space-couch-stage.svg'
 })
 const stageAlt = computed(() =>
   run.value
     ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
-    : selectionScreen.value === 'captain'
-      ? activeCaptain.value.name + ' selection portrait'
-      : crewProfile(focusedCrew.value).name + ' selection portrait',
+    : selectionScreen.value === 'stars'
+      ? 'The starry sky above the long red couch'
+      : selectionScreen.value === 'captain'
+        ? activeCaptain.value.name + ' selection portrait'
+        : crewProfile(focusedCrew.value).name + ' selection portrait',
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
@@ -1327,6 +1352,20 @@ const panelLabel = computed(() =>
     : 'PERSONNEL // COMMAND SELECTION',
 )
 
+function confirmStarAssessment(assessment: StarAssessment) {
+  starAssessment.value = assessment
+  selectionScreen.value = 'captain'
+}
+function beginWithStarSign() {
+  if (!starAssessment.value || chosenCrew.value.length !== 3) return
+  store.begin(selectedCaptain.value, chosenCrew.value, starAssessment.value)
+}
+function restartVoyage() {
+  store.restart()
+  starAssessment.value = null
+  selectionScreen.value = 'stars'
+  chosenCrew.value = []
+}
 onMounted(() => store.load())
 useHead({ title: 'Space Couch | Kind Robots' })
 
@@ -1412,6 +1451,23 @@ function toggleAway(id: CrewId) {
   background: #802d2d;
   padding: 0.3rem 1rem;
   font-size: 0.75rem;
+}
+.cap-layout.cap-layout--stars {
+  display: block;
+  min-height: 0;
+}
+.cap-layout--stars > .cap-stage {
+  display: none;
+}
+.cap-layout--stars .cap-bridge {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+.cap-layout--stars .cap-scroll {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
 }
 .cap-layout.cap-layout--episode {
   grid-template-columns: minmax(0, 1fr);

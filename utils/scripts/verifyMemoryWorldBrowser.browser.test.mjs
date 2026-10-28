@@ -10,6 +10,7 @@ import { chromium } from 'playwright'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const entry = [
   "import { createPinia, setActivePinia } from 'pinia'",
+  "import { trapMemoryDialogTab } from '@/utils/memoryDungeon/dialogFocus'",
   "import { useMemoryWorldStore } from '@/stores/memoryWorldStore'",
   "import { newDarkBriarProgress, DARK_BRIAR_WAVES } from '@/utils/memoryDungeon/darkBriar'",
   "import { BRIAR_REVEAL_WAVES, createBriarWaveCards } from '@/utils/memoryDungeonWaves'",
@@ -19,6 +20,7 @@ const entry = [
   'world.hydrate()',
   'const pictures = Array.from({ length: 8 }, (_, i) => "/memory-picture-" + i + ".webp")',
   'const originalCards = () => createBriarWaveCards(BRIAR_REVEAL_WAVES[0], pictures.slice(0, 6), () => 0.5)',
+  'window.__dialogFocus = trapMemoryDialogTab',
   'window.__memory = {',
   '  world,',
   '  seed(mode) {',
@@ -266,6 +268,47 @@ try {
     await page.waitForTimeout(800)
     assert.deepEqual(await snapshot(page), recovered)
   })
+
+  for (const width of [390, 768, 1440]) {
+    await run(
+      'Dialog Tab cycle stays contained at ' + width + 'px',
+      async (page) => {
+        await page.setViewportSize({ width, height: 900 })
+        await page.evaluate(() => {
+          document.body.insertAdjacentHTML(
+            'beforeend',
+            '<button id="outside">Map action</button><section id="dialog" tabindex="-1" role="dialog" aria-modal="true"><button id="first">First choice</button><button disabled>Unavailable</button><button style="display:none">Hidden</button><button id="last">Close</button></section>',
+          )
+          const dialog = document.getElementById('dialog')
+          dialog.addEventListener('keydown', (event) =>
+            window.__dialogFocus(event, dialog),
+          )
+          document.getElementById('last').focus()
+        })
+        await page.keyboard.press('Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'first',
+        )
+        await page.keyboard.press('Shift+Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'last',
+        )
+        await page.evaluate(() => document.getElementById('dialog').focus())
+        await page.keyboard.press('Shift+Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'last',
+        )
+        await page.keyboard.press('Tab')
+        assert.equal(
+          await page.evaluate(() => document.activeElement.id),
+          'first',
+        )
+      },
+    )
+  }
 
   await run(
     'Original Briar first flip survives reload and can finish its pair',

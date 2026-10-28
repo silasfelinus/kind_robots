@@ -475,6 +475,32 @@ const memoryMapSurface = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
+const questLogSurface = readFileSync(
+  'components/memory-dungeon/quest-log.vue',
+  'utf8',
+)
+for (const surface of [chronicleSurface, questLogSurface]) {
+  assert.match(surface, /@keydown="trapMemoryDialogTab\(\$event, dialog\)"/)
+  assert.match(surface, /@keydown\.esc\.prevent="emit\('close'\)"/)
+}
+assert.match(memoryMapSurface, /ref="settingsDialog"/)
+assert.match(
+  memoryMapSurface,
+  /@keydown="trapMemoryDialogTab\(\$event, settingsDialog\)"/,
+)
+assert.match(
+  memoryMapSurface,
+  /@keydown\.esc\.prevent\.stop="settingsOpen = false"/,
+)
+for (const trigger of [
+  'chronicleTrigger',
+  'questsTrigger',
+  'settingsTrigger',
+]) {
+  assert.ok(memoryMapSurface.includes(`ref="${trigger}"`))
+  assert.ok(memoryMapSurface.includes(`${trigger}.value?.focus()`))
+}
+assert.match(memoryMapSurface, /if \(open\) settingsDialog\.value\?\.focus\(\)/)
 assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
 assert.match(chronicleSurface, /data-testid="memory-earth-reappraisal"/)
 assert.match(chronicleSurface, /earthPhotoReappraisal/)

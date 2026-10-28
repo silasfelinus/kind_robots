@@ -50,10 +50,13 @@
         ❤️ {{ world.state.hearts }}
       </span>
       <button
+        ref="chronicleTrigger"
         type="button"
         class="shrink-0 rounded-lg border border-[#c7ac7a] bg-[#4d3e32] px-2 py-1.5 text-xs font-bold text-[#f8eaca] hover:bg-[#635044] focus-visible:outline-2 focus-visible:outline-[#ffe7ad]"
         :aria-label="`Open Earth Chronicle, ${world.earthPhotos.length} recovered photographs`"
         data-testid="memory-earth-chronicle-open"
+        aria-haspopup="dialog"
+        :aria-expanded="chronicleOpen"
         @click="chronicleOpen = true"
       >
         <span aria-hidden="true">◫</span>
@@ -62,10 +65,13 @@
       </button>
       <button
         v-if="world.activeReality === 'e01'"
+        ref="questsTrigger"
         type="button"
         class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
         :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"
         data-testid="memory-quest-log-open"
+        aria-haspopup="dialog"
+        :aria-expanded="questsOpen"
         @click="questsOpen = true"
       >
         <span aria-hidden="true">❦</span>
@@ -73,9 +79,12 @@
         <span class="font-mono">{{ questsTied }}</span>
       </button>
       <button
+        ref="settingsTrigger"
         type="button"
         class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
         aria-label="Choose gallery and game settings"
+        aria-haspopup="dialog"
+        :aria-expanded="settingsOpen"
         @click="settingsOpen = !settingsOpen"
       >
         ⚙️
@@ -99,11 +108,16 @@
       v-if="settingsOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1617]/85 p-3 backdrop-blur-sm"
       @click.self="settingsOpen = false"
+      @keydown.esc.prevent.stop="settingsOpen = false"
+      @keydown="trapMemoryDialogTab($event, settingsDialog)"
     >
       <div
+        ref="settingsDialog"
         role="dialog"
         aria-modal="true"
         aria-label="Memory Dungeon settings and checkpoints"
+        tabindex="-1"
+        data-testid="memory-settings-dialog"
         class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -905,7 +919,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
@@ -940,6 +955,20 @@ const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)
 const questsOpen = ref(false)
+const chronicleTrigger = ref<HTMLButtonElement | null>(null)
+const questsTrigger = ref<HTMLButtonElement | null>(null)
+watch(chronicleOpen, async (open, wasOpen) => {
+  if (!open && wasOpen) {
+    await nextTick()
+    chronicleTrigger.value?.focus()
+  }
+})
+watch(questsOpen, async (open, wasOpen) => {
+  if (!open && wasOpen) {
+    await nextTick()
+    questsTrigger.value?.focus()
+  }
+})
 const questsTied = computed(
   () =>
     world.briarQuests.filter((thread) => thread.state === 'complete').length,
@@ -1004,6 +1033,13 @@ function progressLabel(key: string): string {
         : 'hidden'
 }
 const settingsOpen = ref(false)
+const settingsTrigger = ref<HTMLButtonElement | null>(null)
+const settingsDialog = ref<HTMLElement | null>(null)
+watch(settingsOpen, async (open, wasOpen) => {
+  await nextTick()
+  if (open) settingsDialog.value?.focus()
+  else if (wasOpen) settingsTrigger.value?.focus()
+})
 const roomTitle = computed(() => {
   const enemy = world.state.combat?.state.enemy.name
   if (world.state.roomId === 'vault-1') return 'Rootbound Vault · Echo Chamber'

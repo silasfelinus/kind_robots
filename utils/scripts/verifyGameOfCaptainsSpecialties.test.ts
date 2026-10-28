@@ -154,11 +154,8 @@ let testedOdds = false
 for (let seed = 1; seed < 300; seed++) {
   const run = sample(seed)
   const first = episodePlotOdds(run, 'planet', ['captain', 'pell'])
-  const repeat = episodePlotOdds(
-    { ...run, episodeDrawHistory: history },
-    'planet',
-    ['captain', 'pell'],
-  )
+  const withHistory = { ...run, episodeDrawHistory: history }
+  const repeat = episodePlotOdds(withHistory, 'planet', ['captain', 'pell'])
   if (episodePlotSeats(run, 'planet') === 2 && first > 0 && first < 90) {
     assert.equal(repeat, first + 5)
     testedOdds = true

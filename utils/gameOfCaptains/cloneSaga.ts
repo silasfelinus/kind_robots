@@ -15,6 +15,7 @@ export type CloneRecord = {
   deployments: number
   survived: number
   lastEncounter: string | null
+  lastDeploymentChapter: number | null
   lost: boolean
 }
 export type CloneBeat = {
@@ -127,7 +128,11 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
       record.survived > record.deployments ||
       typeof record.lost !== 'boolean' ||
       (record.lastEncounter !== null &&
-        typeof record.lastEncounter !== 'string')
+        typeof record.lastEncounter !== 'string') ||
+      (record.lastDeploymentChapter !== null &&
+        (!Number.isInteger(record.lastDeploymentChapter) ||
+          record.lastDeploymentChapter < record.createdChapter ||
+          record.lastDeploymentChapter > 9))
     )
       return false
     const key = record.id + ':' + record.generation
@@ -210,7 +215,11 @@ export function cloneQuestStatus(run: VoyageRun): {
     }
   }
   const experienced = data.records.some(
-    (record) => record.generation === step && record.deployments > 0,
+    (record) =>
+      record.generation === step &&
+      record.deployments > 0 &&
+      record.lastDeploymentChapter !== null &&
+      record.lastDeploymentChapter < run.chapter,
   )
   if (!experienced)
     return {
@@ -220,7 +229,7 @@ export function cloneQuestStatus(run: VoyageRun): {
       reason:
         'A Generation ' +
         step +
-        ' clone must complete a field assignment first.',
+        ' clone must return from a field assignment in an earlier episode.',
     }
   if (step === 2 && run.reputation < 1)
     return {
@@ -345,6 +354,7 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
     deployments: 0,
     survived: 0,
     lastEncounter: null,
+    lastDeploymentChapter: null,
     lost: false,
   }
   const kind = alive ? 'upgraded to' : 'returned as'
@@ -398,6 +408,7 @@ export function recordCloneMissions(
       deployments: record.deployments + events.length,
       survived: record.survived + events.filter((e) => !e.casualty).length,
       lastEncounter: events.at(-1)!.encounterId,
+      lastDeploymentChapter: resolved.chapter,
       lost: events.some((e) => e.casualty === record.id),
     }
   })

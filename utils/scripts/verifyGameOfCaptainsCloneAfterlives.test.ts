@@ -11,12 +11,19 @@ import {
   type CloneProgram,
 } from '../gameOfCaptains/cloneSaga'
 import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
-import { startVoyage, restoreVoyage, type VoyageRun } from '../gameOfCaptains/rules'
+import {
+  startVoyage,
+  restoreVoyage,
+  type VoyageRun,
+} from '../gameOfCaptains/rules'
 
 const base = startVoyage('fluke', ['pell', 'tess', 'rue'], 87091)
 const id = base.redshirtRoster![0]!
 const signatures = CLONE_FIELD_TRAITS
-assert.deepEqual(signatures.map((t) => t.generation), [1, 2, 3, 4])
+assert.deepEqual(
+  signatures.map((t) => t.generation),
+  [1, 2, 3, 4],
+)
 assert.equal(new Set(signatures.map((t) => t.skill)).size, 4)
 
 for (const trait of signatures) {
@@ -69,10 +76,7 @@ for (const trait of signatures) {
     trait.generation * 6 + 10,
   )
   const otherSkill = signatures.find((t) => t.skill !== trait.skill)!.skill
-  assert.equal(
-    cloneOddsBonus(before, id, otherSkill),
-    trait.generation * 6,
-  )
+  assert.equal(cloneOddsBonus(before, id, otherSkill), trait.generation * 6)
   const success = {
     encounterId: mission.id,
     lead: id,
@@ -116,7 +120,11 @@ for (const trait of signatures) {
       results: [...after.expeditionVisit!.results],
     },
   })
-  assert.deepEqual(repeat, after, 'cannot farm a previously completed field job')
+  assert.deepEqual(
+    repeat,
+    after,
+    'cannot farm a previously completed field job',
+  )
 
   const failed = recordCloneMissions(before, {
     ...before,
@@ -149,9 +157,41 @@ for (const trait of signatures) {
 }
 assert.equal(cloneOddsBonus(base, id, 'science'), 0)
 assert.equal(printClone(base, id), base)
-assert.equal(validCloneProgram({ step: 0, beats: [], records: [
-  { id, generation: 2, iteration: 1, createdChapter: 3, createdDay: 3, deployments: 0, survived: 0, lastEncounter: null, lastDeploymentChapter: null, lost: false },
-  { id, generation: 2, iteration: 1, createdChapter: 4, createdDay: 4, deployments: 0, survived: 0, lastEncounter: null, lastDeploymentChapter: null, lost: true },
-] }), false, 'duplicate generation + printing ID cannot load')
+assert.equal(
+  validCloneProgram({
+    step: 0,
+    beats: [],
+    records: [
+      {
+        id,
+        generation: 2,
+        iteration: 1,
+        createdChapter: 3,
+        createdDay: 3,
+        deployments: 0,
+        survived: 0,
+        lastEncounter: null,
+        lastDeploymentChapter: null,
+        lost: false,
+      },
+      {
+        id,
+        generation: 2,
+        iteration: 1,
+        createdChapter: 4,
+        createdDay: 4,
+        deployments: 0,
+        survived: 0,
+        lastEncounter: null,
+        lastDeploymentChapter: null,
+        lost: true,
+      },
+    ],
+  }),
+  false,
+  'duplicate generation + printing ID cannot load',
+)
 
-console.log('Space Couch: four clone mission specialties, fatality guards, redshirt lineage and reward idempotency verified')
+console.log(
+  'Space Couch: four clone mission specialties, fatality guards, redshirt lineage and reward idempotency verified',
+)

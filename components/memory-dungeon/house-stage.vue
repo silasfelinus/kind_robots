@@ -174,7 +174,7 @@
       </div>
     </div>
     <footer
-      class="kr-scroll mt-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+      class="mt-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
       role="group"
       aria-label="Open House passages"
       data-testid="memory-house-passages"

@@ -4,36 +4,72 @@ import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { EVERY_VILLAIN_TACTICS } from '../playbookKit/games/everyVillainTactics'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import {
-  actorAt, availableMove, endTurn, fireSelected, lineClear, moveSelected,
-  previewShot, terrainAt, trainingState, walkDistance,
+  actorAt,
+  availableMove,
+  endTurn,
+  fireSelected,
+  lineClear,
+  moveSelected,
+  previewShot,
+  terrainAt,
+  trainingState,
+  walkDistance,
 } from '../everyVillainTactics/training'
 
 const specReport = auditPlaybookKit(EVERY_VILLAIN_TACTICS)
 assert.ok(specReport.ok, JSON.stringify(specReport.issues))
 assert.equal(EVERY_VILLAIN_TACTICS.tier, 'vignette')
-assert.equal(IDENTITY_ARCS.length, 48, 'playable roster must use the canonical 48')
+assert.equal(
+  IDENTITY_ARCS.length,
+  48,
+  'playable roster must use the canonical 48',
+)
 assert.equal(new Set(IDENTITY_ARCS.map((c) => c.hero.alias)).size, 48)
-assert.ok(EVERY_VILLAIN_TACTICS.keyArt.src?.includes('/comet-city-academy/front/splash.webp'))
+assert.ok(
+  EVERY_VILLAIN_TACTICS.keyArt.src?.includes(
+    '/comet-city-academy/front/splash.webp',
+  ),
+)
 
 const initial = trainingState(41)
 assert.equal(initial.units.length, 6)
-assert.ok(initial.units.every((u) => IDENTITY_ARCS.some((arc) => arc.signature === u.identity)))
+assert.ok(
+  initial.units.every((u) =>
+    IDENTITY_ARCS.some((arc) => arc.signature === u.identity),
+  ),
+)
 assert.equal(terrainAt({ x: 3, y: 1 }), 'wall')
 assert.equal(terrainAt({ x: 2, y: 4 }), 'cover')
-assert.equal(lineClear({ x: 1, y: 1 }, { x: 5, y: 1 }), false, 'solid wall must break LOS')
+assert.equal(
+  lineClear({ x: 1, y: 1 }, { x: 5, y: 1 }),
+  false,
+  'solid wall must break LOS',
+)
 assert.equal(lineClear({ x: 3, y: 4 }, { x: 7, y: 4 }), true)
 assert.equal(walkDistance(initial, { x: 0, y: 4 }, { x: 3, y: 1 }), Infinity)
 assert.equal(availableMove(initial, { x: 2, y: 4 }), true)
 assert.equal(availableMove(initial, { x: 8, y: 2 }), false)
-assert.equal(availableMove(initial, { x: 0, y: 2 }), false, 'occupied tile cannot be entered')
+assert.equal(
+  availableMove(initial, { x: 0, y: 2 }),
+  false,
+  'occupied tile cannot be entered',
+)
 
 const before = initial.units[0]!
 assert.ok(moveSelected(initial, { x: 2, y: 4 }))
 assert.equal(before.x, 2)
 assert.ok(before.moved)
-assert.equal(moveSelected(initial, { x: 3, y: 4 }), false, 'one movement per turn')
+assert.equal(
+  moveSelected(initial, { x: 3, y: 4 }),
+  false,
+  'one movement per turn',
+)
 const pip = initial.units.find((u) => u.id === 'pip')!
-assert.equal(previewShot(before, pip).hit, 0, 'out of LOS or range must be zero')
+assert.equal(
+  previewShot(before, pip).hit,
+  0,
+  'out of LOS or range must be zero',
+)
 const remy = initial.units.find((u) => u.id === 'remy')!
 const preview = previewShot(before, remy)
 assert.ok(preview.clear)
@@ -45,8 +81,15 @@ assert.equal(fireSelected(initial, remy), false, 'one attack per turn')
 
 const same = trainingState(41)
 moveSelected(same, { x: 2, y: 4 })
-fireSelected(same, same.units.find((u) => u.id === 'remy')!)
-assert.deepEqual(same.units, initial.units, 'same seed and inputs resolve to same hit')
+fireSelected(
+  same,
+  same.units.find((u) => u.id === 'remy')!,
+)
+assert.deepEqual(
+  same.units,
+  initial.units,
+  'same seed and inputs resolve to same hit',
+)
 assert.equal(same.seed, initial.seed)
 const oldTurn = initial.turn
 endTurn(initial)
@@ -55,8 +98,17 @@ assert.equal(before.fired, false)
 assert.equal(before.moved, false)
 assert.ok(initial.events.length <= 6)
 
-const page = readFileSync(new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url), 'utf8')
-const tab = readFileSync(new URL('../../content/channels/admin/every-villain-tactics.md', import.meta.url), 'utf8')
+const page = readFileSync(
+  new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
+  'utf8',
+)
+const tab = readFileSync(
+  new URL(
+    '../../content/channels/admin/every-villain-tactics.md',
+    import.meta.url,
+  ),
+  'utf8',
+)
 assert.match(page, /PlaybookKitShell/)
 assert.match(page, /data-testid="tactics-odds"/)
 assert.match(page, /store\.hover\(cell\)/)
@@ -64,4 +116,6 @@ assert.match(page, /store\.rosterOpen/)
 assert.match(page, /@media \(prefers-reduced-motion: reduce\)/)
 assert.match(tab, /^requiredRole: ADMIN$/m)
 assert.match(tab, /^route: \/admin\/every-villain-tactics$/m)
-console.log('Every Villain Tactics: 48 roster identities, First Bell combat and console contracts verified.')
+console.log(
+  'Every Villain Tactics: 48 roster identities, First Bell combat and console contracts verified.',
+)

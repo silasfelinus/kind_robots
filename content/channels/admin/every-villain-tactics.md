@@ -20,5 +20,6 @@ tutorial:
     the rivals respond. Choose a new hero identity or viewpoint in the
     dossier; this is an internal training slice, not the finished campaign.
 ---
+
 A playable tactical training preview set in Prom of Doom's Comet City,
 using canonical heroes and the existing skyline paintings.

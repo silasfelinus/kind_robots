@@ -283,8 +283,7 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         advance: ['question'],
         text: 'Ask the Moss Sprite whose favour it is remembering.',
         closedOutcomes: {
-          gift:
-            'You gave the Moss Sprite a silver wildflower to settle its grievance. It promised to testify that somebody listened, but you did not learn whose broken oath it remembered. The Knight’s apology has no witness to the promise he erased.',
+          gift: 'You gave the Moss Sprite a silver wildflower to settle its grievance. It promised to testify that somebody listened, but you did not learn whose broken oath it remembered. The Knight’s apology has no witness to the promise he erased.',
         },
       },
       {
@@ -293,8 +292,7 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         advance: ['carry'],
         text: 'Choose the apology over the destruction order when Pip offers both.',
         closedOutcomes: {
-          read:
-            'You opened the Knight’s destruction order and warned the House. Pip must explain the broken seal, but the residents can prepare for danger instead of trusting a private apology. The Knight must answer for both letters in public.',
+          read: 'You opened the Knight’s destruction order and warned the House. Pip must explain the broken seal, but the residents can prepare for danger instead of trusting a private apology. The Knight must answer for both letters in public.',
         },
       },
       {

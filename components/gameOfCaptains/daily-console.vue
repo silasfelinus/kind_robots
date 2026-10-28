@@ -421,6 +421,7 @@ import { computed, ref, watch } from 'vue'
 import SpaceCouchCloneLab from '~/components/gameOfCaptains/clone-lab.vue'
 import {
   cloneGeneration,
+  cloneFieldTrait,
   type CloneChoice,
 } from '~/utils/gameOfCaptains/cloneSaga'
 import type { VoyageRun, CrewId } from '~/utils/gameOfCaptains/rules'
@@ -541,6 +542,7 @@ const actors = computed(() => [
     const known = knownRedshirtSkills(props.run, props.knowledge, id)
     const revealed = known.length > 0
     const generation = cloneGeneration(props.run, id)
+    const signature = cloneFieldTrait(props.run, id)
     return {
       id,
       name: generation ? person.name + ' · GEN ' + generation : person.name,
@@ -551,7 +553,8 @@ const actors = computed(() => [
             known
               .map((skill) => skill.toUpperCase() + ' ' + person.stats[skill])
               .join(' · ')
-          : 'APTITUDE SEALED'),
+          : 'APTITUDE SEALED') +
+        (signature ? ' · ' + signature.name.toUpperCase() : ''),
       image: null,
       revealed,
       rank: revealed ? known.length + '/6' : '??',

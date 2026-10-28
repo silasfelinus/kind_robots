@@ -5,11 +5,15 @@
  */
 import type { VoyageRun } from './rules'
 import { REDSHIRT_BY_ID } from './redshirts'
+import type { Skill } from './crewAssignments'
+import { expeditionEncounter } from './expedition'
 
 export type CloneChoice = 'ask' | 'document' | 'override'
 export type CloneRecord = {
   id: string
   generation: number
+  /** Reprints preserve the tier but start a fresh life after a loss. */
+  iteration?: number
   createdChapter: number
   createdDay: number
   deployments: number
@@ -30,6 +34,50 @@ export type CloneProgram = {
   beats: CloneBeat[]
 }
 export type CloneRun = VoyageRun & { cloneProgram?: CloneProgram }
+
+/** Each generation has a mission role, not merely a flat percentage boost. */
+export const CLONE_FIELD_TRAITS: readonly {
+  generation: number
+  skill: Skill
+  name: string
+  effect: string
+}[] = [
+  {
+    generation: 1,
+    skill: 'science',
+    name: 'Echo Survey',
+    effect:
+      'The copied researcher identifies the evidence their predecessor never lived to file.',
+  },
+  {
+    generation: 2,
+    skill: 'diplomacy',
+    name: 'Second Opinion',
+    effect:
+      'Two remembered lives negotiate as one free person; the local delegates finally listen.',
+  },
+  {
+    generation: 3,
+    skill: 'tactics',
+    name: 'Tomorrow Sense',
+    effect:
+      'A memory from the villain’s next move exposes a trap before it is sprung.',
+  },
+  {
+    generation: 4,
+    skill: 'rescue',
+    name: 'Continuity Rescue',
+    effect:
+      'The clone returns for a stranger whom an earlier version could not save.',
+  },
+]
+export function cloneFieldTrait(run: VoyageRun, id: string) {
+  return (
+    CLONE_FIELD_TRAITS.find(
+      (trait) => trait.generation === cloneGeneration(run, id),
+    ) ?? null
+  )
+}
 
 export const CLONE_CHAPTERS = [
   {
@@ -116,6 +164,10 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
       !Number.isInteger(record.generation) ||
       record.generation < 1 ||
       record.generation > 4 ||
+      (record.iteration !== undefined &&
+        (!Number.isInteger(record.iteration) ||
+          record.iteration < 1 ||
+          record.iteration > 9)) ||
       !Number.isInteger(record.createdChapter) ||
       record.createdChapter < 1 ||
       record.createdChapter > 9 ||
@@ -135,7 +187,8 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
           record.lastDeploymentChapter > 9))
     )
       return false
-    const key = record.id + ':' + record.generation
+    const key =
+      record.id + ':' + record.generation + ':' + (record.iteration ?? 1)
     if (seen.has(key)) return false
     seen.add(key)
   }
@@ -175,6 +228,44 @@ export function cloneGeneration(run: VoyageRun, id: string): number {
 export function cloneCost(generation: number): number {
   return generation >= 1 && generation <= 4 ? generation * 2 + 1 : Infinity
 }
+/** Testimony must belong to a present survivor, not a memorial or a future copy. */
+export function cloneWitness(run: VoyageRun, step: number): string | null {
+  if (step === 0) {
+    const loss = (run.redshirtFallen ?? []).at(-1)
+    if (!loss) return null
+    const person = REDSHIRT_BY_ID[loss.id]
+    return person
+      ? person.name +
+          ' disappeared on ' +
+          loss.encounterId +
+          '. ' +
+          person.history
+      : null
+  }
+  const witness = program(run).records.find(
+    (record) =>
+      record.generation === step &&
+      record.deployments > 0 &&
+      record.lastDeploymentChapter !== null &&
+      record.lastDeploymentChapter < run.chapter &&
+      !record.lost &&
+      cloneLatest(run, record.id) === record &&
+      (run.redshirtRoster ?? []).includes(record.id),
+  )
+  if (!witness) return null
+  const person = REDSHIRT_BY_ID[witness.id]!
+  return (
+    person.name +
+    ' (Generation ' +
+    witness.generation +
+    ', printing ' +
+    (witness.iteration ?? 1) +
+    ') remembers surviving ' +
+    witness.lastEncounter +
+    '. ' +
+    person.history
+  )
+}
 export function cloneQuestStatus(run: VoyageRun): {
   step: number
   title: string
@@ -204,7 +295,7 @@ export function cloneQuestStatus(run: VoyageRun): {
       reason: 'The next act begins in a future episode.',
     }
   if (step === 0) {
-    const ready = (run.redshirtFallen ?? []).length > 0
+    const ready = cloneWitness(run, step) !== null
     return {
       step,
       ...chapter,
@@ -214,13 +305,7 @@ export function cloneQuestStatus(run: VoyageRun): {
         : 'No redshirt memorial has been opened yet.',
     }
   }
-  const experienced = data.records.some(
-    (record) =>
-      record.generation === step &&
-      record.deployments > 0 &&
-      record.lastDeploymentChapter !== null &&
-      record.lastDeploymentChapter < run.chapter,
-  )
+  const experienced = cloneWitness(run, step) !== null
   if (!experienced)
     return {
       step,
@@ -258,7 +343,10 @@ export function advanceCloneQuest(
   const status = cloneQuestStatus(run)
   if (!status.ready || status.step >= CLONE_CHAPTERS.length) return run
   const data = program(run)
-  const narrative = CLONE_CHAPTERS[status.step]!.options[choice]
+  const witness = cloneWitness(run, status.step)
+  const narrative =
+    CLONE_CHAPTERS[status.step]!.options[choice] +
+    (witness ? ' WITNESS: ' + witness : '')
   const next: CloneProgram = {
     ...data,
     step: status.step + 1,
@@ -296,7 +384,11 @@ export function cloneCandidates(run: VoyageRun): {
     .filter((id) => REDSHIRT_BY_ID[id])
     .map((id) => {
       const last = cloneLatest(run, id)
-      const generation = (last?.generation ?? 0) + 1
+      // A death before an earned story gate permits a paid same-tier reprint.
+      // Advancing to a higher tier still requires the previous act.
+      const generation = last?.lost
+        ? last.generation
+        : (last?.generation ?? 0) + 1
       const cost = cloneCost(generation)
       const alive = (run.redshirtRoster ?? []).includes(id)
       const priorDeath = (run.redshirtFallen ?? []).find(
@@ -349,6 +441,10 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
   const created: CloneRecord = {
     id,
     generation: candidate.generation,
+    iteration:
+      (cloneLatest(run, id)?.generation === candidate.generation
+        ? (cloneLatest(run, id)?.iteration ?? 1)
+        : 0) + 1,
     createdChapter: run.chapter,
     createdDay: run.day ?? run.chapter,
     deployments: 0,
@@ -364,6 +460,7 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
     kind +
     ' Generation ' +
     candidate.generation +
+    (created.iteration! > 1 ? ' (printing ' + created.iteration + ')' : '') +
     '. Their previous lives remain on the memorial wall.'
   return {
     ...run,
@@ -412,15 +509,92 @@ export function recordCloneMissions(
       lost: events.some((e) => e.casualty === record.id),
     }
   })
+  // A specialty reward belongs to a genuinely successful field encounter.
+  // A casualty, failed mission, repeated record or merely printed clone earns none.
+  const breakthroughs = gained.flatMap((result) => {
+    const trait = cloneFieldTrait(previous, result.lead)
+    const mission = expeditionEncounter(result.encounterId)
+    const latest = cloneLatest(previous, result.lead)
+    const complete = (result as typeof result & { successful?: boolean })
+      .successful
+    if (
+      !trait ||
+      !latest ||
+      latest.lost ||
+      !mission ||
+      mission.skill !== trait.skill ||
+      complete !== true ||
+      result.casualty
+    )
+      return []
+    const flag =
+      'clone-breakthrough:' +
+      latest.generation +
+      ':' +
+      result.lead +
+      ':' +
+      result.encounterId
+    if ((previous.worldFlags ?? []).includes(flag)) return []
+    const officer = REDSHIRT_BY_ID[result.lead]!
+    return [
+      {
+        flag,
+        generation: latest.generation,
+        story:
+          officer.name +
+          ' (Generation ' +
+          latest.generation +
+          ') used ' +
+          trait.name +
+          ' at ' +
+          mission.title +
+          ': ' +
+          trait.effect +
+          ' RECOVERED MEMORY: ' +
+          officer.history,
+      },
+    ]
+  })
   return {
     ...resolved,
     cloneProgram: { ...data, records },
+    reputation:
+      resolved.reputation +
+      breakthroughs.filter((event) => event.generation === 1).length,
+    trust:
+      resolved.trust +
+      breakthroughs.filter((event) => event.generation === 2).length,
+    nemesisPressure: Math.max(
+      0,
+      (resolved.nemesisPressure ?? 0) -
+        breakthroughs.filter((event) => event.generation === 3).length,
+    ),
+    supplies:
+      resolved.supplies +
+      breakthroughs.filter((event) => event.generation === 4).length,
+    worldFlags: [
+      ...(resolved.worldFlags ?? []),
+      ...breakthroughs.map((event) => event.flag),
+    ],
+    log: [...resolved.log, ...breakthroughs.map((event) => event.story)],
+    scene:
+      resolved.scene +
+      (breakthroughs.length
+        ? ' SPECIAL EPISODE: ' +
+          breakthroughs.map((event) => event.story).join(' ')
+        : ''),
   }
 }
-/** Advanced clones remember their previous assignments, raising known odds only. */
-export function cloneOddsBonus(run: VoyageRun, id: string): number {
+/** All clones remember more; matching missions also trigger a distinct ability. */
+export function cloneOddsBonus(
+  run: VoyageRun,
+  id: string,
+  skill?: Skill,
+): number {
   const generation = cloneGeneration(run, id)
-  return generation ? generation * 6 : 0
+  if (!generation) return 0
+  const signature = cloneFieldTrait(run, id)
+  return generation * 6 + (skill && signature?.skill === skill ? 10 : 0)
 }
 /** Acknowledges clone rights; the forced-copy path has a separate verdict. */
 export function cloneEndingCoda(run: VoyageRun): VoyageRun {

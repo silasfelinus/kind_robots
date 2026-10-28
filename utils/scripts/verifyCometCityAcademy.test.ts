@@ -1534,6 +1534,7 @@ const commission = {
   phase: 'dispatch' as const,
   day: 3,
   contacts: STUDENTS.map((s) => s.id),
+  patrolOpening: undefined,
 }
 const monorail = INCIDENTS.find((caseFile) => caseFile.id === 'monorail')!
 const monorailRun = {
@@ -1946,8 +1947,8 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     null,
   )
   for (const incident of LATE_INCIDENTS) {
-    const day = [...Array(12).keys()]
-      .map((index) => index + 3)
+    const day = [...Array(18).keys()]
+      .map((index) => index + 8)
       .find((d) =>
         incidentsFor({ ...fresh, day: d }).some(
           (item) => item.id === incident.id,
@@ -1959,10 +1960,10 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
       phase: 'dispatch',
       contacts: STUDENTS.map((student) => student.id),
     }
-    const [first, second] = incidentsFor(night)
-    night = assignTeam(night, first!.id, ['mina', 'sol'])
-    night = assignTeam(night, second!.id, ['imani', 'kit'])
-    const done = resolveDispatch(assignPlayerCase(night, first!.id))
+    const other = incidentsFor(night).find((caseFile) => caseFile.id !== incident.id)!
+    night = assignTeam(night, incident.id, ['mina', 'sol'])
+    night = assignTeam(night, other.id, ['imani', 'kit'])
+    const done = resolveDispatch(assignPlayerCase(night, incident.id))
     const report = done.reports.find((entry) => entry.caseId === incident.id)!
     assert.ok(
       Object.values(realNightCase(incident.id)!.consequences).some((text) =>

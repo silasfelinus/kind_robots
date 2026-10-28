@@ -455,6 +455,8 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(17, 20, 's')
     for (let x = 10; x < 47; x += 5) put(x, 14, 'o')
   } else if (template === 'spacewalk') {
+    put(3, 20, '.')
+    put(59, 20, '.')
     for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, '.')
     put(3, 14, '@')
     put(59, 8, 'G')

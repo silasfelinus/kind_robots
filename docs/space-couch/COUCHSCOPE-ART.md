@@ -12,12 +12,12 @@ The captain's four-question Couchscope is a **four-plate illustration sequence**
 
 ## Original illustrated scenes
 
-| Key | Unique narrative image prompt | Essential visual checks |
-|---|---|---|
-| question-01 | A luminous protesting crescent moon negotiating with a weary golden sunrise over an absurdly long red sofa sailing in open space, pearly starlight, dramatic warm-versus-cool rim light | Both astronomical characters readable, sun not an explosion, no ordinary ship |
-| question-02 | A passenger aboard a crimson couch confronts a visibly older version of themself emerging from a blue-violet time aperture, a tiny hourglass caught in its gravity, comic tension without typography | Clearly two versions, singular portal, protected couch in vacuum |
-| question-03 | Planet-sized lost-and-found warehouse-world covered with abandoned luggage, a floating royal crown stamped with an implicit warning through design rather than legible words, tiny redshirt scavengers returning to the long red couch | Scale difference obvious, crown and lost objects individually recognizable |
-| question-04 | A small radiant miracle emerging from an outstretched hand while an enormous curling invoice unspools through the stars behind the red sofa, celestial finance as cosmic comedy | Miracle and invoice both legible, receipt not a flat webpage |
+| Key         | Unique narrative image prompt                                                                                                                                                                                                          | Essential visual checks                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| question-01 | A luminous protesting crescent moon negotiating with a weary golden sunrise over an absurdly long red sofa sailing in open space, pearly starlight, dramatic warm-versus-cool rim light                                                | Both astronomical characters readable, sun not an explosion, no ordinary ship |
+| question-02 | A passenger aboard a crimson couch confronts a visibly older version of themself emerging from a blue-violet time aperture, a tiny hourglass caught in its gravity, comic tension without typography                                   | Clearly two versions, singular portal, protected couch in vacuum              |
+| question-03 | Planet-sized lost-and-found warehouse-world covered with abandoned luggage, a floating royal crown stamped with an implicit warning through design rather than legible words, tiny redshirt scavengers returning to the long red couch | Scale difference obvious, crown and lost objects individually recognizable    |
+| question-04 | A small radiant miracle emerging from an outstretched hand while an enormous curling invoice unspools through the stars behind the red sofa, celestial finance as cosmic comedy                                                        | Miracle and invoice both legible, receipt not a flat webpage                  |
 
 Across all four: original comic space opera, luxe theatrical lighting, generous right-panel composition, the same long upholstered red couch and near-invisible refraction bubble, no speech balloons/embedded words/ordinary starship. Each image must look like its question, not four variants of the generic constellation graphic.
 

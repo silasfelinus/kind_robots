@@ -222,7 +222,8 @@
             >
           </p>
           <p v-else>
-            Your name stays yours. Your alliances, methods and reputation are still unwritten.
+            Your name stays yours. Your alliances, methods and reputation are
+            still unwritten.
           </p>
           <div class="prom-form-choices" data-testid="academy-persona-triad">
             <button

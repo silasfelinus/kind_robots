@@ -118,8 +118,8 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
-      { key: 'v', icon: '◈', label: 'Air valve · blast exhaust onto it' },
-      { key: 'g', icon: '▥', label: 'Airlock gate · opens when all valves activate' },
+      { key: 'v', icon: '◈', label: 'Air valve · direct exhaust backward at it' },
+      { key: 'g', icon: '▥', label: 'Airlock gate · all valves must open' },
       { key: '&', icon: '☄', label: 'Orbiting asteroid · circle of danger' },
       { key: '$', icon: '☼', label: 'Solar gust · warning then outward blast' },
       {
@@ -520,7 +520,6 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
       for (let x = 0; x < 64; x++) put(x, y, '.')
     put(3, 13, '@')
     put(59, 9, 'G')
-    // The gate spans the playable height and cannot be flown around.
     for (let y = 0; y < 24; y++) put(34, y, 'g')
     put(16, 12, 'v')
     put(29, 10, 'v')
@@ -537,7 +536,6 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(55, 16, '&')
     put(46, 6, 'u')
     put(41, 5, 'K')
-    put(58, 14, '&')
     for (let x = 8; x < 61; x += 8) put(x, 3, 'o')
   } else if (template === 'skybridge') {
     for (let x = 17; x < 44; x++) {
@@ -565,107 +563,6 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
               : template === 'pressure-lock'
                 ? 'Pressure Lock'
                 : 'Cloudrail Leap',
-    theme:
-      template === 'harbor'
-        ? 2
-        : template === 'spacewalk' || template === 'orbital-salvage' || template === 'pressure-lock'
-          ? 8
-          : 5,
-    ...(template === 'snowfield' ? { snow: true } : {}),
-    ...(template === 'spacewalk' || template === 'orbital-salvage' || template === 'pressure-lock'
-      ? { space: true }
-      : {}),
-    rows: grid.map((row) => row.join('')),
-  })
-}
-
-/** Compact, portable, versioned URL payload. Every import is validated on decoding. */
-export function encodeMakerLevel(level: MakerLevel): string {
-  const json = JSON.stringify(validateMakerLevel(level))
-  const bytes = new TextEncoder().encode(json)
-  let binary = ''
-  for (const byte of bytes) binary += String.fromCharCode(byte)
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-}
-
-export function decodeMakerLevel(code: string): MakerLevel {
-  if (!/^[A-Za-z0-9_-]{1,12000}$/.test(code))
-    throw new Error('Invalid or oversized share code')
-  try {
-    const binary = atob(
-      code.replace(/-/g, '+').replace(/_/g, '/') +
-        '='.repeat((4 - (code.length % 4)) % 4),
-    )
-    const bytes = Uint8Array.from(binary, (letter) => letter.charCodeAt(0))
-    return validateMakerLevel(JSON.parse(new TextDecoder().decode(bytes)))
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? 'Cannot open course: ' + error.message
-        : 'Cannot open course',
-      { cause: error },
-    )
-  }
-}
-
-export function makerId(level: MakerLevel): string {
-  const payload = JSON.stringify(validateMakerLevel(level))
-  let hash = 2166136261
-  for (let i = 0; i < payload.length; i++)
-    hash = Math.imul(hash ^ payload.charCodeAt(i), 16777619)
-  return (hash >>> 0).toString(36)
-}
-
-export function paintMakerTile(
-  level: MakerLevel,
-  x: number,
-  y: number,
-  tile: string,
-): MakerLevel {
-  if (
-    !MAKER_TILES.has(tile) ||
-    y < 0 ||
-    y >= level.rows.length ||
-    x < 0 ||
-    x >= level.rows[0]!.length
-  )
-    return level
-  const rows = level.rows.slice()
-  if (rows[y]![x] === tile) return level
-  if (tile === '@' || tile === 'G') {
-    rows.forEach((row, index) => {
-      rows[index] = row.replace(tile, '.')
-    })
-  }
-  rows[y] = rows[y]!.slice(0, x) + tile + rows[y]!.slice(x + 1)
-  return { ...level, rows }
-}
-)
-    for (let x = 8; x < 61; x += 8) put(x, 3, 'o')
-  } else if (template === 'skybridge') {
-    for (let x = 17; x < 44; x++) {
-      put(x, 22, '.')
-      put(x, 23, '.')
-    }
-    for (let x = 15; x < 46; x += 3) put(x, 19, '=')
-    put(18, 18, 'L')
-    put(31, 18, 'P')
-    put(44, 20, 'K')
-    put(35, 17, 'y')
-    for (let x = 18; x < 45; x += 4) put(x, 15, 'o')
-  } else throw new Error('Unknown starter layout')
-  return validateMakerLevel({
-    ...fresh,
-    title:
-      template === 'harbor'
-        ? 'Tideglass Crossing'
-        : template === 'snowfield'
-          ? 'Frostglass Run'
-          : template === 'spacewalk'
-            ? 'Airlock Drift'
-            : template === 'orbital-salvage'
-              ? 'Orbital Salvage'
-              : 'Cloudrail Leap',
     theme:
       template === 'harbor'
         ? 2

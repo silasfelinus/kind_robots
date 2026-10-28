@@ -435,6 +435,35 @@ assert.equal(
 )
 assert.ok(salvageSpawns.some((spawn) => spawn.kind === 'gravity-well'))
 
+const boundedSpace = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCorridor) },
+)
+boundedSpace.hero.x = 9.5
+boundedSpace.hero.y = 150
+boundedSpace.hero.vx = -4
+boundedSpace.hero.vy = 0
+boundedSpace.update(emptyInput())
+assert.equal(boundedSpace.hero.x, 9, 'Vacuum has a left stage boundary')
+assert.equal(boundedSpace.hero.vx, 0)
+boundedSpace.hero.x = 128
+boundedSpace.hero.y = 0.5
+boundedSpace.hero.vy = -3
+boundedSpace.update(emptyInput())
+assert.equal(boundedSpace.hero.y, 0, 'Astronaut cannot drift above the map')
+assert.equal(boundedSpace.hero.vy, 0)
+boundedSpace.hero.x = 32 * 16 - 9.5
+boundedSpace.hero.y = 150
+boundedSpace.hero.vx = 3
+boundedSpace.update(emptyInput())
+assert.equal(boundedSpace.hero.x, 32 * 16 - 9, 'Right boundary remains inside the map')
+boundedSpace.hero.x = 128
+boundedSpace.hero.y = 24 * 16 - 20 - 0.5
+boundedSpace.hero.vy = 4
+boundedSpace.update(emptyInput())
+assert.equal(boundedSpace.hero.y, 24 * 16 - 20, 'Bottom boundary is traversable, not instant death')
+assert.equal(boundedSpace.hero.vy, 0)
+
 const worldStage = parseStage(toMakerStage(initial))
 assert.equal(
   worldStage.space,

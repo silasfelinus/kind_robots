@@ -1070,40 +1070,49 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     typeof v.current === 'string' && HOUSE_ROOMS[v.current]
       ? v.current
       : HOUSE_ENTRY
+  const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
+  const visitedSet = new Set(visitedRooms)
   const decisions: Record<string, string> = {}
   if (v.decisions && typeof v.decisions === 'object')
     for (const [key, choice] of Object.entries(v.decisions))
-      if (HOUSE_ROOMS[key]?.choices.some((item) => item.id === choice))
+      if (
+        visitedSet.has(key) &&
+        HOUSE_ROOMS[key]?.choices.some((item) => item.id === choice)
+      )
         decisions[key] = choice
+  const ending =
+    visitedSet.has('HD-35') &&
+    (v.ending === 'release' || v.ending === 'renew' || v.ending === 'break') &&
+    (!decisions['HD-35'] || decisions['HD-35'] === v.ending)
+      ? v.ending
+      : null
+  const combatOrigin =
+    (v.combatOrigin === 'HD-09' ||
+      v.combatOrigin === 'HD-19' ||
+      v.combatOrigin === 'HD-22' ||
+      v.combatOrigin === 'HD-28' ||
+      v.combatOrigin === 'HD-32') &&
+    visitedSet.has(v.combatOrigin)
+      ? v.combatOrigin
+      : null
   return {
     ...initial,
     current,
-    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
+    visited: visitedRooms,
     decisions,
-    ending:
-      v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
-        ? v.ending
-        : null,
+    ending,
     endingLens:
-      (v.ending === 'release' ||
-        v.ending === 'renew' ||
-        v.ending === 'break') &&
+      ending &&
       (v.endingLens === 'community' ||
         v.endingLens === 'bonds' ||
         v.endingLens === 'obligation' ||
         v.endingLens === 'honesty')
         ? v.endingLens
         : null,
-    wardenPassed: v.wardenPassed === true,
-    combatOrigin:
-      v.combatOrigin === 'HD-09' ||
-      v.combatOrigin === 'HD-19' ||
-      v.combatOrigin === 'HD-22' ||
-      v.combatOrigin === 'HD-28' ||
-      v.combatOrigin === 'HD-32'
-        ? v.combatOrigin
-        : null,
-    chimeClaimed: v.chimeClaimed === true,
+    wardenPassed: visitedSet.has('HD-32') && v.wardenPassed === true,
+    combatOrigin,
+    chimeClaimed:
+      Boolean(ending) && visitedSet.has('HD-36') && v.chimeClaimed === true,
   }
 }
 

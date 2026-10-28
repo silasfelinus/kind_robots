@@ -151,14 +151,14 @@ assert.ok(
   drawn.worldFlags!.some((flag) => flag.startsWith('episode-draw:nemesis:')),
 )
 
-// Most quest contracts are one day, but two and three days both occur.
+// Every quest contract resolves as one round, regardless of seed.
 const durationCounts = [0, 0, 0]
 for (let seed = 1; seed <= 200; seed++) {
   const mock = { ...landing, seed }
   durationCounts[questDuration(mock, mandatory[0]!.id) - 1]!++
 }
-assert.ok(durationCounts[0]! > durationCounts[1]! + durationCounts[2]!)
-assert.ok(durationCounts.every((count) => count > 0))
+assert.equal(durationCounts[0], 200)
+assert.deepEqual(durationCounts.slice(1), [0, 0])
 
 const alternateEnding = episodeEndingCoda({
   ...bar,

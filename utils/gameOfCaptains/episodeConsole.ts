@@ -5,6 +5,11 @@
  * Optional fields retain the existing v1 VoyageRun save format.
  */
 import type { CrewId, VoyageRun } from './rules'
+import { SKILLS, type Skill } from './crewAssignments'
+import {
+  knownRedshirtSkills,
+  type RedshirtKnowledge,
+} from './redshirtKnowledge'
 import { antagonistFor } from './rules'
 import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { currentExpedition, deployExpedition } from './expedition'
@@ -31,6 +36,10 @@ export type EpisodeDraw = {
   cardId: string
   choice: EpisodeChoice
   result: string
+  cast?: string[]
+  skill?: Skill
+  chance?: number
+  successful?: boolean
 }
 export type EpisodeQuestResult = {
   chance?: number
@@ -291,9 +300,9 @@ export function observedRedshirt(run: VoyageRun, id: string): boolean {
     ...(run.expeditionVisit?.results ?? []),
   ].some((result) => result.lead === id)
 }
-export function questDuration(run: VoyageRun, encounterId: string): 1 | 2 | 3 {
-  const roll = hash(`${run.seed}:${run.chapter}:${encounterId}:days`) % 10
-  return roll < 7 ? 1 : roll < 9 ? 2 : 3
+// Each quest is a single simultaneous card round. Mission travel remains a separate system.
+export function questDuration(_run: VoyageRun, _encounterId: string): 1 {
+  return 1
 }
 function actualOdds(
   run: VoyageRun,
@@ -324,8 +333,13 @@ export function questOdds(
   run: VoyageRun,
   enc: ExpeditionEncounter,
   lead: string,
+  knowledge: RedshirtKnowledge = {},
 ): number | null {
-  if (REDSHIRT_BY_ID[lead] && !observedRedshirt(run, lead)) return null
+  if (
+    REDSHIRT_BY_ID[lead] &&
+    !knownRedshirtSkills(run, knowledge, lead).includes(enc.skill)
+  )
+    return null
   const odds = actualOdds(run, enc, lead)
   return odds
     ? REDSHIRT_BY_ID[lead]
@@ -363,12 +377,10 @@ export function dispatchEpisodeBatch(
   }
   // One order sends the entire cast into parallel quests, never duplicated.
   let next = run
-  let longest = 1
   const departure = run.day ?? run.chapter
   for (const { encounterId, lead } of assignments) {
     const encounter = all.find((e) => e.id === encounterId)!
     const durationDays = questDuration(run, encounterId)
-    longest = Math.max(longest, durationDays)
     const candidate = deployExpedition(next, encounterId, lead)
     if (candidate === next) return run
     const last = candidate.expeditionVisit!.results.at(-1)!
@@ -382,13 +394,21 @@ export function dispatchEpisodeBatch(
     const verdict = successful
       ? 'Field objective achieved; the local faction records your intervention.'
       : 'Field objective compromised; the local faction records the consequences.'
+    const leadName =
+      lead === 'captain'
+        ? 'The captain'
+        : (CREW_PROFILES.find((person) => person.id === lead)?.name ?? lead)
+    const coherentOutcome =
+      !successful && !last.casualty && !REDSHIRT_BY_ID[lead]
+        ? `${leadName} tries ${encounter.title}, but the ${encounter.skill} objective slips away. ${encounter.redshirtResult}${last.secret ? ' SECRET DETOUR: ' + encounter.secretResult : ''}`
+        : last.outcome
     const result = {
       ...last,
       chance: forecast,
       successful,
       durationDays,
       returnedDay: departure + durationDays - 1,
-      outcome: last.outcome + ' ' + verdict,
+      outcome: coherentOutcome + ' ' + verdict,
     }
     next = {
       ...candidate,
@@ -411,18 +431,49 @@ export function dispatchEpisodeBatch(
   }
   return {
     ...next,
-    day: departure + longest - 1,
-    scene: `THE QUEST BOARD RETURNS. ${assignments.length} cards resolved across ${longest} ship day(s). The planet, casino and Serendipity decks are now on the table.`,
+    day: departure,
+    scene: `THE QUEST BOARD RETURNS. ${assignments.length} cards resolved in one round on ship day ${departure}. The solar-system story cards are now on the table.`,
   }
+}
+/** The four permanent command seats run solar-system plot cards, not the redshirt corps. */
+export function episodePlotSkill(run: VoyageRun, deck: EpisodeDeck): Skill {
+  return SKILLS[
+    hash(`${run.seed}:${run.chapter}:${deck}:skill`) % SKILLS.length
+  ]!
+}
+export function episodePlotSeats(run: VoyageRun, deck: EpisodeDeck): 1 | 2 {
+  return hash(`${run.seed}:${run.chapter}:${deck}:seats`) % 3 === 0 ? 2 : 1
+}
+export function episodePlotOdds(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  cast: string[],
+): number {
+  if (
+    cast.length < 1 ||
+    cast.length > episodePlotSeats(run, deck) ||
+    new Set(cast).size !== cast.length ||
+    cast.some((id) => id !== 'captain' && !run.crew.includes(id as CrewId))
+  )
+    return 0
+  const skill = episodePlotSkill(run, deck)
+  const command = cast.map((id) =>
+    id === 'captain'
+      ? CAPTAIN_STATS[run.captain][skill]
+      : CREW_PROFILES.find((p) => p.id === id)!.stats[skill],
+  )
+  return clamp(14 + command[0]! * 13 + (command[1] ? 8 + command[1] * 5 : 0))
 }
 export function drawEpisodeDeck(
   run: VoyageRun,
   deck: EpisodeDeck,
   choice: EpisodeChoice,
+  cast: string[] = ['captain'],
 ): EpisodeRun {
   if (
     run.phase !== 'expedition' ||
     !episodeMajorComplete(run) ||
+    !episodePlotOdds(run, deck, cast) ||
     !EPISODE_CHOICES.some((option) => option.id === choice)
   )
     return run
@@ -430,6 +481,22 @@ export function drawEpisodeDeck(
   const nextDeck = decks.find((item) => !episodeDeckDone(run, item))
   if (nextDeck !== deck) return run
   const card = episodeCard(run, deck)
+  const skill = episodePlotSkill(run, deck)
+  const chance = episodePlotOdds(run, deck, cast)
+  const successful =
+    hash(
+      `${run.seed}:${run.chapter}:${deck}:${choice}:${cast.join('+')}:plot`,
+    ) %
+      100 <
+    chance
+  const names = cast
+    .map((id) =>
+      id === 'captain'
+        ? 'the captain'
+        : CREW_PROFILES.find((p) => p.id === id)!.name,
+    )
+    .join(' and ')
+  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null
   let changed = venue ? visitCasinoVenue(run, venue, choice) : run
@@ -460,7 +527,11 @@ export function drawEpisodeDeck(
     deck,
     cardId: card.id,
     choice,
-    result: scene,
+    result: scene + ' ' + fieldReport,
+    cast: [...cast],
+    skill,
+    chance,
+    successful,
   }
   return {
     ...changed,
@@ -471,12 +542,14 @@ export function drawEpisodeDeck(
     worldFlags: [
       ...(changed.worldFlags ?? []),
       `episode-draw:${deck}:${choice}:${run.chapter}`,
+      `episode-plot:${deck}:${successful ? 'success' : 'complication'}:${run.chapter}`,
       ...(deck === 'constellation' ? ['star-quest:' + card.id] : []),
     ],
-    scene: `[${deck.toUpperCase()} DECK] ${scene}`,
+    trust: changed.trust + (successful ? 1 : -1),
+    scene: `[${deck.toUpperCase()} DECK] ${scene} ${fieldReport}`,
     log: [
       ...changed.log,
-      `Ship day ${run.day ?? run.chapter}, ${deck} deck: ${card.title}. ${scene}`,
+      `Ship day ${run.day ?? run.chapter}, ${deck} deck: ${card.title}. ${scene} ${fieldReport}`,
     ],
   }
 }

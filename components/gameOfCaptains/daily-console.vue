@@ -30,11 +30,18 @@
         >
           <div class="daily-section-head">
             <strong>THE CAST</strong>
-            <span>{{ (run.redshirtRoster ?? []).length }} REDSHIRTS</span>
+            <span
+              >{{ (run.redshirtRoster ?? []).length }} ACTIVE ·
+              {{ recruitedOriginals(run) }}/{{
+                REDSHIRT_QUARTERS.recruitmentLimit
+              }}
+              RECRUITED</span
+            >
           </div>
           <p class="daily-instruction">
-            Pick a personnel card, then put it on a quest. A name on a red shirt
-            is not a résumé.
+            Pick a personnel card, then put it on a quest. Each card takes one
+            round. Redshirt skills unlock one assignment at a time, even across
+            voyages.
           </p>
           <div
             class="daily-cast-stack"
@@ -73,7 +80,8 @@
             class="daily-hire"
             data-testid="space-couch-hire"
             :disabled="
-              (run.redshirtRoster ?? []).length >= 12 ||
+              (run.redshirtRoster ?? []).length >= REDSHIRT_QUARTERS.bunks ||
+              recruitedOriginals(run) >= REDSHIRT_QUARTERS.recruitmentLimit ||
               (run.supplies < 1 && (run.redshirtRoster ?? []).length > 0)
             "
             @click="emit('hire')"
@@ -122,11 +130,7 @@
                 <span>{{
                   enc.priority === 'major' ? '★ FEATURE QUEST' : '✦ SIDE PLOT'
                 }}</span>
-                <b
-                  >{{ questDuration(run, enc.id) }} DAY{{
-                    questDuration(run, enc.id) > 1 ? 'S' : ''
-                  }}</b
-                >
+                <b>1 ROUND</b>
               </span>
               <strong>{{ enc.title }}</strong>
               <p>{{ enc.setup }}</p>
@@ -153,10 +157,20 @@
                   <small>
                     {{
                       assignments[enc.id]
-                        ? questOdds(run, enc, assignments[enc.id]!) === null
+                        ? questOdds(
+                            run,
+                            enc,
+                            assignments[enc.id]!,
+                            knowledge,
+                          ) === null
                           ? 'SUCCESS ODDS CLASSIFIED · FIELD TEST REQUIRED'
                           : 'FORECAST ' +
-                            questOdds(run, enc, assignments[enc.id]!) +
+                            questOdds(
+                              run,
+                              enc,
+                              assignments[enc.id]!,
+                              knowledge,
+                            ) +
                             '%'
                         : 'Tap with a personnel card selected'
                     }}
@@ -190,8 +204,8 @@
     <template v-else>
       <section class="daily-decks" data-testid="space-couch-daily-decks">
         <div class="daily-section-head">
-          <strong>THE AFTERNOON ENCOUNTER DECKS</strong>
-          <span>QUESTS FIRST · DRAW IN ORDER</span>
+          <strong>SOLAR-SYSTEM ENCOUNTERS · LOCAL & PLOT</strong>
+          <span>ONE ROUND EACH · DRAW IN ORDER</span>
         </div>
         <div
           class="daily-deck-row"
@@ -218,7 +232,7 @@
                   ? 'space-couch-serendipity-quest'
                   : 'space-couch-deck-' + deck
             "
-            @click="flipped = deck"
+            @click="revealDeck(deck)"
           >
             <span class="daily-deck-number">{{
               String(index + 1).padStart(2, '0')
@@ -261,12 +275,61 @@
             <h3>{{ episodeCard(run, flipped).title }}</h3>
             <p>{{ episodeCard(run, flipped).setup }}</p>
             <small>{{ episodeCard(run, flipped).link }}</small>
+            <div
+              class="daily-plot-staff"
+              data-testid="space-couch-plot-assignment"
+            >
+              <div class="daily-section-head">
+                <strong>CAST THIS ENCOUNTER · 1 ROUND</strong>
+                <span
+                  >{{ plotCast.length }}/{{
+                    episodePlotSeats(run, flipped)
+                  }}
+                  SLOTS</span
+                >
+              </div>
+              <p>
+                Assign your captain or one of three officers. Some encounters
+                allow a second specialist. Redshirts handle expedition quests.
+              </p>
+              <div
+                class="daily-plot-roster"
+                role="group"
+                aria-label="Captain and three crew for this encounter"
+              >
+                <button
+                  v-for="actor in commandActors"
+                  :key="actor.id"
+                  type="button"
+                  :aria-pressed="plotCast.includes(actor.id)"
+                  :class="{ selected: plotCast.includes(actor.id) }"
+                  :disabled="
+                    !plotCast.includes(actor.id) &&
+                    plotCast.length >= episodePlotSeats(run, flipped)
+                  "
+                  data-testid="space-couch-plot-officer"
+                  @click="togglePlotCast(actor.id)"
+                >
+                  <span>{{ actor.initial }}</span>
+                  <b>{{ actor.name }}</b>
+                </button>
+              </div>
+              <small v-if="plotCast.length">
+                {{ episodePlotSkill(run, flipped).toUpperCase() }} ·
+                {{ episodePlotOdds(run, flipped, plotCast) }}% forecast ·
+                {{ plotCast.length === 2 ? 'TEAMWORK' : 'SOLO' }}
+              </small>
+              <small v-else
+                >Choose at least one command card to unlock a decision.</small
+              >
+            </div>
             <div class="daily-decisions">
               <button
                 v-for="choice in EPISODE_CHOICES"
                 :key="choice.id"
                 type="button"
                 :data-testid="'space-couch-choose-' + choice.id"
+                :disabled="plotCast.length === 0"
                 @click="decide(flipped!, choice.id)"
               >
                 <b>{{ choice.label }}</b
@@ -278,6 +341,11 @@
         <div v-else-if="lastDraw" class="daily-recap" aria-live="polite">
           <strong>PREVIOUSLY, ON SPACE COUCH...</strong>
           <p>{{ lastDraw.result }}</p>
+          <p v-if="lastDraw.cast?.length">
+            CAST: {{ lastDraw.cast.map(actorName).join(' + ') }} ·
+            {{ lastDraw.successful ? 'OBJECTIVE MET' : 'COMPLICATION' }} ·
+            {{ lastDraw.chance }}% forecast
+          </p>
           <span
             >{{ episodeDraws(run).length }} / {{ requiredDecks.length }} DECKS
             RESOLVED</span
@@ -317,7 +385,7 @@ import {
   cloneGeneration,
   type CloneChoice,
 } from '~/utils/gameOfCaptains/cloneSaga'
-import type { VoyageRun } from '~/utils/gameOfCaptains/rules'
+import type { VoyageRun, CrewId } from '~/utils/gameOfCaptains/rules'
 import { CAPTAINS, CREW } from '~/utils/gameOfCaptains/rules'
 import {
   CAPTAIN_STATS,
@@ -325,8 +393,14 @@ import {
 } from '~/utils/gameOfCaptains/crewAssignments'
 import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
 import {
+  knownRedshirtSkills,
+  type RedshirtKnowledge,
+} from '~/utils/gameOfCaptains/redshirtKnowledge'
+import {
   currentExpedition,
   expeditionBusy,
+  recruitedOriginals,
+  REDSHIRT_QUARTERS,
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
@@ -339,8 +413,9 @@ import {
   episodeIncitingEvent,
   episodeMajorComplete,
   episodeStinger,
-  observedRedshirt,
-  questDuration,
+  episodePlotSkill,
+  episodePlotSeats,
+  episodePlotOdds,
   questOdds,
   type EpisodeAssignment,
   type EpisodeChoice,
@@ -352,27 +427,31 @@ const props = defineProps<{
   run: VoyageRun
   backdrop: string
   franchiseImage: string | null
+  knowledge: RedshirtKnowledge
 }>()
 const emit = defineEmits<{
   hire: []
   dispatch: [assignments: EpisodeAssignment[]]
-  draw: [deck: EpisodeDeck, choice: EpisodeChoice]
+  draw: [deck: EpisodeDeck, choice: EpisodeChoice, cast: string[]]
   finish: []
   cloneAdvance: [choice: CloneChoice]
   clonePrint: [id: string]
 }>()
 const selectedLead = ref<string>('captain')
 const assignments = ref<Record<string, string>>({})
+const plotCast = ref<string[]>([])
 const flipped = ref<EpisodeDeck | null>(null)
 watch(
   () => props.run.chapter,
   () => {
     assignments.value = {}
+    plotCast.value = []
     flipped.value = null
     selectedLead.value = 'captain'
   },
 )
 const encounters = computed(() => currentExpedition(props.run))
+const knowledge = computed(() => props.knowledge)
 const busyLeads = computed(() => expeditionBusy(props.run))
 const majorDone = computed(() => episodeMajorComplete(props.run))
 const majorCount = computed(
@@ -411,7 +490,8 @@ const actors = computed(() => [
   })),
   ...(props.run.redshirtRoster ?? []).map((id) => {
     const person = REDSHIRT_BY_ID[id]!
-    const revealed = observedRedshirt(props.run, id)
+    const known = knownRedshirtSkills(props.run, props.knowledge, id)
+    const revealed = known.length > 0
     const generation = cloneGeneration(props.run, id)
     return {
       id,
@@ -419,15 +499,34 @@ const actors = computed(() => [
       subtitle:
         (generation ? 'CLONE · ' : 'REDSHIRT · ') +
         (revealed
-          ? 'FIELD-TESTED ' + person.talent.toUpperCase()
+          ? 'FIELD REPORTS · ' +
+            known
+              .map((skill) => skill.toUpperCase() + ' ' + person.stats[skill])
+              .join(' · ')
           : 'APTITUDE SEALED'),
       image: null,
       revealed,
-      rank: revealed ? String(person.stats[person.talent]) : '??',
+      rank: revealed ? known.length + '/6' : '??',
       initial: '✦',
     }
   }),
 ])
+const commandActors = computed(() =>
+  actors.value.filter(
+    (actor) =>
+      actor.id === 'captain' || props.run.crew.includes(actor.id as CrewId),
+  ),
+)
+function togglePlotCast(id: string) {
+  if (plotCast.value.includes(id)) {
+    plotCast.value = plotCast.value.filter((actor) => actor !== id)
+  } else if (
+    flipped.value &&
+    plotCast.value.length < episodePlotSeats(props.run, flipped.value)
+  ) {
+    plotCast.value = [...plotCast.value, id]
+  }
+}
 function actorName(id: string): string {
   return actors.value.find((actor) => actor.id === id)?.name ?? id
 }
@@ -448,8 +547,7 @@ function completionResult(id: string) {
     ' · ' +
     actorName(item?.lead ?? '') +
     ' · ' +
-    (item?.durationDays ?? 1) +
-    ' DAY(S)'
+    '1 ROUND'
   )
 }
 function assign(encounterId: string) {
@@ -502,8 +600,14 @@ function deckSymbol(deck: EpisodeDeck) {
     nemesis: '☠',
   }[deck]
 }
+function revealDeck(deck: EpisodeDeck) {
+  flipped.value = deck
+  plotCast.value = []
+}
 function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
-  emit('draw', deck, choice)
+  if (!plotCast.value.length) return
+  emit('draw', deck, choice, [...plotCast.value])
+  plotCast.value = []
   flipped.value = null
 }
 </script>
@@ -1084,6 +1188,59 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   .daily-deck,
   .daily-actor {
     transition: none;
+  }
+}
+.daily-plot-staff {
+  margin: 0.7rem 0;
+  padding: 0.65rem;
+  border: 1px solid #c6a47699;
+  border-radius: 0.65rem;
+  background: #15283ddb;
+}
+.daily-plot-staff p {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  margin: 0.4rem 0;
+}
+.daily-plot-staff > small {
+  display: block;
+  color: #f4d5a8;
+  font-weight: 800;
+  margin-top: 0.4rem;
+}
+.daily-plot-roster {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+.daily-plot-roster button {
+  min-width: 0;
+  border: 1px solid #8da7ba;
+  border-radius: 0.5rem;
+  background: #344766;
+  color: #f9e5c9;
+  padding: 0.45rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.58rem;
+  line-height: 1.2;
+}
+.daily-plot-roster button.selected {
+  border-color: #ffe0aa;
+  background: #8e5f59;
+}
+.daily-plot-roster button:disabled {
+  opacity: 0.38;
+}
+.daily-decisions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+@container (max-width: 440px) {
+  .daily-plot-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>

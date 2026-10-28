@@ -83,6 +83,49 @@ export const CLONE_CHAPTERS = [
   },
 ] as const
 
+/** Validate only additive state before importing a saved v1 voyage. */
+export function validCloneProgram(raw: unknown): raw is CloneProgram {
+  if (!raw || typeof raw !== 'object') return false
+  const value = raw as Partial<CloneProgram>
+  if (
+    !Number.isInteger(value.step) ||
+    value.step! < 0 ||
+    value.step! > CLONE_CHAPTERS.length ||
+    !Array.isArray(value.records) ||
+    !Array.isArray(value.beats) ||
+    value.records.length > 100 ||
+    value.beats.length > CLONE_CHAPTERS.length
+  ) return false
+  const seen = new Set<string>()
+  for (const record of value.records) {
+    if (
+      !record || !REDSHIRT_BY_ID[record.id] ||
+      !Number.isInteger(record.generation) ||
+      record.generation < 1 || record.generation > 4 ||
+      !Number.isInteger(record.createdChapter) ||
+      record.createdChapter < 1 || record.createdChapter > 9 ||
+      !Number.isInteger(record.createdDay) || record.createdDay < 1 ||
+      !Number.isInteger(record.deployments) || record.deployments < 0 ||
+      !Number.isInteger(record.survived) ||
+      record.survived < 0 || record.survived > record.deployments ||
+      typeof record.lost !== 'boolean' ||
+      (record.lastEncounter !== null && typeof record.lastEncounter !== 'string')
+    ) return false
+    const key = record.id + ':' + record.generation
+    if (seen.has(key)) return false
+    seen.add(key)
+  }
+  return value.beats.every((beat, index) =>
+    beat &&
+    beat.step === index &&
+    Number.isInteger(beat.chapter) &&
+    beat.chapter >= 1 && beat.chapter <= 9 &&
+    ['ask', 'document', 'override'].includes(beat.choice) &&
+    typeof beat.narrative === 'string' &&
+    beat.narrative.length < 1000
+  ) && value.step === value.beats.length
+}
+
 function program(run: VoyageRun): CloneProgram {
   return (run as CloneRun).cloneProgram ?? { step: 0, records: [], beats: [] }
 }

@@ -419,6 +419,72 @@ console.log(
   'Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics',
 )
 
+// The first two Earth photographs already deserve a four-way interpretation.
+// Later mirrored evidence upgrades the relevant reflection rather than
+// replacing the player's original, immutable response.
+const firstWorldReflections = new Set<string>()
+for (const first of ['challenge', 'hold'] as const) {
+  for (const second of ['challenge', 'hold'] as const) {
+    const journal = restoreEarthChronicle(
+      JSON.parse(
+        JSON.stringify({
+          version: 1,
+          found: ['earth-02', 'earth-01'],
+          responses: { 'earth-01': first, 'earth-02': second },
+        }),
+      ),
+    )
+    const initial = earthPhotoReappraisal(journal, 'earth-01')
+    assert.ok(initial)
+    assert.equal(initial.title, 'Two wounds, no verdict')
+    assert.deepEqual(earthPhotoReappraisal(journal, 'earth-02'), initial)
+    assert.match(initial.evidence, /office exit.*gathering/)
+    assert.ok(initial.reflection.length > 100)
+    firstWorldReflections.add(initial.reflection)
+    assert.equal(
+      earthPhotoReappraisal(
+        { ...journal, responses: { 'earth-01': first } },
+        'earth-02',
+      ),
+      null,
+      'Both original interpretations must be earned before reflection',
+    )
+    const mirrorUnanswered = restoreEarthChronicle({
+      ...journal,
+      found: ['earth-01', 'earth-02', 'earth-03'],
+    })
+    assert.deepEqual(
+      earthPhotoReappraisal(mirrorUnanswered, 'earth-01'),
+      initial,
+      'Discovering an unanswered mirror photo must not erase earned reflection',
+    )
+    const mirrorAnswered = restoreEarthChronicle({
+      ...mirrorUnanswered,
+      responses: { ...journal.responses, 'earth-03': 'challenge' },
+    })
+    assert.equal(
+      earthPhotoReappraisal(mirrorAnswered, 'earth-01')?.title,
+      'Two frames, one doorway',
+      'Answered mirrored evidence must take precedence for its source photo',
+    )
+    assert.deepEqual(
+      earthPhotoReappraisal(mirrorAnswered, 'earth-02'),
+      initial,
+      'The other original photo retains its reflection until its mirror is earned',
+    )
+    assert.deepEqual(
+      recoveredEarthPhotos(mirrorAnswered).map((photo) => photo.id),
+      ['earth-01', 'earth-02', 'earth-03'],
+    )
+    assert.equal(
+      respondToEarthPhoto(mirrorAnswered, 'earth-01', 'hold'),
+      mirrorAnswered,
+      'A later interpretation must never rewrite the original response',
+    )
+  }
+}
+assert.equal(firstWorldReflections.size, 4)
+
 const pairedPhotoCases = [
   ['earth-01', 'earth-03'],
   ['earth-02', 'earth-04'],

@@ -20,7 +20,8 @@ import {
 } from './solarCircuit'
 import { nemesisMove } from './voyageMap'
 
-export type EpisodeDeck = 'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
+export type EpisodeDeck =
+  'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
 export type EpisodeChoice = CasinoChoice
 export type EpisodeDraw = {
   chapter: number
@@ -510,32 +511,41 @@ export function episodeEndingCoda(run: VoyageRun): VoyageRun {
   else if (standings.villains >= 3)
     coda =
       'THE FINAL BROADCAST: The nemesis survives the ratings, but the crew keeps the recording that could ruin the next season.'
-  const sign = run.starAssessment
-    ? starSignFor(run.starAssessment.sign)
-    : null
-  const finished = sign?.quests.filter((quest) =>
-    (run.worldFlags ?? []).includes('star-quest:' + quest.id),
-  ).length ?? 0
-  const constellationCoda = sign && finished
-    ? finished === 3
-      ? 'THE CONSTELLATION FINALE: ' + sign.name +
-        ' lights the last jump gate. All three secret quests were answered; ' +
-        sign.quests[2].ending + ' ' + sign.omen
-      : 'THE UNFINISHED STAR CHART: ' + sign.name + ' shines above ' +
-        finished + ' completed secret mission(s). Some stars are still waiting for the next season.'
-    : ''
+  const sign = run.starAssessment ? starSignFor(run.starAssessment.sign) : null
+  const finished =
+    sign?.quests.filter((quest) =>
+      (run.worldFlags ?? []).includes('star-quest:' + quest.id),
+    ).length ?? 0
+  const constellationCoda =
+    sign && finished
+      ? finished === 3
+        ? 'THE CONSTELLATION FINALE: ' +
+          sign.name +
+          ' lights the last jump gate. All three secret quests were answered; ' +
+          sign.quests[2].ending +
+          ' ' +
+          sign.omen
+        : 'THE UNFINISHED STAR CHART: ' +
+          sign.name +
+          ' shines above ' +
+          finished +
+          ' completed secret mission(s). Some stars are still waiting for the next season.'
+      : ''
   if (!coda && !constellationCoda) return run
   return {
     ...run,
-    ending: constellationCoda && finished === 3
-      ? (run.ending ?? 'Voyage Complete') + ' · ' + sign!.name
-      : run.ending,
-    scene: run.scene + ' ' + [coda, constellationCoda].filter(Boolean).join(' '),
+    ending:
+      constellationCoda && finished === 3
+        ? (run.ending ?? 'Voyage Complete') + ' · ' + sign!.name
+        : run.ending,
+    scene:
+      run.scene + ' ' + [coda, constellationCoda].filter(Boolean).join(' '),
     log: [
       ...run.log,
-      ...[coda && 'Earned faction epilogue: ' + coda,
-        constellationCoda && 'Earned star epilogue: ' + constellationCoda]
-        .filter((line): line is string => Boolean(line)),
+      ...[
+        coda && 'Earned faction epilogue: ' + coda,
+        constellationCoda && 'Earned star epilogue: ' + constellationCoda,
+      ].filter((line): line is string => Boolean(line)),
     ],
   }
 }

@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'stores/memoryWorldStore.ts'
+      - 'components/pages/memory-dungeon-overworld.vue'
+      - 'components/memory-dungeon/earth-chronicle.vue'
+      - 'components/memory-dungeon/quest-log.vue'
       - 'utils/memoryDungeon/**'
       - 'utils/memoryDungeonWorld.ts'
       - 'utils/memoryDungeonWaves.ts'
@@ -13,6 +16,9 @@ on:
     branches: [main]
     paths:
       - 'stores/memoryWorldStore.ts'
+      - 'components/pages/memory-dungeon-overworld.vue'
+      - 'components/memory-dungeon/earth-chronicle.vue'
+      - 'components/memory-dungeon/quest-log.vue'
       - 'utils/memoryDungeon/**'
       - 'utils/memoryDungeonWorld.ts'
       - 'utils/memoryDungeonWaves.ts'

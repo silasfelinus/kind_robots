@@ -1529,7 +1529,7 @@ const questScreen = readFileSync(
   'components/memory-dungeon/quest-log.vue',
   'utf8',
 )
-const houseScreen = readFileSync(
+const houseMapScreen = readFileSync(
   'components/memory-dungeon/house-stage.vue',
   'utf8',
 )
@@ -1562,8 +1562,8 @@ assert.ok(
   'Dark Briar tiles show actionable markers',
 )
 assert.ok(
-  houseScreen.includes('memory-dungeon-action-beacon') &&
-    houseScreen.includes('!progress?.decisions[item.id]'),
+  houseMapScreen.includes('memory-dungeon-action-beacon') &&
+    houseMapScreen.includes('!progress?.decisions[item.id]'),
   'Original House reactivates markers for unfinished chambers',
 )
 assert.ok(

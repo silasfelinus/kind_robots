@@ -1,0 +1,32 @@
+name: Save Plumber Maker Gameplay Contract
+on:
+  pull_request:
+    paths:
+      - 'utils/arcade/games/savePlumber*.ts'
+      - 'components/arcade/plumber-*.vue'
+      - 'stores/savePlumberMakerStore.ts'
+      - 'utils/scripts/verifySavePlumberMaker.test.ts'
+      - '.github/workflows/save-plumber-maker-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'utils/arcade/games/savePlumber*.ts'
+      - 'components/arcade/plumber-*.vue'
+      - 'stores/savePlumberMakerStore.ts'
+      - 'utils/scripts/verifySavePlumberMaker.test.ts'
+      - '.github/workflows/save-plumber-maker-contract.yml'
+permissions:
+  contents: read
+jobs:
+  maker-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Verify playable Maker geometry, templates, controls and campaign isolation
+        run: npx tsx utils/scripts/verifySavePlumberMaker.test.ts

@@ -854,7 +854,10 @@ assert.equal(
 )
 assert.equal(
   briarTileProgress(
-    { ...settledSave, sceneChoices: { ...settledSave.sceneChoices, '2,4': '' } },
+    {
+      ...settledSave,
+      sceneChoices: { ...settledSave.sceneChoices, '2,4': '' },
+    }
     '2,4',
   ),
   'unfinished',
@@ -1538,11 +1541,15 @@ const darkHouseScreen = readFileSync(
   'utf8',
 )
 assert.ok(
-  mapScreen.includes('src="/images/memory-dungeon/backdrops/briar-overworld.webp"'),
+  mapScreen.includes(
+    'src="/images/memory-dungeon/backdrops/briar-overworld.webp"',
+  ),
   'Original Briar uses the delivered painted map first',
 )
 assert.ok(
-  darkMapScreen.includes('src="/images/memory-dungeon/dark-briar/backdrops/map.webp"'),
+  darkMapScreen.includes(
+    'src="/images/memory-dungeon/dark-briar/backdrops/map.webp"',
+  ),
   'Dark Briar uses its own delivered map art',
 )
 assert.ok(

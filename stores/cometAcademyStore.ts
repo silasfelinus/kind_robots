@@ -13,6 +13,7 @@ import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   assignPlayerCase,
+  planThirdNight,
   chooseEncounter,
   finishAcademy,
   incidentsFor,
@@ -220,6 +221,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function planCrisis(caseId: string, approach: 'split' | 'concentrate') {
+    if (!run.value) return
+    run.value = planThirdNight(run.value, caseId, approach)
+    persist()
+  }
+
   function dispatch() {
     if (!run.value) return
     run.value = resolveDispatch(run.value)
@@ -266,6 +273,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     visit,
     assign,
     lead,
+    planCrisis,
     dispatch,
     choose,
     next,

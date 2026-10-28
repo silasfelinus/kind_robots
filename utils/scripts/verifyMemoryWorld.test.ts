@@ -1584,7 +1584,11 @@ assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(HOUSE_ROOMS))
 assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(DARK_HOUSE_ROOMS))
 assert.equal(new Set(Object.values(HOUSE_ATLAS_PATHS)).size, 2)
 assert.ok(HOUSE_ATLAS_PATHS.original.endsWith('/house/maps/house-atlas.webp'))
-assert.ok(HOUSE_ATLAS_PATHS.mirrored.endsWith('/dark-briar/house/maps/house-atlas.webp'))
+assert.ok(
+  HOUSE_ATLAS_PATHS.mirrored.endsWith(
+    '/dark-briar/house/maps/house-atlas.webp',
+  ),
+)
 assert.match(houseAtlasImage, /@error="available = false"/)
 assert.match(houseAtlasImage, /aria-hidden="true"/)
 assert.match(houseAtlasImage, /loading="eager"/)

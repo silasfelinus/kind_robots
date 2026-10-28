@@ -582,9 +582,10 @@ assert.equal(
   'Space hazards never consume air automatically',
 )
 assert.equal(gustRun.save, undefined)
+const noSpaceHazards = validateMakerLevel({ ...hazardCopy, space: false })
 const quietRun = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
-  { customLevel: toMakerStage({ ...hazardCopy, space: false }) },
+  { customLevel: toMakerStage(noSpaceHazards) },
 )
 assert.equal(
   quietRun.orbitingDebris.length,

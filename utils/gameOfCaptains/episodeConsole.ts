@@ -252,8 +252,9 @@ function actualOdds(
     22 + skills[enc.skill] * 13 + (secret ? 15 : 0) -
       (enc.priority === 'major' ? 12 : 0),
   )
-  // A red uniform has a separate, real one-in-three fatality risk.
-  return profile ? Math.max(5, Math.floor(baseline * 2 / 3)) : baseline
+  // Fatalities are rolled independently at deployment. Keep this as the
+  // conditional mission skill chance; adjust the displayed forecast below.
+  return baseline
 }
 export function questOdds(
   run: VoyageRun,
@@ -262,7 +263,7 @@ export function questOdds(
 ): number | null {
   if (REDSHIRT_BY_ID[lead] && !observedRedshirt(run, lead)) return null
   const odds = actualOdds(run, enc, lead)
-  return odds || null
+  return odds ? (REDSHIRT_BY_ID[lead] ? Math.floor(odds * 2 / 3) : odds) : null
 }
 export function dispatchEpisodeBatch(
   run: VoyageRun,
@@ -304,6 +305,9 @@ export function dispatchEpisodeBatch(
     if (candidate === next) return run
     const last = candidate.expeditionVisit!.results.at(-1)!
     const chance = actualOdds(run, encounter, lead)
+    const forecast = REDSHIRT_BY_ID[lead]
+      ? Math.floor(chance * 2 / 3)
+      : chance
     const roll = hash(`${run.seed}:${run.chapter}:${encounterId}:${lead}:success`) % 100
     const successful = !last.casualty && roll < chance
     const verdict = successful
@@ -311,7 +315,7 @@ export function dispatchEpisodeBatch(
       : 'Field objective compromised; the local faction records the consequences.'
     const result = {
       ...last,
-      chance,
+      chance: forecast,
       successful,
       durationDays,
       returnedDay: departure + durationDays - 1,
@@ -333,7 +337,7 @@ export function dispatchEpisodeBatch(
         ],
       },
       scene: result.outcome,
-      log: [...candidate.log, `Ship day ${departure}: ${encounter.title} ${successful ? 'passed' : 'failed'} (${chance}% forecast, ${durationDays} day contract).`],
+      log: [...candidate.log, `Ship day ${departure}: ${encounter.title} ${successful ? 'passed' : 'failed'} (${forecast}% forecast, ${durationDays} day contract).`],
     }
   }
   return {
@@ -346,7 +350,7 @@ export function drawEpisodeDeck(
   run: VoyageRun,
   deck: EpisodeDeck,
   choice: EpisodeChoice,
-): VoyageRun {
+): EpisodeRun {
   if (
     run.phase !== 'expedition' ||
     !episodeMajorComplete(run) ||

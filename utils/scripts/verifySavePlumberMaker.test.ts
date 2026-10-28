@@ -524,8 +524,7 @@ boundedSpace.hero.y = 150
 boundedSpace.hero.vx = 3
 boundedSpace.update(emptyInput())
 assert.ok(
-  boundedSpace.hero.x <= 32 * 16 - 9 &&
-    boundedSpace.hero.x > 32 * 16 - 9.05,
+  boundedSpace.hero.x <= 32 * 16 - 9 && boundedSpace.hero.x > 32 * 16 - 9.05,
   'Right hull keeps the astronaut inside',
 )
 boundedSpace.hero.x = 128

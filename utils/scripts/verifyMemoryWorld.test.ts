@@ -2106,8 +2106,12 @@ const checkpointConsole = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
-assert.ok(checkpointConsole.includes('memoryCheckpointPreview(checkpoint).location'))
-assert.ok(checkpointConsole.includes('memoryCheckpointPreview(checkpoint).progress'))
+assert.ok(
+  checkpointConsole.includes('memoryCheckpointPreview(checkpoint).location'),
+)
+assert.ok(
+  checkpointConsole.includes('memoryCheckpointPreview(checkpoint).progress'),
+)
 assert.ok(checkpointConsole.includes(':aria-label="`Load checkpoint'))
 const invalidRealityCases = [
   [

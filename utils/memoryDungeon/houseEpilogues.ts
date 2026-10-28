@@ -11,8 +11,8 @@ import { briarQuestLog } from './briarQuests'
  * The twelve House epilogues: the three Memory Hearth resolutions, each told
  * through one of the master bible's four earned epilogue lenses (kind_robots
  * #4136 §9). The lens is read from decisions the save already keeps, Briar
- * scene choices and House room choices, so no new save field exists and every
- * old save that reached the Hearth resolves to an epilogue.
+ * scene choices and House room choices. The earned lens is snapshotted at
+ * the Hearth; completed legacy saves derive that lens during restoration.
  */
 export type HouseEpilogueLens = HouseEndingLens
 

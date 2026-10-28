@@ -330,6 +330,57 @@ assert.match(
   'The earliest authored manifest divergence determines the ending',
 )
 
+// Mosswick's two alternatives have different ethical costs. Reading the
+// future entry protects the player's promise; refusing the Index protects
+// their name. Neither produces the sworn, corroborated account he requested.
+const mosswick = BRIAR_QUESTS.find((q) => q.id === 'mosswicks-true-account')!
+const mosswickClosures = [
+  ['4,2', 'ledger', /hid the price and the buyer/],
+  ['7,4', 'refuse', /without the carbon copy/],
+] as const
+const mosswickEndings = new Set<string>()
+for (const [key, choice, expected] of mosswickClosures) {
+  const decisions = split(mosswick)
+  decisions.briar[key] = choice
+  const result = briarQuestProgress(mosswick, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the account`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, mosswick.closed)
+  mosswickEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  assert.equal(
+    briarQuestProgress(mosswick, restored.sceneChoices, decisions.house).quest
+      .closed,
+    result.quest.closed,
+    'The Mosswick outcome survives a saved scene decision',
+  )
+}
+assert.equal(mosswickEndings.size, 2, 'two distinct Mosswick resolutions')
+const forgedMosswick = split(mosswick)
+forgedMosswick.briar['7,4'] = 'forged'
+assert.equal(
+  briarQuestProgress(mosswick, forgedMosswick.briar, forgedMosswick.house)
+    .state,
+  'active',
+  'A fabricated Index choice cannot manufacture a Mosswick closure',
+)
+const twoMosswickClosures = split(mosswick)
+twoMosswickClosures.briar['4,2'] = 'ledger'
+twoMosswickClosures.briar['7,4'] = 'refuse'
+assert.match(
+  briarQuestProgress(
+    mosswick,
+    twoMosswickClosures.briar,
+    twoMosswickClosures.house,
+  ).quest.closed,
+  /hid the price and the buyer/,
+  'The earliest authored Mosswick divergence determines the ending',
+)
+
 // Trusting Scylla's paperwork, helping Char repair a boot and choosing rest
 // all care for the twins differently. None invents the private confession
 // earned only by hearing both sisters on the landing.

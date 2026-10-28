@@ -257,12 +257,20 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '4,2',
         advance: ['promise'],
         text: 'Promise Mosswick a true account.',
+        closedOutcomes: {
+          ledger:
+            'You studied the blank entry instead of promising Mosswick a return. He let you see tomorrow’s date but hid the price and the buyer. You know someone is trading on your future; Mosswick has no sworn account to compare against the sale, and the empty name remains his bargaining chip.',
+        },
       },
       {
         scope: 'briar',
         key: '7,4',
         advance: ['register'],
         text: 'Give the Index your name, and take the carbon copy.',
+        closedOutcomes: {
+          refuse:
+            'You refused the Index your name, protecting it from a record whose keeper will not name its owner. Mosswick approves of the caution, but without the carbon copy neither of you can prove which earlier entry bears your silhouette. His ledger remains open to dispute instead of becoming an official accusation.',
+        },
       },
       {
         scope: 'house',
@@ -513,10 +521,10 @@ export function validateBriarQuests(): string[] {
         issues.push(`${q.id} step ${step.key} advances on a missing choice`)
       const alternatives = ids.filter((id) => !step.advance.includes(id))
       if (alternatives.length) closable = true
+      for (const id of alternatives)
+        if (!step.closedOutcomes?.[id])
+          issues.push(`${q.id} step ${step.key} lacks ${id} resolution`)
       if (step.closedOutcomes) {
-        for (const id of alternatives)
-          if (!step.closedOutcomes[id])
-            issues.push(`${q.id} step ${step.key} lacks ${id} resolution`)
         for (const [id, ending] of Object.entries(step.closedOutcomes)) {
           if (!alternatives.includes(id))
             issues.push(`${q.id} step ${step.key} has invalid ${id} resolution`)

@@ -934,10 +934,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
-import {
-  memoryCheckpointPreview,
-  type MemoryCheckpoint,
-} from '~/utils/memoryDungeon/saveSlots'
+import { memoryCheckpointPreview } from '~/utils/memoryDungeon/saveSlots'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,

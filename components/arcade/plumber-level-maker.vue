@@ -251,7 +251,7 @@
           <template v-else>
             <span>{{
               maker.level.space
-                ? 'ARROWS AIM · HOLD C TO SPEND AIR · A BRAKE · ◉ REFILLS · ▣ DOCKS'
+                ? 'ARROWS AIM · C THRUST · A BRAKE · ◉ CANISTERS · ▣ DOCKS'
                 : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
             }}</span>
             <span>CAMPAIGN SAVES UNTOUCHED</span>
@@ -422,8 +422,8 @@ const palette: Record<string, string> = {
   w: '#5a9cfc',
   f: '#b7f0ff',
   '?': '#cba7ff',
-  ';': '#70edfa',
-  '%': '#f8e2a2',
+  '%': '#7ce2ed',
+  ';': '#f8e2a2',
   c: '#a67c56',
   g: '#cb7257',
   v: '#ffd064',

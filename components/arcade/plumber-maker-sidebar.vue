@@ -215,9 +215,10 @@
       </label>
       <p v-if="maker.level.space === true" class="maker-help">
         AIR-JET RULES: Aim your travel direction with arrows, hold C to blast
-        air in the opposite direction, release to coast, hold A to brake.
-        Gravity wells tug you toward their center. Air depletes per burst;
-        collect air canisters or fly near refill docks to recover.
+        air in the opposite direction, release to coast, hold A to brake. Each
+        thrust spends pressure. Collect cyan canisters (◉), approach golden
+        charging docks (▣), or touch checkpoints to refill. Gravity wells tug
+        you inward.
       </p>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the
@@ -239,8 +240,7 @@ const emit = defineEmits<{
   (event: 'resize-course', dimensions: { cols: number; rows: number }): void
   (
     event: 'load-template',
-    name:
-      'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
+    name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage',
   ): void
 }>()
 const starterCourses = [
@@ -272,7 +272,7 @@ const starterCourses = [
     id: 'orbital-salvage',
     icon: '◌',
     name: 'SALVAGE',
-    description: 'Navigate asteroids with limited air, refills and docking',
+    description: 'Navigate asteroids using pressure docks and canisters',
   },
 ] as const
 function chooseStarter(name: (typeof starterCourses)[number]['id']) {

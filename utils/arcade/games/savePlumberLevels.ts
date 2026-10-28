@@ -29,7 +29,8 @@
  *   *  the stage's Golden Gear (one per stage, harder to reach each world)
  *   !  a glider: flies at her at head height (duck under it, swing or stomp)
  *   ?  gravity well (space course): draws the heroine toward its center
- *   ;  air canister (replenishes jet reserve)  %  refill dock (recharges nearby)
+ *   %  compressed-air canister: restores jet pressure in space
+ *   ;  recharge dock: continuously tops up pressure when nearby
  */
 
 export const TILE = 16
@@ -1166,8 +1167,8 @@ const SPAWNS: Record<string, SpawnKind> = {
   e: 'icicle',
   q: 'snowball',
   '?': 'gravity-well',
-  ';': 'air-canister',
-  '%': 'air-dock',
+  '%': 'air-canister',
+  ';': 'air-dock',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */

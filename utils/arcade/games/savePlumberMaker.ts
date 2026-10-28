@@ -118,8 +118,12 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
-      { key: ';', icon: '◉', label: 'Air canister · collect for +45 air' },
-      { key: '%', icon: '▣', label: 'Refill dock · restores air when nearby' },
+      {
+        key: '%',
+        icon: '◉',
+        label: 'Air canister · refills compressed jet pressure',
+      },
+      { key: ';', icon: '▣', label: 'Refill dock · continuously charges nearby' },
       { key: 'B', icon: '◆', label: 'Asteroid rock · solid obstacle' },
       { key: ':', icon: '◇', label: 'Phase bridge · flickers on/off' },
       { key: 'Q', icon: '▦', label: 'Orbital cargo · falling hazard' },
@@ -290,7 +294,11 @@ export function resizeMakerLevel(
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
 export type MakerTemplate =
-  'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage'
+  | 'harbor'
+  | 'snowfield'
+  | 'skybridge'
+  | 'spacewalk'
+  | 'orbital-salvage'
 
 function regionBounds(rect: MakerRect) {
   return {
@@ -466,30 +474,35 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     for (let y = 11; y <= 15; y++) for (let x = 24; x <= 26; x++) put(x, y, 'B')
     for (let y = 4; y <= 7; y++) for (let x = 40; x <= 43; x++) put(x, y, 'B')
     for (let y = 17; y <= 20; y++) for (let x = 44; x <= 46; x++) put(x, y, 'B')
+    put(12, 12, '%')
     put(16, 9, '?')
     put(37, 15, '?')
-    put(12, 13, ';')
-    put(33, 5, ';')
-    put(49, 7, '%')
+    put(31, 13, '%')
     put(33, 7, 'K')
     put(50, 11, 'I')
     put(21, 6, 'u')
     put(29, 4, '1')
+    put(48, 9, '%')
+    put(49, 7, ';')
     put(51, 6, '+')
     for (let x = 8; x < 61; x += 6) put(x, 11, 'o')
   } else if (template === 'orbital-salvage') {
     put(3, 20, '.')
     put(59, 20, '.')
-    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, '.')
+    for (let y = 22; y < 24; y++)
+      for (let x = 0; x < 64; x++) put(x, y, '.')
     put(3, 16, '@')
     put(59, 4, 'G')
-    for (let x = 13; x <= 15; x++) for (let y = 7; y <= 13; y++) put(x, y, 'B')
-    for (let x = 29; x <= 33; x++) for (let y = 13; y <= 19; y++) put(x, y, 'B')
-    for (let x = 45; x <= 48; x++) for (let y = 3; y <= 10; y++) put(x, y, 'B')
-    put(9, 10, ';')
-    put(25, 8, '%')
-    put(40, 18, ';')
-    put(54, 13, '%')
+    for (let x = 13; x <= 15; x++)
+      for (let y = 7; y <= 13; y++) put(x, y, 'B')
+    for (let x = 29; x <= 33; x++)
+      for (let y = 13; y <= 19; y++) put(x, y, 'B')
+    for (let x = 45; x <= 48; x++)
+      for (let y = 3; y <= 10; y++) put(x, y, 'B')
+    put(9, 10, '%')
+    put(25, 8, ';')
+    put(40, 18, '%')
+    put(54, 13, ';')
     put(21, 16, '?')
     put(37, 6, '?')
     put(42, 15, 'u')

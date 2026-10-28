@@ -118,6 +118,8 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
+      { key: '&', icon: '☄', label: 'Orbiting asteroid · circle of danger' },
+      { key: '$', icon: '☼', label: 'Solar gust · warning then outward blast' },
       {
         key: '%',
         icon: '◉',
@@ -477,6 +479,8 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(12, 12, '%')
     put(16, 9, '?')
     put(37, 15, '?')
+    put(21, 19, '&')
+    put(53, 15, '$')
     put(31, 13, '%')
     put(33, 7, 'K')
     put(50, 11, 'I')
@@ -501,6 +505,8 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(54, 13, ';')
     put(21, 16, '?')
     put(37, 6, '?')
+    put(24, 14, '&')
+    put(51, 16, '$')
     put(42, 15, 'u')
     put(18, 3, 'K')
     put(52, 5, '*')

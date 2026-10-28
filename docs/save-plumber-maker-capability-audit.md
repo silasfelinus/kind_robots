@@ -31,6 +31,12 @@ The feature is an early Maker, not an equivalent to the two commercial editors. 
 - Space movement is bounded to the stage rectangle, so drifting into the top, bottom or sides stops the heroine rather than sending her indefinitely off-screen. Both templates use ordinary validated Maker v1 share links; existing campaign and player progress remain intact.
 - This complements, rather than replaces, the compressed-air pressure and canister mechanics already shipped in the previous space release.
 
+## Orbital gauntlet hazards
+
+- The Cosmos Maker catalog now includes **`&` orbiting asteroid fragments** and **`$` solar gust emitters**. The debris circles its static tile anchor on a deterministic two-tile-radius orbit with a visible guide ring; the actual moving fragment damages the heroine on contact. Solar emitters show a growing warning ring before a time-based outward pressure pulse, which can disrupt or assist movement without consuming the heroine's own propellant.
+- Both hazards operate **only in space mode**, serialize through the same validated v1 share code, appear in the Maker palette and in Airlock Drift and Orbital Salvage, and are drawn and collided against using the same clock/positions. Existing campaign worlds and non-space level movement remain unchanged.
+- Focused tests verify parser/editor parity, share roundtrip, orbit motion, contact damage/invulnerability, phase timing, outward force, no involuntary air consumption, and absence of hazards outside space mode. These are engine-rendered procedural shapes, not original painted space art. A custom art pass and additional Maker systems remain roadmap work.
+
 ## Water and winter truth-in-features
 
 - **Tideglass Marina (World 2)** has a water-themed campaign with rafts, canal locks, minnows and crabs. The existing `w` glyph is lethal water, **not a swimming mechanic**; the new harbor starter is an above-water platforming challenge, not an underwater course.

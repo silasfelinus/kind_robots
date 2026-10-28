@@ -5,8 +5,8 @@
         <span class="maker-kicker">KIND ROBOTS · COURSE WORKSHOP</span>
         <strong>{{ maker.level.title }}</strong>
         <small
-          >{{ maker.level.rows[0]?.length }} × 24 · WORLD
-          {{ maker.level.theme }} ·
+          >{{ maker.level.rows[0]?.length }} × {{ maker.level.rows.length }} ·
+          WORLD {{ maker.level.theme }} ·
           {{ maker.hasChanges ? 'UNSAVED' : 'SAVED' }}</small
         >
       </div>
@@ -39,12 +39,13 @@
       <ArcadePlumberMakerSidebar
         @load-draft="loadDraft"
         @play-draft="playDraft"
+        @resize-course="resizeCourseTo"
       />
 
       <div class="maker-stage">
         <div class="maker-stage-top">
           <span>{{
-            mode === 'edit' ? 'BUILD / GRID 16px' : 'PLAY / REAL GAME ENGINE'
+            mode === 'edit' ? 'BUILD / GRID 24px' : 'PLAY / REAL GAME ENGINE'
           }}</span>
           <div class="maker-stage-controls">
             <template v-if="mode === 'edit'">
@@ -63,6 +64,43 @@
                 @click="redoEdit"
               >
                 ↷ REDO
+              </button>
+              <span class="maker-size-label">SIZE</span>
+              <button
+                type="button"
+                aria-label="Remove eight columns from the right"
+                title="Shorter course · 8 columns"
+                :disabled="maker.level.rows[0]!.length <= 32"
+                @click="resizeCourse(-8, 0)"
+              >
+                ↔−
+              </button>
+              <button
+                type="button"
+                aria-label="Add eight columns to the right"
+                title="Longer course · 8 columns"
+                :disabled="maker.level.rows[0]!.length >= 96"
+                @click="resizeCourse(8, 0)"
+              >
+                ↔+
+              </button>
+              <button
+                type="button"
+                aria-label="Remove four empty rows from the sky"
+                title="Lower sky · 4 rows"
+                :disabled="maker.level.rows.length <= 16"
+                @click="resizeCourse(0, -4)"
+              >
+                ↕−
+              </button>
+              <button
+                type="button"
+                aria-label="Add four empty rows above the course"
+                title="Higher sky · 4 rows"
+                :disabled="maker.level.rows.length >= 48"
+                @click="resizeCourse(0, 4)"
+              >
+                ↕+
               </button>
               <button type="button" @click="zoom = Math.max(0.65, zoom - 0.15)">
                 −
@@ -92,14 +130,14 @@
           <canvas
             ref="editorCanvas"
             class="maker-grid"
-            width="1536"
-            height="576"
+            :width="maker.level.rows[0]!.length * 24"
+            :height="maker.level.rows.length * 24"
             tabindex="0"
             role="grid"
             aria-label="Course editor tile grid. Arrow keys move the cursor; Space paints. Drag to paint on touch or mouse."
             :style="{
               width: maker.level.rows[0]!.length * 24 * zoom + 'px',
-              height: 576 * zoom + 'px',
+              height: maker.level.rows.length * 24 * zoom + 'px',
             }"
             @pointerdown="beginPaint"
             @pointermove="dragPaint"
@@ -452,6 +490,21 @@ function onGridKey(event: KeyboardEvent) {
     maker.beginStroke()
     placeAt(cursor.value.x, cursor.value.y)
   }
+}
+function resizeCourseTo({ cols, rows }: { cols: number; rows: number }) {
+  const previousRows = maker.level.rows.length
+  if (!maker.resize(cols, rows)) return
+  cursor.value = {
+    x: Math.min(cols - 1, cursor.value.x),
+    y: Math.max(0, Math.min(rows - 1, cursor.value.y + rows - previousRows)),
+  }
+  nextTick(drawEditor)
+}
+function resizeCourse(dx: number, dy: number) {
+  resizeCourseTo({
+    cols: Math.max(32, Math.min(96, maker.level.rows[0]!.length + dx)),
+    rows: Math.max(16, Math.min(48, maker.level.rows.length + dy)),
+  })
 }
 function startNewLevel() {
   stopGame()
@@ -882,6 +935,16 @@ select:focus-visible {
 }
 .maker-stage-controls {
   align-items: center;
+  overflow-x: auto;
+  min-width: 0;
+  scrollbar-width: thin;
+}
+.maker-stage-top > span {
+  flex-shrink: 0;
+}
+.maker-size-label {
+  color: #f9d56e;
+  font-size: 0.61rem;
 }
 .maker-stage-controls button {
   font-size: 0.64rem;

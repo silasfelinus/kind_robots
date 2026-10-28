@@ -138,6 +138,38 @@
           </option>
         </select>
       </label>
+      <div
+        class="maker-size-settings"
+        role="group"
+        aria-label="Course dimensions"
+      >
+        <label>
+          WIDTH · 32–96 TILES
+          <input
+            type="number"
+            min="32"
+            max="96"
+            step="1"
+            :value="maker.level.rows[0]!.length"
+            @change="changeWidth"
+          />
+        </label>
+        <label>
+          HEIGHT · 16–48 TILES
+          <input
+            type="number"
+            min="16"
+            max="48"
+            step="1"
+            :value="maker.level.rows.length"
+            @change="changeHeight"
+          />
+        </label>
+      </div>
+      <p class="maker-help">
+        Expand right or add sky above with the stage controls. Trimming will
+        never silently erase placed tiles.
+      </p>
       <label class="maker-check">
         <input
           type="checkbox"
@@ -163,6 +195,7 @@ import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 const maker = useSavePlumberMakerStore()
 const emit = defineEmits<{
   (event: 'load-draft' | 'play-draft', id: string): void
+  (event: 'resize-course', dimensions: { cols: number; rows: number }): void
 }>()
 const panels = [
   { id: 'tools' as const, icon: '▦', label: 'TOOLS' },
@@ -183,6 +216,22 @@ function playDraft(id: string) {
 }
 function removeDraft(id: string) {
   if (window.confirm('Delete this local draft?')) maker.deleteDraft(id)
+}
+function changeWidth(event: Event) {
+  const input = event.target as HTMLInputElement
+  emit('resize-course', {
+    cols: Number(input.value),
+    rows: maker.level.rows.length,
+  })
+  input.value = String(maker.level.rows[0]!.length)
+}
+function changeHeight(event: Event) {
+  const input = event.target as HTMLInputElement
+  emit('resize-course', {
+    cols: maker.level.rows[0]!.length,
+    rows: Number(input.value),
+  })
+  input.value = String(maker.level.rows.length)
 }
 function changeTitle(e: Event) {
   maker.updateSettings({ title: (e.target as HTMLInputElement).value })
@@ -406,6 +455,12 @@ select:focus-visible {
   display: grid;
   align-content: start;
   gap: 0.7rem;
+}
+.maker-size-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.6rem 0;
 }
 .maker-settings label {
   display: grid;

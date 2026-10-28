@@ -205,6 +205,8 @@ type FoeKind =
 
 type Foe = Body & {
   kind: FoeKind
+  giant?: boolean
+  giantHits?: number
   dir: number
   state: 'idle' | 'walk' | 'stunned' | 'kicked' | 'flat' | 'swoop' | 'gone'
   timer: number
@@ -931,6 +933,8 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'tea-kettle-knight':
           this.foes.push({
             kind: spawn.kind,
+            giant: spawn.giant === true,
+            giantHits: 0,
             x: cx,
             y: bottom,
             vx: 0,
@@ -1965,7 +1969,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private defeat(foe: Foe, flipped: boolean, points: number) {
     foe.fade = 30
     foe.flipped = flipped
-    this.score += points
+    this.score += points + (foe.giant ? 200 : 0)
     if (foe.carry) {
       this.tokens += foe.carry
       foe.carry = 0
@@ -2008,8 +2012,10 @@ export class PlumberRun implements ArcadeGameInstance {
     fall = 9,
   ): boolean {
     foe.vx = foe.dir * speed
-    const body: Body = { x: foe.x, y: foe.y - 16, vx: foe.vx, vy: foe.vy }
-    if (speed && this.moveX(body, 9, 16, foe.vx)) foe.dir *= -1
+    const halfWidth = foe.giant ? 14 : 9
+    const height = foe.giant ? 32 : 16
+    const body: Body = { x: foe.x, y: foe.y - height, vx: foe.vx, vy: foe.vy }
+    if (speed && this.moveX(body, halfWidth, height, foe.vx)) foe.dir *= -1
     else if (speed && turnAtEdge && foe.vy === 0) {
       const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
       const belowRow = Math.floor((foe.y + 2) / TILE)
@@ -2017,10 +2023,10 @@ export class PlumberRun implements ArcadeGameInstance {
       if (!isWall(s) && s !== SOLID_LEDGE && s !== SOLID_BRIDGE) foe.dir *= -1
     }
     body.vy = Math.min(fall, foe.vy + GRAVITY)
-    const landed = this.moveY(body, 9, 16, body.vy) === 'land'
+    const landed = this.moveY(body, halfWidth, height, body.vy) === 'land'
     if (landed) body.vy = 0
     foe.x = body.x
-    foe.y = body.y + 16
+    foe.y = body.y + height
     foe.vy = body.vy
     return landed
   }
@@ -2245,11 +2251,11 @@ export class PlumberRun implements ArcadeGameInstance {
       if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
       if (foe.kind === 'puddle-mimic' && foe.state === 'idle') continue
       const overlap =
-        Math.abs(foe.x - hero.x) < HALF + 9 &&
-        hero.y + TALL > foe.y - 18 &&
+        Math.abs(foe.x - hero.x) < HALF + (foe.giant ? 16 : 9) &&
+        hero.y + TALL > foe.y - (foe.giant ? 36 : 18) &&
         this.heroTop < foe.y
       if (!overlap || this.mode !== 'play') continue
-      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - 10
+      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - (foe.giant ? 26 : 10)
       if (this.shielded && !stomp) {
         if (this.specialKind === 'charge') this.strikeFoe(foe)
         continue
@@ -2261,6 +2267,12 @@ export class PlumberRun implements ArcadeGameInstance {
       if (stomp) {
         hero.vy = this.jumpHeld ? -7.6 : -5.4
         this.ground = false
+        if (foe.giant && !foe.giantHits) {
+          foe.giantHits = 1
+          this.score += 50
+          this.sound.play('pop')
+          continue
+        }
         if (foe.kind === 'rivet-roller') {
           if (foe.state === 'stunned') this.kick(foe, hero.x < foe.x ? 1 : -1)
           else {
@@ -4656,7 +4668,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const anim = ENEMY_ANIMATIONS[FOE_ANIMATION[foe.kind]]!
       const alpha = foe.fade ? Math.min(1, foe.fade / 12) : 1
       const frame = this.foeFrame(foe)
-      const tall = sizes[foe.kind]
+      const tall = sizes[foe.kind] * (foe.giant ? 2 : 1)
       const flipX = foe.dir < 0
       if (
         drawSheetFrame(
@@ -4676,7 +4688,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.globalAlpha = alpha
       g.fillStyle = foe.kind === 'pumpbug' ? '#d65a7d' : '#7d8a96'
       g.beginPath()
-      g.arc(foe.x, foe.y - 9, 9, 0, Math.PI * 2)
+      g.arc(
+        foe.x,
+        foe.y - (foe.giant ? 18 : 9),
+        foe.giant ? 18 : 9,
+        0,
+        Math.PI * 2,
+      )
       g.fill()
       g.globalAlpha = 1
     }

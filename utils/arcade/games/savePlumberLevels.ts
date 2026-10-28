@@ -1089,7 +1089,12 @@ export type SpawnKind =
   | 'gear'
   | 'glider'
 
-export type Spawn = { kind: SpawnKind; col: number; row: number }
+export type Spawn = {
+  kind: SpawnKind
+  col: number
+  row: number
+  giant?: boolean
+}
 
 export type Door = { col: number; row: number; to: number }
 
@@ -1144,6 +1149,24 @@ const SPAWNS: Record<string, SpawnKind> = {
   '!': 'glider',
 }
 
+/** Giant versions of the original foe roster. Each glyph plays with the base AI. */
+export const GIANT_FOES = {
+  a: 'pumpbug',
+  A: 'rivet-roller',
+  C: 'minnow',
+  H: 'cork-crab',
+  I: 'glass-gull',
+  J: 'moss-lantern',
+  N: 'spring-hare',
+  O: 'gasket-golem',
+  R: 'paper-kite',
+  S: 'umbrella-mite',
+  U: 'puddle-mimic',
+  V: 'siphon-sprite',
+  W: 'chimney-spirit',
+  Y: 'tea-kettle-knight',
+} as const satisfies Record<string, SpawnKind>
+
 const SOLIDS: Record<string, number> = {
   '#': SOLID_GROUND,
   B: SOLID_BLOCK,
@@ -1164,6 +1187,7 @@ export const STAGE_GLYPHS = Object.freeze([
   '@',
   'X',
   ...Object.keys(SPAWNS),
+  ...Object.keys(GIANT_FOES),
   ...Object.keys(SOLIDS),
 ])
 
@@ -1191,11 +1215,18 @@ export function parseStage(def: StageDef): Stage {
     for (let col = 0; col < cols; col++) {
       const ch = line[col]!
       if (SOLIDS[ch]) solid[row * cols + col] = SOLIDS[ch]!
+      else if (GIANT_FOES[ch as keyof typeof GIANT_FOES])
+        spawns.push({
+          kind: GIANT_FOES[ch as keyof typeof GIANT_FOES],
+          col,
+          row,
+          giant: true,
+        })
       else if (SPAWNS[ch]) spawns.push({ kind: SPAWNS[ch]!, col, row })
       else if (ch === '@') start = { col, row }
       else if (ch === 'X') gate = col
       else if (ch !== '.') throw new Error(`stage ${def.code}: unknown "${ch}"`)
-      if (ch === 'm') solid[row * cols + col] = SOLID_WATER
+      if (ch === 'm' || ch === 'C') solid[row * cols + col] = SOLID_WATER
     }
   })
   if (!start) throw new Error(`stage ${def.code}: no start`)

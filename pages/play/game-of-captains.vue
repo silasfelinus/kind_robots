@@ -223,7 +223,7 @@
         type="button"
         class="cap-reset"
         data-testid="space-couch-return-menu"
-        @click="atTitle = true; titlePanel = 'home'"
+        @click="openCaptainMenu"
       >
         MENU
       </button>
@@ -231,7 +231,7 @@
         v-if="run"
         type="button"
         class="cap-reset"
-        @click="atTitle = true; titlePanel = 'home'; confirmNewVoyage = true"
+        @click="openNewVoyageConfirmation"
       >
         NEW VOYAGE
       </button>
@@ -1663,6 +1663,15 @@ function beginWithStarSign() {
     selectedOrigin.value,
   )
 }
+function openCaptainMenu() {
+  atTitle.value = true
+  titlePanel.value = 'home'
+}
+function openNewVoyageConfirmation() {
+  openCaptainMenu()
+  confirmNewVoyage.value = true
+}
+
 function restartVoyage() {
   store.restart()
   starAssessment.value = null

@@ -2323,6 +2323,7 @@ function toggleAway(id: CrewId) {
   margin: 0;
 }
 .cap-personnel-frame .cap-crew-button {
+  position: relative;
   display: flex;
   min-width: 0;
   min-height: 0;

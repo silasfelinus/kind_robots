@@ -188,7 +188,10 @@
         :aria-label="`Travel to ${exit}, ${HOUSE_ROOMS[exit]?.title ?? 'unknown chamber'}`"
         @click="world.houseMove(exit)"
       >
-        {{ exit }} <span class="hidden sm:inline">· {{ HOUSE_ROOMS[exit]?.title }}</span>
+        <span class="sm:hidden">{{ exit }}</span>
+        <span class="hidden sm:inline"
+          >{{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}</span
+        >
       </button>
       <span v-if="!available.length"
         >Complete the current challenge to open the next door.</span

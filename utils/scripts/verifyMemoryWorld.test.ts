@@ -90,6 +90,7 @@ import {
   recoverBriarRoomFirstFlip,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
+import { briarLossContinuation } from '../memoryDungeon/lossContinuations'
 import {
   BRIAR_SCENES,
   briarSceneOpening,
@@ -2579,6 +2580,60 @@ assert.equal(
   ).length,
   2,
   'Both restoration entry points must use the same idempotent combat recovery',
+)
+
+// A defeat remembers actual, mutually exclusive earlier decisions, while
+// neither a live timer nor an interrupted-save recovery invents a new flag.
+const lossContexts = [
+  { choices: { '4,3': 'plan' }, expected: /Oren's inked detour/ },
+  { choices: { '4,3': 'load' }, expected: /parcels you sorted/ },
+  { choices: { '2,4': 'lend' }, expected: /night courier still has your lantern/ },
+  { choices: { '2,4': 'copy' }, expected: /copied impossible address/ },
+  { choices: { '4,3': 'forged' }, expected: /map and discoveries survive/ },
+] as const
+for (const { choices, expected } of lossContexts) {
+  const text = briarLossContinuation({ sceneChoices: choices }, 'combat', true, 'Thorn Guard')
+  assert.match(text, expected)
+  assert.match(text, /retreat to Briar Camp/)
+  assert.equal(text.includes("House's quiet bedchamber"), false)
+}
+const earnedHouseLoss = {
+  ...defeatedBriar,
+  hearts: 1,
+  sceneChoices: { '4,3': 'plan' },
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-09' as const,
+    visited: ['HD-01', 'HD-09'] as ('HD-01' | 'HD-09')[],
+    combatOrigin: 'HD-09' as const,
+  },
+}
+const restoredEarnedHouseLoss = restoreBriarSave(earnedHouseLoss)
+const narratedHouseLoss = briarLossContinuation(
+  restoredEarnedHouseLoss,
+  'combat',
+  true,
+  combatForDefeat.state.enemy.name,
+)
+assert.match(narratedHouseLoss, /Oren's inked detour/)
+assert.match(narratedHouseLoss, /House's quiet bedchamber/)
+assert.doesNotMatch(narratedHouseLoss, /Briar Camp/)
+const resumedEarnedHouseLoss = recoverBriarCombatDefeat(restoredEarnedHouseLoss)
+assert.equal(resumedEarnedHouseLoss.status, narratedHouseLoss)
+assert.equal(resumedEarnedHouseLoss.room, 'house')
+assert.equal(resumedEarnedHouseLoss.house?.current, 'HD-18')
+assert.equal(resumedEarnedHouseLoss.hearts, 3)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(resumedEarnedHouseLoss)),
+  resumedEarnedHouseLoss,
+)
+assert.ok(
+  worldStoreSource.includes("briarLossContinuation(state.value, 'chamber', true)"),
+  'The live chamber timer uses the same authored continuation as reload',
+)
+assert.ok(
+  worldStoreSource.includes("briarLossContinuation(state.value, 'combat', false, next.enemy.name)"),
+  'The live combat timer uses the same authored continuation as reload',
 )
 
 const chamberCards = [

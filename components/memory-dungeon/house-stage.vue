@@ -174,17 +174,26 @@
       </div>
     </div>
     <footer
-      class="mt-2 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+      class="mt-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+      role="group"
+      aria-label="Open House passages"
+      data-testid="memory-house-passages"
     >
-      <span class="font-bold text-[#e6d49d]">Open passages</span>
+      <span class="shrink-0 whitespace-nowrap font-bold text-[#e6d49d]"
+        >Open passages</span
+      >
       <button
         v-for="exit in available"
         :key="exit"
         type="button"
-        class="rounded-md border border-[#ac966f] bg-[#3c4f46] px-2 py-1 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        class="shrink-0 whitespace-nowrap rounded-md border border-[#ac966f] bg-[#3c4f46] px-2 py-1 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        :aria-label="`Travel to ${exit}, ${HOUSE_ROOMS[exit]?.title ?? 'unknown chamber'}`"
         @click="world.houseMove(exit)"
       >
-        {{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}
+        <span class="sm:hidden">{{ exit }}</span>
+        <span class="hidden sm:inline"
+          >{{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}</span
+        >
       </button>
       <span v-if="!available.length"
         >Complete the current challenge to open the next door.</span

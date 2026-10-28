@@ -1861,6 +1861,28 @@ assert.match(houseScreen, /world\.houseMove\(item\.id\)/)
 assert.match(houseScreen, /world\.chooseHouse\(choice\.id\)/)
 assert.match(houseScreen, /memory-house-choice-column/)
 assert.match(
+  consoleStage,
+  /class="flex shrink-0 flex-wrap items-center gap-2 border-b/,
+  'World One console header wraps its controls instead of clipping mobile navigation',
+)
+assert.match(
+  consoleStage,
+  /class="min-w-0 w-full md:w-auto md:flex-1"/,
+  'Mobile title keeps a full row without shrinking the playable map to a column',
+)
+assert.match(houseScreen, /data-testid="memory-house-passages"/)
+assert.match(
+  houseScreen,
+  /overflow-x-auto overscroll-x-contain/,
+  'House passage controls own horizontal scrolling rather than growing the footer vertically',
+)
+assert.match(
+  houseScreen,
+  /:aria-label="`Travel to \$\{exit\},/,
+  'Abbreviated phone passage buttons retain their full accessible destination names',
+)
+assert.match(houseScreen, /<span class="sm:hidden">\{\{ exit \}\}<\/span>/)
+assert.match(
   houseScreen,
   /artPath/,
   'Delivered ArtJob images are wired into the room stage',

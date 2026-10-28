@@ -12,6 +12,7 @@
       data-testid="memory-quest-log"
       class="flex h-[min(90dvh,46rem)] w-[min(96vw,64rem)] min-h-0 flex-col overflow-hidden rounded-xl border-2 border-[#8fa47a] bg-[#1d2622] text-[#f3ecd2] shadow-[0_0_65px_#090b10] outline-none"
       @keydown.esc.prevent="emit('close')"
+      @keydown="trapMemoryDialogTab($event, dialog)"
     >
       <header
         class="flex shrink-0 items-center justify-between gap-3 border-b border-[#7d8f69] bg-[#2b3328] px-3 py-2 sm:px-5"
@@ -155,6 +156,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
+import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 
 const STATE_LABELS = {

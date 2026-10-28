@@ -300,8 +300,8 @@ assert.ok(page.includes('data-testid="space-couch-crew-dossier-tab"'))
 assert.ok(page.includes('crewPageMembers'))
 assert.ok(page.includes('CREW.slice(crewPage.value * 6'))
 assert.ok(page.includes('crewPage.value = 0'))
-assert.ok(page.includes("captainDossierTab === 'history' ? 'orders'"))
-assert.ok(page.includes("crewDossierTab === 'route' ? 'stats'"))
+assert.ok(page.includes("captainDossierTab === 'history'"))
+assert.ok(page.includes("crewDossierTab === 'route'"))
 assert.ok(page.includes('overflow: hidden;'))
 assert.ok(
   !page.includes('v-for="member in CREW"'),

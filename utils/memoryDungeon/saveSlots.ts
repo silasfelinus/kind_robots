@@ -22,6 +22,30 @@ export interface MemoryCheckpoint {
 
 export type MemorySaveSlots = (MemoryCheckpoint | null)[]
 
+export interface MemoryCheckpointPreview {
+  location: string
+  progress: string
+}
+
+/** Describe the saved reality, not the currently active expedition. */
+export function memoryCheckpointPreview(
+  checkpoint: MemoryCheckpoint,
+): MemoryCheckpointPreview {
+  const mirrored = checkpoint.reality.active === 'e02'
+  const map = mirrored ? checkpoint.dark : checkpoint.briar
+  const location = mirrored
+    ? checkpoint.house.active
+      ? `Unremembered House · ${checkpoint.house.current}`
+      : `Other Marches · ${checkpoint.dark.player}`
+    : checkpoint.briar.room === 'house' && checkpoint.briar.house
+      ? `House That Remembers · ${checkpoint.briar.house.current}`
+      : checkpoint.briar.room === 'memory'
+        ? `Briar Marches · Memory duel near ${checkpoint.briar.player}`
+        : `Briar Marches · ${checkpoint.briar.player}`
+  const progress = `${map.revealed.length}/60 revealed · round ${map.waveIndex + 1}/4 · ${map.attempts} attempts${mirrored ? '' : ` · ${checkpoint.briar.hearts} hearts`}`
+  return { location, progress }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }

@@ -934,6 +934,7 @@ import MemoryDungeonMinefieldStage from '~/components/memory-dungeon/minefield-s
 import MemoryDungeonEarthChronicle from '~/components/memory-dungeon/earth-chronicle.vue'
 import MemoryDungeonQuestLog from '~/components/memory-dungeon/quest-log.vue'
 import MemoryDungeonDarkBriarStage from '~/components/memory-dungeon/dark-briar-stage.vue'
+import MemoryDungeonActionBeacon from '~/components/memory-dungeon/action-beacon.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()

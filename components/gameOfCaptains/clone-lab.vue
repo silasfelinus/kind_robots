@@ -128,11 +128,19 @@
                     </small>
                     <small>{{ entry.reason }}</small>
                     <small class="clone-signature">
-                      SPECIALTY · {{ signature(entry.generation)?.name ?? 'RESEARCH PENDING' }}
-                      · {{ signature(entry.generation)?.skill.toUpperCase() ?? 'UNKNOWN' }}
+                      SPECIALTY ·
+                      {{
+                        signature(entry.generation)?.name ?? 'RESEARCH PENDING'
+                      }}
+                      ·
+                      {{
+                        signature(entry.generation)?.skill.toUpperCase() ??
+                        'UNKNOWN'
+                      }}
                     </small>
                     <small v-if="lastLife(entry.id)?.lastEncounter">
-                      LAST FIELD MEMORY · {{ lastLife(entry.id)?.lastEncounter }}
+                      LAST FIELD MEMORY ·
+                      {{ lastLife(entry.id)?.lastEncounter }}
                     </small>
                   </div>
                   <button

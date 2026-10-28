@@ -628,6 +628,8 @@
               @hire="store.hire()"
               @dispatch="store.deployBatch"
               @draw="store.drawDailyDeck"
+              @clone-advance="store.cloneAdvance"
+              @clone-print="store.clonePrint"
               @finish="store.endExpedition()"
             />
           </template>

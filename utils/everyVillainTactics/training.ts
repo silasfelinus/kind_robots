@@ -160,7 +160,7 @@ export function fireSelected(state: TrainingState, target: Unit): boolean {
   const odds = previewShot(attacker, target)
   if (!odds.clear) return false
   attacker.fired = true
-  const hit = roll(state) < odds.hit
+  const hit = roll(state) < odds.hit / 100
   if (hit) target.hp = Math.max(0, target.hp - 2)
   state.log = aliasFor(attacker) + (hit ? ' lands a hit on ' : ' misses ') +
     aliasFor(target) + ' (' + odds.hit + '%).'
@@ -180,7 +180,7 @@ export function endTurn(state: TrainingState) {
       .find((u) => previewShot(rival, u).hit > 0)
     if (!target) continue
     const odds = previewShot(rival, target)
-    const landed = roll(state) < odds.hit
+    const landed = roll(state) < odds.hit / 100
     if (landed) target.hp = Math.max(0, target.hp - 1)
     state.events.unshift(aliasFor(rival) + (landed ? ' hits ' : ' misses ') + aliasFor(target) + '.')
   }

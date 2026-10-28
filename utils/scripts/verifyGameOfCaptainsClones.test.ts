@@ -169,7 +169,29 @@ assert.equal(cloneProgram(run).records.at(-1)!.lost, true)
 assert.equal(cloneProgram(run).records.at(-1)!.deployments, 1)
 assert.equal(run.redshirtFallen?.length, 2)
 run = { ...run, chapter: 5, expeditionVisit: null }
+// Death alone never satisfies the living-Gen-III testimony gate.
+assert.equal(cloneQuestStatus(run).ready, false)
+const replacement = cloneCandidates(run).find((x) => x.id === id)!
+assert.equal(replacement.generation, 3, 'repeat the unearned tier, do not skip it')
+assert.equal(replacement.available, true)
+run = printClone(run, id)
+assert.equal(cloneGeneration(run, id), 3)
+assert.equal(cloneProgram(run).records.at(-1)!.iteration, 2)
+assert.equal(run.redshirtFallen?.length, 2, 'both previous deaths remain recorded')
+assert.equal(cloneQuestStatus(run).ready, false, 'reprinting is not field evidence')
+run = recordCloneMissions(run, {
+  ...run,
+  expeditionVisit: {
+    chapter: 5,
+    missionId: 'refugees',
+    encounterIds: ['reborn-field-record'],
+    results: [{ ...genTwoResult, encounterId: 'reborn-field-record' }],
+  },
+})
+assert.equal(cloneQuestStatus(run).ready, false, 'mission still in current episode')
+run = { ...run, chapter: 6, expeditionVisit: null }
 assert.equal(cloneQuestStatus(run).ready, true)
+assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
 run = advanceCloneQuest(run, 'ask')
 assert.equal(cloneProgram(run).step, 4)
 run = printClone(run, id)
@@ -178,13 +200,13 @@ assert.equal(cloneCandidates(run).find((x) => x.id === id)?.available, false)
 run = recordCloneMissions(run, {
   ...run,
   expeditionVisit: {
-    chapter: 5,
+    chapter: 6,
     missionId: 'refugees',
     encounterIds: ['future-memory'],
     results: [{ ...genTwoResult, encounterId: 'future-memory' }],
   },
 })
-run = { ...run, chapter: 6, expeditionVisit: null }
+run = { ...run, chapter: 7, expeditionVisit: null }
 assert.ok(cloneQuestStatus(run).ready)
 run = advanceCloneQuest(run, 'document')
 assert.equal(cloneProgram(run).step, 5)

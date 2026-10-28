@@ -37,7 +37,10 @@
     <p v-if="store.storageWarning" class="cap-warning" role="alert">
       {{ store.storageWarning }}
     </p>
-    <div class="cap-layout min-h-0 flex-1">
+    <div
+      class="cap-layout min-h-0 flex-1"
+      :class="{ 'cap-layout--episode': run?.phase === 'expedition' }"
+    >
       <section
         class="cap-stage"
         aria-label="Long red couch spacecraft protected by an invisible force bubble"
@@ -93,7 +96,10 @@
               :class="{ active: !!run && n <= run.chapter }" /></span
           ><span>⌁ LIVE</span>
         </div>
-        <div class="cap-scroll kr-scroll">
+        <div
+          class="cap-scroll kr-scroll"
+          :class="{ 'cap-episode-scroll': run?.phase === 'expedition' }"
+        >
           <div v-if="!store.loaded" class="cap-placeholder">
             Establishing a secure link to ship registry…
           </div>
@@ -615,317 +621,15 @@
           </template>
 
           <template v-else-if="run.phase === 'expedition'">
-            <div class="cap-heading">
-              <span>✦</span>
-              <div>
-                <h2>{{ localSystem.name }}: a galaxy of dreadful decisions</h2>
-                <p>
-                  EXPEDITION / SHIP DAY {{ run.day }} · CAPTAIN + THREE OFFICERS
-                  + REDSHIRTS
-                </p>
-              </div>
-            </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
-            <section
-              class="cap-casino-scene"
-              data-testid="space-couch-blue-giant-casino"
-            >
-              <div class="cap-expedition-head">
-                <strong
-                  >{{ localSystem.casinoName }} · {{ localSystem.name }}</strong
-                >
-                <small
-                  >ONE CASINO · ONE SERENDIPITY FRANCHISE · TWO QUESTS</small
-                >
-              </div>
-              <div class="cap-casino-layout">
-                <div class="cap-casino-art">
-                  <img
-                    v-if="franchiseImage"
-                    :src="franchiseImage"
-                    :alt="
-                      localSystem.franchise.name +
-                      ' bar built on ' +
-                      localSystem.giant +
-                      ' the living blue giant casino host'
-                    "
-                  />
-                  <div
-                    v-else
-                    class="cap-casino-art-pending"
-                    role="img"
-                    :aria-label="
-                      localSystem.franchise.name +
-                      ' venue illustration not yet delivered'
-                    "
-                  >
-                    <strong>{{ localSystem.franchise.name }}</strong>
-                    <span>{{ localSystem.franchise.theme }}</span>
-                    <small>Original illustration pending delivery</small>
-                  </div>
-                </div>
-                <div class="cap-casino-description">
-                  <h3>{{ localSystem.franchise.name }}</h3>
-                  <p>
-                    {{ localSystem.franchise.theme }}. Vox serves beneath a
-                    casino built on the living body of the blue giant
-                    {{ localSystem.giant }}. The former homeworld was colonized,
-                    and the operators call this arrangement fair.
-                  </p>
-                  <p class="cap-narrative">{{ localSystem.conflict }}</p>
-                </div>
-              </div>
-              <div class="cap-venue-quests">
-                <article
-                  class="cap-expedition-card"
-                  data-testid="space-couch-casino-quest"
-                >
-                  <div class="cap-expedition-head">
-                    <strong>GIGANTIC CASINO · {{ casinoEvent.title }}</strong
-                    ><small>Seeded local dilemma</small>
-                  </div>
-                  <p>{{ casinoEvent.description }}</p>
-                  <div v-if="!casinoQuestDone" class="cap-venue-actions">
-                    <button
-                      type="button"
-                      class="cap-option"
-                      data-testid="space-couch-casino-ask"
-                      @click="store.visitVenue('casino', 'ask')"
-                    >
-                      Ask the blue host · -1 supply, +1 trust
-                    </button>
-                    <button
-                      type="button"
-                      class="cap-option"
-                      @click="store.visitVenue('casino', 'document')"
-                    >
-                      Collect evidence · +1 reputation
-                    </button>
-                    <button
-                      type="button"
-                      class="cap-option"
-                      @click="store.visitVenue('casino', 'override')"
-                    >
-                      Intervene now · +1 supply, -1 trust
-                    </button>
-                  </div>
-                  <p v-else class="cap-expedition-outcome">
-                    Casino issue addressed this visit. The host and workers will
-                    remember your approach.
-                  </p>
-                </article>
-                <article
-                  class="cap-expedition-card"
-                  data-testid="space-couch-serendipity-quest"
-                >
-                  <div class="cap-expedition-head">
-                    <strong
-                      >SERENDIPITY FRANCHISE ·
-                      {{ barBeat ? barBeat.title : 'After Hours' }}</strong
-                    >
-                    <small>{{
-                      barBeat
-                        ? 'Story beat ' + (barStage + 1) + ' of 3'
-                        : 'Recurring seeded encounter'
-                    }}</small>
-                  </div>
-                  <p>{{ barBeat ? barBeat.situation : barEncore }}</p>
-                  <div v-if="!barQuestDone" class="cap-venue-actions">
-                    <button
-                      type="button"
-                      class="cap-option"
-                      data-testid="space-couch-bar-ask"
-                      @click="store.visitVenue('bar', 'ask')"
-                    >
-                      Ask and negotiate · -1 supply, +1 trust
-                    </button>
-                    <button
-                      type="button"
-                      class="cap-option"
-                      @click="store.visitVenue('bar', 'document')"
-                    >
-                      Record and expose · +1 reputation
-                    </button>
-                    <button
-                      type="button"
-                      class="cap-option"
-                      @click="store.visitVenue('bar', 'override')"
-                    >
-                      Act without permission · +1 supply, -1 trust
-                    </button>
-                  </div>
-                  <p v-else class="cap-expedition-outcome">
-                    The franchise story is recorded for this visit. New
-                    incidents may surface on your return.
-                  </p>
-                </article>
-              </div>
-            </section>
-            <section
-              class="cap-redshirt-dorm"
-              data-testid="space-couch-redshirt-dorm"
-            >
-              <div class="cap-expedition-head">
-                <strong>{{ REDSHIRT_QUARTERS.name }}</strong>
-                <small
-                  >{{ (run.redshirtRoster ?? []).length }} on duty /
-                  {{ REDSHIRT_QUARTERS.bunks }} bunks ·
-                  {{ (run.redshirtFallen ?? []).length }} memorials</small
-                >
-              </div>
-              <p>
-                One in three redshirt deployments is fatal. Untrained redshirts
-                handling major diplomacy may achieve something worse than death:
-                an international incident.
-              </p>
-              <div class="cap-redshirt-list">
-                <div
-                  v-for="id in run.redshirtRoster ?? []"
-                  :key="id"
-                  class="cap-redshirt-person"
-                >
-                  <b>{{ redshirtFor(id).name }}</b>
-                  <small
-                    >{{ redshirtFor(id).anatomy }} ·
-                    {{ redshirtFor(id).talent }}</small
-                  >
-                  <small>{{ redshirtFor(id).history }}</small>
-                  <small>Secret talent: classified until field use</small>
-                </div>
-              </div>
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="space-couch-hire"
-                :disabled="
-                  (run.redshirtRoster ?? []).length >=
-                    REDSHIRT_QUARTERS.bunks ||
-                  (run.supplies < 1 && (run.redshirtRoster ?? []).length > 0)
-                "
-                @click="store.hire()"
-              >
-                <span
-                  ><b>Hire another redshirt</b>
-                  <small
-                    >1 supply (free emergency hire if none remain). Personnel
-                    keeps a suspiciously large list.</small
-                  ></span
-                >↗
-              </button>
-            </section>
-            <section
-              class="cap-expedition-board"
-              data-testid="space-couch-encounter-board"
-            >
-              <div class="cap-expedition-head">
-                <strong
-                  >EXPEDITION CHART ·
-                  {{
-                    expeditionEncounters.filter((e) => e.priority === 'major')
-                      .length
-                  }}
-                  MAJOR /
-                  {{
-                    expeditionEncounters.filter((e) => e.priority === 'minor')
-                      .length
-                  }}
-                  MINOR</strong
-                >
-                <small
-                  >Each of your four command officers can take one assignment.
-                  You choose where. Redshirts fill the vacancies.</small
-                >
-              </div>
-              <article
-                v-for="enc in expeditionEncounters"
-                :key="enc.id"
-                class="cap-expedition-card"
-                :class="{ completed: encounterComplete(enc.id) }"
-                data-testid="space-couch-encounter"
-              >
-                <div class="cap-expedition-head">
-                  <strong>{{ enc.title }}</strong>
-                  <small
-                    >{{ enc.priority.toUpperCase() }} ·
-                    {{ enc.scope.toUpperCase() }} ·
-                    {{ enc.skill.toUpperCase() }}</small
-                  >
-                </div>
-                <p>{{ enc.setup }}</p>
-                <template v-if="encounterComplete(enc.id)">
-                  <p class="cap-expedition-outcome" aria-live="polite">
-                    {{ expeditionResult(enc.id)?.outcome }}
-                  </p>
-                </template>
-                <template v-else>
-                  <label :for="'space-expedition-' + enc.id">Send whom?</label>
-                  <select
-                    :id="'space-expedition-' + enc.id"
-                    :value="dispatchChoice[enc.id] ?? 'auto'"
-                    data-testid="space-couch-expedition-lead"
-                    @change="chooseDispatch(enc.id, $event)"
-                  >
-                    <option value="auto" :disabled="!remainingRedshirts.length">
-                      Next available redshirt (automatic)
-                    </option>
-                    <option
-                      value="captain"
-                      :disabled="busyLeads.includes('captain')"
-                    >
-                      The captain:
-                      {{ CAPTAINS.find((c) => c.id === run?.captain)?.name }}
-                    </option>
-                    <option
-                      v-for="officer in availableCrew"
-                      :key="officer.id"
-                      :value="officer.id"
-                      :disabled="busyLeads.includes(officer.id)"
-                    >
-                      {{ officer.name }} · {{ officer.talent }}
-                    </option>
-                    <option
-                      v-for="id in run.redshirtRoster ?? []"
-                      :key="id"
-                      :value="id"
-                      :disabled="busyLeads.includes(id)"
-                    >
-                      REDSHIRT: {{ redshirtFor(id).name }} ·
-                      {{ redshirtFor(id).talent }}
-                    </option>
-                  </select>
-                  <button
-                    class="cap-option"
-                    type="button"
-                    data-testid="space-couch-expedition-deploy"
-                    :disabled="!canDispatch(enc.id)"
-                    @click="
-                      store.deploy(enc.id, dispatchChoice[enc.id] ?? 'auto')
-                    "
-                  >
-                    <span
-                      ><b>DISPATCH THIS TEAM</b>
-                      <small
-                        >Assigned personnel cannot be used again at this
-                        destination.</small
-                      ></span
-                    >↗
-                  </button>
-                </template>
-              </article>
-            </section>
-            <button
-              class="cap-primary"
-              type="button"
-              data-testid="space-couch-expedition-finish"
-              :disabled="!majorExpeditionDone"
-              @click="store.endExpedition()"
-            >
-              RETURN TO COUCH / PRIMARY MISSION <span>➜</span>
-            </button>
-            <p v-if="!majorExpeditionDone" class="cap-alert">
-              Major encounters must be addressed before departure. Minor
-              assignments are optional, but may contain the secrets you need.
-            </p>
+            <SpaceCouchDailyConsole
+              :run="run"
+              :backdrop="stagePainting"
+              :franchise-image="franchiseImage"
+              @hire="store.hire()"
+              @dispatch="store.deployBatch"
+              @draw="store.drawDailyDeck"
+              @finish="store.endExpedition()"
+            />
           </template>
 
           <template v-else-if="run.phase === 'transit'">
@@ -1443,23 +1147,16 @@ import {
   NEMESIS_ENDINGS,
   type NemesisEndingVariant,
 } from '~/utils/gameOfCaptains/nemesisEndings'
-import {
-  REDSHIRT_QUARTERS,
-  currentExpedition,
-  expeditionBusy,
-  type ExpeditionResult,
-} from '~/utils/gameOfCaptains/expedition'
-import { REDSHIRT_BY_ID } from '~/utils/gameOfCaptains/redshirts'
+import { REDSHIRT_QUARTERS } from '~/utils/gameOfCaptains/expedition'
 import {
   solarCircuit,
   chapterSystem,
-  casinoIncident,
-  afterHoursIncident,
   CASINO_ORIGIN,
 } from '~/utils/gameOfCaptains/solarCircuit'
 
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
@@ -1514,86 +1211,15 @@ const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
 const localSystem = computed(() =>
   chapterSystem(run.value?.seed ?? 1, run.value?.chapter ?? 1),
 )
-const casinoEvent = computed(() =>
-  casinoIncident(
-    run.value?.seed ?? 1,
-    run.value?.chapter ?? 1,
-    localSystem.value,
-  ),
-)
-const barEncore = computed(() =>
-  afterHoursIncident(
-    run.value?.seed ?? 1,
-    run.value?.chapter ?? 1,
-    localSystem.value,
-  ),
-)
-const barStage = computed(() =>
-  Math.min(3, run.value?.venueProgress?.barBeats[localSystem.value.id] ?? 0),
-)
-const barBeat = computed(
-  () => localSystem.value.franchise.beats[barStage.value] ?? null,
-)
-const casinoQuestDone = computed(() =>
-  (run.value?.venueProgress?.completed ?? []).includes(
-    `${run.value?.chapter}:${localSystem.value.id}:casino`,
-  ),
-)
-const barQuestDone = computed(() =>
-  (run.value?.venueProgress?.completed ?? []).includes(
-    `${run.value?.chapter}:${localSystem.value.id}:bar`,
-  ),
-)
 const franchiseImage = computed(() =>
   warpArt('venues/' + localSystem.value.franchise.id),
 )
 
-const dispatchChoice = ref<Record<string, string>>({})
 const expeditionComplete = computed(() =>
   (run.value?.expeditionHistory ?? []).some(
     (visit) => visit.chapter === run.value?.chapter,
   ),
 )
-const expeditionEncounters = computed(() =>
-  run.value ? currentExpedition(run.value) : [],
-)
-const busyLeads = computed(() => (run.value ? expeditionBusy(run.value) : []))
-const remainingRedshirts = computed(() =>
-  (run.value?.redshirtRoster ?? []).filter(
-    (id) => !busyLeads.value.includes(id),
-  ),
-)
-const majorExpeditionDone = computed(() =>
-  expeditionEncounters.value
-    .filter((e) => e.priority === 'major')
-    .every(
-      (e) =>
-        !!run.value?.expeditionVisit?.results.some(
-          (r) => r.encounterId === e.id,
-        ),
-    ),
-)
-function redshirtFor(id: string) {
-  return REDSHIRT_BY_ID[id]!
-}
-function expeditionResult(id: string): ExpeditionResult | undefined {
-  return run.value?.expeditionVisit?.results.find(
-    (result) => result.encounterId === id,
-  )
-}
-function encounterComplete(id: string): boolean {
-  return !!expeditionResult(id)
-}
-function chooseDispatch(id: string, event: Event) {
-  dispatchChoice.value[id] = (event.target as HTMLSelectElement).value
-}
-function canDispatch(id: string): boolean {
-  if (encounterComplete(id)) return false
-  const selection = dispatchChoice.value[id] ?? 'auto'
-  return selection === 'auto'
-    ? remainingRedshirts.value.length > 0
-    : !busyLeads.value.includes(selection)
-}
 
 const routeEcho = computed(() => (run.value ? worldEcho(run.value) : ''))
 const antagonist = computed(() =>
@@ -1786,6 +1412,24 @@ function toggleAway(id: CrewId) {
   background: #802d2d;
   padding: 0.3rem 1rem;
   font-size: 0.75rem;
+}
+.cap-layout.cap-layout--episode {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.cap-layout--episode > .cap-stage {
+  display: none;
+}
+.cap-layout--episode .cap-bridge {
+  min-width: 0;
+  min-height: 0;
+  border-left: 0;
+}
+.cap-episode-scroll {
+  height: 100%;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 .cap-layout {
   display: grid;
@@ -2694,6 +2338,10 @@ function toggleAway(id: CrewId) {
   .cap-layout {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 41%) minmax(0, 59%);
+  }
+  .cap-layout.cap-layout--episode {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
   .cap-bridge {
     border-left: 0;

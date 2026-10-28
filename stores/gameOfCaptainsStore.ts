@@ -22,6 +22,15 @@ import {
   hireRedshirt,
 } from '~/utils/gameOfCaptains/expedition'
 import { playbookRunKey } from '~/utils/playbook/runReview'
+import {
+  dispatchEpisodeBatch,
+  drawEpisodeDeck,
+  episodeDecksDone,
+  episodeEndingCoda,
+  type EpisodeAssignment,
+  type EpisodeDeck,
+  type EpisodeChoice,
+} from '~/utils/gameOfCaptains/episodeConsole'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
@@ -113,8 +122,18 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = deployExpedition(run.value, encounterId, lead)
     persist()
   }
-  function endExpedition() {
+  function deployBatch(assignments: EpisodeAssignment[]) {
     if (!run.value) return
+    run.value = dispatchEpisodeBatch(run.value, assignments)
+    persist()
+  }
+  function drawDailyDeck(deck: EpisodeDeck, choice: EpisodeChoice) {
+    if (!run.value) return
+    run.value = drawEpisodeDeck(run.value, deck, choice)
+    persist()
+  }
+  function endExpedition() {
+    if (!run.value || !episodeDecksDone(run.value)) return
     run.value = leaveExpedition(run.value)
     persist()
   }
@@ -185,8 +204,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = trioEpilogue(
-      relationshipEpilogue(finishVoyage(run.value, strategy)),
+    run.value = episodeEndingCoda(
+      trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
     )
     persist()
   }
@@ -207,6 +226,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     travel,
     arrive,
     deploy,
+    deployBatch,
+    drawDailyDeck,
     endExpedition,
     hire,
     visitVenue,

@@ -19,134 +19,161 @@
       <div
         v-if="opened"
         id="space-clone-lab-dialog"
-      class="clone-shade"
-      role="presentation"
-      @click.self="opened = false"
-    >
-      <section
-        class="clone-console"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="clone-title"
+        class="clone-shade"
+        role="presentation"
+        @click.self="opened = false"
       >
-        <header class="clone-head">
-          <div>
-            <span class="clone-kicker">SPACE COUCH // PERSONNEL RECORDS // RED THREAD</span>
-            <h2 id="clone-title">A Second Chance at Being First</h2>
-            <p>Last week they were dead. This week they have opinions about the paperwork.</p>
+        <section
+          class="clone-console"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="clone-title"
+        >
+          <header class="clone-head">
+            <div>
+              <span class="clone-kicker"
+                >SPACE COUCH // PERSONNEL RECORDS // RED THREAD</span
+              >
+              <h2 id="clone-title">A Second Chance at Being First</h2>
+              <p>
+                Last week they were dead. This week they have opinions about the
+                paperwork.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="clone-close"
+              aria-label="Close clone laboratory"
+              @click="opened = false"
+            >
+              ✕
+            </button>
+          </header>
+          <div class="clone-tracks" aria-label="Clone quest progress">
+            <span
+              v-for="n in 5"
+              :key="n"
+              :class="{
+                done: n <= program.step,
+                active: n === program.step + 1,
+              }"
+            >
+              {{ n < 5 ? 'ACT ' + n : 'FINALE' }}
+            </span>
           </div>
-          <button
-            type="button"
-            class="clone-close"
-            aria-label="Close clone laboratory"
-            @click="opened = false"
-          >
-            ✕
-          </button>
-        </header>
-        <div class="clone-tracks" aria-label="Clone quest progress">
-          <span
-            v-for="n in 5"
-            :key="n"
-            :class="{ done: n <= program.step, active: n === program.step + 1 }"
-          >
-            {{ n < 5 ? 'ACT ' + n : 'FINALE' }}
-          </span>
-        </div>
-        <div class="clone-body">
-          <article class="clone-story">
-            <span class="clone-kicker">MEMORIAL QUEST // ACT {{ Math.min(program.step + 1, 5) }}</span>
-            <h3>{{ status.title }}</h3>
-            <p>{{ status.hook }}</p>
-            <strong class="clone-objective">OBJECTIVE: {{ status.goal }}</strong>
-            <small :class="{ unlocked: status.ready }">{{ status.reason }}</small>
-            <div v-if="status.ready" class="clone-choice">
-              <button
-                type="button"
-                data-testid="space-couch-clone-ask"
-                @click="emit('advance', 'ask')"
+          <div class="clone-body">
+            <article class="clone-story">
+              <span class="clone-kicker"
+                >MEMORIAL QUEST // ACT {{ Math.min(program.step + 1, 5) }}</span
               >
-                <b>ASK THE PERSON</b>
-                <span>{{ nextOptions.ask }}</span>
-              </button>
-              <button
-                type="button"
-                data-testid="space-couch-clone-document"
-                @click="emit('advance', 'document')"
+              <h3>{{ status.title }}</h3>
+              <p>{{ status.hook }}</p>
+              <strong class="clone-objective"
+                >OBJECTIVE: {{ status.goal }}</strong
               >
-                <b>KEEP THE RECORD</b>
-                <span>{{ nextOptions.document }}</span>
-              </button>
-              <button
-                type="button"
-                data-testid="space-couch-clone-override"
-                @click="emit('advance', 'override')"
-              >
-                <b>TAKE THE SHORTCUT</b>
-                <span>{{ nextOptions.override }}</span>
-              </button>
-            </div>
-            <div v-else-if="program.beats.length" class="clone-history">
-              <b>PREVIOUSLY ON SPACE COUCH</b>
-              <p>{{ program.beats.at(-1)?.narrative }}</p>
-            </div>
-          </article>
-          <aside class="clone-roster">
-            <span class="clone-kicker">THE LITTLE PEOPLE / BIG CONTINUITY</span>
-            <h3>Returnees</h3>
-            <p>
-              The originals stay on the memorial wall. Each clone becomes a new
-              generation with its own assignments, memories and choices.
-            </p>
-            <div class="clone-returnees">
-              <div
-                v-for="entry in candidates"
-                :key="entry.id"
-                class="clone-returnee"
-              >
-                <div>
-                  <strong>{{ entry.name }}</strong>
-                  <small>
-                    NEXT: GENERATION {{ entry.generation }} ·
-                    {{ entry.cost }} SUPPLIES
-                  </small>
-                  <small>{{ entry.reason }}</small>
-                </div>
+              <small :class="{ unlocked: status.ready }">{{
+                status.reason
+              }}</small>
+              <div v-if="status.ready" class="clone-choice">
                 <button
                   type="button"
-                  :disabled="!entry.available || (!run.redshirtRoster?.includes(entry.id) && (run.redshirtRoster?.length ?? 0) >= 12)"
-                  :aria-label="'Grow Generation ' + entry.generation + ' of ' + entry.name"
-                  data-testid="space-couch-print-clone"
-                  @click="emit('print', entry.id)"
+                  data-testid="space-couch-clone-ask"
+                  @click="emit('advance', 'ask')"
                 >
-                  {{
-                    run.redshirtRoster?.includes(entry.id)
-                      ? 'UPGRADE'
-                      : 'REPRINT'
-                  }}
+                  <b>ASK THE PERSON</b>
+                  <span>{{ nextOptions.ask }}</span>
+                </button>
+                <button
+                  type="button"
+                  data-testid="space-couch-clone-document"
+                  @click="emit('advance', 'document')"
+                >
+                  <b>KEEP THE RECORD</b>
+                  <span>{{ nextOptions.document }}</span>
+                </button>
+                <button
+                  type="button"
+                  data-testid="space-couch-clone-override"
+                  @click="emit('advance', 'override')"
+                >
+                  <b>TAKE THE SHORTCUT</b>
+                  <span>{{ nextOptions.override }}</span>
                 </button>
               </div>
-              <p v-if="!candidates.length">
-                The dormant printer displays {{ fallenCount }} memorials. It has
-                not yet acquired a living subject.
-              </p>
-            </div>
-            <div class="clone-memory">
-              <b>MEMORY TAPES · {{ program.records.length }} VERSIONS</b>
+              <div v-else-if="program.beats.length" class="clone-history">
+                <b>PREVIOUSLY ON SPACE COUCH</b>
+                <p>{{ program.beats.at(-1)?.narrative }}</p>
+              </div>
+            </article>
+            <aside class="clone-roster">
+              <span class="clone-kicker"
+                >THE LITTLE PEOPLE / BIG CONTINUITY</span
+              >
+              <h3>Returnees</h3>
               <p>
-                {{ fallenCount }} historical losses are recorded.
-                {{ livingClones }} clone lineages are currently aboard.
+                The originals stay on the memorial wall. Each clone becomes a
+                new generation with its own assignments, memories and choices.
               </p>
-            </div>
-          </aside>
-        </div>
-        <footer class="clone-footer">
-          <span>ONE ACT PER EPISODE · GENERATIONS REQUIRE FIELD EXPERIENCE</span>
-          <button type="button" @click="opened = false">
-            RETURN TO THE EPISODE ↗
-          </button>
-        </footer>
-      </section>
+              <div class="clone-returnees">
+                <div
+                  v-for="entry in candidates"
+                  :key="entry.id"
+                  class="clone-returnee"
+                >
+                  <div>
+                    <strong>{{ entry.name }}</strong>
+                    <small>
+                      NEXT: GENERATION {{ entry.generation }} ·
+                      {{ entry.cost }} SUPPLIES
+                    </small>
+                    <small>{{ entry.reason }}</small>
+                  </div>
+                  <button
+                    type="button"
+                    :disabled="
+                      !entry.available ||
+                      (!run.redshirtRoster?.includes(entry.id) &&
+                        (run.redshirtRoster?.length ?? 0) >= 12)
+                    "
+                    :aria-label="
+                      'Grow Generation ' +
+                      entry.generation +
+                      ' of ' +
+                      entry.name
+                    "
+                    data-testid="space-couch-print-clone"
+                    @click="emit('print', entry.id)"
+                  >
+                    {{
+                      run.redshirtRoster?.includes(entry.id)
+                        ? 'UPGRADE'
+                        : 'REPRINT'
+                    }}
+                  </button>
+                </div>
+                <p v-if="!candidates.length">
+                  The dormant printer displays {{ fallenCount }} memorials. It
+                  has not yet acquired a living subject.
+                </p>
+              </div>
+              <div class="clone-memory">
+                <b>MEMORY TAPES · {{ program.records.length }} VERSIONS</b>
+                <p>
+                  {{ fallenCount }} historical losses are recorded.
+                  {{ livingClones }} clone lineages are currently aboard.
+                </p>
+              </div>
+            </aside>
+          </div>
+          <footer class="clone-footer">
+            <span
+              >ONE ACT PER EPISODE · GENERATIONS REQUIRE FIELD EXPERIENCE</span
+            >
+            <button type="button" @click="opened = false">
+              RETURN TO THE EPISODE ↗
+            </button>
+          </footer>
+        </section>
       </div>
     </Teleport>
   </div>
@@ -183,7 +210,9 @@ const livingClones = computed(
     ).size,
 )
 const nextOptions = computed(
-  () => CLONE_CHAPTERS[Math.min(program.value.step, CLONE_CHAPTERS.length - 1)]!.options,
+  () =>
+    CLONE_CHAPTERS[Math.min(program.value.step, CLONE_CHAPTERS.length - 1)]!
+      .options,
 )
 </script>
 
@@ -208,7 +237,9 @@ const nextOptions = computed(
   font-weight: 900;
   letter-spacing: 0.08em;
 }
-.clone-launcher b { color: #8adee1; }
+.clone-launcher b {
+  color: #8adee1;
+}
 .clone-shade {
   position: fixed;
   inset: 0;
@@ -228,8 +259,15 @@ const nextOptions = computed(
   overflow: hidden;
   border: 2px solid #efb881;
   border-radius: 1rem;
-  background: radial-gradient(ellipse at 20% 0%, #493446 0, #111c32 55%, #0d1323);
-  box-shadow: 0 0 0 5px #0c1c33, 0 30px 90px #000b;
+  background: radial-gradient(
+    ellipse at 20% 0%,
+    #493446 0,
+    #111c32 55%,
+    #0d1323
+  );
+  box-shadow:
+    0 0 0 5px #0c1c33,
+    0 30px 90px #000b;
   color: #f6eadb;
 }
 .clone-head {
@@ -246,7 +284,9 @@ const nextOptions = computed(
   font-size: clamp(1.3rem, 2.8vw, 2.3rem);
   line-height: 1.08;
 }
-.clone-head p, .clone-story p, .clone-roster p {
+.clone-head p,
+.clone-story p,
+.clone-roster p {
   margin: 0.3rem 0;
   color: #d9dfe3;
   font-size: clamp(0.73rem, 1.1vw, 0.9rem);
@@ -300,13 +340,15 @@ const nextOptions = computed(
   padding: clamp(0.55rem, 1.5vw, 1rem);
   overflow-y: auto;
 }
-.clone-story, .clone-roster {
+.clone-story,
+.clone-roster {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: 0.5rem;
 }
-.clone-story h3, .clone-roster h3 {
+.clone-story h3,
+.clone-roster h3 {
   margin: 0;
   font-family: Georgia, serif;
   font-size: clamp(1.12rem, 2vw, 1.6rem);
@@ -321,7 +363,9 @@ const nextOptions = computed(
   color: #d4bba4;
   font-size: 0.7rem;
 }
-.clone-story .unlocked { color: #9de2b8; }
+.clone-story .unlocked {
+  color: #9de2b8;
+}
 .clone-choice {
   display: grid;
   gap: 0.35rem;
@@ -338,19 +382,29 @@ const nextOptions = computed(
   color: #f8ede1;
   text-align: left;
 }
-.clone-choice button:hover, .clone-choice button:focus-visible {
+.clone-choice button:hover,
+.clone-choice button:focus-visible {
   border-color: #ffc68b;
   background: #344355;
 }
-.clone-choice b { color: #ffe0ab; font-size: 0.7rem; }
-.clone-choice span { font-size: 0.68rem; line-height: 1.38; }
+.clone-choice b {
+  color: #ffe0ab;
+  font-size: 0.7rem;
+}
+.clone-choice span {
+  font-size: 0.68rem;
+  line-height: 1.38;
+}
 .clone-history {
   padding: 0.6rem;
   border: 1px solid #6c8d86;
   background: #223a39;
   font-size: 0.74rem;
 }
-.clone-returnees { display: grid; gap: 0.4rem; }
+.clone-returnees {
+  display: grid;
+  gap: 0.4rem;
+}
 .clone-returnee {
   display: flex;
   align-items: center;
@@ -361,8 +415,13 @@ const nextOptions = computed(
   border: 1px solid #916d77;
   border-radius: 0.4rem;
 }
-.clone-returnee div { display: grid; gap: 0.18rem; }
-.clone-returnee strong { font-size: 0.76rem; }
+.clone-returnee div {
+  display: grid;
+  gap: 0.18rem;
+}
+.clone-returnee strong {
+  font-size: 0.76rem;
+}
 .clone-returnee small {
   font-size: 0.65rem;
   color: #d7cbbf;
@@ -375,7 +434,9 @@ const nextOptions = computed(
   border-radius: 0.3rem;
   background: #f3c68e;
 }
-.clone-returnee button:disabled { opacity: 0.4; }
+.clone-returnee button:disabled {
+  opacity: 0.4;
+}
 .clone-memory {
   margin-top: auto;
   border-top: 1px solid #998172;
@@ -400,14 +461,30 @@ const nextOptions = computed(
   font-weight: 900;
 }
 @media (max-width: 680px) {
-  .clone-lab { right: 0.4rem; top: 3rem; }
-  .clone-launcher { padding: 0.32rem; font-size: 0.59rem; }
-  .clone-body { grid-template-columns: minmax(0, 1fr); }
-  .clone-console { max-height: 96dvh; }
-  .clone-footer span { display: none; }
-  .clone-returnee { align-items: start; }
+  .clone-lab {
+    right: 0.4rem;
+    top: 3rem;
+  }
+  .clone-launcher {
+    padding: 0.32rem;
+    font-size: 0.59rem;
+  }
+  .clone-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .clone-console {
+    max-height: 96dvh;
+  }
+  .clone-footer span {
+    display: none;
+  }
+  .clone-returnee {
+    align-items: start;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .clone-shade { backdrop-filter: none; }
+  .clone-shade {
+    backdrop-filter: none;
+  }
 }
 </style>

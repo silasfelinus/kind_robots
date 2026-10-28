@@ -658,7 +658,7 @@ for (const event of rareCases) {
     )
     for (const key of Object.keys(event.briar)) {
       const incomplete = { ...briar }
-      delete incomplete[key]
+      Reflect.deleteProperty(incomplete, key)
       assert.equal(
         earnedBriarRareEvents(incomplete, house).length,
         0,
@@ -667,7 +667,7 @@ for (const event of rareCases) {
     }
     for (const key of Object.keys(event.house)) {
       const incomplete = { ...house }
-      delete incomplete[key]
+      Reflect.deleteProperty(incomplete, key)
       assert.equal(
         earnedBriarRareEvents(briar, incomplete).length,
         0,

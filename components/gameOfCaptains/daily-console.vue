@@ -489,11 +489,18 @@ function deckName(deck: EpisodeDeck) {
     planet: 'THE PLANET',
     casino: 'SPACE CASINO',
     serendipity: 'SERENDIPITY',
+    constellation: 'YOUR STAR SIGN QUEST',
     nemesis: 'SPECIAL GUEST VILLAIN',
   }[deck]
 }
 function deckSymbol(deck: EpisodeDeck) {
-  return { planet: '◉', casino: '♢', serendipity: '✦', nemesis: '☠' }[deck]
+  return {
+    planet: '◉',
+    casino: '♢',
+    serendipity: '✦',
+    constellation: '✧',
+    nemesis: '☠',
+  }[deck]
 }
 function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   emit('draw', deck, choice)

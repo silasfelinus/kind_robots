@@ -29,6 +29,7 @@ import {
   type CloneChoice,
 } from '~/utils/gameOfCaptains/cloneSaga'
 import { playbookRunKey } from '~/utils/playbook/runReview'
+import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
 import {
   dispatchEpisodeBatch,
   drawEpisodeDeck,
@@ -96,8 +97,12 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         'Previous voyage could not be loaded. You can begin a new one.'
     }
   }
-  function begin(captain: CaptainId, crew: CrewId[]) {
-    run.value = startVoyage(captain, crew)
+  function begin(
+    captain: CaptainId,
+    crew: CrewId[],
+    assessment?: StarAssessment,
+  ) {
+    run.value = startVoyage(captain, crew, Date.now(), assessment)
     usePlaybookRunReviewStore().begin(
       'game-of-captains',
       playbookRunKey(run.value),

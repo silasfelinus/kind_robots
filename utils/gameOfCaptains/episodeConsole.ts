@@ -10,6 +10,7 @@ import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
 import { currentExpedition, deployExpedition } from './expedition'
 import type { ExpeditionEncounter } from './expeditionLocal'
 import { REDSHIRT_BY_ID } from './redshirts'
+import { availableStarQuest, starSignFor } from './starSigns'
 import { cloneOddsBonus } from './cloneSaga'
 import {
   chapterSystem,
@@ -20,7 +21,8 @@ import {
 } from './solarCircuit'
 import { nemesisMove } from './voyageMap'
 
-export type EpisodeDeck = 'planet' | 'casino' | 'serendipity' | 'nemesis'
+export type EpisodeDeck =
+  'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
 export type EpisodeChoice = CasinoChoice
 export type EpisodeDraw = {
   chapter: number
@@ -167,9 +169,12 @@ export const EPISODE_CHOICES: readonly {
   { id: 'override', label: 'Intervene', cost: 'Supplies +1 · host -2' },
 ]
 export function episodeDecks(run: VoyageRun): EpisodeDeck[] {
-  return run.chapter % 2 === 0
-    ? ['planet', 'casino', 'serendipity', 'nemesis']
-    : ['planet', 'casino', 'serendipity']
+  const decks: EpisodeDeck[] = ['planet', 'casino', 'serendipity']
+  // One earned quest from the matching constellation, never another sign's.
+  if (availableStarQuest(run.starAssessment, run.chapter, run.worldFlags ?? []))
+    decks.push('constellation')
+  if (run.chapter % 2 === 0) decks.push('nemesis')
+  return decks
 }
 export function episodeDraws(run: VoyageRun): EpisodeDraw[] {
   return ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
@@ -243,6 +248,28 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
       outcomes: beat
         ? { ask: beat.ask, document: beat.document, override: beat.override }
         : null,
+    }
+  }
+  if (deck === 'constellation') {
+    const quest = availableStarQuest(
+      run.starAssessment,
+      run.chapter,
+      run.worldFlags ?? [],
+    )
+    // Only episodeDecks can authorize this card. Never reveal a different sign.
+    if (!quest || !run.starAssessment)
+      throw new Error('No constellation quest is available this episode')
+    const sign = starSignFor(run.starAssessment.sign)
+    return {
+      id: quest.id,
+      title: quest.title,
+      setup: quest.setup,
+      link: 'STAR CHART EXCLUSIVE · ' + sign.name + ' · ' + sign.epithet,
+      outcomes: {
+        ask: quest.ending + ' You listen to the people caught in the omen.',
+        document: quest.ending + ' The truth joins the official star chart.',
+        override: quest.ending + ' The captain takes the risky shortcut.',
+      },
     }
   }
   const nemesis = antagonistFor(run)
@@ -444,6 +471,7 @@ export function drawEpisodeDeck(
     worldFlags: [
       ...(changed.worldFlags ?? []),
       `episode-draw:${deck}:${choice}:${run.chapter}`,
+      ...(deck === 'constellation' ? ['star-quest:' + card.id] : []),
     ],
     scene: `[${deck.toUpperCase()} DECK] ${scene}`,
     log: [
@@ -485,11 +513,42 @@ export function episodeEndingCoda(run: VoyageRun): VoyageRun {
   else if (standings.villains >= 3)
     coda =
       'THE FINAL BROADCAST: The nemesis survives the ratings, but the crew keeps the recording that could ruin the next season.'
-  if (!coda) return run
+  const sign = run.starAssessment ? starSignFor(run.starAssessment.sign) : null
+  const finished =
+    sign?.quests.filter((quest) =>
+      (run.worldFlags ?? []).includes('star-quest:' + quest.id),
+    ).length ?? 0
+  const constellationCoda =
+    sign && finished
+      ? finished === 3
+        ? 'THE CONSTELLATION FINALE: ' +
+          sign.name +
+          ' lights the last jump gate. All three secret quests were answered; ' +
+          sign.quests[2].ending +
+          ' ' +
+          sign.omen
+        : 'THE UNFINISHED STAR CHART: ' +
+          sign.name +
+          ' shines above ' +
+          finished +
+          ' completed secret mission(s). Some stars are still waiting for the next season.'
+      : ''
+  if (!coda && !constellationCoda) return run
   return {
     ...run,
-    scene: run.scene + ' ' + coda,
-    log: [...run.log, 'Earned faction epilogue: ' + coda],
+    ending:
+      constellationCoda && finished === 3
+        ? (run.ending ?? 'Voyage Complete') + ' · ' + sign!.name
+        : run.ending,
+    scene:
+      run.scene + ' ' + [coda, constellationCoda].filter(Boolean).join(' '),
+    log: [
+      ...run.log,
+      ...[
+        coda && 'Earned faction epilogue: ' + coda,
+        constellationCoda && 'Earned star epilogue: ' + constellationCoda,
+      ].filter((line): line is string => Boolean(line)),
+    ],
   }
 }
 export function episodeStinger(run: VoyageRun): string {

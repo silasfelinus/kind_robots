@@ -1071,7 +1071,7 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
       ? v.current
       : HOUSE_ENTRY
   const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
-  const visitedSet = new Set(visitedRooms)
+  const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}
   if (v.decisions && typeof v.decisions === 'object')
     for (const [key, choice] of Object.entries(v.decisions))

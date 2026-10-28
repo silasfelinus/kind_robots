@@ -51,6 +51,21 @@
         Your levels live on this device. Build a course and choose SAVE to begin
         your library.
       </p>
+      <p class="maker-tool-head">START A NEW ADVENTURE</p>
+      <div class="maker-starters" role="group" aria-label="Starter course templates">
+        <button
+          v-for="starter in starterCourses"
+          :key="starter.id"
+          type="button"
+          :title="starter.description"
+          @click="chooseStarter(starter.id)"
+        >
+          <span class="maker-starter-icon">{{ starter.icon }}</span>
+          <strong>{{ starter.name }}</strong>
+          <small>{{ starter.description }}</small>
+        </button>
+      </div>
+      <p class="maker-tool-head">LOCAL DRAFTS</p>
       <div v-for="draft in maker.drafts" :key="draft.id" class="maker-draft">
         <strong>{{ draft.level.title }}</strong>
         <small
@@ -178,6 +193,14 @@
         />
         DARK / LANTERN MODE
       </label>
+      <label class="maker-check">
+        <input
+          type="checkbox"
+          :checked="maker.level.snow === true"
+          @change="changeSnow"
+        />
+        ❄ SNOWSTORM / WINTER WEATHER
+      </label>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the
         selected world's moveset. Place one start, one finish, and matching pipe
@@ -196,7 +219,17 @@ const maker = useSavePlumberMakerStore()
 const emit = defineEmits<{
   (event: 'load-draft' | 'play-draft', id: string): void
   (event: 'resize-course', dimensions: { cols: number; rows: number }): void
+  (event: 'load-template', name: 'harbor' | 'snowfield' | 'skybridge'): void
 }>()
+const starterCourses = [
+  { id: 'harbor', icon: '🌊', name: 'HARBOR', description: 'Rafts, water hazards and a marina crossing' },
+  { id: 'snowfield', icon: '❄', name: 'FROST', description: 'Slippery ice, winter weather and giant foes' },
+  { id: 'skybridge', icon: '☁', name: 'SKY', description: 'Suspended platforms and aerial enemies' },
+] as const
+function chooseStarter(name: (typeof starterCourses)[number]['id']) {
+  if (maker.hasChanges && !window.confirm('Replace the current unsaved course with this starter?')) return
+  emit('load-template', name)
+}
 const panels = [
   { id: 'tools' as const, icon: '▦', label: 'TOOLS' },
   { id: 'library' as const, icon: '▣', label: 'FILES' },
@@ -241,6 +274,9 @@ function changeAuthor(e: Event) {
 }
 function changeTheme(e: Event) {
   maker.updateSettings({ theme: Number((e.target as HTMLSelectElement).value) })
+}
+function changeSnow(e: Event) {
+  maker.updateSettings({ snow: (e.target as HTMLInputElement).checked ? true : undefined })
 }
 function changeDark(e: Event) {
   maker.updateSettings({ dark: (e.target as HTMLInputElement).checked })
@@ -461,6 +497,34 @@ select:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
   margin: 0.6rem 0;
+}
+.maker-starters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 0.4rem 0;
+}
+.maker-starters button {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.5rem 0.25rem;
+  background: #214457;
+  color: #faf0d0;
+  border: 1px solid #4b8496;
+  border-radius: 0.55rem;
+}
+.maker-starter-icon {
+  font-size: 1.5rem;
+}
+.maker-starters strong {
+  font-size: 0.62rem;
+}
+.maker-starters small {
+  font-size: 0.58rem;
+  color: #b7d5d9;
+  line-height: 1.2;
 }
 .maker-settings label {
   display: grid;

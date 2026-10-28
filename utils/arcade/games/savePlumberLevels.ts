@@ -15,7 +15,7 @@
  *   P  piston (rises and falls)           L  brass lift (slides side to side)
  *   K  checkpoint     G  goal valve       D  pipe door       E  secret-room pipe
  *   @  start          X  boss gate        M  the world's boss
- *   w  water          F  bobbing raft     m  clockwork minnow (leaps from water)
+ *   f  slippery ice   w  water          F  bobbing raft     m  clockwork minnow (leaps from water)
  *   k  cork crab      u  glass gull       l  moss lantern     h  spring hare
  *   <  belt carrying left                 >  belt carrying right
  *   j  gasket golem   y  paper kite       n  umbrella mite
@@ -37,6 +37,7 @@ export type StageDef = {
   rows: string[]
   /** Unlit: only the heroine and moss lanterns cast light. */
   dark?: boolean
+  snow?: boolean
 }
 
 export const WORLD_ONE: StageDef[] = [
@@ -1051,6 +1052,7 @@ export const SOLID_GATE = 4
 export const SOLID_PIPE = 5
 export const SOLID_CRATE = 6
 export const SOLID_WATER = 7
+export const SOLID_ICE = 11
 export const SOLID_BELT_LEFT = 8
 export const SOLID_BELT_RIGHT = 9
 export const SOLID_BRIDGE = 10
@@ -1112,6 +1114,7 @@ export type Stage = {
   /** The boss gate column, if the stage ends in a boss arena. */
   gate: number | null
   dark: boolean
+  snow: boolean
 }
 
 const SPAWNS: Record<string, SpawnKind> = {
@@ -1176,6 +1179,7 @@ const SOLIDS: Record<string, number> = {
   E: SOLID_PIPE,
   c: SOLID_CRATE,
   w: SOLID_WATER,
+  f: SOLID_ICE,
   '<': SOLID_BELT_LEFT,
   '>': SOLID_BELT_RIGHT,
   ':': SOLID_BRIDGE,
@@ -1250,5 +1254,6 @@ export function parseStage(def: StageDef): Stage {
     doors,
     gate,
     dark: def.dark === true,
+    snow: def.snow === true,
   }
 }

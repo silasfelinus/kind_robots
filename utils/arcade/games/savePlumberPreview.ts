@@ -27,6 +27,7 @@ import {
   SOLID_LEDGE,
   SOLID_PIPE,
   SOLID_WATER,
+  SOLID_ICE,
   TILE,
   CAMPAIGN,
   parseStage,
@@ -342,6 +343,7 @@ export type PlumberRunOptions = {
 
 const isWall = (s: number) =>
   s === SOLID_GROUND ||
+  s === SOLID_ICE ||
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
   s === SOLID_PIPE ||
@@ -1207,17 +1209,23 @@ export class PlumberRun implements ArcadeGameInstance {
     this.updateDuck(keys, move)
     this.running = runner || (keys.held.b === true && move !== 0)
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
+    const onIce =
+      this.ground &&
+      this.solidAt(
+        Math.floor(hero.x / TILE),
+        Math.floor((hero.y + TALL + 2) / TILE),
+      ) === SOLID_ICE
     if (runner) hero.vx += (top - hero.vx) * 0.25
     // A crouch keeps a run's momentum as a slide, then crawls.
     else if (this.ducking && this.ground) {
       if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
       else hero.vx = move * CRAWL
     } else if (move) {
-      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
+      let next = hero.vx + move * (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
-    } else hero.vx *= 0.77
+    } else hero.vx *= onIce ? 0.965 : 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
     if (keys.pressed.y) this.useSpecial()
@@ -3910,6 +3918,16 @@ export class PlumberRun implements ArcadeGameInstance {
       )
     this.renderSpecial(g, true)
     g.restore()
+    if (this.stage.snow) {
+      g.fillStyle = 'rgba(209, 237, 250, 0.12)'
+      g.fillRect(0, 0, W, H)
+      g.fillStyle = 'rgba(245, 251, 255, 0.88)'
+      for (let i = 0; i < 48; i++) {
+        const x = ((i * 127 + this.tick * (0.35 + (i % 3) * 0.2)) % (W + 24)) - 12
+        const y = ((i * 83 + this.tick * (0.65 + (i % 5) * 0.16)) % (H + 18)) - 9
+        g.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 4 === 0 ? 3 : 2)
+      }
+    }
     if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
   }
@@ -4092,7 +4110,15 @@ export class PlumberRun implements ArcadeGameInstance {
           }
           continue
         }
-        if (s === SOLID_GROUND) {
+        if (s === SOLID_ICE) {
+          g.fillStyle = '#89cbe2'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#d9f7ff'
+          g.fillRect(x + 1, y + 1, TILE - 2, 3)
+          g.fillStyle = 'rgba(51, 123, 174, 0.42)'
+          g.fillRect(x + 2, y + 9, 5, 2)
+          g.fillRect(x + 10, y + 12, 5, 2)
+        } else if (s === SOLID_GROUND) {
           g.fillStyle = ground ?? '#2f6f68'
           g.fillRect(x, y, TILE, TILE)
           if (above !== SOLID_GROUND) {

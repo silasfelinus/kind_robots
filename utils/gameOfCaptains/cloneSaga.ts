@@ -37,8 +37,10 @@ export const CLONE_CHAPTERS = [
     goal: 'Lose a named redshirt in a real encounter, then decide how the crew handles their remaining memories.',
     options: {
       ask: 'Ask their recorded advance directive. The answer is a handwritten yes, conditional on remembering the original life.',
-      document: 'Preserve their complete story in a public archive. The copy will be able to audit what happened to their predecessor.',
-      override: 'Activate the emergency replicator before Personnel can file the death. The crew will remember who skipped the consent hearing.',
+      document:
+        'Preserve their complete story in a public archive. The copy will be able to audit what happened to their predecessor.',
+      override:
+        'Activate the emergency replicator before Personnel can file the death. The crew will remember who skipped the consent hearing.',
     },
   },
   {
@@ -47,8 +49,10 @@ export const CLONE_CHAPTERS = [
     goal: 'Deploy a Generation I clone in an encounter. Return in a later episode to investigate what they brought back.',
     options: {
       ask: 'Invite the clone to name themselves and decide what memories to keep. A vote makes the name official.',
-      document: 'Compare mission reports against the original life. A hidden memory proves that Personnel edited the record.',
-      override: 'Overclock the recovery chamber. Generation II can read a future distress call, but every extra minute costs the ship trust.',
+      document:
+        'Compare mission reports against the original life. A hidden memory proves that Personnel edited the record.',
+      override:
+        'Overclock the recovery chamber. Generation II can read a future distress call, but every extra minute costs the ship trust.',
     },
   },
   {
@@ -57,8 +61,10 @@ export const CLONE_CHAPTERS = [
     goal: 'Send a Generation II clone into the field, then return with evidence or reputation enough to challenge the casino contract.',
     options: {
       ask: 'Give every copy an independent vote at the bargaining table. The host offers a seat beside their giant hand.',
-      document: 'Publish the ownership contract, including the clause that tried to turn lives into casino inventory.',
-      override: 'Steal the molecular license. The clones are free tonight, but the casino remembers the raid.',
+      document:
+        'Publish the ownership contract, including the clause that tried to turn lives into casino inventory.',
+      override:
+        'Steal the molecular license. The clones are free tonight, but the casino remembers the raid.',
     },
   },
   {
@@ -67,8 +73,10 @@ export const CLONE_CHAPTERS = [
     goal: 'Deploy a Generation III clone and maintain enough crew trust to compare their memories with the nemesis interference.',
     options: {
       ask: 'Let the clone decide whether to share the future. It tells the others which doorway not to trust.',
-      document: 'Log the conflicting timelines. The proof gives the crew leverage at the final jump gate.',
-      override: 'Read the memory without permission. The enemy notices, and the crew does too.',
+      document:
+        'Log the conflicting timelines. The proof gives the crew leverage at the final jump gate.',
+      override:
+        'Read the memory without permission. The enemy notices, and the crew does too.',
     },
   },
   {
@@ -77,8 +85,10 @@ export const CLONE_CHAPTERS = [
     goal: 'Send a Generation IV clone on a mission and return for the final hearing; the ending remembers what rights you earned.',
     options: {
       ask: 'Recognize the clone as a whole person. They choose whether the last transmission says farewell or hello.',
-      document: 'Write an interstellar charter protecting the names, memories, and autonomy of every later generation.',
-      override: 'Broadcast the clones’ testimony across the galaxy before the court can seal it.',
+      document:
+        'Write an interstellar charter protecting the names, memories, and autonomy of every later generation.',
+      override:
+        'Broadcast the clones’ testimony across the galaxy before the court can seal it.',
     },
   },
 ] as const
@@ -95,35 +105,48 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
     !Array.isArray(value.beats) ||
     value.records.length > 100 ||
     value.beats.length > CLONE_CHAPTERS.length
-  ) return false
+  )
+    return false
   const seen = new Set<string>()
   for (const record of value.records) {
     if (
-      !record || !REDSHIRT_BY_ID[record.id] ||
+      !record ||
+      !REDSHIRT_BY_ID[record.id] ||
       !Number.isInteger(record.generation) ||
-      record.generation < 1 || record.generation > 4 ||
+      record.generation < 1 ||
+      record.generation > 4 ||
       !Number.isInteger(record.createdChapter) ||
-      record.createdChapter < 1 || record.createdChapter > 9 ||
-      !Number.isInteger(record.createdDay) || record.createdDay < 1 ||
-      !Number.isInteger(record.deployments) || record.deployments < 0 ||
+      record.createdChapter < 1 ||
+      record.createdChapter > 9 ||
+      !Number.isInteger(record.createdDay) ||
+      record.createdDay < 1 ||
+      !Number.isInteger(record.deployments) ||
+      record.deployments < 0 ||
       !Number.isInteger(record.survived) ||
-      record.survived < 0 || record.survived > record.deployments ||
+      record.survived < 0 ||
+      record.survived > record.deployments ||
       typeof record.lost !== 'boolean' ||
-      (record.lastEncounter !== null && typeof record.lastEncounter !== 'string')
-    ) return false
+      (record.lastEncounter !== null &&
+        typeof record.lastEncounter !== 'string')
+    )
+      return false
     const key = record.id + ':' + record.generation
     if (seen.has(key)) return false
     seen.add(key)
   }
-  return value.beats.every((beat, index) =>
-    beat &&
-    beat.step === index &&
-    Number.isInteger(beat.chapter) &&
-    beat.chapter >= 1 && beat.chapter <= 9 &&
-    ['ask', 'document', 'override'].includes(beat.choice) &&
-    typeof beat.narrative === 'string' &&
-    beat.narrative.length < 1000
-  ) && value.step === value.beats.length
+  return (
+    value.beats.every(
+      (beat, index) =>
+        beat &&
+        beat.step === index &&
+        Number.isInteger(beat.chapter) &&
+        beat.chapter >= 1 &&
+        beat.chapter <= 9 &&
+        ['ask', 'document', 'override'].includes(beat.choice) &&
+        typeof beat.narrative === 'string' &&
+        beat.narrative.length < 1000,
+    ) && value.step === value.beats.length
+  )
 }
 
 function program(run: VoyageRun): CloneProgram {
@@ -133,7 +156,10 @@ export function cloneProgram(run: VoyageRun): CloneProgram {
   return program(run)
 }
 export function cloneLatest(run: VoyageRun, id: string): CloneRecord | null {
-  return [...program(run).records].reverse().find((record) => record.id === id) ?? null
+  return (
+    [...program(run).records].reverse().find((record) => record.id === id) ??
+    null
+  )
 }
 export function cloneGeneration(run: VoyageRun, id: string): number {
   const current = cloneLatest(run, id)
@@ -156,20 +182,31 @@ export function cloneQuestStatus(run: VoyageRun): {
   const step = Math.min(CLONE_CHAPTERS.length, data.step)
   if (step === CLONE_CHAPTERS.length)
     return {
-      step, title: 'The Red Thread Complete',
+      step,
+      title: 'The Red Thread Complete',
       hook: 'The tiny memorial corridor is also a gallery of living signatures.',
       goal: 'A clone-rights ending is now possible.',
-      ready: false, reason: 'The final tribunal has been heard.',
+      ready: false,
+      reason: 'The final tribunal has been heard.',
     }
   const chapter = CLONE_CHAPTERS[step]!
   const previous = data.beats.at(-1)
   if (previous && run.chapter <= previous.chapter)
-    return { step, ...chapter, ready: false, reason: 'The next act begins in a future episode.' }
+    return {
+      step,
+      ...chapter,
+      ready: false,
+      reason: 'The next act begins in a future episode.',
+    }
   if (step === 0) {
     const ready = (run.redshirtFallen ?? []).length > 0
     return {
-      step, ...chapter, ready,
-      reason: ready ? 'A fallen colleague waits in the memorial.' : 'No redshirt memorial has been opened yet.',
+      step,
+      ...chapter,
+      ready,
+      reason: ready
+        ? 'A fallen colleague waits in the memorial.'
+        : 'No redshirt memorial has been opened yet.',
     }
   }
   const experienced = data.records.some(
@@ -177,17 +214,27 @@ export function cloneQuestStatus(run: VoyageRun): {
   )
   if (!experienced)
     return {
-      step, ...chapter, ready: false,
-      reason: 'A Generation ' + step + ' clone must complete a field assignment first.',
+      step,
+      ...chapter,
+      ready: false,
+      reason:
+        'A Generation ' +
+        step +
+        ' clone must complete a field assignment first.',
     }
   if (step === 2 && run.reputation < 1)
     return {
-      step, ...chapter, ready: false,
-      reason: 'The clone-rights hearing requires at least one reputation point.',
+      step,
+      ...chapter,
+      ready: false,
+      reason:
+        'The clone-rights hearing requires at least one reputation point.',
     }
   if (step === 3 && run.trust < 1)
     return {
-      step, ...chapter, ready: false,
+      step,
+      ...chapter,
+      ready: false,
       reason: 'Your crew must trust you before examining the future memory.',
     }
   return { step, ...chapter, ready: true, reason: 'The next act is ready.' }
@@ -222,10 +269,7 @@ export function advanceCloneQuest(
       'clone-quest:' + status.step + ':' + choice,
     ],
     scene: narrative,
-    log: [
-      ...run.log,
-      'RED THREAD / ' + status.title + ': ' + narrative,
-    ],
+    log: [...run.log, 'RED THREAD / ' + status.title + ': ' + narrative],
   }
 }
 export function cloneCandidates(run: VoyageRun): {
@@ -246,28 +290,42 @@ export function cloneCandidates(run: VoyageRun): {
       const generation = (last?.generation ?? 0) + 1
       const cost = cloneCost(generation)
       const alive = (run.redshirtRoster ?? []).includes(id)
-      const priorDeath = (run.redshirtFallen ?? []).find((loss) => loss.id === id)
-      const lastChapter = last?.createdChapter ?? priorDeath?.chapter ?? run.chapter
+      const priorDeath = (run.redshirtFallen ?? []).find(
+        (loss) => loss.id === id,
+      )
+      const lastChapter =
+        last?.createdChapter ?? priorDeath?.chapter ?? run.chapter
       const available =
         data.step >= generation &&
         generation <= 4 &&
         run.chapter > lastChapter &&
         run.supplies >= cost &&
         (alive ? !!last && !last.lost : true) &&
-        (!alive || (run.expeditionVisit?.results ?? []).every((result) => result.lead !== id))
+        (!alive ||
+          (run.expeditionVisit?.results ?? []).every(
+            (result) => result.lead !== id,
+          ))
       return {
-        id, name: REDSHIRT_BY_ID[id]!.name, generation, cost, available,
-        reason: data.step < generation
-          ? 'Unlock Generation ' + generation + ' in The Red Thread.'
-          : generation > 4
-            ? 'The fourth generation is the final authorized template.'
-            : run.chapter <= lastChapter
-              ? 'The next version may be grown in a later episode.'
-              : run.supplies < cost
-                ? 'Requires ' + cost + ' supplies.'
-                : alive && (run.expeditionVisit?.results ?? []).some((result) => result.lead === id)
-                  ? 'Already assigned this episode.'
-                  : 'Ready to print or upgrade.',
+        id,
+        name: REDSHIRT_BY_ID[id]!.name,
+        generation,
+        cost,
+        available,
+        reason:
+          data.step < generation
+            ? 'Unlock Generation ' + generation + ' in The Red Thread.'
+            : generation > 4
+              ? 'The fourth generation is the final authorized template.'
+              : run.chapter <= lastChapter
+                ? 'The next version may be grown in a later episode.'
+                : run.supplies < cost
+                  ? 'Requires ' + cost + ' supplies.'
+                  : alive &&
+                      (run.expeditionVisit?.results ?? []).some(
+                        (result) => result.lead === id,
+                      )
+                    ? 'Already assigned this episode.'
+                    : 'Ready to print or upgrade.',
       }
     })
 }
@@ -290,8 +348,13 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
     lost: false,
   }
   const kind = alive ? 'upgraded to' : 'returned as'
-  const caption = REDSHIRT_BY_ID[id]!.name + ' ' + kind + ' Generation ' +
-    candidate.generation + '. Their previous lives remain on the memorial wall.'
+  const caption =
+    REDSHIRT_BY_ID[id]!.name +
+    ' ' +
+    kind +
+    ' Generation ' +
+    candidate.generation +
+    '. Their previous lives remain on the memorial wall.'
   return {
     ...run,
     supplies: run.supplies - candidate.cost,
@@ -365,12 +428,19 @@ export function cloneEndingCoda(run: VoyageRun): VoyageRun {
       : 'THE RED THREAD: The clone tribunal recognizes every generation as a complete person. Their names are entered beside the originals, not in place of them.'
     : 'THE RED THREAD: The unfinished memory trial remains aboard the couch. The living clones insist their story is still theirs to tell.'
   const title = finished
-    ? coerced ? ' · The Unfinished Consent' : ' · The Rights of Copies'
+    ? coerced
+      ? ' · The Unfinished Consent'
+      : ' · The Rights of Copies'
     : ''
   return {
     ...run,
     ending: (run.ending ?? 'Voyage Complete') + title,
-    scene: run.scene + ' ' + epilogue + ' ' + living +
+    scene:
+      run.scene +
+      ' ' +
+      epilogue +
+      ' ' +
+      living +
       ' clone lineages are still aboard.' +
       (last ? ' Final heard testimony: ' + last.narrative : ''),
     log: [...run.log, epilogue],

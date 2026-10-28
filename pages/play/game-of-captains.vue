@@ -1413,7 +1413,7 @@ function toggleAway(id: CrewId) {
   padding: 0.3rem 1rem;
   font-size: 0.75rem;
 }
-.cap-layout--episode {
+.cap-layout.cap-layout--episode {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
@@ -2339,7 +2339,8 @@ function toggleAway(id: CrewId) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 41%) minmax(0, 59%);
   }
-  .cap-layout--episode {
+  .cap-layout.cap-layout--episode {
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
   }
   .cap-bridge {

@@ -1933,6 +1933,52 @@ assert.equal(
   restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
   null,
 )
+const completeSealCheckpoint = {
+  ...checkpoint,
+  seals: {
+    ...checkpoint.seals,
+    seen: ['5,2'],
+    inspected: ['5,2'],
+    mirrorSeen: ['5,2'],
+    counterpartSeen: ['5,2'],
+    matched: ['5,2'],
+    resolved: ['5,2'],
+  },
+}
+assert.deepEqual(
+  restoreMemoryCheckpoint(completeSealCheckpoint)?.seals,
+  completeSealCheckpoint.seals,
+  'A legitimate cross-world seal sequence survives checkpoint loading intact',
+)
+const damagedSealCases = [
+  ['missing inspected ledger', { ...completeSealCheckpoint.seals, inspected: undefined }],
+  ['missing counterpart ledger', { ...completeSealCheckpoint.seals, counterpartSeen: null }],
+  ['unknown coordinate', { ...completeSealCheckpoint.seals, seen: ['5,2', '0,0'] }],
+  ['duplicate discovery', { ...completeSealCheckpoint.seals, seen: ['5,2', '5,2'] }],
+  ['inspection without discovery', { ...completeSealCheckpoint.seals, seen: [] }],
+  ['mirror inspection without discovery', { ...completeSealCheckpoint.seals, seen: [] }],
+  ['match without original inspection', { ...completeSealCheckpoint.seals, inspected: [] }],
+  ['match without counterpart visit', { ...completeSealCheckpoint.seals, counterpartSeen: [] }],
+  ['resolution without match', { ...completeSealCheckpoint.seals, matched: [] }],
+  ['invalid resolution key', { ...completeSealCheckpoint.seals, resolved: [null] }],
+] as const
+for (const [reason, seals] of damagedSealCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({ ...checkpoint, seals }),
+    null,
+    `A checkpoint with ${reason} must not silently rewrite cross-world seal progress`,
+  )
+}
+const isolatedSealSlots = restoreMemorySaveSlots([
+  { ...checkpoint, seals: damagedSealCases[0]![1] },
+  completeSealCheckpoint,
+])
+assert.equal(isolatedSealSlots[0], null)
+assert.deepEqual(
+  isolatedSealSlots[1]?.seals,
+  completeSealCheckpoint.seals,
+  'A damaged seal ledger cannot erase a neighboring valid checkpoint',
+)
 const damagedHouseCases = [
   ['missing decisions', { ...checkpoint.house, decisions: null }],
   ['invalid active state', { ...checkpoint.house, active: 'yes' }],

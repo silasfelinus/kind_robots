@@ -1415,6 +1415,7 @@ function toggleAway(id: CrewId) {
 }
 .cap-layout--episode {
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 .cap-layout--episode > .cap-stage {
   display: none;
@@ -2337,6 +2338,9 @@ function toggleAway(id: CrewId) {
   .cap-layout {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 41%) minmax(0, 59%);
+  }
+  .cap-layout--episode {
+    grid-template-rows: minmax(0, 1fr);
   }
   .cap-bridge {
     border-left: 0;

@@ -19,6 +19,7 @@ import { availableStarQuest, starSignFor } from './starSigns'
 import { cloneOddsBonus } from './cloneSaga'
 import {
   chapterSystem,
+  newVenueProgress,
   casinoIncident,
   afterHoursIncident,
   visitCasinoVenue,
@@ -177,6 +178,34 @@ export const EPISODE_CHOICES: readonly {
   },
   { id: 'override', label: 'Intervene', cost: 'Supplies +1 · host -2' },
 ]
+/** A failed field objective cannot be described as successful consent or a settled claim. */
+const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {
+  planet: {
+    ask: 'The municipal council adjourns before hearing the residents. Their objections remain on the docket.',
+    document: 'The archives return a receipt, not the missing evidence. Someone altered the filing dates.',
+    override: 'The immediate danger recedes, but the locals reject the couch as an unelected emergency service.',
+  },
+  casino: {
+    ask: 'Management sells tickets to the hearing but refuses to let the giant host testify.',
+    document: 'The house impounds the ledgers under a new confidentiality tariff.',
+    override: 'The casino security contract identifies the intervention as an unauthorized jackpot.',
+  },
+  serendipity: {
+    ask: 'Vox arranges a table for mediation; the landlord sends a rent collector instead.',
+    document: 'The franchise’s receipts are suddenly listed as proprietary starlight.',
+    override: 'The bar’s repair drones restore the machinery before anyone can discuss consent.',
+  },
+  constellation: {
+    ask: 'The omens arrive at the wrong committee and the witnesses refuse a second hearing.',
+    document: 'The star chart’s original ink goes dark before the final clue can be copied.',
+    override: 'The shortcut reaches the gate but the constellation will not open it on command.',
+  },
+  nemesis: {
+    ask: 'The adversary sends a lawyer instead of agreeing to terms.',
+    document: 'The transmission is intercepted and returned stamped EVIDENCE DENIED.',
+    override: 'The villain anticipated the maneuver and filed the counterattack in triplicate.',
+  },
+}
 export function episodeDecks(run: VoyageRun): EpisodeDeck[] {
   const decks: EpisodeDeck[] = ['planet', 'casino', 'serendipity']
   // One earned quest from the matching constellation, never another sign's.
@@ -425,7 +454,7 @@ export function dispatchEpisodeBatch(
       scene: result.outcome,
       log: [
         ...candidate.log,
-        `Ship day ${departure}: ${encounter.title} ${successful ? 'passed' : 'failed'} (${forecast}% forecast, ${durationDays} day contract).`,
+        `Ship day ${departure}: ${encounter.title} ${successful ? 'passed' : 'failed'} (${forecast}% forecast, ${durationDays} round contract).`,
       ],
     }
   }
@@ -499,26 +528,55 @@ export function drawEpisodeDeck(
   const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null
-  let changed = venue ? visitCasinoVenue(run, venue, choice) : run
   const outcome = card.outcomes?.[choice]
-  const scene = venue
-    ? changed.scene
-    : (outcome ??
-      (choice === 'ask'
-        ? 'The adversary accepts a ceasefire long enough to hear the question.'
-        : choice === 'document'
-          ? 'Their private interference becomes a public record.'
-          : 'The couch wins the immediate clash, but the nemesis starts a second file.'))
+  // Failed attempts still consume this episode card, but never award a
+  // completed venue stage or imply the blue-giant host consented.
+  const failureScene = `${names} cannot secure the ${skill} objective. ${PLOT_SETBACKS[deck][choice]}`
+  let changed: VoyageRun = run
+  if (venue && !successful) {
+    const system = chapterSystem(run.seed, run.chapter)
+    const progress = run.venueProgress ?? newVenueProgress()
+    changed = {
+      ...run,
+      supplies: Math.max(0, run.supplies - 1),
+      venueProgress: {
+        ...progress,
+        choices: [
+          ...progress.choices,
+          {
+            systemId: system.id,
+            chapter: run.chapter,
+            venue,
+            choice,
+            scene: failureScene,
+          },
+        ],
+      },
+    }
+  } else if (venue) {
+    changed = visitCasinoVenue(run, venue, choice)
+  }
+  const scene = !successful
+    ? failureScene
+    : venue
+      ? changed.scene
+      : (outcome ??
+        (choice === 'ask'
+          ? 'The adversary accepts a ceasefire long enough to hear the question.'
+          : choice === 'document'
+            ? 'Their private interference becomes a public record.'
+            : 'The couch wins the immediate clash, but the nemesis starts a second file.'))
   if (!venue) {
     changed = {
       ...changed,
-      trust:
-        changed.trust + (choice === 'ask' ? 1 : choice === 'override' ? -1 : 0),
-      reputation: changed.reputation + (choice === 'document' ? 1 : 0),
-      supplies: changed.supplies + (choice === 'override' ? 1 : 0),
+      trust: changed.trust + (successful
+        ? choice === 'ask' ? 1 : choice === 'override' ? -1 : 0
+        : 0),
+      reputation: changed.reputation + (successful && choice === 'document' ? 1 : 0),
+      supplies: changed.supplies + (successful && choice === 'override' ? 1 : 0),
       nemesisPressure:
         (changed.nemesisPressure ?? 0) +
-        (deck === 'nemesis' ? (choice === 'override' ? 2 : -1) : 0),
+        (deck === 'nemesis' ? (successful && choice !== 'override' ? -1 : 2) : 0),
     }
   }
   const record: EpisodeDraw = {
@@ -556,6 +614,8 @@ export function drawEpisodeDeck(
 export function episodeStanding(run: VoyageRun) {
   const result = { hosts: 0, records: 0, operators: 0, villains: 0 }
   for (const draw of (run as EpisodeRun).episodeDrawHistory ?? []) {
+    // Legacy v1 draw records have no outcome field and keep prior credit.
+    if (draw.successful === false) continue
     if (draw.choice === 'ask') result.hosts += 2
     if (draw.choice === 'document') result.records += 2
     if (draw.choice === 'override') result.operators += 1

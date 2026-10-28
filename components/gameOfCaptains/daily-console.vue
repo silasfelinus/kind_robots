@@ -10,7 +10,7 @@
           >SPACE COUCH PRESENTS · EPISODE {{ run.chapter }} · SHIP DAY
           {{ run.day ?? run.chapter }}</span
         >
-        <h2>{{ majorDone ? 'The Plot Thickens' : 'Assign the Cast' }}</h2>
+        <h2>{{ majorDone && !showQuestBoard ? 'The Plot Thickens' : 'Assign the Cast' }}</h2>
         <p>{{ episodeIncitingEvent(run) }}</p>
       </div>
       <span class="daily-on-air">● ON AIR</span>
@@ -21,7 +21,7 @@
       @print="emit('clonePrint', $event)"
     />
 
-    <template v-if="!majorDone">
+    <template v-if="!majorDone || showQuestBoard">
       <div class="daily-body">
         <aside
           class="daily-cast"
@@ -189,6 +189,15 @@
               · Side quests optional</span
             >
             <button
+              v-if="majorDone"
+              type="button"
+              class="daily-return-to-plot"
+              data-testid="space-couch-return-to-plot"
+              @click="returnToDecks"
+            >
+              RETURN TO PLOT CARDS
+            </button>
+            <button
               type="button"
               data-testid="space-couch-expedition-deploy"
               :disabled="!batchReady"
@@ -207,6 +216,17 @@
           <strong>SOLAR-SYSTEM ENCOUNTERS · LOCAL & PLOT</strong>
           <span>ONE ROUND EACH · DRAW IN ORDER</span>
         </div>
+        <button
+          v-if="openSideCount > 0"
+          type="button"
+          class="daily-sidequest-reopen"
+          data-testid="space-couch-return-to-side-quests"
+          @click="reopenSideQuests"
+        >
+          ✦ {{ openSideCount }} OPTIONAL FIELD QUEST{{
+            openSideCount === 1 ? '' : 'S'
+          }} REMAIN · REOPEN REDSHIRT BOARD
+        </button>
         <div
           class="daily-deck-row"
           role="group"
@@ -441,12 +461,14 @@ const selectedLead = ref<string>('captain')
 const assignments = ref<Record<string, string>>({})
 const plotCast = ref<string[]>([])
 const flipped = ref<EpisodeDeck | null>(null)
+const showQuestBoard = ref(false)
 watch(
   () => props.run.chapter,
   () => {
     assignments.value = {}
     plotCast.value = []
     flipped.value = null
+    showQuestBoard.value = false
     selectedLead.value = 'captain'
   },
 )
@@ -460,6 +482,9 @@ const majorCount = computed(
 const completeCount = computed(
   () => props.run.expeditionVisit?.results.length ?? 0,
 )
+const openSideCount = computed(() => encounters.value.filter(
+  (enc) => enc.priority === 'minor' && !completed(enc.id),
+).length)
 const requiredDecks = computed(() => episodeDecks(props.run))
 const nextDeck = computed(() =>
   requiredDecks.value.find((deck) => !episodeDeckDone(props.run, deck)),
@@ -581,6 +606,17 @@ function dispatchAll() {
     .map((enc) => ({ encounterId: enc.id, lead: assignments.value[enc.id]! }))
   emit('dispatch', batch)
   assignments.value = {}
+  showQuestBoard.value = false
+}
+function reopenSideQuests() {
+  showQuestBoard.value = true
+  flipped.value = null
+  plotCast.value = []
+}
+function returnToDecks() {
+  showQuestBoard.value = false
+  assignments.value = {}
+  flipped.value = null
 }
 function deckName(deck: EpisodeDeck) {
   return {
@@ -1243,4 +1279,20 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.daily-sidequest-reopen,
+.daily-return-to-plot {
+  border: 1px solid #e5b58e;
+  color: #ffe3c1;
+  background: #315068;
+  border-radius: 0.45rem;
+  padding: 0.55rem 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  text-align: center;
+  cursor: pointer;
+}
+.daily-sidequest-reopen { margin: 0.35rem 0.7rem 0; text-align: left; }
+.daily-sidequest-reopen:hover,
+.daily-return-to-plot:hover { background: #57728b; }
 </style>

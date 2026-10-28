@@ -5,7 +5,7 @@
  * Optional fields retain the existing v1 VoyageRun save format.
  */
 import type { CrewId, VoyageRun } from './rules'
-import { SKILLS, type Skill } from './crewAssignments'
+import type { Skill } from './crewAssignments'
 import {
   knownRedshirtSkills,
   type RedshirtKnowledge,
@@ -62,6 +62,7 @@ const clamp = (v: number) => Math.max(8, Math.min(94, v))
 const PLANET_CARDS = [
   {
     title: 'The Moon That Requested Custody',
+    skill: 'diplomacy',
     setup:
       'A moon demands shared custody of its own tides. The colony has misplaced every copy of its birth certificate.',
     ask: 'Local residents vote to lend the moon its tides on alternate Thursdays.',
@@ -72,6 +73,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'A Refugee Named Wednesday',
+    skill: 'rescue',
     setup:
       'A traveler has arrived six days before their own disappearance. The border guards want to arrest tomorrow.',
     ask: 'The traveler chooses a safe place to wait for the paradox.',
@@ -82,6 +84,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Union of Unpaid Suns',
+    skill: 'diplomacy',
     setup:
       'Three junior stars have gone on strike. Their contract provides twelve hours of darkness and no sick leave.',
     ask: 'The workers negotiate a rotating daylight schedule.',
@@ -92,6 +95,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Garden That Refused Oxygen',
+    skill: 'science',
     setup:
       'A sentient orchard requests retirement from producing breathable air. A nearby settlement claims this is treason.',
     ask: 'A public forum funds an alternative oxygen supply.',
@@ -102,6 +106,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Diplomatic Temperature Incident',
+    skill: 'culture',
     setup:
       'An assembly votes in frost patterns. A visiting ambassador has been translating every warning as a compliment.',
     ask: 'The delegates insist on an interpreter they actually trust.',
@@ -112,6 +117,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'A Planet Requests an Exit Interview',
+    skill: 'diplomacy',
     setup:
       'A quarry planet resigns from the mining company that claims to own its crust. The company has sent a lawyer and a drill.',
     ask: 'The planet dictates terms to a neutral mediator.',
@@ -122,6 +128,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Twelve-Hour Apology',
+    skill: 'culture',
     setup:
       'A colony broadcasts an apology that resets each listener’s memories. The descendants of its victims remain unconvinced.',
     ask: 'Survivors choose whether any apology will be heard.',
@@ -133,6 +140,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Missing Note Committee',
+    skill: 'science',
     setup:
       'A public alarm chime was outlawed for upsetting a royal concert. The emergency it warned of is arriving again.',
     ask: 'Residents decide when the alarm may be sounded.',
@@ -144,6 +152,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Interstellar Costume Inspector',
+    skill: 'luck',
     setup:
       'An inspector has classified the red couch as a theatrical prop. Its passengers are now legally imaginary.',
     ask: 'The inspector interviews the passengers and reinstates their personhood.',
@@ -155,6 +164,7 @@ const PLANET_CARDS = [
   },
   {
     title: 'The Gravity Refund Office',
+    skill: 'science',
     setup:
       'Residents who bought premium gravity have discovered the local company charges extra for walking downhill.',
     ask: 'Tenants negotiate a public gravity guarantee.',
@@ -165,6 +175,85 @@ const PLANET_CARDS = [
   },
 ] as const
 
+function selectedPlanetCard(run: VoyageRun) {
+  return PLANET_CARDS[
+    hash(`${run.seed}:${run.chapter}:planet`) % PLANET_CARDS.length
+  ]!
+}
+/** Encounter requirements must match the actual authored situation. */
+const FRANCHISE_SKILLS: Record<string, Skill> = {
+  mesa: 'diplomacy',
+  arcade: 'tactics',
+  library: 'science',
+  orchid: 'rescue',
+  rink: 'luck',
+  opera: 'culture',
+  laundry: 'science',
+  sauna: 'rescue',
+  bowling: 'luck',
+  chapel: 'diplomacy',
+  cinema: 'culture',
+  mech: 'tactics',
+  farm: 'rescue',
+  haunt: 'culture',
+  karaoke: 'culture',
+  diner: 'diplomacy',
+  market: 'diplomacy',
+  museum: 'science',
+  observatory: 'science',
+  carnival: 'luck',
+}
+const STAR_SKILLS: Record<string, Skill> = {
+  'northern-sloth': 'rescue',
+  'princess-mantic-shrimp': 'diplomacy',
+  'velvet-comet': 'culture',
+  'clockwork-minnow': 'science',
+  'royal-dust-bunny': 'rescue',
+  'laughing-leviathan': 'culture',
+  'nebular-teapot': 'diplomacy',
+  'three-headed-librarian': 'science',
+  'feral-umbrella': 'tactics',
+  'last-lantern': 'rescue',
+  'moonlit-upholsterer': 'culture',
+  'cosmic-turnip': 'luck',
+}
+const NEMESIS_SKILLS: Record<string, Skill> = {
+  auditor: 'science',
+  moth: 'culture',
+  curdle: 'science',
+  showrunner: 'tactics',
+  regent: 'diplomacy',
+  'brass-choir': 'culture',
+  chancellor: 'diplomacy',
+  'kindly-swarm': 'rescue',
+}
+export function episodePlotConnection(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  cast: string[],
+): string | null {
+  if (deck !== 'planet') return null
+  const connection = selectedPlanetCard(run).crew
+  if (!cast.includes(connection)) return null
+  const officer = CREW_PROFILES.find((p) => p.id === connection)
+  return officer
+    ? officer.name +
+        ' knows this planetary dilemma; their prior field experience gives the team a home advantage.'
+    : null
+}
+export function episodeDuoExperience(run: VoyageRun, cast: string[]): number {
+  if (cast.length !== 2 || new Set(cast).size !== 2) return 0
+  const partnership = [...cast].sort().join(':')
+  return Math.min(
+    3,
+    ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
+      (draw) =>
+        draw.successful &&
+        draw.cast?.length === 2 &&
+        [...draw.cast].sort().join(':') === partnership,
+    ).length,
+  )
+}
 export const EPISODE_CHOICES: readonly {
   id: EpisodeChoice
   label: string
@@ -245,19 +334,13 @@ export function episodeDecksDone(run: VoyageRun): boolean {
 }
 export function episodeIncitingEvent(run: VoyageRun): string {
   const system = chapterSystem(run.seed, run.chapter)
-  const cast =
-    PLANET_CARDS[
-      hash(`${run.seed}:${run.chapter}:inciting`) % PLANET_CARDS.length
-    ]!
+  const cast = selectedPlanetCard(run)
   return `${system.name} insists: ${system.conflict} Meanwhile, ${cast.title.toLowerCase()} has been declared the emergency of the week.`
 }
 export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
   const system = chapterSystem(run.seed, run.chapter)
   if (deck === 'planet') {
-    const selected =
-      PLANET_CARDS[
-        hash(`${run.seed}:${run.chapter}:planet`) % PLANET_CARDS.length
-      ]!
+    const selected = selectedPlanetCard(run)
     return {
       id: 'planet-' + selected.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       title: selected.title,
@@ -476,9 +559,15 @@ export function dispatchEpisodeBatch(
 }
 /** The four permanent command seats run solar-system plot cards, not the redshirt corps. */
 export function episodePlotSkill(run: VoyageRun, deck: EpisodeDeck): Skill {
-  return SKILLS[
-    hash(`${run.seed}:${run.chapter}:${deck}:skill`) % SKILLS.length
-  ]!
+  if (deck === 'planet') return selectedPlanetCard(run).skill
+  const system = chapterSystem(run.seed, run.chapter)
+  if (deck === 'casino')
+    return casinoIncident(run.seed, run.chapter, system).skill
+  if (deck === 'serendipity')
+    return FRANCHISE_SKILLS[system.franchise.id] ?? 'culture'
+  if (deck === 'constellation')
+    return STAR_SKILLS[run.starAssessment?.sign ?? ''] ?? 'culture'
+  return NEMESIS_SKILLS[antagonistFor(run).id] ?? 'tactics'
 }
 export function episodePlotSeats(run: VoyageRun, deck: EpisodeDeck): 1 | 2 {
   return hash(`${run.seed}:${run.chapter}:${deck}:seats`) % 3 === 0 ? 2 : 1
@@ -501,7 +590,16 @@ export function episodePlotOdds(
       ? CAPTAIN_STATS[run.captain][skill]
       : CREW_PROFILES.find((p) => p.id === id)!.stats[skill],
   )
-  return clamp(14 + command[0]! * 13 + (command[1] ? 8 + command[1] * 5 : 0))
+  const connected =
+    deck === 'planet' && cast.includes(selectedPlanetCard(run).crew)
+  const rapport = episodeDuoExperience(run, cast)
+  return clamp(
+    14 +
+      command[0]! * 13 +
+      (command[1] ? 8 + command[1] * 5 : 0) +
+      (connected ? 12 : 0) +
+      rapport * 5,
+  )
 }
 export function drawEpisodeDeck(
   run: VoyageRun,
@@ -535,7 +633,9 @@ export function drawEpisodeDeck(
         : CREW_PROFILES.find((p) => p.id === id)!.name,
     )
     .join(' and ')
-  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).`
+  const connection = episodePlotConnection(run, deck, cast)
+  const rapport = episodeDuoExperience(run, cast)
+  const fieldReport = `${names} ${successful ? 'secure' : 'complicate'} the ${skill} objective in one round (${chance}% forecast).${connection ? ' ' + connection : ''}${rapport ? ' This team has ' + rapport + ' earlier successful shared mission(s).' : ''}`
   const venue =
     deck === 'casino' ? 'casino' : deck === 'serendipity' ? 'bar' : null
   const outcome = card.outcomes?.[choice]

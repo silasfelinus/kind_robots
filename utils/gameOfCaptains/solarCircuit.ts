@@ -724,41 +724,49 @@ export function newVenueProgress(): VenueProgress {
 const CASINO_INCIDENTS = [
   {
     title: 'The Unauthorized Itch',
+    skill: 'rescue',
     description:
       'A roulette terrace has been constructed over a nerve the host cannot reach; the casino has refused a scratching permit.',
   },
   {
     title: 'Colonial Settlement Day',
+    skill: 'culture',
     description:
       'The casino celebrates the seizure of the blue giants’ homeworld as a holiday and bills the giant host for the fireworks.',
   },
   {
     title: 'The House Always Wins',
+    skill: 'science',
     description:
       'A table dealer reveals that the giant host is automatically billed for every winning hand.',
   },
   {
     title: 'A Question of Consent',
+    skill: 'diplomacy',
     description:
       'A property inspector insists the giant host consented to carrying the casino, although no translator was present.',
   },
   {
     title: 'Night Shift',
+    skill: 'rescue',
     description:
       'The host wants six hours of sleep, but every casino schedule requires them to remain awake.',
   },
   {
     title: 'A Fair Agreement',
+    skill: 'diplomacy',
     description:
       'Colonists offer the giant one percent of profits if they surrender the right to move.',
   },
   {
     title: 'Jackpot Evacuation',
+    skill: 'tactics',
     description:
       'A casino fire alarm goes off inside the host’s outer ear, and every emergency exit leads farther onto their body.',
   },
   {
     title: 'The Other Owners',
+    skill: 'diplomacy',
     description:
       'Another blue giant broadcasts a warning that the casino franchise plans to expand into their sleeping sister.',
   },

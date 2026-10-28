@@ -321,7 +321,10 @@ const SOLAR_RADIUS = 142
 /** Pure, seeded motion used for drawing and collisions in the same frame. */
 export function orbitingDebrisPosition(debris: OrbitingDebris, tick: number) {
   const angle = tick * 0.032 + debris.offset
-  return { x: debris.x + Math.cos(angle) * 34, y: debris.y + Math.sin(angle) * 34 }
+  return {
+    x: debris.x + Math.cos(angle) * 34,
+    y: debris.y + Math.sin(angle) * 34,
+  }
 }
 
 export function solarGustPhase(gust: SolarGust, tick: number) {
@@ -1123,11 +1126,19 @@ export class PlumberRun implements ArcadeGameInstance {
           break
         case 'orbital-debris':
           if (stage.space)
-            this.orbitingDebris.push({ x: cx, y: bottom - TILE / 2, offset: spawn.col * 0.71 + spawn.row * 0.37 })
+            this.orbitingDebris.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: spawn.col * 0.71 + spawn.row * 0.37,
+            })
           break
         case 'solar-gust':
           if (stage.space)
-            this.solarGusts.push({ x: cx, y: bottom - TILE / 2, offset: (spawn.col * 7 + spawn.row * 11) % SOLAR_CYCLE })
+            this.solarGusts.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: (spawn.col * 7 + spawn.row * 11) % SOLAR_CYCLE,
+            })
           break
         case 'icicle':
           this.icicles.push({
@@ -2695,7 +2706,10 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.solarBurst > 0) this.solarBurst--
     for (const debris of this.orbitingDebris) {
       const fragment = orbitingDebrisPosition(debris, this.tick)
-      if (Math.abs(fragment.x - hero.x) < HALF + 10 && Math.abs(fragment.y - midY) < TALL / 2 + 10)
+      if (
+        Math.abs(fragment.x - hero.x) < HALF + 10 &&
+        Math.abs(fragment.y - midY) < TALL / 2 + 10
+      )
         this.hurt(hero.x < fragment.x ? -1 : 1)
     }
     for (const gust of this.solarGusts) {
@@ -2707,8 +2721,14 @@ export class PlumberRun implements ArcadeGameInstance {
       if (distance >= SOLAR_RADIUS) continue
       const strength = 3.1 * (1 - distance / (SOLAR_RADIUS * 1.6))
       const inv = Math.max(distance, 1)
-      hero.vx = Math.max(-AIR_JET_TOP_SPEED, Math.min(AIR_JET_TOP_SPEED, hero.vx + (dx || 1) / inv * strength))
-      hero.vy = Math.max(-AIR_JET_TOP_SPEED, Math.min(AIR_JET_TOP_SPEED, hero.vy + dy / inv * strength))
+      hero.vx = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vx + ((dx || 1) / inv) * strength),
+      )
+      hero.vy = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vy + (dy / inv) * strength),
+      )
       this.sound.play('warn')
     }
   }
@@ -4373,18 +4393,36 @@ export class PlumberRun implements ArcadeGameInstance {
       const blast = phase >= SOLAR_BLAST && phase < SOLAR_BLAST + 17
       g.fillStyle = warning ? '#ffe3ae' : '#ec9a52'
       g.beginPath()
-      g.arc(gust.x, gust.y, warning ? 10 + Math.sin(this.tick * 0.5) * 3 : 9, 0, Math.PI * 2)
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 10 + Math.sin(this.tick * 0.5) * 3 : 9,
+        0,
+        Math.PI * 2,
+      )
       g.fill()
       g.strokeStyle = warning ? '#ffe4bd' : 'rgba(255, 183, 99, 0.65)'
       g.lineWidth = warning ? 3 : 2
       g.beginPath()
-      g.arc(gust.x, gust.y, warning ? 16 + (phase - SOLAR_WARNING) / 2 : 14, 0, Math.PI * 2)
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 16 + (phase - SOLAR_WARNING) / 2 : 14,
+        0,
+        Math.PI * 2,
+      )
       g.stroke()
       if (blast) {
         g.strokeStyle = 'rgba(255, 217, 139, 0.6)'
         g.lineWidth = 4
         g.beginPath()
-        g.arc(gust.x, gust.y, Math.min(SOLAR_RADIUS, 12 + (phase - SOLAR_BLAST) * 8), 0, Math.PI * 2)
+        g.arc(
+          gust.x,
+          gust.y,
+          Math.min(SOLAR_RADIUS, 12 + (phase - SOLAR_BLAST) * 8),
+          0,
+          Math.PI * 2,
+        )
         g.stroke()
       }
     }

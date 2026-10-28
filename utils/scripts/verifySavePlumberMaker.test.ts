@@ -277,11 +277,14 @@ assert.notEqual(makerId(spaceCourse), makerId(initial))
 assert.equal('space' in validateMakerLevel(initial), false)
 const cosmosTools = MAKER_GROUPS.find((group) => group.name === 'Cosmos')
 assert.ok(cosmosTools?.tiles.some((tile) => tile.key === '?'))
+assert.ok(cosmosTools?.tiles.some((tile) => tile.key === '%'))
 const spaceRun = createSavePlumberPreview(
   { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
   { customLevel: toMakerStage(spaceCourse) },
 )
 assert.equal(spaceRun.gravityWells.length, 2)
+assert.equal(spaceRun.airCanisters.length, 3, 'Space starter has three fuel pickups')
+assert.equal(spaceRun.airPressure, 100)
 assert.equal(spaceRun.mode, 'play')
 assert.equal(spaceRun.save, undefined)
 const initialX = spaceRun.hero.x
@@ -350,6 +353,73 @@ assert.ok(
   'A level can be cleared through air thrust alone',
 )
 assert.equal(spaceClear.save, undefined)
+// Pressure is finite, each pulse costs propellant, and exhausted jets do not
+// accelerate until the emergency trickle has restored another pulse.
+const pressureRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(spaceCorridor) },
+)
+pressureRun.airPressure = 8
+const pressJet = emptyInput()
+pressJet.held.right = true
+pressJet.held.x = true
+pressureRun.update(pressJet)
+assert.equal(pressureRun.hero.vx, 0, 'An empty tank must not generate free thrust')
+assert.ok(pressureRun.airPressure > 8 && pressureRun.airPressure < 9)
+for (let i = 0; i < 30 && pressureRun.hero.vx === 0; i++) pressureRun.update(pressJet)
+assert.ok(pressureRun.hero.vx > 0, 'Emergency trickle must prevent an out-of-fuel softlock')
+assert.ok(pressureRun.airPressure < 9, 'Firing another pulse consumes pressure')
+assert.ok(pressureRun.airPressure >= 0 && pressureRun.airPressure <= 100)
+
+// A canister refuels once, refuels only in space, and survives a v1 shared link.
+const canisterLevel = paintMakerTile(spaceCorridor, 6, 20, '%')
+assert.deepEqual(decodeMakerLevel(encodeMakerLevel(canisterLevel)), canisterLevel)
+const canisterStage = parseStage(toMakerStage(canisterLevel))
+assert.equal(canisterStage.spawns.filter((spawn) => spawn.kind === 'air-canister').length, 1)
+const canisterRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(canisterLevel) },
+)
+const fuel = canisterRun.airCanisters[0]!
+assert.equal(fuel.taken, false)
+canisterRun.airPressure = 20
+canisterRun.hero.x = fuel.x
+canisterRun.hero.y = fuel.y - 10
+canisterRun.update(emptyInput())
+assert.equal(fuel.taken, true)
+assert.ok(canisterRun.airPressure >= 85 && canisterRun.airPressure < 86)
+const onceOnly = canisterRun.airPressure
+canisterRun.update(emptyInput())
+assert.ok(canisterRun.airPressure < onceOnly + 1, 'The same tank cannot be collected twice')
+canisterRun.airPressure = 98
+const canisterRunMax = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(canisterLevel) },
+)
+canisterRunMax.hero.x = canisterRunMax.airCanisters[0]!.x
+canisterRunMax.hero.y = canisterRunMax.airCanisters[0]!.y - 10
+canisterRunMax.airPressure = 98
+canisterRunMax.update(emptyInput())
+assert.equal(canisterRunMax.airPressure, 100, 'A full tank is capped at 100%')
+
+// Checkpoint activation must test both axes in space, not merely passing its x.
+const flagLevel = paintMakerTile(spaceCorridor, 10, 6, 'K')
+const flagRun = createSavePlumberPreview(
+  { rng: () => 0.5, sound: { play: () => undefined }, demo: false, hiScore: 0 },
+  { customLevel: toMakerStage(flagLevel) },
+)
+const floatingFlag = flagRun.checkpoints[0]!
+flagRun.hero.x = floatingFlag.x
+flagRun.airPressure = 25
+flagRun.update(emptyInput())
+assert.equal(floatingFlag.reached, false, 'Flying beneath a flag is not activation')
+flagRun.hero.y = floatingFlag.y - 20
+flagRun.update(emptyInput())
+assert.equal(floatingFlag.reached, true)
+assert.equal(flagRun.airPressure, 100, 'A reached orbital checkpoint refills the tank')
+assert.equal(flagRun.checkpoint.x, floatingFlag.x)
+assert.equal(flagRun.checkpoint.y, floatingFlag.y - 20)
+
 const worldStage = parseStage(toMakerStage(initial))
 assert.equal(
   worldStage.space,

@@ -31,11 +31,12 @@ export function briarLossContinuation(
   enemyName = 'The challenger',
 ): string {
   const inHouse = Boolean(progress.house?.combatOrigin)
+  const opponent = enemyName.length <= 32 ? enemyName : 'The challenger'
   let consequence: string
   if (inHouse) {
     consequence =
       kind === 'combat'
-        ? `${enemyName} wins. One heart lost; you recover in the House's quiet bedchamber, keeping your discoveries.`
+        ? `${opponent} wins. One heart lost; you recover in the House's quiet bedchamber, keeping your discoveries.`
         : "The room overwhelms you. You recover in the House's quiet bedchamber, keeping your discoveries."
   } else if (lastHeart) {
     consequence =
@@ -43,7 +44,7 @@ export function briarLossContinuation(
         ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
         : 'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
   } else {
-    consequence = `${enemyName} drives you back to the trail. One heart lost; the room waits for a rematch.`
+    consequence = `${opponent} drives you back to the trail. One heart lost; the room waits for a rematch.`
   }
   return `${consequence} ${rememberedConsequence(progress.sceneChoices)}`
 }

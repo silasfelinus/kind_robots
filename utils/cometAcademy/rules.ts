@@ -1012,9 +1012,11 @@ export function dispatchModifier(
     students.length +
     (run.flowVersion === 3 && run.playerCaseId === incident.id ? 1 : 0) +
     (affinity ? 2 : 0) +
-    (run.flowVersion !== 3 || run.playerCaseId === incident.id
-      ? run.power === incident.need ? 2 : 1
-      : 0) +
+    (run.flowVersion === 3
+      ? run.playerCaseId === incident.id
+        ? run.power === incident.need ? 2 : 1
+        : 0
+      : run.power === incident.need ? 1 : 0) +
     civicSupport +
     academySupport -
     sabotagePenalty -
@@ -1080,7 +1082,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         grade: 'failed' as Grade,
         text:
           [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-            ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
+            ? (realNightCase(incident.id)?.refused ??
+            'No one answers this call. Comet City bears the cost.')
             : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
     }

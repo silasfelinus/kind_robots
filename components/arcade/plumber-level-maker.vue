@@ -698,7 +698,13 @@ function resizeCourse(dx: number, dy: number) {
   })
 }
 function loadStarterTemplate(
-  name: 'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage' | 'pressure-lock',
+  name:
+    | 'harbor'
+    | 'snowfield'
+    | 'skybridge'
+    | 'spacewalk'
+    | 'orbital-salvage'
+    | 'pressure-lock',
 ) {
   stopGame()
   maker.loadTemplate(name)

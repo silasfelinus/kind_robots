@@ -218,9 +218,9 @@
         air in the opposite direction, release to coast, hold A to brake. Each
         thrust spends pressure. Collect cyan canisters (◉), approach golden
         charging docks (▣), or touch checkpoints to refill. Gravity wells tug
-        you inward.
-        In space, shoot jet exhaust backward into valve switches (◈). All
-        switches must activate before the matching airlock walls (▥) open.
+        you inward. In space, shoot jet exhaust backward into valve switches
+        (◈). All switches must activate before the matching airlock walls (▥)
+        open.
       </p>
       <p class="maker-help">
         All 8 world styles use the same playable mechanics. A boss uses the
@@ -243,7 +243,12 @@ const emit = defineEmits<{
   (
     event: 'load-template',
     name:
-      'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage' | 'pressure-lock',
+      | 'harbor'
+      | 'snowfield'
+      | 'skybridge'
+      | 'spacewalk'
+      | 'orbital-salvage'
+      | 'pressure-lock',
   ): void
 }>()
 const starterCourses = [

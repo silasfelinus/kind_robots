@@ -4576,7 +4576,11 @@ export class PlumberRun implements ArcadeGameInstance {
         g.fillText(
           allOpen
             ? 'AIRLOCK RELEASED'
-            : 'AIRLOCK  ' + opened + '/' + this.valves.length + '  ·  EXHAUST → VALVES',
+            : 'AIRLOCK  ' +
+                opened +
+                '/' +
+                this.valves.length +
+                '  ·  EXHAUST → VALVES',
           290,
           H - 15,
         )

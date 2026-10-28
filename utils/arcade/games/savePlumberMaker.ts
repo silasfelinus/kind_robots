@@ -118,7 +118,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
     icon: '✧',
     tiles: [
       { key: '?', icon: '◎', label: 'Gravity well · attracts spacefarers' },
-      { key: 'v', icon: '◈', label: 'Air valve · direct exhaust backward at it' },
+      {
+        key: 'v',
+        icon: '◈',
+        label: 'Air valve · direct exhaust backward at it',
+      },
       { key: 'g', icon: '▥', label: 'Airlock gate · all valves must open' },
       { key: '&', icon: '☄', label: 'Orbiting asteroid · circle of danger' },
       { key: '$', icon: '☼', label: 'Solar gust · warning then outward blast' },
@@ -302,7 +306,12 @@ export function resizeMakerLevel(
 export type MakerRect = { x1: number; y1: number; x2: number; y2: number }
 export type MakerStamp = { rows: string[]; width: number; height: number }
 export type MakerTemplate =
-  'harbor' | 'snowfield' | 'skybridge' | 'spacewalk' | 'orbital-salvage' | 'pressure-lock'
+  | 'harbor'
+  | 'snowfield'
+  | 'skybridge'
+  | 'spacewalk'
+  | 'orbital-salvage'
+  | 'pressure-lock'
 
 function regionBounds(rect: MakerRect) {
   return {
@@ -516,8 +525,7 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
   } else if (template === 'pressure-lock') {
     put(3, 20, '.')
     put(59, 20, '.')
-    for (let y = 22; y < 24; y++)
-      for (let x = 0; x < 64; x++) put(x, y, '.')
+    for (let y = 22; y < 24; y++) for (let x = 0; x < 64; x++) put(x, y, '.')
     put(3, 13, '@')
     put(59, 9, 'G')
     for (let y = 0; y < 24; y++) put(34, y, 'g')
@@ -528,10 +536,8 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     put(27, 15, '%')
     put(42, 11, '%')
     put(51, 6, '%')
-    for (let x = 21; x < 24; x++)
-      for (let y = 3; y < 8; y++) put(x, y, 'B')
-    for (let x = 44; x < 48; x++)
-      for (let y = 17; y < 20; y++) put(x, y, 'B')
+    for (let x = 21; x < 24; x++) for (let y = 3; y < 8; y++) put(x, y, 'B')
+    for (let x = 44; x < 48; x++) for (let y = 17; y < 20; y++) put(x, y, 'B')
     put(45, 11, '?')
     put(55, 16, '&')
     put(46, 6, 'u')
@@ -566,11 +572,15 @@ export function makerTemplate(template: MakerTemplate): MakerLevel {
     theme:
       template === 'harbor'
         ? 2
-        : template === 'spacewalk' || template === 'orbital-salvage' || template === 'pressure-lock'
+        : template === 'spacewalk' ||
+            template === 'orbital-salvage' ||
+            template === 'pressure-lock'
           ? 8
           : 5,
     ...(template === 'snowfield' ? { snow: true } : {}),
-    ...(template === 'spacewalk' || template === 'orbital-salvage' || template === 'pressure-lock'
+    ...(template === 'spacewalk' ||
+    template === 'orbital-salvage' ||
+    template === 'pressure-lock'
       ? { space: true }
       : {}),
     rows: grid.map((row) => row.join('')),

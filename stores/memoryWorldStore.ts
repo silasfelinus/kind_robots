@@ -156,6 +156,7 @@ import {
 import { houseEpilogue as earnedHouseEpilogue } from '~/utils/memoryDungeon/houseEpilogues'
 import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
 import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
+import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -1918,9 +1919,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           state.value.roomMisses = 0
           state.value.hearts -= 1
           if (state.value.hearts <= 0) {
-            leaveRoom(
-              'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
-            )
+            leaveRoom(briarLossContinuation(state.value, 'chamber', true), true)
             state.value.player = '2,4'
             state.value.hearts = 3
           } else {
@@ -1970,13 +1969,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
             )
           } else if (state.value.hearts <= 0) {
             leaveRoom(
-              'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
+              briarLossContinuation(
+                state.value,
+                'combat',
+                true,
+                next.enemy.name,
+              ),
+              true,
             )
             state.value.player = '2,4'
             state.value.hearts = 3
           } else {
             leaveRoom(
-              `${next.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`,
+              briarLossContinuation(
+                state.value,
+                'combat',
+                false,
+                next.enemy.name,
+              ),
+              true,
             )
           }
         }
@@ -2083,6 +2094,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function leaveRoom(
     message = 'You step out of the challenge and return to the same place on the map.',
+    contextualRetreat = false,
   ): void {
     if (darkBriarDuelForRoom(state.value.roomId)) {
       closeDarkDuel(
@@ -2098,7 +2110,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       if (!state.value.house.visited.includes('HD-18'))
         state.value.house.visited.push('HD-18')
       state.value.room = 'house'
-      message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
+      if (!contextualRetreat)
+        message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
     } else {
       state.value.room = 'map'
     }

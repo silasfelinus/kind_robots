@@ -424,6 +424,8 @@ const palette: Record<string, string> = {
   '?': '#cba7ff',
   '%': '#7ce2ed',
   ';': '#f8e2a2',
+  '&': '#e8bb9a',
+  $: '#ffad70',
   c: '#a67c56',
   g: '#cb7257',
   v: '#ffd064',
@@ -476,6 +478,15 @@ function drawEditor() {
         ctx.globalAlpha = 1
         ctx.fillStyle = '#1d2938'
         ctx.fillText(symbols[tile] ?? tile, x * 24 + 12, y * 24 + 12)
+        if (tile === '&') {
+          ctx.strokeStyle = 'rgba(251, 213, 157, 0.65)'
+          ctx.lineWidth = 1.5
+          ctx.setLineDash([5, 3])
+          ctx.beginPath()
+          ctx.arc(x * 24 + 12, y * 24 + 12, 51, 0, Math.PI * 2)
+          ctx.stroke()
+          ctx.setLineDash([])
+        }
       }
     }
   }

@@ -35,7 +35,7 @@
           v-for="item in rooms"
           :key="item.id"
           type="button"
-          class="min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
           :class="{
             'border-[#f8d681] bg-[#786537] text-white shadow-[inset_0_0_12px_#e7c777]':
               progress?.current === item.id,
@@ -60,6 +60,14 @@
           :aria-label="`${item.id}: ${progress?.visited.includes(item.id) || available.includes(item.id) ? item.title : 'unknown'}${progress?.current === item.id ? ', current location' : ''}`"
           @click="world.houseMove(item.id)"
         >
+          <memory-dungeon-action-beacon
+            v-if="
+              available.includes(item.id) &&
+              progress?.current !== item.id &&
+              (!progress?.visited.includes(item.id) ||
+                (item.choices.length > 0 && !progress?.decisions[item.id]))
+            "
+          />
           <span class="block text-[clamp(9px,1.15vw,13px)] font-black">{{
             item.id.slice(3)
           }}</span>
@@ -124,7 +132,7 @@
             <button
               v-for="choice in room?.choices ?? []"
               :key="choice.id"
-              class="min-h-10 rounded-lg border border-[#807447] bg-[#43563a] px-3 py-2 text-left text-sm font-bold text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
+              class="min-h-12 flex-1 rounded-lg border border-[#807447] bg-[#43563a] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-white hover:bg-[#617449] focus-visible:outline-2 focus-visible:outline-[#21391e] disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
               :disabled="!world.canChooseHouse(choice.id)"
               @click="world.chooseHouse(choice.id)"

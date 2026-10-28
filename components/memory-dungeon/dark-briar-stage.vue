@@ -46,7 +46,15 @@
       <div
         class="relative grid min-h-0 place-items-center overflow-hidden rounded-xl border-2 border-[#886c9e] bg-[#171a2c] p-2 shadow-2xl"
       >
+        <img
+          v-if="!mapArtFailed"
+          src="/images/memory-dungeon/dark-briar/backdrops/map.webp"
+          alt=""
+          class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
+          @error="mapArtFailed = true"
+        />
         <div
+          v-else
           class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60"
           style="
             background-image: url('/memory-dungeon/briar-camp.svg');
@@ -160,6 +168,19 @@
               "
               @click="world.darkWalk(tile.key)"
             >
+              <memory-dungeon-action-beacon
+                v-if="
+                  (!world.dark.sceneChoices[tile.key] ||
+                    (darkSeals[tile.key] &&
+                      !world.dark.sealInspections.includes(tile.key))) &&
+                  darkBriarCanTravel(
+                    world.dark.player,
+                    tile.key,
+                    world.dark.revealed,
+                    world.dark,
+                  )
+                "
+              />
               <span aria-hidden="true">{{
                 darkSeals[tile.key]
                   ? '✧'
@@ -355,7 +376,7 @@
               v-for="choice in scene.choices"
               :key="choice.id"
               type="button"
-              class="rounded-lg border border-[#563462] bg-[#43314f] px-3 py-2 text-left text-sm font-bold text-[#fff0d9] hover:bg-[#654674] disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-[#271a38]"
+              class="min-h-12 flex-1 rounded-lg border border-[#563462] bg-[#43314f] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-[#fff0d9] hover:bg-[#654674] disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-[#271a38]"
               :disabled="!darkBriarCanChoose(world.dark, world.dark.player)"
               @click="world.darkChooseScene(choice.id)"
             >
@@ -463,13 +484,18 @@ const artFailed = ref(false)
 watch(illustrationPath, () => {
   artFailed.value = false
 })
+const mapArtFailed = ref(false)
 const sceneStyle = computed(() => {
   const [x = 1, y = 1] = world.dark.player.split(',').map(Number)
   return {
-    backgroundImage: "url('/memory-dungeon/briar-camp.svg')",
+    backgroundImage: mapArtFailed.value
+      ? "url('/memory-dungeon/briar-camp.svg')"
+      : "url('/images/memory-dungeon/dark-briar/backdrops/map.webp')",
     backgroundSize: '800% 800%',
     backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
-    filter: 'grayscale(0.8) hue-rotate(160deg) brightness(0.75)',
+    filter: mapArtFailed.value
+      ? 'grayscale(0.8) hue-rotate(160deg) brightness(0.75)'
+      : 'brightness(0.8)',
   }
 })
 </script>

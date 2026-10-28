@@ -853,6 +853,17 @@ assert.equal(
   'The stone puzzle requires both solving the glyphs and settling the encounter',
 )
 assert.equal(
+  briarTileProgress(
+    {
+      ...settledSave,
+      sceneChoices: { ...settledSave.sceneChoices, '2,4': '' },
+    },
+    '2,4',
+  ),
+  'unfinished',
+  'An old cleared square becomes actionable again when its scene is reactivated',
+)
+assert.equal(
   briarTileProgress(settledSave, '5,2'),
   'unfinished',
   'Cross-world seals remain pending',
@@ -1509,6 +1520,81 @@ const launcherScreen = readFileSync(
   'components/pages/memory-dungeon-launcher.vue',
   'utf8',
 )
+const darkMapScreen = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+const mapBeacon = readFileSync(
+  'components/memory-dungeon/action-beacon.vue',
+  'utf8',
+)
+const questScreen = readFileSync(
+  'components/memory-dungeon/quest-log.vue',
+  'utf8',
+)
+const houseMapScreen = readFileSync(
+  'components/memory-dungeon/house-stage.vue',
+  'utf8',
+)
+const darkHouseScreen = readFileSync(
+  'components/memory-dungeon/dark-house-stage.vue',
+  'utf8',
+)
+assert.ok(
+  mapScreen.includes(
+    'src="/images/memory-dungeon/backdrops/briar-overworld.webp"',
+  ),
+  'Original Briar uses the delivered painted map first',
+)
+assert.ok(
+  darkMapScreen.includes(
+    'src="/images/memory-dungeon/dark-briar/backdrops/map.webp"',
+  ),
+  'Dark Briar uses its own delivered map art',
+)
+assert.ok(
+  mapScreen.includes('briar-camp.svg') && mapScreen.includes('v-else'),
+  'The original map survives a media delivery outage',
+)
+assert.ok(
+  mapScreen.includes('tileNeedsAttention(tile.key)'),
+  'Briar tiles show actionable markers',
+)
+assert.ok(
+  mapScreen.includes("progress === 'unfinished'"),
+  'Reactivated scene decisions restore an action beacon',
+)
+assert.ok(
+  darkMapScreen.includes('memory-dungeon-action-beacon'),
+  'Dark Briar tiles show actionable markers',
+)
+assert.ok(
+  houseMapScreen.includes('memory-dungeon-action-beacon') &&
+    houseMapScreen.includes('!progress?.decisions[item.id]'),
+  'Original House reactivates markers for unfinished chambers',
+)
+assert.ok(
+  darkHouseScreen.includes('memory-dungeon-action-beacon') &&
+    darkHouseScreen.includes('!world.darkHouse.decisions[tileRoom.id]'),
+  'Mirrored House reactivates markers for unfinished chambers',
+)
+assert.ok(
+  mapBeacon.includes('rotateY(360deg)'),
+  'Action markers use depth and 3D rotation',
+)
+assert.ok(
+  mapBeacon.includes('prefers-reduced-motion'),
+  'Action markers respect reduced motion',
+)
+assert.ok(
+  questScreen.includes('text-base leading-relaxed sm:text-lg'),
+  'Quest narrative is legible like Shifting Desks',
+)
+assert.ok(
+  mapScreen.includes('font-size: clamp(1rem, 1.85cqw, 1.5rem)'),
+  'Story decisions are large at console widths',
+)
+
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(

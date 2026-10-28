@@ -265,6 +265,65 @@ assert.match(
   'The earliest authored patrol closure takes precedence over later alternatives',
 )
 
+// Respecting the orchard's consent, sharing a remembered taste, and naming an
+// unfed guest are worthwhile acts, but none supplies the workers' missing meal.
+// The Threads log must report each tradeoff rather than invent a stolen harvest.
+const orchard = BRIAR_QUESTS.find((q) => q.id === 'feed-the-orchard-workers')!
+const orchardClosures = [
+  ['briar', '3,1', 'listen', /carried no apples to the field kitchen/],
+  ['briar', '1,3', 'keep', /story about food instead of supper/],
+  ['house', 'HD-04', 'record', /demands a fair share of the next delivery/],
+] as const
+const orchardEndings = new Set<string>()
+for (const [scope, key, choice, expected] of orchardClosures) {
+  const decisions = split(orchard)
+  ;(scope === 'briar' ? decisions.briar : decisions.house)[key] = choice
+  const result = briarQuestProgress(orchard, decisions.briar, decisions.house)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the food thread`,
+  )
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, orchard.closed)
+  orchardEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
+  assert.equal(
+    briarQuestProgress(orchard, restored.sceneChoices, restoredHouse).quest
+      .closed,
+    result.quest.closed,
+    'The food-thread ending survives serialized decisions',
+  )
+}
+assert.equal(orchardEndings.size, 3, 'three distinct orchard outcomes')
+const forgedOrchard = split(orchard)
+forgedOrchard.house['HD-04'] = 'forged'
+assert.equal(
+  briarQuestProgress(orchard, forgedOrchard.briar, forgedOrchard.house).state,
+  'active',
+  'A fabricated pantry choice cannot close the orchard thread',
+)
+const twoOrchardClosures = split(orchard)
+twoOrchardClosures.briar['3,1'] = 'listen'
+twoOrchardClosures.house['HD-04'] = 'record'
+assert.match(
+  briarQuestProgress(
+    orchard,
+    twoOrchardClosures.briar,
+    twoOrchardClosures.house,
+  ).quest.closed,
+  /carried no apples/,
+  'The earliest authored orchard divergence determines the ending',
+)
+
 // Every quest step can be completed together: no two threads demand
 // opposite choices at the same place, so a single run can tie off all eight.
 const all = {

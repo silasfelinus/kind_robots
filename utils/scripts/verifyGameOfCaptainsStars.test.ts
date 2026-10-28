@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
 import { readFileSync } from 'node:fs'
-import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
+import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
 import {
   arriveAtWorld,
   currentExpedition,
@@ -290,6 +290,26 @@ assert.ok(page.includes("selectionScreen = 'stars'"))
 assert.ok(page.includes("selectionScreen.value = 'crew'"))
 assert.ok(page.includes('    selectedOrigin.value,'))
 assert.ok(page.includes('class="cap-menu-journal"'))
+assert.ok(page.includes('cap-layout--personnel'))
+assert.ok(page.includes('cap-personnel-scroll'))
+assert.ok(page.includes('data-testid="space-couch-crew-roster"'))
+assert.ok(page.includes('data-testid="space-couch-crew-prev"'))
+assert.ok(page.includes('data-testid="space-couch-crew-next"'))
+assert.ok(page.includes('data-testid="space-couch-captain-dossier-tab"'))
+assert.ok(page.includes('data-testid="space-couch-crew-dossier-tab"'))
+assert.ok(page.includes('crewPageMembers'))
+assert.ok(page.includes('CREW.slice(crewPage.value * 6'))
+assert.ok(page.includes('crewPage.value = 0'))
+assert.ok(page.includes("captainDossierTab === 'history' ? 'orders'"))
+assert.ok(page.includes("crewDossierTab === 'route' ? 'stats'"))
+assert.ok(page.includes('overflow: hidden;'))
+assert.ok(!page.includes('v-for="member in CREW"'), '12 personnel should not become a scrolling list')
+assert.equal(CREW.length, 12, 'two complete six-person roster screens')
+const firstRoster = CREW.slice(0, 6)
+const secondRoster = CREW.slice(6, 12)
+assert.equal(firstRoster.length, 6)
+assert.equal(secondRoster.length, 6)
+assert.equal(new Set([...firstRoster, ...secondRoster].map((member) => member.id)).size, 12)
 assert.ok(page.includes('cap-layout--stars'))
 assert.ok(page.includes("selectionScreen === 'stars'"))
 assert.ok(page.includes('SpaceCouchConstellationTest'))

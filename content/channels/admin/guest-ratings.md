@@ -6,7 +6,7 @@ label: Guest Notes
 title: Guest Notes
 subtitle: Held notes from logged-out game ratings
 description: Short notes left with logged-out star ratings, held until you release them or dismiss the text.
-icon: kind-icon:flag
+icon: kind-icon:star
 route: /admin/guest-ratings
 sort: 65
 navigation: false

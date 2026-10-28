@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useFacetCatalogStore } from '@/stores/facetCatalogStore'
+import { performFetch } from '@/stores/utils'
 import catalog from '@/utils/hybridizer/starterCatalog.json'
 
 export type HybridizerIngredient = {
@@ -18,6 +19,8 @@ export type HybridizerDiscovery = HybridizerIngredient & {
   sources: [string, string]
   depth: number
   createdAt: string
+  status?: string
+  artImageId?: number | null
 }
 
 const STARTERS = catalog.entries as HybridizerIngredient[]
@@ -92,6 +95,24 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
   }
 
+  async function loadSharedStudies() {
+    const response = await performFetch<HybridizerDiscovery[]>(
+      '/api/hybridizer/fusions?take=100',
+    )
+    if (!response.success || !response.data) {
+      status.value = 'Shared library unavailable. Local studies remain accessible.'
+      return
+    }
+    const merged = new Map<string, HybridizerDiscovery>()
+    for (const entry of [...discoveries.value, ...response.data]) {
+      if (entry.key && entry.title && entry.sources?.length === 2) {
+        merged.set(entry.key, entry)
+      }
+    }
+    discoveries.value = [...merged.values()].slice(-200)
+    save()
+  }
+
   async function loadArtwork() {
     try {
       const records = await catalogStore.fetchCatalogSlice({
@@ -135,43 +156,65 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     }
     const depth = Math.max(a.depth ?? 0, b.depth ?? 0) + 1
     if (depth > MAX_STUDY_DEPTH) {
-      status.value =
-        'This local concept study is limited to four fusion generations.'
-      return
-    }
-    const key = 'hybrid:' + pairKey(a.key, b.key)
-    const existing = discoveries.value.find((entry) => entry.key === key)
-    if (existing) {
-      resultKey.value = existing.key
-      status.value = 'Previously explored in this browser. Study retrieved.'
+      status.value = 'Maximum fusion depth reached.'
       return
     }
 
     working.value = true
     resultKey.value = null
-    status.value = 'The fusion chamber is mixing…'
-    if (import.meta.client) {
-      const reducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches
-      await new Promise<void>((resolve) =>
-        window.setTimeout(resolve, reducedMotion ? 120 : 1250),
+    status.value = 'Checking the shared discovery archive…'
+    try {
+      const animation = import.meta.client
+        ? new Promise<void>((resolve) => {
+            const reducedMotion = window.matchMedia(
+              '(prefers-reduced-motion: reduce)',
+            ).matches
+            window.setTimeout(resolve, reducedMotion ? 120 : 1250)
+          })
+        : Promise.resolve()
+      const request = performFetch<HybridizerDiscovery>(
+        '/api/hybridizer/fusions',
+        {
+          method: 'POST',
+          body: JSON.stringify({ leftKey: a.key, rightKey: b.key }),
+        },
       )
+      const [response] = await Promise.all([request, animation])
+
+      if (!response.success || !response.data) {
+        const existing = discoveries.value.find(
+          (entry) => entry.key === 'hybrid:' + pairKey(a.key, b.key),
+        )
+        const local: HybridizerDiscovery = existing ?? {
+          key: 'hybrid:' + pairKey(a.key, b.key),
+          title: displayName(a, b),
+          taxonomy: 'HYBRID',
+          sources: [a.key, b.key].sort() as [string, string],
+          depth,
+          createdAt: new Date().toISOString(),
+          status: 'LOCAL',
+        }
+        if (!existing) discoveries.value = [...discoveries.value, local].slice(-200)
+        resultKey.value = local.key
+        status.value = 'Local study only. Shared archive is unavailable: ' +
+          (response.message || 'request failed')
+        save()
+        return
+      }
+
+      const discovery = response.data
+      discoveries.value = [
+        ...discoveries.value.filter((entry) => entry.key !== discovery.key),
+        discovery,
+      ].slice(-200)
+      resultKey.value = discovery.key
+      status.value = discovery.status === 'READY'
+        ? 'Shared illustrated discovery retrieved.'
+        : 'Shared discovery saved. Painted hybrid generation is not connected yet.'
+      save()
+    } finally {
+      working.value = false
     }
-    const discovery: HybridizerDiscovery = {
-      key,
-      title: displayName(a, b),
-      taxonomy: 'HYBRID',
-      sources: [a.key, b.key].sort() as [string, string],
-      depth,
-      createdAt: new Date().toISOString(),
-    }
-    discoveries.value = [...discoveries.value, discovery].slice(-200)
-    resultKey.value = key
-    working.value = false
-    status.value =
-      'Local composition study ready. Generated artwork is not connected yet.'
-    save()
   }
 
   function remix(side: 'left' | 'right') {
@@ -194,6 +237,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     imageFor,
     hydrate,
     loadArtwork,
+    loadSharedStudies,
     choose,
     fuse,
     remix,

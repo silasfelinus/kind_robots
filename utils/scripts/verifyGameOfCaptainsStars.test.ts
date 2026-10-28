@@ -112,18 +112,44 @@ for (const sign of STAR_SIGNS) {
 assert.equal(CAPTAIN_ORIGINS.length, 6, 'six independent captain backgrounds')
 assert.equal(new Set(CAPTAIN_ORIGINS.map((origin) => origin.id)).size, 6)
 for (const origin of CAPTAIN_ORIGINS) {
-  const voyage = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, origin.id)
+  const voyage = startVoyage(
+    'fluke',
+    ['pell', 'mox', 'rue'],
+    101,
+    undefined,
+    origin.id,
+  )
   assert.equal(voyage.origin, origin.id)
   assert.ok(voyage.worldFlags?.includes('origin:' + origin.id))
   assert.ok(voyage.log[0]?.includes(origin.prologue))
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(voyage))), voyage)
 }
-const mechanic = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'mechanic')
-assert.equal(mechanic.shieldCharge, 3, "the mechanic\'s origin has a playable bonus")
-const courier = startVoyage('fluke', ['pell', 'mox', 'rue'], 101, undefined, 'courier')
+const mechanic = startVoyage(
+  'fluke',
+  ['pell', 'mox', 'rue'],
+  101,
+  undefined,
+  'mechanic',
+)
+assert.equal(
+  mechanic.shieldCharge,
+  3,
+  "the mechanic\'s origin has a playable bonus",
+)
+const courier = startVoyage(
+  'fluke',
+  ['pell', 'mox', 'rue'],
+  101,
+  undefined,
+  'courier',
+)
 assert.equal(courier.supplies, 9, 'the courier gets extra supplies')
 const brokenOrigin = { ...courier, origin: 'never-on-the-couch' }
-assert.equal(restoreVoyage(brokenOrigin), null, 'corrupted origin cannot enter a save')
+assert.equal(
+  restoreVoyage(brokenOrigin),
+  null,
+  'corrupted origin cannot enter a save',
+)
 const astrology = seen.get('princess-mantic-shrimp')!
 assert.ok(astrology)
 const initial = startVoyage('vale', ['pell', 'mox', 'rue'], 12045, astrology!)
@@ -290,7 +316,10 @@ for (const [index, subject] of [
   ['04', 'one-time miracle'],
 ]) {
   const drawing = readFileSync(
-    new URL('../../public/game-of-captains/couchscope/question-' + index + '.svg', import.meta.url),
+    new URL(
+      '../../public/game-of-captains/couchscope/question-' + index + '.svg',
+      import.meta.url,
+    ),
     'utf8',
   )
   assert.ok(drawing.includes('<svg'))

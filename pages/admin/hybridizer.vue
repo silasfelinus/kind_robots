@@ -36,17 +36,23 @@
             />
             <div v-else class="specimen-fallback" aria-hidden="true">
               <span class="specimen-glow"></span>
-              <span class="specimen-glyph">{{ glyphFor(lab.left?.title, lab.left?.taxonomy) }}</span>
+              <span class="specimen-glyph">{{
+                glyphFor(lab.left?.title, lab.left?.taxonomy)
+              }}</span>
             </div>
           </div>
-          <span class="chamber-bottom">{{ lab.left?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span>
+          <span class="chamber-bottom"
+            >{{ lab.left?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+          >
         </button>
 
         <div class="hybridizer-machine" aria-hidden="true">
           <span class="coil coil-one"></span>
           <span class="coil coil-two"></span>
           <span class="core">×</span>
-          <span class="machine-caption">{{ lab.working ? 'FUSING' : 'MIX' }}</span>
+          <span class="machine-caption">{{
+            lab.working ? 'FUSING' : 'MIX'
+          }}</span>
         </div>
 
         <button
@@ -69,24 +75,35 @@
             />
             <div v-else class="specimen-fallback" aria-hidden="true">
               <span class="specimen-glow"></span>
-              <span class="specimen-glyph">{{ glyphFor(lab.right?.title, lab.right?.taxonomy) }}</span>
+              <span class="specimen-glyph">{{
+                glyphFor(lab.right?.title, lab.right?.taxonomy)
+              }}</span>
             </div>
           </div>
-          <span class="chamber-bottom">{{ lab.right?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span>
+          <span class="chamber-bottom"
+            >{{ lab.right?.taxonomy || 'EMPTY' }} <span>CHANGE ✦</span></span
+          >
         </button>
 
         <article class="hybridizer-result" aria-live="polite">
           <p class="eyebrow">THE DISCOVERY CHAMBER</p>
           <template v-if="lab.result">
-            <h2 data-testid="hybridizer-result-title">{{ lab.result.title }}</h2>
-            <div class="fusion-study" aria-label="Compositional preview using the two source ingredients">
+            <h2 data-testid="hybridizer-result-title">
+              {{ lab.result.title }}
+            </h2>
+            <div
+              class="fusion-study"
+              aria-label="Compositional preview using the two source ingredients"
+            >
               <div class="fusion-part">
                 <img
                   v-if="lab.imageFor(lab.left)"
                   :src="lab.imageFor(lab.left) || undefined"
                   :alt="lab.left?.title || ''"
                 />
-                <span v-else aria-hidden="true">{{ glyphFor(lab.left?.title, lab.left?.taxonomy) }}</span>
+                <span v-else aria-hidden="true">{{
+                  glyphFor(lab.left?.title, lab.left?.taxonomy)
+                }}</span>
               </div>
               <div class="fusion-lightning" aria-hidden="true">✧</div>
               <div class="fusion-part">
@@ -95,18 +112,33 @@
                   :src="lab.imageFor(lab.right) || undefined"
                   :alt="lab.right?.title || ''"
                 />
-                <span v-else aria-hidden="true">{{ glyphFor(lab.right?.title, lab.right?.taxonomy) }}</span>
+                <span v-else aria-hidden="true">{{
+                  glyphFor(lab.right?.title, lab.right?.taxonomy)
+                }}</span>
               </div>
             </div>
             <div class="result-foot">
-              <p class="study-label">COMPOSITION STUDY · GENERATED HYBRID ART PENDING</p>
-              <button type="button" class="remix-button" data-testid="hybridizer-remix" @click="lab.remix('left')">
+              <p class="study-label">
+                COMPOSITION STUDY · GENERATED HYBRID ART PENDING
+              </p>
+              <button
+                type="button"
+                class="remix-button"
+                data-testid="hybridizer-remix"
+                @click="lab.remix('left')"
+              >
                 Use as next ingredient ↗
               </button>
             </div>
           </template>
           <template v-else>
-            <h2>{{ lab.working ? 'Something impossible is forming…' : 'Awaiting discovery' }}</h2>
+            <h2>
+              {{
+                lab.working
+                  ? 'Something impossible is forming…'
+                  : 'Awaiting discovery'
+              }}
+            </h2>
             <div class="empty-study" aria-hidden="true">
               <span class="orb orb-a"></span>
               <span class="orb orb-b"></span>
@@ -114,7 +146,11 @@
               <span class="empty-star">✧</span>
             </div>
             <p class="result-hint">
-              {{ lab.working ? 'The laboratory is recombining its specimens.' : 'Select any two specimens, then energize the chamber.' }}
+              {{
+                lab.working
+                  ? 'The laboratory is recombining its specimens.'
+                  : 'Select any two specimens, then energize the chamber.'
+              }}
             </p>
           </template>
         </article>
@@ -128,7 +164,9 @@
           data-testid="hybridizer-fuse"
           @click="lab.fuse()"
         >
-          <span aria-hidden="true">✦</span> {{ lab.working ? 'FUSION IN PROGRESS' : 'ACTIVATE FUSION' }} <span aria-hidden="true">✦</span>
+          <span aria-hidden="true">✦</span>
+          {{ lab.working ? 'FUSION IN PROGRESS' : 'ACTIVATE FUSION' }}
+          <span aria-hidden="true">✦</span>
         </button>
         <p class="lab-status" role="status">{{ lab.status }}</p>
         <button
@@ -141,18 +179,41 @@
         </button>
       </footer>
 
-      <aside v-if="drawer" class="ingredient-drawer" aria-label="Ingredient picker">
+      <aside
+        v-if="drawer"
+        class="ingredient-drawer"
+        aria-label="Ingredient picker"
+      >
         <div class="drawer-head">
           <div>
-            <p class="eyebrow">{{ drawer === 'atlas' ? 'LOCAL DISCOVERIES' : 'SPECIMEN DRAWER' }}</p>
-            <h2>{{ drawer === 'atlas' ? 'Discovery shelf' : 'Choose ' + drawer + ' ingredient' }}</h2>
+            <p class="eyebrow">
+              {{ drawer === 'atlas' ? 'LOCAL DISCOVERIES' : 'SPECIMEN DRAWER' }}
+            </p>
+            <h2>
+              {{
+                drawer === 'atlas'
+                  ? 'Discovery shelf'
+                  : 'Choose ' + drawer + ' ingredient'
+              }}
+            </h2>
           </div>
-          <button type="button" class="drawer-close" aria-label="Close picker" @click="drawer = null">✕</button>
+          <button
+            type="button"
+            class="drawer-close"
+            aria-label="Close picker"
+            @click="drawer = null"
+          >
+            ✕
+          </button>
         </div>
         <template v-if="drawer !== 'atlas'">
           <label class="search-wrap">
             <span class="sr-only">Search ingredients</span>
-            <input v-model="search" type="search" placeholder="Find an animal, species, fruit or curiosity…" />
+            <input
+              v-model="search"
+              type="search"
+              placeholder="Find an animal, species, fruit or curiosity…"
+            />
           </label>
           <div class="type-filters" aria-label="Filter ingredients">
             <button
@@ -176,18 +237,33 @@
             :aria-label="'Select ' + entry.title"
             @click="pick(entry.key)"
           >
-            <img v-if="lab.imageFor(entry)" :src="lab.imageFor(entry) || undefined" :alt="entry.title" />
-            <span v-else class="option-glyph" aria-hidden="true">{{ glyphFor(entry.title, entry.taxonomy) }}</span>
+            <img
+              v-if="lab.imageFor(entry)"
+              :src="lab.imageFor(entry) || undefined"
+              :alt="entry.title"
+            />
+            <span v-else class="option-glyph" aria-hidden="true">{{
+              glyphFor(entry.title, entry.taxonomy)
+            }}</span>
             <strong>{{ entry.title }}</strong>
-            <small>{{ entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit' ? 'FRUIT' : entry.taxonomy }}</small>
+            <small>{{
+              entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
+                ? 'FRUIT'
+                : entry.taxonomy
+            }}</small>
           </button>
           <p v-if="!visibleEntries.length" class="empty-filter">
-            {{ drawer === 'atlas' ? 'Your local discovery shelf is empty. Try a fusion.' : 'No ingredients match your search.' }}
+            {{
+              drawer === 'atlas'
+                ? 'Your local discovery shelf is empty. Try a fusion.'
+                : 'No ingredients match your search.'
+            }}
           </p>
         </div>
         <p class="drawer-foot">
-          Prototype: these studies are saved only in this browser. Global result caching,
-          real image generation and contributions are separate roadmap tasks.
+          Prototype: these studies are saved only in this browser. Global result
+          caching, real image generation and contributions are separate roadmap
+          tasks.
         </p>
       </aside>
     </div>
@@ -202,15 +278,28 @@ const lab = useHybridizerStore()
 const drawer = ref<'left' | 'right' | 'atlas' | null>(null)
 const search = ref('')
 const filter = ref('ALL')
-const filters = ['ALL', 'ANIMAL', 'SPECIES', 'FRUIT', 'ARCHETYPE', 'OTHER', 'HYBRID']
+const filters = [
+  'ALL',
+  'ANIMAL',
+  'SPECIES',
+  'FRUIT',
+  'ARCHETYPE',
+  'OTHER',
+  'HYBRID',
+]
 
 const visibleEntries = computed(() => {
   if (drawer.value === 'atlas') return [...lab.discoveries].reverse()
   const word = search.value.toLowerCase().trim()
   return lab.inputs.filter((entry) => {
-    const type = entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit' ? 'FRUIT' : entry.taxonomy
-    return (filter.value === 'ALL' || type === filter.value) &&
+    const type =
+      entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
+        ? 'FRUIT'
+        : entry.taxonomy
+    return (
+      (filter.value === 'ALL' || type === filter.value) &&
       (!word || entry.title.toLowerCase().includes(word))
+    )
   })
 })
 
@@ -223,8 +312,7 @@ function openDrawer(side: 'left' | 'right' | 'atlas') {
 function pick(key: string) {
   if (drawer.value === 'left' || drawer.value === 'right')
     lab.choose(drawer.value, key)
-  else
-    lab.choose('left', key)
+  else lab.choose('left', key)
   drawer.value = null
 }
 

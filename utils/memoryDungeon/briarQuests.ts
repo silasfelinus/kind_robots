@@ -167,6 +167,10 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '6,1',
         advance: ['mark'],
         text: 'Mark a safer return route at the Rootbound Threshold.',
+        closedOutcomes: {
+          follow:
+            'You followed Oren’s precise directions and reached the House without losing your way. The safe path works, but you left no ribbon for the traveler coming behind you. Oren adds your report to his private ledger and asks who will find the route when he is not there to explain it.',
+        },
       },
       {
         scope: 'house',
@@ -179,6 +183,10 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: 'HD-24',
         advance: ['mark'],
         text: 'Mark the dry cellar loop for other expeditions.',
+        closedOutcomes: {
+          retreat:
+            'You tested the cellar passage and proved that retreat need not erase anyone’s progress. The proof belongs to you alone until someone marks the stairs. Oren leaves a piece of chalk beside his manifest; he will not mistake a successful private escape for a public evacuation plan.',
+        },
       },
     ],
     complete:

@@ -7,7 +7,8 @@ const starterByKey = new Map(catalog.entries.map((entry) => [entry.key, entry]))
 const FUSION_ID_PATTERN = /^fusion:([a-f0-9]{64})$/
 
 export function normalizedIngredientKey(value: unknown): string {
-  if (typeof value !== 'string') throw new Error('Invalid Hybridizer ingredient.')
+  if (typeof value !== 'string')
+    throw new Error('Invalid Hybridizer ingredient.')
   const key = value.trim()
   if (key.startsWith('starter:') && starterByKey.has(key.slice(8))) return key
   if (starterByKey.has(key)) return 'starter:' + key
@@ -16,7 +17,9 @@ export function normalizedIngredientKey(value: unknown): string {
 }
 
 export function starterForIdentity(key: string) {
-  return key.startsWith('starter:') ? starterByKey.get(key.slice(8)) ?? null : null
+  return key.startsWith('starter:')
+    ? (starterByKey.get(key.slice(8)) ?? null)
+    : null
 }
 
 export function fusionIdForIdentity(key: string): string | null {
@@ -29,7 +32,14 @@ export function canonicalFusionPair(first: string, second: string) {
   if (left === right) throw new Error('Choose two different ingredients.')
   const [leftKey, rightKey] = [left, right].sort()
   const id = createHash('sha256')
-    .update(JSON.stringify(['hybridizer', HYBRIDIZER_RECIPE_VERSION, leftKey, rightKey]))
+    .update(
+      JSON.stringify([
+        'hybridizer',
+        HYBRIDIZER_RECIPE_VERSION,
+        leftKey,
+        rightKey,
+      ]),
+    )
     .digest('hex')
   return { id, leftKey, rightKey, recipeVersion: HYBRIDIZER_RECIPE_VERSION }
 }

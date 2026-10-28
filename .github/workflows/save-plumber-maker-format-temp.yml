@@ -1,0 +1,54 @@
+# Temporary branch-only generator to apply the repository's exact Prettier configuration.
+# Remove after codegen commits.
+name: Save Plumber Maker Prettier Sync (Temporary)
+on:
+  push:
+    branches:
+      - worker/save-plumber-giants-resize-20261027
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.repository == 'silasfelinus/kind_robots' && github.ref == 'refs/heads/worker/save-plumber-giants-resize-20261027'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Format only the new maker feature files
+        run: |
+          npx prettier --write \
+            components/arcade/plumber-level-maker.vue \
+            components/arcade/plumber-maker-sidebar.vue \
+            docs/save-plumber-maker-capability-audit.md \
+            stores/savePlumberMakerStore.ts \
+            utils/arcade/games/savePlumberLevels.ts \
+            utils/arcade/games/savePlumberMaker.ts \
+            utils/arcade/games/savePlumberPreview.ts \
+            utils/scripts/verifySavePlumberMaker.test.ts
+      - name: Commit exact formatting to this branch only
+        run: |
+          git add \
+            components/arcade/plumber-level-maker.vue \
+            components/arcade/plumber-maker-sidebar.vue \
+            docs/save-plumber-maker-capability-audit.md \
+            stores/savePlumberMakerStore.ts \
+            utils/arcade/games/savePlumberLevels.ts \
+            utils/arcade/games/savePlumberMaker.ts \
+            utils/arcade/games/savePlumberPreview.ts \
+            utils/scripts/verifySavePlumberMaker.test.ts
+          if git diff --cached --quiet; then
+            echo "Already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style(plumber-maker): format giant foes and adjustable courses"
+          git push origin HEAD:refs/heads/worker/save-plumber-giants-resize-20261027

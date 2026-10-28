@@ -1,0 +1,27 @@
+name: Space Couch temporary Vue production build check
+on:
+  push:
+    branches:
+      - worker/space-couch-vue-expression-hotfix-20261028
+    paths:
+      - .github/workflows/space-couch-build-check-temp.yml
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+          DATABASE_URL: mysql://dummy:dummy@127.0.0.1:3306/kindrobots
+        run: npm ci
+      - name: Build production Nuxt bundle
+        env:
+          DATABASE_URL: mysql://dummy:dummy@127.0.0.1:3306/kindrobots
+        run: npm run build

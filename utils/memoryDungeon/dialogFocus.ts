@@ -22,7 +22,7 @@ export function trapMemoryDialogTab(
   const first = controls[0]!
   const last = controls[controls.length - 1]!
   const active = document.activeElement
-  if (event.shiftKey && (active === first || !dialog.contains(active))) {
+  if (event.shiftKey && (active === first || active === dialog || !dialog.contains(active))) {
     event.preventDefault()
     last.focus()
   } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {

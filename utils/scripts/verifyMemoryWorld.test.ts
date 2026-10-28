@@ -2609,6 +2609,9 @@ for (const { choices, expected } of lossContexts) {
 const earnedHouseLoss = {
   ...defeatedBriar,
   hearts: 1,
+  revealed: [BRIAR_START, BRIAR_DUNGEON],
+  visited: [BRIAR_START, BRIAR_DUNGEON],
+  player: BRIAR_DUNGEON,
   sceneChoices: { '4,3': 'plan' },
   house: {
     ...newHouseProgress(),
@@ -2632,6 +2635,11 @@ const resumedEarnedHouseLoss = recoverBriarCombatDefeat(restoredEarnedHouseLoss)
 assert.equal(resumedEarnedHouseLoss.status, narratedHouseLoss)
 assert.equal(resumedEarnedHouseLoss.room, 'house')
 assert.equal(resumedEarnedHouseLoss.house?.current, 'HD-18')
+assert.equal(
+  resumedEarnedHouseLoss.player,
+  BRIAR_DUNGEON,
+  'Losing the last heart in the House must not teleport the overworld player to camp',
+)
 assert.equal(resumedEarnedHouseLoss.hearts, 3)
 assert.deepEqual(
   recoverBriarCombatDefeat(restoreBriarSave(resumedEarnedHouseLoss)),
@@ -2647,6 +2655,15 @@ assert.match(
   worldStoreSource,
   /briarLossContinuation\(\s*state\.value,\s*'combat',\s*false,\s*next\.enemy\.name,/,
   'The live combat timer uses the same authored continuation as reload',
+)
+assert.equal(
+  (
+    worldStoreSource.match(
+      /if \(state\.value\.room === 'map'\) state\.value\.player = BRIAR_START/g,
+    ) ?? []
+  ).length,
+  2,
+  'Both live loss timers return to camp only outside the House',
 )
 
 const chamberCards = [
@@ -2801,6 +2818,9 @@ const houseThirdMiss = recoverBriarRoomMissPenalty(
   restoreBriarSave({
     ...interruptedThirdMissRoom,
     hearts: 1,
+    revealed: [BRIAR_START, BRIAR_DUNGEON],
+    visited: [BRIAR_START, BRIAR_DUNGEON],
+    player: BRIAR_DUNGEON,
     house: {
       ...newHouseProgress(),
       current: 'HD-19',
@@ -2812,6 +2832,11 @@ const houseThirdMiss = recoverBriarRoomMissPenalty(
 assert.equal(houseThirdMiss.room, 'house')
 assert.equal(houseThirdMiss.house?.current, 'HD-18')
 assert.equal(houseThirdMiss.house?.combatOrigin, null)
+assert.equal(
+  houseThirdMiss.player,
+  BRIAR_DUNGEON,
+  'Interrupted House chamber loss must preserve the overworld entrance',
+)
 assert.equal(houseThirdMiss.hearts, 3)
 assert.match(houseThirdMiss.status, /quiet bedchamber/)
 const restoredHouseThirdMiss = restoreBriarSave(houseThirdMiss)

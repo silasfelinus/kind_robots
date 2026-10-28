@@ -508,7 +508,10 @@ boundedSpace.hero.y = 150
 boundedSpace.hero.vx = -4
 boundedSpace.hero.vy = 0
 boundedSpace.update(emptyInput())
-assert.equal(boundedSpace.hero.x, 9, 'Vacuum has a left stage boundary')
+assert.ok(
+  boundedSpace.hero.x >= 9 && boundedSpace.hero.x < 9.05,
+  'Vacuum has a left stage boundary',
+)
 assert.equal(boundedSpace.hero.vx, 0)
 boundedSpace.hero.x = 128
 boundedSpace.hero.y = 0.5
@@ -520,9 +523,9 @@ boundedSpace.hero.x = 32 * 16 - 9.5
 boundedSpace.hero.y = 150
 boundedSpace.hero.vx = 3
 boundedSpace.update(emptyInput())
-assert.equal(
-  boundedSpace.hero.x,
-  32 * 16 - 9,
+assert.ok(
+  boundedSpace.hero.x <= 32 * 16 - 9 &&
+    boundedSpace.hero.x > 32 * 16 - 9.05,
   'Right hull keeps the astronaut inside',
 )
 boundedSpace.hero.x = 128

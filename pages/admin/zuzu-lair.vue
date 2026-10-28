@@ -1,6 +1,6 @@
 <template>
   <main class="kr-surface lair-root">
-    <div class="lair-console">
+    <div class="lair-console kr-scroll">
       <div
         ref="stageEl"
         class="lair-stage relative mx-auto w-full overflow-hidden rounded-2xl bg-black"
@@ -563,6 +563,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   min-height: 0;
+  overflow-y: auto;
   gap: 0.55rem;
   padding: 0.4rem;
 }

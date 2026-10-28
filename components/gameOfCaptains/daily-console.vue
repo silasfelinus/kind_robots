@@ -111,10 +111,50 @@
               {{ majorCount }} MAIN</span
             >
           </div>
-          <div class="daily-quest-grid">
-            <button
-              v-for="enc in encounters"
-              :key="enc.id"
+          <div
+            v-if="scoutedEncounter"
+            class="daily-scout"
+            data-testid="space-couch-scout-console"
+            aria-label="Compare the cast for this mission"
+          >
+            <header class="daily-scout-head">
+              <button type="button" data-testid="space-couch-scout-back" @click="scoutingQuestId = null">← QUEST BOARD</button>
+              <span>CASTING OFFICE // {{ scoutedEncounter.skill.toUpperCase() }}</span>
+              <h3>{{ scoutedEncounter.title }}</h3>
+              <p>{{ scoutedEncounter.setup }}</p>
+            </header>
+            <div class="daily-scout-roster">
+              <button
+                v-for="actor in actors"
+                :key="actor.id"
+                type="button"
+                class="daily-scout-actor"
+                :class="{ 'daily-scout-assigned': assignments[scoutedEncounter.id] === actor.id }"
+                :disabled="busyLeads.includes(actor.id)"
+                :aria-label="'Place ' + actor.name + ' on ' + scoutedEncounter.title"
+                data-testid="space-couch-scout-actor"
+                @click="assign(scoutedEncounter.id, actor.id); scoutingQuestId = null"
+              >
+                <span class="daily-actor-face">
+                  <img v-if="actor.image" :src="actor.image" alt="" />
+                  <span v-else>{{ actor.initial }}</span>
+                </span>
+                <span class="daily-scout-actor-name">
+                  <strong>{{ actor.name }}</strong>
+                  <small>{{ actorAssignment(actor.id) || actor.subtitle }}</small>
+                </span>
+                <b>{{ scoutOdds(actor.id) === null ? 'CLASSIFIED' : scoutOdds(actor.id) + '%' }}</b>
+              </button>
+            </div>
+            <p class="daily-scout-help">
+              Known forecasts are shown. Untried redshirt skills stay classified;
+              field experience may reveal them. Moving a character between cards
+              swaps their existing assignment instead of abandoning it.
+            </p>
+          </div>
+          <div v-else class="daily-quest-grid">
+            <div v-for="enc in encounters" :key="enc.id" class="daily-quest-tile">
+              <button
               type="button"
               class="daily-quest"
               :class="{
@@ -183,7 +223,21 @@
                   </small>
                 </template>
               </span>
-            </button>
+              </button>
+              <div v-if="!completed(enc.id)" class="daily-quest-tools">
+                <button type="button" data-testid="space-couch-compare-cast" @click="scoutingQuestId = enc.id">
+                  ◈ COMPARE CAST
+                </button>
+                <button
+                  v-if="assignments[enc.id]"
+                  type="button"
+                  data-testid="space-couch-clear-cast"
+                  @click="clearPlan(enc.id)"
+                >
+                  ✕ REMOVE
+                </button>
+              </div>
+            </div>
           </div>
           <footer class="daily-action-row">
             <span
@@ -194,6 +248,13 @@
               }}
               · Side quests optional</span
             >
+            <button
+              v-if="lastPlan"
+              type="button"
+              class="daily-undo"
+              data-testid="space-couch-undo-cast"
+              @click="undoPlan"
+            >↶ UNDO LAST MOVE</button>
             <button
               v-if="majorDone"
               type="button"
@@ -443,6 +504,10 @@ import {
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
+  planEpisodeAssignment,
+  removeEpisodeAssignment,
+} from '~/utils/gameOfCaptains/episodePlanner'
+import {
   EPISODE_CHOICES,
   episodeCard,
   episodeDecks,
@@ -480,6 +545,8 @@ const emit = defineEmits<{
 }>()
 const selectedLead = ref<string>('captain')
 const assignments = ref<Record<string, string>>({})
+const lastPlan = ref<Record<string, string> | null>(null)
+const scoutingQuestId = ref<string | null>(null)
 const plotCast = ref<string[]>([])
 const flipped = ref<EpisodeDeck | null>(null)
 const showQuestBoard = ref(false)
@@ -487,6 +554,8 @@ watch(
   () => props.run.chapter,
   () => {
     assignments.value = {}
+    lastPlan.value = null
+    scoutingQuestId.value = null
     plotCast.value = []
     flipped.value = null
     showQuestBoard.value = false
@@ -494,6 +563,9 @@ watch(
   },
 )
 const encounters = computed(() => currentExpedition(props.run))
+const scoutedEncounter = computed(
+  () => encounters.value.find((enc) => enc.id === scoutingQuestId.value),
+)
 const knowledge = computed(() => props.knowledge)
 const busyLeads = computed(() => expeditionBusy(props.run))
 const majorDone = computed(() => episodeMajorComplete(props.run))
@@ -601,15 +673,35 @@ function completionResult(id: string) {
     '1 ROUND'
   )
 }
-function assign(encounterId: string) {
-  const chosen = selectedLead.value
+function actorAssignment(id: string): string | null {
+  const questId = Object.keys(assignments.value).find(
+    (encounterId) => assignments.value[encounterId] === id,
+  )
+  if (!questId) return null
+  const quest = encounters.value.find((enc) => enc.id === questId)
+  return quest ? 'ON BOARD: ' + quest.title : null
+}
+function scoutOdds(id: string): number | null {
+  return scoutedEncounter.value
+    ? questOdds(props.run, scoutedEncounter.value, id, knowledge.value)
+    : null
+}
+function assign(encounterId: string, chosen = selectedLead.value) {
   if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId))
     return
-  const next = Object.fromEntries(
-    Object.entries(assignments.value).filter(([, lead]) => lead !== chosen),
-  )
-  next[encounterId] = chosen
-  assignments.value = next
+  lastPlan.value = { ...assignments.value }
+  assignments.value = planEpisodeAssignment(assignments.value, encounterId, chosen)
+  selectedLead.value = chosen
+}
+function clearPlan(encounterId: string) {
+  if (!assignments.value[encounterId]) return
+  lastPlan.value = { ...assignments.value }
+  assignments.value = removeEpisodeAssignment(assignments.value, encounterId)
+}
+function undoPlan() {
+  if (!lastPlan.value) return
+  assignments.value = lastPlan.value
+  lastPlan.value = null
 }
 const pendingMain = computed(
   () =>
@@ -632,9 +724,12 @@ function dispatchAll() {
     .map((enc) => ({ encounterId: enc.id, lead: assignments.value[enc.id]! }))
   emit('dispatch', batch)
   assignments.value = {}
+  lastPlan.value = null
+  scoutingQuestId.value = null
   showQuestBoard.value = false
 }
 function reopenSideQuests() {
+  scoutingQuestId.value = null
   showQuestBoard.value = true
   flipped.value = null
   plotCast.value = []
@@ -642,6 +737,8 @@ function reopenSideQuests() {
 function returnToDecks() {
   showQuestBoard.value = false
   assignments.value = {}
+  lastPlan.value = null
+  scoutingQuestId.value = null
   flipped.value = null
 }
 function deckName(deck: EpisodeDeck) {

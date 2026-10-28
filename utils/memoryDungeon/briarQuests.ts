@@ -107,24 +107,39 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '2,2',
         advance: ['observe'],
         text: 'Sketch the wolf track and which way the claw marks face.',
+        closedOutcomes: {
+          report:
+            'You warned the village that its story about the patrol was wrong. Doors closed, and the child who listened now knows whom to ask, but your unrecorded tracks cannot yet protect a witness from the council’s accusation.',
+        },
       },
       {
         scope: 'briar',
         key: '4,6',
         advance: ['testify'],
         text: 'Carry the patrol’s list of escorted children to the Index.',
+        closedOutcomes: {
+          shelter:
+            'You found the courier a safe road instead of carrying the names to the Index. The families gain shelter tonight, but the patrol must still petition alone to remove the false tribute charge from the village record.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-05',
         advance: ['open'],
         text: 'Unlatch the patrol route the House barred from the inside.',
+        closedOutcomes: {
+          test: 'You traced the payment for the barred latch to someone afraid of witnesses. The proof matters, but the gate stays locked, leaving the Wolf-Mother to guide families along a longer and less sheltered road.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-26',
         advance: ['testify'],
         text: 'Record the Wolf-Mother’s evidence and name her witnesses.',
+        closedOutcomes: {
+          shelter:
+            'You offered food and safe passage instead of a formal hearing. The Wolf-Mother accepts the help and keeps her petition; until the Index hears her witnesses, the village can still call protection a raid.',
+        },
       },
     ],
     complete:

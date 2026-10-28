@@ -344,7 +344,11 @@ for (const [key, choice, expected] of twinClosures) {
   const decisions = split(twins)
   decisions.house[key] = choice
   const result = briarQuestProgress(twins, decisions.briar, decisions.house)
-  assert.equal(result.state, 'closed', `${key} ${choice} closes the twins' thread`)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the twins' thread`,
+  )
   assert.match(result.quest.closed, expected)
   assert.notEqual(result.quest.closed, twins.closed)
   twinEndings.add(result.quest.closed)

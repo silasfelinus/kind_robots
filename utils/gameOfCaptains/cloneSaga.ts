@@ -5,11 +5,15 @@
  */
 import type { VoyageRun } from './rules'
 import { REDSHIRT_BY_ID } from './redshirts'
+import type { Skill } from './crewAssignments'
+import { expeditionEncounter } from './expedition'
 
 export type CloneChoice = 'ask' | 'document' | 'override'
 export type CloneRecord = {
   id: string
   generation: number
+  /** Reprints preserve the tier but start a fresh life after a loss. */
+  iteration?: number
   createdChapter: number
   createdDay: number
   deployments: number
@@ -30,6 +34,44 @@ export type CloneProgram = {
   beats: CloneBeat[]
 }
 export type CloneRun = VoyageRun & { cloneProgram?: CloneProgram }
+
+/** Each generation has a mission role, not merely a flat percentage boost. */
+export const CLONE_FIELD_TRAITS: readonly {
+  generation: number
+  skill: Skill
+  name: string
+  effect: string
+}[] = [
+  {
+    generation: 1,
+    skill: 'science',
+    name: 'Echo Survey',
+    effect: 'The copied researcher identifies the evidence their predecessor never lived to file.',
+  },
+  {
+    generation: 2,
+    skill: 'diplomacy',
+    name: 'Second Opinion',
+    effect: 'Two remembered lives negotiate as one free person; the local delegates finally listen.',
+  },
+  {
+    generation: 3,
+    skill: 'tactics',
+    name: 'Tomorrow Sense',
+    effect: 'A memory from the villain’s next move exposes a trap before it is sprung.',
+  },
+  {
+    generation: 4,
+    skill: 'rescue',
+    name: 'Continuity Rescue',
+    effect: 'The clone returns for a stranger whom an earlier version could not save.',
+  },
+]
+export function cloneFieldTrait(run: VoyageRun, id: string) {
+  return CLONE_FIELD_TRAITS.find(
+    (trait) => trait.generation === cloneGeneration(run, id),
+  ) ?? null
+}
 
 export const CLONE_CHAPTERS = [
   {
@@ -116,6 +158,9 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
       !Number.isInteger(record.generation) ||
       record.generation < 1 ||
       record.generation > 4 ||
+      (record.iteration !== undefined &&
+        (!Number.isInteger(record.iteration) ||
+          record.iteration < 1 || record.iteration > 9)) ||
       !Number.isInteger(record.createdChapter) ||
       record.createdChapter < 1 ||
       record.createdChapter > 9 ||
@@ -135,7 +180,7 @@ export function validCloneProgram(raw: unknown): raw is CloneProgram {
           record.lastDeploymentChapter > 9))
     )
       return false
-    const key = record.id + ':' + record.generation
+    const key = record.id + ':' + record.generation + ':' + (record.iteration ?? 1)
     if (seen.has(key)) return false
     seen.add(key)
   }
@@ -219,7 +264,10 @@ export function cloneQuestStatus(run: VoyageRun): {
       record.generation === step &&
       record.deployments > 0 &&
       record.lastDeploymentChapter !== null &&
-      record.lastDeploymentChapter < run.chapter,
+      record.lastDeploymentChapter < run.chapter &&
+      !record.lost &&
+      cloneLatest(run, record.id) === record &&
+      (run.redshirtRoster ?? []).includes(record.id),
   )
   if (!experienced)
     return {
@@ -296,7 +344,11 @@ export function cloneCandidates(run: VoyageRun): {
     .filter((id) => REDSHIRT_BY_ID[id])
     .map((id) => {
       const last = cloneLatest(run, id)
-      const generation = (last?.generation ?? 0) + 1
+      // A death before an earned story gate permits a paid same-tier reprint.
+      // Advancing to a higher tier still requires the previous act.
+      const generation = last?.lost
+        ? last.generation
+        : (last?.generation ?? 0) + 1
       const cost = cloneCost(generation)
       const alive = (run.redshirtRoster ?? []).includes(id)
       const priorDeath = (run.redshirtFallen ?? []).find(
@@ -349,6 +401,10 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
   const created: CloneRecord = {
     id,
     generation: candidate.generation,
+    iteration:
+      (cloneLatest(run, id)?.generation === candidate.generation
+        ? (cloneLatest(run, id)?.iteration ?? 1)
+        : 0) + 1,
     createdChapter: run.chapter,
     createdDay: run.day ?? run.chapter,
     deployments: 0,
@@ -364,6 +420,7 @@ export function printClone(run: VoyageRun, id: string): VoyageRun {
     kind +
     ' Generation ' +
     candidate.generation +
+    (created.iteration! > 1 ? ' (printing ' + created.iteration + ')' : '') +
     '. Their previous lives remain on the memorial wall.'
   return {
     ...run,

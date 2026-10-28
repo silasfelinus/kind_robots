@@ -116,7 +116,7 @@ for (const trait of signatures) {
       results: [...after.expeditionVisit!.results],
     },
   })
-  assert.equal(repeat, after, 'cannot farm a previously completed field job')
+  assert.deepEqual(repeat, after, 'cannot farm a previously completed field job')
 
   const failed = recordCloneMissions(before, {
     ...before,

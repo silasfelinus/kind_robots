@@ -1891,14 +1891,41 @@ const checkpoint: MemoryCheckpoint = {
   seals: newCrossMapSealChronicle(),
 }
 const invalidRealityCases = [
-  ['missing completed history', { ...checkpoint.reality.progress, completed: undefined }],
-  ['missing wish ledger', { ...checkpoint.reality.progress, rememberedAnchors: null }],
-  ['invalid finale commitment', { ...checkpoint.reality.progress, finaleCommitted: 'yes' }],
-  ['duplicate completed experience', { ...checkpoint.reality.progress, completed: ['e01', 'e01'] }],
-  ['unknown experience', { ...checkpoint.reality.progress, completed: ['e99'] }],
-  ['unreachable future experience', { ...checkpoint.reality.progress, completed: ['e03'] }],
-  ['unearned wish', { ...checkpoint.reality.progress, rememberedAnchors: ['char-possible-future'] }],
-  ['premature finale commitment', { ...checkpoint.reality.progress, finaleCommitted: true }],
+  [
+    'missing completed history',
+    { ...checkpoint.reality.progress, completed: undefined },
+  ],
+  [
+    'missing wish ledger',
+    { ...checkpoint.reality.progress, rememberedAnchors: null },
+  ],
+  [
+    'invalid finale commitment',
+    { ...checkpoint.reality.progress, finaleCommitted: 'yes' },
+  ],
+  [
+    'duplicate completed experience',
+    { ...checkpoint.reality.progress, completed: ['e01', 'e01'] },
+  ],
+  [
+    'unknown experience',
+    { ...checkpoint.reality.progress, completed: ['e99'] },
+  ],
+  [
+    'unreachable future experience',
+    { ...checkpoint.reality.progress, completed: ['e03'] },
+  ],
+  [
+    'unearned wish',
+    {
+      ...checkpoint.reality.progress,
+      rememberedAnchors: ['char-possible-future'],
+    },
+  ],
+  [
+    'premature finale commitment',
+    { ...checkpoint.reality.progress, finaleCommitted: true },
+  ],
 ] as const
 for (const [reason, progress] of invalidRealityCases) {
   assert.equal(

@@ -443,7 +443,7 @@ function actualOdds(
   const baseline = clamp(
     22 +
       skills[enc.skill] * 13 +
-      cloneOddsBonus(run, lead) +
+      cloneOddsBonus(run, lead, enc.skill) +
       (secret ? 15 : 0) -
       (enc.priority === 'major' ? 12 : 0),
   )

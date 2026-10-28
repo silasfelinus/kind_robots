@@ -220,7 +220,10 @@ const savedAfterBacktracking = restoreBriarSave({
   house: laterChoices,
 })
 assert.equal(savedAfterBacktracking.house?.endingLens, 'community')
-assert.equal(houseEpilogue(savedAfterBacktracking.house, {})?.id, 'renew-community')
+assert.equal(
+  houseEpilogue(savedAfterBacktracking.house, {})?.id,
+  'renew-community',
+)
 
 // Pre-existing saves have no snapshot. Hydration derives it once from valid
 // recorded choices, so subsequent scene discoveries cannot change that result.
@@ -234,7 +237,10 @@ const continued = restoreBriarSave({
   ...oldSave,
   sceneChoices: { ...oldSave.sceneChoices, '1,2': 'warn', '1,8': 'plant' },
 })
-assert.equal(houseEpilogue(continued.house, continued.sceneChoices)?.id, 'renew-honesty')
+assert.equal(
+  houseEpilogue(continued.house, continued.sceneChoices)?.id,
+  'renew-honesty',
+)
 assert.equal(
   restoreHouseProgress({ ...laterChoices, endingLens: 'forged' })?.endingLens,
   null,
@@ -265,7 +271,10 @@ assert.match(stage, /data-testid="memory-house-epilogue"/)
 assert.match(stage, /world\.houseEpilogue/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /earnedHouseEpilogue\(state\.value\.house/)
-assert.match(store, /house\.endingLens = houseEpilogueLens\(house, state\.value\.sceneChoices\)/)
+assert.match(
+  store,
+  /house\.endingLens = houseEpilogueLens\(house, state\.value\.sceneChoices\)/,
+)
 
 console.log(
   `Memory House epilogues: 12 earned endings (3 Hearth resolutions × 4 lenses), ${reached.size}/12 reached by 1500 seeded journeys, Hearth lens locked and legacy saves migrated`,

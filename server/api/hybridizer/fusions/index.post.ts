@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
         artImageId: created.artImageId,
         createdAt: created.createdAt,
       },
-      cached: created.createdAt.getTime() !== created.updatedAt.getTime(),
+      cached: false,
     }
   } catch (error) {
     const handled = errorHandler(error)

@@ -10,7 +10,7 @@
       <div class="cap-menu-shade" aria-hidden="true" />
       <div class="cap-menu-body">
         <span class="cap-menu-kicker">AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span>
-        <h1>SPACE <em>COUCH</em></h1>
+        <h2>SPACE <em>COUCH</em></h2>
         <p class="cap-menu-deck">One red couch. An invisible force bubble. A galaxy full of people who insist this isn't a proper spaceship.</p>
         <p v-if="!store.loaded" role="status">Retrieving the ship's incident reports…</p>
         <nav v-else-if="titlePanel === 'home'" class="cap-menu-actions" aria-label="Game menu">
@@ -36,9 +36,14 @@
           <template v-if="run">
             <p>{{ CAPTAINS.find((captain) => captain.id === run?.captain)?.name }} · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}</p>
             <p v-if="run.starAssessment">Under {{ starSignFor(run.starAssessment.sign).name }}</p>
-            <div class="cap-menu-journal kr-scroll">
+            <div class="cap-menu-journal">
               <p v-if="!run.log.length">No incidents entered. An encouraging sign, statistically.</p>
-              <p v-for="(entry, index) in run.log" :key="index">{{ entry }}</p>
+              <p v-for="(entry, index) in logEntries" :key="index">{{ entry }}</p>
+              <div v-if="run.log.length > 4" class="cap-menu-log-nav">
+                <button type="button" :disabled="logPage >= Math.ceil(run.log.length / 4) - 1" @click="logPage++">OLDER ENTRIES</button>
+                <span>{{ logPage + 1 }} / {{ Math.ceil(run.log.length / 4) }}</span>
+                <button type="button" :disabled="logPage === 0" @click="logPage--">NEWER ENTRIES</button>
+              </div>
             </div>
           </template>
           <p v-else>No saved voyage. The logbook is magnificently blank.</p>
@@ -1266,6 +1271,11 @@ const selectedOrigin = ref<CaptainOriginId | null>(null)
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)
+const logPage = ref(0)
+const logEntries = computed(() => {
+  const entries = run.value?.log ?? []
+  return entries.slice(Math.max(0, entries.length - 4 * (logPage.value + 1)), Math.max(0, entries.length - 4 * logPage.value))
+})
 const starAssessment = ref<StarAssessment | null>(null)
 const chosenStarSign = computed(() =>
   starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
@@ -1521,12 +1531,12 @@ function toggleAway(id: CrewId) {
   font-weight: 900;
   color: #ebc591;
 }
-.cap-menu h1 {
+.cap-menu h2 {
   font: 900 clamp(3.4rem, 7.7cqi, 8rem)/0.86 Georgia, serif;
   letter-spacing: -0.08em;
   text-shadow: 0 5px 25px #070a18;
 }
-.cap-menu h1 em { color: #ffc59c; font-style: italic; }
+.cap-menu h2 em { color: #ffc59c; font-style: italic; }
 .cap-menu-deck { max-width: 44ch; font-size: clamp(0.81rem, 1.3cqi, 1.17rem); line-height: 1.4; color: #d9e8ed; }
 .cap-menu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-top: 0.4rem; }
 .cap-menu-actions button, .cap-menu-detail button {
@@ -1548,8 +1558,11 @@ function toggleAway(id: CrewId) {
 .cap-menu-detail p { color: #d6e1e6; font-size: 0.78rem; }
 .cap-menu-detail button b { float: right; color: #9ee7e7; }
 .cap-menu-detail button[aria-pressed='true'] { border-color: #9ee7e7; background: #235061; }
-.cap-menu-journal { flex: 1; min-height: 3rem; overflow-y: auto; max-height: min(27vh, 15rem); padding: 0.25rem 0.65rem; border-left: 2px solid #c0a17a; }
-.cap-menu-journal p { margin: 0.4rem 0; }
+.cap-menu-journal { flex: 1; min-height: 0; max-height: min(26vh, 13rem); padding: 0.25rem 0.65rem; border-left: 2px solid #c0a17a; }
+.cap-menu-journal p { margin: 0.4rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cap-menu-log-nav { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.65rem; }
+.cap-menu-log-nav button { padding: 0.3rem; }
+.cap-menu-log-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
 .cap-menu-confirm { display: flex; flex-wrap: wrap; gap: 0.45rem; background: #291f32ee; padding: 0.65rem; border: 1px solid #e5ba80; }
 .cap-menu-confirm p { flex-basis: 100%; font-size: 0.76rem; }
 .cap-menu-confirm button { padding: 0.45rem; border: 1px solid #dbb98b; color: #ffdeb3; font-size: 0.7rem; }
@@ -1568,7 +1581,7 @@ function toggleAway(id: CrewId) {
 @media (max-width: 700px) {
   .cap-menu-image { object-position: 72% center; opacity: 0.6; }
   .cap-menu-body { width: 100%; justify-content: center; padding: 1rem; }
-  .cap-menu h1 { font-size: clamp(2.8rem, 12vw, 5rem); }
+  .cap-menu h2 { font-size: clamp(2.8rem, 12vw, 5rem); }
   .cap-menu-actions { gap: 0.4rem; }
   .cap-menu-actions button { padding: 0.6rem; }
   .cap-origins { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
@@ -1577,7 +1590,7 @@ function toggleAway(id: CrewId) {
 }
 @media (max-width: 450px) and (max-height: 720px) {
   .cap-menu-body { gap: 0.3rem; }
-  .cap-menu h1 { font-size: 2.7rem; }
+  .cap-menu h2 { font-size: 2.7rem; }
   .cap-menu-deck { font-size: 0.74rem; }
   .cap-menu-actions button { padding: 0.5rem; }
   .cap-menu-bottom { display: none; }

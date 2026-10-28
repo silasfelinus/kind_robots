@@ -1,4 +1,5 @@
 import { BRIAR_SAVE_VERSION, type BriarSave } from '../memoryDungeonWorld'
+import { BRIAR_CROSS_MAP_KEYS } from '../memoryDungeonWaves'
 import type { DarkBriarProgress } from './darkBriar'
 import type { DarkHouseProgress } from './darkHouse'
 import type { MemoryRealitySave } from './campaignPersistence'
@@ -83,6 +84,42 @@ function hasValidDarkHouseProgress(value: Record<string, unknown>): boolean {
   )
 }
 
+function hasValidCrossMapSeals(value: Record<string, unknown>): boolean {
+  const fields = [
+    'seen',
+    'inspected',
+    'mirrorSeen',
+    'counterpartSeen',
+    'matched',
+    'resolved',
+  ] as const
+  const allowed = new Set<string>(BRIAR_CROSS_MAP_KEYS)
+  for (const field of fields) {
+    const keys = value[field]
+    if (
+      !Array.isArray(keys) ||
+      keys.some((key) => typeof key !== 'string' || !allowed.has(key)) ||
+      new Set(keys).size !== keys.length
+    )
+      return false
+  }
+
+  const seen = value.seen as string[]
+  const inspected = value.inspected as string[]
+  const mirrorSeen = value.mirrorSeen as string[]
+  const counterpartSeen = value.counterpartSeen as string[]
+  const matched = value.matched as string[]
+  const resolved = value.resolved as string[]
+  return (
+    inspected.every((key) => seen.includes(key)) &&
+    mirrorSeen.every((key) => seen.includes(key)) &&
+    matched.every(
+      (key) => inspected.includes(key) && counterpartSeen.includes(key),
+    ) &&
+    resolved.every((key) => matched.includes(key))
+  )
+}
+
 /** Reject incomplete/corrupt slots rather than replacing the current run with defaults. */
 export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
   if (!isRecord(raw) || raw.version !== 1) return null
@@ -106,7 +143,7 @@ export function restoreMemoryCheckpoint(raw: unknown): MemoryCheckpoint | null {
     !Array.isArray(raw.dark.revealed) ||
     !hasValidDarkHouseProgress(raw.house) ||
     !isRecord(raw.reality.progress) ||
-    !Array.isArray(raw.seals.seen)
+    !hasValidCrossMapSeals(raw.seals)
   )
     return null
   if (

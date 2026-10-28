@@ -106,12 +106,44 @@ assert.equal(
   'Unverified completion flag cannot mint a House ending',
 )
 assert.equal(
-  restoreDarkHouseProgress({ decisions: { 'HD-35': 'attend' } }).ending,
+  restoreDarkHouseProgress({
+    visited: ['HD-35'],
+    decisions: { 'HD-35': 'attend' },
+  }).ending,
   'return',
 )
 assert.equal(
-  restoreDarkHouseProgress({ decisions: { 'HD-35': 'refuse' } }).ending,
+  restoreDarkHouseProgress({
+    visited: ['HD-35'],
+    decisions: { 'HD-35': 'refuse' },
+  }).ending,
   'commons',
+)
+
+// Valid choice IDs in chambers never visited must not mint a reflected
+// verdict, bypass the Warden, or rewrite the player's saved decisions.
+const tampered = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-02',
+  visited: ['HD-01', 'HD-02'],
+  decisions: {
+    'HD-01': 'attend',
+    'HD-02': 'refuse',
+    'HD-32': 'attend',
+    'HD-35': 'refuse',
+  },
+})
+assert.deepEqual(tampered.decisions, {
+  'HD-01': 'attend',
+  'HD-02': 'refuse',
+})
+assert.equal(tampered.ending, null)
+assert.equal(tampered.current, 'HD-02')
+assert.deepEqual(tampered.visited, ['HD-01', 'HD-02'])
+assert.deepEqual(
+  restoreDarkHouseProgress(JSON.parse(JSON.stringify(tampered))),
+  tampered,
+  'Validated visits and decisions survive repeated restoration',
 )
 
 const passage = restoreDarkHouseProgress({

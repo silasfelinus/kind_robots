@@ -20,7 +20,9 @@ function invalid(message: string): never {
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireApiUser(event)
-    const body = await readBody<{ leftKey?: unknown; rightKey?: unknown }>(event)
+    const body = await readBody<{ leftKey?: unknown; rightKey?: unknown }>(
+      event,
+    )
     if (typeof body?.leftKey !== 'string' || typeof body?.rightKey !== 'string')
       invalid('Select two Hybridizer ingredients.')
 
@@ -28,19 +30,28 @@ export default defineEventHandler(async (event) => {
     try {
       pair = canonicalFusionPair(body.leftKey, body.rightKey)
     } catch (error) {
-      invalid(error instanceof Error ? error.message : 'Invalid Hybridizer inputs.')
+      invalid(
+        error instanceof Error ? error.message : 'Invalid Hybridizer inputs.',
+      )
     }
 
     async function resolveInput(key: string): Promise<InputInfo> {
       const starter = starterForIdentity(key)
-      if (starter)
-        return { title: starter.title, depth: 0, isPublic: true }
+      if (starter) return { title: starter.title, depth: 0, isPublic: true }
 
       const id = fusionIdForIdentity(key)
       if (!id) return invalid('Unknown Hybridizer ingredient.')
-      const ancestor = await prisma.hybridizerFusion.findUnique({ where: { id } })
-      if (!ancestor || (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id))
-        throw createError({ statusCode: 404, message: 'Hybrid ingredient not available.' })
+      const ancestor = await prisma.hybridizerFusion.findUnique({
+        where: { id },
+      })
+      if (
+        !ancestor ||
+        (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id)
+      )
+        throw createError({
+          statusCode: 404,
+          message: 'Hybrid ingredient not available.',
+        })
       return {
         title: ancestor.title,
         depth: ancestor.depth,
@@ -53,10 +64,11 @@ export default defineEventHandler(async (event) => {
       resolveInput(pair.rightKey),
     ])
     const depth = Math.max(first.depth, second.depth) + 1
-    if (depth > HYBRIDIZER_MAX_DEPTH)
-      invalid('Maximum fusion depth reached.')
+    if (depth > HYBRIDIZER_MAX_DEPTH) invalid('Maximum fusion depth reached.')
 
-    const existing = await prisma.hybridizerFusion.findUnique({ where: { id: pair.id } })
+    const existing = await prisma.hybridizerFusion.findUnique({
+      where: { id: pair.id },
+    })
     if (existing) {
       if (!existing.isPublic && existing.creatorUserId !== auth.user.id)
         throw createError({ statusCode: 404, message: 'Hybrid not available.' })
@@ -66,7 +78,10 @@ export default defineEventHandler(async (event) => {
           key: 'fusion:' + existing.id,
           title: existing.title,
           taxonomy: 'HYBRID',
-          sources: [clientIngredientKey(existing.leftKey), clientIngredientKey(existing.rightKey)],
+          sources: [
+            clientIngredientKey(existing.leftKey),
+            clientIngredientKey(existing.rightKey),
+          ],
           depth: existing.depth,
           status: existing.status,
           artImageId: existing.artImageId,
@@ -90,7 +105,9 @@ export default defineEventHandler(async (event) => {
       })
     } catch (error) {
       if ((error as { code?: string })?.code !== 'P2002') throw error
-      created = await prisma.hybridizerFusion.findUnique({ where: { id: pair.id } })
+      created = await prisma.hybridizerFusion.findUnique({
+        where: { id: pair.id },
+      })
       if (!created) throw error
       if (!created.isPublic && created.creatorUserId !== auth.user.id)
         throw createError({ statusCode: 404, message: 'Hybrid not available.' })
@@ -102,7 +119,10 @@ export default defineEventHandler(async (event) => {
         key: 'fusion:' + created.id,
         title: created.title,
         taxonomy: 'HYBRID',
-        sources: [clientIngredientKey(created.leftKey), clientIngredientKey(created.rightKey)],
+        sources: [
+          clientIngredientKey(created.leftKey),
+          clientIngredientKey(created.rightKey),
+        ],
         depth: created.depth,
         status: created.status,
         artImageId: created.artImageId,
@@ -113,6 +133,10 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { success: false, message: handled.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

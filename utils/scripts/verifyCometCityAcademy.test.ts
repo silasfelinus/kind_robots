@@ -116,6 +116,10 @@ import {
   incidentDeck,
   ENCOUNTERS,
   assignTeam,
+  assignPlayerCase,
+  planThirdNight,
+  nightPatrolBeat,
+  openingNightFriend,
   knownContacts,
   startingContacts,
   recruitableContact,
@@ -381,6 +385,7 @@ for (const incident of NIGHT_DECK) {
   const realCase = realNightCase(incident.id)
   assert.ok(realCase, `Missing real-night branch for ${incident.id}`)
   assert.ok(realCase.briefing.length > 80)
+  assert.ok(realCase.refused.length > 90, `Missing authored refusal for ${incident.id}`)
   for (const grade of ['honors', 'pass', 'partial', 'failed'] as const)
     assert.ok(realCase.consequences[grade].length > 90)
   assert.equal(new Set(Object.values(realCase.consequences)).size, 4)
@@ -1236,7 +1241,7 @@ for (const seed of [1, 2, 3, 4, 997]) {
     if (day === 29) assert.ok(run.guestPlan)
     if (emergencyContact(run)) {
       run = callEmergencyVolunteer(run)
-      assert.ok(knownContacts(run).length >= 3)
+      assert.ok(knownContacts(run).length >= 1)
     }
     const cases = incidentsFor(run)
     for (const incident of cases) {
@@ -1256,7 +1261,8 @@ for (const seed of [1, 2, 3, 4, 997]) {
       const helper = knownContacts(run).find((id) => studentAvailable(run, id))!
       run = assignTeam(run, firstCase.id, [helper])
     }
-    assert.ok(run.assignments.length)
+    run = assignPlayerCase(run, cases[0]!.id)
+    assert.ok(run.assignments.length || run.playerCaseId)
     run = resolveDispatch(run)
     assert.equal(run.phase, 'debrief')
     assert.ok(run.injuries)
@@ -1454,12 +1460,12 @@ assert.ok(
   ),
 )
 
-// Every new game starts with only two close friends; legacy saves stay playable.
+// New full games start as solo rookies; old saved friends remain intact.
 for (const seed of [1, 2, 5, 42, 88, 101]) {
   const run = startFullAcademy('kinetic', seed)
-  assert.equal(knownContacts(run).length, 2)
+  assert.equal(knownContacts(run).length, 0)
   assert.deepEqual(run.contacts, startingContacts(seed))
-  assert.equal(new Set(run.contacts).size, 2)
+  assert.equal(new Set(run.contacts).size, 0)
   assert.ok(
     run.contacts.every(
       (id) => STUDENTS.find((p) => p.id === id)?.origin === 'academy',
@@ -1475,7 +1481,7 @@ for (const seed of [1, 2, 5, 42, 88, 101]) {
   assert.equal(knownContacts(oldRun).length, STUDENTS.length)
 }
 for (const person of STUDENTS) {
-  const run = startFullAcademy('kinetic', 77)
+  const run = { ...startFullAcademy('kinetic', 77), day: 4 }
   if (run.contacts!.includes(person.id)) continue
   const visited = visitCitySite(run, person.introSite)
   assert.equal(visited.phase, 'campus')
@@ -1485,7 +1491,7 @@ for (const person of STUDENTS) {
   const gained = recruitContact(visited, person.id)
   assert.equal(gained.phase, 'dispatch')
   assert.ok(knownContacts(gained).includes(person.id))
-  assert.equal(knownContacts(gained).length, 3)
+  assert.equal(knownContacts(gained).length, 1)
   assert.ok(gained.log.some((line) => line.includes(person.name)))
   assert.ok(restoreAcademy(gained))
   assert.equal(recruitableContact(gained), null)
@@ -1922,13 +1928,13 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   assert.equal(fresh.incidentDeckVersion, 2)
   const seen = new Set<string>()
   for (let day = 1; day <= 12; day++) {
-    const [a, b] = incidentsFor({ ...fresh, day })
-    assert.ok(a && b && a.need !== b.need, 'paired calls ask different powers')
-    seen.add(a.id)
-    seen.add(b.id)
+    const cases = incidentsFor({ ...fresh, day })
+    assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : 3)
+    assert.equal(new Set(cases.map((incident) => incident.id)).size, cases.length)
+    for (const incident of cases) seen.add(incident.id)
   }
   assert.equal(seen.size, 12)
-  const { incidentDeckVersion: _dropped, ...legacy } = fresh
+  const { incidentDeckVersion: _dropped, patrolOpening: _intro, ...legacy } = fresh
   assert.equal(incidentDeck(legacy as AcademyRun), INCIDENTS)
   assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(legacy))), legacy)
   for (let day = 1; day <= 12; day++)
@@ -1956,7 +1962,7 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     const [first, second] = incidentsFor(night)
     night = assignTeam(night, first!.id, ['mina', 'sol'])
     night = assignTeam(night, second!.id, ['imani', 'kit'])
-    const done = resolveDispatch(night)
+    const done = resolveDispatch(assignPlayerCase(night, first!.id))
     const report = done.reports.find((entry) => entry.caseId === incident.id)!
     assert.ok(
       Object.values(realNightCase(incident.id)!.consequences).some((text) =>
@@ -1967,6 +1973,45 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(done))), done)
     assert.ok(PROM_ART_PROMPTS[`incidents/${incident.id}`])
   }
+}
+
+
+// Opening dramatic contract: two monologue nights, then two emergencies and
+// an earned friend who can split coverage or focus one spectacular rescue.
+{
+  let opening = startFullAcademy('kinetic', 18)
+  assert.equal(opening.patrolOpening, 1)
+  assert.deepEqual(opening.contacts, [])
+  for (const day of [1, 2]) {
+    const night = { ...opening, day, phase: 'dispatch' as const }
+    assert.equal(incidentsFor(night).length, 1)
+    assert.ok(nightPatrolBeat(night)?.text.includes('"'))
+    const player = assignPlayerCase(night, incidentsFor(night)[0]!.id)
+    assert.equal(player.playerCaseId, incidentsFor(night)[0]!.id)
+    assert.equal(resolveDispatch(player).phase, 'debrief')
+  }
+  opening = visitCitySite({ ...opening, day: 3 }, 'academy-roof')
+  opening = chooseEncounter(opening, encounterFor(opening).options[0]!.id)
+  assert.equal(opening.phase, 'dispatch')
+  assert.equal(incidentsFor(opening).length, 2)
+  const friend = openingNightFriend(opening.seed)
+  assert.deepEqual(knownContacts(opening), [friend.id])
+  assert.ok(nightPatrolBeat(opening)?.text.includes(friend.name))
+  const [primary, secondary] = incidentsFor(opening)
+  const split = planThirdNight(opening, primary!.id, 'split')
+  assert.equal(split.assignments[0]!.caseId, secondary!.id)
+  assert.deepEqual(split.assignments[0]!.students, [friend.id])
+  const splitReports = resolveDispatch(split).reports
+  assert.equal(splitReports.length, 2)
+  assert.ok(splitReports.every((entry) => entry.grade !== 'failed'))
+  const focus = planThirdNight(opening, primary!.id, 'concentrate')
+  assert.equal(focus.assignments[0]!.caseId, primary!.id)
+  const focusedReports = resolveDispatch(focus).reports
+  assert.equal(focusedReports.find((entry) => entry.caseId === primary!.id)?.grade, 'honors')
+  assert.equal(focusedReports.find((entry) => entry.caseId === secondary!.id)?.grade, 'failed')
+  assert.ok(focusedReports.find((entry) => entry.caseId === secondary!.id)?.text.includes('decline') ||
+    focusedReports.find((entry) => entry.caseId === secondary!.id)?.text.length)
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(focus))))
 }
 
 // Untouched thirty-day runs that go back to old haunts. `honest` exposes every
@@ -1996,7 +2041,7 @@ function playThirtyDays(seed: number, honest: boolean): AcademyRun {
       )
       if (picked) run = assignTeam(run, incident.id, [picked])
     }
-    run = resolveDispatch(run)
+    run = resolveDispatch(assignPlayerCase(run, incidentsFor(run)[0]!.id))
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(run))), run)
     run = nextSchoolDay(run)
   }

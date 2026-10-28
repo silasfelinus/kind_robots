@@ -1,10 +1,53 @@
 <template>
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
+    :class="{ 'cap-large-type': store.preferences.largeText, 'cap-reduce-motion': store.preferences.reducedMotion }"
     data-layout="console-fixed"
     aria-label="Space Couch"
   >
-    <header class="cap-toolbar">
+    <section v-if="atTitle" class="cap-menu" data-testid="space-couch-title-screen" aria-label="Space Couch main menu">
+      <img class="cap-menu-image" src="/game-of-captains/space-couch-stage.svg" alt="A red upholstered couch sails across a starfield under its invisible force bubble" />
+      <div class="cap-menu-shade" aria-hidden="true" />
+      <div class="cap-menu-body">
+        <span class="cap-menu-kicker">AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span>
+        <h1>SPACE <em>COUCH</em></h1>
+        <p class="cap-menu-deck">One red couch. An invisible force bubble. A galaxy full of people who insist this isn't a proper spaceship.</p>
+        <p v-if="!store.loaded" role="status">Retrieving the ship's incident reports…</p>
+        <nav v-else-if="titlePanel === 'home'" class="cap-menu-actions" aria-label="Game menu">
+          <button v-if="run" type="button" data-testid="space-couch-continue" @click="atTitle = false">CONTINUE VOYAGE <span>➜</span><small>Chapter {{ run.chapter }} · {{ CAPTAINS.find((captain) => captain.id === run?.captain)?.name }}</small></button>
+          <button type="button" data-testid="space-couch-new-game" @click="startNewVoyage">START NEW GAME <span>✦</span><small>Choose your background, captain, constellation and crew</small></button>
+          <button type="button" data-testid="space-couch-main-settings" @click="titlePanel = 'settings'">SETTINGS <span>⚙</span><small>Readability and motion controls</small></button>
+          <button type="button" data-testid="space-couch-main-log" @click="titlePanel = 'log'">CAPTAIN'S LOG <span>▤</span><small>{{ run ? run.log.length + ' entries in the current voyage' : 'No voyage recorded yet' }}</small></button>
+        </nav>
+        <div v-if="titlePanel === 'home' && confirmNewVoyage && run" class="cap-menu-confirm" role="alert">
+          <p>The current voyage will be replaced. The crew's paperwork will not survive.</p>
+          <button type="button" @click="confirmNewVoyage = false">KEEP MY VOYAGE</button>
+          <button type="button" data-testid="space-couch-confirm-new" @click="startNewVoyage">REPLACE VOYAGE</button>
+        </div>
+        <section v-if="titlePanel === 'settings'" class="cap-menu-detail" aria-label="Game settings">
+          <h2>SHIP SETTINGS</h2>
+          <p>Local preferences. No intergalactic committee required.</p>
+          <button type="button" :aria-pressed="store.preferences.largeText" @click="store.setPreference('largeText', !store.preferences.largeText)">LARGER DIALOGUE TEXT <b>{{ store.preferences.largeText ? 'ON' : 'OFF' }}</b></button>
+          <button type="button" :aria-pressed="store.preferences.reducedMotion" @click="store.setPreference('reducedMotion', !store.preferences.reducedMotion)">REDUCE ANIMATION <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b></button>
+          <button type="button" class="cap-menu-back" @click="titlePanel = 'home'">← MAIN MENU</button>
+        </section>
+        <section v-if="titlePanel === 'log'" class="cap-menu-detail" aria-label="Saved captain's log">
+          <h2>CAPTAIN'S LOG</h2>
+          <template v-if="run">
+            <p>{{ CAPTAINS.find((captain) => captain.id === run?.captain)?.name }} · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}</p>
+            <p v-if="run.starAssessment">Under {{ starSignFor(run.starAssessment.sign).name }}</p>
+            <div class="cap-menu-journal kr-scroll">
+              <p v-if="!run.log.length">No incidents entered. An encouraging sign, statistically.</p>
+              <p v-for="(entry, index) in run.log" :key="index">{{ entry }}</p>
+            </div>
+          </template>
+          <p v-else>No saved voyage. The logbook is magnificently blank.</p>
+          <button type="button" class="cap-menu-back" @click="titlePanel = 'home'">← MAIN MENU</button>
+        </section>
+        <p class="cap-menu-bottom">CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO</p>
+      </div>
+    </section>
+    <header v-if="!atTitle" class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
@@ -25,6 +68,7 @@
       <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
+      <button type="button" class="cap-reset" data-testid="space-couch-return-menu" @click="atTitle = true; titlePanel = 'home'">MENU</button>
       <button v-if="run" type="button" class="cap-reset" @click="restartVoyage">
         NEW VOYAGE
       </button>
@@ -33,6 +77,7 @@
       {{ store.storageWarning }}
     </p>
     <div
+      v-if="!atTitle"
       class="cap-layout min-h-0 flex-1"
       :class="{
         'cap-layout--episode': run?.phase === 'expedition',
@@ -52,16 +97,20 @@
           </div>
           <template v-if="!run">
             <span class="cap-coordinate">{{
-              selectionScreen === 'stars'
-                ? 'THE COUCHSCOPE'
+              selectionScreen === 'background'
+                ? 'WHO WERE YOU BEFORE THE COUCH?'
+                : selectionScreen === 'stars'
+                  ? 'THE COUCHSCOPE'
                 : selectionScreen === 'captain'
                   ? 'CAPTAIN DOSSIER'
                   : 'CREW DOSSIER'
             }}</span>
             <h2 class="cap-title">
               {{
-                selectionScreen === 'stars'
-                  ? 'Your Constellation Awaits'
+                selectionScreen === 'background'
+                  ? 'Every captain has a past'
+                  : selectionScreen === 'stars'
+                    ? 'Your Constellation Awaits'
                   : selectionScreen === 'captain'
                     ? activeCaptain.name
                     : crewProfile(focusedCrew).name
@@ -69,8 +118,10 @@
             </h2>
             <p class="cap-tagline">
               {{
-                selectionScreen === 'stars'
-                  ? 'The stars have very specific opinions about your answers.'
+                selectionScreen === 'background'
+                  ? 'The galaxy records the things you did before anyone trusted you with a couch.'
+                  : selectionScreen === 'stars'
+                    ? 'The stars have very specific opinions about your answers.'
                   : selectionScreen === 'captain'
                     ? CAPTAIN_DOSSIERS[selectedCaptain].voice
                     : CREW_DOSSIERS[focusedCrew].crisis
@@ -111,17 +162,34 @@
           </div>
 
           <template v-else-if="!run">
-            <SpaceCouchConstellationTest
-              v-if="selectionScreen === 'stars'"
-              @confirm="confirmStarAssessment"
-            />
-            <template v-else-if="selectionScreen === 'captain'">
+            <template v-if="selectionScreen === 'background'">
               <div class="cap-heading">
                 <span>01</span>
+                <div><h2>Choose your background</h2><p>Your history belongs to you. It changes your opening resources and follows you into the captain's log.</p></div>
+              </div>
+              <div class="cap-origins" data-testid="space-couch-backgrounds">
+                <button v-for="origin in CAPTAIN_ORIGINS" :key="origin.id" type="button" class="cap-origin" :class="{ chosen: selectedOrigin === origin.id }" :aria-pressed="selectedOrigin === origin.id" @click="selectedOrigin = origin.id">
+                  <span class="cap-origin-glyph" aria-hidden="true">{{ origin.glyph }}</span>
+                  <span><strong>{{ origin.name }}</strong><small>{{ origin.summary }}</small><small class="cap-origin-perk">{{ origin.perk }}</small></span>
+                </button>
+              </div>
+              <button class="cap-primary" type="button" :disabled="!selectedOrigin" data-testid="space-couch-background-next" @click="selectionScreen = 'captain'">CHOOSE YOUR CAPTAIN <span>➜</span></button>
+            </template>
+            <SpaceCouchConstellationTest
+              v-else-if="selectionScreen === 'stars'"
+              :large-text="store.preferences.largeText"
+              :reduced-motion="store.preferences.reducedMotion"
+              @confirm="confirmStarAssessment"
+              @back="selectionScreen = 'captain'"
+            />
+            <template v-else-if="selectionScreen === 'captain'">
+              <button type="button" class="cap-step-back" @click="selectionScreen = 'background'">← CHANGE BACKGROUND</button>
+              <div class="cap-heading">
+                <span>02</span>
                 <div>
                   <h2>Claim your cushion</h2>
                   <p>
-                    Select a captain, then appoint your bridge officers. The
+                    Select the commander who inherits your background. The
                     couch runs on personalities as much as fuel.
                   </p>
                 </div>
@@ -187,9 +255,9 @@
                 class="cap-primary"
                 type="button"
                 data-testid="captains-choose-crew"
-                @click="selectionScreen = 'crew'"
+                @click="selectionScreen = 'stars'"
               >
-                APPOINT YOUR CREW <span>➜</span>
+                CONSULT THE COUCHSCOPE <span>➜</span>
               </button>
             </template>
             <template v-else>
@@ -197,10 +265,10 @@
                 class="cap-option"
                 type="button"
                 data-testid="captains-back-to-captains"
-                @click="selectionScreen = 'captain'"
+                @click="selectionScreen = 'stars'"
               >
                 <span
-                  ><b>← CHANGE CAPTAIN</b
+                  ><b>← CHANGE STAR CHART</b
                   ><small
                     >{{ activeCaptain.name }} ·
                     {{ activeCaptain.epithet }}</small
@@ -208,7 +276,7 @@
                 >
               </button>
               <div class="cap-heading cap-crew-heading">
-                <span>02</span>
+                <span>04</span>
                 <div>
                   <h2>Appoint your crew</h2>
                   <p>
@@ -1105,7 +1173,7 @@
               :run="run"
               :ending="run.ending ?? 'voyage-complete'"
             />
-            <button class="cap-primary" type="button" @click="store.restart()">
+            <button class="cap-primary" type="button" @click="restartVoyage">
               COMMAND ANOTHER VOYAGE <span>↻</span>
             </button>
           </template>
@@ -1169,6 +1237,7 @@ import {
 
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import { CAPTAIN_ORIGINS, type CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {
@@ -1192,7 +1261,11 @@ import {
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
-const selectionScreen = ref<'stars' | 'captain' | 'crew'>('stars')
+const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>('background')
+const selectedOrigin = ref<CaptainOriginId | null>(null)
+const atTitle = ref(true)
+const titlePanel = ref<'home' | 'settings' | 'log'>('home')
+const confirmNewVoyage = ref(false)
 const starAssessment = ref<StarAssessment | null>(null)
 const chosenStarSign = computed(() =>
   starAssessment.value ? starSignFor(starAssessment.value.sign) : null,
@@ -1210,7 +1283,7 @@ const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
   if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =
-    selectionScreen.value === 'stars'
+    selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''
       : selectionScreen.value === 'captain'
         ? 'captain-' + selectedCaptain.value
@@ -1220,7 +1293,7 @@ const stagePainting = computed(() => {
 const stageAlt = computed(() =>
   run.value
     ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
-    : selectionScreen.value === 'stars'
+    : selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? 'The starry sky above the long red couch'
       : selectionScreen.value === 'captain'
         ? activeCaptain.value.name + ' selection portrait'
@@ -1350,22 +1423,39 @@ const panelLabel = computed(() =>
         finale: 'LAST TRANSMISSION // FINALE',
         ending: 'CHRONICLE // A VOYAGE RECORDED',
       }[run.value.phase]
-    : 'PERSONNEL // COMMAND SELECTION',
+    : selectionScreen.value === 'background'
+      ? '01 // BEFORE THE CAPTAINCY'
+      : selectionScreen.value === 'captain'
+        ? '02 // CAPTAIN SELECTION'
+        : selectionScreen.value === 'stars'
+          ? '03 // THE COUCHSCOPE'
+          : '04 // CREW SELECTION',
 )
 
 function confirmStarAssessment(assessment: StarAssessment) {
   starAssessment.value = assessment
-  selectionScreen.value = 'captain'
+  selectionScreen.value = 'crew'
 }
 function beginWithStarSign() {
-  if (!starAssessment.value || chosenCrew.value.length !== 3) return
-  store.begin(selectedCaptain.value, chosenCrew.value, starAssessment.value)
+  if (!selectedOrigin.value || !starAssessment.value || chosenCrew.value.length !== 3) return
+  store.begin(selectedCaptain.value, chosenCrew.value, starAssessment.value, selectedOrigin.value)
 }
 function restartVoyage() {
   store.restart()
   starAssessment.value = null
-  selectionScreen.value = 'stars'
+  selectionScreen.value = 'background'
   chosenCrew.value = []
+  selectedOrigin.value = null
+  atTitle.value = false
+}
+function startNewVoyage() {
+  if (run.value && !confirmNewVoyage.value) {
+    confirmNewVoyage.value = true
+    return
+  }
+  confirmNewVoyage.value = false
+  titlePanel.value = 'home'
+  restartVoyage()
 }
 onMounted(() => store.load())
 useHead({ title: 'Space Couch | Kind Robots' })
@@ -1391,6 +1481,107 @@ function toggleAway(id: CrewId) {
 </script>
 
 <style scoped>
+.cap-menu {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  background: #090e20;
+}
+.cap-menu-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% center;
+  z-index: -2;
+}
+.cap-menu-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #080d22fa 0%, #080d22eb 35%, #080d2288 66%, #070d2444 100%);
+}
+.cap-menu-body {
+  width: min(100%, 43rem);
+  padding: clamp(1rem, 3.5cqi, 3.5rem);
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 1.2vh, 0.85rem);
+}
+.cap-menu-kicker, .cap-menu-bottom {
+  font-size: clamp(0.55rem, 0.8cqi, 0.77rem);
+  letter-spacing: 0.16em;
+  font-weight: 900;
+  color: #ebc591;
+}
+.cap-menu h1 {
+  font: 900 clamp(3.4rem, 7.7cqi, 8rem)/0.86 Georgia, serif;
+  letter-spacing: -0.08em;
+  text-shadow: 0 5px 25px #070a18;
+}
+.cap-menu h1 em { color: #ffc59c; font-style: italic; }
+.cap-menu-deck { max-width: 44ch; font-size: clamp(0.81rem, 1.3cqi, 1.17rem); line-height: 1.4; color: #d9e8ed; }
+.cap-menu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-top: 0.4rem; }
+.cap-menu-actions button, .cap-menu-detail button {
+  border: 1px solid #91bbc0;
+  border-left: 3px solid #fbc997;
+  border-radius: 0.4rem;
+  background: #14263adf;
+  color: #fff2dd;
+  text-align: left;
+  padding: 0.85rem;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.1cqi, 0.94rem);
+}
+.cap-menu-actions button:hover, .cap-menu-actions button:focus-visible, .cap-menu-detail button:hover { background: #2e5065; border-color: #ffdda7; }
+.cap-menu-actions button span { float: right; color: #ffc48e; }
+.cap-menu-actions button small { display: block; margin-top: 0.35rem; font-size: 0.74em; font-weight: 500; line-height: 1.25; color: #c3dae0; }
+.cap-menu-detail { min-height: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.cap-menu-detail h2 { font: 900 clamp(1.4rem, 2.8cqi, 2rem) Georgia, serif; color: #f8cc9c; }
+.cap-menu-detail p { color: #d6e1e6; font-size: 0.78rem; }
+.cap-menu-detail button b { float: right; color: #9ee7e7; }
+.cap-menu-detail button[aria-pressed='true'] { border-color: #9ee7e7; background: #235061; }
+.cap-menu-journal { flex: 1; min-height: 3rem; overflow-y: auto; max-height: min(27vh, 15rem); padding: 0.25rem 0.65rem; border-left: 2px solid #c0a17a; }
+.cap-menu-journal p { margin: 0.4rem 0; }
+.cap-menu-confirm { display: flex; flex-wrap: wrap; gap: 0.45rem; background: #291f32ee; padding: 0.65rem; border: 1px solid #e5ba80; }
+.cap-menu-confirm p { flex-basis: 100%; font-size: 0.76rem; }
+.cap-menu-confirm button { padding: 0.45rem; border: 1px solid #dbb98b; color: #ffdeb3; font-size: 0.7rem; }
+.cap-menu-bottom { margin-top: 0.2rem; }
+.cap-origins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.cap-origin { min-width: 0; display: flex; gap: 0.5rem; border: 1px solid #658796; background: #192c40; padding: 0.65rem; border-radius: 0.5rem; text-align: left; }
+.cap-origin:hover, .cap-origin:focus-visible, .cap-origin.chosen { border-color: #ffd39d; background: #294a56; }
+.cap-origin-glyph { font: 900 1.5rem Georgia, serif; color: #f8c58f; }
+.cap-origin strong, .cap-origin small { display: block; }
+.cap-origin strong { font-size: 0.74rem; color: #f9e7d1; }
+.cap-origin small { font-size: 0.62rem; line-height: 1.35; color: #b8cfd5; }
+.cap-origin .cap-origin-perk { margin-top: 0.3rem; color: #ffd29e; }
+.cap-step-back { border: 0; padding: 0.25rem; color: #ffd49d; font-size: 0.7rem; font-weight: 900; }
+.cap-reduce-motion *, .cap-reduce-motion *::before, .cap-reduce-motion *::after { animation: none !important; transition: none !important; }
+.cap-large-type .cap-menu-deck, .cap-large-type .cap-origin small, .cap-large-type .cap-insight p { font-size: 1rem; }
+@media (max-width: 700px) {
+  .cap-menu-image { object-position: 72% center; opacity: 0.6; }
+  .cap-menu-body { width: 100%; justify-content: center; padding: 1rem; }
+  .cap-menu h1 { font-size: clamp(2.8rem, 12vw, 5rem); }
+  .cap-menu-actions { gap: 0.4rem; }
+  .cap-menu-actions button { padding: 0.6rem; }
+  .cap-origins { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
+  .cap-origin { padding: 0.35rem; }
+  .cap-origin-glyph { font-size: 1rem; }
+}
+@media (max-width: 450px) and (max-height: 720px) {
+  .cap-menu-body { gap: 0.3rem; }
+  .cap-menu h1 { font-size: 2.7rem; }
+  .cap-menu-deck { font-size: 0.74rem; }
+  .cap-menu-actions button { padding: 0.5rem; }
+  .cap-menu-bottom { display: none; }
+}
 .cap-shell {
   gap: 0;
   background: #080e1d;

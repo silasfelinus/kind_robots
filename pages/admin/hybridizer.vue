@@ -4,7 +4,7 @@
       <header class="hybridizer-header">
         <div>
           <p class="eyebrow">KIND ROBOTS / EXPERIMENT 014</p>
-          <h1>HYBRIDIZER</h1>
+          <div class="lab-title">HYBRIDIZER</div>
           <p class="subtitle">Every creature has an impossible cousin.</p>
         </div>
         <div class="header-count">
@@ -254,7 +254,7 @@ onMounted(() => {
 .hybridizer-console{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(9px,1.4vw,18px);height:100%;min-height:0;padding:clamp(12px,2vw,25px);background-image:radial-gradient(#b8a9d32b 1px,transparent 1px);background-size:27px 27px}
 .hybridizer-header{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:0;padding-bottom:8px;border-bottom:1px solid #957b9e50}
 .eyebrow{font-size:clamp(.56rem,.85vw,.75rem);font-weight:900;letter-spacing:.21em;color:#d3b9db}
-.hybridizer-header h1{font-size:clamp(1.55rem,3.8vw,3.1rem);letter-spacing:.18em;font-weight:950;line-height:1.12;color:#fff2d8}
+.hybridizer-header .lab-title{font-size:clamp(1.55rem,3.8vw,3.1rem);letter-spacing:.18em;font-weight:950;line-height:1.12;color:#fff2d8}
 .subtitle{font-size:clamp(.66rem,1vw,.87rem);letter-spacing:.075em;color:#d4f0b3;font-weight:700}
 .header-count{display:grid;grid-template-columns:repeat(2,max-content);column-gap:15px;align-items:center;font-size:.65rem;letter-spacing:.1em;color:#d8c7de}
 .header-count strong{font-size:1.3rem;color:#def19d}
@@ -327,7 +327,7 @@ onMounted(() => {
  .result-foot{align-items:center}
 }
 @container (max-width:440px){
- .hybridizer-header h1{font-size:1.46rem;letter-spacing:.085em}
+ .hybridizer-header .lab-title{font-size:1.46rem;letter-spacing:.085em}
  .subtitle{font-size:.59rem}
  .header-count{column-gap:6px;letter-spacing:0;font-size:.54rem}.header-count strong{font-size:.9rem}
  .hybridizer-console{padding:8px;gap:7px}

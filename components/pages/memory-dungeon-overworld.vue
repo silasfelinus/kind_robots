@@ -265,11 +265,19 @@
             class="md-overworld-map relative aspect-square overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
             aria-label="Briar Camp eight by eight memory overworld"
           >
+            <img
+              v-if="!mapArtFailed"
+              src="/images/memory-dungeon/backdrops/briar-overworld.webp"
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover"
+              @error="mapArtFailed = true"
+            />
             <div
+              v-else
               class="absolute inset-0 bg-cover bg-center"
               style="background-image: url('/memory-dungeon/briar-camp.svg')"
               role="img"
-              aria-label="Briar Camp: an illustrated woodland with stone paths, a bridge, ferns and a river. Individual locations are discovered through the overlay."
+              aria-label="Briar Camp: a woodland map with stone paths, a bridge, ferns and a river. Individual locations are discovered through the overlay."
             ></div>
             <div class="absolute inset-0 grid grid-cols-8 grid-rows-8">
               <div
@@ -343,6 +351,9 @@
                   :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}; ${progressLabel(tile.key)}`"
                   @click="world.walk(tile.key)"
                 >
+                  <memory-dungeon-action-beacon
+                    v-if="tileNeedsAttention(tile.key)"
+                  />
                   <span
                     v-if="sites[tile.key]"
                     class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
@@ -586,7 +597,7 @@
                     v-for="choice in world.activeScene.choices"
                     :key="choice.id"
                     type="button"
-                    class="md-btn"
+                    class="md-btn md-story-choice"
                     :disabled="!canChooseBriarScene(choice, world.state)"
                     @click="world.chooseScene(choice.id)"
                   >
@@ -900,6 +911,7 @@ import {
   BRIAR_SITES,
   BRIAR_TILES,
   type BriarSiteKind,
+  briarConnected,
   briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
 import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
@@ -951,13 +963,16 @@ const currentIllustrationPath = computed(() =>
   ),
 )
 const sceneArtFailed = ref(false)
+const mapArtFailed = ref(false)
 watch(currentIllustrationPath, () => {
   sceneArtFailed.value = false
 })
 const currentSceneStyle = computed(() => {
   const [x = 1, y = 1] = world.state.player.split(',').map(Number)
   return {
-    backgroundImage: "url('/memory-dungeon/briar-camp.svg')",
+    backgroundImage: mapArtFailed.value
+      ? "url('/memory-dungeon/briar-camp.svg')"
+      : "url('/images/memory-dungeon/backdrops/briar-overworld.webp')",
     backgroundSize: '800% 800%',
     backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
   }
@@ -968,6 +983,14 @@ const completedCount = computed(
 )
 function progressFor(key: string) {
   return briarTileProgress(world.state, key)
+}
+function tileNeedsAttention(key: string): boolean {
+  const progress = progressFor(key)
+  return (
+    !world.mapMatching &&
+    (progress === 'unvisited' || progress === 'unfinished') &&
+    briarConnected(world.state.player, key, world.state.revealed)
+  )
 }
 function progressLabel(key: string): string {
   const progress = progressFor(key)
@@ -1167,8 +1190,15 @@ onMounted(() => {
   min-height: 2.5rem;
   padding: 0.65rem 0.9rem;
   color: #fff4da;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 700;
+}
+.md-story-choice {
+  flex: 1 1 12rem;
+  min-height: 3.25rem;
+  font-size: clamp(1rem, 1.85cqw, 1.5rem);
+  line-height: 1.2;
+  text-align: left;
 }
 .md-btn:hover:not(:disabled) {
   background: #617746;

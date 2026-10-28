@@ -30,7 +30,8 @@ export function canonicalFusionPair(first: string, second: string) {
   const left = normalizedIngredientKey(first)
   const right = normalizedIngredientKey(second)
   if (left === right) throw new Error('Choose two different ingredients.')
-  const [leftKey, rightKey] = [left, right].sort()
+  const leftKey = left < right ? left : right
+  const rightKey = left < right ? right : left
   const id = createHash('sha256')
     .update(
       JSON.stringify([

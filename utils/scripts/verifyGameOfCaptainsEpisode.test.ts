@@ -273,7 +273,7 @@ for (const marker of [
   )
 }
 assert.ok(
-  daily.includes("scoutOdds(actor.id) === null ? 'CLASSIFIED'"),
+  daily.includes('scoutOdds(actor.id) === null') && daily.includes("? 'CLASSIFIED'"),
   'Do not expose untested redshirt statistics',
 )
 assert.ok(

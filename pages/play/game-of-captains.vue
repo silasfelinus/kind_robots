@@ -73,8 +73,27 @@
       <span v-if="run" class="cap-hud" aria-label="Couch force shield charge"
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
-      <button type="button" class="cap-reset" data-testid="space-couch-return-menu" @click="atTitle = true; titlePanel = 'home'">MENU</button>
-      <button v-if="run" type="button" class="cap-reset" @click="atTitle = true; titlePanel = 'home'; confirmNewVoyage = true">
+      <button
+        type="button"
+        class="cap-reset"
+        data-testid="space-couch-return-menu"
+        @click="
+          atTitle = true
+          titlePanel = 'home'
+        "
+      >
+        MENU
+      </button>
+      <button
+        v-if="run"
+        type="button"
+        class="cap-reset"
+        @click="
+          atTitle = true
+          titlePanel = 'home'
+          confirmNewVoyage = true
+        "
+      >
         NEW VOYAGE
       </button>
     </header>
@@ -106,9 +125,9 @@
                 ? 'WHO WERE YOU BEFORE THE COUCH?'
                 : selectionScreen === 'stars'
                   ? 'THE COUCHSCOPE'
-                : selectionScreen === 'captain'
-                  ? 'CAPTAIN DOSSIER'
-                  : 'CREW DOSSIER'
+                  : selectionScreen === 'captain'
+                    ? 'CAPTAIN DOSSIER'
+                    : 'CREW DOSSIER'
             }}</span>
             <h2 class="cap-title">
               {{
@@ -116,9 +135,9 @@
                   ? 'Every captain has a past'
                   : selectionScreen === 'stars'
                     ? 'Your Constellation Awaits'
-                  : selectionScreen === 'captain'
-                    ? activeCaptain.name
-                    : crewProfile(focusedCrew).name
+                    : selectionScreen === 'captain'
+                      ? activeCaptain.name
+                      : crewProfile(focusedCrew).name
               }}
             </h2>
             <p class="cap-tagline">
@@ -127,9 +146,9 @@
                   ? 'The galaxy records the things you did before anyone trusted you with a couch.'
                   : selectionScreen === 'stars'
                     ? 'The stars have very specific opinions about your answers.'
-                  : selectionScreen === 'captain'
-                    ? CAPTAIN_DOSSIERS[selectedCaptain].voice
-                    : CREW_DOSSIERS[focusedCrew].crisis
+                    : selectionScreen === 'captain'
+                      ? CAPTAIN_DOSSIERS[selectedCaptain].voice
+                      : CREW_DOSSIERS[focusedCrew].crisis
               }}
             </p>
           </template>
@@ -170,15 +189,45 @@
             <template v-if="selectionScreen === 'background'">
               <div class="cap-heading">
                 <span>01</span>
-                <div><h2>Choose your background</h2><p>Your history belongs to you. It changes your opening resources and follows you into the captain's log.</p></div>
+                <div>
+                  <h2>Choose your background</h2>
+                  <p>
+                    Your history belongs to you. It changes your opening
+                    resources and follows you into the captain's log.
+                  </p>
+                </div>
               </div>
               <div class="cap-origins" data-testid="space-couch-backgrounds">
-                <button v-for="origin in CAPTAIN_ORIGINS" :key="origin.id" type="button" class="cap-origin" :class="{ chosen: selectedOrigin === origin.id }" :aria-pressed="selectedOrigin === origin.id" @click="selectedOrigin = origin.id">
-                  <span class="cap-origin-glyph" aria-hidden="true">{{ origin.glyph }}</span>
-                  <span><strong>{{ origin.name }}</strong><small>{{ origin.summary }}</small><small class="cap-origin-perk">{{ origin.perk }}</small></span>
+                <button
+                  v-for="origin in CAPTAIN_ORIGINS"
+                  :key="origin.id"
+                  type="button"
+                  class="cap-origin"
+                  :class="{ chosen: selectedOrigin === origin.id }"
+                  :aria-pressed="selectedOrigin === origin.id"
+                  @click="selectedOrigin = origin.id"
+                >
+                  <span class="cap-origin-glyph" aria-hidden="true">{{
+                    origin.glyph
+                  }}</span>
+                  <span
+                    ><strong>{{ origin.name }}</strong
+                    ><small>{{ origin.summary }}</small
+                    ><small class="cap-origin-perk">{{
+                      origin.perk
+                    }}</small></span
+                  >
                 </button>
               </div>
-              <button class="cap-primary" type="button" :disabled="!selectedOrigin" data-testid="space-couch-background-next" @click="selectionScreen = 'captain'">CHOOSE YOUR CAPTAIN <span>➜</span></button>
+              <button
+                class="cap-primary"
+                type="button"
+                :disabled="!selectedOrigin"
+                data-testid="space-couch-background-next"
+                @click="selectionScreen = 'captain'"
+              >
+                CHOOSE YOUR CAPTAIN <span>➜</span>
+              </button>
             </template>
             <SpaceCouchConstellationTest
               v-else-if="selectionScreen === 'stars'"
@@ -188,14 +237,20 @@
               @back="selectionScreen = 'captain'"
             />
             <template v-else-if="selectionScreen === 'captain'">
-              <button type="button" class="cap-step-back" @click="selectionScreen = 'background'">← CHANGE BACKGROUND</button>
+              <button
+                type="button"
+                class="cap-step-back"
+                @click="selectionScreen = 'background'"
+              >
+                ← CHANGE BACKGROUND
+              </button>
               <div class="cap-heading">
                 <span>02</span>
                 <div>
                   <h2>Claim your cushion</h2>
                   <p>
-                    Select the commander who inherits your background. The
-                    couch runs on personalities as much as fuel.
+                    Select the commander who inherits your background. The couch
+                    runs on personalities as much as fuel.
                   </p>
                 </div>
               </div>
@@ -1242,7 +1297,10 @@ import {
 
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
-import { CAPTAIN_ORIGINS, type CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
+import {
+  CAPTAIN_ORIGINS,
+  type CaptainOriginId,
+} from '~/utils/gameOfCaptains/captainOrigins'
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import {
@@ -1266,7 +1324,9 @@ import {
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
-const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>('background')
+const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
+  'background',
+)
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
@@ -1303,7 +1363,8 @@ const stagePainting = computed(() => {
 const stageAlt = computed(() =>
   run.value
     ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
-    : selectionScreen.value === 'stars' || selectionScreen.value === 'background'
+    : selectionScreen.value === 'stars' ||
+        selectionScreen.value === 'background'
       ? 'The starry sky above the long red couch'
       : selectionScreen.value === 'captain'
         ? activeCaptain.value.name + ' selection portrait'
@@ -1447,8 +1508,18 @@ function confirmStarAssessment(assessment: StarAssessment) {
   selectionScreen.value = 'crew'
 }
 function beginWithStarSign() {
-  if (!selectedOrigin.value || !starAssessment.value || chosenCrew.value.length !== 3) return
-  store.begin(selectedCaptain.value, chosenCrew.value, starAssessment.value, selectedOrigin.value)
+  if (
+    !selectedOrigin.value ||
+    !starAssessment.value ||
+    chosenCrew.value.length !== 3
+  )
+    return
+  store.begin(
+    selectedCaptain.value,
+    chosenCrew.value,
+    starAssessment.value,
+    selectedOrigin.value,
+  )
 }
 function restartVoyage() {
   store.restart()
@@ -1514,7 +1585,13 @@ function toggleAway(id: CrewId) {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #080d22fa 0%, #080d22eb 35%, #080d2288 66%, #070d2444 100%);
+  background: linear-gradient(
+    90deg,
+    #080d22fa 0%,
+    #080d22eb 35%,
+    #080d2288 66%,
+    #070d2444 100%
+  );
 }
 .cap-menu-body {
   width: min(100%, 43rem);

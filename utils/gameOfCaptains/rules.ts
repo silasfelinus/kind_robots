@@ -44,7 +44,7 @@ import {
 import { galacticEndingFor } from './galacticEndings'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
-import type { CloneProgram } from './cloneSaga'
+import { validCloneProgram, type CloneProgram } from './cloneSaga'
 
 export type CaptainId = 'fluke' | 'vale' | 'solace' | 'rex' | 'quill' | 'ro'
 export type CrewId =
@@ -1305,6 +1305,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
             !/^rs-\d{3}$/.test(loss.id) ||
             typeof loss.encounterId !== 'string',
         ))) ||
+    (data.cloneProgram !== undefined &&
+      !validCloneProgram(data.cloneProgram)) ||
     (data.venueProgress !== undefined &&
       (!data.venueProgress ||
         typeof data.venueProgress !== 'object' ||

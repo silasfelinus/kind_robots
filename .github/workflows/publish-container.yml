@@ -29,6 +29,11 @@ on:
       - package.json
       - package-lock.json
       - prisma/**
+      # The Save the Plumber console maker is template-heavy. Typecheck alone
+      # does not catch invalid Vue directive expressions, so validate its pages
+      # against the actual Nuxt/Vite production compiler before merge.
+      - 'components/arcade/plumber-*.vue'
+      - pages/play/save-the-plumber.vue
       # Shared Tailwind/DaisyUI primitives must prove they compile in the real
       # production image before merge; ordinary contract checks do not catch
       # invalid component modifiers inside Tailwind v4 @apply rules.

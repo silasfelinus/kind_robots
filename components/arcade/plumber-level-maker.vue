@@ -11,15 +11,7 @@
         >
       </div>
       <div class="maker-actions">
-        <button
-          type="button"
-          class="maker-action"
-          @click="
-            maker.newDraft()
-            mode = 'edit'
-            drawEditor()
-          "
-        >
+        <button type="button" class="maker-action" @click="startNewLevel">
           ✚ <span>NEW</span>
         </button>
         <button type="button" class="maker-action" @click="save">
@@ -60,10 +52,7 @@
                 type="button"
                 :disabled="!maker.undoStack.length"
                 title="Undo (Ctrl+Z)"
-                @click="
-                  maker.undo()
-                  drawEditor()
-                "
+                @click="undoEdit"
               >
                 ↶ UNDO
               </button>
@@ -71,10 +60,7 @@
                 type="button"
                 :disabled="!maker.redoStack.length"
                 title="Redo (Ctrl+Y)"
-                @click="
-                  maker.redo()
-                  drawEditor()
-                "
+                @click="redoEdit"
               >
                 ↷ REDO
               </button>
@@ -181,13 +167,7 @@
               >Sign in to leave a review. Public ratings are visible to everyone
               with the link.</small
             >
-            <button
-              type="button"
-              @click="
-                maker.panel = 'reviews'
-                togglePlay()
-              "
-            >
+            <button type="button" @click="showReviews">
               ★ READ PLAYER REVIEWS
             </button>
             <button type="button" @click="togglePlay">✎ BACK TO EDITOR</button>
@@ -472,6 +452,24 @@ function onGridKey(event: KeyboardEvent) {
     maker.beginStroke()
     placeAt(cursor.value.x, cursor.value.y)
   }
+}
+function startNewLevel() {
+  stopGame()
+  maker.newDraft()
+  mode.value = 'edit'
+  nextTick(drawEditor)
+}
+function undoEdit() {
+  maker.undo()
+  drawEditor()
+}
+function redoEdit() {
+  maker.redo()
+  drawEditor()
+}
+function showReviews() {
+  maker.panel = 'reviews'
+  togglePlay()
 }
 function save() {
   maker.saveDraft()

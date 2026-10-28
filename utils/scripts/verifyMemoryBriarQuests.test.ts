@@ -330,6 +330,62 @@ assert.match(
   'The earliest authored manifest divergence determines the ending',
 )
 
+// Trusting Scylla's paperwork, helping Char repair a boot and choosing rest
+// all care for the twins differently. None invents the private confession
+// earned only by hearing both sisters on the landing.
+const twins = BRIAR_QUESTS.find((q) => q.id === 'different-waters-same-face')!
+const twinClosures = [
+  ['HD-10', 'manifest', /supplies arrive intact/],
+  ['HD-11', 'help', /Help was welcome/],
+  ['HD-30', 'rest', /private bargain remains theirs/],
+] as const
+const twinEndings = new Set<string>()
+for (const [key, choice, expected] of twinClosures) {
+  const decisions = split(twins)
+  decisions.house[key] = choice
+  const result = briarQuestProgress(twins, decisions.briar, decisions.house)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the twins' thread`,
+  )
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, twins.closed)
+  twinEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+    ),
+  )
+  const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
+  assert.equal(
+    briarQuestProgress(twins, restored.sceneChoices, restoredHouse).quest
+      .closed,
+    result.quest.closed,
+    'The chosen twin outcome survives serialized decisions',
+  )
+}
+assert.equal(twinEndings.size, 3, 'three distinct twin resolutions')
+const forgedTwins = split(twins)
+forgedTwins.house['HD-11'] = 'forged'
+assert.equal(
+  briarQuestProgress(twins, forgedTwins.briar, forgedTwins.house).state,
+  'active',
+  "A forged wardrobe decision cannot close the twins' thread",
+)
+const twoTwinClosures = split(twins)
+twoTwinClosures.house['HD-10'] = 'manifest'
+twoTwinClosures.house['HD-30'] = 'rest'
+assert.match(
+  briarQuestProgress(twins, twoTwinClosures.briar, twoTwinClosures.house).quest
+    .closed,
+  /supplies arrive intact/,
+  'The earliest authored twin divergence determines the ending',
+)
+
 // Respecting the orchard's consent, sharing a remembered taste, and naming an
 // unfed guest are worthwhile acts, but none supplies the workers' missing meal.
 // The Threads log must report each tradeoff rather than invent a stolen harvest.

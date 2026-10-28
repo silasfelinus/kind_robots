@@ -214,18 +214,28 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: 'HD-10',
         advance: ['improvise'],
         text: 'Let Char improvise while Scylla manages the supplies.',
+        closedOutcomes: {
+          manifest:
+            'You trusted Scylla’s careful manifest and found the service route exactly where Oren had marked it. The supplies arrive intact, but Char never gets to show how her improvisation might have helped the stranded maid. Scylla takes your confidence as agreement that her sister needs managing; the sisters keep that disagreement between them.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-11',
         advance: ['respect'],
         text: 'Ask Char how her protective charm was made.',
+        closedOutcomes: {
+          help: 'You repaired Char’s buckled boot with her enormous needle. She laughs, walks more comfortably and trusts you with the next practical problem. But the protective stitches in her charm remain unexplained, and Scylla never hears how much of their journey Char prepared for alone. Help was welcome; it was not the conversation the twins needed.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-30',
         advance: ['talk'],
         text: 'Hear what each companion thinks the House owes.',
+        closedOutcomes: {
+          rest: 'You chose to rest and redistribute the landing’s supplies before anyone grew too tired to travel safely. Scylla pours tea, Char mends the stranger’s ward, and neither is pressed to confess what she sacrificed to come here. The party leaves stronger, but the sisters’ private bargain remains theirs, unresolved rather than broken.',
+        },
       },
     ],
     complete:

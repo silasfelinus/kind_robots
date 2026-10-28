@@ -314,7 +314,7 @@ for (const [index, subject] of [
   ['02', 'time portal'],
   ['03', 'lost-and-found'],
   ['04', 'one-time miracle'],
-]) {
+] as const) {
   const drawing = readFileSync(
     new URL(
       '../../public/game-of-captains/couchscope/question-' + index + '.svg',

@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
         key: 'fusion:' + record.id,
         title: record.title,
         taxonomy: 'HYBRID',
-        sources: [clientIngredientKey(record.leftKey), clientIngredientKey(record.rightKey)],
+        sources: [
+          clientIngredientKey(record.leftKey),
+          clientIngredientKey(record.rightKey),
+        ],
         depth: record.depth,
         createdAt: record.createdAt,
         status: record.status,
@@ -32,6 +35,10 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const handled = errorHandler(error)
     event.node.res.statusCode = handled.statusCode ?? 500
-    return { success: false, message: handled.message, statusCode: event.node.res.statusCode }
+    return {
+      success: false,
+      message: handled.message,
+      statusCode: event.node.res.statusCode,
+    }
   }
 })

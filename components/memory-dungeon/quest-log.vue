@@ -156,7 +156,9 @@
             :aria-label="`Rare interlude: ${interlude.title}`"
             data-testid="memory-rare-interlude"
           >
-            <p class="text-xs font-bold uppercase tracking-widest text-[#e8c98c]">
+            <p
+              class="text-xs font-bold uppercase tracking-widest text-[#e8c98c]"
+            >
               Rare convergence · Remembered across the road
             </p>
             <h4 class="mt-2 font-serif text-xl font-bold">
@@ -165,7 +167,9 @@
             <p class="mt-2 text-base leading-relaxed sm:text-lg">
               {{ interlude.premise }}
             </p>
-            <p class="mt-3 border-l-2 border-[#d9c694] pl-3 text-base leading-relaxed sm:text-lg">
+            <p
+              class="mt-3 border-l-2 border-[#d9c694] pl-3 text-base leading-relaxed sm:text-lg"
+            >
               {{ interlude.outcome }}
             </p>
           </section>
@@ -208,7 +212,9 @@ const finished = computed(
     world.briarQuests.filter((thread) => thread.state === 'complete').length,
 )
 const rareForActive = computed(() =>
-  world.briarRareEvents.filter((event) => event.questId === active.value?.quest.id),
+  world.briarRareEvents.filter(
+    (event) => event.questId === active.value?.quest.id,
+  ),
 )
 onMounted(async () => {
   await nextTick()

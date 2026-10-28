@@ -64,8 +64,8 @@
         <span class="font-mono">{{ world.earthPhotos.length }}</span>
       </button>
       <button
-        ref="questsTrigger"
         v-if="world.activeReality === 'e01'"
+        ref="questsTrigger"
         type="button"
         class="shrink-0 rounded-lg border border-[#a9b98c] bg-[#3a4733] px-2 py-1.5 text-xs font-bold text-[#f3f0d6] hover:bg-[#4d5c42] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
         :aria-label="`Open Threads, ${questsTied} of ${world.briarQuests.length} side quests tied off`"

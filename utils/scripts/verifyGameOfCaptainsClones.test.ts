@@ -20,8 +20,16 @@ assert.deepEqual([1, 2, 3, 4].map(cloneCost), [3, 5, 7, 9])
 const original = startVoyage('fluke', ['pell', 'vela', 'tess'], 42042)
 const id = original.redshirtRoster![0]!
 assert.equal(cloneQuestStatus(original).ready, false)
-assert.equal(printClone(original, id), original, 'cannot print a living original')
-assert.equal(advanceCloneQuest(original, 'ask'), original, 'cannot skip the memorial')
+assert.equal(
+  printClone(original, id),
+  original,
+  'cannot print a living original',
+)
+assert.equal(
+  advanceCloneQuest(original, 'ask'),
+  original,
+  'cannot skip the memorial',
+)
 
 // A real original death is a historical record, and a genuine next episode is required.
 let run: VoyageRun = {
@@ -29,24 +37,41 @@ let run: VoyageRun = {
   chapter: 1,
   phase: 'briefing',
   redshirtRoster: original.redshirtRoster!.filter((person) => person !== id),
-  redshirtFallen: [{ id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' }],
+  redshirtFallen: [
+    { id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' },
+  ],
   supplies: 90,
 }
 assert.ok(cloneQuestStatus(run).ready)
 run = advanceCloneQuest(run, 'document')
 assert.equal(cloneProgram(run).step, 1)
 assert.equal(run.reputation, original.reputation + 1)
-assert.equal(cloneCandidates(run).find((item) => item.id === id)!.available, false)
+assert.equal(
+  cloneCandidates(run).find((item) => item.id === id)!.available,
+  false,
+)
 assert.equal(printClone(run, id), run, 'no same-episode resurrection')
 const afterMemorial = JSON.parse(JSON.stringify(run))
-assert.deepEqual(restoreVoyage(afterMemorial), run, 'v1 save survives additive clone record')
+assert.deepEqual(
+  restoreVoyage(afterMemorial),
+  run,
+  'v1 save survives additive clone record',
+)
 run = { ...run, chapter: 2, expeditionVisit: null }
 run = printClone(run, id)
 assert.equal(cloneGeneration(run, id), 1)
 assert.equal(cloneOddsBonus(run, id), 6)
 assert.ok(run.redshirtRoster?.includes(id))
-assert.equal(run.redshirtFallen?.length, 1, 'a new clone does not erase the first death')
-assert.equal(printClone(run, id), run, 'cannot print the same person twice in one episode')
+assert.equal(
+  run.redshirtFallen?.length,
+  1,
+  'a new clone does not erase the first death',
+)
+assert.equal(
+  printClone(run, id),
+  run,
+  'cannot print the same person twice in one episode',
+)
 assert.equal(cloneQuestStatus(run).ready, false, 'must deploy Gen I')
 let afterDispatch: VoyageRun = {
   ...run,
@@ -68,8 +93,16 @@ let afterDispatch: VoyageRun = {
 }
 afterDispatch = recordCloneMissions(run, afterDispatch)
 assert.equal(cloneProgram(afterDispatch).records[0]!.deployments, 1)
-assert.equal(cloneProgram(recordCloneMissions(afterDispatch, afterDispatch)).records[0]!.deployments, 1)
-assert.equal(cloneQuestStatus(afterDispatch).ready, false, 'one story beat per episode')
+assert.equal(
+  cloneProgram(recordCloneMissions(afterDispatch, afterDispatch)).records[0]!
+    .deployments,
+  1,
+)
+assert.equal(
+  cloneQuestStatus(afterDispatch).ready,
+  false,
+  'one story beat per episode',
+)
 run = { ...afterDispatch, chapter: 3, expeditionVisit: null }
 assert.equal(cloneQuestStatus(run).ready, true)
 run = advanceCloneQuest(run, 'ask')
@@ -79,7 +112,11 @@ assert.ok(cloneCandidates(run).find((item) => item.id === id)!.available)
 run = printClone(run, id)
 assert.equal(cloneGeneration(run, id), 2)
 assert.equal(cloneProgram(run).records.length, 2)
-assert.equal(cloneProgram(run).records[0]!.deployments, 1, 'prior gen field memories persist')
+assert.equal(
+  cloneProgram(run).records[0]!.deployments,
+  1,
+  'prior gen field memories persist',
+)
 assert.equal(cloneOddsBonus(run, id), 12)
 const unchanged = printClone(run, id)
 assert.equal(unchanged, run, 'cannot farm generations with free clicks')
@@ -153,7 +190,12 @@ run = advanceCloneQuest(run, 'document')
 assert.equal(cloneProgram(run).step, 5)
 assert.equal(cloneQuestStatus(run).ready, false)
 assert.equal(advanceCloneQuest(run, 'document'), run)
-const completed = cloneEndingCoda({ ...run, phase: 'ending', ending: 'A New Home', scene: 'Finale.' })
+const completed = cloneEndingCoda({
+  ...run,
+  phase: 'ending',
+  ending: 'A New Home',
+  scene: 'Finale.',
+})
 assert.match(completed.ending ?? '', /Rights of Copies/)
 assert.match(completed.scene, /clone tribunal/)
 assert.equal(cloneEndingCoda(run), run, 'no premature ending')
@@ -163,7 +205,9 @@ let controversial: VoyageRun = {
   ...original,
   chapter: 1,
   redshirtRoster: original.redshirtRoster!.filter((person) => person !== id),
-  redshirtFallen: [{ id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' }],
+  redshirtFallen: [
+    { id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' },
+  ],
 }
 controversial = advanceCloneQuest(controversial, 'override')
 assert.equal(controversial.trust, original.trust - 2)
@@ -173,8 +217,12 @@ const broken: VoyageRun = {
   chapter: 1,
   supplies: 0,
   redshirtRoster: original.redshirtRoster!.filter((person) => person !== id),
-  redshirtFallen: [{ id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' }],
+  redshirtFallen: [
+    { id, chapter: 1, encounterId: 'local-M0', missionId: 'refugees' },
+  ],
 }
 const brokeThenUnlocked = advanceCloneQuest(broken, 'document')
 assert.equal(printClone({ ...brokeThenUnlocked, chapter: 2 }, id).supplies, 0)
-console.log('Space Couch Red Thread cloning, tiers, consent and v1 persistence verified')
+console.log(
+  'Space Couch Red Thread cloning, tiers, consent and v1 persistence verified',
+)

@@ -241,7 +241,7 @@
       <span class="lair-caption-subtitle">{{ subtitle }}</span>
     </div>
     <div
-      v-if="beat === 'moment' && windowOpen"
+      v-if="beat === 'moment' && windowOpen && showCue"
       class="lair-cue"
       aria-hidden="true"
     >
@@ -256,6 +256,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   sceneId: string
   windowOpen?: boolean
+  showCue?: boolean
 }>()
 
 type CorridorBeat =

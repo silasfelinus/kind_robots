@@ -1575,7 +1575,7 @@ const darkHouseScreen = readFileSync(
   'utf8',
 )
 const houseAtlasImage = readFileSync(
-  'components/memory-dungeon/house-map-art.vue',
+  'components/memory-dungeon-house-map-art.vue',
   'utf8',
 )
 assert.equal(HOUSE_ATLAS_SIZE, 6)

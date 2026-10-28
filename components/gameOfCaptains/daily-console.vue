@@ -147,10 +147,7 @@
                   'Place ' + actor.name + ' on ' + scoutedEncounter.title
                 "
                 data-testid="space-couch-scout-actor"
-                @click="
-                  assign(scoutedEncounter.id, actor.id)
-                  scoutingQuestId = null
-                "
+                @click="assign(scoutedEncounter.id, actor.id); scoutingQuestId = null"
               >
                 <span class="daily-actor-face">
                   <img v-if="actor.image" :src="actor.image" alt="" />

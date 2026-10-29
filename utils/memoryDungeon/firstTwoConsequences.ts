@@ -236,25 +236,25 @@ const COURIER_BELL_OUTCOMES: Record<
     scene:
       'The lantern you lent has kept a stranger warm beneath the mirrored glass bell. When you ask whose memory paid for the shelter, the courier discovers the village billed an absent traveler without consent. The courier carries a correction to the council, but the stranger must wait another night for the debt to be settled.',
     epilogue:
-      'the courier delivers the village’s corrected shelter account. The traveler whose memory was billed is invited to dispute the debt, though their journey was delayed by the audit.',
+      'The courier delivers the village’s corrected shelter account. The traveler whose memory was billed is invited to dispute the debt, though their journey was delayed by the audit.',
   },
   'lantern-named': {
     scene:
       'the courier sets your old lantern between the two chairs as you offer your own name to the bell. Both of your lives answer. The courier covers the second name before the village clerk can copy it, and asks the sheltered traveler to testify instead. You keep your privacy, but the clerk refuses to cancel the charge without a public witness.',
     epilogue:
-      'the courier keeps the two names the bell spoke out of the public register. The shelter charge remains contested until a willing witness can testify.',
+      'The courier keeps the two names the bell spoke out of the public register. The shelter charge remains contested until a willing witness can testify.',
   },
   'address-audited': {
     scene:
       'You unfold the impossible address you copied and ask the courier who was charged for the campfire. The bill was sent to a house that never existed, then collected from the first traveler to arrive. the courier brings both documents to the village clerk. The false address is exposed, but the courier misses the evening delivery round while the ledger is corrected.',
     epilogue:
-      'the courier proves that a nonexistent address was used to collect a real shelter debt. The village revises its ledger, while the courier’s delayed letters must still find their recipients.',
+      'The courier proves that a nonexistent address was used to collect a real shelter debt. The village revises its ledger, while the courier’s delayed letters must still find their recipients.',
   },
   'address-named': {
     scene:
       'You offer your own name beneath the bell while the courier holds up the copied address. For a moment the two lives you have worn appear as separate addressees. the courier seals the evidence before either name can be sold as a forwarding address. The missing recipient stays protected, but the village will not refund the wrongly charged traveler on a sealed claim.',
     epilogue:
-      'the courier seals the impossible address beside the two names the bell tried to assign you. No one is indexed without permission, but the wrongfully collected fee is still unpaid.',
+      'The courier seals the impossible address beside the two names the bell tried to assign you. No one is indexed without permission, but the wrongfully collected fee is still unpaid.',
   },
 }
 

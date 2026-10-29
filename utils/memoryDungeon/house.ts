@@ -1017,7 +1017,10 @@ export function reachableHouseVisits(
   const queue: HouseRoomId[] = [HOUSE_ENTRY]
   for (let i = 0; i < queue.length; i++) {
     const room = queue[i]!
-    for (const next of [...HOUSE_ROOMS[room]!.exits, ...(extraExits[room] ?? [])]) {
+    for (const next of [
+      ...HOUSE_ROOMS[room]!.exits,
+      ...(extraExits[room] ?? []),
+    ]) {
       if (!claimed.has(next) || reached.has(next)) continue
       reached.add(next)
       queue.push(next)
@@ -1025,7 +1028,11 @@ export function reachableHouseVisits(
   }
   return {
     current: reached.has(current) ? current : HOUSE_ENTRY,
-    visited: [...new Set([HOUSE_ENTRY, ...visited, current].filter((id) => reached.has(id)))],
+    visited: [
+      ...new Set(
+        [HOUSE_ENTRY, ...visited, current].filter((id) => reached.has(id)),
+      ),
+    ],
   }
 }
 

@@ -39,6 +39,12 @@ export type TrainingState = {
   phase: 'active' | 'victory' | 'defeat'
   log: string
   events: string[]
+  impact: {
+    attacker: string
+    target: string
+    hit: boolean
+    serial: number
+  } | null
 }
 export type ShotPreview = Chance & { target: string }
 export const WIDTH = FIRST_BELL_MAP.width
@@ -63,6 +69,28 @@ export const isInside = (p: Cell) => inside(FIRST_BELL_MAP, p)
 export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
   return state.units.find((u) => u.hp > 0 && u.x === point.x && u.y === point.y)
+}
+export function displayUnitAt(
+  state: TrainingState,
+  point: Cell,
+): Unit | undefined {
+  return (
+    actorAt(state, point) ??
+    state.units.find((u) => u.hp === 0 && u.x === point.x && u.y === point.y)
+  )
+}
+function recordImpact(
+  state: TrainingState,
+  attacker: Unit,
+  target: Unit,
+  hit: boolean,
+) {
+  state.impact = {
+    attacker: attacker.id,
+    target: target.id,
+    hit,
+    serial: (state.impact?.serial ?? 0) + 1,
+  }
 }
 export const lineClear = (from: Cell, to: Cell) =>
   lineOfSight(FIRST_BELL_MAP, from, to)
@@ -106,6 +134,7 @@ export function trainingState(seed = 0x53a1b7): TrainingState {
     phase: 'active',
     log: 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
     events: ['The bell rang twice. Nobody signed up for the second one.'],
+    impact: null,
   }
 }
 export function selectedUnit(state: TrainingState) {
@@ -152,6 +181,7 @@ function triggerReactions(state: TrainingState, moved: Unit) {
   )) {
     const result = resolveOverwatch(state, FIRST_BELL_MAP, enemy, moved)
     if (!result) continue
+    recordImpact(state, enemy, moved, result.hit)
     note(
       state,
       aliasFor(enemy) +
@@ -197,6 +227,7 @@ export function fireSelected(state: TrainingState, target: Unit): boolean {
   if (!shooter || state.phase !== 'active') return false
   const result = resolveAttack(state, FIRST_BELL_MAP, shooter, target, 2)
   if (!result) return false
+  recordImpact(state, shooter, target, result.hit)
   note(
     state,
     aliasFor(shooter) +
@@ -296,7 +327,8 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
   if (enemy.hp <= 0 || state.phase !== 'active') return
   if (enemy.ap > 0 && shot) {
     const result = resolveAttack(state, FIRST_BELL_MAP, enemy, shot.target, 1)
-    if (result)
+    if (result) {
+      recordImpact(state, enemy, shot.target, result.hit)
       note(
         state,
         aliasFor(enemy) +
@@ -306,6 +338,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
           result.chance.hit +
           '%).',
       )
+    }
   }
   if (enemy.ap > 0 && !enemy.fired) {
     if (tileAt(FIRST_BELL_MAP, enemy).cover) takeCover(enemy)

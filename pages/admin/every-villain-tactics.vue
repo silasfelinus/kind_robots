@@ -84,30 +84,53 @@
                     >▲{{ elevationAt(cell) }}</span
                   >
                   <span
-                    v-if="actorAt(store.state, cell)"
+                    v-if="displayUnitAt(store.state, cell)"
+                    :key="
+                      displayUnitAt(store.state, cell)!.id +
+                      '-' +
+                      (store.state.impact?.target ===
+                        displayUnitAt(store.state, cell)!.id ||
+                      store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)!.id
+                        ? store.state.impact?.serial
+                        : 0)
+                    "
                     class="evt-standee"
                     :class="{
                       'evt-friendly':
-                        actorAt(store.state, cell)?.team === 'squad',
-                      'evt-rival': actorAt(store.state, cell)?.team === 'rival',
-                      'evt-fallen': actorAt(store.state, cell)?.hp === 0,
+                        displayUnitAt(store.state, cell)?.team === 'squad',
+                      'evt-rival':
+                        displayUnitAt(store.state, cell)?.team === 'rival',
+                      'evt-fallen': displayUnitAt(store.state, cell)?.hp === 0,
+                      'evt-impact-hit':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        store.state.impact?.hit === true,
+                      'evt-impact-miss':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        store.state.impact?.hit === false,
+                      'evt-impact-strike':
+                        store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)?.id,
                     }"
                   >
                     <span class="evt-card-art">
                       <span class="evt-crest" aria-hidden="true">✦</span>
                       <span class="evt-initials">{{
-                        initials(actorAt(store.state, cell)!)
+                        initials(displayUnitAt(store.state, cell)!)
                       }}</span>
                     </span>
                     <span class="evt-card-label">{{
-                      unitName(actorAt(store.state, cell)!)
+                      unitName(displayUnitAt(store.state, cell)!)
                     }}</span>
                     <span class="evt-health" aria-hidden="true">
                       <i
-                        v-for="n in actorAt(store.state, cell)?.maxHp ?? 0"
+                        v-for="n in displayUnitAt(store.state, cell)?.maxHp ??
+                        0"
                         :key="n"
                         :class="{
-                          lost: n > (actorAt(store.state, cell)?.hp ?? 0),
+                          lost: n > (displayUnitAt(store.state, cell)?.hp ?? 0),
                         }"
                       ></i>
                     </span>
@@ -349,6 +372,58 @@
           </div>
         </footer>
 
+        <section
+          v-if="store.moment"
+          class="evt-cinematic"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-scene-heading"
+          data-testid="tactics-cinematic"
+        >
+          <div class="evt-cinematic-scenery" aria-hidden="true"></div>
+          <div class="evt-cinematic-content">
+            <div class="evt-cinematic-rail">
+              <span class="evt-overline">{{ store.moment.kicker }}</span>
+              <span>SCENE {{ store.story.seen.length + 1 }} / COMET CITY</span>
+            </div>
+            <h2 id="evt-scene-heading">{{ store.moment.title }}</h2>
+            <div class="evt-dialogue" aria-live="polite">
+              <div
+                v-for="(line, index) in store.moment.lines"
+                :key="index"
+                class="evt-dialogue-line"
+              >
+                <strong>{{ line.speaker }}</strong>
+                <p>{{ line.text }}</p>
+              </div>
+            </div>
+            <div class="evt-cinematic-actions" aria-label="Story decisions">
+              <button
+                v-for="(choice, index) in store.moment.choices"
+                :key="choice.effect"
+                type="button"
+                class="evt-story-choice"
+                :data-testid="'tactics-story-' + choice.effect"
+                @click="store.chooseStory(choice.effect)"
+              >
+                <span class="evt-choice-number">{{ index + 1 }}</span>
+                <span class="evt-choice-body">
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.detail }}</small>
+                </span>
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+            <div class="evt-scene-progress" data-testid="tactics-story-flags">
+              <span>{{ store.story.civilians }} rescued</span>
+              <span>{{ store.story.evidence }} evidence</span>
+              <span>{{
+                store.story.mercy ? 'Mercy offered' : 'Ceasefire unresolved'
+              }}</span>
+            </div>
+          </div>
+        </section>
+
         <div
           v-if="store.rosterOpen"
           class="evt-roster"
@@ -405,7 +480,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import {
   useEveryVillainTacticsStore,
@@ -413,6 +488,7 @@ import {
 } from '~/stores/everyVillainTacticsStore'
 import {
   actorAt,
+  displayUnitAt,
   boardCells,
   personFor,
   terrainAt,
@@ -478,6 +554,17 @@ function cellDescription(cell: Cell) {
 }
 function onKey(event: KeyboardEvent) {
   if (event.altKey || event.ctrlKey || event.metaKey || store.rosterOpen) return
+  if (store.moment) {
+    if (event.code === 'Digit1' || event.code === 'Digit2') {
+      const index = event.code === 'Digit1' ? 0 : 1
+      const chosen = store.moment.choices[index]
+      if (chosen) {
+        event.preventDefault()
+        store.chooseStory(chosen.effect)
+      }
+    }
+    return
+  }
   const tag = (event.target as HTMLElement | null)?.tagName
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
   if (event.code === 'KeyM') store.setMode('move')
@@ -487,7 +574,22 @@ function onKey(event: KeyboardEvent) {
   else if (event.code === 'KeyR') store.reset()
   else return
 }
-onMounted(() => window.addEventListener('keydown', onKey))
+watch(
+  () => store.moment?.id,
+  async (scene) => {
+    if (!scene) return
+    await nextTick()
+    document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus()
+  },
+)
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  if (store.moment) {
+    nextTick(() =>
+      document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
+    )
+  }
+})
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -1451,7 +1553,226 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 0.6rem;
   opacity: 0.6;
 }
+.evt-standee.evt-impact-strike {
+  animation: evt-strike 0.44s ease-out both;
+}
+.evt-standee.evt-impact-hit {
+  animation: evt-hit 0.54s ease-out both;
+}
+.evt-standee.evt-impact-miss {
+  animation: evt-dodge 0.46s ease-out both;
+}
+.evt-standee.evt-fallen .evt-card-art {
+  transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(0.79);
+  filter: grayscale(1);
+  opacity: 0.42;
+}
+.evt-standee.evt-fallen .evt-card-label {
+  color: #c7bfc8;
+  text-decoration: line-through;
+}
+.evt-standee.evt-fallen {
+  opacity: 0.6;
+}
+@keyframes evt-strike {
+  0% {
+    transform: translateX(-50%) rotateY(0deg);
+  }
+  37% {
+    transform: translateX(-50%) translateY(-17%) rotateY(-16deg) scale(1.11);
+  }
+  65% {
+    transform: translateX(-38%) translateY(-5%) rotateY(12deg) scale(1.07);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+@keyframes evt-hit {
+  0% {
+    transform: translateX(-50%) rotateY(0);
+    filter: brightness(1.8);
+  }
+  36% {
+    transform: translateX(-50%) translateY(9%) rotateY(42deg);
+    filter: brightness(2.1);
+  }
+  100% {
+    transform: translateX(-50%);
+    filter: brightness(1);
+  }
+}
+@keyframes evt-dodge {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  45% {
+    transform: translateX(-70%) rotateY(-15deg);
+  }
+}
+
+.evt-cinematic {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3cqw, 44px);
+  background: #04091ad9;
+  overflow: auto;
+}
+.evt-cinematic-scenery {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #080d20ed 2%, #121633c4 50%, #0a0f20f2 100%),
+    url('/comet-city-academy/front/splash.webp') center 40% / cover;
+  filter: saturate(0.8);
+  pointer-events: none;
+}
+.evt-cinematic-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.3cqw, 18px);
+  width: min(100%, 950px);
+  max-height: 100%;
+  min-height: 0;
+  padding: clamp(14px, 2cqw, 28px);
+  background: linear-gradient(140deg, #161b33ef, #292744f2);
+  border: 1px solid #eac69e90;
+  border-left: 5px solid #ffb669;
+  border-radius: 14px;
+  box-shadow: 0 12px 80px #000b;
+  overflow-y: auto;
+}
+.evt-cinematic-rail {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: #c4b7ca;
+}
+.evt-cinematic-content h2 {
+  font:
+    900 clamp(1.5rem, 3.5cqw, 3.3rem)/1.03 Impact,
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.025em;
+  color: #ffeacc;
+  text-transform: uppercase;
+}
+.evt-dialogue {
+  display: grid;
+  gap: 8px;
+}
+.evt-dialogue-line {
+  display: grid;
+  grid-template-columns: minmax(70px, 124px) minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 12px;
+  border-left: 2px solid #a6abdf;
+  background: #030b2088;
+}
+.evt-dialogue-line strong {
+  color: #ffd191;
+  font-size: clamp(0.65rem, 0.9cqw, 0.82rem);
+  letter-spacing: 0.1em;
+}
+.evt-dialogue-line p {
+  font-size: clamp(0.83rem, 1.2cqw, 1.1rem);
+  line-height: 1.42;
+}
+.evt-cinematic-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 9px;
+}
+.evt-story-choice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #9a91b0;
+  border-radius: 9px;
+  color: #fef0d8;
+  background: #30334f;
+}
+.evt-story-choice:hover,
+.evt-story-choice:focus-visible {
+  border-color: #ffe0a6;
+  background: #444469;
+  outline: 2px solid #ffe0a6;
+  outline-offset: 1px;
+}
+.evt-choice-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  height: 24px;
+  border: 1px solid #fdd29b;
+  border-radius: 5px;
+  color: #ffdca4;
+}
+.evt-choice-body {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+.evt-choice-body strong {
+  font-size: clamp(0.83rem, 1cqw, 1rem);
+}
+.evt-choice-body small {
+  color: #cfcee0;
+  font-size: clamp(0.7rem, 0.82cqw, 0.82rem);
+}
+.evt-scene-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #bfc5dc;
+  font-size: 0.7rem;
+}
+.evt-scene-progress span {
+  padding: 2px 7px;
+  border: 1px solid #616d88;
+  border-radius: 99px;
+}
+@container (max-width: 640px) {
+  .evt-cinematic-content {
+    padding: 11px;
+  }
+  .evt-dialogue-line {
+    display: block;
+    padding: 7px;
+  }
+  .evt-dialogue-line strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .evt-cinematic-actions {
+    grid-template-columns: 1fr;
+  }
+  .evt-story-choice {
+    min-height: 53px;
+    padding: 8px;
+  }
+  .evt-cinematic-content h2 {
+    font-size: 1.55rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .evt-standee.evt-impact-strike,
+  .evt-standee.evt-impact-hit,
+  .evt-standee.evt-impact-miss {
+    animation: none;
+  }
   .evt-standee,
   .evt-roster-card {
     transition: none;

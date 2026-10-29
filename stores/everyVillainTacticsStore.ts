@@ -18,7 +18,16 @@ import {
   type Mode,
 } from '~/utils/everyVillainTactics/training'
 
-export type TacticalPerspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
+import {
+  applyChoice,
+  createStory,
+  enqueueBeat,
+  storyMoment,
+  type ChoiceEffect,
+  type Perspective,
+} from '~/utils/everyVillainTactics/firstBellStory'
+
+export type TacticalPerspective = Perspective
 
 export const PERSPECTIVES: Record<
   TacticalPerspective,
@@ -55,6 +64,8 @@ export const useEveryVillainTacticsStore = defineStore(
   () => {
     const state = ref(trainingState())
     const perspective = ref<TacticalPerspective>('hero')
+    const leadSignature = ref('accident-fire')
+    const story = ref(createStory())
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
     const roster = IDENTITY_ARCS
@@ -66,6 +77,16 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.units.filter((u) => u.team === 'rival'),
     )
     const scene = computed(() => PERSPECTIVES[perspective.value])
+    const moment = computed(() =>
+      story.value.current
+        ? storyMoment(
+            perspective.value,
+            story.value.current,
+            leadSignature.value,
+            story.value,
+          )
+        : null,
+    )
     const hovered = computed(() => state.value.hover)
     const mode = computed<Mode>(() => state.value.mode)
     const movePossible = computed(
@@ -118,6 +139,8 @@ export const useEveryVillainTacticsStore = defineStore(
 
     function reset() {
       state.value = trainingState()
+      state.value.units[0]!.identity = leadSignature.value
+      story.value = createStory()
     }
     function choosePerspective(value: TacticalPerspective) {
       perspective.value = value
@@ -126,13 +149,14 @@ export const useEveryVillainTacticsStore = defineStore(
     function chooseLead(signature: string) {
       const valid = roster.some((u) => u.signature === signature)
       if (!valid) return
+      leadSignature.value = signature
       reset()
-      state.value.units[0]!.identity = signature
       state.value.log =
         'New squad leader assigned. The battle starts at First Bell.'
       rosterOpen.value = false
     }
     function select(id: string) {
+      if (story.value.current) return
       const u = state.value.units.find(
         (u) => u.id === id && u.hp > 0 && u.team === 'squad',
       )
@@ -142,6 +166,7 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.mode = 'move'
     }
     function setMode(next: Mode) {
+      if (story.value.current) return
       state.value.mode = next
       state.value.hover = null
     }
@@ -149,23 +174,33 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.hover = point
     }
     function click(point: Cell) {
+      if (story.value.current) return
       const unit = actorAt(state.value, point)
       if (unit?.team === 'squad') return select(unit.id)
       if (state.value.phase !== 'active') return
       if (unit?.team === 'rival') {
-        if (state.value.mode === 'fire') fireSelected(state.value, unit)
+        if (state.value.mode === 'fire' && fireSelected(state.value, unit))
+          enqueueBeat(story.value, state.value)
       } else if (state.value.mode === 'move') {
-        moveSelected(state.value, point)
+        if (moveSelected(state.value, point))
+          enqueueBeat(story.value, state.value)
       }
     }
     function nextTurn() {
+      if (story.value.current) return
       endTurn(state.value)
+      enqueueBeat(story.value, state.value)
     }
     function overwatch() {
-      overwatchSelected(state.value)
+      if (story.value.current) return
+      if (overwatchSelected(state.value)) enqueueBeat(story.value, state.value)
     }
     function hunker() {
-      hunkerSelected(state.value)
+      if (story.value.current) return
+      if (hunkerSelected(state.value)) enqueueBeat(story.value, state.value)
+    }
+    function chooseStory(effect: ChoiceEffect) {
+      return applyChoice(story.value, state.value, perspective.value, effect)
     }
     function cellStyle(point: Cell) {
       return {
@@ -189,6 +224,10 @@ export const useEveryVillainTacticsStore = defineStore(
     return {
       state,
       perspective,
+      leadSignature,
+      story,
+      moment,
+      chooseStory,
       scene,
       roster,
       rosterOpen,

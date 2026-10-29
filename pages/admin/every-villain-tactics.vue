@@ -18,7 +18,26 @@
             >
           </div>
           <div class="evt-hud-side">
-            <span class="evt-mission-pill">01 / 06</span>
+            <span class="evt-mission-pill">{{
+              store.isPlaytest ? 'STUDIO TEST' : '01 / 06'
+            }}</span>
+            <button
+              v-if="store.isPlaytest"
+              class="evt-outline"
+              type="button"
+              data-testid="tactics-exit-playtest"
+              @click="store.exitPlaytest()"
+            >
+              EXIT TEST
+            </button>
+            <button
+              class="evt-outline"
+              type="button"
+              data-testid="tactics-open-studio"
+              @click="store.studioOpen = true"
+            >
+              LEVEL STUDIO
+            </button>
             <button
               class="evt-outline"
               type="button"
@@ -38,9 +57,11 @@
             <div class="evt-map-glow" aria-hidden="true"></div>
 
             <div class="evt-stage-label">
-              <span class="evt-overline"
-                >COMET CITY ACADEMY / AUDITORIUM APPROACH</span
-              >
+              <span class="evt-overline">{{
+                store.isPlaytest
+                  ? store.draft.venue.toUpperCase()
+                  : 'COMET CITY ACADEMY / AUDITORIUM APPROACH'
+              }}</span>
               <span class="evt-objective"
                 >OBJECTIVE: {{ store.scene.headline }}</span
               >
@@ -53,7 +74,7 @@
                 aria-label="Nine by six tactical grid"
               >
                 <button
-                  v-for="cell in boardCells"
+                  v-for="cell in store.boardCells"
                   :key="cell.x + '-' + cell.y"
                   type="button"
                   class="evt-tile"
@@ -68,20 +89,20 @@
                   @click="store.click(cell)"
                 >
                   <span
-                    v-if="terrainAt(cell) === 'cover'"
+                    v-if="store.tileInfoAt(cell) === 'cover'"
                     class="evt-cover"
                     aria-hidden="true"
                   ></span>
                   <span
-                    v-if="terrainAt(cell) === 'wall'"
+                    v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
                   ></span>
                   <span
-                    v-if="elevationAt(cell) > 0"
+                    v-if="store.heightAt(cell) > 0"
                     class="evt-height"
                     aria-hidden="true"
-                    >▲{{ elevationAt(cell) }}</span
+                    >▲{{ store.heightAt(cell) }}</span
                   >
                   <span
                     v-if="displayUnitAt(store.state, cell)"
@@ -148,7 +169,12 @@
                 </button>
               </div>
               <div class="evt-map-edge" aria-hidden="true">
-                GRID 09 × 06 • ROOFTOP SIMULATION
+                GRID 09 × 06 •
+                {{
+                  store.isPlaytest
+                    ? store.draft.title.toUpperCase()
+                    : 'ROOFTOP SIMULATION'
+                }}
               </div>
             </div>
 
@@ -335,7 +361,8 @@
                 class="evt-end-turn"
                 @click="store.reset()"
               >
-                REPLAY FIRST BELL <span>↺</span>
+                {{ store.isPlaytest ? 'REPLAY TEST' : 'REPLAY FIRST BELL' }}
+                <span>↺</span>
               </button>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
@@ -359,7 +386,7 @@
               {{ entry.label }}
             </button>
           </div>
-          <div class="evt-missions">
+          <div v-if="!store.isPlaytest" class="evt-missions">
             <span>CAMPAIGN</span>
             <strong
               v-for="(mission, index) in missions"
@@ -371,6 +398,199 @@
             </strong>
           </div>
         </footer>
+
+        <section
+          v-if="store.studioOpen"
+          class="evt-studio"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-studio-title"
+          data-testid="tactics-stage-studio"
+        >
+          <header class="evt-studio-header">
+            <div>
+              <span class="evt-overline">COMET CITY / MISSION WORKSHOP</span>
+              <h2 id="evt-studio-title">THE STAGE STUDIO</h2>
+              <p>
+                Paint terrain, place teams and test real tactical sightlines.
+              </p>
+            </div>
+            <button
+              type="button"
+              class="evt-outline"
+              @click="store.studioOpen = false"
+            >
+              CLOSE ✕
+            </button>
+          </header>
+          <div class="evt-studio-body">
+            <div class="evt-studio-tools">
+              <label class="evt-studio-label" for="evt-preset"
+                >STAGE STARTER</label
+              >
+              <select
+                id="evt-preset"
+                :value="store.draft.id"
+                @change="
+                  store.loadPreset(($event.target as HTMLSelectElement).value)
+                "
+              >
+                <option
+                  v-for="preset in store.STAGE_PRESETS"
+                  :key="preset.id"
+                  :value="preset.id"
+                >
+                  {{ preset.title }}
+                </option>
+              </select>
+              <span class="evt-studio-label">TERRAIN BRUSH</span>
+              <div class="evt-brushes">
+                <button
+                  v-for="brush in studioBrushes"
+                  :key="brush.value"
+                  type="button"
+                  :aria-pressed="store.studioBrush === brush.value"
+                  :class="{ chosen: store.studioBrush === brush.value }"
+                  @click="store.studioBrush = brush.value"
+                >
+                  {{ brush.label }}
+                </button>
+              </div>
+              <small
+                >Team brushes reposition the lead squadmate or lead rival.
+                Secrets and hazards are edit markers; their scripted effects
+                arrive with the encounter editor.</small
+              >
+            </div>
+            <div class="evt-studio-canvas">
+              <div
+                class="evt-studio-board"
+                role="group"
+                aria-label="Editable nine by six stage map"
+              >
+                <button
+                  v-for="cell in studioCells"
+                  :key="cell.x + '-' + cell.y"
+                  type="button"
+                  class="evt-studio-cell"
+                  :class="{
+                    wall: !!store.draft.map.tiles[cell.x + ',' + cell.y]?.wall,
+                    cover:
+                      !!store.draft.map.tiles[cell.x + ',' + cell.y]?.cover,
+                    raised:
+                      !!store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation,
+                  }"
+                  :aria-label="studioCellLabel(cell)"
+                  :data-testid="'studio-cell-' + cell.x + '-' + cell.y"
+                  @click="store.paintCell(cell)"
+                >
+                  <span v-if="studioSpawnAt(cell)" class="evt-studio-unit">{{
+                    studioSpawnAt(cell)
+                  }}</span>
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.wall
+                    "
+                    >▩</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.cover
+                    "
+                    >▤</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.secrets.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    >✦</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.hazards.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    >⚡</span
+                  >
+                  <span
+                    v-else-if="
+                      store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation
+                    "
+                    >▲</span
+                  >
+                  <span v-else>·</span>
+                </button>
+              </div>
+              <div class="evt-studio-legend">
+                ▩ wall · ▤ directional cover · ▲ elevation · ✦ secret · ⚡
+                hazard · S/R spawns
+              </div>
+            </div>
+            <div class="evt-studio-details">
+              <label class="evt-studio-label" for="evt-title"
+                >MISSION TITLE</label
+              >
+              <input
+                id="evt-title"
+                v-model="store.draft.title"
+                maxlength="80"
+              />
+              <label class="evt-studio-label" for="evt-objective"
+                >VICTORY BRIEF</label
+              >
+              <textarea
+                id="evt-objective"
+                v-model="store.draft.objective"
+                rows="3"
+                maxlength="280"
+              ></textarea>
+              <label class="evt-studio-label" for="evt-timer">TURN LIMIT</label>
+              <select id="evt-timer" v-model="store.draft.turnLimit">
+                <option :value="null">No limit</option>
+                <option
+                  v-for="count in [5, 7, 9, 12, 15, 20]"
+                  :key="count"
+                  :value="count"
+                >
+                  {{ count }} rounds
+                </option>
+              </select>
+              <ul
+                v-if="store.studioProblems.length"
+                class="evt-studio-errors"
+                data-testid="studio-validation"
+              >
+                <li v-for="error in store.studioProblems" :key="error">
+                  {{ error }}
+                </li>
+              </ul>
+              <div
+                v-else
+                class="evt-studio-ready"
+                data-testid="studio-validation"
+              >
+                ✓ Passable stage · Six legal spawns · Test ready
+              </div>
+              <button
+                type="button"
+                class="evt-studio-launch"
+                :disabled="store.studioProblems.length > 0"
+                data-testid="studio-playtest"
+                @click="store.startPlaytest()"
+              >
+                ▶ PLAYTEST THIS MAP
+              </button>
+              <small
+                >Uses existing seeded combat AI, pathfinding, cover, hit
+                percentages and movement costs. Private in-browser draft; no
+                public publishing.</small
+              >
+            </div>
+          </div>
+        </section>
 
         <section
           v-if="store.moment"
@@ -489,15 +709,51 @@ import {
 import {
   actorAt,
   displayUnitAt,
-  boardCells,
   personFor,
-  terrainAt,
-  elevationAt,
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
 
 const store = useEveryVillainTacticsStore()
+const studioBrushes = [
+  { value: 'erase', label: 'Clear' },
+  { value: 'wall', label: 'Wall' },
+  { value: 'half-cover', label: 'Half cover' },
+  { value: 'full-cover', label: 'Full cover' },
+  { value: 'rise', label: 'Raise' },
+  { value: 'squad-spawn', label: 'Squad spawn' },
+  { value: 'rival-spawn', label: 'Rival spawn' },
+  { value: 'secret', label: 'Secret' },
+  { value: 'hazard', label: 'Hazard' },
+] as const
+const studioCells = Array.from({ length: 54 }, (_, i) => ({
+  x: i % 9,
+  y: Math.floor(i / 9),
+}))
+function studioSpawnAt(cell: Cell): string {
+  const spawn = store.draft.spawns.find(
+    (unit) => unit.x === cell.x && unit.y === cell.y,
+  )
+  return spawn
+    ? ['backdraft', 'priya', 'hattie'].includes(spawn.id)
+      ? 'S'
+      : 'R'
+    : ''
+}
+function studioCellLabel(cell: Cell): string {
+  const details = store.draft.map.tiles[cell.x + ',' + cell.y]
+  return (
+    'Column ' +
+    (cell.x + 1) +
+    ', row ' +
+    (cell.y + 1) +
+    ', ' +
+    (studioSpawnAt(cell) ||
+      (details?.wall ? 'wall' : details?.cover ? 'cover' : 'open')) +
+    '. Paint ' +
+    store.studioBrush.replace('-', ' ')
+  )
+}
 const perspectives = Object.entries(PERSPECTIVES).map(([value, entry]) => ({
   value: value as keyof typeof PERSPECTIVES,
   label: entry.label,
@@ -540,20 +796,27 @@ function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
-  if (terrainAt(cell) === 'wall')
+  if (store.tileInfoAt(cell) === 'wall')
     return 'Wall at column ' + (cell.x + 1) + ', row ' + (cell.y + 1)
   return (
     'Tile ' +
     (cell.x + 1) +
     ', ' +
     (cell.y + 1) +
-    (terrainAt(cell) === 'cover' ? ', cover' : '') +
-    (elevationAt(cell) ? ', elevation ' + elevationAt(cell) : '') +
+    (store.tileInfoAt(cell) === 'cover' ? ', cover' : '') +
+    (store.heightAt(cell) ? ', elevation ' + store.heightAt(cell) : '') +
     (store.cellStyle(cell).reachable ? ', reachable' : '')
   )
 }
 function onKey(event: KeyboardEvent) {
-  if (event.altKey || event.ctrlKey || event.metaKey || store.rosterOpen) return
+  if (
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey ||
+    store.rosterOpen ||
+    store.studioOpen
+  )
+    return
   if (store.moment) {
     if (event.code === 'Digit1' || event.code === 'Digit2') {
       const index = event.code === 'Digit1' ? 0 : 1
@@ -1780,6 +2043,196 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-tile:hover .evt-standee,
   .evt-tile.selected .evt-standee {
     transform: translateX(-50%);
+  }
+}
+
+.evt-studio {
+  position: absolute;
+  inset: 0;
+  z-index: 28;
+  padding: clamp(12px, 2cqw, 28px);
+  color: #fff1d8;
+  background: radial-gradient(ellipse at 40% 25%, #3d375f, #10162b 75%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+.evt-studio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+.evt-studio-header h2 {
+  font:
+    900 clamp(1.4rem, 3cqw, 3rem)/1.1 Impact,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.08em;
+  color: #ffdf9b;
+}
+.evt-studio-header p,
+.evt-studio-details small,
+.evt-studio-tools small {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: #d0cfe6;
+}
+.evt-studio-body {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(145px, 0.8fr) minmax(280px, 2.7fr) minmax(
+      190px,
+      1fr
+    );
+  gap: 14px;
+}
+.evt-studio-tools,
+.evt-studio-details {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 0;
+  overflow: auto;
+  background: #161e37e8;
+  border: 1px solid #829fc35a;
+  border-radius: 12px;
+  padding: 12px;
+}
+.evt-studio-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #fedda2;
+  letter-spacing: 0.1em;
+}
+.evt-studio-tools select,
+.evt-studio-details select,
+.evt-studio-details input,
+.evt-studio-details textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #7487a5;
+  background: #252e4b;
+  color: #fff8e8;
+  font: 600 0.78rem system-ui;
+}
+.evt-brushes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+.evt-brushes button {
+  color: #e1e6f6;
+  background: #263552;
+  border: 1px solid #8193b3;
+  border-radius: 6px;
+  padding: 9px 4px;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.evt-brushes button.chosen {
+  color: #111b35;
+  background: #a8e9fb;
+  border-color: #ffdf9b;
+}
+.evt-studio-canvas {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  padding: clamp(5px, 1cqw, 12px);
+  border-radius: 12px;
+  background: radial-gradient(ellipse, #34486b, #1b2945 73%);
+  border: 1px solid #8ca9ca89;
+}
+.evt-studio-board {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 3px;
+}
+.evt-studio-cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  background: #526a8e;
+  border: 1px solid #b6ccdc80;
+  border-radius: 4px;
+  color: #daeaff;
+  font-size: clamp(0.6rem, 1.7cqw, 1.4rem);
+  font-weight: 900;
+  cursor: crosshair;
+}
+.evt-studio-cell.wall {
+  background: #1a223c;
+  color: #ecaa90;
+}
+.evt-studio-cell.cover {
+  background: #5e6172;
+  color: #fbe4aa;
+}
+.evt-studio-cell.raised {
+  box-shadow: inset 0 0 0 2px #a8e6ef;
+}
+.evt-studio-cell:focus-visible {
+  outline: 3px solid #fbd47f;
+  outline-offset: 1px;
+}
+.evt-studio-unit {
+  border-radius: 50%;
+  background: #aaefc5;
+  color: #0c2844;
+  padding: 3px 8px;
+}
+.evt-studio-legend {
+  color: #d2cce5;
+  font-size: 0.65rem;
+  text-align: center;
+}
+.evt-studio-ready,
+.evt-studio-errors {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 8px;
+  border: 1px solid #88bdaa;
+  border-radius: 6px;
+}
+.evt-studio-errors {
+  color: #ffc6b0;
+  border-color: #e59f94;
+  padding-left: 24px;
+}
+.evt-studio-launch {
+  color: #1d243b;
+  background: #fbd47f;
+  border: 1px solid #fff1c5;
+  padding: 12px 8px;
+  border-radius: 7px;
+  font-size: 0.83rem;
+  font-weight: 900;
+}
+.evt-studio-launch:disabled {
+  opacity: 0.4;
+}
+@media (max-width: 770px) {
+  .evt-studio {
+    overflow: auto;
+  }
+  .evt-studio-body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+  .evt-studio-canvas {
+    order: -1;
+  }
+  .evt-brushes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

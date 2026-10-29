@@ -2824,7 +2824,7 @@ const earnedHouseLoss = {
   house: {
     ...newHouseProgress(),
     current: 'HD-09' as const,
-    visited: ['HD-01', 'HD-09'] as ('HD-01' | 'HD-09')[],
+    visited: visitedHouseRoutes('HD-09'),
     combatOrigin: 'HD-09' as const,
   },
 }
@@ -3032,7 +3032,7 @@ const houseThirdMiss = recoverBriarRoomMissPenalty(
     house: {
       ...newHouseProgress(),
       current: 'HD-19',
-      visited: ['HD-01', 'HD-19'],
+      visited: visitedHouseRoutes('HD-19'),
       combatOrigin: 'HD-19',
     },
   }),

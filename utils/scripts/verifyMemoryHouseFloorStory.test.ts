@@ -431,6 +431,146 @@ for (const save of hearthBranches) {
   assert.deepEqual(houseFloorBeat('HD-35', restored, {}), before)
 }
 
+for (const [room, ids] of [
+  ['HD-14', ['witness', 'seal']],
+  ['HD-15', ['decline', 'question']],
+  ['HD-20', ['testify', 'protect']],
+  ['HD-21', ['archive', 'turn']],
+] as const)
+  for (const id of ids)
+    assert.ok(
+      HOUSE_ROOMS[room]?.choices.some((choice) => choice.id === id),
+      `House testimony branch references an authored choice: ${room}:${id}`,
+    )
+
+const evidenceCases: Array<{
+  room: HouseRoomId
+  decisions: Record<string, string>
+  title: string
+}> = [
+  { room: 'HD-14', decisions: {}, title: 'Laughter Under Glass' },
+  {
+    room: 'HD-14',
+    decisions: { 'HD-14': 'witness' },
+    title: 'The Festival With Its Owners Still Alive',
+  },
+  {
+    room: 'HD-14',
+    decisions: { 'HD-14': 'seal' },
+    title: 'A Seal for the People in the Jar',
+  },
+  { room: 'HD-15', decisions: {}, title: 'The Empty Signature Line' },
+  {
+    room: 'HD-15',
+    decisions: { 'HD-15': 'decline' },
+    title: 'Nobody Else Can Sign This Grief',
+  },
+  {
+    room: 'HD-15',
+    decisions: { 'HD-15': 'question' },
+    title: 'The Clause That Was Never Written',
+  },
+  {
+    room: 'HD-15',
+    decisions: { 'HD-14': 'seal', 'HD-15': 'question' },
+    title: 'A Contract Waiting for Its Signers',
+  },
+  {
+    room: 'HD-20',
+    decisions: {},
+    title: 'A Room Kept Ready for Someone Else',
+  },
+  {
+    room: 'HD-20',
+    decisions: { 'HD-20': 'protect' },
+    title: 'The Address That Is Not a Reward',
+  },
+  {
+    room: 'HD-20',
+    decisions: { 'HD-20': 'testify' },
+    title: 'Not Missing, But Gone',
+  },
+  { room: 'HD-21', decisions: {}, title: 'A Laugh Too Convenient' },
+  {
+    room: 'HD-21',
+    decisions: { 'HD-21': 'archive' },
+    title: 'The Laughter Kept on Record',
+  },
+  {
+    room: 'HD-21',
+    decisions: { 'HD-20': 'protect', 'HD-21': 'archive' },
+    title: 'Evidence Without an Address',
+  },
+  {
+    room: 'HD-21',
+    decisions: { 'HD-21': 'turn' },
+    title: 'The Room After the Audience Leaves',
+  },
+  {
+    room: 'HD-21',
+    decisions: { 'HD-20': 'testify', 'HD-21': 'turn' },
+    title: 'Two Truths That Cannot Be Owned',
+  },
+]
+const evidenceBeats = evidenceCases.map(({ room, decisions, title }) => {
+  const save = connected(progress(room, [room], decisions))
+  const beat = houseFloorBeat(room, save, {})
+  assert.equal(beat?.title, title)
+  assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  assert.ok(restored, `House evidence scene ${room} should restore`)
+  assert.deepEqual(
+    houseFloorBeat(room, restored, {}),
+    beat,
+    `House testimony remains choice-dependent after restoration: ${title}`,
+  )
+  return beat
+})
+assert.equal(
+  new Set(evidenceBeats.map((beat) => beat?.title)).size,
+  15,
+  'All testimony, privacy and Earth mirror paths need distinct prose',
+)
+assert.match(evidenceBeats[6]!.cost, /wait for a fair hearing/)
+assert.match(evidenceBeats[12]!.text, /did not consent to be found/)
+assert.match(evidenceBeats[14]!.cost, /protection/)
+assert.equal(
+  houseFloorBeat(
+    'HD-15',
+    progress('HD-15', ['HD-14', 'HD-15'], {
+      'HD-14': 'invented',
+      'HD-15': 'question',
+    }),
+    {},
+  )?.title,
+  'The Clause That Was Never Written',
+  'An invalid festival decision cannot unlock the combined consent clause',
+)
+assert.equal(
+  houseFloorBeat(
+    'HD-21',
+    progress('HD-21', ['HD-20', 'HD-21'], {
+      'HD-20': 'invented',
+      'HD-21': 'archive',
+    }),
+    {},
+  )?.title,
+  'The Laughter Kept on Record',
+  'A forged daughter decision cannot unlock protected Earth evidence',
+)
+assert.equal(
+  houseFloorBeat(
+    'HD-21',
+    progress('HD-21', ['HD-20', 'HD-21'], {
+      'HD-20': 'protect',
+      'HD-21': 'invented',
+    }),
+    {},
+  )?.title,
+  'A Laugh Too Convenient',
+  'An invalid Earth mirror decision cannot fabricate a finished reflection',
+)
+
 for (const beat of [
   ...entryBranches,
   ...middleBranches,
@@ -441,6 +581,7 @@ for (const beat of [
   ...passageBeats,
   ...cellarBeats,
   ...sisterBeats,
+  ...evidenceBeats,
 ]) {
   assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
   assert.doesNotMatch(
@@ -472,5 +613,5 @@ assert.match(
 assert.match(stage, /kr-scroll min-h-0 overflow-y-auto/)
 
 console.log(
-  'Memory House floor story: 49 authored threshold, return-route, companion and verdict branches, source choices, consent costs and save roundtrips verified',
+  'Memory House floor story: 64 authored threshold, testimony, return-route, companion and verdict branches, source choices, consent costs and save roundtrips verified',
 )

@@ -78,6 +78,12 @@
                     aria-hidden="true"
                   ></span>
                   <span
+                    v-if="elevationAt(cell) > 0"
+                    class="evt-height"
+                    aria-hidden="true"
+                    >▲{{ elevationAt(cell) }}</span
+                  >
+                  <span
                     v-if="actorAt(store.state, cell)"
                     class="evt-standee"
                     :class="{
@@ -176,7 +182,7 @@
                     >{{ personFor(unit).realName }} · {{ unit.hp }}/{{
                       unit.maxHp
                     }}
-                    HP</small
+                    HP · {{ unit.ap }} AP</small
                   >
                   <span class="evt-pips"
                     ><i :class="{ spent: unit.moved }"></i
@@ -211,6 +217,35 @@
               </button>
             </div>
 
+            <div class="evt-defenses" aria-label="Reaction and defense actions">
+              <button
+                type="button"
+                class="evt-defense"
+                :disabled="
+                  store.state.phase !== 'active' ||
+                  !store.active ||
+                  store.active.ap < 1 ||
+                  store.active.fired
+                "
+                @click="store.overwatch()"
+              >
+                ⌖ OVERWATCH <small>O</small>
+              </button>
+              <button
+                type="button"
+                class="evt-defense"
+                :disabled="
+                  store.state.phase !== 'active' ||
+                  !store.active ||
+                  store.active.ap < 1 ||
+                  store.active.statuses.includes('guarded')
+                "
+                @click="store.hunker()"
+              >
+                ▣ HUNKER <small>H</small>
+              </button>
+            </div>
+
             <div class="evt-odds" aria-live="polite" data-testid="tactics-odds">
               <span class="evt-overline"
                 >TACTICAL INTEL /
@@ -227,17 +262,38 @@
                   <b>HIT PROBABILITY</b>
                   <span
                     >BASE {{ store.aimedTarget.aim }}% · RANGE
-                    {{ store.aimedTarget.range }} · COVER −{{
-                      store.aimedTarget.cover
-                    }}%</span
-                  >
+                    {{ store.aimedTarget.range }} (−{{
+                      store.aimedTarget.rangePenalty
+                    }}) · COVER −{{ store.aimedTarget.cover }} · HEIGHT
+                    {{ store.aimedTarget.elevation >= 0 ? '+' : ''
+                    }}{{ store.aimedTarget.elevation }} · FLANK +{{
+                      store.aimedTarget.flank
+                    }}
+                    · STATUS −{{
+                      store.aimedTarget.suppressed + store.aimedTarget.guarded
+                    }}
+                  </span>
                 </div>
               </div>
               <div v-else class="evt-no-shot">◌ <span>NO CLEAR SHOT</span></div>
               <p>{{ store.previewLabel }}</p>
+              <div
+                v-if="store.projectedTargets.length"
+                class="evt-target-list"
+                aria-label="Visible targets with chance from the previewed position"
+                data-testid="tactics-visible-targets"
+              >
+                <span
+                  v-for="target in store.projectedTargets"
+                  :key="target.target"
+                  class="evt-target-chip"
+                >
+                  {{ targetName(target.target) }} {{ target.hit }}%
+                </span>
+              </div>
               <small class="evt-preview-note"
-                >Training odds; full cover and elevation simulation follows in
-                the combat engine.</small
+                >Exact seeded odds. A dash spends both AP; overwatch reacts once
+                to enemy movement.</small
               >
             </div>
 
@@ -260,7 +316,7 @@
               </button>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
-                <span>SELECT • MOVE • FIRE • END TURN</span>
+                <span>SELECT • MOVE • FIRE • OVERWATCH</span>
               </div>
             </div>
           </aside>
@@ -360,6 +416,7 @@ import {
   boardCells,
   personFor,
   terrainAt,
+  elevationAt,
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
@@ -396,6 +453,10 @@ const visibleRoster = computed(() => {
 function unitName(unit: Unit): string {
   return personFor(unit).hero.alias
 }
+function targetName(id: string): string {
+  const target = store.enemies.find((unit) => unit.id === id)
+  return target ? unitName(target) : id
+}
 function initials(unit: Unit): string {
   return unitName(unit).slice(0, 2).toUpperCase()
 }
@@ -411,6 +472,7 @@ function cellDescription(cell: Cell) {
     ', ' +
     (cell.y + 1) +
     (terrainAt(cell) === 'cover' ? ', cover' : '') +
+    (elevationAt(cell) ? ', elevation ' + elevationAt(cell) : '') +
     (store.cellStyle(cell).reachable ? ', reachable' : '')
   )
 }
@@ -420,6 +482,8 @@ function onKey(event: KeyboardEvent) {
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
   if (event.code === 'KeyM') store.setMode('move')
   else if (event.code === 'KeyF') store.setMode('fire')
+  else if (event.code === 'KeyO') store.overwatch()
+  else if (event.code === 'KeyH') store.hunker()
   else if (event.code === 'KeyR') store.reset()
   else return
 }
@@ -1235,11 +1299,33 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     align-self: end;
   }
   .evt-odds {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 5;
+    min-height: 0;
+    padding: 4px;
+  }
+  .evt-odds .evt-overline,
+  .evt-odds .evt-preview-note {
     display: none;
+  }
+  .evt-odds .evt-chance strong {
+    font-size: 1.15rem;
+  }
+  .evt-odds p {
+    font-size: 0.58rem;
+  }
+  .evt-defenses {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .evt-defense {
+    font-size: 0.5rem;
+    padding: 3px 2px;
   }
   .evt-command-foot {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 4;
     margin-top: 0;
   }
   .evt-secondary {
@@ -1306,6 +1392,64 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-statusbar span {
     max-width: 70vw;
   }
+}
+.evt-target-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 4px 0;
+}
+.evt-target-chip {
+  border: 1px solid #85b9d6;
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: #d4e9ff;
+  background: #152543;
+  white-space: nowrap;
+  font-size: 0.59rem;
+  font-weight: 800;
+}
+.evt-height {
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  color: #fbd68a;
+  font-size: 0.68rem;
+  text-shadow: 0 1px 3px #101426;
+}
+.evt-tile.elevated {
+  box-shadow:
+    inset 0 0 0 2px #f8c87d99,
+    0 0 8px #d7ae8c3a;
+}
+.evt-defenses {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.evt-defense {
+  padding: 6px 3px;
+  border: 1px solid #bda6a16b;
+  color: #ffe7c5;
+  background: #34334d;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 850;
+}
+.evt-defense:hover:not(:disabled),
+.evt-defense:focus-visible {
+  border-color: #ffdeae;
+  background: #525071;
+}
+.evt-defense:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.evt-defense small {
+  font-size: 0.6rem;
+  opacity: 0.6;
 }
 @media (prefers-reduced-motion: reduce) {
   .evt-standee,

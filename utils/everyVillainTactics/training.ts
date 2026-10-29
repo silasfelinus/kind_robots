@@ -1,18 +1,33 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
+import {
+  FIRST_BELL_MAP,
+  chanceFrom,
+  clearSuppression,
+  gridDistance,
+  inside,
+  lineOfSight,
+  moveAP,
+  pathDistance,
+  prepareOverwatch,
+  reachableCells,
+  refreshTurn,
+  resolveAttack,
+  resolveOverwatch,
+  takeCover,
+  tileAt,
+  type Chance,
+  type Fighter,
+  type Point,
+  type Status,
+} from './combat'
 
-// The First Bell preview is intentionally a small, deterministic training rule set.
-// Full elevation, directional cover, abilities and enemy AI are t-002/t-003.
 export type Team = 'squad' | 'rival'
 export type Mode = 'move' | 'fire'
-export type Cell = { x: number; y: number }
-export type Unit = Cell & {
-  id: string
+export type Cell = Point
+export type Unit = Fighter & {
   identity: string
   team: Team
-  hp: number
   maxHp: number
-  moved: boolean
-  fired: boolean
 }
 export type TrainingState = {
   units: Unit[]
@@ -25,128 +40,39 @@ export type TrainingState = {
   log: string
   events: string[]
 }
-export const WIDTH = 9
-export const HEIGHT = 6
-const WALLS = ['3,1', '3,2', '5,3']
-const COVER = ['2,2', '2,4', '4,1', '4,4', '6,2', '6,4']
-
-const key = (p: Cell) => p.x + ',' + p.y
+export type ShotPreview = Chance & { target: string }
+export const WIDTH = FIRST_BELL_MAP.width
+export const HEIGHT = FIRST_BELL_MAP.height
 export const boardCells: Cell[] = Array.from(
   { length: WIDTH * HEIGHT },
-  (_, n) => ({
-    x: n % WIDTH,
-    y: Math.floor(n / WIDTH),
+  (_, i) => ({
+    x: i % WIDTH,
+    y: Math.floor(i / WIDTH),
   }),
 )
 export function terrainAt(p: Cell): 'wall' | 'cover' | 'floor' {
-  return WALLS.includes(key(p))
-    ? 'wall'
-    : COVER.includes(key(p))
-      ? 'cover'
-      : 'floor'
+  const tile = tileAt(FIRST_BELL_MAP, p)
+  return tile.wall ? 'wall' : tile.cover ? 'cover' : 'floor'
 }
+export const elevationAt = (p: Cell) => tileAt(FIRST_BELL_MAP, p).elevation
 export function personFor(unit: Unit) {
   return IDENTITY_ARCS.find((person) => person.signature === unit.identity)!
 }
-export function aliasFor(unit: Unit) {
-  return personFor(unit).hero.alias
-}
-export function isInside(p: Cell) {
-  return p.x >= 0 && p.x < WIDTH && p.y >= 0 && p.y < HEIGHT
-}
-export function manhattan(a: Cell, b: Cell) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-}
+export const aliasFor = (unit: Unit) => personFor(unit).hero.alias
+export const isInside = (p: Cell) => inside(FIRST_BELL_MAP, p)
+export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
   return state.units.find((u) => u.hp > 0 && u.x === point.x && u.y === point.y)
 }
-export function walkDistance(
-  state: TrainingState,
-  from: Cell,
-  to: Cell,
-): number {
-  if (!isInside(to) || terrainAt(to) === 'wall') return Infinity
-  const visited = new Set([key(from)])
-  const open = [{ ...from, steps: 0 }]
-  for (let n = 0; n < open.length; n++) {
-    const item = open[n]!
-    if (item.x === to.x && item.y === to.y) return item.steps
-    for (const next of [
-      { x: item.x + 1, y: item.y },
-      { x: item.x - 1, y: item.y },
-      { x: item.x, y: item.y + 1 },
-      { x: item.x, y: item.y - 1 },
-    ]) {
-      if (
-        !isInside(next) ||
-        terrainAt(next) === 'wall' ||
-        visited.has(key(next))
-      )
-        continue
-      const occupant = actorAt(state, next)
-      if (occupant && key(next) !== key(to)) continue
-      visited.add(key(next))
-      open.push({ ...next, steps: item.steps + 1 })
-    }
-  }
-  return Infinity
-}
-// Symmetric grid ray, including diagonal corner blockers.
-export function lineClear(from: Cell, to: Cell): boolean {
-  let x = from.x,
-    y = from.y
-  const dx = Math.abs(to.x - x),
-    dy = Math.abs(to.y - y)
-  const sx = x < to.x ? 1 : -1,
-    sy = y < to.y ? 1 : -1
-  let err = dx - dy
-  while (x !== to.x || y !== to.y) {
-    const oldX = x,
-      oldY = y
-    const e2 = 2 * err
-    if (e2 > -dy) {
-      err -= dy
-      x += sx
-    }
-    if (e2 < dx) {
-      err += dx
-      y += sy
-    }
-    if (x === to.x && y === to.y) break
-    if (terrainAt({ x, y }) === 'wall') return false
-    if (
-      x !== oldX &&
-      y !== oldY &&
-      terrainAt({ x: oldX, y }) === 'wall' &&
-      terrainAt({ x, y: oldY }) === 'wall'
-    )
-      return false
-  }
-  return true
-}
-export type ShotPreview = {
-  target: string
-  hit: number
-  range: number
-  cover: number
-  aim: number
-  clear: boolean
-}
-export function previewShot(from: Cell, target: Unit): ShotPreview {
-  const range = manhattan(from, target)
-  const clear = range <= 6 && lineClear(from, target)
-  const cover = terrainAt(target) === 'cover' ? 20 : 0
-  const aim = 85
-  return {
-    target: target.id,
-    range,
-    cover,
-    aim,
-    clear,
-    hit: clear
-      ? Math.max(15, Math.min(95, aim - Math.max(0, range - 2) * 7 - cover))
-      : 0,
-  }
+export const lineClear = (from: Cell, to: Cell) =>
+  lineOfSight(FIRST_BELL_MAP, from, to)
+export const walkDistance = (state: TrainingState, from: Cell, to: Cell) =>
+  pathDistance(FIRST_BELL_MAP, state.units, from, to)
+export function previewShot(
+  from: Cell & { statuses?: readonly Status[] },
+  target: Unit,
+): ShotPreview {
+  return { target: target.id, ...chanceFrom(FIRST_BELL_MAP, from, target) }
 }
 export function trainingState(seed = 0x53a1b7): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
@@ -168,6 +94,9 @@ export function trainingState(seed = 0x53a1b7): TrainingState {
       maxHp: hp,
       moved: false,
       fired: false,
+      ap: 2,
+      overwatch: false,
+      statuses: [],
     })),
     selected: 'backdraft',
     hover: null,
@@ -179,116 +108,236 @@ export function trainingState(seed = 0x53a1b7): TrainingState {
     events: ['The bell rang twice. Nobody signed up for the second one.'],
   }
 }
-function roll(state: TrainingState) {
-  // xorshift32; pure reproducible combat preview follows the same percentage.
-  let x = state.seed >>> 0
-  x ^= x << 13
-  x ^= x >>> 17
-  x ^= x << 5
-  state.seed = x >>> 0
-  return (state.seed % 10000) / 10000
-}
 export function selectedUnit(state: TrainingState) {
   return state.units.find(
     (u) => u.id === state.selected && u.hp > 0 && u.team === 'squad',
   )
 }
 export function availableMove(state: TrainingState, to: Cell) {
-  const current = selectedUnit(state)
+  const unit = selectedUnit(state)
   if (
-    !current ||
-    current.moved ||
+    !unit ||
+    unit.moved ||
+    unit.ap < 1 ||
     actorAt(state, to) ||
     state.phase !== 'active'
   )
     return false
-  return walkDistance(state, current, to) <= 3
+  return moveAP(walkDistance(state, unit, to)) <= unit.ap
+}
+function note(state: TrainingState, message: string) {
+  state.log = message
+  state.events.unshift(message)
+  state.events = state.events.slice(0, 6)
+}
+function updateOutcome(state: TrainingState) {
+  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
+    state.phase = 'victory'
+    note(
+      state,
+      'The rival squad stands down. What you call victory depends on whom you ask.',
+    )
+  } else if (state.units.every((u) => u.team !== 'squad' || u.hp <= 0)) {
+    state.phase = 'defeat'
+    note(
+      state,
+      'The academy patrol is overwhelmed. Their story will not end here.',
+    )
+  }
+}
+function triggerReactions(state: TrainingState, moved: Unit) {
+  // Reactions happen before the mover gets their next action.
+  for (const enemy of state.units.filter(
+    (u) => u.team !== moved.team && u.hp > 0 && u.overwatch,
+  )) {
+    const result = resolveOverwatch(state, FIRST_BELL_MAP, enemy, moved)
+    if (!result) continue
+    note(
+      state,
+      aliasFor(enemy) +
+        (result.hit ? ' interrupts ' : ' misses ') +
+        aliasFor(moved) +
+        ' on overwatch (' +
+        result.chance.hit +
+        '%).',
+    )
+    if (moved.hp <= 0) break
+  }
+  updateOutcome(state)
 }
 export function moveSelected(state: TrainingState, to: Cell): boolean {
   if (!availableMove(state, to)) return false
   const unit = selectedUnit(state)!
+  const distance = walkDistance(state, unit, to)
+  const cost = moveAP(distance)
+  unit.ap -= cost
   unit.x = to.x
   unit.y = to.y
   unit.moved = true
   state.hover = to
-  state.log =
+  note(
+    state,
     aliasFor(unit) +
-    ' advances into ' +
-    (terrainAt(to) === 'cover' ? 'cover.' : 'position.')
-  state.events.unshift(state.log)
+      (cost === 2 ? ' dashes ' : ' advances ') +
+      'into ' +
+      (terrainAt(to) === 'cover' ? 'cover.' : 'position.') +
+      ' (' +
+      cost +
+      ' AP)',
+  )
+  triggerReactions(state, unit)
+  if (unit.hp <= 0)
+    state.selected =
+      state.units.find((u) => u.team === 'squad' && u.hp > 0)?.id ??
+      state.selected
   return true
 }
 export function fireSelected(state: TrainingState, target: Unit): boolean {
-  const attacker = selectedUnit(state)
-  if (
-    !attacker ||
-    attacker.fired ||
-    target.team !== 'rival' ||
-    target.hp <= 0 ||
-    state.phase !== 'active'
+  const shooter = selectedUnit(state)
+  if (!shooter || state.phase !== 'active') return false
+  const result = resolveAttack(state, FIRST_BELL_MAP, shooter, target, 2)
+  if (!result) return false
+  note(
+    state,
+    aliasFor(shooter) +
+      (result.hit ? ' hits ' : ' misses ') +
+      aliasFor(target) +
+      ' (' +
+      result.chance.hit +
+      '%).',
   )
-    return false
-  const odds = previewShot(attacker, target)
-  if (!odds.clear) return false
-  attacker.fired = true
-  const hit = roll(state) < odds.hit / 100
-  if (hit) target.hp = Math.max(0, target.hp - 2)
-  state.log =
-    aliasFor(attacker) +
-    (hit ? ' lands a hit on ' : ' misses ') +
-    aliasFor(target) +
-    ' (' +
-    odds.hit +
-    '%).'
-  state.events.unshift(state.log)
-  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
-    state.phase = 'victory'
-    state.log =
-      'The rival squad stands down. What you call victory depends on whom you ask.'
-  }
+  updateOutcome(state)
   return true
+}
+export function overwatchSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active' || !prepareOverwatch(unit)) return false
+  note(
+    state,
+    aliasFor(unit) + ' holds a reaction shot for an enemy move (1 AP).',
+  )
+  return true
+}
+export function hunkerSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active' || !takeCover(unit)) return false
+  note(
+    state,
+    aliasFor(unit) +
+      ' hunkers down: incoming accuracy −15 until their next turn.',
+  )
+  return true
+}
+function bestShot(state: TrainingState, shooter: Unit, from: Point = shooter) {
+  return state.units
+    .filter((u) => u.team !== shooter.team && u.hp > 0)
+    .map((target) => ({
+      target,
+      chance: chanceFrom(FIRST_BELL_MAP, { ...shooter, ...from }, target),
+    }))
+    .filter((choice) => choice.chance.hit > 0)
+    .sort(
+      (a, b) =>
+        b.chance.hit - a.chance.hit ||
+        a.target.hp - b.target.hp ||
+        a.target.id.localeCompare(b.target.id),
+    )[0]
+}
+function enemyPlan(state: TrainingState, enemy: Unit) {
+  let shot = bestShot(state, enemy)
+  const positions = reachableCells(FIRST_BELL_MAP, state.units, enemy)
+  const improvement = positions
+    .filter((p) => p.cost === 1)
+    .map((p) => ({ point: p, next: bestShot(state, enemy, p) }))
+    .filter((p): p is typeof p & { next: NonNullable<typeof shot> } => !!p.next)
+    .sort(
+      (a, b) =>
+        b.next.chance.hit - a.next.chance.hit ||
+        b.point.y - a.point.y ||
+        a.point.x - b.point.x,
+    )[0]
+  if (
+    improvement &&
+    (improvement.next.chance.hit >= (shot?.chance.hit ?? 0) + 12 ||
+      (!shot && improvement.next.chance.hit > 0))
+  ) {
+    enemy.x = improvement.point.x
+    enemy.y = improvement.point.y
+    enemy.ap--
+    enemy.moved = true
+    triggerReactions(state, enemy)
+    shot = bestShot(state, enemy)
+  } else if (!shot && positions.length) {
+    // When out of range, close distance by actual path rather than teleporting.
+    const targets = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+    const move = positions
+      .map((p) => ({
+        point: p,
+        distance: Math.min(...targets.map((t) => gridDistance(p, t))),
+        cover: !!tileAt(FIRST_BELL_MAP, p).cover,
+      }))
+      .sort(
+        (a, b) =>
+          a.distance - b.distance ||
+          Number(b.cover) - Number(a.cover) ||
+          a.point.cost - b.point.cost ||
+          a.point.y - b.point.y ||
+          a.point.x - b.point.x,
+      )[0]
+    if (move) {
+      enemy.x = move.point.x
+      enemy.y = move.point.y
+      enemy.ap -= move.point.cost
+      enemy.moved = true
+      triggerReactions(state, enemy)
+      shot = bestShot(state, enemy)
+    }
+  }
+  if (enemy.hp <= 0 || state.phase !== 'active') return
+  if (enemy.ap > 0 && shot) {
+    const result = resolveAttack(state, FIRST_BELL_MAP, enemy, shot.target, 1)
+    if (result)
+      note(
+        state,
+        aliasFor(enemy) +
+          (result.hit ? ' hits ' : ' misses ') +
+          aliasFor(shot.target) +
+          ' (' +
+          result.chance.hit +
+          '%).',
+      )
+  }
+  if (enemy.ap > 0 && !enemy.fired) {
+    if (tileAt(FIRST_BELL_MAP, enemy).cover) takeCover(enemy)
+    else prepareOverwatch(enemy)
+  }
+  updateOutcome(state)
 }
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
-  const activeSquad = state.units.filter((u) => u.hp > 0 && u.team === 'squad')
-  for (const rival of state.units.filter(
-    (u) => u.hp > 0 && u.team === 'rival',
+  clearSuppression(state.units, 'squad')
+  refreshTurn(state.units, 'rival')
+  for (const enemy of state.units.filter(
+    (u) => u.team === 'rival' && u.hp > 0,
   )) {
-    const target = [...activeSquad]
-      .filter((u) => u.hp > 0)
-      .sort((a, b) => manhattan(a, rival) - manhattan(b, rival))
-      .find((u) => previewShot(rival, u).hit > 0)
-    if (!target) continue
-    const odds = previewShot(rival, target)
-    const landed = roll(state) < odds.hit / 100
-    if (landed) target.hp = Math.max(0, target.hp - 1)
-    state.events.unshift(
-      aliasFor(rival) +
-        (landed ? ' hits ' : ' misses ') +
-        aliasFor(target) +
-        '.',
-    )
+    if (state.phase !== 'active') break
+    enemyPlan(state, enemy)
   }
-  if (activeSquad.every((u) => u.hp <= 0)) {
-    state.phase = 'defeat'
-    state.log =
-      'The academy patrol is overwhelmed. Their story will not end here.'
-  } else {
-    state.turn++
-    for (const unit of activeSquad) {
-      unit.moved = false
-      unit.fired = false
-    }
-    const survivor = selectedUnit(state)
-    if (!survivor) state.selected = activeSquad.find((u) => u.hp > 0)!.id
-    state.log =
-      'Round ' +
+  if (state.phase !== 'active') return
+  clearSuppression(state.units, 'rival')
+  state.turn++
+  refreshTurn(state.units, 'squad')
+  if (!selectedUnit(state))
+    state.selected = state.units.find((u) => u.team === 'squad' && u.hp > 0)!.id
+  note(
+    state,
+    'Round ' +
       state.turn +
-      ': the rival patrol has moved. Your squad has the initiative.'
-    if (state.turn === 3)
-      state.events.unshift(
-        'A fire alarm cuts through the gym. A second rescue call is coming.',
-      )
-  }
+      ': the rival patrol has acted. Your squad has the initiative.',
+  )
+  if (state.turn === 3)
+    state.events.unshift(
+      'A fire alarm cuts through the gym. A second rescue call is coming.',
+    )
   state.events = state.events.slice(0, 6)
 }

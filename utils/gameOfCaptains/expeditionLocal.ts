@@ -258,7 +258,7 @@ const LOCAL: Record<ActOneRouteId, LocalPack> = {
         'The Thermostat’s Engagement Ring',
         'A ceremonial thermostat believes it is engaged to an ambassador who once lowered the room temperature politely.',
         'diplomacy',
-        ['taal', 'ro'],
+        ['taal', 'sora'],
         'The officer arranges a face-saving withdrawal of the proposal.',
         'A redshirt proposes to the whole HVAC network without realizing it.',
         'Taal discovers an old temperature treaty inside the marriage license.',
@@ -452,7 +452,7 @@ export const WORLD_ENCOUNTERS: Record<
       ),
     },
   ]),
-) as Record<
+) as unknown as Record<
   ActOneRouteId,
   {
     major: readonly ExpeditionEncounter[]

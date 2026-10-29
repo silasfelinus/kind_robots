@@ -8,7 +8,7 @@ export const GALACTIC_MAJOR: readonly ExpeditionEncounter[] = [
     setup:
       'A disembodied royal nostril is auctioning the legal right to smell fear. Every buyer has already been declared guilty of treason.',
     skill: 'culture',
-    secretCrew: ['ro', 'jex'],
+    secretCrew: ['sora', 'jex'],
     commandResult:
       'The commander persuades the nostril that scent is not a jurisdiction.',
     redshirtResult:

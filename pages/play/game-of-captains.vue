@@ -696,7 +696,7 @@
                       :disabled="busyLeads.includes('captain')"
                     >
                       The captain:
-                      {{ CAPTAINS.find((c) => c.id === run.captain)?.name }}
+                      {{ CAPTAINS.find((c) => c.id === run?.captain)?.name }}
                     </option>
                     <option
                       v-for="officer in availableCrew"

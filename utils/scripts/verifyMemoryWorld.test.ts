@@ -190,13 +190,13 @@ assert.equal(
 const housePaths = new Map<HouseRoomId, HouseRoomId[]>([
   [HOUSE_ENTRY, [HOUSE_ENTRY]],
 ])
-const houseQueue: HouseRoomId[] = [HOUSE_ENTRY]
-for (let i = 0; i < houseQueue.length; i++) {
-  const room = houseQueue[i]!
+const houseRouteQueue: HouseRoomId[] = [HOUSE_ENTRY]
+for (let i = 0; i < houseRouteQueue.length; i++) {
+  const room = houseRouteQueue[i]!
   for (const next of HOUSE_ROOMS[room]!.exits) {
     if (housePaths.has(next)) continue
     housePaths.set(next, [...housePaths.get(room)!, next])
-    houseQueue.push(next)
+    houseRouteQueue.push(next)
   }
 }
 const visitedHouseRoutes = (...rooms: HouseRoomId[]): HouseRoomId[] => {

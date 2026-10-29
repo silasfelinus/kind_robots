@@ -9,6 +9,26 @@ import {
 import { houseFloorBeat } from '../memoryDungeon/houseFloorStory'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 
+// Saves must be connected to HD-01 by authored forward exits to survive
+// restoration, so round-trip fixtures add the route to every room they name.
+const houseRoutes = new Map<string, HouseRoomId[]>([['HD-01', ['HD-01']]])
+const houseQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < houseQueue.length; i++) {
+  const room = houseQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (houseRoutes.has(next)) continue
+    houseRoutes.set(next, [...houseRoutes.get(room)!, next])
+    houseQueue.push(next)
+  }
+}
+
+const connected = <T extends { visited: HouseRoomId[] }>(save: T): T => ({
+  ...save,
+  visited: [
+    ...new Set(save.visited.flatMap((room) => houseRoutes.get(room) ?? [room])),
+  ],
+})
+
 const progress = (
   current: HouseRoomId,
   visited: HouseRoomId[] = ['HD-01', current],
@@ -244,25 +264,28 @@ for (const save of [
   { ...passage, decisions: { 'HD-12': 'map' } },
   ...cellarCases,
 ]) {
-  const before = houseFloorBeat(save.current, save, {})
-  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  const routed = connected(save)
+  const before = houseFloorBeat(routed.current, routed, {})
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(routed)))
   assert.ok(restored)
   assert.deepEqual(
-    houseFloorBeat(save.current, restored, {}),
+    houseFloorBeat(routed.current, restored, {}),
     before,
-    `House return-route decision persists at ${save.current}`,
+    `House return-route decision persists at ${routed.current}`,
   )
 }
 
 for (const { save, briar } of wardenBranches) {
-  const before = houseFloorBeat('HD-32', save, briar)
-  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  const routed = connected(save)
+  const before = houseFloorBeat('HD-32', routed, briar)
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(routed)))
   assert.ok(restored)
   assert.deepEqual(houseFloorBeat('HD-32', restored, briar), before)
 }
 for (const save of hearthBranches) {
-  const before = houseFloorBeat('HD-35', save, {})
-  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  const routed = connected(save)
+  const before = houseFloorBeat('HD-35', routed, {})
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(routed)))
   assert.ok(restored)
   assert.deepEqual(houseFloorBeat('HD-35', restored, {}), before)
 }

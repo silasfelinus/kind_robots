@@ -19,7 +19,9 @@ import {
   type Fighter,
   type Point,
   type Status,
+  type TacticalMap,
 } from './combat'
+import type { StageDraft } from './studio'
 
 export type Team = 'squad' | 'rival'
 export type Mode = 'move' | 'fire'
@@ -30,6 +32,9 @@ export type Unit = Fighter & {
   maxHp: number
 }
 export type TrainingState = {
+  map: TacticalMap
+  stageId: string | null
+  turnLimit: number | null
   units: Unit[]
   selected: string
   hover: Cell | null
@@ -56,11 +61,11 @@ export const boardCells: Cell[] = Array.from(
     y: Math.floor(i / WIDTH),
   }),
 )
-export function terrainAt(p: Cell): 'wall' | 'cover' | 'floor' {
-  const tile = tileAt(FIRST_BELL_MAP, p)
+export function terrainAt(p: Cell, map = FIRST_BELL_MAP): 'wall' | 'cover' | 'floor' {
+  const tile = tileAt(map, p)
   return tile.wall ? 'wall' : tile.cover ? 'cover' : 'floor'
 }
-export const elevationAt = (p: Cell) => tileAt(FIRST_BELL_MAP, p).elevation
+export const elevationAt = (p: Cell, map = FIRST_BELL_MAP) => tileAt(map, p).elevation
 export function personFor(unit: Unit) {
   return IDENTITY_ARCS.find((person) => person.signature === unit.identity)!
 }
@@ -95,14 +100,15 @@ function recordImpact(
 export const lineClear = (from: Cell, to: Cell) =>
   lineOfSight(FIRST_BELL_MAP, from, to)
 export const walkDistance = (state: TrainingState, from: Cell, to: Cell) =>
-  pathDistance(FIRST_BELL_MAP, state.units, from, to)
+  pathDistance(state.map, state.units, from, to)
 export function previewShot(
   from: Cell & { statuses?: readonly Status[] },
   target: Unit,
+  map = FIRST_BELL_MAP,
 ): ShotPreview {
-  return { target: target.id, ...chanceFrom(FIRST_BELL_MAP, from, target) }
+  return { target: target.id, ...chanceFrom(map, from, target) }
 }
-export function trainingState(seed = 0x53a1b7): TrainingState {
+export function trainingState(seed = 0x53a1b7, stage?: StageDraft): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
     ['backdraft', 'accident-fire', 'squad', 0, 4, 4],
     ['priya', 'tech-genius', 'squad', 1, 5, 3],
@@ -112,12 +118,15 @@ export function trainingState(seed = 0x53a1b7): TrainingState {
     ['remy', 'magic-social', 'rival', 7, 4, 3],
   ]
   return {
+    map: stage?.map ?? FIRST_BELL_MAP,
+    stageId: stage?.id ?? null,
+    turnLimit: stage?.turnLimit ?? null,
     units: placements.map(([id, identity, team, x, y, hp]) => ({
       id,
       identity,
       team,
-      x,
-      y,
+      x: stage?.spawns.find((spawn) => spawn.id === id)?.x ?? x,
+      y: stage?.spawns.find((spawn) => spawn.id === id)?.y ?? y,
       hp,
       maxHp: hp,
       moved: false,
@@ -179,7 +188,7 @@ function triggerReactions(state: TrainingState, moved: Unit) {
   for (const enemy of state.units.filter(
     (u) => u.team !== moved.team && u.hp > 0 && u.overwatch,
   )) {
-    const result = resolveOverwatch(state, FIRST_BELL_MAP, enemy, moved)
+    const result = resolveOverwatch(state, state.map, enemy, moved)
     if (!result) continue
     recordImpact(state, enemy, moved, result.hit)
     note(
@@ -210,7 +219,7 @@ export function moveSelected(state: TrainingState, to: Cell): boolean {
     aliasFor(unit) +
       (cost === 2 ? ' dashes ' : ' advances ') +
       'into ' +
-      (terrainAt(to) === 'cover' ? 'cover.' : 'position.') +
+      (terrainAt(to, state.map) === 'cover' ? 'cover.' : 'position.') +
       ' (' +
       cost +
       ' AP)',
@@ -225,7 +234,7 @@ export function moveSelected(state: TrainingState, to: Cell): boolean {
 export function fireSelected(state: TrainingState, target: Unit): boolean {
   const shooter = selectedUnit(state)
   if (!shooter || state.phase !== 'active') return false
-  const result = resolveAttack(state, FIRST_BELL_MAP, shooter, target, 2)
+  const result = resolveAttack(state, state.map, shooter, target, 2)
   if (!result) return false
   recordImpact(state, shooter, target, result.hit)
   note(
@@ -264,7 +273,7 @@ function bestShot(state: TrainingState, shooter: Unit, from: Point = shooter) {
     .filter((u) => u.team !== shooter.team && u.hp > 0)
     .map((target) => ({
       target,
-      chance: chanceFrom(FIRST_BELL_MAP, { ...shooter, ...from }, target),
+      chance: chanceFrom(state.map, { ...shooter, ...from }, target),
     }))
     .filter((choice) => choice.chance.hit > 0)
     .sort(
@@ -276,7 +285,7 @@ function bestShot(state: TrainingState, shooter: Unit, from: Point = shooter) {
 }
 function enemyPlan(state: TrainingState, enemy: Unit) {
   let shot = bestShot(state, enemy)
-  const positions = reachableCells(FIRST_BELL_MAP, state.units, enemy)
+  const positions = reachableCells(state.map, state.units, enemy)
   const improvement = positions
     .filter((p) => p.cost === 1)
     .map((p) => ({ point: p, next: bestShot(state, enemy, p) }))
@@ -305,7 +314,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
       .map((p) => ({
         point: p,
         distance: Math.min(...targets.map((t) => gridDistance(p, t))),
-        cover: !!tileAt(FIRST_BELL_MAP, p).cover,
+        cover: !!tileAt(state.map, p).cover,
       }))
       .sort(
         (a, b) =>
@@ -326,7 +335,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
   }
   if (enemy.hp <= 0 || state.phase !== 'active') return
   if (enemy.ap > 0 && shot) {
-    const result = resolveAttack(state, FIRST_BELL_MAP, enemy, shot.target, 1)
+    const result = resolveAttack(state, state.map, enemy, shot.target, 1)
     if (result) {
       recordImpact(state, enemy, shot.target, result.hit)
       note(
@@ -341,7 +350,7 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     }
   }
   if (enemy.ap > 0 && !enemy.fired) {
-    if (tileAt(FIRST_BELL_MAP, enemy).cover) takeCover(enemy)
+    if (tileAt(state.map, enemy).cover) takeCover(enemy)
     else prepareOverwatch(enemy)
   }
   updateOutcome(state)
@@ -359,6 +368,11 @@ export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
   clearSuppression(state.units, 'rival')
   state.turn++
+  if (state.turnLimit !== null && state.turn > state.turnLimit) {
+    state.phase = 'defeat'
+    note(state, 'The mission timer expired before the squad could finish.')
+    return
+  }
   refreshTurn(state.units, 'squad')
   if (!selectedUnit(state))
     state.selected = state.units.find((u) => u.team === 'squad' && u.hp > 0)!.id

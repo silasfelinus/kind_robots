@@ -4,7 +4,6 @@ import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { EVERY_VILLAIN_TACTICS } from '../playbookKit/games/everyVillainTactics'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import {
-  actorAt,
   availableMove,
   endTurn,
   fireSelected,

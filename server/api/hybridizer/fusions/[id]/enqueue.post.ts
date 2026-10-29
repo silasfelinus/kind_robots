@@ -43,6 +43,18 @@ export default defineEventHandler(async (event) => {
       if (!job)
         throw createError({ statusCode: 409, message: 'The existing ArtJob needs repair.' })
       if (job.status === 'FAILED') {
+        const activeRetries = await prisma.artJob.count({
+          where: {
+            userId: auth.user.id,
+            projectSlug: 'hybridizer',
+            status: { in: [...activeStatuses] },
+          },
+        })
+        if (activeRetries >= HYBRIDIZER_ACTIVE_USER_LIMIT)
+          throw createError({
+            statusCode: 429,
+            message: 'You have three active Hybridizer renders. Retry after one finishes.',
+          })
         if (job.userId !== auth.user.id && !auth.isAdmin)
           throw createError({
             statusCode: 409,

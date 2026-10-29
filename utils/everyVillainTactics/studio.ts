@@ -218,8 +218,11 @@ export function paintStage(
     return next
   }
   if (occupied && brush === 'wall') return stage
-  const tiles = { ...next.map.tiles }
-  if (brush === 'erase') delete tiles[key]
+  const tiles = Object.fromEntries(
+    Object.entries(next.map.tiles).filter(
+      ([tileKey]) => brush !== 'erase' || tileKey !== key,
+    ),
+  )
   if (brush === 'wall') tiles[key] = tile(0, true)
   if (brush === 'half-cover')
     tiles[key] = tile(tileAt(next.map, p).elevation, false, {

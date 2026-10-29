@@ -64,7 +64,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'tech-discipline':
     'At dawn he crouches in a sprint start on the academy running track, jaw set, while three coaches in tracksuits stand by the far bleachers with their arms folded. Low pink dawn light and long shadows. Low-angle wide shot.',
   'tech-genius':
-    "At the hospital roof at night Dr. Lionel Marsh, still entirely human, demonstrates a huge green brass-jointed F.R.O.G. leap harness before independent safety chemists, goggles sliding down his nose as the spring boots compress. An unopened vial of dangerous amber serum is sealed in a clear case nearby. Warm work lights against a cobalt skyline. Full-body action shot.",
+    'At the hospital roof at night Dr. Lionel Marsh, still entirely human, demonstrates a huge green brass-jointed F.R.O.G. leap harness before independent safety chemists, goggles sliding down his nose as the spring boots compress. An unopened vial of dangerous amber serum is sealed in a clear case nearby. Warm work lights against a cobalt skyline. Full-body action shot.',
   'tech-birthright':
     'In a gleaming corporate workshop he stands beside an empty open suit of silver-and-blue power armor with his hands in his blazer pockets, looking at his own reflection in its polished chest plate, while lawyers in grey suits wait by the door holding folders. Cold white showroom light. Medium-full shot.',
   'tech-social':
@@ -74,7 +74,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'magic-air':
     'In the back row of a lecture hall he whispers to a classmate behind one hand, while the papers on his desk lift and swirl in a small private gust and rain clouds gather at the window. Grey stormy light. Medium shot.',
   'magic-earth':
-    "Granny Mayhem, a fierce elderly woman with silver double buns and rune-stitched patchwork shawl, perches on the roof of an old yellow school bus as luminous knitting needles coax the cobblestones beneath a harbor boarding house into a protective ramp. A grown tenant-council leader argues with her below. Golden twilight and pink rune light. Wide shot.",
+    'Granny Mayhem, a fierce elderly woman with silver double buns and rune-stitched patchwork shawl, perches on the roof of an old yellow school bus as luminous knitting needles coax the cobblestones beneath a harbor boarding house into a protective ramp. A grown tenant-council leader argues with her below. Golden twilight and pink rune light. Wide shot.',
   'magic-water':
     'Alone in a classroom after hours he leans over a dented silver bowl of water on a desk, where a reflection of himself lying still on a rainy rooftop ripples on the surface, and grips the edge of the desk. Dim blue dusk light. Close medium shot.',
   'magic-discipline':
@@ -94,7 +94,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'alien-water':
     'At the end of a long wooden pier at sunset she sits with her feet in the water, seals, gulls and silver fish gathered close in the waves around her, gazing out at the open horizon. Warm orange sunset light. Wide shot.',
   'alien-discipline':
-    "Zuzu, a very short stocky grey koala assassin with fluffy round ears and amber eyes, stands on a desk far taller than himself in his rust-red weird-west desert duster. His battered katana rests on two chairs while adult academy cadets watch the absurdly precise crouching demonstration. Indigo gym floodlights, cinematic low-angle wide shot.",
+    'Zuzu, a very short stocky grey koala assassin with fluffy round ears and amber eyes, stands on a desk far taller than himself in his rust-red weird-west desert duster. His battered katana rests on two chairs while adult academy cadets watch the absurdly precise crouching demonstration. Indigo gym floodlights, cinematic low-angle wide shot.',
   'alien-genius':
     "In a university chemistry lab he leans over a student's bubbling flask with a delighted smile and pats the glass gently, while the student and a professor behind him glare. Bright laboratory light. Medium shot.",
   'alien-birthright':

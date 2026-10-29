@@ -298,16 +298,16 @@
     },
     {
       "signature": "tech-genius",
-      "location": "Raman family repair shop",
-      "ally": "Mabel, the grandfather-voice home assistant",
-      "proof": "The audio company copied Mabel's training archive",
-      "betrayal": "A childhood friend accepted acquisition money",
-      "repair": "A repair night discussing who may use each recorded voice",
-      "boundary": "Family consent matters more than simulated affection",
+      "location": "Comet Chemistry Tower and the hospital roof",
+      "ally": "Professor Ada Glass, the independent safety chemist who audited Lionel's human trials",
+      "proof": "The stolen lab ledger proves the supposed enhancement serum was never approved and already changed animal tissue",
+      "betrayal": "An institute investor offers to restore Lionel's reputation if he destroys the injury records and tests the serum on himself",
+      "repair": "An open, consent-based engineering clinic where jump gear is repaired for patients without selling them experimental mutations",
+      "boundary": "Ada will help with safety and healing but will not let affection be used as consent for mutagen experiments",
       "illustrations": {
-        "student": "Original cinematic superhero comic panel at Raman family repair shop: Priya Raman as Firewall, an adult academy student with expressive visible face, finds evidence of the audio company copied mabel's training archive; Mabel, the grandfather-voice home assistant is present as an independent witness. Crisp compositional depth, saturated inked art, no typography.",
-        "hero": "Original superhero rescue illustration at Raman family repair shop: Priya Raman as Firewall, using the same recognizable face and distinctive equipment in a courageous role. Locks hackers out of hospital networks and traces kidnappers through every camera in the city, with Mabel narrating. The threatened Mabel, the grandfather-voice home assistant watches a difficult choice resolved without erasing other people's agency. Dynamic full-body action and vibrant urban environment, no words.",
-        "villain": "Original morally charged villain outcome at Raman family repair shop: Priya Raman as Firewall, with the same recognizable face, silhouette and signature equipment, used for a darker purpose. Lives in the city networks; every traffic light, bank account and police camera answers to her and an AI with no brakes. Mabel, the grandfather-voice home assistant witnesses what power has cost the neighborhood. High-stakes dramatic framing, intense color, no lettering."
+        "student": "Full cinematic comic scene at Comet Chemistry Tower: Dr. Lionel Marsh, still an entirely human inventor with expressive face, brown hair, oversized brass goggles, and a green lab coat, unstraps the F.R.O.G. leap harness beside a scorched laboratory floor. Independent chemist Ada Glass points to the unapproved serum ledger. Warm bench lamps and cyan warning lights, readable full-body profile, no lettering.",
+        "hero": "Dynamic vertical superhero rescue at Comet Hospital: Dr. Frog remains human, his face and brass goggles recognizable, spring-loaded green leap gear compressing as he vaults over a collapsing rooftop with two injured neighbors on padded glider slings. Ada Glass directs ambulances below. Gold floodlights, strong silhouette, no lettering.",
+        "villain": "Dramatic comic villain scene in the same chemistry tower: Dr. Lionel Marsh after injecting his own serum, now an enormous anthropomorphic emerald frog with the SAME brass goggles and torn green lab coat, wide amber eyes, webbed hands and a long curled tongue. Ada Glass stands across a broken containment window refusing the next test. Acid-green lamps and deep shadows, no words."
       }
     },
     {
@@ -368,16 +368,16 @@
     },
     {
       "signature": "magic-earth",
-      "location": "Founders Circle parking structure",
-      "ally": "Evelyn Thorn, the urban gardener",
-      "proof": "A developer paved over a voluntary ancient nature pact",
-      "betrayal": "An elder druid sold the original map",
-      "repair": "A garden negotiated between roots and residents",
-      "boundary": "Evelyn's love of land never permits displacing people",
+      "location": "Granny Mayhem's harbor boarding house and the runaway yellow school bus",
+      "ally": "Etta Brooks, the stubborn tenant-council chair who has survived every one of Granny's interventions",
+      "proof": "A deed hidden inside a rune-stitched quilt proves the demolition was ordered to seize tenants' waterfront rights",
+      "betrayal": "A city broker promises to shelter Granny's whole extended family if she uses the needles to lock every tenant inside an obedient neighborhood",
+      "repair": "A neighborhood assembly that decides when enchanted buildings may move, with the rune needles shared instead of hoarded",
+      "boundary": "Etta loves Granny's audacity but refuses to let any rescuer decide which neighbors may stay or leave",
       "illustrations": {
-        "student": "Original cinematic superhero comic panel at Founders Circle parking structure: Willa Thornbury as Rootwarden, an adult academy student with expressive visible face, finds evidence of a developer paved over a voluntary ancient nature pact; Evelyn Thorn, the urban gardener is present as an independent witness. Crisp compositional depth, saturated inked art, no typography.",
-        "hero": "Original superhero rescue illustration at Founders Circle parking structure: Willa Thornbury as Rootwarden, using the same recognizable face and distinctive equipment in a courageous role. Grows living shelters for the unhoused, heals poisoned soil and binds villains in oak. The threatened Evelyn Thorn, the urban gardener watches a difficult choice resolved without erasing other people's agency. Dynamic full-body action and vibrant urban environment, no words.",
-        "villain": "Original morally charged villain outcome at Founders Circle parking structure: Willa Thornbury as Rootwarden, with the same recognizable face, silhouette and signature equipment, used for a darker purpose. Lets the forest reclaim the city: roads crack, towers fall, and only those who swear to the circle may live in the canopy. Evelyn Thorn, the urban gardener witnesses what power has cost the neighborhood. High-stakes dramatic framing, intense color, no lettering."
+        "student": "Comet Harbor boarding house porch at dusk: Mavis Mayhew, the fierce elderly woman called Granny Mayhem, with silver hair in two braided buns, deep smile lines and an enormous patchwork shawl, stands astride her repaired yellow school bus while a council chair reads a stolen property deed. A single tiny rune-glowing knitting needle in her hand, blue coastal sunset, no lettering.",
+        "hero": "Full-body comic rescue illustration: Granny Mayhem, same recognizable silver braided buns, patched shawl and practical heavy boots, drives a roaring ancient yellow bus across an enchanted rising stone bridge while her knitting needles summon a protective quilt of cobblestones over escaping flood victims. Etta Brooks calls directions from the passenger door, colorful night harbor, no words.",
+        "villain": "A midnight aerial illustration of a monstrous stitched-together neighborhood: Granny Mayhem, same elderly face and silver double buns, stands on a giant walking porch, gripping glowing rune needles as whole houses rise on root legs and streets become patchwork ribbons. Etta Brooks confronts her from a balcony. Harsh magenta rune light, no lettering."
       }
     },
     {
@@ -508,16 +508,16 @@
     },
     {
       "signature": "alien-discipline",
-      "location": "Gatewatch barracks",
-      "ally": "Mara Kes, Raxa's former squadmate",
-      "proof": "The commander's pursuit orders list civilian hostages",
-      "betrayal": "An old subordinate leaked Raxa's location",
-      "repair": "A tribunal protecting soldiers who refuse unlawful orders",
-      "boundary": "Mara can reconcile only if Raxa relinquishes coercive rank",
+      "location": "The abandoned transit portal and a clockwork guild waystation",
+      "ally": "Sable Fern, an adult extradimensional refugee Zuzu once refused to kill",
+      "proof": "A portal warrant bears the signature of the broker who ordered the deaths of witnesses and a child's entire family",
+      "betrayal": "Zuzu's old sword-master offers safe passage home if Zuzu carries out one final assassination for the transit consortium",
+      "repair": "A public tribunal where extradimensional refugees can challenge secret kill warrants and Zuzu offers his katana as evidence",
+      "boundary": "Sable will trust Zuzu's chosen loyalty, not a binding oath signed on someone else's behalf",
       "illustrations": {
-        "student": "Original cinematic superhero comic panel at Gatewatch barracks: Raxa Vel as The Deserter, an adult academy student with expressive visible face, finds evidence of the commander's pursuit orders list civilian hostages; Mara Kes, Raxa's former squadmate is present as an independent witness. Crisp compositional depth, saturated inked art, no typography.",
-        "hero": "Original superhero rescue illustration at Gatewatch barracks: Raxa Vel as The Deserter, using the same recognizable face and distinctive equipment in a courageous role. Refuses every order she disagrees with and protects people with a soldier's precision and a deserter's conscience. The threatened Mara Kes, Raxa's former squadmate watches a difficult choice resolved without erasing other people's agency. Dynamic full-body action and vibrant urban environment, no words.",
-        "villain": "Original morally charged villain outcome at Gatewatch barracks: Raxa Vel as The Deserter, with the same recognizable face, silhouette and signature equipment, used for a darker purpose. Builds the army she once fled, recruiting every disillusioned student at the academy into a disciplined force. Mara Kes, Raxa's former squadmate witnesses what power has cost the neighborhood. High-stakes dramatic framing, intense color, no lettering."
+        "student": "Adult Zuzu the koala assassin with fluffy gray rounded ears, short stocky body, expressive black nose, amber eyes and a weathered rust-red desert duster stands on a ridiculously tall academy desk. His battered katana lies across two chairs as cadets peer over the edge. A neon dimensional portal crackles through the classroom window, playful but cinematic composition, no words.",
+        "hero": "Dynamic comic action scene above Comet City: Zuzu the koala assassin, same gray fluffy ears, amber eyes and rust-red duster, makes a precise nonlethal katana strike through a falling arrest net while vaulting between hovering monorail drones. Rescued refugees scramble toward an open portal. Full body in midair, electric blue twilight, no lettering.",
+        "villain": "Fearsome villain composition on the Comet transit portal: Zuzu, the SAME small stocky gray koala with amber eyes, darkened rust-red duster and battered katana, now wearing a black clockwork exosuit and a halo of jagged portal keys. He steps between time-slices to claim an innocent witness. Crimson gateway lightning, wide readable silhouette, no words."
       }
     },
     {

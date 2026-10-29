@@ -26,6 +26,7 @@ import {
   darkHouseRoomResolved,
   darkHouseEchoes,
   restoreDarkHouseProgress,
+  type DarkHouseProgress,
 } from '../memoryDungeon/darkHouse'
 import {
   DARK_HOUSE_TRIALS,
@@ -54,6 +55,24 @@ import {
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
 } from '../memoryDungeon/firstTwoConsequences'
+
+// Source-backed fixture paths prevent save tests from granting puzzle rewards
+// to characters who never traversed the mirrored House.
+const mirrorRoutes = new Map<string, string[]>([['HD-01', ['HD-01']]])
+const mirrorRouteQueue = ['HD-01']
+for (let i = 0; i < mirrorRouteQueue.length; i++) {
+  const room = mirrorRouteQueue[i]!
+  for (const next of DARK_HOUSE_ROOMS[room]!.exits) {
+    if (mirrorRoutes.has(next)) continue
+    mirrorRoutes.set(next, [...mirrorRoutes.get(room)!, next])
+    mirrorRouteQueue.push(next)
+  }
+}
+const visitedMirrorRoute = (room: string): DarkHouseProgress['visited'] => {
+  const route = mirrorRoutes.get(room)
+  assert.ok(route, `Authored mirror route to ${room} exists`)
+  return route as DarkHouseProgress['visited']
+}
 
 const base = newBriarSave()
 const house = newHouseProgress()
@@ -607,7 +626,12 @@ for (const [choice, room, source] of [
     null,
     'One earned benefit cannot leak into unrelated puzzle rooms',
   )
-  const atPuzzle = { ...newDarkHouseProgress(), active: true, current: room }
+  const atPuzzle = {
+    ...newDarkHouseProgress(),
+    active: true,
+    current: room,
+    visited: visitedMirrorRoute(room),
+  }
   assert.equal(darkHouseEchoes(atPuzzle), 0)
   assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)
   const helped = darkHousePuzzleHint(atPuzzle, source)
@@ -687,7 +711,12 @@ for (const [witnessChoice, room, source] of [
     null,
     'Opposite witness policy cannot claim both puzzle benefits',
   )
-  const atPuzzle = { ...newDarkHouseProgress(), active: true, current: room }
+  const atPuzzle = {
+    ...newDarkHouseProgress(),
+    active: true,
+    current: room,
+    visited: visitedMirrorRoute(room),
+  }
   assert.equal(darkHouseEchoes(atPuzzle), 0)
   assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)
   assert.equal(
@@ -750,6 +779,7 @@ for (const photoChoice of ['archive', 'grieve'] as const) {
     ...newDarkHouseProgress(),
     active: true,
     current: 'HD-13' as const,
+    visited: visitedMirrorRoute('HD-13'),
   }
   assert.equal(darkHousePuzzleHint(atPantry), atPantry)
   assert.equal(darkHousePuzzleHint(atPantry, 'names'), atPantry)

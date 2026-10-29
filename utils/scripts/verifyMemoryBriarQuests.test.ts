@@ -7,7 +7,11 @@ import {
   briarQuestProgress,
   validateBriarQuests,
 } from '../memoryDungeon/briarQuests'
-import { HOUSE_ROOMS, newHouseProgress } from '../memoryDungeon/house'
+import {
+  HOUSE_ROOMS,
+  newHouseProgress,
+  type HouseRoomId,
+} from '../memoryDungeon/house'
 import {
   BRIAR_RARE_EVENTS,
   earnedBriarRareEvents,
@@ -695,6 +699,29 @@ const rareCases = [
     choices: ['rest', 'talk'],
   },
 ] as const
+// The rare-event save fixtures must include the actual passages to each
+// House witness; merely naming a distant room cannot earn its testimony.
+const rareHouseRoutes = new Map<HouseRoomId, HouseRoomId[]>([
+  ['HD-01', ['HD-01']],
+])
+const rareHouseQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < rareHouseQueue.length; i++) {
+  const room = rareHouseQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (rareHouseRoutes.has(next)) continue
+    rareHouseRoutes.set(next, [...rareHouseRoutes.get(room)!, next])
+    rareHouseQueue.push(next)
+  }
+}
+const visitedRareHouseRooms = (rooms: string[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>(['HD-01'])
+  for (const room of rooms) {
+    const route = rareHouseRoutes.get(room as HouseRoomId)
+    assert.ok(route, `Authored House path to ${room} exists`)
+    for (const step of route) visited.add(step)
+  }
+  return [...visited]
+}
 assert.deepEqual(earnedBriarRareEvents({}, {}), [])
 for (const event of rareCases) {
   const endings = new Set<string>()
@@ -716,7 +743,7 @@ for (const event of rareCases) {
           sceneChoices: briar,
           house: {
             ...newHouseProgress(),
-            visited: ['HD-01', ...Object.keys(house)],
+            visited: visitedRareHouseRooms(Object.keys(house)),
             decisions: house,
           },
         }),

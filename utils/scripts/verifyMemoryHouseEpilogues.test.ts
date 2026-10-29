@@ -39,6 +39,69 @@ for (const key of ['constructor', 'toString', '__proto__']) {
   assert.deepEqual(houseExits(restored.current, restored), ['HD-02', 'HD-07'])
 }
 
+// A valid room ID alone cannot prove travel. A forged distant Hearth and
+// Bramble Chime must not survive when the intervening passages were never used.
+const disconnectedHouse = restoreHouseProgress({
+  current: 'HD-35',
+  visited: ['HD-02', 'HD-35', 'HD-36'],
+  decisions: { 'HD-02': 'weather', 'HD-35': 'renew', 'HD-36': 'entrust' },
+  ending: 'renew',
+  chimeClaimed: true,
+})!
+assert.equal(disconnectedHouse.current, 'HD-01')
+assert.deepEqual(disconnectedHouse.visited, ['HD-01', 'HD-02'])
+assert.deepEqual(disconnectedHouse.decisions, { 'HD-02': 'weather' })
+assert.equal(disconnectedHouse.ending, null)
+assert.equal(disconnectedHouse.chimeClaimed, false)
+
+const adjacentLegacyHouse = restoreHouseProgress({
+  current: 'HD-03',
+  visited: ['HD-02'],
+  decisions: { 'HD-03': 'route' },
+})!
+assert.equal(adjacentLegacyHouse.current, 'HD-03')
+assert.deepEqual(adjacentLegacyHouse.visited, ['HD-01', 'HD-02', 'HD-03'])
+assert.equal(adjacentLegacyHouse.decisions['HD-03'], 'route')
+
+// Scylla's recorded manifest legitimately opens HD-10 → HD-25 without
+// visiting the intervening numbered chambers.
+const paths = new Map<HouseRoomId, HouseRoomId[]>([['HD-01', ['HD-01']]])
+const routeQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < routeQueue.length; i++) {
+  const room = routeQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (paths.has(next)) continue
+    paths.set(next, [...paths.get(room)!, next])
+    routeQueue.push(next)
+  }
+}
+const connectedRooms = (...rooms: HouseRoomId[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>(['HD-01'])
+  for (const room of rooms) {
+    const path = paths.get(room)
+    assert.ok(path, `Authored route to ${room} exists`)
+    for (const step of path) visited.add(step)
+  }
+  return [...visited]
+}
+const routeToInventory = paths.get('HD-10')!
+assert.ok(routeToInventory.length > 1)
+const shortcutHouse = restoreHouseProgress({
+  current: 'HD-25',
+  visited: routeToInventory,
+  decisions: { 'HD-10': 'manifest', 'HD-25': 'recount' },
+})!
+assert.equal(shortcutHouse.current, 'HD-25')
+assert.equal(shortcutHouse.decisions['HD-25'], 'recount')
+assert.equal(
+  restoreHouseProgress({
+    current: 'HD-25',
+    visited: routeToInventory,
+  })!.current,
+  'HD-01',
+  'The distant room is not reachable without the recorded shortcut',
+)
+
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save
 // already holds, so the contract here is: every one is reachable by real
@@ -203,7 +266,7 @@ assert.equal(reached.size, 12, `seeded journeys reach all twelve epilogues`)
 // decisions, still resolves.
 const legacy = restoreHouseProgress({
   current: 'HD-36',
-  visited: ['HD-01', 'HD-35', 'HD-36'],
+  visited: connectedRooms('HD-35', 'HD-36'),
   decisions: { 'HD-35': 'renew' },
   ending: 'renew',
   wardenPassed: true,
@@ -214,7 +277,20 @@ assert.equal(houseEpilogue(legacy, {})?.id, 'renew-community')
 
 // The earned lens is frozen when the Hearth is resolved. Revisiting unfinished
 // rooms can reveal new evidence, but cannot silently rewrite an earned ending.
-const locked = atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew')
+const locked = {
+  ...atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew'),
+  visited: connectedRooms(
+    'HD-04',
+    'HD-05',
+    'HD-15',
+    'HD-17',
+    'HD-20',
+    'HD-21',
+    'HD-25',
+    'HD-33',
+    'HD-35',
+  ),
+}
 locked.endingLens = houseEpilogueLens(locked, {})
 assert.equal(locked.endingLens, 'community')
 const laterChoices = {

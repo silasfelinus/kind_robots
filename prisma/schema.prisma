@@ -3777,3 +3777,24 @@ model ResourcePreview {
   @@index([resourceId, sortOrder])
   @@index([isMature])
 }
+
+
+model HybridizerFusion {
+  id            String   @id @db.VarChar(64)
+  leftKey       String   @db.VarChar(150)
+  rightKey      String   @db.VarChar(150)
+  recipeVersion String   @default("v1") @db.VarChar(40)
+  title         String   @db.VarChar(255)
+  depth         Int
+  status        String   @default("STUDY") @db.VarChar(20)
+  artJobId      Int?
+  artImageId    Int?
+  creatorUserId Int
+  isPublic      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([leftKey, rightKey, recipeVersion])
+  @@index([creatorUserId, createdAt])
+  @@index([isPublic, createdAt])
+}

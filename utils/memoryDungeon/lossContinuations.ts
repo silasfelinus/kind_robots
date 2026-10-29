@@ -16,14 +16,6 @@ export type BriarLossKind = 'combat' | 'chamber'
 function rememberedConsequence(
   choices: BriarLossContext['sceneChoices'],
 ): string {
-  if (choices['4,3'] === 'plan')
-    return "Oren's inked detour still marks a way forward; the unanswered danger waits."
-  if (choices['4,3'] === 'load')
-    return "The parcels you sorted for Oren are safe; the room's bargain remains unanswered."
-  if (choices['2,4'] === 'lend')
-    return 'The night courier still has your lantern; the letter remains undelivered.'
-  if (choices['2,4'] === 'copy')
-    return 'Your copied impossible address survives; its recipient still awaits the letter.'
   if (choices['3,5'] === 'light')
     return "Pip's freed moth is safe; the stump still holds the story it borrowed."
   if (choices['3,5'] === 'listen')
@@ -40,6 +32,14 @@ function rememberedConsequence(
     return "The toll receipt names another payer; the missing bridge is still unbuilt."
   if (choices['3,4'] === 'help')
     return "The collector has your drawn bridge; travelers still need a real crossing."
+  if (choices['4,3'] === 'plan')
+    return "Oren's inked detour still marks a way forward; the unanswered danger waits."
+  if (choices['4,3'] === 'load')
+    return "The parcels you sorted for Oren are safe; the room's bargain remains unanswered."
+  if (choices['2,4'] === 'lend')
+    return 'The night courier still has your lantern; the letter remains undelivered.'
+  if (choices['2,4'] === 'copy')
+    return 'Your copied impossible address survives; its recipient still awaits the letter.'
   return 'Your map and discoveries survive; the room keeps its unanswered question.'
 }
 

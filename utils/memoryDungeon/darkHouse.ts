@@ -813,8 +813,7 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
     visited,
     savedCurrent,
     {},
-    (from, to) =>
-      to !== 'HD-36' || (from === 'HD-35' && exitEarned),
+    (from, to) => to !== 'HD-36' || (from === 'HD-35' && exitEarned),
   )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

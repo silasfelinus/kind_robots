@@ -653,7 +653,7 @@ const NEW_CASE_REACTIONS: Record<
     person: 'mara',
     response: {
       mood: 'positive',
-      line: 'Tomorrow\'s passengers deserve a seat and today\'s workers deserve the whole timetable.',
+      line: "Tomorrow's passengers deserve a seat and today's workers deserve the whole timetable.",
     },
   },
   'rail-orchestra': {
@@ -695,7 +695,7 @@ const NEW_CASE_REACTIONS: Record<
     person: 'jo',
     response: {
       mood: 'negative',
-      line: 'Tomorrow\'s crimes should not become today\'s headlines without a witness to challenge them.',
+      line: "Tomorrow's crimes should not become today's headlines without a witness to challenge them.",
     },
   },
   'ambulance-detour': {
@@ -736,7 +736,7 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       route: {
         label: 'The Contract in Plain Sight',
         result:
-          'Imani convinces the staircase\'s victims to compare their consent forms while Jo broadcasts the hidden scholarship clauses. The false stairs vanish when the contract loses its power over them.',
+          "Imani convinces the staircase's victims to compare their consent forms while Jo broadcasts the hidden scholarship clauses. The false stairs vanish when the contract loses its power over them.",
         boost: 2,
       },
     },
@@ -758,7 +758,7 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       route: {
         label: 'The Union of Two Tomorrows',
         result:
-          'Nix anchors the arriving future train while Mara makes the transit workers\' warning official. Both versions of the crew agree to rebuild the switch before the predicted collision.',
+          "Nix anchors the arriving future train while Mara makes the transit workers' warning official. Both versions of the crew agree to rebuild the switch before the predicted collision.",
         boost: 2,
       },
     },
@@ -767,9 +767,9 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
     {
       people: ['ash', 'tessel'],
       route: {
-        label: 'The Wind\'s True Lantern',
+        label: "The Wind's True Lantern",
         result:
-          'Ash clears the artificial rain curtain while Tessel listens for the harbor\'s genuine tide. Both threatened boats follow the keeper\'s restored light into safe water.',
+          "Ash clears the artificial rain curtain while Tessel listens for the harbor's genuine tide. Both threatened boats follow the keeper's restored light into safe water.",
         boost: 2,
       },
     },
@@ -780,7 +780,7 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       route: {
         label: 'Sanctuary, Not Shipment',
         result:
-          'DRIFT-9 reads the animals\' mist-memories while Kit prepares a living nursery on the pier. The handlers cannot claim the animals as cargo after the creatures choose their home.',
+          "DRIFT-9 reads the animals' mist-memories while Kit prepares a living nursery on the pier. The handlers cannot claim the animals as cargo after the creatures choose their home.",
         boost: 2,
       },
     },
@@ -791,7 +791,7 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       route: {
         label: 'A City Without a Price Tag',
         result:
-          'Mina steadies the failing shield anchors while Sol cancels the auction\'s private command keys. Families reclaim cover while the engineer publishes the records of manufactured scarcity.',
+          "Mina steadies the failing shield anchors while Sol cancels the auction's private command keys. Families reclaim cover while the engineer publishes the records of manufactured scarcity.",
         boost: 2,
       },
     },

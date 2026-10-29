@@ -11,6 +11,7 @@ on:
       - 'utils/scripts/verifyEveryVillainTactics.test.ts'
       - 'utils/scripts/verifyEveryVillainCombat.test.ts'
       - 'utils/scripts/verifyEveryVillainStory.test.ts'
+      - 'utils/scripts/verifyEveryVillainStudio.test.ts'
       - '.github/workflows/every-villain-tactics.yml'
   push:
     branches: [main]
@@ -40,3 +41,4 @@ jobs:
           npm run test:every-villain-tactics
           npm run test:every-villain-combat
           npm run test:every-villain-story
+          npx tsx utils/scripts/verifyEveryVillainStudio.test.ts

@@ -75,6 +75,15 @@ for (let i = 0; i < routeQueue.length; i++) {
     routeQueue.push(next)
   }
 }
+const connectedRooms = (...rooms: HouseRoomId[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>(['HD-01'])
+  for (const room of rooms) {
+    const path = paths.get(room)
+    assert.ok(path, `Authored route to ${room} exists`)
+    for (const step of path) visited.add(step)
+  }
+  return [...visited]
+}
 const routeToInventory = paths.get('HD-10')!
 assert.ok(routeToInventory.length > 1)
 const shortcutHouse = restoreHouseProgress({
@@ -257,7 +266,7 @@ assert.equal(reached.size, 12, `seeded journeys reach all twelve epilogues`)
 // decisions, still resolves.
 const legacy = restoreHouseProgress({
   current: 'HD-36',
-  visited: ['HD-01', 'HD-35', 'HD-36'],
+  visited: connectedRooms('HD-35', 'HD-36'),
   decisions: { 'HD-35': 'renew' },
   ending: 'renew',
   wardenPassed: true,
@@ -268,7 +277,20 @@ assert.equal(houseEpilogue(legacy, {})?.id, 'renew-community')
 
 // The earned lens is frozen when the Hearth is resolved. Revisiting unfinished
 // rooms can reveal new evidence, but cannot silently rewrite an earned ending.
-const locked = atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew')
+const locked = {
+  ...atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew'),
+  visited: connectedRooms(
+    'HD-04',
+    'HD-05',
+    'HD-15',
+    'HD-17',
+    'HD-20',
+    'HD-21',
+    'HD-25',
+    'HD-33',
+    'HD-35',
+  ),
+}
 locked.endingLens = houseEpilogueLens(locked, {})
 assert.equal(locked.endingLens, 'community')
 const laterChoices = {

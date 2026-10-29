@@ -704,8 +704,9 @@ for (let responseMask = 0; responseMask < 16; responseMask++) {
   )
   fourFrameReadings.add(synthesis.reflection)
   for (const missingId of photoIds) {
-    const missingResponse = { ...journal.responses }
-    delete missingResponse[missingId]
+    const missingResponse = Object.fromEntries(
+      Object.entries(journal.responses).filter(([id]) => id !== missingId),
+    )
     const unanswered = { ...journal, responses: missingResponse }
     assert.ok(
       !earthPhotoReappraisals(unanswered, 'earth-01').some(

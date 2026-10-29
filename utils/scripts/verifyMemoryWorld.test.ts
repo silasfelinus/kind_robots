@@ -1805,7 +1805,7 @@ assert.match(houseAtlasImage, /aria-hidden="true"/)
 assert.match(houseAtlasImage, /loading="eager"/)
 assert.match(houseAtlasImage, /memory-house-atlas-fallback/)
 assert.match(houseAtlasImage, /HOUSE_ATLAS_FALLBACK_CELLS/)
-assert.match(houseAtlasImage, /<svg[\\s\\S]*<img/)
+assert.match(houseAtlasImage, /<svg[\s\S]*<img/)
 assert.equal(HOUSE_ATLAS_FALLBACK_CELLS.length, 36)
 for (const [index, cell] of HOUSE_ATLAS_FALLBACK_CELLS.entries()) {
   const row = Math.floor(index / HOUSE_ATLAS_SIZE)

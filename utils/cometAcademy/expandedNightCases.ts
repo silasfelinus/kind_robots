@@ -127,7 +127,7 @@ export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
     refused: "The flywheel destroys the old locomotive. The conductor survives with injuries, but the donor's contract quietly transfers control of the rail yard to a private sponsor.",
     consequences: {
       honors: "You stop the flywheel without breaking the conductor's prosthetic heart and expose the donation agreement. Transit workers insist on testing every new engine themselves.",
-      pass: "The conductor is rescued and the rail yard stays open. The engine is impounded, leaving hundreds of commuters on replacement buses.",
+      pass: "The conductor is rescued and the rail yard stays open. The engine is impounded, leaving hundreds of commuters on replacement buses. The overnight mechanics demand an independent review before any donated machine returns to their tracks.",
       partial: "The flywheel slows but damages the conductor's medical device. A hospital team stabilizes them, and the yard crew refuses future experimental repairs.",
       failed: "The flywheel shatters the carriage before crews can disconnect it. Several workers are hurt and the sponsor arrives with a prewritten waiver.",
     },
@@ -147,7 +147,7 @@ export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
     refused: "The bus is trapped and Granny leads residents across the bridge on foot. Two elders are hospitalized, and the rescue company's invoice arrives before the ambulance.",
     consequences: {
       honors: "You keep the bridge stable long enough for Granny to ferry everyone across twice. The elders reclaim the boarding house keys and Granny mails the rescue company a bill for her labor.",
-      pass: "Everyone reaches dry ground, but the bus is ruined. Granny insists the city hear exactly who refused to open the bridge.",
+      pass: "Everyone reaches dry ground, but the bus is ruined. Granny insists the city hear exactly who refused to open the bridge. At breakfast, the evacuated residents vote to keep the boarding house open and give her a standing ovation.",
       partial: "The bridge buckles under the bus and several residents need treatment. Granny blames the corporation, but admits she gambled with people who trusted her.",
       failed: "The bus slides toward the tide before rescue divers can secure it. Residents are pulled from the water and the rescue company calls the accident reckless heroism.",
     },
@@ -188,7 +188,7 @@ export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
     consequences: {
       honors: "You return the pearl to the witnesses and build a safe route through the tunnel. They release the recording on their own terms with the diver's identity protected.",
       pass: "The diver and pearl are recovered, but the contractor manages to discredit part of the recording. Neighbors organize an independent listening session.",
-      partial: "You retrieve the pearl but the diver is arrested for trespass. The council cites the arrest to avoid discussing its hidden meeting.",
+      partial: "You retrieve the pearl but the diver is arrested for trespass. The council cites the arrest to avoid discussing its hidden meeting. The diver's neighbors organize a dawn vigil outside the police station and refuse to surrender the recording.",
       failed: "The salvage equipment floods the tunnel and a witness is injured. The contractor destroys the only copy of the recording and claims the diver invented it.",
     },
     tactics: { rescue: "Extract the diver without surrendering the pearl", investigate: "Trace how the council meeting was trapped inside it" },

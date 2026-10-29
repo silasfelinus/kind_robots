@@ -540,10 +540,27 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
   },
 }
 
+const NEW_CASE_REACTIONS: Record<string, { person: StudentId; response: HeroReaction }> = {
+  'frog-serum': { person: 'drift', response: { mood: 'positive', line: 'I am not a failed experiment. Neither is Dr. Frog. Let me speak to him.' } },
+  'mirror-court': { person: 'imani', response: { mood: 'positive', line: 'Forty versions of a winner and not one vote from the missing stagehand?' } },
+  'stolen-hour': { person: 'nix', response: { mood: 'negative', line: 'A lost hour means somebody sold time that belonged to patients.' } },
+  'ghost-ticket': { person: 'mara', response: { mood: 'positive', line: 'The dead do not issue transit permits. Developers do.' } },
+  'borrowed-faces': { person: 'lark', response: { mood: 'positive', line: 'A scan is not a person. We have to ask each rider what they need.' } },
+  'rail-heart': { person: 'mina', response: { mood: 'positive', line: 'Brace the axle. Nobody gets to use a conductor as a test component.' } },
+  'granny-shuttle': { person: 'veda', response: { mood: 'positive', line: 'That woman taught me every stunt I know. She has never learned to brake.' } },
+  'tomorrow-tide': { person: 'tessel', response: { mood: 'positive', line: 'I know that wave. It traveled here from a forecast that has not happened.' } },
+  'pearl-pact': { person: 'nix', response: { mood: 'positive', line: 'A pearl can hide a door, and a door can hide a witness.' } },
+  'halo-contract': { person: 'sol', response: { mood: 'negative', line: 'Those halos have a command port. Nobody volunteered to wear consent.' } },
+  'hospital-saint': { person: 'kit', response: { mood: 'positive', line: 'Healing someone does not mean owning their future.' } },
+  'lightning-election': { person: 'ash', response: { mood: 'negative', line: 'That weather is a machine with an opinion about voting.' } },
+}
+
 export function missionReaction(
   person: StudentId,
   mission: string,
 ): HeroReaction {
+  const named = NEW_CASE_REACTIONS[mission]
+  if (named?.person === person) return named.response
   return (
     PERSONAL_RESPONSES[person]?.[mission] ?? {
       mood: 'neutral',
@@ -554,6 +571,18 @@ export function missionReaction(
 
 export type RouteUnlock = { label: string; result: string; boost: number }
 const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
+  'frog-serum': [
+    { people: ['kit', 'drift'], route: { label: 'The Right to Be Changed', result: 'Kit stabilizes the janitor while DRIFT-9 recognizes the professor as a fellow person whose body is changing without consent. Dr. Frog hands over the antidote voluntarily and names the saboteur.', boost: 2 } },
+  ],
+  'mirror-court': [
+    { people: ['imani', 'jo'], route: { label: 'The Cast Takes the Vote', result: 'Imani earns the missing stagehand’s trust and Jo exposes the rehearsal footage, letting the cast run a real count instead of accepting the mirror sponsor’s false victory.', boost: 2 } },
+  ],
+  'granny-shuttle': [
+    { people: ['veda', 'mara'], route: { label: 'Granny’s Unpaid Stunt Team', result: 'Veda steadies the bus while Mara gets the bridge crews to defy the private rescue company. Granny Mayhem applauds from the driver’s seat and demands that the workers lead the victory parade.', boost: 2 } },
+  ],
+  'halo-contract': [
+    { people: ['sol', 'jo'], route: { label: 'No Halo, No Orders', result: 'Sol finds the obedience switch and Jo broadcasts a live demonstration with informed volunteers, forcing the factory to recall the halos before they reach any school.', boost: 2 } },
+  ],
   monorail: [
     {
       people: ['mara', 'sol'],

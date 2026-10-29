@@ -2921,6 +2921,14 @@ const lossContexts = [
   },
   { choices: { '2,4': 'copy' }, expected: /copied impossible address/ },
   { choices: { '4,3': 'forged' }, expected: /map and discoveries survive/ },
+  { choices: { '3,5': 'light' }, expected: /Pip's freed moth/ },
+  { choices: { '3,5': 'listen' }, expected: /Knight's apology/ },
+  { choices: { '4,4': 'escort' }, expected: /Scylla's escort order/ },
+  { choices: { '4,4': 'question' }, expected: /Char's lantern/ },
+  { choices: { '4,2': 'ledger' }, expected: /tomorrow-dated warning/ },
+  { choices: { '4,2': 'promise' }, expected: /true account/ },
+  { choices: { '3,4': 'challenge' }, expected: /toll receipt/ },
+  { choices: { '3,4': 'help' }, expected: /drawn bridge/ },
 ] as const
 for (const { choices, expected } of lossContexts) {
   const text = briarLossContinuation(
@@ -2934,6 +2942,75 @@ for (const { choices, expected } of lossContexts) {
   assert.match(text, /retreat to Briar Camp/)
   assert.equal(text.includes("House's quiet bedchamber"), false)
 }
+// Each new defeat callback must be earned by a real, visited scene decision,
+// survive serialization, and retain its explicit unresolved cost.
+const briarLossBranches = [
+  { site: '3,5', choice: 'light', expected: /stump still holds/ },
+  { site: '3,5', choice: 'listen', expected: /still needs a witness/ },
+  { site: '4,4', choice: 'escort', expected: /cannot guard every road/ },
+  { site: '4,4', choice: 'question', expected: /riddle remains unsolved/ },
+  { site: '4,2', choice: 'ledger', expected: /debtor is still unknown/ },
+  { site: '4,2', choice: 'promise', expected: /cannot settle the debt/ },
+  { site: '3,4', choice: 'challenge', expected: /bridge is still unbuilt/ },
+  { site: '3,4', choice: 'help', expected: /need a real crossing/ },
+] as const
+for (const { site, choice, expected } of briarLossBranches) {
+  assert.ok(
+    BRIAR_SCENES[site]?.choices.some((option) => option.id === choice),
+    `Defeat callback must use an authored choice at ${site}`,
+  )
+  const saved = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: [BRIAR_START, site],
+    visited: [BRIAR_START, site],
+    sceneChoices: { [site]: choice },
+  })
+  assert.equal(saved.sceneChoices[site], choice)
+  const reloaded = restoreBriarSave(JSON.parse(JSON.stringify(saved)))
+  assert.equal(reloaded.sceneChoices[site], choice)
+  for (const [kind, lastHeart] of [
+    ['combat', true],
+    ['combat', false],
+    ['chamber', true],
+  ] as const) {
+    const result = briarLossContinuation(reloaded, kind, lastHeart, 'Thorn Guard')
+    assert.match(result, expected)
+    assert.ok(result.length <= 220, 'Defeat text fits the saved status')
+    assert.equal(
+      briarLossContinuation(saved, kind, lastHeart, 'Thorn Guard'),
+      result,
+      'Save restoration must not change an earned defeat continuation',
+    )
+  }
+  const forged = restoreBriarSave({
+    ...saved,
+    sceneChoices: { [site]: 'forged' },
+  })
+  assert.equal(forged.sceneChoices[site], undefined)
+  assert.match(
+    briarLossContinuation(forged, 'combat', true),
+    /map and discoveries survive/,
+    'Invalid scene choices cannot invent a companion memory',
+  )
+}
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '4,3': 'plan', '3,5': 'light' } },
+    'combat',
+    true,
+  ),
+  /Oren's inked detour/,
+  'Existing Oren callback keeps precedence over later additions',
+)
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '3,5': 'listen', '4,4': 'escort' } },
+    'combat',
+    true,
+  ),
+  /Knight's apology/,
+  'Pip's earned thread wins deterministic ties among new callbacks',
+)
 // House defeats remember real companion and witness choices, not a generic
 // failure. The same bounded text is used by live timers and restored saves.
 const houseLossCases = [

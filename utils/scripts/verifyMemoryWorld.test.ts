@@ -238,8 +238,8 @@ const unvisitedHouseSave = restoreBriarSave({
   room: 'house',
   house: {
     ...newHouseProgress(),
-    current: 'HD-18',
-    visited: visitedHouseRoutes('HD-18'),
+    current: 'HD-09',
+    visited: visitedHouseRoutes('HD-09'),
     decisions: {
       'HD-10': 'manifest',
       'HD-17': 'read',

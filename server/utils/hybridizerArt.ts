@@ -6,7 +6,10 @@ export const HYBRIDIZER_ART_PRIORITY = 20
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
 
-export function hybridizerArtPrompt(leftTitle: string, rightTitle: string): string {
+export function hybridizerArtPrompt(
+  leftTitle: string,
+  rightTitle: string,
+): string {
   return [
     'A single original fantastical chimera combining',
     leftTitle + ' and ' + rightTitle + ',',
@@ -31,8 +34,7 @@ export function hybridizerDeliverableUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const path = value.trim()
   if (/^\/(?!\/)[^\s]+$/.test(path)) return path
-  if (/^https:\/\/[a-z0-9.-]+(?:\/[^\s]*)?$/i.test(path))
-    return path
+  if (/^https:\/\/[a-z0-9.-]+(?:\/[^\s]*)?$/i.test(path)) return path
   return null
 }
 
@@ -49,8 +51,7 @@ export function hybridizerQueueState(
   artJobStatus: string | null,
   deliverableUrl: string | null,
 ): HybridizerQueueState {
-  if (artJobStatus === 'DONE')
-    return deliverableUrl ? 'READY' : 'DELIVERING'
+  if (artJobStatus === 'DONE') return deliverableUrl ? 'READY' : 'DELIVERING'
   if (artJobStatus === 'RUNNING') return 'RENDERING'
   if (artJobStatus === 'PENDING') return 'QUEUED'
   if (artJobStatus === 'FAILED') return 'FAILED'

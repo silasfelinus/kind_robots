@@ -2736,7 +2736,7 @@ const houseDefeat = recoverBriarCombatDefeat(
     house: {
       ...newHouseProgress(),
       current: 'HD-09',
-      visited: ['HD-01', 'HD-09'],
+      visited: visitedHouseRoutes('HD-09'),
       combatOrigin: 'HD-09',
     },
   }),

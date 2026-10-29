@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "identitySource": "utils/cometAcademy/identityArcs.json",
+  "designStatus": "authored-not-yet-spawned",
+  "combatContract": "One successful hit routes/disarms a common minion nonlethally. These species do not replace the mastermind's separately motivated named accomplices.",
+  "roster": [
+    {
+      "signature": "accident-fire",
+      "name": "Claim Cinders",
+      "captain": "Ash Invoice",
+      "look": "Receipt gremlins in asbestos ties with smoking insurance binders",
+      "move": "Stamp a glowing INSURED tile which ignites next turn",
+      "counter": "Leave or soak the stamped tile",
+      "story": "Ash preserves proof of the fires Dez's protection racket arranged.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-air",
+      "name": "Hushwings",
+      "captain": "Nell No-Air",
+      "look": "Translucent moths wearing masks full of stolen breaths",
+      "move": "Vacuum a telegraphed corridor to disrupt ranged attacks",
+      "counter": "Open its vent or change lanes",
+      "story": "Nell saves a breath for trapped civilians behind Skyline's back.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-earth",
+      "name": "Warren Wreckers",
+      "captain": "Foreman Thumpkin",
+      "look": "Diamond-toothed bunny people with hard hats and chalked tunnel maps",
+      "move": "Burrow and surface from a visibly disturbed tile behind cover",
+      "counter": "Seal or avoid the dirt-ring emergence point",
+      "story": "Thumpkin demands union escape tunnels from Cornerstone and organizes the picnic-plaza ambush.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-water",
+      "name": "Drytap Octopi",
+      "captain": "Deputy Plink",
+      "look": "Brass faucet octopuses with spinning water meters",
+      "move": "Siphon a marked wet tile and leave slick ground",
+      "counter": "Operate the red shutoff valve",
+      "story": "Plink quietly keeps emergency water flowing to households Tidewarden threatens.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-discipline",
+      "name": "Ninety-Seconders",
+      "captain": "Ticky Tuesday",
+      "look": "Stopwatch heads on roller skates with minute-hand rapiers",
+      "move": "Dash twice on the telegraphed countdown bell",
+      "counter": "Interrupt the bell or block the marked finish",
+      "story": "The Second Hand's timing sprites secretly insist on lunch breaks.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-genius",
+      "name": "Mistake Makers",
+      "captain": "Dot Matrix",
+      "look": "Paper drones folded from wrong equations with correction-fluid eyes",
+      "move": "Mark a delayed error burst on an exact set of tiles",
+      "counter": "Erase the calculation or vacate its footprint",
+      "story": "Dot hoards human doodles Eureka cannot mathematically explain.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-birthright",
+      "name": "Licensed Legends",
+      "captain": "Sir Cap-Permission",
+      "look": "Wind-up hero mascots in counterfeit velvet capes and legal badges",
+      "move": "Stamp a trademark seal disabling one signature action for a turn",
+      "counter": "Break the seal or use an unlicensed basic action",
+      "story": "Captain Valcourt's miniature enforcers secretly want to rescue people for free.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "accident-social",
+      "name": "Jinglejacks",
+      "captain": "Sponsor Moth",
+      "look": "Neon moths with billboard wings flashing sponsor jingles",
+      "move": "Link adjacent singers to extend a villain's range",
+      "counter": "Break the chain or silence the relay speaker",
+      "story": "Sponsor Moth keeps slipping charity messages into Chorus's advertisements.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-fire",
+      "name": "Redaction Wraiths",
+      "captain": "Smudge",
+      "look": "Shredded registration papers held together by glowing black embers",
+      "move": "Lay down a drifting soot curtain that blocks sightlines",
+      "counter": "Use wind or take a different firing angle",
+      "story": "Smudge secretly archives the names Ashborn wants erased.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-air",
+      "name": "Confession Crows",
+      "captain": "Inspector Grackle",
+      "look": "Monocled crows carrying stolen keys and sealed scandal envelopes",
+      "move": "Steal an objective token and flee toward a marked perch",
+      "counter": "Intercept the perch or trade an innocuous secret",
+      "story": "Grackle refuses to expose children's private correspondence for Kestrel.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-earth",
+      "name": "Tenant Bricks",
+      "captain": "Mortar Mabel",
+      "look": "Marching red bricks with miniature tenant-union banners",
+      "move": "Punch marked cover into rubble",
+      "counter": "Reposition before their scrape-and-charge windup",
+      "story": "Mabel insists Groundswell's demolition hit only the empty holdings of predatory landlords.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-water",
+      "name": "Harbor Repossessors",
+      "captain": "Captain Clack",
+      "look": "Barnacled hermit crabs wearing shipping containers as shells",
+      "move": "Throw a telegraphed anchor cable that roots a shore target",
+      "counter": "Sever the cable or leave the shoreline",
+      "story": "Clack enforces Harbormaster's docking tolls but shelters displaced fishers.",
+      "facetType": "SPECIES",
+      "hp": 1
+    }
+  ]
+}

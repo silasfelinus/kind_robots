@@ -36,7 +36,7 @@
           v-for="item in rooms"
           :key="item.id"
           type="button"
-          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
           :class="{
             'border-[#f8d681] bg-[#786537]/45 text-white shadow-[inset_0_0_12px_#e7c777]':
               progress?.current === item.id,

@@ -339,18 +339,52 @@ assert.deepEqual(
 assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
-assert.equal(CHARACTER_ROSTER.length, 50)
+assert.equal(CHARACTER_ROSTER.length, 49)
 assert.equal(
   new Set(CHARACTER_ROSTER.map((person) => person.realName)).size,
-  50,
+  49,
 )
 assert.equal(
   new Set(CHARACTER_ROSTER.map((person) => person.backstory)).size,
-  50,
+  49,
 )
 assert.equal(GUEST_IDENTITIES[0].realName, 'Zuzu')
 assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
+assert.equal(GUEST_IDENTITIES[0].student.alias, 'Zuzu, Koala Assassin')
+assert.equal(GUEST_IDENTITIES[0].villain.alias, 'Zuzu, Koala Assassin')
+assert.equal(CHARACTER_ROSTER.filter((person) => person.realName === 'Zuzu').length, 1)
+for (const [signature, realName, alias] of [
+  ['tech-genius', 'Dr. Lionel Marsh', 'Dr. Frog'],
+  ['magic-earth', 'Mavis Mayhew', 'Granny Mayhem'],
+  ['alien-discipline', 'Zuzu', 'Zuzu, Koala Assassin'],
+] as const) {
+  const persona = identityFor(signature)
+  assert.equal(persona.realName, realName)
+  assert.equal(persona.hero.alias, alias)
+  assert.equal(persona.student.alias, alias)
+  assert.equal(persona.villain.alias, alias)
+  assert.ok(persona.quests.protagonist.length > 100)
+  assert.ok(persona.quests.antagonist.length > 100)
+  assert.ok(persona.quests.partner.length > 100)
+  assert.ok(persona.hero.method !== persona.villain.method)
+  const paintings = (['student', 'hero', 'villain'] as const).map(
+    (role) => PROM_ART_PROMPTS[`identities/${signature}/${role}`],
+  )
+  assert.ok(paintings.every((prompt) => prompt && prompt.length > 200))
+  assert.equal(new Set(paintings).size, 3)
+  for (const text of paintings) assert.ok(text.includes(realName.split(' ')[0]!))
+}
+assert.ok(identityFor('tech-genius').student.conflict.includes('human'))
+assert.ok(identityFor('tech-genius').hero.method.includes('human'))
+assert.ok(identityFor('tech-genius').villain.method.includes('humanoid frog'))
+assert.ok(
+  PROM_ART_PROMPTS['identities/tech-genius/villain']?.includes('humanoid frog'),
+)
+assert.ok(
+  PROM_ART_PROMPTS['identities/tech-genius/student']?.includes('still entirely human'),
+)
+
 assert.equal(GUEST_IDENTITIES[1].realName, TESS_CREW_SOURCE.name)
 assert.equal(GUEST_IDENTITIES[1].pronouns, TESS_CREW_SOURCE.pronouns)
 assert.equal(GUEST_IDENTITIES[1].source, 'Space Couch')

@@ -1144,10 +1144,10 @@
         "alias": "Dr. Frog",
         "focus": "gadgeteer",
         "stats": {
-          "might": 2,
-          "speed": 4,
+          "might": 1,
+          "speed": 3,
           "smarts": 5,
-          "heart": 3,
+          "heart": 2,
           "control": 2,
           "grit": 2
         },
@@ -1157,10 +1157,10 @@
         "alias": "Dr. Frog",
         "focus": "rescue specialist",
         "stats": {
-          "might": 3,
-          "speed": 5,
+          "might": 2,
+          "speed": 4,
           "smarts": 5,
-          "heart": 4,
+          "heart": 3,
           "control": 4,
           "grit": 3
         },
@@ -1171,7 +1171,7 @@
         "focus": "mutagen architect",
         "stats": {
           "might": 4,
-          "speed": 5,
+          "speed": 4,
           "smarts": 5,
           "heart": 1,
           "control": 3,
@@ -1414,12 +1414,12 @@
         "alias": "Granny Mayhem",
         "focus": "chaos guardian",
         "stats": {
-          "might": 4,
-          "speed": 2,
-          "smarts": 4,
-          "heart": 5,
-          "control": 2,
-          "grit": 5
+          "might": 3,
+          "speed": 1,
+          "smarts": 2,
+          "heart": 4,
+          "control": 3,
+          "grit": 2
         },
         "conflict": "At seventy-two she refuses to be treated as a quaint mascot. Her knitted rune shawl accidentally gives furniture legs, and the dean keeps trying to put her in the staff photograph rather than the student roster."
       },
@@ -1427,12 +1427,12 @@
         "alias": "Granny Mayhem",
         "focus": "neighborhood powerhouse",
         "stats": {
-          "might": 5,
-          "speed": 3,
-          "smarts": 4,
+          "might": 4,
+          "speed": 2,
+          "smarts": 3,
           "heart": 5,
           "control": 4,
-          "grit": 5
+          "grit": 4
         },
         "method": "Knits instant earthquake shelters, orders sidewalks to carry stranded neighbors, and launches an armored yellow school bus into impossible rescues, all while scolding the city's profiteers."
       },
@@ -1440,9 +1440,9 @@
         "alias": "Granny Mayhem",
         "focus": "urban witch queen",
         "stats": {
-          "might": 5,
-          "speed": 3,
-          "smarts": 5,
+          "might": 4,
+          "speed": 2,
+          "smarts": 4,
           "heart": 2,
           "control": 5,
           "grit": 5
@@ -1954,12 +1954,12 @@
         "alias": "Zuzu, Koala Assassin",
         "focus": "precision trickster",
         "stats": {
-          "might": 5,
-          "speed": 5,
-          "smarts": 3,
-          "heart": 3,
-          "control": 4,
-          "grit": 3
+          "might": 4,
+          "speed": 4,
+          "smarts": 2,
+          "heart": 2,
+          "control": 2,
+          "grit": 1
         },
         "conflict": "The academy assigns him a desk twice his height and a locker he cannot reach without climbing. His battered desert duster, absurdly sharp katana and stubborn refusal to explain his guild oath frighten administrators more than his small fluffy silhouette."
       },
@@ -1969,10 +1969,10 @@
         "stats": {
           "might": 3,
           "speed": 5,
-          "smarts": 4,
-          "heart": 4,
-          "control": 5,
-          "grit": 4
+          "smarts": 3,
+          "heart": 3,
+          "control": 4,
+          "grit": 3
         },
         "method": "Vaults between drones and neon signs, cuts capture nets without touching the people inside, and uses precise sword work to sabotage extradimensional death warrants instead of carrying them out."
       },
@@ -1981,10 +1981,10 @@
         "focus": "portal executioner",
         "stats": {
           "might": 4,
-          "speed": 5,
-          "smarts": 4,
+          "speed": 4,
+          "smarts": 3,
           "heart": 1,
-          "control": 5,
+          "control": 4,
           "grit": 5
         },
         "method": "Wears a black clockwork exosuit and a halo of stolen portal keys; the same small koala silhouette now steps between seconds to hunt witnesses named by his revived assassin guild."

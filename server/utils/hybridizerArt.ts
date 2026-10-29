@@ -2,7 +2,7 @@ import { starterForIdentity } from './hybridizerFusion'
 
 export const HYBRIDIZER_ART_STEPS = 8
 export const HYBRIDIZER_ART_SIZE = 1024
-export const HYBRIDIZER_ART_PRIORITY = 20
+export const HYBRIDIZER_ART_PRIORITY = 100
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
 

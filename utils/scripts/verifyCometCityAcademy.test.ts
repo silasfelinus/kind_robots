@@ -30,6 +30,7 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import { PATROL_ZONES, PATROL_SECRETS, patrolSceneFor, PATROL_SCENE_COUNT } from '../cometAcademy/nightPatrols'
 import {
   SOCIAL_CAST,
   SOCIAL_DAYS,
@@ -117,6 +118,8 @@ import {
   ENCOUNTERS,
   assignTeam,
   assignPlayerCase,
+  chooseNightPatrol,
+  patrolOptionsFor,
   planThirdNight,
   nightPatrolBeat,
   openingNightFriend,
@@ -1875,6 +1878,9 @@ assert.ok(page.includes('data-testid="academy-dispatch"'))
 assert.ok(page.includes('data-testid="academy-personal-story-progress"'))
 assert.ok(page.includes('data-testid="academy-personal-identity-chapter"'))
 assert.ok(page.includes('data-testid="academy-quest-poster-row"'))
+assert.ok(page.includes('data-testid="academy-night-district-patrol"'))
+assert.ok(page.includes('data-testid="academy-night-patrol-choice"'))
+assert.ok(store.includes('chooseNightPatrol'))
 assert.ok(page.includes('data-testid="academy-quest-odds"'))
 assert.ok(page.includes('data-testid="academy-special-mission-route"'))
 assert.ok(page.includes('data-testid="academy-contact-encounter"'))
@@ -2057,6 +2063,77 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
         .length,
   )
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(focus))))
+}
+
+// District night patrol is a real alternative to the dispatch board.
+assert.equal(PATROL_ZONES.length, 4)
+assert.equal(PATROL_SCENE_COUNT, 12)
+const patrolTitles = new Set<string>()
+const patrolChoices = new Set<string>()
+for (const zone of PATROL_ZONES) {
+  assert.ok(CITY_SITES.some((site) => site.id === zone.siteId))
+  for (const day of [4, 5, 6]) {
+    const scene = patrolSceneFor(71, day, zone.id)
+    assert.ok(scene.scene.length > 135)
+    patrolTitles.add(scene.title)
+    for (const option of scene.choices) {
+      assert.ok(option.label.length > 24)
+      assert.ok(option.result.length > 110)
+      assert.ok(!patrolChoices.has(option.id))
+      patrolChoices.add(option.id)
+    }
+  }
+}
+assert.equal(patrolTitles.size, 12)
+assert.equal(patrolChoices.size, 24)
+{
+  const dayFour: AcademyRun = {
+    ...startFullAcademy('kinetic', 71),
+    day: 4,
+    phase: 'dispatch',
+  }
+  assert.equal(dayFour.contacts?.length, 0)
+  const zone = PATROL_ZONES[0]!
+  const scene = patrolSceneFor(dayFour.seed, dayFour.day, zone.id)
+  assert.equal(patrolOptionsFor(dayFour, zone.id).length, 2)
+  assert.equal(chooseNightPatrol(dayFour, zone.id, 'nonsense'), dayFour)
+  assert.equal(chooseNightPatrol({ ...dayFour, day: 3 }, zone.id, scene.choices[0]!.id).nightPatrol, undefined)
+  const chosen = chooseNightPatrol(dayFour, zone.id, scene.choices[0]!.id)
+  assert.equal(chosen.nightPatrol?.zone, zone.id)
+  assert.equal(chosen.playerCaseId, null)
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(chosen))))
+  assert.equal(restoreAcademy({ ...chosen, nightPatrol: { ...chosen.nightPatrol!, choiceId: 'unknown' } }), null)
+  const result = resolveDispatch(chosen)
+  assert.equal(result.phase, 'debrief')
+  assert.equal(result.patrolHistory?.length, 1)
+  assert.equal(result.reports.filter((entry) => entry.caseId.startsWith('patrol-')).length, 1)
+  assert.ok(result.reports.some((entry) => entry.text === scene.choices[0]!.result))
+  assert.equal(result.academyStanding, scene.choices[0]!.standing)
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(result))))
+  assert.equal(restoreAcademy({ ...result, patrolHistory: [{ day: 4, zone: 'academy', encounterId: 'invented', choiceId: scene.choices[0]!.id }] }), null)
+  const morning = nextSchoolDay(result)
+  assert.equal(morning.day, 5)
+  assert.ok(morning.scene.includes('overnight decision'))
+  const secretUnclaimed = patrolOptionsFor(morning, zone.id)
+  assert.equal(secretUnclaimed.length, 2)
+  const trusted = { ...morning, contacts: ['kit' as StudentId], phase: 'dispatch' as const }
+  assert.equal(patrolOptionsFor(trusted, zone.id).length, 3)
+  const secret = PATROL_SECRETS[zone.id].choice
+  const hidden = chooseNightPatrol(trusted, zone.id, secret.id)
+  assert.equal(hidden.nightPatrol?.choiceId, secret.id)
+  const solved = resolveDispatch(hidden)
+  assert.ok(solved.reports.some((report) => report.caseId.startsWith('patrol-') && report.grade === 'honors'))
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(solved))))
+  const rerouted = assignPlayerCase(hidden, incidentsFor(hidden)[0]!.id)
+  assert.equal(rerouted.nightPatrol, null, 'taking a named emergency cancels district patrol')
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(rerouted))))
+  for (const other of PATROL_ZONES.slice(1)) {
+    const otherScene = patrolSceneFor(dayFour.seed, dayFour.day, other.id)
+    const outing = resolveDispatch(chooseNightPatrol(dayFour, other.id, otherScene.choices[1]!.id))
+    assert.ok(outing.reports.some((report) => report.caseId.startsWith('patrol-')))
+    assert.equal(outing.cityStanding, otherScene.choices[1]!.standing)
+  }
+  assert.ok(nightPatrolBeat({ ...morning, phase: 'dispatch' })?.text.includes('Last night'))
 }
 
 // Untouched thirty-day runs that go back to old haunts. `honest` exposes every

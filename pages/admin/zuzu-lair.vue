@@ -1,36 +1,42 @@
 <template>
-  <main class="kr-surface">
-    <div class="kr-scroll kr-container max-w-5xl space-y-3 p-2 sm:p-4">
+  <main class="kr-surface lair-root">
+    <div class="lair-console kr-scroll">
       <div
         ref="stageEl"
         class="lair-stage relative mx-auto w-full overflow-hidden rounded-2xl bg-black"
         :class="`lair-${nodeKind}`"
         data-testid="lair-stage"
       >
-        <!-- Placeholder still with Ken Burns motion until real clips exist. -->
-        <div :key="run.node" class="lair-still absolute inset-0">
-          <p class="lair-still-label">{{ nodeLabel }}</p>
-        </div>
+        <zuzu-lair-stage
+          :key="run.node + ':' + sceneVersion"
+          :scene-id="run.node"
+          :window-open="windowOpen"
+          :show-cue="flashOn"
+          data-testid="lair-animation"
+        />
         <video
-          v-for="n in 2"
-          :key="n"
-          :ref="(el) => (videos[n - 1] = el as HTMLVideoElement | null)"
-          class="absolute inset-0 h-full w-full object-cover transition-opacity"
-          :class="
-            activeVideo === n - 1 && videoReady ? 'opacity-100' : 'opacity-0'
-          "
+          ref="videoEl"
+          class="absolute inset-0 h-full w-full object-contain transition-opacity"
+          :class="videoReady ? 'opacity-100' : 'opacity-0'"
           playsinline
           muted
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
-          @loadeddata="onVideoReady(n - 1)"
-          @error="onVideoError(n - 1)"
+          @loadeddata="videoReady = true"
+          @error="videoReady = false"
         />
 
         <!-- Title card -->
         <div v-if="phase === 'title'" class="lair-overlay">
           <p class="lair-title">Zuzu's Lair</p>
-          <p class="text-sm opacity-80">{{ CHAPTER_1.title }}</p>
+          <p class="text-sm opacity-80">{{ chapter.title }}</p>
+          <p class="max-w-sm text-sm opacity-90">
+            {{
+              selectedChapter === 'bats'
+                ? 'A playable animated encounter. Duck as the swarm arrives, or face the bats.'
+                : 'The full Dry Gulch storyboard. Its generated film clips are still pending.'
+            }}
+          </p>
           <div class="flex flex-wrap justify-center gap-2">
             <button
               type="button"
@@ -38,14 +44,32 @@
               data-testid="lair-start"
               @click="begin"
             >
-              Start
+              {{
+                selectedChapter === 'bats'
+                  ? 'Enter the corridor'
+                  : 'Explore Dry Gulch'
+              }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost border border-amber-500/40"
+              data-testid="lair-chapter-switch"
+              @click="
+                selectChapter(selectedChapter === 'bats' ? 'gulch' : 'bats')
+              "
+            >
+              {{
+                selectedChapter === 'bats'
+                  ? 'Dry Gulch storyboard'
+                  : 'Play bat corridor'
+              }}
             </button>
           </div>
         </div>
 
         <!-- Input hint: the needed direction glows during the window -->
         <div
-          v-if="phase === 'play' && windowOpen"
+          v-if="phase === 'play' && windowOpen && flashOn"
           class="lair-hint"
           :class="{ 'lair-hint-lit': hintOn }"
           data-testid="lair-hint"
@@ -54,6 +78,21 @@
           <span aria-hidden="true">{{ hintGlyph }}</span>
           <span class="sr-only">Press {{ hintName }} now</span>
         </div>
+
+        <button
+          v-if="
+            phase === 'play' &&
+            selectedChapter === 'bats' &&
+            run.node === 'bat-horde' &&
+            !showButtons
+          "
+          type="button"
+          class="lair-duck-button"
+          data-testid="lair-duck-button"
+          @pointerdown.prevent="press('down')"
+        >
+          ↓ Duck
+        </button>
 
         <!-- Game over -->
         <div
@@ -73,7 +112,13 @@
 
         <!-- Finish: score, initials, board -->
         <div v-if="phase === 'end'" class="lair-overlay lair-end">
-          <p class="lair-title">Chapter clear</p>
+          <p class="lair-title">
+            {{
+              selectedChapter === 'bats'
+                ? 'The bats are behind you!'
+                : 'Chapter clear'
+            }}
+          </p>
           <p class="text-lg font-bold" data-testid="lair-score">
             {{ run.score.toLocaleString() }} pts
           </p>
@@ -81,8 +126,12 @@
             No-death bonus {{ run.bonus.noDeath }} · time bonus
             {{ run.bonus.time }}
           </p>
+          <p v-if="selectedChapter === 'bats'" class="text-sm">
+            You made it through the corridor. Try the wrong direction to see the
+            other outcome.
+          </p>
           <form
-            v-if="!submitted"
+            v-if="selectedChapter === 'gulch' && !submitted"
             class="flex items-center gap-2"
             @submit.prevent="submit"
           >
@@ -108,7 +157,11 @@
               Skip
             </button>
           </form>
-          <ol class="lair-board" aria-label="Zuzu's Lair high scores">
+          <ol
+            v-if="selectedChapter === 'gulch'"
+            class="lair-board"
+            aria-label="Zuzu's Lair high scores"
+          >
             <li v-for="row in boardRows" :key="row.id">
               <span class="font-mono">{{ row.initials }}</span>
               <span>{{ row.score.toLocaleString() }}</span>
@@ -200,8 +253,9 @@
           Sound
         </label>
         <p class="kr-text-dim-sm w-full">
-          Arrows or WASD, Space for the sword. Clips are coming; until then each
-          moment is a placeholder still.
+          Arrows or WASD, Space for the sword. Bat Corridor is a playable
+          animated proof of concept; Dry Gulch film renders are not yet
+          connected.
         </p>
       </section>
     </div>
@@ -219,6 +273,7 @@ import {
   watch,
 } from 'vue'
 import { CHAPTER_1 } from '~/utils/zuzuLair/chapter1'
+import { BAT_CORRIDOR } from '~/utils/zuzuLair/batCorridor'
 import {
   lairReducer,
   nodeById,
@@ -243,7 +298,7 @@ import { useZuzuLairStore } from '~/stores/zuzuLairStore'
 useHead({ title: "Zuzu's Lair" })
 
 const GAME = 'zuzu-lair'
-const CLIP_BASE = '/zuzu-lair/ch1'
+const READY_CLIPS: Record<string, string> = {}
 const PAD: Array<{
   button: LairButton
   glyph: string
@@ -281,10 +336,14 @@ const store = useZuzuLairStore()
 const arcade = useArcadeStore()
 
 const phase = ref<'title' | 'play' | 'end'>('title')
-const run = shallowRef<LairRun>(startRun(CHAPTER_1, 'assist'))
+const sceneVersion = ref(0)
+const selectedChapter = ref<'bats' | 'gulch'>('bats')
+const chapter = computed(() =>
+  selectedChapter.value === 'bats' ? BAT_CORRIDOR : CHAPTER_1,
+)
+const run = shallowRef<LairRun>(startRun(BAT_CORRIDOR, 'assist'))
 const stageEl = ref<HTMLElement | null>(null)
-const videos: Array<HTMLVideoElement | null> = [null, null]
-const activeVideo = ref(0)
+const videoEl = ref<HTMLVideoElement | null>(null)
 const videoReady = ref(false)
 const initials = ref('')
 const submitted = ref(false)
@@ -296,14 +355,13 @@ let raf = 0
 let last = 0
 let padHeld: Partial<Record<LairButton, boolean>> = {}
 
-const node = computed(() => nodeById(CHAPTER_1, run.value.node))
+const node = computed(() => nodeById(run.value.chapter, run.value.node))
 const nodeKind = computed(() => node.value.kind)
-const nodeLabel = computed(() => node.value.id.replace(/-/g, ' '))
 const flashOn = computed(() => flashEnabled(store.difficulty, store.flash))
 const showButtons = computed(() => store.buttons ?? coarse.value)
 const windowRange = computed(() =>
   node.value.kind === 'moment'
-    ? windowFor(CHAPTER_1, node.value, run.value.difficulty)
+    ? windowFor(run.value.chapter, node.value, run.value.difficulty)
     : null,
 )
 const windowOpen = computed(() => {
@@ -327,7 +385,7 @@ function dispatch(action: LairAction) {
   run.value = after
   if (after.node !== before.node) onNode(before, after)
   if (after.phase === 'complete' && before.phase !== 'complete') {
-    awardChapter(after)
+    if (selectedChapter.value === 'gulch') awardChapter(after)
     finish()
   }
 }
@@ -342,40 +400,35 @@ function awardChapter(after: LairRun) {
 }
 
 function onNode(before: LairRun, after: LairRun) {
-  const kind = nodeById(CHAPTER_1, after.node).kind
+  const kind = nodeById(after.chapter, after.node).kind
   if (kind === 'success') sound?.play('zuzuSuccess')
   else if (kind === 'death') sound?.play('zuzuDeath')
   playClip(after.node)
-  preloadNext(after.node)
   void before
 }
 
-function clipUrl(id: string) {
-  return `${CLIP_BASE}/${id}.mp4`
-}
-
+/**
+ * No chapter MP4 is bundled or published yet. Opt in each verified, playable
+ * URL here only after the production/art-delivery gate clears it.
+ * Missing clips must never cause an empty stage or a speculative 404.
+ */
 function playClip(id: string) {
-  const el = videos[activeVideo.value]
-  if (!el) return
+  const el = videoEl.value
   videoReady.value = false
-  el.src = clipUrl(id)
+  if (!el) return
+  el.pause()
+  const url = READY_CLIPS[id]
+  if (!url) {
+    el.removeAttribute('src')
+    el.load()
+    return
+  }
+  el.src = url
   el.currentTime = 0
   el.muted = store.muted
-  void el.play().catch(() => {})
-}
-
-function preloadNext(id: string) {
-  const n = nodeById(CHAPTER_1, id)
-  const target = n.kind === 'moment' ? n.success : (n.next ?? n.retry)
-  const other = videos[1 - activeVideo.value]
-  if (other && target) other.src = clipUrl(target)
-}
-
-function onVideoReady(i: number) {
-  if (i === activeVideo.value) videoReady.value = true
-}
-function onVideoError(i: number) {
-  if (i === activeVideo.value) videoReady.value = false
+  void el.play().catch(() => {
+    videoReady.value = false
+  })
 }
 
 function frame(now: number) {
@@ -421,24 +474,23 @@ function onKey(event: KeyboardEvent) {
 
 function begin() {
   sound?.unlock()
-  run.value = startRun(CHAPTER_1, store.difficulty)
+  sceneVersion.value++
+  run.value = startRun(chapter.value, store.difficulty)
   submitted.value = false
   phase.value = 'play'
   setGamePageLock(true)
   playClip(run.value.node)
-  preloadNext(run.value.node)
 }
 
 function continueRun() {
   dispatch({ type: 'continue' })
-  playClip(run.value.node)
 }
 
 function finish() {
   phase.value = 'end'
   setGamePageLock(false)
   initials.value = arcade.savedInitials || ''
-  void arcade.fetchBoard(GAME, 'all')
+  if (selectedChapter.value === 'gulch') void arcade.fetchBoard(GAME, 'all')
 }
 
 async function submit() {
@@ -456,18 +508,26 @@ async function submit() {
 
 function toTitle() {
   phase.value = 'title'
-  run.value = startRun(CHAPTER_1, store.difficulty)
+  run.value = startRun(chapter.value, store.difficulty)
+  videoReady.value = false
+}
+
+function selectChapter(value: 'bats' | 'gulch') {
+  selectedChapter.value = value
+  run.value = startRun(chapter.value, store.difficulty)
+  videoReady.value = false
 }
 
 function onSound(on: boolean) {
   store.setMuted(!on)
   sound?.setMuted(!on)
+  if (videoEl.value) videoEl.value.muted = !on
 }
 
 watch(
   () => store.difficulty,
   (d) => {
-    if (phase.value !== 'play') run.value = startRun(CHAPTER_1, d)
+    if (phase.value !== 'play') run.value = startRun(chapter.value, d)
   },
 )
 
@@ -478,7 +538,7 @@ onMounted(async () => {
   )
   coarse.value = window.matchMedia('(pointer: coarse)').matches
   reduced.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  run.value = startRun(CHAPTER_1, store.difficulty)
+  run.value = startRun(chapter.value, store.difficulty)
   sound = createArcadeSound(store.muted)
   window.addEventListener('keydown', onKey)
   last = performance.now()
@@ -495,61 +555,56 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.lair-root {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.lair-console {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  gap: 0.55rem;
+  padding: 0.4rem;
+}
 .lair-stage {
+  flex: 1 1 auto;
+  min-height: 10rem;
+  width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 70vh;
   touch-action: none;
+  background: #100e15;
 }
-.lair-still {
-  display: grid;
-  place-items: end start;
-  padding: 0.75rem 1rem;
-  background:
-    radial-gradient(circle at 70% 30%, #c2410c55, transparent 55%),
-    linear-gradient(160deg, #1c1917, #431407 60%, #0c0a09);
-  animation: lair-kenburns 6s ease-in-out forwards;
+.lair-duck-button {
+  position: absolute;
+  z-index: 4;
+  bottom: 1rem;
+  right: 1rem;
+  border: 2px solid #ffb65b;
+  border-radius: 1rem;
+  padding: 0.65rem 1rem;
+  background: #311b1bdf;
+  color: #ffe3ae;
+  font-size: 1.2rem;
+  font-weight: 900;
 }
-.lair-death .lair-still {
-  background:
-    radial-gradient(circle at 50% 50%, #7f1d1d99, transparent 60%),
-    linear-gradient(160deg, #1c1917, #450a0a);
-}
-.lair-success .lair-still {
-  background:
-    radial-gradient(circle at 50% 40%, #ca8a0455, transparent 60%),
-    linear-gradient(160deg, #1c1917, #422006);
-}
-.lair-still-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #fed7aa;
-  opacity: 0.7;
-}
-@keyframes lair-kenburns {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.08) translate(-1%, -1%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lair-still {
-    animation: none;
-  }
+.lair-duck-button:focus-visible {
+  outline: 3px solid white;
 }
 .lair-overlay {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0.75rem;
-  background: #000000b3;
+  background: linear-gradient(90deg, #130e19f2, #150e1bba 45%, #150e1b40);
   color: #fff7ed;
-  text-align: center;
+  text-align: left;
   padding: 1rem;
 }
 .lair-title {
@@ -560,10 +615,11 @@ onBeforeUnmount(() => {
 }
 .lair-hint {
   position: absolute;
-  inset: 0;
+  top: 12%;
+  right: 13%;
   display: grid;
   place-items: center;
-  font-size: clamp(3rem, 14vw, 7rem);
+  font-size: clamp(2rem, 8vw, 5rem);
   color: #fed7aa;
   opacity: 0.35;
   pointer-events: none;
@@ -602,8 +658,8 @@ onBeforeUnmount(() => {
 }
 .lair-pad {
   display: grid;
-  grid-template-columns: repeat(4, 4.5rem);
-  grid-template-rows: repeat(3, 4.5rem);
+  grid-template-columns: repeat(4, clamp(2.5rem, 6vh, 3.8rem));
+  grid-template-rows: repeat(3, clamp(2.5rem, 6vh, 3.8rem));
   gap: 0.35rem;
   width: max-content;
   touch-action: none;
@@ -613,7 +669,7 @@ onBeforeUnmount(() => {
   border-radius: 9999px;
   background: #292524;
   color: #fed7aa;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   border: 2px solid #fb923c;
 }
 .lair-pad-btn:active {

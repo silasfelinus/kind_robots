@@ -1,5 +1,36 @@
 import assert from 'node:assert/strict'
+import { grantMemoryRewardOnce } from '../memoryDungeon/encounterRewards'
+import { minefieldRewardKey } from '../memoryDungeon/minefieldRun'
+import {
+  DARK_BRIAR_WAVES,
+  DARK_BRIAR_SCENES,
+  darkBriarWitnessCount,
+  newDarkBriarProgress,
+  restoreDarkBriarProgress,
+  recoverDarkBriarTurn,
+} from '../memoryDungeon/darkBriar'
+import { settleDarkBriarReturn } from '../memoryDungeon/darkBriarReturn'
+import {
+  DARK_HOUSE_ROOMS,
+  newDarkHouseProgress,
+} from '../memoryDungeon/darkHouse'
+import {
+  HOUSE_ATLAS_PATHS,
+  HOUSE_ATLAS_ROOM_IDS,
+  HOUSE_ATLAS_SIZE,
+} from '../memoryDungeon/houseAtlas'
+import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
+import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
+import {
+  MEMORY_SAVE_SLOT_COUNT,
+  memoryCheckpointPreview,
+  restoreMemoryCheckpoint,
+  restoreMemorySaveSlots,
+  writeMemorySaveSlot,
+  type MemoryCheckpoint,
+} from '../memoryDungeon/saveSlots'
 import { readFileSync } from 'node:fs'
+import { startCombatRoom } from '../memoryDungeon/rooms'
 import {
   DEFAULT_DUNGEON_DECK,
   DESIGNED_DUNGEON_ART,
@@ -15,6 +46,7 @@ import {
   BRIAR_REVEAL_WAVES,
   BRIAR_WAVE_SIZES,
   createBriarWaveCards,
+  recoverBriarWaveTurn,
   validateBriarWaves,
 } from '../memoryDungeonWaves'
 
@@ -26,6 +58,8 @@ import {
 
 import {
   EARTH_PHOTOS,
+  earthPhotoReappraisal,
+  earthPhotoReappraisals,
   firstWorldPhotoChronicle,
   newEarthChronicle,
   recoveredEarthPhotos,
@@ -37,6 +71,7 @@ import {
 import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
+  type HouseRoomId,
   HOUSE_EXIT_POINTS,
   houseExits,
   houseWitnessEvidence,
@@ -55,8 +90,12 @@ import {
   briarTileProgress,
   newBriarSave,
   restoreBriarSave,
+  recoverBriarCombatDefeat,
+  recoverBriarRoomMissPenalty,
+  recoverBriarRoomFirstFlip,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
+import { briarLossContinuation } from '../memoryDungeon/lossContinuations'
 import {
   BRIAR_SCENES,
   briarSceneOpening,
@@ -150,14 +189,39 @@ assert.equal(
   ),
   true,
 )
+// Build legitimate save fixtures from the authored passages, not a list of
+// disconnected rooms that would require teleportation.
+const housePaths = new Map<HouseRoomId, HouseRoomId[]>([
+  [HOUSE_ENTRY, [HOUSE_ENTRY]],
+])
+const houseRouteQueue: HouseRoomId[] = [HOUSE_ENTRY]
+for (let i = 0; i < houseRouteQueue.length; i++) {
+  const room = houseRouteQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (housePaths.has(next)) continue
+    housePaths.set(next, [...housePaths.get(room)!, next])
+    houseRouteQueue.push(next)
+  }
+}
+const visitedHouseRoutes = (...rooms: HouseRoomId[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>([HOUSE_ENTRY])
+  for (const room of rooms) {
+    const path = housePaths.get(room)
+    assert.ok(path, `Authored House route to ${room} exists`)
+    for (const step of path) visited.add(step)
+  }
+  return [...visited]
+}
+
 const houseSave = restoreBriarSave({
   ...newBriarSave(),
   room: 'house',
   house: {
     ...newHouseProgress(),
     current: 'HD-18',
-    visited: ['HD-01', 'HD-18'],
+    visited: visitedHouseRoutes('HD-03', 'HD-04', 'HD-18', 'HD-35'),
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
+    wardenPassed: true,
     ending: 'release',
   },
 })
@@ -170,6 +234,86 @@ assert.equal(
   false,
   'Ending choice does not grant unlimited rewards',
 )
+
+// Saved House decisions are earned only at rooms the traveller visited.
+// Otherwise a syntactically valid forged choice could create witness evidence,
+// shortcut permissions or an unearned Hearth ending on checkpoint restoration.
+const unvisitedHouseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-09',
+    visited: visitedHouseRoutes('HD-09'),
+    decisions: {
+      'HD-10': 'manifest',
+      'HD-17': 'read',
+      'HD-35': 'renew',
+    },
+    ending: 'renew',
+    endingLens: 'honesty',
+    wardenPassed: true,
+    combatOrigin: 'HD-32',
+    chimeClaimed: true,
+  },
+})
+assert.deepEqual(unvisitedHouseSave.house?.decisions, {})
+assert.equal(unvisitedHouseSave.house?.ending, null)
+assert.equal(unvisitedHouseSave.house?.endingLens, null)
+assert.equal(unvisitedHouseSave.house?.wardenPassed, false)
+assert.equal(unvisitedHouseSave.house?.combatOrigin, null)
+assert.equal(unvisitedHouseSave.house?.chimeClaimed, false)
+assert.equal(houseWitnessEvidence(unvisitedHouseSave.house!, {}), false)
+assert.ok(
+  !houseExits('HD-25', unvisitedHouseSave.house!).includes('HD-10'),
+  'An unvisited manifest cannot create the House shortcut',
+)
+
+const earnedHouseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-36',
+    visited: visitedHouseRoutes('HD-10', 'HD-17', 'HD-32', 'HD-35', 'HD-36'),
+    decisions: {
+      'HD-10': 'manifest',
+      'HD-17': 'read',
+      'HD-35': 'renew',
+      'HD-36': 'carry',
+    },
+    ending: 'renew',
+    endingLens: 'honesty',
+    wardenPassed: true,
+    chimeClaimed: true,
+  },
+})
+assert.equal(earnedHouseSave.house?.decisions['HD-10'], 'manifest')
+assert.equal(earnedHouseSave.house?.decisions['HD-17'], 'read')
+assert.equal(earnedHouseSave.house?.ending, 'renew')
+assert.equal(earnedHouseSave.house?.endingLens, 'honesty')
+assert.equal(earnedHouseSave.house?.wardenPassed, true)
+assert.equal(earnedHouseSave.house?.chimeClaimed, true)
+assert.equal(houseWitnessEvidence(earnedHouseSave.house!, {}), true)
+assert.ok(houseExits('HD-25', earnedHouseSave.house!).includes('HD-10'))
+assert.deepEqual(
+  restoreBriarSave(JSON.parse(JSON.stringify(earnedHouseSave))).house,
+  earnedHouseSave.house,
+  'Earned House decisions and rewards survive repeated restoration',
+)
+const mismatchedHearth = restoreBriarSave({
+  ...newBriarSave(),
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-35',
+    visited: visitedHouseRoutes('HD-35'),
+    decisions: { 'HD-35': 'release' },
+    ending: 'break',
+    endingLens: 'honesty',
+  },
+})
+assert.equal(mismatchedHearth.house?.ending, null)
+assert.equal(mismatchedHearth.house?.endingLens, null)
 for (const id of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32']) {
   const source = HOUSE_ROOMS[id]!
   assert.ok(
@@ -191,6 +335,8 @@ assert.deepEqual(
   firstWorldPhotoChronicle(
     restoreBriarSave({
       ...newBriarSave(),
+      revealed: ['2,5', '8,6'],
+      visited: ['2,5', '8,6'],
       sceneChoices: { '8,6': 'record', '2,5': 'archive' },
     }).sceneChoices,
   ).map((photo) => photo.key),
@@ -210,9 +356,57 @@ assert.deepEqual(
     ['e02', '5,4'],
   ],
 )
+const playablePhotoScenes = [
+  { reality: 'e01' as const, site: '2,5', choices: ['archive', 'grieve'] },
+  { reality: 'e01' as const, site: '8,6', choices: ['record', 'promise'] },
+  { reality: 'e02' as const, site: '2,5', choices: ['question', 'preserve'] },
+  { reality: 'e02' as const, site: '5,4', choices: ['draw', 'release'] },
+]
+for (const { reality, site, choices } of playablePhotoScenes) {
+  const scene = reality === 'e01' ? BRIAR_SCENES[site] : DARK_BRIAR_SCENES[site]
+  assert.ok(scene, `Earth photo scene ${reality}/${site} must be authored`)
+  assert.match(
+    scene.opening,
+    /photograph|photo|print|apology/i,
+    `Earth photo ${reality}/${site} must be discoverable in its scene`,
+  )
+  for (const choice of choices) {
+    assert.ok(
+      scene.choices.some((option) => option.id === choice),
+      `Earth photo ${reality}/${site} must honor choice ${choice}`,
+    )
+    const scenes = { e01: {}, e02: {} } as {
+      e01: Record<string, string>
+      e02: Record<string, string>
+    }
+    scenes[reality][site] = choice
+    assert.deepEqual(
+      reconcileEarthChronicle(newEarthChronicle(), scenes).found,
+      [
+        EARTH_PHOTOS.find(
+          (photo) => photo.experience === reality && photo.site === site,
+        )!.id,
+      ],
+      `Earned photo must be granted by ${reality}/${site} choice ${choice}`,
+    )
+  }
+}
+assert.deepEqual(
+  reconcileEarthChronicle(newEarthChronicle(), {
+    e01: { '2,5': 'forged', '8,6': 'forged' },
+    e02: { '2,5': 'forged', '5,4': 'forged' },
+  }).found,
+  [],
+  'Invalid or forged scene decisions cannot mint Earth Chronicle evidence',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle({ '2,5': 'forged', '8,6': 'forged' }),
+  [],
+  'Legacy photo summaries also reject decisions absent from the authored scenes',
+)
 const recordedBackwards = reconcileEarthChronicle(newEarthChronicle(), {
   e01: { '8,6': 'record' },
-  e02: { '5,4': 'keep', '2,5': 'question' },
+  e02: { '5,4': 'draw', '2,5': 'question' },
 })
 assert.deepEqual(
   recoveredEarthPhotos(recordedBackwards).map((photo) => photo.order),
@@ -222,7 +416,7 @@ assert.deepEqual(
 assert.equal(
   reconcileEarthChronicle(recordedBackwards, {
     e01: { '8,6': 'record' },
-    e02: { '5,4': 'keep', '2,5': 'question' },
+    e02: { '5,4': 'draw', '2,5': 'question' },
   }),
   recordedBackwards,
   'Once-only photograph claims do not churn or duplicate when the same scene is replayed',
@@ -264,10 +458,30 @@ assert.deepEqual(
 // the same Earth chronology, preserve consent-based responses, and never leak
 // later-world photographs into the journal.
 const photoEvents = [
-  { reality: 'e01' as const, site: '2,5', id: 'earth-01' },
-  { reality: 'e01' as const, site: '8,6', id: 'earth-02' },
-  { reality: 'e02' as const, site: '2,5', id: 'earth-03' },
-  { reality: 'e02' as const, site: '5,4', id: 'earth-04' },
+  {
+    reality: 'e01' as const,
+    site: '2,5',
+    id: 'earth-01',
+    choice: 'archive',
+  },
+  {
+    reality: 'e01' as const,
+    site: '8,6',
+    id: 'earth-02',
+    choice: 'record',
+  },
+  {
+    reality: 'e02' as const,
+    site: '2,5',
+    id: 'earth-03',
+    choice: 'question',
+  },
+  {
+    reality: 'e02' as const,
+    site: '5,4',
+    id: 'earth-04',
+    choice: 'draw',
+  },
 ]
 function permutations<T>(items: readonly T[]): T[][] {
   if (!items.length) return [[]]
@@ -286,7 +500,7 @@ for (const sequence of permutations(photoEvents)) {
   }
   let journal = newEarthChronicle()
   for (const [i, event] of sequence.entries()) {
-    scenes[event.reality][event.site] = 'remember'
+    scenes[event.reality][event.site] = event.choice
     journal = reconcileEarthChronicle(journal, scenes)
     assert.equal(journal.found.length, i + 1)
     const response = i % 2 ? 'hold' : 'challenge'
@@ -315,6 +529,226 @@ console.log(
   'Adversarial Earth Chronicle: 24 mirrored/original discovery orders, persistent first-response semantics',
 )
 
+// The first two Earth photographs already deserve a four-way interpretation.
+// Later mirrored evidence upgrades the relevant reflection rather than
+// replacing the player's original, immutable response.
+const firstWorldReflections = new Set<string>()
+for (const first of ['challenge', 'hold'] as const) {
+  for (const second of ['challenge', 'hold'] as const) {
+    const journal = restoreEarthChronicle(
+      JSON.parse(
+        JSON.stringify({
+          version: 1,
+          found: ['earth-02', 'earth-01'],
+          responses: { 'earth-01': first, 'earth-02': second },
+        }),
+      ),
+    )
+    const initial = earthPhotoReappraisal(journal, 'earth-01')
+    assert.ok(initial)
+    assert.equal(initial.title, 'Two wounds, no verdict')
+    assert.deepEqual(earthPhotoReappraisal(journal, 'earth-02'), initial)
+    assert.match(initial.evidence, /office exit.*gathering/)
+    assert.ok(initial.reflection.length > 100)
+    firstWorldReflections.add(initial.reflection)
+    assert.equal(
+      earthPhotoReappraisal(
+        { ...journal, responses: { 'earth-01': first } },
+        'earth-02',
+      ),
+      null,
+      'Both original interpretations must be earned before reflection',
+    )
+    const mirrorUnanswered = restoreEarthChronicle({
+      ...journal,
+      found: ['earth-01', 'earth-02', 'earth-03'],
+    })
+    assert.deepEqual(
+      earthPhotoReappraisal(mirrorUnanswered, 'earth-01'),
+      initial,
+      'Discovering an unanswered mirror photo must not erase earned reflection',
+    )
+    const mirrorAnswered = restoreEarthChronicle({
+      ...mirrorUnanswered,
+      responses: { ...journal.responses, 'earth-03': 'challenge' },
+    })
+    assert.equal(
+      earthPhotoReappraisal(mirrorAnswered, 'earth-01')?.title,
+      'Two frames, one doorway',
+      'Answered mirrored evidence must take precedence for its source photo',
+    )
+    assert.deepEqual(
+      earthPhotoReappraisal(mirrorAnswered, 'earth-02'),
+      initial,
+      'The other original photo retains its reflection until its mirror is earned',
+    )
+    assert.deepEqual(
+      recoveredEarthPhotos(mirrorAnswered).map((photo) => photo.id),
+      ['earth-01', 'earth-02', 'earth-03'],
+    )
+    assert.equal(
+      respondToEarthPhoto(mirrorAnswered, 'earth-01', 'hold'),
+      mirrorAnswered,
+      'A later interpretation must never rewrite the original response',
+    )
+  }
+}
+assert.equal(firstWorldReflections.size, 4)
+
+const pairedPhotoCases = [
+  ['earth-01', 'earth-03'],
+  ['earth-02', 'earth-04'],
+] as const
+for (const [firstId, secondId] of pairedPhotoCases) {
+  const firstOnly = {
+    ...newEarthChronicle(),
+    found: [firstId],
+    responses: { [firstId]: 'hold' as const },
+  }
+  assert.equal(earthPhotoReappraisal(firstOnly, firstId), null)
+  assert.equal(earthPhotoReappraisal(firstOnly, secondId), null)
+  const unreflected = { ...firstOnly, found: [secondId, firstId] }
+  assert.equal(earthPhotoReappraisal(unreflected, firstId), null)
+  const outcomes = new Set<string>()
+  for (const firstResponse of ['challenge', 'hold'] as const) {
+    for (const secondResponse of ['challenge', 'hold'] as const) {
+      const journal = restoreEarthChronicle(
+        JSON.parse(
+          JSON.stringify({
+            version: 1,
+            found: [secondId, firstId],
+            responses: {
+              [firstId]: firstResponse,
+              [secondId]: secondResponse,
+            },
+          }),
+        ),
+      )
+      const fromFirst = earthPhotoReappraisal(journal, firstId)
+      const fromSecond = earthPhotoReappraisal(journal, secondId)
+      assert.ok(fromFirst)
+      assert.deepEqual(fromFirst, fromSecond)
+      assert.match(fromFirst.evidence, /photograph|print|gathering/i)
+      assert.ok(fromFirst.reflection.length > 80)
+      outcomes.add(fromFirst.reflection)
+      assert.equal(
+        earthPhotoReappraisal(journal, 'earth-31'),
+        null,
+        'Future photographs must not expose an early comparison',
+      )
+      assert.equal(
+        respondToEarthPhoto(
+          journal,
+          firstId,
+          firstResponse === 'hold' ? 'challenge' : 'hold',
+        ),
+        journal,
+        'Pair comparisons must never rewrite the original response',
+      )
+    }
+  }
+  assert.equal(
+    outcomes.size,
+    4,
+    'Every paired interpretation has unique authored copy',
+  )
+}
+assert.equal(earthPhotoReappraisal(newEarthChronicle(), 'earth-01'), null)
+
+// The first joint reading must remain visible after later mirrored evidence.
+// All sixteen four-photo response combinations earn distinct, final readings
+// only after every photograph and response is recorded.
+const fourFrameReadings = new Set<string>()
+for (let responseMask = 0; responseMask < 16; responseMask++) {
+  const photoIds = ['earth-01', 'earth-02', 'earth-03', 'earth-04']
+  const responses = Object.fromEntries(
+    photoIds.map((id, index) => [
+      id,
+      responseMask & (1 << index) ? 'hold' : 'challenge',
+    ]),
+  )
+  const journal = restoreEarthChronicle({
+    version: 1,
+    found: [...photoIds, 'earth-31'],
+    responses,
+  })
+  const originalFirst = earthPhotoReappraisals(journal, 'earth-01')
+  const originalSecond = earthPhotoReappraisals(journal, 'earth-02')
+  assert.deepEqual(
+    originalFirst.map(({ title }) => title),
+    [
+      'Two wounds, no verdict',
+      'Two frames, one doorway',
+      'Four frames, no borrowed verdict',
+    ],
+    'Original office reflection must survive the later mirrored comparison',
+  )
+  assert.deepEqual(
+    originalSecond.map(({ title }) => title),
+    [
+      'Two wounds, no verdict',
+      'A hurt and an unfinished apology',
+      'Four frames, no borrowed verdict',
+    ],
+    'Original gathering reflection must survive the later mirrored comparison',
+  )
+  assert.equal(earthPhotoReappraisals(journal, 'earth-03').length, 2)
+  assert.equal(earthPhotoReappraisals(journal, 'earth-04').length, 2)
+  const synthesis = originalFirst[2]!
+  assert.equal(synthesis.title, 'Four frames, no borrowed verdict')
+  assert.match(synthesis.evidence, /office doorway.*injured friend/i)
+  assert.ok(synthesis.reflection.length > 150)
+  assert.doesNotMatch(
+    synthesis.reflection,
+    /\b(children|daughter|son|parenthood)\b/i,
+  )
+  fourFrameReadings.add(synthesis.reflection)
+  for (const missingId of photoIds) {
+    const missingResponse = Object.fromEntries(
+      Object.entries(journal.responses).filter(([id]) => id !== missingId),
+    )
+    const unanswered = { ...journal, responses: missingResponse }
+    assert.ok(
+      !earthPhotoReappraisals(unanswered, 'earth-01').some(
+        ({ title }) => title === synthesis.title,
+      ),
+      `Unanswered ${missingId} must not unlock the four-frame verdict`,
+    )
+    const undiscovered = {
+      ...journal,
+      found: journal.found.filter((id) => id !== missingId),
+    }
+    assert.ok(
+      !earthPhotoReappraisals(undiscovered, 'earth-04').some(
+        ({ title }) => title === synthesis.title,
+      ),
+      `Undiscovered ${missingId} must not unlock the four-frame verdict`,
+    )
+  }
+  assert.deepEqual(
+    earthPhotoReappraisals(
+      reconcileEarthChronicle(
+        restoreEarthChronicle(JSON.parse(JSON.stringify(journal))),
+        { e01: {}, e02: {} },
+      ),
+      'earth-01',
+    ),
+    originalFirst,
+    'Chronicle layers survive save restoration and a new expedition',
+  )
+  assert.deepEqual(earthPhotoReappraisals(journal, 'earth-31'), [])
+  assert.equal(
+    earthPhotoReappraisal(journal, 'earth-01')?.title,
+    'Four frames, no borrowed verdict',
+    'Existing single-result consumers receive the newest earned synthesis',
+  )
+}
+assert.equal(
+  fourFrameReadings.size,
+  16,
+  'Every combination of four immutable reactions has a distinct authored outcome',
+)
+
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',
   'utf8',
@@ -323,7 +757,36 @@ const memoryMapSurface = readFileSync(
   'components/pages/memory-dungeon-overworld.vue',
   'utf8',
 )
+const questLogSurface = readFileSync(
+  'components/memory-dungeon/quest-log.vue',
+  'utf8',
+)
+for (const surface of [chronicleSurface, questLogSurface]) {
+  assert.match(surface, /@keydown="trapMemoryDialogTab\(\$event, dialog\)"/)
+  assert.match(surface, /@keydown\.esc\.prevent="emit\('close'\)"/)
+}
+assert.match(memoryMapSurface, /ref="settingsDialog"/)
+assert.match(
+  memoryMapSurface,
+  /@keydown="trapMemoryDialogTab\(\$event, settingsDialog\)"/,
+)
+assert.match(
+  memoryMapSurface,
+  /@keydown\.esc\.prevent\.stop="settingsOpen = false"/,
+)
+for (const trigger of [
+  'chronicleTrigger',
+  'questsTrigger',
+  'settingsTrigger',
+]) {
+  assert.ok(memoryMapSurface.includes(`ref="${trigger}"`))
+  assert.ok(memoryMapSurface.includes(`${trigger}.value?.focus()`))
+}
+assert.match(memoryMapSurface, /if \(open\) settingsDialog\.value\?\.focus\(\)/)
 assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
+assert.match(chronicleSurface, /data-testid="memory-earth-reappraisal"/)
+assert.match(chronicleSurface, /earthPhotoReappraisals/)
+assert.match(chronicleSurface, /v-for="\(reappraisal, index\) in reappraisals"/)
 assert.match(chronicleSurface, /world\.answerEarthPhoto/)
 assert.match(chronicleSurface, /v-if="!failed\[active.id\]"/)
 assert.match(memoryMapSurface, /data-testid="memory-earth-chronicle-open"/)
@@ -515,6 +978,8 @@ for (const key of firstBriarExpansion) {
   )
   const save = restoreBriarSave({
     ...newBriarSave(),
+    revealed: firstBriarExpansion,
+    visited: firstBriarExpansion,
     sceneChoices: savedChoices,
   })
   assert.equal(save.sceneChoices[key], BRIAR_SCENES[key]?.choices[0]?.id)
@@ -699,6 +1164,17 @@ assert.equal(
   'The stone puzzle requires both solving the glyphs and settling the encounter',
 )
 assert.equal(
+  briarTileProgress(
+    {
+      ...settledSave,
+      sceneChoices: { ...settledSave.sceneChoices, '2,4': '' },
+    },
+    '2,4',
+  ),
+  'unfinished',
+  'An old cleared square becomes actionable again when its scene is reactivated',
+)
+assert.equal(
   briarTileProgress(settledSave, '5,2'),
   'unfinished',
   'Cross-world seals remain pending',
@@ -710,6 +1186,39 @@ const restoredScene = restoreBriarSave({
 assert.equal(restoredScene.sceneChoices['2,4'], 'copy')
 assert.equal(restoredScene.sceneChoices['3,4'], undefined)
 assert.ok(restoredScene.visited.includes('3,6'))
+const unearnedScene = restoreBriarSave({
+  ...newBriarSave(),
+  revealed: [BRIAR_START, '2,5'],
+  visited: [BRIAR_START],
+  sceneChoices: { '2,5': 'archive', '8,6': 'record' },
+})
+assert.equal(
+  unearnedScene.sceneChoices['2,5'],
+  undefined,
+  'A valid option ID cannot settle a revealed but unvisited scene on reload',
+)
+assert.equal(
+  unearnedScene.sceneChoices['8,6'],
+  undefined,
+  'A valid option ID cannot fabricate a still-hidden scene decision',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle(unearnedScene.sceneChoices),
+  [],
+  'Unvisited choices cannot mint Earth photographs or downstream story rewards',
+)
+const legacyCampChoice = restoreBriarSave({
+  ...newBriarSave(),
+  revealed: [BRIAR_START],
+  player: BRIAR_START,
+  visited: undefined,
+  sceneChoices: { [BRIAR_START]: 'copy' },
+})
+assert.equal(
+  legacyCampChoice.sceneChoices[BRIAR_START],
+  'copy',
+  'Legacy saves recover the current square before validating its decision',
+)
 assert.ok(
   restoreBriarSave({
     ...newBriarSave(),
@@ -868,6 +1377,393 @@ for (const [index, wave] of BRIAR_REVEAL_WAVES.entries()) {
     assert.equal(cards.filter((card) => card.image === image).length, 2)
   }
 }
+const interruptionWave = BRIAR_REVEAL_WAVES[0]!
+const interruptionCards = createBriarWaveCards(
+  interruptionWave,
+  Array.from(
+    { length: interruptionWave.length / 2 },
+    (_, i) => `/memory-${i}.webp`,
+  ),
+  () => 0.4,
+)
+const interruptionPair = interruptionCards.filter((card) => card.pairId === 0)
+const otherPairCard = interruptionCards.find((card) => card.pairId === 1)!
+assert.equal(interruptionPair.length, 2)
+const interruptionBase = {
+  ...newBriarSave(),
+  mapCards: interruptionCards,
+  mapDeckSignature: 'designed',
+}
+const pendingSingle = {
+  ...interruptionBase,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped: card.tile === interruptionPair[0]!.tile,
+  })),
+}
+const resumedSingle = recoverBriarWaveTurn(
+  restoreBriarSave(pendingSingle),
+  pendingSingle,
+)
+assert.equal(resumedSingle.firstTile, interruptionPair[0]!.tile)
+assert.equal(
+  resumedSingle.progress.mapCards.find(
+    (card) => card.tile === interruptionPair[0]!.tile,
+  )?.flipped,
+  true,
+  'Reload between first and second flips preserves the active first card',
+)
+assert.equal(resumedSingle.progress.attempts, 0)
+const pendingMatch = {
+  ...interruptionBase,
+  attempts: 1,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped: interruptionPair.some((pair) => pair.tile === card.tile),
+  })),
+}
+const resumedMatch = recoverBriarWaveTurn(
+  restoreBriarSave(pendingMatch),
+  pendingMatch,
+)
+assert.equal(resumedMatch.firstTile, null)
+assert.equal(resumedMatch.progress.attempts, 1)
+assert.ok(
+  interruptionPair.every(
+    (pair) =>
+      resumedMatch.progress.revealed.includes(pair.tile) &&
+      resumedMatch.progress.mapCards.find((card) => card.tile === pair.tile)
+        ?.matched,
+  ),
+  'Reload during the success animation commits the already-paid-for pair',
+)
+const replayedMatch = recoverBriarWaveTurn(
+  restoreBriarSave(resumedMatch.progress),
+  resumedMatch.progress,
+)
+assert.equal(replayedMatch.recovered, false)
+assert.equal(replayedMatch.progress.attempts, 1)
+const pendingMismatch = {
+  ...interruptionBase,
+  attempts: 1,
+  mapCards: interruptionCards.map((card) => ({
+    ...card,
+    flipped:
+      card.tile === interruptionPair[0]!.tile ||
+      card.tile === otherPairCard.tile,
+  })),
+}
+const resumedMismatch = recoverBriarWaveTurn(
+  restoreBriarSave(pendingMismatch),
+  pendingMismatch,
+)
+assert.equal(resumedMismatch.firstTile, null)
+assert.equal(resumedMismatch.progress.attempts, 1)
+assert.equal(resumedMismatch.progress.revealed.length, 0)
+assert.ok(
+  resumedMismatch.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+  'Reload during a mismatch closes both cards without another penalty',
+)
+const forgedMatch = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.tile === interruptionPair[1]!.tile
+      ? { ...card, image: '/different-face.webp' }
+      : card,
+  ),
+}
+const rejectedForgery = recoverBriarWaveTurn(
+  restoreBriarSave(forgedMatch),
+  forgedMatch,
+)
+assert.equal(rejectedForgery.progress.revealed.length, 0)
+assert.equal(rejectedForgery.firstTile, null)
+const overflipped = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.tile === otherPairCard.tile ? { ...card, flipped: true } : card,
+  ),
+}
+const rejectedOverflip = recoverBriarWaveTurn(
+  restoreBriarSave(overflipped),
+  overflipped,
+)
+assert.equal(rejectedOverflip.progress.revealed.length, 0)
+assert.ok(
+  rejectedOverflip.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+  'Malformed saves with three exposed faces never mint terrain',
+)
+const finalPair = {
+  ...pendingMatch,
+  mapCards: pendingMatch.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+}
+const completedOnReload = recoverBriarWaveTurn(
+  restoreBriarSave(finalPair),
+  finalPair,
+)
+assert.equal(
+  completedOnReload.progress.wavePhase,
+  'exploring',
+  'The final successful flip resumes directly into exploration',
+)
+const mirroredWave = DARK_BRIAR_WAVES[0]!
+const mirroredCards = createBriarWaveCards(
+  mirroredWave,
+  Array.from(
+    { length: mirroredWave.length / 2 },
+    (_, i) => `/mirrored-memory-${i}.webp`,
+  ),
+  () => 0.4,
+)
+const mirroredPair = mirroredCards.filter((card) => card.pairId === 0)
+const mirroredOther = mirroredCards.find((card) => card.pairId === 1)!
+const mirroredBase = {
+  ...newDarkBriarProgress(),
+  mapCards: mirroredCards,
+}
+const mirroredFullyMatched = mirroredCards.map((card) => ({
+  ...card,
+  flipped: true,
+  matched: true,
+}))
+const mirroredUnvisitedDecision = restoreDarkBriarProgress({
+  ...mirroredBase,
+  mapCards: mirroredFullyMatched,
+  visited: [BRIAR_START],
+  player: '3,4',
+  sceneChoices: {
+    '3,4': DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+    '4,4': DARK_BRIAR_SCENES['4,4']!.choices[0]!.id,
+    '5,4': 'draw',
+  },
+})
+assert.deepEqual(
+  mirroredUnvisitedDecision.sceneChoices,
+  {},
+  'Revealed but unvisited Dark Briar sites cannot grant testimony, shortcuts or story decisions',
+)
+assert.equal(mirroredUnvisitedDecision.player, BRIAR_START)
+assert.equal(darkBriarWitnessCount(mirroredUnvisitedDecision), 0)
+const mirroredEarnedDecision = restoreDarkBriarProgress({
+  ...mirroredBase,
+  mapCards: mirroredFullyMatched,
+  visited: [BRIAR_START, '3,4', '4,4', '5,4'],
+  player: '3,4',
+  sceneChoices: {
+    '3,4': DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+    '4,4': DARK_BRIAR_SCENES['4,4']!.choices[0]!.id,
+    '5,4': 'draw',
+  },
+})
+assert.equal(
+  mirroredEarnedDecision.sceneChoices['3,4'],
+  DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+  'Legitimately visited mirrored choices survive checkpoint restoration',
+)
+assert.equal(mirroredEarnedDecision.sceneChoices['5,4'], 'draw')
+assert.equal(darkBriarWitnessCount(mirroredEarnedDecision), 1)
+const mirroredSingle = {
+  ...mirroredBase,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped: card.tile === mirroredPair[0]!.tile,
+  })),
+}
+const resumedMirroredSingle = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredSingle),
+  mirroredSingle,
+)
+assert.equal(resumedMirroredSingle.firstTile, mirroredPair[0]!.tile)
+assert.equal(resumedMirroredSingle.progress.attempts, 0)
+assert.equal(
+  resumedMirroredSingle.progress.mapCards.find(
+    (card) => card.tile === mirroredPair[0]!.tile,
+  )?.flipped,
+  true,
+  'A reflected first flip survives reload without another attempt',
+)
+const mirroredPending = {
+  ...mirroredBase,
+  attempts: 1,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped: mirroredPair.some((pair) => pair.tile === card.tile),
+  })),
+}
+const resumedMirroredPair = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredPending),
+  mirroredPending,
+)
+assert.equal(resumedMirroredPair.progress.attempts, 1)
+assert.equal(resumedMirroredPair.firstTile, null)
+assert.ok(
+  mirroredPair.every(
+    (pair) =>
+      resumedMirroredPair.progress.revealed.includes(pair.tile) &&
+      resumedMirroredPair.progress.mapCards.find(
+        (card) => card.tile === pair.tile,
+      )?.matched,
+  ),
+  'The already-paid mirrored pair resolves once after an interrupted animation',
+)
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(resumedMirroredPair.progress),
+    resumedMirroredPair.progress,
+  ).recovered,
+  false,
+  'Replaying the restored save cannot mint the same pair again',
+)
+const mirroredMismatch = {
+  ...mirroredPending,
+  mapCards: mirroredCards.map((card) => ({
+    ...card,
+    flipped:
+      card.tile === mirroredPair[0]!.tile || card.tile === mirroredOther.tile,
+  })),
+}
+const closedMirroredMismatch = recoverDarkBriarTurn(
+  restoreDarkBriarProgress(mirroredMismatch),
+  mirroredMismatch,
+)
+assert.equal(closedMirroredMismatch.progress.revealed.length, 0)
+assert.equal(closedMirroredMismatch.progress.attempts, 1)
+assert.ok(
+  closedMirroredMismatch.progress.mapCards.every(
+    (card) => card.matched || !card.flipped,
+  ),
+)
+const mirroredForgedFace = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.tile === mirroredPair[1]!.tile
+      ? { ...card, image: '/different-mirrored-face.webp' }
+      : card,
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredForgedFace),
+    mirroredForgedFace,
+  ).progress.revealed.length,
+  0,
+  'Same pair ID with different artwork never reveals mirrored terrain',
+)
+const mirroredOverflip = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.tile === mirroredOther.tile ? { ...card, flipped: true } : card,
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredOverflip),
+    mirroredOverflip,
+  ).progress.revealed.length,
+  0,
+  'Three exposed mirrored cards cannot manufacture a match',
+)
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress({ ...mirroredPending, attempts: 0 }),
+    { ...mirroredPending, attempts: 0 },
+  ).progress.revealed.length,
+  0,
+  'A two-face save without a recorded attempt cannot earn terrain',
+)
+const mirroredFinalPair = {
+  ...mirroredPending,
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+}
+assert.equal(
+  recoverDarkBriarTurn(
+    restoreDarkBriarProgress(mirroredFinalPair),
+    mirroredFinalPair,
+  ).progress.phase,
+  'exploring',
+  'The last reflected pair resumes directly into exploration',
+)
+const returnedMirroredPair = settleDarkBriarReturn(mirroredPending)
+assert.equal(returnedMirroredPair.attempts, 1)
+assert.deepEqual(
+  [...returnedMirroredPair.revealed].sort(),
+  mirroredPair.map((card) => card.tile).sort(),
+  'Leaving during a successful reflected flip must award the already-paid pair',
+)
+assert.ok(
+  mirroredPair.every(
+    (card) =>
+      returnedMirroredPair.mapCards.find((item) => item.tile === card.tile)
+        ?.matched,
+  ),
+)
+assert.ok(
+  returnedMirroredPair.mapCards.every((card) => card.matched || !card.flipped),
+  'No unmatched pictures remain face up when leaving the reflection',
+)
+assert.deepEqual(
+  settleDarkBriarReturn(returnedMirroredPair),
+  returnedMirroredPair,
+  'Returning twice cannot grant an extra pair or attempt',
+)
+const returnedMirroredMismatch = settleDarkBriarReturn(mirroredMismatch)
+assert.equal(returnedMirroredMismatch.attempts, 1)
+assert.equal(returnedMirroredMismatch.revealed.length, 0)
+assert.ok(returnedMirroredMismatch.mapCards.every((card) => !card.flipped))
+const returnedMirroredFirst = settleDarkBriarReturn(mirroredSingle)
+assert.equal(returnedMirroredFirst.attempts, 0)
+assert.equal(returnedMirroredFirst.revealed.length, 0)
+assert.ok(returnedMirroredFirst.mapCards.every((card) => !card.flipped))
+const returnedMirroredFinal = settleDarkBriarReturn({
+  ...mirroredPending,
+  revealed: mirroredCards
+    .filter((card) => card.pairId !== 0)
+    .map((card) => card.tile),
+  mapCards: mirroredPending.mapCards.map((card) =>
+    card.pairId === 0 ? card : { ...card, flipped: true, matched: true },
+  ),
+})
+assert.equal(returnedMirroredFinal.phase, 'exploring')
+assert.equal(returnedMirroredFinal.revealed.length, mirroredCards.length)
+assert.deepEqual(
+  settleDarkBriarReturn(returnedMirroredFinal),
+  returnedMirroredFinal,
+  'Leaving after the last pair remains idempotent',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /function returnToBriar\(\): void \{[\s\S]*?dark\.value = settleDarkBriarReturn\(dark\.value\)/,
+  'Reality switching must use the same paid-pair recovery as save restoration',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /recoverBriarWaveTurn\(restoreBriarSave\(raw\), raw\)/,
+  'Production hydration must actually invoke the interrupted-turn recovery',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /recoverDarkBriarTurn\([\s\S]*?restoreDarkBriarProgress\(checkpoint.dark\)/,
+  'Manual checkpoint load settles mirrored turns instead of discarding matches',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /const resumedDark = recoverDarkBriarTurn\([\s\S]*?restoreDarkBriarProgress\(savedDark\)/,
+  'Browser hydration recovers interrupted mirrored matching turns',
+)
+assert.match(
+  readFileSync('stores/memoryWorldStore.ts', 'utf8'),
+  /latestMapCardKey\.value = resumed\.firstTile/,
+  'Restored first flips remain visible in the large image preview',
+)
+
 assert.throws(() =>
   createBriarWaveCards(['2,4', '3,4'], ['/same.jpg', '/same.jpg']),
 )
@@ -1009,6 +1905,127 @@ const launcherScreen = readFileSync(
   'components/pages/memory-dungeon-launcher.vue',
   'utf8',
 )
+const darkMapScreen = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+const mapBeacon = readFileSync(
+  'components/memory-dungeon/action-beacon.vue',
+  'utf8',
+)
+const questScreen = readFileSync(
+  'components/memory-dungeon/quest-log.vue',
+  'utf8',
+)
+const houseMapScreen = readFileSync(
+  'components/memory-dungeon/house-stage.vue',
+  'utf8',
+)
+const darkHouseScreen = readFileSync(
+  'components/memory-dungeon/dark-house-stage.vue',
+  'utf8',
+)
+const houseAtlasImage = readFileSync(
+  'components/memory-dungeon-house-map-art.vue',
+  'utf8',
+)
+assert.equal(HOUSE_ATLAS_SIZE, 6)
+assert.equal(HOUSE_ATLAS_ROOM_IDS.length, 36)
+assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(HOUSE_ROOMS))
+assert.deepEqual(HOUSE_ATLAS_ROOM_IDS, Object.keys(DARK_HOUSE_ROOMS))
+assert.equal(new Set(Object.values(HOUSE_ATLAS_PATHS)).size, 2)
+assert.ok(HOUSE_ATLAS_PATHS.original.endsWith('/house/maps/house-atlas.webp'))
+assert.ok(
+  HOUSE_ATLAS_PATHS.mirrored.endsWith(
+    '/dark-briar/house/maps/house-atlas.webp',
+  ),
+)
+assert.match(houseAtlasImage, /@error="available = false"/)
+assert.match(houseAtlasImage, /aria-hidden="true"/)
+assert.match(houseAtlasImage, /loading="eager"/)
+assert.match(houseMapScreen, /memory-dungeon-house-map-art reality="original"/)
+assert.match(darkHouseScreen, /memory-dungeon-house-map-art reality="mirrored"/)
+assert.match(houseMapScreen, /world\.houseMove\(item\.id\)/)
+assert.match(darkHouseScreen, /world\.walkDarkHouse\(tileRoom\.id\)/)
+for (const [reality, stage] of [
+  ['original', houseMapScreen],
+  ['mirrored', darkHouseScreen],
+] as const) {
+  assert.match(
+    stage,
+    /grid-cols-6 grid-rows-6 gap-0[^"]*p-0/,
+    `${reality} atlas tiles must occupy the same unpadded six-by-six image grid`,
+  )
+  assert.match(
+    stage,
+    /min-w-0 rounded-none border text-center/,
+    `${reality} atlas buttons must not cut away painted room corners`,
+  )
+  assert.ok(
+    stage.includes('focus-visible:outline-offset-[-2px]'),
+    `${reality} outer-edge keyboard focus rings stay visible inside the atlas`,
+  )
+}
+assert.ok(
+  houseMapScreen.includes('bg-[#405949]/30') &&
+    darkHouseScreen.includes('bg-[#34544f]/30'),
+  'Visited House tiles remain translucent so delivered painted maps are visible',
+)
+assert.ok(
+  mapScreen.includes(
+    'src="/images/memory-dungeon/backdrops/briar-overworld.webp"',
+  ),
+  'Original Briar uses the delivered painted map first',
+)
+assert.ok(
+  darkMapScreen.includes(
+    'src="/images/memory-dungeon/dark-briar/backdrops/map.webp"',
+  ),
+  'Dark Briar uses its own delivered map art',
+)
+assert.ok(
+  mapScreen.includes('briar-camp.svg') && mapScreen.includes('v-else'),
+  'The original map survives a media delivery outage',
+)
+assert.ok(
+  mapScreen.includes('tileNeedsAttention(tile.key)'),
+  'Briar tiles show actionable markers',
+)
+assert.ok(
+  mapScreen.includes("progress === 'unfinished'"),
+  'Reactivated scene decisions restore an action beacon',
+)
+assert.ok(
+  darkMapScreen.includes('memory-dungeon-action-beacon'),
+  'Dark Briar tiles show actionable markers',
+)
+assert.ok(
+  houseMapScreen.includes('memory-dungeon-action-beacon') &&
+    houseMapScreen.includes('!progress?.decisions[item.id]'),
+  'Original House reactivates markers for unfinished chambers',
+)
+assert.ok(
+  darkHouseScreen.includes('memory-dungeon-action-beacon') &&
+    darkHouseScreen.includes('!world.darkHouse.decisions[tileRoom.id]'),
+  'Mirrored House reactivates markers for unfinished chambers',
+)
+assert.ok(
+  mapBeacon.includes('rotateY(360deg)'),
+  'Action markers use depth and 3D rotation',
+)
+assert.ok(
+  mapBeacon.includes('prefers-reduced-motion'),
+  'Action markers respect reduced motion',
+)
+assert.ok(
+  questScreen.includes('text-base leading-relaxed sm:text-lg'),
+  'Quest narrative is legible like Shifting Desks',
+)
+assert.ok(
+  mapScreen.includes('font-size: clamp(1rem, 1.85cqw, 1.5rem)'),
+  'Story decisions are large at console widths',
+)
+
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(
@@ -1249,6 +2266,28 @@ assert.match(houseScreen, /world\.houseMove\(item\.id\)/)
 assert.match(houseScreen, /world\.chooseHouse\(choice\.id\)/)
 assert.match(houseScreen, /memory-house-choice-column/)
 assert.match(
+  consoleStage,
+  /class="flex shrink-0 flex-wrap items-center gap-2 border-b/,
+  'World One console header wraps its controls instead of clipping mobile navigation',
+)
+assert.match(
+  consoleStage,
+  /class="min-w-0 w-full md:w-auto md:flex-1"/,
+  'Mobile title keeps a full row without shrinking the playable map to a column',
+)
+assert.match(houseScreen, /data-testid="memory-house-passages"/)
+assert.match(
+  houseScreen,
+  /overflow-x-auto overscroll-x-contain/,
+  'House passage controls own horizontal scrolling rather than growing the footer vertically',
+)
+assert.match(
+  houseScreen,
+  /:aria-label="`Travel to \$\{exit\},/,
+  'Abbreviated phone passage buttons retain their full accessible destination names',
+)
+assert.match(houseScreen, /<span class="sm:hidden">\{\{ exit \}\}<\/span>/)
+assert.match(
   houseScreen,
   /artPath/,
   'Delivered ArtJob images are wired into the room stage',
@@ -1372,4 +2411,1094 @@ assert.match(
   layoutVerifier,
   /!fixedConsoleStage/,
   'Exception is restricted to named fixed consoles, not all pages',
+)
+
+const emptyCheckpoints = restoreMemorySaveSlots(null)
+assert.equal(emptyCheckpoints.length, MEMORY_SAVE_SLOT_COUNT)
+assert.ok(emptyCheckpoints.every((slot) => slot === null))
+const checkpoint: MemoryCheckpoint = {
+  version: 1,
+  savedAt: '2026-10-27T08:46:26Z',
+  briar: { ...newBriarSave(), attempts: 9 },
+  dark: newDarkBriarProgress(),
+  house: newDarkHouseProgress(),
+  reality: {
+    version: 1,
+    active: 'e01',
+    progress: newMemoryCampaignProgress(),
+  },
+  seals: newCrossMapSealChronicle(),
+}
+assert.deepEqual(memoryCheckpointPreview(checkpoint), {
+  location: 'Briar Marches · 2,4',
+  progress: '0/60 revealed · round 1/4 · 9 attempts · 3 hearts',
+})
+assert.deepEqual(
+  memoryCheckpointPreview({
+    ...checkpoint,
+    briar: {
+      ...checkpoint.briar,
+      room: 'house',
+      house: { ...newHouseProgress(), current: 'HD-18' },
+    },
+  }),
+  {
+    location: 'House That Remembers · HD-18',
+    progress: '0/60 revealed · round 1/4 · 9 attempts · 3 hearts',
+  },
+)
+const mirroredCheckpoint: MemoryCheckpoint = {
+  ...checkpoint,
+  reality: { ...checkpoint.reality, active: 'e02' },
+  dark: {
+    ...checkpoint.dark,
+    player: '6,2',
+    waveIndex: 3,
+    revealed: ['6,2'],
+    attempts: 4,
+  },
+}
+assert.deepEqual(memoryCheckpointPreview(mirroredCheckpoint), {
+  location: 'Other Marches · 6,2',
+  progress: '1/60 revealed · round 4/4 · 4 attempts',
+})
+assert.deepEqual(
+  memoryCheckpointPreview({
+    ...mirroredCheckpoint,
+    house: {
+      ...checkpoint.house,
+      active: true,
+      current: 'HD-22',
+    },
+  }),
+  {
+    location: 'Unremembered House · HD-22',
+    progress: '1/60 revealed · round 4/4 · 4 attempts',
+  },
+)
+const checkpointConsole = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.ok(
+  checkpointConsole.includes('memoryCheckpointPreview(checkpoint).location'),
+)
+assert.ok(
+  checkpointConsole.includes('memoryCheckpointPreview(checkpoint).progress'),
+)
+assert.ok(checkpointConsole.includes(':aria-label="`Load checkpoint'))
+const invalidRealityCases = [
+  [
+    'missing completed history',
+    { ...checkpoint.reality.progress, completed: undefined },
+  ],
+  [
+    'missing wish ledger',
+    { ...checkpoint.reality.progress, rememberedAnchors: null },
+  ],
+  [
+    'invalid finale commitment',
+    { ...checkpoint.reality.progress, finaleCommitted: 'yes' },
+  ],
+  [
+    'duplicate completed experience',
+    { ...checkpoint.reality.progress, completed: ['e01', 'e01'] },
+  ],
+  [
+    'unknown experience',
+    { ...checkpoint.reality.progress, completed: ['e99'] },
+  ],
+  [
+    'unreachable future experience',
+    { ...checkpoint.reality.progress, completed: ['e03'] },
+  ],
+  [
+    'unearned wish',
+    {
+      ...checkpoint.reality.progress,
+      rememberedAnchors: ['char-possible-future'],
+    },
+  ],
+  [
+    'premature finale commitment',
+    { ...checkpoint.reality.progress, finaleCommitted: true },
+  ],
+] as const
+for (const [reason, progress] of invalidRealityCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({
+      ...checkpoint,
+      reality: { ...checkpoint.reality, progress },
+    }),
+    null,
+    `A checkpoint with ${reason} must not silently discard campaign history`,
+  )
+}
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    reality: { ...checkpoint.reality, active: 'e02' },
+  }),
+  null,
+  'A mirrored reality cannot be active before its original is completed',
+)
+const validMirroredReality = {
+  ...checkpoint,
+  reality: {
+    ...checkpoint.reality,
+    active: 'e02' as const,
+    progress: {
+      ...checkpoint.reality.progress,
+      completed: ['e01' as const],
+    },
+  },
+}
+assert.deepEqual(
+  restoreMemoryCheckpoint(validMirroredReality)?.reality,
+  validMirroredReality.reality,
+  'A legitimately unlocked mirrored reality remains loadable',
+)
+const isolatedRealitySlots = restoreMemorySaveSlots([
+  { ...checkpoint, reality: { ...checkpoint.reality, progress: null } },
+  validMirroredReality,
+])
+assert.equal(isolatedRealitySlots[0], null)
+assert.deepEqual(
+  isolatedRealitySlots[1]?.reality,
+  validMirroredReality.reality,
+  'A damaged campaign ledger cannot erase a neighboring checkpoint',
+)
+const firstCheckpoint = writeMemorySaveSlot(emptyCheckpoints, 0, checkpoint)
+assert.ok(firstCheckpoint)
+assert.equal(firstCheckpoint[0]?.briar.attempts, 9)
+assert.equal(
+  writeMemorySaveSlot(firstCheckpoint, 0, checkpoint),
+  null,
+  'An occupied slot cannot be silently overwritten',
+)
+assert.equal(writeMemorySaveSlot(firstCheckpoint, -1, checkpoint), null)
+assert.equal(
+  writeMemorySaveSlot(firstCheckpoint, MEMORY_SAVE_SLOT_COUNT, checkpoint),
+  null,
+)
+const replacedCheckpoint = writeMemorySaveSlot(
+  firstCheckpoint,
+  0,
+  { ...checkpoint, briar: { ...checkpoint.briar, attempts: 12 } },
+  true,
+)
+assert.equal(replacedCheckpoint?.[0]?.briar.attempts, 12)
+assert.equal(firstCheckpoint[0]?.briar.attempts, 9)
+assert.equal(replacedCheckpoint?.[1], null)
+assert.equal(
+  restoreMemorySaveSlots(JSON.parse(JSON.stringify(replacedCheckpoint)))[0]
+    ?.briar.attempts,
+  12,
+)
+assert.equal(
+  restoreMemoryCheckpoint({ ...checkpoint, house: null }),
+  null,
+  'A corrupt snapshot cannot replace a valid current expedition',
+)
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    reality: { ...checkpoint.reality, version: 99 },
+  }),
+  null,
+)
+assert.equal(
+  restoreMemoryCheckpoint({ ...checkpoint, savedAt: 'not a date' }),
+  null,
+)
+const completeSealCheckpoint = {
+  ...checkpoint,
+  seals: {
+    ...checkpoint.seals,
+    seen: ['5,2'],
+    inspected: ['5,2'],
+    mirrorSeen: ['5,2'],
+    counterpartSeen: ['5,2'],
+    matched: ['5,2'],
+    resolved: ['5,2'],
+  },
+}
+assert.deepEqual(
+  restoreMemoryCheckpoint(completeSealCheckpoint)?.seals,
+  completeSealCheckpoint.seals,
+  'A legitimate cross-world seal sequence survives checkpoint loading intact',
+)
+const damagedSealCases = [
+  [
+    'missing inspected ledger',
+    { ...completeSealCheckpoint.seals, inspected: undefined },
+  ],
+  [
+    'missing counterpart ledger',
+    { ...completeSealCheckpoint.seals, counterpartSeen: null },
+  ],
+  [
+    'unknown coordinate',
+    { ...completeSealCheckpoint.seals, seen: ['5,2', '0,0'] },
+  ],
+  [
+    'duplicate discovery',
+    { ...completeSealCheckpoint.seals, seen: ['5,2', '5,2'] },
+  ],
+  [
+    'inspection without discovery',
+    { ...completeSealCheckpoint.seals, seen: [], mirrorSeen: [] },
+  ],
+  [
+    'mirror inspection without discovery',
+    { ...completeSealCheckpoint.seals, mirrorSeen: ['8,8'] },
+  ],
+  [
+    'match without original inspection',
+    { ...completeSealCheckpoint.seals, inspected: [] },
+  ],
+  [
+    'match without counterpart visit',
+    { ...completeSealCheckpoint.seals, counterpartSeen: [] },
+  ],
+  [
+    'resolution without match',
+    { ...completeSealCheckpoint.seals, matched: [] },
+  ],
+  [
+    'invalid resolution key',
+    { ...completeSealCheckpoint.seals, resolved: [null] },
+  ],
+] as const
+for (const [reason, seals] of damagedSealCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({ ...checkpoint, seals }),
+    null,
+    `A checkpoint with ${reason} must not silently rewrite cross-world seal progress`,
+  )
+}
+const isolatedSealSlots = restoreMemorySaveSlots([
+  { ...checkpoint, seals: damagedSealCases[0]![1] },
+  completeSealCheckpoint,
+])
+assert.equal(isolatedSealSlots[0], null)
+assert.deepEqual(
+  isolatedSealSlots[1]?.seals,
+  completeSealCheckpoint.seals,
+  'A damaged seal ledger cannot erase a neighboring valid checkpoint',
+)
+const damagedHouseCases = [
+  ['missing decisions', { ...checkpoint.house, decisions: null }],
+  ['invalid active state', { ...checkpoint.house, active: 'yes' }],
+  ['invalid current room', { ...checkpoint.house, current: null }],
+  ['invalid visited room', { ...checkpoint.house, visited: ['HD-01', null] }],
+  ['missing trials', { ...checkpoint.house, trials: null }],
+  ['missing puzzles', { ...checkpoint.house, puzzles: null }],
+  ['negative spent echoes', { ...checkpoint.house, spentEchoes: -1 }],
+  [
+    'malformed matching trial',
+    {
+      ...checkpoint.house,
+      trials: {
+        'HD-09': {
+          matched: null,
+          faceUp: [],
+          failures: 0,
+          clue: null,
+          note: '',
+        },
+      },
+    },
+  ],
+  [
+    'malformed logic puzzle',
+    {
+      ...checkpoint.house,
+      puzzles: {
+        'HD-13': { solved: true, wrong: [null], hint: false, note: '' },
+      },
+    },
+  ],
+] as const
+for (const [reason, house] of damagedHouseCases) {
+  assert.equal(
+    restoreMemoryCheckpoint({ ...checkpoint, house }),
+    null,
+    `A checkpoint with ${reason} must not silently erase mirrored House progress`,
+  )
+}
+const damagedHouseSlots = restoreMemorySaveSlots([
+  { ...checkpoint, house: damagedHouseCases[0]![1] },
+  checkpoint,
+])
+assert.equal(damagedHouseSlots[0], null)
+assert.equal(
+  damagedHouseSlots[1]?.briar.attempts,
+  9,
+  'Corrupt House progress in one slot cannot damage a neighboring expedition',
+)
+assert.ok(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    house: {
+      ...checkpoint.house,
+      trials: {
+        'HD-09': {
+          matched: [],
+          faceUp: ['HD-09-a'],
+          failures: 1,
+          clue: null,
+          note: 'One picture is exposed.',
+        },
+      },
+      puzzles: {
+        'HD-13': {
+          solved: false,
+          wrong: ['incorrect'],
+          hint: true,
+          note: 'A clue was earned.',
+        },
+      },
+    },
+  }),
+  'A valid interrupted mirrored House trial and earned clue remain saveable',
+)
+const malformedBriarMapDeck = {
+  ...checkpoint,
+  briar: { ...checkpoint.briar, mapCards: [null] },
+}
+const malformedBriarFightDeck = {
+  ...checkpoint,
+  briar: { ...checkpoint.briar, cards: [null] },
+}
+assert.equal(
+  restoreMemoryCheckpoint(malformedBriarMapDeck),
+  null,
+  'A damaged original Briar map deck must not silently erase a checkpoint wave',
+)
+assert.equal(
+  restoreMemoryCheckpoint(malformedBriarFightDeck),
+  null,
+  'A damaged original Briar combat deck must not silently erase an active fight',
+)
+assert.equal(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    briar: {
+      ...checkpoint.briar,
+      mapCards: [
+        {
+          id: 1,
+          pairId: 1,
+          tile: '1,4',
+          image: '/memory-test.webp',
+          flipped: true,
+          matched: false,
+        },
+      ],
+    },
+  })?.briar.mapCards[0]?.flipped,
+  true,
+  'A valid interrupted first flip remains eligible for checkpoint restoration',
+)
+const isolatedBriarCheckpoints = restoreMemorySaveSlots([
+  malformedBriarMapDeck,
+  malformedBriarFightDeck,
+  checkpoint,
+])
+assert.equal(isolatedBriarCheckpoints[0], null)
+assert.equal(isolatedBriarCheckpoints[1], null)
+assert.equal(isolatedBriarCheckpoints[2]?.briar.attempts, 9)
+const malformedDarkDeck = {
+  ...checkpoint,
+  dark: {
+    ...checkpoint.dark,
+    mapCards: Array.from({ length: DARK_BRIAR_WAVES[0]!.length }, () => null),
+  },
+}
+assert.equal(
+  restoreMemoryCheckpoint(malformedDarkDeck),
+  null,
+  'A malformed nested Dark Briar deck cannot replace the current expedition',
+)
+const mixedCheckpoints = restoreMemorySaveSlots([malformedDarkDeck, checkpoint])
+assert.equal(mixedCheckpoints[0], null)
+assert.equal(mixedCheckpoints[1]?.briar.attempts, 9)
+assert.doesNotThrow(
+  () => restoreDarkBriarProgress(malformedDarkDeck.dark),
+  'An interrupted or damaged mirrored deck must never crash autosave recovery',
+)
+assert.deepEqual(restoreDarkBriarProgress(malformedDarkDeck.dark).mapCards, [])
+assert.match(
+  worldStoreSource,
+  /roomEpoch\+\+[\s\S]*?darkEpoch\+\+[\s\S]*?state\.value = resumedRoom\.progress/,
+  'Loading a slot invalidates pending map and mirrored animation callbacks',
+)
+assert.match(
+  worldStoreSource,
+  /syncEarthChronicle\(\)/,
+  'Checkpoint restoration reconciles rather than deletes earned Chronicle memories',
+)
+assert.match(
+  consoleStage,
+  /v-for="\(checkpoint, index\) in world\.saveSlots"/,
+  'All three checkpoint slots are visible in the bounded console settings',
+)
+assert.match(
+  consoleStage,
+  /window\.confirm\([\s\S]*?Replace checkpoint/,
+  'Overwriting a slot requires explicit confirmation',
+)
+assert.match(
+  consoleStage,
+  /window\.confirm\([\s\S]*?Load checkpoint/,
+  'Loading a slot warns before replacing the current autosave',
+)
+
+const combatForDefeat = startCombatRoom(
+  'sprite',
+  91,
+  Array.from({ length: 8 }, (_, index) => `/memory-test-${index}.webp`),
+)
+const defeatedBriar = {
+  ...newBriarSave(),
+  room: 'memory' as const,
+  roomId: 'sprite' as const,
+  hearts: 2,
+  combat: {
+    ...combatForDefeat,
+    state: {
+      ...combatForDefeat.state,
+      playerHp: 0,
+      outcome: 'defeat' as const,
+    },
+  },
+}
+const interruptedDefeat = restoreBriarSave(defeatedBriar)
+assert.equal(interruptedDefeat.combat?.state.outcome, 'defeat')
+const resumedDefeat = recoverBriarCombatDefeat(interruptedDefeat)
+assert.equal(resumedDefeat.room, 'map')
+assert.equal(resumedDefeat.combat, null)
+assert.equal(resumedDefeat.hearts, 1)
+assert.equal(resumedDefeat.roomId, null)
+assert.match(resumedDefeat.status, /One heart lost/)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(resumedDefeat)),
+  resumedDefeat,
+  'Reloading a settled defeat cannot charge a second heart',
+)
+const lastHeartDefeat = recoverBriarCombatDefeat(
+  restoreBriarSave({ ...defeatedBriar, hearts: 1 }),
+)
+assert.equal(lastHeartDefeat.hearts, 3)
+assert.equal(lastHeartDefeat.player, BRIAR_START)
+assert.equal(lastHeartDefeat.room, 'map')
+assert.match(lastHeartDefeat.status, /retreat to Briar Camp/)
+const houseDefeat = recoverBriarCombatDefeat(
+  restoreBriarSave({
+    ...defeatedBriar,
+    hearts: 2,
+    house: {
+      ...newHouseProgress(),
+      current: 'HD-09',
+      visited: visitedHouseRoutes('HD-09'),
+      combatOrigin: 'HD-09',
+    },
+  }),
+)
+assert.equal(houseDefeat.room, 'house')
+assert.equal(houseDefeat.house?.current, 'HD-18')
+assert.equal(houseDefeat.house?.combatOrigin, null)
+assert.equal(
+  houseDefeat.house?.visited.filter((id) => id === 'HD-18').length,
+  1,
+)
+assert.equal(houseDefeat.hearts, 1)
+assert.match(houseDefeat.status, /House's quiet bedchamber/)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(houseDefeat)),
+  houseDefeat,
+  'A recovered House retreat stays in the House without duplicate damage',
+)
+const victoryBriar = restoreBriarSave({
+  ...defeatedBriar,
+  combat: {
+    ...combatForDefeat,
+    state: { ...combatForDefeat.state, outcome: 'victory' },
+  },
+})
+assert.equal(
+  recoverBriarCombatDefeat(victoryBriar),
+  victoryBriar,
+  'An interrupted victory must remain claimable instead of being treated as defeat',
+)
+const activeBriar = restoreBriarSave({
+  ...defeatedBriar,
+  combat: combatForDefeat,
+})
+assert.equal(recoverBriarCombatDefeat(activeBriar), activeBriar)
+assert.ok(
+  restoreMemoryCheckpoint({ ...checkpoint, briar: defeatedBriar }),
+  'A valid checkpoint captured during the defeat animation can be recovered',
+)
+assert.match(
+  worldStoreSource,
+  /const recoveredCombat = recoverBriarCombatDefeat\(resumed\.progress\)/,
+  'Both checkpoint loading and autosave hydration settle interrupted defeats',
+)
+assert.equal(
+  (
+    worldStoreSource.match(/recoverBriarCombatDefeat\(resumed\.progress\)/g) ??
+    []
+  ).length,
+  2,
+  'Both restoration entry points must use the same idempotent combat recovery',
+)
+
+// A defeat remembers actual, mutually exclusive earlier decisions, while
+// neither a live timer nor an interrupted-save recovery invents a new flag.
+const lossContexts = [
+  { choices: { '4,3': 'plan' }, expected: /Oren's inked detour/ },
+  { choices: { '4,3': 'load' }, expected: /parcels you sorted/ },
+  {
+    choices: { '2,4': 'lend' },
+    expected: /night courier still has your lantern/,
+  },
+  { choices: { '2,4': 'copy' }, expected: /copied impossible address/ },
+  { choices: { '4,3': 'forged' }, expected: /map and discoveries survive/ },
+  { choices: { '3,5': 'light' }, expected: /Pip's freed moth/ },
+  { choices: { '3,5': 'listen' }, expected: /Knight's apology/ },
+  { choices: { '4,4': 'escort' }, expected: /Scylla's escort order/ },
+  { choices: { '4,4': 'question' }, expected: /Char's lantern/ },
+  { choices: { '4,2': 'ledger' }, expected: /tomorrow-dated warning/ },
+  { choices: { '4,2': 'promise' }, expected: /true account/ },
+  { choices: { '3,4': 'challenge' }, expected: /toll receipt/ },
+  { choices: { '3,4': 'help' }, expected: /drawn bridge/ },
+] as const
+for (const { choices, expected } of lossContexts) {
+  const text = briarLossContinuation(
+    { sceneChoices: choices },
+    'combat',
+    true,
+    'Thorn Guard',
+  )
+  assert.match(text, expected)
+  assert.ok(text.length <= 220, 'Narrative must survive save status limits')
+  assert.match(text, /retreat to Briar Camp/)
+  assert.equal(text.includes("House's quiet bedchamber"), false)
+}
+// Each new defeat callback must be earned by a real, visited scene decision,
+// survive serialization, and retain its explicit unresolved cost.
+const briarLossBranches = [
+  { site: '3,5', choice: 'light', expected: /stump still holds/ },
+  { site: '3,5', choice: 'listen', expected: /still needs a witness/ },
+  { site: '4,4', choice: 'escort', expected: /cannot guard every road/ },
+  { site: '4,4', choice: 'question', expected: /riddle remains unsolved/ },
+  { site: '4,2', choice: 'ledger', expected: /debtor is still unknown/ },
+  { site: '4,2', choice: 'promise', expected: /cannot settle the debt/ },
+  { site: '3,4', choice: 'challenge', expected: /bridge is still unbuilt/ },
+  { site: '3,4', choice: 'help', expected: /need a real crossing/ },
+] as const
+for (const { site, choice, expected } of briarLossBranches) {
+  assert.ok(
+    BRIAR_SCENES[site]?.choices.some((option) => option.id === choice),
+    `Defeat callback must use an authored choice at ${site}`,
+  )
+  const saved = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: [BRIAR_START, site],
+    visited: [BRIAR_START, site],
+    sceneChoices: { [site]: choice },
+  })
+  assert.equal(saved.sceneChoices[site], choice)
+  const reloaded = restoreBriarSave(JSON.parse(JSON.stringify(saved)))
+  assert.equal(reloaded.sceneChoices[site], choice)
+  for (const [kind, lastHeart] of [
+    ['combat', true],
+    ['combat', false],
+    ['chamber', true],
+  ] as const) {
+    const result = briarLossContinuation(
+      reloaded,
+      kind,
+      lastHeart,
+      'Thorn Guard',
+    )
+    assert.match(result, expected)
+    assert.ok(result.length <= 220, 'Defeat text fits the saved status')
+    assert.equal(
+      briarLossContinuation(saved, kind, lastHeart, 'Thorn Guard'),
+      result,
+      'Save restoration must not change an earned defeat continuation',
+    )
+  }
+  const forged = restoreBriarSave({
+    ...saved,
+    sceneChoices: { [site]: 'forged' },
+  })
+  assert.equal(forged.sceneChoices[site], undefined)
+  assert.match(
+    briarLossContinuation(forged, 'combat', true),
+    /map and discoveries survive/,
+    'Invalid scene choices cannot invent a companion memory',
+  )
+}
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '4,3': 'plan', '3,5': 'light' } },
+    'combat',
+    true,
+  ),
+  /Pip's freed moth/,
+  'Later companion decisions must outrank earlier Oren planning',
+)
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '2,4': 'lend', '4,2': 'ledger' } },
+    'combat',
+    true,
+  ),
+  /tomorrow-dated warning/,
+  'Mandatory opening camp decisions cannot hide later scene memories',
+)
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '3,5': 'listen', '4,4': 'escort' } },
+    'combat',
+    true,
+  ),
+  /Knight's apology/,
+  "Pip's earned thread wins deterministic ties among new callbacks",
+)
+// House defeats remember real companion and witness choices, not a generic
+// failure. The same bounded text is used by live timers and restored saves.
+const houseLossCases = [
+  { room: 'HD-26', choice: 'testify', expected: /signed petition survives/ },
+  { room: 'HD-26', choice: 'shelter', expected: /families have food/ },
+  {
+    room: 'HD-10',
+    choice: 'manifest',
+    expected: /Scylla kept the route manifest/,
+  },
+  { room: 'HD-10', choice: 'improvise', expected: /rescued the maid/ },
+  { room: 'HD-09', choice: 'parley', expected: /promise to cool the coals/ },
+  { room: 'HD-09', choice: 'study', expected: /warning rhythm/ },
+] as const
+for (const { room, choice, expected } of houseLossCases) {
+  const context = {
+    sceneChoices: { '4,3': 'plan' },
+    house: { combatOrigin: 'HD-09', decisions: { [room]: choice } },
+  }
+  for (const kind of ['combat', 'chamber'] as const) {
+    const result = briarLossContinuation(context, kind, true, 'Hearth-Guard')
+    assert.match(result, expected)
+    assert.match(result, /quiet bedchamber/)
+    assert.doesNotMatch(result, /Oren's inked detour/)
+    assert.ok(result.length <= 220, 'House loss text fits the saved status')
+  }
+}
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: { '4,3': 'plan' },
+      house: { combatOrigin: 'HD-09', decisions: { 'HD-09': 'forged' } },
+    },
+    'combat',
+    true,
+  ),
+  /Oren's inked detour/,
+  'Forged House decisions cannot fabricate a remembered rescue',
+)
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: { '4,3': 'plan' },
+      house: { combatOrigin: null, decisions: { 'HD-26': 'testify' } },
+    },
+    'combat',
+    true,
+  ),
+  /Oren's inked detour/,
+  'An overworld defeat cannot borrow an unrelated House memory',
+)
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: {},
+      house: {
+        combatOrigin: 'HD-09',
+        decisions: {
+          'HD-09': 'parley',
+          'HD-10': 'improvise',
+          'HD-26': 'testify',
+        },
+      },
+    },
+    'combat',
+    true,
+  ),
+  /signed petition survives/,
+  'Later earned testimony takes precedence over earlier House choices',
+)
+
+const earnedHouseLoss = {
+  ...defeatedBriar,
+  hearts: 1,
+  revealed: [BRIAR_START, BRIAR_DUNGEON, '4,3'],
+  visited: [BRIAR_START, BRIAR_DUNGEON, '4,3'],
+  player: BRIAR_DUNGEON,
+  sceneChoices: { '4,3': 'plan' },
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-09' as const,
+    visited: visitedHouseRoutes('HD-09'),
+    combatOrigin: 'HD-09' as const,
+  },
+}
+const restoredEarnedHouseLoss = restoreBriarSave(earnedHouseLoss)
+const narratedHouseLoss = briarLossContinuation(
+  restoredEarnedHouseLoss,
+  'combat',
+  true,
+  combatForDefeat.state.enemy.name,
+)
+assert.match(narratedHouseLoss, /Oren's inked detour/)
+assert.match(narratedHouseLoss, /House's quiet bedchamber/)
+assert.ok(narratedHouseLoss.length <= 220)
+assert.doesNotMatch(narratedHouseLoss, /Briar Camp/)
+const earnedHouseDecisionLoss = restoreBriarSave({
+  ...earnedHouseLoss,
+  house: {
+    ...earnedHouseLoss.house,
+    decisions: { 'HD-09': 'study' },
+  },
+})
+assert.equal(earnedHouseDecisionLoss.house?.decisions['HD-09'], 'study')
+const narratedHouseDecisionLoss = briarLossContinuation(
+  earnedHouseDecisionLoss,
+  'combat',
+  true,
+  combatForDefeat.state.enemy.name,
+)
+assert.match(narratedHouseDecisionLoss, /warning rhythm/)
+assert.doesNotMatch(narratedHouseDecisionLoss, /Oren's inked detour/)
+const recoveredHouseDecisionLoss = recoverBriarCombatDefeat(
+  earnedHouseDecisionLoss,
+)
+assert.equal(recoveredHouseDecisionLoss.status, narratedHouseDecisionLoss)
+assert.equal(recoveredHouseDecisionLoss.house?.decisions['HD-09'], 'study')
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(recoveredHouseDecisionLoss)),
+  recoveredHouseDecisionLoss,
+  'A House defeat preserves earned testimony across restoration without repeat damage',
+)
+const resumedEarnedHouseLoss = recoverBriarCombatDefeat(restoredEarnedHouseLoss)
+assert.equal(resumedEarnedHouseLoss.status, narratedHouseLoss)
+assert.equal(resumedEarnedHouseLoss.room, 'house')
+assert.equal(resumedEarnedHouseLoss.house?.current, 'HD-18')
+assert.equal(
+  resumedEarnedHouseLoss.player,
+  BRIAR_DUNGEON,
+  'Losing the last heart in the House must not teleport the overworld player to camp',
+)
+assert.equal(resumedEarnedHouseLoss.hearts, 3)
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(resumedEarnedHouseLoss)),
+  resumedEarnedHouseLoss,
+)
+assert.ok(
+  worldStoreSource.includes(
+    "briarLossContinuation(state.value, 'chamber', true)",
+  ),
+  'The live chamber timer uses the same authored continuation as reload',
+)
+assert.match(
+  worldStoreSource,
+  /briarLossContinuation\(\s*state\.value,\s*'combat',\s*false,\s*next\.enemy\.name,/,
+  'The live combat timer uses the same authored continuation as reload',
+)
+assert.equal(
+  (
+    worldStoreSource.match(
+      /if \(state\.value\.room === 'map'\) state\.value\.player = BRIAR_START/g,
+    ) ?? []
+  ).length,
+  2,
+  'Both live loss timers return to camp only outside the House',
+)
+
+const chamberCards = [
+  { id: 0, pairId: 0, image: '/pair-a.webp', matched: false, flipped: true },
+  { id: 1, pairId: 0, image: '/pair-a.webp', matched: false, flipped: false },
+  { id: 2, pairId: 1, image: '/pair-b.webp', matched: false, flipped: false },
+  { id: 3, pairId: 1, image: '/pair-b.webp', matched: false, flipped: false },
+]
+const firstChamberFlip = {
+  ...newBriarSave(),
+  room: 'memory' as const,
+  roomId: 'vault-1' as const,
+  cards: chamberCards,
+}
+const normalizedChamber = restoreBriarSave(firstChamberFlip)
+assert.equal(normalizedChamber.cards[0]?.flipped, false)
+const recoveredChamber = recoverBriarRoomFirstFlip(
+  normalizedChamber,
+  firstChamberFlip,
+)
+assert.equal(recoveredChamber.firstCard, 0, 'Card zero must survive reload')
+assert.equal(recoveredChamber.progress.cards[0]?.flipped, true)
+assert.equal(
+  recoveredChamber.progress.cards.filter((card) => card.flipped).length,
+  1,
+)
+assert.equal(recoveredChamber.progress.attempts, 0)
+assert.equal(recoveredChamber.progress.hearts, 3)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave(recoveredChamber.progress),
+    recoveredChamber.progress,
+  ).firstCard,
+  0,
+  'Repeated reloads retain one selected picture without charging a turn',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave({
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    }),
+    {
+      ...firstChamberFlip,
+      cards: chamberCards.map((card) => ({
+        ...card,
+        flipped: card.id === 0 || card.id === 2,
+      })),
+    },
+  ).firstCard,
+  null,
+  'A pending mismatch must not restore multiple exposed pictures',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
+      card.id === 0 ? { ...card, image: '/forged.webp' } : card,
+    ),
+  }).firstCard,
+  null,
+  'A changed picture identity cannot revive an interrupted first flip',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(restoreBriarSave(firstChamberFlip), {
+    ...firstChamberFlip,
+    cards: chamberCards.map((card) =>
+      card.id === 1 ? { ...card, image: '/forged.webp' } : card,
+    ),
+  }).firstCard,
+  null,
+  'A corrupted partner picture cannot turn a preview into a valid pair',
+)
+assert.equal(
+  recoverBriarRoomFirstFlip(
+    restoreBriarSave({ ...firstChamberFlip, room: 'map' }),
+    firstChamberFlip,
+  ).firstCard,
+  null,
+  'Chamber selections never leak into the overworld matching screen',
+)
+assert.ok(
+  restoreMemoryCheckpoint({ ...checkpoint, briar: firstChamberFlip }),
+  'Manual checkpoints preserve a valid pending chamber selection',
+)
+assert.match(
+  worldStoreSource,
+  /const resumedRoom = recoverBriarRoomFirstFlip\(\s*recoveredRoom,\s*checkpoint\.briar,\s*\)/,
+  'Checkpoint loading restores the selected chamber card',
+)
+assert.match(
+  worldStoreSource,
+  /const resumedRoom = recoverBriarRoomFirstFlip\(recoveredRoom, raw\)/,
+  'Autosave hydration restores the same selected chamber card',
+)
+assert.equal(
+  (worldStoreSource.match(/firstCard\.value = resumedRoom\.firstCard/g) ?? [])
+    .length,
+  2,
+  'Both restoration paths reconnect the recovered selection to the next click',
+)
+
+const interruptedThirdMissRoom = {
+  ...saved,
+  hearts: 2,
+  roomMisses: 3,
+  attempts: 3,
+  cards: [
+    { id: 0, pairId: 0, image: '/ok.jpg', matched: false, flipped: true },
+    { id: 1, pairId: 1, image: '/other.jpg', matched: false, flipped: true },
+  ],
+}
+const interruptedThirdMiss = restoreBriarSave(interruptedThirdMissRoom)
+assert.equal(interruptedThirdMiss.roomMisses, 3)
+assert.equal(
+  interruptedThirdMiss.cards.every((card) => !card.flipped),
+  true,
+)
+const recoveredThirdMiss = recoverBriarRoomMissPenalty(interruptedThirdMiss)
+assert.equal(recoveredThirdMiss.room, 'memory')
+assert.equal(recoveredThirdMiss.hearts, 1)
+assert.equal(recoveredThirdMiss.roomMisses, 0)
+assert.equal(recoveredThirdMiss.attempts, 3)
+assert.match(recoveredThirdMiss.status, /One heart lost/)
+assert.deepEqual(
+  recoverBriarRoomMissPenalty(restoreBriarSave(recoveredThirdMiss)),
+  recoveredThirdMiss,
+  'Reloading after a third missed pair cannot charge a second heart',
+)
+const pendingSecondMiss = restoreBriarSave({
+  ...interruptedThirdMissRoom,
+  roomMisses: 2,
+})
+assert.equal(
+  recoverBriarRoomMissPenalty(pendingSecondMiss),
+  pendingSecondMiss,
+  'Earlier misses do not incur a premature penalty',
+)
+const lastHeartRoomMiss = recoverBriarRoomMissPenalty(
+  restoreBriarSave({ ...interruptedThirdMissRoom, hearts: 1 }),
+)
+assert.equal(lastHeartRoomMiss.room, 'map')
+assert.equal(lastHeartRoomMiss.hearts, 3)
+assert.equal(lastHeartRoomMiss.player, BRIAR_START)
+assert.equal(lastHeartRoomMiss.roomId, null)
+assert.equal(lastHeartRoomMiss.cards.length, 0)
+assert.match(lastHeartRoomMiss.status, /retreat to Briar Camp/)
+const houseThirdMiss = recoverBriarRoomMissPenalty(
+  restoreBriarSave({
+    ...interruptedThirdMissRoom,
+    hearts: 1,
+    revealed: [BRIAR_START, BRIAR_DUNGEON],
+    visited: [BRIAR_START, BRIAR_DUNGEON],
+    player: BRIAR_DUNGEON,
+    house: {
+      ...newHouseProgress(),
+      current: 'HD-19',
+      visited: visitedHouseRoutes('HD-19'),
+      combatOrigin: 'HD-19',
+    },
+  }),
+)
+assert.equal(houseThirdMiss.room, 'house')
+assert.equal(houseThirdMiss.house?.current, 'HD-18')
+assert.equal(houseThirdMiss.house?.combatOrigin, null)
+assert.equal(
+  houseThirdMiss.player,
+  BRIAR_DUNGEON,
+  'Interrupted House chamber loss must preserve the overworld entrance',
+)
+assert.equal(houseThirdMiss.hearts, 3)
+assert.match(houseThirdMiss.status, /quiet bedchamber/)
+const restoredHouseThirdMiss = restoreBriarSave(houseThirdMiss)
+assert.equal(
+  recoverBriarRoomMissPenalty(restoredHouseThirdMiss),
+  restoredHouseThirdMiss,
+  'A settled House retreat cannot be charged again after restoration',
+)
+assert.ok(
+  restoreMemoryCheckpoint({
+    ...checkpoint,
+    briar: interruptedThirdMissRoom,
+  }),
+  'A valid manual checkpoint captured during a third miss can be recovered',
+)
+assert.equal(
+  (
+    worldStoreSource.match(/recoverBriarRoomMissPenalty\(recoveredCombat\)/g) ??
+    []
+  ).length,
+  2,
+  'Autosave hydration and manual checkpoint loading both settle missed-room penalties',
+)
+
+// Reward ledger regression: replayed/resumed encounters must not mint currency.
+const rewardCases = [
+  { key: '5,5', reward: { wildflowers: 1 } },
+  { key: '7,3', reward: { wildflowers: 1 } },
+  { key: minefieldRewardKey(8), reward: { lanterns: 1, wildflowers: 1 } },
+  { key: minefieldRewardKey(10), reward: { lanterns: 1, wildflowers: 2 } },
+] as const
+for (let seed = 0; seed < 64; seed++) {
+  const ledger: string[] = []
+  const purse = { lanterns: 0, wildflowers: 0 }
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const entry = rewardCases[(attempt * 7 + seed) % rewardCases.length]!
+    const first = !ledger.includes(entry.key)
+    assert.equal(
+      grantMemoryRewardOnce(ledger, entry.key, purse, entry.reward),
+      first,
+      'Only the first successful encounter may pay out',
+    )
+  }
+  assert.equal(ledger.length, rewardCases.length)
+  assert.deepEqual(purse, { lanterns: 2, wildflowers: 5 })
+  const restoredLedger = JSON.parse(JSON.stringify(ledger)) as string[]
+  const restoredPurse = JSON.parse(JSON.stringify(purse)) as typeof purse
+  for (const entry of rewardCases)
+    assert.equal(
+      grantMemoryRewardOnce(
+        restoredLedger,
+        entry.key,
+        restoredPurse,
+        entry.reward,
+      ),
+      false,
+      'Reloading a completed encounter cannot reset its reward claim',
+    )
+  assert.deepEqual(restoredPurse, purse)
+}
+const darkRewardLedger: string[] = []
+const briarRewardLedger: string[] = []
+const twoRealities = { lanterns: 0, wildflowers: 0 }
+assert.equal(
+  grantMemoryRewardOnce(darkRewardLedger, '5,5', twoRealities, { lanterns: 1 }),
+  true,
+)
+assert.equal(
+  grantMemoryRewardOnce(briarRewardLedger, '5,5', twoRealities, {
+    wildflowers: 1,
+  }),
+  true,
+  'Original and mirrored encounter rewards have independent save ledgers',
+)
+assert.equal(
+  grantMemoryRewardOnce(darkRewardLedger, '5,5', twoRealities, { lanterns: 1 }),
+  false,
+)
+assert.deepEqual(twoRealities, { lanterns: 1, wildflowers: 1 })
+
+const rewardStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+const duelRewardSource = rewardStoreSource
+  .split('function finishDarkDuel')[1]
+  ?.split('function reset')[0]
+const minefieldRewardSource = rewardStoreSource
+  .split('function minefieldMove')[1]
+  ?.split('function requestMinefieldHint')[0]
+const firstRealmRewardSource = rewardStoreSource
+  .split('async function finishRoom')[1]
+  ?.split('function leaveRoom')[0]
+assert.match(
+  duelRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*dark\.value\.duels,\s*duel\.key/,
+)
+assert.doesNotMatch(duelRewardSource ?? '', /state\.value\.lanterns \+= 1/)
+assert.match(
+  minefieldRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*state\.value\.completedEncounters,\s*rewardKey/,
+)
+assert.match(firstRealmRewardSource ?? '', /grantMemoryRewardOnce\(/)
+assert.doesNotMatch(
+  firstRealmRewardSource ?? '',
+  /state\.value\.wildflowers \+= 1/,
 )

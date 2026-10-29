@@ -1,11 +1,54 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import {
+  visitCasinoVenue,
+  type CasinoChoice,
+} from '~/utils/gameOfCaptains/solarCircuit'
+import {
   chooseRomance as applyRomanceChoice,
   relationshipEpilogue,
   type RomanceChoiceId,
 } from '~/utils/gameOfCaptains/romance'
-import { chooseCaptainInstinct, type CaptainInstinctChoice } from '~/utils/gameOfCaptains/captainInstincts'
+import {
+  chooseTrioStep,
+  restoreTrioAdventure,
+  trioEpilogue,
+  type TrioEndingIndex,
+} from '~/utils/gameOfCaptains/trioAdventures'
+import {
+  startWorldTravel,
+  arriveAtWorld,
+  deployExpedition,
+  leaveExpedition,
+  hireRedshirt,
+} from '~/utils/gameOfCaptains/expedition'
+import {
+  advanceCloneQuest,
+  cloneEndingCoda,
+  printClone,
+  recordCloneMissions,
+  type CloneChoice,
+} from '~/utils/gameOfCaptains/cloneSaga'
+import {
+  learnRedshirtKnowledge,
+  normalizeRedshirtKnowledge,
+  type RedshirtKnowledge,
+} from '~/utils/gameOfCaptains/redshirtKnowledge'
+import {
+  chooseCaptainInstinct,
+  type CaptainInstinctChoice,
+} from '~/utils/gameOfCaptains/captainInstincts'
 import { playbookRunKey } from '~/utils/playbook/runReview'
+import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
+import type { CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
+import {
+  dispatchEpisodeBatch,
+  drawEpisodeDeck,
+  episodeDecksDone,
+  episodeEndingCoda,
+  type EpisodeAssignment,
+  type EpisodeDeck,
+  type EpisodeChoice,
+} from '~/utils/gameOfCaptains/episodeConsole'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import {
@@ -19,6 +62,7 @@ import {
   nextDestination,
   chooseMission,
   beginCrewDetour,
+  stageCrewDetour,
   resolveCrewDetour,
   restoreVoyage,
   startVoyage,
@@ -32,17 +76,36 @@ import {
 } from '~/utils/gameOfCaptains/rules'
 
 const SAVE_KEY = 'game-of-captains-voyage-v1'
+const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
+const PREFERENCES_KEY = 'game-of-captains-preferences-v1'
+type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
 
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const run = ref<VoyageRun | null>(null)
   const loaded = ref(false)
+  const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const storageWarning = ref('')
+  const preferences = ref<CouchPreferences>({
+    largeText: false,
+    reducedMotion: false,
+  })
   const saved = computed(() => !!run.value)
 
   function persist() {
     try {
-      if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
-      else localStorage.removeItem(SAVE_KEY)
+      if (run.value) {
+        redshirtKnowledge.value = learnRedshirtKnowledge(
+          run.value,
+          redshirtKnowledge.value,
+        )
+        localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
+      } else {
+        localStorage.removeItem(SAVE_KEY)
+      }
+      localStorage.setItem(
+        KNOWLEDGE_KEY,
+        JSON.stringify(redshirtKnowledge.value),
+      )
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -53,16 +116,45 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     if (loaded.value) return
     loaded.value = true
     try {
+      try {
+        const savedPreferences = JSON.parse(
+          localStorage.getItem(PREFERENCES_KEY) ?? 'null',
+        )
+        if (savedPreferences && typeof savedPreferences === 'object') {
+          preferences.value = {
+            largeText: savedPreferences.largeText === true,
+            reducedMotion: savedPreferences.reducedMotion === true,
+          }
+        }
+      } catch {
+        preferences.value = { largeText: false, reducedMotion: false }
+      }
+      try {
+        redshirtKnowledge.value = normalizeRedshirtKnowledge(
+          JSON.parse(localStorage.getItem(KNOWLEDGE_KEY) ?? '{}'),
+        )
+      } catch {
+        // A damaged knowledge cache cannot invalidate an otherwise valid voyage.
+        redshirtKnowledge.value = {}
+      }
       const raw = localStorage.getItem(SAVE_KEY)
-      run.value = restoreVoyage(raw ? JSON.parse(raw) : null)
+      run.value = restoreTrioAdventure(
+        restoreVoyage(raw ? JSON.parse(raw) : null),
+      )
+      if (run.value) persist()
     } catch {
       run.value = null
       storageWarning.value =
         'Previous voyage could not be loaded. You can begin a new one.'
     }
   }
-  function begin(captain: CaptainId, crew: CrewId[]) {
-    run.value = startVoyage(captain, crew)
+  function begin(
+    captain: CaptainId,
+    crew: CrewId[],
+    assessment?: StarAssessment,
+    origin?: CaptainOriginId,
+  ) {
+    run.value = startVoyage(captain, crew, Date.now(), assessment, origin)
     usePlaybookRunReviewStore().begin(
       'game-of-captains',
       playbookRunKey(run.value),
@@ -77,6 +169,68 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   function chartMission(missionId: string) {
     if (!run.value) return
     run.value = chooseMission(run.value, missionId)
+    persist()
+  }
+  function travel() {
+    if (!run.value) return
+    run.value = startWorldTravel(run.value)
+    persist()
+  }
+  function arrive() {
+    if (!run.value) return
+    run.value = arriveAtWorld(run.value)
+    persist()
+  }
+  function deploy(encounterId: string, lead: string) {
+    if (!run.value) return
+    const before = run.value
+    run.value = recordCloneMissions(
+      before,
+      deployExpedition(before, encounterId, lead),
+    )
+    persist()
+  }
+  function deployBatch(assignments: EpisodeAssignment[]) {
+    if (!run.value) return
+    const before = run.value
+    run.value = recordCloneMissions(
+      before,
+      dispatchEpisodeBatch(before, assignments),
+    )
+    persist()
+  }
+  function drawDailyDeck(
+    deck: EpisodeDeck,
+    choice: EpisodeChoice,
+    cast: string[],
+  ) {
+    if (!run.value) return
+    run.value = drawEpisodeDeck(run.value, deck, choice, cast)
+    persist()
+  }
+  function cloneAdvance(choice: CloneChoice) {
+    if (!run.value) return
+    run.value = advanceCloneQuest(run.value, choice)
+    persist()
+  }
+  function clonePrint(id: string) {
+    if (!run.value) return
+    run.value = printClone(run.value, id)
+    persist()
+  }
+  function endExpedition() {
+    if (!run.value || !episodeDecksDone(run.value)) return
+    run.value = leaveExpedition(run.value)
+    persist()
+  }
+  function hire() {
+    if (!run.value) return
+    run.value = hireRedshirt(run.value)
+    persist()
+  }
+  function visitVenue(venue: 'bar' | 'casino', choice: CasinoChoice) {
+    if (!run.value) return
+    run.value = visitCasinoVenue(run.value, venue, choice)
     persist()
   }
   function captainAction(choice: CaptainInstinctChoice) {
@@ -119,9 +273,19 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = applyRomanceChoice(run.value, choice)
     persist()
   }
+  function chooseTrio(option: TrioEndingIndex) {
+    if (!run.value) return
+    run.value = chooseTrioStep(run.value, option)
+    persist()
+  }
   function detour(crewId: CrewId) {
     if (!run.value) return
     run.value = beginCrewDetour(run.value, crewId)
+    persist()
+  }
+  function planDetour(approach: DetourApproach) {
+    if (!run.value) return
+    run.value = stageCrewDetour(run.value, approach)
     persist()
   }
   function resolveDetour(approach: DetourApproach) {
@@ -131,31 +295,58 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function finish(strategy: FinaleStrategy) {
     if (!run.value) return
-    run.value = relationshipEpilogue(finishVoyage(run.value, strategy))
+    run.value = cloneEndingCoda(
+      episodeEndingCoda(
+        trioEpilogue(relationshipEpilogue(finishVoyage(run.value, strategy))),
+      ),
+    )
     persist()
   }
   function restart() {
     run.value = null
     persist()
   }
+  function setPreference(key: keyof CouchPreferences, value: boolean) {
+    preferences.value = { ...preferences.value, [key]: value }
+    try {
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences.value))
+    } catch {
+      storageWarning.value = 'Settings could not be stored on this device.'
+    }
+  }
   return {
     run,
     loaded,
+    redshirtKnowledge,
     saved,
     storageWarning,
+    preferences,
+    setPreference,
     load,
     begin,
     assign,
     chooseRoom,
     captainAction,
     chartMission,
+    travel,
+    arrive,
+    deploy,
+    deployBatch,
+    drawDailyDeck,
+    cloneAdvance,
+    clonePrint,
+    endExpedition,
+    hire,
+    visitVenue,
     rechargeShield,
     launch,
     advanceDay,
     decide,
     next,
     chooseRomance,
+    chooseTrio,
     detour,
+    planDetour,
     resolveDetour,
     finish,
     restart,

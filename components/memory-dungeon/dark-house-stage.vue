@@ -25,27 +25,37 @@
     </header>
     <div class="md-mirror-house-layout grid min-h-0 flex-1 gap-2 p-2">
       <div
-        class="relative grid aspect-square max-h-full w-full min-w-0 grid-cols-6 grid-rows-6 gap-1 place-self-center overflow-hidden rounded-xl border-2 border-[#8d76a8] bg-[#171a2d] p-2 shadow-2xl"
+        class="relative isolate grid aspect-square max-h-full w-full min-w-0 grid-cols-6 grid-rows-6 gap-0 place-self-center overflow-hidden rounded-xl border-2 border-[#8d76a8] bg-[#171a2d] p-0 shadow-2xl"
         aria-label="Thirty-six linked House chambers"
       >
+        <memory-dungeon-house-map-art reality="mirrored" />
         <button
           v-for="tileRoom in rooms"
           :key="tileRoom.id"
           type="button"
-          class="relative min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
           :class="
             world.darkHouse.current === tileRoom.id
-              ? 'border-[#f5d89a] bg-[#655179] text-white'
+              ? 'border-[#f5d89a] bg-[#655179]/45 text-white'
               : world.darkHouse.visited.includes(tileRoom.id)
-                ? 'border-[#81b7a8] bg-[#34544f] text-[#f4fff8]'
+                ? 'border-[#81b7a8] bg-[#34544f]/30 text-[#f4fff8]'
                 : world.darkHouseDoors.includes(tileRoom.id)
-                  ? 'border-[#b99bcf] bg-[#4d3d61] text-white'
-                  : 'border-[#42445d] bg-[#1b2031] text-[#8390a3]'
+                  ? 'border-[#b99bcf] bg-[#4d3d61]/30 text-white'
+                  : 'border-[#42445d] bg-[#1b2031]/75 text-[#8390a3]'
           "
           :disabled="!world.darkHouseDoors.includes(tileRoom.id)"
           :aria-label="`${tileRoom.id}: ${world.darkHouse.visited.includes(tileRoom.id) || world.darkHouseDoors.includes(tileRoom.id) ? tileRoom.title : 'unknown room'}`"
           @click="world.walkDarkHouse(tileRoom.id)"
         >
+          <memory-dungeon-action-beacon
+            v-if="
+              world.darkHouseDoors.includes(tileRoom.id) &&
+              world.darkHouse.current !== tileRoom.id &&
+              (!world.darkHouse.visited.includes(tileRoom.id) ||
+                (tileRoom.choices.length > 0 &&
+                  !world.darkHouse.decisions[tileRoom.id]))
+            "
+          />
           <span class="block text-[10px] font-black sm:text-xs">{{
             tileRoom.id.slice(3)
           }}</span>
@@ -228,7 +238,7 @@
                 v-for="answer in world.darkHousePuzzle.options"
                 :key="answer.id"
                 type="button"
-                class="rounded-md border border-[#80608a] bg-[#554266] px-3 py-2 text-left text-xs font-bold text-white disabled:opacity-50"
+                class="min-h-12 rounded-md border border-[#80608a] bg-[#554266] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg text-white disabled:opacity-50"
                 :disabled="Boolean(puzzleProgress?.wrong.includes(answer.id))"
                 @click="world.darkHouseAnswer(answer.id)"
               >
@@ -268,7 +278,13 @@
                   ? 'Oren’s route ledger · free clue'
                   : world.darkHouseEarnedClue === 'supplies'
                     ? 'Oren’s provision ledger · free clue'
-                    : 'Consult the Chronicle · 1 echo'
+                    : world.darkHouseEarnedClue === 'names'
+                      ? 'Witness testimony · free clue'
+                      : world.darkHouseEarnedClue === 'consent'
+                        ? 'Protected witnesses · free clue'
+                        : world.darkHouseEarnedClue === 'earth-photo'
+                          ? 'Dated Earth photograph · free clue'
+                          : 'Consult the Chronicle · 1 echo'
               }}
             </button>
             <p
@@ -312,13 +328,17 @@
               v-for="choice in room?.choices ?? []"
               :key="choice.id"
               type="button"
-              class="min-h-10 rounded-lg bg-[#513d65] px-3 py-2 text-left text-sm font-bold text-[#fff5e5] hover:bg-[#694f7e] focus-visible:outline-2 focus-visible:outline-[#211629]"
+              class="min-h-12 flex-1 rounded-lg bg-[#513d65] px-4 py-3 text-left text-base font-bold leading-snug sm:text-lg lg:text-xl text-[#fff5e5] hover:bg-[#694f7e] focus-visible:outline-2 focus-visible:outline-[#211629]"
               @click="world.chooseDarkHouse(choice.id)"
             >
               {{ choice.label }}
             </button>
           </div>
-          <p v-else class="mt-2 text-xs font-bold text-[#42604e]">
+          <p
+            v-else-if="world.darkHouse.decisions[world.darkHouse.current]"
+            class="mt-2 text-xs font-bold text-[#42604e]"
+            data-testid="dark-house-decision-recorded"
+          >
             ✓ This chamber remembers your decision.
           </p>
           <p
@@ -338,23 +358,38 @@
           >
             {{ world.darkHouseEndingCopy }}
           </p>
-          <div class="mt-3 flex flex-wrap gap-2 border-t border-[#ac95ac] pt-3">
-            <button
-              v-for="door in world.darkHouseDoors"
-              :key="door"
-              class="rounded-md border border-[#78618f] bg-[#493858] px-2 py-1.5 text-xs font-bold text-white"
-              type="button"
-              @click="world.walkDarkHouse(door)"
-            >
-              {{ door }} · {{ roomsById[door]?.title }}
-            </button>
-          </div>
           <p class="mt-3 text-xs text-[#765b7b]">
             {{ world.darkHouse.status }}
           </p>
         </div>
       </aside>
     </div>
+    <footer
+      class="mx-2 mb-2 flex min-h-10 shrink-0 items-center gap-2 overflow-x-auto overscroll-x-contain rounded-lg border border-[#8d76a8] bg-[#29213a] p-2 text-xs"
+      role="group"
+      aria-label="Open Unremembered House passages"
+      data-testid="dark-house-passages"
+    >
+      <span class="shrink-0 whitespace-nowrap font-bold text-[#f3dcaf]"
+        >Open passages</span
+      >
+      <button
+        v-for="door in world.darkHouseDoors"
+        :key="door"
+        type="button"
+        class="shrink-0 whitespace-nowrap rounded-md border border-[#a992c0] bg-[#493858] px-2 py-1.5 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
+        :aria-label="`Travel to ${door}, ${roomsById[door]?.title ?? 'unknown chamber'}`"
+        @click="world.walkDarkHouse(door)"
+      >
+        <span class="sm:hidden">{{ door }}</span>
+        <span class="hidden sm:inline"
+          >{{ door }} · {{ roomsById[door]?.title }}</span
+        >
+      </button>
+      <span v-if="!world.darkHouseDoors.length" class="shrink-0">
+        Resolve this chamber to open a passage.
+      </span>
+    </footer>
   </section>
 </template>
 
@@ -362,10 +397,11 @@
 import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { DARK_HOUSE_ROOMS } from '~/utils/memoryDungeon/darkHouse'
+import { HOUSE_ATLAS_ROOM_IDS } from '~/utils/memoryDungeon/houseAtlas'
 
 const world = useMemoryWorldStore()
 const roomsById = DARK_HOUSE_ROOMS
-const rooms = Object.values(DARK_HOUSE_ROOMS)
+const rooms = HOUSE_ATLAS_ROOM_IDS.map((id) => DARK_HOUSE_ROOMS[id]!)
 const room = computed(() => world.darkHouseRoom)
 const chosen = computed(() =>
   room.value?.choices.find(

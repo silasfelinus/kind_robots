@@ -75,6 +75,13 @@ export type PlaybookNode = {
    * gets a prompt-writing task, not a render (Silas, 2026-10-26).
    */
   artPrompt?: string
+  /** Authored identity transformations (student, hero, villain), with real render slots. */
+  artVariants?: {
+    id: string
+    label: string
+    imageUrl: string | null
+    stats?: Record<string, number>
+  }[]
   /** Where the game reads this beat's picture from the image store (/images/…, not in git); the ledger API reports whether it exists. */
   artPath?: string
   provenance: string
@@ -106,6 +113,8 @@ export type Playbook = {
   order: string[]
   /** Extra highlighted groups shown under the chains: endings, follower lines, quest lines. */
   sections: PlaybookSection[]
+  /** Required pictures used outside story beats (outcomes, emotional portraits, etc.). */
+  artRequirements?: { key: string; title: string; url: string }[]
   people: PlaybookOption[]
   peopleLabel: string
   variations: PlaybookOption[]
@@ -122,8 +131,12 @@ export type Playbook = {
   artLanes: string[]
   /** Extra negative prompt for this game's art (Ecotone: never anthro). */
   artNegative?: string
+  /** The game's own palette and setting words, appended to every art request after the prompt. */
+  artStyle?: string
   /** Art for this game is queued by a Conductor pipeline (named here); the Forge never submits it. */
   artPipeline?: string
+  /** Every beat still to paint has an authored, engine-literal art prompt (held by verifyPlaybookArtPrompts). */
+  artPromptsComplete?: boolean
 }
 
 export function blankNode(

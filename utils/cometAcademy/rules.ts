@@ -1,4 +1,12 @@
 import {
+  personalQuestEvent,
+  personalStanding,
+  personalFinale,
+  validPersonalHistory,
+  type PersonalMemory,
+  type PersonalChoice as WitnessChoice,
+} from './personalQuests'
+import {
   personalEncounter,
   personalEnding,
   isValidPersonalHistory,
@@ -54,7 +62,23 @@ import {
   type SocialActionId,
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
+import {
+  PATROL_ZONES,
+  PATROL_SECRETS,
+  patrolSceneFor,
+  type PatrolZoneId,
+  type PatrolMemory,
+  type PatrolChoice,
+} from './nightPatrols'
 import { districtEncounterFor } from './districtEncounters'
+import { LATE_INCIDENTS } from './lateIncidents'
+import {
+  EXPANDED_INCIDENTS,
+  EXPANDED_MISSIONS,
+  expandedMissionFor,
+  type MissionApproach,
+} from './expandedNightCases'
+import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import {
   CAMPAIGN_ANCHORS,
@@ -509,15 +533,31 @@ export type AcademyRun = {
   signature?: SignaturePowerId
   vow?: PowerVowId
   vowHistory?: VowMemory[]
+  personalHistory?: PersonalMemory[]
   identityHistory?: PersonalHistory[]
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
+  /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
+  incidentDeckVersion?: 2 | 3
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
   visitedDays?: Partial<Record<SiteId, number>>
   injuries?: Partial<Record<StudentId, number>>
   contacts?: StudentId[]
+  /** One night call personally attended by the protagonist; absent on legacy saves. */
+  playerCaseId?: string | null
+  missionApproach?: MissionApproach | null
+  missionClues?: string[]
+  /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
+  patrolOpening?: 1
+  /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
+  nightPatrol?: {
+    zone: PatrolZoneId
+    encounterId: string
+    choiceId: string
+  } | null
+  patrolHistory?: PatrolMemory[]
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
@@ -551,9 +591,41 @@ function hash(seed: number, text: string): number {
   return value
 }
 
+/** Every night case a thirty-day run can draw: the first six, then the late six. */
+export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
+export const FULL_NIGHT_DECK: Incident[] = [
+  ...NIGHT_DECK,
+  ...EXPANDED_INCIDENTS,
+]
+
+export function incidentDeck(run: AcademyRun): Incident[] {
+  return run.incidentDeckVersion === 3
+    ? FULL_NIGHT_DECK
+    : run.incidentDeckVersion === 2
+      ? NIGHT_DECK
+      : INCIDENTS
+}
+
 export function incidentsFor(run: AcademyRun): Incident[] {
-  const offset = (run.seed + run.day - 1) % INCIDENTS.length
-  return [INCIDENTS[offset]!, INCIDENTS[(offset + 3) % INCIDENTS.length]!]
+  const deck = incidentDeck(run)
+  const offset = (run.seed + run.day - 1) % deck.length
+  if (run.flowVersion !== 3 || !run.patrolOpening)
+    return [deck[offset]!, deck[(offset + deck.length / 2) % deck.length]!]
+  // The third night is a double emergency, the first real staffing dilemma.
+  const count =
+    run.day < 3
+      ? 1
+      : run.day <= 7
+        ? 2
+        : run.day <= 14
+          ? 3
+          : run.day <= 21
+            ? 4
+            : 5
+  return Array.from(
+    { length: count },
+    (_, index) => deck[(offset + index * 5) % deck.length]!,
+  )
 }
 
 export function encounterFor(run: AcademyRun) {
@@ -596,6 +668,12 @@ export function encounterFor(run: AcademyRun) {
       ...characterChapter,
       scene: campaignAnchor(run.day) + ' ' + characterChapter.scene,
     }
+  const witnessStory = personalQuestEvent(run)
+  if (witnessStory)
+    return {
+      ...witnessStory,
+      scene: campaignAnchor(run.day) + ' ' + witnessStory.scene,
+    }
   const personalStory = openingRouteFor(run)
   if (personalStory)
     return {
@@ -613,10 +691,13 @@ export function encounterFor(run: AcademyRun) {
           : undefined)
       if (base && run.flowVersion === 3) {
         const previous = run.visitedDays?.[site.id]
+        const revisit = previous ? returnVisitFor(site.id) : undefined
+        const card = revisit ?? base
         return {
-          ...base,
-          title: previous ? `${base.title} / Return Visit` : base.title,
-          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. This new visit is another chance to decide.` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
+          ...card,
+          title:
+            previous && !revisit ? `${base.title} / Return Visit` : card.title,
+          scene: `${campaignAnchor(run.day)} ${previous ? `You return to ${site.name}, where residents remember your choice on day ${previous}. ${revisit ? revisit.scene : 'This new visit is another chance to decide.'}` : base.scene} ${run.opponentSignature && [6, 12, 18, 23, 28].includes(run.day) ? antagonistBeat(identityFor(run.opponentSignature), run.day) : ''}`,
         }
       }
       if (base) return base
@@ -694,6 +775,8 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
+    incidentDeckVersion: 3,
+    missionClues: [],
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
@@ -701,6 +784,8 @@ export function startFullAcademy(
     injuries: {},
     infirmaryDays: [],
     contacts: startingContacts(base.seed),
+    patrolOpening: 1,
+    patrolHistory: [],
     mastermind: campaignVillain(base.seed).id,
     opponentSignature: campaignOpponent(base.seed, base.signature).signature,
     betrayer: campaignBetrayer(base.seed),
@@ -709,10 +794,118 @@ export function startFullAcademy(
   }
 }
 
-export function startingContacts(seed: number): StudentId[] {
-  const friends = STUDENTS.filter((member) => member.origin === 'academy')
-  const index = Math.abs(seed) % friends.length
-  return [friends[index]!.id, friends[(index + 3) % friends.length]!.id]
+export function startingContacts(_seed: number): StudentId[] {
+  // The rookie starts alone. Existing saved contacts are not stripped.
+  return []
+}
+
+/** The friend who calls during night three knows the protagonist from daytime school. */
+export function openingNightFriend(seed: number): (typeof STUDENTS)[number] {
+  const academy = STUDENTS.filter((member) => member.origin === 'academy')
+  return academy[Math.abs(seed) % academy.length]!
+}
+
+export function nightPatrolBeat(
+  run: AcademyRun,
+): { title: string; text: string } | null {
+  if (run.flowVersion !== 3 || !run.patrolOpening || run.phase !== 'dispatch')
+    return null
+  const nickname = run.signature
+    ? identityFor(run.signature).hero.alias
+    : 'rookie'
+  if (run.day === 1)
+    return {
+      title: 'NIGHT ONE · THE EMPTY RADIO',
+      text: `The final bell is hours behind you. Nobody has volunteered to patrol with you. "All right, ${nickname}," you tell your own reflection in a shop window. "One street at a time. Don't try to save the entire city tonight." A call crackles from the neighborhood you chose to watch.`,
+    }
+  if (run.day === 2)
+    return {
+      title: 'NIGHT TWO · TALKING TO THE ROOFTOPS',
+      text: `The classroom felt smaller today than this skyline. You check your gear twice and hear your own voice again: "I can handle one call. I can ask for help without being a fraud." The rooftops offer no reply; the night's first emergency does.`,
+    }
+  if (run.day === 3) {
+    const friend = openingNightFriend(run.seed)
+    return {
+      title: 'NIGHT THREE · THE CITY BREAKS IN TWO',
+      text: `Two emergencies flare on opposite sides of Comet City at once. Your hand shakes over the radio. "I can't be in two places," you hear yourself say, almost shouting. Then your phone rings. ${friend.name}: "I'm on your frequency. I'm coming, whether you split us up or keep us together. Just tell me where." Your first real friend is now on call. Split up to attempt both rescues, or stay together to make one rescue exceptional while the other goes unanswered.`,
+    }
+  }
+  const previous = run.patrolHistory?.at(-1)
+  const reminder = previous
+    ? `Last night in ${PATROL_ZONES.find((zone) => zone.id === previous.zone)!.title}, you made a choice the neighborhood hasn't forgotten.`
+    : 'The city is awake after the school day. Not every wrong can wait for a siren.'
+  return {
+    title: `NIGHT ${run.day} · THE STREETS REMEMBER`,
+    text: `${reminder} Your radio lists urgent calls across Comet City, but ordinary people still need a hero on the blocks nobody puts on the dispatch board. Choose a named emergency or walk a district. You have only one night.`,
+  }
+}
+
+/** District patrols are separate from the mission board, and consume the protagonist's time. */
+export function patrolOptionsFor(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+): PatrolChoice[] {
+  const scene = patrolSceneFor(run.seed, run.day, zone)
+  const options: PatrolChoice[] = [...scene.choices]
+  const secret = PATROL_SECRETS[zone]
+  if (
+    knownContacts(run).includes(secret.ally as StudentId) &&
+    run.patrolHistory?.some(
+      (memory) =>
+        memory.zone === zone && memory.choiceId.endsWith('-investigate'),
+    )
+  )
+    options.push(secret.choice)
+  return options
+}
+
+export function chooseNightPatrol(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+  choiceId: string,
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.patrolOpening !== 1 ||
+    run.day < 4 ||
+    run.phase !== 'dispatch' ||
+    !PATROL_ZONES.some((item) => item.id === zone)
+  )
+    return run
+  const scene = patrolSceneFor(run.seed, run.day, zone)
+  if (!patrolOptionsFor(run, zone).some((option) => option.id === choiceId))
+    return run
+  return {
+    ...run,
+    playerCaseId: null,
+    missionApproach: null,
+    nightPatrol: { zone, encounterId: scene.id, choiceId },
+  }
+}
+
+/** Night three is an authored allocation dilemma, not two automatic dice rolls. */
+export function planThirdNight(
+  run: AcademyRun,
+  caseId: string,
+  approach: 'split' | 'concentrate',
+): AcademyRun {
+  if (run.phase !== 'dispatch' || run.patrolOpening !== 1 || run.day !== 3)
+    return run
+  const cases = incidentsFor(run)
+  if (!cases.some((incident) => incident.id === caseId) || cases.length !== 2)
+    return run
+  const friend = openingNightFriend(run.seed).id
+  if (!knownContacts(run).includes(friend) || !studentAvailable(run, friend))
+    return run
+  const companionCaseId =
+    approach === 'concentrate'
+      ? caseId
+      : cases.find((incident) => incident.id !== caseId)!.id
+  return {
+    ...run,
+    playerCaseId: caseId,
+    assignments: [{ caseId: companionCaseId, students: [friend] }],
+  }
 }
 
 export function knownContacts(run: AcademyRun): StudentId[] {
@@ -727,6 +920,7 @@ export function recruitableContact(run: AcademyRun) {
   if (
     run.flowVersion !== 3 ||
     run.phase !== 'campus' ||
+    (run.patrolOpening === 1 && run.day <= 3) ||
     !run.selectedSite ||
     run.day >= 29 ||
     STORY_LOCK_DAYS.includes(run.day)
@@ -757,6 +951,7 @@ export function emergencyContact(run: AcademyRun) {
   if (
     run.flowVersion !== 3 ||
     run.phase !== 'dispatch' ||
+    run.day <= 3 ||
     knownContacts(run).some((id) => studentAvailable(run, id))
   )
     return null
@@ -859,6 +1054,59 @@ export function socialize(
   }
 }
 
+/** Joining a call is separate from asking a classmate to volunteer for it. */
+/** Hidden until after a personally led mission succeeds. Prior evidence and
+ * the right field power open a real alternate resolution, not a cosmetic badge. */
+export function missionSecretFor(
+  run: AcademyRun,
+  caseId: string,
+): string | null {
+  const mission = expandedMissionFor(caseId)
+  if (
+    !mission ||
+    run.flowVersion !== 3 ||
+    run.playerCaseId !== caseId ||
+    run.power !== mission.incident.need ||
+    !(run.missionClues ?? []).some(
+      (id) =>
+        id !== caseId && expandedMissionFor(id)?.thread === mission.thread,
+    )
+  )
+    return null
+  return mission.secret
+}
+
+export function selectMissionApproach(
+  run: AcademyRun,
+  caseId: string,
+  approach: MissionApproach,
+): AcademyRun {
+  if (
+    run.phase !== 'dispatch' ||
+    run.flowVersion !== 3 ||
+    run.playerCaseId !== caseId ||
+    !expandedMissionFor(caseId) ||
+    !['rescue', 'investigate'].includes(approach)
+  )
+    return run
+  return { ...run, missionApproach: approach }
+}
+
+export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.phase !== 'dispatch' ||
+    !incidentsFor(run).some((incident) => incident.id === caseId)
+  )
+    return run
+  return {
+    ...run,
+    playerCaseId: run.playerCaseId === caseId ? null : caseId,
+    missionApproach: 'rescue',
+    nightPatrol: null,
+  }
+}
+
 export function assignTeam(
   run: AcademyRun,
   caseId: string,
@@ -884,6 +1132,12 @@ export function assignTeam(
     selected.some((id) =>
       remaining.some((assignment) => assignment.students.includes(id)),
     )
+  )
+    return run
+  if (
+    run.flowVersion === 3 &&
+    selected.length &&
+    remaining.length >= (run.day <= 7 ? 1 : run.day <= 14 ? 2 : 3)
   )
     return run
   return {
@@ -957,18 +1211,42 @@ export function dispatchModifier(
     run.flowVersion === 3 ? missionRoute(incident.id, students) : null
   return (
     students.length +
+    (run.flowVersion === 3 && run.playerCaseId === incident.id ? 1 : 0) +
+    (run.patrolOpening === 1 &&
+    run.day === 3 &&
+    run.playerCaseId === incident.id &&
+    students.includes(openingNightFriend(run.seed).id)
+      ? 2
+      : 0) +
     (affinity ? 2 : 0) +
-    (run.power === incident.need ? 1 : 0) +
+    (run.flowVersion === 3
+      ? run.playerCaseId === incident.id
+        ? run.power === incident.need
+          ? 2
+          : 1
+        : 0
+      : run.power === incident.need
+        ? 1
+        : 0) +
     civicSupport +
     academySupport -
     sabotagePenalty -
     identityPressure +
     (run.flowVersion === 3
       ? evolutionNightModifier(run.playerEvolution, incident.allegiance) +
-        socialMissionBonus(run.relationships, [...students])
+        socialMissionBonus(run.relationships, [...students]) +
+        Math.sign(personalStanding(run.personalHistory))
       : 0) +
     response +
-    (route?.boost ?? 0)
+    (route?.boost ?? 0) +
+    (run.flowVersion === 3 &&
+    run.playerCaseId === incident.id &&
+    expandedMissionFor(incident.id)
+      ? run.missionApproach === 'investigate'
+        ? -1
+        : 1
+      : 0) +
+    (missionSecretFor(run, incident.id) ? 2 : 0)
   )
 }
 
@@ -980,7 +1258,8 @@ export function dispatchChance(
   const incident = incidentsFor(run).find((item) => item.id === caseId)
   if (
     !incident ||
-    !students.length ||
+    (!students.length &&
+      !(run.flowVersion === 3 && run.playerCaseId === caseId)) ||
     students.length > 3 ||
     new Set(students).size !== students.length ||
     students.some(
@@ -1000,14 +1279,22 @@ export function dispatchChance(
 }
 
 export function resolveDispatch(run: AcademyRun): AcademyRun {
-  if (run.phase !== 'dispatch' || run.assignments.length === 0) return run
+  if (
+    run.phase !== 'dispatch' ||
+    (run.assignments.length === 0 && !run.playerCaseId && !run.nightPatrol) ||
+    (run.patrolOpening === 1 && !run.playerCaseId && !run.nightPatrol)
+  )
+    return run
   let influence = run.influence
   let danger = run.danger
   const injuries = { ...(run.injuries ?? {}) }
+  const missionClues = [...(run.missionClues ?? [])]
   const reports = incidentsFor(run).map((incident) => {
-    const assignment = run.assignments.find(
-      (entry) => entry.caseId === incident.id,
-    )
+    const assignment =
+      run.assignments.find((entry) => entry.caseId === incident.id) ??
+      (run.playerCaseId === incident.id
+        ? { caseId: incident.id, students: [] as StudentId[] }
+        : undefined)
     if (!assignment) {
       danger += 1
       return {
@@ -1017,7 +1304,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         grade: 'failed' as Grade,
         text:
           [2, 3].includes(run.flowVersion ?? 0) && run.day > 2
-            ? 'No team accepts this call. Municipal crews attempt the rescue without academy help; the people abandoned remember who declined.'
+            ? (realNightCase(incident.id)?.refused ??
+              'No one answers this call. Comet City bears the cost.')
             : 'A training team from another class steps in. Your empty assignment slot is logged as a refusal.',
       }
     }
@@ -1036,14 +1324,28 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       run.flowVersion === 3 &&
       run.day >= 11 &&
       reportedNetwork < (run.day >= 26 ? 3 : run.day >= 17 ? 2 : 1)
-    const grade: Grade =
-      score >= incident.risk + 4
-        ? 'honors'
-        : score >= incident.risk + 2
-          ? 'pass'
-          : score >= incident.risk
-            ? 'partial'
-            : 'failed'
+    const isThirdNight = run.patrolOpening === 1 && run.day === 3
+    const focusTogether =
+      isThirdNight &&
+      run.playerCaseId === incident.id &&
+      assignment.students.includes(openingNightFriend(run.seed).id)
+    const splitting =
+      isThirdNight &&
+      !focusTogether &&
+      run.assignments.some((entry) =>
+        entry.students.includes(openingNightFriend(run.seed).id),
+      )
+    const grade: Grade = focusTogether
+      ? 'honors'
+      : splitting && score < incident.risk
+        ? 'partial'
+        : score >= incident.risk + 4
+          ? 'honors'
+          : score >= incident.risk + 2
+            ? 'pass'
+            : score >= incident.risk
+              ? 'partial'
+              : 'failed'
     influence +=
       grade === 'honors'
         ? 2
@@ -1070,7 +1372,8 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         'The exercise collapses into a rescue of the rescuers. Nobody dies here, but the argument about your choices is real.',
     }[grade]
     const baseText =
-      ([2, 3].includes(run.flowVersion ?? 0) && run.day > 2
+      (((run.flowVersion === 3 || run.flowVersion === 2) && run.day > 2) ||
+      run.flowVersion === 3
         ? realNightCase(incident.id)?.consequences[grade]
         : undefined) ?? trainingText
     const sabotagedBy =
@@ -1092,12 +1395,43 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       sabotagedBy && incident.allegiance !== 'villain'
         ? `${textWithBonds} Witnesses report that ${sabotagedBy.name} ${sabotagedBy.sabotage}.`
         : textWithBonds
-    const resolvedText = special
-      ? `${text} SPECIAL ROUTE: ${special.label}. ${special.result}`
-      : text
+    const dramaticText = focusTogether
+      ? `${text} You and ${openingNightFriend(run.seed).name} coordinate every move. The rescue is extraordinary, but you both hear the other emergency go unanswered.`
+      : splitting
+        ? `${text} Over a shared radio channel, you and ${openingNightFriend(run.seed).name} hold two separate fronts at once. Neither gets all the help they need, but neither is forgotten.`
+        : text
+    const expanded = expandedMissionFor(incident.id)
+    const personallyLed = run.playerCaseId === incident.id
+    const approach = personallyLed
+      ? (run.missionApproach ?? 'rescue')
+      : 'rescue'
+    const succeeded = grade !== 'failed'
+    const foundClue = Boolean(
+      expanded && personallyLed && approach === 'investigate' && succeeded,
+    )
+    if (foundClue && !missionClues.includes(incident.id))
+      missionClues.push(incident.id)
+    const secret = succeeded ? missionSecretFor(run, incident.id) : null
+    const tacticalText =
+      expanded && personallyLed
+        ? approach === 'investigate'
+          ? succeeded
+            ? ' You accepted greater danger to preserve testimony. The evidence enters your casebook, and may change a later mission in this district.'
+            : ' Your investigation was overtaken by the emergency. No usable evidence survived.'
+          : ' You prioritized the immediate rescue, but the underlying investigation remains open.'
+        : ''
+    const resolvedText = [
+      dramaticText,
+      tacticalText,
+      secret ? `POWER SECRET: ${secret}` : '',
+      special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
+      assignment.students.length > 0 &&
       (grade === 'failed' || (grade === 'partial' && roll % 2 === 0))
     ) {
       const index =
@@ -1111,21 +1445,81 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       title: incident.title,
       grade,
       text: resolvedText,
-      names: assignment.students
-        .map((id) => STUDENTS.find((s) => s.id === id)!.name)
-        .join(' · '),
+      names: [
+        ...(run.playerCaseId === incident.id ? ['YOU · on patrol'] : []),
+        ...assignment.students.map(
+          (id) => STUDENTS.find((s) => s.id === id)!.name,
+        ),
+      ].join(' · '),
     }
   })
+  const patrol = run.nightPatrol
+  const patrolScene = patrol
+    ? patrolSceneFor(run.seed, run.day, patrol.zone)
+    : null
+  const patrolChoice = patrol
+    ? patrolOptionsFor(run, patrol.zone).find(
+        (choice) => choice.id === patrol?.choiceId,
+      )
+    : null
+  const zone = patrol
+    ? PATROL_ZONES.find((candidate) => candidate.id === patrol.zone)
+    : null
+  if (patrolChoice && patrolScene && zone) {
+    influence += patrolChoice.influence
+    danger += patrolChoice.danger
+    reports.push({
+      caseId: `patrol-${run.day}-${zone.id}`,
+      title: `${zone.title}: ${patrolScene.title}`,
+      grade: patrolChoice.id.endsWith('-secret')
+        ? 'honors'
+        : patrolChoice.id.endsWith('-investigate')
+          ? 'partial'
+          : 'pass',
+      text: patrolChoice.result,
+      names: 'YOU · night neighborhood patrol',
+    })
+  }
+  const patrolMemory: PatrolMemory | null =
+    patrol && patrolScene && patrolChoice
+      ? {
+          day: run.day,
+          zone: patrol.zone,
+          encounterId: patrolScene.id,
+          choiceId: patrolChoice.id,
+        }
+      : null
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
-    ...(run.flowVersion === 3 ? { injuries } : {}),
+    ...(run.flowVersion === 3
+      ? {
+          injuries,
+          playerCaseId: null,
+          nightPatrol: null,
+          missionApproach: null,
+          missionClues,
+        }
+      : {}),
+    ...(patrolMemory
+      ? {
+          patrolHistory: [...(run.patrolHistory ?? []), patrolMemory],
+          academyStanding:
+            (run.academyStanding ?? 0) +
+            (zone?.siteId === 'academy-roof' ? patrolChoice!.standing : 0),
+          cityStanding:
+            (run.cityStanding ?? 0) +
+            (zone?.siteId !== 'academy-roof' ? patrolChoice!.standing : 0),
+        }
+      : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
-    scene: [2, 3].includes(run.flowVersion ?? 0)
-      ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
-      : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    scene: patrolChoice
+      ? `Night ${run.day} ends. ${patrolChoice.result} The school will hear about this tomorrow.`
+      : [2, 3].includes(run.flowVersion ?? 0)
+        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -1206,6 +1600,16 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
   const vowHistory = vowAction
     ? [...(run.vowHistory ?? []), { day: run.day, action: vowAction }]
     : run.vowHistory
+  const witnessMatch = /^personal-(6|9|19|22)-(protect|confront|exploit)$/.exec(
+    option.id,
+  )
+  const witnessChoice =
+    Number(witnessMatch?.[1]) === run.day
+      ? (witnessMatch?.[2] as WitnessChoice)
+      : null
+  const personalHistory = witnessChoice
+    ? [...(run.personalHistory ?? []), { day: run.day, choice: witnessChoice }]
+    : run.personalHistory
   const betrayerId = run.betrayer ?? campaignBetrayer(run.seed)
   const plotEvidence = [...(run.plotEvidence ?? [])]
   if (
@@ -1239,6 +1643,7 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'dispatch' : 'debrief',
     ...(vowAction ? { vowHistory } : {}),
+    ...(witnessChoice ? { personalHistory } : {}),
     ...(personalAction ? { identityHistory } : {}),
     ...(run.flowVersion === 3 && run.day === 29
       ? {
@@ -1273,7 +1678,19 @@ export function chooseEncounter(run: AcademyRun, optionId: string): AcademyRun {
     scene:
       run.flowVersion === 2
         ? `${scene} Dusk settles; you must now assign a night team.`
-        : scene,
+        : run.patrolOpening === 1 && run.day === 3
+          ? `${scene} After the last bell, two emergency frequencies go live. ${openingNightFriend(run.seed).name} calls and volunteers to help you. Tonight your decisions decide who goes home.`
+          : scene,
+    ...(run.patrolOpening === 1 && run.day === 3
+      ? {
+          contacts: [
+            ...new Set([
+              ...knownContacts(run),
+              openingNightFriend(run.seed).id,
+            ]),
+          ],
+        }
+      : {}),
     ...(run.flowVersion === 3 && run.selectedSite
       ? {
           visitedDays: { ...run.visitedDays, [run.selectedSite]: run.day },
@@ -1314,10 +1731,17 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
     day: run.day + 1,
     selectedSite: undefined,
+    nightPatrol: null,
+    missionApproach: null,
     assignments: [],
     reports: [],
     scene:
-      'The next bell rings. Yesterday has already changed who will answer your calls.',
+      run.patrolHistory?.at(-1)?.day === run.day
+        ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
+        : run.missionClues?.length &&
+            run.reports.some((report) => report.text.includes('casebook'))
+          ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
+          : 'The next bell rings. Yesterday has already changed who will answer your calls.',
   }
 }
 
@@ -1347,6 +1771,7 @@ export function finishAcademy(
       evidenceCount * 2 +
       (reconciled ? 2 : 0) +
       routeStanding(run.vowHistory) +
+      personalStanding(run.personalHistory) +
       personalOutcomeModifier(run.identityHistory)
     const identityPressure = opponentPressure(
       run.signature,
@@ -1361,17 +1786,30 @@ export function finishAcademy(
     const opponentEpilogue = opponent ? antagonistFinale(opponent, earned) : ''
     const rescue = choice === 'protect' || choice === 'evacuate'
     const shared = choice === 'share'
-    const ending = shared
-      ? earned
-        ? 'A CITY WITH A THOUSAND KEYS'
-        : 'THE BROKEN GRID'
-      : rescue
+    // Nobody exposed an accomplice and nobody came: the mastermind takes
+    // every tower the player did not hand to the neighborhoods.
+    const villainTakesShield = !earned && evidenceCount === 0 && !shared
+    const ending = villainTakesShield
+      ? 'THE SHIELD CHANGES HANDS'
+      : shared
         ? earned
-          ? 'THE LAST DANCE LEAVES BY BOAT'
-          : 'THE MUSIC AFTER GLASS'
-        : earned
-          ? 'MASTER OF THE SHIELD'
-          : 'THE PRICE OF A SINGLE SWITCH'
+          ? 'A CITY WITH A THOUSAND KEYS'
+          : 'THE BROKEN GRID'
+        : rescue
+          ? earned
+            ? choice === 'evacuate'
+              ? 'THE TRANSMITTER GOES DARK'
+              : 'THE LAST DANCE LEAVES BY BOAT'
+            : 'THE MUSIC AFTER GLASS'
+          : earned
+            ? 'MASTER OF THE SHIELD'
+            : 'THE PRICE OF A SINGLE SWITCH'
+    const endingTurn =
+      ending === 'THE SHIELD CHANGES HANDS'
+        ? `Nobody exposed a single accomplice operation, so nobody knows which relay to cut. While you ${choice === 'command' ? 'fight for a console that is already answering someone else' : 'carry guests out through the broken glass'}, ${villain.name} takes the shield towers whole, and by dawn the city's protection answers to a new owner.`
+        : ending === 'THE TRANSMITTER GOES DARK'
+          ? 'Your allies hold the doors while the transmitter dies in a shower of sparks with the beam still climbing. The shield towers fall dark and stay dark, and the city starts rebuilding its defenses by hand, block by block, with the people who carried the injured out.'
+          : ''
     const keys =
       run.guestPlan === 'duplicate'
         ? 'Independent rescuers possess duplicate emergency keys.'
@@ -1398,7 +1836,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
@@ -1487,6 +1925,28 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
   const data = migrateSignature(raw as Partial<AcademyRun>)
   if (
     data.version !== 1 ||
+    (data.patrolOpening !== undefined &&
+      (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
+    (data.missionApproach !== undefined &&
+      data.missionApproach !== null &&
+      (data.flowVersion !== 3 ||
+        !['rescue', 'investigate'].includes(data.missionApproach) ||
+        (data.missionApproach === 'investigate' &&
+          (!data.playerCaseId || !expandedMissionFor(data.playerCaseId))))) ||
+    (data.missionClues !== undefined &&
+      (!Array.isArray(data.missionClues) ||
+        data.flowVersion !== 3 ||
+        data.missionClues.length > EXPANDED_MISSIONS.length ||
+        new Set(data.missionClues).size !== data.missionClues.length ||
+        data.missionClues.some(
+          (id) => typeof id !== 'string' || !expandedMissionFor(id),
+        ))) ||
+    (data.playerCaseId != null &&
+      (data.flowVersion !== 3 ||
+        typeof data.playerCaseId !== 'string' ||
+        !incidentsFor(data as AcademyRun).some(
+          (caseFile) => caseFile.id === data.playerCaseId,
+        ))) ||
     !POWERS.some((p) => p.id === data.power) ||
     (data.signature !== undefined &&
       (!signatureById(data.signature) ||
@@ -1494,6 +1954,10 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.vow !== undefined && !POWER_VOWS.some((v) => v.id === data.vow)) ||
     (data.vowHistory !== undefined &&
       (!data.vow || !isVowMemory(data.vowHistory, data.day ?? 0))) ||
+    (data.personalHistory !== undefined &&
+      (!data.signature ||
+        data.flowVersion !== 3 ||
+        !validPersonalHistory(data.personalHistory, data.day ?? 0))) ||
     (data.identityHistory !== undefined &&
       (!data.signature ||
         !isValidPersonalHistory(data.identityHistory, data.day ?? 0))) ||
@@ -1501,11 +1965,14 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
       (!['student', 'hero', 'villain'].includes(data.initialForm) ||
         (data.initialForm !== 'student' && !data.signature))) ||
     typeof data.seed !== 'number' ||
+    !Number.isFinite(data.seed) ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
     data.day < 1 ||
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
+    (data.incidentDeckVersion !== undefined &&
+      (![2, 3].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||
@@ -1592,6 +2059,48 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.cityStanding !== undefined &&
       (!Number.isFinite(data.cityStanding) ||
         !Number.isInteger(data.cityStanding)))
+  )
+    return null
+  // Validate optional patrol state only after primitive, roster and date checks.
+  // Otherwise a malformed imported save could cause a lookup to throw.
+  if (
+    (data.nightPatrol !== undefined &&
+      data.nightPatrol !== null &&
+      (data.flowVersion !== 3 ||
+        data.patrolOpening !== 1 ||
+        data.phase !== 'dispatch' ||
+        data.day! < 4 ||
+        !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
+        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone)
+          .id !== data.nightPatrol.encounterId ||
+        !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
+          (option) => option.id === data.nightPatrol?.choiceId,
+        ) ||
+        Boolean(data.playerCaseId))) ||
+    (data.patrolHistory !== undefined &&
+      (!Array.isArray(data.patrolHistory) ||
+        data.flowVersion !== 3 ||
+        (data.patrolOpening !== 1 && data.patrolHistory.length > 0) ||
+        data.patrolHistory.length > 26 ||
+        data.patrolHistory.some(
+          (entry, i) =>
+            !entry ||
+            !Number.isInteger(entry.day) ||
+            entry.day < 4 ||
+            entry.day > data.day! ||
+            (i > 0 && entry.day <= data.patrolHistory![i - 1]!.day) ||
+            !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
+            patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !==
+              entry.encounterId ||
+            ![
+              ...patrolSceneFor(
+                data.seed ?? 0,
+                entry.day,
+                entry.zone,
+              ).choices.map((option) => option.id),
+              PATROL_SECRETS[entry.zone].choice.id,
+            ].includes(entry.choiceId),
+        )))
   )
     return null
   return data as AcademyRun

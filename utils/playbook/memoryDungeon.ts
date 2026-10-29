@@ -2,7 +2,13 @@ import { COMBAT_ROOMS } from '../memoryDungeon/rooms'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
 import { DARK_BRIAR_SCENES, DARK_BRIAR_SEALS } from '../memoryDungeon/darkBriar'
 import { DARK_HOUSE_ROOMS } from '../memoryDungeon/darkHouse'
+import { DARK_HOUSE_TRIALS } from '../memoryDungeon/darkHouseChallenges'
 import { HOUSE_ROOMS } from '../memoryDungeon/house'
+import { BRIAR_QUESTS } from '../memoryDungeon/briarQuests'
+import {
+  HOUSE_EPILOGUES,
+  HOUSE_EPILOGUE_LENS_LABELS,
+} from '../memoryDungeon/houseEpilogues'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import {
   BRIAR_DUNGEON,
@@ -22,8 +28,8 @@ import {
 // Playbook Studio adapter for Memory Dungeon (Silas, 2026-10-26: "can we also
 // get support for memory dungeon?"). Two 8×8 worlds and their Houses as beats:
 // the Briar Marches overworld, the House beneath it (HD-01..36, the Rootbound
-// Warden, three endings), the inverted Dark Briar and its Dark House (two
-// endings), the Earth photographs the chronicle collects, and the monsters.
+// Warden, three Hearth resolutions told as twelve earned epilogues), the
+// inverted Dark Briar and its Dark House (two endings), the Earth photographs the chronicle collects, and the monsters.
 //
 // Text and art prompts are authored in code; beats are read-only here. Art is
 // served from the image store (/images/memory-dungeon/…, not in git), so each
@@ -62,6 +68,18 @@ function scene(
     success: { text: choice.outcome },
   }))
   return node
+}
+
+/**
+ * The Dark House's guardians (the frightened Hearth Guard, the Housekeeper,
+ * the Collector, the Twinned Guard and the Warden's hearing) each bar a door
+ * with their own evidence trial, so they are adversaries, not plain rooms.
+ */
+function darkHouseKind(room: { id: string; kind: string }): NodeKind {
+  return DARK_HOUSE_TRIALS[room.id] &&
+    (room.kind === 'combat' || room.kind === 'guardian')
+    ? 'boss'
+    : 'spine'
 }
 
 /** Beats that are authored map positions: overworld tiles and House rooms. */
@@ -110,11 +128,37 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     )
   }
 
-  // The House beneath the Briar: thirty-six rooms, the Warden, three endings.
+  // World One's side quests: threads across Briar scenes and House rooms.
+  const quests = BRIAR_QUESTS.map((quest) => {
+    const key = add(
+      scene(`briar-quest:${quest.id}`, 'quest', quest.title, {
+        place: `Briar Marches · ${quest.giver}`,
+        chapter: 1,
+        body: [
+          quest.hook,
+          ...quest.steps.map(
+            (step) =>
+              `${step.scope === 'house' ? 'House' : 'Briar'} ${step.key}: ${step.text}`,
+          ),
+          quest.complete,
+          quest.closed,
+        ],
+        artPrompt: quest.artPrompt,
+        artPath: quest.artPath,
+      }),
+    )
+    nodes[key]!.lenses = [quest.lens]
+    return key
+  })
+
+  // The House beneath the Briar: thirty-six rooms, the Warden, three Hearth resolutions.
   const house: string[] = []
   for (const room of Object.values(HOUSE_ROOMS)) {
+    // The Thornbound Housekeeper is a guardian met in her own room. The
+    // House's three duelling guardians are counted once, as their combat
+    // rooms under Monsters.
     const kind: NodeKind =
-      room.id === 'HD-32'
+      room.id === 'HD-32' || room.id === 'HD-16'
         ? 'boss'
         : room.id === 'HD-35'
           ? 'crossroads'
@@ -139,16 +183,38 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     )
   }
   const climax = Object.values(HOUSE_ROOMS).find((r) => r.id === 'HD-35')
+  // The Hearth resolutions are the choice; the epilogues are the endings.
   const houseEndings = (climax?.choices ?? []).map((choice) =>
     add(
-      scene(`house-ending:${choice.id}`, 'ending', choice.label, {
+      scene(`house-ending:${choice.id}`, 'crossroads', choice.label, {
         place: 'The Memory Hearth',
         chapter: 2,
         body: [choice.outcome],
+        artPrompt: choice.artPrompt,
         artPath: `${ROOT}/house/ending-${choice.id}.webp`,
       }),
     ),
   )
+
+  const houseEpilogues = Object.values(HOUSE_EPILOGUES).map((epilogue) => {
+    const resolution = climax?.choices.find(
+      (choice) => choice.id === epilogue.resolution,
+    )
+    const key = add(
+      scene(`house-epilogue:${epilogue.id}`, 'ending', epilogue.title, {
+        place: `The Memory Hearth · ${HOUSE_EPILOGUE_LENS_LABELS[epilogue.lens]}`,
+        chapter: 2,
+        body: [
+          epilogue.text,
+          `Reached by choosing "${resolution?.label ?? epilogue.resolution}" at the Memory Hearth when the road there leaned toward ${HOUSE_EPILOGUE_LENS_LABELS[epilogue.lens].toLowerCase()}.`,
+        ],
+        artPrompt: epilogue.artPrompt,
+        artPath: epilogue.artPath,
+      }),
+    )
+    nodes[key]!.lenses = [epilogue.lens]
+    return key
+  })
 
   // World two: the Dark Briar, the same map turned inside out.
   const dark: string[] = []
@@ -188,7 +254,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
   for (const room of Object.values(DARK_HOUSE_ROOMS)) {
     darkHouse.push(
       add(
-        scene(`dark-house:${room.id}`, 'spine', room.title, {
+        scene(`dark-house:${room.id}`, darkHouseKind(room), room.title, {
           place: `The Dark House · ${room.id} · ${room.kind}`,
           chapter: 4,
           body: [room.opening],
@@ -244,6 +310,7 @@ export function buildMemoryDungeonPlaybook(): Playbook {
         place: `Combat · ${room.enemy.hp} HP`,
         chapter: 6,
         body: [room.intro],
+        artPrompt: room.artPrompt,
         artPath: `${ROOT}/monsters/${room.enemy.name
           .toLowerCase()
           .replace(/^the\s+/, '')
@@ -265,8 +332,18 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     headings: { 0: heading },
   })
   const routes = [
-    route('briar', 'Briar Marches', briar, 'World one: the Briar Marches'),
-    route('house', 'The House', [...house, ...houseEndings], 'The House'),
+    route(
+      'briar',
+      'Briar Marches',
+      [...briar, ...quests],
+      'World one: the Briar Marches',
+    ),
+    route(
+      'house',
+      'The House',
+      [...house, ...houseEndings, ...houseEpilogues],
+      'The House',
+    ),
     route('dark', 'Dark Briar', dark, 'World two: the Dark Briar'),
     route(
       'dark-house',
@@ -280,15 +357,27 @@ export function buildMemoryDungeonPlaybook(): Playbook {
     game: 'memory-dungeon',
     title: 'Memory Dungeon',
     blurb:
-      'Two 8×8 worlds and their Houses: 64 Briar scenes, 36 rooms, the Dark Briar, the Dark House and five endings.',
+      'Two 8×8 worlds and their Houses: 64 Briar scenes, eight side quests, 36 rooms, the Dark Briar, the Dark House, twelve House epilogues and two Dark House verdicts.',
     routes,
     nodes,
     order: storyOrder(routes, [...photos, ...monsters]),
     sections: [
       {
         title: 'Endings',
-        blurb: 'Three for the House, two for the Dark House.',
-        keys: [...houseEndings, ...darkEndings],
+        blurb:
+          'Twelve House epilogues, each Memory Hearth resolution told through one of four earned lenses, and the two Dark House verdicts.',
+        keys: [...houseEpilogues, ...darkEndings],
+      },
+      {
+        title: 'Memory Hearth resolutions',
+        blurb: 'The three promises the House will keep.',
+        keys: houseEndings,
+      },
+      {
+        title: 'Side quests',
+        blurb:
+          'Eight threads across the Briar and the House, taken or closed by the choices made along them.',
+        keys: quests,
       },
       {
         title: 'Earth photographs',
@@ -297,7 +386,8 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       },
       {
         title: 'Monsters',
-        blurb: 'Who the combat rooms pit you against.',
+        blurb:
+          'Who the combat rooms pit you against: two forest duels, the House’s three guardians and the Rootbound Warden.',
         keys: monsters,
       },
     ],
@@ -312,11 +402,12 @@ export function buildMemoryDungeonPlaybook(): Playbook {
       encounter: 'Scene',
       quest: 'Seal',
       crossroads: 'The Memory Hearth',
-      boss: 'Monster',
+      boss: 'Adversary',
       thread: 'Earth photograph',
       ending: 'Ending',
     },
     editable: false,
+    artPromptsComplete: true,
     artProject: 'memory-dungeon',
     artLanes: ['krea2'],
     artPipeline:

@@ -75,6 +75,15 @@ jobs:
       - name: Memory Dungeon per-realm authored content integrity gate
         run: npx tsx utils/scripts/verifyMemoryRealmManifest.test.ts
 
+      - name: Memory Dungeon House twelve earned epilogues, reachability and saves
+        run: npx tsx utils/scripts/verifyMemoryHouseEpilogues.test.ts
+
+      - name: Memory Dungeon House three-floor narrative thresholds
+        run: npx tsx utils/scripts/verifyMemoryHouseFloorStory.test.ts
+
+      - name: Memory Dungeon World One side quests, closures and epilogue weight
+        run: npx tsx utils/scripts/verifyMemoryBriarQuests.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 
@@ -1534,6 +1543,12 @@ jobs:
 
       - name: Art Archive ingestion controls contract
         run: npm run test:art-archive-ingestion-controls
+
+      - name: Hybridizer art lifecycle and delivery contract
+        run: npm run test:hybridizer-art
+
+      - name: Hybridizer canonical fusion cache contract
+        run: npm run test:hybridizer-cache
 
       - name: Memory Dungeon gallery feed contract
         run: npm run test:memory-art-feed

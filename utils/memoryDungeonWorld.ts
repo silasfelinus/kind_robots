@@ -2,7 +2,10 @@ import {
   isCombatRoom,
   restoreBriarCombat,
   type BriarCombat,
+  type CombatRoomId,
 } from './memoryDungeon/rooms'
+import { darkBriarDuelForRoom } from './memoryDungeon/darkBriarDuels'
+import { briarLossContinuation } from './memoryDungeon/lossContinuations'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
   restoreMinefieldRun,
@@ -13,6 +16,7 @@ import {
   restoreHouseProgress,
   type HouseProgress,
 } from './memoryDungeon/house'
+import { houseEpilogueLens } from './memoryDungeon/houseEpilogues'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -305,7 +309,7 @@ export interface BriarSave {
   sealedPartnerFound: boolean
   room: 'map' | 'memory' | 'house'
   house: HouseProgress | null
-  roomId: 'vault-1' | 'vault-2' | 'sprite' | 'patrol' | null
+  roomId: 'vault-1' | CombatRoomId | null
   cards: BriarMemoryCard[]
   /** A combat room in progress (t-007); null in Classic rooms and on the map. */
   combat: BriarCombat | null
@@ -390,6 +394,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         typeof choice === 'string' &&
+        visited.includes(key) &&
         BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
       ) {
         sceneChoices[key] = choice
@@ -410,8 +415,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
-  const combat = restoreBriarCombat(saved.combat)
   const house = restoreHouseProgress(saved.house)
+  if (house?.ending && !house.endingLens)
+    house.endingLens = houseEpilogueLens(house, sceneChoices)
   const waveIndex =
     Number.isInteger(saved.waveIndex) &&
     saved.waveIndex! >= 0 &&
@@ -433,12 +439,12 @@ export function restoreBriarSave(input: unknown): BriarSave {
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const roomId =
-    saved.roomId === 'vault-1' ||
-    saved.roomId === 'vault-2' ||
-    saved.roomId === 'sprite' ||
-    saved.roomId === 'patrol'
+    saved.roomId === 'vault-1' || isCombatRoom(saved.roomId)
       ? saved.roomId
       : null
+  const combat = isCombatRoom(roomId)
+    ? restoreBriarCombat(saved.combat, roomId)
+    : null
   // A combat room restores only with its fight; a Classic room only with its cards.
   const combatRoom = isCombatRoom(roomId) && combat !== null
   const inRoom = combatRoom || (!isCombatRoom(roomId) && cards.length > 0)
@@ -518,6 +524,170 @@ export function restoreBriarSave(input: unknown): BriarSave {
       typeof saved.status === 'string'
         ? saved.status.slice(0, 220)
         : fresh.status,
+  }
+}
+
+/** Preserve an interrupted first flip in a non-combat chamber without reviving
+ * mismatches, lantern previews or cards with forged picture identities. */
+export function recoverBriarRoomFirstFlip(
+  progress: BriarSave,
+  saved: unknown,
+): { progress: BriarSave; firstCard: number | null; recovered: boolean } {
+  const unchanged = { progress, firstCard: null, recovered: false }
+  if (
+    progress.room !== 'memory' ||
+    progress.combat ||
+    !saved ||
+    typeof saved !== 'object'
+  )
+    return unchanged
+  const rawCards = (saved as Partial<BriarSave>).cards
+  if (!Array.isArray(rawCards)) return unchanged
+  const exposed = rawCards.filter(
+    (card): card is BriarMemoryCard =>
+      !!card &&
+      typeof card === 'object' &&
+      card.flipped === true &&
+      card.matched === false,
+  )
+  if (!exposed.length) return unchanged
+  const discarded = { ...unchanged, recovered: true }
+  if (
+    exposed.length !== 1 ||
+    rawCards.length !== progress.cards.length ||
+    new Set(progress.cards.map((card) => card.id)).size !==
+      progress.cards.length
+  )
+    return discarded
+
+  const rawCard = exposed[0]!
+  const current = progress.cards.find((card) => card.id === rawCard.id)
+  if (
+    !current ||
+    current.matched ||
+    current.pairId !== rawCard.pairId ||
+    current.image !== rawCard.image ||
+    !rawCards.every((card) => {
+      const original = progress.cards.find((item) => item.id === card?.id)
+      return (
+        original &&
+        original.pairId === card.pairId &&
+        original.image === card.image &&
+        original.matched === card.matched
+      )
+    })
+  )
+    return discarded
+  const pair = progress.cards.filter((card) => card.pairId === current.pairId)
+  if (pair.length !== 2 || pair.some((card) => card.image !== current.image))
+    return discarded
+
+  return {
+    progress: {
+      ...progress,
+      cards: progress.cards.map((card) =>
+        card.id === current.id ? { ...card, flipped: true } : card,
+      ),
+      status: 'Your first chamber picture is still face up. Choose its match.',
+    },
+    firstCard: current.id,
+    recovered: true,
+  }
+}
+
+/** Finish a saved, already-decided defeat whose retreat timer was interrupted. */
+export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
+  const combat = progress.combat
+  if (progress.room !== 'memory' || combat?.state.outcome !== 'defeat')
+    return progress
+
+  const houseOrigin = progress.house?.combatOrigin
+  const house =
+    houseOrigin && progress.house
+      ? {
+          ...progress.house,
+          combatOrigin: null,
+          current: 'HD-18' as const,
+          visited: progress.house.visited.includes('HD-18')
+            ? progress.house.visited
+            : [...progress.house.visited, 'HD-18' as const],
+        }
+      : progress.house
+  const lastHeart = progress.hearts <= 1
+  // A Dark Briar bout never sends the Briar traveller back to camp.
+  const darkBout = darkBriarDuelForRoom(progress.roomId) !== null
+  const retreat = darkBout
+    ? `${combat.state.enemy.name} wins this bout. The challenger waits for a rematch.`
+    : briarLossContinuation(
+        progress,
+        'combat',
+        lastHeart,
+        combat.state.enemy.name,
+      )
+
+  return {
+    ...progress,
+    room: houseOrigin ? 'house' : 'map',
+    roomId: null,
+    cards: [],
+    combat: null,
+    roomMisses: 0,
+    hearts: lastHeart ? 3 : progress.hearts - 1,
+    player:
+      lastHeart && !darkBout && !houseOrigin ? BRIAR_START : progress.player,
+    house,
+    status:
+      darkBout && houseOrigin
+        ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
+        : retreat,
+  }
+}
+
+/** Settle a third failed chamber pair if reload cancelled its heart-loss timer. */
+export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
+  if (
+    progress.room !== 'memory' ||
+    progress.combat ||
+    progress.cards.length === 0 ||
+    !progress.cards.some((card) => !card.matched) ||
+    progress.roomMisses < 3
+  )
+    return progress
+
+  if (progress.hearts > 1)
+    return {
+      ...progress,
+      hearts: progress.hearts - 1,
+      roomMisses: 0,
+      status:
+        'The chamber resets its unpaired cards. Your learned matches remain. One heart lost.',
+    }
+
+  const houseOrigin = progress.house?.combatOrigin
+  const house =
+    houseOrigin && progress.house
+      ? {
+          ...progress.house,
+          combatOrigin: null,
+          current: 'HD-18' as const,
+          visited: progress.house.visited.includes('HD-18')
+            ? progress.house.visited
+            : [...progress.house.visited, 'HD-18' as const],
+        }
+      : progress.house
+  const retreat = briarLossContinuation(progress, 'chamber', true)
+
+  return {
+    ...progress,
+    room: houseOrigin ? 'house' : 'map',
+    roomId: null,
+    cards: [],
+    combat: null,
+    roomMisses: 0,
+    hearts: 3,
+    player: houseOrigin ? progress.player : BRIAR_START,
+    house,
+    status: retreat,
   }
 }
 

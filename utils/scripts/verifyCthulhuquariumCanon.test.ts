@@ -21,7 +21,9 @@ import {
   CTHULHUQUARIUM_SCENES,
   CTHULHUQUARIUM_SPRITE_MOTIONS,
 } from '../cthulhuquariumCanon.generated'
+import { CTHULHUQUARIUM_ART_PROMPTS } from '../cthulhuquariumArtPrompts.generated'
 import { isMassSprite, spawnSwimState } from '../cthulhuquariumMotion'
+import { buildCthulhuquariumPlaybook } from '../playbook/cthulhuquarium'
 
 const firable = [
   ...BESTIARY_MILESTONES.map((milestone) => milestone.id),
@@ -157,4 +159,47 @@ assert.equal(
   'a mass sprite that schools gets no packmates',
 )
 console.log('✅ mass sprites swim alone, with no copies of the crowd')
+// Every tank carries the shop's placard (canon backgrounds.yaml field_note),
+// shown in play under the background picker and on Charlotte's handover.
+for (const background of CTHULHUQUARIUM_BACKGROUNDS) {
+  const note = background.fieldNote
+  assert.ok(note?.trim(), `${background.key} has no field note`)
+  assert.ok(!note.includes('!'), `${background.key}: field note exclaims`)
+  assert.ok(
+    (note.match(/[.?]/g) ?? []).length <= 2,
+    `${background.key}: field note runs past two sentences`,
+  )
+}
+console.log(
+  `✅ all ${CTHULHUQUARIUM_BACKGROUNDS.length} backgrounds carry a field note`,
+)
+
+// The canon's Krea 2 prompt for every picture the Playbook Forge lists.
+const prompts = CTHULHUQUARIUM_ART_PROMPTS
+assert.deepEqual(
+  Object.keys(prompts.species).sort(),
+  slugs.slice().sort(),
+  'every species has its plate prompt',
+)
+assert.deepEqual(
+  Object.keys(prompts.backgrounds).sort(),
+  CTHULHUQUARIUM_BACKGROUNDS.map((bg) => bg.key).sort(),
+)
+assert.deepEqual(
+  Object.keys(prompts.scenes).sort(),
+  Object.keys(CTHULHUQUARIUM_SCENES).sort(),
+)
+assert.deepEqual(Object.keys(prompts.characters).sort(), [
+  'charlotte-fishmonger',
+  'wilbur-stint',
+])
+const book = buildCthulhuquariumPlaybook()
+for (const node of Object.values(book.nodes)) {
+  assert.ok(node.artPrompt?.trim(), `${node.key} has no art prompt`)
+  assert.ok(node.body.length > 0, `${node.key} has no body text`)
+}
+assert.equal(book.artPromptsComplete, true)
+console.log(
+  `✅ all ${Object.keys(book.nodes).length} Forge beats carry body text and a canon prompt`,
+)
 console.log('✅ verifyCthulhuquariumCanon: all assertions passed')

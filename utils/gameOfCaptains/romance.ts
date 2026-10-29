@@ -69,11 +69,14 @@ function witnessedHistory(
 }
 
 const captainReflections: Record<VoyageRun['captain'], string> = {
-  fluke: 'Fluke resists reading tomorrow’s answer. Nobody gets to skip the uncertain, delicious present.',
+  fluke:
+    'Fluke resists reading tomorrow’s answer. Nobody gets to skip the uncertain, delicious present.',
   vale: 'Vale does not try to rewrite the other person’s preferences. This may be her most radical invention.',
-  solace: 'Solace checks the exits, then lets someone else keep watch. They make it through the evening alive.',
+  solace:
+    'Solace checks the exits, then lets someone else keep watch. They make it through the evening alive.',
   rex: 'Rex declines to commission a statue of this feeling, although he has already drafted the inscription.',
-  quill: 'Quill sets down the flask and unseals his suit’s privacy controls. The invitation is a choice, not a protocol.',
+  quill:
+    'Quill sets down the flask and unseals his suit’s privacy controls. The invitation is a choice, not a protocol.',
   ro: 'Ro postpones the organ music. The velvet-clad master of ceremonies lets affection remain gloriously unrehearsed.',
 }
 

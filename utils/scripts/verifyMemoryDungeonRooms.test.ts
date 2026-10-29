@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import {
   WEAPONS,
   cellName,
+  createCombat,
   describeEvents,
   includesCell,
   legalMasks,
@@ -20,11 +21,29 @@ import {
 import {
   COMBAT_PAIRS,
   COMBAT_ROOMS,
+  HOUSE_DUEL_ROOMS,
   isCombatRoom,
+  isHouseDuelOrigin,
   restoreBriarCombat,
   startCombatRoom,
 } from '../memoryDungeon/rooms'
-import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
+import {
+  newBriarSave,
+  recoverBriarCombatDefeat,
+  restoreBriarSave,
+} from '../memoryDungeonWorld'
+import {
+  DARK_BRIAR_DUELS,
+  darkBriarCanDuel,
+  darkBriarDuelForRoom,
+} from '../memoryDungeon/darkBriarDuels'
+import {
+  DARK_BRIAR_SCENES,
+  DARK_BRIAR_WAVES,
+  darkBriarChoose,
+  newDarkBriarProgress,
+  restoreDarkBriarProgress,
+} from '../memoryDungeon/darkBriar'
 
 // 1. Aiming: the pointed-at cell is the weapon's pivot (its bullseye when it has one).
 for (const id of Object.keys(WEAPONS) as WeaponId[])
@@ -47,13 +66,50 @@ assert.equal(
   'a cross aimed at the corner overhangs and is refused, not clipped',
 )
 
-// 2. Rooms: three combat rooms, Classic Echo Chamber untouched, tools that fit.
+// 2. Rooms: the forest duels, the Warden, the House's three guardian duels
+// and the Dark Briar's three bouts,
+// Classic Echo Chamber untouched, tools that fit.
 assert.deepEqual(Object.keys(COMBAT_ROOMS).sort(), [
+  'collector',
+  'empty-armor',
+  'hearth-guard',
+  'moss-judge',
   'patrol',
   'sprite',
+  'twinned-guard',
+  'unpaid-patrol',
   'vault-2',
 ])
 assert.equal(isCombatRoom('vault-1'), false, 'the Echo Chamber stays Classic')
+assert.equal(isCombatRoom('toString'), false, 'only authored rooms count')
+assert.equal(
+  new Set(Object.values(COMBAT_ROOMS).map((room) => room.enemy.name)).size,
+  Object.keys(COMBAT_ROOMS).length,
+  'every combat room fights its own enemy',
+)
+assert.equal(
+  new Set(
+    Object.values(COMBAT_ROOMS).map(
+      (room) => `${room.enemy.hp}/${room.enemy.attack}/${room.enemy.every}`,
+    ),
+  ).size,
+  Object.keys(COMBAT_ROOMS).length,
+  'and fights at its own tempo',
+)
+for (const room of Object.values(COMBAT_ROOMS))
+  assert.ok(room.intro.length > 40 && room.artPrompt.length >= 120)
+// HD-09, HD-22 and HD-28 each launch their own guardian, never a forest board.
+assert.deepEqual(HOUSE_DUEL_ROOMS, {
+  'HD-09': 'hearth-guard',
+  'HD-22': 'collector',
+  'HD-28': 'twinned-guard',
+})
+for (const [origin, room] of Object.entries(HOUSE_DUEL_ROOMS)) {
+  assert.ok(isHouseDuelOrigin(origin) && isCombatRoom(room))
+  assert.notEqual(room, 'sprite')
+  assert.notEqual(room, 'patrol')
+}
+assert.equal(isHouseDuelOrigin('HD-32'), false, 'the Warden keeps its vault')
 assert.equal(COMBAT_PAIRS, 8)
 for (const [id, room] of Object.entries(COMBAT_ROOMS)) {
   for (const weapon of room.loadout)
@@ -131,6 +187,158 @@ assert.equal(
   'a board whose pairs no longer come in twos is rejected',
 )
 assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number }) => ({
+      ...card,
+      pair: card.pair + 8,
+    })),
+  }),
+  null,
+  'renumbering every pair outside the seeded board range cannot mint a new board',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map(() => ({ pair: null, matched: false })),
+  }),
+  null,
+  'an all-obstacle board cannot skip a combat encounter',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number; matched: boolean }) => ({
+      ...card,
+      pair: card.pair === 0 ? 1 : card.pair === 1 ? 0 : card.pair,
+    })),
+  }),
+  null,
+  'relabeling complete pairs cannot move the hidden cards away from their seeded positions',
+)
+assert.equal(
+  restoreCombat({ ...json, seed: json.seed + 1 }),
+  null,
+  'changing the seed without dealing a new board cannot manipulate pair locations',
+)
+assert.equal(
+  restoreCombat({
+    ...fresh.state,
+    turn: 1,
+    cards: fresh.state.cards.map((card) => ({
+      ...card,
+      matched: card.pair !== null,
+    })),
+    enemy: { ...fresh.state.enemy, hp: 0 },
+    outcome: 'victory',
+  }),
+  null,
+  'one action cannot resolve all eight pairs, even with a forged victory',
+)
+const redealStart = createCombat({
+  seed: 91,
+  rows: 2,
+  cols: 2,
+  enemy: { name: 'Patient Guardian', hp: 50, attack: 0, every: 20 },
+})
+const pairsToScout = [0, 1].map((pair) =>
+  redealStart.cards.flatMap((card, i) =>
+    card.pair === pair
+      ? [{ row: Math.floor(i / redealStart.cols), col: i % redealStart.cols }]
+      : [],
+  ),
+)
+let redealt = redealStart
+for (const [first, second] of pairsToScout)
+  redealt = scout(redealt, first!, second!)
+assert.ok(redealt.log.some((event) => event.type === 'redeal'))
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(redealt))),
+  { ...redealt, log: [] },
+  'a genuine seed-derived redeal restores even when its layout differs from the opening board',
+)
+for (let seed = 1; seed <= 32; seed++) {
+  const initial = createCombat({
+    seed,
+    rows: 4,
+    cols: 4,
+    enemy: { name: 'Patient Guardian', hp: 100, attack: 0, every: 20 },
+  })
+  let current = initial
+  for (let pair = 0; pair < 8; pair++) {
+    const positions = initial.cards.flatMap((card, i) =>
+      card.pair === pair
+        ? [{ row: Math.floor(i / initial.cols), col: i % initial.cols }]
+        : [],
+    )
+    current = scout(current, positions[0]!, positions[1]!)
+    assert.deepEqual(
+      restoreCombat(JSON.parse(JSON.stringify(current))),
+      { ...current, log: [] },
+      `seed ${seed}, turn ${pair + 1}: a real played board remains restorable`,
+    )
+  }
+  assert.ok(
+    current.log.some((event) => event.type === 'redeal'),
+    `seed ${seed}: clearing the board genuinely redeals it`,
+  )
+}
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { matched: boolean }, i: number) =>
+      i === 0 ? { ...card, matched: !card.matched } : card,
+    ),
+  }),
+  null,
+  'one face of a pair cannot be marked matched on its own',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'victory' }),
+  null,
+  'victory requires the enemy to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat' }),
+  null,
+  'defeat requires the player to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, enemy: { ...json.enemy, hp: 0 } }),
+  null,
+  'an enemy at zero health cannot remain in a fighting checkpoint',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  'a completed fight with consistent health remains restorable',
+)
+assert.ok(
+  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
+  'a genuine defeat remains restorable',
+)
+const oddBoard = createCombat({
+  seed: 17,
+  rows: 5,
+  cols: 5,
+  enemy: { name: 'Puzzle Sentinel', hp: 8, attack: 1, every: 3 },
+})
+assert.ok(restoreCombat(oddBoard), 'odd boards retain their one legal obstacle')
+assert.equal(
+  restoreCombat({
+    ...oddBoard,
+    cards: oddBoard.cards.map((card) =>
+      card.pair === null ? { ...card, matched: true } : card,
+    ),
+  }),
+  null,
+  'the odd-board obstacle can never count as a matched pair',
+)
+
+assert.equal(
   restoreBriarCombat({ state: json, images: images.slice(0, 3) }),
   null,
   'too few images',
@@ -155,6 +363,77 @@ assert.equal(
 )
 assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
+// Every authored room restores its own enemy and original 4x4 board, never
+// another room's enemy or inflated stats from a modified checkpoint.
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
+  const original = startCombatRoom(roomId, 42, images)
+  const enemy = original.state.enemy
+  assert.deepEqual(
+    restoreBriarCombat(original, roomId),
+    original,
+    `${roomId}: its own untouched fight restores`,
+  )
+  for (const [label, forged] of [
+    ['name', { name: 'Invented Guardian' }],
+    ['health pool', { maxHp: enemy.maxHp + 1 }],
+    ['damage', { attack: enemy.attack + 1 }],
+    ['attack interval', { every: enemy.every + 1 }],
+    ['telegraph delay', { beatsLeft: enemy.every + 1 }],
+    ['zero telegraph', { beatsLeft: 0 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        {
+          ...original,
+          state: { ...original.state, enemy: { ...enemy, ...forged } },
+        },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  for (const [label, forged] of [
+    ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
+    ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
+    ['rows', { rows: 2, cols: 8 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        { ...original, state: { ...original.state, ...forged } },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+}
+assert.equal(
+  restoreBriarSave({
+    ...save,
+    roomId: 'collector',
+  }).room,
+  'map',
+  'a valid Warden board cannot impersonate the House Collector',
+)
+// A House guardian duel saved mid-fight restores to the same guardian, and a
+// duel saved before the guardians had boards of their own still restores.
+for (const roomId of ['collector', 'sprite'] as const) {
+  const guardian = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...save,
+        roomId,
+        combat: startCombatRoom(roomId, 42, images),
+        house: { ...newBriarSave().house, current: 'HD-22' },
+      }),
+    ),
+  )
+  assert.equal(guardian.room, 'memory')
+  assert.equal(guardian.roomId, roomId)
+}
 const classic = restoreBriarSave({
   ...newBriarSave(),
   room: 'memory',
@@ -210,7 +489,139 @@ assert.match(
   /resolveMemoryDungeonDeck\(deck\.value, required\)/,
   'fights use the shared deck choice',
 )
+assert.match(
+  store,
+  /HOUSE_DUEL_ROOMS\[house\.current as HouseDuelOrigin\]/,
+  'a House duel begins its own guardian room',
+)
+assert.match(
+  store,
+  /room === HOUSE_DUEL_ROOMS\[houseOrigin\] \|\|\s+room === 'sprite' \|\|\s+room === 'patrol'/,
+  'and a duel begun before the guardians had boards still finishes',
+)
+
+// 6. The Dark Briar's bouts: three optional fights beside the scene choice,
+// each its own room, remembered in the Dark Briar save, never a gate.
+assert.deepEqual(
+  Object.fromEntries(
+    Object.values(DARK_BRIAR_DUELS).map((duel) => [duel.key, duel.room]),
+  ),
+  { '5,5': 'moss-judge', '7,3': 'unpaid-patrol', '7,1': 'empty-armor' },
+)
+for (const duel of Object.values(DARK_BRIAR_DUELS)) {
+  assert.ok(DARK_BRIAR_SCENES[duel.key], `${duel.key} is a Dark Briar scene`)
+  assert.ok(isCombatRoom(duel.room))
+  assert.equal(darkBriarDuelForRoom(duel.room), duel)
+  assert.ok(duel.offer.length > 10 && duel.victory.length > 60)
+  assert.ok(
+    COMBAT_ROOMS[duel.room].artPrompt.endsWith(
+      'Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
+    ),
+    `${duel.room} is painted in the Dark Briar's light`,
+  )
+  assert.equal(isHouseDuelOrigin(duel.key), false)
+}
+assert.equal(darkBriarDuelForRoom('sprite'), null, 'Briar fights stay Briar')
+assert.equal(darkBriarDuelForRoom(null), null)
+
+const explored = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  revealed: ['2,4', '5,5'],
+  visited: ['2,4', '5,5'],
+  player: '5,5',
+}
+assert.equal(darkBriarCanDuel(explored, '5,5'), true)
+assert.equal(
+  darkBriarCanDuel({ ...explored, player: '2,4' }, '5,5'),
+  false,
+  'a bout is offered only where the challenger stands',
+)
+assert.equal(darkBriarCanDuel({ ...explored, phase: 'matching' }, '5,5'), false)
+assert.equal(darkBriarCanDuel({ ...explored, duels: ['5,5'] }, '5,5'), false)
+assert.equal(darkBriarCanDuel(explored, '2,4'), false, 'no bout at camp')
+const decided = darkBriarChoose(explored, '5,5', 'witness')
+assert.equal(
+  darkBriarCanDuel(decided, '5,5'),
+  true,
+  'the bout stays open after the scene decision',
+)
+
+// Saves: won bouts restore; old saves gain an empty list; forged keys drop.
+assert.deepEqual(newDarkBriarProgress().duels, [])
+assert.equal(newDarkBriarProgress().duelReturn, null)
+const earlier = DARK_BRIAR_WAVES.slice(0, 3).flat()
+const darkSave = {
+  ...newDarkBriarProgress(),
+  waveIndex: 3,
+  revealed: earlier,
+  visited: earlier,
+  duels: ['5,5', '7,3', '9,9', '2,4'],
+  duelReturn: 'house',
+}
+const reloadedDark = restoreDarkBriarProgress(
+  JSON.parse(JSON.stringify(darkSave)),
+)
+assert.deepEqual(
+  reloadedDark.duels,
+  ['5,5', '7,3'],
+  'won bouts restore; forged and non-bout keys drop',
+)
+assert.equal(reloadedDark.duelReturn, 'house')
+const { duels: _d, duelReturn: _r, ...olderDark } = darkSave
+const fromOlder = restoreDarkBriarProgress(
+  JSON.parse(JSON.stringify(olderDark)),
+)
+assert.deepEqual(fromOlder.duels, [], 'saves from before the bouts restore')
+assert.equal(fromOlder.duelReturn, null)
+assert.equal(
+  restoreDarkBriarProgress({ ...darkSave, duelReturn: 'memory' }).duelReturn,
+  null,
+)
+
+// A bout in progress restores on the Briar save like any combat room, and a
+// lost bout never sends the Briar traveller back to camp.
+const bout = startCombatRoom('moss-judge', 7, images)
+const boutSave = restoreBriarSave(
+  JSON.parse(
+    JSON.stringify({
+      ...newBriarSave(),
+      room: 'memory',
+      roomId: 'moss-judge',
+      combat: bout,
+      player: '6,4',
+    }),
+  ),
+)
+assert.equal(boutSave.room, 'memory')
+assert.equal(boutSave.roomId, 'moss-judge')
+const lostBout = recoverBriarCombatDefeat({
+  ...newBriarSave(),
+  room: 'memory',
+  roomId: 'moss-judge',
+  player: '6,4',
+  hearts: 1,
+  combat: { ...bout, state: { ...bout.state, outcome: 'defeat' } },
+})
+assert.equal(lostBout.room, 'map')
+assert.equal(lostBout.player, '6,4', 'a lost bout keeps the Briar position')
+assert.equal(lostBout.hearts, 3)
+
+const stage = readFileSync(
+  'components/memory-dungeon/dark-briar-stage.vue',
+  'utf8',
+)
+assert.match(stage, /world\.startDarkDuel\(\)/, 'the stage offers the bout')
+assert.match(stage, /data-testid="dark-briar-duel"/)
+assert.match(
+  overworld,
+  /v-if="world\.activeReality === 'e02' && !world\.darkDuelActive"/,
+  'the Dark Briar stage yields to the combat board during a bout',
+)
+assert.match(store, /const darkDuel = darkBriarDuelForRoom\(room\)/)
+assert.match(store, /finishDarkDuel\(darkDuel\)/)
+assert.match(store, /closeDarkDuel\(/)
 
 console.log(
-  'Memory Dungeon combat rooms: aiming, room tools, narration, saves and accessible board verified',
+  'Memory Dungeon combat rooms: aiming, room tools, narration, saves, accessible board and Dark Briar bouts verified',
 )

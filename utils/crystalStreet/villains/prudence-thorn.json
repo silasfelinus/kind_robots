@@ -40,7 +40,7 @@
           "title": "Materials Challenged",
           "place": "Reference desk, Glimmer Falls Public Library",
           "text": "Behind the reference desk sit two filing cabinets labeled CHALLENGED MATERIALS, stuffed so full the drawers bulge. Every form is in the same tidy handwriting: Prudence Thorn, Prudence Thorn, Prudence Thorn. Ms. Hart watches you look at them and taps one drawer at the very bottom, the one with rust on the handle. \"Everyone always starts at the top,\" she says.",
-          "art": "Two overstuffed library filing cabinets labeled challenged materials behind a reference desk, a librarian in a cardigan tapping the rusty bottom drawer, a teenager kneeling beside it",
+          "art": "Two overstuffed gray filing cabinets behind a public library reference desk, their drawers bulging with paper forms, a freckled 38-year-old librarian with gray-streaked chestnut hair, tortoiseshell glasses on a beaded chain and an oxblood cardigan tapping the rusty handle of the very bottom drawer, a teenager kneeling beside it, green-shaded desk lamps and tall windows at dusk, medium shot",
           "choices": [
             {
               "id": "read-the-first-form",
@@ -110,7 +110,7 @@
           "title": "Band Practice at St. Jude's",
           "place": "The basement of St. Jude's Church",
           "text": "Father Iggy's band is mid-song when you come down the basement stairs, three chords and a lot of feelings, bingo tables pushed against the wall to make room. Behind the drum kit is a bookcase of crumbling leather volumes the diocese forgot it owned. One of them is lying open on an amp, and its woodcut shows a horned shape crouched in a bonfire, fattening as a crowd screams.",
-          "art": "A church basement with a punk band rehearsing between stacked bingo tables, a priest in a clerical collar playing bass, an ancient leather book open on an amplifier showing a woodcut of a demon in a bonfire",
+          "art": "A church basement with bingo tables pushed against the walls, a punk band rehearsing loudly, a 31-year-old Filipino American priest with a black spiked pompadour, a goatee, a white clerical collar and a studded leather jacket playing a red bass guitar, a drummer behind a kit, an old crumbling leather book lying open on an amplifier showing a woodcut of a horned figure crouched in a bonfire, a teenager leaning over the book, bare bulbs and warm amp glow, wide shot",
           "choices": [
             {
               "id": "ask-father-iggy",
@@ -176,7 +176,7 @@
           "title": "Spin City Records",
           "place": "Spin City Records, Starlight Mall",
           "text": "Spin City Records smells like incense and cardboard sleeves. Rhonda Pike, gray braid, tie-dyed concert shirt, drummer's forearms, is pricing used albums behind the counter. Taped to the register is a faded 1971 flyer: GIDEON AND THE LOST SHEEP, LIVE AT THE GRANGE HALL. Under the glass, on a velvet cloth like a holy relic, is a single forty-five with a hand-drawn sleeve.",
-          "art": "A cluttered 1980s mall record store with neon signs and racks of vinyl, a gray-braided woman behind the counter, a faded 1971 band flyer taped to the register, a single record displayed under glass on velvet",
+          "art": "A cluttered 1980s mall record store with neon tubes, racks of vinyl albums and incense smoke, a woman in her fifties with a long gray braid, a tie-dyed shirt and strong drummer's forearms pricing albums behind the counter, a faded paper flyer for a 1971 local band taped to the cash register, a single seven-inch record with a hand-drawn sleeve resting on red velvet under the glass counter, a teenager leaning over the glass, pink and green neon, medium shot",
           "choices": [
             {
               "id": "ask-rhonda",
@@ -239,7 +239,7 @@
         "title": "The Warm-Up Burning",
         "place": "The Heartstone roundabout, Crystal Street",
         "text": "The Concerned Parents are holding a Sunday-night warm-up burning on the roundabout. A pickup truck is backed up to the Heartstone, full of records, comic books and a stack of Caverns and Chimeras binders with Priya's name on the cover. Pastor Prudence stands on a lawn chair with a bullhorn. When the first album hits the flames, the smoke curls into two horns and a grin, and the parents gasp and throw in more.",
-        "art": "Parents in windbreakers throwing records and comic books into a bonfire on a suburban roundabout beside a giant purple geode, a woman in a lavender pantsuit on a lawn chair with a bullhorn, smoke forming a horned grin above the flames",
+        "art": "A suburban roundabout on a Sunday night, a pickup truck backed up to a huge purple crystal rock, its bed piled with vinyl records, comic books and three-ring binders, parents in windbreakers tossing records into a bonfire, a small middle-aged woman with a tight perm in a lavender pantsuit and a gold cross pin standing on a lawn chair shouting into a bullhorn, the smoke above the flames curling into two horns and a wide grin, a teenager running toward the truck, orange firelight, wide shot",
         "choices": [
           {
             "id": "rescue-the-binders",
@@ -332,7 +332,7 @@
         "title": "Play It Backward",
         "place": "Every house on Crystal Street, midnight",
         "text": "At midnight every turntable, tape deck and headphone stereo on Crystal Street starts playing backward at once. Under the warble, a smoky voice is saying something to each listener alone. In house after house, lights snap on and parents start locking their kids in their rooms \"for their own protection.\" Your own door clicks shut. Through the wall you hear your boombox whisper your name in reverse.",
-        "art": "A cutaway view of suburban houses at midnight with turntables and cassette decks glowing red and playing backward in every room, parents locking bedroom doors, smoky backward letters curling out of speakers",
+        "art": "A suburban house at midnight with its front wall cut away to show every room, a turntable and a cassette deck glowing red in every room, a parent in a bathrobe locking a child's bedroom door from the hallway, a teenager in pajamas pressing an ear to their own locked door beside a boombox on the floor, thin curls of gray smoke drifting out of every speaker, red stereo lights and blue night, wide shot",
         "choices": [
           {
             "id": "record-and-reverse",
@@ -396,7 +396,7 @@
         "title": "Hallelujah House",
         "place": "The Lamplight Fellowship on Route 9, 9 p.m.",
         "text": "The Lamplight Fellowship has turned its old carpet showroom into a Hallelujah House, a walk-through scare tour of the Dangers Facing Today's Teens. Room one: a boy in a cape is dragged off by a man in a red devil suit for playing Caverns and Chimeras. Room two: a girl with headphones loses her soul to a fog machine. But in room three the fog machine is unplugged and the fog is still rising, the actor in the devil suit is screaming for real, and something made of smoke and melted vinyl is climbing out of the prop record crate, grinning.",
-        "art": "A church scare walk-through built of plywood rooms inside an old carpet showroom, red gel lights and fog, a terrified actor in a cheap red devil costume backing away from a grinning creature of smoke and melted vinyl rising from a crate of records",
+        "art": "A church scare walk-through built of plywood rooms inside an old carpet showroom, red gel lights and low fog, a frightened sixteen-year-old boy in a cheap red devil costume with a plastic pitchfork backing away from a grinning creature of black smoke and melted vinyl records climbing out of a wooden crate of albums, a teenager leaning in through the doorway, red light and white fog, medium wide shot",
         "choices": [
           {
             "id": "heckle",
@@ -488,7 +488,7 @@
         "title": "Deliver Us From Caverns",
         "place": "A Caverns and Chimeras game in the Ramans' basement, 10 p.m.",
         "text": "You're three hours into Priya's Caverns and Chimeras campaign when the doorbell rings. It's Mrs. Kettering from the Concerned Parents, with an instant camera, a pamphlet titled Is Your Child Playing With Demons? and four more worried parents behind her, here to rescue you all from the game. Their fear rolls down the basement stairs like cold air. On the battle map, the little pewter minotaur stands up on its own, stretches, and starts to grow.",
-        "art": "A cozy wood-paneled basement game night with teens around a table of dice and hand-drawn maps, worried parents crowding the stairs with a camera, a pewter minotaur figurine on the map swelling huge and smoky",
+        "art": "A cozy wood-paneled basement at ten at night, five teenagers around a folding table covered in dice, pencils and a hand-drawn battle map, a 16-year-old Indian American girl with a long black braid, round gold-rimmed glasses and a purple cardigan at the head of the table, worried parents in windbreakers crowding the basement stairs with an instant camera and a pamphlet, a small pewter minotaur figure on the map swelling large and wreathed in smoke, warm lamp light, wide shot",
         "choices": [
           {
             "id": "deal-them-in",
@@ -579,7 +579,7 @@
         "title": "Prudence Says, Live",
         "place": "Your living room, 1:30 a.m., public-access Channel 23",
         "text": "You can't sleep, so you flip on the TV, and Channel 23 is running Prudence Says live in the middle of the night. Prudence sits at a desk with a turntable, a stack of seized records and a telephone, and she is looking straight into the camera. Straight at you. \"Lines are open, sweetie,\" she says. \"Call in and tell me what you're afraid of.\" Behind her, in the dark of the studio, a shape of smoke and vinyl is leaning over the camera operator's shoulder, waiting for the phone to ring.",
-        "art": "A dark living room lit by a boxy television showing a public-access studio set, a woman pastor in a lavender pantsuit at a desk with a turntable and telephone, a smoky horned shape looming in the studio shadows, a teenager on the couch clutching a phone",
+        "art": "A dark living room at 1:30 in the morning lit by a boxy television, on screen a public-access studio set where a small woman with a tight perm, a lavender pantsuit and a gold cross pin sits at a desk with a turntable, a stack of records and a telephone, looking straight into the camera, behind her a dark horned shape of smoke and melted vinyl leaning over the camera operator's shoulder, a teenager on the couch clutching a phone receiver, blue TV glow, medium wide shot",
         "choices": [
           {
             "id": "ask-about-her",
@@ -676,7 +676,7 @@
         "title": "Emergency Meeting of the Concerned Parents",
         "place": "The Grange Hall on Route 9",
         "text": "The Concerned Parents have called an emergency meeting to cancel Halloween. Folding chairs fill the Grange Hall, and Prudence is clicking through a slideshow titled Satan in the Sandbox. Every parent's shadow on the wood-paneled wall has horns. In the very back row, too big for its chair, sits Backmask itself, made of smoke and melted records, eating a bag of fear like popcorn and nodding along.",
-        "art": "A wood-paneled grange hall full of parents in folding chairs watching a lurid slideshow, every shadow on the wall wearing horns, a huge smoke and vinyl demon squeezed into a back-row chair eating from a popcorn bag",
+        "art": "A wood-paneled grange hall full of parents in folding chairs watching a slide projector throw a lurid picture of a sandbox on a screen, a small woman in a lavender pantsuit clicking the projector remote at the front, every parent's shadow on the paneled wall wearing horns, and in the back row a huge demon of black smoke and melted vinyl records squeezed into a folding chair eating from a paper popcorn bag, a teenager sneaking toward the projector, projector beam and dim yellow light, wide shot",
         "choices": [
           {
             "id": "hijack-the-projector",
@@ -740,7 +740,7 @@
         "title": "Sticker Shock",
         "place": "Crystal Street, 1 a.m.",
         "text": "Somebody has been up all night with a roll of bright orange stickers: CONCERNED PARENTS ADVISORY: CONTENT MAY BE HARMFUL. They're on the Rewind Video bag on your porch, your little cousin's Saturday-morning lunchbox, the Lindgrens' wind chimes and a library copy of Charlotte's Web. Then you watch one peel itself off a roll in the gutter and flutter, all on its own, onto your bedroom window. Every time a porch light snaps on and a grown-up gasps at a sticker, a curl of black smoke rises from it and drifts toward the Heartstone.",
-        "art": "A moonlit suburban street papered with bright orange warning stickers on mailboxes, lunchboxes, wind chimes and porch railings, thin curls of black smoke rising from them and drifting toward a glowing purple geode on a roundabout",
+        "art": "A moonlit suburban street at one in the morning covered in bright orange stickers on mailboxes, wind chimes, porch railings, a lawn flamingo and a child's metal lunchbox on a porch step, thin curls of black smoke rising from the stickers and drifting toward a glowing purple crystal rock on the roundabout, a small boy in pajamas on the steps hugging the lunchbox, a teenager with a flashlight beside him, porch lights and blue moonlight, wide shot",
         "choices": [
           {
             "id": "sticker-everything",
@@ -832,7 +832,7 @@
         "title": "The Lock-In",
         "place": "The Lamplight Fellowship youth lock-in, 2 a.m.",
         "text": "After a Concerned Parents pamphlet landed on every porch in town, your parents signed you up for the Lamplight Fellowship's Halloween-alternative youth lock-in, so here you are in a sleeping bag on the old carpet-showroom floor. At the door a volunteer confiscated every tape player, comic and cassette into a laundry basket, for safekeeping. At 2 a.m. the basket starts to smoke. The confiscated tapes are unspooling into a shape with horns and a grin, the youth group kids are pressed against the locked glass doors, and their chaperone, Mrs. Kettering, is screaming that this is exactly what she warned everyone about. The shape grows with every scream.",
-        "art": "A converted carpet showroom at night full of sleeping bags and frightened teens, a laundry basket of confiscated cassettes and comics billowing smoke into a horned grinning shape, a chaperone shrieking by locked glass doors",
+        "art": "A converted carpet showroom at two in the morning full of sleeping bags, frightened teenagers pressed against locked glass front doors, a plastic laundry basket of confiscated cassettes, tape players and comic books pouring black smoke that twists into a tall horned shape with a grin, magnetic tape unspooling from it, a middle-aged chaperone in a sweater screaming by the doors, a teenager crawling toward the basket, red exit light and gray smoke, wide shot",
         "choices": [
           {
             "id": "sing-along",
@@ -920,7 +920,7 @@
         "title": "The Night Before the Bonfire",
         "place": "The Heartstone roundabout, 3 a.m. on October 30",
         "text": "The Hallelujah Night pile is stacked against the Heartstone, two stories of seized things waiting for tomorrow's match: Priya's campaign binders, Rewind Video's whole horror shelf, forty library books and a crate of the Glitter Box's show-tune records. Around it the Concerned Parents keep night watch in lawn chairs with thermoses, flashlights and Bibles, scared stiff of the dark. Deep in the pile something breathes, slow and smoky. Every time a parent jumps at a cricket, it breathes a little deeper.",
-        "art": "A towering heap of records, comics, rulebooks and videotapes stacked against a glowing purple geode on a suburban roundabout at night, nervous parents in lawn chairs with flashlights and thermoses, smoke breathing from the heap",
+        "art": "A towering heap of vinyl records, comic books, binders, library books and videotapes stacked against a glowing purple crystal rock on a suburban roundabout at three in the morning, nervous parents in lawn chairs around it with thermoses, flashlights and Bibles, a slow breath of gray smoke rising from deep in the pile, a teenager crouching at the base pulling out a crate of records, a parked motorcycle at the corner, flashlight beams and violet glow, wide shot",
         "choices": [
           {
             "id": "cocoa-for-the-watch",
@@ -1017,7 +1017,7 @@
       "title": "Hallelujah Night",
       "place": "The Heartstone roundabout, Halloween night",
       "text": "The great Hallelujah Night bonfire is two stories tall: every record, comic, rulebook and horror tape the Concerned Parents could seize, heaped against the Heartstone. When Prudence lights it, Backmask rises out of the flames thirty feet high, ribbons of videotape for hair, a chest of melted records, a voice like a sermon played in reverse. The parents scream and throw in more. Prudence drops to her knees in the grass, clutching her Bible. \"I warned them,\" she whispers. \"I did everything right. Why is it still here?\"",
-      "art": "A two-story bonfire against a giant purple geode on a suburban roundabout, a thirty-foot demon of smoke and melted vinyl rising from it with videotape hair, panicking parents throwing in records, a woman pastor kneeling in the grass clutching a Bible, teens in Halloween costumes facing the demon",
+      "art": "A towering bonfire of records, comics and videotapes blazing against a huge purple crystal rock on a suburban roundabout on Halloween night, a thirty-foot demon of black smoke and melted vinyl records rising out of the flames with long ribbons of videotape for hair and curling horns, panicking parents throwing in more records, a small woman in a lavender pantsuit kneeling in the grass clutching a Bible, four teenagers in homemade costumes facing the demon, orange firelight, low wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1191,22 +1191,22 @@
       "best": {
         "title": "Come Find Me",
         "text": "Backmask burns down to a single scorched record sleeve that drifts away on the wind. Prudence sits in the grass with the record in her lap until dawn. The following Saturday she drives to Eureka with a box of Christmas postcards she finally opened, and comes home with a hoarse voice and a new guitar pick on her keychain. The Concerned Parents of Glimmer Falls quietly rename themselves Parents Who Ask. Hallelujah Night becomes the Crystal Street Block Party: Father Iggy's band plays the roundabout, Priya runs a Caverns and Chimeras table at the library with a sign-up sheet out the door, and Prudence still does not like heavy metal, but now she asks what the songs are about.",
-        "art": "A joyful Halloween block party on a suburban roundabout with a punk band playing beside a glowing purple geode, teens playing a tabletop game, a woman pastor in a lavender pantsuit listening with real interest to a teen explaining the artwork on a record sleeve"
+        "art": "A Halloween block party on a suburban roundabout, a punk band with a young priest in a leather jacket on bass playing beside a glowing purple crystal rock, teenagers rolling dice at a folding table, and in the foreground a small woman with a tight perm in a lavender pantsuit listening closely as a teenager shows her the painted art on a record sleeve, string lights and jack-o'-lanterns, warm evening light, wide shot"
       },
       "good": {
         "title": "Smoke on the Water",
         "text": "The bonfire is out and the demon is gone, scattered into smoke over the foothills. The Concerned Parents call it a victory over Satan and Halloween is canceled anyway. You get most of Priya's binders back, smelling like a campfire. Prudence goes back to her show and her turntable. Somewhere in the stack under her desk is a record she has never played backward.",
-        "art": "A burnt-out bonfire on a misty morning roundabout with scattered half-melted records, teens salvaging smoky game binders, a public-access TV studio light glowing in a distant window"
+        "art": "A burnt-out bonfire pile on a misty suburban roundabout at morning, half-melted vinyl records and charred comics scattered across the wet grass, three teenagers pulling smoky three-ring binders out of the ash, a purple crystal rock streaked with soot, a television studio light glowing in a distant window, gray morning light, wide shot"
       },
       "bittersweet": {
         "title": "Banned in Glimmer Falls",
         "text": "Backmask shrinks and slinks off into the storm drains, but the fear it fed on does not leave so easily. The library loses forty books to the challenge pile that winter. Rewind Video moves its horror tapes behind the counter. You and your crew start a secret lending library in the back of Wade's van, and every time a grown-up panics, you swear you can smell smoke.",
-        "art": "Teens running a secret lending library out of the back of a van full of books and tapes at night, a faint wisp of smoke curling from a nearby storm drain"
+        "art": "Teenagers running a secret lending library out of the open back doors of a black custom van at night, crates of books and videotapes inside lit by a battery lantern, a long-haired 18-year-old in a patched denim vest handing a book to a younger kid, a thin wisp of black smoke curling up from a nearby storm drain, warm lantern light and blue night, medium wide shot"
       },
       "bad": {
         "title": "Approved Listening",
         "text": "On November first you come home a model teenager. You listen only to music the Concerned Parents approve. You smile at the right moments. You do not argue, or laugh too loud, or draw in the margins anymore. Your crew notices one thing first: when you talk, if they record it and play it backward, they can hear you screaming for help.",
-        "art": "A stiffly smiling teenager in a pressed sweater sitting perfectly straight in a living room, worried friends in the doorway holding up a cassette recorder with a red recording light"
+        "art": "A stiffly smiling teenager in a pressed cardigan sitting perfectly upright on a living room sofa with hands on their knees, three worried friends in the doorway holding up a portable cassette recorder with its red record light glowing, a vase of plastic flowers on the coffee table, flat afternoon light, medium shot"
       }
     }
   }

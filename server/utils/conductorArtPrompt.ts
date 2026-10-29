@@ -50,10 +50,21 @@ type OpenAIResponse = {
 
 const PROJECT_ASSET_VARIANTS = new Set(['icon', 'card', 'hero'])
 
+// Over the limit, keep whole sentences (then whole clauses) rather than
+// cutting mid-word and appending an ellipsis. The ellipsis version filed the
+// 2026-10-29 Hybridizer request ending "...the hybrid creature tak…": no
+// lighting, no style, and a fragment the model has to guess at.
 function compact(value: string, maxLength = 1200): string {
   const clean = value.replace(/\s+/g, ' ').trim()
   if (clean.length <= maxLength) return clean
-  return `${clean.slice(0, maxLength - 1).trim()}…`
+  const head = clean.slice(0, maxLength)
+  for (const boundary of ['. ', ', ', ' ']) {
+    const cut = head.lastIndexOf(boundary)
+    if (cut > maxLength / 2) {
+      return head.slice(0, boundary === '. ' ? cut + 1 : cut).trim()
+    }
+  }
+  return head.trim()
 }
 
 function openAiKey(): string {
@@ -170,7 +181,7 @@ function promptLengthDirection(target: ArtPromptTarget): string {
   if (target.variant === 'card' || target.variant === 'hero') {
     return 'Use roughly 90 to 160 words with concrete visual direction for subject, secondary elements, spatial arrangement, camera or framing, environment, lighting, palette, materials, texture, mood, and exclusions.'
   }
-  return 'Use enough concrete detail to make the visible result unambiguous.'
+  return 'Use roughly 80 to 150 words of concrete visual direction; longer prompts are cut before the lighting and style that end them.'
 }
 
 function contextualFallback(

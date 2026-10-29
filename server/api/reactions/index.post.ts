@@ -26,6 +26,7 @@ type ReactionBody = Record<string, unknown> & {
   dreamId?: unknown
   facetId?: unknown
   projectId?: unknown
+  plumberLevelId?: unknown
   promptId?: unknown
   resourceId?: unknown
   rewardId?: unknown
@@ -48,6 +49,7 @@ const REACTION_CREATE_FIELDS = new Set([
   'dreamId',
   'facetId',
   'projectId',
+  'plumberLevelId',
   'promptId',
   'resourceId',
   'rewardId',
@@ -79,6 +81,7 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   DREAM: Reaction_reactionCategory.DREAM,
   FACET: Reaction_reactionCategory.FACET,
   PROJECT: Reaction_reactionCategory.PROJECT,
+  PLUMBER_LEVEL: Reaction_reactionCategory.PLUMBER_LEVEL,
   PROMPT: Reaction_reactionCategory.PROMPT,
   RESOURCE: Reaction_reactionCategory.RESOURCE,
   REWARD: Reaction_reactionCategory.REWARD,
@@ -184,6 +187,7 @@ function getTargetFields(body: ReactionBody) {
     dreamId: toPositiveId(body.dreamId),
     facetId: toPositiveId(body.facetId),
     projectId: toPositiveId(body.projectId),
+    plumberLevelId: toPositiveId(body.plumberLevelId),
     promptId: toPositiveId(body.promptId),
     resourceId: toPositiveId(body.resourceId),
     rewardId: toPositiveId(body.rewardId),
@@ -233,6 +237,7 @@ function getExpectedTargetField(
     [Reaction_reactionCategory.SCENARIO]: 'scenarioId',
     [Reaction_reactionCategory.THEME]: 'themeId',
     [Reaction_reactionCategory.PROJECT]: 'projectId',
+    [Reaction_reactionCategory.PLUMBER_LEVEL]: 'plumberLevelId',
     [Reaction_reactionCategory.MESSAGE]: TARGETLESS,
     // Reachable enum values with no route support. They have columns on
     // Reaction, but no allow-listed field, no access check and no owner
@@ -327,6 +332,7 @@ async function getContentOwnerId(
     dreamId: prisma.dream,
     facetId: prisma.facet,
     projectId: prisma.project,
+    plumberLevelId: prisma.plumberLevel,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
@@ -354,6 +360,7 @@ const contentTargetLabels: Record<string, string> = {
   dreamId: 'Dream',
   facetId: 'Facet',
   projectId: 'Project',
+  plumberLevelId: 'PlumberLevel',
   promptId: 'Prompt',
   resourceId: 'Resource',
   rewardId: 'Reward',
@@ -394,6 +401,7 @@ function contentTargetModel(field: string) {
     // facetId." Facets carry 961 published comments that nobody could reply to.
     facetId: prisma.facet,
     projectId: prisma.project,
+    plumberLevelId: prisma.plumberLevel,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
@@ -553,6 +561,12 @@ export default defineEventHandler(async (event) => {
     const reactionType = normalizeReactionType(body.reactionType)
     const reactionCategory = normalizeReactionCategory(body.reactionCategory)
     const targets = getTargetFields(body)
+    if (reactionCategory === Reaction_reactionCategory.PLUMBER_LEVEL) {
+      throw createError({
+        statusCode: 400,
+        message: 'Use /api/plumber-levels/reviews to submit a verified course rating.',
+      })
+    }
     const targetWhere = buildTargetWhere(reactionCategory, targets)
 
     const isAdmin = userIsAdmin(user)

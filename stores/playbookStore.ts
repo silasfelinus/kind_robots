@@ -451,6 +451,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
             projectSlug: playbook.value.artProject,
             designer: playbook.value.title,
             negative: playbook.value.artNegative,
+            style: playbook.value.artStyle,
           }),
         ),
       },

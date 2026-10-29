@@ -1,7 +1,9 @@
 /**
- * Space Couch Act I: three mission boards with nine distinct civic crises.
+ * Space Couch Act I, "First Voyage": three mission boards with nine calls.
  * The first three legacy mission IDs remain in rules.ts for saved voyages.
- * These six additional calls are authored alternatives, not cosmetic aliases.
+ * Tone (Silas, 2026-10-26): dry and procedural about ridiculous things,
+ * with stakes that stay real. The choices are the same three everywhere:
+ * help with consent, stand back and record, or act without permission.
  */
 export const ACT_ONE_MISSIONS = [
   {
@@ -11,10 +13,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'The Dockworkers Who Never Clocked Out',
     kind: 'tactics',
     briefing:
-      'Ashdock invoices families for the oxygen consumed by workers killed in a hidden decompression. The automated crane keeps collecting attendance from empty suits. Pell recognizes the handwriting in the machine’s appeal.',
+      'Ashdock’s shipyard contractor has invoiced six families for the oxygen their relatives used during a decompression the contractor has not disclosed. The yard’s automated crane still clocks all six workers in every morning, their empty suits hanging from its hooks, and payroll has written to praise their attendance.',
     dilemma:
-      'The union can publish an unredacted casualty register, but the names reveal undocumented families living inside an unlicensed shipyard.',
-    note: 'A payroll adjustment is not a substitute for a funeral.',
+      'The union holds an unredacted casualty register. Publishing it would end the invoices. It would also publish the names of relatives living in the yard without permits, who have so far been invoiced but not deported.',
+    note: 'The crane’s attendance record was perfect. It was the only one that was.',
     stake: 'Worker testimony / institutional retaliation',
   },
   {
@@ -24,10 +26,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'A Lighthouse That Follows You',
     kind: 'science',
     briefing:
-      'A moving navigation beacon follows the red couch through vacuum. Tess insists it belongs to a hidden refuge; Kivo hears three unregistered distress pings inside its navigation hiss.',
+      'A navigation buoy on four long legs has followed the couch across the glass dunes of the Windglass Moons for two days, at a respectful distance. When the couch stops, the buoy stops. The bubble’s receivers pick up three unregistered distress pings in its hiss, from somewhere the charts insist is empty.',
     dilemma:
-      'Tracing the signal may locate survivors, but broadcasting a rescue route also tells every privateer where sanctuary lies.',
-    note: 'The safest coordinate is sometimes the one nobody receives.',
+      'Following the buoy may lead to the survivors. Broadcasting a rescue route would bring help faster, and would also bring everyone else, including the people the refuge was built to be hidden from.',
+    note: 'The buoy waited politely at every dune. It had clearly done this before.',
     stake: 'Safe navigation / sanctuary exposure',
   },
   {
@@ -37,10 +39,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'The Temperature of a Vote',
     kind: 'diplomacy',
     briefing:
-      'Delegates insist the peace referendum was unanimous. Taal reads three different objections encoded in the room’s heating system. Rue discovers that an entire neighborhood has been legally defined as a thermostat.',
+      'The Nacre Assembly votes by heat: each delegate warms a channel in the ice, and a brass bowl at the center adds them up. The peace referendum came out unanimous. Three objections have been found in the heating ducts, along with an entire neighborhood that a recent zoning update classified as a thermostat.',
     dilemma:
-      'The excluded delegates want recognition. A public hearing could win their voting rights while exposing their private identities to the occupying coalition.',
-    note: 'Unanimity is easy when you redefine a voter as furniture.',
+      'The neighborhood wants to be counted. A public hearing would win them the vote and would also publish their names to the occupying coalition, which keeps a list and is always looking to add to it.',
+    note: 'Unanimity is easy when some of the voters are fixtures.',
     stake: 'Recognition / vulnerable witnesses',
   },
   {
@@ -50,10 +52,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'The Clinic That Owns Its Patients',
     kind: 'rescue',
     briefing:
-      'Vela finds her emergency cure administered under a patent that classifies living patients as unpaid inventory. Brin finds that the clinic’s artificial oxygen has displaced an older living reef.',
+      'The Haleth Reef clinic has a cure for the fever the refugees carried with them, a patent on the cure and, under clause nine of the patent, a lien on every patient it saves. Survivors are entered on the clinic’s balance sheet as appreciating assets. Its oxygen plant, meanwhile, is slowly smothering the living reef it was bolted to.',
     dilemma:
-      'The doctor offers treatment without charge if the captain allows anonymous medical records to be sold to creditors.',
-    note: 'A medical miracle should not come with an invoice for being alive.',
+      'The clinic will treat everyone free of charge if the captain allows their anonymized records to be sold to its creditors. The records are anonymized in the sense that the names are printed in a smaller font.',
+    note: 'A medical miracle should not arrive with an invoice for being alive.',
     stake: 'Patient autonomy / ecosystem debt',
   },
   {
@@ -63,10 +65,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'The Twelfth Floor Is Mandatory',
     kind: 'tactics',
     briefing:
-      'A city-sized televised dungeon drafts hospital workers as contestants. Its synthetic host announces the couch as a four-person team and informs the captain that refusing the audition constitutes a forfeiture of civilian lives.',
+      'The Showrunner has rebuilt a planet into a twelve-floor televised dungeon and is casting this season from the local hospitals. Its host has registered the couch as a team of four, since four cushions are occupied, and explained that declining the audition counts as a forfeit, payable by the contestants already on floor three.',
     dilemma:
-      'The contestants have a hidden labor charter. Broadcasting its escape clause might disable the arena, but a public uprising will expose the organizers to retaliation.',
-    note: 'Participation is not voluntary just because the door has an applause sign.',
+      'The contestants’ union has a labor charter with an escape clause. Reading it on air could shut the floors down. It would also identify the organizers on the planet’s only broadcast, which belongs to the Showrunner.',
+    note: 'Participation is not voluntary just because the door has an applause light over it.',
     stake: 'Labor liberation / compulsory spectacle',
   },
   {
@@ -76,10 +78,10 @@ export const ACT_ONE_MISSIONS = [
     title: 'The Orchard That Refused the Cure',
     kind: 'rescue',
     briefing:
-      'Rootborne oxygen orchards are being replaced with state-approved filters. Brin finds a sapling carrying a warning from the village that installed the new machines: the air is cleaner and the people can no longer dream privately.',
+      'Rootborne’s oxygen orchards are being replaced with state-approved filter towers, which make the air cleaner and, as a documented side effect, make everyone’s dreams available to the Ministry of Air. A sapling arrives at the couch in a clay pot, with a note from the village that installed the towers. They would like their dreams back, and to go on breathing.',
     dilemma:
-      'Restoring the old living network could save the settlement’s independence but temporarily cut oxygen to the new arrivals, including refugees the captain helped earlier.',
-    note: 'Breathing together does not mean thinking the same thought.',
+      'Restoring the old orchard network would return the village’s privacy and cut the air to the new filter districts for a week, including the refugees the couch helped to settle there.',
+    note: 'Breathing together is not the same as thinking the same thought.',
     stake: 'Shared air / collective autonomy',
   },
 ] as const
@@ -104,7 +106,7 @@ export const ACT_ONE_CONSEQUENCES: Record<
     },
     observe: {
       flag: 'convoy-unanswered',
-      text: 'A ship departs without aid. The other transmits the words “We saw you” before its beacon fails.',
+      text: 'The convoy waits for its stamp. Eventually it borrows one from a passing freighter and makes its own arrangements. Its last message to the couch is a copy of the request form, filled in.',
     },
     intervene: {
       flag: 'convoy-seized',
@@ -114,11 +116,11 @@ export const ACT_ONE_CONSEQUENCES: Record<
   ashdock: {
     aid: {
       flag: 'ashdock-protected',
-      text: 'Pell and the union create a protected testimony registry. The families, not the captain, decide when names become public.',
+      text: 'The union sets up a protected testimony registry. The families, not the captain, decide when names become public, and the crane is finally allowed to clock everyone out.',
     },
     observe: {
       flag: 'ashdock-silenced',
-      text: 'The empty crane clocks another shift; the contractor files a flawless injury report.',
+      text: 'The empty crane clocks another shift. The contractor files a flawless injury report, with a commendation for attendance.',
     },
     intervene: {
       flag: 'ashdock-exposed',
@@ -128,11 +130,11 @@ export const ACT_ONE_CONSEQUENCES: Record<
   windglass: {
     aid: {
       flag: 'windglass-hidden',
-      text: 'Tess and Kivo escort a convoy by unmarked corridors. The safe harbor stays uncharted, and several families still wait.',
+      text: 'The couch follows the buoy by unmarked corridors and escorts one convoy home. The harbor stays uncharted, and several families are still waiting for their turn.',
     },
     observe: {
       flag: 'windglass-lost',
-      text: 'The moving beacon fades out. The crew keeps its last unexplained ping in the navigation log.',
+      text: 'The buoy gives up on the couch and walks off toward the horizon. The crew keeps its last unexplained ping in the navigation log.',
     },
     intervene: {
       flag: 'windglass-broadcast',
@@ -156,7 +158,7 @@ export const ACT_ONE_CONSEQUENCES: Record<
   nacre: {
     aid: {
       flag: 'nacre-hearing',
-      text: 'A protected ballot gives the excluded residents a hearing. The assembly must learn to count people it previously called building services.',
+      text: 'A protected ballot gives the neighborhood a hearing. The Assembly must now learn to count people it previously maintained.',
     },
     observe: {
       flag: 'nacre-denied',
@@ -216,11 +218,11 @@ export const ACT_ONE_CONSEQUENCES: Record<
     },
     observe: {
       flag: 'rootborne-silent',
-      text: 'The orchard accepts another machine. Its final pollen message is a request to be forgotten.',
+      text: 'Another tower goes up. The Ministry of Air thanks the village for its dreams, which it describes as mostly about teeth.',
     },
     intervene: {
       flag: 'rootborne-severed',
-      text: 'The compulsory thought network is severed; families scramble to keep their breathing filters working.',
+      text: 'The towers come down overnight. The village’s dreams are private again, and for a week everybody in the filter districts is breathing through a damp cloth.',
     },
   },
 }
@@ -229,7 +231,7 @@ export const ACT_ONE_ECHOES: Record<string, string> = {
   'convoy-invited':
     'Survivors from Hollow Lantern have asked for a say in what this new system decides. Their protected patient registry remains sealed.',
   'convoy-unanswered':
-    'A surviving distress buoy reports that no assistance came at Hollow Lantern. The next port does not call the couch neutral.',
+    'The Hollow Lantern convoy has filed a copy of its request form with every port ahead of you. The next port does not call the couch neutral.',
   'convoy-seized':
     'Civilians from the forcibly boarded convoy request independent arbitration. They will not testify as the captain’s property.',
   'ashdock-protected':
@@ -239,7 +241,7 @@ export const ACT_ONE_ECHOES: Record<string, string> = {
   'ashdock-exposed':
     'The contractor offers to settle if the captain will identify the workers who provided the unredacted register.',
   'windglass-hidden':
-    'Tess’s secret harbor has sent an unmarked supply ship to the next port. Its coordinates remain undisclosed.',
+    'The Windglass harbor has sent an unmarked supply ship to the next port. Its coordinates remain undisclosed, as agreed.',
   'windglass-lost':
     'The final lost Windglass ping keeps appearing in the couch’s navigational static.',
   'windglass-broadcast':

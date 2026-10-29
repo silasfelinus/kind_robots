@@ -239,5 +239,9 @@ function onDummy(event: Event) {
   store.setDummy((event.target as HTMLSelectElement).value as DummyMode)
 }
 
+useSeoMeta(
+  gameLinkPreviewMeta('zuzu-showdown', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 useHead({ title: 'Zuzu Showdown' })
 </script>

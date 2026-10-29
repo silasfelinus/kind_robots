@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   CHECKPOINT_CLASSES,
   DEFAULT_ASSUMPTIONS,
@@ -61,6 +62,7 @@ import {
 } from '../playbookForge/adjust'
 import {
   buildLedger,
+  completionPercent,
   laneClass,
   nodeArtPrompt,
   artPromptBrief,
@@ -84,6 +86,63 @@ import {
   targetNoteKey,
 } from '../playbookForge/gallery'
 import { PLAYBOOK_GAMES, buildPlaybook } from '../playbook/games'
+import { withVerifiedArt } from '../playbookForge/verifiedArt'
+import { inspectPlaybookArt } from '../../server/utils/playbookArtInventory'
+import {
+  REDSHIRT_ROSTER,
+  baseRedshirtDraft,
+  redshirtBrief,
+  redshirtChanges,
+  redshirtQuestLinks,
+  redshirtPortraitPrompt,
+} from '../playbookForge/redshirtAtlas'
+import { EXPEDITION_ENCOUNTERS } from '../gameOfCaptains/expedition'
+
+// The Forge must expose all authored recruits, real playable encounter
+// intersections, and distinguish casting an existing Character from a Facet redesign.
+assert.equal(REDSHIRT_ROSTER.length, 100)
+assert.equal(new Set(REDSHIRT_ROSTER.map((person) => person.id)).size, 100)
+assert.equal(EXPEDITION_ENCOUNTERS.length, 53)
+for (const person of REDSHIRT_ROSTER) {
+  const assignments = redshirtQuestLinks(person)
+  assert.ok(assignments.length, person.id + ' has no expedition intersections')
+  assert.ok(assignments.every((entry) => entry.skill === person.talent))
+  assert.ok(
+    person.portraitPrompt.includes('red Space Couch expedition uniform'),
+  )
+}
+const recruit = REDSHIRT_ROSTER[0]!
+const edit = baseRedshirtDraft(recruit)
+edit.anatomy = 'spring-tailed alien with kangaroo-inspired silhouette'
+edit.referenceTab = 'facets'
+edit.referenceKey = 'facets:21'
+edit.referenceTitle = 'Kangaroo'
+edit.note = 'Preserve the original story and keep the red uniform.'
+assert.equal(redshirtChanges(recruit, edit).length, 1)
+const redesign = redshirtBrief(recruit, edit, 'design')
+assert.match(redesign, /redesign this redshirt using the linked entity/)
+assert.match(redesign, /facets:21/)
+assert.match(redesign, /Proposed fields/)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /kangaroo-inspired silhouette/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Brilliant bright red Space Couch expedition shirt/,
+)
+assert.match(
+  redshirtPortraitPrompt(recruit, edit),
+  /Visual inspiration from facets: Kangaroo/,
+)
+edit.referenceTab = 'characters'
+edit.referenceKey = 'characters:144'
+edit.referenceTitle = 'Existing follower'
+edit.intent = 'appearance'
+assert.match(
+  redshirtBrief(recruit, edit, 'design'),
+  /adapt the linked existing Character as this redshirt/,
+)
 
 const fromRoot = (path: string) => new URL('../../' + path, import.meta.url)
 const base = (): Blueprint => ({
@@ -445,6 +504,96 @@ assert.equal(
     1,
   )
 }
+{
+  const fixture = {
+    order: ['real', 'missing', 'svg'],
+    nodes: {
+      real: beat('real', 'opening', {
+        artUrl: '/crystal-street/cover.webp',
+      }),
+      missing: beat('missing', 'encounter', {
+        artUrl: '/crystal-street/scenes/not-a-real-scene.webp',
+      }),
+      svg: beat('svg', 'ending', {
+        artUrl: '/crystal-street/poster.svg',
+      }),
+    },
+    artRequirements: [
+      {
+        key: 'real-extra',
+        title: 'Delivered',
+        url: '/crystal-street/cover.webp',
+      },
+      {
+        key: 'missing-extra',
+        title: 'Missing',
+        url: '/crystal-street/outcomes/not-rendered.webp',
+      },
+      {
+        key: 'vector-extra',
+        title: 'Vector filler',
+        url: '/crystal-street/poster.svg',
+      },
+    ],
+  }
+  const inventory = inspectPlaybookArt(
+    fixture,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.deepEqual(Object.keys(inventory.verified), ['real'])
+  assert.equal(inventory.extras.total, 3)
+  assert.equal(inventory.extras.delivered, 1)
+  const inspected = buildLedger(
+    withVerifiedArt(fixture, inventory.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: inventory.extras,
+    },
+  )
+  assert.equal(inspected.art.delivered, 2, 'one real beat and one extra image')
+  assert.equal(inspected.art.missing, 4, 'missing, vector and two extra slots')
+  assert.ok(inspected.paintedShare < 0.5)
+  assert.ok(inspected.progress < 1, 'authored URLs cannot claim 100% delivery')
+  assert.equal(inspected.extraArt.total, 3)
+  assert.match(inspected.discrepancies.join(' '), /required game images/)
+  assert.notEqual(
+    inspected.shine,
+    'super',
+    'missing art prevents a full completion star',
+  )
+  const notAudited = withVerifiedArt(fixture, undefined)
+  assert.equal(notAudited.nodes.real?.artUrl, null)
+  assert.equal(notAudited.nodes.real?.needsArt, true)
+
+  const crystal = buildPlaybook('crystal-street')
+  assert.ok(
+    (crystal.artRequirements?.length ?? 0) > 300,
+    'Crystal Street enumerates choice outcomes, emotions, villain and item art',
+  )
+  const crystalAudit = inspectPlaybookArt(
+    crystal,
+    fileURLToPath(fromRoot('images-not-present')),
+    [fileURLToPath(fromRoot('public'))],
+  )
+  assert.ok(crystalAudit.extras.delivered < crystalAudit.extras.total)
+  const crystalLedger = buildLedger(
+    withVerifiedArt(crystal, crystalAudit.verified),
+    {},
+    {
+      laneKey: 'krea2',
+      assumptions: DEFAULT_ASSUMPTIONS,
+      extraArt: crystalAudit.extras,
+    },
+  )
+  assert.ok(crystalLedger.paintedShare < 1)
+  assert.ok(crystalLedger.progress < 1)
+  assert.equal(crystal.order.length, Object.keys(crystal.nodes).length)
+}
+assert.equal(completionPercent(0.999), 99)
+assert.equal(completionPercent(1), 100)
 assert.equal(nodeShape(beat('p', 'follower')), 'portrait')
 assert.equal(nodeShape(beat('p', 'boss')), 'scene')
 
@@ -492,6 +641,20 @@ const memoryLedger = buildLedger(
   },
 )
 assert.equal(memoryLedger.scope, 200 / 1600)
+assert.equal(
+  memoryLedger.unbuiltUnits,
+  1400,
+  'other fourteen worlds have no authored encounter slots',
+)
+assert.equal(memoryLedger.plannedUnits, memoryLedger.units + 1400)
+assert.ok(
+  memoryLedger.remainingSeconds > 1400 * 60,
+  'missing worlds require real future renders',
+)
+assert.equal(
+  memoryLedger.progress,
+  (memoryLedger.writtenShare + memoryLedger.paintedShare) / 2,
+)
 assert.ok(memoryLedger.progress <= memoryLedger.scope)
 assert.match(
   memoryLedger.discrepancies.join(' '),
@@ -552,6 +715,37 @@ for (const game of PLAYBOOK_GAMES) {
     assert.equal(combined.label, t.label)
   }
 }
+const promRoster = buildPlaybook('comet-city-academy')
+const identityNodes = Object.values(promRoster.nodes).filter(
+  (node) => node.kind === 'follower' && node.key.startsWith('identity:'),
+)
+assert.ok(
+  identityNodes.length >= 48,
+  'every authored signature identity appears in the Forge cast',
+)
+const firstIdentity = galleryEntry(identityNodes[0]!)
+assert.equal(
+  firstIdentity.artVariants.length,
+  3,
+  'student, hero and villain art slots',
+)
+assert.ok(
+  firstIdentity.body.some((line) => /Hero turn/.test(line)),
+  'hero consequence visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'sidekick'),
+  'sidekick branch visible',
+)
+assert.ok(
+  firstIdentity.variations.some((v) => v.key === 'romance'),
+  'romance branch visible',
+)
+assert.ok(
+  firstIdentity.group !== 'Cast',
+  'origin family is available for visual browsing',
+)
+
 const captains = buildPlaybook('game-of-captains')
 const captainsLedger = buildLedger(
   captains,

@@ -9,7 +9,7 @@
         "title": "The Endless Lot",
         "place": "Rusty's Junkyard, somewhere past midnight",
         "text": "You blink on your own front lawn and open your eyes between two rusted station wagons. This is Rusty's Junkyard, except the rows of cars never end. Every car is the same wood-paneled wagon, every radio is on, and every radio is playing the same slow-dance ballad from the 1959 prom, \"Moonlight on the Quarry,\" one beat out of sync, forever.",
-        "art": "A teenager in pajamas standing in an endless junkyard maze of identical rusted wood-paneled station wagons stretching to the horizon under a full moon, every dashboard radio glowing the same amber, mist between the rows",
+        "art": "A teenager in pajamas standing in an endless junkyard aisle of identical rusted wood-paneled station wagons stretching to the horizon in straight rows under a full moon, every dashboard radio glowing the same amber, low mist drifting between the rows, the teen's bare feet in the dirt, cold blue moonlight and warm amber dash lights, wide shot down the rows",
         "choices": [
           {
             "id": "follow-the-song",
@@ -98,7 +98,7 @@
         "title": "Yes, No, Goodbye",
         "place": "A wood-paneled basement rec room on Crystal Street",
         "text": "Somebody brought a Spirit-Talk board from the Starlight Mall toy store, and the slumber party has been giggling over it for an hour. Then the planchette moves before anyone touches it. It spells your name. Then it spells OPEN THE DOOR, and the door to the garage starts to rattle in its frame.",
-        "art": "Teens in sleeping bags around a talking board on shag carpet in a wood-paneled basement rec room, the planchette sliding by itself, the garage door rattling in the background, a lava lamp glowing",
+        "art": "A wood-paneled basement rec room at night, five teens in sleeping bags on shag carpet around a store-bought talking board, the heart-shaped planchette sliding across it with every hand pulled back, a lava lamp glowing red on a shelf, the door to the garage rattling in its frame in the background, one teen pointing at the door, red lava light and flashlight glow, medium wide shot",
         "choices": [
           {
             "id": "ask-who-it-is",
@@ -156,7 +156,7 @@
         "title": "Porch Light Code",
         "place": "Crystal Street, two in the morning",
         "text": "You wake up because your room keeps flashing. Outside, every porch light on the cul-de-sac is blinking in perfect unison: long, short, short, long. No one is awake. No one is on the porches. The pattern stops, starts over, and waits, like somebody repeating a question.",
-        "art": "A suburban cul-de-sac at 2 a.m. with every porch light blinking in unison, a teenager silhouetted in an upstairs bedroom window, the roundabout garden dark in the middle",
+        "art": "A suburban cul-de-sac at two in the morning seen from the street, every porch light on every house blinking in unison, every porch empty, the roundabout garden dark in the middle with a faint purple glow, a teenager in pajamas silhouetted in an upstairs bedroom window with a hand on the glass, blue night and flashing yellow porch lights, wide shot",
         "choices": [
           {
             "id": "decode-the-lights",
@@ -218,7 +218,7 @@
         "title": "Candles at Pinecrest",
         "place": "Pinecrest Cemetery, after the gates are locked",
         "text": "A line of people in old-fashioned clothes is walking between the headstones, each one carrying a candle that does not flicker in the wind. Bonnets, fedoras, a girl in a poodle skirt. The last one in line turns, smiles, and holds out a spare candle to you.",
-        "art": "A silent procession of translucent figures in clothes from many decades carrying steady candles between moonlit headstones, the last figure offering a candle to a teenager behind a mausoleum",
+        "art": "A silent procession of pale translucent figures in clothes from many decades walking single file between moonlit headstones, a woman in a bonnet, a man in a fedora, a girl in a poodle skirt, each holding a candle whose flame stands perfectly still in the wind, the last figure turning to offer a spare candle to a teenager crouched behind a stone mausoleum, cold moonlight and warm candle glow, wide shot",
         "choices": [
           {
             "id": "take-the-candle",
@@ -276,7 +276,7 @@
         "title": "The Last Bus",
         "place": "Corner of Crystal Street and Quarry Road, three a.m.",
         "text": "A round-nosed yellow school bus from the fifties idles at the corner where no bus has stopped in decades. The sign says GLIMMER FALLS ELEMENTARY: FIELD TRIP. The doors fold open with a sigh. Inside, a busload of kids in saddle shoes and cardigans press their faces to the windows and wave at you.",
-        "art": "A 1950s round-nosed yellow school bus idling at a foggy suburban corner at 3 a.m., doors open, translucent kids in saddle shoes waving from every window, the driver's face hidden under a cap",
+        "art": "A round-nosed 1950s yellow school bus idling at a foggy suburban street corner at three in the morning, its folding doors open, translucent kids in saddle shoes and cardigans pressing their faces to every window and waving, the driver's face hidden under a cap, a teenager on the curb in a hooded sweatshirt, headlights glowing in the fog, wide shot",
         "choices": [
           {
             "id": "climb-aboard",
@@ -338,7 +338,7 @@
         "title": "Footsteps in the Attic",
         "place": "Your house, 1:13 a.m.",
         "text": "Somebody is pacing in the attic. Back and forth, back and forth, right above your bed, in hard-soled shoes. Your family is asleep. Then the pull-down ladder in the hallway creaks, unfolds itself step by step, and lands softly on the carpet like an invitation.",
-        "art": "A dark suburban upstairs hallway with an attic pull-down ladder unfolding by itself, a faint light and the shadow of pacing feet visible through the ceiling hatch",
+        "art": "A dark suburban upstairs hallway at 1:13 in the morning, the pull-down attic ladder unfolding by itself step by step from an open ceiling hatch and landing softly on the carpet, a faint yellow light and the moving shadow of pacing feet visible through the hatch, a teenager in pajamas standing in their bedroom doorway, closed doors along the hall, medium shot from low in the hallway",
         "choices": [
           {
             "id": "climb-the-ladder",
@@ -401,7 +401,7 @@
         "title": "The Hitchhiker on Tower Road",
         "place": "Tower Road, halfway down the switchbacks, midnight",
         "text": "You are coasting home from the KGLM tower when a boy in a letter jacket and a slicked pompadour steps into your bike light with his thumb out. He is dripping wet on a bone-dry night. \"Lucky Strike Lanes, please,\" he says, polite as a church usher. \"League finals. The team's waiting on me.\" Lucky Strike Lanes burned down in 1963. He hops onto your handlebars anyway, light as a paper bag.",
-        "art": "A translucent teenage boy in a damp letter jacket and pompadour perched on the handlebars of a teenager's bicycle on a foggy mountain switchback road at midnight, the bike headlight cutting through the mist, small-town lights far below",
+        "art": "A translucent teenage boy in a damp letter jacket and a slicked pompadour perched on the handlebars of a teenager's bicycle on a foggy mountain switchback at midnight, water dripping from his jacket onto the dry road, the bike headlight cutting through the mist, a guardrail and the small lights of a valley town far below, white headlight and gray fog, medium wide shot",
         "choices": [
           {
             "id": "pedal-him-there",
@@ -487,7 +487,7 @@
         "title": "Dryer Number Thirteen",
         "place": "Suds-O-Mat 24-Hour Laundromat, Main Street, two a.m.",
         "text": "You are washing the slime out of your jacket at the all-night laundromat, the only customer under the buzzing lights. Dryer number thirteen starts up by itself, no quarter. Through its round window tumble clothes nobody has worn in thirty years: a poodle skirt, a Sunday hat, a tiny sailor suit. A woman in a housecoat and pink curlers is folding at the counter, and you can see the vending machine right through her.",
-        "art": "A fluorescent-lit all-night laundromat at two in the morning, a translucent woman in a housecoat and pink curlers folding laundry at a counter, one round dryer window glowing with tumbling 1950s clothes, a teenager holding a slimy jacket",
+        "art": "A fluorescent-lit all-night laundromat at two in the morning, a row of round-windowed dryers with one window glowing and tumbling 1950s clothes, a poodle skirt, a Sunday hat and a tiny sailor suit, a translucent woman in a quilted housecoat and pink curlers folding laundry at the counter with a vending machine visible through her body, a teenager holding a slime-covered jacket, buzzing white light, medium wide shot",
         "choices": [
           {
             "id": "help-her-fold",
@@ -570,7 +570,7 @@
         "title": "The Ghost Light",
         "place": "The Glitter Box Playhouse stage, long after the revue",
         "text": "Every theater leaves one bare bulb burning on the stage overnight, so the ghosts can rehearse. You came back for the scarf you left in the dressing room, and the ghost light is flickering in time to a piano with no pianist. A chorus line in 1940s sequins kicks across the boards, translucent and fabulous, and their stage manager, a woman with a clipboard and a pencil behind her ear, points straight at you. \"You. Understudy. Places.\"",
-        "art": "A bare light bulb on a stand glowing in the middle of a dark community theater stage, a translucent chorus line in 1940s sequins kicking in unison, a ghostly stage manager with a clipboard pointing at a teenager in the wings",
+        "art": "A single bare light bulb on a metal stand glowing in the middle of a dark small-theater stage at night, a translucent chorus line in 1940s sequined costumes kicking in unison across the boards, a ghostly stage manager with a clipboard and a pencil behind her ear pointing straight at a teenager standing in the wings holding a scarf, an upright piano playing with its keys moving by themselves, warm bulb light and blue shadow, wide shot",
         "choices": [
           {
             "id": "take-your-place",
@@ -655,7 +655,7 @@
         "title": "Thirteen Bells",
         "place": "The bell tower at St. Jude's, the stroke of midnight",
         "text": "The bell at St. Jude's has hung silent since its rope rotted through in 1971. Tonight it rings twelve times, and then a thirteenth, and the sound rolls across Crystal Street like a slammed door. Every dog in town starts howling. From your window you can see someone up in the belfry, a bell ringer in a wool cap, hauling on a rope made of moonlight and waving you over.",
-        "art": "A stone church bell tower against a full moon at midnight, a translucent bell ringer in a wool cap hauling on a glowing rope in the belfry, the great bell swinging, suburban rooftops below",
+        "art": "A stone church bell tower against a full moon at midnight, the great bronze bell swinging in the belfry, a translucent bell ringer in a wool cap hauling on a glowing white rope, suburban rooftops and howling dogs in yards below, a teenager leaning out of a bedroom window in the foreground, silver moonlight, wide shot from below",
         "choices": [
           {
             "id": "climb-the-tower",
@@ -744,7 +744,7 @@
         "title": "Have You Checked the Children?",
         "place": "The Delgado house on Crystal Street, 11:40 p.m.",
         "text": "You are babysitting the Delgado twins for five dollars an hour and a fridge full of Bolt Cola. The kids are asleep. The phone has rung three times. Each time it is the same slow breathing, and then a voice like a rake on gravel: \"Have you checked the children?\" This time it adds, \"Nice socks.\"",
-        "art": "A teenager on a shag carpet clutching a wall phone with a long curly cord in a dim split-level living room, a babysitter's note on the fridge, the dark staircase to the bedrooms behind them",
+        "art": "A teenage babysitter sitting on shag carpet in a dim split-level living room at 11:40 at night, clutching a yellow wall phone with a long curly cord stretched from the kitchen, mismatched striped socks on their feet, a can of soda on the floor, a paper note on the refrigerator, and behind them the dark staircase up to the bedrooms, a single lamp, medium shot",
         "choices": [
           {
             "id": "check-the-children",
@@ -829,7 +829,7 @@
         "title": "The Last One Standing",
         "place": "Glimmer Falls High, after the lights go out",
         "text": "You only came back for your backpack. The hall lights die one bank at a time, and at the far end of the trophy hallway a figure in janitor's coveralls and a grinning homecoming-king mask lifts a pair of hedge trimmers. Snip. Snip. Every slasher movie you have rented says the same thing: run.",
-        "art": "A long high-school hallway in darkness, rows of lockers, a figure in janitor's coveralls and a grinning homecoming-king mask holding hedge trimmers at the far end, a teenager with a backpack frozen in a pool of emergency light",
+        "art": "A long high school hallway in darkness, rows of lockers and a glass trophy case, a figure in gray janitor's coveralls and a grinning rubber homecoming-king mask with a plastic crown holding a pair of hedge trimmers low at the far end, a teenager with a backpack frozen in a pool of red emergency light in the foreground, deep shadow between them, long one-point view down the hall",
         "choices": [
           {
             "id": "sprint-for-the-gym",
@@ -920,7 +920,7 @@
         "title": "Lookout Point",
         "place": "The lookout below the KGLM water tower",
         "text": "You and some friends are parked at the lookout in a borrowed car, watching the town lights and counting meteors. The radio cuts in with a bulletin about a man seen near the reservoir with a rusty garden hook. Then something on the roof of the car goes scrape. Scrape. Scrape.",
-        "art": "A boxy 1980s car parked at a hilltop lookout above glittering small-town lights, teens inside staring up at the roof, a meteor streaking across the sky, a rusty hook glinting above the windshield",
+        "art": "A boxy 1980s sedan parked at a hilltop lookout at night above the glittering lights of a small town, three teens inside staring up at the car roof with wide eyes, the dashboard radio glowing, a meteor streaking across the starry sky, and a rusty garden hook glinting where it scrapes across the top of the windshield, starlight and green dash glow, medium wide shot",
         "choices": [
           {
             "id": "floor-it",
@@ -983,7 +983,7 @@
         "title": "Last Pick of the Patch",
         "place": "Halvorsen's Pumpkin Patch, off Quarry Road, after closing",
         "text": "Every jack-o-lantern in the patch has lit itself. The scarecrow is missing from its post. From the corn maze comes the wet, patient scrape of someone carving, and then a figure steps out with a sack-cloth face, a pumpkin for a head, and a carving knife the size of a canoe paddle.",
-        "art": "A moonlit pumpkin patch full of glowing jack-o-lanterns, an empty scarecrow post, a lanky figure with a carved pumpkin head and a comically huge pumpkin-carving scoop the size of a shovel stepping out of a corn maze",
+        "art": "A moonlit pumpkin patch after closing time full of glowing jack-o'-lanterns that have lit themselves, an empty wooden scarecrow post, and a lanky figure with a burlap shirt and a carved pumpkin for a head stepping out of a dark corn maze holding a huge pumpkin-carving scoop the size of a shovel, a teenager crouched behind a hay bale, orange pumpkin glow and blue moonlight, wide shot",
         "choices": [
           {
             "id": "lose-it-in-the-maze",
@@ -1045,7 +1045,7 @@
         "title": "Lights Out at the Rink",
         "place": "The roller-rink annex at Pump Iron Gym, late skate",
         "text": "Halfway through the late skate the lights cut out, but the mirror ball keeps turning. When the emergency lights stutter on, there is one extra skater on the floor: a figure in a striped referee shirt and a yellow smiley-face mask, gliding backward, carrying a skate key the size of a crowbar.",
-        "art": "A roller rink lit only by a spinning mirror ball and red emergency lights, teens on skates scattering, a masked skater in a striped referee shirt gliding backward with an oversized skate key",
+        "art": "A roller rink during a blackout lit only by a spinning mirror ball and red emergency lights, teens on skates scattering toward the walls, and one masked skater in a striped referee shirt and a yellow smiley-face mask gliding backward across the floor carrying a skate key the size of a crowbar, a teenager clinging to the rail, white sparkles and red glow, wide shot",
         "choices": [
           {
             "id": "outskate-it",
@@ -1104,7 +1104,7 @@
         "title": "Across the Street",
         "place": "Your bedroom window, after midnight",
         "text": "Someone in a pale, blank Halloween-store mask is standing under the streetlight by the roundabout, perfectly still, facing your house. You look away to grab your glasses. When you look back, it is one lawn closer. You look away again. Two lawns.",
-        "art": "View from a dark teenage bedroom window over a cul-de-sac at night, a figure in a blank pale mask standing perfectly still on a neighbor's lawn under a streetlight",
+        "art": "The view from a dark teenage bedroom window over a suburban cul-de-sac after midnight, a teenager's hand holding eyeglasses in the foreground, and on a neighbor's lawn under a streetlight a figure in a pale blank store-bought mask and a dark coverall standing perfectly still facing the house, one lawn closer to the window than the empty streetlight pool by the roundabout, cold white streetlight, wide shot over the shoulder",
         "choices": [
           {
             "id": "get-proof",
@@ -1191,7 +1191,7 @@
         "title": "Full Service",
         "place": "Sudsy's Auto Wash on Main Street, after closing",
         "text": "You cut through Sudsy's Auto Wash on your bike because it is shorter. The machinery grinds awake behind you. Blue foam gushes from the nozzles, the giant brushes start to spin, and deep inside the tunnel a figure in a yellow rain slicker and a grinning cartoon-frog mask is waiting, holding a squeegee on a ten-foot pole.",
-        "art": "A dark automatic car wash tunnel at night with spinning blue brushes and foam pouring from nozzles, a figure in a yellow rain slicker and a grinning frog mask holding a huge squeegee, a teenager on a bike at the entrance",
+        "art": "A dark automatic car wash tunnel at night, the giant blue brushes spinning and blue foam gushing from the nozzles, a figure in a yellow rain slicker and a grinning cartoon-frog mask standing deep inside the tunnel holding a squeegee on a ten-foot pole, a teenager on a bicycle stopped at the entrance with one foot down, wet concrete and blue tunnel light, wide shot",
         "choices": [
           {
             "id": "ride-the-conveyor",
@@ -1277,7 +1277,7 @@
         "title": "Which One Moved?",
         "place": "The dead wing of the Starlight Mall, after closing",
         "text": "The dead wing of Starlight Mall is a row of stores that closed years ago, and every display window is still crowded with mannequins in dusty 1970s fashions. You pass the old Glamarama Boutique. There were six mannequins in that window. Now there are seven, and the seventh has a blank white face, a security guard's cap and a pricing gun that goes click, click, click.",
-        "art": "A dim abandoned mall corridor at night, a dusty boutique display window crowded with mannequins in 1970s fashions, one blank-faced figure in a security guard cap holding an oversized clipboard and a dangling price tag, a teenager reflected in the glass",
+        "art": "A dim abandoned mall corridor after closing, a dusty boutique display window crowded with mannequins in 1970s flared pants and wide-collared shirts, and among them one extra blank white-faced figure in a security guard's cap holding a pricing gun, a teenager walking past with their reflection in the glass, a flashlight beam on the window, gray dust and cold light, medium shot",
         "choices": [
           {
             "id": "freeze-like-them",
@@ -1364,7 +1364,7 @@
         "title": "Last Call, Kiddo",
         "place": "Crystal Street and every street after it, a quarter to one",
         "text": "An ice cream truck is crawling down Crystal Street at a quarter to one in the morning, its music-box jingle slowed to a dirge. The serving window slides open. The driver wears a paper hat and a giant grinning ice-cream-cone mask, and he holds up a scoop the size of a garden shovel. \"Last call, kiddo,\" he says, and the truck turns to follow you.",
-        "art": "A boxy ice cream truck creeping down a dark suburban cul-de-sac at night, its menu board glowing, a driver in a paper hat and a giant grinning ice-cream-cone mask leaning out the serving window with an oversized scoop, a teenager on a bike in the headlights",
+        "art": "A boxy white ice cream truck creeping down a dark suburban cul-de-sac at a quarter to one in the morning, its painted side of cones and popsicles glowing, a driver in a paper hat and a giant grinning ice-cream-cone mask leaning out the serving window holding a scoop the size of a garden shovel, a teenager on a bicycle caught in the truck's headlights, pastel truck lights and blue night, wide shot",
         "choices": [
           {
             "id": "backyard-escape",
@@ -1450,7 +1450,7 @@
         "title": "The Gopher Under the Bleachers",
         "place": "Under the football bleachers at Glimmer Falls High, late",
         "text": "You are crawling around under the bleachers hunting for the retainer you lost at practice. Up in the seats, something is coming down: thump, thump, thump, one row at a time. The scoreboard flickers on by itself and reads HOME 0, GUEST 1. Then Goldie the Gopher, the Little League mascot, drops down beside you with huge foam buck teeth and a megaphone it never says a word through.",
-        "art": "The dark underside of high-school football bleachers at night, slats of light falling through, a giant foam gopher mascot with huge buck teeth and a megaphone crouched between the struts, a lit scoreboard glowing beyond",
+        "art": "The dark underside of high school football bleachers at night, stripes of stadium light falling through the slats, a teenager on hands and knees searching the gravel with a flashlight, and crouched between the steel struts beside them a giant foam gopher mascot with huge buck teeth and a megaphone, a lit scoreboard glowing beyond the bleachers, medium shot",
         "choices": [
           {
             "id": "fight-song",
@@ -1539,7 +1539,7 @@
         "title": "Something in the Storm Drains",
         "place": "The storm grate at the end of Crystal Street",
         "text": "It rained all evening, and now the storm grate at the end of the street is making a sound like a giant slurping the last of a milkshake. Two round lights, the color of taillights, blink at you from down in the dark. A kid's lost sneaker on the curb slides, by itself, toward the grate and drops in.",
-        "art": "A rain-slick suburban curb at night, a storm drain grate with two glowing red eyes blinking in the darkness below, a child's sneaker sliding toward it, streetlight reflected in puddles",
+        "art": "A rain-slick suburban curb at night after an evening of rain, an iron storm drain grate with two round glowing red eyes blinking in the darkness below it, a child's lost sneaker sliding along the wet gutter toward the grate by itself, a teenager in a raincoat crouched a few steps back, orange streetlight reflected in the puddles, low medium shot",
         "choices": [
           {
             "id": "lower-a-light",
@@ -1603,7 +1603,7 @@
         "title": "Pets After Dark",
         "place": "Pet Paradise, lower level of the Starlight Mall, after closing",
         "text": "On a dare, you hid in the photo booth until the mall closed. Now every cage in Pet Paradise is open. The hamster wheels spin in the dark. The parakeets are whispering your name, all together. And in the aquarium aisle, something big and shaggy is eating the fish food straight out of the tubs.",
-        "art": "A dark mall pet shop after hours lit by glowing aquarium tanks, every cage door hanging open, parakeets lined up on a shelf, a huge shaggy silhouette hunched over fish food tubs in the aquarium aisle",
+        "art": "A dark mall pet shop after closing lit only by glowing blue aquarium tanks, every cage door hanging open, hamster wheels spinning in the dark, a row of parakeets lined up on a shelf all turned toward a teenager peeking out from behind a counter, and in the aquarium aisle a huge shaggy silhouette hunched over open tubs of fish food, blue water light, wide shot",
         "choices": [
           {
             "id": "herd-them-home",
@@ -1666,7 +1666,7 @@
         "title": "The Roundabout Hedges",
         "place": "The roundabout garden, Crystal Street",
         "text": "The topiary animals in the roundabout garden have moved. The hedge swan is standing in the street. The hedge poodle is on the Kowalskis' lawn, digging. The hedge rabbit is gone completely, and from the dark between the houses comes the sound of leaves rustling against siding, getting closer.",
-        "art": "A suburban roundabout garden at night with empty topiary plinths, a hedge-trimmed swan standing in the street, a hedge poodle digging on a lawn, leaves rustling in the shadows between houses",
+        "art": "A suburban roundabout garden at night with empty topiary plinths, a clipped green hedge swan standing in the middle of the street, a hedge poodle digging up a neighbor's lawn with soil flying, a teenager in a sweatshirt backing away on the sidewalk, and in the dark gap between two houses a tall leafy shape rustling against the siding, streetlight and blue moonlight, wide shot",
         "choices": [
           {
             "id": "borrow-clippers",
@@ -1725,7 +1725,7 @@
         "title": "Something Got Out of the Clinic",
         "place": "The garage veterinary clinic, Crystal Street",
         "text": "The side door of the garage clinic is swinging open. Inside, a crate rattles on the floor, its tag reading DO NOT FEED AFTER DARK in marker. The crate is empty. From the rafters, between the Christmas decorations and the camping gear, something hisses and blinks three eyes at you.",
-        "art": "A suburban garage converted into a vet clinic at night, an empty pet crate with a warning tag on the floor, three glowing eyes peering down from rafters stuffed with holiday decorations",
+        "art": "A suburban garage converted into a veterinary clinic at night, its side door swinging open, an empty pet crate with a paper tag on its handle lying on the concrete with its gate bent outward, and up in the rafters between boxes of Christmas decorations and camping gear three glowing yellow eyes blinking down, a teenager in the doorway with a flashlight, single hanging work light, medium shot",
         "choices": [
           {
             "id": "coax-it-down",
@@ -1784,7 +1784,7 @@
         "title": "The Glimmer Falls Grabber",
         "place": "The edge of Crystal Woods, behind the cul-de-sac",
         "text": "Every kid in town has heard of the Glimmer Falls Grabber: eight feet of moss and swamp hair that steals garbage cans. Tonight there are footprints across your backyard as long as a skateboard, and at the tree line something huge steps into the moonlight carrying the Fergusons' trash can like a lunchbox.",
-        "art": "An eight-foot shaggy moss-covered creature at the edge of a pine forest in moonlight carrying a metal garbage can, giant footprints leading across a suburban backyard",
+        "art": "An eight-foot shaggy creature covered in moss and long swamp hair stepping out of a dark pine forest into the moonlight with a dented metal garbage can tucked under one arm, enormous footprints as long as skateboards pressed across a suburban backyard lawn, a teenager on a back porch holding a flashlight, cold blue moonlight, wide shot",
         "choices": [
           {
             "id": "get-it-on-tape",
@@ -1847,7 +1847,7 @@
         "title": "Under the Pool Cover",
         "place": "The Fergusons' backyard pool, closed for the season",
         "text": "The Fergusons are in Reno and you promised to feed their cat. The cat is missing. The green tarp over their pool is bulging in the middle, rippling, and a bubble the size of a beach ball rises under it and pops with a sound like a giant frog clearing its throat.",
-        "art": "A suburban backyard swimming pool at night covered with a bulging green tarp, a huge bubble swelling under it, an empty cat bowl on the patio, a teenager with a flashlight at the gate",
+        "art": "A suburban backyard swimming pool at night covered with a green tarp that bulges and ripples in the middle, a bubble the size of a beach ball swelling under it, an empty cat food bowl on the patio, lawn chairs stacked for the season, a teenager with a flashlight at the gate, pool light glowing green through the tarp, medium wide shot",
         "choices": [
           {
             "id": "peel-it-back",
@@ -1906,7 +1906,7 @@
         "title": "The Tower Colony",
         "place": "The KGLM water tower, Tower Road, midnight",
         "text": "The red beacon on top of the KGLM water tower has gone dark, and the overnight show keeps cutting to squeaks. You climb the first rungs of the ladder with a flashlight in your teeth. The whole underside of the tank is hung with fruit bats, thousands of them, wrapped up like leathery umbrellas. In the middle hangs one the size of a pup tent, and it opens one big, wet, very intelligent eye.",
-        "art": "The underside of a small-town water tower at night covered with thousands of hanging fruit bats, one enormous bat the size of a tent opening a glowing eye, a teenager clinging to the ladder with a flashlight beam",
+        "art": "The underside of a small-town water tower tank at midnight covered with thousands of hanging fruit bats wrapped in their wings, and in the middle one enormous bat the size of a pup tent opening one big wet glowing eye, a teenager clinging to the ladder below with a flashlight in their teeth, the dark beacon on top, flashlight beam and black sky, low angle shot",
         "choices": [
           {
             "id": "climb-to-the-beacon",
@@ -1992,7 +1992,7 @@
         "title": "The Masked Bandits",
         "place": "The loading dock behind Food-Rite Grocery, one a.m.",
         "text": "Eight raccoons, each one the size of a Labrador, are robbing the dumpster behind Food-Rite Grocery with military precision. One stands on another's shoulders working the padlock with its little hands. One holds a stolen flashlight on the job. The lookout, perched on a shopping cart, spots you and lets out a chittering whistle, and eight masked faces turn your way at once.",
-        "art": "Giant raccoons the size of large dogs pulling off a heist at a grocery store loading dock at night, one standing on another's shoulders picking a dumpster padlock, one holding a flashlight, a lookout on a shopping cart pointing at a teenager",
+        "art": "A grocery store loading dock at one in the morning, eight raccoons each the size of a large dog pulling off a dumpster heist, one standing on another's shoulders picking a padlock with its little hands, one holding a flashlight on the lock, a lookout raccoon perched on a shopping cart pointing at a teenager by the fence, all eight masked faces turned toward the teen, yellow dock light, wide shot",
         "choices": [
           {
             "id": "join-the-crew",
@@ -2074,7 +2074,7 @@
         "title": "Crawdad Crossing",
         "place": "The Old Mill Road bridge over Crystal Creek, after midnight",
         "text": "Crystal Creek has climbed out of its banks, and something climbed out with it. The bridge is covered edge to edge with crawdads marching in rows, claws raised, clicking like a thousand castanets, all of them heading for the cul-de-sac. At the back of the parade, carried on the backs of four others, rides one crawdad the size of a lobster pot, wearing a bottle cap like a crown.",
-        "art": "A narrow country bridge over a creek at night covered edge to edge with marching crawfish holding up their claws, a huge crawfish wearing a bottle-cap crown carried on the backs of others at the rear, a teenager in rain boots at the end of the bridge",
+        "art": "A narrow country bridge over a flooding creek after midnight covered edge to edge with marching crawfish holding their claws up in rows, and at the back of the parade one crawfish the size of a lobster pot wearing a bottle cap as a crown, carried on the backs of four others, a teenager in rain boots standing at the near end of the bridge, wet moonlight on the shells, wide shot",
         "choices": [
           {
             "id": "check-the-creek",
@@ -2158,7 +2158,7 @@
         "title": "The Tenant in the Treehouse",
         "place": "The Kowalskis' backyard treehouse, Crystal Street, one a.m.",
         "text": "The Kowalski little brothers swear there is a new tenant in their treehouse, so you climb up to prove them wrong. The rope ladder is sticky. The whole treehouse is wrapped in silver webbing that glitters like tinsel, strung with porch decorations stolen from all over the street: rubber bats, paper skeletons, a cardboard witch. In the corner, something with eight furry legs as long as hockey sticks is carefully arranging the witch.",
-        "art": "A backyard treehouse at night wrapped in glittering silver webs strung with stolen Halloween decorations, rubber bats and paper skeletons, a giant furry spider with long legs arranging a cardboard witch in the corner, a teenager at the top of a rope ladder",
+        "art": "A backyard treehouse at one in the morning wrapped in glittering silver webs strung with stolen Halloween decorations, rubber bats, paper skeletons and porch lights, and in the corner a giant furry spider with eight legs as long as hockey sticks carefully arranging a cardboard witch, a teenager at the top of a sticky rope ladder peering in, two small boys in pajamas watching from the lawn below, moonlight on the webs, medium wide shot",
         "choices": [
           {
             "id": "compliment-the-decor",
@@ -2248,7 +2248,7 @@
         "title": "The Stars Move",
         "place": "The middle of the cul-de-sac, two a.m.",
         "text": "You came out to watch the meteor shower. Instead, the stars over Crystal Street start to slide, slow and deliberate, like beads on an abacus. The Big Dipper empties itself. Orion walks off. Every TV antenna on every roof creaks around to point straight up, and the stars begin to spell something.",
-        "art": "A teenager lying on a cul-de-sac lawn staring up as the stars slide into new patterns across the night sky, every rooftop TV antenna twisted to point straight up, faint lines connecting the moving stars",
+        "art": "A teenager lying on their back on a suburban cul-de-sac lawn at two in the morning staring up as the stars slide across the night sky into new patterns, faint glowing lines trailing behind the moving stars, every rooftop TV antenna on the street twisted to point straight up, a meteor-watching blanket and thermos beside them, deep blue starlight, wide shot from low",
         "choices": [
           {
             "id": "chart-the-stars",
@@ -2312,7 +2312,7 @@
         "title": "Sign-Off",
         "place": "Your living room, after the late-late movie",
         "text": "Channel 13 is signing off: the flag, the anthem, the test pattern of circles and lines. Then a voice comes on that is not a person. It reads the name of every family on Crystal Street, slowly, kindly, with too many vowels. \"Good night, Glimmer Falls,\" it says. \"We are watching.\" The TV is unplugged.",
-        "art": "A glowing console television in a dark wood-paneled living room showing a test pattern of concentric circles, its unplugged cord lying on the carpet, a teenager on the couch clutching a pillow",
+        "art": "A glowing console television in a dark wood-paneled living room after the late movie, its screen showing a test pattern of concentric circles and lines, its unplugged power cord lying coiled on the shag carpet in front of it, a teenager on a plaid couch clutching a pillow to their chest, cold gray TV glow, medium wide shot",
         "choices": [
           {
             "id": "turn-the-dial",
@@ -2397,7 +2397,7 @@
         "title": "Missing Time",
         "place": "Quarry Road, on your bike, 9:58 p.m.",
         "text": "A light is hovering over the old quarry, perfectly still, the color of orange sherbet. Your bike headlight flickers. The next thing you know, your digital watch says 1:14 a.m., you are three miles farther down the road, your bike seat is warm, and your sneakers are on the wrong feet.",
-        "art": "A teenager on a BMX bike on a dark country road staring up at a glowing orange light hovering over a quarry, a digital watch reading 1:14, sneakers laced on the wrong feet",
+        "art": "A teenager on a dirt bike stopped on a dark country road at night staring up at a glowing orange light hovering perfectly still over an old quarry, the bike headlight flickering, the teen's sneakers laced on the wrong feet, a digital wristwatch glowing on their wrist, orange sherbet light on the gravel and dark hills, wide shot",
         "choices": [
           {
             "id": "ride-back",
@@ -2460,7 +2460,7 @@
         "title": "Signs on the Diamond",
         "place": "Gopher Field, the Little League diamond",
         "text": "Someone, or something, has pressed the infield of Gopher Field into a perfect spiral, grass swirled like a fingerprint. The four bases are floating six inches off the ground, turning slowly. The chain-link backstop hums a single note you can feel in your fillings.",
-        "art": "A Little League baseball diamond at night with the infield grass pressed into an enormous perfect spiral, four bases floating and slowly rotating above the dirt, a humming chain-link backstop",
+        "art": "A Little League baseball diamond at night with the infield grass pressed into an enormous perfect spiral, the four canvas bases floating six inches above the dirt and turning slowly, the chain-link backstop glowing faintly, a teenager standing at home plate with a flashlight, starry sky above the outfield fence, wide shot",
         "choices": [
           {
             "id": "run-the-bases",
@@ -2524,7 +2524,7 @@
         "title": "The Hole on the Cul-de-Sac",
         "place": "The asphalt at the end of Crystal Street",
         "text": "Overnight, a hole has opened at the end of the street. It is perfectly round, the size of a kiddie pool, with no sides you can see. You drop a pebble in and never hear it land. Instead, very faintly, music floats up: a choir singing something backward.",
-        "art": "A perfectly round black hole in the asphalt of a suburban cul-de-sac at night, bottomless and edgeless, faint shimmering light rising from deep below, a teenager kneeling at the rim with a pebble",
+        "art": "A perfectly round black hole in the asphalt at the end of a suburban cul-de-sac at night, the size of a kiddie pool, black all the way down, a faint shimmering light rising from deep below, a teenager kneeling at the rim dropping a pebble, a tipped orange traffic cone nearby, streetlight and pale glow, medium wide shot",
         "choices": [
           {
             "id": "lower-a-walkie",
@@ -2587,7 +2587,7 @@
         "title": "The Lawn Watchers",
         "place": "Every front lawn on Crystal Street, 3:33 a.m.",
         "text": "Every grown-up on Crystal Street is standing on their front lawn in pajamas, facing up at the sky, mouths slightly open, humming the same low note. Mr. Ferguson in his robe. Mrs. Lindqvist in curlers. The grown-ups from your own house, too, barefoot in the wet grass.",
-        "art": "Suburban adults in pajamas and bathrobes standing on every front lawn of a cul-de-sac at 3:33 a.m., all staring straight up at a starry sky with open mouths, a teenager in the street looking around in alarm",
+        "art": "Adults in pajamas and bathrobes standing on every front lawn of a suburban cul-de-sac at 3:33 in the morning, a man in a robe, a woman in curlers, barefoot parents in the wet grass, all staring straight up at a starry sky with their mouths slightly open, a teenager standing in the middle of the street turning around in alarm, cold starlight and porch lights, wide shot",
         "choices": [
           {
             "id": "wake-the-nearest",
@@ -2650,7 +2650,7 @@
         "title": "Cleanup in the Parking Lot",
         "place": "The Starlight Mall parking lot, after the last movie lets out",
         "text": "A silver saucer the size of the food court is hovering over the Starlight Mall parking lot, and it is abducting shopping carts. A green beam lifts them one at a time, spinning, up into a round glowing hatch, and the ship plays a little satisfied chime after each one. Then the beam swings across the asphalt toward the bike rack. Toward your bike. Toward you.",
-        "art": "A silver flying saucer hovering over a nighttime mall parking lot, a green tractor beam lifting a spinning shopping cart into a glowing round hatch, more carts floating in a line, a teenager beside a bike rack looking up",
+        "art": "A silver flying saucer the size of a food court hovering over a mall parking lot at night, a green beam lifting a spinning shopping cart up into a glowing round hatch, a line of carts floating up behind it, the beam sweeping across the asphalt toward a bike rack where a teenager stands looking up, green light and neon mall glow, wide shot",
         "choices": [
           {
             "id": "ride-a-cart-up",
@@ -2734,7 +2734,7 @@
         "title": "Exchange Program",
         "place": "Your bedroom, and then very much not your bedroom, 2:20 a.m.",
         "text": "A blue flash fills your bedroom, and when it fades you are looking out of somebody else's eyes. Three of them. You are short, gray and rubbery, standing in a round silver room full of blinking buttons. Through a porthole you can see Crystal Street far below, and through your own bedroom window, your own body sitting on your bed, eating cereal out of the box and watching your TV with enormous interest.",
-        "art": "A small gray three-eyed alien standing in a round silver spaceship room full of blinking buttons, staring through a porthole at a suburban bedroom window far below where a teenager sits on a bed eating cereal from the box",
+        "art": "A small gray three-eyed alien with rubbery skin standing in a round silver spaceship room full of blinking colored buttons, pressing its three-fingered hands against a round porthole, and far below through the porthole a lit suburban bedroom window where a teenager sits on a bed eating cereal from the box and watching television, blue flash light in the ship, medium shot",
         "choices": [
           {
             "id": "big-red-button",
@@ -2817,7 +2817,7 @@
         "title": "Wish Upon a Rock",
         "place": "Your backyard sandbox, 11:57 p.m.",
         "text": "A falling star streaks over Crystal Street, makes a sharp left turn no falling star should make, and lands in the old sandbox in your backyard with a thump like a dropped grocery bag. The rock is the size of a softball, warm as fresh toast, and it pulses sea green. It hums the theme from a TV show you watched when you were six. Then it hums one from a show that has not been made yet.",
-        "art": "A small glowing sea-green meteorite sitting in a smoking crater in a backyard sandbox at night, toy shovels scattered around it, a teenager in a bathrobe kneeling at the edge, a streak of light fading above suburban rooftops",
+        "art": "A small softball-sized meteorite glowing sea green in a smoking crater in a backyard sandbox at 11:57 at night, plastic toy shovels and pails scattered around it, a teenager in a bathrobe kneeling at the edge of the sandbox with a hand held out to the warmth, a streak of light fading above the suburban rooftops, green glow and blue night, medium shot",
         "choices": [
           {
             "id": "pick-it-up",
@@ -2900,7 +2900,7 @@
         "title": "Practice Run",
         "place": "Your front door, 2:45 a.m.",
         "text": "The doorbell rings at a quarter to three. On your porch stand three trick-or-treaters, each one about eight feet tall, in bedsheet ghost costumes that stop short of their ankles, which are silver and bend the wrong way. Their pillowcases glow. \"TRICK OR TREAT,\" they say, all at once, in one voice, very carefully, like a phrase out of a library book. \"WE ARE PRACTICING.\"",
-        "art": "Three very tall figures in bedsheet ghost costumes standing on a suburban front porch at night, silver backward-bending ankles showing beneath the sheets, glowing pillowcases held out, a teenager in pajamas holding the door open",
+        "art": "Three very tall figures about eight feet high in white bedsheet ghost costumes standing on a suburban front porch at a quarter to three in the morning, the sheets ending above silver ankles that bend backward, glowing pillowcases held out in their hands, a teenager in pajamas holding the front door open and looking up, yellow porch light and white pillowcase glow, medium wide shot",
         "choices": [
           {
             "id": "teach-the-rules",
@@ -2990,7 +2990,7 @@
         "title": "Insert Coin",
         "place": "The Galaxy Zone arcade, after closing",
         "text": "In the back corner of the arcade, behind the pinball machines, is a cabinet that was not there this afternoon. No brand name, no art, just black glass and a coin slot. It powers on by itself. PLAYER 1: it types your name. The joystick moves, and your arm moves with it. The little pixel hero on screen is you.",
-        "art": "A dark arcade after hours lit by a single black cabinet glowing with a pixelated version of a teenager on screen, the teenager's hand gripped on the joystick against their will, pinball machines in shadow",
+        "art": "A dark arcade after hours lit by a single plain black arcade cabinet glowing in the back corner, its screen showing a small pixel figure with the same face and jacket as the teenager standing in front of it, the teen's hand clamped on the joystick with a strained face, pinball machines standing in shadow, cold blue screen glow, medium shot",
         "choices": [
           {
             "id": "beat-the-score",
@@ -3075,7 +3075,7 @@
         "title": "Calling From Your House",
         "place": "Your kitchen, a little after midnight",
         "text": "The kitchen phone rings. You pick up and hear your own house: the hum of your fridge, the TV murmuring in the den, your own breathing a half-second late. Then your own voice says, \"Don't come upstairs.\" On the phone base, the little light for the upstairs extension is glowing red.",
-        "art": "A teenager in a dark 1980s kitchen holding a wall phone receiver with a long curly cord, the extension light glowing red on the phone base, a staircase rising into darkness behind them",
+        "art": "A teenager in a dark 1980s kitchen a little after midnight holding a yellow wall phone receiver with a long curly cord, the small extension light on the phone base glowing red, the refrigerator humming, and behind them a carpeted staircase rising into darkness, a single stove light, medium shot",
         "choices": [
           {
             "id": "catch-the-extension",
@@ -3162,7 +3162,7 @@
         "title": "Be Kind, Rewind",
         "place": "Your living room, VCR clock blinking",
         "text": "When you dropped your rentals in the Rewind Video night slot, the slot spat one tape back out. No label except your name in red marker. Now it is in your VCR. It shows your street, tonight, filmed from the roundabout, walking slowly toward your house. The timestamp is four minutes from now.",
-        "art": "A VCR with a blinking clock under a console TV showing grainy handheld footage of a suburban street at night approaching a house, a VHS sleeve with a teenager's name in red marker on the carpet",
+        "art": "A video deck with a blinking green clock under a console television in a dark living room, the screen showing grainy handheld footage of a suburban street at night moving toward a house, an empty videotape sleeve on the carpet with a red marker scrawl on its spine, a teenager on the floor hugging their knees, gray TV glow, medium shot",
         "choices": [
           {
             "id": "rewind-it",
@@ -3221,7 +3221,7 @@
         "title": "Are You Still There?",
         "place": "A borrowed home computer and a 300-baud modem, 1 a.m.",
         "text": "You dial into a local bulletin board called THE CRYPT and the modem screams its handshake. A message is waiting: SYSOP HAS BEEN LOGGED ON SINCE 10/31/1979. The cursor blinks, then types by itself: WANT TO PLAY A GAME? I MADE IT MYSELF. NOBODY HAS EVER FINISHED IT.",
-        "art": "A teenager at a desk in a dark bedroom lit green by a chunky home computer monitor, a modem with blinking red lights, the screen showing a text prompt asking to play a game",
+        "art": "A teenager at a desk in a dark bedroom at one in the morning lit green by a chunky beige home computer monitor, a boxy modem with blinking red lights and a phone handset seated in its rubber cups, a blinking green cursor on the screen, the teen leaning back from the keyboard, a bare wall and a dark window, green glow, medium shot",
         "choices": [
           {
             "id": "play-the-text-game",
@@ -3282,7 +3282,7 @@
         "title": "Side B",
         "place": "Your bed, headphones on, two a.m.",
         "text": "Your tape player clicks and flips to side B by itself. The tape is one you made off the radio last summer, but this is not what you recorded. It is your own voice, whispering, saying things you only thought today, things you never said out loud to anyone.",
-        "art": "A teenager lying in bed in the dark wearing foam headphones, a portable cassette player glowing on the blanket with its tape spinning, faint whispering sound lines curling from the earpieces",
+        "art": "A teenager lying in bed in the dark at two in the morning wearing foam headphones with orange ear pads, a portable cassette player glowing on the blanket with its tape spinning and its side-B flip lever still moving, the teen's eyes wide open staring at the ceiling, faint blue window light, close medium shot",
         "choices": [
           {
             "id": "record-over-it",
@@ -3341,7 +3341,7 @@
         "title": "The Garage Door Symphony",
         "place": "Crystal Street driveways, 1:30 a.m.",
         "text": "Every automatic garage door on the cul-de-sac opens and shuts in sequence, house after house, like a row of teeth chattering. Then every car horn honks a tune, almost a melody. The Kowalskis' station wagon backs slowly down its driveway, headlights on, with nobody behind the wheel.",
-        "art": "A suburban cul-de-sac at night with every garage door opening and closing in a wave, headlights glaring, a driverless wood-paneled station wagon backing down a driveway, a teenager on a bike in the street",
+        "art": "A suburban cul-de-sac at 1:30 in the morning with every automatic garage door opening and closing in sequence down the street, car headlights glaring and horns blaring, a driverless wood-paneled station wagon backing slowly down its driveway with headlights on, a teenager on a bicycle stopped in the street, white headlight glare and blue night, wide shot",
         "choices": [
           {
             "id": "jam-the-frequency",
@@ -3402,7 +3402,7 @@
         "title": "Collate and Staple",
         "place": "Copy Cat Copies on Main Street, after hours",
         "text": "The lights are on in Copy Cat Copies, and the big copier in the window is running by itself, lid up, its green light sweeping back and forth. Sheets slide into the tray: your face, pressed flat, copy after copy. Each copy is a little paler than the last. Every time the green light passes, you feel a little paler too, as if someone is turning down your contrast.",
-        "art": "A small copy shop at night seen through its front window, a huge office copier glowing green with its lid raised, a tray overflowing with sheets that each show the same pale teenage face, a teenager staring in from the sidewalk",
+        "art": "A small copy shop on a main street at night seen through its front window, a huge office copier glowing green with its lid raised and its light bar sweeping, a tray overflowing with sheets that each show the same pale flattened teenage face, each one fainter than the last, the real teenager staring in from the sidewalk with a washed-out face, green light and dark street, medium wide shot",
         "choices": [
           {
             "id": "jam-the-paper",
@@ -3485,7 +3485,7 @@
         "title": "Photon Zone Overtime",
         "place": "The laser tag arena in Starlight Mall's dead wing, after midnight",
         "text": "The Photon Zone closed in August, but tonight its black-light maze is humming and every vest on the rack is blinking red. One straps itself onto you with a hiss of velcro. A tinny voice announces, TEAM YOU VERSUS TEAM EVERYBODY ELSE. Down the neon corridor, a dozen empty vests lift off their hooks and turn their glowing sensors toward you.",
-        "art": "A black-light laser tag maze glowing with neon paint, a dozen empty plastic tag vests floating in midair with blinking red sensors, a teenager in a single strapped-on vest pressed against a painted wall",
+        "art": "A black-light laser tag maze in an abandoned mall wing after midnight glowing with neon painted walls, a dozen empty plastic tag vests floating in midair down the corridor with blinking red sensors turned toward a teenager wearing a single strapped-on vest and pressed against a painted wall, ultraviolet purple light and red blinks, wide shot",
         "choices": [
           {
             "id": "play-to-win",
@@ -3571,7 +3571,7 @@
         "title": "Butlertron Is Here to Help",
         "place": "The Crystal Street sidewalk, 2 a.m.",
         "text": "The Okafors' brand-new Butlertron 2000 has let itself out of their garage. It rolls up the sidewalk on squeaky treads, a dome of blinking lights on top and a tray of warm milk in its pincers, tucking in every lawn gnome on the block with a little dishtowel blanket. It swivels to face you. \"BEDTIME,\" it announces, and its pincers open wide.",
-        "art": "A boxy household robot with a dome of blinking lights rolling down a suburban sidewalk at night on treads, holding a tray of milk glasses, lawn gnomes tucked under dishtowels along the curb",
+        "art": "A boxy beige household robot with a dome of blinking colored lights rolling down a suburban sidewalk at two in the morning on squeaky treads, holding a tray of glasses of milk in its pincers, a row of lawn gnomes along the curb tucked under little dishtowel blankets, the robot swiveling its dome toward a teenager on a lawn, streetlight and blinking lights, medium wide shot",
         "choices": [
           {
             "id": "drink-the-milk",
@@ -3655,7 +3655,7 @@
         "title": "Spell It Out",
         "place": "Your bedroom, 3 a.m.",
         "text": "The orange Spell-a-Tron you got when you were eight switches itself on at the bottom of your toy box. Its flat robot voice cuts through the dark: SPELL... CLOSET. Then: SPELL... BEHIND. The keys light up one at a time, waiting. Across the room, a closet door you know you shut eases open an inch.",
-        "art": "A dark bedroom lit by the glowing display of an orange electronic spelling toy sitting in an open toy box, a closet door across the room open a sliver onto deeper darkness",
+        "art": "A dark bedroom at three in the morning lit by the glowing red display of an orange electronic spelling toy sitting in an open toy box, its keys lighting up one at a time, and across the room a closet door open a sliver onto deeper darkness, a teenager sitting up in bed between them, red display glow, medium wide shot",
         "choices": [
           {
             "id": "spell-it-right",
@@ -3741,7 +3741,7 @@
         "title": "Everybody Sing!",
         "place": "The Crystal Street roundabout, mid-chase",
         "text": "You are running from something with too many teeth when the streetlights swing around into spotlights. The lawn sprinklers fire in a perfect fountain line. Neighbors in curlers and bathrobes step out in formation and start a kick line, and the monster, very confused, stops chasing you and joins in. Everyone knows the words but you.",
-        "art": "A suburban roundabout at night transformed into a stage, streetlights angled like spotlights, sprinklers arcing in a fountain line, neighbors in curlers and bathrobes doing a kick line beside a toothy monster, a teenager mid-run in the center",
+        "art": "A suburban roundabout at night turned into a stage, streetlights angled down into spotlights, lawn sprinklers arcing in a perfect fountain line, neighbors in curlers and bathrobes doing a kick line in formation beside a confused toothy furry monster also kicking, a teenager frozen mid-run in the center, spotlight white and sprinkler sparkle, wide shot",
         "choices": [
           {
             "id": "belt-the-finale",
@@ -3829,7 +3829,7 @@
         "title": "And the Winner Is",
         "place": "Center court of the Starlight Mall, the late-night costume contest",
         "text": "The mall's Halloween costume contest is down to two finalists: you, and a ten-foot oozing thing with antlers and three rows of teeth that everyone agrees is the most realistic costume they have ever seen. The judges hand it the trophy. It takes the trophy. Then it picks up the nearest judge.",
-        "art": "A neon-lit mall center court with a costume contest stage, a ten-foot oozing antlered monster holding a trophy in one claw and a startled judge in the other, a teenager in a homemade costume beside it, a crowd cheering",
+        "art": "A neon-lit mall center court with a costume contest stage, a ten-foot oozing creature with antlers and three rows of teeth holding a gold trophy in one claw and lifting a startled judge in a sweater vest in the other, a teenager in a homemade cardboard costume beside it, a crowd cheering and clapping, pink and cyan neon, wide shot",
         "choices": [
           {
             "id": "demand-a-recount",
@@ -3892,7 +3892,7 @@
         "title": "Midnight at the Glitter Box",
         "place": "The Glitter Box Playhouse, a Halloween-week midnight double feature",
         "text": "The Glitter Box is packed for the midnight double feature: \"The Martian Bride of Dr. Glamour\" followed by a cheap slasher nobody stays for. The audience is in lab coats and fishnets, throwing toast and shouting every callback. When the whole house gets up for the big dance number, the Moon Hop, the screen ripples like water, and the front row starts sliding into it.",
-        "art": "A glittering old movie palace at midnight packed with a costumed audience in lab coats and sequins dancing in the aisles, toast flying, the movie screen rippling like water as the front row slides into it",
+        "art": "A glittering old movie palace at midnight packed with a costumed audience in lab coats, fishnets and sequins dancing in the aisles, slices of toast flying through the projector beam, the giant screen rippling in waves as people in the front row slide into it, a teenager gripping a seat back, silver screen light and gold balcony lights, wide shot",
         "choices": [
           {
             "id": "do-the-moon-hop",
@@ -3979,7 +3979,7 @@
         "title": "The Cheapest Haunted Hayride in California",
         "place": "The Jaycees Haunted Hayride, Quarry Road",
         "text": "The Jaycees hayride has always been terrible: rubber bats on fishing line, plywood tombstones, a dad in a sheet. Tonight it has all come alive, and it is still terrible. The bats squeak. The rubber werewolf's mask slips. The plywood tombstones are chasing the wagon, falling over every ten feet and getting back up.",
-        "art": "A hay wagon full of teens rolling down a dark country road chased by plywood tombstones, rubber bats bouncing on fishing line, a man in a bedsheet ghost costume floating above the hay, a rubber werewolf with a slipping mask",
+        "art": "A hay wagon full of teens rolling down a dark country road at night pulled by a tractor, plywood tombstones chasing behind it and falling over every few feet, rubber bats bouncing on fishing line, a man in a bedsheet ghost costume floating above the hay, a rubber werewolf with its mask slipping off one ear, a teenager at the back of the wagon, orange lantern light, wide shot",
         "choices": [
           {
             "id": "give-notes",
@@ -4037,7 +4037,7 @@
         "title": "The Show Must Go On",
         "place": "The Glitter Box Playhouse, the late drag revue",
         "text": "Glory is mid-number, sequins blazing, when the stage trapdoor creaks open and something slick and many-armed climbs into the spotlight. The audience roars. They think it is part of the act. In the wings, Frankie presses her headset and hisses, \"That is NOT on the cue sheet.\"",
-        "art": "A glittering cabaret stage under hot spotlights, a drag queen in blazing sequins mid-pose as a slick many-armed creature climbs out of a trapdoor beside her, the audience cheering, a stage manager in a headset in the wings",
+        "art": "A glittering cabaret stage under hot spotlights, a tall drag queen in a blazing magenta sequin gown and platinum bouffant mid-pose as a slick many-armed purple creature climbs out of an open trapdoor beside her, the audience on its feet cheering, a young stage manager in a black headset gripping the curtain in the wings, a teenager beside her, hot white light, wide shot",
         "choices": [
           {
             "id": "make-it-a-duet",
@@ -4100,7 +4100,7 @@
         "title": "The Container Party",
         "place": "Mrs. Feeney's living room, a late-night Seal-a-Fresh party",
         "text": "Mrs. Feeney's Seal-a-Fresh party has run very late. The pastel plastic containers on the coffee table have started burping back when you burp their lids. Then they start snapping. The hostess keeps smiling, keeps passing around the catalog, as a stack of lidded bowls hops off the table and hunts for ankles.",
-        "art": "A pastel 1980s suburban living room at a home sales party, plastic food containers snapping their lids and hopping across a coffee table, a smiling hostess holding a catalog, guests lifting their feet onto the sofa",
+        "art": "A pastel 1980s suburban living room at a late-night home sales party, pastel plastic food containers on the coffee table snapping their lids open and shut and hopping across the table toward ankles, a smiling hostess in a pastel sweater holding up a catalog, guests yanking their feet up onto the sofa, a teenager on the floor holding a lid up in front of their shins, warm lamp light, medium wide shot",
         "choices": [
           {
             "id": "burp-them-all",
@@ -4160,7 +4160,7 @@
         "title": "Attack of the Prize Tomatoes",
         "place": "Mr. Delgado's vegetable garden and down Crystal Street, 1 a.m.",
         "text": "Mr. Delgado's tomatoes won a blue ribbon at the county fair, and tonight they have decided they are the stars of their own picture. They roll down his driveway by the dozen, bouncing, squeaking and growling in tiny high voices, while a tinny theme song plays from somewhere overhead. A narrator's voice booms across the cul-de-sac: ONE TEEN STOOD BETWEEN THE TOMATOES AND GLIMMER FALLS.",
-        "art": "Dozens of plump red tomatoes with angry little faces bouncing down a suburban driveway at night, a blue county fair ribbon pinned to a garden stake, a teenager bracing at the curb under a streetlight",
+        "art": "Dozens of plump red tomatoes with angry little faces bouncing down a suburban driveway at one in the morning, a blue county fair ribbon pinned to a garden stake in a vegetable patch behind them, a teenager bracing at the curb under a streetlight with a garden rake, a middle-aged man in a robe gaping from his porch, orange streetlight, wide shot",
         "choices": [
           {
             "id": "worst-song-ever",
@@ -4242,7 +4242,7 @@
         "title": "Glimmerzilla Versus Crystal Street",
         "place": "Crystal Street, suddenly a tabletop model, 1:30 a.m.",
         "text": "You blink, and Crystal Street is a model. The houses are painted cardboard, the trees are bottle brushes, the roundabout pond is a hand mirror, and you are the size of a thumb. A lizard as tall as a house, in an obviously rubber suit, stomps through the Okafors' garage, roaring through a speaker, its zipper glinting under the floodlights. From somewhere off the edge of the table a voice yells, \"Again, and this time with feeling!\"",
-        "art": "A miniature cardboard suburban street on a tabletop under bright floodlights, bottle-brush trees and a hand mirror pond, a huge rubber-suited lizard monster with a visible zipper stomping a cardboard garage, a thumb-sized teenager looking up",
+        "art": "A miniature cardboard suburban street on a tabletop under bright studio floodlights, bottle-brush trees and a hand mirror for a pond, a huge rubber-suited lizard monster with a visible zipper down its back stomping through a cardboard garage, a thumb-sized teenager standing on the cardboard street looking up, the edge of the table and dark studio beyond, hard white light, low angle shot",
         "choices": [
           {
             "id": "unzip-it",
@@ -4326,7 +4326,7 @@
         "title": "Shriek of the Week",
         "place": "Your living room couch, during the Channel 13 Creature Feature",
         "text": "Mistress Morbidia, Channel 13's late-night horror host, pauses the movie, leans right out of the TV in her cobweb gown and plants her elbows on your carpet. \"Darling, our Shriek of the Week contestant fainted,\" she purrs, batting spider-leg lashes. \"You'll do. Give me a scream that curdles milk, live, all across the valley.\" Behind her, a cardboard bat on a string squeaks hopefully.",
-        "art": "A glamorous late-night horror host in a cobweb gown leaning out of a glowing living room television with her elbows on the carpet, a cardboard bat dangling on a string behind her, a startled teenager on a couch with popcorn",
+        "art": "A glamorous late-night horror host with a black beehive, spider-leg false lashes and a cobweb lace gown leaning out of a glowing living room television with her elbows on the shag carpet, a cardboard bat dangling on a string behind her, a startled teenager on a couch spilling a bowl of popcorn, blue-violet TV glow, medium shot",
         "choices": [
           {
             "id": "scream-it",
@@ -4408,7 +4408,7 @@
         "title": "The Gorilla From the Moon",
         "place": "The Moonlite Drive-In on Quarry Road, the last show",
         "text": "The drive-in's last show is a 1953 picture about a gorilla in a diving helmet who conquers Earth. Halfway through, the gorilla climbs down off the screen. It is a man in a moth-eaten gorilla suit with a fishbowl on his head and a bubble machine strapped to his back, stomping between the parked cars and bellowing, \"I MUST DESTROY THE HU-MANS! STARTING WITH THE SNACK BAR!\" Bubbles drift over the car hoods like slow, glittering alarms.",
-        "art": "A drive-in movie lot at night full of parked cars, a man in a shaggy gorilla suit wearing a glass fishbowl helmet stomping between the cars, a bubble machine on his back filling the air with bubbles, a giant screen glowing behind",
+        "art": "A drive-in movie lot at night full of parked cars, a man in a shaggy moth-eaten gorilla suit wearing a glass fishbowl helmet stomping between the cars toward the snack bar, a bubble machine strapped to his back filling the air with drifting bubbles, a giant movie screen glowing behind him, a teenager leaning out of a car window, silver screen light, wide shot",
         "choices": [
           {
             "id": "buy-it-a-chili-dog",
@@ -4496,7 +4496,7 @@
         "title": "The Hooded Bake Sale",
         "place": "A card table by the roundabout, midnight",
         "text": "There is a folding card table at the roundabout, covered in pies, brownies and lemon bars, with a hand-lettered sign: FELLOWSHIP BAKE SALE. It is staffed by neighbors in matching purple hooded robes and quilted oven mitts. \"Everything's a quarter, dear,\" says a voice from inside a hood. \"Eat it here.\" The lemon bars are humming.",
-        "art": "A folding card table at a suburban roundabout at midnight piled with pies and brownies, neighbors in matching purple hooded robes and quilted oven mitts standing behind it, candles flickering, lemon bars glowing faintly",
+        "art": "A folding table beside a suburban roundabout at midnight piled with pies, brownies and lemon bars, the lemon bars glowing faintly yellow, neighbors in matching purple hooded robes and quilted oven mitts standing behind it with their faces hidden in the hoods, a cardboard square propped against a pie tin, candles flickering on the table, a teenager holding out a quarter, candlelight and violet glow from the rock behind, medium wide shot",
         "choices": [
           {
             "id": "buy-a-brownie",
@@ -4555,7 +4555,7 @@
         "title": "Send This to Thirteen Friends",
         "place": "Your mailbox, 12:01 a.m.",
         "text": "There is a letter in your mailbox in purple ink: THIS LETTER HAS BEEN AROUND THE WORLD NINE TIMES. COPY IT THIRTEEN TIMES BY HALLOWEEN OR THE FELLOWSHIP WILL COME FOR WHAT IS OWED. Below are signatures from every family on Crystal Street. The last line is your name, in your handwriting, and the ink is still wet.",
-        "art": "A teenager at a suburban mailbox at midnight holding a letter written in glowing purple ink, a long column of signatures running down the page, the last one still wet",
+        "art": "A teenager standing at a curbside mailbox at midnight holding an unfolded letter covered in glowing purple ink, a long column of signatures running down the page with the last one still wet and shining, the mailbox flag up, dark houses along the street, purple glow on the teen's face and a single streetlight, medium shot",
         "choices": [
           {
             "id": "copy-it-wrong",
@@ -4645,7 +4645,7 @@
         "title": "Neighborhood Watch Minutes",
         "place": "The Crystal Street homeowners' clubhouse, 11 p.m.",
         "text": "Folding chairs, a coffee urn, a podium, and every grown-up on the street wearing a hooded robe over a cardigan. The secretary reads the minutes. Item four on the agenda: SELECTING THIS YEAR'S OFFERING. Ballots are passed out. The nominees are whoever has the messiest lawn, and somebody has written your family's name in first.",
-        "art": "A suburban clubhouse meeting room with folding chairs, a coffee urn and a podium, adults in hooded robes over cardigans passing out paper ballots, an agenda on an easel, a teenager peeking in from the doorway",
+        "art": "A suburban clubhouse meeting room at eleven at night, folding chairs, a steaming coffee urn and a wooden podium, middle-aged adults in purple hooded robes pulled over their cardigans passing out paper ballots, an easel with a pad of paper beside the podium, a teenager peeking in from the doorway, flat fluorescent light, wide shot",
         "choices": [
           {
             "id": "point-of-order",
@@ -4733,7 +4733,7 @@
         "title": "The Welcome Wagon",
         "place": "Your front door, 12:30 a.m.",
         "text": "The doorbell rings after midnight. Three neighbors in identical pastel cardigans stand on your porch holding a foil-covered casserole. \"Welcome to the neighborhood!\" they say together. You have lived here your whole life. \"We're so glad you're finally joining us.\" The foil on the casserole lifts, just a little, by itself.",
-        "art": "Three smiling neighbors in identical pastel cardigans on a porch at night holding a foil-covered casserole dish whose foil is lifting by itself, a teenager peering out from a half-open front door",
+        "art": "Three smiling neighbors in identical pastel cardigans standing shoulder to shoulder on a suburban porch at 12:30 at night holding out a foil-covered casserole dish whose foil is lifting up by itself at one corner, a teenager in pajamas peering out from a half-open front door, yellow porch light, medium shot from inside the doorway",
         "choices": [
           {
             "id": "thank-and-shut",
@@ -4788,7 +4788,7 @@
         "title": "The Candle Walk",
         "place": "The roundabout, two a.m.",
         "text": "A ring of hooded figures with purple candles is circling the roundabout, chanting in what sounds like Latin. Listening closer, you realize it is the Glimmer Falls High fight song, backward. They are drawing a chalk circle on the asphalt as they walk, and there is exactly one empty spot left in the ring.",
-        "art": "A ring of hooded figures holding purple candles circling a suburban roundabout at night, a chalk circle drawn on the asphalt, one gap in the ring, a teenager watching from behind a parked car",
+        "art": "A ring of hooded figures in purple robes holding purple candles circling a suburban roundabout at two in the morning, a wide chalk circle drawn on the asphalt under their feet, one empty gap left in the ring, a huge purple crystal rock glowing at the center, a teenager crouched behind a parked station wagon watching, candlelight and violet glow, wide shot",
         "choices": [
           {
             "id": "join-and-change-the-chant",
@@ -4851,7 +4851,7 @@
         "title": "A Golden Opportunity",
         "place": "A living room on Quarry Road, a late business opportunity night",
         "text": "A friend's aunt invited you to a Golden Tomorrow business opportunity night with free pizza. Everyone wears a little gold pin and the same enormous smile. On the easel is a pyramid chart of names, and the name at the very top has been scratched out so hard it tore the paper. \"Who wants to change their life tonight?\" the presenter asks.",
-        "art": "A suburban living room at night full of smiling adults in gold lapel pins seated on folding chairs, a presenter beside an easel with a pyramid chart of names, the top name scratched out, pizza boxes on a side table",
+        "art": "A suburban living room at night full of smiling adults in little gold lapel pins sitting on folding chairs, a presenter in a shiny suit beside an easel holding a pyramid chart with its top square scratched through so hard the paper tore, pizza boxes on a side table, a teenager on the end chair holding a paper plate, warm lamp light, wide shot",
         "choices": [
           {
             "id": "ask-where-the-money-goes",
@@ -4912,7 +4912,7 @@
         "title": "Play It Backward",
         "place": "The rec center multipurpose room, a Parents for Decent Listening meeting, 11 p.m.",
         "text": "The Parents for Decent Listening have a turntable on a card table and are spinning heavy metal records backward with their fingertips, taking notes in matching binders. \"There,\" whispers the chairwoman. \"Do you hear it?\" Nobody did, until now. The record groans in reverse, and a clear voice rises out of the warble, saying your name and asking you, very politely, to come up front.",
-        "art": "A fluorescent-lit rec center room with rows of folding chairs, parents in matching cardigans hunched over binders, a woman spinning a vinyl record backward by hand on a turntable atop a card table, a teenager frozen in the doorway",
+        "art": "A fluorescent-lit rec center room at eleven at night with rows of folding chairs, parents in matching cardigans hunched over matching binders, a stern woman spinning a vinyl record backward with her fingertips on a turntable on a folding table, everyone turning to look at a teenager frozen in the doorway, flat greenish light, wide shot",
         "choices": [
           {
             "id": "play-it-forward",
@@ -4997,7 +4997,7 @@
         "title": "The Pledge Card",
         "place": "The Glimmer Falls High gym, the Brightside Teens lock-in, midnight",
         "text": "The Brightside Teens lock-in has pizza, a pyramid of soda cans and a banner that reads ONE SCHOOL, ONE STANDARD. At midnight they pass out pledge cards: no rock music, no hair dye, no \"confusing\" friends. Every kid who signs gets a crisp white windbreaker and the same calm, pleasant smile, and their voices start to blend into one. A girl in a windbreaker holds out a pen to you, smiling, smiling.",
-        "art": "A high school gym at night under a banner reading ONE SCHOOL ONE STANDARD, rows of teens in identical white windbreakers with identical calm smiles, one smiling girl holding out a pen and a pledge card toward a wary teenager",
+        "art": "A high school gym at midnight during a lock-in, a pyramid of soda cans and pizza boxes, rows of teens in identical crisp white windbreakers with identical calm smiles, a smiling girl in a white windbreaker holding out a pen and a small paper slip toward a wary teenager in a jean jacket, a long white cloth hung across the bleachers, bright gym light, wide shot",
         "choices": [
           {
             "id": "sign-it-wrong",
@@ -5085,7 +5085,7 @@
         "title": "The Benevolent Owls",
         "place": "The Benevolent Order of Owls lodge hall on Main Street, 1 a.m.",
         "text": "Light leaks under the door of the Owls' lodge. Inside, two dozen grown-ups in feathered robes and little owl-beak fezzes sit in a circle, hooting a slow, rhythmic chant, while the Grand Hoot raises a gavel carved like a mouse. In the middle of the circle is an empty chair with a brand-new fez on the cushion, exactly your size. Every head turns toward the door at the same speed, the way owls do.",
-        "art": "A wood-paneled lodge hall lit by candles, two dozen adults in feathered robes and beaked fezzes seated in a circle all turning their heads toward the door, an empty chair in the center holding a small fez on its cushion",
+        "art": "A wood-paneled lodge hall at one in the morning lit by candles, two dozen adults in brown feathered robes and little beaked fezzes sitting in a circle, all turning their heads toward the door at the same moment, a leader holding a gavel carved in the shape of a mouse, an empty chair in the center with a brand-new small fez on its cushion, a teenager in the doorway, warm candlelight, wide shot",
         "choices": [
           {
             "id": "out-hoot-them",
@@ -5167,7 +5167,7 @@
         "title": "Satan in the Suburbs?",
         "place": "The roundabout under a TV news crew's floodlights, midnight",
         "text": "A Channel 8 news van is parked at the roundabout for a live special called SATAN IN THE SUBURBS?, and the anchorman's helmet of hair does not move in the wind. He spots you and swings the microphone over, smiling with too many teeth. \"Our viewers want to know: your Friday-night dungeon game, is it a coven?\" The camera's red light glows, and every porch on the street is watching.",
-        "art": "A local TV news van with a tall antenna parked by a suburban roundabout at night under harsh floodlights, a smiling anchorman with stiff sculpted hair thrusting a microphone toward a teenager, a camera with a glowing red light",
+        "art": "A local TV news van with a tall antenna mast parked beside a suburban roundabout at midnight under harsh white floodlights, a smiling anchorman with stiff sculpted hair thrusting a microphone toward a teenager, a camera operator with a shoulder camera and its red light glowing, neighbors watching from every porch, a purple crystal rock glowing behind, wide shot",
         "choices": [
           {
             "id": "roll-for-initiative",
@@ -5256,7 +5256,7 @@
         "title": "Sleepwalking the Rooftops",
         "place": "The roofs of Crystal Street, in your sleep",
         "text": "You wake, sort of, barefoot on your own roof in your pajamas, walking the ridge line with your arms out like a tightrope walker. The gutters glitter with frost. The roofs keep going, one after another, past the Lindqvists' chimney and on and on, past where the street should end.",
-        "art": "A barefoot teenager in pajamas sleepwalking along the ridge line of a suburban rooftop at night with arms outstretched, frosty gutters glittering, an endless row of rooftops stretching toward a water tower under the stars",
+        "art": "A barefoot teenager in pajamas sleepwalking along the ridge line of a suburban rooftop at night with arms stretched out for balance, frost glittering in the gutters, a brick chimney ahead, and an endless row of rooftops stretching on past where the street should end toward a distant water tower under the stars, silver starlight, wide shot",
         "choices": [
           {
             "id": "trust-your-feet",
@@ -5337,7 +5337,7 @@
         "title": "The Extra Room",
         "place": "Your house, in a dream",
         "text": "There is a door in the upstairs hallway that has never been there, between the bathroom and the linen closet. It is papered in flowered wallpaper from 1959. Behind it you hear a family dinner: forks on plates, laughter, a radio. Someone calls your name, warmly, to come eat before it gets cold.",
-        "art": "A dim upstairs hallway in a 1980s suburban house with an extra door papered in 1959 floral wallpaper between the bathroom and the linen closet, warm light and dinner sounds leaking from under it",
+        "art": "A dim upstairs hallway in a 1980s suburban house at night, an extra narrow door papered in faded 1959 floral wallpaper standing between the bathroom door and the linen closet, warm yellow light and moving shadows leaking from the gap under it, a teenager in pajamas reaching for its glass knob, cool blue hallway light, medium shot",
         "choices": [
           {
             "id": "open-the-door",
@@ -5419,7 +5419,7 @@
         "title": "The Pop Quiz",
         "place": "Glimmer Falls High, in a dream",
         "text": "You are sitting in algebra in your pajamas. There is a test on your desk that you did not study for, written in an alphabet made of little teeth. The clock on the wall spins backward. The teacher at the front has no face, only a red grading pen, tapping, tapping.",
-        "art": "A dreamlike high-school classroom with a teenager in pajamas at a desk, a test covered in tooth-shaped letters, a clock spinning backward, a faceless teacher tapping a red pen at the front",
+        "art": "A high school algebra classroom with a teenager in pajamas sitting at a desk staring down at a test sheet covered in rows of tiny tooth shapes, a wall clock with its hands spinning backward, and at the front a teacher with a smooth blank face where features should be tapping a red pen on the desk, other students slumped asleep, pale yellow light, medium wide shot",
         "choices": [
           {
             "id": "bubble-everything",
@@ -5480,7 +5480,7 @@
         "title": "Saturday Morning Forever",
         "place": "Your living room carpet, in a dream",
         "text": "You are inside a Saturday morning cartoon. The colors are too bright, there is a laugh track, and you have a black outline. The Sugar Sergeant, the grinning bird from the cereal box, insists you stay for just one more episode. And one more. The episodes never end, and the bird's grin is getting wider.",
-        "art": "A teenager drawn with a cartoon outline inside a brightly colored Saturday morning cartoon world, a grinning cereal-box bird mascot in a military cap looming, cartoon anvils and a canyon in the background",
+        "art": "A teenager with a thick black cartoon outline standing inside a brightly colored Saturday morning cartoon world of flat candy colors, a grinning cereal-box bird mascot in a military cap looming over them, cartoon anvils dangling from ropes and a red canyon in the background, a giant bowl of cereal at their feet, flat saturated colors, wide shot",
         "choices": [
           {
             "id": "cartoon-physics",
@@ -5539,7 +5539,7 @@
         "title": "The Escalator Down",
         "place": "Starlight Mall, in a dream",
         "text": "The mall is closed, and it goes on forever. Every escalator only goes down. The same soft song plays from every speaker. Every storefront is the same orange juice stand, staffed by nobody, and the fountain at the bottom of each level is full of pennies with your face on them.",
-        "art": "An infinite dreamlike shopping mall with escalators descending level after level into hazy pastel light, identical orange juice stands, a fountain filled with copper pennies, a lone teenager riding down",
+        "art": "An endless shopping mall in hazy pastel light with escalators descending level after level into the distance, identical orange juice stands on every level with empty counters, a fountain at the bottom of each level filled with copper pennies, a lone teenager riding an escalator down with one hand on the rail, soft pink haze, high wide shot",
         "choices": [
           {
             "id": "run-up-the-down",
@@ -5598,7 +5598,7 @@
         "title": "The Lake Comes Back",
         "place": "Crystal Street, underwater, in a dream",
         "text": "In your dream, the old Crystal Springs lake is back. Crystal Street is the bottom. Fish drift through the beams of the streetlights, your neighbor's station wagon floats past upside down, and your bike rolls slowly along the lake floor. You can breathe, somehow. Far above, moonlight wobbles on the surface.",
-        "art": "A suburban cul-de-sac completely underwater at night, fish swimming through streetlight beams, a station wagon floating upside down, a teenager in pajamas suspended mid-water gazing up at moonlight rippling on the surface",
+        "art": "A suburban cul-de-sac completely underwater at night, fish swimming through the beams of the streetlights, a station wagon floating upside down past the houses, a bicycle rolling slowly along the lake floor, a teenager in pajamas suspended in the water and gazing up at moonlight rippling on the surface far above, blue-green water light, wide shot",
         "choices": [
           {
             "id": "swim-for-the-moon",
@@ -5662,7 +5662,7 @@
         "title": "Running in Taffy",
         "place": "Crystal Street, in a dream",
         "text": "Something is behind you on Crystal Street, breathing like a vacuum cleaner, and you run, but the sidewalk has turned to warm saltwater taffy. Every step stretches out pink and sticky behind you, and you are moving in slow motion while the thing back there moves at normal speed. The streetlights stretch like taffy too, bending low over you to watch.",
-        "art": "A suburban street at night melting into glossy pink taffy, a teenager running in slow motion with long sticky strands stretching from their sneakers, streetlights drooping overhead, a looming shadow behind",
+        "art": "A suburban street at night melting into glossy pink saltwater taffy, a teenager running in slow motion with long sticky pink strands stretching from their sneakers, the streetlights drooping overhead and bending down toward them, a large dark shape looming at the end of the street behind, pink glow and blue night, wide shot",
         "choices": [
           {
             "id": "turn-around",
@@ -5745,7 +5745,7 @@
         "title": "Opening Night",
         "place": "The Glitter Box stage, in a dream",
         "text": "The curtain is rising and you are center stage in a play you never rehearsed, dressed in a costume made of tinfoil and pillowcases. The seats are full of everyone you have ever known, sitting in the dark and eating popcorn very loudly. Your scene partner is a store mannequin. It turns its smooth blank head toward you and waits for your line, while a prompter in the wings hisses something in a language made of moths.",
-        "art": "A theater stage under a hot spotlight, a teenager in a tinfoil and pillowcase costume facing a smooth-headed store mannequin, a packed dark audience eating popcorn, moths fluttering from the wings",
+        "art": "A theater stage under a hot white spotlight, a teenager in a costume made of tinfoil and pillowcases standing center stage facing a smooth-headed store mannequin with its blank head turned toward them, a packed dark audience eating popcorn, small gray moths fluttering out of the wings where a prompter crouches, hot white light and black house, wide shot",
         "choices": [
           {
             "id": "improvise",
@@ -5829,7 +5829,7 @@
         "title": "Wake Up, Wake Up",
         "place": "Your bedroom, again and again",
         "text": "You wake up in your bed, relieved, and your clock radio reads 88:88. You wake up again and the posters on your wall are upside down. You wake up a third time and your window looks out on your own bedroom. Every time you wake, the house is a little more wrong, and somewhere inside it an alarm clock is ringing that you can never find.",
-        "art": "A teenager sitting up in bed in a bedroom where the band pennants and wall calendar hang upside down, a clock radio glowing 88:88, the window showing the same bedroom repeated beyond the glass",
+        "art": "A teenager sitting up in bed in a bedroom where the band pennants and wall calendar hang upside down, a clock radio on the nightstand glowing with eights in every digit, and through the window the same bedroom repeated beyond the glass with another figure sitting up in another bed, gray dawn light, medium wide shot",
         "choices": [
           {
             "id": "follow-the-alarm",
@@ -5911,7 +5911,7 @@
         "title": "Inside the Snow Globe",
         "place": "Crystal Street under glass, in a dream",
         "text": "In your dream, the sky over Crystal Street is curved glass, and past it is a giant mantelpiece in a giant living room. Somebody enormous picks up the whole street and shakes it. Purple glitter from the Heartstone swirls down like snow, the houses tilt, and you tumble across your lawn as the world turns upside down and back again.",
-        "art": "A whole suburban cul-de-sac sealed inside a giant snow globe on a mantelpiece, purple glitter swirling like snow over split-level houses and a glowing purple geode, a tiny teenager tumbling across a lawn",
+        "art": "A whole suburban cul-de-sac sealed inside a giant glass snow globe on a mantelpiece in an enormous living room, purple glitter swirling down over the split-level houses and a glowing purple crystal rock, the houses tilting, a tiny teenager tumbling across a lawn, a huge hand reaching for the globe, warm lamp light outside the glass, wide shot",
         "choices": [
           {
             "id": "knock-on-the-sky",
@@ -5999,7 +5999,7 @@
         "title": "Glow Creek",
         "place": "The concrete drainage creek behind Crystal Street, midnight",
         "text": "The concrete creek behind the backyards is glowing the soft green of a nightlight, and it smells like a chemistry set left out in the sun. A big outflow pipe from the plant up on Quarry Road gurgles into it. On the bank, a chorus of two-headed frogs is singing in perfect four-part harmony. The green slick is creeping up the slope toward the backyard fences, one slow inch at a time.",
-        "art": "A concrete drainage creek glowing soft green at night behind suburban backyard fences, a large outflow pipe trickling luminous water, a row of two-headed frogs singing on the bank, a green slick creeping up the slope",
+        "art": "A concrete drainage creek glowing soft nightlight green at midnight behind suburban backyard fences, a large outflow pipe trickling luminous water, a row of two-headed frogs singing on the concrete bank, a green slick creeping up the slope toward the fences, a teenager leaning over a back fence with a flashlight, green glow and dark sky, wide shot",
         "choices": [
           {
             "id": "bottle-a-sample",
@@ -6084,7 +6084,7 @@
         "title": "The Glowing Full-Size Bar",
         "place": "Your bedroom floor, sorting candy after midnight",
         "text": "Everybody at school swears a van in the Starlight Mall lot was handing out free full-size Nougat Nova bars, and you got one. Now, sorting your stash on the carpet with the lights off, you notice it is glowing right through the wrapper. It is warm. It is ticking, faintly, like a wristwatch. Every rumor about radioactive Halloween candy you ever heard is suddenly front and center.",
-        "art": "A teenager sitting on a bedroom carpet at night surrounded by sorted piles of candy, one full-size candy bar glowing green through its wrapper, its light spilling across their face",
+        "art": "A teenager sitting cross-legged on a bedroom carpet after midnight with the lights off, surrounded by sorted piles of Halloween candy, holding one full-size candy bar glowing green through its wrapper, its light spilling across their face and the candy piles, a pillowcase at their side, green glow and dark room, close medium shot",
         "choices": [
           {
             "id": "build-a-counter",
@@ -6172,7 +6172,7 @@
         "title": "The Tanker on Quarry Road",
         "place": "The bend on Quarry Road, 1:20 a.m.",
         "text": "A truck with blank white sides has jackknifed across Quarry Road. The cab door hangs open, the CB radio crackling to an empty seat, and the driver is gone. Steel drums have tumbled off the trailer behind it, leaking something that glows the color of grape soda. One drum is rolling, slowly and very deliberately, downhill toward Crystal Street.",
-        "art": "A jackknifed white tanker truck across a dark country road at night, its cab door hanging open, steel drums spilled and leaking glowing purple liquid, one drum rolling downhill toward distant suburban streetlights",
+        "art": "A jackknifed white tanker truck with blank sides lying across a dark country road at 1:20 in the morning, its cab door hanging open and the CB handset dangling, steel drums spilled across the asphalt leaking glowing purple liquid, one drum rolling downhill toward the distant streetlights of a suburb, a teenager on a bike stopped at the bend, purple glow, wide shot",
         "choices": [
           {
             "id": "stop-the-drum",
@@ -6264,7 +6264,7 @@
         "title": "Quarantine",
         "place": "The mouth of the cul-de-sac, two a.m.",
         "text": "People in white suits and fishbowl helmets are stringing yellow tape across the entrance to Crystal Street. A striped tent with a shower inside has gone up on the Heartstone lawn, and a woman with a clipboard is knocking on doors, calm and polite: everyone through decontamination, please. The neighbors who come out the far side are pink-cheeked, foamy and cheerful, and none of them can remember their own phone number.",
-        "art": "Figures in white hazmat suits and round helmets stringing yellow tape across a suburban cul-de-sac at night, a striped decontamination tent glowing on a lawn beside a giant purple geode, neighbors in bathrobes lined up",
+        "art": "Figures in white hazmat suits and round fishbowl helmets stringing yellow tape across the entrance to a suburban cul-de-sac at two in the morning, a striped decontamination tent glowing on a lawn beside a giant purple crystal rock, neighbors in bathrobes lined up at the tent, pink-cheeked foamy neighbors coming out the far side smiling, a woman with a clipboard knocking on a door, white floodlight, wide shot",
         "choices": [
           {
             "id": "ask-for-a-badge",
@@ -6346,7 +6346,7 @@
         "title": "Instant Pets",
         "place": "The youngest Pell kid's bedroom, two doors down, 12:45 a.m.",
         "text": "The youngest Pell kid calls your house in tears. His mail-order Brine Buddies, the tiny brine shrimp from the back of a comic book, got a cup of creek water in their tank after the rain. Now there are three of them, each the size of a cocker spaniel, crammed in the fish tank with their long feathery legs, tapping on the glass in rhythm, wanting out.",
-        "art": "Three dog-sized pink brine shrimp with feathery legs crammed in a bubbling bedroom fish tank at night, tapping on the glass, a small boy in pajamas peeking out from behind a bunk bed",
+        "art": "A bedroom at 12:45 at night, three pink brine shrimp each the size of a cocker spaniel crammed into a bubbling fish tank on a dresser, their long feathery legs tapping on the glass, a small boy in pajamas peeking out from behind a bunk bed in tears, a teenager in the doorway holding a phone receiver, blue aquarium light, medium shot",
         "choices": [
           {
             "id": "wagon-to-the-creek",
@@ -6405,7 +6405,7 @@
         "title": "Suds City",
         "place": "Suds City 24-Hour Laundromat on Quarry Road, 1 a.m.",
         "text": "You came to dry a load of towels and found every washer in Suds City foaming over at once. The foam is pale green and warm, and it is gathering in the middle of the floor into one big, wobbling heap. It has eaten the lint from every dryer trap. It has eaten every orphan sock in the lost-and-found basket. Now it is rolling, slowly, toward your laundry basket.",
-        "art": "A late-night laundromat under fluorescent lights, every washing machine overflowing with pale green foam that gathers into one huge wobbling heap on the tiled floor, a laundry basket of towels in its path",
+        "art": "A late-night laundromat at one in the morning under fluorescent lights, every washing machine overflowing with warm pale green foam that gathers into one big wobbling heap on the tile floor, mismatched socks and lint stuck in the foam, the heap rolling toward a plastic basket of towels, a teenager backing up against the dryers, white light, wide shot",
         "choices": [
           {
             "id": "soften-it-up",
@@ -6483,7 +6483,7 @@
         "title": "Green Rain",
         "place": "Your front lawn, a little after midnight",
         "text": "It starts raining out of a clear sky full of stars, and the rain is green. Warm drops patter on the cul-de-sac and smell like lime soda and old pennies. Where they land, the lawn gnomes start to giggle and the paint on the Fenwicks' mailbox bubbles into blisters. A drop lands on your arm and leaves a little glowing freckle that tingles.",
-        "art": "Glowing green raindrops falling on a suburban cul-de-sac under a clear starry sky, a giggling garden gnome on a wet lawn, a mailbox with bubbling paint, a teenager holding out an arm with one glowing freckle",
+        "art": "Glowing green raindrops falling on a suburban cul-de-sac from a clear starry sky a little after midnight, a garden gnome giggling on a wet lawn, a mailbox with its paint bubbling into blisters, a teenager on the front walk holding out one arm with a small glowing green freckle on it, green droplets and blue night, medium wide shot",
         "choices": [
           {
             "id": "dash-for-the-porch",
@@ -6571,7 +6571,7 @@
         "title": "Best in Show",
         "place": "The Glimmer Falls High gym, the night before the science fair",
         "text": "You came back for the display board you left under the bleachers. Every science fair project is set out on folding tables in the dark gym, and one of them is winning. A petri dish labeled MOLD THAT GROWS TO MUSIC has crept off its table, across three other projects and up the bleachers in a soft gray-green carpet. The band room radio next door is playing, and every time the bass hits, the mold grows another foot.",
-        "art": "A dark high school gym lined with science fair tables, a soft gray-green mold spreading from a petri dish across the tables and up the wooden bleachers, a baking soda volcano half swallowed, light spilling from a band room doorway",
+        "art": "A dark high school gym lined with folding tables of science fair projects, a soft gray-green mold spreading from one petri dish across three tables and up the wooden bleachers in a fuzzy carpet, a baking soda volcano half swallowed, light and music spilling from a band room doorway, a teenager holding a folded display board, dim light, wide shot",
         "choices": [
           {
             "id": "kill-the-radio",
@@ -6657,7 +6657,7 @@
         "title": "Tented",
         "place": "The Haverford house, under a fumigation tent, 1:30 a.m.",
         "text": "The Haverfords' house has been zipped inside a giant red-and-yellow striped fumigation tent all week. Tonight the tent is breathing, in and out, slow and deep, like a sleeping circus. Purple fog is seeping from the seams and rolling across the lawns, and everything it touches grows a soft coat of fuzz: the hedges, a tricycle, the Kowalskis' cat, who looks very annoyed about it.",
-        "art": "A suburban house wrapped in a giant red and yellow striped fumigation tent at night, the tent swelling as if breathing, purple fog seeping from the seams across the lawns, a fuzzy tricycle and an annoyed fuzzy cat",
+        "art": "A suburban house wrapped in a giant red-and-yellow striped fumigation tent at 1:30 in the morning, the tent swelling and sinking in slow breaths, purple fog seeping from the seams across the lawns, a tricycle and a hedge covered in soft fuzz, an annoyed fuzzy cat on the sidewalk, a teenager holding their sleeve over their nose, streetlight and purple fog, wide shot",
         "choices": [
           {
             "id": "tape-the-seams",
@@ -6738,7 +6738,7 @@
         "title": "Glow in the Dark",
         "place": "Your bathroom mirror, 3 a.m.",
         "text": "You get up for a glass of water and the bathroom is already lit. It is you. Your fingernails are glowing a soft mint green, one streak of your hair shines like a nightlight, and when you sneeze, you sneeze a puff of glitter that hangs in the air and twinkles. Whatever has been leaking into Glimmer Falls this week, a little of it ended up in you.",
-        "art": "A teenager in pajamas staring into a bathroom mirror at night, their fingernails and one streak of hair glowing mint green, a puff of glittering sneeze hanging in the air, the room lit by their own glow",
+        "art": "A teenager in pajamas staring into a bathroom mirror at three in the morning, their fingernails glowing mint green and one streak of their hair shining bright green, a puff of glittering sneeze hanging in the air in front of them, the dark bathroom lit only by their own soft green glow, close medium shot into the mirror",
         "choices": [
           {
             "id": "cover-up",
@@ -6829,7 +6829,7 @@
         "title": "The Lawn That Won't Quit",
         "place": "Your front yard, 12:30 a.m.",
         "text": "You can hear it growing. Your front lawn, mowed this afternoon, is up to your knees and rising, thick and green and whispering. It has swallowed the garden hose, the welcome mat and your bike. A runner of crabgrass is feeling its way up the drainpipe toward your window, and in the garage the lawnmower is revving all by itself, like it has waited its whole life for this.",
-        "art": "A suburban front lawn grown waist high overnight in thick whispering grass, swallowing a bicycle and a garden hose, a runner of crabgrass climbing a drainpipe toward a lit window, a lawnmower glowing in an open garage",
+        "art": "A suburban front lawn at 12:30 at night grown waist high in thick whispering grass, a bicycle handlebar and a garden hose sticking out of it, a long runner of crabgrass climbing a drainpipe toward a lit upstairs window, a lawnmower revving by itself in the open garage with its headlight on, a teenager on the porch steps, porch light and blue night, wide shot",
         "choices": [
           {
             "id": "mow-it-down",
@@ -6920,7 +6920,7 @@
         "title": "Notice of Violation",
         "place": "The curb in front of your house, 1:05 a.m.",
         "text": "A thin man in a beige windbreaker and a pith helmet is kneeling on your lawn, measuring blades of grass with a ruler by flashlight. He is the Crystal Street Homeowners Association compliance officer, he says, and you are in violation. He has already slapped orange stickers on your mailbox, your jack-o-lantern and your bike. Everything he stickers turns beige, slowly, from the sticker outward.",
-        "art": "A thin man in a beige windbreaker and pith helmet kneeling on a suburban lawn at night measuring grass with a ruler by flashlight, orange stickers on a mailbox, a jack-o-lantern and a bicycle, each fading to beige around its sticker",
+        "art": "A thin man in a beige windbreaker and a pith helmet kneeling on a suburban lawn at one in the morning measuring blades of grass with a wooden ruler by flashlight, orange stickers on a mailbox, a jack-o'-lantern and a bicycle, each one fading to beige outward from its sticker, a teenager watching from the front door, flashlight beam and porch light, medium wide shot",
         "choices": [
           {
             "id": "quote-the-bylaws",
@@ -7002,7 +7002,7 @@
         "title": "Everything Must Go",
         "place": "A driveway on Quarry Road, a midnight yard sale",
         "text": "Somebody is holding a yard sale at midnight, with a string of bare bulbs and card tables down the driveway, and a sweet old lady in a cardigan is selling everything you remember. Your first bike, the one with the banana seat. The cassette of your seventh birthday party. A mason jar labeled THE TIME YOU WERE BRAVE, priced at a quarter. Two neighbors are already haggling over it.",
-        "art": "A suburban driveway yard sale at midnight under a string of bare bulbs, card tables holding a child's banana-seat bicycle, a cassette tape and a glowing mason jar, a sweet old woman in a cardigan holding a handheld price labeler",
+        "art": "A suburban driveway yard sale at midnight under a string of bare bulbs, folding tables holding a child's banana-seat bicycle, a cassette tape and a glowing mason jar priced on a small tag, two neighbors tugging at the jar, a sweet old woman in a cardigan holding a handheld price labeler and smiling, a teenager staring at the bicycle, warm bulb light and black night, wide shot",
         "choices": [
           {
             "id": "haggle-hard",
@@ -7085,7 +7085,7 @@
         "title": "Just One More Demonstration",
         "place": "Mrs. Bramley's living room, a Glow-Rite candle party",
         "text": "Mrs. Bramley's candle party started at seven-thirty. It is well past midnight now, the mantel clock still says 9:45, and the hostess is lighting just one more candle. Each scent has a name: Fresh Linen, Sunday Pot Roast, Stay A While. The guests keep smiling and turning the pages of their catalogs, and some of their dresses look like 1974. One of them has cobwebs in her beehive.",
-        "art": "A cozy suburban living room crowded with smiling guests holding catalogs, dozens of lit scented candles on every surface, a mantel clock stopped at a quarter to ten, an older guest with cobwebs in her beehive hairdo",
+        "art": "A cozy suburban living room crowded with smiling guests holding catalogs, dozens of lit scented candles on every surface, a mantel clock stopped at a quarter to ten, some guests in 1974 polyester dresses, an older woman with cobwebs in her beehive, a hostess lighting one more candle, a teenager by the door checking their wristwatch, warm candlelight, wide shot",
         "choices": [
           {
             "id": "blow-them-out",
@@ -7170,7 +7170,7 @@
         "title": "The Carpool",
         "place": "The end of your driveway, 12:15 a.m.",
         "text": "A wood-paneled station wagon pulls up to your curb with its headlights off. Behind the wheel is a carpool driver in a quilted vest and a perfect smile, and the back seats are packed with kids in soccer uniforms, shin guards, sleeping bags and ballet buns. You're late, sweetie, she says. Practice. Hop in. You do not play soccer, and you are fairly sure none of these kids live in Glimmer Falls.",
-        "art": "A wood-paneled station wagon idling at a suburban curb at night with its headlights dark, a smiling woman in a quilted vest at the wheel, the back seats crowded with sleepy children in soccer and ballet clothes",
+        "art": "A wood-paneled station wagon idling at a suburban curb at 12:15 at night with its headlights dark, a smiling woman in a quilted vest at the wheel leaning toward the open passenger window, the back seats crowded with sleepy children in soccer uniforms, shin guards and ballet buns, a teenager in pajamas standing at the end of the driveway, dome light glow, medium wide shot",
         "choices": [
           {
             "id": "read-the-route",
@@ -7249,7 +7249,7 @@
         "title": "You've Been Flocked",
         "place": "Your front lawn, 2 a.m.",
         "text": "Somebody flocked your yard. There are pink plastic flamingos everywhere, hundreds of them, staked so close together you cannot see the grass. A note taped to the door says the flock will leave when you pay to send it on to a friend. Then, all together, with a soft plastic creak, every flamingo turns its head to look up at your window.",
-        "art": "Hundreds of pink plastic lawn flamingos crowded on a suburban front lawn at night under a porch light, every one of them turning its head toward a lit upstairs window",
+        "art": "Hundreds of pink plastic lawn flamingos staked so close together on a suburban front lawn at two in the morning that the grass is hidden, every one of them turning its head toward a lit upstairs window, a teenager looking down from that window, a folded paper taped to the front door below, yellow porch light, high wide shot from the window",
         "choices": [
           {
             "id": "pull-them-up",
@@ -7332,7 +7332,7 @@
         "title": "Big Trash Night",
         "place": "Crystal Street curbs, bulk trash night",
         "text": "It is bulk trash night and every curb on the cul-de-sac is piled with old furniture: lamps, a waterbed frame, a box of macrame. As you walk home, a plaid recliner from the Fenwicks' curb is following you. Every time you turn around it is one driveway closer, footrest up, reclined just slightly, the way a dog rolls over to ask for a belly rub.",
-        "art": "A suburban street at night lined with curbside piles of old furniture, lamps and boxes, a plaid recliner with its footrest raised sitting in the middle of the road behind a teenager walking home",
+        "art": "A suburban street on bulk trash night lined with curbside piles of old furniture, lamps, a wooden waterbed base and a box of macrame, a plaid recliner with its footrest raised sitting in the middle of the road one driveway behind a teenager walking home who is glancing back over their shoulder, streetlights, wide shot",
         "choices": [
           {
             "id": "sit-in-it",
@@ -7415,7 +7415,7 @@
         "title": "The Vacation Slides",
         "place": "The Petersens' den, a little after midnight",
         "text": "The Petersens caught you on the sidewalk and insisted you come in for their vacation slides. The carousel projector clicks, slide after slide: the Grand Canyon, the world's biggest ball of twine, a motel pool. In every slide there is someone in the background, a little closer each time, and by the Hoover Dam you can see it is you, waving, in the clothes you have on right now.",
-        "art": "A dim wood-paneled den with a carousel slide projector casting a bright canyon vacation snapshot onto a pull-down screen, a smiling couple on the couch, a small waving figure in the background of the slide",
+        "art": "A dim wood-paneled den a little after midnight, a carousel slide projector on a coffee table casting a bright snapshot of a big canyon onto a pull-down screen, a smiling middle-aged couple on the couch, a teenager squeezed between them, and in the background of the projected slide a small figure waving in the same clothes the teenager is wearing, projector beam and dark room, medium wide shot",
         "choices": [
           {
             "id": "look-closer",
@@ -7497,7 +7497,7 @@
         "title": "The Ice Cream Truck",
         "place": "The roundabout, 1:40 a.m.",
         "text": "An ice cream truck you have never seen before is parked at the roundabout, playing its jingle slow and a little warped, like a music box winding down. The menu on its side has a picture of every neighbor on Crystal Street, and under each one the name of a flavor: Mr. Fenwick's Secret, What Mrs. Delgado Really Puts in the Meatloaf, The Thing Under the Fergusons' Pool Cover. Exact change only.",
-        "art": "A pastel ice cream truck parked at a dark suburban roundabout under a streetlight, its side menu board lined with small portraits of neighbors, a shadowy driver behind the serving window",
+        "art": "A pastel ice cream truck parked at a dark suburban roundabout at 1:40 in the morning under one streetlight, its side panel lined with small painted portraits of the neighbors from the street, a shadowy driver behind the serving window, a purple crystal rock glowing behind it, a teenager on the sidewalk counting coins in their palm, pastel truck lights, medium wide shot",
         "choices": [
           {
             "id": "taste-a-secret",
@@ -7581,7 +7581,7 @@
         "title": "Best Decorated House",
         "place": "The Merrill and Yoshida front yards, 11:55 p.m.",
         "text": "The Merrills and the Yoshidas have fought over Best Decorated House every October since 1971, and this year it has finally gone too far. Fog machines roar on both lawns. A Merrill inflatable ghost the size of a garage is wrestling a Yoshida animatronic witch. A plastic skeleton army is marching across the property line, and both sets of grown-ups are in lawn chairs on their porches, cheering.",
-        "art": "Two rival suburban front yards at night overflowing with Halloween decorations, a giant inflatable ghost grappling an animatronic witch, a marching line of plastic skeletons crossing a property line through thick fog, grown-ups cheering from porches",
+        "art": "Two rival suburban front yards at 11:55 at night overflowing with Halloween decorations, fog machines roaring on both lawns, a giant inflatable ghost the size of a garage wrestling an animatronic witch, an army of plastic skeletons marching across the property line through thick fog, two sets of grown-ups cheering from lawn chairs on their porches, a teenager in the middle of the fog, orange and green lights, wide shot",
         "choices": [
           {
             "id": "call-it-a-tie",

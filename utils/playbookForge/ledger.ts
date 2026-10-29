@@ -78,6 +78,9 @@ export type Shine = 'none' | 'star' | 'super'
 export type Ledger = {
   sections: LedgerSection[]
   units: number
+  /** One estimated authored art/text slot for every still-unbuilt primary encounter. */
+  unbuiltUnits: number
+  plannedUnits: number
   starred: number
   art: SectionCounts
   unwritten: number
@@ -91,10 +94,11 @@ export type Ledger = {
   progress: number
   /** Share of beats whose scene and outcome text are written. */
   writtenShare: number
-  /** Share of beats with delivered art (or none needed). */
+  /** Share of independently required pictures that were verified delivered. */
   paintedShare: number
   /** Share of beats both written and painted (what stars a section). */
   finishedShare: number
+  extraArt: { total: number; delivered: number }
   gaps: PlanGap[]
   discrepancies: string[]
   shine: Shine
@@ -262,6 +266,8 @@ export function buildLedger(
     laneKey: string
     assumptions: Assumptions
     gaps?: PlanGap[]
+    /** Additional real game art requirements outside story beats. */
+    extraArt?: { total: number; delivered: number; missing?: string[] }
     /** Discrepancies the caller already knows of (unfolded edits, no adapter). */
     notes?: string[]
   },
@@ -329,14 +335,39 @@ export function buildLedger(
   const all = sections.flatMap((s) => s.units)
   const complete = all.filter(unitComplete).length
   const share = (score: (unit: LedgerUnit) => number) =>
-    units ? all.reduce((n, unit) => n + score(unit), 0) / units : 0
+    plannedUnits
+      ? all.reduce((n, unit) => n + score(unit), 0) / plannedUnits
+      : 0
   const gaps = (options.gaps ?? []).filter((gap) => gap.built < gap.planned)
   // Encounters the plan calls for but the code has not built count as not
   // started, so two finished worlds of sixteen read as two of sixteen.
   const short = gaps.find((gap) => gap.key === 'encounters')
   const scope = short ? short.built / short.planned : 1
+  // A missing authored encounter is also missing its writing and image. Keep
+  // those future production slots in all denominators, not just the percent.
+  // Other gaps remain individually visible; they may overlap encounter slots.
+  const anchorGap =
+    short ??
+    gaps.reduce<PlanGap | null>(
+      (largest, gap) =>
+        !largest || gap.planned - gap.built > largest.planned - largest.built
+          ? gap
+          : largest,
+      null,
+    )
+  const unbuiltUnits = anchorGap ? anchorGap.planned - anchorGap.built : 0
+  const plannedUnits = units + unbuiltUnits
+  const extraArt = options.extraArt ?? { total: 0, delivered: 0, missing: [] }
+  const missingExtraArt = Math.max(0, extraArt.total - extraArt.delivered)
+  const pictureSlots = plannedUnits + extraArt.total
+  art.delivered += extraArt.delivered
+  art.missing += missingExtraArt
 
   const discrepancies: string[] = []
+  if (unbuiltUnits)
+    discrepancies.push(
+      `${unbuiltUnits} planned encounter slots are not authored yet; estimate includes one picture and one scene's writing per missing slot.`,
+    )
   if (art.rendered)
     discrepancies.push(
       `${art.rendered} picture${art.rendered === 1 ? ' is' : 's are'} rendered but not wired into the game.`,
@@ -345,9 +376,15 @@ export function buildLedger(
     discrepancies.push(
       `${art.failed} beat${art.failed === 1 ? '' : 's'} only ever failed to render.`,
     )
-  if (art.missing)
+  const missingBeatArt = art.missing - missingExtraArt
+  if (missingBeatArt)
     discrepancies.push(
-      `${art.missing} beat${art.missing === 1 ? ' has' : 's have'} no art and no job.`,
+      `${missingBeatArt} beat${missingBeatArt === 1 ? ' has' : 's have'} no verified art and no completed delivery.`,
+    )
+  if (missingExtraArt)
+    discrepancies.push(
+      `${missingExtraArt} required game images outside story beats are missing (choice outcomes, emotional portraits, villain art or inventory items).`,
+      ...(extraArt.missing ?? []).slice(0, 4).map((item) => `Missing: ${item}`),
     )
   if (unwritten)
     discrepancies.push(
@@ -364,26 +401,47 @@ export function buildLedger(
   discrepancies.push(...(options.notes ?? []))
 
   const starred = sections.filter((s) => s.starred).length
-  const allStarred = sections.length > 0 && starred === sections.length
+  const allStarred =
+    sections.length > 0 && starred === sections.length && !missingExtraArt
   return {
     sections,
     units,
+    unbuiltUnits,
+    plannedUnits,
     starred,
     art,
     unwritten,
     outcomes,
     takenSeconds: sections.reduce((n, s) => n + s.takenSeconds, 0),
-    remainingSeconds: sections.reduce((n, s) => n + s.remainingSeconds, 0),
-    remainingWords: sections.reduce((n, s) => n + s.remainingWords, 0),
+    remainingSeconds:
+      sections.reduce((n, s) => n + s.remainingSeconds, 0) +
+      Math.round(
+        (unbuiltUnits + missingExtraArt) *
+          secondsPerImage *
+          (1 + options.assumptions.rerollRate),
+      ),
+    remainingWords:
+      sections.reduce((n, s) => n + s.remainingWords, 0) +
+      unbuiltUnits * words.encounterBody,
     scope,
-    progress: share(unitProgress) * scope,
-    writtenShare: share(unitWriting) * scope,
-    paintedShare: share((unit) => (unit.art === 'delivered' ? 1 : 0)) * scope,
-    finishedShare: units ? (complete / units) * scope : 0,
+    progress:
+      (share(unitWriting) + (pictureSlots ? art.delivered / pictureSlots : 0)) /
+      2,
+    writtenShare: share(unitWriting),
+    paintedShare: pictureSlots ? art.delivered / pictureSlots : 0,
+    finishedShare: pictureSlots
+      ? (complete + extraArt.delivered) / pictureSlots
+      : 0,
+    extraArt: { total: extraArt.total, delivered: extraArt.delivered },
     gaps,
     discrepancies,
     shine: allStarred && !gaps.length ? 'super' : starred > 0 ? 'star' : 'none',
   }
+}
+
+/** Percentage badges may only say 100% when the underlying value is complete. */
+export function completionPercent(value: number): number {
+  return value >= 1 ? 100 : Math.max(0, Math.min(99, Math.round(value * 100)))
 }
 
 /** The units a section would send to the relay: no delivered art, nothing rendered or in flight. */

@@ -1,11 +1,15 @@
 import { promArt } from '../cometAcademy/artManifest'
+import { promArtPrompt } from '../cometAcademy/artPrompts'
 import {
   FINALE_ART_KEY,
   GUEST_LIST_ARRIVAL_ART_KEY,
   GUEST_LIST_ART_KEYS,
   PROM_ENDINGS,
+  PROM_ENDING_ROUTES,
+  SIMULATION_ENDINGS,
   SPLASH_ART_KEY,
   districtArtKey,
+  returnVisitArtKey,
   encounterArtKey,
   endingArtKey,
   incidentArtKey,
@@ -23,9 +27,10 @@ import {
 } from '../cometAcademy/campaign'
 import { CITY_SITES } from '../cometAcademy/cityMap'
 import { DISTRICT_ENCOUNTERS } from '../cometAcademy/districtEncounters'
+import { RETURN_VISITS } from '../cometAcademy/returnVisits'
 import { CHARACTER_ROSTER } from '../cometAcademy/identityArcs'
 import { REAL_NIGHT_CASES } from '../cometAcademy/nightCases'
-import { ENCOUNTERS, INCIDENTS, POWERS, STUDENTS } from '../cometAcademy/rules'
+import { ENCOUNTERS, NIGHT_DECK, POWERS, STUDENTS } from '../cometAcademy/rules'
 import { POWER_VOWS } from '../cometAcademy/specialPowers'
 import {
   blankNode,
@@ -52,6 +57,7 @@ function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
   node.artUrl = promArt(key)
   node.needsArt = !node.artUrl
+  if (node.needsArt) node.artPrompt = promArtPrompt(key)
   node.provenance = `Art slot public/comet-city-academy/${key}.webp (conductor projects/comet-city-academy/art).`
   return node
 }
@@ -116,7 +122,15 @@ export function buildPromOfDoomPlaybook(): Playbook {
       `Hero turn: ${person.heroDecision}`,
       `Villain turn: ${person.villainDecision}`,
     ]
-    node.lenses = [person.signature]
+    node.lenses = ['id' in person ? 'guest' : person.signature]
+    node.artVariants = (['student', 'hero', 'villain'] as const).map(
+      (form) => ({
+        id: form,
+        label: `${form.charAt(0).toUpperCase() + form.slice(1)} · ${person[form].alias}`,
+        imageUrl: promArt(identityArtKey(person.signature, form)),
+        ...('stats' in person[form] ? { stats: person[form].stats } : {}),
+      }),
+    )
     node.variations = [
       {
         axis: 'form',
@@ -242,16 +256,18 @@ export function buildPromOfDoomPlaybook(): Playbook {
     label: choice.title,
     tags: [],
     success: { text: choice.help },
-    leadsTo:
-      choice.id === 'share'
-        ? `ending:${slugify(PROM_ENDINGS[0])}`
-        : choice.id === 'command'
-          ? `ending:${slugify(PROM_ENDINGS[4])}`
-          : `ending:${slugify(PROM_ENDINGS[2])}`,
+    leadsTo: `ending:${slugify(
+      {
+        share: 'A CITY WITH A THOUSAND KEYS',
+        command: 'MASTER OF THE SHIELD',
+        protect: 'THE LAST DANCE LEAVES BY BOAT',
+        evacuate: 'THE TRANSMITTER GOES DARK',
+      }[choice.id],
+    )}`,
   }))
   add(withArt(finale, FINALE_ART_KEY))
 
-  for (const incident of INCIDENTS) {
+  for (const incident of NIGHT_DECK) {
     const node = blankNode(
       `incident:${incident.id}`,
       'encounter',
@@ -305,6 +321,15 @@ export function buildPromOfDoomPlaybook(): Playbook {
     add(withArt(node, districtArtKey(siteId)))
   }
 
+  for (const [siteId, scene] of Object.entries(RETURN_VISITS)) {
+    const site = CITY_SITES.find((item) => item.id === siteId)
+    const node = blankNode(`return:${siteId}`, 'quest', scene.title)
+    node.place = `${site?.name ?? scene.location} · a week after the first visit`
+    node.body = [scene.scene]
+    node.choices = optionChoices(scene.options)
+    add(withArt(node, returnVisitArtKey(siteId)))
+  }
+
   for (const villain of CAMPAIGN_VILLAINS) {
     const node = blankNode(`villain:${villain.id}`, 'boss', villain.name)
     node.place = 'Mastermind'
@@ -316,15 +341,17 @@ export function buildPromOfDoomPlaybook(): Playbook {
     add(withArt(node, villainArtKey(villain.name)))
   }
 
-  PROM_ENDINGS.forEach((ending, index) => {
+  PROM_ENDINGS.forEach((ending) => {
+    const real = !SIMULATION_ENDINGS.includes(ending)
     const node = blankNode(
       `ending:${slugify(ending)}`,
       'ending',
       titleCase(ending),
     )
-    node.place = index < 6 ? 'The real Prom of Doom' : 'The week-one simulation'
+    node.place = real ? 'The real Prom of Doom' : 'The week-one simulation'
     node.body = [
-      index < 6
+      PROM_ENDING_ROUTES[ending],
+      real
         ? 'At dawn the survivors decide what graduation and rebuilding mean.'
         : 'The faculty simulation ends; real graduation is still weeks away.',
     ]
@@ -372,7 +399,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
   return {
     game: 'comet-city-academy',
     title: 'Prom of Doom',
-    blurb: 'Thirty days, six students, four masterminds and ten endings.',
+    blurb: 'Thirty days, six students, eight masterminds and twelve endings.',
     routes,
     nodes,
     order: storyOrder(routes, [
@@ -410,7 +437,12 @@ export function buildPromOfDoomPlaybook(): Playbook {
       {
         title: 'District scenes',
         blurb: 'Two authored routes per city landmark.',
-        keys: keysOf('quest'),
+        keys: keysOf('quest').filter((key) => key.startsWith('district:')),
+      },
+      {
+        title: 'Return visits',
+        blurb: 'Every landmark reopens a week later with its own second scene.',
+        keys: keysOf('quest').filter((key) => key.startsWith('return:')),
       },
       {
         title: 'Masterminds',
@@ -419,7 +451,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       },
       {
         title: 'Endings',
-        blurb: 'Six real, four from the week-one simulation.',
+        blurb: 'Eight real, four from the week-one simulation.',
         keys: keysOf('ending'),
       },
     ],
@@ -439,7 +471,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       spine: 'Day',
       encounter: 'Patrol incident',
       crossroads: 'Campus encounter',
-      quest: 'District scene',
+      quest: 'District scene or return visit',
       thread: 'Week-one team or Guest List outcome',
       fork: 'Seeded roster',
       boss: 'Mastermind',
@@ -448,5 +480,6 @@ export function buildPromOfDoomPlaybook(): Playbook {
     editable: false,
     artProject: 'comet-city-academy',
     artLanes: ['krea2'],
+    artPromptsComplete: true,
   }
 }

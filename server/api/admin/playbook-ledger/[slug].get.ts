@@ -1,12 +1,11 @@
-import { existsSync } from 'node:fs'
-import path from 'node:path'
-import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { createError, defineEventHandler, getQuery, getRouterParam } from 'h3'
 import { getImageStorageRoot } from '~/server/utils/imageStorageRoot'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { playbookFor } from '~/server/utils/playbook'
 import { isPlaybookGame } from '~/utils/playbook/games'
+import { inspectPlaybookArt } from '~/server/utils/playbookArtInventory'
 import {
   projectJobs,
   type JobRow,
@@ -35,6 +34,16 @@ export default defineEventHandler(async (event) => {
     if (!studio && !/^[a-z0-9-]{2,64}$/.test(slug))
       throw createError({ statusCode: 404, message: 'Unknown playbook.' })
     const project = studio ? playbookFor(studio).artProject : slug
+    const inventory = studio
+      ? inspectPlaybookArt(playbookFor(studio), getImageStorageRoot())
+      : { verified: {}, extras: { total: 0, delivered: 0, missing: [] } }
+    if (getQuery(event).inventory === '1') {
+      return {
+        success: true,
+        data: inventory,
+        statusCode: 200,
+      }
+    }
 
     const notes = studio
       ? await prisma.playbookNote.findMany({
@@ -117,19 +126,6 @@ export default defineEventHandler(async (event) => {
       byNode[note.nodeKey] = [...(byNode[note.nodeKey] ?? []), job]
     }
 
-    // Beats whose picture is served from the image store (Memory Dungeon):
-    // report which files are actually there, so the ledger counts only those.
-    const painted: Record<string, string> = {}
-    if (studio) {
-      const root = getImageStorageRoot()
-      for (const node of Object.values(playbookFor(studio).nodes)) {
-        if (node.artUrl || !node.artPath?.startsWith('/images/')) continue
-        const file = path.resolve(root, node.artPath.slice('/images/'.length))
-        if (file.startsWith(root + path.sep) && existsSync(file))
-          painted[node.key] = node.artPath
-      }
-    }
-
     event.node.res.statusCode = 200
     return {
       success: true,
@@ -140,7 +136,9 @@ export default defineEventHandler(async (event) => {
         project,
         edits,
         byNode,
-        painted,
+        painted: inventory.verified,
+        verified: inventory.verified,
+        extras: inventory.extras,
         jobs: projectJobs(project, rows),
         truncated: jobs.length >= MAX_JOBS,
       },

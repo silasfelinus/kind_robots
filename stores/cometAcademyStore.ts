@@ -3,6 +3,8 @@ import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
+import type { PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
+import type { MissionApproach } from '~/utils/cometAcademy/expandedNightCases'
 import {
   signatureById,
   type SignaturePowerId,
@@ -12,6 +14,10 @@ import { defineStore } from 'pinia'
 import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
+  assignPlayerCase,
+  selectMissionApproach,
+  planThirdNight,
+  chooseNightPatrol,
   chooseEncounter,
   finishAcademy,
   incidentsFor,
@@ -213,6 +219,30 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function lead(caseId: string) {
+    if (!run.value) return
+    run.value = assignPlayerCase(run.value, caseId)
+    persist()
+  }
+
+  function missionTactic(caseId: string, approach: MissionApproach) {
+    if (!run.value) return
+    run.value = selectMissionApproach(run.value, caseId, approach)
+    persist()
+  }
+
+  function planCrisis(caseId: string, approach: 'split' | 'concentrate') {
+    if (!run.value) return
+    run.value = planThirdNight(run.value, caseId, approach)
+    persist()
+  }
+
+  function patrol(zone: PatrolZoneId, choiceId: string) {
+    if (!run.value) return
+    run.value = chooseNightPatrol(run.value, zone, choiceId)
+    persist()
+  }
+
   function dispatch() {
     if (!run.value) return
     run.value = resolveDispatch(run.value)
@@ -258,6 +288,10 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     social,
     visit,
     assign,
+    lead,
+    missionTactic,
+    planCrisis,
+    patrol,
     dispatch,
     choose,
     next,

@@ -4,6 +4,8 @@
 // (Arthemy, the Zuzu house checkpoint, first for the Zuzu games and Emperor of Dust).
 // Ecotone renders every picture in four of them, one per art style:
 // Z-Image Turbo, Krea 2, Arthemy and Nova Comic (utils/ecotone/artStyles.ts).
+// A lane carries only engine wording; a game's own palette and setting come
+// from its Playbook.artStyle, so one game's look never rides on another's art.
 
 export type PlaybookArtLane = {
   key: string
@@ -12,7 +14,7 @@ export type PlaybookArtLane = {
   checkpoint?: string
   prompt: 'tags' | 'prose'
   prefix?: string
-  suffix: string
+  suffix?: string
   steps?: number
   cfg?: number
   sampler?: string
@@ -20,10 +22,7 @@ export type PlaybookArtLane = {
 
 const TAG_PREFIX =
   'masterpiece, best quality, amazing quality, absurdres, very aesthetic, painterly, cinematic lighting'
-const TAG_SUFFIX =
-  'north coast california, coastal fog, redwood greens, teal and amber light'
-const PROSE_SUFFIX =
-  'painterly illustration, coastal fog, redwood greens, teal and amber light'
+const PROSE_SUFFIX = 'painterly illustration'
 
 export const PLAYBOOK_ART_LANES: PlaybookArtLane[] = [
   {
@@ -54,7 +53,6 @@ export const PLAYBOOK_ART_LANES: PlaybookArtLane[] = [
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
     prompt: 'tags',
     prefix: TAG_PREFIX,
-    suffix: TAG_SUFFIX,
     steps: 28,
     cfg: 5,
     sampler: 'euler_ancestral',
@@ -66,7 +64,6 @@ export const PLAYBOOK_ART_LANES: PlaybookArtLane[] = [
     checkpoint: 'Illustrious/novaComicXL_v20.safetensors',
     prompt: 'tags',
     prefix: TAG_PREFIX,
-    suffix: TAG_SUFFIX,
     steps: 28,
     cfg: 5,
     sampler: 'euler_ancestral',
@@ -83,12 +80,17 @@ export function playbookArtRequest(
   prompt: string,
   shape: PlaybookArtShape,
   seed: number,
-  tag: { projectSlug: string; designer: string; negative?: string } = {
+  tag: {
+    projectSlug: string
+    designer: string
+    negative?: string
+    style?: string
+  } = {
     projectSlug: 'weird-humboldt',
     designer: 'Ecotone',
   },
 ): Record<string, unknown> {
-  const promptString = [lane.prefix, prompt.trim(), lane.suffix]
+  const promptString = [lane.prefix, prompt.trim(), tag.style, lane.suffix]
     .filter(Boolean)
     .join(', ')
   const [width, height] = shape === 'portrait' ? [832, 1216] : [1344, 768]

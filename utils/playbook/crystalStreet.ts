@@ -1,7 +1,12 @@
+import { beatArtPrompt } from '../crystalStreet/artPrompts'
 import {
+  AVATARS,
+  CHARACTERS,
   COMPANIONS,
   DECKS,
+  ITEMS,
   LOCATIONS,
+  SPECIAL_ENDINGS,
   SKILL_LABELS,
   TIER_LABELS,
   VILLAINS,
@@ -67,6 +72,7 @@ function encounterNode(
   node.needsArt = true
   node.editable = true
   node.editFields = { body: true, outcomes: true }
+  node.artPrompt = beatArtPrompt(encounter.art)
   node.provenance = `Art prompt: ${encounter.art}`
   return node
 }
@@ -137,6 +143,7 @@ export function buildCrystalStreetPlaybook(): Playbook {
       node.lenses = [...villain.tags]
       node.artUrl = `/crystal-street/endings/${villain.id}-${tier}.webp`
       node.needsArt = true
+      node.artPrompt = beatArtPrompt(ending.art)
       node.provenance = `Art prompt: ${ending.art}`
       endingKeys.push(node.key)
     }
@@ -227,6 +234,65 @@ export function buildCrystalStreetPlaybook(): Playbook {
     companionKeys.push(node.key)
   }
 
+  const artRequirements: NonNullable<Playbook['artRequirements']> = []
+  const required = (key: string, title: string, url: string) =>
+    artRequirements.push({ key, title, url })
+
+  for (const node of Object.values(nodes))
+    for (const choice of node.choices) {
+      if (!choice.success || !choice.failure) continue
+      for (const result of ['success', 'failure'] as const)
+        required(
+          `outcome:${node.key}:${choice.id}:${result}`,
+          `${node.title} · ${choice.label} · ${result}`,
+          `/crystal-street/outcomes/${node.key}--${choice.id}-${result}.webp`,
+        )
+    }
+  for (const companion of COMPANIONS)
+    for (const emotion of Object.keys(companion.emotions))
+      required(
+        `companion:${companion.id}:${emotion}`,
+        `${companion.name} · ${emotion}`,
+        `/crystal-street/companions/${companion.id}-${emotion}.webp`,
+      )
+  for (const villain of VILLAINS)
+    for (const pose of ['portrait', 'poster', 'ending'] as const)
+      required(
+        `villain:${villain.id}:${pose}`,
+        `${villain.name} · ${pose}`,
+        `/crystal-street/villains/${villain.id}-${pose}.webp`,
+      )
+  for (const item of ITEMS)
+    required(
+      `item:${item.id}`,
+      `Item · ${item.name}`,
+      `/crystal-street/items/${item.id}.webp`,
+    )
+
+  for (const avatar of AVATARS)
+    required(
+      `avatar:${avatar.id}`,
+      `Starter avatar · ${avatar.name}`,
+      `/crystal-street/avatars/${avatar.id}.webp`,
+    )
+  for (const character of CHARACTERS)
+    required(
+      `character:${character.id}`,
+      `Identity · ${character.title}`,
+      `/crystal-street/characters/${character.id}.webp`,
+    )
+  for (const [key, ending] of Object.entries(SPECIAL_ENDINGS))
+    required(
+      `special-ending:${key}`,
+      `Special ending · ${ending.title}`,
+      `/crystal-street/endings/special-${key}.webp`,
+    )
+  required(
+    'title-art',
+    'Crystal Street title',
+    '/crystal-street/title/crystal-street.webp',
+  )
+
   return {
     game: 'crystal-street',
     title: 'Terrors on Crystal Street',
@@ -234,7 +300,12 @@ export function buildCrystalStreetPlaybook(): Playbook {
       'Twenty-two nightmares, many of them gender-flipped classic villains, each with three leads, three signature nights and a Halloween finale.',
     routes,
     nodes,
-    order: storyOrder(routes, [...companionKeys, ...endingKeys]),
+    artRequirements,
+    order: storyOrder(routes, [
+      ...companionKeys,
+      ...endingKeys,
+      ...Object.keys(nodes),
+    ]),
     sections: [
       {
         title: 'Endings',
@@ -263,5 +334,6 @@ export function buildCrystalStreetPlaybook(): Playbook {
     editable: true,
     artProject: 'crystal-street',
     artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
+    artPromptsComplete: true,
   }
 }

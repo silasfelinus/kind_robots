@@ -8,7 +8,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'Two people remember winning the same election. Both have kept the village alive through difficult winters, and neither can bear the idea that the other is imaginary.',
     artPrompt:
-      'Two proud adult village mayors offering shelter from opposite sides of same divided town square, doubled banners and shared market stalls, no text.',
+      'A town square split down the middle by a chalk line. Two proud adult mayors in gold chains of office stand on either side, each holding the door of a house open for cold villagers, with shared market stalls between them. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'council',
@@ -30,7 +30,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'A river has learned to recite the names of everyone it ever carried away. The ferryman asks you to silence it because grieving families are beginning to mistake it for the living.',
     artPrompt:
-      'Night river forming faces in its ripples, solemn ferryman with rope boat, families listening under willows, painterly blue and purple, no words.',
+      'A night river under willows with pale faces forming in its ripples. A solemn ferryman with a rope-drawn boat stands at the bank, and families listen in the dark beneath the trees. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'listen',
@@ -52,7 +52,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'A cliff beacon was changed to promise every boat safe harbor. The lighthouse shines so convincingly that ships now sail straight through the rocks toward an imaginary port.',
     artPrompt:
-      'Perilous sea cliffs under violet clouds, lighthouse beacon showing a false harbor of floating gold buildings, real fishing boat steering toward rocks, no text.',
+      'Sea cliffs under violet clouds. A lighthouse beam casts a glowing golden harbor of floating buildings onto the mist, and a small fishing boat steers toward the black rocks below. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'redirect',
@@ -74,7 +74,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'A village well returns a dropped object from one day earlier. People have begun throwing their mistakes into it, convinced that an apology can be fetched back like a ring.',
     artPrompt:
-      'Old enchanted well surrounded by discarded letters and broken wedding rings, cautious villagers peering into shimmering yesterday, no text.',
+      'An old stone village well with discarded envelopes and broken rings scattered around its base. Cautious villagers lean over the rim, looking down at a shimmering daylit picture in the water. Medium shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'retrieve',
@@ -96,7 +96,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'One grove bears fruit that tastes of a wonderful remembered future, the next tastes of the life someone actually endured. The farmer is rich, exhausted, and no longer eats either.',
     artPrompt:
-      'Split orchard with one luminous apple tree and one scarred but fruitful tree, exhausted farmer holding two differently colored apples, no lettering.',
+      'An orchard split in two: on the left a glowing apple tree with pale gold fruit, on the right a scarred bent tree heavy with red apples. An exhausted farmer stands between them holding one apple of each colour. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'share',
@@ -118,7 +118,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'A boundary stone has begun walking at night, trying to follow each family as they move. Two villages accuse one another of stealing ground; the stone insists it is keeping everyone at home.',
     artPrompt:
-      'Ancient boundary monolith striding across wet meadow, villagers from two settlements holding ropes, distant sheltering roofs, no text.',
+      'A tall grey boundary stone strides across a wet meadow on stubby stone feet. Villagers from two hamlets haul on ropes tied around it from opposite sides. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'settle',
@@ -140,7 +140,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'The chest that once contained a lantern now holds receipts for every hint a stranger gave you. Most are favors. One is an order someone obeyed against their better judgment.',
     artPrompt:
-      'Weathered treasure chest on river sand overflowing with pale paper receipts and a single dim lantern, dark river reeds, no text.',
+      'A weathered wooden chest on river sand overflowing with pale paper slips, a single dim brass lantern resting on top. Dark reeds stand around it. Medium close-up. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'read',
@@ -162,7 +162,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'At the eastern ford a little ferry stays still while the landscape slips past it. Passengers applaud the speed until they notice the bank they left has moved closer to their homes.',
     artPrompt:
-      'Small rope ferry motionless in shifting river while shoreline slides like stage scenery, travelers with umbrellas watching distorted maps, no words.',
+      'A small rope ferry sits still in the middle of a river while the forested shoreline behind it is painted on a long canvas strip that two wooden rollers on the banks wind past. Travellers holding umbrellas watch from the deck. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'anchor',
@@ -184,7 +184,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'The old standing stones whisper perfect versions of what frightened people wish they had said. A timid baker rehearses an imaginary brave speech while a real argument unfolds outside.',
     artPrompt:
-      'Moonlit standing stones each containing translucent figures giving grand speeches, anxious baker listening behind, no text.',
+      'Moonlit standing stones, each holding a translucent figure that gestures grandly mid-speech. A plump anxious baker in a flour-dusted apron listens from behind one stone. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'join',
@@ -206,7 +206,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'The rune puzzle has been reversed by someone trying to erase a mistake. Two leaves follow the sun now, but neither answer will open a door until the question is put back in the right order.',
     artPrompt:
-      'Three ancient standing stones reflected in still black water, sun and leaf symbols shimmering in alternate orders, no written letters.',
+      "Three ancient standing stones reflected in still black water. In the reflection, the carved sun and two leaves sit in a different order from the stones themselves. Low shot at the water's edge. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.",
     choices: [
       {
         id: 'interpret',
@@ -228,7 +228,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'A miniature treasury contains nothing expensive: repaired shoes, patched coats, replaced bridge nails. The royal auditor calls it a scandal because these purchases saved lives without producing legends.',
     artPrompt:
-      'Modest brick treasury filled with lovingly repaired boots, patched jackets and iron nails, royal auditor standing in ornate empty vault, no words.',
+      'A modest brick treasury room with shelves of mended boots, patched jackets and jars of iron nails. A royal auditor in a powdered wig and red coat frowns in the doorway. Warm lamplight. Medium-wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'defend',
@@ -250,7 +250,7 @@ export const DARK_BRIAR_RIVER: Record<string, DarkBriarScene> = {
     opening:
       'Guests have been waiting for a bride and groom whose childhood wishes mentioned a wedding, though neither now wants to marry. The music continues whenever someone says they will disappoint the family.',
     artPrompt:
-      'Abandoned candlelit wedding pavilion in gloomy forest, two adult almost-newlyweds holding unworn rings while guests wait, no text.',
+      'A candlelit wedding pavilion in a gloomy forest clearing. Two adults in wedding clothes stand apart, each holding an unworn ring, while rows of guests wait on benches and a fiddler plays. Wide shot. Hand-painted gouache and ink illustration under cold violet moonlight with silver-blue shadows.',
     choices: [
       {
         id: 'announce',

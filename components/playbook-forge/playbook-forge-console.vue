@@ -39,6 +39,41 @@
           </span>
         </button>
 
+        <div
+          v-if="
+            forge.existing &&
+            ['ledger', 'gallery', 'redshirts', 'beats', 'kit'].includes(
+              forge.screen,
+            )
+          "
+          class="flex min-w-0 flex-1 items-center gap-3"
+          aria-label="Selected playbook"
+        >
+          <img
+            :src="forge.existing.cover"
+            :alt="`${forge.existing.title} key art`"
+            class="h-16 w-24 shrink-0 rounded-md border border-primary/40 object-cover shadow-lg @3xl:h-20 @3xl:w-36"
+          />
+          <div class="hidden min-w-0 @md:block">
+            <p class="pf-kicker text-[0.6rem] text-secondary">Now forging</p>
+            <p class="pf-display truncate text-lg text-primary @3xl:text-2xl">
+              {{ forge.existing.title }}
+            </p>
+            <p class="truncate text-xs opacity-70">
+              {{
+                forge.screen === 'redshirts'
+                  ? 'Redshirt story atlas'
+                  : forge.screen === 'ledger'
+                    ? 'Production ledger'
+                    : forge.screen === 'gallery'
+                      ? 'Visual story atlas'
+                      : forge.screen === 'beats'
+                        ? 'Story editor'
+                        : 'Rehearsal'
+              }}
+            </p>
+          </div>
+        </div>
         <nav
           v-if="tabbed"
           class="flex min-w-0 flex-1 items-center justify-center gap-1 @3xl:gap-2"
@@ -119,6 +154,7 @@
           <PlaybookForgeLibrary v-else-if="forge.screen === 'library'" />
           <PlaybookForgeLedger v-else-if="forge.screen === 'ledger'" />
           <PlaybookForgeGallery v-else-if="forge.screen === 'gallery'" />
+          <PlaybookForgeRedshirts v-else-if="forge.screen === 'redshirts'" />
           <PlaybookForgeBeats v-else-if="forge.screen === 'beats'" />
           <PlaybookForgeKit v-else-if="forge.screen === 'kit'" />
           <PlaybookForgeGestation v-else-if="forge.screen === 'gestation'" />
@@ -310,7 +346,9 @@ onMounted(() => {
   const kitGame = route.query.kit
   const studioGame = route.query.game
   const gallery = route.query.gallery
-  if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
+  const redshirts = route.query.redshirts
+  if (redshirts !== undefined) forge.openRedshirts()
+  else if (typeof analyze === 'string' && analyze) void forge.analyze(analyze)
   else if (typeof ledger === 'string' && ledger) void forge.openLedger(ledger)
   else if (typeof gallery === 'string' && gallery)
     void forge.openGallery(

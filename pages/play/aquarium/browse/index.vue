@@ -181,6 +181,9 @@ const loading = ref(false)
 const errorMessage = ref('')
 
 useHead({ title: 'Public tanks · Cthulhuquarium' })
+useSeoMeta(
+  gameLinkPreviewMeta('aquarium', useRuntimeConfig().public.appBaseUrl) ?? {},
+)
 
 function normalizeImagePath(value: string): string {
   if (value.startsWith('/') || value.startsWith('http')) return value

@@ -38,6 +38,30 @@ assert.equal(
   11,
 )
 
+// Saved challenge fixtures follow actual passages; teleporting directly into
+// a chamber would be discarded by the graph-aware save restorer.
+const mirrorPaths = new Map<string, string[]>([['HD-01', ['HD-01']]])
+const mirrorQueue = ['HD-01']
+for (let i = 0; i < mirrorQueue.length; i++) {
+  const room = mirrorQueue[i]!
+  for (const next of DARK_HOUSE_ROOMS[room]!.exits) {
+    if (mirrorPaths.has(next)) continue
+    mirrorPaths.set(next, [...mirrorPaths.get(room)!, next])
+    mirrorQueue.push(next)
+  }
+}
+const visitedMirrorRooms = (
+  ...rooms: string[]
+): DarkHouseProgress['visited'] => {
+  const visited = new Set<DarkHouseProgress['current']>(['HD-01'])
+  for (const room of rooms) {
+    const path = mirrorPaths.get(room)
+    assert.ok(path, `Authored mirror route to ${room} exists`)
+    for (const step of path) visited.add(step as DarkHouseProgress['current'])
+  }
+  return [...visited]
+}
+
 // Every generated board is deterministic, fully exposed by exact pair IDs, and
 // has two different concrete faces per pair. No network or delivered art needed.
 for (const [room, trial] of Object.entries(DARK_HOUSE_TRIALS)) {
@@ -54,6 +78,7 @@ for (const [room, trial] of Object.entries(DARK_HOUSE_TRIALS)) {
     ...newDarkHouseProgress(),
     active: true,
     current: room as DarkHouseProgress['current'],
+    visited: visitedMirrorRooms(room),
   }
   assert.equal(
     darkHouseChoose(challenge, 'attend'),
@@ -94,6 +119,7 @@ let duel: DarkHouseProgress = {
   ...newDarkHouseProgress(),
   active: true,
   current: 'HD-09',
+  visited: visitedMirrorRooms('HD-09'),
 }
 const cards = darkHouseTrialFaces('HD-09')
 const first = cards[0]!
@@ -132,6 +158,7 @@ for (const [room, puzzle] of Object.entries(DARK_HOUSE_PUZZLES)) {
     ...newDarkHouseProgress(),
     active: true,
     current: room as DarkHouseProgress['current'],
+    visited: visitedMirrorRooms(room),
   }
   assert.equal(darkHouseChoose(p, 'attend'), p)
   assert.equal(darkHouseRoomResolved(p), false)
@@ -153,10 +180,15 @@ let insight: DarkHouseProgress = {
   ...newDarkHouseProgress(),
   active: true,
   current: 'HD-03',
+  visited: visitedMirrorRooms('HD-03'),
 }
 insight = darkHouseAnswerPuzzle(insight, 'south')
 assert.equal(darkHouseEchoes(insight), 1)
-insight = { ...insight, current: 'HD-09' }
+insight = {
+  ...insight,
+  current: 'HD-09',
+  visited: visitedMirrorRooms('HD-03', 'HD-09'),
+}
 insight = darkHouseRecall(insight)
 assert.equal(darkHouseEchoes(insight), 0)
 assert.ok(insight.trials['HD-09']?.clue)
@@ -182,6 +214,7 @@ assert.equal(darkHousePuzzleHint(hint), hint)
 const forged = restoreDarkHouseProgress({
   active: true,
   current: 'HD-09',
+  visited: visitedMirrorRooms('HD-09'),
   version: 2,
   trials: {
     'HD-09': {
@@ -191,19 +224,52 @@ const forged = restoreDarkHouseProgress({
       clue: 'fiction',
     },
   },
-  puzzles: { 'HD-03': { solved: false, wrong: ['wrong-id'], hint: true } },
+  puzzles: { 'HD-03': { solved: true, wrong: ['wrong-id'], hint: true } },
   spentEchoes: -50,
 })
 assert.equal(forged.trials['HD-09']!.matched.length, 0)
 assert.deepEqual(forged.trials['HD-09']!.faceUp, [])
 assert.equal(forged.trials['HD-09']!.failures, 0)
 assert.equal(forged.trials['HD-09']!.clue, null)
-assert.deepEqual(forged.puzzles['HD-03']!.wrong, [])
+assert.equal(forged.puzzles['HD-03'], undefined)
 assert.equal(darkHouseEchoes(forged), 0)
+const unvisitedTrial = darkHouseTrialFaces('HD-22')
+const hiddenRewards = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-01',
+  visited: ['HD-01'],
+  decisions: { 'HD-01': 'attend', 'HD-22': 'attend', 'HD-35': 'refuse' },
+  trials: {
+    'HD-22': {
+      matched: unvisitedTrial.map((face) => face.id),
+      faceUp: [],
+      failures: 0,
+      clue: null,
+      note: '',
+    },
+  },
+  puzzles: {
+    'HD-03': { solved: true, wrong: [], hint: true, note: '' },
+  },
+  spentEchoes: 3,
+})
+assert.deepEqual(hiddenRewards.decisions, { 'HD-01': 'attend' })
+assert.equal(hiddenRewards.trials['HD-22'], undefined)
+assert.equal(hiddenRewards.puzzles['HD-03'], undefined)
+assert.equal(hiddenRewards.ending, null)
+assert.equal(hiddenRewards.spentEchoes, 0)
+assert.equal(darkHouseEchoes(hiddenRewards), 0)
+assert.deepEqual(
+  restoreDarkHouseProgress(JSON.parse(JSON.stringify(hiddenRewards))),
+  hiddenRewards,
+  'A cleaned save must remain clean after another reload',
+)
+
 const legacy = restoreDarkHouseProgress({
   version: 1,
   active: true,
   current: 'HD-32',
+  visited: visitedMirrorRooms('HD-32'),
   decisions: { 'HD-32': 'attend' },
 })
 assert.equal(darkHouseRoomResolved(legacy), true)
@@ -214,7 +280,7 @@ let guardian: DarkHouseProgress = {
   ...newDarkHouseProgress(),
   active: true,
   current: 'HD-32',
-  visited: ['HD-31', 'HD-32'],
+  visited: visitedMirrorRooms('HD-32'),
 }
 assert.ok(!darkHouseExits(guardian).includes('HD-33'))
 assert.equal(darkHouseMove(guardian, 'HD-33'), guardian)
@@ -229,12 +295,19 @@ assert.ok(darkHouseExits(guardian).includes('HD-33'))
 assert.equal(darkHouseMove(guardian, 'HD-33').current, 'HD-33')
 
 // Both endings respond to evidence recovered and strain accumulated.
-const returned = restoreDarkHouseProgress({ decisions: { 'HD-35': 'attend' } })
-const commons = restoreDarkHouseProgress({ decisions: { 'HD-35': 'refuse' } })
+const returned = restoreDarkHouseProgress({
+  visited: visitedMirrorRooms('HD-35'),
+  decisions: { 'HD-35': 'attend' },
+})
+const commons = restoreDarkHouseProgress({
+  visited: visitedMirrorRooms('HD-35'),
+  decisions: { 'HD-35': 'refuse' },
+})
 assert.notEqual(darkHouseVerdict(returned), darkHouseVerdict(commons))
 assert.ok(darkHouseVerdict(returned).includes('individual owners'))
 assert.ok(darkHouseVerdict(commons).includes('revocable commons'))
 const damaged = restoreDarkHouseProgress({
+  visited: visitedMirrorRooms('HD-03', 'HD-13', 'HD-35'),
   decisions: { 'HD-35': 'attend' },
   puzzles: {
     'HD-03': { solved: true, wrong: ['north', 'same'] },

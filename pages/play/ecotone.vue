@@ -7,5 +7,8 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta(
+  gameLinkPreviewMeta('ecotone', useRuntimeConfig().public.appBaseUrl) ?? {},
+)
 useHead({ title: 'Ecotone' })
 </script>

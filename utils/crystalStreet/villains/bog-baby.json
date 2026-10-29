@@ -41,7 +41,7 @@
           "title": "The Thing from Tule Marsh (1958)",
           "place": "The horror aisle, Rewind Video",
           "text": "Third shelf down, between The Blob and Them!, a battered clamshell case: THE THING FROM TULE MARSH, starring a young Zelda Fishbein screaming at something with too many reeds. The box is damp. The tape smells like pond water. When you pick it up, frogs start singing somewhere in the store, and the floor drain at the end of the aisle burps.",
-          "art": "A video store horror aisle with a battered clamshell tape case of a 1950s creature feature, a damp ring of water beneath it, a floor drain bubbling at the end of the aisle under neon light",
+          "art": "A video rental store horror aisle under pink neon, a battered clamshell videotape case of a 1950s creature movie with a painted marsh monster and a screaming blonde on the front, a damp ring of pond water spreading under it on the shelf, a teenager holding the case at arm's length, a floor drain at the end of the aisle bubbling up green water, pink neon and cold fluorescent light, medium shot",
           "choices": [
             {
               "id": "ask-zelda",
@@ -112,7 +112,7 @@
           "title": "View from the Tower",
           "place": "KGLM 103.3 and the water tower",
           "text": "From the catwalk of the KGLM water tower you can see all of Glimmer Falls: the Crystal Street cul-de-sac, the high school, and Starlight Mall, a pink neon island in a sea of asphalt. From up here, Lot C isn't flat. The faded parking lines bulge in a shape like a pond, and in the middle, under the sodium lights, the asphalt is slowly rising and falling. Down in the booth, Mix has pulled an old reel labeled MARSH SIT-IN, 6/14/81.",
-          "art": "A view from a water tower catwalk at dusk over a small town, a neon-lit mall surrounded by parking lots, one lot bulging gently in the shape of a pond, a radio station shack at the base of the tower",
+          "art": "A view from a water tower catwalk at dusk over a small California town, a teenager gripping the rail in the foreground, below them a pink neon shopping mall surrounded by gray parking lots, one far lot bulging up gently in the round shape of a pond with its faded parking lines curving over the swell, orange sodium lights flicking on, a small radio station shack at the base of the tower, purple and orange sky, high wide shot",
           "choices": [
             {
               "id": "play-the-reel",
@@ -180,7 +180,7 @@
           "title": "Below the Food Court",
           "place": "The service corridor under the Starlight Mall food court",
           "text": "Behind Corn Dog Castle a service door leads down to a corridor that smells like a deep fryer's nightmare. Hector Villalobos, the night janitor, stands over a grease trap the size of a hot tub with a plunger in one hand and a rosary in the other. \"Every night it drinks fifty gallons of fry oil,\" he says. \"And every night, something down there says thank you.\"",
-          "art": "A grimy concrete service corridor under a mall, a janitor in coveralls holding a plunger and a rosary beside a huge steel grease trap lid, golden light glowing from the seams",
+          "art": "A grimy concrete service corridor under a mall food court, pipes along the ceiling, a middle-aged janitor in gray coveralls holding a plunger in one hand and a rosary in the other beside a steel grease trap lid the size of a hot tub, golden light glowing up through the seams of the lid, a teenager crouched beside him, a caged work light overhead, low medium shot",
           "choices": [
             {
               "id": "help-hector",
@@ -248,7 +248,7 @@
         "title": "The Soft Spot",
         "place": "Lot C, Starlight Mall, 11 p.m.",
         "text": "Lot C is empty except for one sputtering sodium light and a lone shopping cart in a parking space. The asphalt under the cart is bulging up like bread dough. Bubbles of golden grease ooze from the cracks. The cart sinks to its handle with a satisfied gloop, and then the sound rises out of the ground: a thousand frogs crying at once, like a baby who wants its mother.",
-        "art": "An empty mall parking lot under one orange sodium light, a shopping cart sinking into bulging asphalt that oozes golden grease through its cracks, a teenager watching from the edge of the light",
+        "art": "An empty mall parking lot at eleven at night under one sputtering orange sodium light, a lone shopping cart sunk to its handle in asphalt that bulges up around it, golden grease oozing from the cracks, a teenager in a jacket standing at the edge of the pool of light, the dark mall building far behind, orange light and black shadow, wide shot at ground level",
         "choices": [
           {
             "id": "save-the-cart",
@@ -309,7 +309,7 @@
         "title": "Feeding Time",
         "place": "Starlight Mall food court, after closing",
         "text": "After closing, the food court is dark except for the neon of Corn Dog Castle. Every fryer has turned itself on. Grease bubbles over the counters in slow golden waterfalls, slides across the tile and pours into a crack that is splitting the fountain in two. Something under the mall is gulping and growing. The floor heaves. A pretzel kiosk tilts and begins to slide toward the crack.",
-        "art": "A dark mall food court lit by neon signs, golden grease cascading from fryers across the tiles into a widening crack splitting a fountain in half, a pretzel kiosk sliding toward it",
+        "art": "A dark mall food court after closing lit by the neon of a corn dog stand, every deep fryer switched on and spilling golden grease over the counters in slow waterfalls, the grease sliding across the tile floor into a widening crack that splits a tiled fountain in two, a pretzel kiosk tilting toward the crack, a teenager vaulting a counter, gold and pink neon light, wide shot",
         "choices": [
           {
             "id": "kill-the-fryers",
@@ -373,7 +373,7 @@
         "title": "Something on the Roof",
         "place": "The top deck of the Starlight Mall parking garage, overlooking Lot C, midnight",
         "text": "The top deck of the parking garage is where Glimmer Falls teens go to park and look at the lights, and tonight you are up here in Wade's van with the radio on. The song cuts out. \"We interrupt this broadcast,\" says a shaky KGLM announcer, \"to report something large moving under Lot C.\" Then, on the roof of the van: a wet slap. Another. A slow, sticky dragging sound, like a webbed hand feeling its way toward the windshield.",
-        "art": "A customized 1970s van parked alone on the top deck of a mall parking garage at midnight, sodium lights glowing, a muddy webbed handprint smeared across the windshield, teenagers inside lit by the dashboard radio",
+        "art": "A black 1970s custom van with an airbrushed wizard on the side parked alone on the top deck of a mall parking garage at midnight, orange sodium lights, a muddy webbed handprint smeared across the windshield, two teenagers inside lit green by the dashboard radio, an 18-year-old with a long feathered dirty-blond mullet and a patched denim vest at the wheel, the lights of the town below, medium wide shot from the front",
         "choices": [
           {
             "id": "floor-it",
@@ -465,7 +465,7 @@
         "title": "The Baby Monitor",
         "place": "The Lindqvist bathroom, next door, 2 a.m.",
         "text": "Bea's walkie-talkie crackles you awake. \"Get over here. The baby monitor is picking up something, and it isn't my cousin.\" Through the little speaker on the Lindqvists' dresser comes a wet gurgle, then a hiccup, then a long, lonely wail. Bea's baby cousin, here for the week, is asleep in his crib, perfectly quiet. The sound is coming from the bathtub, where the drain is bubbling up duckweed, tadpoles and a slow tide of warm brown water that smells like the fryers at Corn Dog Castle.",
-        "art": "A pastel 1980s bathroom at night, a bathtub filling with murky brown water, duckweed and swirling tadpoles, a kid genius in pajamas holding a baby monitor, a teenager in the doorway with a walkie-talkie",
+        "art": "A pastel pink 1980s bathroom at two in the morning, a bathtub filling with warm brown water bubbling up from the drain, duckweed and tadpoles swirling on the surface, an 11-year-old girl with white-blonde braids, huge round red glasses and a yellow rain slicker over pajamas holding a baby monitor toward the tub, a teenager in the doorway holding a walkie-talkie, a single vanity light, medium shot",
         "choices": [
           {
             "id": "fill-the-tub",
@@ -555,7 +555,7 @@
         "title": "Locked In After Closing",
         "place": "Pet Palace in Starlight Mall, after closing, 1 a.m.",
         "text": "You hid in the stockroom on a dare and now the gates are down and the mall is dark. In Pet Palace every animal is awake: the turtles, the goldfish, the green anoles and a tank of fire-bellied toads, all pressed against the glass facing the same direction, toward Lot C. The aquariums are overflowing. The floor drain in the middle of the store gurgles, and a hand made of mud rises out of it, small and soft and grabbing, like a baby reaching for a mobile. Down the dark concourse, the mall cop's flashlight swings your way.",
-        "art": "A dark mall pet store at night, glowing aquariums overflowing onto the floor, turtles, goldfish and toads pressed against the glass all facing one way, a small mud hand rising from a floor drain, a flashlight beam approaching down the concourse",
+        "art": "A dark mall pet store at one in the morning, glowing aquariums overflowing water onto the tile, turtles, goldfish, green lizards and spotted toads pressed against the glass all facing the same wall, a small soft mud hand rising out of a floor drain in the middle of the store with its fingers spread, a teenager crouched behind a shelf of pet food, a flashlight beam swinging in from the dark concourse outside the gate, blue aquarium glow, wide shot",
         "choices": [
           {
             "id": "free-the-animals",
@@ -640,7 +640,7 @@
         "title": "It's Hatching",
         "place": "Lot C, Starlight Mall, 3 a.m.",
         "text": "Lot C has split open like an eggshell. In the crater, wreathed in steam and cattails, something the size of a city bus is uncurling: a giant baby made of black mud and golden grease, its skin dotted with blinking frog eyes, a crown of reeds on its head and a violet light pulsing in its chest like a geode. It opens its mouth, and the wail rattles every window in Glimmer Falls. Parked cars are sliding into the crater. So is the edge of the mall's dead wing.",
-        "art": "A cracked-open parking lot at night with a bus-sized baby creature of black mud and golden grease uncurling in a steaming crater, frog eyes across its skin, a violet glow in its chest, cars tipping into the pit",
+        "art": "A mall parking lot split open at three in the morning, in the steaming crater a creature the size of a city bus uncurling, a giant baby made of black mud and shining golden grease, dozens of small frog eyes blinking across its skin, a crown of reeds and cattails on its head, a violet light pulsing in its chest, parked cars tipping over the edge of the crater, teenagers with flashlights at the rim, orange sodium light and violet glow, wide shot",
         "choices": [
           {
             "id": "clear-the-edge",
@@ -706,7 +706,7 @@
         "title": "Something Drank the Milk",
         "place": "Crystal Street, 4 a.m.",
         "text": "At four in the morning a crash and a yelp bring you to the window. The Glimmer Dairy milk truck is stopped crooked in the middle of Crystal Street with its back doors hanging open, and every glass bottle it carried lies in the gutter, licked clean. Mr. Petrosyan the milkman is standing on the roof of his truck in his white cap, clutching his clipboard to his chest. Leading from the truck to the corner storm drain is a trail of duckweed and tiny muddy handprints, each one the size of a baby's, each one webbed between the fingers.",
-        "art": "A white vintage milk truck stopped crooked on a moonlit suburban street before dawn, licked-clean glass milk bottles strewn in the gutter, a milkman in a white cap standing on the truck roof, tiny webbed muddy handprints leading to a storm drain",
+        "art": "A white vintage milk truck stopped crooked in the middle of a suburban street at four in the morning with its back doors hanging open, dozens of empty glass milk bottles scattered in the gutter, a milkman in a white cap and white uniform standing on the truck roof clutching a clipboard to his chest, a trail of duckweed and tiny muddy webbed handprints leading to a corner storm drain, a teenager in pajamas at the curb, blue moonlight, wide shot",
         "choices": [
           {
             "id": "leave-a-bottle",
@@ -797,7 +797,7 @@
         "title": "Sewer Gator",
         "place": "The Main Street storm culvert, 1 a.m.",
         "text": "Somebody saw an alligator in the storm drains, and now half the town is out on Main Street in bathrobes. Channel 6 has a van with a spotlight on its roof, and a county animal-control officer in hip waders is climbing down into the culvert with a catch pole and a net. You know what is really down there. Behind the culvert grate, just outside the spotlight, a small muddy hand is clinging to the bars and trembling, and the frog-crying drifting up out of the dark sounds exactly like a baby frightened of the noise.",
-        "art": "A night street crowd in bathrobes around a storm culvert, a news van with a rooftop spotlight, an animal control officer in hip waders climbing down with a catch pole and net, a small trembling mud hand clinging to a grate in the shadows",
+        "art": "A crowd of townspeople in bathrobes on a small-town main street at one in the morning gathered around a concrete storm culvert, a local news van with a bright spotlight on its roof, an animal control officer in hip waders climbing down the culvert wall with a catch pole and a net, and in the shadow behind the culvert grate a small muddy hand clinging to the bars, a teenager slipping toward the grate, white spotlight and dark shadow, wide shot",
         "choices": [
           {
             "id": "fake-gator-trail",
@@ -887,7 +887,7 @@
         "title": "Under Lot C",
         "place": "The sealed culvert beneath Starlight Mall, 3 a.m. the night before Halloween",
         "text": "You squeeze through a storm grate behind the mall and down into the culvert the county sealed in 1981. Down here the concrete sweats, warm grease runs ankle-deep, and the whole tunnel thuds with a slow, enormous heartbeat. But the marsh is down here too, or the ghost of it: cattails of pale light sprouting from the cracks, mist shaped like herons wading ahead of you, the faint chorus of a summer pond. Somewhere up the tunnel, the old spring is pounding against a welded steel valve, and tomorrow is Halloween.",
-        "art": "A dark concrete storm culvert beneath a mall, ankle-deep golden grease, glowing pale cattails sprouting from cracks, misty ghostly herons wading ahead, a teenager with a flashlight, a rusted welded steel valve at the far end pulsing violet",
+        "art": "A dark sealed concrete storm culvert beneath a mall, warm golden grease running ankle-deep, pale glowing cattails sprouting from cracks in the walls, white mist in the shape of wading herons drifting ahead, a teenager with a flashlight wading forward, at the far end of the tunnel a huge rusted valve wheel welded shut and glowing violet around its edges, green-gold light and violet glow, long view down the tunnel",
         "choices": [
           {
             "id": "follow-the-heron",
@@ -978,7 +978,7 @@
       "title": "Born on Halloween",
       "place": "Starlight Mall, Lot C, Halloween night",
       "text": "On Halloween night the Bog Baby rises. It towers over Starlight Mall, a toddler of mud and grease taller than the neon sign, cattails crowning its head, its violet heart blazing. It's crying for something it can't name, and every cry floods another row of cars with black water. The mall lights flicker. Kids in costumes stream out of the Halloween sale screaming. And under the asphalt you can hear the old spring, trapped in its culverts, pounding to get out.",
-      "art": "A colossal mud-and-grease baby creature towering over a neon mall on Halloween night, cattails crowning its head, a violet heart blazing in its chest, black water flooding the parking lot, costumed kids fleeing, a teen crew standing their ground with flashlights",
+      "art": "A colossal toddler-shaped creature of black marsh mud and shining golden grease towering over a neon shopping mall on Halloween night, taller than the mall's neon tower, cattails and reeds crowning its head, dozens of small frog eyes on its cheeks, a violet crystal heart blazing in its chest, black water flooding rows of parked cars, kids in costumes running from the mall doors, four teenagers in costumes standing their ground with flashlights, orange sodium light and violet glow, low wide shot",
       "choices": [
         {
           "id": "fight",
@@ -1144,22 +1144,22 @@
       "best": {
         "title": "Tule Marsh, Est. 1902 (Again)",
         "text": "By Thanksgiving there are herons in Lot C. The town council, packed to the doors by kids holding tadpole jars, votes never to repave it, and the school board hires Opal Fairweather back to run field trips along a boardwalk built from the dead wing's lumber. Zelda screens The Thing from Tule Marsh at the Glitter Box as a benefit, and cries again, happier this time. The mall complains about parking. Nobody listens. On cold mornings the new pond steams like something breathing, and a violet light glows at the bottom, sound asleep.",
-        "art": "A restored marsh where a parking lot used to be, a wooden boardwalk crowded with kids holding tadpole jars, a gray-haired teacher pointing at herons, the neon mall sign reflected in a steaming pond with a faint violet glow at the bottom"
+        "art": "A restored marsh where a mall parking lot used to be, a wooden boardwalk crowded with kids holding glass jars of tadpoles, a gray-haired woman teacher in a field vest pointing at two white herons, cattails and reeds, the neon mall tower reflected in a steaming pond with a faint violet glow at the bottom, cool golden morning light, wide shot"
       },
       "good": {
         "title": "Repaved",
         "text": "The creature sinks back, the cracks crust over and the county repaves Lot C the week after Halloween. The mall reopens for the holiday rush and everybody forgets. But on warm nights the asphalt in the middle of the lot is soft and warm under your sneakers, and you always park somewhere else.",
-        "art": "A freshly repaved mall parking lot with crisp new lines under sodium lights, a single crack in the center with one cattail poking through, a teenager walking the long way around it"
+        "art": "A freshly repaved mall parking lot at night with crisp white lines under orange sodium lights, one small crack in the center of the lot with a single green cattail poking through, a teenager in a jacket walking the long way around it with hands in their pockets, the neon mall behind, wide shot"
       },
       "bittersweet": {
         "title": "Dry Season",
         "text": "The Bog Baby is gone. What's left of it dries out in the crater over November into a field of cracked gray mud, and the county fills it with gravel. The frogs never come back to Glimmer Falls. You keep the one glowing cattail Lou gave you in a jar on your windowsill, and you watch it fade a little every night until spring.",
-        "art": "A cattail in a glass jar on a bedroom windowsill, its fluff glowing faintly, a gravel-filled crater and a neon mall visible through the window beyond"
+        "art": "A single cattail in a glass jar on a bedroom windowsill at night, its fluffy head glowing faintly violet, a teenager's elbow and chin resting on the sill beside it, through the window a gravel-filled crater in a parking lot and a neon mall in the distance, dim blue night light, close medium shot"
       },
       "bad": {
         "title": "Paved",
         "text": "You're under the asphalt with it now, curled in the warm dark at the bottom of the old pool, listening to car doors slam all day long. Your crew comes to stand on the soft spot in Lot C every night. It's warm. Sometimes it whispers their names, in your voice, and asks them where the water went.",
-        "art": "Teens standing in a circle on a soft, glowing patch of asphalt in an empty parking lot at night, a faint outline of a curled figure visible deep beneath their feet"
+        "art": "Three teenagers standing in a circle on a soft glowing patch of asphalt in the middle of an empty mall parking lot at night, looking down, and deep beneath their feet the faint violet outline of a curled-up sleeping figure seen through the dark ground, orange sodium light, high wide shot"
       }
     }
   }

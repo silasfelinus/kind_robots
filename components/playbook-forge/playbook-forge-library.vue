@@ -122,6 +122,7 @@ import {
   usePlaybookForgeStore,
 } from '~/stores/playbookForgeStore'
 import { formatDuration } from '~/utils/playbookForge/estimate'
+import { completionPercent } from '~/utils/playbookForge/ledger'
 import { EXISTING_PLAYBOOKS } from '~/utils/playbookForge/existing'
 import { GENRES } from '~/utils/playbookForge/presets'
 
@@ -137,7 +138,7 @@ const countedLabel = computed(
 
 function percentLabel(slug: string) {
   const s = stat(slug)
-  return s ? `${Math.round(s.progress * 100)}%` : '…'
+  return s ? `${completionPercent(s.progress)}%` : '…'
 }
 
 function detail(slug: string) {

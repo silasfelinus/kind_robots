@@ -1,0 +1,1444 @@
+{
+  "version": 1,
+  "source": "kind_robots/config/facet-content/batch-0002-animal.json",
+  "counts": {
+    "animalExisting": 73,
+    "animalNew": 87,
+    "fruit": 20,
+    "species": 11,
+    "archetype": 6,
+    "oddity": 3,
+    "total": 200
+  },
+  "entries": [
+    {
+      "key": "aardvark",
+      "title": "Aardvark",
+      "taxonomy": "ANIMAL",
+      "facetId": 250,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "albatross",
+      "title": "Albatross",
+      "taxonomy": "ANIMAL",
+      "facetId": 300,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "alpaca",
+      "title": "Alpaca",
+      "taxonomy": "ANIMAL",
+      "facetId": 278,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "armadillo",
+      "title": "Armadillo",
+      "taxonomy": "ANIMAL",
+      "facetId": 263,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "binturong",
+      "title": "Binturong",
+      "taxonomy": "ANIMAL",
+      "facetId": 281,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "blobfish",
+      "title": "Blobfish",
+      "taxonomy": "ANIMAL",
+      "facetId": 254,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "capybara",
+      "title": "Capybara",
+      "taxonomy": "ANIMAL",
+      "facetId": 246,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "caracal",
+      "title": "Caracal",
+      "taxonomy": "ANIMAL",
+      "facetId": 345,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "cassowary",
+      "title": "Cassowary",
+      "taxonomy": "ANIMAL",
+      "facetId": 260,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "chinchilla",
+      "title": "Chinchilla",
+      "taxonomy": "ANIMAL",
+      "facetId": 258,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "civet",
+      "title": "Civet",
+      "taxonomy": "ANIMAL",
+      "facetId": 309,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "cockatoo",
+      "title": "Cockatoo",
+      "taxonomy": "ANIMAL",
+      "facetId": 259,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "cuttlefish",
+      "title": "Cuttlefish",
+      "taxonomy": "ANIMAL",
+      "facetId": 339,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "dingo",
+      "title": "Dingo",
+      "taxonomy": "ANIMAL",
+      "facetId": 357,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "dolphin",
+      "title": "Dolphin",
+      "taxonomy": "ANIMAL",
+      "facetId": 305,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "dugong",
+      "title": "Dugong",
+      "taxonomy": "ANIMAL",
+      "facetId": 251,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "echidna",
+      "title": "Echidna",
+      "taxonomy": "ANIMAL",
+      "facetId": 346,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "emu",
+      "title": "Emu",
+      "taxonomy": "ANIMAL",
+      "facetId": 262,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "ermine",
+      "title": "Ermine",
+      "taxonomy": "ANIMAL",
+      "facetId": 329,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "firefly",
+      "title": "Firefly",
+      "taxonomy": "ANIMAL",
+      "facetId": 288,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "flamingo",
+      "title": "Flamingo",
+      "taxonomy": "ANIMAL",
+      "facetId": 238,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "gerbil",
+      "title": "Gerbil",
+      "taxonomy": "ANIMAL",
+      "facetId": 326,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "gharial",
+      "title": "Gharial",
+      "taxonomy": "ANIMAL",
+      "facetId": 347,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "glowworm",
+      "title": "Glowworm",
+      "taxonomy": "ANIMAL",
+      "facetId": 287,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "hedgehog",
+      "title": "Hedgehog",
+      "taxonomy": "ANIMAL",
+      "facetId": 244,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "hoatzin",
+      "title": "Hoatzin",
+      "taxonomy": "ANIMAL",
+      "facetId": 319,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "iguana",
+      "title": "Iguana",
+      "taxonomy": "ANIMAL",
+      "facetId": 267,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "kingfisher",
+      "title": "Kingfisher",
+      "taxonomy": "ANIMAL",
+      "facetId": 283,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "kinkajou",
+      "title": "Kinkajou",
+      "taxonomy": "ANIMAL",
+      "facetId": 275,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "koala",
+      "title": "Koala",
+      "taxonomy": "ANIMAL",
+      "facetId": 270,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "kudu",
+      "title": "Kudu",
+      "taxonomy": "ANIMAL",
+      "facetId": 327,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "llama",
+      "title": "Llama",
+      "taxonomy": "ANIMAL",
+      "facetId": 279,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "loon",
+      "title": "Loon",
+      "taxonomy": "ANIMAL",
+      "facetId": 284,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "lynx",
+      "title": "Lynx",
+      "taxonomy": "ANIMAL",
+      "facetId": 256,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "manatee",
+      "title": "Manatee",
+      "taxonomy": "ANIMAL",
+      "facetId": 245,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "mandrill",
+      "title": "Mandrill",
+      "taxonomy": "ANIMAL",
+      "facetId": 314,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "marmoset",
+      "title": "Marmoset",
+      "taxonomy": "ANIMAL",
+      "facetId": 318,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "meerkat",
+      "title": "Meerkat",
+      "taxonomy": "ANIMAL",
+      "facetId": 274,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "mink",
+      "title": "Mink",
+      "taxonomy": "ANIMAL",
+      "facetId": 330,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "mongoose",
+      "title": "Mongoose",
+      "taxonomy": "ANIMAL",
+      "facetId": 255,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "mudskipper",
+      "title": "Mudskipper",
+      "taxonomy": "ANIMAL",
+      "facetId": 348,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "narwhal",
+      "title": "Narwhal",
+      "taxonomy": "ANIMAL",
+      "facetId": 241,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "numbat",
+      "title": "Numbat",
+      "taxonomy": "ANIMAL",
+      "facetId": 334,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "okapi",
+      "title": "Okapi",
+      "taxonomy": "ANIMAL",
+      "facetId": 249,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "opossum",
+      "title": "Opossum",
+      "taxonomy": "ANIMAL",
+      "facetId": 271,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "orca",
+      "title": "Orca",
+      "taxonomy": "ANIMAL",
+      "facetId": 306,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "oryx",
+      "title": "Oryx",
+      "taxonomy": "ANIMAL",
+      "facetId": 280,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "otter",
+      "title": "Otter",
+      "taxonomy": "ANIMAL",
+      "facetId": 331,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "pangolin",
+      "title": "Pangolin",
+      "taxonomy": "ANIMAL",
+      "facetId": 240,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "peacock",
+      "title": "Peacock",
+      "taxonomy": "ANIMAL",
+      "facetId": 299,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "peafowl",
+      "title": "Peafowl",
+      "taxonomy": "ANIMAL",
+      "facetId": 332,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "pika",
+      "title": "Pika",
+      "taxonomy": "ANIMAL",
+      "facetId": 325,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "pufferfish",
+      "title": "Pufferfish",
+      "taxonomy": "ANIMAL",
+      "facetId": 253,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "puffin",
+      "title": "Puffin",
+      "taxonomy": "ANIMAL",
+      "facetId": 333,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "quokka",
+      "title": "Quokka",
+      "taxonomy": "ANIMAL",
+      "facetId": 247,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "quoll",
+      "title": "Quoll",
+      "taxonomy": "ANIMAL",
+      "facetId": 338,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "raccoon",
+      "title": "Raccoon",
+      "taxonomy": "ANIMAL",
+      "facetId": 239,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "seahorse",
+      "title": "Seahorse",
+      "taxonomy": "ANIMAL",
+      "facetId": 286,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "skunk",
+      "title": "Skunk",
+      "taxonomy": "ANIMAL",
+      "facetId": 310,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "springhare",
+      "title": "Springhare",
+      "taxonomy": "ANIMAL",
+      "facetId": 377,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "starfish",
+      "title": "Starfish",
+      "taxonomy": "ANIMAL",
+      "facetId": 342,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "stingray",
+      "title": "Stingray",
+      "taxonomy": "ANIMAL",
+      "facetId": 304,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "tamandua",
+      "title": "Tamandua",
+      "taxonomy": "ANIMAL",
+      "facetId": 316,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "tapir",
+      "title": "Tapir",
+      "taxonomy": "ANIMAL",
+      "facetId": 366,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "tarantula",
+      "title": "Tarantula",
+      "taxonomy": "ANIMAL",
+      "facetId": 265,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "tarsier",
+      "title": "Tarsier",
+      "taxonomy": "ANIMAL",
+      "facetId": 375,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "toucan",
+      "title": "Toucan",
+      "taxonomy": "ANIMAL",
+      "facetId": 264,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "wallaby",
+      "title": "Wallaby",
+      "taxonomy": "ANIMAL",
+      "facetId": 269,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "weasel",
+      "title": "Weasel",
+      "taxonomy": "ANIMAL",
+      "facetId": 328,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "wolverine",
+      "title": "Wolverine",
+      "taxonomy": "ANIMAL",
+      "facetId": 272,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "wombat",
+      "title": "Wombat",
+      "taxonomy": "ANIMAL",
+      "facetId": 336,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "yak",
+      "title": "Yak",
+      "taxonomy": "ANIMAL",
+      "facetId": 277,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "zebra",
+      "title": "Zebra",
+      "taxonomy": "ANIMAL",
+      "facetId": 311,
+      "artState": "audit-existing"
+    },
+    {
+      "key": "lion",
+      "title": "Lion",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "tiger",
+      "title": "Tiger",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "leopard",
+      "title": "Leopard",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cheetah",
+      "title": "Cheetah",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "jaguar",
+      "title": "Jaguar",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "snow-leopard",
+      "title": "Snow Leopard",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "clouded-leopard",
+      "title": "Clouded Leopard",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "serval",
+      "title": "Serval",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "ocelot",
+      "title": "Ocelot",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "red-panda",
+      "title": "Red Panda",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "giant-panda",
+      "title": "Giant Panda",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "sloth",
+      "title": "Sloth",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "giraffe",
+      "title": "Giraffe",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "elephant",
+      "title": "Elephant",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "rhinoceros",
+      "title": "Rhinoceros",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "hippopotamus",
+      "title": "Hippopotamus",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "bison",
+      "title": "Bison",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "moose",
+      "title": "Moose",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "reindeer",
+      "title": "Reindeer",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "mountain-goat",
+      "title": "Mountain Goat",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "ibex",
+      "title": "Ibex",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "musk-ox",
+      "title": "Musk Ox",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "platypus",
+      "title": "Platypus",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "sugar-glider",
+      "title": "Sugar Glider",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "flying-squirrel",
+      "title": "Flying Squirrel",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "flying-fox",
+      "title": "Flying Fox",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "fennec-fox",
+      "title": "Fennec Fox",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "arctic-fox",
+      "title": "Arctic Fox",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "wolf",
+      "title": "Wolf",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "coyote",
+      "title": "Coyote",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "hyena",
+      "title": "Hyena",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "african-wild-dog",
+      "title": "African Wild Dog",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "tasmanian-devil",
+      "title": "Tasmanian Devil",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "honey-badger",
+      "title": "Honey Badger",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "mole",
+      "title": "Mole",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "shrew",
+      "title": "Shrew",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "bat",
+      "title": "Bat",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "vampire-bat",
+      "title": "Vampire Bat",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "hummingbird",
+      "title": "Hummingbird",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "kakapo",
+      "title": "Kakapo",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "kiwi",
+      "title": "Kiwi",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "shoebill",
+      "title": "Shoebill",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "secretary-bird",
+      "title": "Secretary Bird",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "harpy-eagle",
+      "title": "Harpy Eagle",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "owl",
+      "title": "Owl",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "barn-owl",
+      "title": "Barn Owl",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "penguin",
+      "title": "Penguin",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "emperor-penguin",
+      "title": "Emperor Penguin",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pelican",
+      "title": "Pelican",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "crane",
+      "title": "Crane",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "heron",
+      "title": "Heron",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "swan",
+      "title": "Swan",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "goose",
+      "title": "Goose",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "duck",
+      "title": "Duck",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "chameleon",
+      "title": "Chameleon",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "komodo-dragon",
+      "title": "Komodo Dragon",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "gecko",
+      "title": "Gecko",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "frilled-lizard",
+      "title": "Frilled Lizard",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "gila-monster",
+      "title": "Gila Monster",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "tortoise",
+      "title": "Tortoise",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "snapping-turtle",
+      "title": "Snapping Turtle",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "alligator",
+      "title": "Alligator",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "crocodile",
+      "title": "Crocodile",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "anaconda",
+      "title": "Anaconda",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cobra",
+      "title": "Cobra",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "rattlesnake",
+      "title": "Rattlesnake",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "axolotl",
+      "title": "Axolotl",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "salamander",
+      "title": "Salamander",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "poison-dart-frog",
+      "title": "Poison Dart Frog",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "tree-frog",
+      "title": "Tree Frog",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "bullfrog",
+      "title": "Bullfrog",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "octopus",
+      "title": "Octopus",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "giant-squid",
+      "title": "Giant Squid",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "jellyfish",
+      "title": "Jellyfish",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "nautilus",
+      "title": "Nautilus",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "mantis-shrimp",
+      "title": "Mantis Shrimp",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "lobster",
+      "title": "Lobster",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "sea-urchin",
+      "title": "Sea Urchin",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "leafy-sea-dragon",
+      "title": "Leafy Sea Dragon",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "anglerfish",
+      "title": "Anglerfish",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "hammerhead-shark",
+      "title": "Hammerhead Shark",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "banana",
+      "title": "Banana",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "apple",
+      "title": "Apple",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "orange",
+      "title": "Orange",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "strawberry",
+      "title": "Strawberry",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pineapple",
+      "title": "Pineapple",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "watermelon",
+      "title": "Watermelon",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "mango",
+      "title": "Mango",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "peach",
+      "title": "Peach",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "kiwi-fruit",
+      "title": "Kiwi Fruit",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "lemon",
+      "title": "Lemon",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "lime",
+      "title": "Lime",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cherry",
+      "title": "Cherry",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "blueberry",
+      "title": "Blueberry",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "raspberry",
+      "title": "Raspberry",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "dragon-fruit",
+      "title": "Dragon Fruit",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "coconut",
+      "title": "Coconut",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "avocado",
+      "title": "Avocado",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pumpkin",
+      "title": "Pumpkin",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pomegranate",
+      "title": "Pomegranate",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "grapes",
+      "title": "Grapes",
+      "taxonomy": "OTHER",
+      "facetGroup": "fruit",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "vampire",
+      "title": "Vampire",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "zombie",
+      "title": "Zombie",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "ghost",
+      "title": "Ghost",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "skeleton",
+      "title": "Skeleton",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "werewolf",
+      "title": "Werewolf",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "dragon",
+      "title": "Dragon",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "unicorn",
+      "title": "Unicorn",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "phoenix",
+      "title": "Phoenix",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "alien",
+      "title": "Alien",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "robot",
+      "title": "Robot",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cyborg",
+      "title": "Cyborg",
+      "taxonomy": "SPECIES",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "witch",
+      "title": "Witch",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "wizard",
+      "title": "Wizard",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pirate",
+      "title": "Pirate",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "ninja",
+      "title": "Ninja",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "astronaut",
+      "title": "Astronaut",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "knight",
+      "title": "Knight",
+      "taxonomy": "ARCHETYPE",
+      "facetGroup": "costume",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "disco-ball",
+      "title": "Disco Ball",
+      "taxonomy": "OTHER",
+      "facetGroup": "oddity",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "mushroom",
+      "title": "Mushroom",
+      "taxonomy": "OTHER",
+      "facetGroup": "oddity",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cupcake",
+      "title": "Cupcake",
+      "taxonomy": "OTHER",
+      "facetGroup": "oddity",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cat",
+      "title": "Cat",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "dog",
+      "title": "Dog",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "rabbit",
+      "title": "Rabbit",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "horse",
+      "title": "Horse",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "cow",
+      "title": "Cow",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    },
+    {
+      "key": "pig",
+      "title": "Pig",
+      "taxonomy": "ANIMAL",
+      "facetId": null,
+      "artState": "to-source"
+    }
+  ]
+}

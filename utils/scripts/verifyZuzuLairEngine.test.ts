@@ -8,6 +8,7 @@
 
 import assert from 'node:assert/strict'
 import { CHAPTER_1 } from '../zuzuLair/chapter1'
+import { BAT_CORRIDOR } from '../zuzuLair/batCorridor'
 import {
   CONTINUE_KEEP,
   lairReducer,
@@ -270,5 +271,61 @@ for (let t = 0.005; t < 1; t += 0.005) {
   last = now
 }
 assert.ok(toggles <= 6, `at most 3 on/off cycles a second (saw ${toggles})`)
+
+// -- Bat Corridor PoC: visible branching prototype independent of the film manifest -----------
+assert.deepEqual(
+  validateChapter(BAT_CORRIDOR),
+  [],
+  'bat corridor scene graph is valid',
+)
+const batMoment = nodeById(BAT_CORRIDOR, 'bat-horde')
+assert.equal(batMoment.expect, 'down')
+assert.deepEqual(windowFor(BAT_CORRIDOR, batMoment, 'classic'), [1.2, 2.2])
+assert.deepEqual(windowFor(BAT_CORRIDOR, batMoment, 'assist'), [1.2, 3.0])
+
+let bat = lairReducer(startRun(BAT_CORRIDOR, 'assist'), tick(3))
+assert.equal(bat.node, 'bat-horde', 'Zuzu enters the corridor before the swarm')
+bat = lairReducer(bat, tick(1.5))
+bat = lairReducer(bat, { type: 'press', button: 'down' })
+assert.equal(bat.node, 'bat-duck', 'DOWN ducks beneath the passing bats')
+bat = lairReducer(bat, tick(3.6))
+assert.equal(
+  bat.node,
+  'bat-escape',
+  'the third animation climbs into the opening',
+)
+bat = lairReducer(bat, tick(3.2))
+assert.equal(
+  bat.phase,
+  'complete',
+  'surviving bats finishes the proof of concept',
+)
+assert.equal(bat.deaths, 0)
+
+let batAttack = lairReducer(startRun(BAT_CORRIDOR, 'classic'), tick(3))
+batAttack = lairReducer(batAttack, tick(1.5))
+batAttack = lairReducer(batAttack, { type: 'press', button: 'up' })
+assert.equal(
+  batAttack.node,
+  'bat-attack',
+  'anything except DOWN triggers the attack animation',
+)
+assert.equal(batAttack.lives, 2)
+batAttack = lairReducer(batAttack, tick(3.2))
+assert.equal(
+  batAttack.node,
+  'bat-horde',
+  'the attack returns to the bat corridor',
+)
+
+const batTimeout = lairReducer(
+  lairReducer(startRun(BAT_CORRIDOR, 'assist'), tick(3)),
+  tick(3.1),
+)
+assert.equal(
+  batTimeout.node,
+  'bat-attack',
+  'missing the window triggers the bat attack',
+)
 
 console.log('verifyZuzuLairEngine: ok')

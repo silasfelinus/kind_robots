@@ -138,6 +138,7 @@ const sharedNavigationSchema = z.object({
   requiredBeforeNext: z.array(z.string()).optional(),
   requiredRole: navigationRoleSchema.optional(),
   requiredPermission: navigationPermissionSchema.optional(),
+  allowDirectAccess: z.boolean().optional(),
   visible: z.boolean().default(true),
   status: z.string().optional(),
   loadingMessage: z.string().optional(),

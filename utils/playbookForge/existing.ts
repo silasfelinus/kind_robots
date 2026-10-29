@@ -44,7 +44,6 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
     kinds.set(node.kind, (kinds.get(node.kind) ?? 0) + 1)
   const n = (kind: string) =>
     ignore.includes(kind) ? 0 : (kinds.get(kind) ?? 0)
-  const nodes = Object.values(book.nodes)
   const found: Partial<Record<keyof Blueprint, number>> = {
     encounters: n('encounter'),
     quests: n('quest'),
@@ -71,11 +70,9 @@ function fromStudio(book: Playbook, ignore: string[] = []): BuiltCounts {
   return {
     values,
     measured,
-    art: {
-      painted: nodes.filter((node) => !!node.artUrl).length,
-      total: nodes.length,
-    },
-    source: `Playbook Studio adapter: ${nodes.length} authored beats`,
+    // File delivery is audited by the server, not inferred from authored URLs.
+    art: null,
+    source: `Playbook Studio adapter: ${Object.keys(book.nodes).length} authored beats`,
   }
 }
 
@@ -136,12 +133,28 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       const rules = await import('../gameOfCaptains/rules')
       const { CREW_JOURNEYS } = await import('../gameOfCaptains/crewJourneys')
       const { WARP_ENDINGS } = await import('../gameOfCaptains/artSlots')
+      const { VOYAGE_BOARDS, actOf } =
+        await import('../gameOfCaptains/voyageMap')
+      const acts = new Set(VOYAGE_BOARDS.map((_, i) => actOf(i + 1)))
+      const { NEMESIS_ENDINGS } =
+        await import('../gameOfCaptains/nemesisEndings')
+      const villainEndings = Object.values(NEMESIS_ENDINGS).map(
+        (endings) => Object.keys(endings).length,
+      )
       const { SOLO_ROMANCE_ROUTES } =
         await import('../gameOfCaptains/romanceStories')
       const journeys = Object.values(CREW_JOURNEYS)
+      const { TRIO_ADVENTURES, ALL_PARTIES, TRIO_STEPS } =
+        await import('../gameOfCaptains/trioAdventures')
+      // The plan asks for every party; the factor stays 0 until all of them
+      // have an adventure, and the authored count is stated in the source.
+      const everyParty = TRIO_ADVENTURES.length >= ALL_PARTIES
       return {
         values: {
           rosterSize: rules.CAPTAINS.length,
+          // Chapters are mission boards; an act is a run of boards.
+          acts: acts.size,
+          chaptersPerAct: Math.round(VOYAGE_BOARDS.length / acts.size),
           followers: rules.CREW.length,
           villains: rules.ANTAGONISTS.length,
           quests: rules.MISSIONS.length,
@@ -154,14 +167,18 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           // Solo romances only: pair routes and the fourple are extra.
           romances: SOLO_ROMANCE_ROUTES.length,
           endings: WARP_ENDINGS.length,
-          // No party has an adventure or endings of its own yet, and no
-          // galactic boss an ending of its own.
-          partyAdventureSteps: 0,
-          partyEndings: 0,
-          villainEndings: 0,
+          // Every galactic boss has its own endings (nemesisEndings.ts);
+          // the factor is the fewest any one boss has.
+          partyAdventureSteps: everyParty ? TRIO_STEPS : 0,
+          partyEndings: everyParty ? 2 : 0,
+          villainEndings: villainEndings.length
+            ? Math.min(...villainEndings)
+            : 0,
         },
         measured: [
           'rosterSize',
+          'acts',
+          'chaptersPerAct',
           'followers',
           'villains',
           'quests',
@@ -175,7 +192,7 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           'villainEndings',
         ],
         art: null,
-        source: 'utils/gameOfCaptains/rules.ts, crewJourneys.ts, romance.ts',
+        source: `utils/gameOfCaptains/rules.ts, actOne.ts, actTwo.ts, voyageMap.ts, galacticEndings.ts, nemesisEndings.ts, crewJourneys.ts, romance.ts, trioAdventures.ts (${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties authored, each with ${TRIO_STEPS} interlude steps and 2 endings)`,
       }
     },
   },
@@ -213,10 +230,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
       saveSlots: 3,
     }),
     count: async () => {
-      const [rules, roster, districts] = await Promise.all([
+      const [rules, roster, districts, returns] = await Promise.all([
         import('../cometAcademy/rules'),
         import('../cometAcademy/identityArcs'),
         import('../cometAcademy/districtEncounters'),
+        import('../cometAcademy/returnVisits'),
       ])
       const { PROM_ENDINGS } = await import('../cometAcademy/artSlots')
       const { CAMPAIGN_VILLAINS } = await import('../cometAcademy/campaign')
@@ -227,9 +245,10 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
           romances: people.filter((person) => person.romance).length,
           villains: CAMPAIGN_VILLAINS.length,
           encounters:
-            rules.INCIDENTS.length +
+            rules.NIGHT_DECK.length +
             rules.ENCOUNTERS.length +
-            Object.keys(districts.DISTRICT_ENCOUNTERS).length,
+            Object.keys(districts.DISTRICT_ENCOUNTERS).length +
+            Object.keys(returns.RETURN_VISITS).length,
           endings: PROM_ENDINGS.length,
         },
         measured: [

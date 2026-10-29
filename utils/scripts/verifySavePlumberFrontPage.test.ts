@@ -159,7 +159,7 @@ for (const part of [
   assert.ok(page.includes(part), `console experience includes ${part}`)
 assert.match(
   page,
-  /type Screen = 'title' \\| 'story' \\| 'worlds' \\| 'crew' \\| 'guide' \\| 'play'/,
+  /type Screen = 'title' \\| 'story' \\| 'worlds' \\| 'crew' \\| 'guide' \\| 'maker' \\| 'play'/,
 )
 assert.doesNotMatch(
   page,

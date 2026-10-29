@@ -87,6 +87,43 @@ function replaceExactPrompt(
   )
 }
 
+const PROMPT_ENCODER_TYPES = new Set(['CLIPTextEncode', 'ImpactWildcardEncode'])
+
+function promptLetters(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
+}
+
+/*
+ * replaceExactPrompt only swaps strings equal to the stored promptString. The
+ * workflow's positive encoder can drift from it in punctuation: 48 Comet City
+ * jobs stored "...unmarked., Original hand-painted..." in promptString and
+ * "...unmarked, Original hand-painted..." in the encoder. The queue edit then
+ * reported success and wrote the new promptString while the workflow -- the
+ * text the relay actually renders -- kept the old prompt (ArtJob 49842,
+ * 2026-10-29). Match the positive encoder on its letters and digits instead,
+ * which still only replaces text that was this job's prompt.
+ */
+function replaceDriftedPositivePrompt(
+  payload: ArtJobPayloadRecord,
+  oldPrompt: string,
+  nextPrompt: string,
+): void {
+  const target = promptLetters(oldPrompt)
+  if (!target) return
+  for (const node of Object.values(asRecord(payload.workflow))) {
+    const record = asRecord(node)
+    if (!PROMPT_ENCODER_TYPES.has(String(record.class_type || ''))) continue
+    const title = String(asRecord(record._meta).title || '').toLowerCase()
+    if (title.includes('negative')) continue
+    const inputs = asRecord(record.inputs)
+    for (const key of ['text', 'wildcard_text', 'populated_text']) {
+      const value = inputs[key]
+      if (typeof value !== 'string' || value === nextPrompt) continue
+      if (promptLetters(value) === target) inputs[key] = nextPrompt
+    }
+  }
+}
+
 export type ArtJobOverrides = {
   promptString?: string | null
   basePromptString?: string | null
@@ -281,6 +318,7 @@ export function applyArtJobOverrides(
       .trim()
     const replaced = replaceExactPrompt(payload, oldPrompt, promptString)
     Object.assign(payload, asRecord(replaced))
+    replaceDriftedPositivePrompt(payload, oldPrompt, promptString)
     payload.promptString = promptString
   }
 

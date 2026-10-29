@@ -110,13 +110,58 @@
     <PlaybookForgeGalleryStrip class="@5xl:col-span-2" />
 
     <section class="kr-scroll -mx-1 min-h-0 px-1 py-1" aria-label="Entries">
+      <div v-if="castGroups.length > 1" class="mb-3">
+        <p class="pf-kicker mb-2 text-secondary">
+          Explore the cast by origin ·
+          {{ forge.galleryEntries.length }} character cards
+        </p>
+        <div
+          class="flex gap-2 overflow-x-auto pb-2"
+          role="group"
+          aria-label="Cast origin"
+        >
+          <button
+            v-for="group in castGroups"
+            :key="group.name"
+            type="button"
+            data-nav
+            class="pf-art-card pf-focusable relative w-32 shrink-0 overflow-hidden"
+            :class="forge.galleryGroup === group.name ? 'pf-art-card-on' : ''"
+            :aria-pressed="forge.galleryGroup === group.name"
+            @click="forge.galleryGroup = group.name"
+          >
+            <span class="pf-art-card-frame relative block h-20">
+              <img
+                v-if="group.cover"
+                :src="group.cover"
+                alt=""
+                class="pf-art-card-img"
+              />
+              <img
+                v-else-if="forge.existing"
+                :src="forge.existing.cover"
+                alt=""
+                class="pf-art-card-img opacity-25"
+              />
+              <span
+                v-if="!group.cover"
+                class="absolute inset-x-1 bottom-1 bg-base-300/80 px-1 text-[0.6rem]"
+                >Group art pending</span
+              >
+            </span>
+            <span class="pf-label block truncate px-2 py-1.5 text-left text-xs"
+              >{{ group.name }} · {{ group.count }}</span
+            >
+          </button>
+        </div>
+      </div>
       <p v-if="forge.ledgerLoading" class="text-sm opacity-70">
         Reading the game…
       </p>
-      <p v-else-if="!forge.galleryShown.length" class="text-sm opacity-70">
+      <p v-else-if="!groupEntries.length" class="text-sm opacity-70">
         {{
           forge.galleryEntries.length
-            ? 'Nothing here matches this filter.'
+            ? 'Nothing here matches the selected group or art filter.'
             : 'No beats here yet.'
         }}
       </p>
@@ -133,12 +178,12 @@
         </li>
       </ul>
       <button
-        v-if="forge.galleryShown.length > shown.length"
+        v-if="groupEntries.length > shown.length"
         type="button"
         class="pf-label btn btn-sm btn-ghost mt-3"
         @click="limit += 90"
       >
-        Show more ({{ forge.galleryShown.length - shown.length }} left)
+        Show more ({{ groupEntries.length - shown.length }} left)
       </button>
     </section>
 
@@ -169,10 +214,40 @@ const FILTERS: { id: GalleryFilter; label: string }[] = [
 
 const limit = ref(90)
 watch(
-  () => [forge.galleryTarget, forge.galleryFilter],
+  () => [forge.galleryTarget, forge.galleryFilter, forge.galleryGroup],
   () => (limit.value = 90),
 )
-const shown = computed(() => forge.galleryShown.slice(0, limit.value))
+const castGroups = computed(() => {
+  if (
+    forge.galleryTarget?.type !== 'section' ||
+    forge.galleryTarget.id !== 'follower'
+  )
+    return []
+  const people = forge.galleryEntries
+  const groups = [...new Set(people.map((entry) => entry.group))]
+  if (groups.length < 2) return []
+  return [
+    {
+      name: 'All',
+      count: people.length,
+      cover: people.find((entry) => entry.imageUrl)?.imageUrl ?? null,
+    },
+    ...groups.map((name) => {
+      const members = people.filter((entry) => entry.group === name)
+      return {
+        name,
+        count: members.length,
+        cover: members.find((entry) => entry.imageUrl)?.imageUrl ?? null,
+      }
+    }),
+  ]
+})
+const groupEntries = computed(() =>
+  forge.galleryGroup === 'All'
+    ? forge.galleryShown
+    : forge.galleryShown.filter((entry) => entry.group === forge.galleryGroup),
+)
+const shown = computed(() => groupEntries.value.slice(0, limit.value))
 
 const laneLabel = computed(() =>
   (

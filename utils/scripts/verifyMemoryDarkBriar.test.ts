@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { readFileSync } from 'node:fs'
 import {
   DARK_BRIAR_ART_REQUESTS,
@@ -13,6 +14,7 @@ import {
   BRIAR_GATE,
 } from '../memoryDungeonWorld'
 import { createBriarWaveCards } from '../memoryDungeonWaves'
+import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import {
   DARK_BRIAR_KEYS,
   DARK_BRIAR_WAVES,
@@ -227,6 +229,8 @@ const original = restoreBriarSave({
   ...newBriarSave(),
   prologueChoice: 'terms',
   gateOpened: true,
+  revealed: ['4,4', '2,5'],
+  visited: ['4,4', '2,5'],
   sceneChoices: { '4,4': 'escort', '2,5': 'archive' },
   relics: ['bramble-chime'],
 })
@@ -237,6 +241,59 @@ assert.ok(
 )
 assert.ok(
   darkBriarOpening(DARK_BRIAR_SCENES['2,5']!, original).includes('negative'),
+)
+
+// Mirrored story echoes are earned by an actual authored choice, not by
+// prologue flags, missing records, or unknown values in an old save.
+for (const mirrored of Object.values(DARK_BRIAR_SCENES)) {
+  const echo = mirrored.originalCallback
+  if (!echo) continue
+  const source = BRIAR_SCENES[echo.key]
+  assert.ok(source, `Missing original Briar scene for ${mirrored.key}`)
+  assert.deepEqual(
+    new Set([echo.choice, echo.alternateChoice]),
+    new Set(source.choices.map((choice) => choice.id)),
+    `Mirrored callback at ${mirrored.key} must cover both real Briar decisions`,
+  )
+  for (const [choice, line] of [
+    [echo.choice, echo.line],
+    [echo.alternateChoice, echo.alternate],
+  ] as const) {
+    const earned = restoreBriarSave({
+      ...newBriarSave(),
+      revealed: [echo.key],
+      visited: [echo.key],
+      sceneChoices: { [echo.key]: choice },
+    })
+    const expected = `${mirrored.opening} ${line}`
+    assert.equal(darkBriarOpening(mirrored, earned), expected)
+    assert.equal(
+      darkBriarOpening(
+        mirrored,
+        restoreBriarSave(JSON.parse(JSON.stringify(earned))),
+      ),
+      expected,
+      'The earned story branch must survive a save round trip',
+    )
+  }
+  assert.equal(
+    darkBriarOpening(mirrored, newBriarSave()),
+    mirrored.opening,
+    'Unvisited original scenes must not invent a remembered decision',
+  )
+  assert.equal(
+    darkBriarOpening(mirrored, {
+      ...newBriarSave(),
+      sceneChoices: { [echo.key]: 'forged-choice' },
+    }),
+    mirrored.opening,
+    'Unknown original decisions must not select the alternate branch',
+  )
+}
+assert.equal(
+  darkBriarOpening(DARK_BRIAR_SCENES['2,4']!, original),
+  DARK_BRIAR_SCENES['2,4']!.opening,
+  'The prologue terms flag is not the courier lantern decision',
 )
 for (let wave = 1; wave < 4; wave++) {
   const previousChoices = JSON.stringify(dark.sceneChoices)
@@ -438,6 +495,27 @@ assert.ok(store.includes('const DARK_BRIAR_KEY ='))
 assert.ok(store.includes('grantBriarCompletion()'))
 assert.ok(store.includes('persistReality()'))
 assert.ok(store.includes('advanceDarkBriarWave(dark.value)'))
+// A literal brief names what is visible and closes on its realm's medium.
+const MEDIUM_LINE =
+  /(?:Hand-painted gouache and ink illustration[^.]*|Candid 35mm colour photograph, natural light, soft film grain)\.$/
+const NON_LITERAL =
+  /\b(?:no|not|without|never|nothing|none|lettering|text|watermark|montage|legible|readable|iconic|composition|collectible|thumbnail|game|story)\b|(?<!shaped )\blike\b/i
+for (const brief of [
+  ...DARK_BRIAR_ART_REQUESTS,
+  ...DARK_BRIAR_COLLECTIBLE_ART,
+]) {
+  const problems = checkArtPromptContract({
+    prompt: brief.prompt,
+    engine: 'krea2',
+  }).map((violation) => violation.rule)
+  const word = brief.prompt.match(NON_LITERAL)?.[0]
+  if (word) problems.push(`non-literal "${word}"`)
+  if (!MEDIUM_LINE.test(brief.prompt)) problems.push('missing its medium line')
+  if (brief.prompt.length < 120 || brief.prompt.length > 900)
+    problems.push(`length ${brief.prompt.length}`)
+  assert.deepEqual(problems, [], `${brief.id} is not a literal Krea 2 prompt`)
+}
+
 console.log(
-  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and art briefs pass',
+  '60 Dark Briar encounters and 4 future seals, four 8-pair reveal waves, eight-witness House, migration and literal Krea 2 art briefs pass',
 )

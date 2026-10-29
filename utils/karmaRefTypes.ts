@@ -33,6 +33,7 @@ export const KARMA_REF_TYPES = [
   // -- it was simply never listed here, so `/api/reactions/project/:id` 400'd
   // as "not a reaction target type" and a Project's comments were unreadable.
   'project',
+  'plumberLevel',
   'prompt',
   'resource',
   'reward',
@@ -93,6 +94,7 @@ export const KARMA_REF_TARGET_COLUMNS = {
   dream: 'dreamId',
   facet: 'facetId',
   project: 'projectId',
+  plumberLevel: 'plumberLevelId',
   prompt: 'promptId',
   resource: 'resourceId',
   reward: 'rewardId',

@@ -1,10 +1,204 @@
 <template>
   <main
     class="kr-surface cap-shell h-full min-h-0 overflow-hidden"
+    :class="{
+      'cap-large-type': store.preferences.largeText,
+      'cap-reduce-motion': store.preferences.reducedMotion,
+    }"
     data-layout="console-fixed"
     aria-label="Space Couch"
   >
-    <header class="cap-toolbar">
+    <section
+      v-if="atTitle"
+      class="cap-menu"
+      data-testid="space-couch-title-screen"
+      aria-label="Space Couch main menu"
+    >
+      <img
+        class="cap-menu-image"
+        src="/game-of-captains/space-couch-stage.svg"
+        alt="A red upholstered couch sails across a starfield under its invisible force bubble"
+      />
+      <div class="cap-menu-shade" aria-hidden="true" />
+      <div class="cap-menu-body">
+        <span class="cap-menu-kicker"
+          >AN UNLICENSED STARSHIP PRODUCTION · EPISODE ZERO</span
+        >
+        <h2>SPACE <em>COUCH</em></h2>
+        <p class="cap-menu-deck">
+          One red couch. An invisible force bubble. A galaxy full of people who
+          insist this isn't a proper spaceship.
+        </p>
+        <p v-if="!store.loaded" role="status">
+          Retrieving the ship's incident reports…
+        </p>
+        <nav
+          v-else-if="titlePanel === 'home'"
+          class="cap-menu-actions"
+          aria-label="Game menu"
+        >
+          <button
+            v-if="run"
+            type="button"
+            data-testid="space-couch-continue"
+            @click="atTitle = false"
+          >
+            CONTINUE VOYAGE <span>➜</span
+            ><small
+              >Chapter {{ run.chapter }} ·
+              {{
+                CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+              }}</small
+            >
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-new-game"
+            @click="startNewVoyage"
+          >
+            START NEW GAME <span>✦</span
+            ><small
+              >Choose your background, captain, constellation and crew</small
+            >
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-main-settings"
+            @click="titlePanel = 'settings'"
+          >
+            SETTINGS <span>⚙</span
+            ><small>Readability and motion controls</small>
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-main-log"
+            @click="titlePanel = 'log'"
+          >
+            CAPTAIN'S LOG <span>▤</span
+            ><small>{{
+              run
+                ? run.log.length + ' entries in the current voyage'
+                : 'No voyage recorded yet'
+            }}</small>
+          </button>
+        </nav>
+        <div
+          v-if="titlePanel === 'home' && confirmNewVoyage && run"
+          class="cap-menu-confirm"
+          role="alert"
+        >
+          <p>
+            The current voyage will be replaced. The crew's paperwork will not
+            survive.
+          </p>
+          <button type="button" @click="confirmNewVoyage = false">
+            KEEP MY VOYAGE
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-confirm-new"
+            @click="startNewVoyage"
+          >
+            REPLACE VOYAGE
+          </button>
+        </div>
+        <section
+          v-if="titlePanel === 'settings'"
+          class="cap-menu-detail"
+          aria-label="Game settings"
+        >
+          <h2>SHIP SETTINGS</h2>
+          <p>Local preferences. No intergalactic committee required.</p>
+          <button
+            type="button"
+            :aria-pressed="store.preferences.largeText"
+            @click="
+              store.setPreference('largeText', !store.preferences.largeText)
+            "
+          >
+            LARGER DIALOGUE TEXT
+            <b>{{ store.preferences.largeText ? 'ON' : 'OFF' }}</b>
+          </button>
+          <button
+            type="button"
+            :aria-pressed="store.preferences.reducedMotion"
+            @click="
+              store.setPreference(
+                'reducedMotion',
+                !store.preferences.reducedMotion,
+              )
+            "
+          >
+            REDUCE ANIMATION
+            <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b>
+          </button>
+          <button
+            type="button"
+            class="cap-menu-back"
+            @click="titlePanel = 'home'"
+          >
+            ← MAIN MENU
+          </button>
+        </section>
+        <section
+          v-if="titlePanel === 'log'"
+          class="cap-menu-detail"
+          aria-label="Saved captain's log"
+        >
+          <h2>CAPTAIN'S LOG</h2>
+          <template v-if="run">
+            <p>
+              {{
+                CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+              }}
+              · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}
+            </p>
+            <p v-if="run.starAssessment">
+              Under {{ starSignFor(run.starAssessment.sign).name }}
+            </p>
+            <div class="cap-menu-journal">
+              <p v-if="!run.log.length">
+                No incidents entered. An encouraging sign, statistically.
+              </p>
+              <p v-for="(entry, index) in logEntries" :key="index">
+                {{ entry }}
+              </p>
+              <div v-if="run.log.length > 4" class="cap-menu-log-nav">
+                <button
+                  type="button"
+                  :disabled="logPage >= Math.ceil(run.log.length / 4) - 1"
+                  @click="logPage++"
+                >
+                  OLDER ENTRIES
+                </button>
+                <span
+                  >{{ logPage + 1 }} / {{ Math.ceil(run.log.length / 4) }}</span
+                >
+                <button
+                  type="button"
+                  :disabled="logPage === 0"
+                  @click="logPage--"
+                >
+                  NEWER ENTRIES
+                </button>
+              </div>
+            </div>
+          </template>
+          <p v-else>No saved voyage. The logbook is magnificently blank.</p>
+          <button
+            type="button"
+            class="cap-menu-back"
+            @click="titlePanel = 'home'"
+          >
+            ← MAIN MENU
+          </button>
+        </section>
+        <p class="cap-menu-bottom">
+          CAPTAIN'S CHAIR UNAVAILABLE · THE COUCH WILL HAVE TO DO
+        </p>
+      </div>
+    </section>
+    <header v-if="!atTitle" class="cap-toolbar">
       <NuxtLink to="/" class="cap-home" aria-label="Return to Kind Robots home"
         >‹ <span class="hidden sm:inline">HOME</span></NuxtLink
       >
@@ -26,10 +220,18 @@
         >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
       >
       <button
+        type="button"
+        class="cap-reset"
+        data-testid="space-couch-return-menu"
+        @click="openCouchMenu"
+      >
+        MENU
+      </button>
+      <button
         v-if="run"
         type="button"
         class="cap-reset"
-        @click="store.restart()"
+        @click="openNewVoyageConfirmation"
       >
         NEW VOYAGE
       </button>
@@ -37,7 +239,15 @@
     <p v-if="store.storageWarning" class="cap-warning" role="alert">
       {{ store.storageWarning }}
     </p>
-    <div class="cap-layout min-h-0 flex-1">
+    <div
+      v-if="!atTitle"
+      class="cap-layout min-h-0 flex-1"
+      :class="{
+        'cap-layout--episode': run?.phase === 'expedition',
+        'cap-layout--stars': !run && selectionScreen === 'stars',
+        'cap-layout--personnel': !run && selectionScreen !== 'stars',
+      }"
+    >
       <section
         class="cap-stage"
         aria-label="Long red couch spacecraft protected by an invisible force bubble"
@@ -51,20 +261,34 @@
           </div>
           <template v-if="!run">
             <span class="cap-coordinate">{{
-              selectionScreen === 'captain' ? 'CAPTAIN DOSSIER' : 'CREW DOSSIER'
+              selectionScreen === 'background'
+                ? 'WHO WERE YOU BEFORE THE COUCH?'
+                : selectionScreen === 'stars'
+                  ? 'THE COUCHSCOPE'
+                  : selectionScreen === 'captain'
+                    ? 'CAPTAIN DOSSIER'
+                    : 'CREW DOSSIER'
             }}</span>
             <h2 class="cap-title">
               {{
-                selectionScreen === 'captain'
-                  ? activeCaptain.name
-                  : crewProfile(focusedCrew).name
+                selectionScreen === 'background'
+                  ? 'Every captain has a past'
+                  : selectionScreen === 'stars'
+                    ? 'Your Constellation Awaits'
+                    : selectionScreen === 'captain'
+                      ? activeCaptain.name
+                      : crewProfile(focusedCrew).name
               }}
             </h2>
             <p class="cap-tagline">
               {{
-                selectionScreen === 'captain'
-                  ? CAPTAIN_DOSSIERS[selectedCaptain].voice
-                  : CREW_DOSSIERS[focusedCrew].crisis
+                selectionScreen === 'background'
+                  ? 'The galaxy records the things you did before anyone trusted you with a couch.'
+                  : selectionScreen === 'stars'
+                    ? 'The stars have very specific opinions about your answers.'
+                    : selectionScreen === 'captain'
+                      ? CAPTAIN_DOSSIERS[selectedCaptain].voice
+                      : CREW_DOSSIERS[focusedCrew].crisis
               }}
             </p>
           </template>
@@ -88,223 +312,478 @@
           <span>{{ panelLabel }}</span
           ><span class="cap-leds"
             ><i
-              v-for="n in 3"
+              v-for="n in VOYAGE_CHAPTERS"
               :key="n"
               :class="{ active: !!run && n <= run.chapter }" /></span
           ><span>⌁ LIVE</span>
         </div>
-        <div class="cap-scroll kr-scroll">
+        <div
+          class="cap-scroll kr-scroll"
+          :class="{
+            'cap-episode-scroll': run?.phase === 'expedition',
+            'cap-personnel-scroll': !run && selectionScreen !== 'stars',
+          }"
+        >
           <div v-if="!store.loaded" class="cap-placeholder">
             Establishing a secure link to ship registry…
           </div>
 
           <template v-else-if="!run">
-            <template v-if="selectionScreen === 'captain'">
-              <div class="cap-heading">
-                <span>01</span>
-                <div>
-                  <h2>Claim your cushion</h2>
-                  <p>
-                    Select a captain, then appoint your bridge officers. The
-                    couch runs on personalities as much as fuel.
-                  </p>
-                </div>
-              </div>
-              <div class="cap-captains">
-                <button
-                  v-for="captain in CAPTAINS"
-                  :key="captain.id"
-                  type="button"
-                  class="cap-captain"
-                  :class="{ chosen: captain.id === selectedCaptain }"
-                  :aria-pressed="captain.id === selectedCaptain"
-                  @click="selectedCaptain = captain.id"
-                >
-                  <span
-                    class="cap-captain-icon"
-                    :data-portrait-key="'captain-' + captain.id"
-                    aria-hidden="true"
-                    ><img
-                      v-if="portrait('captain-' + captain.id)"
-                      :src="portrait('captain-' + captain.id)!"
-                      alt=""
-                      class="cap-portrait-img"
-                    /><template v-else>{{
-                      captain.name.split(' ').at(-1)?.slice(0, 1)
-                    }}</template></span
-                  >
-                  <span
-                    ><strong>{{ captain.name }}</strong
-                    ><small>{{ captain.epithet }}</small></span
-                  >
-                </button>
-              </div>
-              <div class="cap-insight">
-                <strong>{{ activeCaptain.doctrine }}</strong
-                ><small
-                  >Advantage: {{ activeCaptain.ability }} · Price:
-                  {{ activeCaptain.cost }}</small
-                >
-              </div>
-              <div
-                class="cap-stats cap-captain-stats"
-                aria-label="Captain statistics"
-              >
-                <div v-for="skill in SKILLS" :key="skill">
-                  <small>{{ skill.toUpperCase() }}</small
-                  ><strong>{{ captainStats[skill] }}</strong>
-                </div>
-              </div>
-              <section class="cap-character-promise" data-testid="couch-captain-promise">
-                <span>WHO ARE YOU PLAYING?</span>
-                <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
-                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
-                <strong>YOUR KIND OF TROUBLE</strong>
-                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}</p>
-                <small>{{ CAPTAIN_DOSSIERS[selectedCaptain].crewSpark }}</small>
-              </section>
-              <div class="cap-insight">
-                <strong>Personal history</strong>
-                <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-                <small
-                  >First order:
-                  {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
-                >
-                <small
-                  >Unresolved liability:
-                  {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
-                >
-              </div>
-              <button
-                class="cap-primary"
-                type="button"
-                data-testid="captains-choose-crew"
-                @click="selectionScreen = 'crew'"
-              >
-                APPOINT YOUR CREW <span>➜</span>
-              </button>
-            </template>
-            <template v-else>
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="captains-back-to-captains"
-                @click="selectionScreen = 'captain'"
-              >
-                <span
-                  ><b>← CHANGE CAPTAIN</b
-                  ><small
-                    >{{ activeCaptain.name }} ·
-                    {{ activeCaptain.epithet }}</small
-                  ></span
-                >
-              </button>
-              <div class="cap-heading cap-crew-heading">
-                <span>02</span>
-                <div>
-                  <h2>Appoint your crew</h2>
-                  <p>
-                    Choose exactly three officers from twelve. Their abilities,
-                    conflicts and personal quests change the routes.
-                  </p>
-                </div>
-              </div>
-              <div class="cap-crew-picker">
-                <button
-                  v-for="member in CREW"
-                  :key="member.id"
-                  type="button"
-                  class="cap-crew-button"
-                  :class="{ chosen: chosenCrew.includes(member.id) }"
-                  :aria-pressed="chosenCrew.includes(member.id)"
-                  :title="
-                    chosenCrew.length >= 3 && !chosenCrew.includes(member.id)
-                      ? 'Release a selected officer to appoint this one'
-                      : 'View dossier and toggle crew appointment'
-                  "
-                  @click="selectCrewForDossier(member.id)"
-                >
-                  <span
-                    class="cap-monogram"
-                    :data-portrait-key="crewProfile(member.id).portraitKey"
-                    ><img
-                      v-if="portrait(crewProfile(member.id).portraitKey)"
-                      :src="portrait(crewProfile(member.id).portraitKey)!"
-                      alt=""
-                      class="cap-portrait-img"
-                    /><template v-else>{{ member.monogram }}</template></span
-                  >
-                  <span
-                    ><strong>{{ member.name }}</strong
-                    ><small
-                      >{{ member.role }} ·
-                      {{ crewProfile(member.id).pronouns }}</small
-                    ></span
-                  ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
-                </button>
-              </div>
-              <div class="cap-team-note">
-                {{ chosenCrew.length }} / 3 selected ·
-                {{ CREW_PROFILES.length }} candidates ·
-                {{
-                  chosenCrew.length === 3
-                    ? 'Unselect an officer to appoint a different one'
-                    : 'Choose your complement'
-                }}
-              </div>
-              <div class="cap-insight" aria-live="polite">
-                <strong
-                  >{{ crewProfile(focusedCrew).name }} ·
-                  {{ crewProfile(focusedCrew).culture }}</strong
-                >
-                <h3 class="cap-crew-hook">{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
-                <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
-                <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
-                <div class="cap-character-promise" data-testid="couch-crew-promise">
-                  <strong>THE STORY THIS CREWMATE BRINGS</strong>
-                  <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
-                  <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
-                </div>
-                <small
-                  >Personal voyage:
-                  {{ CREW_DOSSIERS[focusedCrew].itinerary.join(' → ') }}</small
-                >
-                <small
-                  >Enemy connection:
-                  {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
-                >
-                <div class="cap-stats" aria-label="Focused crew skills">
-                  <div v-for="skill in SKILLS" :key="skill">
-                    <small>{{ skill.toUpperCase() }}</small>
-                    <strong>{{ crewProfile(focusedCrew).stats[skill] }}</strong>
+            <SpaceCouchConstellationTest
+              v-if="selectionScreen === 'stars'"
+              :large-text="store.preferences.largeText"
+              :reduced-motion="store.preferences.reducedMotion"
+              @confirm="confirmStarAssessment"
+              @back="selectionScreen = 'captain'"
+            />
+            <div
+              v-else
+              class="cap-personnel-frame"
+              :data-screen="selectionScreen"
+            >
+              <template v-if="selectionScreen === 'background'">
+                <div class="cap-heading">
+                  <span>01</span>
+                  <div>
+                    <h2>Choose your background</h2>
+                    <p>
+                      Your history belongs to you. It changes your opening
+                      resources and follows you into the captain's log.
+                    </p>
                   </div>
                 </div>
-              </div>
-              <button
-                class="cap-primary"
-                type="button"
-                data-testid="captains-begin"
-                :disabled="chosenCrew.length !== 3"
-                @click="store.begin(selectedCaptain, chosenCrew)"
-              >
-                TAKE COMMAND <span>➜</span>
-              </button>
-              <div class="cap-subnote">
-                Playable three-stop voyage · Full multi-world personal quests
-                are still in development
-              </div>
-            </template>
+                <div class="cap-origins" data-testid="space-couch-backgrounds">
+                  <button
+                    v-for="origin in CAPTAIN_ORIGINS"
+                    :key="origin.id"
+                    type="button"
+                    class="cap-origin"
+                    :class="{ chosen: selectedOrigin === origin.id }"
+                    :aria-pressed="selectedOrigin === origin.id"
+                    @click="selectedOrigin = origin.id"
+                  >
+                    <span class="cap-origin-glyph" aria-hidden="true">{{
+                      origin.glyph
+                    }}</span>
+                    <span
+                      ><strong>{{ origin.name }}</strong
+                      ><small>{{ origin.summary }}</small
+                      ><small class="cap-origin-perk">{{
+                        origin.perk
+                      }}</small></span
+                    >
+                  </button>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  :disabled="!selectedOrigin"
+                  data-testid="space-couch-background-next"
+                  @click="selectionScreen = 'captain'"
+                >
+                  CHOOSE YOUR CAPTAIN <span>➜</span>
+                </button>
+              </template>
+              <template v-else-if="selectionScreen === 'captain'">
+                <button
+                  type="button"
+                  class="cap-step-back"
+                  @click="selectionScreen = 'background'"
+                >
+                  ← CHANGE BACKGROUND
+                </button>
+                <div class="cap-heading">
+                  <span>02</span>
+                  <div>
+                    <h2>Claim your cushion</h2>
+                    <p>
+                      Select the commander who inherits your background. The
+                      couch runs on personalities as much as fuel.
+                    </p>
+                  </div>
+                </div>
+                <div class="cap-captains">
+                  <button
+                    v-for="captain in CAPTAINS"
+                    :key="captain.id"
+                    type="button"
+                    class="cap-captain"
+                    :class="{ chosen: captain.id === selectedCaptain }"
+                    :aria-pressed="captain.id === selectedCaptain"
+                    @click="selectedCaptain = captain.id"
+                  >
+                    <span
+                      class="cap-captain-icon"
+                      :data-portrait-key="'captain-' + captain.id"
+                      aria-hidden="true"
+                      ><img
+                        v-if="portrait('captain-' + captain.id)"
+                        :src="portrait('captain-' + captain.id)!"
+                        alt=""
+                        class="cap-portrait-img"
+                      /><template v-else>{{
+                        captain.name.split(' ').at(-1)?.slice(0, 1)
+                      }}</template></span
+                    >
+                    <span
+                      ><strong>{{ captain.name }}</strong
+                      ><small>{{ captain.epithet }}</small></span
+                    >
+                  </button>
+                </div>
+                <div class="cap-personnel-dossier" aria-live="polite">
+                  <div class="cap-dossier-header">
+                    <img
+                      v-if="portrait('captain-' + selectedCaptain)"
+                      :src="portrait('captain-' + selectedCaptain)!"
+                      :alt="activeCaptain.name + ' portrait'"
+                    />
+                    <span v-else class="cap-dossier-monogram">{{
+                      activeCaptain.name.slice(-1)
+                    }}</span>
+                    <span
+                      ><strong>{{ activeCaptain.name }}</strong
+                      ><small>{{ activeCaptain.epithet }}</small></span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-captain-dossier-tab"
+                      @click="
+                        captainDossierTab =
+                          captainDossierTab === 'stats'
+                            ? 'history'
+                            : captainDossierTab === 'history'
+                              ? 'orders'
+                              : 'stats'
+                      "
+                    >
+                      {{
+                        captainDossierTab === 'stats'
+                          ? 'STORY ▸'
+                          : captainDossierTab === 'history'
+                            ? 'ORDERS ▸'
+                            : 'STATS ▸'
+                      }}
+                    </button>
+                  </div>
+                  <template v-if="captainDossierTab === 'stats'">
+                    <div class="cap-insight">
+                      <strong>{{ activeCaptain.doctrine }}</strong
+                      ><small
+                        >Advantage: {{ activeCaptain.ability }} · Price:
+                        {{ activeCaptain.cost }}</small
+                      >
+                    </div>
+                    <div
+                      class="cap-stats cap-captain-stats"
+                      aria-label="Captain statistics"
+                    >
+                      <div v-for="skill in SKILLS" :key="skill">
+                        <small>{{ skill.toUpperCase() }}</small
+                        ><strong>{{ captainStats[skill] }}</strong>
+                      </div>
+                    </div>
+                  </template>
+                  <div
+                    v-else-if="captainDossierTab === 'history'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong>Personal history</strong>
+                    <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                    <section class="cap-character-promise" data-testid="couch-captain-promise">
+                      <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
+                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
+                      <strong>YOUR KIND OF TROUBLE</strong>
+                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}</p>
+                      <small>{{ CAPTAIN_DOSSIERS[selectedCaptain].crewSpark }}</small>
+                    </section>
+                  </div>
+                  <div v-else class="cap-insight cap-dossier-story">
+                    <strong>First order and unresolved liability</strong>
+                    <small
+                      >First order:
+                      {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
+                    >
+                    <small
+                      >Unresolved liability:
+                      {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
+                    >
+                  </div>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  data-testid="captains-choose-crew"
+                  @click="selectionScreen = 'stars'"
+                >
+                  CONSULT THE COUCHSCOPE <span>➜</span>
+                </button>
+              </template>
+              <template v-else>
+                <button
+                  class="cap-option"
+                  type="button"
+                  data-testid="captains-back-to-captains"
+                  @click="selectionScreen = 'stars'"
+                >
+                  <span
+                    ><b>← CHANGE STAR CHART</b
+                    ><small
+                      >{{ activeCaptain.name }} ·
+                      {{ activeCaptain.epithet }}</small
+                    ></span
+                  >
+                </button>
+                <div class="cap-heading cap-crew-heading">
+                  <span>04</span>
+                  <div>
+                    <h2>Appoint your crew</h2>
+                    <p>
+                      Choose exactly three officers from twelve. Their
+                      abilities, conflicts and personal quests change the
+                      routes.
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="cap-crew-roster"
+                  data-testid="space-couch-crew-roster"
+                >
+                  <div class="cap-crew-picker">
+                    <button
+                      v-for="member in crewPageMembers"
+                      :key="member.id"
+                      type="button"
+                      class="cap-crew-button"
+                      :class="{ chosen: chosenCrew.includes(member.id) }"
+                      :aria-pressed="chosenCrew.includes(member.id)"
+                      :title="
+                        chosenCrew.length >= 3 &&
+                        !chosenCrew.includes(member.id)
+                          ? 'Release a selected officer to appoint this one'
+                          : 'View dossier and toggle crew appointment'
+                      "
+                      @click="selectCrewForDossier(member.id)"
+                    >
+                      <span
+                        class="cap-monogram"
+                        :data-portrait-key="crewProfile(member.id).portraitKey"
+                        ><img
+                          v-if="portrait(crewProfile(member.id).portraitKey)"
+                          :src="portrait(crewProfile(member.id).portraitKey)!"
+                          alt=""
+                          class="cap-portrait-img"
+                        /><template v-else>{{
+                          member.monogram
+                        }}</template></span
+                      >
+                      <span
+                        ><strong>{{ member.name }}</strong
+                        ><small
+                          >{{ member.role }} ·
+                          {{ crewProfile(member.id).pronouns }}</small
+                        ></span
+                      ><b>{{ chosenCrew.includes(member.id) ? '✓' : '+' }}</b>
+                    </button>
+                  </div>
+                  <nav class="cap-crew-pages" aria-label="Crew roster pages">
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-prev"
+                      :disabled="crewPage === 0"
+                      @click="crewPage--"
+                    >
+                      ← PREVIOUS
+                    </button>
+                    <span
+                      >ROSTER {{ crewPage + 1 }} / {{ crewPageCount }} ·
+                      {{ chosenCrew.length }}/3 APPOINTED</span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-next"
+                      :disabled="crewPage >= crewPageCount - 1"
+                      @click="crewPage++"
+                    >
+                      NEXT SIX →
+                    </button>
+                  </nav>
+                  <div class="cap-team-note" aria-live="polite">
+                    {{
+                      chosenCrew
+                        .map((id) => crewProfile(id).name)
+                        .join(' · ') || 'Choose three officers to take command'
+                    }}
+                  </div>
+                </div>
+                <div class="cap-personnel-dossier" aria-live="polite">
+                  <div class="cap-dossier-header">
+                    <img
+                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
+                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                      :alt="crewProfile(focusedCrew).name + ' portrait'"
+                    />
+                    <span v-else class="cap-dossier-monogram">{{
+                      crewProfile(focusedCrew).name.slice(0, 1)
+                    }}</span>
+                    <span
+                      ><strong>{{ crewProfile(focusedCrew).name }}</strong
+                      ><small>{{ crewProfile(focusedCrew).role }}</small></span
+                    >
+                    <button
+                      type="button"
+                      data-testid="space-couch-crew-dossier-tab"
+                      @click="
+                        crewDossierTab =
+                          crewDossierTab === 'history'
+                            ? 'route'
+                            : crewDossierTab === 'route'
+                              ? 'stats'
+                              : 'history'
+                      "
+                    >
+                      {{
+                        crewDossierTab === 'history'
+                          ? 'ROUTE ▸'
+                          : crewDossierTab === 'route'
+                            ? 'SKILLS ▸'
+                            : 'STORY ▸'
+                      }}
+                    </button>
+                  </div>
+                  <div
+                    v-if="crewDossierTab === 'history'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong
+                      >{{ crewProfile(focusedCrew).name }} ·
+                      {{ crewProfile(focusedCrew).culture }}</strong
+                    >
+                    <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                    <section class="cap-character-promise" data-testid="couch-crew-promise">
+                      <h3>{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
+                      <strong>THE STORY THIS CREWMATE BRINGS</strong>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
+                      <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
+                    </section>
+                  </div>
+                  <div
+                    v-else-if="crewDossierTab === 'route'"
+                    class="cap-insight cap-dossier-story"
+                  >
+                    <strong>Route and nemesis connection</strong>
+                    <small
+                      >Personal voyage:
+                      {{
+                        CREW_DOSSIERS[focusedCrew].itinerary.join(' → ')
+                      }}</small
+                    >
+                    <small
+                      >Enemy connection:
+                      {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
+                    >
+                  </div>
+                  <div
+                    v-else
+                    class="cap-stats"
+                    aria-label="Focused crew skills"
+                  >
+                    <div v-for="skill in SKILLS" :key="skill">
+                      <small>{{ skill.toUpperCase() }}</small>
+                      <strong>{{
+                        crewProfile(focusedCrew).stats[skill]
+                      }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="cap-primary"
+                  type="button"
+                  data-testid="captains-begin"
+                  :disabled="chosenCrew.length !== 3"
+                  @click="beginWithStarSign"
+                >
+                  TAKE COMMAND <span>➜</span>
+                </button>
+              </template>
+            </div>
           </template>
 
           <template v-else-if="run.phase === 'briefing'">
             <section
+              class="cap-redshirt-travel"
+              data-testid="space-couch-travel-prompt"
+            >
+              <strong>{{
+                expeditionComplete
+                  ? 'ARRIVED · EXPEDITION LOGGED'
+                  : 'FIRST, TRAVEL. THEN, QUESTS.'
+              }}</strong>
+              <p>
+                {{
+                  expeditionComplete
+                    ? 'Your crew has returned from the world encounters. You can now staff the primary mission.'
+                    : 'The couch will fold open its miniature redshirt quarters at the destination. You have a captain and three officers to distribute; everyone else is beautifully, disastrously replaceable.'
+                }}
+              </p>
+              <button
+                v-if="!expeditionComplete"
+                class="cap-primary"
+                type="button"
+                data-testid="space-couch-travel"
+                @click="store.travel()"
+              >
+                TRAVEL TO {{ localSystem.name.toUpperCase() }} <span>➜</span>
+              </button>
+              <p v-if="(run.redshirtFallen ?? []).length">
+                Fallen redshirts: {{ run.redshirtFallen?.length }}. Personnel
+                says they have more.
+              </p>
+            </section>
+            <section
+              class="cap-solar-circuit"
+              data-testid="space-couch-solar-circuit"
+              aria-label="Voyage solar-system circuit"
+            >
+              <header class="cap-expedition-head">
+                <strong
+                  >FINITE STAR CIRCUIT · {{ circuit.length }} SOLAR
+                  SYSTEMS</strong
+                >
+                <small
+                  >One territory per chapter · you may revisit familiar
+                  systems</small
+                >
+              </header>
+              <div class="cap-system-nodes">
+                <div
+                  v-for="system in circuit"
+                  :key="system.id"
+                  class="cap-system-node"
+                  :class="{ active: system.id === localSystem.id }"
+                >
+                  <strong>{{ system.name }}</strong>
+                  <small
+                    >{{ system.giant }} Grand Casino ·
+                    {{ system.franchise.name }}</small
+                  >
+                </div>
+              </div>
+              <p class="cap-narrative">
+                <b>{{ localSystem.name }}:</b> {{ localSystem.conflict }} The
+                casino, built across {{ localSystem.giant }}'s living body,
+                contains the local Serendipity bar.
+              </p>
+            </section>
+            <section
               class="cap-route-board"
               data-testid="space-couch-route-board"
-              aria-label="Act I galaxy navigation"
+              :aria-label="actLabel + ' galaxy navigation'"
             >
               <div class="cap-route-heading">
-                <span>ACT I / STAR ROUTES</span>
-                <strong>CHOOSE ONE CALL</strong>
+                <span>{{ actLabel.toUpperCase() }} / LOCAL DISTRICTS</span>
+                <strong>CHOOSE ONE LOCAL CALL</strong>
               </div>
               <div class="cap-route-grid">
                 <button
@@ -340,35 +819,36 @@
             </div>
             <p class="cap-narrative">{{ mission.briefing }}</p>
             <section class="cap-instinct" data-testid="couch-captain-instinct">
-              <span>CAPTAIN'S PERSONAL BAD IDEA</span>
+              <strong>CAPTAIN'S PERSONAL BAD IDEA</strong>
               <h3>{{ captainInstinct.title }}</h3>
               <p>{{ captainInstinct.situation }}</p>
               <p class="cap-instinct-response">{{ captainReply }}</p>
               <template v-if="captainCanAct">
-                <button
-                  type="button"
-                  class="cap-option"
-                  data-testid="couch-captain-impulse"
-                  :disabled="captainImpulseBlocked"
-                  @click="store.captainAction('impulse')"
-                >
-                  <span><b>{{ captainInstinct.impulse }}</b>
-                    <small>+10% mission success; distinct personal cost</small></span>↗
+                <button type="button" class="cap-option" data-testid="couch-captain-impulse" :disabled="captainImpulseBlocked" @click="store.captainAction('impulse')">
+                  <span><b>{{ captainInstinct.impulse }}</b><small>+10% mission odds; a personal cost</small></span>
                 </button>
-                <button
-                  type="button"
-                  class="cap-option"
-                  data-testid="couch-captain-restraint"
-                  @click="store.captainAction('restraint')"
-                >
-                  <span><b>{{ captainInstinct.restraint }}</b>
-                    <small>A smaller, safer gain. No tactical bonus.</small></span>↗
+                <button type="button" class="cap-option" data-testid="couch-captain-restraint" @click="store.captainAction('restraint')">
+                  <span><b>{{ captainInstinct.restraint }}</b><small>Safer. No tactical bonus.</small></span>
                 </button>
               </template>
-              <p v-else class="cap-instinct-response">
-                {{ run.scene.includes("signature") ? run.scene : "That captain's decision is already recorded for this chapter." }}
-              </p>
+              <p v-else class="cap-instinct-response">This chapter's captain decision is recorded.</p>
             </section>
+            <div
+              v-if="briefingCallbacks.length || briefingAboard.length"
+              class="cap-callbacks"
+              data-testid="space-couch-callbacks"
+            >
+              <p v-for="callback in briefingCallbacks" :key="callback.flag">
+                <strong
+                  >{{ callback.odds > 0 ? '+' : ''
+                  }}{{ callback.odds }}%</strong
+                >
+                {{ callback.text }}
+              </p>
+              <p v-for="line in briefingAboard" :key="line">
+                <strong>ABOARD</strong> {{ line }}
+              </p>
+            </div>
             <div class="cap-antagonist">
               <strong>ANOMALY IN THE SIGNAL</strong>
               <p>
@@ -517,7 +997,7 @@
               class="cap-primary"
               type="button"
               data-testid="captains-launch"
-              :disabled="!missionPreview?.eligible"
+              :disabled="!missionPreview?.eligible || !expeditionComplete"
               @click="store.launch()"
             >
               LAUNCH MISSION <span>➜</span>
@@ -536,6 +1016,61 @@
               >
               ↗
             </button>
+          </template>
+
+          <template v-else-if="run.phase === 'travel'">
+            <div class="cap-heading">
+              <span>✦</span>
+              <div>
+                <h2>The couch approaches {{ localSystem.name }}</h2>
+                <p>
+                  TRAVEL / SHIP DAY {{ run.day }} · THE MINIATURIZED BARRACKS
+                </p>
+              </div>
+            </div>
+            <section
+              class="cap-redshirt-travel"
+              data-testid="space-couch-transit"
+            >
+              <h3>{{ localSystem.name }} · {{ localSystem.casinoName }}</h3>
+              <p>{{ CASINO_ORIGIN }}</p>
+              <p>
+                <strong>ON THE LIVING CASINO:</strong>
+                {{ localSystem.franchise.name }}.
+                {{ localSystem.franchise.theme }}. {{ localSystem.conflict }}
+              </p>
+              <h3>{{ REDSHIRT_QUARTERS.name }}</h3>
+              <p>{{ run.scene }}</p>
+              <p>{{ REDSHIRT_QUARTERS.description }}</p>
+              <p>{{ REDSHIRT_QUARTERS.exchange }}</p>
+              <strong
+                >{{ (run.redshirtRoster ?? []).length }} redshirts ready · 8
+                miniature bunks</strong
+              >
+              <button
+                class="cap-primary"
+                type="button"
+                data-testid="space-couch-arrive"
+                @click="store.arrive()"
+              >
+                ARRIVE AND OPEN THE ENCOUNTER BOARD <span>➜</span>
+              </button>
+            </section>
+          </template>
+
+          <template v-else-if="run.phase === 'expedition'">
+            <SpaceCouchDailyConsole
+              :run="run"
+              :backdrop="stagePainting"
+              :franchise-image="franchiseImage"
+              :knowledge="store.redshirtKnowledge"
+              @hire="store.hire()"
+              @dispatch="store.deployBatch"
+              @draw="store.drawDailyDeck"
+              @clone-advance="store.cloneAdvance"
+              @clone-print="store.clonePrint"
+              @finish="store.endExpedition()"
+            />
           </template>
 
           <template v-else-if="run.phase === 'transit'">
@@ -601,7 +1136,7 @@
               <p>{{ run.report.text }}</p>
             </div>
             <p class="cap-alert">
-              {{ antagonist.acts[Math.min(run.chapter - 1, 2)] }}
+              {{ nemesisLine }}
             </p>
             <button
               class="cap-option"
@@ -765,6 +1300,7 @@
             >
               {{ romanceRecord.result }}
             </p>
+            <SpaceCouchTrioInterlude />
             <button
               class="cap-primary"
               type="button"
@@ -772,7 +1308,7 @@
               @click="store.next()"
             >
               {{
-                run.chapter === 3
+                run.chapter === VOYAGE_CHAPTERS
                   ? 'APPROACH THE LAST JUMP GATE'
                   : 'PLOT NEXT COURSE'
               }}
@@ -786,50 +1322,115 @@
               <div>
                 <h2>{{ activeDetour?.title }}</h2>
                 <p>
-                  {{ activeDetour?.system }} · PERSONAL VOYAGE
+                  {{ activeDetour?.system }} · THREE-WORLD ODYSSEY
                   {{ (run.detour?.step ?? 0) + 1 }}/3
                 </p>
               </div>
             </div>
-            <div class="cap-mission-report">
-              <strong>{{ detourCrewName }}</strong>
-              <p>{{ activeDetour?.scene }}</p>
+            <div class="cap-grand-quest" data-testid="couch-grand-quest">
+              <strong>THE IMPOSSIBLE ADVENTURE</strong>
+              <div class="cap-quest-portrait-line">
+                <img
+                  v-if="questPortrait"
+                  class="cap-quest-portrait"
+                  :src="questPortrait"
+                  :alt="detourCrewName + ' portrait'"
+                />
+                <p>{{ activeDetour?.scene }}</p>
+              </div>
+              <small>Next relic: {{ activeDetour?.prize }}</small>
             </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
-            <p v-if="nemesisCrewLink" class="cap-alert">
-              {{ antagonist.name }} may recognize this testimony. Your crew
-              could acquire leverage over the final negotiation.
+            <p
+              v-if="!run.detour?.gambit"
+              class="cap-narrative"
+              aria-live="polite"
+            >
+              {{ run.scene }}
             </p>
-            <button
-              type="button"
-              class="cap-option"
-              data-testid="couch-crew-careful"
-              :disabled="run.supplies < 1"
-              @click="store.resolveDetour('careful')"
-            >
-              <span
-                ><b>{{ activeDetour?.careful }}</b
-                ><small
-                  >Spend 1 supply · +1 trust · preserve local consent</small
-                ></span
-              >↗
-            </button>
-            <button
-              type="button"
-              class="cap-option"
-              data-testid="couch-crew-bold"
-              @click="store.resolveDetour('bold')"
-            >
-              <span
-                ><b>{{ activeDetour?.bold }}</b
-                ><small
-                  >+1 public reputation · -1 trust · greater nemesis
-                  attention</small
-                ></span
-              >↗
-            </button>
+            <p v-if="nemesisCrewLink" class="cap-alert">
+              {{ antagonist.name }} has a personal stake in this expedition.
+              Evidence collected here can change the final confrontation.
+            </p>
+            <template v-if="!run.detour?.gambit">
+              <div class="cap-quest-phase" data-testid="couch-quest-setup">
+                <strong>ACT ONE · MAKE THE PLAN</strong>
+                <small
+                  >Both plans uncover a nasty reversal. The captain must choose
+                  again after discovering what was really at stake.</small
+                >
+              </div>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-plan-careful"
+                @click="store.planDetour('careful')"
+              >
+                <span
+                  ><b>{{ activeDetour?.careful }}</b>
+                  <small
+                    >A discreet opening gambit. What could possibly go
+                    wrong?</small
+                  ></span
+                >↗
+              </button>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-plan-bold"
+                @click="store.planDetour('bold')"
+              >
+                <span
+                  ><b>{{ activeDetour?.bold }}</b>
+                  <small
+                    >A spectacular opening gambit. Insurance may not cover
+                    this.</small
+                  ></span
+                >↗
+              </button>
+            </template>
+            <template v-else>
+              <div
+                class="cap-quest-phase cap-quest-reversal"
+                data-testid="couch-quest-reversal"
+              >
+                <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
+                <p aria-live="polite">{{ run.scene }}</p>
+                <small
+                  >Opening gambit: {{ run.detour.gambit }}. You may change
+                  course when it matters most.</small
+                >
+              </div>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-careful"
+                :disabled="run.supplies < 1"
+                @click="store.resolveDetour('careful')"
+              >
+                <span
+                  ><b>{{ activeDetour?.finalCareful }}</b>
+                  <small
+                    >Spend 1 supply · +1 trust · preserve local
+                    confidence</small
+                  ></span
+                >↗
+              </button>
+              <button
+                type="button"
+                class="cap-option"
+                data-testid="couch-crew-bold"
+                @click="store.resolveDetour('bold')"
+              >
+                <span
+                  ><b>{{ activeDetour?.finalBold }}</b>
+                  <small
+                    >+1 public reputation · -1 trust · more enemy
+                    attention</small
+                  ></span
+                >↗
+              </button>
+            </template>
           </template>
-
           <template v-else-if="run.phase === 'finale'">
             <div class="cap-heading">
               <span>07</span>
@@ -910,10 +1511,19 @@
               <span>✦</span>
               <div>
                 <h2>{{ run.ending }}</h2>
-                <p>A CAPTAIN IS WHAT THE CREW REMEMBERS</p>
+                <p data-testid="space-couch-nemesis-ending">
+                  {{
+                    nemesisEndingTitle
+                      ? antagonist.name.toUpperCase() +
+                        ' // ' +
+                        nemesisEndingTitle
+                      : 'A CAPTAIN IS WHAT THE CREW REMEMBERS'
+                  }}
+                </p>
               </div>
             </div>
             <p class="cap-narrative">{{ run.scene }}</p>
+            <SpaceCouchTrioInterlude />
             <div class="cap-log">
               <strong>RECORDED CAPTAIN’S LOG</strong>
               <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
@@ -923,7 +1533,7 @@
               :run="run"
               :ending="run.ending ?? 'voyage-complete'"
             />
-            <button class="cap-primary" type="button" @click="store.restart()">
+            <button class="cap-primary" type="button" @click="restartVoyage">
               COMMAND ANOTHER VOYAGE <span>↻</span>
             </button>
           </template>
@@ -966,11 +1576,42 @@ import {
   ruleFor,
 } from '~/utils/gameOfCaptains/crewAssignments'
 import {
-  ACT_ONE_ORDERS,
-  type ActOneRouteId,
-} from '~/utils/gameOfCaptains/actOne'
-import { CAPTAIN_INSTINCTS, captainInstinctAvailable, captainInstinctReply } from '~/utils/gameOfCaptains/captainInstincts'
+  VOYAGE_CHAPTERS,
+  VOYAGE_ORDERS,
+  aboardLines,
+  actName,
+  earnedCallbacks,
+  nemesisMove,
+  type NemesisId,
+} from '~/utils/gameOfCaptains/voyageMap'
+import {
+  NEMESIS_ENDINGS,
+  type NemesisEndingVariant,
+} from '~/utils/gameOfCaptains/nemesisEndings'
+import { REDSHIRT_QUARTERS } from '~/utils/gameOfCaptains/expedition'
+import {
+  solarCircuit,
+  chapterSystem,
+  CASINO_ORIGIN,
+} from '~/utils/gameOfCaptains/solarCircuit'
+
+import {
+  CAPTAIN_INSTINCTS,
+  captainInstinctAvailable,
+  captainInstinctReply,
+} from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import {
+  CAPTAIN_ORIGINS,
+  type CaptainOriginId,
+} from '~/utils/gameOfCaptains/captainOrigins'
+import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
+import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
+import {
+  starSignFor,
+  type StarAssessment,
+} from '~/utils/gameOfCaptains/starSigns'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
@@ -988,8 +1629,38 @@ import {
 const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
-const selectionScreen = ref<'captain' | 'crew'>('captain')
+const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
+  'background',
+)
+const selectedOrigin = ref<CaptainOriginId | null>(null)
+const atTitle = ref(true)
+const titlePanel = ref<'home' | 'settings' | 'log'>('home')
+const confirmNewVoyage = ref(false)
+function openCouchMenu() {
+  atTitle.value = true
+  titlePanel.value = 'home'
+}
+function openNewVoyageConfirmation() {
+  openCouchMenu()
+  confirmNewVoyage.value = true
+}
+const logPage = ref(0)
+const logEntries = computed(() => {
+  const entries = run.value?.log ?? []
+  return entries.slice(
+    Math.max(0, entries.length - 4 * (logPage.value + 1)),
+    Math.max(0, entries.length - 4 * logPage.value),
+  )
+})
+const starAssessment = ref<StarAssessment | null>(null)
 const focusedCrew = ref<CrewId>('pell')
+const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
+const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
+const crewPage = ref(0)
+const crewPageCount = Math.ceil(CREW.length / 6)
+const crewPageMembers = computed(() =>
+  CREW.slice(crewPage.value * 6, (crewPage.value + 1) * 6),
+)
 const run = computed(() => store.run)
 const romanceScene = computed(() =>
   run.value ? romanceMoment(run.value) : null,
@@ -998,37 +1669,62 @@ const romanceRecord = computed(
   () => (run.value as RomanceVoyage | null)?.romance,
 )
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
-const portrait = (key: string) => warpArt(`portraits/${key}`)
+const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
   if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =
-    selectionScreen.value === 'captain'
-      ? 'captain-' + selectedCaptain.value
-      : 'crew-' + focusedCrew.value
+    selectionScreen.value === 'stars' || selectionScreen.value === 'background'
+      ? ''
+      : selectionScreen.value === 'captain'
+        ? 'captain-' + selectedCaptain.value
+        : 'crew-' + focusedCrew.value
   return portrait(key) || '/game-of-captains/space-couch-stage.svg'
 })
 const stageAlt = computed(() =>
   run.value
     ? 'Four travelers aboard a red couch in space, surrounded by an invisible protective force bubble'
-    : selectionScreen.value === 'captain'
-      ? activeCaptain.value.name + ' selection portrait'
-      : crewProfile(focusedCrew.value).name + ' selection portrait',
+    : selectionScreen.value === 'stars' ||
+        selectionScreen.value === 'background'
+      ? 'The starry sky above the long red couch'
+      : selectionScreen.value === 'captain'
+        ? activeCaptain.value.name + ' selection portrait'
+        : crewProfile(focusedCrew.value).name + ' selection portrait',
 )
-const captainInstinct = computed(() => CAPTAIN_INSTINCTS[(run.value?.captain ?? selectedCaptain.value)])
-const captainCanAct = computed(() => !!run.value && captainInstinctAvailable(run.value))
-const captainReply = computed(() => run.value ? captainInstinctReply(run.value) : '')
+const activeCaptain = computed(() =>
+  CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
+)
+const captainInstinct = computed(() =>
+  CAPTAIN_INSTINCTS[run.value?.captain ?? selectedCaptain.value],
+)
+const captainCanAct = computed(() =>
+  !!run.value && captainInstinctAvailable(run.value),
+)
+const captainReply = computed(() =>
+  run.value ? captainInstinctReply(run.value) : '',
+)
 const captainImpulseBlocked = computed(() =>
   !!run.value &&
   ((['vale', 'solace'].includes(run.value.captain) && run.value.supplies < 1) ||
     (run.value.captain === 'quill' && (run.value.shieldCharge ?? 2) < 1)),
 )
-const activeCaptain = computed(() =>
-  CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
-)
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
 )
 const routeBoard = computed(() => (run.value ? missionBoard(run.value) : []))
+const circuit = computed(() => solarCircuit(run.value?.seed ?? 1))
+const localSystem = computed(() =>
+  chapterSystem(run.value?.seed ?? 1, run.value?.chapter ?? 1),
+)
+const franchiseImage = computed(() =>
+  warpArt('venues/' + localSystem.value.franchise.id),
+)
+
+const expeditionComplete = computed(() =>
+  (run.value?.expeditionHistory ?? []).some(
+    (visit) => visit.chapter === run.value?.chapter,
+  ),
+)
+
 const routeEcho = computed(() => (run.value ? worldEcho(run.value) : ''))
 const antagonist = computed(() =>
   run.value ? antagonistFor(run.value) : ANTAGONISTS[0]!,
@@ -1045,6 +1741,10 @@ const detourCrewName = computed(
     'Crew member',
 )
 const activeDetour = computed(() => (run.value ? detourFor(run.value) : null))
+const questPortrait = computed(() => {
+  const crewId = run.value?.detour?.crewId
+  return crewId ? portrait(crewProfile(crewId).portraitKey) : null
+})
 const nemesisCrewLink = computed(
   () =>
     !!run.value?.detour &&
@@ -1055,10 +1755,29 @@ const nemesisCrewLink = computed(
 const counterOfficers = computed(() =>
   run.value ? counterCrew(run.value) : [],
 )
-const ethicalOrders = computed(
-  () => ACT_ONE_ORDERS[mission.value.id as ActOneRouteId],
-)
+const ethicalOrders = computed(() => VOYAGE_ORDERS[mission.value.id]!)
 const missionRule = computed(() => ruleFor(mission.value.id))
+const actLabel = computed(() => actName(run.value?.chapter ?? 1))
+const briefingCallbacks = computed(() =>
+  run.value
+    ? earnedCallbacks(mission.value.id, run.value.worldFlags ?? [])
+    : [],
+)
+const briefingAboard = computed(() =>
+  run.value ? aboardLines(mission.value.id, run.value.crew) : [],
+)
+const nemesisEndingTitle = computed(() => {
+  const id = run.value?.nemesisEnding
+  const variant = id?.slice(antagonist.value.id.length + 1)
+  return id?.startsWith(antagonist.value.id + '-')
+    ? (NEMESIS_ENDINGS[antagonist.value.id as NemesisId]?.[
+        variant as NemesisEndingVariant
+      ]?.title ?? '')
+    : ''
+})
+const nemesisLine = computed(() =>
+  run.value ? nemesisMove(antagonist.value, run.value.chapter) : '',
+)
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,
 )
@@ -1083,6 +1802,8 @@ const headline = computed(() =>
         transit: 'Away Team En Route',
         decision: 'The Cost Of Knowing',
         debrief: 'Between The Stars',
+        travel: 'Couch in Transit',
+        expedition: 'Redshirt Deployment Board',
         'crew-quest': activeDetour.value?.title ?? 'Personal Route',
         finale: 'The Last Jump Gate',
         ending: run.value.ending ?? 'Voyage Complete',
@@ -1101,14 +1822,66 @@ const panelLabel = computed(() =>
         transit: 'EXPEDITION // RETURN CLOCK',
         decision: 'PRIME DOCTRINE // YOUR ORDER',
         debrief: 'CAPTAIN’S LOG // OUTCOME',
+        travel: 'TRANSIT // NEXT WORLD',
+        expedition: 'FIELD EXPEDITION // ALLOCATE PERSONNEL',
         'crew-quest': 'CREW STAR CHART // PERSONAL CONSEQUENCE',
         finale: 'LAST TRANSMISSION // FINALE',
         ending: 'CHRONICLE // A VOYAGE RECORDED',
       }[run.value.phase]
-    : 'PERSONNEL // COMMAND SELECTION',
+    : selectionScreen.value === 'background'
+      ? '01 // BEFORE THE CAPTAINCY'
+      : selectionScreen.value === 'captain'
+        ? '02 // CAPTAIN SELECTION'
+        : selectionScreen.value === 'stars'
+          ? '03 // THE COUCHSCOPE'
+          : '04 // CREW SELECTION',
 )
 
+function confirmStarAssessment(assessment: StarAssessment) {
+  starAssessment.value = assessment
+  selectionScreen.value = 'crew'
+}
+function beginWithStarSign() {
+  if (
+    !selectedOrigin.value ||
+    !starAssessment.value ||
+    chosenCrew.value.length !== 3
+  )
+    return
+  store.begin(
+    selectedCaptain.value,
+    chosenCrew.value,
+    starAssessment.value,
+    selectedOrigin.value,
+  )
+}
+function restartVoyage() {
+  store.restart()
+  starAssessment.value = null
+  selectionScreen.value = 'background'
+  chosenCrew.value = []
+  crewPage.value = 0
+  captainDossierTab.value = 'stats'
+  crewDossierTab.value = 'history'
+  selectedOrigin.value = null
+  atTitle.value = false
+}
+function startNewVoyage() {
+  if (run.value && !confirmNewVoyage.value) {
+    confirmNewVoyage.value = true
+    return
+  }
+  confirmNewVoyage.value = false
+  titlePanel.value = 'home'
+  restartVoyage()
+}
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'game-of-captains',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Space Couch | Kind Robots' })
 
 function selectCrewForDossier(id: CrewId) {
@@ -1132,6 +1905,288 @@ function toggleAway(id: CrewId) {
 </script>
 
 <style scoped>
+.cap-menu {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  background: #090e20;
+}
+.cap-menu-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% center;
+  z-index: -2;
+}
+.cap-menu-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #080d22fa 0%,
+    #080d22eb 35%,
+    #080d2288 66%,
+    #070d2444 100%
+  );
+}
+.cap-menu-body {
+  width: min(100%, 43rem);
+  padding: clamp(1rem, 3.5cqi, 3.5rem);
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 1.2vh, 0.85rem);
+}
+.cap-menu-kicker,
+.cap-menu-bottom {
+  font-size: clamp(0.55rem, 0.8cqi, 0.77rem);
+  letter-spacing: 0.16em;
+  font-weight: 900;
+  color: #ebc591;
+}
+.cap-menu h2 {
+  font:
+    900 clamp(3.4rem, 7.7cqi, 8rem)/0.86 Georgia,
+    serif;
+  letter-spacing: -0.08em;
+  text-shadow: 0 5px 25px #070a18;
+}
+.cap-menu h2 em {
+  color: #ffc59c;
+  font-style: italic;
+}
+.cap-menu-deck {
+  max-width: 44ch;
+  font-size: clamp(0.81rem, 1.3cqi, 1.17rem);
+  line-height: 1.4;
+  color: #d9e8ed;
+}
+.cap-menu-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.4rem;
+}
+.cap-menu-actions button,
+.cap-menu-detail button {
+  border: 1px solid #91bbc0;
+  border-left: 3px solid #fbc997;
+  border-radius: 0.4rem;
+  background: #14263adf;
+  color: #fff2dd;
+  text-align: left;
+  padding: 0.85rem;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.1cqi, 0.94rem);
+}
+.cap-menu-actions button:hover,
+.cap-menu-actions button:focus-visible,
+.cap-menu-detail button:hover {
+  background: #2e5065;
+  border-color: #ffdda7;
+}
+.cap-menu-actions button span {
+  float: right;
+  color: #ffc48e;
+}
+.cap-menu-actions button small {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.74em;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #c3dae0;
+}
+.cap-menu-detail {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cap-menu-detail h2 {
+  font:
+    900 clamp(1.4rem, 2.8cqi, 2rem) Georgia,
+    serif;
+  color: #f8cc9c;
+}
+.cap-menu-detail p {
+  color: #d6e1e6;
+  font-size: 0.78rem;
+}
+.cap-menu-detail button b {
+  float: right;
+  color: #9ee7e7;
+}
+.cap-menu-detail button[aria-pressed='true'] {
+  border-color: #9ee7e7;
+  background: #235061;
+}
+.cap-menu-journal {
+  flex: 1;
+  min-height: 0;
+  max-height: min(26vh, 13rem);
+  padding: 0.25rem 0.65rem;
+  border-left: 2px solid #c0a17a;
+}
+.cap-menu-journal p {
+  margin: 0.4rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cap-menu-log-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+}
+.cap-menu-log-nav button {
+  padding: 0.3rem;
+}
+.cap-menu-log-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cap-menu-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  background: #291f32ee;
+  padding: 0.65rem;
+  border: 1px solid #e5ba80;
+}
+.cap-menu-confirm p {
+  flex-basis: 100%;
+  font-size: 0.76rem;
+}
+.cap-menu-confirm button {
+  padding: 0.45rem;
+  border: 1px solid #dbb98b;
+  color: #ffdeb3;
+  font-size: 0.7rem;
+}
+.cap-menu-bottom {
+  margin-top: 0.2rem;
+}
+.cap-origins {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.cap-origin {
+  min-width: 0;
+  display: flex;
+  gap: 0.5rem;
+  border: 1px solid #658796;
+  background: #192c40;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  text-align: left;
+}
+.cap-origin:hover,
+.cap-origin:focus-visible,
+.cap-origin.chosen {
+  border-color: #ffd39d;
+  background: #294a56;
+}
+.cap-origin-glyph {
+  font:
+    900 1.5rem Georgia,
+    serif;
+  color: #f8c58f;
+}
+.cap-origin strong,
+.cap-origin small {
+  display: block;
+}
+.cap-origin strong {
+  font-size: 0.74rem;
+  color: #f9e7d1;
+}
+.cap-origin small {
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: #b8cfd5;
+}
+.cap-origin .cap-origin-perk {
+  margin-top: 0.3rem;
+  color: #ffd29e;
+}
+.cap-step-back {
+  border: 0;
+  padding: 0.25rem;
+  color: #ffd49d;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+.cap-reduce-motion *,
+.cap-reduce-motion *::before,
+.cap-reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.cap-large-type .cap-menu-deck,
+.cap-large-type .cap-origin small,
+.cap-large-type .cap-insight p {
+  font-size: 1rem;
+}
+@media (max-width: 700px) {
+  .cap-menu-image {
+    object-position: 72% center;
+    opacity: 0.6;
+  }
+  .cap-menu-body {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .cap-menu h2 {
+    font-size: clamp(2.8rem, 12vw, 5rem);
+  }
+  .cap-menu-actions {
+    gap: 0.4rem;
+  }
+  .cap-menu-actions button {
+    padding: 0.6rem;
+  }
+  .cap-origins {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .cap-origin {
+    padding: 0.35rem;
+  }
+  .cap-origin-glyph {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 450px) and (max-height: 720px) {
+  .cap-menu-body {
+    gap: 0.3rem;
+  }
+  .cap-menu h2 {
+    font-size: 2.7rem;
+  }
+  .cap-menu-deck {
+    font-size: 0.74rem;
+  }
+  .cap-menu-actions button {
+    padding: 0.5rem;
+  }
+  .cap-menu-bottom {
+    display: none;
+  }
+}
 .cap-shell {
   gap: 0;
   background: #080e1d;
@@ -1193,6 +2248,411 @@ function toggleAway(id: CrewId) {
   background: #802d2d;
   padding: 0.3rem 1rem;
   font-size: 0.75rem;
+}
+
+.cap-layout.cap-layout--personnel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.cap-layout--personnel > .cap-stage {
+  display: none;
+}
+.cap-layout--personnel .cap-bridge {
+  min-width: 0;
+  border-left: 0;
+  background:
+    linear-gradient(90deg, #0d1b30f5, #11243de8 65%, #0b132adc),
+    url('/game-of-captains/space-couch-stage.svg') center / cover;
+}
+.cap-layout--personnel .cap-personnel-scroll {
+  overflow: hidden;
+  min-height: 0;
+  padding: clamp(0.4rem, 1.2cqi, 1rem);
+  container-type: size;
+}
+.cap-personnel-frame {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  gap: clamp(0.3rem, 1.1cqh, 0.8rem);
+  overflow: hidden;
+}
+.cap-personnel-frame[data-screen='background'] {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.cap-personnel-frame[data-screen='captain'],
+.cap-personnel-frame[data-screen='crew'] {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.cap-personnel-frame .cap-heading {
+  grid-column: 1 / -1;
+  min-height: 0;
+  margin: 0;
+  padding-right: 11.5rem;
+}
+.cap-personnel-frame[data-screen='background'] .cap-heading {
+  padding-right: 0;
+}
+.cap-personnel-frame .cap-heading h2 {
+  font-size: clamp(1.15rem, 2.4cqi, 2rem);
+}
+.cap-personnel-frame .cap-heading p {
+  max-width: 70ch;
+  font-size: clamp(0.68rem, 1.2cqi, 0.9rem);
+  line-height: 1.25;
+}
+.cap-personnel-frame > .cap-step-back,
+.cap-personnel-frame > .cap-option {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: auto;
+  max-width: 11rem;
+  margin: 0;
+  padding: 0.5rem;
+  font-size: 0.7rem;
+  text-align: right;
+}
+.cap-personnel-frame > .cap-option small {
+  display: none;
+}
+.cap-personnel-frame .cap-origins {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1.2cqh, 0.8rem);
+}
+.cap-personnel-frame .cap-origin {
+  min-height: 0;
+  align-items: center;
+  padding: clamp(0.35rem, 1.5cqi, 1rem);
+  gap: clamp(0.3rem, 1cqi, 0.8rem);
+}
+.cap-personnel-frame .cap-origin-glyph {
+  font-size: clamp(1.45rem, 3cqi, 2.6rem);
+}
+.cap-personnel-frame .cap-origin strong {
+  font-size: clamp(0.78rem, 1.4cqi, 1.1rem);
+  line-height: 1.12;
+}
+.cap-personnel-frame .cap-origin small {
+  font-size: clamp(0.65rem, 1.05cqi, 0.88rem);
+  line-height: 1.25;
+}
+.cap-personnel-frame .cap-primary {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: clamp(2.6rem, 6cqh, 3.5rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-captains {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.25rem, 0.8cqh, 0.65rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-captain {
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(0.3rem, 1cqi, 0.85rem);
+  gap: 0.5rem;
+}
+.cap-personnel-frame .cap-captain-icon,
+.cap-personnel-frame .cap-monogram {
+  flex: 0 0 clamp(2rem, 4.5cqi, 3.7rem);
+  width: clamp(2rem, 4.5cqi, 3.7rem);
+  height: clamp(2rem, 4.5cqi, 3.7rem);
+}
+.cap-personnel-frame .cap-captain strong,
+.cap-personnel-frame .cap-crew-button strong {
+  font-size: clamp(0.7rem, 1.15cqi, 0.98rem);
+}
+.cap-personnel-frame .cap-captain small,
+.cap-personnel-frame .cap-crew-button small {
+  font-size: clamp(0.6rem, 0.9cqi, 0.78rem);
+}
+.cap-personnel-dossier {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: clamp(0.3rem, 0.9cqh, 0.75rem);
+  overflow: hidden;
+  padding: clamp(0.4rem, 1.1cqi, 0.85rem);
+  border: 1px solid #91bbc399;
+  border-radius: 0.8rem;
+  background: linear-gradient(160deg, #1f384fe8, #172238ee);
+}
+.cap-dossier-header {
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  gap: clamp(0.4rem, 1.1cqi, 0.85rem);
+}
+.cap-dossier-header img,
+.cap-dossier-monogram {
+  flex: 0 0 clamp(3rem, 6cqi, 6rem);
+  width: clamp(3rem, 6cqi, 6rem);
+  height: clamp(3rem, 6cqi, 6rem);
+  object-fit: cover;
+  border: 2px solid #f2c893;
+  border-radius: 0.65rem;
+}
+.cap-dossier-monogram {
+  display: grid;
+  place-items: center;
+  font:
+    900 2rem Georgia,
+    serif;
+  color: #f7c994;
+  background: #30465d;
+}
+.cap-dossier-header > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.cap-dossier-header strong,
+.cap-dossier-header small {
+  display: block;
+  line-height: 1.2;
+}
+.cap-dossier-header strong {
+  color: #ffe2bc;
+  font-size: clamp(0.8rem, 1.5cqi, 1.15rem);
+}
+.cap-dossier-header small {
+  color: #bcdbdf;
+  font-size: clamp(0.64rem, 0.95cqi, 0.78rem);
+}
+.cap-dossier-header button {
+  align-self: flex-start;
+  padding: 0.4rem;
+  border: 1px solid #d8b887;
+  border-radius: 0.3rem;
+  white-space: nowrap;
+  color: #ffe2b7;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+.cap-dossier-header button:hover,
+.cap-dossier-header button:focus-visible,
+.cap-crew-pages button:hover:not(:disabled),
+.cap-crew-pages button:focus-visible {
+  background: #36556a;
+  outline-offset: 2px;
+}
+.cap-personnel-dossier .cap-insight {
+  min-height: 0;
+  margin: 0;
+  padding: 0.4rem;
+}
+.cap-personnel-dossier .cap-stats {
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cap-personnel-dossier .cap-stats > div {
+  padding: clamp(0.2rem, 0.8cqh, 0.6rem);
+}
+.cap-personnel-dossier .cap-stats strong {
+  margin-top: 0.1rem;
+  font-size: clamp(0.9rem, 1.8cqi, 1.5rem);
+}
+.cap-personnel-dossier .cap-dossier-story p,
+.cap-personnel-dossier .cap-dossier-story small {
+  margin: 0.2rem 0;
+  font-size: clamp(0.65rem, 0.95cqi, 0.84rem);
+  line-height: 1.35;
+}
+.cap-crew-roster {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  min-height: 0;
+  min-width: 0;
+  gap: clamp(0.2rem, 0.6cqh, 0.5rem);
+}
+.cap-personnel-frame .cap-crew-picker {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.2rem, 0.65cqh, 0.55rem);
+  margin: 0;
+}
+.cap-personnel-frame .cap-crew-button {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  text-align: center;
+  gap: clamp(0.15rem, 0.4cqh, 0.35rem);
+}
+.cap-personnel-frame .cap-crew-button > span:nth-child(2) {
+  min-width: 0;
+}
+.cap-personnel-frame .cap-crew-button > b {
+  position: absolute;
+  right: 0.4rem;
+  top: 0.4rem;
+}
+.cap-crew-pages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.3rem;
+  color: #9de6e8;
+  font-size: clamp(0.59rem, 0.95cqi, 0.76rem);
+  font-weight: 900;
+}
+.cap-crew-pages button {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid #88b2bd;
+  border-radius: 0.3rem;
+  color: #ffdbac;
+}
+.cap-crew-pages button:disabled {
+  opacity: 0.4;
+}
+.cap-personnel-frame .cap-team-note {
+  min-width: 0;
+  line-height: 1.3;
+  font-size: clamp(0.6rem, 0.92cqi, 0.75rem);
+}
+.cap-large-type .cap-personnel-frame .cap-crew-button strong,
+.cap-large-type .cap-personnel-frame .cap-captain strong {
+  font-size: clamp(0.85rem, 1.4cqi, 1.1rem);
+}
+@media (max-width: 650px) {
+  .cap-personnel-frame[data-screen='captain'],
+  .cap-personnel-frame[data-screen='crew'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.55fr) auto;
+  }
+  .cap-personnel-frame .cap-heading {
+    padding-right: 6.5rem;
+  }
+  .cap-personnel-frame .cap-heading p {
+    display: none;
+  }
+  .cap-personnel-frame > .cap-step-back,
+  .cap-personnel-frame > .cap-option {
+    max-width: 6.2rem;
+    font-size: 0.56rem;
+  }
+  .cap-personnel-frame .cap-origins {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-origin {
+    padding: 0.3rem;
+  }
+  .cap-personnel-frame .cap-origin-glyph {
+    font-size: 1.2rem;
+  }
+  .cap-personnel-frame .cap-captains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-crew-picker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-dossier {
+    min-height: 0;
+    grid-row: 3;
+    grid-column: 1;
+  }
+  .cap-dossier-header img,
+  .cap-dossier-monogram {
+    flex-basis: 2.3rem;
+    width: 2.3rem;
+    height: 2.3rem;
+  }
+  .cap-personnel-dossier .cap-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.2rem;
+  }
+  .cap-personnel-dossier .cap-stats > div {
+    padding: 0.2rem;
+  }
+  .cap-personnel-dossier .cap-stats strong {
+    font-size: 0.9rem;
+  }
+  .cap-personnel-dossier .cap-dossier-story p,
+  .cap-personnel-dossier .cap-dossier-story small {
+    font-size: clamp(0.59rem, 2vw, 0.76rem);
+    line-height: 1.2;
+  }
+  .cap-personnel-frame .cap-primary {
+    grid-row: 4;
+  }
+}
+@media (max-width: 420px) {
+  .cap-personnel-frame .cap-origin small {
+    font-size: 0.61rem;
+  }
+  .cap-personnel-frame .cap-captain-icon,
+  .cap-personnel-frame .cap-monogram {
+    flex-basis: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+  .cap-personnel-frame .cap-crew-button small {
+    display: none;
+  }
+  .cap-personnel-frame .cap-crew-pages {
+    font-size: 0.56rem;
+  }
+  .cap-personnel-frame .cap-crew-pages button {
+    padding: 0.3rem;
+  }
+}
+
+.cap-layout.cap-layout--stars {
+  display: block;
+  min-height: 0;
+}
+.cap-layout--stars > .cap-stage {
+  display: none;
+}
+.cap-layout--stars .cap-bridge {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+.cap-layout--stars .cap-scroll {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+.cap-layout.cap-layout--episode {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+.cap-layout--episode > .cap-stage {
+  display: none;
+}
+.cap-layout--episode .cap-bridge {
+  min-width: 0;
+  min-height: 0;
+  border-left: 0;
+}
+.cap-episode-scroll {
+  height: 100%;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 .cap-layout {
   display: grid;
@@ -1280,6 +2740,229 @@ function toggleAway(id: CrewId) {
   max-width: 43ch;
   color: #d5e5ed;
 }
+.cap-quest-portrait-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.cap-quest-portrait {
+  width: min(30%, 7.5rem);
+  max-height: 9rem;
+  min-width: 4.75rem;
+  flex: 0 0 auto;
+  border-radius: 0.4rem;
+  object-fit: cover;
+  border: 1px solid #e4c49888;
+}
+.cap-quest-portrait-line p {
+  flex: 1 1 12rem;
+}
+.cap-grand-quest,
+.cap-quest-phase {
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.45rem;
+  border: 1px solid #91b8bf7a;
+  border-radius: 0.65rem;
+  background: linear-gradient(150deg, #21354c, #18263b);
+}
+.cap-grand-quest strong,
+.cap-quest-phase strong {
+  color: #ffd9ac;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+.cap-grand-quest p,
+.cap-quest-phase p {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  margin: 0;
+  color: #f3eddf;
+}
+.cap-grand-quest small,
+.cap-quest-phase small {
+  color: #bed9df;
+  line-height: 1.5;
+}
+.cap-quest-reversal {
+  border-color: #f0bd80;
+  background: linear-gradient(150deg, #50382d, #293046);
+}
+.cap-redshirt-travel,
+.cap-redshirt-dorm,
+.cap-solar-circuit,
+.cap-casino-scene {
+  border: 1px solid
+    color-mix(in srgb, var(--color-primary, #e8b779) 45%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, #0e1b35 90%, transparent);
+  padding: clamp(0.75rem, 2cqi, 1.15rem);
+  display: grid;
+  gap: 0.7rem;
+}
+.cap-system-nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.5rem;
+}
+.cap-system-node {
+  display: grid;
+  gap: 0.3rem;
+  border: 1px solid #526b9a;
+  border-radius: 0.55rem;
+  padding: 0.65rem;
+  background: #111a2b;
+  opacity: 0.66;
+}
+.cap-system-node.active {
+  opacity: 1;
+  border-color: #f5be65;
+  box-shadow: inset 0 0 0 1px #f5be65;
+}
+.cap-system-node small,
+.cap-casino-description p {
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+.cap-casino-layout {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+}
+.cap-casino-art {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.7rem;
+  background: #142644;
+  min-width: 0;
+}
+.cap-casino-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cap-casino-art-pending {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1rem;
+  text-align: center;
+  color: #f6d198;
+  background: radial-gradient(ellipse at 68% 25%, #264d94 0, #0a1530 68%);
+}
+.cap-casino-art-pending strong {
+  font-size: clamp(1rem, 2cqi, 1.7rem);
+}
+.cap-casino-art-pending small {
+  opacity: 0.8;
+}
+.cap-venue-quests {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: 0.65rem;
+}
+.cap-venue-actions {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+.cap-venue-actions .cap-option {
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.cap-expedition-board {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid #c991857c;
+  background: linear-gradient(140deg, #311d31, #172c3c);
+  border-radius: 0.7rem;
+  padding: 0.85rem;
+}
+.cap-redshirt-dorm p,
+.cap-redshirt-travel p,
+.cap-expedition-card p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.cap-expedition-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.cap-expedition-head strong {
+  color: #ffd5b4;
+  font-size: 0.75rem;
+}
+.cap-expedition-head small {
+  color: #d0e3e6;
+  font-size: 0.68rem;
+}
+.cap-redshirt-list {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  max-height: 15rem;
+  overflow-y: auto;
+}
+.cap-redshirt-person {
+  display: grid;
+  gap: 0.23rem;
+  border: 1px solid #f39e8b88;
+  border-left: 4px solid #fa4c59;
+  border-radius: 0.4rem;
+  background: #3b2835;
+  padding: 0.5rem;
+}
+.cap-redshirt-person b {
+  color: #fff0e3;
+  font-size: 0.75rem;
+}
+.cap-redshirt-person small {
+  color: #c9dadd;
+  font-size: 0.65rem;
+  line-height: 1.3;
+}
+.cap-expedition-card {
+  display: grid;
+  gap: 0.6rem;
+  border: 1px solid #90a9b57a;
+  border-radius: 0.6rem;
+  padding: 0.8rem;
+  background: #182f3e;
+}
+.cap-expedition-card.completed {
+  border-color: #89cc9f;
+  background: #233c3b;
+}
+.cap-expedition-card label {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.cap-expedition-card select {
+  width: 100%;
+  padding: 0.55rem;
+  background: #24394c;
+  border: 1px solid #a9c8c7;
+  border-radius: 0.4rem;
+  color: #fff4e6;
+  font-size: 0.76rem;
+}
+.cap-expedition-card select:focus-visible {
+  outline: 2px solid #ffd5b4;
+}
+.cap-expedition-outcome {
+  color: #ffdbb6;
+  white-space: normal;
+}
 .cap-route-board {
   padding: 0.65rem;
   border: 1px solid #91b8bf5e;
@@ -1361,35 +3044,35 @@ function toggleAway(id: CrewId) {
   font-size: 0.7rem;
   line-height: 1.4;
 }
-.cap-character-promise, .cap-instinct {
+.cap-character-promise,
+.cap-instinct {
+  display: grid;
+  gap: 0.45rem;
   padding: 0.85rem;
   border: 1px solid #8ec3cd7a;
   border-radius: 0.7rem;
   background: linear-gradient(135deg, #253a49, #14243d);
-  display: grid;
-  gap: 0.45rem;
 }
-.cap-character-promise > span, .cap-instinct > span {
-  letter-spacing: 0.1em;
-  font-size: 0.64rem;
-  font-weight: 900;
-  color: #f9c998;
-}
-.cap-character-promise h3, .cap-instinct h3, .cap-crew-hook {
-  font: 800 1rem/1.4 Georgia, serif;
-  color: #ffe3c4;
+.cap-character-promise h3,
+.cap-instinct h3 {
   margin: 0;
+  color: #ffe3c4;
+  font: 800 1rem/1.4 Georgia, serif;
 }
-.cap-character-promise p, .cap-instinct p {
+.cap-character-promise p,
+.cap-instinct p {
+  margin: 0;
   font-size: 0.78rem;
   line-height: 1.55;
-  margin: 0;
 }
-.cap-character-promise strong {
-  color: #fed2a2;
+.cap-character-promise strong,
+.cap-instinct strong {
+  color: #f9c998;
   font-size: 0.7rem;
+  letter-spacing: 0.08em;
 }
-.cap-character-promise small, .cap-instinct-response {
+.cap-character-promise small,
+.cap-instinct-response {
   color: #c1d8dd;
   line-height: 1.5;
 }
@@ -1758,6 +3441,23 @@ function toggleAway(id: CrewId) {
   padding: 0.7rem;
   margin: 0.8rem 0;
 }
+.cap-callbacks {
+  border-left: 2px solid #f8c79780;
+  padding: 0.2rem 0 0.2rem 0.7rem;
+  margin: 0.6rem 0;
+}
+.cap-callbacks p {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  margin: 0.25rem 0;
+  color: #e5d6c8;
+}
+.cap-callbacks strong {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: #f8c797;
+  margin-right: 0.3rem;
+}
 .cap-antagonist strong {
   font-size: 0.6rem;
   letter-spacing: 0.14em;
@@ -1893,6 +3593,10 @@ function toggleAway(id: CrewId) {
   .cap-layout {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 41%) minmax(0, 59%);
+  }
+  .cap-layout.cap-layout--episode {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
   }
   .cap-bridge {
     border-left: 0;

@@ -27,6 +27,9 @@ import {
   SOLID_LEDGE,
   SOLID_PIPE,
   SOLID_WATER,
+  SOLID_ICE,
+  SOLID_SNOWBANK,
+  SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
   parseStage,
@@ -79,6 +82,15 @@ import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
 const W = 480
 const H = 270
 const GRAVITY = 0.43
+const AIR_JET_IMPULSE = 1.04
+const AIR_JET_COOLDOWN = 7
+const AIR_JET_TOP_SPEED = 5.2
+const AIR_JET_DRAG = 0.998
+const AIR_PRESSURE_CAPACITY = 100
+const AIR_PRESSURE_COST = 9
+const AIR_PRESSURE_RECOVERY = 0.14
+const AIR_CANISTER_REFILL = 65
+const AIR_DOCK_RECHARGE = 2.5
 const JUMP = -8.6
 /** Springstep power: a higher jump, and a float while A is held on the way down. */
 const SPRING_JUMP = -10.2
@@ -205,6 +217,8 @@ type FoeKind =
 
 type Foe = Body & {
   kind: FoeKind
+  giant?: boolean
+  giantHits?: number
   dir: number
   state: 'idle' | 'walk' | 'stunned' | 'kicked' | 'flat' | 'swoop' | 'gone'
   timer: number
@@ -281,6 +295,42 @@ const BRIDGE_CYCLE = 270
 const BRIDGE_LIT = 180
 
 type Vent = { x: number; y: number; offset: number }
+export type Icicle = {
+  x: number
+  y: number
+  top: number
+  vy: number
+  state: 'idle' | 'warning' | 'falling' | 'gone'
+  timer: number
+}
+export type Snowball = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  gone: boolean
+}
+/** A fixed anchor and phase for a rotating 2-tile-radius asteroid fragment. */
+export type OrbitingDebris = { x: number; y: number; offset: number }
+export type SolarGust = { x: number; y: number; offset: number }
+const SOLAR_CYCLE = 210
+const SOLAR_WARNING = 145
+const SOLAR_BLAST = 185
+const SOLAR_RADIUS = 142
+
+/** Pure, seeded motion used for drawing and collisions in the same frame. */
+export function orbitingDebrisPosition(debris: OrbitingDebris, tick: number) {
+  const angle = tick * 0.032 + debris.offset
+  return {
+    x: debris.x + Math.cos(angle) * 34,
+    y: debris.y + Math.sin(angle) * 34,
+  }
+}
+
+export function solarGustPhase(gust: SolarGust, tick: number) {
+  return (tick + gust.offset) % SOLAR_CYCLE
+}
+
 type Spring = { x: number; y: number; squash: number }
 type Token = { x: number; y: number; taken: boolean }
 type Checkpoint = { x: number; y: number; reached: boolean }
@@ -334,10 +384,15 @@ export type PlumberRunOptions = {
   endless?: boolean
   /** The Endless run's zone seed (default: drawn from the rng). */
   endlessSeed?: number
+  /** A Maker playtest: run this actual course without touching campaign save slots. */
+  customLevel?: StageDef
 }
 
 const isWall = (s: number) =>
   s === SOLID_GROUND ||
+  s === SOLID_ICE ||
+  s === SOLID_SNOWBANK ||
+  s === SOLID_FRAGILE_ICE ||
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
   s === SOLID_PIPE ||
@@ -361,6 +416,8 @@ export class PlumberRun implements ArcadeGameInstance {
   modeTimer = 0
   menu = 0
   storyPanel = 0
+  /** Maker runs use the normal physics but never alter campaign progress. */
+  readonly customLevel: StageDef | null
   /** An Endless run: zone after zone, faster each time, scored in metres. */
   endless = false
   /** The Endless zone she is running (0 is the first). */
@@ -400,6 +457,19 @@ export class PlumberRun implements ArcadeGameInstance {
 
   hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
   ground = false
+  /** Space is momentum-led; the directional input aims the nozzle but cannot propel alone. */
+  airAim = { x: 1, y: 0 }
+  airPlume = 0
+  airCooldown = 0
+  /** Compressed propellant is a pacing resource, never an oxygen/death timer. */
+  airPressure = AIR_PRESSURE_CAPACITY
+  airCanisters: { x: number; y: number; taken: boolean }[] = []
+  airDocks: { x: number; y: number }[] = []
+  airDockActive = false
+  gravityWells: { x: number; y: number }[] = []
+  orbitingDebris: OrbitingDebris[] = []
+  solarGusts: SolarGust[] = []
+  solarBurst = 0
   grace = 0
   jumpBuffer = 0
   jumpHeld = false
@@ -420,6 +490,9 @@ export class PlumberRun implements ArcadeGameInstance {
   platforms: Platform[] = []
   foes: Foe[] = []
   vents: Vent[] = []
+  icicles: Icicle[] = []
+  snowballs: Snowball[] = []
+  fragileIce = new Map<number, number>()
   springs: Spring[] = []
   tokensOnMap: Token[] = []
   checkpoints: Checkpoint[] = []
@@ -464,6 +537,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   constructor(options: ArcadeGameOptions, run: PlumberRunOptions = {}) {
     this.demo = options.demo
+    this.customLevel = run.customLevel ?? null
     this.autopilot = options.demo || run.autopilot === true
     this.sound = options.sound
     this.rng = options.rng
@@ -474,7 +548,11 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cursor = rosterIndex(this.heroineSeed)
     this.endlessBest = this.file.endlessBest
     this.loadSlotMemory(this.resume)
-    if (run.endless) {
+    if (this.customLevel) {
+      this.loadDef(this.customLevel)
+      this.stageIndex = 0
+      this.mode = 'play'
+    } else if (run.endless) {
       this.beginEndless(run.endlessSeed)
       if (this.autopilot) this.mode = 'play'
     } else if (this.autopilot) {
@@ -493,7 +571,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */
   get save(): PlumberFile | null | undefined {
-    if (this.demo) return undefined
+    if (this.demo || this.customLevel) return undefined
     const empty = this.file.slots.every((slot) => !slot)
     return empty && !this.file.endlessBest ? null : this.file
   }
@@ -600,7 +678,10 @@ export class PlumberRun implements ArcadeGameInstance {
         if (!this.modeTimer) this.afterDeath()
         return
       case 'clear':
-        if (!this.modeTimer) this.nextStage()
+        if (!this.modeTimer) {
+          if (this.customLevel) this.over = true
+          else this.nextStage()
+        }
         return
       case 'victory':
         if (
@@ -875,6 +956,20 @@ export class PlumberRun implements ArcadeGameInstance {
     this.platforms = []
     this.foes = []
     this.vents = []
+    this.icicles = []
+    this.snowballs = []
+    this.gravityWells = []
+    this.orbitingDebris = []
+    this.solarGusts = []
+    this.solarBurst = 0
+    this.airAim = { x: 1, y: 0 }
+    this.airPlume = 0
+    this.airCooldown = 0
+    this.airPressure = AIR_PRESSURE_CAPACITY
+    this.airCanisters = []
+    this.airDocks = []
+    this.airDockActive = false
+    this.fragileIce.clear()
     this.springs = []
     this.tokensOnMap = []
     this.checkpoints = []
@@ -919,6 +1014,8 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'tea-kettle-knight':
           this.foes.push({
             kind: spawn.kind,
+            giant: spawn.giant === true,
+            giantHits: 0,
             x: cx,
             y: bottom,
             vx: 0,
@@ -1018,6 +1115,50 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'steam-vent':
           this.vents.push({ x: cx, y: bottom, offset: spawn.col * 7 })
           break
+        case 'air-canister':
+          this.airCanisters.push({ x: cx, y: bottom - TILE / 2, taken: false })
+          break
+        case 'air-dock':
+          this.airDocks.push({ x: cx, y: bottom - TILE / 2 })
+          break
+        case 'gravity-well':
+          this.gravityWells.push({ x: cx, y: bottom - TILE / 2 })
+          break
+        case 'orbital-debris':
+          if (stage.space)
+            this.orbitingDebris.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: spawn.col * 0.71 + spawn.row * 0.37,
+            })
+          break
+        case 'solar-gust':
+          if (stage.space)
+            this.solarGusts.push({
+              x: cx,
+              y: bottom - TILE / 2,
+              offset: (spawn.col * 7 + spawn.row * 11) % SOLAR_CYCLE,
+            })
+          break
+        case 'icicle':
+          this.icicles.push({
+            x: cx,
+            y: bottom,
+            top: bottom,
+            vy: 0,
+            state: 'idle',
+            timer: 0,
+          })
+          break
+        case 'snowball':
+          this.snowballs.push({
+            x: cx,
+            y: bottom,
+            vx: spawn.col % 2 ? 1.7 : -1.7,
+            vy: 0,
+            gone: false,
+          })
+          break
         case 'springstep':
           this.springs.push({ x: cx, y: bottom, squash: 0 })
           break
@@ -1079,6 +1220,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.ground = false
     this.riding = null
     this.hearts = HEARTS
+    this.airPressure = AIR_PRESSURE_CAPACITY
+    this.airDockActive = false
     this.immune = 60
     this.facing = 1
     this.camera = this.cameraTarget()
@@ -1175,6 +1318,61 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  /** Aim toward the desired travel direction; air is expelled behind the heroine. */
+  private updateAirPropulsion(keys: InputFrame) {
+    const hero = this.hero
+    const dx = Number(keys.held.right) - Number(keys.held.left)
+    const dy = Number(keys.held.down) - Number(keys.held.up)
+    if (dx || dy) {
+      const norm = Math.hypot(dx, dy)
+      this.airAim = { x: dx / norm, y: dy / norm }
+      if (dx) this.facing = dx > 0 ? 1 : -1
+    }
+    if (this.airCooldown > 0) this.airCooldown--
+    if (this.airPlume > 0) this.airPlume--
+    hero.vx *= AIR_JET_DRAG
+    hero.vy *= AIR_JET_DRAG
+    if (keys.held.a) {
+      hero.vx *= 0.89
+      hero.vy *= 0.89
+    }
+    if (
+      (keys.held.x || keys.pressed.x) &&
+      this.airCooldown === 0 &&
+      this.airPressure >= AIR_PRESSURE_COST
+    ) {
+      this.airPressure = Math.max(0, this.airPressure - AIR_PRESSURE_COST)
+      hero.vx += this.airAim.x * AIR_JET_IMPULSE
+      hero.vy += this.airAim.y * AIR_JET_IMPULSE
+      const speed = Math.hypot(hero.vx, hero.vy)
+      if (speed > AIR_JET_TOP_SPEED) {
+        hero.vx *= AIR_JET_TOP_SPEED / speed
+        hero.vy *= AIR_JET_TOP_SPEED / speed
+      }
+      this.airCooldown = AIR_JET_COOLDOWN
+      this.airPlume = 7
+      this.sound.play('shoot')
+    } else {
+      // A tiny reserve compressor prevents soft locks when a builder omits canisters.
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_PRESSURE_RECOVERY,
+      )
+    }
+    for (const well of this.gravityWells) {
+      const xx = well.x - hero.x
+      const yy = well.y - hero.y - TALL / 2
+      const distance = Math.hypot(xx, yy)
+      if (distance < 18) {
+        this.hurt(xx > 0 ? -1 : 1)
+      } else if (distance < 140) {
+        const pull = 0.09 * (1 - distance / 140)
+        hero.vx += (xx / distance) * pull
+        hero.vy += (yy / distance) * pull
+      }
+    }
+  }
+
   private updatePlay(keys: InputFrame) {
     this.updatePlatforms()
     if (this.immune) this.immune--
@@ -1187,25 +1385,48 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.y += this.riding.dy
     }
     const runner = this.runnerOn
-    const move = runner ? 1 : Number(keys.held.right) - Number(keys.held.left)
-    this.updateDuck(keys, move)
-    this.running = runner || (keys.held.b === true && move !== 0)
+    const move = this.stage.space
+      ? 0
+      : runner
+        ? 1
+        : Number(keys.held.right) - Number(keys.held.left)
+    if (this.stage.space) {
+      this.duckHeld = false
+      this.ducking = false
+    } else this.updateDuck(keys, move)
+    this.running =
+      !this.stage.space && (runner || (keys.held.b === true && move !== 0))
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
-    if (runner) hero.vx += (top - hero.vx) * 0.25
+    const onIce =
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_ICE) ||
+      (this.ground &&
+        this.solidAt(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 2) / TILE),
+        ) === SOLID_FRAGILE_ICE)
+    if (this.stage.space) this.updateAirPropulsion(keys)
+    else if (runner) hero.vx += (top - hero.vx) * 0.25
     // A crouch keeps a run's momentum as a slide, then crawls.
     else if (this.ducking && this.ground) {
       if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
       else hero.vx = move * CRAWL
     } else if (move) {
-      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
+      let next =
+        hero.vx +
+        move *
+          (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
-    } else hero.vx *= 0.77
+    } else hero.vx *= onIce ? 0.965 : 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
-    if (keys.pressed.y) this.useSpecial()
-    this.driveSpecial(keys)
+    if (!this.stage.space && keys.pressed.y) this.useSpecial()
+    if (!this.stage.space) this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
     const blocked = this.heroMoveX(hero.vx)
     if (blocked) hero.vx = 0
@@ -1220,8 +1441,8 @@ export class PlumberRun implements ArcadeGameInstance {
     } else this.pinned = 0
     if (this.ground) this.grace = 7
     else if (this.grace) this.grace--
-    const jumpDown = keys.pressed.a || keys.pressed.up
-    this.jumpHeld = keys.held.a || keys.held.up
+    const jumpDown = !this.stage.space && (keys.pressed.a || keys.pressed.up)
+    this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
     if (jumpDown) this.jumpBuffer = 7
     else if (this.jumpBuffer) this.jumpBuffer--
     if (this.jumpBuffer && this.grace) {
@@ -1233,12 +1454,14 @@ export class PlumberRun implements ArcadeGameInstance {
       this.sound.play('blip')
     }
     if (hero.vy >= 0) this.sprung = false
-    if (!this.jumpHeld && !this.sprung && hero.vy < -3.4) hero.vy = -3.4
+    if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
+      hero.vy = -3.4
     const floating = this.power === 'springstep' && this.jumpHeld && hero.vy > 0
-    hero.vy = Math.min(
-      floating ? 4 : 9,
-      hero.vy + GRAVITY * (floating ? FLOAT : 1),
-    )
+    if (!this.stage.space)
+      hero.vy = Math.min(
+        floating ? 4 : 9,
+        hero.vy + GRAVITY * (floating ? FLOAT : 1),
+      )
     const prevBottom = hero.y + TALL
     const wasGround = this.ground
     this.ground = false
@@ -1271,11 +1494,32 @@ export class PlumberRun implements ArcadeGameInstance {
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
     this.updateSprings(prevBottom)
+    if (this.stage.space) {
+      // A vacuum stage still has a playable hull. No endless off-screen drift.
+      if (hero.x < HALF) {
+        hero.x = HALF
+        hero.vx = 0
+      } else if (hero.x > this.stage.cols * TILE - HALF) {
+        hero.x = this.stage.cols * TILE - HALF
+        hero.vx = 0
+      }
+      if (hero.y < 0) {
+        hero.y = 0
+        hero.vy = 0
+      } else if (hero.y > this.stage.rows * TILE - TALL) {
+        hero.y = this.stage.rows * TILE - TALL
+        hero.vy = 0
+      }
+    }
+    this.crackIce()
     if (keys.pressed.down && this.ground) this.tryDoor()
-    if (keys.pressed.x && !this.cooldown) this.useTool()
+    if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
+    this.collectAirCanisters()
     this.updateFoes(prevBottom)
+    this.updateWinterHazards(prevBottom)
+    if (this.stage.space) this.updateSpaceHazards()
     this.updateVents()
     this.updateCargo()
     this.updateSoot()
@@ -1303,7 +1547,9 @@ export class PlumberRun implements ArcadeGameInstance {
     if (
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
-      hero.y + TALL > this.goal.y - 48
+      hero.y + TALL > this.goal.y - 48 &&
+      (!this.stage.space ||
+        Math.abs(hero.y + TALL / 2 - (this.goal.y - 24)) < 36)
     )
       return this.stageClear()
     if (this.stage.gate !== null && !this.locked) {
@@ -1756,7 +2002,11 @@ export class PlumberRun implements ArcadeGameInstance {
       col++
     )
       for (let row = rowTop - 1; row <= rowBottom; row++)
-        if (this.solidAt(col, row) === SOLID_CRATE && !lifted) {
+        if (this.solidAt(col, row) === SOLID_SNOWBANK) {
+          this.setSolid(col, row, 0)
+          this.score += 40
+          struck = true
+        } else if (this.solidAt(col, row) === SOLID_CRATE && !lifted) {
           this.setSolid(col, row, 0)
           struck = true
           if (this.power === 'pocket-lift') {
@@ -1826,6 +2076,33 @@ export class PlumberRun implements ArcadeGameInstance {
         this.carrying = false
       }
       this.sound.play('level')
+    }
+  }
+
+  private collectAirCanisters() {
+    if (!this.stage.space) return
+    const x = this.hero.x
+    const y = this.hero.y + TALL / 2
+    this.airDockActive = false
+    for (const dock of this.airDocks) {
+      if (Math.hypot(x - dock.x, y - dock.y) > 40) continue
+      this.airDockActive = true
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_DOCK_RECHARGE,
+      )
+    }
+    for (const canister of this.airCanisters) {
+      if (canister.taken) continue
+      if (Math.abs(x - canister.x) > 16 || Math.abs(y - canister.y) > 18)
+        continue
+      canister.taken = true
+      this.airPressure = Math.min(
+        AIR_PRESSURE_CAPACITY,
+        this.airPressure + AIR_CANISTER_REFILL,
+      )
+      this.score += 125
+      this.sound.play('extra')
     }
   }
 
@@ -1953,7 +2230,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private defeat(foe: Foe, flipped: boolean, points: number) {
     foe.fade = 30
     foe.flipped = flipped
-    this.score += points
+    this.score += points + (foe.giant ? 200 : 0)
     if (foe.carry) {
       this.tokens += foe.carry
       foe.carry = 0
@@ -1996,8 +2273,10 @@ export class PlumberRun implements ArcadeGameInstance {
     fall = 9,
   ): boolean {
     foe.vx = foe.dir * speed
-    const body: Body = { x: foe.x, y: foe.y - 16, vx: foe.vx, vy: foe.vy }
-    if (speed && this.moveX(body, 9, 16, foe.vx)) foe.dir *= -1
+    const halfWidth = foe.giant ? 14 : 9
+    const height = foe.giant ? 32 : 16
+    const body: Body = { x: foe.x, y: foe.y - height, vx: foe.vx, vy: foe.vy }
+    if (speed && this.moveX(body, halfWidth, height, foe.vx)) foe.dir *= -1
     else if (speed && turnAtEdge && foe.vy === 0) {
       const aheadCol = Math.floor((body.x + foe.dir * 10) / TILE)
       const belowRow = Math.floor((foe.y + 2) / TILE)
@@ -2005,10 +2284,10 @@ export class PlumberRun implements ArcadeGameInstance {
       if (!isWall(s) && s !== SOLID_LEDGE && s !== SOLID_BRIDGE) foe.dir *= -1
     }
     body.vy = Math.min(fall, foe.vy + GRAVITY)
-    const landed = this.moveY(body, 9, 16, body.vy) === 'land'
+    const landed = this.moveY(body, halfWidth, height, body.vy) === 'land'
     if (landed) body.vy = 0
     foe.x = body.x
-    foe.y = body.y + 16
+    foe.y = body.y + height
     foe.vy = body.vy
     return landed
   }
@@ -2233,11 +2512,11 @@ export class PlumberRun implements ArcadeGameInstance {
       if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
       if (foe.kind === 'puddle-mimic' && foe.state === 'idle') continue
       const overlap =
-        Math.abs(foe.x - hero.x) < HALF + 9 &&
-        hero.y + TALL > foe.y - 18 &&
+        Math.abs(foe.x - hero.x) < HALF + (foe.giant ? 16 : 9) &&
+        hero.y + TALL > foe.y - (foe.giant ? 36 : 18) &&
         this.heroTop < foe.y
       if (!overlap || this.mode !== 'play') continue
-      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - 10
+      const stomp = hero.vy > 0.5 && prevBottom <= foe.y - (foe.giant ? 26 : 10)
       if (this.shielded && !stomp) {
         if (this.specialKind === 'charge') this.strikeFoe(foe)
         continue
@@ -2249,6 +2528,12 @@ export class PlumberRun implements ArcadeGameInstance {
       if (stomp) {
         hero.vy = this.jumpHeld ? -7.6 : -5.4
         this.ground = false
+        if (foe.giant && !foe.giantHits) {
+          foe.giantHits = 1
+          this.score += 50
+          this.sound.play('pop')
+          continue
+        }
         if (foe.kind === 'rivet-roller') {
           if (foe.state === 'stunned') this.kick(foe, hero.x < foe.x ? 1 : -1)
           else {
@@ -2315,10 +2600,151 @@ export class PlumberRun implements ArcadeGameInstance {
     this.waves = this.waves.filter((w) => w.x > left && w.x < right)
   }
 
+  private crackIce() {
+    if (!this.ground) return
+    const row = Math.floor((this.hero.y + TALL + 2) / TILE)
+    for (const col of [
+      Math.floor((this.hero.x - HALF + 2) / TILE),
+      Math.floor((this.hero.x + HALF - 2) / TILE),
+    ]) {
+      if (this.solidAt(col, row) !== SOLID_FRAGILE_ICE) continue
+      const id = row * this.stage.cols + col
+      const next = (this.fragileIce.get(id) ?? 0) + 1
+      if (next >= 42) {
+        this.setSolid(col, row, 0)
+        this.fragileIce.delete(id)
+        this.sound.play('pop')
+      } else this.fragileIce.set(id, next)
+    }
+  }
+
+  private updateWinterHazards(prevBottom: number) {
+    const hero = this.hero
+    for (const icicle of this.icicles) {
+      if (icicle.state === 'gone') continue
+      if (icicle.state === 'idle') {
+        if (
+          Math.abs(icicle.x - hero.x) <= 42 &&
+          hero.y + TALL >= icicle.top &&
+          hero.y <= icicle.top + 190
+        ) {
+          icicle.state = 'warning'
+          icicle.timer = 28
+          this.sound.play('warn')
+        }
+      } else if (icicle.state === 'warning') {
+        icicle.timer--
+        if (icicle.timer <= 0) icicle.state = 'falling'
+      } else {
+        icicle.vy = Math.min(9, icicle.vy + 0.37)
+        icicle.y += icicle.vy
+        if (
+          Math.abs(icicle.x - hero.x) < HALF + 6 &&
+          icicle.y >= this.heroTop &&
+          icicle.y - 24 <= hero.y + TALL
+        )
+          this.hurt(icicle.x < hero.x ? 1 : -1)
+        const col = Math.floor(icicle.x / TILE)
+        const row = Math.floor((icicle.y + 1) / TILE)
+        if (
+          isWall(this.solidAt(col, row)) ||
+          icicle.y > this.stage.rows * TILE
+        ) {
+          icicle.state = 'gone'
+          this.sound.play('pop')
+        }
+      }
+    }
+    for (const ball of this.snowballs) {
+      if (ball.gone) continue
+      const direction = Math.sign(ball.vx)
+      const side = this.solidAt(
+        Math.floor((ball.x + direction * 10) / TILE),
+        Math.floor((ball.y - 8) / TILE),
+      )
+      if (isWall(side)) ball.vx *= -1
+      ball.x += ball.vx
+      const underneath = this.solidAt(
+        Math.floor(ball.x / TILE),
+        Math.floor((ball.y + 2) / TILE),
+      )
+      if (!isWall(underneath) && underneath !== SOLID_LEDGE) {
+        ball.vy = Math.min(8, ball.vy + GRAVITY)
+        ball.y += ball.vy
+      } else if (ball.vy > 0) {
+        ball.y = Math.floor((ball.y + 2) / TILE) * TILE
+        ball.vy = 0
+      }
+      if (
+        ball.x < 0 ||
+        ball.x > this.stage.cols * TILE ||
+        ball.y > this.stage.rows * TILE + 20
+      ) {
+        ball.gone = true
+        continue
+      }
+      if (
+        Math.abs(ball.x - hero.x) < HALF + 11 &&
+        hero.y + TALL > ball.y - 18 &&
+        this.heroTop < ball.y
+      ) {
+        if (hero.vy > 0.5 && prevBottom <= ball.y - 11) {
+          ball.gone = true
+          hero.vy = -6
+          this.ground = false
+          this.score += 125
+          this.sound.play('pop')
+        } else this.hurt(ball.x < hero.x ? 1 : -1)
+      }
+    }
+  }
+
+  /** Space-only hazards: orbiting fragments deal contact damage; flares announce a radial push. */
+  private updateSpaceHazards() {
+    const hero = this.hero
+    const midY = hero.y + TALL / 2
+    if (this.solarBurst > 0) this.solarBurst--
+    for (const debris of this.orbitingDebris) {
+      const fragment = orbitingDebrisPosition(debris, this.tick)
+      if (
+        Math.abs(fragment.x - hero.x) < HALF + 10 &&
+        Math.abs(fragment.y - midY) < TALL / 2 + 10
+      )
+        this.hurt(hero.x < fragment.x ? -1 : 1)
+    }
+    for (const gust of this.solarGusts) {
+      if (solarGustPhase(gust, this.tick) !== SOLAR_BLAST) continue
+      const dx = hero.x - gust.x
+      const dy = midY - gust.y
+      const distance = Math.hypot(dx, dy)
+      this.solarBurst = 17
+      if (distance >= SOLAR_RADIUS) continue
+      const strength = 3.1 * (1 - distance / (SOLAR_RADIUS * 1.6))
+      const inv = Math.max(distance, 1)
+      hero.vx = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vx + ((dx || 1) / inv) * strength),
+      )
+      hero.vy = Math.max(
+        -AIR_JET_TOP_SPEED,
+        Math.min(AIR_JET_TOP_SPEED, hero.vy + (dy / inv) * strength),
+      )
+      this.sound.play('warn')
+    }
+  }
+
   private updateCheckpoints() {
     for (const flag of this.checkpoints) {
-      if (flag.reached || this.hero.x < flag.x - 8) continue
+      if (flag.reached) continue
+      if (this.stage.space) {
+        if (
+          Math.abs(this.hero.x - flag.x) > 16 ||
+          Math.abs(this.hero.y + TALL / 2 - (flag.y - TALL / 2)) > 22
+        )
+          continue
+      } else if (this.hero.x < flag.x - 8) continue
       flag.reached = true
+      if (this.stage.space) this.airPressure = AIR_PRESSURE_CAPACITY
       this.checkpoint = { x: flag.x, y: flag.y - TALL }
       this.score += 100
       this.sound.play('extra')
@@ -2555,13 +2981,15 @@ export class PlumberRun implements ArcadeGameInstance {
       this.deaths++
     }
     if (this.lives <= 0) {
-      this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
+      if (!this.customLevel)
+        this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
       this.setMode('over', 220)
       return
     }
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
-    this.loadStage(this.stageIndex)
+    if (this.customLevel) this.loadDef(this.customLevel)
+    else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
     })
@@ -3188,7 +3616,9 @@ export class PlumberRun implements ArcadeGameInstance {
           this.renderBanner(
             g,
             'GAME OVER',
-            `Your file keeps ${this.stage.code} on the world map`,
+            this.customLevel
+              ? 'Try this course again from the Maker'
+              : `Your file keeps ${this.stage.code} on the world map`,
           )
     }
   }
@@ -3845,9 +4275,186 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
+  private renderSpaceBackdrop(g: CanvasRenderingContext2D) {
+    const sky = g.createLinearGradient(0, 0, W, H)
+    sky.addColorStop(0, '#08112a')
+    sky.addColorStop(0.58, '#172755')
+    sky.addColorStop(1, '#070c1b')
+    g.fillStyle = sky
+    g.fillRect(0, 0, W, H)
+    g.save()
+    g.globalAlpha = 0.3
+    g.fillStyle = '#7a60b8'
+    g.beginPath()
+    g.ellipse(W * 0.75, H * 0.24, 110, 42, -0.45, 0, Math.PI * 2)
+    g.fill()
+    g.restore()
+    const drift = this.camera * 0.13
+    for (let i = 0; i < 85; i++) {
+      const x = (((i * 137 - drift) % (W + 20)) + W + 20) % (W + 20)
+      const y = (i * 79 + (i % 5) * 19) % H
+      g.fillStyle =
+        i % 7 === 0 ? '#ffe6bc' : i % 3 === 0 ? '#c4d8ff' : '#f2f7ff'
+      g.globalAlpha = 0.45 + (Math.sin(i * 17 + this.tick * 0.025) + 1) * 0.25
+      g.fillRect(x, y, i % 9 === 0 ? 3 : 1.5, i % 9 === 0 ? 3 : 1.5)
+    }
+    g.globalAlpha = 1
+  }
+
+  private renderSpaceFeatures(g: CanvasRenderingContext2D) {
+    for (const dock of this.airDocks) {
+      const pulse = Math.sin(this.tick * 0.07) * 0.15 + 0.8
+      g.save()
+      g.translate(dock.x, dock.y)
+      g.strokeStyle = this.airDockActive ? '#ffe49a' : '#80f5fa'
+      g.lineWidth = 3
+      g.beginPath()
+      g.arc(0, 0, 16, -1.3, 1.3)
+      g.arc(0, 0, 16, Math.PI - 1.3, Math.PI + 1.3)
+      g.stroke()
+      g.fillStyle = `rgba(85, 186, 244, ${pulse})`
+      g.fillRect(-9, -9, 18, 18)
+      g.fillStyle = '#f0fbff'
+      g.fillRect(-2, -6, 4, 12)
+      g.fillRect(-6, -2, 12, 4)
+      g.restore()
+    }
+    for (const canister of this.airCanisters) {
+      if (canister.taken) continue
+      const shimmer = 1 + Math.sin(this.tick / 15 + canister.x) * 0.12
+      g.save()
+      g.translate(canister.x, canister.y)
+      g.scale(shimmer, shimmer)
+      g.fillStyle = '#152a50'
+      g.strokeStyle = '#85f1ff'
+      g.lineWidth = 2
+      g.fillRect(-7, -10, 14, 20)
+      g.strokeRect(-7, -10, 14, 20)
+      g.fillStyle = '#ffe5a7'
+      g.fillRect(-4, -13, 8, 4)
+      g.fillStyle = '#7ce2ed'
+      g.fillRect(-3, -5, 6, 12)
+      g.restore()
+    }
+    for (const well of this.gravityWells) {
+      const phase = Math.sin(this.tick / 14) * 3
+      g.strokeStyle = 'rgba(173, 136, 250, 0.6)'
+      g.lineWidth = 2
+      for (const radius of [20, 30, 42]) {
+        g.beginPath()
+        g.arc(
+          well.x,
+          well.y,
+          radius + phase,
+          this.tick / 40,
+          this.tick / 40 + Math.PI * 1.5,
+        )
+        g.stroke()
+      }
+      g.fillStyle = '#47206f'
+      g.beginPath()
+      g.arc(well.x, well.y, 13, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#f5c0ff'
+      g.beginPath()
+      g.arc(well.x - 3, well.y - 4, 3, 0, Math.PI * 2)
+      g.fill()
+    }
+    for (const debris of this.orbitingDebris) {
+      const fragment = orbitingDebrisPosition(debris, this.tick)
+      g.strokeStyle = 'rgba(141, 183, 218, 0.45)'
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(debris.x, debris.y, 34, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = '#ffe6b1'
+      g.fillRect(debris.x - 2, debris.y - 2, 4, 4)
+      g.save()
+      g.translate(fragment.x, fragment.y)
+      g.rotate(this.tick * 0.04 + debris.offset)
+      g.fillStyle = '#a985a6'
+      g.strokeStyle = '#ffd89e'
+      g.lineWidth = 2
+      g.beginPath()
+      g.moveTo(-10, -5)
+      g.lineTo(-2, -11)
+      g.lineTo(10, -6)
+      g.lineTo(8, 5)
+      g.lineTo(-1, 11)
+      g.lineTo(-11, 5)
+      g.closePath()
+      g.fill()
+      g.stroke()
+      g.restore()
+    }
+    for (const gust of this.solarGusts) {
+      const phase = solarGustPhase(gust, this.tick)
+      const warning = phase >= SOLAR_WARNING && phase < SOLAR_BLAST
+      const blast = phase >= SOLAR_BLAST && phase < SOLAR_BLAST + 17
+      g.fillStyle = warning ? '#ffe3ae' : '#ec9a52'
+      g.beginPath()
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 10 + Math.sin(this.tick * 0.5) * 3 : 9,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+      g.strokeStyle = warning ? '#ffe4bd' : 'rgba(255, 183, 99, 0.65)'
+      g.lineWidth = warning ? 3 : 2
+      g.beginPath()
+      g.arc(
+        gust.x,
+        gust.y,
+        warning ? 16 + (phase - SOLAR_WARNING) / 2 : 14,
+        0,
+        Math.PI * 2,
+      )
+      g.stroke()
+      if (blast) {
+        g.strokeStyle = 'rgba(255, 217, 139, 0.6)'
+        g.lineWidth = 4
+        g.beginPath()
+        g.arc(
+          gust.x,
+          gust.y,
+          Math.min(SOLAR_RADIUS, 12 + (phase - SOLAR_BLAST) * 8),
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
+    }
+    const aim = this.airAim
+    const cx = this.hero.x
+    const cy = this.hero.y + TALL / 2
+    g.strokeStyle = 'rgba(194, 228, 255, 0.72)'
+    g.lineWidth = 2
+    g.beginPath()
+    g.moveTo(cx + aim.x * 12, cy + aim.y * 12)
+    g.lineTo(cx + aim.x * 25, cy + aim.y * 25)
+    g.stroke()
+    if (!this.airPlume) return
+    g.save()
+    g.translate(cx - aim.x * 10, cy - aim.y * 10)
+    g.rotate(Math.atan2(-aim.y, -aim.x))
+    g.fillStyle = 'rgba(153, 228, 255, 0.85)'
+    g.beginPath()
+    g.moveTo(0, -5)
+    g.lineTo(26 + this.airPlume * 2, 0)
+    g.lineTo(0, 5)
+    g.closePath()
+    g.fill()
+    g.fillStyle = 'rgba(250, 255, 255, 0.9)'
+    g.fillRect(8, -1, 10, 2)
+    g.restore()
+  }
+
   private renderStage(g: CanvasRenderingContext2D) {
     const max = Math.max(1, this.stage.cols * TILE - W)
     this.plate(g, this.stage.code, this.camera / max)
+    if (this.stage.space) this.renderSpaceBackdrop(g)
     const wash = g.createLinearGradient(0, 0, 0, H)
     wash.addColorStop(0, 'rgba(214, 247, 236, 0.08)')
     wash.addColorStop(1, 'rgba(255, 236, 214, 0.22)')
@@ -3856,7 +4463,9 @@ export class PlumberRun implements ArcadeGameInstance {
     g.save()
     g.translate(-Math.round(this.camera), -Math.round(this.cameraY))
     this.renderTiles(g)
+    if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
+    this.renderWinterHazards(g)
     this.renderFoes(g)
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)
@@ -3882,8 +4491,46 @@ export class PlumberRun implements ArcadeGameInstance {
       )
     this.renderSpecial(g, true)
     g.restore()
+    if (this.stage.snow) {
+      g.fillStyle = 'rgba(209, 237, 250, 0.12)'
+      g.fillRect(0, 0, W, H)
+      g.fillStyle = 'rgba(245, 251, 255, 0.88)'
+      for (let i = 0; i < 48; i++) {
+        const x =
+          ((i * 127 + this.tick * (0.35 + (i % 3) * 0.2)) % (W + 24)) - 12
+        const y =
+          ((i * 83 + this.tick * (0.65 + (i % 5) * 0.16)) % (H + 18)) - 9
+        g.fillRect(x, y, i % 5 === 0 ? 3 : 2, i % 4 === 0 ? 3 : 2)
+      }
+    }
     if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
+    if (this.stage.space) {
+      g.fillStyle = 'rgba(7, 14, 33, 0.84)'
+      g.fillRect(8, H - 29, 265, 21)
+      g.fillStyle = '#c7edff'
+      g.font = 'bold 11px system-ui'
+      g.textAlign = 'left'
+      g.fillText('◁ △ ▷ ▽ AIM · C AIR · A BRAKE · ◉ REFILL', 15, H - 15)
+      g.fillStyle = 'rgba(7, 14, 33, 0.88)'
+      g.fillRect(W - 139, 10, 129, 43)
+      g.fillStyle = '#e4f8ff'
+      g.font = 'bold 11px system-ui'
+      g.fillText('AIR  ' + Math.ceil(this.airPressure) + '%', W - 131, 26)
+      g.fillStyle = '#21334c'
+      g.fillRect(W - 131, 32, 113, 11)
+      g.fillStyle = this.airDockActive
+        ? '#ffe49a'
+        : this.airPressure < 25
+          ? '#f9aa6c'
+          : '#7ce2ed'
+      g.fillRect(
+        W - 130,
+        33,
+        (111 * this.airPressure) / AIR_PRESSURE_CAPACITY,
+        9,
+      )
+    }
   }
 
   /** Cues for running and the special: behind the heroine, then in front. */
@@ -4064,7 +4711,33 @@ export class PlumberRun implements ArcadeGameInstance {
           }
           continue
         }
-        if (s === SOLID_GROUND) {
+        if (s === SOLID_SNOWBANK) {
+          g.fillStyle = '#e9f5fc'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#b9d9eb'
+          g.fillRect(x, y + 12, TILE, 4)
+          g.fillStyle = '#fff'
+          g.fillRect(x + 1, y + 2, TILE - 3, 4)
+        } else if (s === SOLID_FRAGILE_ICE) {
+          const cracks = this.fragileIce.get(row * this.stage.cols + col) ?? 0
+          g.fillStyle = cracks > 20 ? '#98b6d2' : '#b1e4f5'
+          g.fillRect(x, y, TILE, TILE)
+          g.strokeStyle = '#eaf9ff'
+          g.beginPath()
+          g.moveTo(x + 3, y + 1)
+          g.lineTo(x + 9, y + 7)
+          g.lineTo(x + 6, y + 13)
+          if (cracks > 20) g.lineTo(x + 15, y + 15)
+          g.stroke()
+        } else if (s === SOLID_ICE) {
+          g.fillStyle = '#89cbe2'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#d9f7ff'
+          g.fillRect(x + 1, y + 1, TILE - 2, 3)
+          g.fillStyle = 'rgba(51, 123, 174, 0.42)'
+          g.fillRect(x + 2, y + 9, 5, 2)
+          g.fillRect(x + 10, y + 12, 5, 2)
+        } else if (s === SOLID_GROUND) {
           g.fillStyle = ground ?? '#2f6f68'
           g.fillRect(x, y, TILE, TILE)
           if (above !== SOLID_GROUND) {
@@ -4608,6 +5281,36 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private renderWinterHazards(g: CanvasRenderingContext2D) {
+    for (const icicle of this.icicles) {
+      if (icicle.state === 'gone') continue
+      const wiggle =
+        icicle.state === 'warning' ? Math.sin(this.tick * 2) * 2 : 0
+      g.fillStyle = icicle.state === 'warning' ? '#ffe4ae' : '#d0f4ff'
+      g.beginPath()
+      g.moveTo(icicle.x - 7 + wiggle, icicle.y - 22)
+      g.lineTo(icicle.x + 7 + wiggle, icicle.y - 22)
+      g.lineTo(icicle.x + wiggle, icicle.y + 1)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = '#77bcd9'
+      g.stroke()
+    }
+    for (const ball of this.snowballs) {
+      if (ball.gone) continue
+      g.fillStyle = '#f6fcff'
+      g.beginPath()
+      g.arc(ball.x, ball.y - 10, 10, 0, Math.PI * 2)
+      g.fill()
+      g.strokeStyle = '#86bdda'
+      g.lineWidth = 2
+      g.stroke()
+      g.beginPath()
+      g.arc(ball.x - 2, ball.y - 10, 5, this.tick / 8, this.tick / 8 + 3)
+      g.stroke()
+    }
+  }
+
   private renderFoes(g: CanvasRenderingContext2D) {
     const sizes: Record<FoeKind, number> = {
       pumpbug: 22,
@@ -4640,7 +5343,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const anim = ENEMY_ANIMATIONS[FOE_ANIMATION[foe.kind]]!
       const alpha = foe.fade ? Math.min(1, foe.fade / 12) : 1
       const frame = this.foeFrame(foe)
-      const tall = sizes[foe.kind]
+      const tall = sizes[foe.kind] * (foe.giant ? 2 : 1)
       const flipX = foe.dir < 0
       if (
         drawSheetFrame(
@@ -4660,7 +5363,13 @@ export class PlumberRun implements ArcadeGameInstance {
       g.globalAlpha = alpha
       g.fillStyle = foe.kind === 'pumpbug' ? '#d65a7d' : '#7d8a96'
       g.beginPath()
-      g.arc(foe.x, foe.y - 9, 9, 0, Math.PI * 2)
+      g.arc(
+        foe.x,
+        foe.y - (foe.giant ? 18 : 9),
+        foe.giant ? 18 : 9,
+        0,
+        Math.PI * 2,
+      )
       g.fill()
       g.globalAlpha = 1
     }

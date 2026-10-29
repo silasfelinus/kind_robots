@@ -7,7 +7,7 @@
       "pronouns": "he/him",
       "backstory": "A night-shift line cook caught in a gas-main explosion under a food-truck rally. He walked out of the fireball glowing and has run at fever temperature ever since.",
       "student": {
-        "alias": "Hotplate",
+        "alias": "Backdraft",
         "focus": "brawler",
         "stats": {
           "might": 3,
@@ -33,7 +33,7 @@
         "method": "Walks into fires nobody else can enter and carries people out inside the shield of his own heat."
       },
       "villain": {
-        "alias": "Flashpoint",
+        "alias": "Backdraft",
         "focus": "mastermind",
         "stats": {
           "might": 2,
@@ -61,7 +61,7 @@
       "pronouns": "she/her",
       "backstory": "The youngest skydiving instructor at Comet Airfield until lightning struck her mid-jump. She never finished falling.",
       "student": {
-        "alias": "Windsock",
+        "alias": "Skyline",
         "focus": "acrobat",
         "stats": {
           "might": 1,
@@ -87,7 +87,7 @@
         "method": "Catches falling window-washers, outruns traffic with donor organs and talks people down from ledges at eye level."
       },
       "villain": {
-        "alias": "The Vacuum",
+        "alias": "Skyline",
         "focus": "controller",
         "stats": {
           "might": 3,
@@ -115,7 +115,7 @@
       "pronouns": "he/him",
       "backstory": "A subway sandhog buried for nine days in a tunnel collapse under the Old Quarry line. When they dug him out, the rock had gotten into him.",
       "student": {
-        "alias": "Pebble",
+        "alias": "Cornerstone",
         "focus": "tank",
         "stats": {
           "might": 4,
@@ -141,7 +141,7 @@
         "method": "Holds up collapsing overpasses, braces flood walls and lets the city literally lean on him."
       },
       "villain": {
-        "alias": "Sinkhole",
+        "alias": "Cornerstone",
         "focus": "infiltrator",
         "stats": {
           "might": 3,
@@ -169,7 +169,7 @@
       "pronouns": "she/her",
       "backstory": "She fell into the reactor cooling pond at Comet Power during a school tour and stayed under for eleven minutes. She came up breathing water and hearing the tides.",
       "student": {
-        "alias": "Splash",
+        "alias": "Tidewarden",
         "focus": "controller",
         "stats": {
           "might": 2,
@@ -195,7 +195,7 @@
         "method": "Runs harbor rescues, smothers chemical fires in seawater and draws water out of flooded lungs before the ambulance arrives."
       },
       "villain": {
-        "alias": "Dry Season",
+        "alias": "Tidewarden",
         "focus": "mastermind",
         "stats": {
           "might": 2,
@@ -223,7 +223,7 @@
       "pronouns": "he/him",
       "backstory": "A struggling kendo student struck by a falling satellite fragment during practice. Since then, his reflexes slow the world to a crawl.",
       "student": {
-        "alias": "Bokken",
+        "alias": "The Second Hand",
         "focus": "duelist",
         "stats": {
           "might": 2,
@@ -249,7 +249,7 @@
         "method": "Disarms gunmen, catches falling glass shard by shard and teaches free self-defense in the Narrows."
       },
       "villain": {
-        "alias": "Metronome",
+        "alias": "The Second Hand",
         "focus": "mastermind",
         "stats": {
           "might": 2,
@@ -277,7 +277,7 @@
       "pronouns": "she/her",
       "backstory": "A failing chemistry major who drank a beaker of unlabeled lab sludge on a dare. She woke three days later able to out-calculate a supercomputer.",
       "student": {
-        "alias": "Beaker",
+        "alias": "Eureka",
         "focus": "gadgeteer",
         "stats": {
           "might": 1,
@@ -303,7 +303,7 @@
         "method": "Builds rescue rigs from whatever is in the room and publishes every invention free online."
       },
       "villain": {
-        "alias": "Countess Calculus",
+        "alias": "Eureka",
         "focus": "summoner",
         "stats": {
           "might": 3,
@@ -331,7 +331,7 @@
       "pronouns": "he/him",
       "backstory": "The powerless heir of a fading superhero dynasty, until lightning struck the family trophy room and fused his grandfather's cape to his spine.",
       "student": {
-        "alias": "Hand-Me-Down",
+        "alias": "Captain Valcourt",
         "focus": "tank",
         "stats": {
           "might": 3,
@@ -357,7 +357,7 @@
         "method": "Leads rescue teams from the front with a cape that catches bullets and a grin borrowed from an old newsreel."
       },
       "villain": {
-        "alias": "The Heirloom",
+        "alias": "Captain Valcourt",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -385,7 +385,7 @@
       "pronouns": "they/them",
       "backstory": "A street busker performing outside the Comet Broadcasting tower when a signal amplifier exploded. Now everyone in earshot feels whatever Fen sings.",
       "student": {
-        "alias": "Busker",
+        "alias": "Chorus",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -411,7 +411,7 @@
         "method": "Turns stampedes into orderly evacuations and gets hostage-takers to set down weapons halfway through a lullaby."
       },
       "villain": {
-        "alias": "The Headliner",
+        "alias": "Chorus",
         "focus": "commander",
         "stats": {
           "might": 2,
@@ -439,7 +439,7 @@
       "pronouns": "she/her",
       "backstory": "At fifteen her body began producing healing flame. Registration officers have photographed her every year since.",
       "student": {
-        "alias": "Tinder",
+        "alias": "Ashborn",
         "focus": "healer",
         "stats": {
           "might": 2,
@@ -465,7 +465,7 @@
         "method": "Walks into fatal disasters and carries out people who should not have survived, then forgets their faces."
       },
       "villain": {
-        "alias": "Pyre",
+        "alias": "Ashborn",
         "focus": "blaster",
         "stats": {
           "might": 5,
@@ -493,7 +493,7 @@
       "pronouns": "he/him",
       "backstory": "Born with hollow bones and feathers along his forearms. His parents hid his wings under a coat until he was nineteen.",
       "student": {
-        "alias": "Fledgling",
+        "alias": "Kestrel",
         "focus": "speedster",
         "stats": {
           "might": 1,
@@ -519,7 +519,7 @@
         "method": "Flies search-and-rescue over the harbor and turns a sky full of pigeons into living arrows that point to the missing."
       },
       "villain": {
-        "alias": "The Rookery",
+        "alias": "Kestrel",
         "focus": "infiltrator",
         "stats": {
           "might": 2,
@@ -547,7 +547,7 @@
       "pronouns": "she/her",
       "backstory": "Seven and a half feet tall with mineral plates beneath her skin by age twelve. Her school kept her out of every class photo.",
       "student": {
-        "alias": "Tremor",
+        "alias": "Groundswell",
         "focus": "tank",
         "stats": {
           "might": 5,
@@ -573,7 +573,7 @@
         "method": "Finds people trapped under rubble by their heartbeats through the stone, then lifts the building off them."
       },
       "villain": {
-        "alias": "Faultline",
+        "alias": "Groundswell",
         "focus": "brawler",
         "stats": {
           "might": 5,
@@ -601,7 +601,7 @@
       "pronouns": "he/him",
       "backstory": "Born with gills behind his ears and webbed hands into a family of harbor fishers. He breathes underwater and slowly suffocates in dry air.",
       "student": {
-        "alias": "Guppy",
+        "alias": "Harbormaster",
         "focus": "speedster",
         "stats": {
           "might": 2,
@@ -627,7 +627,7 @@
         "method": "Runs the harbor rescue line, knows every fisher by name and turns the dock crews into a navy of tugboats."
       },
       "villain": {
-        "alias": "Black Tide",
+        "alias": "Harbormaster",
         "focus": "tank",
         "stats": {
           "might": 5,
@@ -655,7 +655,7 @@
       "pronouns": "she/her",
       "backstory": "Born with a second pair of arms that her grandmother taught her to use through classical dance. She has trained four hours a day since she was six.",
       "student": {
-        "alias": "Mudra",
+        "alias": "Lotus Guard",
         "focus": "acrobat",
         "stats": {
           "might": 2,
@@ -681,7 +681,7 @@
         "method": "Catches four falling people at once and fights in a flowing style designed to de-escalate rather than injure."
       },
       "villain": {
-        "alias": "Quartermaster",
+        "alias": "Lotus Guard",
         "focus": "gadgeteer",
         "stats": {
           "might": 3,
@@ -709,7 +709,7 @@
       "pronouns": "they/them",
       "backstory": "Their mutation is a brain that never stops growing. Doctors gave them five years when they were thirteen; they are twenty now.",
       "student": {
-        "alias": "Probability",
+        "alias": "Contingency",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -735,7 +735,7 @@
         "method": "Calls rescues five moves ahead, placing teammates where the bridge will fall before it falls."
       },
       "villain": {
-        "alias": "The Inevitable",
+        "alias": "Contingency",
         "focus": "mastermind",
         "stats": {
           "might": 2,
@@ -763,7 +763,7 @@
       "pronouns": "she/her",
       "backstory": "The newest daughter of a mutant bloodline that has produced a winged guardian every generation for two centuries. The wings arrived, and so did the expectations.",
       "student": {
-        "alias": "Pinfeather",
+        "alias": "The Guardian",
         "focus": "healer",
         "stats": {
           "might": 1,
@@ -789,7 +789,7 @@
         "method": "Shields entire blocks with her wings spread wide, then visits every patient she was too late to protect."
       },
       "villain": {
-        "alias": "The Matriarch",
+        "alias": "The Guardian",
         "focus": "commander",
         "stats": {
           "might": 2,
@@ -817,7 +817,7 @@
       "pronouns": "he/him",
       "backstory": "His skin gives off pheromones that make strangers trust him within seconds. He was the most popular kid in every foster home and never knew which friendships were real.",
       "student": {
-        "alias": "Charmer",
+        "alias": "Common Ground",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -843,7 +843,7 @@
         "method": "Walks into gang standoffs and leaves with a ceasefire, then helps both sides find work."
       },
       "villain": {
-        "alias": "The Patron",
+        "alias": "Common Ground",
         "focus": "infiltrator",
         "stats": {
           "might": 1,
@@ -871,7 +871,7 @@
       "pronouns": "she/her",
       "backstory": "A welding apprentice who built a thermite gauntlet from scrap after her landlord let the building fire escapes rust off the walls.",
       "student": {
-        "alias": "Sparks",
+        "alias": "Torchlight",
         "focus": "gadgeteer",
         "stats": {
           "might": 2,
@@ -897,7 +897,7 @@
         "method": "Cuts people out of crushed cars and welds new fire escapes onto neglected buildings overnight, unpermitted."
       },
       "villain": {
-        "alias": "Foundry",
+        "alias": "Torchlight",
         "focus": "tank",
         "stats": {
           "might": 5,
@@ -925,7 +925,7 @@
       "pronouns": "he/him",
       "backstory": "A drone-racing champion who built a micro-turbine wingsuit after the aeronautics program revoked his scholarship over \"safety concerns.\"",
       "student": {
-        "alias": "Propwash",
+        "alias": "Tailwind",
         "focus": "speedster",
         "stats": {
           "might": 1,
@@ -951,7 +951,7 @@
         "method": "Delivers medicine, catches falling workers and beats ambulances across the city on eleven minutes of flight a day."
       },
       "villain": {
-        "alias": "Air Traffic",
+        "alias": "Tailwind",
         "focus": "summoner",
         "stats": {
           "might": 1,
@@ -979,7 +979,7 @@
       "pronouns": "she/her",
       "backstory": "A construction engineer's daughter who builds walking excavator rigs. She piloted her first one into a collapsed school to dig out her classmates.",
       "student": {
-        "alias": "Hard Hat",
+        "alias": "Rebar",
         "focus": "tank",
         "stats": {
           "might": 4,
@@ -1005,7 +1005,7 @@
         "method": "Rebuilds collapsed buildings in hours and inspects every new structure in the Narrows for free."
       },
       "villain": {
-        "alias": "The Developer",
+        "alias": "Rebar",
         "focus": "mastermind",
         "stats": {
           "might": 2,
@@ -1033,7 +1033,7 @@
       "pronouns": "she/her",
       "backstory": "A marine-biology student who rebuilt an oceanographic diving suit into a rescue rig after her uncle drowned when the coast guard budget was cut.",
       "student": {
-        "alias": "Snorkel",
+        "alias": "Lifeline",
         "focus": "gadgeteer",
         "stats": {
           "might": 2,
@@ -1059,7 +1059,7 @@
         "method": "Leads a volunteer underwater rescue team that has pulled forty people out of sunken cars."
       },
       "villain": {
-        "alias": "The Trench",
+        "alias": "Lifeline",
         "focus": "tank",
         "stats": {
           "might": 5,
@@ -1087,7 +1087,7 @@
       "pronouns": "he/him",
       "backstory": "He lost both legs in a training accident, built his own sport prosthetics and trained until he outran the people who pitied him.",
       "student": {
-        "alias": "Stride",
+        "alias": "Hurdler",
         "focus": "acrobat",
         "stats": {
           "might": 3,
@@ -1113,7 +1113,7 @@
         "method": "Clears rooftop gaps, outruns getaway cars and runs free prosthetics clinics for disabled kids."
       },
       "villain": {
-        "alias": "Drillmaster",
+        "alias": "Hurdler",
         "focus": "commander",
         "stats": {
           "might": 3,
@@ -1141,7 +1141,7 @@
       "pronouns": "she/her",
       "backstory": "A self-taught hacker who built an AI companion named Mabel from her late grandmother's recipe notes and voice recordings. Mabel is smarter than anyone at the academy.",
       "student": {
-        "alias": "Ping",
+        "alias": "Firewall",
         "focus": "gadgeteer",
         "stats": {
           "might": 1,
@@ -1167,7 +1167,7 @@
         "method": "Locks hackers out of hospital networks and traces kidnappers through every camera in the city, with Mabel narrating."
       },
       "villain": {
-        "alias": "Root Access",
+        "alias": "Firewall",
         "focus": "infiltrator",
         "stats": {
           "might": 2,
@@ -1195,7 +1195,7 @@
       "pronouns": "he/him",
       "backstory": "Heir to Sterling Dynamics, which built half the city's hero armor. He got his first suit for his eighteenth birthday, along with the company lawsuits.",
       "student": {
-        "alias": "Prototype",
+        "alias": "Sterling",
         "focus": "tank",
         "stats": {
           "might": 3,
@@ -1221,7 +1221,7 @@
         "method": "Takes the suit into the worst disasters, then pays for every building he damages out of his own trust fund."
       },
       "villain": {
-        "alias": "The Chairman",
+        "alias": "Sterling",
         "focus": "mastermind",
         "stats": {
           "might": 1,
@@ -1249,7 +1249,7 @@
       "pronouns": "they/them",
       "backstory": "An influencer whose livestream glasses broadcast and analyze every face in a crowd. They built them to document police at protests.",
       "student": {
-        "alias": "Viral",
+        "alias": "Witness",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -1275,7 +1275,7 @@
         "method": "Streams every rescue and every abuse of power, so nothing in Comet City happens in the dark."
       },
       "villain": {
-        "alias": "The Algorithm",
+        "alias": "Witness",
         "focus": "trickster",
         "stats": {
           "might": 1,
@@ -1303,7 +1303,7 @@
       "pronouns": "she/her",
       "backstory": "A candle-shop clerk who accepted a bargain from a salamander spirit living in the shop's oldest wick: power, in exchange for a voice.",
       "student": {
-        "alias": "Wick",
+        "alias": "Lanternwitch",
         "focus": "summoner",
         "stats": {
           "might": 1,
@@ -1329,7 +1329,7 @@
         "method": "Lights a path through smoke, burns curses out of the cursed and got the salamander its own library card."
       },
       "villain": {
-        "alias": "Candlemass",
+        "alias": "Lanternwitch",
         "focus": "blaster",
         "stats": {
           "might": 4,
@@ -1357,7 +1357,7 @@
       "pronouns": "he/him",
       "backstory": "A former choirboy who learned the old storm-calling songs from a library book that was never checked back in.",
       "student": {
-        "alias": "Whistle",
+        "alias": "The Weathervane",
         "focus": "blaster",
         "stats": {
           "might": 1,
@@ -1383,7 +1383,7 @@
         "method": "Turns hurricanes away from the coast, calls rain over wildfires and only sings when somebody needs it."
       },
       "villain": {
-        "alias": "Thunderhead",
+        "alias": "The Weathervane",
         "focus": "blaster",
         "stats": {
           "might": 5,
@@ -1411,7 +1411,7 @@
       "pronouns": "she/her",
       "backstory": "A community-garden keeper who woke a sleeping druid circle beneath a vacant lot while planting tomatoes.",
       "student": {
-        "alias": "Seedling",
+        "alias": "Rootwarden",
         "focus": "controller",
         "stats": {
           "might": 2,
@@ -1437,7 +1437,7 @@
         "method": "Grows living shelters for the unhoused, heals poisoned soil and binds villains in oak."
       },
       "villain": {
-        "alias": "The Overgrowth",
+        "alias": "Rootwarden",
         "focus": "summoner",
         "stats": {
           "might": 4,
@@ -1465,7 +1465,7 @@
       "pronouns": "he/him",
       "backstory": "A street magician who bought a silver bowl at a pawnshop. When he scries in it, water shows him what has been and what may be.",
       "student": {
-        "alias": "Puddle",
+        "alias": "Reflection",
         "focus": "infiltrator",
         "stats": {
           "might": 1,
@@ -1491,7 +1491,7 @@
         "method": "Steps out of puddles behind kidnappers and through bathtubs into burning apartments."
       },
       "villain": {
-        "alias": "Augury",
+        "alias": "Reflection",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -1519,7 +1519,7 @@
       "pronouns": "she/her",
       "backstory": "Raised by an order of warrior-mystics in the mountains above Comet City. She left when they refused to shelter refugees from the valley.",
       "student": {
-        "alias": "Novice",
+        "alias": "The Abbess",
         "focus": "brawler",
         "stats": {
           "might": 3,
@@ -1545,7 +1545,7 @@
         "method": "Opens a dojo-shelter in the Narrows where anyone can learn to defend themselves and no one is turned away."
       },
       "villain": {
-        "alias": "The Iron Hand",
+        "alias": "The Abbess",
         "focus": "commander",
         "stats": {
           "might": 4,
@@ -1573,7 +1573,7 @@
       "pronouns": "he/him",
       "backstory": "A mathematics prodigy who discovered that magic is a branch of number theory, and that certain equations, written correctly, open doors.",
       "student": {
-        "alias": "Footnote",
+        "alias": "Theorem",
         "focus": "controller",
         "stats": {
           "might": 1,
@@ -1599,7 +1599,7 @@
         "method": "Paints sigils across collapsing bridges and seals gas leaks inside a chalk circle."
       },
       "villain": {
-        "alias": "The Grand Unifier",
+        "alias": "Theorem",
         "focus": "summoner",
         "stats": {
           "might": 3,
@@ -1627,7 +1627,7 @@
       "pronouns": "she/her",
       "backstory": "The last of a witch family that has protected Comet City since before it had a name. Her mother vanished last winter and left her the family grimoire.",
       "student": {
-        "alias": "Inkling",
+        "alias": "The Hearthwitch",
         "focus": "summoner",
         "stats": {
           "might": 1,
@@ -1653,7 +1653,7 @@
         "method": "Maintains the old protective wards, lifts curses and keeps soup on for anyone who knocks."
       },
       "villain": {
-        "alias": "The Coven Queen",
+        "alias": "The Hearthwitch",
         "focus": "commander",
         "stats": {
           "might": 2,
@@ -1681,7 +1681,7 @@
       "pronouns": "he/him",
       "backstory": "A cabaret emcee who made a deal at a crossroads for the power to make any audience love him. The spirit has not come to collect yet.",
       "student": {
-        "alias": "Understudy",
+        "alias": "Curtain Call",
         "focus": "trickster",
         "stats": {
           "might": 1,
@@ -1707,7 +1707,7 @@
         "method": "Dazzles villains with illusions while the crowd evacuates behind the glamour."
       },
       "villain": {
-        "alias": "Mister Midnight",
+        "alias": "Curtain Call",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -1735,7 +1735,7 @@
       "pronouns": "she/her",
       "backstory": "A refugee from a dying star colony whose escape pod splashed into the Comet City reservoir when she was a child. Her body runs on sunlight.",
       "student": {
-        "alias": "Sunspot",
+        "alias": "Daystar",
         "focus": "blaster",
         "stats": {
           "might": 2,
@@ -1761,7 +1761,7 @@
         "method": "Lights up blackouts, burns away toxic smog and flies refugees to safety under her own private sun."
       },
       "villain": {
-        "alias": "Supernova",
+        "alias": "Daystar",
         "focus": "commander",
         "stats": {
           "might": 5,
@@ -1789,7 +1789,7 @@
       "pronouns": "they/them",
       "backstory": "A cloud-dwelling ambassador from a gas giant who fell through a dimensional rift mid-treaty. Their species lives in the sky and considers solid ground rude.",
       "student": {
-        "alias": "Fogbank",
+        "alias": "The Envoy",
         "focus": "shapeshifter",
         "stats": {
           "might": 1,
@@ -1815,7 +1815,7 @@
         "method": "Drifts into hostage scenes as mist, then condenses into a soft wall between the hostages and the guns."
       },
       "villain": {
-        "alias": "The Ambassador",
+        "alias": "The Envoy",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -1843,7 +1843,7 @@
       "pronouns": "he/him",
       "backstory": "A silicon-based lifeform who woke inside a meteorite on display at the Comet City Museum of Natural History after six thousand years asleep.",
       "student": {
-        "alias": "Geode",
+        "alias": "Monolith",
         "focus": "tank",
         "stats": {
           "might": 4,
@@ -1869,7 +1869,7 @@
         "method": "Grows crystal bridges over floods and stands between disasters and the city, utterly unmoving."
       },
       "villain": {
-        "alias": "The Curator",
+        "alias": "Monolith",
         "focus": "mastermind",
         "stats": {
           "might": 3,
@@ -1897,7 +1897,7 @@
       "pronouns": "she/her",
       "backstory": "A traveler from an ocean world who came through a whirlpool off the Comet City pier. She speaks with every creature in the sea and misses her mother's tides.",
       "student": {
-        "alias": "Starfish",
+        "alias": "Lighthouse",
         "focus": "summoner",
         "stats": {
           "might": 2,
@@ -1923,7 +1923,7 @@
         "method": "Calls whales to guide lost ships home and dolphins to pull drowning swimmers from the surf."
       },
       "villain": {
-        "alias": "The Siren",
+        "alias": "Lighthouse",
         "focus": "face",
         "stats": {
           "might": 2,
@@ -1951,7 +1951,7 @@
       "pronouns": "she/her",
       "backstory": "A deserter from an alien warrior caste who refused an order to raze a planet and fled through a gate to a city that does not know her name.",
       "student": {
-        "alias": "Recruit",
+        "alias": "The Deserter",
         "focus": "brawler",
         "stats": {
           "might": 3,
@@ -1977,7 +1977,7 @@
         "method": "Refuses every order she disagrees with and protects people with a soldier's precision and a deserter's conscience."
       },
       "villain": {
-        "alias": "Warlord Vel",
+        "alias": "The Deserter",
         "focus": "commander",
         "stats": {
           "might": 4,
@@ -2005,7 +2005,7 @@
       "pronouns": "he/him",
       "backstory": "A scientist from a hyper-advanced civilization, exiled for sharing forbidden technology with \"primitive\" worlds. Comet City is his punishment and his laboratory.",
       "student": {
-        "alias": "Exchange Student",
+        "alias": "Uplift",
         "focus": "gadgeteer",
         "stats": {
           "might": 1,
@@ -2031,7 +2031,7 @@
         "method": "Gives world-changing technology to clinics and schools, with careful instructions this time."
       },
       "villain": {
-        "alias": "The Exarch",
+        "alias": "Uplift",
         "focus": "mastermind",
         "stats": {
           "might": 1,
@@ -2059,7 +2059,7 @@
       "pronouns": "she/her",
       "backstory": "The exiled heir of a kingdom hidden behind Comet City's old lighthouse. Her throne was usurped and she was smuggled through a mirror as a baby.",
       "student": {
-        "alias": "Pretender",
+        "alias": "The Exile",
         "focus": "face",
         "stats": {
           "might": 2,
@@ -2085,7 +2085,7 @@
         "method": "Rallies refugees from both worlds and leads them out of disasters through glowing royal gateways."
       },
       "villain": {
-        "alias": "The Glass Empress",
+        "alias": "The Exile",
         "focus": "tank",
         "stats": {
           "might": 4,
@@ -2113,7 +2113,7 @@
       "pronouns": "they/them",
       "backstory": "One drone of a vast alien hive-mind that lost contact with its collective when their ship crashed. They are learning to be an individual for the first time.",
       "student": {
-        "alias": "Solo",
+        "alias": "Assembly",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -2139,7 +2139,7 @@
         "method": "Links firefighters, rescuers and frightened civilians into one calm mind that moves as a team."
       },
       "villain": {
-        "alias": "Unanimous",
+        "alias": "Assembly",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -2167,7 +2167,7 @@
       "pronouns": "she/her",
       "backstory": "Pyrokinetic since a childhood fever. A nightmare set her foster home's curtains alight, and she has slept beside a fire extinguisher ever since.",
       "student": {
-        "alias": "Fever",
+        "alias": "Firekeeper",
         "focus": "controller",
         "stats": {
           "might": 2,
@@ -2193,7 +2193,7 @@
         "method": "Calls fire out of burning buildings and walks it into the river like a dog on a leash."
       },
       "villain": {
-        "alias": "Wildfire",
+        "alias": "Firekeeper",
         "focus": "blaster",
         "stats": {
           "might": 5,
@@ -2221,7 +2221,7 @@
       "pronouns": "they/them",
       "backstory": "A telekinetic who discovered at sixteen that they could lift themselves. They have practiced levitation in their apartment stairwell ever since.",
       "student": {
-        "alias": "Hover",
+        "alias": "Weightless",
         "focus": "acrobat",
         "stats": {
           "might": 1,
@@ -2247,7 +2247,7 @@
         "method": "Lifts collapsing cranes, carries elders down from burning towers and floats crowds above a stampede."
       },
       "villain": {
-        "alias": "Freefall",
+        "alias": "Weightless",
         "focus": "trickster",
         "stats": {
           "might": 3,
@@ -2275,7 +2275,7 @@
       "pronouns": "he/him",
       "backstory": "A psychometric geology student who hears everything that ever happened near a stone. He was quiet and content until he touched the cornerstone of city hall.",
       "student": {
-        "alias": "Touchstone",
+        "alias": "Groundtruth",
         "focus": "mentalist",
         "stats": {
           "might": 2,
@@ -2301,7 +2301,7 @@
         "method": "Solves cold cases by touching crime scenes and lifts rubble from victims guided by what the stones remember."
       },
       "villain": {
-        "alias": "The Foundation",
+        "alias": "Groundtruth",
         "focus": "controller",
         "stats": {
           "might": 4,
@@ -2329,7 +2329,7 @@
       "pronouns": "he/him",
       "backstory": "A hydrokinetic empath who feels emotions as tides. He grew up in a lighthouse, where the sea rose whenever his mother was depressed.",
       "student": {
-        "alias": "Ripple",
+        "alias": "Calm Waters",
         "focus": "healer",
         "stats": {
           "might": 1,
@@ -2355,7 +2355,7 @@
         "method": "Talks people through the worst nights of their lives while steering floodwater away from their homes."
       },
       "villain": {
-        "alias": "Maelstrom",
+        "alias": "Calm Waters",
         "focus": "controller",
         "stats": {
           "might": 4,
@@ -2383,7 +2383,7 @@
       "pronouns": "she/her",
       "backstory": "Trained in a secret school of mental martial arts hidden in the stacks of a Comet City public library. Her mind reads a fight before it begins.",
       "student": {
-        "alias": "Bookworm",
+        "alias": "The Librarian",
         "focus": "duelist",
         "stats": {
           "might": 2,
@@ -2409,7 +2409,7 @@
         "method": "Takes down armed robbers without a scratch and runs free self-defense and reading classes at the library."
       },
       "villain": {
-        "alias": "The Stillness",
+        "alias": "The Librarian",
         "focus": "infiltrator",
         "stats": {
           "might": 3,
@@ -2437,7 +2437,7 @@
       "pronouns": "he/him",
       "backstory": "A telepath with a photographic memory of every mind he has touched. He began reading professors' thoughts to pass exams and never stopped.",
       "student": {
-        "alias": "Cheat Sheet",
+        "alias": "Mindsight",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -2463,7 +2463,7 @@
         "method": "Finds missing people by listening to every mind in a crowd and stops crimes before they start, with consent wherever he can."
       },
       "villain": {
-        "alias": "Know-It-All",
+        "alias": "Mindsight",
         "focus": "mastermind",
         "stats": {
           "might": 1,
@@ -2491,7 +2491,7 @@
       "pronouns": "she/her",
       "backstory": "The latest seer in a family of prophets who have advised Comet City's leaders for a century. At nineteen she saw the city destroyed on prom night, and nobody believed her.",
       "student": {
-        "alias": "Omen",
+        "alias": "Second Sight",
         "focus": "mentalist",
         "stats": {
           "might": 1,
@@ -2517,7 +2517,7 @@
         "method": "Warns rescue teams minutes before disaster strikes and keeps warning even when nobody listens."
       },
       "villain": {
-        "alias": "Doomsayer",
+        "alias": "Second Sight",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -2545,7 +2545,7 @@
       "pronouns": "she/her",
       "backstory": "A telepathic gossip columnist for the academy paper who hears everyone's surface thoughts. She never revealed a secret, until last month.",
       "student": {
-        "alias": "Scoop",
+        "alias": "The Confidante",
         "focus": "face",
         "stats": {
           "might": 1,
@@ -2571,7 +2571,7 @@
         "method": "Hears people in trouble before they scream, ends riots by knowing what each side really wants and keeps every secret she hears."
       },
       "villain": {
-        "alias": "Hearsay",
+        "alias": "The Confidante",
         "focus": "trickster",
         "stats": {
           "might": 2,

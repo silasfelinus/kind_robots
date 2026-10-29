@@ -17,6 +17,7 @@ on:
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
       - '.github/workflows/playbook-slices-gameplay.yml'
   push:
@@ -53,5 +54,7 @@ jobs:
         run: npm run test:comet-city-academy
       - name: Captains seeded missions and ethical ending verification
         run: npm run test:game-of-captains
-      - name: Space Couch cast, character sheet, and captain signature tests
+      - name: Space Couch expedition roster, fatalities and allocation verification
+        run: npx tsx utils/scripts/verifyGameOfCaptainsExpedition.test.ts
+      - name: Space Couch character signatures and dossiers
         run: npx tsx utils/scripts/verifyGameOfCaptainsCharacters.test.ts

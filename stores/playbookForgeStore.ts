@@ -85,6 +85,7 @@ import {
   playbookArtRequest,
 } from '~/utils/playbook/artLanes'
 import type { Playbook, PlaybookNode } from '~/utils/playbook/types'
+import { withVerifiedArt } from '~/utils/playbookForge/verifiedArt'
 import { withBundledArt } from '~/utils/playbook/bundledArt'
 import {
   buildLedger,
@@ -93,7 +94,6 @@ import {
   nodeShape,
   planGaps,
   unitsToPaint,
-  withPainted,
   unitsToWrite,
   writingBrief,
   type LedgerJob,
@@ -113,6 +113,7 @@ export type ForgeScreen =
   | 'analyze'
   | 'ledger'
   | 'gallery'
+  | 'redshirts'
   | 'beats'
   | 'kit'
   | 'gestation'
@@ -130,6 +131,9 @@ export type LedgerRelay = {
   byNode: Record<string, LedgerJob[]>
   /** Beats whose image-store picture exists (node key → URL). */
   painted?: Record<string, string>
+  /** URLs independently checked against delivered raster files on the server. */
+  verified?: Record<string, string>
+  extras?: { total: number; delivered: number; missing: string[] }
   jobs: ProjectJobs
   truncated: boolean
 }
@@ -463,7 +467,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     cardsForTab(
       tab.value,
       existing.value && ledgerBook.value
-        ? withPainted(ledgerBook.value, ledgerRelay.value?.painted)
+        ? withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified)
         : null,
       designs.value,
     ),
@@ -714,21 +718,22 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         if (!entry.studio || !isPlaybookGame(entry.studio)) continue
         const book = await withBundledArt(buildPlaybook(entry.studio))
         const counts = await entry.count().catch(() => null)
-        // Image-store art (Memory Dungeon) is only known to the server.
-        const painted = Object.values(book.nodes).some((n) => n.artPath)
-          ? (
-              await performFetch<LedgerRelay>(
-                `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}`,
-              )
-            ).data?.painted
-          : undefined
+        const inventory = await performFetch<{
+          verified: Record<string, string>
+          extras: { total: number; delivered: number; missing: string[] }
+        }>(
+          `/api/admin/playbook-ledger/${encodeURIComponent(entry.studio)}?inventory=1`,
+        )
+        // A failed verification is unknown, never an optimistic 100%.
+        if (!inventory.success || !inventory.data) continue
         const ledger = buildLedger(
-          withPainted(book, painted),
+          withVerifiedArt(book, inventory.data.verified),
           {},
           {
             laneKey: book.artLanes[0] ?? 'krea2',
             assumptions: assumptions.value,
             gaps: counts ? planGaps(planFor(entry), counts) : [],
+            extraArt: inventory.data.extras,
           },
         )
         libraryStats.value = {
@@ -803,15 +808,16 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     if (ledgerRelay.value?.truncated)
       notes.push('Only the newest 5000 relay jobs were read.')
     return buildLedger(
-      withPainted(
+      withVerifiedArt(
         ledgerBook.value ?? { order: [], nodes: {} },
-        ledgerRelay.value?.painted,
+        ledgerRelay.value?.verified,
       ),
       ledgerRelay.value?.byNode ?? {},
       {
         laneKey: ledgerLane.value,
         assumptions: assumptions.value,
         gaps,
+        extraArt: ledgerRelay.value?.extras,
         notes,
       },
     )
@@ -827,11 +833,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const galleryTarget = ref<GalleryTarget | null>(null)
   const galleryFocus = ref<string | null>(null)
   const galleryFilter = ref<GalleryFilter>('all')
+  const galleryGroup = ref('All')
   const galleryBook = computed<Playbook | null>(() =>
     ledgerBook.value
       ? {
           ...ledgerBook.value,
-          ...withPainted(ledgerBook.value, ledgerRelay.value?.painted),
+          ...withVerifiedArt(ledgerBook.value, ledgerRelay.value?.verified),
         }
       : null,
   )
@@ -926,7 +933,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   const returnTo = ref<ForgeScreen>('title')
 
   function go(next: ForgeScreen) {
-    if (next === 'assumptions' || next === 'launch' || next === 'catalog')
+    if (
+      next === 'assumptions' ||
+      next === 'launch' ||
+      next === 'catalog' ||
+      next === 'redshirts'
+    )
       returnTo.value = screen.value
     screen.value = next
     status.value = ''
@@ -934,9 +946,21 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   /** The B button: one step back toward the title screen. */
+  function openRedshirts() {
+    existing.value =
+      EXISTING_PLAYBOOKS.find((entry) => entry.slug === 'game-of-captains') ??
+      null
+    go('redshirts')
+  }
+
   function back() {
     const from = screen.value
-    if (from === 'launch' || from === 'assumptions' || from === 'catalog')
+    if (
+      from === 'launch' ||
+      from === 'assumptions' ||
+      from === 'catalog' ||
+      from === 'redshirts'
+    )
       screen.value = returnTo.value
     else if (from === 'loadout')
       screen.value = existing.value ? 'library' : 'idea'
@@ -1225,6 +1249,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         ? { type: 'section', id: focused.id }
         : (galleryTiles.value.sections[0]?.target ?? null))
     galleryFilter.value = 'all'
+    galleryGroup.value = 'All'
     galleryFocus.value = null
     ledgerConfirm.value = null
     go('gallery')
@@ -1234,6 +1259,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
   }
 
   function showTarget(target: GalleryTarget) {
+    galleryGroup.value = 'All'
     galleryTarget.value = target
     galleryFocus.value = null
     ledgerConfirm.value = null
@@ -1297,6 +1323,46 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
         : 'Saved for the next development.'
       : studio.message
     return ok
+  }
+
+  /** Send a creative brief to the game's master issue, not merely a private beat note. */
+  async function postGalleryDirection(direction: string) {
+    const entry = existing.value
+    const brief = direction.trim()
+    if (!entry || !brief || posting.value) return false
+    const scope = galleryFocus.value
+      ? (galleryFocused.value?.title ?? galleryFocus.value)
+      : (galleryTile.value?.label ?? 'whole playbook')
+    const origin =
+      galleryGroup.value === 'All' ? '' : ` / ${galleryGroup.value} group`
+    posting.value = true
+    adjustStatus.value = 'Sending direction to GitHub…'
+    try {
+      const res = await performFetch<{ issue: number; url: string }>(
+        '/api/playbook-forge/adjustment',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            slug: entry.slug,
+            title: entry.title,
+            note: `Creative direction for ${scope}${origin}:\n\n${brief}`,
+            changes: [],
+            additions: [],
+            combos: '',
+          }),
+        },
+        0,
+        20000,
+      )
+      if (!res.success || !res.data) {
+        adjustStatus.value = `Not posted: ${res.message || 'GitHub did not answer.'}`
+        return false
+      }
+      adjustStatus.value = `Direction posted to #${res.data.issue}.`
+      return true
+    } finally {
+      posting.value = false
+    }
   }
 
   /** Renders a beat from a reviewed prompt (or, for pipeline games, leaves it for the next round). */
@@ -1498,6 +1564,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
                 projectSlug: book.artProject,
                 designer: book.title,
                 negative: book.artNegative,
+                style: book.artStyle,
               },
             ),
           ),
@@ -1783,6 +1850,7 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     galleryTarget,
     galleryFocus,
     galleryFilter,
+    galleryGroup,
     galleryBook,
     galleryTiles,
     galleryTile,
@@ -1791,10 +1859,12 @@ export const usePlaybookForgeStore = defineStore('playbookForge', () => {
     galleryFocused,
     gallerySection,
     openGallery,
+    openRedshirts,
     showTarget,
     focusEntry,
     galleryRenders,
     galleryNote,
+    postGalleryDirection,
     renderEntry,
     askPrompt,
     ledgerLane,

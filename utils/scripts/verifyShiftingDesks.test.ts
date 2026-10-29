@@ -64,10 +64,12 @@ import {
   windowApplicant,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
+import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   MILESTONES,
   emptyRewardArchive,
   migrateFoundEndings,
+  newMilestonesForRun,
   recordReward,
   receiptFor,
   restoreRewardArchive,
@@ -77,6 +79,30 @@ const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
 
 assert.equal(ORIENTATION.schemaVersion, 1)
+const cabinetMarkup = asset(
+  '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
+)
+assert.deepEqual(
+  achievementsForGame('shifting-desks').map((row) => row.code),
+  [
+    'shifting-desks-survived-review',
+    'shifting-desks-sub-level-zero',
+    'shifting-desks-faced-the-board',
+  ],
+  'cabinet uses canonical three account achievement triggers',
+)
+assert.match(cabinetMarkup, /achievementStore\.achievementRecords/)
+assert.match(cabinetMarkup, /record\.userId === userStore\.userId/)
+assert.match(cabinetMarkup, /status: award/)
+assert.match(cabinetMarkup, /Catalog unavailable/)
+assert.match(cabinetMarkup, /Start another review/)
+assert.match(cabinetMarkup, /filed\(milestone\.id\)/)
+assert.doesNotMatch(
+  cabinetMarkup,
+  /rewardAchievementByCode/,
+  'the trophy cabinet must never mint account rewards',
+)
+
 assert.equal(ORIENTATION.sourceSha.length, 40)
 assert.equal(ORIENTATION.encounters.length, 24)
 assert.deepEqual(
@@ -988,7 +1014,7 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   assert.match(store, /ENDINGS_KEY = 'shifting-desks-endings-v1'/)
   assert.match(
     store,
-    /function recordEnding\(\)[\s\S]*?endingFor\(run\.value\)/,
+    /function recordEnding\([^)]*\)[\s\S]*?endingFor\(run\.value\)/,
   )
   assert.match(
     asset('../../pages/play/shifting-desks.vue'),
@@ -1027,7 +1053,19 @@ assert.equal(plain.deck.length, RECORDS.locations.length + 1 + SHIFT)
   const consent = WELLNESS.window_shift!
   assert.equal(consent.id, 'consent-window-rounds')
   assert.equal(consent.location_id, 'mutation-suite')
-  assert.equal(consent.applicants.length, 3)
+  assert.equal(consent.applicants.length, 4)
+  // The fourth volunteer (conductor shifting-desks t-047) starts awake and
+  // finishes asleep: the awake rule, read to the letter, voids her.
+  assert.deepEqual(consent.applicants.map((a) => byTheBook(a)).sort(), [
+    'approve',
+    'deny',
+    'deny',
+    'deny',
+  ])
+  assert.ok(
+    consent.applicants.every((a) => windowApplicant(`${WINDOW_PREFIX}${a.id}`)),
+    'consent volunteers resolve like Window 9 applicants',
+  )
   assert.ok(
     consent.applicants.every(
       (a) =>
@@ -1851,6 +1889,16 @@ assert.match(
   assert.ok(first.milestones['first-ending'])
   assert.ok(first.milestones['employee-of-the-month'])
   assert.equal(recordReward(first, receipt, [receipt.endingId]), first)
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes('first-ending'),
+  )
+  assert.ok(
+    newMilestonesForRun(empty, first, receipt.id).includes(
+      'employee-of-the-month',
+    ),
+  )
+  assert.deepEqual(newMilestonesForRun(first, first, receipt.id), [])
+  assert.deepEqual(newMilestonesForRun(empty, empty, receipt.id), [])
   assert.equal(
     restoreRewardArchive(JSON.parse(JSON.stringify(first))).runs.length,
     1,
@@ -1886,6 +1934,42 @@ assert.match(
       '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
     ),
     /Personnel Archive/,
+  )
+  const printed = asset(
+    '../../components/shifting-desks/shifting-desks-print-dossier.vue',
+  )
+  assert.match(
+    printed,
+    /<Teleport to="body">/,
+    'dossier escapes the game shell for print',
+  )
+  assert.match(
+    printed,
+    /:not\(\.shifting-desks-print-dossier\)/,
+    'print removes surrounding game UI',
+  )
+  assert.match(
+    printed,
+    /receipt\.id/,
+    'print souvenir uses the real receipt ID',
+  )
+  assert.match(
+    printed,
+    /matchingRun/,
+    'archived runs do not invent detailed incidents',
+  )
+  const fileView = asset(
+    '../../components/shifting-desks/shifting-desks-personnel-file.vue',
+  )
+  assert.match(
+    fileView,
+    /Print \/ Save PDF/,
+    'printing is reachable on narrow screens',
+  )
+  assert.doesNotMatch(
+    fileView,
+    /Personnel File #4471/,
+    'no fictional file number',
   )
 }
 

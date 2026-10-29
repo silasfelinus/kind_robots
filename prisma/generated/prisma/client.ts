@@ -741,6 +741,11 @@ export type PitchSheet = Prisma.PitchSheetModel
  */
 export type Prompt = Prisma.PromptModel
 /**
+ * Model PlumberLevel
+ * 
+ */
+export type PlumberLevel = Prisma.PlumberLevelModel
+/**
  * Model Reaction
  * 
  */
@@ -1159,6 +1164,11 @@ export type MediaEntry = Prisma.MediaEntryModel
  * it, and the two are backfilled from the same source.
  */
 export type ResourcePreview = Prisma.ResourcePreviewModel
+/**
+ * Model HybridizerFusion
+ * 
+ */
+export type HybridizerFusion = Prisma.HybridizerFusionModel
 /**
  * Model SiteStatDaily
  * 

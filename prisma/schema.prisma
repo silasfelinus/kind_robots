@@ -1328,6 +1328,20 @@ model Prompt {
   @@index([batchId])
 }
 
+model PlumberLevel {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  fingerprint  String     @unique @db.VarChar(64)
+  title        String     @db.VarChar(64)
+  payload      String     @db.Text
+  userId       Int?
+  isPublic     Boolean    @default(true)
+  User         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  Reactions    Reaction[]
+
+  @@index([userId])
+}
+
 model Reaction {
   id                    Int                       @id @unique @default(autoincrement())
   createdAt             DateTime                  @default(now())
@@ -1352,6 +1366,7 @@ model Reaction {
   projectId             Int?
   facetId               Int?
   tzaddikCandidateId    Int?
+  plumberLevelId        Int?
   /// The Bot or Character a first-party comment is spoken BY, as opposed to
   /// botId/characterId, which are what a reaction is spoken ABOUT. userId stays
   /// the authenticated account accountable for the row. At most one of these
@@ -1380,9 +1395,11 @@ model Reaction {
   Scenario              Scenario?                 @relation(fields: [scenarioId], references: [id])
   Theme                 Theme?                    @relation(fields: [themeId], references: [id])
   TzaddikCandidate      TzaddikCandidate?         @relation(fields: [tzaddikCandidateId], references: [id])
+  PlumberLevel          PlumberLevel?             @relation(fields: [plumberLevelId], references: [id], onDelete: Cascade)
   User                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, challengeSubmissionId])
+  @@unique([userId, plumberLevelId])
   @@index([userId], map: "Reaction_userId_fkey")
   @@index([artImageId], map: "Reaction_artImageId_fkey")
   @@index([artCollectionId], map: "Reaction_artCollectionId_fkey")
@@ -1399,6 +1416,7 @@ model Reaction {
   @@index([scenarioId], map: "Reaction_scenarioId_fkey")
   @@index([themeId], map: "Reaction_themeId_fkey")
   @@index([challengeSubmissionId])
+  @@index([plumberLevelId])
   @@index([authorBotId], map: "Reaction_authorBotId_idx")
   @@index([authorCharacterId], map: "Reaction_authorCharacterId_idx")
 }
@@ -1855,6 +1873,7 @@ model User {
   ClaimedPrompts         Prompt[]                  @relation("PromptClaimer")
   Prompts                Prompt[]                  @relation("PromptUser")
   Reactions              Reaction[]
+  PlumberLevels          PlumberLevel[]
   ReferredBy             Referral?                 @relation("ReferredBy")
   ReferralsMade          Referral[]                @relation("ReferralsMade")
   Resources              Resource[]
@@ -3313,6 +3332,7 @@ enum FacetRelationType {
 }
 
 enum Reaction_reactionCategory {
+  PLUMBER_LEVEL
   ART_IMAGE
   ART_COLLECTION
   BOT
@@ -3756,4 +3776,25 @@ model ResourcePreview {
   @@unique([resourceId, url(length: 200)], map: "ResourcePreview_resource_url_key")
   @@index([resourceId, sortOrder])
   @@index([isMature])
+}
+
+
+model HybridizerFusion {
+  id            String   @id @db.VarChar(64)
+  leftKey       String   @db.VarChar(150)
+  rightKey      String   @db.VarChar(150)
+  recipeVersion String   @default("v1") @db.VarChar(40)
+  title         String   @db.VarChar(255)
+  depth         Int
+  status        String   @default("STUDY") @db.VarChar(20)
+  artJobId      Int?
+  artImageId    Int?
+  creatorUserId Int
+  isPublic      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([leftKey, rightKey, recipeVersion])
+  @@index([creatorUserId, createdAt])
+  @@index([isPublic, createdAt])
 }

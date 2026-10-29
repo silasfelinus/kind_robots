@@ -907,6 +907,306 @@
         "agenda": "Wants polluted trade ended, but won't support drowning innocent sailors.",
         "hp": 4
       }
+    },
+    {
+      "signature": "alien-discipline",
+      "opening": {
+        "title": "Orders From Home",
+        "venue": "Academy training yard with a crashed military capsule",
+        "inciting": "A refugee cadet receives a military order to arrest her own rescuer.",
+        "powerUse": "Use elite formation training to shield civilians while defying command signals.",
+        "choice": "Disobey to save a stranger or use the chain of command to stop other soldiers."
+      },
+      "lair": {
+        "title": "The Broken Standard",
+        "venue": "Former invasion battleship converted into a strict military academy",
+        "arena": "Marching armor squads switch shield lines; the flagship's engine rings a compulsory drill bell.",
+        "objective": "Break The Deserter's coercive recruiting signal without sacrificing the conscripts.",
+        "secret": "A forgotten service oath offers soldiers the right to refuse an unlawful command."
+      },
+      "lieutenant": {
+        "name": "Marshal Vex Orin",
+        "look": "Alien veteran in white parade armor with a banner-spear and scorched campaign medals.",
+        "power": "Links two defensive units into a moving phalanx and retaliates if approached head-on.",
+        "counter": "Disrupt the banner's synchronization crystal before the flank charge.",
+        "agenda": "Respects Raxa's past sacrifice, but will side with recruits who reject forced service.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-genius",
+      "opening": {
+        "title": "A Small Future",
+        "venue": "Community research lab awaiting its energy grant",
+        "inciting": "A free energy prototype is seized by an alien evaluator who deems humans too reckless.",
+        "powerUse": "Recalibrate an unfamiliar device without surrendering its inventor's agency.",
+        "choice": "Accept technical rescue under outside oversight or trust a risky human solution."
+      },
+      "lair": {
+        "title": "The Helpful Machine",
+        "venue": "Alien orbital management core connected to Comet City's utility grid",
+        "arena": "Research modules adapt to players' last strategy; each lesson teaches the AI a stronger counter.",
+        "objective": "Restore local control before Uplift rewrites human consent as inefficient.",
+        "secret": "A design notebook records a younger Uplift asking permission before every experiment."
+      },
+      "lieutenant": {
+        "name": "Custodian Nacre",
+        "look": "Floating bioengineer in ceramic exoshells with many translucent precision manipulators.",
+        "power": "Rewrites one deployed gadget's behavior after collecting a two-turn sample.",
+        "counter": "Make a deliberately harmless inconsistent move to corrupt the learning model.",
+        "agenda": "Wants civilization safe but doubts anyone has the right to decide another species' future.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-birthright",
+      "opening": {
+        "title": "The Missing Coronation",
+        "venue": "School amphitheater hosting an alien heritage ceremony",
+        "inciting": "A royal claimant's ceremony accidentally transports students into a mirrored courtyard.",
+        "powerUse": "Use inherited royal wards to protect everyone without claiming their allegiance.",
+        "choice": "Claim authority to command an evacuation or let the council choose a representative."
+      },
+      "lair": {
+        "title": "The Two Thrones",
+        "venue": "Mirror-realm palace occupying the same floor plan as the academy's bell tower",
+        "arena": "Each reflective pair swaps defenders and routes when the throne's crown rotates.",
+        "objective": "Stop The Exile annexing Comet City by proving its own independent sovereignty.",
+        "secret": "An ancestral portrait records a ruler who voluntarily gave up the throne."
+      },
+      "lieutenant": {
+        "name": "Seneschal Argent Vale",
+        "look": "Silver-masked chamberlain riding a hovering ceremonial stairway.",
+        "power": "Orders a pair of mirror portals to swap positions of two fighting units.",
+        "counter": "Cover the unoccupied mirror to interrupt the forced royal procession.",
+        "agenda": "Keeps serving Ysolde because a legitimate coronation might restore peace, but hates coerced subjects.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-social",
+      "opening": {
+        "title": "Everyone Inside",
+        "venue": "Academy counseling lounge during a missing-person search",
+        "inciting": "A frightened alien exchange student feels the pull of a collective hive invitation.",
+        "powerUse": "Offer a temporary empathic link that preserves the student's individual choice.",
+        "choice": "Use the hive to find a missing friend or follow slower independent clues."
+      },
+      "lair": {
+        "title": "The House of One Voice",
+        "venue": "Plush hive refuge woven through disused metro station apartments",
+        "arena": "Shared minds repeat moves across units; naming one individual disconnects that group's relay.",
+        "objective": "Open a safe exit for those wishing to leave Assembly's endless family.",
+        "secret": "A room of embroidered names preserves the personal identities the hive claims to have forgotten."
+      },
+      "lieutenant": {
+        "name": "Auntie Concord",
+        "look": "Gentle multi-armed hive counselor with translucent wings and velvet listening pods.",
+        "power": "Binds three enemies into a consensus vote, forcing their next moves to align.",
+        "counter": "Call one captive's chosen name to dissolve the shared command.",
+        "agenda": "Her loyalty rests on protecting the lonely, not absorbing people against their will.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-fire",
+      "opening": {
+        "title": "The Match Under the Bed",
+        "venue": "Dormitory floor during nightmare curfew",
+        "inciting": "A student's recurring nightmare ignites a visible ring of cold flame around their bed.",
+        "powerUse": "Shape fear into a safe signal flare and guide the student toward help.",
+        "choice": "Comfort the frightened student or confront the person who exploited their panic."
+      },
+      "lair": {
+        "title": "The Sleepless House",
+        "venue": "Abandoned sleep research clinic made of rooms from recorded dreams",
+        "arena": "Nightmare fire follows recently traveled routes while altered doors turn exits into loops.",
+        "objective": "End Firekeeper's citywide fear storm by breaking the experiment's abusive feedback loop.",
+        "secret": "Hidden consent forms reveal the subjects' warnings were ignored."
+      },
+      "lieutenant": {
+        "name": "Doctor Ashen Vale",
+        "look": "Dream medic in singed pajamas and a brass respirator, carrying a lantern of bottled bad dreams.",
+        "power": "Condenses two remembered fears into delayed fire creatures that jump to occupied tiles.",
+        "counter": "Switch on the clinic's recording lights to dispel the false nightmares.",
+        "agenda": "Wants Cassidy helped, but continues prescribing violence instead of sleep.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-air",
+      "opening": {
+        "title": "The Elevator That Floated",
+        "venue": "Municipal hospital's stuck elevator shaft",
+        "inciting": "A medical supply elevator drifts upward with no functioning gravity brakes.",
+        "powerUse": "Apply controlled telekinetic lift to land the elevator between broken floors.",
+        "choice": "Land immediately for injured patients or float higher to retrieve the trapped oxygen canisters."
+      },
+      "lair": {
+        "title": "The Gravity Exchange",
+        "venue": "Luxury skyscraper with inverted floors and a hidden antigravity auction",
+        "arena": "Whole rooms exchange floor and ceiling states, exposing distant marksmen and open shafts.",
+        "objective": "Release Weightless's gravitational ransom locks before a neighborhood is dropped.",
+        "secret": "An unsigned maintenance ledger shows who tried to keep emergency gravity running."
+      },
+      "lieutenant": {
+        "name": "Baron Driftglass",
+        "look": "Skyline thief in upside-down formalwear with a belt of miniature levitating towers.",
+        "power": "Inverts a two-tile strip so cover lifts away and targets drift toward a marked shaft.",
+        "counter": "Anchor the nearest ballast ring to the ground before the flip.",
+        "agenda": "Avery's rival in flair, he wants the city frightened but never actually falling.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-earth",
+      "opening": {
+        "title": "The Stone That Testified",
+        "venue": "City courthouse steps during a contested land hearing",
+        "inciting": "A paving stone begins whispering evidence nobody wants the public to hear.",
+        "powerUse": "Use grounded empathy to separate memory from malicious suggestion in the stone.",
+        "choice": "Broadcast the evidence now or protect witnesses until a fair hearing can occur."
+      },
+      "lair": {
+        "title": "The Founders' Fault",
+        "venue": "Buried courthouse crypt that intersects the city's oldest foundation stones",
+        "arena": "Whispering floor slabs expose false safe squares and shift stone witness platforms.",
+        "objective": "Expose Groundtruth's selective blackmail rather than suppress the city's buried history.",
+        "secret": "The oldest stone holds a confession implicating Groundtruth himself."
+      },
+      "lieutenant": {
+        "name": "Justice Flint",
+        "look": "Granite bailiff with engraved spectacles and two resonant gavels.",
+        "power": "Compels enemies standing on marked testimony tiles to reveal and lose their cover.",
+        "counter": "Strike the false verdict seal to silence the coercive gavel.",
+        "agenda": "Believes in truth, but condemns Rafa for selling it only to the powerful.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-water",
+      "opening": {
+        "title": "The Letter No One Sent",
+        "venue": "Memorial bridge on the anniversary of a local tragedy",
+        "inciting": "Unspoken grief turns the river into a rising psychic flood.",
+        "powerUse": "Give frightened mourners a safe way to release sorrow without drowning others.",
+        "choice": "Deliver a painful apology or respect the recipient's wish not to hear it."
+      },
+      "lair": {
+        "title": "The Tempest of Sorrow",
+        "venue": "Flooded concert hall built of remembered letters and unfinished goodbyes",
+        "arena": "Water rises with unresolved emotion; finishing an apology drains one bridge but floods another.",
+        "objective": "Calm Waters' grief engine must be disabled without denying mourners their losses.",
+        "secret": "A sealed message shows Lior was asked to seek help before he seized the storm."
+      },
+      "lieutenant": {
+        "name": "Matron Undertow",
+        "look": "Grief conductor in rain-soaked mourning attire carrying a candelabrum of glass tears.",
+        "power": "Projects an emotional undertow that drags targets into a growing tidal zone.",
+        "counter": "Unfold the marked unsent letter on the nearby podium to quiet the current.",
+        "agenda": "She loves Lior's tenderness but fears grief has become his excuse to punish strangers.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-discipline",
+      "opening": {
+        "title": "The Book That Walked Away",
+        "venue": "After-hours campus book return and security gate",
+        "inciting": "A priceless book vanishes through a locked display with witnesses watching.",
+        "powerUse": "Step through a carefully chosen blind spot to catch it without triggering alarms.",
+        "choice": "Return the book to the archive or trust the student who claims it was stolen first."
+      },
+      "lair": {
+        "title": "The Missing Index",
+        "venue": "Secret library built across nonadjacent rooms of the city museum",
+        "arena": "Bookshelves slip between planes, exchanging sightlines and key locations every turn.",
+        "objective": "Restore The Librarian's stolen public records before the auction closes.",
+        "secret": "One of the stolen books is actually the ledger of people she secretly saved."
+      },
+      "lieutenant": {
+        "name": "Pagekeeper Null",
+        "look": "Cloaked archivist in ink-dark slippers with a necklace of hidden library stamps.",
+        "power": "Moves through one wall then marks a target's escape route for a silent counterattack.",
+        "counter": "Flood the landing shelf with light before the marked jump.",
+        "agenda": "Will betray Mei Lin only if the recovered books remain accessible to ordinary readers.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-genius",
+      "opening": {
+        "title": "The Thought That Wasn't Yours",
+        "venue": "Academy debate club during a public election",
+        "inciting": "Students hear the same suspiciously perfect argument in their own internal voices.",
+        "powerUse": "Use mindful projection to separate authentic feelings from implanted suggestions.",
+        "choice": "Expose the manipulation publicly or protect the student used as its transmitter."
+      },
+      "lair": {
+        "title": "The Mind Market",
+        "venue": "Mind-reading exchange built in a shuttered data-center atrium",
+        "arena": "Visible thought projections predict the party's next two moves; contradictions cancel the scheme.",
+        "objective": "Shut down Mindsight's market for passwords, memories and private intentions.",
+        "secret": "A forgotten thought fragment records the first person Ezra chose not to read."
+      },
+      "lieutenant": {
+        "name": "Cipher Edda",
+        "look": "Telepathic auditor with an ink-veil face and hundreds of folded paper thought arrows.",
+        "power": "Shows an exact threatened destination, then traps units that choose the predicted square.",
+        "counter": "Intentionally choose an alternate route to make her predictions collapse.",
+        "agenda": "Thinks privacy is inefficient, yet hides a memory she would rather die than sell.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-birthright",
+      "opening": {
+        "title": "The Prophecy Auction",
+        "venue": "School fundraiser held in an old planetarium",
+        "inciting": "A fortune seller announces disaster to force families into bidding for their children's safety.",
+        "powerUse": "Read multiple possible futures without presenting any one as inevitable.",
+        "choice": "Tell families the uncomfortable truth or shield them from manipulation until evidence arrives."
+      },
+      "lair": {
+        "title": "The Clock of Tomorrow",
+        "venue": "Astral observatory where twelve prophecy windows show different upcoming rounds",
+        "arena": "Future-hit cells glow two rounds ahead; moving a window can change which forecast comes true.",
+        "objective": "Break Second Sight's prophecy auction before she purchases the city's tomorrow.",
+        "secret": "The smallest telescope shows Celestine's own future defeat if she keeps selling fear."
+      },
+      "lieutenant": {
+        "name": "Oracle Calyx",
+        "look": "Blindfolded seer in a robe of embroidered calendars and spinning brass hourglasses.",
+        "power": "Plants twin future attack zones that trigger only if the forecast stays true.",
+        "counter": "Move the brass hourglass sideways to invalidate the announced predictions.",
+        "agenda": "Wants to save Celestine from a future she believes is impossible to avoid.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "psychic-social",
+      "opening": {
+        "title": "The Rumor After Midnight",
+        "venue": "School newspaper room during prom ballot counting",
+        "inciting": "A forged anonymous story spreads before anybody can check its evidence.",
+        "powerUse": "Use empathic reading to trace a rumor back to its first harmed person.",
+        "choice": "Publish an immediate correction or quietly warn the people at risk."
+      },
+      "lair": {
+        "title": "The Whisper Engine",
+        "venue": "Maze of newsroom recording booths connected by talking ventilation ducts",
+        "arena": "Rumor pages change which targets appear hostile; authentic evidence destroys false walls.",
+        "objective": "Stop The Confidante's citywide whisper network and recover the original testimony.",
+        "secret": "A private transcript proves Juniper once refused to weaponize a friend's confession."
+      },
+      "lieutenant": {
+        "name": "Publisher Hush Fenwick",
+        "look": "Newsroom impresario with an ink-stained mask and a coat made of scandal headlines.",
+        "power": "Prints an accusation across three floor tiles, causing a temporary decoy target switch.",
+        "counter": "Reveal the stamped retraction hidden on the press roller to undo the claim.",
+        "agenda": "Keeps a sealed dossier documenting all the victims he hopes to apologize to.",
+        "hp": 4
+      }
     }
   ]
 }

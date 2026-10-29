@@ -147,8 +147,8 @@ export const useEveryVillainTacticsStore = defineStore(
               (draft.value.encounter === 'quarry-lieutenant'
                 ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
                 : draft.value.encounter === 'warren-wreckers'
-                ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
-                : '') +
+                  ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                  : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +

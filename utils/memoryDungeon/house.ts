@@ -1113,13 +1113,7 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   // bedchamber without traversing every intervening passage. The combat
   // origin remains in visited even after its active flag is cleared.
   if (visited.includes('HD-18') || savedCurrent === 'HD-18')
-    for (const origin of [
-      'HD-09',
-      'HD-19',
-      'HD-22',
-      'HD-28',
-      'HD-32',
-    ] as const)
+    for (const origin of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32'] as const)
       if (visited.includes(origin))
         shortcuts[origin] = [...(shortcuts[origin] ?? []), 'HD-18']
   const { current, visited: visitedRooms } = reachableHouseVisits(

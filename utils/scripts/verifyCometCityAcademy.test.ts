@@ -2052,6 +2052,11 @@ assert.equal(
 assert.equal(new Set(FULL_NIGHT_DECK.map((incident) => incident.id)).size, 24)
 const fullCaseTitles = new Set<string>()
 for (const mission of EXPANDED_MISSIONS) {
+  assert.ok(typeof mission.incident.id === 'string' && mission.incident.id.length > 5)
+  assert.ok(typeof mission.incident.title === 'string' && mission.incident.title.length > 12)
+  assert.ok(typeof mission.incident.site === 'string' && mission.incident.site.length > 6)
+  assert.ok(typeof mission.incident.need === 'string')
+  assert.ok(typeof mission.incident.allegiance === 'string')
   assert.equal(expandedMissionFor(mission.incident.id), mission)
   assert.ok(mission.briefing.length > 140)
   assert.ok(mission.refused.length > 140)

@@ -34,6 +34,7 @@ import {
   earnedCourierCompensation,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortOutcome,
+  earnedOrenManifestOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -1139,11 +1140,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
-    if (key === '3,5' || key === '4,4') {
+    if (key === '3,5' || key === '4,4' || key === '4,3') {
       const earned =
         key === '3,5'
           ? earnedBorrowedVoiceOutcome(state.value, next)
-          : earnedRoyalEscortOutcome(state.value, next)
+          : key === '4,4'
+            ? earnedRoyalEscortOutcome(state.value, next)
+            : earnedOrenManifestOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {

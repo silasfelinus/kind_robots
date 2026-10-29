@@ -51,6 +51,8 @@ import {
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortAccord,
   earnedRoyalEscortOutcome,
+  earnedOrenManifestAccord,
+  earnedOrenManifestOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -512,6 +514,119 @@ assert.ok(
     'question about their matching faces',
   ),
   'The old callback must remember the actual lantern question',
+)
+
+// Oren's original itinerary/supply decision must meaningfully change the
+// mirrored passenger-count/evacuation outcome. The scene, ledger and House
+// ending all derive from the same earned pair of decisions.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('4,3'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('4,3'))
+const orenOutcomes = new Set<string>()
+const orenEndings = new Set<string>()
+const orenRoute = [BRIAR_START, '3,4', '4,4', '4,3']
+const orenMirroredBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/manifest-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: orenRoute,
+  player: '4,3',
+}
+for (const [source, prefix] of [
+  ['plan', 'route'],
+  ['load', 'supplies'],
+] as const) {
+  assert.ok(BRIAR_SCENES['4,3']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    visited: orenRoute,
+    player: '4,3',
+    wavePhase: 'exploring',
+    sceneChoices: { '4,3': source },
+  })
+  assert.equal(original.sceneChoices['4,3'], source)
+  for (const [response, suffix] of [
+    ['counts', 'counted'],
+    ['rescue', 'rescued'],
+  ] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['4,3']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(orenMirroredBase, '4,3', response)
+    assert.notEqual(chosen, orenMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '4,3', response),
+      chosen,
+      'Oren cannot issue the same evacuation twice',
+    )
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(reflected.sceneChoices['4,3'], response)
+    const accord = `${prefix}-${suffix}`
+    assert.equal(earnedOrenManifestAccord(original, reflected), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .orenManifestAccord,
+      accord,
+    )
+    const outcome = earnedOrenManifestOutcome(original, reflected)
+    assert.ok(outcome && outcome.length > 180)
+    assert.match(outcome, /Oren/)
+    orenOutcomes.add(outcome)
+    const ending = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      reflected,
+    )
+    assert.ok(ending.includes('Oren'))
+    orenEndings.add(ending)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, reflected),
+      '',
+      'Oren must not reveal a House ending before it is earned',
+    )
+  }
+}
+assert.equal(orenOutcomes.size, 4)
+assert.equal(orenEndings.size, 4)
+assert.equal(
+  earnedOrenManifestAccord(base, { sceneChoices: { '4,3': 'counts' } }),
+  'unset',
+)
+assert.equal(
+  earnedOrenManifestOutcome(
+    { ...base, sceneChoices: { '4,3': 'forged' } },
+    { sceneChoices: { '4,3': 'rescue' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedOrenManifestOutcome(
+    { ...base, sceneChoices: { '4,3': 'plan' } },
+    { sceneChoices: { '4,3': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).orenManifestAccord,
+  'unset',
+  'Legacy saves without a mirrored manifest decision remain compatible',
+)
+assert.match(
+  store,
+  /earnedOrenManifestOutcome\(state\.value, next\)/,
+  'The live mirrored scene must display the earned Oren continuation',
 )
 
 const earnedHouseEpilogues = new Set<string>()

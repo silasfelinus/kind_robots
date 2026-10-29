@@ -1544,6 +1544,9 @@ jobs:
       - name: Art Archive ingestion controls contract
         run: npm run test:art-archive-ingestion-controls
 
+      - name: Hybridizer art lifecycle and delivery contract
+        run: npm run test:hybridizer-art
+
       - name: Hybridizer canonical fusion cache contract
         run: npm run test:hybridizer-cache
 

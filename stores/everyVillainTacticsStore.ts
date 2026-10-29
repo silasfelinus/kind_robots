@@ -19,6 +19,14 @@ import {
 } from '~/utils/everyVillainTactics/training'
 
 import {
+  STAGE_PRESETS,
+  clonePreset,
+  paintStage,
+  stageProblems,
+  type StudioBrush,
+} from '~/utils/everyVillainTactics/studio'
+
+import {
   applyChoice,
   createStory,
   enqueueBeat,
@@ -68,6 +76,38 @@ export const useEveryVillainTacticsStore = defineStore(
     const story = ref(createStory())
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
+    const studioOpen = ref(false)
+    const studioBrush = ref<StudioBrush>('wall')
+    const draft = ref(clonePreset('college-quad'))
+    const isPlaytest = ref(false)
+    const studioProblems = computed(() => stageProblems(draft.value))
+    const boardCells = computed(() => Array.from(
+      { length: state.value.map.width * state.value.map.height },
+      (_, i) => ({ x: i % state.value.map.width, y: Math.floor(i / state.value.map.width) }),
+    ))
+    function loadPreset(id: string) {
+      draft.value = clonePreset(id)
+    }
+    function paintCell(point: Cell) {
+      draft.value = paintStage(draft.value, point, studioBrush.value)
+    }
+    function startPlaytest() {
+      if (studioProblems.value.length) return false
+      isPlaytest.value = true
+      studioOpen.value = false
+      reset()
+      return true
+    }
+    function exitPlaytest() {
+      isPlaytest.value = false
+      reset()
+    }
+    function tileInfoAt(point: Cell) {
+      return terrainAt(point, state.value.map)
+    }
+    function heightAt(point: Cell) {
+      return elevationAt(point, state.value.map)
+    }
     const roster = IDENTITY_ARCS
     const active = computed(() => selectedUnit(state.value) ?? null)
     const players = computed(() =>
@@ -76,9 +116,13 @@ export const useEveryVillainTacticsStore = defineStore(
     const enemies = computed(() =>
       state.value.units.filter((u) => u.team === 'rival'),
     )
-    const scene = computed(() => PERSPECTIVES[perspective.value])
+    const scene = computed(() => isPlaytest.value ? {
+      ...PERSPECTIVES[perspective.value],
+      headline: draft.value.objective,
+      opening: draft.value.title + ' / ' + draft.value.venue + '. Studio sparring uses the real tactical rules; story scenes are authored separately.',
+    } : PERSPECTIVES[perspective.value])
     const moment = computed(() =>
-      story.value.current
+      !isPlaytest.value && story.value.current
         ? storyMoment(
             perspective.value,
             story.value.current,
@@ -102,7 +146,7 @@ export const useEveryVillainTacticsStore = defineStore(
           : selected
       return enemies.value
         .filter((u) => u.hp > 0)
-        .map((u) => previewShot(from, u))
+        .map((u) => previewShot(from, u, state.value.map))
         .filter((shot) => shot.hit > 0)
         .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
     })
@@ -138,7 +182,7 @@ export const useEveryVillainTacticsStore = defineStore(
     })
 
     function reset() {
-      state.value = trainingState()
+      state.value = trainingState(0x53a1b7, isPlaytest.value ? draft.value : undefined)
       state.value.units[0]!.identity = leadSignature.value
       story.value = createStory()
     }
@@ -174,30 +218,30 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.hover = point
     }
     function click(point: Cell) {
-      if (story.value.current) return
+      if (story.value.current && !isPlaytest.value) return
       const unit = actorAt(state.value, point)
       if (unit?.team === 'squad') return select(unit.id)
       if (state.value.phase !== 'active') return
       if (unit?.team === 'rival') {
-        if (state.value.mode === 'fire' && fireSelected(state.value, unit))
+        if (state.value.mode === 'fire' && fireSelected(state.value, unit) && !isPlaytest.value)
           enqueueBeat(story.value, state.value)
       } else if (state.value.mode === 'move') {
-        if (moveSelected(state.value, point))
+        if (moveSelected(state.value, point) && !isPlaytest.value)
           enqueueBeat(story.value, state.value)
       }
     }
     function nextTurn() {
       if (story.value.current) return
       endTurn(state.value)
-      enqueueBeat(story.value, state.value)
+      if (!isPlaytest.value) enqueueBeat(story.value, state.value)
     }
     function overwatch() {
       if (story.value.current) return
-      if (overwatchSelected(state.value)) enqueueBeat(story.value, state.value)
+      if (overwatchSelected(state.value) && !isPlaytest.value) enqueueBeat(story.value, state.value)
     }
     function hunker() {
       if (story.value.current) return
-      if (hunkerSelected(state.value)) enqueueBeat(story.value, state.value)
+      if (hunkerSelected(state.value) && !isPlaytest.value) enqueueBeat(story.value, state.value)
     }
     function chooseStory(effect: ChoiceEffect) {
       return applyChoice(story.value, state.value, perspective.value, effect)
@@ -216,13 +260,26 @@ export const useEveryVillainTacticsStore = defineStore(
           !!state.value.hover &&
           point.x === state.value.hover.x &&
           point.y === state.value.hover.y,
-        'has-cover': terrainAt(point) === 'cover',
-        'has-wall': terrainAt(point) === 'wall',
-        elevated: elevationAt(point) > 0,
+        'has-cover': tileInfoAt(point) === 'cover',
+        'has-wall': tileInfoAt(point) === 'wall',
+        elevated: heightAt(point) > 0,
       }
     }
     return {
       state,
+      STAGE_PRESETS,
+      studioOpen,
+      studioBrush,
+      draft,
+      studioProblems,
+      isPlaytest,
+      loadPreset,
+      paintCell,
+      startPlaytest,
+      exitPlaytest,
+      tileInfoAt,
+      heightAt,
+      boardCells,
       perspective,
       leadSignature,
       story,

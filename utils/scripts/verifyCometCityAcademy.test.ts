@@ -353,7 +353,10 @@ assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
 assert.equal(GUEST_IDENTITIES[0].student.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].villain.alias, 'Zuzu, Koala Assassin')
-assert.equal(CHARACTER_ROSTER.filter((person) => person.realName === 'Zuzu').length, 1)
+assert.equal(
+  CHARACTER_ROSTER.filter((person) => person.realName === 'Zuzu').length,
+  1,
+)
 for (const [signature, realName, alias] of [
   ['tech-genius', 'Dr. Lionel Marsh', 'Dr. Frog'],
   ['magic-earth', 'Mavis Mayhew', 'Granny Mayhem'],
@@ -373,7 +376,8 @@ for (const [signature, realName, alias] of [
   )
   assert.ok(paintings.every((prompt) => prompt && prompt.length > 200))
   assert.equal(new Set(paintings).size, 3)
-  for (const text of paintings) assert.ok(text.includes(realName.split(' ')[0]!))
+  for (const text of paintings)
+    assert.ok(text.includes(realName.split(' ')[0]!))
 }
 for (const [signature, historicalField] of [
   ['tech-genius', 'technopathy'],
@@ -397,7 +401,9 @@ assert.ok(
   PROM_ART_PROMPTS['identities/tech-genius/villain']?.includes('humanoid frog'),
 )
 assert.ok(
-  PROM_ART_PROMPTS['identities/tech-genius/student']?.includes('still entirely human'),
+  PROM_ART_PROMPTS['identities/tech-genius/student']?.includes(
+    'still entirely human',
+  ),
 )
 
 assert.equal(GUEST_IDENTITIES[1].realName, TESS_CREW_SOURCE.name)

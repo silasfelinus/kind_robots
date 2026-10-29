@@ -61,11 +61,15 @@ export const boardCells: Cell[] = Array.from(
     y: Math.floor(i / WIDTH),
   }),
 )
-export function terrainAt(p: Cell, map = FIRST_BELL_MAP): 'wall' | 'cover' | 'floor' {
+export function terrainAt(
+  p: Cell,
+  map = FIRST_BELL_MAP,
+): 'wall' | 'cover' | 'floor' {
   const tile = tileAt(map, p)
   return tile.wall ? 'wall' : tile.cover ? 'cover' : 'floor'
 }
-export const elevationAt = (p: Cell, map = FIRST_BELL_MAP) => tileAt(map, p).elevation
+export const elevationAt = (p: Cell, map = FIRST_BELL_MAP) =>
+  tileAt(map, p).elevation
 export function personFor(unit: Unit) {
   return IDENTITY_ARCS.find((person) => person.signature === unit.identity)!
 }
@@ -108,7 +112,10 @@ export function previewShot(
 ): ShotPreview {
   return { target: target.id, ...chanceFrom(map, from, target) }
 }
-export function trainingState(seed = 0x53a1b7, stage?: StageDraft): TrainingState {
+export function trainingState(
+  seed = 0x53a1b7,
+  stage?: StageDraft,
+): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
     ['backdraft', 'accident-fire', 'squad', 0, 4, 4],
     ['priya', 'tech-genius', 'squad', 1, 5, 3],

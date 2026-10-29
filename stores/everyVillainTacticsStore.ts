@@ -201,6 +201,7 @@ export const useEveryVillainTacticsStore = defineStore(
       )
       state.value.units[0]!.identity = leadSignature.value
       story.value = createStory()
+      if (isPlaytest.value) story.value.current = null
     }
     function choosePerspective(value: TacticalPerspective) {
       perspective.value = value

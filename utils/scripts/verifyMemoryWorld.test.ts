@@ -698,7 +698,7 @@ for (let responseMask = 0; responseMask < 16; responseMask++) {
   assert.equal(synthesis.title, 'Four frames, no borrowed verdict')
   assert.match(synthesis.evidence, /office doorway.*injured friend/i)
   assert.ok(synthesis.reflection.length > 150)
-  assert.doesNotMatch(synthesis.reflection, /children|daughter|son|parenthood/i)
+  assert.doesNotMatch(synthesis.reflection, /\b(children|daughter|son|parenthood)\b/i)
   fourFrameReadings.add(synthesis.reflection)
   for (const missingId of photoIds) {
     const missingResponse = { ...journal.responses }

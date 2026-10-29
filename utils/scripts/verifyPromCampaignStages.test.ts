@@ -38,22 +38,45 @@ for (const character of IDENTITY_ARCS) {
   const stages = campaignStagesFor(character.signature)
   assert.equal(stages.signature, character.signature)
   assert.equal(stages.lieutenant.hp, 4, 'lieutenant must survive one hit')
-  assert.ok(!speciesCaptains.has(stages.lieutenant.name), 'lieutenant cannot be the minor crew captain')
-  assert.ok(!heroNames.has(stages.lieutenant.name), 'lieutenant cannot recycle another permanent hero')
-  assert.ok(stages.opening.title.length >= 8 && stages.opening.venue.length >= 12)
+  assert.ok(
+    !speciesCaptains.has(stages.lieutenant.name),
+    'lieutenant cannot be the minor crew captain',
+  )
+  assert.ok(
+    !heroNames.has(stages.lieutenant.name),
+    'lieutenant cannot recycle another permanent hero',
+  )
+  assert.ok(
+    stages.opening.title.length >= 8 && stages.opening.venue.length >= 12,
+  )
   assert.ok(stages.lair.title.length >= 8 && stages.lair.venue.length >= 12)
   assert.ok(stages.lieutenant.name.length >= 7)
   for (const key of ['inciting', 'powerUse', 'choice'] as const)
-    assert.ok(stages.opening[key].length > 35, character.signature + ' opening missing ' + key)
+    assert.ok(
+      stages.opening[key].length > 35,
+      character.signature + ' opening missing ' + key,
+    )
   for (const key of ['arena', 'objective', 'secret'] as const)
-    assert.ok(stages.lair[key].length > 30, character.signature + ' lair missing ' + key)
+    assert.ok(
+      stages.lair[key].length > 30,
+      character.signature + ' lair missing ' + key,
+    )
   for (const key of ['look', 'power', 'counter', 'agenda'] as const)
-    assert.ok(stages.lieutenant[key].length > 30, character.signature + ' lieutenant missing ' + key)
+    assert.ok(
+      stages.lieutenant[key].length > 30,
+      character.signature + ' lieutenant missing ' + key,
+    )
 }
 assert.match(campaignStagesFor('accident-earth').lair.title, /Deed Below/)
 assert.match(campaignStagesFor('tech-genius').opening.title, /Grandma/)
-assert.match(campaignStagesFor('magic-genius').lair.arena, /vertices|mathematical/)
-assert.throws(() => campaignStagesFor('unlisted-person' as never), /Missing opening mission/)
+assert.match(
+  campaignStagesFor('magic-genius').lair.arena,
+  /vertices|mathematical/,
+)
+assert.throws(
+  () => campaignStagesFor('unlisted-person' as never),
+  /Missing opening mission/,
+)
 const dossierPage = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
   'utf8',
@@ -65,4 +88,6 @@ assert.match(dossierPage, /inspectedCampaign\.lair\.title/)
 assert.match(dossierPage, /inspectedCampaign\.lieutenant\.name/)
 assert.match(dossierPage, /Concept plans only/)
 
-console.log('48 original power-specific openers, 48 villain lairs, 48 separate four-HP lieutenants: OK')
+console.log(
+  '48 original power-specific openers, 48 villain lairs, 48 separate four-HP lieutenants: OK',
+)

@@ -611,16 +611,48 @@ export function missionReaction(
 export type RouteUnlock = { label: string; result: string; boost: number }
 const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
   'frog-serum': [
-    { people: ['kit', 'drift'], route: { label: 'The Right to Be Changed', result: 'Kit stabilizes the janitor while DRIFT-9 recognizes the professor as a fellow person whose body is changing without consent. Dr. Frog hands over the antidote voluntarily and names the saboteur.', boost: 2 } },
+    {
+      people: ['kit', 'drift'],
+      route: {
+        label: "The Right to Be Changed",
+        result:
+          "Kit stabilizes the janitor while DRIFT-9 recognizes the professor as a fellow person whose body is changing without consent. Dr. Frog hands over the antidote voluntarily and names the saboteur.",
+        boost: 2,
+      },
+    },
   ],
   'mirror-court': [
-    { people: ['imani', 'jo'], route: { label: 'The Cast Takes the Vote', result: 'Imani earns the missing stagehand’s trust and Jo exposes the rehearsal footage, letting the cast run a real count instead of accepting the mirror sponsor’s false victory.', boost: 2 } },
+    {
+      people: ['imani', 'jo'],
+      route: {
+        label: "The Cast Takes the Vote",
+        result:
+          "Imani earns the missing stagehand’s trust and Jo exposes the rehearsal footage, letting the cast run a real count instead of accepting the mirror sponsor’s false victory.",
+        boost: 2,
+      },
+    },
   ],
   'granny-shuttle': [
-    { people: ['veda', 'mara'], route: { label: 'Granny’s Unpaid Stunt Team', result: 'Veda steadies the bus while Mara gets the bridge crews to defy the private rescue company. Granny Mayhem applauds from the driver’s seat and demands that the workers lead the victory parade.', boost: 2 } },
+    {
+      people: ['veda', 'mara'],
+      route: {
+        label: "Granny’s Unpaid Stunt Team",
+        result:
+          "Veda steadies the bus while Mara gets the bridge crews to defy the private rescue company. Granny Mayhem applauds from the driver’s seat and demands that the workers lead the victory parade.",
+        boost: 2,
+      },
+    },
   ],
   'halo-contract': [
-    { people: ['sol', 'jo'], route: { label: 'No Halo, No Orders', result: 'Sol finds the obedience switch and Jo broadcasts a live demonstration with informed volunteers, forcing the factory to recall the halos before they reach any school.', boost: 2 } },
+    {
+      people: ['sol', 'jo'],
+      route: {
+        label: "No Halo, No Orders",
+        result:
+          "Sol finds the obedience switch and Jo broadcasts a live demonstration with informed volunteers, forcing the factory to recall the halos before they reach any school.",
+        boost: 2,
+      },
+    },
   ],
   monorail: [
     {

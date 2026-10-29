@@ -95,6 +95,13 @@
               class="fusion-study"
               aria-label="Compositional preview using the two source ingredients"
             >
+              <img
+                v-if="lab.imageFor(lab.result)"
+                class="fusion-generated"
+                :src="lab.imageFor(lab.result) || undefined"
+                :alt="lab.result.title + ' illustration'"
+              />
+              <template v-else>
               <div class="fusion-part">
                 <img
                   v-if="lab.imageFor(lab.left)"
@@ -116,15 +123,26 @@
                   glyphFor(lab.right?.title, lab.right?.taxonomy)
                 }}</span>
               </div>
+              </template>
             </div>
             <div class="result-foot">
               <p class="study-label">
                 {{
-                  lab.result.key.startsWith('fusion:')
-                    ? 'SHARED DISCOVERY · PAINTED ART PENDING'
-                    : 'LOCAL STUDY · SHARED ARCHIVE UNAVAILABLE'
+                  lab.result.status === 'READY'
+                    ? 'DELIVERED ARTWORK'
+                    : lab.result.key.startsWith('fusion:')
+                      ? 'SHARED DISCOVERY · ' + (lab.result.status || 'STUDY')
+                      : 'LOCAL STUDY · SHARED ARCHIVE UNAVAILABLE'
                 }}
               </p>
+              <button
+                v-if="lab.result.status === 'FAILED'"
+                type="button"
+                class="remix-button"
+                @click="lab.enqueueArtwork(lab.result.key)"
+              >
+                Retry illustration
+              </button>
               <button
                 type="button"
                 class="remix-button"
@@ -160,6 +178,10 @@
         </article>
       </section>
 
+      <div v-if="lab.readyNotice" class="hybrid-ready-notice" role="status" aria-live="polite">
+        <strong>{{ lab.readyNotice.title }} is illustrated!</strong>
+        <button type="button" aria-label="Dismiss artwork notice" @click="lab.dismissNotice()">✕</button>
+      </div>
       <footer class="hybridizer-footer">
         <button
           type="button"
@@ -274,7 +296,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useHybridizerStore } from '@/stores/hybridizerStore'
 
 const lab = useHybridizerStore()
@@ -338,7 +360,9 @@ onMounted(() => {
   lab.hydrate()
   void lab.loadArtwork()
   void lab.loadSharedStudies()
+  lab.startArtworkWatch()
 })
+onUnmounted(() => lab.stopArtworkWatch())
 </script>
 
 <style scoped>
@@ -1018,5 +1042,32 @@ onMounted(() => {
     animation: none;
     transition: none;
   }
+}
+
+.fusion-generated {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 24px #130c2c);
+}
+.hybrid-ready-notice {
+  position: absolute;
+  z-index: 7;
+  right: 2rem;
+  bottom: 5.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(28rem, 80%);
+  padding: 0.7rem 1rem;
+  border: 1px solid #d9f5a7;
+  border-radius: 1rem;
+  background: #241935;
+  color: #efffbb;
+  box-shadow: 0 8px 30px #0b0816b0;
+}
+.hybrid-ready-notice button {
+  color: inherit;
+  font-weight: 800;
 }
 </style>

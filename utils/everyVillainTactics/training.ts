@@ -7,7 +7,6 @@ import {
   inside,
   lineOfSight,
   moveAP,
-  nextRoll,
   pathDistance,
   prepareOverwatch,
   reachableCells,

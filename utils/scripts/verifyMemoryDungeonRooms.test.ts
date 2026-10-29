@@ -178,6 +178,40 @@ assert.equal(
   null,
   'Guard past its cap is a tampered save',
 )
+assert.equal(
+  restoreCombat({ ...json, turn: 100000 }),
+  null,
+  'a forged 100,000-turn checkpoint is rejected before expensive seeded-board replay',
+)
+const cooling = strike(fresh.state, 'hammer', { row: 0, col: 0 })
+assert.equal(cooling.cooldowns.hammer, 1)
+assert.ok(
+  restoreCombat(JSON.parse(JSON.stringify(cooling))),
+  'an earned weapon cooldown survives save restoration',
+)
+for (const badCooldowns of [
+  { hammer: -1 },
+  { hammer: 2 },
+  { twinblade: 1 },
+  { 'unknown-weapon': 1 },
+  { hammer: null },
+  ['hammer'],
+]) {
+  assert.equal(
+    restoreCombat({ ...json, cooldowns: badCooldowns }),
+    null,
+    'malformed or impossible cooldown entries cannot be silently dropped on reload',
+  )
+}
+assert.equal(
+  restoreCombat({ ...json, cooldowns: null }),
+  null,
+  'a corrupt cooldown ledger cannot be interpreted as an empty one',
+)
+assert.ok(
+  restoreCombat({ ...json, cooldowns: undefined }),
+  'older checkpoints without a cooldown ledger remain compatible',
+)
 const tampered = json.cards.map((c: { pair: number }, i: number) =>
   i ? c : { ...c, pair: (c.pair + 1) % 8 },
 )

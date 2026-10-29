@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
     if (!auth.isAdmin) {
-      throw createError({ statusCode: 403, message: 'Administrator access required.' })
+      throw createError({
+        statusCode: 403,
+        message: 'Administrator access required.',
+      })
     }
 
     const jobs = await prisma.artJob.findMany({

@@ -671,7 +671,8 @@
     "test:queued-prompt-gate": "tsx utils/scripts/verifyQueuedPromptGate.test.ts",
     "test:arcade-soundtrack-briefs": "tsx utils/scripts/verifyArcadeSoundtrackBriefs.test.ts",
     "test:arcade-soundtrack-mixer": "tsx utils/scripts/verifyArcadeSoundtrackMixer.test.ts",
-    "test:sliding-tiles": "tsx utils/scripts/verifySlidingTileGallery.test.ts"
+    "test:sliding-tiles": "tsx utils/scripts/verifySlidingTileGallery.test.ts",
+    "test:game-link-preview": "tsx utils/scripts/verifyGameLinkPreview.test.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

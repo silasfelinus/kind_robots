@@ -287,6 +287,10 @@ function openTutorial(): void {
 }
 const TEXT_SCALE = { small: '93.75%', medium: '', large: '112.5%' } as const
 
+useSeoMeta(
+  gameLinkPreviewMeta('crystal-street', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 useHead({
   title: 'Terrors on Crystal Street',
   htmlAttrs: {

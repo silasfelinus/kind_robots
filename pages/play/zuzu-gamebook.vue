@@ -647,6 +647,10 @@ onBeforeUnmount(() => {
   shortWideQuery?.removeEventListener('change', syncShortWide)
   portraitTabletQuery?.removeEventListener('change', syncShortWide)
 })
+useSeoMeta(
+  gameLinkPreviewMeta('zuzu-gamebook', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
 </script>
 

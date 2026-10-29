@@ -1155,6 +1155,12 @@ function startFromOpening(selection: {
 }
 
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'comet-city-academy',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Prom of Doom | Capes & Tassels | Kind Robots' })
 
 function teamFor(caseId: string): StudentId[] {

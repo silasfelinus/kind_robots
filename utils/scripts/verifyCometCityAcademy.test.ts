@@ -375,6 +375,21 @@ for (const [signature, realName, alias] of [
   assert.equal(new Set(paintings).size, 3)
   for (const text of paintings) assert.ok(text.includes(realName.split(' ')[0]!))
 }
+for (const [signature, historicalField] of [
+  ['tech-genius', 'technopathy'],
+  ['magic-earth', 'empathy'],
+  ['alien-discipline', 'kinetic'],
+] as const) {
+  assert.equal(
+    fieldFor(signature),
+    historicalField,
+    `old ${signature} save must retain its combat field`,
+  )
+  const oldSave = startFullAcademy(historicalField, 481, signature, 'shelter')
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(oldSave))), oldSave)
+  const oldSelection = { ...oldSave, incidentDeckVersion: 2 as const }
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(oldSelection))))
+}
 assert.ok(identityFor('tech-genius').student.conflict.includes('human'))
 assert.ok(identityFor('tech-genius').hero.method.includes('human'))
 assert.ok(identityFor('tech-genius').villain.method.includes('humanoid frog'))

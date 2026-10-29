@@ -7,6 +7,9 @@ import {
   endTurn,
   fireSelected,
   moveSelected,
+  overwatchSelected,
+  hunkerSelected,
+  elevationAt,
   previewShot,
   selectedUnit,
   trainingState,
@@ -75,9 +78,10 @@ export const useEveryVillainTacticsStore = defineStore(
       const target = actorAt(state.value, point)
       if (target?.team === 'rival') return previewShot(selected, target)
       if (movePossible.value) {
+        const projected = { ...selected, x: point.x, y: point.y }
         const options = enemies.value
           .filter((u) => u.hp > 0)
-          .map((u) => previewShot(point, u))
+          .map((u) => previewShot(projected, u))
           .filter((s) => s.hit > 0)
           .sort((a, b) => b.hit - a.hit)
         return options[0] ?? null
@@ -148,6 +152,12 @@ export const useEveryVillainTacticsStore = defineStore(
     function nextTurn() {
       endTurn(state.value)
     }
+    function overwatch() {
+      overwatchSelected(state.value)
+    }
+    function hunker() {
+      hunkerSelected(state.value)
+    }
     function cellStyle(point: Cell) {
       return {
         selected:
@@ -164,6 +174,7 @@ export const useEveryVillainTacticsStore = defineStore(
           point.y === state.value.hover.y,
         'has-cover': terrainAt(point) === 'cover',
         'has-wall': terrainAt(point) === 'wall',
+        elevated: elevationAt(point) > 0,
       }
     }
     return {
@@ -189,6 +200,8 @@ export const useEveryVillainTacticsStore = defineStore(
       hover,
       click,
       nextTurn,
+      overwatch,
+      hunker,
       cellStyle,
     }
   },

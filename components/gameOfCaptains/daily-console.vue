@@ -147,10 +147,7 @@
                   'Place ' + actor.name + ' on ' + scoutedEncounter.title
                 "
                 data-testid="space-couch-scout-actor"
-                @click="
-                  assign(scoutedEncounter.id, actor.id)
-                  scoutingQuestId = null
-                "
+                @click="chooseScoutActor(scoutedEncounter.id, actor.id)"
               >
                 <span class="daily-actor-face">
                   <img v-if="actor.image" :src="actor.image" alt="" />
@@ -730,6 +727,10 @@ function assign(encounterId: string, chosen = selectedLead.value) {
     chosen,
   )
   selectedLead.value = chosen
+}
+function chooseScoutActor(encounterId: string, actorId: string) {
+  assign(encounterId, actorId)
+  scoutingQuestId.value = null
 }
 function clearPlan(encounterId: string) {
   if (!assignments.value[encounterId]) return

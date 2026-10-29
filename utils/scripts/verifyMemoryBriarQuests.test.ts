@@ -7,7 +7,11 @@ import {
   briarQuestProgress,
   validateBriarQuests,
 } from '../memoryDungeon/briarQuests'
-import { HOUSE_ROOMS, newHouseProgress, type HouseRoomId } from '../memoryDungeon/house'
+import {
+  HOUSE_ROOMS,
+  newHouseProgress,
+  type HouseRoomId,
+} from '../memoryDungeon/house'
 import {
   BRIAR_RARE_EVENTS,
   earnedBriarRareEvents,

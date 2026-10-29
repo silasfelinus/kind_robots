@@ -287,7 +287,9 @@ assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
 // Every authored room restores its own enemy and original 4x4 board, never
 // another room's enemy or inflated stats from a modified checkpoint.
-for (const roomId of Object.keys(COMBAT_ROOMS) as (keyof typeof COMBAT_ROOMS)[]) {
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
   const original = startCombatRoom(roomId, 42, images)
   const enemy = original.state.enemy
   assert.deepEqual(
@@ -305,7 +307,10 @@ for (const roomId of Object.keys(COMBAT_ROOMS) as (keyof typeof COMBAT_ROOMS)[])
   ] as const) {
     assert.equal(
       restoreBriarCombat(
-        { ...original, state: { ...original.state, enemy: { ...enemy, ...forged } } },
+        {
+          ...original,
+          state: { ...original.state, enemy: { ...enemy, ...forged } },
+        },
         roomId,
       ),
       null,

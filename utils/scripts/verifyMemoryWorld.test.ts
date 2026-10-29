@@ -220,6 +220,7 @@ const houseSave = restoreBriarSave({
     current: 'HD-18',
     visited: visitedHouseRoutes('HD-03', 'HD-04', 'HD-18', 'HD-35'),
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
+    wardenPassed: true,
     ending: 'release',
   },
 })

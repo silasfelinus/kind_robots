@@ -51,8 +51,14 @@ const hill: TacticalMap = { width: 4, height: 3, tiles: {
   '2,1': { elevation: 1 },
 }}
 const walker = unit('walker', 'squad', 0, 1)
-assert.equal(pathDistance(hill, [walker], walker, { x: 1, y: 1 }), Infinity,
-  'cannot climb a two-level wall of terrain')
+assert.equal(pathDistance(hill, [walker], walker, { x: 1, y: 1 }), 5,
+  'two-level vertical step must route around the ridge and climb from the other side')
+const isolatedCliff: TacticalMap = { width: 2, height: 1, tiles: {
+  '1,0': { elevation: 2 },
+}}
+const isolatedWalker = unit('isolated-walker', 'squad', 0, 0)
+assert.equal(pathDistance(isolatedCliff, [isolatedWalker], isolatedWalker, { x: 1, y: 0 }), Infinity,
+  'a two-level cliff with no alternate route must remain impassable')
 assert.ok(Number.isFinite(pathDistance(hill, [walker], walker, { x: 2, y: 1 })),
   'can go around elevation cliffs')
 assert.equal(lineOfSight(hill, { x: 0, y: 1 }, { x: 3, y: 1 }), false,

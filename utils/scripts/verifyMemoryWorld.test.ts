@@ -3023,7 +3023,7 @@ assert.match(
     true,
   ),
   /Knight's apology/,
-  'Pip's earned thread wins deterministic ties among new callbacks',
+  "Pip\'s earned thread wins deterministic ties among new callbacks",
 )
 // House defeats remember real companion and witness choices, not a generic
 // failure. The same bounded text is used by live timers and restored saves.

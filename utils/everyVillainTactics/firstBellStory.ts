@@ -1,4 +1,4 @@
-import type { TrainingState, Unit } from './training'
+import type { TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
 export type Beat = 'arrival' | 'alarm' | 'reckoning' | 'victory' | 'defeat'
@@ -281,7 +281,7 @@ export function applyChoice(
     // One free pre-battle reposition. Distinct approach lanes give different
     // first-turn sightlines, but never cost or secretly award action points.
     const leader = byId(state, 'backdraft')
-    if (leader) { leader.x = effect === 'catwalk' ? 1 : 1; leader.y = effect === 'catwalk' ? 2 : 4 }
+    if (leader) { leader.x = 1; leader.y = effect === 'catwalk' ? 2 : 4 }
   } else if (beat === 'alarm') {
     if (effect === 'rescue') { run.civilians += 2; healOne(state) }
     else { run.evidence += 1; suppressOne(state) }

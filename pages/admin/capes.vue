@@ -14,11 +14,11 @@
           >
             Prom of Doom × Every Villain Tactics / Art bible
           </p>
-          <h1
+          <h2
             class="mt-1 text-3xl font-black uppercase tracking-tight sm:text-4xl"
           >
             STYLE <span class="text-amber-300">CHECK</span>
-          </h1>
+          </h2>
           <p class="mt-1 text-xs text-slate-200 sm:text-sm">
             One subject. Six checkpoints. A mature Western animation house
             style, judged from actual renders.

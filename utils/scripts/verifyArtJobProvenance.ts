@@ -261,9 +261,9 @@ console.log('ArtJob prompt provenance contract passed.')
     { promptString: next },
   )
   const nodes = drifted.workflow as Record<string, { inputs: { text: string } }>
-  assert.equal(nodes['3'].inputs.text, next, 'the drifted positive encoder takes the edit')
-  assert.equal(nodes['4'].inputs.text, '', 'the negative encoder is untouched')
-  assert.equal(nodes['9'].inputs.text, 'an unrelated pass', 'other encoders are untouched')
+  assert.equal(nodes['3']?.inputs.text, next, 'the drifted positive encoder takes the edit')
+  assert.equal(nodes['4']?.inputs.text, '', 'the negative encoder is untouched')
+  assert.equal(nodes['9']?.inputs.text, 'an unrelated pass', 'other encoders are untouched')
   assert.equal(drifted.promptString, next)
 }
 

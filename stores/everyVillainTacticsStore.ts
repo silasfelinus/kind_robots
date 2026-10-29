@@ -81,10 +81,15 @@ export const useEveryVillainTacticsStore = defineStore(
     const draft = ref(clonePreset('college-quad'))
     const isPlaytest = ref(false)
     const studioProblems = computed(() => stageProblems(draft.value))
-    const boardCells = computed(() => Array.from(
-      { length: state.value.map.width * state.value.map.height },
-      (_, i) => ({ x: i % state.value.map.width, y: Math.floor(i / state.value.map.width) }),
-    ))
+    const boardCells = computed(() =>
+      Array.from(
+        { length: state.value.map.width * state.value.map.height },
+        (_, i) => ({
+          x: i % state.value.map.width,
+          y: Math.floor(i / state.value.map.width),
+        }),
+      ),
+    )
     function loadPreset(id: string) {
       draft.value = clonePreset(id)
     }
@@ -116,11 +121,19 @@ export const useEveryVillainTacticsStore = defineStore(
     const enemies = computed(() =>
       state.value.units.filter((u) => u.team === 'rival'),
     )
-    const scene = computed(() => isPlaytest.value ? {
-      ...PERSPECTIVES[perspective.value],
-      headline: draft.value.objective,
-      opening: draft.value.title + ' / ' + draft.value.venue + '. Studio sparring uses the real tactical rules; story scenes are authored separately.',
-    } : PERSPECTIVES[perspective.value])
+    const scene = computed(() =>
+      isPlaytest.value
+        ? {
+            ...PERSPECTIVES[perspective.value],
+            headline: draft.value.objective,
+            opening:
+              draft.value.title +
+              ' / ' +
+              draft.value.venue +
+              '. Studio sparring uses the real tactical rules; story scenes are authored separately.',
+          }
+        : PERSPECTIVES[perspective.value],
+    )
     const moment = computed(() =>
       !isPlaytest.value && story.value.current
         ? storyMoment(
@@ -182,7 +195,10 @@ export const useEveryVillainTacticsStore = defineStore(
     })
 
     function reset() {
-      state.value = trainingState(0x53a1b7, isPlaytest.value ? draft.value : undefined)
+      state.value = trainingState(
+        0x53a1b7,
+        isPlaytest.value ? draft.value : undefined,
+      )
       state.value.units[0]!.identity = leadSignature.value
       story.value = createStory()
     }
@@ -223,7 +239,11 @@ export const useEveryVillainTacticsStore = defineStore(
       if (unit?.team === 'squad') return select(unit.id)
       if (state.value.phase !== 'active') return
       if (unit?.team === 'rival') {
-        if (state.value.mode === 'fire' && fireSelected(state.value, unit) && !isPlaytest.value)
+        if (
+          state.value.mode === 'fire' &&
+          fireSelected(state.value, unit) &&
+          !isPlaytest.value
+        )
           enqueueBeat(story.value, state.value)
       } else if (state.value.mode === 'move') {
         if (moveSelected(state.value, point) && !isPlaytest.value)
@@ -237,11 +257,13 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function overwatch() {
       if (story.value.current) return
-      if (overwatchSelected(state.value) && !isPlaytest.value) enqueueBeat(story.value, state.value)
+      if (overwatchSelected(state.value) && !isPlaytest.value)
+        enqueueBeat(story.value, state.value)
     }
     function hunker() {
       if (story.value.current) return
-      if (hunkerSelected(state.value) && !isPlaytest.value) enqueueBeat(story.value, state.value)
+      if (hunkerSelected(state.value) && !isPlaytest.value)
+        enqueueBeat(story.value, state.value)
     }
     function chooseStory(effect: ChoiceEffect) {
       return applyChoice(story.value, state.value, perspective.value, effect)

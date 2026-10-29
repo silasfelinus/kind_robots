@@ -9,6 +9,7 @@ on:
       - 'content/channels/admin/every-villain-tactics.md'
       - 'utils/playbookKit/games/everyVillainTactics.ts'
       - 'utils/scripts/verifyEveryVillainTactics.test.ts'
+      - 'utils/scripts/verifyEveryVillainCombat.test.ts'
       - '.github/workflows/every-villain-tactics.yml'
   push:
     branches: [main]
@@ -34,4 +35,6 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Verify deterministic training and Kit compliance
-        run: npm run test:every-villain-tactics
+        run: |
+          npm run test:every-villain-tactics
+          npm run test:every-villain-combat

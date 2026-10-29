@@ -118,8 +118,8 @@ export const useEveryVillainTacticsStore = defineStore(
         (unit) =>
           unit.hp > 0 &&
           unit.seismicTarget &&
-          Math.abs(unit.seismicTarget.x - point.x) +
-            Math.abs(unit.seismicTarget.y - point.y) <= 1,
+          Math.abs(unit.seismicTarget.x - point.x) <= 1 &&
+          Math.abs(unit.seismicTarget.y - point.y) <= 1,
       )
     }
     function isBurrowWarning(point: Cell) {

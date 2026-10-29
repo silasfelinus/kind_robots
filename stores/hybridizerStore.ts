@@ -17,6 +17,7 @@ export type HybridizerIngredient = {
   artImageId?: number | null
   artJobId?: number | null
   imagePath?: string | null
+  canRetry?: boolean
 }
 
 export type HybridizerDiscovery = HybridizerIngredient & {
@@ -195,6 +196,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       artJobId: data.artJobId,
       artImageId: data.artImageId,
       imagePath: data.imagePath,
+      canRetry: data.canRetry,
     })
     if (data.status === 'READY' && prior?.status !== 'READY') {
       readyNotice.value =

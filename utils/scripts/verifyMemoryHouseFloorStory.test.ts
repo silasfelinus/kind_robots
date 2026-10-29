@@ -129,7 +129,7 @@ const wardenBeats = wardenBranches.map(({ save, briar }) =>
 assert.equal(new Set(wardenBeats.map((beat) => beat?.title)).size, 5)
 assert.match(wardenBeats[0]!.cost, /Without testimony/)
 assert.match(wardenBeats[1]!.cost, /withdraw consent/)
-assert.match(wardenBeats[2]!.text, /cannot sign for/)
+assert.match(wardenBeats[2]!.text, /neither can sign for/)
 assert.match(wardenBeats[4]!.text, /wolf patrol/)
 assert.equal(
   houseFloorBeat('HD-32', warden, { '4,6': 'shelter' })?.title,

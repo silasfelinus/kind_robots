@@ -116,7 +116,8 @@ export const STAGE_PRESETS: StageDraft[] = [
     title: 'The Deed Below · Mags Hardpan',
     encounter: 'quarry-lieutenant',
     venue: 'Old Quarry sub-basement and tunnel court',
-    objective: 'Stop the illegal title auction; break Mags Hardpan’s seismic rhythm while the Warren Wreckers defend the tunnels.',
+    objective:
+      'Stop the illegal title auction; break Mags Hardpan’s seismic rhythm while the Warren Wreckers defend the tunnels.',
     map: {
       width: 9,
       height: 6,

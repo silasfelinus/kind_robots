@@ -102,7 +102,9 @@ assert.equal(quarry.encounter, 'quarry-lieutenant')
 assert.equal(quarry.spawns.find((spawn) => spawn.id === 'pip')?.x, 5)
 const quarryFight = trainingState(99, quarry)
 const boss = quarryFight.units.find((unit) => unit.lieutenantName)!
-const minions = quarryFight.units.filter((unit) => unit.henchmanType === 'burrow')
+const minions = quarryFight.units.filter(
+  (unit) => unit.henchmanType === 'burrow',
+)
 assert.equal(aliasFor(boss), 'Mags Hardpan')
 assert.equal(boss.identity, 'accident-earth')
 assert.equal(boss.hp, 4)
@@ -124,40 +126,58 @@ assert.deepEqual(
 )
 
 const quake = trainingState(99, quarry)
-quake.units.filter((unit) => unit.henchmanType).forEach((unit) => {
-  unit.hp = 0
-})
+quake.units
+  .filter((unit) => unit.henchmanType)
+  .forEach((unit) => {
+    unit.hp = 0
+  })
 endTurn(quake)
 const quakeBoss = quake.units.find((unit) => unit.lieutenantName)!
-const victim = quake.units.find((unit) =>
-  unit.team === 'squad' &&
-  unit.x === quakeBoss.seismicTarget?.x &&
-  unit.y === quakeBoss.seismicTarget?.y,
+const victim = quake.units.find(
+  (unit) =>
+    unit.team === 'squad' &&
+    unit.x === quakeBoss.seismicTarget?.x &&
+    unit.y === quakeBoss.seismicTarget?.y,
 )!
 const victimHp = victim.hp
 endTurn(quake)
 assert.equal(victim.hp, victimHp - 1, 'warning resolves as a real one-HP quake')
-assert.equal(quakeBoss.seismicTarget, null, 'seismic warning clears after release')
+assert.equal(
+  quakeBoss.seismicTarget,
+  null,
+  'seismic warning clears after release',
+)
 
 const dodge = trainingState(99, quarry)
-dodge.units.filter((unit) => unit.henchmanType).forEach((unit) => {
-  unit.hp = 0
-})
+dodge.units
+  .filter((unit) => unit.henchmanType)
+  .forEach((unit) => {
+    unit.hp = 0
+  })
 endTurn(dodge)
 const dodged = dodge.units.find((unit) => unit.id === 'hattie')!
 dodge.selected = dodged.id
 assert.equal(availableMove(dodge, { x: 2, y: 2 }), true)
-assert.ok(moveSelected(dodge, { x: 2, y: 2 }), 'player can dodge the marked area')
+assert.ok(
+  moveSelected(dodge, { x: 2, y: 2 }),
+  'player can dodge the marked area',
+)
 const safeHp = dodged.hp
 endTurn(dodge)
-assert.equal(dodged.hp, safeHp, 'relocating outside the marked area prevents quake damage')
+assert.equal(
+  dodged.hp,
+  safeHp,
+  'relocating outside the marked area prevents quake damage',
+)
 
 let interrupted = false
 for (let seed = 1; seed < 96 && !interrupted; seed++) {
   const counter = trainingState(seed, quarry)
-  counter.units.filter((unit) => unit.henchmanType).forEach((unit) => {
-    unit.hp = 0
-  })
+  counter.units
+    .filter((unit) => unit.henchmanType)
+    .forEach((unit) => {
+      unit.hp = 0
+    })
   endTurn(counter)
   const lieutenant = counter.units.find((unit) => unit.lieutenantName)!
   const marksman = counter.units.find((unit) => unit.id === 'hattie')!
@@ -170,10 +190,15 @@ for (let seed = 1; seed < 96 && !interrupted; seed++) {
   endTurn(counter)
   assert.equal(lieutenant.seismicTarget, null)
   assert.equal(marksman.hp, hp, 'hit on a marked drum cancels the queued quake')
-  assert.ok(counter.events.some((event) => event.includes('loses the downbeat')))
+  assert.ok(
+    counter.events.some((event) => event.includes('loses the downbeat')),
+  )
   interrupted = true
 }
-assert.ok(interrupted, 'at least one reproducible seed hits the boss during charge')
+assert.ok(
+  interrupted,
+  'at least one reproducible seed hits the boss during charge',
+)
 
 const modified = paintStage(quad, { x: 2, y: 1 }, 'wall')
 assert.equal(tileAt(modified.map, { x: 2, y: 1 }).wall, true)

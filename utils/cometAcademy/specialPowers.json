@@ -1,6 +1,13 @@
 {
   "version": 2,
-  "statOrder": ["might", "speed", "smarts", "heart", "control", "grit"],
+  "statOrder": [
+    "might",
+    "speed",
+    "smarts",
+    "heart",
+    "control",
+    "grit"
+  ],
   "foci": [
     "brawler",
     "blaster",
@@ -383,10 +390,10 @@
       "id": "tech-genius",
       "origin": "tech",
       "affinity": "genius",
-      "name": "Mabel",
-      "action": "let her AI partner hack any network, fly drones and predict traffic, crime and weather",
-      "cost": "Mabel sometimes disagrees, and Priya is not sure who is in charge",
-      "prom": "The ballroom lights, locks and sprinklers all answer to a hostile program."
+      "name": "F.R.O.G. Leap Rig",
+      "action": "hurl across buildings with spring-loaded boots, deploy adhesive rescue pads and use a brilliant human mind to reconfigure biotech gear",
+      "cost": "the gear overheats at high velocity, and the unfinished serum tempts Dr. Frog to replace the patient inventor with a mutated superbeing",
+      "prom": "The ballroom roof buckles while Lionel's leap rig can anchor the falling chandelier; an untested serum offers an easier but irreversible leap."
     },
     {
       "id": "tech-birthright",
@@ -428,10 +435,10 @@
       "id": "magic-earth",
       "origin": "magic",
       "affinity": "earth",
-      "name": "Greenwake",
-      "action": "speak with plants and grow forests out of concrete in minutes",
-      "cost": "Every forest she grows ages her by a few hours",
-      "prom": "Roots are splitting the ballroom floor from below and sealing the exits with thorns."
+      "name": "Granny's Rune Needles",
+      "action": "stitch buildings into moving shelters, command pavement to rise, and knit enormous magical wards with devastating grandmotherly precision",
+      "cost": "each protective stitch binds part of the neighborhood to Granny Mayhem's personal will, and a rescue can become an unwanted curfew",
+      "prom": "A quilt of enchanted cobblestones starts pulling the ballroom apart; Granny's needlework can shelter everyone or trap the entire city in her rules."
     },
     {
       "id": "magic-water",
@@ -518,10 +525,10 @@
       "id": "alien-discipline",
       "origin": "alien",
       "affinity": "discipline",
-      "name": "Warform Kata",
-      "action": "fight with a lifetime of alien martial training and a sixth sense for incoming attacks",
-      "cost": "Her instincts treat every crowd like a battlefield",
-      "prom": "Her old commander arrives at the ballroom with a strike team and a standing order."
+      "name": "Koala Blade Oath",
+      "action": "vault through surveillance drones, deliver precise nonlethal katana strikes, and find impossible paths through extradimensional portals",
+      "cost": "the assassin guild can invoke an old oath and deliver an execution warrant, forcing Zuzu to choose between tradition and his new family",
+      "prom": "A portal opens above the ballroom and the guild's kill warrant names an innocent guest; Zuzu can cut the warrant or carry it out."
     },
     {
       "id": "alien-genius",

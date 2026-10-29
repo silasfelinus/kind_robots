@@ -75,6 +75,7 @@ import { LATE_INCIDENTS } from './lateIncidents'
 import {
   EXPANDED_INCIDENTS,
   EXPANDED_MISSIONS,
+  FIRST_WAVE_MISSIONS,
   expandedMissionFor,
   type MissionApproach,
 } from './expandedNightCases'
@@ -538,7 +539,7 @@ export type AcademyRun = {
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
   /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
-  incidentDeckVersion?: 2 | 3
+  incidentDeckVersion?: 2 | 3 | 4
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
@@ -595,13 +596,19 @@ function hash(seed: number, text: string): number {
 export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
 export const FULL_NIGHT_DECK: Incident[] = [
   ...NIGHT_DECK,
+  ...FIRST_WAVE_MISSIONS.map((mission) => mission.incident),
+]
+export const COMPLETE_NIGHT_DECK: Incident[] = [
+  ...NIGHT_DECK,
   ...EXPANDED_INCIDENTS,
 ]
 
 export function incidentDeck(run: AcademyRun): Incident[] {
-  return run.incidentDeckVersion === 3
-    ? FULL_NIGHT_DECK
-    : run.incidentDeckVersion === 2
+  return run.incidentDeckVersion === 4
+    ? COMPLETE_NIGHT_DECK
+    : run.incidentDeckVersion === 3
+      ? FULL_NIGHT_DECK
+      : run.incidentDeckVersion === 2
       ? NIGHT_DECK
       : INCIDENTS
 }
@@ -775,7 +782,7 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
-    incidentDeckVersion: 3,
+    incidentDeckVersion: 4,
     missionClues: [],
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
@@ -1972,7 +1979,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     (data.incidentDeckVersion !== undefined &&
-      (![2, 3].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
+      (![2, 3, 4].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

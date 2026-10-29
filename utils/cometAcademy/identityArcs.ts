@@ -44,9 +44,11 @@ export function identityFor(signature: SignaturePowerId): IdentityArc {
 }
 
 export type CharacterIdentity = IdentityArc | GuestIdentity
+/** Zuzu's guest-arrival event is retained for existing saves, but his canonical
+ * playable identity is now part of the 48. Never show two Zuzus in the roster. */
 export const CHARACTER_ROSTER: CharacterIdentity[] = [
   ...IDENTITY_ARCS,
-  ...GUEST_IDENTITIES,
+  ...GUEST_IDENTITIES.filter((guest) => guest.id !== 'guest-zuzu'),
 ]
 
 export type CharacterViewpoint = 'protagonist' | 'antagonist'

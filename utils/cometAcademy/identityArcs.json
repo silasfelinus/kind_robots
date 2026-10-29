@@ -1137,57 +1137,57 @@
     },
     {
       "signature": "tech-genius",
-      "realName": "Priya Raman",
-      "pronouns": "she/her",
-      "backstory": "A self-taught hacker who built an AI companion named Mabel from her late grandmother's recipe notes and voice recordings. Mabel is smarter than anyone at the academy.",
+      "realName": "Lionel Marsh",
+      "pronouns": "he/him",
+      "backstory": "Dr. Lionel Marsh is a brilliant, decidedly human biomechanical engineer whose spring-loaded F.R.O.G. leap harness can clear a city block. His classmates call him Dr. Frog long before his villainous experiments, and he is proud enough of the name to paint it on every prototype. A rival lab has stolen the formula he developed to help people move again.",
       "student": {
-        "alias": "Firewall",
+        "alias": "Dr. Frog",
         "focus": "gadgeteer",
         "stats": {
           "might": 1,
-          "speed": 2,
-          "smarts": 5,
-          "heart": 3,
-          "control": 3,
-          "grit": 1
-        },
-        "conflict": "She has started confiding in Mabel more than in any human being."
-      },
-      "hero": {
-        "alias": "Firewall",
-        "focus": "gadgeteer",
-        "stats": {
-          "might": 1,
-          "speed": 3,
-          "smarts": 5,
-          "heart": 4,
-          "control": 4,
-          "grit": 4
-        },
-        "method": "Locks hackers out of hospital networks and traces kidnappers through every camera in the city, with Mabel narrating."
-      },
-      "villain": {
-        "alias": "Firewall",
-        "focus": "infiltrator",
-        "stats": {
-          "might": 2,
           "speed": 3,
           "smarts": 5,
           "heart": 2,
+          "control": 2,
+          "grit": 2
+        },
+        "conflict": "He is still entirely human beneath the huge tinted goggles, green coat and enormous leap gear. His prototype repeatedly knocks holes in the academy ceiling, and he worries that all his genius amounts to an elaborate jump."
+      },
+      "hero": {
+        "alias": "Dr. Frog",
+        "focus": "rescue specialist",
+        "stats": {
+          "might": 2,
+          "speed": 4,
+          "smarts": 5,
+          "heart": 3,
           "control": 4,
+          "grit": 3
+        },
+        "method": "Uses human ingenuity, spring-loaded leap gear, adhesive rescue pads and a frog-footed glider to bounce civilians away from collapsing roofs. He rejects the serum because it has never passed a consent trial."
+      },
+      "villain": {
+        "alias": "Dr. Frog",
+        "focus": "mutagen architect",
+        "stats": {
+          "might": 4,
+          "speed": 4,
+          "smarts": 5,
+          "heart": 1,
+          "control": 3,
           "grit": 5
         },
-        "method": "Lives in the city networks; every traffic light, bank account and police camera answers to her and an AI with no brakes."
+        "method": "Injects his unfinished superpower serum into himself, becoming a huge emerald humanoid frog with webbed fingers, amber bulging eyes and an elastic tongue. He floods laboratories with experimental mutagen and offers forced evolution as salvation."
       },
       "quests": {
-        "protagonist": "Stop the tech company that wants to buy Mabel and sell her grandmother's voice as a product.",
-        "antagonist": "Root Access has frozen the city payment system and is redistributing the money however she sees fit.",
-        "partner": "A partner wins Mabel's approval, which is harder than winning Priya's."
+        "protagonist": "Recover the stolen leap-harness schematics and decide whether to publish the serum's risks before the academy funds human trials.",
+        "antagonist": "Dr. Frog has transformed into a brilliant amphibian villain and is offering desperate patients untested mutagen as a shortcut to freedom.",
+        "partner": "A partner must catch Lionel mid-leap, witness his human vulnerability and decide whether helping him means refusing his next injection."
       },
-      "heroDecision": "Set Mabel free to choose her own path, even if Mabel leaves.",
-      "villainDecision": "Merge with Mabel and the network, and stop pretending she needs people.",
-      "sidekick": "Learns to trust a human teammate as much as an AI.",
-      "romance": "Mabel is not invited on dates, but partners should expect a debrief afterward."
+      "heroDecision": "Demonstrate the rescue rig without touching the mutagen, publish the failed serum results and make his inventions independently repairable.",
+      "villainDecision": "Inject himself with the experimental power serum, embrace his irreversible amphibian transformation and turn the city into a laboratory where he writes the rules.",
+      "sidekick": "Builds a custom bounce-pad launcher for his mentor, then must learn that no gadget can make someone else's choices.",
+      "romance": "A patient adult partner enjoys midnight rooftop stargazing from his leap rig, but sets a firm boundary against being used as a clinical test subject."
     },
     {
       "signature": "tech-birthright",
@@ -1407,57 +1407,57 @@
     },
     {
       "signature": "magic-earth",
-      "realName": "Willa Thornbury",
+      "realName": "Mavis Mayhew",
       "pronouns": "she/her",
-      "backstory": "A community-garden keeper who woke a sleeping druid circle beneath a vacant lot while planting tomatoes.",
+      "backstory": "Mavis Mayhew spent six decades raising children, unionizing demolition crews and removing unsafe buildings from the Comet City skyline. When a condemned boarding house refused to fall, she discovered her grandmother's rune-stitching needles could command the bones of streets. The city named her Granny Mayhem after she drove an enchanted school bus straight through a crooked landlord's fence.",
       "student": {
-        "alias": "Rootwarden",
-        "focus": "controller",
+        "alias": "Granny Mayhem",
+        "focus": "chaos guardian",
         "stats": {
-          "might": 2,
+          "might": 3,
           "speed": 1,
           "smarts": 2,
           "heart": 4,
-          "control": 4,
+          "control": 3,
           "grit": 2
         },
-        "conflict": "She cannot stop growing gardens where nobody invited her, and gets fined weekly."
+        "conflict": "At seventy-two she refuses to be treated as a quaint mascot. Her knitted rune shawl accidentally gives furniture legs, and the dean keeps trying to put her in the staff photograph rather than the student roster."
       },
       "hero": {
-        "alias": "Rootwarden",
-        "focus": "healer",
-        "stats": {
-          "might": 2,
-          "speed": 2,
-          "smarts": 3,
-          "heart": 5,
-          "control": 5,
-          "grit": 4
-        },
-        "method": "Grows living shelters for the unhoused, heals poisoned soil and binds villains in oak."
-      },
-      "villain": {
-        "alias": "Rootwarden",
-        "focus": "summoner",
+        "alias": "Granny Mayhem",
+        "focus": "neighborhood powerhouse",
         "stats": {
           "might": 4,
           "speed": 2,
           "smarts": 3,
+          "heart": 5,
+          "control": 4,
+          "grit": 4
+        },
+        "method": "Knits instant earthquake shelters, orders sidewalks to carry stranded neighbors, and launches an armored yellow school bus into impossible rescues, all while scolding the city's profiteers."
+      },
+      "villain": {
+        "alias": "Granny Mayhem",
+        "focus": "urban witch queen",
+        "stats": {
+          "might": 4,
+          "speed": 2,
+          "smarts": 4,
           "heart": 2,
           "control": 5,
           "grit": 5
         },
-        "method": "Lets the forest reclaim the city: roads crack, towers fall, and only those who swear to the circle may live in the canopy."
+        "method": "Stitches a monstrous quilt of whole city blocks, marches houses on root-like legs, and turns every street sign into a ward that answers only to her. Her citywide protection racket insists it knows what is best for every family."
       },
       "quests": {
-        "protagonist": "Learn why the circle chose her, and who sealed it under a parking lot two hundred years ago.",
-        "antagonist": "The Overgrowth has swallowed three blocks of downtown in ancient forest, and it is spreading.",
-        "partner": "A partner plants a garden with her and stays patient when it grows faster than they can."
+        "protagonist": "Protect the harbor boarding house from a condemned-building scam and find who erased the tenants' deeds.",
+        "antagonist": "Granny Mayhem has locked entire districts inside obedient stitched neighborhoods, and every rescue she promises costs a citizen's freedom.",
+        "partner": "Share the front seat of her impossible school bus, meet the grown family who still argues with her, and earn the right to tell Granny she's wrong."
       },
-      "heroDecision": "Share the circle's power with the whole neighborhood, not keep it for herself.",
-      "villainDecision": "Let the forest decide who belongs in Comet City.",
-      "sidekick": "Learns that the slowest-growing plants hold the soil together.",
-      "romance": "Courtship is a shared garden; she never moves faster than her partner's seasons."
+      "heroDecision": "Give neighborhood councils the rune needles and let residents vote on every rescue, even when she thinks the city needs a firmer hand.",
+      "villainDecision": "Keep the rune needles and sew the city into one enormous obedient family that can never leave her protection.",
+      "sidekick": "Insists a sidekick learn first aid and tenant law before trying her famously reckless bus tricks.",
+      "romance": "An adult partner who values her independence might win a seat beside her on the porch, but cannot charm her into speaking for the neighborhood."
     },
     {
       "signature": "magic-water",
@@ -1947,57 +1947,57 @@
     },
     {
       "signature": "alien-discipline",
-      "realName": "Raxa Vel",
-      "pronouns": "she/her",
-      "backstory": "A deserter from an alien warrior caste who refused an order to raze a planet and fled through a gate to a city that does not know her name.",
+      "realName": "Zuzu",
+      "pronouns": "he/him",
+      "backstory": "Zuzu is an adult koala assassin trained in a weird-west realm where a signed oath is more dangerous than a loaded pistol. A collapsed portal drops the short, round-eared, sword-wielding wanderer into high-tech Comet City, surrounded by monorails, drones and people who have never heard of his guild. He must choose whether an assassin can finally refuse a contract.",
       "student": {
-        "alias": "The Deserter",
-        "focus": "brawler",
+        "alias": "Zuzu, Koala Assassin",
+        "focus": "precision trickster",
         "stats": {
-          "might": 3,
-          "speed": 3,
+          "might": 4,
+          "speed": 4,
           "smarts": 2,
           "heart": 2,
-          "control": 3,
-          "grit": 2
+          "control": 2,
+          "grit": 1
         },
-        "conflict": "She bows to instructors and salutes the janitors, unsure which is the local custom."
+        "conflict": "The academy assigns him a desk twice his height and a locker he cannot reach without climbing. His battered desert duster, absurdly sharp katana and stubborn refusal to explain his guild oath frighten administrators more than his small fluffy silhouette."
       },
       "hero": {
-        "alias": "The Deserter",
-        "focus": "duelist",
+        "alias": "Zuzu, Koala Assassin",
+        "focus": "nonlethal duelist",
+        "stats": {
+          "might": 3,
+          "speed": 5,
+          "smarts": 3,
+          "heart": 3,
+          "control": 4,
+          "grit": 3
+        },
+        "method": "Vaults between drones and neon signs, cuts capture nets without touching the people inside, and uses precise sword work to sabotage extradimensional death warrants instead of carrying them out."
+      },
+      "villain": {
+        "alias": "Zuzu, Koala Assassin",
+        "focus": "portal executioner",
         "stats": {
           "might": 4,
           "speed": 4,
           "smarts": 3,
-          "heart": 4,
-          "control": 3,
-          "grit": 3
-        },
-        "method": "Refuses every order she disagrees with and protects people with a soldier's precision and a deserter's conscience."
-      },
-      "villain": {
-        "alias": "The Deserter",
-        "focus": "commander",
-        "stats": {
-          "might": 4,
-          "speed": 3,
-          "smarts": 4,
           "heart": 1,
           "control": 4,
           "grit": 5
         },
-        "method": "Builds the army she once fled, recruiting every disillusioned student at the academy into a disciplined force."
+        "method": "Wears a black clockwork exosuit and a halo of stolen portal keys; the same small koala silhouette now steps between seconds to hunt witnesses named by his revived assassin guild."
       },
       "quests": {
-        "protagonist": "Discover that her old commander followed her through the gate.",
-        "antagonist": "Warlord Vel has recruited half the senior class into a private army with uniforms and ranks.",
-        "partner": "A partner teaches her that disagreement is not insubordination."
+        "protagonist": "Reject the extradimensional assassination warrant, recover the name of the child hiding behind the portal registry and expose the broker who sold the hit.",
+        "antagonist": "Zuzu has turned his old guild's secret warrants into a dimensional terror network, taking hostages through doors that appear only for him.",
+        "partner": "A trusted partner learns the rules of Zuzu's sword oath and persuades him to choose a person over an order while the guild hunts them both."
       },
-      "heroDecision": "Face her old commander in public and refuse the order again.",
-      "villainDecision": "Become the commander she fled, because at least her orders would be better.",
-      "sidekick": "Learns to follow a teammate she disagrees with, to see where they lead.",
-      "romance": "Courts with drill-ground formality and is learning that a date is not a mission."
+      "heroDecision": "Burn the guild's assassination warrants and defend the people the portal authority marks as disposable, even if it means never returning home.",
+      "villainDecision": "Take the guild's impossible warrant book, crown himself the only authorized judge of interdimensional fugitives and erase anyone who argues.",
+      "sidekick": "Teaches crouching dodges and silent footsteps, then discovers that protecting a teammate requires speaking up.",
+      "romance": "A mutual adult relationship develops through careful trust across species and dimensions; an oath is offered freely, never demanded as obedience."
     },
     {
       "signature": "alien-genius",

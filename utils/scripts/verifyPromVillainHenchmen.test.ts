@@ -24,5 +24,13 @@ for (const person of IDENTITY_ARCS) {
 }
 assert.equal(henchmanForVillain('accident-earth').name, 'Warren Wreckers')
 assert.match(henchmanForVillain('accident-earth').move, /burrow/i)
-assert.equal(henchmanForVillain('tech-genius').name, "Mabel's Biscuit Bots")
+assert.equal(henchmanForVillain('tech-genius').name, 'Tadpole Interns')
+assert.equal(henchmanForVillain('magic-earth').name, 'Quilted Doorstep Goblins')
+assert.equal(
+  henchmanForVillain('alien-discipline').name,
+  'Clockwork Wombat Ronin',
+)
+assert.match(henchmanForVillain('tech-genius').story, /Dr\. Frog/)
+assert.match(henchmanForVillain('magic-earth').story, /Granny Mayhem/)
+assert.match(henchmanForVillain('alien-discipline').story, /Zuzu/)
 console.log('Prom of Doom 48 villain henchman types: OK')

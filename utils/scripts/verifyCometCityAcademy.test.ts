@@ -339,18 +339,78 @@ assert.deepEqual(
 assert.equal(POWER_VOWS.length, 3)
 assert.equal(SIGNATURE_POWERS.length, 48)
 assert.equal(IDENTITY_ARCS.length, 48)
-assert.equal(CHARACTER_ROSTER.length, 50)
+assert.equal(CHARACTER_ROSTER.length, 49)
 assert.equal(
   new Set(CHARACTER_ROSTER.map((person) => person.realName)).size,
-  50,
+  49,
 )
 assert.equal(
   new Set(CHARACTER_ROSTER.map((person) => person.backstory)).size,
-  50,
+  49,
 )
 assert.equal(GUEST_IDENTITIES[0].realName, 'Zuzu')
 assert.equal(GUEST_IDENTITIES[0].hero.alias, 'Zuzu, Koala Assassin')
 assert.equal(GUEST_IDENTITIES[0].source, 'Zuzu world')
+assert.equal(GUEST_IDENTITIES[0].student.alias, 'Zuzu, Koala Assassin')
+assert.equal(GUEST_IDENTITIES[0].villain.alias, 'Zuzu, Koala Assassin')
+assert.equal(
+  CHARACTER_ROSTER.filter((person) => person.realName === 'Zuzu').length,
+  1,
+)
+for (const [signature, realName, alias] of [
+  ['tech-genius', 'Lionel Marsh', 'Dr. Frog'],
+  ['magic-earth', 'Mavis Mayhew', 'Granny Mayhem'],
+  ['alien-discipline', 'Zuzu', 'Zuzu, Koala Assassin'],
+] as const) {
+  const persona = identityFor(signature)
+  assert.equal(persona.realName, realName)
+  assert.equal(persona.hero.alias, alias)
+  assert.equal(persona.student.alias, alias)
+  assert.equal(persona.villain.alias, alias)
+  assert.ok(persona.quests.protagonist.length > 100)
+  assert.ok(persona.quests.antagonist.length > 100)
+  assert.ok(persona.quests.partner.length > 100)
+  assert.ok(persona.hero.method !== persona.villain.method)
+  const paintings = (['student', 'hero', 'villain'] as const).map(
+    (role) => PROM_ART_PROMPTS[`identities/${signature}/${role}`],
+  )
+  assert.ok(paintings.every((prompt) => prompt && prompt.length > 200))
+  assert.equal(new Set(paintings).size, 3)
+  const signatureLook = CAST_LOOKS[signature]!.look.split(' ')
+    .slice(1, 7)
+    .join(' ')
+  assert.ok(paintings[0]!.toLowerCase().includes(signatureLook.toLowerCase()))
+  assert.ok(paintings[1]!.toLowerCase().includes(signatureLook.toLowerCase()))
+  if (signature !== 'tech-genius')
+    assert.ok(paintings[2]!.toLowerCase().includes(signatureLook.toLowerCase()))
+}
+for (const [signature, historicalField] of [
+  ['tech-genius', 'technopathy'],
+  ['magic-earth', 'empathy'],
+  ['alien-discipline', 'kinetic'],
+] as const) {
+  assert.equal(
+    fieldFor(signature),
+    historicalField,
+    `old ${signature} save must retain its combat field`,
+  )
+  const oldSave = startFullAcademy(historicalField, 481, signature, 'shelter')
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(oldSave))), oldSave)
+  const oldSelection = { ...oldSave, incidentDeckVersion: 2 as const }
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(oldSelection))))
+}
+assert.ok(identityFor('tech-genius').student.conflict.includes('human'))
+assert.ok(identityFor('tech-genius').hero.method.includes('human'))
+assert.ok(identityFor('tech-genius').villain.method.includes('humanoid frog'))
+assert.ok(
+  PROM_ART_PROMPTS['identities/tech-genius/villain']?.includes('humanoid frog'),
+)
+assert.ok(
+  PROM_ART_PROMPTS['identities/tech-genius/student']?.includes(
+    'still entirely human',
+  ),
+)
+
 assert.equal(GUEST_IDENTITIES[1].realName, TESS_CREW_SOURCE.name)
 assert.equal(GUEST_IDENTITIES[1].pronouns, TESS_CREW_SOURCE.pronouns)
 assert.equal(GUEST_IDENTITIES[1].source, 'Space Couch')
@@ -1951,10 +2011,16 @@ for (const person of CHARACTER_ROSTER) {
     for (const context of ['hero', 'villain'] as const) {
       const scene =
         PROM_ART_PROMPTS[`identities/${person.signature}/${context}`]
-      assert.ok(
-        scene?.includes(look.look.slice(1)),
-        `${person.signature}/${context} keeps one character design`,
-      )
+      if (person.signature === 'tech-genius' && context === 'villain') {
+        assert.ok(scene?.includes('humanoid frog'))
+        assert.ok(scene?.includes('brass safety goggles'))
+        assert.ok(!scene?.includes('Dr. Lionel Marsh'))
+      } else {
+        assert.ok(
+          scene?.includes(look.look.slice(1)),
+          `${person.signature}/${context} keeps one character design`,
+        )
+      }
       assert.ok(
         !scene?.includes(person.realName),
         'names stay out of splash prompts',

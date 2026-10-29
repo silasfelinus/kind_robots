@@ -45,13 +45,13 @@ export const EVERY_VILLAIN_TACTICS: PlaybookKitSpec = {
     },
     {
       id: 'priya',
-      name: 'Priya Raman',
+      name: 'Dr. Lionel Marsh',
       role: 'follower',
       tagline:
         'Genius with a way into locked systems, and a dangerous reluctance to be seen.',
       portrait: {
         brief:
-          'Priya Raman in oversized purple academy hoodie, braid and glasses, striking comic character portrait',
+          'Dr. Frog, a human inventor in green academy coat with brass goggles and oversized mechanical leap boots, expressive heroic portrait',
       },
     },
     {

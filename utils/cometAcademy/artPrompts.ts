@@ -64,7 +64,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'tech-discipline':
     'At dawn he crouches in a sprint start on the academy running track, jaw set, while three coaches in tracksuits stand by the far bleachers with their arms folded. Low pink dawn light and long shadows. Low-angle wide shot.',
   'tech-genius':
-    'Late at night she sits cross-legged on her dormitory floor talking to a laptop, where a soft yellow animated face of an elderly woman glows on the screen, stacks of old recipe notes and a cassette recorder spread around her and her phone face down on the carpet. Warm lamplight and blue screen glow. Medium shot.',
+    'At the hospital roof at night a human inventor, still entirely human, demonstrates a huge green brass-jointed F.R.O.G. leap harness before independent safety chemists, goggles sliding down his nose as the spring boots compress. An unopened vial of dangerous amber serum is sealed in a clear case nearby. Warm work lights against a cobalt skyline. Full-body action shot.',
   'tech-birthright':
     'In a gleaming corporate workshop he stands beside an empty open suit of silver-and-blue power armor with his hands in his blazer pockets, looking at his own reflection in its polished chest plate, while lawyers in grey suits wait by the door holding folders. Cold white showroom light. Medium-full shot.',
   'tech-social':
@@ -74,7 +74,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'magic-air':
     'In the back row of a lecture hall he whispers to a classmate behind one hand, while the papers on his desk lift and swirl in a small private gust and rain clouds gather at the window. Grey stormy light. Medium shot.',
   'magic-earth':
-    'She kneels on a city sidewalk as tomato vines and sunflowers burst from the cracks around her hands, while a parking officer in a peaked cap writes her a citation slip. Bright noon sun. Medium-wide shot.',
+    'A fierce elderly woman with silver double buns and rune-stitched patchwork shawl perches on the roof of an old yellow school bus as luminous knitting needles coax the cobblestones beneath a harbor boarding house into a protective ramp. A grown tenant-council leader argues with her below. Golden twilight and pink rune light. Wide shot.',
   'magic-water':
     'Alone in a classroom after hours he leans over a dented silver bowl of water on a desk, where a reflection of himself lying still on a rainy rooftop ripples on the surface, and grips the edge of the desk. Dim blue dusk light. Close medium shot.',
   'magic-discipline':
@@ -94,7 +94,7 @@ const IDENTITY_MOMENTS: Record<string, string> = {
   'alien-water':
     'At the end of a long wooden pier at sunset she sits with her feet in the water, seals, gulls and silver fish gathered close in the waves around her, gazing out at the open horizon. Warm orange sunset light. Wide shot.',
   'alien-discipline':
-    'In an academy hallway she stands at rigid attention and salutes a startled janitor holding a mop, while a passing instructor glances back at them. Even fluorescent light. Medium-full shot.',
+    'A very short stocky grey koala assassin with fluffy round ears and amber eyes stands on a desk far taller than himself in his rust-red weird-west desert duster. His battered katana rests on two chairs while adult academy cadets watch the absurdly precise crouching demonstration. Indigo gym floodlights, cinematic low-angle wide shot.',
   'alien-genius':
     "In a university chemistry lab he leans over a student's bubbling flask with a delighted smile and pats the glass gently, while the student and a professor behind him glare. Bright laboratory light. Medium shot.",
   'alien-birthright':
@@ -142,10 +142,14 @@ const identityPrompts = Object.fromEntries(
         `${look}. This same distinctive person takes the lead in a night rescue near Comet City's skyline, using their signature ability: ${person.hero.method} Wind, floodlights and cheering distant witnesses, wide cinematic view, full-body readable silhouette.`,
       ),
     ]
+    const villainLook =
+      signature === 'tech-genius'
+        ? 'The same human inventor has transformed after his serum into a gigantic emerald humanoid frog with bulging amber eyes, webbed hands and a curling tongue, identifiable by his original brass safety goggles and torn green laboratory coat'
+        : look
     const antagonist: [string, string] = [
       `identities/${signature}/villain`,
       paint(
-        `${look}. This same distinctive person confronts the academy on the city rooftops at night, choosing a dangerous path: ${person.villain.method} Strong backlighting, watchful teammates on a distant roof, wide cinematic view, full-body readable silhouette.`,
+        `${villainLook}. This recognizable person confronts the academy at night after choosing a dangerous path: ${person.villain.method} Strong backlighting, watchful teammates in the distance, wide cinematic view, full-body readable silhouette.`,
       ),
     ]
     return [rookie, protagonist, antagonist]

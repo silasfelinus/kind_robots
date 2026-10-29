@@ -132,7 +132,9 @@ export const STAGE_PRESETS: StageDraft[] = [
         '2,3': tile(1, false, { east: 'half' }),
       },
     },
-    spawns: DEFAULT_SPAWNS,
+    spawns: DEFAULT_SPAWNS.map((spawn) =>
+      spawn.id === 'pip' ? { ...spawn, x: 5, y: 2 } : spawn,
+    ),
     secrets: [{ x: 4, y: 1 }],
     hazards: [],
     turnLimit: 10,

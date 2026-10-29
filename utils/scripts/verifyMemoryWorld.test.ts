@@ -3004,8 +3004,17 @@ assert.match(
     'combat',
     true,
   ),
-  /Oren's inked detour/,
-  'Existing Oren callback keeps precedence over later additions',
+  /Pip's freed moth/,
+  'Later companion decisions must outrank earlier Oren planning',
+)
+assert.match(
+  briarLossContinuation(
+    { sceneChoices: { '2,4': 'lend', '4,2': 'ledger' } },
+    'combat',
+    true,
+  ),
+  /tomorrow-dated warning/,
+  'Mandatory opening camp decisions cannot hide later scene memories',
 )
 assert.match(
   briarLossContinuation(

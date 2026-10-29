@@ -109,6 +109,7 @@ for (const ending of ['release', 'renew', 'break'] as const) {
   const saved = newHouseProgress()
   saved.current = 'HD-35'
   saved.visited = [...hearthRoute]
+  saved.wardenPassed = true
   saved.decisions['HD-35'] = ending
   saved.ending = ending
   const restored = restoreHouseProgress(JSON.parse(JSON.stringify(saved)))

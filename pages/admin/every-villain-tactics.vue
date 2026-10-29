@@ -89,7 +89,13 @@
                   @click="store.click(cell)"
                 >
                   <span
-                    v-if="store.tileInfoAt(cell) === 'cover'"
+                    v-if="store.isBurrowWarning(cell)"
+                    class="evt-burrow-ring"
+                    data-testid="tactics-burrow-warning"
+                    aria-hidden="true"
+                  >◉</span>
+                  <span
+                    v-if="store.tileInfoAt(cell) === 'cover'
                     class="evt-cover"
                     aria-hidden="true"
                   ></span>
@@ -137,7 +143,7 @@
                     }"
                   >
                     <span class="evt-card-art">
-                      <span class="evt-crest" aria-hidden="true">✦</span>
+                      <span class="evt-crest" aria-hidden="true">{{ displayUnitAt(store.state, cell)?.henchmanType === 'burrow' ? '♢' : '✦' }}</span>
                       <span class="evt-initials">{{
                         initials(displayUnitAt(store.state, cell)!)
                       }}</span>
@@ -583,6 +589,9 @@
               >
                 ▶ PLAYTEST THIS MAP
               </button>
+              <small v-if="store.draft.encounter === 'warren-wreckers'" data-testid="studio-encounter">
+                ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren Wreckers. Marked dust rings erupt on the following enemy turn, unless occupied.
+              </small>
               <small
                 >Uses existing seeded combat AI, pathfinding, cover, hit
                 percentages and movement costs. Private in-browser draft; no
@@ -709,6 +718,7 @@ import {
 import {
   actorAt,
   displayUnitAt,
+  aliasFor,
   personFor,
   type Cell,
   type Unit,
@@ -783,7 +793,7 @@ const visibleRoster = computed(() => {
   )
 })
 function unitName(unit: Unit): string {
-  return personFor(unit).hero.alias
+  return aliasFor(unit)
 }
 function targetName(id: string): string {
   const target = store.enemies.find((unit) => unit.id === id)
@@ -794,6 +804,7 @@ function initials(unit: Unit): string {
 }
 function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
+  if (store.isBurrowWarning(cell)) return 'BURROW WARNING, dust ring at column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Occupy to block emergence.'
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
   if (store.tileInfoAt(cell) === 'wall')
@@ -1064,6 +1075,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 2px solid #d5cbd1;
   box-shadow: 4px -3px 0 #242137;
   clip-path: polygon(0 14%, 90% 0, 100% 80%, 8% 100%);
+}
+.evt-tile.burrow-warning {
+  box-shadow: inset 0 0 0 3px #ffc467, 0 0 12px #ef6b2a;
+  z-index: 3;
+}
+.evt-burrow-ring {
+  position: absolute;
+  inset: 5%;
+  display: grid;
+  place-items: center;
+  color: #ffd092;
+  border: 2px dashed #ffd092;
+  border-radius: 50%;
+  background: #9f422c7d;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.5cqw, 1.4rem);
+  pointer-events: none;
 }
 .evt-crosshair {
   position: absolute;

@@ -628,6 +628,90 @@ const NEW_CASE_REACTIONS: Record<
       line: 'That weather is a machine with an opinion about voting.',
     },
   },
+  'detention-moon': {
+    person: 'nix',
+    response: {
+      mood: 'positive',
+      line: 'I can fold an orbit. What I cannot forgive is experimenting on students who cannot leave.',
+    },
+  },
+  'promise-stairs': {
+    person: 'imani',
+    response: {
+      mood: 'positive',
+      line: 'A promise made under threat is not a staircase. It is a trap dressed in language.',
+    },
+  },
+  'mascot-uprising': {
+    person: 'drift',
+    response: {
+      mood: 'positive',
+      line: 'Everybody called me an experiment too. Please ask the mascot its name before burning it.',
+    },
+  },
+  'future-graduates': {
+    person: 'mara',
+    response: {
+      mood: 'positive',
+      line: 'Tomorrow\'s passengers deserve a seat and today\'s workers deserve the whole timetable.',
+    },
+  },
+  'rail-orchestra': {
+    person: 'veda',
+    response: {
+      mood: 'negative',
+      line: 'A boss who can force a song can force a confession. Get those performers out.',
+    },
+  },
+  'shadow-inspector': {
+    person: 'sol',
+    response: {
+      mood: 'positive',
+      line: 'It is a database wearing a trench coat. The people who built it are the real monsters.',
+    },
+  },
+  'double-lighthouse': {
+    person: 'tessel',
+    response: {
+      mood: 'positive',
+      line: 'Two beams and two sea winds. Someone is teaching the storm to lie.',
+    },
+  },
+  'colossal-ring': {
+    person: 'mina',
+    response: {
+      mood: 'positive',
+      line: 'I can move the ring. First I want to know whose seawall they stole to make it.',
+    },
+  },
+  'cloud-zoo': {
+    person: 'kit',
+    response: {
+      mood: 'positive',
+      line: 'Do not tranquilize the floating whale. It is smaller than my med kit and twice as frightened.',
+    },
+  },
+  'shadow-court': {
+    person: 'jo',
+    response: {
+      mood: 'negative',
+      line: 'Tomorrow\'s crimes should not become today\'s headlines without a witness to challenge them.',
+    },
+  },
+  'ambulance-detour': {
+    person: 'lark',
+    response: {
+      mood: 'positive',
+      line: 'Those patients have no time for a turf war between public medics and private dispatch.',
+    },
+  },
+  'shield-auction': {
+    person: 'ash',
+    response: {
+      mood: 'negative',
+      line: 'You cannot sell the sky back to the people standing under it.',
+    },
+  },
 }
 
 export function missionReaction(
@@ -646,6 +730,72 @@ export function missionReaction(
 
 export type RouteUnlock = { label: string; result: string; boost: number }
 const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
+  'promise-stairs': [
+    {
+      people: ['imani', 'jo'],
+      route: {
+        label: 'The Contract in Plain Sight',
+        result:
+          'Imani convinces the staircase\'s victims to compare their consent forms while Jo broadcasts the hidden scholarship clauses. The false stairs vanish when the contract loses its power over them.',
+        boost: 2,
+      },
+    },
+  ],
+  'mascot-uprising': [
+    {
+      people: ['drift', 'kit'],
+      route: {
+        label: 'The Costume Finds a Voice',
+        result:
+          'DRIFT-9 speaks for the living mascot while Kit builds a safe nursery for its roots. The costume chooses its own name, and former performers volunteer to care for it.',
+        boost: 2,
+      },
+    },
+  ],
+  'future-graduates': [
+    {
+      people: ['nix', 'mara'],
+      route: {
+        label: 'The Union of Two Tomorrows',
+        result:
+          'Nix anchors the arriving future train while Mara makes the transit workers\' warning official. Both versions of the crew agree to rebuild the switch before the predicted collision.',
+        boost: 2,
+      },
+    },
+  ],
+  'double-lighthouse': [
+    {
+      people: ['ash', 'tessel'],
+      route: {
+        label: 'The Wind\'s True Lantern',
+        result:
+          'Ash clears the artificial rain curtain while Tessel listens for the harbor\'s genuine tide. Both threatened boats follow the keeper\'s restored light into safe water.',
+        boost: 2,
+      },
+    },
+  ],
+  'cloud-zoo': [
+    {
+      people: ['drift', 'kit'],
+      route: {
+        label: 'Sanctuary, Not Shipment',
+        result:
+          'DRIFT-9 reads the animals\' mist-memories while Kit prepares a living nursery on the pier. The handlers cannot claim the animals as cargo after the creatures choose their home.',
+        boost: 2,
+      },
+    },
+  ],
+  'shield-auction': [
+    {
+      people: ['mina', 'sol'],
+      route: {
+        label: 'A City Without a Price Tag',
+        result:
+          'Mina steadies the failing shield anchors while Sol cancels the auction\'s private command keys. Families reclaim cover while the engineer publishes the records of manufactured scarcity.',
+        boost: 2,
+      },
+    },
+  ],
   'frog-serum': [
     {
       people: ['kit', 'drift'],

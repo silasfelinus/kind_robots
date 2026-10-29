@@ -32,7 +32,7 @@ export type StageDraft = {
   secrets: Point[]
   hazards: Point[]
   turnLimit: number | null
-  encounter?: 'warren-wreckers'
+  encounter?: 'warren-wreckers' | 'quarry-lieutenant'
 }
 
 const DEFAULT_SPAWNS: StageSpawn[] = [
@@ -109,6 +109,33 @@ export const STAGE_PRESETS: StageDraft[] = [
     secrets: [{ x: 4, y: 4 }],
     hazards: [{ x: 6, y: 2 }],
     turnLimit: 8,
+  },
+  {
+    version: 1,
+    id: 'quarry-lieutenant',
+    title: 'The Deed Below · Mags Hardpan',
+    encounter: 'quarry-lieutenant',
+    venue: 'Old Quarry sub-basement and tunnel court',
+    objective: 'Stop the illegal title auction; break Mags Hardpan’s seismic rhythm while the Warren Wreckers defend the tunnels.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [4, 5]),
+        '3,1': tile(0, false, { east: 'half' }),
+        '5,1': tile(0, false, { west: 'half' }),
+        '3,4': tile(0, false, { east: 'half' }),
+        '5,4': tile(0, false, { west: 'half' }),
+        '4,2': tile(1),
+        '4,3': tile(1),
+        '6,2': tile(1, false, { west: 'half' }),
+        '2,3': tile(1, false, { east: 'half' }),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 4, y: 1 }],
+    hazards: [],
+    turnLimit: 10,
   },
   {
     version: 1,

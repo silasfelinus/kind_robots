@@ -60,14 +60,19 @@ const middleBranches = [
   houseFloorBeat('HD-13', witnesses, {}),
   houseFloorBeat('HD-13', { ...witnesses, decisions: { 'HD-05': 'open' } }, {}),
   houseFloorBeat('HD-13', { ...witnesses, decisions: { 'HD-05': 'test' } }, {}),
-  houseFloorBeat('HD-13', { ...witnesses, decisions: { 'HD-06': 'stock' } }, {}),
+  houseFloorBeat(
+    'HD-13',
+    { ...witnesses, decisions: { 'HD-06': 'stock' } },
+    {},
+  ),
 ]
 assert.equal(new Set(middleBranches.map((beat) => beat?.title)).size, 4)
 assert.match(middleBranches[1]!.cost, /scrutiny/)
 assert.match(middleBranches[2]!.cost, /closed/)
 
-const fullPath = Array.from({ length: 25 }, (_, index) =>
-  `HD-${String(index + 1).padStart(2, '0')}`,
+const fullPath = Array.from(
+  { length: 25 },
+  (_, index) => `HD-${String(index + 1).padStart(2, '0')}`,
 ) as HouseRoomId[]
 const ledger = progress('HD-25', fullPath)
 const shortcut = progress(

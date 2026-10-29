@@ -3171,7 +3171,12 @@ for (let seed = 0; seed < 64; seed++) {
   const restoredPurse = JSON.parse(JSON.stringify(purse)) as typeof purse
   for (const entry of rewardCases)
     assert.equal(
-      grantMemoryRewardOnce(restoredLedger, entry.key, restoredPurse, entry.reward),
+      grantMemoryRewardOnce(
+        restoredLedger,
+        entry.key,
+        restoredPurse,
+        entry.reward,
+      ),
       false,
       'Reloading a completed encounter cannot reset its reward claim',
     )
@@ -3185,7 +3190,9 @@ assert.equal(
   true,
 )
 assert.equal(
-  grantMemoryRewardOnce(briarRewardLedger, '5,5', twoRealities, { wildflowers: 1 }),
+  grantMemoryRewardOnce(briarRewardLedger, '5,5', twoRealities, {
+    wildflowers: 1,
+  }),
   true,
   'Original and mirrored encounter rewards have independent save ledgers',
 )
@@ -3196,11 +3203,26 @@ assert.equal(
 assert.deepEqual(twoRealities, { lanterns: 1, wildflowers: 1 })
 
 const rewardStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
-const duelRewardSource = rewardStoreSource.split('function finishDarkDuel')[1]?.split('function reset')[0]
-const minefieldRewardSource = rewardStoreSource.split('function minefieldMove')[1]?.split('function requestMinefieldHint')[0]
-const firstRealmRewardSource = rewardStoreSource.split('async function finishRoom')[1]?.split('function leaveRoom')[0]
-assert.match(duelRewardSource ?? '', /grantMemoryRewardOnce\(dark\.value\.duels, duel\.key/)
+const duelRewardSource = rewardStoreSource
+  .split('function finishDarkDuel')[1]
+  ?.split('function reset')[0]
+const minefieldRewardSource = rewardStoreSource
+  .split('function minefieldMove')[1]
+  ?.split('function requestMinefieldHint')[0]
+const firstRealmRewardSource = rewardStoreSource
+  .split('async function finishRoom')[1]
+  ?.split('function leaveRoom')[0]
+assert.match(
+  duelRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*dark\.value\.duels,\s*duel\.key/,
+)
 assert.doesNotMatch(duelRewardSource ?? '', /state\.value\.lanterns \+= 1/)
-assert.match(minefieldRewardSource ?? '', /grantMemoryRewardOnce\(state\.value\.completedEncounters, rewardKey/)
+assert.match(
+  minefieldRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*state\.value\.completedEncounters,\s*rewardKey/,
+)
 assert.match(firstRealmRewardSource ?? '', /grantMemoryRewardOnce\(/)
-assert.doesNotMatch(firstRealmRewardSource ?? '', /state\.value\.wildflowers \+= 1/)
+assert.doesNotMatch(
+  firstRealmRewardSource ?? '',
+  /state\.value\.wildflowers \+= 1/,
+)

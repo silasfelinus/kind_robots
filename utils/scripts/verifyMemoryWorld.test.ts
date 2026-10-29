@@ -2891,6 +2891,77 @@ for (const { choices, expected } of lossContexts) {
   assert.match(text, /retreat to Briar Camp/)
   assert.equal(text.includes("House's quiet bedchamber"), false)
 }
+// House defeats remember real companion and witness choices, not a generic
+// failure. The same bounded text is used by live timers and restored saves.
+const houseLossCases = [
+  { room: 'HD-26', choice: 'testify', expected: /signed petition survives/ },
+  { room: 'HD-26', choice: 'shelter', expected: /families have food/ },
+  {
+    room: 'HD-10',
+    choice: 'manifest',
+    expected: /Scylla kept the route manifest/,
+  },
+  { room: 'HD-10', choice: 'improvise', expected: /rescued the maid/ },
+  { room: 'HD-09', choice: 'parley', expected: /promise to cool the coals/ },
+  { room: 'HD-09', choice: 'study', expected: /warning rhythm/ },
+] as const
+for (const { room, choice, expected } of houseLossCases) {
+  const context = {
+    sceneChoices: { '4,3': 'plan' },
+    house: { combatOrigin: 'HD-09', decisions: { [room]: choice } },
+  }
+  for (const kind of ['combat', 'chamber'] as const) {
+    const result = briarLossContinuation(context, kind, true, 'Hearth-Guard')
+    assert.match(result, expected)
+    assert.match(result, /quiet bedchamber/)
+    assert.doesNotMatch(result, /Oren's inked detour/)
+    assert.ok(result.length <= 220, 'House loss text fits the saved status')
+  }
+}
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: { '4,3': 'plan' },
+      house: { combatOrigin: 'HD-09', decisions: { 'HD-09': 'forged' } },
+    },
+    'combat',
+    true,
+  ),
+  /Oren's inked detour/,
+  'Forged House decisions cannot fabricate a remembered rescue',
+)
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: { '4,3': 'plan' },
+      house: { combatOrigin: null, decisions: { 'HD-26': 'testify' } },
+    },
+    'combat',
+    true,
+  ),
+  /Oren's inked detour/,
+  'An overworld defeat cannot borrow an unrelated House memory',
+)
+assert.match(
+  briarLossContinuation(
+    {
+      sceneChoices: {},
+      house: {
+        combatOrigin: 'HD-09',
+        decisions: {
+          'HD-09': 'parley',
+          'HD-10': 'improvise',
+          'HD-26': 'testify',
+        },
+      },
+    },
+    'combat',
+    true,
+  ),
+  /signed petition survives/,
+  'Later earned testimony takes precedence over earlier House choices',
+)
+
 const earnedHouseLoss = {
   ...defeatedBriar,
   hearts: 1,
@@ -2916,6 +2987,32 @@ assert.match(narratedHouseLoss, /Oren's inked detour/)
 assert.match(narratedHouseLoss, /House's quiet bedchamber/)
 assert.ok(narratedHouseLoss.length <= 220)
 assert.doesNotMatch(narratedHouseLoss, /Briar Camp/)
+const earnedHouseDecisionLoss = restoreBriarSave({
+  ...earnedHouseLoss,
+  house: {
+    ...earnedHouseLoss.house,
+    decisions: { 'HD-09': 'study' },
+  },
+})
+assert.equal(earnedHouseDecisionLoss.house?.decisions['HD-09'], 'study')
+const narratedHouseDecisionLoss = briarLossContinuation(
+  earnedHouseDecisionLoss,
+  'combat',
+  true,
+  combatForDefeat.state.enemy.name,
+)
+assert.match(narratedHouseDecisionLoss, /warning rhythm/)
+assert.doesNotMatch(narratedHouseDecisionLoss, /Oren's inked detour/)
+const recoveredHouseDecisionLoss = recoverBriarCombatDefeat(
+  earnedHouseDecisionLoss,
+)
+assert.equal(recoveredHouseDecisionLoss.status, narratedHouseDecisionLoss)
+assert.equal(recoveredHouseDecisionLoss.house?.decisions['HD-09'], 'study')
+assert.deepEqual(
+  recoverBriarCombatDefeat(restoreBriarSave(recoveredHouseDecisionLoss)),
+  recoveredHouseDecisionLoss,
+  'A House defeat preserves earned testimony across restoration without repeat damage',
+)
 const resumedEarnedHouseLoss = recoverBriarCombatDefeat(restoredEarnedHouseLoss)
 assert.equal(resumedEarnedHouseLoss.status, narratedHouseLoss)
 assert.equal(resumedEarnedHouseLoss.room, 'house')

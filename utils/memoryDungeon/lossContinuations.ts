@@ -5,7 +5,10 @@
  */
 export interface BriarLossContext {
   sceneChoices: Readonly<Record<string, string>>
-  house?: { combatOrigin: string | null } | null
+  house?: {
+    combatOrigin: string | null
+    decisions?: Readonly<Record<string, string>>
+  } | null
 }
 
 export type BriarLossKind = 'combat' | 'chamber'
@@ -22,6 +25,27 @@ function rememberedConsequence(
   if (choices['2,4'] === 'copy')
     return 'Your copied impossible address survives; its recipient still awaits the letter.'
   return 'Your map and discoveries survive; the room keeps its unanswered question.'
+}
+
+/** A lost fight can change the route, but cannot erase the choices that made it
+ * worth taking. Prefer the most recent earned House dilemma over older Briar
+ * memories; invalid decision IDs never fabricate a companion's help. */
+function houseLossConsequence(
+  decisions: Readonly<Record<string, string>>,
+): string | null {
+  if (decisions['HD-26'] === 'testify')
+    return "The Wolf-Mother's signed petition survives; the food you did not bring is still needed."
+  if (decisions['HD-26'] === 'shelter')
+    return "The Wolf-Mother's families have food; their unsigned petition still awaits a hearing."
+  if (decisions['HD-10'] === 'manifest')
+    return 'Scylla kept the route manifest; the stranded maid still needs help down the service stair.'
+  if (decisions['HD-10'] === 'improvise')
+    return 'Char and Scylla rescued the maid; their unmarked route still needs a reliable map.'
+  if (decisions['HD-09'] === 'parley')
+    return 'The Hearth-Guard remembers your promise to cool the coals; its warning rhythm remains unknown.'
+  if (decisions['HD-09'] === 'study')
+    return "You remember the Hearth-Guard's warning rhythm; the coals still need a safe keeper."
+  return null
 }
 
 export function briarLossContinuation(
@@ -46,5 +70,9 @@ export function briarLossContinuation(
   } else {
     consequence = `${opponent} drives you back to the trail. One heart lost; the room waits for a rematch.`
   }
-  return `${consequence} ${rememberedConsequence(progress.sceneChoices)}`
+  const houseMemory =
+    inHouse && progress.house?.decisions
+      ? houseLossConsequence(progress.house.decisions)
+      : null
+  return `${consequence} ${houseMemory ?? rememberedConsequence(progress.sceneChoices)}`
 }

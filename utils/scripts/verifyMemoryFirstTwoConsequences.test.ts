@@ -634,7 +634,7 @@ assert.match(
 // The Knight's original false-oath/apology choice and the mirrored
 // build/release choice must produce four distinct earned outcomes, not a
 // generic pardon or an unearned bridge. Each survives a real save roundtrip.
-assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('5,4'))
+assert.ok(BRIAR_REVEAL_WAVES[1]?.includes('5,4'))
 assert.ok(DARK_BRIAR_WAVES[0]?.includes('5,4'))
 const knightScenes = new Set<string>()
 const knightEndings = new Set<string>()
@@ -658,7 +658,8 @@ for (const source of ['truth', 'errand'] as const) {
   assert.ok(BRIAR_SCENES['5,4']?.choices.some((choice) => choice.id === source))
   const original = restoreBriarSave({
     ...newBriarSave(),
-    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    waveIndex: 1,
+    revealed: BRIAR_REVEAL_WAVES.slice(0, 2).flat(),
     visited: knightRoute,
     player: '5,4',
     wavePhase: 'exploring',

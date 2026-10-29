@@ -64,8 +64,12 @@ export const FIRST_BELL_MAP: TacticalMap = {
 const KEY = (p: Point) => p.x + ',' + p.y
 const DEFAULT_TILE: Tile = { elevation: 0 }
 export const inside = (map: TacticalMap, p: Point) =>
-  Number.isInteger(p.x) && Number.isInteger(p.y) &&
-  p.x >= 0 && p.x < map.width && p.y >= 0 && p.y < map.height
+  Number.isInteger(p.x) &&
+  Number.isInteger(p.y) &&
+  p.x >= 0 &&
+  p.x < map.width &&
+  p.y >= 0 &&
+  p.y < map.height
 
 export function tileAt(map: TacticalMap, p: Point): Tile {
   return map.tiles[KEY(p)] ?? DEFAULT_TILE
@@ -89,9 +93,16 @@ export function pathDistance(
   start: Point,
   destination: Point,
 ): number {
-  if (!inside(map, start) || !inside(map, destination) ||
-    tileAt(map, start).wall || tileAt(map, destination).wall) return Infinity
-  const occupied = new Set(fighters.filter(u => u.hp > 0 && KEY(u) !== KEY(start)).map(KEY))
+  if (
+    !inside(map, start) ||
+    !inside(map, destination) ||
+    tileAt(map, start).wall ||
+    tileAt(map, destination).wall
+  )
+    return Infinity
+  const occupied = new Set(
+    fighters.filter((u) => u.hp > 0 && KEY(u) !== KEY(start)).map(KEY),
+  )
   if (occupied.has(KEY(destination))) return Infinity
   const visited = new Set([KEY(start)])
   const queue = [{ ...start, length: 0 }]
@@ -99,9 +110,18 @@ export function pathDistance(
     const from = queue[index]!
     if (KEY(from) === KEY(destination)) return from.length
     for (const next of adjacent(from)) {
-      if (!inside(map, next) || visited.has(KEY(next)) || occupied.has(KEY(next))) continue
+      if (
+        !inside(map, next) ||
+        visited.has(KEY(next)) ||
+        occupied.has(KEY(next))
+      )
+        continue
       const tile = tileAt(map, next)
-      if (tile.wall || Math.abs(tile.elevation - tileAt(map, from).elevation) > 1) continue
+      if (
+        tile.wall ||
+        Math.abs(tile.elevation - tileAt(map, from).elevation) > 1
+      )
+        continue
       visited.add(KEY(next))
       queue.push({ ...next, length: from.length + 1 })
     }
@@ -114,7 +134,11 @@ export function moveAP(steps: number): number {
   if (steps < 1 || !Number.isFinite(steps) || steps > 6) return Infinity
   return steps <= 3 ? 1 : 2
 }
-export function reachableCells(map: TacticalMap, fighters: readonly Fighter[], unit: Fighter) {
+export function reachableCells(
+  map: TacticalMap,
+  fighters: readonly Fighter[],
+  unit: Fighter,
+) {
   const result: Array<Point & { steps: number; cost: number }> = []
   if (unit.hp <= 0 || unit.moved || unit.ap <= 0) return result
   for (let y = 0; y < map.height; y++) {
@@ -130,33 +154,50 @@ export function reachableCells(map: TacticalMap, fighters: readonly Fighter[], u
 // Bresenham with a deliberate blocked-corner rule; intermediate high ground
 // occludes a lower ray. The endpoints themselves never block their shot.
 export function lineOfSight(map: TacticalMap, from: Point, to: Point): boolean {
-  if (!inside(map, from) || !inside(map, to) || KEY(from) === KEY(to)) return false
+  if (!inside(map, from) || !inside(map, to) || KEY(from) === KEY(to))
+    return false
   const startZ = tileAt(map, from).elevation + 1.5
   const endZ = tileAt(map, to).elevation + 1.5
   const dx = Math.abs(to.x - from.x)
   const dy = Math.abs(to.y - from.y)
   const sx = from.x < to.x ? 1 : -1
   const sy = from.y < to.y ? 1 : -1
-  let x = from.x, y = from.y, error = dx - dy
+  let x = from.x,
+    y = from.y,
+    error = dx - dy
   while (x !== to.x || y !== to.y) {
-    const oldX = x, oldY = y
+    const oldX = x,
+      oldY = y
     const twice = 2 * error
-    if (twice > -dy) { error -= dy; x += sx }
-    if (twice < dx) { error += dx; y += sy }
+    if (twice > -dy) {
+      error -= dy
+      x += sx
+    }
+    if (twice < dx) {
+      error += dx
+      y += sy
+    }
     if (x === to.x && y === to.y) break
-    if (x !== oldX && y !== oldY &&
+    if (
+      x !== oldX &&
+      y !== oldY &&
       tileAt(map, { x: oldX, y }).wall &&
-      tileAt(map, { x, y: oldY }).wall) return false
+      tileAt(map, { x, y: oldY }).wall
+    )
+      return false
     const tile = tileAt(map, { x, y })
-    const progress = Math.hypot(x - from.x, y - from.y) /
+    const progress =
+      Math.hypot(x - from.x, y - from.y) /
       Math.hypot(to.x - from.x, to.y - from.y)
-    if (tile.wall || tile.elevation > startZ + (endZ - startZ) * progress) return false
+    if (tile.wall || tile.elevation > startZ + (endZ - startZ) * progress)
+      return false
   }
   return true
 }
 
 function attackEdges(from: Point, to: Point): Side[] {
-  const dx = from.x - to.x, dy = from.y - to.y
+  const dx = from.x - to.x,
+    dy = from.y - to.y
   if (Math.abs(dx) > Math.abs(dy)) return [dx > 0 ? 'east' : 'west']
   if (Math.abs(dy) > Math.abs(dx)) return [dy > 0 ? 'south' : 'north']
   return [dx > 0 ? 'east' : 'west', dy > 0 ? 'south' : 'north']
@@ -165,7 +206,11 @@ function coverPenalty(map: TacticalMap, from: Point, to: Point) {
   const all = tileAt(map, to).cover
   if (!all) return { cover: 0, flank: 0 }
   const face = attackEdges(from, to)
-  const penalty = face.reduce((n, side) => Math.max(n, all[side] === 'full' ? 40 : all[side] === 'half' ? 20 : 0), 0)
+  const penalty = face.reduce(
+    (n, side) =>
+      Math.max(n, all[side] === 'full' ? 40 : all[side] === 'half' ? 20 : 0),
+    0,
+  )
   // Flank rewards actually approaching an unprotected side, not open-ground shots.
   return { cover: penalty, flank: penalty === 0 ? 10 : 0 }
 }
@@ -181,14 +226,36 @@ export function chanceFrom(
   const clear = range > 0 && range <= 6 && lineOfSight(map, attacker, defender)
   const rangePenalty = Math.max(0, range - 2) * 7
   const { cover, flank } = coverPenalty(map, attacker, defender)
-  const elevation = Math.max(-20, Math.min(20,
-    (tileAt(map, attacker).elevation - tileAt(map, defender).elevation) * 10))
+  const elevation = Math.max(
+    -20,
+    Math.min(
+      20,
+      (tileAt(map, attacker).elevation - tileAt(map, defender).elevation) * 10,
+    ),
+  )
   const suppressed = attacker.statuses?.includes('suppressed') ? 15 : 0
   const guarded = defender.statuses?.includes('guarded') ? 15 : 0
   const hit = clear
-    ? Math.max(5, Math.min(95, aim - rangePenalty - cover + flank + elevation - suppressed - guarded))
+    ? Math.max(
+        5,
+        Math.min(
+          95,
+          aim - rangePenalty - cover + flank + elevation - suppressed - guarded,
+        ),
+      )
     : 0
-  return { hit, clear, aim, range, rangePenalty, cover, flank, elevation, suppressed, guarded }
+  return {
+    hit,
+    clear,
+    aim,
+    range,
+    rangePenalty,
+    cover,
+    flank,
+    elevation,
+    suppressed,
+    guarded,
+  }
 }
 
 export function nextRoll(state: { seed: number }): number {
@@ -209,8 +276,15 @@ export function resolveAttack(
   damage = 2,
 ): HitResult | null {
   const chance = chanceFrom(map, attacker, defender)
-  if (attacker.hp <= 0 || defender.hp <= 0 || attacker.team === defender.team ||
-    attacker.ap < 1 || attacker.fired || !chance.clear) return null
+  if (
+    attacker.hp <= 0 ||
+    defender.hp <= 0 ||
+    attacker.team === defender.team ||
+    attacker.ap < 1 ||
+    attacker.fired ||
+    !chance.clear
+  )
+    return null
   attacker.ap -= 1
   attacker.fired = true
   const roll = nextRoll(state)
@@ -226,7 +300,8 @@ export function resolveAttack(
 }
 
 export function takeCover(unit: Fighter): boolean {
-  if (unit.hp <= 0 || unit.ap < 1 || unit.statuses.includes('guarded')) return false
+  if (unit.hp <= 0 || unit.ap < 1 || unit.statuses.includes('guarded'))
+    return false
   unit.ap--
   unit.statuses.push('guarded')
   return true
@@ -246,8 +321,13 @@ export function resolveOverwatch(
   watcher: Fighter,
   mover: Fighter,
 ): HitResult | null {
-  if (!watcher.overwatch || watcher.hp <= 0 || mover.hp <= 0 ||
-    watcher.team === mover.team) return null
+  if (
+    !watcher.overwatch ||
+    watcher.hp <= 0 ||
+    mover.hp <= 0 ||
+    watcher.team === mover.team
+  )
+    return null
   const chance = chanceFrom(map, watcher, mover)
   if (!chance.clear) return null
   watcher.overwatch = false
@@ -255,7 +335,8 @@ export function resolveOverwatch(
   const hit = roll < chance.hit * 100
   if (hit) {
     mover.hp = Math.max(0, mover.hp - 1)
-    if (mover.hp > 0 && !mover.statuses.includes('suppressed')) mover.statuses.push('suppressed')
+    if (mover.hp > 0 && !mover.statuses.includes('suppressed'))
+      mover.statuses.push('suppressed')
   }
   return { chance, roll, hit, damage: hit ? 1 : 0 }
 }
@@ -268,13 +349,14 @@ export function refreshTurn(fighters: readonly Fighter[], team: string) {
     unit.moved = false
     unit.fired = false
     unit.overwatch = false
-    unit.statuses = unit.statuses.filter(status => status === 'suppressed')
+    unit.statuses = unit.statuses.filter((status) => status === 'suppressed')
   }
 }
 // Suppression affects the victim's next acting turn, never disappearing
 // before their attack. It expires only after they have had that turn.
 export function clearSuppression(fighters: readonly Fighter[], team: string) {
   for (const unit of fighters) {
-    if (unit.team === team) unit.statuses = unit.statuses.filter(status => status !== 'suppressed')
+    if (unit.team === team)
+      unit.statuses = unit.statuses.filter((status) => status !== 'suppressed')
   }
 }

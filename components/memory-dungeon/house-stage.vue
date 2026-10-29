@@ -127,7 +127,9 @@
             class="mt-3 rounded-lg border border-[#96744b] bg-[#f6e4bf] p-3"
             data-testid="memory-house-floor-story"
           >
-            <h4 class="font-serif text-base font-black">{{ floorBeat.title }}</h4>
+            <h4 class="font-serif text-base font-black">
+              {{ floorBeat.title }}
+            </h4>
             <p class="mt-1 text-sm leading-relaxed">{{ floorBeat.text }}</p>
             <p class="mt-2 text-sm font-semibold">{{ floorBeat.cost }}</p>
           </div>

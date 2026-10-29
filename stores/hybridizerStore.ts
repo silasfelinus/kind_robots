@@ -13,6 +13,11 @@ export type HybridizerIngredient = {
   artState?: string
   sources?: [string, string]
   depth?: number
+  status?: string
+  artImageId?: number | null
+  artJobId?: number | null
+  imagePath?: string | null
+  canRetry?: boolean
 }
 
 export type HybridizerDiscovery = HybridizerIngredient & {
@@ -21,6 +26,8 @@ export type HybridizerDiscovery = HybridizerIngredient & {
   createdAt: string
   status?: string
   artImageId?: number | null
+  artJobId?: number | null
+  imagePath?: string | null
 }
 
 const STARTERS = catalog.entries as HybridizerIngredient[]
@@ -48,6 +55,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const working = ref(false)
   const status = ref('Select two ingredients and activate the chamber.')
   const availableArt = ref<Record<string, string>>({})
+  const pendingKeys = ref<string[]>([])
+  const readyNotice = ref<HybridizerDiscovery | null>(null)
+  const enqueuing = new Set<string>()
+  let pollTimer: ReturnType<typeof setInterval> | null = null
 
   const inputs = computed<HybridizerIngredient[]>(() => [
     ...STARTERS,
@@ -111,6 +122,24 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }
     }
     discoveries.value = [...merged.values()].slice(-200)
+    pendingKeys.value = [
+      ...new Set([
+        ...pendingKeys.value,
+        ...response.data
+          .filter(
+            (entry) =>
+              entry.artJobId &&
+              entry.status !== 'READY' &&
+              entry.status !== 'FAILED' &&
+              entry.status !== 'CANCELLED',
+          )
+          .map((entry) => entry.key),
+      ]),
+    ]
+    for (const entry of response.data.slice(0, 10)) {
+      if (entry.artJobId && entry.key.startsWith('fusion:'))
+        void refreshArtwork(entry.key)
+    }
     save()
   }
 
@@ -128,7 +157,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         )
         if (matching?.imagePath) imageMap[entry.key] = matching.imagePath
       }
-      availableArt.value = imageMap
+      availableArt.value = { ...availableArt.value, ...imageMap }
     } catch {
       status.value =
         'The Facet artwork library is unavailable; lab studies still work.'
@@ -139,12 +168,115 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     return ingredient ? (availableArt.value[ingredient.key] ?? null) : null
   }
 
+  function updateDiscovery(key: string, patch: Partial<HybridizerDiscovery>) {
+    discoveries.value = discoveries.value.map((entry) =>
+      entry.key === key ? { ...entry, ...patch } : entry,
+    )
+    save()
+  }
+
+  async function refreshArtwork(key: string): Promise<void> {
+    if (!key.startsWith('fusion:')) return
+    const response = await performFetch<{
+      key: string
+      status: string
+      artJobId: number | null
+      artImageId: number | null
+      imagePath: string | null
+      canRetry: boolean
+    }>('/api/hybridizer/fusions/' + key.slice(7) + '/status')
+    if (!response.success || !response.data) return
+    const data = response.data
+    const prior = discoveries.value.find((entry) => entry.key === key)
+    if (data.imagePath) {
+      availableArt.value = { ...availableArt.value, [key]: data.imagePath }
+    }
+    updateDiscovery(key, {
+      status: data.status,
+      artJobId: data.artJobId,
+      artImageId: data.artImageId,
+      imagePath: data.imagePath,
+      canRetry: data.canRetry,
+    })
+    if (data.status === 'READY' && prior?.status !== 'READY') {
+      readyNotice.value =
+        discoveries.value.find((entry) => entry.key === key) ?? null
+    }
+    if (
+      data.status === 'QUEUED' ||
+      data.status === 'RENDERING' ||
+      data.status === 'DELIVERING'
+    ) {
+      if (!pendingKeys.value.includes(key))
+        pendingKeys.value = [...pendingKeys.value, key]
+    } else {
+      pendingKeys.value = pendingKeys.value.filter((entry) => entry !== key)
+    }
+  }
+
+  async function enqueueArtwork(key: string): Promise<void> {
+    if (!key.startsWith('fusion:') || enqueuing.has(key)) return
+    const discovery = discoveries.value.find((entry) => entry.key === key)
+    if (!discovery || discovery.status === 'READY') {
+      if (discovery?.status === 'READY') void refreshArtwork(key)
+      return
+    }
+    enqueuing.add(key)
+    try {
+      const response = await performFetch<{
+        key: string
+        artJobId: number
+        status: string
+      }>('/api/hybridizer/fusions/' + key.slice(7) + '/enqueue', {
+        method: 'POST',
+      })
+      if (response.success && response.data) {
+        updateDiscovery(key, {
+          artJobId: response.data.artJobId,
+          status: response.data.status,
+        })
+        if (!pendingKeys.value.includes(key))
+          pendingKeys.value = [...pendingKeys.value, key]
+        status.value =
+          'Fusion study saved. The artwork is rendering in the background.'
+      } else {
+        status.value =
+          'Fusion saved. Artwork could not be queued: ' +
+          (response.message || 'generation unavailable')
+      }
+    } finally {
+      enqueuing.delete(key)
+    }
+  }
+
+  async function pollArtwork(): Promise<void> {
+    await Promise.all(
+      pendingKeys.value.slice(0, 5).map((key) => refreshArtwork(key)),
+    )
+  }
+
+  function startArtworkWatch() {
+    if (!import.meta.client || pollTimer) return
+    pollTimer = setInterval(() => void pollArtwork(), 10000)
+    void pollArtwork()
+  }
+
+  function stopArtworkWatch() {
+    if (pollTimer) clearInterval(pollTimer)
+    pollTimer = null
+  }
+
+  function dismissNotice() {
+    readyNotice.value = null
+  }
+
   function choose(side: 'left' | 'right', key: string) {
     if (working.value || !byKey.value.has(key)) return
     if (side === 'left') leftKey.value = key
     else rightKey.value = key
     resultKey.value = null
     status.value = 'Ready to combine two specimens.'
+    if (key.startsWith('fusion:')) void refreshArtwork(key)
   }
 
   async function fuse() {
@@ -214,8 +346,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       status.value =
         discovery.status === 'READY'
           ? 'Shared illustrated discovery retrieved.'
-          : 'Shared discovery saved. Painted hybrid generation is not connected yet.'
+          : 'Shared discovery saved. Artwork will render in the background.'
       save()
+      if (discovery.status === 'READY') void refreshArtwork(discovery.key)
+      else if (discovery.artJobId) void refreshArtwork(discovery.key)
+      else void enqueueArtwork(discovery.key)
     } finally {
       working.value = false
     }
@@ -238,10 +373,17 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     working,
     status,
     starterCount,
+    pendingKeys,
+    readyNotice,
     imageFor,
     hydrate,
     loadArtwork,
     loadSharedStudies,
+    startArtworkWatch,
+    stopArtworkWatch,
+    refreshArtwork,
+    enqueueArtwork,
+    dismissNotice,
     choose,
     fuse,
     remix,

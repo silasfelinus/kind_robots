@@ -546,16 +546,52 @@ const NEW_CASE_REACTIONS: Record<
 > = {
   'frog-serum': {
     person: 'drift',
-    response: {
-      mood: 'positive',
-      line: 'I am not a failed experiment. Neither is Dr. Frog. Let me speak to him.',
-    },
+    response: { mood: 'positive', line: "I am not a failed experiment. Neither is Dr. Frog. Let me speak to him." },
   },
   'mirror-court': {
     person: 'imani',
-    response: {
-      mood: 'positive',
-      line: 'Fo
+    response: { mood: 'positive', line: "Forty versions of a winner and not one vote from the missing stagehand?" },
+  },
+  'stolen-hour': {
+    person: 'nix',
+    response: { mood: 'negative', line: "A lost hour means somebody sold time that belonged to patients." },
+  },
+  'ghost-ticket': {
+    person: 'mara',
+    response: { mood: 'positive', line: "The dead do not issue transit permits. Developers do." },
+  },
+  'borrowed-faces': {
+    person: 'lark',
+    response: { mood: 'positive', line: "A scan is not a person. We have to ask each rider what they need." },
+  },
+  'rail-heart': {
+    person: 'mina',
+    response: { mood: 'positive', line: "Brace the axle. Nobody gets to use a conductor as a test component." },
+  },
+  'granny-shuttle': {
+    person: 'veda',
+    response: { mood: 'positive', line: "That woman taught me every stunt I know. She has never learned to brake." },
+  },
+  'tomorrow-tide': {
+    person: 'tessel',
+    response: { mood: 'positive', line: "I know that wave. It traveled here from a forecast that has not happened." },
+  },
+  'pearl-pact': {
+    person: 'nix',
+    response: { mood: 'positive', line: "A pearl can hide a door, and a door can hide a witness." },
+  },
+  'halo-contract': {
+    person: 'sol',
+    response: { mood: 'negative', line: "Those halos have a command port. Nobody volunteered to wear consent." },
+  },
+  'hospital-saint': {
+    person: 'kit',
+    response: { mood: 'positive', line: "Healing someone does not mean owning their future." },
+  },
+  'lightning-election': {
+    person: 'ash',
+    response: { mood: 'negative', line: "That weather is a machine with an opinion about voting." },
+  },
 }
 
 export function missionReaction(

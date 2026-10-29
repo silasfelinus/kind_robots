@@ -357,6 +357,9 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
   },
   {
     incident: {
+      id: 'ambulance-detour',
+      title: 'The Ambulance That Went to a Different City',
+      site: 'Civic Hospital Route',
       briefing:
         "Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support.",
       need: 'technopathy' as PowerId,

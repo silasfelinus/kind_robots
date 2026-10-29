@@ -1141,6 +1141,11 @@ export type MediaEntry = Prisma.MediaEntryModel
  */
 export type ResourcePreview = Prisma.ResourcePreviewModel
 /**
+ * Model HybridizerFusion
+ * 
+ */
+export type HybridizerFusion = Prisma.HybridizerFusionModel
+/**
  * Model SiteStatDaily
  * 
  */

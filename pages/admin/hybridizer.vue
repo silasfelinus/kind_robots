@@ -11,7 +11,7 @@
           <strong>{{ lab.starterCount }}</strong>
           <span>STARTERS</span>
           <strong>{{ lab.discoveries.length }}</strong>
-          <span>LOCAL STUDIES</span>
+          <span>DISCOVERIES</span>
         </div>
       </header>
 
@@ -119,7 +119,11 @@
             </div>
             <div class="result-foot">
               <p class="study-label">
-                COMPOSITION STUDY · GENERATED HYBRID ART PENDING
+                {{
+                  lab.result.key.startsWith('fusion:')
+                    ? 'SHARED DISCOVERY · PAINTED ART PENDING'
+                    : 'LOCAL STUDY · SHARED ARCHIVE UNAVAILABLE'
+                }}
               </p>
               <button
                 type="button"
@@ -187,7 +191,7 @@
         <div class="drawer-head">
           <div>
             <p class="eyebrow">
-              {{ drawer === 'atlas' ? 'LOCAL DISCOVERIES' : 'SPECIMEN DRAWER' }}
+              {{ drawer === 'atlas' ? 'DISCOVERY ATLAS' : 'SPECIMEN DRAWER' }}
             </p>
             <h2>
               {{
@@ -261,9 +265,8 @@
           </p>
         </div>
         <p class="drawer-foot">
-          Prototype: these studies are saved only in this browser. Global result
-          caching, real image generation and contributions are separate roadmap
-          tasks.
+          Shared matches are remembered across players. Painted art and new
+          contributions are being connected in separate production stages.
         </p>
       </aside>
     </div>
@@ -334,6 +337,7 @@ function glyphFor(title?: string, taxonomy?: string): string {
 onMounted(() => {
   lab.hydrate()
   void lab.loadArtwork()
+  void lab.loadSharedStudies()
 })
 </script>
 

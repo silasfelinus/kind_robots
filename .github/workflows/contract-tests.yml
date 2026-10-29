@@ -1541,6 +1541,9 @@ jobs:
       - name: Art Archive ingestion controls contract
         run: npm run test:art-archive-ingestion-controls
 
+      - name: Hybridizer canonical fusion cache contract
+        run: npm run test:hybridizer-cache
+
       - name: Memory Dungeon gallery feed contract
         run: npm run test:memory-art-feed
 

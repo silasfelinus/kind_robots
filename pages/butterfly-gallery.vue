@@ -666,6 +666,7 @@ import {
   butterflyGridColumns,
   type ButterflyGalleryOrientation,
 } from '@/stores/helpers/butterflyGalleryViewSettings'
+
 import { useUserStore } from '@/stores/userStore'
 import {
   computeButterflyFunnelDropPlan,
@@ -681,6 +682,13 @@ import {
   presetShortcutKey,
   resolveButterflyShortcutIntent,
 } from '@/stores/helpers/butterflyGalleryShortcuts'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'butterfly-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 // -- Runway motion clips (butterfly-gallery/t-033) --------------------------
 // 5 of the 7 t-014 ArtJobs (28739-28743) rendered successfully; the two loop
@@ -1432,8 +1440,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   /* Rendered room backdrop (t-028, ArtImage 28266) layered over the original
      procedural grid/floor gradients -- the gradients remain as the graceful
      fallback if the rendered asset ever fails to load. */
-  background-image:
-    url('/images/butterfly-gallery/room.png'),
+  background-image: url('/images/butterfly-gallery/room.png'),
     linear-gradient(
       90deg,
       color-mix(in oklch, var(--color-info) 10%, transparent) 1px,
@@ -1911,10 +1918,7 @@ function pileStyle(index: number, total: number): Record<string, string> {
   bottom: 17%;
   width: clamp(190px, 20vw, 300px);
   display: grid;
-  grid-template-rows: minmax(0, 1.9fr) minmax(72px, 0.72fr) minmax(
-      72px,
-      0.72fr
-    );
+  grid-template-rows: minmax(0, 1.9fr) minmax(72px, 0.72fr) minmax(72px, 0.72fr);
   gap: clamp(7px, 0.8vw, 12px);
 }
 

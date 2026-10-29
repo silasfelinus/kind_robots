@@ -4,6 +4,7 @@ import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import {
   HOUSE_ROOMS,
   houseExits,
+  houseRoom,
   houseWitnessEvidence,
   newHouseProgress,
   restoreHouseProgress,
@@ -20,12 +21,158 @@ import {
   validateHouseEpilogues,
 } from '../memoryDungeon/houseEpilogues'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
+import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
+
+// Prototype-named object properties must never become authored chambers.
+for (const key of ['constructor', 'toString', '__proto__']) {
+  const forged = {
+    current: key,
+    visited: [key],
+    decisions: Object.fromEntries([[key, 'release']]),
+  }
+  assert.equal(houseRoom(key), null)
+  const restored = restoreHouseProgress(forged)!
+  assert.equal(restored.current, 'HD-01')
+  assert.deepEqual(restored.visited, ['HD-01'])
+  assert.deepEqual(restored.decisions, {})
+  assert.deepEqual(houseExits(restored.current, restored), ['HD-02', 'HD-07'])
+}
+
+// A valid room ID alone cannot prove travel. A forged distant Hearth and
+// Bramble Chime must not survive when the intervening passages were never used.
+const disconnectedHouse = restoreHouseProgress({
+  current: 'HD-35',
+  visited: ['HD-02', 'HD-35', 'HD-36'],
+  decisions: { 'HD-02': 'weather', 'HD-35': 'renew', 'HD-36': 'entrust' },
+  ending: 'renew',
+  chimeClaimed: true,
+})!
+assert.equal(disconnectedHouse.current, 'HD-01')
+assert.deepEqual(disconnectedHouse.visited, ['HD-01', 'HD-02'])
+assert.deepEqual(disconnectedHouse.decisions, { 'HD-02': 'weather' })
+assert.equal(disconnectedHouse.ending, null)
+assert.equal(disconnectedHouse.chimeClaimed, false)
+
+const adjacentLegacyHouse = restoreHouseProgress({
+  current: 'HD-03',
+  visited: ['HD-02'],
+  decisions: { 'HD-03': 'route' },
+})!
+assert.equal(adjacentLegacyHouse.current, 'HD-03')
+assert.deepEqual(adjacentLegacyHouse.visited, ['HD-01', 'HD-02', 'HD-03'])
+assert.equal(adjacentLegacyHouse.decisions['HD-03'], 'route')
+
+// Scylla's recorded manifest legitimately opens HD-10 → HD-25 without
+// visiting the intervening numbered chambers.
+const paths = new Map<HouseRoomId, HouseRoomId[]>([['HD-01', ['HD-01']]])
+const routeQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < routeQueue.length; i++) {
+  const room = routeQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (paths.has(next)) continue
+    paths.set(next, [...paths.get(room)!, next])
+    routeQueue.push(next)
+  }
+}
+const connectedRooms = (...rooms: HouseRoomId[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>(['HD-01'])
+  for (const room of rooms) {
+    const path = paths.get(room)
+    assert.ok(path, `Authored route to ${room} exists`)
+    for (const step of path) visited.add(step)
+  }
+  return [...visited]
+}
+// Reaching a legitimate room ID through the graph is insufficient when the
+// final doorway is still locked by an unanswered Hearth.
+// A connected room list is not evidence that the Rootbound Warden was
+// defeated or petitioned. Its guarded door must remain shut after reload.
+const wardenRoute = connectedRooms('HD-33')
+const forgedWardenPassage = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute,
+  decisions: { 'HD-32': 'fight', 'HD-33': 'reveal' },
+  wardenPassed: false,
+})!
+assert.equal(forgedWardenPassage.current, 'HD-01')
+assert.ok(forgedWardenPassage.visited.includes('HD-32'))
+assert.ok(!forgedWardenPassage.visited.includes('HD-33'))
+assert.equal(forgedWardenPassage.decisions['HD-33'], undefined)
+assert.equal(forgedWardenPassage.wardenPassed, false)
+
+const earnedWardenPassage = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute,
+  decisions: { 'HD-32': 'petition', 'HD-33': 'consent' },
+  wardenPassed: true,
+})!
+assert.equal(earnedWardenPassage.current, 'HD-33')
+assert.equal(earnedWardenPassage.decisions['HD-33'], 'consent')
+assert.equal(earnedWardenPassage.wardenPassed, true)
+
+// Even a claimed victory cannot manufacture the missing guardian chamber.
+const disconnectedWarden = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute.filter((room) => room !== 'HD-32'),
+  wardenPassed: true,
+})!
+assert.ok(!disconnectedWarden.visited.includes('HD-33'))
+assert.equal(disconnectedWarden.wardenPassed, false)
+
+// Testimony at HD-26 opens an independent authored passage to HD-34.
+// That lawful shortcut must not require defeating the Warden.
+const testimonyBypass = restoreHouseProgress({
+  current: 'HD-34',
+  visited: [...connectedRooms('HD-26'), 'HD-34'],
+  decisions: { 'HD-26': 'testify' },
+  wardenPassed: false,
+})!
+assert.equal(testimonyBypass.current, 'HD-34')
+assert.ok(!testimonyBypass.visited.includes('HD-33'))
+assert.equal(testimonyBypass.wardenPassed, false)
+
+const forgedHouseExit = restoreHouseProgress({
+  current: 'HD-36',
+  visited: connectedRooms('HD-36'),
+  decisions: { 'HD-36': 'carry' },
+  ending: null,
+  chimeClaimed: true,
+})!
+assert.equal(forgedHouseExit.current, 'HD-01')
+assert.ok(!forgedHouseExit.visited.includes('HD-36'))
+assert.equal(forgedHouseExit.decisions['HD-36'], undefined)
+assert.equal(forgedHouseExit.chimeClaimed, false)
+const contradictoryExit = restoreHouseProgress({
+  current: 'HD-36',
+  visited: connectedRooms('HD-36'),
+  decisions: { 'HD-35': 'renew', 'HD-36': 'carry' },
+  ending: 'release',
+})!
+assert.ok(!contradictoryExit.visited.includes('HD-36'))
+
+const routeToInventory = paths.get('HD-10')!
+assert.ok(routeToInventory.length > 1)
+const shortcutHouse = restoreHouseProgress({
+  current: 'HD-25',
+  visited: routeToInventory,
+  decisions: { 'HD-10': 'manifest', 'HD-25': 'recount' },
+})!
+assert.equal(shortcutHouse.current, 'HD-25')
+assert.equal(shortcutHouse.decisions['HD-25'], 'recount')
+assert.equal(
+  restoreHouseProgress({
+    current: 'HD-25',
+    visited: routeToInventory,
+  })!.current,
+  'HD-01',
+  'The distant room is not reachable without the recorded shortcut',
+)
 
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save
 // already holds, so the contract here is: every one is reachable by real
-// choices, none appears before the Hearth, and old saves still resolve.
+// choices, none appears before the Hearth, and old saves acquire a stable lens.
 
 const briarChoices = Object.fromEntries(
   Object.entries(BRIAR_SCENES).map(([key, scene]) => [
@@ -149,6 +296,7 @@ for (let seed = 1; seed <= 1500; seed++) {
       progress = {
         ...progress,
         ending,
+        endingLens: houseEpilogueLens(progress, briar),
         decisions: { ...progress.decisions, 'HD-35': ending },
       }
     }
@@ -185,7 +333,7 @@ assert.equal(reached.size, 12, `seeded journeys reach all twelve epilogues`)
 // decisions, still resolves.
 const legacy = restoreHouseProgress({
   current: 'HD-36',
-  visited: ['HD-01', 'HD-35', 'HD-36'],
+  visited: connectedRooms('HD-35', 'HD-36'),
   decisions: { 'HD-35': 'renew' },
   ending: 'renew',
   wardenPassed: true,
@@ -193,6 +341,75 @@ const legacy = restoreHouseProgress({
   chimeClaimed: false,
 })
 assert.equal(houseEpilogue(legacy, {})?.id, 'renew-community')
+
+// The earned lens is frozen when the Hearth is resolved. Revisiting unfinished
+// rooms can reveal new evidence, but cannot silently rewrite an earned ending.
+const locked = {
+  ...atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew'),
+  wardenPassed: true,
+  visited: connectedRooms(
+    'HD-04',
+    'HD-05',
+    'HD-15',
+    'HD-17',
+    'HD-20',
+    'HD-21',
+    'HD-25',
+    'HD-33',
+    'HD-35',
+  ),
+}
+locked.endingLens = houseEpilogueLens(locked, {})
+assert.equal(locked.endingLens, 'community')
+const laterChoices = {
+  ...locked,
+  decisions: {
+    ...locked.decisions,
+    'HD-15': 'question',
+    'HD-17': 'read',
+    'HD-20': 'testify',
+    'HD-21': 'archive',
+    'HD-25': 'recount',
+    'HD-33': 'reveal',
+  },
+}
+assert.equal(houseEpilogueLens(laterChoices, {}), 'honesty')
+assert.equal(houseEpilogue(laterChoices, {})?.id, 'renew-community')
+const savedAfterBacktracking = restoreBriarSave({
+  ...newBriarSave(),
+  house: laterChoices,
+})
+assert.equal(savedAfterBacktracking.house?.endingLens, 'community')
+assert.equal(
+  houseEpilogue(savedAfterBacktracking.house, {})?.id,
+  'renew-community',
+)
+
+// Pre-existing saves have no snapshot. Hydration derives it once from valid
+// recorded choices, so subsequent scene discoveries cannot change that result.
+const oldSave = restoreBriarSave({
+  ...newBriarSave(),
+  revealed: ['1,5'],
+  visited: ['1,5'],
+  sceneChoices: { '1,5': 'wake' },
+  house: { ...legacy, endingLens: undefined },
+})
+assert.equal(oldSave.house?.endingLens, 'honesty')
+const continued = restoreBriarSave({
+  ...oldSave,
+  revealed: ['1,5', '1,2', '1,8'],
+  visited: ['1,5', '1,2', '1,8'],
+  sceneChoices: { ...oldSave.sceneChoices, '1,2': 'warn', '1,8': 'plant' },
+})
+assert.equal(
+  houseEpilogue(continued.house, continued.sceneChoices)?.id,
+  'renew-honesty',
+)
+assert.equal(
+  restoreHouseProgress({ ...laterChoices, endingLens: 'forged' })?.endingLens,
+  null,
+  'Invalid saved epilogue lenses cannot be accepted',
+)
 
 // The Forge sees twelve illustrated epilogue beats and keeps the Hearth
 // resolutions as the choice that leads to them.
@@ -218,7 +435,11 @@ assert.match(stage, /data-testid="memory-house-epilogue"/)
 assert.match(stage, /world\.houseEpilogue/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /earnedHouseEpilogue\(state\.value\.house/)
+assert.match(
+  store,
+  /house\.endingLens = houseEpilogueLens\(house, state\.value\.sceneChoices\)/,
+)
 
 console.log(
-  `Memory House epilogues: 12 earned endings (3 Hearth resolutions × 4 lenses), each reachable from House and Briar choices, ${reached.size}/12 reached by 1500 seeded journeys, saves unchanged`,
+  `Memory House epilogues: 12 earned endings (3 Hearth resolutions × 4 lenses), ${reached.size}/12 reached by 1500 seeded journeys, Hearth lens locked and legacy saves migrated`,
 )

@@ -111,79 +111,162 @@
               {{ majorCount }} MAIN</span
             >
           </div>
-          <div class="daily-quest-grid">
-            <button
+          <div
+            v-if="scoutedEncounter"
+            class="daily-scout"
+            data-testid="space-couch-scout-console"
+            aria-label="Compare the cast for this mission"
+          >
+            <header class="daily-scout-head">
+              <button
+                type="button"
+                data-testid="space-couch-scout-back"
+                @click="scoutingQuestId = null"
+              >
+                ← QUEST BOARD
+              </button>
+              <span
+                >CASTING OFFICE //
+                {{ scoutedEncounter.skill.toUpperCase() }}</span
+              >
+              <h3>{{ scoutedEncounter.title }}</h3>
+              <p>{{ scoutedEncounter.setup }}</p>
+            </header>
+            <div class="daily-scout-roster">
+              <button
+                v-for="actor in actors"
+                :key="actor.id"
+                type="button"
+                class="daily-scout-actor"
+                :class="{
+                  'daily-scout-assigned':
+                    assignments[scoutedEncounter.id] === actor.id,
+                }"
+                :disabled="busyLeads.includes(actor.id)"
+                :aria-label="
+                  'Place ' + actor.name + ' on ' + scoutedEncounter.title
+                "
+                data-testid="space-couch-scout-actor"
+                @click="chooseScoutActor(scoutedEncounter.id, actor.id)"
+              >
+                <span class="daily-actor-face">
+                  <img v-if="actor.image" :src="actor.image" alt="" />
+                  <span v-else>{{ actor.initial }}</span>
+                </span>
+                <span class="daily-scout-actor-name">
+                  <strong>{{ actor.name }}</strong>
+                  <small>{{
+                    actorAssignment(actor.id) || actor.subtitle
+                  }}</small>
+                </span>
+                <b>{{
+                  scoutOdds(actor.id) === null
+                    ? 'CLASSIFIED'
+                    : scoutOdds(actor.id) + '%'
+                }}</b>
+              </button>
+            </div>
+            <p class="daily-scout-help">
+              Known forecasts are shown. Untried redshirt skills stay
+              classified; field experience may reveal them. Moving a character
+              between cards swaps their existing assignment instead of
+              abandoning it.
+            </p>
+          </div>
+          <div v-else class="daily-quest-grid">
+            <div
               v-for="enc in encounters"
               :key="enc.id"
-              type="button"
-              class="daily-quest"
-              :class="{
-                'daily-major': enc.priority === 'major',
-                'daily-resolved': completed(enc.id),
-                'daily-planned': !!assignments[enc.id],
-              }"
-              :disabled="completed(enc.id) || !selectedLead"
-              :aria-label="
-                'Assign ' +
-                (selectedLead ? actorName(selectedLead) : 'personnel') +
-                ' to ' +
-                enc.title
-              "
-              data-testid="space-couch-encounter"
-              @click="assign(enc.id)"
+              class="daily-quest-tile"
             >
-              <span class="daily-quest-top">
-                <span>{{
-                  enc.priority === 'major' ? '★ FEATURE QUEST' : '✦ SIDE PLOT'
-                }}</span>
-                <b>1 ROUND</b>
-              </span>
-              <strong>{{ enc.title }}</strong>
-              <p>{{ enc.setup }}</p>
-              <span class="daily-skill"
-                >REQUIRES {{ enc.skill.toUpperCase() }}</span
+              <button
+                type="button"
+                class="daily-quest"
+                :class="{
+                  'daily-major': enc.priority === 'major',
+                  'daily-resolved': completed(enc.id),
+                  'daily-planned': !!assignments[enc.id],
+                }"
+                :disabled="completed(enc.id) || !selectedLead"
+                :aria-label="
+                  'Assign ' +
+                  (selectedLead ? actorName(selectedLead) : 'personnel') +
+                  ' to ' +
+                  enc.title
+                "
+                data-testid="space-couch-encounter"
+                @click="assign(enc.id)"
               >
-              <span class="daily-slot">
-                <template v-if="completed(enc.id)">
-                  <b>{{ completionResult(enc.id) }}</b>
-                  <small>{{
-                    (
-                      run.expeditionVisit?.results.find(
-                        (r) => r.encounterId === enc.id,
-                      )?.outcome ?? ''
-                    ).slice(0, 125)
-                  }}</small>
-                </template>
-                <template v-else>
-                  <b>{{
-                    assignments[enc.id]
-                      ? actorName(assignments[enc.id]!)
-                      : '+ PLACE CARD HERE'
-                  }}</b>
-                  <small>
-                    {{
+                <span class="daily-quest-top">
+                  <span>{{
+                    enc.priority === 'major' ? '★ FEATURE QUEST' : '✦ SIDE PLOT'
+                  }}</span>
+                  <b>1 ROUND</b>
+                </span>
+                <strong>{{ enc.title }}</strong>
+                <p>{{ enc.setup }}</p>
+                <span class="daily-skill"
+                  >REQUIRES {{ enc.skill.toUpperCase() }}</span
+                >
+                <span class="daily-slot">
+                  <template v-if="completed(enc.id)">
+                    <b>{{ completionResult(enc.id) }}</b>
+                    <small>{{
+                      (
+                        run.expeditionVisit?.results.find(
+                          (r) => r.encounterId === enc.id,
+                        )?.outcome ?? ''
+                      ).slice(0, 125)
+                    }}</small>
+                  </template>
+                  <template v-else>
+                    <b>{{
                       assignments[enc.id]
-                        ? questOdds(
-                            run,
-                            enc,
-                            assignments[enc.id]!,
-                            knowledge,
-                          ) === null
-                          ? 'SUCCESS ODDS CLASSIFIED · FIELD TEST REQUIRED'
-                          : 'FORECAST ' +
-                            questOdds(
+                        ? actorName(assignments[enc.id]!)
+                        : '+ PLACE CARD HERE'
+                    }}</b>
+                    <small>
+                      {{
+                        assignments[enc.id]
+                          ? questOdds(
                               run,
                               enc,
                               assignments[enc.id]!,
                               knowledge,
-                            ) +
-                            '%'
-                        : 'Tap with a personnel card selected'
-                    }}
-                  </small>
-                </template>
-              </span>
-            </button>
+                            ) === null
+                            ? 'SUCCESS ODDS CLASSIFIED · FIELD TEST REQUIRED'
+                            : 'FORECAST ' +
+                              questOdds(
+                                run,
+                                enc,
+                                assignments[enc.id]!,
+                                knowledge,
+                              ) +
+                              '%'
+                          : 'Tap with a personnel card selected'
+                      }}
+                    </small>
+                  </template>
+                </span>
+              </button>
+              <div v-if="!completed(enc.id)" class="daily-quest-tools">
+                <button
+                  type="button"
+                  data-testid="space-couch-compare-cast"
+                  @click="scoutingQuestId = enc.id"
+                >
+                  ◈ COMPARE CAST
+                </button>
+                <button
+                  v-if="assignments[enc.id]"
+                  type="button"
+                  data-testid="space-couch-clear-cast"
+                  @click="clearPlan(enc.id)"
+                >
+                  ✕ REMOVE
+                </button>
+              </div>
+            </div>
           </div>
           <footer class="daily-action-row">
             <span
@@ -194,6 +277,15 @@
               }}
               · Side quests optional</span
             >
+            <button
+              v-if="lastPlan"
+              type="button"
+              class="daily-undo"
+              data-testid="space-couch-undo-cast"
+              @click="undoPlan"
+            >
+              ↶ UNDO LAST MOVE
+            </button>
             <button
               v-if="majorDone"
               type="button"
@@ -443,6 +535,10 @@ import {
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
+  planEpisodeAssignment,
+  removeEpisodeAssignment,
+} from '~/utils/gameOfCaptains/episodePlanner'
+import {
   EPISODE_CHOICES,
   episodeCard,
   episodeDecks,
@@ -480,6 +576,8 @@ const emit = defineEmits<{
 }>()
 const selectedLead = ref<string>('captain')
 const assignments = ref<Record<string, string>>({})
+const lastPlan = ref<Record<string, string> | null>(null)
+const scoutingQuestId = ref<string | null>(null)
 const plotCast = ref<string[]>([])
 const flipped = ref<EpisodeDeck | null>(null)
 const showQuestBoard = ref(false)
@@ -487,6 +585,8 @@ watch(
   () => props.run.chapter,
   () => {
     assignments.value = {}
+    lastPlan.value = null
+    scoutingQuestId.value = null
     plotCast.value = []
     flipped.value = null
     showQuestBoard.value = false
@@ -494,6 +594,9 @@ watch(
   },
 )
 const encounters = computed(() => currentExpedition(props.run))
+const scoutedEncounter = computed(() =>
+  encounters.value.find((enc) => enc.id === scoutingQuestId.value),
+)
 const knowledge = computed(() => props.knowledge)
 const busyLeads = computed(() => expeditionBusy(props.run))
 const majorDone = computed(() => episodeMajorComplete(props.run))
@@ -601,15 +704,43 @@ function completionResult(id: string) {
     '1 ROUND'
   )
 }
-function assign(encounterId: string) {
-  const chosen = selectedLead.value
+function actorAssignment(id: string): string | null {
+  const questId = Object.keys(assignments.value).find(
+    (encounterId) => assignments.value[encounterId] === id,
+  )
+  if (!questId) return null
+  const quest = encounters.value.find((enc) => enc.id === questId)
+  return quest ? 'ON BOARD: ' + quest.title : null
+}
+function scoutOdds(id: string): number | null {
+  return scoutedEncounter.value
+    ? questOdds(props.run, scoutedEncounter.value, id, knowledge.value)
+    : null
+}
+function assign(encounterId: string, chosen = selectedLead.value) {
   if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId))
     return
-  const next = Object.fromEntries(
-    Object.entries(assignments.value).filter(([, lead]) => lead !== chosen),
+  lastPlan.value = { ...assignments.value }
+  assignments.value = planEpisodeAssignment(
+    assignments.value,
+    encounterId,
+    chosen,
   )
-  next[encounterId] = chosen
-  assignments.value = next
+  selectedLead.value = chosen
+}
+function chooseScoutActor(encounterId: string, actorId: string) {
+  assign(encounterId, actorId)
+  scoutingQuestId.value = null
+}
+function clearPlan(encounterId: string) {
+  if (!assignments.value[encounterId]) return
+  lastPlan.value = { ...assignments.value }
+  assignments.value = removeEpisodeAssignment(assignments.value, encounterId)
+}
+function undoPlan() {
+  if (!lastPlan.value) return
+  assignments.value = lastPlan.value
+  lastPlan.value = null
 }
 const pendingMain = computed(
   () =>
@@ -632,9 +763,12 @@ function dispatchAll() {
     .map((enc) => ({ encounterId: enc.id, lead: assignments.value[enc.id]! }))
   emit('dispatch', batch)
   assignments.value = {}
+  lastPlan.value = null
+  scoutingQuestId.value = null
   showQuestBoard.value = false
 }
 function reopenSideQuests() {
+  scoutingQuestId.value = null
   showQuestBoard.value = true
   flipped.value = null
   plotCast.value = []
@@ -642,6 +776,8 @@ function reopenSideQuests() {
 function returnToDecks() {
   showQuestBoard.value = false
   assignments.value = {}
+  lastPlan.value = null
+  scoutingQuestId.value = null
   flipped.value = null
 }
 function deckName(deck: EpisodeDeck) {
@@ -890,6 +1026,157 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   min-height: 0;
   flex: 1;
   align-content: start;
+}
+.daily-quest-tile {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.daily-quest-tile > .daily-quest {
+  flex: 1;
+  width: 100%;
+}
+.daily-quest-tools {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: space-between;
+  padding: 0.3rem;
+  border: 1px solid #68768f;
+  border-top: 0;
+  border-radius: 0 0 0.45rem 0.45rem;
+  background: #17243f;
+}
+.daily-quest-tools button,
+.daily-undo {
+  color: #ffe2b3;
+  border: 1px solid #876e64;
+  border-radius: 0.3rem;
+  padding: 0.28rem 0.45rem;
+  font-size: clamp(0.61rem, 0.78cqi, 0.74rem);
+  font-weight: 800;
+}
+.daily-quest-tools button:hover,
+.daily-undo:hover {
+  background: #44506d;
+  border-color: #f6cc8e;
+}
+.daily-scout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  overflow: hidden;
+}
+.daily-scout-head {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 0;
+  color: #f7d8ab;
+}
+.daily-scout-head > button {
+  justify-self: start;
+  border: 1px solid #aa9d9c;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+.daily-scout-head > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  font-weight: 900;
+  color: #a4dee8;
+}
+.daily-scout-head h3 {
+  font:
+    bold clamp(0.95rem, 1.9cqi, 1.4rem)/1.08 Georgia,
+    serif;
+}
+.daily-scout-head p,
+.daily-scout-help {
+  color: #d7e2ed;
+  font-size: clamp(0.66rem, 0.9cqi, 0.78rem);
+  line-height: 1.3;
+}
+.daily-scout-roster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.2rem;
+}
+.daily-scout-actor {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.3rem;
+  border: 1px solid #667e9a;
+  border-radius: 0.45rem;
+  background: #27364e;
+  color: #f3e6d8;
+  text-align: left;
+}
+.daily-scout-actor:hover:not(:disabled),
+.daily-scout-actor:focus-visible {
+  border-color: #fac693;
+  background: #43546a;
+}
+.daily-scout-assigned {
+  border-color: #f9d395;
+  box-shadow: inset 0 0 0 1px #f9d395;
+}
+.daily-scout-actor:disabled {
+  opacity: 0.4;
+}
+.daily-scout-actor .daily-actor-face {
+  flex: 0 0 2.2rem;
+  height: 2.2rem;
+}
+.daily-scout-actor-name {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+.daily-scout-actor-name strong,
+.daily-scout-actor-name small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.daily-scout-actor-name strong {
+  font-size: 0.74rem;
+}
+.daily-scout-actor-name small {
+  font-size: 0.62rem;
+  color: #abcddd;
+}
+.daily-scout-actor > b {
+  white-space: nowrap;
+  font-size: 0.67rem;
+  color: #f5d6a7;
+}
+.daily-scout-help {
+  margin: 0;
+}
+@container (max-width: 620px) {
+  .daily-scout-roster {
+    grid-template-columns: 1fr;
+  }
+  .daily-scout-help {
+    display: none;
+  }
+  .daily-quest-tools button {
+    font-size: 0.6rem;
+  }
 }
 .daily-quest {
   display: flex;

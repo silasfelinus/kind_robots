@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { grantMemoryRewardOnce } from '~/utils/memoryDungeon/encounterRewards'
 import {
   canEnterDarkHouse,
   darkHouseChoose as makeDarkHouseChoice,
@@ -33,6 +34,8 @@ import {
   earnedCourierCompensation,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortOutcome,
+  earnedOrenManifestOutcome,
+  earnedKnightCrossingOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -153,8 +156,13 @@ import {
   newHouseProgress,
   type HouseCombatOrigin,
 } from '~/utils/memoryDungeon/house'
-import { houseEpilogue as earnedHouseEpilogue } from '~/utils/memoryDungeon/houseEpilogues'
+import {
+  houseEpilogue as earnedHouseEpilogue,
+  houseEpilogueLens,
+} from '~/utils/memoryDungeon/houseEpilogues'
 import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
+import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
+import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -298,7 +306,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         ? earnedBorrowedVoiceOutcome(state.value, dark.value)
         : dark.value.player === '4,4'
           ? earnedRoyalEscortOutcome(state.value, dark.value)
-          : null
+          : dark.value.player === '5,4'
+            ? earnedKnightCrossingOutcome(state.value, dark.value)
+            : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -332,6 +342,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   )
   const briarQuests = computed(() =>
     briarQuestLog(state.value.sceneChoices, state.value.house?.decisions ?? {}),
+  )
+  const briarRareEvents = computed(() =>
+    earnedBriarRareEvents(
+      state.value.sceneChoices,
+      state.value.house?.decisions ?? {},
+    ),
   )
   const houseEpilogue = computed(() =>
     earnedHouseEpilogue(state.value.house, state.value.sceneChoices),
@@ -1127,11 +1143,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
-    if (key === '3,5' || key === '4,4') {
+    if (key === '3,5' || key === '4,4' || key === '4,3' || key === '5,4') {
       const earned =
         key === '3,5'
           ? earnedBorrowedVoiceOutcome(state.value, next)
-          : earnedRoyalEscortOutcome(state.value, next)
+          : key === '4,4'
+            ? earnedRoyalEscortOutcome(state.value, next)
+            : key === '4,3'
+              ? earnedOrenManifestOutcome(state.value, next)
+              : earnedKnightCrossingOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {
@@ -1200,10 +1220,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function finishDarkDuel(duel: DarkBriarDuel): void {
-    if (!dark.value.duels.includes(duel.key))
-      dark.value.duels = [...dark.value.duels, duel.key]
-    state.value.lanterns += 1
-    closeDarkDuel(duel.victory)
+    const awarded = grantMemoryRewardOnce(
+      dark.value.duels,
+      duel.key,
+      state.value,
+      {
+        lanterns: 1,
+      },
+    )
+    closeDarkDuel(
+      awarded
+        ? duel.victory
+        : 'The bout is already recorded. Its lantern cannot be claimed twice.',
+    )
   }
 
   function reset(): void {
@@ -1564,10 +1593,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const board = minefieldBoard.value
     if (board?.outcome === 'escaped') {
       const rewardKey = minefieldRewardKey(next.size)
-      if (!state.value.completedEncounters.includes(rewardKey)) {
-        state.value.completedEncounters.push(rewardKey)
-        state.value.lanterns += 1
-        state.value.wildflowers += next.size === 10 ? 2 : 1
+      if (
+        grantMemoryRewardOnce(
+          state.value.completedEncounters,
+          rewardKey,
+          state.value,
+          {
+            lanterns: 1,
+            wildflowers: next.size === 10 ? 2 : 1,
+          },
+        )
+      ) {
         state.value.status =
           'The archive door yields. You earn a lantern and flowers; the finding is remembered.'
       } else {
@@ -1722,8 +1758,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (
       house.current === 'HD-35' &&
       (id === 'release' || id === 'renew' || id === 'break')
-    )
+    ) {
       house.ending = id
+      house.endingLens = houseEpilogueLens(house, state.value.sceneChoices)
+    }
     if (house.current === 'HD-36') {
       house.chimeClaimed = true
       if (!state.value.relics.includes('bramble-chime'))
@@ -1911,10 +1949,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           state.value.roomMisses = 0
           state.value.hearts -= 1
           if (state.value.hearts <= 0) {
-            leaveRoom(
-              'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
-            )
-            state.value.player = '2,4'
+            leaveRoom(briarLossContinuation(state.value, 'chamber', true), true)
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             state.value.status =
@@ -1963,13 +1999,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
             )
           } else if (state.value.hearts <= 0) {
             leaveRoom(
-              'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
+              briarLossContinuation(
+                state.value,
+                'combat',
+                true,
+                next.enemy.name,
+              ),
+              true,
             )
-            state.value.player = '2,4'
+            if (state.value.room === 'map') state.value.player = BRIAR_START
             state.value.hearts = 3
           } else {
             leaveRoom(
-              `${next.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`,
+              briarLossContinuation(
+                state.value,
+                'combat',
+                false,
+                next.enemy.name,
+              ),
+              true,
             )
           }
         }
@@ -2065,10 +2113,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     }
     if (room === 'sprite' || room === 'patrol') {
       const key = room === 'sprite' ? '5,5' : '7,3'
-      if (!state.value.completedEncounters.includes(key))
-        state.value.completedEncounters.push(key)
-      state.value.wildflowers += 1
-      leaveRoom('The forest challenger bows and gives you a wildflower.')
+      const awarded = grantMemoryRewardOnce(
+        state.value.completedEncounters,
+        key,
+        state.value,
+        { wildflowers: 1 },
+      )
+      leaveRoom(
+        awarded
+          ? 'The forest challenger bows and gives you a wildflower.'
+          : 'The forest challenger bows again. The first victory already claimed its flower.',
+      )
       return
     }
     if (room) leaveRoom()
@@ -2076,6 +2131,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function leaveRoom(
     message = 'You step out of the challenge and return to the same place on the map.',
+    contextualRetreat = false,
   ): void {
     if (darkBriarDuelForRoom(state.value.roomId)) {
       closeDarkDuel(
@@ -2091,7 +2147,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       if (!state.value.house.visited.includes('HD-18'))
         state.value.house.visited.push('HD-18')
       state.value.room = 'house'
-      message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
+      if (!contextualRetreat)
+        message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
     } else {
       state.value.room = 'map'
     }
@@ -2237,6 +2294,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     houseMayExit,
     houseEpilogue,
     briarQuests,
+    briarRareEvents,
     canChooseHouse,
     houseMove,
     chooseHouse,

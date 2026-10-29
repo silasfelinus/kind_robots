@@ -5,6 +5,7 @@ import {
   type CombatRoomId,
 } from './memoryDungeon/rooms'
 import { darkBriarDuelForRoom } from './memoryDungeon/darkBriarDuels'
+import { briarLossContinuation } from './memoryDungeon/lossContinuations'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
 import {
   restoreMinefieldRun,
@@ -15,6 +16,7 @@ import {
   restoreHouseProgress,
   type HouseProgress,
 } from './memoryDungeon/house'
+import { houseEpilogueLens } from './memoryDungeon/houseEpilogues'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -392,6 +394,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
         typeof choice === 'string' &&
+        visited.includes(key) &&
         BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
       ) {
         sceneChoices[key] = choice
@@ -412,8 +415,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
-  const combat = restoreBriarCombat(saved.combat)
   const house = restoreHouseProgress(saved.house)
+  if (house?.ending && !house.endingLens)
+    house.endingLens = houseEpilogueLens(house, sceneChoices)
   const waveIndex =
     Number.isInteger(saved.waveIndex) &&
     saved.waveIndex! >= 0 &&
@@ -438,6 +442,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
     saved.roomId === 'vault-1' || isCombatRoom(saved.roomId)
       ? saved.roomId
       : null
+  const combat = isCombatRoom(roomId)
+    ? restoreBriarCombat(saved.combat, roomId)
+    : null
   // A combat room restores only with its fight; a Classic room only with its cards.
   const combatRoom = isCombatRoom(roomId) && combat !== null
   const inRoom = combatRoom || (!isCombatRoom(roomId) && cards.length > 0)
@@ -611,9 +618,12 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
   const darkBout = darkBriarDuelForRoom(progress.roomId) !== null
   const retreat = darkBout
     ? `${combat.state.enemy.name} wins this bout. The challenger waits for a rematch.`
-    : lastHeart
-      ? 'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
-      : `${combat.state.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`
+    : briarLossContinuation(
+        progress,
+        'combat',
+        lastHeart,
+        combat.state.enemy.name,
+      )
 
   return {
     ...progress,
@@ -623,11 +633,13 @@ export function recoverBriarCombatDefeat(progress: BriarSave): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: lastHeart ? 3 : progress.hearts - 1,
-    player: lastHeart && !darkBout ? BRIAR_START : progress.player,
+    player:
+      lastHeart && !darkBout && !houseOrigin ? BRIAR_START : progress.player,
     house,
-    status: houseOrigin
-      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
-      : retreat,
+    status:
+      darkBout && houseOrigin
+        ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
+        : retreat,
   }
 }
 
@@ -663,8 +675,7 @@ export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
             : [...progress.house.visited, 'HD-18' as const],
         }
       : progress.house
-  const retreat =
-    'The room overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.'
+  const retreat = briarLossContinuation(progress, 'chamber', true)
 
   return {
     ...progress,
@@ -674,11 +685,9 @@ export function recoverBriarRoomMissPenalty(progress: BriarSave): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: 3,
-    player: BRIAR_START,
+    player: houseOrigin ? progress.player : BRIAR_START,
     house,
-    status: houseOrigin
-      ? `${retreat} You recover in the House's quiet bedchamber without losing your discoveries.`
-      : retreat,
+    status: retreat,
   }
 }
 

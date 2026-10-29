@@ -148,6 +148,31 @@
                 : active.quest.closed
             }}
           </p>
+
+          <section
+            v-for="interlude in rareForActive"
+            :key="interlude.id"
+            class="rounded-lg border border-[#c8ae77] bg-[#332e25] p-4"
+            :aria-label="`Rare interlude: ${interlude.title}`"
+            data-testid="memory-rare-interlude"
+          >
+            <p
+              class="text-xs font-bold uppercase tracking-widest text-[#e8c98c]"
+            >
+              Rare convergence · Remembered across the road
+            </p>
+            <h4 class="mt-2 font-serif text-xl font-bold">
+              {{ interlude.title }}
+            </h4>
+            <p class="mt-2 text-base leading-relaxed sm:text-lg">
+              {{ interlude.premise }}
+            </p>
+            <p
+              class="mt-3 border-l-2 border-[#d9c694] pl-3 text-base leading-relaxed sm:text-lg"
+            >
+              {{ interlude.outcome }}
+            </p>
+          </section>
         </article>
       </div>
     </section>
@@ -185,6 +210,11 @@ const active = computed(
 const finished = computed(
   () =>
     world.briarQuests.filter((thread) => thread.state === 'complete').length,
+)
+const rareForActive = computed(() =>
+  world.briarRareEvents.filter(
+    (event) => event.questId === active.value?.quest.id,
+  ),
 )
 onMounted(async () => {
   await nextTick()

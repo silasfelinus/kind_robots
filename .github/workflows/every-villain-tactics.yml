@@ -1,0 +1,40 @@
+name: Every Villain Tactics
+
+on:
+  pull_request:
+    paths:
+      - 'utils/everyVillainTactics/**'
+      - 'stores/everyVillainTacticsStore.ts'
+      - 'pages/admin/every-villain-tactics.vue'
+      - 'content/channels/admin/every-villain-tactics.md'
+      - 'utils/playbookKit/games/everyVillainTactics.ts'
+      - 'utils/scripts/verifyEveryVillainTactics.test.ts'
+      - 'utils/scripts/verifyEveryVillainCombat.test.ts'
+      - '.github/workflows/every-villain-tactics.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/everyVillainTactics/**'
+      - 'stores/everyVillainTacticsStore.ts'
+      - 'utils/playbookKit/games/everyVillainTactics.ts'
+  workflow_dispatch:
+
+jobs:
+  training:
+    name: Canonical roster and seeded First Bell tactics
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify deterministic training and Kit compliance
+        run: |
+          npm run test:every-villain-tactics
+          npm run test:every-villain-combat

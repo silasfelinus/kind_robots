@@ -7,7 +7,16 @@ import {
   briarQuestProgress,
   validateBriarQuests,
 } from '../memoryDungeon/briarQuests'
-import { HOUSE_ROOMS } from '../memoryDungeon/house'
+import {
+  HOUSE_ROOMS,
+  newHouseProgress,
+  type HouseRoomId,
+} from '../memoryDungeon/house'
+import {
+  BRIAR_RARE_EVENTS,
+  earnedBriarRareEvents,
+  validateBriarRareEvents,
+} from '../memoryDungeon/briarRareEvents'
 import {
   houseEpilogueScores,
   HOUSE_EPILOGUE_LENSES,
@@ -129,7 +138,12 @@ for (const [key, choice, expected] of courierClosures) {
   courierEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   assert.equal(
@@ -178,7 +192,12 @@ for (const [key, choice, expected] of apologyClosures) {
   apologyEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   assert.equal(
@@ -234,7 +253,12 @@ for (const [scope, key, choice, expected] of patrolClosures) {
   patrolEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const house = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -294,7 +318,12 @@ for (const [scope, key, choice, expected] of manifestClosures) {
   manifestEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -330,6 +359,123 @@ assert.match(
   'The earliest authored manifest divergence determines the ending',
 )
 
+// Mosswick's two alternatives have different ethical costs. Reading the
+// future entry protects the player's promise; refusing the Index protects
+// their name. Neither produces the sworn, corroborated account he requested.
+const mosswick = BRIAR_QUESTS.find((q) => q.id === 'mosswicks-true-account')!
+const mosswickClosures = [
+  ['4,2', 'ledger', /hid the price and the buyer/],
+  ['7,4', 'refuse', /without the carbon copy/],
+] as const
+const mosswickEndings = new Set<string>()
+for (const [key, choice, expected] of mosswickClosures) {
+  const decisions = split(mosswick)
+  decisions.briar[key] = choice
+  const result = briarQuestProgress(mosswick, decisions.briar, decisions.house)
+  assert.equal(result.state, 'closed', `${key} ${choice} closes the account`)
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, mosswick.closed)
+  mosswickEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
+    ),
+  )
+  assert.equal(
+    briarQuestProgress(mosswick, restored.sceneChoices, decisions.house).quest
+      .closed,
+    result.quest.closed,
+    'The Mosswick outcome survives a saved scene decision',
+  )
+}
+assert.equal(mosswickEndings.size, 2, 'two distinct Mosswick resolutions')
+const forgedMosswick = split(mosswick)
+forgedMosswick.briar['7,4'] = 'forged'
+assert.equal(
+  briarQuestProgress(mosswick, forgedMosswick.briar, forgedMosswick.house)
+    .state,
+  'active',
+  'A fabricated Index choice cannot manufacture a Mosswick closure',
+)
+const twoMosswickClosures = split(mosswick)
+twoMosswickClosures.briar['4,2'] = 'ledger'
+twoMosswickClosures.briar['7,4'] = 'refuse'
+assert.match(
+  briarQuestProgress(
+    mosswick,
+    twoMosswickClosures.briar,
+    twoMosswickClosures.house,
+  ).quest.closed,
+  /hid the price and the buyer/,
+  'The earliest authored Mosswick divergence determines the ending',
+)
+
+// Trusting Scylla's paperwork, helping Char repair a boot and choosing rest
+// all care for the twins differently. None invents the private confession
+// earned only by hearing both sisters on the landing.
+const twins = BRIAR_QUESTS.find((q) => q.id === 'different-waters-same-face')!
+const twinClosures = [
+  ['HD-10', 'manifest', /supplies arrive intact/],
+  ['HD-11', 'help', /Help was welcome/],
+  ['HD-30', 'rest', /private bargain remains theirs/],
+] as const
+const twinEndings = new Set<string>()
+for (const [key, choice, expected] of twinClosures) {
+  const decisions = split(twins)
+  decisions.house[key] = choice
+  const result = briarQuestProgress(twins, decisions.briar, decisions.house)
+  assert.equal(
+    result.state,
+    'closed',
+    `${key} ${choice} closes the twins' thread`,
+  )
+  assert.match(result.quest.closed, expected)
+  assert.notEqual(result.quest.closed, twins.closed)
+  twinEndings.add(result.quest.closed)
+  const restored = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
+    ),
+  )
+  const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
+    string,
+    string
+  >
+  assert.equal(
+    briarQuestProgress(twins, restored.sceneChoices, restoredHouse).quest
+      .closed,
+    result.quest.closed,
+    'The chosen twin outcome survives serialized decisions',
+  )
+}
+assert.equal(twinEndings.size, 3, 'three distinct twin resolutions')
+const forgedTwins = split(twins)
+forgedTwins.house['HD-11'] = 'forged'
+assert.equal(
+  briarQuestProgress(twins, forgedTwins.briar, forgedTwins.house).state,
+  'active',
+  "A forged wardrobe decision cannot close the twins' thread",
+)
+const twoTwinClosures = split(twins)
+twoTwinClosures.house['HD-10'] = 'manifest'
+twoTwinClosures.house['HD-30'] = 'rest'
+assert.match(
+  briarQuestProgress(twins, twoTwinClosures.briar, twoTwinClosures.house).quest
+    .closed,
+  /supplies arrive intact/,
+  'The earliest authored twin divergence determines the ending',
+)
+
 // Respecting the orchard's consent, sharing a remembered taste, and naming an
 // unfed guest are worthwhile acts, but none supplies the workers' missing meal.
 // The Threads log must report each tradeoff rather than invent a stolen harvest.
@@ -354,7 +500,12 @@ for (const [scope, key, choice, expected] of orchardClosures) {
   orchardEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -418,7 +569,12 @@ for (const [scope, key, choice, expected] of lintelClosures) {
   lintelEndings.add(result.quest.closed)
   const restored = restoreBriarSave(
     JSON.parse(
-      JSON.stringify({ ...newBriarSave(), sceneChoices: decisions.briar }),
+      JSON.stringify({
+        ...newBriarSave(),
+        revealed: Object.keys(decisions.briar),
+        visited: Object.keys(decisions.briar),
+        sceneChoices: decisions.briar,
+      }),
     ),
   )
   const restoredHouse = JSON.parse(JSON.stringify(decisions.house)) as Record<
@@ -477,12 +633,172 @@ const save = restoreBriarSave(
   JSON.parse(
     JSON.stringify({
       ...newBriarSave(),
+      revealed: Object.keys(all.briar),
+      visited: Object.keys(all.briar),
       sceneChoices: all.briar,
     }),
   ),
 )
 assert.deepEqual(save.sceneChoices, all.briar)
 assert.ok(!('quests' in save), 'threads add no save field')
+
+// Six cross-thread rare interludes are genuinely earned: four decisions
+// from different scenes/rooms, two mutually exclusive authored consequences.
+// No invented reward, hidden save field, or unvisited witness can trigger one.
+assert.deepEqual(validateBriarRareEvents(), [])
+assert.equal(BRIAR_RARE_EVENTS.length, 6)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.id)).size, 6)
+assert.equal(new Set(BRIAR_RARE_EVENTS.map((event) => event.questId)).size, 6)
+const rareCases = [
+  {
+    id: 'the-fourth-column',
+    briar: { '6,1': 'mark' },
+    house: { 'HD-24': 'mark', 'HD-05': 'open' },
+    branchScope: 'briar',
+    branchKey: '4,3',
+    choices: ['plan', 'load'],
+  },
+  {
+    id: 'the-second-signature',
+    briar: { '4,2': 'promise', '7,4': 'register' },
+    house: { 'HD-17': 'read' },
+    branchScope: 'house',
+    branchKey: 'HD-25',
+    choices: ['compare', 'recount'],
+  },
+  {
+    id: 'a-letter-written-back',
+    briar: { '5,4': 'errand', '6,4': 'carry' },
+    house: { 'HD-17': 'read' },
+    branchScope: 'briar',
+    branchKey: '6,3',
+    choices: ['remember', 'protect'],
+  },
+  {
+    id: 'the-voice-that-came-home',
+    briar: { '2,4': 'lend', '3,5': 'listen' },
+    house: { 'HD-07': 'speak' },
+    branchScope: 'briar',
+    branchKey: '6,4',
+    choices: ['carry', 'read'],
+  },
+  {
+    id: 'the-road-without-an-owner',
+    briar: { '3,2': 'ask', '2,2': 'observe' },
+    house: { 'HD-12': 'map' },
+    branchScope: 'house',
+    branchKey: 'HD-26',
+    choices: ['testify', 'shelter'],
+  },
+  {
+    id: 'two-crowns-one-promise',
+    briar: { '4,4': 'escort' },
+    house: { 'HD-10': 'improvise', 'HD-11': 'respect' },
+    branchScope: 'house',
+    branchKey: 'HD-30',
+    choices: ['rest', 'talk'],
+  },
+] as const
+// The rare-event save fixtures must include the actual passages to each
+// House witness; merely naming a distant room cannot earn its testimony.
+const rareHouseRoutes = new Map<HouseRoomId, HouseRoomId[]>([
+  ['HD-01', ['HD-01']],
+])
+const rareHouseQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < rareHouseQueue.length; i++) {
+  const room = rareHouseQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (rareHouseRoutes.has(next)) continue
+    rareHouseRoutes.set(next, [...rareHouseRoutes.get(room)!, next])
+    rareHouseQueue.push(next)
+  }
+}
+const visitedRareHouseRooms = (rooms: string[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>(['HD-01'])
+  for (const room of rooms) {
+    const route = rareHouseRoutes.get(room as HouseRoomId)
+    assert.ok(route, `Authored House path to ${room} exists`)
+    for (const step of route) visited.add(step)
+  }
+  return [...visited]
+}
+assert.deepEqual(earnedBriarRareEvents({}, {}), [])
+for (const event of rareCases) {
+  const endings = new Set<string>()
+  for (const choice of event.choices) {
+    const briar: Record<string, string> = { ...event.briar }
+    const house: Record<string, string> = { ...event.house }
+    ;(event.branchScope === 'briar' ? briar : house)[event.branchKey] = choice
+    const earned = earnedBriarRareEvents(briar, house)
+    assert.equal(earned.length, 1, `${event.id} ${choice} is earned`)
+    assert.equal(earned[0]?.id, event.id)
+    assert.ok(earned[0]!.outcome.length > 180)
+    endings.add(earned[0]!.outcome)
+    const restored = restoreBriarSave(
+      JSON.parse(
+        JSON.stringify({
+          ...newBriarSave(),
+          revealed: Object.keys(briar),
+          visited: Object.keys(briar),
+          sceneChoices: briar,
+          house: {
+            ...newHouseProgress(),
+            visited: visitedRareHouseRooms(Object.keys(house)),
+            decisions: house,
+          },
+        }),
+      ),
+    )
+    assert.deepEqual(
+      earnedBriarRareEvents(
+        restored.sceneChoices,
+        restored.house?.decisions ?? {},
+      ),
+      earned,
+      `${event.id} survives a save/reload without new state`,
+    )
+    const missingBranchBriar = { ...briar }
+    const missingBranchHouse = { ...house }
+    Reflect.deleteProperty(
+      event.branchScope === 'briar' ? missingBranchBriar : missingBranchHouse,
+      event.branchKey,
+    )
+    assert.equal(
+      earnedBriarRareEvents(missingBranchBriar, missingBranchHouse).length,
+      0,
+      `${event.id} requires a recorded final decision`,
+    )
+    for (const key of Object.keys(event.briar)) {
+      const incomplete = { ...briar }
+      Reflect.deleteProperty(incomplete, key)
+      assert.equal(
+        earnedBriarRareEvents(incomplete, house).length,
+        0,
+        `${event.id} requires Briar ${key}`,
+      )
+    }
+    for (const key of Object.keys(event.house)) {
+      const incomplete = { ...house }
+      Reflect.deleteProperty(incomplete, key)
+      assert.equal(
+        earnedBriarRareEvents(briar, incomplete).length,
+        0,
+        `${event.id} requires House ${key}`,
+      )
+    }
+    const invalidBriar = { ...briar }
+    const invalidHouse = { ...house }
+    ;(event.branchScope === 'briar' ? invalidBriar : invalidHouse)[
+      event.branchKey
+    ] = 'forged'
+    assert.equal(
+      earnedBriarRareEvents(invalidBriar, invalidHouse).length,
+      0,
+      `${event.id} rejects forged branch choices`,
+    )
+  }
+  assert.equal(endings.size, 2, `${event.id} has two distinct outcomes`)
+}
 
 // The Forge counts the eight threads as quests.
 const book = buildMemoryDungeonPlaybook()
@@ -507,10 +823,12 @@ assert.match(
 const log = readFileSync('components/memory-dungeon/quest-log.vue', 'utf8')
 assert.match(log, /data-testid="memory-quest-log"/)
 assert.match(log, /world\.briarQuests/)
+assert.match(log, /data-testid="memory-rare-interlude"/)
 assert.doesNotMatch(log, /\$fetch|localStorage/)
 const store = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(store, /briarQuestLog\(state\.value\.sceneChoices/)
+assert.match(store, /earnedBriarRareEvents\(/)
 
 console.log(
-  'Memory Briar quests: 8 side quests over real Briar and House choices, each finishable and closable, all eight in one run, epilogue weight and saves verified',
+  'Memory Briar quests: 8 side quests, 6 earned rare interludes with 12 authored outcomes, epilogue weight and save restoration verified',
 )

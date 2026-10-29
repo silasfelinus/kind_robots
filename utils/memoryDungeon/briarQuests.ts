@@ -214,18 +214,28 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: 'HD-10',
         advance: ['improvise'],
         text: 'Let Char improvise while Scylla manages the supplies.',
+        closedOutcomes: {
+          manifest:
+            'You trusted Scylla’s careful manifest and found the service route exactly where Oren had marked it. The supplies arrive intact, but Char never gets to show how her improvisation might have helped the stranded maid. Scylla takes your confidence as agreement that her sister needs managing; the sisters keep that disagreement between them.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-11',
         advance: ['respect'],
         text: 'Ask Char how her protective charm was made.',
+        closedOutcomes: {
+          help: 'You repaired Char’s buckled boot with her enormous needle. She laughs, walks more comfortably and trusts you with the next practical problem. But the protective stitches in her charm remain unexplained, and Scylla never hears how much of their journey Char prepared for alone. Help was welcome; it was not the conversation the twins needed.',
+        },
       },
       {
         scope: 'house',
         key: 'HD-30',
         advance: ['talk'],
         text: 'Hear what each companion thinks the House owes.',
+        closedOutcomes: {
+          rest: 'You chose to rest and redistribute the landing’s supplies before anyone grew too tired to travel safely. Scylla pours tea, Char mends the stranger’s ward, and neither is pressed to confess what she sacrificed to come here. The party leaves stronger, but the sisters’ private bargain remains theirs, unresolved rather than broken.',
+        },
       },
     ],
     complete:
@@ -247,12 +257,20 @@ export const BRIAR_QUESTS: readonly BriarQuest[] = [
         key: '4,2',
         advance: ['promise'],
         text: 'Promise Mosswick a true account.',
+        closedOutcomes: {
+          ledger:
+            'You studied the blank entry instead of promising Mosswick a return. He let you see tomorrow’s date but hid the price and the buyer. You know someone is trading on your future; Mosswick has no sworn account to compare against the sale, and the empty name remains his bargaining chip.',
+        },
       },
       {
         scope: 'briar',
         key: '7,4',
         advance: ['register'],
         text: 'Give the Index your name, and take the carbon copy.',
+        closedOutcomes: {
+          refuse:
+            'You refused the Index your name, protecting it from a record whose keeper will not name its owner. Mosswick approves of the caution, but without the carbon copy neither of you can prove which earlier entry bears your silhouette. His ledger remains open to dispute instead of becoming an official accusation.',
+        },
       },
       {
         scope: 'house',
@@ -503,10 +521,10 @@ export function validateBriarQuests(): string[] {
         issues.push(`${q.id} step ${step.key} advances on a missing choice`)
       const alternatives = ids.filter((id) => !step.advance.includes(id))
       if (alternatives.length) closable = true
+      for (const id of alternatives)
+        if (!step.closedOutcomes?.[id])
+          issues.push(`${q.id} step ${step.key} lacks ${id} resolution`)
       if (step.closedOutcomes) {
-        for (const id of alternatives)
-          if (!step.closedOutcomes[id])
-            issues.push(`${q.id} step ${step.key} lacks ${id} resolution`)
         for (const [id, ending] of Object.entries(step.closedOutcomes)) {
           if (!alternatives.includes(id))
             issues.push(`${q.id} step ${step.key} has invalid ${id} resolution`)

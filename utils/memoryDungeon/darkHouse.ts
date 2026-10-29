@@ -1,6 +1,8 @@
 import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
+  isHouseRoomId,
+  reachableHouseVisits,
   type HouseRoomId,
   type HouseKind,
 } from './house'
@@ -794,25 +796,44 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const fresh = newDarkHouseProgress()
   if (!value || typeof value !== 'object') return fresh
   const saved = value as Partial<DarkHouseProgress> & { version?: number }
+  const visited = Array.isArray(saved.visited)
+    ? saved.visited.filter((id): id is HouseRoomId => isHouseRoomId(id))
+    : []
+  const savedCurrent = isHouseRoomId(saved.current)
+    ? saved.current
+    : HOUSE_ENTRY
+  // Legacy saves may omit their current chamber from visited, but that
+  // chamber must still connect to the recorded route from the entry.
+  const hearthChoice =
+    saved.decisions && typeof saved.decisions === 'object'
+      ? saved.decisions['HD-35']
+      : null
+  const exitEarned = hearthChoice === 'attend' || hearthChoice === 'refuse'
+  const { current, visited: visitedRooms } = reachableHouseVisits(
+    visited,
+    savedCurrent,
+    {},
+    (from, to) => to !== 'HD-36' || (from === 'HD-35' && exitEarned),
+  )
+  const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}
   if (saved.decisions && typeof saved.decisions === 'object')
     for (const [room, id] of Object.entries(saved.decisions))
-      if (DARK_HOUSE_ROOMS[room]?.choices.some((c) => c.id === id))
-        decisions[room] = id
-  const visited = Array.isArray(saved.visited)
-    ? saved.visited.filter(
-        (id): id is HouseRoomId =>
-          typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id]),
+      if (
+        visitedSet.has(room) &&
+        DARK_HOUSE_ROOMS[room]?.choices.some((choice) => choice.id === id)
       )
-    : []
-  const current =
-    typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current]
-      ? (saved.current as HouseRoomId)
-      : HOUSE_ENTRY
+        decisions[room] = id
   const trials: Record<string, DarkHouseTrialProgress> = {}
   if (saved.trials && typeof saved.trials === 'object')
     for (const [room, raw] of Object.entries(saved.trials)) {
-      if (!DARK_HOUSE_TRIALS[room] || !raw || typeof raw !== 'object') continue
+      if (
+        !visitedSet.has(room) ||
+        !DARK_HOUSE_TRIALS[room] ||
+        !raw ||
+        typeof raw !== 'object'
+      )
+        continue
       const input = raw as DarkHouseTrialProgress
       const faces = darkHouseTrialFaces(room)
       const ids = new Set(faces.map((face) => face.id))
@@ -861,7 +882,8 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   if (saved.puzzles && typeof saved.puzzles === 'object')
     for (const [room, raw] of Object.entries(saved.puzzles)) {
       const puzzle = DARK_HOUSE_PUZZLES[room]
-      if (!puzzle || !raw || typeof raw !== 'object') continue
+      if (!visitedSet.has(room) || !puzzle || !raw || typeof raw !== 'object')
+        continue
       const input = raw as DarkHousePuzzleProgress
       puzzles[room] = {
         solved: input.solved === true,
@@ -885,7 +907,7 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
     version: 2,
     active: saved.active === true,
     current,
-    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
+    visited: visitedRooms,
     decisions,
     trials,
     puzzles,

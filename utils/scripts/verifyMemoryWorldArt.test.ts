@@ -23,6 +23,7 @@ import {
   HOUSE_ROOMS,
   newHouseProgress,
   restoreHouseProgress,
+  type HouseRoomId,
 } from '../memoryDungeon/house'
 import { BRIAR_REVEAL_WAVES } from '../memoryDungeonWaves'
 import {
@@ -88,10 +89,27 @@ for (const room of Object.values(HOUSE_ROOMS)) {
 }
 assert.equal(illustratedHouseOutcomes, 76)
 assert.equal(houseIllustrationPath('HD-99'), null)
+// A reloaded Hearth painting requires the actual authored route to HD-35.
+const houseArtRoutes = new Map<HouseRoomId, HouseRoomId[]>([
+  ['HD-01', ['HD-01']],
+])
+const houseArtQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < houseArtQueue.length; i++) {
+  const room = houseArtQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (houseArtRoutes.has(next)) continue
+    houseArtRoutes.set(next, [...houseArtRoutes.get(room)!, next])
+    houseArtQueue.push(next)
+  }
+}
+const hearthRoute = houseArtRoutes.get('HD-35')!
+assert.ok(hearthRoute.length > 1)
+
 for (const ending of ['release', 'renew', 'break'] as const) {
   const saved = newHouseProgress()
   saved.current = 'HD-35'
-  saved.visited.push('HD-35')
+  saved.visited = [...hearthRoute]
+  saved.wardenPassed = true
   saved.decisions['HD-35'] = ending
   saved.ending = ending
   const restored = restoreHouseProgress(JSON.parse(JSON.stringify(saved)))

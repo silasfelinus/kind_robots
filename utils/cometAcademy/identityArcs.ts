@@ -28,6 +28,8 @@ export type IdentityArc = {
   quests: { protagonist: string; antagonist: string; partner: string }
 }
 
+/** The 48 origin-affinity people keep one codename in every role. Role-specific stats,
+ * motives and scenes remain different, but no role creates a new named character. */
 export const IDENTITY_ARCS = catalog.identityCatalog as IdentityArc[]
 const bySignature = new Map(IDENTITY_ARCS.map((arc) => [arc.signature, arc]))
 

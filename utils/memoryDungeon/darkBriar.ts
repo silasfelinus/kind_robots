@@ -663,11 +663,16 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
   ]
   const allMatched =
     mapCards.length > 0 && mapCards.every((card) => card.matched)
+  const visited = validKeys(saved.visited).filter((key) =>
+    revealed.includes(key),
+  )
+  if (revealed.includes(BRIAR_START) && !visited.includes(BRIAR_START))
+    visited.unshift(BRIAR_START)
   const sceneChoices: Record<string, string> = {}
   if (saved.sceneChoices && typeof saved.sceneChoices === 'object') {
     for (const [key, choice] of Object.entries(saved.sceneChoices)) {
       if (
-        revealed.includes(key) &&
+        visited.includes(key) &&
         (DARK_BRIAR_SCENES[key]?.choices.some(
           (option) => option.id === choice,
         ) ||
@@ -677,11 +682,6 @@ export function restoreDarkBriarProgress(input: unknown): DarkBriarProgress {
       }
     }
   }
-  const visited = validKeys(saved.visited).filter((key) =>
-    revealed.includes(key),
-  )
-  if (revealed.includes(BRIAR_START) && !visited.includes(BRIAR_START))
-    visited.unshift(BRIAR_START)
   const player =
     typeof saved.player === 'string' && visited.includes(saved.player)
       ? saved.player

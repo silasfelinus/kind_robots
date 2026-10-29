@@ -23,7 +23,7 @@ export const SPLASH_ART_KEY = 'front/splash'
 export const studentArtKey = (id: string) => `students/${id}`
 /** A roster person's beat key in Playbook Studio. */
 export const identityKey = (signature: string) => `identity:${signature}`
-/** One of a roster person's three forms: student/sidekick, hero or villain. */
+/** Three dramatic splash contexts for one permanent named person, never three identities. */
 export const identityArtKey = (
   signature: string,
   form: 'student' | 'hero' | 'villain',

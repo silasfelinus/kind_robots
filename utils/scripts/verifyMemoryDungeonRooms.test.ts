@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import {
   WEAPONS,
   cellName,
+  createCombat,
   describeEvents,
   includesCell,
   legalMasks,
@@ -186,6 +187,158 @@ assert.equal(
   'a board whose pairs no longer come in twos is rejected',
 )
 assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number }) => ({
+      ...card,
+      pair: card.pair + 8,
+    })),
+  }),
+  null,
+  'renumbering every pair outside the seeded board range cannot mint a new board',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map(() => ({ pair: null, matched: false })),
+  }),
+  null,
+  'an all-obstacle board cannot skip a combat encounter',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number; matched: boolean }) => ({
+      ...card,
+      pair: card.pair === 0 ? 1 : card.pair === 1 ? 0 : card.pair,
+    })),
+  }),
+  null,
+  'relabeling complete pairs cannot move the hidden cards away from their seeded positions',
+)
+assert.equal(
+  restoreCombat({ ...json, seed: json.seed + 1 }),
+  null,
+  'changing the seed without dealing a new board cannot manipulate pair locations',
+)
+assert.equal(
+  restoreCombat({
+    ...fresh.state,
+    turn: 1,
+    cards: fresh.state.cards.map((card) => ({
+      ...card,
+      matched: card.pair !== null,
+    })),
+    enemy: { ...fresh.state.enemy, hp: 0 },
+    outcome: 'victory',
+  }),
+  null,
+  'one action cannot resolve all eight pairs, even with a forged victory',
+)
+const redealStart = createCombat({
+  seed: 91,
+  rows: 2,
+  cols: 2,
+  enemy: { name: 'Patient Guardian', hp: 50, attack: 0, every: 20 },
+})
+const pairsToScout = [0, 1].map((pair) =>
+  redealStart.cards.flatMap((card, i) =>
+    card.pair === pair
+      ? [{ row: Math.floor(i / redealStart.cols), col: i % redealStart.cols }]
+      : [],
+  ),
+)
+let redealt = redealStart
+for (const [first, second] of pairsToScout)
+  redealt = scout(redealt, first!, second!)
+assert.ok(redealt.log.some((event) => event.type === 'redeal'))
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(redealt))),
+  { ...redealt, log: [] },
+  'a genuine seed-derived redeal restores even when its layout differs from the opening board',
+)
+for (let seed = 1; seed <= 32; seed++) {
+  const initial = createCombat({
+    seed,
+    rows: 4,
+    cols: 4,
+    enemy: { name: 'Patient Guardian', hp: 100, attack: 0, every: 20 },
+  })
+  let current = initial
+  for (let pair = 0; pair < 8; pair++) {
+    const positions = initial.cards.flatMap((card, i) =>
+      card.pair === pair
+        ? [{ row: Math.floor(i / initial.cols), col: i % initial.cols }]
+        : [],
+    )
+    current = scout(current, positions[0]!, positions[1]!)
+    assert.deepEqual(
+      restoreCombat(JSON.parse(JSON.stringify(current))),
+      { ...current, log: [] },
+      `seed ${seed}, turn ${pair + 1}: a real played board remains restorable`,
+    )
+  }
+  assert.ok(
+    current.log.some((event) => event.type === 'redeal'),
+    `seed ${seed}: clearing the board genuinely redeals it`,
+  )
+}
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { matched: boolean }, i: number) =>
+      i === 0 ? { ...card, matched: !card.matched } : card,
+    ),
+  }),
+  null,
+  'one face of a pair cannot be marked matched on its own',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'victory' }),
+  null,
+  'victory requires the enemy to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat' }),
+  null,
+  'defeat requires the player to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, enemy: { ...json.enemy, hp: 0 } }),
+  null,
+  'an enemy at zero health cannot remain in a fighting checkpoint',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  'a completed fight with consistent health remains restorable',
+)
+assert.ok(
+  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
+  'a genuine defeat remains restorable',
+)
+const oddBoard = createCombat({
+  seed: 17,
+  rows: 5,
+  cols: 5,
+  enemy: { name: 'Puzzle Sentinel', hp: 8, attack: 1, every: 3 },
+})
+assert.ok(restoreCombat(oddBoard), 'odd boards retain their one legal obstacle')
+assert.equal(
+  restoreCombat({
+    ...oddBoard,
+    cards: oddBoard.cards.map((card) =>
+      card.pair === null ? { ...card, matched: true } : card,
+    ),
+  }),
+  null,
+  'the odd-board obstacle can never count as a matched pair',
+)
+
+assert.equal(
   restoreBriarCombat({ state: json, images: images.slice(0, 3) }),
   null,
   'too few images',
@@ -210,6 +363,61 @@ assert.equal(
 )
 assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
+// Every authored room restores its own enemy and original 4x4 board, never
+// another room's enemy or inflated stats from a modified checkpoint.
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
+  const original = startCombatRoom(roomId, 42, images)
+  const enemy = original.state.enemy
+  assert.deepEqual(
+    restoreBriarCombat(original, roomId),
+    original,
+    `${roomId}: its own untouched fight restores`,
+  )
+  for (const [label, forged] of [
+    ['name', { name: 'Invented Guardian' }],
+    ['health pool', { maxHp: enemy.maxHp + 1 }],
+    ['damage', { attack: enemy.attack + 1 }],
+    ['attack interval', { every: enemy.every + 1 }],
+    ['telegraph delay', { beatsLeft: enemy.every + 1 }],
+    ['zero telegraph', { beatsLeft: 0 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        {
+          ...original,
+          state: { ...original.state, enemy: { ...enemy, ...forged } },
+        },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  for (const [label, forged] of [
+    ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
+    ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
+    ['rows', { rows: 2, cols: 8 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        { ...original, state: { ...original.state, ...forged } },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+}
+assert.equal(
+  restoreBriarSave({
+    ...save,
+    roomId: 'collector',
+  }).room,
+  'map',
+  'a valid Warden board cannot impersonate the House Collector',
+)
 // A House guardian duel saved mid-fight restores to the same guardian, and a
 // duel saved before the guardians had boards of their own still restores.
 for (const roomId of ['collector', 'sprite'] as const) {
@@ -218,6 +426,7 @@ for (const roomId of ['collector', 'sprite'] as const) {
       JSON.stringify({
         ...save,
         roomId,
+        combat: startCombatRoom(roomId, 42, images),
         house: { ...newBriarSave().house, current: 'HD-22' },
       }),
     ),

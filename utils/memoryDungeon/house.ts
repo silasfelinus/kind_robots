@@ -20,6 +20,7 @@ export type HouseKind =
   | 'climax'
   | 'exit'
 export type HouseEnding = 'release' | 'renew' | 'break'
+export type HouseEndingLens = 'community' | 'bonds' | 'obligation' | 'honesty'
 export type HouseCombatOrigin = 'HD-09' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
 export interface HouseChoice {
   id: string
@@ -44,6 +45,7 @@ export interface HouseProgress {
   visited: HouseRoomId[]
   decisions: Record<string, string>
   ending: HouseEnding | null
+  endingLens: HouseEndingLens | null
   wardenPassed: boolean
   combatOrigin: HouseCombatOrigin | null
   chimeClaimed: boolean
@@ -994,8 +996,50 @@ export const HOUSE_EXIT_POINTS: readonly HouseRoomId[] = [
   'HD-36',
 ]
 
+/** Room identifiers come from untrusted save data. Inherited object keys are
+ * not authored chambers, even when a normal property lookup is truthy. */
+export function isHouseRoomId(value: unknown): value is HouseRoomId {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(HOUSE_ROOMS, value)
+  )
+}
+
+/** A saved room list is not a travel log. Retain only chambers connected to
+ * the entry through authored passages or earned recovery transfers. */
+export function reachableHouseVisits(
+  visited: readonly HouseRoomId[],
+  current: HouseRoomId,
+  extraExits: Readonly<Record<string, readonly HouseRoomId[]>> = {},
+  canTraverse: (from: HouseRoomId, to: HouseRoomId) => boolean = () => true,
+): { visited: HouseRoomId[]; current: HouseRoomId } {
+  const claimed = new Set<HouseRoomId>([HOUSE_ENTRY, ...visited, current])
+  const reached = new Set<HouseRoomId>([HOUSE_ENTRY])
+  const queue: HouseRoomId[] = [HOUSE_ENTRY]
+  for (let i = 0; i < queue.length; i++) {
+    const room = queue[i]!
+    for (const next of [
+      ...HOUSE_ROOMS[room]!.exits,
+      ...(extraExits[room] ?? []),
+    ]) {
+      if (!claimed.has(next) || reached.has(next) || !canTraverse(room, next))
+        continue
+      reached.add(next)
+      queue.push(next)
+    }
+  }
+  return {
+    current: reached.has(current) ? current : HOUSE_ENTRY,
+    visited: [
+      ...new Set(
+        [HOUSE_ENTRY, ...visited, current].filter((id) => reached.has(id)),
+      ),
+    ],
+  }
+}
+
 export function houseRoom(id: string): HouseRoom | null {
-  return HOUSE_ROOMS[id] ?? null
+  return isHouseRoomId(id) ? HOUSE_ROOMS[id]! : null
 }
 
 export function houseExits(
@@ -1043,6 +1087,7 @@ export function newHouseProgress(): HouseProgress {
     visited: [HOUSE_ENTRY],
     decisions: {},
     ending: null,
+    endingLens: null,
     wardenPassed: false,
     combatOrigin: null,
     chimeClaimed: false,
@@ -1056,41 +1101,79 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const visited = Array.isArray(v.visited)
     ? [
         ...new Set(
-          v.visited.filter(
-            (id): id is HouseRoomId =>
-              typeof id === 'string' && Boolean(HOUSE_ROOMS[id]),
-          ),
+          v.visited.filter((id): id is HouseRoomId => isHouseRoomId(id)),
         ),
       ]
     : []
-  const current =
-    typeof v.current === 'string' && HOUSE_ROOMS[v.current]
-      ? v.current
-      : HOUSE_ENTRY
+  const savedCurrent = isHouseRoomId(v.current) ? v.current : HOUSE_ENTRY
+  const savedDecisions =
+    v.decisions && typeof v.decisions === 'object' ? v.decisions : {}
+  const shortcuts: Record<string, readonly HouseRoomId[]> = {}
+  if (savedDecisions['HD-10'] === 'manifest') shortcuts['HD-10'] = ['HD-25']
+  if (savedDecisions['HD-26'] === 'testify') shortcuts['HD-26'] = ['HD-34']
+  // Defeat recovery intentionally moves a House combatant to the quiet
+  // bedchamber without traversing every intervening passage. The combat
+  // origin remains in visited even after its active flag is cleared.
+  if (visited.includes('HD-18') || savedCurrent === 'HD-18')
+    for (const origin of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32'] as const)
+      if (visited.includes(origin))
+        shortcuts[origin] = [...(shortcuts[origin] ?? []), 'HD-18']
+  // A valid room list cannot skip the Hearth's actual ending choice.
+  // Older saves may carry the earned ending without its mirrored decision.
+  const exitEarned =
+    (v.ending === 'release' || v.ending === 'renew' || v.ending === 'break') &&
+    (savedDecisions['HD-35'] === undefined ||
+      savedDecisions['HD-35'] === v.ending)
+  const { current, visited: visitedRooms } = reachableHouseVisits(
+    visited,
+    savedCurrent,
+    shortcuts,
+    (from, to) =>
+      (to !== 'HD-33' || (from === 'HD-32' && v.wardenPassed === true)) &&
+      (to !== 'HD-36' || (from === 'HD-35' && exitEarned)),
+  )
+  const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}
   if (v.decisions && typeof v.decisions === 'object')
     for (const [key, choice] of Object.entries(v.decisions))
-      if (HOUSE_ROOMS[key]?.choices.some((item) => item.id === choice))
+      if (
+        visitedSet.has(key) &&
+        HOUSE_ROOMS[key]?.choices.some((item) => item.id === choice)
+      )
         decisions[key] = choice
-  return {
-    ...initial,
-    current,
-    visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
-    decisions,
-    ending:
-      v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
-        ? v.ending
-        : null,
-    wardenPassed: v.wardenPassed === true,
-    combatOrigin:
-      v.combatOrigin === 'HD-09' ||
+  const ending =
+    visitedSet.has('HD-35') &&
+    (v.ending === 'release' || v.ending === 'renew' || v.ending === 'break') &&
+    (!decisions['HD-35'] || decisions['HD-35'] === v.ending)
+      ? v.ending
+      : null
+  const combatOrigin =
+    (v.combatOrigin === 'HD-09' ||
       v.combatOrigin === 'HD-19' ||
       v.combatOrigin === 'HD-22' ||
       v.combatOrigin === 'HD-28' ||
-      v.combatOrigin === 'HD-32'
-        ? v.combatOrigin
+      v.combatOrigin === 'HD-32') &&
+    visitedSet.has(v.combatOrigin)
+      ? v.combatOrigin
+      : null
+  return {
+    ...initial,
+    current,
+    visited: visitedRooms,
+    decisions,
+    ending,
+    endingLens:
+      ending &&
+      (v.endingLens === 'community' ||
+        v.endingLens === 'bonds' ||
+        v.endingLens === 'obligation' ||
+        v.endingLens === 'honesty')
+        ? v.endingLens
         : null,
-    chimeClaimed: v.chimeClaimed === true,
+    wardenPassed: visitedSet.has('HD-32') && v.wardenPassed === true,
+    combatOrigin,
+    chimeClaimed:
+      Boolean(ending) && visitedSet.has('HD-36') && v.chimeClaimed === true,
   }
 }
 

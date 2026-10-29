@@ -582,6 +582,21 @@ export function describeEvents(events: CombatEvent[]): string {
   return parts.join(' ')
 }
 
+function hasEarnedSeededBoard(
+  cards: readonly CombatCard[],
+  seed: number,
+  rows: number,
+  cols: number,
+  turn: number,
+): boolean {
+  for (let dealTurn = 0; dealTurn <= turn; dealTurn++) {
+    const dealSeed = dealTurn === 0 ? seed : seed + dealTurn * 7919
+    const dealt = createBoard(dealSeed, rows, cols)
+    if (cards.every((card, i) => card.pair === dealt[i]?.pair)) return true
+  }
+  return false
+}
+
 /**
  * A saved fight, validated: anything malformed returns null, so a damaged
  * save drops the fight (the player is back on the map) instead of crashing.
@@ -596,14 +611,33 @@ export function restoreCombat(input: unknown): CombatState | null {
   const rows = s.rows!
   const cols = s.cols!
   if (!Array.isArray(s.cards) || s.cards.length !== rows * cols) return null
-  const cards = s.cards.map((c) => ({
-    pair: c && int(c.pair, 0, 63) ? (c.pair as number) : null,
-    matched: c?.matched === true,
-  }))
-  const counts = new Map<number, number>()
-  for (const c of cards)
-    if (c.pair !== null) counts.set(c.pair, (counts.get(c.pair) ?? 0) + 1)
-  if ([...counts.values()].some((n) => n !== 2)) return null
+  const pairCount = Math.floor((rows * cols) / 2)
+  const counts = new Map<number, { count: number; matched: boolean }>()
+  const cards: CombatCard[] = []
+  let obstacles = 0
+  for (const card of s.cards) {
+    if (!card || typeof card.matched !== 'boolean') return null
+    if (card.pair === null) {
+      if (card.matched) return null
+      obstacles++
+      cards.push({ pair: null, matched: false })
+      continue
+    }
+    if (!int(card.pair, 0, pairCount - 1)) return null
+    const prior = counts.get(card.pair)
+    if (prior && prior.matched !== card.matched) return null
+    counts.set(card.pair, {
+      count: (prior?.count ?? 0) + 1,
+      matched: card.matched,
+    })
+    cards.push({ pair: card.pair, matched: card.matched })
+  }
+  if (
+    obstacles !== (rows * cols) % 2 ||
+    counts.size !== pairCount ||
+    [...counts.values()].some(({ count }) => count !== 2)
+  )
+    return null
   const e = s.enemy
   if (
     !e ||
@@ -623,13 +657,29 @@ export function restoreCombat(input: unknown): CombatState | null {
     !int(s.seed, -(2 ** 31), 2 ** 32)
   )
     return null
+  const matchedPairs = [...counts.values()].filter(
+    ({ matched }) => matched,
+  ).length
+  if (
+    matchedPairs > s.turn! * PAIRS_PER_STRIKE ||
+    !hasEarnedSeededBoard(cards, s.seed!, rows, cols, s.turn!)
+  )
+    return null
   const cooldowns: Partial<Record<WeaponId, number>> = {}
   for (const id of Object.keys(WEAPONS) as WeaponId[]) {
     const v = s.cooldowns?.[id]
     if (int(v, 0, 10)) cooldowns[id] = v
   }
-  const outcome =
-    s.outcome === 'victory' || s.outcome === 'defeat' ? s.outcome : 'fighting'
+  if (
+    (s.outcome !== 'fighting' &&
+      s.outcome !== 'victory' &&
+      s.outcome !== 'defeat') ||
+    (s.outcome === 'fighting' && (e.hp === 0 || s.playerHp === 0)) ||
+    (s.outcome === 'victory' && (e.hp !== 0 || s.playerHp === 0)) ||
+    (s.outcome === 'defeat' && (s.playerHp !== 0 || e.hp === 0))
+  )
+    return null
+  const outcome = s.outcome
   return {
     version: 1,
     seed: s.seed!,

@@ -181,6 +181,7 @@ export const ModelName = {
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
+  HybridizerFusion: 'HybridizerFusion',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -2716,6 +2717,25 @@ export const ResourcePreviewScalarFieldEnum = {
 export type ResourcePreviewScalarFieldEnum = (typeof ResourcePreviewScalarFieldEnum)[keyof typeof ResourcePreviewScalarFieldEnum]
 
 
+export const HybridizerFusionScalarFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  depth: 'depth',
+  status: 'status',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  creatorUserId: 'creatorUserId',
+  isPublic: 'isPublic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -4201,6 +4221,18 @@ export const ResourcePreviewOrderByRelevanceFieldEnum = {
 } as const
 
 export type ResourcePreviewOrderByRelevanceFieldEnum = (typeof ResourcePreviewOrderByRelevanceFieldEnum)[keyof typeof ResourcePreviewOrderByRelevanceFieldEnum]
+
+
+export const HybridizerFusionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  leftKey: 'leftKey',
+  rightKey: 'rightKey',
+  recipeVersion: 'recipeVersion',
+  title: 'title',
+  status: 'status'
+} as const
+
+export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {

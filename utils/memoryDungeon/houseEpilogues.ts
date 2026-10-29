@@ -1,6 +1,7 @@
 import {
   HOUSE_ROOMS,
   type HouseEnding,
+  type HouseEndingLens,
   type HouseProgress,
   type HouseRoomId,
 } from './house'
@@ -10,10 +11,10 @@ import { briarQuestLog } from './briarQuests'
  * The twelve House epilogues: the three Memory Hearth resolutions, each told
  * through one of the master bible's four earned epilogue lenses (kind_robots
  * #4136 §9). The lens is read from decisions the save already keeps, Briar
- * scene choices and House room choices, so no new save field exists and every
- * old save that reached the Hearth resolves to an epilogue.
+ * scene choices and House room choices. The earned lens is snapshotted at
+ * the Hearth; completed legacy saves derive that lens during restoration.
  */
-export type HouseEpilogueLens = 'community' | 'bonds' | 'obligation' | 'honesty'
+export type HouseEpilogueLens = HouseEndingLens
 
 export const HOUSE_EPILOGUE_LENSES: readonly HouseEpilogueLens[] = [
   'community',
@@ -255,12 +256,15 @@ export function houseEpilogueLens(
 
 /** The earned epilogue, once the Memory Hearth resolution is chosen. */
 export function houseEpilogue(
-  progress: Pick<HouseProgress, 'decisions' | 'ending'> | null | undefined,
+  progress:
+    | Pick<HouseProgress, 'decisions' | 'ending' | 'endingLens'>
+    | null
+    | undefined,
   briarDecisions: Readonly<Record<string, string>>,
 ): HouseEpilogue | null {
   if (!progress?.ending) return null
   return HOUSE_EPILOGUES[
-    `${progress.ending}-${houseEpilogueLens(progress, briarDecisions)}`
+    `${progress.ending}-${progress.endingLens ?? houseEpilogueLens(progress, briarDecisions)}`
   ]
 }
 

@@ -155,7 +155,7 @@ assert.deepEqual(
   ['suppressed'],
   'team refresh must not clear other side',
 )
-guardedTarget.statuses.push('suppressed')
+guardedTarget.statuses = ['suppressed']
 refreshTurn([tiredShooter, guardedTarget], 'rival')
 assert.deepEqual(
   guardedTarget.statuses,

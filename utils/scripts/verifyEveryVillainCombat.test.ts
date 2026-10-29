@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   FIRST_BELL_MAP,
   chanceFrom,
+  clearSuppression,
   lineOfSight,
   moveAP,
   pathDistance,
@@ -102,6 +103,14 @@ refreshTurn([tiredShooter, guardedTarget], 'rival')
 assert.deepEqual(guardedTarget.statuses, [])
 assert.equal(guardedTarget.ap, 2)
 assert.deepEqual(tiredShooter.statuses, ['suppressed'], 'team refresh must not clear other side')
+guardedTarget.statuses.push('suppressed')
+refreshTurn([tiredShooter, guardedTarget], 'rival')
+assert.deepEqual(guardedTarget.statuses, ['suppressed'],
+  'suppression lasts through the affected side\'s next attack')
+clearSuppression([tiredShooter, guardedTarget], 'rival')
+assert.deepEqual(guardedTarget.statuses, [])
+assert.deepEqual(tiredShooter.statuses, ['suppressed'])
+
 
 const watcher = unit('watcher', 'squad', 0, 0)
 const mover = unit('mover', 'rival', 3, 0)

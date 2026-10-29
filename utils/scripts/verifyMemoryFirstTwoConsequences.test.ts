@@ -1004,17 +1004,17 @@ assert.equal(
 )
 assert.match(
   store,
-  /earnedMosswickPromiseOutcome\\(state\\.value, next\\)/,
+  /earnedMosswickPromiseOutcome\(state\.value, next\)/,
   'The mirrored shop must show the earned resolution on choice',
 )
 assert.match(
   store,
-  /earnedMosswickPromiseOutcome\\(state\\.value, dark\\.value\\)/,
+  /earnedMosswickPromiseOutcome\(state\.value, dark\.value\)/,
   'Revisiting Mosswick must restore the earned resolution',
 )
 assert.match(
   store,
-  /earnedOrenManifestOutcome\\(state\\.value, dark\\.value\\)/,
+  /earnedOrenManifestOutcome\(state\.value, dark\.value\)/,
   'Revisiting Oren must restore his already-authored manifest resolution',
 )
 

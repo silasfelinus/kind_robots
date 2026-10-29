@@ -114,8 +114,11 @@ export const useEveryVillainTacticsStore = defineStore(
       return elevationAt(point, state.value.map)
     }
     function isBurrowWarning(point: Cell) {
-      return state.value.units.some((unit) =>
-        unit.hp > 0 && unit.burrowTarget?.x === point.x && unit.burrowTarget?.y === point.y,
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.burrowTarget?.x === point.x &&
+          unit.burrowTarget?.y === point.y,
       )
     }
     const roster = IDENTITY_ARCS

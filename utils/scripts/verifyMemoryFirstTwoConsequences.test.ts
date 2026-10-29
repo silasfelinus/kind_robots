@@ -886,7 +886,7 @@ assert.match(
   'Returning to the rookery must restore the earned outcome',
 )
 
-// Pip's original lantern/address decision and the mirrored glass bell's
+// The original courier's lantern/address decision and mirrored glass bell's
 // memory/name testimony produce four distinct, earned and costly continuations.
 const courierBellCards = DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
   id,
@@ -928,7 +928,7 @@ for (const source of ['lend', 'copy'] as const) {
     assert.equal(
       darkBriarChoose(chosen, BRIAR_START, response),
       chosen,
-      'Pip cannot resolve the bell twice',
+      'The courier cannot resolve the bell twice',
     )
     const restored = restoreDarkBriarProgress(
       JSON.parse(JSON.stringify(chosen)),
@@ -944,7 +944,7 @@ for (const source of ['lend', 'copy'] as const) {
     )
     const scene = earnedCourierBellOutcome(original, restored)
     assert.ok(scene && scene.length > 230)
-    assert.match(scene, /Pip/)
+    assert.match(scene, /courier/i)
     assert.match(scene, /but|wait|refuse|delayed|without|unpaid/)
     courierBellScenes.add(scene)
     const epilogue = crossRealmHouseEpilogue(
@@ -952,12 +952,12 @@ for (const source of ['lend', 'copy'] as const) {
       { ...mirror, ending: 'return' },
       restored,
     )
-    assert.match(epilogue, /Pip/)
+    assert.match(epilogue, /courier/i)
     courierBellEpilogues.add(epilogue)
     assert.equal(
       crossRealmHouseEpilogue(original, mirror, restored),
       '',
-      'Pip cannot disclose a House ending before it is earned',
+      'The courier cannot disclose a House ending before it is earned',
     )
   }
 }

@@ -1068,17 +1068,11 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const visited = Array.isArray(v.visited)
     ? [
         ...new Set(
-          v.visited.filter(
-            (id): id is HouseRoomId =>
-              isHouseRoomId(id),
-          ),
+          v.visited.filter((id): id is HouseRoomId => isHouseRoomId(id)),
         ),
       ]
     : []
-  const current =
-    isHouseRoomId(v.current)
-      ? v.current
-      : HOUSE_ENTRY
+  const current = isHouseRoomId(v.current) ? v.current : HOUSE_ENTRY
   const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

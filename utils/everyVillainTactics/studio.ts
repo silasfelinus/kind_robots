@@ -32,6 +32,7 @@ export type StageDraft = {
   secrets: Point[]
   hazards: Point[]
   turnLimit: number | null
+  encounter?: 'warren-wreckers'
 }
 
 const DEFAULT_SPAWNS: StageSpawn[] = [
@@ -113,6 +114,7 @@ export const STAGE_PRESETS: StageDraft[] = [
     version: 1,
     id: 'picnic-plaza',
     title: 'Picnic Panic',
+    encounter: 'warren-wreckers',
     venue: 'Comet City plaza',
     objective: 'Protect the picnic when burrowing bunny men surface.',
     map: {

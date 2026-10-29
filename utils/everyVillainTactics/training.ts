@@ -144,19 +144,30 @@ export function trainingState(
       const warren = team === 'rival' && (picnic || (quarry && index > 3))
       const boss = team === 'rival' && quarry && index === 3
       const crew = warren ? henchmanForVillain('accident-earth') : null
-      const name = picnic && index === 3
-        ? crew?.captain
-        : quarry && index === 4
+      const name =
+        picnic && index === 3
           ? crew?.captain
-          : index === 4 ? 'Warren Surveyor' : 'Warren Burrower'
+          : quarry && index === 4
+            ? crew?.captain
+            : index === 4
+              ? 'Warren Surveyor'
+              : 'Warren Burrower'
       return {
         id,
         identity: warren || boss ? 'accident-earth' : identity,
         team,
         x: stage?.spawns.find((spawn) => spawn.id === id)?.x ?? x,
         y: stage?.spawns.find((spawn) => spawn.id === id)?.y ?? y,
-        hp: warren ? 1 : boss ? campaignStagesFor('accident-earth').lieutenant.hp : hp,
-        maxHp: warren ? 1 : boss ? campaignStagesFor('accident-earth').lieutenant.hp : hp,
+        hp: warren
+          ? 1
+          : boss
+            ? campaignStagesFor('accident-earth').lieutenant.hp
+            : hp,
+        maxHp: warren
+          ? 1
+          : boss
+            ? campaignStagesFor('accident-earth').lieutenant.hp
+            : hp,
         ...(warren
           ? {
               henchmanName: name,
@@ -166,7 +177,8 @@ export function trainingState(
           : {}),
         ...(boss
           ? {
-              lieutenantName: campaignStagesFor('accident-earth').lieutenant.name,
+              lieutenantName:
+                campaignStagesFor('accident-earth').lieutenant.name,
               seismicTarget: null,
               seismicChargeHp: 4,
             }
@@ -189,7 +201,7 @@ export function trainingState(
         ? 'Mags Hardpan guards the title auction with a four-hit-point seismic drum. Strike the drumbeat or leave the marked quake tiles. Foreman Thumpkin commands the one-hit Warren Wreckers.'
         : stage?.encounter === 'warren-wreckers'
           ? 'Foreman Thumpkin and the Warren Wreckers interrupt the picnic. Watch for dust-ring warnings.'
-        : 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
+          : 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
     events:
       stage?.encounter === 'quarry-lieutenant'
         ? [
@@ -200,7 +212,7 @@ export function trainingState(
           ? [
               'Foreman Thumpkin: The picnic lawn is a disputed tunnel right-of-way!',
             ]
-        : ['The bell rang twice. Nobody signed up for the second one.'],
+          : ['The bell rang twice. Nobody signed up for the second one.'],
     impact: null,
   }
 }
@@ -430,7 +442,11 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.seismicChargeHp = enemy.hp
     enemy.ap = 0
     if (interrupted) {
-      note(state, aliasFor(enemy) + ' loses the downbeat: a hit on the exposed drumhead cancels the quake.')
+      note(
+        state,
+        aliasFor(enemy) +
+          ' loses the downbeat: a hit on the exposed drumhead cancels the quake.',
+      )
       return true
     }
     const struck = state.units.filter(
@@ -449,26 +465,36 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
       state,
       aliasFor(enemy) +
         ' cracks the announced quarry tiles (' +
-        (marked.x + 1) + ', ' + (marked.y + 1) +
-        '). ' + struck.length + ' squadmate(s) take 1 seismic damage.',
+        (marked.x + 1) +
+        ', ' +
+        (marked.y + 1) +
+        '). ' +
+        struck.length +
+        ' squadmate(s) take 1 seismic damage.',
     )
     updateOutcome(state)
     return true
   }
   const target = state.units
     .filter((unit) => unit.team === 'squad' && unit.hp > 0)
-    .sort((a, b) =>
-      gridDistance(enemy, a) - gridDistance(enemy, b) ||
-      a.id.localeCompare(b.id),
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.id.localeCompare(b.id),
     )[0]
   if (!target) return true
   enemy.seismicTarget = { x: target.x, y: target.y }
   enemy.seismicChargeHp = enemy.hp
   enemy.ap = 0
-  note(state, aliasFor(enemy) +
-    ' raises the granite drum. A 3×3 quake is marked around column ' +
-    (target.x + 1) + ', row ' + (target.y + 1) +
-    '. Move clear or land a normal hit on the drum before her next turn.')
+  note(
+    state,
+    aliasFor(enemy) +
+      ' raises the granite drum. A 3×3 quake is marked around column ' +
+      (target.x + 1) +
+      ', row ' +
+      (target.y + 1) +
+      '. Move clear or land a normal hit on the drum before her next turn.',
+  )
   return true
 }
 function enemyPlan(state: TrainingState, enemy: Unit) {
@@ -572,14 +598,16 @@ export function endTurn(state: TrainingState) {
   note(
     state,
     quake
-      ? 'Round ' + state.turn + ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
+      ? 'Round ' +
+          state.turn +
+          ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
       : warnings
         ? 'Round ' +
           state.turn +
           ': ' +
           warnings +
           ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
-      : 'Round ' +
+        : 'Round ' +
           state.turn +
           ': the rival patrol has acted. Your squad has the initiative.',
   )

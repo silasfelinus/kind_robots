@@ -1796,29 +1796,6 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.version !== 1 ||
     (data.patrolOpening !== undefined &&
       (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
-    (data.nightPatrol !== undefined && data.nightPatrol !== null &&
-      (data.flowVersion !== 3 || data.patrolOpening !== 1 ||
-        data.phase !== 'dispatch' || data.day! < 4 ||
-        !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
-        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone).id !== data.nightPatrol.encounterId ||
-        !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
-          (option) => option.id === data.nightPatrol?.choiceId,
-        ) ||
-        Boolean(data.playerCaseId))) ||
-    (data.patrolHistory !== undefined &&
-      (!Array.isArray(data.patrolHistory) ||
-        data.flowVersion !== 3 ||
-        data.patrolOpening !== 1 ||
-        data.patrolHistory.length > 26 ||
-        data.patrolHistory.some((entry, i) =>
-          !entry || !Number.isInteger(entry.day) ||
-          entry.day < 4 || entry.day > data.day! ||
-          (i > 0 && entry.day <= data.patrolHistory![i-1]!.day) ||
-          !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
-          patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !== entry.encounterId ||
-          ![...patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).choices.map((option) => option.id),
-            PATROL_SECRETS[entry.zone].choice.id].includes(entry.choiceId),
-        ))) ||
     (data.playerCaseId != null &&
       (data.flowVersion !== 3 ||
         typeof data.playerCaseId !== 'string' ||
@@ -1843,6 +1820,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
       (!['student', 'hero', 'villain'].includes(data.initialForm) ||
         (data.initialForm !== 'student' && !data.signature))) ||
     typeof data.seed !== 'number' ||
+    !Number.isFinite(data.seed) ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
     data.day < 1 ||
@@ -1938,5 +1916,32 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         !Number.isInteger(data.cityStanding)))
   )
     return null
+  // Validate optional patrol state only after primitive, roster and date checks.
+  // Otherwise a malformed imported save could cause a lookup to throw.
+  if (
+    (data.nightPatrol !== undefined && data.nightPatrol !== null &&
+      (data.flowVersion !== 3 || data.patrolOpening !== 1 ||
+        data.phase !== 'dispatch' || data.day! < 4 ||
+        !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
+        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone).id !== data.nightPatrol.encounterId ||
+        !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
+          (option) => option.id === data.nightPatrol?.choiceId,
+        ) ||
+        Boolean(data.playerCaseId))) ||
+    (data.patrolHistory !== undefined &&
+      (!Array.isArray(data.patrolHistory) ||
+        data.flowVersion !== 3 ||
+        data.patrolOpening !== 1 ||
+        data.patrolHistory.length > 26 ||
+        data.patrolHistory.some((entry, i) =>
+          !entry || !Number.isInteger(entry.day) ||
+          entry.day < 4 || entry.day > data.day! ||
+          (i > 0 && entry.day <= data.patrolHistory![i-1]!.day) ||
+          !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
+          patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !== entry.encounterId ||
+          ![...patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).choices.map((option) => option.id),
+            PATROL_SECRETS[entry.zone].choice.id].includes(entry.choiceId),
+        )))
+  ) return null
   return data as AcademyRun
 }

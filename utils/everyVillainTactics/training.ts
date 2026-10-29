@@ -2,6 +2,7 @@ import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import {
   FIRST_BELL_MAP,
   chanceFrom,
+  clearSuppression,
   gridDistance,
   inside,
   lineOfSight,
@@ -228,12 +229,14 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
 }
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
+  clearSuppression(state.units, 'squad')
   refreshTurn(state.units, 'rival')
   for (const enemy of state.units.filter(u => u.team === 'rival' && u.hp > 0)) {
     if (state.phase !== 'active') break
     enemyPlan(state, enemy)
   }
   if (state.phase !== 'active') return
+  clearSuppression(state.units, 'rival')
   state.turn++
   refreshTurn(state.units, 'squad')
   if (!selectedUnit(state)) state.selected = state.units.find(u => u.team === 'squad' && u.hp > 0)!.id

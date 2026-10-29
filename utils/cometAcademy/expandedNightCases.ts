@@ -1,4 +1,5 @@
 import type { Incident, PowerId, Grade } from './rules'
+import { FINAL_NIGHT_MISSIONS } from './finalNightCases'
 
 export type MissionApproach = 'rescue' | 'investigate'
 export type ExpandedMission = {
@@ -13,7 +14,7 @@ export type ExpandedMission = {
 
 // Each case has a real site, stakes, an individual failure/refusal and a
 // tangible mystery. Different tactics trade rescue certainty for evidence.
-export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
+export const FIRST_WAVE_MISSIONS: readonly ExpandedMission[] = [
   {
     incident: {
       id: 'frog-serum',
@@ -410,6 +411,11 @@ export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
     secret:
       "Your elemental affinity identifies the storm's artificial pulse pattern. A tower transmitter broadcasts each strike just before the private candidate requests a recount.",
   },
+]
+
+export const EXPANDED_MISSIONS: readonly ExpandedMission[] = [
+  ...FIRST_WAVE_MISSIONS,
+  ...FINAL_NIGHT_MISSIONS,
 ]
 
 export const EXPANDED_INCIDENTS: Incident[] = EXPANDED_MISSIONS.map(

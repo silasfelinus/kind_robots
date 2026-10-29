@@ -203,7 +203,6 @@ export function houseFloorBeat(
     }
   }
 
-
   if (roomId === 'HD-14') {
     if (house.decisions['HD-14'] === 'witness')
       return {

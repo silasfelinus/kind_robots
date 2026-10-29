@@ -53,6 +53,8 @@ import {
   earnedRoyalEscortOutcome,
   earnedOrenManifestAccord,
   earnedOrenManifestOutcome,
+  earnedKnightCrossingAccord,
+  earnedKnightCrossingOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -627,6 +629,124 @@ assert.match(
   store,
   /earnedOrenManifestOutcome\(state\.value, next\)/,
   'The live mirrored scene must display the earned Oren continuation',
+)
+
+// The Knight's original false-oath/apology choice and the mirrored
+// build/release choice must produce four distinct earned outcomes, not a
+// generic pardon or an unearned bridge. Each survives a real save roundtrip.
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('5,4'))
+assert.ok(DARK_BRIAR_WAVES[0]?.includes('5,4'))
+const knightScenes = new Set<string>()
+const knightEndings = new Set<string>()
+const knightRoute = [BRIAR_START, '3,4', '4,4', '5,4']
+const knightMirroredBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/knight-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: knightRoute,
+  player: '5,4',
+}
+for (const source of ['truth', 'errand'] as const) {
+  assert.ok(BRIAR_SCENES['5,4']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: [...BRIAR_REVEAL_WAVES[0]!],
+    visited: knightRoute,
+    player: '5,4',
+    wavePhase: 'exploring',
+    sceneChoices: { '5,4': source },
+  })
+  assert.equal(original.sceneChoices['5,4'], source)
+  for (const response of ['draw', 'release'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['5,4']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(knightMirroredBase, '5,4', response)
+    assert.notEqual(chosen, knightMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '5,4', response),
+      chosen,
+      'The Knight cannot replay a choice for a second outcome',
+    )
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(reflected.sceneChoices['5,4'], response)
+    const accord = `${source}-${response === 'draw' ? 'built' : 'released'}`
+    assert.equal(earnedKnightCrossingAccord(original, reflected), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .knightCrossingAccord,
+      accord,
+    )
+    const scene = earnedKnightCrossingOutcome(original, reflected)
+    assert.ok(scene && scene.length > 200)
+    assert.match(scene, /Knight/)
+    assert.match(scene, /but|however|remains|must/i)
+    knightScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      reflected,
+    )
+    assert.match(epilogue, /Knight/)
+    assert.ok(
+      response === 'draw'
+        ? epilogue.includes('crossing') || epilogue.includes('bridge')
+        : epilogue.includes('road'),
+    )
+    knightEndings.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, reflected),
+      '',
+      'An unfinished House must not reveal the Knight epilogue',
+    )
+  }
+}
+assert.equal(knightScenes.size, 4)
+assert.equal(knightEndings.size, 4)
+assert.equal(
+  earnedKnightCrossingAccord(base, { sceneChoices: { '5,4': 'draw' } }),
+  'unset',
+)
+assert.equal(
+  earnedKnightCrossingOutcome(
+    { ...base, sceneChoices: { '5,4': 'forged' } },
+    { sceneChoices: { '5,4': 'draw' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedKnightCrossingOutcome(
+    { ...base, sceneChoices: { '5,4': 'truth' } },
+    { sceneChoices: { '5,4': 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).knightCrossingAccord,
+  'unset',
+  'Old saves without a mirrored Knight decision remain compatible',
+)
+assert.match(
+  store,
+  /earnedKnightCrossingOutcome\(state\.value, next\)/,
+  'The mirrored Knight scene must render the earned outcome',
+)
+assert.match(
+  store,
+  /earnedKnightCrossingOutcome\(state\.value, dark\.value\)/,
+  'Returning to the mirrored Knight must restore earned dialogue',
 )
 
 const earnedHouseEpilogues = new Set<string>()

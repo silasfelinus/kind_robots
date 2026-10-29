@@ -11,7 +11,7 @@ type HouseStoryState = Pick<HouseProgress, 'decisions' | 'visited'>
 type SceneChoices = Readonly<Record<string, string>>
 
 /**
- * Three House thresholds carry the story from borrowed identity, through
+ * House chapters carry the story from borrowed identity, through
  * disputed testimony, to the cost of judgment. These are live callbacks to
  * decisions already saved by the two maps, not extra one-time rewards or
  * mutable story flags. Shortcuts must not pretend the player met witnesses
@@ -200,6 +200,114 @@ export function houseFloorBeat(
       title: 'The Unmarked Way Back',
       text: 'A white arrow promises an exit, yet nobody can say who last tested it. Pip remembers a servant who found the cellar in the dark; the Index remembers only a closed door. You can still choose to make the route useful rather than merely reassuring.',
       cost: 'Without supplies, shared access or a tested route, the sign offers hope without proof.',
+    }
+  }
+
+
+  if (roomId === 'HD-14') {
+    if (house.decisions['HD-14'] === 'witness')
+      return {
+        title: 'The Festival With Its Owners Still Alive',
+        text: 'You listen to the festival through the glass without taking the jar. Pip recognizes a familiar song, then stops before naming the singer for the Index. The villagers can now contest the House’s account of that night, if they choose to speak.',
+        cost: 'Listening creates testimony, but it also creates a record that someone powerful may demand to see.',
+      }
+    if (house.decisions['HD-14'] === 'seal')
+      return {
+        title: 'A Seal for the People in the Jar',
+        text: 'You place a new seal beside the old one, naming no owner except the people whose voices fill the glass. Vesper asks the House to find them before any council hears the festival. For now, even your companions must wait outside the story.',
+        cost: 'Their privacy survives, but the village cannot yet use the memory to challenge its official history.',
+      }
+    return {
+      title: 'Laughter Under Glass',
+      text: 'The jar glows with a festival the village no longer discusses. Pip remembers the tune; Vesper remembers who stopped singing. The Index has already prepared a blank receipt for whoever removes the jar, as though possession were permission.',
+      cost: 'Taking the memory would be easy; finding out who wants it remembered takes longer.',
+    }
+  }
+
+  if (roomId === 'HD-15') {
+    if (
+      house.decisions['HD-15'] === 'question' &&
+      house.decisions['HD-14'] === 'seal'
+    )
+      return {
+        title: 'A Contract Waiting for Its Signers',
+        text: 'You bring the sealed festival jar to the guest’s table, not as evidence to seize but as a reminder that the absent speakers have not agreed. When you ask about withdrawing consent, the host must leave a space for their answers. The guest sets down the pen.',
+        cost: 'You have prevented a hurried signature, but the guest’s relief and the villagers’ testimony must wait for a fair hearing.',
+      }
+    if (house.decisions['HD-15'] === 'question')
+      return {
+        title: 'The Clause That Was Never Written',
+        text: 'The guest asks whether a bargain can end. The host produces three pages of hospitality rules and not one line about leaving. Mosswick starts drafting a withdrawal clause while Pip asks who will enforce it after the candles burn down.',
+        cost: 'A right to leave is now on the table, but writing it is not the same as making departure safe.',
+      }
+    if (house.decisions['HD-15'] === 'decline')
+      return {
+        title: 'Nobody Else Can Sign This Grief',
+        text: 'You refuse the quill when the host offers it to you. The guest smiles for the first time without being prompted, then admits they are afraid of remembering alone. Oren offers to escort them home without asking what happened at dinner.',
+        cost: 'You kept another person’s grief out of your hands, but their fear still needs companionship.',
+      }
+    return {
+      title: 'The Empty Signature Line',
+      text: 'A quill hovers over the guest’s plate. The host calls forgetting a courtesy and the guest calls it exhaustion. Pip wants to know who will answer when the guest wakes tomorrow and asks for the memory back.',
+      cost: 'Witnessing a bargain is not the same as proving that its signer can refuse it.',
+    }
+  }
+
+  if (roomId === 'HD-20') {
+    if (house.decisions['HD-20'] === 'protect')
+      return {
+        title: 'The Address That Is Not a Reward',
+        text: 'You return the letters without the daughter’s address. Her family hears that she is alive, but cannot turn your kindness into a map to her door. Vesper promises to carry any reply only if the daughter asks for one.',
+        cost: 'You protected her location, but the family must endure uncertainty without the comfort of a reunion.',
+      }
+    if (house.decisions['HD-20'] === 'testify')
+      return {
+        title: 'Not Missing, But Gone',
+        text: 'You tell the family that their daughter chose to leave. Her father sits down as though the floor has moved; her mother asks whether the choice can be undone. Pip answers that a truthful account is not an invitation to follow her.',
+        cost: 'The family receives an answer, but the daughter may now face pressure to justify a departure she already made.',
+      }
+    return {
+      title: 'A Room Kept Ready for Someone Else',
+      text: 'The bed is made and the window is open. A family has called this daughter missing for years, though her letters describe the life she built after leaving. Vesper asks whether finding someone means giving other people a claim over them.',
+      cost: 'Either truth or privacy can be mishandled when the person concerned is absent.',
+    }
+  }
+
+  if (roomId === 'HD-21') {
+    if (
+      house.decisions['HD-21'] === 'archive' &&
+      house.decisions['HD-20'] === 'protect'
+    )
+      return {
+        title: 'Evidence Without an Address',
+        text: 'You keep the image of Morrow’s humiliation as evidence while refusing to turn the missing daughter’s letters into directions. Pip records what happened in the office, then closes the ledger before anyone can add the names of people who did not consent to be found.',
+        cost: 'The harm remains documented, but the record cannot satisfy every demand for someone to blame or locate.',
+      }
+    if (house.decisions['HD-21'] === 'archive')
+      return {
+        title: 'The Laughter Kept on Record',
+        text: 'You preserve the mirror’s account of Morrow struggling at the research office. The Index offers to file the laughter as proof of a failed life. You insist the record describe an incident, not the sum of a person who may yet change.',
+        cost: 'The evidence survives, but every copy risks making an old humiliation into a permanent verdict.',
+      }
+    if (
+      house.decisions['HD-21'] === 'turn' &&
+      house.decisions['HD-20'] === 'testify'
+    )
+      return {
+        title: 'Two Truths That Cannot Be Owned',
+        text: 'You turn the mirror away after telling the missing daughter’s family she chose to leave. Vesper notices the difference: you offered an answer where one was owed, but refused to make Morrow’s worst office moment a performance for the House.',
+        cost: 'You ended the spectacle, but the daughter may still need protection from people who dislike her answer.',
+      }
+    if (house.decisions['HD-21'] === 'turn')
+      return {
+        title: 'The Room After the Audience Leaves',
+        text: 'You turn the mirror toward the empty chairs. The laughter stops. The memory of losing your work remains painful, but Char asks whether you want to carry the image as proof or let the people involved tell their own accounts later.',
+        cost: 'You refused the spectacle, but without a record the office harm may be harder to challenge.',
+      }
+    return {
+      title: 'A Laugh Too Convenient',
+      text: 'The mirror shows Morrow fumbling with a machine while other people laugh. It is a true and ugly moment, but the Index has already written “whole life” on the folder. Pip asks who benefits when one photograph becomes a sentence.',
+      cost: 'Neither destroying the evidence nor displaying it forever can explain everything that happened.',
     }
   }
 

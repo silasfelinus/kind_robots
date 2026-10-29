@@ -23,12 +23,18 @@ for (let i = 0; i < houseQueue.length; i++) {
   }
 }
 
-const connected = <T extends { visited: HouseRoomId[] }>(save: T): T => ({
-  ...save,
-  visited: [
+const connected = <T extends { visited: HouseRoomId[]; wardenPassed: boolean }>(
+  save: T,
+): T => {
+  const visited = [
     ...new Set(save.visited.flatMap((room) => houseRoutes.get(room) ?? [room])),
-  ],
-})
+  ]
+  return {
+    ...save,
+    visited,
+    wardenPassed: save.wardenPassed || visited.includes('HD-33'),
+  }
+}
 
 const progress = (
   current: HouseRoomId,

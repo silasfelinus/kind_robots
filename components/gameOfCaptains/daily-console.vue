@@ -147,7 +147,7 @@
                   'Place ' + actor.name + ' on ' + scoutedEncounter.title
                 "
                 data-testid="space-couch-scout-actor"
-                @click="assignScoutAndClose(scoutedEncounter.id, actor.id)"
+                @click="chooseScoutActor(scoutedEncounter.id, actor.id)"
               >
                 <span class="daily-actor-face">
                   <img v-if="actor.image" :src="actor.image" alt="" />
@@ -717,10 +717,6 @@ function scoutOdds(id: string): number | null {
     ? questOdds(props.run, scoutedEncounter.value, id, knowledge.value)
     : null
 }
-function assignScoutAndClose(encounterId: string, actorId: string) {
-  assign(encounterId, actorId)
-  scoutingQuestId.value = null
-}
 function assign(encounterId: string, chosen = selectedLead.value) {
   if (!chosen || busyLeads.value.includes(chosen) || completed(encounterId))
     return
@@ -731,6 +727,10 @@ function assign(encounterId: string, chosen = selectedLead.value) {
     chosen,
   )
   selectedLead.value = chosen
+}
+function chooseScoutActor(encounterId: string, actorId: string) {
+  assign(encounterId, actorId)
+  scoutingQuestId.value = null
 }
 function clearPlan(encounterId: string) {
   if (!assignments.value[encounterId]) return

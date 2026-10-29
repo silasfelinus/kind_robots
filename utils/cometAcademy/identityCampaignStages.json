@@ -607,6 +607,306 @@
         "agenda": "She values truthful records, though Dani pays her to build lies.",
         "hp": 4
       }
+    },
+    {
+      "signature": "magic-fire",
+      "opening": {
+        "title": "The Candle That Wouldn't Die",
+        "venue": "Rain-soaked vigil beneath the academy chapel",
+        "inciting": "One memorial candle ignites every other flame in the room while the mourners sleep.",
+        "powerUse": "Speak a temporary flame-binding charm to carry the fire safely into a bronze lantern.",
+        "choice": "Preserve the mourners' memories or extinguish the possessed candle forever."
+      },
+      "lair": {
+        "title": "The Salamander Reliquary",
+        "venue": "Burned courthouse reborn as a living glass candle cathedral",
+        "arena": "Living candle paths double back after each turn; a salamander flame opens doors but threatens books.",
+        "objective": "Sever Lanternwitch's bargain without destroying the courthouse records.",
+        "secret": "The fire spirit's first contract promises warmth to the people it is now ordered to punish."
+      },
+      "lieutenant": {
+        "name": "Mother Cress Flambeau",
+        "look": "One-eyed pyro-oracle in melted stained-glass armor, carrying a smoking communion lantern.",
+        "power": "Summons an inverted flame that spreads only across tiles heroes just used.",
+        "counter": "Smother the inverted flame by standing on an unused tile and closing the brass shutter.",
+        "agenda": "She serves the fire spirit rather than Hollis and might negotiate its freedom.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-air",
+      "opening": {
+        "title": "Overdue Thunder",
+        "venue": "Academy library's floating study annex",
+        "inciting": "A stolen forbidden book makes a thunderstorm form inside the reading room.",
+        "powerUse": "Fold a storm cloud small enough to escort the book back without losing its pages.",
+        "choice": "Return the book to a sealed shelf or let the injured student read its cure."
+      },
+      "lair": {
+        "title": "The Weathercock Crown",
+        "venue": "City hall roof rebuilt as a tower of storm funnels and forbidden bookcases",
+        "arena": "Lightning rods move from tower to tower; cloud bridges appear only when the pressure rises.",
+        "objective": "Free the captive books without letting The Weathervane's permanent storm swallow the city.",
+        "secret": "An index card reveals who actually ordered the library's forbidden collection sealed."
+      },
+      "lieutenant": {
+        "name": "Archivist Cloud Nine",
+        "look": "Bookbinder wearing a thunderhead cape and carrying a rod of silver bookmarks.",
+        "power": "Creates a rotating lightning triangle between three bookstands.",
+        "counter": "Turn the central book spine backward to short out the lightning rods.",
+        "agenda": "Wants forbidden books read, but not at the price of every reader's life.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-earth",
+      "opening": {
+        "title": "The Orchard Under Asphalt",
+        "venue": "Schoolyard community garden at demolition hour",
+        "inciting": "A condemned garden's roots break through the road while children hide among the seedlings.",
+        "powerUse": "Guide roots into a gentle protective arch that keeps traffic off the garden.",
+        "choice": "Save the ancient tree or dig up its dangerous cursed heart."
+      },
+      "lair": {
+        "title": "The Crown of Thorns",
+        "venue": "Overgrown highway interchange inside an enormous hollow tree",
+        "arena": "Vines open new bridges then constrict them; gnome scouts signal where the next root will erupt.",
+        "objective": "Reach the seed throne before Rootwarden binds the entire city to her grove.",
+        "secret": "A ring of saplings shows residents who planted trees without swearing loyalty."
+      },
+      "lieutenant": {
+        "name": "Briar Magistrate",
+        "look": "Dryad magistrate in woven bark judicial robes, wielding a living thorn abacus.",
+        "power": "Orders two thorn walls to grow toward each other, crushing the lane between.",
+        "counter": "Cut the root-tether beneath the abacus before both walls close.",
+        "agenda": "Believes every human can earn a place in the forest, contrary to Willa's ultimatum.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-water",
+      "opening": {
+        "title": "The Future in the Glass",
+        "venue": "Hospital rooftop greenhouse surrounded by reflecting panes",
+        "inciting": "A patient sees a terrible future in a cup of water and refuses the treatment that could save them.",
+        "powerUse": "Change the reflected angle to show other possible outcomes without overwriting choice.",
+        "choice": "Reveal a frightening future or let the patient decide without prophecy."
+      },
+      "lair": {
+        "title": "The Palace of Almost",
+        "venue": "Mirror reservoir below a deserted gala ballroom",
+        "arena": "Water mirrors project future-position decoys; every wrong attack restores an illusory wall.",
+        "objective": "Shatter Reflection's blackmail apparatus while preserving witnesses' free decisions.",
+        "secret": "A silent reflection shows Caspian choosing not to exploit a friend's secret."
+      },
+      "lieutenant": {
+        "name": "Duchess Glasswake",
+        "look": "Living water portrait wearing pearl armor and an endless train of mirrored veils.",
+        "power": "Copies a hero's last attack as a delayed spectral counterstrike.",
+        "counter": "Break the reflecting surface before the copied gesture finishes.",
+        "agenda": "She remembers every future Caspian erased and wants at least one to remain possible.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-discipline",
+      "opening": {
+        "title": "The Bell and the Door",
+        "venue": "Academy discipline hall during an unannounced lockdown",
+        "inciting": "A sanctuary student is ordered to stand outside the safe room during a storm.",
+        "powerUse": "Use a precise warding gesture to keep the door open against an obedience spell.",
+        "choice": "Obey the teacher to keep the ward stable or defy the order to rescue the outsider."
+      },
+      "lair": {
+        "title": "The Silent Rule",
+        "venue": "Secluded bell monastery beneath the observatory",
+        "arena": "Every bell toll seals one action category until its clapper is touched.",
+        "objective": "Dissolve The Abbess's obedience vow without breaking the students who made it.",
+        "secret": "The first oath includes a forgotten right to refuse cruel orders."
+      },
+      "lieutenant": {
+        "name": "Prior Alabaster",
+        "look": "Bell-armored oathkeeper with a chain of engraved promises around his throat.",
+        "power": "Binds two heroes to mirrored actions, punishing the second who disobeys.",
+        "counter": "Break the visibly engraved cruel clause to release both participants.",
+        "agenda": "He worships rules and will abandon Ada if she contradicts the order's founding protection vow.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-genius",
+      "opening": {
+        "title": "When Two Plus Two Screamed",
+        "venue": "School mathematics symposium and a floating staircase",
+        "inciting": "A chalk proof tears open into a dimension where falling never finishes.",
+        "powerUse": "Complete an impossible bridge from floating geometric pieces to lead students home.",
+        "choice": "Close the breach for good or save a sentient shape trapped on the wrong side."
+      },
+      "lair": {
+        "title": "The Axiom Engine",
+        "venue": "Infinite tessellated courthouse where polygons replace ordinary rooms",
+        "arena": "The arena reconfigures along drawn mathematical vertices; deleting one point creates a safe gap.",
+        "objective": "Prove Theorem's total-city perfection claim inconsistent without collapsing reality.",
+        "secret": "A scribbled correction says the world is allowed to be incomplete."
+      },
+      "lieutenant": {
+        "name": "Proctor Phi",
+        "look": "Polyhedral scholar in an impossible hypercube cloak with two floating chalk compasses.",
+        "power": "Draws four linked vertices that imprison a target in a shrinking theorem.",
+        "counter": "Move one vertex before the proof closes or break either compass.",
+        "agenda": "Desperately wants to discover a proof that compassion is not a contradiction.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-birthright",
+      "opening": {
+        "title": "The Heir Who Said No",
+        "venue": "Family estate greenhouse during an ancestral summoning",
+        "inciting": "An ancestor demands a student surrender their future to a sealed household pact.",
+        "powerUse": "Read the inherited contract aloud to expose its loophole and create a protective hearth.",
+        "choice": "Accept the family title to gain leverage or renounce it to protect strangers."
+      },
+      "lair": {
+        "title": "The Unquiet Family Table",
+        "venue": "Sprawling haunted townhouse with rooms that rotate around the ancestral dining table",
+        "arena": "Portraits decree house rules; obeying one opens doors but empowers an ancestor elsewhere.",
+        "objective": "Give the family dead the chance to release their descendants before the final rite.",
+        "secret": "One hidden ancestor signed the pact under protest and holds its dissolution clause."
+      },
+      "lieutenant": {
+        "name": "Great-Uncle Vesper",
+        "look": "A spectral genealogist in embroidered mourning robes with twelve ghost keys.",
+        "power": "Summons ancestral portraits that force targets to repeat their previous action.",
+        "counter": "Show the portrait's missing nameplate to interrupt its claim of authority.",
+        "agenda": "He protects the family name but quietly fears the living have become its prisoners.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "magic-social",
+      "opening": {
+        "title": "The Empty Applause",
+        "venue": "Small community theater on opening night",
+        "inciting": "Actors discover every promise spoken on stage becomes a magically enforceable contract.",
+        "powerUse": "Rewrite the closing monologue to free performers before the curtain falls.",
+        "choice": "Cancel the production to save the cast or finish it to expose the binder's identity."
+      },
+      "lair": {
+        "title": "The Endless Encore",
+        "venue": "Nightclub labyrinth with an orchestra pit opening into a crossroads",
+        "arena": "Crowd applause doubles movement while curtain lines hide changing exits.",
+        "objective": "Break Curtain Call's collection of stolen promises before the final curtain.",
+        "secret": "A discarded ticket bears the crossroads spirit's real name and a release condition."
+      },
+      "lieutenant": {
+        "name": "Velvet Stagehand",
+        "look": "Mask-changing stage manager with a coat of velvet trapdoors and silver stage hooks.",
+        "power": "Drops a spotlight trap then repositions two allied units behind moving curtains.",
+        "counter": "Follow the visible rope to the fly loft and pull the counterweight.",
+        "agenda": "Loves the show and hates the contracts that make performers unable to leave.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-fire",
+      "opening": {
+        "title": "A Refuge in Orbit",
+        "venue": "Emergency refugee shuttle at the edge of the atmosphere",
+        "inciting": "A failing solar sail threatens to burn a crowded shuttle during reentry.",
+        "powerUse": "Shape a protective solar flare shield without igniting the shuttle's panels.",
+        "choice": "Divert energy to rescue the ship or transmit its evidence of unlawful deportations."
+      },
+      "lair": {
+        "title": "The Exiles' Sunship",
+        "venue": "Orbiting foundry fleet linked by burning solar-sail bridges",
+        "arena": "Sails rotate each round to create straight beam paths across hull decks.",
+        "objective": "Stop Daystar's planned attack on immigration offices without condemning her people again.",
+        "secret": "A passenger manifest reveals the officials who previously invited the exiles to safety."
+      },
+      "lieutenant": {
+        "name": "Captain Ember Quell",
+        "look": "Solar-sail privateer with a gold fracture helm and a folded star-map cloak.",
+        "power": "Overcharges a mirrored sail and fires two crossing light lances after a visible countdown.",
+        "counter": "Change the sail angle by severing the exposed tension cable.",
+        "agenda": "Will surrender the weapons if Ixi's refugees get genuine sanctuary.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-air",
+      "opening": {
+        "title": "The Treaty in the Clouds",
+        "venue": "Cloudport visitor center floating above the college",
+        "inciting": "An alien emissary requests that students sign away airspace rights without explaining the terms.",
+        "powerUse": "Translate pressure-wave language to expose hidden conditions in the treaty.",
+        "choice": "Reject the envoy publicly or negotiate safe passage for stranded air travelers."
+      },
+      "lair": {
+        "title": "The Embassy That Floats",
+        "venue": "Sky palace assembled from layered cloud treaties and moving diplomatic platforms",
+        "arena": "Ownership banners transform tiles into difficult terrain; sealed areas can be renegotiated mid-fight.",
+        "objective": "Void The Envoy's annexation treaty without provoking his armada.",
+        "secret": "A neglected translation establishes the city's right to refuse representation."
+      },
+      "lieutenant": {
+        "name": "Ambassador Drizzle",
+        "look": "Cloud-born negotiator in a silver aerogel suit and a stormglass monocle.",
+        "power": "Moves a floating boundary line, charging AP to anyone entering annexed terrain.",
+        "counter": "Read the treaty's emergency exit clause aloud at the embassy flag.",
+        "agenda": "Genuinely wants a diplomatic peace but has been ordered to deliver annexation.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-earth",
+      "opening": {
+        "title": "The Museum That Moved",
+        "venue": "Academy history exhibition loaned from a distant world",
+        "inciting": "A sentient fossil exhibit refuses to be packed into a shipping crate.",
+        "powerUse": "Read mineral memories to open a passage for the captive exhibit.",
+        "choice": "Protect the exhibit or preserve the museum's evidence of repeated theft."
+      },
+      "lair": {
+        "title": "The Living Exhibition",
+        "venue": "Crystal museum suspended around a giant imprisoned alien monolith",
+        "arena": "Display cases close around fighters while reflecting beams bounce between polished exhibit plinths.",
+        "objective": "Return the stolen remains and free Monolith's captives without shattering them.",
+        "secret": "An original shipping manifest names the first colonizer who declared a person an artifact."
+      },
+      "lieutenant": {
+        "name": "Curator Obsidian Mar",
+        "look": "Crystal librarian wrapped in facet-cut armor with gloved hands of black basalt.",
+        "power": "Creates a crystal case around two marked squares and reflects attacks from their edges.",
+        "counter": "Strike the visible corner clamp before the case fully crystallizes.",
+        "agenda": "He despises collectors but believes preserving evidence of their crimes matters.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "alien-water",
+      "opening": {
+        "title": "A Song for the Drowned",
+        "venue": "Coastal cleanup festival aboard a rescue pontoon",
+        "inciting": "A polluted tide carries an alien chorus that can accidentally draw divers into deep water.",
+        "powerUse": "Use controlled harmony to redirect the tide away from the divers.",
+        "choice": "Sing openly to draw attention or work silently to protect a vulnerable singer."
+      },
+      "lair": {
+        "title": "The Siren's Reef",
+        "venue": "Underwater amphitheater made of stranded cargo and luminous living coral",
+        "arena": "Musical currents pull units toward reef ledges while shell stages emerge during quiet measures.",
+        "objective": "Stop Lighthouse grounding the city's ships without poisoning the reef.",
+        "secret": "An ancient verse proves some shipping captains helped the sea people during earlier disasters."
+      },
+      "lieutenant": {
+        "name": "Choirmaster Undertide",
+        "look": "Amphibious opera conductor with bioluminescent throat plates and a trident baton.",
+        "power": "Sings two layered notes that pull fighters toward separate water edges.",
+        "counter": "Cover the exposed resonator shell between notes to interrupt the melody.",
+        "agenda": "Wants polluted trade ended, but won't support drowning innocent sailors.",
+        "hp": 4
+      }
     }
   ]
 }

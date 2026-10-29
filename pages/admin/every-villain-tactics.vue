@@ -85,7 +85,6 @@
                   >
                   <span
                     v-if="displayUnitAt(store.state, cell)"
-                    class="evt-standee"
                     :key="
                       displayUnitAt(store.state, cell)!.id +
                       '-' +
@@ -96,6 +95,7 @@
                         ? store.state.impact?.serial
                         : 0)
                     "
+                    class="evt-standee"
                     :class="{
                       'evt-friendly':
                         displayUnitAt(store.state, cell)?.team === 'squad',

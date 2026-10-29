@@ -4,6 +4,7 @@ import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import {
   HOUSE_ROOMS,
   houseExits,
+  houseRoom,
   houseWitnessEvidence,
   newHouseProgress,
   restoreHouseProgress,
@@ -22,6 +23,21 @@ import {
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 import { newBriarSave, restoreBriarSave } from '../memoryDungeonWorld'
 import { buildMemoryDungeonPlaybook } from '../playbook/memoryDungeon'
+
+// Prototype-named object properties must never become authored chambers.
+for (const key of ['constructor', 'toString', '__proto__']) {
+  const forged = {
+    current: key,
+    visited: [key],
+    decisions: Object.fromEntries([[key, 'release']]),
+  }
+  assert.equal(houseRoom(key), null)
+  const restored = restoreHouseProgress(forged)!
+  assert.equal(restored.current, 'HD-01')
+  assert.deepEqual(restored.visited, ['HD-01'])
+  assert.deepEqual(restored.decisions, {})
+  assert.deepEqual(houseExits(restored.current, restored), ['HD-02', 'HD-07'])
+}
 
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save

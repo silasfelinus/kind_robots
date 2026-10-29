@@ -105,11 +105,11 @@
                       'evt-impact-hit':
                         store.state.impact?.target ===
                           displayUnitAt(store.state, cell)?.id &&
-                        store.state.impact.hit,
+                        store.state.impact?.hit === true,
                       'evt-impact-miss':
                         store.state.impact?.target ===
                           displayUnitAt(store.state, cell)?.id &&
-                        !store.state.impact.hit,
+                        store.state.impact?.hit === false,
                       'evt-impact-strike':
                         store.state.impact?.attacker ===
                         displayUnitAt(store.state, cell)?.id,

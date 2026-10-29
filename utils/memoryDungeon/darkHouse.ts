@@ -799,7 +799,9 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const visited = Array.isArray(saved.visited)
     ? saved.visited.filter((id): id is HouseRoomId => isHouseRoomId(id))
     : []
-  const savedCurrent = isHouseRoomId(saved.current) ? saved.current : HOUSE_ENTRY
+  const savedCurrent = isHouseRoomId(saved.current)
+    ? saved.current
+    : HOUSE_ENTRY
   // Legacy saves may omit their current chamber from visited, but that
   // chamber must still connect to the recorded route from the entry.
   const { current, visited: visitedRooms } = reachableHouseVisits(

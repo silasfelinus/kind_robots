@@ -93,7 +93,8 @@
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
                     aria-hidden="true"
-                  >◉</span>
+                    >◉</span
+                  >
                   <span
                     v-if="store.tileInfoAt(cell) === 'cover'"
                     class="evt-cover"
@@ -143,7 +144,12 @@
                     }"
                   >
                     <span class="evt-card-art">
-                      <span class="evt-crest" aria-hidden="true">{{ displayUnitAt(store.state, cell)?.henchmanType === 'burrow' ? '♢' : '✦' }}</span>
+                      <span class="evt-crest" aria-hidden="true">{{
+                        displayUnitAt(store.state, cell)?.henchmanType ===
+                        'burrow'
+                          ? '♢'
+                          : '✦'
+                      }}</span>
                       <span class="evt-initials">{{
                         initials(displayUnitAt(store.state, cell)!)
                       }}</span>
@@ -589,8 +595,13 @@
               >
                 ▶ PLAYTEST THIS MAP
               </button>
-              <small v-if="store.draft.encounter === 'warren-wreckers'" data-testid="studio-encounter">
-                ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren Wreckers. Marked dust rings erupt on the following enemy turn, unless occupied.
+              <small
+                v-if="store.draft.encounter === 'warren-wreckers'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren
+                Wreckers. Marked dust rings erupt on the following enemy turn,
+                unless occupied.
               </small>
               <small
                 >Uses existing seeded combat AI, pathfinding, cover, hit
@@ -804,7 +815,14 @@ function initials(unit: Unit): string {
 }
 function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
-  if (store.isBurrowWarning(cell)) return 'BURROW WARNING, dust ring at column ' + (cell.x + 1) + ', row ' + (cell.y + 1) + '. Occupy to block emergence.'
+  if (store.isBurrowWarning(cell))
+    return (
+      'BURROW WARNING, dust ring at column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Occupy to block emergence.'
+    )
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
   if (store.tileInfoAt(cell) === 'wall')
@@ -1077,7 +1095,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   clip-path: polygon(0 14%, 90% 0, 100% 80%, 8% 100%);
 }
 .evt-tile.burrow-warning {
-  box-shadow: inset 0 0 0 3px #ffc467, 0 0 12px #ef6b2a;
+  box-shadow:
+    inset 0 0 0 3px #ffc467,
+    0 0 12px #ef6b2a;
   z-index: 3;
 }
 .evt-burrow-ring {

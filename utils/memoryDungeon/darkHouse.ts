@@ -1,6 +1,7 @@
 import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
+  isHouseRoomId,
   type HouseRoomId,
   type HouseKind,
 } from './house'
@@ -795,15 +796,9 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   if (!value || typeof value !== 'object') return fresh
   const saved = value as Partial<DarkHouseProgress> & { version?: number }
   const visited = Array.isArray(saved.visited)
-    ? saved.visited.filter(
-        (id): id is HouseRoomId =>
-          typeof id === 'string' && Boolean(DARK_HOUSE_ROOMS[id]),
-      )
+    ? saved.visited.filter((id): id is HouseRoomId => isHouseRoomId(id))
     : []
-  const current =
-    typeof saved.current === 'string' && DARK_HOUSE_ROOMS[saved.current]
-      ? (saved.current as HouseRoomId)
-      : HOUSE_ENTRY
+  const current = isHouseRoomId(saved.current) ? saved.current : HOUSE_ENTRY
   // Older saves may omit the current room from visited. They cannot, however,
   // earn choices or challenge rewards in unrelated, unvisited chambers.
   const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]

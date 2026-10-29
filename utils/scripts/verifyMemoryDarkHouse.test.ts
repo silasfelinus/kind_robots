@@ -63,6 +63,27 @@ assert.equal(canEnterDarkHouse({ ...revealed, player: '3,1' }), false)
 assert.equal(canEnterDarkHouse({ ...revealed, sceneChoices: {} }), false)
 assert.equal(canEnterDarkHouse({ ...revealed, mapCards: [] }), false)
 
+// Inherited object keys are not authored chambers. A forged save must not
+// crash while restoring decisions or fabricate a verdict.
+for (const key of ['constructor', 'toString', '__proto__']) {
+  const forged = {
+    active: true,
+    current: key,
+    visited: [key],
+    decisions: Object.fromEntries([[key, 'attend']]),
+    trials: Object.fromEntries([[key, { matched: [] }]]),
+    puzzles: Object.fromEntries([[key, { solved: true }]]),
+  }
+  const safe = restoreDarkHouseProgress(forged)
+  assert.equal(safe.current, HOUSE_ENTRY)
+  assert.deepEqual(safe.visited, [HOUSE_ENTRY])
+  assert.deepEqual(safe.decisions, {})
+  assert.deepEqual(safe.trials, {})
+  assert.deepEqual(safe.puzzles, {})
+  assert.equal(safe.ending, null)
+  assert.deepEqual(darkHouseExits(safe), [])
+}
+
 const fresh = newDarkHouseProgress()
 assert.equal(fresh.active, false)
 assert.equal(darkHouseChoose(fresh, 'attend'), fresh)

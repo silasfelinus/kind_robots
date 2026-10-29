@@ -996,8 +996,17 @@ export const HOUSE_EXIT_POINTS: readonly HouseRoomId[] = [
   'HD-36',
 ]
 
+/** Room identifiers come from untrusted save data. Inherited object keys are
+ * not authored chambers, even when a normal property lookup is truthy. */
+export function isHouseRoomId(value: unknown): value is HouseRoomId {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(HOUSE_ROOMS, value)
+  )
+}
+
 export function houseRoom(id: string): HouseRoom | null {
-  return HOUSE_ROOMS[id] ?? null
+  return isHouseRoomId(id) ? HOUSE_ROOMS[id]! : null
 }
 
 export function houseExits(
@@ -1059,17 +1068,11 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const visited = Array.isArray(v.visited)
     ? [
         ...new Set(
-          v.visited.filter(
-            (id): id is HouseRoomId =>
-              typeof id === 'string' && Boolean(HOUSE_ROOMS[id]),
-          ),
+          v.visited.filter((id): id is HouseRoomId => isHouseRoomId(id)),
         ),
       ]
     : []
-  const current =
-    typeof v.current === 'string' && HOUSE_ROOMS[v.current]
-      ? v.current
-      : HOUSE_ENTRY
+  const current = isHouseRoomId(v.current) ? v.current : HOUSE_ENTRY
   const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

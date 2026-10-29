@@ -558,7 +558,9 @@ for (const [source, prefix] of [
     ['rescue', 'rescued'],
   ] as const) {
     assert.ok(
-      DARK_BRIAR_SCENES['4,3']?.choices.some((choice) => choice.id === response),
+      DARK_BRIAR_SCENES['4,3']?.choices.some(
+        (choice) => choice.id === response,
+      ),
     )
     const chosen = darkBriarChoose(orenMirroredBase, '4,3', response)
     assert.notEqual(chosen, orenMirroredBase)
@@ -567,12 +569,15 @@ for (const [source, prefix] of [
       chosen,
       'Oren cannot issue the same evacuation twice',
     )
-    const reflected = restoreDarkBriarProgress(JSON.parse(JSON.stringify(chosen)))
+    const reflected = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
     assert.equal(reflected.sceneChoices['4,3'], response)
     const accord = `${prefix}-${suffix}`
     assert.equal(earnedOrenManifestAccord(original, reflected), accord)
     assert.equal(
-      crossRealmConsequenceLedger(original, mirror, reflected).orenManifestAccord,
+      crossRealmConsequenceLedger(original, mirror, reflected)
+        .orenManifestAccord,
       accord,
     )
     const outcome = earnedOrenManifestOutcome(original, reflected)

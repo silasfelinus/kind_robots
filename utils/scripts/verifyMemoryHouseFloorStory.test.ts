@@ -7,6 +7,7 @@ import {
   type HouseRoomId,
 } from '../memoryDungeon/house'
 import { houseFloorBeat } from '../memoryDungeon/houseFloorStory'
+import { BRIAR_QUESTS, briarQuestProgress } from '../memoryDungeon/briarQuests'
 import { BRIAR_SCENES } from '../memoryDungeon/scenes'
 
 const progress = (
@@ -35,7 +36,9 @@ for (const [room, ids] of [
   ['HD-06', ['route', 'stock']],
   ['HD-12', ['open', 'map']],
   ['HD-24', ['mark', 'retreat']],
-  ['HD-10', ['manifest']],
+  ['HD-10', ['manifest', 'improvise']],
+  ['HD-11', ['respect', 'help']],
+  ['HD-30', ['talk', 'rest']],
   ['HD-17', ['read']],
   ['HD-21', ['archive']],
   ['HD-16', ['return-name']],
@@ -235,6 +238,144 @@ assert.equal(
   'Unknown decisions cannot fabricate the shared evacuation',
 )
 
+const sisterQuest = BRIAR_QUESTS.find(
+  (quest) => quest.id === 'different-waters-same-face',
+)
+assert.ok(sisterQuest)
+for (const id of ['escort', 'question'])
+  assert.ok(
+    BRIAR_SCENES['4,4']?.choices.some((choice) => choice.id === id),
+    `Sisters' arrival references an authored Briar choice: 4,4:${id}`,
+  )
+
+const inventory = progress('HD-10', fullPath.slice(0, 10))
+const wardrobe = progress('HD-11', fullPath.slice(0, 11))
+const landing = progress(
+  'HD-30',
+  Array.from(
+    { length: 30 },
+    (_, index) => `HD-${String(index + 1).padStart(2, '0')}`,
+  ) as HouseRoomId[],
+)
+const sisterCases: Array<{
+  save: ReturnType<typeof progress>
+  briar: Record<string, string>
+}> = [
+  { save: inventory, briar: {} },
+  {
+    save: { ...inventory, decisions: { 'HD-10': 'manifest' } },
+    briar: {},
+  },
+  {
+    save: { ...inventory, decisions: { 'HD-10': 'improvise' } },
+    briar: {},
+  },
+  { save: wardrobe, briar: {} },
+  {
+    save: { ...wardrobe, decisions: { 'HD-11': 'respect' } },
+    briar: {},
+  },
+  {
+    save: { ...wardrobe, decisions: { 'HD-11': 'help' } },
+    briar: {},
+  },
+  { save: landing, briar: {} },
+  {
+    save: { ...landing, decisions: { 'HD-30': 'rest' } },
+    briar: {},
+  },
+  {
+    save: { ...landing, decisions: { 'HD-30': 'talk' } },
+    briar: {},
+  },
+  {
+    save: {
+      ...landing,
+      decisions: {
+        'HD-10': 'manifest',
+        'HD-11': 'respect',
+        'HD-30': 'talk',
+      },
+    },
+    briar: {},
+  },
+  {
+    save: {
+      ...landing,
+      decisions: {
+        'HD-10': 'improvise',
+        'HD-11': 'help',
+        'HD-30': 'talk',
+      },
+    },
+    briar: {},
+  },
+  {
+    save: {
+      ...landing,
+      decisions: {
+        'HD-10': 'improvise',
+        'HD-11': 'respect',
+        'HD-30': 'talk',
+      },
+    },
+    briar: { '4,4': 'escort' },
+  },
+]
+const sisterBeats = sisterCases.map(({ save, briar }) =>
+  houseFloorBeat(save.current, save, briar),
+)
+assert.equal(new Set(sisterBeats.map((beat) => beat?.title)).size, 12)
+assert.match(sisterBeats[1]!.cost, /bypass/)
+assert.match(sisterBeats[2]!.text, /stranded maid/)
+assert.match(sisterBeats[4]!.cost, /boot/)
+assert.match(sisterBeats[5]!.cost, /unspoken/)
+assert.match(sisterBeats[7]!.cost, /waits/)
+assert.match(sisterBeats[9]!.text, /blank line/)
+assert.match(sisterBeats[10]!.cost, /untold story/)
+assert.match(sisterBeats[11]!.text, /asks Char before/)
+assert.match(sisterBeats[11]!.cost, /right to refuse|still unresolved/)
+assert.equal(
+  briarQuestProgress(
+    sisterQuest,
+    sisterCases[11]!.briar,
+    sisterCases[11]!.save.decisions,
+  ).state,
+  'complete',
+  'The fully earned landing branch agrees with the existing sisters quest',
+)
+assert.equal(
+  houseFloorBeat('HD-30', sisterCases[11]!.save, {})?.title,
+  sisterBeats[8]?.title,
+  'No Briar meeting means no fully earned sisters reconciliation',
+)
+assert.equal(
+  houseFloorBeat(
+    'HD-30',
+    {
+      ...landing,
+      decisions: {
+        'HD-10': 'invented',
+        'HD-11': 'respect',
+        'HD-30': 'talk',
+      },
+    },
+    { '4,4': 'escort' },
+  )?.title,
+  sisterBeats[8]?.title,
+  'Forged choice IDs cannot unlock the sisters quest payoff',
+)
+for (const { save, briar } of sisterCases) {
+  const before = houseFloorBeat(save.current, save, briar)
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  assert.ok(restored, `Sisters scene ${save.current} should restore`)
+  assert.deepEqual(
+    houseFloorBeat(save.current, restored, briar),
+    before,
+    `Sisters dialogue survives save restoration at ${save.current}`,
+  )
+}
+
 for (const save of [
   broom,
   { ...broom, decisions: { 'HD-06': 'stock' } },
@@ -276,6 +417,7 @@ for (const beat of [
   ...broomBeats,
   ...passageBeats,
   ...cellarBeats,
+  ...sisterBeats,
 ]) {
   assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
   assert.doesNotMatch(
@@ -307,5 +449,5 @@ assert.match(
 assert.match(stage, /kr-scroll min-h-0 overflow-y-auto/)
 
 console.log(
-  'Memory House floor story: 37 authored threshold, return-route and verdict branches, source choices, consent costs and save roundtrips verified',
+  'Memory House floor story: 49 authored threshold, return-route, companion and verdict branches, source choices, consent costs and save roundtrips verified',
 )

@@ -341,6 +341,67 @@ export function earnedRoyalEscortOutcome(
   return accord === 'unset' ? null : ROYAL_ESCORT_OUTCOMES[accord].scene
 }
 
+export type KnightCrossingAccord =
+  | 'unset'
+  | 'truth-built'
+  | 'truth-released'
+  | 'errand-built'
+  | 'errand-released'
+
+const KNIGHT_CROSSING_OUTCOMES: Record<
+  Exclude<KnightCrossingAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'truth-built': {
+    scene:
+      'The Brass Knight recognizes the false oath you exposed in Briar. Rather than pretend the bridge existed, he asks the waiting families where a real crossing would serve them. You spend the night hauling planks to their chosen bank. The road opens, but the registrar now has evidence to prosecute the officials who issued his oath, and the Knight must testify.',
+    epilogue:
+      'The Knight helps the families build a crossing where they asked for one. He testifies against the false oath that sent them to the ravine; the road is open, but his old command is under public investigation.',
+  },
+  'truth-released': {
+    scene:
+      'Because you challenged his original oath, the Knight can name the officials who invented this bridge. He lays down his post and escorts the waiting travelers toward the long public road. Nobody is forced to stand in his queue, but those without provisions must spend another night away from home.',
+    epilogue:
+      'The Knight names the makers of the false oath and escorts the queue by the longer road. He is free of the post, while the families still need shelter for an extra night.',
+  },
+  'errand-built': {
+    scene:
+      'The Knight remembers the apology you carried to the family he once failed. Their reply asks him to build something useful instead of guarding an absence. With their permission he leads the bridge crew, and the stranded travelers cross at dawn. The false royal order remains unchallenged, however, and could send another guard to the same empty ravine.',
+    epilogue:
+      'The family receives the Knight’s apology and helps choose the new bridge. Travelers cross safely, but the royal registry still contains the false order that created the queue.',
+  },
+  'errand-released': {
+    scene:
+      'The family who received your earlier apology has left the Knight a reply: they forgive his mistake, not the command that caused it. He steps away from the imaginary bridge and helps them carry their belongings to a safer road. Their private reconciliation survives, but the public crossing remains unbuilt and the registrar has not withdrawn the oath.',
+    epilogue:
+      'The Knight carries the forgiven family’s belongings along the safer road. His personal debt is answered, but the missing bridge and the official false oath remain unresolved.',
+  },
+}
+
+/** The first oath/apology decision and the mirrored bridge decision must both
+ * be earned. A released Knight does not secretly build a bridge, and a
+ * repaired crossing does not automatically pardon the original command. */
+export function earnedKnightCrossingAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): KnightCrossingAccord {
+  const source = original.sceneChoices['5,4']
+  const response = mirrored.sceneChoices['5,4']
+  if (source !== 'truth' && source !== 'errand') return 'unset'
+  if (response !== 'draw' && response !== 'release') return 'unset'
+  if (source === 'truth')
+    return response === 'draw' ? 'truth-built' : 'truth-released'
+  return response === 'draw' ? 'errand-built' : 'errand-released'
+}
+
+export function earnedKnightCrossingOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedKnightCrossingAccord(original, mirrored)
+  return accord === 'unset' ? null : KNIGHT_CROSSING_OUTCOMES[accord].scene
+}
+
 export type OrenManifestAccord =
   | 'unset'
   | 'route-counted'
@@ -413,6 +474,7 @@ export interface CrossRealmConsequenceLedger {
   borrowedVoiceAccord: BorrowedVoiceAccord
   royalEscortAccord: RoyalEscortAccord
   orenManifestAccord: OrenManifestAccord
+  knightCrossingAccord: KnightCrossingAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -453,6 +515,9 @@ export function crossRealmConsequenceLedger(
       : 'unset',
     orenManifestAccord: mirrored
       ? earnedOrenManifestAccord(briar, mirrored)
+      : 'unset',
+    knightCrossingAccord: mirrored
+      ? earnedKnightCrossingAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -523,7 +588,13 @@ export function crossRealmHouseEpilogue(
       ? ''
       : OREN_EPILOGUES[ledger.orensProvision]
   const knight =
-    ledger.knightsDuty === 'unset' ? '' : KNIGHT_EPILOGUES[ledger.knightsDuty]
+    ledger.knightCrossingAccord !== 'unset' || ledger.knightsDuty === 'unset'
+      ? ''
+      : KNIGHT_EPILOGUES[ledger.knightsDuty]
+  const knightCrossing =
+    ledger.knightCrossingAccord === 'unset'
+      ? ''
+      : KNIGHT_CROSSING_OUTCOMES[ledger.knightCrossingAccord].epilogue
   const traveler =
     ledger.borrowedVoiceAccord === 'unset'
       ? ''
@@ -536,7 +607,15 @@ export function crossRealmHouseEpilogue(
     ledger.orenManifestAccord === 'unset'
       ? ''
       : OREN_MANIFEST_OUTCOMES[ledger.orenManifestAccord].epilogue
-  return [witness, provision, manifest, knight, traveler, royals]
+  return [
+    witness,
+    provision,
+    manifest,
+    knight,
+    knightCrossing,
+    traveler,
+    royals,
+  ]
     .filter(Boolean)
     .join(' ')
 }

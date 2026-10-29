@@ -55,6 +55,27 @@ const connectedMirrorPath = (room: string): string[] => {
   return path
 }
 
+// The mirrored exit is a locked edge, not merely the next room number.
+// A forged visited array must not manufacture an unanswered final passage.
+const forgedMirrorExit = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-36',
+  visited: connectedMirrorPath('HD-36'),
+  decisions: { 'HD-36': 'attend' },
+})
+assert.equal(forgedMirrorExit.current, HOUSE_ENTRY)
+assert.ok(!forgedMirrorExit.visited.includes('HD-36'))
+assert.equal(forgedMirrorExit.decisions['HD-36'], undefined)
+assert.equal(forgedMirrorExit.ending, null)
+const earnedMirrorExit = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-36',
+  visited: connectedMirrorPath('HD-36'),
+  decisions: { 'HD-35': 'attend', 'HD-36': 'refuse' },
+})
+assert.equal(earnedMirrorExit.current, 'HD-36')
+assert.equal(earnedMirrorExit.ending, 'return')
+
 const briar = newDarkBriarProgress()
 assert.equal(canEnterDarkHouse(briar), false)
 const witnessChoices = Object.fromEntries(

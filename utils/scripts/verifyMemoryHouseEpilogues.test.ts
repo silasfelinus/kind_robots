@@ -84,6 +84,27 @@ const connectedRooms = (...rooms: HouseRoomId[]): HouseRoomId[] => {
   }
   return [...visited]
 }
+// Reaching a legitimate room ID through the graph is insufficient when the
+// final doorway is still locked by an unanswered Hearth.
+const forgedHouseExit = restoreHouseProgress({
+  current: 'HD-36',
+  visited: connectedRooms('HD-36'),
+  decisions: { 'HD-36': 'carry' },
+  ending: null,
+  chimeClaimed: true,
+})!
+assert.equal(forgedHouseExit.current, 'HD-01')
+assert.ok(!forgedHouseExit.visited.includes('HD-36'))
+assert.equal(forgedHouseExit.decisions['HD-36'], undefined)
+assert.equal(forgedHouseExit.chimeClaimed, false)
+const contradictoryExit = restoreHouseProgress({
+  current: 'HD-36',
+  visited: connectedRooms('HD-36'),
+  decisions: { 'HD-35': 'renew', 'HD-36': 'carry' },
+  ending: 'release',
+})!
+assert.ok(!contradictoryExit.visited.includes('HD-36'))
+
 const routeToInventory = paths.get('HD-10')!
 assert.ok(routeToInventory.length > 1)
 const shortcutHouse = restoreHouseProgress({

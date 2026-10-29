@@ -1011,6 +1011,7 @@ export function reachableHouseVisits(
   visited: readonly HouseRoomId[],
   current: HouseRoomId,
   extraExits: Readonly<Record<string, readonly HouseRoomId[]>> = {},
+  canTraverse: (from: HouseRoomId, to: HouseRoomId) => boolean = () => true,
 ): { visited: HouseRoomId[]; current: HouseRoomId } {
   const claimed = new Set<HouseRoomId>([HOUSE_ENTRY, ...visited, current])
   const reached = new Set<HouseRoomId>([HOUSE_ENTRY])
@@ -1021,7 +1022,8 @@ export function reachableHouseVisits(
       ...HOUSE_ROOMS[room]!.exits,
       ...(extraExits[room] ?? []),
     ]) {
-      if (!claimed.has(next) || reached.has(next)) continue
+      if (!claimed.has(next) || reached.has(next) || !canTraverse(room, next))
+        continue
       reached.add(next)
       queue.push(next)
     }
@@ -1116,10 +1118,17 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     for (const origin of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32'] as const)
       if (visited.includes(origin))
         shortcuts[origin] = [...(shortcuts[origin] ?? []), 'HD-18']
+  // A valid room list cannot skip the Hearth's actual ending choice.
+  // Older saves may carry the earned ending without its mirrored decision.
+  const exitEarned =
+    (v.ending === 'release' || v.ending === 'renew' || v.ending === 'break') &&
+    (savedDecisions['HD-35'] === undefined ||
+      savedDecisions['HD-35'] === v.ending)
   const { current, visited: visitedRooms } = reachableHouseVisits(
     visited,
     savedCurrent,
     shortcuts,
+    (from, to) => to !== 'HD-36' || (from === 'HD-35' && exitEarned),
   )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

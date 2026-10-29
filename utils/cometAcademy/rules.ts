@@ -1966,7 +1966,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.patrolHistory !== undefined &&
       (!Array.isArray(data.patrolHistory) ||
         data.flowVersion !== 3 ||
-        data.patrolOpening !== 1 ||
+        (data.patrolOpening !== 1 && data.patrolHistory.length > 0) ||
         data.patrolHistory.length > 26 ||
         data.patrolHistory.some(
           (entry, i) =>

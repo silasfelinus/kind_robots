@@ -2011,10 +2011,16 @@ for (const person of CHARACTER_ROSTER) {
     for (const context of ['hero', 'villain'] as const) {
       const scene =
         PROM_ART_PROMPTS[`identities/${person.signature}/${context}`]
-      assert.ok(
-        scene?.includes(look.look.slice(1)),
-        `${person.signature}/${context} keeps one character design`,
-      )
+      if (person.signature === 'tech-genius' && context === 'villain') {
+        assert.ok(scene?.includes('humanoid frog'))
+        assert.ok(scene?.includes('brass safety goggles'))
+        assert.ok(!scene?.includes('Dr. Lionel Marsh'))
+      } else {
+        assert.ok(
+          scene?.includes(look.look.slice(1)),
+          `${person.signature}/${context} keeps one character design`,
+        )
+      }
       assert.ok(
         !scene?.includes(person.realName),
         'names stay out of splash prompts',

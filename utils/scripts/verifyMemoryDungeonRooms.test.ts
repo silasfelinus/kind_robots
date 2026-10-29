@@ -285,6 +285,61 @@ assert.equal(
 )
 assert.equal(noFight.combat, null)
 assert.equal(newBriarSave().combat, null)
+// Every authored room restores its own enemy and original 4x4 board, never
+// another room's enemy or inflated stats from a modified checkpoint.
+for (const roomId of Object.keys(
+  COMBAT_ROOMS,
+) as (keyof typeof COMBAT_ROOMS)[]) {
+  const original = startCombatRoom(roomId, 42, images)
+  const enemy = original.state.enemy
+  assert.deepEqual(
+    restoreBriarCombat(original, roomId),
+    original,
+    `${roomId}: its own untouched fight restores`,
+  )
+  for (const [label, forged] of [
+    ['name', { name: 'Invented Guardian' }],
+    ['health pool', { maxHp: enemy.maxHp + 1 }],
+    ['damage', { attack: enemy.attack + 1 }],
+    ['attack interval', { every: enemy.every + 1 }],
+    ['telegraph delay', { beatsLeft: enemy.every + 1 }],
+    ['zero telegraph', { beatsLeft: 0 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        {
+          ...original,
+          state: { ...original.state, enemy: { ...enemy, ...forged } },
+        },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  for (const [label, forged] of [
+    ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
+    ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
+    ['rows', { rows: 2, cols: 8 }],
+  ] as const) {
+    assert.equal(
+      restoreBriarCombat(
+        { ...original, state: { ...original.state, ...forged } },
+        roomId,
+      ),
+      null,
+      `${roomId}: forged ${label} is rejected`,
+    )
+  }
+}
+assert.equal(
+  restoreBriarSave({
+    ...save,
+    roomId: 'collector',
+  }).room,
+  'map',
+  'a valid Warden board cannot impersonate the House Collector',
+)
 // A House guardian duel saved mid-fight restores to the same guardian, and a
 // duel saved before the guardians had boards of their own still restores.
 for (const roomId of ['collector', 'sprite'] as const) {
@@ -293,6 +348,7 @@ for (const roomId of ['collector', 'sprite'] as const) {
       JSON.stringify({
         ...save,
         roomId,
+        combat: startCombatRoom(roomId, 42, images),
         house: { ...newBriarSave().house, current: 'HD-22' },
       }),
     ),

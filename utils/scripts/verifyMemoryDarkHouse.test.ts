@@ -38,6 +38,23 @@ for (const [id, room] of Object.entries(DARK_HOUSE_ROOMS)) {
   assert.notEqual(room.choices[0]!.outcome, room.choices[1]!.outcome)
 }
 
+// Test fixtures must reach their saved chambers through authored passages.
+const mirrorPaths = new Map<string, string[]>([[HOUSE_ENTRY, [HOUSE_ENTRY]]])
+const mirrorQueue = [HOUSE_ENTRY]
+for (let i = 0; i < mirrorQueue.length; i++) {
+  const room = mirrorQueue[i]!
+  for (const next of DARK_HOUSE_ROOMS[room]!.exits) {
+    if (mirrorPaths.has(next)) continue
+    mirrorPaths.set(next, [...mirrorPaths.get(room)!, next])
+    mirrorQueue.push(next)
+  }
+}
+const connectedMirrorPath = (room: string): string[] => {
+  const path = mirrorPaths.get(room)
+  assert.ok(path, `Authored mirror route to ${room} exists`)
+  return path
+}
+
 const briar = newDarkBriarProgress()
 assert.equal(canEnterDarkHouse(briar), false)
 const witnessChoices = Object.fromEntries(
@@ -152,14 +169,14 @@ assert.equal(
 )
 assert.equal(
   restoreDarkHouseProgress({
-    visited: ['HD-35'],
+    visited: connectedMirrorPath('HD-35'),
     decisions: { 'HD-35': 'attend' },
   }).ending,
   'return',
 )
 assert.equal(
   restoreDarkHouseProgress({
-    visited: ['HD-35'],
+    visited: connectedMirrorPath('HD-35'),
     decisions: { 'HD-35': 'refuse' },
   }).ending,
   'commons',
@@ -194,7 +211,7 @@ assert.deepEqual(
 const passage = restoreDarkHouseProgress({
   active: true,
   current: 'HD-32',
-  visited: ['HD-31', 'HD-32'],
+  visited: connectedMirrorPath('HD-32'),
 })
 assert.ok(
   !darkHouseExits(passage).includes('HD-33'),
@@ -215,7 +232,7 @@ assert.ok(darkHouseExits(guardian).includes('HD-33'))
 const hearth = restoreDarkHouseProgress({
   active: true,
   current: 'HD-35',
-  visited: ['HD-32', 'HD-33', 'HD-34', 'HD-35'],
+  visited: connectedMirrorPath('HD-35'),
 })
 assert.ok(!darkHouseExits(hearth).includes('HD-36'))
 const healed = darkHouseChoose(hearth, 'refuse')

@@ -358,7 +358,7 @@ assert.equal(
   1,
 )
 for (const [signature, realName, alias] of [
-  ['tech-genius', 'Dr. Lionel Marsh', 'Dr. Frog'],
+  ['tech-genius', 'Lionel Marsh', 'Dr. Frog'],
   ['magic-earth', 'Mavis Mayhew', 'Granny Mayhem'],
   ['alien-discipline', 'Zuzu', 'Zuzu, Koala Assassin'],
 ] as const) {

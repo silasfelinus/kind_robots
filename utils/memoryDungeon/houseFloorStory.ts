@@ -56,6 +56,46 @@ export function houseFloorBeat(
     }
   }
 
+  if (roomId === 'HD-06') {
+    if (house.decisions['HD-06'] === 'stock')
+      return {
+        title: 'Water for the Next Stranger',
+        text: 'Oren counts the casks you filled, then removes your name from the inventory. A frightened housekeeper can take water without first owing you a story. Pip asks whether the same courtesy will extend to the witnesses upstairs.',
+        cost: 'You spent supplies on people you may never meet; the route itself remains poorly marked.',
+      }
+    if (house.decisions['HD-06'] === 'route')
+      return {
+        title: 'A Shortcut Known by Heart',
+        text: 'Oren has taught you the return path by its creaking boards and the smell of soap. Scylla can repeat every turn, but the servants carrying heavy buckets have no map. You have learned an escape without making it common knowledge.',
+        cost: 'Your party can retreat quickly; the next frightened resident must still ask permission.',
+      }
+    return {
+      title: 'The Inventory of Those Left Behind',
+      text: 'Oren has drawn two columns: people who can find the porch and people who have never been shown the way. The House calls the second column guests. He refuses to put a number beside their names until you decide what help you can actually give.',
+      cost: 'An untested exit is a promise on paper, not a safe route for the people inside.',
+    }
+  }
+
+  if (roomId === 'HD-12') {
+    if (house.decisions['HD-12'] === 'open')
+      return {
+        title: 'A Door Without a Rank',
+        text: 'The kitchen workers pass through the service corridor without asking the Index for a badge. Vesper watches one elderly cook take the long way around a frightened guard rather than make a spectacle of him. The door is open; trust will take longer.',
+        cost: 'Access is shared, but the officers now know which workers have been using the passage.',
+      }
+    if (house.decisions['HD-12'] === 'map')
+      return {
+        title: 'The Route in Pencil',
+        text: 'Oren draws every bend of the servants’ passage, including the turn where a stretcher can fit. Pip wants copies for the kitchens; the Index offers to file the only original. You keep the map portable until the people who need it can decide.',
+        cost: 'A useful map exists, but a closed passage still cannot be crossed by everyone.',
+      }
+    return {
+      title: 'The Hallway with Two Histories',
+      text: 'The servants built this corridor to move hot meals before the House called it a security risk. Char finds the old soot marks under the new warning signs. Nobody has asked the workers whether the passage should belong to them again.',
+      cost: 'Leaving the old restriction untouched protects the quiet of those already in charge.',
+    }
+  }
+
   if (roomId === 'HD-13') {
     if (house.decisions['HD-05'] === 'open')
       return {
@@ -79,6 +119,47 @@ export function houseFloorBeat(
       title: 'The Floor of Other People’s Stories',
       text: 'The staircase divides into testimony, rumor and the records that somebody paid to keep. Pip wants the witnesses named; Vesper asks who would be endangered by that list. Neither will let you call the choice neutral.',
       cost: 'Listening to one account may leave another person waiting without protection.',
+    }
+  }
+
+  if (roomId === 'HD-24') {
+    if (house.decisions['HD-24'] === 'mark')
+      return {
+        title: 'An Exit That Can Be Found',
+        text: 'Your painted arrows give the cellar a route anyone can follow. Oren tests them from the far end while Vesper asks who else might read the marks. The first person to use them is a cook carrying someone else’s medicine, not a hero.',
+        cost: 'Visible directions help the vulnerable escape and may also guide the people hunting them.',
+      }
+    if (house.decisions['HD-24'] === 'retreat')
+      return {
+        title: 'The Return You Practiced',
+        text: 'You and Char walk the cellar loop without losing your bearings. Oren times the journey and nods once. The test proves your party can get back to the central hall; it does not make the route legible to the frightened stranger behind you.',
+        cost: 'Your retreat is reliable, but nobody else has been given its instructions.',
+      }
+    if (
+      house.decisions['HD-12'] === 'open' &&
+      house.decisions['HD-06'] === 'stock'
+    )
+      return {
+        title: 'The Quiet Evacuation',
+        text: 'The open servants’ passage meets the stocked cellar route. Oren can now guide a cook, a witness and a limping guard out together without demanding their names. Pip notices that the House has become safer through ordinary work, not a verdict.',
+        cost: 'A shared escape is possible, but the water and safe passage still need people to maintain them.',
+      }
+    if (house.decisions['HD-12'] === 'open')
+      return {
+        title: 'A Passage Without Provisions',
+        text: 'The workers can reach the cellar without a badge. Oren checks the empty emergency shelf and quietly shortens his evacuation estimate. Vesper refuses to call the passage a rescue plan while anyone who needs water must turn back.',
+        cost: 'You opened the route to everyone, but did not equip it for the people least able to hurry.',
+      }
+    if (house.decisions['HD-06'] === 'stock')
+      return {
+        title: 'Water Behind a Locked Door',
+        text: 'The emergency casks are ready, but the service passage is still controlled by the Index. Scylla asks who is allowed to reach the supplies. Oren crosses out the phrase “for everyone” on his manifest until the door can actually be used.',
+        cost: 'You prepared relief, but the old permissions still decide who receives it.',
+      }
+    return {
+      title: 'The Unmarked Way Back',
+      text: 'A white arrow promises an exit, yet nobody can say who last tested it. Pip remembers a servant who found the cellar in the dark; the Index remembers only a closed door. You can still choose to make the route useful rather than merely reassuring.',
+      cost: 'Without supplies, shared access or a tested route, the sign offers hope without proof.',
     }
   }
 

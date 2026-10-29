@@ -632,7 +632,8 @@ const PHOTO_REAPPRAISALS: ReadonlyArray<{
   },
 ]
 
-type FourPhotoResponses = `${PhotoResponse}:${PhotoResponse}:${PhotoResponse}:${PhotoResponse}`
+type FourPhotoResponses =
+  `${PhotoResponse}:${PhotoResponse}:${PhotoResponse}:${PhotoResponse}`
 const FOUR_FRAME_IDS = ['earth-01', 'earth-02', 'earth-03', 'earth-04'] as const
 const FOUR_FRAME_REFLECTIONS: Record<FourPhotoResponses, string> = {
   'challenge:challenge:challenge:challenge':

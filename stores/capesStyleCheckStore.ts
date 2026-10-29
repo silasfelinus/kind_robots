@@ -7,8 +7,10 @@ import {
   CAPES_STYLE_LANES,
   CAPES_STYLE_SUBJECTS,
   capesStyleCellKey,
-  type CapesStyleJob,
-  type CapesStyleSubjectKey,
+} from '~/utils/capesStyleCheck'
+import type {
+  CapesStyleJob,
+  CapesStyleSubjectKey,
 } from '~/utils/capesStyleCheck'
 
 type Criterion = (typeof CAPES_STYLE_CRITERIA)[number]['key']

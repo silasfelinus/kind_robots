@@ -72,6 +72,7 @@ import {
 } from './nightPatrols'
 import { districtEncounterFor } from './districtEncounters'
 import { LATE_INCIDENTS } from './lateIncidents'
+import { EXPANDED_INCIDENTS, EXPANDED_MISSIONS, expandedMissionFor, type MissionApproach } from './expandedNightCases'
 import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import {
@@ -532,7 +533,7 @@ export type AcademyRun = {
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
   /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
-  incidentDeckVersion?: 2
+  incidentDeckVersion?: 2 | 3
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
@@ -541,6 +542,8 @@ export type AcademyRun = {
   contacts?: StudentId[]
   /** One night call personally attended by the protagonist; absent on legacy saves. */
   playerCaseId?: string | null
+  missionApproach?: MissionApproach | null
+  missionClues?: string[]
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
   /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
@@ -585,9 +588,14 @@ function hash(seed: number, text: string): number {
 
 /** Every night case a thirty-day run can draw: the first six, then the late six. */
 export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
+export const FULL_NIGHT_DECK: Incident[] = [...NIGHT_DECK, ...EXPANDED_INCIDENTS]
 
 export function incidentDeck(run: AcademyRun): Incident[] {
-  return run.incidentDeckVersion === 2 ? NIGHT_DECK : INCIDENTS
+  return run.incidentDeckVersion === 3
+    ? FULL_NIGHT_DECK
+    : run.incidentDeckVersion === 2
+      ? NIGHT_DECK
+      : INCIDENTS
 }
 
 export function incidentsFor(run: AcademyRun): Incident[] {
@@ -759,7 +767,8 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
-    incidentDeckVersion: 2,
+    incidentDeckVersion: 3,
+    missionClues: [],
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
     relationships: newSocialState(),
@@ -1037,6 +1046,34 @@ export function socialize(
 }
 
 /** Joining a call is separate from asking a classmate to volunteer for it. */
+/** Hidden until after a personally led mission succeeds. Prior evidence and
+ * the right field power open a real alternate resolution, not a cosmetic badge. */
+export function missionSecretFor(run: AcademyRun, caseId: string): string | null {
+  const mission = expandedMissionFor(caseId)
+  if (
+    !mission || run.flowVersion !== 3 ||
+    run.playerCaseId !== caseId ||
+    run.power !== mission.incident.need ||
+    !(run.missionClues ?? []).some((id) =>
+      id !== caseId && expandedMissionFor(id)?.thread === mission.thread,
+    )
+  ) return null
+  return mission.secret
+}
+
+export function selectMissionApproach(
+  run: AcademyRun,
+  caseId: string,
+  approach: MissionApproach,
+): AcademyRun {
+  if (
+    run.phase !== 'dispatch' || run.flowVersion !== 3 ||
+    run.playerCaseId !== caseId || !expandedMissionFor(caseId) ||
+    !['rescue', 'investigate'].includes(approach)
+  ) return run
+  return { ...run, missionApproach: approach }
+}
+
 export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
   if (
     run.flowVersion !== 3 ||
@@ -1047,6 +1084,7 @@ export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
   return {
     ...run,
     playerCaseId: run.playerCaseId === caseId ? null : caseId,
+    missionApproach: 'rescue',
     nightPatrol: null,
   }
 }
@@ -1182,7 +1220,11 @@ export function dispatchModifier(
         Math.sign(personalStanding(run.personalHistory))
       : 0) +
     response +
-    (route?.boost ?? 0)
+    (route?.boost ?? 0) +
+    (run.flowVersion === 3 && run.playerCaseId === incident.id && expandedMissionFor(incident.id)
+      ? run.missionApproach === 'investigate' ? -1 : 1
+      : 0) +
+    (missionSecretFor(run, incident.id) ? 2 : 0)
   )
 }
 
@@ -1224,6 +1266,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   let influence = run.influence
   let danger = run.danger
   const injuries = { ...(run.injuries ?? {}) }
+  const missionClues = [...(run.missionClues ?? [])]
   const reports = incidentsFor(run).map((incident) => {
     const assignment =
       run.assignments.find((entry) => entry.caseId === incident.id) ??
@@ -1335,9 +1378,26 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       : splitting
         ? `${text} Over a shared radio channel, you and ${openingNightFriend(run.seed).name} hold two separate fronts at once. Neither gets all the help they need, but neither is forgotten.`
         : text
-    const resolvedText = special
-      ? `${dramaticText} SPECIAL ROUTE: ${special.label}. ${special.result}`
-      : dramaticText
+    const expanded = expandedMissionFor(incident.id)
+    const personallyLed = run.playerCaseId === incident.id
+    const approach = personallyLed ? run.missionApproach ?? 'rescue' : 'rescue'
+    const succeeded = grade !== 'failed'
+    const foundClue = Boolean(expanded && personallyLed && approach === 'investigate' && succeeded)
+    if (foundClue && !missionClues.includes(incident.id)) missionClues.push(incident.id)
+    const secret = succeeded ? missionSecretFor(run, incident.id) : null
+    const tacticalText = expanded && personallyLed
+      ? approach === 'investigate'
+        ? succeeded
+          ? ' You accepted greater danger to preserve testimony. The evidence enters your casebook, and may change a later mission in this district.'
+          : ' Your investigation was overtaken by the emergency. No usable evidence survived.'
+        : ' You prioritized the immediate rescue, but the underlying investigation remains open.'
+      : ''
+    const resolvedText = [
+      dramaticText,
+      tacticalText,
+      secret ? `POWER SECRET: ${secret}` : '',
+      special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
+    ].filter(Boolean).join(' ')
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -1403,7 +1463,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
     ...(run.flowVersion === 3
-      ? { injuries, playerCaseId: null, nightPatrol: null }
+      ? { injuries, playerCaseId: null, nightPatrol: null, missionApproach: null, missionClues }
       : {}),
     ...(patrolMemory
       ? {
@@ -1636,6 +1696,7 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     day: run.day + 1,
     selectedSite: undefined,
     nightPatrol: null,
+    missionApproach: null,
     assignments: [],
     reports: [],
     scene:
@@ -1827,6 +1888,17 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.version !== 1 ||
     (data.patrolOpening !== undefined &&
       (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
+    (data.missionApproach !== undefined && data.missionApproach !== null &&
+      (data.flowVersion !== 3 ||
+        !['rescue', 'investigate'].includes(data.missionApproach) ||
+        (data.missionApproach === 'investigate' &&
+          (!data.playerCaseId || !expandedMissionFor(data.playerCaseId))))) ||
+    (data.missionClues !== undefined &&
+      (!Array.isArray(data.missionClues) ||
+        data.flowVersion !== 3 ||
+        data.missionClues.length > EXPANDED_MISSIONS.length ||
+        new Set(data.missionClues).size !== data.missionClues.length ||
+        data.missionClues.some((id) => typeof id !== 'string' || !expandedMissionFor(id)))) ||
     (data.playerCaseId != null &&
       (data.flowVersion !== 3 ||
         typeof data.playerCaseId !== 'string' ||
@@ -1858,7 +1930,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     (data.incidentDeckVersion !== undefined &&
-      (data.incidentDeckVersion !== 2 || data.flowVersion !== 3)) ||
+      (![2, 3].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

@@ -1656,8 +1656,8 @@ const stageAlt = computed(() =>
         ? activeCaptain.value.name + ' selection portrait'
         : crewProfile(focusedCrew.value).name + ' selection portrait',
 )
-const activeCaptain = computed(
-  () => CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
+const activeCaptain = computed(() =>
+  CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
 )
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,

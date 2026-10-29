@@ -474,7 +474,6 @@ useHead({
   title: 'Mandarin Tutor · Kind Robots',
 })
 useSeoMeta(
-  gameLinkPreviewMeta('mandarin', useRuntimeConfig().public.appBaseUrl) ??
-    {},
+  gameLinkPreviewMeta('mandarin', useRuntimeConfig().public.appBaseUrl) ?? {},
 )
 </script>

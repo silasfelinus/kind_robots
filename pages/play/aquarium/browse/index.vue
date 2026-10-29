@@ -182,8 +182,7 @@ const errorMessage = ref('')
 
 useHead({ title: 'Public tanks · Cthulhuquarium' })
 useSeoMeta(
-  gameLinkPreviewMeta('aquarium', useRuntimeConfig().public.appBaseUrl) ??
-    {},
+  gameLinkPreviewMeta('aquarium', useRuntimeConfig().public.appBaseUrl) ?? {},
 )
 
 function normalizeImagePath(value: string): string {

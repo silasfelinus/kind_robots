@@ -95,7 +95,6 @@ assert.equal(new Set(finalBranches.map((beat) => beat?.title)).size, 4)
 assert.match(finalBranches[3]!.text, /unvisited halls/)
 assert.match(finalBranches[3]!.cost, /cannot be invented/)
 
-
 assert.ok(
   BRIAR_SCENES['4,6']?.choices.some((choice) => choice.id === 'testify'),
   'Warden petition must reference a real Briar witness',

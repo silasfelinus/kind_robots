@@ -36,6 +36,7 @@ import {
   earnedRoyalEscortOutcome,
   earnedOrenManifestOutcome,
   earnedKnightCrossingOutcome,
+  earnedVesperRookeryOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -308,7 +309,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           ? earnedRoyalEscortOutcome(state.value, dark.value)
           : dark.value.player === '5,4'
             ? earnedKnightCrossingOutcome(state.value, dark.value)
-            : null
+            : dark.value.player === '3,2'
+              ? earnedVesperRookeryOutcome(state.value, dark.value)
+              : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -1143,7 +1146,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
-    if (key === '3,5' || key === '4,4' || key === '4,3' || key === '5,4') {
+    if (
+      key === '3,5' ||
+      key === '4,4' ||
+      key === '4,3' ||
+      key === '5,4' ||
+      key === '3,2'
+    ) {
       const earned =
         key === '3,5'
           ? earnedBorrowedVoiceOutcome(state.value, next)
@@ -1151,7 +1160,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
             ? earnedRoyalEscortOutcome(state.value, next)
             : key === '4,3'
               ? earnedOrenManifestOutcome(state.value, next)
-              : earnedKnightCrossingOutcome(state.value, next)
+              : key === '5,4'
+                ? earnedKnightCrossingOutcome(state.value, next)
+                : earnedVesperRookeryOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {

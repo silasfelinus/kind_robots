@@ -656,8 +656,9 @@ for (const [firstId, secondId] of pairedPhotoCases) {
 assert.equal(earthPhotoReappraisal(newEarthChronicle(), 'earth-01'), null)
 
 // The first joint reading must remain visible after later mirrored evidence.
-// All sixteen response combinations retain two ordered reflections for each
-// original photo, without revealing any future-reality photograph.
+// All sixteen four-photo response combinations earn distinct, final readings
+// only after every photograph and response is recorded.
+const fourFrameReadings = new Set<string>()
 for (let responseMask = 0; responseMask < 16; responseMask++) {
   const photoIds = ['earth-01', 'earth-02', 'earth-03', 'earth-04']
   const responses = Object.fromEntries(
@@ -675,16 +676,51 @@ for (let responseMask = 0; responseMask < 16; responseMask++) {
   const originalSecond = earthPhotoReappraisals(journal, 'earth-02')
   assert.deepEqual(
     originalFirst.map(({ title }) => title),
-    ['Two wounds, no verdict', 'Two frames, one doorway'],
+    [
+      'Two wounds, no verdict',
+      'Two frames, one doorway',
+      'Four frames, no borrowed verdict',
+    ],
     'Original office reflection must survive the later mirrored comparison',
   )
   assert.deepEqual(
     originalSecond.map(({ title }) => title),
-    ['Two wounds, no verdict', 'A hurt and an unfinished apology'],
+    [
+      'Two wounds, no verdict',
+      'A hurt and an unfinished apology',
+      'Four frames, no borrowed verdict',
+    ],
     'Original gathering reflection must survive the later mirrored comparison',
   )
-  assert.equal(earthPhotoReappraisals(journal, 'earth-03').length, 1)
-  assert.equal(earthPhotoReappraisals(journal, 'earth-04').length, 1)
+  assert.equal(earthPhotoReappraisals(journal, 'earth-03').length, 2)
+  assert.equal(earthPhotoReappraisals(journal, 'earth-04').length, 2)
+  const synthesis = originalFirst[2]!
+  assert.equal(synthesis.title, 'Four frames, no borrowed verdict')
+  assert.match(synthesis.evidence, /office doorway.*injured friend/i)
+  assert.ok(synthesis.reflection.length > 150)
+  assert.doesNotMatch(synthesis.reflection, /children|daughter|son|parenthood/i)
+  fourFrameReadings.add(synthesis.reflection)
+  for (const missingId of photoIds) {
+    const missingResponse = { ...journal.responses }
+    delete missingResponse[missingId]
+    const unanswered = { ...journal, responses: missingResponse }
+    assert.ok(
+      !earthPhotoReappraisals(unanswered, 'earth-01').some(
+        ({ title }) => title === synthesis.title,
+      ),
+      `Unanswered ${missingId} must not unlock the four-frame verdict`,
+    )
+    const undiscovered = {
+      ...journal,
+      found: journal.found.filter((id) => id !== missingId),
+    }
+    assert.ok(
+      !earthPhotoReappraisals(undiscovered, 'earth-04').some(
+        ({ title }) => title === synthesis.title,
+      ),
+      `Undiscovered ${missingId} must not unlock the four-frame verdict`,
+    )
+  }
   assert.deepEqual(
     earthPhotoReappraisals(
       reconcileEarthChronicle(
@@ -699,10 +735,15 @@ for (let responseMask = 0; responseMask < 16; responseMask++) {
   assert.deepEqual(earthPhotoReappraisals(journal, 'earth-31'), [])
   assert.equal(
     earthPhotoReappraisal(journal, 'earth-01')?.title,
-    'Two frames, one doorway',
-    'Existing single-result consumers retain their newest evidence',
+    'Four frames, no borrowed verdict',
+    'Existing single-result consumers receive the newest earned synthesis',
   )
 }
+assert.equal(
+  fourFrameReadings.size,
+  16,
+  'Every combination of four immutable reactions has a distinct authored outcome',
+)
 
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',

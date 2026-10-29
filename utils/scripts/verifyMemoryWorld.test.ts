@@ -4,6 +4,7 @@ import { minefieldRewardKey } from '../memoryDungeon/minefieldRun'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
+  darkBriarWitnessCount,
   newDarkBriarProgress,
   restoreDarkBriarProgress,
   recoverDarkBriarTurn,
@@ -1481,6 +1482,47 @@ const mirroredBase = {
   ...newDarkBriarProgress(),
   mapCards: mirroredCards,
 }
+const mirroredFullyMatched = mirroredCards.map((card) => ({
+  ...card,
+  flipped: true,
+  matched: true,
+}))
+const mirroredUnvisitedDecision = restoreDarkBriarProgress({
+  ...mirroredBase,
+  mapCards: mirroredFullyMatched,
+  visited: [BRIAR_START],
+  player: '3,4',
+  sceneChoices: {
+    '3,4': DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+    '4,4': DARK_BRIAR_SCENES['4,4']!.choices[0]!.id,
+    '5,4': 'draw',
+  },
+})
+assert.deepEqual(
+  mirroredUnvisitedDecision.sceneChoices,
+  {},
+  'Revealed but unvisited Dark Briar sites cannot grant testimony, shortcuts or story decisions',
+)
+assert.equal(mirroredUnvisitedDecision.player, BRIAR_START)
+assert.equal(darkBriarWitnessCount(mirroredUnvisitedDecision), 0)
+const mirroredEarnedDecision = restoreDarkBriarProgress({
+  ...mirroredBase,
+  mapCards: mirroredFullyMatched,
+  visited: [BRIAR_START, '3,4', '4,4', '5,4'],
+  player: '3,4',
+  sceneChoices: {
+    '3,4': DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+    '4,4': DARK_BRIAR_SCENES['4,4']!.choices[0]!.id,
+    '5,4': 'draw',
+  },
+})
+assert.equal(
+  mirroredEarnedDecision.sceneChoices['3,4'],
+  DARK_BRIAR_SCENES['3,4']!.choices[0]!.id,
+  'Legitimately visited mirrored choices survive checkpoint restoration',
+)
+assert.equal(mirroredEarnedDecision.sceneChoices['5,4'], 'draw')
+assert.equal(darkBriarWitnessCount(mirroredEarnedDecision), 1)
 const mirroredSingle = {
   ...mirroredBase,
   mapCards: mirroredCards.map((card) => ({

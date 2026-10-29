@@ -389,7 +389,9 @@ export function earnedKnightCrossingAccord(
   const response = mirrored.sceneChoices['5,4']
   if (source !== 'truth' && source !== 'errand') return 'unset'
   if (response !== 'draw' && response !== 'release') return 'unset'
-  return `${source}-${response === 'draw' ? 'built' : 'released'}`
+  if (source === 'truth')
+    return response === 'draw' ? 'truth-built' : 'truth-released'
+  return response === 'draw' ? 'errand-built' : 'errand-released'
 }
 
 export function earnedKnightCrossingOutcome(

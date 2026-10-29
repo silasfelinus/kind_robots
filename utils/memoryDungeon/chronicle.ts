@@ -632,28 +632,40 @@ const PHOTO_REAPPRAISALS: ReadonlyArray<{
   },
 ]
 
+export function earthPhotoReappraisals(
+  chronicle: EarthChronicle,
+  photoId: string,
+): EarthPhotoReappraisal[] {
+  return [...PHOTO_REAPPRAISALS]
+    .reverse()
+    .filter(
+      ({ photos }) =>
+        photos.includes(photoId) &&
+        photos.every(
+          (id) =>
+            chronicle.found.includes(id) &&
+            (chronicle.responses[id] === 'challenge' ||
+              chronicle.responses[id] === 'hold'),
+        ),
+    )
+    .map((pair) => {
+      const first = chronicle.responses[pair.photos[0]]!
+      const second = chronicle.responses[pair.photos[1]]!
+      return {
+        title: pair.title,
+        evidence: pair.evidence,
+        reflection: pair.reflections[`${first}:${second}`],
+      }
+    })
+}
+
+/** Preserve the most recent comparison for existing single-result consumers. */
 export function earthPhotoReappraisal(
   chronicle: EarthChronicle,
   photoId: string,
 ): EarthPhotoReappraisal | null {
-  const pair = PHOTO_REAPPRAISALS.find(
-    ({ photos }) =>
-      photos.includes(photoId) &&
-      photos.every(
-        (id) =>
-          chronicle.found.includes(id) &&
-          (chronicle.responses[id] === 'challenge' ||
-            chronicle.responses[id] === 'hold'),
-      ),
-  )
-  if (!pair) return null
-  const first = chronicle.responses[pair.photos[0]]!
-  const second = chronicle.responses[pair.photos[1]]!
-  return {
-    title: pair.title,
-    evidence: pair.evidence,
-    reflection: pair.reflections[`${first}:${second}`],
-  }
+  const available = earthPhotoReappraisals(chronicle, photoId)
+  return available[available.length - 1] ?? null
 }
 
 export function validateEarthPhotoManifest(): string[] {

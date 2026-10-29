@@ -25,7 +25,7 @@
     </header>
     <div class="md-mirror-house-layout grid min-h-0 flex-1 gap-2 p-2">
       <div
-        class="relative isolate grid aspect-square max-h-full w-full min-w-0 grid-cols-6 grid-rows-6 gap-1 place-self-center overflow-hidden rounded-xl border-2 border-[#8d76a8] bg-[#171a2d] p-2 shadow-2xl"
+        class="relative isolate grid aspect-square max-h-full w-full min-w-0 grid-cols-6 grid-rows-6 gap-0 place-self-center overflow-hidden rounded-xl border-2 border-[#8d76a8] bg-[#171a2d] p-0 shadow-2xl"
         aria-label="Thirty-six linked House chambers"
       >
         <memory-dungeon-house-map-art reality="mirrored" />
@@ -33,14 +33,14 @@
           v-for="tileRoom in rooms"
           :key="tileRoom.id"
           type="button"
-          class="relative z-10 min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-white"
           :class="
             world.darkHouse.current === tileRoom.id
-              ? 'border-[#f5d89a] bg-[#655179]/80 text-white'
+              ? 'border-[#f5d89a] bg-[#655179]/45 text-white'
               : world.darkHouse.visited.includes(tileRoom.id)
-                ? 'border-[#81b7a8] bg-[#34544f]/80 text-[#f4fff8]'
+                ? 'border-[#81b7a8] bg-[#34544f]/30 text-[#f4fff8]'
                 : world.darkHouseDoors.includes(tileRoom.id)
-                  ? 'border-[#b99bcf] bg-[#4d3d61]/80 text-white'
+                  ? 'border-[#b99bcf] bg-[#4d3d61]/30 text-white'
                   : 'border-[#42445d] bg-[#1b2031]/75 text-[#8390a3]'
           "
           :disabled="!world.darkHouseDoors.includes(tileRoom.id)"

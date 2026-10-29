@@ -151,9 +151,17 @@ export function stageProblems(stage: StageDraft): string[] {
       issues.push('Two units cannot share a spawn.')
     spawnKeys.add(at(spawn.x, spawn.y))
   }
-  if (stage.spawns.length !== 6 || new Set(stage.spawns.map((s) => s.id)).size !== 6)
+  if (
+    stage.spawns.length !== 6 ||
+    new Set(stage.spawns.map((s) => s.id)).size !== 6
+  )
     issues.push('Place all three squad and three rival members.')
-  if (stage.turnLimit !== null && (!Number.isInteger(stage.turnLimit) || stage.turnLimit < 2 || stage.turnLimit > 40))
+  if (
+    stage.turnLimit !== null &&
+    (!Number.isInteger(stage.turnLimit) ||
+      stage.turnLimit < 2 ||
+      stage.turnLimit > 40)
+  )
     issues.push('Turn limits must be from 2 to 40 rounds.')
   for (const marker of [...stage.secrets, ...stage.hazards]) {
     if (!inside(map, marker) || tileAt(map, marker).wall)
@@ -161,26 +169,44 @@ export function stageProblems(stage: StageDraft): string[] {
   }
   const heroes = stage.spawns.slice(0, 3)
   const rivals = stage.spawns.slice(3)
-  if (heroes.length && rivals.length && !heroes.some((hero) =>
-    rivals.some((rival) =>
-      Number.isFinite(pathDistance(map, [], hero, rival)) ||
-      lineOfSight(map, hero, rival),
-    ),
-  )) issues.push('No squad member can reach or see a rival.')
+  if (
+    heroes.length &&
+    rivals.length &&
+    !heroes.some((hero) =>
+      rivals.some(
+        (rival) =>
+          Number.isFinite(pathDistance(map, [], hero, rival)) ||
+          lineOfSight(map, hero, rival),
+      ),
+    )
+  )
+    issues.push('No squad member can reach or see a rival.')
   return [...new Set(issues)]
 }
 
-export function paintStage(stage: StageDraft, p: Point, brush: StudioBrush): StageDraft {
+export function paintStage(
+  stage: StageDraft,
+  p: Point,
+  brush: StudioBrush,
+): StageDraft {
   if (!inside(stage.map, p)) return stage
   const next = deepClone(stage)
   const key = at(p.x, p.y)
-  const occupied = next.spawns.some((spawn) => spawn.x === p.x && spawn.y === p.y)
+  const occupied = next.spawns.some(
+    (spawn) => spawn.x === p.x && spawn.y === p.y,
+  )
   if (brush === 'squad-spawn' || brush === 'rival-spawn') {
     const id = brush === 'squad-spawn' ? 'backdraft' : 'pip'
-    if (tileAt(next.map, p).wall || next.spawns.some((u) => u.id !== id && u.x === p.x && u.y === p.y))
+    if (
+      tileAt(next.map, p).wall ||
+      next.spawns.some((u) => u.id !== id && u.x === p.x && u.y === p.y)
+    )
       return stage
     const spawn = next.spawns.find((u) => u.id === id)
-    if (spawn) { spawn.x = p.x; spawn.y = p.y }
+    if (spawn) {
+      spawn.x = p.x
+      spawn.y = p.y
+    }
     return next
   }
   if (brush === 'secret' || brush === 'hazard') {
@@ -195,9 +221,18 @@ export function paintStage(stage: StageDraft, p: Point, brush: StudioBrush): Sta
   const tiles = { ...next.map.tiles }
   if (brush === 'erase') delete tiles[key]
   if (brush === 'wall') tiles[key] = tile(0, true)
-  if (brush === 'half-cover') tiles[key] = tile(tileAt(next.map, p).elevation, false, { north: 'half', east: 'half' })
-  if (brush === 'full-cover') tiles[key] = tile(tileAt(next.map, p).elevation, false, { north: 'full', east: 'full' })
-  if (brush === 'rise') tiles[key] = tile((tileAt(next.map, p).elevation + 1) % 3)
+  if (brush === 'half-cover')
+    tiles[key] = tile(tileAt(next.map, p).elevation, false, {
+      north: 'half',
+      east: 'half',
+    })
+  if (brush === 'full-cover')
+    tiles[key] = tile(tileAt(next.map, p).elevation, false, {
+      north: 'full',
+      east: 'full',
+    })
+  if (brush === 'rise')
+    tiles[key] = tile((tileAt(next.map, p).elevation + 1) % 3)
   next.map = { ...next.map, tiles }
   next.secrets = next.secrets.filter((q) => !tileAt(next.map, q).wall)
   next.hazards = next.hazards.filter((q) => !tileAt(next.map, q).wall)

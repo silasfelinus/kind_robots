@@ -6,6 +6,7 @@ import {
   hashArtImageData,
   validateArtJobCompletionProof,
 } from '../../server/utils/artJobProvenance'
+import { applyArtJobOverrides } from '../../server/utils/artJobRetry'
 import { rewriteKreaWorkflowPositivePrompt } from '../kreaSemanticPrompt'
 
 function workflow(prompt: string, seed: number) {
@@ -235,3 +236,35 @@ assert.equal(
 )
 
 console.log('ArtJob prompt provenance contract passed.')
+
+// A queue edit must change what the relay renders, not only promptString.
+// ArtJob 49842 (2026-10-29) stored "unmarked., Original" in promptString and
+// "unmarked, Original" in its positive encoder; the exact-match replace found
+// nothing, the edit reported success, and the workflow kept the old prompt.
+{
+  const stored = 'A kitchen at night, every surface bare and unmarked., Hand-painted ink.'
+  const rendered = 'A kitchen at night, every surface bare and unmarked, Hand-painted ink.'
+  const next = 'A scorched food-truck kitchen at night, a cook holding a logbook, Hand-painted ink.'
+  const drifted = applyArtJobOverrides(
+    {
+      promptString: stored,
+      workflow: {
+        '3': { class_type: 'CLIPTextEncode', inputs: { text: rendered } },
+        '4': {
+          class_type: 'CLIPTextEncode',
+          inputs: { text: '' },
+          _meta: { title: 'Negative Prompt' },
+        },
+        '9': { class_type: 'CLIPTextEncode', inputs: { text: 'an unrelated pass' } },
+      },
+    },
+    { promptString: next },
+  )
+  const nodes = drifted.workflow as Record<string, { inputs: { text: string } }>
+  assert.equal(nodes['3'].inputs.text, next, 'the drifted positive encoder takes the edit')
+  assert.equal(nodes['4'].inputs.text, '', 'the negative encoder is untouched')
+  assert.equal(nodes['9'].inputs.text, 'an unrelated pass', 'other encoders are untouched')
+  assert.equal(drifted.promptString, next)
+}
+
+console.log('ArtJob queue-edit prompt drift contract passed.')

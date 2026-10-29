@@ -914,3 +914,41 @@ assert.equal(
   repairFramePrompt('A lamp on a table. A square picture with the subject large and centred. Polished.'),
   'A lamp on a table. Polished.',
 )
+
+// ── Rule 9: assembled copy ──────────────────────────────────────────────────
+
+// ArtJob 49515 (2026-10-29): a character sheet pasted field by field.
+const ARTJOB_49515 =
+  'Original character Rafael "Rafa" Medeiros, recognizable from their civilian identity as ' +
+  'Touchstone. Civilian identity: A psychometric geology student who hears everything that ' +
+  'ever happened near a stone. He was quiet and content until he touched the cornerstone of ' +
+  'city hall.. The terrifying but emotionally intelligible consequence of Rafael "Rafa" ' +
+  'Medeiros claiming the supervillain identity The Foundation.'
+assert.equal(
+  checkArtPromptContract({ prompt: ARTJOB_49515, engine: 'krea2', steps: 8, cfg: 1 }).filter(
+    (v) => v.rule === 'assembled-copy',
+  ).length,
+  2,
+  'the character-sheet label and the doubled full stop are both assembled copy',
+)
+// The Hybridizer missing-image request, cut at 1,200 characters.
+assert.ok(
+  rules({
+    prompt:
+      'A sprawling biomechanical fusion laboratory, background softly blurred to draw full focus to the hybrid creature tak…',
+    engine: 'krea2',
+  }).includes('assembled-copy'),
+  'a prompt cut mid-word is rejected',
+)
+for (const prompt of [
+  'A koala samurai at a dusty crossroads... a tumbleweed rolls past, warm dusk light.',
+  'A courier with a sealed letter. A heron watches from the rail. Every surface bare and unmarked.',
+  'A detective in a trench coat holds a dossier on the motivation board, warm lamp light.',
+]) {
+  assert.ok(
+    !rules({ prompt, engine: 'krea2', steps: 8, cfg: 1 }).includes('assembled-copy'),
+    `a described scene is not assembled copy: ${prompt}`,
+  )
+}
+
+console.log('Art prompt contract passed: assembled copy (labels, glued fields, truncation) is rejected.')

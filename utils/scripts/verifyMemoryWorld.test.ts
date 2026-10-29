@@ -56,6 +56,7 @@ import {
 import {
   EARTH_PHOTOS,
   earthPhotoReappraisal,
+  earthPhotoReappraisals,
   firstWorldPhotoChronicle,
   newEarthChronicle,
   recoveredEarthPhotos,
@@ -650,6 +651,55 @@ for (const [firstId, secondId] of pairedPhotoCases) {
 }
 assert.equal(earthPhotoReappraisal(newEarthChronicle(), 'earth-01'), null)
 
+// The first joint reading must remain visible after later mirrored evidence.
+// All sixteen response combinations retain two ordered reflections for each
+// original photo, without revealing any future-reality photograph.
+for (let responseMask = 0; responseMask < 16; responseMask++) {
+  const photoIds = ['earth-01', 'earth-02', 'earth-03', 'earth-04']
+  const responses = Object.fromEntries(
+    photoIds.map((id, index) => [
+      id,
+      responseMask & (1 << index) ? 'hold' : 'challenge',
+    ]),
+  )
+  const journal = restoreEarthChronicle({
+    version: 1,
+    found: [...photoIds, 'earth-31'],
+    responses,
+  })
+  const originalFirst = earthPhotoReappraisals(journal, 'earth-01')
+  const originalSecond = earthPhotoReappraisals(journal, 'earth-02')
+  assert.deepEqual(
+    originalFirst.map(({ title }) => title),
+    ['Two wounds, no verdict', 'Two frames, one doorway'],
+    'Original office reflection must survive the later mirrored comparison',
+  )
+  assert.deepEqual(
+    originalSecond.map(({ title }) => title),
+    ['Two wounds, no verdict', 'A hurt and an unfinished apology'],
+    'Original gathering reflection must survive the later mirrored comparison',
+  )
+  assert.equal(earthPhotoReappraisals(journal, 'earth-03').length, 1)
+  assert.equal(earthPhotoReappraisals(journal, 'earth-04').length, 1)
+  assert.deepEqual(
+    earthPhotoReappraisals(
+      reconcileEarthChronicle(
+        restoreEarthChronicle(JSON.parse(JSON.stringify(journal))),
+        { e01: {}, e02: {} },
+      ),
+      'earth-01',
+    ),
+    originalFirst,
+    'Chronicle layers survive save restoration and a new expedition',
+  )
+  assert.deepEqual(earthPhotoReappraisals(journal, 'earth-31'), [])
+  assert.equal(
+    earthPhotoReappraisal(journal, 'earth-01')?.title,
+    'Two frames, one doorway',
+    'Existing single-result consumers retain their newest evidence',
+  )
+}
+
 const chronicleSurface = readFileSync(
   'components/memory-dungeon/earth-chronicle.vue',
   'utf8',
@@ -686,7 +736,8 @@ for (const trigger of [
 assert.match(memoryMapSurface, /if \(open\) settingsDialog\.value\?\.focus\(\)/)
 assert.match(chronicleSurface, /data-testid="memory-earth-chronicle"/)
 assert.match(chronicleSurface, /data-testid="memory-earth-reappraisal"/)
-assert.match(chronicleSurface, /earthPhotoReappraisal/)
+assert.match(chronicleSurface, /earthPhotoReappraisals/)
+assert.match(chronicleSurface, /v-for="\(reappraisal, index\) in reappraisals"/)
 assert.match(chronicleSurface, /world\.answerEarthPhoto/)
 assert.match(chronicleSurface, /v-if="!failed\[active.id\]"/)
 assert.match(memoryMapSurface, /data-testid="memory-earth-chronicle-open"/)

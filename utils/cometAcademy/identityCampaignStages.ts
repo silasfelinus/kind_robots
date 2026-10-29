@@ -45,6 +45,8 @@ export function campaignStagesFor(
 ): IdentityCampaignStage {
   const stages = bySignature.get(signature)
   if (!stages)
-    throw new Error(`Missing opening mission, villain lair or lieutenant for ${signature}`)
+    throw new Error(
+      `Missing opening mission, villain lair or lieutenant for ${signature}`,
+    )
   return stages
 }

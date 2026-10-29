@@ -18,6 +18,7 @@ import {
   type Chance,
   type Fighter,
   type Point,
+  type Status,
 } from './combat'
 
 export type Team = 'squad' | 'rival'
@@ -65,7 +66,7 @@ export const lineClear = (from: Cell, to: Cell) =>
 export const walkDistance = (state: TrainingState, from: Cell, to: Cell) =>
   pathDistance(FIRST_BELL_MAP, state.units, from, to)
 export function previewShot(
-  from: Cell & { statuses?: readonly Fighter['statuses'][number][] },
+  from: Cell & { statuses?: readonly Status[] },
   target: Unit,
 ): ShotPreview {
   return { target: target.id, ...chanceFrom(FIRST_BELL_MAP, from, target) }

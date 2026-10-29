@@ -609,8 +609,8 @@ export function incidentDeck(run: AcademyRun): Incident[] {
     : run.incidentDeckVersion === 3
       ? FULL_NIGHT_DECK
       : run.incidentDeckVersion === 2
-      ? NIGHT_DECK
-      : INCIDENTS
+        ? NIGHT_DECK
+        : INCIDENTS
 }
 
 export function incidentsFor(run: AcademyRun): Incident[] {
@@ -1733,13 +1733,13 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       scene:
         'At the end of week one, the faculty projects a prom-night disaster simulation. Real graduation is still weeks away.',
     }
-  const morningReport = run.reports.find(
-    (report) =>
-      report.names.includes('YOU') &&
-      expandedMissionFor(report.caseId)?.morning,
-  ) ?? run.reports.find(
-    (report) => expandedMissionFor(report.caseId)?.morning,
-  )
+  const morningReport =
+    run.reports.find(
+      (report) =>
+        report.names.includes('YOU') &&
+        expandedMissionFor(report.caseId)?.morning,
+    ) ??
+    run.reports.find((report) => expandedMissionFor(report.caseId)?.morning)
   const morningMemory = morningReport
     ? expandedMissionFor(morningReport.caseId)?.morning
     : null
@@ -1752,10 +1752,9 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     missionApproach: null,
     assignments: [],
     reports: [],
-    scene:
-      morningMemory
-        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
-        : run.patrolHistory?.at(-1)?.day === run.day
+    scene: morningMemory
+      ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
+      : run.patrolHistory?.at(-1)?.day === run.day
         ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
         : run.missionClues?.length &&
             run.reports.some((report) => report.text.includes('casebook'))
@@ -1991,7 +1990,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     (data.incidentDeckVersion !== undefined &&
-      (![2, 3, 4].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
+      (![2, 3, 4].includes(data.incidentDeckVersion) ||
+        data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

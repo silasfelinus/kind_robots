@@ -424,14 +424,24 @@
             >
               <div class="cca-patrol-heading">
                 <strong>✦ WALK THE BLOCK · OPTIONAL PATROL</strong>
-                <small>Choose a neighborhood instead of a major call. Your allies can still answer other emergencies.</small>
+                <small
+                  >Choose a neighborhood instead of a major call. Your allies
+                  can still answer other emergencies.</small
+                >
               </div>
-              <div class="cca-patrol-zones" role="group" aria-label="Comet City patrol neighborhoods">
+              <div
+                class="cca-patrol-zones"
+                role="group"
+                aria-label="Comet City patrol neighborhoods"
+              >
                 <button
                   v-for="zone in PATROL_ZONES"
                   :key="zone.id"
                   type="button"
-                  :class="{ active: patrolZone === zone.id, chosen: run.nightPatrol?.zone === zone.id }"
+                  :class="{
+                    active: patrolZone === zone.id,
+                    chosen: run.nightPatrol?.zone === zone.id,
+                  }"
                   :aria-pressed="patrolZone === zone.id"
                   @click="patrolZone = zone.id"
                 >
@@ -454,11 +464,17 @@
                     @click="store.patrol(patrolZone, option.id)"
                   >
                     {{ option.label }}
-                    <span v-if="option.id.endsWith('-secret')">✦ HIDDEN ROUTE</span>
+                    <span v-if="option.id.endsWith('-secret')"
+                      >✦ HIDDEN ROUTE</span
+                    >
                   </button>
                 </div>
-                <small v-if="run.nightPatrol" data-testid="academy-night-patrol-selected">
-                  PATROL LOCKED IN · {{ run.nightPatrol.zone.toUpperCase() }} · Choose a mission to change your plan
+                <small
+                  v-if="run.nightPatrol"
+                  data-testid="academy-night-patrol-selected"
+                >
+                  PATROL LOCKED IN · {{ run.nightPatrol.zone.toUpperCase() }} ·
+                  Choose a mission to change your plan
                 </small>
               </div>
             </section>
@@ -933,7 +949,11 @@ import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
-import { PATROL_ZONES, patrolSceneFor, type PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
+import {
+  PATROL_ZONES,
+  patrolSceneFor,
+  type PatrolZoneId,
+} from '~/utils/cometAcademy/nightPatrols'
 import {
   openingRouteDays,
   routeMemoryLine,
@@ -1087,8 +1107,16 @@ const panelLabel = computed(() =>
       }[run.value.phase]
     : 'NEW STUDENT // POWER SELECTION',
 )
-const patrolScene = computed(() => run.value?.patrolOpening === 1 && run.value.day >= 4 ? patrolSceneFor(run.value.seed, run.value.day, patrolZone.value) : null)
-const patrolChoices = computed(() => run.value && patrolScene.value ? patrolOptionsFor(run.value, patrolZone.value) : [])
+const patrolScene = computed(() =>
+  run.value?.patrolOpening === 1 && run.value.day >= 4
+    ? patrolSceneFor(run.value.seed, run.value.day, patrolZone.value)
+    : null,
+)
+const patrolChoices = computed(() =>
+  run.value && patrolScene.value
+    ? patrolOptionsFor(run.value, patrolZone.value)
+    : [],
+)
 const nightBeat = computed(() =>
   run.value ? nightPatrolBeat(run.value) : null,
 )
@@ -1709,19 +1737,67 @@ function toggleStudent(caseId: string, id: StudentId): void {
   padding: 0.7rem;
   margin-bottom: 0.7rem;
 }
-.cca-patrol-heading { display: flex; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
-.cca-patrol-heading small { color: #c7dbe4; max-width: 32rem; }
-.cca-patrol-zones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
-.cca-patrol-zones button { text-align: left; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #9db0cf50; background: #071625a6; display: grid; gap: 0.2rem; }
-.cca-patrol-zones button.active, .cca-patrol-zones button.chosen { border-color: #eecb82; background: #34455f; }
-.cca-patrol-zones button strong { font-size: 0.78rem; }
-.cca-patrol-zones button small { color: #aebfc9; font-size: 0.69rem; }
-.cca-patrol-story { margin-top: 0.55rem; display: grid; gap: 0.35rem; }
-.cca-patrol-story p { font-size: 0.84rem; line-height: 1.45; color: #e5edf5; }
-.cca-patrol-decisions { display: grid; gap: 0.35rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.cca-patrol-decisions button { font-size: 0.83rem; justify-content: space-between; }
+.cca-patrol-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.cca-patrol-heading small {
+  color: #c7dbe4;
+  max-width: 32rem;
+}
+.cca-patrol-zones {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+.cca-patrol-zones button {
+  text-align: left;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #9db0cf50;
+  background: #071625a6;
+  display: grid;
+  gap: 0.2rem;
+}
+.cca-patrol-zones button.active,
+.cca-patrol-zones button.chosen {
+  border-color: #eecb82;
+  background: #34455f;
+}
+.cca-patrol-zones button strong {
+  font-size: 0.78rem;
+}
+.cca-patrol-zones button small {
+  color: #aebfc9;
+  font-size: 0.69rem;
+}
+.cca-patrol-story {
+  margin-top: 0.55rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.cca-patrol-story p {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #e5edf5;
+}
+.cca-patrol-decisions {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cca-patrol-decisions button {
+  font-size: 0.83rem;
+  justify-content: space-between;
+}
 @media (max-width: 650px) {
-  .cca-patrol-zones, .cca-patrol-decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cca-patrol-zones,
+  .cca-patrol-decisions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .cca-incident {
   padding: 0.75rem;

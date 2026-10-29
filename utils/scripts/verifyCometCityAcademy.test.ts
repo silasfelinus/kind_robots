@@ -30,7 +30,10 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
-import { EXPANDED_MISSIONS, expandedMissionFor } from '../cometAcademy/expandedNightCases'
+import {
+  EXPANDED_MISSIONS,
+  expandedMissionFor,
+} from '../cometAcademy/expandedNightCases'
 import {
   PATROL_ZONES,
   PATROL_SECRETS,
@@ -2046,8 +2049,10 @@ for (const mission of EXPANDED_MISSIONS) {
   fullCaseTitles.add(mission.incident.title)
   assert.ok([3, 4, 5].includes(mission.incident.risk))
   for (const outcome of ['honors', 'pass', 'partial', 'failed'] as const)
-    assert.ok(mission.consequences[outcome].length > 135,
-      `${mission.incident.id} has bespoke ${outcome} prose`)
+    assert.ok(
+      mission.consequences[outcome].length > 135,
+      `${mission.incident.id} has bespoke ${outcome} prose`,
+    )
   assert.equal(realNightCase(mission.incident.id)?.briefing, mission.briefing)
   assert.ok(PROM_ART_PROMPTS[`incidents/${mission.incident.id}`])
 }
@@ -2073,7 +2078,11 @@ assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
   assert.equal(selectMissionApproach(night, 'frog-serum', 'investigate'), night)
   night = assignPlayerCase(night, 'frog-serum')
   const rescueOdds = dispatchChance(night, 'frog-serum', [])
-  const investigation = selectMissionApproach(night, 'frog-serum', 'investigate')
+  const investigation = selectMissionApproach(
+    night,
+    'frog-serum',
+    'investigate',
+  )
   assert.equal(investigation.missionApproach, 'investigate')
   assert.ok(rescueOdds >= dispatchChance(investigation, 'frog-serum', []))
   assert.equal(missionSecretFor(investigation, 'frog-serum'), null)
@@ -2081,10 +2090,13 @@ assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
     selectMissionApproach(investigation, 'monorail', 'investigate'),
     investigation,
   )
-  assert.equal(restoreAcademy({
-    ...investigation,
-    missionApproach: 'erase',
-  }), null)
+  assert.equal(
+    restoreAcademy({
+      ...investigation,
+      missionApproach: 'erase',
+    }),
+    null,
+  )
   assert.equal(restoreAcademy({ ...night, missionClues: ['not-real'] }), null)
   const prepared = { ...night, missionClues: ['mirror-court'] }
   assert.ok(missionSecretFor(prepared, 'frog-serum'))
@@ -2099,14 +2111,27 @@ assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
     const investigated = resolveDispatch(
       selectMissionApproach(candidate, 'frog-serum', 'investigate'),
     )
-    if (!successfulInvestigation && investigated.reports.find((report) =>
-      report.caseId === 'frog-serum' && report.grade !== 'failed')) {
+    if (
+      !successfulInvestigation &&
+      investigated.reports.find(
+        (report) => report.caseId === 'frog-serum' && report.grade !== 'failed',
+      )
+    ) {
       successfulInvestigation = investigated
     }
-    const secretRun = resolveDispatch({ ...candidate, missionClues: ['mirror-court'] })
-    if (!solvedSecret && secretRun.reports.some((report) =>
-      report.caseId === 'frog-serum' &&
-      report.text.includes('POWER SECRET:'))) solvedSecret = secretRun
+    const secretRun = resolveDispatch({
+      ...candidate,
+      missionClues: ['mirror-court'],
+    })
+    if (
+      !solvedSecret &&
+      secretRun.reports.some(
+        (report) =>
+          report.caseId === 'frog-serum' &&
+          report.text.includes('POWER SECRET:'),
+      )
+    )
+      solvedSecret = secretRun
     if (successfulInvestigation && solvedSecret) break
   }
   assert.ok(successfulInvestigation, 'investigation can succeed')
@@ -2115,11 +2140,25 @@ assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
   assert.ok(solvedSecret, 'prior evidence plus matching power reveals secret')
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(solvedSecret))))
   const reset = assignPlayerCase(investigation, 'ghost-ticket')
-  assert.equal(reset, investigation, 'cannot switch to a mission not offered tonight')
-  const reroute = assignPlayerCase(investigation, incidentsFor(investigation)[1]!.id)
+  assert.equal(
+    reset,
+    investigation,
+    'cannot switch to a mission not offered tonight',
+  )
+  const reroute = assignPlayerCase(
+    investigation,
+    incidentsFor(investigation)[1]!.id,
+  )
   assert.equal(reroute.missionApproach, 'rescue')
-  assert.equal(restoreAcademy(JSON.parse(JSON.stringify(reroute)))?.playerCaseId, reroute.playerCaseId)
-  const previousDeck = { ...template, incidentDeckVersion: 2 as const, missionClues: undefined }
+  assert.equal(
+    restoreAcademy(JSON.parse(JSON.stringify(reroute)))?.playerCaseId,
+    reroute.playerCaseId,
+  )
+  const previousDeck = {
+    ...template,
+    incidentDeckVersion: 2 as const,
+    missionClues: undefined,
+  }
   assert.equal(incidentDeck(previousDeck).length, 12)
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(previousDeck))))
 }

@@ -62,7 +62,14 @@ import {
   type SocialActionId,
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
-import { PATROL_ZONES, PATROL_SECRETS, patrolSceneFor, type PatrolZoneId, type PatrolMemory, type PatrolChoice } from './nightPatrols'
+import {
+  PATROL_ZONES,
+  PATROL_SECRETS,
+  patrolSceneFor,
+  type PatrolZoneId,
+  type PatrolMemory,
+  type PatrolChoice,
+} from './nightPatrols'
 import { districtEncounterFor } from './districtEncounters'
 import { LATE_INCIDENTS } from './lateIncidents'
 import { returnVisitFor } from './returnVisits'
@@ -537,7 +544,11 @@ export type AcademyRun = {
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
   /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
-  nightPatrol?: { zone: PatrolZoneId; encounterId: string; choiceId: string } | null
+  nightPatrol?: {
+    zone: PatrolZoneId
+    encounterId: string
+    choiceId: string
+  } | null
   patrolHistory?: PatrolMemory[]
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
@@ -813,16 +824,21 @@ export function nightPatrolBeat(
 }
 
 /** District patrols are separate from the mission board, and consume the protagonist's time. */
-export function patrolOptionsFor(run: AcademyRun, zone: PatrolZoneId): PatrolChoice[] {
+export function patrolOptionsFor(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+): PatrolChoice[] {
   const scene = patrolSceneFor(run.seed, run.day, zone)
   const options: PatrolChoice[] = [...scene.choices]
   const secret = PATROL_SECRETS[zone]
   if (
     knownContacts(run).includes(secret.ally as StudentId) &&
     run.patrolHistory?.some(
-      (memory) => memory.zone === zone && memory.choiceId.endsWith('-investigate'),
+      (memory) =>
+        memory.zone === zone && memory.choiceId.endsWith('-investigate'),
     )
-  ) options.push(secret.choice)
+  )
+    options.push(secret.choice)
   return options
 }
 
@@ -837,7 +853,8 @@ export function chooseNightPatrol(
     run.day < 4 ||
     run.phase !== 'dispatch' ||
     !PATROL_ZONES.some((item) => item.id === zone)
-  ) return run
+  )
+    return run
   const scene = patrolSceneFor(run.seed, run.day, zone)
   if (!patrolOptionsFor(run, zone).some((option) => option.id === choiceId))
     return run
@@ -1364,27 +1381,41 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     reports.push({
       caseId: `patrol-${run.day}-${patrol.zone}`,
       title: `${zone.title}: ${patrolScene.title}`,
-      grade: patrolChoice.id.endsWith('-secret') ? 'honors' :
-        patrolChoice.id.endsWith('-investigate') ? 'partial' : 'pass',
+      grade: patrolChoice.id.endsWith('-secret')
+        ? 'honors'
+        : patrolChoice.id.endsWith('-investigate')
+          ? 'partial'
+          : 'pass',
       text: patrolChoice.result,
       names: 'YOU · night neighborhood patrol',
     })
   }
   const patrolMemory: PatrolMemory | null =
     patrol && patrolScene && patrolChoice
-      ? { day: run.day, zone: patrol.zone, encounterId: patrolScene.id, choiceId: patrolChoice.id }
+      ? {
+          day: run.day,
+          zone: patrol.zone,
+          encounterId: patrolScene.id,
+          choiceId: patrolChoice.id,
+        }
       : null
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
-    ...(run.flowVersion === 3 ? { injuries, playerCaseId: null, nightPatrol: null } : {}),
-    ...(patrolMemory ? {
-      patrolHistory: [...(run.patrolHistory ?? []), patrolMemory],
-      academyStanding: (run.academyStanding ?? 0) +
-        (zone?.siteId === 'academy-roof' ? patrolChoice!.standing : 0),
-      cityStanding: (run.cityStanding ?? 0) +
-        (zone?.siteId !== 'academy-roof' ? patrolChoice!.standing : 0),
-    } : {}),
+    ...(run.flowVersion === 3
+      ? { injuries, playerCaseId: null, nightPatrol: null }
+      : {}),
+    ...(patrolMemory
+      ? {
+          patrolHistory: [...(run.patrolHistory ?? []), patrolMemory],
+          academyStanding:
+            (run.academyStanding ?? 0) +
+            (zone?.siteId === 'academy-roof' ? patrolChoice!.standing : 0),
+          cityStanding:
+            (run.cityStanding ?? 0) +
+            (zone?.siteId !== 'academy-roof' ? patrolChoice!.standing : 0),
+        }
+      : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
@@ -1919,11 +1950,15 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
   // Validate optional patrol state only after primitive, roster and date checks.
   // Otherwise a malformed imported save could cause a lookup to throw.
   if (
-    (data.nightPatrol !== undefined && data.nightPatrol !== null &&
-      (data.flowVersion !== 3 || data.patrolOpening !== 1 ||
-        data.phase !== 'dispatch' || data.day! < 4 ||
+    (data.nightPatrol !== undefined &&
+      data.nightPatrol !== null &&
+      (data.flowVersion !== 3 ||
+        data.patrolOpening !== 1 ||
+        data.phase !== 'dispatch' ||
+        data.day! < 4 ||
         !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
-        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone).id !== data.nightPatrol.encounterId ||
+        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone)
+          .id !== data.nightPatrol.encounterId ||
         !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
           (option) => option.id === data.nightPatrol?.choiceId,
         ) ||
@@ -1933,15 +1968,26 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         data.flowVersion !== 3 ||
         data.patrolOpening !== 1 ||
         data.patrolHistory.length > 26 ||
-        data.patrolHistory.some((entry, i) =>
-          !entry || !Number.isInteger(entry.day) ||
-          entry.day < 4 || entry.day > data.day! ||
-          (i > 0 && entry.day <= data.patrolHistory![i-1]!.day) ||
-          !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
-          patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !== entry.encounterId ||
-          ![...patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).choices.map((option) => option.id),
-            PATROL_SECRETS[entry.zone].choice.id].includes(entry.choiceId),
+        data.patrolHistory.some(
+          (entry, i) =>
+            !entry ||
+            !Number.isInteger(entry.day) ||
+            entry.day < 4 ||
+            entry.day > data.day! ||
+            (i > 0 && entry.day <= data.patrolHistory![i - 1]!.day) ||
+            !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
+            patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !==
+              entry.encounterId ||
+            ![
+              ...patrolSceneFor(
+                data.seed ?? 0,
+                entry.day,
+                entry.zone,
+              ).choices.map((option) => option.id),
+              PATROL_SECRETS[entry.zone].choice.id,
+            ].includes(entry.choiceId),
         )))
-  ) return null
+  )
+    return null
   return data as AcademyRun
 }

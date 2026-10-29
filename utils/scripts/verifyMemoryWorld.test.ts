@@ -1795,6 +1795,10 @@ for (const [reality, stage] of [
     /min-w-0 rounded-none border text-center/,
     `${reality} atlas buttons must not cut away painted room corners`,
   )
+  assert.ok(
+    stage.includes('focus-visible:outline-offset-[-2px]'),
+    `${reality} outer-edge keyboard focus rings stay visible inside the atlas`,
+  )
 }
 assert.ok(
   houseMapScreen.includes('bg-[#405949]/30') &&

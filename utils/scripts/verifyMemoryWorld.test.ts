@@ -2973,7 +2973,12 @@ for (const { site, choice, expected } of briarLossBranches) {
     ['combat', false],
     ['chamber', true],
   ] as const) {
-    const result = briarLossContinuation(reloaded, kind, lastHeart, 'Thorn Guard')
+    const result = briarLossContinuation(
+      reloaded,
+      kind,
+      lastHeart,
+      'Thorn Guard',
+    )
     assert.match(result, expected)
     assert.ok(result.length <= 220, 'Defeat text fits the saved status')
     assert.equal(

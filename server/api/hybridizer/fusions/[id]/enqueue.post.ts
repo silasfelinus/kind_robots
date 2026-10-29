@@ -3,9 +3,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireScopedApiUser } from '~/server/utils/authGuard'
 import { authAndGate } from '~/server/utils/comfyGate'
-import {
-  buildKrea2WorkflowFromRequest,
-} from '~/server/api/comfy/krea2/utils/workflow'
+import { buildKrea2WorkflowFromRequest } from '~/server/api/comfy/krea2/utils/workflow'
 import { normalizeQueuedArtJobPayload } from '~/server/utils/artJobNormalization'
 import { repairQueuedArtSampler } from '~/server/utils/artJobSamplerRepair'
 import { assertQueuedArtPromptContract } from '~/server/utils/artJobQueueSettings'
@@ -14,7 +12,10 @@ import {
   parseArtJobPayload,
   serializeArtJobPayload,
 } from '~/server/utils/artJobPayload'
-import { starterForIdentity, fusionIdForIdentity } from '~/server/utils/hybridizerFusion'
+import {
+  starterForIdentity,
+  fusionIdForIdentity,
+} from '~/server/utils/hybridizerFusion'
 import {
   hybridizerArtPrompt,
   hybridizerArtSeed,
@@ -32,16 +33,24 @@ export default defineEventHandler(async (event) => {
     const auth = await requireScopedApiUser(event, 'generation:art')
     const id = getRouterParam(event, 'id') ?? ''
     if (!/^[a-f0-9]{64}$/.test(id))
-      throw createError({ statusCode: 400, message: 'Invalid fusion identifier.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid fusion identifier.',
+      })
 
     const fusion = await prisma.hybridizerFusion.findUnique({ where: { id } })
     if (!fusion || (!fusion.isPublic && fusion.creatorUserId !== auth.user.id))
       throw createError({ statusCode: 404, message: 'Fusion not available.' })
 
     if (fusion.artJobId) {
-      const job = await prisma.artJob.findUnique({ where: { id: fusion.artJobId } })
+      const job = await prisma.artJob.findUnique({
+        where: { id: fusion.artJobId },
+      })
       if (!job)
-        throw createError({ statusCode: 409, message: 'The existing ArtJob needs repair.' })
+        throw createError({
+          statusCode: 409,
+          message: 'The existing ArtJob needs repair.',
+        })
       if (job.status === 'FAILED') {
         const activeRetries = await prisma.artJob.count({
           where: {
@@ -53,18 +62,22 @@ export default defineEventHandler(async (event) => {
         if (activeRetries >= HYBRIDIZER_ACTIVE_USER_LIMIT)
           throw createError({
             statusCode: 429,
-            message: 'You have three active Hybridizer renders. Retry after one finishes.',
+            message:
+              'You have three active Hybridizer renders. Retry after one finishes.',
           })
         if (job.userId !== auth.user.id && !auth.isAdmin)
           throw createError({
             statusCode: 409,
-            message: 'This shared fusion needs its original render requester to retry.',
+            message:
+              'This shared fusion needs its original render requester to retry.',
           })
         const payload = parseArtJobPayload(job.payload)
-        const prior = payload.hybridizer && typeof payload.hybridizer === 'object' &&
+        const prior =
+          payload.hybridizer &&
+          typeof payload.hybridizer === 'object' &&
           !Array.isArray(payload.hybridizer)
-          ? payload.hybridizer as Record<string, unknown>
-          : {}
+            ? (payload.hybridizer as Record<string, unknown>)
+            : {}
         const retryCount = Number(prior.retryCount || 0)
         if (retryCount >= HYBRIDIZER_RETRY_LIMIT)
           throw createError({
@@ -93,7 +106,12 @@ export default defineEventHandler(async (event) => {
         }
         return {
           success: true,
-          data: { key: 'fusion:' + id, artJobId: job.id, status: 'QUEUED', reused: true },
+          data: {
+            key: 'fusion:' + id,
+            artJobId: job.id,
+            status: 'QUEUED',
+            reused: true,
+          },
         }
       }
       return {
@@ -101,8 +119,12 @@ export default defineEventHandler(async (event) => {
         data: {
           key: 'fusion:' + id,
           artJobId: job.id,
-          status: job.status === 'RUNNING' ? 'RENDERING' :
-            job.status === 'PENDING' ? 'QUEUED' : job.status,
+          status:
+            job.status === 'RUNNING'
+              ? 'RENDERING'
+              : job.status === 'PENDING'
+                ? 'QUEUED'
+                : job.status,
           reused: true,
         },
       }
@@ -118,7 +140,8 @@ export default defineEventHandler(async (event) => {
     if (activeCount >= HYBRIDIZER_ACTIVE_USER_LIMIT)
       throw createError({
         statusCode: 429,
-        message: 'You have three active Hybridizer renders. Keep fusing while they finish.',
+        message:
+          'You have three active Hybridizer renders. Keep fusing while they finish.',
       })
 
     async function titleFor(key: string): Promise<string> {
@@ -126,10 +149,18 @@ export default defineEventHandler(async (event) => {
       if (starter) return starter.title
       const ancestorId = fusionIdForIdentity(key)
       const ancestor = ancestorId
-        ? await prisma.hybridizerFusion.findUnique({ where: { id: ancestorId } })
+        ? await prisma.hybridizerFusion.findUnique({
+            where: { id: ancestorId },
+          })
         : null
-      if (!ancestor || (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id))
-        throw createError({ statusCode: 404, message: 'Fusion ancestor not available.' })
+      if (
+        !ancestor ||
+        (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id)
+      )
+        throw createError({
+          statusCode: 404,
+          message: 'Fusion ancestor not available.',
+        })
       return ancestor.title
     }
     const [left, right] = await Promise.all([
@@ -201,7 +232,10 @@ export default defineEventHandler(async (event) => {
           data: { artJobId: job.id, status: 'QUEUED' },
         })
         if (reserved.count !== 1)
-          throw createError({ statusCode: 409, message: 'Fusion is being queued elsewhere.' })
+          throw createError({
+            statusCode: 409,
+            message: 'Fusion is being queued elsewhere.',
+          })
         return { artJobId: job.id, created: true }
       })
     } catch (error) {
@@ -210,7 +244,8 @@ export default defineEventHandler(async (event) => {
       if (!raced?.artJobId) throw error
       created = { artJobId: raced.artJobId, created: false }
     }
-    if (created.created) await gate.commit('hybridizer-artjob:' + created.artJobId)
+    if (created.created)
+      await gate.commit('hybridizer-artjob:' + created.artJobId)
     event.node.res.statusCode = created.created ? 201 : 200
     return {
       success: true,

@@ -32,7 +32,9 @@ for (const [key, ids] of [
 
 for (const [room, ids] of [
   ['HD-05', ['open', 'test']],
-  ['HD-06', ['stock']],
+  ['HD-06', ['route', 'stock']],
+  ['HD-12', ['open', 'map']],
+  ['HD-24', ['mark', 'retreat']],
   ['HD-10', ['manifest']],
   ['HD-17', ['read']],
   ['HD-21', ['archive']],
@@ -173,6 +175,103 @@ assert.equal(
   'An unresolved Hearth must not narrate an ending the player has not chosen',
 )
 
+const broom = progress('HD-06', fullPath.slice(0, 6))
+const broomBeats = [
+  houseFloorBeat('HD-06', broom, {}),
+  houseFloorBeat(
+    'HD-06',
+    { ...broom, decisions: { 'HD-06': 'stock' } },
+    {},
+  ),
+  houseFloorBeat(
+    'HD-06',
+    { ...broom, decisions: { 'HD-06': 'route' } },
+    {},
+  ),
+]
+assert.equal(new Set(broomBeats.map((beat) => beat?.title)).size, 3)
+assert.match(broomBeats[1]!.text, /without first owing you a story/)
+assert.match(broomBeats[2]!.cost, /next frightened resident/)
+
+const passage = progress('HD-12', fullPath.slice(0, 12))
+const passageBeats = [
+  houseFloorBeat('HD-12', passage, {}),
+  houseFloorBeat(
+    'HD-12',
+    { ...passage, decisions: { 'HD-12': 'open' } },
+    {},
+  ),
+  houseFloorBeat(
+    'HD-12',
+    { ...passage, decisions: { 'HD-12': 'map' } },
+    {},
+  ),
+]
+assert.equal(new Set(passageBeats.map((beat) => beat?.title)).size, 3)
+assert.match(passageBeats[1]!.cost, /officers now know/)
+assert.match(passageBeats[2]!.cost, /closed passage/)
+
+const cellar = progress('HD-24', fullPath.slice(0, 24))
+const cellarCases = [
+  cellar,
+  { ...cellar, decisions: { 'HD-12': 'open' } },
+  { ...cellar, decisions: { 'HD-06': 'stock' } },
+  { ...cellar, decisions: { 'HD-06': 'stock', 'HD-12': 'open' } },
+  {
+    ...cellar,
+    decisions: {
+      'HD-06': 'stock',
+      'HD-12': 'open',
+      'HD-24': 'mark',
+    },
+  },
+  {
+    ...cellar,
+    decisions: {
+      'HD-06': 'stock',
+      'HD-12': 'open',
+      'HD-24': 'retreat',
+    },
+  },
+]
+const cellarBeats = cellarCases.map((save) =>
+  houseFloorBeat('HD-24', save, {}),
+)
+assert.equal(new Set(cellarBeats.map((beat) => beat?.title)).size, 6)
+assert.match(cellarBeats[1]!.cost, /did not equip/)
+assert.match(cellarBeats[2]!.cost, /permissions/)
+assert.match(cellarBeats[3]!.text, /ordinary work, not a verdict/)
+assert.match(cellarBeats[4]!.cost, /hunting them/)
+assert.match(cellarBeats[5]!.cost, /nobody else/)
+assert.equal(
+  houseFloorBeat(
+    'HD-24',
+    { ...cellar, decisions: { 'HD-12': 'invented', 'HD-06': 'route' } },
+    {},
+  )?.title,
+  cellarBeats[0]?.title,
+  'Unknown decisions cannot fabricate the shared evacuation',
+)
+
+for (const save of [
+  broom,
+  { ...broom, decisions: { 'HD-06': 'stock' } },
+  { ...broom, decisions: { 'HD-06': 'route' } },
+  passage,
+  { ...passage, decisions: { 'HD-12': 'open' } },
+  { ...passage, decisions: { 'HD-12': 'map' } },
+  ...cellarCases,
+]) {
+  const before = houseFloorBeat(save.current, save, {})
+  const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
+  assert.ok(restored)
+  assert.deepEqual(
+    houseFloorBeat(save.current, restored, {}),
+    before,
+    `House return-route decision persists at ${save.current}`,
+  )
+}
+
 for (const { save, briar } of wardenBranches) {
   const before = houseFloorBeat('HD-32', save, briar)
   const restored = restoreHouseProgress(JSON.parse(JSON.stringify(save)))
@@ -192,6 +291,9 @@ for (const beat of [
   ...finalBranches,
   ...wardenBeats,
   ...hearthBeats,
+  ...broomBeats,
+  ...passageBeats,
+  ...cellarBeats,
 ]) {
   assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
   assert.doesNotMatch(
@@ -223,5 +325,5 @@ assert.match(
 assert.match(stage, /kr-scroll min-h-0 overflow-y-auto/)
 
 console.log(
-  'Memory House floor story: 25 authored threshold and verdict branches, source choices, consent costs and save roundtrips verified',
+  'Memory House floor story: 37 authored threshold, return-route and verdict branches, source choices, consent costs and save roundtrips verified',
 )

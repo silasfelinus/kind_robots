@@ -103,7 +103,7 @@ const store = readFileSync(
 assert.match(page, /data-testid="tactics-stage-studio"/)
 assert.match(page, /data-testid="studio-playtest"/)
 assert.match(page, /store\.paintCell\(cell\)/)
-assert.match(store, /trainingState\(0x53a1b7, isPlaytest\.value/)
+assert.match(store, /trainingState\(\s*0x53a1b7,\s*isPlaytest\.value/)
 console.log(
   'Every Villain Studio: preset maps, paint, spawns, LOS, timer and real-rules playtest verified.',
 )

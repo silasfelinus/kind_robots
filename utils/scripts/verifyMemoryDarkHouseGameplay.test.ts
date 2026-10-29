@@ -50,13 +50,14 @@ for (let i = 0; i < mirrorQueue.length; i++) {
     mirrorQueue.push(next)
   }
 }
-const visitedMirrorRooms = (...rooms: string[]): DarkHouseProgress['visited'] => {
+const visitedMirrorRooms = (
+  ...rooms: string[]
+): DarkHouseProgress['visited'] => {
   const visited = new Set<DarkHouseProgress['current']>(['HD-01'])
   for (const room of rooms) {
     const path = mirrorPaths.get(room)
     assert.ok(path, `Authored mirror route to ${room} exists`)
-    for (const step of path)
-      visited.add(step as DarkHouseProgress['current'])
+    for (const step of path) visited.add(step as DarkHouseProgress['current'])
   }
   return [...visited]
 }

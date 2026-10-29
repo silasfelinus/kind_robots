@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
-import { VILLAIN_HENCHMEN, henchmanForVillain } from '../cometAcademy/villainHenchmen'
+import {
+  VILLAIN_HENCHMEN,
+  henchmanForVillain,
+} from '../cometAcademy/villainHenchmen'
 
 assert.equal(IDENTITY_ARCS.length, 48)
 assert.equal(VILLAIN_HENCHMEN.length, 48)

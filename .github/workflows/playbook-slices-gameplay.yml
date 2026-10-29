@@ -18,6 +18,7 @@ on:
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
+      - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
       - '.github/workflows/playbook-slices-gameplay.yml'
   push:
     branches: [main]
@@ -55,3 +56,5 @@ jobs:
         run: npm run test:game-of-captains
       - name: Space Couch expedition roster, fatalities and allocation verification
         run: npx tsx utils/scripts/verifyGameOfCaptainsExpedition.test.ts
+      - name: Space Couch character signatures and dossiers
+        run: npx tsx utils/scripts/verifyGameOfCaptainsCharacters.test.ts

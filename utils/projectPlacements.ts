@@ -12,6 +12,11 @@ export type ProjectPlacement = {
 }
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
+  'every-villain-tactics': {
+    channelKey: 'admin',
+    tabKey: 'every-villain-tactics',
+    route: '/admin/every-villain-tactics',
+  },
   hybridizer: {
     channelKey: 'admin',
     tabKey: 'hybridizer',

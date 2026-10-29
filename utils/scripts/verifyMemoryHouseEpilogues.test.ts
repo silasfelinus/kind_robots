@@ -346,6 +346,7 @@ assert.equal(houseEpilogue(legacy, {})?.id, 'renew-community')
 // rooms can reveal new evidence, but cannot silently rewrite an earned ending.
 const locked = {
   ...atHearth({ 'HD-04': 'share', 'HD-05': 'open' }, 'renew'),
+  wardenPassed: true,
   visited: connectedRooms(
     'HD-04',
     'HD-05',

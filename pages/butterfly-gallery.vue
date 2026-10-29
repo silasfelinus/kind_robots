@@ -667,12 +667,6 @@ import {
   type ButterflyGalleryOrientation,
 } from '@/stores/helpers/butterflyGalleryViewSettings'
 
-useSeoMeta(
-  gameLinkPreviewMeta(
-    'butterfly-gallery',
-    useRuntimeConfig().public.appBaseUrl,
-  ) ?? {},
-)
 import { useUserStore } from '@/stores/userStore'
 import {
   computeButterflyFunnelDropPlan,
@@ -688,6 +682,13 @@ import {
   presetShortcutKey,
   resolveButterflyShortcutIntent,
 } from '@/stores/helpers/butterflyGalleryShortcuts'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'butterfly-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 // -- Runway motion clips (butterfly-gallery/t-033) --------------------------
 // 5 of the 7 t-014 ArtJobs (28739-28743) rendered successfully; the two loop

@@ -28,7 +28,7 @@
     </header>
     <div class="md-house-grid min-h-0 flex-1">
       <div
-        class="md-house-map relative isolate grid min-h-0 min-w-0 grid-cols-6 grid-rows-6 gap-1 overflow-hidden rounded-xl border-2 border-[#958369] bg-[#1c2930] p-2 shadow-inner"
+        class="md-house-map relative isolate grid min-h-0 min-w-0 grid-cols-6 grid-rows-6 gap-0 overflow-hidden rounded-xl border-2 border-[#958369] bg-[#1c2930] p-0 shadow-inner"
         aria-label="House room atlas, six by six"
       >
         <memory-dungeon-house-map-art reality="original" />
@@ -36,14 +36,14 @@
           v-for="item in rooms"
           :key="item.id"
           type="button"
-          class="relative z-10 min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-white"
           :class="{
-            'border-[#f8d681] bg-[#786537]/80 text-white shadow-[inset_0_0_12px_#e7c777]':
+            'border-[#f8d681] bg-[#786537]/45 text-white shadow-[inset_0_0_12px_#e7c777]':
               progress?.current === item.id,
-            'border-[#9bcdb6] bg-[#405949]/80 text-white':
+            'border-[#9bcdb6] bg-[#405949]/30 text-white':
               progress?.visited.includes(item.id) &&
               progress?.current !== item.id,
-            'border-[#c6ad77] bg-[#505340]/80 text-white':
+            'border-[#c6ad77] bg-[#505340]/30 text-white':
               available.includes(item.id) &&
               !progress?.visited.includes(item.id),
             'border-[#374754] bg-[#15212b]/75 text-[#75818c]':

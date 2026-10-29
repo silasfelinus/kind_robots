@@ -683,6 +683,7 @@ export function crossRealmHouseEpilogue(
     knightCrossing,
     traveler,
     royals,
+    vesper,
   ]
     .filter(Boolean)
     .join(' ')

@@ -556,6 +556,39 @@
                 <span>↗</span>
               </button>
               <div
+                v-if="run.playerCaseId === incident.id && expandedMissionFor(incident.id)"
+                class="cca-mission-tactics"
+                data-testid="academy-mission-tactics"
+              >
+                <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
+                <p>Saving lives first offers better odds. Investigating the cause is riskier but can uncover evidence for a later case in this neighborhood.</p>
+                <div class="cca-mission-tactics-grid">
+                  <button
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="(run.missionApproach ?? 'rescue') === 'rescue'"
+                    :class="{ active: (run.missionApproach ?? 'rescue') === 'rescue' }"
+                    data-testid="academy-mission-rescue"
+                    @click="store.missionTactic(incident.id, 'rescue')"
+                  >
+                    <strong>RESCUE FIRST</strong>
+                    {{ expandedMissionFor(incident.id)?.tactics.rescue }}
+                  </button>
+                  <button
+                    type="button"
+                    class="cca-choice"
+                    :aria-pressed="run.missionApproach === 'investigate'"
+                    :class="{ active: run.missionApproach === 'investigate' }"
+                    data-testid="academy-mission-investigate"
+                    @click="store.missionTactic(incident.id, 'investigate')"
+                  >
+                    <strong>CHASE THE EVIDENCE</strong>
+                    {{ expandedMissionFor(incident.id)?.tactics.investigate }}
+                  </button>
+                </div>
+                <small>Casebook evidence recovered: {{ run.missionClues?.length ?? 0 }}. Matching powers and earlier district clues may reveal a hidden resolution after your mission succeeds.</small>
+              </div>
+              <div
                 class="cca-roster"
                 data-testid="academy-quest-poster-row"
                 role="group"
@@ -949,6 +982,7 @@ import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
+import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
 import {
   PATROL_ZONES,
   patrolSceneFor,
@@ -1736,6 +1770,20 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #a4b6c9;
   line-height: 1.5;
 }
+.cca-mission-tactics {
+  padding: 0.65rem;
+  margin: 0.45rem 0;
+  border: 1px solid #d9b96c88;
+  border-radius: 0.7rem;
+  background: #162a3acb;
+  display: grid;
+  gap: 0.45rem;
+}
+.cca-mission-tactics > p, .cca-mission-tactics > small { font-size: 0.78rem; line-height: 1.4; color: #dae3e9; }
+.cca-mission-tactics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
+.cca-mission-tactics-grid .cca-choice { display: grid; align-content: start; gap: 0.3rem; font-size: 0.78rem; text-align: left; }
+.cca-mission-tactics-grid .cca-choice.active { border-color: #d9b96c; background: #34445e; }
+@media (max-width: 650px) { .cca-mission-tactics-grid { grid-template-columns: 1fr; } }
 .cca-patrol-board {
   border: 1px solid #8bc8d466;
   background: linear-gradient(135deg, #102738e8, #151a33f0);

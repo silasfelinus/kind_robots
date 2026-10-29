@@ -770,8 +770,8 @@
               </div>
               <p class="evt-dossier-status">
                 Henchmen: {{ inspectedHenchmen.name }} · The Quarry lieutenant
-                is one playable studio demonstration, not 48 shipped bosses
-                or 96 playable stages. Most concepts await art and AI.
+                is one playable studio demonstration, not 48 shipped bosses or
+                96 playable stages. Most concepts await art and AI.
               </p>
               <button
                 type="button"
@@ -909,9 +909,13 @@ function cellDescription(cell: Cell) {
   if (store.isSeismicWarning(cell))
     return (
       'SEISMIC WARNING, column ' +
-      (cell.x + 1) + ', row ' + (cell.y + 1) +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
       '. Mags Hardpan will strike this zone next turn unless hit. Move away or shoot the drum.' +
-      (unit ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.' : '')
+      (unit
+        ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.'
+        : '')
     )
   if (store.isBurrowWarning(cell))
     return (
@@ -1199,7 +1203,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   z-index: 3;
 }
 .evt-tile.seismic-warning {
-  box-shadow: inset 0 0 0 3px #f5ac5a, 0 0 14px #d24d53;
+  box-shadow:
+    inset 0 0 0 3px #f5ac5a,
+    0 0 14px #d24d53;
   z-index: 3;
 }
 .evt-seismic-ring {

@@ -86,6 +86,52 @@ const connectedRooms = (...rooms: HouseRoomId[]): HouseRoomId[] => {
 }
 // Reaching a legitimate room ID through the graph is insufficient when the
 // final doorway is still locked by an unanswered Hearth.
+// A connected room list is not evidence that the Rootbound Warden was
+// defeated or petitioned. Its guarded door must remain shut after reload.
+const wardenRoute = connectedRooms('HD-33')
+const forgedWardenPassage = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute,
+  decisions: { 'HD-32': 'fight', 'HD-33': 'reveal' },
+  wardenPassed: false,
+})!
+assert.equal(forgedWardenPassage.current, 'HD-01')
+assert.ok(forgedWardenPassage.visited.includes('HD-32'))
+assert.ok(!forgedWardenPassage.visited.includes('HD-33'))
+assert.equal(forgedWardenPassage.decisions['HD-33'], undefined)
+assert.equal(forgedWardenPassage.wardenPassed, false)
+
+const earnedWardenPassage = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute,
+  decisions: { 'HD-32': 'petition', 'HD-33': 'consent' },
+  wardenPassed: true,
+})!
+assert.equal(earnedWardenPassage.current, 'HD-33')
+assert.equal(earnedWardenPassage.decisions['HD-33'], 'consent')
+assert.equal(earnedWardenPassage.wardenPassed, true)
+
+// Even a claimed victory cannot manufacture the missing guardian chamber.
+const disconnectedWarden = restoreHouseProgress({
+  current: 'HD-33',
+  visited: wardenRoute.filter((room) => room !== 'HD-32'),
+  wardenPassed: true,
+})!
+assert.ok(!disconnectedWarden.visited.includes('HD-33'))
+assert.equal(disconnectedWarden.wardenPassed, false)
+
+// Testimony at HD-26 opens an independent authored passage to HD-34.
+// That lawful shortcut must not require defeating the Warden.
+const testimonyBypass = restoreHouseProgress({
+  current: 'HD-34',
+  visited: [...connectedRooms('HD-26'), 'HD-34'],
+  decisions: { 'HD-26': 'testify' },
+  wardenPassed: false,
+})!
+assert.equal(testimonyBypass.current, 'HD-34')
+assert.ok(!testimonyBypass.visited.includes('HD-33'))
+assert.equal(testimonyBypass.wardenPassed, false)
+
 const forgedHouseExit = restoreHouseProgress({
   current: 'HD-36',
   visited: connectedRooms('HD-36'),

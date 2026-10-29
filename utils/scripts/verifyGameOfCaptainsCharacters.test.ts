@@ -6,7 +6,10 @@ import {
   captainInstinctReply,
   chooseCaptainInstinct,
 } from '../gameOfCaptains/captainInstincts'
-import { CAPTAIN_DOSSIERS, CREW_DOSSIERS } from '../gameOfCaptains/characterDossiers'
+import {
+  CAPTAIN_DOSSIERS,
+  CREW_DOSSIERS,
+} from '../gameOfCaptains/characterDossiers'
 import { CAPTAIN_STATS } from '../gameOfCaptains/crewAssignments'
 import {
   CAPTAINS,
@@ -39,9 +42,14 @@ for (const captain of CAPTAINS) {
   captainHooks.add(dossier.hook)
   const party = [
     move.crewReplies[0]!.crew,
-    ...CREW.map((officer) => officer.id).filter((id) => id !== move.crewReplies[0]!.crew),
+    ...CREW.map((officer) => officer.id).filter(
+      (id) => id !== move.crewReplies[0]!.crew,
+    ),
   ].slice(0, 3)
-  const start = assignAwayTeam(startVoyage(captain.id, party, 41), party.slice(0, 2))
+  const start = assignAwayTeam(
+    startVoyage(captain.id, party, 41),
+    party.slice(0, 2),
+  )
   assert.equal(captainInstinctAvailable(start), true)
   assert.ok(captainInstinctReply(start).length > 25)
   const baseline = previewMission(start).chance
@@ -60,10 +68,16 @@ for (const captain of CAPTAINS) {
   delete legacy.captainInstincts
   delete legacy.captainBonus
   assert.deepEqual(restoreVoyage(legacy), legacy)
-  assert.equal(restoreVoyage({ ...daring, captainInstincts: [
-    { chapter: 1, approach: 'impulse' },
-    { chapter: 1, approach: 'restraint' },
-  ] }), null)
+  assert.equal(
+    restoreVoyage({
+      ...daring,
+      captainInstincts: [
+        { chapter: 1, approach: 'impulse' },
+        { chapter: 1, approach: 'restraint' },
+      ],
+    }),
+    null,
+  )
   let voyage = launchMission(daring)
   while (voyage.phase === 'transit') voyage = advanceVoyageDay(voyage)
   voyage = decidePolicy(voyage, 'aid')
@@ -79,21 +93,32 @@ assert.equal(titles.size, 6)
 for (const officer of CREW) {
   const dossier = CREW_DOSSIERS[officer.id]
   assert.ok(dossier.hook.length > 35 && dossier.oddity.length > 45, officer.id)
-  assert.ok(dossier.storyPromise.length > 70 && dossier.crewSpark.length > 40, officer.id)
+  assert.ok(
+    dossier.storyPromise.length > 70 && dossier.crewSpark.length > 40,
+    officer.id,
+  )
   crewHooks.add(dossier.hook)
 }
 assert.equal(crewHooks.size, 12)
-assert.ok(CREW.find((officer) => officer.id === 'mox')?.role.includes('android'))
+assert.ok(
+  CREW.find((officer) => officer.id === 'mox')?.role.includes('android'),
+)
 assert.ok(CREW_DOSSIERS.mox.storyPromise.includes('body'))
 assert.ok(CAPTAIN_DOSSIERS.solace.history.includes('Four weeks ago'))
 assert.ok(CAPTAIN_DOSSIERS.fluke.history.includes('stutters'))
-const page = readFileSync(new URL('../../pages/play/game-of-captains.vue', import.meta.url), 'utf8')
+const page = readFileSync(
+  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+  'utf8',
+)
 for (const key of [
   'couch-captain-promise',
   'couch-crew-promise',
   'couch-captain-instinct',
   'couch-captain-impulse',
   'couch-captain-restraint',
-]) assert.ok(page.includes(key), key)
+])
+  assert.ok(page.includes(key), key)
 assert.ok(page.includes('store.captainAction'))
-console.log('Space Couch: six captain identities, twelve crew hooks and tactical choices verified')
+console.log(
+  'Space Couch: six captain identities, twelve crew hooks and tactical choices verified',
+)

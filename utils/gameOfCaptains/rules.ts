@@ -773,7 +773,15 @@ export function previewMission(run: VoyageRun): MissionPreview {
     ...base,
     chance: Math.max(
       5,
-      Math.min(94, base.chance + bonus - penalty + civicBonus - enemyPenalty + signatureBonus),
+      Math.min(
+        94,
+        base.chance +
+          bonus -
+          penalty +
+          civicBonus -
+          enemyPenalty +
+          signatureBonus,
+      ),
     ),
     commentary: [
       base.commentary,
@@ -782,7 +790,9 @@ export function previewMission(run: VoyageRun): MissionPreview {
       civicBonus
         ? `Earlier civic decisions: ${civicBonus > 0 ? '+' : ''}${civicBonus}%.`
         : '',
-      signatureBonus ? `Captain's signature preparation: +${signatureBonus}%.` : '',
+      signatureBonus
+        ? `Captain's signature preparation: +${signatureBonus}%.`
+        : '',
       enemyPenalty
         ? `${antagonistFor(run).name} controls this route: -${enemyPenalty}% operational odds.`
         : '',
@@ -1200,11 +1210,14 @@ export function finishVoyage(
           : 'Your gambit fails; the next captain inherits both a surviving crew and your written warning.'
   const captain = CAPTAIN_DOSSIERS[run.captain]
   const remembrance = {
-    fluke: 'Fluke lets the final log stand without an unauthorized peek at tomorrow. The present is interesting enough to stay for.',
+    fluke:
+      'Fluke lets the final log stand without an unauthorized peek at tomorrow. The present is interesting enough to stay for.',
     vale: 'Vale releases the schematics that saved the worlds, including the embarrassing parts that required a second soldering iron.',
-    solace: 'Solace finally sits with the living crew, sets down the janitor’s master key, and lets someone else watch the exits.',
+    solace:
+      'Solace finally sits with the living crew, sets down the janitor’s master key, and lets someone else watch the exits.',
     rex: 'Rex leaves the cameras dark while the civilians tell their own rescue story. His cape still catches the perfect breeze.',
-    quill: 'Quill signs the survivors’ charter with a gloved hand and opens the suit’s medical controls to independent scrutiny.',
+    quill:
+      'Quill signs the survivors’ charter with a gloved hand and opens the suit’s medical controls to independent scrutiny.',
     ro: 'Ro lowers the fog machine and invites the mourners to speak, giving the galaxy a rare untheatrical moment.',
   }[run.captain]
   const journeys = run.crew.flatMap((id) => {

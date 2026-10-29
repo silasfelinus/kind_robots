@@ -910,7 +910,8 @@ function cellDescription(cell: Cell) {
     return (
       'SEISMIC WARNING, column ' +
       (cell.x + 1) + ', row ' + (cell.y + 1) +
-      '. Mags Hardpan will strike this zone next turn unless hit. Move away or shoot the drum.'
+      '. Mags Hardpan will strike this zone next turn unless hit. Move away or shoot the drum.' +
+      (unit ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.' : '')
     )
   if (store.isBurrowWarning(cell))
     return (

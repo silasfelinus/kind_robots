@@ -804,9 +804,17 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
     : HOUSE_ENTRY
   // Legacy saves may omit their current chamber from visited, but that
   // chamber must still connect to the recorded route from the entry.
+  const hearthChoice =
+    saved.decisions && typeof saved.decisions === 'object'
+      ? saved.decisions['HD-35']
+      : null
+  const exitEarned = hearthChoice === 'attend' || hearthChoice === 'refuse'
   const { current, visited: visitedRooms } = reachableHouseVisits(
     visited,
     savedCurrent,
+    {},
+    (from, to) =>
+      to !== 'HD-36' || (from === 'HD-35' && exitEarned),
   )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

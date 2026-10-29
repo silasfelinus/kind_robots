@@ -72,7 +72,12 @@ import {
 } from './nightPatrols'
 import { districtEncounterFor } from './districtEncounters'
 import { LATE_INCIDENTS } from './lateIncidents'
-import { EXPANDED_INCIDENTS, EXPANDED_MISSIONS, expandedMissionFor, type MissionApproach } from './expandedNightCases'
+import {
+  EXPANDED_INCIDENTS,
+  EXPANDED_MISSIONS,
+  expandedMissionFor,
+  type MissionApproach,
+} from './expandedNightCases'
 import { returnVisitFor } from './returnVisits'
 import { realNightCase } from './nightCases'
 import {
@@ -588,7 +593,10 @@ function hash(seed: number, text: string): number {
 
 /** Every night case a thirty-day run can draw: the first six, then the late six. */
 export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
-export const FULL_NIGHT_DECK: Incident[] = [...NIGHT_DECK, ...EXPANDED_INCIDENTS]
+export const FULL_NIGHT_DECK: Incident[] = [
+  ...NIGHT_DECK,
+  ...EXPANDED_INCIDENTS,
+]
 
 export function incidentDeck(run: AcademyRun): Incident[] {
   return run.incidentDeckVersion === 3
@@ -1049,16 +1057,22 @@ export function socialize(
 /** Joining a call is separate from asking a classmate to volunteer for it. */
 /** Hidden until after a personally led mission succeeds. Prior evidence and
  * the right field power open a real alternate resolution, not a cosmetic badge. */
-export function missionSecretFor(run: AcademyRun, caseId: string): string | null {
+export function missionSecretFor(
+  run: AcademyRun,
+  caseId: string,
+): string | null {
   const mission = expandedMissionFor(caseId)
   if (
-    !mission || run.flowVersion !== 3 ||
+    !mission ||
+    run.flowVersion !== 3 ||
     run.playerCaseId !== caseId ||
     run.power !== mission.incident.need ||
-    !(run.missionClues ?? []).some((id) =>
-      id !== caseId && expandedMissionFor(id)?.thread === mission.thread,
+    !(run.missionClues ?? []).some(
+      (id) =>
+        id !== caseId && expandedMissionFor(id)?.thread === mission.thread,
     )
-  ) return null
+  )
+    return null
   return mission.secret
 }
 
@@ -1068,10 +1082,13 @@ export function selectMissionApproach(
   approach: MissionApproach,
 ): AcademyRun {
   if (
-    run.phase !== 'dispatch' || run.flowVersion !== 3 ||
-    run.playerCaseId !== caseId || !expandedMissionFor(caseId) ||
+    run.phase !== 'dispatch' ||
+    run.flowVersion !== 3 ||
+    run.playerCaseId !== caseId ||
+    !expandedMissionFor(caseId) ||
     !['rescue', 'investigate'].includes(approach)
-  ) return run
+  )
+    return run
   return { ...run, missionApproach: approach }
 }
 
@@ -1222,8 +1239,12 @@ export function dispatchModifier(
       : 0) +
     response +
     (route?.boost ?? 0) +
-    (run.flowVersion === 3 && run.playerCaseId === incident.id && expandedMissionFor(incident.id)
-      ? run.missionApproach === 'investigate' ? -1 : 1
+    (run.flowVersion === 3 &&
+    run.playerCaseId === incident.id &&
+    expandedMissionFor(incident.id)
+      ? run.missionApproach === 'investigate'
+        ? -1
+        : 1
       : 0) +
     (missionSecretFor(run, incident.id) ? 2 : 0)
   )
@@ -1381,24 +1402,32 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         : text
     const expanded = expandedMissionFor(incident.id)
     const personallyLed = run.playerCaseId === incident.id
-    const approach = personallyLed ? run.missionApproach ?? 'rescue' : 'rescue'
+    const approach = personallyLed
+      ? (run.missionApproach ?? 'rescue')
+      : 'rescue'
     const succeeded = grade !== 'failed'
-    const foundClue = Boolean(expanded && personallyLed && approach === 'investigate' && succeeded)
-    if (foundClue && !missionClues.includes(incident.id)) missionClues.push(incident.id)
+    const foundClue = Boolean(
+      expanded && personallyLed && approach === 'investigate' && succeeded,
+    )
+    if (foundClue && !missionClues.includes(incident.id))
+      missionClues.push(incident.id)
     const secret = succeeded ? missionSecretFor(run, incident.id) : null
-    const tacticalText = expanded && personallyLed
-      ? approach === 'investigate'
-        ? succeeded
-          ? ' You accepted greater danger to preserve testimony. The evidence enters your casebook, and may change a later mission in this district.'
-          : ' Your investigation was overtaken by the emergency. No usable evidence survived.'
-        : ' You prioritized the immediate rescue, but the underlying investigation remains open.'
-      : ''
+    const tacticalText =
+      expanded && personallyLed
+        ? approach === 'investigate'
+          ? succeeded
+            ? ' You accepted greater danger to preserve testimony. The evidence enters your casebook, and may change a later mission in this district.'
+            : ' Your investigation was overtaken by the emergency. No usable evidence survived.'
+          : ' You prioritized the immediate rescue, but the underlying investigation remains open.'
+        : ''
     const resolvedText = [
       dramaticText,
       tacticalText,
       secret ? `POWER SECRET: ${secret}` : '',
       special ? `SPECIAL ROUTE: ${special.label}. ${special.result}` : '',
-    ].filter(Boolean).join(' ')
+    ]
+      .filter(Boolean)
+      .join(' ')
     if (
       run.flowVersion === 3 &&
       run.day > 2 &&
@@ -1464,7 +1493,13 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
     ...(run.flowVersion === 3
-      ? { injuries, playerCaseId: null, nightPatrol: null, missionApproach: null, missionClues }
+      ? {
+          injuries,
+          playerCaseId: null,
+          nightPatrol: null,
+          missionApproach: null,
+          missionClues,
+        }
       : {}),
     ...(patrolMemory
       ? {
@@ -1703,8 +1738,8 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     scene:
       run.patrolHistory?.at(-1)?.day === run.day
         ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
-        : run.missionClues?.length && run.reports.some((report) =>
-            report.text.includes('casebook'))
+        : run.missionClues?.length &&
+            run.reports.some((report) => report.text.includes('casebook'))
           ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
           : 'The next bell rings. Yesterday has already changed who will answer your calls.',
   }
@@ -1892,7 +1927,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.version !== 1 ||
     (data.patrolOpening !== undefined &&
       (data.flowVersion !== 3 || data.patrolOpening !== 1)) ||
-    (data.missionApproach !== undefined && data.missionApproach !== null &&
+    (data.missionApproach !== undefined &&
+      data.missionApproach !== null &&
       (data.flowVersion !== 3 ||
         !['rescue', 'investigate'].includes(data.missionApproach) ||
         (data.missionApproach === 'investigate' &&
@@ -1902,7 +1938,9 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         data.flowVersion !== 3 ||
         data.missionClues.length > EXPANDED_MISSIONS.length ||
         new Set(data.missionClues).size !== data.missionClues.length ||
-        data.missionClues.some((id) => typeof id !== 'string' || !expandedMissionFor(id)))) ||
+        data.missionClues.some(
+          (id) => typeof id !== 'string' || !expandedMissionFor(id),
+        ))) ||
     (data.playerCaseId != null &&
       (data.flowVersion !== 3 ||
         typeof data.playerCaseId !== 'string' ||

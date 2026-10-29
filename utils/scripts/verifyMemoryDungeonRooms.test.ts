@@ -208,6 +208,58 @@ assert.equal(
 assert.equal(
   restoreCombat({
     ...json,
+    cards: json.cards.map((card: { pair: number; matched: boolean }) => ({
+      ...card,
+      pair: card.pair === 0 ? 1 : card.pair === 1 ? 0 : card.pair,
+    })),
+  }),
+  null,
+  'relabeling complete pairs cannot move the hidden cards away from their seeded positions',
+)
+assert.equal(
+  restoreCombat({ ...json, seed: json.seed + 1 }),
+  null,
+  'changing the seed without dealing a new board cannot manipulate pair locations',
+)
+assert.equal(
+  restoreCombat({
+    ...fresh.state,
+    turn: 1,
+    cards: fresh.state.cards.map((card) => ({
+      ...card,
+      matched: card.pair !== null,
+    })),
+    enemy: { ...fresh.state.enemy, hp: 0 },
+    outcome: 'victory',
+  }),
+  null,
+  'one action cannot resolve all eight pairs, even with a forged victory',
+)
+const redealStart = createCombat({
+  seed: 91,
+  rows: 2,
+  cols: 2,
+  enemy: { name: 'Patient Guardian', hp: 50, attack: 0, every: 20 },
+})
+const pairsToScout = [0, 1].map((pair) =>
+  redealStart.cards.flatMap((card, i) =>
+    card.pair === pair
+      ? [{ row: Math.floor(i / redealStart.cols), col: i % redealStart.cols }]
+      : [],
+  ),
+)
+let redealt = redealStart
+for (const [first, second] of pairsToScout)
+  redealt = scout(redealt, first!, second!)
+assert.ok(redealt.log.some((event) => event.type === 'redeal'))
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(redealt))),
+  { ...redealt, log: [] },
+  'a genuine seed-derived redeal restores even when its layout differs from the opening board',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
     cards: json.cards.map((card: { matched: boolean }, i: number) =>
       i === 0 ? { ...card, matched: !card.matched } : card,
     ),

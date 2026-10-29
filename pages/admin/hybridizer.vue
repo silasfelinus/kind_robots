@@ -136,7 +136,7 @@
                 }}
               </p>
               <button
-                v-if="lab.result.status === 'FAILED'"
+                v-if="lab.result.status === 'FAILED' && lab.result.canRetry"
                 type="button"
                 class="remix-button"
                 @click="lab.enqueueArtwork(lab.result.key)"

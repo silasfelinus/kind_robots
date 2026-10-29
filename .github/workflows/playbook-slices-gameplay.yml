@@ -17,6 +17,9 @@ on:
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
+      - 'utils/cometAcademy/identityCampaignStages.json'
+      - 'utils/cometAcademy/identityCampaignStages.ts'
+      - 'utils/scripts/verifyPromCampaignStages.test.ts'
       - 'utils/scripts/verifyGameOfCaptains.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsExpedition.test.ts'
       - 'utils/scripts/verifyGameOfCaptainsCharacters.test.ts'
@@ -53,6 +56,8 @@ jobs:
         run: npm run test:playbook-run-review
       - name: Academy seeded term and saved outcome verification
         run: npm run test:comet-city-academy
+      - name: Signature origin missions, villain lairs and lieutenant parity
+        run: npx tsx utils/scripts/verifyPromCampaignStages.test.ts
       - name: Villain-specific one-hit bestiary parity
         run: npx tsx utils/scripts/verifyPromVillainHenchmen.test.ts
       - name: Captains seeded missions and ethical ending verification

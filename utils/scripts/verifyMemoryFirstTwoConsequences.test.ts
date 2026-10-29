@@ -754,9 +754,9 @@ assert.match(
 
 // Vesper's original missing-person map and the mirrored rookery letters
 // resolve in four distinct ways, with privacy and evidence as real costs.
-assert.ok(BRIAR_REVEAL_WAVES[1]?.includes('3,2'))
+assert.ok(BRIAR_REVEAL_WAVES[0]?.includes('3,2'))
 assert.ok(DARK_BRIAR_WAVES[1]?.includes('3,2'))
-const vesperOriginalRevealed = BRIAR_REVEAL_WAVES.slice(0, 2).flat()
+const vesperOriginalRevealed = [...BRIAR_REVEAL_WAVES[0]!]
 const vesperMirrorRevealed = DARK_BRIAR_WAVES.slice(0, 2).flat()
 const routeToVesper = (revealed: readonly string[]): string[] => {
   const paths: string[][] = [[BRIAR_START]]
@@ -794,7 +794,7 @@ for (const source of ['ask', 'offer'] as const) {
   assert.ok(BRIAR_SCENES['3,2']?.choices.some((choice) => choice.id === source))
   const original = restoreBriarSave({
     ...newBriarSave(),
-    waveIndex: 1,
+    waveIndex: 0,
     wavePhase: 'exploring',
     revealed: vesperOriginalRevealed,
     visited: vesperOriginalRoute,

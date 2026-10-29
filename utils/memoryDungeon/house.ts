@@ -1006,7 +1006,7 @@ export function isHouseRoomId(value: unknown): value is HouseRoomId {
 }
 
 /** A saved room list is not a travel log. Retain only chambers connected to
- * the entry through authored forward passages inside that saved list. */
+ * the entry through authored passages or earned recovery transfers. */
 export function reachableHouseVisits(
   visited: readonly HouseRoomId[],
   current: HouseRoomId,
@@ -1109,6 +1109,19 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const shortcuts: Record<string, readonly HouseRoomId[]> = {}
   if (savedDecisions['HD-10'] === 'manifest') shortcuts['HD-10'] = ['HD-25']
   if (savedDecisions['HD-26'] === 'testify') shortcuts['HD-26'] = ['HD-34']
+  // Defeat recovery intentionally moves a House combatant to the quiet
+  // bedchamber without traversing every intervening passage. The combat
+  // origin remains in visited even after its active flag is cleared.
+  if (visited.includes('HD-18') || savedCurrent === 'HD-18')
+    for (const origin of [
+      'HD-09',
+      'HD-19',
+      'HD-22',
+      'HD-28',
+      'HD-32',
+    ] as const)
+      if (visited.includes(origin))
+        shortcuts[origin] = [...(shortcuts[origin] ?? []), 'HD-18']
   const { current, visited: visitedRooms } = reachableHouseVisits(
     visited,
     savedCurrent,

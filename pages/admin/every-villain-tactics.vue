@@ -86,7 +86,7 @@
                     aria-hidden="true"
                   ></span>
                   <span
-                    v-if="terrainAt(cell) === 'wall'"
+                    v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
                   ></span>

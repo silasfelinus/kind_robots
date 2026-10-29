@@ -63,6 +63,36 @@ assert.equal(adjacentLegacyHouse.current, 'HD-03')
 assert.deepEqual(adjacentLegacyHouse.visited, ['HD-01', 'HD-02', 'HD-03'])
 assert.equal(adjacentLegacyHouse.decisions['HD-03'], 'route')
 
+// Scylla's recorded manifest legitimately opens HD-10 → HD-25 without
+// visiting the intervening numbered chambers.
+const paths = new Map<HouseRoomId, HouseRoomId[]>([['HD-01', ['HD-01']]])
+const routeQueue: HouseRoomId[] = ['HD-01']
+for (let i = 0; i < routeQueue.length; i++) {
+  const room = routeQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (paths.has(next)) continue
+    paths.set(next, [...paths.get(room)!, next])
+    routeQueue.push(next)
+  }
+}
+const routeToInventory = paths.get('HD-10')!
+assert.ok(routeToInventory.length > 1)
+const shortcutHouse = restoreHouseProgress({
+  current: 'HD-25',
+  visited: routeToInventory,
+  decisions: { 'HD-10': 'manifest', 'HD-25': 'recount' },
+})!
+assert.equal(shortcutHouse.current, 'HD-25')
+assert.equal(shortcutHouse.decisions['HD-25'], 'recount')
+assert.equal(
+  restoreHouseProgress({
+    current: 'HD-25',
+    visited: routeToInventory,
+  })!.current,
+  'HD-01',
+  'The distant room is not reachable without the recorded shortcut',
+)
+
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save
 // already holds, so the contract here is: every one is reachable by real

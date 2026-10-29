@@ -221,6 +221,66 @@ export function earnedCourierCompensation(
   return null
 }
 
+export type CourierBellAccord =
+  | 'unset'
+  | 'lantern-audited'
+  | 'lantern-named'
+  | 'address-audited'
+  | 'address-named'
+
+const COURIER_BELL_OUTCOMES: Record<
+  Exclude<CourierBellAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'lantern-audited': {
+    scene:
+      'The lantern you lent has kept a stranger warm beneath the mirrored glass bell. When you ask whose memory paid for the shelter, Pip discovers the village billed an absent traveler without consent. The courier carries a correction to the council, but the stranger must wait another night for the debt to be settled.',
+    epilogue:
+      'Pip delivers the village’s corrected shelter account. The traveler whose memory was billed is invited to dispute the debt, though their journey was delayed by the audit.',
+  },
+  'lantern-named': {
+    scene:
+      'Pip sets your old lantern between the two chairs as you offer your own name to the bell. Both of your lives answer. The courier covers the second name before the village clerk can copy it, and asks the sheltered traveler to testify instead. You keep your privacy, but the clerk refuses to cancel the charge without a public witness.',
+    epilogue:
+      'Pip keeps the two names the bell spoke out of the public register. The shelter charge remains contested until a willing witness can testify.',
+  },
+  'address-audited': {
+    scene:
+      'You unfold the impossible address you copied and ask Pip who was charged for the campfire. The bill was sent to a house that never existed, then collected from the first traveler to arrive. Pip brings both documents to the village clerk. The false address is exposed, but the courier misses the evening delivery round while the ledger is corrected.',
+    epilogue:
+      'Pip proves that a nonexistent address was used to collect a real shelter debt. The village revises its ledger, while the courier’s delayed letters must still find their recipients.',
+  },
+  'address-named': {
+    scene:
+      'You offer your own name beneath the bell while Pip holds up the copied address. For a moment the two lives you have worn appear as separate addressees. Pip seals the evidence before either name can be sold as a forwarding address. The missing recipient stays protected, but the village will not refund the wrongly charged traveler on a sealed claim.',
+    epilogue:
+      'Pip seals the impossible address beside the two names the bell tried to assign you. No one is indexed without permission, but the wrongfully collected fee is still unpaid.',
+  },
+}
+
+/** The campfire remembers both an original gift and a mirrored answer.
+ * Missing or invented choices cannot produce testimony or an ending. */
+export function earnedCourierBellAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): CourierBellAccord {
+  const source = original.sceneChoices['2,4']
+  const response = mirrored.sceneChoices['2,4']
+  if (source !== 'lend' && source !== 'copy') return 'unset'
+  if (response !== 'listen' && response !== 'name') return 'unset'
+  if (source === 'lend')
+    return response === 'listen' ? 'lantern-audited' : 'lantern-named'
+  return response === 'listen' ? 'address-audited' : 'address-named'
+}
+
+export function earnedCourierBellOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedCourierBellAccord(original, mirrored)
+  return accord === 'unset' ? null : COURIER_BELL_OUTCOMES[accord].scene
+}
+
 export type BorrowedVoiceAccord =
   | 'unset'
   | 'freed-repaired'
@@ -532,6 +592,7 @@ export interface CrossRealmConsequenceLedger {
   orensProvision: 'unset' | 'route' | 'supplies'
   knightsDuty: 'unset' | 'oath' | 'errand'
   borrowedVoiceAccord: BorrowedVoiceAccord
+  courierBellAccord: CourierBellAccord
   royalEscortAccord: RoyalEscortAccord
   orenManifestAccord: OrenManifestAccord
   knightCrossingAccord: KnightCrossingAccord
@@ -568,6 +629,9 @@ export function crossRealmConsequenceLedger(
         : knightChoice === 'errand'
           ? 'errand'
           : 'unset',
+    courierBellAccord: mirrored
+      ? earnedCourierBellAccord(briar, mirrored)
+      : 'unset',
     borrowedVoiceAccord: mirrored
       ? earnedBorrowedVoiceAccord(briar, mirrored)
       : 'unset',
@@ -659,6 +723,10 @@ export function crossRealmHouseEpilogue(
     ledger.knightCrossingAccord === 'unset'
       ? ''
       : KNIGHT_CROSSING_OUTCOMES[ledger.knightCrossingAccord].epilogue
+  const courier =
+    ledger.courierBellAccord === 'unset'
+      ? ''
+      : COURIER_BELL_OUTCOMES[ledger.courierBellAccord].epilogue
   const traveler =
     ledger.borrowedVoiceAccord === 'unset'
       ? ''
@@ -681,6 +749,7 @@ export function crossRealmHouseEpilogue(
     manifest,
     knight,
     knightCrossing,
+    courier,
     traveler,
     royals,
     vesper,

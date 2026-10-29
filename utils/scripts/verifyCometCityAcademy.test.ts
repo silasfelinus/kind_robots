@@ -1552,6 +1552,7 @@ for (const group of missionRouteRoster('monorail')) {
 }
 const commission = {
   ...startFullAcademy('kinetic', 1),
+  incidentDeckVersion: undefined,
   phase: 'dispatch' as const,
   day: 3,
   contacts: STUDENTS.map((s) => s.id),

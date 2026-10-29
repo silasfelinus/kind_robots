@@ -11,7 +11,7 @@ export const GUEST_IDENTITIES = [
     backstory:
       'Zuzu was an assassin trained in the oath-bound, weird-west lands of his home dimension. A damaged Comet City portal brings him to a future of surveillance drones and monorails, where his old targets have no jurisdiction and his choices finally belong to him.',
     student: {
-      alias: 'The Stray Blade',
+      alias: 'Zuzu, Koala Assassin',
       conflict:
         'The academy offers the stranded killer asylum in exchange for teaching its cadets to evade capture.',
     },
@@ -21,7 +21,7 @@ export const GUEST_IDENTITIES = [
         'Silent acrobatics, precise sword work and a deliberate refusal to kill on a corporate warrant.',
     },
     villain: {
-      alias: 'Shogun Null',
+      alias: 'Zuzu, Koala Assassin',
       method:
         'A stolen dimensional targeting rig and clockwork exosuit let him strike victims who never knew they were named.',
     },
@@ -29,7 +29,7 @@ export const GUEST_IDENTITIES = [
       protagonist:
         'Reject an assassination contract from the portal authority and find the child whose rescue would close the gateway.',
       antagonist:
-        'Shogun Null is using extradimensional warrants to erase witnesses to the transit consortium.',
+        'Zuzu, Koala Assassin is using extradimensional warrants to erase witnesses to the transit consortium.',
       partner:
         'Zuzu asks whether an oath can be broken to save someone who never consented to it.',
     },

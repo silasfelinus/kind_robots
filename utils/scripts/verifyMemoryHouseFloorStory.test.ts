@@ -178,16 +178,8 @@ assert.equal(
 const broom = progress('HD-06', fullPath.slice(0, 6))
 const broomBeats = [
   houseFloorBeat('HD-06', broom, {}),
-  houseFloorBeat(
-    'HD-06',
-    { ...broom, decisions: { 'HD-06': 'stock' } },
-    {},
-  ),
-  houseFloorBeat(
-    'HD-06',
-    { ...broom, decisions: { 'HD-06': 'route' } },
-    {},
-  ),
+  houseFloorBeat('HD-06', { ...broom, decisions: { 'HD-06': 'stock' } }, {}),
+  houseFloorBeat('HD-06', { ...broom, decisions: { 'HD-06': 'route' } }, {}),
 ]
 assert.equal(new Set(broomBeats.map((beat) => beat?.title)).size, 3)
 assert.match(broomBeats[1]!.text, /without first owing you a story/)
@@ -196,16 +188,8 @@ assert.match(broomBeats[2]!.cost, /next frightened resident/)
 const passage = progress('HD-12', fullPath.slice(0, 12))
 const passageBeats = [
   houseFloorBeat('HD-12', passage, {}),
-  houseFloorBeat(
-    'HD-12',
-    { ...passage, decisions: { 'HD-12': 'open' } },
-    {},
-  ),
-  houseFloorBeat(
-    'HD-12',
-    { ...passage, decisions: { 'HD-12': 'map' } },
-    {},
-  ),
+  houseFloorBeat('HD-12', { ...passage, decisions: { 'HD-12': 'open' } }, {}),
+  houseFloorBeat('HD-12', { ...passage, decisions: { 'HD-12': 'map' } }, {}),
 ]
 assert.equal(new Set(passageBeats.map((beat) => beat?.title)).size, 3)
 assert.match(passageBeats[1]!.cost, /officers now know/)
@@ -234,9 +218,7 @@ const cellarCases = [
     },
   },
 ]
-const cellarBeats = cellarCases.map((save) =>
-  houseFloorBeat('HD-24', save, {}),
-)
+const cellarBeats = cellarCases.map((save) => houseFloorBeat('HD-24', save, {}))
 assert.equal(new Set(cellarBeats.map((beat) => beat?.title)).size, 6)
 assert.match(cellarBeats[1]!.cost, /did not equip/)
 assert.match(cellarBeats[2]!.cost, /permissions/)

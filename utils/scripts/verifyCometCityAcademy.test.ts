@@ -2050,6 +2050,20 @@ for (const mission of EXPANDED_MISSIONS) {
   assert.equal(realNightCase(mission.incident.id)?.briefing, mission.briefing)
   assert.ok(PROM_ART_PROMPTS[`incidents/${mission.incident.id}`])
 }
+const newTeamRoutes = [
+  ['frog-serum', 'kit', 'drift'],
+  ['mirror-court', 'imani', 'jo'],
+  ['granny-shuttle', 'veda', 'mara'],
+  ['halo-contract', 'sol', 'jo'],
+] as const
+for (const [caseId, first, second] of newTeamRoutes) {
+  const special = missionRoute(caseId, [first, second])
+  assert.ok(special?.boost, `${caseId} has a real named two-person solution`)
+  assert.ok(special!.result.length > 120)
+  assert.equal(missionRoute(caseId, [first]), null)
+}
+assert.ok(missionReaction('drift', 'frog-serum').line.includes('Dr. Frog'))
+assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
 {
   const template = startFullAcademy('biotech', 33)
   // Seed 33 opens index 12 (frog-serum) on day four in the 24-card deck.

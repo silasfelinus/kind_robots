@@ -113,6 +113,11 @@ export const useEveryVillainTacticsStore = defineStore(
     function heightAt(point: Cell) {
       return elevationAt(point, state.value.map)
     }
+    function isBurrowWarning(point: Cell) {
+      return state.value.units.some((unit) =>
+        unit.hp > 0 && unit.burrowTarget?.x === point.x && unit.burrowTarget?.y === point.y,
+      )
+    }
     const roster = IDENTITY_ARCS
     const active = computed(() => selectedUnit(state.value) ?? null)
     const players = computed(() =>
@@ -127,6 +132,9 @@ export const useEveryVillainTacticsStore = defineStore(
             ...PERSPECTIVES[perspective.value],
             headline: draft.value.objective,
             opening:
+              (draft.value.encounter === 'warren-wreckers'
+                ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -285,6 +293,7 @@ export const useEveryVillainTacticsStore = defineStore(
           point.y === state.value.hover.y,
         'has-cover': tileInfoAt(point) === 'cover',
         'has-wall': tileInfoAt(point) === 'wall',
+        'burrow-warning': isBurrowWarning(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -302,6 +311,7 @@ export const useEveryVillainTacticsStore = defineStore(
       exitPlaytest,
       tileInfoAt,
       heightAt,
+      isBurrowWarning,
       boardCells,
       perspective,
       leadSignature,

@@ -277,6 +277,13 @@
               </div>
               <div v-else class="evt-no-shot">◌ <span>NO CLEAR SHOT</span></div>
               <p>{{ store.previewLabel }}</p>
+              <div v-if="store.projectedTargets.length" class="evt-target-list"
+                aria-label="Visible targets with chance from the previewed position"
+                data-testid="tactics-visible-targets">
+                <span v-for="target in store.projectedTargets" :key="target.target" class="evt-target-chip">
+                  {{ targetName(target.target) }} {{ target.hit }}%
+                </span>
+              </div>
               <small class="evt-preview-note"
                 >Exact seeded odds. A dash spends both AP; overwatch reacts once
                 to enemy movement.</small
@@ -438,6 +445,10 @@ const visibleRoster = computed(() => {
 })
 function unitName(unit: Unit): string {
   return personFor(unit).hero.alias
+}
+function targetName(id: string): string {
+  const target = store.enemies.find((unit) => unit.id === id)
+  return target ? unitName(target) : id
 }
 function initials(unit: Unit): string {
   return unitName(unit).slice(0, 2).toUpperCase()
@@ -1374,6 +1385,24 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-statusbar span {
     max-width: 70vw;
   }
+}
+.evt-target-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 4px 0;
+}
+.evt-target-chip {
+  border: 1px solid #85b9d6;
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: #d4e9ff;
+  background: #152543;
+  white-space: nowrap;
+  font-size: .59rem;
+  font-weight: 800;
 }
 .evt-height {
   position: absolute;

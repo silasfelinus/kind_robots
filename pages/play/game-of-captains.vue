@@ -1828,6 +1828,12 @@ function startNewVoyage() {
   restartVoyage()
 }
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'game-of-captains',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Space Couch | Kind Robots' })
 
 function selectCrewForDossier(id: CrewId) {

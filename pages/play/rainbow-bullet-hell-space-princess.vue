@@ -343,6 +343,12 @@ const stages = [
     card: `${STAGE_CARD_ROOT}/s08-card.webp`,
   },
 ]
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'rainbow-bullet-hell-space-princess',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Rainbow Bullet Hell Space Princess · Work in progress' })
 </script>
 

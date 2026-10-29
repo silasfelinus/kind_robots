@@ -35,6 +35,40 @@ assert.equal(tileAt(lab.map, { x: 4, y: 2 }).cover?.west, 'full')
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))
 
+assert.equal(picnic.encounter, 'warren-wreckers')
+const picnicFight = trainingState(99, picnic)
+const bunnyUnits = picnicFight.units.filter((u) => u.team === 'rival')
+assert.equal(bunnyUnits.length, 3)
+assert.ok(bunnyUnits.every((u) => u.hp === 1 && u.maxHp === 1 && u.henchmanType === 'burrow'))
+assert.equal(bunnyUnits[0]!.henchmanName, 'Foreman Thumpkin')
+endTurn(picnicFight)
+const targets = bunnyUnits.map((u) => u.burrowTarget)
+assert.ok(targets.every(Boolean), 'Each one-hit burrower must telegraph the next tile')
+assert.equal(new Set(targets.map((p) => p!.x + ',' + p!.y)).size, 3)
+const replay = trainingState(99, picnic)
+endTurn(replay)
+assert.deepEqual(replay.units.filter((u) => u.team === 'rival').map((u) => u.burrowTarget), targets)
+assert.ok(picnicFight.log.includes('dust rings'), 'Turn summary explains the warning')
+
+const emergence = trainingState(99, picnic)
+endTurn(emergence)
+const planned = { ...emergence.units[3]!.burrowTarget! }
+endTurn(emergence)
+assert.deepEqual({ x: emergence.units[3]!.x, y: emergence.units[3]!.y }, planned)
+assert.equal(emergence.units[3]!.burrowTarget, null, 'The warning resolves after a full player turn')
+
+const sealed = trainingState(99, picnic)
+endTurn(sealed)
+const tunnel = sealed.units[3]!.burrowTarget!
+sealed.units[2]!.x = tunnel.x
+sealed.units[2]!.y = tunnel.y
+const first = { x: sealed.units[3]!.x, y: sealed.units[3]!.y }
+endTurn(sealed)
+assert.deepEqual({ x: sealed.units[3]!.x, y: sealed.units[3]!.y }, first,
+  'Occupying a marked tile must stop a burrow without overlapping fighters')
+assert.equal(sealed.units[3]!.burrowTarget, null)
+assert.ok(sealed.units[3]!.hp === 1, 'Blocked burrowers remain one-hit enemies')
+
 const modified = paintStage(quad, { x: 2, y: 1 }, 'wall')
 assert.equal(tileAt(modified.map, { x: 2, y: 1 }).wall, true)
 assert.equal(
@@ -104,6 +138,9 @@ assert.match(page, /data-testid="tactics-stage-studio"/)
 assert.match(page, /data-testid="studio-playtest"/)
 assert.match(page, /store\.paintCell\(cell\)/)
 assert.match(store, /trainingState\(\s*0x53a1b7,\s*isPlaytest\.value/)
+assert.match(page, /data-testid="tactics-burrow-warning"/)
+assert.match(page, /data-testid="studio-encounter"/)
+assert.match(store, /isBurrowWarning/)
 console.log(
   'Every Villain Studio: preset maps, paint, spawns, LOS, timer and real-rules playtest verified.',
 )

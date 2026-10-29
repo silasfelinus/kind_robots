@@ -39,6 +39,30 @@ for (const key of ['constructor', 'toString', '__proto__']) {
   assert.deepEqual(houseExits(restored.current, restored), ['HD-02', 'HD-07'])
 }
 
+// A valid room ID alone cannot prove travel. A forged distant Hearth and
+// Bramble Chime must not survive when the intervening passages were never used.
+const disconnectedHouse = restoreHouseProgress({
+  current: 'HD-35',
+  visited: ['HD-02', 'HD-35', 'HD-36'],
+  decisions: { 'HD-02': 'weather', 'HD-35': 'renew', 'HD-36': 'entrust' },
+  ending: 'renew',
+  chimeClaimed: true,
+})!
+assert.equal(disconnectedHouse.current, 'HD-01')
+assert.deepEqual(disconnectedHouse.visited, ['HD-01', 'HD-02'])
+assert.deepEqual(disconnectedHouse.decisions, { 'HD-02': 'weather' })
+assert.equal(disconnectedHouse.ending, null)
+assert.equal(disconnectedHouse.chimeClaimed, false)
+
+const adjacentLegacyHouse = restoreHouseProgress({
+  current: 'HD-03',
+  visited: ['HD-02'],
+  decisions: { 'HD-03': 'route' },
+})!
+assert.equal(adjacentLegacyHouse.current, 'HD-03')
+assert.deepEqual(adjacentLegacyHouse.visited, ['HD-01', 'HD-02', 'HD-03'])
+assert.equal(adjacentLegacyHouse.decisions['HD-03'], 'route')
+
 // The House's twelve earned epilogues (kind_robots #4136 §9: three Hearth
 // resolutions × four epilogue lenses). They are read from decisions the save
 // already holds, so the contract here is: every one is reachable by real

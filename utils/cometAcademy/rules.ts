@@ -75,6 +75,7 @@ import { LATE_INCIDENTS } from './lateIncidents'
 import {
   EXPANDED_INCIDENTS,
   EXPANDED_MISSIONS,
+  FIRST_WAVE_MISSIONS,
   expandedMissionFor,
   type MissionApproach,
 } from './expandedNightCases'
@@ -538,7 +539,7 @@ export type AcademyRun = {
   initialForm?: PlayerForm
   encounterDeckVersion?: 2
   /** 2: the thirty-day run's twelve-case night deck. Older saves keep the first six. */
-  incidentDeckVersion?: 2 | 3
+  incidentDeckVersion?: 2 | 3 | 4
   flowVersion?: 2 | 3
   selectedSite?: SiteId
   visitedSites?: SiteId[]
@@ -595,15 +596,21 @@ function hash(seed: number, text: string): number {
 export const NIGHT_DECK: Incident[] = [...INCIDENTS, ...LATE_INCIDENTS]
 export const FULL_NIGHT_DECK: Incident[] = [
   ...NIGHT_DECK,
+  ...FIRST_WAVE_MISSIONS.map((mission) => mission.incident),
+]
+export const COMPLETE_NIGHT_DECK: Incident[] = [
+  ...NIGHT_DECK,
   ...EXPANDED_INCIDENTS,
 ]
 
 export function incidentDeck(run: AcademyRun): Incident[] {
-  return run.incidentDeckVersion === 3
-    ? FULL_NIGHT_DECK
-    : run.incidentDeckVersion === 2
-      ? NIGHT_DECK
-      : INCIDENTS
+  return run.incidentDeckVersion === 4
+    ? COMPLETE_NIGHT_DECK
+    : run.incidentDeckVersion === 3
+      ? FULL_NIGHT_DECK
+      : run.incidentDeckVersion === 2
+        ? NIGHT_DECK
+        : INCIDENTS
 }
 
 export function incidentsFor(run: AcademyRun): Incident[] {
@@ -775,7 +782,7 @@ export function startFullAcademy(
   return {
     ...base,
     flowVersion: 3,
-    incidentDeckVersion: 3,
+    incidentDeckVersion: 4,
     missionClues: [],
     initialForm,
     playerEvolution: beginPlayerEvolution(initialForm),
@@ -1726,6 +1733,16 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       scene:
         'At the end of week one, the faculty projects a prom-night disaster simulation. Real graduation is still weeks away.',
     }
+  const morningReport =
+    run.reports.find(
+      (report) =>
+        report.names.includes('YOU') &&
+        expandedMissionFor(report.caseId)?.morning,
+    ) ??
+    run.reports.find((report) => expandedMissionFor(report.caseId)?.morning)
+  const morningMemory = morningReport
+    ? expandedMissionFor(morningReport.caseId)?.morning
+    : null
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
@@ -1735,8 +1752,9 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     missionApproach: null,
     assignments: [],
     reports: [],
-    scene:
-      run.patrolHistory?.at(-1)?.day === run.day
+    scene: morningMemory
+      ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
+      : run.patrolHistory?.at(-1)?.day === run.day
         ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
         : run.missionClues?.length &&
             run.reports.some((report) => report.text.includes('casebook'))
@@ -1972,7 +1990,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     data.day > (data.flowVersion === 3 ? 30 : 7) ||
     (data.flowVersion !== undefined && ![2, 3].includes(data.flowVersion)) ||
     (data.incidentDeckVersion !== undefined &&
-      (![2, 3].includes(data.incidentDeckVersion) || data.flowVersion !== 3)) ||
+      (![2, 3, 4].includes(data.incidentDeckVersion) ||
+        data.flowVersion !== 3)) ||
     !['map', 'dispatch', 'campus', 'debrief', 'finale', 'ending'].includes(
       data.phase ?? '',
     ) ||

@@ -309,7 +309,11 @@ export const PROM_ART_PROMPTS: Record<string, string> = {
   ...Object.fromEntries(
     EXPANDED_MISSIONS.map((mission) => [
       `incidents/${mission.incident.id}`,
-      paint(`${mission.incident.art} ${mission.briefing}`),
+      paint(
+        mission.incident.art.length > 400
+          ? mission.incident.art
+          : `${mission.incident.art} ${mission.briefing}`,
+      ),
     ]),
   ),
   ...Object.fromEntries(

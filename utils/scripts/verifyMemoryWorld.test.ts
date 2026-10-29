@@ -67,6 +67,7 @@ import {
 import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
+  type HouseRoomId,
   HOUSE_EXIT_POINTS,
   houseExits,
   houseWitnessEvidence,
@@ -184,13 +185,37 @@ assert.equal(
   ),
   true,
 )
+// Build legitimate save fixtures from the authored passages, not a list of
+// disconnected rooms that would require teleportation.
+const housePaths = new Map<HouseRoomId, HouseRoomId[]>([
+  [HOUSE_ENTRY, [HOUSE_ENTRY]],
+])
+const houseQueue: HouseRoomId[] = [HOUSE_ENTRY]
+for (let i = 0; i < houseQueue.length; i++) {
+  const room = houseQueue[i]!
+  for (const next of HOUSE_ROOMS[room]!.exits) {
+    if (housePaths.has(next)) continue
+    housePaths.set(next, [...housePaths.get(room)!, next])
+    houseQueue.push(next)
+  }
+}
+const visitedHouseRoutes = (...rooms: HouseRoomId[]): HouseRoomId[] => {
+  const visited = new Set<HouseRoomId>([HOUSE_ENTRY])
+  for (const room of rooms) {
+    const path = housePaths.get(room)
+    assert.ok(path, `Authored House route to ${room} exists`)
+    for (const step of path) visited.add(step)
+  }
+  return [...visited]
+}
+
 const houseSave = restoreBriarSave({
   ...newBriarSave(),
   room: 'house',
   house: {
     ...newHouseProgress(),
     current: 'HD-18',
-    visited: ['HD-01', 'HD-03', 'HD-04', 'HD-18', 'HD-35'],
+    visited: visitedHouseRoutes('HD-03', 'HD-04', 'HD-18', 'HD-35'),
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
     ending: 'release',
   },
@@ -214,7 +239,7 @@ const unvisitedHouseSave = restoreBriarSave({
   house: {
     ...newHouseProgress(),
     current: 'HD-18',
-    visited: ['HD-01', 'HD-18'],
+    visited: visitedHouseRoutes('HD-18'),
     decisions: {
       'HD-10': 'manifest',
       'HD-17': 'read',
@@ -245,7 +270,7 @@ const earnedHouseSave = restoreBriarSave({
   house: {
     ...newHouseProgress(),
     current: 'HD-36',
-    visited: ['HD-01', 'HD-10', 'HD-17', 'HD-32', 'HD-35', 'HD-36'],
+    visited: visitedHouseRoutes('HD-10', 'HD-17', 'HD-32', 'HD-35', 'HD-36'),
     decisions: {
       'HD-10': 'manifest',
       'HD-17': 'read',
@@ -276,7 +301,7 @@ const mismatchedHearth = restoreBriarSave({
   house: {
     ...newHouseProgress(),
     current: 'HD-35',
-    visited: ['HD-01', 'HD-35'],
+    visited: visitedHouseRoutes('HD-35'),
     decisions: { 'HD-35': 'release' },
     ending: 'break',
     endingLens: 'honesty',

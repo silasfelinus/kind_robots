@@ -919,9 +919,7 @@ const mosswickMirrorBase = {
 const mosswickScenes = new Set<string>()
 const mosswickEpilogues = new Set<string>()
 for (const source of ['ledger', 'promise'] as const) {
-  assert.ok(
-    BRIAR_SCENES['4,2']?.choices.some((choice) => choice.id === source),
-  )
+  assert.ok(BRIAR_SCENES['4,2']?.choices.some((choice) => choice.id === source))
   const original = restoreBriarSave({
     ...newBriarSave(),
     waveIndex: 0,

@@ -121,13 +121,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       }
     }
     discoveries.value = [...merged.values()].slice(-200)
-    pendingKeys.value = [...new Set([
-      ...pendingKeys.value,
-      ...response.data.filter((entry) =>
-        entry.artJobId && entry.status !== 'READY' &&
-        entry.status !== 'FAILED' && entry.status !== 'CANCELLED',
-      ).map((entry) => entry.key),
-    ])]
+    pendingKeys.value = [
+      ...new Set([
+        ...pendingKeys.value,
+        ...response.data
+          .filter(
+            (entry) =>
+              entry.artJobId &&
+              entry.status !== 'READY' &&
+              entry.status !== 'FAILED' &&
+              entry.status !== 'CANCELLED',
+          )
+          .map((entry) => entry.key),
+      ]),
+    ]
     for (const entry of response.data.slice(0, 10)) {
       if (entry.artJobId && entry.key.startsWith('fusion:'))
         void refreshArtwork(entry.key)
@@ -160,10 +167,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     return ingredient ? (availableArt.value[ingredient.key] ?? null) : null
   }
 
-  function updateDiscovery(
-    key: string,
-    patch: Partial<HybridizerDiscovery>,
-  ) {
+  function updateDiscovery(key: string, patch: Partial<HybridizerDiscovery>) {
     discoveries.value = discoveries.value.map((entry) =>
       entry.key === key ? { ...entry, ...patch } : entry,
     )
@@ -193,10 +197,14 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       imagePath: data.imagePath,
     })
     if (data.status === 'READY' && prior?.status !== 'READY') {
-      readyNotice.value = discoveries.value.find((entry) => entry.key === key) ?? null
+      readyNotice.value =
+        discoveries.value.find((entry) => entry.key === key) ?? null
     }
-    if (data.status === 'QUEUED' || data.status === 'RENDERING' ||
-      data.status === 'DELIVERING') {
+    if (
+      data.status === 'QUEUED' ||
+      data.status === 'RENDERING' ||
+      data.status === 'DELIVERING'
+    ) {
       if (!pendingKeys.value.includes(key))
         pendingKeys.value = [...pendingKeys.value, key]
     } else {
@@ -227,9 +235,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         })
         if (!pendingKeys.value.includes(key))
           pendingKeys.value = [...pendingKeys.value, key]
-        status.value = 'Fusion study saved. The artwork is rendering in the background.'
+        status.value =
+          'Fusion study saved. The artwork is rendering in the background.'
       } else {
-        status.value = 'Fusion saved. Artwork could not be queued: ' +
+        status.value =
+          'Fusion saved. Artwork could not be queued: ' +
           (response.message || 'generation unavailable')
       }
     } finally {
@@ -331,9 +341,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         discovery,
       ].slice(-200)
       resultKey.value = discovery.key
-      status.value = discovery.status === 'READY'
-        ? 'Shared illustrated discovery retrieved.'
-        : 'Shared discovery saved. Artwork will render in the background.'
+      status.value =
+        discovery.status === 'READY'
+          ? 'Shared illustrated discovery retrieved.'
+          : 'Shared discovery saved. Artwork will render in the background.'
       save()
       if (discovery.status === 'READY') void refreshArtwork(discovery.key)
       else if (discovery.artJobId) void refreshArtwork(discovery.key)

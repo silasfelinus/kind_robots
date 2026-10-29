@@ -267,6 +267,138 @@
       "story": "Replay Ray keeps the raw recording Witness does not want the city to see.",
       "facetType": "SPECIES",
       "hp": 1
+    },
+    {
+      "signature": "magic-fire",
+      "name": "Wicklings",
+      "captain": "Mother Ember",
+      "look": "Candle-wick goblins with flame hair and salamander tongues",
+      "move": "Carry delayed ignition along a visibly lit chain of candles",
+      "counter": "Snuff one flame or douse the chain",
+      "story": "Mother Ember wants Lanternwitch's abandoned candle shop reopened, not Comet City burned.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-air",
+      "name": "Marginalia Nimbus",
+      "captain": "Dewey Storm",
+      "look": "Thundercloud librarians wearing overdue book slips as sashes",
+      "move": "Rain ink on a marked area, obscuring line-of-sight labels",
+      "counter": "Take shelter or return the overdue book",
+      "story": "Dewey Storm stamps everything The Weathervane steals from the forbidden archives.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-earth",
+      "name": "Gnome Revolt",
+      "captain": "Sir Mulch",
+      "look": "Cracked porcelain garden gnomes overgrown with angry roots",
+      "move": "Send visible vines through paving seams to tether the next visitor",
+      "counter": "Prune the stem or change paths",
+      "story": "Sir Mulch shelters community gardeners even while Rootwarden reclaims the city.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-water",
+      "name": "Glass Doubles",
+      "captain": "Silver Sip",
+      "look": "Living water-glass reflections with borrowed faces",
+      "move": "Place a watery duplicate where a hero last stood",
+      "counter": "Look for rippling feet or empty the summoning bowl",
+      "story": "Silver Sip fears the future Reflection refuses to see.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-discipline",
+      "name": "Bellbound Novices",
+      "captain": "Sister Ding",
+      "look": "Bronze monastery bells walking on knotted ropes",
+      "move": "Sound a timed chime that interrupts the queued ability in one square",
+      "counter": "Silence the clapper or leave the ringing circle",
+      "story": "Sister Ding quietly rings whenever refugees ask The Abbess for sanctuary.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-genius",
+      "name": "The Primelets",
+      "captain": "Eleven",
+      "look": "Impossible bright polyhedra with prime numbers on their facets",
+      "move": "Connect marked vertices into a zone-denying geometric proof",
+      "counter": "Occupy or disrupt one corner before the polygon closes",
+      "story": "Eleven searches for a contradiction that feels like mercy beyond Theorem's logic.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-birthright",
+      "name": "Heirloom Hexes",
+      "captain": "Auntie Hem",
+      "look": "Animated embroidered family crests with needle feet and photo eyes",
+      "move": "Pin a house rule to one tile that punishes repeating an action",
+      "counter": "Read its announced rule and choose a different action",
+      "story": "Auntie Hem knows the ancestral exception that could free The Hearthwitch's captives.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "magic-social",
+      "name": "Encore Hands",
+      "captain": "Velvet Glove",
+      "look": "Floating sequined opera gloves that clap thunder",
+      "move": "Double an adjacent ally's next movement through rhythmic applause",
+      "counter": "Interrupt the third counted clap",
+      "story": "Velvet Glove loves an honest empty theater more than Curtain Call's stolen promises.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-fire",
+      "name": "Flare Skiffs",
+      "captain": "Little Sol",
+      "look": "Miniature solar-sail protest boats with star-dust banners",
+      "move": "Sweep a light beam across a warned row then flee the edge",
+      "counter": "Move into shade before the sail charges",
+      "story": "Little Sol refuses Daystar's orders if they put refugees in danger.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-air",
+      "name": "Cloud Clerks",
+      "captain": "Undersecretary Mist",
+      "look": "Cumulus bureaucrats with inkpad lightning and enormous diplomatic sashes",
+      "move": "Declare a marked square annexed, increasing entry cost",
+      "counter": "Counter-sign at the nearby flag or wait for the cloud to drift",
+      "story": "Mist files humane exceptions to The Envoy's annexation treaty.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-earth",
+      "name": "Display Goblins",
+      "captain": "Curator Chip",
+      "look": "Crystalline museum sprites wearing stolen exhibition plaques",
+      "move": "Build a temporary glass case around an exposed target",
+      "counter": "Strike the projected corner clamp before the exhibit seals",
+      "story": "Chip catalogues stolen objects so Monolith's victims can eventually reclaim them.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-water",
+      "name": "Pearl Choir",
+      "captain": "Alto Clam",
+      "look": "Operatic clams with glowing pearls and sea-foam lace collars",
+      "move": "Sing one target a tile closer to the watery edge",
+      "counter": "Cover the pearl or move out of hearing",
+      "story": "Alto Clam disobeys Lighthouse when a listener cannot swim.",
+      "facetType": "SPECIES",
+      "hp": 1
     }
   ]
 }

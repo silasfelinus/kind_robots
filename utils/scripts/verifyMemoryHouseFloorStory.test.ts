@@ -327,7 +327,7 @@ const sisterBeats = sisterCases.map(({ save, briar }) =>
 )
 assert.equal(new Set(sisterBeats.map((beat) => beat?.title)).size, 12)
 assert.match(sisterBeats[1]!.cost, /bypass/)
-assert.match(sisterBeats[2]!.text, /stranded maid/)
+assert.match(sisterBeats[2]!.text, /maid and her parcels/)
 assert.match(sisterBeats[4]!.cost, /boot/)
 assert.match(sisterBeats[5]!.cost, /unspoken/)
 assert.match(sisterBeats[7]!.cost, /waits/)

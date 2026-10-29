@@ -78,6 +78,9 @@ jobs:
       - name: Memory Dungeon House twelve earned epilogues, reachability and saves
         run: npx tsx utils/scripts/verifyMemoryHouseEpilogues.test.ts
 
+      - name: Memory Dungeon House three-floor narrative thresholds
+        run: npx tsx utils/scripts/verifyMemoryHouseFloorStory.test.ts
+
       - name: Memory Dungeon World One side quests, closures and epilogue weight
         run: npx tsx utils/scripts/verifyMemoryBriarQuests.test.ts
 

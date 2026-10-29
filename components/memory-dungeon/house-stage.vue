@@ -122,6 +122,17 @@
           <p class="mt-2 text-sm leading-relaxed sm:text-base">
             {{ room?.opening }}
           </p>
+          <div
+            v-if="floorBeat"
+            class="mt-3 rounded-lg border border-[#96744b] bg-[#f6e4bf] p-3"
+            data-testid="memory-house-floor-story"
+          >
+            <h4 class="font-serif text-base font-black">
+              {{ floorBeat.title }}
+            </h4>
+            <p class="mt-1 text-sm leading-relaxed">{{ floorBeat.text }}</p>
+            <p class="mt-2 text-sm font-semibold">{{ floorBeat.cost }}</p>
+          </div>
           <p
             v-if="selectedChoice"
             class="mt-3 rounded-md border border-[#9a804c] bg-[#f9e9c7] p-2 text-sm font-semibold"
@@ -208,6 +219,7 @@ import { computed, ref, watch } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import { houseIllustrationPath } from '~/utils/memoryDungeon/artManifest'
 import { HOUSE_ROOMS } from '~/utils/memoryDungeon/house'
+import { houseFloorBeat } from '~/utils/memoryDungeon/houseFloorStory'
 import { HOUSE_ATLAS_ROOM_IDS } from '~/utils/memoryDungeon/houseAtlas'
 import { HOUSE_EPILOGUE_LENS_LABELS } from '~/utils/memoryDungeon/houseEpilogues'
 
@@ -215,6 +227,9 @@ const world = useMemoryWorldStore()
 const rooms = HOUSE_ATLAS_ROOM_IDS.map((id) => HOUSE_ROOMS[id]!)
 const progress = computed(() => world.state.house)
 const room = computed(() => world.activeHouseRoom)
+const floorBeat = computed(() =>
+  houseFloorBeat(room.value?.id, progress.value, world.state.sceneChoices),
+)
 const available = computed(() => world.houseAvailableDoors)
 const selectedChoice = computed(
   () =>

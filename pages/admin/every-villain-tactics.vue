@@ -95,7 +95,7 @@
                     aria-hidden="true"
                   >◉</span>
                   <span
-                    v-if="store.tileInfoAt(cell) === 'cover'
+                    v-if="store.tileInfoAt(cell) === 'cover'"
                     class="evt-cover"
                     aria-hidden="true"
                   ></span>

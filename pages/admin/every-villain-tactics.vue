@@ -277,10 +277,17 @@
               </div>
               <div v-else class="evt-no-shot">◌ <span>NO CLEAR SHOT</span></div>
               <p>{{ store.previewLabel }}</p>
-              <div v-if="store.projectedTargets.length" class="evt-target-list"
+              <div
+                v-if="store.projectedTargets.length"
+                class="evt-target-list"
                 aria-label="Visible targets with chance from the previewed position"
-                data-testid="tactics-visible-targets">
-                <span v-for="target in store.projectedTargets" :key="target.target" class="evt-target-chip">
+                data-testid="tactics-visible-targets"
+              >
+                <span
+                  v-for="target in store.projectedTargets"
+                  :key="target.target"
+                  class="evt-target-chip"
+                >
                   {{ targetName(target.target) }} {{ target.hit }}%
                 </span>
               </div>
@@ -1401,7 +1408,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: #d4e9ff;
   background: #152543;
   white-space: nowrap;
-  font-size: .59rem;
+  font-size: 0.59rem;
   font-weight: 800;
 }
 .evt-height {

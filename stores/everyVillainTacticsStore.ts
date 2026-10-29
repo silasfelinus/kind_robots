@@ -75,9 +75,10 @@ export const useEveryVillainTacticsStore = defineStore(
       const selected = active.value
       const point = hovered.value
       if (!selected || !point) return []
-      const from = mode.value === 'move' && movePossible.value
-        ? { ...selected, x: point.x, y: point.y }
-        : selected
+      const from =
+        mode.value === 'move' && movePossible.value
+          ? { ...selected, x: point.x, y: point.y }
+          : selected
       return enemies.value
         .filter((u) => u.hp > 0)
         .map((u) => previewShot(from, u))
@@ -89,10 +90,12 @@ export const useEveryVillainTacticsStore = defineStore(
       if (mode.value === 'fire') {
         const hoveredEnemy = actorAt(state.value, hovered.value)
         return hoveredEnemy?.team === 'rival'
-          ? projectedTargets.value.find((shot) => shot.target === hoveredEnemy.id) ?? null
+          ? (projectedTargets.value.find(
+              (shot) => shot.target === hoveredEnemy.id,
+            ) ?? null)
           : null
       }
-      return movePossible.value ? projectedTargets.value[0] ?? null : null
+      return movePossible.value ? (projectedTargets.value[0] ?? null) : null
     })
     const previewLabel = computed(() => {
       if (!active.value) return 'Select a squadmate'

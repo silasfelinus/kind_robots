@@ -159,6 +159,7 @@ for (const [room, puzzle] of Object.entries(DARK_HOUSE_PUZZLES)) {
     active: true,
     current: room as DarkHouseProgress['current'],
     visited: visitedMirrorRooms(room),
+    decisions: { 'HD-32': 'attend' } as Record<string, string>,
   }
   assert.equal(darkHouseChoose(p, 'attend'), p)
   assert.equal(darkHouseRoomResolved(p), false)
@@ -297,18 +298,18 @@ assert.equal(darkHouseMove(guardian, 'HD-33').current, 'HD-33')
 // Both endings respond to evidence recovered and strain accumulated.
 const returned = restoreDarkHouseProgress({
   visited: visitedMirrorRooms('HD-35'),
-  decisions: { 'HD-35': 'attend' },
+  decisions: { 'HD-32': 'attend', 'HD-35': 'attend' },
 })
 const commons = restoreDarkHouseProgress({
   visited: visitedMirrorRooms('HD-35'),
-  decisions: { 'HD-35': 'refuse' },
+  decisions: { 'HD-32': 'refuse', 'HD-35': 'refuse' },
 })
 assert.notEqual(darkHouseVerdict(returned), darkHouseVerdict(commons))
 assert.ok(darkHouseVerdict(returned).includes('individual owners'))
 assert.ok(darkHouseVerdict(commons).includes('revocable commons'))
 const damaged = restoreDarkHouseProgress({
   visited: visitedMirrorRooms('HD-03', 'HD-13', 'HD-35'),
-  decisions: { 'HD-35': 'attend' },
+  decisions: { 'HD-32': 'attend', 'HD-35': 'attend' },
   puzzles: {
     'HD-03': { solved: true, wrong: ['north', 'same'] },
     'HD-13': { solved: true, wrong: ['oven', 'cook'] },

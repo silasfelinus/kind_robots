@@ -952,6 +952,7 @@ for (const [witnessChoice, room, source] of [
     active: true,
     current: room,
     visited: visitedMirrorRoute(room),
+    decisions: { 'HD-32': 'attend' } as Record<string, string>,
   }
   assert.equal(darkHouseEchoes(atPuzzle), 0)
   assert.equal(darkHousePuzzleHint(atPuzzle), atPuzzle)

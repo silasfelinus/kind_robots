@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { grantMemoryRewardOnce } from '../memoryDungeon/encounterRewards'
+import { minefieldRewardKey } from '../memoryDungeon/minefieldRun'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -3142,4 +3144,85 @@ assert.equal(
   ).length,
   2,
   'Autosave hydration and manual checkpoint loading both settle missed-room penalties',
+)
+
+// Reward ledger regression: replayed/resumed encounters must not mint currency.
+const rewardCases = [
+  { key: '5,5', reward: { wildflowers: 1 } },
+  { key: '7,3', reward: { wildflowers: 1 } },
+  { key: minefieldRewardKey(8), reward: { lanterns: 1, wildflowers: 1 } },
+  { key: minefieldRewardKey(10), reward: { lanterns: 1, wildflowers: 2 } },
+] as const
+for (let seed = 0; seed < 64; seed++) {
+  const ledger: string[] = []
+  const purse = { lanterns: 0, wildflowers: 0 }
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const entry = rewardCases[(attempt * 7 + seed) % rewardCases.length]!
+    const first = !ledger.includes(entry.key)
+    assert.equal(
+      grantMemoryRewardOnce(ledger, entry.key, purse, entry.reward),
+      first,
+      'Only the first successful encounter may pay out',
+    )
+  }
+  assert.equal(ledger.length, rewardCases.length)
+  assert.deepEqual(purse, { lanterns: 2, wildflowers: 5 })
+  const restoredLedger = JSON.parse(JSON.stringify(ledger)) as string[]
+  const restoredPurse = JSON.parse(JSON.stringify(purse)) as typeof purse
+  for (const entry of rewardCases)
+    assert.equal(
+      grantMemoryRewardOnce(
+        restoredLedger,
+        entry.key,
+        restoredPurse,
+        entry.reward,
+      ),
+      false,
+      'Reloading a completed encounter cannot reset its reward claim',
+    )
+  assert.deepEqual(restoredPurse, purse)
+}
+const darkRewardLedger: string[] = []
+const briarRewardLedger: string[] = []
+const twoRealities = { lanterns: 0, wildflowers: 0 }
+assert.equal(
+  grantMemoryRewardOnce(darkRewardLedger, '5,5', twoRealities, { lanterns: 1 }),
+  true,
+)
+assert.equal(
+  grantMemoryRewardOnce(briarRewardLedger, '5,5', twoRealities, {
+    wildflowers: 1,
+  }),
+  true,
+  'Original and mirrored encounter rewards have independent save ledgers',
+)
+assert.equal(
+  grantMemoryRewardOnce(darkRewardLedger, '5,5', twoRealities, { lanterns: 1 }),
+  false,
+)
+assert.deepEqual(twoRealities, { lanterns: 1, wildflowers: 1 })
+
+const rewardStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+const duelRewardSource = rewardStoreSource
+  .split('function finishDarkDuel')[1]
+  ?.split('function reset')[0]
+const minefieldRewardSource = rewardStoreSource
+  .split('function minefieldMove')[1]
+  ?.split('function requestMinefieldHint')[0]
+const firstRealmRewardSource = rewardStoreSource
+  .split('async function finishRoom')[1]
+  ?.split('function leaveRoom')[0]
+assert.match(
+  duelRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*dark\.value\.duels,\s*duel\.key/,
+)
+assert.doesNotMatch(duelRewardSource ?? '', /state\.value\.lanterns \+= 1/)
+assert.match(
+  minefieldRewardSource ?? '',
+  /grantMemoryRewardOnce\(\s*state\.value\.completedEncounters,\s*rewardKey/,
+)
+assert.match(firstRealmRewardSource ?? '', /grantMemoryRewardOnce\(/)
+assert.doesNotMatch(
+  firstRealmRewardSource ?? '',
+  /state\.value\.wildflowers \+= 1/,
 )

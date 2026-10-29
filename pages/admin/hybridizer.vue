@@ -102,27 +102,27 @@
                 :alt="lab.result.title + ' illustration'"
               />
               <template v-else>
-              <div class="fusion-part">
-                <img
-                  v-if="lab.imageFor(lab.left)"
-                  :src="lab.imageFor(lab.left) || undefined"
-                  :alt="lab.left?.title || ''"
-                />
-                <span v-else aria-hidden="true">{{
-                  glyphFor(lab.left?.title, lab.left?.taxonomy)
-                }}</span>
-              </div>
-              <div class="fusion-lightning" aria-hidden="true">✧</div>
-              <div class="fusion-part">
-                <img
-                  v-if="lab.imageFor(lab.right)"
-                  :src="lab.imageFor(lab.right) || undefined"
-                  :alt="lab.right?.title || ''"
-                />
-                <span v-else aria-hidden="true">{{
-                  glyphFor(lab.right?.title, lab.right?.taxonomy)
-                }}</span>
-              </div>
+                <div class="fusion-part">
+                  <img
+                    v-if="lab.imageFor(lab.left)"
+                    :src="lab.imageFor(lab.left) || undefined"
+                    :alt="lab.left?.title || ''"
+                  />
+                  <span v-else aria-hidden="true">{{
+                    glyphFor(lab.left?.title, lab.left?.taxonomy)
+                  }}</span>
+                </div>
+                <div class="fusion-lightning" aria-hidden="true">✧</div>
+                <div class="fusion-part">
+                  <img
+                    v-if="lab.imageFor(lab.right)"
+                    :src="lab.imageFor(lab.right) || undefined"
+                    :alt="lab.right?.title || ''"
+                  />
+                  <span v-else aria-hidden="true">{{
+                    glyphFor(lab.right?.title, lab.right?.taxonomy)
+                  }}</span>
+                </div>
               </template>
             </div>
             <div class="result-foot">
@@ -178,9 +178,20 @@
         </article>
       </section>
 
-      <div v-if="lab.readyNotice" class="hybrid-ready-notice" role="status" aria-live="polite">
+      <div
+        v-if="lab.readyNotice"
+        class="hybrid-ready-notice"
+        role="status"
+        aria-live="polite"
+      >
         <strong>{{ lab.readyNotice.title }} is illustrated!</strong>
-        <button type="button" aria-label="Dismiss artwork notice" @click="lab.dismissNotice()">✕</button>
+        <button
+          type="button"
+          aria-label="Dismiss artwork notice"
+          @click="lab.dismissNotice()"
+        >
+          ✕
+        </button>
       </div>
       <footer class="hybridizer-footer">
         <button

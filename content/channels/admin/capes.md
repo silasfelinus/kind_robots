@@ -6,7 +6,7 @@ label: Capes Bible
 title: Capes Art Bible
 subtitle: The style gate for Prom of Doom and Every Villain Tactics.
 description: Start with six controlled character and scene benchmarks across Krea 2, Arthemy, Nova Comic, Illustrij, DreamShaper XL and Unstable Diffusers. See the real queued ArtJobs, compare delivered private images, score mature Western animation quality, and inspect the exact checkpoint-specific prompts.
-summary: 36-image shared style checkpoint bakeoff.
+summary: Shared 36-image style bakeoff.
 icon: kind-icon:gem
 route: /admin/capes
 sort: 70

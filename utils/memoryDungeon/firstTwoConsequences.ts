@@ -341,6 +341,67 @@ export function earnedRoyalEscortOutcome(
   return accord === 'unset' ? null : ROYAL_ESCORT_OUTCOMES[accord].scene
 }
 
+export type OrenManifestAccord =
+  | 'unset'
+  | 'route-counted'
+  | 'route-rescued'
+  | 'supplies-counted'
+  | 'supplies-rescued'
+
+const OREN_MANIFEST_OUTCOMES: Record<
+  Exclude<OrenManifestAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'route-counted': {
+    scene:
+      'Oren lays your original route beside the mirrored passenger count. The two extra seats are not people at all, but wishes travelling without their owners. He marks both as disputed cargo and refuses to print the names of the travelers who carried them. The crowd can challenge the ledger without being indexed, but departure must wait until someone checks which wishes can safely be returned.',
+    epilogue:
+      'Oren publishes the corrected passenger totals without naming the people who carried unowned wishes. Two seats remain under review, delaying the next crossing rather than inventing two missing travelers.',
+  },
+  'route-rescued': {
+    scene:
+      'Because you planned the narrow turns with Oren, he can lead the stranded families along a route the evacuation carts can actually take. Scylla walks the first stretch and Char checks the bridge supports. Nobody is left at the false crossing, but the longer road consumes a night of shelter the village had promised to another group.',
+    epilogue:
+      'Oren uses your original route to guide the stranded across a safe detour. The rescue succeeds, though the extra night on the road costs the village one night of available shelter.',
+  },
+  'supplies-counted': {
+    scene:
+      'The parcels you sorted in Briar let Oren separate actual food from the two phantom seats on his new manifest. He shares the rations with people whose bodies are present and leaves the wishes unclaimed until their owners can speak. His ledger becomes accurate enough to audit, but the waiting travelers must endure another hungry evening.',
+    epilogue:
+      'Oren uses the supplies you counted to feed real passengers rather than phantom entries. He keeps the two disputed seats open and accepts the delay instead of declaring their owners found.',
+  },
+  'supplies-rescued': {
+    scene:
+      'Oren recognizes the stores you helped pack and spends the reserve feeding the stranded as he escorts them back across the bridge. Char distributes bread without taking names; Scylla records each household that agrees to share. Everyone gets across tonight, but the House loses its emergency stock and must ask the village before borrowing another meal.',
+    epilogue:
+      'Oren spends the reserve you packed on the stranded passengers and gets them home. The House must rebuild its emergency stores with the village’s consent rather than treating rescue as an automatic claim on future meals.',
+  },
+}
+
+/** Reconcile Oren's original work with the mirrored ledger or evacuation.
+ * Both decisions must be real authored choices; no speculative outcome is
+ * granted for missing or fabricated history. */
+export function earnedOrenManifestAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): OrenManifestAccord {
+  const source = original.sceneChoices['4,3']
+  const response = mirrored.sceneChoices['4,3']
+  if (source !== 'plan' && source !== 'load') return 'unset'
+  if (response !== 'counts' && response !== 'rescue') return 'unset'
+  if (source === 'plan')
+    return response === 'counts' ? 'route-counted' : 'route-rescued'
+  return response === 'counts' ? 'supplies-counted' : 'supplies-rescued'
+}
+
+export function earnedOrenManifestOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedOrenManifestAccord(original, mirrored)
+  return accord === 'unset' ? null : OREN_MANIFEST_OUTCOMES[accord].scene
+}
+
 /** Carry only story-scale facts forward. Minor scene choices stay in the
  * original save; this projection never becomes another mutable save ledger. */
 export interface CrossRealmConsequenceLedger {
@@ -351,6 +412,7 @@ export interface CrossRealmConsequenceLedger {
   knightsDuty: 'unset' | 'oath' | 'errand'
   borrowedVoiceAccord: BorrowedVoiceAccord
   royalEscortAccord: RoyalEscortAccord
+  orenManifestAccord: OrenManifestAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -388,6 +450,9 @@ export function crossRealmConsequenceLedger(
       : 'unset',
     royalEscortAccord: mirrored
       ? earnedRoyalEscortAccord(briar, mirrored)
+      : 'unset',
+    orenManifestAccord: mirrored
+      ? earnedOrenManifestAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -454,7 +519,7 @@ export function crossRealmHouseEpilogue(
       ? ''
       : WITNESS_EPILOGUES[ledger.witnessRecord][mirroredHouse.ending]
   const provision =
-    ledger.orensProvision === 'unset'
+    ledger.orenManifestAccord !== 'unset' || ledger.orensProvision === 'unset'
       ? ''
       : OREN_EPILOGUES[ledger.orensProvision]
   const knight =
@@ -467,7 +532,11 @@ export function crossRealmHouseEpilogue(
     ledger.royalEscortAccord === 'unset'
       ? ''
       : ROYAL_ESCORT_OUTCOMES[ledger.royalEscortAccord].epilogue
-  return [witness, provision, knight, traveler, royals]
+  const manifest =
+    ledger.orenManifestAccord === 'unset'
+      ? ''
+      : OREN_MANIFEST_OUTCOMES[ledger.orenManifestAccord].epilogue
+  return [witness, provision, manifest, knight, traveler, royals]
     .filter(Boolean)
     .join(' ')
 }

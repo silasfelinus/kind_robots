@@ -582,6 +582,21 @@ export function describeEvents(events: CombatEvent[]): string {
   return parts.join(' ')
 }
 
+function hasEarnedSeededBoard(
+  cards: readonly CombatCard[],
+  seed: number,
+  rows: number,
+  cols: number,
+  turn: number,
+): boolean {
+  for (let dealTurn = 0; dealTurn <= turn; dealTurn++) {
+    const dealSeed = dealTurn === 0 ? seed : seed + dealTurn * 7919
+    const dealt = createBoard(dealSeed, rows, cols)
+    if (cards.every((card, i) => card.pair === dealt[i]?.pair)) return true
+  }
+  return false
+}
+
 /**
  * A saved fight, validated: anything malformed returns null, so a damaged
  * save drops the fight (the player is back on the map) instead of crashing.
@@ -640,6 +655,14 @@ export function restoreCombat(input: unknown): CombatState | null {
     !int(s.guard, 0, MAX_GUARD) ||
     !int(s.turn, 0, 100000) ||
     !int(s.seed, -(2 ** 31), 2 ** 32)
+  )
+    return null
+  const matchedPairs = [...counts.values()].filter(
+    ({ matched }) => matched,
+  ).length
+  if (
+    matchedPairs > s.turn! * PAIRS_PER_STRIKE ||
+    !hasEarnedSeededBoard(cards, s.seed!, rows, cols, s.turn!)
   )
     return null
   const cooldowns: Partial<Record<WeaponId, number>> = {}

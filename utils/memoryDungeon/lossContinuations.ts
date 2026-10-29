@@ -27,11 +27,11 @@ function rememberedConsequence(
   if (choices['4,2'] === 'ledger')
     return "Mosswick's tomorrow-dated warning survives; its unnamed debtor is still unknown."
   if (choices['4,2'] === 'promise')
-    return "Mosswick still expects your true account; his advance cannot settle the debt."
+    return 'Mosswick still expects your true account; his advance cannot settle the debt.'
   if (choices['3,4'] === 'challenge')
-    return "The toll receipt names another payer; the missing bridge is still unbuilt."
+    return 'The toll receipt names another payer; the missing bridge is still unbuilt.'
   if (choices['3,4'] === 'help')
-    return "The collector has your drawn bridge; travelers still need a real crossing."
+    return 'The collector has your drawn bridge; travelers still need a real crossing.'
   if (choices['4,3'] === 'plan')
     return "Oren's inked detour still marks a way forward; the unanswered danger waits."
   if (choices['4,3'] === 'load')

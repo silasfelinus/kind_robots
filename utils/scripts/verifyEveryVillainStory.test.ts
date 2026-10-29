@@ -157,7 +157,7 @@ assert.match(page, /aria-modal="true"/)
 assert.match(page, /store\.chooseStory\(choice\.effect\)/)
 assert.match(page, /event\.code === 'Digit1'/)
 assert.match(store, /enqueueBeat\(story\.value, state\.value\)/)
-assert.match(store, /storyMoment\(perspective\.value/)
+assert.match(store, /storyMoment\(\s*perspective\.value/)
 console.log(
   'Every Villain Tactics: four complete perspective trees, two approaches, deterministic events and endings verified.',
 )

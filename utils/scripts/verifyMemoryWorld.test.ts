@@ -2896,7 +2896,11 @@ for (const { choices, expected } of lossContexts) {
 const houseLossCases = [
   { room: 'HD-26', choice: 'testify', expected: /signed petition survives/ },
   { room: 'HD-26', choice: 'shelter', expected: /families have food/ },
-  { room: 'HD-10', choice: 'manifest', expected: /Scylla kept the route manifest/ },
+  {
+    room: 'HD-10',
+    choice: 'manifest',
+    expected: /Scylla kept the route manifest/,
+  },
   { room: 'HD-10', choice: 'improvise', expected: /rescued the maid/ },
   { room: 'HD-09', choice: 'parley', expected: /promise to cool the coals/ },
   { room: 'HD-09', choice: 'study', expected: /warning rhythm/ },
@@ -2944,7 +2948,11 @@ assert.match(
       sceneChoices: {},
       house: {
         combatOrigin: 'HD-09',
-        decisions: { 'HD-09': 'parley', 'HD-10': 'improvise', 'HD-26': 'testify' },
+        decisions: {
+          'HD-09': 'parley',
+          'HD-10': 'improvise',
+          'HD-26': 'testify',
+        },
       },
     },
     'combat',

@@ -93,7 +93,7 @@
             </h2>
             <div
               class="fusion-study"
-              aria-label="Compositional preview using the two source ingredients"
+              aria-label="Hybrid creature artwork or source composition preview"
             >
               <img
                 v-if="lab.imageFor(lab.result)"
@@ -287,8 +287,8 @@
           </p>
         </div>
         <p class="drawer-foot">
-          Shared matches are remembered across players. Painted art and new
-          contributions are being connected in separate production stages.
+          Shared matches are remembered across players. Missing artwork is
+          queued through the ArtJob relay while you keep exploring.
         </p>
       </aside>
     </div>

@@ -38,11 +38,11 @@ function houseLossConsequence(
   if (decisions['HD-26'] === 'shelter')
     return "The Wolf-Mother's families have food; their unsigned petition still awaits a hearing."
   if (decisions['HD-10'] === 'manifest')
-    return "Scylla kept the route manifest; the stranded maid still needs help down the service stair."
+    return 'Scylla kept the route manifest; the stranded maid still needs help down the service stair.'
   if (decisions['HD-10'] === 'improvise')
     return 'Char and Scylla rescued the maid; their unmarked route still needs a reliable map.'
   if (decisions['HD-09'] === 'parley')
-    return "The Hearth-Guard remembers your promise to cool the coals; its warning rhythm remains unknown."
+    return 'The Hearth-Guard remembers your promise to cool the coals; its warning rhythm remains unknown.'
   if (decisions['HD-09'] === 'study')
     return "You remember the Hearth-Guard's warning rhythm; the coals still need a safe keeper."
   return null

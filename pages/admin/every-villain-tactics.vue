@@ -84,30 +84,38 @@
                     >▲{{ elevationAt(cell) }}</span
                   >
                   <span
-                    v-if="actorAt(store.state, cell)"
+                    v-if="displayUnitAt(store.state, cell)"
                     class="evt-standee"
+                    :key="displayUnitAt(store.state, cell)!.id + '-' +
+                      (store.state.impact?.target === displayUnitAt(store.state, cell)!.id ||
+                      store.state.impact?.attacker === displayUnitAt(store.state, cell)!.id
+                        ? store.state.impact?.serial
+                        : 0)"
                     :class="{
                       'evt-friendly':
-                        actorAt(store.state, cell)?.team === 'squad',
-                      'evt-rival': actorAt(store.state, cell)?.team === 'rival',
-                      'evt-fallen': actorAt(store.state, cell)?.hp === 0,
+                        displayUnitAt(store.state, cell)?.team === 'squad',
+                      'evt-rival': displayUnitAt(store.state, cell)?.team === 'rival',
+                      'evt-fallen': displayUnitAt(store.state, cell)?.hp === 0,
+                      'evt-impact-hit': store.state.impact?.target === displayUnitAt(store.state, cell)?.id && store.state.impact.hit,
+                      'evt-impact-miss': store.state.impact?.target === displayUnitAt(store.state, cell)?.id && !store.state.impact.hit,
+                      'evt-impact-strike': store.state.impact?.attacker === displayUnitAt(store.state, cell)?.id,
                     }"
                   >
                     <span class="evt-card-art">
                       <span class="evt-crest" aria-hidden="true">✦</span>
                       <span class="evt-initials">{{
-                        initials(actorAt(store.state, cell)!)
+                        initials(displayUnitAt(store.state, cell)!)
                       }}</span>
                     </span>
                     <span class="evt-card-label">{{
-                      unitName(actorAt(store.state, cell)!)
+                      unitName(displayUnitAt(store.state, cell)!)
                     }}</span>
                     <span class="evt-health" aria-hidden="true">
                       <i
-                        v-for="n in actorAt(store.state, cell)?.maxHp ?? 0"
+                        v-for="n in displayUnitAt(store.state, cell)?.maxHp ?? 0"
                         :key="n"
                         :class="{
-                          lost: n > (actorAt(store.state, cell)?.hp ?? 0),
+                          lost: n > (displayUnitAt(store.state, cell)?.hp ?? 0),
                         }"
                       ></i>
                     </span>
@@ -459,6 +467,7 @@ import {
 } from '~/stores/everyVillainTacticsStore'
 import {
   actorAt,
+  displayUnitAt,
   boardCells,
   personFor,
   terrainAt,
@@ -1521,6 +1530,32 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 0.6rem;
   opacity: 0.6;
 }
+.evt-standee.evt-impact-strike { animation: evt-strike .44s ease-out both; }
+.evt-standee.evt-impact-hit { animation: evt-hit .54s ease-out both; }
+.evt-standee.evt-impact-miss { animation: evt-dodge .46s ease-out both; }
+.evt-standee.evt-fallen .evt-card-art {
+  transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(.79);
+  filter: grayscale(1);
+  opacity: .42;
+}
+.evt-standee.evt-fallen .evt-card-label { color: #c7bfc8; text-decoration: line-through; }
+.evt-standee.evt-fallen { opacity: .6; }
+@keyframes evt-strike {
+  0% { transform: translateX(-50%) rotateY(0deg); }
+  37% { transform: translateX(-50%) translateY(-17%) rotateY(-16deg) scale(1.11); }
+  65% { transform: translateX(-38%) translateY(-5%) rotateY(12deg) scale(1.07); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes evt-hit {
+  0% { transform: translateX(-50%) rotateY(0); filter: brightness(1.8); }
+  36% { transform: translateX(-50%) translateY(9%) rotateY(42deg); filter: brightness(2.1); }
+  100% { transform: translateX(-50%); filter: brightness(1); }
+}
+@keyframes evt-dodge {
+  0%,100% { transform: translateX(-50%); }
+  45% { transform: translateX(-70%) rotateY(-15deg); }
+}
+
 .evt-cinematic {
   position: absolute;
   inset: 0;
@@ -1648,6 +1683,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .evt-standee.evt-impact-strike,
+  .evt-standee.evt-impact-hit,
+  .evt-standee.evt-impact-miss { animation: none; }
   .evt-standee,
   .evt-roster-card {
     transition: none;

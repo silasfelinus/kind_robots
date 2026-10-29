@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { VILLAIN_HENCHMEN } from '../cometAcademy/villainHenchmen'
 import {
@@ -53,4 +54,15 @@ assert.match(campaignStagesFor('accident-earth').lair.title, /Deed Below/)
 assert.match(campaignStagesFor('tech-genius').opening.title, /Grandma/)
 assert.match(campaignStagesFor('magic-genius').lair.arena, /vertices|mathematical/)
 assert.throws(() => campaignStagesFor('unlisted-person' as never), /Missing opening mission/)
+const dossierPage = readFileSync(
+  new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
+  'utf8',
+)
+assert.match(dossierPage, /data-testid="tactics-campaign-dossier"/)
+assert.match(dossierPage, /data-testid="tactics-dossier-select"/)
+assert.match(dossierPage, /inspectedCampaign\.opening\.title/)
+assert.match(dossierPage, /inspectedCampaign\.lair\.title/)
+assert.match(dossierPage, /inspectedCampaign\.lieutenant\.name/)
+assert.match(dossierPage, /Concept plans only/)
+
 console.log('48 original power-specific openers, 48 villain lairs, 48 separate four-HP lieutenants: OK')

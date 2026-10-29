@@ -71,22 +71,28 @@ export const useEveryVillainTacticsStore = defineStore(
     const movePossible = computed(
       () => hovered.value && availableMove(state.value, hovered.value),
     )
-    const aimedTarget = computed(() => {
-      const point = hovered.value
+    const projectedTargets = computed(() => {
       const selected = active.value
-      if (!point || !selected) return null
-      const target = actorAt(state.value, point)
-      if (target?.team === 'rival') return previewShot(selected, target)
-      if (movePossible.value) {
-        const projected = { ...selected, x: point.x, y: point.y }
-        const options = enemies.value
-          .filter((u) => u.hp > 0)
-          .map((u) => previewShot(projected, u))
-          .filter((s) => s.hit > 0)
-          .sort((a, b) => b.hit - a.hit)
-        return options[0] ?? null
+      const point = hovered.value
+      if (!selected || !point) return []
+      const from = mode.value === 'move' && movePossible.value
+        ? { ...selected, x: point.x, y: point.y }
+        : selected
+      return enemies.value
+        .filter((u) => u.hp > 0)
+        .map((u) => previewShot(from, u))
+        .filter((shot) => shot.hit > 0)
+        .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
+    })
+    const aimedTarget = computed(() => {
+      if (!hovered.value) return null
+      if (mode.value === 'fire') {
+        const hoveredEnemy = actorAt(state.value, hovered.value)
+        return hoveredEnemy?.team === 'rival'
+          ? projectedTargets.value.find((shot) => shot.target === hoveredEnemy.id) ?? null
+          : null
       }
-      return null
+      return movePossible.value ? projectedTargets.value[0] ?? null : null
     })
     const previewLabel = computed(() => {
       if (!active.value) return 'Select a squadmate'
@@ -190,6 +196,7 @@ export const useEveryVillainTacticsStore = defineStore(
       hovered,
       mode,
       aimedTarget,
+      projectedTargets,
       previewLabel,
       movePossible,
       reset,

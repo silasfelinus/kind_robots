@@ -32,6 +32,7 @@ import {
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
   earnedCourierCompensation,
+  earnedCourierBellOutcome,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortOutcome,
   earnedOrenManifestOutcome,
@@ -303,7 +304,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
     const earned =
-      dark.value.player === '3,5'
+      dark.value.player === '2,4'
+        ? earnedCourierBellOutcome(state.value, dark.value)
+        : dark.value.player === '3,5'
         ? earnedBorrowedVoiceOutcome(state.value, dark.value)
         : dark.value.player === '4,4'
           ? earnedRoyalEscortOutcome(state.value, dark.value)
@@ -1147,6 +1150,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === dark.value) return
     dark.value = next
     if (
+      key === '2,4' ||
       key === '3,5' ||
       key === '4,4' ||
       key === '4,3' ||
@@ -1154,7 +1158,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       key === '3,2'
     ) {
       const earned =
-        key === '3,5'
+        key === '2,4'
+          ? earnedCourierBellOutcome(state.value, next)
+          : key === '3,5'
           ? earnedBorrowedVoiceOutcome(state.value, next)
           : key === '4,4'
             ? earnedRoyalEscortOutcome(state.value, next)

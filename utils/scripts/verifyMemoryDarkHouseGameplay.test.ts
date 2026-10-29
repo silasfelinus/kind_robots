@@ -157,6 +157,7 @@ for (const [room, puzzle] of Object.entries(DARK_HOUSE_PUZZLES)) {
     ...newDarkHouseProgress(),
     active: true,
     current: room as DarkHouseProgress['current'],
+    visited: visitedMirrorRooms(room),
   }
   assert.equal(darkHouseChoose(p, 'attend'), p)
   assert.equal(darkHouseRoomResolved(p), false)

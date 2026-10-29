@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import {
   WEAPONS,
   cellName,
+  createCombat,
   describeEvents,
   includesCell,
   legalMasks,
@@ -185,6 +186,80 @@ assert.equal(
   null,
   'a board whose pairs no longer come in twos is rejected',
 )
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { pair: number }) => ({
+      ...card,
+      pair: card.pair + 8,
+    })),
+  }),
+  null,
+  'renumbering every pair outside the seeded board range cannot mint a new board',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map(() => ({ pair: null, matched: false })),
+  }),
+  null,
+  'an all-obstacle board cannot skip a combat encounter',
+)
+assert.equal(
+  restoreCombat({
+    ...json,
+    cards: json.cards.map((card: { matched: boolean }, i: number) =>
+      i === 0 ? { ...card, matched: !card.matched } : card,
+    ),
+  }),
+  null,
+  'one face of a pair cannot be marked matched on its own',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'victory' }),
+  null,
+  'victory requires the enemy to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat' }),
+  null,
+  'defeat requires the player to have no health',
+)
+assert.equal(
+  restoreCombat({ ...json, enemy: { ...json.enemy, hp: 0 } }),
+  null,
+  'an enemy at zero health cannot remain in a fighting checkpoint',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  'a completed fight with consistent health remains restorable',
+)
+assert.ok(
+  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
+  'a genuine defeat remains restorable',
+)
+const oddBoard = createCombat({
+  seed: 17,
+  rows: 5,
+  cols: 5,
+  enemy: { name: 'Puzzle Sentinel', hp: 8, attack: 1, every: 3 },
+})
+assert.ok(restoreCombat(oddBoard), 'odd boards retain their one legal obstacle')
+assert.equal(
+  restoreCombat({
+    ...oddBoard,
+    cards: oddBoard.cards.map((card) =>
+      card.pair === null ? { ...card, matched: true } : card,
+    ),
+  }),
+  null,
+  'the odd-board obstacle can never count as a matched pair',
+)
+
 assert.equal(
   restoreBriarCombat({ state: json, images: images.slice(0, 3) }),
   null,

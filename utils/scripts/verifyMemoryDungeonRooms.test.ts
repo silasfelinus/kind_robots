@@ -257,6 +257,32 @@ assert.deepEqual(
   { ...redealt, log: [] },
   'a genuine seed-derived redeal restores even when its layout differs from the opening board',
 )
+for (let seed = 1; seed <= 32; seed++) {
+  const initial = createCombat({
+    seed,
+    rows: 4,
+    cols: 4,
+    enemy: { name: 'Patient Guardian', hp: 100, attack: 0, every: 20 },
+  })
+  let current = initial
+  for (let pair = 0; pair < 8; pair++) {
+    const positions = initial.cards.flatMap((card, i) =>
+      card.pair === pair
+        ? [{ row: Math.floor(i / initial.cols), col: i % initial.cols }]
+        : [],
+    )
+    current = scout(current, positions[0]!, positions[1]!)
+    assert.deepEqual(
+      restoreCombat(JSON.parse(JSON.stringify(current))),
+      { ...current, log: [] },
+      `seed ${seed}, turn ${pair + 1}: a real played board remains restorable`,
+    )
+  }
+  assert.ok(
+    current.log.some((event) => event.type === 'redeal'),
+    `seed ${seed}: clearing the board genuinely redeals it`,
+  )
+}
 assert.equal(
   restoreCombat({
     ...json,

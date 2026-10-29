@@ -402,6 +402,66 @@ export function earnedKnightCrossingOutcome(
   return accord === 'unset' ? null : KNIGHT_CROSSING_OUTCOMES[accord].scene
 }
 
+export type VesperRookeryAccord =
+  | 'unset'
+  | 'asked-verified'
+  | 'asked-delivered'
+  | 'flower-verified'
+  | 'flower-delivered'
+
+const VESPER_ROOKERY_OUTCOMES: Record<
+  Exclude<VesperRookeryAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'asked-verified': {
+    scene:
+      'Vesper recognizes the question-mark road they drew when you asked who had vanished. Together you take the rook replies to living witnesses instead of treating handwriting as proof. Three letters match memories; the fourth names a promise nobody can confirm. Vesper marks the missing person as unverified, not erased. The messenger gains an honest record, but the fourth letter stays undelivered.',
+    epilogue:
+      'Vesper keeps the fourth rook letter in an unverified folder while the other three witnesses confirm their memories. The missing traveler is not declared dead or found just to make the House ledger tidy.',
+  },
+  'asked-delivered': {
+    scene:
+      'You follow the alternate path Vesper drew beside the rook tower and find the living recipient of the unanswered letter. They have chosen a new name and ask that the route never enter a public atlas. Vesper tears the identifying corner from their map before the messenger delivers the letter. One person gets an answer, but the other rook replies remain unchecked and the road cannot be published.',
+    epilogue:
+      'Vesper leaves a deliberate blank in the public map to protect the letter recipient who chose a new name. The delivered message is real; the other rook replies remain unverified.',
+  },
+  'flower-verified': {
+    scene:
+      'The lantern Vesper traded for your wildflower illuminates three rook letters well enough for living witnesses to compare the ink. Vesper admits the birds repeated real memories, not messages from the dead. The fourth letter bears a name the witnesses cannot safely reveal. You leave it sealed, and the messenger loses the dramatic answer they wanted, but nobody is indexed on a guess.',
+    epilogue:
+      'By the lantern traded for your wildflower, Vesper verifies three rook replies and seals the fourth pending consent. The messenger has fewer miraculous claims, and the witnesses keep their names.',
+  },
+  'flower-delivered': {
+    scene:
+      'You carry Vesper’s lantern through the rookery dusk so the messenger can find the recipient of the unanswered letter. The recipient accepts it under a new name and asks for silence. Vesper presses your old wildflower into the map as a marker only the three of you understand. The delivery is safe, but you cannot use that secret route to prove the other birds’ stories.',
+    epilogue:
+      'Vesper marks the private delivery with the wildflower you traded for a lantern. The recipient remains free to use their new name, while the other rook replies are left without a public verdict.',
+  },
+}
+
+/** A map's missing name and a rook's reply become one earned account only
+ * after the original Vesper exchange and a second authored rookery choice. */
+export function earnedVesperRookeryAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): VesperRookeryAccord {
+  const source = original.sceneChoices['3,2']
+  const response = mirrored.sceneChoices['3,2']
+  if (source !== 'ask' && source !== 'offer') return 'unset'
+  if (response !== 'verify' && response !== 'honor') return 'unset'
+  if (source === 'ask')
+    return response === 'verify' ? 'asked-verified' : 'asked-delivered'
+  return response === 'verify' ? 'flower-verified' : 'flower-delivered'
+}
+
+export function earnedVesperRookeryOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedVesperRookeryAccord(original, mirrored)
+  return accord === 'unset' ? null : VESPER_ROOKERY_OUTCOMES[accord].scene
+}
+
 export type OrenManifestAccord =
   | 'unset'
   | 'route-counted'
@@ -475,6 +535,7 @@ export interface CrossRealmConsequenceLedger {
   royalEscortAccord: RoyalEscortAccord
   orenManifestAccord: OrenManifestAccord
   knightCrossingAccord: KnightCrossingAccord
+  vesperRookeryAccord: VesperRookeryAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -518,6 +579,9 @@ export function crossRealmConsequenceLedger(
       : 'unset',
     knightCrossingAccord: mirrored
       ? earnedKnightCrossingAccord(briar, mirrored)
+      : 'unset',
+    vesperRookeryAccord: mirrored
+      ? earnedVesperRookeryAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -607,6 +671,10 @@ export function crossRealmHouseEpilogue(
     ledger.orenManifestAccord === 'unset'
       ? ''
       : OREN_MANIFEST_OUTCOMES[ledger.orenManifestAccord].epilogue
+  const vesper =
+    ledger.vesperRookeryAccord === 'unset'
+      ? ''
+      : VESPER_ROOKERY_OUTCOMES[ledger.vesperRookeryAccord].epilogue
   return [
     witness,
     provision,

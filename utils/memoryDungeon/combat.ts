@@ -657,7 +657,9 @@ export function restoreCombat(input: unknown): CombatState | null {
     !int(s.seed, -(2 ** 31), 2 ** 32)
   )
     return null
-  const matchedPairs = [...counts.values()].filter(({ matched }) => matched).length
+  const matchedPairs = [...counts.values()].filter(
+    ({ matched }) => matched,
+  ).length
   if (
     matchedPairs > s.turn! * PAIRS_PER_STRIKE ||
     !hasEarnedSeededBoard(cards, s.seed!, rows, cols, s.turn!)

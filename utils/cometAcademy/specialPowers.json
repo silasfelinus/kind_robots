@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "statOrder": [
-    "might",
-    "speed",
-    "smarts",
-    "heart",
-    "control",
-    "grit"
-  ],
+  "statOrder": ["might", "speed", "smarts", "heart", "control", "grit"],
   "foci": [
     "brawler",
     "blaster",

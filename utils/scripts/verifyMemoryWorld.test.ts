@@ -16,6 +16,7 @@ import {
   HOUSE_ATLAS_ROOM_IDS,
   HOUSE_ATLAS_SIZE,
 } from '../memoryDungeon/houseAtlas'
+import { HOUSE_ATLAS_FALLBACK_CELLS } from '../memoryDungeon/houseAtlasFallback'
 import { newMemoryCampaignProgress } from '../memoryDungeon/reimaginerCampaign'
 import { newCrossMapSealChronicle } from '../memoryDungeon/crossMapSealChronicle'
 import {
@@ -1802,6 +1803,42 @@ assert.ok(
 assert.match(houseAtlasImage, /@error="available = false"/)
 assert.match(houseAtlasImage, /aria-hidden="true"/)
 assert.match(houseAtlasImage, /loading="eager"/)
+assert.match(houseAtlasImage, /memory-house-atlas-fallback/)
+assert.match(houseAtlasImage, /HOUSE_ATLAS_FALLBACK_CELLS/)
+assert.match(houseAtlasImage, /<svg[\\s\\S]*<img/)
+assert.equal(HOUSE_ATLAS_FALLBACK_CELLS.length, 36)
+for (const [index, cell] of HOUSE_ATLAS_FALLBACK_CELLS.entries()) {
+  const row = Math.floor(index / HOUSE_ATLAS_SIZE)
+  const column = index % HOUSE_ATLAS_SIZE
+  assert.equal(cell.id, HOUSE_ATLAS_ROOM_IDS[index])
+  assert.equal(cell.x, column * 100)
+  assert.equal(cell.y, row * 100)
+  assert.equal(cell.walls.length, 4)
+  assert.ok(cell.walls.every((segment) => segment.startsWith('M ')))
+  if (column < HOUSE_ATLAS_SIZE - 1) {
+    const neighbor = HOUSE_ATLAS_FALLBACK_CELLS[index + 1]!
+    assert.equal(cell.doors.east, neighbor.doors.west)
+    assert.equal(
+      cell.doors.east,
+      HOUSE_ROOMS[cell.id]!.exits.includes(neighbor.id) ||
+        HOUSE_ROOMS[neighbor.id]!.exits.includes(cell.id),
+      'The fallback only draws east doors backed by real adjacent passages',
+    )
+  } else assert.equal(cell.doors.east, false)
+  if (row < HOUSE_ATLAS_SIZE - 1) {
+    const neighbor = HOUSE_ATLAS_FALLBACK_CELLS[index + HOUSE_ATLAS_SIZE]!
+    assert.equal(cell.doors.south, neighbor.doors.north)
+    assert.equal(
+      cell.doors.south,
+      HOUSE_ROOMS[cell.id]!.exits.includes(neighbor.id) ||
+        HOUSE_ROOMS[neighbor.id]!.exits.includes(cell.id),
+      'The fallback only draws south doors backed by real adjacent passages',
+    )
+  } else assert.equal(cell.doors.south, false)
+  if (row === 0) assert.equal(cell.doors.north, false)
+  if (column === 0) assert.equal(cell.doors.west, false)
+}
+
 assert.match(houseMapScreen, /memory-dungeon-house-map-art reality="original"/)
 assert.match(darkHouseScreen, /memory-dungeon-house-map-art reality="mirrored"/)
 assert.match(houseMapScreen, /world\.houseMove\(item\.id\)/)

@@ -1005,6 +1005,30 @@ export function isHouseRoomId(value: unknown): value is HouseRoomId {
   )
 }
 
+/** A saved room list is not a travel log. Retain only chambers connected to
+ * the entry through authored forward passages inside that saved list. */
+export function reachableHouseVisits(
+  visited: readonly HouseRoomId[],
+  current: HouseRoomId,
+  extraExits: Readonly<Record<string, readonly HouseRoomId[]>> = {},
+): { visited: HouseRoomId[]; current: HouseRoomId } {
+  const claimed = new Set<HouseRoomId>([HOUSE_ENTRY, ...visited, current])
+  const reached = new Set<HouseRoomId>([HOUSE_ENTRY])
+  const queue: HouseRoomId[] = [HOUSE_ENTRY]
+  for (let i = 0; i < queue.length; i++) {
+    const room = queue[i]!
+    for (const next of [...HOUSE_ROOMS[room]!.exits, ...(extraExits[room] ?? [])]) {
+      if (!claimed.has(next) || reached.has(next)) continue
+      reached.add(next)
+      queue.push(next)
+    }
+  }
+  return {
+    current: reached.has(current) ? current : HOUSE_ENTRY,
+    visited: [...new Set([HOUSE_ENTRY, ...visited, current].filter((id) => reached.has(id)))],
+  }
+}
+
 export function houseRoom(id: string): HouseRoom | null {
   return isHouseRoomId(id) ? HOUSE_ROOMS[id]! : null
 }
@@ -1072,8 +1096,19 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
         ),
       ]
     : []
-  const current = isHouseRoomId(v.current) ? v.current : HOUSE_ENTRY
-  const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
+  const savedCurrent = isHouseRoomId(v.current) ? v.current : HOUSE_ENTRY
+  const savedDecisions =
+    v.decisions && typeof v.decisions === 'object' ? v.decisions : {}
+  const shortcuts: Record<string, readonly HouseRoomId[]> = {}
+  if (savedDecisions['HD-10'] === 'manifest')
+    shortcuts['HD-10'] = ['HD-25']
+  if (savedDecisions['HD-26'] === 'testify')
+    shortcuts['HD-26'] = ['HD-34']
+  const { current, visited: visitedRooms } = reachableHouseVisits(
+    visited,
+    savedCurrent,
+    shortcuts,
+  )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}
   if (v.decisions && typeof v.decisions === 'object')

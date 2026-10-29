@@ -870,6 +870,7 @@ export function chooseNightPatrol(
   return {
     ...run,
     playerCaseId: null,
+    missionApproach: null,
     nightPatrol: { zone, encounterId: scene.id, choiceId },
   }
 }
@@ -1702,7 +1703,10 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     scene:
       run.patrolHistory?.at(-1)?.day === run.day
         ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
-        : 'The next bell rings. Yesterday has already changed who will answer your calls.',
+        : run.missionClues?.length && run.reports.some((report) =>
+            report.text.includes('casebook'))
+          ? 'The next bell rings. The evidence you saved on night patrol has reached the morning bulletin board; somebody else has seen the same clue.'
+          : 'The next bell rings. Yesterday has already changed who will answer your calls.',
   }
 }
 

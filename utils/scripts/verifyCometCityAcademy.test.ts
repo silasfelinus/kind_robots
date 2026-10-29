@@ -30,8 +30,10 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
+import { FINAL_NIGHT_MISSIONS } from '../cometAcademy/finalNightCases'
 import {
   EXPANDED_MISSIONS,
+  FIRST_WAVE_MISSIONS,
   expandedMissionFor,
 } from '../cometAcademy/expandedNightCases'
 import {
@@ -124,6 +126,7 @@ import {
   INCIDENTS,
   NIGHT_DECK,
   FULL_NIGHT_DECK,
+  COMPLETE_NIGHT_DECK,
   incidentDeck,
   ENCOUNTERS,
   assignTeam,
@@ -1973,18 +1976,18 @@ assert.equal(LATE_INCIDENTS.length, 6)
 assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
 {
   const fresh = startFullAcademy('kinetic', 31)
-  assert.equal(fresh.incidentDeckVersion, 3)
+  assert.equal(fresh.incidentDeckVersion, 4)
   const seen = new Set<string>()
-  for (let day = 1; day <= 18; day++) {
+  for (let day = 1; day <= 24; day++) {
     const cases = incidentsFor({ ...fresh, day })
-    assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : day <= 14 ? 3 : 4)
+    assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : day <= 14 ? 3 : day <= 21 ? 4 : 5)
     assert.equal(
       new Set(cases.map((incident) => incident.id)).size,
       cases.length,
     )
     for (const incident of cases) seen.add(incident.id)
   }
-  assert.equal(seen.size, 24)
+  assert.equal(seen.size, 36)
   const {
     incidentDeckVersion: _dropped,
     patrolOpening: _intro,
@@ -1995,7 +1998,7 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   for (let day = 1; day <= 12; day++)
     for (const incident of incidentsFor({ ...legacy, day } as AcademyRun))
       assert.ok(INCIDENTS.includes(incident), 'old saves keep the six')
-  assert.equal(restoreAcademy({ ...fresh, incidentDeckVersion: 4 }), null)
+  assert.equal(restoreAcademy({ ...fresh, incidentDeckVersion: 5 }), null)
   assert.equal(
     restoreAcademy({ ...startAcademy('kinetic', 31), incidentDeckVersion: 2 }),
     null,
@@ -2034,8 +2037,12 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
 
 // Twelve next-tier cases are authored, selectable, persistent and distinct.
 // Their personal tactics alter rescue odds and unlock evidence-led power secrets.
-assert.equal(EXPANDED_MISSIONS.length, 12)
+assert.equal(FIRST_WAVE_MISSIONS.length, 12)
+assert.equal(FINAL_NIGHT_MISSIONS.length, 12)
+assert.equal(EXPANDED_MISSIONS.length, 24)
 assert.equal(FULL_NIGHT_DECK.length, 24)
+assert.equal(COMPLETE_NIGHT_DECK.length, 36)
+assert.equal(new Set(COMPLETE_NIGHT_DECK.map((caseFile) => caseFile.id)).size, 36)
 assert.equal(new Set(FULL_NIGHT_DECK.map((incident) => incident.id)).size, 24)
 const fullCaseTitles = new Set<string>()
 for (const mission of EXPANDED_MISSIONS) {
@@ -2071,8 +2078,8 @@ for (const [caseId, first, second] of newTeamRoutes) {
 assert.ok(missionReaction('drift', 'frog-serum').line.includes('Dr. Frog'))
 assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
 {
-  const template = startFullAcademy('biotech', 33)
-  // Seed 33 opens index 12 (frog-serum) on day four in the 24-card deck.
+  const template = { ...startFullAcademy('biotech', 33), incidentDeckVersion: 3 as const }
+  // Archived 24-case save keeps frog-serum on night four.
   let night: AcademyRun = { ...template, day: 4, phase: 'dispatch' }
   assert.ok(incidentsFor(night).some((mission) => mission.id === 'frog-serum'))
   assert.equal(selectMissionApproach(night, 'frog-serum', 'investigate'), night)

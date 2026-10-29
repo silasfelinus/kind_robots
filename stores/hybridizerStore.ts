@@ -257,7 +257,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function startArtworkWatch() {
     if (!import.meta.client || pollTimer) return
-    pollTimer = window.setInterval(() => void pollArtwork(), 10000)
+    pollTimer = setInterval(() => void pollArtwork(), 10000)
     void pollArtwork()
   }
 

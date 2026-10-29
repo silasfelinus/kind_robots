@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { grantMemoryRewardOnce } from '../memoryDungeon/encounterRewards'
+import { minefieldRewardKey } from '../memoryDungeon/minefieldRun'
 import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
@@ -3149,8 +3150,8 @@ assert.equal(
 const rewardCases = [
   { key: '5,5', reward: { wildflowers: 1 } },
   { key: '7,3', reward: { wildflowers: 1 } },
-  { key: 'minefield:6', reward: { lanterns: 1, wildflowers: 1 } },
-  { key: 'minefield:10', reward: { lanterns: 1, wildflowers: 2 } },
+  { key: minefieldRewardKey(8), reward: { lanterns: 1, wildflowers: 1 } },
+  { key: minefieldRewardKey(10), reward: { lanterns: 1, wildflowers: 2 } },
 ] as const
 for (let seed = 0; seed < 64; seed++) {
   const ledger: string[] = []

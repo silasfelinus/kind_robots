@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type { PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
+import type { MissionApproach } from '~/utils/cometAcademy/expandedNightCases'
 import {
   signatureById,
   type SignaturePowerId,
@@ -14,6 +15,7 @@ import type { SocialActionId } from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   assignPlayerCase,
+  selectMissionApproach,
   planThirdNight,
   chooseNightPatrol,
   chooseEncounter,
@@ -223,6 +225,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function missionTactic(caseId: string, approach: MissionApproach) {
+    if (!run.value) return
+    run.value = selectMissionApproach(run.value, caseId, approach)
+    persist()
+  }
+
   function planCrisis(caseId: string, approach: 'split' | 'concentrate') {
     if (!run.value) return
     run.value = planThirdNight(run.value, caseId, approach)
@@ -281,6 +289,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     visit,
     assign,
     lead,
+    missionTactic,
     planCrisis,
     patrol,
     dispatch,

@@ -1781,6 +1781,26 @@ assert.match(houseMapScreen, /memory-dungeon-house-map-art reality="original"/)
 assert.match(darkHouseScreen, /memory-dungeon-house-map-art reality="mirrored"/)
 assert.match(houseMapScreen, /world\.houseMove\(item\.id\)/)
 assert.match(darkHouseScreen, /world\.walkDarkHouse\(tileRoom\.id\)/)
+for (const [reality, stage] of [
+  ['original', houseMapScreen],
+  ['mirrored', darkHouseScreen],
+] as const) {
+  assert.match(
+    stage,
+    /grid-cols-6 grid-rows-6 gap-0[^"]*p-0/,
+    `${reality} atlas tiles must occupy the same unpadded six-by-six image grid`,
+  )
+  assert.match(
+    stage,
+    /min-w-0 rounded-none border text-center/,
+    `${reality} atlas buttons must not cut away painted room corners`,
+  )
+}
+assert.ok(
+  houseMapScreen.includes('bg-[#405949]/30') &&
+    darkHouseScreen.includes('bg-[#34544f]/30'),
+  'Visited House tiles remain translucent so delivered painted maps are visible',
+)
 assert.ok(
   mapScreen.includes(
     'src="/images/memory-dungeon/backdrops/briar-overworld.webp"',

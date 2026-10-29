@@ -111,5 +111,81 @@ export function houseFloorBeat(
     }
   }
 
+  if (roomId === 'HD-32') {
+    if (house.decisions['HD-26'] === 'testify')
+      return {
+        title: 'A Witness Who Can Refuse',
+        text: 'The witness from the Disputed Testimony Hall has agreed to speak for themself. Vesper stands beside the Rootbound Warden, not behind you. The Warden can examine the account without treating the speaker as a possession transferred between keepers.',
+        cost: 'A petition may spare a duel, but the witness can still withdraw consent.',
+      }
+    if (house.decisions['HD-17'] === 'read')
+      return {
+        title: 'The Archive Is Not a Witness',
+        text: 'You bring the account you read in the Witness Archive. Pip can identify its date and Mosswick can verify the ink, but neither can sign for the person whose memory was stored. The Warden waits for a request that acknowledges that difference.',
+        cost: 'The record makes a petition possible; it cannot promise the witness will agree.',
+      }
+    if (house.decisions['HD-16'] === 'return-name')
+      return {
+        title: 'A Name Returned, Not Claimed',
+        text: 'The name you returned at the Naming Desk reaches the Warden ahead of you. The Index has one fewer person it can count as property. The Warden asks whether you will defend that choice when the doors open and other people demand the name.',
+        cost: 'Restoring a name is evidence of care, not authority over its owner.',
+      }
+    if (briar['4,6'] === 'testify')
+      return {
+        title: 'The Wolf-Mother’s Outside Witness',
+        text: 'You unfold the courier’s account of travelers protected by the wolf patrol. The Rootbound Warden recognizes the Index seal but not the village’s accusation. Someone outside this House has finally been allowed into its record.',
+        cost: 'A distant witness can support a petition; their safety remains your concern.',
+      }
+    return {
+      title: 'The Guardian Who Will Not Guess',
+      text: 'The Warden has guarded people from the village and imprisoned them for the same reason. It asks for testimony you have not brought. Oren sets down his axe, not as a threat but as a reminder that a fair contest remains possible when proof is missing.',
+      cost: 'Without testimony you must face the guardian; victory will not invent consent.',
+    }
+  }
+
+  if (roomId === 'HD-35') {
+    if (house.decisions['HD-35'] === 'release')
+      return {
+        title: 'The Weight of Open Hands',
+        text: 'Pip helps the former residents carry their own jars into daylight. The Brass Knight offers guards for the journey; nobody is obliged to accept them. Some people will remember what they had asked the House to keep away.',
+        cost: 'Freedom returns the burden of care to people who may disagree about it.',
+      }
+    if (house.decisions['HD-35'] === 'renew')
+      return {
+        title: 'A Commons With an Exit',
+        text: 'Mosswick writes the first withdrawal clause before he writes the first member’s name. Vesper insists that a refusal must not require a public explanation. The Warden places the keys on the table rather than keeping them in its bark.',
+        cost: 'A shared refuge survives only if leaving it remains a genuine choice.',
+      }
+    if (house.decisions['HD-35'] === 'break')
+      return {
+        title: 'The Door Without a Keeper',
+        text: 'The mechanism breaks and the memories scatter to the people who can recognize them. Char starts a list of those who need help finding shelter. Oren quietly crosses out the column where he had expected to write a new jailer.',
+        cost: 'No one inherits the lock, but nobody inherits a ready-made safety net either.',
+      }
+    if (house.decisions['HD-33'] === 'consent')
+      return {
+        title: 'Ask Before the Flame',
+        text: 'The survivors from the Last Kind Lie have chosen different times to hear the truth. Scylla asks the Hearth to wait for each answer. Even the Brass Knight cannot call the delay cowardice when the choice belongs to those who must remember.',
+        cost: 'Waiting protects consent, but it leaves some wounds unresolved tonight.',
+      }
+    if (house.decisions['HD-33'] === 'reveal')
+      return {
+        title: 'The Truth Already Walks Outside',
+        text: 'The secret you revealed has reached the village before the fire can judge it. Pip reports anger, relief and people asking for privacy in equal measure. The Hearth cannot put that knowledge back into a jar to make the verdict simpler.',
+        cost: 'Revelation gave people facts without giving them time to prepare.',
+      }
+    if (house.decisions['HD-29'] === 'repair')
+      return {
+        title: 'An Agreement That Can End',
+        text: 'You carry the proposed revocation clause from the Indenture Room. Mosswick reads it aloud while Vesper asks who will enforce it when the witnesses leave. The Hearth will accept a promise only if its beneficiaries can say no tomorrow.',
+        cost: 'A fairer contract requires continued work, not a single heroic signature.',
+      }
+    return {
+      title: 'The Hearth Cannot Vote for Everyone',
+      text: 'The fire holds grief alongside gratitude. The Warden can describe the old bargain, and Pip can name its injuries, but neither speaks for every person whose memory waits in glass. You must choose a future without calling it unanimous.',
+      cost: 'Every ending protects something and asks somebody else to bear a risk.',
+    }
+  }
+
   return null
 }

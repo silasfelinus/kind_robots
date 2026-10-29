@@ -55,6 +55,8 @@ import {
   earnedOrenManifestOutcome,
   earnedKnightCrossingAccord,
   earnedKnightCrossingOutcome,
+  earnedVesperRookeryAccord,
+  earnedVesperRookeryOutcome,
   crossRealmConsequenceLedger,
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
@@ -748,6 +750,138 @@ assert.match(
   store,
   /earnedKnightCrossingOutcome\(state\.value, dark\.value\)/,
   'Returning to the mirrored Knight must restore earned dialogue',
+)
+
+// Vesper's original missing-person map and the mirrored rookery letters
+// resolve in four distinct ways, with privacy and evidence as real costs.
+assert.ok(BRIAR_REVEAL_WAVES[1]?.includes('3,2'))
+assert.ok(DARK_BRIAR_WAVES[1]?.includes('3,2'))
+const vesperOriginalRevealed = BRIAR_REVEAL_WAVES.slice(0, 2).flat()
+const vesperMirrorRevealed = DARK_BRIAR_WAVES.slice(0, 2).flat()
+const routeToVesper = (revealed: readonly string[]): string[] => {
+  const paths: string[][] = [[BRIAR_START]]
+  for (let i = 0; i < paths.length; i++) {
+    const route = paths[i]!
+    const last = route[route.length - 1]!
+    if (last === '3,2') return route
+    for (const next of BRIAR_LINKS[last] ?? [])
+      if (revealed.includes(next) && !route.includes(next))
+        paths.push([...route, next])
+  }
+  throw new Error('Vesper must be reachable through authored map links')
+}
+const vesperOriginalRoute = routeToVesper(vesperOriginalRevealed)
+const vesperMirrorRoute = routeToVesper(vesperMirrorRevealed)
+const vesperMirroredBase = {
+  ...newDarkBriarProgress(),
+  waveIndex: 1,
+  phase: 'exploring' as const,
+  mapCards: DARK_BRIAR_WAVES[1]!.map((tile, id) => ({
+    id,
+    tile,
+    pairId: Math.floor(id / 2),
+    image: `/test/vesper-pair-${Math.floor(id / 2)}.webp`,
+    flipped: true,
+    matched: true,
+  })),
+  revealed: vesperMirrorRevealed,
+  visited: vesperMirrorRoute,
+  player: '3,2',
+}
+const vesperScenes = new Set<string>()
+const vesperEpilogues = new Set<string>()
+for (const source of ['ask', 'offer'] as const) {
+  assert.ok(BRIAR_SCENES['3,2']?.choices.some((choice) => choice.id === source))
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    waveIndex: 1,
+    wavePhase: 'exploring',
+    revealed: vesperOriginalRevealed,
+    visited: vesperOriginalRoute,
+    player: '3,2',
+    wildflowers: 1,
+    sceneChoices: { '3,2': source },
+  })
+  assert.equal(original.sceneChoices['3,2'], source)
+  for (const response of ['verify', 'honor'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES['3,2']?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(vesperMirroredBase, '3,2', response)
+    assert.notEqual(chosen, vesperMirroredBase)
+    assert.equal(
+      darkBriarChoose(chosen, '3,2', response),
+      chosen,
+      'Vesper cannot award a second rookery resolution',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices['3,2'], response)
+    const accord = `${source === 'ask' ? 'asked' : 'flower'}-${
+      response === 'verify' ? 'verified' : 'delivered'
+    }`
+    assert.equal(earnedVesperRookeryAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored)
+        .vesperRookeryAccord,
+      accord,
+    )
+    const scene = earnedVesperRookeryOutcome(original, restored)
+    assert.ok(scene && scene.length > 220)
+    assert.match(scene, /Vesper/)
+    assert.match(scene, /but|remain|cannot|loses|stays|without/)
+    vesperScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'commons' },
+      restored,
+    )
+    assert.match(epilogue, /Vesper/)
+    vesperEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'The rookery cannot reveal an unearned House verdict',
+    )
+  }
+}
+assert.equal(vesperScenes.size, 4)
+assert.equal(vesperEpilogues.size, 4)
+assert.equal(
+  earnedVesperRookeryAccord(base, { sceneChoices: { '3,2': 'honor' } }),
+  'unset',
+)
+assert.equal(
+  earnedVesperRookeryOutcome(
+    { ...base, sceneChoices: { '3,2': 'invented' } },
+    { sceneChoices: { '3,2': 'verify' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedVesperRookeryOutcome(
+    { ...base, sceneChoices: { '3,2': 'ask' } },
+    { sceneChoices: { '3,2': 'invented' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).vesperRookeryAccord,
+  'unset',
+  'Old saves without the rookery resolution remain compatible',
+)
+assert.match(
+  store,
+  /earnedVesperRookeryOutcome\(state\.value, next\)/,
+  'The mirrored rookery must display earned dialogue when chosen',
+)
+assert.match(
+  store,
+  /earnedVesperRookeryOutcome\(state\.value, dark\.value\)/,
+  'Returning to the rookery must restore the earned outcome',
 )
 
 const earnedHouseEpilogues = new Set<string>()

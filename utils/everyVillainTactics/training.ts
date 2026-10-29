@@ -1,4 +1,5 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
+import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
 import {
   FIRST_BELL_MAP,
   chanceFrom,
@@ -30,6 +31,9 @@ export type Unit = Fighter & {
   identity: string
   team: Team
   maxHp: number
+  henchmanName?: string
+  henchmanType?: 'burrow'
+  burrowTarget?: Cell | null
 }
 export type TrainingState = {
   map: TacticalMap
@@ -73,7 +77,8 @@ export const elevationAt = (p: Cell, map = FIRST_BELL_MAP) =>
 export function personFor(unit: Unit) {
   return IDENTITY_ARCS.find((person) => person.signature === unit.identity)!
 }
-export const aliasFor = (unit: Unit) => personFor(unit).hero.alias
+export const aliasFor = (unit: Unit) =>
+  unit.henchmanName ?? personFor(unit).hero.alias
 export const isInside = (p: Cell) => inside(FIRST_BELL_MAP, p)
 export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
@@ -128,28 +133,38 @@ export function trainingState(
     map: stage?.map ?? FIRST_BELL_MAP,
     stageId: stage?.id ?? null,
     turnLimit: stage?.turnLimit ?? null,
-    units: placements.map(([id, identity, team, x, y, hp]) => ({
-      id,
-      identity,
-      team,
-      x: stage?.spawns.find((spawn) => spawn.id === id)?.x ?? x,
-      y: stage?.spawns.find((spawn) => spawn.id === id)?.y ?? y,
-      hp,
-      maxHp: hp,
-      moved: false,
-      fired: false,
-      ap: 2,
-      overwatch: false,
-      statuses: [],
-    })),
+    units: placements.map(([id, identity, team, x, y, hp], index) => {
+      const warren = stage?.encounter === 'warren-wreckers' && team === 'rival'
+      const crew = warren ? henchmanForVillain('accident-earth') : null
+      const name = index === 3 ? crew?.captain : index === 4 ? 'Warren Surveyor' : 'Warren Burrower'
+      return {
+        id,
+        identity: warren ? 'accident-earth' : identity,
+        team,
+        x: stage?.spawns.find((spawn) => spawn.id === id)?.x ?? x,
+        y: stage?.spawns.find((spawn) => spawn.id === id)?.y ?? y,
+        hp: warren ? 1 : hp,
+        maxHp: warren ? 1 : hp,
+        ...(warren ? { henchmanName: name, henchmanType: 'burrow' as const, burrowTarget: null } : {}),
+        moved: false,
+        fired: false,
+        ap: 2,
+        overwatch: false,
+        statuses: [],
+      }
+    }),
     selected: 'backdraft',
     hover: null,
     mode: 'move',
     turn: 1,
     seed: seed >>> 0 || 1,
     phase: 'active',
-    log: 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
-    events: ['The bell rang twice. Nobody signed up for the second one.'],
+    log: stage?.encounter === 'warren-wreckers'
+      ? 'Foreman Thumpkin and the Warren Wreckers interrupt the picnic. Watch for dust-ring warnings.'
+      : 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
+    events: stage?.encounter === 'warren-wreckers'
+      ? ['Foreman Thumpkin: The picnic lawn is a disputed tunnel right-of-way!']
+      : ['The bell rang twice. Nobody signed up for the second one.'],
     impact: null,
   }
 }
@@ -290,7 +305,59 @@ function bestShot(state: TrainingState, shooter: Unit, from: Point = shooter) {
         a.target.id.localeCompare(b.target.id),
     )[0]
 }
+function burrowPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'burrow') return false
+  const to = enemy.burrowTarget
+  if (to) {
+    enemy.burrowTarget = null
+    if (actorAt(state, to) || tileAt(state.map, to).wall) {
+      note(state, aliasFor(enemy) + ' loses the marked tunnel: the emergence square was blocked.')
+      return true
+    }
+    enemy.x = to.x
+    enemy.y = to.y
+    enemy.ap--
+    note(state, aliasFor(enemy) + ' bursts from the announced dust ring!')
+    triggerReactions(state, enemy)
+    if (enemy.hp <= 0 || state.phase !== 'active') return true
+    const shot = bestShot(state, enemy)
+    if (shot && enemy.ap > 0) {
+      const result = resolveAttack(state, state.map, enemy, shot.target, 1)
+      if (result) {
+        recordImpact(state, enemy, shot.target, result.hit)
+        note(state, aliasFor(enemy) + (result.hit ? ' hits ' : ' misses ') +
+          aliasFor(shot.target) + ' after emerging (' + result.chance.hit + '%).')
+      }
+    }
+    updateOutcome(state)
+    return true
+  }
+
+  const occupied = new Set(state.units.filter((u) => u.hp > 0)
+    .map((u) => u.x + ',' + u.y))
+  const reserved = new Set(state.units.filter((u) => u.hp > 0 && u.burrowTarget)
+    .map((u) => u.burrowTarget!.x + ',' + u.burrowTarget!.y))
+  const heroes = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+  const targets: Cell[] = []
+  for (let y = 0; y < state.map.height; y++)
+    for (let x = 0; x < state.map.width; x++) {
+      const point = { x, y }
+      const key = x + ',' + y
+      if (occupied.has(key) || reserved.has(key) || tileAt(state.map, point).wall) continue
+      if (heroes.some((u) => gridDistance(u, point) === 1))
+        targets.push(point)
+    }
+  targets.sort((a, b) => a.y - b.y || a.x - b.x)
+  const target = targets[0]
+  if (!target) return false
+  enemy.burrowTarget = target
+  enemy.ap = 0
+  note(state, aliasFor(enemy) + ' digs toward column ' + (target.x + 1) +
+    ', row ' + (target.y + 1) + '. The dust ring warns one turn in advance.')
+  return true
+}
 function enemyPlan(state: TrainingState, enemy: Unit) {
+  if (burrowPlan(state, enemy)) return
   let shot = bestShot(state, enemy)
   const positions = reachableCells(state.map, state.units, enemy)
   const improvement = positions
@@ -383,11 +450,14 @@ export function endTurn(state: TrainingState) {
   refreshTurn(state.units, 'squad')
   if (!selectedUnit(state))
     state.selected = state.units.find((u) => u.team === 'squad' && u.hp > 0)!.id
+  const warnings = state.units.filter((unit) => unit.hp > 0 && unit.burrowTarget).length
   note(
     state,
-    'Round ' +
-      state.turn +
-      ': the rival patrol has acted. Your squad has the initiative.',
+    warnings
+      ? 'Round ' + state.turn + ': ' + warnings +
+        ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
+      : 'Round ' + state.turn +
+        ': the rival patrol has acted. Your squad has the initiative.',
   )
   if (state.turn === 3)
     state.events.unshift(

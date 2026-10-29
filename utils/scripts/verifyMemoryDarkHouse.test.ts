@@ -84,6 +84,30 @@ for (const key of ['constructor', 'toString', '__proto__']) {
   assert.deepEqual(darkHouseExits(safe), [])
 }
 
+// Mirrored save history must connect to the entry. An isolated HD-35
+// decision cannot mint the final verdict or an unearned chamber visit.
+const disconnectedMirror = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-35',
+  visited: ['HD-35', 'HD-36'],
+  decisions: { 'HD-35': 'attend', 'HD-36': 'attend' },
+  ending: 'return',
+})
+assert.equal(disconnectedMirror.current, HOUSE_ENTRY)
+assert.deepEqual(disconnectedMirror.visited, [HOUSE_ENTRY])
+assert.deepEqual(disconnectedMirror.decisions, {})
+assert.equal(disconnectedMirror.ending, null)
+
+const adjacentLegacyMirror = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-03',
+  visited: ['HD-02'],
+  decisions: { 'HD-03': 'attend' },
+})
+assert.equal(adjacentLegacyMirror.current, 'HD-03')
+assert.deepEqual(adjacentLegacyMirror.visited, ['HD-01', 'HD-02', 'HD-03'])
+assert.equal(adjacentLegacyMirror.decisions['HD-03'], 'attend')
+
 const fresh = newDarkHouseProgress()
 assert.equal(fresh.active, false)
 assert.equal(darkHouseChoose(fresh, 'attend'), fresh)

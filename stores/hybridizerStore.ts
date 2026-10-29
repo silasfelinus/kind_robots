@@ -13,6 +13,10 @@ export type HybridizerIngredient = {
   artState?: string
   sources?: [string, string]
   depth?: number
+  status?: string
+  artImageId?: number | null
+  artJobId?: number | null
+  imagePath?: string | null
 }
 
 export type HybridizerDiscovery = HybridizerIngredient & {

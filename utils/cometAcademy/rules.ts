@@ -62,6 +62,14 @@ import {
   type SocialActionId,
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
+import {
+  PATROL_ZONES,
+  PATROL_SECRETS,
+  patrolSceneFor,
+  type PatrolZoneId,
+  type PatrolMemory,
+  type PatrolChoice,
+} from './nightPatrols'
 import { districtEncounterFor } from './districtEncounters'
 import { LATE_INCIDENTS } from './lateIncidents'
 import { returnVisitFor } from './returnVisits'
@@ -535,6 +543,13 @@ export type AcademyRun = {
   playerCaseId?: string | null
   /** Marks the new solo-rookie prologue; old saved campaigns retain their boards. */
   patrolOpening?: 1
+  /** Optional, saved night-neighborhood activity. Disabled for older campaign saves. */
+  nightPatrol?: {
+    zone: PatrolZoneId
+    encounterId: string
+    choiceId: string
+  } | null
+  patrolHistory?: PatrolMemory[]
   infirmaryDays?: number[]
   guestPlan?: 'open' | 'private' | 'duplicate'
   mastermind?: string
@@ -753,6 +768,7 @@ export function startFullAcademy(
     infirmaryDays: [],
     contacts: startingContacts(base.seed),
     patrolOpening: 1,
+    patrolHistory: [],
     mastermind: campaignVillain(base.seed).id,
     opponentSignature: campaignOpponent(base.seed, base.signature).signature,
     betrayer: campaignBetrayer(base.seed),
@@ -797,7 +813,56 @@ export function nightPatrolBeat(
       text: `Two emergencies flare on opposite sides of Comet City at once. Your hand shakes over the radio. "I can't be in two places," you hear yourself say, almost shouting. Then your phone rings. ${friend.name}: "I'm on your frequency. I'm coming, whether you split us up or keep us together. Just tell me where." Your first real friend is now on call. Split up to attempt both rescues, or stay together to make one rescue exceptional while the other goes unanswered.`,
     }
   }
-  return null
+  const previous = run.patrolHistory?.at(-1)
+  const reminder = previous
+    ? `Last night in ${PATROL_ZONES.find((zone) => zone.id === previous.zone)!.title}, you made a choice the neighborhood hasn't forgotten.`
+    : 'The city is awake after the school day. Not every wrong can wait for a siren.'
+  return {
+    title: `NIGHT ${run.day} · THE STREETS REMEMBER`,
+    text: `${reminder} Your radio lists urgent calls across Comet City, but ordinary people still need a hero on the blocks nobody puts on the dispatch board. Choose a named emergency or walk a district. You have only one night.`,
+  }
+}
+
+/** District patrols are separate from the mission board, and consume the protagonist's time. */
+export function patrolOptionsFor(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+): PatrolChoice[] {
+  const scene = patrolSceneFor(run.seed, run.day, zone)
+  const options: PatrolChoice[] = [...scene.choices]
+  const secret = PATROL_SECRETS[zone]
+  if (
+    knownContacts(run).includes(secret.ally as StudentId) &&
+    run.patrolHistory?.some(
+      (memory) =>
+        memory.zone === zone && memory.choiceId.endsWith('-investigate'),
+    )
+  )
+    options.push(secret.choice)
+  return options
+}
+
+export function chooseNightPatrol(
+  run: AcademyRun,
+  zone: PatrolZoneId,
+  choiceId: string,
+): AcademyRun {
+  if (
+    run.flowVersion !== 3 ||
+    run.patrolOpening !== 1 ||
+    run.day < 4 ||
+    run.phase !== 'dispatch' ||
+    !PATROL_ZONES.some((item) => item.id === zone)
+  )
+    return run
+  const scene = patrolSceneFor(run.seed, run.day, zone)
+  if (!patrolOptionsFor(run, zone).some((option) => option.id === choiceId))
+    return run
+  return {
+    ...run,
+    playerCaseId: null,
+    nightPatrol: { zone, encounterId: scene.id, choiceId },
+  }
 }
 
 /** Night three is an authored allocation dilemma, not two automatic dice rolls. */
@@ -982,6 +1047,7 @@ export function assignPlayerCase(run: AcademyRun, caseId: string): AcademyRun {
   return {
     ...run,
     playerCaseId: run.playerCaseId === caseId ? null : caseId,
+    nightPatrol: null,
   }
 }
 
@@ -1151,8 +1217,8 @@ export function dispatchChance(
 export function resolveDispatch(run: AcademyRun): AcademyRun {
   if (
     run.phase !== 'dispatch' ||
-    (run.assignments.length === 0 && !run.playerCaseId) ||
-    (run.patrolOpening === 1 && !run.playerCaseId)
+    (run.assignments.length === 0 && !run.playerCaseId && !run.nightPatrol) ||
+    (run.patrolOpening === 1 && !run.playerCaseId && !run.nightPatrol)
   )
     return run
   let influence = run.influence
@@ -1297,16 +1363,67 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       ].join(' · '),
     }
   })
+  const patrol = run.nightPatrol
+  const patrolScene = patrol
+    ? patrolSceneFor(run.seed, run.day, patrol.zone)
+    : null
+  const patrolChoice = patrol
+    ? patrolOptionsFor(run, patrol.zone).find(
+        (choice) => choice.id === patrol?.choiceId,
+      )
+    : null
+  const zone = patrol
+    ? PATROL_ZONES.find((candidate) => candidate.id === patrol.zone)
+    : null
+  if (patrolChoice && patrolScene && zone) {
+    influence += patrolChoice.influence
+    danger += patrolChoice.danger
+    reports.push({
+      caseId: `patrol-${run.day}-${zone.id}`,
+      title: `${zone.title}: ${patrolScene.title}`,
+      grade: patrolChoice.id.endsWith('-secret')
+        ? 'honors'
+        : patrolChoice.id.endsWith('-investigate')
+          ? 'partial'
+          : 'pass',
+      text: patrolChoice.result,
+      names: 'YOU · night neighborhood patrol',
+    })
+  }
+  const patrolMemory: PatrolMemory | null =
+    patrol && patrolScene && patrolChoice
+      ? {
+          day: run.day,
+          zone: patrol.zone,
+          encounterId: patrolScene.id,
+          choiceId: patrolChoice.id,
+        }
+      : null
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'debrief' : 'campus',
-    ...(run.flowVersion === 3 ? { injuries, playerCaseId: null } : {}),
+    ...(run.flowVersion === 3
+      ? { injuries, playerCaseId: null, nightPatrol: null }
+      : {}),
+    ...(patrolMemory
+      ? {
+          patrolHistory: [...(run.patrolHistory ?? []), patrolMemory],
+          academyStanding:
+            (run.academyStanding ?? 0) +
+            (zone?.siteId === 'academy-roof' ? patrolChoice!.standing : 0),
+          cityStanding:
+            (run.cityStanding ?? 0) +
+            (zone?.siteId !== 'academy-roof' ? patrolChoice!.standing : 0),
+        }
+      : {}),
     influence,
     danger: Math.max(0, danger),
     reports,
-    scene: [2, 3].includes(run.flowVersion ?? 0)
-      ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
-      : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
+    scene: patrolChoice
+      ? `Night ${run.day} ends. ${patrolChoice.result} The school will hear about this tomorrow.`
+      : [2, 3].includes(run.flowVersion ?? 0)
+        ? `Night ${run.day} ends. Comet City's lights return, but every call leaves a mark on the people who answered it.`
+        : 'The training siren fades. Your campus pass vibrates: someone is asking to see you before nightfall.',
     log: [
       ...run.log,
       ...reports.map(
@@ -1518,10 +1635,13 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
     day: run.day + 1,
     selectedSite: undefined,
+    nightPatrol: null,
     assignments: [],
     reports: [],
     scene:
-      'The next bell rings. Yesterday has already changed who will answer your calls.',
+      run.patrolHistory?.at(-1)?.day === run.day
+        ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
+        : 'The next bell rings. Yesterday has already changed who will answer your calls.',
   }
 }
 
@@ -1731,6 +1851,7 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
       (!['student', 'hero', 'villain'].includes(data.initialForm) ||
         (data.initialForm !== 'student' && !data.signature))) ||
     typeof data.seed !== 'number' ||
+    !Number.isFinite(data.seed) ||
     typeof data.day !== 'number' ||
     !Number.isInteger(data.day) ||
     data.day < 1 ||
@@ -1824,6 +1945,48 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
     (data.cityStanding !== undefined &&
       (!Number.isFinite(data.cityStanding) ||
         !Number.isInteger(data.cityStanding)))
+  )
+    return null
+  // Validate optional patrol state only after primitive, roster and date checks.
+  // Otherwise a malformed imported save could cause a lookup to throw.
+  if (
+    (data.nightPatrol !== undefined &&
+      data.nightPatrol !== null &&
+      (data.flowVersion !== 3 ||
+        data.patrolOpening !== 1 ||
+        data.phase !== 'dispatch' ||
+        data.day! < 4 ||
+        !PATROL_ZONES.some((zone) => zone.id === data.nightPatrol?.zone) ||
+        patrolSceneFor(data.seed ?? 0, data.day ?? 1, data.nightPatrol.zone)
+          .id !== data.nightPatrol.encounterId ||
+        !patrolOptionsFor(data as AcademyRun, data.nightPatrol.zone).some(
+          (option) => option.id === data.nightPatrol?.choiceId,
+        ) ||
+        Boolean(data.playerCaseId))) ||
+    (data.patrolHistory !== undefined &&
+      (!Array.isArray(data.patrolHistory) ||
+        data.flowVersion !== 3 ||
+        (data.patrolOpening !== 1 && data.patrolHistory.length > 0) ||
+        data.patrolHistory.length > 26 ||
+        data.patrolHistory.some(
+          (entry, i) =>
+            !entry ||
+            !Number.isInteger(entry.day) ||
+            entry.day < 4 ||
+            entry.day > data.day! ||
+            (i > 0 && entry.day <= data.patrolHistory![i - 1]!.day) ||
+            !PATROL_ZONES.some((zone) => zone.id === entry.zone) ||
+            patrolSceneFor(data.seed ?? 0, entry.day, entry.zone).id !==
+              entry.encounterId ||
+            ![
+              ...patrolSceneFor(
+                data.seed ?? 0,
+                entry.day,
+                entry.zone,
+              ).choices.map((option) => option.id),
+              PATROL_SECRETS[entry.zone].choice.id,
+            ].includes(entry.choiceId),
+        )))
   )
     return null
   return data as AcademyRun

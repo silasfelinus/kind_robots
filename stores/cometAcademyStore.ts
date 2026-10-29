@@ -3,6 +3,7 @@ import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
+import type { PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
 import {
   signatureById,
   type SignaturePowerId,
@@ -14,6 +15,7 @@ import {
   assignTeam,
   assignPlayerCase,
   planThirdNight,
+  chooseNightPatrol,
   chooseEncounter,
   finishAcademy,
   incidentsFor,
@@ -227,6 +229,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     persist()
   }
 
+  function patrol(zone: PatrolZoneId, choiceId: string) {
+    if (!run.value) return
+    run.value = chooseNightPatrol(run.value, zone, choiceId)
+    persist()
+  }
+
   function dispatch() {
     if (!run.value) return
     run.value = resolveDispatch(run.value)
@@ -274,6 +282,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     assign,
     lead,
     planCrisis,
+    patrol,
     dispatch,
     choose,
     next,

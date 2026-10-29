@@ -437,7 +437,8 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
       (unit) =>
         unit.team === 'squad' &&
         unit.hp > 0 &&
-        gridDistance(unit, marked) <= 1,
+        Math.abs(unit.x - marked.x) <= 1 &&
+        Math.abs(unit.y - marked.y) <= 1,
     )
     for (const unit of struck) {
       unit.hp = Math.max(0, unit.hp - 1)

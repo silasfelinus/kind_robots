@@ -431,7 +431,6 @@ for (const save of hearthBranches) {
   assert.deepEqual(houseFloorBeat('HD-35', restored, {}), before)
 }
 
-
 for (const [room, ids] of [
   ['HD-14', ['witness', 'seal']],
   ['HD-15', ['decline', 'question']],

@@ -161,6 +161,8 @@ export const PAIR_DAMAGE = 2
 export const BULLSEYE_DAMAGE = 2
 /** Guard banked at most; it softens one telegraphed attack. */
 const MAX_GUARD = 1
+/** Bounds seeded-board verification on untrusted checkpoints without truncating normal fights. */
+const MAX_RESTORED_COMBAT_TURNS = 512
 /** Bonus for resolving two pairs in one strike. */
 export const MULTI_MATCH_BONUS = 1
 /** At most this many pairs resolve from one strike; the rest stay face down. */
@@ -653,7 +655,7 @@ export function restoreCombat(input: unknown): CombatState | null {
     !int(s.playerHp, 0, 99) ||
     !int(s.focus, 0, 99) ||
     !int(s.guard, 0, MAX_GUARD) ||
-    !int(s.turn, 0, 100000) ||
+    !int(s.turn, 0, MAX_RESTORED_COMBAT_TURNS) ||
     !int(s.seed, -(2 ** 31), 2 ** 32)
   )
     return null
@@ -666,9 +668,20 @@ export function restoreCombat(input: unknown): CombatState | null {
   )
     return null
   const cooldowns: Partial<Record<WeaponId, number>> = {}
-  for (const id of Object.keys(WEAPONS) as WeaponId[]) {
-    const v = s.cooldowns?.[id]
-    if (int(v, 0, 10)) cooldowns[id] = v
+  if (
+    s.cooldowns !== undefined &&
+    (s.cooldowns === null ||
+      typeof s.cooldowns !== 'object' ||
+      Array.isArray(s.cooldowns))
+  )
+    return null
+  for (const [id, value] of Object.entries(s.cooldowns ?? {})) {
+    if (
+      !Object.prototype.hasOwnProperty.call(WEAPONS, id) ||
+      !int(value, 0, WEAPONS[id as WeaponId].cooldown)
+    )
+      return null
+    cooldowns[id as WeaponId] = value as number
   }
   if (
     (s.outcome !== 'fighting' &&

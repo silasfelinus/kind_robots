@@ -55,6 +55,19 @@ const connectedMirrorPath = (room: string): string[] => {
   return path
 }
 
+// A recorded route through the Warden's hearing cannot substitute for
+// actually answering that hearing. Prune all downstream forged decisions.
+const forgedMirrorWarden = restoreDarkHouseProgress({
+  active: true,
+  current: 'HD-35',
+  visited: connectedMirrorPath('HD-35'),
+  decisions: { 'HD-35': 'attend' },
+})
+assert.equal(forgedMirrorWarden.current, HOUSE_ENTRY)
+assert.ok(!forgedMirrorWarden.visited.includes('HD-33'))
+assert.equal(forgedMirrorWarden.decisions['HD-35'], undefined)
+assert.equal(forgedMirrorWarden.ending, null)
+
 // The mirrored exit is a locked edge, not merely the next room number.
 // A forged visited array must not manufacture an unanswered final passage.
 const forgedMirrorExit = restoreDarkHouseProgress({
@@ -71,7 +84,7 @@ const earnedMirrorExit = restoreDarkHouseProgress({
   active: true,
   current: 'HD-36',
   visited: connectedMirrorPath('HD-36'),
-  decisions: { 'HD-35': 'attend', 'HD-36': 'refuse' },
+  decisions: { 'HD-32': 'attend', 'HD-35': 'attend', 'HD-36': 'refuse' },
 })
 assert.equal(earnedMirrorExit.current, 'HD-36')
 assert.equal(earnedMirrorExit.ending, 'return')
@@ -191,14 +204,14 @@ assert.equal(
 assert.equal(
   restoreDarkHouseProgress({
     visited: connectedMirrorPath('HD-35'),
-    decisions: { 'HD-35': 'attend' },
+    decisions: { 'HD-32': 'attend', 'HD-35': 'attend' },
   }).ending,
   'return',
 )
 assert.equal(
   restoreDarkHouseProgress({
     visited: connectedMirrorPath('HD-35'),
-    decisions: { 'HD-35': 'refuse' },
+    decisions: { 'HD-32': 'refuse', 'HD-35': 'refuse' },
   }).ending,
   'commons',
 )
@@ -254,6 +267,7 @@ const hearth = restoreDarkHouseProgress({
   active: true,
   current: 'HD-35',
   visited: connectedMirrorPath('HD-35'),
+  decisions: { 'HD-32': 'attend' },
 })
 assert.ok(!darkHouseExits(hearth).includes('HD-36'))
 const healed = darkHouseChoose(hearth, 'refuse')

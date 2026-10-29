@@ -223,12 +223,33 @@ const houseSave = restoreBriarSave({
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
     wardenPassed: true,
     ending: 'release',
+    wardenPassed: true,
   },
 })
 assert.equal(houseSave.room, 'house')
 assert.equal(houseSave.house?.current, 'HD-18')
 assert.equal(houseSave.house?.decisions['HD-03'], 'route')
 assert.equal(houseSave.house?.ending, 'release')
+
+// A forged, graph-connected visit past HD-32 is not a cleared Warden.
+// The restorer must prune the blocked passage and any Hearth reward.
+const forgedWardenPassage = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-35',
+    visited: visitedHouseRoutes('HD-35'),
+    decisions: { 'HD-35': 'release' },
+    ending: 'release',
+    wardenPassed: false,
+  },
+})
+assert.equal(forgedWardenPassage.house?.current, HOUSE_ENTRY)
+assert.ok(!forgedWardenPassage.house?.visited.includes('HD-33'))
+assert.ok(!forgedWardenPassage.house?.visited.includes('HD-35'))
+assert.equal(forgedWardenPassage.house?.decisions['HD-35'], undefined)
+assert.equal(forgedWardenPassage.house?.ending, null)
 assert.equal(
   houseSave.house?.chimeClaimed,
   false,
@@ -310,6 +331,7 @@ const mismatchedHearth = restoreBriarSave({
     decisions: { 'HD-35': 'release' },
     ending: 'break',
     endingLens: 'honesty',
+    wardenPassed: true,
   },
 })
 assert.equal(mismatchedHearth.house?.ending, null)

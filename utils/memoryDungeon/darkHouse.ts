@@ -809,11 +809,18 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
       ? saved.decisions['HD-35']
       : null
   const exitEarned = hearthChoice === 'attend' || hearthChoice === 'refuse'
+  const wardenChoice =
+    saved.decisions && typeof saved.decisions === 'object'
+      ? saved.decisions['HD-32']
+      : null
+  const wardenEarned = wardenChoice === 'attend' || wardenChoice === 'refuse'
   const { current, visited: visitedRooms } = reachableHouseVisits(
     visited,
     savedCurrent,
     {},
-    (from, to) => to !== 'HD-36' || (from === 'HD-35' && exitEarned),
+    (from, to) =>
+      (to !== 'HD-33' || (from === 'HD-32' && wardenEarned)) &&
+      (to !== 'HD-36' || (from === 'HD-35' && exitEarned)),
   )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}

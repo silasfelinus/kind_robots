@@ -696,7 +696,10 @@
             />
           </label>
           <div class="evt-roster-layout">
-            <div class="evt-roster-grid kr-scroll" aria-label="Browse all 48 powers">
+            <div
+              class="evt-roster-grid kr-scroll"
+              aria-label="Browse all 48 powers"
+            >
               <button
                 v-for="person in visibleRoster"
                 :key="person.signature"
@@ -716,8 +719,14 @@
                 }}</span>
               </button>
             </div>
-            <aside class="evt-campaign-dossier" data-testid="tactics-campaign-dossier" aria-live="polite">
-              <span class="evt-overline">CAMPAIGN FILE / AUTHORING PREVIEW</span>
+            <aside
+              class="evt-campaign-dossier"
+              data-testid="tactics-campaign-dossier"
+              aria-live="polite"
+            >
+              <span class="evt-overline"
+                >CAMPAIGN FILE / AUTHORING PREVIEW</span
+              >
               <h3>{{ inspectedPerson.hero.alias }}</h3>
               <p class="evt-dossier-realname">{{ inspectedPerson.realName }}</p>
               <div class="evt-dossier-entry">
@@ -725,21 +734,29 @@
                 <h4>{{ inspectedCampaign.opening.title }}</h4>
                 <small>{{ inspectedCampaign.opening.venue }}</small>
                 <p>{{ inspectedCampaign.opening.inciting }}</p>
-                <p class="evt-dossier-hook">{{ inspectedCampaign.opening.powerUse }}</p>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.opening.powerUse }}
+                </p>
               </div>
               <div class="evt-dossier-entry">
                 <span>VILLAIN PATH · PRIVATE LAIR</span>
                 <h4>{{ inspectedCampaign.lair.title }}</h4>
                 <small>{{ inspectedCampaign.lair.venue }}</small>
                 <p>{{ inspectedCampaign.lair.arena }}</p>
-                <p class="evt-dossier-hook">{{ inspectedCampaign.lair.objective }}</p>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.lair.objective }}
+                </p>
               </div>
               <div class="evt-dossier-entry">
                 <span>SECOND-IN-COMMAND · 4 HP DESIGN</span>
                 <h4>{{ inspectedCampaign.lieutenant.name }}</h4>
                 <p>{{ inspectedCampaign.lieutenant.look }}</p>
-                <p class="evt-dossier-hook">{{ inspectedCampaign.lieutenant.power }}</p>
-                <small>COUNTER: {{ inspectedCampaign.lieutenant.counter }}</small>
+                <p class="evt-dossier-hook">
+                  {{ inspectedCampaign.lieutenant.power }}
+                </p>
+                <small
+                  >COUNTER: {{ inspectedCampaign.lieutenant.counter }}</small
+                >
               </div>
               <p class="evt-dossier-status">
                 Henchmen: {{ inspectedHenchmen.name }} · Concept plans only.
@@ -750,7 +767,9 @@
                 class="evt-dossier-select"
                 data-testid="tactics-dossier-select"
                 @click="store.chooseLead(inspectedSignature)"
-              >ASSIGN AS SQUAD LEAD →</button>
+              >
+                ASSIGN AS SQUAD LEAD →
+              </button>
             </aside>
           </div>
         </div>
@@ -837,16 +856,22 @@ const meterValues = computed(() => ({
 }))
 const inspectedSignature = ref(store.leadSignature)
 const inspectedPerson = computed(
-  () => store.roster.find((person) => person.signature === inspectedSignature.value)
-    ?? store.roster[0]!,
+  () =>
+    store.roster.find(
+      (person) => person.signature === inspectedSignature.value,
+    ) ?? store.roster[0]!,
 )
 const inspectedCampaign = computed(
-  () => IDENTITY_CAMPAIGN_STAGES.find((entry) => entry.signature === inspectedSignature.value)
-    ?? IDENTITY_CAMPAIGN_STAGES[0]!,
+  () =>
+    IDENTITY_CAMPAIGN_STAGES.find(
+      (entry) => entry.signature === inspectedSignature.value,
+    ) ?? IDENTITY_CAMPAIGN_STAGES[0]!,
 )
 const inspectedHenchmen = computed(
-  () => VILLAIN_HENCHMEN.find((entry) => entry.signature === inspectedSignature.value)
-    ?? VILLAIN_HENCHMEN[0]!,
+  () =>
+    VILLAIN_HENCHMEN.find(
+      (entry) => entry.signature === inspectedSignature.value,
+    ) ?? VILLAIN_HENCHMEN[0]!,
 )
 const visibleRoster = computed(() => {
   const q = store.rosterSearch.toLowerCase().trim()
@@ -1638,7 +1663,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: #fff5dc;
 }
 .evt-campaign-dossier h3 {
-  font: 900 clamp(1.15rem, 2.1cqw, 2rem) Impact, sans-serif;
+  font:
+    900 clamp(1.15rem, 2.1cqw, 2rem) Impact,
+    sans-serif;
   margin-top: 6px;
   color: #ffd99b;
 }
@@ -1660,13 +1687,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-weight: 900;
   letter-spacing: 0.1em;
 }
-.evt-dossier-entry h4 { font-weight: 900; color: #ffe1a5; font-size: 0.9rem; }
-.evt-dossier-entry p, .evt-dossier-entry small {
+.evt-dossier-entry h4 {
+  font-weight: 900;
+  color: #ffe1a5;
+  font-size: 0.9rem;
+}
+.evt-dossier-entry p,
+.evt-dossier-entry small {
   font-size: 0.74rem;
   line-height: 1.45;
   color: #d8def1;
 }
-.evt-dossier-entry .evt-dossier-hook { color: #f9cbab; }
+.evt-dossier-entry .evt-dossier-hook {
+  color: #f9cbab;
+}
 .evt-dossier-status {
   padding: 8px 0;
   font-size: 0.68rem;
@@ -1684,12 +1718,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: 11px;
 }
 @container (max-width: 650px) {
-  .evt-roster-layout { display: flex; flex-direction: column; }
+  .evt-roster-layout {
+    display: flex;
+    flex-direction: column;
+  }
   .evt-roster-layout .evt-roster-grid {
     flex: 0 0 min(37%, 220px);
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
-  .evt-campaign-dossier { flex: 1; }
+  .evt-campaign-dossier {
+    flex: 1;
+  }
 }
 
 .evt-roster-head {

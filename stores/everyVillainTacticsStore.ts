@@ -77,9 +77,16 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.units.filter((u) => u.team === 'rival'),
     )
     const scene = computed(() => PERSPECTIVES[perspective.value])
-    const moment = computed(() => story.value.current
-      ? storyMoment(perspective.value, story.value.current, leadSignature.value, story.value)
-      : null)
+    const moment = computed(() =>
+      story.value.current
+        ? storyMoment(
+            perspective.value,
+            story.value.current,
+            leadSignature.value,
+            story.value,
+          )
+        : null,
+    )
     const hovered = computed(() => state.value.hover)
     const mode = computed<Mode>(() => state.value.mode)
     const movePossible = computed(
@@ -175,7 +182,8 @@ export const useEveryVillainTacticsStore = defineStore(
         if (state.value.mode === 'fire' && fireSelected(state.value, unit))
           enqueueBeat(story.value, state.value)
       } else if (state.value.mode === 'move') {
-        if (moveSelected(state.value, point)) enqueueBeat(story.value, state.value)
+        if (moveSelected(state.value, point))
+          enqueueBeat(story.value, state.value)
       }
     }
     function nextTurn() {

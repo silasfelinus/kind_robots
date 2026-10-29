@@ -39,7 +39,12 @@ export type TrainingState = {
   phase: 'active' | 'victory' | 'defeat'
   log: string
   events: string[]
-  impact: { attacker: string; target: string; hit: boolean; serial: number } | null
+  impact: {
+    attacker: string
+    target: string
+    hit: boolean
+    serial: number
+  } | null
 }
 export type ShotPreview = Chance & { target: string }
 export const WIDTH = FIRST_BELL_MAP.width
@@ -65,14 +70,27 @@ export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
   return state.units.find((u) => u.hp > 0 && u.x === point.x && u.y === point.y)
 }
-export function displayUnitAt(state: TrainingState, point: Cell): Unit | undefined {
-  return actorAt(state, point) ?? state.units.find(
-    u => u.hp === 0 && u.x === point.x && u.y === point.y,
+export function displayUnitAt(
+  state: TrainingState,
+  point: Cell,
+): Unit | undefined {
+  return (
+    actorAt(state, point) ??
+    state.units.find((u) => u.hp === 0 && u.x === point.x && u.y === point.y)
   )
 }
-function recordImpact(state: TrainingState, attacker: Unit, target: Unit, hit: boolean) {
-  state.impact = { attacker: attacker.id, target: target.id, hit,
-    serial: (state.impact?.serial ?? 0) + 1 }
+function recordImpact(
+  state: TrainingState,
+  attacker: Unit,
+  target: Unit,
+  hit: boolean,
+) {
+  state.impact = {
+    attacker: attacker.id,
+    target: target.id,
+    hit,
+    serial: (state.impact?.serial ?? 0) + 1,
+  }
 }
 export const lineClear = (from: Cell, to: Cell) =>
   lineOfSight(FIRST_BELL_MAP, from, to)

@@ -86,19 +86,33 @@
                   <span
                     v-if="displayUnitAt(store.state, cell)"
                     class="evt-standee"
-                    :key="displayUnitAt(store.state, cell)!.id + '-' +
-                      (store.state.impact?.target === displayUnitAt(store.state, cell)!.id ||
-                      store.state.impact?.attacker === displayUnitAt(store.state, cell)!.id
+                    :key="
+                      displayUnitAt(store.state, cell)!.id +
+                      '-' +
+                      (store.state.impact?.target ===
+                        displayUnitAt(store.state, cell)!.id ||
+                      store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)!.id
                         ? store.state.impact?.serial
-                        : 0)"
+                        : 0)
+                    "
                     :class="{
                       'evt-friendly':
                         displayUnitAt(store.state, cell)?.team === 'squad',
-                      'evt-rival': displayUnitAt(store.state, cell)?.team === 'rival',
+                      'evt-rival':
+                        displayUnitAt(store.state, cell)?.team === 'rival',
                       'evt-fallen': displayUnitAt(store.state, cell)?.hp === 0,
-                      'evt-impact-hit': store.state.impact?.target === displayUnitAt(store.state, cell)?.id && store.state.impact.hit,
-                      'evt-impact-miss': store.state.impact?.target === displayUnitAt(store.state, cell)?.id && !store.state.impact.hit,
-                      'evt-impact-strike': store.state.impact?.attacker === displayUnitAt(store.state, cell)?.id,
+                      'evt-impact-hit':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        store.state.impact.hit,
+                      'evt-impact-miss':
+                        store.state.impact?.target ===
+                          displayUnitAt(store.state, cell)?.id &&
+                        !store.state.impact.hit,
+                      'evt-impact-strike':
+                        store.state.impact?.attacker ===
+                        displayUnitAt(store.state, cell)?.id,
                     }"
                   >
                     <span class="evt-card-art">
@@ -112,7 +126,8 @@
                     }}</span>
                     <span class="evt-health" aria-hidden="true">
                       <i
-                        v-for="n in displayUnitAt(store.state, cell)?.maxHp ?? 0"
+                        v-for="n in displayUnitAt(store.state, cell)?.maxHp ??
+                        0"
                         :key="n"
                         :class="{
                           lost: n > (displayUnitAt(store.state, cell)?.hp ?? 0),
@@ -373,7 +388,11 @@
             </div>
             <h2 id="evt-scene-heading">{{ store.moment.title }}</h2>
             <div class="evt-dialogue" aria-live="polite">
-              <div v-for="(line, index) in store.moment.lines" :key="index" class="evt-dialogue-line">
+              <div
+                v-for="(line, index) in store.moment.lines"
+                :key="index"
+                class="evt-dialogue-line"
+              >
                 <strong>{{ line.speaker }}</strong>
                 <p>{{ line.text }}</p>
               </div>
@@ -398,7 +417,9 @@
             <div class="evt-scene-progress" data-testid="tactics-story-flags">
               <span>{{ store.story.civilians }} rescued</span>
               <span>{{ store.story.evidence }} evidence</span>
-              <span>{{ store.story.mercy ? 'Mercy offered' : 'Ceasefire unresolved' }}</span>
+              <span>{{
+                store.story.mercy ? 'Mercy offered' : 'Ceasefire unresolved'
+              }}</span>
             </div>
           </div>
         </section>
@@ -564,7 +585,9 @@ watch(
 onMounted(() => {
   window.addEventListener('keydown', onKey)
   if (store.moment) {
-    nextTick(() => document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus())
+    nextTick(() =>
+      document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
+    )
   }
 })
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
@@ -1530,30 +1553,63 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 0.6rem;
   opacity: 0.6;
 }
-.evt-standee.evt-impact-strike { animation: evt-strike .44s ease-out both; }
-.evt-standee.evt-impact-hit { animation: evt-hit .54s ease-out both; }
-.evt-standee.evt-impact-miss { animation: evt-dodge .46s ease-out both; }
-.evt-standee.evt-fallen .evt-card-art {
-  transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(.79);
-  filter: grayscale(1);
-  opacity: .42;
+.evt-standee.evt-impact-strike {
+  animation: evt-strike 0.44s ease-out both;
 }
-.evt-standee.evt-fallen .evt-card-label { color: #c7bfc8; text-decoration: line-through; }
-.evt-standee.evt-fallen { opacity: .6; }
+.evt-standee.evt-impact-hit {
+  animation: evt-hit 0.54s ease-out both;
+}
+.evt-standee.evt-impact-miss {
+  animation: evt-dodge 0.46s ease-out both;
+}
+.evt-standee.evt-fallen .evt-card-art {
+  transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(0.79);
+  filter: grayscale(1);
+  opacity: 0.42;
+}
+.evt-standee.evt-fallen .evt-card-label {
+  color: #c7bfc8;
+  text-decoration: line-through;
+}
+.evt-standee.evt-fallen {
+  opacity: 0.6;
+}
 @keyframes evt-strike {
-  0% { transform: translateX(-50%) rotateY(0deg); }
-  37% { transform: translateX(-50%) translateY(-17%) rotateY(-16deg) scale(1.11); }
-  65% { transform: translateX(-38%) translateY(-5%) rotateY(12deg) scale(1.07); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(-50%) rotateY(0deg);
+  }
+  37% {
+    transform: translateX(-50%) translateY(-17%) rotateY(-16deg) scale(1.11);
+  }
+  65% {
+    transform: translateX(-38%) translateY(-5%) rotateY(12deg) scale(1.07);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 @keyframes evt-hit {
-  0% { transform: translateX(-50%) rotateY(0); filter: brightness(1.8); }
-  36% { transform: translateX(-50%) translateY(9%) rotateY(42deg); filter: brightness(2.1); }
-  100% { transform: translateX(-50%); filter: brightness(1); }
+  0% {
+    transform: translateX(-50%) rotateY(0);
+    filter: brightness(1.8);
+  }
+  36% {
+    transform: translateX(-50%) translateY(9%) rotateY(42deg);
+    filter: brightness(2.1);
+  }
+  100% {
+    transform: translateX(-50%);
+    filter: brightness(1);
+  }
 }
 @keyframes evt-dodge {
-  0%,100% { transform: translateX(-50%); }
-  45% { transform: translateX(-70%) rotateY(-15deg); }
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  45% {
+    transform: translateX(-70%) rotateY(-15deg);
+  }
 }
 
 .evt-cinematic {
@@ -1570,9 +1626,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .evt-cinematic-scenery {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #080d20ed 2%, #121633c4 50%, #0a0f20f2 100%),
+  background:
+    linear-gradient(90deg, #080d20ed 2%, #121633c4 50%, #0a0f20f2 100%),
     url('/comet-city-academy/front/splash.webp') center 40% / cover;
-  filter: saturate(.8);
+  filter: saturate(0.8);
   pointer-events: none;
 }
 .evt-cinematic-content {
@@ -1584,7 +1641,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   max-height: 100%;
   min-height: 0;
   padding: clamp(14px, 2cqw, 28px);
-  background: linear-gradient(140deg, #161b33eF, #292744f2);
+  background: linear-gradient(140deg, #161b33ef, #292744f2);
   border: 1px solid #eac69e90;
   border-left: 5px solid #ffb669;
   border-radius: 14px;
@@ -1595,13 +1652,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: .62rem;
-  letter-spacing: .14em;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
   color: #c4b7ca;
 }
 .evt-cinematic-content h2 {
-  font: 900 clamp(1.5rem, 3.5cqw, 3.3rem)/1.03 Impact, 'Arial Narrow', sans-serif;
-  letter-spacing: .025em;
+  font:
+    900 clamp(1.5rem, 3.5cqw, 3.3rem)/1.03 Impact,
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.025em;
   color: #ffeacc;
   text-transform: uppercase;
 }
@@ -1619,11 +1679,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evt-dialogue-line strong {
   color: #ffd191;
-  font-size: clamp(.65rem, .9cqw, .82rem);
-  letter-spacing: .1em;
+  font-size: clamp(0.65rem, 0.9cqw, 0.82rem);
+  letter-spacing: 0.1em;
 }
 .evt-dialogue-line p {
-  font-size: clamp(.83rem, 1.2cqw, 1.1rem);
+  font-size: clamp(0.83rem, 1.2cqw, 1.1rem);
   line-height: 1.42;
 }
 .evt-cinematic-actions {
@@ -1643,7 +1703,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   color: #fef0d8;
   background: #30334f;
 }
-.evt-story-choice:hover,.evt-story-choice:focus-visible {
+.evt-story-choice:hover,
+.evt-story-choice:focus-visible {
   border-color: #ffe0a6;
   background: #444469;
   outline: 2px solid #ffe0a6;
@@ -1658,15 +1719,24 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-radius: 5px;
   color: #ffdca4;
 }
-.evt-choice-body { display: grid; gap: 3px; flex: 1; }
-.evt-choice-body strong { font-size: clamp(.83rem, 1cqw, 1rem); }
-.evt-choice-body small { color: #cfcee0; font-size: clamp(.7rem, .82cqw, .82rem); }
+.evt-choice-body {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+.evt-choice-body strong {
+  font-size: clamp(0.83rem, 1cqw, 1rem);
+}
+.evt-choice-body small {
+  color: #cfcee0;
+  font-size: clamp(0.7rem, 0.82cqw, 0.82rem);
+}
 .evt-scene-progress {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   color: #bfc5dc;
-  font-size: .7rem;
+  font-size: 0.7rem;
 }
 .evt-scene-progress span {
   padding: 2px 7px;
@@ -1674,18 +1744,35 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-radius: 99px;
 }
 @container (max-width: 640px) {
-  .evt-cinematic-content { padding: 11px; }
-  .evt-dialogue-line { display: block; padding: 7px; }
-  .evt-dialogue-line strong { display: block; margin-bottom: 2px; }
-  .evt-cinematic-actions { grid-template-columns: 1fr; }
-  .evt-story-choice { min-height: 53px; padding: 8px; }
-  .evt-cinematic-content h2 { font-size: 1.55rem; }
+  .evt-cinematic-content {
+    padding: 11px;
+  }
+  .evt-dialogue-line {
+    display: block;
+    padding: 7px;
+  }
+  .evt-dialogue-line strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .evt-cinematic-actions {
+    grid-template-columns: 1fr;
+  }
+  .evt-story-choice {
+    min-height: 53px;
+    padding: 8px;
+  }
+  .evt-cinematic-content h2 {
+    font-size: 1.55rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .evt-standee.evt-impact-strike,
   .evt-standee.evt-impact-hit,
-  .evt-standee.evt-impact-miss { animation: none; }
+  .evt-standee.evt-impact-miss {
+    animation: none;
+  }
   .evt-standee,
   .evt-roster-card {
     transition: none;

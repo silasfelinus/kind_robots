@@ -1,0 +1,312 @@
+{
+  "version": 1,
+  "source": "utils/cometAcademy/identityArcs.json",
+  "status": "authored-level-blueprints-not-built",
+  "rules": {
+    "openings": "One playable prologue per power signature. These are hero/student perspective events; never just a renamed tutorial.",
+    "lairs": "One villain-exclusive tactical location per stable villain identity; must include a phase-changing environment, meaningful secret and showdown against a lieutenant.",
+    "lieutenant": "One named second-in-command per villain above one-hit species, 4 HP initial benchmark, separate from minor species captain and any other permanent hero."
+  },
+  "roster": [
+    {
+      "signature": "accident-fire",
+      "opening": {
+        "title": "The Last Order",
+        "venue": "Neon Row all-night diner",
+        "inciting": "Grease fire traps the cook behind a locked delivery hatch.",
+        "powerUse": "Redirect heat through the kitchen hood to make a cool rescue lane.",
+        "choice": "Save the staff immediately or salvage the proof of an insurance scam."
+      },
+      "lair": {
+        "title": "The Underwriters' Furnace",
+        "venue": "Insurance exchange built inside an abandoned municipal incinerator",
+        "arena": "Sprinkler valves switch protection from one row to another, turning yesterday's safe route into the ignition path.",
+        "objective": "Break the policy press before it issues citywide fire claims.",
+        "secret": "Charred menus reveal customers being billed for fires not yet started."
+      },
+      "lieutenant": {
+        "name": "Vera Vellum",
+        "look": "Fireproof adjuster in soot-black opera gloves and a suit stitched with red insurance ribbons.",
+        "power": "Forecloses an ally's cover then turns that tile into a delayed fireburst.",
+        "counter": "Her giant red approval stamp must touch a wall; destroy it or disrupt the stamp.",
+        "agenda": "Cares for the restaurant workers whose livelihoods Backdraft calls collateral.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-air",
+      "opening": {
+        "title": "Ferris Wheel Without Air",
+        "venue": "Comet City pier carnival",
+        "inciting": "Passengers pass out in stalled observation cars as the wheel spins against the wind.",
+        "powerUse": "Shape a stable air corridor between suspended carriages.",
+        "choice": "Choose the lowest gondola first or risk everyone to reach the child at the top."
+      },
+      "lair": {
+        "title": "The Quiet Vault",
+        "venue": "Suspended vacuum chambers beneath an elite bank",
+        "arena": "Airlocks cycle oxygen between pods; moving quickly is unsafe unless pressure is equalized.",
+        "objective": "Open the emergency intake before the vault's final pressure drop.",
+        "secret": "Maintenance logs prove Skyline could have left every innocent depositor breathing."
+      },
+      "lieutenant": {
+        "name": "Dr. Serein Voss",
+        "look": "Vacuum physician with translucent glass lungs and a surgeon's silver mask.",
+        "power": "Creates a two-cell low-pressure zone that suppresses shooting and drags nearby cover.",
+        "counter": "The lung pumps visibly refill between pulses; sever their hose to end suction.",
+        "agenda": "Will betray Skyline if promised evacuation for patients in the adjoining hospital.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-earth",
+      "opening": {
+        "title": "The Street That Sank",
+        "venue": "Bus stop outside the academy",
+        "inciting": "A school bus lists into a fresh sinkhole while the street beneath it keeps moving.",
+        "powerUse": "Raise a temporary earthen ramp without collapsing an old water main.",
+        "choice": "Save passengers now or keep the neighborhood's fragile water system intact."
+      },
+      "lair": {
+        "title": "The Deed Below",
+        "venue": "Old Quarry sub-basement and occupied tunnel court",
+        "arena": "Burrowing warning rings appear behind cover; heavy support pillars can collapse new or old exits.",
+        "objective": "Stop the underground title auction before the surface buildings are repossessed.",
+        "secret": "Tunnel plans show which tenants Cornerstone deliberately protected."
+      },
+      "lieutenant": {
+        "name": "Mags Hardpan",
+        "look": "Seismic drummer in granite shoulder plates, dragging a bass drum carved from quarry stone.",
+        "power": "Beats the floor to create chained cracks and pushes units between elevations.",
+        "counter": "A missing downbeat exposes the resonant drumhead for interruption.",
+        "agenda": "Protects the Warren Wreckers' union contract and refuses unsafe tunnel orders.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-water",
+      "opening": {
+        "title": "Hydrant Blue",
+        "venue": "Municipal fire station during a heat wave",
+        "inciting": "Firefighters discover every hydrant is bone-dry with residents still trapped by smoke.",
+        "powerUse": "Lift and redirect water from a broken underground main.",
+        "choice": "Flood the engine bay for immediate rescue or ration enough for the next block."
+      },
+      "lair": {
+        "title": "The Empty Reservoir",
+        "venue": "Dry cistern with enormous inverted water columns and pressure gates",
+        "arena": "Pressure bridges fill and drain on a three-beat cycle, opening and closing firing lanes.",
+        "objective": "Release captive neighborhood supply before Tidewarden seals the aqueduct.",
+        "secret": "A hand-marked overflow channel could save the district without yielding to ransom."
+      },
+      "lieutenant": {
+        "name": "Solene Spigot",
+        "look": "Tide-cartographer in a glass diving bell, carrying a rotating brass pressure sextant.",
+        "power": "Moves entire watery lanes sideways, sweeping units into exposed ground.",
+        "counter": "Turn the red depth wheel against her sextant to freeze the current.",
+        "agenda": "Believes water is a right, despite her role collecting the extortion payments.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-discipline",
+      "opening": {
+        "title": "The Clocktower Collapse",
+        "venue": "School clocktower crowded with graduation banners",
+        "inciting": "The hands jam while a maintenance platform falls on a timed sequence.",
+        "powerUse": "Use precisely timed movement to catch the falling lift between gear teeth.",
+        "choice": "Rescue the technician or preserve the live timing evidence from the sabotage."
+      },
+      "lair": {
+        "title": "The Ninety-Second Palace",
+        "venue": "Circular subway dispatch clock and twelve moving platforms",
+        "arena": "Every third beat swaps doors and rotating cover, rewarding players who count time.",
+        "objective": "Stop The Second Hand's synchronized city heist before the final chime.",
+        "secret": "His master plan leaves ninety-three seconds unaccounted for."
+      },
+      "lieutenant": {
+        "name": "Adjutant Tempo",
+        "look": "Tall metronome fencer with paired conductor batons and a clockwork spine.",
+        "power": "Grants nearby henchmen a synchronized extra action at the chime.",
+        "counter": "Break one baton to desynchronize the formation until the next round.",
+        "agenda": "Secretly schedules recovery time and refuses to make casualties part of the plan.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-genius",
+      "opening": {
+        "title": "The Equation That Escaped",
+        "venue": "Academy student science fair",
+        "inciting": "An experimental proof escapes a whiteboard and unfolds into dangerous autonomous drones.",
+        "powerUse": "Reconfigure one faulty drone to build an emergency shield instead of attacking.",
+        "choice": "Publish the error that caused this or privately patch it before people panic."
+      },
+      "lair": {
+        "title": "The Red Pen Engine",
+        "venue": "Labyrinthine aerial drone printer above Comet City's computing vault",
+        "arena": "Conveyors shift each turn; failed equations are projected onto the squares they will explode.",
+        "objective": "Stop Eureka's final optimization from deleting living neighborhoods.",
+        "secret": "An intentionally preserved error reads PLEASE LEAVE ROOM FOR PEOPLE."
+      },
+      "lieutenant": {
+        "name": "Professor Minus",
+        "look": "White-coated ex-teacher with blackboard forearms and rotating chalk halo.",
+        "power": "Subtracts one AP from targets inside a visible red correction rectangle.",
+        "counter": "Smear the chalk cornerstone to collapse the attack equation.",
+        "agenda": "Wants Eureka's work recognized, but opposes turning students into variables.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-birthright",
+      "opening": {
+        "title": "The Unlicensed Rescue",
+        "venue": "Public library where a benefit concert loses power",
+        "inciting": "A private hero franchise security team demands a license before evacuating families.",
+        "powerUse": "Use a signature cape maneuver that works even when a legal force field blocks it.",
+        "choice": "Protect anonymous volunteers or accept a public sponsorship contract."
+      },
+      "lair": {
+        "title": "The Franchise Citadel",
+        "venue": "Corporate Hall of Heroes with spinning neon trademarks",
+        "arena": "Legal seal tiles disable named special powers while unbranded cover remains usable.",
+        "objective": "Seize the original volunteer rescue ledger before it is shredded.",
+        "secret": "Founding deeds prove the city's earliest cape heroes donated their symbols freely."
+      },
+      "lieutenant": {
+        "name": "Counsel Galatea Gilt",
+        "look": "Corporate knight in holographic robes, powered by a floating notarization desk.",
+        "power": "Redlines one hero action each round and projects a courtroom shield on an ally.",
+        "counter": "Read the displayed clause and use an action it doesn't prohibit.",
+        "agenda": "Wants trademarks to fund public defenders, not Captain Valcourt's monopolies.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "accident-social",
+      "opening": {
+        "title": "The Song That Stopped",
+        "venue": "Community radio tower during a blackout",
+        "inciting": "A backup broadcast loops a sponsor jingle that turns listeners into a crowd.",
+        "powerUse": "Create an improvised counter-melody to guide people out of the crush.",
+        "choice": "Silence all radio or restore a risky channel for emergency messages."
+      },
+      "lair": {
+        "title": "The Sponsorship Cathedral",
+        "venue": "Stadium backstage converted to a cathedral of synchronized advertising screens",
+        "arena": "Singing towers link across the map and relay attacks; breaking formation weakens the chorus.",
+        "objective": "Disconnect the sponsored volunteer recruitment feed.",
+        "secret": "An unsigned jingle gives the audience instructions for breaking its own trance."
+      },
+      "lieutenant": {
+        "name": "Maestro Nix Vale",
+        "look": "Androgynous broadcast conductor in mirrored headphones and an LED-lined cape.",
+        "power": "Coordinates a multi-tile vocal wave that slides allied targets into new firing lines.",
+        "counter": "Mute one exposed studio monitor to break the harmonic chain.",
+        "agenda": "Resents the contracts that make audiences property, despite enjoying their adoration.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "mutant-fire",
+      "opening": {
+        "title": "Ashes of the Ledger",
+        "venue": "City clinic with endangered mutant medical records",
+        "inciting": "Officials threaten to burn a clinic's confidential patient charts after a raid.",
+        "powerUse": "Burn a safe escape hole through reinforced doors without igniting the records.",
+        "choice": "Expose the illegal registration registry or protect patients' immediate privacy."
+      },
+      "lair": {
+        "title": "The Nameless Archive",
+        "venue": "Fire-blackened registration hall lined with blast-proof rolling shelves",
+        "arena": "Paper-ash smoke blinds long sightlines while pressurized vents periodically reverse airflow.",
+        "objective": "Recover the family memory index before Ashborn burns every copy.",
+        "secret": "A hidden list records successful reunions made possible by carefully kept names."
+      },
+      "lieutenant": {
+        "name": "Cinder Tern",
+        "look": "Heat-born archivist with copper wings made of stitched blank pages.",
+        "power": "Scatters hot paper shards that pin two targets while smoke hides her movement.",
+        "counter": "The shard pattern can be broken by turning on the ceiling fans.",
+        "agenda": "She believes history must survive even when the government records must not.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "mutant-air",
+      "opening": {
+        "title": "The Balcony Witness",
+        "venue": "School assembly hall and roof garden",
+        "inciting": "A messenger bird arrives with evidence just as a hidden sharpshooter fires at it.",
+        "powerUse": "Redirect a flock through open windows to protect the witness.",
+        "choice": "Publicly reveal the blackmailers or keep the informant safe at a cost."
+      },
+      "lair": {
+        "title": "The Crooked Aviary",
+        "venue": "Vertical apartment towers joined by secret bird bridges",
+        "arena": "Crows shuttle objective keys to high perches while blind spots rotate at each alarm.",
+        "objective": "Intercept the blackmail ledger before its citywide release.",
+        "secret": "An unsigned letter reveals Kestrel has protected some young witnesses."
+      },
+      "lieutenant": {
+        "name": "Madam Rookwire",
+        "look": "Spymaster in a feather-collared coat with telescoping talons and stained-glass lenses.",
+        "power": "Splits into mirrored silhouettes at three window perches to issue a coordinated attack.",
+        "counter": "The real silhouette casts a moving shadow; break the correct perch.",
+        "agenda": "Collects secrets to defend whistleblowers, not to sell every victim twice.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "mutant-earth",
+      "opening": {
+        "title": "Bridge of Last Chances",
+        "venue": "Condemned footbridge carrying families to shelter",
+        "inciting": "A landlord's demolition charges begin their countdown while the bridge is still occupied.",
+        "powerUse": "Reinforce failing spans with living stone and absorb the next collapse.",
+        "choice": "Rescue the last family or chase the demolition foreman with the evidence."
+      },
+      "lair": {
+        "title": "The Eviction Fault",
+        "venue": "Seismic platform beneath the luxury tower's foundation",
+        "arena": "Shockwave pillars rise and fall, shattering static cover and changing elevation.",
+        "objective": "Stop Groundswell's punitive collapse from crushing the tenants as well as their landlord.",
+        "secret": "The legal parcel map shows most tenants were never complicit."
+      },
+      "lieutenant": {
+        "name": "Kiln Marshal Brack",
+        "look": "Living concrete ex-inspector with reinforced joints and a surveyor's prism.",
+        "power": "Stomps a cone of shifting rubble that converts full cover to half cover.",
+        "counter": "Interrupt the prism beam before the stomp locks onto its tiles.",
+        "agenda": "Will switch sides if the squatters' evacuation route is genuinely protected.",
+        "hp": 4
+      }
+    },
+    {
+      "signature": "mutant-water",
+      "opening": {
+        "title": "A Ship With No Port",
+        "venue": "Harbor ferry loaded with displaced families",
+        "inciting": "Port security turns away a damaged ferry while a storm closes in.",
+        "powerUse": "Shape a temporary seawall to keep the ferry afloat through rough channels.",
+        "choice": "Save its engines or negotiate docking rights for everyone aboard."
+      },
+      "lair": {
+        "title": "The Container Throne",
+        "venue": "Flooded customs terminal stacked with floating metal containers",
+        "arena": "Tides move container cover between lanes and armor plates expose weak joints.",
+        "objective": "Release ships held for ransom before Harbormaster sinks the navigation buoys.",
+        "secret": "Dockmaster's log proves an entire neighborhood was never offered a berth."
+      },
+      "lieutenant": {
+        "name": "Commander Saltscale",
+        "look": "Crab-armored former dock pilot in a barnacle crown with mechanical harpoon arms.",
+        "power": "Anchors two targets together and drags the nearer one through rising water.",
+        "counter": "Sever the visibly taut tow rope before the pull resolves.",
+        "agenda": "Demanded safe harbor for mutants long before the boss demanded payment.",
+        "hp": 4
+      }
+    }
+  ]
+}

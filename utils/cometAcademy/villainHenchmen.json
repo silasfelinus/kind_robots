@@ -135,6 +135,138 @@
       "story": "Clack enforces Harbormaster's docking tolls but shelters displaced fishers.",
       "facetType": "SPECIES",
       "hp": 1
+    },
+    {
+      "signature": "mutant-discipline",
+      "name": "Fourfold Foils",
+      "captain": "Madame Practice",
+      "look": "Four-armed sparring mannequins with silk ribbons and foam swords",
+      "move": "Spin four weapons to disarm a close hero for one action",
+      "counter": "Dodge the flourish or strike the ribbon knot",
+      "story": "Lotus Guard built teachers, but Madame Practice keeps correcting the opposition's stance.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-genius",
+      "name": "Domino Oracles",
+      "captain": "Seventh Pip",
+      "look": "Walking domino tiles with glowing warning dots",
+      "move": "Topple in a telegraphed line to chain one-tile stuns",
+      "counter": "Step outside the lighted dots or knock one tile sideways",
+      "story": "Seventh Pip removes pieces of Contingency's predictions to save strangers.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-birthright",
+      "name": "Charity Cherubs",
+      "captain": "Pennywing",
+      "look": "Winged donation boxes with gilt halos and shelter keys",
+      "move": "Intercept one blow intended for a named boss or captive",
+      "counter": "Flank the halo's shield line or ring the shelter bell",
+      "story": "Pennywing knows the names of people The Guardian treats as a loyal army.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "mutant-social",
+      "name": "Smile Deputies",
+      "captain": "Grinny",
+      "look": "Cardboard badges with felt handshakes and entirely fake medals",
+      "move": "Flash forged friendly badges that swap target highlights for one action",
+      "counter": "Inspect the peeling badge to reveal the nonexistent precinct",
+      "story": "Grinny longs to be liked without Common Ground's chemical charm.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-fire",
+      "name": "Kiln Kittens",
+      "captain": "Sparkplug",
+      "look": "Furnace-mouthed iron kittens with welding-goggle whiskers",
+      "move": "Leave a glowing slag square that weakens adjacent cover",
+      "counter": "Quench the brightening pawprints before they melt",
+      "story": "Torchlight built them for tenement safety; Sparkplug runs toward anyone calling for rescue.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-air",
+      "name": "Air-Traffic Mayflies",
+      "captain": "Wingnut-9",
+      "look": "Origami runway drones with tiny tower-controller headsets",
+      "move": "Draw a flashing no-fly lane, forcing airborne units to land",
+      "counter": "Disable the visible runway beacon",
+      "story": "Tailwind's rescued drones dream of flying without permission.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-earth",
+      "name": "Permit Crabs",
+      "captain": "Stampy",
+      "look": "Excavator crabs with hardhat shells and stamp claws",
+      "move": "Raise a one-round barricade on a marked tile",
+      "counter": "Erase its permit stamp or flank the fresh barricade",
+      "story": "Stampy secretly builds accessible ramps in Rebar's condemned neighborhoods.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-water",
+      "name": "Rescue Quackers",
+      "captain": "Buoy Wonder",
+      "look": "Rubber-duck rescue robots in stern little diving helmets",
+      "move": "Wrap a unit in opaque flotation bubbles to obscure shots",
+      "counter": "Pop the bubble from another angle or open its pressure plug",
+      "story": "Buoy Wonder still saves drowning foes against Lifeline's orders.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-discipline",
+      "name": "Parade Medals",
+      "captain": "Goldie Split",
+      "look": "Marching enamel victory medals wearing little racing shoes",
+      "move": "Relay an extra sprint through a visible ribbon chain",
+      "counter": "Break any connecting ribbon before the final runner moves",
+      "story": "Goldie pins medals on the wounded opponents Hurdler was told to discard.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-genius",
+      "name": "Mabel's Biscuit Bots",
+      "captain": "Snickerdoodle-4",
+      "look": "Biscuit-tin robots with rolling pins and granny's recipes on screens",
+      "move": "Overclock a control panel and lock an adjacent door",
+      "counter": "The kitchen timer warns first; disable it or present an authentic recipe",
+      "story": "Snickerdoodle-4 remembers the kindness in Firewall's grandmother Mabel.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-birthright",
+      "name": "Warranty Wisps",
+      "captain": "Clause Nine",
+      "look": "Holographic customer-service ghosts inside floating armor warranty cards",
+      "move": "Wrap a villain ally in one-use cover at the cost of movement",
+      "counter": "Cross the fine-print boundary or disable its projector",
+      "story": "Clause Nine has discovered the right-to-repair clause Sterling hid.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "tech-social",
+      "name": "Playback Puppets",
+      "captain": "Replay Ray",
+      "look": "Tripod television masks replaying doctored footage",
+      "move": "Conjure a false hero silhouette that attracts overwatch fire",
+      "counter": "Spot the repeated frame or break the projecting camera",
+      "story": "Replay Ray keeps the raw recording Witness does not want the city to see.",
+      "facetType": "SPECIES",
+      "hp": 1
     }
   ]
 }

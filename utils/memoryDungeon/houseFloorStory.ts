@@ -76,6 +76,46 @@ export function houseFloorBeat(
     }
   }
 
+  if (roomId === 'HD-10') {
+    if (house.decisions['HD-10'] === 'manifest')
+      return {
+        title: 'The Shortcut in Scylla’s Hand',
+        text: 'Scylla spreads her manifest across the trunks and finds a service stair the House omitted from its public map. Oren confirms the measurements. Char asks who will carry the stranded maid’s parcels while the party takes the quicker way, and Scylla leaves a space for that answer.',
+        cost: 'The shortcut saves your party time, but bypassing the servants may leave their testimony unheard.',
+      }
+    if (house.decisions['HD-10'] === 'improvise')
+      return {
+        title: 'Two Plans and One Stranded Maid',
+        text: 'Char slips through the narrow doorway while Scylla keeps the food and medicines moving. They return together with the maid and her parcels, disagreeing over whose plan succeeded. Oren quietly records both names as responsible for the rescue.',
+        cost: 'You helped someone the manifest overlooked, but surrendered the private shortcut Scylla had found.',
+      }
+    return {
+      title: 'The Princesses Disagree in Ink',
+      text: 'Scylla has numbered every trunk and every person. Char notices a maid standing outside the inventory with an armful of parcels. Oren refuses to call either sister wrong before the maid is heard. Both plans can work, but they protect different people first.',
+      cost: 'Choosing efficiency may miss a person; choosing improvisation may cost the party a safer route.',
+    }
+  }
+
+  if (roomId === 'HD-11') {
+    if (house.decisions['HD-11'] === 'respect')
+      return {
+        title: 'The Stitch That Was Not Decoration',
+        text: 'Char turns the silver cord over and shows you the knots she tied during nights Scylla was busy negotiating for both of them. The charm was made to protect a choice, not to prove Char was brave. She lets you copy the pattern without claiming the story as yours.',
+        cost: 'You learned what Char prepared in secret, but left the practical repair of her worn boot for later.',
+      }
+    if (house.decisions['HD-11'] === 'help')
+      return {
+        title: 'A Boot Repaired Without a Speech',
+        text: 'You hold the heel while Char stitches a buckle back into place with her enormous needle. She laughs when the thread catches your sleeve and thanks you without making it a ceremony. Scylla sees the work but still does not know what Char stitched into her ward.',
+        cost: 'The repair makes the next journey easier, but the sisters’ unspoken preparations remain private.',
+      }
+    return {
+      title: 'A Wardrobe That Belongs to Char',
+      text: 'Char closes the wardrobe on a row of court-approved dresses and opens the drawer of things she made herself. Scylla recognizes the stitches but not their meaning. You can ask Char about the charm or offer to mend what the road has worn through.',
+      cost: 'Admiring the clothes alone does not grant their owner a hearing or help with the journey ahead.',
+    }
+  }
+
   if (roomId === 'HD-12') {
     if (house.decisions['HD-12'] === 'open')
       return {
@@ -189,6 +229,57 @@ export function houseFloorBeat(
       title: 'The Price of Being Believed',
       text: 'The Bargain Ledger opens to a page with room for a name, a signature and the person who will bear the consequence. The Brass Knight would call that an oath. Pip calls it evidence. Vesper asks whether the signer had a choice.',
       cost: 'A verdict without witnesses may be swift, but it will not settle their claims.',
+    }
+  }
+
+  if (roomId === 'HD-30') {
+    if (
+      house.decisions['HD-30'] === 'talk' &&
+      house.decisions['HD-10'] === 'improvise' &&
+      house.decisions['HD-11'] === 'respect' &&
+      (briar['4,4'] === 'escort' || briar['4,4'] === 'question')
+    )
+      return {
+        title: 'The Sisters Choose the Next Road',
+        text: 'You met the sisters on the Briar road, gave Char room to rescue the maid, and listened to the reason she made her ward. At the landing, Scylla asks Char before adding her plan to the manifest. Char says yes to the shared route and no to having her reasons entered in the Index.',
+        cost: 'They can plan together without surrendering their private history; the court bargain that brought them here is still unresolved.',
+      }
+    if (
+      house.decisions['HD-30'] === 'talk' &&
+      house.decisions['HD-10'] === 'manifest' &&
+      house.decisions['HD-11'] === 'respect'
+    )
+      return {
+        title: 'The Route That Left Char Behind',
+        text: 'Char explains the ward she made while Scylla was busy preparing the route. Scylla listens, then notices that the manifest never included Char’s own decision to stay with the stranded maid. She adds a blank line rather than signing on her sister’s behalf.',
+        cost: 'You heard Char’s reasons, but the earlier shortcut still passed by someone she wanted to help.',
+      }
+    if (
+      house.decisions['HD-30'] === 'talk' &&
+      house.decisions['HD-10'] === 'improvise' &&
+      house.decisions['HD-11'] === 'help'
+    )
+      return {
+        title: 'A Rescue and an Unasked Question',
+        text: 'The sisters remember the maid they brought out together and the boot you helped Char repair. Scylla offers to carry the next load. Char accepts, but turns her ward over before anyone can ask why she made it. Oren pours more tea and leaves the silence intact.',
+        cost: 'Practical trust has grown, while the promise sewn into Char’s charm remains her untold story.',
+      }
+    if (house.decisions['HD-30'] === 'talk')
+      return {
+        title: 'Two Versions of Leaving Home',
+        text: 'Scylla describes the journey as a perfectly organized expedition. Char remembers the people who helped when the lists failed. Neither asks you to choose a favorite sister. They agree to ask one another before the next departure, though neither has explained what leaving cost.',
+        cost: 'A conversation opens a future choice; it does not settle the sisters’ earlier bargain for them.',
+      }
+    if (house.decisions['HD-30'] === 'rest')
+      return {
+        title: 'Tea Before Testimony',
+        text: 'Oren divides the remaining food, Scylla checks the blankets, and Char quietly mends a stranger’s ward. You take the offered rest instead of asking the sisters to account for their past. They both seem relieved, and the empty chair remains available.',
+        cost: 'The party recovers, but the sisters’ private disagreement waits for another willing conversation.',
+      }
+    return {
+      title: 'The Empty Place at the Landing',
+      text: 'Scylla sets a cup beside the empty chair while Char repairs a stranger’s charm. Oren has counted enough food for everyone, but he will not count the unspoken promises between the sisters. You may ask what the House owes or let the party rest without demanding a confession.',
+      cost: 'Listening may uncover a disagreement; rest preserves strength but leaves that conversation for later.',
     }
   }
 

@@ -2170,6 +2170,72 @@ assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(previousDeck))))
 }
 
+// Last twelve cases belong to the live 36-case run, not the archived decks.
+const finalTeamRoutes = [
+  ['promise-stairs', 'imani', 'jo'],
+  ['mascot-uprising', 'drift', 'kit'],
+  ['future-graduates', 'nix', 'mara'],
+  ['double-lighthouse', 'ash', 'tessel'],
+  ['cloud-zoo', 'drift', 'kit'],
+  ['shield-auction', 'mina', 'sol'],
+] as const
+for (const [mission, first, second] of finalTeamRoutes) {
+  const route = missionRoute(mission, [first, second])
+  assert.equal(route?.boost, 2)
+  assert.ok(route!.result.length > 130)
+  assert.equal(missionRoute(mission, [first]), null)
+}
+for (const mission of FINAL_NIGHT_MISSIONS) {
+  const incident = mission.incident
+  const starting = startFullAcademy(incident.need, 31)
+  const day = [...Array(24).keys()].map((i) => i + 1).find(
+    (day) => incidentsFor({ ...starting, day }).some(
+      (item) => item.id === incident.id,
+    ),
+  )
+  assert.ok(day, `${incident.id} must appear during the campaign`)
+  assert.ok(mission.morning && mission.morning.length > 145)
+  assert.equal(new Set(Object.values(mission.consequences)).size, 4)
+  const night: AcademyRun = { ...starting, day: day!, phase: 'dispatch' }
+  const led = assignPlayerCase(night, incident.id)
+  assert.equal(led.playerCaseId, incident.id)
+  const investigation = selectMissionApproach(led, incident.id, 'investigate')
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(investigation))))
+  const previous = FIRST_WAVE_MISSIONS.find(
+    (entry) => entry.thread === mission.thread,
+  )!
+  assert.ok(previous)
+  assert.equal(missionSecretFor(investigation, incident.id), null)
+  const prepared = { ...investigation, missionClues: [previous.incident.id] }
+  assert.equal(missionSecretFor(prepared, incident.id), mission.secret)
+  assert.ok(dispatchChance(prepared, incident.id, []) >=
+    dispatchChance(investigation, incident.id, []))
+  const resolved = resolveDispatch(prepared)
+  const report = resolved.reports.find((r) => r.caseId === incident.id)!
+  assert.ok(report.text.startsWith(mission.consequences[report.grade]))
+  const morning = nextSchoolDay(resolved)
+  assert.ok(morning.scene.includes(mission.morning!))
+  assert.ok(morning.scene.includes(report.grade))
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(resolved))))
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(morning))))
+}
+{
+  const allVersions = [undefined, 2, 3, 4] as const
+  const expectedSizes = [6, 12, 24, 36]
+  const fresh = startFullAcademy('kinetic', 31)
+  for (const [i, version] of allVersions.entries()) {
+    const historic = { ...fresh, incidentDeckVersion: version }
+    assert.equal(incidentDeck(historic).length, expectedSizes[i])
+    assert.ok(restoreAcademy(JSON.parse(JSON.stringify(historic))))
+  }
+  assert.equal(restoreAcademy({
+    ...fresh, missionClues: ['detention-moon', 'detention-moon'],
+  }), null)
+  assert.equal(restoreAcademy({
+    ...fresh, missionClues: ['unlisted-night-case'],
+  }), null)
+}
+
 // Opening dramatic contract: two monologue nights, then two emergencies and
 // an earned friend who can split coverage or focus one spectacular rescue.
 {

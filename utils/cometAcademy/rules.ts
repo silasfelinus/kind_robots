@@ -1379,7 +1379,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     influence += patrolChoice.influence
     danger += patrolChoice.danger
     reports.push({
-      caseId: `patrol-${run.day}-${patrol.zone}`,
+      caseId: `patrol-${run.day}-${zone.id}`,
       title: `${zone.title}: ${patrolScene.title}`,
       grade: patrolChoice.id.endsWith('-secret')
         ? 'honors'

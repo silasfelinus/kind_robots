@@ -907,7 +907,9 @@ const courierBellBase = {
 const courierBellScenes = new Set<string>()
 const courierBellEpilogues = new Set<string>()
 for (const source of ['lend', 'copy'] as const) {
-  assert.ok(BRIAR_SCENES[BRIAR_START]?.choices.some((choice) => choice.id === source))
+  assert.ok(
+    BRIAR_SCENES[BRIAR_START]?.choices.some((choice) => choice.id === source),
+  )
   const original = restoreBriarSave({
     ...newBriarSave(),
     revealed: BRIAR_REVEAL_WAVES[0],

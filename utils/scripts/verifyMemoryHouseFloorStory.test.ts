@@ -101,7 +101,10 @@ assert.ok(
 )
 
 const warden = progress('HD-32')
-const wardenBranches = [
+const wardenBranches: Array<{
+  save: ReturnType<typeof progress>
+  briar: Record<string, string>
+}> = [
   { save: warden, briar: {} },
   {
     save: progress('HD-32', ['HD-01', 'HD-26', 'HD-32'], {

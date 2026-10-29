@@ -131,7 +131,7 @@ export const CAST_LOOKS: Record<string, CastLook> = {
     student: 'a red academy track jacket and black running shorts',
   },
   'tech-genius': {
-    name: 'Dr. Lionel Marsh',
+    name: 'Lionel Marsh',
     look: 'a lean adult human inventor with light brown skin, dark wavy hair, a sharp curious face, oversized brass safety goggles and a green coat covered in frog-footed mechanical sketches',
     student:
       'an emerald academy lab coat over a charcoal vest, heavy brass goggles and a spring-loaded green F.R.O.G. leap harness strapped to his boots',
@@ -216,7 +216,7 @@ export const CAST_LOOKS: Record<string, CastLook> = {
   },
   'alien-discipline': {
     name: 'Zuzu',
-    look: 'a short stocky adult koala assassin with round fluffy grey ears, a charcoal button nose, alert amber eyes, compact paws and an unmistakable weatherworn silhouette',
+    look: 'a short stocky adult koala assassin with round fluffy grey ears, a charcoal button nose, alert amber eyes, compact paws and a weatherworn silhouette',
     student:
       'a rust-red weird-west desert duster over layered dark leather sword harnesses and a battered katana at his side',
   },

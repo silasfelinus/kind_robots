@@ -268,6 +268,13 @@ export function refreshTurn(fighters: readonly Fighter[], team: string) {
     unit.moved = false
     unit.fired = false
     unit.overwatch = false
-    unit.statuses = []
+    unit.statuses = unit.statuses.filter(status => status === 'suppressed')
+  }
+}
+// Suppression affects the victim's next acting turn, never disappearing
+// before their attack. It expires only after they have had that turn.
+export function clearSuppression(fighters: readonly Fighter[], team: string) {
+  for (const unit of fighters) {
+    if (unit.team === team) unit.statuses = unit.statuses.filter(status => status !== 'suppressed')
   }
 }

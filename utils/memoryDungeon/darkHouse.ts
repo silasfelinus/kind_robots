@@ -2,6 +2,7 @@ import {
   HOUSE_ROOMS,
   HOUSE_ENTRY,
   isHouseRoomId,
+  reachableHouseVisits,
   type HouseRoomId,
   type HouseKind,
 } from './house'
@@ -798,10 +799,13 @@ export function restoreDarkHouseProgress(value: unknown): DarkHouseProgress {
   const visited = Array.isArray(saved.visited)
     ? saved.visited.filter((id): id is HouseRoomId => isHouseRoomId(id))
     : []
-  const current = isHouseRoomId(saved.current) ? saved.current : HOUSE_ENTRY
-  // Older saves may omit the current room from visited. They cannot, however,
-  // earn choices or challenge rewards in unrelated, unvisited chambers.
-  const visitedRooms = [...new Set([HOUSE_ENTRY, ...visited, current])]
+  const savedCurrent = isHouseRoomId(saved.current) ? saved.current : HOUSE_ENTRY
+  // Legacy saves may omit their current chamber from visited, but that
+  // chamber must still connect to the recorded route from the entry.
+  const { current, visited: visitedRooms } = reachableHouseVisits(
+    visited,
+    savedCurrent,
+  )
   const visitedSet = new Set<string>(visitedRooms)
   const decisions: Record<string, string> = {}
   if (saved.decisions && typeof saved.decisions === 'object')

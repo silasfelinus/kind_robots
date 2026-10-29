@@ -32,6 +32,7 @@ import {
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
   earnedCourierCompensation,
+  earnedCourierBellOutcome,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortOutcome,
   earnedOrenManifestOutcome,
@@ -303,15 +304,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
     const earned =
-      dark.value.player === '3,5'
-        ? earnedBorrowedVoiceOutcome(state.value, dark.value)
-        : dark.value.player === '4,4'
-          ? earnedRoyalEscortOutcome(state.value, dark.value)
-          : dark.value.player === '5,4'
-            ? earnedKnightCrossingOutcome(state.value, dark.value)
-            : dark.value.player === '3,2'
-              ? earnedVesperRookeryOutcome(state.value, dark.value)
-              : null
+      dark.value.player === '2,4'
+        ? earnedCourierBellOutcome(state.value, dark.value)
+        : dark.value.player === '3,5'
+          ? earnedBorrowedVoiceOutcome(state.value, dark.value)
+          : dark.value.player === '4,4'
+            ? earnedRoyalEscortOutcome(state.value, dark.value)
+            : dark.value.player === '5,4'
+              ? earnedKnightCrossingOutcome(state.value, dark.value)
+              : dark.value.player === '3,2'
+                ? earnedVesperRookeryOutcome(state.value, dark.value)
+                : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -1147,6 +1150,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === dark.value) return
     dark.value = next
     if (
+      key === '2,4' ||
       key === '3,5' ||
       key === '4,4' ||
       key === '4,3' ||
@@ -1154,15 +1158,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       key === '3,2'
     ) {
       const earned =
-        key === '3,5'
-          ? earnedBorrowedVoiceOutcome(state.value, next)
-          : key === '4,4'
-            ? earnedRoyalEscortOutcome(state.value, next)
-            : key === '4,3'
-              ? earnedOrenManifestOutcome(state.value, next)
-              : key === '5,4'
-                ? earnedKnightCrossingOutcome(state.value, next)
-                : earnedVesperRookeryOutcome(state.value, next)
+        key === '2,4'
+          ? earnedCourierBellOutcome(state.value, next)
+          : key === '3,5'
+            ? earnedBorrowedVoiceOutcome(state.value, next)
+            : key === '4,4'
+              ? earnedRoyalEscortOutcome(state.value, next)
+              : key === '4,3'
+                ? earnedOrenManifestOutcome(state.value, next)
+                : key === '5,4'
+                  ? earnedKnightCrossingOutcome(state.value, next)
+                  : earnedVesperRookeryOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {

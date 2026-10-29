@@ -47,6 +47,8 @@ import {
   firstTwoPhysicalConsequence,
   darkBriarExtraBridge,
   earnedCourierCompensation,
+  earnedCourierBellAccord,
+  earnedCourierBellOutcome,
   earnedBorrowedVoiceAccord,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortAccord,
@@ -882,6 +884,119 @@ assert.match(
   store,
   /earnedVesperRookeryOutcome\(state\.value, dark\.value\)/,
   'Returning to the rookery must restore the earned outcome',
+)
+
+// The original courier's lantern/address decision and mirrored glass bell's
+// memory/name testimony produce four distinct, earned and costly continuations.
+const courierBellCards = DARK_BRIAR_WAVES[0]!.map((tile, id) => ({
+  id,
+  tile,
+  pairId: Math.floor(id / 2),
+  image: `/test/courier-bell-${Math.floor(id / 2)}.webp`,
+  flipped: true,
+  matched: true,
+}))
+const courierBellBase = {
+  ...newDarkBriarProgress(),
+  phase: 'exploring' as const,
+  mapCards: courierBellCards,
+  revealed: [...DARK_BRIAR_WAVES[0]!],
+  visited: [BRIAR_START],
+  player: BRIAR_START,
+}
+const courierBellScenes = new Set<string>()
+const courierBellEpilogues = new Set<string>()
+for (const source of ['lend', 'copy'] as const) {
+  assert.ok(
+    BRIAR_SCENES[BRIAR_START]?.choices.some((choice) => choice.id === source),
+  )
+  const original = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: BRIAR_REVEAL_WAVES[0],
+    visited: [BRIAR_START],
+    player: BRIAR_START,
+    wavePhase: 'exploring',
+    sceneChoices: { [BRIAR_START]: source },
+  })
+  assert.equal(original.sceneChoices[BRIAR_START], source)
+  for (const response of ['listen', 'name'] as const) {
+    assert.ok(
+      DARK_BRIAR_SCENES[BRIAR_START]?.choices.some(
+        (choice) => choice.id === response,
+      ),
+    )
+    const chosen = darkBriarChoose(courierBellBase, BRIAR_START, response)
+    assert.notEqual(chosen, courierBellBase)
+    assert.equal(
+      darkBriarChoose(chosen, BRIAR_START, response),
+      chosen,
+      'The courier cannot resolve the bell twice',
+    )
+    const restored = restoreDarkBriarProgress(
+      JSON.parse(JSON.stringify(chosen)),
+    )
+    assert.equal(restored.sceneChoices[BRIAR_START], response)
+    const accord = `${source === 'lend' ? 'lantern' : 'address'}-${
+      response === 'listen' ? 'audited' : 'named'
+    }`
+    assert.equal(earnedCourierBellAccord(original, restored), accord)
+    assert.equal(
+      crossRealmConsequenceLedger(original, mirror, restored).courierBellAccord,
+      accord,
+    )
+    const scene = earnedCourierBellOutcome(original, restored)
+    assert.ok(scene && scene.length > 230)
+    assert.match(scene, /courier/i)
+    assert.match(scene, /but|wait|refuse|delayed|without|unpaid/)
+    courierBellScenes.add(scene)
+    const epilogue = crossRealmHouseEpilogue(
+      original,
+      { ...mirror, ending: 'return' },
+      restored,
+    )
+    assert.match(epilogue, /courier/i)
+    courierBellEpilogues.add(epilogue)
+    assert.equal(
+      crossRealmHouseEpilogue(original, mirror, restored),
+      '',
+      'The courier cannot disclose a House ending before it is earned',
+    )
+  }
+}
+assert.equal(courierBellScenes.size, 4)
+assert.equal(courierBellEpilogues.size, 4)
+assert.equal(
+  earnedCourierBellAccord(base, { sceneChoices: { [BRIAR_START]: 'listen' } }),
+  'unset',
+)
+assert.equal(
+  earnedCourierBellOutcome(
+    { ...base, sceneChoices: { [BRIAR_START]: 'forged' } },
+    { sceneChoices: { [BRIAR_START]: 'name' } },
+  ),
+  null,
+)
+assert.equal(
+  earnedCourierBellOutcome(
+    { ...base, sceneChoices: { [BRIAR_START]: 'copy' } },
+    { sceneChoices: { [BRIAR_START]: 'forged' } },
+  ),
+  null,
+)
+assert.equal(
+  crossRealmConsequenceLedger(base, mirror).courierBellAccord,
+  'unset',
+  'Older saves without the mirrored camp choice remain compatible',
+)
+assert.match(
+  store,
+  /earnedCourierBellOutcome\(state\.value, next\)/,
+  'Choosing at the bell must display the earned resolution',
+)
+assert.match(
+  store,
+  /earnedCourierBellOutcome\(state\.value, dark\.value\)/,
+  'Revisiting the bell must restore the earned resolution',
 )
 
 const earnedHouseEpilogues = new Set<string>()

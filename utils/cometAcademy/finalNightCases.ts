@@ -357,47 +357,69 @@ export const FINAL_NIGHT_MISSIONS: readonly ExpandedMission[] = [
   },
   {
     incident: {
-      briefing: "Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support.",
-      need: "technopathy" as PowerId,
+      briefing:
+        "Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support.",
+      need: 'technopathy' as PowerId,
       risk: 4,
-      allegiance: "hero" as Incident['allegiance'],
+      allegiance: 'hero' as Incident['allegiance'],
       art: "Wide cinematic superhero illustration, Civic Hospital Route at midnight: the ambulance that went to a different city. Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support. Show identifiable civilians, a distinct focal emergency, layered foreground and city background. No lettering or logos.",
     },
-    thread: "civic" as ExpandedMission['thread'],
-    briefing: "Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support.",
-    refused: "The ambulances are found hours later outside an empty clinic. Patients need additional care, and the private dispatcher invoices the city for services it never provided.",
+    thread: 'civic' as ExpandedMission['thread'],
+    briefing:
+      "Three ambulances vanish from navigation screens while carrying emergency patients across Comet City. Their drivers insist a phantom dispatch office has redirected them to a private clinic where no one answers the door. A medic asks you to help without interrupting the patients' life support.",
+    refused:
+      'The ambulances are found hours later outside an empty clinic. Patients need additional care, and the private dispatcher invoices the city for services it never provided.',
     consequences: {
-      honors: "You trace the forged dispatch commands and safely restore all three routes without interrupting care. The drivers keep authenticated copies of the messages that name the clinic's sponsor.",
-      pass: "Every patient reaches a real hospital and the phantom route is disabled. The dispatcher claims it was a harmless map test and refuses to provide its logs.",
-      partial: "Two ambulances arrive quickly; the third takes an unnecessary detour and its patient needs emergency treatment. Medics demand that city dispatch retain control of routing.",
-      failed: "The ambulances converge on a blocked bridge and crews must transfer patients in the dark. Injuries worsen while the private clinic scrubs its digital records.",
+      honors:
+        "You trace the forged dispatch commands and safely restore all three routes without interrupting care. The drivers keep authenticated copies of the messages that name the clinic's sponsor.",
+      pass: 'Every patient reaches a real hospital and the phantom route is disabled. The dispatcher claims it was a harmless map test and refuses to provide its logs.',
+      partial:
+        'Two ambulances arrive quickly; the third takes an unnecessary detour and its patient needs emergency treatment. Medics demand that city dispatch retain control of routing.',
+      failed:
+        'The ambulances converge on a blocked bridge and crews must transfer patients in the dark. Injuries worsen while the private clinic scrubs its digital records.',
     } as Record<Grade, string>,
-    morning: "Hospital medics carry the false ambulance routes into the morning briefing. Emergency dispatchers demand a public audit of the private clinic's billing and destination records.",
-    tactics: { rescue: "Escort the ambulances to real emergency entrances", investigate: "Trace the phantom dispatch server and its billing keys" },
-    secret: "Your technopathy uncovers a mirrored control room selling ambulance routes to bidders. You return the patients to public dispatch and preserve the ledger of every diverted call.",
+    morning:
+      "Hospital medics carry the false ambulance routes into the morning briefing. Emergency dispatchers demand a public audit of the private clinic's billing and destination records.",
+    tactics: {
+      rescue: 'Escort the ambulances to real emergency entrances',
+      investigate: 'Trace the phantom dispatch server and its billing keys',
+    },
+    secret:
+      'Your technopathy uncovers a mirrored control room selling ambulance routes to bidders. You return the patients to public dispatch and preserve the ledger of every diverted call.',
   },
   {
     incident: {
-      id: "shield-auction",
-      title: "The Auction of Midnight Shields",
-      site: "Civic Media Spire",
-      briefing: "A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid.",
-      need: "kinetic" as PowerId,
+      id: 'shield-auction',
+      title: 'The Auction of Midnight Shields',
+      site: 'Civic Media Spire',
+      briefing:
+        'A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid.',
+      need: 'kinetic' as PowerId,
       risk: 5,
-      allegiance: "villain" as Incident['allegiance'],
-      art: "Wide cinematic superhero illustration, Civic Media Spire at midnight: the auction of midnight shields. A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid. Show identifiable civilians, a distinct focal emergency, layered foreground and city background. No lettering or logos.",
+      allegiance: 'villain' as Incident['allegiance'],
+      art: 'Wide cinematic superhero illustration, Civic Media Spire at midnight: the auction of midnight shields. A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid. Show identifiable civilians, a distinct focal emergency, layered foreground and city background. No lettering or logos.',
     },
-    thread: "civic" as ExpandedMission['thread'],
-    briefing: "A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid.",
-    refused: "The auction closes with the harbor wards unshielded. Neighbors turn schools into shelters while bidders celebrate their exclusive protection at a televised gala.",
+    thread: 'civic' as ExpandedMission['thread'],
+    briefing:
+      'A private auction sells protective city shields to the highest bidders while a prom-night meteor drill quietly becomes real. Housing blocks lose coverage one by one as wealthy spectators bid for glowing sections of skyline. An engineer pleads for time to restore the public grid.',
+    refused:
+      'The auction closes with the harbor wards unshielded. Neighbors turn schools into shelters while bidders celebrate their exclusive protection at a televised gala.',
     consequences: {
-      honors: "You stabilize the shield grid and return control to the public emergency team. The engineer reveals that the auctioneer deliberately manufactured the shortages to raise prices.",
-      pass: "The city shields remain active and the auction is halted. The auctioneer escapes with some contracts while neighborhood representatives demand permanent public oversight.",
-      partial: "Several housing blocks regain cover, but the auction grid shorts out over the old market. Volunteers evacuate families and the bidders sue the city for violating their contracts.",
-      failed: "The private shield grid fractures during the meteor drill, injuring rescue crews and exposing whole streets. The auctioneer blames public operators for refusing a profitable emergency partnership.",
+      honors:
+        'You stabilize the shield grid and return control to the public emergency team. The engineer reveals that the auctioneer deliberately manufactured the shortages to raise prices.',
+      pass: 'The city shields remain active and the auction is halted. The auctioneer escapes with some contracts while neighborhood representatives demand permanent public oversight.',
+      partial:
+        'Several housing blocks regain cover, but the auction grid shorts out over the old market. Volunteers evacuate families and the bidders sue the city for violating their contracts.',
+      failed:
+        'The private shield grid fractures during the meteor drill, injuring rescue crews and exposing whole streets. The auctioneer blames public operators for refusing a profitable emergency partnership.',
     } as Record<Grade, string>,
-    morning: "The shield grid's overnight failures are debated in every classroom. Residents of the exposed wards ask whether the school will help them challenge the auction contract before prom.",
-    tactics: { rescue: "Brace the failing shield emitters above the shelters", investigate: "Identify who removed public shields before bidding began" },
-    secret: "Your kinetic control senses each shield emitter pulling against its original public anchor. Reconnecting the anchors stops the bidding and exposes the auctioneer's deliberately manufactured scarcity.",
+    morning:
+      "The shield grid's overnight failures are debated in every classroom. Residents of the exposed wards ask whether the school will help them challenge the auction contract before prom.",
+    tactics: {
+      rescue: 'Brace the failing shield emitters above the shelters',
+      investigate: 'Identify who removed public shields before bidding began',
+    },
+    secret:
+      "Your kinetic control senses each shield emitter pulling against its original public anchor. Reconnecting the anchors stops the bidding and exposes the auctioneer's deliberately manufactured scarcity.",
   },
 ]

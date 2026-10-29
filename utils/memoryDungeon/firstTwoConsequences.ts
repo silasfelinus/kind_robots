@@ -607,7 +607,15 @@ export function crossRealmHouseEpilogue(
     ledger.orenManifestAccord === 'unset'
       ? ''
       : OREN_MANIFEST_OUTCOMES[ledger.orenManifestAccord].epilogue
-  return [witness, provision, manifest, knight, knightCrossing, traveler, royals]
+  return [
+    witness,
+    provision,
+    manifest,
+    knight,
+    knightCrossing,
+    traveler,
+    royals,
+  ]
     .filter(Boolean)
     .join(' ')
 }

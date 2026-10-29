@@ -399,6 +399,138 @@
       "story": "Alto Clam disobeys Lighthouse when a listener cannot swim.",
       "facetType": "SPECIES",
       "hp": 1
+    },
+    {
+      "signature": "alien-discipline",
+      "name": "Honor Drones",
+      "captain": "Drillbit Seven",
+      "look": "Empty alien ceremonial armor with sun-bright epaulettes",
+      "move": "March in synchronized pairs to form one-unit shield walls",
+      "counter": "Break formation by flanking a helmet or interrupting cadence",
+      "story": "Drillbit Seven wants a job outside The Deserter's recreated military caste.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-genius",
+      "name": "Patent Pips",
+      "captain": "Provisional One",
+      "look": "Brass-and-paper patent forms on tiny measuring legs",
+      "move": "Confiscate the second use of a tagged gadget for one turn",
+      "counter": "Present its original inventor or void the displayed claim",
+      "story": "Provisional One is beginning to recognize Uplift's progress as theft.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-birthright",
+      "name": "Mirror Pages",
+      "captain": "Squire Reverse",
+      "look": "Royal mirror shards riding velvet cushions and carrying reflective lances",
+      "move": "Hop between two marked mirrored tiles to flank a hero",
+      "counter": "Cover either sparkling mirror before emergence",
+      "story": "Squire Reverse wants proof The Exile actually inherited the throne.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "alien-social",
+      "name": "Welcome Mats",
+      "captain": "Hugbug Hob",
+      "look": "Hexagonal plush emissaries with embroidered names and too many arms",
+      "move": "Emotionally link two units so moving apart costs extra range",
+      "counter": "Call each individual's real name to dissolve the tether",
+      "story": "Hob remembers the people who asked Assembly to leave them separate.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-fire",
+      "name": "Bedtime Matches",
+      "captain": "Tuck",
+      "look": "Scorched matchstick dolls wearing patched quilts",
+      "move": "Bring a nightmare-shaped burning tile beside a frightened hero",
+      "counter": "A discordant lullaby warns first; soothe the nearby frightened civilian",
+      "story": "Tuck wishes Firekeeper could sleep through the night without fear.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-air",
+      "name": "Lift Bailiffs",
+      "captain": "Floaty Finch",
+      "look": "Balloon-headed ticket collectors with dangling polished shoes",
+      "move": "Levitate a piece of cover away and expose a firing lane",
+      "counter": "Grab their warning receipt before the cords tighten",
+      "story": "Floaty Finch secretly provides Weightless's free lifts to people carrying groceries.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-earth",
+      "name": "Confession Cobbles",
+      "captain": "Pebble Judge",
+      "look": "Whisper-mouthed stones wearing etched judge spectacles",
+      "move": "Broadcast one buried secret, briefly disrupting the listener's focus",
+      "counter": "The stone vibrates first; leave the seam or counter with truth",
+      "story": "Pebble Judge knows Groundtruth's own buried secrets and is tired of blackmail.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-water",
+      "name": "Apology Boats",
+      "captain": "Captain Sorry",
+      "look": "Paper sailboats folded from unsent apology letters",
+      "move": "Flood a telegraphed square with grief and slow movement",
+      "counter": "Unfold or deliver the letter before it reaches the destination",
+      "story": "Captain Sorry carries the apology Calm Waters has never sent.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-discipline",
+      "name": "Bookshades",
+      "captain": "Page Turn",
+      "look": "Animated book spines in tiny veils carrying bookmark blades",
+      "move": "Slip through one obstruction to tag a unit behind cover",
+      "counter": "Light the announced landing shelf before the jump",
+      "story": "Page Turn always returns what The Librarian borrows without permission.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-genius",
+      "name": "Thoughtbubbles",
+      "captain": "Password Please",
+      "look": "Floating speech-balloon masks with stray thoughts written across them",
+      "move": "Predict and mark the destination of a planned move",
+      "counter": "The prediction appears before the attack; choose a different square",
+      "story": "Password Please wants Mindsight to stop treating every mind as a locked drawer.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-birthright",
+      "name": "Tomorrow Ravens",
+      "captain": "Miss Maybe",
+      "look": "White-feathered fortune ravens with clockface eyes and prophecy slips",
+      "move": "Mark a future strike tile then swoop precisely on schedule",
+      "counter": "Read the forecast and change position to invalidate it",
+      "story": "Miss Maybe longs for Second Sight's predictions to be wrong once.",
+      "facetType": "SPECIES",
+      "hp": 1
+    },
+    {
+      "signature": "psychic-social",
+      "name": "Rumor Mites",
+      "captain": "Scoop Two",
+      "look": "Ink-pawed newspaper gremlins with megaphone mouths",
+      "move": "Post a false accusation that briefly diverts targeting to a decoy",
+      "counter": "Reveal the contradictory clipping or disable the press",
+      "story": "Scoop Two secretly preserves evidence of The Confidante's first harmful rumor.",
+      "facetType": "SPECIES",
+      "hp": 1
     }
   ]
 }

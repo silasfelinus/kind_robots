@@ -236,6 +236,13 @@ useHead({
       : 'Kind Robots Arcade',
   ),
 })
+
+// Only the hall is a stable shareable page; ?game= cabinets keep the default.
+if (!route.query.game) {
+  useSeoMeta(
+    gameLinkPreviewMeta('arcade', useRuntimeConfig().public.appBaseUrl) ?? {},
+  )
+}
 </script>
 
 <style scoped>

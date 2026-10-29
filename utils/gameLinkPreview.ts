@@ -67,6 +67,18 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     description: 'Duels with Zuzu and friends. Free to play in your browser.',
     image: '/zuzu-showdown-art/hall-card.webp',
   },
+  'zuzu-shifting-lands': {
+    title: 'Zuzu: Shifting Lands | Kind Robots',
+    description:
+      'Draw a card, shape the land and see what the road asks of you. A free card journey in your browser.',
+    image: '/shifting-lands/cards/one-place-by-the-fire.webp',
+  },
+  arcade: {
+    title: 'Kind Robots Arcade | Free Browser Games',
+    description:
+      'A hall of free arcade cabinets with worldwide high scores. No account needed to play.',
+    image: '/save-the-plumber/maps/world-3.webp',
+  },
   'zuzu-pinball': {
     title: 'Zuzu Pinball: Last Bell | Kind Robots',
     description:

@@ -131,10 +131,10 @@ export const CAST_LOOKS: Record<string, CastLook> = {
     student: 'a red academy track jacket and black running shorts',
   },
   'tech-genius': {
-    name: 'Priya Raman',
-    look: 'a small young woman with medium brown skin, thick black hair in a messy side braid and round tortoiseshell glasses',
+    name: 'Dr. Lionel Marsh',
+    look: 'a lean adult human inventor with light brown skin, dark wavy hair, a sharp curious face, oversized brass safety goggles and a green coat covered in frog-footed mechanical sketches',
     student:
-      'an oversized purple academy hoodie with the sleeves pulled over her hands',
+      'an emerald academy lab coat over a charcoal vest, heavy brass goggles and a spring-loaded green F.R.O.G. leap harness strapped to his boots',
   },
   'tech-birthright': {
     name: 'Bart Sterling',
@@ -159,10 +159,10 @@ export const CAST_LOOKS: Record<string, CastLook> = {
     student: 'a white choir collar under a grey academy cardigan',
   },
   'magic-earth': {
-    name: 'Willa Thornbury',
-    look: 'a sturdy round-faced young woman with freckled light brown skin, a frizzy mass of dark curls tied up with garden twine and soil under her fingernails',
+    name: 'Mavis Mayhew',
+    look: 'a powerful elderly woman with rich brown skin, deep smile lines, silver hair braided into two high buns and a formidable grin',
     student:
-      'patched green dungarees over an academy t-shirt and muddy rubber boots',
+      'a voluminous patchwork shawl over a red cardigan, sturdy lace-up boots, a tool belt of luminous rune needles and yellow school-bus keys',
   },
   'magic-water': {
     name: 'Caspian Lowe',
@@ -215,10 +215,10 @@ export const CAST_LOOKS: Record<string, CastLook> = {
     student: 'a shimmering silver wrap dress under an academy cardigan',
   },
   'alien-discipline': {
-    name: 'Raxa Vel',
-    look: 'a tall muscular alien woman with ash-grey skin, a ridge of bony plates along her scalp, sharp golden eyes and old ritual scars across her arms',
+    name: 'Zuzu',
+    look: 'a short stocky adult koala assassin with round fluffy grey ears, a charcoal button nose, alert amber eyes, compact paws and an unmistakable weatherworn silhouette',
     student:
-      'a crisp academy uniform worn with military precision and a broken bronze officer insignia on a cord around her neck',
+      'a rust-red weird-west desert duster over layered dark leather sword harnesses and a battered katana at his side',
   },
   'alien-genius': {
     name: 'Oorin Faal',

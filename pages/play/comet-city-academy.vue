@@ -556,18 +556,29 @@
                 <span>↗</span>
               </button>
               <div
-                v-if="run.playerCaseId === incident.id && expandedMissionFor(incident.id)"
+                v-if="
+                  run.playerCaseId === incident.id &&
+                  expandedMissionFor(incident.id)
+                "
                 class="cca-mission-tactics"
                 data-testid="academy-mission-tactics"
               >
                 <strong>YOUR DECISION · HOW DO YOU INTERVENE?</strong>
-                <p>Saving lives first offers better odds. Investigating the cause is riskier but can uncover evidence for a later case in this neighborhood.</p>
+                <p>
+                  Saving lives first offers better odds. Investigating the cause
+                  is riskier but can uncover evidence for a later case in this
+                  neighborhood.
+                </p>
                 <div class="cca-mission-tactics-grid">
                   <button
                     type="button"
                     class="cca-choice"
-                    :aria-pressed="(run.missionApproach ?? 'rescue') === 'rescue'"
-                    :class="{ active: (run.missionApproach ?? 'rescue') === 'rescue' }"
+                    :aria-pressed="
+                      (run.missionApproach ?? 'rescue') === 'rescue'
+                    "
+                    :class="{
+                      active: (run.missionApproach ?? 'rescue') === 'rescue',
+                    }"
                     data-testid="academy-mission-rescue"
                     @click="store.missionTactic(incident.id, 'rescue')"
                   >
@@ -586,7 +597,12 @@
                     {{ expandedMissionFor(incident.id)?.tactics.investigate }}
                   </button>
                 </div>
-                <small>Casebook evidence recovered: {{ run.missionClues?.length ?? 0 }}. Matching powers and earlier district clues may reveal a hidden resolution after your mission succeeds.</small>
+                <small
+                  >Casebook evidence recovered:
+                  {{ run.missionClues?.length ?? 0 }}. Matching powers and
+                  earlier district clues may reveal a hidden resolution after
+                  your mission succeeds.</small
+                >
               </div>
               <div
                 class="cca-roster"
@@ -1779,11 +1795,33 @@ function toggleStudent(caseId: string, id: StudentId): void {
   display: grid;
   gap: 0.45rem;
 }
-.cca-mission-tactics > p, .cca-mission-tactics > small { font-size: 0.78rem; line-height: 1.4; color: #dae3e9; }
-.cca-mission-tactics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; }
-.cca-mission-tactics-grid .cca-choice { display: grid; align-content: start; gap: 0.3rem; font-size: 0.78rem; text-align: left; }
-.cca-mission-tactics-grid .cca-choice.active { border-color: #d9b96c; background: #34445e; }
-@media (max-width: 650px) { .cca-mission-tactics-grid { grid-template-columns: 1fr; } }
+.cca-mission-tactics > p,
+.cca-mission-tactics > small {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #dae3e9;
+}
+.cca-mission-tactics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.cca-mission-tactics-grid .cca-choice {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  text-align: left;
+}
+.cca-mission-tactics-grid .cca-choice.active {
+  border-color: #d9b96c;
+  background: #34445e;
+}
+@media (max-width: 650px) {
+  .cca-mission-tactics-grid {
+    grid-template-columns: 1fr;
+  }
+}
 .cca-patrol-board {
   border: 1px solid #8bc8d466;
   background: linear-gradient(135deg, #102738e8, #151a33f0);

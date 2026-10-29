@@ -988,12 +988,12 @@ assert.equal(
 )
 assert.match(
   store,
-  /earnedCourierBellOutcome\\(state\\.value, next\\)/,
+  /earnedCourierBellOutcome\(state\.value, next\)/,
   'Choosing at the bell must display the earned resolution',
 )
 assert.match(
   store,
-  /earnedCourierBellOutcome\\(state\\.value, dark\\.value\\)/,
+  /earnedCourierBellOutcome\(state\.value, dark\.value\)/,
   'Revisiting the bell must restore the earned resolution',
 )
 

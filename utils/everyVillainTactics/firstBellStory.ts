@@ -514,19 +514,19 @@ const SCRIPT: Record<Perspective, Record<Beat, StoryMoment>> = {
 const PERSONAL_ROUTE: Record<Perspective, StoryLine> = {
   hero: a(
     'BACKDRAFT',
-    'I survived the food-truck explosion because strangers ran toward the fire. Priya, Hattie and I promised we would be those strangers for somebody else.',
+    'I survived the food-truck explosion because strangers ran toward the fire. Dr. Frog, Hattie and I promised we would be those strangers for somebody else.',
   ),
   villain: a(
     'BACKDRAFT',
-    'The city keeps calling me an accident waiting to happen. Tonight Priya and Hattie are the only witnesses who know why I agreed to guard the seal.',
+    'The city keeps calling me an accident waiting to happen. Tonight Dr. Frog and Hattie are the only witnesses who know why I agreed to guard the seal.',
   ),
   henchman: a(
     'BACKDRAFT',
-    'Before the blast I was invisible. Afterward I was somebody else’s weapon. Priya, Hattie and I are going to write our own orders.',
+    'Before the blast I was invisible. Afterward I was somebody else’s weapon. Dr. Frog, Hattie and I are going to write our own orders.',
   ),
   sidekick: a(
     'BACKDRAFT',
-    'I thought my job was to teach you how to be fireproof. Priya reminded me that what makes you a hero is deciding when not to burn.',
+    'I thought my job was to teach you how to be fireproof. Dr. Frog reminded me that what makes you a hero is deciding when not to burn.',
   ),
 }
 export function createStory(): StoryRun {

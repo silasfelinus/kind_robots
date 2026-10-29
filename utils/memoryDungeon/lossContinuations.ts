@@ -24,6 +24,22 @@ function rememberedConsequence(
     return 'The night courier still has your lantern; the letter remains undelivered.'
   if (choices['2,4'] === 'copy')
     return 'Your copied impossible address survives; its recipient still awaits the letter.'
+  if (choices['3,5'] === 'light')
+    return "Pip's freed moth is safe; the stump still holds the story it borrowed."
+  if (choices['3,5'] === 'listen')
+    return "Pip kept the stump's account; the Knight's apology still needs a witness."
+  if (choices['4,4'] === 'escort')
+    return "Scylla's escort order stands; the princesses cannot guard every road."
+  if (choices['4,4'] === 'question')
+    return "Char's lantern lights your retreat; the twins' riddle remains unsolved."
+  if (choices['4,2'] === 'ledger')
+    return "Mosswick's tomorrow-dated warning survives; its unnamed debtor is still unknown."
+  if (choices['4,2'] === 'promise')
+    return "Mosswick still expects your true account; his advance cannot settle the debt."
+  if (choices['3,4'] === 'challenge')
+    return "The toll receipt names another payer; the missing bridge is still unbuilt."
+  if (choices['3,4'] === 'help')
+    return "The collector has your drawn bridge; travelers still need a real crossing."
   return 'Your map and discoveries survive; the room keeps its unanswered question.'
 }
 

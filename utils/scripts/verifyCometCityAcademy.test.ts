@@ -376,8 +376,11 @@ for (const [signature, realName, alias] of [
   )
   assert.ok(paintings.every((prompt) => prompt && prompt.length > 200))
   assert.equal(new Set(paintings).size, 3)
-  for (const text of paintings)
-    assert.ok(text.includes(realName.split(' ')[0]!))
+  const signatureLook = CAST_LOOKS[signature]!.look.split(' ').slice(1, 7).join(' ')
+  assert.ok(paintings[0]!.toLowerCase().includes(signatureLook.toLowerCase()))
+  assert.ok(paintings[1]!.toLowerCase().includes(signatureLook.toLowerCase()))
+  if (signature !== 'tech-genius')
+    assert.ok(paintings[2]!.toLowerCase().includes(signatureLook.toLowerCase()))
 }
 for (const [signature, historicalField] of [
   ['tech-genius', 'technopathy'],

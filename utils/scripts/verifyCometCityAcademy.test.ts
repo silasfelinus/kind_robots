@@ -30,7 +30,12 @@ import {
   districtEncounterFor,
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
-import { PATROL_ZONES, PATROL_SECRETS, patrolSceneFor, PATROL_SCENE_COUNT } from '../cometAcademy/nightPatrols'
+import {
+  PATROL_ZONES,
+  PATROL_SECRETS,
+  patrolSceneFor,
+  PATROL_SCENE_COUNT,
+} from '../cometAcademy/nightPatrols'
 import {
   SOCIAL_CAST,
   SOCIAL_DAYS,
@@ -2097,43 +2102,92 @@ assert.equal(patrolChoices.size, 24)
   const scene = patrolSceneFor(dayFour.seed, dayFour.day, zone.id)
   assert.equal(patrolOptionsFor(dayFour, zone.id).length, 2)
   assert.equal(chooseNightPatrol(dayFour, zone.id, 'nonsense'), dayFour)
-  assert.equal(chooseNightPatrol({ ...dayFour, day: 3 }, zone.id, scene.choices[0]!.id).nightPatrol, undefined)
+  assert.equal(
+    chooseNightPatrol({ ...dayFour, day: 3 }, zone.id, scene.choices[0]!.id)
+      .nightPatrol,
+    undefined,
+  )
   const chosen = chooseNightPatrol(dayFour, zone.id, scene.choices[0]!.id)
   assert.equal(chosen.nightPatrol?.zone, zone.id)
   assert.equal(chosen.playerCaseId, null)
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(chosen))))
-  assert.equal(restoreAcademy({ ...chosen, nightPatrol: { ...chosen.nightPatrol!, choiceId: 'unknown' } }), null)
+  assert.equal(
+    restoreAcademy({
+      ...chosen,
+      nightPatrol: { ...chosen.nightPatrol!, choiceId: 'unknown' },
+    }),
+    null,
+  )
   const result = resolveDispatch(chosen)
   assert.equal(result.phase, 'debrief')
   assert.equal(result.patrolHistory?.length, 1)
-  assert.equal(result.reports.filter((entry) => entry.caseId.startsWith('patrol-')).length, 1)
-  assert.ok(result.reports.some((entry) => entry.text === scene.choices[0]!.result))
+  assert.equal(
+    result.reports.filter((entry) => entry.caseId.startsWith('patrol-')).length,
+    1,
+  )
+  assert.ok(
+    result.reports.some((entry) => entry.text === scene.choices[0]!.result),
+  )
   assert.equal(result.academyStanding, scene.choices[0]!.standing)
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(result))))
-  assert.equal(restoreAcademy({ ...result, patrolHistory: [{ day: 4, zone: 'academy', encounterId: 'invented', choiceId: scene.choices[0]!.id }] }), null)
+  assert.equal(
+    restoreAcademy({
+      ...result,
+      patrolHistory: [
+        {
+          day: 4,
+          zone: 'academy',
+          encounterId: 'invented',
+          choiceId: scene.choices[0]!.id,
+        },
+      ],
+    }),
+    null,
+  )
   const morning = nextSchoolDay(result)
   assert.equal(morning.day, 5)
   assert.ok(morning.scene.includes('overnight decision'))
   const secretUnclaimed = patrolOptionsFor(morning, zone.id)
   assert.equal(secretUnclaimed.length, 2)
-  const trusted = { ...morning, contacts: ['kit' as StudentId], phase: 'dispatch' as const }
+  const trusted = {
+    ...morning,
+    contacts: ['kit' as StudentId],
+    phase: 'dispatch' as const,
+  }
   assert.equal(patrolOptionsFor(trusted, zone.id).length, 3)
   const secret = PATROL_SECRETS[zone.id].choice
   const hidden = chooseNightPatrol(trusted, zone.id, secret.id)
   assert.equal(hidden.nightPatrol?.choiceId, secret.id)
   const solved = resolveDispatch(hidden)
-  assert.ok(solved.reports.some((report) => report.caseId.startsWith('patrol-') && report.grade === 'honors'))
+  assert.ok(
+    solved.reports.some(
+      (report) =>
+        report.caseId.startsWith('patrol-') && report.grade === 'honors',
+    ),
+  )
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(solved))))
   const rerouted = assignPlayerCase(hidden, incidentsFor(hidden)[0]!.id)
-  assert.equal(rerouted.nightPatrol, null, 'taking a named emergency cancels district patrol')
+  assert.equal(
+    rerouted.nightPatrol,
+    null,
+    'taking a named emergency cancels district patrol',
+  )
   assert.ok(restoreAcademy(JSON.parse(JSON.stringify(rerouted))))
   for (const other of PATROL_ZONES.slice(1)) {
     const otherScene = patrolSceneFor(dayFour.seed, dayFour.day, other.id)
-    const outing = resolveDispatch(chooseNightPatrol(dayFour, other.id, otherScene.choices[1]!.id))
-    assert.ok(outing.reports.some((report) => report.caseId.startsWith('patrol-')))
+    const outing = resolveDispatch(
+      chooseNightPatrol(dayFour, other.id, otherScene.choices[1]!.id),
+    )
+    assert.ok(
+      outing.reports.some((report) => report.caseId.startsWith('patrol-')),
+    )
     assert.equal(outing.cityStanding, otherScene.choices[1]!.standing)
   }
-  assert.ok(nightPatrolBeat({ ...morning, phase: 'dispatch' })?.text.includes('Last night'))
+  assert.ok(
+    nightPatrolBeat({ ...morning, phase: 'dispatch' })?.text.includes(
+      'Last night',
+    ),
+  )
 }
 
 // Untouched thirty-day runs that go back to old haunts. `honest` exposes every

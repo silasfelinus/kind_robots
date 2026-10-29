@@ -31,6 +31,10 @@ import {
 } from '../cometAcademy/districtEncounters'
 import { REAL_NIGHT_CASES, realNightCase } from '../cometAcademy/nightCases'
 import {
+  EXPANDED_MISSIONS,
+  expandedMissionFor,
+} from '../cometAcademy/expandedNightCases'
+import {
   PATROL_ZONES,
   PATROL_SECRETS,
   patrolSceneFor,
@@ -119,10 +123,13 @@ import {
   STUDENTS,
   INCIDENTS,
   NIGHT_DECK,
+  FULL_NIGHT_DECK,
   incidentDeck,
   ENCOUNTERS,
   assignTeam,
   assignPlayerCase,
+  selectMissionApproach,
+  missionSecretFor,
   chooseNightPatrol,
   patrolOptionsFor,
   planThirdNight,
@@ -1548,6 +1555,7 @@ for (const group of missionRouteRoster('monorail')) {
 }
 const commission = {
   ...startFullAcademy('kinetic', 1),
+  incidentDeckVersion: undefined,
   phase: 'dispatch' as const,
   day: 3,
   contacts: STUDENTS.map((s) => s.id),
@@ -1885,6 +1893,9 @@ assert.ok(page.includes('data-testid="academy-personal-identity-chapter"'))
 assert.ok(page.includes('data-testid="academy-quest-poster-row"'))
 assert.ok(page.includes('data-testid="academy-night-district-patrol"'))
 assert.ok(page.includes('data-testid="academy-night-patrol-choice"'))
+assert.ok(page.includes('data-testid="academy-mission-tactics"'))
+assert.ok(page.includes('data-testid="academy-mission-investigate"'))
+assert.ok(store.includes('selectMissionApproach'))
 assert.ok(store.includes('chooseNightPatrol'))
 assert.ok(page.includes('data-testid="academy-quest-odds"'))
 assert.ok(page.includes('data-testid="academy-special-mission-route"'))
@@ -1957,23 +1968,23 @@ for (const [key, prompt] of Object.entries(PROM_ART_PROMPTS))
     prompt.length >= 120 && prompt.length <= 900,
     `${key} prompt length ${prompt.length}`,
   )
-// Late night calls: new thirty-day runs draw twelve cases, older saves keep six.
+// Versioned night decks preserve the old six- and twelve-case save contracts.
 assert.equal(LATE_INCIDENTS.length, 6)
 assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
 {
   const fresh = startFullAcademy('kinetic', 31)
-  assert.equal(fresh.incidentDeckVersion, 2)
+  assert.equal(fresh.incidentDeckVersion, 3)
   const seen = new Set<string>()
-  for (let day = 1; day <= 12; day++) {
+  for (let day = 1; day <= 18; day++) {
     const cases = incidentsFor({ ...fresh, day })
-    assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : 3)
+    assert.equal(cases.length, day <= 2 ? 1 : day <= 7 ? 2 : day <= 14 ? 3 : 4)
     assert.equal(
       new Set(cases.map((incident) => incident.id)).size,
       cases.length,
     )
     for (const incident of cases) seen.add(incident.id)
   }
-  assert.equal(seen.size, 12)
+  assert.equal(seen.size, 24)
   const {
     incidentDeckVersion: _dropped,
     patrolOpening: _intro,
@@ -1984,7 +1995,7 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
   for (let day = 1; day <= 12; day++)
     for (const incident of incidentsFor({ ...legacy, day } as AcademyRun))
       assert.ok(INCIDENTS.includes(incident), 'old saves keep the six')
-  assert.equal(restoreAcademy({ ...fresh, incidentDeckVersion: 3 }), null)
+  assert.equal(restoreAcademy({ ...fresh, incidentDeckVersion: 4 }), null)
   assert.equal(
     restoreAcademy({ ...startAcademy('kinetic', 31), incidentDeckVersion: 2 }),
     null,
@@ -2019,6 +2030,137 @@ assert.equal(new Set(NIGHT_DECK.map((incident) => incident.id)).size, 12)
     assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(done))), done)
     assert.ok(PROM_ART_PROMPTS[`incidents/${incident.id}`])
   }
+}
+
+// Twelve next-tier cases are authored, selectable, persistent and distinct.
+// Their personal tactics alter rescue odds and unlock evidence-led power secrets.
+assert.equal(EXPANDED_MISSIONS.length, 12)
+assert.equal(FULL_NIGHT_DECK.length, 24)
+assert.equal(new Set(FULL_NIGHT_DECK.map((incident) => incident.id)).size, 24)
+const fullCaseTitles = new Set<string>()
+for (const mission of EXPANDED_MISSIONS) {
+  assert.equal(expandedMissionFor(mission.incident.id), mission)
+  assert.ok(mission.briefing.length > 140)
+  assert.ok(mission.refused.length > 140)
+  assert.ok(mission.secret.length > 125)
+  assert.ok(mission.tactics.rescue.length > 20)
+  assert.ok(mission.tactics.investigate.length > 20)
+  assert.ok(!fullCaseTitles.has(mission.incident.title))
+  fullCaseTitles.add(mission.incident.title)
+  assert.ok([3, 4, 5].includes(mission.incident.risk))
+  for (const outcome of ['honors', 'pass', 'partial', 'failed'] as const)
+    assert.ok(
+      mission.consequences[outcome].length > 135,
+      `${mission.incident.id} has bespoke ${outcome} prose`,
+    )
+  assert.equal(realNightCase(mission.incident.id)?.briefing, mission.briefing)
+  assert.ok(PROM_ART_PROMPTS[`incidents/${mission.incident.id}`])
+}
+const newTeamRoutes = [
+  ['frog-serum', 'kit', 'drift'],
+  ['mirror-court', 'imani', 'jo'],
+  ['granny-shuttle', 'veda', 'mara'],
+  ['halo-contract', 'sol', 'jo'],
+] as const
+for (const [caseId, first, second] of newTeamRoutes) {
+  const special = missionRoute(caseId, [first, second])
+  assert.ok(special?.boost, `${caseId} has a real named two-person solution`)
+  assert.ok(special!.result.length > 120)
+  assert.equal(missionRoute(caseId, [first]), null)
+}
+assert.ok(missionReaction('drift', 'frog-serum').line.includes('Dr. Frog'))
+assert.ok(missionReaction('veda', 'granny-shuttle').line.includes('woman'))
+{
+  const template = startFullAcademy('biotech', 33)
+  // Seed 33 opens index 12 (frog-serum) on day four in the 24-card deck.
+  let night: AcademyRun = { ...template, day: 4, phase: 'dispatch' }
+  assert.ok(incidentsFor(night).some((mission) => mission.id === 'frog-serum'))
+  assert.equal(selectMissionApproach(night, 'frog-serum', 'investigate'), night)
+  night = assignPlayerCase(night, 'frog-serum')
+  const rescueOdds = dispatchChance(night, 'frog-serum', [])
+  const investigation = selectMissionApproach(
+    night,
+    'frog-serum',
+    'investigate',
+  )
+  assert.equal(investigation.missionApproach, 'investigate')
+  assert.ok(rescueOdds >= dispatchChance(investigation, 'frog-serum', []))
+  assert.equal(missionSecretFor(investigation, 'frog-serum'), null)
+  assert.equal(
+    selectMissionApproach(investigation, 'monorail', 'investigate'),
+    investigation,
+  )
+  assert.equal(
+    restoreAcademy({
+      ...investigation,
+      missionApproach: 'erase',
+    }),
+    null,
+  )
+  assert.equal(restoreAcademy({ ...night, missionClues: ['not-real'] }), null)
+  const prepared = { ...night, missionClues: ['mirror-court'] }
+  assert.ok(missionSecretFor(prepared, 'frog-serum'))
+  assert.ok(
+    dispatchChance(prepared, 'frog-serum', []) >=
+      dispatchChance(night, 'frog-serum', []),
+  )
+  let successfulInvestigation: AcademyRun | undefined
+  let solvedSecret: AcademyRun | undefined
+  for (let offset = 0; offset < 36; offset++) {
+    const candidate = { ...night, seed: 33 + offset * 24 }
+    const investigated = resolveDispatch(
+      selectMissionApproach(candidate, 'frog-serum', 'investigate'),
+    )
+    if (
+      !successfulInvestigation &&
+      investigated.reports.find(
+        (report) => report.caseId === 'frog-serum' && report.grade !== 'failed',
+      )
+    ) {
+      successfulInvestigation = investigated
+    }
+    const secretRun = resolveDispatch({
+      ...candidate,
+      missionClues: ['mirror-court'],
+    })
+    if (
+      !solvedSecret &&
+      secretRun.reports.some(
+        (report) =>
+          report.caseId === 'frog-serum' &&
+          report.text.includes('POWER SECRET:'),
+      )
+    )
+      solvedSecret = secretRun
+    if (successfulInvestigation && solvedSecret) break
+  }
+  assert.ok(successfulInvestigation, 'investigation can succeed')
+  assert.ok(successfulInvestigation!.missionClues?.includes('frog-serum'))
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(successfulInvestigation))))
+  assert.ok(solvedSecret, 'prior evidence plus matching power reveals secret')
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(solvedSecret))))
+  const reset = assignPlayerCase(investigation, 'ghost-ticket')
+  assert.equal(
+    reset,
+    investigation,
+    'cannot switch to a mission not offered tonight',
+  )
+  const reroute = assignPlayerCase(
+    investigation,
+    incidentsFor(investigation)[1]!.id,
+  )
+  assert.equal(reroute.missionApproach, 'rescue')
+  assert.equal(
+    restoreAcademy(JSON.parse(JSON.stringify(reroute)))?.playerCaseId,
+    reroute.playerCaseId,
+  )
+  const previousDeck = {
+    ...template,
+    incidentDeckVersion: 2 as const,
+    missionClues: undefined,
+  }
+  assert.equal(incidentDeck(previousDeck).length, 12)
+  assert.ok(restoreAcademy(JSON.parse(JSON.stringify(previousDeck))))
 }
 
 // Opening dramatic contract: two monologue nights, then two emergencies and

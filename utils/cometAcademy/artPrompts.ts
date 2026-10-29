@@ -1,5 +1,6 @@
 import { CAST_LOOKS, DEAN_LOOK, TEAM_LOOKS, castLook } from './castLooks'
 import { IDENTITY_ARCS } from './identityArcs'
+import { EXPANDED_MISSIONS } from './expandedNightCases'
 
 // Krea 2 prompts for every Capes & Tassels picture slot still waiting for a
 // render, keyed by the asset key in artSlots.ts. Each names only what is
@@ -304,6 +305,13 @@ const SCENE_PROMPTS: Record<string, string> = {
 /** Every authored Krea 2 prompt, by art key; MEDIUM is appended once here. */
 export const PROM_ART_PROMPTS: Record<string, string> = {
   ...identityPrompts,
+  // Prompts are registered for jobs; this is NOT evidence of painted delivery.
+  ...Object.fromEntries(
+    EXPANDED_MISSIONS.map((mission) => [
+      `incidents/${mission.incident.id}`,
+      paint(`${mission.incident.art} ${mission.briefing}`),
+    ]),
+  ),
   ...Object.fromEntries(
     Object.entries(SCENE_PROMPTS).map(([key, text]) => [key, paint(text)]),
   ),

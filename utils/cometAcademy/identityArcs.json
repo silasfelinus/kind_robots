@@ -1954,7 +1954,7 @@
         "alias": "Zuzu, Koala Assassin",
         "focus": "precision trickster",
         "stats": {
-          "might": 2,
+          "might": 5,
           "speed": 5,
           "smarts": 3,
           "heart": 3,

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { GAME_LINK_PREVIEWS, gameLinkPreviewMeta } from '../gameLinkPreview'
 
@@ -22,4 +22,24 @@ assert.equal(
 )
 assert.equal(meta?.twitterCard, 'summary_large_image')
 assert.equal(gameLinkPreviewMeta('nope', 'https://x.test'), null)
+assert.equal(
+  gameLinkPreviewMeta('aquarium', 'https://kindrobots.org')?.ogUrl,
+  'https://kindrobots.org/play/aquarium/browse',
+)
+
+// Every previewed page must actually call gameLinkPreviewMeta with its slug.
+const pageFor: Record<string, string> = {
+  aquarium: 'pages/play/aquarium/browse/index.vue',
+  'butterfly-gallery': 'pages/butterfly-gallery.vue',
+  mandarin: 'pages/play/mandarin/index.vue',
+  arcade: 'pages/play/arcade/index.vue',
+}
+for (const slug of Object.keys(GAME_LINK_PREVIEWS)) {
+  const file = pageFor[slug] ?? `pages/play/${slug}.vue`
+  const src = readFileSync(join(process.cwd(), file), 'utf8')
+  assert.ok(
+    src.includes(`'${slug}'`) && src.includes('gameLinkPreviewMeta'),
+    `${slug}: ${file} does not wire its link preview`,
+  )
+}
 console.log('game link preview checks passed')

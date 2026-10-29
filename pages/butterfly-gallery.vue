@@ -666,6 +666,13 @@ import {
   butterflyGridColumns,
   type ButterflyGalleryOrientation,
 } from '@/stores/helpers/butterflyGalleryViewSettings'
+
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'butterfly-gallery',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 import { useUserStore } from '@/stores/userStore'
 import {
   computeButterflyFunnelDropPlan,

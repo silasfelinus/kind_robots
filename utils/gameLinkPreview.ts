@@ -3,6 +3,8 @@ export interface GameLinkPreview {
   description: string
   /** Root-relative path under /public; social crawlers need raster, not SVG. */
   image: string
+  /** Page path when it is not `/play/<slug>`. */
+  path?: string
 }
 
 export const FALLBACK_PREVIEW_IMAGE = '/icon-512x512.png'
@@ -73,6 +75,33 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Draw a card, shape the land and see what the road asks of you. A free card journey in your browser.',
     image: '/shifting-lands/cards/one-place-by-the-fire.webp',
   },
+  'zuzu-ghost-trail': {
+    title: 'Zuzu Ghost Trail | Kind Robots',
+    description:
+      'Follow a koala through a haunted trail of lantern light. A free arcade cabinet in your browser.',
+    image: '/crystal-street/scenes/deck-paranormal-ghost-light.webp',
+  },
+  aquarium: {
+    title: 'Cthulhuquarium | Public Tanks | Kind Robots',
+    description:
+      'Browse tanks of strange, friendly deep-sea creatures built by players. Free to look around, no account needed.',
+    image: '/cthulhuquarium-front/hero.webp',
+    path: '/play/aquarium/browse',
+  },
+  'butterfly-gallery': {
+    title: 'Butterfly Gallery | Kind Robots',
+    description:
+      'A gallery of butterflies and kind robots, drifting in motion. Free to browse in your browser.',
+    image: '/butterfly-gallery-motion/butterfly-loop.webp',
+    path: '/butterfly-gallery',
+  },
+  mandarin: {
+    title: 'Mandarin Tutor | Kind Robots',
+    description:
+      'Practise Mandarin sounds, words and tones with a patient robot tutor. Free to try in your browser.',
+    image: FALLBACK_PREVIEW_IMAGE,
+    path: '/play/mandarin',
+  },
   arcade: {
     title: 'Kind Robots Arcade | Free Browser Games',
     description:
@@ -98,7 +127,7 @@ export function gameLinkPreviewMeta(slug: string, origin: string) {
     ogTitle: p.title,
     ogDescription: p.description,
     ogType: 'website' as const,
-    ogUrl: `${base}/play/${slug}`,
+    ogUrl: `${base}${p.path ?? `/play/${slug}`}`,
     ogImage: image,
     twitterCard: 'summary_large_image' as const,
     twitterTitle: p.title,

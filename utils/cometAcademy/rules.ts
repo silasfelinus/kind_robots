@@ -1733,6 +1733,16 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
       scene:
         'At the end of week one, the faculty projects a prom-night disaster simulation. Real graduation is still weeks away.',
     }
+  const morningReport = run.reports.find(
+    (report) =>
+      report.names.includes('YOU') &&
+      expandedMissionFor(report.caseId)?.morning,
+  ) ?? run.reports.find(
+    (report) => expandedMissionFor(report.caseId)?.morning,
+  )
+  const morningMemory = morningReport
+    ? expandedMissionFor(morningReport.caseId)?.morning
+    : null
   return {
     ...run,
     phase: [2, 3].includes(run.flowVersion ?? 0) ? 'map' : 'dispatch',
@@ -1743,7 +1753,9 @@ export function nextSchoolDay(run: AcademyRun): AcademyRun {
     assignments: [],
     reports: [],
     scene:
-      run.patrolHistory?.at(-1)?.day === run.day
+      morningMemory
+        ? `The next bell rings. ${morningMemory} Last night, the outcome was recorded as ${morningReport!.grade}.`
+        : run.patrolHistory?.at(-1)?.day === run.day
         ? `The next bell rings. Your overnight decision has become a morning argument: ${run.reports.find((report) => report.caseId.startsWith('patrol-'))?.text ?? 'The neighborhood remembers who came.'}`
         : run.missionClues?.length &&
             run.reports.some((report) => report.text.includes('casebook'))

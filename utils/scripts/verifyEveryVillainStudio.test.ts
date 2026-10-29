@@ -9,12 +9,15 @@ import {
 import {
   availableMove,
   endTurn,
+  fireSelected,
+  moveSelected,
+  aliasFor,
   previewShot,
   trainingState,
 } from '../everyVillainTactics/training'
 import { lineOfSight, tileAt } from '../everyVillainTactics/combat'
 
-assert.equal(STAGE_PRESETS.length, 4)
+assert.equal(STAGE_PRESETS.length, 5)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),
@@ -92,6 +95,86 @@ assert.deepEqual(
 assert.equal(sealed.units[3]!.burrowTarget, null)
 assert.ok(sealed.units[3]!.hp === 1, 'Blocked burrowers remain one-hit enemies')
 
+// The powered lieutenant is separate from the minor one-hit species captain.
+// This is one executable lair vignette, NOT 48 delivered boss encounters.
+const quarry = clonePreset('quarry-lieutenant')
+assert.equal(quarry.encounter, 'quarry-lieutenant')
+assert.equal(quarry.spawns.find((spawn) => spawn.id === 'pip')?.x, 5)
+const quarryFight = trainingState(99, quarry)
+const boss = quarryFight.units.find((unit) => unit.lieutenantName)!
+const minions = quarryFight.units.filter((unit) => unit.henchmanType === 'burrow')
+assert.equal(aliasFor(boss), 'Mags Hardpan')
+assert.equal(boss.identity, 'accident-earth')
+assert.equal(boss.hp, 4)
+assert.equal(boss.maxHp, 4)
+assert.equal(boss.henchmanType, undefined)
+assert.equal(minions.length, 2)
+assert.equal(minions[0]!.henchmanName, 'Foreman Thumpkin')
+assert.ok(minions.every((unit) => unit.hp === 1 && unit.maxHp === 1))
+endTurn(quarryFight)
+assert.deepEqual(boss.seismicTarget, { x: 0, y: 2 })
+assert.equal(boss.seismicChargeHp, 4)
+assert.ok(minions.every((unit) => unit.burrowTarget))
+const quarryReplay = trainingState(99, quarry)
+endTurn(quarryReplay)
+assert.deepEqual(
+  quarryReplay.units.find((unit) => unit.lieutenantName)?.seismicTarget,
+  boss.seismicTarget,
+  'lieutenant target must replay deterministically',
+)
+
+const quake = trainingState(99, quarry)
+quake.units.filter((unit) => unit.henchmanType).forEach((unit) => {
+  unit.hp = 0
+})
+endTurn(quake)
+const quakeBoss = quake.units.find((unit) => unit.lieutenantName)!
+const victim = quake.units.find((unit) =>
+  unit.team === 'squad' &&
+  unit.x === quakeBoss.seismicTarget?.x &&
+  unit.y === quakeBoss.seismicTarget?.y,
+)!
+const victimHp = victim.hp
+endTurn(quake)
+assert.equal(victim.hp, victimHp - 1, 'warning resolves as a real one-HP quake')
+assert.equal(quakeBoss.seismicTarget, null, 'seismic warning clears after release')
+
+const dodge = trainingState(99, quarry)
+dodge.units.filter((unit) => unit.henchmanType).forEach((unit) => {
+  unit.hp = 0
+})
+endTurn(dodge)
+const dodged = dodge.units.find((unit) => unit.id === 'hattie')!
+dodge.selected = dodged.id
+assert.equal(availableMove(dodge, { x: 2, y: 2 }), true)
+assert.ok(moveSelected(dodge, { x: 2, y: 2 }), 'player can dodge the marked area')
+const safeHp = dodged.hp
+endTurn(dodge)
+assert.equal(dodged.hp, safeHp, 'relocating outside the marked area prevents quake damage')
+
+let interrupted = false
+for (let seed = 1; seed < 96 && !interrupted; seed++) {
+  const counter = trainingState(seed, quarry)
+  counter.units.filter((unit) => unit.henchmanType).forEach((unit) => {
+    unit.hp = 0
+  })
+  endTurn(counter)
+  const lieutenant = counter.units.find((unit) => unit.lieutenantName)!
+  const marksman = counter.units.find((unit) => unit.id === 'hattie')!
+  assert.ok(previewShot(marksman, lieutenant, counter.map).hit > 0)
+  counter.selected = marksman.id
+  const fired = fireSelected(counter, lieutenant)
+  assert.ok(fired, 'normal attack remains legal during drumhead counterplay')
+  if (lieutenant.hp === 4) continue
+  const hp = marksman.hp
+  endTurn(counter)
+  assert.equal(lieutenant.seismicTarget, null)
+  assert.equal(marksman.hp, hp, 'hit on a marked drum cancels the queued quake')
+  assert.ok(counter.events.some((event) => event.includes('loses the downbeat')))
+  interrupted = true
+}
+assert.ok(interrupted, 'at least one reproducible seed hits the boss during charge')
+
 const modified = paintStage(quad, { x: 2, y: 1 }, 'wall')
 assert.equal(tileAt(modified.map, { x: 2, y: 1 }).wall, true)
 assert.equal(
@@ -164,6 +247,9 @@ assert.match(store, /trainingState\(\s*0x53a1b7,\s*isPlaytest\.value/)
 assert.match(page, /data-testid="tactics-burrow-warning"/)
 assert.match(page, /data-testid="studio-encounter"/)
 assert.match(store, /isBurrowWarning/)
+assert.match(store, /isSeismicWarning/)
+assert.match(page, /data-testid="tactics-seismic-warning"/)
+assert.match(page, /Quarry lieutenant/)
 console.log(
   'Every Villain Studio: preset maps, paint, spawns, LOS, timer and real-rules playtest verified.',
 )

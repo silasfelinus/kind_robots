@@ -33,7 +33,7 @@
           v-for="tileRoom in rooms"
           :key="tileRoom.id"
           type="button"
-          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-white"
+          class="relative z-10 min-h-0 min-w-0 rounded-none border text-center focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
           :class="
             world.darkHouse.current === tileRoom.id
               ? 'border-[#f5d89a] bg-[#655179]/45 text-white'

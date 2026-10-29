@@ -89,6 +89,13 @@
                   @click="store.click(cell)"
                 >
                   <span
+                    v-if="store.isBurrowWarning(cell)"
+                    class="evt-burrow-ring"
+                    data-testid="tactics-burrow-warning"
+                    aria-hidden="true"
+                    >◉</span
+                  >
+                  <span
                     v-if="store.tileInfoAt(cell) === 'cover'"
                     class="evt-cover"
                     aria-hidden="true"
@@ -137,7 +144,12 @@
                     }"
                   >
                     <span class="evt-card-art">
-                      <span class="evt-crest" aria-hidden="true">✦</span>
+                      <span class="evt-crest" aria-hidden="true">{{
+                        displayUnitAt(store.state, cell)?.henchmanType ===
+                        'burrow'
+                          ? '♢'
+                          : '✦'
+                      }}</span>
                       <span class="evt-initials">{{
                         initials(displayUnitAt(store.state, cell)!)
                       }}</span>
@@ -584,6 +596,14 @@
                 ▶ PLAYTEST THIS MAP
               </button>
               <small
+                v-if="store.draft.encounter === 'warren-wreckers'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren
+                Wreckers. Marked dust rings erupt on the following enemy turn,
+                unless occupied.
+              </small>
+              <small
                 >Uses existing seeded combat AI, pathfinding, cover, hit
                 percentages and movement costs. Private in-browser draft; no
                 public publishing.</small
@@ -675,23 +695,63 @@
               placeholder="Search codenames or names…"
             />
           </label>
-          <div class="evt-roster-grid kr-scroll">
-            <button
-              v-for="person in visibleRoster"
-              :key="person.signature"
-              type="button"
-              class="evt-roster-card"
-              @click="store.chooseLead(person.signature)"
-            >
-              <span class="evt-roster-art" aria-hidden="true">
-                <span>{{ person.hero.alias.slice(0, 2).toUpperCase() }}</span>
-              </span>
-              <strong>{{ person.hero.alias }}</strong>
-              <small>{{ person.realName }}</small>
-              <span class="evt-roster-type">{{
-                person.signature.replace('-', ' / ').toUpperCase()
-              }}</span>
-            </button>
+          <div class="evt-roster-layout">
+            <div class="evt-roster-grid kr-scroll" aria-label="Browse all 48 powers">
+              <button
+                v-for="person in visibleRoster"
+                :key="person.signature"
+                type="button"
+                class="evt-roster-card"
+                :class="{ inspected: inspectedSignature === person.signature }"
+                :aria-pressed="inspectedSignature === person.signature"
+                @click="inspectedSignature = person.signature"
+              >
+                <span class="evt-roster-art" aria-hidden="true">
+                  <span>{{ person.hero.alias.slice(0, 2).toUpperCase() }}</span>
+                </span>
+                <strong>{{ person.hero.alias }}</strong>
+                <small>{{ person.realName }}</small>
+                <span class="evt-roster-type">{{
+                  person.signature.replace('-', ' / ').toUpperCase()
+                }}</span>
+              </button>
+            </div>
+            <aside class="evt-campaign-dossier" data-testid="tactics-campaign-dossier" aria-live="polite">
+              <span class="evt-overline">CAMPAIGN FILE / AUTHORING PREVIEW</span>
+              <h3>{{ inspectedPerson.hero.alias }}</h3>
+              <p class="evt-dossier-realname">{{ inspectedPerson.realName }}</p>
+              <div class="evt-dossier-entry">
+                <span>01 · POWER ORIGIN</span>
+                <h4>{{ inspectedCampaign.opening.title }}</h4>
+                <small>{{ inspectedCampaign.opening.venue }}</small>
+                <p>{{ inspectedCampaign.opening.inciting }}</p>
+                <p class="evt-dossier-hook">{{ inspectedCampaign.opening.powerUse }}</p>
+              </div>
+              <div class="evt-dossier-entry">
+                <span>VILLAIN PATH · PRIVATE LAIR</span>
+                <h4>{{ inspectedCampaign.lair.title }}</h4>
+                <small>{{ inspectedCampaign.lair.venue }}</small>
+                <p>{{ inspectedCampaign.lair.arena }}</p>
+                <p class="evt-dossier-hook">{{ inspectedCampaign.lair.objective }}</p>
+              </div>
+              <div class="evt-dossier-entry">
+                <span>SECOND-IN-COMMAND · 4 HP DESIGN</span>
+                <h4>{{ inspectedCampaign.lieutenant.name }}</h4>
+                <p>{{ inspectedCampaign.lieutenant.look }}</p>
+                <p class="evt-dossier-hook">{{ inspectedCampaign.lieutenant.power }}</p>
+                <small>COUNTER: {{ inspectedCampaign.lieutenant.counter }}</small>
+              </div>
+              <p class="evt-dossier-status">
+                Henchmen: {{ inspectedHenchmen.name }} · Concept plans only.
+                These 96 stages and 48 lieutenants are not yet playable.
+              </p>
+              <button
+                type="button"
+                class="evt-dossier-select"
+                data-testid="tactics-dossier-select"
+                @click="store.chooseLead(inspectedSignature)"
+              >ASSIGN AS SQUAD LEAD →</button>
+            </aside>
           </div>
         </div>
       </div>
@@ -700,7 +760,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { IDENTITY_CAMPAIGN_STAGES } from '~/utils/cometAcademy/identityCampaignStages'
+import { VILLAIN_HENCHMEN } from '~/utils/cometAcademy/villainHenchmen'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import {
   useEveryVillainTacticsStore,
@@ -709,6 +771,7 @@ import {
 import {
   actorAt,
   displayUnitAt,
+  aliasFor,
   personFor,
   type Cell,
   type Unit,
@@ -772,6 +835,19 @@ const meterValues = computed(() => ({
   rivals: store.enemies.reduce((total, unit) => total + unit.hp, 0),
   round: store.state.turn,
 }))
+const inspectedSignature = ref(store.leadSignature)
+const inspectedPerson = computed(
+  () => store.roster.find((person) => person.signature === inspectedSignature.value)
+    ?? store.roster[0]!,
+)
+const inspectedCampaign = computed(
+  () => IDENTITY_CAMPAIGN_STAGES.find((entry) => entry.signature === inspectedSignature.value)
+    ?? IDENTITY_CAMPAIGN_STAGES[0]!,
+)
+const inspectedHenchmen = computed(
+  () => VILLAIN_HENCHMEN.find((entry) => entry.signature === inspectedSignature.value)
+    ?? VILLAIN_HENCHMEN[0]!,
+)
 const visibleRoster = computed(() => {
   const q = store.rosterSearch.toLowerCase().trim()
   return store.roster.filter(
@@ -783,7 +859,7 @@ const visibleRoster = computed(() => {
   )
 })
 function unitName(unit: Unit): string {
-  return personFor(unit).hero.alias
+  return aliasFor(unit)
 }
 function targetName(id: string): string {
   const target = store.enemies.find((unit) => unit.id === id)
@@ -794,6 +870,14 @@ function initials(unit: Unit): string {
 }
 function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
+  if (store.isBurrowWarning(cell))
+    return (
+      'BURROW WARNING, dust ring at column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Occupy to block emergence.'
+    )
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
   if (store.tileInfoAt(cell) === 'wall')
@@ -1064,6 +1148,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 2px solid #d5cbd1;
   box-shadow: 4px -3px 0 #242137;
   clip-path: polygon(0 14%, 90% 0, 100% 80%, 8% 100%);
+}
+.evt-tile.burrow-warning {
+  box-shadow:
+    inset 0 0 0 3px #ffc467,
+    0 0 12px #ef6b2a;
+  z-index: 3;
+}
+.evt-burrow-ring {
+  position: absolute;
+  inset: 5%;
+  display: grid;
+  place-items: center;
+  color: #ffd092;
+  border: 2px dashed #ffd092;
+  border-radius: 50%;
+  background: #9f422c7d;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.5cqw, 1.4rem);
+  pointer-events: none;
 }
 .evt-crosshair {
   position: absolute;
@@ -1510,6 +1613,85 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   min-height: 0;
   gap: 10px;
 }
+.evt-roster-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 1fr);
+  flex: 1;
+  gap: 12px;
+  min-height: 0;
+}
+.evt-roster-layout .evt-roster-grid {
+  min-height: 0;
+  overflow-y: auto;
+}
+.evt-roster-card.inspected {
+  border-color: #ffdf96;
+  box-shadow: inset 0 0 0 2px #ffdf9680;
+}
+.evt-campaign-dossier {
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid #b4bcdd77;
+  border-radius: 10px;
+  background: radial-gradient(ellipse at top, #463351, #17203c 73%);
+  padding: clamp(10px, 1.6cqw, 18px);
+  color: #fff5dc;
+}
+.evt-campaign-dossier h3 {
+  font: 900 clamp(1.15rem, 2.1cqw, 2rem) Impact, sans-serif;
+  margin-top: 6px;
+  color: #ffd99b;
+}
+.evt-dossier-realname {
+  color: #c5d7ed;
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+.evt-dossier-entry {
+  border-top: 1px solid #b2bcd35c;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.evt-dossier-entry > span {
+  font-size: 0.65rem;
+  color: #9fddf4;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+.evt-dossier-entry h4 { font-weight: 900; color: #ffe1a5; font-size: 0.9rem; }
+.evt-dossier-entry p, .evt-dossier-entry small {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #d8def1;
+}
+.evt-dossier-entry .evt-dossier-hook { color: #f9cbab; }
+.evt-dossier-status {
+  padding: 8px 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: #bbcbda;
+}
+.evt-dossier-select {
+  width: 100%;
+  border-radius: 8px;
+  background: #f5d28f;
+  color: #161d33;
+  border: 1px solid #fff0cb;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 11px;
+}
+@container (max-width: 650px) {
+  .evt-roster-layout { display: flex; flex-direction: column; }
+  .evt-roster-layout .evt-roster-grid {
+    flex: 0 0 min(37%, 220px);
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  .evt-campaign-dossier { flex: 1; }
+}
+
 .evt-roster-head {
   display: flex;
   align-items: center;

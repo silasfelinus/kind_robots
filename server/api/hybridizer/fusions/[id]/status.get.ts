@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       (fusion.isPublic ? image.isPublic === true :
         image.userId === fusion.creatorUserId || image.userId === auth?.user.id)
     const imagePath = accessible
-      ? hybridizerDeliverableUrl(image.imagePath)
+      ? hybridizerDeliverableUrl(image?.imagePath)
       : null
     const status = hybridizerQueueState(job?.status ?? null, imagePath)
     if (fusion.status !== status ||

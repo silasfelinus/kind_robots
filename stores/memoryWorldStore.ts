@@ -1212,9 +1212,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function finishDarkDuel(duel: DarkBriarDuel): void {
-    const awarded = grantMemoryRewardOnce(dark.value.duels, duel.key, state.value, {
-      lanterns: 1,
-    })
+    const awarded = grantMemoryRewardOnce(
+      dark.value.duels,
+      duel.key,
+      state.value,
+      {
+        lanterns: 1,
+      },
+    )
     closeDarkDuel(
       awarded
         ? duel.victory
@@ -1581,10 +1586,15 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (board?.outcome === 'escaped') {
       const rewardKey = minefieldRewardKey(next.size)
       if (
-        grantMemoryRewardOnce(state.value.completedEncounters, rewardKey, state.value, {
-          lanterns: 1,
-          wildflowers: next.size === 10 ? 2 : 1,
-        })
+        grantMemoryRewardOnce(
+          state.value.completedEncounters,
+          rewardKey,
+          state.value,
+          {
+            lanterns: 1,
+            wildflowers: next.size === 10 ? 2 : 1,
+          },
+        )
       ) {
         state.value.status =
           'The archive door yields. You earn a lantern and flowers; the finding is remembered.'

@@ -87,7 +87,10 @@ assert.match(finalBranches[3]!.cost, /cannot be invented/)
 
 for (const beat of [...entryBranches, ...middleBranches, ...finalBranches]) {
   assert.ok(beat && beat.text.length >= 125 && beat.cost.length >= 50)
-  assert.doesNotMatch(`${beat.title} ${beat.text} ${beat.cost}`, /world (?:16|sixteen)|floor (?:one|two|three) of three/i)
+  assert.doesNotMatch(
+    `${beat.title} ${beat.text} ${beat.cost}`,
+    /world (?:16|sixteen)|floor (?:one|two|three) of three/i,
+  )
 }
 assert.equal(houseFloorBeat('HD-02', entry, {}), null)
 assert.equal(houseFloorBeat('HD-25', null, {}), null)
@@ -106,7 +109,10 @@ for (const sample of [
 
 const stage = readFileSync('components/memory-dungeon/house-stage.vue', 'utf8')
 assert.match(stage, /data-testid="memory-house-floor-story"/)
-assert.match(stage, /houseFloorBeat\(room\.value\?\.id, progress\.value, world\.state\.sceneChoices\)/)
+assert.match(
+  stage,
+  /houseFloorBeat\(room\.value\?\.id, progress\.value, world\.state\.sceneChoices\)/,
+)
 assert.match(stage, /kr-scroll min-h-0 overflow-y-auto/)
 
 console.log(

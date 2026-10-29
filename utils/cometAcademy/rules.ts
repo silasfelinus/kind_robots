@@ -1369,7 +1369,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     : null
   const patrolChoice = patrol
     ? patrolOptionsFor(run, patrol.zone).find(
-        (choice) => choice.id === patrol.choiceId,
+        (choice) => choice.id === patrol?.choiceId,
       )
     : null
   const zone = patrol

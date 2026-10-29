@@ -1107,10 +1107,8 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const savedDecisions =
     v.decisions && typeof v.decisions === 'object' ? v.decisions : {}
   const shortcuts: Record<string, readonly HouseRoomId[]> = {}
-  if (savedDecisions['HD-10'] === 'manifest')
-    shortcuts['HD-10'] = ['HD-25']
-  if (savedDecisions['HD-26'] === 'testify')
-    shortcuts['HD-26'] = ['HD-34']
+  if (savedDecisions['HD-10'] === 'manifest') shortcuts['HD-10'] = ['HD-25']
+  if (savedDecisions['HD-26'] === 'testify') shortcuts['HD-26'] = ['HD-34']
   const { current, visited: visitedRooms } = reachableHouseVisits(
     visited,
     savedCurrent,

@@ -5,17 +5,17 @@ tabKey: capes
 label: Capes Bible
 title: Capes Art Bible
 subtitle: The style gate for Prom of Doom and Every Villain Tactics.
-description: Start with six controlled character and scene benchmarks across Krea 2, Arthemy, Nova Comic, Illustrij, DreamShaper XL and Unstable Diffusers. See the real queued ArtJobs, compare delivered private images, score mature Western animation quality, and inspect the exact checkpoint-specific prompts.
-summary: Shared 36-image style bakeoff.
+description: Compare eight controlled hero, villain, henchman, lieutenant, story, tactical, map and portrait subjects across six checkpoints. Explore 48 characters with their hero/villain posters, one-hit crews, lieutenants, and production plan. See only real ArtJobs and attached art.
+summary: Shared 48-cell style test and 48-character art atlas.
 icon: kind-icon:gem
 route: /admin/capes
-sort: 70
+sort: 73
 requiredRole: ADMIN
 tutorial:
   title: Capes Bible · Style Check
   body: >-
     This is the first gate for both Prom of Doom and Every Villain Tactics'
-    shared art direction. Select one of six identical scene concepts, then
+    shared art direction. Start with Style Check, Cast & Crews or Asset Plans. Select one of eight scene concepts, then
     compare its six checkpoint outputs side by side. Each subject has the
     same fixed seed across all engines; prose models use physical scene
     descriptions and Illustrious/SDXL checkpoints use their appropriate

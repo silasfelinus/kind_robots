@@ -1198,6 +1198,7 @@
                 >
                   <strong
                     >{{ line.name }}
+                    <small v-if="line.role">· the {{ line.role }}</small>
                     <small v-if="line.emotion !== 'neutral'"
                       >· {{ line.emotion }}</small
                     ></strong

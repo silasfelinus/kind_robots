@@ -24,7 +24,10 @@ import {
   choiceEffect,
   emptyScript,
   removeLine,
+  setBranch,
+  setChoiceTarget,
   setChoices,
+  setNext,
   updateLine,
 } from '../everyVillainTactics/sceneEditor'
 import { exportStage, importStage } from '../everyVillainTactics/stageShare'
@@ -41,11 +44,11 @@ import {
 
 const boiler = clonePreset('boiler-room')
 const script = boiler.script!
-assert.equal(script.scenes.length, 6)
+assert.equal(script.scenes.length, 7)
 assert.deepEqual(scriptProblems(script, boiler), [])
 assert.deepEqual(stageProblems(boiler), [])
 const kinds = script.scenes.map((s) => s.trigger.kind)
-for (const kind of ['opening', 'turn', 'flag', 'kill', 'closing'])
+for (const kind of ['opening', 'turn', 'flag', 'kill', 'faction', 'closing'])
   assert.ok(kinds.includes(kind as never), kind)
 
 // ---- Graph validator ------------------------------------------------------
@@ -59,7 +62,7 @@ assert.match(
   problems(
     one({
       ...base,
-      nodes: base.nodes.map((n) => (n.id === 'l2' ? { ...n, next: 'zz' } : n)),
+      nodes: base.nodes.map((n) => (n.id === 'l1' ? { ...n, next: 'zz' } : n)),
     }),
   ),
   /missing line zz/,
@@ -322,6 +325,119 @@ tooMany.stage.script.scenes = Array.from({ length: 13 }, (_, i) => ({
 }))
 assert.equal(importStage(JSON.stringify(tooMany)).ok, false)
 
+// ---- Conditional branches, roles and the faction trigger -------------------
+const open = script.scenes.find((x) => x.id === 'boiler-opening')!
+assert.deepEqual(
+  walkScene(open, [], { perspective: 'hero' })!.nodes.map((n) => n.id),
+  ['l1', 'l2', 'l3'],
+)
+assert.deepEqual(
+  walkScene(open, [], { perspective: 'villain' })!.nodes.map((n) => n.id),
+  ['l1', 'l2', 'l2v', 'l3'],
+  'the villain viewpoint hears a different line',
+)
+assert.equal(open.nodes.find((n) => n.id === 'l2')!.role, 'villain')
+const win = script.scenes.find((x) => x.id === 'boiler-win')!
+const flagged = trainingState(0x51, boiler)
+assert.deepEqual(
+  walkScene(win, [], { state: flagged })!.nodes.map((n) => n.id),
+  ['w1', 'w2'],
+)
+flagged.flags = ['plug-hatches']
+assert.deepEqual(
+  walkScene(win, [], { state: flagged })!.nodes.map((n) => n.id),
+  ['w1', 'w3', 'w2'],
+  'the earlier choice changes the closing',
+)
+const crowd = trainingState(0x51, boiler)
+const factionTrigger = { kind: 'faction', team: 'rival', lead: 2 } as const
+assert.equal(triggerHolds(factionTrigger, crowd, boiler), false)
+crowd.units.find((u) => u.id === 'priya')!.hp = 0
+crowd.units.find((u) => u.id === 'hattie')!.hp = 0
+assert.equal(triggerHolds(factionTrigger, crowd, boiler), true)
+assert.match(
+  problems(
+    one({
+      ...base,
+      nodes: base.nodes.map((n) =>
+        n.id === 'l3'
+          ? {
+              ...n,
+              branch: {
+                when: { kind: 'flag', flag: 'nobody-sets-this' },
+                then: null,
+                else: null,
+              },
+            }
+          : n,
+      ),
+    }),
+  ),
+  /checks flag nobody-sets-this/,
+)
+assert.match(
+  problems(
+    one({
+      ...base,
+      nodes: base.nodes.map((n) =>
+        n.id === 'l3'
+          ? {
+              ...n,
+              branch: {
+                when: { kind: 'perspective', perspective: 'hero' },
+                then: 'ghost',
+                else: null,
+              },
+            }
+          : n,
+      ),
+    }),
+  ),
+  /missing line ghost/,
+)
+// Editor: retarget lines and choices, add and remove a branch.
+let graph = addScene(emptyScript(), 'turn')
+const gid = graph.scenes[0]!.id
+graph = addLine(addLine(graph, gid), gid)
+graph = setNext(graph, gid, 'line-1', 'line-3')
+assert.match(scriptProblems(graph, boiler).join(), /line-2 is unreachable/)
+graph = setBranch(graph, gid, 'line-1', {
+  when: { kind: 'alive', unit: 'pip' },
+  then: 'line-2',
+  else: 'line-3',
+})
+assert.deepEqual(scriptProblems(graph, boiler), [])
+const branched = trainingState(1, boiler)
+assert.deepEqual(
+  walkScene(graph.scenes[0]!, [], { state: branched })!.nodes.map((n) => n.id),
+  ['line-1', 'line-2', 'line-3'],
+)
+branched.units.find((u) => u.id === 'pip')!.hp = 0
+assert.deepEqual(
+  walkScene(graph.scenes[0]!, [], { state: branched })!.nodes.map((n) => n.id),
+  ['line-1', 'line-3'],
+)
+graph = setBranch(graph, gid, 'line-1', null)
+assert.equal(graph.scenes[0]!.nodes[0]!.next, 'line-2')
+graph = setChoices(graph, gid, 'line-3', [
+  { label: 'Again', next: null, effects: [] },
+  { label: 'Done', next: null, effects: [] },
+])
+graph = setChoiceTarget(graph, gid, 'line-3', 0, 'line-1')
+assert.match(
+  scriptProblems(graph, boiler).join(),
+  /^$/,
+  'a loop with an exit is fine',
+)
+graph = setChoiceTarget(graph, gid, 'line-3', 1, 'line-1')
+assert.match(scriptProblems(graph, boiler).join(), /softlock/)
+const badCondition = structuredClone(JSON.parse(exportStage(boiler)))
+badCondition.stage.script.scenes[0].nodes[1].branch.when = {
+  kind: 'javascript',
+  body: 'x',
+}
+assert.equal(importStage(JSON.stringify(badCondition)).ok, false)
+
 // ---- UI contracts ------------------------------------------------------------
 const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
@@ -353,5 +469,5 @@ for (const id of [
 assert.doesNotMatch(editor, /localStorage/)
 
 console.log(
-  'Every Villain scenes: graph validator (links, reachability, softlocks, actors, flags, chains), latched triggers, choices with flags/heal, chained scenes, closing outcomes, saves, editor helpers and share codes verified.',
+  'Every Villain scenes: graph validator (links, reachability, softlocks, actors, flags, chains), conditional branches, roles, faction trigger, latched triggers, choices with flags/heal, chained scenes, closing outcomes, saves, editor helpers and share codes verified.',
 )

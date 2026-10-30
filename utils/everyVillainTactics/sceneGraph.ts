@@ -6,6 +6,7 @@
 import { promArt } from '../cometAcademy/artManifest'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { inside, lineOfSight, tileAt, type Point } from './combat'
+import type { Perspective } from './firstBellStory'
 import type { TrainingState } from './training'
 
 export type SceneTeam = 'squad' | 'rival'
@@ -20,6 +21,7 @@ export type SceneTrigger =
   | { kind: 'rescue'; count: number }
   | { kind: 'secret' }
   | { kind: 'objective'; progress: number }
+  | { kind: 'faction'; team: SceneTeam; lead: number }
   | { kind: 'after'; scene: string }
   | { kind: 'flag'; flag: string }
 export type TriggerKind = SceneTrigger['kind']
@@ -28,6 +30,25 @@ export type Emotion =
 export type Camera = 'wide' | 'close' | 'low-angle' | 'over-shoulder'
 export type SceneEffect =
   { kind: 'flag'; flag: string } | { kind: 'heal' } | { kind: 'suppress' }
+/** The speaker's role in this story, shown on the line. */
+export type SceneRole = 'hero' | 'villain' | 'henchman' | 'sidekick'
+/** A state check a branching line evaluates when the scene reaches it. */
+export type SceneCondition =
+  | { kind: 'flag'; flag: string }
+  | { kind: 'perspective'; perspective: Perspective }
+  | { kind: 'alive'; unit: string }
+  | { kind: 'outnumber'; team: SceneTeam }
+export type SceneBranch = {
+  when: SceneCondition
+  then: string | null
+  else: string | null
+}
+export const ROLES: readonly SceneRole[] = [
+  'hero',
+  'villain',
+  'henchman',
+  'sidekick',
+]
 export type SceneChoice = {
   label: string
   next: string | null
@@ -42,6 +63,9 @@ export type SceneNode = {
   text: string
   next: string | null
   choices?: SceneChoice[]
+  role?: SceneRole
+  /** Conditional branch: continue to `then` or `else` from battle state. */
+  branch?: SceneBranch
 }
 export type Scene = {
   id: string
@@ -63,6 +87,7 @@ export const TRIGGER_LABELS: Record<TriggerKind, string> = {
   rescue: 'Civilians rescued',
   secret: 'Secret found',
   objective: 'Objective progress',
+  faction: 'One side outnumbers the other',
   after: 'After another scene',
   flag: 'Story flag set',
 }
@@ -152,6 +177,65 @@ type StageLike = {
   secrets: Point[]
   civilians?: unknown[]
 }
+/** Every line a node can continue to (null ends the scene). */
+export function nodeTargets(node: SceneNode): Array<string | null> {
+  if (node.choices?.length) return node.choices.map((c) => c.next)
+  if (node.branch) return [node.branch.then, node.branch.else]
+  return [node.next]
+}
+function conditionProblem(
+  when: SceneCondition,
+  stage: StageLike,
+  flags: Set<string>,
+): string | null {
+  switch (when.kind) {
+    case 'flag':
+      return flags.has(when.flag)
+        ? null
+        : 'checks flag ' + when.flag + ' that no choice sets.'
+    case 'perspective':
+      return ['hero', 'villain', 'henchman', 'sidekick'].includes(
+        when.perspective,
+      )
+        ? null
+        : 'checks an unknown viewpoint.'
+    case 'alive':
+      return UNIT_IDS.includes(when.unit) &&
+        stage.spawns.some((s) => s.id === when.unit)
+        ? null
+        : 'checks a unit that is not on the stage.'
+    case 'outnumber':
+      return ['squad', 'rival'].includes(when.team)
+        ? null
+        : 'checks an unknown team.'
+    default:
+      return 'has an unknown condition.'
+  }
+}
+export type SceneContext = {
+  state?: Pick<TrainingState, 'units' | 'flags'>
+  perspective?: Perspective
+}
+export function conditionHolds(
+  when: SceneCondition,
+  context: SceneContext,
+): boolean {
+  const units = context.state?.units ?? []
+  const living = (team: SceneTeam) =>
+    units.filter((u) => u.team === team && u.hp > 0).length
+  switch (when.kind) {
+    case 'flag':
+      return !!context.state?.flags?.includes(when.flag)
+    case 'perspective':
+      return context.perspective === when.perspective
+    case 'alive':
+      return units.some((u) => u.id === when.unit && u.hp > 0)
+    case 'outnumber':
+      return (
+        living(when.team) > living(when.team === 'squad' ? 'rival' : 'squad')
+      )
+  }
+}
 /** Graph validation: broken links, unreachable nodes and scenes, softlocks,
  * unknown actors, actors without shipped art and impossible triggers. */
 export function scriptProblems(
@@ -177,8 +261,7 @@ export function scriptProblems(
     if (!nodes.has(scene.start)) issues.push(label + ' has no starting line.')
     if (scene.nodes.length > 30)
       issues.push(label + ' is longer than 30 lines.')
-    const targets = (n: SceneNode) =>
-      n.choices?.length ? n.choices.map((c) => c.next) : [n.next]
+    const targets = nodeTargets
     for (const node of scene.nodes) {
       if (!node.text.trim()) issues.push(label + ' has an empty line.')
       if (node.text.length > 400)
@@ -199,6 +282,16 @@ export function scriptProblems(
         issues.push(
           label + ': ' + node.speaker + ' has no shipped portrait art.',
         )
+      if (node.role !== undefined && !ROLES.includes(node.role))
+        issues.push(label + ' has an unknown role.')
+      if (node.branch && node.choices?.length)
+        issues.push(
+          label + ' line ' + node.id + ' cannot both branch and offer choices.',
+        )
+      if (node.branch) {
+        const why = conditionProblem(node.branch.when, stage, flags)
+        if (why) issues.push(label + ' branch ' + why)
+      }
       if (node.choices && (node.choices.length < 2 || node.choices.length > 3))
         issues.push(label + ' choices need two or three options.')
       for (const choice of node.choices ?? []) {
@@ -318,6 +411,10 @@ function triggerProblems(
         : [label + ' needs that many civilians on the map.']
     case 'objective':
       return count(t.progress, 40) ? [] : [label + ' progress must be 1 to 40.']
+    case 'faction':
+      return count(t.lead, 5) && ['squad', 'rival'].includes(t.team)
+        ? []
+        : [label + ' lead must be 1 to 5 units.']
     case 'after':
       return t.scene !== scene.id && script.scenes.some((s) => s.id === t.scene)
         ? []
@@ -390,6 +487,10 @@ export function triggerHolds(
         )
       return state.turn > trigger.progress
     }
+    case 'faction': {
+      const side = living.filter((u) => u.team === trigger.team).length
+      return side - (living.length - side) >= trigger.lead
+    }
     case 'after':
       return !!state.fired?.includes(seenId(trigger.scene))
     case 'flag':
@@ -442,6 +543,7 @@ export function pendingScriptScene(
 export function walkScene(
   scene: Scene,
   path: readonly number[],
+  context: SceneContext = {},
 ): { nodes: SceneNode[]; effects: SceneEffect[]; done: boolean } | null {
   const nodes = new Map(scene.nodes.map((n) => [n.id, n]))
   const visited: SceneNode[] = []
@@ -459,7 +561,11 @@ export function walkScene(
       step++
       effects.push(...choice.effects)
       at = choice.next
-    } else at = node.next
+    } else if (node.branch)
+      at = conditionHolds(node.branch.when, context)
+        ? node.branch.then
+        : node.branch.else
+    else at = node.next
   }
   return step === path.length ? { nodes: visited, effects, done: true } : null
 }
@@ -471,8 +577,9 @@ export function finishScene(
   state: TrainingState,
   scene: Scene,
   path: readonly number[],
+  perspective?: Perspective,
 ): boolean {
-  const walk = walkScene(scene, path)
+  const walk = walkScene(scene, path, { state, perspective })
   if (!walk?.done || !state.fired || state.fired.includes(seenId(scene.id)))
     return false
   for (const effect of walk.effects) {

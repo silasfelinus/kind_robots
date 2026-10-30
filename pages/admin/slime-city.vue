@@ -16,10 +16,7 @@
           <button
             type="button"
             :class="{ active: lab.view === 'city' }"
-            @click="
-              lab.view = 'city'
-              lab.stop()
-            "
+            @click="lab.showCity()"
           >
             CITY
           </button>
@@ -33,10 +30,7 @@
           <button
             type="button"
             :class="{ active: lab.view === 'cards' }"
-            @click="
-              lab.view = 'cards'
-              lab.stop()
-            "
+            @click="lab.showCards()"
           >
             CARDS
           </button>

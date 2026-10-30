@@ -174,6 +174,38 @@
             <small>{{ person.hero.alias }}</small>
           </button>
         </div>
+        <h3 class="evf-label">Rival foil</h3>
+        <p class="evf-note" data-testid="front-foil-note">{{ foilNote }}</p>
+        <div
+          class="evf-leads"
+          role="radiogroup"
+          aria-label="Rival foil"
+          data-roving="horizontal"
+        >
+          <button
+            v-for="person in store.roster"
+            :key="person.signature"
+            type="button"
+            role="radio"
+            class="evf-lead"
+            :aria-checked="pickedFoil === person.signature"
+            :disabled="!isValidFoil(person.signature, pickedLead)"
+            :aria-label="person.hero.alias + ' as rival, ' + person.realName"
+            :data-testid="'front-foil-' + person.signature"
+            @click="pickedFoil = person.signature"
+          >
+            <img
+              v-if="foilPortrait(person.signature)"
+              :src="foilPortrait(person.signature)!"
+              alt=""
+              loading="lazy"
+            />
+            <span v-else class="evf-art-fallback" aria-hidden="true">{{
+              person.hero.alias.slice(0, 2).toUpperCase()
+            }}</span>
+            <small>{{ person.hero.alias }}</small>
+          </button>
+        </div>
       </div>
 
       <div
@@ -394,7 +426,13 @@
           type="button"
           class="evf-go"
           data-testid="front-begin-story"
-          @click="store.startStory(pickedView, pickedLead)"
+          @click="
+            store.startStory(
+              pickedView,
+              pickedLead,
+              pickedFoil === DEFAULT_FOIL ? null : pickedFoil,
+            )
+          "
         >
           Begin First Bell as {{ leadAlias }} ▸
         </button>
@@ -406,6 +444,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { DEFAULT_FOIL, isValidFoil } from '~/utils/everyVillainTactics/training'
 import {
   ANIMATION_SPEEDS,
   PERSPECTIVE_ART,
@@ -421,6 +460,29 @@ const store = useEveryVillainTacticsStore()
 const root = ref<HTMLElement | null>(null)
 const pickedView = ref<TacticalPerspective>(store.perspective)
 const pickedLead = ref(store.leadSignature)
+const pickedFoil = ref(store.foilSignature ?? DEFAULT_FOIL)
+watch(pickedLead, (lead) => {
+  if (!isValidFoil(pickedFoil.value, lead)) pickedFoil.value = DEFAULT_FOIL
+  if (!isValidFoil(pickedFoil.value, lead))
+    pickedFoil.value =
+      store.roster.find((p) => isValidFoil(p.signature, lead))?.signature ??
+      DEFAULT_FOIL
+})
+const foilPortrait = (signature: string) =>
+  promArt('identities/' + signature + '/outcomes/villain') ??
+  promArt('identities/' + signature + '/student')
+const foilAlias = computed(
+  () =>
+    store.roster.find((p) => p.signature === pickedFoil.value)?.hero.alias ??
+    'the rival',
+)
+const foilNote = computed(() =>
+  pickedFoil.value === DEFAULT_FOIL
+    ? foilAlias.value +
+      ' is First Bell’s written rival lead. Pick anyone else to face them instead; the other two rivals stay.'
+    : foilAlias.value +
+      ' leads the rival patrol with their own role and signature power. The shared First Bell script plays unchanged; a bespoke foil matchup is not written yet.',
+)
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = oneShotStages()
 
@@ -559,6 +621,7 @@ watch(
     confirming.value = null
     pickedView.value = store.perspective
     pickedLead.value = store.leadSignature
+    pickedFoil.value = store.foilSignature ?? DEFAULT_FOIL
     focusScreen()
   },
 )

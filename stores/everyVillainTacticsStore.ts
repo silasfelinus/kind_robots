@@ -6,6 +6,7 @@ import {
   availableMove,
   endTurn,
   exposureAt,
+  isValidFoil,
   fireSelected,
   moveSelected,
   overwatchSelected,
@@ -168,6 +169,8 @@ export const useEveryVillainTacticsStore = defineStore(
     const state = ref(trainingState())
     const perspective = ref<TacticalPerspective>('hero')
     const leadSignature = ref('accident-fire')
+    /** Story rival lead; null keeps First Bell's default. */
+    const foilSignature = ref<string | null>(null)
     const story = ref(createStory())
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
@@ -355,11 +358,17 @@ export const useEveryVillainTacticsStore = defineStore(
       }
     }
     /** New Story: First Bell from the chosen viewpoint and squad lead. */
-    function startStory(view: TacticalPerspective, lead: string) {
+    function startStory(
+      view: TacticalPerspective,
+      lead: string,
+      foil: string | null = null,
+    ) {
       if (!roster.some((u) => u.signature === lead)) return false
+      if (foil && !isValidFoil(foil, lead)) return false
       isPlaytest.value = false
       perspective.value = view
       leadSignature.value = lead
+      foilSignature.value = foil
       reset()
       openScreen(null)
       return true
@@ -380,6 +389,7 @@ export const useEveryVillainTacticsStore = defineStore(
         slot,
         perspective: perspective.value,
         leadSignature: leadSignature.value,
+        foilSignature: foilSignature.value,
         stage: isPlaytest.value ? draft.value : null,
         state: state.value,
         story: story.value,
@@ -394,6 +404,7 @@ export const useEveryVillainTacticsStore = defineStore(
     function applySave(save: EvtSave) {
       perspective.value = save.perspective
       leadSignature.value = save.leadSignature
+      foilSignature.value = save.foilSignature ?? null
       isPlaytest.value = save.mode === 'oneshot'
       if (save.stage) draft.value = structuredClone(save.stage)
       state.value = structuredClone(save.state)
@@ -870,7 +881,7 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value = trainingState(
         0x53a1b7,
         isPlaytest.value ? draft.value : undefined,
-        { lead: leadSignature.value },
+        { lead: leadSignature.value, foil: foilSignature.value ?? undefined },
       )
       story.value = createStory()
       if (isPlaytest.value) story.value.current = null
@@ -885,6 +896,8 @@ export const useEveryVillainTacticsStore = defineStore(
       const valid = roster.some((u) => u.signature === signature)
       if (!valid) return
       leadSignature.value = signature
+      if (foilSignature.value && !isValidFoil(foilSignature.value, signature))
+        foilSignature.value = null
       reset()
       state.value.log =
         'New squad leader assigned. The battle starts at First Bell.'
@@ -1059,6 +1072,7 @@ export const useEveryVillainTacticsStore = defineStore(
       boardCells,
       perspective,
       leadSignature,
+      foilSignature,
       story,
       moment,
       chooseStory,

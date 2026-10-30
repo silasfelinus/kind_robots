@@ -11,19 +11,39 @@ import {
 } from '../cometAcademy/rules'
 import {
   newTacticalInterlude,
+  advanceRivalArena,
+  discoverRivalSecret,
+  reconcileTacticalVictory,
+  secureRivalObjective,
   recommendedRivalFor,
   tacticalOpening,
   tacticalResultFor,
   tacticalRoleFor,
 } from '../cometAcademy/tacticalInterlude'
 import { aliasFor, moveSelected } from '../everyVillainTactics/training'
+import { stageProblems } from '../everyVillainTactics/studio'
+import { rivalArenaFor } from '../cometAcademy/rivalArenas'
+import { campaignStagesFor } from '../cometAcademy/identityCampaignStages'
+import { pathDistance, tileAt } from '../everyVillainTactics/combat'
 
 assert.equal(IDENTITY_ARCS.length, 48)
 const rivals = new Set<string>()
+const arenaMaps = new Set<string>()
+const arenaTitles = new Set<string>()
 for (const identity of IDENTITY_ARCS) {
   const foil = recommendedRivalFor(identity.signature)
   assert.notEqual(foil.signature, identity.signature)
   rivals.add(foil.signature)
+  const arena = rivalArenaFor(identity.signature)
+  arenaTitles.add(arena.stage.title)
+  arenaMaps.add(JSON.stringify(arena.stage.map.tiles))
+  assert.equal(arena.stage.id, 'rival-lair-' + identity.signature)
+  assert.equal(arena.stage.title, campaignStagesFor(identity.signature).lair.title)
+  assert.equal(arena.stage.objective, campaignStagesFor(identity.signature).lair.objective)
+  assert.equal(arena.secret, campaignStagesFor(identity.signature).lair.secret)
+  assert.deepEqual(stageProblems(arena.stage), [], identity.signature + ' has an unplayable map')
+  assert.equal(tileAt(arena.stage.map, arena.objectivePoint).wall, undefined)
+  assert.ok(Number.isFinite(pathDistance(arena.stage.map, [], { x: 0, y: 4 }, arena.objectivePoint)))
   assert.equal(
     recommendedRivalFor(foil.signature).signature,
     identity.signature,
@@ -35,6 +55,8 @@ assert.equal(
   48,
   'all 48 people need their own rival recommendation',
 )
+assert.equal(arenaTitles.size, 48, 'all 48 rivals need distinct authored lair names')
+assert.equal(arenaMaps.size, 48, 'all 48 rivals need distinct physical cover and wall layouts')
 
 const lead = IDENTITY_ARCS.find(
   (person) => person.signature === 'accident-fire',
@@ -72,6 +94,9 @@ assert.equal(battle.caseId, firstMission.id)
 assert.equal(battle.opponent, recommended.opponentSignature)
 assert.equal(battle.state.map.width, 9)
 assert.equal(battle.state.map.height, 6)
+assert.ok(battle.arena)
+assert.equal(battle.state.stageId, 'rival-lair-' + battle.opponent)
+assert.equal(battle.arena?.title, campaignStagesFor(battle.opponent).lair.title)
 assert.equal(
   battle.state.units.filter((unit) => unit.team === 'rival').length,
   3,
@@ -123,6 +148,8 @@ assert.equal(
 
 const conquered = JSON.parse(JSON.stringify(activeRun)) as typeof activeRun
 conquered.tacticalBattle.state.phase = 'victory'
+assert.equal(tacticalResultFor(conquered), null, 'rival defeat alone cannot skip the mission objective')
+conquered.tacticalBattle.arena!.secured = true
 for (const unit of conquered.tacticalBattle.state.units) {
   if (unit.team === 'rival') unit.hp = 0
 }
@@ -130,6 +157,8 @@ const victory = tacticalResultFor(conquered)!
 assert.equal(victory.grade, 'honors')
 assert.equal(victory.role, 'hero')
 assert.equal(victory.fallen, 0)
+assert.equal(victory.stageId, 'rival-lair-' + battle.opponent)
+assert.equal(victory.secured, true)
 const resolved = resolveDispatch({
   ...conquered,
   tacticalBattle: null,
@@ -197,6 +226,52 @@ assert.equal(restoreAcademy(badSave), null)
 const badTurn = JSON.parse(JSON.stringify(activeRun))
 badTurn.tacticalBattle.state.turn = -5
 assert.equal(restoreAcademy(badTurn), null)
+const objectiveRun = newTacticalInterlude(withLead)!
+const objective = objectiveRun.arena!
+const originalMap = JSON.stringify(objectiveRun.state.map.tiles)
+objectiveRun.state.turn = 3
+assert.equal(advanceRivalArena(objectiveRun), true)
+assert.notEqual(JSON.stringify(objectiveRun.state.map.tiles), originalMap)
+assert.equal(advanceRivalArena(objectiveRun), false, 'arena shift is once per battle')
+const savedShift = {
+  ...withLead,
+  tacticalBattle: objectiveRun,
+}
+assert.ok(restoreAcademy(JSON.parse(JSON.stringify(savedShift))), 'shifted cover and secret persist on reload')
+const player = objectiveRun.state.units.find((unit) => unit.id === 'backdraft')!
+player.x = objective.secretPoint.x
+player.y = objective.secretPoint.y
+assert.equal(discoverRivalSecret(objectiveRun), true)
+assert.equal(discoverRivalSecret(objectiveRun), false)
+assert.match(objectiveRun.state.log, /SECRET FOUND/)
+for (const foe of objectiveRun.state.units.filter((unit) => unit.team === 'rival'))
+  foe.hp = 0
+objectiveRun.state.phase = 'victory'
+reconcileTacticalVictory(objectiveRun)
+assert.equal(objectiveRun.state.phase, 'active', 'objective remains mandatory after enemies fall')
+player.x = objective.objectivePoint.x - 1
+player.y = objective.objectivePoint.y
+player.ap = 2
+assert.equal(secureRivalObjective(objectiveRun), true)
+assert.equal(objectiveRun.state.phase, 'victory')
+assert.equal(secureRivalObjective(objectiveRun), false)
+const discoveredResult = tacticalResultFor({ ...withLead, tacticalBattle: objectiveRun })!
+assert.equal(discoveredResult.discovered, true)
+assert.equal(discoveredResult.secured, true)
+assert.equal(discoveredResult.grade, 'honors')
+const discoveredDebrief = resolveDispatch({
+  ...withLead,
+  tacticalBattle: null,
+  tacticalResult: discoveredResult,
+  tacticalHistory: [discoveredResult],
+})
+const discoveryReport = discoveredDebrief.reports.find((entry) => entry.caseId === firstMission.id)!
+assert.match(discoveryReport.text, /HIDDEN REVELATION:/)
+assert.ok(discoveredDebrief.influence > resolved.influence, 'discovering evidence improves civic standing')
+const tamperedMap = JSON.parse(JSON.stringify(savedShift))
+tamperedMap.tacticalBattle.arena.objectivePoint.x = 100
+assert.equal(restoreAcademy(tamperedMap), null)
+
 const oldSave = { ...base }
 assert.ok(
   restoreAcademy(JSON.parse(JSON.stringify(oldSave))),

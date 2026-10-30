@@ -57,7 +57,8 @@ assert.deepEqual(MEMORY_REALITY_PAIRS, [
 assert.deepEqual(MEMORY_EARLY_ORDER, ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'])
 assert.deepEqual(MEMORY_COLLISION_ORDER, ['e09', 'e10', 'e11', 'e12'])
 assert.match(
-  MEMORY_REALITY_EXPERIENCES.find((item) => item.id === 'e07')!.dramaticQuestion,
+  MEMORY_REALITY_EXPERIENCES.find((item) => item.id === 'e07')!
+    .dramaticQuestion,
   /Vesper/,
 )
 assert.equal(

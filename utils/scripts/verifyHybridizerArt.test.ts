@@ -55,7 +55,7 @@ for (const [left, right] of [
   ['Cat', 'Banana'],
   ['Disco Ball', 'Cupcake'],
   ['Kiwi Fruit', 'Werewolf'],
-]) {
+] as const) {
   assert.deepEqual(
     checkArtPromptContract({
       prompt: hybridizerArtPrompt(left, right),

@@ -140,7 +140,9 @@ export default defineEventHandler(async (event) => {
               where: { id: pair.id },
             })
             if (!fusion?.isPublic)
-              throw new Error('A private fusion already owns this pair.')
+              throw new Error('A private fusion already owns this pair.', {
+                cause: error,
+              })
           }
         }
         const built = buildHybridizerArtJob(

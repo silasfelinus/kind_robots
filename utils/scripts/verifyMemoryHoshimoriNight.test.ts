@@ -48,7 +48,7 @@ for (let seed = 0; seed < 96; seed++) {
   for (const key of snake) {
     progress = visit(progress, key)
     const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
-    progress = choose(progress, site.choices[0].id)
+    progress = choose(progress, site.choices[key === '4,2' ? 1 : 0].id)
     assert.strictEqual(advanceHoshimoriNight(progress, { type: 'choose', id: site.choices[1].id }), progress)
     if (key === '4,2') {
       assert.equal(hoshimoriNightClues(progress).length, 3)
@@ -88,7 +88,7 @@ for (let bits = 0; bits < 8; bits++) {
     progress = visit(progress, key)
     const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
     const alternative = ['2,2', '3,3', '4,4'].indexOf(key)
-    const index = alternative < 0 ? 0 : (bits >> alternative) & 1
+    const index = key === '4,2' ? 1 : alternative < 0 ? 0 : (bits >> alternative) & 1
     progress = choose(progress, site.choices[index]!.id)
   }
   councilAccounts.add(hoshimoriNightCouncil(progress)!)

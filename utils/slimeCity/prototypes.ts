@@ -11,7 +11,8 @@ export type TeamId =
 export type ModeId = 'blackout' | 'gridiron' | 'bloodrush'
 export type CardKind = 'creature' | 'spell' | 'trap' | 'equipment'
 export type Side = 'player' | 'enemy'
-export type AttackStyle = 'claw' | 'arrow' | 'spell' | 'sword' | 'hammer' | 'blast'
+export type AttackStyle =
+  'claw' | 'arrow' | 'spell' | 'sword' | 'hammer' | 'blast'
 export type WinPath = 'flag' | 'score' | 'rout' | 'time' | 'monster'
 
 /**
@@ -1471,7 +1472,12 @@ export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
 }
 
 export function cardAttackRange(card: Card): number {
-  return card.range ?? (['mau', 'razor', 'welder', 'firebrand', 'eel', 'broker'].includes(card.id) ? 2 : 1)
+  return (
+    card.range ??
+    (['mau', 'razor', 'welder', 'firebrand', 'eel', 'broker'].includes(card.id)
+      ? 2
+      : 1)
+  )
 }
 
 export function cardById(id: string): Card {
@@ -1674,7 +1680,10 @@ function copy(state: MatchState): MatchState {
     },
     piles: { player: [...state.piles.player], enemy: [...state.piles.enemy] },
     hands: { player: [...state.hands.player], enemy: [...state.hands.enemy] },
-    discards: { player: [...state.discards.player], enemy: [...state.discards.enemy] },
+    discards: {
+      player: [...state.discards.player],
+      enemy: [...state.discards.enemy],
+    },
     shuffles: { ...state.shuffles },
     cooldowns: {
       player: { ...state.cooldowns.player },
@@ -1768,10 +1777,18 @@ function addFighter(
     hidden,
     carryingFlag: false,
     range: cardAttackRange(card),
-    attackStyle: card.attackStyle ?? ({
-      catgirls:'claw', bloodfairies:'arrow', ironjaw:'hammer',
-      riot:'blast', undertow:'spell', exchange:'sword',
-    } as Record<TeamId, AttackStyle>)[card.team],
+    attackStyle:
+      card.attackStyle ??
+      (
+        {
+          catgirls: 'claw',
+          bloodfairies: 'arrow',
+          ironjaw: 'hammer',
+          riot: 'blast',
+          undertow: 'spell',
+          exchange: 'sword',
+        } as Record<TeamId, AttackStyle>
+      )[card.team],
     summonedRound: state.round,
     attackedRound: 0,
     keywords: [...(card.keywords ?? [])],
@@ -1815,7 +1832,9 @@ function drawHand(state: MatchState, side: Side): void {
       if (!state.discards[side].length) break
       state.shuffles[side]++
       const discarded = new Set(state.discards[side])
-      state.piles[side] = shuffledDeck(state, side).filter((id) => discarded.has(id))
+      state.piles[side] = shuffledDeck(state, side).filter((id) =>
+        discarded.has(id),
+      )
       state.discards[side] = []
     }
     const next = state.piles[side].shift()
@@ -1834,8 +1853,10 @@ export function createMatch(
   const m = MODES.find((item) => item.id === mode)
   if (!m) throw new Error('Unknown Slime City match mode')
   const dimensions = m.size.split(' × ')
-  const width = mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[0]!)
-  const height = mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[1]!)
+  const width =
+    mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[0]!)
+  const height =
+    mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[1]!)
   const s = normalizeSeed(seed)
   const rush = mode === 'bloodrush'
   const state: MatchState = {
@@ -1894,7 +1915,10 @@ export function createMatch(
       state.piles[side] = shuffledDeck(state, side)
       drawHand(state, side)
     }
-    message(state, 'Deploy a visible monster. Four cards in hand, the rest in your deck.')
+    message(
+      state,
+      'Deploy a visible monster. Four cards in hand, the rest in your deck.',
+    )
   }
   if (state.rules.monster) {
     // BLACKOUT: the central square diagonal from the flag. Lanes: a
@@ -2057,11 +2081,16 @@ function applyDeploy(
   if (!card || state.victor || card.team !== teamOf(state, side)) return false
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
-  if (state.mode === 'blackout' && !state.rules.classicFog && !state.hands[side].includes(cardId))
+  if (
+    state.mode === 'blackout' &&
+    !state.rules.classicFog &&
+    !state.hands[side].includes(cardId)
+  )
     return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
-  const hidden = side === 'enemy' && state.mode === 'blackout' && !!state.rules.classicFog
+  const hidden =
+    side === 'enemy' && state.mode === 'blackout' && !!state.rules.classicFog
   let line: string
   if (card.kind === 'creature') {
     if (target || !inDeployZone(state, side, x)) return false
@@ -2069,7 +2098,14 @@ function applyDeploy(
       state.units.filter((u) => u.side === side).length >= FIELD_CAP[state.mode]
     )
       return false
-    addFighter(state, cardId, side, x, y, state.mode === 'blackout' && !!state.rules.classicFog)
+    addFighter(
+      state,
+      cardId,
+      side,
+      x,
+      y,
+      state.mode === 'blackout' && !!state.rules.classicFog,
+    )
     line = hidden
       ? 'The enemy deploys a concealed fighter.'
       : (side === 'enemy' ? 'Enemy deploys ' : 'You deploy ') + card.name + '.'
@@ -2261,14 +2297,28 @@ function applyReveal(state: MatchState, side: Side, id: number): boolean {
 }
 
 /** New Blackout uses deliberate attacks instead of automatic round damage. */
-export function mayAttack(state: MatchState, attacker: Fighter, target: Fighter | Monster): boolean {
-  if (state.mode !== 'blackout' || state.rules.classicFog || state.victor) return false
+export function mayAttack(
+  state: MatchState,
+  attacker: Fighter,
+  target: Fighter | Monster,
+): boolean {
+  if (state.mode !== 'blackout' || state.rules.classicFog || state.victor)
+    return false
   if (attacker.hp <= 0 || attacker.attackedRound === state.round) return false
-  if (attacker.summonedRound === state.round && !hasKeyword(attacker, 'ambush')) return false
-  return Math.abs(attacker.x - target.x) + Math.abs(attacker.y - target.y) <= (attacker.range ?? 1)
+  if (attacker.summonedRound === state.round && !hasKeyword(attacker, 'ambush'))
+    return false
+  return (
+    Math.abs(attacker.x - target.x) + Math.abs(attacker.y - target.y) <=
+    (attacker.range ?? 1)
+  )
 }
 
-function applyAttack(state: MatchState, side: Side, id: number, targetId: number): boolean {
+function applyAttack(
+  state: MatchState,
+  side: Side,
+  id: number,
+  targetId: number,
+): boolean {
   const attacker = state.units.find((u) => u.id === id && u.side === side)
   const victim = state.units.find((u) => u.id === targetId && u.side !== side)
   const monster = targetId === -1 ? state.monster : null
@@ -2292,23 +2342,41 @@ function applyAttack(state: MatchState, side: Side, id: number, targetId: number
     if (monster!.hp <= 0) slayMonster(state, side)
   }
   if (hasKeyword(attacker, 'ambush')) attacker.struck = true
-  message(state, (side === 'enemy' ? 'Enemy ' : '') + name(attacker) +
-    ' attacks ' + (victim ? publicName(victim) : 'the monster') +
-    ' (' + (attacker.attackStyle ?? 'strike') + '): ' + dealt + ' damage' +
-    (target.hp <= 0 ? ' · KO!' : '.'))
+  message(
+    state,
+    (side === 'enemy' ? 'Enemy ' : '') +
+      name(attacker) +
+      ' attacks ' +
+      (victim ? publicName(victim) : 'the monster') +
+      ' (' +
+      (attacker.attackStyle ?? 'strike') +
+      '): ' +
+      dealt +
+      ' damage' +
+      (target.hp <= 0 ? ' · KO!' : '.'),
+  )
   removeDead(state)
   settleFlag(state)
   checkEnd(state)
   return true
 }
 
-export function attackAs(state: MatchState, side: Side, id: number, target: number): MatchState {
+export function attackAs(
+  state: MatchState,
+  side: Side,
+  id: number,
+  target: number,
+): MatchState {
   return recorded(state, { t: 'attack', side, id, target }, (draft) =>
     applyAttack(draft, side, id, target),
   )
 }
 
-export function attack(state: MatchState, id: number, target: number): MatchState {
+export function attack(
+  state: MatchState,
+  id: number,
+  target: number,
+): MatchState {
   return attackAs(state, 'player', id, target)
 }
 

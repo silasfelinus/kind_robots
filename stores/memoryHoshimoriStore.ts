@@ -39,7 +39,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const windwardAccount = computed(() =>
     hoshimoriWindwardAccount(progress.value),
   )
-  const southernAccount = computed(() => hoshimoriSouthernAccount(progress.value))
+  const southernAccount = computed(() =>
+    hoshimoriSouthernAccount(progress.value),
+  )
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
     if (last?.type !== 'oven-choice') return null

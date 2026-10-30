@@ -36,7 +36,9 @@
           <span aria-hidden="true">▣</span> YEARBOOK
           <small v-if="historyCount">{{ historyCount }} EXPLORED</small>
         </button>
-        <button type="button" @click="screen = 'settings'">
+        <button type="button" data-testid="academy-opening-scrapbook" @click="screen = 'scrapbook'">SCRAPBOOK</button>
+        <NuxtLink to="/admin/every-villain-tactics" class="prom-tactical-link" data-testid="academy-opening-tactical">⚔ TACTICAL MODE <small>SKIRMISH PREVIEW</small></NuxtLink>
+        <button type="button" data-testid="academy-opening-settings" @click="screen = 'settings'">
           <span aria-hidden="true">⚙</span> SETTINGS
         </button>
         <button type="button" @click="openHelp">
@@ -64,9 +66,7 @@
               >ORIGIN STORY // {{ screen === 'origin' ? '01' : '02' }}</span
             >
             <div class="prom-emblem">
-              {{
-                screen === 'origin' ? activeOrigin.glyph : activeAffinity.glyph
-              }}
+              <img :src="promArt((screen === 'origin' ? 'origins/' : 'affinities/') + (screen === 'origin' ? selectedOrigin : selectedAffinity)) ?? ''" alt="" />
             </div>
             <h2>
               {{
@@ -96,17 +96,10 @@
           <h2>
             {{
               screen === 'origin'
-                ? 'Every hero has an origin.'
-                : 'Power needs a direction.'
+                ? 'Choose your origin'
+                : 'Choose your affinity'
             }}
           </h2>
-          <p class="prom-explainer">
-            {{
-              screen === 'origin'
-                ? 'The accident, inheritance or impossible event that changed your life.'
-                : 'Your affinity changes who you become, not just the color of the blast.'
-            }}
-          </p>
           <div
             class="prom-options"
             :class="{ 'prom-eight': screen === 'affinity' }"
@@ -135,8 +128,9 @@
               "
               @click="selectOption(option.id)"
             >
-              <span>{{ option.glyph }}</span
-              ><strong>{{ option.name }}</strong>
+              <img class="prom-option-icon" :src="promArt((screen === 'origin' ? 'origins/' : 'affinities/') + option.id) ?? ''" alt="" loading="lazy" />
+              <strong>{{ option.name }}</strong>
+              <small>{{ 'source' in option ? option.source : option.theme }}</small>
             </button>
           </div>
           <button
@@ -499,6 +493,8 @@ const emit = defineEmits<{
       vow: PowerVowId
       form: PlayerForm
       firstWeek: boolean
+      tacticalMissions: boolean
+      nightPatrols: boolean
     },
   ]
 }>()
@@ -510,6 +506,7 @@ type Screen =
   | 'vow'
   | 'tutorial'
   | 'yearbook'
+  | 'scrapbook'
   | 'yearbook-detail'
   | 'settings'
 const screen = ref<Screen>('title')
@@ -521,6 +518,8 @@ const selectedVow = ref<PowerVowId>('shelter')
 const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
 const firstWeek = ref(false)
+const tacticalMissions = ref(true)
+const nightPatrols = ref(true)
 const forms: PlayerForm[] = ['student', 'hero', 'villain']
 // A save code exported before NEW TERM (or on another device) can resume from
 // the title; the page swaps to the console as soon as the run exists.
@@ -626,6 +625,7 @@ const chapter = computed(
       vow: '04 / THE CHOICE',
       tutorial: '05 / TUTORIAL',
       yearbook: 'YEARBOOK',
+      scrapbook: 'SCRAPBOOK',
       'yearbook-detail': 'YEARBOOK / CHARACTER CARD',
       settings: 'SETTINGS',
       title: 'WELCOME',
@@ -700,6 +700,7 @@ function back() {
     vow: fromYearbook.value ? 'yearbook-detail' : 'dossier',
     tutorial: launchOnTutorial.value ? 'vow' : 'title',
     yearbook: 'title',
+    scrapbook: 'title',
     'yearbook-detail': 'yearbook',
     settings: 'title',
   }
@@ -711,6 +712,8 @@ function launch() {
     vow: selectedVow.value,
     form: selectedForm.value,
     firstWeek: firstWeek.value,
+    tacticalMissions: firstWeek.value || tacticalMissions.value,
+    nightPatrols: firstWeek.value || nightPatrols.value,
   })
 }
 </script>
@@ -834,7 +837,7 @@ function launch() {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 2fr repeat(5, 1fr);
   gap: 0.5rem;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem) 1rem;
   background: #111527e6;

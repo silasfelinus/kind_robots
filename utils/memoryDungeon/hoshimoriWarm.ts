@@ -1583,6 +1583,144 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
+  {
+    id: 'OV-10',
+    title: 'The Flour Weighhouse',
+    opening:
+      'The miller can name every sack, but not the people whose forgotten birthdays sweetened the flour. A fox spirit insists that accurate weights are not the same as fair prices.',
+    choices: [
+      {
+        id: 'weigh-flour',
+        label: 'Measure the flour and publish the missing meals',
+        outcome:
+          'The village can see the shortage without learning which family lost a birthday. The miller agrees to an independent count.',
+        trust: 1,
+        flag: 'flour-weighed',
+      },
+      {
+        id: 'trace-sacks',
+        label: 'Trace the sacks to their households in private',
+        outcome:
+          'Several families recognize the mill marks. They may reclaim their flour or decline the investigation; no names go on the public board.',
+        flag: 'flour-traced',
+      },
+    ],
+  },
+  {
+    id: 'OV-11',
+    title: 'The Door of Small Shoes',
+    opening:
+      'A house spirit has barred the nursery door against winter. The children inside are warm, but they cannot leave even to visit the grandmother who asked for them.',
+    choices: [
+      {
+        id: 'unlatch-door',
+        label: 'Unlatch the door and let the children choose their escort',
+        outcome:
+          'The spirit is frightened by the cold air. The children take its hand anyway and promise to return if they wish.',
+        trust: 1,
+        flag: 'nursery-unlatched',
+      },
+      {
+        id: 'ask-children',
+        label: 'Ask the children what safety would mean to them',
+        outcome:
+          'They request a bell and an unlocked latch. The spirit learns that protection can be offered without becoming a prison.',
+        flag: 'nursery-consulted',
+      },
+    ],
+  },
+  {
+    id: 'OV-12',
+    title: 'The Ember Witness',
+    opening:
+      'Kogane, the old ember spirit, has baked for the village longer than anyone remembers. It wants a name of its own, and the right to refuse a dangerous fire.',
+    choices: [
+      {
+        id: 'release-ember',
+        label: 'Release Kogane from the inherited baking oath',
+        outcome:
+          'Kogane steps out of the coals. The bakery loses a guaranteed flame but gains a witness who can finally say no.',
+        trust: 1,
+        flag: 'ember-released',
+      },
+      {
+        id: 'offer-ember',
+        label: 'Offer a revocable contract written by Kogane',
+        outcome:
+          'Kogane chooses a shorter season and a cooling bell. It may leave without forfeiting its name, even if the bakery must close.',
+        flag: 'ember-contracted',
+      },
+    ],
+  },
+  {
+    id: 'OV-13',
+    title: 'The Unbaked Accounts',
+    opening:
+      'Pip finds two ledgers: one records the meals the Oven gave, the other records the memories it took. The totals do not agree, and the baker cannot explain why.',
+    choices: [
+      {
+        id: 'publish-totals',
+        label: 'Publish the discrepancy without exposing donors',
+        outcome:
+          'The council sees that someone was charged twice. Pip keeps the names private until the people involved decide whether to testify.',
+        trust: 1,
+        flag: 'oven-totals-published',
+      },
+      {
+        id: 'invite-auditors',
+        label: 'Invite the workers and recipients to audit privately',
+        outcome:
+          'The people who carried the cost compare the ledgers. They demand an independent appeal before any new bargain can bind them.',
+        flag: 'oven-audit-invited',
+      },
+    ],
+  },
+  {
+    id: 'OV-14',
+    title: 'The Hearth Commons',
+    opening:
+      'Outside the furnace, the refugees, miller and night workers argue over tomorrow’s bread. A plan must survive even if Kogane chooses not to burn.',
+    choices: [
+      {
+        id: 'build-commons',
+        label: 'Organize independent kitchens and a shared ration rota',
+        outcome:
+          'Three small kitchens agree to share grain, with each household free to leave. The plan costs labor but does not need borrowed memories.',
+        trust: 1,
+        flag: 'commons-built',
+      },
+      {
+        id: 'share-flue',
+        label: 'Repair the refuge flue and ration the Oven’s heat',
+        outcome:
+          'The refuge keeps its warmth while the bakery reduces its bake. The workers insist that no one be compelled to stoke the fire.',
+        flag: 'commons-flue-shared',
+      },
+    ],
+  },
+  {
+    id: 'OV-15',
+    title: 'The Hearthkeeper’s Judgment',
+    opening:
+      'The guardian of the Red Oven rises from a crown of cooling bricks. It offers one last bargain: the village may keep its bread, but it must decide who can refuse the cost.',
+    choices: [
+      {
+        id: 'rewrite-guardian',
+        label: 'Rewrite the guardian’s charge with witnesses and a right to withdraw',
+        outcome:
+          'The guardian accepts that no oath can be inherited without consent. Its future depends on Kogane’s choice and the village’s willingness to audit itself.',
+        trust: 1,
+        flag: 'guardian-rewritten',
+      },
+      {
+        id: 'quench-guardian',
+        label: 'Quench the compulsory flame and fund relief outside the Oven',
+        outcome:
+          'The guardian goes quiet. The village must feed its people without the old bargain; the new kitchens and refuge face their first difficult morning.',
+        flag: 'guardian-quenched',
+      },
+    ],
+  },
 ]
 
 export type HoshimoriEvent =
@@ -1591,6 +1729,7 @@ export type HoshimoriEvent =
   | { type: 'light'; symbols: string[] }
   | { type: 'enter' }
   | { type: 'enter-wing' }
+  | { type: 'enter-ember-wing' }
   | { type: 'oven-choice'; id: string }
   | { type: 'leave' }
 
@@ -1796,6 +1935,50 @@ export function hoshimoriOvenSecondAccount(
   return outcomes.join(' ')
 }
 
+/** The Ember Wing has three earned guardian dispositions, never a default victory. */
+export function hoshimoriOvenGuardianResolution(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const decision = progress.ovenChoices['OV-15']
+  if (!decision) return null
+  const support =
+    progress.ovenChoices['OV-14'] === 'build-commons'
+      ? 'Independent kitchens can feed people if the magic fails.'
+      : 'The refuge flue keeps some people warm while a smaller bake is negotiated.'
+  if (decision === 'quench-guardian')
+    return 'The compulsory guardian is extinguished. No memories may be collected by the Oven; the village must build its relief without magical coercion. ' + support
+  if (progress.ovenChoices['OV-12'] === 'release-ember')
+    return 'Kogane is free of the inherited oath. The guardian becomes a witness rather than a master; any future baking requires a fresh invitation from Kogane and the workers. ' + support
+  return 'Kogane chooses a revocable, time-limited guardianship with independent audits and a cooling bell. The guardian can be dismissed without punishing the village’s hungry families. ' + support
+}
+
+export function hoshimoriOvenThirdAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  if (!progress.ovenChoices['OV-15']) return null
+  const accounts = [
+    progress.ovenChoices['OV-10'] === 'weigh-flour'
+      ? 'The mill published the missing meal totals without naming families.'
+      : 'The mill traced its sacks privately to households.',
+    progress.ovenChoices['OV-11'] === 'unlatch-door'
+      ? 'The nursery door opened with escorts chosen by the children.'
+      : 'The children negotiated a bell and a latch that opens from inside.',
+    progress.ovenChoices['OV-12'] === 'release-ember'
+      ? 'Kogane left its inherited oath.'
+      : 'Kogane wrote a revocable working agreement.',
+    progress.ovenChoices['OV-13'] === 'publish-totals'
+      ? 'Pip published the double charge without naming donors.'
+      : 'Workers and recipients conducted a private audit.',
+    progress.ovenChoices['OV-14'] === 'build-commons'
+      ? 'Independent kitchens prepared a ration rota.'
+      : 'The refuge flue was repaired under a reduced bake.',
+    progress.ovenChoices['OV-15'] === 'rewrite-guardian'
+      ? 'The guardian accepted an enforceable right to withdraw.'
+      : 'The compulsory guardian was quenched.',
+  ]
+  return accounts.join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -1847,6 +2030,7 @@ function eventShape(event: HoshimoriEvent): boolean {
   return (
     (event.type === 'enter' ||
       event.type === 'enter-wing' ||
+      event.type === 'enter-ember-wing' ||
       event.type === 'leave') &&
     keys === 'type'
   )
@@ -1916,7 +2100,21 @@ export function advanceHoshimoriWarm(
         progress.current === '4,3' &&
         !progress.ovenChoices['OV-09']
       ) {
-        const next = HOSHIMORI_OVEN_ROOMS.slice(3).find(
+        const next = HOSHIMORI_OVEN_ROOMS.slice(3, 9).find(
+          (room) => !progress.ovenChoices[room.id],
+        )
+        if (next) changed = { ovenRoom: next.id }
+      }
+      break
+    }
+    case 'enter-ember-wing': {
+      if (
+        !progress.ovenRoom &&
+        progress.ovenChoices['OV-09'] &&
+        !progress.ovenChoices['OV-15'] &&
+        progress.current === '4,3'
+      ) {
+        const next = HOSHIMORI_OVEN_ROOMS.slice(9).find(
           (room) => !progress.ovenChoices[room.id],
         )
         if (next) changed = { ovenRoom: next.id }
@@ -1946,7 +2144,7 @@ export function advanceHoshimoriWarm(
         (item) => item.id === room!.id,
       )
       const next =
-        room!.id === 'OV-03'
+        (room!.id === 'OV-03' || room!.id === 'OV-09')
           ? null
           : (HOSHIMORI_OVEN_ROOMS[index + 1]?.id ?? null)
       changed = {
@@ -2013,7 +2211,7 @@ export function restoreHoshimoriWarm(
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
   if (SITES.size !== 64) errors.push('Expected sixty-four unique warm sites')
-  if (OVEN.size !== 9) errors.push('Expected nine authored Oven rooms')
+  if (OVEN.size !== 15) errors.push('Expected fifteen authored Oven rooms')
   const ovenChoiceIds = HOSHIMORI_OVEN_ROOMS.flatMap((room) =>
     room.choices.map((choice) => choice.id),
   )

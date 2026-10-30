@@ -2,6 +2,9 @@ import { campaignStagesFor } from './identityCampaignStages'
 import { identityFor } from './identityArcs'
 import { personalCounterpart } from './identitySerial'
 import { henchmanForVillain } from './villainHenchmen'
+import { rivalArenaFor, shiftRivalArena } from './rivalArenas'
+import { gridDistance, tileAt, type Point } from '../everyVillainTactics/combat'
+import { selectedUnit } from '../everyVillainTactics/training'
 import type { AcademyRun } from './rules'
 import type { SignaturePowerId } from './specialPowers'
 import {
@@ -14,6 +17,20 @@ export type TacticalInterlude = {
   caseId: string
   opponent: SignaturePowerId
   state: TrainingState
+  arena?: {
+    title: string
+    venue: string
+    objective: string
+    objectivePoint: Point
+    secretPoint: Point
+    shiftPoint: Point
+    secret: string
+    turningPoint: string
+    lieutenantAgenda: string
+    secured: boolean
+    discovered: boolean
+    shifted: boolean
+  }
 }
 
 export type TacticalOutcome = {
@@ -24,6 +41,9 @@ export type TacticalOutcome = {
   grade: 'honors' | 'pass' | 'failed'
   turns: number
   fallen: number
+  stageId?: string
+  secured?: boolean
+  discovered?: boolean
 }
 
 export function recommendedRivalFor(signature: SignaturePowerId) {
@@ -68,7 +88,8 @@ export function newTacticalInterlude(
   )
     return null
 
-  const state = trainingState(battleSeed(run, run.playerCaseId))
+  const arena = rivalArenaFor(run.opponentSignature)
+  const state = trainingState(battleSeed(run, run.playerCaseId), arena.stage)
   const [lead, first, second, rival, captain, minion] = state.units
   if (!lead || !first || !second || !rival || !captain || !minion) return null
 
@@ -122,12 +143,88 @@ export function newTacticalInterlude(
     caseId: run.playerCaseId,
     opponent: run.opponentSignature,
     state,
+    arena: {
+      title: arena.stage.title,
+      venue: arena.stage.venue,
+      objective: arena.stage.objective,
+      objectivePoint: arena.objectivePoint,
+      secretPoint: arena.secretPoint,
+      shiftPoint: arena.shiftPoint,
+      secret: arena.secret,
+      turningPoint: arena.turningPoint,
+      lieutenantAgenda: arena.lieutenantAgenda,
+      secured: false,
+      discovered: false,
+      shifted: false,
+    },
   }
+}
+
+/** Defeating the rival isn't enough: the player must secure the lair's own
+ * physical objective. This works even after all enemy combatants fall. */
+export function reconcileTacticalVictory(battle: TacticalInterlude) {
+  const enemiesDown = battle.state.units.every(
+    (unit) => unit.team !== 'rival' || unit.hp <= 0,
+  )
+  if (enemiesDown && battle.arena && !battle.arena.secured) {
+    battle.state.phase = 'active'
+    battle.state.log = 'The rival is down. Secure the mission objective before extraction.'
+  } else if (enemiesDown && battle.arena?.secured) {
+    battle.state.phase = 'victory'
+    battle.state.log = `Objective secured: ${battle.arena.objective}`
+  }
+}
+
+export function secureRivalObjective(battle: TacticalInterlude): boolean {
+  const objective = battle.arena
+  const leader = selectedUnit(battle.state)
+  if (!objective || objective.secured || !leader || battle.state.phase !== 'active' ||
+      leader.ap < 1 || gridDistance(leader, objective.objectivePoint) > 1)
+    return false
+  leader.ap--
+  objective.secured = true
+  battle.state.log = `Secured: ${objective.objective} ${objective.lieutenantAgenda}`
+  battle.state.events.unshift(battle.state.log)
+  battle.state.events = battle.state.events.slice(0, 6)
+  reconcileTacticalVictory(battle)
+  return true
+}
+
+export function discoverRivalSecret(battle: TacticalInterlude): boolean {
+  const objective = battle.arena
+  const leader = selectedUnit(battle.state)
+  if (!objective || objective.discovered || !leader ||
+      gridDistance(leader, objective.secretPoint) > 0)
+    return false
+  objective.discovered = true
+  battle.state.log = `SECRET FOUND: ${objective.secret}`
+  battle.state.events.unshift(battle.state.log)
+  battle.state.events = battle.state.events.slice(0, 6)
+  return true
+}
+
+/** Timed terrain event changes the actual cover/height calculations, persists
+ * with battle state, and never replays twice after a reload. */
+export function advanceRivalArena(battle: TacticalInterlude): boolean {
+  const objective = battle.arena
+  if (!objective || objective.shifted || battle.state.turn < 3 ||
+      battle.state.phase !== 'active') return false
+  const arena = rivalArenaFor(battle.opponent)
+  const shifted = shiftRivalArena(arena, {
+    ...arena.stage, map: battle.state.map,
+  })
+  battle.state.map = shifted.map
+  objective.shifted = true
+  battle.state.log = `THE ARENA CHANGES: ${objective.turningPoint}`
+  battle.state.events.unshift(battle.state.log)
+  battle.state.events = battle.state.events.slice(0, 6)
+  return true
 }
 
 export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
   const battle = run.tacticalBattle
-  if (!battle || !['victory', 'defeat'].includes(battle.state.phase))
+  if (!battle || !['victory', 'defeat'].includes(battle.state.phase) ||
+      (battle.state.phase === 'victory' && battle.arena && !battle.arena.secured))
     return null
   const fallen = battle.state.units.filter(
     (unit) => unit.team === 'squad' && unit.hp <= 0,
@@ -145,6 +242,13 @@ export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
           : 'pass',
     turns: battle.state.turn,
     fallen,
+    ...(battle.arena
+      ? {
+          stageId: battle.state.stageId ?? undefined,
+          secured: battle.arena.secured,
+          discovered: battle.arena.discovered,
+        }
+      : {}),
   }
 }
 
@@ -168,7 +272,10 @@ export function validTacticalOutcome(
     result.turns! <= 300 &&
     Number.isInteger(result.fallen ?? NaN) &&
     result.fallen! >= 0 &&
-    result.fallen! <= 4
+    result.fallen! <= 4 &&
+    (result.stageId === undefined || result.stageId === 'rival-lair-' + result.opponent) &&
+    (result.secured === undefined || typeof result.secured === 'boolean') &&
+    (result.discovered === undefined || typeof result.discovered === 'boolean')
   )
 }
 
@@ -220,6 +327,25 @@ export function validTacticalInterlude(
     ) &&
     !!state.map &&
     state.map.width === 9 &&
-    state.map.height === 6
+    state.map.height === 6 &&
+    (battle.arena === undefined ||
+      (typeof battle.arena.title === 'string' &&
+        typeof battle.arena.venue === 'string' &&
+        typeof battle.arena.objective === 'string' &&
+        typeof battle.arena.secret === 'string' &&
+        typeof battle.arena.turningPoint === 'string' &&
+        typeof battle.arena.lieutenantAgenda === 'string' &&
+        typeof battle.arena.secured === 'boolean' &&
+        typeof battle.arena.discovered === 'boolean' &&
+        typeof battle.arena.shifted === 'boolean' &&
+        state.stageId === 'rival-lair-' + battle.opponent &&
+        [battle.arena.objectivePoint, battle.arena.secretPoint, battle.arena.shiftPoint].every(
+          (point) => Number.isInteger(point?.x) &&
+            Number.isInteger(point?.y) &&
+            point.x >= 0 && point.x < state.map.width &&
+            point.y >= 0 && point.y < state.map.height &&
+            !tileAt(state.map, point).wall,
+        ) &&
+        (state.phase !== 'victory' || battle.arena.secured)))
   )
 }

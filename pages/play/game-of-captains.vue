@@ -1679,7 +1679,7 @@ import {
   captainInstinctReply,
 } from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
-import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
+import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -1749,11 +1749,10 @@ const romanceRecord = computed(
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
-  // The call, nemesis and ending paintings; the drawn couch where none is rendered.
-  if (run.value)
-    return (
-      voyageStageArt(run.value) ?? '/game-of-captains/space-couch-stage.svg'
-    )
+  // The drawn couch, never the pre-rename starship-bridge paintings still
+  // under public/game-of-captains/{missions,antagonists,endings}: Silas
+  // replaced all conventional bridge imagery on 2026-10-26.
+  if (run.value) return '/game-of-captains/space-couch-stage.svg'
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''

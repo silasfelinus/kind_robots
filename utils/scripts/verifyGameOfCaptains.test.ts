@@ -724,10 +724,18 @@ assert.ok(page.includes('data-testid="captains-back-to-captains"'))
 assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))
 assert.ok(page.includes("selectionScreen === 'captain'"))
 assert.ok(page.includes('stagePainting'))
-// Playtest readiness (Playwright at 390/768/1440): the shipped call, nemesis
-// and ending paintings fill the stage again, the ending keeps its long
-// epilogue in the log panel, and small controls stay tappable.
-assert.ok(page.includes('voyageStageArt(run.value)'), 'stage paints the voyage')
+// Playtest readiness (Playwright at 390/768/1440): the voyage stage stays the
+// drawn couch (the legacy mission, nemesis and ending paintings show a
+// conventional starship bridge, which the Space Couch rename retired), the
+// ending keeps its long epilogue in the log panel, and small controls stay
+// tappable.
+assert.ok(
+  page.includes(
+    "if (run.value) return '/game-of-captains/space-couch-stage.svg'",
+  ),
+  'no starship-bridge paintings on the voyage stage',
+)
+assert.ok(!page.includes('voyageStageArt'))
 assert.ok(page.includes('sentences.slice(0, 2)'), 'short ending stage copy')
 for (const [file, selector] of [
   ['pages/play/game-of-captains.vue', '.cap-crew-pages button {'],

@@ -296,6 +296,12 @@
             :aria-pressed="selectedVow === route.id"
             @click="selectedVow = route.id"
           >
+            <img
+              v-if="promArt('vows/' + route.id)"
+              class="prom-route-art"
+              :src="promArt('vows/' + route.id)!"
+              alt=""
+            />
             <span class="prom-route-number">{{ route.number }}</span>
             <h3>{{ route.title }}</h3>
             <strong>{{ route.headline }}</strong>
@@ -1165,6 +1171,13 @@ function launch() {
   background: #ffffff0e;
   border: 1px solid #94b7ca6d;
   border-radius: 0.75rem;
+}
+.prom-route-art {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  flex: none;
+  object-fit: cover;
+  border-radius: 0.5rem;
 }
 .prom-route-number {
   color: #f8b57d;

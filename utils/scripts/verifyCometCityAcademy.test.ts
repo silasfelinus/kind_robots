@@ -16,7 +16,11 @@ import {
   PROM_ENDINGS,
   PROM_ENDING_ROUTES,
   SIMULATION_ENDINGS,
+  ENDING_STAND_INS,
   endingArtKey,
+  identityArtKey,
+  studentArtKey,
+  villainArtKey,
 } from '../cometAcademy/artSlots'
 import { LATE_INCIDENTS } from '../cometAcademy/lateIncidents'
 import { RETURN_VISITS } from '../cometAcademy/returnVisits'
@@ -2581,6 +2585,31 @@ for (const ending of PROM_ENDINGS) {
   assert.ok(PROM_ENDING_ROUTES[ending].length > 40)
   const key = endingArtKey(ending)
   assert.ok(promArt(key) || PROM_ART_PROMPTS[key], `${ending} art or prompt`)
+}
+// Shipped renders (conductor scripts/export_round_art.py): every student's three
+// mission-reaction faces, every mastermind, and a student splash for each
+// identity except the two held back for a re-render (franchise look-alikes).
+for (const student of STUDENTS)
+  for (const mood of ['positive', 'neutral', 'negative'])
+    assert.ok(
+      promArt(studentArtKey(student.id) + '-' + mood),
+      student.id + mood,
+    )
+for (const villain of CAMPAIGN_VILLAINS)
+  assert.ok(promArt(villainArtKey(villain.name)), villain.name)
+assert.equal(
+  SIGNATURE_POWERS.filter((p) => !promArt(identityArtKey(p.id, 'student')))
+    .map((p) => p.id)
+    .join(),
+  'mutant-air',
+)
+for (const vow of ['shelter', 'unmask', 'claim'])
+  assert.ok(promArt('vows/' + vow), vow)
+// A stand-in only covers an ending still waiting on its own painting.
+for (const [ending, plate] of Object.entries(ENDING_STAND_INS)) {
+  assert.ok(PROM_ENDINGS.includes(ending as (typeof PROM_ENDINGS)[number]))
+  assert.ok(promArt(plate), plate)
+  assert.ok(PROM_ART_PROMPTS[endingArtKey(ending)], ending)
 }
 
 // Return visits: every landmark has its own second scene a week later.

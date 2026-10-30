@@ -696,11 +696,11 @@ const OPTIONAL: (keyof VoyageRun)[] = [
   'nemesisEnding',
 ]
 for (const captain of FULL ? CAPTAIN_IDS : CAPTAIN_IDS.slice(0, 2)) {
-  const fresh = startVoyage(captain, ['pell', 'mox', 'rue'], 77) as Record<
-    string,
-    unknown
-  >
-  for (const key of OPTIONAL) delete fresh[key]
+  const fresh = Object.fromEntries(
+    Object.entries(startVoyage(captain, ['pell', 'mox', 'rue'], 77)).filter(
+      ([key]) => !OPTIONAL.includes(key as keyof VoyageRun),
+    ),
+  )
   const loaded = act.load(fresh)
   assert.ok(loaded, `${captain}: a bare version-1 save loads`)
   const { run } = randomWalk(loaded, 91, 900, `bare ${captain}`)

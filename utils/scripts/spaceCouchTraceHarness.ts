@@ -34,6 +34,7 @@ import {
   arriveAtWorld,
   currentExpedition,
   hireRedshirt,
+  leaveExpedition,
   startWorldTravel,
 } from '../gameOfCaptains/expedition'
 import {
@@ -45,13 +46,11 @@ import {
   episodeDecksDone,
   episodeEndingCoda,
   episodeMajorComplete,
-  episodePlotOdds,
   episodePlotSeats,
   episodePlotSkill,
   type EpisodeChoice,
   type EpisodeDeck,
 } from '../gameOfCaptains/episodeConsole'
-import { leaveExpedition } from '../gameOfCaptains/expedition'
 import {
   chooseTrioStep,
   restoreTrioAdventure,

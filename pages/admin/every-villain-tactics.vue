@@ -89,6 +89,13 @@
                   @click="store.click(cell)"
                 >
                   <span
+                    v-if="store.isSeismicWarning(cell)"
+                    class="evt-seismic-ring"
+                    data-testid="tactics-seismic-warning"
+                    aria-hidden="true"
+                    >⚠</span
+                  >
+                  <span
                     v-if="store.isBurrowWarning(cell)"
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
@@ -145,10 +152,12 @@
                   >
                     <span class="evt-card-art">
                       <span class="evt-crest" aria-hidden="true">{{
-                        displayUnitAt(store.state, cell)?.henchmanType ===
-                        'burrow'
-                          ? '♢'
-                          : '✦'
+                        displayUnitAt(store.state, cell)?.lieutenantName
+                          ? '◆'
+                          : displayUnitAt(store.state, cell)?.henchmanType ===
+                              'burrow'
+                            ? '♢'
+                            : '✦'
                       }}</span>
                       <span class="evt-initials">{{
                         initials(displayUnitAt(store.state, cell)!)
@@ -470,8 +479,9 @@
               </div>
               <small
                 >Team brushes reposition the lead squadmate or lead rival.
-                Secrets and hazards are edit markers; their scripted effects
-                arrive with the encounter editor.</small
+                Quarry lieutenant stage: the boss uses an active, previewable
+                seismic strike; other secret and hazard markers are still
+                editor-only pending their own effects.</small
               >
             </div>
             <div class="evt-studio-canvas">
@@ -759,8 +769,9 @@
                 >
               </div>
               <p class="evt-dossier-status">
-                Henchmen: {{ inspectedHenchmen.name }} · Concept plans only.
-                These 96 stages and 48 lieutenants are not yet playable.
+                Henchmen: {{ inspectedHenchmen.name }} · The Quarry lieutenant
+                is one playable studio demonstration, not 48 shipped bosses or
+                96 playable stages. Most concepts await art and AI.
               </p>
               <button
                 type="button"
@@ -895,6 +906,17 @@ function initials(unit: Unit): string {
 }
 function cellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
+  if (store.isSeismicWarning(cell))
+    return (
+      'SEISMIC WARNING, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. Mags Hardpan will strike this zone next turn unless hit. Move away or shoot the drum.' +
+      (unit
+        ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.'
+        : '')
+    )
   if (store.isBurrowWarning(cell))
     return (
       'BURROW WARNING, dust ring at column ' +
@@ -1179,6 +1201,24 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     inset 0 0 0 3px #ffc467,
     0 0 12px #ef6b2a;
   z-index: 3;
+}
+.evt-tile.seismic-warning {
+  box-shadow:
+    inset 0 0 0 3px #f5ac5a,
+    0 0 14px #d24d53;
+  z-index: 3;
+}
+.evt-seismic-ring {
+  position: absolute;
+  inset: 8%;
+  display: grid;
+  place-items: center;
+  color: #ffe0af;
+  border: 2px solid #f5ac5a;
+  background: #b32b466e;
+  font-weight: 900;
+  font-size: clamp(0.7rem, 1.7cqw, 1.45rem);
+  pointer-events: none;
 }
 .evt-burrow-ring {
   position: absolute;

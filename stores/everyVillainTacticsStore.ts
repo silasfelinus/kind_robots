@@ -113,6 +113,15 @@ export const useEveryVillainTacticsStore = defineStore(
     function heightAt(point: Cell) {
       return elevationAt(point, state.value.map)
     }
+    function isSeismicWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.seismicTarget &&
+          Math.abs(unit.seismicTarget.x - point.x) <= 1 &&
+          Math.abs(unit.seismicTarget.y - point.y) <= 1,
+      )
+    }
     function isBurrowWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -135,9 +144,11 @@ export const useEveryVillainTacticsStore = defineStore(
             ...PERSPECTIVES[perspective.value],
             headline: draft.value.objective,
             opening:
-              (draft.value.encounter === 'warren-wreckers'
-                ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
-                : '') +
+              (draft.value.encounter === 'quarry-lieutenant'
+                ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
+                : draft.value.encounter === 'warren-wreckers'
+                  ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                  : '') +
               draft.value.title +
               ' / ' +
               draft.value.venue +
@@ -297,6 +308,7 @@ export const useEveryVillainTacticsStore = defineStore(
         'has-cover': tileInfoAt(point) === 'cover',
         'has-wall': tileInfoAt(point) === 'wall',
         'burrow-warning': isBurrowWarning(point),
+        'seismic-warning': isSeismicWarning(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -315,6 +327,7 @@ export const useEveryVillainTacticsStore = defineStore(
       tileInfoAt,
       heightAt,
       isBurrowWarning,
+      isSeismicWarning,
       boardCells,
       perspective,
       leadSignature,

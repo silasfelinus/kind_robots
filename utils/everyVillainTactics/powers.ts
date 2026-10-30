@@ -582,6 +582,8 @@ export function powerBlocker(unit: Unit): string | null {
   if (!power) return 'No signature power'
   if (unit.hp <= 0) return 'Knocked out'
   if (unit.powerSpent) return 'Already used this battle'
+  if (unit.statuses.includes('sealed'))
+    return 'Sealed by a trademark stamp this turn'
   if ((unit.powerCooldown ?? 0) > 0)
     return 'Recharging: ' + unit.powerCooldown + ' turn(s)'
   if (unit.ap < power.ap) return 'Needs ' + power.ap + ' AP'

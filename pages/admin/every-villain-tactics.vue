@@ -96,6 +96,23 @@
                     >⚠</span
                   >
                   <span
+                    v-if="store.civilianAt(cell)"
+                    class="evt-civilian"
+                    :class="'is-' + store.civilianAt(cell)!.status"
+                    data-testid="tactics-civilian"
+                    aria-hidden="true"
+                    >{{
+                      store.civilianAt(cell)!.status === 'lost' ? '✕' : '☺'
+                    }}</span
+                  >
+                  <span
+                    v-if="store.isPhaseWarning(cell)"
+                    class="evt-phase-ring"
+                    data-testid="tactics-phase-warning"
+                    aria-hidden="true"
+                    >◷</span
+                  >
+                  <span
                     v-if="store.isBurrowWarning(cell)"
                     class="evt-burrow-ring"
                     data-testid="tactics-burrow-warning"
@@ -318,6 +335,22 @@
                 }}
                 ·
                 {{ store.powerStatus ?? 'READY' }}</span
+              >
+            </button>
+
+            <button
+              v-if="store.civilianCounts"
+              type="button"
+              class="evt-rescue"
+              data-testid="tactics-rescue"
+              :disabled="!store.canRescue"
+              @click="store.rescue()"
+            >
+              ☺ EVACUATE <small>E</small>
+              <span
+                >{{ store.civilianCounts.rescued }} safe ·
+                {{ store.civilianCounts.waiting }} waiting ·
+                {{ store.civilianCounts.lost }} lost</span
               >
             </button>
 
@@ -660,6 +693,15 @@
                   >
                   <span
                     v-else-if="
+                      store.draft.civilians?.some(
+                        (p) => p.x === cell.x && p.y === cell.y,
+                      )
+                    "
+                    data-testid="studio-civilian"
+                    >☺</span
+                  >
+                  <span
+                    v-else-if="
                       store.draft.map.tiles[cell.x + ',' + cell.y]?.elevation
                     "
                     >▲</span
@@ -726,8 +768,40 @@
               >
                 ▶ PLAYTEST THIS MAP
               </button>
+              <label class="evt-studio-label" for="evt-encounter"
+                >RIVAL LINE-UP</label
+              >
+              <select
+                id="evt-encounter"
+                v-model="store.draft.encounter"
+                data-testid="studio-encounter-select"
+              >
+                <option
+                  v-for="entry in STAGE_ENCOUNTERS"
+                  :key="entry.id ?? 'heroes'"
+                  :value="entry.id ?? undefined"
+                >
+                  {{ entry.label }}
+                </option>
+              </select>
               <small
-                v-if="store.draft.encounter === 'warren-wreckers'"
+                v-if="store.draft.encounter === 'wombat-ronin'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT TELEPORTERS · Lieutenant Teakettle's Clockwork Wombat
+                Ronin mark a clock-face exit on a hero's uncovered side, then
+                phase through it next turn. Occupy the exit to jam it.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'licensed-legends'"
+                data-testid="studio-encounter"
+              >
+                ONE-HIT WIND-UP TOYS · Sir Cap-Permission's mascots swarm and
+                block lanes. Starting a turn beside a hero, they stamp a seal
+                that locks that hero's signature power for a turn.
+              </small>
+              <small
+                v-else-if="store.draft.encounter === 'warren-wreckers'"
                 data-testid="studio-encounter"
               >
                 ONE-HIT ENCOUNTER · Foreman Thumpkin and Cornerstone's Warren
@@ -791,6 +865,46 @@
               <span>{{
                 store.story.mercy ? 'Mercy offered' : 'Ceasefire unresolved'
               }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section
+          v-if="store.oneShotScene"
+          class="evt-cinematic"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-oneshot-heading"
+          data-testid="tactics-oneshot-scene"
+        >
+          <div class="evt-cinematic-scenery" aria-hidden="true"></div>
+          <div class="evt-cinematic-content">
+            <div class="evt-cinematic-rail">
+              <span class="evt-overline">{{ store.oneShotScene.kicker }}</span>
+              <span>ONE-SHOT / COMET CITY</span>
+            </div>
+            <h2 id="evt-oneshot-heading">{{ store.oneShotScene.title }}</h2>
+            <div class="evt-dialogue" aria-live="polite">
+              <div
+                v-for="(entry, index) in store.oneShotScene.lines"
+                :key="index"
+                class="evt-dialogue-line"
+              >
+                <strong>{{ entry.speaker }}</strong>
+                <p>{{ entry.text }}</p>
+              </div>
+            </div>
+            <div class="evt-cinematic-actions">
+              <button
+                type="button"
+                class="evt-story-choice"
+                data-testid="tactics-scene-continue"
+                @click="store.dismissScene()"
+              >
+                <span class="evt-choice-number">↵</span>
+                <span class="evt-choice-body"><strong>Continue</strong></span>
+                <span aria-hidden="true">›</span>
+              </button>
             </div>
           </div>
         </section>
@@ -976,6 +1090,7 @@ import {
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
+import { STAGE_ENCOUNTERS } from '~/utils/everyVillainTactics/studio'
 import {
   ROLE_LABELS,
   WEAPON_LABELS,
@@ -1058,6 +1173,7 @@ const studioBrushes = [
   { value: 'rival-spawn', label: 'Rival spawn' },
   { value: 'secret', label: 'Secret' },
   { value: 'hazard', label: 'Hazard' },
+  { value: 'civilian', label: 'Civilian' },
 ] as const
 const studioCells = Array.from({ length: 54 }, (_, i) => ({
   x: i % 9,
@@ -1201,6 +1317,30 @@ function cellDescription(cell: Cell) {
         ? ' Occupied by ' + unitName(unit) + ', ' + unit.hp + ' health.'
         : '')
     )
+  const civilian = store.civilianAt(cell)
+  if (civilian)
+    return (
+      civilian.name +
+      (civilian.status === 'lost'
+        ? ', pulled into the tunnels'
+        : store.cellStyle(cell)['civilian-risk']
+          ? ', AT RISK: a dust ring is next to them'
+          : ', waiting for evacuation') +
+      ', column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      (unit ? '. Occupied by ' + unitName(unit) + '.' : '.')
+    )
+  if (store.isPhaseWarning(cell))
+    return (
+      'PORTAL EXIT, column ' +
+      (cell.x + 1) +
+      ', row ' +
+      (cell.y + 1) +
+      '. A wombat ronin phases here next turn. Stand on it to jam the portal.' +
+      (unit ? ' Occupied by ' + unitName(unit) + '.' : '')
+    )
   if (store.isBurrowWarning(cell))
     return (
       'BURROW WARNING, dust ring at column ' +
@@ -1225,6 +1365,13 @@ function cellDescription(cell: Cell) {
 }
 function onKey(event: KeyboardEvent) {
   if (activeComicIntro.value) return
+  if (store.oneShotScene) {
+    if (event.code === 'Enter' || event.code === 'Space') {
+      event.preventDefault()
+      store.dismissScene()
+    }
+    return
+  }
   if (
     event.altKey ||
     event.ctrlKey ||
@@ -1249,6 +1396,7 @@ function onKey(event: KeyboardEvent) {
   if (event.code === 'KeyM') store.setMode('move')
   else if (event.code === 'KeyF') store.setMode('fire')
   else if (event.code === 'KeyP') store.setMode('power')
+  else if (event.code === 'KeyE') store.rescue()
   else if (event.code === 'KeyO') store.overwatch()
   else if (event.code === 'KeyH') store.hunker()
   else if (event.code === 'KeyR') store.reset()
@@ -1275,6 +1423,49 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-civilian {
+  position: absolute;
+  inset: 0.15rem auto auto 0.25rem;
+  font-size: 0.95rem;
+  color: rgb(253 230 138);
+  pointer-events: none;
+}
+.evt-civilian.is-lost {
+  color: rgb(251 113 133);
+  opacity: 0.8;
+}
+.evt-tile.civilian-risk {
+  box-shadow: inset 0 0 0 3px rgb(251 113 133 / 0.9);
+}
+.evt-rescue {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgb(253 230 138 / 0.55);
+  border-radius: 0.6rem;
+  background: rgb(253 230 138 / 0.08);
+  color: inherit;
+  text-align: left;
+}
+.evt-rescue span {
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+.evt-rescue:disabled {
+  opacity: 0.55;
+}
+.evt-tile.phase-warning {
+  box-shadow: inset 0 0 0 3px rgb(167 139 250 / 0.9);
+}
+.evt-phase-ring {
+  position: absolute;
+  inset: auto 0.2rem 0.1rem auto;
+  color: rgb(196 181 253);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
 .evt-saves {
   display: grid;
   gap: 0.3rem;

@@ -3,7 +3,7 @@
 export type Point = { x: number; y: number }
 export type Side = 'north' | 'south' | 'east' | 'west'
 export type Cover = 'half' | 'full'
-export type Status = 'guarded' | 'suppressed' | 'marked'
+export type Status = 'guarded' | 'suppressed' | 'marked' | 'sealed'
 /** Short weapons hit hard up close and fade fast; long weapons prefer distance
  * and lose accuracy point-blank. 'mid' is the original First Bell rifle curve. */
 export type WeaponBand = 'short' | 'mid' | 'long'
@@ -410,7 +410,9 @@ export function refreshTurn(fighters: readonly Fighter[], team: string) {
     unit.moved = false
     unit.fired = false
     unit.overwatch = false
-    unit.statuses = unit.statuses.filter((status) => status === 'suppressed')
+    unit.statuses = unit.statuses.filter(
+      (status) => status === 'suppressed' || status === 'sealed',
+    )
   }
 }
 // Suppression affects the victim's next acting turn, never disappearing
@@ -418,6 +420,8 @@ export function refreshTurn(fighters: readonly Fighter[], team: string) {
 export function clearSuppression(fighters: readonly Fighter[], team: string) {
   for (const unit of fighters) {
     if (unit.team === team)
-      unit.statuses = unit.statuses.filter((status) => status !== 'suppressed')
+      unit.statuses = unit.statuses.filter(
+        (status) => status !== 'suppressed' && status !== 'sealed',
+      )
   }
 }

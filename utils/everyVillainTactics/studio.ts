@@ -19,6 +19,7 @@ export type StudioBrush =
   | 'rival-spawn'
   | 'secret'
   | 'hazard'
+  | 'civilian'
 
 export type StageSpawn = { id: string; x: number; y: number }
 export type StageDraft = {
@@ -32,8 +33,36 @@ export type StageDraft = {
   secrets: Point[]
   hazards: Point[]
   turnLimit: number | null
-  encounter?: 'warren-wreckers' | 'quarry-lieutenant'
+  encounter?: StageEncounter
+  /** Picnickers and bystanders the squad can evacuate (one-shot objective). */
+  civilians?: StageCivilian[]
+  /** Authored opening/triggered/final scene set for this one-shot. */
+  scenes?: 'picnic-panic'
 }
+export type StageCivilian = { id: string; name: string; x: number; y: number }
+/** Bystanders the civilian brush places, in order. */
+export const BYSTANDER_NAMES = [
+  'A lost tour group',
+  'The ice-cream vendor',
+  'A sleepy crossing guard',
+  'Two chess players mid-game',
+  'A dog walker with six dogs',
+  'The marching-band drummer',
+] as const
+/** Rival line-ups the studio can field. Crews are canonical one-hit SPECIES
+ * from villainHenchmen.json, each with its own telegraphed mechanic. */
+export type StageEncounter =
+  'warren-wreckers' | 'quarry-lieutenant' | 'wombat-ronin' | 'licensed-legends'
+export const STAGE_ENCOUNTERS: ReadonlyArray<{
+  id: StageEncounter | null
+  label: string
+}> = [
+  { id: null, label: 'Rival heroes' },
+  { id: 'warren-wreckers', label: 'Warren Wreckers · burrowing' },
+  { id: 'wombat-ronin', label: 'Clockwork Wombat Ronin · teleporting' },
+  { id: 'licensed-legends', label: 'Licensed Legends · wind-up toys' },
+  { id: 'quarry-lieutenant', label: 'Mags Hardpan · lieutenant' },
+]
 
 const DEFAULT_SPAWNS: StageSpawn[] = [
   { id: 'backdraft', x: 0, y: 4 },
@@ -162,6 +191,65 @@ export const STAGE_PRESETS: StageDraft[] = [
     secrets: [{ x: 4, y: 0 }],
     hazards: [],
     turnLimit: 7,
+    scenes: 'picnic-panic',
+    civilians: [
+      {
+        id: 'lemonade',
+        name: 'Gran Odile and the lemonade cooler',
+        x: 3,
+        y: 1,
+      },
+      { id: 'band', name: 'The brass band’s tuba player', x: 5, y: 5 },
+      { id: 'twins', name: 'The Abara twins and their kite', x: 5, y: 3 },
+    ],
+  },
+  {
+    version: 1,
+    id: 'quad-portal-watch',
+    title: 'Portal Watch at the Fountain',
+    encounter: 'wombat-ronin',
+    venue: 'College quad, central fountain',
+    objective:
+      'Hold the quad while Lieutenant Teakettle’s Clockwork Wombat Ronin phase behind your cover.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 2], [4, 3], [5, 2], [5, 3]),
+        '3,2': tile(0, false, { east: 'half' }),
+        '6,3': tile(0, false, { west: 'half' }),
+        '2,4': tile(1),
+        '6,1': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 3, y: 1 }],
+    hazards: [],
+    turnLimit: 9,
+  },
+  {
+    version: 1,
+    id: 'lab-mascot-recall',
+    title: 'Knockoff Mascot Recall',
+    encounter: 'licensed-legends',
+    venue: 'Science wing prop storage',
+    objective:
+      'Clear the aisles before Sir Cap-Permission’s wind-up mascots trademark every power in the lab.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([3, 0], [3, 1], [3, 3], [3, 4], [5, 1], [5, 2], [5, 4]),
+        '2,2': tile(0, false, { east: 'half', north: 'half' }),
+        '4,2': tile(0, false, { west: 'full' }),
+        '6,3': tile(0, false, { west: 'half' }),
+        '6,4': tile(0, false, { south: 'half' }),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 4, y: 4 }],
+    hazards: [],
+    turnLimit: 9,
   },
 ]
 
@@ -171,6 +259,11 @@ export const clonePreset = (id: string): StageDraft =>
 export function stageProblems(stage: StageDraft): string[] {
   const issues: string[] = []
   const { map } = stage
+  if (
+    stage.encounter !== undefined &&
+    !STAGE_ENCOUNTERS.some((entry) => entry.id === stage.encounter)
+  )
+    issues.push('Unknown rival encounter.')
   if (map.width !== 9 || map.height !== 6)
     issues.push('This Vignette supports a 9 × 6 battlefield.')
   if (!stage.title.trim() || !stage.objective.trim())
@@ -195,6 +288,20 @@ export function stageProblems(stage: StageDraft): string[] {
       stage.turnLimit > 40)
   )
     issues.push('Turn limits must be from 2 to 40 rounds.')
+  const civilianIds = new Set<string>()
+  for (const civilian of stage.civilians ?? []) {
+    if (!inside(map, civilian) || tileAt(map, civilian).wall)
+      issues.push('Civilians must wait on walkable ground.')
+    if (spawnKeys.has(at(civilian.x, civilian.y)))
+      issues.push('A civilian cannot share a spawn tile.')
+    if (!civilian.id || civilianIds.has(civilian.id))
+      issues.push('Each civilian needs a unique id.')
+    civilianIds.add(civilian.id)
+  }
+  if ((stage.civilians?.length ?? 0) > 6)
+    issues.push('A one-shot can hold at most six civilians.')
+  if (stage.scenes !== undefined && stage.scenes !== 'picnic-panic')
+    issues.push('Unknown scene set.')
   for (const marker of [...stage.secrets, ...stage.hazards]) {
     if (!inside(map, marker) || tileAt(map, marker).wall)
       issues.push('Secrets and hazards must occupy walkable cells.')
@@ -241,6 +348,26 @@ export function paintStage(
     }
     return next
   }
+  if (brush === 'civilian') {
+    if (occupied || tileAt(next.map, p).wall) return stage
+    const civilians = next.civilians ?? []
+    const exists = civilians.findIndex((c) => c.x === p.x && c.y === p.y)
+    if (exists >= 0) civilians.splice(exists, 1)
+    else {
+      if (civilians.length >= 6) return stage
+      let n = 1
+      while (civilians.some((c) => c.id === 'bystander-' + n)) n++
+      civilians.push({
+        id: 'bystander-' + n,
+        name: BYSTANDER_NAMES[(n - 1) % BYSTANDER_NAMES.length]!,
+        x: p.x,
+        y: p.y,
+      })
+    }
+    if (civilians.length) next.civilians = civilians
+    else delete next.civilians
+    return next
+  }
   if (brush === 'secret' || brush === 'hazard') {
     if (occupied || tileAt(next.map, p).wall) return stage
     const points = brush === 'secret' ? next.secrets : next.hazards
@@ -271,5 +398,9 @@ export function paintStage(
   next.map = { ...next.map, tiles }
   next.secrets = next.secrets.filter((q) => !tileAt(next.map, q).wall)
   next.hazards = next.hazards.filter((q) => !tileAt(next.map, q).wall)
+  if (next.civilians) {
+    next.civilians = next.civilians.filter((c) => !tileAt(next.map, c).wall)
+    if (!next.civilians.length) delete next.civilians
+  }
   return next
 }

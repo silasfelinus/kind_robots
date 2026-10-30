@@ -42,6 +42,7 @@ import {
   type VenueProgress,
 } from './solarCircuit'
 import { galacticEndingFor } from './galacticEndings'
+import { missionResultText } from './missionResults'
 import {
   UNCLAIMED_ENDING_CAPTAINS,
   type UnclaimedEnding,
@@ -891,16 +892,7 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
         : roll < chance + Math.floor((100 - chance) * 0.4)
           ? 'costly'
           : 'disaster'
-  const base = {
-    flawless:
-      'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
-    success:
-      'The away team did what it went to do. The people affected are still deciding what that means.',
-    costly:
-      'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
-    disaster:
-      'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
-  }[grade]
+  const base = missionResultText(active.missionId, grade)
   const chosen =
     active.party.map((id) => CREW.find((c) => c.id === id)!.name).join(' · ') ||
     'Shipboard remote intervention'

@@ -1,5 +1,5 @@
 /**
- * Hoshimori's connected twenty-site warm village preview.
+ * Hoshimori's connected twenty-eight-site warm village preview.
  * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
@@ -446,6 +446,172 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
       flag: 'e07-call-respected',
     },
   ),
+  site(
+    '5,5',
+    'The Borrowed Hearth',
+    'A zashiki-warashi keeps a mountain cottage warm for people whose names are missing from the village ledger. Its landlord wants a guest list before permitting another fire.',
+    {
+      id: 'host',
+      label: 'Spend a ration to welcome the unregistered guests',
+      outcome:
+        'The spirit sets out bowls without asking for names. The landlord loses a night of rent, and the travelers finally sleep indoors.',
+      rations: -1,
+      trust: 2,
+      flag: 'ridge-hosted',
+    },
+    {
+      id: 'measure',
+      label: 'Count empty beds without naming their occupants',
+      outcome:
+        'Pip records the beds, not the bodies. The landlord can plan for winter, but tonight the cottage has no extra food.',
+      trust: 1,
+      flag: 'ridge-measured',
+    },
+  ),
+  site(
+    '5,6',
+    'The Crane-Post',
+    'Paper cranes carry notes between households cut off by the mountain mist. One returns with a reply written in a hand its sender no longer recognizes.',
+    {
+      id: 'deliver',
+      label: 'Deliver the reply and let its recipient decide what it means',
+      outcome:
+        'The recipient keeps the strange handwriting. She recognizes the kindness even if she cannot prove who wrote it.',
+      trust: 1,
+      flag: 'crane-delivered',
+    },
+    {
+      id: 'copy',
+      label: 'Make a faithful copy before the ink dissolves',
+      outcome:
+        'The original flies on. Pip keeps a record of the words, carefully marked as evidence rather than a recovered memory.',
+      flag: 'crane-copied',
+    },
+  ),
+  site(
+    '6,5',
+    'The Orchard Tithe',
+    'A mountain steward claims a share of every persimmon carried downriver. The trees belong to nobody, but the bridge he maintains needs repairs.',
+    {
+      id: 'challenge',
+      label: 'Ask the steward to publish the actual bridge costs',
+      outcome:
+        'He opens his accounts. The bridge really is failing, but the fruit tax has been paying for his family supper too.',
+      trust: 1,
+      flag: 'tithe-audited',
+    },
+    {
+      id: 'compensate',
+      label: 'Pay for one repair without endorsing the tax',
+      outcome:
+        'A rotten plank is replaced before nightfall. The steward agrees to hold a public meeting about the rest of the toll.',
+      rations: -1,
+      trust: 2,
+      flag: 'tithe-repaired',
+    },
+  ),
+  site(
+    '6,6',
+    'The Moss-Stair Census',
+    'A procession of household spirits waits on stone steps. They are asked to sign a census that would count them as property of whichever home they protect.',
+    {
+      id: 'invite',
+      label: 'Invite the spirits to write their own terms',
+      outcome:
+        'Several sign as guests, not possessions. One refuses any ledger at all, and the registrar leaves a blank space.',
+      trust: 1,
+      flag: 'census-consented',
+    },
+    {
+      id: 'refuse',
+      label: 'Reject the census until it offers a right to leave',
+      outcome:
+        'The registrar shuts the book. The spirits remain uncounted, which protects their freedom but delays winter shelter allocations.',
+      flag: 'census-delayed',
+    },
+  ),
+  site(
+    '7,6',
+    'The Snowbell Relay',
+    'The last bell before the mountain pass can warn the village about stranded travelers. Ringing it also summons a patrol that has been turning unregistered guests away.',
+    {
+      id: 'signal',
+      label: 'Ring the bell and demand witnesses for the patrol',
+      outcome:
+        'The patrol arrives before the snow. With the bellkeeper watching, its captain agrees to escort travelers without checking their names.',
+      trust: 1,
+      flag: 'relay-witnessed',
+    },
+    {
+      id: 'wait',
+      label: 'Guide the travelers quietly before calling the patrol',
+      outcome:
+        'The travelers reach the ridge unharmed, but the patrol learns nothing about the people it has been excluding.',
+      flag: 'relay-quiet',
+    },
+  ),
+  site(
+    '8,6',
+    'The Ridge Assembly',
+    'Three households gather under a snow lantern to decide whether their high road can shelter strangers. Their written account depends on whose testimony you brought.',
+    {
+      id: 'open',
+      label: 'Propose an open road with a revocable shelter pledge',
+      outcome:
+        'The assembly agrees to a trial opening. Hosts may withdraw with notice, and the travelers may leave without surrendering their names.',
+      trust: 1,
+      flag: 'ridge-open',
+    },
+    {
+      id: 'trial',
+      label: 'Ask for a limited winter trial before promising passage',
+      outcome:
+        'The assembly marks a single safe route. Some travelers will still wait, but the trial has a public review date and an exit clause.',
+      flag: 'ridge-trial',
+    },
+  ),
+  site(
+    '8,5',
+    'The Pilgrim Hearth',
+    'A traveler has kept a cooking fire alive for people walking toward the snowbell. The kettle is nearly empty, and the village has not decided whether these strangers count.',
+    {
+      id: 'invite',
+      label: 'Share food before anyone asks for a surname',
+      outcome:
+        'The traveler divides your meal among four guests. Nobody is enrolled in a debt for accepting the warmth.',
+      rations: -1,
+      trust: 2,
+      flag: 'pilgrims-fed',
+    },
+    {
+      id: 'mend',
+      label: 'Repair the chimney so the fire survives the night',
+      outcome:
+        'The smoke clears and the fire holds. The kettle is still thin, but the shelter will not poison its guests.',
+      trust: 1,
+      flag: 'pilgrims-sheltered',
+    },
+  ),
+  site(
+    '8,4',
+    'The Shrine of Returning Names',
+    'At the ridge shrine, travelers hang wooden tags for names they have lost. The keeper says a returned name is a gift only if its owner wants it back.',
+    {
+      id: 'speak',
+      label: 'Read the tags aloud only to those who ask',
+      outcome:
+        'Two travelers reclaim names. A third chooses silence, and the keeper honors that as a complete answer.',
+      trust: 1,
+      flag: 'names-offered',
+    },
+    {
+      id: 'silence',
+      label: 'Leave the tags where their owners can find them privately',
+      outcome:
+        'The tags remain unclaimed through dusk. No one is forced to explain why a familiar name might now hurt.',
+      flag: 'names-sheltered',
+    },
+  ),
 ]
 
 export const HOSHIMORI_LANTERN_CLUE_SITES = ['1,2', '2,1', '3,2'] as const
@@ -631,6 +797,28 @@ const HOSHIMORI_HEARING_OUTCOMES: Readonly<Record<string, string>> = {
     'Your own supplies bridge one meal while the coals are banked. The baker asks for a witnessed pact, but the households insist on a withdrawal clause before anyone volunteers. This first hearing buys time rather than consent.',
   'feed:pause:relief':
     'Your shared supper and the banked furnace make the cost of refusing stolen memories visible. Neighbors organize a rota that might fail by dawn; nobody is forced to pay with their childhood. The first hearing ends with an open door, not a solution.',
+}
+
+export function hoshimoriRidgeAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const hearth = progress.choices['5,5']
+  const relay = progress.choices['7,6']
+  const assembly = progress.choices['8,6']
+  if (!hearth || !relay || !assembly) return null
+  const shelter =
+    hearth === 'host'
+      ? 'The cottage sheltered unregistered guests at the cost of a shared meal.'
+      : 'The cottage counted its beds without exposing its guests, but could not promise supper.'
+  const passage =
+    relay === 'signal'
+      ? 'A witnessed patrol agreed to escort travelers without demanding names.'
+      : "The travelers reached the ridge quietly, leaving the patrol's exclusion policy unresolved."
+  const decision =
+    assembly === 'open'
+      ? 'The assembly opened a revocable shelter route, with an exit for hosts and guests.'
+      : 'The assembly authorized one winter trial, leaving some people waiting for its public review.'
+  return [shelter, passage, decision].join(' ')
 }
 
 export function hoshimoriOvenResolution(
@@ -824,7 +1012,7 @@ export function restoreHoshimoriWarm(
 
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 20) errors.push('Expected twenty unique warm sites')
+  if (SITES.size !== 28) errors.push('Expected twenty-eight unique warm sites')
   if (OVEN.size !== 3) errors.push('Expected three first-oven rooms')
   for (const entry of HOSHIMORI_WARM_SITES) {
     const coords = entry.key.split(',').map(Number)
@@ -855,7 +1043,7 @@ export function validateHoshimoriWarm(): string[] {
       }
     }
   }
-  if (reached.size !== 20) errors.push('Warm map is disconnected')
+  if (reached.size !== 28) errors.push('Warm map is disconnected')
   if (!SITES.has('2,3') || !SITES.has('7,5'))
     errors.push('Earth-photo reservation drift')
   if (HOSHIMORI_LANTERN_CLUE_SITES.some((key) => !SITES.has(key)))

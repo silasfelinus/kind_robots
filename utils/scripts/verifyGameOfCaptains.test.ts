@@ -122,6 +122,11 @@ import {
   UNCLAIMED_ENDING_CAPTAINS,
 } from '../gameOfCaptains/baseEndingCaptains'
 import {
+  MISSION_RESULTS,
+  RESULT_TEXT,
+  missionResultText,
+} from '../gameOfCaptains/missionResults'
+import {
   BASE_ENDINGS,
   WARP_ENDINGS,
   antagonistArtKey,
@@ -195,6 +200,25 @@ for (const member of CREW_PROFILES) {
 }
 assert.equal(MISSIONS.length, 30)
 assert.ok(ANTAGONISTS.length >= 3)
+// Every call has its own flawless, costly and disaster return; a plain
+// success keeps the shared line.
+const gradedLines = MISSIONS.flatMap((mission) => {
+  const lines = MISSION_RESULTS[mission.id]
+  assert.ok(lines, `${mission.id} has graded returns`)
+  return (['flawless', 'costly', 'disaster'] as const).map((grade) => {
+    assert.ok(lines[grade].length > 100, `${mission.id} ${grade}`)
+    assert.equal(missionResultText(mission.id, grade), lines[grade])
+    return lines[grade]
+  })
+})
+assert.equal(new Set(gradedLines).size, 90, 'ninety distinct returns')
+assert.deepEqual(
+  Object.keys(MISSION_RESULTS).sort(),
+  MISSIONS.map((m) => m.id).sort(),
+)
+for (const mission of MISSIONS)
+  assert.equal(missionResultText(mission.id, 'success'), RESULT_TEXT.success)
+const graded = new Set<string>()
 for (const captain of CAPTAINS) {
   for (const seed of [1, 2, 2026, 404, 777]) {
     let run = startVoyage(captain.id, ['pell', 'mox', 'rue'], seed)
@@ -241,6 +265,13 @@ for (const captain of CAPTAINS) {
           run.report!.result,
         ),
       )
+      // The return reads the call's own line for its grade.
+      assert.ok(
+        run.report!.text.startsWith(
+          missionResultText(run.report!.missionId, run.report!.result),
+        ),
+      )
+      graded.add(`${run.report!.missionId}:${run.report!.result}`)
       assert.notEqual(JSON.stringify(run), original)
       assert.equal(launchMission(run), run)
       const saved = JSON.parse(JSON.stringify(run)) as unknown
@@ -267,6 +298,10 @@ for (const captain of CAPTAINS) {
     }
   }
 }
+assert.ok(
+  [...graded].some((key) => !key.endsWith(':success')),
+  'seeded voyages read graded returns',
+)
 // Every active crew profile owns three distinctive geographical steps.
 for (const member of CREW_PROFILES) {
   const path = CREW_JOURNEYS[member.id]

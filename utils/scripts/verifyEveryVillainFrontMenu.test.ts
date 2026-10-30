@@ -93,7 +93,7 @@ assert.deepEqual(earned.map((r) => r.id).sort(), [
 ])
 assert.ok(earned.every((r) => r.stage === 'First Bell'))
 let book = mergeScrapbook(emptyScrapbook(), earned)
-let pages = scrapbookPages(book)
+const pages = scrapbookPages(book)
 assert.equal(pages.filter((p) => p.record).length, 2)
 assert.equal(
   pages.find((p) => p.id === 'story:arrival')!.leadAlias,

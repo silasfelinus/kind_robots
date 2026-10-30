@@ -508,6 +508,15 @@ const comicArt = computed(() =>
     ? promArt(currentComicIntro.value.artKey)
     : null,
 )
+const cover =
+  promArt('front/splash-v2') ??
+  promArt('front/dashboard-highlight') ??
+  promArt('front/splash')
+const currentSignature = computed(() =>
+  signatureFor(selectedOrigin.value, selectedAffinity.value),
+)
+// Declared after currentSignature: the getter runs during setup, and reading
+// the computed before its declaration crashed the whole New Game screen.
 watch(
   () => [screen.value, selectedForm.value, currentSignature.value.id],
   () => {
@@ -518,13 +527,6 @@ watch(
       showComicIntro.value = true
     }
   },
-)
-const cover =
-  promArt('front/splash-v2') ??
-  promArt('front/dashboard-highlight') ??
-  promArt('front/splash')
-const currentSignature = computed(() =>
-  signatureFor(selectedOrigin.value, selectedAffinity.value),
 )
 const identity = computed(() => identityFor(currentSignature.value.id))
 const activeOrigin = computed(() =>

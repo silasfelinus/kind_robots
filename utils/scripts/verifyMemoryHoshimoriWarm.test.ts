@@ -8,6 +8,7 @@ import {
   hoshimoriLanternClues,
   hoshimoriLanternOrder,
   hoshimoriOvenResolution,
+  hoshimoriRidgeAccount,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -25,17 +26,17 @@ import {
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 20)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 20)
+assert.equal(HOSHIMORI_WARM_SITES.length, 28)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 28)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 3)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 20)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 28)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  40,
+  56,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -144,6 +145,28 @@ for (let seed = 0; seed < 96; seed++) {
     'All twenty sites, including the second Earth photograph, are reachable',
   )
   assert.equal(Object.keys(progress.choices).length, 20)
+  for (const key of [
+    '8,5',
+    '8,4',
+    '8,5',
+    '8,6',
+    '7,6',
+    '6,6',
+    '6,5',
+    '5,5',
+    '5,6',
+  ]) {
+    progress = move(progress, key)
+    if (!progress.choices[key]) {
+      const site = HOSHIMORI_WARM_SITES.find((item) => item.key === key)!
+      const affordable = site.choices.find(
+        (choice) => progress.rations + (choice.rations ?? 0) >= 0,
+      )!
+      progress = choose(progress, affordable.id)
+    }
+  }
+  assert.equal(progress.visited.length, 28, 'All ridge sites are reachable')
+  assert.equal(Object.keys(progress.choices).length, 28)
   assert.equal(hoshimoriLanternClues(progress).length, 3)
   const wrong = [...hoshimoriLanternOrder(seed)].reverse()
   if (wrong.join(':') !== hoshimoriLanternOrder(seed).join(':')) {
@@ -166,8 +189,7 @@ for (let seed = 0; seed < 96; seed++) {
     progress,
     'Lantern reward is once-only',
   )
-  for (const key of ['7,4', '6,4', '5,4', '4,4', '4,3'])
-    progress = move(progress, key)
+  for (const key of ['5,5', '5,4', '4,4', '4,3']) progress = move(progress, key)
   progress = advanceHoshimoriWarm(progress, { type: 'enter' })
   assert.equal(progress.ovenRoom, 'OV-01')
   assert.strictEqual(
@@ -293,6 +315,54 @@ assert.equal(
   24,
   'Eight oven resolutions and three Pip witness states must stay distinct',
 )
+
+const ridgeOutcomes = new Set<string>()
+for (const hearth of ['host', 'measure'] as const) {
+  for (const relay of ['signal', 'wait'] as const) {
+    for (const assembly of ['open', 'trial'] as const) {
+      let progress = newHoshimoriWarmProgress(37)
+      for (const key of [
+        '2,1',
+        '3,1',
+        '4,1',
+        '4,2',
+        '4,3',
+        '4,4',
+        '5,4',
+        '5,5',
+      ])
+        progress = move(progress, key)
+      progress = choose(progress, hearth)
+      for (const key of ['6,5', '6,6', '7,6']) progress = move(progress, key)
+      progress = choose(progress, relay)
+      progress = move(progress, '8,6')
+      assert.equal(
+        hoshimoriRidgeAccount(progress),
+        null,
+        'The assembly cannot claim an unmade decision',
+      )
+      progress = choose(progress, assembly)
+      const account = hoshimoriRidgeAccount(progress)
+      assert.ok(account)
+      ridgeOutcomes.add(account)
+      assert.deepEqual(
+        restoreHoshimoriWarm(JSON.parse(JSON.stringify(progress))),
+        progress,
+        'Ridge testimony survives action-replay restoration',
+      )
+      const forged = JSON.parse(
+        JSON.stringify(progress),
+      ) as HoshimoriWarmProgress
+      forged.choices['7,6'] = relay === 'signal' ? 'wait' : 'signal'
+      assert.equal(
+        restoreHoshimoriWarm(forged),
+        null,
+        'Ridge witness decisions cannot be forged in a checkpoint',
+      )
+    }
+  }
+}
+assert.equal(ridgeOutcomes.size, 8, 'The ridge has eight earned accounts')
 
 let pip = newHoshimoriWarmProgress(3)
 pip = move(pip, '2,1')

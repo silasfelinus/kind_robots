@@ -11,6 +11,9 @@ import {
   cityWon,
   createCity,
   decide,
+  decideStreet,
+  streetStory,
+  STREET_STORIES,
   gateReason,
   HEAT_LIMIT,
   recordBout,
@@ -70,6 +73,42 @@ for (const id of ids) {
   )
 }
 
+// Each road has a unique, authored first-crossing decision with actual stakes.
+assert.deepEqual(
+  new Set(Object.keys(STREET_STORIES)),
+  new Set(STREETS.map((street) => street[2])),
+  'Every road has exactly one authored encounter',
+)
+for (const [from, to, street] of STREETS) {
+  const seed = { ...createCity(), location: from }
+  const arriving = travel(seed, to)
+  assert.equal(arriving.pendingStreet, street)
+  assert.equal(arriving.nights, 1)
+  assert.equal(travel(arriving, from), arriving, 'No walking away from a pending story')
+  assert.equal(decide(arriving, CITY_PLAN[to].choices[0].id), arriving)
+  assert.equal(boutBlocked(arriving, to), 'Settle the street encounter first.')
+  assert.equal(decideStreet(arriving, 'invalid'), arriving)
+  const plan = streetStory(arriving)
+  assert.ok(plan?.title && plan?.scene)
+  assert.equal(plan.choices.length, 2)
+  assert.notEqual(plan.choices[0].id, plan.choices[1].id)
+  for (const choice of plan.choices) {
+    const next = decideStreet(arriving, choice.id)
+    assert.notEqual(next, arriving)
+    assert.equal(next.pendingStreet, null)
+    assert.equal(next.streetChoices[street], choice.id)
+    assert.equal(next.standing[to], choice.standing)
+    assert.equal(next.heat, Math.max(0, choice.heat))
+    assert.deepEqual(next.streetTerms[to], choice.terms)
+    assert.deepEqual(boutTerms(next, to), choice.terms)
+    assert.equal(decideStreet(next, plan.choices[0].id), next, 'Choice only once')
+    const returning = travel(next, from)
+    assert.equal(returning.pendingStreet, null, 'A resolved street does not demand replay')
+    assert.equal(returning.streetChoices[street], choice.id)
+  }
+}
+assert.equal(streetStory(createCity()), null)
+
 // Travel follows streets only and costs a night
 let city: CityState = createCity()
 assert.equal(city.location, 'pitworks')
@@ -77,16 +116,20 @@ assert.equal(travel(city, 'crown'), city, 'No street from Pitworks to Crown')
 city = travel(city, 'chimera')
 assert.equal(city.location, 'chimera')
 assert.equal(city.nights, 1)
+assert.equal(city.pendingStreet, 'Splice Avenue')
+assert.equal(decide(city, 'chimera-serum'), city)
+city = decideStreet(city, 'splice-smuggle')
+assert.equal(city.pendingStreet, null)
 
 // Decisions: once per district, with standing, heat and bout consequences
 const helped = decide(city, 'chimera-serum')
-assert.equal(helped.standing.chimera, 1)
+assert.equal(helped.standing.chimera, 2)
 assert.equal(helped.heat, 1)
 assert.equal(decide(helped, 'chimera-guards'), helped, 'Decide once')
-assert.deepEqual(boutTerms(helped, 'chimera'), { playerHp: 1 })
+assert.deepEqual(boutTerms(helped, 'chimera'), { playerHp: 2 })
 const sold = decide(city, 'chimera-guards')
-assert.equal(sold.standing.chimera, -2)
-assert.equal(totalStanding(sold), -2, 'Selling out costs citywide standing')
+assert.equal(sold.standing.chimera, -1)
+assert.equal(totalStanding(sold), -1, 'Selling out costs citywide standing')
 
 // Terms change the actual match
 const base = createMatch('blackout', 'riot', 'catgirls', 77)
@@ -95,7 +138,7 @@ const p0 = base.units.filter((u) => u.side === 'player')
 const p1 = hardy.units.filter((u) => u.side === 'player')
 assert.deepEqual(
   p1.map((u) => u.maxHp),
-  p0.map((u) => u.maxHp + 1),
+  p0.map((u) => u.maxHp + 2),
 )
 const thinned = applyTerms(base, boutTerms(sold, 'chimera'))
 assert.equal(
@@ -164,6 +207,11 @@ lab.visit('chimera')
 assert.equal(lab.route?.street, 'Splice Avenue')
 lab.walk()
 assert.equal(lab.city.location, 'chimera')
+assert.equal(lab.streetEvent?.title, 'THE RUNAWAY AMBULANCE')
+assert.equal(lab.streetProgress, 0)
+lab.chooseStreet('splice-smuggle')
+assert.equal(lab.streetProgress, 1)
+assert.equal(lab.streetEvent, null)
 lab.choose('chimera-serum')
 lab.fightRival()
 assert.equal(lab.view, 'arena')

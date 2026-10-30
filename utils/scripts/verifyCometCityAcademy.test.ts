@@ -2605,6 +2605,19 @@ assert.equal(
 )
 for (const vow of ['shelter', 'unmask', 'claim'])
   assert.ok(promArt('vows/' + vow), vow)
+// Every identity's outcome scenes (personalOutcomeArt, personalOutcomeArtKey)
+// ship, except two held back for a re-render (franchise look-alikes).
+assert.deepEqual(
+  SIGNATURE_POWERS.flatMap((p) =>
+    ['student', 'hero', 'villain', 'partner', 'betrayal']
+      .map((form) => `identities/${p.id}/outcomes/${form}`)
+      .filter((key) => !promArt(key)),
+  ),
+  [
+    'identities/tech-genius/outcomes/student',
+    'identities/psychic-discipline/outcomes/villain',
+  ],
+)
 // A stand-in only covers an ending still waiting on its own painting.
 for (const [ending, plate] of Object.entries(ENDING_STAND_INS)) {
   assert.ok(PROM_ENDINGS.includes(ending as (typeof PROM_ENDINGS)[number]))

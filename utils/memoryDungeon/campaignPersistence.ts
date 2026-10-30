@@ -1,6 +1,11 @@
 import {
   MEMORY_REALITY_EXPERIENCES,
   MEMORY_REALITY_PAIRS,
+  MEMORY_COLLISION_ORDER,
+  MEMORY_COLLISION_FRAGMENTS,
+  MEMORY_LAST_CHOICE,
+  recoverMemoryCollisionFragment,
+  chooseMemoryLastChoice,
   MEMORY_PAIR_ENDINGS,
   MEMORY_SCYLLA_DEPARTURE_CHOICES,
   chooseMemoryPairEnding,
@@ -54,8 +59,35 @@ export function restoreMemoryCampaignProgress(
   // order. This preserves earned paired content when a legacy save recorded
   // middle worlds in a different order, without granting any missing worlds.
   // A claim about history is not proof that its prerequisites were earned.
-  const canonicalRequested = MEMORY_REALITY_PAIRS.flat().filter((id) =>
-    requested.includes(id),
+  const isCurrentSave = saved.campaignVersion === 2
+  const oldFinale = (Array.isArray(saved.completed)
+    ? saved.completed
+    : []
+  ).filter(
+    (id): id is ExperienceId =>
+      typeof id === 'string' &&
+      /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
+  )
+  const legacyCompleted = isCurrentSave
+    ? Array.isArray(saved.legacyCompleted)
+      ? saved.legacyCompleted.filter((id): id is ExperienceId =>
+          typeof id === 'string' &&
+          /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
+        )
+      : []
+    : oldFinale
+  const canonicalRequested: ExperienceId[] = [
+    ...MEMORY_REALITY_PAIRS.flat(),
+    ...(isCurrentSave ? MEMORY_COLLISION_ORDER : []),
+  ].filter((id) => requested.includes(id))
+  const earnedFragments = new Set(
+    isCurrentSave && Array.isArray(saved.recoveredFragments)
+      ? saved.recoveredFragments.filter(
+          (id) =>
+            typeof id === 'string' &&
+            MEMORY_COLLISION_FRAGMENTS.some((part) => part.id === id),
+        )
+      : [],
   )
   const validEndingDecision = (id: MemoryPairEndingWorld): string | null => {
     const candidate = saved.pairDecisions?.[id]
@@ -68,7 +100,9 @@ export function restoreMemoryCampaignProgress(
     if (requested.includes(id) && id !== 'e02') return 'legacy-unresolved'
     return null
   }
-  let progress = fresh
+  let progress: MemoryCampaignProgress = legacyCompleted.length
+    ? { ...fresh, legacyCompleted: [...new Set(legacyCompleted)] }
+    : fresh
   for (const id of canonicalRequested) {
     if (
       progress.completed.includes(id) ||
@@ -112,9 +146,30 @@ export function restoreMemoryCampaignProgress(
         }
       }
     }
-    if (id === 'e13' && saved.finaleCommitted) {
+    if (id === 'e09' && saved.finaleCommitted)
       progress = commitToMemoryFinale(progress)
+    for (const fragment of MEMORY_COLLISION_FRAGMENTS) {
+      if (
+        fragment.world === id &&
+        earnedFragments.has(fragment.id)
+      )
+        progress = recoverMemoryCollisionFragment(progress, fragment.id)
     }
+    if (id === 'e12') {
+      const last = saved.lastChoice
+      if (last && MEMORY_LAST_CHOICE.some((option) => option.id === last))
+        progress = chooseMemoryLastChoice(progress, last)
+    }
+    if (
+      MEMORY_COLLISION_ORDER.some((world) => world === id) &&
+      MEMORY_COLLISION_FRAGMENTS.some(
+        (fragment) =>
+          fragment.world === id &&
+          !progress.recoveredFragments?.includes(fragment.id),
+      )
+    )
+      break
+    if (id === 'e12' && !progress.lastChoice) break
     progress = completeMemoryExperience(progress, id)
   }
 
@@ -157,14 +212,32 @@ export function restoreMemoryCampaignProgress(
       progress = chooseMemoryPairEnding(progress, pendingWorld, candidate)
   }
 
-  // The player commits after all three middle pairs, not an arbitrary
-  // two-pair shortcut. Preserve that commitment before e13 begins.
+  // The four paired acts earn the four-map finale, without old e13 locks.
   if (
     saved.finaleCommitted &&
     !progress.finaleCommitted &&
-    availableMemoryExperiences(progress).includes('e13')
+    availableMemoryExperiences(progress).includes('e09')
   ) {
     progress = commitToMemoryFinale(progress)
+  }
+  const remaining = availableMemoryExperiences(progress)[0]
+  if (remaining && MEMORY_COLLISION_ORDER.some((id) => id === remaining)) {
+    for (const fragment of MEMORY_COLLISION_FRAGMENTS) {
+      if (
+        fragment.world === remaining &&
+        earnedFragments.has(fragment.id)
+      )
+        progress = recoverMemoryCollisionFragment(progress, fragment.id)
+    }
+    if (remaining === 'e12') {
+      const last = saved.lastChoice
+      if (
+        last &&
+        MEMORY_LAST_CHOICE.some((option) => option.id === last) &&
+        !progress.lastChoice
+      )
+        progress = chooseMemoryLastChoice(progress, last)
+    }
   }
   return progress
 }

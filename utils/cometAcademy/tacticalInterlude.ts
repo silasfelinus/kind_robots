@@ -4,7 +4,10 @@ import { personalCounterpart } from './identitySerial'
 import { henchmanForVillain } from './villainHenchmen'
 import type { AcademyRun } from './rules'
 import type { SignaturePowerId } from './specialPowers'
-import { trainingState, type TrainingState } from '../everyVillainTactics/training'
+import {
+  trainingState,
+  type TrainingState,
+} from '../everyVillainTactics/training'
 
 export type TacticalInterlude = {
   day: number
@@ -67,15 +70,14 @@ export function newTacticalInterlude(
 
   const state = trainingState(battleSeed(run, run.playerCaseId))
   const [lead, first, second, rival, captain, minion] = state.units
-  if (!lead || !first || !second || !rival || !captain || !minion)
-    return null
+  if (!lead || !first || !second || !rival || !captain || !minion) return null
 
   const opponent = identityFor(run.opponentSignature)
   const species = henchmanForVillain(opponent.signature)
   const lieutenant = campaignStagesFor(opponent.signature).lieutenant
-  const assigned = run.assignments.find(
-    (entry) => entry.caseId === run.playerCaseId,
-  )?.students ?? []
+  const assigned =
+    run.assignments.find((entry) => entry.caseId === run.playerCaseId)
+      ?.students ?? []
   const allies = [first, second]
   lead.identity = run.signature
   lead.hp = 5
@@ -112,9 +114,7 @@ export function newTacticalInterlude(
   }
 }
 
-export function tacticalResultFor(
-  run: AcademyRun,
-): TacticalOutcome | null {
+export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
   const battle = run.tacticalBattle
   if (!battle || !['victory', 'defeat'].includes(battle.state.phase))
     return null

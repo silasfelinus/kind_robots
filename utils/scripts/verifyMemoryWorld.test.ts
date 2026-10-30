@@ -223,7 +223,6 @@ const houseSave = restoreBriarSave({
     decisions: { 'HD-03': 'route', 'HD-04': 'share' },
     wardenPassed: true,
     ending: 'release',
-    wardenPassed: true,
   },
 })
 assert.equal(houseSave.room, 'house')

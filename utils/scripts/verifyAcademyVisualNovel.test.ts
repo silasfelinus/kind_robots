@@ -3,13 +3,13 @@ import {
   chooseNovelNight,
   finishAcademy,
   incidentsFor,
+  openingNightFriend,
   restoreAcademy,
   resolveDispatch,
   startFullAcademy,
 } from '../cometAcademy/rules'
 import { fieldFor } from '../cometAcademy/identityArcs'
 import { newTacticalInterlude } from '../cometAcademy/tacticalInterlude'
-import { openingNightFriend } from '../cometAcademy/openingNightCases'
 
 const lead = 'accident-fire'
 const power = fieldFor(lead)

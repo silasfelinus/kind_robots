@@ -328,8 +328,12 @@ for (const role of ['captain', 'crew'] as const) {
 }
 assert.ok(page.includes('cap-personnel-hero-image'))
 assert.ok(page.includes('cap-personnel-hero-fallback'))
-assert.ok(page.includes('grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr)'))
-assert.ok(page.includes('grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr)'))
+assert.ok(
+  page.includes('grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr)'),
+)
+assert.ok(
+  page.includes('grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr)'),
+)
 assert.ok(page.includes('grid-template-rows: repeat(6, minmax(0, 1fr))'))
 assert.ok(page.includes('cap-layout--stars'))
 assert.ok(page.includes("selectionScreen === 'stars'"))

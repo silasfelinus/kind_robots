@@ -1,8 +1,8 @@
 /**
  * Earth photographs form an independent append-only evidence journal.
  *
- * Production authors 32 fixed beats (two per experience). Only e01/e02 are
- * collectible in the two currently playable realities. Future entries are
+ * Production authors 32 fixed beats (two per experience). Briar's four
+ * photographs and Hoshimori's first authored scene are collectible. Future entries are
  * never exposed by a progress counter, locked card, or UI teaser.
  * The protagonist's response is an enduring interpretation, not a retcon
  * of what the camera actually recorded.
@@ -459,7 +459,17 @@ export function newEarthChronicle(): EarthChronicle {
 }
 const KNOWN_PHOTOS = new Map(EARTH_PHOTOS.map((photo) => [photo.id, photo]))
 /** Only currently implemented realities may mint a collectible photo. */
-const PLAYABLE = new Set<ExperienceId>(['e01', 'e02'])
+const HOSHIMORI_FIRST_PHOTO = EARTH_PHOTOS.find(
+  (photo) => photo.experience === 'e07' && photo.site === '2,3',
+)!
+const COLLECTIBLE_PHOTO_IDS = new Set(
+  EARTH_PHOTOS.filter(
+    (photo) =>
+      photo.experience === 'e01' ||
+      photo.experience === 'e02' ||
+      photo.id === HOSHIMORI_FIRST_PHOTO.id,
+  ).map((photo) => photo.id),
+)
 const PLAYABLE_SCENE_CHOICES: Record<
   'e01' | 'e02',
   Record<string, readonly string[]>
@@ -494,8 +504,7 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
         ...new Set(
           saved.found.filter(
             (id): id is string =>
-              typeof id === 'string' &&
-              PLAYABLE.has(KNOWN_PHOTOS.get(id)?.experience as ExperienceId),
+              typeof id === 'string' && COLLECTIBLE_PHOTO_IDS.has(id),
           ),
         ),
       ].sort(
@@ -512,6 +521,30 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
     }
   }
   return { version: 1, found, responses }
+}
+
+/**
+ * Hoshimori's first photograph is earned only by an authored choice at 2,3.
+ * The caller must supply choices from a replay-validated e07 expedition and
+ * enforce the campaign's e06 entry gate. The later 7,5 photograph stays locked
+ * until that scene is playable.
+ */
+export function reconcileHoshimoriEarthChronicle(
+  original: EarthChronicle,
+  choices: Readonly<Record<string, string>>,
+): EarthChronicle {
+  const choice = choices[HOSHIMORI_FIRST_PHOTO.site]
+  if (
+    (choice !== 'question' && choice !== 'hold') ||
+    original.found.includes(HOSHIMORI_FIRST_PHOTO.id)
+  )
+    return original
+  return {
+    ...original,
+    found: [...original.found, HOSHIMORI_FIRST_PHOTO.id].sort(
+      (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
+    ),
+  }
 }
 
 /** Reconcile older Briar scene saves, without duplicating evidence or guessing undiscovered photos. */
@@ -564,7 +597,7 @@ export function recoveredEarthPhotos(chronicle: EarthChronicle): EarthPhoto[] {
     .map((id) => KNOWN_PHOTOS.get(id))
     .filter(
       (photo): photo is EarthPhoto =>
-        Boolean(photo) && PLAYABLE.has(photo!.experience),
+        Boolean(photo) && COLLECTIBLE_PHOTO_IDS.has(photo!.id),
     )
     .sort((a, b) => a.order - b.order)
 }

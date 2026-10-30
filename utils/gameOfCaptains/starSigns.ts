@@ -7,69 +7,75 @@ export const STAR_QUEST_CHAPTERS = [1, 4, 7] as const
 
 export const STAR_QUESTIONS = [
   {
-    prompt: 'A moon is protesting the sunrise. Your first instinct?',
-    cue: 'THE MORAL COMPASS',
+    prompt: 'The moon has filed a formal grievance against sunrise. How do you close the ticket?',
+    cue: 'FORM HR-01 · CONFLICT MANAGEMENT',
     options: [
       {
-        label: 'Offer the moon a blanket and a mediator',
-        flavor: 'Care before procedure',
+        label: 'Offer the moon a blanket and an impartial mediator',
+        flavor: 'Empathy, pending budget approval',
       },
       {
-        label: 'Audit the sun. Something is being hidden.',
-        flavor: 'Evidence before guesses',
-      },
-      { label: 'Move the sunrise to Thursday', flavor: 'The bold solution' },
-    ],
-  },
-  {
-    prompt: 'A stranger on the couch claims to be you from next week.',
-    cue: 'THE IMPROBABLE GUEST',
-    options: [
-      {
-        label: 'Give them tea and ask how they feel',
-        flavor: 'An excellent listener',
+        label: 'Audit the sun for undisclosed conflicts of interest',
+        flavor: 'Due diligence, possibly excessive',
       },
       {
-        label: 'Compare fingerprints and contradictory memories',
-        flavor: 'An incurable investigator',
-      },
-      {
-        label: 'Challenge them to a zero-gravity dance-off',
-        flavor: 'An enthusiastic improviser',
+        label: 'Reschedule sunrise for Thursday without consulting anyone',
+        flavor: 'Executive decisiveness',
       },
     ],
   },
   {
-    prompt: 'Your miniature redshirts discover a planet-sized lost-and-found.',
-    cue: 'THE GREAT RESPONSIBILITY',
+    prompt: 'Next-week-you arrives on the couch requesting retroactive leave. HR demands a response.',
+    cue: 'FORM HR-02 · IDENTITY VERIFICATION',
     options: [
       {
-        label: 'Find the owners, even the inconvenient ones',
-        flavor: 'A guardian of promises',
+        label: 'Provide tea and ask about their work-life balance',
+        flavor: 'Unbillable emotional labor',
       },
       {
-        label: 'Catalogue every mysterious object',
-        flavor: 'A keeper of secrets',
+        label: 'Cross-check memories, signatures and the time-stamped badge',
+        flavor: 'An inconveniently thorough investigation',
       },
       {
-        label: 'Try on the crown marked DO NOT WEAR',
-        flavor: 'A patron of glorious accidents',
+        label: 'Declare a mandatory zero-gravity team-building exercise',
+        flavor: 'Conflict resolved through organized spectacle',
       },
     ],
   },
   {
-    prompt: 'The universe offers one free miracle, with an invoice to follow.',
-    cue: 'THE FINAL TRANSMISSION',
+    prompt: 'Your interns discover a planet-sized lost-property depot. Headquarters wants measurable results.',
+    cue: 'FORM HR-03 · ASSET STEWARDSHIP',
     options: [
       {
-        label: 'Save someone no one else will remember',
-        flavor: 'A quiet act of courage',
+        label: 'Return every object to its owner, including the dangerous ones',
+        flavor: 'Accountability without an expense limit',
       },
       {
-        label: 'Reveal one truth that cannot be erased',
-        flavor: 'A dangerous revelation',
+        label: 'Catalog the artifacts before anyone can erase the records',
+        flavor: 'Documentation is its own reward',
       },
-      { label: 'Give everyone a new ending', flavor: 'An extravagant rewrite' },
+      {
+        label: 'Wear the royal crown from the restricted inventory',
+        flavor: 'Leadership initiative, legally questionable',
+      },
+    ],
+  },
+  {
+    prompt: 'You are authorized to approve one miracle. Finance has forwarded you the invoice.',
+    cue: 'FORM HR-04 · EXECUTIVE RESOURCE ALLOCATION',
+    options: [
+      {
+        label: 'Rescue someone the quarterly report forgot to include',
+        flavor: 'Impact outside the approved metrics',
+      },
+      {
+        label: 'Publish the one truth the board has been suppressing',
+        flavor: 'Transparency without a communications plan',
+      },
+      {
+        label: 'Fund a new ending for everyone, then resign',
+        flavor: 'Transformational change and a severance request',
+      },
     ],
   },
 ] as const
@@ -88,6 +94,21 @@ export type StarSignId =
   | 'last-lantern'
   | 'moonlit-upholsterer'
   | 'cosmic-turnip'
+export const STAR_HR_VERDICTS: Record<StarSignId, string> = {
+  'northern-sloth': 'You demonstrate exceptional strategic patience. Payroll has classified this as lateness.',
+  'princess-mantic-shrimp': 'High impact in a compact package. The workplace damage waiver is mandatory.',
+  'velvet-comet': 'Your presentation skills are outstanding. Your expense reports enter the room first.',
+  'clockwork-minnow': 'Precision-oriented and temporally flexible. Your timesheets are under investigation.',
+  'royal-dust-bunny': 'You excel at overlooked tasks. Management plans to continue overlooking you.',
+  'laughing-leviathan': 'An effective morale contributor. Laughter remains a non-reimbursable expense.',
+  'nebular-teapot': 'Excellent host and conflict de-escalator. Hospitality is now an unpaid core duty.',
+  'three-headed-librarian': 'You possess three competing conclusions. The committee recognizes all of them as final.',
+  'feral-umbrella': 'Your protective instincts exceed policy allowances. Please return the company weather.',
+  'last-lantern': 'A natural guide during emergencies. Your night-shift differential has been denied.',
+  'moonlit-upholsterer': 'You repair systemic damage beautifully. HR has renamed this a personal initiative.',
+  'cosmic-turnip': 'Remarkable capacity to establish roots. Remote work has consequently been revoked.',
+}
+
 export type StarAssessment = {
   answers: StarAnswers
   sign: StarSignId

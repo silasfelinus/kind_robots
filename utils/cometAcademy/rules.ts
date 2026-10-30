@@ -2138,7 +2138,8 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
         data.tacticalHistory.some(
           (entry) =>
             !validTacticalOutcome(entry, data as AcademyRun) ||
-            entry.day >= (data.day ?? 0),
+            entry.day > (data.day ?? 0) ||
+            (entry.day === data.day && data.phase === 'dispatch'),
         ))) ||
     (data.tacticalBattle != null && data.tacticalResult != null)
   )

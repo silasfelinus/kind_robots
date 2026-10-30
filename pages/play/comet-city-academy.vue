@@ -1203,7 +1203,9 @@ const stageScenery = computed(
 )
 const villainPortrait = computed(() => academyVillainArt(run.value))
 /** A student's portrait once its render ships; initials stand in until then. */
-const studentPortrait = (id: string) => promArt(studentArtKey(id))
+/** A student's own portrait, else their neutral mission-reaction face. */
+const studentPortrait = (id: string) =>
+  promArt(studentArtKey(id)) ?? promArt(studentArtKey(id) + '-neutral')
 const mastermind = computed(() =>
   run.value?.flowVersion === 3
     ? campaignVillain(run.value.seed, run.value.mastermind)

@@ -206,7 +206,15 @@ export function restoreBriarCombat(
       state.enemy.beatsLeft < 1 ||
       state.enemy.beatsLeft > room.enemy.every ||
       state.playerHp > room.playerHp ||
-      state.focus > room.focus
+      state.focus > room.focus ||
+      (state.history !== undefined &&
+        (state.history.initialPlayerHp !== room.playerHp ||
+          state.history.initialFocus !== room.focus ||
+          state.history.actions.some(
+            (action) =>
+              action.type === 'strike' &&
+              !room.loadout.includes(action.weaponId),
+          )))
     )
       return null
   }

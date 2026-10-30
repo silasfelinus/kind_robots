@@ -727,6 +727,55 @@ export function memoryCoreEndingId(progress: MemoryCampaignProgress): number | n
   return flags.reduce((id, enabled, index) => id + (enabled ? 1 << index : 0), 0)
 }
 
+/**
+ * Thirty-two different authored endpoint texts. Scenes and illustrated
+ * cinematic production remain future work; these are deterministic story
+ * contracts grounded in the four act choices and final resolution.
+ */
+export const MEMORY_CORE_ENDINGS = [
+  { title: 'The Road Nobody Claimed', closing: 'With the worlds separated, the surviving villagers keep their refuge maps private. Morrow\'s city learns to live without a magical shortcut.' },
+  { title: 'Witnesses at the Quiet Border', closing: 'Briar\'s witnesses open an independent road tribunal, but crossing remains optional. The forest earns trust by refusing to demand it.' },
+  { title: 'The Shore That Remembers', closing: 'Scylla will never forget the gate Char held. The worlds separate before anyone can demand that another sister become the price of passage.' },
+  { title: 'The Last Honest Confession', closing: 'Briar\'s witnesses publish the rescue and its terrible price. The worlds still separate, with Char\'s name left in the hearing as an irreducible fact.' },
+  { title: 'The Sealed Royal Letter', closing: 'The court\'s testimony becomes public, but no border can repair a missing conversation. Families work across the divide through letters carried by volunteers.' },
+  { title: 'A Choir of Unfinished Claims', closing: 'Briar\'s rescued families and the mermaid court challenge their official histories. Separation protects their right to disagree rather than one ruler\'s preferred story.' },
+  { title: 'The Bell at the Empty Gate', closing: 'Char\'s sacrifice and the sea court\'s full testimony cannot be made harmless. A bell rings for the missing on both shores, and each shore keeps its own law.' },
+  { title: 'The Archive That Refused a Verdict', closing: 'Witnesses of Briar and the sea reject a single heroic summary of the gate. They protect a truthful record even when the worlds choose to part.' },
+  { title: 'The Village with Open Doors', closing: 'Hoshimori\'s doors remain open after the borders settle. Every traveler must still ask to enter, and no home is turned into a compulsory shelter.' },
+  { title: 'A Road Through the Cedar Trees', closing: 'Briar and Hoshimori create a voluntary courier route between separated worlds. Vesper shares oversight rather than selling the road.' },
+  { title: 'The Lantern for Char', closing: 'Hoshimori\'s children hang a lantern for the sister lost at the crossing. Their village keeps its gates open, but refuses a promise that everyone can be saved.' },
+  { title: 'When Every Witness Walked Home', closing: 'The village witnesses, the forest and Scylla all keep their own exits. The gate\'s loss remains real, yet no one can use it to cage a survivor.' },
+  { title: 'The Tide Charter', closing: 'Open Hoshimori doors and public sea testimony allow a shared rescue compact. Separate shores accept oversight instead of a permanent magical empire.' },
+  { title: 'The Moth\'s Unbroken Route', closing: 'Vesper\'s neighbors protect the hidden roads while Briar\'s witnesses cross voluntarily. The sea testimony stays available without revealing a single refuge address.' },
+  { title: 'An Open Door, an Empty Chair', closing: 'The sea court and Hoshimori publish the costs of passage, including Char\'s death. The worlds part without pretending the empty chair belongs to a better timeline.' },
+  { title: 'The Many-Lantern Accord', closing: 'Forest, sea and village witnesses refuse a universal truth and write their separate rules together. Every door opens from inside.' },
+  { title: 'Threads of a New Crossing', closing: 'The repaired crossings join independent homes, not conquered territories. Each refuge keeps a right to withdraw its road from the network.' },
+  { title: 'The Witness Bridge', closing: 'Briar\'s witnesses supervise a fragile shared route. Morrow\'s office workers can object to a magical rule and expect an answer.' },
+  { title: 'The Sister\'s Unfinished Map', closing: 'The crossings reopen with Char\'s loss written into their foundation, not erased from them. Scylla chooses to protect travelers who were not her sister.' },
+  { title: 'The Price on Every Ticket', closing: 'Briar witnesses name the cost of the earlier rescue. The joined worlds require informed consent, even when that makes a miracle slower.' },
+  { title: 'The Open Royal Archive', closing: 'Sea testimony turns a single passage into a place for disagreement. No royal signature can waive another passenger\'s consent.' },
+  { title: 'The Bridge of Contrary Stories', closing: 'Briar and the sea court share routes while preserving incompatible records. The bridge works precisely because nobody may rewrite an opposing witness.' },
+  { title: 'The Tide That Kept Its Name', closing: 'A restored crossing carries the story of Char\'s death into the future without turning it into a command. Scylla can grieve without owning the lives of strangers.' },
+  { title: 'The Archive of Living Risks', closing: 'Every witness can contest the repair. The bridge remains provisional, and the royal record includes the families once displaced by Vesper\'s map.' },
+  { title: 'The Lantern Exchange', closing: 'Hoshimori opens its gates to the reconstructed roads. Guests may accept food, refuse memory payment, and return to homes that remain their own.' },
+  { title: 'The Cedar and the Wolf', closing: 'Vesper\'s community and Briar\'s witnesses administer a shared passage. Neither a cartographer nor a guardian may publish every address.' },
+  { title: 'A Lantern Carried for Two', closing: 'Scylla crosses the new route carrying the memory of Char\'s last stand. Hoshimori offers a place to stay without calling the visit a cure.' },
+  { title: 'The Map With Room to Leave', closing: 'Briar and Hoshimori witnesses oversee the repair, and Char\'s sacrifice remains documented. Any traveler can choose the slower way out.' },
+  { title: 'The Open Sea Council', closing: 'The mermaid court and lantern village welcome each other without merging their laws. Every family can revoke a promise made in its name.' },
+  { title: 'The Wing and the Wave', closing: 'Vesper\'s shared atlas protects refugees while royal witnesses oversee the tides. The repaired worlds give even an absent person a right to privacy.' },
+  { title: 'The Unpaid Debt of the Living', closing: 'Char\'s death cannot be traded for a flawless ending. The reunited worlds instead keep open the roads on which future rescues may be freely chosen.' },
+  { title: 'The Unwritten Country of Many Hands', closing: 'All four journeys converge without a compulsory final author. Forest, city, sea and village keep the power to say no, and their people decide what comes next.' },
+] as const
+
+export function memoryCoreEnding(
+  progress: MemoryCampaignProgress,
+): { id: number; title: string; closing: string } | null {
+  const id = memoryCoreEndingId(progress)
+  if (id === null) return null
+  const ending = MEMORY_CORE_ENDINGS[id]!
+  return { id, title: ending.title, closing: ending.closing }
+}
+
 /** Vary the epilogue with choices that do not multiply the 32 core endings. */
 export function memoryEndingConsequences(progress: MemoryCampaignProgress): string[] {
   if (!progress.completed.includes('e12')) return []
@@ -1028,6 +1077,8 @@ export function validateMemoryReimaginerCampaign(): string[] {
     errors.push('Every finale map must physically mix rules and locations')
   if (MEMORY_LAST_CHOICE.length !== 2)
     errors.push('The last decision must have two consequences')
+  if (MEMORY_CORE_ENDINGS.length !== 32 || new Set(MEMORY_CORE_ENDINGS.map((ending) => ending.title)).size !== 32)
+    errors.push('Core finale needs thirty-two distinct authored outcomes')
   if (MEMORY_FINALE_PHASES.length < 6)
     errors.push(
       'Finale needs multiple playable realities and at least five transitions',

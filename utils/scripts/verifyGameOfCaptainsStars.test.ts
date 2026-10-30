@@ -287,18 +287,48 @@ assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
 assert.ok(page.includes('data-testid="space-couch-background-next"'))
 
 assert.ok(page.includes("  'captain',"), 'new voyage starts at captain selection')
-assert.ok(page.includes("selectionScreen.value = 'captain'"), 'restart returns to captain')
-assert.ok(page.includes('@click="selectionScreen = \'background\'"'), 'captain advances to background')
-assert.ok(page.includes('@click="selectionScreen = \'stars\'"'), 'background advances to Couchscope')
-assert.ok(page.includes('@back="selectionScreen = \'background\'"'), 'Couchscope back returns to background')
-assert.ok(page.includes("warpArt('origins/' + origin.id)"), 'every origin reserves an art slot')
+assert.ok(
+  page.includes("selectionScreen.value = 'captain'"),
+  'restart returns to captain',
+)
+assert.ok(
+  page.includes('@click="selectionScreen = \'background\'"'),
+  'captain advances to background',
+)
+assert.ok(
+  page.includes('@click="selectionScreen = \'stars\'"'),
+  'background advances to Couchscope',
+)
+assert.ok(
+  page.includes('@back="selectionScreen = \'background\'"'),
+  'Couchscope back returns to background',
+)
+assert.ok(
+  page.includes("warpArt('origins/' + origin.id)"),
+  'every origin reserves an art slot',
+)
 assert.ok(page.includes('cap-origin-art'), 'background is image-led')
-assert.ok(page.includes('cap-origin-ready'), 'detail text waits for image readiness')
-assert.ok(page.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'compact 3-column mobile statistics')
-assert.ok(quiz.includes('scope-answer-art'), 'Couchscope options reserve a painted art slot')
-assert.ok(quiz.includes('couchscope/question-'), 'Couchscope art slots are sign-specific')
-assert.ok(quiz.includes('scope-option-ready'), 'Couchscope detail text reveals after image')
-assert.ok(STAR_QUESTIONS.every(q => q.cue.startsWith('FORM HR-')))
+assert.ok(
+  page.includes('cap-origin-ready'),
+  'detail text waits for image readiness',
+)
+assert.ok(
+  page.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'),
+  'compact 3-column mobile statistics',
+)
+assert.ok(
+  quiz.includes('scope-answer-art'),
+  'Couchscope options reserve a painted art slot',
+)
+assert.ok(
+  quiz.includes('couchscope/question-'),
+  'Couchscope art slots are sign-specific',
+)
+assert.ok(
+  quiz.includes('scope-option-ready'),
+  'Couchscope detail text reveals after image',
+)
+assert.ok(STAR_QUESTIONS.every((q) => q.cue.startsWith('FORM HR-')))
 
 assert.ok(page.includes("selectionScreen = 'captain'"))
 assert.ok(page.includes("selectionScreen = 'stars'"))

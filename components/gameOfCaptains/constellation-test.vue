@@ -100,9 +100,7 @@
               <img
                 class="scope-answer-art"
                 :src="answerArtwork(index)"
-                :alt="
-                  'Illustration for option ' + String.fromCharCode(65 + index)
-                "
+                alt=""
                 @load="artReady[index] = true"
                 @error="artReady[index] = true"
               />
@@ -141,7 +139,7 @@
               type="button"
               class="scope-secondary"
               data-testid="space-couch-star-retake"
-              @click="answers = []"
+              @click="retakeAssessment"
             >
               CHANGE MY ANSWERS
             </button>
@@ -161,7 +159,7 @@
           v-if="answers.length && !assessment"
           type="button"
           data-testid="space-couch-star-back"
-          @click="answers = answers.slice(0, -1)"
+          @click="previousQuestion"
         >
           ← PREVIOUS ANSWER
         </button>
@@ -230,6 +228,14 @@ const constellations: [number, number][] = [
   [225, 355],
   [383, 327],
 ]
+function retakeAssessment() {
+  answers.value = []
+  artReady.value = {}
+}
+function previousQuestion() {
+  answers.value = answers.value.slice(0, -1)
+  artReady.value = {}
+}
 function choose(index: number) {
   if (answers.value.length >= STAR_QUESTIONS.length || index < 0 || index > 2)
     return

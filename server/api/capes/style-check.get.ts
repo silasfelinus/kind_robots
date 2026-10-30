@@ -64,7 +64,11 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       statusCode: 200,
-      message: result.length + ' of ' + CAPES_STYLE_SUBJECTS.length * 6 + ' benchmark ArtJobs located.',
+      message:
+        result.length +
+        ' of ' +
+        CAPES_STYLE_SUBJECTS.length * 6 +
+        ' benchmark ArtJobs located.',
       data: { jobs: result },
     }
   } catch (error: unknown) {

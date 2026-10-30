@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   advance, CARDS, createMatch, deploy, DISTRICTS, legalNeighbor, MODES, move, reveal,
-  TEAMS, teamById, type MatchState,
+  TEAMS, type MatchState,
 } from '../slimeCity/prototypes'
 
 assert.equal(TEAMS.length, 6)

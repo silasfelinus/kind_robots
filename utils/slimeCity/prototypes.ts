@@ -251,6 +251,10 @@ export interface ViewFighter {
   /** Its AMBUSH has not struck yet. */
   ambushReady: boolean | null
   carryingFlag: boolean
+  range: number | null
+  attackStyle: AttackStyle | null
+  summonedRound: number | null
+  attackedRound: number | null
   /** Public: a rooted fighter visibly cannot move this round. */
   rooted: boolean
 }
@@ -2414,6 +2418,10 @@ export function observe(state: MatchState, side: Side): MatchView {
           keywords: known ? [...(u.keywords ?? [])] : null,
           ambushReady: known ? hasKeyword(u, 'ambush') && !u.struck : null,
           carryingFlag: u.carryingFlag,
+          range: known ? (u.range ?? 1) : null,
+          attackStyle: known ? (u.attackStyle ?? 'sword') : null,
+          summonedRound: known ? (u.summonedRound ?? 0) : null,
+          attackedRound: known ? (u.attackedRound ?? 0) : null,
           rooted: isRooted(state, u),
         }
       }),

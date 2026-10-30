@@ -419,7 +419,12 @@
                     :key="captain.id"
                     type="button"
                     class="cap-captain"
-                     :class="{ chosen: captain.id === selectedCaptain, 'cap-captain-ready': captainArtReady[captain.id] || !portrait('captain-' + captain.id) }"
+                    :class="{
+                      chosen: captain.id === selectedCaptain,
+                      'cap-captain-ready':
+                        captainArtReady[captain.id] ||
+                        !portrait('captain-' + captain.id),
+                    }"
                     :aria-pressed="captain.id === selectedCaptain"
                     @click="selectedCaptain = captain.id"
                   >

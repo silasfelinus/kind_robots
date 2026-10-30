@@ -5,6 +5,7 @@ import {
   attack,
   mayAttack,
   blowDamage,
+  legalNeighbor,
   cardById,
   cardReady,
   CARDS,
@@ -128,6 +129,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ? blowDamage(match.value, selected.value, selectedTarget.value)
       : 0,
   )
+  function canMoveTo(x: number, y: number): boolean {
+    const fighter = selected.value
+    return !!fighter && mode.value === 'blackout' && fighter.ap > 0 &&
+      legalNeighbor(fighter, { x, y }) &&
+      !match.value.units.some((u) => u.x === x && u.y === y) &&
+      !(match.value.monster?.x === x && match.value.monster?.y === y)
+  }
+
   function chooseAttackTarget(id: number): void {
     if (id === -1) {
       if (selected.value && match.value.monster &&
@@ -456,6 +465,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedUnit,
     targetUnit,
     attackTargets,
+    canMoveTo,
     selectedTarget,
     attackPreview,
     running,

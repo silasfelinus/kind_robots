@@ -12,6 +12,7 @@ import {
   hoshimoriOvenSecondAccount,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
+  hoshimoriWindwardAccount,
   hoshimoriOvenTestimony,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
@@ -29,17 +30,17 @@ import {
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
-assert.equal(HOSHIMORI_WARM_SITES.length, 36)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 36)
+assert.equal(HOSHIMORI_WARM_SITES.length, 44)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 44)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 9)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 36)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 44)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>
       site.choices.map((choice) => choice.outcome),
     ),
   ).size,
-  72,
+  88,
   'Every authored decision must have a distinct outcome',
 )
 
@@ -180,6 +181,32 @@ for (let seed = 0; seed < 96; seed++) {
   }
   assert.equal(progress.visited.length, 36, 'All lowland sites are reachable')
   assert.equal(Object.keys(progress.choices).length, 36)
+  for (const key of [
+    '4,4',
+    '4,3',
+    '4,2',
+    '4,1',
+    '5,1',
+    '6,1',
+    '7,1',
+    '8,1',
+    '8,2',
+    '7,2',
+    '6,2',
+    '5,2',
+  ]) {
+    progress = move(progress, key)
+    if (!progress.choices[key]) {
+      const site = HOSHIMORI_WARM_SITES.find((item) => item.key === key)!
+      const affordable = site.choices.find(
+        (choice) => progress.rations + (choice.rations ?? 0) >= 0,
+      )!
+      progress = choose(progress, affordable.id)
+    }
+  }
+  assert.equal(progress.visited.length, 44, 'All windward sites are reachable')
+  assert.equal(Object.keys(progress.choices).length, 44)
+  assert.ok(hoshimoriWindwardAccount(progress))
   assert.equal(hoshimoriLanternClues(progress).length, 3)
   const wrong = [...hoshimoriLanternOrder(seed)].reverse()
   if (wrong.join(':') !== hoshimoriLanternOrder(seed).join(':')) {
@@ -202,7 +229,7 @@ for (let seed = 0; seed < 96; seed++) {
     progress,
     'Lantern reward is once-only',
   )
-  for (const key of ['5,5', '5,4', '4,4', '4,3']) progress = move(progress, key)
+  for (const key of ['4,2', '4,3']) progress = move(progress, key)
   progress = advanceHoshimoriWarm(progress, { type: 'enter' })
   assert.equal(progress.ovenRoom, 'OV-01')
   assert.strictEqual(
@@ -415,6 +442,55 @@ assert.equal(
   ashWingAccounts.size,
   64,
   'Six distinct decisions should produce 64 earned accounts',
+)
+
+const windwardAccounts = new Set<string>()
+for (const post of ['deliver', 'archive'] as const) {
+  for (const gate of ['invite', 'release'] as const) {
+    for (const council of ['open', 'sealed'] as const) {
+      let progress = newHoshimoriWarmProgress(19)
+      for (const key of ['2,1', '3,1', '4,1', '5,1'])
+        progress = move(progress, key)
+      assert.equal(hoshimoriWindwardAccount(progress), null)
+      progress = choose(progress, post)
+      for (const key of ['5,2', '6,2', '7,2']) progress = move(progress, key)
+      progress = choose(progress, gate)
+      progress = move(progress, '8,2')
+      assert.equal(
+        hoshimoriWindwardAccount(progress),
+        null,
+        'The council cannot invent an outcome before its own decision',
+      )
+      progress = choose(progress, council)
+      const account = hoshimoriWindwardAccount(progress)
+      assert.ok(account)
+      windwardAccounts.add(account)
+      assert.deepEqual(
+        restoreHoshimoriWarm(JSON.parse(JSON.stringify(progress))),
+        progress,
+        'Every Windward Council account must survive action replay',
+      )
+      assert.strictEqual(
+        advanceHoshimoriWarm(progress, { type: 'choose', id: council }),
+        progress,
+        'Council decisions cannot be farmed or changed after acceptance',
+      )
+      const forged = JSON.parse(
+        JSON.stringify(progress),
+      ) as HoshimoriWarmProgress
+      forged.choices['7,2'] = gate === 'invite' ? 'release' : 'invite'
+      assert.equal(
+        restoreHoshimoriWarm(forged),
+        null,
+        'A Windward Council witness cannot be forged on save restore',
+      )
+    }
+  }
+}
+assert.equal(
+  windwardAccounts.size,
+  8,
+  'Three earned windward decisions must yield eight distinct accounts',
 )
 
 const ridgeOutcomes = new Set<string>()
@@ -766,6 +842,7 @@ assert.match(consoleSource, /hoshimori\.act\(\{ type: 'oven-choice'/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
 assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-lowland-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
@@ -775,6 +852,7 @@ assert.match(storeSource, /memory-dungeon-hoshimori-e07-v1/)
 assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
 assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
 assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
@@ -784,5 +862,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 36 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland verdicts, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 44 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland and 8 windward verdicts, two Earth photos, long-run save and spoiler guards passed',
 )

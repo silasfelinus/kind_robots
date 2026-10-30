@@ -56,6 +56,94 @@ export function houseFloorBeat(
     }
   }
 
+  if (roomId === 'HD-03') {
+    if (house.decisions['HD-03'] === 'route')
+      return {
+        title: 'Three Roads, No Owners',
+        text: 'The boot-rack yields three routes: a mill path, a ford and a track that ends at a locked nursery. Oren sketches them without writing the walkers\' names. The Index offers a tidy list of suspects, but the mud only proves where somebody traveled, never why.',
+        cost: 'You gained a useful route and refused an accusation, but the travelers still have no voice in the record.',
+      }
+    if (house.decisions['HD-03'] === 'ask')
+      return {
+        title: 'The Boots Who Were Allowed to Leave',
+        text: 'A left boot remembers carrying a frightened cook to the river. Its partner remembers coming back alone. Pip listens until the pair agree that leaving was the cook\'s decision, not evidence of kidnapping. The Index closes its prewritten missing-person form.',
+        cost: 'The absent cook keeps their agency, but the route they used remains uncharted for anyone who needs it next.',
+      }
+    return {
+      title: 'Mud Is Not a Confession',
+      text: 'Three pairs of boots sit beside three incompatible police reports. The Brass Knight calls every muddy heel a trespass; Oren asks why the servants were never given a map. You may trace the roads or hear the boots describe the people who wore them.',
+      cost: 'Without a choice, the House can still mistake a journey for a crime and a silence for consent.',
+    }
+  }
+
+  if (roomId === 'HD-04') {
+    if (house.decisions['HD-04'] === 'share')
+      return {
+        title: 'A Loaf Divided Without a Ledger',
+        text: 'The clockwork cook cuts the loaf into pieces small enough for the guest no one invited to dinner. Pip carries the extra plate upstairs, and the little machine gives you a lantern for acknowledging the shortage. The Index cannot decide whom to invoice.',
+        cost: 'The missing guest can eat and you earned light, but no permanent record explains why their place was empty.',
+      }
+    if (house.decisions['HD-04'] === 'record')
+      return {
+        title: 'The Place Setting with a Name',
+        text: 'You write down the name on the empty plate instead of pretending the meal served everybody. Vesper folds the page so the guest can decide who sees it. The cook counts the uneaten bread twice, ashamed that a correct inventory is not the same as supper.',
+        cost: 'You preserved evidence of exclusion, but the hungry guest still needs food and the pantry keeps its lantern.',
+      }
+    return {
+      title: 'Dinner for All but One',
+      text: 'A clockwork cook serves a feast to an empty chair and a crust to the person waiting outside. Pip wants to divide the bread. Vesper wants the missing guest named before the House calls the evening generous. Neither answer can replace the other.',
+      cost: 'The pantry offers either immediate relief or an accountable record; refusing both leaves the old arrangement intact.',
+    }
+  }
+
+  if (roomId === 'HD-08') {
+    if (
+      house.decisions['HD-08'] === 'harm' &&
+      house.decisions['HD-04'] === 'record' &&
+      house.decisions['HD-05'] === 'test'
+    )
+      return {
+        title: 'An Apology with Receipts',
+        text: 'The harmed witness reads your pantry record beside the receipt for the wolf latch. The Brass Knight cannot call the hunger an accident or the locked gate a precaution. He asks what repair would look like; Vesper insists the people excluded must answer first.',
+        cost: 'The evidence forces accountability, but the hungry guest still needs supper and the wolf patrol remains outside.',
+      }
+    if (
+      house.decisions['HD-08'] === 'harm' &&
+      house.decisions['HD-04'] === 'share'
+    )
+      return {
+        title: 'Bread Before Forgiveness',
+        text: 'You place the divided loaf beside the three apologies. The harmed witness eats before reading a single word, then points out that the House still has not named who ordered the empty chair. Pip refuses to turn your generous meal into a pardon.',
+        cost: 'Immediate care helped someone today, but the written account still lets those responsible avoid a reckoning.',
+      }
+    if (house.decisions['HD-08'] === 'harm')
+      return {
+        title: 'The Apology Measured by Repair',
+        text: 'You arrange the apologies by what changed for the people harmed, not by how elegant the Knight sounded. The staircase opens to a draft from above. Vesper asks for a name and a remedy, but your evidence is not yet enough to provide both.',
+        cost: 'You established a standard for accountability without proving the missing guest was fed or the patrol protected.',
+      }
+    if (
+      house.decisions['HD-08'] === 'listen' &&
+      house.decisions['HD-03'] === 'ask'
+    )
+      return {
+        title: 'The Witness Who Refused an Apology',
+        text: 'The cook whose boots you heard at the rack is invited to decide the order. They decline every apology and ask instead for a road out that does not require permission. Oren listens, measures the doorway and begins planning without demanding forgiveness.',
+        cost: 'The witness keeps the right to refuse, but hearing their story did not reveal a safe route for their departure.',
+      }
+    if (house.decisions['HD-08'] === 'listen')
+      return {
+        title: 'A Staircase That Accepts No',
+        text: 'You offer the apologies to the person harmed, who pushes them back and asks why the Knight gets to choose the moment of reconciliation. The stairs open anyway. Pip carries the unanswered letters upstairs without marking them accepted.',
+        cost: 'You respected refusal, but the House must still repair the harm rather than treating silence as closure.',
+      }
+    return {
+      title: 'Three Apologies, One Missing Voice',
+      text: 'The Knight wrote the first apology, the Index edited the second and the third has a blank space where the harmed person might speak. The stairs will open when you choose whether repair or the witness\'s own judgment matters most.',
+      cost: 'Until you act, polished language conceals the unanswered question of what the House actually owes.',
+    }
+  }
+
   if (roomId === 'HD-06') {
     if (house.decisions['HD-06'] === 'stock')
       return {

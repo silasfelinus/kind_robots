@@ -1023,6 +1023,7 @@ function cellDescription(cell: Cell) {
   )
 }
 function onKey(event: KeyboardEvent) {
+  if (activeComicIntro.value) return
   if (
     event.altKey ||
     event.ctrlKey ||

@@ -776,6 +776,12 @@ export function completeMemoryExperience(
   progress: MemoryCampaignProgress,
   id: ExperienceId,
 ): MemoryCampaignProgress {
+  if (!availableMemoryExperiences(progress).includes(id)) {
+    throw new Error(`Experience ${id} is not currently reachable`)
+  }
+  if (id === 'e13' && !progress.finaleCommitted) {
+    throw new Error('Finale requires an explicit commitment')
+  }
   if (id === 'e05' && !progress.scyllaDeparture)
     throw new Error('Scylla must decide whether to repeat the escape')
   if (
@@ -784,12 +790,6 @@ export function completeMemoryExperience(
     !progress.pairDecisions?.[id as MemoryPairEndingWorld]
   ) {
     throw new Error('World-pair ending requires an earned decision')
-  }
-  if (id === 'e13' && !progress.finaleCommitted) {
-    throw new Error('Finale requires an explicit commitment')
-  }
-  if (!availableMemoryExperiences(progress).includes(id)) {
-    throw new Error(`Experience ${id} is not currently reachable`)
   }
   return { ...progress, completed: [...progress.completed, id] }
 }

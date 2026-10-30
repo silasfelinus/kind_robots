@@ -42,6 +42,10 @@ import {
   type VenueProgress,
 } from './solarCircuit'
 import { galacticEndingFor } from './galacticEndings'
+import {
+  UNCLAIMED_ENDING_CAPTAINS,
+  type UnclaimedEnding,
+} from './baseEndingCaptains'
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
@@ -1208,6 +1212,11 @@ export function finishVoyage(
         : strong
           ? 'You negotiate passage with the enemy. The galaxy survives, but the protection comes with a public debt.'
           : 'Your gambit fails; the next captain inherits both a surviving crew and your written warning.'
+  // The base and counter logs carry a line for each captain too
+  // (baseEndingCaptains.ts), as the earned families do.
+  const captainLine = family
+    ? ''
+    : ` ${UNCLAIMED_ENDING_CAPTAINS[ending as UnclaimedEnding][run.captain]}`
   const captain = CAPTAIN_DOSSIERS[run.captain]
   const remembrance = {
     fluke:
@@ -1279,7 +1288,7 @@ export function finishVoyage(
         : `In chapter ${item.chapter}, the captain heard the crew before acting.`,
     )
     .join(' ')
-  const scene = `${verdict} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts} ${captainChoices}`
+  const scene = `${verdict}${captainLine} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts} ${captainChoices}`
   return {
     ...run,
     phase: 'ending',

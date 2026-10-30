@@ -18,6 +18,7 @@ import {
   nemesisEndingId,
 } from '../gameOfCaptains/nemesisEndings'
 import { GALACTIC_ENDINGS } from '../gameOfCaptains/galacticEndings'
+import { UNCLAIMED_ENDING_CAPTAINS } from '../gameOfCaptains/baseEndingCaptains'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
 import {
   MISSION_CALLBACKS,
@@ -301,6 +302,12 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     )
     node.place = 'Final captain’s log'
     node.body = [ENDING_TEXT[ending]]
+    node.variations = CAPTAINS.map((captain) => ({
+      axis: 'captain',
+      key: captain.id,
+      label: captain.name,
+      text: UNCLAIMED_ENDING_CAPTAINS[ending][captain.id],
+    }))
     add(withArt(node, endingArtKey(ending)))
   }
   for (const ending of GALACTIC_ENDINGS) {

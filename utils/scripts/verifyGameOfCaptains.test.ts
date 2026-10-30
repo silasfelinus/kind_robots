@@ -118,6 +118,10 @@ import {
   galacticEndingFor,
 } from '../gameOfCaptains/galacticEndings'
 import {
+  UNCLAIMED_ENDINGS,
+  UNCLAIMED_ENDING_CAPTAINS,
+} from '../gameOfCaptains/baseEndingCaptains'
+import {
   BASE_ENDINGS,
   WARP_ENDINGS,
   antagonistArtKey,
@@ -600,6 +604,19 @@ for (const enemy of ANTAGONISTS) {
   const ended = finishVoyage(run, 'counter')
   assert.equal(ended.phase, 'ending')
   assert.ok(ended.scene.includes('witnesses'))
+  // Each captain closes the counter log in their own voice.
+  for (const captain of CAPTAINS) {
+    const theirs = finishVoyage({ ...run, captain: captain.id }, 'counter')
+    assert.equal(theirs.ending, ended.ending)
+    assert.ok(
+      theirs.scene.includes(
+        UNCLAIMED_ENDING_CAPTAINS[ended.ending as 'THE WITNESS COALITION'][
+          captain.id
+        ],
+      ),
+      `${ended.ending}: ${captain.id}'s own line`,
+    )
+  }
   assert.equal(ended.nemesisEnding, `${enemy.id}-undone`)
   assert.notEqual(ended.scene, finishVoyage(run, 'protect').scene)
   assert.ok(
@@ -1725,6 +1742,32 @@ assert.deepEqual(
   'one seeded trace per family',
 )
 assert.equal(new Set(GALACTIC_ENDINGS.map((ending) => ending.text)).size, 12)
+// t-016: the base and counter logs carry six captain lines too, so all
+// sixteen endings (and the counter council's two) have a version per captain.
+assert.deepEqual(
+  UNCLAIMED_ENDINGS.slice(0, 4),
+  [...BASE_ENDINGS],
+  'the base logs, then the counter logs',
+)
+for (const title of UNCLAIMED_ENDINGS) {
+  const lines = CAPTAINS.map(
+    (captain) => UNCLAIMED_ENDING_CAPTAINS[title][captain.id],
+  )
+  assert.equal(new Set(lines).size, 6, `${title}: six captain lines`)
+  for (const line of lines) assert.ok(line && line.length > 60, title)
+}
+const captainVersions = new Set(
+  WARP_ENDINGS.flatMap((title) =>
+    CAPTAINS.map(
+      (captain) =>
+        GALACTIC_ENDINGS.find((e) => e.title === title)?.captains[captain.id] ??
+        UNCLAIMED_ENDING_CAPTAINS[title as (typeof BASE_ENDINGS)[number]][
+          captain.id
+        ],
+    ),
+  ),
+)
+assert.equal(captainVersions.size, 96, '16 endings × 6 captains, all distinct')
 for (const ending of GALACTIC_ENDINGS) {
   assert.ok(ending.text.length > 250, ending.title)
   assert.ok(ending.gate.length > 20, ending.title)
@@ -1760,6 +1803,28 @@ for (const trace of ENDING_TRACES) {
   assert.ok(earned.nemesisEnding, `${trace.title}: the nemesis ending too`)
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(earned))), earned)
   assert.ok(warpArtPrompt(endingArtKey(trace.title)), trace.title)
+}
+// Every captain version of every ending is read from a seeded trace: the
+// gates never look at the captain, so the same finale under each of the six
+// captains earns the same log in that captain's own words.
+for (const trace of ENDING_TRACES) {
+  const finale = charted(
+    trace.captain,
+    trace.crew,
+    familySeeds[trace.title]!,
+    trace.plan,
+  )!
+  const family = GALACTIC_ENDINGS.find((e) => e.title === trace.title)
+  for (const captain of CAPTAINS) {
+    const ended = finishVoyage({ ...finale, captain: captain.id }, trace.order)
+    assert.equal(ended.ending, trace.title, `${trace.title}: ${captain.id}`)
+    const line =
+      family?.captains[captain.id] ??
+      UNCLAIMED_ENDING_CAPTAINS[trace.title as (typeof BASE_ENDINGS)[number]][
+        captain.id
+      ]
+    assert.ok(ended.scene.includes(line), `${trace.title}: ${captain.id} line`)
+  }
 }
 // The counter council keeps its own logs; the families answer the two orders.
 for (const ending of GALACTIC_ENDINGS) {

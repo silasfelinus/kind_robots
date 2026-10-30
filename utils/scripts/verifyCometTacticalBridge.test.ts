@@ -38,20 +38,53 @@ for (const identity of IDENTITY_ARCS) {
   const originArena = originArenaFor(identity.signature)
   originMaps.add(JSON.stringify(originArena.stage.map.tiles))
   assert.equal(originArena.stage.id, 'hero-origin-' + identity.signature)
-  assert.equal(originArena.stage.title, campaignStagesFor(identity.signature).opening.title)
-  assert.equal(originArena.stage.objective, campaignStagesFor(identity.signature).opening.inciting)
-  assert.deepEqual(stageProblems(originArena.stage), [], identity.signature + ' origin map is unplayable')
-  assert.ok(Number.isFinite(pathDistance(originArena.stage.map, [], { x: 0, y: 4 }, originArena.objectivePoint)))
+  assert.equal(
+    originArena.stage.title,
+    campaignStagesFor(identity.signature).opening.title,
+  )
+  assert.equal(
+    originArena.stage.objective,
+    campaignStagesFor(identity.signature).opening.inciting,
+  )
+  assert.deepEqual(
+    stageProblems(originArena.stage),
+    [],
+    identity.signature + ' origin map is unplayable',
+  )
+  assert.ok(
+    Number.isFinite(
+      pathDistance(
+        originArena.stage.map,
+        [],
+        { x: 0, y: 4 },
+        originArena.objectivePoint,
+      ),
+    ),
+  )
   const arena = rivalArenaFor(identity.signature)
   arenaTitles.add(arena.stage.title)
   arenaMaps.add(JSON.stringify(arena.stage.map.tiles))
   assert.equal(arena.stage.id, 'rival-lair-' + identity.signature)
-  assert.equal(arena.stage.title, campaignStagesFor(identity.signature).lair.title)
-  assert.equal(arena.stage.objective, campaignStagesFor(identity.signature).lair.objective)
+  assert.equal(
+    arena.stage.title,
+    campaignStagesFor(identity.signature).lair.title,
+  )
+  assert.equal(
+    arena.stage.objective,
+    campaignStagesFor(identity.signature).lair.objective,
+  )
   assert.equal(arena.secret, campaignStagesFor(identity.signature).lair.secret)
-  assert.deepEqual(stageProblems(arena.stage), [], identity.signature + ' has an unplayable map')
+  assert.deepEqual(
+    stageProblems(arena.stage),
+    [],
+    identity.signature + ' has an unplayable map',
+  )
   assert.equal(tileAt(arena.stage.map, arena.objectivePoint).wall, undefined)
-  assert.ok(Number.isFinite(pathDistance(arena.stage.map, [], { x: 0, y: 4 }, arena.objectivePoint)))
+  assert.ok(
+    Number.isFinite(
+      pathDistance(arena.stage.map, [], { x: 0, y: 4 }, arena.objectivePoint),
+    ),
+  )
   assert.equal(
     recommendedRivalFor(foil.signature).signature,
     identity.signature,
@@ -63,9 +96,21 @@ assert.equal(
   48,
   'all 48 people need their own rival recommendation',
 )
-assert.equal(arenaTitles.size, 48, 'all 48 rivals need distinct authored lair names')
-assert.equal(arenaMaps.size, 48, 'all 48 rivals need distinct physical cover and wall layouts')
-assert.equal(originMaps.size, 48, 'all 48 origin fights need distinct physical layouts')
+assert.equal(
+  arenaTitles.size,
+  48,
+  'all 48 rivals need distinct authored lair names',
+)
+assert.equal(
+  arenaMaps.size,
+  48,
+  'all 48 rivals need distinct physical cover and wall layouts',
+)
+assert.equal(
+  originMaps.size,
+  48,
+  'all 48 origin fights need distinct physical layouts',
+)
 
 const lead = IDENTITY_ARCS.find(
   (person) => person.signature === 'accident-fire',
@@ -89,20 +134,32 @@ assert.equal(
 
 const originRun = { ...recommended, day: 4, phase: 'dispatch' as const }
 const originCase = incidentsFor(originRun)[0]!
-const firstBattle = newTacticalInterlude(assignPlayerCase(originRun, originCase.id))!
+const firstBattle = newTacticalInterlude(
+  assignPlayerCase(originRun, originCase.id),
+)!
 assert.equal(firstBattle.state.stageId, 'hero-origin-' + lead.signature)
 assert.equal(firstBattle.arena?.kind, 'origin')
 assert.equal(firstBattle.arena?.signature, lead.signature)
-assert.equal(firstBattle.arena?.title, campaignStagesFor(lead.signature).opening.title)
+assert.equal(
+  firstBattle.arena?.title,
+  campaignStagesFor(lead.signature).opening.title,
+)
 assert.equal(
   aliasFor(firstBattle.state.units.find((unit) => unit.id === 'pip')!),
   'Masked Rival',
 )
-assert.ok(restoreAcademy(JSON.parse(JSON.stringify({
-  ...originRun,
-  playerCaseId: originCase.id,
-  tacticalBattle: firstBattle,
-}))), 'early origin battle persists without revealing an antagonist')
+assert.ok(
+  restoreAcademy(
+    JSON.parse(
+      JSON.stringify({
+        ...originRun,
+        playerCaseId: originCase.id,
+        tacticalBattle: firstBattle,
+      }),
+    ),
+  ),
+  'early origin battle persists without revealing an antagonist',
+)
 const day = 15
 const dispatchState = {
   ...recommended,
@@ -173,7 +230,11 @@ assert.equal(
 
 const conquered = JSON.parse(JSON.stringify(activeRun)) as typeof activeRun
 conquered.tacticalBattle.state.phase = 'victory'
-assert.equal(tacticalResultFor(conquered), null, 'rival defeat alone cannot skip the mission objective')
+assert.equal(
+  tacticalResultFor(conquered),
+  null,
+  'rival defeat alone cannot skip the mission objective',
+)
 conquered.tacticalBattle.arena!.secured = true
 for (const unit of conquered.tacticalBattle.state.units) {
   if (unit.team === 'rival') unit.hp = 0
@@ -257,30 +318,46 @@ const originalMap = JSON.stringify(objectiveRun.state.map.tiles)
 objectiveRun.state.turn = 3
 assert.equal(advanceRivalArena(objectiveRun), true)
 assert.notEqual(JSON.stringify(objectiveRun.state.map.tiles), originalMap)
-assert.equal(advanceRivalArena(objectiveRun), false, 'arena shift is once per battle')
+assert.equal(
+  advanceRivalArena(objectiveRun),
+  false,
+  'arena shift is once per battle',
+)
 const savedShift = {
   ...withLead,
   tacticalBattle: objectiveRun,
 }
-assert.ok(restoreAcademy(JSON.parse(JSON.stringify(savedShift))), 'shifted cover and secret persist on reload')
+assert.ok(
+  restoreAcademy(JSON.parse(JSON.stringify(savedShift))),
+  'shifted cover and secret persist on reload',
+)
 const player = objectiveRun.state.units.find((unit) => unit.id === 'backdraft')!
 player.x = objective.secretPoint.x
 player.y = objective.secretPoint.y
 assert.equal(discoverRivalSecret(objectiveRun), true)
 assert.equal(discoverRivalSecret(objectiveRun), false)
 assert.match(objectiveRun.state.log, /SECRET FOUND/)
-for (const foe of objectiveRun.state.units.filter((unit) => unit.team === 'rival'))
+for (const foe of objectiveRun.state.units.filter(
+  (unit) => unit.team === 'rival',
+))
   foe.hp = 0
 objectiveRun.state.phase = 'victory'
 reconcileTacticalVictory(objectiveRun)
-assert.equal(objectiveRun.state.phase, 'active', 'objective remains mandatory after enemies fall')
+assert.equal(
+  objectiveRun.state.phase,
+  'active',
+  'objective remains mandatory after enemies fall',
+)
 player.x = objective.objectivePoint.x - 1
 player.y = objective.objectivePoint.y
 player.ap = 2
 assert.equal(secureRivalObjective(objectiveRun), true)
 assert.equal(objectiveRun.state.phase, 'victory')
 assert.equal(secureRivalObjective(objectiveRun), false)
-const discoveredResult = tacticalResultFor({ ...withLead, tacticalBattle: objectiveRun })!
+const discoveredResult = tacticalResultFor({
+  ...withLead,
+  tacticalBattle: objectiveRun,
+})!
 assert.equal(discoveredResult.discovered, true)
 assert.equal(discoveredResult.secured, true)
 assert.equal(discoveredResult.grade, 'honors')
@@ -290,9 +367,14 @@ const discoveredDebrief = resolveDispatch({
   tacticalResult: discoveredResult,
   tacticalHistory: [discoveredResult],
 })
-const discoveryReport = discoveredDebrief.reports.find((entry) => entry.caseId === firstMission.id)!
+const discoveryReport = discoveredDebrief.reports.find(
+  (entry) => entry.caseId === firstMission.id,
+)!
 assert.match(discoveryReport.text, /HIDDEN REVELATION:/)
-assert.ok(discoveredDebrief.influence > resolved.influence, 'discovering evidence improves civic standing')
+assert.ok(
+  discoveredDebrief.influence > resolved.influence,
+  'discovering evidence improves civic standing',
+)
 const tamperedMap = JSON.parse(JSON.stringify(savedShift))
 tamperedMap.tacticalBattle.arena.objectivePoint.x = 100
 assert.equal(restoreAcademy(tamperedMap), null)

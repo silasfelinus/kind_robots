@@ -194,7 +194,7 @@ for (const id of MEMORY_COLLISION_ORDER) {
   if (id === 'e10' || id === 'e12') {
     assert.throws(
       () => completeMemoryExperience(finale, id),
-      /world-pair ending requires/,
+      /World-pair ending requires/,
     )
     finale = chooseMemoryPairEnding(
       finale,

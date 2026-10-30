@@ -1,8 +1,5 @@
 import { BRIAR_QUESTS } from './briarQuests'
-import {
-  BRIAR_RARE_EVENTS,
-  type EarnedBriarRareEvent,
-} from './briarRareEvents'
+import { BRIAR_RARE_EVENTS, type EarnedBriarRareEvent } from './briarRareEvents'
 
 export interface MemoryAchievement {
   id: string
@@ -21,8 +18,7 @@ const MEDALS: Record<string, { title: string; description: string }> = {
   },
   'the-second-signature': {
     title: 'Two Dates, One Truth',
-    description:
-      'Give Mosswick a truthful account without inventing a debtor.',
+    description: 'Give Mosswick a truthful account without inventing a debtor.',
   },
   'a-letter-written-back': {
     title: 'The Door Answers Back',
@@ -36,8 +32,7 @@ const MEDALS: Record<string, { title: string; description: string }> = {
   },
   'the-road-without-an-owner': {
     title: 'A Road for Everyone',
-    description:
-      'Find a path for the Wolf-Mother that respects her witnesses.',
+    description: 'Find a path for the Wolf-Mother that respects her witnesses.',
   },
   'two-crowns-one-promise': {
     title: 'Two Crowns, No Clerk',
@@ -46,13 +41,12 @@ const MEDALS: Record<string, { title: string; description: string }> = {
   },
   'supper-for-tomorrow': {
     title: 'Bread and Tomorrow',
-    description:
-      'Choose how a scarce harvest can help the village.',
+    description: 'Choose how a scarce harvest can help the village.',
   },
   'the-name-left-blank': {
     title: 'The Right to Be Missing',
     description:
-      'Honor a daughter\'s agency while investigating the erased guests.',
+      "Honor a daughter's agency while investigating the erased guests.",
   },
 }
 
@@ -81,7 +75,9 @@ const validIds = new Set(MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.id))
 export function restoreMemoryAchievements(value: unknown): string[] {
   if (!Array.isArray(value)) return []
   const ids = new Set(
-    value.filter((id): id is string => typeof id === 'string' && validIds.has(id)),
+    value.filter(
+      (id): id is string => typeof id === 'string' && validIds.has(id),
+    ),
   )
   return MEMORY_BRIAR_ACHIEVEMENTS.filter((medal) => ids.has(medal.id)).map(
     (medal) => medal.id,

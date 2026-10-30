@@ -502,15 +502,6 @@
                         {{ activeCaptain.cost }}</small
                       >
                     </div>
-                    <div
-                      class="cap-stats cap-captain-stats"
-                      aria-label="Captain statistics"
-                    >
-                      <div v-for="skill in SKILLS" :key="skill">
-                        <small>{{ skill.toUpperCase() }}</small
-                        ><strong>{{ captainStats[skill] }}</strong>
-                      </div>
-                    </div>
                   </template>
                   <div
                     v-else-if="captainDossierTab === 'history'"
@@ -750,17 +741,10 @@
                       {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
                     >
                   </div>
-                  <div
-                    v-else
-                    class="cap-stats"
-                    aria-label="Focused crew skills"
-                  >
-                    <div v-for="skill in SKILLS" :key="skill">
-                      <small>{{ skill.toUpperCase() }}</small>
-                      <strong>{{
-                        crewProfile(focusedCrew).stats[skill]
-                      }}</strong>
-                    </div>
+                  <div v-else class="cap-insight cap-dossier-story">
+                    <strong>Onboard specialty</strong>
+                    <p>{{ crewProfile(focusedCrew).role }}</p>
+                    <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
                   </div>
                 </div>
                 <button

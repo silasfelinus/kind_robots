@@ -907,7 +907,7 @@ assert.deepEqual(
   MEMORY_BRIAR_ACHIEVEMENTS.map((medal) => medal.echo),
   'all eight story echoes remain unlocked after serialized restoration',
 )
-const oneUnlocked = memoryAchievementGallery([lifetime[0]])
+const oneUnlocked = memoryAchievementGallery([lifetime[0]!])
 assert.equal(oneUnlocked.filter((medal) => medal.echo !== null).length, 1)
 assert.equal(oneUnlocked.filter((medal) => medal.earned).length, 1)
 assert.deepEqual(

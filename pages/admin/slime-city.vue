@@ -345,6 +345,41 @@
                 </span>
               </button>
             </div>
+            <div
+              v-if="lab.previewOpen && lab.inspectedCard"
+              class="sc-card-overlay"
+              role="dialog"
+              aria-modal="false"
+              :aria-label="lab.inspectedCard.name + ' card details'"
+              data-testid="slime-card-preview"
+            >
+              <div class="sc-card-poster" :class="'tone-' + lab.team.color">
+                <span class="sc-card-poster-art">{{ lab.inspectedCard.symbol }}</span>
+                <span class="sc-overline">ILLUSTRATION PENDING · {{ lab.team.name }}</span>
+              </div>
+              <div class="sc-card-information">
+                <span class="sc-overline">{{ lab.inspectedCard.kind.toUpperCase() }} · {{ lab.inspectedCard.cost }} MANA</span>
+                <h3>{{ lab.inspectedCard.name }}</h3>
+                <p v-if="lab.inspectedCard.kind === 'creature'" class="sc-card-stats">
+                  ATK {{ lab.inspectedCard.attack }} · HP {{ lab.inspectedCard.hp }} ·
+                  ARMOR {{ lab.inspectedCard.armor }} · MOVE {{ lab.inspectedCard.ap }}
+                </p>
+                <p>{{ lab.inspectedCard.text }}</p>
+                <p v-if="lab.inspectedCard.keywords?.length" class="sc-card-stats">
+                  {{ lab.inspectedCard.keywords.map((k) => lab.keywords[k].label).join(' · ') }}
+                </p>
+                <p v-if="lab.inspectedCard.kind === 'creature'" class="sc-overline">
+                  Newly summoned monsters cannot attack immediately.
+                </p>
+                <p v-if="lab.inspectedCard.cost > lab.match.mana" class="sc-no-mana">NEEDS {{ lab.inspectedCard.cost }} MANA · YOU HAVE {{ lab.match.mana }}</p>
+                <div class="sc-card-cta">
+                  <button type="button" data-testid="slime-card-choose-target" @click="lab.closePreview()">
+                    {{ lab.inspectedCard.cost <= lab.match.mana ? 'CHOOSE TARGET →' : 'BACK TO ARENA' }}
+                  </button>
+                  <button type="button" class="sc-quiet" @click="lab.chooseCard(lab.inspectedCard.id)">CANCEL</button>
+                </div>
+              </div>
+            </div>
             <div v-if="lab.match.victor" class="sc-result" role="status">
               <strong>{{
                 lab.match.victor === 'player'
@@ -511,7 +546,7 @@
             >
               <strong>{{ preset.title }}</strong
               ><span>{{ preset.size }} / {{ preset.cadence }}</span
-              ><small>{{ preset.subtitle }}</small>
+              ><small>{{ preset.id === 'blackout' ? 'MAIN GAME · ' : preset.id === 'bloodrush' ? 'ARCADE · ' : 'EXPERIMENT · ' }}{{ preset.subtitle }}</small>
             </button>
           </div>
           <div
@@ -542,12 +577,12 @@
           <template v-if="lab.view === 'arena'">
             <div class="sc-actions">
               <div class="sc-control-heading">
-                <span class="sc-overline">HAND / REPEATABLE TEST CARDS</span
+                <span class="sc-overline">{{ lab.mode === 'blackout' ? 'YOUR FOUR-CARD HAND' : 'ARCADE CARD RACK' }}</span
                 ><span>AVAILABLE {{ lab.match.mana }} MANA</span>
               </div>
               <div class="sc-hand">
                 <button
-                  v-for="card in lab.cards"
+                  v-for="card in lab.mode === 'blackout' ? lab.hand : lab.cards"
                   :key="card.id"
                   type="button"
                   class="sc-hand-card"
@@ -572,6 +607,9 @@
                   <i v-if="!lab.ready(card.id)" class="sc-resting">USED</i>
                 </button>
               </div>
+              <p v-if="lab.mode === 'blackout'" class="sc-hand-count" data-testid="slime-deck-count">
+                DRAW {{ lab.match.piles.player.length }} · DISCARD {{ lab.match.discards.player.length }} · NEXT DEAL ON END ROUND
+              </p>
               <p v-if="lab.selected" class="sc-selected-line">
                 {{ lab.unitLabel(lab.selected.cardId) }} · HP
                 {{ lab.selected.hp }}/{{ lab.selected.maxHp }} · ATK
@@ -2130,5 +2168,43 @@ onUnmounted(() => lab.dispose())
   .sc-fighter {
     box-shadow: none;
   }
+}
+.sc-card-overlay {
+  position: absolute;
+  z-index: 8;
+  top: 3%;
+  right: 3%;
+  bottom: 3%;
+  width: min(31rem, 85%);
+  display: grid;
+  grid-template-rows: minmax(7rem, 46%) minmax(0, 1fr);
+  background: #111a27f5;
+  border: 2px solid #c8ff78;
+  border-radius: 0.75rem;
+  box-shadow: 0 15px 70px #000e, 0 0 35px #a3ff4755;
+  overflow: auto;
+}
+.sc-card-poster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 8rem;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tone) 45%, #20263e), #101a27 85%);
+}
+.sc-card-poster-art { font-size: clamp(4rem, 9cqw, 8rem); color: var(--tone); text-shadow: 0 0 30px var(--tone); }
+.sc-card-information { padding: 1rem; overflow: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+.sc-card-information h3 { margin: 0; font-size: clamp(1.4rem, 3cqw, 2rem); }
+.sc-card-information p { margin: 0; font-size: 0.85rem; line-height: 1.4; }
+.sc-card-information .sc-card-stats { color: #d9ff95; font-weight: 800; }
+.sc-card-information .sc-no-mana { color: #ffb498; }
+.sc-card-cta { display: flex; gap: 0.5rem; margin-top: auto; }
+.sc-card-cta button { background: #c8ff78; color: #152112; border-radius: 0.4rem; padding: 0.55rem 0.65rem; font-size: 0.72rem; font-weight: 900; }
+.sc-card-cta .sc-quiet { background: transparent; color: #e6ffd3; border: 1px solid #99be75; }
+.sc-hand-count { color: #bbd1a0; font-size: 0.65rem; }
+@container (max-width: 600px) {
+ .sc-card-overlay { width: 93%; left: 3.5%; right: 3.5%; top: 2%; bottom: 2%; grid-template-rows: minmax(4rem, 36%) minmax(0, 1fr); }
+ .sc-card-information { padding: 0.65rem; gap: 0.25rem; }
 }
 </style>

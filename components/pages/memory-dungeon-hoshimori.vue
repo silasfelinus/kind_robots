@@ -16,7 +16,8 @@
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
         {{ hoshimori.progress.visited.length }}/{{
           HOSHIMORI_WARM_SITES.length
-        }} paths
+        }}
+        paths
       </span>
       <span class="rounded-lg bg-base-300 px-2 py-1 text-xs font-bold">
         Food {{ hoshimori.progress.rations }} · Trust

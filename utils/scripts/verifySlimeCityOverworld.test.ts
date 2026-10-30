@@ -233,7 +233,7 @@ assert.ok(
   lab.match.units
     .filter((u) => u.side === 'player')
     .every((u) => u.maxHp === u.hp && u.maxHp >= 3),
-  'Serum terms reached the match (+1 HP)',
+  'Street and serum terms stack (+2 HP)',
 )
 lab.closeGuide()
 for (let i = 0; i < 40 && !lab.match.victor; i++) lab.nextRound()
@@ -242,7 +242,7 @@ assert.equal(lab.bout, null, 'Bout settled')
 assert.equal(lab.lastBout, 'chimera')
 if (lab.match.victor === 'player')
   assert.ok(lab.city.cleared.includes('chimera'))
-if (lab.match.victor === 'enemy') assert.equal(lab.city.heat, 2)
+if (lab.match.victor === 'enemy') assert.equal(lab.city.heat, 3)
 lab.showCity()
 lab.resetCity()
 assert.equal(lab.city.nights, 0)

@@ -20,6 +20,7 @@ import {
 } from '~/utils/everyVillainTactics/training'
 import {
   newTacticalInterlude,
+  parleyWithLieutenant,
   secureRivalObjective,
   discoverRivalSecret,
   reconcileTacticalVictory,
@@ -321,6 +322,13 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     return true
   }
 
+  function battleParley(decision: 'ally' | 'truce') {
+    const battle = run.value?.tacticalBattle
+    if (!battle || !parleyWithLieutenant(battle, decision)) return false
+    persist()
+    return true
+  }
+
   function battleTurn() {
     const battle = run.value?.tacticalBattle
     const fight = battle?.state
@@ -410,6 +418,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     battleMode,
     battleClick,
     battleCounter,
+    battleParley,
     battleTurn,
     battleRetreat,
     battleResolve,

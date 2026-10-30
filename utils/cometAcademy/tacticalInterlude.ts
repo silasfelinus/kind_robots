@@ -144,7 +144,7 @@ export function validTacticalOutcome(
   if (!raw || typeof raw !== 'object') return false
   const result = raw as Partial<TacticalOutcome>
   return (
-    Number.isInteger(result.day) &&
+    Number.isInteger(result.day ?? NaN) &&
     result.day! >= 15 &&
     result.day! <= run.day &&
     typeof result.caseId === 'string' &&
@@ -152,10 +152,10 @@ export function validTacticalOutcome(
     result.opponent === run.opponentSignature &&
     ['hero', 'villain'].includes(result.role ?? '') &&
     ['honors', 'pass', 'failed'].includes(result.grade ?? '') &&
-    Number.isInteger(result.turns) &&
+    Number.isInteger(result.turns ?? NaN) &&
     result.turns! >= 1 &&
     result.turns! <= 300 &&
-    Number.isInteger(result.fallen) &&
+    Number.isInteger(result.fallen ?? NaN) &&
     result.fallen! >= 0 &&
     result.fallen! <= 4
   )

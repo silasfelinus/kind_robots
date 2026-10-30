@@ -130,7 +130,9 @@
               data-testid="slime-street-encounter"
               aria-live="polite"
             >
-              <span class="sc-overline">STREET STORY · {{ lab.city.pendingStreet }}</span>
+              <span class="sc-overline"
+                >STREET STORY · {{ lab.city.pendingStreet }}</span
+              >
               <h2>{{ lab.streetEvent.title }}</h2>
               <p class="sc-scene">{{ lab.streetEvent.scene }}</p>
               <div class="sc-choices">
@@ -147,68 +149,68 @@
               </div>
             </article>
             <template v-else>
-            <p class="sc-overline">
-              {{ lab.district.name }} /
-              {{ statusLabel(lab.districtStatus(lab.districtId)) }}
-            </p>
-            <p class="sc-scene">{{ lab.plan.scene }}</p>
-            <p class="sc-rival">
-              <strong>{{ lab.plan.rival.name }}</strong>
-              · {{ lab.plan.rival.title }} ·
-              {{ teamName(lab.plan.rival.team) }} ·
-              {{ modeTitle(lab.plan.rival.mode) }}
-              <em>“{{ lab.plan.rival.taunt }}”</em>
-            </p>
-            <template v-if="lab.here">
-              <div v-if="chosenChoice" class="sc-decided">
-                <span class="sc-overline">YOUR CALL</span>
-                {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
-              </div>
-              <div v-else-if="!lab.gate" class="sc-choices">
+              <p class="sc-overline">
+                {{ lab.district.name }} /
+                {{ statusLabel(lab.districtStatus(lab.districtId)) }}
+              </p>
+              <p class="sc-scene">{{ lab.plan.scene }}</p>
+              <p class="sc-rival">
+                <strong>{{ lab.plan.rival.name }}</strong>
+                · {{ lab.plan.rival.title }} ·
+                {{ teamName(lab.plan.rival.team) }} ·
+                {{ modeTitle(lab.plan.rival.mode) }}
+                <em>“{{ lab.plan.rival.taunt }}”</em>
+              </p>
+              <template v-if="lab.here">
+                <div v-if="chosenChoice" class="sc-decided">
+                  <span class="sc-overline">YOUR CALL</span>
+                  {{ chosenChoice.label }}: {{ chosenChoice.outcome }}
+                </div>
+                <div v-else-if="!lab.gate" class="sc-choices">
+                  <button
+                    v-for="choice in lab.plan.choices"
+                    :key="choice.id"
+                    type="button"
+                    :data-testid="'slime-choice-' + choice.id"
+                    @click="lab.choose(choice.id)"
+                  >
+                    <strong>{{ choice.label }}</strong>
+                    <small>{{ choice.outcome }}</small>
+                  </button>
+                </div>
+                <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
+                <span class="sc-city-actions">
+                  <button
+                    type="button"
+                    data-testid="slime-fight-rival"
+                    :disabled="!!lab.blocked"
+                    @click="lab.fightRival()"
+                  >
+                    FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
+                  </button>
+                  <button
+                    type="button"
+                    class="sc-quiet"
+                    @click="lab.startDistrictMatch()"
+                  >
+                    QUICK MATCH
+                  </button>
+                </span>
+              </template>
+              <span v-else class="sc-city-actions">
                 <button
-                  v-for="choice in lab.plan.choices"
-                  :key="choice.id"
+                  v-if="lab.route"
                   type="button"
-                  :data-testid="'slime-choice-' + choice.id"
-                  @click="lab.choose(choice.id)"
+                  data-testid="slime-walk"
+                  @click="lab.walk()"
                 >
-                  <strong>{{ choice.label }}</strong>
-                  <small>{{ choice.outcome }}</small>
+                  WALK {{ lab.route.street.toUpperCase() }} →
                 </button>
-              </div>
-              <p v-if="lab.blocked" class="sc-gate">{{ lab.blocked }}</p>
-              <span class="sc-city-actions">
-                <button
-                  type="button"
-                  data-testid="slime-fight-rival"
-                  :disabled="!!lab.blocked"
-                  @click="lab.fightRival()"
+                <span v-else class="sc-gate"
+                  >No street from {{ hereName }} reaches here. Walk the lit
+                  streets.</span
                 >
-                  FIGHT {{ lab.plan.rival.name.toUpperCase() }} →
-                </button>
-                <button
-                  type="button"
-                  class="sc-quiet"
-                  @click="lab.startDistrictMatch()"
-                >
-                  QUICK MATCH
-                </button>
               </span>
-            </template>
-            <span v-else class="sc-city-actions">
-              <button
-                v-if="lab.route"
-                type="button"
-                data-testid="slime-walk"
-                @click="lab.walk()"
-              >
-                WALK {{ lab.route.street.toUpperCase() }} →
-              </button>
-              <span v-else class="sc-gate"
-                >No street from {{ hereName }} reaches here. Walk the lit
-                streets.</span
-              >
-            </span>
             </template>
           </div>
           <div class="sc-stage-foot">

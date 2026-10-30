@@ -1,6 +1,6 @@
 /**
  * Reimaginer campaign authoring and route rules. This is a content/branching
- * contract, not sixteen shipped maps or delivered illustrations.
+ * contract, not twelve shipped maps or delivered illustrations.
  * Briar's existing save/coordinate IDs continue to be owned by
  * memoryDungeonWorld.ts; these IDs identify *experience variants* instead.
  */
@@ -8,12 +8,13 @@ export type MemoryConceptId =
   | 'briar'
   | 'hearth'
   | 'crown'
-  | 'market'
   | 'city'
-  | 'crossing'
-  | 'archive'
-  | 'forge'
-export type RealityPerspective = 'earth-protagonist' | 'morrow' | 'scylla'
+export type RealityPerspective =
+  | 'earth-protagonist'
+  | 'morrow'
+  | 'scylla'
+  | 'char'
+  | 'vesper'
 export type RealityOntology =
   | 'storybook'
   | 'mundane'
@@ -94,38 +95,11 @@ export const MEMORY_WORLD_CONCEPTS: readonly WorldConcept[] = [
     landmarkPromise: 'A shore road becomes a route through tide and palace',
   },
   {
-    id: 'market',
-    title: 'Market / Desire',
-    thesis: 'The value of a future cannot be reduced to a price',
-    landmarkPromise: 'The carnival lanes recur as a market for possible lives',
-  },
-  {
     id: 'city',
     title: 'City / Ordinary Life',
     thesis: 'Everyday customs are mysterious from outside',
     landmarkPromise:
       'Office, station, neighborhood and hospital remain in place after magic',
-  },
-  {
-    id: 'crossing',
-    title: 'Transit / Crossing',
-    thesis: 'Return is never free of other peoples stories',
-    landmarkPromise:
-      'Ferry terminals, bridges and crossings retain stable routes',
-  },
-  {
-    id: 'archive',
-    title: 'Archive / Authorship',
-    thesis: 'Competing testimonies cannot simply be edited into one history',
-    landmarkPromise:
-      'The record hall survives successive ontologies and viewpoints',
-  },
-  {
-    id: 'forge',
-    title: 'Forge / Transformation',
-    thesis: 'Repairing reality requires accountable compromises',
-    landmarkPromise:
-      'The foundry transforms into sea vent, server room and Last Door',
   },
 ]
 
@@ -257,99 +231,51 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
   ),
   experience(
     'e09',
-    'market',
-    'Carnival of Debts',
+    'briar',
+    'Briar: The Forest Between Floors',
     'earth-protagonist',
-    'storybook',
-    'original',
-    ['meaning', 'mechanics', 'cast', 'visual-language'],
-    'Can future happiness be traded with consent?',
-    'Transparent probabilities and memory-of-regret puzzles',
-    'Carnival midway, joy ledgers and performers with binding bargains',
+    'hybrid',
+    'remembrance',
+    ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
+    'Can you rescue people trapped inside a forest that now shares a floorplan with Morrow’s city?',
+    'Recover the office turnstile and the submerged root map while forest monsters invade office corridors',
+    'Same Briar paths, now cut by research offices, saltwater stairwells and Hoshimori lantern rites',
   ),
   experience(
     'e10',
-    'market',
-    'Tomorrow Market',
+    'city',
+    'Morrow: The Office That Ate a Forest',
     'morrow',
-    'science-fiction',
-    'possible-future',
+    'hybrid',
+    'repair',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'Is a predicted life something a person agreed to live?',
-    'Possible-future valuation and informed negotiation',
-    'Same carnival footprint rebuilt as a predictive future exchange',
+    'Will Morrow save the life he built on Earth without treating others as expendable?',
+    'Recover the living-hours ledger and borrowed house key while yōkai shelter spirits reroute a flooded office',
+    'Same Earth office, station and human neighborhood, intersecting Briar wolves and sea-palace flood tunnels',
   ),
   experience(
     'e11',
-    'crossing',
-    'Between Sea',
-    'scylla',
-    'storybook',
-    'original',
-    ['meaning', 'mechanics', 'traversal'],
-    'Can anybody claim a return ticket another person needs?',
-    'Fair portal pairings, passenger testimony and ferry routes',
-    'Ferry keeper, mermaid crossings and unwillingly exchanged lives',
+    'crown',
+    'Char: The Sea Above the Station',
+    'char',
+    'hybrid',
+    'remembrance',
+    ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
+    'Can Char choose what to become while Scylla remembers a present in which she may have died?',
+    'Recover the two sisters’ tide chart and the witness bell as forest roads bisect the mermaid palace',
+    'The same underwater palace and escape route with subway trains, inverted cottages and past/future Char echoes',
   ),
   experience(
     'e12',
-    'crossing',
-    'The Transfer Network',
-    'morrow',
-    'science-fiction',
-    'repair',
-    ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'What does a repaired identity transport system owe its passengers?',
-    'Consent-aware transfers and route capacity puzzles',
-    'The same harbor reimagined as a body-and-permission network',
-  ),
-  experience(
-    'e13',
-    'archive',
-    'Index of What Happened',
-    'earth-protagonist',
-    'storybook',
-    'remembrance',
-    ['meaning', 'mechanics', 'cast', 'visual-language'],
-    'Can conflicting witnesses all tell a useful truth?',
-    'Testimony reconciliation across shifting perspectives',
-    'A library unfolding into an Earth office archive and drowned royal records',
-  ),
-  experience(
-    'e14',
-    'archive',
-    'Index of What Could Be',
-    'morrow',
-    'science-fiction',
-    'possible-future',
-    ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'Who owns a possible future before it becomes real?',
-    'Compare and constrain competing rewrite proposals',
-    'Paper stacks becoming data servers, fairytale scripts and human homes',
-  ),
-  experience(
-    'e15',
-    'forge',
-    'Forge of Consequences',
-    'scylla',
+    'hearth',
+    'Vesper: The Last Unwritten Road',
+    'vesper',
     'hybrid',
     'repair',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'Which repairs are possible without imposing them on others?',
-    'Multi-reality traversal and resource-bounded rescues',
-    'A foundry becomes volcanic vent, station, data conduit and portal',
-  ),
-  experience(
-    'e16',
-    'forge',
-    'Unwritten Country',
-    'earth-protagonist',
-    'hybrid',
-    'wished-for',
-    ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'Can anyone write a future that everyone affected can inhabit?',
-    'Multiple phases of evidence, rescue, combat, negotiation and consent',
-    'The Last Door and six visually distinct realities repaired in sequence',
+    'Who may redraw a world when every rescued person has their own right to leave?',
+    'Recover the unsold refuge atlas and Oven hearth seal, then choose a negotiated shape for the final crossing',
+    'Same Hoshimori cedar bridge, red Oven and childhood refuges invaded by office towers, tide gates and Briar wolves',
   ),
 ]
 
@@ -361,28 +287,25 @@ export const MEMORY_EARLY_ORDER = [
   'e05',
   'e06',
 ] as const
-export const MEMORY_MIDDLE_PAIRS = [
-  ['e07', 'e08'],
-  ['e09', 'e10'],
-  ['e11', 'e12'],
-] as const
-export const MEMORY_FINALE_ORDER = ['e13', 'e14', 'e15', 'e16'] as const
-
 /**
- * Eight distinct authored geographies, each immediately followed by its
- * distorted reimagining. Pair order is canonical even if scenes are not built.
- * Keep machine IDs and the historic wish-anchor keys stable for old saves.
+ * Four intimate paired acts (eight realities) followed by four connected
+ * memory-collision maps. The finale revisits, rather than invents, geographies.
+ * e13–e16 remain retired save identifiers, not playable or planned worlds.
  */
 export const MEMORY_REALITY_PAIRS = [
   ['e01', 'e02'],
   ['e03', 'e04'],
   ['e05', 'e06'],
   ['e07', 'e08'],
-  ['e09', 'e10'],
-  ['e11', 'e12'],
-  ['e13', 'e14'],
-  ['e15', 'e16'],
 ] as const satisfies readonly (readonly [ExperienceId, ExperienceId])[]
+
+export const MEMORY_COLLISION_ORDER = [
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+] as const
+export const MEMORY_FINALE_ORDER = MEMORY_COLLISION_ORDER
 
 export const MEMORY_WISH_ANCHORS = {
   'morrow-magic-attempt': {
@@ -403,7 +326,7 @@ export const MEMORY_WISH_ANCHORS = {
 } as const satisfies Record<string, { source: ExperienceId; meaning: string }>
 
 export type MemoryPairEndingWorld =
-  'e02' | 'e04' | 'e06' | 'e08' | 'e10' | 'e12' | 'e14' | 'e16'
+  'e02' | 'e04' | 'e06' | 'e08' | 'e10' | 'e12'
 
 export interface MemoryPairEndingChoice {
   id: string
@@ -505,17 +428,18 @@ export const MEMORY_PAIR_ENDINGS: Record<
   e10: [
     {
       id: 'destroy-price-ledger',
-      label: 'Erase the market’s valuations of other people’s futures',
+      label: 'Destroy the forecast that would sacrifice office evacuees',
       publicResult:
-        'The futures are free, but the party loses the prediction map.',
+        'Morrow gets the workers out, but loses the predictive map of the distorted city.',
       worldFlag: 'market-predictions-erased',
       futureConsequence:
         'The party must navigate later routes without a forecast.',
     },
     {
       id: 'publish-price-ledger',
-      label: 'Release the predictions with informed opt-out rights',
-      publicResult: 'The forecasts become contestable, and some vendors leave.',
+      label: 'Publish the forecast with voluntary opt-out and independent review',
+      publicResult:
+        'The office workers can dispute the forecast, while some evacuation routes close.',
       worldFlag: 'market-predictions-accountable',
       futureConsequence:
         'The party gains a disputed prediction as later evidence.',
@@ -524,57 +448,20 @@ export const MEMORY_PAIR_ENDINGS: Record<
   e12: [
     {
       id: 'free-transit',
-      label: 'Open the transfer crossing with strict passenger consent',
-      publicResult: 'Travel resumes; waiting passengers receive priority.',
+      label: 'Unite the broken roads under a freely negotiated crossing',
+      publicResult:
+        'Vesper opens the Hoshimori crossings with consent-based passage and witnessed limits.',
       worldFlag: 'crossing-passenger-consent',
       futureConsequence:
         'The final crossing can rely on freely given transport.',
     },
     {
       id: 'disable-transit',
-      label: 'Shut down the system until identities can be verified',
+      label: 'Protect independent worlds by closing the unstable crossings',
       publicResult:
-        'No more identities are taken, but refugees remain separated.',
+        'The worlds remain separate while refugees negotiate slower, safer routes.',
       worldFlag: 'crossing-system-disabled',
       futureConsequence: 'The final crossing must use a slower rescue route.',
-    },
-  ],
-  e14: [
-    {
-      id: 'publish-contradictions',
-      label: 'Preserve all contradictory accounts for the final hearing',
-      publicResult:
-        'No one can rewrite the past without facing another witness.',
-      worldFlag: 'archive-testimonies-protected',
-      futureConsequence:
-        'The final tribunal has a stronger, noisier evidence record.',
-    },
-    {
-      id: 'seal-dangerous-records',
-      label: 'Withhold dangerous records until their subjects can consent',
-      publicResult: 'Some testimony stays private, even when it might help.',
-      worldFlag: 'archive-testimonies-sealed',
-      futureConsequence:
-        'The final tribunal must earn access through negotiation.',
-    },
-  ],
-  e16: [
-    {
-      id: 'share-repair',
-      label: 'Commit to a shared repair that nobody can own alone',
-      publicResult:
-        'The new world is difficult, provisional and freely inhabited.',
-      worldFlag: 'finale-shared-repair',
-      futureConsequence:
-        'The ending honors independent consent and accountability.',
-    },
-    {
-      id: 'retain-separate-worlds',
-      label: 'Let the worlds remain separate with negotiated crossings',
-      publicResult: 'The borders survive; people can choose whether to cross.',
-      worldFlag: 'finale-separate-worlds',
-      futureConsequence:
-        'The ending preserves distance and a costly right to leave.',
     },
   ],
 }

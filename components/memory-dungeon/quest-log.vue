@@ -28,17 +28,33 @@
             {{ finished }} of {{ world.briarQuests.length }} threads tied off
           </p>
         </div>
-        <button
-          type="button"
-          class="rounded-lg border border-[#a9b98c] px-3 py-2 text-sm font-bold hover:bg-[#46523d] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
-          @click="emit('close')"
-        >
-          Return to the world
-        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            data-testid="memory-medals-toggle"
+            class="rounded-lg border border-[#d2b980] bg-[#473e2d] px-3 py-2 text-sm font-bold hover:bg-[#615138] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
+            :aria-pressed="medalsOpen"
+            @click="medalsOpen = !medalsOpen"
+          >
+            {{
+              medalsOpen
+                ? 'View threads'
+                : `Medals ${medalsEarned}/${world.briarAchievements.length}`
+            }}
+          </button>
+          <button
+            type="button"
+            class="rounded-lg border border-[#a9b98c] px-3 py-2 text-sm font-bold hover:bg-[#46523d] focus-visible:outline-2 focus-visible:outline-[#ecf7c8]"
+            @click="emit('close')"
+          >
+            Return to the world
+          </button>
+        </div>
       </header>
 
       <div class="flex min-h-0 flex-1 flex-col overflow-hidden sm:flex-row">
         <nav
+          v-if="!medalsOpen"
           aria-label="Side quests"
           class="kr-scroll flex shrink-0 gap-2 overflow-x-auto border-b border-[#5f6d52] bg-[#202923] p-2 sm:w-56 sm:flex-col sm:overflow-y-auto sm:border-b-0 sm:border-r"
         >
@@ -68,7 +84,7 @@
         </nav>
 
         <article
-          v-if="active"
+          v-if="!medalsOpen && active"
           :key="active.quest.id"
           class="kr-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 sm:p-5"
           :aria-label="active.quest.title"
@@ -174,6 +190,65 @@
             </p>
           </section>
         </article>
+        <section
+          v-if="medalsOpen"
+          class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3 sm:p-5"
+          aria-label="Earned Memory Dungeon medals"
+          data-testid="memory-medals-gallery"
+        >
+          <p class="mb-4 text-sm leading-relaxed text-[#e0d2ad]">
+            These marks remember difficult choices, not stronger weapons. Earned
+            medals survive a new expedition. Undiscovered stories stay unnamed.
+          </p>
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"
+          >
+            <article
+              v-for="medal in world.briarAchievements"
+              :key="medal.id"
+              class="overflow-hidden rounded-lg border bg-[#2a3129]"
+              :class="medal.earned ? 'border-[#d5b879]' : 'border-[#56604c]'"
+              :aria-label="medal.earned ? medal.title : 'Undiscovered medal'"
+              data-testid="memory-medal"
+            >
+              <div
+                class="relative aspect-[16/9] overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#58705a,#22302a)]"
+              >
+                <img
+                  v-if="medal.earned && !failedMedals[medal.id]"
+                  :src="medal.artPath"
+                  alt=""
+                  class="h-full w-full object-cover"
+                  @error="failedMedals[medal.id] = true"
+                />
+                <span
+                  v-else
+                  class="flex h-full items-center justify-center font-serif text-5xl"
+                  :class="medal.earned ? 'text-[#e9d29a]' : 'text-[#71806a]'"
+                  aria-hidden="true"
+                  >✦</span
+                >
+              </div>
+              <div class="p-3">
+                <p
+                  class="text-[10px] font-bold uppercase tracking-widest text-[#d4bc89]"
+                >
+                  {{ medal.earned ? 'Remembered' : 'Not yet remembered' }}
+                </p>
+                <h3 class="mt-1 font-serif text-lg font-bold">
+                  {{ medal.earned ? medal.title : 'Unknown medal' }}
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed text-[#ddd5bc]">
+                  {{
+                    medal.earned
+                      ? medal.description
+                      : 'A rare convergence awaits a different set of choices.'
+                  }}
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
       </div>
     </section>
   </div>
@@ -200,6 +275,11 @@ const selected = ref(
     '',
 )
 const failed = ref<Record<string, boolean>>({})
+const failedMedals = ref<Record<string, boolean>>({})
+const medalsOpen = ref(false)
+const medalsEarned = computed(
+  () => world.briarAchievements.filter((medal) => medal.earned).length,
+)
 const dialog = ref<HTMLElement | null>(null)
 const active = computed(
   () =>

@@ -102,7 +102,8 @@ const DARK_MEDALS = [
     id: 'e02-bell-witness',
     key: '2,4',
     title: 'The Bell Has Two Owners',
-    description: 'Answer the mirrored courier after choosing what to do with their first message.',
+    description:
+      'Answer the mirrored courier after choosing what to do with their first message.',
     echo: 'The courier hangs the cracked bell where anyone may ring it, but nobody can be summoned by force. The original address remains sealed. On certain evenings, the courier sits beneath the bell and explains how one letter became two obligations.',
     accord: earnedCourierBellAccord,
   },
@@ -110,7 +111,8 @@ const DARK_MEDALS = [
     id: 'e02-borrowed-voice',
     key: '3,5',
     title: 'A Voice Returned Freely',
-    description: 'Face the borrowed moth-voice with the memory of your first decision.',
+    description:
+      'Face the borrowed moth-voice with the memory of your first decision.',
     echo: 'Pip leaves the moth a window that opens outward. The people who followed its directions draw their own corrected map. Nobody is required to keep the creature as evidence, and the travelers remember the difference between hearing a warning and owning its speaker.',
     accord: earnedBorrowedVoiceAccord,
   },
@@ -118,7 +120,8 @@ const DARK_MEDALS = [
     id: 'e02-two-royal-orders',
     key: '4,4',
     title: 'Two Sisters, Two Signatures',
-    description: 'Revisit the royal escort and let one sister answer for the earlier road.',
+    description:
+      'Revisit the royal escort and let one sister answer for the earlier road.',
     echo: 'Scylla keeps the official proclamation; Char keeps the charcoal sketch on its reverse. They disagree about the route but both insist that the stranded family be heard. The court must now record two separate witnesses instead of one convenient royal voice.',
     accord: earnedRoyalEscortAccord,
   },
@@ -126,7 +129,8 @@ const DARK_MEDALS = [
     id: 'e02-crossing-without-oath',
     key: '5,4',
     title: 'The Crossing Is Real',
-    description: 'Confront the false bridge with the consequences of the first knightly oath.',
+    description:
+      'Confront the false bridge with the consequences of the first knightly oath.',
     echo: 'The Brass Knight has stopped guarding empty air. Whether he builds a crossing or escorts people elsewhere, he must now answer to the families who waited. He carries the old order folded inside his shield as evidence, not permission to command them.',
     accord: earnedKnightCrossingAccord,
   },
@@ -134,7 +138,8 @@ const DARK_MEDALS = [
     id: 'e02-vesper-rookery',
     key: '3,2',
     title: 'A Map With an Honest Blank',
-    description: 'Revisit Vesper’s rookery and decide what an unanswered letter proves.',
+    description:
+      'Revisit Vesper’s rookery and decide what an unanswered letter proves.',
     echo: 'Vesper copies the safe routes onto a new map, leaving one deliberate blank where a traveler requested privacy. The rook still flies, but its destination is no longer public property. For Vesper, withholding a name becomes an act of cartography rather than shame.',
     accord: earnedVesperRookeryAccord,
   },
@@ -142,7 +147,8 @@ const DARK_MEDALS = [
     id: 'e02-mosswick-ledger',
     key: '4,2',
     title: 'The Promise May Be Challenged',
-    description: 'Revisit Mosswick’s ledger and make a future-dated debt answerable.',
+    description:
+      'Revisit Mosswick’s ledger and make a future-dated debt answerable.',
     echo: 'Mosswick places a small question mark beside every debt dated tomorrow. Customers may challenge a charge without surrendering their names. The old payments are not magically refunded, but the clerk has learned that an honest blank can be more useful than a perfect account.',
     accord: earnedMosswickPromiseAccord,
   },
@@ -150,7 +156,8 @@ const DARK_MEDALS = [
     id: 'e02-oren-manifest',
     key: '4,3',
     title: 'No Passenger Is a Number',
-    description: 'Help Oren reconcile the two passenger manifests across the changed road.',
+    description:
+      'Help Oren reconcile the two passenger manifests across the changed road.',
     echo: 'Oren leaves two seats marked disputed instead of assigning them invented travelers. His axe rests across the bridge only while the crossing is unsafe. The next rescue begins with a count of provisions, and ends with every traveler free to correct the ledger.',
     accord: earnedOrenManifestAccord,
   },
@@ -158,7 +165,8 @@ const DARK_MEDALS = [
     id: 'e02-witness-bells',
     key: '6,3',
     title: 'Silence Is Not Consent',
-    description: 'Return to the listening House and honor the witnesses’ earlier choice.',
+    description:
+      'Return to the listening House and honor the witnesses’ earlier choice.',
     echo: 'The House rings no bells without invitation. Three witnesses choose to speak; the others remain unnamed until they decide. The council must live with a slower verdict, but its record finally distinguishes a person who declined from a person nobody bothered to ask.',
     accord: earnedWitnessBellAccord,
   },

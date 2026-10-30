@@ -22,6 +22,24 @@
         <span>TURN {{ state.turn }}</span>
       </div>
     </header>
+    <aside
+      v-if="boss && threat"
+      class="atf-boss-panel"
+      data-testid="academy-signature-lieutenant"
+      :aria-label="'Lieutenant ' + threat.name"
+    >
+      <span class="atf-boss-kicker">THE LIEUTENANT ENTERS</span>
+      <div class="atf-boss-layout">
+        <strong>{{ threat.name }}</strong>
+        <span>{{ threat.attack }} · {{ boss.hp }} HP</span>
+      </div>
+      <p>{{ threat.power }}</p>
+      <p v-if="boss.signatureTarget" class="atf-boss-warning">
+        ⚠ ATTACK CHARGING · {{ threat.counterVerb }} at ⚙,
+        move off the red tiles, or land a hit on {{ threat.name }}.
+      </p>
+      <p v-else class="atf-boss-counter">{{ threat.counter }}</p>
+    </aside>
     <div
       class="atf-grid"
       :style="{
@@ -47,6 +65,8 @@
             atPoint(cell, battle.arena?.secretPoint) &&
             !battle.arena?.discovered,
           'atf-shift': atPoint(cell, battle.arena?.shiftPoint),
+          'atf-threat': isThreat(cell),
+          'atf-boss-counter': atPoint(cell, boss?.signatureCounter),
         }"
         :disabled="
           state.phase !== 'active' || terrainAt(cell, state.map) === 'wall'
@@ -57,6 +77,14 @@
       >
         <template
           v-if="
+            atPoint(cell, boss?.signatureCounter) && !unitAt(cell)
+          "
+        >
+          <span class="atf-token" aria-hidden="true">⚙</span>
+          <small>DISRUPT</small>
+        </template>
+        <template
+          v-else-if="
             atPoint(cell, battle.arena?.objectivePoint) &&
             !battle.arena?.secured &&
             !unitAt(cell)
@@ -82,6 +110,11 @@
           <small>{{ aliasFor(unitAt(cell)!).slice(0, 10) }}</small>
           <span class="atf-hp">{{ unitAt(cell)?.hp }} HP</span>
         </template>
+        <span
+          v-else-if="isThreat(cell)"
+          aria-hidden="true"
+          >⚠</span
+        >
         <span
           v-else-if="terrainAt(cell, state.map) === 'wall'"
           aria-hidden="true"
@@ -133,6 +166,14 @@
       >
         FIRE
       </button>
+      <button
+        v-if="boss?.signatureTarget"
+        type="button"
+        class="atf-disrupt"
+        :disabled="!canCounter"
+        data-testid="academy-boss-disrupt"
+        @click="$emit('counter')"
+      >DISRUPT · 1 AP</button>
       <button type="button" @click="$emit('turn')">END TURN</button>
       <button class="atf-retreat" type="button" @click="$emit('retreat')">
         RETREAT
@@ -162,6 +203,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { gridDistance } from '~/utils/everyVillainTactics/combat'
+import {
+  signatureThreatCells,
+  signatureThreatFor,
+} from '~/utils/everyVillainTactics/signatureLieutenant'
 import {
   actorAt,
   aliasFor,
@@ -184,11 +230,39 @@ defineEmits<{
   cell: [x: number, y: number]
   mode: [mode: 'move' | 'fire']
   turn: []
+  counter: []
   retreat: []
   finish: []
 }>()
 const state = computed(() => props.battle.state)
 const selected = computed(() => selectedUnit(state.value))
+const boss = computed(() =>
+  state.value.units.find((unit) => unit.hp > 0 && unit.signatureBoss),
+)
+const threat = computed(() =>
+  boss.value?.signatureBoss
+    ? signatureThreatFor(boss.value.signatureBoss)
+    : null,
+)
+const dangerousCells = computed(() =>
+  boss.value?.signatureBoss && boss.value.signatureTarget
+    ? signatureThreatCells(
+        state.value.map,
+        boss.value.signatureBoss,
+        boss.value.signatureTarget,
+      )
+    : [],
+)
+const isThreat = (p: Cell) =>
+  dangerousCells.value.some((cell) => cell.x === p.x && cell.y === p.y)
+const canCounter = computed(
+  () =>
+    !!selected.value &&
+    selected.value.ap > 0 &&
+    !!boss.value?.signatureTarget &&
+    !!boss.value?.signatureCounter &&
+    gridDistance(selected.value, boss.value.signatureCounter) <= 1,
+)
 const cells = computed(() =>
   Array.from(
     { length: state.value.map.width * state.value.map.height },
@@ -210,19 +284,81 @@ function cellLabel(cell: Cell) {
       ? ', ' +
         (objective?.discovered ? 'discovered clue' : 'undiscovered secret')
       : ''
+  const warning = isThreat(cell) ? ', in announced danger zone' : ''
+  const signal = atPoint(cell, boss.value?.signatureCounter)
+    ? ', disrupt station: approach and spend one AP'
+    : ''
   const unit = unitAt(cell)
   if (unit) {
     const chance =
       unit.team === 'rival' && selected.value
         ? previewShot(selected.value, unit, state.value.map).hit
         : null
-    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}${landmark}`
+    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}${landmark}${warning}${signal}`
   }
-  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${landmark}${availableMove(state.value, cell) ? ', reachable' : ''}`
+  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${landmark}${warning}${signal}${availableMove(state.value, cell) ? ', reachable' : ''}`
 }
 </script>
 
 <style scoped>
+.atf-boss-panel {
+  position: relative;
+  padding: 0.75rem 0.9rem;
+  background: repeating-linear-gradient(
+      118deg,
+      transparent 0 16px,
+      #fece7620 16px 19px
+    ), linear-gradient(115deg, #421a44, #1b142d);
+  border: 2px solid #f9c96e;
+  box-shadow: 4px 4px 0 #100b19;
+  transform: skew(-1deg);
+}
+.atf-boss-kicker {
+  font-size: 0.65rem;
+  color: #ffcb71;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+}
+.atf-boss-layout {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.atf-boss-layout strong {
+  font-size: clamp(1.1rem, 2.5cqi, 1.8rem);
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+  text-shadow: 2px 2px 0 #62122a;
+  text-transform: uppercase;
+}
+.atf-boss-layout span,
+.atf-boss-panel p {
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+.atf-boss-panel .atf-boss-warning {
+  color: #ffc1b8;
+  font-weight: 850;
+  padding-top: 0.2rem;
+}
+.atf-boss-panel .atf-boss-counter { color: #fbd5a5; }
+.atf-threat {
+  background: #792535;
+  border-color: #fda4af;
+  box-shadow: inset 0 0 0 1px #fecaca;
+}
+.atf-boss-counter.atf-cell {
+  outline: 3px dashed #fef08a;
+  outline-offset: -3px;
+}
+.atf-disrupt {
+  color: #201529;
+  background: #fbbf24;
+  font-weight: 900;
+}
+.atf-disrupt:disabled { opacity: 0.4; }
 .atf-console {
   display: grid;
   gap: 0.65rem;

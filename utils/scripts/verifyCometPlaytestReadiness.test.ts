@@ -48,7 +48,7 @@ const visitable = (run: AcademyRun) =>
 const masterminds = new Set<string>()
 const seeds = [4, 31, 2029, 77]
 for (const [index, seed] of seeds.entries()) {
-  const signature = SIGNATURE_POWERS[(index * 13) % SIGNATURE_POWERS.length].id
+  const signature = SIGNATURE_POWERS[(index * 13) % SIGNATURE_POWERS.length]!.id
   let run = startFullAcademy(fieldFor(signature), seed, signature, 'shelter')
   masterminds.add(run.mastermind!)
   assert.equal(run.day, 1)
@@ -60,28 +60,28 @@ for (const [index, seed] of seeds.entries()) {
     assert.equal(run.phase, 'map', `${label} opens on the map`)
     const sites = visitable(run)
     assert.ok(sites.length >= 1, `${label}: a landmark is always open`)
-    const visited = visitCitySite(run, sites[day % sites.length].id)
+    const visited = visitCitySite(run, sites[day % sites.length]!.id)
     assert.notEqual(visited, run, `${label}: the visit is accepted`)
     run = visited
     assert.equal(run.phase, 'campus', `${label}: a visit opens its scene`)
     const options = encounterFor(run).options
     assert.ok(options.length >= 2, `${label}: the scene offers a real choice`)
-    run = chooseEncounter(run, options[day % options.length].id)
+    run = chooseEncounter(run, options[day % options.length]!.id)
     assert.equal(run.phase, 'dispatch', `${label}: day turns to night`)
     assertSaves(run, `${label} dusk`)
     const cases = incidentsFor(run)
     assert.ok(cases.length >= 1, `${label}: night has calls`)
     if (day === 3 && run.patrolOpening === 1)
-      run = planThirdNight(run, cases[0].id, 'split')
+      run = planThirdNight(run, cases[0]!.id, 'split')
     else if (day >= 4 && run.patrolOpening === 1 && day % 2 === 0) {
-      const zone = PATROL_ZONES[day % PATROL_ZONES.length].id
+      const zone = PATROL_ZONES[day % PATROL_ZONES.length]!.id
       const choice = patrolOptionsFor(run, zone)[0]
       assert.ok(choice, `${label}: district ${zone} offers a patrol`)
       run = chooseNightPatrol(run, zone, choice.id)
       assert.ok(run.nightPatrol, `${label}: district patrol is recorded`)
     }
     if (!run.playerCaseId && !run.nightPatrol)
-      run = assignPlayerCase(run, cases[0].id)
+      run = assignPlayerCase(run, cases[0]!.id)
     for (const team of run.assignments)
       assert.ok(
         team.students.length >= 1 && team.students.length <= 3,
@@ -93,7 +93,7 @@ for (const [index, seed] of seeds.entries()) {
     assertSaves(run, `${label} debrief`)
     run = nextSchoolDay(run)
     assert.ok(
-      !visitable(run).some((site) => site.id === sites[day % sites.length].id),
+      !visitable(run).some((site) => site.id === sites[day % sites.length]!.id),
       `${label}: a visited landmark rests for a week`,
     )
   }

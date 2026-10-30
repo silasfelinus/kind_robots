@@ -97,7 +97,7 @@
                 :y1="street.y1"
                 :x2="street.x2"
                 :y2="street.y2"
-                :class="{ open: street.open }"
+                :class="{ open: street.open, witnessed: street.witnessed }"
               />
             </svg>
             <button
@@ -124,6 +124,29 @@
             </button>
           </div>
           <div class="sc-city-selection kr-scroll" data-testid="slime-dossier">
+            <article
+              v-if="lab.streetEvent"
+              class="sc-street-encounter"
+              data-testid="slime-street-encounter"
+              aria-live="polite"
+            >
+              <span class="sc-overline">STREET STORY · {{ lab.city.pendingStreet }}</span>
+              <h2>{{ lab.streetEvent.title }}</h2>
+              <p class="sc-scene">{{ lab.streetEvent.scene }}</p>
+              <div class="sc-choices">
+                <button
+                  v-for="choice in lab.streetEvent.choices"
+                  :key="choice.id"
+                  type="button"
+                  :data-testid="'slime-street-choice-' + choice.id"
+                  @click="lab.chooseStreet(choice.id)"
+                >
+                  <strong>{{ choice.label }}</strong>
+                  <small>{{ choice.outcome }}</small>
+                </button>
+              </div>
+            </article>
+            <template v-else>
             <p class="sc-overline">
               {{ lab.district.name }} /
               {{ statusLabel(lab.districtStatus(lab.districtId)) }}
@@ -186,6 +209,7 @@
                 streets.</span
               >
             </span>
+            </template>
           </div>
           <div class="sc-stage-foot">
             <span
@@ -193,7 +217,8 @@
                 lab.heatLimit
               }}
               · STANDING {{ lab.standing }} · CHAMPIONS
-              {{ lab.city.cleared.length }}/7</span
+              {{ lab.city.cleared.length }}/7 · STREET STORIES
+              {{ lab.streetProgress }}/9</span
             ><span>{{ lab.city.log[0] }}</span>
           </div>
         </section>
@@ -569,6 +594,7 @@ const streetLines = computed(() =>
       x2: to.x,
       y2: to.y,
       open: a === lab.city.location || b === lab.city.location,
+      witnessed: !!lab.city.streetChoices[name],
     }
   }),
 )
@@ -1096,6 +1122,30 @@ onUnmounted(() => lab.dispose())
 .sc-district.is-locked .sc-district-pin {
   opacity: 0.55;
   border-style: dashed;
+}
+.sc-street-encounter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 3px solid #f0b4ff;
+  padding: 0.3rem 0.35rem 0.3rem 0.8rem;
+  background: linear-gradient(90deg, #592b7442, transparent 80%);
+}
+.sc-street-encounter h2 {
+  margin: 0;
+  color: #f1c6ff;
+  letter-spacing: 0.055em;
+  font-size: clamp(1rem, 2cqw, 1.4rem);
+  font-weight: 900;
+}
+.sc-street-encounter .sc-choices button {
+  border-color: #d9a2ee;
+  min-width: 0;
+}
+.sc-streets line.witnessed {
+  stroke: #e6a7ff;
+  stroke-width: 2.5;
+  stroke-dasharray: none;
 }
 .sc-scene {
   color: #dbe3ee;

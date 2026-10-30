@@ -6,7 +6,7 @@
  */
 export type MemoryConceptId = 'briar' | 'hearth' | 'crown' | 'city'
 export type RealityPerspective =
-  'earth-protagonist' | 'morrow' | 'scylla' | 'char' | 'vesper'
+  'earth-protagonist' | 'pip' | 'morrow' | 'scylla' | 'char' | 'vesper'
 export type RealityOntology =
   | 'storybook'
   | 'mundane'
@@ -225,7 +225,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'e09',
     'briar',
     'Briar: The Forest Between Floors',
-    'earth-protagonist',
+    'pip',
     'hybrid',
     'remembrance',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],

@@ -146,7 +146,7 @@
         <h3 class="evf-label">Squad lead</h3>
         <p class="evf-note" data-testid="front-lead-note">{{ leadNote }}</p>
         <div
-          class="evf-leads kr-scroll"
+          class="evf-leads"
           role="radiogroup"
           aria-label="Squad lead"
           data-roving="horizontal"

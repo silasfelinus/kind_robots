@@ -1,6 +1,6 @@
 # Space Couch onboarding art backlog
 
-Required painted choices: six backgrounds and twelve Couchscope answers. The current question SVGs are fallbacks, **not delivered art**.
+Required painted onboarding art: six backgrounds, four question scenes and twelve Couchscope answers (**22 separate paintings**). The current question SVGs are fallbacks, **not delivered art**.
 
 ## Backgrounds
 - `origins/courier`: tollbooth courier crossing space with the red couch
@@ -9,6 +9,9 @@ Required painted choices: six backgrounds and twelve Couchscope answers. The cur
 - `origins/mechanic`: mechanic repairing the couch's force bubble with a bread knife
 - `origins/auditor`: galactic auditor confronting a catastrophic paperwork error
 - `origins/entertainer`: casino escapee amid zero-gravity chips
+
+## Couchscope question hero plates
+Paint four original full-size illustrations under `couchscope/question-01` through `couchscope/question-04` (moon mediation, time-displaced twin, planet-sized lost-property depot, and miracle with cosmic invoice). See `COUCHSCOPE-ART.md` for composition requirements.
 
 ## Couchscope choices
 Keys `couchscope/question-XX-answer-{a,b,c}` for XX=01..04, all unique:

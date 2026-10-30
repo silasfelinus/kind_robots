@@ -23,7 +23,11 @@ export function comicIntroFor(
   const identity = identityFor(signature)
   const crew = henchmanForVillain(signature)
   const campaign = campaignStagesFor(signature)
-  const base = { key: signature + ':' + role, role, issue: 'COMET CITY / FIRST APPEARANCE' }
+  const base = {
+    key: signature + ':' + role,
+    role,
+    issue: 'COMET CITY / FIRST APPEARANCE',
+  }
   switch (role) {
     case 'hero':
       return {
@@ -38,7 +42,7 @@ export function comicIntroFor(
       return {
         ...base,
         name: identity.villain.alias,
-        tagline: 'VILLAIN / EVERYONE IS SOMEONE ELSE\'S NEMESIS',
+        tagline: "VILLAIN / EVERYONE IS SOMEONE ELSE'S NEMESIS",
         caption: identity.villain.method,
         motif: 'danger',
         artKey: identityArtKey(signature, 'villain'),
@@ -81,6 +85,7 @@ export const COMIC_INTRO_PROMPT = {
   key: 'comic-introduction',
   label: 'Comic-book character intro / art-only',
   base: 'Full-figure commanding superhero comic-panel introduction illustration, mature Western animation, confident readable silhouette, kinetic diagonal composition, cinematic cel shading and painted shadows, halftone accent shapes, generous negative space across lower third for a separate typographic title overlay, thick ink outlines, dimensional action pose, no words, no lettering, no logo, no watermark.',
-  requirement: 'Character identity, costume and pose must agree with the approved poster. Keep all names and captions OUT of the image; rendered UI adds lettering.',
+  requirement:
+    'Character identity, costume and pose must agree with the approved poster. Keep all names and captions OUT of the image; rendered UI adds lettering.',
   aspect: '3:2',
 } as const

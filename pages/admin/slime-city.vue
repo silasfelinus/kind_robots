@@ -1,10 +1,10 @@
 <template>
-  <main class="kr-surface slime-lab" data-layout="console-fixed" data-testid="slime-city-lab">
+  <main class="kr-surface slime-lab h-full min-h-0 overflow-hidden" data-layout="console-fixed" data-testid="slime-city-lab">
     <div class="sc-shell">
       <header class="sc-header">
         <div class="sc-brand">
           <span class="sc-overline">KIND ROBOTS / COMBAT SYSTEMS LAB 001</span>
-          <h1>SLIME <span>CITY</span><small> working title</small></h1>
+          <div class="sc-wordmark">SLIME <span>CITY</span><small> working title</small></div>
         </div>
         <nav class="sc-tabs" aria-label="Laboratory views">
           <button type="button" :class="{ active: lab.view === 'city' }" @click="lab.view = 'city'; lab.stop()">CITY</button>
@@ -134,7 +134,7 @@
           <template v-if="lab.view === 'arena'">
             <div class="sc-actions">
               <div class="sc-control-heading"><span class="sc-overline">HAND / REPEATABLE TEST CARDS</span><span>AVAILABLE {{ lab.match.mana }} MANA</span></div>
-              <div class="sc-hand kr-scroll">
+              <div class="sc-hand">
                 <button v-for="card in lab.cards" :key="card.id" type="button" class="sc-hand-card" :class="[{ selected: lab.selectedCard === card.id, unavailable: card.cost > lab.match.mana }, 'tone-' + lab.team.color]" :data-testid="'slime-card-' + card.id" :aria-pressed="lab.selectedCard === card.id" @click="lab.chooseCard(card.id)">
                   <span class="sc-card-symbol">{{ card.symbol }}</span>
                   <span><strong>{{ card.name }}</strong><small>{{ card.kind }}</small></span>
@@ -196,9 +196,9 @@ onUnmounted(() => lab.dispose())
 .sc-shell{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(ellipse at 65% 0%,#29314c 0%,#101724 48%,#0a0e16 80%)}
 .sc-header{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;padding:.7rem 1.2rem;border-bottom:1px solid #69708255;background:#080c16ef}
 .sc-overline{display:block;color:#a6aac0;font-size:.61rem;letter-spacing:.2em;font-weight:850;text-transform:uppercase}
-.sc-brand h1{margin:0;font-size:clamp(1.25rem,2.7vw,2.5rem);font-weight:1000;line-height:1;letter-spacing:-.065em;font-style:italic;text-shadow:0 0 25px #f35c5944}
-.sc-brand h1 span{color:#c3ff55}
-.sc-brand h1 small{display:inline-block;color:#999eb4;font-size:.53rem;letter-spacing:.03em;font-style:normal;font-weight:500}
+.sc-brand .sc-wordmark{margin:0;font-size:clamp(1.25rem,2.7vw,2.5rem);font-weight:1000;line-height:1;letter-spacing:-.065em;font-style:italic;text-shadow:0 0 25px #f35c5944}
+.sc-brand .sc-wordmark span{color:#c3ff55}
+.sc-brand .sc-wordmark small{display:inline-block;color:#999eb4;font-size:.53rem;letter-spacing:.03em;font-style:normal;font-weight:500}
 .sc-tabs{display:flex;gap:.35rem;padding:.25rem;border:1px solid #4d5567;border-radius:.7rem;background:#0e1420}
 .sc-tabs button{min-width:4.2rem;padding:.55rem .8rem;border-radius:.46rem;font-size:.7rem;font-weight:900;letter-spacing:.12em;color:#afb8c5}
 .sc-tabs button.active{background:#c5ff59;color:#142016;box-shadow:0 0 18px #c5ff5944}
@@ -311,8 +311,8 @@ onUnmounted(() => lab.dispose())
 @container (max-width: 600px){
   .sc-header{padding:.3rem .6rem;gap:.4rem}
   .sc-hud{display:none}
-  .sc-brand h1{font-size:1.15rem}
-  .sc-brand h1 small,.sc-brand .sc-overline{display:none}
+  .sc-brand .sc-wordmark{font-size:1.15rem}
+  .sc-brand .sc-wordmark small,.sc-brand .sc-overline{display:none}
   .sc-tabs button{padding:.35rem .5rem;min-width:3rem;font-size:.57rem}
   .sc-main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto}
   .sc-roster{padding:.24rem .4rem;border-right:0;border-bottom:1px solid #607080;gap:0}

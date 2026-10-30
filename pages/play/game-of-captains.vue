@@ -2419,9 +2419,36 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-origin {
   min-height: 0;
-  align-items: center;
+  display: grid;
+  grid-template-rows: minmax(0, 56%) minmax(0, 44%);
+  overflow: hidden;
+  align-items: stretch;
   padding: clamp(0.35rem, 1.5cqi, 1rem);
   gap: clamp(0.3rem, 1cqi, 0.8rem);
+}
+.cap-personnel-frame .cap-origin-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0.35rem;
+}
+.cap-personnel-frame .cap-origin-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.cap-personnel-frame .cap-origin-copy small {
+  display: block;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.cap-personnel-frame .cap-origin-ready .cap-origin-copy small {
+  opacity: 1;
 }
 .cap-personnel-frame .cap-origin-glyph {
   font-size: clamp(1.45rem, 3cqi, 2.6rem);

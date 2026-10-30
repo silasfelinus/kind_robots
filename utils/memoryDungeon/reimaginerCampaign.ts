@@ -668,13 +668,18 @@ export function scyllaOpeningForMemory(
 }
 
 export function memoryPairWorldFlags(progress: MemoryCampaignProgress): string[] {
-  return (Object.entries(progress.pairDecisions ?? {}) as [
+  const flags = (Object.entries(progress.pairDecisions ?? {}) as [
     MemoryPairEndingWorld,
     string,
   ][]).flatMap(([world, id]) => {
     const choice = MEMORY_PAIR_ENDINGS[world]?.find((item) => item.id === id)
     return choice ? [choice.worldFlag] : []
   })
+  const departure = MEMORY_SCYLLA_DEPARTURE_CHOICES.find(
+    (option) => option.id === progress.scyllaDeparture,
+  )
+  if (departure) flags.push(departure.worldFlag)
+  return flags
 }
 
 /** One durable, irreversible decision per paired world, before its exit. */
@@ -703,11 +708,16 @@ export interface MemoryCampaignProgress {
   rememberedAnchors: readonly MemoryWishAnchorId[]
   finaleCommitted: boolean
   pairDecisions?: Partial<Record<MemoryPairEndingWorld, string>>
-  scyllaDeparture?: MemoryScyllaDepartureChoice
+  scyllaDeparture?: MemoryScyllaDepartureChoice | 'legacy-unspoken'
 }
 
 export function newMemoryCampaignProgress(): MemoryCampaignProgress {
-  return { completed: [], rememberedAnchors: [], finaleCommitted: false, pairDecisions: {} }
+  return {
+    completed: [],
+    rememberedAnchors: [],
+    finaleCommitted: false,
+    pairDecisions: {},
+  }
 }
 
 /** Only destinations discovered or earned are returned; no spoiler-filled map menu. */

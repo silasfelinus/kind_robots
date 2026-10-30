@@ -32,7 +32,7 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
   site(
     '1,1',
     'Vesper’s Childhood Footbridge',
-    'Vesper stops before a cedar footbridge they knew as a child. They once traced secret paths beneath these boards so lost travelers could reach the lantern supper. Today the river carries empty sandals, and the cartographer fears a familiar route has been sold again.',
+    'Vesper folds their dusty-grey moth wings beside the cedar footbridge they knew as a child. They once traced secret paths beneath these boards so lost travelers could reach the lantern supper. Today the river carries empty sandals, and the cartographer fears a familiar route has been sold again.',
     {
       id: 'seat',
       label: 'Help Vesper set a place without recording the missing guest’s name',

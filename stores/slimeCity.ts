@@ -93,7 +93,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   )
   const plan = computed(() => CITY_PLAN[districtId.value])
   const streetEvent = computed(() => streetStory(city.value))
-  const streetProgress = computed(() => Object.keys(city.value.streetChoices).length)
+  const streetProgress = computed(
+    () => Object.keys(city.value.streetChoices).length,
+  )
   const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
   const here = computed(() => city.value.location === districtId.value)
   const route = computed(() =>

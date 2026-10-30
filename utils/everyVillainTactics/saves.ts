@@ -18,6 +18,7 @@ import type {
   StoryRun,
 } from './firstBellStory'
 import { PICNIC_KNOWN_TRIGGERS } from './picnicPanic'
+import { scriptTriggerIds, settableFlags } from './sceneGraph'
 import { tacticFor } from './powers'
 import { stageProblems, type StageDraft } from './studio'
 import {
@@ -29,6 +30,7 @@ import {
 } from './stageRules'
 import {
   KNOWN_TRIGGERS,
+  isValidFoil,
   trainingState,
   waveUnit,
   type TrainingState,
@@ -53,6 +55,9 @@ export type EvtSave = {
   savedAt: string
   perspective: Perspective
   leadSignature: SignaturePowerId
+  /** Story rival lead when the player chose one; absent means First Bell's
+   * default, so saves made before foils keep their checksums. */
+  foilSignature?: SignaturePowerId
   /** The one-shot's stage draft; null for story saves. */
   stage: StageDraft | null
   state: TrainingState
@@ -137,6 +142,7 @@ export function createSave(input: {
   slot: EvtSaveSlot
   perspective: Perspective
   leadSignature: string
+  foilSignature?: string | null
   stage: StageDraft | null
   state: TrainingState
   story: StoryRun
@@ -150,6 +156,9 @@ export function createSave(input: {
     savedAt: input.savedAt ?? new Date().toISOString(),
     perspective: input.perspective,
     leadSignature: input.leadSignature as SignaturePowerId,
+    ...(input.foilSignature && !input.stage
+      ? { foilSignature: input.foilSignature as SignaturePowerId }
+      : {}),
     stage: input.stage ? plainCopy(input.stage) : null,
     state: plainCopy(input.state),
     story: plainCopy(input.story),
@@ -422,14 +431,37 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     !state.events.every((e) => typeof e === 'string' && e.length <= 600)
   )
     return reject('Battle log is malformed.')
+  const scriptIds = scriptTriggerIds(save.stage?.script)
   if (
     !Array.isArray(state.fired) ||
     new Set(state.fired).size !== state.fired.length ||
     !state.fired.every(
-      (id) => KNOWN_TRIGGERS.includes(id) || PICNIC_KNOWN_TRIGGERS.includes(id),
+      (id) =>
+        KNOWN_TRIGGERS.includes(id) ||
+        PICNIC_KNOWN_TRIGGERS.includes(id) ||
+        scriptIds.includes(id),
     )
   )
     return reject('Trigger history is malformed.')
+  // A scene is only ever marked seen after it fired.
+  if (
+    state.fired.some(
+      (id) =>
+        id.startsWith('seen:scene:') &&
+        !state.fired!.includes(id.slice('seen:'.length)),
+    )
+  )
+    return reject('A scene was marked seen before it fired.')
+  const flagsAllowed = save.stage?.script
+    ? settableFlags(save.stage.script)
+    : new Set<string>()
+  if (
+    state.flags !== undefined &&
+    (!Array.isArray(state.flags) ||
+      new Set(state.flags).size !== state.flags.length ||
+      !state.flags.every((f) => flagsAllowed.has(f)))
+  )
+    return reject('Story flags are invalid.')
 
   // Civilians keep their authored names and tiles; only status may change.
   const authored = save.stage?.civilians ?? []
@@ -465,8 +497,14 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   // Rebuild the starting roster and compare every immutable unit field.
   // A migrated pre-role battle keeps the legacy roster for its whole life.
   const legacy = state.units.every((unit) => unit.role === undefined)
+  if (
+    save.foilSignature !== undefined &&
+    (save.stage || !isValidFoil(save.foilSignature, save.leadSignature))
+  )
+    return reject('Rival foil is not a valid canonical opponent.')
   const reference = trainingState(1, save.stage ?? undefined, {
     lead: save.leadSignature,
+    foil: save.foilSignature,
     roles: !legacy,
   })
   // Reinforcements join the reference roster only once they have arrived.

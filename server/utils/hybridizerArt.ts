@@ -5,8 +5,10 @@ export const HYBRIDIZER_ART_SIZE = 1024
 export const HYBRIDIZER_ART_PRIORITY = 100
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
-// Launch hybrids fill idle render time behind every interactive and project job.
-export const HYBRIDIZER_BATCH_PRIORITY = -1
+// Launch hybrids queue behind interactive fusions (100) and project runtime art,
+// but ahead of bulk backfill packs (priority 60 and below), so the curated
+// catalogue keeps filling on a busy queue (Silas, 2026-10-30).
+export const HYBRIDIZER_BATCH_PRIORITY = 90
 export const HYBRIDIZER_BATCH_MAX_PAIRS = 50
 export const HYBRIDIZER_BATCH_PENDING_CAP = 60
 

@@ -211,6 +211,33 @@
           >
             {{ hoshimori.ridgeAccount }}
           </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '4,6' && hoshimori.lowlandAccount
+            "
+            class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-lowland-account"
+          >
+            {{ hoshimori.lowlandAccount }}
+          </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '8,2' && hoshimori.windwardAccount
+            "
+            class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-windward-account"
+          >
+            {{ hoshimori.windwardAccount }}
+          </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '8,8' && hoshimori.southernAccount
+            "
+            class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-southern-account"
+          >
+            {{ hoshimori.southernAccount }}
+          </p>
           <div
             v-if="hoshimori.clues.length"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3"
@@ -265,11 +292,27 @@
           >
             Enter the Red Oven
           </button>
+          <button
+            v-if="hoshimori.canEnterOvenWing"
+            type="button"
+            class="btn btn-warning min-h-12 text-base"
+            data-testid="memory-hoshimori-enter-ash-wing"
+            @click="hoshimori.act({ type: 'enter-wing' })"
+          >
+            Return to the Red Oven · Ash Wing
+          </button>
           <p
             v-if="hoshimori.resolution"
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
           >
             {{ hoshimori.resolution }}
+          </p>
+          <p
+            v-if="hoshimori.secondAccount"
+            class="rounded-xl border border-warning/40 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-ash-wing-account"
+          >
+            {{ hoshimori.secondAccount }}
           </p>
         </template>
       </div>

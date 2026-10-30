@@ -636,6 +636,24 @@
             <div>
               <span class="evt-overline">COMET CITY / MISSION WORKSHOP</span>
               <h2 id="evt-studio-title">THE STAGE STUDIO</h2>
+              <div class="evt-studio-panes" aria-label="Studio pane">
+                <button
+                  type="button"
+                  :aria-pressed="store.studioPane === 'map'"
+                  data-testid="studio-pane-map"
+                  @click="store.studioPane = 'map'"
+                >
+                  MAP
+                </button>
+                <button
+                  type="button"
+                  :aria-pressed="store.studioPane === 'scenes'"
+                  data-testid="studio-pane-scenes"
+                  @click="store.studioPane = 'scenes'"
+                >
+                  SCENES ({{ store.draft.script?.scenes.length ?? 0 }})
+                </button>
+              </div>
               <p>
                 Paint terrain, place teams and test real tactical sightlines.
               </p>
@@ -688,7 +706,10 @@
                 Secret and ⚡ hazard markers stay editor-only.</small
               >
             </div>
-            <div class="evt-studio-canvas">
+            <div v-if="store.studioPane === 'scenes'" class="evt-studio-canvas">
+              <EveryVillainSceneEditor />
+            </div>
+            <div v-else class="evt-studio-canvas">
               <div
                 class="evt-studio-board"
                 role="group"
@@ -1131,6 +1152,85 @@
                 class="evt-story-choice"
                 data-testid="tactics-scene-continue"
                 @click="store.dismissScene()"
+              >
+                <span class="evt-choice-number">↵</span>
+                <span class="evt-choice-body"><strong>Continue</strong></span>
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section
+          v-if="store.scriptScene && store.sceneWalk"
+          class="evt-cinematic evt-script-scene"
+          :class="[
+            'camera-' + (store.sceneLines.at(-1)?.camera ?? 'wide'),
+            { 'is-preview': !!store.previewSceneId },
+          ]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="evt-script-heading"
+          data-testid="tactics-script-scene"
+        >
+          <div class="evt-cinematic-scenery" aria-hidden="true"></div>
+          <div class="evt-cinematic-content">
+            <div class="evt-cinematic-rail">
+              <span class="evt-overline">{{
+                store.previewSceneId ? 'STUDIO PREVIEW' : 'STAGE SCENE'
+              }}</span>
+              <span>{{ store.draft.title }}</span>
+            </div>
+            <h2 id="evt-script-heading">{{ store.scriptScene.title }}</h2>
+            <div class="evt-script-frame">
+              <img
+                v-if="store.sceneLines.at(-1)?.art"
+                class="evt-script-portrait"
+                :src="store.sceneLines.at(-1)!.art!"
+                alt=""
+              />
+              <div class="evt-dialogue" aria-live="polite">
+                <div
+                  v-for="line in store.sceneLines"
+                  :key="line.id"
+                  class="evt-dialogue-line"
+                  :data-emotion="line.emotion"
+                >
+                  <strong
+                    >{{ line.name }}
+                    <small v-if="line.role">· the {{ line.role }}</small>
+                    <small v-if="line.emotion !== 'neutral'"
+                      >· {{ line.emotion }}</small
+                    ></strong
+                  >
+                  <p>{{ line.text }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="evt-cinematic-actions" aria-label="Scene choices">
+              <template v-if="!store.sceneWalk.done">
+                <button
+                  v-for="(choice, index) in store.sceneLines.at(-1)?.choices ??
+                  []"
+                  :key="index"
+                  type="button"
+                  class="evt-story-choice"
+                  :data-testid="'tactics-script-choice-' + index"
+                  @click="store.chooseSceneOption(index)"
+                >
+                  <span class="evt-choice-number">{{ index + 1 }}</span>
+                  <span class="evt-choice-body"
+                    ><strong>{{ choice.label }}</strong></span
+                  >
+                  <span aria-hidden="true">›</span>
+                </button>
+              </template>
+              <button
+                v-else
+                type="button"
+                class="evt-story-choice"
+                data-testid="tactics-script-continue"
+                @click="store.continueScene()"
               >
                 <span class="evt-choice-number">↵</span>
                 <span class="evt-choice-body"><strong>Continue</strong></span>
@@ -1708,6 +1808,20 @@ function onKey(event: KeyboardEvent) {
     }
     return
   }
+  if (store.scriptScene && store.sceneWalk) {
+    const digit = ['Digit1', 'Digit2', 'Digit3'].indexOf(event.code)
+    if (!store.sceneWalk.done && digit >= 0) {
+      event.preventDefault()
+      store.chooseSceneOption(digit)
+    } else if (
+      store.sceneWalk.done &&
+      (event.code === 'Enter' || event.code === 'Space')
+    ) {
+      event.preventDefault()
+      store.continueScene()
+    }
+    return
+  }
   if (
     event.altKey ||
     event.ctrlKey ||
@@ -1759,6 +1873,73 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-studio-panes {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0;
+}
+.evt-studio-panes button {
+  padding: 6px 12px;
+  border: 1px solid #8193b3;
+  border-radius: 6px;
+  background: #263552;
+  color: #e1e6f6;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.evt-studio-panes button[aria-pressed='true'] {
+  border-color: #fedda2;
+  color: #1b1330;
+  background: #fedda2;
+}
+.evt-script-scene.is-preview {
+  z-index: 30;
+}
+.evt-script-frame {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.evt-script-portrait {
+  flex: none;
+  width: clamp(80px, 16cqw, 190px);
+  height: auto;
+  max-height: 38cqh;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: top;
+  border: 2px solid #fedda2;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px #000a;
+}
+.evt-script-scene.camera-close .evt-script-portrait {
+  width: clamp(100px, 22cqw, 250px);
+}
+.evt-script-frame .evt-dialogue {
+  flex: 1;
+  min-width: 0;
+}
+.evt-script-scene.camera-low-angle .evt-script-portrait {
+  transform: perspective(500px) rotateX(-6deg) scale(1.04);
+}
+.evt-script-scene.camera-over-shoulder .evt-script-frame {
+  flex-direction: row-reverse;
+}
+.evt-script-scene.camera-close .evt-cinematic-scenery {
+  transform: scale(1.12);
+}
+.evt-dialogue-line strong small {
+  font-weight: 600;
+  opacity: 0.75;
+  text-transform: lowercase;
+}
+@container (max-width: 520px) {
+  .evt-script-portrait,
+  .evt-script-scene.camera-close .evt-script-portrait {
+    width: 72px;
+  }
+}
 .evt-rule-line {
   display: block;
   color: #fde68a;

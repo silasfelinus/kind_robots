@@ -68,9 +68,9 @@ for (const [left, right] of [
   )
 }
 assert.ok(
-  HYBRIDIZER_BATCH_PRIORITY < 0 &&
+  HYBRIDIZER_BATCH_PRIORITY > 60 &&
     HYBRIDIZER_BATCH_PRIORITY < HYBRIDIZER_ART_PRIORITY,
-  'launch hybrids must queue behind default-priority and interactive art',
+  'launch hybrids queue behind interactive fusions but ahead of bulk backfill packs',
 )
 assert.ok(
   HYBRIDIZER_BATCH_MAX_PAIRS <= 50 && HYBRIDIZER_BATCH_PENDING_CAP <= 100,

@@ -6,6 +6,7 @@ import {
   availableMove,
   endTurn,
   exposureAt,
+  isValidFoil,
   fireSelected,
   moveSelected,
   overwatchSelected,
@@ -77,6 +78,37 @@ import {
   type WaveCrew,
 } from '~/utils/everyVillainTactics/stageRules'
 import {
+  finishScene,
+  latchScenes,
+  pendingScriptScene,
+  speakerArt,
+  speakerName,
+  walkScene,
+  type SceneBranch,
+  type SceneChoice,
+  type SceneEffect,
+  type SceneNode,
+  type SceneScript,
+  type SceneTrigger,
+  type TriggerKind,
+} from '~/utils/everyVillainTactics/sceneGraph'
+import {
+  addLine,
+  addScene,
+  choiceEffect,
+  defaultTrigger,
+  emptyScript,
+  removeLine,
+  removeScene,
+  renameScene,
+  setBranch,
+  setChoiceTarget,
+  setChoices,
+  setNext,
+  setTrigger,
+  updateLine,
+} from '~/utils/everyVillainTactics/sceneEditor'
+import {
   emptyLibrary,
   evtDraftsKey,
   exportStage,
@@ -137,6 +169,8 @@ export const useEveryVillainTacticsStore = defineStore(
     const state = ref(trainingState())
     const perspective = ref<TacticalPerspective>('hero')
     const leadSignature = ref('accident-fire')
+    /** Story rival lead; null keeps First Bell's default. */
+    const foilSignature = ref<string | null>(null)
     const story = ref(createStory())
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
@@ -324,11 +358,17 @@ export const useEveryVillainTacticsStore = defineStore(
       }
     }
     /** New Story: First Bell from the chosen viewpoint and squad lead. */
-    function startStory(view: TacticalPerspective, lead: string) {
+    function startStory(
+      view: TacticalPerspective,
+      lead: string,
+      foil: string | null = null,
+    ) {
       if (!roster.some((u) => u.signature === lead)) return false
+      if (foil && !isValidFoil(foil, lead)) return false
       isPlaytest.value = false
       perspective.value = view
       leadSignature.value = lead
+      foilSignature.value = foil
       reset()
       openScreen(null)
       return true
@@ -349,6 +389,7 @@ export const useEveryVillainTacticsStore = defineStore(
         slot,
         perspective: perspective.value,
         leadSignature: leadSignature.value,
+        foilSignature: foilSignature.value,
         stage: isPlaytest.value ? draft.value : null,
         state: state.value,
         story: story.value,
@@ -363,12 +404,15 @@ export const useEveryVillainTacticsStore = defineStore(
     function applySave(save: EvtSave) {
       perspective.value = save.perspective
       leadSignature.value = save.leadSignature
+      foilSignature.value = save.foilSignature ?? null
       isPlaytest.value = save.mode === 'oneshot'
       if (save.stage) draft.value = structuredClone(save.stage)
       state.value = structuredClone(save.state)
       story.value = structuredClone(save.story)
       studioOpen.value = false
       rosterOpen.value = false
+      scenePath.value = []
+      latch()
     }
     function loadFrom(slot: EvtSaveSlot): boolean {
       const result = readSlot(browserStorage(), slot)
@@ -444,9 +488,192 @@ export const useEveryVillainTacticsStore = defineStore(
       const scene = oneShotScene.value
       if (scene) dismissPicnicScene(state.value, scene.id)
     }
+    /** Authored script scenes for studio playtests (t-005). */
+    const scenePath = ref<number[]>([])
+    const previewSceneId = ref<string | null>(null)
+    const activeScript = computed(() =>
+      isPlaytest.value ? draft.value.script : undefined,
+    )
+    const scriptScene = computed(() => {
+      if (previewSceneId.value)
+        return (
+          draft.value.script?.scenes.find(
+            (scene) => scene.id === previewSceneId.value,
+          ) ?? null
+        )
+      return oneShotScene.value
+        ? null
+        : pendingScriptScene(state.value, activeScript.value)
+    })
+    const sceneWalk = computed(() =>
+      scriptScene.value
+        ? walkScene(scriptScene.value, scenePath.value, sceneContext.value)
+        : null,
+    )
+    const sceneContext = computed(() => ({
+      state: state.value,
+      perspective: perspective.value,
+    }))
+    const sceneLines = computed(() =>
+      (sceneWalk.value?.nodes ?? []).map((node: SceneNode) => ({
+        ...node,
+        name: speakerName(node.speaker, state.value),
+        art: speakerArt(node.speaker, node.emotion, state.value),
+      })),
+    )
+    const sceneBlocking = computed(
+      () =>
+        !!oneShotScene.value || (!!scriptScene.value && !previewSceneId.value),
+    )
+    function latch() {
+      if (activeScript.value)
+        latchScenes(state.value, activeScript.value, draft.value)
+    }
+    function chooseSceneOption(index: number) {
+      const scene = scriptScene.value
+      if (!scene || sceneWalk.value?.done) return
+      const next = [...scenePath.value, index]
+      if (walkScene(scene, next, sceneContext.value)) scenePath.value = next
+    }
+    function continueScene() {
+      const scene = scriptScene.value
+      if (!scene || !sceneWalk.value?.done) return
+      if (previewSceneId.value) previewSceneId.value = null
+      else {
+        finishScene(state.value, scene, scenePath.value, perspective.value)
+        latch()
+      }
+      scenePath.value = []
+    }
+    function previewScene(id: string) {
+      previewSceneId.value = id
+      scenePath.value = []
+    }
+    const editingSceneId = ref<string | null>(null)
+    /** The studio's middle pane: the map canvas or the cinematic editor. */
+    const studioPane = ref<'map' | 'scenes'>('map')
+    function editScript(change: (script: SceneScript) => SceneScript) {
+      const next = change(draft.value.script ?? emptyScript())
+      const stage = JSON.parse(
+        JSON.stringify(draft.value),
+      ) as typeof draft.value
+      if (next.scenes.length) stage.script = next
+      else delete stage.script
+      draft.value = stage
+    }
+    function addStudioScene(kind: TriggerKind) {
+      editScript((script) => addScene(script, kind))
+      editingSceneId.value = draft.value.script?.scenes.at(-1)?.id ?? null
+    }
+    function removeStudioScene(id: string) {
+      editScript((script) => removeScene(script, id))
+      editingSceneId.value = draft.value.script?.scenes[0]?.id ?? null
+    }
+    function renameStudioScene(id: string, title: string) {
+      editScript((script) => renameScene(script, id, title))
+    }
+    function setSceneTriggerKind(id: string, kind: TriggerKind) {
+      editScript((script) =>
+        setTrigger(script, id, defaultTrigger(kind, script, id)),
+      )
+    }
+    function patchSceneTrigger(id: string, patch: Record<string, unknown>) {
+      editScript((script) => {
+        const scene = script.scenes.find((s) => s.id === id)
+        return scene
+          ? setTrigger(script, id, {
+              ...scene.trigger,
+              ...patch,
+            } as SceneTrigger)
+          : script
+      })
+    }
+    function addSceneLine(id: string) {
+      editScript((script) => addLine(script, id))
+    }
+    function updateSceneLine(
+      id: string,
+      nodeId: string,
+      patch: Partial<
+        Pick<SceneNode, 'speaker' | 'emotion' | 'camera' | 'text' | 'role'>
+      >,
+    ) {
+      editScript((script) => updateLine(script, id, nodeId, patch))
+    }
+    function setSceneNext(id: string, nodeId: string, next: string | null) {
+      editScript((script) => setNext(script, id, nodeId, next))
+    }
+    function setSceneChoiceTarget(
+      id: string,
+      nodeId: string,
+      index: number,
+      next: string | null,
+    ) {
+      editScript((script) => setChoiceTarget(script, id, nodeId, index, next))
+    }
+    /** Toggles a flag/viewpoint/unit/odds branch on a line. */
+    function setSceneBranch(
+      id: string,
+      nodeId: string,
+      branch: SceneBranch | null,
+    ) {
+      editScript((script) => setBranch(script, id, nodeId, branch))
+    }
+    function removeSceneLine(id: string, nodeId: string) {
+      editScript((script) => removeLine(script, id, nodeId))
+    }
+    /** Turns a line into a two-way choice that ends the scene, or back. */
+    function toggleSceneChoices(id: string, nodeId: string) {
+      editScript((script) => {
+        const node = script.scenes
+          .find((s) => s.id === id)
+          ?.nodes.find((n) => n.id === nodeId)
+        if (!node) return script
+        const choices: SceneChoice[] | null = node.choices?.length
+          ? null
+          : [
+              { label: 'First option', next: node.next, effects: [] },
+              { label: 'Second option', next: node.next, effects: [] },
+            ]
+        return setChoices(script, id, nodeId, choices)
+      })
+    }
+    function updateSceneChoice(
+      id: string,
+      nodeId: string,
+      index: number,
+      patch: {
+        label?: string
+        effect?: 'none' | SceneEffect['kind']
+        flag?: string
+      },
+    ) {
+      editScript((script) => {
+        const node = script.scenes
+          .find((s) => s.id === id)
+          ?.nodes.find((n) => n.id === nodeId)
+        const choice = node?.choices?.[index]
+        if (!node?.choices || !choice) return script
+        const current = choice.effects[0]
+        const kind = patch.effect ?? current?.kind ?? 'none'
+        const flag =
+          patch.flag ?? (current?.kind === 'flag' ? current.flag : 'flag-1')
+        const choices = node.choices.map((c, i) =>
+          i === index
+            ? {
+                ...c,
+                label: patch.label ?? c.label,
+                effects: choiceEffect(kind, flag),
+              }
+            : c,
+        )
+        return setChoices(script, id, nodeId, choices)
+      })
+    }
     function rescue() {
-      if (oneShotScene.value) return
+      if (sceneBlocking.value) return
       rescueSelected(state.value)
+      latch()
     }
     function civilianAt(point: Cell) {
       return (
@@ -654,10 +881,12 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value = trainingState(
         0x53a1b7,
         isPlaytest.value ? draft.value : undefined,
-        { lead: leadSignature.value },
+        { lead: leadSignature.value, foil: foilSignature.value ?? undefined },
       )
       story.value = createStory()
       if (isPlaytest.value) story.value.current = null
+      scenePath.value = []
+      latch()
     }
     function choosePerspective(value: TacticalPerspective) {
       perspective.value = value
@@ -667,6 +896,8 @@ export const useEveryVillainTacticsStore = defineStore(
       const valid = roster.some((u) => u.signature === signature)
       if (!valid) return
       leadSignature.value = signature
+      if (foilSignature.value && !isValidFoil(foilSignature.value, signature))
+        foilSignature.value = null
       reset()
       state.value.log =
         'New squad leader assigned. The battle starts at First Bell.'
@@ -691,9 +922,13 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.hover = point
     }
     function click(point: Cell) {
+      clickCell(point)
+      latch()
+    }
+    function clickCell(point: Cell) {
       endTurnArmed.value = false
       if (story.value.current && !isPlaytest.value) return
-      if (oneShotScene.value) return
+      if (sceneBlocking.value) return
       if (state.value.mode === 'power' && state.value.phase === 'active') {
         // Allies can be power targets, so try the power before reselecting.
         if (useSelectedPower(state.value, point)) {
@@ -718,7 +953,7 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     /** End Turn from the console honours the confirm setting. */
     function requestEndTurn() {
-      if (story.value.current || oneShotScene.value) return
+      if (story.value.current || sceneBlocking.value) return
       if (settings.value.confirmEndTurn && !endTurnArmed.value) {
         endTurnArmed.value = true
         return
@@ -727,8 +962,9 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function nextTurn() {
       endTurnArmed.value = false
-      if (story.value.current || oneShotScene.value) return
+      if (story.value.current || sceneBlocking.value) return
       endTurn(state.value)
+      latch()
       if (!isPlaytest.value) enqueueBeat(story.value, state.value)
       // Each completed round autosaves, so Continue survives a closed tab.
       saveTo('auto')
@@ -737,11 +973,13 @@ export const useEveryVillainTacticsStore = defineStore(
       if (story.value.current) return
       if (overwatchSelected(state.value) && !isPlaytest.value)
         enqueueBeat(story.value, state.value)
+      latch()
     }
     function hunker() {
       if (story.value.current) return
       if (hunkerSelected(state.value) && !isPlaytest.value)
         enqueueBeat(story.value, state.value)
+      latch()
     }
     function chooseStory(effect: ChoiceEffect) {
       return applyChoice(story.value, state.value, perspective.value, effect)
@@ -834,6 +1072,7 @@ export const useEveryVillainTacticsStore = defineStore(
       boardCells,
       perspective,
       leadSignature,
+      foilSignature,
       story,
       moment,
       chooseStory,
@@ -856,6 +1095,29 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage,
       screen,
       settings,
+      scriptScene,
+      sceneWalk,
+      sceneLines,
+      sceneBlocking,
+      chooseSceneOption,
+      continueScene,
+      previewScene,
+      previewSceneId,
+      editingSceneId,
+      studioPane,
+      addStudioScene,
+      removeStudioScene,
+      renameStudioScene,
+      setSceneTriggerKind,
+      patchSceneTrigger,
+      addSceneLine,
+      updateSceneLine,
+      removeSceneLine,
+      setSceneNext,
+      setSceneChoiceTarget,
+      setSceneBranch,
+      toggleSceneChoices,
+      updateSceneChoice,
       fieldAt,
       ruleLine,
       bossId,

@@ -7,7 +7,11 @@ import {
   advanceHoshimoriWarm,
   hoshimoriLanternClues,
   hoshimoriOvenResolution,
+  hoshimoriOvenSecondAccount,
   hoshimoriRidgeAccount,
+  hoshimoriLowlandAccount,
+  hoshimoriWindwardAccount,
+  hoshimoriSouthernAccount,
   newHoshimoriWarmProgress,
   restoreHoshimoriWarm,
   type HoshimoriEvent,
@@ -27,7 +31,17 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   )
   const clues = computed(() => hoshimoriLanternClues(progress.value))
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
+  const secondAccount = computed(() =>
+    hoshimoriOvenSecondAccount(progress.value),
+  )
   const ridgeAccount = computed(() => hoshimoriRidgeAccount(progress.value))
+  const lowlandAccount = computed(() => hoshimoriLowlandAccount(progress.value))
+  const windwardAccount = computed(() =>
+    hoshimoriWindwardAccount(progress.value),
+  )
+  const southernAccount = computed(() =>
+    hoshimoriSouthernAccount(progress.value),
+  )
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
     if (last?.type !== 'oven-choice') return null
@@ -45,6 +59,14 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       (progress.value.lanternLit ||
         progress.value.flags.includes('oven-passage-offer') ||
         progress.value.flags.includes('oven-passage-pledge')),
+  )
+
+  const canEnterOvenWing = computed(
+    () =>
+      progress.value.current === '4,3' &&
+      !progress.value.ovenRoom &&
+      progress.value.ovenComplete &&
+      !progress.value.ovenChoices['OV-09'],
   )
 
   function hydrate(): void {
@@ -115,9 +137,14 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     currentOvenRoom,
     clues,
     resolution,
+    secondAccount,
     ridgeAccount,
+    lowlandAccount,
+    windwardAccount,
+    southernAccount,
     lastOvenOutcome,
     canEnterOven,
+    canEnterOvenWing,
     canMove,
     hydrate,
     act,

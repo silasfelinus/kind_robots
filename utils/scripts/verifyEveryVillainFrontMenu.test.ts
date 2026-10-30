@@ -26,11 +26,17 @@ import {
   type ScrapbookRecord,
 } from '../everyVillainTactics/frontMenu'
 import { dismissPicnicScene } from '../everyVillainTactics/picnicPanic'
-import { createSave, loadSave } from '../everyVillainTactics/saves'
+import {
+  createSave,
+  loadSave,
+  saveChecksum,
+} from '../everyVillainTactics/saves'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
 import {
+  DEFAULT_FOIL,
   endTurn,
   exposureAt,
+  isValidFoil,
   moveSelected,
   rescueSelected,
   trainingState,
@@ -228,6 +234,87 @@ exposureAt(first, backdraft, { x: 4, y: 3 })
 assert.equal(first.seed, seedBefore)
 assert.ok(moveSelected(first, { x: 1, y: 4 }))
 
+// Rival foil: any canonical hero not already in the squad leads the rivals.
+const foiled = trainingState(0x53a1b7, undefined, {
+  lead: 'accident-fire',
+  foil: 'magic-water',
+})
+const foilUnit = foiled.units.find((u) => u.team === 'rival')!
+assert.equal(foilUnit.identity, 'magic-water')
+assert.ok(foilUnit.role && foilUnit.power, 'the foil fights with their own kit')
+assert.equal(
+  trainingState(1, undefined, { lead: 'accident-fire' }).units.find(
+    (u) => u.team === 'rival',
+  )!.identity,
+  DEFAULT_FOIL,
+)
+assert.equal(isValidFoil('accident-fire', 'accident-fire'), false)
+assert.equal(isValidFoil('tech-genius', 'accident-fire'), false)
+assert.equal(isValidFoil('not-a-hero', 'accident-fire'), false)
+assert.equal(
+  trainingState(1, undefined, {
+    lead: 'accident-fire',
+    foil: 'accident-fire',
+  }).units.find((u) => u.team === 'rival')!.identity,
+  DEFAULT_FOIL,
+  'an invalid foil is ignored',
+)
+assert.equal(
+  trainingState(1, clonePreset('college-quad'), {
+    foil: 'magic-water',
+  }).units.find((u) => u.team === 'rival')!.identity,
+  DEFAULT_FOIL,
+  'stage battles keep their authored rivals',
+)
+const foilSave = createSave({
+  slot: 'slot-1',
+  perspective: 'villain',
+  leadSignature: 'accident-fire',
+  foilSignature: 'magic-water',
+  stage: null,
+  state: foiled,
+  story: createStory(),
+  savedAt: '2026-10-30T14:30:00.000Z',
+})
+assert.equal(foilSave.foilSignature, 'magic-water')
+assert.ok(loadSave(JSON.stringify(foilSave)).ok)
+const noFoil = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  foilSignature: null,
+  stage: null,
+  state: trainingState(0x53a1b7, undefined, { lead: 'accident-fire' }),
+  story: createStory(),
+})
+assert.equal('foilSignature' in noFoil, false, 'old-shape saves stay identical')
+const swapped = structuredClone(foilSave)
+swapped.foilSignature = 'accident-fire'
+const { checksum: _c, ...swappedPayload } = swapped
+assert.equal(
+  loadSave(
+    JSON.stringify({
+      ...swappedPayload,
+      checksum: saveChecksum(swappedPayload),
+    }),
+  ).ok,
+  false,
+  'a foil that duplicates the lead is refused',
+)
+const unfoiled = structuredClone(foilSave)
+delete unfoiled.foilSignature
+const { checksum: _d, ...unfoiledPayload } = unfoiled
+assert.equal(
+  loadSave(
+    JSON.stringify({
+      ...unfoiledPayload,
+      checksum: saveChecksum(unfoiledPayload),
+    }),
+  ).ok,
+  false,
+  'dropping the foil field cannot smuggle a different rival in',
+)
+
 // UI contracts: menu items, keyboard roving, motion and confirm wiring.
 const menu = readFileSync(
   new URL(
@@ -246,8 +333,10 @@ for (const id of [
   'front-confirm-end-turn',
   'front-threat-preview',
   'front-erase-progress',
+  'front-foil-note',
 ])
   assert.match(menu, new RegExp('data-testid="' + id + '"'))
+assert.match(menu, /'front-foil-' \+ person\.signature/)
 assert.match(menu, /aria-modal="true"/)
 assert.match(menu, /data-roving="vertical"/)
 assert.match(menu, /event\.key === 'Escape'/)

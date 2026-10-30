@@ -117,6 +117,8 @@ export type TrainingState = {
    * stage, and their runtime state. Absent for battles without them. */
   rules?: StageRules
   field?: FieldState
+  /** Story flags set by authored scene choices (see sceneGraph). */
+  flags?: string[]
   impact: {
     attacker: string
     target: string
@@ -230,6 +232,8 @@ export function exposureAt(
 export type TrainingOptions = {
   /** Replace the first squad slot with this canonical hero. */
   lead?: string
+  /** Story only: replace the rival lead with this canonical hero. */
+  foil?: string
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
   roles?: boolean
@@ -260,10 +264,27 @@ export function trainingState(
     IDENTITY_ARCS.some((person) => person.signature === options.lead)
   )
     lead.identity = options.lead
+  const rival = state.units.find((u) => u.team === 'rival')
+  if (
+    !stage &&
+    rival &&
+    options.foil &&
+    isValidFoil(options.foil, lead.identity)
+  )
+    rival.identity = options.foil
   if (options.roles !== false)
     for (const unit of state.units)
       if (!unit.henchmanName && !unit.lieutenantName) applyTacticalProfile(unit)
   return state
+}
+/** First Bell's default rival lead. */
+export const DEFAULT_FOIL = 'accident-air'
+/** A foil is any canonical hero not already fighting in the squad. */
+export function isValidFoil(foil: string, lead: string): boolean {
+  return (
+    IDENTITY_ARCS.some((person) => person.signature === foil) &&
+    ![lead, 'tech-genius', 'mutant-earth'].includes(foil)
+  )
 }
 /** Canonical one-hit crews fielded as the whole rival line-up. */
 const LACKEY_CREWS: Partial<

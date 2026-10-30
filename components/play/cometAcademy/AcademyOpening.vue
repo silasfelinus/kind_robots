@@ -433,6 +433,30 @@
           Your campaign is autosaved on this device. Returning characters and
           earned identities appear in the Yearbook.
         </p>
+        <div class="prom-setting prom-save-import">
+          <label for="prom-title-import"
+            >Continue a term from a save code</label
+          >
+          <textarea
+            id="prom-title-import"
+            v-model="importCode"
+            rows="3"
+            placeholder="PROM1:…"
+            data-testid="academy-title-import-save"
+          />
+          <button
+            type="button"
+            class="prom-next"
+            :disabled="!importCode.trim()"
+            data-testid="academy-title-load-save"
+            @click="loadSaveCode"
+          >
+            LOAD SAVE <span>➜</span>
+          </button>
+          <span v-if="importError" class="prom-import-error" role="alert">{{
+            importError
+          }}</span>
+        </div>
       </div>
     </template>
     <ComicCharacterReveal
@@ -462,7 +486,10 @@ import {
   type SignaturePowerId,
 } from '~/utils/cometAcademy/specialPowers'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
-import type { AcademyYearbook } from '~/stores/cometAcademyStore'
+import {
+  useCometAcademyStore,
+  type AcademyYearbook,
+} from '~/stores/cometAcademyStore'
 
 const props = defineProps<{ yearbook: AcademyYearbook }>()
 const emit = defineEmits<{
@@ -495,6 +522,18 @@ const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
 const firstWeek = ref(false)
 const forms: PlayerForm[] = ['student', 'hero', 'villain']
+// A save code exported before NEW TERM (or on another device) can resume from
+// the title; the page swaps to the console as soon as the run exists.
+const store = useCometAcademyStore()
+const importCode = ref('')
+const importError = ref('')
+watch(importCode, () => (importError.value = ''))
+function loadSaveCode() {
+  if (store.importSave(importCode.value)) importCode.value = ''
+  else
+    importError.value =
+      'That code is not a valid Prom of Doom save. Nothing was changed.'
+}
 const showComicIntro = ref(false)
 const seenComicIntro = new Set<string>()
 const currentComicIntro = computed(() =>
@@ -1282,6 +1321,31 @@ function launch() {
   border: 1px solid #a8b9c67a;
   border-radius: 0.6rem;
   padding: 1rem;
+}
+.prom-save-import {
+  flex-direction: column;
+  align-items: stretch;
+}
+.prom-save-import textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  border: 1px solid #a8b9c67a;
+  border-radius: 0.4rem;
+  background: #0e1424;
+  color: #f4e8da;
+  padding: 0.5rem;
+  font:
+    0.75rem ui-monospace,
+    monospace;
+  resize: vertical;
+}
+.prom-save-import .prom-next:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.prom-import-error {
+  color: #ffac9e;
+  font-size: 0.8rem;
 }
 .prom-setting input {
   width: 1.25rem;

@@ -11,6 +11,17 @@ import type {
   StageWave,
 } from './stageRules'
 import {
+  CAMERAS,
+  EMOTIONS,
+  ROLES,
+  type SceneCondition,
+  type Scene,
+  type SceneEffect,
+  type SceneNode,
+  type SceneScript,
+  type SceneTrigger,
+} from './sceneGraph'
+import {
   STAGE_ENCOUNTERS,
   stageProblems,
   type StageCivilian,
@@ -20,7 +31,7 @@ import {
 
 export const STAGE_CODE_KIND = 'every-villain-tactics-stage'
 export const STAGE_CODE_VERSION = 1
-export const MAX_STAGE_CODE = 24_000
+export const MAX_STAGE_CODE = 60_000
 export const MAX_DRAFTS = 12
 export const evtDraftsKey = 'kr-every-villain-tactics:drafts'
 
@@ -129,6 +140,143 @@ function cleanVictory(value: unknown): StageVictory {
   return { kind }
 }
 
+const SPEAKER = /^[a-z][a-z0-9-]{0,39}$/
+const nodeRef = (value: unknown, what: string): string | null =>
+  value === null ? null : slug(value, what)
+function cleanTrigger(value: unknown): SceneTrigger {
+  const t = record(value, 'Scene trigger')
+  const kind = oneOf(
+    t.kind,
+    [
+      'opening',
+      'closing',
+      'turn',
+      'tile',
+      'sight',
+      'health',
+      'kill',
+      'rescue',
+      'secret',
+      'objective',
+      'faction',
+      'after',
+      'flag',
+    ] as const,
+    'scene trigger',
+  )
+  const team = () => oneOf(t.team, ['squad', 'rival'] as const, 'team')
+  const unit = (v: unknown) => oneOf(v, SPAWN_IDS, 'scene unit')
+  switch (kind) {
+    case 'closing':
+      return {
+        kind,
+        outcome: oneOf(
+          t.outcome,
+          ['victory', 'defeat', 'any'] as const,
+          'outcome',
+        ),
+      }
+    case 'turn':
+      return { kind, round: int(t.round, 1, 40, 'Trigger round') }
+    case 'tile':
+      return { kind, ...point(t, 'Trigger tile'), team: team() }
+    case 'sight':
+      return { kind, unit: unit(t.unit), target: unit(t.target) }
+    case 'health':
+      return { kind, unit: unit(t.unit), atMost: int(t.atMost, 0, 6, 'Health') }
+    case 'kill':
+      return { kind, team: team(), count: int(t.count, 1, 6, 'Kill count') }
+    case 'rescue':
+      return { kind, count: int(t.count, 1, 6, 'Rescue count') }
+    case 'objective':
+      return { kind, progress: int(t.progress, 1, 40, 'Objective progress') }
+    case 'faction':
+      return { kind, team: team(), lead: int(t.lead, 1, 5, 'Faction lead') }
+    case 'after':
+      return { kind, scene: slug(t.scene, 'Chained scene') }
+    case 'flag':
+      return { kind, flag: slug(t.flag, 'Flag') }
+    default:
+      return { kind }
+  }
+}
+function cleanCondition(value: unknown): SceneCondition {
+  const c = record(value, 'Branch condition')
+  const kind = oneOf(
+    c.kind,
+    ['flag', 'perspective', 'alive', 'outnumber'] as const,
+    'branch condition',
+  )
+  if (kind === 'flag') return { kind, flag: slug(c.flag, 'Flag') }
+  if (kind === 'perspective')
+    return {
+      kind,
+      perspective: oneOf(
+        c.perspective,
+        ['hero', 'villain', 'henchman', 'sidekick'] as const,
+        'viewpoint',
+      ),
+    }
+  if (kind === 'alive')
+    return { kind, unit: oneOf(c.unit, SPAWN_IDS, 'branch unit') }
+  return { kind, team: oneOf(c.team, ['squad', 'rival'] as const, 'team') }
+}
+function cleanEffect(value: unknown): SceneEffect {
+  const e = record(value, 'Choice effect')
+  const kind = oneOf(e.kind, ['flag', 'heal', 'suppress'] as const, 'effect')
+  return kind === 'flag' ? { kind, flag: slug(e.flag, 'Flag') } : { kind }
+}
+function cleanScript(value: unknown): SceneScript {
+  const script = record(value, 'Scene script')
+  if (script.version !== 1) fail('Unsupported scene script version.')
+  return {
+    version: 1,
+    scenes: list(script.scenes, 'Scenes', 12).map((entry): Scene => {
+      const scene = record(entry, 'Scene')
+      return {
+        id: slug(scene.id, 'Scene id'),
+        title: text(scene.title, 80, 'Scene title'),
+        trigger: cleanTrigger(scene.trigger),
+        start: slug(scene.start, 'Scene start'),
+        nodes: list(scene.nodes, 'Scene lines', 30).map((raw): SceneNode => {
+          const n = record(raw, 'Scene line')
+          const speaker = text(n.speaker, 40, 'Speaker')
+          if (!SPEAKER.test(speaker)) fail('Speaker ids are lowercase slugs.')
+          const node: SceneNode = {
+            id: slug(n.id, 'Line id'),
+            speaker,
+            emotion: oneOf(n.emotion, EMOTIONS, 'emotion'),
+            camera: oneOf(n.camera, CAMERAS, 'camera'),
+            text: text(n.text, 400, 'Line'),
+            next: nodeRef(n.next, 'Next line'),
+          }
+          if (n.role !== undefined) node.role = oneOf(n.role, ROLES, 'role')
+          if (n.branch !== undefined) {
+            const b = record(n.branch, 'Branch')
+            node.branch = {
+              when: cleanCondition(b.when),
+              then: nodeRef(b.then, 'Branch target'),
+              else: nodeRef(b.else, 'Branch target'),
+            }
+          }
+          if (n.choices !== undefined)
+            node.choices = list(n.choices, 'Choices', 3).map((c) => {
+              const choice = record(c, 'Choice')
+              return {
+                label: text(choice.label, 80, 'Choice label'),
+                next: nodeRef(choice.next, 'Choice target'),
+                effects: list(choice.effects, 'Choice effects', 3).map(
+                  cleanEffect,
+                ),
+              }
+            })
+          return node
+        }),
+      }
+    }),
+  }
+}
+
 /** Rebuilds a stage from untrusted data using only known fields. */
 export function cleanStage(value: unknown): StageDraft {
   const s = record(value, 'Stage')
@@ -216,6 +364,7 @@ export function cleanStage(value: unknown): StageDraft {
       }
     })
   if (s.victory !== undefined) stage.victory = cleanVictory(s.victory)
+  if (s.script !== undefined) stage.script = cleanScript(s.script)
   return stage
 }
 

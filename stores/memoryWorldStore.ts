@@ -166,6 +166,11 @@ import {
 } from '~/utils/memoryDungeon/houseEpilogues'
 import { briarQuestLog } from '~/utils/memoryDungeon/briarQuests'
 import { earnedBriarRareEvents } from '~/utils/memoryDungeon/briarRareEvents'
+import {
+  memoryAchievementGallery,
+  reconcileMemoryAchievements,
+  restoreMemoryAchievements,
+} from '~/utils/memoryDungeon/achievements'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
@@ -191,6 +196,7 @@ const DARK_BRIAR_KEY = 'memoryDungeonDarkBriarV1'
 const DARK_HOUSE_KEY = 'memoryDungeonDarkHouseV1'
 const EARTH_CHRONICLE_KEY = 'memoryDungeonEarthChronicleV1'
 const CROSS_MAP_SEALS_KEY = 'memoryDungeonCrossMapSealsV1'
+const ACHIEVEMENTS_KEY = 'memoryDungeonAchievementsV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -210,6 +216,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const state = ref<BriarSave>(newBriarSave())
   const saveSlots = ref<MemorySaveSlots>(restoreMemorySaveSlots(null))
   const saveSlotMessage = ref('')
+  const earnedAchievementIds = ref<string[]>([])
+  const briarAchievements = computed(() =>
+    memoryAchievementGallery(earnedAchievementIds.value),
+  )
   const minefieldActive = ref(false)
   const minefieldHint = ref<{ cell: MineCell; type: 'safe' | 'hazard' } | null>(
     null,
@@ -363,6 +373,20 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.house?.decisions ?? {},
     ),
   )
+  function syncAchievements(): void {
+    const next = reconcileMemoryAchievements(
+      earnedAchievementIds.value,
+      briarRareEvents.value,
+    )
+    if (next.length === earnedAchievementIds.value.length) return
+    earnedAchievementIds.value = next
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(next))
+    } catch {
+      // Cosmetic medals remain visible until storage is available.
+    }
+  }
   const houseEpilogue = computed(() =>
     earnedHouseEpilogue(state.value.house, state.value.sceneChoices),
   )
@@ -698,6 +722,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function persist(): void {
     if (!import.meta.client) return
+    syncAchievements()
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.value))
     } catch {
@@ -709,6 +734,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function hydrate(): void {
     if (ready.value) return
     let recoveredDarkTurn = false
+    if (import.meta.client) {
+      try {
+        const saved = window.localStorage.getItem(ACHIEVEMENTS_KEY)
+        earnedAchievementIds.value = restoreMemoryAchievements(
+          saved ? JSON.parse(saved) : null,
+        )
+      } catch {
+        earnedAchievementIds.value = []
+      }
+    }
     if (import.meta.client) {
       try {
         const rawSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
@@ -839,6 +874,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       // Pre-Chronicle save compatibility: old scene choices already earned
       // the photograph, even when the journal did not exist yet.
       syncEarthChronicle()
+      syncAchievements()
       if (state.value.gateOpened) grantBriarCompletion()
       if (
         dark.value.completed &&
@@ -2326,6 +2362,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     houseEpilogue,
     briarQuests,
     briarRareEvents,
+    briarAchievements,
     canChooseHouse,
     houseMove,
     chooseHouse,

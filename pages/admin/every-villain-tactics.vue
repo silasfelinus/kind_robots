@@ -6,7 +6,11 @@
     aria-label="Every Villain Tactics training console"
   >
     <PlaybookKitShell :spec="EVERY_VILLAIN_TACTICS" :meter-values="meterValues">
-      <div class="evt-console">
+      <div
+        class="evt-console"
+        :data-anim="store.settings.animation"
+        :style="{ '--evt-anim': String(store.animationFactor) }"
+      >
         <header class="evt-hud">
           <div class="evt-brand">
             <span class="evt-overline"
@@ -18,6 +22,14 @@
             >
           </div>
           <div class="evt-hud-side">
+            <button
+              class="evt-outline"
+              type="button"
+              data-testid="tactics-open-menu"
+              @click="store.openScreen('title')"
+            >
+              ☰ MENU
+            </button>
             <span class="evt-mission-pill">{{
               store.isPlaytest ? 'STUDIO TEST' : '01 / 06'
             }}</span>
@@ -134,6 +146,13 @@
                     class="evt-height"
                     aria-hidden="true"
                     >▲{{ store.heightAt(cell) }}</span
+                  >
+                  <span
+                    v-if="store.threatAt(cell)"
+                    class="evt-threat-mark"
+                    data-testid="tactics-threat"
+                    aria-hidden="true"
+                    >👁{{ store.threatAt(cell) }}</span
                   >
                   <span
                     v-if="displayUnitAt(store.state, cell)"
@@ -459,6 +478,21 @@
                   {{ targetName(target.target) }} {{ target.hit }}%
                 </span>
               </div>
+              <p
+                v-if="store.hoverThreat.length"
+                class="evt-threat-line"
+                data-testid="tactics-threat-preview"
+              >
+                Exposed here:
+                {{
+                  store.hoverThreat
+                    .map(
+                      (shot) =>
+                        shooterName(shot.shooter) + ' ' + shot.hit + '%',
+                    )
+                    .join(' · ')
+                }}
+              </p>
               <small class="evt-preview-note"
                 >Exact seeded odds. A dash spends both AP; overwatch reacts once
                 to enemy movement.</small
@@ -470,9 +504,12 @@
                 v-if="store.state.phase === 'active'"
                 type="button"
                 class="evt-end-turn"
-                @click="store.nextTurn()"
+                :class="{ 'is-armed': store.endTurnArmed }"
+                data-testid="tactics-end-turn"
+                @click="store.requestEndTurn()"
               >
-                END TURN <span>→</span>
+                {{ store.endTurnArmed ? 'CONFIRM END TURN' : 'END TURN' }}
+                <span>{{ store.endTurnArmed ? '✓' : '→' }}</span>
               </button>
               <button
                 v-else
@@ -1052,6 +1089,7 @@
             </aside>
           </div>
         </div>
+        <EveryVillainFrontMenu v-if="store.screen" />
       </div>
     </PlaybookKitShell>
     <ComicCharacterReveal
@@ -1119,9 +1157,19 @@ function queueComicIntro(intro: ComicIntro, replay = false) {
   if (!replay && seenComics.has(intro.key)) return
   seenComics.add(intro.key)
   comicQueue.push(intro)
-  if (!activeComicIntro.value)
+  if (!activeComicIntro.value && !store.screen)
     activeComicIntro.value = comicQueue.shift() ?? null
 }
+watch(
+  () => store.screen,
+  async (screen) => {
+    if (screen) return
+    if (!activeComicIntro.value)
+      activeComicIntro.value = comicQueue.shift() ?? null
+    await nextTick()
+    document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus()
+  },
+)
 function dismissComicIntro() {
   activeComicIntro.value = comicQueue.shift() ?? null
 }
@@ -1297,6 +1345,10 @@ function effectLine(effect: PowerEffect): string {
     )
   return (unit ? unitName(unit) : effect.id) + ': ' + parts.join(', ')
 }
+function shooterName(id: string): string {
+  const unit = store.state.units.find((entry) => entry.id === id)
+  return unit ? unitName(unit) : id
+}
 function targetName(id: string): string {
   const target = store.enemies.find((unit) => unit.id === id)
   return target ? unitName(target) : id
@@ -1351,6 +1403,19 @@ function cellDescription(cell: Cell) {
     )
   if (unit)
     return unitName(unit) + ', ' + unit.team + ', ' + unit.hp + ' health'
+  const exposed = store.threatAt(cell)
+  if (exposed)
+    return (
+      'Tile ' +
+      (cell.x + 1) +
+      ', ' +
+      (cell.y + 1) +
+      ', reachable but exposed to ' +
+      exposed +
+      ' rival shooter' +
+      (exposed > 1 ? 's' : '') +
+      (store.tileInfoAt(cell) === 'cover' ? ', cover' : '')
+    )
   if (store.tileInfoAt(cell) === 'wall')
     return 'Wall at column ' + (cell.x + 1) + ', row ' + (cell.y + 1)
   return (
@@ -1364,7 +1429,7 @@ function cellDescription(cell: Cell) {
   )
 }
 function onKey(event: KeyboardEvent) {
-  if (activeComicIntro.value) return
+  if (activeComicIntro.value || store.screen) return
   if (store.oneShotScene) {
     if (event.code === 'Enter' || event.code === 'Space') {
       event.preventDefault()
@@ -1405,15 +1470,15 @@ function onKey(event: KeyboardEvent) {
 watch(
   () => store.moment?.id,
   async (scene) => {
-    if (!scene) return
+    if (!scene || store.screen) return
     await nextTick()
     document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus()
   },
 )
 onMounted(() => {
   window.addEventListener('keydown', onKey)
-  store.readSaves()
-  if (store.moment) {
+  store.loadPreferences()
+  if (store.moment && !store.screen) {
     nextTick(() =>
       document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
     )
@@ -1423,6 +1488,33 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-console[data-anim='off'] .evt-standee {
+  animation: none;
+  transition: none;
+}
+.evt-tile.exposed {
+  box-shadow: inset 0 -3px 0 rgb(251 146 60 / 0.85);
+}
+.evt-threat-mark {
+  position: absolute;
+  inset: auto auto 0.1rem 0.2rem;
+  color: rgb(253 186 116);
+  font-size: 0.62rem;
+  font-weight: 900;
+  pointer-events: none;
+}
+.evt-threat-line {
+  margin: 0.25rem 0 0;
+  color: rgb(253 186 116);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.evt-end-turn.is-armed {
+  outline: 2px solid #ffe0a6;
+  outline-offset: 2px;
+  color: #fff4d6;
+  background: linear-gradient(90deg, #b8325e, #ff7d8c);
+}
 .evt-civilian {
   position: absolute;
   inset: 0.15rem auto auto 0.25rem;
@@ -1854,7 +1946,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   justify-content: flex-end;
   pointer-events: none;
   filter: drop-shadow(0 6px 4px #070d1c);
-  transition: transform 0.25s ease;
+  transition: transform calc(0.25s * var(--evt-anim, 1)) ease;
 }
 .evt-tile:hover .evt-standee,
 .evt-tile.selected .evt-standee {
@@ -2696,13 +2788,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   opacity: 0.6;
 }
 .evt-standee.evt-impact-strike {
-  animation: evt-strike 0.44s ease-out both;
+  animation: evt-strike calc(0.44s * var(--evt-anim, 1)) ease-out both;
 }
 .evt-standee.evt-impact-hit {
-  animation: evt-hit 0.54s ease-out both;
+  animation: evt-hit calc(0.54s * var(--evt-anim, 1)) ease-out both;
 }
 .evt-standee.evt-impact-miss {
-  animation: evt-dodge 0.46s ease-out both;
+  animation: evt-dodge calc(0.46s * var(--evt-anim, 1)) ease-out both;
 }
 .evt-standee.evt-fallen .evt-card-art {
   transform: perspective(350px) rotateY(85deg) rotateZ(8deg) scale(0.79);

@@ -121,6 +121,10 @@ export function saveChecksum(payload: Omit<EvtSave, 'checksum'>): string {
   return hash32(text, 2166136261) + hash32(text, 0x9e3779b9)
 }
 
+/** Plain deep copy. The store passes Vue reactive proxies, which
+ * structuredClone refuses, so saves copy through JSON (the save format). */
+const plainCopy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
+
 export function createSave(input: {
   slot: EvtSaveSlot
   perspective: Perspective
@@ -138,9 +142,9 @@ export function createSave(input: {
     savedAt: input.savedAt ?? new Date().toISOString(),
     perspective: input.perspective,
     leadSignature: input.leadSignature as SignaturePowerId,
-    stage: input.stage ? structuredClone(input.stage) : null,
-    state: structuredClone(input.state),
-    story: structuredClone(input.story),
+    stage: input.stage ? plainCopy(input.stage) : null,
+    state: plainCopy(input.state),
+    story: plainCopy(input.story),
   }
   return { ...payload, checksum: saveChecksum(payload) }
 }

@@ -2,9 +2,23 @@
 // public/comet-city-academy/<entry>.webp. Re-run the export; do not edit by hand.
 
 export const PROM_ART: readonly string[] = [
+  'affinities/air',
+  'affinities/birthright',
+  'affinities/discipline',
+  'affinities/earth',
+  'affinities/fire',
+  'affinities/genius',
+  'affinities/social',
+  'affinities/water',
   'front/dashboard-highlight',
   'front/splash',
   'front/tutorial',
+  'origins/accident',
+  'origins/alien',
+  'origins/magic',
+  'origins/mutant',
+  'origins/psychic',
+  'origins/tech',
   'prom-of-doom/ct-d29-the-guest-list-open-doors-success',
   'prom-of-doom/ct-d29-the-guest-list-private-guard-success',
   'prom-of-doom/ct-d29-the-guest-list-steal-access-success',

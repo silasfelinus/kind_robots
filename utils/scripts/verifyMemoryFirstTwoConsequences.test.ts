@@ -1245,12 +1245,12 @@ assert.equal(
 )
 assert.match(
   store,
-  /earnedWitnessBellOutcome\\(state\\.value, next\\)/,
+  /earnedWitnessBellOutcome\(state\.value, next\)/,
   'Choosing at the bells must show the earned outcome',
 )
 assert.match(
   store,
-  /earnedWitnessBellOutcome\\(state\\.value, dark\\.value\\)/,
+  /earnedWitnessBellOutcome\(state\.value, dark\.value\)/,
   'Revisiting the bells must restore the earned outcome',
 )
 

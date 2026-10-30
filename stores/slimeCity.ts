@@ -91,6 +91,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const cards = computed(() =>
     CARDS.filter((item) => item.team === activeTeam.value),
   )
+  const hand = computed(() => sight.value.hand)
+  const inspectedCard = computed(() =>
+    selectedCard.value ? cards.value.find((c) => c.id === selectedCard.value) : null,
+  )
   /** The variants that change the current format. */
   const variants = computed(() =>
     RULE_VARIANTS.filter((v) => v.modes.includes(mode.value)),
@@ -281,12 +285,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function chooseCard(id: string): void {
+    if (mode.value === 'blackout' && !match.value.hands.player.includes(id))
+      return
     selectedCard.value = selectedCard.value === id ? null : id
     selectedUnit.value = null
   }
 
   function ready(id: string): boolean {
-    return cardReady(match.value, 'player', id)
+    return cardReady(match.value, 'player', id) &&
+      (mode.value !== 'blackout' || match.value.hands.player.includes(id))
   }
 
   function touchSquare(x: number, y: number): void {
@@ -325,6 +332,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
+    if (selectedCard.value && !ready(selectedCard.value)) selectedCard.value = null
     settleBout()
   }
 
@@ -388,6 +396,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     team,
     enemy,
     cards,
+    hand,
+    inspectedCard,
     selected,
     district,
     board,

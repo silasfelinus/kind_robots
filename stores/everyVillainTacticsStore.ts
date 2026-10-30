@@ -529,6 +529,8 @@ export const useEveryVillainTacticsStore = defineStore(
       scenePath.value = []
     }
     const editingSceneId = ref<string | null>(null)
+    /** The studio's middle pane: the map canvas or the cinematic editor. */
+    const studioPane = ref<'map' | 'scenes'>('map')
     function editScript(change: (script: SceneScript) => SceneScript) {
       const next = change(draft.value.script ?? emptyScript())
       const stage = JSON.parse(
@@ -1059,6 +1061,7 @@ export const useEveryVillainTacticsStore = defineStore(
       previewScene,
       previewSceneId,
       editingSceneId,
+      studioPane,
       addStudioScene,
       removeStudioScene,
       renameStudioScene,

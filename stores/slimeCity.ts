@@ -28,6 +28,8 @@ import {
   CITY_PLAN,
   createCity,
   decide,
+  decideStreet,
+  streetStory,
   gateReason,
   HEAT_LIMIT,
   recordBout,
@@ -90,6 +92,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0]!,
   )
   const plan = computed(() => CITY_PLAN[districtId.value])
+  const streetEvent = computed(() => streetStory(city.value))
+  const streetProgress = computed(
+    () => Object.keys(city.value.streetChoices).length,
+  )
   const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
   const here = computed(() => city.value.location === districtId.value)
   const route = computed(() =>
@@ -201,6 +207,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function choose(choiceId: string): void {
     city.value = decide(city.value, choiceId)
+  }
+
+  function chooseStreet(choiceId: string): void {
+    city.value = decideStreet(city.value, choiceId)
+    districtId.value = city.value.location
   }
 
   /** Fight this district's rival on its format, with your decision's terms. */
@@ -330,6 +341,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastBout,
     boutPlan,
     plan,
+    streetEvent,
+    streetProgress,
     here,
     route,
     gate,
@@ -367,6 +380,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     visit,
     walk,
     choose,
+    chooseStreet,
     fightRival,
     resetCity,
     startDistrictMatch,

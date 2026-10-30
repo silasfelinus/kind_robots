@@ -359,14 +359,18 @@
                     :key="origin.id"
                     type="button"
                     class="cap-origin"
-                    :class="{ chosen: selectedOrigin === origin.id }"
+                     :class="{ chosen: selectedOrigin === origin.id, 'cap-origin-ready': originReady[origin.id] }"
                     :aria-pressed="selectedOrigin === origin.id"
                     @click="selectedOrigin = origin.id"
                   >
-                    <span class="cap-origin-glyph" aria-hidden="true">{{
-                      origin.glyph
-                    }}</span>
-                    <span
+                    <img
+                      class="cap-origin-art"
+                      :src="warpArt('origins/' + origin.id) || '/game-of-captains/space-couch-stage.svg'"
+                      :alt="'Art for ' + origin.name"
+                      @load="markOriginReady(origin.id)"
+                      @error="markOriginReady(origin.id)"
+                    />
+                    <span class="cap-origin-copy"
                       ><strong>{{ origin.name }}</strong
                       ><small>{{ origin.summary }}</small
                       ><small class="cap-origin-perk">{{
@@ -1705,6 +1709,8 @@ const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
   'captain',
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
+const originReady = ref<Record<string, boolean>>({})
+function markOriginReady(id: string) { originReady.value[id] = true }
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)

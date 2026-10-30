@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { earnedVesperRookeryOutcome } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   HOSHIMORI_OVEN_ROOMS,
   HOSHIMORI_WARM_SITES,
@@ -56,6 +57,10 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const vesperReckoning = computed(() =>
     hoshimoriVesperReckoning(progress.value),
   )
+  const vesperBriarHistory = computed(() => {
+    const world = useMemoryWorldStore()
+    return earnedVesperRookeryOutcome(world.state, world.dark)
+  })
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
     if (last?.type !== 'oven-choice') return null
@@ -176,6 +181,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     windwardAccount,
     southernAccount,
     vesperReckoning,
+    vesperBriarHistory,
     lastOvenOutcome,
     canEnterOven,
     canEnterOvenWing,

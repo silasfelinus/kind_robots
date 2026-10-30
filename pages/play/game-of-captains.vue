@@ -58,7 +58,7 @@
           >
             START NEW GAME <span>✦</span
             ><small
-              >Choose your background, captain, constellation and crew</small
+              >Choose your captain, background, Couchscope and crew</small
             >
           </button>
           <button
@@ -334,7 +334,7 @@
               :large-text="store.preferences.largeText"
               :reduced-motion="store.preferences.reducedMotion"
               @confirm="confirmStarAssessment"
-              @back="selectionScreen = 'captain'"
+              @back="selectionScreen = 'background'"
             />
             <div
               v-else
@@ -342,10 +342,11 @@
               :data-screen="selectionScreen"
             >
               <template v-if="selectionScreen === 'background'">
+                <button type="button" class="cap-step-back" @click="selectionScreen = 'captain'">← CHANGE CAPTAIN</button>
                 <div class="cap-heading">
                   <span>01</span>
                   <div>
-                    <h2>Choose your background</h2>
+                    <h2>Choose a background</h2>
                     <p>
                       Your history belongs to you. It changes your opening
                       resources and follows you into the captain's log.
@@ -379,19 +380,12 @@
                   type="button"
                   :disabled="!selectedOrigin"
                   data-testid="space-couch-background-next"
-                  @click="selectionScreen = 'captain'"
+                  @click="selectionScreen = 'stars'"
                 >
-                  CHOOSE YOUR CAPTAIN <span>➜</span>
+                  REPORT TO HUMAN RESOURCES <span>➜</span>
                 </button>
               </template>
               <template v-else-if="selectionScreen === 'captain'">
-                <button
-                  type="button"
-                  class="cap-step-back"
-                  @click="selectionScreen = 'background'"
-                >
-                  ← CHANGE BACKGROUND
-                </button>
                 <div class="cap-heading">
                   <span>02</span>
                   <div>
@@ -542,9 +536,9 @@
                   class="cap-primary"
                   type="button"
                   data-testid="captains-choose-crew"
-                  @click="selectionScreen = 'stars'"
+                  @click="selectionScreen = 'background'"
                 >
-                  CONSULT THE COUCHSCOPE <span>➜</span>
+                  CHOOSE YOUR BACKGROUND <span>➜</span>
                 </button>
               </template>
               <template v-else>
@@ -1708,7 +1702,7 @@ const store = useGameOfCaptainsStore()
 const selectedCaptain = ref<CaptainId>('fluke')
 const chosenCrew = ref<CrewId[]>([])
 const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
-  'background',
+  'captain',
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const atTitle = ref(true)
@@ -1945,7 +1939,7 @@ function beginWithStarSign() {
 function restartVoyage() {
   store.restart()
   starAssessment.value = null
-  selectionScreen.value = 'background'
+  selectionScreen.value = 'captain'
   chosenCrew.value = []
   crewPage.value = 0
   captainDossierTab.value = 'stats'

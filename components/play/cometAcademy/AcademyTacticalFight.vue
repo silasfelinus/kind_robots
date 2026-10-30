@@ -43,7 +43,9 @@
           'atf-selected': selected?.x === cell.x && selected?.y === cell.y,
           'atf-reachable': state.mode === 'move' && availableMove(state, cell),
           'atf-objective': atPoint(cell, battle.arena?.objectivePoint),
-          'atf-secret': atPoint(cell, battle.arena?.secretPoint) && !battle.arena?.discovered,
+          'atf-secret':
+            atPoint(cell, battle.arena?.secretPoint) &&
+            !battle.arena?.discovered,
           'atf-shift': atPoint(cell, battle.arena?.shiftPoint),
         }"
         :disabled="
@@ -53,11 +55,23 @@
         :title="cellLabel(cell)"
         @click="$emit('cell', cell.x, cell.y)"
       >
-        <template v-if="atPoint(cell, battle.arena?.objectivePoint) && !battle.arena?.secured && !unitAt(cell)">
+        <template
+          v-if="
+            atPoint(cell, battle.arena?.objectivePoint) &&
+            !battle.arena?.secured &&
+            !unitAt(cell)
+          "
+        >
           <span class="atf-token" aria-hidden="true">◎</span>
           <small>OBJECTIVE</small>
         </template>
-        <template v-else-if="atPoint(cell, battle.arena?.secretPoint) && !battle.arena?.discovered && !unitAt(cell)">
+        <template
+          v-else-if="
+            atPoint(cell, battle.arena?.secretPoint) &&
+            !battle.arena?.discovered &&
+            !unitAt(cell)
+          "
+        >
           <span class="atf-token" aria-hidden="true">?</span>
           <small>SECRET</small>
         </template>
@@ -85,7 +99,11 @@
         >
       </button>
     </div>
-    <div v-if="battle.arena" class="atf-casefile" aria-label="Mission objectives">
+    <div
+      v-if="battle.arena"
+      class="atf-casefile"
+      aria-label="Mission objectives"
+    >
       <span :class="{ secured: battle.arena.secured }">
         {{ battle.arena.secured ? '✓' : '◎' }} SECURE LAIR OBJECTIVE
       </span>
@@ -131,8 +149,8 @@
     </button>
     <p class="atf-instructions">
       Select a friendly card to move or fire. Reach the ◎ tile and tap again
-      from one square away to secure the lair; step onto ? to recover its secret.
-      The environment changes mid-fight. Every action autosaves.
+      from one square away to secure the lair; step onto ? to recover its
+      secret. The environment changes mid-fight. Every action autosaves.
     </p>
   </section>
 </template>
@@ -181,9 +199,11 @@ const atPoint = (cell: Cell, point?: Cell) =>
 function cellLabel(cell: Cell) {
   const objective = props.battle.arena
   const landmark = atPoint(cell, objective?.objectivePoint)
-    ? ', lair objective: ' + (objective?.secured ? 'secured' : objective?.objective)
+    ? ', lair objective: ' +
+      (objective?.secured ? 'secured' : objective?.objective)
     : atPoint(cell, objective?.secretPoint)
-      ? ', ' + (objective?.discovered ? 'discovered clue' : 'undiscovered secret')
+      ? ', ' +
+        (objective?.discovered ? 'discovered clue' : 'undiscovered secret')
       : ''
   const unit = unitAt(cell)
   if (unit) {
@@ -238,11 +258,21 @@ function cellLabel(cell: Cell) {
   font-size: 0.69rem;
   font-weight: 900;
 }
-.atf-casefile .secured { color: #6ee7b7; }
-.atf-casefile .atf-alarm { color: #ffb4a2; }
-.atf-objective { box-shadow: inset 0 0 0 2px #fbbf24; }
-.atf-secret { box-shadow: inset 0 0 0 2px #a78bfa; }
-.atf-shift { border-style: dashed; }
+.atf-casefile .secured {
+  color: #6ee7b7;
+}
+.atf-casefile .atf-alarm {
+  color: #ffb4a2;
+}
+.atf-objective {
+  box-shadow: inset 0 0 0 2px #fbbf24;
+}
+.atf-secret {
+  box-shadow: inset 0 0 0 2px #a78bfa;
+}
+.atf-shift {
+  border-style: dashed;
+}
 .atf-header p {
   max-height: 4.5em;
   overflow-y: auto;

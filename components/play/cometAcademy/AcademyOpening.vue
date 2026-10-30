@@ -346,6 +346,19 @@
             </p>
           </article>
         </div>
+        <div v-if="launchOnTutorial" class="prom-mode-choices" data-testid="academy-new-game-mode">
+          <strong>HOW DO YOU WANT TO PLAY?</strong>
+          <p>The same thirty-day story, relationships and consequences in every mode.</p>
+          <label class="prom-setting">
+            <span><b>Tactical missions</b><small>Command cover-based battles, or let choices decide the outcome through narrated scenes.</small></span>
+            <input v-model="tacticalMissions" type="checkbox" :disabled="firstWeek" data-testid="academy-new-game-tactical-toggle" />
+          </label>
+          <label class="prom-setting">
+            <span><b>Night patrol management</b><small>Assign crews and explore districts, or play story-first nighttime decisions instead.</small></span>
+            <input v-model="nightPatrols" type="checkbox" :disabled="firstWeek" data-testid="academy-new-game-patrol-toggle" />
+          </label>
+          <small v-if="firstWeek">The legacy seven-day simulation keeps its original rules.</small>
+        </div>
         <p class="prom-card-note">
           Thirty days. A different mastermind each run. Your decisions are saved
           automatically.
@@ -405,6 +418,20 @@
         </div>
       </div>
 
+      <div v-else-if="screen === 'scrapbook'" class="prom-info-room prom-yearbook" data-testid="academy-opening-scrapbook-screen">
+        <p class="prom-eyebrow">SCRAPBOOK / RECOVERED STORIES</p>
+        <h2>What the yearbook remembers.</h2>
+        <p v-if="!historyCount">Your scrapbook is empty. Start a term to collect identities and endings.</p>
+        <div v-else class="prom-yearbook-list">
+          <article v-for="entry in explored" :key="entry.id" class="prom-yearbook-entry">
+            <img v-if="promArt('identities/' + entry.id + '/student')" class="prom-scrapbook-art" :src="promArt('identities/' + entry.id + '/student')!" alt="" />
+            <strong>{{ entry.name }}</strong>
+            <small>{{ entry.plays }} TERMS · {{ entry.forms.join(', ') || 'STUDENT' }}</small>
+            <p>{{ entry.endings.length ? entry.endings.join(' · ') : 'The ending is still unwritten.' }}</p>
+          </article>
+        </div>
+        <p class="prom-card-note">During a term, the full Scrapbook tracks discoveries, relationships, secrets and places you've visited.</p>
+      </div>
       <div v-else-if="screen === 'settings'" class="prom-info-room">
         <p class="prom-eyebrow">OPTIONS / BEFORE THE FIRST BELL</p>
         <h2>Make it yours.</h2>
@@ -869,6 +896,36 @@ function launch() {
   font-size: 0.57rem;
   margin-top: 0.25rem;
 }
+.prom-cover-actions .prom-tactical-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0.75rem 0.3rem;
+  background: #39395c;
+  color: #fff2e4;
+  border: 1px solid #bd8b9e77;
+  border-radius: 0.55rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 0.8rem;
+}
+.prom-cover-actions .prom-tactical-link small { font-size: 0.55rem; }
+.prom-mode-choices {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.8rem 0;
+  padding: 0.9rem;
+  background: #251f3c;
+  border: 1px solid #d6a58b;
+  border-radius: 0.7rem;
+}
+.prom-mode-choices .prom-setting { margin: 0; }
+.prom-mode-choices small { display: block; opacity: 0.85; }
+.prom-option-icon { width: 3.1rem; height: 3.1rem; object-fit: cover; border: 1px solid #dcb7a2; border-radius: 0.45rem; }
+.prom-scrapbook-art { width: 5rem; height: 5rem; border-radius: 0.5rem; object-fit: cover; }
+.prom-emblem img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .prom-toolbar {
   display: flex;
   align-items: center;

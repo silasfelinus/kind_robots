@@ -150,7 +150,7 @@ assert.equal(sold.standing.chimera, -1)
 assert.equal(totalStanding(sold), -1, 'Selling out costs citywide standing')
 
 // Terms change the actual match
-const base = classicBlackout( 'riot', 'catgirls', 77)
+const base = classicBlackout('riot', 'catgirls', 77)
 const hardy = applyTerms(base, boutTerms(helped, 'chimera'))
 const p0 = base.units.filter((u) => u.side === 'player')
 const p1 = hardy.units.filter((u) => u.side === 'player')
@@ -164,7 +164,7 @@ assert.equal(
   base.units.filter((u) => u.side === 'enemy').length - 1,
 )
 assert.equal(base.units.length, 10, 'applyTerms does not mutate its input')
-const trapped = applyTerms(classicBlackout( 'riot', 'undertow', 5), {
+const trapped = applyTerms(classicBlackout('riot', 'undertow', 5), {
   rivalTrap: true,
 })
 assert.equal(trapped.traps.filter((t) => t.side === 'enemy').length, 1)
@@ -235,7 +235,11 @@ lab.fightRival()
 assert.equal(lab.view, 'arena')
 assert.equal(lab.mode, 'blackout')
 assert.equal(lab.match.foeId, 'catgirls', 'Mirror rival bout')
-assert.equal(lab.match.units.length, 0, 'New Blackout starts with open deployment')
+assert.equal(
+  lab.match.units.length,
+  0,
+  'New Blackout starts with open deployment',
+)
 assert.equal(lab.hand.length, 4, 'New Blackout deals four cards')
 assert.ok(
   lab.match.units

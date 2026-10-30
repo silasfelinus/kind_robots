@@ -32,6 +32,7 @@ export type TacticalInterlude = {
     secured: boolean
     discovered: boolean
     shifted: boolean
+    lieutenantParley?: 'ally' | 'truce'
   }
 }
 
@@ -46,6 +47,7 @@ export type TacticalOutcome = {
   stageId?: string
   secured?: boolean
   discovered?: boolean
+  lieutenantParley?: 'ally' | 'truce'
 }
 
 export function recommendedRivalFor(signature: SignaturePowerId) {
@@ -105,6 +107,10 @@ export function newTacticalInterlude(
   const opponent = identityFor(run.opponentSignature)
   const species = henchmanForVillain(opponent.signature)
   const lieutenant = campaignStagesFor(opponent.signature).lieutenant
+  const priorParley = run.tacticalHistory?.find(
+    (entry) =>
+      entry.opponent === run.opponentSignature && entry.lieutenantParley,
+  )
   const assigned =
     run.assignments.find((entry) => entry.caseId === run.playerCaseId)
       ?.students ?? []
@@ -123,9 +129,10 @@ export function newTacticalInterlude(
   rival.hp = 5
   rival.maxHp = 5
   captain.identity = opponent.signature
-  captain.hp = run.day >= 23 ? lieutenant.hp : species.hp
+  captain.hp =
+    run.day >= 23 && !priorParley && !originMission ? lieutenant.hp : species.hp
   captain.maxHp = captain.hp
-  if (run.day >= 23 && !originMission) {
+  if (run.day >= 23 && !priorParley && !originMission) {
     captain.lieutenantName = lieutenant.name
     captain.signatureBoss = opponent.signature
     captain.signatureTarget = null
@@ -151,7 +158,11 @@ export function newTacticalInterlude(
     })
   }
   state.units = [...squad, rival, captain, minion]
-  state.log = tacticalOpening(run)
+  state.log =
+    tacticalOpening(run) +
+    (priorParley
+      ? ` ${lieutenant.name} has already ${priorParley.lieutenantParley === 'ally' ? 'defected to your cause' : 'agreed to a ceasefire'} and will not return as a boss. The remaining loyalists are holding this position.`
+      : '')
   state.events = [state.log]
   state.selected = lead.id
   return {
@@ -233,6 +244,59 @@ export function discoverRivalSecret(battle: TacticalInterlude): boolean {
   return true
 }
 
+/** An earned nonlethal choice, not a free "talk" button. The player must
+ * recover the lair evidence, wound the real named lieutenant, approach within
+ * two cells and sacrifice one action point before any deal can be offered. */
+export function canParleyWithLieutenant(battle: TacticalInterlude): boolean {
+  const arena = battle.arena
+  const squadmate = selectedUnit(battle.state)
+  const boss = battle.state.units.find(
+    (unit) => unit.signatureBoss === battle.opponent && unit.hp > 0,
+  )
+  return Boolean(
+    arena?.kind === 'lair' &&
+    arena.discovered &&
+    !arena.lieutenantParley &&
+    battle.state.phase === 'active' &&
+    squadmate &&
+    squadmate.ap >= 1 &&
+    boss &&
+    boss.hp <= 2 &&
+    gridDistance(squadmate, boss) <= 2,
+  )
+}
+
+export function parleyWithLieutenant(
+  battle: TacticalInterlude,
+  decision: 'ally' | 'truce',
+): boolean {
+  if (!['ally', 'truce'].includes(decision) || !canParleyWithLieutenant(battle))
+    return false
+  const squadmate = selectedUnit(battle.state)!
+  const boss = battle.state.units.find(
+    (unit) => unit.signatureBoss === battle.opponent && unit.hp > 0,
+  )!
+  const arena = battle.arena!
+  squadmate.ap--
+  // A surrender removes the combatant but records that they left alive. The
+  // separately saved resolution, not 0 HP alone, proves what happened.
+  boss.hp = 0
+  boss.signatureTarget = null
+  boss.signatureCounter = null
+  boss.overwatch = false
+  arena.lieutenantParley = decision
+  const lieutenant = campaignStagesFor(battle.opponent).lieutenant
+  const message =
+    decision === 'ally'
+      ? `${lieutenant.name} chooses to defect after you present the hidden evidence. ${lieutenant.agenda} They promise testimony and help at graduation.`
+      : `${lieutenant.name} signs a ceasefire and withdraws from this battle. ${lieutenant.agenda} Their forces are ordered to stop targeting civilians.`
+  battle.state.log = message
+  battle.state.events.unshift(message)
+  battle.state.events = battle.state.events.slice(0, 6)
+  reconcileTacticalVictory(battle)
+  return true
+}
+
 /** Timed terrain event changes the actual cover/height calculations, persists
  * with battle state, and never replays twice after a reload. */
 export function advanceRivalArena(battle: TacticalInterlude): boolean {
@@ -289,6 +353,9 @@ export function tacticalResultFor(run: AcademyRun): TacticalOutcome | null {
           stageId: battle.state.stageId ?? undefined,
           secured: battle.arena.secured,
           discovered: battle.arena.discovered,
+          ...(battle.arena.lieutenantParley
+            ? { lieutenantParley: battle.arena.lieutenantParley }
+            : {}),
         }
       : {}),
   }
@@ -321,7 +388,13 @@ export function validTacticalOutcome(
           ? 'hero-origin-' + run.signature
           : 'rival-lair-' + result.opponent)) &&
     (result.secured === undefined || typeof result.secured === 'boolean') &&
-    (result.discovered === undefined || typeof result.discovered === 'boolean')
+    (result.discovered === undefined ||
+      typeof result.discovered === 'boolean') &&
+    (result.lieutenantParley === undefined ||
+      (['ally', 'truce'].includes(result.lieutenantParley) &&
+        result.day! >= 23 &&
+        result.discovered === true &&
+        result.stageId === 'rival-lair-' + result.opponent))
   )
 }
 
@@ -410,6 +483,15 @@ export function validTacticalInterlude(
         typeof battle.arena.secured === 'boolean' &&
         typeof battle.arena.discovered === 'boolean' &&
         typeof battle.arena.shifted === 'boolean' &&
+        (battle.arena.lieutenantParley === undefined ||
+          (['ally', 'truce'].includes(battle.arena.lieutenantParley) &&
+            run.day >= 23 &&
+            battle.arena.kind === 'lair' &&
+            battle.arena.discovered &&
+            state.units.some(
+              (unit) =>
+                unit.signatureBoss === run.opponentSignature && unit.hp === 0,
+            ))) &&
         state.stageId ===
           (battle.arena.kind === 'origin'
             ? 'hero-origin-' + run.signature

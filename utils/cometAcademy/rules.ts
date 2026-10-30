@@ -1394,6 +1394,12 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       influence += 1
       danger = Math.max(0, danger - 1)
     }
+    if (playedBattle?.lieutenantParley === 'ally') {
+      influence += 2
+      danger = Math.max(0, danger - 1)
+    } else if (playedBattle?.lieutenantParley === 'truce') {
+      danger = Math.max(0, danger - 2)
+    }
     influence +=
       grade === 'honors'
         ? 2
@@ -1479,6 +1485,11 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
                   run.signature
                     ? `ORIGIN MISSION: ${campaignStagesFor(run.signature).opening.title}. ${playedBattle.secured ? 'The immediate emergency is resolved.' : 'The emergency remains unresolved.'}`
                     : `RIVAL LAIR: ${campaignStagesFor(playedBattle.opponent).lair.title}. ${playedBattle.secured ? 'The mission objective is secure.' : 'The objective was lost.'}`,
+                ]
+              : []),
+            ...(playedBattle.lieutenantParley
+              ? [
+                  `LIEUTENANT ${playedBattle.lieutenantParley === 'ally' ? 'DEFECTED' : 'CEASEFIRE'}: ${campaignStagesFor(playedBattle.opponent).lieutenant.name}. ${campaignStagesFor(playedBattle.opponent).lieutenant.agenda} ${playedBattle.lieutenantParley === 'ally' ? 'Their testimony changes the graduation alliances and wins two civic influence.' : 'The lieutenant withdraws under a civilian-safety ceasefire, reducing danger by two.'}`,
                 ]
               : []),
             ...(playedBattle.discovered
@@ -1847,7 +1858,25 @@ export function finishAcademy(
             : `${identityFor(run.signature).realName} remains ${identityFor(run.signature).student.alias}, choosing a future without compulsory transformation.`
         : ''
     const reconciled = run.betrayal?.status === 'reconciled'
+    const lieutenantSettlement = [...(run.tacticalHistory ?? [])]
+      .reverse()
+      .find(
+        (entry) =>
+          entry.opponent === run.opponentSignature && entry.lieutenantParley,
+      )
+    const lieutenantBonus =
+      lieutenantSettlement?.lieutenantParley === 'ally'
+        ? 2
+        : lieutenantSettlement?.lieutenantParley === 'truce'
+          ? 1
+          : 0
+    const lieutenantFinale = lieutenantSettlement
+      ? lieutenantSettlement.lieutenantParley === 'ally'
+        ? `${campaignStagesFor(lieutenantSettlement.opponent).lieutenant.name} returns with sworn testimony and a rescued crew, turning the rival's own command network against the prom-night catastrophe.`
+        : `${campaignStagesFor(lieutenantSettlement.opponent).lieutenant.name} honors the ceasefire: no lieutenant squad joins the assault on civilians, leaving emergency routes open as the ballroom falls.`
+      : ''
     const support =
+      lieutenantBonus +
       (run.cityStanding ?? 0) +
       (run.academyStanding ?? 0) +
       evidenceCount * 2 +
@@ -1918,7 +1947,7 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${lieutenantFinale} ${betrayalOutcome} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,

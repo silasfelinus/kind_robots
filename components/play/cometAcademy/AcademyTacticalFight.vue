@@ -63,6 +63,28 @@
       </p>
       <p v-else class="atf-boss-counter">THE SECRET REMAINS ON THE FIELD</p>
     </aside>
+    <aside
+      v-if="battle.arena?.lieutenantParley"
+      class="atf-reckoning"
+      data-testid="academy-lieutenant-settlement"
+    >
+      <span class="atf-boss-kicker">AN ENEMY CHOOSES THEIR OWN STORY</span>
+      <strong>
+        {{
+          battle.arena.lieutenantParley === 'ally'
+            ? 'THE LIEUTENANT CHANGES SIDES'
+            : 'A CEASEFIRE HOLDS'
+        }}
+      </strong>
+      <p>{{ battle.arena.lieutenantAgenda }}</p>
+      <p class="atf-boss-counter">
+        {{
+          battle.arena.lieutenantParley === 'ally'
+            ? 'Their testimony and support can change the final prom-night outcome.'
+            : 'The lieutenant withdraws and promises to stop endangering civilians.'
+        }}
+      </p>
+    </aside>
     <div
       class="atf-grid"
       :style="{
@@ -163,9 +185,46 @@
       <span :class="{ secured: battle.arena.discovered }">
         {{ battle.arena.discovered ? '✓' : '?' }} OPTIONAL SECRET
       </span>
+      <span v-if="battle.arena.lieutenantParley" class="secured">
+        ✓
+        {{
+          battle.arena.lieutenantParley === 'ally' ? 'DEFECTED' : 'CEASEFIRE'
+        }}
+      </span>
       <span v-if="battle.arena.shifted" class="atf-alarm">⚠ ARENA SHIFTED</span>
     </div>
     <p class="atf-log" role="status">{{ state.log }}</p>
+    <div
+      v-if="boss?.hp && state.phase === 'active'"
+      class="atf-parley"
+      data-testid="academy-lieutenant-parley"
+    >
+      <span class="atf-boss-kicker">A DIFFERENT WAY TO WIN</span>
+      <p>{{ battle.arena?.lieutenantAgenda }}</p>
+      <p>
+        {{
+          canParley
+            ? 'Evidence recovered. The lieutenant is vulnerable and within speaking range. Choose a deal, or continue fighting.'
+            : 'To open talks: uncover the secret, lower the lieutenant to 2 HP or less, then approach within two squares with 1 AP remaining.'
+        }}
+      </p>
+      <div v-if="canParley" class="atf-parley-actions">
+        <button
+          type="button"
+          data-testid="academy-parley-ally"
+          @click="$emit('parley', 'ally')"
+        >
+          OFFER PROTECTION · GAIN AN ALLY
+        </button>
+        <button
+          type="button"
+          data-testid="academy-parley-truce"
+          @click="$emit('parley', 'truce')"
+        >
+          NEGOTIATE A CEASEFIRE
+        </button>
+      </div>
+    </div>
     <div v-if="state.phase === 'active'" class="atf-controls">
       <button
         type="button"
@@ -234,7 +293,10 @@ import {
   terrainAt,
   type Cell,
 } from '~/utils/everyVillainTactics/training'
-import type { TacticalInterlude } from '~/utils/cometAcademy/tacticalInterlude'
+import {
+  canParleyWithLieutenant,
+  type TacticalInterlude,
+} from '~/utils/cometAcademy/tacticalInterlude'
 
 const props = defineProps<{
   battle: TacticalInterlude
@@ -248,11 +310,13 @@ defineEmits<{
   mode: [mode: 'move' | 'fire']
   turn: []
   counter: []
+  parley: [decision: 'ally' | 'truce']
   retreat: []
   finish: []
 }>()
 const state = computed(() => props.battle.state)
 const selected = computed(() => selectedUnit(state.value))
+const canParley = computed(() => canParleyWithLieutenant(props.battle))
 const boss = computed(() =>
   state.value.units.find((unit) => unit.signatureBoss),
 )
@@ -320,6 +384,36 @@ function cellLabel(cell: Cell) {
 </script>
 
 <style scoped>
+.atf-parley {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem;
+  border: 2px solid #ab87e0;
+  border-radius: 0.7rem;
+  background: linear-gradient(130deg, #25193c, #211a2d);
+}
+.atf-parley p {
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+.atf-parley-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.atf-parley-actions button {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.4rem;
+  border: 1px solid #fde68a;
+  color: #fff7e4;
+  background: #513968;
+  font-weight: 900;
+  font-size: 0.75rem;
+}
+.atf-parley-actions button:focus-visible {
+  outline: 3px solid #fde68a;
+}
 .atf-reckoning {
   display: grid;
   gap: 0.3rem;

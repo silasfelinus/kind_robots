@@ -200,7 +200,9 @@
             These marks remember difficult choices, not stronger weapons. Earned
             medals survive a new expedition. Undiscovered stories stay unnamed.
           </p>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3">
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"
+          >
             <article
               v-for="medal in world.briarAchievements"
               :key="medal.id"

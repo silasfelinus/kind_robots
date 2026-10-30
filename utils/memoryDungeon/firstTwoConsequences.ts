@@ -221,6 +221,66 @@ export function earnedCourierCompensation(
   return null
 }
 
+export type CourierBellAccord =
+  | 'unset'
+  | 'lantern-audited'
+  | 'lantern-named'
+  | 'address-audited'
+  | 'address-named'
+
+const COURIER_BELL_OUTCOMES: Record<
+  Exclude<CourierBellAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'lantern-audited': {
+    scene:
+      'The lantern you lent has kept a stranger warm beneath the mirrored glass bell. When you ask whose memory paid for the shelter, the courier discovers the village billed an absent traveler without consent. The courier carries a correction to the council, but the stranger must wait another night for the debt to be settled.',
+    epilogue:
+      'The courier delivers the village’s corrected shelter account. The traveler whose memory was billed is invited to dispute the debt, though their journey was delayed by the audit.',
+  },
+  'lantern-named': {
+    scene:
+      'The courier sets your old lantern between the two chairs as you offer your own name to the bell. Both of your lives answer. The courier covers the second name before the village clerk can copy it, and asks the sheltered traveler to testify instead. You keep your privacy, but the clerk refuses to cancel the charge without a public witness.',
+    epilogue:
+      'The courier keeps the two names the bell spoke out of the public register. The shelter charge remains contested until a willing witness can testify.',
+  },
+  'address-audited': {
+    scene:
+      'You unfold the impossible address you copied and ask the courier who was charged for the campfire. The bill was sent to a house that never existed, then collected from the first traveler to arrive. The courier brings both documents to the village clerk. The false address is exposed, but the courier misses the evening delivery round while the ledger is corrected.',
+    epilogue:
+      'The courier proves that a nonexistent address was used to collect a real shelter debt. The village revises its ledger, while the courier’s delayed letters must still find their recipients.',
+  },
+  'address-named': {
+    scene:
+      'You offer your own name beneath the bell while the courier holds up the copied address. For a moment the two lives you have worn appear as separate addressees. The courier seals the evidence before either name can be sold as a forwarding address. The missing recipient stays protected, but the village will not refund the wrongly charged traveler on a sealed claim.',
+    epilogue:
+      'The courier seals the impossible address beside the two names the bell tried to assign you. No one is indexed without permission, but the wrongfully collected fee is still unpaid.',
+  },
+}
+
+/** The campfire remembers both an original gift and a mirrored answer.
+ * Missing or invented choices cannot produce testimony or an ending. */
+export function earnedCourierBellAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): CourierBellAccord {
+  const source = original.sceneChoices['2,4']
+  const response = mirrored.sceneChoices['2,4']
+  if (source !== 'lend' && source !== 'copy') return 'unset'
+  if (response !== 'listen' && response !== 'name') return 'unset'
+  if (source === 'lend')
+    return response === 'listen' ? 'lantern-audited' : 'lantern-named'
+  return response === 'listen' ? 'address-audited' : 'address-named'
+}
+
+export function earnedCourierBellOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedCourierBellAccord(original, mirrored)
+  return accord === 'unset' ? null : COURIER_BELL_OUTCOMES[accord].scene
+}
+
 export type BorrowedVoiceAccord =
   | 'unset'
   | 'freed-repaired'
@@ -341,6 +401,248 @@ export function earnedRoyalEscortOutcome(
   return accord === 'unset' ? null : ROYAL_ESCORT_OUTCOMES[accord].scene
 }
 
+export type KnightCrossingAccord =
+  | 'unset'
+  | 'truth-built'
+  | 'truth-released'
+  | 'errand-built'
+  | 'errand-released'
+
+const KNIGHT_CROSSING_OUTCOMES: Record<
+  Exclude<KnightCrossingAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'truth-built': {
+    scene:
+      'The Brass Knight recognizes the false oath you exposed in Briar. Rather than pretend the bridge existed, he asks the waiting families where a real crossing would serve them. You spend the night hauling planks to their chosen bank. The road opens, but the registrar now has evidence to prosecute the officials who issued his oath, and the Knight must testify.',
+    epilogue:
+      'The Knight helps the families build a crossing where they asked for one. He testifies against the false oath that sent them to the ravine; the road is open, but his old command is under public investigation.',
+  },
+  'truth-released': {
+    scene:
+      'Because you challenged his original oath, the Knight can name the officials who invented this bridge. He lays down his post and escorts the waiting travelers toward the long public road. Nobody is forced to stand in his queue, but those without provisions must spend another night away from home.',
+    epilogue:
+      'The Knight names the makers of the false oath and escorts the queue by the longer road. He is free of the post, while the families still need shelter for an extra night.',
+  },
+  'errand-built': {
+    scene:
+      'The Knight remembers the apology you carried to the family he once failed. Their reply asks him to build something useful instead of guarding an absence. With their permission he leads the bridge crew, and the stranded travelers cross at dawn. The false royal order remains unchallenged, however, and could send another guard to the same empty ravine.',
+    epilogue:
+      'The family receives the Knight’s apology and helps choose the new bridge. Travelers cross safely, but the royal registry still contains the false order that created the queue.',
+  },
+  'errand-released': {
+    scene:
+      'The family who received your earlier apology has left the Knight a reply: they forgive his mistake, not the command that caused it. He steps away from the imaginary bridge and helps them carry their belongings to a safer road. Their private reconciliation survives, but the public crossing remains unbuilt and the registrar has not withdrawn the oath.',
+    epilogue:
+      'The Knight carries the forgiven family’s belongings along the safer road. His personal debt is answered, but the missing bridge and the official false oath remain unresolved.',
+  },
+}
+
+/** The first oath/apology decision and the mirrored bridge decision must both
+ * be earned. A released Knight does not secretly build a bridge, and a
+ * repaired crossing does not automatically pardon the original command. */
+export function earnedKnightCrossingAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): KnightCrossingAccord {
+  const source = original.sceneChoices['5,4']
+  const response = mirrored.sceneChoices['5,4']
+  if (source !== 'truth' && source !== 'errand') return 'unset'
+  if (response !== 'draw' && response !== 'release') return 'unset'
+  if (source === 'truth')
+    return response === 'draw' ? 'truth-built' : 'truth-released'
+  return response === 'draw' ? 'errand-built' : 'errand-released'
+}
+
+export function earnedKnightCrossingOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedKnightCrossingAccord(original, mirrored)
+  return accord === 'unset' ? null : KNIGHT_CROSSING_OUTCOMES[accord].scene
+}
+
+export type VesperRookeryAccord =
+  | 'unset'
+  | 'asked-verified'
+  | 'asked-delivered'
+  | 'flower-verified'
+  | 'flower-delivered'
+
+const VESPER_ROOKERY_OUTCOMES: Record<
+  Exclude<VesperRookeryAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'asked-verified': {
+    scene:
+      'Vesper recognizes the question-mark road they drew when you asked who had vanished. Together you take the rook replies to living witnesses instead of treating handwriting as proof. Three letters match memories; the fourth names a promise nobody can confirm. Vesper marks the missing person as unverified, not erased. The messenger gains an honest record, but the fourth letter stays undelivered.',
+    epilogue:
+      'Vesper keeps the fourth rook letter in an unverified folder while the other three witnesses confirm their memories. The missing traveler is not declared dead or found just to make the House ledger tidy.',
+  },
+  'asked-delivered': {
+    scene:
+      'You follow the alternate path Vesper drew beside the rook tower and find the living recipient of the unanswered letter. They have chosen a new name and ask that the route never enter a public atlas. Vesper tears the identifying corner from their map before the messenger delivers the letter. One person gets an answer, but the other rook replies remain unchecked and the road cannot be published.',
+    epilogue:
+      'Vesper leaves a deliberate blank in the public map to protect the letter recipient who chose a new name. The delivered message is real; the other rook replies remain unverified.',
+  },
+  'flower-verified': {
+    scene:
+      'The lantern Vesper traded for your wildflower illuminates three rook letters well enough for living witnesses to compare the ink. Vesper admits the birds repeated real memories, not messages from the dead. The fourth letter bears a name the witnesses cannot safely reveal. You leave it sealed, and the messenger loses the dramatic answer they wanted, but nobody is indexed on a guess.',
+    epilogue:
+      'By the lantern traded for your wildflower, Vesper verifies three rook replies and seals the fourth pending consent. The messenger has fewer miraculous claims, and the witnesses keep their names.',
+  },
+  'flower-delivered': {
+    scene:
+      'You carry Vesper’s lantern through the rookery dusk so the messenger can find the recipient of the unanswered letter. The recipient accepts it under a new name and asks for silence. Vesper presses your old wildflower into the map as a marker only the three of you understand. The delivery is safe, but you cannot use that secret route to prove the other birds’ stories.',
+    epilogue:
+      'Vesper marks the private delivery with the wildflower you traded for a lantern. The recipient remains free to use their new name, while the other rook replies are left without a public verdict.',
+  },
+}
+
+/** A map's missing name and a rook's reply become one earned account only
+ * after the original Vesper exchange and a second authored rookery choice. */
+export function earnedVesperRookeryAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): VesperRookeryAccord {
+  const source = original.sceneChoices['3,2']
+  const response = mirrored.sceneChoices['3,2']
+  if (source !== 'ask' && source !== 'offer') return 'unset'
+  if (response !== 'verify' && response !== 'honor') return 'unset'
+  if (source === 'ask')
+    return response === 'verify' ? 'asked-verified' : 'asked-delivered'
+  return response === 'verify' ? 'flower-verified' : 'flower-delivered'
+}
+
+export function earnedVesperRookeryOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedVesperRookeryAccord(original, mirrored)
+  return accord === 'unset' ? null : VESPER_ROOKERY_OUTCOMES[accord].scene
+}
+
+export type MosswickPromiseAccord =
+  | 'unset'
+  | 'warning-question'
+  | 'warning-safeguard'
+  | 'pledge-question'
+  | 'pledge-safeguard'
+
+const MOSSWICK_PROMISE_OUTCOMES: Record<
+  Exclude<MosswickPromiseAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'warning-question': {
+    scene:
+      'Mosswick remembers showing you the debt dated tomorrow. When you barter an honest question for a lantern, you ask who is allowed to sell a warning about a debt that has not yet been incurred. He turns the ledger toward the customers and lets them challenge the date. The Warden loses a quiet source of revenue, but the people already charged receive no automatic refund.',
+    epilogue:
+      'Mosswick displays the tomorrow-dated account so customers can dispute its warning before paying. The Warden cannot collect quietly, but the earlier debts still require separate restitution.',
+  },
+  'warning-safeguard': {
+    scene:
+      'Because you read the blank-name entry, you recognize the same tomorrow-dated charge among Mosswick’s sealed promises. You help him create private claim numbers so each owner can recover a promise without publishing a name. The ledger becomes useful evidence for the customers, but the Warden can still demand payment while the disputed dates are investigated.',
+    epilogue:
+      'Mosswick keeps the future-dated promises in a sealed claim register. Their owners can challenge the charges without being named publicly, although collection has not yet stopped.',
+  },
+  'pledge-question': {
+    scene:
+      'Mosswick finds the wildflower he gave you as earnest money when you promised to return with a true account. You bring him the story of the House’s borrowed names and ask whether a warning is worth its price if nobody can refuse it. He gives you the lantern without buying the story. You keep your promise, but the customers still need witnesses before their debts can be corrected.',
+    epilogue:
+      'Mosswick returns the wildflower held against your promised account and refuses to sell the story of the borrowed names. His customers still need willing witnesses to overturn their debts.',
+  },
+  'pledge-safeguard': {
+    scene:
+      'You return to Mosswick with the account you promised, then help him hide the owners’ names behind claim tokens they alone can open. He uses your wildflower as the first seal, not as payment for anyone else’s memory. Several customers recover forgotten promises in private, but the Warden’s public register remains unchallenged because the testimony cannot be exposed without permission.',
+    epilogue:
+      'Mosswick uses the wildflower from your original promise to seal a private restitution register. Customers recover their own words, while the Warden’s public claims await consenting witnesses.',
+  },
+}
+
+/** Mosswick remembers either a studied warning or a pledged account.
+ * The mirrored bargain cannot manufacture a past visit or a future verdict. */
+export function earnedMosswickPromiseAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): MosswickPromiseAccord {
+  const source = original.sceneChoices['4,2']
+  const response = mirrored.sceneChoices['4,2']
+  if (source !== 'ledger' && source !== 'promise') return 'unset'
+  if (response !== 'barter' && response !== 'safeguard') return 'unset'
+  if (source === 'ledger')
+    return response === 'barter' ? 'warning-question' : 'warning-safeguard'
+  return response === 'barter' ? 'pledge-question' : 'pledge-safeguard'
+}
+
+export function earnedMosswickPromiseOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedMosswickPromiseAccord(original, mirrored)
+  return accord === 'unset' ? null : MOSSWICK_PROMISE_OUTCOMES[accord].scene
+}
+
+export type OrenManifestAccord =
+  | 'unset'
+  | 'route-counted'
+  | 'route-rescued'
+  | 'supplies-counted'
+  | 'supplies-rescued'
+
+const OREN_MANIFEST_OUTCOMES: Record<
+  Exclude<OrenManifestAccord, 'unset'>,
+  { scene: string; epilogue: string }
+> = {
+  'route-counted': {
+    scene:
+      'Oren lays your original route beside the mirrored passenger count. The two extra seats are not people at all, but wishes travelling without their owners. He marks both as disputed cargo and refuses to print the names of the travelers who carried them. The crowd can challenge the ledger without being indexed, but departure must wait until someone checks which wishes can safely be returned.',
+    epilogue:
+      'Oren publishes the corrected passenger totals without naming the people who carried unowned wishes. Two seats remain under review, delaying the next crossing rather than inventing two missing travelers.',
+  },
+  'route-rescued': {
+    scene:
+      'Because you planned the narrow turns with Oren, he can lead the stranded families along a route the evacuation carts can actually take. Scylla walks the first stretch and Char checks the bridge supports. Nobody is left at the false crossing, but the longer road consumes a night of shelter the village had promised to another group.',
+    epilogue:
+      'Oren uses your original route to guide the stranded across a safe detour. The rescue succeeds, though the extra night on the road costs the village one night of available shelter.',
+  },
+  'supplies-counted': {
+    scene:
+      'The parcels you sorted in Briar let Oren separate actual food from the two phantom seats on his new manifest. He shares the rations with people whose bodies are present and leaves the wishes unclaimed until their owners can speak. His ledger becomes accurate enough to audit, but the waiting travelers must endure another hungry evening.',
+    epilogue:
+      'Oren uses the supplies you counted to feed real passengers rather than phantom entries. He keeps the two disputed seats open and accepts the delay instead of declaring their owners found.',
+  },
+  'supplies-rescued': {
+    scene:
+      'Oren recognizes the stores you helped pack and spends the reserve feeding the stranded as he escorts them back across the bridge. Char distributes bread without taking names; Scylla records each household that agrees to share. Everyone gets across tonight, but the House loses its emergency stock and must ask the village before borrowing another meal.',
+    epilogue:
+      'Oren spends the reserve you packed on the stranded passengers and gets them home. The House must rebuild its emergency stores with the village’s consent rather than treating rescue as an automatic claim on future meals.',
+  },
+}
+
+/** Reconcile Oren's original work with the mirrored ledger or evacuation.
+ * Both decisions must be real authored choices; no speculative outcome is
+ * granted for missing or fabricated history. */
+export function earnedOrenManifestAccord(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): OrenManifestAccord {
+  const source = original.sceneChoices['4,3']
+  const response = mirrored.sceneChoices['4,3']
+  if (source !== 'plan' && source !== 'load') return 'unset'
+  if (response !== 'counts' && response !== 'rescue') return 'unset'
+  if (source === 'plan')
+    return response === 'counts' ? 'route-counted' : 'route-rescued'
+  return response === 'counts' ? 'supplies-counted' : 'supplies-rescued'
+}
+
+export function earnedOrenManifestOutcome(
+  original: Pick<BriarSave, 'sceneChoices'>,
+  mirrored: Pick<DarkBriarProgress, 'sceneChoices'>,
+): string | null {
+  const accord = earnedOrenManifestAccord(original, mirrored)
+  return accord === 'unset' ? null : OREN_MANIFEST_OUTCOMES[accord].scene
+}
+
 /** Carry only story-scale facts forward. Minor scene choices stay in the
  * original save; this projection never becomes another mutable save ledger. */
 export interface CrossRealmConsequenceLedger {
@@ -350,7 +652,12 @@ export interface CrossRealmConsequenceLedger {
   orensProvision: 'unset' | 'route' | 'supplies'
   knightsDuty: 'unset' | 'oath' | 'errand'
   borrowedVoiceAccord: BorrowedVoiceAccord
+  courierBellAccord: CourierBellAccord
   royalEscortAccord: RoyalEscortAccord
+  orenManifestAccord: OrenManifestAccord
+  knightCrossingAccord: KnightCrossingAccord
+  vesperRookeryAccord: VesperRookeryAccord
+  mosswickPromiseAccord: MosswickPromiseAccord
 }
 
 export function crossRealmConsequenceLedger(
@@ -383,11 +690,26 @@ export function crossRealmConsequenceLedger(
         : knightChoice === 'errand'
           ? 'errand'
           : 'unset',
+    courierBellAccord: mirrored
+      ? earnedCourierBellAccord(briar, mirrored)
+      : 'unset',
     borrowedVoiceAccord: mirrored
       ? earnedBorrowedVoiceAccord(briar, mirrored)
       : 'unset',
     royalEscortAccord: mirrored
       ? earnedRoyalEscortAccord(briar, mirrored)
+      : 'unset',
+    orenManifestAccord: mirrored
+      ? earnedOrenManifestAccord(briar, mirrored)
+      : 'unset',
+    knightCrossingAccord: mirrored
+      ? earnedKnightCrossingAccord(briar, mirrored)
+      : 'unset',
+    vesperRookeryAccord: mirrored
+      ? earnedVesperRookeryAccord(briar, mirrored)
+      : 'unset',
+    mosswickPromiseAccord: mirrored
+      ? earnedMosswickPromiseAccord(briar, mirrored)
       : 'unset',
   }
 }
@@ -454,11 +776,21 @@ export function crossRealmHouseEpilogue(
       ? ''
       : WITNESS_EPILOGUES[ledger.witnessRecord][mirroredHouse.ending]
   const provision =
-    ledger.orensProvision === 'unset'
+    ledger.orenManifestAccord !== 'unset' || ledger.orensProvision === 'unset'
       ? ''
       : OREN_EPILOGUES[ledger.orensProvision]
   const knight =
-    ledger.knightsDuty === 'unset' ? '' : KNIGHT_EPILOGUES[ledger.knightsDuty]
+    ledger.knightCrossingAccord !== 'unset' || ledger.knightsDuty === 'unset'
+      ? ''
+      : KNIGHT_EPILOGUES[ledger.knightsDuty]
+  const knightCrossing =
+    ledger.knightCrossingAccord === 'unset'
+      ? ''
+      : KNIGHT_CROSSING_OUTCOMES[ledger.knightCrossingAccord].epilogue
+  const courier =
+    ledger.courierBellAccord === 'unset'
+      ? ''
+      : COURIER_BELL_OUTCOMES[ledger.courierBellAccord].epilogue
   const traveler =
     ledger.borrowedVoiceAccord === 'unset'
       ? ''
@@ -467,7 +799,30 @@ export function crossRealmHouseEpilogue(
     ledger.royalEscortAccord === 'unset'
       ? ''
       : ROYAL_ESCORT_OUTCOMES[ledger.royalEscortAccord].epilogue
-  return [witness, provision, knight, traveler, royals]
+  const manifest =
+    ledger.orenManifestAccord === 'unset'
+      ? ''
+      : OREN_MANIFEST_OUTCOMES[ledger.orenManifestAccord].epilogue
+  const vesper =
+    ledger.vesperRookeryAccord === 'unset'
+      ? ''
+      : VESPER_ROOKERY_OUTCOMES[ledger.vesperRookeryAccord].epilogue
+  const mosswick =
+    ledger.mosswickPromiseAccord === 'unset'
+      ? ''
+      : MOSSWICK_PROMISE_OUTCOMES[ledger.mosswickPromiseAccord].epilogue
+  return [
+    witness,
+    provision,
+    manifest,
+    knight,
+    knightCrossing,
+    courier,
+    traveler,
+    royals,
+    vesper,
+    mosswick,
+  ]
     .filter(Boolean)
     .join(' ')
 }

@@ -540,10 +540,186 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
   },
 }
 
+const NEW_CASE_REACTIONS: Record<
+  string,
+  { person: StudentId; response: HeroReaction }
+> = {
+  'frog-serum': {
+    person: 'drift',
+    response: {
+      mood: 'positive',
+      line: 'I am not a failed experiment. Neither is Dr. Frog. Let me speak to him.',
+    },
+  },
+  'mirror-court': {
+    person: 'imani',
+    response: {
+      mood: 'positive',
+      line: 'Forty versions of a winner and not one vote from the missing stagehand?',
+    },
+  },
+  'stolen-hour': {
+    person: 'nix',
+    response: {
+      mood: 'negative',
+      line: 'A lost hour means somebody sold time that belonged to patients.',
+    },
+  },
+  'ghost-ticket': {
+    person: 'mara',
+    response: {
+      mood: 'positive',
+      line: 'The dead do not issue transit permits. Developers do.',
+    },
+  },
+  'borrowed-faces': {
+    person: 'lark',
+    response: {
+      mood: 'positive',
+      line: 'A scan is not a person. We have to ask each rider what they need.',
+    },
+  },
+  'rail-heart': {
+    person: 'mina',
+    response: {
+      mood: 'positive',
+      line: 'Brace the axle. Nobody gets to use a conductor as a test component.',
+    },
+  },
+  'granny-shuttle': {
+    person: 'veda',
+    response: {
+      mood: 'positive',
+      line: 'That woman taught me every stunt I know. She has never learned to brake.',
+    },
+  },
+  'tomorrow-tide': {
+    person: 'tessel',
+    response: {
+      mood: 'positive',
+      line: 'I know that wave. It traveled here from a forecast that has not happened.',
+    },
+  },
+  'pearl-pact': {
+    person: 'nix',
+    response: {
+      mood: 'positive',
+      line: 'A pearl can hide a door, and a door can hide a witness.',
+    },
+  },
+  'halo-contract': {
+    person: 'sol',
+    response: {
+      mood: 'negative',
+      line: 'Those halos have a command port. Nobody volunteered to wear consent.',
+    },
+  },
+  'hospital-saint': {
+    person: 'kit',
+    response: {
+      mood: 'positive',
+      line: 'Healing someone does not mean owning their future.',
+    },
+  },
+  'lightning-election': {
+    person: 'ash',
+    response: {
+      mood: 'negative',
+      line: 'That weather is a machine with an opinion about voting.',
+    },
+  },
+  'detention-moon': {
+    person: 'nix',
+    response: {
+      mood: 'positive',
+      line: 'I can fold an orbit. What I cannot forgive is experimenting on students who cannot leave.',
+    },
+  },
+  'promise-stairs': {
+    person: 'imani',
+    response: {
+      mood: 'positive',
+      line: 'A promise made under threat is not a staircase. It is a trap dressed in language.',
+    },
+  },
+  'mascot-uprising': {
+    person: 'drift',
+    response: {
+      mood: 'positive',
+      line: 'Everybody called me an experiment too. Please ask the mascot its name before burning it.',
+    },
+  },
+  'future-graduates': {
+    person: 'mara',
+    response: {
+      mood: 'positive',
+      line: "Tomorrow's passengers deserve a seat and today's workers deserve the whole timetable.",
+    },
+  },
+  'rail-orchestra': {
+    person: 'veda',
+    response: {
+      mood: 'negative',
+      line: 'A boss who can force a song can force a confession. Get those performers out.',
+    },
+  },
+  'shadow-inspector': {
+    person: 'sol',
+    response: {
+      mood: 'positive',
+      line: 'It is a database wearing a trench coat. The people who built it are the real monsters.',
+    },
+  },
+  'double-lighthouse': {
+    person: 'tessel',
+    response: {
+      mood: 'positive',
+      line: 'Two beams and two sea winds. Someone is teaching the storm to lie.',
+    },
+  },
+  'colossal-ring': {
+    person: 'mina',
+    response: {
+      mood: 'positive',
+      line: 'I can move the ring. First I want to know whose seawall they stole to make it.',
+    },
+  },
+  'cloud-zoo': {
+    person: 'kit',
+    response: {
+      mood: 'positive',
+      line: 'Do not tranquilize the floating whale. It is smaller than my med kit and twice as frightened.',
+    },
+  },
+  'shadow-court': {
+    person: 'jo',
+    response: {
+      mood: 'negative',
+      line: "Tomorrow's crimes should not become today's headlines without a witness to challenge them.",
+    },
+  },
+  'ambulance-detour': {
+    person: 'lark',
+    response: {
+      mood: 'positive',
+      line: 'Those patients have no time for a turf war between public medics and private dispatch.',
+    },
+  },
+  'shield-auction': {
+    person: 'ash',
+    response: {
+      mood: 'negative',
+      line: 'You cannot sell the sky back to the people standing under it.',
+    },
+  },
+}
+
 export function missionReaction(
   person: StudentId,
   mission: string,
 ): HeroReaction {
+  const named = NEW_CASE_REACTIONS[mission]
+  if (named?.person === person) return named.response
   return (
     PERSONAL_RESPONSES[person]?.[mission] ?? {
       mood: 'neutral',
@@ -554,6 +730,116 @@ export function missionReaction(
 
 export type RouteUnlock = { label: string; result: string; boost: number }
 const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
+  'promise-stairs': [
+    {
+      people: ['imani', 'jo'],
+      route: {
+        label: 'The Contract in Plain Sight',
+        result:
+          "Imani convinces the staircase's victims to compare their consent forms while Jo broadcasts the hidden scholarship clauses. The false stairs vanish when the contract loses its power over them.",
+        boost: 2,
+      },
+    },
+  ],
+  'mascot-uprising': [
+    {
+      people: ['drift', 'kit'],
+      route: {
+        label: 'The Costume Finds a Voice',
+        result:
+          'DRIFT-9 speaks for the living mascot while Kit builds a safe nursery for its roots. The costume chooses its own name, and former performers volunteer to care for it.',
+        boost: 2,
+      },
+    },
+  ],
+  'future-graduates': [
+    {
+      people: ['nix', 'mara'],
+      route: {
+        label: 'The Union of Two Tomorrows',
+        result:
+          "Nix anchors the arriving future train while Mara makes the transit workers' warning official. Both versions of the crew agree to rebuild the switch before the predicted collision.",
+        boost: 2,
+      },
+    },
+  ],
+  'double-lighthouse': [
+    {
+      people: ['ash', 'tessel'],
+      route: {
+        label: "The Wind's True Lantern",
+        result:
+          "Ash clears the artificial rain curtain while Tessel listens for the harbor's genuine tide. Both threatened boats follow the keeper's restored light into safe water.",
+        boost: 2,
+      },
+    },
+  ],
+  'cloud-zoo': [
+    {
+      people: ['drift', 'kit'],
+      route: {
+        label: 'Sanctuary, Not Shipment',
+        result:
+          "DRIFT-9 reads the animals' mist-memories while Kit prepares a living nursery on the pier. The handlers cannot claim the animals as cargo after the creatures choose their home.",
+        boost: 2,
+      },
+    },
+  ],
+  'shield-auction': [
+    {
+      people: ['mina', 'sol'],
+      route: {
+        label: 'A City Without a Price Tag',
+        result:
+          "Mina steadies the failing shield anchors while Sol cancels the auction's private command keys. Families reclaim cover while the engineer publishes the records of manufactured scarcity.",
+        boost: 2,
+      },
+    },
+  ],
+  'frog-serum': [
+    {
+      people: ['kit', 'drift'],
+      route: {
+        label: 'The Right to Be Changed',
+        result:
+          'Kit stabilizes the janitor while DRIFT-9 recognizes the professor as a fellow person whose body is changing without consent. Dr. Frog hands over the antidote voluntarily and names the saboteur.',
+        boost: 2,
+      },
+    },
+  ],
+  'mirror-court': [
+    {
+      people: ['imani', 'jo'],
+      route: {
+        label: 'The Cast Takes the Vote',
+        result:
+          'Imani earns the missing stagehand’s trust and Jo exposes the rehearsal footage, letting the cast run a real count instead of accepting the mirror sponsor’s false victory.',
+        boost: 2,
+      },
+    },
+  ],
+  'granny-shuttle': [
+    {
+      people: ['veda', 'mara'],
+      route: {
+        label: 'Granny’s Unpaid Stunt Team',
+        result:
+          'Veda steadies the bus while Mara gets the bridge crews to defy the private rescue company. Granny Mayhem applauds from the driver’s seat and demands that the workers lead the victory parade.',
+        boost: 2,
+      },
+    },
+  ],
+  'halo-contract': [
+    {
+      people: ['sol', 'jo'],
+      route: {
+        label: 'No Halo, No Orders',
+        result:
+          'Sol finds the obedience switch and Jo broadcasts a live demonstration with informed volunteers, forcing the factory to recall the halos before they reach any school.',
+        boost: 2,
+      },
+    },
+  ],
   monorail: [
     {
       people: ['mara', 'sol'],

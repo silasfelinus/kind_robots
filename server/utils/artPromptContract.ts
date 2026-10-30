@@ -209,6 +209,41 @@ const CONTEXTUAL_WRAPPER_PATTERNS = [
   /\b(?:Bot|Reward|Dream|Facet|Rarity|Character)\s+Type[s]?\s+card\b/i,
 ]
 
+// 9. ASSEMBLED COPY. Prompts built by pasting record fields together rather
+//    than describing a picture. Found 2026-10-29 in the live Krea queue, after
+//    Silas saw "lots of art prompts for krea, when they were obviously sub
+//    standard":
+//
+//      ArtJob 49515  "Original character Rafael "Rafa" Medeiros, recognizable
+//                     from their civilian identity as Touchstone. Civilian
+//                     identity: A psychometric geology student ... city hall..
+//                     The terrifying but emotionally intelligible consequence"
+//      Hybridizer    a contextual prompt cut at 1,200 characters and ended "…"
+//
+//    A field label ("Civilian identity:") and a doubled period (one field's
+//    full stop followed by the joiner's) mean the producer concatenated copy;
+//    a trailing ellipsis means it then cut the result mid-word. None of them
+//    describes anything visible, and all three were measured at zero hits
+//    across 10,675 live and queued prompts that were not this bug.
+const ASSEMBLED_COPY_PATTERNS: Array<{ pattern: RegExp; detail: string }> = [
+  {
+    pattern: /(?:…|\.\.\.)\s*$/,
+    detail:
+      'ends in an ellipsis: the prompt was cut mid-sentence, so the model gets half a clause and no style tail.',
+  },
+  {
+    pattern: /[^.]\.\.(?!\.)/,
+    detail:
+      'has a doubled full stop: two copy fields were pasted together. Write the scene as sentences about what is visible.',
+  },
+  {
+    pattern:
+      /\b(?:civilian identity|secret identity|alter ego|backstory|motivation|personality)\s*:/i,
+    detail:
+      'carries a character-sheet label. A caption model cannot paint a biography field; describe the person and the moment instead.',
+  },
+]
+
 // 7. PEOPLE NEGATION. The half of rule 3 that never got written down in code.
 //    ART-PROMPTS.md has said since 2026-08-25 that Krea renders the nouns and
 //    drops the word holding them off -- "`no face` is how you commission a
@@ -624,6 +659,15 @@ export function checkArtPromptContract(
           `shape to the width and height, and describe what is in the scene.`,
       })
     }
+  }
+
+  for (const { pattern, detail } of ASSEMBLED_COPY_PATTERNS) {
+    const match = prompt.match(pattern)
+    if (!match) continue
+    violations.push({
+      rule: 'assembled-copy',
+      detail: `"${match[0].trim()}" ${detail}`,
+    })
   }
 
   if (VAGUE_BRAND_STYLE.test(prompt)) {

@@ -490,6 +490,20 @@
                   >
                     <strong>Personal history</strong>
                     <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                    <section
+                      class="cap-character-promise"
+                      data-testid="couch-captain-promise"
+                    >
+                      <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
+                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
+                      <strong>YOUR KIND OF TROUBLE</strong>
+                      <p>
+                        {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
+                      </p>
+                      <small>{{
+                        CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
+                      }}</small>
+                    </section>
                   </div>
                   <div v-else class="cap-insight cap-dossier-story">
                     <strong>First order and unresolved liability</strong>
@@ -653,6 +667,16 @@
                       {{ crewProfile(focusedCrew).culture }}</strong
                     >
                     <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                    <section
+                      class="cap-character-promise"
+                      data-testid="couch-crew-promise"
+                    >
+                      <h3>{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
+                      <strong>THE STORY THIS CREWMATE BRINGS</strong>
+                      <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
+                      <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
+                    </section>
                   </div>
                   <div
                     v-else-if="crewDossierTab === 'route'"
@@ -804,6 +828,40 @@
               </div>
             </div>
             <p class="cap-narrative">{{ mission.briefing }}</p>
+            <section class="cap-instinct" data-testid="couch-captain-instinct">
+              <strong>CAPTAIN'S PERSONAL BAD IDEA</strong>
+              <h3>{{ captainInstinct.title }}</h3>
+              <p>{{ captainInstinct.situation }}</p>
+              <p class="cap-instinct-response">{{ captainReply }}</p>
+              <template v-if="captainCanAct">
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-impulse"
+                  :disabled="captainImpulseBlocked"
+                  @click="store.captainAction('impulse')"
+                >
+                  <span
+                    ><b>{{ captainInstinct.impulse }}</b
+                    ><small>+10% mission odds; a personal cost</small></span
+                  >
+                </button>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-captain-restraint"
+                  @click="store.captainAction('restraint')"
+                >
+                  <span
+                    ><b>{{ captainInstinct.restraint }}</b
+                    ><small>Safer. No tactical bonus.</small></span
+                  >
+                </button>
+              </template>
+              <p v-else class="cap-instinct-response">
+                This chapter's captain decision is recorded.
+              </p>
+            </section>
             <div
               v-if="briefingCallbacks.length || briefingAboard.length"
               class="cap-callbacks"
@@ -1566,6 +1624,11 @@ import {
   CASINO_ORIGIN,
 } from '~/utils/gameOfCaptains/solarCircuit'
 
+import {
+  CAPTAIN_INSTINCTS,
+  captainInstinctAvailable,
+  captainInstinctReply,
+} from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import {
@@ -1658,6 +1721,22 @@ const stageAlt = computed(() =>
 )
 const activeCaptain = computed(() =>
   CAPTAINS.find((c) => c.id === selectedCaptain.value)!,
+)
+const captainInstinct = computed(
+  () => CAPTAIN_INSTINCTS[run.value?.captain ?? selectedCaptain.value],
+)
+const captainCanAct = computed(
+  () => !!run.value && captainInstinctAvailable(run.value),
+)
+const captainReply = computed(() =>
+  run.value ? captainInstinctReply(run.value) : '',
+)
+const captainImpulseBlocked = computed(
+  () =>
+    !!run.value &&
+    ((['vale', 'solace'].includes(run.value.captain) &&
+      run.value.supplies < 1) ||
+      (run.value.captain === 'quill' && (run.value.shieldCharge ?? 2) < 1)),
 )
 const mission = computed(() =>
   run.value ? missionFor(run.value) : MISSIONS[0]!,
@@ -1828,6 +1907,12 @@ function startNewVoyage() {
   restartVoyage()
 }
 onMounted(() => store.load())
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'game-of-captains',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Space Couch | Kind Robots' })
 
 function selectCrewForDossier(id: CrewId) {
@@ -2989,6 +3074,40 @@ function toggleAway(id: CrewId) {
   color: #e5d6c8;
   font-size: 0.7rem;
   line-height: 1.4;
+}
+.cap-character-promise,
+.cap-instinct {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem;
+  border: 1px solid #8ec3cd7a;
+  border-radius: 0.7rem;
+  background: linear-gradient(135deg, #253a49, #14243d);
+}
+.cap-character-promise h3,
+.cap-instinct h3 {
+  margin: 0;
+  color: #ffe3c4;
+  font:
+    800 1rem/1.4 Georgia,
+    serif;
+}
+.cap-character-promise p,
+.cap-instinct p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.cap-character-promise strong,
+.cap-instinct strong {
+  color: #f9c998;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+.cap-character-promise small,
+.cap-instinct-response {
+  color: #c1d8dd;
+  line-height: 1.5;
 }
 .cap-starmap {
   position: absolute;

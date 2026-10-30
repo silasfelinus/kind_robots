@@ -22,6 +22,8 @@
     "test:hybridizer-art": "tsx utils/scripts/verifyHybridizerArt.test.ts",
     "test:hybridizer-cache": "tsx utils/scripts/verifyHybridizerFusion.test.ts",
     "test:every-villain-tactics": "tsx utils/scripts/verifyEveryVillainTactics.test.ts",
+    "test:every-villain-combat": "tsx utils/scripts/verifyEveryVillainCombat.test.ts",
+    "test:every-villain-story": "tsx utils/scripts/verifyEveryVillainStory.test.ts",
     "test:comet-city-academy": "tsx utils/scripts/verifyCometCityAcademy.test.ts",
     "test:game-of-captains": "tsx utils/scripts/verifyGameOfCaptains.test.ts && tsx utils/scripts/verifyGameOfCaptainsTrios.test.ts && tsx utils/scripts/verifyGameOfCaptainsEpisode.test.ts && tsx utils/scripts/verifyGameOfCaptainsClones.test.ts && tsx utils/scripts/verifyGameOfCaptainsStars.test.ts && tsx utils/scripts/verifyGameOfCaptainsRounds.test.ts && tsx utils/scripts/verifyGameOfCaptainsInterleave.test.ts && tsx utils/scripts/verifyGameOfCaptainsSpecialties.test.ts && tsx utils/scripts/verifyGameOfCaptainsCloneAfterlives.test.ts",
     "test:comic-lanes": "tsx utils/scripts/verifyComicLanes.test.ts",
@@ -671,7 +673,8 @@
     "test:queued-prompt-gate": "tsx utils/scripts/verifyQueuedPromptGate.test.ts",
     "test:arcade-soundtrack-briefs": "tsx utils/scripts/verifyArcadeSoundtrackBriefs.test.ts",
     "test:arcade-soundtrack-mixer": "tsx utils/scripts/verifyArcadeSoundtrackMixer.test.ts",
-    "test:sliding-tiles": "tsx utils/scripts/verifySlidingTileGallery.test.ts"
+    "test:sliding-tiles": "tsx utils/scripts/verifySlidingTileGallery.test.ts",
+    "test:game-link-preview": "tsx utils/scripts/verifyGameLinkPreview.test.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

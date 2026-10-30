@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { grantMemoryRewardOnce } from '~/utils/memoryDungeon/encounterRewards'
 import {
   canEnterDarkHouse,
   darkHouseChoose as makeDarkHouseChoice,
@@ -31,8 +32,13 @@ import {
   crossRealmHouseEpilogue,
   earnedDarkHousePuzzleClue,
   earnedCourierCompensation,
+  earnedCourierBellOutcome,
   earnedBorrowedVoiceOutcome,
   earnedRoyalEscortOutcome,
+  earnedOrenManifestOutcome,
+  earnedKnightCrossingOutcome,
+  earnedVesperRookeryOutcome,
+  earnedMosswickPromiseOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -299,11 +305,21 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       (choice) => choice.id === dark.value.sceneChoices[dark.value.player],
     )
     const earned =
-      dark.value.player === '3,5'
-        ? earnedBorrowedVoiceOutcome(state.value, dark.value)
-        : dark.value.player === '4,4'
-          ? earnedRoyalEscortOutcome(state.value, dark.value)
-          : null
+      dark.value.player === '2,4'
+        ? earnedCourierBellOutcome(state.value, dark.value)
+        : dark.value.player === '3,5'
+          ? earnedBorrowedVoiceOutcome(state.value, dark.value)
+          : dark.value.player === '4,4'
+            ? earnedRoyalEscortOutcome(state.value, dark.value)
+            : dark.value.player === '5,4'
+              ? earnedKnightCrossingOutcome(state.value, dark.value)
+              : dark.value.player === '3,2'
+                ? earnedVesperRookeryOutcome(state.value, dark.value)
+                : dark.value.player === '4,2'
+                  ? earnedMosswickPromiseOutcome(state.value, dark.value)
+                  : dark.value.player === '4,3'
+                    ? earnedOrenManifestOutcome(state.value, dark.value)
+                    : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -1138,11 +1154,29 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = darkBriarChoose(dark.value, key, id)
     if (next === dark.value) return
     dark.value = next
-    if (key === '3,5' || key === '4,4') {
+    if (
+      key === '2,4' ||
+      key === '3,5' ||
+      key === '4,4' ||
+      key === '4,3' ||
+      key === '4,2' ||
+      key === '5,4' ||
+      key === '3,2'
+    ) {
       const earned =
-        key === '3,5'
-          ? earnedBorrowedVoiceOutcome(state.value, next)
-          : earnedRoyalEscortOutcome(state.value, next)
+        key === '2,4'
+          ? earnedCourierBellOutcome(state.value, next)
+          : key === '3,5'
+            ? earnedBorrowedVoiceOutcome(state.value, next)
+            : key === '4,4'
+              ? earnedRoyalEscortOutcome(state.value, next)
+              : key === '4,3'
+                ? earnedOrenManifestOutcome(state.value, next)
+                : key === '5,4'
+                  ? earnedKnightCrossingOutcome(state.value, next)
+                  : key === '4,2'
+                    ? earnedMosswickPromiseOutcome(state.value, next)
+                    : earnedVesperRookeryOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {
@@ -1211,10 +1245,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function finishDarkDuel(duel: DarkBriarDuel): void {
-    if (!dark.value.duels.includes(duel.key))
-      dark.value.duels = [...dark.value.duels, duel.key]
-    state.value.lanterns += 1
-    closeDarkDuel(duel.victory)
+    const awarded = grantMemoryRewardOnce(
+      dark.value.duels,
+      duel.key,
+      state.value,
+      {
+        lanterns: 1,
+      },
+    )
+    closeDarkDuel(
+      awarded
+        ? duel.victory
+        : 'The bout is already recorded. Its lantern cannot be claimed twice.',
+    )
   }
 
   function reset(): void {
@@ -1575,10 +1618,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const board = minefieldBoard.value
     if (board?.outcome === 'escaped') {
       const rewardKey = minefieldRewardKey(next.size)
-      if (!state.value.completedEncounters.includes(rewardKey)) {
-        state.value.completedEncounters.push(rewardKey)
-        state.value.lanterns += 1
-        state.value.wildflowers += next.size === 10 ? 2 : 1
+      if (
+        grantMemoryRewardOnce(
+          state.value.completedEncounters,
+          rewardKey,
+          state.value,
+          {
+            lanterns: 1,
+            wildflowers: next.size === 10 ? 2 : 1,
+          },
+        )
+      ) {
         state.value.status =
           'The archive door yields. You earn a lantern and flowers; the finding is remembered.'
       } else {
@@ -2088,10 +2138,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     }
     if (room === 'sprite' || room === 'patrol') {
       const key = room === 'sprite' ? '5,5' : '7,3'
-      if (!state.value.completedEncounters.includes(key))
-        state.value.completedEncounters.push(key)
-      state.value.wildflowers += 1
-      leaveRoom('The forest challenger bows and gives you a wildflower.')
+      const awarded = grantMemoryRewardOnce(
+        state.value.completedEncounters,
+        key,
+        state.value,
+        { wildflowers: 1 },
+      )
+      leaveRoom(
+        awarded
+          ? 'The forest challenger bows and gives you a wildflower.'
+          : 'The forest challenger bows again. The first victory already claimed its flower.',
+      )
       return
     }
     if (room) leaveRoom()

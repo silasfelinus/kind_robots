@@ -1,4 +1,5 @@
 import type { Grade } from './rules'
+import { expandedMissionFor } from './expandedNightCases'
 
 type RealNightCase = {
   briefing: string
@@ -190,5 +191,5 @@ export const REAL_NIGHT_CASES: Record<string, RealNightCase> = {
 }
 
 export function realNightCase(id: string): RealNightCase | undefined {
-  return REAL_NIGHT_CASES[id]
+  return REAL_NIGHT_CASES[id] ?? expandedMissionFor(id)
 }

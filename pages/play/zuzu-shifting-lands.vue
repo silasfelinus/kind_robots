@@ -423,6 +423,12 @@
 import { nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsStore } from '~/stores/shiftingLandsStore'
 const game = useShiftingLandsStore()
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'zuzu-shifting-lands',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 const flipKey = ref(0)
 const legacyMode = ref(false)
 const lands = ['Homestead', 'Crossing', 'Tablelands', 'Caves', 'Verge']

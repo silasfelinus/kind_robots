@@ -7,6 +7,9 @@ import {
   endTurn,
   fireSelected,
   moveSelected,
+  overwatchSelected,
+  hunkerSelected,
+  elevationAt,
   previewShot,
   selectedUnit,
   trainingState,
@@ -15,7 +18,24 @@ import {
   type Mode,
 } from '~/utils/everyVillainTactics/training'
 
-export type TacticalPerspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
+import {
+  STAGE_PRESETS,
+  clonePreset,
+  paintStage,
+  stageProblems,
+  type StudioBrush,
+} from '~/utils/everyVillainTactics/studio'
+
+import {
+  applyChoice,
+  createStory,
+  enqueueBeat,
+  storyMoment,
+  type ChoiceEffect,
+  type Perspective,
+} from '~/utils/everyVillainTactics/firstBellStory'
+
+export type TacticalPerspective = Perspective
 
 export const PERSPECTIVES: Record<
   TacticalPerspective,
@@ -52,8 +72,64 @@ export const useEveryVillainTacticsStore = defineStore(
   () => {
     const state = ref(trainingState())
     const perspective = ref<TacticalPerspective>('hero')
+    const leadSignature = ref('accident-fire')
+    const story = ref(createStory())
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
+    const studioOpen = ref(false)
+    const studioBrush = ref<StudioBrush>('wall')
+    const draft = ref(clonePreset('college-quad'))
+    const isPlaytest = ref(false)
+    const studioProblems = computed(() => stageProblems(draft.value))
+    const boardCells = computed(() =>
+      Array.from(
+        { length: state.value.map.width * state.value.map.height },
+        (_, i) => ({
+          x: i % state.value.map.width,
+          y: Math.floor(i / state.value.map.width),
+        }),
+      ),
+    )
+    function loadPreset(id: string) {
+      draft.value = clonePreset(id)
+    }
+    function paintCell(point: Cell) {
+      draft.value = paintStage(draft.value, point, studioBrush.value)
+    }
+    function startPlaytest() {
+      if (studioProblems.value.length) return false
+      isPlaytest.value = true
+      studioOpen.value = false
+      reset()
+      return true
+    }
+    function exitPlaytest() {
+      isPlaytest.value = false
+      reset()
+    }
+    function tileInfoAt(point: Cell) {
+      return terrainAt(point, state.value.map)
+    }
+    function heightAt(point: Cell) {
+      return elevationAt(point, state.value.map)
+    }
+    function isSeismicWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.seismicTarget &&
+          Math.abs(unit.seismicTarget.x - point.x) <= 1 &&
+          Math.abs(unit.seismicTarget.y - point.y) <= 1,
+      )
+    }
+    function isBurrowWarning(point: Cell) {
+      return state.value.units.some(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.burrowTarget?.x === point.x &&
+          unit.burrowTarget?.y === point.y,
+      )
+    }
     const roster = IDENTITY_ARCS
     const active = computed(() => selectedUnit(state.value) ?? null)
     const players = computed(() =>
@@ -62,27 +138,64 @@ export const useEveryVillainTacticsStore = defineStore(
     const enemies = computed(() =>
       state.value.units.filter((u) => u.team === 'rival'),
     )
-    const scene = computed(() => PERSPECTIVES[perspective.value])
+    const scene = computed(() =>
+      isPlaytest.value
+        ? {
+            ...PERSPECTIVES[perspective.value],
+            headline: draft.value.objective,
+            opening:
+              (draft.value.encounter === 'quarry-lieutenant'
+                ? 'Mags Hardpan is an independent four-HP lieutenant, not Foreman Thumpkin. Her drum warns of a 3×3 seismic blast. Move away or land a hit to interrupt it; the one-hit Warren Wreckers still burrow. '
+                : draft.value.encounter === 'warren-wreckers'
+                  ? 'Foreman Thumpkin has brought the Warren Wreckers to a disputed city picnic. Dust rings announce their next burrow attack. Block those squares or shoot the one-hit crew. '
+                  : '') +
+              draft.value.title +
+              ' / ' +
+              draft.value.venue +
+              '. Studio sparring uses the real tactical rules; story scenes are authored separately.',
+          }
+        : PERSPECTIVES[perspective.value],
+    )
+    const moment = computed(() =>
+      !isPlaytest.value && story.value.current
+        ? storyMoment(
+            perspective.value,
+            story.value.current,
+            leadSignature.value,
+            story.value,
+          )
+        : null,
+    )
     const hovered = computed(() => state.value.hover)
     const mode = computed<Mode>(() => state.value.mode)
     const movePossible = computed(
       () => hovered.value && availableMove(state.value, hovered.value),
     )
-    const aimedTarget = computed(() => {
-      const point = hovered.value
+    const projectedTargets = computed(() => {
       const selected = active.value
-      if (!point || !selected) return null
-      const target = actorAt(state.value, point)
-      if (target?.team === 'rival') return previewShot(selected, target)
-      if (movePossible.value) {
-        const options = enemies.value
-          .filter((u) => u.hp > 0)
-          .map((u) => previewShot(point, u))
-          .filter((s) => s.hit > 0)
-          .sort((a, b) => b.hit - a.hit)
-        return options[0] ?? null
+      const point = hovered.value
+      if (!selected || !point) return []
+      const from =
+        mode.value === 'move' && movePossible.value
+          ? { ...selected, x: point.x, y: point.y }
+          : selected
+      return enemies.value
+        .filter((u) => u.hp > 0)
+        .map((u) => previewShot(from, u, state.value.map))
+        .filter((shot) => shot.hit > 0)
+        .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
+    })
+    const aimedTarget = computed(() => {
+      if (!hovered.value) return null
+      if (mode.value === 'fire') {
+        const hoveredEnemy = actorAt(state.value, hovered.value)
+        return hoveredEnemy?.team === 'rival'
+          ? (projectedTargets.value.find(
+              (shot) => shot.target === hoveredEnemy.id,
+            ) ?? null)
+          : null
       }
-      return null
+      return movePossible.value ? (projectedTargets.value[0] ?? null) : null
     })
     const previewLabel = computed(() => {
       if (!active.value) return 'Select a squadmate'
@@ -104,7 +217,13 @@ export const useEveryVillainTacticsStore = defineStore(
     })
 
     function reset() {
-      state.value = trainingState()
+      state.value = trainingState(
+        0x53a1b7,
+        isPlaytest.value ? draft.value : undefined,
+      )
+      state.value.units[0]!.identity = leadSignature.value
+      story.value = createStory()
+      if (isPlaytest.value) story.value.current = null
     }
     function choosePerspective(value: TacticalPerspective) {
       perspective.value = value
@@ -113,13 +232,14 @@ export const useEveryVillainTacticsStore = defineStore(
     function chooseLead(signature: string) {
       const valid = roster.some((u) => u.signature === signature)
       if (!valid) return
+      leadSignature.value = signature
       reset()
-      state.value.units[0]!.identity = signature
       state.value.log =
         'New squad leader assigned. The battle starts at First Bell.'
       rosterOpen.value = false
     }
     function select(id: string) {
+      if (story.value.current) return
       const u = state.value.units.find(
         (u) => u.id === id && u.hp > 0 && u.team === 'squad',
       )
@@ -129,6 +249,7 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.mode = 'move'
     }
     function setMode(next: Mode) {
+      if (story.value.current) return
       state.value.mode = next
       state.value.hover = null
     }
@@ -136,17 +257,39 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.hover = point
     }
     function click(point: Cell) {
+      if (story.value.current && !isPlaytest.value) return
       const unit = actorAt(state.value, point)
       if (unit?.team === 'squad') return select(unit.id)
       if (state.value.phase !== 'active') return
       if (unit?.team === 'rival') {
-        if (state.value.mode === 'fire') fireSelected(state.value, unit)
+        if (
+          state.value.mode === 'fire' &&
+          fireSelected(state.value, unit) &&
+          !isPlaytest.value
+        )
+          enqueueBeat(story.value, state.value)
       } else if (state.value.mode === 'move') {
-        moveSelected(state.value, point)
+        if (moveSelected(state.value, point) && !isPlaytest.value)
+          enqueueBeat(story.value, state.value)
       }
     }
     function nextTurn() {
+      if (story.value.current) return
       endTurn(state.value)
+      if (!isPlaytest.value) enqueueBeat(story.value, state.value)
+    }
+    function overwatch() {
+      if (story.value.current) return
+      if (overwatchSelected(state.value) && !isPlaytest.value)
+        enqueueBeat(story.value, state.value)
+    }
+    function hunker() {
+      if (story.value.current) return
+      if (hunkerSelected(state.value) && !isPlaytest.value)
+        enqueueBeat(story.value, state.value)
+    }
+    function chooseStory(effect: ChoiceEffect) {
+      return applyChoice(story.value, state.value, perspective.value, effect)
     }
     function cellStyle(point: Cell) {
       return {
@@ -162,13 +305,35 @@ export const useEveryVillainTacticsStore = defineStore(
           !!state.value.hover &&
           point.x === state.value.hover.x &&
           point.y === state.value.hover.y,
-        'has-cover': terrainAt(point) === 'cover',
-        'has-wall': terrainAt(point) === 'wall',
+        'has-cover': tileInfoAt(point) === 'cover',
+        'has-wall': tileInfoAt(point) === 'wall',
+        'burrow-warning': isBurrowWarning(point),
+        'seismic-warning': isSeismicWarning(point),
+        elevated: heightAt(point) > 0,
       }
     }
     return {
       state,
+      STAGE_PRESETS,
+      studioOpen,
+      studioBrush,
+      draft,
+      studioProblems,
+      isPlaytest,
+      loadPreset,
+      paintCell,
+      startPlaytest,
+      exitPlaytest,
+      tileInfoAt,
+      heightAt,
+      isBurrowWarning,
+      isSeismicWarning,
+      boardCells,
       perspective,
+      leadSignature,
+      story,
+      moment,
+      chooseStory,
       scene,
       roster,
       rosterOpen,
@@ -179,6 +344,7 @@ export const useEveryVillainTacticsStore = defineStore(
       hovered,
       mode,
       aimedTarget,
+      projectedTargets,
       previewLabel,
       movePossible,
       reset,
@@ -189,6 +355,8 @@ export const useEveryVillainTacticsStore = defineStore(
       hover,
       click,
       nextTurn,
+      overwatch,
+      hunker,
       cellStyle,
     }
   },

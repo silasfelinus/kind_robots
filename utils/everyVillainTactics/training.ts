@@ -1,20 +1,49 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
+import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
+import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
+import {
+  FIRST_BELL_MAP,
+  chanceFrom,
+  clearSuppression,
+  gridDistance,
+  inside,
+  lineOfSight,
+  moveAP,
+  pathDistance,
+  prepareOverwatch,
+  reachableCells,
+  refreshTurn,
+  resolveAttack,
+  resolveOverwatch,
+  takeCover,
+  tileAt,
+  type Chance,
+  type Fighter,
+  type Point,
+  type Status,
+  type TacticalMap,
+} from './combat'
+import type { StageDraft } from './studio'
 
-// The First Bell preview is intentionally a small, deterministic training rule set.
-// Full elevation, directional cover, abilities and enemy AI are t-002/t-003.
 export type Team = 'squad' | 'rival'
 export type Mode = 'move' | 'fire'
-export type Cell = { x: number; y: number }
-export type Unit = Cell & {
-  id: string
+export type Cell = Point
+export type Unit = Fighter & {
   identity: string
   team: Team
-  hp: number
   maxHp: number
-  moved: boolean
-  fired: boolean
+  henchmanName?: string
+  henchmanType?: 'burrow'
+  burrowTarget?: Cell | null
+  lieutenantName?: string
+  /** The warning ring is visible for a whole player turn before seismic impact. */
+  seismicTarget?: Cell | null
+  seismicChargeHp?: number
 }
 export type TrainingState = {
+  map: TacticalMap
+  stageId: string | null
+  turnLimit: number | null
   units: Unit[]
   selected: string
   hover: Cell | null
@@ -24,131 +53,79 @@ export type TrainingState = {
   phase: 'active' | 'victory' | 'defeat'
   log: string
   events: string[]
+  impact: {
+    attacker: string
+    target: string
+    hit: boolean
+    serial: number
+  } | null
 }
-export const WIDTH = 9
-export const HEIGHT = 6
-const WALLS = ['3,1', '3,2', '5,3']
-const COVER = ['2,2', '2,4', '4,1', '4,4', '6,2', '6,4']
-
-const key = (p: Cell) => p.x + ',' + p.y
+export type ShotPreview = Chance & { target: string }
+export const WIDTH = FIRST_BELL_MAP.width
+export const HEIGHT = FIRST_BELL_MAP.height
 export const boardCells: Cell[] = Array.from(
   { length: WIDTH * HEIGHT },
-  (_, n) => ({
-    x: n % WIDTH,
-    y: Math.floor(n / WIDTH),
+  (_, i) => ({
+    x: i % WIDTH,
+    y: Math.floor(i / WIDTH),
   }),
 )
-export function terrainAt(p: Cell): 'wall' | 'cover' | 'floor' {
-  return WALLS.includes(key(p))
-    ? 'wall'
-    : COVER.includes(key(p))
-      ? 'cover'
-      : 'floor'
+export function terrainAt(
+  p: Cell,
+  map = FIRST_BELL_MAP,
+): 'wall' | 'cover' | 'floor' {
+  const tile = tileAt(map, p)
+  return tile.wall ? 'wall' : tile.cover ? 'cover' : 'floor'
 }
+export const elevationAt = (p: Cell, map = FIRST_BELL_MAP) =>
+  tileAt(map, p).elevation
 export function personFor(unit: Unit) {
   return IDENTITY_ARCS.find((person) => person.signature === unit.identity)!
 }
-export function aliasFor(unit: Unit) {
-  return personFor(unit).hero.alias
-}
-export function isInside(p: Cell) {
-  return p.x >= 0 && p.x < WIDTH && p.y >= 0 && p.y < HEIGHT
-}
-export function manhattan(a: Cell, b: Cell) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
-}
+export const aliasFor = (unit: Unit) =>
+  unit.lieutenantName ?? unit.henchmanName ?? personFor(unit).hero.alias
+export const isInside = (p: Cell) => inside(FIRST_BELL_MAP, p)
+export const manhattan = gridDistance
 export function actorAt(state: TrainingState, point: Cell): Unit | undefined {
   return state.units.find((u) => u.hp > 0 && u.x === point.x && u.y === point.y)
 }
-export function walkDistance(
+export function displayUnitAt(
   state: TrainingState,
-  from: Cell,
-  to: Cell,
-): number {
-  if (!isInside(to) || terrainAt(to) === 'wall') return Infinity
-  const visited = new Set([key(from)])
-  const open = [{ ...from, steps: 0 }]
-  for (let n = 0; n < open.length; n++) {
-    const item = open[n]!
-    if (item.x === to.x && item.y === to.y) return item.steps
-    for (const next of [
-      { x: item.x + 1, y: item.y },
-      { x: item.x - 1, y: item.y },
-      { x: item.x, y: item.y + 1 },
-      { x: item.x, y: item.y - 1 },
-    ]) {
-      if (
-        !isInside(next) ||
-        terrainAt(next) === 'wall' ||
-        visited.has(key(next))
-      )
-        continue
-      const occupant = actorAt(state, next)
-      if (occupant && key(next) !== key(to)) continue
-      visited.add(key(next))
-      open.push({ ...next, steps: item.steps + 1 })
-    }
-  }
-  return Infinity
+  point: Cell,
+): Unit | undefined {
+  return (
+    actorAt(state, point) ??
+    state.units.find((u) => u.hp === 0 && u.x === point.x && u.y === point.y)
+  )
 }
-// Symmetric grid ray, including diagonal corner blockers.
-export function lineClear(from: Cell, to: Cell): boolean {
-  let x = from.x,
-    y = from.y
-  const dx = Math.abs(to.x - x),
-    dy = Math.abs(to.y - y)
-  const sx = x < to.x ? 1 : -1,
-    sy = y < to.y ? 1 : -1
-  let err = dx - dy
-  while (x !== to.x || y !== to.y) {
-    const oldX = x,
-      oldY = y
-    const e2 = 2 * err
-    if (e2 > -dy) {
-      err -= dy
-      x += sx
-    }
-    if (e2 < dx) {
-      err += dx
-      y += sy
-    }
-    if (x === to.x && y === to.y) break
-    if (terrainAt({ x, y }) === 'wall') return false
-    if (
-      x !== oldX &&
-      y !== oldY &&
-      terrainAt({ x: oldX, y }) === 'wall' &&
-      terrainAt({ x, y: oldY }) === 'wall'
-    )
-      return false
-  }
-  return true
-}
-export type ShotPreview = {
-  target: string
-  hit: number
-  range: number
-  cover: number
-  aim: number
-  clear: boolean
-}
-export function previewShot(from: Cell, target: Unit): ShotPreview {
-  const range = manhattan(from, target)
-  const clear = range <= 6 && lineClear(from, target)
-  const cover = terrainAt(target) === 'cover' ? 20 : 0
-  const aim = 85
-  return {
+function recordImpact(
+  state: TrainingState,
+  attacker: Unit,
+  target: Unit,
+  hit: boolean,
+) {
+  state.impact = {
+    attacker: attacker.id,
     target: target.id,
-    range,
-    cover,
-    aim,
-    clear,
-    hit: clear
-      ? Math.max(15, Math.min(95, aim - Math.max(0, range - 2) * 7 - cover))
-      : 0,
+    hit,
+    serial: (state.impact?.serial ?? 0) + 1,
   }
 }
-export function trainingState(seed = 0x53a1b7): TrainingState {
+export const lineClear = (from: Cell, to: Cell) =>
+  lineOfSight(FIRST_BELL_MAP, from, to)
+export const walkDistance = (state: TrainingState, from: Cell, to: Cell) =>
+  pathDistance(state.map, state.units, from, to)
+export function previewShot(
+  from: Cell & { statuses?: readonly Status[] },
+  target: Unit,
+  map = FIRST_BELL_MAP,
+): ShotPreview {
+  return { target: target.id, ...chanceFrom(map, from, target) }
+}
+export function trainingState(
+  seed = 0x53a1b7,
+  stage?: StageDraft,
+): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
     ['backdraft', 'accident-fire', 'squad', 0, 4, 4],
     ['priya', 'tech-genius', 'squad', 1, 5, 3],
@@ -158,35 +135,86 @@ export function trainingState(seed = 0x53a1b7): TrainingState {
     ['remy', 'magic-social', 'rival', 7, 4, 3],
   ]
   return {
-    units: placements.map(([id, identity, team, x, y, hp]) => ({
-      id,
-      identity,
-      team,
-      x,
-      y,
-      hp,
-      maxHp: hp,
-      moved: false,
-      fired: false,
-    })),
+    map: stage?.map ?? FIRST_BELL_MAP,
+    stageId: stage?.id ?? null,
+    turnLimit: stage?.turnLimit ?? null,
+    units: placements.map(([id, identity, team, x, y, hp], index) => {
+      const picnic = stage?.encounter === 'warren-wreckers'
+      const quarry = stage?.encounter === 'quarry-lieutenant'
+      const warren = team === 'rival' && (picnic || (quarry && index > 3))
+      const boss = team === 'rival' && quarry && index === 3
+      const crew = warren ? henchmanForVillain('accident-earth') : null
+      const name =
+        picnic && index === 3
+          ? crew?.captain
+          : quarry && index === 4
+            ? crew?.captain
+            : index === 4
+              ? 'Warren Surveyor'
+              : 'Warren Burrower'
+      return {
+        id,
+        identity: warren || boss ? 'accident-earth' : identity,
+        team,
+        x: stage?.spawns.find((spawn) => spawn.id === id)?.x ?? x,
+        y: stage?.spawns.find((spawn) => spawn.id === id)?.y ?? y,
+        hp: warren
+          ? 1
+          : boss
+            ? campaignStagesFor('accident-earth').lieutenant.hp
+            : hp,
+        maxHp: warren
+          ? 1
+          : boss
+            ? campaignStagesFor('accident-earth').lieutenant.hp
+            : hp,
+        ...(warren
+          ? {
+              henchmanName: name,
+              henchmanType: 'burrow' as const,
+              burrowTarget: null,
+            }
+          : {}),
+        ...(boss
+          ? {
+              lieutenantName:
+                campaignStagesFor('accident-earth').lieutenant.name,
+              seismicTarget: null,
+              seismicChargeHp: 4,
+            }
+          : {}),
+        moved: false,
+        fired: false,
+        ap: 2,
+        overwatch: false,
+        statuses: [],
+      }
+    }),
     selected: 'backdraft',
     hover: null,
     mode: 'move',
     turn: 1,
     seed: seed >>> 0 || 1,
     phase: 'active',
-    log: 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
-    events: ['The bell rang twice. Nobody signed up for the second one.'],
+    log:
+      stage?.encounter === 'quarry-lieutenant'
+        ? 'Mags Hardpan guards the title auction with a four-hit-point seismic drum. Strike the drumbeat or leave the marked quake tiles. Foreman Thumpkin commands the one-hit Warren Wreckers.'
+        : stage?.encounter === 'warren-wreckers'
+          ? 'Foreman Thumpkin and the Warren Wreckers interrupt the picnic. Watch for dust-ring warnings.'
+          : 'The rival patrol is guarding the auditorium. Select a card, move to cover, or line up a shot.',
+    events:
+      stage?.encounter === 'quarry-lieutenant'
+        ? [
+            'Mags Hardpan: The Wreckers get a safe union contract, or nobody gets a deed!',
+            'The missing downbeat exposes her resonant drum. A hit after a seismic warning cancels the next quake.',
+          ]
+        : stage?.encounter === 'warren-wreckers'
+          ? [
+              'Foreman Thumpkin: The picnic lawn is a disputed tunnel right-of-way!',
+            ]
+          : ['The bell rang twice. Nobody signed up for the second one.'],
+    impact: null,
   }
-}
-function roll(state: TrainingState) {
-  // xorshift32; pure reproducible combat preview follows the same percentage.
-  let x = state.seed >>> 0
-  x ^= x << 13
-  x ^= x >>> 17
-  x ^= x << 5
-  state.seed = x >>> 0
-  return (state.seed % 10000) / 10000
 }
 export function selectedUnit(state: TrainingState) {
   return state.units.find(
@@ -194,101 +222,398 @@ export function selectedUnit(state: TrainingState) {
   )
 }
 export function availableMove(state: TrainingState, to: Cell) {
-  const current = selectedUnit(state)
+  const unit = selectedUnit(state)
   if (
-    !current ||
-    current.moved ||
+    !unit ||
+    unit.moved ||
+    unit.ap < 1 ||
     actorAt(state, to) ||
     state.phase !== 'active'
   )
     return false
-  return walkDistance(state, current, to) <= 3
+  return moveAP(walkDistance(state, unit, to)) <= unit.ap
+}
+function note(state: TrainingState, message: string) {
+  state.log = message
+  state.events.unshift(message)
+  state.events = state.events.slice(0, 6)
+}
+function updateOutcome(state: TrainingState) {
+  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
+    state.phase = 'victory'
+    note(
+      state,
+      'The rival squad stands down. What you call victory depends on whom you ask.',
+    )
+  } else if (state.units.every((u) => u.team !== 'squad' || u.hp <= 0)) {
+    state.phase = 'defeat'
+    note(
+      state,
+      'The academy patrol is overwhelmed. Their story will not end here.',
+    )
+  }
+}
+function triggerReactions(state: TrainingState, moved: Unit) {
+  // Reactions happen before the mover gets their next action.
+  for (const enemy of state.units.filter(
+    (u) => u.team !== moved.team && u.hp > 0 && u.overwatch,
+  )) {
+    const result = resolveOverwatch(state, state.map, enemy, moved)
+    if (!result) continue
+    recordImpact(state, enemy, moved, result.hit)
+    note(
+      state,
+      aliasFor(enemy) +
+        (result.hit ? ' interrupts ' : ' misses ') +
+        aliasFor(moved) +
+        ' on overwatch (' +
+        result.chance.hit +
+        '%).',
+    )
+    if (moved.hp <= 0) break
+  }
+  updateOutcome(state)
 }
 export function moveSelected(state: TrainingState, to: Cell): boolean {
   if (!availableMove(state, to)) return false
   const unit = selectedUnit(state)!
+  const distance = walkDistance(state, unit, to)
+  const cost = moveAP(distance)
+  unit.ap -= cost
   unit.x = to.x
   unit.y = to.y
   unit.moved = true
   state.hover = to
-  state.log =
+  note(
+    state,
     aliasFor(unit) +
-    ' advances into ' +
-    (terrainAt(to) === 'cover' ? 'cover.' : 'position.')
-  state.events.unshift(state.log)
+      (cost === 2 ? ' dashes ' : ' advances ') +
+      'into ' +
+      (terrainAt(to, state.map) === 'cover' ? 'cover.' : 'position.') +
+      ' (' +
+      cost +
+      ' AP)',
+  )
+  triggerReactions(state, unit)
+  if (unit.hp <= 0)
+    state.selected =
+      state.units.find((u) => u.team === 'squad' && u.hp > 0)?.id ??
+      state.selected
   return true
 }
 export function fireSelected(state: TrainingState, target: Unit): boolean {
-  const attacker = selectedUnit(state)
-  if (
-    !attacker ||
-    attacker.fired ||
-    target.team !== 'rival' ||
-    target.hp <= 0 ||
-    state.phase !== 'active'
+  const shooter = selectedUnit(state)
+  if (!shooter || state.phase !== 'active') return false
+  const result = resolveAttack(state, state.map, shooter, target, 2)
+  if (!result) return false
+  recordImpact(state, shooter, target, result.hit)
+  note(
+    state,
+    aliasFor(shooter) +
+      (result.hit ? ' hits ' : ' misses ') +
+      aliasFor(target) +
+      ' (' +
+      result.chance.hit +
+      '%).',
   )
-    return false
-  const odds = previewShot(attacker, target)
-  if (!odds.clear) return false
-  attacker.fired = true
-  const hit = roll(state) < odds.hit / 100
-  if (hit) target.hp = Math.max(0, target.hp - 2)
-  state.log =
-    aliasFor(attacker) +
-    (hit ? ' lands a hit on ' : ' misses ') +
-    aliasFor(target) +
-    ' (' +
-    odds.hit +
-    '%).'
-  state.events.unshift(state.log)
-  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
-    state.phase = 'victory'
-    state.log =
-      'The rival squad stands down. What you call victory depends on whom you ask.'
-  }
+  updateOutcome(state)
   return true
+}
+export function overwatchSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active' || !prepareOverwatch(unit)) return false
+  note(
+    state,
+    aliasFor(unit) + ' holds a reaction shot for an enemy move (1 AP).',
+  )
+  return true
+}
+export function hunkerSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active' || !takeCover(unit)) return false
+  note(
+    state,
+    aliasFor(unit) +
+      ' hunkers down: incoming accuracy −15 until their next turn.',
+  )
+  return true
+}
+function bestShot(state: TrainingState, shooter: Unit, from: Point = shooter) {
+  return state.units
+    .filter((u) => u.team !== shooter.team && u.hp > 0)
+    .map((target) => ({
+      target,
+      chance: chanceFrom(state.map, { ...shooter, ...from }, target),
+    }))
+    .filter((choice) => choice.chance.hit > 0)
+    .sort(
+      (a, b) =>
+        b.chance.hit - a.chance.hit ||
+        a.target.hp - b.target.hp ||
+        a.target.id.localeCompare(b.target.id),
+    )[0]
+}
+function burrowPlan(state: TrainingState, enemy: Unit): boolean {
+  if (enemy.henchmanType !== 'burrow') return false
+  const to = enemy.burrowTarget
+  if (to) {
+    enemy.burrowTarget = null
+    if (actorAt(state, to) || tileAt(state.map, to).wall) {
+      note(
+        state,
+        aliasFor(enemy) +
+          ' loses the marked tunnel: the emergence square was blocked.',
+      )
+      return true
+    }
+    enemy.x = to.x
+    enemy.y = to.y
+    enemy.ap--
+    note(state, aliasFor(enemy) + ' bursts from the announced dust ring!')
+    triggerReactions(state, enemy)
+    if (enemy.hp <= 0 || state.phase !== 'active') return true
+    const shot = bestShot(state, enemy)
+    if (shot && enemy.ap > 0) {
+      const result = resolveAttack(state, state.map, enemy, shot.target, 1)
+      if (result) {
+        recordImpact(state, enemy, shot.target, result.hit)
+        note(
+          state,
+          aliasFor(enemy) +
+            (result.hit ? ' hits ' : ' misses ') +
+            aliasFor(shot.target) +
+            ' after emerging (' +
+            result.chance.hit +
+            '%).',
+        )
+      }
+    }
+    updateOutcome(state)
+    return true
+  }
+
+  const occupied = new Set(
+    state.units.filter((u) => u.hp > 0).map((u) => u.x + ',' + u.y),
+  )
+  const reserved = new Set(
+    state.units
+      .filter((u) => u.hp > 0 && u.burrowTarget)
+      .map((u) => u.burrowTarget!.x + ',' + u.burrowTarget!.y),
+  )
+  const heroes = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+  const targets: Cell[] = []
+  for (let y = 0; y < state.map.height; y++)
+    for (let x = 0; x < state.map.width; x++) {
+      const point = { x, y }
+      const key = x + ',' + y
+      if (
+        occupied.has(key) ||
+        reserved.has(key) ||
+        tileAt(state.map, point).wall
+      )
+        continue
+      if (heroes.some((u) => gridDistance(u, point) === 1)) targets.push(point)
+    }
+  targets.sort((a, b) => a.y - b.y || a.x - b.x)
+  const target = targets[0]
+  if (!target) return false
+  enemy.burrowTarget = target
+  enemy.ap = 0
+  note(
+    state,
+    aliasFor(enemy) +
+      ' digs toward column ' +
+      (target.x + 1) +
+      ', row ' +
+      (target.y + 1) +
+      '. The dust ring warns one turn in advance.',
+  )
+  return true
+}
+/** A named four-HP lieutenant is a different unit class from one-hit species.
+ * Seismic warnings resolve only on her next turn, allowing a deliberate dodge
+ * or a normal, previewed ranged hit to interrupt the resonant drum. */
+function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
+  if (!enemy.lieutenantName) return false
+  if (enemy.seismicTarget) {
+    const marked = enemy.seismicTarget
+    const interrupted = enemy.hp < (enemy.seismicChargeHp ?? enemy.hp)
+    enemy.seismicTarget = null
+    enemy.seismicChargeHp = enemy.hp
+    enemy.ap = 0
+    if (interrupted) {
+      note(
+        state,
+        aliasFor(enemy) +
+          ' loses the downbeat: a hit on the exposed drumhead cancels the quake.',
+      )
+      return true
+    }
+    const struck = state.units.filter(
+      (unit) =>
+        unit.team === 'squad' &&
+        unit.hp > 0 &&
+        Math.abs(unit.x - marked.x) <= 1 &&
+        Math.abs(unit.y - marked.y) <= 1,
+    )
+    for (const unit of struck) {
+      unit.hp = Math.max(0, unit.hp - 1)
+      unit.overwatch = false
+      recordImpact(state, enemy, unit, true)
+    }
+    note(
+      state,
+      aliasFor(enemy) +
+        ' cracks the announced quarry tiles (' +
+        (marked.x + 1) +
+        ', ' +
+        (marked.y + 1) +
+        '). ' +
+        struck.length +
+        ' squadmate(s) take 1 seismic damage.',
+    )
+    updateOutcome(state)
+    return true
+  }
+  const target = state.units
+    .filter((unit) => unit.team === 'squad' && unit.hp > 0)
+    .sort(
+      (a, b) =>
+        gridDistance(enemy, a) - gridDistance(enemy, b) ||
+        a.id.localeCompare(b.id),
+    )[0]
+  if (!target) return true
+  enemy.seismicTarget = { x: target.x, y: target.y }
+  enemy.seismicChargeHp = enemy.hp
+  enemy.ap = 0
+  note(
+    state,
+    aliasFor(enemy) +
+      ' raises the granite drum. A 3×3 quake is marked around column ' +
+      (target.x + 1) +
+      ', row ' +
+      (target.y + 1) +
+      '. Move clear or land a normal hit on the drum before her next turn.',
+  )
+  return true
+}
+function enemyPlan(state: TrainingState, enemy: Unit) {
+  if (lieutenantPlan(state, enemy) || burrowPlan(state, enemy)) return
+  let shot = bestShot(state, enemy)
+  const positions = reachableCells(state.map, state.units, enemy)
+  const improvement = positions
+    .filter((p) => p.cost === 1)
+    .map((p) => ({ point: p, next: bestShot(state, enemy, p) }))
+    .filter((p): p is typeof p & { next: NonNullable<typeof shot> } => !!p.next)
+    .sort(
+      (a, b) =>
+        b.next.chance.hit - a.next.chance.hit ||
+        b.point.y - a.point.y ||
+        a.point.x - b.point.x,
+    )[0]
+  if (
+    improvement &&
+    (improvement.next.chance.hit >= (shot?.chance.hit ?? 0) + 12 ||
+      (!shot && improvement.next.chance.hit > 0))
+  ) {
+    enemy.x = improvement.point.x
+    enemy.y = improvement.point.y
+    enemy.ap--
+    enemy.moved = true
+    triggerReactions(state, enemy)
+    shot = bestShot(state, enemy)
+  } else if (!shot && positions.length) {
+    // When out of range, close distance by actual path rather than teleporting.
+    const targets = state.units.filter((u) => u.team === 'squad' && u.hp > 0)
+    const move = positions
+      .map((p) => ({
+        point: p,
+        distance: Math.min(...targets.map((t) => gridDistance(p, t))),
+        cover: !!tileAt(state.map, p).cover,
+      }))
+      .sort(
+        (a, b) =>
+          a.distance - b.distance ||
+          Number(b.cover) - Number(a.cover) ||
+          a.point.cost - b.point.cost ||
+          a.point.y - b.point.y ||
+          a.point.x - b.point.x,
+      )[0]
+    if (move) {
+      enemy.x = move.point.x
+      enemy.y = move.point.y
+      enemy.ap -= move.point.cost
+      enemy.moved = true
+      triggerReactions(state, enemy)
+      shot = bestShot(state, enemy)
+    }
+  }
+  if (enemy.hp <= 0 || state.phase !== 'active') return
+  if (enemy.ap > 0 && shot) {
+    const result = resolveAttack(state, state.map, enemy, shot.target, 1)
+    if (result) {
+      recordImpact(state, enemy, shot.target, result.hit)
+      note(
+        state,
+        aliasFor(enemy) +
+          (result.hit ? ' hits ' : ' misses ') +
+          aliasFor(shot.target) +
+          ' (' +
+          result.chance.hit +
+          '%).',
+      )
+    }
+  }
+  if (enemy.ap > 0 && !enemy.fired) {
+    if (tileAt(state.map, enemy).cover) takeCover(enemy)
+    else prepareOverwatch(enemy)
+  }
+  updateOutcome(state)
 }
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
-  const activeSquad = state.units.filter((u) => u.hp > 0 && u.team === 'squad')
-  for (const rival of state.units.filter(
-    (u) => u.hp > 0 && u.team === 'rival',
+  clearSuppression(state.units, 'squad')
+  refreshTurn(state.units, 'rival')
+  for (const enemy of state.units.filter(
+    (u) => u.team === 'rival' && u.hp > 0,
   )) {
-    const target = [...activeSquad]
-      .filter((u) => u.hp > 0)
-      .sort((a, b) => manhattan(a, rival) - manhattan(b, rival))
-      .find((u) => previewShot(rival, u).hit > 0)
-    if (!target) continue
-    const odds = previewShot(rival, target)
-    const landed = roll(state) < odds.hit / 100
-    if (landed) target.hp = Math.max(0, target.hp - 1)
-    state.events.unshift(
-      aliasFor(rival) +
-        (landed ? ' hits ' : ' misses ') +
-        aliasFor(target) +
-        '.',
-    )
+    if (state.phase !== 'active') break
+    enemyPlan(state, enemy)
   }
-  if (activeSquad.every((u) => u.hp <= 0)) {
+  if (state.phase !== 'active') return
+  clearSuppression(state.units, 'rival')
+  state.turn++
+  if (state.turnLimit !== null && state.turn > state.turnLimit) {
     state.phase = 'defeat'
-    state.log =
-      'The academy patrol is overwhelmed. Their story will not end here.'
-  } else {
-    state.turn++
-    for (const unit of activeSquad) {
-      unit.moved = false
-      unit.fired = false
-    }
-    const survivor = selectedUnit(state)
-    if (!survivor) state.selected = activeSquad.find((u) => u.hp > 0)!.id
-    state.log =
-      'Round ' +
-      state.turn +
-      ': the rival patrol has moved. Your squad has the initiative.'
-    if (state.turn === 3)
-      state.events.unshift(
-        'A fire alarm cuts through the gym. A second rescue call is coming.',
-      )
+    note(state, 'The mission timer expired before the squad could finish.')
+    return
   }
+  refreshTurn(state.units, 'squad')
+  if (!selectedUnit(state))
+    state.selected = state.units.find((u) => u.team === 'squad' && u.hp > 0)!.id
+  const warnings = state.units.filter(
+    (unit) => unit.hp > 0 && unit.burrowTarget,
+  ).length
+  const quake = state.units.find((unit) => unit.hp > 0 && unit.seismicTarget)
+  note(
+    state,
+    quake
+      ? 'Round ' +
+          state.turn +
+          ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
+      : warnings
+        ? 'Round ' +
+          state.turn +
+          ': ' +
+          warnings +
+          ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
+        : 'Round ' +
+          state.turn +
+          ': the rival patrol has acted. Your squad has the initiative.',
+  )
+  if (state.turn === 3)
+    state.events.unshift(
+      'A fire alarm cuts through the gym. A second rescue call is coming.',
+    )
   state.events = state.events.slice(0, 6)
 }

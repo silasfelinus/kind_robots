@@ -177,14 +177,15 @@
             </template>
           </div>
           <div
-            v-if="reappraisal"
+            v-for="(reappraisal, index) in reappraisals"
+            :key="reappraisal.title"
             data-testid="memory-earth-reappraisal"
             class="rounded-lg border border-[#8eaa9b] bg-[#253b39] p-3"
           >
             <p
               class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b8dbcc]"
             >
-              Evidence reconsidered
+              {{ index === 0 ? 'Evidence reconsidered' : 'Later evidence' }}
             </p>
             <h4 class="mt-1 font-serif text-lg font-bold">
               {{ reappraisal.title }}
@@ -211,7 +212,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { trapMemoryDialogTab } from '~/utils/memoryDungeon/dialogFocus'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
-import { earthPhotoReappraisal } from '~/utils/memoryDungeon/chronicle'
+import { earthPhotoReappraisals } from '~/utils/memoryDungeon/chronicle'
 
 const emit = defineEmits<{ close: [] }>()
 const world = useMemoryWorldStore()
@@ -224,10 +225,10 @@ const active = computed(
     world.earthPhotos[0] ??
     null,
 )
-const reappraisal = computed(() =>
+const reappraisals = computed(() =>
   active.value
-    ? earthPhotoReappraisal(world.earthChronicle, active.value.id)
-    : null,
+    ? earthPhotoReappraisals(world.earthChronicle, active.value.id)
+    : [],
 )
 onMounted(async () => {
   await nextTick()

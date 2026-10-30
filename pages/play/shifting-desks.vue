@@ -1520,6 +1520,10 @@ onMounted(() => {
   store.load()
 })
 
+useSeoMeta(
+  gameLinkPreviewMeta('shifting-desks', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 useHead({ title: 'Shifting Desks' })
 </script>
 

@@ -35,6 +35,10 @@ import { onMounted, ref } from 'vue'
 import { useNavStore } from '~/stores/navStore'
 import { canRenderWebGL } from '~/utils/arcade/games'
 
+useSeoMeta(
+  gameLinkPreviewMeta('zuzu-pinball', useRuntimeConfig().public.appBaseUrl) ??
+    {},
+)
 const navStore = useNavStore()
 const webglReady = ref(true)
 

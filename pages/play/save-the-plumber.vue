@@ -483,6 +483,12 @@ onMounted(() => {
   window.addEventListener('keydown', onEscape)
 })
 onUnmounted(() => window.removeEventListener('keydown', onEscape))
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'save-the-plumber',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 </script>
 

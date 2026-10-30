@@ -70,15 +70,19 @@
     >
       <span class="atf-boss-kicker">AN ENEMY CHOOSES THEIR OWN STORY</span>
       <strong>
-        {{ battle.arena.lieutenantParley === 'ally'
-          ? 'THE LIEUTENANT CHANGES SIDES'
-          : 'A CEASEFIRE HOLDS' }}
+        {{
+          battle.arena.lieutenantParley === 'ally'
+            ? 'THE LIEUTENANT CHANGES SIDES'
+            : 'A CEASEFIRE HOLDS'
+        }}
       </strong>
       <p>{{ battle.arena.lieutenantAgenda }}</p>
       <p class="atf-boss-counter">
-        {{ battle.arena.lieutenantParley === 'ally'
-          ? 'Their testimony and support can change the final prom-night outcome.'
-          : 'The lieutenant withdraws and promises to stop endangering civilians.' }}
+        {{
+          battle.arena.lieutenantParley === 'ally'
+            ? 'Their testimony and support can change the final prom-night outcome.'
+            : 'The lieutenant withdraws and promises to stop endangering civilians.'
+        }}
       </p>
     </aside>
     <div
@@ -182,7 +186,10 @@
         {{ battle.arena.discovered ? '✓' : '?' }} OPTIONAL SECRET
       </span>
       <span v-if="battle.arena.lieutenantParley" class="secured">
-        ✓ {{ battle.arena.lieutenantParley === 'ally' ? 'DEFECTED' : 'CEASEFIRE' }}
+        ✓
+        {{
+          battle.arena.lieutenantParley === 'ally' ? 'DEFECTED' : 'CEASEFIRE'
+        }}
       </span>
       <span v-if="battle.arena.shifted" class="atf-alarm">⚠ ARENA SHIFTED</span>
     </div>
@@ -195,21 +202,27 @@
       <span class="atf-boss-kicker">A DIFFERENT WAY TO WIN</span>
       <p>{{ battle.arena?.lieutenantAgenda }}</p>
       <p>
-        {{ canParley
-          ? 'Evidence recovered. The lieutenant is vulnerable and within speaking range. Choose a deal, or continue fighting.'
-          : 'To open talks: uncover the secret, lower the lieutenant to 2 HP or less, then approach within two squares with 1 AP remaining.' }}
+        {{
+          canParley
+            ? 'Evidence recovered. The lieutenant is vulnerable and within speaking range. Choose a deal, or continue fighting.'
+            : 'To open talks: uncover the secret, lower the lieutenant to 2 HP or less, then approach within two squares with 1 AP remaining.'
+        }}
       </p>
       <div v-if="canParley" class="atf-parley-actions">
         <button
           type="button"
           data-testid="academy-parley-ally"
           @click="$emit('parley', 'ally')"
-        >OFFER PROTECTION · GAIN AN ALLY</button>
+        >
+          OFFER PROTECTION · GAIN AN ALLY
+        </button>
         <button
           type="button"
           data-testid="academy-parley-truce"
           @click="$emit('parley', 'truce')"
-        >NEGOTIATE A CEASEFIRE</button>
+        >
+          NEGOTIATE A CEASEFIRE
+        </button>
       </div>
     </div>
     <div v-if="state.phase === 'active'" class="atf-controls">
@@ -379,8 +392,15 @@ function cellLabel(cell: Cell) {
   border-radius: 0.7rem;
   background: linear-gradient(130deg, #25193c, #211a2d);
 }
-.atf-parley p { font-size: 0.84rem; line-height: 1.35; }
-.atf-parley-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.atf-parley p {
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+.atf-parley-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 .atf-parley-actions button {
   min-height: 2.75rem;
   padding: 0.55rem 0.9rem;
@@ -391,7 +411,9 @@ function cellLabel(cell: Cell) {
   font-weight: 900;
   font-size: 0.75rem;
 }
-.atf-parley-actions button:focus-visible { outline: 3px solid #fde68a; }
+.atf-parley-actions button:focus-visible {
+  outline: 3px solid #fde68a;
+}
 .atf-reckoning {
   display: grid;
   gap: 0.3rem;

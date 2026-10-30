@@ -11,9 +11,10 @@ import {
 import {
   counterSignatureLieutenant,
   endTurn,
+  fireSelected,
   trainingState,
 } from '../everyVillainTactics/training'
-import type { TacticalMap } from '../everyVillainTactics/combat'
+import { chanceFrom, nextRoll, type TacticalMap } from '../everyVillainTactics/combat'
 import { rivalArenaFor } from '../cometAcademy/rivalArenas'
 
 const cleanMap: TacticalMap = { width: 9, height: 6, tiles: {} }
@@ -114,6 +115,45 @@ for (const person of IDENTITY_ARCS) {
 assert.equal(shapes.size, 8, 'all eight signature attack shapes must be mechanically distinct')
 assert.equal(anchors.size, 6, 'all six origin counters must have different physical stations')
 
+const stalled = trainingState(44)
+stalled.units = stalled.units.filter((u) => u.team === 'squad')
+stalled.units[0]!.ap = 0
+const oldRound = stalled.turn
+endTurn(stalled)
+assert.equal(stalled.turn, oldRound + 1, 'empty battleground must advance the round')
+assert.equal(stalled.units[0]!.ap, 2, 'last objective remains completable after rivals fall')
+
+const interruption = trainingState(73)
+const shooter = interruption.units[0]!
+const target = interruption.units[4]!
+shooter.x = 5
+shooter.y = 3
+target.x = 6
+target.y = 3
+target.hp = 4
+target.maxHp = 4
+target.lieutenantName = campaignStagesFor('tech-fire').lieutenant.name
+target.signatureBoss = 'tech-fire'
+target.signatureTarget = { x: shooter.x, y: shooter.y }
+target.signatureCounter = { x: 5, y: 4 }
+target.signatureChargeHp = 4
+target.signatureCooldown = false
+interruption.units = [shooter, target]
+const odds = chanceFrom(interruption.map, shooter, target).hit
+assert.ok(odds > 0)
+const seed = Array.from({ length: 1000 }, (_, i) => i + 1).find((value) => {
+  const testSeed = { seed: value }
+  return nextRoll(testSeed) < odds * 100
+})
+assert.ok(seed, 'deterministic direct-hit test must have a valid RNG seed')
+interruption.seed = seed!
+assert.equal(fireSelected(interruption, target), true)
+assert.equal(target.hp, 2)
+assert.equal(target.signatureTarget, null, 'normal successful fire interrupts signature warning')
+assert.equal(target.signatureCooldown, true)
+endTurn(interruption)
+assert.equal(target.signatureCooldown, false, 'boss spends next phase recovering')
+
 const base = startFullAcademy(fieldFor('accident-fire'), 4321, 'accident-fire')
 const late = {
   ...base,
@@ -132,6 +172,9 @@ assert.ok(battle.arena?.kind === 'lair')
 const suspicious = JSON.parse(JSON.stringify({ ...late, tacticalBattle: battle }))
 suspicious.tacticalBattle.state.units.find((u: { id: string }) => u.id === boss.id).signatureTarget = { x: -8, y: 99 }
 assert.equal(restoreAcademy(suspicious), null, 'cannot restore an out-of-board boss warning')
+const fakeSignature = JSON.parse(JSON.stringify({ ...late, tacticalBattle: battle }))
+fakeSignature.tacticalBattle.state.units.find((u: { id: string }) => u.id === boss.id).signatureBoss = 'fabricated-signature'
+assert.equal(restoreAcademy(fakeSignature), null, 'unknown bosses must fail validation safely')
 
 console.log(
   'Prom lieutenant tactics: 48 canonical profiles, 8 real footprints, 6 counter stations, telegraph/attack parity, interruption AP, late story boss and save protection.',

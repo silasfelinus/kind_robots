@@ -566,9 +566,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     persistEarthChronicle()
   }
 
-  function syncHoshimoriPhoto(
-    choices: Readonly<Record<string, string>>,
-  ): void {
+  function syncHoshimoriPhoto(choices: Readonly<Record<string, string>>): void {
     if (!campaign.value.completed.includes('e06')) return
     const next = reconcileHoshimoriEarthChronicle(earthChronicle.value, choices)
     if (next === earthChronicle.value) return

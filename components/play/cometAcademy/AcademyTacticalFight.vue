@@ -35,8 +35,8 @@
       </div>
       <p>{{ threat.power }}</p>
       <p v-if="boss.signatureTarget" class="atf-boss-warning">
-        ⚠ ATTACK CHARGING · {{ threat.counterVerb }} at ⚙,
-        move off the red tiles, or land a hit on {{ threat.name }}.
+        ⚠ ATTACK CHARGING · {{ threat.counterVerb }} at ⚙, move off the red
+        tiles, or land a hit on {{ threat.name }}.
       </p>
       <p v-else class="atf-boss-counter">{{ threat.counter }}</p>
     </aside>
@@ -45,21 +45,23 @@
       class="atf-reckoning"
       data-testid="academy-lieutenant-reckoning"
     >
-      <span class="atf-boss-kicker">FINAL PANEL · {{ role.toUpperCase() }} CUT</span>
+      <span class="atf-boss-kicker"
+        >FINAL PANEL · {{ role.toUpperCase() }} CUT</span
+      >
       <strong>
-        {{ state.phase === 'victory'
-          ? role === 'villain'
-            ? 'THE CITY GETS A WARNING'
-            : 'THE CITY GETS A WITNESS'
-          : 'THE LIEUTENANT GETS THE LAST WORD' }}
+        {{
+          state.phase === 'victory'
+            ? role === 'villain'
+              ? 'THE CITY GETS A WARNING'
+              : 'THE CITY GETS A WITNESS'
+            : 'THE LIEUTENANT GETS THE LAST WORD'
+        }}
       </strong>
       <p>{{ battle.arena?.lieutenantAgenda }}</p>
       <p v-if="battle.arena?.discovered" class="atf-boss-counter">
         EVIDENCE RECOVERED · {{ battle.arena.secret }}
       </p>
-      <p v-else class="atf-boss-counter">
-        THE SECRET REMAINS ON THE FIELD
-      </p>
+      <p v-else class="atf-boss-counter">THE SECRET REMAINS ON THE FIELD</p>
     </aside>
     <div
       class="atf-grid"
@@ -96,11 +98,7 @@
         :title="cellLabel(cell)"
         @click="$emit('cell', cell.x, cell.y)"
       >
-        <template
-          v-if="
-            atPoint(cell, boss?.signatureCounter) && !unitAt(cell)
-          "
-        >
+        <template v-if="atPoint(cell, boss?.signatureCounter) && !unitAt(cell)">
           <span class="atf-token" aria-hidden="true">⚙</span>
           <small>DISRUPT</small>
         </template>
@@ -131,11 +129,7 @@
           <small>{{ aliasFor(unitAt(cell)!).slice(0, 10) }}</small>
           <span class="atf-hp">{{ unitAt(cell)?.hp }} HP</span>
         </template>
-        <span
-          v-else-if="isThreat(cell)"
-          aria-hidden="true"
-          >⚠</span
-        >
+        <span v-else-if="isThreat(cell)" aria-hidden="true">⚠</span>
         <span
           v-else-if="terrainAt(cell, state.map) === 'wall'"
           aria-hidden="true"
@@ -194,7 +188,9 @@
         :disabled="!canCounter"
         data-testid="academy-boss-disrupt"
         @click="$emit('counter')"
-      >DISRUPT · 1 AP</button>
+      >
+        DISRUPT · 1 AP
+      </button>
       <button type="button" @click="$emit('turn')">END TURN</button>
       <button class="atf-retreat" type="button" @click="$emit('retreat')">
         RETREAT
@@ -280,7 +276,9 @@ const canCounter = computed(
   () =>
     !!selected.value &&
     selected.value.ap > 0 &&
-    !!boss.value && boss.value.hp > 0 && !!boss.value.signatureTarget &&
+    !!boss.value &&
+    boss.value.hp > 0 &&
+    !!boss.value.signatureTarget &&
     !!boss.value?.signatureCounter &&
     gridDistance(selected.value, boss.value.signatureCounter) <= 1,
 )
@@ -335,15 +333,15 @@ function cellLabel(cell: Cell) {
   font-weight: 950;
   line-height: 1;
 }
-.atf-reckoning p { font-size: 0.8rem; }
+.atf-reckoning p {
+  font-size: 0.8rem;
+}
 .atf-boss-panel {
   position: relative;
   padding: 0.75rem 0.9rem;
-  background: repeating-linear-gradient(
-      118deg,
-      transparent 0 16px,
-      #fece7620 16px 19px
-    ), linear-gradient(115deg, #421a44, #1b142d);
+  background:
+    repeating-linear-gradient(118deg, transparent 0 16px, #fece7620 16px 19px),
+    linear-gradient(115deg, #421a44, #1b142d);
   border: 2px solid #f9c96e;
   box-shadow: 4px 4px 0 #100b19;
   transform: skew(-1deg);
@@ -378,7 +376,9 @@ function cellLabel(cell: Cell) {
   font-weight: 850;
   padding-top: 0.2rem;
 }
-.atf-boss-panel .atf-boss-counter { color: #fbd5a5; }
+.atf-boss-panel .atf-boss-counter {
+  color: #fbd5a5;
+}
 .atf-threat {
   background: #792535;
   border-color: #fda4af;
@@ -393,7 +393,9 @@ function cellLabel(cell: Cell) {
   background: #fbbf24;
   font-weight: 900;
 }
-.atf-disrupt:disabled { opacity: 0.4; }
+.atf-disrupt:disabled {
+  opacity: 0.4;
+}
 .atf-console {
   display: grid;
   gap: 0.65rem;

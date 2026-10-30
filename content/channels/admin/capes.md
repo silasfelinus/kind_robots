@@ -6,7 +6,7 @@ label: Capes Bible
 title: Capes Art Bible
 subtitle: The style gate for Prom of Doom and Every Villain Tactics.
 description: Compare eight controlled hero, villain, henchman, lieutenant, story, tactical, map and portrait subjects across six checkpoints. Explore 48 characters with their hero/villain posters, one-hit crews, lieutenants, and production plan. See only real ArtJobs and attached art.
-summary: Shared 48-cell style test and 48-character art atlas.
+summary: Style tests and character art atlas.
 icon: kind-icon:gem
 route: /admin/capes
 sort: 73

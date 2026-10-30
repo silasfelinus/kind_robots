@@ -371,9 +371,9 @@ export function validTacticalInterlude(
         unit.y >= 0 &&
         unit.y < 7 &&
         (unit.signatureBoss === undefined ||
-          (unit.lieutenantName ===
-            campaignStagesFor(unit.signatureBoss).lieutenant.name &&
-            unit.signatureBoss === run.opponentSignature &&
+          (unit.signatureBoss === run.opponentSignature &&
+            unit.lieutenantName ===
+              campaignStagesFor(unit.signatureBoss).lieutenant.name &&
             typeof unit.signatureCooldown === 'boolean' &&
             Number.isInteger(unit.signatureChargeHp) &&
             unit.signatureChargeHp! >= unit.hp &&

@@ -1140,7 +1140,10 @@ assert.match(
 )
 assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-cinder-wing"/)
-assert.match(consoleSource, /data-testid="memory-hoshimori-cinder-wing-account"/)
+assert.match(
+  consoleSource,
+  /data-testid="memory-hoshimori-cinder-wing-account"/,
+)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)

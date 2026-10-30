@@ -14,18 +14,22 @@ requiredRole: ADMIN
 tutorial:
   title: Slime City • choose your favorite combat system
   body: >-
-    Choose a crew on the left, then select a district, arena mode or card gallery.
-    BLACKOUT is an eight-by-eight hidden-army turn-based prototype: choose a
-    face-down teammate and an adjacent square to move (revealing them); click
-    Reveal Selected for an unmask without moving. End Round runs enemy movement
-    and simultaneous adjacent attacks; carry the central flag back to your base.
-    MEATBALL uses a twelve-by-six football-like field: select a creature from
-    the hand and tap a leftmost square to deploy; end rounds to move both sides
-    and score on the far goal. BLOODRUSH uses a fourteen-by-six field and a
-    Run/Pause button to advance live turns; play cards between ticks.
-    Spells target fighters, traps target empty squares, equipment targets your
-    fighters. Mana increases each round. These simulations save no earned Meat,
-    online results or collections. The art and rules remain experimental.
+    Choose a crew on the left, then a district, an arena format or the card
+    gallery. Each format opens with a HOW TO PLAY panel (reopen it from the
+    arena header). BLACKOUT is an eight-by-eight hidden-army turn game: tap a
+    face-down fighter, then an adjacent square, one square per AP; moving
+    reveals it. Grab the central flag and carry it to your back (leftmost) column,
+    or wipe out the enemy; after 20 rounds the side with more HP wins. A
+    fallen carrier drops the flag where it fell. MEATBALL is a twelve-by-six
+    lane game: deploy creatures in your left column and END ROUND; fighters
+    advance, flow around blockers and trade blows; three breakthroughs win,
+    30-round limit. BLOODRUSH is the fourteen-by-six live version: RUN/PAUSE a
+    one-second fixed-tick clock, mana banks over time and cards land between
+    ticks. The CPU plays creature, spell, trap and equipment cards with the
+    same mana and once-per-round rules, from a view without your hidden
+    identities or trap. Every match shows its seed; SAME SEED replays it.
+    These are local prototypes: no Meat, collections or online results are
+    saved, the art is a stylized stand-in, and the rules remain experimental.
 ---
 
 The laboratory compares three genuinely playable square-grid game shapes

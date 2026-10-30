@@ -504,8 +504,7 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
         ...new Set(
           saved.found.filter(
             (id): id is string =>
-              typeof id === 'string' &&
-              COLLECTIBLE_PHOTO_IDS.has(id),
+              typeof id === 'string' && COLLECTIBLE_PHOTO_IDS.has(id),
           ),
         ),
       ].sort(

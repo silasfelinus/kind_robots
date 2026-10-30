@@ -115,9 +115,7 @@ function buildArena(
   const campaign = campaignStagesFor(signature)
   const phaseOffset = kind === 'origin' ? 3 : 0
   const blocked = new Set<string>(
-    (ORIGIN_WALLS[ORIGINS[originIndex]!] ?? []).map(
-      ([x, y]) => x + ',' + y,
-    ),
+    (ORIGIN_WALLS[ORIGINS[originIndex]!] ?? []).map(([x, y]) => x + ',' + y),
   )
   // A third distinctive blocker never seals off the two armies.
   const extra = [

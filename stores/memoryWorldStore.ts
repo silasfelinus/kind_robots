@@ -39,6 +39,7 @@ import {
   earnedKnightCrossingOutcome,
   earnedVesperRookeryOutcome,
   earnedMosswickPromiseOutcome,
+  earnedWitnessBellOutcome,
 } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   newMemoryCampaignProgress,
@@ -319,7 +320,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
                   ? earnedMosswickPromiseOutcome(state.value, dark.value)
                   : dark.value.player === '4,3'
                     ? earnedOrenManifestOutcome(state.value, dark.value)
-                    : null
+                    : dark.value.player === '6,3'
+                      ? earnedWitnessBellOutcome(state.value, dark.value)
+                      : null
     return earned ?? chosen?.outcome ?? darkBriarOpening(scene, state.value)
   })
   const ready = ref(false)
@@ -1161,7 +1164,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       key === '4,3' ||
       key === '4,2' ||
       key === '5,4' ||
-      key === '3,2'
+      key === '3,2' ||
+      key === '6,3'
     ) {
       const earned =
         key === '2,4'
@@ -1176,7 +1180,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
                   ? earnedKnightCrossingOutcome(state.value, next)
                   : key === '4,2'
                     ? earnedMosswickPromiseOutcome(state.value, next)
-                    : earnedVesperRookeryOutcome(state.value, next)
+                    : key === '6,3'
+                      ? earnedWitnessBellOutcome(state.value, next)
+                      : earnedVesperRookeryOutcome(state.value, next)
       if (earned) dark.value.status = earned
     }
     if (key === '3,4') {

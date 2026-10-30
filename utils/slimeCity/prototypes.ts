@@ -729,7 +729,9 @@ export function createMatch(
 ): MatchState {
   const m = MODES.find((item) => item.id === mode)
   if (!m) throw new Error('Unknown Slime City match mode')
-  const [width, height] = m.size.split(' × ').map(Number)
+  const dimensions = m.size.split(' × ')
+  const width = Number(dimensions[0]!)
+  const height = Number(dimensions[1]!)
   const state: MatchState = {
     mode,
     width,
@@ -751,10 +753,10 @@ export function createMatch(
   if (mode === 'blackout') {
     for (let i = 0; i < 4; i++) {
       const y = 1 + i
-      addFighter(state, teamById(teamId).creatures[i % 3], 'player', 1, y, true)
+      addFighter(state, teamById(teamId).creatures[i % 3]!, 'player', 1, y, true)
       addFighter(
         state,
-        teamById(state.foeId).creatures[i % 3],
+        teamById(state.foeId).creatures[i % 3]!,
         'enemy',
         width - 2,
         y,
@@ -762,8 +764,8 @@ export function createMatch(
       )
     }
   } else {
-    addFighter(state, teamById(teamId).creatures[0], 'player', 0, 2)
-    addFighter(state, teamById(state.foeId).creatures[0], 'enemy', width - 1, 3)
+    addFighter(state, teamById(teamId).creatures[0]!, 'player', 0, 2)
+    addFighter(state, teamById(state.foeId).creatures[0]!, 'enemy', width - 1, 3)
   }
   return state
 }
@@ -943,6 +945,7 @@ function doCombat(state: MatchState): void {
     )
     if (neighbors.length) {
       const victim = [...neighbors].sort((a, b) => a.id - b.id)[0]
+      if (!victim) continue
       damage.set(
         victim.id,
         (damage.get(victim.id) || 0) +
@@ -987,7 +990,7 @@ export function advance(state: MatchState): MatchState {
       if (!unitAt(next, next.width - 1, y))
         addFighter(
           next,
-          teamById(next.foeId).creatures[(next.round / 2) % 3],
+          teamById(next.foeId).creatures[(next.round / 2) % 3]!,
           'enemy',
           next.width - 1,
           y,

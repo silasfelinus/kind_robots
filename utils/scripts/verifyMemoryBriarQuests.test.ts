@@ -923,14 +923,54 @@ assert.deepEqual(
 // a validated scene choice on BOTH maps; the four legitimate combinations
 // per thread award one cosmetic medal, not four farmable rewards.
 const darkMedalPairs = [
-  { id: 'e02-bell-witness', key: '2,4', original: ['lend', 'copy'], dark: ['listen', 'name'] },
-  { id: 'e02-borrowed-voice', key: '3,5', original: ['light', 'listen'], dark: ['apologize', 'ask'] },
-  { id: 'e02-two-royal-orders', key: '4,4', original: ['escort', 'question'], dark: ['scylla', 'char'] },
-  { id: 'e02-crossing-without-oath', key: '5,4', original: ['truth', 'errand'], dark: ['draw', 'release'] },
-  { id: 'e02-vesper-rookery', key: '3,2', original: ['ask', 'offer'], dark: ['verify', 'honor'] },
-  { id: 'e02-mosswick-ledger', key: '4,2', original: ['ledger', 'promise'], dark: ['barter', 'safeguard'] },
-  { id: 'e02-oren-manifest', key: '4,3', original: ['plan', 'load'], dark: ['counts', 'rescue'] },
-  { id: 'e02-witness-bells', key: '6,3', original: ['remember', 'protect'], dark: ['consent', 'records'] },
+  {
+    id: 'e02-bell-witness',
+    key: '2,4',
+    original: ['lend', 'copy'],
+    dark: ['listen', 'name'],
+  },
+  {
+    id: 'e02-borrowed-voice',
+    key: '3,5',
+    original: ['light', 'listen'],
+    dark: ['apologize', 'ask'],
+  },
+  {
+    id: 'e02-two-royal-orders',
+    key: '4,4',
+    original: ['escort', 'question'],
+    dark: ['scylla', 'char'],
+  },
+  {
+    id: 'e02-crossing-without-oath',
+    key: '5,4',
+    original: ['truth', 'errand'],
+    dark: ['draw', 'release'],
+  },
+  {
+    id: 'e02-vesper-rookery',
+    key: '3,2',
+    original: ['ask', 'offer'],
+    dark: ['verify', 'honor'],
+  },
+  {
+    id: 'e02-mosswick-ledger',
+    key: '4,2',
+    original: ['ledger', 'promise'],
+    dark: ['barter', 'safeguard'],
+  },
+  {
+    id: 'e02-oren-manifest',
+    key: '4,3',
+    original: ['plan', 'load'],
+    dark: ['counts', 'rescue'],
+  },
+  {
+    id: 'e02-witness-bells',
+    key: '6,3',
+    original: ['remember', 'protect'],
+    dark: ['consent', 'records'],
+  },
 ] as const
 assert.equal(MEMORY_DARK_BRIAR_ACHIEVEMENTS.length, 8)
 assert.equal(memoryAchievementGallery([]).length, 16)

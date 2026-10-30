@@ -215,9 +215,9 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'underwater',
     'original',
     ['meaning', 'mechanics', 'cast', 'visual-language'],
-    'What did Scylla and Char believe leaving the sea would cost?',
-    'Mermaid childhood memories, a landward escape plan, twin testimony and Oren logistics',
-    'The sisters as young mermaid princesses, an underwater palace, their departure chart and the shore they dreamed about',
+    'Having witnessed the crossing, will Scylla choose to run away with Char again?',
+    'Play the days before their first escape as an adult Scylla with future knowledge; decide whether to repeat, delay or disclose the plan',
+    'The younger Char and the same royal palace as before the original escape; Scylla has been sent back into her younger life',
   ),
   experience(
     'e06',
@@ -227,7 +227,7 @@ export const MEMORY_REALITY_EXPERIENCES: readonly RealityExperience[] = [
     'underwater',
     'dark-reflection',
     ['meaning', 'mechanics', 'traversal', 'cast', 'visual-language'],
-    'What does Scylla owe Char when a distorted past offers to undo a choice?',
+    'Can Scylla face a warped second timeline without taking the choice away from Char?',
     'Twisted tide routes, conflicting witness memories and departures nobody can erase',
     'The same submerged court and escape route bent into a nightmare of rewritten testimony',
   ),
@@ -398,9 +398,322 @@ export const MEMORY_WISH_ANCHORS = {
   'char-possible-future': {
     source: 'e06',
     meaning:
-      'Scylla remembers evidence about the sisters’ landward departure; her private knowledge is not yet the player’s full account',
+      'Scylla investigates the cost of the World Four crossing; Char may be lost or alive depending on the player’s decision',
   },
 } as const satisfies Record<string, { source: ExperienceId; meaning: string }>
+
+export type MemoryPairEndingWorld =
+  'e02' | 'e04' | 'e06' | 'e08' | 'e10' | 'e12' | 'e14' | 'e16'
+
+export interface MemoryPairEndingChoice {
+  id: string
+  label: string
+  publicResult: string
+  worldFlag: string
+  futureConsequence: string
+}
+
+/** Authoring contracts, not claims that later-world endings are already playable. */
+export const MEMORY_PAIR_ENDINGS: Record<
+  MemoryPairEndingWorld,
+  readonly MemoryPairEndingChoice[]
+> = {
+  e02: [
+    {
+      id: 'trust-witnesses',
+      label: 'Let the forest witnesses decide whose protection was real',
+      publicResult: 'The village opens testimony to former enemies.',
+      worldFlag: 'briar-witnesses-protected',
+      futureConsequence: 'Later archive scenes recognize the forest witnesses.',
+    },
+    {
+      id: 'protect-village',
+      label: 'Keep the village gates closed until the danger is understood',
+      publicResult:
+        'The camp survives, but the witnesses wait beyond the wall.',
+      worldFlag: 'briar-village-sealed',
+      futureConsequence: 'Former outsiders cannot offer an early archive clue.',
+    },
+  ],
+  e04: [
+    {
+      id: 'open-the-tide-gate',
+      label:
+        'Open the tide gate to save the commuters; the sea anchor may collapse',
+      publicResult:
+        'The trains escape. Scylla sees Char hold the sea anchor, then die when the crossing collapses.',
+      worldFlag: 'earth-crowd-evacuated',
+      futureConsequence:
+        'Scylla witnesses Char die in the present at the end of World Four. A mysterious wish or echo sends Scylla back to her final days at home with a younger Char.',
+    },
+    {
+      id: 'seal-the-tide-gate',
+      label: 'Seal the tide gate before it destroys both shores',
+      publicResult:
+        'The sea-side defenders survive. The evacuation stops with people still inside.',
+      worldFlag: 'earth-passengers-stranded',
+      futureConsequence:
+        'Char survives; Scylla investigates how to recover the stranded commuters and why the crossing was sealed.',
+    },
+    {
+      id: 'divert-the-current',
+      label: 'Send the surge into the abandoned maintenance district',
+      publicResult:
+        'The gate holds, but the surge ruins a district where someone might still be hiding.',
+      worldFlag: 'earth-district-flooded',
+      futureConsequence:
+        'Char survives but is badly shaken, and the party must answer for the district that absorbed the surge.',
+    },
+  ],
+  e06: [
+    {
+      id: 'publish-twin-testimony',
+      label: 'Let the sisters’ testimony stand beside the court records',
+      publicResult: 'The royal record now admits two incompatible accounts.',
+      worldFlag: 'twin-testimony-public',
+      futureConsequence:
+        'Archive witnesses can challenge the official sea record.',
+    },
+    {
+      id: 'protect-private-memory',
+      label: 'Keep the sisters’ private departure records sealed',
+      publicResult:
+        'The court cannot compel either sister to retell her memories.',
+      worldFlag: 'twin-testimony-private',
+      futureConsequence:
+        'The party must find independent evidence at the Archive.',
+    },
+  ],
+  e08: [
+    {
+      id: 'unbar-all-doors',
+      label: 'Let everyone leave the village, even those the spirits fear for',
+      publicResult:
+        'The night roads open, and households must organize their own help.',
+      worldFlag: 'hoshimori-exits-open',
+      futureConsequence: 'Pip can call on voluntary yōkai witnesses later.',
+    },
+    {
+      id: 'keep-shelter-charter',
+      label: 'Keep voluntary refuge rules but remove compulsory guardianship',
+      publicResult:
+        'Guests may stay or go, although the village has fewer beds.',
+      worldFlag: 'hoshimori-refuge-charter',
+      futureConsequence: 'The village supplies a small emergency refuge later.',
+    },
+  ],
+  e10: [
+    {
+      id: 'destroy-price-ledger',
+      label: 'Erase the market’s valuations of other people’s futures',
+      publicResult:
+        'The futures are free, but the party loses the prediction map.',
+      worldFlag: 'market-predictions-erased',
+      futureConsequence:
+        'The party must navigate later routes without a forecast.',
+    },
+    {
+      id: 'publish-price-ledger',
+      label: 'Release the predictions with informed opt-out rights',
+      publicResult: 'The forecasts become contestable, and some vendors leave.',
+      worldFlag: 'market-predictions-accountable',
+      futureConsequence:
+        'The party gains a disputed prediction as later evidence.',
+    },
+  ],
+  e12: [
+    {
+      id: 'free-transit',
+      label: 'Open the transfer crossing with strict passenger consent',
+      publicResult: 'Travel resumes; waiting passengers receive priority.',
+      worldFlag: 'crossing-passenger-consent',
+      futureConsequence:
+        'The final crossing can rely on freely given transport.',
+    },
+    {
+      id: 'disable-transit',
+      label: 'Shut down the system until identities can be verified',
+      publicResult:
+        'No more identities are taken, but refugees remain separated.',
+      worldFlag: 'crossing-system-disabled',
+      futureConsequence: 'The final crossing must use a slower rescue route.',
+    },
+  ],
+  e14: [
+    {
+      id: 'publish-contradictions',
+      label: 'Preserve all contradictory accounts for the final hearing',
+      publicResult:
+        'No one can rewrite the past without facing another witness.',
+      worldFlag: 'archive-testimonies-protected',
+      futureConsequence:
+        'The final tribunal has a stronger, noisier evidence record.',
+    },
+    {
+      id: 'seal-dangerous-records',
+      label: 'Withhold dangerous records until their subjects can consent',
+      publicResult: 'Some testimony stays private, even when it might help.',
+      worldFlag: 'archive-testimonies-sealed',
+      futureConsequence:
+        'The final tribunal must earn access through negotiation.',
+    },
+  ],
+  e16: [
+    {
+      id: 'share-repair',
+      label: 'Commit to a shared repair that nobody can own alone',
+      publicResult:
+        'The new world is difficult, provisional and freely inhabited.',
+      worldFlag: 'finale-shared-repair',
+      futureConsequence:
+        'The ending honors independent consent and accountability.',
+    },
+    {
+      id: 'retain-separate-worlds',
+      label: 'Let the worlds remain separate with negotiated crossings',
+      publicResult: 'The borders survive; people can choose whether to cross.',
+      worldFlag: 'finale-separate-worlds',
+      futureConsequence:
+        'The ending preserves distance and a costly right to leave.',
+    },
+  ],
+}
+
+export const MEMORY_SCYLLA_DEPARTURE_CHOICES = [
+  {
+    id: 'run-again',
+    label: 'Run away to the human world together, just as before',
+    publicResult:
+      'Scylla agrees to the original route. She refuses to assume history will repeat without a fight.',
+    worldFlag: 'scylla-repeats-escape',
+    futureConsequence:
+      'The later crossing remembers both the original risk and Scylla’s decision to try again.',
+  },
+  {
+    id: 'stay',
+    label: 'Stay beneath the sea, even if it means giving up their dream',
+    publicResult:
+      'The sisters remain at court for now. Char demands to know why Scylla suddenly fears the surface.',
+    worldFlag: 'scylla-stays-below',
+    futureConsequence:
+      'The altered present gains a new naval-political danger instead of a guaranteed rescue.',
+  },
+  {
+    id: 'tell-char',
+    label: 'Tell Char what Scylla remembers and let her decide',
+    publicResult:
+      'Scylla explains the impossible return without demanding a promise. Char listens, then insists her future belongs to her.',
+    worldFlag: 'scylla-shares-foreknowledge',
+    futureConsequence:
+      'Char becomes an informed participant in the altered escape, even when her decision risks repeating tragedy.',
+  },
+] as const
+
+export type MemoryScyllaDepartureChoice =
+  (typeof MEMORY_SCYLLA_DEPARTURE_CHOICES)[number]['id']
+
+/**
+ * This is World Five's playable, irreversible decision, separate from
+ * the ending choice of the e05/e06 geography. A second chance is not
+ * automatic resurrection and cannot silently erase World Four history.
+ */
+export function chooseMemoryScyllaDeparture(
+  progress: MemoryCampaignProgress,
+  choice: MemoryScyllaDepartureChoice,
+): MemoryCampaignProgress {
+  if (
+    !availableMemoryExperiences(progress).includes('e05') ||
+    progress.scyllaDeparture
+  )
+    throw new Error('Scylla must be in her unchosen past')
+  if (!MEMORY_SCYLLA_DEPARTURE_CHOICES.some((option) => option.id === choice))
+    throw new Error('Unknown Scylla departure choice')
+  return { ...progress, scyllaDeparture: choice }
+}
+
+export type MemoryCharFate = 'lost' | 'alive' | 'unresolved'
+
+export function memoryCharFate(
+  progress: MemoryCampaignProgress,
+): MemoryCharFate {
+  const decision = progress.pairDecisions?.e04
+  if (decision === 'open-the-tide-gate') return 'lost'
+  if (decision === 'seal-the-tide-gate' || decision === 'divert-the-current')
+    return 'alive'
+  return 'unresolved'
+}
+
+/**
+ * World Four occurs in the present. The time displacement starts World Five
+ * for ALL three endings; Char's original fate remains a stable historical
+ * consequence while any new future is yet to be earned.
+ */
+export function scyllaOpeningForMemory(
+  progress: MemoryCampaignProgress,
+  reality: 'e05' | 'e06',
+): string {
+  const fate = memoryCharFate(progress)
+  if (reality === 'e05') {
+    if (fate === 'lost')
+      return 'Scylla watched Char die at the sea gate. She wakes years earlier in her childhood palace. Char stands alive before her, excited for the escape they have planned. Only Scylla remembers the death.'
+    if (progress.pairDecisions?.e04 === 'seal-the-tide-gate')
+      return 'Char survived the sealed crossing, but commuters remain trapped. Scylla wakes years earlier, with a young Char still planning their escape to land. The same past now offers an unsettling second choice.'
+    if (progress.pairDecisions?.e04 === 'divert-the-current')
+      return 'Char survived, but the maintenance district paid for it. Scylla wakes in her younger body days before their escape. Char has no idea why her sister is suddenly afraid of a road they have not taken.'
+    return 'Scylla stands in her childhood palace just before the sisters planned to escape to land. The past has returned, but not its answers.'
+  }
+  const departure = progress.scyllaDeparture
+  if (fate === 'lost') {
+    if (departure === 'run-again')
+      return 'The distorted palace replays the same escape while Scylla hears Char’s final cry across the years. Repeating the journey is not a guarantee of changing the outcome.'
+    if (departure === 'stay')
+      return 'The drowned court offers safety beneath the sea, but Char resents being imprisoned by a future only Scylla can remember.'
+    return 'The court tries to erase Char’s testimony after Scylla told her the future. The sisters must decide what they believe together.'
+  }
+  if (departure === 'stay')
+    return 'The distorted sea makes staying seem perfectly safe. Char asks what the two of them have sacrificed for that safety.'
+  if (departure === 'tell-char')
+    return 'The court demands a single official story, but Char remembers what Scylla told her and refuses to surrender her choice.'
+  return 'The distorted timeline recreates the escape. Scylla remembers what happened at the crossing and what it cost, even with Char still alive in the present she left behind.'
+}
+
+export function memoryPairWorldFlags(
+  progress: MemoryCampaignProgress,
+): string[] {
+  const flags = (
+    Object.entries(progress.pairDecisions ?? {}) as [
+      MemoryPairEndingWorld,
+      string,
+    ][]
+  ).flatMap(([world, id]) => {
+    const choice = MEMORY_PAIR_ENDINGS[world]?.find((item) => item.id === id)
+    return choice ? [choice.worldFlag] : []
+  })
+  const departure = MEMORY_SCYLLA_DEPARTURE_CHOICES.find(
+    (option) => option.id === progress.scyllaDeparture,
+  )
+  if (departure) flags.push(departure.worldFlag)
+  return flags
+}
+
+/** One durable, irreversible decision per paired world, before its exit. */
+export function chooseMemoryPairEnding(
+  progress: MemoryCampaignProgress,
+  world: MemoryPairEndingWorld,
+  choiceId: string,
+): MemoryCampaignProgress {
+  if (
+    !availableMemoryExperiences(progress).includes(world) ||
+    progress.pairDecisions?.[world]
+  )
+    throw new Error('World-pair decision is not available or already resolved')
+  if (!MEMORY_PAIR_ENDINGS[world].some((choice) => choice.id === choiceId))
+    throw new Error('Unknown world-pair decision')
+  return {
+    ...progress,
+    pairDecisions: { ...progress.pairDecisions, [world]: choiceId },
+  }
+}
 
 export type MemoryWishAnchorId = keyof typeof MEMORY_WISH_ANCHORS
 
@@ -408,10 +721,17 @@ export interface MemoryCampaignProgress {
   completed: readonly ExperienceId[]
   rememberedAnchors: readonly MemoryWishAnchorId[]
   finaleCommitted: boolean
+  pairDecisions?: Partial<Record<MemoryPairEndingWorld, string>>
+  scyllaDeparture?: MemoryScyllaDepartureChoice | 'legacy-unspoken'
 }
 
 export function newMemoryCampaignProgress(): MemoryCampaignProgress {
-  return { completed: [], rememberedAnchors: [], finaleCommitted: false }
+  return {
+    completed: [],
+    rememberedAnchors: [],
+    finaleCommitted: false,
+    pairDecisions: {},
+  }
 }
 
 /** Only destinations discovered or earned are returned; no spoiler-filled map menu. */
@@ -470,11 +790,20 @@ export function completeMemoryExperience(
   progress: MemoryCampaignProgress,
   id: ExperienceId,
 ): MemoryCampaignProgress {
+  if (!availableMemoryExperiences(progress).includes(id)) {
+    throw new Error(`Experience ${id} is not currently reachable`)
+  }
   if (id === 'e13' && !progress.finaleCommitted) {
     throw new Error('Finale requires an explicit commitment')
   }
-  if (!availableMemoryExperiences(progress).includes(id)) {
-    throw new Error(`Experience ${id} is not currently reachable`)
+  if (id === 'e05' && !progress.scyllaDeparture)
+    throw new Error('Scylla must decide whether to repeat the escape')
+  if (
+    id !== 'e02' &&
+    Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id) &&
+    !progress.pairDecisions?.[id as MemoryPairEndingWorld]
+  ) {
+    throw new Error('World-pair ending requires an earned decision')
   }
   return { ...progress, completed: [...progress.completed, id] }
 }
@@ -566,6 +895,42 @@ export function validateMemoryReimaginerCampaign(): string[] {
     )
     if (!before || !after || before.concept !== after.concept)
       errors.push(`Reality pair ${original}/${twisted} changes geography`)
+  }
+  const pairEndings = MEMORY_REALITY_PAIRS.map(([, second]) => second)
+  if (
+    pairEndings.some(
+      (id) =>
+        !Object.prototype.hasOwnProperty.call(MEMORY_PAIR_ENDINGS, id) ||
+        MEMORY_PAIR_ENDINGS[id as MemoryPairEndingWorld].length < 2,
+    )
+  )
+    errors.push('Every twisted overworld needs a consequential exit choice')
+  const flags = Object.values(MEMORY_PAIR_ENDINGS).flatMap((choices) =>
+    choices.map((choice) => choice.worldFlag),
+  )
+  if (new Set(flags).size !== flags.length)
+    errors.push('World-pair choices must have distinct cross-world flags')
+  if (
+    new Set(MEMORY_SCYLLA_DEPARTURE_CHOICES.map((option) => option.id)).size !==
+      MEMORY_SCYLLA_DEPARTURE_CHOICES.length ||
+    MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
+      (option) =>
+        !option.label || !option.publicResult || !option.futureConsequence,
+    )
+  )
+    errors.push('Scylla needs three consequential departure choices')
+  for (const choices of Object.values(MEMORY_PAIR_ENDINGS)) {
+    if (
+      new Set(choices.map((choice) => choice.id)).size !== choices.length ||
+      choices.some(
+        (choice) =>
+          !choice.label ||
+          !choice.publicResult ||
+          !choice.futureConsequence ||
+          !choice.worldFlag,
+      )
+    )
+      errors.push('Incomplete or duplicate world-pair consequence')
   }
   for (const concept of MEMORY_WORLD_CONCEPTS) {
     const variants = MEMORY_REALITY_EXPERIENCES.filter(

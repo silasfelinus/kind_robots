@@ -8,8 +8,12 @@
       <span class="atf-overline"
         >NIGHT {{ battle.day }} · TACTICAL INTERLUDE</span
       >
-      <h2>{{ mission }}</h2>
+      <h2>{{ battle.arena?.title ?? mission }}</h2>
+      <p class="atf-venue">{{ battle.arena?.venue ?? mission }}</p>
       <p>{{ opening }}</p>
+      <p v-if="battle.arena" class="atf-lair" data-testid="academy-unique-lair">
+        {{ battle.arena.objective }}
+      </p>
       <div class="atf-stats">
         <strong>{{
           role === 'villain' ? 'VILLAIN ROUTE' : 'HERO ROUTE'
@@ -38,6 +42,11 @@
           'atf-rival': unitAt(cell)?.team === 'rival',
           'atf-selected': selected?.x === cell.x && selected?.y === cell.y,
           'atf-reachable': state.mode === 'move' && availableMove(state, cell),
+          'atf-objective': atPoint(cell, battle.arena?.objectivePoint),
+          'atf-secret':
+            atPoint(cell, battle.arena?.secretPoint) &&
+            !battle.arena?.discovered,
+          'atf-shift': atPoint(cell, battle.arena?.shiftPoint),
         }"
         :disabled="
           state.phase !== 'active' || terrainAt(cell, state.map) === 'wall'
@@ -46,7 +55,27 @@
         :title="cellLabel(cell)"
         @click="$emit('cell', cell.x, cell.y)"
       >
-        <template v-if="unitAt(cell)">
+        <template
+          v-if="
+            atPoint(cell, battle.arena?.objectivePoint) &&
+            !battle.arena?.secured &&
+            !unitAt(cell)
+          "
+        >
+          <span class="atf-token" aria-hidden="true">◎</span>
+          <small>OBJECTIVE</small>
+        </template>
+        <template
+          v-else-if="
+            atPoint(cell, battle.arena?.secretPoint) &&
+            !battle.arena?.discovered &&
+            !unitAt(cell)
+          "
+        >
+          <span class="atf-token" aria-hidden="true">?</span>
+          <small>SECRET</small>
+        </template>
+        <template v-else-if="unitAt(cell)">
           <span class="atf-token">{{
             unitAt(cell)?.team === 'squad' ? '✦' : '◆'
           }}</span>
@@ -69,6 +98,24 @@
           >·</span
         >
       </button>
+    </div>
+    <div
+      v-if="battle.arena"
+      class="atf-casefile"
+      aria-label="Mission objectives"
+    >
+      <span :class="{ secured: battle.arena.secured }">
+        {{ battle.arena.secured ? '✓' : '◎' }}
+        {{
+          battle.arena.kind === 'origin'
+            ? 'RESOLVE ORIGIN CRISIS'
+            : 'SECURE RIVAL LAIR'
+        }}
+      </span>
+      <span :class="{ secured: battle.arena.discovered }">
+        {{ battle.arena.discovered ? '✓' : '?' }} OPTIONAL SECRET
+      </span>
+      <span v-if="battle.arena.shifted" class="atf-alarm">⚠ ARENA SHIFTED</span>
     </div>
     <p class="atf-log" role="status">{{ state.log }}</p>
     <div v-if="state.phase === 'active'" class="atf-controls">
@@ -106,10 +153,9 @@
       ↗
     </button>
     <p class="atf-instructions">
-      Select a friendly card, choose Move or Fire, then choose a square or
-      opponent. Cover and line of sight determine your shot. Fights autosave
-      after every action. Your casualties and result replace the normal mission
-      odds.
+      Select a friendly card to move or fire. Reach the ◎ tile and tap again
+      from one square away to secure the lair; step onto ? to recover its
+      secret. The environment changes mid-fight. Every action autosaves.
     </p>
   </section>
 </template>
@@ -153,16 +199,26 @@ const cells = computed(() =>
   ),
 )
 const unitAt = (cell: Cell) => actorAt(state.value, cell)
+const atPoint = (cell: Cell, point?: Cell) =>
+  !!point && cell.x === point.x && cell.y === point.y
 function cellLabel(cell: Cell) {
+  const objective = props.battle.arena
+  const landmark = atPoint(cell, objective?.objectivePoint)
+    ? ', lair objective: ' +
+      (objective?.secured ? 'secured' : objective?.objective)
+    : atPoint(cell, objective?.secretPoint)
+      ? ', ' +
+        (objective?.discovered ? 'discovered clue' : 'undiscovered secret')
+      : ''
   const unit = unitAt(cell)
   if (unit) {
     const chance =
       unit.team === 'rival' && selected.value
         ? previewShot(selected.value, unit, state.value.map).hit
         : null
-    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}`
+    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}${landmark}`
   }
-  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${availableMove(state.value, cell) ? ', reachable' : ''}`
+  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${landmark}${availableMove(state.value, cell) ? ', reachable' : ''}`
 }
 </script>
 
@@ -188,6 +244,39 @@ function cellLabel(cell: Cell) {
   line-height: 1.1;
   font-weight: 950;
   text-transform: uppercase;
+}
+.atf-header .atf-venue {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.atf-lair {
+  color: #fff2b7;
+  font-weight: 800;
+}
+.atf-casefile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  font-size: 0.69rem;
+  font-weight: 900;
+}
+.atf-casefile .secured {
+  color: #6ee7b7;
+}
+.atf-casefile .atf-alarm {
+  color: #ffb4a2;
+}
+.atf-objective {
+  box-shadow: inset 0 0 0 2px #fbbf24;
+}
+.atf-secret {
+  box-shadow: inset 0 0 0 2px #a78bfa;
+}
+.atf-shift {
+  border-style: dashed;
 }
 .atf-header p {
   max-height: 4.5em;

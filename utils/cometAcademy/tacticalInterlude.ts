@@ -2,7 +2,7 @@ import { campaignStagesFor } from './identityCampaignStages'
 import { identityFor } from './identityArcs'
 import { personalCounterpart } from './identitySerial'
 import { henchmanForVillain } from './villainHenchmen'
-import { rivalArenaFor, shiftRivalArena } from './rivalArenas'
+import { rivalArenaFor, originArenaFor, shiftRivalArena } from './rivalArenas'
 import { gridDistance, tileAt, type Point } from '../everyVillainTactics/combat'
 import { selectedUnit } from '../everyVillainTactics/training'
 import type { AcademyRun } from './rules'
@@ -18,6 +18,8 @@ export type TacticalInterlude = {
   opponent: SignaturePowerId
   state: TrainingState
   arena?: {
+    kind: 'origin' | 'lair'
+    signature: SignaturePowerId
     title: string
     venue: string
     objective: string
@@ -59,6 +61,10 @@ export function tacticalOpening(run: AcademyRun): string {
   const player = identityFor(run.signature)
   const foe = identityFor(run.opponentSignature)
   const lair = campaignStagesFor(foe.signature)
+  if (run.day < 15) {
+    const origin = campaignStagesFor(run.signature).opening
+    return `${player.hero.alias}: ${origin.inciting} ${origin.powerUse} ${origin.choice} An unidentified opponent is already moving to stop you.`
+  }
   return tacticalRoleFor(run) === 'villain'
     ? `${foe.hero.alias} is defending ${lair.lair.venue} from your raid. ${foe.heroDecision} ${player.villainDecision} Your squad must choose what it is prepared to destroy.`
     : `${foe.villain.alias} has turned ${lair.lair.venue} into a trap. ${foe.quests.antagonist} ${lair.lair.secret} Your team must choose what it is prepared to save.`
@@ -78,7 +84,7 @@ export function newTacticalInterlude(
   if (
     run.flowVersion !== 3 ||
     run.phase !== 'dispatch' ||
-    run.day < 15 ||
+    run.day < 4 ||
     !run.signature ||
     !run.opponentSignature ||
     !run.playerCaseId ||
@@ -88,7 +94,10 @@ export function newTacticalInterlude(
   )
     return null
 
-  const arena = rivalArenaFor(run.opponentSignature)
+  const originMission = run.day < 15
+  const arena = originMission
+    ? originArenaFor(run.signature)
+    : rivalArenaFor(run.opponentSignature)
   const state = trainingState(battleSeed(run, run.playerCaseId), arena.stage)
   const [lead, first, second, rival, captain, minion] = state.units
   if (!lead || !first || !second || !rival || !captain || !minion) return null
@@ -110,6 +119,7 @@ export function newTacticalInterlude(
   }
 
   rival.identity = opponent.signature
+  if (originMission) rival.henchmanName = 'Masked Rival'
   rival.hp = 5
   rival.maxHp = 5
   captain.identity = opponent.signature
@@ -144,6 +154,8 @@ export function newTacticalInterlude(
     opponent: run.opponentSignature,
     state,
     arena: {
+      kind: originMission ? 'origin' : 'lair',
+      signature: originMission ? run.signature : run.opponentSignature,
       title: arena.stage.title,
       venue: arena.stage.venue,
       objective: arena.stage.objective,
@@ -210,7 +222,9 @@ export function advanceRivalArena(battle: TacticalInterlude): boolean {
   const objective = battle.arena
   if (!objective || objective.shifted || battle.state.turn < 3 ||
       battle.state.phase !== 'active') return false
-  const arena = rivalArenaFor(battle.opponent)
+  const arena = objective.kind === 'origin'
+    ? originArenaFor(objective.signature)
+    : rivalArenaFor(objective.signature)
   const shifted = shiftRivalArena(arena, {
     ...arena.stage, map: battle.state.map,
   })
@@ -261,7 +275,7 @@ export function validTacticalOutcome(
   const result = raw as Partial<TacticalOutcome>
   return (
     Number.isInteger(result.day ?? NaN) &&
-    result.day! >= 15 &&
+    result.day! >= 4 &&
     result.day! <= run.day &&
     typeof result.caseId === 'string' &&
     result.caseId.length > 0 &&
@@ -274,7 +288,10 @@ export function validTacticalOutcome(
     Number.isInteger(result.fallen ?? NaN) &&
     result.fallen! >= 0 &&
     result.fallen! <= 4 &&
-    (result.stageId === undefined || result.stageId === 'rival-lair-' + result.opponent) &&
+    (result.stageId === undefined ||
+      result.stageId === (result.day! < 15
+        ? 'hero-origin-' + run.signature
+        : 'rival-lair-' + result.opponent)) &&
     (result.secured === undefined || typeof result.secured === 'boolean') &&
     (result.discovered === undefined || typeof result.discovered === 'boolean')
   )
@@ -290,7 +307,7 @@ export function validTacticalInterlude(
   return (
     run.flowVersion === 3 &&
     run.phase === 'dispatch' &&
-    run.day >= 15 &&
+    run.day >= 4 &&
     battle.day === run.day &&
     battle.caseId === run.playerCaseId &&
     battle.opponent === run.opponentSignature &&
@@ -330,7 +347,10 @@ export function validTacticalInterlude(
     state.map.width === 9 &&
     state.map.height === 6 &&
     (battle.arena === undefined ||
-      (typeof battle.arena.title === 'string' &&
+      (['origin', 'lair'].includes(battle.arena.kind) &&
+        battle.arena.signature === (battle.arena.kind === 'origin'
+          ? run.signature : run.opponentSignature) &&
+        typeof battle.arena.title === 'string' &&
         typeof battle.arena.venue === 'string' &&
         typeof battle.arena.objective === 'string' &&
         typeof battle.arena.secret === 'string' &&
@@ -339,7 +359,9 @@ export function validTacticalInterlude(
         typeof battle.arena.secured === 'boolean' &&
         typeof battle.arena.discovered === 'boolean' &&
         typeof battle.arena.shifted === 'boolean' &&
-        state.stageId === 'rival-lair-' + battle.opponent &&
+        state.stageId === (battle.arena.kind === 'origin'
+          ? 'hero-origin-' + run.signature
+          : 'rival-lair-' + battle.opponent) &&
         [battle.arena.objectivePoint, battle.arena.secretPoint, battle.arena.shiftPoint].every(
           (point) => Number.isInteger(point?.x) &&
             Number.isInteger(point?.y) &&

@@ -166,10 +166,10 @@
         <button
           v-else-if="!assessment"
           type="button"
-          data-testid="space-couch-star-return-captain"
+          data-testid="space-couch-star-return-background"
           @click="emit('back')"
         >
-          ← BACK TO CAPTAIN
+          ← BACK TO BACKGROUND
         </button>
         <span v-else>ASSESSMENT RESULTS ARE NOT APPEALABLE</span>
         <span>COMING UP NEXT: YOUR CREW, YOUR TROUBLE</span>

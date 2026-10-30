@@ -521,28 +521,13 @@ for (const roomId of Object.keys(
     (id) => !COMBAT_ROOMS[roomId].loadout.includes(id),
   )
   if (forbiddenWeapon) {
-    const forged = {
-      ...original,
-      state: {
-        ...original.state,
-        history: {
-          ...original.state.history!,
-          actions: [
-            {
-              type: 'strike' as const,
-              weaponId: forbiddenWeapon,
-              anchor: { row: 0, col: 0 },
-              rotation: 0,
-            },
-          ],
-        },
-        turn: 1,
-      },
-    }
+    const forged = strike(original.state, forbiddenWeapon, { row: 0, col: 0 })
+    assert.equal(forged.turn, 1, 'the forbidden weapon can fire in isolation')
+    assert.ok(restoreCombat(forged), 'the forged action is internally replayable')
     assert.equal(
-      restoreBriarCombat(forged, roomId),
+      restoreBriarCombat({ ...original, state: forged }, roomId),
       null,
-      `${roomId}: replay cannot use an unearned weapon`,
+      `${roomId}: a valid replay cannot use an unearned weapon`,
     )
   }
 }

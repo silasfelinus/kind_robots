@@ -36,9 +36,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const secondAccount = computed(() =>
     hoshimoriOvenSecondAccount(progress.value),
   )
-  const thirdAccount = computed(() =>
-    hoshimoriOvenThirdAccount(progress.value),
-  )
+  const thirdAccount = computed(() => hoshimoriOvenThirdAccount(progress.value))
   const guardianResolution = computed(() =>
     hoshimoriOvenGuardianResolution(progress.value),
   )

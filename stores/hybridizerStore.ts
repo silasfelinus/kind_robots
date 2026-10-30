@@ -149,12 +149,18 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         taxonomies: ['ANIMAL', 'SPECIES', 'OTHER', 'ARCHETYPE'],
       })
       const imageMap: Record<string, string> = {}
+      const byId = new Map(records.map((record) => [record.id, record]))
       for (const entry of inputs.value) {
-        const matching = records.find(
-          (record) =>
-            (entry.facetId != null && entry.facetId === record.id) ||
-            record.title.toLowerCase() === entry.title.toLowerCase(),
-        )
+        // A pinned starter uses its own Facet only: a title lookup could hand
+        // "Orange" the COLOR swatch. Every starter is pinned (hybridizer t-006);
+        // the title fallback stays for unpinned inputs.
+        const matching =
+          entry.facetId != null
+            ? byId.get(entry.facetId)
+            : records.find(
+                (record) =>
+                  record.title.toLowerCase() === entry.title.toLowerCase(),
+              )
         if (matching?.imagePath) imageMap[entry.key] = matching.imagePath
       }
       availableArt.value = { ...availableArt.value, ...imageMap }
@@ -166,6 +172,16 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
 
   function imageFor(ingredient: HybridizerIngredient | null): string | null {
     return ingredient ? (availableArt.value[ingredient.key] ?? null) : null
+  }
+
+  // True while a starter's Facet art is queued but not yet delivered, so the
+  // placeholder can say so instead of implying the art exists.
+  function artPending(ingredient: HybridizerIngredient | null): boolean {
+    return (
+      !!ingredient &&
+      ingredient.artState === 'art-queued' &&
+      !imageFor(ingredient)
+    )
   }
 
   function updateDiscovery(key: string, patch: Partial<HybridizerDiscovery>) {
@@ -376,6 +392,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     pendingKeys,
     readyNotice,
     imageFor,
+    artPending,
     hydrate,
     loadArtwork,
     loadSharedStudies,

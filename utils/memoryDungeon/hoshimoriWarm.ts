@@ -1860,7 +1860,6 @@ export const HOSHIMORI_OVEN_ROOMS: readonly HoshimoriOvenRoom[] = [
       },
     ],
   },
-
 ]
 
 export type HoshimoriEvent =

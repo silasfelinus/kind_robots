@@ -461,11 +461,7 @@ for (const id of MEMORY_COLLISION_ORDER) {
   ))
     alternate = recoverMemoryCollisionFragment(alternate, fragment.id)
   if (id === 'e10')
-    alternate = chooseMemoryPairEnding(
-      alternate,
-      'e10',
-      'publish-price-ledger',
-    )
+    alternate = chooseMemoryPairEnding(alternate, 'e10', 'publish-price-ledger')
   if (id === 'e12') {
     alternate = chooseMemoryPairEnding(alternate, 'e12', 'free-transit')
     alternate = chooseMemoryLastChoice(alternate, 'repair-with-consent')
@@ -546,11 +542,7 @@ assert.deepEqual(skippedHoshimori.completed, [
   'e06',
 ])
 assert.equal(skippedHoshimori.finaleCommitted, false)
-assert.deepEqual(skippedHoshimori.legacyCompleted, [
-  'e09',
-  'e10',
-  'e13',
-])
+assert.deepEqual(skippedHoshimori.legacyCompleted, ['e09', 'e10', 'e13'])
 const legacyDeparture = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
   rememberedAnchors: [

@@ -534,16 +534,36 @@ export function hoshimoriOvenTestimony(
   return 'Pip will not guess who fed him. The hearing must proceed without a witness the player never earned.'
 }
 
+const HOSHIMORI_HEARING_OUTCOMES: Readonly<Record<string, string>> = {
+  'audit:consent:pact':
+    'The ledger identifies jars whose owners were never asked. A witnessed pact may use only volunteered memories, with a right to withdraw; the baker cannot promise tomorrow’s loaves until families choose. This first hearing is a proposal, not a verdict.',
+  'audit:consent:relief':
+    'The unconsented jars are sealed as evidence while the furnace burns only what was offered. A ration rota feeds tonight’s queue without enrolling its guests as donors; tomorrow’s shortfall is visible to everyone. The first hearing ends with an audit, not absolution.',
+  'audit:pause:pact':
+    'The audit exposes missing consent and the banked coals leave empty trays. The households refuse to sign a pact while the records are incomplete; the baker must ask before resuming. This first hearing adjourns without a verdict.',
+  'audit:pause:relief':
+    'The ledger makes the missing consent undeniable, and the coals stay banked. Neighbors open their own pantries for emergency meals, but the rota cannot feed the mountain indefinitely. The first hearing names the shortage instead of hiding it.',
+  'feed:consent:pact':
+    'A family eats from your pack while the furnace separates offered memories from taken ones. The proposed pact can invite future donors, not retroactively claim the jars. This first hearing protects a doorway out and leaves the baker with fewer loaves.',
+  'feed:consent:relief':
+    'You paid for one supper and kept the furnace from using stolen memories. The neighbors build a ration rota, but your depleted bag cannot become the village’s permanent solution. The first hearing ends with a plan for tomorrow, not a pardon.',
+  'feed:pause:pact':
+    'Your own supplies bridge one meal while the coals are banked. The baker asks for a witnessed pact, but the households insist on a withdrawal clause before anyone volunteers. This first hearing buys time rather than consent.',
+  'feed:pause:relief':
+    'Your shared supper and the banked furnace make the cost of refusing stolen memories visible. Neighbors organize a rota that might fail by dawn; nobody is forced to pay with their childhood. The first hearing ends with an open door, not a solution.',
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
   if (!progress.ovenComplete) return null
-  const testimony = hoshimoriOvenTestimony(progress)
-  return progress.ovenChoices['OV-03'] === 'pact'
-    ? 'The first hearing opens a voluntary food pact, not a verdict. ' +
-        testimony
-    : 'The first hearing organizes emergency meals without extracting memories. ' +
-        testimony
+  const key = [
+    progress.ovenChoices['OV-01'],
+    progress.ovenChoices['OV-02'],
+    progress.ovenChoices['OV-03'],
+  ].join(':')
+  const outcome = HOSHIMORI_HEARING_OUTCOMES[key]
+  return outcome ? outcome + ' ' + hoshimoriOvenTestimony(progress) : null
 }
 
 function adjacent(from: string, to: string): boolean {

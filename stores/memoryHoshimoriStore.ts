@@ -29,7 +29,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   )
   const clues = computed(() => hoshimoriLanternClues(progress.value))
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
-  const secondAccount = computed(() => hoshimoriOvenSecondAccount(progress.value))
+  const secondAccount = computed(() =>
+    hoshimoriOvenSecondAccount(progress.value),
+  )
   const ridgeAccount = computed(() => hoshimoriRidgeAccount(progress.value))
   const lowlandAccount = computed(() => hoshimoriLowlandAccount(progress.value))
   const lastOvenOutcome = computed(() => {

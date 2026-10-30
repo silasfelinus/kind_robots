@@ -249,8 +249,7 @@
           </p>
           <section
             v-if="
-              hoshimori.progress.current === '8,8' &&
-              hoshimori.vesperReckoning
+              hoshimori.progress.current === '8,8' && hoshimori.vesperReckoning
             "
             class="rounded-xl border border-warning/30 bg-warning/10 p-3"
             data-testid="memory-hoshimori-vesper-reckoning"

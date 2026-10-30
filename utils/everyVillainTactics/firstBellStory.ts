@@ -1,4 +1,4 @@
-import type { TrainingState } from './training'
+import { recordTrigger, type TrainingState } from './training'
 
 export type Perspective = 'hero' | 'villain' | 'henchman' | 'sidekick'
 export type Beat = 'arrival' | 'alarm' | 'reckoning' | 'victory' | 'defeat'
@@ -628,6 +628,7 @@ export function applyChoice(
   }
   run.decisions.push(effect)
   run.seen.push(beat)
+  recordTrigger(state, 'story:' + beat)
   run.current = null
   enqueueBeat(run, state)
   return true

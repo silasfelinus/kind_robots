@@ -254,6 +254,12 @@
                     }}
                     HP · {{ unit.ap }} AP</small
                   >
+                  <small
+                    v-if="unit.role"
+                    class="evt-role"
+                    data-testid="tactics-role"
+                    >{{ roleLine(unit) }}</small
+                  >
                   <span class="evt-pips"
                     ><i :class="{ spent: unit.moved }"></i
                     ><i :class="{ spent: unit.fired }"></i
@@ -286,6 +292,34 @@
                 FIRE <small>F</small>
               </button>
             </div>
+
+            <button
+              v-if="store.activePower"
+              type="button"
+              class="evt-power"
+              data-testid="tactics-power"
+              :class="{ chosen: store.mode === 'power' }"
+              :aria-pressed="store.mode === 'power'"
+              :disabled="store.state.phase !== 'active' || !!store.powerStatus"
+              :title="store.activePower.rules"
+              @click="store.setMode('power')"
+            >
+              <span class="evt-power-head">
+                <span class="evt-action-icon" aria-hidden="true">✷</span>
+                <b>{{ store.activePower.name.toUpperCase() }}</b>
+                <small>P</small>
+              </span>
+              <span class="evt-power-meta"
+                >{{ store.activePower.ap }} AP ·
+                {{
+                  store.activePower.cooldown
+                    ? 'RECHARGE ' + store.activePower.cooldown
+                    : 'ONCE PER BATTLE'
+                }}
+                ·
+                {{ store.powerStatus ?? 'READY' }}</span
+              >
+            </button>
 
             <div class="evt-defenses" aria-label="Reaction and defense actions">
               <button
@@ -324,7 +358,35 @@
                 }}</span
               >
               <div
-                v-if="store.aimedTarget && store.aimedTarget.hit > 0"
+                v-if="store.mode === 'power' && store.activePower"
+                class="evt-power-preview"
+                data-testid="tactics-power-preview"
+              >
+                <b>{{ store.activePower.name }}</b>
+                <span class="evt-power-source"
+                  >{{ store.activePower.source }} ·
+                  {{ roleLabel(store.activePower.role) }}</span
+                >
+                <p>{{ store.activePower.rules }}</p>
+                <p class="evt-power-flavor">{{ store.activePower.flavor }}</p>
+                <ul v-if="store.powerPreview" aria-label="Previewed effects">
+                  <li v-if="store.powerPreview.chance !== null">
+                    Strike chance {{ store.powerPreview.chance }}% (seeded roll)
+                  </li>
+                  <li
+                    v-for="effect in store.powerPreview.effects"
+                    :key="effect.id"
+                    :class="'evt-effect-' + effect.side"
+                  >
+                    {{ effectLine(effect) }}
+                  </li>
+                  <li v-if="!store.powerPreview.effects.length">
+                    No one is affected from this target.
+                  </li>
+                </ul>
+              </div>
+              <div
+                v-else-if="store.aimedTarget && store.aimedTarget.hit > 0"
                 class="evt-chance"
               >
                 <strong>{{ store.aimedTarget.hit }}<small>%</small></strong>
@@ -341,6 +403,9 @@
                     }}
                     · STATUS −{{
                       store.aimedTarget.suppressed + store.aimedTarget.guarded
+                    }}
+                    · DEFENSE −{{ store.aimedTarget.defense }} · MARKED +{{
+                      store.aimedTarget.marked
                     }}
                   </span>
                 </div>
@@ -387,7 +452,7 @@
               </button>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
-                <span>SELECT • MOVE • FIRE • OVERWATCH</span>
+                <span>SELECT • MOVE • FIRE • POWER • OVERWATCH</span>
               </div>
             </div>
           </aside>
@@ -727,6 +792,10 @@
                 <span class="evt-roster-type">{{
                   person.signature.replace('-', ' / ').toUpperCase()
                 }}</span>
+                <span class="evt-roster-power"
+                  >{{ roleLabel(rosterTactic(person.signature).role) }} ·
+                  {{ rosterTactic(person.signature).name }}</span
+                >
               </button>
             </div>
             <aside
@@ -739,6 +808,20 @@
               >
               <h3>{{ inspectedPerson.hero.alias }}</h3>
               <p class="evt-dossier-realname">{{ inspectedPerson.realName }}</p>
+              <div
+                class="evt-dossier-entry"
+                data-testid="tactics-dossier-power"
+              >
+                <span
+                  >SIGNATURE ACTIVE ·
+                  {{ roleLabel(inspectedTactic.role).toUpperCase() }} ·
+                  {{ inspectedProfileLine }}</span
+                >
+                <h4>{{ inspectedTactic.name }}</h4>
+                <small>{{ inspectedTactic.source }}</small>
+                <p>{{ inspectedTactic.rules }}</p>
+                <p class="evt-dossier-hook">{{ inspectedTactic.flavor }}</p>
+              </div>
               <div class="evt-dossier-entry">
                 <span>01 · POWER ORIGIN</span>
                 <h4>{{ inspectedCampaign.opening.title }}</h4>
@@ -837,6 +920,14 @@ import {
   type Cell,
   type Unit,
 } from '~/utils/everyVillainTactics/training'
+import {
+  ROLE_LABELS,
+  WEAPON_LABELS,
+  roleProfileFor,
+  tacticFor,
+  type PowerEffect,
+  type TacticalRole,
+} from '~/utils/everyVillainTactics/powers'
 
 const store = useEveryVillainTacticsStore()
 const comicPreviewRoles: ComicIntroRole[] = [
@@ -990,6 +1081,50 @@ const visibleRoster = computed(() => {
 function unitName(unit: Unit): string {
   return aliasFor(unit)
 }
+function roleLabel(role: TacticalRole): string {
+  return ROLE_LABELS[role]
+}
+function roleLine(unit: Unit): string {
+  return (
+    ROLE_LABELS[unit.role!] +
+    ' · ' +
+    WEAPON_LABELS[unit.weapon ?? 'mid'] +
+    ' · MOV ' +
+    (unit.mobility ?? 3) +
+    (unit.defense ? ' · DEF ' + unit.defense : '')
+  )
+}
+function rosterTactic(signature: string) {
+  return tacticFor(signature)!
+}
+const inspectedTactic = computed(() => rosterTactic(inspectedSignature.value))
+const inspectedProfileLine = computed(() => {
+  const profile = roleProfileFor(inspectedSignature.value as SignaturePowerId)
+  return (
+    profile.hp +
+    ' HP · ' +
+    WEAPON_LABELS[profile.weapon].toUpperCase() +
+    ' · AIM ' +
+    profile.aim +
+    ' · MOV ' +
+    profile.mobility +
+    (profile.defense ? ' · DEF ' + profile.defense : '')
+  )
+})
+function effectLine(effect: PowerEffect): string {
+  const unit = store.state.units.find((entry) => entry.id === effect.id)
+  const parts: string[] = []
+  if (effect.damage) parts.push('−' + effect.damage + ' HP')
+  if (effect.heal) parts.push('+' + effect.heal + ' HP')
+  if (effect.ap) parts.push('+' + effect.ap + ' AP')
+  if (effect.cleanse) parts.push('clears suppression')
+  for (const status of effect.statuses) parts.push(status)
+  if (effect.moveTo)
+    parts.push(
+      'moves to ' + (effect.moveTo.x + 1) + ', ' + (effect.moveTo.y + 1),
+    )
+  return (unit ? unitName(unit) : effect.id) + ': ' + parts.join(', ')
+}
 function targetName(id: string): string {
   const target = store.enemies.find((unit) => unit.id === id)
   return target ? unitName(target) : id
@@ -1057,6 +1192,7 @@ function onKey(event: KeyboardEvent) {
   if (tag === 'INPUT' || tag === 'TEXTAREA') return
   if (event.code === 'KeyM') store.setMode('move')
   else if (event.code === 'KeyF') store.setMode('fire')
+  else if (event.code === 'KeyP') store.setMode('power')
   else if (event.code === 'KeyO') store.overwatch()
   else if (event.code === 'KeyH') store.hunker()
   else if (event.code === 'KeyR') store.reset()
@@ -1082,6 +1218,87 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-tile.power-target {
+  box-shadow: inset 0 0 0 2px rgb(250 204 21 / 0.55);
+}
+.evt-tile.power-threat {
+  background-image: linear-gradient(
+    135deg,
+    rgb(250 204 21 / 0.28),
+    rgb(244 114 182 / 0.22)
+  );
+  box-shadow: inset 0 0 0 3px rgb(250 204 21 / 0.95);
+}
+.evt-role {
+  display: block;
+  opacity: 0.8;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+.evt-power {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgb(250 204 21 / 0.45);
+  border-radius: 0.6rem;
+  background: rgb(250 204 21 / 0.08);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.evt-power.chosen {
+  background: rgb(250 204 21 / 0.22);
+  border-color: rgb(250 204 21 / 0.95);
+}
+.evt-power:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.evt-power-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.evt-power-head small {
+  margin-left: auto;
+  opacity: 0.6;
+}
+.evt-power-meta {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+.evt-power-preview {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+.evt-power-preview p {
+  margin: 0;
+}
+.evt-power-source,
+.evt-power-flavor {
+  opacity: 0.75;
+  font-size: 0.7rem;
+}
+.evt-power-preview ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+.evt-effect-enemy {
+  color: rgb(251 113 133);
+}
+.evt-effect-ally,
+.evt-effect-self {
+  color: rgb(134 239 172);
+}
+.evt-roster-power {
+  display: block;
+  font-size: 0.66rem;
+  opacity: 0.8;
+}
 .evt-console {
   --cream: #fff4d6;
   --electric: #82d2f7;

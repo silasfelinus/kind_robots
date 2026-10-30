@@ -100,7 +100,9 @@ export function newTacticalInterlude(
   const arena = originMission
     ? originArenaFor(run.signature)
     : rivalArenaFor(run.opponentSignature)
-  const state = trainingState(battleSeed(run, run.playerCaseId), arena.stage)
+  const state = trainingState(battleSeed(run, run.playerCaseId), arena.stage, {
+    roles: false,
+  })
   const [lead, first, second, rival, captain, minion] = state.units
   if (!lead || !first || !second || !rival || !captain || !minion) return null
 

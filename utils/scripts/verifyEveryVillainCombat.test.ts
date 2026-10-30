@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   FIRST_BELL_MAP,
   chanceFrom,
+  dashRange,
   clearSuppression,
   lineOfSight,
   moveAP,
@@ -221,7 +222,8 @@ assert.deepEqual(actions.units[0]!.statuses, [])
 for (const old of initialRivals) {
   const rivalNow = actions.units.find((u) => u.id === old.id)!
   assert.ok(
-    Math.abs(rivalNow.x - old.x) + Math.abs(rivalNow.y - old.y) <= 6,
+    Math.abs(rivalNow.x - old.x) + Math.abs(rivalNow.y - old.y) <=
+      dashRange(rivalNow),
     'enemy may never teleport beyond dash range',
   )
 }

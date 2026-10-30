@@ -30,9 +30,20 @@ import {
   type TacticalMap,
 } from './combat'
 import type { StageDraft } from './studio'
+import {
+  applyTacticalProfile,
+  bestPowerPlay,
+  previewPower,
+  powerTargets,
+  tacticFor,
+  tickPowerCooldowns,
+  usePower,
+  type PowerPreview,
+  type TacticalRole,
+} from './powers'
 
 export type Team = 'squad' | 'rival'
-export type Mode = 'move' | 'fire'
+export type Mode = 'move' | 'fire' | 'power'
 export type Cell = Point
 export type Unit = Fighter & {
   identity: string
@@ -52,6 +63,12 @@ export type Unit = Fighter & {
   signatureCooldown?: boolean
   /** The defector can unleash their signature pattern only once per mission. */
   signatureSupportUsed?: boolean
+  /** Heroes carry a tactical role and one signature active (see powers.ts).
+   * Henchmen, lieutenants and older saves leave these unset. */
+  role?: TacticalRole
+  power?: SignaturePowerId
+  powerCooldown?: number
+  powerSpent?: boolean
 }
 export type TrainingState = {
   map: TacticalMap
@@ -135,10 +152,31 @@ export function previewShot(
 ): ShotPreview {
   return { target: target.id, ...chanceFrom(map, from, target) }
 }
+export type TrainingOptions = {
+  /** Replace the first squad slot with this canonical hero. */
+  lead?: string
+  /** Apply hero roles and signature powers. Prom of Doom interludes opt out
+   * so their saved battles and balance stay exactly as shipped. */
+  roles?: boolean
+}
 export function trainingState(
   seed = 0x53a1b7,
   stage?: StageDraft,
+  options: TrainingOptions = {},
 ): TrainingState {
+  const state = baseTrainingState(seed, stage)
+  const lead = state.units[0]!
+  if (
+    options.lead &&
+    IDENTITY_ARCS.some((person) => person.signature === options.lead)
+  )
+    lead.identity = options.lead
+  if (options.roles !== false)
+    for (const unit of state.units)
+      if (!unit.henchmanName && !unit.lieutenantName) applyTacticalProfile(unit)
+  return state
+}
+function baseTrainingState(seed: number, stage?: StageDraft): TrainingState {
   const placements: Array<[string, string, Team, number, number, number]> = [
     ['backdraft', 'accident-fire', 'squad', 0, 4, 4],
     ['priya', 'tech-genius', 'squad', 1, 5, 3],
@@ -244,7 +282,7 @@ export function availableMove(state: TrainingState, to: Cell) {
     state.phase !== 'active'
   )
     return false
-  return moveAP(walkDistance(state, unit, to)) <= unit.ap
+  return moveAP(walkDistance(state, unit, to), unit.mobility) <= unit.ap
 }
 function note(state: TrainingState, message: string) {
   state.log = message
@@ -291,7 +329,7 @@ export function moveSelected(state: TrainingState, to: Cell): boolean {
   if (!availableMove(state, to)) return false
   const unit = selectedUnit(state)!
   const distance = walkDistance(state, unit, to)
-  const cost = moveAP(distance)
+  const cost = moveAP(distance, unit.mobility)
   unit.ap -= cost
   unit.x = to.x
   unit.y = to.y
@@ -418,6 +456,69 @@ export function useAlliedSignature(state: TrainingState): boolean {
   )
   updateOutcome(state)
   return true
+}
+
+export function selectedPowerTargets(state: TrainingState): Cell[] {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active') return []
+  return powerTargets(state, unit)
+}
+export function previewSelectedPower(
+  state: TrainingState,
+  target: Cell,
+): PowerPreview | null {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active') return null
+  return previewPower(state, unit, target)
+}
+function narratePower(
+  state: TrainingState,
+  user: Unit,
+  preview: PowerPreview,
+  hit: boolean,
+  roll: number | null,
+) {
+  const touched = preview.effects.filter((e) => e.id !== user.id)
+  const enemies = touched.filter((e) => e.side === 'enemy')
+  for (const effect of enemies) {
+    const target = state.units.find((u) => u.id === effect.id)!
+    if (effect.damage || preview.chance !== null)
+      recordImpact(state, user, target, hit)
+  }
+  const struck = hit ? enemies.filter((e) => e.damage).length : 0
+  note(
+    state,
+    aliasFor(user) +
+      ' uses ' +
+      preview.power.name +
+      (roll === null
+        ? ''
+        : (hit ? ' and connects' : ' and misses') +
+          ' (' +
+          preview.chance +
+          '%)') +
+      (struck ? ': ' + struck + ' rival(s) hit' : '') +
+      (touched.length - enemies.length
+        ? '. ' + (touched.length - enemies.length) + ' ally(s) helped'
+        : '') +
+      '.',
+  )
+}
+/** The player's signature active, previewed by previewSelectedPower. */
+export function useSelectedPower(state: TrainingState, target: Cell): boolean {
+  const unit = selectedUnit(state)
+  if (!unit || state.phase !== 'active') return false
+  const result = usePower(state, unit, target)
+  if (!result) return false
+  narratePower(state, unit, result.preview, result.hit, result.roll)
+  // A leap lands in view of rival overwatch like any other move.
+  if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
+  updateOutcome(state)
+  state.mode = 'move'
+  return true
+}
+export function powerFor(unit: Unit) {
+  return unit.power ? tacticFor(unit.power) : undefined
 }
 
 export function overwatchSelected(state: TrainingState): boolean {
@@ -722,6 +823,22 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
   )
   return true
 }
+/** Rival heroes weigh their signature power with the player's own preview
+ * rules, and spend it only when it beats the plain one-damage shot. */
+function aiPower(
+  state: TrainingState,
+  enemy: Unit,
+  shot: ReturnType<typeof bestShot>,
+): boolean {
+  const play = bestPowerPlay(state, enemy)
+  if (!play || play.score < (shot && !enemy.fired ? shot.chance.hit / 10 : 0))
+    return false
+  const result = usePower(state, enemy, play.target)
+  if (!result) return false
+  narratePower(state, enemy, result.preview, result.hit, result.roll)
+  updateOutcome(state)
+  return true
+}
 function enemyPlan(state: TrainingState, enemy: Unit) {
   if (
     signatureLieutenantPlan(state, enemy) ||
@@ -730,6 +847,10 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
   )
     return
   let shot = bestShot(state, enemy)
+  if (aiPower(state, enemy, shot)) {
+    if (enemy.hp <= 0 || state.phase !== 'active') return
+    shot = bestShot(state, enemy)
+  }
   const positions = reachableCells(state.map, state.units, enemy)
   const improvement = positions
     .filter((p) => p.cost === 1)
@@ -779,6 +900,10 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
     }
   }
   if (enemy.hp <= 0 || state.phase !== 'active') return
+  if (aiPower(state, enemy, shot)) {
+    if (enemy.hp <= 0 || state.phase !== 'active') return
+    shot = bestShot(state, enemy)
+  }
   if (enemy.ap > 0 && shot) {
     const result = resolveAttack(state, state.map, enemy, shot.target, 1)
     if (result) {
@@ -812,6 +937,7 @@ export function endTurn(state: TrainingState) {
       return
     }
     refreshTurn(state.units, 'squad')
+    tickPowerCooldowns(state.units, 'squad')
     note(
       state,
       'The opposition is down. Finish securing the mission objective.',
@@ -820,6 +946,7 @@ export function endTurn(state: TrainingState) {
   }
   clearSuppression(state.units, 'squad')
   refreshTurn(state.units, 'rival')
+  tickPowerCooldowns(state.units, 'rival')
   for (const enemy of state.units.filter(
     (u) => u.team === 'rival' && u.hp > 0,
   )) {
@@ -835,6 +962,7 @@ export function endTurn(state: TrainingState) {
     return
   }
   refreshTurn(state.units, 'squad')
+  tickPowerCooldowns(state.units, 'squad')
   if (!selectedUnit(state))
     state.selected = state.units.find((u) => u.team === 'squad' && u.hp > 0)!.id
   const warnings = state.units.filter(

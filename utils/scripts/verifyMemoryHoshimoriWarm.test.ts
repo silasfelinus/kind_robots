@@ -365,7 +365,7 @@ for (let mask = 0; mask < 64; mask++) {
   for (let index = 0; index < ashWingChoices.length; index++) {
     const room = HOSHIMORI_OVEN_ROOMS[index + 3]!
     assert.equal(run.ovenRoom, room.id)
-    const id = ashWingChoices[index]![((mask >> index) & 1)]!
+    const id = ashWingChoices[index]![(mask >> index) & 1]!
     run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
     if (index === 2 && mask === 0) {
       const beforeLeave = run
@@ -404,9 +404,7 @@ for (let mask = 0; mask < 64; mask++) {
   )
   const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
   forged.ovenChoices['OV-07'] =
-    run.ovenChoices['OV-07'] === 'share-heat'
-      ? 'bank-heat'
-      : 'share-heat'
+    run.ovenChoices['OV-07'] === 'share-heat' ? 'bank-heat' : 'share-heat'
   assert.equal(
     restoreHoshimoriWarm(forged),
     null,

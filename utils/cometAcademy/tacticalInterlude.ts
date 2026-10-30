@@ -200,9 +200,9 @@ export function newTacticalInterlude(
   state.log =
     tacticalOpening(run) +
     (priorParley?.lieutenantParley === 'ally'
-      ? ` ${lieutenant.name} returns as your allied commander. Select their card to deploy one signature strike this mission. The rival's loyal troops still defend the lair.`
+      ? ` ${lieutenant.name} has already defected to your cause and returns as your allied commander. Select their card to deploy one signature strike this mission. The rival's loyal troops still defend the lair.`
       : priorParley?.lieutenantParley === 'truce'
-        ? ` ${lieutenant.name} honors the ceasefire: their command squad stands down. Only the rival and an independent holdout remain.`
+        ? ` ${lieutenant.name} has agreed to a ceasefire and honors it: their command squad stands down. Only the rival and an independent holdout remain.`
         : '')
   state.events = [state.log]
   state.selected = lead.id

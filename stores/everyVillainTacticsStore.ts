@@ -208,7 +208,6 @@ export const useEveryVillainTacticsStore = defineStore(
     function loadPreferences() {
       settings.value = sanitizeSettings(readJson(evtSettingsKey))
       scrapbook.value = sanitizeScrapbook(readJson(evtScrapbookKey))
-<<<<<<< HEAD
       draftLibrary.value = sanitizeLibrary(readJson(evtDraftsKey))
       readSaves()
     }
@@ -278,10 +277,6 @@ export const useEveryVillainTacticsStore = defineStore(
     function updateWave(patch: { round?: number; crew?: WaveCrew }) {
       draft.value = setWave(draft.value, patch)
     }
-=======
-      readSaves()
-    }
->>>>>>> origin/main
     function updateSettings(patch: Partial<Omit<EvtSettings, 'version'>>) {
       settings.value = sanitizeSettings({ ...settings.value, ...patch })
       storeJson(evtSettingsKey, settings.value)
@@ -809,10 +804,7 @@ export const useEveryVillainTacticsStore = defineStore(
           ),
         'seismic-warning': isSeismicWarning(point),
         exposed: threatAt(point) > 0,
-<<<<<<< HEAD
         ...fieldClasses(point),
-=======
->>>>>>> origin/main
         elevated: heightAt(point) > 0,
       }
     }
@@ -864,7 +856,6 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage,
       screen,
       settings,
-<<<<<<< HEAD
       fieldAt,
       ruleLine,
       bossId,
@@ -882,8 +873,6 @@ export const useEveryVillainTacticsStore = defineStore(
       setVictoryAmount,
       chooseBoss,
       updateWave,
-=======
->>>>>>> origin/main
       scrapbookView,
       animationFactor,
       latestSummary,

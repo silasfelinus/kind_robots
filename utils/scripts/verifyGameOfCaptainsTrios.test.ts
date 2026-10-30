@@ -49,7 +49,11 @@ const fromRoot = (path: string) =>
 // --- Authored content -------------------------------------------------------
 
 assert.ok(TRIO_ADVENTURES.length >= 20, 'at least twenty authored parties')
-assert.ok(TRIO_ADVENTURES.length < ALL_PARTIES)
+assert.equal(
+  TRIO_ADVENTURES.length,
+  ALL_PARTIES,
+  'every party has an adventure',
+)
 assert.equal(
   Object.keys(TRIO_BY_KEY).length,
   TRIO_ADVENTURES.length,
@@ -282,8 +286,9 @@ assert.notEqual(finishes[0], finishes[1])
   assert.equal((done as TrioVoyage).trioAdventure?.ending, undefined)
 }
 
-// A party without an authored adventure is unaffected. Batches keep adding
-// parties, so the test takes the first one still unwritten, while any is.
+// Every one of the twelve-choose-three parties is authored (batches A-J).
+// A party without an authored adventure would be unaffected; the check below
+// still runs if a future roster change leaves one unwritten.
 const unauthored = CREW.flatMap((a, i) =>
   CREW.slice(i + 1).flatMap((b, j) =>
     CREW.slice(i + j + 2).map((c) => [a.id, b.id, c.id] as CrewId[]),
@@ -384,11 +389,13 @@ for (const adventure of TRIO_ADVENTURES) {
 }
 assert.ok(book.order.includes(`trio:${trioKey(accord.crew)}:1`))
 
-// The Forge counts only what exists: authored parties, never all 220.
+// The Forge counts only what exists. With all 220 parties authored, the
+// party factors light up: three interlude steps and two endings each.
 const forge = EXISTING_PLAYBOOKS.find((p) => p.slug === 'game-of-captains')!
 const counted = await forge.count()
-assert.equal(counted.values.partyAdventureSteps, 0)
-assert.equal(counted.values.partyEndings, 0)
+assert.equal(unauthored, undefined, 'no party is left unwritten')
+assert.equal(counted.values.partyAdventureSteps, 3)
+assert.equal(counted.values.partyEndings, 2)
 assert.match(
   counted.source,
   new RegExp(`${TRIO_ADVENTURES.length} of ${ALL_PARTIES} parties authored`),

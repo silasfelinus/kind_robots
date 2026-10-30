@@ -548,7 +548,7 @@
               <div class="cca-novel-night-choices">
                 <article v-for="incident in store.incidents" :key="incident.id" class="cca-novel-night-card">
                   <h3>{{ incident.title }}</h3>
-                  <p>{{ incident.description }}</p>
+                  <p>{{ incident.briefing }}</p>
                   <template v-if="run.day === 3">
                     <button type="button" data-testid="academy-novel-choice-split" :aria-pressed="run.playerCaseId === incident.id && run.assignments.some(a => a.caseId !== incident.id)" @click="store.novelNight(incident.id, 'split')">Split up · answer both calls</button>
                     <button type="button" data-testid="academy-novel-choice-concentrate" :aria-pressed="run.playerCaseId === incident.id && run.assignments.some(a => a.caseId === incident.id)" @click="store.novelNight(incident.id, 'concentrate')">Stay together · protect this street</button>

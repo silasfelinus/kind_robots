@@ -771,7 +771,7 @@
                 run.signature &&
                 run.opponentSignature &&
                 run.playerCaseId &&
-                !run.tacticalHistory?.some((entry) => entry.day === run.day)
+                !run.tacticalHistory?.some((entry) => entry.day === run?.day)
               "
               class="cca-choice"
               type="button"

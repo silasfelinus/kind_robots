@@ -475,7 +475,7 @@ export function readSlot(
   slot: EvtSaveSlot,
 ): LoadResult | null {
   if (!storage) return null
-  let raw: string | null = null
+  let raw: string | null
   try {
     raw = storage.getItem(evtSaveKey(slot))
   } catch {

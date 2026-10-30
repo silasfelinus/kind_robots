@@ -595,13 +595,33 @@ const earlyHouseCases: Array<{
   title: string
 }> = [
   { room: 'HD-03', decisions: {}, title: 'Mud Is Not a Confession' },
-  { room: 'HD-03', decisions: { 'HD-03': 'route' }, title: 'Three Roads, No Owners' },
-  { room: 'HD-03', decisions: { 'HD-03': 'ask' }, title: 'The Boots Who Were Allowed to Leave' },
+  {
+    room: 'HD-03',
+    decisions: { 'HD-03': 'route' },
+    title: 'Three Roads, No Owners',
+  },
+  {
+    room: 'HD-03',
+    decisions: { 'HD-03': 'ask' },
+    title: 'The Boots Who Were Allowed to Leave',
+  },
   { room: 'HD-04', decisions: {}, title: 'Dinner for All but One' },
-  { room: 'HD-04', decisions: { 'HD-04': 'share' }, title: 'A Loaf Divided Without a Ledger' },
-  { room: 'HD-04', decisions: { 'HD-04': 'record' }, title: 'The Place Setting with a Name' },
+  {
+    room: 'HD-04',
+    decisions: { 'HD-04': 'share' },
+    title: 'A Loaf Divided Without a Ledger',
+  },
+  {
+    room: 'HD-04',
+    decisions: { 'HD-04': 'record' },
+    title: 'The Place Setting with a Name',
+  },
   { room: 'HD-08', decisions: {}, title: 'Three Apologies, One Missing Voice' },
-  { room: 'HD-08', decisions: { 'HD-08': 'harm' }, title: 'The Apology Measured by Repair' },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-08': 'harm' },
+    title: 'The Apology Measured by Repair',
+  },
   {
     room: 'HD-08',
     decisions: { 'HD-04': 'share', 'HD-08': 'harm' },
@@ -612,7 +632,11 @@ const earlyHouseCases: Array<{
     decisions: { 'HD-04': 'record', 'HD-05': 'test', 'HD-08': 'harm' },
     title: 'An Apology with Receipts',
   },
-  { room: 'HD-08', decisions: { 'HD-08': 'listen' }, title: 'A Staircase That Accepts No' },
+  {
+    room: 'HD-08',
+    decisions: { 'HD-08': 'listen' },
+    title: 'A Staircase That Accepts No',
+  },
   {
     room: 'HD-08',
     decisions: { 'HD-03': 'ask', 'HD-08': 'listen' },

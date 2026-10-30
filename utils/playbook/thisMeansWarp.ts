@@ -19,6 +19,10 @@ import {
 } from '../gameOfCaptains/nemesisEndings'
 import { GALACTIC_ENDINGS } from '../gameOfCaptains/galacticEndings'
 import { UNCLAIMED_ENDING_CAPTAINS } from '../gameOfCaptains/baseEndingCaptains'
+import {
+  RESULT_TEXT,
+  missionResultText,
+} from '../gameOfCaptains/missionResults'
 import { CREW_PROFILES, SYNERGIES } from '../gameOfCaptains/crewAssignments'
 import {
   MISSION_CALLBACKS,
@@ -29,7 +33,13 @@ import {
   actName,
   type NemesisId,
 } from '../gameOfCaptains/voyageMap'
-import { ANTAGONISTS, CAPTAINS, CREW, MISSIONS } from '../gameOfCaptains/rules'
+import {
+  ANTAGONISTS,
+  CAPTAINS,
+  CREW,
+  MISSIONS,
+  type Result,
+} from '../gameOfCaptains/rules'
 import {
   ALL_PARTIES,
   TRIO_ADVENTURES,
@@ -55,17 +65,6 @@ import {
 // slots are the keys the play page shows (gameOfCaptains/artSlots.ts) and
 // their prompts live in gameOfCaptains/artPrompts.ts; text is authored in
 // code, so beats are read-only here.
-
-const RESULT_TEXT = {
-  flawless:
-    'The away team solved the problem and came back with information nobody on the couch had asked for, all of it useful.',
-  success:
-    'The away team did what it went to do. The people affected are still deciding what that means.',
-  costly:
-    'The away team came back with the job done, a bill, and someone who would rather not be helped again.',
-  disaster:
-    'The plan did not survive contact. The away team came back by the emergency route, which is longer and has stairs.',
-} as const
 
 const POLICIES = [
   {
@@ -161,11 +160,11 @@ export function buildThisMeansWarpPlaybook(): Playbook {
     node.companions = [...new Set(node.companions)]
     node.lenses = [mission.kind]
     node.variations = [
-      ...Object.entries(RESULT_TEXT).map(([key, text]) => ({
+      ...(Object.keys(RESULT_TEXT) as Result[]).map((key) => ({
         axis: 'result',
         key,
         label: `${titleCase(key)} return`,
-        text,
+        text: missionResultText(mission.id, key),
       })),
       ...(MISSION_CALLBACKS[mission.id] ?? []).map((callback) => ({
         axis: 'earlier choice',

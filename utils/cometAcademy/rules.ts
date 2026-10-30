@@ -61,13 +61,18 @@ import {
 } from './tacticalInterlude'
 import {
   applySocialChoice,
+  applyTriadChoice,
   newSocialState,
   socialChoices,
   socialFinaleText,
   socialMissionBonus,
+  triadOffers,
   validSocialState,
+  type SocialContext,
   type SocialState,
   type SocialActionId,
+  type TriadArcId,
+  type TriadOffer,
 } from './relationships'
 import { CITY_SITES, type SiteId } from './cityMap'
 import {
@@ -1050,23 +1055,39 @@ export function tendInfirmary(run: AcademyRun, id: StudentId): AcademyRun {
   }
 }
 
+/** How a person sees the protagonist today: injured people can still be
+ * visited, while a betrayer separated from the network cannot be reached. */
+export function socialContextFor(
+  run: AcademyRun,
+  id: StudentId,
+): SocialContext {
+  const injured = (run.injuries?.[id] ?? 0) > run.day
+  const separated =
+    run.flowVersion === 3 &&
+    run.day >= 20 &&
+    run.betrayal?.person === id &&
+    run.betrayal.status !== 'reconciled'
+  return {
+    unavailable: separated,
+    injured,
+    onRoster: knownContacts(run).includes(id),
+    form: run.playerEvolution?.form,
+    danger: run.danger,
+    vow: run.vow,
+    power: run.power,
+  }
+}
+
 export function socialize(
   run: AcademyRun,
   id: StudentId,
   choice: SocialActionId,
 ): AcademyRun {
-  if (
-    run.flowVersion !== 3 ||
-    run.phase !== 'map' ||
-    !run.relationships ||
-    !studentAvailable(run, id)
-  )
+  if (run.flowVersion !== 3 || run.phase !== 'map' || !run.relationships)
     return run
-  const options = socialChoices(run.relationships, id, run.day, {
-    unavailable: !studentAvailable(run, id),
-    form: run.playerEvolution?.form,
-    danger: run.danger,
-  })
+  const ctx = socialContextFor(run, id)
+  if (ctx.unavailable) return run
+  const options = socialChoices(run.relationships, id, run.day, ctx)
   const selection = options.find((option) => option.id === choice)
   if (!selection) return run
   const relationships = applySocialChoice(
@@ -1074,10 +1095,7 @@ export function socialize(
     id,
     run.day,
     choice,
-    {
-      form: run.playerEvolution?.form,
-      danger: run.danger,
-    },
+    ctx,
   )
   if (!relationships) return run
   const person = STUDENTS.find((student) => student.id === id)!
@@ -1085,8 +1103,59 @@ export function socialize(
     ...run,
     relationships,
     phase: 'dispatch',
-    scene: `Day ${run.day}: ${person.name}. ${selection.text} The daylight is spent; night patrol still needs a team.`,
+    scene:
+      choice === 'visit'
+        ? `Day ${run.day}: ${person.name} is recovering in the Campus Infirmary. ${selection.text} They still cannot answer tonight's calls, and the daylight is spent.`
+        : `Day ${run.day}: ${person.name}. ${selection.text} The daylight is spent; night patrol still needs a team.`,
     log: [...run.log, `Day ${run.day}: ${person.name} — ${selection.label}`],
+  }
+}
+
+const SOCIAL_NAMES = Object.fromEntries(
+  STUDENTS.map((person) => [person.id, person.name]),
+) as Record<StudentId, string>
+
+export function academyTriadOffers(run: AcademyRun): TriadOffer[] {
+  if (run.flowVersion !== 3 || run.phase !== 'map' || !run.relationships)
+    return []
+  return triadOffers(
+    run.relationships,
+    run.day,
+    (id) => socialContextFor(run, id),
+    SOCIAL_NAMES,
+  )
+}
+
+/** A three-person conversation spends the day like any other social scene. */
+export function negotiateTriad(
+  run: AcademyRun,
+  arcId: TriadArcId,
+  optionId: string,
+): AcademyRun {
+  if (run.flowVersion !== 3 || run.phase !== 'map' || !run.relationships)
+    return run
+  const result = applyTriadChoice(
+    run.relationships,
+    arcId,
+    run.day,
+    optionId,
+    (id) => socialContextFor(run, id),
+    SOCIAL_NAMES,
+  )
+  if (!result) return run
+  const arc = result.state.triads![arcId]!
+  return {
+    ...run,
+    relationships: result.state,
+    phase: 'dispatch',
+    ...(result.option.city
+      ? { cityStanding: (run.cityStanding ?? 0) + result.option.city }
+      : {}),
+    ...(result.option.academy
+      ? { academyStanding: (run.academyStanding ?? 0) + result.option.academy }
+      : {}),
+    scene: `Day ${run.day}: ${result.text}${arc.status === 'committed' ? ' All three of you said yes, to each other and out loud.' : ''} The daylight is spent; night patrol still needs a team.`,
+    log: [...run.log, `Day ${run.day}: ${result.label}`],
   }
 }
 

@@ -74,6 +74,7 @@
 import { computed } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
+import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import { CREW_PROFILES } from '~/utils/gameOfCaptains/crewAssignments'
 import {
   trioAdventureFor,
@@ -103,7 +104,7 @@ const faces = computed(() =>
     return {
       id,
       name: profile.name,
-      url: warpArt(`portraits/${profile.portraitKey}`),
+      url: portraitArt(profile.portraitKey),
     }
   }),
 )

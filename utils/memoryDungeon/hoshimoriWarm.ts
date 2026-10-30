@@ -1,7 +1,6 @@
 /**
- * Hoshimori's first connected sixteen-site authoring slice.
- * This pure engine is not a released third overworld: the existing e07
- * campaign route and Chronicle pickups remain gated until UI integration.
+ * Hoshimori's connected twenty-site warm village preview.
+ * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
   id: string
@@ -364,6 +363,87 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
       outcome:
         'The gate stays open. You have not repaired the village, but neither have you trapped yourself in a false vow.',
       flag: 'path-departed',
+    },
+  ),
+  site(
+    '5,4',
+    'The Soup-Stone Waystation',
+    'Beyond the Oven, a traveling cook has left a stone simmering in an empty pot. The hungry arrive with small offerings, but nobody is obliged to surrender a memory for supper.',
+    {
+      id: 'share',
+      label: 'Add a ration so the late travelers can eat',
+      outcome:
+        'The cook serves the last arrivals first. Your pack grows lighter, and the stone remains just a stone: no one has to pay with a childhood.',
+      rations: -1,
+      trust: 2,
+      flag: 'waystation-shared',
+    },
+    {
+      id: 'account',
+      label: 'Record only the ingredients people offered freely',
+      outcome:
+        'Pip writes a recipe with blank spaces for anonymous donors. The soup may be thinner, but nobody is entered as a debtor for accepting it.',
+      trust: 1,
+      flag: 'waystation-accounted',
+    },
+  ),
+  site(
+    '6,4',
+    'The Kappa’s Ferry Ledger',
+    'A river spirit ferries guests across a narrow channel. It has kept every borrowed bowl but cannot remember which passengers wanted their names written down.',
+    {
+      id: 'return',
+      label: 'Help return the bowls without publishing their owners',
+      outcome:
+        'The kappa sets a clean bowl at each landing. Its ferry is still owed repairs, but travelers no longer have to surrender a name to cross.',
+      trust: 1,
+      flag: 'ferry-bowls-returned',
+    },
+    {
+      id: 'labor',
+      label: 'Offer a day of repairs instead of another memory',
+      outcome:
+        'The kappa accepts a practical debt it can explain and release. Pip marks the labor as voluntary, with a date when the bargain ends.',
+      flag: 'ferry-repaired',
+    },
+  ),
+  site(
+    '7,4',
+    'The Bellkeeper’s Rest',
+    'A brass bell rings whenever someone fails to return from the mountain road. The keeper wants to engrave their names; the families disagree about what the silence means.',
+    {
+      id: 'ask',
+      label: 'Invite families to choose how the missing are remembered',
+      outcome:
+        'Some request a name, others a blank line. The bellkeeper accepts both and leaves room for anyone who comes home.',
+      trust: 1,
+      flag: 'bell-families-asked',
+    },
+    {
+      id: 'wait',
+      label: 'Keep the bell unmarked until witnesses can be found',
+      outcome:
+        'The silence protects uncertain stories from becoming verdicts. One family is angry to wait, and you promise them no false certainty.',
+      flag: 'bell-testimony-pending',
+    },
+  ),
+  site(
+    '7,5',
+    'The Difficult Call',
+    'A second Earth photograph has surfaced among the lantern records: Morrow’s phone lies face down beside crossed-out introductions. The image cannot tell you whether he called, or whom he meant to reach.',
+    {
+      id: 'inquire',
+      label: 'Preserve the question of who Morrow hoped to call',
+      outcome:
+        'Pip files the image as an unanswered question, not an accusation. A draft is not a confession, and someone may still be waiting for the truth.',
+      flag: 'e07-call-question',
+    },
+    {
+      id: 'respect',
+      label: 'Respect the effort without pretending the call was made',
+      outcome:
+        'You remember rehearsing painful words yourself. The preparation matters, but it cannot speak for the person on the other end.',
+      flag: 'e07-call-respected',
     },
   ),
 ]
@@ -744,7 +824,7 @@ export function restoreHoshimoriWarm(
 
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 16) errors.push('Expected sixteen unique warm sites')
+  if (SITES.size !== 20) errors.push('Expected twenty unique warm sites')
   if (OVEN.size !== 3) errors.push('Expected three first-oven rooms')
   for (const entry of HOSHIMORI_WARM_SITES) {
     const coords = entry.key.split(',').map(Number)
@@ -775,8 +855,8 @@ export function validateHoshimoriWarm(): string[] {
       }
     }
   }
-  if (reached.size !== 16) errors.push('Warm map is disconnected')
-  if (!SITES.has('2,3') || SITES.has('7,5'))
+  if (reached.size !== 20) errors.push('Warm map is disconnected')
+  if (!SITES.has('2,3') || !SITES.has('7,5'))
     errors.push('Earth-photo reservation drift')
   if (HOSHIMORI_LANTERN_CLUE_SITES.some((key) => !SITES.has(key)))
     errors.push('Missing lantern clue')

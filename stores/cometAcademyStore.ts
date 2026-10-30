@@ -291,6 +291,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     if (
       arena && !arena.secured &&
       arena.objectivePoint.x === x && arena.objectivePoint.y === y &&
+      actorAt(fight, point)?.team !== 'rival' &&
       secureRivalObjective(battle)
     ) {
       persist()

@@ -6,19 +6,23 @@ import {
   cardReady,
   CARDS,
   createMatch,
+  DEFAULT_RULES,
   deploy,
   DISTRICTS,
+  KEYWORDS,
   MODE_GUIDES,
   MODES,
   move,
   normalizeSeed,
   observe,
   reveal,
+  RULE_VARIANTS,
   RUSH_TICK_MS,
   TEAMS,
   teamById,
   unitAt,
   type ModeId,
+  type RuleVariants,
   type TeamId,
 } from '../utils/slimeCity/prototypes'
 import {
@@ -61,8 +65,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   /** The rival bout that just ended, for the BACK TO THE CITY button. */
   const lastBout = ref<DistrictId | null>(null)
   const seed = ref(rollSeed())
+  /** t-003 objective variants for the next match; all off by default. */
+  const rules = ref<RuleVariants>({ ...DEFAULT_RULES })
   const match = ref(
-    createMatch(mode.value, activeTeam.value, enemyTeam.value, seed.value),
+    createMatch(
+      mode.value,
+      activeTeam.value,
+      enemyTeam.value,
+      seed.value,
+      rules.value,
+    ),
   )
   const selectedCard = ref<string | null>(null)
   const selectedUnit = ref<number | null>(null)
@@ -76,6 +88,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const enemy = computed(() => teamById(enemyTeam.value))
   const cards = computed(() =>
     CARDS.filter((item) => item.team === activeTeam.value),
+  )
+  /** The variants that change the current format. */
+  const variants = computed(() =>
+    RULE_VARIANTS.filter((v) => v.modes.includes(mode.value)),
   )
   /** The board as the human may see it: hidden enemies and traps redacted. */
   const sight = computed(() => observe(match.value, 'player'))
@@ -133,9 +149,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       activeTeam.value,
       enemyTeam.value,
       seed.value,
+      rules.value,
     )
     selectedCard.value = null
     selectedUnit.value = null
+  }
+
+  /** Switch one rule variant and restart on the same seed to compare. */
+  function toggleRule(id: keyof RuleVariants): void {
+    rules.value = { ...rules.value, [id]: !rules.value[id] }
+    reset(true)
   }
 
   function useSeed(value: number): void {
@@ -216,6 +239,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       activeTeam.value,
       rival.team,
       seed.value,
+      rules.value,
     )
     match.value = applyTerms(fresh, boutTerms(city.value, id))
     selectedCard.value = null
@@ -338,6 +362,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     heatLimit,
     districtStatus,
     seed,
+    rules,
+    variants,
+    keywords: KEYWORDS,
     match,
     sight,
     guide,
@@ -355,6 +382,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     modes: MODES,
     districts: DISTRICTS,
     reset,
+    toggleRule,
     useSeed,
     stop,
     dispose,

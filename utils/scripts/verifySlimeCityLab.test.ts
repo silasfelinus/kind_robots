@@ -76,7 +76,8 @@ function unitOf(state: MatchState, id: number): Fighter {
   return found
 }
 
-// --- Data: six crews, five colours, thirty-six cards, seven districts
+// --- Data: six crews, five colours, sixty cards (ten per crew deck; the
+// deck rules themselves are in verifySlimeCityCrews), seven districts
 assert.equal(TEAMS.length, 6)
 assert.equal(new Set(TEAMS.map((team) => team.id)).size, 6)
 assert.equal(new Set(TEAMS.map((team) => team.color)).size, 5)
@@ -91,7 +92,7 @@ assert.ok(
 assert.ok(
   TEAMS.some((team) => team.id === 'ironjaw' && team.name.includes('OGRES')),
 )
-assert.equal(CARDS.length, 36)
+assert.equal(CARDS.length, 60)
 assert.equal(DISTRICTS.length, 7)
 assert.equal(MODES.length, 3)
 assert.deepEqual(
@@ -99,8 +100,8 @@ assert.deepEqual(
   ['8 × 8', '12 × 6', '14 × 6'],
 )
 for (const team of TEAMS) {
-  assert.equal(team.creatures.length, 3)
-  assert.equal(team.special.length, 3)
+  assert.equal(team.creatures.length, 4)
+  assert.equal(team.special.length, 6)
   for (const id of [...team.creatures, ...team.special]) {
     const card = CARDS.find((item) => item.id === id)
     assert.ok(card, team.id + ' missing ' + id)
@@ -376,6 +377,8 @@ armored.units = [
 ]
 armored.enemyMana = 0
 armored.mana = 0
+// Ironjaw now carries a heal: rest the CPU's cards so only blows resolve.
+freezeEnemy(armored)
 const clash = advance(armored)
 assert.equal(clash.units.find((u) => u.id === 2)!.hp, 8, '3 attack - 2 armor')
 assert.equal(clash.units.find((u) => u.id === 1)!.hp, 4, '1 attack - 0 armor')
@@ -646,11 +649,14 @@ for (const seed of [1, 2, 3, 4, 5, 6]) {
     const { state } = playHeadless(mode, 'riot', 'exchange', seed)
     const key = mode + ':' + state.winPath
     paths[key] = (paths[key] || 0) + 1
+    // Breakthroughs happen even in matches the clock decides.
+    if (state.score[0] + state.score[1] > 0)
+      paths[mode + ':scored'] = (paths[mode + ':scored'] || 0) + 1
   }
 }
 assert.ok(paths['blackout:flag']! > 0, 'CPU wins BLACKOUT by flag runs')
-assert.ok(paths['gridiron:score']! > 0, 'CPU scores in MEATBALL')
-assert.ok(paths['bloodrush:score']! > 0, 'CPU scores in BLOODRUSH')
+assert.ok(paths['gridiron:scored']! > 0, 'CPU scores in MEATBALL')
+assert.ok(paths['bloodrush:scored']! > 0, 'CPU scores in BLOODRUSH')
 
 // The CPU's BLACKOUT moves never exceed AP (Undertow and Meat Exchange have
 // no AP cards), whichever side it plays; advance() runs the same chooser.

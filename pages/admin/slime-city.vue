@@ -272,6 +272,7 @@
                     cell.y === lab.sight.flag.y,
                   target:
                     lab.selectedUnit !== null || lab.selectedCard !== null,
+                  lair: monsterHere(cell.x, cell.y),
                 }"
                 :data-testid="'slime-tile-' + cell.x + '-' + cell.y"
                 :aria-label="cellAria(cell.x, cell.y)"
@@ -290,6 +291,13 @@
                   >◇</span
                 >
                 <span
+                  v-if="monsterHere(cell.x, cell.y)"
+                  class="sc-monster"
+                  data-testid="slime-monster"
+                  ><span>❂</span
+                  ><small>{{ lab.sight.monster?.hp }}</small></span
+                >
+                <span
                   v-if="fighterAt(cell.x, cell.y)"
                   class="sc-fighter"
                   :class="[
@@ -301,6 +309,7 @@
                         lab.selectedUnit === fighterAt(cell.x, cell.y)?.id,
                       sealed: fighterAt(cell.x, cell.y)?.hidden,
                       carrier: fighterAt(cell.x, cell.y)?.carryingFlag,
+                      rooted: fighterAt(cell.x, cell.y)?.rooted,
                     },
                   ]"
                 >
@@ -370,7 +379,14 @@
             <span
               >{{ lab.mode === 'bloodrush' ? 'TICK' : 'ROUND' }}
               {{ lab.match.round }}/{{ lab.match.maxRounds }} ·
-              {{ lab.match.mana }} MANA</span
+              {{ lab.match.mana }} MANA<template v-if="lab.sight.debt[0]">
+                · OWES {{ lab.sight.debt[0] }}</template
+              ><template v-if="lab.match.overtime"> · SUDDEN DEATH</template
+              ><template v-if="lab.sight.monster">
+                · MONSTER {{ lab.sight.monster.hp }}/{{
+                  lab.sight.monster.maxHp
+                }}</template
+              ></span
             >
             <span aria-live="polite">{{ lab.match.log[0] }}</span>
             <button
@@ -403,6 +419,12 @@
             <span class="sc-overline">THE ARMORY / PROTOTYPE CARDS</span>
             <h2>{{ lab.team.name }}</h2>
             <p>{{ lab.team.hook }}</p>
+            <p data-testid="slime-crew-pattern">
+              <b>PLAY PATTERN</b> {{ lab.team.pattern }}
+            </p>
+            <p data-testid="slime-crew-counters">
+              <b>HOW TO BEAT THEM</b> {{ lab.team.counters }}
+            </p>
           </div>
           <div class="sc-collection-grid kr-scroll">
             <article
@@ -413,9 +435,27 @@
             >
               <div class="sc-collect-art">{{ card.symbol }}</div>
               <div>
-                <span>{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA</span
+                <span
+                  >{{ card.kind.toUpperCase() }} · {{ card.cost }} MANA<template
+                    v-if="card.signature"
+                  >
+                    · SIGNATURE</template
+                  ></span
                 ><strong>{{ card.name }}</strong>
                 <p>{{ card.text }}</p>
+                <ul
+                  v-if="(card.keywords ?? card.grants ?? []).length"
+                  class="sc-keywords"
+                >
+                  <li
+                    v-for="k in card.keywords ?? card.grants ?? []"
+                    :key="k"
+                    :title="lab.keywords[k].text"
+                  >
+                    <b>{{ lab.keywords[k].label }}</b>
+                    {{ lab.keywords[k].text }}
+                  </li>
+                </ul>
               </div>
               <small v-if="card.kind === 'creature'"
                 >ATK {{ card.attack }} / HP {{ card.hp }} / ARMOR
@@ -446,6 +486,31 @@
               ><span>{{ preset.size }} / {{ preset.cadence }}</span
               ><small>{{ preset.subtitle }}</small>
             </button>
+          </div>
+          <div
+            v-if="lab.view === 'arena'"
+            class="sc-rules"
+            data-testid="slime-rules"
+          >
+            <span class="sc-overline">RULE VARIANTS · RESTART SAME SEED</span>
+            <div class="sc-rule-list">
+              <button
+                v-for="variant in lab.variants"
+                :key="variant.id"
+                type="button"
+                class="sc-rule"
+                :class="{ on: lab.rules[variant.id] }"
+                :aria-pressed="lab.rules[variant.id]"
+                :title="variant.text"
+                :data-testid="'slime-rule-' + variant.id"
+                @click="lab.toggleRule(variant.id)"
+              >
+                {{ variant.label }}
+              </button>
+            </div>
+            <small v-if="activeRules.length" class="sc-rule-note">{{
+              activeRules.map((v) => v.text).join(' ')
+            }}</small>
           </div>
           <template v-if="lab.view === 'arena'">
             <div class="sc-actions">
@@ -484,7 +549,15 @@
                 {{ lab.unitLabel(lab.selected.cardId) }} · HP
                 {{ lab.selected.hp }}/{{ lab.selected.maxHp }} · ATK
                 {{ lab.selected.attack }} · ARMOR {{ lab.selected.armor }} · AP
-                {{ lab.selected.ap }}/{{ lab.selected.maxAp }}
+                {{ lab.selected.ap }}/{{ lab.selected.maxAp
+                }}<template v-if="lab.selected.keywords?.length">
+                  ·
+                  {{
+                    lab.selected.keywords
+                      .map((k) => lab.keywords[k].label)
+                      .join(' ')
+                  }}</template
+                >
               </p>
               <ol class="sc-log" aria-label="Recent events">
                 <li v-for="(line, i) in lab.match.log.slice(0, 6)" :key="i">
@@ -601,12 +674,18 @@ const flagStatus = computed(() => {
   if (!carrier) return 'LOOSE'
   return carrier.side === 'player' ? 'YOURS' : 'TAKEN'
 })
+const activeRules = computed(() => lab.variants.filter((v) => lab.rules[v.id]))
+function monsterHere(x: number, y: number): boolean {
+  const m = lab.sight.monster
+  return !!m && m.x === x && m.y === y
+}
 const winLine = computed(() => {
   const how = {
     flag: 'Flag carried home.',
-    score: 'Three breakthroughs.',
-    rout: 'One side was wiped out.',
+    score: 'Breakthroughs decided it.',
+    rout: 'One side was routed.',
     time: 'Round limit reached.',
+    monster: 'The giant monster fell.',
   }
   return lab.match.winPath ? how[lab.match.winPath] : ''
 })
@@ -648,7 +727,10 @@ function cellAria(x: number, y: number): string {
     y === lab.sight.flag.y
       ? ', flag'
       : ''
-  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + name + flag
+  const monster = monsterHere(x, y)
+    ? 'giant monster, ' + lab.sight.monster!.hp + ' hit points'
+    : ''
+  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + (monster || name + flag)
 }
 onUnmounted(() => lab.dispose())
 </script>
@@ -1434,6 +1516,69 @@ onUnmounted(() => lab.dispose())
   color: #ffe8a1;
   font-size: clamp(0.6rem, 2vw, 1.5rem);
   opacity: 0.7;
+}
+.sc-tile.lair {
+  background: radial-gradient(circle, #ff3fbf66, #3a1037 75%);
+}
+.sc-monster {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ff9be8;
+  font-size: clamp(1.1rem, 3.2vw, 2.4rem);
+  line-height: 1;
+  text-shadow: 0 0 14px #ff3fbf;
+}
+.sc-monster small {
+  font-size: 0.55rem;
+  color: #ffd6f4;
+}
+.sc-fighter.rooted {
+  outline: 2px dashed #8fd3ff;
+  outline-offset: -3px;
+}
+.sc-rules {
+  display: grid;
+  gap: 0.3rem;
+}
+.sc-rule-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.sc-rule {
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #60708167;
+  border-radius: 999px;
+  background: #26304477;
+  color: #c9d2de;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.sc-rule.on {
+  border-color: #ff7de0;
+  background: #4a1f45;
+  color: #fff;
+}
+.sc-rule-note {
+  color: #e9b9e0;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+.sc-keywords {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.58rem;
+  color: #d9e5ec;
+}
+.sc-keywords b {
+  color: var(--tone);
+  letter-spacing: 0.06em;
 }
 .sc-trap {
   position: absolute;

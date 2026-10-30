@@ -124,7 +124,7 @@ assert.equal(city.pendingStreet, null)
 // Decisions: once per district, with standing, heat and bout consequences
 const helped = decide(city, 'chimera-serum')
 assert.equal(helped.standing.chimera, 2)
-assert.equal(helped.heat, 1)
+assert.equal(helped.heat, 2)
 assert.equal(decide(helped, 'chimera-guards'), helped, 'Decide once')
 assert.deepEqual(boutTerms(helped, 'chimera'), { playerHp: 2 })
 const sold = decide(city, 'chimera-guards')

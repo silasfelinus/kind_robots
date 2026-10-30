@@ -35,7 +35,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     'Vesper folds their dusty-grey moth wings beside the cedar footbridge they knew as a child. They once traced secret paths beneath these boards so lost travelers could reach the lantern supper. Today the river carries empty sandals, and the cartographer fears a familiar route has been sold again.',
     {
       id: 'seat',
-      label: 'Help Vesper set a place without recording the missing guest’s name',
+      label:
+        'Help Vesper set a place without recording the missing guest’s name',
       outcome:
         'Vesper remembers a parent leaving spare rice by the bridge for people whose names could not safely be spoken. The table stays open, but the mystery of the lost sandals remains.',
 
@@ -102,7 +103,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     'Vesper recognizes the old lantern they used to navigate the orchard as a child. Each persimmon tree once marked a refuge. Their first map included a house whose occupants begged never to be named.',
     {
       id: 'repair',
-      label: 'Repair Vesper’s childhood lantern before asking whose refuge was lost',
+      label:
+        'Repair Vesper’s childhood lantern before asking whose refuge was lost',
       outcome:
         'The keeper recalls how Vesper learned to draw paths for people who were hiding, not for the officials pursuing them. One refuge remains safe because its address stays unspoken.',
       trust: 1,
@@ -353,7 +355,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     'Past the bakery, Vesper reaches the old road they once drew as a child to deliver food to hidden households. A later copy was sold to save a beloved traveler; the same ink exposed strangers. The road has never decided whether it is a rescue or a betrayal.',
     {
       id: 'witness',
-      label: 'Ask Vesper to testify publicly about both uses of the stolen road',
+      label:
+        'Ask Vesper to testify publicly about both uses of the stolen road',
       outcome:
         'Vesper agrees to name the sale and seek restitution, but will not expose the rescued traveler’s new name. The displaced households deserve an account, not another map of where to find them.',
       trust: 1,
@@ -1318,7 +1321,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     'A boat with no oars carries promises across the river. Vesper once launched a toy boat here containing the first route they refused to sell. The pilot remembers both the refusal and the later betrayal; the river does not confuse a confession with restitution.',
     {
       id: 'witness',
-      label: 'Ask Vesper to carry an honest account without the refugee’s address',
+      label:
+        'Ask Vesper to carry an honest account without the refugee’s address',
       outcome:
         'The boat accepts Vesper’s words but will not carry a second identifying map. The wronged families retain the right to answer in their own time.',
       trust: 1,
@@ -1326,7 +1330,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     },
     {
       id: 'decline',
-      label: 'Carry practical supplies rather than an unearned promise of pardon',
+      label:
+        'Carry practical supplies rather than an unearned promise of pardon',
       outcome:
         'The pilot takes blankets across the river. Vesper accepts that making repairs may take years, and no confession obliges the harmed to forgive.',
       flag: 'oathboat-declined',
@@ -1338,7 +1343,8 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
     'From the last lantern tower Vesper can see every childhood refuge and every shortcut someone else might steal. Delegates demand a public atlas to prevent another betrayal. Families who once hid here fear that publishing it would betray them again. Pip asks that his own apprenticeship ledger remain his to decide.',
     {
       id: 'consent',
-      label: 'Let Vesper deliver a redacted refuge atlas under community oversight',
+      label:
+        'Let Vesper deliver a redacted refuge atlas under community oversight',
       outcome:
         'Vesper publishes safe public roads but leaves hidden refuge doors off the page. Witnesses inspect the omissions, and Pip keeps control of his own ledger. Vesper loses the right to sell copies alone.',
       trust: 2,

@@ -1187,6 +1187,12 @@ function launch() {
 .prom-options button span {
   font-size: 1.65rem;
 }
+.prom-options button small {
+  color: #d1dce8;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  max-width: 26ch;
+}
 .prom-options button.active,
 .prom-form-choices button.active,
 .prom-routes button.active {
@@ -1624,7 +1630,7 @@ function launch() {
     font-size: clamp(3rem, 14vw, 4.8rem);
   }
   .prom-cover-actions {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.25rem;
     padding: 0.5rem 0.3rem;
   }
@@ -1652,8 +1658,13 @@ function launch() {
   }
   .prom-options button {
     font-size: 0.64rem;
-    min-height: 3.2rem;
+    min-height: 6.3rem;
+    padding: 0.4rem 0.2rem;
   }
+  .prom-option-icon { width: 2.2rem; height: 2.2rem; }
+  .prom-options button small { font-size: 0.54rem; line-height: 1.15; }
+  .prom-cover-actions .prom-tactical-link { font-size: 0.57rem; }
+  .prom-cover-actions .prom-tactical-link small { display: none; }
   .prom-showcase-copy {
     bottom: 5%;
   }

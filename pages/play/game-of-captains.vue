@@ -387,7 +387,7 @@
               </template>
               <template v-else-if="selectionScreen === 'captain'">
                 <div class="cap-heading">
-                  <span>02</span>
+                  <span>01</span>
                   <div>
                     <h2>Claim your cushion</h2>
                     <p>

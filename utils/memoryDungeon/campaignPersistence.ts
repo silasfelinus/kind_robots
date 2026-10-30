@@ -60,19 +60,17 @@ export function restoreMemoryCampaignProgress(
   // middle worlds in a different order, without granting any missing worlds.
   // A claim about history is not proof that its prerequisites were earned.
   const isCurrentSave = saved.campaignVersion === 2
-  const oldFinale = (Array.isArray(saved.completed)
-    ? saved.completed
-    : []
+  const oldFinale = (
+    Array.isArray(saved.completed) ? saved.completed : []
   ).filter(
     (id): id is ExperienceId =>
-      typeof id === 'string' &&
-      /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
+      typeof id === 'string' && /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
   )
   const legacyCompleted = isCurrentSave
     ? Array.isArray(saved.legacyCompleted)
-      ? saved.legacyCompleted.filter((id): id is ExperienceId =>
-          typeof id === 'string' &&
-          /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
+      ? saved.legacyCompleted.filter(
+          (id): id is ExperienceId =>
+            typeof id === 'string' && /^e(?:09|10|11|12|13|14|15|16)$/.test(id),
         )
       : []
     : oldFinale
@@ -149,10 +147,7 @@ export function restoreMemoryCampaignProgress(
     if (id === 'e09' && saved.finaleCommitted)
       progress = commitToMemoryFinale(progress)
     for (const fragment of MEMORY_COLLISION_FRAGMENTS) {
-      if (
-        fragment.world === id &&
-        earnedFragments.has(fragment.id)
-      )
+      if (fragment.world === id && earnedFragments.has(fragment.id))
         progress = recoverMemoryCollisionFragment(progress, fragment.id)
     }
     if (id === 'e12') {
@@ -223,10 +218,7 @@ export function restoreMemoryCampaignProgress(
   const remaining = availableMemoryExperiences(progress)[0]
   if (remaining && MEMORY_COLLISION_ORDER.some((id) => id === remaining)) {
     for (const fragment of MEMORY_COLLISION_FRAGMENTS) {
-      if (
-        fragment.world === remaining &&
-        earnedFragments.has(fragment.id)
-      )
+      if (fragment.world === remaining && earnedFragments.has(fragment.id))
         progress = recoverMemoryCollisionFragment(progress, fragment.id)
     }
     if (remaining === 'e12') {

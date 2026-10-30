@@ -1,5 +1,5 @@
 /**
- * Hoshimori's connected twenty-eight-site warm village preview.
+ * Hoshimori's connected thirty-six-site warm village preview.
  * Its e07 campaign entry remains gated behind the preceding experiences.
  */
 export interface HoshimoriChoice {
@@ -612,6 +612,170 @@ export const HOSHIMORI_WARM_SITES: readonly HoshimoriSite[] = [
       flag: 'names-sheltered',
     },
   ),
+  site(
+    '1,5',
+    'The Floodmark Steps',
+    'River water has reached the marks carved for last winter. Two elderly neighbors will leave only if their flooded homes are recorded as homes, not abandoned property.',
+    {
+      id: 'evacuate',
+      label: 'Spend a ration escorting the neighbors uphill',
+      outcome:
+        'The neighbors reach dry ground and take their house keys. Their homes remain theirs, although the road crew has one fewer meal.',
+      rations: -1,
+      trust: 2,
+      flag: 'lowland-evacuated',
+    },
+    {
+      id: 'record',
+      label: 'Mark their homes as occupied before calling the boats',
+      outcome:
+        'Pip adds a temporary flood marker instead of a vacancy notice. The neighbors keep their claim, but must wait for a boat.',
+      trust: 1,
+      flag: 'lowland-marked',
+    },
+  ),
+  site(
+    '2,5',
+    'The Paper-Barge Library',
+    'A boat of swollen books bumps against the bank. The librarian is saving recipes first; a child argues that the flood warnings are more urgent.',
+    {
+      id: 'dry',
+      label: 'Dry the warning pages and deliver them downstream',
+      outcome:
+        'The next hamlet receives the river heights before the water does. Several recipes blur beyond repair, and the librarian mourns them honestly.',
+      trust: 1,
+      flag: 'warnings-dried',
+    },
+    {
+      id: 'catalogue',
+      label: 'Preserve the recipes and copy the warnings by hand',
+      outcome:
+        'The food records survive, but the warning boat leaves late. Pip adds the delay to the account rather than calling the rescue flawless.',
+      flag: 'recipes-saved',
+    },
+  ),
+  site(
+    '3,5',
+    'The Weir of Borrowed Rain',
+    'A wooden weir protects the bakery by turning floodwater toward the lower cottages. The keeper says he is only following last year’s instructions.',
+    {
+      id: 'unbar',
+      label: 'Open the sluice and share the flood between both banks',
+      outcome:
+        'The cottages take less water and the bakery cellar floods. The keeper helps move the flour instead of pretending there was no cost.',
+      trust: 1,
+      flag: 'weir-opened',
+    },
+    {
+      id: 'reinforce',
+      label: 'Hold the bakery wall until the families can move',
+      outcome:
+        'The loaves survive the night, but the low cottages need boats immediately. The keeper signs his name beside the diversion.',
+      flag: 'weir-held',
+    },
+  ),
+  site(
+    '4,5',
+    'The Siltglass Shrine',
+    'Tiny glass bells chime beneath the flood line. A spirit has been keeping messages for people who cannot return to collect them.',
+    {
+      id: 'ask',
+      label: 'Ask each displaced household before delivering its message',
+      outcome:
+        'Some families accept their letters; others ask for another day. The spirit learns that a message can wait without being forgotten.',
+      trust: 1,
+      flag: 'siltglass-consent',
+    },
+    {
+      id: 'keep',
+      label: 'Protect the sealed letters until the water falls',
+      outcome:
+        'The shrine stays dry. A traveler leaves disappointed, but no private grief is announced to the whole village.',
+      flag: 'siltglass-sealed',
+    },
+  ),
+  site(
+    '1,6',
+    'The Boatmaker’s Yard',
+    'An apprentice can finish one shallow rescue skiff before dusk. The village council wants it reserved for registered households; the river has other plans.',
+    {
+      id: 'build',
+      label: 'Help launch the skiff for whoever needs it first',
+      outcome:
+        'The apprentice paints no crest on the hull. A stranger crosses safely, while the council must find another boat for its supplies.',
+      trust: 1,
+      flag: 'skiff-shared',
+    },
+    {
+      id: 'salvage',
+      label: 'Repair the older boats so more people can cross tomorrow',
+      outcome:
+        'Three leaky hulls become serviceable. Tonight’s crossing is slower, but the apprentice has learned how to keep the fleet afloat.',
+      flag: 'skiffs-repaired',
+    },
+  ),
+  site(
+    '2,6',
+    'The Lantern Refuge',
+    'A refugee cook has built a stove above the waterline. A village official demands a list of everyone eating there before releasing firewood.',
+    {
+      id: 'shelter',
+      label: 'Share a ration and keep the refuge open without a list',
+      outcome:
+        'The stove burns through the night. The official withholds the wood, and the neighbors bring their own fallen branches.',
+      rations: -1,
+      trust: 2,
+      flag: 'refuge-opened',
+    },
+    {
+      id: 'witness',
+      label: 'Offer a voluntary witness count instead of names',
+      outcome:
+        'The official accepts the number of meals without a roster of vulnerable people. The cook insists the agreement expires at dawn.',
+      trust: 1,
+      flag: 'refuge-counted',
+    },
+  ),
+  site(
+    '3,6',
+    'The Rainkeeper’s Accounts',
+    'The rainkeeper has billed the lowlands for every sandbag, including bags delivered to the bakery instead. Pip asks whether a debt can be true when the delivery is false.',
+    {
+      id: 'audit',
+      label: 'Publish the mismatched deliveries before collecting payment',
+      outcome:
+        'The keeper corrects the ledger and loses the right to demand repayment for undelivered bags. The next storm still needs funding.',
+      trust: 1,
+      flag: 'rain-audited',
+    },
+    {
+      id: 'pledge',
+      label: 'Guarantee emergency sandbags, then demand a public audit',
+      outcome:
+        'The lowland doors are protected tonight. Pip records your pledge as temporary, and the keeper must account for the missing bags later.',
+      flag: 'rain-pledged',
+    },
+  ),
+  site(
+    '4,6',
+    'The Lowland Council',
+    'Flooded households, the bakery and the boatmakers each demand first claim on the next dry road. Their vote must reckon with the choices you made before arriving.',
+    {
+      id: 'open',
+      label: 'Open the rescue road to all, with a shared repair rota',
+      outcome:
+        'The road opens without a residency test. Repairs are slower and the bakery objects, but strangers may leave before the next surge.',
+      trust: 1,
+      flag: 'lowland-road-open',
+    },
+    {
+      id: 'restrict',
+      label: 'Reserve one supervised crossing while supplies recover',
+      outcome:
+        'The council promises a second public vote at dawn. Some families reach shelter, while others wait where the flood can still rise.',
+      flag: 'lowland-road-restricted',
+    },
+  ),
 ]
 
 export const HOSHIMORI_MAX_EVENTS = 2048
@@ -823,6 +987,28 @@ export function hoshimoriRidgeAccount(
   return [shelter, passage, decision].join(' ')
 }
 
+export function hoshimoriLowlandAccount(
+  progress: HoshimoriWarmProgress,
+): string | null {
+  const flood = progress.choices['1,5']
+  const rain = progress.choices['3,6']
+  const council = progress.choices['4,6']
+  if (!flood || !rain || !council) return null
+  const evacuation =
+    flood === 'evacuate'
+      ? 'Two neighbors escaped the rising river, but their escort consumed a scarce meal.'
+      : 'The flooded homes remained on the rolls, while their owners waited for rescue.'
+  const accounting =
+    rain === 'audit'
+      ? 'The rainkeeper withdrew false sandbag debts after a public audit.'
+      : 'Emergency sandbags arrived under a temporary pledge; the disputed debts remain under review.'
+  const route =
+    council === 'open'
+      ? 'The council opened a shared rescue road without checking residency, accepting a slower repair.'
+      : 'The council restricted the first crossing and promised a dawn review, leaving people exposed overnight.'
+  return [evacuation, accounting, route].join(' ')
+}
+
 export function hoshimoriOvenResolution(
   progress: HoshimoriWarmProgress,
 ): string | null {
@@ -1015,7 +1201,7 @@ export function restoreHoshimoriWarm(
 
 export function validateHoshimoriWarm(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 28) errors.push('Expected twenty-eight unique warm sites')
+  if (SITES.size !== 36) errors.push('Expected thirty-six unique warm sites')
   if (OVEN.size !== 3) errors.push('Expected three first-oven rooms')
   for (const entry of HOSHIMORI_WARM_SITES) {
     const coords = entry.key.split(',').map(Number)
@@ -1046,7 +1232,7 @@ export function validateHoshimoriWarm(): string[] {
       }
     }
   }
-  if (reached.size !== 28) errors.push('Warm map is disconnected')
+  if (reached.size !== 36) errors.push('Warm map is disconnected')
   if (!SITES.has('2,3') || !SITES.has('7,5'))
     errors.push('Earth-photo reservation drift')
   if (HOSHIMORI_LANTERN_CLUE_SITES.some((key) => !SITES.has(key)))

@@ -8,6 +8,8 @@ import {
   hoshimoriLanternClues,
   hoshimoriOvenResolution,
   hoshimoriOvenSecondAccount,
+  hoshimoriOvenThirdAccount,
+  hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
@@ -33,6 +35,12 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
   const secondAccount = computed(() =>
     hoshimoriOvenSecondAccount(progress.value),
+  )
+  const thirdAccount = computed(() =>
+    hoshimoriOvenThirdAccount(progress.value),
+  )
+  const guardianResolution = computed(() =>
+    hoshimoriOvenGuardianResolution(progress.value),
   )
   const ridgeAccount = computed(() => hoshimoriRidgeAccount(progress.value))
   const lowlandAccount = computed(() => hoshimoriLowlandAccount(progress.value))
@@ -67,6 +75,14 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       !progress.value.ovenRoom &&
       progress.value.ovenComplete &&
       !progress.value.ovenChoices['OV-09'],
+  )
+
+  const canEnterOvenEmberWing = computed(
+    () =>
+      progress.value.current === '4,3' &&
+      !progress.value.ovenRoom &&
+      Boolean(progress.value.ovenChoices['OV-09']) &&
+      !progress.value.ovenChoices['OV-15'],
   )
 
   function hydrate(): void {
@@ -138,6 +154,8 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     clues,
     resolution,
     secondAccount,
+    thirdAccount,
+    guardianResolution,
     ridgeAccount,
     lowlandAccount,
     windwardAccount,
@@ -145,6 +163,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     lastOvenOutcome,
     canEnterOven,
     canEnterOvenWing,
+    canEnterOvenEmberWing,
     canMove,
     hydrate,
     act,

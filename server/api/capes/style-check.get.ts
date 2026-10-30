@@ -5,7 +5,7 @@ import { errorHandler } from '../../utils/error'
 import { decodeArtJobPayload } from '../../utils/artJobPayload'
 import { artJobPrompt, payloadScalar } from '~/utils/artJobFields'
 import {
-  CAPES_STYLE_DESIGNER,
+  CAPES_STYLE_DESIGNERS,
   CAPES_STYLE_PROJECT,
   CAPES_STYLE_SUBJECTS,
   capesStyleLaneFromModel,
@@ -27,10 +27,12 @@ export default defineEventHandler(async (event) => {
     const jobs = await prisma.artJob.findMany({
       where: {
         projectSlug: CAPES_STYLE_PROJECT,
-        payload: { contains: CAPES_STYLE_DESIGNER },
+        OR: CAPES_STYLE_DESIGNERS.map((designer) => ({
+          payload: { contains: designer },
+        })),
       },
       orderBy: { id: 'desc' },
-      take: 120,
+      take: 240,
     })
     const result: CapesStyleJob[] = []
     const seen = new Set<string>()
@@ -62,7 +64,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       statusCode: 200,
-      message: result.length + ' of 36 benchmark ArtJobs located.',
+      message: result.length + ' of ' + CAPES_STYLE_SUBJECTS.length * 6 + ' benchmark ArtJobs located.',
       data: { jobs: result },
     }
   } catch (error: unknown) {

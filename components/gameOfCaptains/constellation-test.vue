@@ -54,9 +54,9 @@
     <div class="scope-screen">
       <header class="scope-header">
         <span class="scope-kicker"
-          >THE COUCHSCOPE · CELESTIAL PERSONNEL DEPARTMENT</span
+          >THE COUCHSCOPE · OFFICE OF CELESTIAL HUMAN RESOURCES</span
         >
-        <strong>THE UNIVERSE HAS A QUESTION FOR YOU</strong>
+        <strong>MANDATORY PERSONALITY AND LIABILITY SCREENING</strong>
         <div
           class="scope-progress"
           role="group"
@@ -85,8 +85,7 @@
           }}</span>
           <h2>{{ STAR_QUESTIONS[answers.length]!.prompt }}</h2>
           <p>
-            There are no wrong answers, although the ship's astrologer has
-            concerns.
+            This is a scientifically unlicensed assessment. All responses are logged for promotion eligibility.
           </p>
           <div class="scope-choices">
             <button
@@ -94,12 +93,20 @@
               :key="index"
               type="button"
               :data-testid="'space-couch-star-answer-' + index"
+              :class="{ 'scope-option-ready': artReady[index] }"
               @click="choose(index)"
             >
+              <img
+                class="scope-answer-art"
+                :src="answerArtwork(index)"
+                :alt="'Illustration for option ' + String.fromCharCode(65 + index)"
+                @load="artReady[index] = true"
+                @error="artReady[index] = true"
+              />
               <span class="scope-choice-number">{{
                 String.fromCharCode(65 + index)
               }}</span>
-              <span
+              <span class="scope-choice-copy"
                 ><strong>{{ option.label }}</strong
                 ><small>{{ option.flavor }}</small></span
               >
@@ -110,17 +117,16 @@
       </template>
       <template v-else>
         <div class="scope-reveal" data-testid="space-couch-star-reveal">
-          <span class="scope-episode">PERSONALITY PROFILE DECODED</span>
+          <span class="scope-episode">PROVISIONAL WORKPLACE PERSONALITY CLASSIFICATION</span>
           <span class="scope-sign-glyph" aria-hidden="true">{{
             sign?.glyph
           }}</span>
           <h2>{{ sign?.name }}</h2>
           <strong>{{ sign?.epithet }}</strong>
           <p>{{ sign?.myth }}</p>
-          <p class="scope-omen">✧ YOUR OMEN: {{ sign?.omen }}</p>
+          <p class="scope-omen">✧ OFFICIAL PERFORMANCE FORECAST: {{ sign?.omen }}</p>
           <p class="scope-exclusive">
-            YOUR STAR CHART OPENS THREE SECRET MISSIONS NO OTHER SIGN CAN
-            RECEIVE.
+            CORPORATE BENEFIT: THREE EXCLUSIVE ASSIGNMENTS, NONE COVERED BY INSURANCE.
           </p>
           <div class="scope-final-actions">
             <button
@@ -159,7 +165,7 @@
         >
           ← BACK TO CAPTAIN
         </button>
-        <span v-else>THE STARS ARE MOSTLY QUALIFIED</span>
+        <span v-else>ASSESSMENT RESULTS ARE NOT APPEALABLE</span>
         <span>COMING UP NEXT: YOUR CREW, YOUR TROUBLE</span>
       </footer>
     </div>
@@ -182,6 +188,7 @@ const { largeText = false, reducedMotion = false } = defineProps<{
 }>()
 const emit = defineEmits<{ confirm: [assessment: StarAssessment]; back: [] }>()
 const answers = ref<number[]>([])
+const artReady = ref<Record<number, boolean>>({})
 const questionArtwork = computed(() => {
   const index = String(
     Math.min(answers.value.length + 1, STAR_QUESTIONS.length),
@@ -191,6 +198,11 @@ const questionArtwork = computed(() => {
     '/game-of-captains/couchscope/question-' + index + '.svg'
   )
 })
+function answerArtwork(optionIndex: number): string {
+  const question = String(Math.min(answers.value.length + 1, 4)).padStart(2, '0')
+  const answer = String.fromCharCode(97 + optionIndex)
+  return warpArt('couchscope/question-' + question + '-answer-' + answer) || questionArtwork.value
+}
 const assessment = computed(() => createStarAssessment(answers.value))
 const sign = computed(() =>
   assessment.value ? starSignFor(assessment.value.sign) : null,
@@ -211,6 +223,7 @@ function choose(index: number) {
   if (answers.value.length >= STAR_QUESTIONS.length || index < 0 || index > 2)
     return
   answers.value = [...answers.value, index]
+  artReady.value = {}
 }
 </script>
 
@@ -386,8 +399,8 @@ function choose(index: number) {
 .scope-choices button {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: clamp(0.4rem, min(0.9cqi, 1.1vh), 0.7rem);
+  gap: 0.5rem;
+  padding: clamp(0.3rem, min(0.7cqi, 0.8vh), 0.6rem);
   border: 1px solid #6e8da3;
   border-left: 3px solid #ffd197;
   border-radius: 0.35rem;
@@ -399,6 +412,21 @@ function choose(index: number) {
   background: #344159;
   border-color: #ffe3b7;
   outline-offset: 3px;
+}
+.scope-answer-art {
+  flex: 0 0 clamp(3.6rem, 8cqi, 6.2rem);
+  width: clamp(3.6rem, 8cqi, 6.2rem);
+  height: clamp(3.2rem, 7vh, 5.5rem);
+  object-fit: cover;
+  border-radius: 0.25rem;
+  border: 1px solid #b3a188;
+}
+.scope-choice-copy {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.scope-option-ready .scope-choice-copy {
+  opacity: 1;
 }
 .scope-choice-number {
   color: #a7e6e9;
@@ -536,8 +564,13 @@ function choose(index: number) {
     line-height: 1.2;
   }
   .scope-choices button {
-    padding: 0.4rem;
-    gap: 0.55rem;
+    padding: 0.32rem;
+    gap: 0.35rem;
+  }
+  .scope-answer-art {
+    flex-basis: 3.25rem;
+    width: 3.25rem;
+    height: 3.6rem;
   }
   .scope-choices strong {
     font-size: 0.74rem;

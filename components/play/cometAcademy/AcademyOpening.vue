@@ -1661,10 +1661,20 @@ function launch() {
     min-height: 6.3rem;
     padding: 0.4rem 0.2rem;
   }
-  .prom-option-icon { width: 2.2rem; height: 2.2rem; }
-  .prom-options button small { font-size: 0.54rem; line-height: 1.15; }
-  .prom-cover-actions .prom-tactical-link { font-size: 0.57rem; }
-  .prom-cover-actions .prom-tactical-link small { display: none; }
+  .prom-option-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .prom-options button small {
+    font-size: 0.54rem;
+    line-height: 1.15;
+  }
+  .prom-cover-actions .prom-tactical-link {
+    font-size: 0.57rem;
+  }
+  .prom-cover-actions .prom-tactical-link small {
+    display: none;
+  }
   .prom-showcase-copy {
     bottom: 5%;
   }

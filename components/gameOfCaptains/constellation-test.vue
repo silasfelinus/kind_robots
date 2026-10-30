@@ -482,6 +482,7 @@ function choose(index: number) {
   letter-spacing: 0.08em;
 }
 .scope-footer button {
+  min-height: 2rem;
   color: #ffdbad;
   text-align: left;
 }

@@ -1049,6 +1049,7 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 }
 .daily-quest-tools button,
 .daily-undo {
+  min-height: 2rem;
   color: #ffe2b3;
   border: 1px solid #876e64;
   border-radius: 0.3rem;

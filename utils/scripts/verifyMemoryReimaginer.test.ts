@@ -122,10 +122,14 @@ for (const [base, twisted] of MEMORY_REALITY_PAIRS.slice(3, 6)) {
   )
   linear = completeMemoryExperience(linear, twisted)
 }
-assert.deepEqual(
-  linear.completed.slice(-6),
-  ['e07', 'e08', 'e09', 'e10', 'e11', 'e12'],
-)
+assert.deepEqual(linear.completed.slice(-6), [
+  'e07',
+  'e08',
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+])
 assert.deepEqual(
   availableMemoryExperiences(linear),
   [],

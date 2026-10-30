@@ -160,9 +160,7 @@ export function newTacticalInterlude(
   if (priorParley?.lieutenantParley === 'ally' && !originMission) {
     // The defector does more than change the epilogue: they return as a
     // selectable 4-HP squadmate with a once-per-mission signature power.
-    const occupied = new Set(
-      squad.map((unit) => unit.x + ',' + unit.y),
-    )
+    const occupied = new Set(squad.map((unit) => unit.x + ',' + unit.y))
     const arrival = Array.from({ length: 12 }, (_, index) => ({
       x: 1 + Math.floor(index / 6),
       y: index % 6,

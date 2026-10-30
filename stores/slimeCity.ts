@@ -79,6 +79,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     ),
   )
   const selectedCard = ref<string | null>(null)
+  const previewOpen = ref(false)
   const selectedUnit = ref<number | null>(null)
   const running = ref(false)
   /** The how-to-play panel opens once per format for a first-time tester. */
@@ -162,6 +163,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       rules.value,
     )
     selectedCard.value = null
+    previewOpen.value = false
     selectedUnit.value = null
   }
 
@@ -288,7 +290,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (mode.value === 'blackout' && !match.value.hands.player.includes(id))
       return
     selectedCard.value = selectedCard.value === id ? null : id
+    previewOpen.value = !!selectedCard.value && mode.value === 'blackout'
     selectedUnit.value = null
+  }
+
+  function closePreview(): void {
+    previewOpen.value = false
   }
 
   function ready(id: string): boolean {
@@ -302,6 +309,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       const result = deploy(match.value, selectedCard.value, x, y)
       if (result !== match.value) {
         match.value = result
+        previewOpen.value = false
         selectedCard.value = null
         settleBout()
       }
@@ -332,7 +340,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
-    if (selectedCard.value && !ready(selectedCard.value)) selectedCard.value = null
+    if (selectedCard.value && !ready(selectedCard.value)) {
+      selectedCard.value = null
+      previewOpen.value = false
+    }
     settleBout()
   }
 
@@ -390,6 +401,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     sight,
     guide,
     selectedCard,
+    previewOpen,
     selectedUnit,
     running,
     guideOpen,
@@ -425,6 +437,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showCity,
     showCards,
     chooseCard,
+    closePreview,
     ready,
     touchSquare,
     unmask,

@@ -31,10 +31,22 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   const team = computed(() => teamById(activeTeam.value))
   const enemy = computed(() => teamById(enemyTeam.value))
-  const cards = computed(() => CARDS.filter((item) => item.team === activeTeam.value))
-  const selected = computed(() => match.value.units.find((item) => item.id === selectedUnit.value))
-  const district = computed(() => DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0])
-  const board = computed(() => Array.from({ length: match.value.width * match.value.height }, (_, i) => ({ x: i % match.value.width, y: Math.floor(i / match.value.width) })))
+  const cards = computed(() =>
+    CARDS.filter((item) => item.team === activeTeam.value),
+  )
+  const selected = computed(() =>
+    match.value.units.find((item) => item.id === selectedUnit.value),
+  )
+  const district = computed(
+    () =>
+      DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0],
+  )
+  const board = computed(() =>
+    Array.from({ length: match.value.width * match.value.height }, (_, i) => ({
+      x: i % match.value.width,
+      y: Math.floor(i / match.value.width),
+    })),
+  )
 
   function stop(): void {
     running.value = false
@@ -51,7 +63,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
-    if (enemyTeam.value === id) enemyTeam.value = TEAMS.find((item) => item.id !== id)?.id || 'riot'
+    if (enemyTeam.value === id)
+      enemyTeam.value = TEAMS.find((item) => item.id !== id)?.id || 'riot'
     reset()
   }
 
@@ -139,10 +152,37 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   return {
-    view, activeTeam, enemyTeam, mode, districtId, match, selectedCard, selectedUnit, running,
-    team, enemy, cards, selected, district, board,
-    teams: TEAMS, modes: MODES, districts: DISTRICTS,
-    reset, stop, dispose, chooseTeam, chooseEnemy, chooseMode, visit,
-    startDistrictMatch, chooseCard, touchSquare, unmask, nextRound, toggleRush, unitLabel,
+    view,
+    activeTeam,
+    enemyTeam,
+    mode,
+    districtId,
+    match,
+    selectedCard,
+    selectedUnit,
+    running,
+    team,
+    enemy,
+    cards,
+    selected,
+    district,
+    board,
+    teams: TEAMS,
+    modes: MODES,
+    districts: DISTRICTS,
+    reset,
+    stop,
+    dispose,
+    chooseTeam,
+    chooseEnemy,
+    chooseMode,
+    visit,
+    startDistrictMatch,
+    chooseCard,
+    touchSquare,
+    unmask,
+    nextRound,
+    toggleRush,
+    unitLabel,
   }
 })

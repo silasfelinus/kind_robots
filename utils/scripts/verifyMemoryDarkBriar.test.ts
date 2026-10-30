@@ -484,17 +484,7 @@ assert.deepEqual(
   'Legacy out-of-order middle pairs migrate without losing earned milestones',
 )
 const skippedHoshimori = restoreMemoryCampaignProgress({
-  completed: [
-    'e01',
-    'e02',
-    'e03',
-    'e04',
-    'e05',
-    'e06',
-    'e09',
-    'e10',
-    'e13',
-  ],
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e09', 'e10', 'e13'],
   rememberedAnchors: [
     'morrow-magic-attempt',
     'scylla-home-wish',

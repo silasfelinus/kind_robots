@@ -836,7 +836,10 @@ assert.deepEqual(
 )
 assert.deepEqual(restoreMemoryAchievements(null), [])
 assert.deepEqual(restoreMemoryAchievements(['unknown', 12, 'unknown']), [])
-assert.deepEqual(memoryAchievementGallery([]).filter((m) => m.earned), [])
+assert.deepEqual(
+  memoryAchievementGallery([]).filter((m) => m.earned),
+  [],
+)
 for (const medal of MEMORY_BRIAR_ACHIEVEMENTS) {
   const quest = BRIAR_QUESTS.find((q) => q.id === medal.questId)
   assert.equal(medal.artPath, quest?.artPath, 'reuse authored quest art')
@@ -868,13 +871,22 @@ for (const event of rareCases) {
   )
   assert.deepEqual(
     reconcileMemoryAchievements(lifetime, [
-      { id: 'invented', questId: 'invented', title: '', premise: '', outcome: '' },
+      {
+        id: 'invented',
+        questId: 'invented',
+        title: '',
+        premise: '',
+        outcome: '',
+      },
     ]),
     lifetime,
     'unknown reward IDs never enter the permanent ledger',
   )
 }
-assert.equal(memoryAchievementGallery(lifetime).filter((m) => m.earned).length, 8)
+assert.equal(
+  memoryAchievementGallery(lifetime).filter((m) => m.earned).length,
+  8,
+)
 assert.deepEqual(
   restoreMemoryAchievements([lifetime[1], lifetime[0], lifetime[1], 'fake']),
   lifetime.slice(0, 2),

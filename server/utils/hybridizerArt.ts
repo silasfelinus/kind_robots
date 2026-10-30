@@ -5,19 +5,47 @@ export const HYBRIDIZER_ART_SIZE = 1024
 export const HYBRIDIZER_ART_PRIORITY = 100
 export const HYBRIDIZER_ACTIVE_USER_LIMIT = 3
 export const HYBRIDIZER_RETRY_LIMIT = 2
+// Launch hybrids fill idle render time behind every interactive and project job.
+export const HYBRIDIZER_BATCH_PRIORITY = -1
+export const HYBRIDIZER_BATCH_MAX_PAIRS = 50
+export const HYBRIDIZER_BATCH_PENDING_CAP = 60
 
+export type HybridizerSubjectKind = 'creature' | 'object'
+
+function withArticle(title: string): string {
+  const name = title.trim().toLowerCase()
+  return (/^[aeiou]/.test(name) ? 'an ' : 'a ') + name
+}
+
+// The artwork is the hybrid itself. Specimen jars and fusion machinery are
+// front-end chrome only, so the prompt never stages the result in a laboratory.
 export function hybridizerArtPrompt(
   leftTitle: string,
   rightTitle: string,
+  kind: HybridizerSubjectKind = 'creature',
 ): string {
+  const left = withArticle(leftTitle)
+  const right = withArticle(rightTitle)
+  const subject =
+    kind === 'object' ? 'One single object' : 'One single living creature'
   return [
-    'A single original fantastical chimera combining',
-    leftTitle + ' and ' + rightTitle + ',',
-    'with clearly recognizable visual traits of both ingredients,',
-    'a striking expressive silhouette, imaginative biological textures,',
-    'richly painted cinematic fantasy illustration, dramatic soft lighting,',
-    'and a cohesive atmospheric setting.',
+    subject + ' that is an even physical blend of ' + left,
+    'and ' + right + '. Its shape, colors, surface textures and signature',
+    'features come from both, merged into one coherent body so that both',
+    left + ' and ' + right + ' are instantly recognizable.',
+    'Full view, centered, three-quarter angle, standing on a plain light grey',
+    'studio backdrop with a soft floor shadow and even soft lighting.',
+    'Vivid, detailed painterly illustration with crisp edges.',
   ].join(' ')
+}
+
+export function hybridizerSubjectKind(
+  leftTaxonomy: string | null | undefined,
+  rightTaxonomy: string | null | undefined,
+): HybridizerSubjectKind {
+  return leftTaxonomy === 'OTHER' && rightTaxonomy === 'OTHER'
+    ? 'object'
+    : 'creature'
 }
 
 export function hybridizerArtSeed(fusionId: string): number {

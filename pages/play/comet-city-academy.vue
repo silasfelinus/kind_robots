@@ -117,6 +117,7 @@
             @mode="store.battleMode"
             @turn="store.battleTurn"
             @counter="store.battleCounter"
+            @parley="store.battleParley"
             @retreat="store.battleRetreat"
             @finish="store.battleResolve"
           />

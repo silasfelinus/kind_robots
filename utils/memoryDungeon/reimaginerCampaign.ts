@@ -554,9 +554,13 @@ export function validateMemoryReimaginerCampaign(): string[] {
     MEMORY_REALITY_PAIRS.flat().join(',') !==
     MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id).join(',')
   )
-    errors.push('Every overworld must be followed immediately by its twisted reality')
+    errors.push(
+      'Every overworld must be followed immediately by its twisted reality',
+    )
   for (const [original, twisted] of MEMORY_REALITY_PAIRS) {
-    const before = MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === original)
+    const before = MEMORY_REALITY_EXPERIENCES.find(
+      (entry) => entry.id === original,
+    )
     const after = MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === twisted)
     if (!before || !after || before.concept !== after.concept)
       errors.push(`Reality pair ${original}/${twisted} changes geography`)

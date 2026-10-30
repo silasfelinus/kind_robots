@@ -51,6 +51,7 @@ import {
   opponentPressure,
 } from './opponents'
 import { GUEST_IDENTITIES } from './guestIdentities'
+import { campaignStagesFor } from './identityCampaignStages'
 import {
   recommendedRivalFor,
   validTacticalInterlude,
@@ -1389,6 +1390,10 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
               : score >= incident.risk
                 ? 'partial'
                 : 'failed'
+    if (playedBattle?.discovered) {
+      influence += 1
+      danger = Math.max(0, danger - 1)
+    }
     influence +=
       grade === 'honors'
         ? 2
@@ -1468,6 +1473,12 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       ...(playedBattle
         ? [
             `TACTICAL ${playedBattle.role.toUpperCase()}: ${playedBattle.grade.toUpperCase()} after ${playedBattle.turns} turns, ${playedBattle.fallen} allies down. Your decisions in the fight determined this mission's result, not the dispatch probability roll.`,
+            ...(playedBattle.stageId
+              ? [`LAIR: ${campaignStagesFor(playedBattle.opponent).lair.title}. ${playedBattle.secured ? 'The mission objective is secure.' : 'The objective was lost.'}`]
+              : []),
+            ...(playedBattle.discovered
+              ? [`HIDDEN REVELATION: ${campaignStagesFor(playedBattle.opponent).lair.secret} You return with evidence, restoring one civic influence and reducing danger by one.`]
+              : []),
           ]
         : []),
       tacticalText,

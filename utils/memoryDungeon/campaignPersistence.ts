@@ -139,11 +139,7 @@ export function restoreMemoryCampaignProgress(
   const next = availableMemoryExperiences(progress)
   if (next.includes('e05') && saved.scyllaDeparture) {
     const choice = saved.scyllaDeparture
-    if (
-      MEMORY_SCYLLA_DEPARTURE_CHOICES.some(
-        (option) => option.id === choice,
-      )
-    )
+    if (MEMORY_SCYLLA_DEPARTURE_CHOICES.some((option) => option.id === choice))
       progress = chooseMemoryScyllaDeparture(
         progress,
         choice as MemoryScyllaDepartureChoice,

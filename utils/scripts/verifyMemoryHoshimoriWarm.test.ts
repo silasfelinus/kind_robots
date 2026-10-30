@@ -10,6 +10,8 @@ import {
   hoshimoriLanternOrder,
   hoshimoriOvenResolution,
   hoshimoriOvenSecondAccount,
+  hoshimoriOvenThirdAccount,
+  hoshimoriOvenGuardianResolution,
   hoshimoriRidgeAccount,
   hoshimoriLowlandAccount,
   hoshimoriWindwardAccount,
@@ -33,7 +35,7 @@ import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 64)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 64)
-assert.equal(HOSHIMORI_OVEN_ROOMS.length, 9)
+assert.equal(HOSHIMORI_OVEN_ROOMS.length, 15)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 64)
 assert.equal(
   new Set(
@@ -447,6 +449,100 @@ assert.equal(
   ashWingAccounts.size,
   64,
   'Six distinct decisions should produce 64 earned accounts',
+)
+
+const emberWingChoices = [
+  ['weigh-flour', 'trace-sacks'],
+  ['unlatch-door', 'ask-children'],
+  ['release-ember', 'offer-ember'],
+  ['publish-totals', 'invite-auditors'],
+  ['build-commons', 'share-flue'],
+  ['rewrite-guardian', 'quench-guardian'],
+] as const
+const emberWingAccounts = new Set<string>()
+const guardianDispositions = new Set<string>()
+for (let mask = 0; mask < 64; mask++) {
+  let run = newHoshimoriWarmProgress(mask)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The Ember Wing requires both earlier hearings',
+  )
+  for (const key of ['2,1', '3,1', '4,1', '4,2']) run = move(run, key)
+  run = choose(run, 'pledge')
+  run = move(run, '4,3')
+  run = advanceHoshimoriWarm(run, { type: 'enter' })
+  for (const id of ['audit', 'consent', 'pact'])
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id })
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The first hearing cannot skip the Ash Wing',
+  )
+  run = advanceHoshimoriWarm(run, { type: 'enter-wing' })
+  for (const pair of ashWingChoices)
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: pair[0] })
+  assert.equal(run.ovenRoom, null, 'OV-09 remains a terminal v1 room')
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'An existing completed Ash Wing save must still restore unchanged',
+  )
+  assert.equal(hoshimoriOvenThirdAccount(run), null)
+  assert.equal(hoshimoriOvenGuardianResolution(run), null)
+  run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+  assert.equal(run.ovenRoom, 'OV-10')
+  for (let index = 0; index < emberWingChoices.length; index++) {
+    const room = HOSHIMORI_OVEN_ROOMS[index + 9]!
+    assert.equal(run.ovenRoom, room.id)
+    const choice = emberWingChoices[index]![(mask >> index) & 1]!
+    run = advanceHoshimoriWarm(run, { type: 'oven-choice', id: choice })
+    if (index === 2 && mask === 0) {
+      const beforeLeave = run
+      run = advanceHoshimoriWarm(run, { type: 'leave' })
+      assert.equal(run.ovenRoom, null)
+      run = advanceHoshimoriWarm(run, { type: 'enter-ember-wing' })
+      assert.equal(run.ovenRoom, 'OV-13')
+      assert.equal(run.rations, beforeLeave.rations)
+      assert.equal(run.trust, beforeLeave.trust)
+      assert.deepEqual(run.ovenChoices, beforeLeave.ovenChoices)
+    }
+  }
+  assert.equal(run.ovenRoom, null)
+  assert.equal(run.ovenComplete, true)
+  assert.ok(run.rations >= 0)
+  const account = hoshimoriOvenThirdAccount(run)
+  const guardian = hoshimoriOvenGuardianResolution(run)
+  assert.ok(account)
+  assert.ok(guardian)
+  emberWingAccounts.add(account)
+  guardianDispositions.add(guardian.split('.')[0]!)
+  assert.strictEqual(
+    advanceHoshimoriWarm(run, { type: 'enter-ember-wing' }),
+    run,
+    'The completed Ember Wing cannot be farmed',
+  )
+  assert.deepEqual(
+    restoreHoshimoriWarm(JSON.parse(JSON.stringify(run))),
+    run,
+    'Every Ember Wing path must restore from its action journal',
+  )
+  const forged = JSON.parse(JSON.stringify(run)) as HoshimoriWarmProgress
+  forged.ovenChoices['OV-12'] =
+    run.ovenChoices['OV-12'] === 'release-ember'
+      ? 'offer-ember'
+      : 'release-ember'
+  assert.equal(
+    restoreHoshimoriWarm(forged),
+    null,
+    'Guardian consent cannot be forged by editing the saved ledger',
+  )
+}
+assert.equal(emberWingAccounts.size, 64)
+assert.equal(
+  guardianDispositions.size,
+  3,
+  'Release, bounded guardianship and non-magical relief need distinct endings',
 )
 
 const windwardAccounts = new Set<string>()
@@ -928,6 +1024,9 @@ assert.match(consoleSource, /data-testid="memory-hoshimori-windward-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-southern-account"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ash-wing"/)
 assert.match(consoleSource, /data-testid="memory-hoshimori-ash-wing-account"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-enter-ember-wing"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-guardian-resolution"/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-ember-wing-account"/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
@@ -938,6 +1037,8 @@ assert.match(storeSource, /hoshimoriLowlandAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriWindwardAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriSouthernAccount\(progress\.value\)/)
 assert.match(storeSource, /hoshimoriOvenSecondAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriOvenThirdAccount\(progress\.value\)/)
+assert.match(storeSource, /hoshimoriOvenGuardianResolution\(progress\.value\)/)
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
 assert.match(worldStoreSource, /reconcileHoshimoriEarthChronicle/)
@@ -946,5 +1047,5 @@ assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 64 sites, 9 Oven rooms, 64 earned ash-wing accounts, 96 seeds, 24 hearings, 8 lowland, 8 windward, and 8 southern verdicts, two Earth photos, long-run save and spoiler guards passed',
+  'Hoshimori warm proof: 64 sites, 15 Oven rooms, 64 ash-wing and 64 ember-wing accounts, 3 guardian dispositions, 96 seeds, 24 hearings, two Earth photos, long-run save and spoiler guards passed',
 )

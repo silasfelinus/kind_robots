@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
   advance,
+  attack,
+  mayAttack,
+  blowDamage,
   cardById,
   cardReady,
   CARDS,
@@ -81,6 +84,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const selectedCard = ref<string | null>(null)
   const previewOpen = ref(false)
   const selectedUnit = ref<number | null>(null)
+  const targetUnit = ref<number | null>(null)
   const running = ref(false)
   /** The how-to-play panel opens once per format for a first-time tester. */
   const guideOpen = ref(false)
@@ -108,6 +112,41 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       (item) => item.id === selectedUnit.value && item.side === 'player',
     ),
   )
+  const attackTargets = computed(() => {
+    if (mode.value !== 'blackout' || !selected.value) return []
+    return sight.value.units.filter((unit) => unit.side === 'enemy' &&
+      unit.known && match.value.units.some((actual) =>
+        actual.id === unit.id && mayAttack(match.value, selected.value!, actual),
+      )).map((unit) => unit.id)
+  })
+  const selectedTarget = computed(() =>
+    targetUnit.value === -1 ? match.value.monster :
+    match.value.units.find((u) => u.id === targetUnit.value),
+  )
+  const attackPreview = computed(() =>
+    selected.value && selectedTarget.value
+      ? blowDamage(match.value, selected.value, selectedTarget.value)
+      : 0,
+  )
+  function chooseAttackTarget(id: number): void {
+    if (id === -1) {
+      if (selected.value && match.value.monster &&
+        mayAttack(match.value, selected.value, match.value.monster))
+        targetUnit.value = -1
+      return
+    }
+    if (attackTargets.value.includes(id)) targetUnit.value = id
+  }
+  function attackSelected(): void {
+    if (selectedUnit.value === null || targetUnit.value === null) return
+    const next = attack(match.value, selectedUnit.value, targetUnit.value)
+    if (next !== match.value) {
+      match.value = next
+      targetUnit.value = null
+      settleBout()
+    }
+  }
+
   const district = computed(
     () =>
       DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0]!,
@@ -165,6 +204,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = null
     previewOpen.value = false
     selectedUnit.value = null
+    targetUnit.value = null
   }
 
   /** Switch one rule variant and restart on the same seed to compare. */
@@ -292,6 +332,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard.value = selectedCard.value === id ? null : id
     previewOpen.value = !!selectedCard.value && mode.value === 'blackout'
     selectedUnit.value = null
+    targetUnit.value = null
   }
 
   function closePreview(): void {
@@ -318,6 +359,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const unit = unitAt(match.value, x, y)
     if (unit?.side === 'player') {
       selectedUnit.value = unit.id
+      targetUnit.value = null
+      return
+    }
+    if (unit?.side === 'enemy' && attackTargets.value.includes(unit.id)) {
+      chooseAttackTarget(unit.id)
+      return
+    }
+    if (selected.value && match.value.monster?.x === x && match.value.monster?.y === y) {
+      chooseAttackTarget(-1)
       return
     }
     if (selectedUnit.value !== null) {
@@ -340,6 +390,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
+    targetUnit.value = null
     if (selectedCard.value && !ready(selectedCard.value)) {
       selectedCard.value = null
       previewOpen.value = false
@@ -403,6 +454,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectedCard,
     previewOpen,
     selectedUnit,
+    targetUnit,
+    attackTargets,
+    selectedTarget,
+    attackPreview,
     running,
     guideOpen,
     team,
@@ -440,6 +495,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     closePreview,
     ready,
     touchSquare,
+    chooseAttackTarget,
+    attackSelected,
     unmask,
     nextRound,
     tick,

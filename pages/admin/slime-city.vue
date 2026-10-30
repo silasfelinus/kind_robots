@@ -121,7 +121,8 @@
           <div class="sc-arena-head">
             <div>
               <span class="sc-overline"
-                >PROTOTYPE {{ currentModeIndex }} / 03</span
+                >PROTOTYPE {{ currentModeIndex }} / 03 · SEED
+                {{ lab.match.seed }}</span
               >
               <h2>
                 {{ currentMode.title }}
@@ -131,11 +132,25 @@
               </h2>
             </div>
             <div class="sc-arena-scores">
-              <span
-                >YOUR ENDZONE <b>{{ lab.match.score[0] }}</b></span
-              ><span
-                >ENEMY <b>{{ lab.match.score[1] }}</b></span
+              <span v-if="lab.mode === 'blackout'"
+                >FLAG <b>{{ flagStatus }}</b></span
               >
+              <template v-else>
+                <span
+                  >YOU <b>{{ lab.match.score[0] }}</b></span
+                ><span
+                  >ENEMY <b>{{ lab.match.score[1] }}</b></span
+                >
+              </template>
+              <button
+                type="button"
+                class="sc-help"
+                data-testid="slime-how-to-play"
+                :aria-expanded="lab.guideOpen"
+                @click="lab.toggleGuide()"
+              >
+                HOW TO PLAY
+              </button>
             </div>
           </div>
           <div class="sc-arena-backdrop">
@@ -161,8 +176,8 @@
                   away: cell.x === lab.match.width - 1,
                   flag:
                     lab.mode === 'blackout' &&
-                    cell.x === lab.match.flag.x &&
-                    cell.y === lab.match.flag.y,
+                    cell.x === lab.sight.flag.x &&
+                    cell.y === lab.sight.flag.y,
                   target:
                     lab.selectedUnit !== null || lab.selectedCard !== null,
                 }"
@@ -173,8 +188,8 @@
                 <span
                   v-if="
                     lab.mode === 'blackout' &&
-                    cell.x === lab.match.flag.x &&
-                    cell.y === lab.match.flag.y
+                    cell.x === lab.sight.flag.x &&
+                    cell.y === lab.sight.flag.y
                   "
                   class="sc-flag"
                   >⚑</span
@@ -183,17 +198,17 @@
                   >◇</span
                 >
                 <span
-                  v-if="unitAt(lab.match, cell.x, cell.y)"
+                  v-if="fighterAt(cell.x, cell.y)"
                   class="sc-fighter"
                   :class="[
-                    unitAt(lab.match, cell.x, cell.y)?.side === 'player'
+                    fighterAt(cell.x, cell.y)?.side === 'player'
                       ? 'friendly'
                       : 'hostile',
                     {
                       selected:
-                        lab.selectedUnit ===
-                        unitAt(lab.match, cell.x, cell.y)?.id,
-                      sealed: unitAt(lab.match, cell.x, cell.y)?.hidden,
+                        lab.selectedUnit === fighterAt(cell.x, cell.y)?.id,
+                      sealed: fighterAt(cell.x, cell.y)?.hidden,
+                      carrier: fighterAt(cell.x, cell.y)?.carryingFlag,
                     },
                   ]"
                 >
@@ -210,12 +225,56 @@
                     ? 'MUTUAL DESTRUCTION'
                     : 'THE PIT CLAIMS YOU'
               }}</strong
-              ><button type="button" @click="lab.reset()">REMATCH</button>
+              ><span>{{ winLine }}</span
+              ><span class="sc-result-actions"
+                ><button type="button" @click="lab.reset(true)">
+                  SAME SEED</button
+                ><button type="button" @click="lab.reset()">
+                  NEW SEED
+                </button></span
+              >
+            </div>
+            <div
+              v-if="lab.guideOpen"
+              class="sc-guide kr-scroll"
+              role="dialog"
+              aria-modal="false"
+              :aria-label="'How to play ' + currentMode.title"
+              data-testid="slime-guide"
+            >
+              <span class="sc-overline"
+                >HOW TO PLAY / {{ currentMode.title }}</span
+              >
+              <p class="sc-guide-goal">{{ lab.guide.goal }}</p>
+              <ol>
+                <li v-for="step in lab.guide.steps" :key="step">{{ step }}</li>
+              </ol>
+              <span class="sc-overline">PROTOTYPE LIMITS</span>
+              <ul>
+                <li v-for="item in lab.guide.limits" :key="item">
+                  {{ item }}
+                </li>
+              </ul>
+              <p class="sc-guide-seed">
+                Seed {{ lab.match.seed }}: the same seed and the same moves
+                replay the same match.
+              </p>
+              <button
+                type="button"
+                data-testid="slime-guide-close"
+                @click="lab.closeGuide()"
+              >
+                GOT IT · PLAY
+              </button>
             </div>
           </div>
           <div class="sc-battle-bottom">
-            <span>ROUND {{ lab.match.round }} / {{ lab.match.mana }} MANA</span>
-            <span>{{ lab.match.log[0] }}</span>
+            <span
+              >{{ lab.mode === 'bloodrush' ? 'TICK' : 'ROUND' }}
+              {{ lab.match.round }}/{{ lab.match.maxRounds }} ·
+              {{ lab.match.mana }} MANA</span
+            >
+            <span aria-live="polite">{{ lab.match.log[0] }}</span>
             <button
               v-if="lab.mode !== 'bloodrush'"
               type="button"
@@ -305,7 +364,8 @@
                   :class="[
                     {
                       selected: lab.selectedCard === card.id,
-                      unavailable: card.cost > lab.match.mana,
+                      unavailable:
+                        card.cost > lab.match.mana || !lab.ready(card.id),
                     },
                     'tone-' + lab.team.color,
                   ]"
@@ -319,8 +379,20 @@
                     ><small>{{ card.kind }}</small></span
                   >
                   <b>{{ card.cost }}</b>
+                  <i v-if="!lab.ready(card.id)" class="sc-resting">USED</i>
                 </button>
               </div>
+              <p v-if="lab.selected" class="sc-selected-line">
+                {{ lab.unitLabel(lab.selected.cardId) }} · HP
+                {{ lab.selected.hp }}/{{ lab.selected.maxHp }} · ATK
+                {{ lab.selected.attack }} · ARMOR {{ lab.selected.armor }} · AP
+                {{ lab.selected.ap }}/{{ lab.selected.maxAp }}
+              </p>
+              <ol class="sc-log" aria-label="Recent events">
+                <li v-for="(line, i) in lab.match.log.slice(0, 6)" :key="i">
+                  {{ line }}
+                </li>
+              </ol>
               <button
                 v-if="lab.selected?.hidden"
                 class="sc-reveal"
@@ -329,14 +401,23 @@
               >
                 REVEAL SELECTED FIGHTER
               </button>
-              <button class="sc-reset" type="button" @click="lab.reset()">
-                RESTART THIS TEST ↺
-              </button>
+              <span class="sc-reset-row"
+                ><button
+                  class="sc-reset"
+                  type="button"
+                  @click="lab.reset(true)"
+                >
+                  SAME SEED ↺</button
+                ><button class="sc-reset" type="button" @click="lab.reset()">
+                  NEW SEED ↻
+                </button></span
+              >
             </div>
           </template>
           <div v-else class="sc-brief">
             <span class="sc-overline">RULES FIELD NOTES</span>
             <p>{{ currentMode.detail }}</p>
+            <p>{{ lab.guide.goal }}</p>
             <p>
               Pick a crew, test a board, and swap teams. These are reversible
               local simulations; no Meat, inventory or online match is saved.
@@ -348,7 +429,7 @@
         <span>SLIME CITY / EXPERIMENTAL INTERNAL BUILD</span
         ><span>{{
           lab.view === 'arena'
-            ? 'Tap a card, then a tile. Select a fighter and an adjacent square to move in Blackout.'
+            ? 'Tap a card, then a tile. Select a fighter and an adjacent square to move in Blackout. HOW TO PLAY explains each format.'
             : 'Six team identities. One city. Three test rulesets.'
         }}</span>
       </footer>
@@ -358,7 +439,7 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted } from 'vue'
-import { cardById, unitAt, type Fighter } from '~/utils/slimeCity/prototypes'
+import { cardById, type ViewFighter } from '~/utils/slimeCity/prototypes'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 
 const lab = useSlimeCityStore()
@@ -372,33 +453,59 @@ const currentModeIndex = computed(() =>
   ),
 )
 
-function fighterAt(x: number, y: number): Fighter | undefined {
-  return unitAt(lab.match, x, y)
+const flagStatus = computed(() => {
+  const carrier = lab.sight.units.find((unit) => unit.carryingFlag)
+  if (!carrier) return 'LOOSE'
+  return carrier.side === 'player' ? 'YOURS' : 'TAKEN'
+})
+const winLine = computed(() => {
+  const how = {
+    flag: 'Flag carried home.',
+    score: 'Three breakthroughs.',
+    rout: 'One side was wiped out.',
+    time: 'Round limit reached.',
+  }
+  return lab.match.winPath ? how[lab.match.winPath] : ''
+})
+
+// The board draws only what the player may know (lab.sight): concealed
+// enemies carry no identity and enemy traps are absent.
+function fighterAt(x: number, y: number): ViewFighter | undefined {
+  return lab.sight.units.find((unit) => unit.x === x && unit.y === y)
 }
 function fighterSymbol(x: number, y: number): string {
   const unit = fighterAt(x, y)
   if (!unit) return ''
-  if (unit.hidden && unit.side === 'enemy') return '?'
+  if (!unit.cardId) return '?'
   return cardById(unit.cardId).symbol
 }
 function fighterHp(x: number, y: number): string {
   const unit = fighterAt(x, y)
-  if (!unit || (unit.hidden && unit.side === 'enemy')) return ''
-  return String(unit.hp)
+  return unit?.hp == null ? '' : String(unit.hp)
 }
 function visibleTrap(x: number, y: number): boolean {
-  return lab.match.traps.some(
-    (trap) => trap.side === 'player' && trap.x === x && trap.y === y,
-  )
+  return lab.sight.traps.some((trap) => trap.x === x && trap.y === y)
 }
 function cellAria(x: number, y: number): string {
   const unit = fighterAt(x, y)
   const name = unit
-    ? unit.hidden && unit.side === 'enemy'
+    ? !unit.cardId
       ? 'hidden enemy'
-      : cardById(unit.cardId).name + ', ' + unit.hp + ' hit points'
+      : (unit.side === 'enemy' ? 'enemy ' : '') +
+        cardById(unit.cardId).name +
+        ', ' +
+        unit.hp +
+        ' hit points' +
+        (unit.carryingFlag ? ', carrying the flag' : '')
     : 'empty'
-  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + name
+  const flag =
+    lab.mode === 'blackout' &&
+    !unit &&
+    x === lab.sight.flag.x &&
+    y === lab.sight.flag.y
+      ? ', flag'
+      : ''
+  return 'Square ' + (x + 1) + ', ' + (y + 1) + ': ' + name + flag
 }
 onUnmounted(() => lab.dispose())
 </script>
@@ -1464,6 +1571,115 @@ onUnmounted(() => lab.dispose())
   }
   .sc-footer {
     display: none;
+  }
+}
+.sc-help {
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #d7fc7a99;
+  border-radius: 0.3rem;
+  color: #e7f9bc;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.sc-guide {
+  position: absolute;
+  z-index: 6;
+  inset: 0.6rem;
+  max-width: 34rem;
+  margin: 0 auto;
+  overflow: auto;
+  padding: 0.9rem 1rem;
+  border: 2px solid #d3ff77;
+  border-radius: 0.5rem;
+  background: #0b1019f2;
+  color: #dfe6f0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  box-shadow: 0 0 4rem #000;
+}
+.sc-guide-goal {
+  margin: 0.4rem 0;
+  color: #f2ffd0;
+  font-weight: 800;
+}
+.sc-guide ol,
+.sc-guide ul {
+  margin: 0.3rem 0 0.7rem;
+  padding-left: 1.2rem;
+}
+.sc-guide li {
+  margin: 0.25rem 0;
+}
+.sc-guide-seed {
+  color: #a6aac0;
+  font-size: 0.66rem;
+}
+.sc-guide button,
+.sc-result-actions button {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #d7fc7a;
+  border-radius: 0.3rem;
+  color: #f2ffd0;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.sc-result-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.sc-result > span {
+  color: #c3cbd8;
+  font-size: 0.75rem;
+}
+.sc-fighter.carrier {
+  box-shadow: 0 0 0 2px #ffd34d;
+}
+.sc-resting {
+  position: absolute;
+  bottom: 0.15rem;
+  right: 0.25rem;
+  font-size: 0.5rem;
+  font-style: normal;
+  color: #ffb27a;
+}
+.sc-selected-line {
+  margin: 0;
+  font-size: 0.6rem;
+  color: #d5ff7a;
+}
+.sc-log {
+  margin: 0;
+  padding: 0.35rem 0.5rem 0.35rem 1.2rem;
+  max-height: 7.5rem;
+  overflow: auto;
+  border-top: 1px solid #5360726b;
+  color: #aeb8c8;
+  font-size: 0.6rem;
+  line-height: 1.35;
+  flex: none;
+}
+.sc-log li:first-child {
+  color: #f0f4fa;
+}
+.sc-reset-row {
+  display: flex;
+  gap: 0.35rem;
+  flex: none;
+}
+.sc-reset-row .sc-reset {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+@container (max-width: 600px) {
+  .sc-log,
+  .sc-selected-line {
+    display: none;
+  }
+  .sc-guide {
+    inset: 0.2rem;
+    font-size: 0.66rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -345,7 +345,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'A NEW COLUMN',
         text: 'The agency’s form has four columns now: clean, dirty, closed and living. The couch was the first vessel rated living, and the fungus has the certificate. Pell has written to every kitchen he knows to tell them they can ask for the new column. Vela gave the recipe to the inspector’s mother, who has improved it and will not say how.',
         art: ({ brin, style }) =>
-          `Close-up of a garden of moss and pale mushrooms on the armrest of a red velvet couch. Propped against the largest mushroom is a small framed paper certificate with a green seal. Kneeling beside it is ${brin}, straightening the frame. Warm lamp light, black space beyond. ${style}`,
+          `Close-up of a garden of moss and pale mushrooms on the armrest of a red velvet couch. Propped against the largest mushroom is a small paper certificate with a green seal in a thin brass holder. Kneeling beside it is ${brin}, straightening the holder. Warm lamp light, black space beyond. ${style}`,
       },
     ],
   },
@@ -430,7 +430,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'PROPERTY OUTSTANDING',
         text: 'The Directorate has written to say that forty-one permits remain outstanding and that it is reviewing the matter. It has been reviewing it for a year. In the meantime the families have their papers back, delivered by hand. Pell has the exit interview framed. Vela has a copy in Fen’s clinic file, with his pulse beside it.',
         art: ({ vela, pell, style }) =>
-          `Close-up of the scarlet velvet backrest of a couch with a framed thick paper questionnaire hanging on it, its pages fanned out under glass. Standing beside it are ${vela} and ${pell}, looking at the frame. Warm lamp light, black space beyond a clear bubble. ${style}`,
+          `Close-up of the scarlet velvet backrest of a couch with a thick paper questionnaire pinned flat under a glass sheet, its pages fanned out. Standing beside it are ${vela} and ${pell}, looking at the glass. Warm lamp light, black space beyond a clear bubble. ${style}`,
       },
     ],
   },
@@ -600,7 +600,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'COLLECTED, NO QUESTIONS',
         text: 'The parcel was bearings and a letter, which Pell did not expect, from the clerk at the second window, asking whether the couch could take her off the moon some day. It did, a year later, through the gap. Tess has still not drawn the gap on any map. The Post has upheld Pell’s complaint and sent a card to say so, while he was out.',
         art: ({ tess, style }) =>
-          `Close-up of a paper star chart spread on a red velvet cushion, a ring of grey dots drawn around a moon with one small blank space left in the ring. Holding a pencil above the blank space without marking it is ${tess}. Warm lamp light, black space beyond a clear bubble. ${style}`,
+          `Close-up of a paper star chart spread on a red velvet cushion, a ring of grey dots drawn around a moon with one small blank space left in the ring. Holding a pencil just above the blank space is ${tess}. Warm lamp light, black space beyond a clear bubble. ${style}`,
       },
     ],
   },
@@ -1025,7 +1025,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'ELEVEN NAMES, IN FULL',
         text: 'The plaque is as wide as the bench and every name is cut in full. The Authority’s design guide has a new line, written by Rue, allowing a plaque the length the names need. The shrubs flowered again in the spring. The photograph of the unveiling hangs in the Port Director’s office, where he has to look at it.',
         art: ({ rue, style }) =>
-          `Close-up of a long brass plaque screwed to the backrest of a plain wooden bench, engraved with a row of full names. Running one finger along the engraving is ${rue}. Flowering green shrubs frame the bench, and a grey harbour shows beyond. Soft light. ${style}`,
+          `Close-up of a long brass plaque screwed to the backrest of a plain wooden bench, engraved with a row of full names. Running one finger along the engraving is ${rue}. Flowering green shrubs stand around the bench, and a grey harbour shows beyond. Soft light. ${style}`,
       },
     ],
   },
@@ -1054,7 +1054,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
           },
         ],
         art: ({ mox, style }) =>
-          `Close-up on a red velvet cushion of a paper form with a box labelled DATE OF BIRTH, three dates written in it and two crossed out. Bending over it with a pen is ${mox}, its orange eyelid half closed in a wink. Warm lamp light, black space beyond a clear bubble. ${style}`,
+          `Close-up on a red velvet cushion of a paper form with a box labelled BIRTHDATE, three dates written in it and two crossed out. Bending over it with a pen is ${mox}, its orange eyelid half closed in a wink. Warm lamp light, black space beyond a clear bubble. ${style}`,
       },
       {
         title: 'The Set',
@@ -1189,7 +1189,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'REPLACED BY FERNS',
         text: 'The manufacturer believes the recalled unit is a box of ferns at a depot, which it is, and the ferns are doing very well. Mox is not on any list. Its cooling loop has grown two new branches since, which Brin draws each month beside the fern. Pell keeps the replacement part in his tool roll, unfitted, labelled NOT ASKED FOR.',
         art: ({ pell, style }) =>
-          `Close-up of an open canvas tool roll on a red velvet cushion, with a small shiny silver machine part tucked in one pocket under a handwritten paper tag reading NOT ASKED FOR. Tying the roll shut with his steel hand is ${pell}. Warm lamp light, black space beyond a clear bubble. ${style}`,
+          `Close-up of an open canvas tool roll on a red velvet cushion, with a small shiny silver machine part tucked in one pocket under a small handwritten paper tag. Tying the roll shut with his steel hand is ${pell}. Warm lamp light, black space beyond a clear bubble. ${style}`,
       },
       {
         title: 'RECALL DECLINED',
@@ -1309,7 +1309,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
           },
         ],
         art: ({ sora, style }) =>
-          `Medium shot behind a red velvet backrest, where an open panel shows a round brass reactor with glowing yellow indicator lights. Kneeling at the panel is ${sora}, two hands on the reactor casing and two held up as if listening. A sound meter on a thin metal tripod stands on the armrest. Warm lamp light, black space. ${style}`,
+          `Medium shot behind a red velvet backrest, where an open panel shows a round brass reactor with glowing yellow indicator lights. Kneeling at the panel is ${sora}, two hands on the reactor casing and two raised beside her head. A sound meter on a thin metal tripod stands on the armrest. Warm lamp light, black space. ${style}`,
       },
       {
         title: 'The Silencer',
@@ -1330,7 +1330,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
           },
         ],
         art: ({ pell, style }) =>
-          `Close-up of a heavy grey lead collar with steel clamps lying on a red velvet cushion. Holding up a paper safety notice in his steel hand is ${pell}, while the palm-sized beetle on his shoulder grips a small steel clamp in its jaws. A man in a shiny suit stands at the edge of the frame. Warm lamp light. ${style}`,
+          `Close-up of a heavy grey lead collar with steel clamps lying on a red velvet cushion. Holding up a paper safety notice in his steel hand is ${pell}, while the palm-sized beetle on his shoulder grips a small steel clamp in its jaws. A man in a shiny suit stands at the right edge. Warm lamp light. ${style}`,
       },
       {
         title: 'The Hearing',
@@ -2130,7 +2130,7 @@ export const TRIO_ADVENTURES_D: readonly TrioAdventure[] = [
         title: 'APPROVED SPECIES',
         text: 'BRIN’S GARDEN is on the Biosecurity Act’s approved list now, between bracken and a type of moss, and may go anywhere the Act applies. The biologist from the second gate writes to Brin about it each month. Fen and his old colleague talk sometimes about who they used to be. Pell has the list framed above the scrubbers.',
         art: ({ fen, pell, style }) =>
-          `Medium shot on scarlet velvet button-tufted cushions under a brass lamp. Standing on the cushion is ${fen}, holding up a framed printed list with one line underlined in green ink. Seated beside him is ${pell}, tightening the frame’s hook with his steel hand. Black space beyond, warm light. ${style}`,
+          `Medium shot on scarlet velvet button-tufted cushions under a brass lamp. Standing on the cushion is ${fen}, holding up a printed list mounted on a wooden board, one line underlined in green ink. Seated beside him is ${pell}, tightening the board’s hook with his steel hand. Black space beyond, warm light. ${style}`,
       },
     ],
   },

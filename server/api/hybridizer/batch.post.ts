@@ -31,8 +31,8 @@ type PairResult = {
 
 // Admin-only launch catalogue seeding (hybridizer/t-007). Curated starter pairs
 // become public fusions; at most HYBRIDIZER_BATCH_PENDING_CAP launch renders
-// wait in the queue at once, at a priority below every other ArtJob, so the
-// catalogue fills idle render time without crowding interactive or project art.
+// wait in the queue at once, behind interactive fusions and project runtime art
+// (HYBRIDIZER_BATCH_PRIORITY), so the catalogue keeps filling without crowding them.
 export default defineEventHandler(async (event) => {
   try {
     const auth = await requireAdminApiUser(event)

@@ -21,18 +21,18 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     HOSHIMORI_WARM_SITES.find((site) => site.key === progress.value.current),
   )
   const currentOvenRoom = computed(() =>
-    HOSHIMORI_OVEN_ROOMS.find(
-      (room) => room.id === progress.value.ovenRoom,
-    ),
+    HOSHIMORI_OVEN_ROOMS.find((room) => room.id === progress.value.ovenRoom),
   )
   const clues = computed(() => hoshimoriLanternClues(progress.value))
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
   const lastOvenOutcome = computed(() => {
     const last = progress.value.events.at(-1)
     if (last?.type !== 'oven-choice') return null
-    return HOSHIMORI_OVEN_ROOMS.flatMap((room) => room.choices).find(
-      (choice) => choice.id === last.id,
-    )?.outcome ?? null
+    return (
+      HOSHIMORI_OVEN_ROOMS.flatMap((room) => room.choices).find(
+        (choice) => choice.id === last.id,
+      )?.outcome ?? null
+    )
   })
   const canEnterOven = computed(
     () =>
@@ -52,9 +52,12 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
       if (!saved) return
       const restored = restoreHoshimoriWarm(JSON.parse(saved))
       if (restored) progress.value = restored
-      else notice.value = 'The village could not verify that journey. A fresh route is ready.'
+      else
+        notice.value =
+          'The village could not verify that journey. A fresh route is ready.'
     } catch {
-      notice.value = 'The village could not read its last journey. A fresh route is ready.'
+      notice.value =
+        'The village could not read its last journey. A fresh route is ready.'
     }
   }
 

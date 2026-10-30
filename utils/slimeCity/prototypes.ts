@@ -753,7 +753,14 @@ export function createMatch(
   if (mode === 'blackout') {
     for (let i = 0; i < 4; i++) {
       const y = 1 + i
-      addFighter(state, teamById(teamId).creatures[i % 3]!, 'player', 1, y, true)
+      addFighter(
+        state,
+        teamById(teamId).creatures[i % 3]!,
+        'player',
+        1,
+        y,
+        true,
+      )
       addFighter(
         state,
         teamById(state.foeId).creatures[i % 3]!,
@@ -765,7 +772,13 @@ export function createMatch(
     }
   } else {
     addFighter(state, teamById(teamId).creatures[0]!, 'player', 0, 2)
-    addFighter(state, teamById(state.foeId).creatures[0]!, 'enemy', width - 1, 3)
+    addFighter(
+      state,
+      teamById(state.foeId).creatures[0]!,
+      'enemy',
+      width - 1,
+      3,
+    )
   }
   return state
 }

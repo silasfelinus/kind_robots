@@ -1063,7 +1063,8 @@ export function createMatch(
     seed: s,
     nextId: 1,
     teamId,
-    foeId: foeId === teamId ? 'riot' : foeId,
+    // Mirror matches are allowed: a district rival may share your crew.
+    foeId,
     units: [],
     traps: [],
     bossHp: 6,

@@ -21,6 +21,21 @@ import {
   type ModeId,
   type TeamId,
 } from '../utils/slimeCity/prototypes'
+import {
+  applyTerms,
+  boutBlocked,
+  boutTerms,
+  CITY_PLAN,
+  createCity,
+  decide,
+  gateReason,
+  HEAT_LIMIT,
+  recordBout,
+  streetsFrom,
+  totalStanding,
+  travel,
+  type DistrictId,
+} from '../utils/slimeCity/city'
 
 /** A fresh six-digit seed, easy to read out loud during a playtest. */
 function rollSeed(): number {
@@ -38,7 +53,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
   const mode = ref<ModeId>('blackout')
-  const districtId = ref('chimera')
+  const districtId = ref<DistrictId>('pitworks')
+  /** Session-only city progress: nothing is saved or awarded. */
+  const city = ref(createCity())
+  /** The district whose rival the current match is against, if any. */
+  const bout = ref<DistrictId | null>(null)
+  /** The rival bout that just ended, for the BACK TO THE CITY button. */
+  const lastBout = ref<DistrictId | null>(null)
   const seed = ref(rollSeed())
   const match = ref(
     createMatch(mode.value, activeTeam.value, enemyTeam.value, seed.value),
@@ -68,6 +89,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     () =>
       DISTRICTS.find((item) => item.id === districtId.value) || DISTRICTS[0]!,
   )
+  const plan = computed(() => CITY_PLAN[districtId.value])
+  const boutPlan = computed(() => (bout.value ? CITY_PLAN[bout.value] : null))
+  const here = computed(() => city.value.location === districtId.value)
+  const route = computed(() =>
+    streetsFrom(city.value.location).find((s) => s.to === districtId.value),
+  )
+  const gate = computed(() => gateReason(city.value, districtId.value))
+  const blocked = computed(() => boutBlocked(city.value, districtId.value))
+  const standing = computed(() => totalStanding(city.value))
+  const heatLimit = HEAT_LIMIT
+  function districtStatus(raw: string): string {
+    if (!(raw in CITY_PLAN)) return 'far'
+    const id = raw as DistrictId
+    if (city.value.location === id) return 'here'
+    if (city.value.cleared.includes(id)) return 'cleared'
+    if (gateReason(city.value, id)) return 'locked'
+    if (streetsFrom(city.value.location).some((s) => s.to === id))
+      return 'reachable'
+    return 'far'
+  }
   const board = computed(() =>
     Array.from({ length: match.value.width * match.value.height }, (_, i) => ({
       x: i % match.value.width,
@@ -84,6 +125,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   /** Restart the test: a new seed unless the same one is asked for. */
   function reset(sameSeed = false): void {
     stop()
+    bout.value = null
+    lastBout.value = null
     if (!sameSeed) seed.value = rollSeed()
     match.value = createMatch(
       mode.value,
@@ -144,14 +187,56 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     else openGuide()
   }
 
+  /** Look at a district's dossier (travel is separate, along streets). */
   function visit(id: string): void {
-    const found = DISTRICTS.find((item) => item.id === id)
-    if (!found) return
-    districtId.value = id
-    activeTeam.value = found.team
-    if (enemyTeam.value === activeTeam.value) enemyTeam.value = 'ironjaw'
+    if (!(id in CITY_PLAN)) return
+    districtId.value = id as DistrictId
     view.value = 'city'
-    reset()
+  }
+
+  function walk(): void {
+    const next = travel(city.value, districtId.value)
+    if (next !== city.value) city.value = next
+  }
+
+  function choose(choiceId: string): void {
+    city.value = decide(city.value, choiceId)
+  }
+
+  /** Fight this district's rival on its format, with your decision's terms. */
+  function fightRival(): void {
+    const id = districtId.value
+    if (!here.value || boutBlocked(city.value, id)) return
+    const rival = CITY_PLAN[id].rival
+    stop()
+    mode.value = rival.mode
+    seed.value = rollSeed()
+    const fresh = createMatch(
+      rival.mode,
+      activeTeam.value,
+      rival.team,
+      seed.value,
+    )
+    match.value = applyTerms(fresh, boutTerms(city.value, id))
+    selectedCard.value = null
+    selectedUnit.value = null
+    bout.value = id
+    lastBout.value = null
+    view.value = 'arena'
+    if (!guideSeen.has(rival.mode)) openGuide()
+  }
+
+  /** Once a rival bout ends, its result changes the city. */
+  function settleBout(): void {
+    if (!bout.value || !match.value.victor) return
+    city.value = recordBout(city.value, bout.value, match.value.victor)
+    lastBout.value = bout.value
+    bout.value = null
+  }
+
+  function resetCity(): void {
+    city.value = createCity()
+    districtId.value = 'pitworks'
   }
 
   function startDistrictMatch(): void {
@@ -176,6 +261,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       if (result !== match.value) {
         match.value = result
         selectedCard.value = null
+        settleBout()
       }
       return
     }
@@ -191,6 +277,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         // Keep a fighter selected while it still has AP to spend.
         const still = result.units.find((u) => u.id === selectedUnit.value)
         if (!still || still.ap < 1) selectedUnit.value = null
+        settleBout()
       }
     }
   }
@@ -203,13 +290,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function nextRound(): void {
     if (running.value || match.value.victor) return
     match.value = advance(match.value)
+    settleBout()
   }
 
   /** One fixed BLOODRUSH tick; the timer calls this and nothing else. */
   function tick(): void {
     if (match.value.victor) return stop()
     match.value = advance(match.value)
-    if (match.value.victor) stop()
+    if (match.value.victor) {
+      stop()
+      settleBout()
+    }
   }
 
   function toggleRush(): void {
@@ -234,6 +325,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     enemyTeam,
     mode,
     districtId,
+    city,
+    bout,
+    lastBout,
+    boutPlan,
+    plan,
+    here,
+    route,
+    gate,
+    blocked,
+    standing,
+    heatLimit,
+    districtStatus,
     seed,
     match,
     sight,
@@ -262,6 +365,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     closeGuide,
     toggleGuide,
     visit,
+    walk,
+    choose,
+    fightRival,
+    resetCity,
     startDistrictMatch,
     showCity,
     showCards,

@@ -1862,8 +1862,7 @@ export function finishAcademy(
       .reverse()
       .find(
         (entry) =>
-          entry.opponent === run.opponentSignature &&
-          entry.lieutenantParley,
+          entry.opponent === run.opponentSignature && entry.lieutenantParley,
       )
     const lieutenantBonus =
       lieutenantSettlement?.lieutenantParley === 'ally'

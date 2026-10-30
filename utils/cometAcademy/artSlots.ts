@@ -184,5 +184,5 @@ export function academyStageArt(run: AcademyRun | null): string | null {
 export function academyVillainArt(run: AcademyRun | null): string | null {
   if (!run || run.flowVersion !== 3) return null
   if (run.phase !== 'finale' && run.phase !== 'ending') return null
-  return promArt(villainArtKey(campaignVillain(run.seed).name))
+  return promArt(villainArtKey(campaignVillain(run.seed, run.mastermind).name))
 }

@@ -16,6 +16,8 @@ on:
       - 'pages/play/game-of-captains.vue'
       - 'components/home/home-visitor-directory.vue'
       - 'utils/scripts/verifyCometCityAcademy.test.ts'
+      - 'utils/scripts/verifyCometConsoleScreens.test.ts'
+      - 'components/play/cometAcademy/**'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
       - 'utils/cometAcademy/identityCampaignStages.json'
       - 'utils/cometAcademy/identityCampaignStages.ts'
@@ -44,6 +46,7 @@ on:
       - 'utils/gameOfCaptains/**'
       - 'pages/play/comet-city-academy.vue'
       - 'pages/play/game-of-captains.vue'
+      - 'components/play/cometAcademy/**'
       - '.github/workflows/playbook-slices-gameplay.yml'
   workflow_dispatch:
 

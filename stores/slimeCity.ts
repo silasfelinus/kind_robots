@@ -73,6 +73,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     reset()
   }
 
+  function showCity(): void {
+    stop()
+    view.value = 'city'
+  }
+
+  function showCards(): void {
+    stop()
+    view.value = 'cards'
+  }
+
   function chooseMode(id: ModeId): void {
     mode.value = id
     view.value = 'arena'
@@ -178,6 +188,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     chooseMode,
     visit,
     startDistrictMatch,
+    showCity,
+    showCards,
     chooseCard,
     touchSquare,
     unmask,

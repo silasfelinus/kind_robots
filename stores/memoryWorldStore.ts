@@ -378,6 +378,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const next = reconcileMemoryAchievements(
       earnedAchievementIds.value,
       briarRareEvents.value,
+      state.value,
+      dark.value,
     )
     if (next.length === earnedAchievementIds.value.length) return
     earnedAchievementIds.value = next
@@ -582,6 +584,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function persistReality(): void {
+    syncAchievements()
     if (!import.meta.client) return
     try {
       window.localStorage.setItem(

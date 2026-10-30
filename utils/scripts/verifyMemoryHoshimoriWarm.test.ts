@@ -31,7 +31,7 @@ assert.deepEqual(validateHoshimoriWarm(), [])
 assert.equal(HOSHIMORI_WARM_SITES.length, 36)
 assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.key)).size, 36)
 assert.equal(HOSHIMORI_OVEN_ROOMS.length, 3)
-assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 28)
+assert.equal(new Set(HOSHIMORI_WARM_SITES.map((site) => site.opening)).size, 36)
 assert.equal(
   new Set(
     HOSHIMORI_WARM_SITES.flatMap((site) =>

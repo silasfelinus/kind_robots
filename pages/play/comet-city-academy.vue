@@ -101,7 +101,11 @@
           <AcademyTacticalFight
             v-if="store.tactical && run"
             :battle="store.tactical"
-            :rival-name="run.day < 15 ? 'UNKNOWN CHALLENGER' : (opponent?.hero.alias ?? 'THE RIVAL')"
+            :rival-name="
+              run.day < 15
+                ? 'UNKNOWN CHALLENGER'
+                : (opponent?.hero.alias ?? 'THE RIVAL')
+            "
             :mission="
               store.incidents.find(
                 (incident) => incident.id === store.tactical?.caseId,
@@ -779,7 +783,10 @@
               @click="store.startBattle()"
             >
               <span>
-                ✦ PLAY THE TACTICAL FIGHT · {{ run.day < 15 ? 'YOUR ORIGIN MISSION' : opponent?.hero.alias }}
+                ✦ PLAY THE TACTICAL FIGHT ·
+                {{
+                  run.day < 15 ? 'YOUR ORIGIN MISSION' : opponent?.hero.alias
+                }}
                 <small
                   >Move your squad on a cover-and-line-of-sight battlefield. The
                   actual victory or defeat replaces the automatic result for

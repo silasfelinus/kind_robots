@@ -158,7 +158,8 @@ export function newTacticalInterlude(
     })
   }
   state.units = [...squad, rival, captain, minion]
-  state.log = tacticalOpening(run) +
+  state.log =
+    tacticalOpening(run) +
     (priorParley
       ? ` ${lieutenant.name} has already ${priorParley.lieutenantParley === 'ally' ? 'defected to your cause' : 'agreed to a ceasefire'} and will not return as a boss. The remaining loyalists are holding this position.`
       : '')
@@ -254,14 +255,14 @@ export function canParleyWithLieutenant(battle: TacticalInterlude): boolean {
   )
   return Boolean(
     arena?.kind === 'lair' &&
-      arena.discovered &&
-      !arena.lieutenantParley &&
-      battle.state.phase === 'active' &&
-      squadmate &&
-      squadmate.ap >= 1 &&
-      boss &&
-      boss.hp <= 2 &&
-      gridDistance(squadmate, boss) <= 2,
+    arena.discovered &&
+    !arena.lieutenantParley &&
+    battle.state.phase === 'active' &&
+    squadmate &&
+    squadmate.ap >= 1 &&
+    boss &&
+    boss.hp <= 2 &&
+    gridDistance(squadmate, boss) <= 2,
   )
 }
 
@@ -387,7 +388,8 @@ export function validTacticalOutcome(
           ? 'hero-origin-' + run.signature
           : 'rival-lair-' + result.opponent)) &&
     (result.secured === undefined || typeof result.secured === 'boolean') &&
-    (result.discovered === undefined || typeof result.discovered === 'boolean') &&
+    (result.discovered === undefined ||
+      typeof result.discovered === 'boolean') &&
     (result.lieutenantParley === undefined ||
       (['ally', 'truce'].includes(result.lieutenantParley) &&
         result.day! >= 23 &&
@@ -488,8 +490,7 @@ export function validTacticalInterlude(
             battle.arena.discovered &&
             state.units.some(
               (unit) =>
-                unit.signatureBoss === run.opponentSignature &&
-                unit.hp === 0,
+                unit.signatureBoss === run.opponentSignature && unit.hp === 0,
             ))) &&
         state.stageId ===
           (battle.arena.kind === 'origin'

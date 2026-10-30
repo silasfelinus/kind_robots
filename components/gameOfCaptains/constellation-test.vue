@@ -539,15 +539,24 @@ function choose(index: number) {
 @media (max-width: 900px) {
   .scope-question-art {
     width: 100%;
-    opacity: 0.22;
-    object-fit: cover;
+    height: 45%;
+    object-fit: contain;
+    object-position: top center;
+    opacity: 0.92;
+    mask-image: linear-gradient(to bottom, #000 65%, transparent);
   }
   .scope-content,
   .scope-reveal {
     width: 100%;
   }
   .scope-screen {
-    background: linear-gradient(90deg, #09162bcb, #09162b99);
+    background: linear-gradient(
+      180deg,
+      #09162b8a 0%,
+      #09162b50 32%,
+      #09162be6 57%,
+      #09162bf4 100%
+    );
   }
   .scope-content h2,
   .scope-reveal h2 {

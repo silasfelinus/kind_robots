@@ -14,7 +14,14 @@ import {
   validateHoshimoriWarm,
   type HoshimoriWarmProgress,
 } from '../memoryDungeon/hoshimoriWarm'
-import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
+import {
+  EARTH_PHOTOS,
+  newEarthChronicle,
+  reconcileHoshimoriEarthChronicle,
+  recoveredEarthPhotos,
+  respondToEarthPhoto,
+  restoreEarthChronicle,
+} from '../memoryDungeon/chronicle'
 import { MEMORY_REALITY_EXPERIENCES } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateHoshimoriWarm(), [])
@@ -332,6 +339,66 @@ assert.equal(
 assert.equal(restoreHoshimoriWarm({ version: 999 }), null)
 assert.equal(restoreHoshimoriWarm(null), null)
 
+for (const decision of ['question', 'hold'] as const) {
+  let run = newHoshimoriWarmProgress(43)
+  for (const site of ['1,2', '1,3', '2,3']) run = move(run, site)
+  assert.deepEqual(
+    reconcileHoshimoriEarthChronicle(newEarthChronicle(), run.choices).found,
+    [],
+    'Visiting the photograph without deciding must not collect it',
+  )
+  run = choose(run, decision)
+  const restoredRun = restoreHoshimoriWarm(
+    JSON.parse(JSON.stringify(run)),
+  )
+  assert.ok(restoredRun, 'Photograph must follow replay-validated progress')
+  const journal = reconcileHoshimoriEarthChronicle(
+    newEarthChronicle(),
+    restoredRun.choices,
+  )
+  assert.deepEqual(journal.found, ['earth-13'])
+  assert.strictEqual(
+    reconcileHoshimoriEarthChronicle(journal, restoredRun.choices),
+    journal,
+    'A revisited photograph cannot award a second copy',
+  )
+  const reacted = respondToEarthPhoto(journal, 'earth-13', decision === 'question' ? 'challenge' : 'hold')
+  const persisted = restoreEarthChronicle(JSON.parse(JSON.stringify(reacted)))
+  assert.deepEqual(persisted, reacted, 'Photo and immutable response persist across runs')
+  assert.deepEqual(
+    recoveredEarthPhotos(persisted).map((photo) => photo.id),
+    ['earth-13'],
+  )
+  assert.deepEqual(
+    reconcileHoshimoriEarthChronicle(persisted, {}).found,
+    ['earth-13'],
+    'Restarting the village must not revoke earned evidence',
+  )
+}
+assert.deepEqual(
+  reconcileHoshimoriEarthChronicle(newEarthChronicle(), { '2,3': 'forged' }).found,
+  [],
+  'A forged scene decision cannot mint the photograph',
+)
+assert.deepEqual(
+  restoreEarthChronicle({
+    version: 1,
+    found: ['earth-13', 'earth-14', 'earth-15', 'earth-31'],
+    responses: { 'earth-14': 'challenge' },
+  }).found,
+  ['earth-13'],
+  'The unbuilt second Hoshimori scene and later realities remain spoiler-locked',
+)
+const outOfOrder = reconcileHoshimoriEarthChronicle(
+  { version: 1, found: ['earth-02', 'earth-01'], responses: {} },
+  { '2,3': 'hold' },
+)
+assert.deepEqual(
+  recoveredEarthPhotos(outOfOrder).map((photo) => photo.id),
+  ['earth-01', 'earth-02', 'earth-13'],
+  'Chronicle uses Earth chronology, not discovery order',
+)
+
 const consoleSource = readFileSync(
   'components/pages/memory-dungeon-hoshimori.vue',
   'utf8',
@@ -348,14 +415,21 @@ assert.match(consoleSource, /kr-scroll/)
 assert.match(consoleSource, /hoshimori\.clues\.length !== 3/)
 assert.match(consoleSource, /hoshimori\.canEnterOven/)
 assert.match(consoleSource, /hoshimori\.act\(\{ type: 'oven-choice'/)
+assert.match(consoleSource, /data-testid="memory-hoshimori-chronicle-open"/)
+assert.match(consoleSource, /memory-dungeon-earth-chronicle/)
 assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
 assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
 assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
 assert.match(storeSource, /memory-dungeon-hoshimori-e07-v1/)
+assert.match(storeSource, /syncHoshimoriPhoto\(restored\.choices\)/)
+assert.match(storeSource, /syncHoshimoriPhoto\(next\.choices\)/)
+const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(worldStoreSource, /campaign\.value\.completed\.includes\('e06'\)/)
+assert.match(worldStoreSource, /reconcileHoshimoriEarthChronicle/)
 assert.match(pageSource, /memory-dungeon-hoshimori/)
 assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
 assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
-  'Hoshimori warm proof: 16 unique sites, 32 outcomes, 96 seeds, two Oven routes, three rooms, Pip continuity and forged-save rejection passed',
+  'Hoshimori warm proof: 16 sites, 96 seeds, 24 hearings, earned first Earth photograph, save and spoiler guards passed',
 )

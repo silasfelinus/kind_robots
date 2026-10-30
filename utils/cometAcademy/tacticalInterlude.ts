@@ -482,6 +482,22 @@ export function validTacticalInterlude(
         unit.maxHp > 0 &&
         unit.hp >= 0 &&
         unit.hp <= unit.maxHp &&
+        (unit.signatureSupportUsed === undefined ||
+          (unit.id === 'allied-lieutenant' &&
+            typeof unit.signatureSupportUsed === 'boolean')) &&
+        (unit.id !== 'allied-lieutenant' ||
+          (unit.team === 'squad' &&
+            unit.identity === run.opponentSignature &&
+            unit.lieutenantName ===
+              campaignStagesFor(battle.opponent!).lieutenant.name &&
+            unit.maxHp === 4 &&
+            typeof unit.signatureSupportUsed === 'boolean' &&
+            run.tacticalHistory?.some(
+              (entry) =>
+                entry.opponent === battle.opponent &&
+                entry.lieutenantParley === 'ally' &&
+                entry.day < run.day,
+            ))) &&
         unit.x >= 0 &&
         unit.x < 9 &&
         unit.y >= 0 &&

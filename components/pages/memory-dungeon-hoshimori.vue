@@ -203,7 +203,9 @@
           </div>
 
           <p
-            v-if="hoshimori.progress.current === '8,6' && hoshimori.ridgeAccount"
+            v-if="
+              hoshimori.progress.current === '8,6' && hoshimori.ridgeAccount
+            "
             class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"
             data-testid="memory-hoshimori-ridge-account"
           >

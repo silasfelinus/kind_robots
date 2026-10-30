@@ -453,8 +453,7 @@ for (const post of ['deliver', 'archive'] as const) {
         progress = move(progress, key)
       assert.equal(hoshimoriWindwardAccount(progress), null)
       progress = choose(progress, post)
-      for (const key of ['5,2', '6,2', '7,2'])
-        progress = move(progress, key)
+      for (const key of ['5,2', '6,2', '7,2']) progress = move(progress, key)
       progress = choose(progress, gate)
       progress = move(progress, '8,2')
       assert.equal(

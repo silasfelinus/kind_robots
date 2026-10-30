@@ -181,6 +181,16 @@
           <p class="text-base leading-relaxed">
             {{ hoshimori.currentSite?.opening }}
           </p>
+          <p
+            v-if="
+              hoshimori.progress.current === '1,1' &&
+              hoshimori.vesperBriarHistory
+            "
+            class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-base leading-relaxed"
+            data-testid="memory-hoshimori-vesper-briar-history"
+          >
+            {{ hoshimori.vesperBriarHistory }}
+          </p>
           <template v-if="selectedChoice">
             <p
               class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed"

@@ -108,10 +108,10 @@ for (const team of TEAMS) {
 for (const card of CARDS) {
   const dmg = card.text.match(/(\d+) damage/)
   if (dmg && card.effect !== 'chaos' && card.kind !== 'creature')
-    assert.equal(Number(dmg[1]), card.power ?? 2, card.id + ' damage text')
+    assert.equal(Number(dmg?.[1] ?? NaN), card.power ?? 2, card.id + ' damage')
   const heal = card.text.match(/estore (\d+) HP/)
   if (heal)
-    assert.equal(Number(heal[1]), card.power ?? 2, card.id + ' heal text')
+    assert.equal(Number(heal?.[1] ?? NaN), card.power ?? 2, card.id + ' heal')
 }
 // Every keyword is used and explained
 for (const k of Object.keys(KEYWORDS) as Keyword[]) {

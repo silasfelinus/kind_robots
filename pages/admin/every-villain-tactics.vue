@@ -781,10 +781,17 @@
               >
                 ASSIGN AS SQUAD LEAD →
               </button>
-              <div class="evt-comic-buttons" aria-label="Preview illustrated character introductions">
-                <button v-for="role in comicPreviewRoles" :key="role"
-                  type="button" data-testid="tactics-comic-intro-preview"
-                  @click="previewComicIntro(role)">
+              <div
+                class="evt-comic-buttons"
+                aria-label="Preview illustrated character introductions"
+              >
+                <button
+                  v-for="role in comicPreviewRoles"
+                  :key="role"
+                  type="button"
+                  data-testid="tactics-comic-intro-preview"
+                  @click="previewComicIntro(role)"
+                >
                   {{ role.toUpperCase() }} REVEAL
                 </button>
               </div>
@@ -831,18 +838,26 @@ import {
 } from '~/utils/everyVillainTactics/training'
 
 const store = useEveryVillainTacticsStore()
-const comicPreviewRoles: ComicIntroRole[] = ['hero', 'villain', 'henchman', 'lieutenant']
+const comicPreviewRoles: ComicIntroRole[] = [
+  'hero',
+  'villain',
+  'henchman',
+  'lieutenant',
+]
 const activeComicIntro = ref<ComicIntro | null>(null)
 const comicQueue: ComicIntro[] = []
 const seenComics = new Set<string>()
 const activeComicArt = computed(() =>
-  activeComicIntro.value?.artKey ? promArt(activeComicIntro.value.artKey) : null,
+  activeComicIntro.value?.artKey
+    ? promArt(activeComicIntro.value.artKey)
+    : null,
 )
 function queueComicIntro(intro: ComicIntro, replay = false) {
   if (!replay && seenComics.has(intro.key)) return
   seenComics.add(intro.key)
   comicQueue.push(intro)
-  if (!activeComicIntro.value) activeComicIntro.value = comicQueue.shift() ?? null
+  if (!activeComicIntro.value)
+    activeComicIntro.value = comicQueue.shift() ?? null
 }
 function dismissComicIntro() {
   activeComicIntro.value = comicQueue.shift() ?? null

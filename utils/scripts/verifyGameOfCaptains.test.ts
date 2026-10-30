@@ -724,6 +724,26 @@ assert.ok(page.includes('data-testid="captains-back-to-captains"'))
 assert.ok(page.includes('CREW_DOSSIERS[focusedCrew]'))
 assert.ok(page.includes("selectionScreen === 'captain'"))
 assert.ok(page.includes('stagePainting'))
+// Playtest readiness (Playwright at 390/768/1440): the shipped call, nemesis
+// and ending paintings fill the stage again, the ending keeps its long
+// epilogue in the log panel, and small controls stay tappable.
+assert.ok(page.includes('voyageStageArt(run.value)'), 'stage paints the voyage')
+assert.ok(page.includes('sentences.slice(0, 2)'), 'short ending stage copy')
+for (const [file, selector] of [
+  ['pages/play/game-of-captains.vue', '.cap-crew-pages button {'],
+  ['components/gameOfCaptains/daily-console.vue', '.daily-undo {'],
+  [
+    'components/gameOfCaptains/constellation-test.vue',
+    '.scope-footer button {',
+  ],
+] as const) {
+  const css = fromRoot(file)
+  const rule = css.slice(
+    css.indexOf(selector),
+    css.indexOf('}', css.indexOf(selector)),
+  )
+  assert.ok(rule.includes('min-height: 2rem'), `${file} ${selector} tap target`)
+}
 assert.ok(tab.includes('route: /play/game-of-captains'))
 assert.ok(
   home.includes("route: '/play/game-of-captains'") &&

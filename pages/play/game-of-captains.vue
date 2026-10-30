@@ -1679,7 +1679,7 @@ import {
   captainInstinctReply,
 } from '~/utils/gameOfCaptains/captainInstincts'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
-import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import { portraitArt, voyageStageArt } from '~/utils/gameOfCaptains/artSlots'
 import {
   CAPTAIN_ORIGINS,
   type CaptainOriginId,
@@ -1749,7 +1749,11 @@ const romanceRecord = computed(
 /** A captain or crew portrait once its render ships; the monogram stands in until then. */
 const portrait = (key: string) => portraitArt(key)
 const stagePainting = computed(() => {
-  if (run.value) return '/game-of-captains/space-couch-stage.svg'
+  // The call, nemesis and ending paintings; the drawn couch where none is rendered.
+  if (run.value)
+    return (
+      voyageStageArt(run.value) ?? '/game-of-captains/space-couch-stage.svg'
+    )
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'
       ? ''
@@ -1890,11 +1894,15 @@ const headline = computed(() =>
       }[run.value.phase]
     : '',
 )
-const stageCopy = computed(() =>
-  run.value?.phase === 'briefing'
-    ? mission.value.briefing
-    : (run.value?.scene ?? ''),
-)
+const stageCopy = computed(() => {
+  if (run.value?.phase === 'briefing') return mission.value.briefing
+  const scene = run.value?.scene ?? ''
+  if (run.value?.phase !== 'ending') return scene
+  // The whole epilogue reads in the log panel; over the painting the stage
+  // keeps the verdict's first two sentences so it never runs off the art.
+  const sentences = scene.match(/[^.!?]+[.!?]+/g) ?? [scene]
+  return sentences.slice(0, 2).join('').trim()
+})
 const panelLabel = computed(() =>
   run.value
     ? {
@@ -2598,6 +2606,7 @@ function toggleAway(id: CrewId) {
   font-weight: 900;
 }
 .cap-crew-pages button {
+  min-height: 2rem;
   padding: 0.4rem 0.55rem;
   border: 1px solid #88b2bd;
   border-radius: 0.3rem;

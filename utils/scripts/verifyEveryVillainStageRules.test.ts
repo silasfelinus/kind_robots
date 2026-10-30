@@ -478,7 +478,7 @@ const refuse = (text: string, why: string) => {
 }
 refuse('', 'empty')
 refuse('{not json', 'unreadable')
-refuse('x'.repeat(30_000), 'oversized')
+refuse('x'.repeat(70_000), 'oversized')
 refuse(JSON.stringify({ ...code, kind: 'other-game' }), 'wrong kind')
 refuse(JSON.stringify({ ...code, version: 2 }), 'future version')
 refuse(

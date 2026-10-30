@@ -18,6 +18,7 @@ import type {
   StoryRun,
 } from './firstBellStory'
 import { PICNIC_KNOWN_TRIGGERS } from './picnicPanic'
+import { scriptTriggerIds, settableFlags } from './sceneGraph'
 import { tacticFor } from './powers'
 import { stageProblems, type StageDraft } from './studio'
 import {
@@ -422,14 +423,37 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     !state.events.every((e) => typeof e === 'string' && e.length <= 600)
   )
     return reject('Battle log is malformed.')
+  const scriptIds = scriptTriggerIds(save.stage?.script)
   if (
     !Array.isArray(state.fired) ||
     new Set(state.fired).size !== state.fired.length ||
     !state.fired.every(
-      (id) => KNOWN_TRIGGERS.includes(id) || PICNIC_KNOWN_TRIGGERS.includes(id),
+      (id) =>
+        KNOWN_TRIGGERS.includes(id) ||
+        PICNIC_KNOWN_TRIGGERS.includes(id) ||
+        scriptIds.includes(id),
     )
   )
     return reject('Trigger history is malformed.')
+  // A scene is only ever marked seen after it fired.
+  if (
+    state.fired.some(
+      (id) =>
+        id.startsWith('seen:scene:') &&
+        !state.fired!.includes(id.slice('seen:'.length)),
+    )
+  )
+    return reject('A scene was marked seen before it fired.')
+  const flagsAllowed = save.stage?.script
+    ? settableFlags(save.stage.script)
+    : new Set<string>()
+  if (
+    state.flags !== undefined &&
+    (!Array.isArray(state.flags) ||
+      new Set(state.flags).size !== state.flags.length ||
+      !state.flags.every((f) => flagsAllowed.has(f)))
+  )
+    return reject('Story flags are invalid.')
 
   // Civilians keep their authored names and tiles; only status may change.
   const authored = save.stage?.civilians ?? []

@@ -117,6 +117,8 @@ export type TrainingState = {
    * stage, and their runtime state. Absent for battles without them. */
   rules?: StageRules
   field?: FieldState
+  /** Story flags set by authored scene choices (see sceneGraph). */
+  flags?: string[]
   impact: {
     attacker: string
     target: string

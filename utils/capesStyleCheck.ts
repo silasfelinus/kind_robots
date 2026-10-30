@@ -2,7 +2,10 @@
 // The Conductor art ledger owns the complete generation prompts and ArtJob IDs.
 export const CAPES_STYLE_ROUND = 'capes-western-style-check-v1'
 export const CAPES_STYLE_DESIGNER = 'Capes Style Check 2026-10-29'
-export const CAPES_STYLE_DESIGNERS = [CAPES_STYLE_DESIGNER, 'Capes Style Check 2026-10-29 Map Portrait Extension'] as const
+export const CAPES_STYLE_DESIGNERS = [
+  CAPES_STYLE_DESIGNER,
+  'Capes Style Check 2026-10-29 Map Portrait Extension',
+] as const
 export const CAPES_STYLE_PROJECT = 'comet-city-academy'
 
 export const CAPES_STYLE_SUBJECTS = [

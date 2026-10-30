@@ -45,6 +45,7 @@ import {
 import {
   SOCIAL_CAST,
   SOCIAL_DAYS,
+  compatibilityFor,
   newSocialState,
   socialChoices,
   applySocialChoice,
@@ -153,6 +154,9 @@ import {
   nextSchoolDay,
   resolveDispatch,
   socialize,
+  socialContextFor,
+  academyTriadOffers,
+  negotiateTriad,
   restoreAcademy,
   startAcademy,
   startFullAcademy,
@@ -2626,6 +2630,356 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   }
   assert.equal(titles.size, CITY_SITES.length)
 }
+
+// t-013: every classmate is reachable in week one, injured friends can be
+// visited instead of treated, compatibility is visible and consequential, and
+// a three-person route is negotiated beat by beat with every adult consenting.
+{
+  const playable = SOCIAL_CAST.filter((person) => person.romanceable)
+  assert.ok(SOCIAL_CAST.every((person) => person.pronouns && person.voice))
+  assert.equal(
+    new Set(SOCIAL_CAST.map((person) => person.voice)).size,
+    SOCIAL_CAST.length,
+  )
+  assert.equal(
+    new Set(SOCIAL_CAST.map((person) => person.bedside)).size,
+    SOCIAL_CAST.length,
+  )
+  assert.ok(!SOCIAL_CAST.some((person) => person.id === 'veda'))
+  for (const person of playable) {
+    assert.ok(person.compatibility.length >= 2, person.id)
+    for (const rule of person.compatibility)
+      assert.ok(
+        rule.form || rule.vow || rule.power || rule.dangerAbove !== undefined,
+        `${person.id} rule needs a condition`,
+      )
+  }
+  assert.equal(
+    compatibilityFor('mina', { form: 'villain' }).chemistry,
+    'closed',
+  )
+  assert.equal(
+    compatibilityFor('mina', { vow: 'shelter' }).chemistry,
+    'kindred',
+  )
+  assert.equal(compatibilityFor('mina', { vow: 'claim' }).chemistry, 'wary')
+  assert.equal(
+    compatibilityFor('mina', { vow: 'shelter', form: 'villain' }).chemistry,
+    'closed',
+  )
+  assert.equal(compatibilityFor('imani', { danger: 13 }).chemistry, 'closed')
+  assert.equal(
+    compatibilityFor('nix', { power: 'spatial' }).chemistry,
+    'kindred',
+  )
+  assert.equal(compatibilityFor('nix').chemistry, 'curious')
+  assert.equal(compatibilityFor('sol').chemistry, 'closed')
+
+  const roundTrip = (run: AcademyRun) => {
+    const saved = JSON.parse(JSON.stringify(run))
+    assert.deepEqual(restoreAcademy(saved), saved)
+  }
+  const toMap = (run: AcademyRun, day: number): AcademyRun => ({
+    ...run,
+    day,
+    phase: 'map',
+  })
+  const night = (run: AcademyRun): AcademyRun => {
+    const done = resolveDispatch(
+      assignPlayerCase(run, incidentsFor(run)[0]!.id),
+    )
+    assert.equal(done.phase, 'debrief')
+    const saved = JSON.parse(JSON.stringify(done))
+    assert.deepEqual(restoreAcademy(saved), saved)
+    return nextSchoolDay(done)
+  }
+
+  // Wary chemistry asks for one more conversation, never a purchase.
+  let wary = startFullAcademy('kinetic', 5, undefined, 'claim')
+  wary = socialize(toMap(wary, 2), 'mina', 'listen')
+  wary = socialize(toMap(wary, 3), 'mina', 'help')
+  wary = socialize(toMap(wary, 4), 'mina', 'invite')
+  assert.equal(wary.relationships?.connections.mina?.trust, 3)
+  const tooSoon = toMap(wary, 5)
+  assert.deepEqual(socialize(tooSoon, 'mina', 'date'), tooSoon)
+  wary = socialize(tooSoon, 'mina', 'listen')
+  wary = socialize(toMap(wary, 6), 'mina', 'date')
+  assert.equal(wary.relationships?.romance, 'mina')
+  roundTrip(wary)
+  const kindred = socialChoices(
+    {
+      connections: { mina: { trust: 3, helped: true, romance: false } },
+      days: [],
+    },
+    'mina',
+    4,
+    { vow: 'shelter' },
+  ).find((choice) => choice.id === 'invite')
+  assert.ok(kindred?.text.includes('Mina trusts people'))
+
+  // Injury: the friend stays out through the next day, and the day action can
+  // either treat them (rejoin tonight) or sit with them (trust, still benched).
+  const hurt: AcademyRun = {
+    ...toMap(startFullAcademy('empathy', 11), 4),
+    injuries: { mina: 6 },
+  }
+  assert.ok(!studentAvailable(hurt, 'mina'))
+  assert.deepEqual(
+    socialChoices(
+      hurt.relationships!,
+      'mina',
+      4,
+      socialContextFor(hurt, 'mina'),
+    ).map((choice) => choice.id),
+    ['visit'],
+  )
+  assert.deepEqual(socialize(hurt, 'mina', 'listen'), hurt)
+  const visited = socialize(hurt, 'mina', 'visit')
+  assert.equal(visited.phase, 'dispatch')
+  assert.equal(visited.relationships?.connections.mina?.trust, 1)
+  assert.equal(visited.injuries?.mina, 6)
+  assert.ok(!studentAvailable(visited, 'mina'))
+  assert.ok(visited.scene.includes('Campus Infirmary'))
+  roundTrip(visited)
+  const treated = tendInfirmary(hurt, 'mina')
+  assert.ok(studentAvailable(treated, 'mina'))
+  assert.equal(treated.relationships?.connections.mina, undefined)
+  const separated: AcademyRun = {
+    ...toMap(startFullAcademy('empathy', 11), 21),
+    injuries: { mina: 23 },
+    betrayal: { day: 20, person: 'mina', status: 'isolated' },
+  }
+  assert.deepEqual(socialize(separated, 'mina', 'visit'), separated)
+
+  // A clean week one from an untouched seed: romance, then the first beat
+  // of The Listening Accord, through real day and night actions.
+  let week = startFullAcademy('empathy', 77)
+  week = visitCitySite(week, CITY_SITES[0]!.id)
+  week = chooseEncounter(week, encounterFor(week).options[0]!.id)
+  week = night(week)
+  const plan: [StudentId, 'listen' | 'help' | 'invite' | 'date'][] = [
+    ['imani', 'listen'],
+    ['imani', 'help'],
+    ['imani', 'invite'],
+    ['imani', 'date'],
+  ]
+  for (const [person, action] of plan) {
+    assert.equal(week.phase, 'map')
+    assert.deepEqual(academyTriadOffers(week), [])
+    week = socialize(week, person, action)
+    assert.equal(week.phase, 'dispatch', `${person} ${action} day ${week.day}`)
+    week = night(week)
+  }
+  assert.equal(week.day, 6)
+  assert.equal(week.relationships?.romance, 'imani')
+  const early = academyTriadOffers(week)
+  assert.equal(early.length, 1)
+  assert.ok(early[0]!.waiting?.includes('Nix Venn wants to know you better'))
+  assert.deepEqual(early[0]!.options, [])
+  assert.deepEqual(negotiateTriad(week, 'listening-accord', 'la-tell'), week)
+  week = night(socialize(week, 'nix', 'listen'))
+  assert.equal(week.day, 7)
+  const preview = academyTriadOffers(week)[0]!
+  assert.equal(preview.waiting, null)
+  assert.ok(preview.premise.includes('You are dating Imani Vale'))
+  assert.deepEqual(
+    preview.options.map((option) => option.id),
+    ['la-tell', 'la-friends'],
+  )
+  assert.ok(
+    !preview.options.some((option) => /secret|behind|hide/i.test(option.label)),
+  )
+  week = negotiateTriad(week, 'listening-accord', 'la-tell')
+  assert.equal(week.phase, 'dispatch')
+  assert.equal(week.relationships?.triads?.['listening-accord']?.step, 1)
+  assert.equal(week.relationships?.connections.nix?.romance, false)
+  assert.deepEqual(academyTriadOffers(week), [])
+  week = night(week)
+  assert.equal(week.day, 8)
+  assert.deepEqual(academyTriadOffers(week), [])
+
+  // Later beats need a fresh day, each person's own trust and availability.
+  let accord = toMap(week, 9)
+  const nixHurt = { ...accord, injuries: { nix: 10 } }
+  assert.ok(academyTriadOffers(nixHurt)[0]!.waiting?.includes('cannot join'))
+  assert.deepEqual(
+    negotiateTriad(nixHurt, 'listening-accord', 'la-trust'),
+    nixHurt,
+  )
+  const emergency = { ...accord, danger: 13 }
+  assert.ok(academyTriadOffers(emergency)[0]!.waiting?.includes('twelve'))
+  accord = negotiateTriad(accord, 'listening-accord', 'la-trust')
+  assert.equal(accord.relationships?.connections.nix?.trust, 2)
+  assert.equal(accord.relationships?.connections.imani?.trust, 4)
+  const lowTrust: AcademyRun = {
+    ...toMap(accord, 10),
+    relationships: {
+      ...accord.relationships!,
+      connections: {
+        ...accord.relationships!.connections,
+        nix: { trust: 1, helped: false, romance: false },
+      },
+    },
+  }
+  assert.ok(academyTriadOffers(lowTrust)[0]!.waiting?.includes('trust 2'))
+  accord = negotiateTriad(toMap(accord, 10), 'listening-accord', 'la-checkin')
+  assert.deepEqual(
+    negotiateTriad(toMap(accord, 12), 'listening-accord', 'la-commit'),
+    toMap(accord, 12),
+  )
+  const beforePublic = toMap(accord, 12)
+  accord = negotiateTriad(beforePublic, 'listening-accord', 'la-public')
+  assert.equal(accord.cityStanding, (beforePublic.cityStanding ?? 0) + 1)
+  assert.equal(accord.academyStanding, (beforePublic.academyStanding ?? 0) - 1)
+  assert.equal(
+    accord.relationships?.triads?.['listening-accord']?.status,
+    'negotiating',
+  )
+  accord = negotiateTriad(toMap(accord, 13), 'listening-accord', 'la-commit')
+  const committed = accord.relationships!
+  assert.equal(committed.triads?.['listening-accord']?.status, 'committed')
+  assert.equal(committed.romance, 'imani')
+  assert.equal(committed.connections.nix?.romance, true)
+  assert.ok(accord.scene.includes('All three of you said yes'))
+  assert.ok(validSocialState(committed, 13))
+  roundTrip(accord)
+  assert.equal(socialMissionBonus(committed, ['imani', 'nix']), 1)
+  assert.equal(socialMissionBonus(committed, ['imani']), 0)
+  assert.deepEqual(academyTriadOffers(toMap(accord, 14)), [])
+  const names = Object.fromEntries(
+    STUDENTS.map((s) => [s.id, s.name]),
+  ) as Record<StudentId, string>
+  const epilogue = socialFinaleText(committed, names)
+  assert.ok(
+    epilogue.includes('Imani Vale, Nix Venn and you leave the wreckage'),
+  )
+  assert.ok(epilogue.includes('Sunday check-in'))
+  assert.ok(epilogue.includes('dumplings'))
+  assert.ok(epilogue.includes('never needed to ask'))
+  assert.ok(
+    finishAcademy(
+      { ...accord, day: 30, phase: 'finale' },
+      'protect',
+    ).scene.includes('said yes to each other out loud'),
+  )
+
+  // Either adult can step away without a penalty to the other relationship.
+  const nixLeaves = socialize(toMap(accord, 14), 'nix', 'release')
+  assert.equal(nixLeaves.relationships?.romance, 'imani')
+  assert.equal(nixLeaves.relationships?.connections.nix?.romance, false)
+  assert.equal(nixLeaves.relationships?.connections.nix?.trust, 2)
+  assert.equal(
+    nixLeaves.relationships?.triads?.['listening-accord']?.status,
+    'ended',
+  )
+  roundTrip(nixLeaves)
+  const imaniLeaves = socialize(toMap(accord, 14), 'imani', 'release')
+  assert.equal(imaniLeaves.relationships?.romance, undefined)
+  assert.equal(imaniLeaves.relationships?.connections.nix?.romance, false)
+  roundTrip(imaniLeaves)
+
+  // Declining or pausing is respected; the existing couple is untouched.
+  assert.deepEqual(
+    negotiateTriad(toMap(week, 9), 'listening-accord', 'la-friends'),
+    toMap(week, 9),
+  )
+  const kept = negotiateTriad(
+    {
+      ...toMap(week, 9),
+      relationships: { ...week.relationships!, triads: undefined },
+    },
+    'listening-accord',
+    'la-friends',
+  )
+  assert.equal(
+    kept.relationships?.triads?.['listening-accord']?.status,
+    'declined',
+  )
+  assert.equal(kept.relationships?.romance, 'imani')
+  assert.deepEqual(academyTriadOffers(toMap(kept, 10)), [])
+  roundTrip(kept)
+  const paused = negotiateTriad(toMap(week, 9), 'listening-accord', 'la-wait')
+  assert.equal(
+    paused.relationships?.triads?.['listening-accord']?.status,
+    'paused',
+  )
+  assert.deepEqual(
+    academyTriadOffers(toMap(paused, 10))[0]!.options.map((o) => o.id),
+    ['la-resume'],
+  )
+  const resumed = negotiateTriad(
+    toMap(paused, 10),
+    'listening-accord',
+    'la-resume',
+  )
+  assert.equal(
+    resumed.relationships?.triads?.['listening-accord']?.status,
+    'negotiating',
+  )
+  assert.equal(resumed.relationships?.triads?.['listening-accord']?.step, 1)
+  roundTrip(resumed)
+
+  // Forged saves cannot skip a beat, invent a third partner or drop history.
+  const forge = (relationships: unknown) =>
+    restoreAcademy({ ...accord, relationships })
+  const triad = committed.triads!['listening-accord']!
+  assert.equal(
+    forge({
+      ...committed,
+      triads: {
+        'listening-accord': {
+          ...triad,
+          choices: ['la-tell', 'la-commit'],
+          days: [7, 13],
+        },
+      },
+    }),
+    null,
+  )
+  assert.equal(
+    forge({
+      ...committed,
+      triads: { 'listening-accord': { ...triad, days: [1, 9, 10, 12, 13] } },
+    }),
+    null,
+  )
+  assert.equal(
+    forge({
+      ...committed,
+      triads: { 'listening-accord': { ...triad, step: 2 } },
+    }),
+    null,
+  )
+  assert.equal(
+    forge({
+      ...committed,
+      connections: {
+        ...committed.connections,
+        nix: { ...committed.connections.nix!, romance: false },
+      },
+    }),
+    null,
+  )
+  assert.equal(forge({ ...committed, triads: undefined }), null)
+  assert.equal(
+    forge({ ...committed, triads: { 'imaginary-route': triad } }),
+    null,
+  )
+  assert.equal(forge({ ...committed, romance: undefined }), null)
+  assert.ok(
+    validSocialState(
+      JSON.parse(JSON.stringify({ connections: {}, days: [2] })),
+      2,
+    ),
+  )
+}
+
+assert.ok(page.includes('data-testid="academy-triad-panel"'))
+assert.ok(page.includes('data-testid="academy-triad-choice"'))
+assert.ok(page.includes('data-testid="academy-social-chemistry"'))
+assert.ok(page.includes('data-testid="academy-infirmary-visit"'))
+assert.ok(page.includes('store.negotiate(offer.arc.id, option.id)'))
+assert.ok(page.includes('v-for="person in socialRoster"'))
 
 console.log(
   'Prom of Doom opening, earned personas, yearbook and thirty-day gameplay: OK',

@@ -266,6 +266,16 @@
               >
                 Treat {{ student.name }} before night patrol ↗
               </button>
+              <button
+                v-for="student in visitableStudents"
+                :key="'visit-' + student.id"
+                type="button"
+                class="cca-choice"
+                data-testid="academy-infirmary-visit"
+                @click="store.social(student.id, 'visit')"
+              >
+                Sit with {{ student.name }} while they recover ↗
+              </button>
             </div>
             <button
               v-if="socialDayAvailable"
@@ -291,11 +301,34 @@
                 >Making a promise here replaces exploring a city location today.
                 Every classmate can decline, change terms or leave.</span
               >
+              <div
+                v-for="offer in triadOfferList"
+                :key="offer.arc.id"
+                class="cca-report-mini"
+                data-testid="academy-triad-panel"
+              >
+                <strong
+                  >{{ offer.title.toUpperCase() }} · THREE-WAY TALK</strong
+                >
+                <span>{{ offer.premise }}</span>
+                <strong>{{ offer.beat.title }}</strong>
+                <span>{{ offer.beat.scene }}</span>
+                <span v-if="offer.waiting">{{ offer.waiting }}</span>
+                <button
+                  v-for="option in offer.options"
+                  :key="option.id"
+                  class="cca-choice"
+                  type="button"
+                  data-testid="academy-triad-choice"
+                  @click="store.negotiate(offer.arc.id, option.id)"
+                >
+                  <span>{{ option.label }}</span
+                  ><span>↗</span>
+                </button>
+              </div>
               <div class="cca-map-tabs" aria-label="Choose classmate">
                 <button
-                  v-for="person in onCall.filter(
-                    (person) => person.origin === 'academy',
-                  )"
+                  v-for="person in socialRoster"
                   :key="person.id"
                   type="button"
                   :class="{ chosen: selectedSocialId === person.id }"
@@ -335,6 +368,19 @@
                     : ''
                 }}
               </span>
+              <span
+                v-if="selectedSocialProfile"
+                data-testid="academy-social-chemistry"
+                >MUTUAL AFFINITY · YOUR TRUST
+                {{
+                  run.relationships.connections[selectedSocialId]?.trust ?? 0
+                }}/5 · {{ chemistryLabel }} ·
+                {{ selectedChemistry.reason }}</span
+              >
+              <span v-if="selectedSocialProfile"
+                >{{ selectedSocialProfile.pronouns.toUpperCase() }} ·
+                {{ selectedSocialProfile.voice }}</span
+              >
               <span>{{ selectedSocialProfile?.boundary }}</span>
               <button
                 v-for="choice in socialActionOptions"
@@ -348,8 +394,8 @@
                 ><span>↗</span>
               </button>
               <span v-if="!socialActionOptions.length"
-                >This classmate cannot spend time together today. A serious
-                injury or betrayal may have changed the roster.</span
+                >This person cannot spend time together today. A betrayal may
+                have changed the roster.</span
               >
             </div>
             <div
@@ -1081,6 +1127,7 @@
 import {
   SOCIAL_CAST,
   SOCIAL_DAYS,
+  compatibilityFor,
   socialChoices,
 } from '~/utils/cometAcademy/relationships'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -1130,6 +1177,8 @@ import {
 } from '~/utils/cometAcademy/cityMap'
 import {
   STUDENTS,
+  academyTriadOffers,
+  socialContextFor,
   encounterFor,
   dispatchChance,
   knownContacts,
@@ -1183,19 +1232,40 @@ const socialPanelActive = computed(() =>
 const selectedSocialProfile = computed(() =>
   SOCIAL_CAST.find((p) => p.id === selectedSocialId.value),
 )
+const socialRoster = computed(() =>
+  SOCIAL_CAST.map((profile) =>
+    STUDENTS.find((person) => person.id === profile.id)!,
+  ),
+)
 const socialActionOptions = computed(() =>
   run.value?.relationships
     ? socialChoices(
         run.value.relationships,
         selectedSocialId.value,
         run.value.day,
-        {
-          unavailable: !store.available(selectedSocialId.value),
-          form: run.value.playerEvolution?.form,
-          danger: run.value.danger,
-        },
+        socialContextFor(run.value, selectedSocialId.value),
       )
     : [],
+)
+const selectedChemistry = computed(() =>
+  run.value
+    ? compatibilityFor(
+        selectedSocialId.value,
+        socialContextFor(run.value, selectedSocialId.value),
+      )
+    : { chemistry: 'curious' as const, reason: '' },
+)
+const chemistryLabel = computed(() => {
+  if (!selectedSocialProfile.value?.romanceable) return 'PLATONIC'
+  return {
+    kindred: 'KINDRED SPIRITS',
+    curious: 'CURIOUS',
+    wary: 'WARY · ONE MORE HONEST TALK BEFORE A DATE',
+    closed: 'NOT RIGHT NOW',
+  }[selectedChemistry.value.chemistry]
+})
+const triadOfferList = computed(() =>
+  run.value ? academyTriadOffers(run.value) : [],
 )
 
 const stageScenery = computed(
@@ -1247,6 +1317,18 @@ const injuredStudents = computed(() =>
         (s) => (run.value?.injuries?.[s.id] ?? 0) > (run.value?.day ?? 0),
       )
     : [],
+)
+const visitableStudents = computed(() =>
+  injuredStudents.value.filter(
+    (student) =>
+      run.value?.relationships &&
+      socialChoices(
+        run.value.relationships,
+        student.id,
+        run.value.day,
+        socialContextFor(run.value, student.id),
+      ).some((choice) => choice.id === 'visit'),
+  ),
 )
 function canVisitSite(id: SiteId) {
   if (!run.value) return false
@@ -1355,7 +1437,9 @@ function isAssignedElsewhere(caseId: string, id: StudentId): boolean {
 function toggleRelationships() {
   if (!showRelationships.value)
     selectedSocialId.value =
-      onCall.value.find((person) => person.origin === 'academy')?.id ?? 'mina'
+      onCall.value.find((person) =>
+        SOCIAL_CAST.some((profile) => profile.id === person.id),
+      )?.id ?? 'mina'
   showRelationships.value = !showRelationships.value
 }
 function reactionEmoji(id: StudentId, caseId: string): string {

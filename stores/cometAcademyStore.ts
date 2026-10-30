@@ -28,7 +28,10 @@ import {
   advanceRivalArena,
   tacticalResultFor,
 } from '~/utils/cometAcademy/tacticalInterlude'
-import type { SocialActionId } from '~/utils/cometAcademy/relationships'
+import type {
+  SocialActionId,
+  TriadArcId,
+} from '~/utils/cometAcademy/relationships'
 import {
   assignTeam,
   assignPlayerCase,
@@ -44,6 +47,7 @@ import {
   restoreAcademy,
   recruitContact,
   callEmergencyVolunteer,
+  negotiateTriad,
   socialize,
   startAcademy,
   startFullAcademy,
@@ -223,6 +227,12 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   function social(id: StudentId, action: SocialActionId) {
     if (!run.value) return
     run.value = socialize(run.value, id, action)
+    persist()
+  }
+
+  function negotiate(arcId: TriadArcId, optionId: string) {
+    if (!run.value) return
+    run.value = negotiateTriad(run.value, arcId, optionId)
     persist()
   }
 
@@ -415,6 +425,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     recruit,
     requestBackup,
     social,
+    negotiate,
     visit,
     assign,
     lead,

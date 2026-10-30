@@ -20,8 +20,8 @@
             STYLE <span class="text-amber-300">CHECK</span>
           </h2>
           <p class="mt-1 text-xs text-slate-200 sm:text-sm">
-            Eight scene types. Six checkpoint proposals. One shared cast and
-            art bible for two superhero games, judged from actual renders.
+            Eight scene types. Six checkpoint proposals. One shared cast and art
+            bible for two superhero games, judged from actual renders.
           </p>
         </div>
         <button
@@ -38,8 +38,8 @@
         aria-live="polite"
       >
         <span
-          ><strong class="text-amber-300">{{ store.submitted }}</strong> / {{ totalCells }}
-          accepted</span
+          ><strong class="text-amber-300">{{ store.submitted }}</strong> /
+          {{ totalCells }} accepted</span
         >
         <span
           ><strong class="text-emerald-300">{{ store.rendered }}</strong>
@@ -66,7 +66,10 @@
       <p>Administrator access required for private style-check images.</p>
     </div>
     <template v-else>
-      <nav class="capes-section-nav shrink-0" aria-label="Capes art bible sections">
+      <nav
+        class="capes-section-nav shrink-0"
+        aria-label="Capes art bible sections"
+      >
         <button
           v-for="section in sections"
           :key="section.key"
@@ -154,21 +157,35 @@
           </p>
         </div>
 
-        <details class="mb-4 rounded-lg border border-amber-200/30 bg-slate-950/60 p-3" data-testid="capes-model-proposals">
-          <summary class="cursor-pointer text-xs font-black uppercase tracking-widest text-amber-200">
+        <details
+          class="mb-4 rounded-lg border border-amber-200/30 bg-slate-950/60 p-3"
+          data-testid="capes-model-proposals"
+        >
+          <summary
+            class="cursor-pointer text-xs font-black uppercase tracking-widest text-amber-200"
+          >
             The six checkpoint proposals · model formulas and render settings
           </summary>
           <div class="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            <article v-for="lane in CAPES_STYLE_LANES" :key="lane.key"
-              class="rounded border border-slate-500/40 bg-slate-800 p-3">
+            <article
+              v-for="lane in CAPES_STYLE_LANES"
+              :key="lane.key"
+              class="rounded border border-slate-500/40 bg-slate-800 p-3"
+            >
               <h3 class="font-black text-amber-100">{{ lane.title }}</h3>
               <p class="mt-1 text-xs text-slate-300">{{ lane.family }}</p>
-              <p class="mt-1 break-all font-mono text-[10px] text-sky-200">{{ lane.model }}</p>
+              <p class="mt-1 break-all font-mono text-[10px] text-sky-200">
+                {{ lane.model }}
+              </p>
               <p class="mt-2 text-xs text-slate-200">{{ lane.tone }}</p>
               <p class="mt-1 text-[11px] text-amber-200">{{ lane.recipe }}</p>
             </article>
           </div>
-          <p class="mt-3 text-xs text-slate-400">Same six controlled checkpoint settings for all eight concepts. Krea 2, Arthemy, Nova Comic, Illustrij, DreamShaper Turbo and Unstable Diffusers; no generic Flux, Pony or furry-first lane.</p>
+          <p class="mt-3 text-xs text-slate-400">
+            Same six controlled checkpoint settings for all eight concepts. Krea
+            2, Arthemy, Nova Comic, Illustrij, DreamShaper Turbo and Unstable
+            Diffusers; no generic Flux, Pony or furry-first lane.
+          </p>
         </details>
 
         <div
@@ -333,39 +350,79 @@
         </div>
       </section>
 
-      <section v-else-if="view === 'cast'" class="capes-deck min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-7">
+      <section
+        v-else-if="view === 'cast'"
+        class="capes-deck min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-7"
+      >
         <CapesCastAtlas />
       </section>
-      <section v-else-if="view === 'production'" class="capes-deck min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7" data-testid="capes-asset-plan">
-        <p class="text-[11px] font-black uppercase tracking-widest text-amber-300">03 / SHARED PRODUCTION BIBLE</p>
-        <h2 class="mt-2 text-3xl font-black">EVERY CHARACTER <span class="text-amber-300">GETS A REVEAL.</span></h2>
+      <section
+        v-else-if="view === 'production'"
+        class="capes-deck min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7"
+        data-testid="capes-asset-plan"
+      >
+        <p
+          class="text-[11px] font-black uppercase tracking-widest text-amber-300"
+        >
+          03 / SHARED PRODUCTION BIBLE
+        </p>
+        <h2 class="mt-2 text-3xl font-black">
+          EVERY CHARACTER <span class="text-amber-300">GETS A REVEAL.</span>
+        </h2>
         <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-          Prom of Doom and Every Villain Tactics share canonical art keys, collectible card fronts,
-          readable stats backs, portraits, expressive story illustrations and transparent-ready standees.
-          Card-back typography and comic-panel names are rendered by the UI, never burned into AI images.
+          Prom of Doom and Every Villain Tactics share canonical art keys,
+          collectible card fronts, readable stats backs, portraits, expressive
+          story illustrations and transparent-ready standees. Card-back
+          typography and comic-panel names are rendered by the UI, never burned
+          into AI images.
         </p>
         <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <article v-for="family in artFamilies" :key="family.title"
-            class="rounded-xl border border-amber-200/30 bg-slate-900/80 p-4">
-            <p class="text-[11px] font-black uppercase tracking-wider text-sky-200">{{ family.group }}</p>
-            <strong class="mt-2 block text-3xl font-black text-amber-200">{{ family.quantity }}</strong>
+          <article
+            v-for="family in artFamilies"
+            :key="family.title"
+            class="rounded-xl border border-amber-200/30 bg-slate-900/80 p-4"
+          >
+            <p
+              class="text-[11px] font-black uppercase tracking-wider text-sky-200"
+            >
+              {{ family.group }}
+            </p>
+            <strong class="mt-2 block text-3xl font-black text-amber-200">{{
+              family.quantity
+            }}</strong>
             <h3 class="mt-1 text-lg font-black">{{ family.title }}</h3>
-            <p class="mt-2 text-xs leading-5 text-slate-300">{{ family.detail }}</p>
+            <p class="mt-2 text-xs leading-5 text-slate-300">
+              {{ family.detail }}
+            </p>
           </article>
         </div>
         <div class="mt-5 grid gap-3 lg:grid-cols-2">
-          <article class="rounded-xl border border-slate-500/30 bg-slate-900 p-4">
+          <article
+            class="rounded-xl border border-slate-500/30 bg-slate-900 p-4"
+          >
             <h3 class="font-black text-amber-200">STORY EXPRESSION SETS</h3>
-            <p class="mt-2 text-sm text-slate-300">Six large hero reactions (neutral, warm, determined, shocked, angry, hurt) with portrait crops, plus three lieutenant reactions. Keep physical identity and costume continuous.</p>
+            <p class="mt-2 text-sm text-slate-300">
+              Six large hero reactions (neutral, warm, determined, shocked,
+              angry, hurt) with portrait crops, plus three lieutenant reactions.
+              Keep physical identity and costume continuous.
+            </p>
           </article>
-          <article class="rounded-xl border border-slate-500/30 bg-slate-900 p-4">
+          <article
+            class="rounded-xl border border-slate-500/30 bg-slate-900 p-4"
+          >
             <h3 class="font-black text-amber-200">TACTICAL STANDEE STATES</h3>
-            <p class="mt-2 text-sm text-slate-300">2:1 standees use CSS idle bob, selected bounce, hit shake, critical recoil, defensive overlay and sideways unconscious pose. Reduced motion stays respected.</p>
+            <p class="mt-2 text-sm text-slate-300">
+              2:1 standees use CSS idle bob, selected bounce, hit shake,
+              critical recoil, defensive overlay and sideways unconscious pose.
+              Reduced motion stays respected.
+            </p>
           </article>
         </div>
         <p class="mt-4 max-w-3xl text-xs leading-5 text-slate-400">
-          Plans are not completed ArtJobs. A card unlock requires a real game event, and delivered art requires a verified ArtImage attached to its intended surface.
-          The house style is chosen by a human after reviewing all eight benchmark scenes.
+          Plans are not completed ArtJobs. A card unlock requires a real game
+          event, and delivered art requires a verified ArtImage attached to its
+          intended surface. The house style is chosen by a human after reviewing
+          all eight benchmark scenes.
         </p>
       </section>
       <footer
@@ -421,14 +478,34 @@ const sections = [
 ] as const
 const totalCells = CAPES_STYLE_SUBJECTS.length * CAPES_STYLE_LANES.length
 const artFamilies = [
-  { group: 'Permanent hero/villain', quantity: '96', title: 'Core poster fronts',
-    detail: '48 hero posters + 48 villain posters, each a collectible card with a templated stats reverse.' },
-  { group: 'Villain support cast', quantity: '96', title: 'Crew and lieutenant posters',
-    detail: 'One unique one-hit species and one independent, powered lieutenant per villain.' },
-  { group: 'First appearances', quantity: '192', title: 'Comic introductions',
-    detail: 'A stylized reveal for each hero, villain, henchman family and lieutenant, with real on-screen lettering.' },
-  { group: 'Tactical play', quantity: '192', title: '2:1 standees',
-    detail: 'Hero and villain forms, 48 lieutenant models and 48 species units with simple transform-based animation.' },
+  {
+    group: 'Permanent hero/villain',
+    quantity: '96',
+    title: 'Core poster fronts',
+    detail:
+      '48 hero posters + 48 villain posters, each a collectible card with a templated stats reverse.',
+  },
+  {
+    group: 'Villain support cast',
+    quantity: '96',
+    title: 'Crew and lieutenant posters',
+    detail:
+      'One unique one-hit species and one independent, powered lieutenant per villain.',
+  },
+  {
+    group: 'First appearances',
+    quantity: '192',
+    title: 'Comic introductions',
+    detail:
+      'A stylized reveal for each hero, villain, henchman family and lieutenant, with real on-screen lettering.',
+  },
+  {
+    group: 'Tactical play',
+    quantity: '192',
+    title: '2:1 standees',
+    detail:
+      'Hero and villain forms, 48 lieutenant models and 48 species units with simple transform-based animation.',
+  },
 ] as const
 const store = useCapesStyleCheckStore()
 const activeSubject = computed(
@@ -479,10 +556,22 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 900;
 }
-.capes-section-nav button span { color: #e7bb7d; font-size: 10px; }
-.capes-section-nav button.active { background: #ddba80; color: #152036; border-color: #ffdbab; }
-.capes-section-nav button.active span { color: #603927; }
-.capes-section-nav button:focus-visible { outline: 2px solid #ffe7ab; outline-offset: 2px; }
+.capes-section-nav button span {
+  color: #e7bb7d;
+  font-size: 10px;
+}
+.capes-section-nav button.active {
+  background: #ddba80;
+  color: #152036;
+  border-color: #ffdbab;
+}
+.capes-section-nav button.active span {
+  color: #603927;
+}
+.capes-section-nav button:focus-visible {
+  outline: 2px solid #ffe7ab;
+  outline-offset: 2px;
+}
 .capes-board {
   background: #101828;
 }

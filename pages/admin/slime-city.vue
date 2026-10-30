@@ -300,6 +300,10 @@
                   target:
                     lab.selectedUnit !== null || lab.selectedCard !== null,
                   lair: monsterHere(cell.x, cell.y),
+                  neutral: lab.mode === 'blackout' && cell.x >= 2 && cell.x < lab.match.width - 2,
+                  legalMove: lab.canMoveTo(cell.x, cell.y),
+                  inRange: !!fighterAt(cell.x, cell.y) && lab.attackTargets.includes(fighterAt(cell.x, cell.y)!.id),
+                  marked: !!fighterAt(cell.x, cell.y) && lab.targetUnit === fighterAt(cell.x, cell.y)!.id,
                 }"
                 :data-testid="'slime-tile-' + cell.x + '-' + cell.y"
                 :aria-label="cellAria(cell.x, cell.y)"
@@ -624,6 +628,27 @@
                   }}</template
                 >
               </p>
+              <div v-if="lab.mode === 'blackout' && lab.selected" class="sc-action-deck" data-testid="slime-attack-actions">
+                <span class="sc-overline">SELECT AN ENEMY HIGHLIGHTED IN RED TO ATTACK</span>
+                <button
+                  type="button"
+                  class="sc-attack-button"
+                  data-testid="slime-attack"
+                  :disabled="lab.targetUnit === null"
+                  @click="lab.attackSelected()"
+                >
+                  <span class="sc-attack-symbol">{{ attackSymbol }}</span>
+                  {{ (lab.selected.attackStyle ?? 'sword').toUpperCase() }} ATTACK
+                  <span>{{ lab.targetUnit !== null ? lab.attackPreview + ' DAMAGE' : 'CHOOSE TARGET' }}</span>
+                </button>
+                <small v-if="lab.selected.summonedRound === lab.match.round && !lab.selected.keywords?.includes('ambush')">
+                  JUST SUMMONED · CAN MOVE, CANNOT ATTACK UNTIL NEXT ROUND
+                </small>
+                <small v-else-if="lab.selected.attackedRound === lab.match.round">
+                  ALREADY ATTACKED THIS ROUND
+                </small>
+                <small v-else>RANGE {{ lab.selected.range ?? 1 }} · MOVE AP {{ lab.selected.ap }}</small>
+              </div>
               <ol class="sc-log" aria-label="Recent events">
                 <li v-for="(line, i) in lab.match.log.slice(0, 6)" :key="i">
                   {{ line }}
@@ -735,6 +760,9 @@ function teamName(id: string): string {
 function modeTitle(id: string): string {
   return lab.modes.find((m) => m.id === id)?.title ?? id
 }
+const attackSymbol = computed(() => ({
+  sword: '⚔', arrow: '➶', spell: '✦', claw: '✥', hammer: '✣', blast: '✷',
+}[lab.selected?.attackStyle ?? 'sword']))
 const flagStatus = computed(() => {
   const carrier = lab.sight.units.find((unit) => unit.carryingFlag)
   if (!carrier) return 'LOOSE'
@@ -2207,4 +2235,14 @@ onUnmounted(() => lab.dispose())
  .sc-card-overlay { width: 93%; left: 3.5%; right: 3.5%; top: 2%; bottom: 2%; grid-template-rows: minmax(4rem, 36%) minmax(0, 1fr); }
  .sc-card-information { padding: 0.65rem; gap: 0.25rem; }
 }
+.sc-tile.neutral { box-shadow: inset 0 0 0 1px #cbd3a51d; }
+.sc-tile.legalMove { outline: 2px dashed #79faac; outline-offset: -3px; }
+.sc-tile.inRange { outline: 3px solid #ff9174; outline-offset: -3px; }
+.sc-tile.marked { background: #ab414b; box-shadow: inset 0 0 0 4px #ffe5aa; }
+.sc-action-deck { display: grid; gap: 0.3rem; background: #1f2838; border: 1px solid #dc9579; padding: 0.5rem; border-radius: 0.5rem; }
+.sc-action-deck small { font-size: 0.64rem; color: #e7c79b; }
+.sc-attack-button { display: flex; align-items: center; gap: 0.35rem; background: linear-gradient(100deg, #f77d54, #a83a55); color: #fff; padding: 0.5rem; border-radius: 0.4rem; font-size: 0.7rem; font-weight: 950; }
+.sc-attack-button span:last-child { margin-left: auto; font-size: 0.56rem; }
+.sc-attack-button:disabled { opacity: 0.48; }
+.sc-attack-symbol { font-size: 1.6rem; }
 </style>

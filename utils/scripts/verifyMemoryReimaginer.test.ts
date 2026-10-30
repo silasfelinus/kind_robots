@@ -85,6 +85,15 @@ assert.throws(
 assert.throws(() => commitToMemoryFinale(campaign), /not been earned/)
 
 campaign = completeMemoryExperience(campaign, 'e01')
+const chosenBriar = completeMemoryExperience(
+  chooseMemoryPairEnding(campaign, 'e02', 'trust-witnesses'),
+  'e02',
+)
+assert.deepEqual(
+  restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(chosenBriar))),
+  chosenBriar,
+  'Explicit Briar pair endings must survive save restoration',
+)
 campaign = completeMemoryExperience(campaign, 'e02')
 campaign = completeMemoryExperience(campaign, 'e03')
 assert.deepEqual(

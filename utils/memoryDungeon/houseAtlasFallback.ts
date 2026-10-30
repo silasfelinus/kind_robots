@@ -55,8 +55,7 @@ export const HOUSE_ATLAS_FALLBACK_CELLS: readonly HouseAtlasFallbackCell[] =
     const y = row * ROOM_SIZE
     const doors = {
       north:
-        row > 0 &&
-        passage(id, HOUSE_ATLAS_ROOM_IDS[index - HOUSE_ATLAS_SIZE]),
+        row > 0 && passage(id, HOUSE_ATLAS_ROOM_IDS[index - HOUSE_ATLAS_SIZE]),
       east:
         column < HOUSE_ATLAS_SIZE - 1 &&
         passage(id, HOUSE_ATLAS_ROOM_IDS[index + 1]),

@@ -8,6 +8,15 @@ import {
   type Tile,
   type Point,
 } from './combat'
+import {
+  ruleProblems,
+  type HazardKind,
+  type StageHazard,
+  type StageProp,
+  type StageVictory,
+  type StageWave,
+  type WaveCrew,
+} from './stageRules'
 
 export type StudioBrush =
   | 'erase'
@@ -20,6 +29,12 @@ export type StudioBrush =
   | 'secret'
   | 'hazard'
   | 'civilian'
+  | 'prop'
+  | 'fire'
+  | 'water'
+  | 'collapse'
+  | 'reinforce'
+  | 'zone'
 
 export type StageSpawn = { id: string; x: number; y: number }
 export type StageDraft = {
@@ -38,6 +53,14 @@ export type StageDraft = {
   civilians?: StageCivilian[]
   /** Authored opening/triggered/final scene set for this one-shot. */
   scenes?: 'picnic-panic'
+  /** Destructible cover that breaks after enough shots (see stageRules). */
+  props?: StageProp[]
+  /** Fire, live water and weak floors that tick at the end of each round. */
+  activeHazards?: StageHazard[]
+  /** Telegraphed reinforcement waves. */
+  waves?: StageWave[]
+  /** How the battle is won; defeat every rival when absent. */
+  victory?: StageVictory
 }
 export type StageCivilian = { id: string; name: string; x: number; y: number }
 /** Bystanders the civilian brush places, in order. */
@@ -251,7 +274,160 @@ export const STAGE_PRESETS: StageDraft[] = [
     hazards: [],
     turnLimit: 9,
   },
+  {
+    version: 1,
+    id: 'boiler-room',
+    title: 'Boiler Room Breach',
+    venue: 'Academy sub-basement boiler room',
+    objective:
+      'Survive six rounds while the boiler room burns, the floor gives and the Warren Wreckers dig in.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [4, 5]),
+        '6,1': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [],
+    hazards: [],
+    turnLimit: null,
+    props: [
+      { id: 'crate-1', x: 2, y: 2, cover: 'half', hp: 2 },
+      { id: 'boiler', x: 3, y: 4, cover: 'full', hp: 3 },
+      { id: 'crate-2', x: 6, y: 2, cover: 'half', hp: 2 },
+      { id: 'toolbox', x: 5, y: 4, cover: 'half', hp: 1 },
+    ],
+    activeHazards: [
+      { id: 'fire-1', kind: 'fire', x: 4, y: 2 },
+      { id: 'water-1', kind: 'water', x: 2, y: 0 },
+      { id: 'water-2', kind: 'water', x: 3, y: 0 },
+      { id: 'water-3', kind: 'water', x: 6, y: 5 },
+      { id: 'floor-1', kind: 'collapse', x: 4, y: 3, round: 3 },
+      { id: 'floor-2', kind: 'collapse', x: 1, y: 3, round: 4 },
+    ],
+    waves: [
+      {
+        round: 3,
+        crew: 'warren-wreckers',
+        spawns: [
+          { x: 8, y: 0 },
+          { x: 8, y: 5 },
+        ],
+      },
+    ],
+    victory: { kind: 'survive', rounds: 6 },
+  },
+  {
+    version: 1,
+    id: 'fountain-hold',
+    title: 'Hold the Fountain Steps',
+    encounter: 'wombat-ronin',
+    venue: 'College quad, central fountain',
+    objective:
+      'Hold the west fountain steps for three rounds. The spray is live on even rounds and the mascots are coming.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 2], [4, 3], [5, 2], [5, 3]),
+        '3,2': tile(0, false, { east: 'half' }),
+        '6,3': tile(0, false, { west: 'half' }),
+        '2,4': tile(1),
+        '6,1': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [],
+    hazards: [],
+    turnLimit: 9,
+    props: [
+      { id: 'bench-1', x: 2, y: 1, cover: 'half', hp: 2 },
+      { id: 'bench-2', x: 6, y: 4, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'spray-1', kind: 'water', x: 4, y: 4 },
+      { id: 'spray-2', kind: 'water', x: 5, y: 4 },
+    ],
+    waves: [
+      {
+        round: 4,
+        crew: 'licensed-legends',
+        spawns: [
+          { x: 8, y: 0 },
+          { x: 8, y: 5 },
+        ],
+      },
+    ],
+    victory: {
+      kind: 'hold-zone',
+      rounds: 3,
+      cells: [
+        { x: 3, y: 2 },
+        { x: 3, y: 3 },
+      ],
+    },
+  },
 ]
+
+function defaultCrew(stage: StageDraft): WaveCrew {
+  return stage.encounter === 'wombat-ronin'
+    ? 'wombat-ronin'
+    : stage.encounter === 'licensed-legends'
+      ? 'licensed-legends'
+      : 'warren-wreckers'
+}
+
+/** Studio controls for the victory condition and the first wave. */
+export function setVictory(
+  stage: StageDraft,
+  kind: StageVictory['kind'],
+  amount?: number,
+): StageDraft {
+  const next = deepClone(stage)
+  const n = Number.isInteger(amount) ? amount! : undefined
+  const old = next.victory
+  if (kind === 'defeat-all') delete next.victory
+  else if (kind === 'survive')
+    next.victory = {
+      kind,
+      rounds: n ?? (old?.kind === 'survive' ? old.rounds : 6),
+    }
+  else if (kind === 'rescue')
+    next.victory = {
+      kind,
+      count:
+        n ??
+        (old?.kind === 'rescue' ? old.count : (next.civilians?.length ?? 1)),
+    }
+  else if (kind === 'defeat-boss')
+    next.victory = {
+      kind,
+      unit: old?.kind === 'defeat-boss' ? old.unit : 'pip',
+    }
+  else
+    next.victory = {
+      kind,
+      rounds: n ?? (old?.kind === 'hold-zone' ? old.rounds : 3),
+      cells: old?.kind === 'hold-zone' ? old.cells : [],
+    }
+  return next
+}
+export function setBoss(stage: StageDraft, unit: string): StageDraft {
+  const next = deepClone(stage)
+  if (next.victory?.kind === 'defeat-boss') next.victory.unit = unit
+  return next
+}
+export function setWave(
+  stage: StageDraft,
+  patch: { round?: number; crew?: WaveCrew },
+): StageDraft {
+  if (!stage.waves?.length) return stage
+  const next = deepClone(stage)
+  next.waves![0] = { ...next.waves![0]!, ...patch }
+  return next
+}
 
 export const clonePreset = (id: string): StageDraft =>
   deepClone(STAGE_PRESETS.find((stage) => stage.id === id) ?? STAGE_PRESETS[0]!)
@@ -302,6 +478,7 @@ export function stageProblems(stage: StageDraft): string[] {
     issues.push('A one-shot can hold at most six civilians.')
   if (stage.scenes !== undefined && stage.scenes !== 'picnic-panic')
     issues.push('Unknown scene set.')
+  issues.push(...ruleProblems(stage))
   for (const marker of [...stage.secrets, ...stage.hazards]) {
     if (!inside(map, marker) || tileAt(map, marker).wall)
       issues.push('Secrets and hazards must occupy walkable cells.')
@@ -368,6 +545,93 @@ export function paintStage(
     else delete next.civilians
     return next
   }
+  if (brush === 'prop') {
+    if (tileAt(next.map, p).wall) return stage
+    const props = next.props ?? []
+    const at = props.findIndex((q) => q.x === p.x && q.y === p.y)
+    if (at >= 0 && props[at]!.cover === 'half') {
+      props[at] = { ...props[at]!, cover: 'full', hp: 3 }
+    } else if (at >= 0) props.splice(at, 1)
+    else {
+      if (
+        props.length >= 8 ||
+        next.activeHazards?.some(
+          (h) => h.kind === 'collapse' && h.x === p.x && h.y === p.y,
+        )
+      )
+        return stage
+      let n = 1
+      while (props.some((q) => q.id === 'prop-' + n)) n++
+      props.push({ id: 'prop-' + n, x: p.x, y: p.y, cover: 'half', hp: 2 })
+    }
+    if (props.length) next.props = props
+    else delete next.props
+    return next
+  }
+  if (brush === 'fire' || brush === 'water' || brush === 'collapse') {
+    const kind: HazardKind = brush
+    if (tileAt(next.map, p).wall) return stage
+    const hazards = next.activeHazards ?? []
+    const at = hazards.findIndex((h) => h.x === p.x && h.y === p.y)
+    const sameKind = at >= 0 && hazards[at]!.kind === kind
+    if (at >= 0) hazards.splice(at, 1)
+    if (!sameKind) {
+      if (
+        kind !== 'water' &&
+        (occupied ||
+          next.civilians?.some((c) => c.x === p.x && c.y === p.y) ||
+          (kind === 'collapse' &&
+            next.props?.some((q) => q.x === p.x && q.y === p.y)))
+      )
+        return stage
+      if (hazards.length >= 10) return stage
+      let n = 1
+      while (hazards.some((h) => h.id === kind + '-' + n)) n++
+      hazards.push({
+        id: kind + '-' + n,
+        kind,
+        x: p.x,
+        y: p.y,
+        ...(kind === 'collapse' ? { round: 3 } : {}),
+      })
+    }
+    if (hazards.length) next.activeHazards = hazards
+    else delete next.activeHazards
+    return next
+  }
+  if (brush === 'reinforce') {
+    if (tileAt(next.map, p).wall) return stage
+    const wave: StageWave = next.waves?.[0] ?? {
+      round: 3,
+      crew: defaultCrew(next),
+      spawns: [],
+    }
+    const at = wave.spawns.findIndex((q) => q.x === p.x && q.y === p.y)
+    if (at >= 0) wave.spawns.splice(at, 1)
+    else if (wave.spawns.length >= 3) return stage
+    else wave.spawns.push({ ...p })
+    const rest = (next.waves ?? []).slice(1)
+    next.waves = wave.spawns.length ? [wave, ...rest] : rest
+    if (!next.waves.length) delete next.waves
+    return next
+  }
+  if (brush === 'zone') {
+    if (tileAt(next.map, p).wall) return stage
+    const cells =
+      next.victory?.kind === 'hold-zone' ? next.victory.cells : ([] as Point[])
+    const at = cells.findIndex((q) => q.x === p.x && q.y === p.y)
+    if (at >= 0) cells.splice(at, 1)
+    else if (cells.length >= 6) return stage
+    else cells.push({ ...p })
+    next.victory = cells.length
+      ? {
+          kind: 'hold-zone',
+          rounds: next.victory?.kind === 'hold-zone' ? next.victory.rounds : 3,
+          cells,
+        }
+      : { kind: 'defeat-all' }
+    return next
+  }
   if (brush === 'secret' || brush === 'hazard') {
     if (occupied || tileAt(next.map, p).wall) return stage
     const points = brush === 'secret' ? next.secrets : next.hazards
@@ -398,6 +662,32 @@ export function paintStage(
   next.map = { ...next.map, tiles }
   next.secrets = next.secrets.filter((q) => !tileAt(next.map, q).wall)
   next.hazards = next.hazards.filter((q) => !tileAt(next.map, q).wall)
+  return pruneWalledRules(next)
+}
+
+/** Painting a wall removes any live rule standing on that tile. */
+function pruneWalledRules(next: StageDraft): StageDraft {
+  const open = (q: Point) => !tileAt(next.map, q).wall
+  if (next.props) {
+    next.props = next.props.filter(open)
+    if (!next.props.length) delete next.props
+  }
+  if (next.activeHazards) {
+    next.activeHazards = next.activeHazards.filter(open)
+    if (!next.activeHazards.length) delete next.activeHazards
+  }
+  if (next.waves) {
+    next.waves = next.waves
+      .map((wave) => ({ ...wave, spawns: wave.spawns.filter(open) }))
+      .filter((wave) => wave.spawns.length)
+    if (!next.waves.length) delete next.waves
+  }
+  if (next.victory?.kind === 'hold-zone') {
+    const cells = next.victory.cells.filter(open)
+    next.victory = cells.length
+      ? { ...next.victory, cells }
+      : { kind: 'defeat-all' }
+  }
   if (next.civilians) {
     next.civilians = next.civilians.filter((c) => !tileAt(next.map, c).wall)
     if (!next.civilians.length) delete next.civilians

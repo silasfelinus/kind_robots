@@ -77,6 +77,12 @@
               <span class="evt-objective"
                 >OBJECTIVE: {{ store.scene.headline }}</span
               >
+              <span
+                v-if="store.ruleLine"
+                class="evt-rule-line"
+                data-testid="tactics-rule-line"
+                >{{ store.ruleLine }}</span
+              >
             </div>
 
             <div class="evt-grid-wrap">
@@ -146,6 +152,13 @@
                     class="evt-height"
                     aria-hidden="true"
                     >▲{{ store.heightAt(cell) }}</span
+                  >
+                  <span
+                    v-if="fieldGlyph(cell)"
+                    class="evt-field-mark"
+                    data-testid="tactics-field-mark"
+                    aria-hidden="true"
+                    >{{ fieldGlyph(cell) }}</span
                   >
                   <span
                     v-if="store.threatAt(cell)"
@@ -669,10 +682,10 @@
                 </button>
               </div>
               <small
-                >Team brushes reposition the lead squadmate or lead rival.
-                Quarry lieutenant stage: the boss uses an active, previewable
-                seismic strike; other secret and hazard markers are still
-                editor-only pending their own effects.</small
+                >Team brushes reposition the lead squadmate or lead rival. Props
+                break after their HP in shots; fire spreads one tile a round,
+                water is live on even rounds, weak floors fall on their round.
+                Secret and ⚡ hazard markers stay editor-only.</small
               >
             </div>
             <div class="evt-studio-canvas">
@@ -700,6 +713,11 @@
                   <span v-if="studioSpawnAt(cell)" class="evt-studio-unit">{{
                     studioSpawnAt(cell)
                   }}</span>
+                  <span
+                    v-else-if="studioRuleGlyph(cell)"
+                    data-testid="studio-rule-mark"
+                    >{{ studioRuleGlyph(cell) }}</span
+                  >
                   <span
                     v-else-if="
                       store.draft.map.tiles[cell.x + ',' + cell.y]?.wall
@@ -748,7 +766,8 @@
               </div>
               <div class="evt-studio-legend">
                 ▩ wall · ▤ directional cover · ▲ elevation · ✦ secret · ⚡
-                hazard · S/R spawns
+                hazard marker · ▢/▣ breakable prop · 🔥 fire · ≈ live water · ⌇
+                weak floor · ⇣ wave hatch · ⚑ hold zone · S/R spawns
               </div>
             </div>
             <div class="evt-studio-details">
@@ -845,10 +864,185 @@
                 Wreckers. Marked dust rings erupt on the following enemy turn,
                 unless occupied.
               </small>
+              <label class="evt-studio-label" for="evt-victory"
+                >HOW TO WIN</label
+              >
+              <select
+                id="evt-victory"
+                data-testid="studio-victory"
+                :value="store.draft.victory?.kind ?? 'defeat-all'"
+                @change="
+                  store.chooseVictory(
+                    ($event.target as HTMLSelectElement).value as VictoryKind,
+                  )
+                "
+              >
+                <option
+                  v-for="kind in victoryKinds"
+                  :key="kind.value"
+                  :value="kind.value"
+                >
+                  {{ kind.label }}
+                </option>
+              </select>
+              <label
+                v-if="
+                  store.draft.victory &&
+                  store.draft.victory.kind !== 'defeat-all' &&
+                  store.draft.victory.kind !== 'defeat-boss'
+                "
+                class="evt-studio-label"
+                >{{
+                  store.draft.victory.kind === 'rescue'
+                    ? 'CIVILIANS TO EVACUATE'
+                    : 'ROUNDS'
+                }}
+                <input
+                  type="number"
+                  min="1"
+                  max="40"
+                  data-testid="studio-victory-amount"
+                  :value="
+                    store.draft.victory.kind === 'rescue'
+                      ? store.draft.victory.count
+                      : store.draft.victory.rounds
+                  "
+                  @change="
+                    store.setVictoryAmount(
+                      Number(($event.target as HTMLInputElement).value),
+                    )
+                  "
+              /></label>
+              <label
+                v-if="store.draft.victory?.kind === 'defeat-boss'"
+                class="evt-studio-label"
+                >BOSS
+                <select
+                  :value="store.draft.victory.unit"
+                  @change="
+                    store.chooseBoss(($event.target as HTMLSelectElement).value)
+                  "
+                >
+                  <option value="pip">Rival lead (pip spawn)</option>
+                  <option value="vee">Rival two (vee spawn)</option>
+                  <option value="remy">Rival three (remy spawn)</option>
+                </select></label
+              >
+              <small v-if="store.draft.victory?.kind === 'hold-zone'"
+                >Paint ⚑ hold-zone tiles. A round counts when a squadmate is in
+                the zone and no rival is.</small
+              >
+              <template v-if="store.draft.waves?.length">
+                <label class="evt-studio-label"
+                  >WAVE ARRIVES ON ROUND
+                  <input
+                    type="number"
+                    min="2"
+                    max="40"
+                    data-testid="studio-wave-round"
+                    :value="store.draft.waves[0]!.round"
+                    @change="
+                      store.updateWave({
+                        round: Number(
+                          ($event.target as HTMLInputElement).value,
+                        ),
+                      })
+                    "
+                /></label>
+                <label class="evt-studio-label"
+                  >WAVE CREW
+                  <select
+                    :value="store.draft.waves[0]!.crew"
+                    @change="
+                      store.updateWave({
+                        crew: ($event.target as HTMLSelectElement)
+                          .value as WaveCrew,
+                      })
+                    "
+                  >
+                    <option
+                      v-for="crew in waveCrews"
+                      :key="crew.value"
+                      :value="crew.value"
+                    >
+                      {{ crew.label }}
+                    </option>
+                  </select></label
+                >
+              </template>
+              <div class="evt-drafts" data-testid="studio-drafts">
+                <span class="evt-studio-label">DRAFTS &amp; SHARE CODES</span>
+                <div class="evt-draft-row">
+                  <input
+                    v-model="store.draftName"
+                    maxlength="60"
+                    placeholder="Draft name"
+                    aria-label="Draft name"
+                  />
+                  <button
+                    type="button"
+                    data-testid="studio-save-draft"
+                    @click="store.saveDraft()"
+                  >
+                    SAVE
+                  </button>
+                </div>
+                <ul v-if="store.draftLibrary.drafts.length">
+                  <li
+                    v-for="entry in store.draftLibrary.drafts"
+                    :key="entry.name"
+                  >
+                    <span>{{ entry.name }}</span>
+                    <button type="button" @click="store.loadDraft(entry.name)">
+                      LOAD
+                    </button>
+                    <button
+                      type="button"
+                      :aria-label="'Delete draft ' + entry.name"
+                      @click="store.deleteDraft(entry.name)"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  data-testid="studio-export"
+                  @click="store.exportDraft()"
+                >
+                  EXPORT SHARE CODE
+                </button>
+                <textarea
+                  v-if="store.shareCode"
+                  :value="store.shareCode"
+                  readonly
+                  rows="3"
+                  aria-label="Stage share code"
+                  data-testid="studio-share-code"
+                  @focus="($event.target as HTMLTextAreaElement).select()"
+                ></textarea>
+                <textarea
+                  v-model="store.importText"
+                  rows="2"
+                  placeholder="Paste a stage code to import"
+                  aria-label="Stage code to import"
+                  data-testid="studio-import-text"
+                ></textarea>
+                <button
+                  type="button"
+                  data-testid="studio-import"
+                  @click="store.importDraft()"
+                >
+                  IMPORT
+                </button>
+                <small v-if="store.shareMessage" role="status">{{
+                  store.shareMessage
+                }}</small>
+              </div>
               <small
                 >Uses existing seeded combat AI, pathfinding, cover, hit
-                percentages and movement costs. Private in-browser draft; no
-                public publishing.</small
+                percentages and movement costs. Drafts stay in this browser;
+                share codes are plain text. No server publishing.</small
               >
             </div>
           </div>
@@ -1130,6 +1324,11 @@ import {
 } from '~/utils/everyVillainTactics/training'
 import { STAGE_ENCOUNTERS } from '~/utils/everyVillainTactics/studio'
 import {
+  VICTORY_LABELS,
+  type VictoryKind,
+  type WaveCrew,
+} from '~/utils/everyVillainTactics/stageRules'
+import {
   ROLE_LABELS,
   WEAPON_LABELS,
   roleProfileFor,
@@ -1222,7 +1421,76 @@ const studioBrushes = [
   { value: 'secret', label: 'Secret' },
   { value: 'hazard', label: 'Hazard' },
   { value: 'civilian', label: 'Civilian' },
+  { value: 'prop', label: 'Breakable prop' },
+  { value: 'fire', label: 'Fire' },
+  { value: 'water', label: 'Live water' },
+  { value: 'collapse', label: 'Weak floor' },
+  { value: 'reinforce', label: 'Wave hatch' },
+  { value: 'zone', label: 'Hold zone' },
 ] as const
+const victoryKinds = Object.entries(VICTORY_LABELS).map(([value, label]) => ({
+  value: value as VictoryKind,
+  label,
+}))
+const waveCrews: Array<{ value: WaveCrew; label: string }> = [
+  { value: 'warren-wreckers', label: 'Warren Wreckers' },
+  { value: 'wombat-ronin', label: 'Clockwork Wombat Ronin' },
+  { value: 'licensed-legends', label: 'Licensed Legends' },
+]
+/** One glyph for the strongest live stage rule on a tile. */
+function fieldGlyph(cell: Cell): string {
+  const mark = store.fieldAt(cell)
+  if (!mark) return ''
+  if (mark.floor === 'rubble') return '▓'
+  if (mark.fire) return '🔥'
+  if (mark.hatch) return '⇣'
+  if (mark.fireNext) return '♨'
+  if (mark.water) return mark.water === 'live' ? '⚡' : '≈'
+  if (typeof mark.floor === 'number') return '⌇' + mark.floor
+  if (mark.prop) return '▣' + mark.prop.hp
+  if (mark.zone) return '⚑'
+  return ''
+}
+function fieldDescription(cell: Cell): string {
+  const mark = store.fieldAt(cell)
+  if (!mark) return ''
+  const parts: string[] = []
+  if (mark.floor === 'rubble') parts.push('collapsed floor, impassable rubble')
+  if (mark.fire) parts.push('ON FIRE, 1 damage at round end')
+  if (mark.fireNext)
+    parts.push('fire spreads here at round end unless someone stands on it')
+  if (mark.water === 'live') parts.push('LIVE water, 1 damage at round end')
+  if (mark.water === 'calm') parts.push('water, live next round')
+  if (typeof mark.floor === 'number')
+    parts.push(
+      mark.floor === 0
+        ? 'weak floor, gives way at the end of this round'
+        : 'weak floor, gives way in ' + mark.floor + ' round(s)',
+    )
+  if (mark.hatch)
+    parts.push('reinforcement hatch, a rival arrives next round unless blocked')
+  if (mark.prop)
+    parts.push(
+      'breakable ' + mark.prop.cover + ' cover, ' + mark.prop.hp + ' HP left',
+    )
+  if (mark.zone) parts.push('hold zone')
+  return parts.length ? '. ' + parts.join('; ') : ''
+}
+function studioRuleGlyph(cell: Cell): string {
+  const same = (p: Cell) => p.x === cell.x && p.y === cell.y
+  const hazard = store.draft.activeHazards?.find(same)
+  if (hazard)
+    return hazard.kind === 'fire' ? '🔥' : hazard.kind === 'water' ? '≈' : '⌇'
+  if (store.draft.props?.some(same))
+    return store.draft.props.find(same)!.cover === 'full' ? '▣' : '▢'
+  if (store.draft.waves?.some((wave) => wave.spawns.some(same))) return '⇣'
+  if (
+    store.draft.victory?.kind === 'hold-zone' &&
+    store.draft.victory.cells.some(same)
+  )
+    return '⚑'
+  return ''
+}
 const studioCells = Array.from({ length: 54 }, (_, i) => ({
   x: i % 9,
   y: Math.floor(i / 9),
@@ -1357,6 +1625,9 @@ function initials(unit: Unit): string {
   return unitName(unit).slice(0, 2).toUpperCase()
 }
 function cellDescription(cell: Cell) {
+  return baseCellDescription(cell) + fieldDescription(cell)
+}
+function baseCellDescription(cell: Cell) {
   const unit = actorAt(store.state, cell)
   if (store.isSeismicWarning(cell))
     return (
@@ -1488,6 +1759,109 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-rule-line {
+  display: block;
+  color: #fde68a;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+.evt-field-mark {
+  position: absolute;
+  inset: 0.1rem 0.2rem auto auto;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #fff4d6;
+  pointer-events: none;
+  text-shadow: 0 1px 2px #000;
+}
+.evt-tile.on-fire {
+  background-image: radial-gradient(
+    circle at 50% 70%,
+    rgb(249 115 22 / 0.55),
+    transparent 70%
+  );
+}
+.evt-tile.fire-next {
+  box-shadow: inset 0 0 0 2px rgb(249 115 22 / 0.8);
+}
+.evt-tile.water-live {
+  background-image: linear-gradient(
+    135deg,
+    rgb(56 189 248 / 0.45),
+    rgb(250 204 21 / 0.3)
+  );
+}
+.evt-tile.water-calm {
+  background-image: linear-gradient(
+    135deg,
+    rgb(56 189 248 / 0.28),
+    transparent
+  );
+}
+.evt-tile.weak-floor {
+  box-shadow: inset 0 0 0 2px rgb(168 162 158 / 0.85);
+}
+.evt-tile.rubble {
+  background: repeating-linear-gradient(
+    45deg,
+    #3b3530,
+    #3b3530 6px,
+    #2a2622 6px,
+    #2a2622 12px
+  );
+}
+.evt-tile.hatch-warning {
+  box-shadow: inset 0 0 0 3px rgb(244 63 94 / 0.9);
+}
+.evt-tile.hold-zone {
+  outline: 2px dashed rgb(250 204 21 / 0.75);
+  outline-offset: -4px;
+}
+.evt-tile.boss-target {
+  box-shadow: inset 0 0 0 3px rgb(217 70 239 / 0.95);
+}
+.evt-drafts {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #829fc35a;
+}
+.evt-drafts ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.evt-drafts li,
+.evt-draft-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.evt-drafts li span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+.evt-drafts input,
+.evt-drafts textarea {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.72rem;
+}
+.evt-drafts button {
+  padding: 4px 8px;
+  border: 1px solid #8193b3;
+  border-radius: 6px;
+  background: #263552;
+  color: #e1e6f6;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
 .evt-console[data-anim='off'] .evt-standee {
   animation: none;
   transition: none;

@@ -21,8 +21,16 @@ import { PICNIC_KNOWN_TRIGGERS } from './picnicPanic'
 import { tacticFor } from './powers'
 import { stageProblems, type StageDraft } from './studio'
 import {
+  FIRE_CAP,
+  dueWaveIds,
+  fieldMap,
+  rulesFor,
+  type StageRules,
+} from './stageRules'
+import {
   KNOWN_TRIGGERS,
   trainingState,
+  waveUnit,
   type TrainingState,
   type Unit,
 } from './training'
@@ -275,6 +283,90 @@ const MUTABLE = new Set<string>([
   'powerSpent',
 ])
 
+/** Field state must be reachable from the rules: prop HP within range,
+ * fire only on open ground and never extinguished at its origins, weak floors
+ * fallen exactly when their round passed, waves resolved exactly when due. */
+function checkField(
+  state: TrainingState,
+  rules: StageRules,
+  stage: StageDraft,
+): string | null {
+  const field = state.field
+  if (!field || typeof field !== 'object')
+    return 'Stage field state is missing.'
+  if (
+    Object.keys(field).sort().join() !==
+    'collapsed,fire,fireNext,held,props,reinforced,sealed'
+  )
+    return 'Stage field state has unexpected fields.'
+  if (
+    !Array.isArray(field.props) ||
+    field.props.length !== rules.props.length ||
+    !field.props.every(
+      (p, i) =>
+        p &&
+        Object.keys(p).sort().join() === 'hp,id' &&
+        p.id === rules.props[i]!.id &&
+        isInt(p.hp, 0, rules.props[i]!.hp),
+    )
+  )
+    return 'Prop damage is invalid.'
+  const open = (p: unknown) => {
+    const q = p as Point
+    return (
+      !!q &&
+      typeof q === 'object' &&
+      Object.keys(q).sort().join() === 'x,y' &&
+      isInt(q.x, 0, 99) &&
+      isInt(q.y, 0, 99) &&
+      inside(stage.map, q) &&
+      !tileAt(stage.map, q).wall
+    )
+  }
+  const origins = rules.hazards.filter((h) => h.kind === 'fire')
+  if (
+    !Array.isArray(field.fire) ||
+    !field.fire.every(open) ||
+    new Set(field.fire.map((p) => p.x + ',' + p.y)).size !==
+      field.fire.length ||
+    field.fire.length > Math.max(FIRE_CAP, origins.length) ||
+    !origins.every((o) => field.fire.some((p) => p.x === o.x && p.y === o.y))
+  )
+    return 'Fire spread is invalid.'
+  if (field.fireNext !== null && !open(field.fireNext))
+    return 'Fire warning is invalid.'
+  const active = state.phase === 'active'
+  const floors = rules.hazards.filter((h) => h.kind === 'collapse')
+  if (
+    !Array.isArray(field.collapsed) ||
+    new Set(field.collapsed).size !== field.collapsed.length ||
+    !floors.every(
+      (h) =>
+        field.collapsed.includes(h.id) === h.round! < state.turn ||
+        (!active && h.round === state.turn),
+    ) ||
+    !field.collapsed.every((id) => floors.some((h) => h.id === id))
+  )
+    return 'Collapsed floors do not match the round.'
+  const resolved = [
+    ...(Array.isArray(field.reinforced) ? field.reinforced : [null]),
+    ...(Array.isArray(field.sealed) ? field.sealed : [null]),
+  ]
+  const due = dueWaveIds(rules, state.turn)
+  const surely = dueWaveIds(rules, state.turn - 1)
+  if (
+    resolved.some((id) => typeof id !== 'string') ||
+    new Set(resolved).size !== resolved.length ||
+    !resolved.every((id) => due.includes(id as string)) ||
+    !(active ? due : surely).every((id) => resolved.includes(id))
+  )
+    return 'Reinforcement waves do not match the round.'
+  const holdRounds =
+    rules.victory.kind === 'hold-zone' ? rules.victory.rounds : 0
+  if (!isInt(field.held, 0, holdRounds)) return 'Hold-zone progress is invalid.'
+  return null
+}
+
 function reject(reason: string): LoadResult {
   return { ok: false, reason }
 }
@@ -297,7 +389,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   const state = save.state
   if (!state || typeof state !== 'object' || !Array.isArray(state.units))
     return reject('Battle state is missing.')
-  const expectedMap = save.stage ? save.stage.map : FIRST_BELL_MAP
+  const rules = rulesFor(save.stage)
+  if (canonicalJson(state.rules ?? null) !== canonicalJson(rules))
+    return reject('Stage rules do not match the mission.')
+  const fieldProblem = rules ? checkField(state, rules, save.stage!) : null
+  if (fieldProblem) return reject(fieldProblem)
+  if (!rules && state.field !== undefined)
+    return reject('Stage field state without stage rules.')
+  const expectedMap = save.stage
+    ? fieldMap(save.stage.map, rules, state.field)
+    : FIRST_BELL_MAP
   if (canonicalJson(state.map) !== canonicalJson(expectedMap))
     return reject('Battlefield terrain does not match the mission.')
   if (state.stageId !== (save.stage?.id ?? null))
@@ -368,6 +469,12 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     lead: save.leadSignature,
     roles: !legacy,
   })
+  // Reinforcements join the reference roster only once they have arrived.
+  for (const id of state.field?.reinforced ?? []) {
+    const unit = rules ? waveUnit(rules, id) : null
+    if (!unit) return reject('Unknown reinforcement ' + id + '.')
+    reference.units.push(unit)
+  }
   if (state.units.length !== reference.units.length)
     return reject('Unit roster does not match the mission.')
   const occupied = new Set<string>()
@@ -391,7 +498,17 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
       !unit.statuses.every((s) => STATUSES.includes(s))
     )
       return reject(unit.id + ' statuses are invalid.')
-    if (!isCell(unit, state))
+    // A fallen unit may lie on a weak floor that later gave way beneath it.
+    const onRubble =
+      unit.hp === 0 &&
+      !!rules?.hazards.some(
+        (h) =>
+          h.kind === 'collapse' &&
+          h.x === unit.x &&
+          h.y === unit.y &&
+          state.field?.collapsed.includes(h.id),
+      )
+    if (!onRubble && !isCell(unit, state))
       return reject(unit.id + ' stands off the map or in a wall.')
     if (unit.hp > 0) {
       const at = unit.x + ',' + unit.y

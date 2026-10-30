@@ -62,9 +62,30 @@ import {
   STAGE_PRESETS,
   clonePreset,
   paintStage,
+  setBoss,
+  setVictory,
+  setWave,
   stageProblems,
   type StudioBrush,
 } from '~/utils/everyVillainTactics/studio'
+import {
+  inZone,
+  incomingSpawns,
+  isWaterLive,
+  victoryLine,
+  type VictoryKind,
+  type WaveCrew,
+} from '~/utils/everyVillainTactics/stageRules'
+import {
+  emptyLibrary,
+  evtDraftsKey,
+  exportStage,
+  importStage,
+  removeDraft,
+  sanitizeLibrary,
+  upsertDraft,
+  type DraftLibrary,
+} from '~/utils/everyVillainTactics/stageShare'
 
 import {
   applyChoice,
@@ -187,7 +208,74 @@ export const useEveryVillainTacticsStore = defineStore(
     function loadPreferences() {
       settings.value = sanitizeSettings(readJson(evtSettingsKey))
       scrapbook.value = sanitizeScrapbook(readJson(evtScrapbookKey))
+      draftLibrary.value = sanitizeLibrary(readJson(evtDraftsKey))
       readSaves()
+    }
+    /** Local stage drafts and portable share codes (no server publishing). */
+    const draftLibrary = ref<DraftLibrary>(emptyLibrary())
+    const draftName = ref('')
+    const shareCode = ref('')
+    const importText = ref('')
+    const shareMessage = ref('')
+    function saveDraft() {
+      const result = upsertDraft(
+        draftLibrary.value,
+        draftName.value || draft.value.title,
+        draft.value,
+        new Date().toISOString(),
+      )
+      if (!result.ok) {
+        shareMessage.value = result.reason
+        return false
+      }
+      draftLibrary.value = result.library
+      storeJson(evtDraftsKey, result.library)
+      shareMessage.value =
+        'Saved draft “' + result.library.drafts[0]!.name + '” in this browser.'
+      return true
+    }
+    function loadDraft(name: string) {
+      const entry = draftLibrary.value.drafts.find((d) => d.name === name)
+      if (!entry) return false
+      draft.value = structuredClone(entry.stage)
+      draftName.value = entry.name
+      shareMessage.value = 'Loaded draft “' + entry.name + '”.'
+      return true
+    }
+    function deleteDraft(name: string) {
+      draftLibrary.value = removeDraft(draftLibrary.value, name)
+      storeJson(evtDraftsKey, draftLibrary.value)
+      shareMessage.value = 'Deleted draft “' + name + '”.'
+    }
+    function exportDraft() {
+      shareCode.value = exportStage(draft.value)
+      shareMessage.value = 'Share code ready. Copy it to send this stage.'
+    }
+    function importDraft() {
+      const result = importStage(importText.value)
+      if (!result.ok) {
+        shareMessage.value = 'Import refused: ' + result.reason
+        return false
+      }
+      draft.value = result.stage
+      draftName.value = result.stage.title
+      importText.value = ''
+      shareMessage.value = 'Imported “' + result.stage.title + '”.'
+      return true
+    }
+    function chooseVictory(kind: VictoryKind) {
+      draft.value = setVictory(draft.value, kind)
+    }
+    function setVictoryAmount(amount: number) {
+      const kind = draft.value.victory?.kind
+      if (kind && kind !== 'defeat-all' && kind !== 'defeat-boss')
+        draft.value = setVictory(draft.value, kind, amount)
+    }
+    function chooseBoss(unit: string) {
+      draft.value = setBoss(draft.value, unit)
+    }
+    function updateWave(patch: { round?: number; crew?: WaveCrew }) {
+      draft.value = setWave(draft.value, patch)
     }
     function updateSettings(patch: Partial<Omit<EvtSettings, 'version'>>) {
       settings.value = sanitizeSettings({ ...settings.value, ...patch })
@@ -367,6 +455,42 @@ export const useEveryVillainTacticsStore = defineStore(
         ) ?? null
       )
     }
+    /** Live stage-rule markers for one battle tile, or null. */
+    function fieldAt(point: Cell) {
+      const { rules, field, turn } = state.value
+      if (!rules || !field) return null
+      const same = (p: Cell) => p.x === point.x && p.y === point.y
+      const prop = rules.props.find(same)
+      const hazard = rules.hazards.find(same)
+      const hp = prop ? (field.props.find((p) => p.id === prop.id)?.hp ?? 0) : 0
+      return {
+        prop: prop && hp > 0 ? { hp, max: prop.hp, cover: prop.cover } : null,
+        fire: field.fire.some(same),
+        fireNext: !!field.fireNext && same(field.fireNext),
+        water:
+          hazard?.kind === 'water'
+            ? isWaterLive(turn)
+              ? ('live' as const)
+              : ('calm' as const)
+            : null,
+        floor:
+          hazard?.kind === 'collapse'
+            ? field.collapsed.includes(hazard.id)
+              ? ('rubble' as const)
+              : Math.max(0, hazard.round! - turn)
+            : null,
+        hatch: incomingSpawns(rules, turn).some(same),
+        zone: inZone(rules, point),
+      }
+    }
+    const ruleLine = computed(() =>
+      victoryLine(state.value.rules, state.value.field, state.value.turn),
+    )
+    const bossId = computed(() =>
+      state.value.rules?.victory.kind === 'defeat-boss'
+        ? state.value.rules.victory.unit
+        : null,
+    )
     function isPhaseWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -622,6 +746,30 @@ export const useEveryVillainTacticsStore = defineStore(
     function chooseStory(effect: ChoiceEffect) {
       return applyChoice(story.value, state.value, perspective.value, effect)
     }
+    function fieldClasses(point: Cell) {
+      const mark = fieldAt(point)
+      if (!mark) return {}
+      return {
+        'prop-cover': !!mark.prop,
+        'on-fire': mark.fire,
+        'fire-next': mark.fireNext,
+        'water-live': mark.water === 'live',
+        'water-calm': mark.water === 'calm',
+        'weak-floor': typeof mark.floor === 'number',
+        rubble: mark.floor === 'rubble',
+        'hatch-warning': mark.hatch,
+        'hold-zone': mark.zone,
+        'boss-target':
+          !!bossId.value &&
+          state.value.units.some(
+            (u) =>
+              u.id === bossId.value &&
+              u.hp > 0 &&
+              u.x === point.x &&
+              u.y === point.y,
+          ),
+      }
+    }
     function cellStyle(point: Cell) {
       const same = (p: Cell) => p.x === point.x && p.y === point.y
       return {
@@ -656,6 +804,7 @@ export const useEveryVillainTacticsStore = defineStore(
           ),
         'seismic-warning': isSeismicWarning(point),
         exposed: threatAt(point) > 0,
+        ...fieldClasses(point),
         elevated: heightAt(point) > 0,
       }
     }
@@ -707,6 +856,23 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage,
       screen,
       settings,
+      fieldAt,
+      ruleLine,
+      bossId,
+      draftLibrary,
+      draftName,
+      shareCode,
+      importText,
+      shareMessage,
+      saveDraft,
+      loadDraft,
+      deleteDraft,
+      exportDraft,
+      importDraft,
+      chooseVictory,
+      setVictoryAmount,
+      chooseBoss,
+      updateWave,
       scrapbookView,
       animationFactor,
       latestSummary,

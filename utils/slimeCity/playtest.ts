@@ -10,6 +10,7 @@ import {
   type CardKind,
   type MatchState,
   type ModeId,
+  type RuleVariants,
   type Side,
   type TeamId,
   type WinPath,
@@ -37,6 +38,12 @@ export interface MatchMetrics {
   knockouts: Record<Side, number>
   trapsSprung: number
   flagDrops: number
+  explosions: number
+  debt: number
+  roots: number
+  shoves: number
+  /** Went to sudden-death extra time (t-003 overtime variant). */
+  overtime: boolean
   finalScore: [number, number]
   commands: number
 }
@@ -78,8 +85,9 @@ export function playHeadless(
   enemyTeam: TeamId,
   seed: number,
   onRound?: (state: MatchState) => void,
+  rules: Partial<RuleVariants> = {},
 ): { state: MatchState; metrics: MatchMetrics } {
-  let state = createMatch(mode, playerTeam, enemyTeam, seed)
+  let state = createMatch(mode, playerTeam, enemyTeam, seed, rules)
   let firstContact: number | null = null
   let deadRounds = 0
   let streak = 0
@@ -144,6 +152,11 @@ export function playHeadless(
       knockouts: state.stats.knockouts,
       trapsSprung: state.stats.trapsSprung,
       flagDrops: state.stats.flagDrops,
+      explosions: state.stats.explosions,
+      debt: state.stats.debt,
+      roots: state.stats.roots,
+      shoves: state.stats.shoves,
+      overtime: state.overtime,
       finalScore: [state.score[0], state.score[1]],
       commands: state.commands.length,
     },
@@ -151,13 +164,17 @@ export function playHeadless(
 }
 
 /** Every ordered crew pairing (30) across a seed range, for one format. */
-export function runTournament(mode: ModeId, seeds: number[]): MatchMetrics[] {
+export function runTournament(
+  mode: ModeId,
+  seeds: number[],
+  rules: Partial<RuleVariants> = {},
+): MatchMetrics[] {
   const out: MatchMetrics[] = []
   for (const a of TEAMS)
     for (const b of TEAMS) {
       if (a.id === b.id) continue
       for (const seed of seeds)
-        out.push(playHeadless(mode, a.id, b.id, seed).metrics)
+        out.push(playHeadless(mode, a.id, b.id, seed, undefined, rules).metrics)
     }
   return out
 }

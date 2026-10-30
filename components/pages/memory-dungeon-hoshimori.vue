@@ -23,6 +23,15 @@
       <button
         type="button"
         class="btn btn-sm btn-outline"
+        data-testid="memory-hoshimori-chronicle-open"
+        aria-haspopup="dialog"
+        @click="chronicleOpen = true"
+      >
+        Earth Chronicle
+      </button>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline"
         @click="hoshimori.restart()"
       >
         New journey
@@ -253,6 +262,10 @@
         </template>
       </div>
     </div>
+    <memory-dungeon-earth-chronicle
+      v-if="chronicleOpen"
+      @close="chronicleOpen = false"
+    />
   </section>
 </template>
 
@@ -263,6 +276,7 @@ import { useMemoryHoshimoriStore } from '~/stores/memoryHoshimoriStore'
 
 const emit = defineEmits<{ leave: [] }>()
 const hoshimori = useMemoryHoshimoriStore()
+const chronicleOpen = ref(false)
 const symbols = ['bell', 'leaf', 'flame'] as const
 const lanternSymbols = ref<string[]>(['bell', 'leaf', 'flame'])
 const tiles = Array.from(

@@ -1,6 +1,12 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
 import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
+import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
+import {
+  signatureCounterPoint,
+  signatureThreatCells,
+  signatureThreatFor,
+} from './signatureLieutenant'
 import {
   FIRST_BELL_MAP,
   chanceFrom,
@@ -39,6 +45,11 @@ export type Unit = Fighter & {
   /** The warning ring is visible for a whole player turn before seismic impact. */
   seismicTarget?: Cell | null
   seismicChargeHp?: number
+  signatureBoss?: SignaturePowerId
+  signatureTarget?: Cell | null
+  signatureCounter?: Cell | null
+  signatureChargeHp?: number
+  signatureCooldown?: boolean
 }
 export type TrainingState = {
   map: TacticalMap
@@ -316,6 +327,18 @@ export function fireSelected(state: TrainingState, target: Unit): boolean {
       result.chance.hit +
       '%).',
   )
+  if (result.hit && target.signatureBoss && target.signatureTarget) {
+    target.signatureTarget = null
+    target.signatureCounter = null
+    target.signatureCooldown = true
+    note(
+      state,
+      aliasFor(shooter) +
+        ' interrupts ' +
+        aliasFor(target) +
+        ' before the signature attack lands.',
+    )
+  }
   updateOutcome(state)
   return true
 }
@@ -430,6 +453,130 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
   )
   return true
 }
+/** A fully telegraphed signature attack. The next rival turn must use the
+ * exact saved target and cells, so a reload cannot reroll or retarget it. */
+function signatureLieutenantPlan(state: TrainingState, enemy: Unit): boolean {
+  const signature = enemy.signatureBoss
+  if (!signature) return false
+  const threat = signatureThreatFor(signature)
+  if (enemy.signatureCooldown) {
+    enemy.signatureCooldown = false
+    enemy.signatureTarget = null
+    enemy.signatureCounter = null
+    enemy.ap = 0
+    note(
+      state,
+      threat.name + ' staggers. The disrupted device needs a round to recover.',
+    )
+    return true
+  }
+  if (enemy.signatureTarget) {
+    const target = enemy.signatureTarget
+    const hit = enemy.hp < (enemy.signatureChargeHp ?? enemy.hp)
+    enemy.signatureTarget = null
+    enemy.signatureCounter = null
+    enemy.signatureChargeHp = enemy.hp
+    enemy.ap = 0
+    if (hit) {
+      enemy.signatureCooldown = true
+      note(
+        state,
+        threat.name +
+          ' loses control of ' +
+          threat.attack +
+          '. The warning clears.',
+      )
+      return true
+    }
+    const threatened = new Set(
+      signatureThreatCells(state.map, signature, target).map(
+        (p) => p.x + ',' + p.y,
+      ),
+    )
+    const struck = state.units.filter(
+      (unit) =>
+        unit.team === 'squad' &&
+        unit.hp > 0 &&
+        threatened.has(unit.x + ',' + unit.y),
+    )
+    for (const unit of struck) {
+      unit.hp = Math.max(0, unit.hp - 1)
+      unit.overwatch = false
+      recordImpact(state, enemy, unit, true)
+    }
+    note(
+      state,
+      threat.name +
+        ' unleashes ' +
+        threat.attack +
+        ': ' +
+        struck.length +
+        ' allies struck. ' +
+        threat.power,
+    )
+    updateOutcome(state)
+    return true
+  }
+  const nearest = state.units
+    .filter((unit) => unit.team === 'squad' && unit.hp > 0)
+    .sort(
+      (a, b) =>
+        gridDistance(a, enemy) - gridDistance(b, enemy) ||
+        a.id.localeCompare(b.id),
+    )[0]
+  if (!nearest) return true
+  enemy.signatureTarget = { x: nearest.x, y: nearest.y }
+  enemy.signatureCounter = signatureCounterPoint(state.map, signature, nearest)
+  enemy.signatureChargeHp = enemy.hp
+  enemy.ap = 0
+  note(
+    state,
+    threat.name +
+      ' charges ' +
+      threat.attack +
+      ' at (' +
+      (nearest.x + 1) +
+      ', ' +
+      (nearest.y + 1) +
+      '). ' +
+      threat.counterVerb +
+      ' at the marked station or shoot the lieutenant. ' +
+      threat.counter,
+  )
+  return true
+}
+
+/** A real AP decision: get a living squadmate within one cell of the signal.
+ * A legal disruption cancels the next attack and staggers the boss for one
+ * enemy phase. No arbitrary chance roll is allowed. */
+export function counterSignatureLieutenant(state: TrainingState): boolean {
+  if (state.phase !== 'active') return false
+  const ally = selectedUnit(state)
+  const boss = state.units.find(
+    (unit) => unit.signatureBoss && unit.hp > 0 && unit.signatureTarget,
+  )
+  if (
+    !ally ||
+    ally.ap < 1 ||
+    !boss?.signatureCounter ||
+    gridDistance(ally, boss.signatureCounter) > 1
+  )
+    return false
+  ally.ap--
+  boss.signatureTarget = null
+  boss.signatureCounter = null
+  boss.signatureCooldown = true
+  note(
+    state,
+    aliasFor(ally) +
+      ' disrupts ' +
+      aliasFor(boss) +
+      ': ' +
+      signatureThreatFor(boss.signatureBoss!).counter,
+  )
+  return true
+}
+
 /** A named four-HP lieutenant is a different unit class from one-hit species.
  * Seismic warnings resolve only on her next turn, allowing a deliberate dodge
  * or a normal, previewed ranged hit to interrupt the resonant drum. */
@@ -498,7 +645,12 @@ function lieutenantPlan(state: TrainingState, enemy: Unit): boolean {
   return true
 }
 function enemyPlan(state: TrainingState, enemy: Unit) {
-  if (lieutenantPlan(state, enemy) || burrowPlan(state, enemy)) return
+  if (
+    signatureLieutenantPlan(state, enemy) ||
+    lieutenantPlan(state, enemy) ||
+    burrowPlan(state, enemy)
+  )
+    return
   let shot = bestShot(state, enemy)
   const positions = reachableCells(state.map, state.units, enemy)
   const improvement = positions
@@ -572,6 +724,22 @@ function enemyPlan(state: TrainingState, enemy: Unit) {
 }
 export function endTurn(state: TrainingState) {
   if (state.phase !== 'active') return
+  if (state.units.every((unit) => unit.team !== 'rival' || unit.hp <= 0)) {
+    // Do not strand the player with 0 AP when the enemies have fallen but
+    // a separate physical extraction objective remains incomplete.
+    state.turn++
+    if (state.turnLimit !== null && state.turn > state.turnLimit) {
+      state.phase = 'defeat'
+      note(state, 'The objective expired before extraction.')
+      return
+    }
+    refreshTurn(state.units, 'squad')
+    note(
+      state,
+      'The opposition is down. Finish securing the mission objective.',
+    )
+    return
+  }
   clearSuppression(state.units, 'squad')
   refreshTurn(state.units, 'rival')
   for (const enemy of state.units.filter(
@@ -595,21 +763,32 @@ export function endTurn(state: TrainingState) {
     (unit) => unit.hp > 0 && unit.burrowTarget,
   ).length
   const quake = state.units.find((unit) => unit.hp > 0 && unit.seismicTarget)
+  const signature = state.units.find(
+    (unit) => unit.hp > 0 && unit.signatureBoss && unit.signatureTarget,
+  )
   note(
     state,
-    quake
+    signature
       ? 'Round ' +
           state.turn +
-          ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
-      : warnings
+          ': ' +
+          signatureThreatFor(signature.signatureBoss!).name +
+          ' has marked ' +
+          signatureThreatFor(signature.signatureBoss!).attack +
+          '. Move out of danger, disrupt the station, or shoot the lieutenant.'
+      : quake
         ? 'Round ' +
           state.turn +
-          ': ' +
-          warnings +
-          ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
-        : 'Round ' +
-          state.turn +
-          ': the rival patrol has acted. Your squad has the initiative.',
+          ': Mags Hardpan’s marked 3×3 seismic zone is live. Dodge or land a hit to cancel her downbeat.'
+        : warnings
+          ? 'Round ' +
+            state.turn +
+            ': ' +
+            warnings +
+            ' dust rings mark coming Warren Wrecker eruptions. Occupy a ring to seal its tunnel.'
+          : 'Round ' +
+            state.turn +
+            ': the rival patrol has acted. Your squad has the initiative.',
   )
   if (state.turn === 3)
     state.events.unshift(

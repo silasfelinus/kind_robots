@@ -125,8 +125,14 @@ export function newTacticalInterlude(
   captain.identity = opponent.signature
   captain.hp = run.day >= 23 ? lieutenant.hp : species.hp
   captain.maxHp = captain.hp
-  if (run.day >= 23) captain.lieutenantName = lieutenant.name
-  else captain.henchmanName = species.captain
+  if (run.day >= 23 && !originMission) {
+    captain.lieutenantName = lieutenant.name
+    captain.signatureBoss = opponent.signature
+    captain.signatureTarget = null
+    captain.signatureCounter = null
+    captain.signatureChargeHp = captain.hp
+    captain.signatureCooldown = false
+  } else captain.henchmanName = species.captain
   minion.identity = opponent.signature
   minion.hp = species.hp
   minion.maxHp = species.hp
@@ -363,7 +369,28 @@ export function validTacticalInterlude(
         unit.x >= 0 &&
         unit.x < 9 &&
         unit.y >= 0 &&
-        unit.y < 7,
+        unit.y < 7 &&
+        (unit.signatureBoss === undefined ||
+          (unit.signatureBoss === run.opponentSignature &&
+            unit.lieutenantName ===
+              campaignStagesFor(unit.signatureBoss).lieutenant.name &&
+            typeof unit.signatureCooldown === 'boolean' &&
+            Number.isInteger(unit.signatureChargeHp) &&
+            unit.signatureChargeHp! >= unit.hp &&
+            unit.signatureChargeHp! <= unit.maxHp &&
+            [unit.signatureTarget, unit.signatureCounter].every(
+              (point) =>
+                point === null ||
+                (point !== undefined &&
+                  Number.isInteger(point.x) &&
+                  Number.isInteger(point.y) &&
+                  point.x >= 0 &&
+                  point.x < state.map.width &&
+                  point.y >= 0 &&
+                  point.y < state.map.height &&
+                  !tileAt(state.map, point).wall),
+            ) &&
+            !!unit.signatureTarget === !!unit.signatureCounter)),
     ) &&
     !!state.map &&
     state.map.width === 9 &&

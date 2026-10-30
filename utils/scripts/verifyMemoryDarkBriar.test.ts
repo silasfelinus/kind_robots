@@ -514,6 +514,38 @@ assert.deepEqual(
   'A forged or previously optional shortcut cannot silently skip Hoshimori',
 )
 assert.equal(skippedHoshimori.finaleCommitted, false)
+const legacyDeparture = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
+  rememberedAnchors: [
+    'morrow-magic-attempt',
+    'scylla-home-wish',
+    'char-possible-future',
+  ],
+})
+assert.deepEqual(
+  legacyDeparture.completed,
+  ['e01', 'e02', 'e03', 'e04', 'e05', 'e06'],
+  'Old saves with unrecorded world choices retain all earned progress',
+)
+assert.equal(legacyDeparture.pairDecisions?.e04, 'legacy-unresolved')
+assert.equal(legacyDeparture.scyllaDeparture, 'legacy-unspoken')
+assert.equal(memoryCharFate(legacyDeparture), 'unresolved')
+const forgedLostChar = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03'],
+  rememberedAnchors: [],
+  pairDecisions: { e04: 'open-the-tide-gate' },
+})
+assert.equal(memoryCharFate(forgedLostChar), 'unresolved')
+assert.equal(forgedLostChar.pairDecisions?.e04, undefined)
+const inProgressPast = restoreMemoryCampaignProgress({
+  completed: ['e01', 'e02', 'e03', 'e04'],
+  rememberedAnchors: ['morrow-magic-attempt', 'scylla-home-wish'],
+  pairDecisions: { e04: 'divert-the-current' },
+  scyllaDeparture: 'tell-char',
+})
+assert.deepEqual(inProgressPast.completed, ['e01', 'e02', 'e03', 'e04'])
+assert.equal(inProgressPast.scyllaDeparture, 'tell-char')
+assert.equal(memoryCharFate(inProgressPast), 'alive')
 assert.equal(alternateReload.completed.includes('e12'), true)
 assert.deepEqual(availableMemoryExperiences(alternateReload), ['e15'])
 

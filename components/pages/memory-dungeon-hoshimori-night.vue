@@ -71,7 +71,7 @@
           <div v-if="night.progress.current === '4,2' && !night.progress.doorOpen" class="mt-3 rounded-xl border border-warning/40 p-3">
             <h4 class="font-bold">Unbind the Nurikabe</h4>
             <p class="mt-1 text-sm">Hear the bridge, the choir and the walking coat. Repeat their signs in that order, or take the shrine path.</p>
-            <p class="mt-1 text-xs">Witnessed signs: {{ night.clues.length }}/3</p>
+            <p class="mt-1 text-xs">Witnessed signs: {{ night.clues.length }}/3 · {{ night.clues.join(' → ') || 'none yet' }}</p>
             <div class="mt-2 flex flex-wrap gap-2">
               <select
                 v-for="(_, index) in 3"

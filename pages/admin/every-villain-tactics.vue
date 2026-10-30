@@ -769,7 +769,7 @@
                 >
               </div>
               <p class="evt-dossier-status">
-                Henchmen: {{ inspectedHenchmen.name }} · The Quarry lieutenant
+                Henchmen: {{ inspectedHenchmen.name }} · Concept plans only for most entries. The Quarry lieutenant
                 is one playable studio demonstration, not 48 shipped bosses or
                 96 playable stages. Most concepts await art and AI.
               </p>
@@ -815,6 +815,7 @@ import {
   type ComicIntroRole,
 } from '~/utils/cometAcademy/comicIntroductions'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import {
   useEveryVillainTacticsStore,
@@ -851,17 +852,17 @@ function skipComicIntros() {
   activeComicIntro.value = null
 }
 function previewComicIntro(role: ComicIntroRole) {
-  queueComicIntro(comicIntroFor(inspectedSignature.value, role), true)
+  queueComicIntro(comicIntroFor(inspectedSignature.value as SignaturePowerId, role), true)
 }
 watch(
   () => store.state.units.filter(unit => unit.hp > 0)
     .map(unit => [unit.identity, unit.team, unit.henchmanType ?? ''].join(':')).join('|'),
   () => {
     const lead = store.players[0]
-    if (lead) queueComicIntro(comicIntroFor(lead.identity, 'hero'))
+    if (lead) queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
     for (const unit of store.enemies) {
       const role: ComicIntroRole = unit.henchmanType ? 'henchman' : 'villain'
-      queueComicIntro(comicIntroFor(unit.identity, role))
+      queueComicIntro(comicIntroFor(unit.identity as SignaturePowerId, role))
     }
   },
   { immediate: true },

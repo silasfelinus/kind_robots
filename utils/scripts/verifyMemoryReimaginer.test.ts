@@ -6,6 +6,13 @@ import {
   MEMORY_MIDDLE_PAIRS,
   MEMORY_REALITY_EXPERIENCES,
   MEMORY_REALITY_PAIRS,
+  MEMORY_PAIR_ENDINGS,
+  MEMORY_SCYLLA_DEPARTURE_CHOICES,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  memoryCharFate,
+  memoryPairWorldFlags,
+  scyllaOpeningForMemory,
   MEMORY_WORLD_CONCEPTS,
   MEMORY_WISH_ANCHORS,
   availableMemoryExperiences,
@@ -61,7 +68,7 @@ assert.equal(MEMORY_REALITY_EXPERIENCES[5]!.state, 'dark-reflection')
 assert.equal(MEMORY_WISH_ANCHORS['char-possible-future'].source, 'e06')
 assert.match(
   MEMORY_WISH_ANCHORS['char-possible-future'].meaning,
-  /private knowledge/i,
+  /may be lost or alive/i,
 )
 
 let campaign = newMemoryCampaignProgress()
@@ -91,8 +98,50 @@ assert.equal(
   'A repeated wish cannot duplicate rewards',
 )
 assert.deepEqual(availableMemoryExperiences(campaign), ['e04'])
-
+assert.throws(
+  () => completeMemoryExperience(campaign, 'e04'),
+  /world-pair ending requires/i,
+)
+const beforeWorldFour = campaign
+for (const [decision, expectedFate] of [
+  ['open-the-tide-gate', 'lost'],
+  ['seal-the-tide-gate', 'alive'],
+  ['divert-the-current', 'alive'],
+] as const) {
+  const chosen = chooseMemoryPairEnding(beforeWorldFour, 'e04', decision)
+  assert.equal(memoryCharFate(chosen), expectedFate)
+  assert.ok(memoryPairWorldFlags(chosen).length > 0)
+  assert.equal(availableMemoryExperiences(chosen)[0], 'e04')
+  assert.throws(
+    () => chooseMemoryPairEnding(chosen, 'e04', decision),
+    /already resolved/,
+  )
+  const afterCity = completeMemoryExperience(chosen, 'e04')
+  assert.equal(availableMemoryExperiences(afterCity)[0], 'e05')
+  assert.match(scyllaOpeningForMemory(afterCity, 'e05'), /years earlier/)
+  for (const choice of MEMORY_SCYLLA_DEPARTURE_CHOICES) {
+    const past = chooseMemoryScyllaDeparture(afterCity, choice.id)
+    assert.equal(past.scyllaDeparture, choice.id)
+    assert.ok(memoryPairWorldFlags(past).includes(choice.worldFlag))
+    assert.match(scyllaOpeningForMemory(past, 'e06'), /court|escape|timeline|palace/)
+    assert.throws(
+      () => chooseMemoryScyllaDeparture(past, choice.id),
+      /unchosen past/,
+    )
+  }
+}
+assert.match(
+  MEMORY_PAIR_ENDINGS.e04[0]!.publicResult,
+  /Scylla sees Char.*die/,
+  'The player witnesses the present death on the chosen costly route',
+)
+campaign = chooseMemoryPairEnding(campaign, 'e04', 'open-the-tide-gate')
 campaign = completeMemoryExperience(campaign, 'e04')
+assert.throws(
+  () => completeMemoryExperience(campaign, 'e05'),
+  /repeat the escape/,
+)
+campaign = chooseMemoryScyllaDeparture(campaign, 'tell-char')
 campaign = completeMemoryExperience(campaign, 'e05')
 assert.deepEqual(
   availableMemoryExperiences(campaign),
@@ -100,6 +149,11 @@ assert.deepEqual(
   'Scylla home wish is an authored event',
 )
 campaign = rememberMemoryWish(campaign, 'scylla-home-wish')
+assert.throws(
+  () => completeMemoryExperience(campaign, 'e06'),
+  /world-pair ending requires/i,
+)
+campaign = chooseMemoryPairEnding(campaign, 'e06', 'publish-twin-testimony')
 campaign = completeMemoryExperience(campaign, 'e06')
 assert.deepEqual(availableMemoryExperiences(campaign), ['e07'])
 assert.throws(
@@ -119,6 +173,11 @@ for (const [base, twisted] of MEMORY_REALITY_PAIRS.slice(3, 6)) {
     availableMemoryExperiences(linear),
     [twisted],
     'A completed overworld must lead directly into its distorted version',
+  )
+  linear = chooseMemoryPairEnding(
+    linear,
+    twisted,
+    MEMORY_PAIR_ENDINGS[twisted][0]!.id,
   )
   linear = completeMemoryExperience(linear, twisted)
 }
@@ -144,12 +203,24 @@ assert.throws(
 let finale = commitToMemoryFinale(linear)
 for (const id of MEMORY_FINALE_ORDER) {
   assert.deepEqual(availableMemoryExperiences(finale), [id])
+  if (id === 'e14' || id === 'e16')
+    finale = chooseMemoryPairEnding(
+      finale,
+      id,
+      MEMORY_PAIR_ENDINGS[id][0]!.id,
+    )
   finale = completeMemoryExperience(finale, id)
 }
 assert.deepEqual(availableMemoryExperiences(finale), [])
 assert.equal(finale.completed.length, 16)
 
 assert.equal(MEMORY_FINALE_PHASES.length, 6)
+assert.equal(Object.keys(MEMORY_PAIR_ENDINGS).length, 8)
+assert.ok(
+  Object.values(MEMORY_PAIR_ENDINGS).every((choices) => choices.length >= 2),
+  'Every one of the eight pairs requires a major world-altering decision',
+)
+assert.equal(MEMORY_SCYLLA_DEPARTURE_CHOICES.length, 3)
 
 for (let i = 1; i < MEMORY_FINALE_PHASES.length; i++) {
   const prev = MEMORY_FINALE_PHASES[i - 1]!

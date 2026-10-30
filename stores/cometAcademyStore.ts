@@ -289,8 +289,10 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     const point = { x, y }
     const arena = battle.arena
     if (
-      arena && !arena.secured &&
-      arena.objectivePoint.x === x && arena.objectivePoint.y === y &&
+      arena &&
+      !arena.secured &&
+      arena.objectivePoint.x === x &&
+      arena.objectivePoint.y === y &&
       actorAt(fight, point)?.team !== 'rival' &&
       secureRivalObjective(battle)
     ) {

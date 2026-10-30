@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { reactive } from 'vue'
 import {
   applyChoice,
   createStory,
@@ -319,6 +320,23 @@ const page = readFileSync(
 assert.match(page, /data-testid="tactics-continue"/)
 assert.match(page, /data-testid="tactics-save-slot"/)
 assert.match(page, /store\.continueLatest\(\)/)
+// The store saves Vue reactive state; structuredClone rejects proxies, which
+// silently broke browser saves until createSave copied through JSON.
+const reactiveRun = reactive({
+  state: trainingState(0x53a1b7, undefined, { lead: 'accident-fire' }),
+  story: createStory(),
+})
+const fromProxy = createSave({
+  slot: 'slot-3',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: null,
+  state: reactiveRun.state,
+  story: reactiveRun.story,
+  savedAt: '2026-10-30T15:00:00.000Z',
+})
+assert.ok(loadSave(serializeSave(fromProxy)).ok, 'reactive state saves')
+
 console.log(
   'Every Villain saves: versioned slots, exact RNG/trigger round-trip, tamper and forgery rejection, one-shot isolation and v1 migration verified.',
 )

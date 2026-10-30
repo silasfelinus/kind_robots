@@ -181,6 +181,30 @@ export function previewShot(
 ): ShotPreview {
   return { target: target.id, ...chanceFrom(map, from, target) }
 }
+/** Rival shooters that could fire on `unit` if it stood at `point`, using the
+ * exact shot formula. Telegraphed attackers (wind-up toys, lieutenants) are
+ * excluded because their warnings are drawn on the board separately. */
+export function exposureAt(
+  state: TrainingState,
+  unit: Unit,
+  point: Cell,
+): Array<Chance & { shooter: string }> {
+  return state.units
+    .filter(
+      (u) =>
+        u.team !== unit.team &&
+        u.hp > 0 &&
+        u.henchmanType !== 'windup' &&
+        !u.lieutenantName &&
+        !u.signatureBoss,
+    )
+    .map((u) => ({
+      shooter: u.id,
+      ...chanceFrom(state.map, u, { ...unit, x: point.x, y: point.y }),
+    }))
+    .filter((shot) => shot.hit > 0)
+    .sort((a, b) => b.hit - a.hit || a.shooter.localeCompare(b.shooter))
+}
 export type TrainingOptions = {
   /** Replace the first squad slot with this canonical hero. */
   lead?: string

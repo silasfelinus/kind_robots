@@ -5,6 +5,7 @@ import {
   actorAt,
   availableMove,
   endTurn,
+  exposureAt,
   fireSelected,
   moveSelected,
   overwatchSelected,
@@ -30,7 +31,22 @@ import {
   picnicCounts,
 } from '~/utils/everyVillainTactics/picnicPanic'
 import {
+  DEFAULT_SETTINGS,
+  animationScale,
+  emptyScrapbook,
+  evtScrapbookKey,
+  evtSettingsKey,
+  mergeScrapbook,
+  momentsFromSave,
+  sanitizeScrapbook,
+  sanitizeSettings,
+  scrapbookPages,
+  type EvtSettings,
+  type Scrapbook,
+} from '~/utils/everyVillainTactics/frontMenu'
+import {
   EVT_SAVE_SLOTS,
+  clearSlot,
   createSave,
   latestSave,
   readSlot,
@@ -60,6 +76,9 @@ import {
 } from '~/utils/everyVillainTactics/firstBellStory'
 
 export type TacticalPerspective = Perspective
+/** Front-menu screens; null means the battle console has focus. */
+export type FrontScreen =
+  'title' | 'story' | 'oneshot' | 'settings' | 'scrapbook'
 
 export const PERSPECTIVES: Record<
   TacticalPerspective,
@@ -113,11 +132,41 @@ export const useEveryVillainTacticsStore = defineStore(
       }>
     >([])
     const saveMessage = ref('')
+    const screen = ref<FrontScreen | null>('title')
+    const settings = ref<EvtSettings>({ ...DEFAULT_SETTINGS })
+    const scrapbook = ref<Scrapbook>(emptyScrapbook())
+    /** First press of End Turn when confirmation is on; the second commits. */
+    const endTurnArmed = ref(false)
     function browserStorage(): SaveStorage | null {
       try {
         return typeof localStorage === 'undefined' ? null : localStorage
       } catch {
         return null
+      }
+    }
+    function storeJson(key: string, value: unknown) {
+      try {
+        browserStorage()?.setItem(key, JSON.stringify(value))
+      } catch {
+        // Preferences still apply for this visit when storage is blocked.
+      }
+    }
+    function readJson(key: string): string | null {
+      try {
+        return browserStorage()?.getItem(key) ?? null
+      } catch {
+        return null
+      }
+    }
+    /** Only pages carried by validated saves are ever added to the book. */
+    function recordMoments(saves: readonly EvtSave[]) {
+      const next = mergeScrapbook(
+        scrapbook.value,
+        saves.flatMap(momentsFromSave),
+      )
+      if (JSON.stringify(next) !== JSON.stringify(scrapbook.value)) {
+        scrapbook.value = next
+        storeJson(evtScrapbookKey, next)
       }
     }
     function readSaves(): EvtSave[] {
@@ -132,7 +181,77 @@ export const useEveryVillainTacticsStore = defineStore(
           problem: result && !result.ok ? result.reason : null,
         }
       })
+      recordMoments(valid)
       return valid
+    }
+    function loadPreferences() {
+      settings.value = sanitizeSettings(readJson(evtSettingsKey))
+      scrapbook.value = sanitizeScrapbook(readJson(evtScrapbookKey))
+      readSaves()
+    }
+    function updateSettings(patch: Partial<Omit<EvtSettings, 'version'>>) {
+      settings.value = sanitizeSettings({ ...settings.value, ...patch })
+      storeJson(evtSettingsKey, settings.value)
+      if (!settings.value.confirmEndTurn) endTurnArmed.value = false
+    }
+    function resetSettings() {
+      settings.value = { ...DEFAULT_SETTINGS }
+      storeJson(evtSettingsKey, settings.value)
+      endTurnArmed.value = false
+    }
+    /** Clears every save slot and the scrapbook. The UI confirms first. */
+    function eraseProgress() {
+      const storage = browserStorage()
+      for (const slot of EVT_SAVE_SLOTS) clearSlot(storage, slot)
+      try {
+        storage?.removeItem(evtScrapbookKey)
+      } catch {
+        // Nothing stored to erase.
+      }
+      scrapbook.value = emptyScrapbook()
+      readSaves()
+      saveMessage.value = 'All saves and scrapbook pages were erased.'
+    }
+    const scrapbookView = computed(() => scrapbookPages(scrapbook.value))
+    const animationFactor = computed(() =>
+      animationScale(settings.value.animation),
+    )
+    const latestSummary = computed(
+      () =>
+        saveSlots.value
+          .map((entry) => entry.summary)
+          .filter((s): s is EvtSaveSummary => !!s)
+          .sort(
+            (a, b) =>
+              Date.parse(b.savedAt) - Date.parse(a.savedAt) ||
+              EVT_SAVE_SLOTS.indexOf(a.slot) - EVT_SAVE_SLOTS.indexOf(b.slot),
+          )[0] ?? null,
+    )
+    function openScreen(next: FrontScreen | null) {
+      screen.value = next
+      endTurnArmed.value = false
+      if (next) {
+        studioOpen.value = false
+        rosterOpen.value = false
+      }
+    }
+    /** New Story: First Bell from the chosen viewpoint and squad lead. */
+    function startStory(view: TacticalPerspective, lead: string) {
+      if (!roster.some((u) => u.signature === lead)) return false
+      isPlaytest.value = false
+      perspective.value = view
+      leadSignature.value = lead
+      reset()
+      openScreen(null)
+      return true
+    }
+    /** One-Shot: a replayable studio preset with its own scenes, if any. */
+    function startOneShot(presetId: string) {
+      if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
+      draft.value = clonePreset(presetId)
+      if (!startPlaytest()) return false
+      openScreen(null)
+      return true
     }
     const canContinue = computed(() =>
       saveSlots.value.some((entry) => entry.summary),
@@ -170,6 +289,8 @@ export const useEveryVillainTacticsStore = defineStore(
         return false
       }
       applySave(result.save)
+      recordMoments([result.save])
+      screen.value = null
       saveMessage.value =
         'Loaded ' + slot + (result.migrated ? ' (upgraded save).' : '.')
       return true
@@ -322,6 +443,37 @@ export const useEveryVillainTacticsStore = defineStore(
     const movePossible = computed(
       () => hovered.value && availableMove(state.value, hovered.value),
     )
+    /** Rival shooters that could reach the selected hero at each reachable
+     * tile, from the same formula the rivals will roll against. */
+    const threatCells = computed(() => {
+      const unit = active.value
+      const threats = new Map<string, number>()
+      if (
+        !settings.value.threatPreview ||
+        !unit ||
+        mode.value !== 'move' ||
+        state.value.phase !== 'active'
+      )
+        return threats
+      for (const cell of boardCells.value)
+        if (availableMove(state.value, cell)) {
+          const shots = exposureAt(state.value, unit, cell)
+          if (shots.length) threats.set(cell.x + ',' + cell.y, shots.length)
+        }
+      return threats
+    })
+    const hoverThreat = computed(() =>
+      settings.value.threatPreview &&
+      active.value &&
+      hovered.value &&
+      mode.value === 'move' &&
+      movePossible.value
+        ? exposureAt(state.value, active.value, hovered.value)
+        : [],
+    )
+    function threatAt(point: Cell) {
+      return threatCells.value.get(point.x + ',' + point.y) ?? 0
+    }
     const projectedTargets = computed(() => {
       const selected = active.value
       const point = hovered.value
@@ -415,6 +567,7 @@ export const useEveryVillainTacticsStore = defineStore(
       state.value.hover = point
     }
     function click(point: Cell) {
+      endTurnArmed.value = false
       if (story.value.current && !isPlaytest.value) return
       if (oneShotScene.value) return
       if (state.value.mode === 'power' && state.value.phase === 'active') {
@@ -439,7 +592,17 @@ export const useEveryVillainTacticsStore = defineStore(
           enqueueBeat(story.value, state.value)
       }
     }
+    /** End Turn from the console honours the confirm setting. */
+    function requestEndTurn() {
+      if (story.value.current || oneShotScene.value) return
+      if (settings.value.confirmEndTurn && !endTurnArmed.value) {
+        endTurnArmed.value = true
+        return
+      }
+      nextTurn()
+    }
     function nextTurn() {
+      endTurnArmed.value = false
       if (story.value.current || oneShotScene.value) return
       endTurn(state.value)
       if (!isPlaytest.value) enqueueBeat(story.value, state.value)
@@ -492,6 +655,7 @@ export const useEveryVillainTacticsStore = defineStore(
                 1,
           ),
         'seismic-warning': isSeismicWarning(point),
+        exposed: threatAt(point) > 0,
         elevated: heightAt(point) > 0,
       }
     }
@@ -541,6 +705,22 @@ export const useEveryVillainTacticsStore = defineStore(
       powerStatus,
       saveSlots,
       saveMessage,
+      screen,
+      settings,
+      scrapbookView,
+      animationFactor,
+      latestSummary,
+      endTurnArmed,
+      loadPreferences,
+      updateSettings,
+      resetSettings,
+      eraseProgress,
+      openScreen,
+      startStory,
+      startOneShot,
+      requestEndTurn,
+      threatAt,
+      hoverThreat,
       canContinue,
       readSaves,
       saveTo,

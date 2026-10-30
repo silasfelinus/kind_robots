@@ -55,28 +55,49 @@ const SPAWNS = [
  * canonical villains. Existing authored stage text supplies the character-
  * specific reason these physical structures matter. */
 export function rivalArenaFor(signature: SignaturePowerId): RivalArena {
+  return buildArena(signature, 'lair')
+}
+
+export function originArenaFor(signature: SignaturePowerId): RivalArena {
+  return buildArena(signature, 'origin')
+}
+
+function buildArena(
+  signature: SignaturePowerId,
+  kind: 'lair' | 'origin',
+): RivalArena {
   const [origin, affinity] = signature.split('-')
   const originIndex = ORIGINS.indexOf(origin as typeof ORIGINS[number])
   const affinityIndex = AFFINITIES.indexOf(affinity as typeof AFFINITIES[number])
   if (originIndex < 0 || affinityIndex < 0) throw new Error('Unknown rival arena')
   const campaign = campaignStagesFor(signature)
+  const phaseOffset = kind === 'origin' ? 3 : 0
   const blocked = new Set((ORIGIN_WALLS[origin] ?? []).map(([x, y]) => x + ',' + y))
   // A third distinctive blocker never seals off the two armies.
   const extra = [{ x: 3, y: 0 }, { x: 4, y: 5 }, { x: 5, y: 0 }, { x: 3, y: 5 }][
-    (originIndex + affinityIndex) % 4
+    (originIndex + affinityIndex + phaseOffset) % 4
   ]!
   blocked.add(KEY(extra))
-  const objectivePoint = { x: 4 + (affinityIndex % 3), y: 1 + (originIndex % 4) }
+  const objectivePoint = {
+    x: 4 + ((affinityIndex + phaseOffset) % 3),
+    y: 1 + ((originIndex + phaseOffset) % 4),
+  }
   if (blocked.has(KEY(objectivePoint))) blocked.delete(KEY(objectivePoint))
-  const secretPoint = { x: 2 + (originIndex % 2), y: 2 + (affinityIndex % 3) }
+  const secretPoint = {
+    x: 2 + ((originIndex + phaseOffset) % 2),
+    y: 2 + ((affinityIndex + phaseOffset) % 3),
+  }
   if (blocked.has(KEY(secretPoint))) blocked.delete(KEY(secretPoint))
-  const shiftPoint = { x: 4 + (originIndex % 2), y: affinityIndex % 2 ? 4 : 1 }
+  const shiftPoint = {
+    x: 4 + ((originIndex + phaseOffset) % 2),
+    y: (affinityIndex + phaseOffset) % 2 ? 4 : 1,
+  }
   if (blocked.has(KEY(shiftPoint))) blocked.delete(KEY(shiftPoint))
 
   const tiles: Record<string, Tile> = {}
   for (const key of blocked) tiles[key] = { elevation: 0, wall: true }
   for (let i = 0; i < 5; i++) {
-    const point = POSITIONS[(i * 2 + originIndex + affinityIndex * 3) % POSITIONS.length]!
+    const point = POSITIONS[(i * 2 + originIndex + affinityIndex * 3 + phaseOffset) % POSITIONS.length]!
     const key = KEY(point)
     if (blocked.has(key) || key === KEY(objectivePoint) || key === KEY(secretPoint)) continue
     tiles[key] = tile(
@@ -84,17 +105,17 @@ export function rivalArenaFor(signature: SignaturePowerId): RivalArena {
       i === 3 ? 1 : 0,
     )
   }
-  const rise = POSITIONS[(originIndex * 5 + affinityIndex) % POSITIONS.length]!
+  const rise = POSITIONS[(originIndex * 5 + affinityIndex + phaseOffset) % POSITIONS.length]!
   if (!blocked.has(KEY(rise)) && KEY(rise) !== KEY(objectivePoint))
     tiles[KEY(rise)] = tile(undefined, 1)
   if (!blocked.has(KEY(shiftPoint))) tiles[KEY(shiftPoint)] = tile({ west: 'half' })
 
   const stage: StageDraft = {
     version: 1,
-    id: 'rival-lair-' + signature,
-    title: campaign.lair.title,
-    venue: campaign.lair.venue,
-    objective: campaign.lair.objective,
+    id: (kind === 'origin' ? 'hero-origin-' : 'rival-lair-') + signature,
+    title: kind === 'origin' ? campaign.opening.title : campaign.lair.title,
+    venue: kind === 'origin' ? campaign.opening.venue : campaign.lair.venue,
+    objective: kind === 'origin' ? campaign.opening.inciting : campaign.lair.objective,
     map: { width: 9, height: 6, tiles },
     spawns: SPAWNS.map((spawn) => ({ ...spawn })),
     secrets: [secretPoint],
@@ -106,10 +127,10 @@ export function rivalArenaFor(signature: SignaturePowerId): RivalArena {
     objectivePoint,
     secretPoint,
     shiftPoint,
-    opening: campaign.lair.arena,
-    turningPoint: campaign.lieutenant.power,
-    secret: campaign.lair.secret,
-    lieutenantAgenda: campaign.lieutenant.agenda,
+    opening: kind === 'origin' ? campaign.opening.powerUse : campaign.lair.arena,
+    turningPoint: kind === 'origin' ? campaign.opening.inciting : campaign.lieutenant.power,
+    secret: kind === 'origin' ? campaign.opening.choice : campaign.lair.secret,
+    lieutenantAgenda: kind === 'origin' ? campaign.opening.powerUse : campaign.lieutenant.agenda,
   }
 }
 

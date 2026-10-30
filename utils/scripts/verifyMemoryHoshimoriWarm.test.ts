@@ -205,7 +205,11 @@ for (let seed = 0; seed < 96; seed++) {
       progress = choose(progress, affordable.id)
     }
   }
-  assert.equal(progress.visited.length, 44, 'All first forty-four village sites are reachable')
+  assert.equal(
+    progress.visited.length,
+    44,
+    'All first forty-four village sites are reachable',
+  )
   assert.equal(Object.keys(progress.choices).length, 44)
   assert.ok(hoshimoriWindwardAccount(progress))
   assert.equal(hoshimoriLanternClues(progress).length, 3)
@@ -823,7 +827,6 @@ assert.equal(
   null,
   'Unbounded or hostile journals must still be rejected',
 )
-
 
 const southernVerdicts = new Set<string>()
 for (let variation = 0; variation < 8; variation++) {

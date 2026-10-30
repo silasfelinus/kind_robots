@@ -46,6 +46,10 @@ import {
   commitToMemoryFinale,
   completeMemoryExperience,
   rememberMemoryWish,
+  chooseMemoryPairEnding,
+  chooseMemoryScyllaDeparture,
+  memoryCharFate,
+  scyllaOpeningForMemory,
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateDarkBriarSlice(), [])
@@ -429,12 +433,21 @@ assert.deepEqual(restoreMemoryCampaignProgress(completed).completed, [
 let alternate = completed
 alternate = rememberMemoryWish(alternate, 'morrow-magic-attempt')
 alternate = completeMemoryExperience(alternate, 'e03')
+alternate = chooseMemoryPairEnding(alternate, 'e04', 'seal-the-tide-gate')
 alternate = completeMemoryExperience(alternate, 'e04')
+assert.equal(memoryCharFate(alternate), 'alive')
+assert.match(scyllaOpeningForMemory(alternate, 'e05'), /Char survived/)
 alternate = rememberMemoryWish(alternate, 'scylla-home-wish')
+alternate = chooseMemoryScyllaDeparture(alternate, 'stay')
 alternate = completeMemoryExperience(alternate, 'e05')
 alternate = rememberMemoryWish(alternate, 'char-possible-future')
+alternate = chooseMemoryPairEnding(alternate, 'e06', 'protect-private-memory')
 alternate = completeMemoryExperience(alternate, 'e06')
 for (const id of ['e07', 'e08', 'e09', 'e10'] as const) {
+  if (id === 'e08')
+    alternate = chooseMemoryPairEnding(alternate, id, 'unbar-all-doors')
+  if (id === 'e10')
+    alternate = chooseMemoryPairEnding(alternate, id, 'publish-price-ledger')
   alternate = completeMemoryExperience(alternate, id)
 }
 assert.deepEqual(availableMemoryExperiences(alternate), ['e11'])
@@ -444,6 +457,8 @@ assert.throws(
   'A player cannot jump the Crossing pair to reach the finale',
 )
 for (const id of ['e11', 'e12'] as const) {
+  if (id === 'e12')
+    alternate = chooseMemoryPairEnding(alternate, id, 'free-transit')
   alternate = completeMemoryExperience(alternate, id)
 }
 assert.deepEqual(availableMemoryExperiences(alternate), ['e13'])
@@ -454,6 +469,7 @@ assert.deepEqual(
   'Save after all eight early and middle incarnations retains explicit finale commitment',
 )
 alternate = completeMemoryExperience(alternate, 'e13')
+alternate = chooseMemoryPairEnding(alternate, 'e14', 'publish-contradictions')
 alternate = completeMemoryExperience(alternate, 'e14')
 const alternateReload = restoreMemoryCampaignProgress(
   JSON.parse(JSON.stringify(alternate)),

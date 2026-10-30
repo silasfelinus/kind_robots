@@ -2,7 +2,7 @@
  * Earth photographs form an independent append-only evidence journal.
  *
  * Production authors 32 fixed beats (two per experience). Briar's four
- * photographs and Hoshimori's first authored scene are collectible. Future entries are
+ * photographs and Hoshimori's two authored scenes are collectible. Future entries are
  * never exposed by a progress counter, locked card, or UI teaser.
  * The protagonist's response is an enduring interpretation, not a retcon
  * of what the camera actually recorded.
@@ -459,15 +459,22 @@ export function newEarthChronicle(): EarthChronicle {
 }
 const KNOWN_PHOTOS = new Map(EARTH_PHOTOS.map((photo) => [photo.id, photo]))
 /** Only currently implemented realities may mint a collectible photo. */
-const HOSHIMORI_FIRST_PHOTO = EARTH_PHOTOS.find(
-  (photo) => photo.experience === 'e07' && photo.site === '2,3',
-)!
+const HOSHIMORI_EARNED_CHOICES: Readonly<Record<string, readonly string[]>> = {
+  '2,3': ['question', 'hold'],
+  '7,5': ['inquire', 'respect'],
+}
+const HOSHIMORI_PHOTOS = EARTH_PHOTOS.filter(
+  (photo) =>
+    photo.experience === 'e07' &&
+    Boolean(HOSHIMORI_EARNED_CHOICES[photo.site]),
+)
+const HOSHIMORI_PHOTO_IDS = new Set(HOSHIMORI_PHOTOS.map((photo) => photo.id))
 const COLLECTIBLE_PHOTO_IDS = new Set(
   EARTH_PHOTOS.filter(
     (photo) =>
       photo.experience === 'e01' ||
       photo.experience === 'e02' ||
-      photo.id === HOSHIMORI_FIRST_PHOTO.id,
+      HOSHIMORI_PHOTO_IDS.has(photo.id),
   ).map((photo) => photo.id),
 )
 const PLAYABLE_SCENE_CHOICES: Record<
@@ -524,24 +531,25 @@ export function restoreEarthChronicle(value: unknown): EarthChronicle {
 }
 
 /**
- * Hoshimori's first photograph is earned only by an authored choice at 2,3.
- * The caller must supply choices from a replay-validated e07 expedition and
- * enforce the campaign's e06 entry gate. The later 7,5 photograph stays locked
- * until that scene is playable.
+ * Both Hoshimori photographs require an authored choice at their fixed sites.
+ * The caller supplies choices from a replay-validated e07 expedition and
+ * enforces the campaign's e06 entry gate. Unbuilt realities remain locked.
  */
 export function reconcileHoshimoriEarthChronicle(
   original: EarthChronicle,
   choices: Readonly<Record<string, string>>,
 ): EarthChronicle {
-  const choice = choices[HOSHIMORI_FIRST_PHOTO.site]
-  if (
-    (choice !== 'question' && choice !== 'hold') ||
-    original.found.includes(HOSHIMORI_FIRST_PHOTO.id)
-  )
-    return original
+  const found = new Set(original.found)
+  for (const photo of HOSHIMORI_PHOTOS) {
+    if (
+      HOSHIMORI_EARNED_CHOICES[photo.site]?.includes(choices[photo.site] ?? '')
+    )
+      found.add(photo.id)
+  }
+  if (found.size === original.found.length) return original
   return {
     ...original,
-    found: [...original.found, HOSHIMORI_FIRST_PHOTO.id].sort(
+    found: [...found].sort(
       (a, b) => KNOWN_PHOTOS.get(a)!.order - KNOWN_PHOTOS.get(b)!.order,
     ),
   }

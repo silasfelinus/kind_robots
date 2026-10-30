@@ -2407,7 +2407,7 @@ function toggleAway(id: CrewId) {
   padding-right: 11.5rem;
 }
 .cap-personnel-frame[data-screen='background'] .cap-heading {
-  padding-right: 0;
+  padding-right: clamp(6rem, 23cqi, 11.5rem);
 }
 .cap-personnel-frame .cap-heading h2 {
   font-size: clamp(1.15rem, 2.4cqi, 2rem);
@@ -2443,7 +2443,7 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame .cap-origin {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 56%) minmax(0, 44%);
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, 0.85fr);
   overflow: hidden;
   align-items: stretch;
   padding: clamp(0.35rem, 1.5cqi, 1rem);

@@ -1,10 +1,6 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
 import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
-import {
-  signatureThreatCells,
-  signatureThreatFor,
-} from './signatureLieutenant'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import {
   signatureCounterPoint,

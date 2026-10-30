@@ -32,6 +32,8 @@ export interface RuleVariants {
   rout: boolean
   /** BLOODRUSH: which side acts last before the board steps alternates by beat. */
   rushAlternate: boolean
+  /** Legacy hidden-army fixture only; the normal Blackout game is open. */
+  classicFog?: boolean
 }
 export type Keyword =
   | 'ambush'
@@ -1409,18 +1411,18 @@ export interface ModeGuide {
 /** First-time tester instructions shown beside each board. */
 export const MODE_GUIDES: Record<ModeId, ModeGuide> = {
   blackout: {
-    goal: 'Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
+    goal: 'Deploy visible monsters from a shuffled hand and cross the no-man’s-land. Grab the ⚑ flag and carry it to your back column, the far left edge. Or wipe out every enemy fighter. After 20 rounds, the side with more total HP left wins.',
     steps: [
-      'Your five fighters start face-down. Tap one, then an adjacent square to move it: one square per AP, AP refills each round.',
-      'Moving reveals that fighter. Enemy fighters show as ? until they move, fight or are hit.',
-      'Tap a card, then a square: creatures deploy face-down in your home columns, a trap goes on an empty square, spells and equipment go on a fighter. Each card once per round.',
+      'Begin with four cards drawn from your faction’s ten-card deck. Tap a card to inspect its art, cost and abilities, then choose a valid square.',
+      'No fighters start concealed. Spies and specialist stealth cards can hide; other crews play visible monsters.',
+      'Summon creatures into the left two columns. Traps belong on empty squares; spells and equipment target fighters.',
       'Press END ROUND. The CPU moves and plays cards, then every fighter beside an enemy strikes at once for attack minus armor.',
       'A fighter still standing on the flag at the end of the round picks it up. Carriers walk one square per round; if one falls, the flag drops on its square.',
     ],
     limits: [
       'Local prototype: the CPU sees where fighters stand but not hidden identities or your trap.',
       'Initiative alternates (you, CPU, CPU, you …): on even rounds the CPU has already moved when your turn starts.',
-      'Fixed ten-card crew deck, no hand draw. Mana refills each round: 1, 2, 3 … up to 10, minus any debt. One armed trap per side (Undertow: two).',
+      'Ten unique cards per crew, four drawn each round. Played cards leave your hand. Discards recycle only after the deck empties. Mana: 1, 2, 3 … up to 10, minus debt.',
       'Nothing is saved: no Meat, cards or online results.',
     ],
   },
@@ -1808,8 +1810,8 @@ export function createMatch(
   const m = MODES.find((item) => item.id === mode)
   if (!m) throw new Error('Unknown Slime City match mode')
   const dimensions = m.size.split(' × ')
-  const width = Number(dimensions[0]!)
-  const height = Number(dimensions[1]!)
+  const width = mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[0]!)
+  const height = mode === 'blackout' && rules.classicFog ? 8 : Number(dimensions[1]!)
   const s = normalizeSeed(seed)
   const rush = mode === 'bloodrush'
   const state: MatchState = {
@@ -1851,7 +1853,19 @@ export function createMatch(
     cooldowns: { player: {}, enemy: {} },
     debt: { player: 0, enemy: 0 },
   }
-  if (mode === 'blackout') {
+  if (mode === 'blackout' && rules.classicFog) {
+    for (const side of ['player', 'enemy'] as Side[]) {
+      const lineup = teamById(teamOf(state, side)).army
+      const zone: { x: number; y: number }[] = []
+      for (let x = 0; x < width; x++)
+        for (let y = 0; y < height; y++)
+          if (inDeployZone(state, side, x)) zone.push({ x, y })
+      const cells = shuffledCells(zone, s, side === 'player' ? 3 : 4)
+      lineup.forEach((cardId, i) =>
+        addFighter(state, cardId, side, cells[i]!.x, cells[i]!.y, true),
+      )
+    }
+  } else if (mode === 'blackout') {
     for (const side of ['player', 'enemy'] as Side[]) {
       state.piles[side] = shuffledDeck(state, side)
       drawHand(state, side)
@@ -2019,7 +2033,7 @@ function applyDeploy(
   if (!card || state.victor || card.team !== teamOf(state, side)) return false
   if (card.cost > manaOf(state, side)) return false
   if (!cardReady(state, side, cardId)) return false
-  if (state.mode === 'blackout' && !state.hands[side].includes(cardId))
+  if (state.mode === 'blackout' && !state.rules.classicFog && !state.hands[side].includes(cardId))
     return false
   if (x < 0 || y < 0 || x >= state.width || y >= state.height) return false
   const target = unitAt(state, x, y)
@@ -2031,7 +2045,7 @@ function applyDeploy(
       state.units.filter((u) => u.side === side).length >= FIELD_CAP[state.mode]
     )
       return false
-    addFighter(state, cardId, side, x, y, false)
+    addFighter(state, cardId, side, x, y, state.mode === 'blackout' && !!state.rules.classicFog)
     line = hidden
       ? 'The enemy deploys a concealed fighter.'
       : (side === 'enemy' ? 'Enemy deploys ' : 'You deploy ') + card.name + '.'
@@ -2173,7 +2187,7 @@ function applyDeploy(
       '.'
   }
   spend(state, side, card.cost)
-  if (state.mode === 'blackout') {
+  if (state.mode === 'blackout' && !state.rules.classicFog) {
     state.hands[side] = state.hands[side].filter((id) => id !== cardId)
     state.discards[side].push(cardId)
   }
@@ -2336,7 +2350,7 @@ export function observe(state: MatchState, side: Side): MatchView {
         }
       }),
     traps: state.traps.filter((t) => t.side === side).map((t) => ({ ...t })),
-    hand: (state.mode === 'blackout'
+    hand: (state.mode === 'blackout' && !state.rules.classicFog
       ? state.hands[side].map(cardById)
       : deckOf(teamOf(state, side))
     ).filter((card) => cardReady(state, side, card.id)),
@@ -2663,7 +2677,7 @@ function checkEnd(state: MatchState): void {
   if (state.mode === 'blackout') {
     const p = state.units.some((u) => u.side === 'player')
     const e = state.units.some((u) => u.side === 'enemy')
-    if (!p || !e) {
+    if ((!p || !e) && (state.round >= 4 || state.rules.classicFog)) {
       finish(state, p === e ? 'draw' : p ? 'player' : 'enemy', 'rout')
       return
     }
@@ -2776,7 +2790,7 @@ export function advance(state: MatchState): MatchState {
       )
       next.debt = { player: 0, enemy: 0 }
     }
-    if (next.mode === 'blackout') {
+    if (next.mode === 'blackout' && !next.rules.classicFog) {
       drawHand(next, 'player')
       drawHand(next, 'enemy')
       message(next, 'Four fresh cards dealt from your faction deck.')

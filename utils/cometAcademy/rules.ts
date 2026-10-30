@@ -1380,15 +1380,15 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
       ? playedBattle.grade
       : focusTogether
         ? 'honors'
-      : splitting && score < incident.risk
-        ? 'partial'
-        : score >= incident.risk + 4
-          ? 'honors'
-          : score >= incident.risk + 2
-            ? 'pass'
-            : score >= incident.risk
-              ? 'partial'
-              : 'failed'
+        : splitting && score < incident.risk
+          ? 'partial'
+          : score >= incident.risk + 4
+            ? 'honors'
+            : score >= incident.risk + 2
+              ? 'pass'
+              : score >= incident.risk
+                ? 'partial'
+                : 'failed'
     influence +=
       grade === 'honors'
         ? 2

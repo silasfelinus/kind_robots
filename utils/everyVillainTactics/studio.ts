@@ -33,7 +33,12 @@ export type StageDraft = {
   hazards: Point[]
   turnLimit: number | null
   encounter?: StageEncounter
+  /** Picnickers and bystanders the squad can evacuate (one-shot objective). */
+  civilians?: StageCivilian[]
+  /** Authored opening/triggered/final scene set for this one-shot. */
+  scenes?: 'picnic-panic'
 }
+export type StageCivilian = { id: string; name: string; x: number; y: number }
 /** Rival line-ups the studio can field. Crews are canonical one-hit SPECIES
  * from villainHenchmen.json, each with its own telegraphed mechanic. */
 export type StageEncounter =
@@ -176,6 +181,17 @@ export const STAGE_PRESETS: StageDraft[] = [
     secrets: [{ x: 4, y: 0 }],
     hazards: [],
     turnLimit: 7,
+    scenes: 'picnic-panic',
+    civilians: [
+      {
+        id: 'lemonade',
+        name: 'Gran Odile and the lemonade cooler',
+        x: 3,
+        y: 1,
+      },
+      { id: 'band', name: 'The brass band’s tuba player', x: 5, y: 5 },
+      { id: 'twins', name: 'The Abara twins and their kite', x: 5, y: 3 },
+    ],
   },
   {
     version: 1,
@@ -262,6 +278,20 @@ export function stageProblems(stage: StageDraft): string[] {
       stage.turnLimit > 40)
   )
     issues.push('Turn limits must be from 2 to 40 rounds.')
+  const civilianIds = new Set<string>()
+  for (const civilian of stage.civilians ?? []) {
+    if (!inside(map, civilian) || tileAt(map, civilian).wall)
+      issues.push('Civilians must wait on walkable ground.')
+    if (spawnKeys.has(at(civilian.x, civilian.y)))
+      issues.push('A civilian cannot share a spawn tile.')
+    if (!civilian.id || civilianIds.has(civilian.id))
+      issues.push('Each civilian needs a unique id.')
+    civilianIds.add(civilian.id)
+  }
+  if ((stage.civilians?.length ?? 0) > 6)
+    issues.push('A one-shot can hold at most six civilians.')
+  if (stage.scenes !== undefined && stage.scenes !== 'picnic-panic')
+    issues.push('Unknown scene set.')
   for (const marker of [...stage.secrets, ...stage.hazards]) {
     if (!inside(map, marker) || tileAt(map, marker).wall)
       issues.push('Secrets and hazards must occupy walkable cells.')

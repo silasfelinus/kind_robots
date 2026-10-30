@@ -75,6 +75,13 @@ export type Unit = Fighter & {
   powerCooldown?: number
   powerSpent?: boolean
 }
+export type Civilian = {
+  id: string
+  name: string
+  x: number
+  y: number
+  status: 'waiting' | 'rescued' | 'lost'
+}
 export type TrainingState = {
   map: TacticalMap
   stageId: string | null
@@ -91,6 +98,8 @@ export type TrainingState = {
   /** One-shot triggers that already fired, so a reload never replays them.
    * Optional because Prom of Doom battles saved before it lack the field. */
   fired?: string[]
+  /** One-shot bystanders; absent for battles without an evacuation goal. */
+  civilians?: Civilian[]
   impact: {
     attacker: string
     target: string
@@ -186,6 +195,12 @@ export function trainingState(
 ): TrainingState {
   const state = baseTrainingState(seed, stage)
   fieldLackeyCrew(state, stage)
+  if (stage?.civilians?.length)
+    state.civilians = stage.civilians.map((c) => ({
+      ...c,
+      status: 'waiting' as const,
+    }))
+  if (stage?.scenes === 'picnic-panic') recordTrigger(state, 'picnic:opening')
   const lead = state.units[0]!
   if (
     options.lead &&
@@ -363,8 +378,14 @@ function note(state: TrainingState, message: string) {
   state.events.unshift(message)
   state.events = state.events.slice(0, 6)
 }
+const waitingCivilians = (state: TrainingState) =>
+  (state.civilians ?? []).filter((c) => c.status === 'waiting')
 function updateOutcome(state: TrainingState) {
-  if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
+  const civilians = state.civilians ?? []
+  if (civilians.length && civilians.every((c) => c.status === 'lost')) {
+    state.phase = 'defeat'
+    note(state, 'Every family was pulled under. The picnic is lost.')
+  } else if (state.units.every((u) => u.team !== 'rival' || u.hp <= 0)) {
     state.phase = 'victory'
     note(
       state,
@@ -595,6 +616,28 @@ export function powerFor(unit: Unit) {
   return unit.power ? tacticFor(unit.power) : undefined
 }
 
+/** Waiting civilians the selected squadmate can reach this action. */
+export function rescueTargets(state: TrainingState): Civilian[] {
+  const unit = selectedUnit(state)
+  if (!unit || unit.ap < 1 || state.phase !== 'active') return []
+  return waitingCivilians(state)
+    .filter((c) => gridDistance(unit, c) <= 1)
+    .sort((a, b) => a.id.localeCompare(b.id))
+}
+/** Spend 1 AP beside (or on) a civilian to walk them out of danger. */
+export function rescueSelected(state: TrainingState): boolean {
+  const unit = selectedUnit(state)
+  const civilian = rescueTargets(state)[0]
+  if (!unit || !civilian) return false
+  unit.ap--
+  civilian.status = 'rescued'
+  note(state, aliasFor(unit) + ' evacuates ' + civilian.name + ' (1 AP).')
+  if (!waitingCivilians(state).length && state.civilians?.length)
+    recordTrigger(state, 'picnic:all-rescued')
+  updateOutcome(state)
+  return true
+}
+
 export function overwatchSelected(state: TrainingState): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active' || !prepareOverwatch(unit)) return false
@@ -646,6 +689,16 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
     enemy.y = to.y
     enemy.ap--
     note(state, aliasFor(enemy) + ' bursts from the announced dust ring!')
+    recordTrigger(state, 'picnic:first-emergence')
+    // Any family beside the ring is pulled into the tunnel with it.
+    for (const civilian of waitingCivilians(state))
+      if (gridDistance(civilian, enemy) <= 1) {
+        civilian.status = 'lost'
+        recordTrigger(state, 'picnic:civilian-lost')
+        note(state, civilian.name + ' is dragged into the tunnel!')
+      }
+    updateOutcome(state)
+    if (state.phase !== 'active') return true
     triggerReactions(state, enemy)
     if (enemy.hp <= 0 || state.phase !== 'active') return true
     const shot = bestShot(state, enemy)
@@ -688,7 +741,11 @@ function burrowPlan(state: TrainingState, enemy: Unit): boolean {
         tileAt(state.map, point).wall
       )
         continue
-      if (heroes.some((u) => gridDistance(u, point) === 1)) targets.push(point)
+      if (
+        heroes.some((u) => gridDistance(u, point) === 1) ||
+        waitingCivilians(state).some((c) => gridDistance(c, point) === 1)
+      )
+        targets.push(point)
     }
   targets.sort((a, b) => a.y - b.y || a.x - b.x)
   const target = targets[0]

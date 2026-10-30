@@ -13,6 +13,8 @@ import {
   previewShot,
   previewSelectedPower,
   powerFor,
+  rescueSelected,
+  rescueTargets,
   selectedPowerTargets,
   selectedUnit,
   trainingState,
@@ -22,6 +24,11 @@ import {
   type Mode,
 } from '~/utils/everyVillainTactics/training'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
+import {
+  dismissPicnicScene,
+  pendingPicnicScene,
+  picnicCounts,
+} from '~/utils/everyVillainTactics/picnicPanic'
 import {
   EVT_SAVE_SLOTS,
   createSave,
@@ -218,6 +225,27 @@ export const useEveryVillainTacticsStore = defineStore(
           Math.abs(unit.seismicTarget.y - point.y) <= 1,
       )
     }
+    /** Picnic Panic's opening, triggered and final scenes. */
+    const oneShotScene = computed(() => pendingPicnicScene(state.value))
+    const civilianCounts = computed(() =>
+      state.value.civilians ? picnicCounts(state.value) : null,
+    )
+    const canRescue = computed(() => rescueTargets(state.value).length > 0)
+    function dismissScene() {
+      const scene = oneShotScene.value
+      if (scene) dismissPicnicScene(state.value, scene.id)
+    }
+    function rescue() {
+      if (oneShotScene.value) return
+      rescueSelected(state.value)
+    }
+    function civilianAt(point: Cell) {
+      return (
+        state.value.civilians?.find(
+          (c) => c.x === point.x && c.y === point.y && c.status !== 'rescued',
+        ) ?? null
+      )
+    }
     function isPhaseWarning(point: Cell) {
       return state.value.units.some(
         (unit) =>
@@ -388,6 +416,7 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function click(point: Cell) {
       if (story.value.current && !isPlaytest.value) return
+      if (oneShotScene.value) return
       if (state.value.mode === 'power' && state.value.phase === 'active') {
         // Allies can be power targets, so try the power before reselecting.
         if (useSelectedPower(state.value, point)) {
@@ -411,7 +440,7 @@ export const useEveryVillainTacticsStore = defineStore(
       }
     }
     function nextTurn() {
-      if (story.value.current) return
+      if (story.value.current || oneShotScene.value) return
       endTurn(state.value)
       if (!isPlaytest.value) enqueueBeat(story.value, state.value)
       // Each completed round autosaves, so Continue survives a closed tab.
@@ -451,6 +480,17 @@ export const useEveryVillainTacticsStore = defineStore(
         'has-wall': tileInfoAt(point) === 'wall',
         'burrow-warning': isBurrowWarning(point),
         'phase-warning': isPhaseWarning(point),
+        'civilian-waiting': civilianAt(point)?.status === 'waiting',
+        'civilian-risk':
+          civilianAt(point)?.status === 'waiting' &&
+          state.value.units.some(
+            (u) =>
+              u.hp > 0 &&
+              u.burrowTarget &&
+              Math.abs(u.burrowTarget.x - point.x) +
+                Math.abs(u.burrowTarget.y - point.y) <=
+                1,
+          ),
         'seismic-warning': isSeismicWarning(point),
         elevated: heightAt(point) > 0,
       }
@@ -471,6 +511,12 @@ export const useEveryVillainTacticsStore = defineStore(
       heightAt,
       isBurrowWarning,
       isPhaseWarning,
+      oneShotScene,
+      civilianCounts,
+      canRescue,
+      dismissScene,
+      rescue,
+      civilianAt,
       isSeismicWarning,
       boardCells,
       perspective,

@@ -14,7 +14,11 @@ import {
   fireSelected,
   trainingState,
 } from '../everyVillainTactics/training'
-import { chanceFrom, nextRoll, type TacticalMap } from '../everyVillainTactics/combat'
+import {
+  chanceFrom,
+  nextRoll,
+  type TacticalMap,
+} from '../everyVillainTactics/combat'
 import { rivalArenaFor } from '../cometAcademy/rivalArenas'
 
 const cleanMap: TacticalMap = { width: 9, height: 6, tiles: {} }
@@ -72,14 +76,21 @@ for (const person of IDENTITY_ARCS) {
   assert.equal(fight.phase, 'active')
   endTurn(fight)
   assert.ok(boss.signatureTarget, signature + ': boss must announce its target')
-  assert.ok(boss.signatureCounter, signature + ': boss must announce its counter')
+  assert.ok(
+    boss.signatureCounter,
+    signature + ': boss must announce its counter',
+  )
   assert.match(fight.events[0]!, /Round 2/)
   const announced = { ...boss.signatureTarget! }
   const threatened = signatureThreatCells(fight.map, signature, announced)
   assert.ok(threatened.some((p) => p.x === lead.x && p.y === lead.y))
   const hp = lead.hp
   endTurn(fight)
-  assert.equal(lead.hp, hp - 1, signature + ': telegraph and actual attack disagree')
+  assert.equal(
+    lead.hp,
+    hp - 1,
+    signature + ': telegraph and actual attack disagree',
+  )
   assert.equal(boss.signatureTarget, null)
   assert.equal(boss.signatureCounter, null)
 
@@ -97,31 +108,59 @@ for (const person of IDENTITY_ARCS) {
     maxHp: 4,
   })
   disrupted.units = [ally, adversary]
-  assert.equal(counterSignatureLieutenant(disrupted), false, 'counter needs a warning')
+  assert.equal(
+    counterSignatureLieutenant(disrupted),
+    false,
+    'counter needs a warning',
+  )
   endTurn(disrupted)
   ally.x = adversary.signatureCounter!.x
   ally.y = adversary.signatureCounter!.y
   ally.ap = 2
-  assert.equal(counterSignatureLieutenant(disrupted), true, signature + ': interrupt unreachable')
+  assert.equal(
+    counterSignatureLieutenant(disrupted),
+    true,
+    signature + ': interrupt unreachable',
+  )
   assert.equal(ally.ap, 1, 'counter spends exactly one AP')
   assert.equal(adversary.signatureTarget, null)
   assert.equal(adversary.signatureCooldown, true)
-  assert.equal(counterSignatureLieutenant(disrupted), false, 'no repeated free interruption')
+  assert.equal(
+    counterSignatureLieutenant(disrupted),
+    false,
+    'no repeated free interruption',
+  )
   const safeHp = ally.hp
   endTurn(disrupted)
   assert.equal(ally.hp, safeHp, 'disrupted boss must skip its attack')
   assert.equal(adversary.signatureCooldown, false)
 }
-assert.equal(shapes.size, 8, 'all eight signature attack shapes must be mechanically distinct')
-assert.equal(anchors.size, 6, 'all six origin counters must have different physical stations')
+assert.equal(
+  shapes.size,
+  8,
+  'all eight signature attack shapes must be mechanically distinct',
+)
+assert.equal(
+  anchors.size,
+  6,
+  'all six origin counters must have different physical stations',
+)
 
 const stalled = trainingState(44)
 stalled.units = stalled.units.filter((u) => u.team === 'squad')
 stalled.units[0]!.ap = 0
 const oldRound = stalled.turn
 endTurn(stalled)
-assert.equal(stalled.turn, oldRound + 1, 'empty battleground must advance the round')
-assert.equal(stalled.units[0]!.ap, 2, 'last objective remains completable after rivals fall')
+assert.equal(
+  stalled.turn,
+  oldRound + 1,
+  'empty battleground must advance the round',
+)
+assert.equal(
+  stalled.units[0]!.ap,
+  2,
+  'last objective remains completable after rivals fall',
+)
 
 const interruption = trainingState(73)
 const shooter = interruption.units[0]!
@@ -149,10 +188,18 @@ assert.ok(seed, 'deterministic direct-hit test must have a valid RNG seed')
 interruption.seed = seed!
 assert.equal(fireSelected(interruption, target), true)
 assert.equal(target.hp, 2)
-assert.equal(target.signatureTarget, null, 'normal successful fire interrupts signature warning')
+assert.equal(
+  target.signatureTarget,
+  null,
+  'normal successful fire interrupts signature warning',
+)
 assert.equal(target.signatureCooldown, true)
 endTurn(interruption)
-assert.equal(target.signatureCooldown, false, 'boss spends next phase recovering')
+assert.equal(
+  target.signatureCooldown,
+  false,
+  'boss spends next phase recovering',
+)
 
 const base = startFullAcademy(fieldFor('accident-fire'), 4321, 'accident-fire')
 const late = {
@@ -165,16 +212,39 @@ const late = {
 const battle = newTacticalInterlude(late)!
 const boss = battle.state.units.find((unit) => unit.signatureBoss)!
 assert.equal(boss.signatureBoss, late.opponentSignature)
-assert.equal(boss.lieutenantName, campaignStagesFor(late.opponentSignature).lieutenant.name)
-assert.equal(boss.seismicTarget, undefined, 'signature boss must not reuse quarry seismic AI')
+assert.equal(
+  boss.lieutenantName,
+  campaignStagesFor(late.opponentSignature).lieutenant.name,
+)
+assert.equal(
+  boss.seismicTarget,
+  undefined,
+  'signature boss must not reuse quarry seismic AI',
+)
 assert.equal(boss.maxHp, 4)
 assert.ok(battle.arena?.kind === 'lair')
-const suspicious = JSON.parse(JSON.stringify({ ...late, tacticalBattle: battle }))
-suspicious.tacticalBattle.state.units.find((u: { id: string }) => u.id === boss.id).signatureTarget = { x: -8, y: 99 }
-assert.equal(restoreAcademy(suspicious), null, 'cannot restore an out-of-board boss warning')
-const fakeSignature = JSON.parse(JSON.stringify({ ...late, tacticalBattle: battle }))
-fakeSignature.tacticalBattle.state.units.find((u: { id: string }) => u.id === boss.id).signatureBoss = 'fabricated-signature'
-assert.equal(restoreAcademy(fakeSignature), null, 'unknown bosses must fail validation safely')
+const suspicious = JSON.parse(
+  JSON.stringify({ ...late, tacticalBattle: battle }),
+)
+suspicious.tacticalBattle.state.units.find(
+  (u: { id: string }) => u.id === boss.id,
+).signatureTarget = { x: -8, y: 99 }
+assert.equal(
+  restoreAcademy(suspicious),
+  null,
+  'cannot restore an out-of-board boss warning',
+)
+const fakeSignature = JSON.parse(
+  JSON.stringify({ ...late, tacticalBattle: battle }),
+)
+fakeSignature.tacticalBattle.state.units.find(
+  (u: { id: string }) => u.id === boss.id,
+).signatureBoss = 'fabricated-signature'
+assert.equal(
+  restoreAcademy(fakeSignature),
+  null,
+  'unknown bosses must fail validation safely',
+)
 
 console.log(
   'Prom lieutenant tactics: 48 canonical profiles, 8 real footprints, 6 counter stations, telegraph/attack parity, interruption AP, late story boss and save protection.',

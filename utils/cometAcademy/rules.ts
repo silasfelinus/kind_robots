@@ -1,5 +1,5 @@
 import {
-  PATROL_STORIES,
+  ALL_PATROL_STORIES,
   fillStoryText,
   patrolStoryById,
   storyGrade,
@@ -961,7 +961,7 @@ export function activePatrolStory(
 ): PatrolStory | null {
   if (run.flowVersion !== 3 || run.patrolOpening !== 1) return null
   return (
-    PATROL_STORIES.find(
+    ALL_PATROL_STORIES.find(
       (story) =>
         story.zone === zone &&
         run.day >= story.window.from &&
@@ -1039,6 +1039,32 @@ export function storySecretUnlocked(run: AcademyRun, story: PatrolStory) {
   }
   if (story.id === 'story-two-shadows')
     return run.betrayal?.status === 'reconciled'
+  // The Oct 29 cast: each secret answers something the player did before.
+  if (story.id === 'cast-afterparty')
+    return Boolean(
+      run.playerEvolution &&
+      (run.playerEvolution.form === 'villain' ||
+        run.playerEvolution.exploit > run.playerEvolution.protect),
+    )
+  if (story.id === 'cast-asterisk') return (run.plotEvidence?.length ?? 0) > 0
+  if (story.id === 'cast-event-horizon')
+    return knownContacts(run).some((id) => id === 'kit' || id === 'lark')
+  if (story.id === 'cast-choir') return (run.missionClues?.length ?? 0) >= 2
+  if (story.id === 'cast-pledgebreaker')
+    return Boolean(run.relationships?.romance)
+  if (story.id === 'cast-miss-reflection')
+    return (
+      (run.plotEvidence?.length ?? 0) >= 2 ||
+      run.betrayal?.status === 'reconciled'
+    )
+  if (story.id === 'cast-standing-ovation') return (run.cityStanding ?? 0) >= 2
+  if (story.id === 'cast-lady-hemline')
+    return Boolean(
+      run.relationships?.partner ||
+      Object.values(run.relationships?.triads ?? {}).some(
+        (triad) => triad?.status === 'committed',
+      ),
+    )
   return false
 }
 

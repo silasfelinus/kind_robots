@@ -1,4 +1,5 @@
 import type { PatrolZoneId } from './nightPatrols'
+import { CAST_STORIES } from './octoberCast'
 
 // The three commissioned patrol stories from kind_robots#4402. Each one takes
 // over a district patrol once, inside its own window, with several real
@@ -35,6 +36,10 @@ export type StoryChoice = {
   need?: StoryPower
   /** Who must be available: a teammate to send, or the known rival. */
   requires?: 'teammate' | 'rival'
+  /** A first meeting about who you are, not dice: always the success text. */
+  certain?: boolean
+  /** Which kind of hero this choice makes you. */
+  stance?: 'hero' | 'villain' | 'rogue'
   outcomes: Partial<Record<StoryGrade, StoryOutcome>>
 }
 export type PatrolStory = {
@@ -45,6 +50,8 @@ export type PatrolStory = {
   scene: string
   /** Why the secret appears, phrased as a clue rather than a spoiler. */
   secretHint: string
+  /** The Oct 29 cast member this first encounter introduces (octoberCast.ts). */
+  cast?: string
   choices: StoryChoice[]
 }
 
@@ -556,8 +563,15 @@ export const PATROL_STORIES: readonly PatrolStory[] = [
   },
 ]
 
+/** Commissioned stories plus the Oct 29 cast's first encounters. Windows in
+ * one district never overlap, so a district holds at most one story a night. */
+export const ALL_PATROL_STORIES: readonly PatrolStory[] = [
+  ...PATROL_STORIES,
+  ...CAST_STORIES,
+]
+
 export function patrolStoryById(id: string): PatrolStory | undefined {
-  return PATROL_STORIES.find((story) => story.id === id)
+  return ALL_PATROL_STORIES.find((story) => story.id === id)
 }
 
 function storyHash(seed: number, text: string): number {
@@ -577,6 +591,7 @@ export function storyGrade(
 ): StoryGrade {
   if (choice.kind === 'refuse') return 'refusal'
   if (choice.kind === 'secret') return 'secret'
+  if (choice.certain) return 'success'
   const score = (storyHash(seed, `${day}:${choice.id}`) % 6) + bonus
   return score >= 5 ? 'success' : score >= 3 ? 'mixed' : 'failure'
 }

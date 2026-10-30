@@ -41,9 +41,14 @@ on:
       - .github/workflows/publish-container.yml
   workflow_dispatch:
 
+# Pushes to main never cancel a running publish: on a busy day parallel merges
+# landed faster than the ~9 minute build, every run was cancelled by the next
+# one, and production sat on a stale image for hours (2026-10-30). With
+# cancel-in-progress off, the running build finishes and only the newest waiting
+# push builds next. Superseded PR validation builds still cancel.
 concurrency:
   group: production-container-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   REGISTRY: ghcr.io

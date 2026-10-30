@@ -22,6 +22,18 @@ import {
   type Mode,
 } from '~/utils/everyVillainTactics/training'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
+import {
+  EVT_SAVE_SLOTS,
+  createSave,
+  latestSave,
+  readSlot,
+  summarizeSave,
+  writeSlot,
+  type EvtSave,
+  type EvtSaveSlot,
+  type EvtSaveSummary,
+  type SaveStorage,
+} from '~/utils/everyVillainTactics/saves'
 
 import {
   STAGE_PRESETS,
@@ -85,6 +97,85 @@ export const useEveryVillainTacticsStore = defineStore(
     const studioBrush = ref<StudioBrush>('wall')
     const draft = ref(clonePreset('college-quad'))
     const isPlaytest = ref(false)
+    /** Per-slot summary or the reason a stored save was refused. */
+    const saveSlots = ref<
+      Array<{
+        slot: EvtSaveSlot
+        summary: EvtSaveSummary | null
+        problem: string | null
+      }>
+    >([])
+    const saveMessage = ref('')
+    function browserStorage(): SaveStorage | null {
+      try {
+        return typeof localStorage === 'undefined' ? null : localStorage
+      } catch {
+        return null
+      }
+    }
+    function readSaves(): EvtSave[] {
+      const storage = browserStorage()
+      const valid: EvtSave[] = []
+      saveSlots.value = EVT_SAVE_SLOTS.map((slot) => {
+        const result = readSlot(storage, slot)
+        if (result?.ok) valid.push(result.save)
+        return {
+          slot,
+          summary: result?.ok ? summarizeSave(result.save) : null,
+          problem: result && !result.ok ? result.reason : null,
+        }
+      })
+      return valid
+    }
+    const canContinue = computed(() =>
+      saveSlots.value.some((entry) => entry.summary),
+    )
+    function saveTo(slot: EvtSaveSlot): boolean {
+      const save = createSave({
+        slot,
+        perspective: perspective.value,
+        leadSignature: leadSignature.value,
+        stage: isPlaytest.value ? draft.value : null,
+        state: state.value,
+        story: story.value,
+      })
+      const ok = writeSlot(browserStorage(), save)
+      saveMessage.value = ok
+        ? 'Saved to ' + slot + '.'
+        : 'This browser blocked saving.'
+      readSaves()
+      return ok
+    }
+    function applySave(save: EvtSave) {
+      perspective.value = save.perspective
+      leadSignature.value = save.leadSignature
+      isPlaytest.value = save.mode === 'oneshot'
+      if (save.stage) draft.value = structuredClone(save.stage)
+      state.value = structuredClone(save.state)
+      story.value = structuredClone(save.story)
+      studioOpen.value = false
+      rosterOpen.value = false
+    }
+    function loadFrom(slot: EvtSaveSlot): boolean {
+      const result = readSlot(browserStorage(), slot)
+      if (!result?.ok) {
+        saveMessage.value = result ? result.reason : 'That slot is empty.'
+        return false
+      }
+      applySave(result.save)
+      saveMessage.value =
+        'Loaded ' + slot + (result.migrated ? ' (upgraded save).' : '.')
+      return true
+    }
+    /** Continue resumes the most recently saved valid slot, never a guess. */
+    function continueLatest(): boolean {
+      const save = latestSave(readSaves())
+      if (!save) {
+        saveMessage.value = 'No saved battle to continue.'
+        return false
+      }
+      return loadFrom(save.slot)
+    }
     const studioProblems = computed(() => stageProblems(draft.value))
     const boardCells = computed(() =>
       Array.from(
@@ -311,6 +402,8 @@ export const useEveryVillainTacticsStore = defineStore(
       if (story.value.current) return
       endTurn(state.value)
       if (!isPlaytest.value) enqueueBeat(story.value, state.value)
+      // Each completed round autosaves, so Continue survives a closed tab.
+      saveTo('auto')
     }
     function overwatch() {
       if (story.value.current) return
@@ -386,6 +479,13 @@ export const useEveryVillainTacticsStore = defineStore(
       movePossible,
       activePower,
       powerStatus,
+      saveSlots,
+      saveMessage,
+      canContinue,
+      readSaves,
+      saveTo,
+      loadFrom,
+      continueLatest,
       powerTargetCells,
       powerPreview,
       reset,

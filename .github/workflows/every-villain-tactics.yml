@@ -13,6 +13,7 @@ on:
       - 'utils/scripts/verifyEveryVillainStory.test.ts'
       - 'utils/scripts/verifyEveryVillainStudio.test.ts'
       - 'utils/scripts/verifyEveryVillainPowers.test.ts'
+      - 'utils/scripts/verifyEveryVillainSaves.test.ts'
       - '.github/workflows/every-villain-tactics.yml'
   push:
     branches: [main]
@@ -45,6 +46,8 @@ jobs:
           npx tsx utils/scripts/verifyEveryVillainStudio.test.ts
       - name: Signature powers, tactical roles and AI parity
         run: npx tsx utils/scripts/verifyEveryVillainPowers.test.ts
+      - name: Versioned save slots, migration and forgery rejection
+        run: npx tsx utils/scripts/verifyEveryVillainSaves.test.ts
       - name: Shared engine keeps Prom of Doom interludes intact
         run: |
           npx tsx utils/scripts/verifyCometTacticalBridge.test.ts

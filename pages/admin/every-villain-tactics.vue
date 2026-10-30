@@ -450,6 +450,62 @@
                 {{ store.isPlaytest ? 'REPLAY TEST' : 'REPLAY FIRST BELL' }}
                 <span>↺</span>
               </button>
+              <div
+                class="evt-saves"
+                aria-label="Save slots"
+                data-testid="tactics-saves"
+              >
+                <button
+                  type="button"
+                  class="evt-continue"
+                  data-testid="tactics-continue"
+                  :disabled="!store.canContinue"
+                  @click="store.continueLatest()"
+                >
+                  CONTINUE ▸
+                </button>
+                <div
+                  v-for="entry in store.saveSlots"
+                  :key="entry.slot"
+                  class="evt-save-slot"
+                  data-testid="tactics-save-slot"
+                >
+                  <span class="evt-save-name">{{
+                    entry.slot === 'auto'
+                      ? 'AUTO'
+                      : entry.slot.replace('slot-', 'SLOT ')
+                  }}</span>
+                  <small v-if="entry.summary"
+                    >{{
+                      entry.summary.mode === 'story' ? 'Story' : 'One-shot'
+                    }}
+                    · {{ entry.summary.title }} · {{ entry.summary.lead }} · R{{
+                      entry.summary.turn
+                    }}</small
+                  >
+                  <small v-else-if="entry.problem" class="evt-save-problem"
+                    >Refused: {{ entry.problem }}</small
+                  >
+                  <small v-else>Empty</small>
+                  <button
+                    v-if="entry.slot !== 'auto'"
+                    type="button"
+                    @click="store.saveTo(entry.slot)"
+                  >
+                    SAVE
+                  </button>
+                  <button
+                    type="button"
+                    :disabled="!entry.summary"
+                    @click="store.loadFrom(entry.slot)"
+                  >
+                    LOAD
+                  </button>
+                </div>
+                <small v-if="store.saveMessage" role="status">{{
+                  store.saveMessage
+                }}</small>
+              </div>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
                 <span>SELECT • MOVE • FIRE • POWER • OVERWATCH</span>
@@ -1208,6 +1264,7 @@ watch(
 )
 onMounted(() => {
   window.addEventListener('keydown', onKey)
+  store.readSaves()
   if (store.moment) {
     nextTick(() =>
       document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
@@ -1218,6 +1275,46 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
+.evt-saves {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0.5rem 0;
+  font-size: 0.7rem;
+}
+.evt-continue {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgb(125 211 252 / 0.6);
+  border-radius: 0.5rem;
+  background: rgb(125 211 252 / 0.12);
+  color: inherit;
+  letter-spacing: 0.08em;
+}
+.evt-continue:disabled,
+.evt-save-slot button:disabled {
+  opacity: 0.45;
+}
+.evt-save-slot {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.35rem;
+}
+.evt-save-slot small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+.evt-save-slot button {
+  padding: 0.15rem 0.4rem;
+  border: 1px solid currentColor;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+}
+.evt-save-problem {
+  color: rgb(251 113 133);
+}
 .evt-tile.power-target {
   box-shadow: inset 0 0 0 2px rgb(250 204 21 / 0.55);
 }

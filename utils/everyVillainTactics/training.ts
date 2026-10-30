@@ -83,6 +83,9 @@ export type TrainingState = {
   phase: 'active' | 'victory' | 'defeat'
   log: string
   events: string[]
+  /** One-shot triggers that already fired, so a reload never replays them.
+   * Optional because Prom of Doom battles saved before it lack the field. */
+  fired?: string[]
   impact: {
     attacker: string
     target: string
@@ -91,6 +94,18 @@ export type TrainingState = {
   } | null
 }
 export type ShotPreview = Chance & { target: string }
+/** Every trigger id a save may record as already fired. */
+export const KNOWN_TRIGGERS: readonly string[] = [
+  'fire-alarm',
+  'story:arrival',
+  'story:alarm',
+  'story:reckoning',
+  'story:victory',
+  'story:defeat',
+]
+export function recordTrigger(state: TrainingState, id: string) {
+  if (state.fired && !state.fired.includes(id)) state.fired.push(id)
+}
 export const WIDTH = FIRST_BELL_MAP.width
 export const HEIGHT = FIRST_BELL_MAP.height
 export const boardCells: Cell[] = Array.from(
@@ -264,6 +279,7 @@ function baseTrainingState(seed: number, stage?: StageDraft): TrainingState {
               'Foreman Thumpkin: The picnic lawn is a disputed tunnel right-of-way!',
             ]
           : ['The bell rang twice. Nobody signed up for the second one.'],
+    fired: [],
     impact: null,
   }
 }
@@ -996,9 +1012,11 @@ export function endTurn(state: TrainingState) {
             state.turn +
             ': the rival patrol has acted. Your squad has the initiative.',
   )
-  if (state.turn === 3)
+  if (state.turn === 3) {
     state.events.unshift(
       'A fire alarm cuts through the gym. A second rescue call is coming.',
     )
+    recordTrigger(state, 'fire-alarm')
+  }
   state.events = state.events.slice(0, 6)
 }

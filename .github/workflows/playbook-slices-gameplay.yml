@@ -20,6 +20,10 @@ on:
       - 'utils/cometAcademy/identityCampaignStages.json'
       - 'utils/cometAcademy/identityCampaignStages.ts'
       - 'utils/scripts/verifyPromCampaignStages.test.ts'
+      - 'utils/scripts/verifyComicCharacterReveals.test.ts'
+      - 'components/comic-character-reveal.vue'
+      - 'components/play/cometAcademy/AcademyOpening.vue'
+      - 'pages/admin/every-villain-tactics.vue'
       - 'utils/scripts/verifyCapesStyleCheck.test.ts'
       - 'utils/capesStyleCheck.ts'
       - 'stores/capesStyleCheckStore.ts'
@@ -64,6 +68,8 @@ jobs:
         run: npm run test:comet-city-academy
       - name: Signature origin missions, villain lairs and lieutenant parity
         run: npx tsx utils/scripts/verifyPromCampaignStages.test.ts
+      - name: Shared comic character reveals across both games
+        run: npx tsx utils/scripts/verifyComicCharacterReveals.test.ts
       - name: Shared Capes style gate and live-job projection contract
         run: npx tsx utils/scripts/verifyCapesStyleCheck.test.ts
       - name: Villain-specific one-hit bestiary parity

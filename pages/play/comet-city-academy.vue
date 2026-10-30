@@ -1,6 +1,6 @@
 <template>
   <main
-    class="kr-surface cca-shell h-full min-h-0 overflow-hidden"
+    class="kr-surface cca-shell relative h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
     aria-label="Prom of Doom game"
   >
@@ -1064,6 +1064,13 @@
         </footer>
       </section>
     </div>
+    <ComicCharacterReveal
+      v-if="storyComicIntro"
+      :open="showVillainComic"
+      :intro="storyComicIntro"
+      :art-src="storyComicArt"
+      @dismiss="showVillainComic = false"
+    />
   </main>
 </template>
 
@@ -1073,7 +1080,8 @@ import {
   SOCIAL_DAYS,
   socialChoices,
 } from '~/utils/cometAcademy/relationships'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import AcademyOpening from '~/components/play/cometAcademy/AcademyOpening.vue'
 import AcademyTacticalFight from '~/components/play/cometAcademy/AcademyTacticalFight.vue'
 import {
@@ -1208,6 +1216,27 @@ const opponent = computed(() =>
   run.value?.opponentSignature
     ? identityFor(run.value.opponentSignature)
     : null,
+)
+const showVillainComic = ref(false)
+const seenVillainComics = new Set<string>()
+const storyComicIntro = computed(() =>
+  run.value?.opponentSignature
+    ? comicIntroFor(run.value.opponentSignature, 'villain')
+    : null,
+)
+const storyComicArt = computed(() =>
+  storyComicIntro.value?.artKey ? promArt(storyComicIntro.value.artKey) : null,
+)
+watch(
+  () => [run.value?.day, run.value?.opponentSignature, run.value?.flowVersion],
+  () => {
+    if (!run.value || run.value.flowVersion !== 3 || run.value.day < 15) return
+    const intro = storyComicIntro.value
+    if (intro && !seenVillainComics.has(intro.key)) {
+      seenVillainComics.add(intro.key)
+      showVillainComic.value = true
+    }
+  },
 )
 const injuredStudents = computed(() =>
   run.value?.flowVersion === 3

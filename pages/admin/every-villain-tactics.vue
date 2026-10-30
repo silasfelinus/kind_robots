@@ -1,6 +1,6 @@
 <template>
   <main
-    class="kr-surface h-full min-h-0 overflow-hidden gap-0"
+    class="kr-surface relative h-full min-h-0 overflow-hidden gap-0"
     data-layout="console-fixed"
     data-testid="every-villain-tactics"
     aria-label="Every Villain Tactics training console"
@@ -782,11 +782,34 @@
               >
                 ASSIGN AS SQUAD LEAD →
               </button>
+              <div
+                class="evt-comic-buttons"
+                aria-label="Preview illustrated character introductions"
+              >
+                <button
+                  v-for="role in comicPreviewRoles"
+                  :key="role"
+                  type="button"
+                  data-testid="tactics-comic-intro-preview"
+                  @click="previewComicIntro(role)"
+                >
+                  {{ role.toUpperCase() }} REVEAL
+                </button>
+              </div>
             </aside>
           </div>
         </div>
       </div>
     </PlaybookKitShell>
+    <ComicCharacterReveal
+      v-if="activeComicIntro"
+      :open="true"
+      :intro="activeComicIntro"
+      :art-src="activeComicArt"
+      :allow-skip-all="true"
+      @dismiss="dismissComicIntro"
+      @skip-all="skipComicIntros"
+    />
   </main>
 </template>
 
@@ -794,6 +817,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { IDENTITY_CAMPAIGN_STAGES } from '~/utils/cometAcademy/identityCampaignStages'
 import { VILLAIN_HENCHMEN } from '~/utils/cometAcademy/villainHenchmen'
+import {
+  comicIntroFor,
+  type ComicIntro,
+  type ComicIntroRole,
+} from '~/utils/cometAcademy/comicIntroductions'
+import { promArt } from '~/utils/cometAcademy/artManifest'
+import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import {
   useEveryVillainTacticsStore,
@@ -809,6 +839,68 @@ import {
 } from '~/utils/everyVillainTactics/training'
 
 const store = useEveryVillainTacticsStore()
+const comicPreviewRoles: ComicIntroRole[] = [
+  'hero',
+  'villain',
+  'henchman',
+  'lieutenant',
+]
+const activeComicIntro = ref<ComicIntro | null>(null)
+const comicQueue: ComicIntro[] = []
+const seenComics = new Set<string>()
+const activeComicArt = computed(() =>
+  activeComicIntro.value?.artKey
+    ? promArt(activeComicIntro.value.artKey)
+    : null,
+)
+function queueComicIntro(intro: ComicIntro, replay = false) {
+  if (!replay && seenComics.has(intro.key)) return
+  seenComics.add(intro.key)
+  comicQueue.push(intro)
+  if (!activeComicIntro.value)
+    activeComicIntro.value = comicQueue.shift() ?? null
+}
+function dismissComicIntro() {
+  activeComicIntro.value = comicQueue.shift() ?? null
+}
+function skipComicIntros() {
+  comicQueue.length = 0
+  activeComicIntro.value = null
+}
+function previewComicIntro(role: ComicIntroRole) {
+  queueComicIntro(
+    comicIntroFor(inspectedSignature.value as SignaturePowerId, role),
+    true,
+  )
+}
+watch(
+  () =>
+    store.state.units
+      .filter((unit) => unit.hp > 0)
+      .map((unit) =>
+        [
+          unit.identity,
+          unit.team,
+          unit.henchmanType ?? '',
+          unit.lieutenantName ?? '',
+        ].join(':'),
+      )
+      .join('|'),
+  () => {
+    const lead = store.players[0]
+    if (lead)
+      queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
+    for (const unit of store.enemies) {
+      const role: ComicIntroRole = unit.lieutenantName
+        ? 'lieutenant'
+        : unit.henchmanType
+          ? 'henchman'
+          : 'villain'
+      queueComicIntro(comicIntroFor(unit.identity as SignaturePowerId, role))
+    }
+  },
+  { immediate: true },
+)
 const studioBrushes = [
   { value: 'erase', label: 'Clear' },
   { value: 'wall', label: 'Wall' },
@@ -941,6 +1033,7 @@ function cellDescription(cell: Cell) {
   )
 }
 function onKey(event: KeyboardEvent) {
+  if (activeComicIntro.value) return
   if (
     event.altKey ||
     event.ctrlKey ||
@@ -1678,6 +1771,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: clamp(12px, 2cqw, 23px);
   min-height: 0;
   gap: 10px;
+}
+.evt-comic-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.evt-comic-buttons button {
+  padding: 7px 3px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  border: 1px solid #e8d29e;
+  border-radius: 5px;
+  color: #ffe8bc;
+  background: #513e59;
+}
+.evt-comic-buttons button:focus-visible {
+  outline: 3px solid #ffd48a;
+  outline-offset: 2px;
 }
 .evt-roster-layout {
   display: grid;

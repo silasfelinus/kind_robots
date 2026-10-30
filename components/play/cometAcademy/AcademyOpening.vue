@@ -246,6 +246,14 @@
               }}</small>
             </button>
           </div>
+          <button
+            type="button"
+            class="prom-comic-preview"
+            data-testid="academy-comic-intro-preview"
+            @click="showComicIntro = true"
+          >
+            ✦ VIEW COMIC-BOOK REVEAL
+          </button>
           <p class="prom-card-note">
             {{
               selectedForm === 'student'
@@ -421,11 +429,18 @@
         </p>
       </div>
     </template>
+    <ComicCharacterReveal
+      :open="showComicIntro"
+      :intro="currentComicIntro"
+      :art-src="comicArt"
+      @dismiss="showComicIntro = false"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'
 import { identityArtKey } from '~/utils/cometAcademy/artSlots'
 import { promArt } from '~/utils/cometAcademy/artManifest'
@@ -474,6 +489,30 @@ const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
 const firstWeek = ref(false)
 const forms: PlayerForm[] = ['student', 'hero', 'villain']
+const showComicIntro = ref(false)
+const seenComicIntro = new Set<string>()
+const currentComicIntro = computed(() =>
+  comicIntroFor(
+    currentSignature.value.id,
+    selectedForm.value === 'villain' ? 'villain' : 'hero',
+  ),
+)
+const comicArt = computed(() =>
+  currentComicIntro.value.artKey
+    ? promArt(currentComicIntro.value.artKey)
+    : null,
+)
+watch(
+  () => [screen.value, selectedForm.value, currentSignature.value.id],
+  () => {
+    if (screen.value !== 'dossier' && screen.value !== 'yearbook-detail') return
+    const key = currentComicIntro.value.key
+    if (!seenComicIntro.has(key)) {
+      seenComicIntro.add(key)
+      showComicIntro.value = true
+    }
+  },
+)
 const cover =
   promArt('front/splash-v2') ??
   promArt('front/dashboard-highlight') ??
@@ -630,6 +669,19 @@ function launch() {
 </script>
 
 <style scoped>
+.prom-comic-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 9px 0;
+  padding: 8px 14px;
+  border: 2px solid #ffe0a2;
+  background: #5b294b;
+  color: #ffecc6;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  border-radius: 5px;
+}
 .prom-opening {
   position: relative;
   flex: 1;

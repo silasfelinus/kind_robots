@@ -7,7 +7,7 @@ title: Slime City • Combat Lab
 subtitle: Three battle formats, one radioactive megacity
 summary: Compare concealed armies, football lanes and live wave combat.
 description: 'Private prototype laboratory for Slime City, a colorful tactical CCG. Three local match rules, six crews, a district map and experimental creature/spell/trap/equipment cards. Inventory, campaign persistence, multiplayer and finished art are not yet delivered.'
-icon: kind-icon:skull
+icon: kind-icon:shield
 route: /admin/slime-city
 sort: 147
 requiredRole: ADMIN

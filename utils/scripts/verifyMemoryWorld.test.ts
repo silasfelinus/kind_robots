@@ -2890,6 +2890,7 @@ const defeatedBriar = {
     ...combatForDefeat,
     state: {
       ...combatForDefeat.state,
+      history: undefined,
       playerHp: 0,
       outcome: 'defeat' as const,
     },
@@ -2945,9 +2946,19 @@ const victoryBriar = restoreBriarSave({
   ...defeatedBriar,
   combat: {
     ...combatForDefeat,
-    state: { ...combatForDefeat.state, outcome: 'victory' },
+    state: {
+      ...combatForDefeat.state,
+      history: undefined,
+      enemy: { ...combatForDefeat.state.enemy, hp: 0 },
+      outcome: 'victory',
+    },
   },
 })
+assert.equal(
+  victoryBriar.room,
+  'memory',
+  'legacy victory remains a playable checkpoint',
+)
 assert.equal(
   recoverBriarCombatDefeat(victoryBriar),
   victoryBriar,

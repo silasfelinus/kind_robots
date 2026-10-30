@@ -212,6 +212,104 @@ assert.ok(
   restoreCombat({ ...json, cooldowns: undefined }),
   'older checkpoints without a cooldown ledger remain compatible',
 )
+assert.equal(played.history?.actions.length, played.turn)
+for (const [label, forged] of [
+  ['free Focus', { focus: json.focus + 1 }],
+  ['free health', { playerHp: json.playerHp + 1 }],
+  ['forged damage', { enemy: { ...json.enemy, hp: json.enemy.hp - 1 } }],
+  ['forged tempo', { enemy: { ...json.enemy, beatsLeft: 1 } }],
+  ['missing action', { history: { ...json.history, actions: [] } }],
+  [
+    'duplicate action',
+    {
+      history: {
+        ...json.history,
+        actions: [...json.history.actions, json.history.actions[0]],
+      },
+    },
+  ],
+  [
+    'impossible action',
+    {
+      history: {
+        ...json.history,
+        actions: [
+          { type: 'scout', a: { row: -1, col: 0 }, b: { row: 0, col: 1 } },
+          ...json.history.actions.slice(1),
+        ],
+      },
+    },
+  ],
+  [
+    'unavailable weapon',
+    {
+      history: {
+        ...json.history,
+        actions: [
+          {
+            type: 'strike',
+            weaponId: 'unknown',
+            anchor: { row: 0, col: 0 },
+            rotation: 0,
+          },
+          ...json.history.actions.slice(1),
+        ],
+      },
+    },
+  ],
+] as const) {
+  assert.equal(
+    restoreCombat({ ...json, ...forged }),
+    null,
+    `journal rejects ${label}`,
+  )
+}
+assert.ok(
+  restoreCombat({ ...json, history: undefined }),
+  'old checkpoints without action histories remain loadable',
+)
+
+// Actual terminal outcomes, unlike edited snapshots, replay from earned actions.
+const victoryStart = createCombat({
+  seed: 43,
+  rows: 4,
+  cols: 4,
+  enemy: { name: 'Glass Imp', hp: 2, attack: 0, every: 3 },
+})
+const victoryPair = victoryStart.cards.flatMap((card, i) =>
+  card.pair === 0 ? [{ row: Math.floor(i / 4), col: i % 4 }] : [],
+)
+const earnedVictory = scout(victoryStart, victoryPair[0]!, victoryPair[1]!)
+assert.equal(earnedVictory.outcome, 'victory')
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(earnedVictory))),
+  { ...earnedVictory, log: [] },
+  'an earned victory survives journal replay',
+)
+const defeatStart = createCombat({
+  seed: 44,
+  rows: 4,
+  cols: 4,
+  enemy: { name: 'Glass Imp', hp: 99, attack: 4, every: 1 },
+  playerHp: 4,
+})
+const mismatch = defeatStart.cards
+  .map((card, i) => ({ card, i }))
+  .filter((entry) => entry.card.pair !== null)
+const first = mismatch[0]!
+const other = mismatch.find((entry) => entry.card.pair !== first.card.pair)!
+const earnedDefeat = scout(
+  defeatStart,
+  { row: Math.floor(first.i / 4), col: first.i % 4 },
+  { row: Math.floor(other.i / 4), col: other.i % 4 },
+)
+assert.equal(earnedDefeat.outcome, 'defeat')
+assert.deepEqual(
+  restoreCombat(JSON.parse(JSON.stringify(earnedDefeat))),
+  { ...earnedDefeat, log: [] },
+  'an earned defeat survives journal replay',
+)
+
 const tampered = json.cards.map((c: { pair: number }, i: number) =>
   i ? c : { ...c, pair: (c.pair + 1) % 8 },
 )
@@ -342,17 +440,37 @@ assert.equal(
   null,
   'an enemy at zero health cannot remain in a fighting checkpoint',
 )
-assert.ok(
+assert.equal(
   restoreCombat({
     ...json,
     outcome: 'victory',
     enemy: { ...json.enemy, hp: 0 },
   }),
-  'a completed fight with consistent health remains restorable',
+  null,
+  'a journaled checkpoint cannot claim victory without earned damage',
+)
+assert.equal(
+  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
+  null,
+  'a journaled checkpoint cannot invent an enemy attack',
 )
 assert.ok(
-  restoreCombat({ ...json, outcome: 'defeat', playerHp: 0 }),
-  'a genuine defeat remains restorable',
+  restoreCombat({
+    ...json,
+    history: undefined,
+    outcome: 'victory',
+    enemy: { ...json.enemy, hp: 0 },
+  }),
+  'older unjournaled saves retain structural victory compatibility',
+)
+assert.ok(
+  restoreCombat({
+    ...json,
+    history: undefined,
+    outcome: 'defeat',
+    playerHp: 0,
+  }),
+  'older unjournaled saves retain structural defeat compatibility',
 )
 const oddBoard = createCombat({
   seed: 17,
@@ -433,6 +551,14 @@ for (const roomId of Object.keys(
     ['hearts', { playerHp: COMBAT_ROOMS[roomId].playerHp + 1 }],
     ['focus', { focus: COMBAT_ROOMS[roomId].focus + 1 }],
     ['rows', { rows: 2, cols: 8 }],
+    [
+      'initial health',
+      { history: { ...original.state.history, initialPlayerHp: 99 } },
+    ],
+    [
+      'initial Focus',
+      { history: { ...original.state.history, initialFocus: 99 } },
+    ],
   ] as const) {
     assert.equal(
       restoreBriarCombat(
@@ -441,6 +567,22 @@ for (const roomId of Object.keys(
       ),
       null,
       `${roomId}: forged ${label} is rejected`,
+    )
+  }
+  const forbiddenWeapon = (Object.keys(WEAPONS) as WeaponId[]).find(
+    (id) => !COMBAT_ROOMS[roomId].loadout.includes(id),
+  )
+  if (forbiddenWeapon) {
+    const forged = strike(original.state, forbiddenWeapon, { row: 0, col: 0 })
+    assert.equal(forged.turn, 1, 'the forbidden weapon can fire in isolation')
+    assert.ok(
+      restoreCombat(forged),
+      'the forged action is internally replayable',
+    )
+    assert.equal(
+      restoreBriarCombat({ ...original, state: forged }, roomId),
+      null,
+      `${roomId}: a valid replay cannot use an unearned weapon`,
     )
   }
 }

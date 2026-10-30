@@ -194,6 +194,16 @@ export type CombatEvent =
   | { type: 'victory' }
   | { type: 'defeat' }
 
+export type CombatAction =
+  | { type: 'scout'; a: Cell; b: Cell }
+  | { type: 'strike'; weaponId: WeaponId; anchor: Cell; rotation: number }
+
+export type CombatHistory = {
+  initialPlayerHp: number
+  initialFocus: number
+  actions: CombatAction[]
+}
+
 export type CombatState = {
   version: 1
   seed: number
@@ -207,6 +217,8 @@ export type CombatState = {
   enemy: Enemy
   turn: number
   log: CombatEvent[]
+  /** Optional for pre-journal saves; new fights record replayable actions. */
+  history?: CombatHistory
   outcome: 'fighting' | 'victory' | 'defeat'
 }
 
@@ -287,6 +299,11 @@ export function createCombat(options: {
     },
     turn: 0,
     log: [],
+    history: {
+      initialPlayerHp: options.playerHp ?? 10,
+      initialFocus: options.focus ?? 3,
+      actions: [],
+    },
     outcome: 'fighting',
   }
 }
@@ -366,6 +383,9 @@ function clone(state: CombatState): CombatState {
     cooldowns: { ...state.cooldowns },
     enemy: { ...state.enemy },
     log: [...state.log],
+    history: state.history
+      ? { ...state.history, actions: [...state.history.actions] }
+      : undefined,
   }
 }
 
@@ -431,6 +451,7 @@ export function scout(state: CombatState, a: Cell, b: Cell): CombatState {
   if (!first || !second || index(state.cols, a) === index(state.cols, b))
     return state
   const next = clone(state)
+  next.history?.actions.push({ type: 'scout', a: { ...a }, b: { ...b } })
   next.log.push({ type: 'reveal', cells: [a, b] })
   if (first.pair === second.pair) {
     next.cards[index(next.cols, a)]!.matched = true
@@ -462,6 +483,12 @@ export function strike(
   const mask = weaponMask(state, weaponId, anchor, rotation)
   if (strikeBlocked(state, weaponId, mask)) return state
   const next = clone(state)
+  next.history?.actions.push({
+    type: 'strike',
+    weaponId,
+    anchor: { ...anchor },
+    rotation,
+  })
   next.focus -= weapon.focusCost
   next.cooldowns[weaponId] = weapon.cooldown + 1
   const revealed = mask.cells.filter((c) => live(next, c))
@@ -693,6 +720,85 @@ export function restoreCombat(input: unknown): CombatState | null {
   )
     return null
   const outcome = s.outcome
+  let history: CombatHistory | undefined
+  if (s.history !== undefined) {
+    const raw = s.history as Partial<CombatHistory>
+    if (
+      !raw ||
+      typeof raw !== 'object' ||
+      Array.isArray(raw) ||
+      !int(raw.initialPlayerHp, 1, 99) ||
+      !int(raw.initialFocus, 0, 99) ||
+      !Array.isArray(raw.actions) ||
+      raw.actions.length !== s.turn
+    )
+      return null
+    const validCell = (value: unknown): value is Cell => {
+      if (!value || typeof value !== 'object') return false
+      const cell = value as Cell
+      return int(cell.row, 0, rows - 1) && int(cell.col, 0, cols - 1)
+    }
+    const actions: CombatAction[] = []
+    for (const rawAction of raw.actions) {
+      if (!rawAction || typeof rawAction !== 'object') return null
+      const action = rawAction as Record<string, unknown>
+      if (action.type === 'scout' && validCell(action.a) && validCell(action.b))
+        actions.push({ type: 'scout', a: action.a, b: action.b })
+      else if (
+        action.type === 'strike' &&
+        typeof action.weaponId === 'string' &&
+        Object.prototype.hasOwnProperty.call(WEAPONS, action.weaponId) &&
+        validCell(action.anchor) &&
+        int(action.rotation, 0, 3)
+      )
+        actions.push({
+          type: 'strike',
+          weaponId: action.weaponId as WeaponId,
+          anchor: action.anchor,
+          rotation: action.rotation as number,
+        })
+      else return null
+    }
+    history = {
+      initialPlayerHp: raw.initialPlayerHp!,
+      initialFocus: raw.initialFocus!,
+      actions,
+    }
+    let replay = createCombat({
+      seed: s.seed!,
+      rows,
+      cols,
+      enemy: { name: e.name, hp: e.maxHp, attack: e.attack, every: e.every },
+      playerHp: history.initialPlayerHp,
+      focus: history.initialFocus,
+    })
+    for (const action of actions) {
+      const next =
+        action.type === 'scout'
+          ? scout(replay, action.a, action.b)
+          : strike(replay, action.weaponId, action.anchor, action.rotation)
+      if (next.turn !== replay.turn + 1) return null
+      replay = next
+    }
+    if (
+      replay.turn !== s.turn ||
+      replay.outcome !== outcome ||
+      replay.playerHp !== s.playerHp ||
+      replay.focus !== s.focus ||
+      replay.guard !== s.guard ||
+      replay.enemy.hp !== e.hp ||
+      replay.enemy.beatsLeft !== e.beatsLeft ||
+      cards.some(
+        (card, i) =>
+          card.pair !== replay.cards[i]?.pair ||
+          card.matched !== replay.cards[i]?.matched,
+      ) ||
+      (Object.keys(WEAPONS) as WeaponId[]).some(
+        (id) => (cooldowns[id] ?? 0) !== (replay.cooldowns[id] ?? 0),
+      )
+    )
+      return null
+  }
   return {
     version: 1,
     seed: s.seed!,
@@ -713,6 +819,7 @@ export function restoreCombat(input: unknown): CombatState | null {
     },
     turn: s.turn!,
     log: [],
+    ...(history ? { history } : {}),
     outcome,
   }
 }

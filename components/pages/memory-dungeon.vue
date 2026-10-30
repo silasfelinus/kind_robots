@@ -3,7 +3,8 @@
 <template>
   <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
     <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startClassicFromLauncher" />
-    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" />
+    <memory-dungeon-hoshimori v-else-if="hoshimoriMode" @leave="hoshimoriMode = false" />
+    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" @hoshimori="hoshimoriMode = true" />
     <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
@@ -447,6 +448,7 @@ import { useArtStore } from '@/stores/artStore'
 
 const world = useMemoryWorldStore()
 const worldMode = ref(false)
+const hoshimoriMode = ref(false)
 const launchError = ref('')
 const classicDeckIncludesMature = ref(false)
 

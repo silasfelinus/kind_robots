@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   HOSHIMORI_LANTERN_CLUE_SITES,
   HOSHIMORI_OVEN_ROOMS,
@@ -267,6 +268,30 @@ assert.equal(
 )
 assert.equal(restoreHoshimoriWarm({ version: 999 }), null)
 assert.equal(restoreHoshimoriWarm(null), null)
+
+const consoleSource = readFileSync(
+  'components/pages/memory-dungeon-hoshimori.vue',
+  'utf8',
+)
+const storeSource = readFileSync('stores/memoryHoshimoriStore.ts', 'utf8')
+const pageSource = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
+const overworldSource = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.match(consoleSource, /data-testid="memory-hoshimori-console"/)
+assert.match(consoleSource, /data-layout="console-fixed"/)
+assert.match(consoleSource, /kr-scroll/)
+assert.match(consoleSource, /hoshimori\.clues\.length !== 3/)
+assert.match(consoleSource, /hoshimori\.canEnterOven/)
+assert.match(consoleSource, /hoshimori\.act\(\{ type: 'oven-choice'/)
+assert.doesNotMatch(consoleSource, /localStorage|\$fetch/)
+assert.match(storeSource, /restoreHoshimoriWarm\(JSON\.parse\(saved\)\)/)
+assert.match(storeSource, /advanceHoshimoriWarm\(progress\.value, event\)/)
+assert.match(storeSource, /memory-dungeon-hoshimori-e07-v1/)
+assert.match(pageSource, /memory-dungeon-hoshimori/)
+assert.match(overworldSource, /campaign\.completed\.includes\('e06'\)/)
+assert.match(overworldSource, /data-testid="memory-enter-hoshimori"/)
 
 console.log(
   'Hoshimori warm proof: 16 unique sites, 32 outcomes, 96 seeds, two Oven routes, three rooms, Pip continuity and forged-save rejection passed',

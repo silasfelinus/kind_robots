@@ -625,7 +625,7 @@
                   run.campaignOptions?.tacticalMissions !== false &&
                   run.day >= 4 &&
                   run.playerCaseId &&
-                  !run.tacticalHistory?.some((entry) => entry.day === run.day)
+                  !run.tacticalHistory?.some((entry) => entry.day === run?.day)
                 "
                 type="button"
                 class="cca-choice"

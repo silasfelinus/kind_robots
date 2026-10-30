@@ -1,6 +1,10 @@
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
 import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
+import {
+  signatureThreatCells,
+  signatureThreatFor,
+} from './signatureLieutenant'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import {
   signatureCounterPoint,
@@ -50,6 +54,8 @@ export type Unit = Fighter & {
   signatureCounter?: Cell | null
   signatureChargeHp?: number
   signatureCooldown?: boolean
+  /** The defector can unleash their signature pattern only once per mission. */
+  signatureSupportUsed?: boolean
 }
 export type TrainingState = {
   map: TacticalMap
@@ -342,6 +348,82 @@ export function fireSelected(state: TrainingState, target: Unit): boolean {
   updateOutcome(state)
   return true
 }
+/** A former boss can be selected and commanded directly. Unlike a second
+ * generic gun, the earned ally fires the real signature geometry against the
+ * nearest visible opponent. Friendly fire is disabled by design, the preview
+ * exactly matches damage, and the single charge never refreshes after turns. */
+export function previewAlliedSignature(state: TrainingState) {
+  const ally = selectedUnit(state)
+  if (
+    !ally ||
+    ally.id !== 'allied-lieutenant' ||
+    !ally.lieutenantName ||
+    ally.signatureSupportUsed ||
+    ally.ap < 2 ||
+    state.phase !== 'active'
+  )
+    return null
+  const targets = state.units
+    .filter(
+      (unit) =>
+        unit.team === 'rival' &&
+        unit.hp > 0 &&
+        lineOfSight(state.map, ally, unit),
+    )
+    .sort(
+      (a, b) =>
+        gridDistance(ally, a) - gridDistance(ally, b) ||
+        a.id.localeCompare(b.id),
+    )
+  const target = targets[0]
+  if (!target) return null
+  const threat = signatureThreatFor(ally.identity as SignaturePowerId)
+  return {
+    ally,
+    target,
+    cells: signatureThreatCells(
+      state.map,
+      ally.identity as SignaturePowerId,
+      target,
+    ),
+    attack: threat.attack,
+  }
+}
+
+export function useAlliedSignature(state: TrainingState): boolean {
+  const preview = previewAlliedSignature(state)
+  if (!preview) return false
+  const { ally, target, cells, attack } = preview
+  ally.ap -= 2
+  ally.fired = true
+  ally.signatureSupportUsed = true
+  const threatened = new Set(cells.map((point) => point.x + ',' + point.y))
+  const struck = state.units.filter(
+    (unit) =>
+      unit.team === 'rival' &&
+      unit.hp > 0 &&
+      threatened.has(unit.x + ',' + unit.y),
+  )
+  for (const unit of struck) {
+    unit.hp = Math.max(0, unit.hp - 1)
+    unit.overwatch = false
+    recordImpact(state, ally, unit, true)
+  }
+  note(
+    state,
+    aliasFor(ally) +
+      ' joins the fight with ' +
+      attack +
+      ' against ' +
+      aliasFor(target) +
+      ': ' +
+      struck.length +
+      ' rival(s) hit. Your squadmates are protected from the blast.',
+  )
+  updateOutcome(state)
+  return true
+}
+
 export function overwatchSelected(state: TrainingState): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active' || !prepareOverwatch(unit)) return false

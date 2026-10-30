@@ -540,6 +540,34 @@
           </template>
 
           <template v-else-if="run.phase === 'dispatch'">
+            <section v-if="run.campaignOptions?.nightPatrols === false" class="cca-novel-night" data-testid="academy-visual-novel-night">
+              <p class="cca-chapter">NIGHT {{ run.day }} · STORY MODE</p>
+              <h2>{{ run.day === 3 ? 'Two emergencies. One impossible choice.' : 'Whose call will you answer?' }}</h2>
+              <p>{{ nightPatrolBeat(run) }}</p>
+              <p>All outcomes still affect the city, your allies, the mystery and the prom. Choose what matters.</p>
+              <div class="cca-novel-night-choices">
+                <article v-for="incident in store.incidents" :key="incident.id" class="cca-novel-night-card">
+                  <h3>{{ incident.title }}</h3>
+                  <p>{{ incident.description }}</p>
+                  <template v-if="run.day === 3">
+                    <button type="button" data-testid="academy-novel-choice-split" :aria-pressed="run.playerCaseId === incident.id && run.assignments.some(a => a.caseId !== incident.id)" @click="store.novelNight(incident.id, 'split')">Split up · answer both calls</button>
+                    <button type="button" data-testid="academy-novel-choice-concentrate" :aria-pressed="run.playerCaseId === incident.id && run.assignments.some(a => a.caseId === incident.id)" @click="store.novelNight(incident.id, 'concentrate')">Stay together · protect this street</button>
+                  </template>
+                  <template v-else>
+                    <button type="button" data-testid="academy-novel-choice-rescue" :aria-pressed="run.playerCaseId === incident.id && run.missionApproach === 'rescue'" @click="store.novelNight(incident.id, 'rescue')">Save people first</button>
+                    <button v-if="expandedMissionFor(incident.id)" type="button" data-testid="academy-novel-choice-investigate" :aria-pressed="run.playerCaseId === incident.id && run.missionApproach === 'investigate'" @click="store.novelNight(incident.id, 'investigate')">Follow the clues · risk the rescue</button>
+                  </template>
+                </article>
+              </div>
+              <p v-if="run.playerCaseId" class="cca-novel-selected">Tonight's choice is recorded. {{ run.scene }}</p>
+              <button
+                v-if="run.campaignOptions?.tacticalMissions !== false && run.day >= 4 && run.playerCaseId && !run.tacticalHistory?.some(entry => entry.day === run.day)"
+                type="button" class="cca-choice" data-testid="academy-novel-tactical"
+                @click="store.startBattle()"
+              >OPTIONAL: PLAY THIS BATTLE TACTICALLY ↗</button>
+              <button type="button" class="cca-primary" data-testid="academy-novel-continue" :disabled="!run.playerCaseId" @click="store.dispatch()">CONTINUE THE STORY <span>➜</span></button>
+            </section>
+            <div v-else class="cca-manual-night">
             <p
               v-if="interferenceTonight"
               class="cca-omen alert"
@@ -907,6 +935,7 @@
             <button
               v-if="
                 run.flowVersion === 3 &&
+                run.campaignOptions?.tacticalMissions !== false &&
                 run.day >= 4 &&
                 run.signature &&
                 run.opponentSignature &&
@@ -951,6 +980,7 @@
               }}
               <span>➜</span>
             </button>
+            </div>
           </template>
 
           <template v-else-if="run.phase === 'campus'">
@@ -1575,11 +1605,16 @@ function startFromOpening(selection: {
   vow: PowerVowId
   form: PlayerForm
   firstWeek: boolean
+  tacticalMissions: boolean
+  nightPatrols: boolean
 }) {
   const power = fieldFor(selection.signature)
   if (selection.firstWeek)
     store.beginFirstWeek(power, selection.signature, selection.vow)
-  else store.begin(power, selection.signature, selection.vow, selection.form)
+  else store.begin(power, selection.signature, selection.vow, selection.form, {
+    tacticalMissions: selection.tacticalMissions,
+    nightPatrols: selection.nightPatrols,
+  })
 }
 
 onMounted(() => store.load())
@@ -1692,6 +1727,18 @@ function toggleStudent(caseId: string, id: StudentId): void {
   color: #c1e3e9;
   white-space: nowrap;
 }
+.cca-novel-night {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(0.7rem, 2vw, 1.4rem);
+}
+.cca-novel-night h2 { font: 800 clamp(1.4rem, 3vw, 2.15rem)/1.05 Georgia, serif; }
+.cca-novel-night-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.8rem; }
+.cca-novel-night-card { display: grid; gap: 0.7rem; align-content: start; border: 1px solid #d9b4a8; border-radius: 0.7rem; padding: 0.85rem; background: #282641; }
+.cca-novel-night-card h3 { font: 800 1.15rem/1.25 Georgia, serif; }
+.cca-novel-night-card button { padding: 0.7rem; border: 1px solid #d6ac93; border-radius: 0.55rem; background: #45405f; text-align: left; }
+.cca-novel-night-card button[aria-pressed="true"] { border-color: #ffd093; background: #765069; }
+.cca-novel-selected { border-left: 3px solid #ffcd8d; padding-left: 0.75rem; }
 .cca-separator {
   color: #f4b28f;
   margin: 0 0.3rem;

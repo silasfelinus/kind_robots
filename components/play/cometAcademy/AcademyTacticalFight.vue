@@ -103,9 +103,9 @@ function cellLabel(cell: Cell) {
       unit.team === 'rival' && selected.value
         ? previewShot(selected.value, unit, state.value.map).hit
         : null
-    return \`\${aliasFor(unit)}, \${unit.hp} HP\${chance === null ? '' : ', ' + chance + '% hit chance'}\`
+    return `${aliasFor(unit)}, ${unit.hp} HP${chance === null ? '' : ', ' + chance + '% hit chance'}`
   }
-  return \`Column \${cell.x + 1}, row \${cell.y + 1}: \${terrainAt(cell, state.value.map)}\${availableMove(state.value, cell) ? ', reachable' : ''}\`
+  return `Column ${cell.x + 1}, row ${cell.y + 1}: ${terrainAt(cell, state.value.map)}${availableMove(state.value, cell) ? ', reachable' : ''}`
 }
 </script>
 

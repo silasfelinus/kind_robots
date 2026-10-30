@@ -3803,7 +3803,7 @@ function toggleAway(id: CrewId) {
 }
 .cap-personnel-frame .cap-personnel-dossier {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.38fr);
+  grid-template-rows: minmax(0, 1.45fr) auto auto minmax(3.4rem, 0.32fr);
   gap: clamp(0.2rem, 0.65cqh, 0.5rem);
   padding: clamp(0.3rem, 0.8cqi, 0.75rem);
 }
@@ -3912,7 +3912,7 @@ function toggleAway(id: CrewId) {
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 0.3fr);
+    grid-template-rows: minmax(0, 1.35fr) auto auto minmax(3.6rem, 0.3fr);
   }
   .cap-personnel-frame .cap-captains,
   .cap-personnel-frame .cap-crew-picker {
@@ -3934,7 +3934,16 @@ function toggleAway(id: CrewId) {
     display: none;
   }
   .cap-personnel-frame .cap-personnel-essential-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats small {
+    font-size: clamp(0.43rem, 1.5cqi, 0.65rem);
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .cap-personnel-frame .cap-personnel-essential-stats strong {
+    font-size: 1rem;
+    margin-top: 0;
   }
   .cap-personnel-frame .cap-crew-pages {
     flex-wrap: wrap;

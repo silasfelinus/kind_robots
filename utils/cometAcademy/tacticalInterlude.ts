@@ -163,6 +163,7 @@ export function newTacticalInterlude(
 /** Defeating the rival isn't enough: the player must secure the lair's own
  * physical objective. This works even after all enemy combatants fall. */
 export function reconcileTacticalVictory(battle: TacticalInterlude) {
+  if (battle.state.phase === 'defeat') return
   const enemiesDown = battle.state.units.every(
     (unit) => unit.team !== 'rival' || unit.hp <= 0,
   )

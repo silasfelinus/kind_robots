@@ -342,7 +342,13 @@
               :data-screen="selectionScreen"
             >
               <template v-if="selectionScreen === 'background'">
-                <button type="button" class="cap-step-back" @click="selectionScreen = 'captain'">← CHANGE CAPTAIN</button>
+                <button
+                  type="button"
+                  class="cap-step-back"
+                  @click="selectionScreen = 'captain'"
+                >
+                  ← CHANGE CAPTAIN
+                </button>
                 <div class="cap-heading">
                   <span>02</span>
                   <div>
@@ -359,13 +365,19 @@
                     :key="origin.id"
                     type="button"
                     class="cap-origin"
-                     :class="{ chosen: selectedOrigin === origin.id, 'cap-origin-ready': originReady[origin.id] }"
+                    :class="{
+                      chosen: selectedOrigin === origin.id,
+                      'cap-origin-ready': originReady[origin.id],
+                    }"
                     :aria-pressed="selectedOrigin === origin.id"
                     @click="selectedOrigin = origin.id"
                   >
                     <img
                       class="cap-origin-art"
-                      :src="warpArt('origins/' + origin.id) || '/game-of-captains/space-couch-stage.svg'"
+                      :src="
+                        warpArt('origins/' + origin.id) ||
+                        '/game-of-captains/space-couch-stage.svg'
+                      "
                       :alt="'Art for ' + origin.name"
                       @load="markOriginReady(origin.id)"
                       @error="markOriginReady(origin.id)"
@@ -395,8 +407,9 @@
                   <div>
                     <h2>Claim your cushion</h2>
                     <p>
-                      Select the captain who is about to acquire a questionable background. The
-                      couch runs on personalities as much as fuel.
+                      Select the captain who is about to acquire a
+                      questionable background. The couch runs on personalities
+                      as much as fuel.
                     </p>
                   </div>
                 </div>
@@ -1710,7 +1723,9 @@ const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const originReady = ref<Record<string, boolean>>({})
-function markOriginReady(id: string) { originReady.value[id] = true }
+function markOriginReady(id: string) {
+  originReady.value[id] = true
+}
 const atTitle = ref(true)
 const titlePanel = ref<'home' | 'settings' | 'log'>('home')
 const confirmNewVoyage = ref(false)

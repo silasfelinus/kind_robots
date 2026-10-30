@@ -5,6 +5,7 @@ import {
   MEMORY_FINALE_PHASES,
   MEMORY_MIDDLE_PAIRS,
   MEMORY_REALITY_EXPERIENCES,
+  MEMORY_REALITY_PAIRS,
   MEMORY_WORLD_CONCEPTS,
   MEMORY_WISH_ANCHORS,
   availableMemoryExperiences,
@@ -13,8 +14,6 @@ import {
   newMemoryCampaignProgress,
   rememberMemoryWish,
   validateMemoryReimaginerCampaign,
-  type ExperienceId,
-  type MemoryCampaignProgress,
 } from '../memoryDungeon/reimaginerCampaign'
 
 assert.deepEqual(validateMemoryReimaginerCampaign(), [])
@@ -56,11 +55,13 @@ assert.equal(MEMORY_REALITY_EXPERIENCES[2]!.viewpoint, 'morrow')
 assert.equal(MEMORY_REALITY_EXPERIENCES[2]!.ontology, 'mundane')
 assert.equal(MEMORY_REALITY_EXPERIENCES[3]!.ontology, 'enchanted-earth')
 assert.equal(MEMORY_REALITY_EXPERIENCES[4]!.viewpoint, 'scylla')
+assert.equal(MEMORY_REALITY_EXPERIENCES[4]!.ontology, 'underwater')
 assert.equal(MEMORY_REALITY_EXPERIENCES[5]!.ontology, 'underwater')
+assert.equal(MEMORY_REALITY_EXPERIENCES[5]!.state, 'dark-reflection')
 assert.equal(MEMORY_WISH_ANCHORS['char-possible-future'].source, 'e06')
 assert.match(
   MEMORY_WISH_ANCHORS['char-possible-future'].meaning,
-  /not an unavoidable death/i,
+  /private knowledge/i,
 )
 
 let campaign = newMemoryCampaignProgress()
@@ -100,46 +101,50 @@ assert.deepEqual(
 )
 campaign = rememberMemoryWish(campaign, 'scylla-home-wish')
 campaign = completeMemoryExperience(campaign, 'e06')
-assert.deepEqual(availableMemoryExperiences(campaign), ['e07', 'e09', 'e11'])
-
-let twoPaths = campaign
-twoPaths = completeMemoryExperience(twoPaths, 'e09')
-twoPaths = completeMemoryExperience(twoPaths, 'e10')
-twoPaths = completeMemoryExperience(twoPaths, 'e07')
-twoPaths = completeMemoryExperience(twoPaths, 'e08')
-assert.deepEqual(
-  availableMemoryExperiences(twoPaths),
-  ['e11'],
-  'Finishing two paths does not auto-create Char testimony',
-)
-twoPaths = rememberMemoryWish(twoPaths, 'char-possible-future')
-assert.deepEqual(
-  availableMemoryExperiences(twoPaths),
-  ['e11', 'e13'],
-  'The optional third middle route remains open alongside earned finale commitment',
-)
+assert.deepEqual(availableMemoryExperiences(campaign), ['e07'])
 assert.throws(
-  () => completeMemoryExperience(twoPaths, 'e13'),
+  () => completeMemoryExperience(campaign, 'e09'),
+  /not currently reachable/,
+  'A later overworld cannot interrupt its predecessor’s twisted variant',
+)
+let linear = campaign
+for (const [base, twisted] of MEMORY_REALITY_PAIRS.slice(3, 6)) {
+  assert.deepEqual(
+    availableMemoryExperiences(linear),
+    [base],
+    'Every new place starts with its original reality',
+  )
+  linear = completeMemoryExperience(linear, base)
+  assert.deepEqual(
+    availableMemoryExperiences(linear),
+    [twisted],
+    'A completed overworld must lead directly into its distorted version',
+  )
+  linear = completeMemoryExperience(linear, twisted)
+}
+assert.deepEqual(
+  linear.completed.slice(-6),
+  ['e07', 'e08', 'e09', 'e10', 'e11', 'e12'],
+)
+assert.deepEqual(
+  availableMemoryExperiences(linear),
+  [],
+  'Scylla’s earned memory evidence is necessary for the Archive reveal',
+)
+linear = rememberMemoryWish(linear, 'char-possible-future')
+assert.deepEqual(availableMemoryExperiences(linear), ['e13'])
+assert.throws(
+  () => completeMemoryExperience(linear, 'e13'),
   /explicit commitment/,
 )
-
-let finale = commitToMemoryFinale(twoPaths)
-assert.deepEqual(
-  availableMemoryExperiences(finale),
-  ['e13'],
-  'No unrelated realms interrupt the final odyssey',
-)
+let finale = commitToMemoryFinale(linear)
 for (const id of MEMORY_FINALE_ORDER) {
   assert.deepEqual(availableMemoryExperiences(finale), [id])
   finale = completeMemoryExperience(finale, id)
 }
 assert.deepEqual(availableMemoryExperiences(finale), [])
-assert.equal(
-  finale.completed.filter((id) =>
-    MEMORY_FINALE_ORDER.includes(id as (typeof MEMORY_FINALE_ORDER)[number]),
-  ).length,
-  4,
-)
+assert.equal(finale.completed.length, 16)
+
 assert.equal(MEMORY_FINALE_PHASES.length, 6)
 
 for (let i = 1; i < MEMORY_FINALE_PHASES.length; i++) {
@@ -168,29 +173,24 @@ assert.deepEqual(MEMORY_MIDDLE_PAIRS, [
 ])
 assert.deepEqual(MEMORY_FINALE_ORDER, ['e13', 'e14', 'e15', 'e16'])
 
-function finishAlternativeMiddle(
-  chosen: readonly [ExperienceId, ExperienceId],
-  other: readonly [ExperienceId, ExperienceId],
-): MemoryCampaignProgress {
-  let state = rememberMemoryWish(campaign, 'char-possible-future')
-  for (const id of [...chosen, ...other]) {
-    assert.ok(availableMemoryExperiences(state).includes(id))
-    state = completeMemoryExperience(state, id)
-  }
-  return state
-}
-
-for (const [i, first] of MEMORY_MIDDLE_PAIRS.entries()) {
-  for (const [j, second] of MEMORY_MIDDLE_PAIRS.entries()) {
-    if (i === j) continue
-    const state = finishAlternativeMiddle(first, second)
-    assert.ok(availableMemoryExperiences(state).includes('e13'))
-    assert.deepEqual(availableMemoryExperiences(commitToMemoryFinale(state)), [
-      'e13',
-    ])
-  }
-}
-
+assert.deepEqual(MEMORY_REALITY_PAIRS, [
+  ['e01', 'e02'],
+  ['e03', 'e04'],
+  ['e05', 'e06'],
+  ['e07', 'e08'],
+  ['e09', 'e10'],
+  ['e11', 'e12'],
+  ['e13', 'e14'],
+  ['e15', 'e16'],
+])
+assert.equal(
+  MEMORY_REALITY_PAIRS.flat().join(','),
+  MEMORY_REALITY_EXPERIENCES.map((entry) => entry.id).join(','),
+)
+assert.equal(
+  MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === 'e05')!.concept,
+  MEMORY_REALITY_EXPERIENCES.find((entry) => entry.id === 'e06')!.concept,
+)
 console.log(
-  'Memory Reimaginer: eight concepts, sixteen experiences, remembered wishes, branching middle and continuous multi-reality finale pass',
+  'Memory Reimaginer: 8 original/twisted pairs, all 16 sequential realities, earned witness memory and protected finale verified',
 )

@@ -84,7 +84,11 @@ for (const [from, to, street] of STREETS) {
   const arriving = travel(seed, to)
   assert.equal(arriving.pendingStreet, street)
   assert.equal(arriving.nights, 1)
-  assert.equal(travel(arriving, from), arriving, 'No walking away from a pending story')
+  assert.equal(
+    travel(arriving, from),
+    arriving,
+    'No walking away from a pending story',
+  )
   assert.equal(decide(arriving, CITY_PLAN[to].choices[0].id), arriving)
   assert.equal(boutBlocked(arriving, to), 'Settle the street encounter first.')
   assert.equal(decideStreet(arriving, 'invalid'), arriving)
@@ -101,9 +105,17 @@ for (const [from, to, street] of STREETS) {
     assert.equal(next.heat, Math.max(0, choice.heat))
     assert.deepEqual(next.streetTerms[to], choice.terms)
     assert.deepEqual(boutTerms(next, to), choice.terms)
-    assert.equal(decideStreet(next, plan.choices[0].id), next, 'Choice only once')
+    assert.equal(
+      decideStreet(next, plan.choices[0].id),
+      next,
+      'Choice only once',
+    )
     const returning = travel(next, from)
-    assert.equal(returning.pendingStreet, null, 'A resolved street does not demand replay')
+    assert.equal(
+      returning.pendingStreet,
+      null,
+      'A resolved street does not demand replay',
+    )
     assert.equal(returning.streetChoices[street], choice.id)
   }
 }

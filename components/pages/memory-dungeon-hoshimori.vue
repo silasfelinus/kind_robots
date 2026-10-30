@@ -66,6 +66,10 @@
           {{ hoshimori.notice }}
         </p>
 
+        <p v-if="hoshimori.lastOvenOutcome" class="rounded-xl border border-success/30 bg-success/15 p-3 text-base leading-relaxed" role="status">
+          {{ hoshimori.lastOvenOutcome }}
+        </p>
+
         <template v-if="hoshimori.currentOvenRoom">
           <p class="text-xs font-bold uppercase tracking-widest text-warning">The Red Oven</p>
           <h3 class="text-xl font-black">{{ hoshimori.currentOvenRoom.title }}</h3>

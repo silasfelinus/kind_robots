@@ -11,6 +11,7 @@ export type TeamId =
 export type ModeId = 'blackout' | 'gridiron' | 'bloodrush'
 export type CardKind = 'creature' | 'spell' | 'trap' | 'equipment'
 export type Side = 'player' | 'enemy'
+export type AttackStyle = 'claw' | 'arrow' | 'spell' | 'sword' | 'hammer' | 'blast'
 export type WinPath = 'flag' | 'score' | 'rout' | 'time' | 'monster'
 
 /**
@@ -111,6 +112,8 @@ export interface Card {
   signature?: boolean
   text: string
   symbol: string
+  range?: number
+  attackStyle?: AttackStyle
 }
 
 export interface Fighter {
@@ -127,6 +130,10 @@ export interface Fighter {
   maxAp: number
   hidden: boolean
   carryingFlag: boolean
+  range?: number
+  attackStyle?: AttackStyle
+  summonedRound?: number
+  attackedRound?: number
   /** Absent on hand-built fixtures: no keywords. */
   keywords?: Keyword[]
   burst?: number
@@ -160,6 +167,7 @@ export type Command =
   | { t: 'deploy'; side: Side; card: string; x: number; y: number }
   | { t: 'move'; side: Side; id: number; x: number; y: number }
   | { t: 'reveal'; side: Side; id: number }
+  | { t: 'attack'; side: Side; id: number; target: number }
   | { t: 'end' }
 
 export interface MatchStats {
@@ -276,6 +284,7 @@ export interface MatchView {
 export type CpuAction =
   | { t: 'deploy'; card: string; x: number; y: number }
   | { t: 'move'; id: number; x: number; y: number }
+  | { t: 'attack'; id: number; target: number }
 
 export const MODES: {
   id: ModeId
@@ -1750,6 +1759,13 @@ function addFighter(
     maxAp: card.ap || 1,
     hidden,
     carryingFlag: false,
+    range: card.range ?? (['mau','razor','welder','firebrand','eel','broker'].includes(cardId) ? 2 : 1),
+    attackStyle: card.attackStyle ?? ({
+      catgirls:'claw', bloodfairies:'arrow', ironjaw:'hammer',
+      riot:'blast', undertow:'spell', exchange:'sword',
+    } as Record<TeamId, AttackStyle>)[card.team],
+    summonedRound: state.round,
+    attackedRound: 0,
     keywords: [...(card.keywords ?? [])],
     burst: card.burst ?? 1,
     struck: false,
@@ -2236,6 +2252,58 @@ function applyReveal(state: MatchState, side: Side, id: number): boolean {
   return true
 }
 
+/** New Blackout uses deliberate attacks instead of automatic round damage. */
+export function mayAttack(state: MatchState, attacker: Fighter, target: Fighter | Monster): boolean {
+  if (state.mode !== 'blackout' || state.rules.classicFog || state.victor) return false
+  if (attacker.hp <= 0 || attacker.attackedRound === state.round) return false
+  if (attacker.summonedRound === state.round && !hasKeyword(attacker, 'ambush')) return false
+  return Math.abs(attacker.x - target.x) + Math.abs(attacker.y - target.y) <= (attacker.range ?? 1)
+}
+
+function applyAttack(state: MatchState, side: Side, id: number, targetId: number): boolean {
+  const attacker = state.units.find((u) => u.id === id && u.side === side)
+  const victim = state.units.find((u) => u.id === targetId && u.side !== side)
+  const monster = targetId === -1 ? state.monster : null
+  if (!attacker || (!victim && !monster)) return false
+  const target = victim ?? monster!
+  if (!mayAttack(state, attacker, target)) return false
+  const dealt = blowDamage(state, attacker, target)
+  target.hp -= dealt
+  attacker.attackedRound = state.round
+  attacker.hidden = false
+  if (victim) {
+    victim.hidden = false
+    if (dealt > 0 && hasKeyword(attacker, 'leech'))
+      attacker.hp = Math.min(attacker.maxHp, attacker.hp + 1)
+    if (dealt > 0 && hasKeyword(attacker, 'snare') && victim.hp > 0)
+      root(state, victim, true)
+    if (dealt > 0 && hasKeyword(attacker, 'collect'))
+      addDebt(state, victim.side, 1)
+  } else {
+    state.monsterDamage[side] += dealt
+    if (monster!.hp <= 0) slayMonster(state, side)
+  }
+  if (hasKeyword(attacker, 'ambush')) attacker.struck = true
+  message(state, (side === 'enemy' ? 'Enemy ' : '') + name(attacker) +
+    ' attacks ' + (victim ? publicName(victim) : 'the monster') +
+    ' (' + (attacker.attackStyle ?? 'strike') + '): ' + dealt + ' damage' +
+    (target.hp <= 0 ? ' · KO!' : '.'))
+  removeDead(state)
+  settleFlag(state)
+  checkEnd(state)
+  return true
+}
+
+export function attackAs(state: MatchState, side: Side, id: number, target: number): MatchState {
+  return recorded(state, { t: 'attack', side, id, target }, (draft) =>
+    applyAttack(draft, side, id, target),
+  )
+}
+
+export function attack(state: MatchState, id: number, target: number): MatchState {
+  return attackAs(state, 'player', id, target)
+}
+
 function recorded(
   state: MatchState,
   command: Command,
@@ -2375,7 +2443,9 @@ function runCpu(
 export function cpuActionKey(action: CpuAction): string {
   return action.t === 'deploy'
     ? 'd:' + action.card + ':' + action.x + ':' + action.y
-    : 'm:' + action.id + ':' + action.x + ':' + action.y
+    : action.t === 'attack'
+      ? 'a:' + action.id + ':' + action.target
+      : 'm:' + action.id + ':' + action.x + ':' + action.y
 }
 
 /**
@@ -2391,7 +2461,9 @@ export function cpuTurn(state: MatchState, side: Side = 'player'): MatchState {
     const next =
       action.t === 'deploy'
         ? deployAs(current, side, action.card, action.x, action.y)
-        : moveAs(current, side, action.id, action.x, action.y)
+        : action.t === 'attack'
+          ? attackAs(current, side, action.id, action.target)
+          : moveAs(current, side, action.id, action.x, action.y)
     if (next === current) tried.add(cpuActionKey(action))
     current = next
   }
@@ -2750,7 +2822,9 @@ export function advance(state: MatchState): MatchState {
     runCpu(next, 'enemy', (a) =>
       a.t === 'deploy'
         ? applyDeploy(next, 'enemy', a.card, a.x, a.y)
-        : applyMove(next, 'enemy', a.id, a.x, a.y),
+        : a.t === 'attack'
+          ? applyAttack(next, 'enemy', a.id, a.target)
+          : applyMove(next, 'enemy', a.id, a.x, a.y),
     )
   // Initiative alternates in the turn formats (player, CPU, CPU, player...):
   // on odd rounds the CPU answers now; on even rounds it already moved first.
@@ -2762,7 +2836,7 @@ export function advance(state: MatchState): MatchState {
     )
       laneMovement(next)
     if (next.mode !== 'bloodrush' || next.round % RUSH_MOVE_EVERY === 0)
-      combat(next)
+      if (next.mode !== 'blackout' || next.rules.classicFog) combat(next)
     settleFlag(next, true)
     checkEnd(next)
   }
@@ -2849,6 +2923,7 @@ export function replayMatch(
     if (c.t === 'end') state = advance(state)
     else if (c.t === 'deploy') state = deployAs(state, c.side, c.card, c.x, c.y)
     else if (c.t === 'move') state = moveAs(state, c.side, c.id, c.x, c.y)
+    else if (c.t === 'attack') state = attackAs(state, c.side, c.id, c.target)
     else state = revealAs(state, c.side, c.id)
   }
   return state
